@@ -161,7 +161,7 @@ int gameMouseGetCursor();
 void sub_44C9F8();
 void gameMouseSetMode(int a1);
 int gameMouseGetMode();
-void sub_44CB74();
+void gameMouseCycleMode();
 void sub_44CBD0();
 int gameMouseSetBouncingCursorFid(int fid);
 void gameMouseResetBouncingCursorFid();

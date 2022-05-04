@@ -478,7 +478,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case KEY_UPPERCASE_M:
     case KEY_LOWERCASE_M:
-        sub_44CB74();
+        gameMouseCycleMode();
         break;
     case KEY_UPPERCASE_B:
     case KEY_LOWERCASE_B:

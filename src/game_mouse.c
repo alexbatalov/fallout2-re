@@ -856,7 +856,7 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
 
     if ((mouseState & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
         if ((mouseState & MOUSE_EVENT_RIGHT_BUTTON_REPEAT) == 0 && (gGameMouseHexCursor->flags & 0x01) == 0) {
-            sub_44CB74();
+            gameMouseCycleMode();
         }
         return;
     }
@@ -1346,14 +1346,14 @@ int gameMouseGetMode()
 }
 
 // 0x44CB74
-void sub_44CB74()
+void gameMouseCycleMode()
 {
     int mode = (gGameMouseMode + 1) % 3;
 
     if (isInCombat()) {
         Object* item;
         if (interfaceGetActiveItem(&item) == 0) {
-            if (item != NULL && itemGetType(item) == ITEM_TYPE_WEAPON && mode == GAME_MOUSE_MODE_CROSSHAIR) {
+            if (item != NULL && itemGetType(item) != ITEM_TYPE_WEAPON && mode == GAME_MOUSE_MODE_CROSSHAIR) {
                 mode = GAME_MOUSE_MODE_MOVE;
             }
         }
