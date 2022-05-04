@@ -2380,7 +2380,7 @@ void editorRenderSecondaryStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(characterEditorWindowBuf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, EDITOR_DERIVED_STAT_ACTION_POINTS), t, 10);
+    itoa(critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS), t, 10);
     fontDrawText(characterEditorWindowBuf + 640 * y + 288, t, 640, 640, color);
 
     // Carry Weight
