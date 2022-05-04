@@ -2836,7 +2836,7 @@ unsigned int sub_418794(Object* object, int fid)
     }
 
     if (isInCombat()) {
-        if (((fid & 0xFF0000) >> 24) == 1) {
+        if (((fid & 0xFF0000) >> 16) == 1) {
             int playerSpeedup = 0;
             configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
 
