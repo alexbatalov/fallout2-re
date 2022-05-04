@@ -738,6 +738,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (lsgLoadGame(LOAD_SAVE_MODE_NORMAL) == -1) {
             debugPrint("\n ** Error calling LoadGame()! **\n");
         }
+        break;
     case KEY_F6:
         if (1) {
             soundPlayFile("ib1p1xx1");
