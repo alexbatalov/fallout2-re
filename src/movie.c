@@ -606,9 +606,8 @@ void movieRenderSubtitles()
 
     int v1 = fontGetLineHeight();
     int v2 = (480 - dword_638E64 - dword_638E70 - v1) / 2 + dword_638E64 + dword_638E70;
-    int v3 = dword_638EA0 + v2;
 
-    if (v3 > sub_4B9050()) {
+    if (dword_638EA0 + v2 > sub_4B9050()) {
         dword_638EA0 = sub_4B9050() - v2;
     }
 
@@ -623,7 +622,7 @@ void movieRenderSubtitles()
 
         MovieSubtitleListNode* next = gMovieSubtitleHead->next;
 
-        windowFill(gMovieWindow, 0, v3, dword_638E48, dword_638EA0, 0);
+        windowFill(gMovieWindow, 0, v2, dword_638E48, dword_638EA0, 0);
 
         int oldFont;
         if (gMovieSubtitlesFont != -1) {
@@ -632,12 +631,12 @@ void movieRenderSubtitles()
         }
 
         int colorIndex = (gMovieSubtitlesColorR << 10) | (gMovieSubtitlesColorG << 5) | gMovieSubtitlesColorB;
-        sub_4B88FC(gMovieWindow, gMovieSubtitleHead->text, dword_638E48, dword_638EA0, 0, v3, byte_6A38D0[colorIndex] | 0x2000000, 2);
+        sub_4B88FC(gMovieWindow, gMovieSubtitleHead->text, dword_638E48, dword_638EA0, 0, v2, byte_6A38D0[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
 
         Rect rect;
         rect.right = dword_638E48;
-        rect.top = v3;
-        rect.bottom = v3 + dword_638EA0;
+        rect.top = v2;
+        rect.bottom = v2 + dword_638EA0;
         rect.left = 0;
         windowRefreshRect(gMovieWindow, &rect);
 

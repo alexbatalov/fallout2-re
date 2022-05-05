@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include "core.h"
+#include "draw.h"
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 #include "mouse_manager.h"
@@ -116,109 +117,187 @@ int dword_672DB0;
 int dword_672DB4;
 
 // 0x4B8414
-void sub_4B8414(int win, char* str, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+void sub_4B8414(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
-    char* v11;
-    int v13;
-    int v14;
-    unsigned char* buf;
-
-    if (a7 + fontGetLineHeight() > a5) {
+    if (y + fontGetLineHeight() > maxY) {
         return;
     }
 
-    if (a3 > 255) {
-        a3 = 255;
+    if (stringLength > 255) {
+        stringLength = 255;
     }
 
-    v11 = internal_malloc_safe(a3 + 1, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1078
-    strncpy(v11, str, a3);
-    v11[a3] = '\0';
+    char* stringCopy = internal_malloc_safe(stringLength + 1, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1078
+    strncpy(stringCopy, string, stringLength);
+    stringCopy[stringLength] = '\0';
 
-    v13 = fontGetStringWidth(v11);
-    v14 = fontGetLineHeight();
-    if (v13 && v14) {
-        if (a8 & (0x01 << 16)) {
-            v13++;
-            v14++;
+    int stringWidth = fontGetStringWidth(stringCopy);
+    int stringHeight = fontGetLineHeight();
+    if (stringWidth == 0 || stringHeight == 0) {
+        internal_free_safe(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1085
+        return;
+    }
+
+    if ((flags & FONT_SHADOW) != 0) {
+        stringWidth++;
+        stringHeight++;
+    }
+
+    unsigned char* backgroundBuffer = internal_calloc_safe(stringWidth, stringHeight, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
+    unsigned char* backgroundBufferPtr = backgroundBuffer;
+    fontDrawText(backgroundBuffer, stringCopy, stringWidth, stringWidth, flags);
+
+    switch (textAlignment) {
+    case TEXT_ALIGNMENT_LEFT:
+        if (stringWidth < width) {
+            width = stringWidth;
         }
-
-        buf = internal_calloc_safe(v13, v14, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
-        fontDrawText(buf, v11, v13, v13, a8);
-
-        // TODO: Incomplete.
-
-        if (a7 & (0x02 << 24)) {
+        break;
+    case TEXT_ALIGNMENT_RIGHT:
+        if (stringWidth <= width) {
+            x += (width - stringWidth);
+            width = stringWidth;
         } else {
+            backgroundBufferPtr = backgroundBuffer + stringWidth - width;
         }
-
-        internal_free_safe(str, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1130
-        internal_free_safe(v11, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1131
-    } else {
-        internal_free_safe(v11, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1085
+        break;
+    case TEXT_ALIGNMENT_CENTER:
+        if (stringWidth <= width) {
+            x += (width - stringWidth) / 2;
+            width = stringWidth;
+        } else {
+            backgroundBufferPtr = backgroundBuffer + (stringWidth - width) / 2;
+        }
+        break;
     }
+
+    if (stringHeight + y > windowGetHeight(win)) {
+        stringHeight = windowGetHeight(win) - y;
+    }
+
+    if ((flags & 0x2000000) != 0) {
+        blitBufferToBufferTrans(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
+    } else {
+        blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
+    }
+
+    internal_free_safe(backgroundBuffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1130
+    internal_free_safe(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1131
 }
 
 // 0x4B8638
-char** sub_4B8638(char* a1, int a2, int a3, int* a4)
+char** sub_4B8638(char* string, int maxLength, int a3, int* substringListLengthPtr)
 {
-    char** strings;
-    int strings_count;
-    int len;
-
-    if (a1 == NULL) {
-        *a4 = 0;
+    if (string == NULL) {
+        *substringListLengthPtr = 0;
         return NULL;
     }
 
-    // TODO: Incomplete.
+    char** substringList = NULL;
+    int substringListLength = 0;
+    
+    char* start = string;
+    char* pch = string;
+    int v1 = a3;
+    while (*pch != '\0') {
+        v1 += fontGetCharacterWidth(*pch & 0xFF);
+        if (*pch != '\n' && v1 <= maxLength) {
+            v1 += fontGetLetterSpacing();
+            pch++;
+        } else {
+            while (v1 > maxLength) {
+                v1 -= fontGetCharacterWidth(*pch);
+                pch--;
+            }
 
-    return NULL;
+            if (*pch != '\n') {
+                while (pch != start && *pch != ' ') {
+                    pch--;
+                }
+            }
+
+            if (substringList != NULL) {
+                substringList = internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1166
+            } else {
+                substringList = internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1167
+            }
+
+            char* substring = internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
+            strncpy(substring, start, pch - start);
+            substring[pch - start] = '\0';
+
+            substringList[substringListLength] = substring;
+
+            while (*pch == ' ') {
+                pch++;
+            }
+
+            v1 = 0;
+            start = pch;
+            substringListLength++;
+        }
+    }
+
+    if (start != pch) {
+        if (substringList != NULL) {
+            substringList = internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1184
+        } else {
+            substringList = internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1185
+        }
+
+        char* substring = internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
+        strncpy(substring, start, pch - start);
+        substring[pch - start] = '\0';
+
+        substringList[substringListLength] = substring;
+        substringListLength++;
+    }
+
+    *substringListLengthPtr = substringListLength;
+
+    return substringList;
 }
 
 // 0x4B880C
-void sub_4B880C(char** strings, int strings_count)
+void sub_4B880C(char** substringList, int substringListLength)
 {
-    int i;
-
-    if (strings == NULL) {
+    if (substringList == NULL) {
         return;
     }
 
-    for (i = 0; i < strings_count; i++) {
-        internal_free_safe(strings[i], __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1200
+    for (int index = 0; index < substringListLength; index++) {
+        internal_free_safe(substringList[index], __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1200
     }
 
-    internal_free_safe(strings, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1201
+    internal_free_safe(substringList, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1201
 }
 
+// Renders multiline string in the specified bounding box.
+//
 // 0x4B8854
-void sub_4B8854(int win, char* a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+void sub_4B8854(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9)
 {
-    int strings_count;
-    char** strings;
-    int i;
-    char* str;
-    int v13;
-
-    if (a2 == NULL) {
+    if (string == NULL) {
         return;
     }
 
-    strings = sub_4B8638(a2, a3, 0, &strings_count);
+    int substringListLength;
+    char** substringList = sub_4B8638(string, width, 0, &substringListLength);
 
-    for (i = 0; i < strings_count; i++) {
-        v13 = a6 + i * (a9 + fontGetLineHeight());
-        sub_4B8414(win, strings[i], strlen(strings[i]), a3, a4 + a6, a5, v13, a7, a8);
+    for (int index = 0; index < substringListLength; index++) {
+        int v1 = y + index * (a9 + fontGetLineHeight());
+        sub_4B8414(win, substringList[index], strlen(substringList[index]), width, height + y, x, v1, flags, textAlignment);
     }
 
-    sub_4B880C(strings, strings_count);
+    sub_4B880C(substringList, substringListLength);
 }
 
+// Renders multiline string in the specified bounding box.
+//
 // 0x4B88FC
-void sub_4B88FC(int win, char* a2, int a3, int a4, int a5, int a6, int a7, int a8)
+void sub_4B88FC(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment)
 {
-    sub_4B8854(win, a2, a3, a4, a5, a6, a7, a8, 0);
+    sub_4B8854(win, string, width, height, x, y, flags, textAlignment, 0);
 }
 
 // 0x4B9048
@@ -255,9 +334,9 @@ void sub_4B9190(int resolution, int a2)
     dword_672DB0 = 0;
     gWidgetTextFlags = 0x2010000;
 
-    dword_672D88 = stru_51DD1C[resolution].width; // screen height
+    dword_672D88 = stru_51DD1C[resolution].height; // screen height
     dword_672DB4 = 0;
-    dword_672D7C = stru_51DD1C[resolution].height; // screen width
+    dword_672D7C = stru_51DD1C[resolution].width; // screen width
 
     for (int i = 0; i < 16; i++) {
         stru_6727B0[i].window = -1;

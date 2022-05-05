@@ -7,6 +7,12 @@
 typedef void (*WINDOWDRAWINGPROC)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y);
 typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, unsigned char a10);
 
+typedef enum TextAlignment {
+    TEXT_ALIGNMENT_LEFT,
+    TEXT_ALIGNMENT_RIGHT,
+    TEXT_ALIGNMENT_CENTER,
+} TextAlignment;
+
 typedef struct STRUCT_6727B0 {
     char field_0[32];
     int window;
@@ -50,11 +56,11 @@ extern int dword_672DAC;
 extern int dword_672DB0;
 extern int dword_672DB4;
 
-void sub_4B8414(int win, char* str, int a3, int a4, int a5, int a6, int a7, int a8, int a9);
-char** sub_4B8638(char* a1, int a2, int a3, int* a4);
-void sub_4B880C(char** strings, int strings_count);
-void sub_4B8854(int win, char* a2, int a, int a4, int a5, int a6, int a7, int a8, int a9);
-void sub_4B88FC(int win, char* a2, int a3, int a4, int a5, int a6, int a7, int a8);
+void sub_4B8414(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment);
+char** sub_4B8638(char* string, int maxLength, int a3, int* substringListLengthPtr);
+void sub_4B880C(char** substringList, int substringListLength);
+void sub_4B8854(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9);
+void sub_4B88FC(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
 int sub_4B9048();
 int sub_4B9050();
 void sub_4B9058(Program* program);
