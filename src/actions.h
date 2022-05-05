@@ -16,7 +16,7 @@ int sub_410568(Object* obj, int anim, int delay);
 int sub_41060C(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack);
 int sub_410814(Object* obj, int anim, int minViolenceLevel, bool isFallingBack);
 int sub_4108C8(Object* a1, Object* a2);
-void sub_4108D0(Object* a1, int a2, int a3, Object* a4, bool isFallingBack, int a6, int a7, int a8, Object* a9, int a10);
+void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10);
 int sub_410E24(Object* obj, int anim);
 int sub_410FEC(Attack* attack);
 void sub_4110AC(Attack* attack, int a2, int a3);

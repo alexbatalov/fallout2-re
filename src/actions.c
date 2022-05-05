@@ -236,20 +236,14 @@ int sub_4108C8(Object* a1, Object* a2)
 // TODO: Check very carefully, lots of conditions and jumps.
 //
 // 0x4108D0
-void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int a6, int a7, int a8, Object* a9, int a10)
+void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10)
 {
-    int v10;
     int anim;
     int fid;
     const char* sfx_name;
-    int v17;
-    int v40;
-    Object* v35;
-    int tile_num;
 
-    v10 = a6;
     if (sub_42E6AC(a1->pid, 0x4000)) {
-        v10 = 0;
+        knockbackDistance = 0;
     }
 
     anim = (a1->fid & 0xFF0000) >> 16;
@@ -267,8 +261,8 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
             }
 
             if (anim != ANIM_FIRE_DANCE) {
-                if (v10 && (anim == ANIM_FALL_FRONT || anim == ANIM_FALL_BACK)) {
-                    actionKnockdown(a1, &anim, v10, a7, a10);
+                if (knockbackDistance != 0 && (anim == ANIM_FALL_FRONT || anim == ANIM_FALL_BACK)) {
+                    actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, a10);
                     anim = sub_410568(a1, anim, -1);
                 } else {
                     sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_DIE);
@@ -289,49 +283,47 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
 
                     reg_anim_animate(a1, anim, 0);
 
-                    v17 = randomBetween(2, 5);
-                    v40 = randomBetween(0, 5);
+                    int randomDistance = randomBetween(2, 5);
+                    int randomRotation = randomBetween(0, 5);
 
-                    while (v17 > 0) {
-                        tile_num = tileGetTileInDirection(a1->tile, v40, v17);
-                        v35 = NULL;
-                        sub_4163AC(a1, a1->tile, tile_num, 0, &v35, 4);
-                        if (!v35) {
-                            reg_anim_set_rotation_to_tile(a1, tile_num);
-                            reg_anim_2(a1, tile_num, a1->elevation, anim, 0);
+                    while (randomDistance > 0) {
+                        int tile = tileGetTileInDirection(a1->tile, randomRotation, randomDistance);
+                        Object* v35 = NULL;
+                        sub_4163AC(a1, a1->tile, tile, NULL, &v35, 4);
+                        if (v35 == NULL) {
+                            reg_anim_set_rotation_to_tile(a1, tile);
+                            reg_anim_2(a1, tile, a1->elevation, anim, 0);
                             break;
                         }
-                        v17--;
+                        randomDistance--;
                     }
                 }
 
                 anim = ANIM_BURNED_TO_NOTHING;
                 sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                 reg_anim_play_sfx(a1, sfx_name, -1);
+                reg_anim_animate(a1, anim, 0);
             }
         } else {
-            if (flags & 0x03) {
+            if ((flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN)) != 0) {
                 anim = isFallingBack ? ANIM_FALL_BACK : ANIM_FALL_FRONT;
                 sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                 reg_anim_play_sfx(a1, sfx_name, a10);
-                if (a6) {
-                    actionKnockdown(a1, &anim, a6, a7, 0);
+                if (knockbackDistance != 0) {
+                    actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, 0);
                 } else {
                     anim = sub_412C1C(a1, anim);
                     reg_anim_animate(a1, anim, 0);
                 }
-            } else if (flags & (0x04 << 8)) {
-                fid = buildFid(1, a1->fid & 0xFFF, ANIM_FIRE_DANCE, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
-                if (artExists(fid)) {
-                    reg_anim_animate(a1, ANIM_FIRE_DANCE, a10);
+            } else if ((flags & DAM_ON_FIRE) != 0 && artExists(buildFid(1, a1->fid & 0xFFF, ANIM_FIRE_DANCE, (a1->fid & 0xF000) >> 12, a1->rotation + 1))) {
+                reg_anim_animate(a1, ANIM_FIRE_DANCE, a10);
 
-                    fid = buildFid(1, a1->fid & 0xFFF, ANIM_STAND, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
-                    reg_anim_17(a1, fid, -1);
-                }
+                fid = buildFid(1, a1->fid & 0xFFF, ANIM_STAND, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
+                reg_anim_17(a1, fid, -1);
             } else {
-                if (a6) {
+                if (knockbackDistance != 0) {
                     anim = isFallingBack ? ANIM_FALL_BACK : ANIM_FALL_FRONT;
-                    actionKnockdown(a1, &anim, a6, a7, a10);
+                    actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, a10);
                     if (anim == ANIM_FALL_BACK) {
                         reg_anim_animate(a1, ANIM_BACK_TO_STANDING, -1);
                     } else {
@@ -346,11 +338,11 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
 
                     sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                     reg_anim_play_sfx(a1, sfx_name, a10);
+
+                    reg_anim_animate(a1, anim, 0);
                 }
             }
         }
-
-        reg_anim_animate(a1, anim, 0);
     } else {
         if ((flags & DAM_DEAD) != 0 && (a1->data.critter.combat.results & DAM_DEAD) == 0) {
             anim = sub_410568(a1, anim, a10);
