@@ -2310,14 +2310,15 @@ void sub_4CBAB0(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, in
     IDirectDrawSurface_Unlock(gDirectDrawSurface1, ddsd.lpSurface);
 }
 
+// Clears drawing surface.
+//
 // 0x4CBBC8
 void sub_4CBBC8()
 {
     DDSURFACEDESC ddsd;
-    int ddrc;
+    HRESULT hr;
     unsigned char* surface;
-    unsigned y;
-
+    
     if (!gProgramIsActive) {
         return;
     }
@@ -2325,12 +2326,12 @@ void sub_4CBBC8()
     while (1) {
         ddsd.dwSize = sizeof(DDSURFACEDESC);
 
-        ddrc = IDirectDrawSurface_Lock(gDirectDrawSurface1, NULL, &ddsd, 1, NULL);
-        if (ddrc == DD_OK) {
+        hr = IDirectDrawSurface_Lock(gDirectDrawSurface1, NULL, &ddsd, 1, NULL);
+        if (hr == DD_OK) {
             break;
         }
 
-        if (ddrc == DDERR_SURFACELOST) {
+        if (hr == DDERR_SURFACELOST) {
             if (IDirectDrawSurface_Restore(gDirectDrawSurface2) != DD_OK) {
                 return;
             }
@@ -2338,8 +2339,8 @@ void sub_4CBBC8()
     }
 
     surface = (unsigned char*)ddsd.lpSurface;
-    for (y = 0; y < ddsd.dwHeight; y++) {
-        // TODO: Incomplete.
+    for (unsigned int y = 0; y < ddsd.dwHeight; y++) {
+        memset(surface, 0, ddsd.dwWidth);
         surface += ddsd.lPitch;
     }
 
