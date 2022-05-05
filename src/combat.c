@@ -4365,7 +4365,8 @@ void attackComputeDamage(Attack* attack, int ammoQuantity, int a3)
         // TODO: Why we're halving it?
         damage /= 2;
 
-        damage *= combatDifficultyDamageModifier / 100;
+        damage *= combatDifficultyDamageModifier;
+        damage /= 100;
 
         damage -= damageThreshold;
 
