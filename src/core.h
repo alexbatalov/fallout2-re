@@ -504,7 +504,7 @@ int pauseHandlerDefaultImpl();
 void pauseHandlerConfigure(int keyCode, PauseHandler* fn);
 void takeScreenshot();
 void screenshotBlitter(unsigned char* src, int src_pitch, int a3, int x, int y, int width, int height, int dest_x, int dest_y);
-int screenshotHandlerDefaultImpl(int width, int height, unsigned char* buffer, unsigned char* palette);
+int screenshotHandlerDefaultImpl(int width, int height, unsigned char* data, unsigned char* palette);
 void screenshotHandlerConfigure(int keyCode, ScreenshotHandler* handler);
 unsigned int sub_4C9370();
 void coreDelayProcessingEvents(unsigned int ms);
