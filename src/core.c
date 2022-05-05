@@ -2352,50 +2352,51 @@ void sub_4CBF68(int key)
 
             if (physicalKey == DIK_CAPITAL) {
                 if (gPressedPhysicalKeys[DIK_LCONTROL] == KEY_STATE_UP && gPressedPhysicalKeys[DIK_RCONTROL] == KEY_STATE_UP) {
-                    if ((gModifierKeysState & KEYBOARD_EVENT_MODIFIER_CAPS_LOCK) != 0) {
+                    // TODO: Missing check for QWERTY keyboard layout.
+                    if ((gModifierKeysState & MODIFIER_KEY_STATE_CAPS_LOCK) != 0) {
                         // TODO: There is some strange code checking for dword_6AD938, check in
                         // debugger.
-                        gModifierKeysState &= ~KEYBOARD_EVENT_MODIFIER_CAPS_LOCK;
+                        gModifierKeysState &= ~MODIFIER_KEY_STATE_CAPS_LOCK;
                     } else {
-                        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_CAPS_LOCK;
+                        gModifierKeysState |= MODIFIER_KEY_STATE_CAPS_LOCK;
                     }
                 }
             } else if (physicalKey == DIK_NUMLOCK) {
                 if (gPressedPhysicalKeys[DIK_LCONTROL] == KEY_STATE_UP && gPressedPhysicalKeys[DIK_RCONTROL] == KEY_STATE_UP) {
-                    if ((gModifierKeysState & KEYBOARD_EVENT_MODIFIER_NUM_LOCK) != 0) {
-                        gModifierKeysState &= ~KEYBOARD_EVENT_MODIFIER_NUM_LOCK;
+                    if ((gModifierKeysState & MODIFIER_KEY_STATE_NUM_LOCK) != 0) {
+                        gModifierKeysState &= ~MODIFIER_KEY_STATE_NUM_LOCK;
                     } else {
-                        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_NUM_LOCK;
+                        gModifierKeysState |= MODIFIER_KEY_STATE_NUM_LOCK;
                     }
                 }
             } else if (physicalKey == DIK_SCROLL) {
                 if (gPressedPhysicalKeys[DIK_LCONTROL] == KEY_STATE_UP && gPressedPhysicalKeys[DIK_RCONTROL] == KEY_STATE_UP) {
-                    if ((gModifierKeysState & KEYBOARD_EVENT_MODIFIER_SCROLL_LOCK) != 0) {
-                        gModifierKeysState &= ~KEYBOARD_EVENT_MODIFIER_SCROLL_LOCK;
+                    if ((gModifierKeysState & MODIFIER_KEY_STATE_SCROLL_LOCK) != 0) {
+                        gModifierKeysState &= ~MODIFIER_KEY_STATE_SCROLL_LOCK;
                     } else {
-                        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_SCROLL_LOCK;
+                        gModifierKeysState |= MODIFIER_KEY_STATE_SCROLL_LOCK;
                     }
                 }
-            } else if ((physicalKey == DIK_LSHIFT || physicalKey == DIK_RSHIFT) && (gModifierKeysState & KEYBOARD_EVENT_MODIFIER_CAPS_LOCK) != 0 && gKeyboardLayout != 0) {
+            } else if ((physicalKey == DIK_LSHIFT || physicalKey == DIK_RSHIFT) && (gModifierKeysState & MODIFIER_KEY_STATE_CAPS_LOCK) != 0 && gKeyboardLayout != 0) {
                 if (gPressedPhysicalKeys[DIK_LCONTROL] == KEY_STATE_UP && gPressedPhysicalKeys[DIK_RCONTROL] == KEY_STATE_UP) {
-                    if (gModifierKeysState & KEYBOARD_EVENT_MODIFIER_CAPS_LOCK) {
-                        gModifierKeysState &= ~KEYBOARD_EVENT_MODIFIER_CAPS_LOCK;
+                    if (gModifierKeysState & MODIFIER_KEY_STATE_CAPS_LOCK) {
+                        gModifierKeysState &= ~MODIFIER_KEY_STATE_CAPS_LOCK;
                     } else {
-                        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_CAPS_LOCK;
+                        gModifierKeysState |= MODIFIER_KEY_STATE_CAPS_LOCK;
                     }
                 }
             }
 
             if (gModifierKeysState != 0) {
-                if ((gModifierKeysState & KEYBOARD_EVENT_MODIFIER_NUM_LOCK) != 0 && !dword_51E2DC) {
+                if ((gModifierKeysState & MODIFIER_KEY_STATE_NUM_LOCK) != 0 && !dword_51E2DC) {
                     gLastKeyboardEvent.modifiers |= KEYBOARD_EVENT_MODIFIER_NUM_LOCK;
                 }
 
-                if ((gModifierKeysState & KEYBOARD_EVENT_MODIFIER_CAPS_LOCK) != 0) {
+                if ((gModifierKeysState & MODIFIER_KEY_STATE_CAPS_LOCK) != 0) {
                     gLastKeyboardEvent.modifiers |= KEYBOARD_EVENT_MODIFIER_CAPS_LOCK;
                 }
 
-                if ((gModifierKeysState & KEYBOARD_EVENT_MODIFIER_SCROLL_LOCK) != 0) {
+                if ((gModifierKeysState & MODIFIER_KEY_STATE_SCROLL_LOCK) != 0) {
                     gLastKeyboardEvent.modifiers |= KEYBOARD_EVENT_MODIFIER_SCROLL_LOCK;
                 }
             }
@@ -2448,7 +2449,7 @@ int sub_4CC2F0()
         return -1;
     }
 
-    if ((keyboardEvent->modifiers & KEYBOARD_EVENT_MODIFIER_NUM_LOCK) != 0) {
+    if ((keyboardEvent->modifiers & KEYBOARD_EVENT_MODIFIER_CAPS_LOCK) != 0) {
         unsigned char a = (gKeyboardLayout != KEYBOARD_LAYOUT_FRENCH ? DIK_A : DIK_Q);
         unsigned char m = (gKeyboardLayout != KEYBOARD_LAYOUT_FRENCH ? DIK_M : DIK_SEMICOLON);
         unsigned char q = (gKeyboardLayout != KEYBOARD_LAYOUT_FRENCH ? DIK_Q : DIK_A);
@@ -2561,15 +2562,16 @@ int keyboardDequeueLogicalKeyCode()
             }
             return -1;
         }
-        break;
-    }
 
-    if ((keyboardEvent->modifiers & (KEYBOARD_EVENT_MODIFIER_LEFT_ALT | KEYBOARD_EVENT_MODIFIER_RIGHT_ALT)) == 0 && (keyboardEvent->modifiers & KEYBOARD_EVENT_MODIFIER_CAPS_LOCK) != 0) {
-        if ((keyboardEvent->modifiers & (KEYBOARD_EVENT_MODIFIER_LEFT_SHIFT | KEYBOARD_EVENT_MODIFIER_RIGHT_SHIFT)) != 0) {
-            keyboardEvent->modifiers &= ~(KEYBOARD_EVENT_MODIFIER_LEFT_SHIFT | KEYBOARD_EVENT_MODIFIER_RIGHT_SHIFT);
-        } else {
-            keyboardEvent->modifiers |= KEYBOARD_EVENT_MODIFIER_LEFT_SHIFT;
+        if ((keyboardEvent->modifiers & (KEYBOARD_EVENT_MODIFIER_LEFT_ALT | KEYBOARD_EVENT_MODIFIER_RIGHT_ALT)) == 0 && (keyboardEvent->modifiers & KEYBOARD_EVENT_MODIFIER_NUM_LOCK) != 0) {
+            if ((keyboardEvent->modifiers & (KEYBOARD_EVENT_MODIFIER_LEFT_SHIFT | KEYBOARD_EVENT_MODIFIER_RIGHT_SHIFT)) != 0) {
+                keyboardEvent->modifiers &= ~(KEYBOARD_EVENT_MODIFIER_LEFT_SHIFT | KEYBOARD_EVENT_MODIFIER_RIGHT_SHIFT);
+            } else {
+                keyboardEvent->modifiers |= KEYBOARD_EVENT_MODIFIER_LEFT_SHIFT;
+            }
         }
+
+        break;
     }
 
     int logicalKey = -1;
@@ -3397,15 +3399,15 @@ void keyboardBuildQwertyConfiguration()
 void sub_4D24F8()
 {
     if (GetKeyState(VK_CAPITAL) & 1) {
-        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_CAPS_LOCK;
+        gModifierKeysState |= MODIFIER_KEY_STATE_CAPS_LOCK;
     }
 
     if (GetKeyState(VK_NUMLOCK) & 1) {
-        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_NUM_LOCK;
+        gModifierKeysState |= MODIFIER_KEY_STATE_NUM_LOCK;
     }
 
     if (GetKeyState(VK_SCROLL) & 1) {
-        gModifierKeysState |= KEYBOARD_EVENT_MODIFIER_SCROLL_LOCK;
+        gModifierKeysState |= MODIFIER_KEY_STATE_SCROLL_LOCK;
     }
 }
 
