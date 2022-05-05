@@ -325,6 +325,14 @@ void (*dword_6ACA1C)() = NULL;
 // 0x6ACA20
 bool gMmxSupported;
 
+// FIXME: This buffer was supposed to be used as temporary place to store
+// current palette while switching video modes (changing resolution). However
+// the original game does not have UI to change video mode. Even if it did this
+// buffer it too small to hold the entire palette, which require 256 * 3 bytes.
+//
+// 0x6ACA24
+unsigned char gLastVideoModePalette[268];
+
 // Ring buffer of keyboard events.
 //
 // 0x6ACB30
@@ -1993,7 +2001,7 @@ int getShiftForBitMask(int mask)
 int directDrawInit(int width, int height, int bpp)
 {
     if (gDirectDraw != NULL) {
-        unsigned char* palette = sub_4CB68C();
+        unsigned char* palette = directDrawGetPalette();
         directDrawFree();
 
         if (directDrawInit(width, height, bpp) == -1) {
@@ -2176,10 +2184,41 @@ void directDrawSetPalette(unsigned char* palette)
 }
 
 // 0x4CB68C
-unsigned char* sub_4CB68C()
+unsigned char* directDrawGetPalette()
 {
-    // TODO: Incomplete.
-    return NULL;
+    if (gDirectDrawPalette != NULL) {
+        PALETTEENTRY paletteEntries[256];
+        if (IDirectDrawPalette_GetEntries(gDirectDrawPalette, 0, 0, 256, paletteEntries) != DD_OK) {
+            return NULL;
+        }
+
+        for (int index = 0; index < 256; index++) {
+            PALETTEENTRY* paletteEntry = &(paletteEntries[index]);
+            gLastVideoModePalette[index * 3] = paletteEntry->peRed >> 2;
+            gLastVideoModePalette[index * 3 + 1] = paletteEntry->peGreen >> 2;
+            gLastVideoModePalette[index * 3 + 2] = paletteEntry->peBlue >> 2;
+        }
+
+        return gLastVideoModePalette;
+    }
+
+    unsigned int redShift = gRedShift + 2;
+    unsigned int greenShift = gGreenShift + 2;
+    unsigned int blueShift = gBlueShift + 2;
+
+    for (int index = 0; index < 256; index++) {
+        unsigned short rgb = gSixteenBppPalette[index];
+
+        unsigned short r = redShift > 0 ? ((rgb & gRedMask) >> redShift) : ((rgb & gRedMask) << -redShift);
+        unsigned short g = greenShift > 0 ? ((rgb & gGreenMask) >> greenShift) : ((rgb & gGreenMask) << -greenShift);
+        unsigned short b = blueShift > 0 ? ((rgb & gBlueMask) >> blueShift) : ((rgb & gBlueMask) << -blueShift);
+
+        gLastVideoModePalette[index * 3] = (r >> 2) & 0xFF;
+        gLastVideoModePalette[index * 3 + 1] = (g >> 2) & 0xFF;
+        gLastVideoModePalette[index * 3 + 2] = (b >> 2) & 0xFF;
+    }
+
+    return gLastVideoModePalette;
 }
 
 // 0x4CB850
