@@ -295,23 +295,23 @@ int gMousePreviousEvent;
 // screen rect
 Rect stru_6AC9F0;
 
-// Gmask
-int dword_6ACA00;
+// 0x6ACA00
+int gGreenMask;
 
-// Rmask
-int dword_6ACA04;
+// 0x6ACA04
+int gRedMask;
 
-// Bmask
-int dword_6ACA08;
+// 0x6ACA08
+int gBlueMask;
 
-// Bshift
-int dword_6ACA0C;
+// 0x6ACA0C
+int gBlueShift;
 
-// Rshift
-int dword_6ACA10;
+// 0x6ACA10
+int gRedShift;
 
-// Gshift
-int dword_6ACA14;
+// 0x6ACA14
+int gGreenShift;
 
 // 0x6ACA18
 void (*off_6ACA18)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y) = sub_4CB850;
@@ -1956,7 +1956,7 @@ int sub_4CAEDC()
 
 // calculate shift for mask
 // 0x4CAF50
-int sub_4CAF50(int mask)
+int getShiftForBitMask(int mask)
 {
     int shift = 0;
 
@@ -2054,13 +2054,13 @@ int directDrawInit(int width, int height, int bpp)
             return -1;
         }
 
-        dword_6ACA04 = ddpf.dwRBitMask;
-        dword_6ACA00 = ddpf.dwGBitMask;
-        dword_6ACA08 = ddpf.dwBBitMask;
+        gRedMask = ddpf.dwRBitMask;
+        gGreenMask = ddpf.dwGBitMask;
+        gBlueMask = ddpf.dwBBitMask;
 
-        dword_6ACA10 = sub_4CAF50(dword_6ACA04) - 7;
-        dword_6ACA14 = sub_4CAF50(dword_6ACA00) - 7;
-        dword_6ACA0C = sub_4CAF50(dword_6ACA08) - 7;
+        gRedShift = getShiftForBitMask(gRedMask) - 7;
+        gGreenShift = getShiftForBitMask(gGreenMask) - 7;
+        gBlueShift = getShiftForBitMask(gBlueMask) - 7;
 
         return 0;
     }
