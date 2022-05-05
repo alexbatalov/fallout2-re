@@ -292,6 +292,9 @@ int gMouseLeftButtonDownTimestamp;
 // 0x6AC7EC
 int gMousePreviousEvent;
 
+// 0x6AC7F0
+unsigned short gSixteenBppPalette[256];
+
 // screen rect
 Rect stru_6AC9F0;
 
@@ -1919,11 +1922,10 @@ int sub_4CAE1C(int width, int height, int bpp)
         dword_6ACA1C = sub_4CBBC8;
         off_6AC7DC = sub_4CB850;
     } else {
-        // TODO: Incomplete (16bpp).
-        // dword_6ACA1C = NULL;
-        // off_6AC7DC = sub_4CB93C;
-        // off_6AC7D8 = sub_4CBAB0;
-        // off_6ACA18 = sub_4CBA44;
+         dword_6ACA1C = NULL;
+         off_6AC7DC = sub_4CB93C;
+         off_6AC7D8 = sub_4CBAB0;
+         off_6ACA18 = sub_4CBA44;
     }
 
     return 0;
@@ -2105,7 +2107,26 @@ void directDrawSetPaletteInRange(unsigned char* palette, int start, int count)
 
         IDirectDrawPalette_SetEntries(gDirectDrawPalette, 0, start, count, entries);
     } else {
-        // TODO: Incomplete (16bpp).
+        for (int index = start; index < start + count; index++) {
+            unsigned short r = palette[0] << 2;
+            unsigned short g = palette[1] << 2;
+            unsigned short b = palette[2] << 2;
+            palette += 3;
+
+            r = gRedShift > 0 ? (r << gRedShift) : (r >> -gRedShift);
+            r &= gRedMask;
+
+            g = gGreenShift > 0 ? (g << gGreenShift) : (g >> -gGreenShift);
+            g &= gGreenMask;
+
+            b = gBlueShift > 0 ? (b << gBlueShift) : (b >> -gBlueShift);
+            b &= gBlueMask;
+
+            unsigned short rgb = r | g | b;
+            gSixteenBppPalette[index] = rgb;
+        }
+
+        windowRefreshAll(&stru_6AC9F0);
     }
 
     if (off_51E2C4 != NULL) {
@@ -2128,7 +2149,25 @@ void directDrawSetPalette(unsigned char* palette)
 
         IDirectDrawPalette_SetEntries(gDirectDrawPalette, 0, 0, 256, entries);
     } else {
-        // TODO: Incomplete (16bpp).
+        for (int index = 0; index < 256; index++) {
+            unsigned short r = palette[index * 3] << 2;
+            unsigned short g = palette[index * 3 + 1] << 2;
+            unsigned short b = palette[index * 3 + 2] << 2;
+
+            r = gRedShift > 0 ? (r << gRedShift) : (r >> -gRedShift);
+            r &= gRedMask;
+
+            g = gGreenShift > 0 ? (g << gGreenShift) : (g >> -gGreenShift);
+            g &= gGreenMask;
+
+            b = gBlueShift > 0 ? (b << gBlueShift) : (b >> -gBlueShift);
+            b &= gBlueMask;
+
+            unsigned short rgb = r | g | b;
+            gSixteenBppPalette[index] = rgb;
+        }
+
+        windowRefreshAll(&stru_6AC9F0);
     }
 
     if (off_51E2C4 != NULL) {
@@ -2169,6 +2208,104 @@ void sub_4CB850(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, in
     }
 
     blitBufferToBuffer(src + srcPitch * srcY + srcX, srcWidth, srcHeight, srcPitch, (unsigned char*)ddsd.lpSurface + ddsd.lPitch * destY + destX, ddsd.lPitch);
+
+    IDirectDrawSurface_Unlock(gDirectDrawSurface1, ddsd.lpSurface);
+}
+
+// 0x4CB93C
+void sub_4CB93C(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
+{
+    DDSURFACEDESC ddsd;
+    HRESULT hr;
+
+    if (!gProgramIsActive) {
+        return;
+    }
+
+    while (1) {
+        ddsd.dwSize = sizeof(ddsd);
+
+        hr = IDirectDrawSurface_Lock(gDirectDrawSurface1, NULL, &ddsd, 1, NULL);
+        if (hr == DD_OK) {
+            break;
+        }
+
+        if (hr == DDERR_SURFACELOST) {
+            if (IDirectDrawSurface_Restore(gDirectDrawSurface2) != DD_OK) {
+                return;
+            }
+        }
+    }
+
+    unsigned char* dest = (unsigned char*)ddsd.lpSurface + ddsd.lPitch * destY + 2 * destX;
+
+    src += srcPitch * srcY + srcX;
+
+    for (int y = 0; y < srcHeight; y++) {
+        unsigned short* destPtr = (unsigned short*)dest;
+        unsigned char* srcPtr = src;
+        for (int x = 0; x < srcWidth; x++) {
+            *destPtr = gSixteenBppPalette[*srcPtr];
+            destPtr++;
+            srcPtr++;
+        }
+
+        dest += ddsd.lPitch;
+        src += srcPitch;
+    }
+
+    IDirectDrawSurface_Unlock(gDirectDrawSurface1, ddsd.lpSurface);
+}
+
+// 0x4CBA44
+void sub_4CBA44(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
+{
+    sub_4CB93C(src, srcPitch, a3, srcX, srcY, srcWidth, srcHeight, destX, destY);
+}
+
+// 0x4CBAB0
+void sub_4CBAB0(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, unsigned char keyColor)
+{
+    DDSURFACEDESC ddsd;
+    HRESULT hr;
+
+    if (!gProgramIsActive) {
+        return;
+    }
+
+    while (1) {
+        ddsd.dwSize = sizeof(ddsd);
+
+        hr = IDirectDrawSurface_Lock(gDirectDrawSurface1, NULL, &ddsd, 1, NULL);
+        if (hr == DD_OK) {
+            break;
+        }
+
+        if (hr == DDERR_SURFACELOST) {
+            if (IDirectDrawSurface_Restore(gDirectDrawSurface2) != DD_OK) {
+                return;
+            }
+        }
+    }
+
+    unsigned char* dest = (unsigned char*)ddsd.lpSurface + ddsd.lPitch * destY + 2 * destX;
+
+    src += srcPitch * srcY + srcX;
+
+    for (int y = 0; y < srcHeight; y++) {
+        unsigned short* destPtr = (unsigned short*)dest;
+        unsigned char* srcPtr = src;
+        for (int x = 0; x < srcWidth; x++) {
+            if (*srcPtr != keyColor) {
+                *destPtr = gSixteenBppPalette[*srcPtr];
+            }
+            destPtr++;
+            srcPtr++;
+        }
+
+        dest += ddsd.lPitch;
+        src += srcPitch;
+    }
 
     IDirectDrawSurface_Unlock(gDirectDrawSurface1, ddsd.lpSurface);
 }
