@@ -1958,8 +1958,33 @@ int sub_4CAEDC()
 // 0x4CAF50
 int sub_4CAF50(int mask)
 {
-    // TODO: Incomplete.
-    return 0;
+    int shift = 0;
+
+    if ((mask & 0xFFFF0000) != 0) {
+        shift |= 16;
+        mask &= 0xFFFF0000;
+    }
+
+    if ((mask & 0xFF00FF00) != 0) {
+        shift |= 8;
+        mask &= 0xFF00FF00;
+    }
+
+    if ((mask & 0xF0F0F0F0) != 0) {
+        shift |= 4;
+        mask &= 0xF0F0F0F0;
+    }
+
+    if ((mask & 0xCCCCCCCC) != 0) {
+        shift |= 2;
+        mask &= 0xCCCCCCCC;
+    }
+
+    if ((mask & 0xAAAAAAAA) != 0) {
+        shift |= 1;
+    }
+
+    return shift;
 }
 
 // 0x4CAF9C
@@ -2029,7 +2054,6 @@ int directDrawInit(int width, int height, int bpp)
             return -1;
         }
 
-        // TODO: Check return values.
         dword_6ACA04 = ddpf.dwRBitMask;
         dword_6ACA00 = ddpf.dwGBitMask;
         dword_6ACA08 = ddpf.dwBBitMask;
@@ -2038,9 +2062,7 @@ int directDrawInit(int width, int height, int bpp)
         dword_6ACA14 = sub_4CAF50(dword_6ACA00) - 7;
         dword_6ACA0C = sub_4CAF50(dword_6ACA08) - 7;
 
-        // TODO: Incomplete (16bpp).
-
-        return -1;
+        return 0;
     }
 }
 
