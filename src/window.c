@@ -436,6 +436,20 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// TODO: There is a value returned, not sure which one - could be either
+// currentRegionIndex or points array. For now it can be safely ignored since
+// the only caller of this function is opAddRegion, which ignores the returned
+// value.
+//
+// 0x4BA844
+void sub_4BA844()
+{
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    Region* region = ptr->regions[ptr->currentRegionIndex];
+    sub_4BAB68(region->points->x, region->points->y, false);
+    sub_4A2B50(region);
+}
+
 // 0x4BA988
 bool sub_4BA988(const char* regionName)
 {
