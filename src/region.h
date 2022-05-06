@@ -45,5 +45,6 @@ void regionSetName(Region* region, char* src);
 char* regionGetName(Region* region);
 void* regionGetUserData(Region* region);
 void regionSetUserData(Region* region, void* data);
+void regionAddFlag(Region* region, int value);
 
 #endif /* REGION_H */

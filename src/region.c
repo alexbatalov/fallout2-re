@@ -150,3 +150,9 @@ void regionSetUserData(Region* region, void* data)
 
     region->userData = data;
 }
+
+// 0x4A2FD0
+void regionAddFlag(Region* region, int value)
+{
+    region->field_74 |= value;
+}
