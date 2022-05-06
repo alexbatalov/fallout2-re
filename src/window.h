@@ -31,8 +31,8 @@ typedef struct STRUCT_6727B0 {
     int field_48;
     int field_4C;
     int field_50;
-    int field_54;
-    int field_58;
+    float field_54;
+    float field_58;
 } STRUCT_6727B0;
 
 typedef int (*INITVIDEOFN)();
@@ -69,6 +69,7 @@ int sub_4B9050();
 void sub_4B9058(Program* program);
 void sub_4B9190(int resolution, int a2);
 void sub_4B947C();
+bool sub_4BAB68(int x, int y, bool a3);
 bool sub_4BADC0(const char* regionName, int a2, int a3, int a4, int a5, int a6);
 bool sub_4BAE8C(const char* regionName, int a2, int a3, int a4);
 bool sub_4BAF2C(const char* regionName, int value);

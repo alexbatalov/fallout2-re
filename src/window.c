@@ -436,6 +436,29 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// 0x4BAB68
+bool sub_4BAB68(int x, int y, bool a3)
+{
+    if (dword_51DCB8 == -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    Region* region = ptr->regions[ptr->field_30];
+    if (region == NULL) {
+        region = ptr->regions[ptr->field_30] = regionCreate(1);
+    }
+
+    if (a3) {
+        x = (int)(x * ptr->field_54);
+        y = (int)(y * ptr->field_58);
+    }
+
+    regionAddPoint(region, x, y);
+
+    return true;
+}
+
 // 0x4BADC0
 bool sub_4BADC0(const char* regionName, int a2, int a3, int a4, int a5, int a6)
 {
