@@ -26,6 +26,7 @@ void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
 void opSayStart(Program* program);
 void opDeleteRegion(Program* program);
+void opCheckRegion(Program* program);
 void opSayStartPos(Program* program);
 void opSayReplyTitle(Program* program);
 void opSayGoToReply(Program* program);

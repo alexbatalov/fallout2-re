@@ -78,6 +78,28 @@ void opDeleteRegion(Program* program)
     sub_4BB0A8(regionName);
 }
 
+// checkregion
+// 0x4629A0
+void opCheckRegion(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid arg 1 given to checkregion();\n");
+    }
+
+    const char* regionName = programGetString(program, opcode, data);
+
+    bool regionExists = sub_4BA988(regionName);
+    programStackPushInt32(program, regionExists);
+    programStackPushInt16(program, VALUE_TYPE_INT);
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)
