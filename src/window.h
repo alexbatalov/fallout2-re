@@ -69,6 +69,7 @@ int sub_4B9050();
 void sub_4B9058(Program* program);
 void sub_4B9190(int resolution, int a2);
 void sub_4B947C();
+bool sub_4BAE8C(const char* regionName, int a2, int a3, int a4);
 bool sub_4BAF2C(const char* regionName, int value);
 bool sub_4BAFA8(const char* regionName);
 bool sub_4BB0A8(const char* regionName);

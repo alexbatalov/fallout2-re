@@ -436,6 +436,29 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// 0x4BAE8C
+bool sub_4BAE8C(const char* regionName, int a2, int a3, int a4)
+{
+    if (dword_51DCB8 == -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    for (int index = 0; index < ptr->regionsLength; index++) {
+        Region* region = ptr->regions[index];
+        if (region != NULL) {
+            if (stricmp(region->name, regionName) == 0) {
+                region->field_58 = a3;
+                region->field_5C = a4;
+                region->field_44 = a2;
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 // 0x4BAF2C
 bool sub_4BAF2C(const char* regionName, int value)
 {
