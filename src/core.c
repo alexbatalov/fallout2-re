@@ -3771,6 +3771,18 @@ int sub_4D2930()
     return 0;
 }
 
+// 0x4D2CD0
+bool sub_4D2CD0()
+{
+    if (off_51E2F0 == NULL) {
+        return false;
+    }
+
+    dword_51E2F4 = 0;
+
+    return true;
+}
+
 // 0x4D2CF0
 int sub_4D2CF0()
 {

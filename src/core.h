@@ -583,6 +583,7 @@ int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr);
 int sub_4D28F4();
 int sub_4D2918();
 int sub_4D2930();
+bool sub_4D2CD0();
 int sub_4D2CF0();
 bool sub_4D2E00(STRUCT_51E2F0* ptr, File* stream);
 bool sub_4D2EE4(STRUCT_51E2F0* ptr, File* stream);
