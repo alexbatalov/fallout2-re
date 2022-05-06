@@ -436,6 +436,104 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// Deletes button with the specified name or all buttons if it's NULL.
+//
+// 0x4B9548
+bool sub_4B9548(const char* buttonName)
+{
+    if (dword_51DCB8 != -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    if (ptr->buttonsLength == 0) {
+        return false;
+    }
+
+    if (buttonName == NULL) {
+        for (int index = 0; index < ptr->buttonsLength; index++) {
+            ManagedButton* managedButton = &(ptr->buttons[index]);
+            buttonDestroy(managedButton->btn);
+
+            if (managedButton->field_48 != NULL) {
+                internal_free_safe(managedButton->field_48, __FILE__, __LINE__); // "..\int\WINDOW.C", 1648
+                managedButton->field_48 = NULL;
+            }
+
+            if (managedButton->field_4C != NULL) {
+                internal_free_safe(managedButton->field_4C, __FILE__, __LINE__); // "..\int\WINDOW.C", 1649
+                managedButton->field_4C = NULL;
+            }
+
+            if (managedButton->field_40 != NULL) {
+                internal_free_safe(managedButton->field_40, __FILE__, __LINE__); // "..\int\WINDOW.C", 1650
+                managedButton->field_40 = NULL;
+            }
+
+            if (managedButton->field_44 != NULL) {
+                internal_free_safe(managedButton->field_44, __FILE__, __LINE__); // "..\int\WINDOW.C", 1651
+                managedButton->field_44 = NULL;
+            }
+
+            if (managedButton->field_50 != NULL) {
+                internal_free_safe(managedButton->field_44, __FILE__, __LINE__); // "..\int\WINDOW.C", 1652
+                managedButton->field_50 = NULL;
+            }
+        }
+
+        internal_free_safe(ptr->buttons, __FILE__, __LINE__); // "..\int\WINDOW.C", 1654
+        ptr->buttons = NULL;
+        ptr->buttonsLength = 0;
+
+        return true;
+    }
+
+    for (int index = 0; index < ptr->buttonsLength; index++) {
+        ManagedButton* managedButton = &(ptr->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            buttonDestroy(managedButton->btn);
+
+            if (managedButton->field_48 != NULL) {
+                internal_free_safe(managedButton->field_48, __FILE__, __LINE__); // "..\int\WINDOW.C", 1665
+                managedButton->field_48 = NULL;
+            }
+
+            if (managedButton->field_4C != NULL) {
+                internal_free_safe(managedButton->field_4C, __FILE__, __LINE__); // "..\int\WINDOW.C", 1666
+                managedButton->field_4C = NULL;
+            }
+
+            if (managedButton->field_40 != NULL) {
+                internal_free_safe(managedButton->field_40, __FILE__, __LINE__); // "..\int\WINDOW.C", 1667
+                managedButton->field_40 = NULL;
+            }
+
+            if (managedButton->field_44 != NULL) {
+                internal_free_safe(managedButton->field_44, __FILE__, __LINE__); // "..\int\WINDOW.C", 1668
+                managedButton->field_44 = NULL;
+            }
+
+            // FIXME: Probably leaking field_50. It's freed when deleting all
+            // buttons, but not the specific button.
+
+            if (index != ptr->buttonsLength - 1) {
+                // Move remaining buttons up. The last item is not reclaimed.
+                memcpy(ptr->buttons + index, ptr->buttons + index + 1, sizeof(*(ptr->buttons)) * (ptr->buttonsLength - index - 1));
+            }
+
+            ptr->buttonsLength--;
+            if (ptr->buttonsLength == 0) {
+                internal_free_safe(ptr->buttons, __FILE__, __LINE__); // "..\int\WINDOW.C", 1672
+                ptr->buttons = NULL;
+            }
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // 0x4B9928
 bool sub_4B9928(const char* buttonName, int value)
 {
