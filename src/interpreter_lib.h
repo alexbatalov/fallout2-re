@@ -22,6 +22,7 @@ extern Program* gInterpreterAnyKeyHandlerProgram;
 extern OFF_59E160* off_59E160;
 extern int dword_59E164;
 
+void opSetMovieFlags(Program* program);
 void opSayStart(Program* program);
 void opSayStartPos(Program* program);
 void opSayReplyTitle(Program* program);

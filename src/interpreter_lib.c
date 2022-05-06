@@ -31,6 +31,22 @@ OFF_59E160* off_59E160;
 // 0x59E164
 int dword_59E164;
 
+// movieflags
+// 0x462584
+void opSetMovieFlags(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if (!sub_4BB23C(data)) {
+        programFatalError("Error setting movie flags\n");
+    }
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)
