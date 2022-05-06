@@ -550,3 +550,13 @@ int sub_4BB234()
 {
     return sub_487C88();
 }
+
+// 0x4BB23C
+bool sub_4BB23C(int flags)
+{
+    if (movieSetFlags(flags) != 0) {
+        return false;
+    }
+    
+    return true;
+}
