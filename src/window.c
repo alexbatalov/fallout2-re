@@ -74,6 +74,11 @@ char byte_66E7B0[64 * 256];
 // 0x6727B0
 STRUCT_6727B0 stru_6727B0[16];
 
+// NOTE: This value is never set.
+//
+// 0x672D78
+void (*off_672D78)(int, STRUCT_6727B0*);
+
 // 0x672D7C
 int dword_672D7C;
 
@@ -115,6 +120,27 @@ int dword_672DB0;
 //
 // 0x672DB4
 int dword_672DB4;
+
+// 0x4B81C4
+bool sub_4B81C4(int index)
+{
+    if (index < 0 || index >= 16) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[index]);
+    if (ptr->window == -1) {
+        return false;
+    }
+
+    dword_51DCB8 = index;
+
+    if (off_672D78 != NULL) {
+        off_672D78(index, ptr);
+    }
+
+    return true;
+}
 
 // 0x4B8414
 void sub_4B8414(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)

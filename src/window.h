@@ -76,6 +76,7 @@ extern int dword_66E770[16];
 extern char byte_66E7B0[64 * 256];
 extern STRUCT_6727B0 stru_6727B0[16];
 
+extern void(*off_672D78)(int, STRUCT_6727B0*);
 extern int dword_672D7C;
 extern int dword_672D88;
 extern int dword_672D8C;
@@ -87,6 +88,7 @@ extern int dword_672DAC;
 extern int dword_672DB0;
 extern int dword_672DB4;
 
+bool sub_4B81C4(int index);
 void sub_4B8414(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment);
 char** sub_4B8638(char* string, int maxLength, int a3, int* substringListLengthPtr);
 void sub_4B880C(char** substringList, int substringListLength);
