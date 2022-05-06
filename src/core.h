@@ -610,6 +610,7 @@ int keyboardDequeueLogicalKeyCode();
 void keyboardBuildQwertyConfiguration();
 void keyboardBuildFrenchConfiguration();
 void keyboardBuildGermanConfiguration();
+void keyboardBuildItalianConfiguration();
 void sub_4D24F8();
 int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr);
 bool sub_4D2680(const char* fileName);
