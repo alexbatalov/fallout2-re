@@ -11,6 +11,7 @@ void blitBufferToBufferTrans(unsigned char* src, int width, int height, int srcP
 void bufferFill(unsigned char* buf, int width, int height, int pitch, int a5);
 void sub_4D38E0(unsigned char* buf, int width, int height, int pitch, void* a5, int a6, int a7);
 void sub_4D3A48(unsigned char* buf, int width, int height, int pitch);
+void sub_4D3A8C(unsigned char* buf, int width, int height, int pitch, int color1, int color2);
 void bufferOutline(unsigned char* buf, int width, int height, int pitch, int a5);
 
 #endif /* DRAW_H */

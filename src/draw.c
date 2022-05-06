@@ -262,6 +262,26 @@ void sub_4D3A48(unsigned char* buf, int width, int height, int pitch)
     }
 }
 
+// Swaps two colors in the buffer.
+//
+// 0x4D3A8C
+void sub_4D3A8C(unsigned char* buf, int width, int height, int pitch, int color1, int color2)
+{
+    int step = pitch - width;
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int v1 = *buf & 0xFF;
+            if (v1 == color1) {
+                *buf = color2 & 0xFF;
+            } else if (v1 == color2) {
+                *buf = color1 & 0xFF;
+            }
+            buf++;
+        }
+        buf += step;
+    }
+}
+
 // 0x4D3AE0
 void bufferOutline(unsigned char* buf, int width, int height, int pitch, int color)
 {
