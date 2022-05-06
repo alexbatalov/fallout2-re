@@ -580,3 +580,9 @@ bool sub_4BB280(char* filePath, int a2, int a3, int a4, int a5)
 
     return true;
 }
+
+// 0x4BB2C4
+void sub_4BB2C4()
+{
+    sub_487150();
+}
