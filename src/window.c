@@ -560,3 +560,13 @@ bool sub_4BB23C(int flags)
     
     return true;
 }
+
+// 0x4BB24C
+bool sub_4BB24C(char* filePath)
+{
+    if (sub_487AC8(stru_6727B0[dword_51DCB8].window, filePath) != 0) {
+        return false;
+    }
+
+    return true;
+}

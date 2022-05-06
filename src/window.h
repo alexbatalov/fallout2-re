@@ -75,5 +75,6 @@ bool sub_4BB0A8(const char* regionName);
 void sub_4BB220();
 int sub_4BB234();
 bool sub_4BB23C(int flags);
+bool sub_4BB24C(char* filePath);
 
 #endif /* WINDOW_H */
