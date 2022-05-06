@@ -35,6 +35,7 @@ int sub_443E2C();
 int sub_443E34(int a1);
 void sub_443E90();
 int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned char* palette);
+void gameFreeGlobalVars();
 void showHelp();
 int showQuitConfirmationDialog();
 int gameDbInit();

@@ -370,12 +370,9 @@ void gameExit()
     combatExit();
     gameDialogExit();
     sub_4A535C();
-
-    gGameGlobalVarsLength = 0;
-    if (gGameGlobalVars != NULL) {
-        internal_free(gGameGlobalVars);
-        gGameGlobalVars = NULL;
-    }
+    
+    // NOTE: Uninline.
+    gameFreeGlobalVars();
 
     scriptsExit();
     animationExit();
@@ -1001,6 +998,18 @@ int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned ch
     }
 
     return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x443F50
+void gameFreeGlobalVars()
+{
+    gGameGlobalVarsLength = 0;
+    if (gGameGlobalVars != NULL) {
+        internal_free(gGameGlobalVars);
+        gGameGlobalVars = NULL;
+    }
 }
 
 // 0x443F74
