@@ -487,6 +487,54 @@ bool sub_4BAFA8(const char* regionName)
     return true;
 }
 
+// Delete region with the specified name or all regions if it's NULL.
+//
+// 0x4BB0A8
+bool sub_4BB0A8(const char* regionName)
+{
+    if (dword_51DCB8 == -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    if (ptr->window == -1) {
+        return false;
+    }
+
+    if (regionName != NULL) {
+        for (int index = 0; index < ptr->regionsLength; index++) {
+            Region* region = ptr->regions[index];
+            if (region != NULL) {
+                if (stricmp(regionGetName(region), regionName) == 0) {
+                    regionDelete(region);
+                    ptr->regions[index] = NULL;
+                    ptr->field_38++;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    ptr->field_38++;
+
+    if (ptr->regions != NULL) {
+        for (int index = 0; index < ptr->regionsLength; index++) {
+            Region* region = ptr->regions[index];
+            if (region != NULL) {
+                regionDelete(region);
+            }
+        }
+
+        internal_free_safe(ptr->regions, __FILE__, __LINE__); // "..\int\WINDOW.C", 2353
+
+        ptr->regions = NULL;
+        ptr->regionsLength = 0;
+    }
+
+    return true;
+}
+
 // 0x4BB220
 void sub_4BB220()
 {
