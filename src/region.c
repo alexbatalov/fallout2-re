@@ -10,6 +10,41 @@ static_assert(sizeof(Region) == 140, "wrong size");
 
 char byte_50D394[] = "<null>";
 
+// Probably recalculates bounding box of the region.
+//
+// 0x4A2B50
+void sub_4A2B50(Region* region)
+{
+    int v1 = INT_MAX;
+    int v2 = INT_MIN;
+    int v3 = INT_MAX;
+    int v4 = INT_MIN;
+    int v5 = 0;
+    int v6 = 0;
+    int v7 = 0;
+
+    for (int index = 0; index < region->pointsLength; index++) {
+        Point* point = &(region->points[index]);
+        if (v1 >= point->x) v1 = point->x;
+        if (v3 >= point->y) v3 = point->y;
+        if (v2 <= point->x) v2 = point->x;
+        if (v4 <= point->y) v4 = point->y;
+        v6 += point->x;
+        v7 += point->y;
+        v5++;
+    }
+
+    region->field_28 = v3;
+    region->field_2C = v2;
+    region->field_30 = v4;
+    region->field_24 = v1;
+
+    if (v5 != 0) {
+        region->field_34 = v6 / v5;
+        region->field_38 = v7 / v5;
+    }
+}
+
 // 0x4A2D78
 Region* regionCreate(int initialCapacity)
 {

@@ -38,6 +38,7 @@ typedef struct Region {
 
 extern char byte_50D394[];
 
+void sub_4A2B50(Region* region);
 Region* regionCreate(int a1);
 void regionAddPoint(Region* region, int x, int y);
 void regionDelete(Region* region);
