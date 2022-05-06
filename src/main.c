@@ -221,10 +221,11 @@ int falloutMain(int argc, char** argv)
                 creditsOpen("credits.txt", -1, false);
                 break;
             case MAIN_MENU_QUOTES:
-                if (0 == 1) {
-                    mainMenuWindowHide(true);
-                    creditsOpen("quotes.txt", -1, true);
-                }
+                // NOTE: There is a strange cmp at 0x480C50. Both operands are
+                // zero, set before the loop and do not modify afterwards. For
+                // clarity this condition is omitted.
+                mainMenuWindowHide(true);
+                creditsOpen("quotes.txt", -1, true);
                 break;
             case MAIN_MENU_EXIT:
             case -1:
