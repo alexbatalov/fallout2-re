@@ -173,6 +173,8 @@ add_executable(fallout2-re WIN32
     "src/region.h"
     "src/scripts.c"
     "src/scripts.h"
+    "src/select_file_list.c"
+    "src/select_file_list.h"
     "src/selfrun.c"
     "src/selfrun.h"
     "src/skill_defs.h"
