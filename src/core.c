@@ -3705,6 +3705,186 @@ void keyboardBuildQwertyConfiguration()
     gLogicalKeyEntries[DIK_DECIMAL].ctrl = KEY_CTRL_DELETE;
 }
 
+// 0x4D0400
+void keyboardBuildFrenchConfiguration()
+{
+    int k;
+
+    keyboardBuildQwertyConfiguration();
+
+    gLogicalKeyEntries[DIK_GRAVE].unmodified = KEY_178;
+    gLogicalKeyEntries[DIK_GRAVE].shift = -1;
+    gLogicalKeyEntries[DIK_GRAVE].lmenu = -1;
+    gLogicalKeyEntries[DIK_GRAVE].rmenu = -1;
+    gLogicalKeyEntries[DIK_GRAVE].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_1].unmodified = KEY_AMPERSAND;
+    gLogicalKeyEntries[DIK_1].shift = KEY_1;
+    gLogicalKeyEntries[DIK_1].lmenu = -1;
+    gLogicalKeyEntries[DIK_1].rmenu = -1;
+    gLogicalKeyEntries[DIK_1].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_2].unmodified = KEY_233;
+    gLogicalKeyEntries[DIK_2].shift = KEY_2;
+    gLogicalKeyEntries[DIK_2].lmenu = -1;
+    gLogicalKeyEntries[DIK_2].rmenu = KEY_152;
+    gLogicalKeyEntries[DIK_2].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_3].unmodified = KEY_QUOTE;
+    gLogicalKeyEntries[DIK_3].shift = KEY_3;
+    gLogicalKeyEntries[DIK_3].lmenu = -1;
+    gLogicalKeyEntries[DIK_3].rmenu = KEY_NUMBER_SIGN;
+    gLogicalKeyEntries[DIK_3].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_4].unmodified = KEY_SINGLE_QUOTE;
+    gLogicalKeyEntries[DIK_4].shift = KEY_4;
+    gLogicalKeyEntries[DIK_4].lmenu = -1;
+    gLogicalKeyEntries[DIK_4].rmenu = KEY_BRACE_LEFT;
+    gLogicalKeyEntries[DIK_4].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_5].unmodified = KEY_PAREN_LEFT;
+    gLogicalKeyEntries[DIK_5].shift = KEY_5;
+    gLogicalKeyEntries[DIK_5].lmenu = -1;
+    gLogicalKeyEntries[DIK_5].rmenu = KEY_BRACKET_LEFT;
+    gLogicalKeyEntries[DIK_5].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_6].unmodified = KEY_150;
+    gLogicalKeyEntries[DIK_6].shift = KEY_6;
+    gLogicalKeyEntries[DIK_6].lmenu = -1;
+    gLogicalKeyEntries[DIK_6].rmenu = KEY_166;
+    gLogicalKeyEntries[DIK_6].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_7].unmodified = KEY_232;
+    gLogicalKeyEntries[DIK_7].shift = KEY_7;
+    gLogicalKeyEntries[DIK_7].lmenu = -1;
+    gLogicalKeyEntries[DIK_7].rmenu = KEY_GRAVE;
+    gLogicalKeyEntries[DIK_7].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_8].unmodified = KEY_UNDERSCORE;
+    gLogicalKeyEntries[DIK_8].shift = KEY_8;
+    gLogicalKeyEntries[DIK_8].lmenu = -1;
+    gLogicalKeyEntries[DIK_8].rmenu = KEY_BACKSLASH;
+    gLogicalKeyEntries[DIK_8].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_9].unmodified = KEY_231;
+    gLogicalKeyEntries[DIK_9].shift = KEY_9;
+    gLogicalKeyEntries[DIK_9].lmenu = -1;
+    gLogicalKeyEntries[DIK_9].rmenu = KEY_136;
+    gLogicalKeyEntries[DIK_9].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_0].unmodified = KEY_224;
+    gLogicalKeyEntries[DIK_0].shift = KEY_0;
+    gLogicalKeyEntries[DIK_0].lmenu = -1;
+    gLogicalKeyEntries[DIK_0].rmenu = KEY_AT;
+    gLogicalKeyEntries[DIK_0].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_MINUS].unmodified = KEY_PAREN_RIGHT;
+    gLogicalKeyEntries[DIK_MINUS].shift = KEY_176;
+    gLogicalKeyEntries[DIK_MINUS].lmenu = -1;
+    gLogicalKeyEntries[DIK_MINUS].rmenu = KEY_BRACKET_RIGHT;
+    gLogicalKeyEntries[DIK_MINUS].ctrl = -1;
+
+    switch (gKeyboardLayout) {
+    case KEYBOARD_LAYOUT_QWERTY:
+    case KEYBOARD_LAYOUT_FRENCH:
+        k = DIK_EQUALS;
+        break;
+    default:
+        k = DIK_0;
+        break;
+    }
+
+    gLogicalKeyEntries[k].unmodified = KEY_EQUAL;
+    gLogicalKeyEntries[k].shift = KEY_PLUS;
+    gLogicalKeyEntries[k].lmenu = -1;
+    gLogicalKeyEntries[k].rmenu = KEY_BRACE_RIGHT;
+    gLogicalKeyEntries[k].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_LBRACKET].unmodified = KEY_136;
+    gLogicalKeyEntries[DIK_LBRACKET].shift = KEY_168;
+    gLogicalKeyEntries[DIK_LBRACKET].lmenu = -1;
+    gLogicalKeyEntries[DIK_LBRACKET].rmenu = -1;
+    gLogicalKeyEntries[DIK_LBRACKET].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_RBRACKET].unmodified = KEY_DOLLAR;
+    gLogicalKeyEntries[DIK_RBRACKET].shift = KEY_163;
+    gLogicalKeyEntries[DIK_RBRACKET].lmenu = -1;
+    gLogicalKeyEntries[DIK_RBRACKET].rmenu = KEY_164;
+    gLogicalKeyEntries[DIK_RBRACKET].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_APOSTROPHE].unmodified = KEY_249;
+    gLogicalKeyEntries[DIK_APOSTROPHE].shift = KEY_PERCENT;
+    gLogicalKeyEntries[DIK_APOSTROPHE].lmenu = -1;
+    gLogicalKeyEntries[DIK_APOSTROPHE].rmenu = -1;
+    gLogicalKeyEntries[DIK_APOSTROPHE].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_BACKSLASH].unmodified = KEY_ASTERISK;
+    gLogicalKeyEntries[DIK_BACKSLASH].shift = KEY_181;
+    gLogicalKeyEntries[DIK_BACKSLASH].lmenu = -1;
+    gLogicalKeyEntries[DIK_BACKSLASH].rmenu = -1;
+    gLogicalKeyEntries[DIK_BACKSLASH].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_OEM_102].unmodified = KEY_LESS;
+    gLogicalKeyEntries[DIK_OEM_102].shift = KEY_GREATER;
+    gLogicalKeyEntries[DIK_OEM_102].lmenu = -1;
+    gLogicalKeyEntries[DIK_OEM_102].rmenu = -1;
+    gLogicalKeyEntries[DIK_OEM_102].ctrl = -1;
+
+    switch (gKeyboardLayout) {
+    case KEYBOARD_LAYOUT_QWERTY:
+    case KEYBOARD_LAYOUT_FRENCH:
+        k = DIK_M;
+        break;
+    default:
+        k = DIK_COMMA;
+        break;
+    }
+
+    gLogicalKeyEntries[k].unmodified = KEY_COMMA;
+    gLogicalKeyEntries[k].shift = KEY_QUESTION;
+    gLogicalKeyEntries[k].lmenu = -1;
+    gLogicalKeyEntries[k].rmenu = -1;
+    gLogicalKeyEntries[k].ctrl = -1;
+
+    switch (gKeyboardLayout) {
+    case KEYBOARD_LAYOUT_QWERTY:
+        k = DIK_SEMICOLON;
+        break;
+    default:
+        k = DIK_COMMA;
+        break;
+    }
+
+    gLogicalKeyEntries[k].unmodified = KEY_SEMICOLON;
+    gLogicalKeyEntries[k].shift = KEY_DOT;
+    gLogicalKeyEntries[k].lmenu = -1;
+    gLogicalKeyEntries[k].rmenu = -1;
+    gLogicalKeyEntries[k].ctrl = -1;
+
+    switch (gKeyboardLayout) {
+    case KEYBOARD_LAYOUT_QWERTY:
+        // FIXME: Probably error, maps semicolon to colon on QWERTY keyboards.
+        // Semicolon is already mapped above, so I bet it should be DIK_COLON.
+        k = DIK_SEMICOLON;
+        break;
+    default:
+        k = DIK_PERIOD;
+        break;
+    }
+
+    gLogicalKeyEntries[k].unmodified = KEY_COLON;
+    gLogicalKeyEntries[k].shift = KEY_SLASH;
+    gLogicalKeyEntries[k].lmenu = -1;
+    gLogicalKeyEntries[k].rmenu = -1;
+    gLogicalKeyEntries[k].ctrl = -1;
+
+    gLogicalKeyEntries[DIK_SLASH].unmodified = KEY_EXCLAMATION;
+    gLogicalKeyEntries[DIK_SLASH].shift = KEY_167;
+    gLogicalKeyEntries[DIK_SLASH].lmenu = -1;
+    gLogicalKeyEntries[DIK_SLASH].rmenu = -1;
+    gLogicalKeyEntries[DIK_SLASH].ctrl = -1;
+}
+
 // 0x4D24F8
 void sub_4D24F8()
 {

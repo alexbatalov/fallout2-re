@@ -155,6 +155,23 @@ typedef enum Key {
     KEY_TILDE = '~',
     KEY_DEL = 127,
 
+    KEY_136 = 136,
+    KEY_150 = 150,
+    KEY_152 = 152,
+    KEY_163 = 163,
+    KEY_164 = 164,
+    KEY_166 = 166,
+    KEY_168 = 168,
+    KEY_167 = 167,
+    KEY_176 = 176,
+    KEY_178 = 178,
+    KEY_181 = 181,
+    KEY_224 = 224,
+    KEY_231 = 231,
+    KEY_232 = 232,
+    KEY_233 = 233,
+    KEY_249 = 249,
+
     KEY_ALT_Q = 272,
     KEY_ALT_W = 273,
     KEY_ALT_E = 274,
@@ -578,6 +595,7 @@ void sub_4CBF68(int a1);
 int sub_4CC2F0();
 int keyboardDequeueLogicalKeyCode();
 void keyboardBuildQwertyConfiguration();
+void keyboardBuildFrenchConfiguration();
 void sub_4D24F8();
 int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr);
 bool sub_4D2680(const char* fileName);
