@@ -205,6 +205,7 @@ int windowGetRect(int win, Rect* rect);
 int sub_4D797C();
 Button* buttonGetButton(int btn, Window** out_win);
 int sub_4D7A34(int a1);
+void sub_4D69DC(int win, char** fileNameList, int fileNameListLength, int maxWidth, int x, int y, int flags);
 void programWindowSetTitle(const char* title);
 int paletteOpenFileImpl(const char* path, int flags);
 int paletteReadFileImpl(int fd, void* buf, size_t count);

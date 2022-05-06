@@ -1186,6 +1186,44 @@ int sub_4D7A34(int a1)
     return v1;
 }
 
+// 0x4D69DC
+void sub_4D69DC(int win, char** fileNameList, int fileNameListLength, int maxWidth, int x, int y, int flags)
+{
+    Window* window = windowGetWindow(win);
+
+    if (!gWindowSystemInitialized) {
+        return;
+    }
+
+    if (window == NULL) {
+        return;
+    }
+
+    int width = window->width;
+    unsigned char* ptr = window->buffer + y * width + x;
+    int lineHeight = fontGetLineHeight();
+    
+    int step = width * lineHeight;
+    int v1 = lineHeight / 2;
+    int v2 = v1 + 1;
+    int v3 = maxWidth - 1;
+
+    for (int index = 0; index < fileNameListLength; index++) {
+        char* fileName = fileNameList[index];
+        if (*fileName != '\0') {
+            windowDrawText(win, fileName, maxWidth, x, y, flags);
+        } else {
+            if (maxWidth != 0) {
+                bufferDrawLine(ptr, width, 0, v1, v3, v1, byte_6A38D0[dword_51E3E4[2]]);
+                bufferDrawLine(ptr, width, 0, v2, v3, v2, byte_6A38D0[dword_51E3E4[1]]);
+            }
+        }
+
+        ptr += step;
+        y += lineHeight;
+    }
+}
+
 // 0x4D80D8
 void programWindowSetTitle(const char* title)
 {
