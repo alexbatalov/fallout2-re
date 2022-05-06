@@ -3746,8 +3746,65 @@ int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr)
     return rc;
 }
 
+// 0x4D2680
+bool sub_4D2680(const char* fileName)
+{
+    if (dword_51E2F8 != 2) {
+        return false;
+    }
+
+    if (fileName == NULL) {
+        return false;
+    }
+
+    if (off_51E2F0 != NULL) {
+        return false;
+    }
+
+    off_51E2F0 = internal_malloc(sizeof(*off_51E2F0) * 4096);
+    if (off_51E2F0 == NULL) {
+        return false;
+    }
+
+    sub_4D2CD0();
+
+    dword_51E314 = fileOpen(fileName, "wb");
+    if (dword_51E314 == NULL) {
+        if (off_51E2F0 != NULL) {
+            sub_4D2CD0();
+            internal_free(off_51E2F0);
+            off_51E2F0 = NULL;
+        }
+        return false;
+    }
+
+    if (dword_51E310 == 0) {
+        dword_51E310 = atexit(sub_4D28F4);
+    }
+
+    STRUCT_51E2F0* entry = &(off_51E2F0[dword_51E2F4]);
+    entry->type = 1;
+    entry->field_4 = 0;
+    entry->field_8 = 0;
+    entry->type_1_field_14 = keyboardGetLayout();
+
+    while (mouseGetEvent() != 0) {
+        sub_4CA59C();
+    }
+
+    mouseGetPosition(&(entry->type_1_field_C), &(entry->type_1_field_10));
+
+    dword_51E300 = 1;
+    dword_51E2F4++;
+    dword_51E30C = sub_4C9370();
+    keyboardReset();
+    dword_51E2F8 = 0;
+    
+    return true;
+}
+
 // 0x4D28F4
-int sub_4D28F4()
+int sub_4D28F4(void)
 {
     if (dword_51E2F8 == 0 || dword_51E2F8 == 1) {
         dword_51E2F8 |= 0x80000000;

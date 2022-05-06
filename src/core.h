@@ -348,9 +348,9 @@ typedef struct STRUCT_51E2F0 {
     int field_8;
     union {
         struct {
-            int type_1_field_C;
-            int type_1_field_10;
-            int type_1_field_14;
+            int type_1_field_C; // mouse x
+            int type_1_field_10; // mouse y
+            int type_1_field_14; // keyboard layout
         };
         struct {
             short type_2_field_C;
@@ -580,7 +580,8 @@ int keyboardDequeueLogicalKeyCode();
 void keyboardBuildQwertyConfiguration();
 void sub_4D24F8();
 int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr);
-int sub_4D28F4();
+bool sub_4D2680(const char* fileName);
+int sub_4D28F4(void);
 int sub_4D2918();
 int sub_4D2930();
 bool sub_4D2CD0();
