@@ -156,21 +156,29 @@ typedef enum Key {
     KEY_DEL = 127,
 
     KEY_136 = 136,
+    KEY_146 = 146,
+    KEY_149 = 149,
     KEY_150 = 150,
     KEY_151 = 151,
     KEY_152 = 152,
+    KEY_161 = 161,
     KEY_163 = 163,
     KEY_164 = 164,
     KEY_166 = 166,
     KEY_168 = 168,
     KEY_167 = 167,
+    KEY_170 = 170,
+    KEY_172 = 172,
     KEY_176 = 176,
     KEY_178 = 178,
     KEY_179 = 179,
     KEY_180 = 180,
     KEY_181 = 181,
     KEY_186 = 186,
+    KEY_191 = 191,
     KEY_196 = 196,
+    KEY_199 = 199,
+    KEY_209 = 209,
     KEY_214 = 214,
     KEY_215 = 215,
     KEY_220 = 220,
@@ -180,6 +188,7 @@ typedef enum Key {
     KEY_231 = 231,
     KEY_232 = 232,
     KEY_233 = 233,
+    KEY_241 = 241,
     KEY_246 = 246,
     KEY_247 = 247,
     KEY_249 = 249,
@@ -611,6 +620,7 @@ void keyboardBuildQwertyConfiguration();
 void keyboardBuildFrenchConfiguration();
 void keyboardBuildGermanConfiguration();
 void keyboardBuildItalianConfiguration();
+void keyboardBuildSpanishConfiguration();
 void sub_4D24F8();
 int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr);
 bool sub_4D2680(const char* fileName);
