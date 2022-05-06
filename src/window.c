@@ -436,6 +436,30 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// 0x4BA988
+bool sub_4BA988(const char* regionName)
+{
+    if (dword_51DCB8 == -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    if (ptr->window == -1) {
+        return false;
+    }
+
+    for (int index = 0; index < ptr->regionsLength; index++) {
+        Region* region = ptr->regions[index];
+        if (region != NULL) {
+            if (stricmp(regionGetName(region), regionName) == 0) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 // 0x4BA9FC
 bool sub_4BA9FC(int initialCapacity)
 {
