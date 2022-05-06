@@ -436,6 +436,29 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// 0x4B9928
+bool sub_4B9928(const char* buttonName, int value)
+{
+    if (dword_51DCB8 != -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    if (ptr->buttons == NULL) {
+        return false;
+    }
+
+    for (int index = 0; index < ptr->buttonsLength; index++) {
+        ManagedButton* managedButton = &(ptr->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            managedButton->flags |= value;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // 0x4BA11C
 bool sub_4BA11C(const char* buttonName, int a2, int a3, int a4, int a5, int a6)
 {

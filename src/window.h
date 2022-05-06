@@ -22,7 +22,7 @@ typedef struct ManagedButton {
     int field_8;
     int field_C;
     int field_10;
-    int field_14;
+    int flags;
     int field_18;
     char name[32];
     int field_3C;
@@ -97,6 +97,7 @@ int sub_4B9050();
 void sub_4B9058(Program* program);
 void sub_4B9190(int resolution, int a2);
 void sub_4B947C();
+bool sub_4B9928(const char* buttonName, int value);
 bool sub_4BA11C(const char* buttonName, int a2, int a3, int a4, int a5, int a6);
 bool sub_4BA1B4(const char* buttonName, int a2, int a3, int a4);
 void sub_4BA844();
