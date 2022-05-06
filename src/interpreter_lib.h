@@ -29,6 +29,7 @@ void opSayGoToReply(Program* program);
 void opSayGetLastPos(Program* program);
 void opSayQuit(Program* program);
 void opSayMessageTimeout(Program* program);
+void opAddRegionFlag(Program* program);
 void opHideMouse(Program* program);
 void opShowMouse(Program* program);
 void opClearNamed(Program* program);

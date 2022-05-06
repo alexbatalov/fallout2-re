@@ -147,6 +147,39 @@ void opSayMessageTimeout(Program* program)
     dword_519038 = data;
 }
 
+// addregionflag
+// 0x463B10
+void opAddRegionFlag(Program* program)
+{
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 2 given to addregionflag");
+    }
+
+    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid arg 1 given to addregionflag");
+    }
+
+    const char* regionName = programGetString(program, opcode[1], data[1]);
+    if (!sub_4BAF2C(regionName, data[0])) {
+        // NOTE: Original code calls programGetString one more time with the
+        // same params.
+        programFatalError("Error setting flag on region %s", regionName);
+    }
+}
+
 // hidemouse
 // 0x46489C
 void opHideMouse(Program* program)
