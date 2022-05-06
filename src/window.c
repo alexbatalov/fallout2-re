@@ -544,3 +544,9 @@ void sub_4BB220()
     // sub_4B6A54();
     sub_4B5C24();
 }
+
+// 0x4BB234
+int sub_4BB234()
+{
+    return sub_487C88();
+}

@@ -73,5 +73,6 @@ bool sub_4BAF2C(const char* regionName, int value);
 bool sub_4BAFA8(const char* regionName);
 bool sub_4BB0A8(const char* regionName);
 void sub_4BB220();
+int sub_4BB234();
 
 #endif /* WINDOW_H */
