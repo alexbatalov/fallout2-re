@@ -360,25 +360,25 @@ int sub_49AD88(Object* critter, Object* target, void (*fn)(char* string))
             } else if (currentHitPoints == maxiumHitPoints) {
                 v16 = 4;
             } else {
-                v16 = (maxiumHitPoints * 3) / currentHitPoints + 1;
+                v16 = (currentHitPoints * 3) / maxiumHitPoints + 1;
             }
 
-            MessageListItem hitPoitsMessageListItem;
-            hitPoitsMessageListItem.num = 500 + v16;
-            if (!messageListGetItem(&gProtoMessageList, &hitPoitsMessageListItem)) {
+            MessageListItem hpMessageListItem;
+            hpMessageListItem.num = 500 + v16;
+            if (!messageListGetItem(&gProtoMessageList, &hpMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
 
             if (v16 > 4) {
                 // Error: lookup_val out of range
-                hitPoitsMessageListItem.num = 550;
-                if (!messageListGetItem(&gProtoMessageList, &hitPoitsMessageListItem)) {
+                hpMessageListItem.num = 550;
+                if (!messageListGetItem(&gProtoMessageList, &hpMessageListItem)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
 
-                debugPrint(hitPoitsMessageListItem.text);
+                debugPrint(hpMessageListItem.text);
                 return 0;
             }
 
@@ -391,7 +391,7 @@ int sub_49AD88(Object* critter, Object* target, void (*fn)(char* string))
                     exit(1);
                 }
 
-                sprintf(formattedText, v66.text, hitPoitsMessageListItem.text);
+                sprintf(formattedText, v66.text, hpMessageListItem.text);
             } else {
                 // %s %s
                 v66.num = 521 + v12;
@@ -407,7 +407,7 @@ int sub_49AD88(Object* critter, Object* target, void (*fn)(char* string))
                     exit(1);
                 }
 
-                sprintf(formattedText, v63.text, hitPoitsMessageListItem.text);
+                sprintf(formattedText, v63.text, hpMessageListItem.text);
             }
         }
 
