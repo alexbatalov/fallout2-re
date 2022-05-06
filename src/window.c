@@ -436,6 +436,47 @@ void sub_4B947C()
     windowManagerExit();
 }
 
+// 0x4BA9FC
+bool sub_4BA9FC(int initialCapacity)
+{
+    if (dword_51DCB8 == -1) {
+        return false;
+    }
+
+    int newRegionIndex;
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    if (ptr->regions == NULL) {
+        ptr->regions = internal_malloc_safe(sizeof(&(ptr->regions)), __FILE__, __LINE__); // "..\int\WINDOW.C", 2167
+        ptr->regionsLength = 1;
+        newRegionIndex = 0;
+    } else {
+        newRegionIndex = 0;
+        for (int index = 0; index < ptr->regionsLength; index++) {
+            if (ptr->regions[index] == NULL) {
+                break;
+            }
+            newRegionIndex++;
+        }
+
+        if (newRegionIndex == ptr->regionsLength) {
+            ptr->regions = internal_realloc_safe(ptr->regions, sizeof(&(ptr->regions)) * (ptr->regionsLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 2178
+            ptr->regionsLength++;
+        }
+    }
+
+    Region* newRegion;
+    if (initialCapacity != 0) {
+        newRegion = regionCreate(initialCapacity + 1);
+    } else {
+        newRegion = NULL;
+    }
+
+    ptr->regions[newRegionIndex] = newRegion;
+    ptr->currentRegionIndex = newRegionIndex;
+
+    return true;
+}
+
 // 0x4BAB68
 bool sub_4BAB68(int x, int y, bool a3)
 {
@@ -444,9 +485,9 @@ bool sub_4BAB68(int x, int y, bool a3)
     }
 
     STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
-    Region* region = ptr->regions[ptr->field_30];
+    Region* region = ptr->regions[ptr->currentRegionIndex];
     if (region == NULL) {
-        region = ptr->regions[ptr->field_30] = regionCreate(1);
+        region = ptr->regions[ptr->currentRegionIndex] = regionCreate(1);
     }
 
     if (a3) {
@@ -534,14 +575,13 @@ bool sub_4BAFA8(const char* regionName)
     }
 
     STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
-    int v1 = ptr->field_30;
-    Region* region = ptr->regions[v1];
+    Region* region = ptr->regions[ptr->currentRegionIndex];
     if (region == NULL) {
         return false;
     }
 
     for (int index = 0; index < ptr->regionsLength; index++) {
-        if (index != v1) {
+        if (index != ptr->currentRegionIndex) {
             Region* other = ptr->regions[index];
             if (other != NULL) {
                 if (stricmp(regionGetName(other), regionName) == 0) {

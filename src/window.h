@@ -22,7 +22,7 @@ typedef struct STRUCT_6727B0 {
     int field_24;
     int field_28;
     Region** regions;
-    int field_30;
+    int currentRegionIndex;
     int regionsLength;
     int field_38;
     int field_3C;
@@ -69,6 +69,7 @@ int sub_4B9050();
 void sub_4B9058(Program* program);
 void sub_4B9190(int resolution, int a2);
 void sub_4B947C();
+bool sub_4BA9FC(int initialCapacity);
 bool sub_4BAB68(int x, int y, bool a3);
 bool sub_4BADC0(const char* regionName, int a2, int a3, int a4, int a5, int a6);
 bool sub_4BAE8C(const char* regionName, int a2, int a3, int a4);
