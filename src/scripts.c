@@ -811,6 +811,13 @@ int scriptEventProcess(Object* obj, void* data)
     return 0;
 }
 
+// 0x4A3F80
+int scriptsClearPendingRequests()
+{
+    gScriptsRequests = 0;
+    return 0;
+}
+
 // NOTE: Inlined.
 //
 // 0x4A3F90
@@ -1020,7 +1027,8 @@ int sub_4A43A0()
         inventoryOpenLooting(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
     }
 
-    gScriptsRequests = 0;
+    // NOTE: Uninline.
+    scriptsClearPendingRequests();
 
     return 0;
 }
@@ -1442,7 +1450,8 @@ int scriptsInit()
     interpreterRegisterOpcodeHandlers();
     sub_4A5490();
 
-    gScriptsRequests = 0;
+    // NOTE: Uninline.
+    scriptsClearPendingRequests();
 
     sub_494D7C();
 
@@ -1458,7 +1467,8 @@ int sub_4A5120()
 {
     sub_4A63E0();
 
-    gScriptsRequests = 0;
+    // NOTE: Uninline.
+    scriptsClearPendingRequests();
 
     sub_494D7C();
 
@@ -1500,7 +1510,9 @@ int sub_4A5138()
     }
 
     dword_51C6BC = true;
-    gScriptsRequests = 0;
+
+    // NOTE: Uninline.
+    scriptsClearPendingRequests();
 
     return 0;
 }
@@ -1531,7 +1543,8 @@ int scriptsExit()
     sub_46CC68();
     programListFree();
 
-    gScriptsRequests = 0;
+    // NOTE: Uninline.
+    scriptsClearPendingRequests();
 
     // NOTE: Uninline.
     scriptsFreeScriptsList();
@@ -1575,7 +1588,10 @@ int sub_4A535C()
     if (scriptsClearDudeScript() == -1) {
         return -1;
     }
-    gScriptsRequests = 0;
+
+    // NOTE: Uninline.
+    scriptsClearPendingRequests();
+
     return 0;
 }
 
