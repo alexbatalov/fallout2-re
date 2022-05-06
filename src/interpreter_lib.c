@@ -55,6 +55,29 @@ void opStopMovie(Program* program)
     program->flags |= PROGRAM_FLAG_0x40;
 }
 
+// deleteregion
+// 0x462890
+void opDeleteRegion(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+        if ((opcode & 0xF7FF) == VALUE_TYPE_INT && data != -1) {
+            programFatalError("Invalid type given to deleteregion");
+        }
+    }
+
+    sub_4B81C4(program->field_84);
+
+    const char* regionName = data != -1 ? programGetString(program, opcode, data) : NULL;
+    sub_4BB0A8(regionName);
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)
