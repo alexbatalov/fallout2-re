@@ -34,6 +34,7 @@ void soundEffectsListClear();
 int soundEffectsListPopulateFileNames();
 int soundEffectsListCopyFileNames(char** fileNameList);
 int soundEffectsListPopulateFileSizes();
+int soundEffectsListSort();
 int soundEffectsListCompareByName(const void* a1, const void* a2);
 int sub_4AA234(int fileHandle, void* buf, unsigned int size);
 

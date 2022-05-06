@@ -123,9 +123,8 @@ int soundEffectsListInit(const char* soundEffectsPath, int a2, int debugLevel)
         // the game. Instead tag is automatically determined from entry's
         // index (see [soundEffectsListGetTag]).
 
-        if (gSoundEffectsListEntriesLength != 1) {
-            qsort(gSoundEffectsListEntries, gSoundEffectsListEntriesLength, sizeof(*gSoundEffectsListEntries), soundEffectsListCompareByName);
-        }
+        // NOTE: Uninline.
+        soundEffectsListSort();
 
         File* stream = fileOpen(path, "wt");
         if (stream != NULL) {
@@ -423,6 +422,17 @@ int soundEffectsListPopulateFileSizes()
     internal_free(path);
 
     return SFXL_OK;
+}
+
+// NOTE: Inlined.
+//
+// 0x4AA200
+int soundEffectsListSort()
+{
+    if (gSoundEffectsListEntriesLength != 1) {
+        qsort(gSoundEffectsListEntries, gSoundEffectsListEntriesLength, sizeof(*gSoundEffectsListEntries), soundEffectsListCompareByName);
+    }
+    return 0;
 }
 
 // 0x4AA228
