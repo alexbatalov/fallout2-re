@@ -47,6 +47,14 @@ void opSetMovieFlags(Program* program)
     }
 }
 
+// stopmovie
+// 0x46287C
+void opStopMovie(Program* program)
+{
+    sub_4BB2C4();
+    program->flags |= PROGRAM_FLAG_0x40;
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)
