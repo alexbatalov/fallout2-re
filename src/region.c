@@ -100,7 +100,7 @@ void regionDelete(Region* region)
 
 // regionAddName
 // 0x4A2F54
-void regionSetName(Region* region, char* name)
+void regionSetName(Region* region, const char* name)
 {
     if (region == NULL) {
         debugPrint("regionAddName(): null region ptr\n");

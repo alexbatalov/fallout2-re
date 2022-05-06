@@ -41,7 +41,7 @@ extern char byte_50D394[];
 Region* regionCreate(int a1);
 void regionAddPoint(Region* region, int x, int y);
 void regionDelete(Region* region);
-void regionSetName(Region* region, char* src);
+void regionSetName(Region* region, const char* src);
 char* regionGetName(Region* region);
 void* regionGetUserData(Region* region);
 void regionSetUserData(Region* region, void* data);

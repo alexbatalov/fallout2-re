@@ -455,6 +455,38 @@ bool sub_4BAF2C(const char* regionName, int value)
     return false;
 }
 
+// 0x4BAFA8
+bool sub_4BAFA8(const char* regionName)
+{
+    if (dword_51DCB8 == -1) {
+        return false;
+    }
+
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    int v1 = ptr->field_30;
+    Region* region = ptr->regions[v1];
+    if (region == NULL) {
+        return false;
+    }
+
+    for (int index = 0; index < ptr->regionsLength; index++) {
+        if (index != v1) {
+            Region* other = ptr->regions[index];
+            if (other != NULL) {
+                if (stricmp(regionGetName(other), regionName) == 0) {
+                    regionDelete(other);
+                    ptr->regions[index] = NULL;
+                    break;
+                }
+            }
+        }
+    }
+
+    regionSetName(region, regionName);
+
+    return true;
+}
+
 // 0x4BB220
 void sub_4BB220()
 {
