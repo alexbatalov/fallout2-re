@@ -3,6 +3,9 @@
 
 #include "geometry.h"
 #include "interpreter.h"
+#include "region.h"
+
+#include <stdbool.h>
 
 typedef void (*WINDOWDRAWINGPROC)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y);
 typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, unsigned char a10);
@@ -18,9 +21,9 @@ typedef struct STRUCT_6727B0 {
     int window;
     int field_24;
     int field_28;
-    int field_2C;
+    Region** regions;
     int field_30;
-    int field_34;
+    int regionsLength;
     int field_38;
     int field_3C;
     int field_40;
@@ -65,6 +68,7 @@ int sub_4B9048();
 int sub_4B9050();
 void sub_4B9058(Program* program);
 void sub_4B9190(int resolution, int a2);
+bool sub_4BAF2C(const char* regionName, int value);
 void sub_4B947C();
 void sub_4BB220();
 
