@@ -38,6 +38,7 @@ int sub_4DC30C(char* a1);
 void sub_4DC65C();
 int sub_4DC674(int win, int x, int y, int width, int height, int a6, int a7);
 int sub_4DC768(int win, int x, char* str, int a4);
+int sub_4DCA30(char** fileNameList, int fileNameListLength);
 int sub_4DC930(struc_177* ptr, int i);
 int sub_4DD03C(int a1, int a2);
 void sub_4DD3EC();

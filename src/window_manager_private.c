@@ -168,6 +168,21 @@ int sub_4DC768(int win, int x, char* str, int a4)
     return 0;
 }
 
+// 0x4DCA30
+int sub_4DCA30(char** fileNameList, int fileNameListLength)
+{
+    int maxWidth = 0;
+
+    for (int index = 0; index < fileNameListLength; index++) {
+        int width = fontGetStringWidth(fileNameList[index]);
+        if (width > maxWidth) {
+            maxWidth = width;
+        }
+    }
+
+    return maxWidth;
+}
+
 // 0x4DC930
 int sub_4DC930(struc_177* ptr, int i)
 {
