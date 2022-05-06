@@ -248,6 +248,7 @@ int scriptAddTimerEvent(int sid, int delay, int param);
 int scriptEventWrite(File* stream, void* data);
 int scriptEventRead(File* stream, void** dataPtr);
 int scriptEventProcess(Object* obj, void* data);
+int sub_4A3F90(Script* script);
 int scriptsHandleRequests();
 int sub_4A43A0();
 int scriptsRequestCombat(STRUCT_664980* a1);

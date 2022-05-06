@@ -811,6 +811,17 @@ int scriptEventProcess(Object* obj, void* data)
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x4A3F90
+int sub_4A3F90(Script* script)
+{
+    if ((gScriptsRequests & SCRIPT_REQUEST_COMBAT) != 0 && stru_664958.attacker == script->owner) {
+        gScriptsRequests &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
+    }
+    return 0;
+}
+
 // 0x4A3FB4
 int scriptsHandleRequests()
 {
@@ -2176,9 +2187,8 @@ int scriptRemove(int sid)
     }
 
     if ((script->flags & SCRIPT_FLAG_0x10) == 0) {
-        if ((gScriptsRequests & SCRIPT_REQUEST_COMBAT) != 0 && stru_664958.attacker == script->owner) {
-            gScriptsRequests &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
-        }
+        // NOTE: Uninline.
+        sub_4A3F90(script);
 
         if (scriptsRemoveLocalVars(script) == -1) {
             debugPrint("\nERROR Removing local vars on scr_remove!!\n");
