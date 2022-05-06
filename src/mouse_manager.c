@@ -3,55 +3,55 @@
 #include "core.h"
 
 // 0x5195A8
-char* (*off_5195A8)(char*) = sub_485250;
+char* (*off_5195A8)(char*) = defaultNameMangler;
 
 // 0x5195AC
-int (*off_5195AC)() = sub_485254;
+int (*off_5195AC)() = defaultRateCallback;
 
 // 0x5195B0
-int (*off_5195B0)() = sub_48525C;
+int (*off_5195B0)() = defaultTimeCallback;
 
 // 0x5195B4
 int dword_5195B4 = 1;
 
 // 0x485250
-char* sub_485250(char* a1)
+char* defaultNameMangler(char* a1)
 {
     return a1;
 }
 
 // 0x485254
-int sub_485254()
+int defaultRateCallback()
 {
     return 1000;
 }
 
 // 0x48525C
-int sub_48525C()
+int defaultTimeCallback()
 {
-    return sub_4C9370();
+    return get_time();
 }
 
 // 0x485288
-void sub_485288(char* (*func)(char*))
+void mousemgrSetNameMangler(char* (*func)(char*))
 {
     off_5195A8 = func;
 }
 
 // 0x48568C
-void sub_48568C()
+void initMousemgr()
 {
     mouseSetSensitivity(1.0);
 }
 
 // 0x4865C4
-void sub_4865C4()
+void mouseHide()
 {
     mouseHideCursor();
 }
 
 // 0x4865CC
-void sub_4865CC()
+void mouseShow()
 {
     mouseShowCursor();
 }

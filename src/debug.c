@@ -22,27 +22,27 @@ int dword_51DF00 = 0;
 DebugPrintProc* gDebugPrintProc = NULL;
 
 // 0x4C6CD0
-void sub_4C6CD0()
+void GNW_debug_init()
 {
-    atexit(sub_4C71E8);
+    atexit(debug_exit);
 }
 
 // 0x4C6CDC
-void sub_4C6CDC()
+void debug_register_mono()
 {
-    if (gDebugPrintProc != sub_4C7004) {
+    if (gDebugPrintProc != debug_mono) {
         if (off_51DEF8 != NULL) {
             fclose(off_51DEF8);
             off_51DEF8 = NULL;
         }
 
-        gDebugPrintProc = sub_4C7004;
-        sub_4C6FAC();
+        gDebugPrintProc = debug_mono;
+        debug_clear();
     }
 }
 
 // 0x4C6D18
-void sub_4C6D18(const char* fileName, const char* mode)
+void debug_register_log(const char* fileName, const char* mode)
 {
     if ((mode[0] == 'w' && mode[1] == 'a') && mode[1] == 't') {
         if (off_51DEF8 != NULL) {
@@ -50,25 +50,25 @@ void sub_4C6D18(const char* fileName, const char* mode)
         }
 
         off_51DEF8 = fopen(fileName, mode);
-        gDebugPrintProc = sub_4C7028;
+        gDebugPrintProc = debug_log;
     }
 }
 
 // 0x4C6D5C
-void sub_4C6D5C()
+void debug_register_screen()
 {
-    if (gDebugPrintProc != sub_4C7068) {
+    if (gDebugPrintProc != debug_screen) {
         if (off_51DEF8 != NULL) {
             fclose(off_51DEF8);
             off_51DEF8 = NULL;
         }
 
-        gDebugPrintProc = sub_4C7068;
+        gDebugPrintProc = debug_screen;
     }
 }
 
 // 0x4C6D90
-void sub_4C6D90()
+void debug_register_env()
 {
     const char* type = getenv("DEBUGACTIVE");
     if (type == NULL) {
@@ -85,20 +85,20 @@ void sub_4C6D90()
 
     if (strcmp(copy, "mono") == 0) {
         // NOTE: Uninline.
-        sub_4C6CDC();
+        debug_register_mono();
     } else if (strcmp(copy, "log") == 0) {
-        sub_4C6D18("debug.log", "wt");
+        debug_register_log("debug.log", "wt");
     } else if (strcmp(copy, "screen") == 0) {
         // NOTE: Uninline.
-        sub_4C6D5C();
+        debug_register_screen();
     } else if (strcmp(copy, "gnw") == 0) {
-        if (gDebugPrintProc != sub_4DC30C) {
+        if (gDebugPrintProc != win_debug) {
             if (off_51DEF8 != NULL) {
                 fclose(off_51DEF8);
                 off_51DEF8 = NULL;
             }
 
-            gDebugPrintProc = sub_4DC30C;
+            gDebugPrintProc = win_debug;
         }
     }
 
@@ -106,7 +106,7 @@ void sub_4C6D90()
 }
 
 // 0x4C6F18
-void sub_4C6F18(DebugPrintProc* proc)
+void debug_register_func(DebugPrintProc* proc)
 {
     if (gDebugPrintProc != proc) {
         if (off_51DEF8 != NULL) {
@@ -146,7 +146,7 @@ int debugPrint(const char* format, ...)
 }
 
 // 0x4C6F94
-int sub_4C6F94(char* string)
+int debug_puts(char* string)
 {
     if (gDebugPrintProc != NULL) {
         return gDebugPrintProc(string);
@@ -156,27 +156,27 @@ int sub_4C6F94(char* string)
 }
 
 // 0x4C6FAC
-void sub_4C6FAC()
+void debug_clear()
 {
     // TODO: Something with segments.
 }
 
 // 0x4C7004
-int sub_4C7004(char* string)
+int debug_mono(char* string)
 {
-    if (gDebugPrintProc == sub_4C7004) {
+    if (gDebugPrintProc == debug_mono) {
         while (*string != '\0') {
             char ch = *string++;
-            sub_4C709C(ch);
+            debug_putc(ch);
         }
     }
     return 0;
 }
 
 // 0x4C7028
-int sub_4C7028(char* string)
+int debug_log(char* string)
 {
-    if (gDebugPrintProc == sub_4C7028) {
+    if (gDebugPrintProc == debug_log) {
         if (off_51DEF8 == NULL) {
             return -1;
         }
@@ -194,9 +194,9 @@ int sub_4C7028(char* string)
 }
 
 // 0x4C7068
-int sub_4C7068(char* string)
+int debug_screen(char* string)
 {
-    if (gDebugPrintProc == sub_4C7068) {
+    if (gDebugPrintProc == debug_screen) {
         printf(string);
     }
 
@@ -204,19 +204,19 @@ int sub_4C7068(char* string)
 }
 
 // 0x4C709C
-void sub_4C709C()
+void debug_putc()
 {
     // TODO: Something with segments.
 }
 
 // 0x4C71AC
-void sub_4C71AC()
+void debug_scroll()
 {
     // TODO: Something with segments.
 }
 
 // 0x4C71E8
-void sub_4C71E8(void)
+void debug_exit(void)
 {
     if (off_51DEF8 != NULL) {
         fclose(off_51DEF8);

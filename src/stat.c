@@ -182,7 +182,7 @@ int critterGetStat(Object* critter, int stat)
             break;
         case STAT_ARMOR_CLASS:
             if (isInCombat()) {
-                if (sub_4217D4() != critter) {
+                if (combat_whose_turn() != critter) {
                     int actionPointsMultiplier = 1;
                     int hthEvadeBonus = 0;
 
@@ -757,7 +757,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             interfaceRenderHitPoints(false);
 
             if (a2) {
-                sub_495B60();
+                partyMemberIncLevels();
             }
         }
     }

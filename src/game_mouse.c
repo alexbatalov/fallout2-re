@@ -318,7 +318,7 @@ int gameMouseReset()
     }
 
     // NOTE: Uninline.
-    sub_44B454();
+    gmouse_enable();
 
     dword_518C08 = 1;
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
@@ -354,7 +354,7 @@ void gameMouseExit()
 }
 
 // 0x44B454
-void sub_44B454()
+void gmouse_enable()
 {
     if (!dword_518BFC) {
         gGameMouseCursor = -1;
@@ -366,7 +366,7 @@ void sub_44B454()
 }
 
 // 0x44B48C
-void sub_44B48C(int a1)
+void gmouse_disable(int a1)
 {
     if (dword_518BFC) {
         gameMouseSetCursor(MOUSE_CURSOR_NONE);
@@ -381,25 +381,25 @@ void sub_44B48C(int a1)
 }
 
 // 0x44B4CC
-void sub_44B4CC()
+void gmouse_enable_scrolling()
 {
     dword_518C08 = 1;
 }
 
 // 0x44B4D8
-void sub_44B4D8()
+void gmouse_disable_scrolling()
 {
     dword_518C08 = 0;
 }
 
 // 0x44B504
-int sub_44B504()
+int gmouse_get_click_to_scroll()
 {
     return dword_518C04;
 }
 
 // 0x44B54C
-int sub_44B54C()
+int gmouse_is_scrolling()
 {
     int v1 = 0;
 
@@ -447,7 +447,7 @@ void gameMouseRefresh()
     int mouseY;
 
     if (gGameMouseCursor >= FIRST_GAME_MOUSE_ANIMATED_CURSOR) {
-        sub_4CA59C();
+        mouse_info();
 
         if (dword_518C08) {
             mouseGetPosition(&mouseX, &mouseY);
@@ -597,7 +597,7 @@ void gameMouseRefresh()
     }
 
     Rect r1;
-    if (sub_44DF94(mouseX, mouseY, gElevation, &r1) == 0) {
+    if (gmouse_3d_move_to(mouseX, mouseY, gElevation, &r1) == 0) {
         tileWindowRefreshRect(&r1, gElevation);
     }
 
@@ -605,7 +605,7 @@ void gameMouseRefresh()
         return;
     }
 
-    unsigned int v3 = sub_4C9410();
+    unsigned int v3 = get_bk_time();
     if (mouseX == gGameMouseLastX && mouseY == gGameMouseLastY) {
         if (dword_518C84 || getTicksBetween(v3, dword_518C88) < 250) {
             return;
@@ -635,14 +635,14 @@ void gameMouseRefresh()
                         if (pointedObject == gDude) {
                             primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_ROTATE;
                         } else {
-                            if (sub_48B278(pointedObject)) {
+                            if (obj_action_can_talk_to(pointedObject)) {
                                 if (isInCombat()) {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
                                 } else {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_TALK;
                                 }
                             } else {
-                                if (sub_42E6AC(pointedObject->pid, 32)) {
+                                if (critter_flag_check(pointedObject->pid, 32)) {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
                                 } else {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_USE;
@@ -651,7 +651,7 @@ void gameMouseRefresh()
                         }
                         break;
                     case OBJ_TYPE_SCENERY:
-                        if (!sub_48B24C(pointedObject)) {
+                        if (!obj_action_can_use(pointedObject)) {
                             primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
                         } else {
                             primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_USE;
@@ -674,7 +674,7 @@ void gameMouseRefresh()
 
                     if (pointedObject != gGameMousePointedObject) {
                         gGameMousePointedObject = pointedObject;
-                        sub_49AC3C(gDude, gGameMousePointedObject);
+                        obj_look_at(gDude, gGameMousePointedObject);
                     }
                 }
             } else if (gGameMouseMode == GAME_MOUSE_MODE_CROSSHAIR) {
@@ -692,15 +692,15 @@ void gameMouseRefresh()
                     int combatLooks = 0;
                     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
                     if (combatLooks != 0) {
-                        if (sub_49AD78(gDude, pointedObject) == -1) {
-                            sub_49AC3C(gDude, pointedObject);
+                        if (obj_examine(gDude, pointedObject) == -1) {
+                            obj_look_at(gDude, pointedObject);
                         }
                     }
 
                     int color;
                     int accuracy;
                     char formattedAccuracy[8];
-                    if (sub_426744(pointedObject, &accuracy)) {
+                    if (combat_to_hit(pointedObject, &accuracy)) {
                         sprintf(formattedAccuracy, "%d%%", accuracy);
 
                         if (pointedObjectIsCritter) {
@@ -752,7 +752,7 @@ void gameMouseRefresh()
 
         char formattedActionPoints[8];
         int color;
-        int v6 = sub_415EE8(gDude, gDude->tile, gGameMouseHexCursor->tile, NULL, 1);
+        int v6 = make_path(gDude, gDude->tile, gGameMouseHexCursor->tile, NULL, 1);
         if (v6) {
             if (!isInCombat()) {
                 formattedActionPoints[0] = '\0';
@@ -830,7 +830,7 @@ void gameMouseRefresh()
 }
 
 // 0x44BFA8
-void sub_44BFA8(int mouseX, int mouseY, int mouseState)
+void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
 {
     if (!gGameMouseInitialized) {
         return;
@@ -845,12 +845,12 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
     }
 
     if (dword_518D98) {
-        if (sub_44B504()) {
+        if (gmouse_get_click_to_scroll()) {
             return;
         }
     }
 
-    if (!sub_4CA934(0, 0, stru_6AC9F0.right - stru_6AC9F0.left, stru_6AC9F0.bottom - stru_6AC9F0.top - 100)) {
+    if (!mouse_click_in(0, 0, stru_6AC9F0.right - stru_6AC9F0.left, stru_6AC9F0.bottom - stru_6AC9F0.top - 100)) {
         return;
     }
 
@@ -875,17 +875,17 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
 
             if (gPressedPhysicalKeys[DIK_LSHIFT] || gPressedPhysicalKeys[DIK_RSHIFT]) {
                 if (running) {
-                    sub_4180B4(actionPoints);
+                    dude_move(actionPoints);
                     return;
                 }
             } else {
                 if (!running) {
-                    sub_4180B4(actionPoints);
+                    dude_move(actionPoints);
                     return;
                 }
             }
 
-            sub_41810C(actionPoints);
+            dude_run(actionPoints);
             return;
         }
 
@@ -905,31 +905,31 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                             }
                         }
                     } else {
-                        if (sub_48B278(v5)) {
+                        if (obj_action_can_talk_to(v5)) {
                             if (isInCombat()) {
-                                if (sub_49AD78(gDude, v5) == -1) {
-                                    sub_49AC3C(gDude, v5);
+                                if (obj_examine(gDude, v5) == -1) {
+                                    obj_look_at(gDude, v5);
                                 }
                             } else {
                                 actionTalk(gDude, v5);
                             }
                         } else {
-                            sub_4123E8(gDude, v5);
+                            action_loot_container(gDude, v5);
                         }
                     }
                     break;
                 case OBJ_TYPE_SCENERY:
-                    if (sub_48B24C(v5)) {
-                        sub_412114(gDude, v5);
+                    if (obj_action_can_use(v5)) {
+                        action_use_an_object(gDude, v5);
                     } else {
-                        if (sub_49AD78(gDude, v5) == -1) {
-                            sub_49AC3C(gDude, v5);
+                        if (obj_examine(gDude, v5) == -1) {
+                            obj_look_at(gDude, v5);
                         }
                     }
                     break;
                 case OBJ_TYPE_WALL:
-                    if (sub_49AD78(gDude, v5) == -1) {
-                        sub_49AC3C(gDude, v5);
+                    if (obj_examine(gDude, v5) == -1) {
+                        obj_look_at(gDude, v5);
                     }
                     break;
                 }
@@ -947,11 +947,11 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
             }
 
             if (v7 != NULL) {
-                sub_4267CC(v7);
+                combat_attack_this(v7);
                 dword_518C84 = true;
                 gGameMouseLastY = mouseY;
                 gGameMouseLastX = mouseX;
-                dword_518C88 = sub_4C9370() - 250;
+                dword_518C88 = get_time() - 250;
             }
             return;
         }
@@ -966,9 +966,9 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                             ? HIT_MODE_RIGHT_WEAPON_PRIMARY
                             : HIT_MODE_LEFT_WEAPON_PRIMARY;
 
-                        int actionPointsRequired = sub_478040(gDude, hitMode, false);
+                        int actionPointsRequired = item_mp_cost(gDude, hitMode, false);
                         if (actionPointsRequired <= gDude->data.critter.combat.ap) {
-                            if (sub_411F2C(gDude, object, weapon) != -1) {
+                            if (action_use_an_item_on_object(gDude, object, weapon) != -1) {
                                 int actionPoints = gDude->data.critter.combat.ap;
                                 if (actionPointsRequired > actionPoints) {
                                     gDude->data.critter.combat.ap = 0;
@@ -979,7 +979,7 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                             }
                         }
                     } else {
-                        sub_411F2C(gDude, object, weapon);
+                        action_use_an_item_on_object(gDude, object, weapon);
                     }
                 }
             }
@@ -1023,12 +1023,12 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                 if (v16 == gDude) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_ROTATE;
                 } else {
-                    if (sub_48B278(v16)) {
+                    if (obj_action_can_talk_to(v16)) {
                         if (!isInCombat()) {
                             actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_TALK;
                         }
                     } else {
-                        if (!sub_42E6AC(v16->pid, 32)) {
+                        if (!critter_flag_check(v16->pid, 32)) {
                             actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_USE;
                         }
                     }
@@ -1044,7 +1044,7 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_CANCEL;
                 break;
             case OBJ_TYPE_SCENERY:
-                if (sub_48B24C(v16)) {
+                if (obj_action_can_use(v16)) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_USE;
                 }
 
@@ -1055,7 +1055,7 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                 break;
             case OBJ_TYPE_WALL:
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
-                if (sub_48B24C(v16)) {
+                if (obj_action_can_use(v16)) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_INVENTORY;
                 }
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_CANCEL;
@@ -1065,14 +1065,14 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
             if (gameMouseRenderActionMenuItems(mouseX, mouseY, actionMenuItems, actionMenuItemsCount, stru_6AC9F0.right - stru_6AC9F0.left + 1, stru_6AC9F0.bottom - stru_6AC9F0.top - 99) == 0) {
                 Rect v43;
                 int fid = buildFid(6, 283, 0, 0, 0);
-                if (objectSetFid(gGameMouseHexCursor, fid, &v43) == 0 && sub_44DF94(mouseX, mouseY, gElevation, &v43) == 0) {
+                if (objectSetFid(gGameMouseHexCursor, fid, &v43) == 0 && gmouse_3d_move_to(mouseX, mouseY, gElevation, &v43) == 0) {
                     tileWindowRefreshRect(&v43, gElevation);
                     isoDisable();
 
                     int v33 = mouseY;
                     int actionIndex = 0;
                     while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
-                        sub_4C8B78();
+                        get_input();
 
                         if (dword_5186CC != 0) {
                             actionMenuItems[actionIndex] = 0;
@@ -1101,9 +1101,9 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                     dword_518C84 = false;
                     gGameMouseLastX = mouseX;
                     gGameMouseLastY = mouseY;
-                    dword_518C88 = sub_4C9370();
+                    dword_518C88 = get_time();
 
-                    sub_4CAA04(mouseX, v33);
+                    mouse_set_position(mouseX, v33);
 
                     if (gameMouseUpdateHexCursorFid(&v43) == 0) {
                         tileWindowRefreshRect(&v43, gElevation);
@@ -1114,8 +1114,8 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                         inventoryOpenUseItemOn(v16);
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_LOOK:
-                        if (sub_49AD78(gDude, v16) == -1) {
-                            sub_49AC3C(gDude, v16);
+                        if (obj_examine(gDude, v16) == -1) {
+                            obj_look_at(gDude, v16);
                         }
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_ROTATE:
@@ -1129,10 +1129,10 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                     case GAME_MOUSE_ACTION_MENU_ITEM_USE:
                         switch ((v16->fid & 0xF000000) >> 24) {
                         case OBJ_TYPE_SCENERY:
-                            sub_412114(gDude, v16);
+                            action_use_an_object(gDude, v16);
                             break;
                         case OBJ_TYPE_CRITTER:
-                            sub_4123E8(gDude, v16);
+                            action_loot_container(gDude, v16);
                             break;
                         default:
                             actionPickUp(gDude, v16);
@@ -1146,7 +1146,7 @@ void sub_44BFA8(int mouseX, int mouseY, int mouseState)
                             int rc = skilldexOpen();
                             switch (rc) {
                             case SKILLDEX_RC_SNEAK:
-                                sub_4124E0(SKILL_SNEAK);
+                                action_skill_use(SKILL_SNEAK);
                                 break;
                             case SKILLDEX_RC_LOCKPICK:
                                 skill = SKILL_LOCKPICK;
@@ -1207,7 +1207,7 @@ int gameMouseSetCursor(int cursor)
     bool shouldUpdate = true;
     int frame = 0;
     if (cursor >= FIRST_GAME_MOUSE_ANIMATED_CURSOR) {
-        unsigned int tick = sub_4C9370();
+        unsigned int tick = get_time();
 
         if (!(gGameMouseHexCursor->flags & 1)) {
             gameMouseObjectsHide();
@@ -1263,7 +1263,7 @@ int gameMouseGetCursor()
 }
 
 // 0x44C9F8
-void sub_44C9F8()
+void gmouse_3d_enable_modes()
 {
     dword_518D34 = 1;
 }
@@ -1298,7 +1298,7 @@ void gameMouseSetMode(int mode)
     mouseGetPosition(&mouseX, &mouseY);
 
     Rect r2;
-    if (sub_44DF94(mouseX, mouseY, gElevation, &r2) == 0) {
+    if (gmouse_3d_move_to(mouseX, mouseY, gElevation, &r2) == 0) {
         rectUnion(&rect, &r2, &rect);
     }
 
@@ -1325,16 +1325,16 @@ void gameMouseSetMode(int mode)
 
     gGameMouseMode = mode;
     dword_518C84 = false;
-    dword_518C88 = sub_4C9370();
+    dword_518C88 = get_time();
 
     tileWindowRefreshRect(&rect, gElevation);
 
     switch (v5) {
     case 1:
-        sub_426AA8();
+        combat_outline_on();
         break;
     case -1:
-        sub_426BC0();
+        combat_outline_off();
         break;
     }
 }
@@ -1367,7 +1367,7 @@ void gameMouseCycleMode()
 }
 
 // 0x44CBD0
-void sub_44CBD0()
+void gmouse_3d_refresh()
 {
     gGameMouseLastX = -1;
     gGameMouseLastY = -1;
@@ -1494,7 +1494,7 @@ void gameMouseObjectsShow()
     }
 
     dword_518C84 = false;
-    dword_518C88 = sub_4C9370() - 250;
+    dword_518C88 = get_time() - 250;
 }
 
 // 0x44CE34
@@ -1541,8 +1541,8 @@ Object* gameMouseGetObjectUnderCursor(int objectType, bool a2, int elevation)
 
     bool v13 = false;
     if (objectType == -1) {
-        if (sub_4B2B10(mouseX, mouseY, elevation)) {
-            if (sub_48C340(gEgg, mouseX, mouseY) == 0) {
+        if (square_roof_intersect(mouseX, mouseY, elevation)) {
+            if (obj_intersects_with(gEgg, mouseX, mouseY) == 0) {
                 v13 = true;
             }
         }
@@ -1551,7 +1551,7 @@ Object* gameMouseGetObjectUnderCursor(int objectType, bool a2, int elevation)
     Object* v4 = NULL;
     if (!v13) {
         ObjectWithFlags* entries;
-        int count = sub_48C5C4(mouseX, mouseY, elevation, objectType, &entries);
+        int count = obj_create_intersect_list(mouseX, mouseY, elevation, objectType, &entries);
         for (int index = count - 1; index >= 0; index--) {
             ObjectWithFlags* ptr = &(entries[index]);
             if (a2 || gDude != ptr->object) {
@@ -1567,7 +1567,7 @@ Object* gameMouseGetObjectUnderCursor(int objectType, bool a2, int elevation)
         }
 
         if (count != 0) {
-            sub_48C74C(&entries);
+            obj_delete_intersect_list(&entries);
         }
     }
     return v4;
@@ -1651,7 +1651,7 @@ int gameMouseRenderPrimaryAction(int x, int y, int menuItem, int width, int heig
 }
 
 // 0x44D200
-int sub_44D200(int* a1, int* a2)
+int gmouse_3d_pick_frame_hot(int* a1, int* a2)
 {
     *a1 = dword_518CC0;
     *a2 = dword_518CC4;
@@ -1921,14 +1921,14 @@ int gameMouseObjectsInit()
     gGameMouseHexCursor->flags |= 0x80000000;
     gGameMouseHexCursor->flags |= 0x10;
 
-    sub_48AF2C(gGameMouseHexCursor, NULL);
+    obj_toggle_flat(gGameMouseHexCursor, NULL);
 
     int x;
     int y;
     mouseGetPosition(&x, &y);
 
     Rect v9;
-    sub_44DF94(x, y, gElevation, &v9);
+    gmouse_3d_move_to(x, y, gElevation, &v9);
 
     gGameMouseObjectsInitialized = true;
 
@@ -1947,7 +1947,7 @@ int gameMouseObjectsReset()
     }
 
     // NOTE: Uninline.
-    sub_44C9F8();
+    gmouse_3d_enable_modes();
 
     // NOTE: Uninline.
     gameMouseResetBouncingCursorFid();
@@ -1958,7 +1958,7 @@ int gameMouseObjectsReset()
     gGameMouseLastX = -1;
     gGameMouseLastY = -1;
     dword_518C84 = false;
-    dword_518C88 = sub_4C9370();
+    dword_518C88 = get_time();
     gameMouseLoadItemHighlight();
 
     return 0;
@@ -2111,7 +2111,7 @@ int gameMouseUpdateHexCursorFid(Rect* rect)
 }
 
 // 0x44DF94
-int sub_44DF94(int x, int y, int elevation, Rect* a4)
+int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
 {
     if (dword_518C00 == 0) {
         if (gGameMouseMode != GAME_MOUSE_MODE_MOVE) {
@@ -2132,7 +2132,7 @@ int sub_44DF94(int x, int y, int elevation, Rect* a4)
                 artUnlock(hexCursorFrmHandle);
             }
 
-            sub_48A324(gGameMouseHexCursor, x + offsetX, y + offsetY, elevation, a4);
+            obj_move(gGameMouseHexCursor, x + offsetX, y + offsetY, elevation, a4);
         } else {
             int tile = tileFromScreenXY(x, y, 0);
             if (tile != -1) {
@@ -2142,7 +2142,7 @@ int sub_44DF94(int x, int y, int elevation, Rect* a4)
                 bool v1 = false;
                 Rect rect1;
                 if (tileToScreenXY(tile, &screenX, &screenY, 0) == 0) {
-                    if (sub_48A324(gGameMouseBouncingCursor, screenX + 16, screenY + 15, 0, &rect1) == 0) {
+                    if (obj_move(gGameMouseBouncingCursor, screenX + 16, screenY + 15, 0, &rect1) == 0) {
                         v1 = true;
                     }
                 }
@@ -2168,7 +2168,7 @@ int sub_44DF94(int x, int y, int elevation, Rect* a4)
 
     int fid = gGameMouseBouncingCursor->fid;
     if ((fid & 0xF000000) >> 24 == OBJ_TYPE_TILE) {
-        int squareTile = sub_4B1F04(x, y, elevation);
+        int squareTile = square_num(x, y, elevation);
         if (squareTile == -1) {
             tile = HEX_GRID_WIDTH * (2 * (squareTile / SQUARE_GRID_WIDTH) + 1) + 2 * (squareTile % SQUARE_GRID_WIDTH) + 1;
             x1 = -8;
@@ -2177,7 +2177,7 @@ int sub_44DF94(int x, int y, int elevation, Rect* a4)
             char* executable;
             configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
             if (stricmp(executable, "mapper") == 0) {
-                if (sub_4B166C()) {
+                if (tile_roof_visible()) {
                     if ((gDude->flags & OBJECT_IS_INVISIBLE) == 0) {
                         y1 = -83;
                     }
@@ -2198,7 +2198,7 @@ int sub_44DF94(int x, int y, int elevation, Rect* a4)
 
         if (objectSetLocation(gGameMouseBouncingCursor, tile, elevation, &rect1) == 0) {
             if (x1 != 0 || y1 != 0) {
-                if (sub_489FF8(gGameMouseBouncingCursor, x1, y1, &rect2) == 0) {
+                if (obj_offset(gGameMouseBouncingCursor, x1, y1, &rect2) == 0) {
                     rectUnion(&rect1, &rect2, &rect1);
                 }
             }
@@ -2223,7 +2223,7 @@ int sub_44DF94(int x, int y, int elevation, Rect* a4)
                 artUnlock(hexCursorFrmHandle);
             }
 
-            if (sub_48A324(gGameMouseHexCursor, x + offsetX, y + offsetY, elevation, &rect2) == 0) {
+            if (obj_move(gGameMouseHexCursor, x + offsetX, y + offsetY, elevation, &rect2) == 0) {
                 if (v1) {
                     rectUnion(&rect1, &rect2, &rect1);
                 } else {
@@ -2337,7 +2337,7 @@ int gameMouseHandleScrolling(int x, int y, int cursor)
 }
 
 // 0x44E544
-void sub_44E544(Object* object)
+void gmouse_remove_item_outline(Object* object)
 {
     if (gGameMouseHighlightedItem != NULL && gGameMouseHighlightedItem == object) {
         Rect rect;

@@ -243,13 +243,13 @@ void bufferFill(unsigned char* buf, int width, int height, int pitch, int a5)
 }
 
 // 0x4D38E0
-void sub_4D38E0(unsigned char* buf, int width, int height, int pitch, void* a5, int a6, int a7)
+void buf_texture(unsigned char* buf, int width, int height, int pitch, void* a5, int a6, int a7)
 {
     // TODO: Incomplete.
 }
 
 // 0x4D3A48
-void sub_4D3A48(unsigned char* buf, int width, int height, int pitch)
+void lighten_buf(unsigned char* buf, int width, int height, int pitch)
 {
     int skip = pitch - width;
 
@@ -265,7 +265,7 @@ void sub_4D3A48(unsigned char* buf, int width, int height, int pitch)
 // Swaps two colors in the buffer.
 //
 // 0x4D3A8C
-void sub_4D3A8C(unsigned char* buf, int width, int height, int pitch, int color1, int color2)
+void swap_color_buf(unsigned char* buf, int width, int height, int pitch, int color1, int color2)
 {
     int step = pitch - width;
     for (int y = 0; y < height; y++) {

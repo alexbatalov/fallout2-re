@@ -481,7 +481,7 @@ int artCopyFileName(int type, int id, char* dest)
 }
 
 // 0x419314
-int sub_419314(int animation, int weaponType, char* a3, char* a4)
+int art_get_code(int animation, int weaponType, char* a3, char* a4)
 {
     if (weaponType < 0 || weaponType >= WEAPON_ANIMATION_COUNT) {
         return -1;
@@ -561,7 +561,7 @@ char* artBuildFilePath(int fid)
 
     v10 = (fid & 0x70000000) >> 28;
 
-    v1 = sub_4199D4(fid);
+    v1 = art_alias_fid(fid);
     if (v1 != -1) {
         v2 = v1;
     }
@@ -584,7 +584,7 @@ char* artBuildFilePath(int fid)
     v8 = v3 * 13;
 
     if (type == 1) {
-        if (sub_419314(v4, v5, &v11, &v12) == -1) {
+        if (art_get_code(v4, v5, &v11, &v12) == -1) {
             return NULL;
         }
         if (v10) {
@@ -837,7 +837,7 @@ out:
 }
 
 // 0x419930
-bool sub_419930(int fid)
+bool art_fid_valid(int fid)
 {
     // NOTE: Original Code involves calling some unknown function. Check in debugger in mapper.
     char* filePath = artBuildFilePath(fid);
@@ -854,7 +854,7 @@ bool sub_419930(int fid)
 }
 
 // 0x419998
-int sub_419998(int index)
+int art_alias_num(int index)
 {
     return off_56CAEC[index];
 }
@@ -870,7 +870,7 @@ int artCritterFidShouldRun(int fid)
 }
 
 // 0x4199D4
-int sub_4199D4(int fid)
+int art_alias_fid(int fid)
 {
     int v2;
     int v3;

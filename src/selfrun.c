@@ -9,7 +9,7 @@
 int dword_51C8D8 = 0;
 
 // 0x4A8BE0
-int sub_4A8BE0(char*** fileListPtr, int* fileListLengthPtr)
+int selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr)
 {
     if (fileListPtr == NULL) {
         return -1;
@@ -25,7 +25,7 @@ int sub_4A8BE0(char*** fileListPtr, int* fileListLengthPtr)
 }
 
 // 0x4A8C10
-int sub_4A8C10(char*** fileListPtr)
+int selfrun_free_list(char*** fileListPtr)
 {
     if (fileListPtr == NULL) {
         return -1;
@@ -37,7 +37,7 @@ int sub_4A8C10(char*** fileListPtr)
 }
 
 // 0x4A8E74
-void sub_4A8E74()
+void selfrun_playback_callback()
 {
     dword_5186CC = 2;
     dword_51C8D8 = 0;

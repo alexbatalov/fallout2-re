@@ -102,7 +102,7 @@ unsigned char soundDecoderReadNextChunk(SoundDecoder* soundDecoder)
 }
 
 // 0x4D3C78
-void sub_4D3C78()
+void init_pack_tables()
 {
     int i;
     int j;
@@ -759,7 +759,7 @@ int sub_4D493C(SoundDecoder* soundDecoder)
         v21 -= v15;
     }
 
-    sub_4D3C78();
+    init_pack_tables();
 
     for (int index = 0; index < soundDecoder->field_24; index++) {
         soundDecoderRequireBits(soundDecoder, 5);
@@ -775,7 +775,7 @@ int sub_4D493C(SoundDecoder* soundDecoder)
 }
 
 // 0x4D4ADC
-void sub_4D4ADC(unsigned char* a1, unsigned char* a2, int a3, int a4)
+void untransform_subband0(unsigned char* a1, unsigned char* a2, int a3, int a4)
 {
     short* p;
 
@@ -873,7 +873,7 @@ void sub_4D4ADC(unsigned char* a1, unsigned char* a2, int a3, int a4)
 }
 
 // 0x4D4D1C
-void sub_4D4D1C(unsigned char* a1, unsigned char* a2, int a3, int a4)
+void untransform_subband(unsigned char* a1, unsigned char* a2, int a3, int a4)
 {
     int v13;
     int* v14;
@@ -964,7 +964,7 @@ void sub_4D4D1C(unsigned char* a1, unsigned char* a2, int a3, int a4)
 }
 
 // 0x4D4E80
-void sub_4D4E80(SoundDecoder* soundDecoder)
+void untransform_all(SoundDecoder* soundDecoder)
 {
     int v8;
     unsigned char* ptr;
@@ -990,7 +990,7 @@ void sub_4D4E80(SoundDecoder* soundDecoder)
 
         v4 *= 2;
 
-        sub_4D4ADC(soundDecoder->field_30, ptr, v3, v4);
+        untransform_subband0(soundDecoder->field_30, ptr, v3, v4);
 
         v5 = (int*)ptr;
         for (v6 = 0; v6 < v4; v6++) {
@@ -1005,7 +1005,7 @@ void sub_4D4E80(SoundDecoder* soundDecoder)
             if (v3 == 0) {
                 break;
             }
-            sub_4D4D1C(j, ptr, v3, v4);
+            untransform_subband(j, ptr, v3, v4);
             j += 8 * v3;
         }
 
@@ -1038,7 +1038,7 @@ size_t soundDecoderDecode(SoundDecoder* soundDecoder, void* buffer, size_t size)
                 break;
             }
 
-            sub_4D4E80(soundDecoder);
+            untransform_all(soundDecoder);
 
             soundDecoder->field_48 -= soundDecoder->field_2C;
             soundDecoder->field_4C = soundDecoder->field_34;

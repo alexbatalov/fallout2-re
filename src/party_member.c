@@ -338,9 +338,9 @@ int partyMemberAdd(Object* object)
     critterSetTeam(object, 0);
     queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
 
-    if (sub_444D2C()) {
+    if (gdialogActive()) {
         if (object == gGameDialogSpeaker) {
-            sub_445764();
+            gdialogUpdatePartyStatus();
         }
     }
 
@@ -391,9 +391,9 @@ int partyMemberRemove(Object* object)
 
     queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
 
-    if (sub_444D2C()) {
+    if (gdialogActive()) {
         if (object == gGameDialogSpeaker) {
-            sub_445764();
+            gdialogUpdatePartyStatus();
         }
     }
 
@@ -401,7 +401,7 @@ int partyMemberRemove(Object* object)
 }
 
 // 0x49460C
-int sub_49460C()
+int partyMemberPrepSave()
 {
     dword_519DB4 = 1;
 
@@ -422,7 +422,7 @@ int sub_49460C()
 }
 
 // 0x49466C
-int sub_49466C()
+int partyMemberUnPrepSave()
 {
     for (int index = 0; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* ptr = &(gPartyMembers[index]);
@@ -464,7 +464,7 @@ int partyMembersSave(File* stream)
 }
 
 // 0x4947AC
-int sub_4947AC()
+int partyMemberPrepLoad()
 {
     if (dword_519DB4) {
         return -1;
@@ -474,7 +474,7 @@ int sub_4947AC()
 
     for (int index = 0; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* ptr_519DA8 = &(gPartyMembers[index]);
-        if (sub_49480C(ptr_519DA8) != 0) {
+        if (partyMemberPrepLoadInstance(ptr_519DA8) != 0) {
             return -1;
         }
     }
@@ -484,7 +484,7 @@ int sub_4947AC()
 
 // partyMemberPrepLoadInstance
 // 0x49480C
-int sub_49480C(STRUCT_519DA8* a1)
+int partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
 {
     Object* obj = a1->object;
 
@@ -536,7 +536,7 @@ int sub_49480C(STRUCT_519DA8* a1)
     Inventory* inventory = &(obj->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        sub_495234(inventoryItem->item);
+        partyMemberItemSave(inventoryItem->item);
     }
 
     script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
@@ -544,7 +544,7 @@ int sub_49480C(STRUCT_519DA8* a1)
     scriptRemove(script->sid);
 
     if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
-        sub_418378(obj, obj->rotation, -1);
+        dude_stand(obj, obj->rotation, -1);
     }
 
     return 0;
@@ -552,7 +552,7 @@ int sub_49480C(STRUCT_519DA8* a1)
 
 // partyMemberRecoverLoad
 // 0x4949C4
-int sub_4949C4()
+int partyMemberRecoverLoad()
 {
     if (dword_519DB4 != 1) {
         debugPrint("\npartyMemberRecoverLoad DENIED");
@@ -562,7 +562,7 @@ int sub_4949C4()
     debugPrint("\n");
 
     for (int index = 0; index < gPartyMembersLength; index++) {
-        if (sub_494A88(&(gPartyMembers[index])) != 0) {
+        if (partyMemberRecoverLoadInstance(&(gPartyMembers[index])) != 0) {
             return -1;
         }
 
@@ -573,7 +573,7 @@ int sub_4949C4()
     while (v6 != NULL) {
         off_519DA4 = v6->next;
 
-        sub_495388(v6);
+        partyMemberItemRecover(v6);
         internal_free(v6);
 
         v6 = off_519DA4;
@@ -581,8 +581,8 @@ int sub_4949C4()
 
     dword_519DB4 = 0;
 
-    if (!sub_47DC60()) {
-        sub_495620();
+    if (!isLoadingGame()) {
+        partyFixMultipleMembers();
     }
 
     return 0;
@@ -590,7 +590,7 @@ int sub_4949C4()
 
 // partyMemberRecoverLoadInstance
 // 0x494A88
-int sub_494A88(STRUCT_519DA8* a1)
+int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
 {
     if (a1->script == NULL) {
         showMesageBox("\n  Error!: partyMemberRecoverLoadInstance: No script!");
@@ -628,7 +628,7 @@ int sub_494A88(STRUCT_519DA8* a1)
     script->flags |= (SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
 
     if (a1->vars != NULL) {
-        script->localVarsOffset = sub_4822E0(script->localVarsCount);
+        script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
         memcpy(gMapLocalVars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
     }
 
@@ -681,12 +681,12 @@ int partyMembersLoad(File* stream)
             }
         }
 
-        if (sub_49466C() == -1) {
+        if (partyMemberUnPrepSave() == -1) {
             return -1;
         }
     }
 
-    sub_495620();
+    partyFixMultipleMembers();
 
     for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
         STRU_519DBC* ptr_519DBC = &(off_519DBC[index]);
@@ -700,10 +700,10 @@ int partyMembersLoad(File* stream)
 }
 
 // 0x494D7C
-void sub_494D7C()
+void partyMemberClear()
 {
     if (dword_519DB4) {
-        sub_49466C();
+        partyMemberUnPrepSave();
     }
 
     for (int index = gPartyMembersLength; index > 1; index--) {
@@ -712,14 +712,14 @@ void sub_494D7C()
 
     gPartyMembersLength = 1;
 
-    sub_4A63E0();
-    sub_4954C4();
+    scr_remove_all();
+    partyMemberClearItemList();
 
     dword_519DB4 = 0;
 }
 
 // 0x494DD0
-int sub_494DD0()
+int partyMemberSyncPosition()
 {
     int clockwiseRotation = (gDude->rotation + 2) % ROTATION_COUNT;
     int counterClockwiseRotation = (gDude->rotation + 4) % ROTATION_COUNT;
@@ -738,7 +738,7 @@ int sub_494DD0()
             }
 
             int tile = tileGetTileInDirection(gDude->tile, rotation, distance / 2);
-            sub_49D628(partyMemberObj, tile, gDude->elevation);
+            objPMAttemptPlacement(partyMemberObj, tile, gDude->elevation);
 
             distance++;
             n++;
@@ -751,7 +751,7 @@ int sub_494DD0()
 // Heals party members according to their healing rate.
 //
 // 0x494EB8
-int sub_494EB8(int a1)
+int partyMemberRestingHeal(int a1)
 {
     int v1 = a1 / 3;
     if (v1 == 0) {
@@ -783,7 +783,7 @@ Object* partyMemberFindByPid(int pid)
 }
 
 // 0x494F64
-bool sub_494F64(Object* object)
+bool isPotentialPartyMember(Object* object)
 {
     for (int index = 0; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
@@ -823,7 +823,7 @@ bool objectIsPartyMember(Object* object)
 // Returns number of active critters in the party.
 //
 // 0x495010
-int sub_495010()
+int getPartyMemberCount()
 {
     int count = gPartyMembersLength;
 
@@ -839,7 +839,7 @@ int sub_495010()
 }
 
 // 0x495070
-int sub_495070()
+int partyMemberNewObjID()
 {
     Object* object;
 
@@ -862,7 +862,7 @@ int sub_495070()
                     break;
                 }
 
-                if (sub_4950F4(item, dword_519DC0)) {
+                if (partyMemberNewObjIDRecurseFind(item, dword_519DC0)) {
                     break;
                 }
             }
@@ -881,7 +881,7 @@ int sub_495070()
 }
 
 // 0x4950F4
-int sub_4950F4(Object* obj, int objectId)
+int partyMemberNewObjIDRecurseFind(Object* obj, int objectId)
 {
     Inventory* inventory = &(obj->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
@@ -890,7 +890,7 @@ int sub_4950F4(Object* obj, int objectId)
             return 1;
         }
 
-        if (sub_4950F4(inventoryItem->item, objectId)) {
+        if (partyMemberNewObjIDRecurseFind(inventoryItem->item, objectId)) {
             return 1;
         }
     }
@@ -899,7 +899,7 @@ int sub_4950F4(Object* obj, int objectId)
 }
 
 // 0x495140
-int sub_495140()
+int partyMemberPrepItemSaveAll()
 {
     for (int partyMemberIndex = 0; partyMemberIndex < gPartyMembersLength; partyMemberIndex++) {
         STRUCT_519DA8* partyMember = &(gPartyMembers[partyMemberIndex]);
@@ -907,7 +907,7 @@ int sub_495140()
         Inventory* inventory = &(partyMember->object->data.inventory);
         for (int inventoryItemIndex = 0; inventoryItemIndex < inventory->length; inventoryItemIndex++) {
             InventoryItem* inventoryItem = &(inventory->items[inventoryItemIndex]);
-            sub_495198(inventoryItem->item);
+            partyMemberPrepItemSave(inventoryItem->item);
         }
     }
 
@@ -915,7 +915,7 @@ int sub_495140()
 }
 
 // partyMemberPrepItemSaveAll
-int sub_495198(Object* object)
+int partyMemberPrepItemSave(Object* object)
 {
     if (object->sid != -1) {
         Script* script;
@@ -930,14 +930,14 @@ int sub_495198(Object* object)
     Inventory* inventory = &(object->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        sub_495198(inventoryItem->item);
+        partyMemberPrepItemSave(inventoryItem->item);
     }
 
     return 0;
 }
 
 // 0x495234
-int sub_495234(Object* object)
+int partyMemberItemSave(Object* object)
 {
     if (object->sid != -1) {
         Script* script;
@@ -947,7 +947,7 @@ int sub_495234(Object* object)
         }
 
         if (object->id < 20000) {
-            script->field_1C = sub_495070();
+            script->field_1C = partyMemberNewObjID();
             object->id = script->field_1C;
         }
 
@@ -987,7 +987,7 @@ int sub_495234(Object* object)
     Inventory* inventory = &(object->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        sub_495234(inventoryItem->item);
+        partyMemberItemSave(inventoryItem->item);
     }
 
     return 0;
@@ -995,7 +995,7 @@ int sub_495234(Object* object)
 
 // partyMemberItemRecover
 // 0x495388
-int sub_495388(STRUCT_519DA8* a1)
+int partyMemberItemRecover(STRUCT_519DA8* a1)
 {
     int sid = -1;
     if (scriptAdd(&sid, SCRIPT_TYPE_ITEM) == -1) {
@@ -1023,7 +1023,7 @@ int sub_495388(STRUCT_519DA8* a1)
     a1->script = NULL;
 
     if (a1->vars != NULL) {
-        script->localVarsOffset = sub_4822E0(script->localVarsCount);
+        script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
         memcpy(gMapLocalVars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
     }
 
@@ -1031,7 +1031,7 @@ int sub_495388(STRUCT_519DA8* a1)
 }
 
 // 0x4954C4
-int sub_4954C4()
+int partyMemberClearItemList()
 {
     while (off_519DA4 != NULL) {
         STRUCT_519DA8* node = off_519DA4;
@@ -1123,7 +1123,7 @@ int partyGetBestSkillValue(int skill)
 }
 
 // 0x495620
-int sub_495620()
+int partyFixMultipleMembers()
 {
     debugPrint("\n\n\n[Party Members]:");
 
@@ -1215,12 +1215,12 @@ int sub_495620()
 }
 
 // 0x495870
-void sub_495870()
+void partyMemberSaveProtos()
 {
     for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
         int pid = gPartyMemberPids[index];
         if (pid != -1) {
-            sub_4A1B30(pid);
+            proto_save_pid(pid);
         }
     }
 }
@@ -1388,7 +1388,7 @@ bool partyMemberSupportsChemUse(Object* object, int chemUse)
 
 // partyMemberIncLevels
 // 0x495B60
-int sub_495B60()
+int partyMemberIncLevels()
 {
     int i;
     STRUCT_519DA8* ptr;
@@ -1457,7 +1457,7 @@ int sub_495B60()
                         ptr_519DBC->field_8 = 1;
                     }
 
-                    if (sub_495EA8(obj, party_member->level_pids[ptr_519DBC->field_0]) == -1) {
+                    if (partyMemberCopyLevelInfo(obj, party_member->level_pids[ptr_519DBC->field_0]) == -1) {
                         return -1;
                     }
 
@@ -1488,7 +1488,7 @@ int sub_495B60()
 }
 
 // 0x495EA8
-int sub_495EA8(Object* critter, int a2)
+int partyMemberCopyLevelInfo(Object* critter, int a2)
 {
     if (critter == NULL) {
         return -1;
@@ -1509,10 +1509,10 @@ int sub_495EA8(Object* critter, int a2)
     }
 
     Object* item2 = critterGetItem2(critter);
-    sub_472A64(critter, 1, 0);
+    invenUnwieldFunc(critter, 1, 0);
 
     Object* armor = critterGetArmor(critter);
-    sub_4715F8(critter, armor, NULL);
+    adjust_ac(critter, armor, NULL);
     itemRemove(critter, armor, 1);
 
     int maxHp = critterGetStat(critter, STAT_MAXIMUM_HIT_POINTS);
@@ -1534,11 +1534,11 @@ int sub_495EA8(Object* critter, int a2)
 
     if (armor != NULL) {
         itemAdd(critter, armor, 1);
-        sub_472758(critter, armor, 0);
+        inven_wield(critter, armor, 0);
     }
 
     if (item2 != NULL) {
-        sub_472768(critter, item2, 0, false);
+        invenWieldFunc(critter, item2, 0, false);
     }
 
     return 0;

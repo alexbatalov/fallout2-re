@@ -30,11 +30,11 @@ ExternalVariable* externalVariableAdd(const char* identifier);
 int externalVariableSetValue(Program* program, const char* identifier, opcode_t opcode, int data);
 int externalVariableGetValue(Program* program, const char* name, opcode_t* opcodePtr, int* dataPtr);
 int externalVariableCreate(Program* program, const char* identifier);
-void sub_4414FC(Program* program);
-void sub_44152C();
+void removeProgramReferences(Program* program);
+void initExport();
 void externalVariablesClear();
 Program* externalProcedureGetProgram(const char* identifier, int* addressPtr, int* argumentCountPtr);
 int externalProcedureCreate(Program* program, const char* identifier, int address, int argumentCount);
-void sub_441824();
+void exportClearAllVariables();
 
 #endif /* EXPORT_H */

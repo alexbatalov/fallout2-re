@@ -443,7 +443,7 @@ unsigned char byte_570A29;
 unsigned char byte_570A2A;
 
 //
-int sub_431DF8(bool isCreationMode)
+int editor_design(bool isCreationMode)
 {
     char* messageListItemText;
     char line1[128];
@@ -452,7 +452,7 @@ int sub_431DF8(bool isCreationMode)
 
     gCharacterEditorIsCreationMode = isCreationMode;
 
-    sub_43A7DC();
+    SavePlayer();
 
     if (characterEditorWindowInit() == -1) {
         debugPrint("\n ** Error loading character editor data! **\n");
@@ -460,7 +460,7 @@ int sub_431DF8(bool isCreationMode)
     }
 
     if (!gCharacterEditorIsCreationMode) {
-        if (sub_43C228()) {
+        if (UpdateLevel()) {
             critterUpdateDerivedStats(gDude);
             characterEditorWindowRenderTraits();
             editorRenderSkills(0);
@@ -472,8 +472,8 @@ int sub_431DF8(bool isCreationMode)
 
     int rc = -1;
     while (rc == -1) {
-        dword_5709C4 = sub_4C9370();
-        int keyCode = sub_4C8B78();
+        dword_5709C4 = get_time();
+        int keyCode = get_input();
 
         bool done = false;
         if (keyCode == 500) {
@@ -523,7 +523,7 @@ int sub_431DF8(bool isCreationMode)
                     continue;
                 }
 
-                if (sub_43DF50()) {
+                if (is_supper_bonus()) {
                     soundPlayFile("iisxxxx1");
 
                     // All stats must be between 1 and 10
@@ -583,10 +583,10 @@ int sub_431DF8(bool isCreationMode)
             windowRefresh(characterEditorWindowHandle);
         } else if ((gCharacterEditorIsCreationMode && (keyCode == 501 || keyCode == KEY_UPPERCASE_O || keyCode == KEY_LOWERCASE_O))
             || (!gCharacterEditorIsCreationMode && (keyCode == 501 || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P))) {
-            // sub_437C08();
+            // OptionWindow();
             windowRefresh(characterEditorWindowHandle);
         } else if (keyCode >= 525 && keyCode < 535) {
-            sub_43AF40(keyCode);
+            InfoButton(keyCode);
             windowRefresh(characterEditorWindowHandle);
         } else {
             switch (keyCode) {
@@ -637,16 +637,16 @@ int sub_431DF8(bool isCreationMode)
             case KEY_UPPERCASE_J:
                 if (characterEditorSelectedItem >= 0 && characterEditorSelectedItem < 7) {
                     if (gCharacterEditorIsCreationMode) {
-                        sub_4D9AA0(dword_5705EC[characterEditorSelectedItem]);
+                        win_button_press_and_release(dword_5705EC[characterEditorSelectedItem]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
-                        sub_4D9AA0(dword_570158[gCharacterEditorIsCreationMode - 61]);
+                        win_button_press_and_release(dword_570158[gCharacterEditorIsCreationMode - 61]);
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
-                        sub_4D9AA0(dword_5700A8[gCharacterEditorIsCreationMode - 82]);
+                        win_button_press_and_release(dword_5700A8[gCharacterEditorIsCreationMode - 82]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 }
@@ -656,16 +656,16 @@ int sub_431DF8(bool isCreationMode)
             case KEY_UPPERCASE_N:
                 if (characterEditorSelectedItem >= 0 && characterEditorSelectedItem < 7) {
                     if (gCharacterEditorIsCreationMode) {
-                        sub_4D9AA0(dword_570610[characterEditorSelectedItem]);
+                        win_button_press_and_release(dword_570610[characterEditorSelectedItem]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
-                        sub_4D9AA0(dword_570158[gCharacterEditorIsCreationMode - 61]);
+                        win_button_press_and_release(dword_570158[gCharacterEditorIsCreationMode - 61]);
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
-                        sub_4D9AA0(dword_5700A8[gCharacterEditorIsCreationMode - 82]);
+                        win_button_press_and_release(dword_5700A8[gCharacterEditorIsCreationMode - 82]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 }
@@ -674,7 +674,7 @@ int sub_431DF8(bool isCreationMode)
                 if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) {
                     if (characterEditorSelectedItem == 10) {
                         if (dword_5705B4 <= 0) {
-                            sub_43E0D4(-1);
+                            folder_scroll(-1);
                         }
                     }
                     characterEditorSelectedItem -= 1;
@@ -724,7 +724,7 @@ int sub_431DF8(bool isCreationMode)
                 if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) {
                     if (characterEditorSelectedItem - 10 < dword_5705AC - dword_5705B4) {
                         if (characterEditorSelectedItem - 10 == dword_5705A8 - 1) {
-                            sub_43E0D4(1);
+                            folder_scroll(1);
                         }
 
                         characterEditorSelectedItem++;
@@ -779,15 +779,15 @@ int sub_431DF8(bool isCreationMode)
                 windowRefresh(characterEditorWindowHandle);
                 break;
             case 535:
-                sub_43AE84();
+                FldrButton();
                 windowRefresh(characterEditorWindowHandle);
                 break;
             case 17000:
-                sub_43E0D4(-1);
+                folder_scroll(-1);
                 windowRefresh(characterEditorWindowHandle);
                 break;
             case 17001:
-                sub_43E0D4(1);
+                folder_scroll(1);
                 windowRefresh(characterEditorWindowHandle);
                 break;
             default:
@@ -810,7 +810,7 @@ int sub_431DF8(bool isCreationMode)
 
     if (rc == 0) {
         if (isCreationMode) {
-            sub_49F984();
+            proto_dude_update_gender();
             paletteFadeTo(gPaletteBlack);
         }
     }
@@ -818,7 +818,7 @@ int sub_431DF8(bool isCreationMode)
     characterEditorWindowFree();
 
     if (rc == 1) {
-        sub_43A8BC();
+        RestorePlayer();
     }
 
     if (dudeHasState(0x03)) {
@@ -1128,7 +1128,7 @@ int characterEditorWindowInit()
         fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, byte_6A38D0[18979]);
 
         editorRenderPcStats();
-        sub_43DF8C();
+        folder_init();
     }
 
     fontSetCurrent(103);
@@ -1173,8 +1173,8 @@ int characterEditorWindowInit()
             dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
             0,
             96);
-        buttonSetCallbacks(dword_5705E4, sub_451970, NULL);
-        buttonSetCallbacks(dword_5705E8, sub_451970, NULL);
+        buttonSetCallbacks(dword_5705E4, gsound_red_butt_press, NULL);
+        buttonSetCallbacks(dword_5705E8, gsound_red_butt_press, NULL);
     }
 
     editorRenderSkills(0);
@@ -1202,7 +1202,7 @@ int characterEditorWindowInit()
             32);
         if (btn != -1) {
             buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_NAME_MASK]);
-            buttonSetCallbacks(btn, sub_451998, NULL);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
         }
 
         x += stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width;
@@ -1222,7 +1222,7 @@ int characterEditorWindowInit()
             32);
         if (btn != -1) {
             buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_AGE_MASK]);
-            buttonSetCallbacks(btn, sub_451998, NULL);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
         }
 
         x += stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width;
@@ -1242,7 +1242,7 @@ int characterEditorWindowInit()
             32);
         if (btn != -1) {
             buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_SEX_MASK]);
-            buttonSetCallbacks(btn, sub_451998, NULL);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
         }
 
         y = TAG_SKILLS_BUTTON_Y;
@@ -1363,7 +1363,7 @@ int characterEditorWindowInit()
                 NULL,
                 32);
             if (dword_570610[i] != -1) {
-                buttonSetCallbacks(dword_570610[i], sub_451970, NULL);
+                buttonSetCallbacks(dword_570610[i], gsound_red_butt_press, NULL);
             }
 
             dword_5705EC[i] = buttonCreate(characterEditorWindowHandle,
@@ -1380,12 +1380,12 @@ int characterEditorWindowInit()
                 NULL,
                 32);
             if (dword_5705EC[i] != -1) {
-                buttonSetCallbacks(dword_5705EC[i], sub_451970, NULL);
+                buttonSetCallbacks(dword_5705EC[i], gsound_red_butt_press, NULL);
             }
         }
     }
 
-    sub_43A5BC();
+    RegInfoAreas();
     soundContinueAll();
 
     btn = buttonCreate(
@@ -1403,7 +1403,7 @@ int characterEditorWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(
@@ -1421,7 +1421,7 @@ int characterEditorWindowInit()
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(
@@ -1439,7 +1439,7 @@ int characterEditorWindowInit()
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     windowRefresh(characterEditorWindowHandle);
@@ -1504,7 +1504,7 @@ void characterEditorWindowFree()
 
 // CharEditInit
 // 0x433C0C
-void sub_433C0C()
+void CharEditInit()
 {
     int i;
 
@@ -1524,7 +1524,7 @@ void sub_433C0C()
 }
 
 // handle name input
-int sub_433C6C(int win, int cancelKeyCode, char* text, int maxLength, int x, int y, int textColor, int backgroundColor, int flags)
+int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, int y, int textColor, int backgroundColor, int flags)
 {
     int cursorWidth = fontGetStringWidth("_") - 4;
     int windowWidth = windowGetWidth(win);
@@ -1553,9 +1553,9 @@ int sub_433C6C(int win, int cancelKeyCode, char* text, int maxLength, int x, int
 
     int rc = 1;
     while (rc == 1) {
-        dword_5709C4 = sub_4C9370();
+        dword_5709C4 = get_time();
 
-        int keyCode = sub_4C8B78();
+        int keyCode = get_input();
         if (keyCode == cancelKeyCode) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
@@ -1574,7 +1574,7 @@ int sub_433C6C(int win, int cancelKeyCode, char* text, int maxLength, int x, int
                 windowRefresh(win);
             } else if ((keyCode >= KEY_FIRST_INPUT_CHARACTER && keyCode <= KEY_LAST_INPUT_CHARACTER) && nameLength < maxLength) {
                 if ((flags & 0x01) != 0) {
-                    if (!sub_434060(keyCode)) {
+                    if (!isdoschar(keyCode)) {
                         break;
                     }
                 }
@@ -1614,7 +1614,7 @@ int sub_433C6C(int win, int cancelKeyCode, char* text, int maxLength, int x, int
     return rc;
 }
 
-bool sub_434060(int ch)
+bool isdoschar(int ch)
 {
     const char* punctuations = "#@!$`'~^&()-_=[]{}";
 
@@ -1633,7 +1633,7 @@ bool sub_434060(int ch)
 }
 
 // copy filename replacing extension
-char* sub_4340D0(char* dest, const char* name, const char* ext)
+char* strmfe(char* dest, const char* name, const char* ext)
 {
     char* save = dest;
 
@@ -1702,12 +1702,12 @@ void editorRenderPerks()
     int perkLevel;
     bool hasContent = false;
 
-    sub_43E200();
+    folder_clear();
 
     if (dword_570A04[0] != -1) {
         // TRAITS
         string = getmsg(&editorMessageList, &editorMessageListItem, 156);
-        if (sub_43E28C(string)) {
+        if (folder_print_seperator(string)) {
             dword_5705B0 = 54;
             // Optional Traits
             off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 146);
@@ -1719,7 +1719,7 @@ void editorRenderPerks()
 
         if (dword_570A04[0] != -1) {
             string = traitGetName(dword_570A04[0]);
-            if (sub_43E3D8(string)) {
+            if (folder_print_line(string)) {
                 dword_5705B0 = traitGetFrmId(dword_570A04[0]);
                 off_5705B8 = traitGetName(dword_570A04[0]);
                 off_5705BC = NULL;
@@ -1730,7 +1730,7 @@ void editorRenderPerks()
 
         if (dword_570A04[1] != -1) {
             string = traitGetName(dword_570A04[1]);
-            if (sub_43E3D8(string)) {
+            if (folder_print_line(string)) {
                 dword_5705B0 = traitGetFrmId(dword_570A04[1]);
                 off_5705B8 = traitGetName(dword_570A04[1]);
                 off_5705BC = NULL;
@@ -1749,7 +1749,7 @@ void editorRenderPerks()
     if (perk != PERK_COUNT) {
         // PERKS
         string = getmsg(&editorMessageList, &editorMessageListItem, 109);
-        sub_43E28C(string);
+        folder_print_seperator(string);
 
         for (perk = 0; perk < PERK_COUNT; perk++) {
             perkLevel = perkGetRank(gDude, perk);
@@ -1762,7 +1762,7 @@ void editorRenderPerks()
                     sprintf(perkName, "%s (%d)", string, perkLevel);
                 }
 
-                if (sub_43E3D8(perkName)) {
+                if (folder_print_line(perkName)) {
                     dword_5705B0 = perkGetFrmId(perk);
                     off_5705B8 = perkGetName(perk);
                     off_5705BC = NULL;
@@ -1783,7 +1783,7 @@ void editorRenderPerks()
     }
 }
 
-int sub_434498(const KillInfo* a, const KillInfo* b)
+int kills_list_comp(const KillInfo* a, const KillInfo* b)
 {
     return stricmp(a->name, b->name);
 }
@@ -1797,7 +1797,7 @@ int editorRenderKills()
     int usedKills = 0;
     bool hasContent = false;
 
-    sub_43E200();
+    folder_clear();
 
     for (i = 0; i < KILL_TYPE_COUNT; i++) {
         killsCount = killsGetByType(i);
@@ -1811,7 +1811,7 @@ int editorRenderKills()
     }
 
     if (usedKills != 0) {
-        qsort(kills, usedKills, 12, (int (*)(const void*, const void*))sub_434498);
+        qsort(kills, usedKills, 12, (int (*)(const void*, const void*))kills_list_comp);
 
         for (i = 0; i < usedKills; i++) {
             KillInfo* killInfo = &(kills[i]);
@@ -1873,7 +1873,7 @@ void characterEditorRenderBigNumber(int x, int y, int flags, int value, int prev
 
         if (flags & ANIMATE) {
             if (previousValue % 10 != ones) {
-                dword_5709C4 = sub_4C9370();
+                dword_5709C4 = get_time();
                 blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
@@ -1894,7 +1894,7 @@ void characterEditorRenderBigNumber(int x, int y, int flags, int value, int prev
             windowRefreshRect(windowHandle, &rect);
 
             if (previousValue / 10 != tens) {
-                dword_5709C4 = sub_4C9370();
+                dword_5709C4 = get_time();
                 blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
@@ -1986,7 +1986,7 @@ void editorRenderPcStats()
     int exp = pcGetStat(PC_STAT_EXPERIENCE);
     sprintf(stringBuffer, "%s %s",
         getmsg(&editorMessageList, &editorMessageListItem, 114),
-        sub_43A9CC(exp, formattedValueBuffer));
+        itostndn(exp, formattedValueBuffer));
     fontDrawText(characterEditorWindowBuf + 640 * y + 32, stringBuffer, 640, 640, color);
 
     // EXP NEEDED TO NEXT LEVEL
@@ -2007,7 +2007,7 @@ void editorRenderPcStats()
         if (expToNextLevel > 999999) {
             expMsgId = 175;
         }
-        formattedValue = sub_43A9CC(expToNextLevel, formattedValueBuffer);
+        formattedValue = itostndn(expToNextLevel, formattedValueBuffer);
     }
 
     sprintf(stringBuffer, "%s %s",
@@ -2623,7 +2623,7 @@ void editorRenderSkills(int a1)
                     dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(dword_5705E4, sub_451970, NULL);
+                buttonSetCallbacks(dword_5705E4, gsound_red_butt_press, NULL);
             }
 
             if (dword_5705E8 == -1) {
@@ -2641,7 +2641,7 @@ void editorRenderSkills(int a1)
                     dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(dword_5705E8, sub_451970, NULL);
+                buttonSetCallbacks(dword_5705E8, gsound_red_butt_press, NULL);
             }
         }
     }
@@ -2664,7 +2664,7 @@ void editorRenderDetails()
         description = statGetDescription(characterEditorSelectedItem);
         title = statGetName(characterEditorSelectedItem);
         graphicId = statGetFrmId(characterEditorSelectedItem);
-        sub_43AAEC(graphicId, title, NULL, description);
+        DrawCard(graphicId, title, NULL, description);
     } else if (characterEditorSelectedItem >= 7 && characterEditorSelectedItem < 10) {
         if (gCharacterEditorIsCreationMode) {
             switch (characterEditorSelectedItem) {
@@ -2672,7 +2672,7 @@ void editorRenderDetails()
                 // Character Points
                 description = getmsg(&editorMessageList, &editorMessageListItem, 121);
                 title = getmsg(&editorMessageList, &editorMessageListItem, 120);
-                sub_43AAEC(7, title, NULL, description);
+                DrawCard(7, title, NULL, description);
                 break;
             }
         } else {
@@ -2680,65 +2680,65 @@ void editorRenderDetails()
             case 7:
                 description = pcStatGetDescription(PC_STAT_LEVEL);
                 title = pcStatGetName(PC_STAT_LEVEL);
-                sub_43AAEC(7, title, NULL, description);
+                DrawCard(7, title, NULL, description);
                 break;
             case 8:
                 description = pcStatGetDescription(PC_STAT_EXPERIENCE);
                 title = pcStatGetName(PC_STAT_EXPERIENCE);
-                sub_43AAEC(8, title, NULL, description);
+                DrawCard(8, title, NULL, description);
                 break;
             case 9:
                 // Next Level
                 description = getmsg(&editorMessageList, &editorMessageListItem, 123);
                 title = getmsg(&editorMessageList, &editorMessageListItem, 122);
-                sub_43AAEC(9, title, NULL, description);
+                DrawCard(9, title, NULL, description);
                 break;
             }
         }
     } else if ((characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) || (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98)) {
-        sub_43AAEC(dword_5705B0, off_5705B8, off_5705BC, off_5705CC);
+        DrawCard(dword_5705B0, off_5705B8, off_5705BC, off_5705CC);
     } else if (characterEditorSelectedItem >= 43 && characterEditorSelectedItem < 51) {
         switch (characterEditorSelectedItem) {
         case EDITOR_HIT_POINTS:
             description = statGetDescription(STAT_MAXIMUM_HIT_POINTS);
             title = getmsg(&editorMessageList, &editorMessageListItem, 300);
             graphicId = statGetFrmId(STAT_MAXIMUM_HIT_POINTS);
-            sub_43AAEC(graphicId, title, NULL, description);
+            DrawCard(graphicId, title, NULL, description);
             break;
         case EDITOR_POISONED:
             description = getmsg(&editorMessageList, &editorMessageListItem, 400);
             title = getmsg(&editorMessageList, &editorMessageListItem, 312);
-            sub_43AAEC(11, title, NULL, description);
+            DrawCard(11, title, NULL, description);
             break;
         case EDITOR_RADIATED:
             description = getmsg(&editorMessageList, &editorMessageListItem, 401);
             title = getmsg(&editorMessageList, &editorMessageListItem, 313);
-            sub_43AAEC(12, title, NULL, description);
+            DrawCard(12, title, NULL, description);
             break;
         case EDITOR_EYE_DAMAGE:
             description = getmsg(&editorMessageList, &editorMessageListItem, 402);
             title = getmsg(&editorMessageList, &editorMessageListItem, 314);
-            sub_43AAEC(13, title, NULL, description);
+            DrawCard(13, title, NULL, description);
             break;
         case EDITOR_CRIPPLED_RIGHT_ARM:
             description = getmsg(&editorMessageList, &editorMessageListItem, 403);
             title = getmsg(&editorMessageList, &editorMessageListItem, 315);
-            sub_43AAEC(14, title, NULL, description);
+            DrawCard(14, title, NULL, description);
             break;
         case EDITOR_CRIPPLED_LEFT_ARM:
             description = getmsg(&editorMessageList, &editorMessageListItem, 404);
             title = getmsg(&editorMessageList, &editorMessageListItem, 316);
-            sub_43AAEC(15, title, NULL, description);
+            DrawCard(15, title, NULL, description);
             break;
         case EDITOR_CRIPPLED_RIGHT_LEG:
             description = getmsg(&editorMessageList, &editorMessageListItem, 405);
             title = getmsg(&editorMessageList, &editorMessageListItem, 317);
-            sub_43AAEC(16, title, NULL, description);
+            DrawCard(16, title, NULL, description);
             break;
         case EDITOR_CRIPPLED_LEFT_LEG:
             description = getmsg(&editorMessageList, &editorMessageListItem, 406);
             title = getmsg(&editorMessageList, &editorMessageListItem, 318);
-            sub_43AAEC(17, title, NULL, description);
+            DrawCard(17, title, NULL, description);
             break;
         }
     } else if (characterEditorSelectedItem >= EDITOR_FIRST_DERIVED_STAT && characterEditorSelectedItem < 61) {
@@ -2747,7 +2747,7 @@ void editorRenderDetails()
         description = statGetDescription(stat);
         title = statGetName(stat);
         graphicId = word_431D3A[derivedStatIndex];
-        sub_43AAEC(graphicId, title, NULL, description);
+        DrawCard(graphicId, title, NULL, description);
     } else if (characterEditorSelectedItem >= EDITOR_FIRST_SKILL && characterEditorSelectedItem < 79) {
         int skill = characterEditorSelectedItem - 61;
         const char* attributesDescription = skillGetAttributes(skill);
@@ -2760,7 +2760,7 @@ void editorRenderDetails()
         graphicId = skillGetFrmId(skill);
         title = skillGetName(skill);
         description = skillGetDescription(skill);
-        sub_43AAEC(graphicId, title, formatted, description);
+        DrawCard(graphicId, title, formatted, description);
     } else if (characterEditorSelectedItem >= 79 && characterEditorSelectedItem < 82) {
         switch (characterEditorSelectedItem) {
         case EDITOR_TAG_SKILL:
@@ -2768,25 +2768,25 @@ void editorRenderDetails()
                 // Tag Skill
                 description = getmsg(&editorMessageList, &editorMessageListItem, 145);
                 title = getmsg(&editorMessageList, &editorMessageListItem, 144);
-                sub_43AAEC(27, title, NULL, description);
+                DrawCard(27, title, NULL, description);
             } else {
                 // Skill Points
                 description = getmsg(&editorMessageList, &editorMessageListItem, 131);
                 title = getmsg(&editorMessageList, &editorMessageListItem, 130);
-                sub_43AAEC(27, title, NULL, description);
+                DrawCard(27, title, NULL, description);
             }
             break;
         case EDITOR_SKILLS:
             // Skills
             description = getmsg(&editorMessageList, &editorMessageListItem, 151);
             title = getmsg(&editorMessageList, &editorMessageListItem, 150);
-            sub_43AAEC(27, title, NULL, description);
+            DrawCard(27, title, NULL, description);
             break;
         case EDITOR_OPTIONAL_TRAITS:
             // Optional Traits
             description = getmsg(&editorMessageList, &editorMessageListItem, 147);
             title = getmsg(&editorMessageList, &editorMessageListItem, 146);
-            sub_43AAEC(27, title, NULL, description);
+            DrawCard(27, title, NULL, description);
             break;
         }
     }
@@ -2843,7 +2843,7 @@ int characterEditorEditName()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     windowRefresh(win);
@@ -2862,7 +2862,7 @@ int characterEditorEditName()
     char nameCopy[64];
     strcpy(nameCopy, name);
 
-    if (sub_433C6C(win, 500, nameCopy, 11, 23, 19, byte_6A38D0[992], 100, 0) != -1) {
+    if (get_input_str(win, 500, nameCopy, 11, 23, 19, byte_6A38D0[992], 100, 0) != -1) {
         if (nameCopy[0] != '\0') {
             dudeSetName(nameCopy);
             editorRenderName();
@@ -2881,7 +2881,7 @@ int characterEditorEditName()
         windowBuf + stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width * 13 + 13,
         stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width);
 
-    sub_436F70(windowBuf, stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width);
+    PrintName(windowBuf, stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width);
 
     strcpy(nameCopy, name);
 
@@ -2891,7 +2891,7 @@ int characterEditorEditName()
 }
 
 //
-void sub_436F70(unsigned char* buf, int a2)
+void PrintName(unsigned char* buf, int a2)
 {
     char str[64];
     char* v4;
@@ -2976,7 +2976,7 @@ int characterEditorRunEditAgeDialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     nextBtn = buttonCreate(win,
@@ -2993,7 +2993,7 @@ int characterEditorRunEditAgeDialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (nextBtn != -1) {
-        buttonSetCallbacks(nextBtn, sub_451988, NULL);
+        buttonSetCallbacks(nextBtn, gsound_med_butt_press, NULL);
     }
 
     prevBtn = buttonCreate(win,
@@ -3010,16 +3010,16 @@ int characterEditorRunEditAgeDialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (prevBtn != -1) {
-        buttonSetCallbacks(prevBtn, sub_451988, NULL);
+        buttonSetCallbacks(prevBtn, gsound_med_butt_press, NULL);
     }
 
     while (true) {
-        dword_5709C4 = sub_4C9370();
+        dword_5709C4 = get_time();
         change = 0;
         flags = 0;
         int v32 = 0;
 
-        keyCode = sub_4C8B78();
+        keyCode = get_input();
 
         if (keyCode == KEY_RETURN || keyCode == 500) {
             if (keyCode != 500) {
@@ -3077,7 +3077,7 @@ int characterEditorRunEditAgeDialog()
             dword_5709C0 = 4;
 
             while (true) {
-                dword_5709C4 = sub_4C9370();
+                dword_5709C4 = get_time();
 
                 v33++;
 
@@ -3127,7 +3127,7 @@ int characterEditorRunEditAgeDialog()
                         ;
                 }
 
-                keyCode = sub_4C8B78();
+                keyCode = get_input();
                 if (keyCode == 503 || keyCode == 504 || dword_5186CC != 0) {
                     break;
                 }
@@ -3198,7 +3198,7 @@ void characterEditorEditGender()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int btns[2];
@@ -3216,7 +3216,7 @@ void characterEditorEditGender()
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[0] != -1) {
-        buttonSetCallbacks(doneBtn, sub_451970, NULL);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
     }
 
     btns[1] = buttonCreate(win,
@@ -3233,17 +3233,17 @@ void characterEditorEditGender()
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[1] != -1) {
-        sub_4D96EC(2, btns);
-        buttonSetCallbacks(doneBtn, sub_451970, NULL);
+        win_group_radio_buttons(2, btns);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
     }
 
     int savedGender = critterGetStat(gDude, STAT_GENDER);
-    sub_4D9554(btns[savedGender], 1, 0);
+    win_set_button_rest_state(btns[savedGender], 1, 0);
 
     while (true) {
-        dword_5709C4 = sub_4C9370();
+        dword_5709C4 = get_time();
 
-        int eventCode = sub_4C8B78();
+        int eventCode = get_input();
 
         if (eventCode == KEY_RETURN || eventCode == 500) {
             if (eventCode == KEY_RETURN) {
@@ -3263,8 +3263,8 @@ void characterEditorEditGender()
         switch (eventCode) {
         case KEY_ARROW_LEFT:
         case KEY_ARROW_RIGHT:
-            sub_4D9554(btns[0], 1 - sub_4D89E4(btns[0]), 1);
-            sub_4D9554(btns[1], sub_4D89E4(btns[0]), 1);
+            win_set_button_rest_state(btns[0], 1 - win_button_down(btns[0]), 1);
+            win_set_button_rest_state(btns[1], win_button_down(btns[0]), 1);
             break;
         case 501:
         case 502:
@@ -3303,7 +3303,7 @@ void characterEditorHandleIncDecPrimaryStat(int eventCode)
 
     bool cont = true;
     do {
-        dword_5709C4 = sub_4C9370();
+        dword_5709C4 = get_time();
         if (v11 <= 19.2) {
             v11++;
         }
@@ -3358,13 +3358,13 @@ void characterEditorHandleIncDecPrimaryStat(int eventCode)
             while (getTicksSince(dword_5709C4) < 1000 / 24) {
             }
         }
-    } while (sub_4C8B78() != 518 && cont);
+    } while (get_input() != 518 && cont);
 
     editorRenderDetails();
 }
 
 // handle options dialog
-int sub_437C08()
+int OptionWindow()
 {
     int width = stru_5701C0[43].width;
     int height = stru_5701C0[43].height;
@@ -3420,7 +3420,7 @@ int sub_437C08()
 
                 int btn = buttonCreate(win, 13, y, width, height, -1, -1, -1, 500 + index, up[index], down[index], NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {
-                    buttonSetCallbacks(btn, sub_451998, NULL);
+                    buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
                 }
             } while (0);
 
@@ -3444,7 +3444,7 @@ int sub_437C08()
 
         int rc = 0;
         while (rc != 0) {
-            int keyCode = sub_4C8B78();
+            int keyCode = get_input();
 
             if (dword_5186CC != 0) {
                 rc = 2;
@@ -3466,7 +3466,7 @@ int sub_437C08()
 
                 const char* lines[] = { line1, line2 };
                 if (showDialogBox(NULL, lines, 2, 169, 126, byte_6A38D0[992], NULL, byte_6A38D0[992], 0x10) != 0) {
-                    sub_4A22C0();
+                    ResetPlayer();
                     skillsGetTagged(dword_570A14, NUM_TAGGED_SKILLS);
 
                     int v224 = 3;
@@ -3499,7 +3499,7 @@ int sub_437C08()
 
                     dword_5709FC = v227;
                     critterUpdateDerivedStats(gDude);
-                    sub_43A4BC();
+                    ResetScreen();
                 }
             } else if (keyCode == 502 || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P) {
                 // PRINT TO FILE
@@ -3519,7 +3519,7 @@ int sub_437C08()
                     // PRINT TO FILE
                     strcpy(dest, getmsg(&editorMessageList, &editorMessageListItem, 602));
 
-                    if (sub_41EA78(dest, fileList, v236, fileListLength, 168, 80, 0) == 0) {
+                    if (save_file_dialog(dest, fileList, v236, fileListLength, 168, 80, 0) == 0) {
                         strcat(v236, ".TXT");
 
                         dest[0] = '\0';
@@ -3637,7 +3637,7 @@ int sub_437C08()
     char title[512];
     strcpy(title, getmsg(&editorMessageList, &editorMessageListItem, 602));
 
-    if (sub_41EA78(title, fileNames, fileName, filesCount, 168, 80, 0) == 0) {
+    if (save_file_dialog(title, fileNames, fileName, filesCount, 168, 80, 0) == 0) {
         strcat(fileName, ".TXT");
 
         title[0] = '\0';
@@ -3717,7 +3717,7 @@ int characterPrintToFile(const char* fileName)
 
     // NOTE: Uninline.
     padding[0] = '\0';
-    sub_43A55C(padding, (80 - strlen(title1)) / 2 - 2);
+    AddSpaces(padding, (80 - strlen(title1)) / 2 - 2);
 
     strcat(padding, title1);
     strcat(padding, "\n");
@@ -3728,7 +3728,7 @@ int characterPrintToFile(const char* fileName)
 
     // NOTE: Uninline.
     padding[0] = '\0';
-    sub_43A55C(padding, (80 - strlen(title1)) / 2 - 2);
+    AddSpaces(padding, (80 - strlen(title1)) / 2 - 2);
 
     strcat(padding, title1);
     strcat(padding, "\n");
@@ -3748,7 +3748,7 @@ int characterPrintToFile(const char* fileName)
 
     // NOTE: Uninline.
     padding[0] = '\0';
-    sub_43A55C(padding, (80 - strlen(title1)) / 2 - 2);
+    AddSpaces(padding, (80 - strlen(title1)) / 2 - 2);
 
     strcat(padding, title1);
     strcat(padding, "\n");
@@ -3767,7 +3767,7 @@ int characterPrintToFile(const char* fileName)
     if (paddingLength > 0) {
         // NOTE: Uninline.
         padding[0] = '\0';
-        sub_43A55C(padding, paddingLength);
+        AddSpaces(padding, paddingLength);
 
         strcat(title1, padding);
     }
@@ -3794,13 +3794,13 @@ int characterPrintToFile(const char* fileName)
         getmsg(&editorMessageList, &editorMessageListItem, 647),
         pcGetStat(PC_STAT_LEVEL),
         getmsg(&editorMessageList, &editorMessageListItem, 648),
-        sub_43A9CC(pcGetStat(PC_STAT_EXPERIENCE), title3));
+        itostndn(pcGetStat(PC_STAT_EXPERIENCE), title3));
 
     paddingLength = 12 - strlen(title3);
     if (paddingLength > 0) {
         // NOTE: Uninline.
         padding[0] = '\0';
-        sub_43A55C(padding, paddingLength);
+        AddSpaces(padding, paddingLength);
 
         strcat(title1, padding);
     }
@@ -3809,7 +3809,7 @@ int characterPrintToFile(const char* fileName)
         "%s%s %s",
         title1,
         getmsg(&editorMessageList, &editorMessageListItem, 649),
-        sub_43A9CC(pcGetExperienceForNextLevel(), title3));
+        itostndn(pcGetExperienceForNextLevel(), title3));
     fileWriteString(title2, stream);
     fileWriteString("\n", stream);
     fileWriteString("\n", stream);
@@ -3982,7 +3982,7 @@ int characterPrintToFile(const char* fileName)
     bool hasTownReputationHeading = false;
     for (int index = 0; index < TOWN_REPUTATION_COUNT; index++) {
         const TownReputationEntry* pair = &(gTownReputationEntries[index]);
-        if (sub_4C453C(pair->city)) {
+        if (wmAreaIsKnown(pair->city)) {
             if (!hasTownReputationHeading) {
                 fileWriteString("\n", stream);
 
@@ -3992,7 +3992,7 @@ int characterPrintToFile(const char* fileName)
                 hasTownReputationHeading = true;
             }
 
-            sub_4C450C(pair->city, title2);
+            wmGetAreaIdxName(pair->city, title2);
 
             int townReputation = gGameGlobalVars[pair->gvar];
 
@@ -4054,7 +4054,7 @@ int characterPrintToFile(const char* fileName)
         sprintf(title1, "%s ", skillGetName(skill));
 
         // NOTE: Uninline.
-        sub_43A58C(title1 + strlen(title1), 16 - strlen(title1));
+        AddDots(title1 + strlen(title1), 16 - strlen(title1));
 
         bool hasKillType = false;
 
@@ -4064,7 +4064,7 @@ int characterPrintToFile(const char* fileName)
                 sprintf(title2, "%s ", killTypeGetName(killType));
 
                 // NOTE: Uninline.
-                sub_43A58C(title2 + strlen(title2), 16 - strlen(title2));
+                AddDots(title2 + strlen(title2), 16 - strlen(title2));
 
                 sprintf(title3,
                     "  %s %.3d%%        %s %.3d\n",
@@ -4106,7 +4106,7 @@ int characterPrintToFile(const char* fileName)
 
             sprintf(title2,
                 "  %sx %s",
-                sub_43A9CC(inventoryItem->quantity, title3),
+                itostndn(inventoryItem->quantity, title3),
                 objectGetName(inventoryItem->item));
 
             int length = 25 - strlen(title2);
@@ -4114,7 +4114,7 @@ int characterPrintToFile(const char* fileName)
                 length = 0;
             }
 
-            sub_43A55C(title2, length);
+            AddSpaces(title2, length);
 
             strcat(title1, title2);
         }
@@ -4140,7 +4140,7 @@ int characterPrintToFile(const char* fileName)
     return 0;
 }
 
-char* sub_43A55C(char* string, int length)
+char* AddSpaces(char* string, int length)
 {
     char* pch = string + strlen(string);
 
@@ -4154,7 +4154,7 @@ char* sub_43A55C(char* string, int length)
 }
 
 // NOTE: Inlined.
-char* sub_43A58C(char* string, int length)
+char* AddDots(char* string, int length)
 {
     char* pch = string + strlen(string);
 
@@ -4167,7 +4167,7 @@ char* sub_43A58C(char* string, int length)
     return string;
 }
 
-void sub_43A4BC()
+void ResetScreen()
 {
     characterEditorSelectedItem = 0;
     dword_51852C = 0;
@@ -4193,7 +4193,7 @@ void sub_43A4BC()
 }
 
 //
-void sub_43A5BC()
+void RegInfoAreas()
 {
     buttonCreate(characterEditorWindowHandle, 19, 38, 125, 227, -1, -1, 525, -1, NULL, NULL, NULL, 0);
     buttonCreate(characterEditorWindowHandle, 28, 280, 124, 32, -1, -1, 526, -1, NULL, NULL, NULL, 0);
@@ -4213,7 +4213,7 @@ void sub_43A5BC()
 }
 
 // copy character to editor
-void sub_43A7DC()
+void SavePlayer()
 {
     Proto* proto;
     protoGetProto(gDude->pid, &proto);
@@ -4242,14 +4242,14 @@ void sub_43A7DC()
 }
 
 // copy editor to character
-void sub_43A8BC()
+void RestorePlayer()
 {
     Proto* proto;
     int i;
     int v3;
     int cur_hp;
 
-    sub_43DEBC();
+    pop_perks();
 
     protoGetProto(gDude->pid, &proto);
     critterProtoDataCopy(&(proto->critter.data), &stru_570630);
@@ -4299,7 +4299,7 @@ void sub_43A8BC()
     critterAdjustHitPoints(gDude, dword_5707C4 - cur_hp);
 }
 
-char* sub_43A9CC(int value, char* dest)
+char* itostndn(int value, char* dest)
 {
     int v16[7];
     static_assert(sizeof(v16) == sizeof(dword_431DD4), "wrong size");
@@ -4335,7 +4335,7 @@ char* sub_43A9CC(int value, char* dest)
 }
 
 // 0x43AAEC
-int sub_43AAEC(int graphicId, const char* name, const char* attributes, char* description)
+int DrawCard(int graphicId, const char* name, const char* attributes, char* description)
 {
     CacheEntry* graphicHandle;
     Size size;
@@ -4422,7 +4422,7 @@ int sub_43AAEC(int graphicId, const char* name, const char* attributes, char* de
     return 0;
 }
 
-void sub_43AE84()
+void FldrButton()
 {
     mouseGetPosition(&dword_5707CC, &dword_5707C8);
     soundPlayFile("ib3p1xx1");
@@ -4442,7 +4442,7 @@ void sub_43AE84()
     editorRenderDetails();
 }
 
-void sub_43AF40(int eventCode)
+void InfoButton(int eventCode)
 {
     mouseGetPosition(&dword_5707CC, &dword_5707C8);
 
@@ -4604,7 +4604,7 @@ void editorAdjustSkill(int keyCode)
 
     int v43 = 0;
     for (;;) {
-        dword_5709C4 = sub_4C9370();
+        dword_5709C4 = get_time();
         if (v43 <= dbl_5018F0) {
             v43++;
         }
@@ -4691,7 +4691,7 @@ void editorAdjustSkill(int keyCode)
                 }
             }
 
-            int keyCode = sub_4C8B78();
+            int keyCode = get_input();
             if (keyCode == 522 || keyCode == 524 || v3 == -1) {
                 break;
             }
@@ -4911,7 +4911,7 @@ void editorRenderKarma()
     char* msg;
     char formattedText[256];
 
-    sub_43E200();
+    folder_clear();
 
     bool hasSelection = false;
     for (int index = 0; index < gKarmaEntriesLength; index++) {
@@ -4937,7 +4937,7 @@ void editorRenderKarma()
                     reputationValue,
                     getmsg(&editorMessageList, &editorMessageListItem, reputationDescription->name));
 
-                if (sub_43E3D8(formattedText)) {
+                if (folder_print_line(formattedText)) {
                     dword_5705B0 = karmaDescription->art_num;
                     off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 125);
                     off_5705BC = NULL;
@@ -4948,7 +4948,7 @@ void editorRenderKarma()
         } else {
             if (gGameGlobalVars[karmaDescription->gvar] != 0) {
                 msg = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->name);
-                if (sub_43E3D8(msg)) {
+                if (folder_print_line(msg)) {
                     dword_5705B0 = karmaDescription->art_num;
                     off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->name);
                     off_5705BC = NULL;
@@ -4962,10 +4962,10 @@ void editorRenderKarma()
     bool hasTownReputationHeading = false;
     for (int index = 0; index < TOWN_REPUTATION_COUNT; index++) {
         const TownReputationEntry* pair = &(gTownReputationEntries[index]);
-        if (sub_4C453C(pair->city)) {
+        if (wmAreaIsKnown(pair->city)) {
             if (!hasTownReputationHeading) {
                 msg = getmsg(&editorMessageList, &editorMessageListItem, 4000);
-                if (sub_43E28C(msg)) {
+                if (folder_print_seperator(msg)) {
                     dword_5705B0 = 48;
                     off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 4000);
                     off_5705BC = NULL;
@@ -4975,7 +4975,7 @@ void editorRenderKarma()
             }
 
             char cityShortName[40];
-            sub_4C450C(pair->city, cityShortName);
+            wmGetAreaIdxName(pair->city, cityShortName);
 
             int townReputation = gGameGlobalVars[pair->gvar];
 
@@ -5011,7 +5011,7 @@ void editorRenderKarma()
                 cityShortName,
                 msg);
 
-            if (sub_43E3D8(formattedText)) {
+            if (folder_print_line(formattedText)) {
                 dword_5705B0 = townReputationGraphicId;
                 off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, townReputationBaseMessageId);
                 off_5705BC = NULL;
@@ -5027,7 +5027,7 @@ void editorRenderKarma()
             if (!hasAddictionsHeading) {
                 // Addictions
                 msg = getmsg(&editorMessageList, &editorMessageListItem, 4001);
-                if (sub_43E28C(msg)) {
+                if (folder_print_seperator(msg)) {
                     dword_5705B0 = 53;
                     off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 4001);
                     off_5705BC = NULL;
@@ -5038,7 +5038,7 @@ void editorRenderKarma()
             }
 
             msg = getmsg(&editorMessageList, &editorMessageListItem, 1004 + index);
-            if (sub_43E3D8(msg)) {
+            if (folder_print_line(msg)) {
                 dword_5705B0 = gAddictionReputationFrmIds[index];
                 off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 1004 + index);
                 off_5705BC = NULL;
@@ -5057,7 +5057,7 @@ void editorRenderKarma()
 }
 
 //
-int sub_43C1B0(File* stream)
+int editor_save(File* stream)
 {
     if (fileWriteInt32(stream, dword_5707B4) == -1)
         return -1;
@@ -5068,7 +5068,7 @@ int sub_43C1B0(File* stream)
 }
 
 //
-int sub_43C1E0(File* stream)
+int editor_load(File* stream)
 {
     if (fileReadInt32(stream, &dword_5707B4) == -1)
         return -1;
@@ -5079,14 +5079,14 @@ int sub_43C1E0(File* stream)
 }
 
 //
-void sub_43C20C()
+void editor_reset()
 {
     characterEditorRemainingCharacterPoints = 5;
     dword_5707B4 = 1;
 }
 
 // level up if needed
-int sub_43C228()
+int UpdateLevel()
 {
     int level = pcGetStat(PC_STAT_LEVEL);
     if (level != dword_5707B4 && level <= PC_LEVEL_MAX) {
@@ -5154,7 +5154,7 @@ int sub_43C228()
 }
 
 //
-void sub_43C398()
+void RedrwDPrks()
 {
     blitBufferToBuffer(
         gEditorPerkBackgroundBuffer + 280,
@@ -5164,7 +5164,7 @@ void sub_43C398()
         gEditorPerkWindowBuffer + 280,
         PERK_WINDOW_WIDTH);
 
-    sub_43D0BC();
+    ListDPerks();
 
     // NOTE: Original code is slightly different, but basically does the same thing.
     int perk = stru_56FCB0[dword_5707DC + dword_5707A8].field_0;
@@ -5180,7 +5180,7 @@ void sub_43C398()
         perkRank = perkRankBuffer;
     }
 
-    sub_43DB54(perkFrmId, perkName, perkRank, perkDescription);
+    DrawCard2(perkFrmId, perkName, perkRank, perkDescription);
 
     windowRefresh(gEditorPerkWindow);
 }
@@ -5230,7 +5230,7 @@ int editorSelectPerk()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(gEditorPerkWindow,
@@ -5247,7 +5247,7 @@ int editorSelectPerk()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(gEditorPerkWindow,
@@ -5264,7 +5264,7 @@ int editorSelectPerk()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, NULL);
+        buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
     }
 
     btn = buttonCreate(gEditorPerkWindow,
@@ -5281,7 +5281,7 @@ int editorSelectPerk()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, NULL);
+        buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
     }
 
     buttonCreate(gEditorPerkWindow,
@@ -5314,7 +5314,7 @@ int editorSelectPerk()
     msg = getmsg(&editorMessageList, &editorMessageListItem, 102);
     fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 186 + 171, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[18979]);
 
-    int count = sub_43D0BC();
+    int count = ListDPerks();
     
     // NOTE: Original code is slightly different, but does the same thing.
     int perk = stru_56FCB0[dword_5707DC + dword_5707A8].field_0;
@@ -5330,10 +5330,10 @@ int editorSelectPerk()
         perkRank = perkRankBuffer;
     }
     
-    sub_43DB54(perkFrmId, perkName, perkRank, perkDescription);
+    DrawCard2(perkFrmId, perkName, perkRank, perkDescription);
     windowRefresh(gEditorPerkWindow);
 
-    int rc = sub_43CACC(count, sub_43C398);
+    int rc = InputPDLoop(count, RedrwDPrks);
 
     if (rc == 1) {
         if (perkAdd(gDude, stru_56FCB0[dword_5707DC + dword_5707A8].field_0) == -1) {
@@ -5378,7 +5378,7 @@ int editorSelectPerk()
     return rc;
 }
 
-int sub_43CACC(int count, void(*refreshProc)())
+int InputPDLoop(int count, void(*refreshProc)())
 {
     fontSetCurrent(101);
 
@@ -5392,7 +5392,7 @@ int sub_43CACC(int count, void(*refreshProc)())
 
     int rc = 0;
     while (rc == 0) {
-        int keyCode = sub_4C8B78();
+        int keyCode = get_input();
         int v19 = 0;
 
         if (keyCode == 500) {
@@ -5507,7 +5507,7 @@ int sub_43CACC(int count, void(*refreshProc)())
                 dword_5707AC = -2;
 
                 do {
-                    dword_5709C4 = sub_4C9370();
+                    dword_5709C4 = get_time();
                     if (v19 <= dbl_5019BE) {
                         v19++;
                     }
@@ -5540,7 +5540,7 @@ int sub_43CACC(int count, void(*refreshProc)())
                         while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
                         }
                     }
-                } while (sub_4C8B78() != 574);
+                } while (get_input() != 574);
 
                 break;
             case 573:
@@ -5549,7 +5549,7 @@ int sub_43CACC(int count, void(*refreshProc)())
 
                 if (count > 11) {
                     do {
-                        dword_5709C4 = sub_4C9370();
+                        dword_5709C4 = get_time();
                         if (v19 <= dbl_5019BE) {
                             v19++;
                         }
@@ -5583,11 +5583,11 @@ int sub_43CACC(int count, void(*refreshProc)())
                             while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
                             }
                         }
-                    } while (sub_4C8B78() != 575);
+                    } while (get_input() != 575);
                 }
                 else {
                     do {
-                        dword_5709C4 = sub_4C9370();
+                        dword_5709C4 = get_time();
                         if (v19 <= dbl_5019BE) {
                             v19++;
                         }
@@ -5615,7 +5615,7 @@ int sub_43CACC(int count, void(*refreshProc)())
                             while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
                             }
                         }
-                    } while (sub_4C8B78() != 575);
+                    } while (get_input() != 575);
                 }
                 break;
             case KEY_HOME:
@@ -5637,7 +5637,7 @@ int sub_43CACC(int count, void(*refreshProc)())
                 break;
             default:
                 if (getTicksSince(dword_5709C4) > 700) {
-                    dword_5709C4 = sub_4C9370();
+                    dword_5709C4 = get_time();
                     dword_5707AC = -2;
                 }
                 break;
@@ -5649,7 +5649,7 @@ int sub_43CACC(int count, void(*refreshProc)())
 }
 
 //
-int sub_43D0BC()
+int ListDPerks()
 {
     blitBufferToBuffer(
         gEditorPerkBackgroundBuffer + PERK_WINDOW_WIDTH * 43 + 45,
@@ -5677,7 +5677,7 @@ int sub_43D0BC()
         stru_56FCB0[index].field_4 = perkGetName(perks[index]);
     }
 
-    qsort(stru_56FCB0, count, sizeof(*stru_56FCB0), sub_43DB48);
+    qsort(stru_56FCB0, count, sizeof(*stru_56FCB0), name_sort_comp);
 
     int v16 = count - dword_5707DC;
     if (v16 > 11) {
@@ -5711,16 +5711,16 @@ int sub_43D0BC()
 }
 
 //
-void sub_43D2F8()
+void RedrwDMPrk()
 {
     blitBufferToBuffer(gEditorPerkBackgroundBuffer + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, gEditorPerkWindowBuffer + 280, PERK_WINDOW_WIDTH);
 
-    sub_43D960(dword_570A00);
+    ListMyTraits(dword_570A00);
 
     char* traitName = stru_56FCB0[dword_5707DC + dword_5707A8].field_4;
     char* tratDescription = traitGetDescription(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
     int frmId = traitGetFrmId(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
-    sub_43DB54(frmId, traitName, NULL, tratDescription);
+    DrawCard2(frmId, traitName, NULL, tratDescription);
 
     windowRefresh(gEditorPerkWindow);
 }
@@ -5757,9 +5757,9 @@ bool editorHandleMutate()
         dword_570A00 = 0;
         dword_5707A8 = 0;
         dword_5707DC = 0;
-        sub_43D2F8();
+        RedrwDMPrk();
 
-        int rc = sub_43CACC(dword_5709FC, sub_43D2F8);
+        int rc = InputPDLoop(dword_5709FC, RedrwDMPrk);
         if (rc == 1) {
             if (dword_5707A8 == 0) {
                 if (dword_5709FC == 1) {
@@ -5804,14 +5804,14 @@ bool editorHandleMutate()
         dword_5707DC = 0;
         dword_570A00 = 1;
 
-        sub_43D2F8();
+        RedrwDMPrk();
 
         int count = 16 - dword_5709FC;
         if (count > 16) {
             count = 16;
         }
 
-        int rc = sub_43CACC(count, sub_43D2F8);
+        int rc = InputPDLoop(count, RedrwDMPrk);
         if (rc == 1) {
             if (dword_5709FC != 0) {
                 dword_570A04[1] = stru_56FCB0[dword_5707A8 + dword_5707DC].field_0;
@@ -5836,16 +5836,16 @@ bool editorHandleMutate()
 }
 
 //
-void sub_43D668()
+void RedrwDMTagSkl()
 {
     blitBufferToBuffer(gEditorPerkBackgroundBuffer + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, gEditorPerkWindowBuffer + 280, PERK_WINDOW_WIDTH);
 
-    sub_43D81C();
+    ListNewTagSkills();
 
     char* name = stru_56FCB0[dword_5707DC + dword_5707A8].field_4;
     char* description = skillGetDescription(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
     int frmId = skillGetFrmId(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
-    sub_43DB54(frmId, name, NULL, description);
+    DrawCard2(frmId, name, NULL, description);
 
     windowRefresh(gEditorPerkWindow);
 }
@@ -5866,9 +5866,9 @@ bool editorHandleTag()
     dword_5709E8 = -1;
     byte_570128[0] = '\0';
     dword_5707E0 = 0;
-    sub_43D668();
+    RedrwDMTagSkl();
 
-    int rc = sub_43CACC(dword_570A00, sub_43D668);
+    int rc = InputPDLoop(dword_570A00, RedrwDMTagSkl);
     if (rc != 1) {
         memcpy(dword_570A14, dword_5709D4, sizeof(dword_570A14));
         skillsSetTagged(dword_5709D4, NUM_TAGGED_SKILLS);
@@ -5881,7 +5881,7 @@ bool editorHandleTag()
     return true;
 }
 
-void sub_43D81C()
+void ListNewTagSkills()
 {
     blitBufferToBuffer(gEditorPerkBackgroundBuffer + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
 
@@ -5900,7 +5900,7 @@ void sub_43D81C()
         }
     }
 
-    qsort(stru_56FCB0, dword_570A00, sizeof(*stru_56FCB0), sub_43DB48);
+    qsort(stru_56FCB0, dword_570A00, sizeof(*stru_56FCB0), name_sort_comp);
 
     for (int index = dword_5707DC; index < dword_5707DC + 11; index++) {
         int color;
@@ -5916,7 +5916,7 @@ void sub_43D81C()
     }
 }
 
-int sub_43D960(int a1)
+int ListMyTraits(int a1)
 {
     blitBufferToBuffer(gEditorPerkBackgroundBuffer + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
 
@@ -5935,7 +5935,7 @@ int sub_43D960(int a1)
             }
         }
 
-        qsort(stru_56FCB0, count, sizeof(*stru_56FCB0), sub_43DB48);
+        qsort(stru_56FCB0, count, sizeof(*stru_56FCB0), name_sort_comp);
 
         for (int index = dword_5707DC; index < dword_5707DC + 11; index++) {
             int color;
@@ -5958,7 +5958,7 @@ int sub_43D960(int a1)
         }
 
         if (dword_5709FC > 1) {
-            qsort(stru_56FCB0, dword_5709FC, sizeof(*stru_56FCB0), sub_43DB48);
+            qsort(stru_56FCB0, dword_5709FC, sizeof(*stru_56FCB0), name_sort_comp);
         }
 
         for (int index = 0; index < dword_5709FC; index++) {
@@ -5977,14 +5977,14 @@ int sub_43D960(int a1)
     return 0;
 }
 
-int sub_43DB48(const void* a1, const void* a2)
+int name_sort_comp(const void* a1, const void* a2)
 {
     STRUCT_56FCB0* v1 = (STRUCT_56FCB0*)a1;
     STRUCT_56FCB0* v2 = (STRUCT_56FCB0*)a2;
     return strcmp(v1->field_4, v2->field_4);
 }
 
-int sub_43DB54(int frmId, const char* name, const char* rank, char* description)
+int DrawCard2(int frmId, const char* name, const char* rank, char* description)
 {
     int fid = buildFid(10, frmId, 0, 0, 0);
 
@@ -6078,7 +6078,7 @@ int sub_43DB54(int frmId, const char* name, const char* rank, char* description)
 }
 
 // copy editor perks to character
-void sub_43DEBC()
+void pop_perks()
 {
     for (int perk = 0; perk < PERK_COUNT; perk++) {
         for (;;) {
@@ -6104,7 +6104,7 @@ void sub_43DEBC()
 }
 
 // validate SPECIAL stats are <= 10
-int sub_43DF50()
+int is_supper_bonus()
 {
     for (int stat = 0; stat < 7; stat++) {
         int v1 = critterGetBaseStatWithTraitModifier(gDude, stat);
@@ -6118,7 +6118,7 @@ int sub_43DF50()
 }
 
 //
-int sub_43DF8C()
+int folder_init()
 {
     dword_5705C4 = 0;
     dword_5705D8 = 0;
@@ -6130,7 +6130,7 @@ int sub_43DF8C()
             return -1;
         }
 
-        buttonSetCallbacks(dword_518624, sub_451970, NULL);
+        buttonSetCallbacks(dword_518624, gsound_red_butt_press, NULL);
     }
 
     if (dword_518628 == -1) {
@@ -6152,13 +6152,13 @@ int sub_43DF8C()
             return -1;
         }
 
-        buttonSetCallbacks(dword_518628, sub_451970, NULL);
+        buttonSetCallbacks(dword_518628, gsound_red_butt_press, NULL);
     }
 
     return 0;
 }
 
-void sub_43E0D4(int direction)
+void folder_scroll(int direction)
 {
     int* v1;
 
@@ -6203,12 +6203,12 @@ void sub_43E0D4(int direction)
             640,
             characterEditorWindowBuf + 640 * 267 + 345,
             640);
-        sub_43AAEC(dword_5705B0, off_5705B8, off_5705BC, off_5705CC);
+        DrawCard(dword_5705B0, off_5705B8, off_5705BC, off_5705CC);
     }
 }
 
 //
-void sub_43E200()
+void folder_clear()
 {
     int v0;
 
@@ -6238,7 +6238,7 @@ void sub_43E200()
 }
 
 // render heading string with line
-int sub_43E28C(const char* string)
+int folder_print_seperator(const char* string)
 {
     int lineHeight;
     int x;
@@ -6273,7 +6273,7 @@ int sub_43E28C(const char* string)
     }
 }
 
-bool sub_43E3D8(const char* string)
+bool folder_print_line(const char* string)
 {
     bool success = false;
     int color;

@@ -221,7 +221,7 @@ int gameMoviePlay(int movie, int flags)
     }
 
     while (mouseGetEvent() != 0) {
-        sub_4CA59C();
+        mouse_info();
     }
 
     mouseHideCursor();
@@ -229,26 +229,26 @@ int gameMoviePlay(int movie, int flags)
 
     movieEffectsLoad(movieFilePath);
 
-    sub_4CADFC();
-    sub_487AC8(win, movieFilePath);
+    zero_vid_mem();
+    movieRun(win, movieFilePath);
 
     int v11 = 0;
     int buttons;
     do {
-        if (!sub_487C88() || dword_5186CC || sub_4C8B78() != -1) {
+        if (!moviePlaying() || dword_5186CC || get_input() != -1) {
             break;
         }
 
         int x;
         int y;
-        sub_4CAB5C(&x, &y, &buttons);
+        mouse_get_raw_state(&x, &y, &buttons);
 
         v11 |= buttons;
     } while ((v11 & 1) == 0 && (v11 & 2) == 0 || (buttons & 1) != 0 || (buttons & 2) != 0);
 
-    sub_487150();
-    sub_4880F0();
-    sub_487BEC();
+    movieStop();
+    moviefx_stop();
+    movieUpdate();
     paletteSetEntries(gPaletteBlack);
 
     gGameMoviesSeen[movie] = 1;

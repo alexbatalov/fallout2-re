@@ -363,7 +363,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = sub_4C8B78();
+        int keyCode = get_input();
         bool showPreferences = false;
 
         if (initialKeyCode != -1) {
@@ -417,7 +417,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
         }
 
         if (showPreferences) {
-            sub_490798();
+            do_prefscreen();
         } else {
             switch (keyCode) {
             case KEY_F12:
@@ -547,7 +547,7 @@ int optionsWindowInit()
 
         int btn = buttonCreate(gOptionsWindow, 13, buttonY, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, off_663878[index], off_663878[index + 1], NULL, 32);
         if (btn != -1) {
-            buttonSetCallbacks(btn, sub_451998, sub_4519A0);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
         buttonY += gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 3;
@@ -609,7 +609,7 @@ int showPause(bool a1)
     }
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-    sub_490748(a1);
+    ShadeScreen(a1);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
         int fid = buildFid(6, graphicIds[index], 0, 0, 0);
@@ -708,14 +708,14 @@ int showPause(bool a1)
         NULL, 
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     windowRefresh(window);
 
     bool done = false;
     while (!done) {
-        int keyCode = sub_4C8B78();
+        int keyCode = get_input();
         switch (keyCode) {
         case KEY_PLUS:
         case KEY_EQUAL:
@@ -768,7 +768,7 @@ int showPause(bool a1)
 }
 
 // 0x490748
-void sub_490748(bool a1)
+void ShadeScreen(bool a1)
 {
     if (a1) {
         mouseHideCursor();
@@ -787,7 +787,7 @@ void sub_490748(bool a1)
 }
 
 // 0x492AA8
-void sub_492AA8()
+void SetSystemPrefs()
 {
     preferencesSetDefaults(false);
 
@@ -818,7 +818,7 @@ void sub_492AA8()
 // Copy options (1) to (2).
 //
 // 0x493054
-void sub_493054()
+void SaveSettings()
 {
     gPreferencesGameDifficulty2 = gPreferencesGameDifficulty1;
     gPreferencesCombatDifficulty2 = gPreferencesCombatDifficulty1;
@@ -845,7 +845,7 @@ void sub_493054()
 // Copy options (2) to (1).
 //
 // 0x493128
-void sub_493128()
+void RestoreSettings()
 {
     gPreferencesGameDifficulty1 = gPreferencesGameDifficulty2;
     gPreferencesCombatDifficulty1 = gPreferencesCombatDifficulty2;
@@ -897,9 +897,9 @@ void preferencesSetDefaults(bool a1)
 
     if (a1) {
         for (int index = 0; index < PREF_COUNT; index++) {
-            sub_491A68(index);
+            UpdateThing(index);
         }
-        sub_4D9554(dword_6639A0, gPreferencesPlayerSpeedup1, 0);
+        win_set_button_rest_state(dword_6639A0, gPreferencesPlayerSpeedup1, 0);
         windowRefresh(gPreferencesWindow);
         dword_6639A8 = true;
     }
@@ -937,7 +937,7 @@ void sub_4931F8()
 
     textObjectsSetLineDelay(textLineDelay);
     aiMessageListReloadIfNeeded();
-    sub_4A52F4();
+    scr_message_free();
     gameSoundSetMasterVolume(gPreferencesMasterVolume1);
     backgroundSoundSetVolume(gPreferencesMusicVolume1);
     soundEffectsSetVolume(gPreferencesSoundEffectsVolume1);
@@ -948,13 +948,13 @@ void sub_4931F8()
 
 // init_options_menu
 // 0x4928B8
-int sub_4928B8()
+int init_options_menu()
 {
     for (int index = 0; index < 11; index++) {
         gPreferenceDescriptions[index].direction = 0;
     }
 
-    sub_492AA8();
+    SetSystemPrefs();
 
     grayscalePaletteUpdate(0, 255);
 
@@ -962,7 +962,7 @@ int sub_4928B8()
 }
 
 // 0x491A68
-void sub_491A68(int index)
+void UpdateThing(int index)
 {
     fontSetCurrent(101);
 
@@ -1178,7 +1178,7 @@ void sub_491A68(int index)
 }
 
 // 0x492CB0
-int sub_492CB0(bool save)
+int SavePrefs(bool save)
 {
     configSetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, gPreferencesGameDifficulty1);
     configSetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, gPreferencesCombatDifficulty1);
@@ -1293,7 +1293,7 @@ int preferencesLoad(File* stream)
     gPreferencesTextBaseDelay1 = textBaseDelay;
 
     sub_4931F8();
-    sub_492CB0(0);
+    SavePrefs(0);
 
     return 0;
 
@@ -1303,7 +1303,7 @@ err:
 
     preferencesSetDefaults(false);
     sub_4931F8();
-    sub_492CB0(0);
+    SavePrefs(0);
 
     return -1;
 }
@@ -1371,7 +1371,7 @@ int preferencesWindowInit()
     int messageItemId;
     int btn;
 
-    sub_493054();
+    SaveSettings();
 
     for (i = 0; i < PREFERENCES_WINDOW_FRM_COUNT; i++) {
         fid = buildFid(6, gPreferencesWindowFrmIds[i], 0, 0, 0);
@@ -1440,7 +1440,7 @@ int preferencesWindowInit()
     fontDrawText(gPreferencesWindowBuffer + 640 * 72 + 405, messageItemText, 640, 640, byte_6A38D0[18979]);
 
     for (i = 0; i < PREF_COUNT; i++) {
-        sub_491A68(i);
+        UpdateThing(i);
     }
 
     for (i = 0; i < PREF_COUNT; i++) {
@@ -1496,10 +1496,10 @@ int preferencesWindowInit()
         NULL, 
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01 | BUTTON_FLAG_0x02);
     if (dword_6639A0 != -1) {
-        sub_4D9554(dword_6639A0, gPreferencesPlayerSpeedup1, 0);
+        win_set_button_rest_state(dword_6639A0, gPreferencesPlayerSpeedup1, 0);
     }
 
-    buttonSetCallbacks(dword_6639A0, sub_451988, sub_451988);
+    buttonSetCallbacks(dword_6639A0, gsound_med_butt_press, gsound_med_butt_press);
 
     // DEFAULT
     btn = buttonCreate(gPreferencesWindow,
@@ -1516,7 +1516,7 @@ int preferencesWindowInit()
         NULL, 
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // DONE
@@ -1534,7 +1534,7 @@ int preferencesWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // CANCEL
@@ -1552,7 +1552,7 @@ int preferencesWindowInit()
         NULL, 
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, sub_451970, sub_451978);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     fontSetCurrent(101);
@@ -1566,9 +1566,9 @@ int preferencesWindowInit()
 int preferencesWindowFree()
 {
     if (dword_6639A8) {
-        sub_492CB0(1);
+        SavePrefs(1);
         sub_4931F8();
-        sub_426C64();
+        combat_highlight_change();
     }
 
     windowDestroy(gPreferencesWindow);
@@ -1581,7 +1581,7 @@ int preferencesWindowFree()
 }
 
 // 0x490798
-int sub_490798()
+int do_prefscreen()
 {
     if (preferencesWindowInit() == -1) {
         debugPrint("\nPREFERENCE MENU: Error loading preference dialog data!\n");
@@ -1590,7 +1590,7 @@ int sub_490798()
 
     int rc = -1;
     while (rc == -1) {
-        int eventCode = sub_4C8B78();
+        int eventCode = get_input();
 
         switch (eventCode) {
         case KEY_RETURN:
@@ -1622,10 +1622,10 @@ int sub_490798()
             break;
         default:
             if (eventCode == KEY_ESCAPE || eventCode == 528 || dword_5186CC != 0) {
-                sub_493128();
+                RestoreSettings();
                 rc = 0;
             } else if (eventCode >= 505 && eventCode <= 524) {
-                sub_490E8C(eventCode);
+                DoThing(eventCode);
             }
             break;
         }
@@ -1637,7 +1637,7 @@ int sub_490798()
 }
 
 // 0x490E8C
-void sub_490E8C(int eventCode)
+void DoThing(int eventCode)
 {
     int x;
     int y;
@@ -1716,7 +1716,7 @@ void sub_490E8C(int eventCode)
             soundPlayFile("ib3p1xx1");
             coreDelay(70);
             soundPlayFile("ib3lu1x1");
-            sub_491A68(preferenceIndex);
+            UpdateThing(preferenceIndex);
             windowRefresh(gPreferencesWindow);
             dword_6639A8 = true;
             return;
@@ -1750,7 +1750,7 @@ void sub_490E8C(int eventCode)
             soundPlayFile("ib2p1xx1");
             coreDelay(70);
             soundPlayFile("ib2lu1x1");
-            sub_491A68(preferenceIndex);
+            UpdateThing(preferenceIndex);
             windowRefresh(gPreferencesWindow);
             dword_6639A8 = true;
             return;
@@ -1787,15 +1787,15 @@ void sub_490E8C(int eventCode)
         int sfxVolumeExample = 0;
         int speechVolumeExample = 0;
         while (true) {
-            sub_4C8B78();
+            get_input();
 
-            int tick = sub_4C9370();
+            int tick = get_time();
 
             mouseGetPosition(&x, &y);
 
             if (mouseGetEvent() & 0x10) {
                 soundPlayFile("ib1lu1x1");
-                sub_491A68(preferenceIndex);
+                UpdateThing(preferenceIndex);
                 windowRefresh(gPreferencesWindow);
                 dword_6639A8 = true;
                 return;
@@ -1935,7 +1935,7 @@ void sub_490E8C(int eventCode)
 }
 
 // 0x48FC48
-int sub_48FC48()
+int do_options()
 {
     return showOptionsWithInitialKeyCode(-1);
 }

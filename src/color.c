@@ -136,7 +136,7 @@ void colorPaletteFreeDefaultImpl(void* ptr)
 }
 
 // 0x4C72B4
-int sub_4C72B4(int a1, int a2)
+int calculateColor(int a1, int a2)
 {
     int v1 = (a1 >> 9) + ((a2 & 0xFF) << 8);
     return byte_6838D0[v1];
@@ -172,10 +172,10 @@ void colorPaletteFadeBetween(unsigned char* oldPalette, unsigned char* newPalett
             }
         }
 
-        sub_4C73E4(palette);
+        setSystemPalette(palette);
     }
 
-    sub_4C73E4(newPalette);
+    setSystemPalette(newPalette);
 }
 
 // 0x4C73D4
@@ -185,7 +185,7 @@ void colorPaletteSetTransitionCallback(ColorTransitionCallback* callback)
 }
 
 // 0x4C73E4
-void sub_4C73E4(unsigned char* palette)
+void setSystemPalette(unsigned char* palette)
 {
     unsigned char newPalette[768];
 
@@ -198,13 +198,13 @@ void sub_4C73E4(unsigned char* palette)
 }
 
 // 0x4C7420
-unsigned char* sub_4C7420()
+unsigned char* getSystemPalette()
 {
     return stru_673090;
 }
 
 // 0x4C7428
-void sub_4C7428(unsigned char* palette, int start, int end)
+void setSystemPaletteEntries(unsigned char* palette, int start, int end)
 {
     unsigned char newPalette[768];
 
@@ -223,7 +223,7 @@ void sub_4C7428(unsigned char* palette, int start, int end)
 }
 
 // 0x4C7550
-void sub_4C7550(int a1)
+void setIntensityTableColor(int a1)
 {
     int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10;
 
@@ -250,11 +250,11 @@ void sub_4C7550(int a1)
 }
 
 // 0x4C7658
-void sub_4C7658()
+void setIntensityTables()
 {
     for (int index = 0; index < 256; index++) {
         if (byte_6737D0[index] != 0) {
-            sub_4C7550(index);
+            setIntensityTableColor(index);
         } else {
             memset(byte_6838D0 + index * 256, 0, 256);
         }
@@ -262,7 +262,7 @@ void sub_4C7658()
 }
 
 // 0x4C769C
-void sub_4C769C(int a1)
+void setMixTableColor(int a1)
 {
     int i;
     int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
@@ -320,7 +320,7 @@ void sub_4C769C(int a1)
                 v18 = byte_6A38D0[v17];
 
                 v19 = (int)((((double)v11 + (-31.0)) * 0.0078125 + 1.0) * 65536.0);
-                v12 = sub_4C72B4(v19, v18);
+                v12 = calculateColor(v19, v18);
             }
 
             byte_6738D0[v1 + i] = v12;
@@ -412,14 +412,14 @@ bool colorPaletteLoad(const char* path)
         // NOTE: Uninline.
         colorPaletteFileRead(fd, byte_6938D0, 0x10000);
     } else {
-        sub_4C7658();
+        setIntensityTables();
 
         for (int index = 0; index < 256; index++) {
-            sub_4C769C(index);
+            setMixTableColor(index);
         }
     }
 
-    sub_4C7D90();
+    rebuildColorBlendTables();
 
     // NOTE: Uninline.
     colorPaletteFileClose(fd);
@@ -428,13 +428,13 @@ bool colorPaletteLoad(const char* path)
 }
 
 // 0x4C7AB4
-char* sub_4C7AB4()
+char* colorError()
 {
     return off_51DF10;
 }
 
 // 0x4C7B44
-void sub_4C7B44(unsigned char* ptr, unsigned char ch)
+void buildBlendTable(unsigned char* ptr, unsigned char ch)
 {
     int r, g, b;
     int i, j;
@@ -485,7 +485,7 @@ void sub_4C7B44(unsigned char* ptr, unsigned char ch)
         int v20 = v18 / 7 + 0xFFFF;
 
         for (i = 0; i < 256; i++) {
-            ptr[i] = sub_4C72B4(v20, ch);
+            ptr[i] = calculateColor(v20, ch);
         }
 
         v18 += 0x10000;
@@ -494,19 +494,19 @@ void sub_4C7B44(unsigned char* ptr, unsigned char ch)
 }
 
 // 0x4C7D90
-void sub_4C7D90()
+void rebuildColorBlendTables()
 {
     int i;
 
     for (i = 0; i < 256; i++) {
         if (dword_6733D0[i]) {
-            sub_4C7B44(dword_6733D0[i], i);
+            buildBlendTable(dword_6733D0[i], i);
         }
     }
 }
 
 // 0x4C7DC0
-unsigned char* sub_4C7DC0(int ch)
+unsigned char* getColorBlendTable(int ch)
 {
     unsigned char* ptr;
 
@@ -514,7 +514,7 @@ unsigned char* sub_4C7DC0(int ch)
         ptr = (unsigned char*)gColorPaletteMallocProc(4100);
         *(int*)ptr = 1;
         dword_6733D0[ch] = ptr + 4;
-        sub_4C7B44(dword_6733D0[ch], ch);
+        buildBlendTable(dword_6733D0[ch], ch);
     }
 
     ptr = dword_6733D0[ch];
@@ -524,7 +524,7 @@ unsigned char* sub_4C7DC0(int ch)
 }
 
 // 0x4C7E20
-void sub_4C7E20(int a1)
+void freeColorBlendTable(int a1)
 {
     unsigned char* v2 = dword_6733D0[a1];
     if (v2 != NULL) {
@@ -555,11 +555,11 @@ void colorSetBrightness(double value)
         byte_673390[i] = (unsigned char)min(max(value, 0.0), 63.0);
     }
 
-    sub_4C73E4(stru_673090);
+    setSystemPalette(stru_673090);
 }
 
 // 0x4C89CC
-bool sub_4C89CC()
+bool initColors()
 {
     if (dword_51DF14) {
         return true;
@@ -573,16 +573,16 @@ bool sub_4C89CC()
         return false;
     }
 
-    sub_4C73E4(stru_51DF34);
+    setSystemPalette(stru_51DF34);
 
     return true;
 }
 
 // 0x4C8A18
-void sub_4C8A18()
+void colorsClose()
 {
     for (int index = 0; index < 256; index++) {
-        sub_4C7E20(index);
+        freeColorBlendTable(index);
     }
 
     // TODO: Incomplete.

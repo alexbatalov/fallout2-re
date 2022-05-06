@@ -25,7 +25,7 @@ void paletteInit()
     memset(gPaletteWhite, 63, 256 * 3);
     memcpy(gPalette, stru_51DF34, 256 * 3);
 
-    unsigned int tick = sub_4C9370();
+    unsigned int tick = get_time();
     if (backgroundSoundIsEnabled() || speechIsEnabled()) {
         colorPaletteSetTransitionCallback(soundContinueAll);
     }
@@ -93,12 +93,12 @@ void paletteFadeTo(unsigned char* palette)
 void paletteSetEntries(unsigned char* palette)
 {
     memcpy(gPalette, palette, sizeof(gPalette));
-    sub_4C73E4(palette);
+    setSystemPalette(palette);
 }
 
 // 0x493B78
 void paletteSetEntriesInRange(unsigned char* palette, int start, int end)
 {
     memcpy(gPalette + 3 * start, palette, 3 * (end - start + 1));
-    sub_4C7428(palette, start, end);
+    setSystemPaletteEntries(palette, start, end);
 }

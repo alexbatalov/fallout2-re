@@ -54,6 +54,6 @@ void soundEffectsCacheFreeHandles();
 int soundEffectsCreate(int* handlePtr, int id, void* data, CacheEntry* cacheHandle);
 bool soundEffectsIsValidHandle(int a1);
 int soundEffectsCacheFileReadCompressed(int handle, void* buf, unsigned int size);
-int sub_4A9774(int handle, void* buf, unsigned int size);
+int sfxc_ad_reader(int handle, void* buf, unsigned int size);
 
 #endif /* SOUND_EFFECTS_CACHE_H */

@@ -33,9 +33,9 @@ int movieEffectsInit();
 void movieEffectsReset();
 void movieEffectsExit();
 int movieEffectsLoad(const char* fileName);
-void sub_4880F0();
-void sub_488144(int frame);
-void sub_4882AC(unsigned char* palette, int start, int end);
+void moviefx_stop();
+void moviefx_callback_func(int frame);
+void moviefx_palette_func(unsigned char* palette, int start, int end);
 void movieEffectsClear();
 
 #endif /* MOVIE_EFFECT_H */

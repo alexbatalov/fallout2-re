@@ -83,7 +83,7 @@ int skilldexOpen()
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = sub_4C8B78();
+        int keyCode = get_input();
 
         if (keyCode == KEY_ESCAPE || keyCode == 500 || dword_5186CC != 0) {
             rc = 0;
@@ -296,7 +296,7 @@ int skilldexWindowInit()
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, sub_451998, sub_4519A0);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
         buttonY += 36;
@@ -324,7 +324,7 @@ int skilldexWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     windowRefresh(gSkilldexWindow);

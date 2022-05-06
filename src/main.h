@@ -54,18 +54,18 @@ extern CacheEntry* gMainMenuBackgroundFrmHandle;
 
 int falloutMain(int argc, char** argv);
 bool falloutInit(int argc, char** argv);
-int sub_480D4C(char* fname);
+int main_load_new(char* fname);
 void mainLoop();
-void sub_480F38();
+void main_selfrun_exit();
 void showDeath();
-void sub_4814A8();
-int sub_4814B4(const char* fileName, char* dest);
-int sub_481598(char* text, int width, short* beginnings, short* count);
+void main_death_voiceover_callback();
+int mainDeathGrabTextFile(const char* fileName, char* dest);
+int mainDeathWordWrap(char* text, int width, short* beginnings, short* count);
 int mainMenuWindowInit();
 void mainMenuWindowFree();
 void mainMenuWindowHide(bool animate);
 void mainMenuWindowUnhide(bool animate);
-int sub_481AA8();
+int main_menu_is_enabled();
 int mainMenuWindowHandleEvents();
 
 #endif /* MAIN_H */

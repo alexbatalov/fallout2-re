@@ -3,8 +3,8 @@
 
 extern int dword_51C8D8;
 
-int sub_4A8BE0(char*** fileListPtr, int* fileListLengthPtr);
-int sub_4A8C10(char*** fileListPtr);
-void sub_4A8E74();
+int selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr);
+int selfrun_free_list(char*** fileListPtr);
+void selfrun_playback_callback();
 
 #endif /* SELFRUN_H */

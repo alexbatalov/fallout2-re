@@ -85,7 +85,7 @@ int automapReset();
 void automapExit();
 int automapLoad(File* stream);
 int automapSave(File* stream);
-int sub_41B8B4(int map);
+int automapDisplayMap(int map);
 void automapShow(bool isInGame, bool isUsingScanner);
 void automapRenderInMapWindow(int window, int elevation, unsigned char* backgroundData, int flags);
 int automapRenderInPipboyWindow(int win, int map, int elevation);
@@ -94,9 +94,9 @@ int automapSaveEntry(File* stream);
 int automapLoadEntry(int map, int elevation);
 int automapSaveHeader(File* stream);
 int automapLoadHeader(File* stream);
-void sub_41CBA4(int elevation);
+void decode_map_data(int elevation);
 int automapCreate();
-int sub_41CD6C(File* stream1, File* stream2, int length);
+int copy_file_data(File* stream1, File* stream2, int length);
 int automapGetHeader(AutomapHeader** automapHeaderPtr);
 
 #endif /* AUTOMAP_H */

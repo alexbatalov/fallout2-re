@@ -39,11 +39,11 @@ bool messageListInit(MessageList* msg);
 bool messageListFree(MessageList* msg);
 bool messageListLoad(MessageList* msg, const char* path);
 bool messageListGetItem(MessageList* msg, MessageListItem* entry);
-bool sub_484CB8(char* dest, const char* path);
-bool sub_484D10(MessageList* msg, int num, int* out_index);
-bool sub_484D68(MessageList* msg, MessageListItem* new_entry);
-bool sub_484F60(int* out_num, const char* str);
-int sub_484FB4(File* file, char* str);
+bool message_make_path(char* dest, const char* path);
+bool message_find(MessageList* msg, int num, int* out_index);
+bool message_add(MessageList* msg, MessageListItem* new_entry);
+bool message_parse_number(int* out_num, const char* str);
+int message_load_field(File* file, char* str);
 char* getmsg(MessageList* msg, MessageListItem* entry, int num);
 bool messageListFilterBadwords(MessageList* messageList);
 

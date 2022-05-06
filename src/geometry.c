@@ -8,7 +8,7 @@
 RectListNode* off_51DEF4 = NULL;
 
 // 0x4C6900
-void sub_4C6900()
+void GNW_rect_exit()
 {
     while (off_51DEF4 != NULL) {
         RectListNode* next = off_51DEF4->next;
@@ -18,7 +18,7 @@ void sub_4C6900()
 }
 
 // 0x4C6924
-void sub_4C6924(RectListNode** rectListNodePtr, Rect* rect)
+void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
 {
     Rect v1;
     rectCopy(&v1, rect);
@@ -39,7 +39,7 @@ void sub_4C6924(RectListNode** rectListNodePtr, Rect* rect)
             off_51DEF4 = rectListNode;
 
             if (v2.top < v1.top) {
-                RectListNode* newRectListNode = sub_4C6BB8();
+                RectListNode* newRectListNode = rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -55,7 +55,7 @@ void sub_4C6924(RectListNode** rectListNodePtr, Rect* rect)
             }
 
             if (v2.bottom > v1.bottom) {
-                RectListNode* newRectListNode = sub_4C6BB8();
+                RectListNode* newRectListNode = rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -71,7 +71,7 @@ void sub_4C6924(RectListNode** rectListNodePtr, Rect* rect)
             }
 
             if (v2.left < v1.left) {
-                RectListNode* newRectListNode = sub_4C6BB8();
+                RectListNode* newRectListNode = rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -85,7 +85,7 @@ void sub_4C6924(RectListNode** rectListNodePtr, Rect* rect)
             }
 
             if (v2.right > v1.right) {
-                RectListNode* newRectListNode = sub_4C6BB8();
+                RectListNode* newRectListNode = rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -104,7 +104,7 @@ void sub_4C6924(RectListNode** rectListNodePtr, Rect* rect)
 }
 
 // 0x4C6BB8
-RectListNode* sub_4C6BB8()
+RectListNode* rect_malloc()
 {
     if (off_51DEF4 == NULL) {
         for (int index = 0; index < 10; index++) {
@@ -114,7 +114,7 @@ RectListNode* sub_4C6BB8()
             }
 
             // NOTE: Uninline.
-            sub_4C6C04(rectListNode);
+            rect_free(rectListNode);
         }
     }
 
@@ -129,7 +129,7 @@ RectListNode* sub_4C6BB8()
 }
 
 // 0x4C6C04
-void sub_4C6C04(RectListNode* rectListNode)
+void rect_free(RectListNode* rectListNode)
 {
     rectListNode->next = off_51DEF4;
     off_51DEF4 = rectListNode;

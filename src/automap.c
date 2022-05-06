@@ -250,7 +250,7 @@ int automapSave(File* stream)
 }
 
 // 0x41B8B4
-int sub_41B8B4(int map)
+int automapDisplayMap(int map)
 {
     return dword_41B560[map];
 }
@@ -279,7 +279,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
     int color;
     if (isInGame) {
         color = byte_6A38D0[8456];
-        sub_48C7A0();
+        obj_process_seen();
     } else {
         color = byte_6A38D0[22025];
     }
@@ -291,12 +291,12 @@ void automapShow(bool isInGame, bool isUsingScanner)
 
     int scannerBtn = buttonCreate(window, 111, 454, 15, 16, -1, -1, -1, KEY_LOWERCASE_S, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
     if (scannerBtn != -1) {
-        buttonSetCallbacks(scannerBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(scannerBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int cancelBtn = buttonCreate(window, 277, 454, 15, 16, -1, -1, -1, KEY_ESCAPE, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int switchBtn = buttonCreate(window, 457, 340, 42, 74, -1, -1, KEY_LOWERCASE_L, KEY_LOWERCASE_H, frmData[AUTOMAP_FRM_SWITCH_UP], frmData[AUTOMAP_FRM_SWITCH_DOWN], NULL, BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01);
@@ -305,7 +305,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
     }
 
     if ((gAutomapFlags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
-        sub_4D9554(switchBtn, 1, 0);
+        win_set_button_rest_state(switchBtn, 1, 0);
     }
 
     int elevation = gElevation;
@@ -331,7 +331,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
 
         // FIXME: There is minor bug in the interface - pressing H/L to toggle
         // high/low details does not update switch state.
-        int keyCode = sub_4C8B78();
+        int keyCode = get_input();
         switch (keyCode) {
         case KEY_TAB:
         case KEY_ESCAPE:
@@ -655,7 +655,7 @@ int automapSaveCurrent()
         return -1;
     }
 
-    sub_41CBA4(elevation);
+    decode_map_data(elevation);
 
     int compressedDataSize = graphCompress(gAutomapEntry.data, gAutomapEntry.compressedData, 10000);
     if (compressedDataSize == -1) {
@@ -680,7 +680,7 @@ int automapSaveCurrent()
 
         fileRewind(stream1);
 
-        if (sub_41CD6C(stream1, stream2, entryOffset) == -1) {
+        if (copy_file_data(stream1, stream2, entryOffset) == -1) {
             debugPrint("\nAUTOMAP: Error copying file data!\n");
             fileClose(stream1);
             fileClose(stream2);
@@ -727,7 +727,7 @@ int automapSaveCurrent()
                 return -1;
             }
 
-            if (sub_41CD6C(stream1, stream2, automapDataSize - nextEntryOffset) == -1) {
+            if (copy_file_data(stream1, stream2, automapDataSize - nextEntryOffset) == -1) {
                 debugPrint("\nAUTOMAP: Error copying file data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
@@ -836,7 +836,7 @@ int automapSaveEntry(File* stream)
         buffer = gAutomapEntry.data;
     }
 
-    if (sub_4C6244(stream, gAutomapEntry.dataSize) == -1) {
+    if (db_fwriteLong(stream, gAutomapEntry.dataSize) == -1) {
         goto err;
     }
 
@@ -891,7 +891,7 @@ int automapLoadEntry(int map, int elevation)
         goto out;
     }
 
-    if (sub_4C614C(stream, &(gAutomapEntry.dataSize)) == -1) {
+    if (db_freadInt(stream, &(gAutomapEntry.dataSize)) == -1) {
         success = false;
         goto out;
     }
@@ -954,11 +954,11 @@ int automapSaveHeader(File* stream)
         goto err;
     }
 
-    if (sub_4C6244(stream, gAutomapHeader.dataSize) == -1) {
+    if (db_fwriteLong(stream, gAutomapHeader.dataSize) == -1) {
         goto err;
     }
 
-    if (sub_4C6550(stream, (int*)gAutomapHeader.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
+    if (db_fwriteLongCount(stream, (int*)gAutomapHeader.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
         goto err;
     }
 
@@ -983,11 +983,11 @@ int automapLoadHeader(File* stream)
         return -1;
     }
 
-    if (sub_4C614C(stream, &(gAutomapHeader.dataSize)) == -1) {
+    if (db_freadInt(stream, &(gAutomapHeader.dataSize)) == -1) {
         return -1;
     }
 
-    if (sub_4C63BC(stream, (int*)gAutomapHeader.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
+    if (db_freadIntCount(stream, (int*)gAutomapHeader.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
         return -1;
     }
 
@@ -999,11 +999,11 @@ int automapLoadHeader(File* stream)
 }
 
 // 0x41CBA4
-void sub_41CBA4(int elevation)
+void decode_map_data(int elevation)
 {
     memset(gAutomapEntry.data, 0, SQUARE_GRID_SIZE);
 
-    sub_48C7A0();
+    obj_process_seen();
 
     Object* object = objectFindFirstAtElevation(elevation);
     while (object != NULL) {
@@ -1059,7 +1059,7 @@ int automapCreate()
 // Copy data from stream1 to stream2.
 //
 // 0x41CD6C
-int sub_41CD6C(File* stream1, File* stream2, int length)
+int copy_file_data(File* stream1, File* stream2, int length)
 {
     void* buffer = internal_malloc(0xFFFF);
     if (buffer == NULL) {
