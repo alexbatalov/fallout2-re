@@ -16,6 +16,34 @@ typedef enum TextAlignment {
     TEXT_ALIGNMENT_CENTER,
 } TextAlignment;
 
+typedef struct ManagedButton {
+    int btn;
+    int field_4;
+    int field_8;
+    int field_C;
+    int field_10;
+    int field_14;
+    int field_18;
+    char name[32];
+    int field_3C;
+    int field_40;
+    int field_44;
+    int field_48;
+    int field_4C;
+    int field_50;
+    int field_54;
+    int field_58;
+    int field_5C;
+    int field_60;
+    int field_64;
+    int field_68;
+    int field_6C;
+    int field_70;
+    int field_74;
+    int field_78;
+} ManagedButton;
+static_assert(sizeof(ManagedButton) == 0x7C, "wrong size");
+
 typedef struct STRUCT_6727B0 {
     char field_0[32];
     int window;
@@ -25,8 +53,8 @@ typedef struct STRUCT_6727B0 {
     int currentRegionIndex;
     int regionsLength;
     int field_38;
-    int field_3C;
-    int field_40;
+    ManagedButton* buttons;
+    int buttonsLength;
     int field_44;
     int field_48;
     int field_4C;
@@ -69,6 +97,7 @@ int sub_4B9050();
 void sub_4B9058(Program* program);
 void sub_4B9190(int resolution, int a2);
 void sub_4B947C();
+bool sub_4BA1B4(const char* buttonName, int a2, int a3, int a4);
 void sub_4BA844();
 bool sub_4BA988(const char* regionName);
 bool sub_4BA9FC(int initialCapacity);
