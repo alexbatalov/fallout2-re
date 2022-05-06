@@ -1320,6 +1320,21 @@ int scriptsLoadScriptsList()
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x4A4EFC
+int scriptsFreeScriptsList()
+{
+    if (gScriptsListEntries != NULL) {
+        internal_free(gScriptsListEntries);
+        gScriptsListEntries = NULL;
+    }
+
+    gScriptsListEntriesLength = 0;
+
+    return 0;
+}
+
 // 0x4A4F28
 int sub_4A4F28(int scriptIndex, int* a2, int sid)
 {
@@ -1507,12 +1522,8 @@ int scriptsExit()
 
     gScriptsRequests = 0;
 
-    if (gScriptsListEntries != NULL) {
-        internal_free(gScriptsListEntries);
-        gScriptsListEntries = NULL;
-    }
-
-    gScriptsListEntriesLength = 0;
+    // NOTE: Uninline.
+    scriptsFreeScriptsList();
 
     return 0;
 }

@@ -263,6 +263,7 @@ int scriptExecProc(int sid, int proc);
 int scriptLocateProcs(Script* scr);
 bool scriptHasProc(int sid, int proc);
 int scriptsLoadScriptsList();
+int scriptsFreeScriptsList();
 int sub_4A4F28(int a1, int* a2, int sid);
 int scriptsGetFileName(int scriptIndex, char* name);
 int scriptsSetDudeScript();
