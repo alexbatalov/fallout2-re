@@ -2,6 +2,7 @@
 #define REGION_H
 
 #include "geometry.h"
+#include "interpreter.h"
 
 #define REGION_NAME_LENGTH (32)
 
@@ -16,7 +17,7 @@ typedef struct Region {
     int field_38;
     int pointsLength;
     int pointsCapacity;
-    int field_44;
+    Program* program;
     int field_48;
     int field_4C;
     int field_50;

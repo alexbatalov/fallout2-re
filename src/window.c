@@ -315,7 +315,34 @@ int sub_4B9050()
 // 0x4B9058
 void sub_4B9058(Program* program)
 {
-    // TODO: Incomplete.
+    for (int index = 0; index < 16; index++) {
+        STRUCT_6727B0* ptr = &(stru_6727B0[index]);
+        if (ptr->window != -1) {
+            for (int index = 0; index < ptr->buttonsLength; index++) {
+                ManagedButton* managedButton = &(ptr->buttons[index]);
+                if (program == managedButton->program) {
+                    managedButton->program = NULL;
+                    managedButton->field_5C = 0;
+                    managedButton->field_60 = 0;
+                    managedButton->field_54 = 0;
+                    managedButton->field_58 = 0;
+                }
+            }
+
+            for (int index = 0; index < ptr->regionsLength; index++) {
+                Region* region = ptr->regions[index];
+                if (region != NULL) {
+                    if (program == region->program) {
+                        region->program = NULL;
+                        region->field_4C = 0;
+                        region->field_48 = 0;
+                        region->field_54 = 0;
+                        region->field_50 = 0;
+                    }
+                }
+            }
+        }
+    }
 }
 
 // 0x4B9190
@@ -558,7 +585,7 @@ bool sub_4B9928(const char* buttonName, int value)
 }
 
 // 0x4BA11C
-bool sub_4BA11C(const char* buttonName, int a2, int a3, int a4, int a5, int a6)
+bool sub_4BA11C(const char* buttonName, Program* program, int a3, int a4, int a5, int a6)
 {
     if (dword_51DCB8 != -1) {
         return false;
@@ -576,7 +603,7 @@ bool sub_4BA11C(const char* buttonName, int a2, int a3, int a4, int a5, int a6)
             managedButton->field_60 = a4;
             managedButton->field_54 = a5;
             managedButton->field_58 = a6;
-            managedButton->field_3C = a2;
+            managedButton->program = program;
             return true;
         }
     }
@@ -585,7 +612,7 @@ bool sub_4BA11C(const char* buttonName, int a2, int a3, int a4, int a5, int a6)
 }
 
 // 0x4BA1B4
-bool sub_4BA1B4(const char* buttonName, int a2, int a3, int a4)
+bool sub_4BA1B4(const char* buttonName, Program* program, int a3, int a4)
 {
     if (dword_51DCB8 != -1) {
         return false;
@@ -601,7 +628,7 @@ bool sub_4BA1B4(const char* buttonName, int a2, int a3, int a4)
         if (stricmp(managedButton->name, buttonName) == 0) {
             managedButton->field_68 = a4;
             managedButton->field_64 = a3;
-            managedButton->field_3C = a2;
+            managedButton->program = program;
             return true;
         }
     }
@@ -712,7 +739,7 @@ bool sub_4BAB68(int x, int y, bool a3)
 }
 
 // 0x4BADC0
-bool sub_4BADC0(const char* regionName, int a2, int a3, int a4, int a5, int a6)
+bool sub_4BADC0(const char* regionName, Program* program, int a3, int a4, int a5, int a6)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -727,7 +754,7 @@ bool sub_4BADC0(const char* regionName, int a2, int a3, int a4, int a5, int a6)
                 region->field_54 = a4;
                 region->field_48 = a5;
                 region->field_4C = a6;
-                region->field_44 = a2;
+                region->program = program;
                 return true;
             }
         }
@@ -737,7 +764,7 @@ bool sub_4BADC0(const char* regionName, int a2, int a3, int a4, int a5, int a6)
 }
 
 // 0x4BAE8C
-bool sub_4BAE8C(const char* regionName, int a2, int a3, int a4)
+bool sub_4BAE8C(const char* regionName, Program* program, int a3, int a4)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -750,7 +777,7 @@ bool sub_4BAE8C(const char* regionName, int a2, int a3, int a4)
             if (stricmp(region->name, regionName) == 0) {
                 region->field_58 = a3;
                 region->field_5C = a4;
-                region->field_44 = a2;
+                region->program = program;
                 return true;
             }
         }
