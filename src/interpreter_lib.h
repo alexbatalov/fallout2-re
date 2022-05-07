@@ -64,11 +64,11 @@ void opSoundStop(Program* program);
 void opSoundRewind(Program* program);
 void opSoundDelete(Program* program);
 void opSetOneOptPause(Program* program);
-void sub_466994();
-void sub_4669A0();
-bool sub_466A04(int key);
-void sub_466A70();
-void sub_466F6C(OFF_59E160 fn);
-void sub_467040(Program* program);
+void _updateIntLib();
+void _intlibClose();
+bool _intLibDoInput(int key);
+void _initIntlib();
+void _interpretRegisterProgramDeleteCallback(OFF_59E160 fn);
+void _removeProgramReferences_(Program* program);
 
 #endif /* INTERPRETER_LIB_H */

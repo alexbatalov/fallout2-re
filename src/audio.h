@@ -8,7 +8,7 @@ extern AudioFileIsCompressedProc* off_5108BC;
 extern int gAudioListLength;
 extern AudioFile* gAudioList;
 
-bool sub_41A2B0(char* filePath);
+bool _defaultCompressionFunc(char* filePath);
 int audioSoundDecoderReadHandler(int fileHandle, void* buf, unsigned int size);
 int audioOpen(const char* fname, int mode, ...);
 int audioClose(int fileHandle);

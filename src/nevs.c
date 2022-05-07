@@ -16,7 +16,7 @@ int dword_6391CC;
 
 // nevs_alloc
 // 0x488340
-Nevs* sub_488340()
+Nevs* _nevs_alloc()
 {
     if (off_6391C8 == NULL) {
         debugPrint("nevs_alloc(): nevs_initonce() not called!");
@@ -35,7 +35,7 @@ Nevs* sub_488340()
 }
 
 // 0x4883AC
-void sub_4883AC()
+void _nevs_close()
 {
     if (off_6391C8 != NULL) {
         internal_free_safe(off_6391C8, __FILE__, __LINE__); // "..\\int\\NEVS.C", 97
@@ -44,7 +44,7 @@ void sub_4883AC()
 }
 
 // 0x4883D4
-void sub_4883D4(int a1)
+void _nevs_removeprogramreferences(int a1)
 {
     if (off_6391C8 != NULL) {
         for (int i = 0; i < NEVS_COUNT; i++) {
@@ -58,10 +58,10 @@ void sub_4883D4(int a1)
 
 // nevs_initonce
 // 0x488418
-void sub_488418()
+void _nevs_initonce()
 {
     // TODO: Incomplete.
-    // sub_466F6C(sub_4883D4);
+    // _interpretRegisterProgramDeleteCallback(_nevs_removeprogramreferences);
 
     if (off_6391C8 == NULL) {
         off_6391C8 = internal_calloc_safe(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
@@ -74,7 +74,7 @@ void sub_488418()
 
 // nevs_find
 // 0x48846C
-Nevs* sub_48846C(const char* a1)
+Nevs* _nevs_find(const char* a1)
 {
     if (!off_6391C8) {
         debugPrint("nevs_find(): nevs_initonce() not called!");
@@ -92,13 +92,13 @@ Nevs* sub_48846C(const char* a1)
 }
 
 // 0x4884C8
-int sub_4884C8(const char* a1, int a2, int a3, int a4)
+int _nevs_addevent(const char* a1, int a2, int a3, int a4)
 {
     Nevs* nevs;
 
-    nevs = sub_48846C(a1);
+    nevs = _nevs_find(a1);
     if (nevs == NULL) {
-        nevs = sub_488340();
+        nevs = _nevs_alloc();
     }
 
     if (nevs == NULL) {
@@ -117,11 +117,11 @@ int sub_4884C8(const char* a1, int a2, int a3, int a4)
 
 // nevs_clearevent
 // 0x48859C
-int sub_48859C(const char* a1)
+int _nevs_clearevent(const char* a1)
 {
     debugPrint("nevs_clearevent( '%s');\n", a1);
 
-    Nevs* nevs = sub_48846C(a1);
+    Nevs* nevs = _nevs_find(a1);
     if (nevs) {
         memset(nevs, 0, sizeof(Nevs));
         return 0;
@@ -132,11 +132,11 @@ int sub_48859C(const char* a1)
 
 // nevs_signal
 // 0x48862C
-int sub_48862C(const char* a1)
+int _nevs_signal(const char* a1)
 {
     debugPrint("nevs_signal( '%s');\n", a1);
 
-    Nevs* nevs = sub_48846C(a1);
+    Nevs* nevs = _nevs_find(a1);
     if (nevs == NULL) {
         return 1;
     }
@@ -154,7 +154,7 @@ int sub_48862C(const char* a1)
 
 // nevs_update
 // 0x4886AC
-void sub_4886AC()
+void _nevs_update()
 {
     int v1;
     int v2;
@@ -181,7 +181,7 @@ void sub_4886AC()
 
                 if (nevs->field_38 == NULL) {
                     // TODO: Incomplete.
-                    // sub_46DB58(nevs->field_24, nevs->field_28);
+                    // _executeProc(nevs->field_24, nevs->field_28);
                 } else {
                     nevs->field_38();
                 }

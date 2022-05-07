@@ -185,8 +185,8 @@ void endgamePlayMovie()
     isoDisable();
     paletteFadeTo(gPaletteBlack);
     dword_518674 = 0;
-    tickersAdd(sub_440734);
-    backgroundSoundSetEndCallback(sub_440728);
+    tickersAdd(_endgame_movie_bk_process);
+    backgroundSoundSetEndCallback(_endgame_movie_callback);
     backgroundSoundLoad("akiss", 12, 14, 15);
     coreDelayProcessingEvents(3000);
 
@@ -197,7 +197,7 @@ void endgamePlayMovie()
     creditsOpen("credits.txt", -1, false);
     backgroundSoundDelete();
     backgroundSoundSetEndCallback(NULL);
-    tickersRemove(sub_440734);
+    tickersRemove(_endgame_movie_bk_process);
     backgroundSoundDelete();
     colorPaletteLoad("color.pal");
     paletteFadeTo(stru_51DF34);
@@ -319,7 +319,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
 
                 windowRefresh(gEndgameEndingSlideshowWindow);
 
-                since = sub_4C9370();
+                since = _get_time();
 
                 bool v14;
                 double v31;
@@ -359,7 +359,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
 
             soundContinueAll();
 
-            if (sub_4C8B78() != -1) {
+            if (_get_input() != -1) {
                 // NOTE: Uninline.
                 endgameEndingVoiceOverFree();
                 break;
@@ -375,7 +375,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
     }
 
     while (mouseGetEvent() != 0) {
-        sub_4C8B78();
+        _get_input();
     }
 }
 
@@ -411,12 +411,12 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
         // NOTE: Uninline.
         endgameEndingVoiceOverReset();
 
-        unsigned int referenceTime = sub_4C9370();
+        unsigned int referenceTime = _get_time();
         tickersDisable();
 
         int keyCode;
         while (true) {
-            keyCode = sub_4C8B78();
+            keyCode = _get_input();
             if (keyCode != -1) {
                 break;
             }
@@ -453,7 +453,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
         paletteFadeTo(gPaletteBlack);
 
         while (mouseGetEvent() != 0) {
-            sub_4C8B78();
+            _get_input();
         }
     }
 
@@ -498,7 +498,7 @@ int endgameEndingSlideshowWindowInit()
 
     colorCycleDisable();
 
-    speechSetEndCallback(sub_4403F0);
+    speechSetEndCallback(_endgame_voiceover_callback);
 
     gEndgameEndingSubtitlesEnabled = false;
     configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &gEndgameEndingSubtitlesEnabled);
@@ -626,11 +626,11 @@ void endgameEndingVoiceOverReset()
     gEndgameEndingSpeechEnded = false;
 
     if (gEndgameEndingVoiceOverSpeechLoaded) {
-        sub_450F8C();
+        _gsound_speech_play_preloaded();
     }
 
     if (gEndgameEndingVoiceOverSubtitlesLoaded) {
-        gEndgameEndingSubtitlesReferenceTime = sub_4C9370();
+        gEndgameEndingSubtitlesReferenceTime = _get_time();
     }
 }
 
@@ -667,7 +667,7 @@ void endgameEndingLoadPalette(int type, int id)
 }
 
 // 0x4403F0
-void sub_4403F0()
+void _endgame_voiceover_callback()
 {
     gEndgameEndingSpeechEnded = true;
 }
@@ -790,18 +790,18 @@ void endgameEndingSubtitlesFree()
 }
 
 // 0x440728
-void sub_440728()
+void _endgame_movie_callback()
 {
     dword_518674 = 1;
 }
 
 // 0x440734
-void sub_440734()
+void _endgame_movie_bk_process()
 {
     if (dword_518674) {
         backgroundSoundLoad("10labone", 11, 14, 16);
         backgroundSoundSetEndCallback(NULL);
-        tickersRemove(sub_440734);
+        tickersRemove(_endgame_movie_bk_process);
     }
 }
 
@@ -1111,13 +1111,13 @@ int endgameDeathEndingValidate(int* percentage)
         }
 
         if (deathEnding->worldAreaKnown != -1) {
-            if (!sub_4C453C(deathEnding->worldAreaKnown)) {
+            if (!_wmAreaIsKnown(deathEnding->worldAreaKnown)) {
                 continue;
             }
         }
 
         if (deathEnding->worldAreaNotKnown != -1) {
-            if (sub_4C453C(deathEnding->worldAreaNotKnown)) {
+            if (_wmAreaIsKnown(deathEnding->worldAreaNotKnown)) {
                 continue;
             }
         }

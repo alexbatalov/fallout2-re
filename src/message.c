@@ -201,27 +201,27 @@ bool messageListLoad(MessageList* messageList, const char* path)
     entry.text = text;
 
     while (1) {
-        rc = sub_484FB4(file_ptr, num);
+        rc = _message_load_field(file_ptr, num);
         if (rc != 0) {
             break;
         }
 
-        if (sub_484FB4(file_ptr, audio) != 0) {
+        if (_message_load_field(file_ptr, audio) != 0) {
             debugPrint("\nError loading audio field.\n", localized_path);
             goto err;
         }
 
-        if (sub_484FB4(file_ptr, text) != 0) {
+        if (_message_load_field(file_ptr, text) != 0) {
             debugPrint("\nError loading text field.\n", localized_path);
             goto err;
         }
 
-        if (!sub_484F60(&(entry.num), num)) {
+        if (!_message_parse_number(&(entry.num), num)) {
             debugPrint("\nError parsing number.\n", localized_path);
             goto err;
         }
 
-        if (!sub_484D68(messageList, &entry)) {
+        if (!_message_add(messageList, &entry)) {
             debugPrint("\nError adding message.\n", localized_path);
             goto err;
         }
@@ -260,7 +260,7 @@ bool messageListGetItem(MessageList* msg, MessageListItem* entry)
         return false;
     }
 
-    if (!sub_484D10(msg, entry->num, &index)) {
+    if (!_message_find(msg, entry->num, &index)) {
         return false;
     }
 
@@ -275,7 +275,7 @@ bool messageListGetItem(MessageList* msg, MessageListItem* entry)
 // Builds language-aware path in "text" subfolder.
 //
 // 0x484CB8
-bool sub_484CB8(char* dest, const char* path)
+bool _message_make_path(char* dest, const char* path)
 {
     char* language;
 
@@ -297,7 +297,7 @@ bool sub_484CB8(char* dest, const char* path)
 }
 
 // 0x484D10
-bool sub_484D10(MessageList* msg, int num, int* out_index)
+bool _message_find(MessageList* msg, int num, int* out_index)
 {
     int r, l, mid;
     int cmp;
@@ -335,13 +335,13 @@ bool sub_484D10(MessageList* msg, int num, int* out_index)
 }
 
 // 0x484D68
-bool sub_484D68(MessageList* msg, MessageListItem* new_entry)
+bool _message_add(MessageList* msg, MessageListItem* new_entry)
 {
     int index;
     MessageListItem* entries;
     MessageListItem* existing_entry;
 
-    if (sub_484D10(msg, new_entry->num, &index)) {
+    if (_message_find(msg, new_entry->num, &index)) {
         existing_entry = &(msg->entries[index]);
 
         if (existing_entry->audio != NULL) {
@@ -396,7 +396,7 @@ bool sub_484D68(MessageList* msg, MessageListItem* new_entry)
 }
 
 // 0x484F60
-bool sub_484F60(int* out_num, const char* str)
+bool _message_parse_number(int* out_num, const char* str)
 {
     const char* ch;
     bool success;
@@ -433,7 +433,7 @@ bool sub_484F60(int* out_num, const char* str)
 // 4 - limit exceeded (> 1024)
 //
 // 0x484FB4
-int sub_484FB4(File* file, char* str)
+int _message_load_field(File* file, char* str)
 {
     int ch;
     int len;

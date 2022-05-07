@@ -269,15 +269,15 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
 
     memset(gObjectListHeadByTile, 0, sizeof(gObjectListHeadByTile));
 
-    if (sub_48CB88() == -1) {
+    if (_obj_offset_table_init() == -1) {
         return -1;
     }
 
-    if (sub_48CE10() == -1) {
+    if (_obj_order_table_init() == -1) {
         goto err;
     }
 
-    if (sub_48CF8C() == -1) {
+    if (_obj_render_table_init() == -1) {
         goto err_2;
     }
 
@@ -289,8 +289,8 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
         goto err_2;
     }
 
-    sub_48D020();
-    sub_48D1E4();
+    _obj_light_table_init();
+    _obj_blend_table_init();
 
     dword_51962C = tileFromScreenXY(dword_639D90, dword_639D94, 0) - gCenterTile;
     gObjectsWindowWidth = width;
@@ -333,11 +333,11 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
 err_2:
 
     // NOTE: Uninline.
-    sub_48CF50();
+    _obj_order_table_exit();
 
 err:
 
-    sub_48CDA0();
+    _obj_offset_table_exit();
 
     return -1;
 }
@@ -347,7 +347,7 @@ void objectsReset()
 {
     if (gObjectsInitialized) {
         textObjectsReset();
-        sub_48B318();
+        _obj_remove_all();
         memset(byte_662445, 0, 5001);
         lightResetIntensity();
     }
@@ -360,21 +360,21 @@ void objectsExit()
         gDude->flags &= ~0x0400;
         gEgg->flags &= ~0x0400;
 
-        sub_48B318();
+        _obj_remove_all();
         textObjectsFree();
 
         // NOTE: Uninline.
-        sub_48D2E8();
+        _obj_blend_table_exit();
 
         lightResetIntensity();
 
         // NOTE: Uninline.
-        sub_48D000();
+        _obj_render_table_exit();
 
         // NOTE: Uninline.
-        sub_48CF50();
+        _obj_order_table_exit();
 
-        sub_48CDA0();
+        _obj_offset_table_exit();
     }
 }
 
@@ -411,7 +411,7 @@ int objectRead(Object* obj, File* stream)
 
     if (obj->pid < 0x5000010 || obj->pid > 0x5000017) {
         if ((obj->pid >> 24) == 0 && !(gMapHeader.flags & 0x01)) {
-            sub_48911C(obj);
+            _object_fix_weapon_ammo(obj);
         }
     } else {
         if (obj->data.misc.map <= 0) {
@@ -512,10 +512,10 @@ int objectLoadAllInternal(File* stream)
                 }
             }
 
-            sub_48FA14(&(objectListNode->obj->fid));
+            _obj_fix_violence_settings(&(objectListNode->obj->fid));
             objectListNode->obj->elevation = elevation;
 
-            sub_48D8E8(objectListNode);
+            _obj_insert(objectListNode);
 
             if ((objectListNode->obj->flags & 0x0400) && (objectListNode->obj->flags >> 24) == OBJ_TYPE_CRITTER && objectListNode->obj->pid != 18000) {
                 objectListNode->obj->flags &= ~0x0400;
@@ -547,7 +547,7 @@ int objectLoadAllInternal(File* stream)
                             return -1;
                         }
                     } else {
-                        if (sub_48D414(stream, &(inventoryItem->item), elevation, objectListNode->obj) == -1) {
+                        if (_obj_load_obj(stream, &(inventoryItem->item), elevation, objectListNode->obj) == -1) {
                             return -1;
                         }
                     }
@@ -559,13 +559,13 @@ int objectLoadAllInternal(File* stream)
         }
     }
 
-    sub_48AC54();
+    _obj_rebuild_all_light();
 
     return 0;
 }
 
 // 0x48909C
-void sub_48909C()
+void _obj_fix_combat_cid_for_dude()
 {
     Object** critterList;
     int critterListLength = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &critterList);
@@ -573,7 +573,7 @@ void sub_48909C()
     if (gDude->data.critter.combat.whoHitMeCid == -1) {
         gDude->data.critter.combat.whoHitMe = NULL;
     } else {
-        int index = sub_420E24(0, gDude->data.critter.combat.whoHitMeCid, critterList, critterListLength);
+        int index = _find_cid(0, gDude->data.critter.combat.whoHitMeCid, critterList, critterListLength);
         if (index != critterListLength) {
             gDude->data.critter.combat.whoHitMe = critterList[index];
         } else {
@@ -590,7 +590,7 @@ void sub_48909C()
 // Fixes ammo pid and number of charges.
 //
 // 0x48911C
-void sub_48911C(Object* obj)
+void _object_fix_weapon_ammo(Object* obj)
 {
     if ((obj->pid >> 24) != OBJ_TYPE_ITEM) {
         return;
@@ -666,7 +666,7 @@ int objectSaveAll(File* stream)
         return -1;
     }
 
-    sub_48C7A0();
+    _obj_process_seen();
 
     int objectCount = 0;
 
@@ -695,7 +695,7 @@ int objectSaveAll(File* stream)
                 }
 
                 // NOTE: Uninline.
-                if (sub_48D348(stream, object) == -1) {
+                if (_obj_save_obj(stream, object) == -1) {
                     return -1;
                 }
 
@@ -720,7 +720,7 @@ int objectSaveAll(File* stream)
 }
 
 // 0x489550
-void sub_489550(Rect* rect, int elevation)
+void _obj_render_pre_roof(Rect* rect, int elevation)
 {
     if (!gObjectsInitialized) {
         return;
@@ -754,8 +754,8 @@ void sub_489550(Rect* rect, int elevation)
 
             ObjectListNode* objectListNode = gObjectListHeadByTile[v19 + v8[v9]];
             if (objectListNode != NULL) {
-                // NOTE: calls sub_47A980 two times, probably result of min/max macro
-                int q = sub_47A980(elevation, objectListNode->obj->tile);
+                // NOTE: calls _light_get_tile two times, probably result of min/max macro
+                int q = _light_get_tile(elevation, objectListNode->obj->tile);
                 if (q >= lightLevel) {
                     v2 = q;
                 } else {
@@ -774,7 +774,7 @@ void sub_489550(Rect* rect, int elevation)
                     }
 
                     if ((objectListNode->obj->flags & 0x01) == 0) {
-                        sub_48F1B0(objectListNode->obj, &updatedRect, v2);
+                        _obj_render_object(objectListNode->obj, &updatedRect, v2);
 
                         if ((objectListNode->obj->outline & OUTLINE_TYPE_MASK) != 0) {
                             if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0 && dword_519624 < 100) {
@@ -799,7 +799,7 @@ void sub_489550(Rect* rect, int elevation)
         ObjectListNode* objectListNode = off_519620[i];
         if (objectListNode != NULL) {
             v2 = lightLevel;
-            int w = sub_47A980(elevation, objectListNode->obj->tile);
+            int w = _light_get_tile(elevation, objectListNode->obj->tile);
             if (w > v2) {
                 v2 = w;
             }
@@ -813,7 +813,7 @@ void sub_489550(Rect* rect, int elevation)
 
             if (elevation == objectListNode->obj->elevation) {
                 if ((objectListNode->obj->flags & 0x01) == 0) {
-                    sub_48F1B0(object, &updatedRect, v2);
+                    _obj_render_object(object, &updatedRect, v2);
 
                     if ((objectListNode->obj->outline & OUTLINE_TYPE_MASK) != 0) {
                         if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0 && dword_519624 < 100) {
@@ -829,7 +829,7 @@ void sub_489550(Rect* rect, int elevation)
 }
 
 // 0x4897EC
-void sub_4897EC(Rect* rect, int elevation)
+void _obj_render_post_roof(Rect* rect, int elevation)
 {
     if (!gObjectsInitialized) {
         return;
@@ -850,7 +850,7 @@ void sub_4897EC(Rect* rect, int elevation)
     while (objectListNode != NULL) {
         Object* object = objectListNode->obj;
         if ((object->flags & 0x01) == 0) {
-            sub_48F1B0(object, &updatedRect, 0x10000);
+            _obj_render_object(object, &updatedRect, 0x10000);
         }
         objectListNode = objectListNode->next;
     }
@@ -873,7 +873,7 @@ int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
     }
 
     objectListNode->obj->fid = fid;
-    sub_48D8E8(objectListNode);
+    _obj_insert(objectListNode);
 
     if (objectPtr) {
         *objectPtr = objectListNode->obj;
@@ -889,7 +889,7 @@ int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
         return 0;
     }
 
-    sub_49F8A0(objectListNode->obj);
+    _proto_update_init(objectListNode->obj);
 
     Proto* proto = NULL;
     if (protoGetProto(pid, &proto) == -1) {
@@ -899,7 +899,7 @@ int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
     objectSetLight(objectListNode->obj, proto->lightDistance, proto->lightIntensity, NULL);
 
     if ((proto->flags & 0x08) != 0) {
-        sub_48AF2C(objectListNode->obj, NULL);
+        _obj_toggle_flat(objectListNode->obj, NULL);
     }
 
     if ((proto->flags & 0x10) != 0) {
@@ -942,7 +942,7 @@ int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
         objectListNode->obj->flags |= 0x1000;
     }
 
-    sub_49A9B4(objectListNode->obj, &(objectListNode->obj->sid));
+    _obj_new_sid(objectListNode->obj, &(objectListNode->obj->sid));
 
     return 0;
 }
@@ -962,7 +962,7 @@ int objectCreateWithPid(Object** objectPtr, int pid)
 }
 
 // 0x489CCC
-int sub_489CCC(Object** a1, Object* a2)
+int _obj_copy(Object** a1, Object* a2)
 {
     if (a2 == NULL) {
         return -1;
@@ -989,13 +989,13 @@ int sub_489CCC(Object** a1, Object* a2)
         *a1 = objectListNode->obj;
     }
 
-    sub_48D8E8(objectListNode);
+    _obj_insert(objectListNode);
 
     objectListNode->obj->id = scriptsNewObjectId();
 
     if (objectListNode->obj->sid != -1) {
         objectListNode->obj->sid = -1;
-        sub_49A9B4(objectListNode->obj, &(objectListNode->obj->sid));
+        _obj_new_sid(objectListNode->obj, &(objectListNode->obj->sid));
     }
 
     if (objectSetRotation(objectListNode->obj, a2->rotation, NULL) == -1) {
@@ -1016,7 +1016,7 @@ int sub_489CCC(Object** a1, Object* a2)
         InventoryItem* oldInventoryItem = &(oldInventory->items[index]);
 
         Object* newItem;
-        if (sub_489CCC(&newItem, oldInventoryItem->item) == -1) {
+        if (_obj_copy(&newItem, oldInventoryItem->item) == -1) {
             // TODO: Probably leaking object allocated with objectAllocate.
             // NOTE: Uninline.
             objectListNodeDestroy(&objectListNode);
@@ -1035,7 +1035,7 @@ int sub_489CCC(Object** a1, Object* a2)
 }
 
 // 0x489EC4
-int sub_489EC4(Object* object, int tile, int elevation, Rect* rect)
+int _obj_connect(Object* object, int tile, int elevation, Rect* rect)
 {
     if (object == NULL) {
         return -1;
@@ -1058,11 +1058,11 @@ int sub_489EC4(Object* object, int tile, int elevation, Rect* rect)
 
     objectListNode->obj = object;
 
-    return sub_48DB28(objectListNode, tile, elevation, rect);
+    return _obj_connect_to_tile(objectListNode, tile, elevation, rect);
 }
 
 // 0x489F34
-int sub_489F34(Object* obj, Rect* rect)
+int _obj_disconnect(Object* obj, Rect* rect)
 {
     if (obj == NULL) {
         return -1;
@@ -1074,7 +1074,7 @@ int sub_489F34(Object* obj, Rect* rect)
         return -1;
     }
 
-    if (sub_48DC28(obj, 1, rect) == -1) {
+    if (_obj_adjust_light(obj, 1, rect) == -1) {
         if (rect != NULL) {
             objectGetRect(obj, rect);
         }
@@ -1101,7 +1101,7 @@ int sub_489F34(Object* obj, Rect* rect)
 }
 
 // 0x489FF8
-int sub_489FF8(Object* obj, int x, int y, Rect* rect)
+int _obj_offset(Object* obj, int x, int y, Rect* rect)
 {
     if (obj == NULL) {
         return -1;
@@ -1136,11 +1136,11 @@ int sub_489FF8(Object* obj, int x, int y, Rect* rect)
             obj->y += y;
             obj->sy += y;
 
-            sub_48D8E8(node);
+            _obj_insert(node);
 
             rectOffset(&eggRect, x, y);
 
-            sub_489FF8(gEgg, x, y, NULL);
+            _obj_offset(gEgg, x, y, NULL);
             rectUnion(rect, &eggRect, rect);
         } else {
             if (previousNode != NULL) {
@@ -1160,9 +1160,9 @@ int sub_489FF8(Object* obj, int x, int y, Rect* rect)
             obj->y += y;
             obj->sy += y;
 
-            sub_48D8E8(node);
+            _obj_insert(node);
 
-            sub_489FF8(gEgg, x, y, NULL);
+            _obj_offset(gEgg, x, y, NULL);
         }
     } else {
         if (rect != NULL) {
@@ -1185,7 +1185,7 @@ int sub_489FF8(Object* obj, int x, int y, Rect* rect)
             obj->y += y;
             obj->sy += y;
 
-            sub_48D8E8(node);
+            _obj_insert(node);
 
             Rect objectRect;
             rectCopy(&objectRect, rect);
@@ -1211,7 +1211,7 @@ int sub_489FF8(Object* obj, int x, int y, Rect* rect)
             obj->y += y;
             obj->sy += y;
 
-            sub_48D8E8(node);
+            _obj_insert(node);
         }
     }
 
@@ -1219,7 +1219,7 @@ int sub_489FF8(Object* obj, int x, int y, Rect* rect)
 }
 
 // 0x48A324
-int sub_48A324(Object* a1, int a2, int a3, int elevation, Rect* a5)
+int _obj_move(Object* a1, int a2, int a3, int elevation, Rect* a5)
 {
     if (a1 == NULL) {
         return -1;
@@ -1236,7 +1236,7 @@ int sub_48A324(Object* a1, int a2, int a3, int elevation, Rect* a5)
             return -1;
         }
 
-        if (sub_48DC28(a1, 1, a5) == -1) {
+        if (_obj_adjust_light(a1, 1, a5) == -1) {
             if (a5 != NULL) {
                 objectGetRect(a1, a5);
             }
@@ -1298,7 +1298,7 @@ int sub_48A324(Object* a1, int a2, int a3, int elevation, Rect* a5)
     }
 
     if (v22) {
-        sub_48D8E8(node);
+        _obj_insert(node);
     }
 
     if (a5 != NULL) {
@@ -1310,10 +1310,10 @@ int sub_48A324(Object* a1, int a2, int a3, int elevation, Rect* a5)
     if (a1 == gDude) {
         if (a1 != NULL) {
             Rect rect;
-            sub_48A324(gEgg, a2, a3, elevation, &rect);
+            _obj_move(gEgg, a2, a3, elevation, &rect);
             rectUnion(a5, &rect, a5);
         } else {
-            sub_48A324(gEgg, a2, a3, elevation, NULL);
+            _obj_move(gEgg, a2, a3, elevation, NULL);
         }
     }
 
@@ -1342,7 +1342,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
     }
 
     Rect v23;
-    int v5 = sub_48DC28(obj, 1, rect);
+    int v5 = _obj_adjust_light(obj, 1, rect);
     if (rect != NULL) {
         if (v5 == -1) {
             objectGetRect(obj, rect);
@@ -1363,14 +1363,14 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         }
     }
 
-    if (sub_48DB28(node, tile, elevation, rect) == -1) {
+    if (_obj_connect_to_tile(node, tile, elevation, rect) == -1) {
         return -1;
     }
 
     if (isInCombat()) {
         if ((obj->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
             bool v8 = obj->outline != 0 && (obj->outline & OUTLINE_DISABLED) == 0;
-            sub_421D50(obj, v8);
+            _combat_update_critter_outline_for_los(obj, v8);
         }
     }
 
@@ -1401,7 +1401,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
                         transition.rotation = data->misc.rotation;
                         mapSetTransition(&transition);
 
-                        sub_4BFD50(transition.map, transition.tile, 1);
+                        _wmMapMarkMapEntranceState(transition.map, transition.tile, 1);
                     }
                 }
             }
@@ -1421,11 +1421,11 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 
             if (v34 != dword_51977C || (((v16 >> 16) & 0xF000) >> 12) != (((v32 >> 16) & 0xF000) >> 12)) {
                 if (dword_51977C == 0) {
-                    sub_4B23D4(dword_519770, dword_519774, elevation, 1);
+                    _tile_fill_roof(dword_519770, dword_519774, elevation, 1);
                 }
 
                 if (v34 == 0) {
-                    sub_4B23D4(v14, v15, elevation, 0);
+                    _tile_fill_roof(v14, v15, elevation, 0);
                 }
 
                 if (rect != NULL) {
@@ -1456,7 +1456,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         }
     } else {
         if (elevation != dword_519778 && (obj->pid >> 24) == OBJ_TYPE_CRITTER) {
-            sub_426DDC(obj);
+            _combat_delete_critter(obj);
         }
     }
 
@@ -1464,11 +1464,11 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 }
 
 // 0x48A9A0
-int sub_48A9A0()
+int _obj_reset_roof()
 {
     int fid = buildFid(4, (dword_631E40[gDude->elevation]->field_0[dword_519770 + 100 * dword_519774] >> 16) & 0xFFF, 0, 0, 0);
     if (fid != buildFid(4, 1, 0, 0, 0)) {
-        sub_4B23D4(dword_519770, dword_519774, gDude->elevation, 1);
+        _tile_fill_roof(dword_519770, dword_519774, gDude->elevation, 1);
     }
     return 0;
 }
@@ -1667,14 +1667,14 @@ int objectRotateCounterClockwise(Object* obj, Rect* dirtyRect)
 }
 
 // 0x48AC54
-void sub_48AC54()
+void _obj_rebuild_all_light()
 {
     lightResetIntensity();
 
     for (int tile = 0; tile < HEX_GRID_SIZE; tile++) {
         ObjectListNode* objectListNode = gObjectListHeadByTile[tile];
         while (objectListNode != NULL) {
-            sub_48DC28(objectListNode->obj, 0, NULL);
+            _obj_adjust_light(objectListNode->obj, 0, NULL);
             objectListNode = objectListNode->next;
         }
     }
@@ -1690,7 +1690,7 @@ int objectSetLight(Object* obj, int lightDistance, int lightIntensity, Rect* rec
         return -1;
     }
 
-    v7 = sub_48AD9C(obj, rect);
+    v7 = _obj_turn_off_light(obj, rect);
     if (lightIntensity > 0) {
         if (lightDistance >= 8) {
             lightDistance = 8;
@@ -1700,10 +1700,10 @@ int objectSetLight(Object* obj, int lightDistance, int lightIntensity, Rect* rec
         obj->lightDistance = lightDistance;
 
         if (rect != NULL) {
-            v7 = sub_48AD48(obj, &new_rect);
+            v7 = _obj_turn_on_light(obj, &new_rect);
             rectUnion(rect, &new_rect, rect);
         } else {
-            v7 = sub_48AD48(obj, NULL);
+            v7 = _obj_turn_on_light(obj, NULL);
         }
     } else {
         obj->lightIntensity = 0;
@@ -1735,7 +1735,7 @@ int objectGetLightIntensity(Object* obj)
 }
 
 // 0x48AD48
-int sub_48AD48(Object* obj, Rect* rect)
+int _obj_turn_on_light(Object* obj, Rect* rect)
 {
     if (obj == NULL) {
         return -1;
@@ -1749,7 +1749,7 @@ int sub_48AD48(Object* obj, Rect* rect)
     if ((obj->flags & OBJECT_FLAGS_0x20) == 0) {
         obj->flags |= OBJECT_FLAGS_0x20;
 
-        if (sub_48DC28(obj, 0, rect) == -1) {
+        if (_obj_adjust_light(obj, 0, rect) == -1) {
             if (rect != NULL) {
                 objectGetRect(obj, rect);
             }
@@ -1760,7 +1760,7 @@ int sub_48AD48(Object* obj, Rect* rect)
 }
 
 // 0x48AD9C
-int sub_48AD9C(Object* obj, Rect* rect)
+int _obj_turn_off_light(Object* obj, Rect* rect)
 {
     if (obj == NULL) {
         return -1;
@@ -1772,7 +1772,7 @@ int sub_48AD9C(Object* obj, Rect* rect)
     }
 
     if (obj->flags & 0x20) {
-        if (sub_48DC28(obj, 1, rect) == -1) {
+        if (_obj_adjust_light(obj, 1, rect) == -1) {
             if (rect != NULL) {
                 objectGetRect(obj, rect);
             }
@@ -1798,7 +1798,7 @@ int objectShow(Object* obj, Rect* rect)
     obj->flags &= ~OBJECT_IS_INVISIBLE;
     obj->outline &= ~OUTLINE_DISABLED;
 
-    if (sub_48DC28(obj, 0, rect) == -1) {
+    if (_obj_adjust_light(obj, 0, rect) == -1) {
         if (rect != NULL) {
             objectGetRect(obj, rect);
         }
@@ -1826,7 +1826,7 @@ int objectHide(Object* object, Rect* rect)
         return -1;
     }
 
-    if (sub_48DC28(object, 1, rect) == -1) {
+    if (_obj_adjust_light(object, 1, rect) == -1) {
         if (rect != NULL) {
             objectGetRect(object, rect);
         }
@@ -1884,7 +1884,7 @@ int objectDisableOutline(Object* object, Rect* rect)
 }
 
 // 0x48AF2C
-int sub_48AF2C(Object* object, Rect* rect)
+int _obj_toggle_flat(Object* object, Rect* rect)
 {
     Rect v1;
 
@@ -1914,7 +1914,7 @@ int sub_48AF2C(Object* object, Rect* rect)
 
         object->flags ^= 0x08;
 
-        sub_48D8E8(node);
+        _obj_insert(node);
         objectGetRect(object, &v1);
         rectUnion(rect, &v1, rect);
     } else {
@@ -1931,7 +1931,7 @@ int sub_48AF2C(Object* object, Rect* rect)
 
         object->flags ^= 0x08;
 
-        sub_48D8E8(node);
+        _obj_insert(node);
     }
 
     return 0;
@@ -1944,18 +1944,18 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
-    sub_44E544(object);
+    _gmouse_remove_item_outline(object);
 
     ObjectListNode* node;
     ObjectListNode* previousNode;
     if (objectGetListNode(object, &node, &previousNode) == 0) {
-        if (sub_48DC28(object, 1, rect) == -1) {
+        if (_obj_adjust_light(object, 1, rect) == -1) {
             if (rect != NULL) {
                 objectGetRect(object, rect);
             }
         }
 
-        if (sub_48DA58(node, previousNode) != 0) {
+        if (_obj_remove(node, previousNode) != 0) {
             return -1;
         }
 
@@ -1969,7 +1969,7 @@ int objectDestroy(Object* object, Rect* rect)
 
     node->obj = object;
 
-    if (sub_48DA58(node, node) == -1) {
+    if (_obj_remove(node, node) == -1) {
         return -1;
     }
 
@@ -1977,7 +1977,7 @@ int objectDestroy(Object* object, Rect* rect)
 }
 
 // 0x48B1B0
-int sub_48B1B0(Inventory* inventory)
+int _obj_inven_free(Inventory* inventory)
 {
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
@@ -1988,7 +1988,7 @@ int sub_48B1B0(Inventory* inventory)
 
         node->obj = inventoryItem->item;
         node->obj->flags &= ~0x0400;
-        sub_48DA58(node, node);
+        _obj_remove(node, node);
 
         inventoryItem->item = NULL;
     }
@@ -2004,24 +2004,24 @@ int sub_48B1B0(Inventory* inventory)
 }
 
 // 0x48B24C
-bool sub_48B24C(Object* obj)
+bool _obj_action_can_use(Object* obj)
 {
     int pid = obj->pid;
     if (pid != PROTO_ID_LIT_FLARE && pid != PROTO_ID_DYNAMITE_II && pid != PROTO_ID_PLASTIC_EXPLOSIVES_II) {
-        return sub_49E99C(pid);
+        return _proto_action_can_use(pid);
     } else {
         return false;
     }
 }
 
 // 0x48B278
-bool sub_48B278(Object* obj)
+bool _obj_action_can_talk_to(Object* obj)
 {
-    return sub_49EA24(obj->pid) && ((obj->pid >> 24) == OBJ_TYPE_CRITTER) && critterIsActive(obj);
+    return _proto_action_can_talk_to(obj->pid) && ((obj->pid >> 24) == OBJ_TYPE_CRITTER) && critterIsActive(obj);
 }
 
 // 0x48B2A8
-bool sub_48B2A8(Object* obj)
+bool _obj_portal_is_walk_thru(Object* obj)
 {
     if ((obj->pid >> 24) != OBJ_TYPE_SCENERY) {
         return FALSE;
@@ -2067,13 +2067,13 @@ Object* objectGetOwner(Object* object)
 }
 
 // 0x48B318
-void sub_48B318()
+void _obj_remove_all()
 {
     ObjectListNode* node;
     ObjectListNode* prev;
     ObjectListNode* next;
 
-    sub_4A63E0();
+    _scr_remove_all();
 
     for (int tile = 0; tile < HEX_GRID_SIZE; tile++) {
         node = gObjectListHeadByTile[tile];
@@ -2081,7 +2081,7 @@ void sub_48B318()
 
         while (node != NULL) {
             next = node->next;
-            if (sub_48DA58(node, prev) == -1) {
+            if (_obj_remove(node, prev) == -1) {
                 prev = node;
             }
             node = next;
@@ -2093,7 +2093,7 @@ void sub_48B318()
 
     while (node != NULL) {
         next = node->next;
-        if (sub_48DA58(node, prev) == -1) {
+        if (_obj_remove(node, prev) == -1) {
             prev = node;
         }
         node = next;
@@ -2335,7 +2335,7 @@ void objectGetRect(Object* obj, Rect* rect)
 }
 
 // 0x48B7F8
-bool sub_48B7F8(int tile, int elevation)
+bool _obj_occupied(int tile, int elevation)
 {
     ObjectListNode* objectListNode = gObjectListHeadByTile[tile];
     while (objectListNode != NULL) {
@@ -2351,7 +2351,7 @@ bool sub_48B7F8(int tile, int elevation)
 }
 
 // 0x48B848
-Object* sub_48B848(Object* a1, int tile, int elev)
+Object* _obj_blocking_at(Object* a1, int tile, int elev)
 {
     ObjectListNode* objectListNode;
     Object* v7;
@@ -2404,7 +2404,7 @@ Object* sub_48B848(Object* a1, int tile, int elev)
 }
 
 // 0x48B930
-Object* sub_48B930(Object* obj, int tile, int elev)
+Object* _obj_shoot_blocking_at(Object* obj, int tile, int elev)
 {
     if (!hexGridTileIsValid(tile)) {
         return NULL;
@@ -2453,7 +2453,7 @@ Object* sub_48B930(Object* obj, int tile, int elev)
 }
 
 // 0x48BA20
-Object* sub_48BA20(Object* a1, int tile, int elevation)
+Object* _obj_ai_blocking_at(Object* a1, int tile, int elevation)
 {
     if (!hexGridTileIsValid(tile)) {
         return NULL;
@@ -2516,7 +2516,7 @@ Object* sub_48BA20(Object* a1, int tile, int elevation)
 }
 
 // 0x48BB44
-int sub_48BB44(int tile, int elev)
+int _obj_scroll_blocking_at(int tile, int elev)
 {
     // TODO: Might be an error - why tile 0 is excluded?
     if (tile <= 0 || tile >= 40000) {
@@ -2540,7 +2540,7 @@ int sub_48BB44(int tile, int elev)
 }
 
 // 0x48BB88
-Object* sub_48BB88(Object* a1, int tile, int elevation)
+Object* _obj_sight_blocking_at(Object* a1, int tile, int elevation)
 {
     ObjectListNode* objectListNode = gObjectListHeadByTile[tile];
     while (objectListNode != NULL) {
@@ -2689,7 +2689,7 @@ void objectListFree(Object** objectList)
 }
 
 // 0x48BDD8
-void sub_48BDD8(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destX, int destY, int destPitch, unsigned char* a9, unsigned char* a10)
+void _translucent_trans_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destX, int destY, int destPitch, unsigned char* a9, unsigned char* a10)
 {
     dest += destPitch * destY + destX;
     int srcStep = srcPitch - srcWidth;
@@ -2714,7 +2714,7 @@ void sub_48BDD8(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, u
 }
 
 // 0x48BEFC
-void sub_48BEFC(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destX, int destY, int destPitch, int light)
+void _dark_trans_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destX, int destY, int destPitch, int light)
 {
     unsigned char* sp = src;
     unsigned char* dp = dest + destPitch * destY + destX;
@@ -2746,7 +2746,7 @@ void sub_48BEFC(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, u
 }
 
 // 0x48BF88
-void sub_48BF88(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destX, int destY, int destPitch, int light, unsigned char* a10, unsigned char* a11)
+void _dark_translucent_trans_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destX, int destY, int destPitch, int light, unsigned char* a10, unsigned char* a11)
 {
     int srcStep = srcPitch - srcWidth;
     int destStep = destPitch - srcWidth;
@@ -2776,7 +2776,7 @@ void sub_48BF88(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, u
 }
 
 // 0x48C03C
-void sub_48C03C(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destPitch, unsigned char* mask, int maskPitch, int light)
+void _intensity_mask_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destPitch, unsigned char* mask, int maskPitch, int light)
 {
     int srcStep = srcPitch - srcWidth;
     int destStep = destPitch - srcWidth;
@@ -2860,7 +2860,7 @@ int objectClearOutline(Object* object, Rect* rect)
 }
 
 // 0x48C340
-int sub_48C340(Object* object, int x, int y)
+int _obj_intersects_with(Object* object, int x, int y)
 {
     int flags = 0;
 
@@ -2921,19 +2921,19 @@ int sub_48C340(Object* object, int x, int y)
                                 bool v20;
                                 int extendedFlags = proto->scenery.extendedFlags;
                                 if ((extendedFlags & 0x8000000) != 0 || (extendedFlags & 0x80000000) != 0) {
-                                    v20 = sub_4B1994(object->tile, gDude->tile);
+                                    v20 = _tile_in_front_of(object->tile, gDude->tile);
                                 } else if ((extendedFlags & 0x10000000) != 0) {
                                     // NOTE: Original code uses bitwise or, but given the fact that these functions return
                                     // bools, logical or is more suitable.
-                                    v20 = sub_4B1994(object->tile, gDude->tile) || sub_4B1A00(gDude->tile, object->tile);
+                                    v20 = _tile_in_front_of(object->tile, gDude->tile) || _tile_to_right_of(gDude->tile, object->tile);
                                 } else if ((extendedFlags & 0x20000000) != 0) {
-                                    v20 = sub_4B1994(object->tile, gDude->tile) && sub_4B1A00(gDude->tile, object->tile);
+                                    v20 = _tile_in_front_of(object->tile, gDude->tile) && _tile_to_right_of(gDude->tile, object->tile);
                                 } else {
-                                    v20 = sub_4B1A00(gDude->tile, object->tile);
+                                    v20 = _tile_to_right_of(gDude->tile, object->tile);
                                 }
 
                                 if (v20) {
-                                    if (sub_48C340(gEgg, x, y) != 0) {
+                                    if (_obj_intersects_with(gEgg, x, y) != 0) {
                                         flags |= 0x04;
                                     }
                                 }
@@ -2951,7 +2951,7 @@ int sub_48C340(Object* object, int x, int y)
 }
 
 // 0x48C5C4
-int sub_48C5C4(int x, int y, int elevation, int objectType, ObjectWithFlags** entriesPtr)
+int _obj_create_intersect_list(int x, int y, int elevation, int objectType, ObjectWithFlags** entriesPtr)
 {
     int v5 = tileFromScreenXY(x - 320, y - 240, elevation);
     *entriesPtr = NULL;
@@ -2976,7 +2976,7 @@ int sub_48C5C4(int x, int y, int elevation, int objectType, ObjectWithFlags** en
                 if (object->elevation == elevation
                     && (objectType == -1 || (object->fid & 0xF000000) >> 24 == objectType)
                     && object != gEgg) {
-                    int flags = sub_48C340(object, x, y);
+                    int flags = _obj_intersects_with(object, x, y);
                     if (flags != 0) {
                         ObjectWithFlags* entries = internal_realloc(*entriesPtr, sizeof(*entries) * (count + 1));
                         if (entries != NULL) {
@@ -2997,7 +2997,7 @@ int sub_48C5C4(int x, int y, int elevation, int objectType, ObjectWithFlags** en
 }
 
 // 0x48C74C
-void sub_48C74C(ObjectWithFlags** entriesPtr)
+void _obj_delete_intersect_list(ObjectWithFlags** entriesPtr)
 {
     if (entriesPtr != NULL && *entriesPtr != NULL) {
         internal_free(*entriesPtr);
@@ -3006,13 +3006,13 @@ void sub_48C74C(ObjectWithFlags** entriesPtr)
 }
 
 // 0x48C788
-void sub_48C788()
+void _obj_clear_seen()
 {
     memset(byte_662445, 0, sizeof(byte_662445));
 }
 
 // 0x48C7A0
-void sub_48C7A0()
+void _obj_process_seen()
 {
     int i;
     int v7;
@@ -3098,7 +3098,7 @@ char* objectGetDescription(Object* obj)
 // Warm objects cache?
 //
 // 0x48C938
-void sub_48C938(int flags)
+void _obj_preload_art_cache(int flags)
 {
     if (gObjectFids == NULL) {
         return;
@@ -3131,7 +3131,7 @@ void sub_48C938(int flags)
         }
     }
 
-    qsort(gObjectFids, gObjectFidsLength, sizeof(*gObjectFids), sub_48FB08);
+    qsort(gObjectFids, gObjectFidsLength, sizeof(*gObjectFids), _obj_preload_sort);
 
     int v11 = gObjectFidsLength;
     int v12 = gObjectFidsLength;
@@ -3183,7 +3183,7 @@ void sub_48C938(int flags)
 }
 
 // 0x48CB88
-int sub_48CB88()
+int _obj_offset_table_init()
 {
     int i;
 
@@ -3264,13 +3264,13 @@ int sub_48CB88()
     return 0;
 
 err:
-    sub_48CDA0();
+    _obj_offset_table_exit();
 
     return -1;
 }
 
 // 0x48CDA0
-void sub_48CDA0()
+void _obj_offset_table_exit()
 {
     if (off_51961C != NULL) {
         internal_free(off_51961C);
@@ -3294,7 +3294,7 @@ void sub_48CDA0()
 }
 
 // 0x48CE10
-int sub_48CE10()
+int _obj_order_table_init()
 {
     if (off_519608[0] != NULL || off_519608[1] != NULL) {
         return -1;
@@ -3315,21 +3315,21 @@ int sub_48CE10()
         off_519608[1][index] = index;
     }
 
-    qsort(off_519608[0], dword_519604, sizeof(int), sub_48CF20);
-    qsort(off_519608[1], dword_519604, sizeof(int), sub_48CF38);
+    qsort(off_519608[0], dword_519604, sizeof(int), _obj_order_comp_func_even);
+    qsort(off_519608[1], dword_519604, sizeof(int), _obj_order_comp_func_odd);
 
     return 0;
 
 err:
 
     // NOTE: Uninline.
-    sub_48CF50();
+    _obj_order_table_exit();
 
     return -1;
 }
 
 // 0x48CF20
-int sub_48CF20(const void* a1, const void* a2)
+int _obj_order_comp_func_even(const void* a1, const void* a2)
 {
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
@@ -3337,7 +3337,7 @@ int sub_48CF20(const void* a1, const void* a2)
 }
 
 // 0x48CF38
-int sub_48CF38(const void* a1, const void* a2)
+int _obj_order_comp_func_odd(const void* a1, const void* a2)
 {
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
@@ -3347,7 +3347,7 @@ int sub_48CF38(const void* a1, const void* a2)
 // NOTE: Inlined.
 //
 // 0x48CF50
-void sub_48CF50()
+void _obj_order_table_exit()
 {
     if (off_519608[1] != NULL) {
         internal_free(off_519608[1]);
@@ -3361,7 +3361,7 @@ void sub_48CF50()
 }
 
 // 0x48CF8C
-int sub_48CF8C()
+int _obj_render_table_init()
 {
     if (off_519620 != NULL) {
         return -1;
@@ -3382,7 +3382,7 @@ int sub_48CF8C()
 // NOTE: Inlined.
 //
 // 0x48D000
-void sub_48D000()
+void _obj_render_table_exit()
 {
     if (off_519620 != NULL) {
         internal_free(off_519620);
@@ -3391,7 +3391,7 @@ void sub_48D000()
 }
 
 // 0x48D020
-void sub_48D020()
+void _obj_light_table_init()
 {
     for (int s = 0; s < 2; s++) {
         int v4 = gCenterTile + s;
@@ -3412,7 +3412,7 @@ void sub_48D020()
 }
 
 // 0x48D1E4
-void sub_48D1E4()
+void _obj_blend_table_init()
 {
     for (int index = 0; index < 256; index++) {
         int r = (sub_4C72E0(index) & 0x7C00) >> 10;
@@ -3425,27 +3425,27 @@ void sub_48D1E4()
     byte_660EA0[0] = 0;
     byte_660FA0[0] = 0;
 
-    dword_519780 = sub_4C7DC0(byte_6A38D0[25439]);
-    dword_519784 = sub_4C7DC0(byte_6A38D0[10239]);
-    dword_519788 = sub_4C7DC0(byte_6A38D0[32767]);
-    dword_51978C = sub_4C7DC0(byte_6A38D0[30689]);
-    dword_519790 = sub_4C7DC0(byte_6A38D0[31744]);
+    dword_519780 = _getColorBlendTable(byte_6A38D0[25439]);
+    dword_519784 = _getColorBlendTable(byte_6A38D0[10239]);
+    dword_519788 = _getColorBlendTable(byte_6A38D0[32767]);
+    dword_51978C = _getColorBlendTable(byte_6A38D0[30689]);
+    dword_519790 = _getColorBlendTable(byte_6A38D0[31744]);
 }
 
 // NOTE: Inlined.
 //
 // 0x48D2E8
-void sub_48D2E8()
+void _obj_blend_table_exit()
 {
-    sub_4C7E20(byte_6A38D0[25439]);
-    sub_4C7E20(byte_6A38D0[10239]);
-    sub_4C7E20(byte_6A38D0[32767]);
-    sub_4C7E20(byte_6A38D0[30689]);
-    sub_4C7E20(byte_6A38D0[31744]);
+    _freeColorBlendTable(byte_6A38D0[25439]);
+    _freeColorBlendTable(byte_6A38D0[10239]);
+    _freeColorBlendTable(byte_6A38D0[32767]);
+    _freeColorBlendTable(byte_6A38D0[30689]);
+    _freeColorBlendTable(byte_6A38D0[31744]);
 }
 
 // 0x48D348
-int sub_48D348(File* stream, Object* object)
+int _obj_save_obj(File* stream, Object* object)
 {
     if ((object->flags & 0x04) != 0) {
         return 0;
@@ -3481,7 +3481,7 @@ int sub_48D348(File* stream, Object* object)
             return -1;
         }
 
-        if (sub_48D348(stream, inventoryItem->item) == -1) {
+        if (_obj_save_obj(stream, inventoryItem->item) == -1) {
             return -1;
         }
 
@@ -3494,7 +3494,7 @@ int sub_48D348(File* stream, Object* object)
 }
 
 // 0x48D414
-int sub_48D414(File* stream, Object** objectPtr, int elevation, Object* owner)
+int _obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner)
 {
     Object* obj;
 
@@ -3517,9 +3517,9 @@ int sub_48D414(File* stream, Object** objectPtr, int elevation, Object* owner)
         }
     }
 
-    sub_48FA14(&(obj->fid));
+    _obj_fix_violence_settings(&(obj->fid));
 
-    if (!sub_419930(obj->fid)) {
+    if (!_art_fid_valid(obj->fid)) {
         debugPrint("\nError: invalid object art fid: %u\n", obj->fid);
         // NOTE: Uninline.
         objectDeallocate(&obj);
@@ -3553,7 +3553,7 @@ int sub_48D414(File* stream, Object** objectPtr, int elevation, Object* owner)
             return -1;
         }
 
-        if (sub_48D414(stream, &(inventoryItem->item), elevation, obj) != 0) {
+        if (_obj_load_obj(stream, &(inventoryItem->item), elevation, obj) != 0) {
             return -1;
         }
     }
@@ -3565,14 +3565,14 @@ int sub_48D414(File* stream, Object** objectPtr, int elevation, Object* owner)
 
 // obj_save_dude
 // 0x48D59C
-int sub_48D59C(File* stream)
+int _obj_save_dude(File* stream)
 {
     int field_78 = gDude->sid;
 
     gDude->flags &= ~0x04;
     gDude->sid = -1;
 
-    sub_48D348(stream, gDude);
+    _obj_save_obj(stream, gDude);
 
     gDude->sid = field_78;
     gDude->flags |= 0x04;
@@ -3587,7 +3587,7 @@ int sub_48D59C(File* stream)
 
 // obj_load_dude
 // 0x48D600
-int sub_48D600(File* stream)
+int _obj_load_dude(File* stream)
 {
     int savedTile = gDude->tile;
     int savedElevation = gDude->elevation;
@@ -3597,7 +3597,7 @@ int sub_48D600(File* stream)
     scriptsClearDudeScript();
 
     Object* temp;
-    int rc = sub_48D414(stream, &temp, -1, NULL);
+    int rc = _obj_load_obj(stream, &temp, -1, NULL);
 
     memcpy(gDude, temp, sizeof(*gDude));
 
@@ -3632,7 +3632,7 @@ int sub_48D600(File* stream)
         inventoryItem->item->owner = gDude;
     }
 
-    sub_48909C();
+    _obj_fix_combat_cid_for_dude();
 
     // Dude has claimed ownership of items in temporary instance's inventory.
     // We don't need object's dealloc routine to remove these items from the
@@ -3648,7 +3648,7 @@ int sub_48D600(File* stream)
         debugPrint("\nError: obj_load_dude: Can't destroy temp object!\n");
     }
 
-    sub_46E724();
+    _inven_reset_dude();
 
     int tile;
     if (fileReadInt32(stream, &tile) == -1) {
@@ -3790,7 +3790,7 @@ int objectGetListNode(Object* object, ObjectListNode** nodePtr, ObjectListNode**
 }
 
 // 0x48D8E8
-void sub_48D8E8(ObjectListNode* objectListNode)
+void _obj_insert(ObjectListNode* objectListNode)
 {
     ObjectListNode** objectListNodePtr;
 
@@ -3851,7 +3851,7 @@ void sub_48D8E8(ObjectListNode* objectListNode)
 }
 
 // 0x48DA58
-int sub_48DA58(ObjectListNode* a1, ObjectListNode* a2)
+int _obj_remove(ObjectListNode* a1, ObjectListNode* a2)
 {
     if (a1->obj == NULL) {
         return -1;
@@ -3861,7 +3861,7 @@ int sub_48DA58(ObjectListNode* a1, ObjectListNode* a2)
         return -1;
     }
 
-    sub_48B1B0(&(a1->obj->data.inventory));
+    _obj_inven_free(&(a1->obj->data.inventory));
 
     if (a1->obj->sid != -1) {
         scriptExecProc(a1->obj->sid, SCRIPT_PROC_DESTROY);
@@ -3891,7 +3891,7 @@ int sub_48DA58(ObjectListNode* a1, ObjectListNode* a2)
 }
 
 // 0x48DB28
-int sub_48DB28(ObjectListNode* node, int tile, int elevation, Rect* rect)
+int _obj_connect_to_tile(ObjectListNode* node, int tile, int elevation, Rect* rect)
 {
     if (node == NULL) {
         return -1;
@@ -3911,9 +3911,9 @@ int sub_48DB28(ObjectListNode* node, int tile, int elevation, Rect* rect)
     node->obj->y = 0;
     node->obj->owner = 0;
 
-    sub_48D8E8(node);
+    _obj_insert(node);
 
-    if (sub_48DC28(node->obj, 0, rect) == -1) {
+    if (_obj_adjust_light(node->obj, 0, rect) == -1) {
         if (rect != NULL) {
             objectGetRect(node->obj, rect);
         }
@@ -3923,7 +3923,7 @@ int sub_48DB28(ObjectListNode* node, int tile, int elevation, Rect* rect)
 }
 
 // 0x48DC28
-int sub_48DC28(Object* obj, int a2, Rect* rect)
+int _obj_adjust_light(Object* obj, int a2, Rect* rect)
 {
     if (obj == NULL) {
         return -1;
@@ -4842,7 +4842,7 @@ void objectDrawOutline(Object* object, Rect* rect)
 }
 
 // 0x48F1B0
-void sub_48F1B0(Object* object, Rect* rect, int light)
+void _obj_render_object(Object* object, Rect* rect, int light)
 {
     int type = (object->fid & 0xF000000) >> 24;
     if (artIsObjectTypeHidden(type)) {
@@ -4919,9 +4919,9 @@ void sub_48F1B0(Object* object, Rect* rect, int light)
             int extendedFlags = proto->critter.extendedFlags;
             if ((extendedFlags & 0x8000000) != 0 || (extendedFlags & 0x80000000) != 0) {
                 // TODO: Probably wrong.
-                v17 = sub_4B1994(object->tile, gDude->tile);
+                v17 = _tile_in_front_of(object->tile, gDude->tile);
                 if (!v17
-                    || !sub_4B1A00(object->tile, gDude->tile)
+                    || !_tile_to_right_of(object->tile, gDude->tile)
                     || (object->flags & 0x10000000) == 0) {
                     // nothing
                 } else {
@@ -4929,15 +4929,15 @@ void sub_48F1B0(Object* object, Rect* rect, int light)
                 }
             } else if ((extendedFlags & 0x10000000) != 0) {
                 // NOTE: Uses bitwise OR, so both functions are evaluated.
-                v17 = sub_4B1994(object->tile, gDude->tile)
-                    || sub_4B1A00(gDude->tile, object->tile);
+                v17 = _tile_in_front_of(object->tile, gDude->tile)
+                    || _tile_to_right_of(gDude->tile, object->tile);
             } else if ((extendedFlags & 0x20000000) != 0) {
-                v17 = sub_4B1994(object->tile, gDude->tile)
-                    && sub_4B1A00(gDude->tile, object->tile);
+                v17 = _tile_in_front_of(object->tile, gDude->tile)
+                    && _tile_to_right_of(gDude->tile, object->tile);
             } else {
-                v17 = sub_4B1A00(gDude->tile, object->tile);
+                v17 = _tile_to_right_of(gDude->tile, object->tile);
                 if (v17
-                    && sub_4B1994(gDude->tile, object->tile)
+                    && _tile_in_front_of(gDude->tile, object->tile)
                     && (object->flags & 0x10000000) != 0) {
                     v17 = 0;
                 }
@@ -5003,12 +5003,12 @@ void sub_48F1B0(Object* object, Rect* rect, int light)
                         Rect* v21 = &(rects[i]);
                         if (v21->left <= v21->right && v21->top <= v21->bottom) {
                             unsigned char* sp = src + frameWidth * (v21->top - objectRect.top) + (v21->left - objectRect.left);
-                            sub_48BEFC(sp, v21->right - v21->left + 1, v21->bottom - v21->top + 1, frameWidth, gObjectsWindowBuffer, v21->left, v21->top, gObjectsWindowPitch, light);
+                            _dark_trans_buf_to_buf(sp, v21->right - v21->left + 1, v21->bottom - v21->top + 1, frameWidth, gObjectsWindowBuffer, v21->left, v21->top, gObjectsWindowPitch, light);
                         }
                     }
 
                     unsigned char* mask = artGetFrameData(egg, 0, 0);
-                    sub_48C03C(
+                    _intensity_mask_buf_to_buf(
                         src + frameWidth * (updatedEggRect.top - objectRect.top) + (updatedEggRect.left - objectRect.left),
                         updatedEggRect.right - updatedEggRect.left + 1,
                         updatedEggRect.bottom - updatedEggRect.top + 1,
@@ -5031,22 +5031,22 @@ void sub_48F1B0(Object* object, Rect* rect, int light)
     int v29 = object->flags & 0x0FC000;
     switch (v29) {
     case 0x4000:
-        sub_48BF88(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519790, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519790, byte_660FA0);
         break;
     case 0x10000:
-        sub_48BF88(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, 0x10000, dword_519780, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, 0x10000, dword_519780, byte_660FA0);
         break;
     case 0x20000:
-        sub_48BF88(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519784, byte_660EA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519784, byte_660EA0);
         break;
     case 0x40000:
-        sub_48BF88(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519788, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519788, byte_660FA0);
         break;
     case 0x80000:
-        sub_48BF88(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_51978C, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_51978C, byte_660FA0);
         break;
     default:
-        sub_48BEFC(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light);
+        _dark_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light);
         break;
     }
 
@@ -5056,7 +5056,7 @@ void sub_48F1B0(Object* object, Rect* rect, int light)
 // Updates fid according to current violence level.
 //
 // 0x48FA14
-void sub_48FA14(int* fid)
+void _obj_fix_violence_settings(int* fid)
 {
     if ((*fid >> 24) != OBJ_TYPE_CRITTER) {
         return;
@@ -5107,7 +5107,7 @@ void sub_48FA14(int* fid)
 }
 
 // 0x48FB08
-int sub_48FB08(const void* a1, const void* a2)
+int _obj_preload_sort(const void* a1, const void* a2)
 {
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;

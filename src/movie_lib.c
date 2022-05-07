@@ -449,13 +449,13 @@ void movieLibSetReadProc(MovieReadProc* readProc)
 }
 
 // 0x4F4890
-void sub_4F4890(STRUCT_6B3690* a1, int a2, void* a3)
+void _MVE_MemInit(STRUCT_6B3690* a1, int a2, void* a3)
 {
     if (a3 == NULL) {
         return;
     }
 
-    sub_4F48C0(a1);
+    _MVE_MemFree(a1);
 
     a1->field_0 = a3;
     a1->field_4 = a2;
@@ -463,7 +463,7 @@ void sub_4F4890(STRUCT_6B3690* a1, int a2, void* a3)
 }
 
 // 0x4F48C0
-void sub_4F48C0(STRUCT_6B3690* a1)
+void _MVE_MemFree(STRUCT_6B3690* a1)
 {
     if (a1->field_8 && gMovieLibFreeProc != NULL) {
         gMovieLibFreeProc(a1->field_0);
@@ -499,7 +499,7 @@ void movieLibSetPan(int pan)
 }
 
 // 0x4F4940
-void sub_4F4940(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+void _MVE_sfSVGA(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
 {
     dword_6B367C = a1;
     dword_6B36AC = a2;
@@ -523,7 +523,7 @@ void sub_4F4940(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, 
 }
 
 // 0x4F49F0
-void sub_4F49F0(void (*fn)(LPDIRECTDRAWSURFACE, int, int, int, int, int, int, int, int))
+void _MVE_sfCallbacks(void (*fn)(LPDIRECTDRAWSURFACE, int, int, int, int, int, int, int, int))
 {
     off_51EE08 = fn;
 }
@@ -540,7 +540,7 @@ void movieLibSetPaletteEntriesProc(void (*fn)(unsigned char*, int, int))
 }
 
 // 0x4F4B50
-int sub_4F4B50()
+int _sub_4F4B5()
 {
     return 0;
 }
@@ -552,13 +552,13 @@ void movieLibSetDirectDraw(LPDIRECTDRAW dd)
 }
 
 // 0x4F4B90
-void sub_4F4B90(int (*fn)())
+void _MVE_rmCallbacks(int (*fn)())
 {
     off_6B39BC = fn;
 }
 
 // 0x4F4BB0
-void sub_4F4BB0(int a1)
+void _sub_4F4BB(int a1)
 {
     if (a1 == 3) {
         dword_51EBDC = 3;
@@ -568,16 +568,16 @@ void sub_4F4BB0(int a1)
 }
 
 // 0x4F4BD0
-void sub_4F4BD0(int* a1, int* a2)
+void _MVE_rmFrameCounts(int* a1, int* a2)
 {
     *a1 = dword_6B36A8;
     *a2 = dword_6B3684;
 }
 
 // 0x4F4BF0
-int sub_4F4BF0(int fileHandle, int a2, int a3, char a4)
+int _MVE_rmPrepMovie(int fileHandle, int a2, int a3, char a4)
 {
-    sub_4F4DD0();
+    _sub_4F4DD();
 
     if (gMovieLibDirectDraw == NULL) {
         return -11;
@@ -591,16 +591,16 @@ int sub_4F4BF0(int fileHandle, int a2, int a3, char a4)
         dword_6B3AD8 = 1;
     }
 
-    if (!sub_4F4C90(fileHandle)) {
-        sub_4F6240();
+    if (!_ioReset(fileHandle)) {
+        _MVE_rmEndMovie();
         return -8;
     }
 
-    off_6B39DC = sub_4F4DA0();
+    off_6B39DC = _ioNextRecord();
     dword_6B39D0 = 0;
 
     if (!off_6B39DC) {
-        sub_4F6240();
+        _MVE_rmEndMovie();
         return -2;
     }
 
@@ -613,13 +613,13 @@ int sub_4F4BF0(int fileHandle, int a2, int a3, char a4)
 }
 
 // 0x4F4C90
-int sub_4F4C90(int stream)
+int _ioReset(int stream)
 {
     Mve* mve;
 
     off_6B39CC = stream;
 
-    mve = sub_4F4D00(sizeof(Mve));
+    mve = _ioRead(sizeof(Mve));
     if (mve == NULL) {
         return 0;
     }
@@ -648,11 +648,11 @@ int sub_4F4C90(int stream)
 // Reads data from movie file.
 //
 // 0x4F4D00
-void* sub_4F4D00(int size)
+void* _ioRead(int size)
 {
     void* buf;
 
-    buf = sub_4F4D40(&stru_6B3690, size);
+    buf = _MVE_MemAlloc(&stru_6B3690, size);
     if (buf == NULL) {
         return NULL;
     }
@@ -661,7 +661,7 @@ void* sub_4F4D00(int size)
 }
 
 // 0x4F4D40
-void* sub_4F4D40(STRUCT_6B3690* a1, unsigned int a2)
+void* _MVE_MemAlloc(STRUCT_6B3690* a1, unsigned int a2)
 {
     void* ptr;
 
@@ -673,14 +673,14 @@ void* sub_4F4D40(STRUCT_6B3690* a1, unsigned int a2)
         return NULL;
     }
 
-    sub_4F48C0(a1);
+    _MVE_MemFree(a1);
 
     ptr = gMovieLibMallocProc(a2 + 100);
     if (ptr == NULL) {
         return NULL;
     }
 
-    sub_4F4890(a1, a2 + 100, ptr);
+    _MVE_MemInit(a1, a2 + 100, ptr);
 
     a1->field_8 = 1;
 
@@ -688,11 +688,11 @@ void* sub_4F4D40(STRUCT_6B3690* a1, unsigned int a2)
 }
 
 // 0x4F4DA0
-unsigned char* sub_4F4DA0()
+unsigned char* _ioNextRecord()
 {
     unsigned char* buf;
 
-    buf = (unsigned char*)sub_4F4D00((dword_6B369C & 0xFFFF) + 4);
+    buf = (unsigned char*)_ioRead((dword_6B369C & 0xFFFF) + 4);
     if (buf == NULL) {
         return NULL;
     }
@@ -703,7 +703,7 @@ unsigned char* sub_4F4DA0()
 }
 
 // 0x4F4DD0
-void sub_4F4DD0()
+void _sub_4F4DD()
 {
     if (dword_51EE20) {
         return;
@@ -715,18 +715,18 @@ void sub_4F4DD0()
 }
 
 // 0x4F4E20
-int sub_4F4E20()
+int _MVE_rmHoldMovie()
 {
     if (!dword_51EE18) {
-        sub_4F4EA0();
+        _MVE_sndPause();
         dword_51EE18 = 1;
     }
-    sub_4F4E40();
+    _syncWait();
     return 0;
 }
 
 // 0x4F4E40
-int sub_4F4E40()
+int _syncWait()
 {
     int result;
 
@@ -744,7 +744,7 @@ int sub_4F4E40()
 }
 
 // 0x4F4EA0
-void sub_4F4EA0()
+void _MVE_sndPause()
 {
     if (gMovieLibDirectSoundBuffer != NULL) {
         IDirectSoundBuffer_Stop(gMovieLibDirectSoundBuffer);
@@ -752,7 +752,7 @@ void sub_4F4EA0()
 }
 
 // 0x4F4EC0
-int sub_4F4EC0()
+int _MVE_rmStepMovie()
 {
     int v0;
     unsigned short* v1;
@@ -781,7 +781,7 @@ int sub_4F4EC0()
     }
 
     if (dword_51EE18) {
-        sub_4F5CA0();
+        _MVE_sndResume();
         dword_51EE18 = 0;
     }
 
@@ -790,7 +790,7 @@ LABEL_5:
     v3 = NULL;
     if (!v1) {
         v6 = -2;
-        sub_4F6240();
+        _MVE_rmEndMovie();
         return v6;
     }
 
@@ -804,10 +804,10 @@ LABEL_5:
             return -1;
         case 1:
             v0 = 0;
-            v1 = (unsigned short*)sub_4F4DA0();
+            v1 = (unsigned short*)_ioNextRecord();
             goto LABEL_5;
         case 2:
-            if (!sub_4F54F0(v1[0], v1[2])) {
+            if (!_syncInit(v1[0], v1[2])) {
                 v6 = -3;
                 break;
             }
@@ -823,7 +823,7 @@ LABEL_5:
                 v8 &= 0xFFFF;
             }
 
-            if (sub_4F5570(v1[0], v8, v1[1] & 0x01, v1[2], (v1[1] & 0x02) >> 1, v7)) {
+            if (_MVE_sndConfigure(v1[0], v8, v1[1] & 0x01, v1[2], (v1[1] & 0x02) >> 1, v7)) {
                 continue;
             }
 
@@ -831,7 +831,7 @@ LABEL_5:
             break;
         case 4:
             // initialize audio buffers
-            sub_4F5720();
+            _MVE_sndSync();
             continue;
         case 5:
             v9 = 0;
@@ -844,7 +844,7 @@ LABEL_5:
                 v10 = v1[2];
             }
 
-            if (!sub_4F5CB0(v1[0], v1[1], v10, v9)) {
+            if (!_nfConfig(v1[0], v1[1], v10, v9)) {
                 v6 = -5;
                 break;
             }
@@ -892,13 +892,13 @@ LABEL_5:
             if (v19 == 0 || v21 || dword_6B3680) {
                 sub_4F6090(v1[0], v19);
             } else {
-                sub_4F60C0(v1[0], v19);
+                _SetPalette_(v1[0], v19);
             }
 
             if (v21) {
-                sub_4F6080(dword_6B39C0, dword_6B39C4, v21);
+                _do_nothing_(dword_6B39C0, dword_6B39C4, v21);
             } else if (!dword_51EDE8 || v1[1]) {
-                sub_4F5F40(dword_6B39C0, dword_6B39C4, v18);
+                _sfShowFrame(dword_6B39C0, dword_6B39C4, v18);
             } else {
                 dword_51EDEC = 1;
                 ++dword_6B3684;
@@ -921,7 +921,7 @@ LABEL_5:
                 if ((v5 >> 16) != 8) {
                     v14 = NULL;
                 }
-                sub_4F5A00(v14, v1[2]);
+                _CallsSndBuff_Loc(v14, v1[2]);
             }
             continue;
         case 10:
@@ -934,11 +934,11 @@ LABEL_5:
             continue;
         case 11:
             // some kind of palette rotation
-            sub_4F60F0(v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]);
+            _palMakeSynthPalette(v1[0], v1[1], v1[2], v1[3], v1[4], v1[5]);
             continue;
         case 12:
             // palette
-            sub_4F6210((unsigned char*)v1 + 4, v1[0], v1[1]);
+            _palLoadPalette((unsigned char*)v1 + 4, v1[0], v1[1]);
             continue;
         case 14:
             // save current position
@@ -974,7 +974,7 @@ LABEL_5:
 
                 // TODO: Incomplete.
                 assert(false);
-                // sub_4F9F28(v3, v1[7], v1[2], v1[3], v1[4], v1[5]);
+                // _nfHPkDecomp(v3, v1[7], v1[2], v1[3], v1[4], v1[5]);
 
                 // unlock
                 movieUnlockSurfaces();
@@ -990,7 +990,7 @@ LABEL_5:
 
                 // TODO: Incomplete.
                 assert(false);
-                // sub_4F8DD4(v3, v1[7], v1[2], v1[3], v1[4], v1[5]);
+                // _nfPkDecompH(v3, v1[7], v1[2], v1[3], v1[4], v1[5]);
 
                 // unlock
                 movieUnlockSurfaces();
@@ -1006,7 +1006,7 @@ LABEL_5:
 
                 // TODO: Incomplete.
                 assert(false);
-                // sub_4F8DD4(v3, v1[7], v1[2], v1[3], v1[4], v1[5]);
+                // _nfPkDecompH(v3, v1[7], v1[2], v1[3], v1[4], v1[5]);
 
                 // unlock
                 movieUnlockSurfaces();
@@ -1019,7 +1019,7 @@ LABEL_5:
                 break;
             }
 
-            sub_4F7359((unsigned char*)v3, (unsigned char*)&v1[7], v1[2], v1[3], v1[4], v1[5]);
+            _nfPkDecomp((unsigned char*)v3, (unsigned char*)&v1[7], v1[2], v1[3], v1[4], v1[5]);
 
             // unlock
             movieUnlockSurfaces();
@@ -1030,12 +1030,12 @@ LABEL_5:
         }
     }
 
-    sub_4F6240();
+    _MVE_rmEndMovie();
     return v6;
 }
 
 // 0x4F54F0
-int sub_4F54F0(int a1, int a2)
+int _syncInit(int a1, int a2)
 {
     int v2;
 
@@ -1045,24 +1045,24 @@ int sub_4F54F0(int a1, int a2)
         return 1;
     }
 
-    sub_4F4E40();
+    _syncWait();
 
     dword_6B3AD0 = v2;
 
-    sub_4F5540(v2);
+    _syncReset(v2);
 
     return 1;
 }
 
 // 0x4F5540
-void sub_4F5540(int a1)
+void _syncReset(int a1)
 {
     dword_51EDE4 = 1;
     dword_6B3ADC = -1000 * timeGetTime() + a1;
 }
 
 // 0x4F5570
-int sub_4F5570(int a1, int a2, int a3, int a4, int a5, int a6)
+int _MVE_sndConfigure(int a1, int a2, int a3, int a4, int a5, int a6)
 {
     DSBUFFERDESC dsbd;
     WAVEFORMATEX wfxFormat;
@@ -1071,7 +1071,7 @@ int sub_4F5570(int a1, int a2, int a3, int a4, int a5, int a6)
         return 1;
     }
 
-    sub_4F56F0();
+    _MVE_sndReset();
 
     dword_6B39D8 = a3;
     dword_6B36A0 = a5;
@@ -1112,7 +1112,7 @@ int sub_4F5570(int a1, int a2, int a3, int a4, int a5, int a6)
 }
 
 // 0x4F56C0
-void sub_4F56C0()
+void _MVE_syncSync()
 {
     if (dword_51EDE4) {
         while (((dword_6B3ADC + 1000 * timeGetTime()) & 0x80000000) != 0) {
@@ -1121,7 +1121,7 @@ void sub_4F56C0()
 }
 
 // 0x4F56F0
-void sub_4F56F0()
+void _MVE_sndReset()
 {
     if (gMovieLibDirectSoundBuffer != NULL) {
         IDirectSoundBuffer_Stop(gMovieLibDirectSoundBuffer);
@@ -1131,7 +1131,7 @@ void sub_4F56F0()
 }
 
 // 0x4F5720
-void sub_4F5720()
+void _MVE_sndSync()
 {
     DWORD dwCurrentPlayCursor;
     DWORD dwCurrentWriteCursor;
@@ -1150,7 +1150,7 @@ void sub_4F5720()
 
     v0 = FALSE;
 
-    dword_51EDE8 = sub_4F59B0(dword_6B3AD0 >> 2) > -dword_6B3AD0 >> 1 && !dword_51EDEC;
+    dword_51EDE8 = _syncWaitLevel(dword_6B3AD0 >> 2) > -dword_6B3AD0 >> 1 && !dword_51EDEC;
     dword_51EDEC = 0;
 
     if (gMovieLibDirectSound == NULL) {
@@ -1191,7 +1191,7 @@ void sub_4F5720()
 
         if (!v2 || !(dwStatus & DSBSTATUS_PLAYING)) {
             if (v0) {
-                sub_4F5540(dword_6B3AD0 + (dword_6B3AD0 >> 2));
+                _syncReset(dword_6B3AD0 + (dword_6B3AD0 >> 2));
             }
 
             v3 = dword_6B39E0[dword_6B3660];
@@ -1273,7 +1273,7 @@ void sub_4F5720()
 }
 
 // 0x4F59B0
-int sub_4F59B0(int a1)
+int _syncWaitLevel(int a1)
 {
     int v2;
     int result;
@@ -1293,7 +1293,7 @@ int sub_4F59B0(int a1)
 }
 
 // 0x4F5A00
-void sub_4F5A00(unsigned char* a1, int a2)
+void _CallsSndBuff_Loc(unsigned char* a1, int a2)
 {
     int v2;
     int v3;
@@ -1333,13 +1333,13 @@ void sub_4F5A00(unsigned char* a1, int a2)
     v2 = 0;
     v3 = 1;
     if (dwAudioBytes1 != 0) {
-        v2 = sub_4F5B70((unsigned char*)lpvAudioPtr1, &a1, dwAudioBytes1, 0, 1);
+        v2 = _MVE_sndAdd((unsigned char*)lpvAudioPtr1, &a1, dwAudioBytes1, 0, 1);
         v3 = 0;
         dword_6B36A4 += dwAudioBytes1;
     }
 
     if (dwAudioBytes2 != 0) {
-        sub_4F5B70((unsigned char*)lpvAudioPtr2, &a1, dwAudioBytes2, v2, v3);
+        _MVE_sndAdd((unsigned char*)lpvAudioPtr2, &a1, dwAudioBytes2, v2, v3);
         dword_6B36A4 = dwAudioBytes2;
     }
 
@@ -1359,7 +1359,7 @@ void sub_4F5A00(unsigned char* a1, int a2)
 }
 
 // 0x4F5B70
-int sub_4F5B70(unsigned char* dest, unsigned char** src_ptr, int a3, int a4, int a5)
+int _MVE_sndAdd(unsigned char* dest, unsigned char** src_ptr, int a3, int a4, int a5)
 {
     int v5;
     int v7;
@@ -1401,7 +1401,7 @@ int sub_4F5B70(unsigned char* dest, unsigned char** src_ptr, int a3, int a4, int
             v11 = a3;
         }
 
-        result = sub_4F697C(v10, src, v11 >> 1, v9);
+        result = _MVE_sndDecompM16(v10, src, v11 >> 1, v9);
         *src_ptr = src + (v11 >> 1);
         return result;
     }
@@ -1419,19 +1419,19 @@ int sub_4F5B70(unsigned char* dest, unsigned char** src_ptr, int a3, int a4, int
         v12 = a4;
     }
 
-    result = sub_4F69AD(v13, src, v14 >> 2, v12);
+    result = _MVE_sndDecompS16(v13, src, v14 >> 2, v12);
     *src_ptr = src + (v14 >> 1);
 
     return result;
 }
 
 // 0x4F5CA0
-void sub_4F5CA0()
+void _MVE_sndResume()
 {
 }
 
 // 0x4F5CB0
-int sub_4F5CB0(int a1, int a2, int a3, int a4)
+int _nfConfig(int a1, int a2, int a3, int a4)
 {
     DDSURFACEDESC ddsd;
 
@@ -1494,7 +1494,7 @@ int sub_4F5CB0(int a1, int a2, int a3, int a4)
     dword_6B3D00 = 8 * a3 * dword_6B3CFC;
     dword_6B3CEC = 7 * a3 * dword_6B3CFC;
 
-    sub_4F731D();
+    _nfPkConfig();
 
     return 1;
 }
@@ -1539,7 +1539,7 @@ void movieSwapSurfaces()
 }
 
 // 0x4F5F40
-void sub_4F5F40(int a1, int a2, int a3)
+void _sfShowFrame(int a1, int a2, int a3)
 {
     int v3;
     int v4;
@@ -1583,7 +1583,7 @@ void sub_4F5F40(int a1, int a2, int a3)
 
     if (a3) {
         // TODO: Incomplete.
-        // sub_4FBE91(off_6B4033, dword_6B3CFC, v6, dword_6B401B, dword_6B401F, dword_6B4017, dword_6B4023, v7, v5, a3);
+        // _mve_ShowFrameField(off_6B4033, dword_6B3CFC, v6, dword_6B401B, dword_6B401F, dword_6B4017, dword_6B4023, v7, v5, a3);
     } else if (dword_51EBDC == 4) {
         off_51EE08(gMovieDirectDrawSurface1, dword_6B3CFC, v6, dword_6B401B, dword_6B401F, dword_6B4017, dword_6B4023, v7, v5);
     } else {
@@ -1592,7 +1592,7 @@ void sub_4F5F40(int a1, int a2, int a3)
 }
 
 // 0x4F6080
-void sub_4F6080(int a1, int a2, unsigned short* a3)
+void _do_nothing_(int a1, int a2, unsigned short* a3)
 {
 }
 
@@ -1605,7 +1605,7 @@ void sub_4F6090(int a1, int a2)
 }
 
 // 0x4F60C0
-void sub_4F60C0(int a1, int a2)
+void _SetPalette_(int a1, int a2)
 {
     if (!dword_6B4027) {
         off_51EE14(byte_6B36B8, a1, a2);
@@ -1613,7 +1613,7 @@ void sub_4F60C0(int a1, int a2)
 }
 
 // 0x4F60F0
-void sub_4F60F0(int a1, int a2, int a3, int a4, int a5, int a6)
+void _palMakeSynthPalette(int a1, int a2, int a3, int a4, int a5, int a6)
 {
     int i;
     int j;
@@ -1636,50 +1636,50 @@ void sub_4F60F0(int a1, int a2, int a3, int a4, int a5, int a6)
 }
 
 // 0x4F6210
-void sub_4F6210(unsigned char* palette, int a2, int a3)
+void _palLoadPalette(unsigned char* palette, int a2, int a3)
 {
     memcpy(byte_6B3D0C + 3 * a2, palette, 3 * a3);
 }
 
 // 0x4F6240
-void sub_4F6240()
+void _MVE_rmEndMovie()
 {
     if (dword_51EE1C) {
-        sub_4F4E40();
-        sub_4F6270();
-        sub_4F56F0();
+        _syncWait();
+        _syncRelease();
+        _MVE_sndReset();
         dword_51EE1C = 0;
     }
 }
 
 // 0x4F6270
-void sub_4F6270()
+void _syncRelease()
 {
     dword_51EDE4 = 0;
 }
 
 // 0x4F6350
-void sub_4F6350()
+void _MVE_ReleaseMem()
 {
-    sub_4F6240();
-    sub_4F6370();
-    sub_4F6380();
-    sub_4F6390();
+    _MVE_rmEndMovie();
+    _ioRelease();
+    _MVE_sndRelease();
+    _nfRelease();
 }
 
 // 0x4F6370
-void sub_4F6370()
+void _ioRelease()
 {
-    sub_4F48C0(&stru_6B3690);
+    _MVE_MemFree(&stru_6B3690);
 }
 
 // 0x4F6380
-void sub_4F6380()
+void _MVE_sndRelease()
 {
 }
 
 // 0x4F6390
-void sub_4F6390()
+void _nfRelease()
 {
     if (gMovieDirectDrawSurface1 != NULL) {
         IDirectDrawSurface_Release(gMovieDirectDrawSurface1);
@@ -1693,7 +1693,7 @@ void sub_4F6390()
 }
 
 // 0x4F6550
-void sub_4F6550(STRUCT_4F6930* a1)
+void _frLoad(STRUCT_4F6930* a1)
 {
     gMovieLibReadProc = a1->readProc;
     stru_6B3690.field_0 = a1->field_8.field_0;
@@ -1718,7 +1718,7 @@ void sub_4F6550(STRUCT_4F6930* a1)
 }
 
 // 0x4F6610
-void sub_4F6610(STRUCT_4F6930* a1)
+void _frSave(STRUCT_4F6930* a1)
 {
     STRUCT_6B3690* ptr;
 
@@ -1746,15 +1746,15 @@ void sub_4F6610(STRUCT_4F6930* a1)
 }
 
 // 0x4F6930
-void sub_4F6930(STRUCT_4F6930* a1)
+void _MVE_frClose(STRUCT_4F6930* a1)
 {
     STRUCT_4F6930 v1;
 
-    sub_4F6610(&v1);
-    sub_4F6550(a1);
-    sub_4F6370();
-    sub_4F6390();
-    sub_4F6550(&v1);
+    _frSave(&v1);
+    _frLoad(a1);
+    _ioRelease();
+    _nfRelease();
+    _frLoad(&v1);
 
     if (gMovieLibFreeProc != NULL) {
         gMovieLibFreeProc(a1);
@@ -1762,7 +1762,7 @@ void sub_4F6930(STRUCT_4F6930* a1)
 }
 
 // 0x4F697C
-int sub_4F697C(unsigned short* a1, unsigned char* a2, int a3, int a4)
+int _MVE_sndDecompM16(unsigned short* a1, unsigned char* a2, int a3, int a4)
 {
     int i;
     int v8;
@@ -1781,7 +1781,7 @@ int sub_4F697C(unsigned short* a1, unsigned char* a2, int a3, int a4)
 }
 
 // 0x4F69AD
-int sub_4F69AD(unsigned short* a1, unsigned char* a2, int a3, int a4)
+int _MVE_sndDecompS16(unsigned short* a1, unsigned char* a2, int a3, int a4)
 {
     int i;
     unsigned short v4;
@@ -1806,7 +1806,7 @@ int sub_4F69AD(unsigned short* a1, unsigned char* a2, int a3, int a4)
 }
 
 // 0x4F731D
-void sub_4F731D()
+void _nfPkConfig()
 {
     int* ptr;
     int v1;
@@ -1836,7 +1836,7 @@ void sub_4F731D()
 }
 
 // 0x4F7359
-void sub_4F7359(unsigned char* a1, unsigned char* a2, int a3, int a4, int a5, int a6)
+void _nfPkDecomp(unsigned char* a1, unsigned char* a2, int a3, int a4, int a5, int a6)
 {
     int v49;
     unsigned char* dest;

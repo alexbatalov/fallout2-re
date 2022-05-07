@@ -99,7 +99,7 @@ int fileCopyCompressed(const char* existingFilePath, const char* newFilePath)
 }
 
 // TODO: Check, implementation looks odd.
-int sub_4528B8(const char* existingFilePath, const char* newFilePath)
+int _gzdecompress_file(const char* existingFilePath, const char* newFilePath)
 {
     FILE* stream = fopen(existingFilePath, "rb");
     if (stream == NULL) {

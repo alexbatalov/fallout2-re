@@ -56,7 +56,7 @@ const int gMaximumBloodDeathAnimations[DAMAGE_TYPE_COUNT] = {
 // 0x410468
 int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int delay)
 {
-    if (sub_42E6AC(obj->pid, 0x4000)) {
+    if (_critter_flag_check(obj->pid, 0x4000)) {
         return -1;
     }
 
@@ -71,7 +71,7 @@ int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int d
     int tile;
     for (distance = 1; distance <= maxDistance; distance++) {
         tile = tileGetTileInDirection(obj->tile, rotation, distance);
-        if (sub_48B848(obj, tile, obj->elevation) != NULL) {
+        if (_obj_blocking_at(obj, tile, obj->elevation) != NULL) {
             distance--;
             break;
         }
@@ -95,7 +95,7 @@ int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int d
 }
 
 // 0x410568
-int sub_410568(Object* obj, int anim, int delay)
+int _action_blood(Object* obj, int anim, int delay)
 {
 
     int violence_level = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
@@ -124,7 +124,7 @@ int sub_410568(Object* obj, int anim, int delay)
 }
 
 // 0x41060C
-int sub_41060C(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack)
+int _pick_death(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack)
 {
     int normalViolenceLevelDamageThreshold = 15;
     int maximumBloodViolenceLevelDamageThreshold = 45;
@@ -151,8 +151,8 @@ int sub_41060C(Object* attacker, Object* defender, Object* weapon, int damage, i
     int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
 
-    if (sub_42E6AC(defender->pid, 0x1000)) {
-        return sub_410814(defender, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_NORMAL, isFallingBack);
+    if (_critter_flag_check(defender->pid, 0x1000)) {
+        return _check_death(defender, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_NORMAL, isFallingBack);
     }
 
     bool hasBloodyMess = false;
@@ -184,7 +184,7 @@ int sub_41060C(Object* attacker, Object* defender, Object* weapon, int damage, i
             if (violenceLevel > VIOLENCE_LEVEL_MINIMAL && (hasBloodyMess || normalViolenceLevelDamageThreshold <= damage)) {
                 if (violenceLevel > VIOLENCE_LEVEL_NORMAL && (hasBloodyMess || maximumBloodViolenceLevelDamageThreshold <= damage)) {
                     deathAnim = gMaximumBloodDeathAnimations[damageType];
-                    if (sub_410814(defender, deathAnim, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack) != deathAnim) {
+                    if (_check_death(defender, deathAnim, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack) != deathAnim) {
                         deathAnim = gNormalDeathAnimations[damageType];
                     }
                 } else {
@@ -198,11 +198,11 @@ int sub_41060C(Object* attacker, Object* defender, Object* weapon, int damage, i
         deathAnim = ANIM_FALL_FRONT;
     }
 
-    return sub_410814(defender, deathAnim, VIOLENCE_LEVEL_NONE, isFallingBack);
+    return _check_death(defender, deathAnim, VIOLENCE_LEVEL_NONE, isFallingBack);
 }
 
 // 0x410814
-int sub_410814(Object* obj, int anim, int minViolenceLevel, bool isFallingBack)
+int _check_death(Object* obj, int anim, int minViolenceLevel, bool isFallingBack)
 {
     int fid;
 
@@ -228,51 +228,51 @@ int sub_410814(Object* obj, int anim, int minViolenceLevel, bool isFallingBack)
 }
 
 // 0x4108C8
-int sub_4108C8(Object* a1, Object* a2)
+int _internal_destroy(Object* a1, Object* a2)
 {
-    return sub_49B9A0(a2);
+    return _obj_destroy(a2);
 }
 
 // TODO: Check very carefully, lots of conditions and jumps.
 //
 // 0x4108D0
-void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10)
+void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10)
 {
     int anim;
     int fid;
     const char* sfx_name;
 
-    if (sub_42E6AC(a1->pid, 0x4000)) {
+    if (_critter_flag_check(a1->pid, 0x4000)) {
         knockbackDistance = 0;
     }
 
     anim = (a1->fid & 0xFF0000) >> 16;
-    if (!sub_42DD80(a1)) {
+    if (!_critter_is_prone(a1)) {
         if ((flags & DAM_DEAD) != 0) {
             fid = buildFid(5, 10, 0, 0, 0);
             if (fid == a9->fid) {
-                anim = sub_410814(a1, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack);
+                anim = _check_death(a1, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack);
             } else if (a9->pid == PROTO_ID_0x20001EB) {
-                anim = sub_410814(a1, ANIM_ELECTRIFIED_TO_NOTHING, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack);
+                anim = _check_death(a1, ANIM_ELECTRIFIED_TO_NOTHING, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack);
             } else if (a9->fid == FID_0x20001F5) {
-                anim = sub_410814(a1, a8, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack);
+                anim = _check_death(a1, a8, VIOLENCE_LEVEL_MAXIMUM_BLOOD, isFallingBack);
             } else {
-                anim = sub_41060C(a9, a1, weapon, damage, a8, isFallingBack);
+                anim = _pick_death(a9, a1, weapon, damage, a8, isFallingBack);
             }
 
             if (anim != ANIM_FIRE_DANCE) {
                 if (knockbackDistance != 0 && (anim == ANIM_FALL_FRONT || anim == ANIM_FALL_BACK)) {
                     actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, a10);
-                    anim = sub_410568(a1, anim, -1);
+                    anim = _action_blood(a1, anim, -1);
                 } else {
                     sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_DIE);
                     reg_anim_play_sfx(a1, sfx_name, a10);
 
-                    anim = sub_412C1C(a1, anim);
+                    anim = _pick_fall(a1, anim);
                     reg_anim_animate(a1, anim, 0);
 
                     if (anim == ANIM_FALL_FRONT || anim == ANIM_FALL_BACK) {
-                        anim = sub_410568(a1, anim, -1);
+                        anim = _action_blood(a1, anim, -1);
                     }
                 }
             } else {
@@ -289,7 +289,7 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
                     while (randomDistance > 0) {
                         int tile = tileGetTileInDirection(a1->tile, randomRotation, randomDistance);
                         Object* v35 = NULL;
-                        sub_4163AC(a1, a1->tile, tile, NULL, &v35, 4);
+                        _make_straight_path(a1, a1->tile, tile, NULL, &v35, 4);
                         if (v35 == NULL) {
                             reg_anim_set_rotation_to_tile(a1, tile);
                             reg_anim_2(a1, tile, a1->elevation, anim, 0);
@@ -312,7 +312,7 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
                 if (knockbackDistance != 0) {
                     actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, 0);
                 } else {
-                    anim = sub_412C1C(a1, anim);
+                    anim = _pick_fall(a1, anim);
                     reg_anim_animate(a1, anim, 0);
                 }
             } else if ((flags & DAM_ON_FIRE) != 0 && artExists(buildFid(1, a1->fid & 0xFFF, ANIM_FIRE_DANCE, (a1->fid & 0xF000) >> 12, a1->rotation + 1))) {
@@ -345,7 +345,7 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
         }
     } else {
         if ((flags & DAM_DEAD) != 0 && (a1->data.critter.combat.results & DAM_DEAD) == 0) {
-            anim = sub_410568(a1, anim, a10);
+            anim = _action_blood(a1, anim, a10);
         } else {
             return;
         }
@@ -353,7 +353,7 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
 
     if (weapon != NULL) {
         if ((flags & DAM_EXPLODE) != 0) {
-            reg_anim_11_1(a1, weapon, sub_49B8B0, -1);
+            reg_anim_11_1(a1, weapon, _obj_drop, -1);
             fid = buildFid(5, 10, 0, 0, 0);
             reg_anim_17(weapon, fid, 0);
             reg_anim_6(weapon, ANIM_STAND, 0);
@@ -363,20 +363,20 @@ void sub_4108D0(Object* a1, int damage, int flags, Object* weapon, bool isFallin
 
             reg_anim_hide(weapon);
         } else if ((flags & DAM_DESTROY) != 0) {
-            reg_anim_11_1(a1, weapon, sub_4108C8, -1);
+            reg_anim_11_1(a1, weapon, _internal_destroy, -1);
         } else if ((flags & DAM_DROP) != 0) {
-            reg_anim_11_1(a1, weapon, sub_49B8B0, -1);
+            reg_anim_11_1(a1, weapon, _obj_drop, -1);
         }
     }
 
     if ((flags & DAM_DEAD) != 0) {
         // TODO: Get rid of casts.
-        reg_anim_11_1(a1, (Object*)anim, (AnimationProc*)sub_410E24, -1);
+        reg_anim_11_1(a1, (Object*)anim, (AnimationProc*)_show_death, -1);
     }
 }
 
 // 0x410E24
-int sub_410E24(Object* obj, int anim)
+int _show_death(Object* obj, int anim)
 {
     Rect v7;
     Rect v8;
@@ -394,9 +394,9 @@ int sub_410E24(Object* obj, int anim)
         }
     }
 
-    if (sub_42E6AC(obj->pid, 2048) == 0) {
+    if (_critter_flag_check(obj->pid, 2048) == 0) {
         obj->flags |= 0x10;
-        if (sub_48AF2C(obj, &v7) == 0) {
+        if (_obj_toggle_flat(obj, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
         }
     }
@@ -405,8 +405,8 @@ int sub_410E24(Object* obj, int anim)
         rectUnion(&v8, &v7, &v8);
     }
 
-    if (anim >= 30 && anim <= 31 && sub_42E6AC(obj->pid, 4096) == 0 && sub_42E6AC(obj->pid, 64) == 0) {
-        sub_477804(obj, obj->tile);
+    if (anim >= 30 && anim <= 31 && _critter_flag_check(obj->pid, 4096) == 0 && _critter_flag_check(obj->pid, 64) == 0) {
+        _item_drop_all(obj, obj->tile);
     }
 
     tileWindowRefreshRect(&v8, obj->elevation);
@@ -415,7 +415,7 @@ int sub_410E24(Object* obj, int anim)
 }
 
 // 0x410FEC
-int sub_410FEC(Attack* attack)
+int _show_damage_extras(Attack* attack)
 {
     int v6;
     int v8;
@@ -431,10 +431,10 @@ int sub_410FEC(Attack* attack)
 
             v6 = delta != 0 && delta != 1 && delta != 5;
             reg_anim_begin(2);
-            sub_413C20(1);
+            _register_priority(1);
             v8 = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
             v9 = tileGetRotationTo(attack->attacker->tile, obj->tile);
-            sub_4108D0(obj, attack->extrasDamage[index], attack->extrasFlags[index], attack->weapon, v6, attack->extrasKnockback[index], v9, v8, attack->attacker, 0);
+            _show_damage_to_object(obj, attack->extrasDamage[index], attack->extrasFlags[index], attack->weapon, v6, attack->extrasKnockback[index], v9, v8, attack->attacker, 0);
         }
     }
 
@@ -442,7 +442,7 @@ int sub_410FEC(Attack* attack)
 }
 
 // 0x4110AC
-void sub_4110AC(Attack* attack, int a2, int a3)
+void _show_damage(Attack* attack, int a2, int a3)
 {
     int v5;
     int v14;
@@ -460,13 +460,13 @@ void sub_4110AC(Attack* attack, int a2, int a3)
 
     if ((attack->attackerFlags & DAM_HIT) == 0) {
         if ((attack->attackerFlags & DAM_CRITICAL) != 0) {
-            sub_4108D0(attack->attacker, attack->attackerDamage, attack->attackerFlags, attack->weapon, 1, 0, 0, a2, attack->attacker, -1);
+            _show_damage_to_object(attack->attacker, attack->attackerDamage, attack->attackerFlags, attack->weapon, 1, 0, 0, a2, attack->attacker, -1);
         } else if ((attack->attackerFlags & DAM_BACKWASH) != 0) {
-            sub_4108D0(attack->attacker, attack->attackerDamage, attack->attackerFlags, attack->weapon, 1, 0, 0, a2, attack->attacker, -1);
+            _show_damage_to_object(attack->attacker, attack->attackerDamage, attack->attackerFlags, attack->weapon, 1, 0, 0, a2, attack->attacker, -1);
         }
     } else {
         if (attack->defender != NULL) {
-            // TODO: Looks very similar to sub_410FEC.
+            // TODO: Looks very similar to _show_damage_extras.
             int delta = attack->defender->rotation - attack->attacker->rotation;
             if (delta < 0) {
                 delta = -delta;
@@ -477,11 +477,11 @@ void sub_4110AC(Attack* attack, int a2, int a3)
             if ((attack->defender->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
                 if (attack->attacker->fid == 33554933) {
                     v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
-                    sub_4108D0(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, a2, attack->attacker, a3);
+                    _show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, a2, attack->attacker, a3);
                 } else {
                     v17 = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
                     v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
-                    sub_4108D0(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, v17, attack->attacker, a3);
+                    _show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, v17, attack->attacker, a3);
                 }
             } else {
                 tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
@@ -490,13 +490,13 @@ void sub_4110AC(Attack* attack, int a2, int a3)
         }
 
         if ((attack->attackerFlags & DAM_DUD) != 0) {
-            sub_4108D0(attack->attacker, attack->attackerDamage, attack->attackerFlags, attack->weapon, 1, 0, 0, a2, attack->attacker, -1);
+            _show_damage_to_object(attack->attacker, attack->attackerDamage, attack->attackerFlags, attack->weapon, 1, 0, 0, a2, attack->attacker, -1);
         }
     }
 }
 
 // 0x411224
-int sub_411224(Attack* attack)
+int _action_attack(Attack* attack)
 {
     if (reg_anim_clear(attack->attacker) == -2) {
         return -1;
@@ -514,14 +514,14 @@ int sub_411224(Attack* attack)
 
     int anim = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
     if (anim < ANIM_FIRE_SINGLE && anim != ANIM_THROW_ANIM) {
-        return sub_4112B4(attack, anim);
+        return _action_melee(attack, anim);
     } else {
-        return sub_411600(attack, anim);
+        return _action_ranged(attack, anim);
     }
 }
 
 // 0x4112B4
-int sub_4112B4(Attack* attack, int anim)
+int _action_melee(Attack* attack, int anim)
 {
     int fid;
     Art* art;
@@ -534,7 +534,7 @@ int sub_4112B4(Attack* attack, int anim)
     char sfx_name_temp[16];
 
     reg_anim_begin(2);
-    sub_413C20(1);
+    _register_priority(1);
 
     fid = buildFid(1, attack->attacker->fid & 0xFFF, anim, (attack->attacker->fid & 0xF000) >> 12, attack->attacker->rotation + 1);
     art = artLock(fid, &cache_entry);
@@ -562,7 +562,7 @@ int sub_4112B4(Attack* attack, int anim)
 
     strcpy(sfx_name_temp, sfx_name);
 
-    sub_42B634(attack->attacker, attack, AI_MESSAGE_TYPE_ATTACK, 0);
+    _combatai_msg(attack->attacker, attack, AI_MESSAGE_TYPE_ATTACK, 0);
 
     if (attack->attackerFlags & 0x0300) {
         reg_anim_play_sfx(attack->attacker, sfx_name_temp, 0);
@@ -576,7 +576,7 @@ int sub_4112B4(Attack* attack, int anim)
 
         reg_anim_animate(attack->attacker, anim, 0);
         reg_anim_play_sfx(attack->attacker, sfx_name_temp, v17);
-        sub_4110AC(attack, anim, 0);
+        _show_damage(attack, anim, 0);
     } else {
         if (attack->defender->data.critter.combat.results & 0x03) {
             reg_anim_play_sfx(attack->attacker, sfx_name_temp, -1);
@@ -608,29 +608,29 @@ int sub_4112B4(Attack* attack, int anim)
 
     if ((attack->attackerFlags & DAM_HIT) != 0) {
         if ((attack->defenderFlags & DAM_DEAD) == 0) {
-            sub_42B634(attack->attacker, attack, AI_MESSAGE_TYPE_HIT, -1);
+            _combatai_msg(attack->attacker, attack, AI_MESSAGE_TYPE_HIT, -1);
         }
     } else {
-        sub_42B634(attack->attacker, attack, AI_MESSAGE_TYPE_MISS, -1);
+        _combatai_msg(attack->attacker, attack, AI_MESSAGE_TYPE_MISS, -1);
     }
 
     if (reg_anim_end() == -1) {
         return -1;
     }
 
-    sub_410FEC(attack);
+    _show_damage_extras(attack);
 
     return 0;
 }
 
 // 0x411600
-int sub_411600(Attack* attack, int anim)
+int _action_ranged(Attack* attack, int anim)
 {
     Object* neighboors[6];
     memset(neighboors, 0, sizeof(neighboors));
 
     reg_anim_begin(2);
-    sub_413C20(1);
+    _register_priority(1);
 
     Object* projectile = NULL;
     Object* v50 = NULL;
@@ -646,7 +646,7 @@ int sub_411600(Attack* attack, int anim)
     int actionFrame = (art != NULL) ? artGetActionFrame(art) : 0;
     artUnlock(artHandle);
 
-    sub_478A1C(attack->attacker, attack->hitMode);
+    _item_w_range(attack->attacker, attack->hitMode);
 
     int damageType = weaponGetDamageType(attack->attacker, attack->weapon);
 
@@ -663,7 +663,7 @@ int sub_411600(Attack* attack, int anim)
         reg_anim_animate(attack->attacker, ANIM_POINT, -1);
     }
 
-    sub_42B634(attack->attacker, attack, AI_MESSAGE_TYPE_ATTACK, 0);
+    _combatai_msg(attack->attacker, attack, AI_MESSAGE_TYPE_ATTACK, 0);
 
     const char* sfx;
     if (((attack->attacker->fid & 0xF000) >> 12) != 0) {
@@ -689,12 +689,12 @@ int sub_411600(Attack* attack, int anim)
 
                     int v46;
                     int v45;
-                    sub_45F4B4(&v46, &v45);
+                    _intface_get_item_states(&v46, &v45);
 
                     itemRemove(attack->attacker, weapon, 1);
-                    v50 = sub_478154(attack->attacker, weapon, weaponFlags & 0x3000000);
+                    v50 = _item_replace(attack->attacker, weapon, weaponFlags & 0x3000000);
                     objectSetFid(projectile, projectileProto->fid, NULL);
-                    sub_42AE90(attack->attacker, weapon);
+                    _cAIPrepWeaponItem(attack->attacker, weapon);
 
                     if (attack->attacker == gDude) {
                         if (v50 == NULL) {
@@ -704,10 +704,10 @@ int sub_411600(Attack* attack, int anim)
                                 v45 = -1;
                             }
                         }
-                        sub_45EFEC(false, v46, v45);
+                        _intface_update_items(false, v46, v45);
                     }
 
-                    sub_489EC4(weapon, attack->attacker->tile, attack->attacker->elevation, NULL);
+                    _obj_connect(weapon, attack->attacker->tile, attack->attacker->elevation, NULL);
                 } else {
                     objectCreateWithFidPid(&projectile, projectileProto->fid, -1);
                 }
@@ -716,7 +716,7 @@ int sub_411600(Attack* attack, int anim)
 
                 objectSetLight(projectile, 9, projectile->lightIntensity, NULL);
 
-                int projectileOrigin = sub_423104(attack->attacker, attack->defender);
+                int projectileOrigin = _combat_bullet_start(attack->attacker, attack->defender);
                 objectSetLocation(projectile, projectileOrigin, attack->attacker->elevation, NULL);
 
                 int projectileRotation = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
@@ -730,7 +730,7 @@ int sub_411600(Attack* attack, int anim)
                 int v24;
                 if ((attack->attackerFlags & DAM_HIT) != 0) {
                     reg_anim_2(projectile, attack->defender->tile, attack->defender->elevation, ANIM_WALK, 0);
-                    actionFrame = sub_4163AC(projectile, projectileOrigin, attack->defender->tile, NULL, NULL, 32) - 1;
+                    actionFrame = _make_straight_path(projectile, projectileOrigin, attack->defender->tile, NULL, NULL, 32) - 1;
                     v24 = attack->defender->tile;
                 } else {
                     reg_anim_2(projectile, attack->tile, attack->defender->elevation, ANIM_WALK, 0);
@@ -818,13 +818,13 @@ int sub_411600(Attack* attack, int anim)
         }
     }
 
-    sub_4110AC(attack, anim, actionFrame);
+    _show_damage(attack, anim, actionFrame);
 
     if ((attack->attackerFlags & DAM_HIT) == 0) {
-        sub_42B634(attack->defender, attack, AI_MESSAGE_TYPE_MISS, -1);
+        _combatai_msg(attack->defender, attack, AI_MESSAGE_TYPE_MISS, -1);
     } else {
         if ((attack->defenderFlags & DAM_DEAD) == 0) {
-            sub_42B634(attack->defender, attack, AI_MESSAGE_TYPE_HIT, -1);
+            _combatai_msg(attack->defender, attack, AI_MESSAGE_TYPE_HIT, -1);
         }
     }
 
@@ -875,13 +875,13 @@ int sub_411600(Attack* attack, int anim)
         return -1;
     }
 
-    sub_410FEC(attack);
+    _show_damage_extras(attack);
 
     return 0;
 }
 
 // 0x411D68
-int sub_411D68(Object* a1, Object* a2)
+int _is_next_to(Object* a1, Object* a2)
 {
     if (objectGetDistanceBetween(a1, a2) > 1) {
         if (a2 == gDude) {
@@ -899,7 +899,7 @@ int sub_411D68(Object* a1, Object* a2)
 }
 
 // 0x411DB4
-int sub_411DB4(Object* a1, Object* a2)
+int _action_climb_ladder(Object* a1, Object* a2)
 {
     int anim;
     int v5;
@@ -937,9 +937,9 @@ int sub_411DB4(Object* a1, Object* a2)
         reg_anim_obj_run_to_tile(a1, tile_num, a2->elevation, v6, 0);
     }
 
-    reg_anim_11_1(a1, a2, sub_411D68, -1);
+    reg_anim_11_1(a1, a2, _is_next_to, -1);
     reg_anim_set_rotation_to_tile(a1, a2->tile);
-    reg_anim_11_1(a1, a2, sub_49C6BC, -1);
+    reg_anim_11_1(a1, a2, _check_scenery_ap_cost, -1);
 
     v11 = (a1->fid & 0xF000) >> 12;
     if (v11 != 0) {
@@ -951,7 +951,7 @@ int sub_411DB4(Object* a1, Object* a2)
     sfx_name = sfxBuildCharName(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
     reg_anim_play_sfx(a1, sfx_name, -1);
     reg_anim_animate(a1, 4, 0);
-    reg_anim_11_0(a1, a2, sub_49C740, -1);
+    reg_anim_11_0(a1, a2, _obj_use, -1);
 
     if (v11 != 0) {
         reg_anim_18(a1, v11, -1);
@@ -961,7 +961,7 @@ int sub_411DB4(Object* a1, Object* a2)
 }
 
 // 0x411F2C
-int sub_411F2C(Object* a1, Object* a2, Object* a3)
+int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
 {
     Proto* proto = NULL;
     int type = (a2->fid & 0xF000000) >> 24;
@@ -1004,10 +1004,10 @@ int sub_411F2C(Object* a1, Object* a2, Object* a3)
             reg_anim_obj_run_to_obj(a1, a2, -1, 0);
         }
 
-        reg_anim_11_1(a1, a2, sub_411D68, -1);
+        reg_anim_11_1(a1, a2, _is_next_to, -1);
 
         if (a3 == NULL) {
-            reg_anim_11_0(a1, a2, sub_49C6BC, -1);
+            reg_anim_11_0(a1, a2, _check_scenery_ap_cost, -1);
         }
 
         int a2a = (a1->fid & 0xF000) >> 12;
@@ -1019,7 +1019,7 @@ int sub_411F2C(Object* a1, Object* a2, Object* a3)
 
         int v13;
         int v12 = (a2->fid & 0xF000000) >> 24;
-        if (v12 == OBJ_TYPE_CRITTER && sub_42DD80(a2)) {
+        if (v12 == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) {
             v13 = ANIM_MAGIC_HANDS_GROUND;
         } else if (v12 == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & 0x01) != 0) {
             v13 = ANIM_MAGIC_HANDS_GROUND;
@@ -1033,9 +1033,9 @@ int sub_411F2C(Object* a1, Object* a2, Object* a3)
 
         if (a3 != NULL) {
             // TODO: Get rid of cast.
-            reg_anim_12(a1, a2, a3, (AnimationProc2*)sub_49C5FC, -1);
+            reg_anim_12(a1, a2, a3, (AnimationProc2*)_obj_use_item_on, -1);
         } else {
-            reg_anim_11_0(a1, a2, sub_49C740, -1);
+            reg_anim_11_0(a1, a2, _obj_use, -1);
         }
 
         if (a2a != 0) {
@@ -1045,13 +1045,13 @@ int sub_411F2C(Object* a1, Object* a2, Object* a3)
         return reg_anim_end();
     }
 
-    return sub_411DB4(a1, a2);
+    return _action_climb_ladder(a1, a2);
 }
 
 // 0x412114
-int sub_412114(Object* a1, Object* a2)
+int _action_use_an_object(Object* a1, Object* a2)
 {
-    return sub_411F2C(a1, a2, NULL);
+    return _action_use_an_item_on_object(a1, a2, NULL);
 }
 
 // 0x412134
@@ -1081,13 +1081,13 @@ int actionPickUp(Object* critter, Object* item)
         }
     }
 
-    reg_anim_11_1(critter, item, sub_411D68, -1);
-    reg_anim_11_0(critter, item, sub_49C6BC, -1);
+    reg_anim_11_1(critter, item, _is_next_to, -1);
+    reg_anim_11_0(critter, item, _check_scenery_ap_cost, -1);
 
     Proto* itemProto;
     protoGetProto(item->pid, &itemProto);
 
-    if (itemProto->item.type != ITEM_TYPE_CONTAINER || sub_49EA5C(item->pid)) {
+    if (itemProto->item.type != ITEM_TYPE_CONTAINER || _proto_action_can_pickup(item->pid)) {
         reg_anim_animate(critter, ANIM_MAGIC_HANDS_GROUND, 0);
 
         int fid = buildFid(1, critter->fid & 0xFFF, ANIM_MAGIC_HANDS_GROUND, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
@@ -1107,7 +1107,7 @@ int actionPickUp(Object* critter, Object* item)
             reg_anim_play_sfx(item, sfx, actionFrame);
         }
 
-        reg_anim_11_0(critter, item, sub_49B650, actionFrame);
+        reg_anim_11_0(critter, item, _obj_pickup, actionFrame);
     } else {
         int v27 = (critter->fid & 0xF000) >> 12;
         if (v27 != 0) {
@@ -1133,7 +1133,7 @@ int actionPickUp(Object* critter, Object* item)
         }
 
         if (item->frame != 1) {
-            reg_anim_11_0(critter, item, sub_49CE7C, actionFrame);
+            reg_anim_11_0(critter, item, _obj_use_container, actionFrame);
         }
 
         if (v27 != 0) {
@@ -1149,7 +1149,7 @@ int actionPickUp(Object* critter, Object* item)
 }
 
 // 0x4123E8
-int sub_4123E8(Object* a1, Object* a2)
+int _action_loot_container(Object* a1, Object* a2)
 {
     int anim;
     int v9;
@@ -1183,14 +1183,14 @@ int sub_4123E8(Object* a1, Object* a2)
         }
     }
 
-    reg_anim_11_1(a1, a2, sub_411D68, -1);
-    reg_anim_11_1(a1, a2, sub_49C6BC, -1);
+    reg_anim_11_1(a1, a2, _is_next_to, -1);
+    reg_anim_11_1(a1, a2, _check_scenery_ap_cost, -1);
     reg_anim_11_1(a1, a2, scriptsRequestLooting, -1);
     return reg_anim_end();
 }
 
 // 0x4124E0
-int sub_4124E0(int skill)
+int _action_skill_use(int skill)
 {
     if (skill == SKILL_SNEAK) {
         reg_anim_clear(gDude);
@@ -1376,9 +1376,9 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         }
     }
 
-    reg_anim_11_1(v1, a2, sub_411D68, -1);
+    reg_anim_11_1(v1, a2, _is_next_to, -1);
 
-    int anim = (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER && sub_42DD80(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
+    int anim = (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
     int fid = buildFid(1, v1->fid & 0xFFF, anim, 0, v1->rotation + 1);
 
     CacheEntry* artHandle;
@@ -1390,12 +1390,12 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
 
     reg_anim_animate(v1, anim, -1);
     // TODO: Get rid of casts.
-    reg_anim_12(v1, a2, (void*)skill, (AnimationProc2*)sub_49D078, -1);
+    reg_anim_12(v1, a2, (void*)skill, (AnimationProc2*)_obj_use_skill_on, -1);
     return reg_anim_end();
 }
 
 // 0x412BC4
-bool sub_412BC4(Object* a1, Object* a2)
+bool _is_hit_from_front(Object* a1, Object* a2)
 {
     int diff = a1->rotation - a2->rotation;
     if (diff < 0) {
@@ -1406,7 +1406,7 @@ bool sub_412BC4(Object* a1, Object* a2)
 }
 
 // 0x412BEC
-bool sub_412BEC(Object* a1, Object* a2)
+bool _can_see(Object* a1, Object* a2)
 {
     int diff;
 
@@ -1420,7 +1420,7 @@ bool sub_412BEC(Object* a1, Object* a2)
 
 // looks like it tries to change fall animation depending on object's current rotation
 // 0x412C1C
-int sub_412C1C(Object* obj, int anim)
+int _pick_fall(Object* obj, int anim)
 {
     int i;
     int rotation;
@@ -1431,7 +1431,7 @@ int sub_412C1C(Object* obj, int anim)
         rotation = obj->rotation;
         for (i = 1; i < 3; i++) {
             tile_num = tileGetTileInDirection(obj->tile, rotation, i);
-            if (sub_48B848(obj, tile_num, obj->elevation) != NULL) {
+            if (_obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
                 anim = ANIM_FALL_BACK;
                 break;
             }
@@ -1440,7 +1440,7 @@ int sub_412C1C(Object* obj, int anim)
         rotation = (obj->rotation + 3) % 6u;
         for (i = 1; i < 3; i++) {
             tile_num = tileGetTileInDirection(obj->tile, rotation, i);
-            if (sub_48B848(obj, tile_num, obj->elevation) != NULL) {
+            if (_obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
                 anim = ANIM_FALL_FRONT;
                 break;
             }
@@ -1458,7 +1458,7 @@ int sub_412C1C(Object* obj, int anim)
 }
 
 // 0x412CE4
-bool sub_412CE4()
+bool _action_explode_running()
 {
     return dword_5106D0 != 0;
 }
@@ -1508,7 +1508,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         objectSetLocation(adjacentExplosions[rotation], adjacentTile, elevation, NULL);
     }
 
-    Object* critter = sub_48B848(NULL, tile, elevation);
+    Object* critter = _obj_blocking_at(NULL, tile, elevation);
     if (critter != NULL) {
         if ((critter->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER || (critter->data.critter.combat.results & DAM_DEAD) != 0) {
             critter = NULL;
@@ -1526,10 +1526,10 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         if (reg_anim_clear(critter) == -2) {
             debugPrint("Cannot clear target's animation for action_explode!\n");
         }
-        attack->defenderDamage = sub_4132CC(minDamage, maxDamage, critter, &(attack->defenderKnockback));
+        attack->defenderDamage = _compute_explosion_damage(minDamage, maxDamage, critter, &(attack->defenderKnockback));
     }
 
-    sub_423C10(attack, 0, 0, 1);
+    _compute_explosion_on_extras(attack, 0, 0, 1);
 
     for (int index = 0; index < attack->extrasLength; index++) {
         Object* critter = attack->extras[index];
@@ -1537,7 +1537,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
             debugPrint("Cannot clear extra's animation for action_explode!\n");
         }
 
-        attack->extrasDamage[index] = sub_4132CC(minDamage, maxDamage, critter, &(attack->extrasKnockback[index]));
+        attack->extrasDamage[index] = _compute_explosion_damage(minDamage, maxDamage, critter, &(attack->extrasKnockback[index]));
     }
 
     attackComputeDeathFlags(attack);
@@ -1546,18 +1546,18 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         dword_5106D0 = 1;
 
         reg_anim_begin(2);
-        sub_413C20(1);
+        _register_priority(1);
         reg_anim_play_sfx(explosion, "whn1xxx1", 0);
         reg_anim_15(explosion, 1, 0);
         reg_anim_6(explosion, ANIM_STAND, 0);
-        sub_4110AC(attack, 0, 1);
+        _show_damage(attack, 0, 1);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
             reg_anim_15(adjacentExplosions[rotation], 1, 0);
             reg_anim_6(adjacentExplosions[rotation], ANIM_STAND, 0);
         }
 
-        reg_anim_11_1(explosion, 0, sub_426DB8, -1);
+        reg_anim_11_1(explosion, 0, _combat_explode_scenery, -1);
         reg_anim_hide(explosion);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
@@ -1565,8 +1565,8 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         }
 
         // TODO: Get rid of casts.
-        reg_anim_11_1((Object*)attack, a5, (AnimationProc*)sub_413144, -1);
-        reg_anim_11_1(NULL, NULL, sub_4132C0, -1);
+        reg_anim_11_1((Object*)attack, a5, (AnimationProc*)_report_explosion, -1);
+        reg_anim_11_1(NULL, NULL, _finished_explosion, -1);
         if (reg_anim_end() == -1) {
             dword_5106D0 = 0;
 
@@ -1582,7 +1582,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
             return -1;
         }
 
-        sub_410FEC(attack);
+        _show_damage_extras(attack);
     } else {
         if (critter != NULL) {
             if ((attack->defenderFlags & DAM_DEAD) != 0) {
@@ -1596,9 +1596,9 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
             }
         }
 
-        sub_413144(attack, a5);
+        _report_explosion(attack, a5);
 
-        sub_426DB8(explosion, NULL);
+        _combat_explode_scenery(explosion, NULL);
 
         objectDestroy(explosion, NULL);
 
@@ -1611,7 +1611,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
 }
 
 // 0x413144
-int sub_413144(Attack* attack, Object* a2)
+int _report_explosion(Attack* attack, Object* a2)
 {
     int v19;
     if (attack->defender != NULL) {
@@ -1626,8 +1626,8 @@ int sub_413144(Attack* attack, Object* a2)
     }
 
     attackComputeDeathFlags(attack);
-    sub_425170(attack);
-    sub_424C04(attack, false);
+    _combat_display(attack);
+    _apply_damage(attack, false);
 
     Object* v21 = NULL;
     int xp = 0;
@@ -1638,7 +1638,7 @@ int sub_413144(Attack* attack, Object* a2)
                     xp += critterGetExp(attack->defender);
                 }
             } else {
-                sub_42E4C0(attack->defender, a2);
+                _critter_set_who_hit_me(attack->defender, a2);
                 v21 = attack->defender;
             }
         }
@@ -1651,7 +1651,7 @@ int sub_413144(Attack* attack, Object* a2)
                         xp += critterGetExp(critter);
                     }
                 } else {
-                    sub_42E4C0(critter, a2);
+                    _critter_set_who_hit_me(critter, a2);
 
                     if (v21 == NULL) {
                         v21 = critter;
@@ -1680,14 +1680,14 @@ int sub_413144(Attack* attack, Object* a2)
     gameUiEnable();
 
     if (a2 == gDude) {
-        sub_4221B4(xp);
+        _combat_give_exps(xp);
     }
 
     return 0;
 }
 
 // 0x4132C0
-int sub_4132C0(Object* a1, Object* a2)
+int _finished_explosion(Object* a1, Object* a2)
 {
     dword_5106D0 = 0;
     return 0;
@@ -1695,7 +1695,7 @@ int sub_4132C0(Object* a1, Object* a2)
 
 // calculate explosion damage applying threshold and resistances
 // 0x4132CC
-int sub_4132CC(int min, int max, Object* a3, int* a4)
+int _compute_explosion_damage(int min, int max, Object* a3, int* a4)
 {
     int v5 = randomBetween(min, max);
     int v7 = v5 - critterGetStat(a3, STAT_DAMAGE_THRESHOLD_EXPLOSION);
@@ -1738,20 +1738,20 @@ int actionTalk(Object* a1, Object* a2)
     } else {
         reg_anim_begin((a1 == gDude) ? 2 : 1);
 
-        if (objectGetDistanceBetween(a1, a2) >= 9 || sub_426CC4(a1, a1->tile, a2->tile, a2, NULL)) {
+        if (objectGetDistanceBetween(a1, a2) >= 9 || _combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
             reg_anim_obj_run_to_obj(a1, a2, -1, 0);
         }
     }
 
-    reg_anim_11_1(a1, a2, sub_413420, -1);
-    reg_anim_11_0(a1, a2, sub_413488, -1);
+    reg_anim_11_1(a1, a2, _can_talk_to, -1);
+    reg_anim_11_0(a1, a2, _talk_to, -1);
     return reg_anim_end();
 }
 
 // 0x413420
-int sub_413420(Object* a1, Object* a2)
+int _can_talk_to(Object* a1, Object* a2)
 {
-    if (sub_426CC4(a1, a1->tile, a2->tile, a2, NULL) || objectGetDistanceBetween(a1, a2) >= 9) {
+    if (_combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL) || objectGetDistanceBetween(a1, a2) >= 9) {
         if (a1 == gDude) {
             // You cannot get there. (used in actions.c)
             MessageListItem messageListItem;
@@ -1768,14 +1768,14 @@ int sub_413420(Object* a1, Object* a2)
 }
 
 // 0x413488
-int sub_413488(Object* a1, Object* a2)
+int _talk_to(Object* a1, Object* a2)
 {
     scriptsRequestDialog(a2);
     return 0;
 }
 
 // 0x413494
-void sub_413494(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor)
+void _action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor)
 {
     Attack* attack = internal_malloc(sizeof(*attack));
     if (attack == NULL) {
@@ -1794,7 +1794,7 @@ void sub_413494(int tile, int elevation, int minDamage, int maxDamage, int damag
 
     objectSetLocation(obj, tile, elevation, NULL);
 
-    Object* v9 = sub_48B848(NULL, tile, elevation);
+    Object* v9 = _obj_blocking_at(NULL, tile, elevation);
     attackInit(attack, obj, v9, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
@@ -1807,7 +1807,7 @@ void sub_413494(int tile, int elevation, int minDamage, int maxDamage, int damag
         if (bypassArmor) {
             damage = maxDamage;
         } else {
-            damage = sub_413660(minDamage, maxDamage, v9, &(attack->defenderKnockback), damageType);
+            damage = _compute_dmg_damage(minDamage, maxDamage, v9, &(attack->defenderKnockback), damageType);
         }
 
         attack->defenderDamage = damage;
@@ -1818,9 +1818,9 @@ void sub_413494(int tile, int elevation, int minDamage, int maxDamage, int damag
     if (animated) {
         reg_anim_begin(2);
         reg_anim_play_sfx(obj, "whc1xxx1", 0);
-        sub_4110AC(attack, gMaximumBloodDeathAnimations[damageType], 0);
+        _show_damage(attack, gMaximumBloodDeathAnimations[damageType], 0);
         // TODO: Get rid of casts.
-        reg_anim_11_1((Object*)attack, NULL, (AnimationProc*)sub_41363C, 0);
+        reg_anim_11_1((Object*)attack, NULL, (AnimationProc*)_report_dmg, 0);
         reg_anim_hide(obj);
 
         if (reg_anim_end() == -1) {
@@ -1835,8 +1835,8 @@ void sub_413494(int tile, int elevation, int minDamage, int maxDamage, int damag
             }
         }
 
-        sub_425170(attack);
-        sub_424C04(attack, false);
+        _combat_display(attack);
+        _apply_damage(attack, false);
         internal_free(attack);
         gameUiEnable();
         objectDestroy(obj, NULL);
@@ -1846,10 +1846,10 @@ void sub_413494(int tile, int elevation, int minDamage, int maxDamage, int damag
 }
 
 // 0x41363C
-int sub_41363C(Attack* attack, Object* a2)
+int _report_dmg(Attack* attack, Object* a2)
 {
-    sub_425170(attack);
-    sub_424C04(attack, false);
+    _combat_display(attack);
+    _apply_damage(attack, false);
     internal_free(attack);
     gameUiEnable();
     return 0;
@@ -1858,9 +1858,9 @@ int sub_41363C(Attack* attack, Object* a2)
 // Calculate damage by applying threshold and resistances.
 //
 // 0x413660
-int sub_413660(int min, int max, Object* obj, int* a4, int damageType)
+int _compute_dmg_damage(int min, int max, Object* obj, int* a4, int damageType)
 {
-    if (!sub_42E6AC(obj->pid, 0x4000)) {
+    if (!_critter_flag_check(obj->pid, 0x4000)) {
         a4 = NULL;
     }
 
@@ -1901,7 +1901,7 @@ bool actionCheckPush(Object* a1, Object* a2)
         return false;
     }
 
-    if (sub_413970(a1, a2) != 0) {
+    if (_action_can_talk_to(a1, a2) != 0) {
         return false;
     }
 
@@ -1935,7 +1935,7 @@ int actionPush(Object* a1, Object* a2)
     }
 
     int sid;
-    if (sub_49A9A0(a2, &sid) == 0) {
+    if (_obj_sid(a2, &sid) == 0) {
         scriptSetObjects(sid, a1, a2);
         scriptExecProc(sid, SCRIPT_PROC_PUSH);
 
@@ -1955,32 +1955,32 @@ int actionPush(Object* a1, Object* a2)
     int tile;
     do {
         tile = tileGetTileInDirection(a2->tile, rotation, 1);
-        if (sub_48B848(a2, tile, a2->elevation) == NULL) {
+        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 1) % ROTATION_COUNT, 1);
-        if (sub_48B848(a2, tile, a2->elevation) == NULL) {
+        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 5) % ROTATION_COUNT, 1);
-        if (sub_48B848(a2, tile, a2->elevation) == NULL) {
+        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 2) % ROTATION_COUNT, 1);
-        if (sub_48B848(a2, tile, a2->elevation) == NULL) {
+        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 4) % ROTATION_COUNT, 1);
-        if (sub_48B848(a2, tile, a2->elevation) == NULL) {
+        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 3) % ROTATION_COUNT, 1);
-        if (sub_48B848(a2, tile, a2->elevation) == NULL) {
+        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
@@ -2004,9 +2004,9 @@ int actionPush(Object* a1, Object* a2)
 // Returns -2 if it's too far (> 12 tiles).
 //
 // 0x413970
-int sub_413970(Object* a1, Object* a2)
+int _action_can_talk_to(Object* a1, Object* a2)
 {
-    if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, sub_48BB88) == 0) {
+    if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_sight_blocking_at) == 0) {
         return -1;
     }
 

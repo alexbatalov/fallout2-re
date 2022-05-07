@@ -21,7 +21,7 @@ int dword_519038 = 0;
 int dword_51903C = 1;
 
 // 0x519040
-int (*off_519040)() = sub_4670A0;
+int (*off_519040)() = _defaultTimerFunc;
 
 // 0x519044
 int dword_519044 = 1000;
@@ -30,7 +30,7 @@ int dword_519044 = 1000;
 char* (*off_519048)(char*) = sub_4670B4;
 
 // 0x51904C
-int (*off_51904C)(char*) = sub_4670C0;
+int (*off_51904C)(char*) = _outputStr;
 
 // 0x519050
 int dword_519050 = 10;
@@ -47,9 +47,9 @@ int dword_59E794;
 int dword_59E798;
 
 // 0x4670A0
-int sub_4670A0()
+int _defaultTimerFunc()
 {
-    return sub_4C9370();
+    return _get_time();
 }
 
 // 0x4670B4
@@ -59,31 +59,31 @@ char* sub_4670B4(char* s)
 }
 
 // 0x4670B8
-char* sub_4670B8(char* s)
+char* _interpretMangleName(char* s)
 {
     return off_519048(s);
 }
 
 // 0x4670C0
-int sub_4670C0(char* a1)
+int _outputStr(char* a1)
 {
     return 1;
 }
 
 // 0x4670C8
-int sub_4670C8(Program* program)
+int _checkWait(Program* program)
 {
     return 1000 * off_519040() / dword_519044 <= program->field_70;
 }
 
 // 0x4670FC
-void sub_4670FC(int (*func)(char*))
+void _interpretOutputFunc(int (*func)(char*))
 {
     off_51904C = func;
 }
 
 // 0x467104
-int sub_467104(const char* format, ...)
+int _interpretOutput(const char* format, ...)
 {
     if (off_51904C == NULL) {
         return 0;
@@ -334,7 +334,7 @@ int programReturnStackPopInt32(Program* program)
 // NOTE: Inlined.
 //
 // 0x4675C8
-void sub_4675C8(Program* program)
+void _detachProgram(Program* program)
 {
     Program* parent = program->parent;
     if (parent != NULL) {
@@ -347,10 +347,10 @@ void sub_4675C8(Program* program)
 }
 
 // 0x4675F4
-void sub_4675F4(Program* program)
+void _purgeProgram(Program* program)
 {
     if (!program->exited) {
-        sub_467040(program);
+        _removeProgramReferences_(program);
         program->exited = true;
     }
 }
@@ -359,12 +359,12 @@ void sub_4675F4(Program* program)
 void programFree(Program* program)
 {
     // NOTE: Uninline.
-    sub_4675C8(program);
+    _detachProgram(program);
 
     Program* curr = program->child;
     while (curr != NULL) {
         // NOTE: Uninline.
-        sub_4675F4(curr);
+        _purgeProgram(curr);
 
         curr->parent = NULL;
 
@@ -375,7 +375,7 @@ void programFree(Program* program)
     }
 
     // NOTE: Uninline.
-    sub_4675F4(program);
+    _purgeProgram(program);
 
     if (program->dynamicStrings != NULL) {
         internal_free_safe(program->dynamicStrings, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 429
@@ -772,7 +772,7 @@ void opWait(Program* program)
 
     program->field_74 = 1000 * off_519040() / dword_519044;
     program->field_70 = program->field_74 + data;
-    program->field_7C = sub_4670C8;
+    program->field_7C = _checkWait;
     program->flags |= PROGRAM_FLAG_0x10;
 }
 
@@ -2727,7 +2727,7 @@ void opExit(Program* program)
     }
 
     if (!program->exited) {
-        sub_467040(program);
+        _removeProgramReferences_(program);
         program->exited = true;
     }
 }
@@ -2776,7 +2776,7 @@ void opCallStart(Program* program)
 
     name = programGetString(program, type, value);
 
-    name = sub_4670B8(name);
+    name = _interpretMangleName(name);
     program->child = programCreateByPath(name);
     if (program->child == NULL) {
         sprintf(err, "Error spawning child %s", programGetString(program, type, value));
@@ -2784,7 +2784,7 @@ void opCallStart(Program* program)
     }
 
     programListNodeCreate(program->child);
-    sub_46CCA4(program->child, 24);
+    _interpret(program->child, 24);
 
     program->child->parent = program;
     program->child->field_84 = program->field_84;
@@ -2824,7 +2824,7 @@ void opSpawn(Program* program)
         name = NULL;
     }
 
-    name = sub_4670B8(name);
+    name = _interpretMangleName(name);
     program->child = programCreateByPath(name);
     if (program->child == NULL) {
         sprintf(err, "Error spawning child %s", programGetString(program, type, value));
@@ -2832,14 +2832,14 @@ void opSpawn(Program* program)
     }
 
     programListNodeCreate(program->child);
-    sub_46CCA4(program->child, 24);
+    _interpret(program->child, 24);
 
     program->child->parent = program;
     program->child->field_84 = program->field_84;
 
     if ((program->flags & PROGRAM_FLAG_CRITICAL_SECTION) != 0) {
         program->child->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        sub_46CCA4(program->child, -1);
+        _interpret(program->child, -1);
     }
 }
 
@@ -2855,7 +2855,7 @@ Program* forkProgram(Program* program)
     }
 
     char* name = programGetString(program, opcode, data);
-    name = sub_4670B8(name);
+    name = _interpretMangleName(name);
     Program* forked = programCreateByPath(name);
 
     if (forked == NULL) {
@@ -2866,7 +2866,7 @@ Program* forkProgram(Program* program)
 
     programListNodeCreate(forked);
 
-    sub_46CCA4(forked, 24);
+    _interpret(forked, 24);
 
     forked->field_84 = program->field_84;
 
@@ -2905,7 +2905,7 @@ void opExec(Program* program)
         }
     }
 
-    sub_4675F4(program);
+    _purgeProgram(program);
 }
 
 // 0x46C5D8
@@ -3065,19 +3065,19 @@ void interpreterRegisterOpcodeHandlers()
     interpreterRegisterOpcode(OPCODE_START_CRITICAL, opEnterCriticalSection);
     interpreterRegisterOpcode(OPCODE_END_CRITICAL, opLeaveCriticalSection);
 
-    sub_466A70();
-    sub_44152C();
+    _initIntlib();
+    _initExport();
 }
 
 // 0x46CC68
-void sub_46CC68()
+void _interpretClose()
 {
     externalVariablesClear();
-    sub_4669A0();
+    _intlibClose();
 }
 
 // 0x46CCA4
-void sub_46CCA4(Program* program, int a2)
+void _interpret(Program* program, int a2)
 {
     char err[260];
 
@@ -3177,7 +3177,7 @@ void sub_46CCA4(Program* program, int a2)
 // Prepares program stacks for executing proc at [address].
 //
 // 0x46CED0
-void sub_46CED0(Program* program, int address, int returnAddress)
+void _setupCallWithReturnVal(Program* program, int address, int returnAddress)
 {
     // Save current instruction pointer
     stackPushInt32(program->returnStack, &(program->returnStackPointer), program->instructionPointer);
@@ -3202,7 +3202,7 @@ void sub_46CED0(Program* program, int address, int returnAddress)
 }
 
 // 0x46CF9C
-void sub_46CF9C(Program* program1, Program* program2, int address, int a4)
+void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int address, int a4)
 {
     stackPushInt32(program2->returnStack, &(program2->returnStackPointer), program2->instructionPointer);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
@@ -3236,7 +3236,7 @@ void sub_46CF9C(Program* program1, Program* program2, int address, int a4)
 }
 
 // 0x46DB58
-void sub_46DB58(Program* program, int procedure_index)
+void _executeProc(Program* program, int procedure_index)
 {
     Program* external_program;
     char* identifier;
@@ -3252,7 +3252,7 @@ void sub_46DB58(Program* program, int procedure_index)
     if (!(flags & PROCEDURE_FLAG_IMPORTED)) {
         address = stackReadInt32(procedure_ptr, 16);
 
-        sub_46CED0(program, address, 20);
+        _setupCallWithReturnVal(program, address, 20);
 
         programStackPushInt32(program, 0);
         programStackPushInt16(program, VALUE_TYPE_INT);
@@ -3269,18 +3269,18 @@ void sub_46DB58(Program* program, int procedure_index)
         if (external_program == NULL) {
             sprintf(err, "External procedure %s not found\n", identifier);
             // TODO: Incomplete.
-            // sub_467104(err);
+            // _interpretOutput(err);
             return;
         }
 
         if (arguments_count != 0) {
             sprintf(err, "External procedure cannot take arguments in interrupt context");
             // TODO: Incomplete.
-            // sub_467104(err);
+            // _interpretOutput(err);
             return;
         }
 
-        sub_46CF9C(program, external_program, address, 28);
+        _setupExternalCallWithReturnVal(program, external_program, address, 28);
 
         programStackPushInt32(external_program, 0);
         programStackPushInt16(external_program, VALUE_TYPE_INT);
@@ -3296,7 +3296,7 @@ void sub_46DB58(Program* program, int procedure_index)
         v12 = external_program;
     }
 
-    sub_46CCA4(v12, 0);
+    _interpret(v12, 0);
 }
 
 // Returns index of the procedure with specified name or -1 if no such
@@ -3321,7 +3321,7 @@ int programFindProcedure(Program* program, const char* name)
 }
 
 // 0x46DD2C
-void sub_46DD2C(Program* program, int procedure_index)
+void _executeProcedure(Program* program, int procedure_index)
 {
     Program* external_program;
     char* identifier;
@@ -3342,18 +3342,18 @@ void sub_46DD2C(Program* program, int procedure_index)
         if (external_program == NULL) {
             sprintf(err, "External procedure %s not found\n", identifier);
             // TODO: Incomplete.
-            // sub_467104(err);
+            // _interpretOutput(err);
             return;
         }
 
         if (arguments_count != 0) {
             sprintf(err, "External procedure cannot take arguments in interrupt context");
             // TODO: Incomplete.
-            // sub_467104(err);
+            // _interpretOutput(err);
             return;
         }
 
-        sub_46CF9C(program, external_program, address, 32);
+        _setupExternalCallWithReturnVal(program, external_program, address, 32);
 
         programStackPushInt32(external_program, 0);
         programStackPushInt16(external_program, VALUE_TYPE_INT);
@@ -3364,7 +3364,7 @@ void sub_46DD2C(Program* program, int procedure_index)
     } else {
         address = stackReadInt32(procedure_ptr, 16);
 
-        sub_46CED0(program, address, 24);
+        _setupCallWithReturnVal(program, address, 24);
 
         // Push number of arguments. It's always zero for built-in procs. This
         // number is consumed by 0x802B.
@@ -3376,13 +3376,13 @@ void sub_46DD2C(Program* program, int procedure_index)
         v13 = program;
     }
 
-    sub_46CCA4(v13, -1);
+    _interpret(v13, -1);
 
     memcpy(v13->env, jmp_buf, sizeof(jmp_buf));
 }
 
 // 0x46DEE4
-void sub_46DEE4()
+void _doEvents()
 {
     // TODO: Incomplete.
 }
@@ -3426,21 +3426,21 @@ void programListNodeCreate(Program* program)
 }
 
 // 0x46E1EC
-void sub_46E1EC()
+void _updatePrograms()
 {
     ProgramListNode* curr = gInterpreterProgramListHead;
     while (curr != NULL) {
         ProgramListNode* next = curr->next;
         if (curr->program != NULL) {
-            sub_46CCA4(curr->program, dword_519050);
+            _interpret(curr->program, dword_519050);
         }
         if (curr->program->exited) {
             programListNodeFree(curr);
         }
         curr = next;
     }
-    sub_46DEE4();
-    sub_466994();
+    _doEvents();
+    _updateIntLib();
 }
 
 // 0x46E238

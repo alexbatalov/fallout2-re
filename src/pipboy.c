@@ -207,7 +207,7 @@ unsigned char byte_66452A;
 // 0x497004
 int pipboyOpen(bool forceRest)
 {
-    if (!sub_4BFAFC()) {
+    if (!_wmMapPipboyActive()) {
         // You aren't wearing the pipboy!
         const char* text = getmsg(&gMiscMessageList, &gPipboyMessageListItem, 7000);
         showDialogBox(text, NULL, 0, 192, 135, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 1);
@@ -219,10 +219,10 @@ int pipboyOpen(bool forceRest)
     }
 
     mouseGetPosition(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
-    gPipboyLastEventTimestamp = sub_4C9370();
+    gPipboyLastEventTimestamp = _get_time();
 
     while (true) {
-        int keyCode = sub_4C8B78();
+        int keyCode = _get_input();
 
         if (forceRest) {
             keyCode = 504;
@@ -232,14 +232,14 @@ int pipboyOpen(bool forceRest)
         mouseGetPosition(&gPipboyMouseX, &gPipboyMouseY);
 
         if (keyCode != -1 || gPipboyMouseX != gPipboyPreviousMouseX || gPipboyMouseY != gPipboyPreviousMouseY) {
-            gPipboyLastEventTimestamp = sub_4C9370();
+            gPipboyLastEventTimestamp = _get_time();
             gPipboyPreviousMouseX = gPipboyMouseX;
             gPipboyPreviousMouseY = gPipboyMouseY;
         } else {
-            if (sub_4C9370() - gPipboyLastEventTimestamp > PIPBOY_IDLE_TIMEOUT) {
+            if (_get_time() - gPipboyLastEventTimestamp > PIPBOY_IDLE_TIMEOUT) {
                 pipboyRenderScreensaver();
 
-                gPipboyLastEventTimestamp = sub_4C9370();
+                gPipboyLastEventTimestamp = _get_time();
                 mouseGetPosition(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
             }
         }
@@ -290,7 +290,7 @@ int pipboyWindowInit(bool forceRest)
 
     gPipboyRestOptionsCount = PIPBOY_REST_DURATION_COUNT_WITHOUT_PARTY;
 
-    if (sub_495010() > 1 && partyIsAnyoneCanBeHealedByRest()) {
+    if (_getPartyMemberCount() > 1 && partyIsAnyoneCanBeHealedByRest()) {
         gPipboyRestOptionsCount = PIPBOY_REST_DURATION_COUNT;
     }
 
@@ -368,7 +368,7 @@ int pipboyWindowInit(bool forceRest)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (alarmButton != -1) {
-        buttonSetCallbacks(alarmButton, sub_451988, sub_451990);
+        buttonSetCallbacks(alarmButton, _gsound_med_butt_press, _gsound_med_butt_release);
     }
 
     int y = 341;
@@ -389,7 +389,7 @@ int pipboyWindowInit(bool forceRest)
                 NULL,
                 BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, sub_451970, sub_451978);
+                buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
             }
 
             eventCode += 1;
@@ -399,7 +399,7 @@ int pipboyWindowInit(bool forceRest)
     }
 
     if (forceRest) {
-        if (!sub_42E564()) {
+        if (!_critter_can_obj_dude_rest()) {
             blitBufferToBufferTrans(
                 gPipboyFrmData[PIPBOY_FRM_LOGO],
                 gPipboyFrmSizes[PIPBOY_FRM_LOGO].width,
@@ -632,7 +632,7 @@ void pipboyDrawBackButton(int color)
 // NOTE: Collapsed.
 //
 // 0x497BD4
-int sub_497BD4(File* stream)
+int _save_pipboy(File* stream)
 {
     return 0;
 }
@@ -640,13 +640,13 @@ int sub_497BD4(File* stream)
 // NOTE: Uncollapsed 0x497BD4.
 int pipboySave(File* stream)
 {
-    return sub_497BD4(stream);
+    return _save_pipboy(stream);
 }
 
 // NOTE: Uncollapsed 0x497BD4.
 int pipboyLoad(File* stream)
 {
-    return sub_497BD4(stream);
+    return _save_pipboy(stream);
 }
 
 // 0x497BD8
@@ -1202,7 +1202,7 @@ int pipboyWindowRenderHolodiskList(int a1)
 }
 
 // 0x498D34
-int sub_498D34(const void* a1, const void* a2)
+int _qscmp(const void* a1, const void* a2)
 {
     STRUCT_664350* v1 = (STRUCT_664350*)a1;
     STRUCT_664350* v2 = (STRUCT_664350*)a2;
@@ -1229,7 +1229,7 @@ void pipboyWindowHandleAutomaps(int a1)
         const char* title = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 205);
         pipboyDrawText(title, PIPBOY_TEXT_ALIGNMENT_CENTER | PIPBOY_TEXT_STYLE_UNDERLINE, byte_6A38D0[992]);
 
-        dword_66450C = sub_499150(-1);
+        dword_66450C = _PrintAMList(-1);
 
         pipboyWindowCreateButtons(2, dword_66450C, 0);
 
@@ -1246,7 +1246,7 @@ void pipboyWindowHandleAutomaps(int a1)
 
         if (a1 >= 1 && a1 <= dword_66450C + 3) {
             soundPlayFile("ib1p1xx1");
-            sub_498F30(a1);
+            _PrintAMelevList(a1);
             automapRenderInPipboyWindow(gPipboyWindow, stru_664350[a1 - 1].field_6, stru_664350[a1 - 1].field_4);
             windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
         }
@@ -1257,10 +1257,10 @@ void pipboyWindowHandleAutomaps(int a1)
     if (a1 > 0 && a1 <= dword_66450C) {
         soundPlayFile("ib1p1xx1");
         pipboyWindowDestroyButtons();
-        sub_499150(a1);
+        _PrintAMList(a1);
         windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
         dword_66451C = stru_664350[a1 - 1].field_4;
-        dword_66450C = sub_498F30(1);
+        dword_66450C = _PrintAMelevList(1);
         pipboyWindowCreateButtons(0, dword_66450C + 2, 1);
         automapRenderInPipboyWindow(gPipboyWindow, stru_664350[0].field_6, stru_664350[0].field_4);
         windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
@@ -1269,7 +1269,7 @@ void pipboyWindowHandleAutomaps(int a1)
 }
 
 // 0x498F30
-int sub_498F30(int a1)
+int _PrintAMelevList(int a1)
 {
     AutomapHeader* automapHeader;
     if (automapGetHeader(&automapHeader) == -1) {
@@ -1292,7 +1292,7 @@ int sub_498F30(int a1)
             continue;
         }
 
-        if (sub_4825CC(dword_66451C, map) == -1) {
+        if (_get_map_idx_same(dword_66451C, map) == -1) {
             continue;
         }
 
@@ -1351,7 +1351,7 @@ int sub_498F30(int a1)
 }
 
 // 0x499150
-int sub_499150(int a1)
+int _PrintAMList(int a1)
 {
     AutomapHeader* automapHeader;
     if (automapGetHeader(&automapHeader) == -1) {
@@ -1366,7 +1366,7 @@ int sub_499150(int a1)
         int elevation;
         for (elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
             if (automapHeader->offsets[map][elevation] > 0) {
-                if (sub_41B8B4(map) == 0) {
+                if (_automapDisplayMap(map) == 0) {
                     break;
                 }
             }
@@ -1377,7 +1377,7 @@ int sub_499150(int a1)
             if (count != 0) {
                 v7 = 0;
                 for (int index = 0; index < count; index++) {
-                    if (sub_482528(map, stru_664350[index].field_4)) {
+                    if (_is_map_idx_same(map, stru_664350[index].field_4)) {
                         break;
                     }
 
@@ -1397,7 +1397,7 @@ int sub_499150(int a1)
 
     if (count != 0) {
         if (count > 1) {
-            qsort(stru_664350, count, sizeof(*stru_664350), sub_498D34);
+            qsort(stru_664350, count, sizeof(*stru_664350), _qscmp);
         }
 
         blitBufferToBuffer(gPipboyFrmData[PIPBOY_FRM_BACKGROUND] + PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_CONTENT_VIEW_Y + PIPBOY_WINDOW_CONTENT_VIEW_X,
@@ -1463,7 +1463,7 @@ void pipboyHandleVideoArchive(int a1)
 
         fontSetCurrent(101);
 
-        gPipboyLastEventTimestamp = sub_4C9370();
+        gPipboyLastEventTimestamp = _get_time();
         pipboyRenderVideoArchive(-1);
     }
 }
@@ -1533,7 +1533,7 @@ int pipboyRenderVideoArchive(int a1)
 void pipboyHandleAlarmClock(int a1)
 {
     if (a1 == 1024) {
-        if (sub_42E564()) {
+        if (_critter_can_obj_dude_rest()) {
             pipboyWindowDestroyButtons();
             pipboyWindowRenderRestOptions(0);
             pipboyWindowCreateButtons(5, gPipboyRestOptionsCount, false);
@@ -1570,19 +1570,19 @@ void pipboyHandleAlarmClock(int a1)
             pipboyRest(duration - 1, 0, 0);
             break;
         case PIPBOY_REST_DURATION_UNTIL_MORNING:
-            sub_49A03C(&hours, &minutes, 8);
+            _ClacTime(&hours, &minutes, 8);
             pipboyRest(hours, minutes, 0);
             break;
         case PIPBOY_REST_DURATION_UNTIL_NOON:
-            sub_49A03C(&hours, &minutes, 12);
+            _ClacTime(&hours, &minutes, 12);
             pipboyRest(hours, minutes, 0);
             break;
         case PIPBOY_REST_DURATION_UNTIL_EVENING:
-            sub_49A03C(&hours, &minutes, 18);
+            _ClacTime(&hours, &minutes, 18);
             pipboyRest(hours, minutes, 0);
             break;
         case PIPBOY_REST_DURATION_UNTIL_MIDNIGHT:
-            sub_49A03C(&hours, &minutes, 0);
+            _ClacTime(&hours, &minutes, 0);
             if (pipboyRest(hours, minutes, 0) == 0) {
                 pipboyDrawNumber(0, 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
             }
@@ -1735,7 +1735,7 @@ bool pipboyRest(int hours, int minutes, int duration)
                     break;
                 }
 
-                unsigned int start = sub_4C9370();
+                unsigned int start = _get_time();
 
                 unsigned int v6 = (unsigned int)((double)v5 / v4 * ((double)minutes * 600.0) + (double)gameTime);
                 unsigned int nextEventTime = queueGetNextEventTime();
@@ -1755,7 +1755,7 @@ bool pipboyRest(int hours, int minutes, int duration)
 
                 if (!rc) {
                     gameTimeSetTime(v6);
-                    if (sub_4C8B78() == KEY_ESCAPE || dword_5186CC != 0) {
+                    if (_get_input() == KEY_ESCAPE || dword_5186CC != 0) {
                         rc = true;
                     }
 
@@ -1771,9 +1771,9 @@ bool pipboyRest(int hours, int minutes, int duration)
             if (!rc) {
                 gameTimeSetTime(gameTime + 600 * minutes);
 
-                if (sub_499FCC(minutes)) {
+                if (_Check4Health(minutes)) {
                     // NOTE: Uninline.
-                    sub_49A008();
+                    _AddHealth();
                 }
             }
 
@@ -1792,9 +1792,9 @@ bool pipboyRest(int hours, int minutes, int duration)
                     break;
                 }
 
-                unsigned int start = sub_4C9370();
+                unsigned int start = _get_time();
 
-                if (sub_4C8B78() == KEY_ESCAPE || dword_5186CC != 0) {
+                if (_get_input() == KEY_ESCAPE || dword_5186CC != 0) {
                     rc = true;
                 }
 
@@ -1819,9 +1819,9 @@ bool pipboyRest(int hours, int minutes, int duration)
                     gameTimeSetTime(v8);
 
                     int healthToAdd = (int)((double)hoursInMinutes / v7);
-                    if (sub_499FCC(healthToAdd)) {
+                    if (_Check4Health(healthToAdd)) {
                         // NOTE: Uninline.
-                        sub_49A008();
+                        _AddHealth();
                     }
 
                     pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
@@ -1917,7 +1917,7 @@ bool pipboyRest(int hours, int minutes, int duration)
 }
 
 // 0x499FCC
-bool sub_499FCC(int a1)
+bool _Check4Health(int a1)
 {
     dword_664518 += a1;
 
@@ -1932,9 +1932,9 @@ bool sub_499FCC(int a1)
 }
 
 // NOTE: Inlined.
-bool sub_49A008()
+bool _AddHealth()
 {
-    sub_494EB8(3);
+    _partyMemberRestingHeal(3);
 
     int currentHp = critterGetHitPoints(gDude);
     int maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
@@ -1942,7 +1942,7 @@ bool sub_49A008()
 }
 
 // Returns [hours] and [minutes] needed to rest until [wakeUpHour].
-void sub_49A03C(int* hours, int* minutes, int wakeUpHour)
+void _ClacTime(int* hours, int* minutes, int wakeUpHour)
 {
     int gameTimeHour = gameTimeGetHour();
 
@@ -1982,7 +1982,7 @@ int pipboyRenderScreensaver()
         bombs[index].field_10 = 0;
     }
 
-    sub_44B48C(0);
+    _gmouse_disable(0);
 
     unsigned char* buf = internal_malloc(412 * 374);
     if (buf == NULL) {
@@ -2005,10 +2005,10 @@ int pipboyRenderScreensaver()
 
     int v31 = 50;
     while (true) {
-        unsigned int time = sub_4C9370();
+        unsigned int time = _get_time();
 
         mouseGetPosition(&gPipboyMouseX, &gPipboyMouseY);
-        if (sub_4C8B78() != -1 || gPipboyPreviousMouseX != gPipboyMouseX || gPipboyPreviousMouseY != gPipboyMouseY) {
+        if (_get_input() != -1 || gPipboyPreviousMouseX != gPipboyMouseX || gPipboyPreviousMouseY != gPipboyMouseY) {
             break;
         }
 
@@ -2135,7 +2135,7 @@ int pipboyRenderScreensaver()
     internal_free(buf);
 
     windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
-    sub_44B454();
+    _gmouse_enable();
 
     return 0;
 }

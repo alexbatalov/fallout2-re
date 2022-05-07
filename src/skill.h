@@ -62,7 +62,7 @@ char* skillGetName(int skill);
 char* skillGetDescription(int skill);
 char* skillGetAttributes(int skill);
 int skillGetFrmId(int skill);
-void sub_4AAC2C(Object* obj, int skill, Object* a3, int a4, int a5);
+void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int a5);
 int skillUse(Object* obj, Object* a2, int skill, int a4);
 int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting);
 int skillGetGameDifficultyModifier(int skill);

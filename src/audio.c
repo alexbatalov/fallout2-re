@@ -9,7 +9,7 @@
 #include <string.h>
 
 // 0x5108BC
-AudioFileIsCompressedProc* off_5108BC = sub_41A2B0;
+AudioFileIsCompressedProc* off_5108BC = _defaultCompressionFunc;
 
 // 0x56CB00
 int gAudioListLength;
@@ -18,7 +18,7 @@ int gAudioListLength;
 AudioFile* gAudioList;
 
 // 0x41A2B0
-bool sub_41A2B0(char* filePath)
+bool _defaultCompressionFunc(char* filePath)
 {
     char* pch = strrchr(filePath, '.');
     if (pch != NULL) {

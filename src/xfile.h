@@ -80,12 +80,12 @@ int xfileEof(XFile* stream);
 long xfileGetSize(XFile* stream);
 bool xbaseReopenAll(char* paths);
 bool xbaseOpen(const char* path);
-int sub_4DFB3C(const char* pattern, XFileEnumerationHandler* handler, FileList* fileList);
-int sub_4DFF28(const char* pattern, FileList* fileList);
+int _xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList* fileList);
+int _xbuild_filelist(const char* pattern, FileList* fileList);
 void fileListFree(FileList* fileList);
 int xbaseMakeDirectory(const char* path);
 void xbaseCloseAll();
 void xbaseExitHandler(void);
-bool sub_4E0278(XFileEnumerationContext* context);
+bool _xlistenumfunc(XFileEnumerationContext* context);
 
 #endif /* XFILE_H */

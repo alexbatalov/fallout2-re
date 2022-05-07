@@ -6,8 +6,8 @@ extern const float flt_50EB20;
 
 extern int dword_66E6A0[32];
 
-void sub_4B5A64(int a1);
-int sub_4B5C24();
+void _showRegion(int a1);
+int _update_widgets();
 int widgetGetFont();
 int widgetSetFont(int a1);
 int widgetGetTextFlags();

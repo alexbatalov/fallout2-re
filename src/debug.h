@@ -10,19 +10,19 @@ extern int dword_51DEFC;
 extern int dword_51DF00;
 extern DebugPrintProc* gDebugPrintProc;
 
-void sub_4C6CD0();
-void sub_4C6CDC();
-void sub_4C6D18(const char* fileName, const char* mode);
-void sub_4C6D5C();
-void sub_4C6D90();
-void sub_4C6F18(DebugPrintProc* proc);
+void _GNW_debug_init();
+void _debug_register_mono();
+void _debug_register_log(const char* fileName, const char* mode);
+void _debug_register_screen();
+void _debug_register_env();
+void _debug_register_func(DebugPrintProc* proc);
 int debugPrint(const char* format, ...);
-int sub_4C6F94(char* string);
-void sub_4C6FAC();
-int sub_4C7004(char* string);
-int sub_4C7028(char* string);
-int sub_4C7068(char* string);
-void sub_4C709C();
-void sub_4C71E8(void);
+int _debug_puts(char* string);
+void _debug_clear();
+int _debug_mono(char* string);
+int _debug_log(char* string);
+int _debug_screen(char* string);
+void _debug_putc();
+void _debug_exit(void);
 
 #endif /* DEBUG_H */

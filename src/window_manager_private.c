@@ -57,7 +57,7 @@ int dword_6B23C4;
 char gProgramWindowTitle[256];
 
 // 0x4DC30C
-int sub_4DC30C(char* a1)
+int _win_debug(char* a1)
 {
     if (!gWindowSystemInitialized) {
         return -1;
@@ -71,14 +71,14 @@ int sub_4DC30C(char* a1)
 }
 
 // 0x4DC65C
-void sub_4DC65C()
+void _win_debug_delete()
 {
     windowDestroy(dword_51E414);
     dword_51E414 = -1;
 }
 
 // 0x4DC674
-int sub_4DC674(int win, int x, int y, int width, int height, int a6, int a7)
+int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7)
 {
     Window* window = windowGetWindow(win);
 
@@ -125,7 +125,7 @@ int sub_4DC674(int win, int x, int y, int width, int height, int a6, int a7)
 }
 
 // 0x4DC768
-int sub_4DC768(int win, int x, char* str, int a4)
+int _win_register_menu_pulldown(int win, int x, char* str, int a4)
 {
     Window* window = windowGetWindow(win);
 
@@ -169,7 +169,7 @@ int sub_4DC768(int win, int x, char* str, int a4)
 }
 
 // 0x4DCA30
-int sub_4DCA30(char** fileNameList, int fileNameListLength)
+int _win_width_needed(char** fileNameList, int fileNameListLength)
 {
     int maxWidth = 0;
 
@@ -184,7 +184,7 @@ int sub_4DCA30(char** fileNameList, int fileNameListLength)
 }
 
 // 0x4DC930
-int sub_4DC930(struc_177* ptr, int i)
+int _GNW_process_menu(struc_177* ptr, int i)
 {
     // TODO: Incomplete
 
@@ -194,7 +194,7 @@ int sub_4DC930(struc_177* ptr, int i)
 // Calculates max length of string needed to represent a1 or a2.
 //
 // 0x4DD03C
-int sub_4DD03C(int a1, int a2)
+int _calc_max_field_chars_wcursor(int a1, int a2)
 {
     char* str = internal_malloc(17);
     if (str == NULL) {
@@ -213,7 +213,7 @@ int sub_4DD03C(int a1, int a2)
 }
 
 // 0x4DD3EC
-void sub_4DD3EC()
+void _GNW_intr_init()
 {
     int v1, v2;
     int i;
@@ -243,16 +243,16 @@ void sub_4DD3EC()
 }
 
 // 0x4DD4A4
-void sub_4DD4A4()
+void _GNW_intr_exit()
 {
-    tickersRemove(sub_4DD66C);
+    tickersRemove(_tm_watch_msgs);
     while (dword_6B23B8 != -1) {
-        sub_4DD6C0();
+        _tm_kill_msg();
     }
 }
 
 // 0x4DD66C
-void sub_4DD66C()
+void _tm_watch_msgs()
 {
     if (dword_51E41C) {
         return;
@@ -264,13 +264,13 @@ void sub_4DD66C()
             break;
         }
 
-        sub_4DD6C0();
+        _tm_kill_msg();
     }
     dword_51E41C = 0;
 }
 
 // 0x4DD6C0
-void sub_4DD6C0()
+void _tm_kill_msg()
 {
     int v0;
 
@@ -286,7 +286,7 @@ void sub_4DD6C0()
         if (v0 == dword_6B23BC) {
             dword_6B23BC = 0;
             dword_6B23B8 = -1;
-            tickersRemove(sub_4DD66C);
+            tickersRemove(_tm_watch_msgs);
             v0 = dword_6B23B8;
         }
     }
@@ -295,7 +295,7 @@ void sub_4DD6C0()
 }
 
 // 0x4DD744
-void sub_4DD744(int a1)
+void _tm_kill_out_of_order(int a1)
 {
     int v7;
     int v6;
@@ -304,7 +304,7 @@ void sub_4DD744(int a1)
         return;
     }
 
-    if (!sub_4DD870(a1)) {
+    if (!_tm_index_active(a1)) {
         return;
     }
 
@@ -332,12 +332,12 @@ void sub_4DD744(int a1)
     if (dword_6B23BC == dword_6B23B8) {
         dword_6B23BC = 0;
         dword_6B23B8 = -1;
-        tickersRemove(sub_4DD66C);
+        tickersRemove(_tm_watch_msgs);
     }
 }
 
 // 0x4DD82C
-void sub_4DD82C(int btn)
+void _tm_click_response(int btn)
 {
     int win;
     int v3;
@@ -354,15 +354,15 @@ void sub_4DD82C(int btn)
             v3 = 0;
         }
 
-        if (v3 == dword_6B23B8 || !sub_4DD870(v3))
+        if (v3 == dword_6B23B8 || !_tm_index_active(v3))
             return;
     }
 
-    sub_4DD744(v3);
+    _tm_kill_out_of_order(v3);
 }
 
 // 0x4DD870
-int sub_4DD870(int a1)
+int _tm_index_active(int a1)
 {
     if (dword_6B23B8 != dword_6B23BC) {
         if (dword_6B23B8 >= dword_6B23BC) {

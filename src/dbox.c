@@ -225,7 +225,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
 
         int btn = buttonCreate(win, v27 + 13, dword_5108E0[dialogType] + 4, downButtonWidth, downButtonHeight, -1, -1, -1, 500, upButton, downButton, NULL, BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, sub_451970, sub_451978);
+            buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
         }
 
         v86 = true;
@@ -256,7 +256,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 downButtonHeight,
                 -1, -1, -1, 501, upButton, downButton, 0, BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, sub_451970, sub_451978);
+                buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
             }
         } else {
             int doneBoxFid = buildFid(6, 209, 0, 0, 0);
@@ -338,7 +338,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 NULL,
                 BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, sub_451970, sub_451978);
+                buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
             }
 
             v86 = true;
@@ -406,7 +406,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = sub_4C8B78();
+        int keyCode = _get_input();
 
         if (keyCode == 500) {
             rc = 1;
@@ -445,7 +445,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
 }
 
 // 0x41EA78
-int sub_41EA78(char* a1, char** fileList, char* fileName, int fileListLength, int x, int y, int flags)
+int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLength, int x, int y, int flags)
 {
     int oldFont = fontGetCurrent();
 
@@ -525,7 +525,7 @@ int sub_41EA78(char* a1, char** fileList, char* fileName, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
     int cancelBtn = buttonCreate(win,
@@ -542,7 +542,7 @@ int sub_41EA78(char* a1, char** fileList, char* fileName, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
     int scrollUpBtn = buttonCreate(win,
@@ -559,7 +559,7 @@ int sub_41EA78(char* a1, char** fileList, char* fileName, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (scrollUpBtn != -1) {
-        buttonSetCallbacks(cancelBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
     int scrollDownButton = buttonCreate(win,
@@ -576,7 +576,7 @@ int sub_41EA78(char* a1, char** fileList, char* fileName, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (scrollUpBtn != -1) {
-        buttonSetCallbacks(cancelBtn, sub_451970, sub_451978);
+        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
     buttonCreate(

@@ -195,7 +195,7 @@ void displayMonitorAddMessage(char* str)
     int knobWidth = fontGetStringWidth(knobString);
 
     if (!isInCombat()) {
-        unsigned int now = sub_4C9410();
+        unsigned int now = _get_bk_time();
         if (getTicksBetween(now, gDisplayMonitorLastBeepTimestamp) >= DISPLAY_MONITOR_BEEP_DELAY) {
             gDisplayMonitorLastBeepTimestamp = now;
             soundPlayFile("monitor");

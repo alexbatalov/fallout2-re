@@ -130,7 +130,7 @@ int falloutMain(int argc, char** argv)
         bool done = false;
         while (!done) {
             keyboardReset();
-            sub_450A08("07desert", 11);
+            _gsound_background_play_level_music("07desert", 11);
             mainMenuWindowUnhide(1);
 
             mouseShowCursor();
@@ -149,11 +149,11 @@ int falloutMain(int argc, char** argv)
                 if (characterSelectorOpen() == 2) {
                     gameMoviePlay(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
                     randomSeedPrerandom(-1);
-                    sub_480D4C(byte_5194C8);
+                    _main_load_new(byte_5194C8);
                     mainLoop();
                     paletteFadeTo(gPaletteWhite);
                     objectHide(gDude, NULL);
-                    sub_482084();
+                    _map_exit();
                     gameReset();
                     if (dword_5194E8 != 0) {
                         showDeath();
@@ -175,7 +175,7 @@ int falloutMain(int argc, char** argv)
                     dword_5194E8 = 0;
                     objectShow(gDude, NULL);
                     mouseHideCursor();
-                    sub_481FB4();
+                    _map_init();
                     gameMouseSetCursor(MOUSE_CURSOR_NONE);
                     mouseShowCursor();
                     colorPaletteLoad("color.pal");
@@ -193,7 +193,7 @@ int falloutMain(int argc, char** argv)
                         windowDestroy(win);
                     }
                     objectHide(gDude, NULL);
-                    sub_482084();
+                    _map_exit();
                     gameReset();
                     if (dword_5194E8 != 0) {
                         showDeath();
@@ -206,7 +206,7 @@ int falloutMain(int argc, char** argv)
                 debugPrint("Main menu timed-out\n");
                 // FALLTHROUGH
             case MAIN_MENU_3:
-                // sub_48109C();
+                // _main_selfrun_play();
                 break;
             case MAIN_MENU_OPTIONS:
                 mainMenuWindowHide(false);
@@ -235,14 +235,14 @@ int falloutMain(int argc, char** argv)
                 backgroundSoundDelete();
                 break;
             case MAIN_MENU_SELFRUN:
-                // sub_480F64();
+                // _main_selfrun_record();
                 break;
             }
         }
     }
 
     backgroundSoundDelete();
-    sub_480F38();
+    _main_selfrun_exit();
     gameExit();
 
     autorunMutexClose();
@@ -258,10 +258,10 @@ bool falloutInit(int argc, char** argv)
     }
 
     if (off_5194DC != NULL) {
-        sub_480F38();
+        _main_selfrun_exit();
     }
 
-    if (sub_4A8BE0(&off_5194DC, &dword_5194E0) == 0) {
+    if (_selfrun_get_list(&off_5194DC, &dword_5194E0) == 0) {
         dword_5194E4 = 0;
     }
 
@@ -269,7 +269,7 @@ bool falloutInit(int argc, char** argv)
 }
 
 // 0x480D4C
-int sub_480D4C(char* mapFileName)
+int _main_load_new(char* mapFileName)
 {
     dword_5186CC = 0;
     dword_5194E8 = 0;
@@ -282,7 +282,7 @@ int sub_480D4C(char* mapFileName)
 
     colorPaletteLoad("color.pal");
     paletteFadeTo(stru_51DF34);
-    sub_481FB4();
+    _map_init();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
     mouseShowCursor();
     mapLoadByName(mapFileName);
@@ -307,7 +307,7 @@ void mainLoop()
     scriptsEnable();
 
     while (dword_5186CC == 0) {
-        int keyCode = sub_4C8B78();
+        int keyCode = _get_input();
         gameHandleKey(keyCode, false);
 
         scriptsHandleRequests();
@@ -333,10 +333,10 @@ void mainLoop()
 }
 
 // 0x480F38
-void sub_480F38()
+void _main_selfrun_exit()
 {
     if (off_5194DC != NULL) {
-        sub_4A8C10(&off_5194DC);
+        _selfrun_free_list(&off_5194DC);
     }
 
     dword_5194E0 = 0;
@@ -373,7 +373,7 @@ void showDeath()
             }
 
             while (mouseGetEvent() != 0) {
-                sub_4C8B78();
+                _get_input();
             }
 
             keyboardReset();
@@ -388,12 +388,12 @@ void showDeath()
             configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
             if (subtitles != 0) {
                 char text[512];
-                if (sub_4814B4(deathFileName, text) == 0) {
+                if (_mainDeathGrabTextFile(deathFileName, text) == 0) {
                     debugPrint("\n((ShowDeath)): %s\n", text);
 
                     short beginnings[WORD_WRAP_MAX_COUNT];
                     short count;
-                    if (sub_481598(text, 560, beginnings, &count) == 0) {
+                    if (_mainDeathWordWrap(text, 560, beginnings, &count) == 0) {
                         unsigned char* p = windowBuffer + 640 * (480 - fontGetLineHeight() * count - 8);
                         bufferFill(p - 602, 564, fontGetLineHeight() * count + 2, 640, 0);
                         p += 40;
@@ -411,7 +411,7 @@ void showDeath()
             paletteFadeTo(stru_51DF34);
 
             dword_614838 = false;
-            speechSetEndCallback(sub_4814A8);
+            speechSetEndCallback(_main_death_voiceover_callback);
 
             unsigned int delay;
             if (speechLoad(deathFileName, 10, 14, 15) == -1) {
@@ -420,12 +420,12 @@ void showDeath()
                 delay = UINT_MAX;
             }
 
-            sub_450F8C();
+            _gsound_speech_play_preloaded();
 
-            unsigned int time = sub_4C9370();
+            unsigned int time = _get_time();
             int keyCode;
             do {
-                keyCode = sub_4C8B78();
+                keyCode = _get_input();
             } while (keyCode == -1 && !dword_614838 && getTicksSince(time) < delay);
 
             speechSetEndCallback(NULL);
@@ -433,7 +433,7 @@ void showDeath()
             speechDelete();
 
             while (mouseGetEvent() != 0) {
-                sub_4C8B78();
+                _get_input();
             }
 
             if (keyCode == -1) {
@@ -456,7 +456,7 @@ void showDeath()
 }
 
 // 0x4814A8
-void sub_4814A8()
+void _main_death_voiceover_callback()
 {
     dword_614838 = true;
 }
@@ -464,7 +464,7 @@ void sub_4814A8()
 // Read endgame subtitle.
 //
 // 0x4814B4
-int sub_4814B4(const char* fileName, char* dest)
+int _mainDeathGrabTextFile(const char* fileName, char* dest)
 {
     const char* p = strrchr(fileName, '\\');
     if (p == NULL) {
@@ -506,7 +506,7 @@ int sub_4814B4(const char* fileName, char* dest)
 }
 
 // 0x481598
-int sub_481598(char* text, int width, short* beginnings, short* count)
+int _mainDeathWordWrap(char* text, int width, short* beginnings, short* count)
 {
     // TODO: Probably wrong.
     while (true) {
@@ -730,7 +730,7 @@ void mainMenuWindowUnhide(bool animate)
 }
 
 // 0x481AA8
-int sub_481AA8()
+int _main_menu_is_enabled()
 {
     return 1;
 }
@@ -745,11 +745,11 @@ int mainMenuWindowHandleEvents()
         mouseShowCursor();
     }
 
-    unsigned int tick = sub_4C9370();
+    unsigned int tick = _get_time();
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = sub_4C8B78();
+        int keyCode = _get_input();
 
         for (int buttonIndex = 0; buttonIndex < MAIN_MENU_BUTTON_COUNT; buttonIndex++) {
             if (keyCode == gMainMenuButtonKeyBindings[buttonIndex] || keyCode == toupper(gMainMenuButtonKeyBindings[buttonIndex])) {

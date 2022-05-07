@@ -42,7 +42,7 @@ void opSetMovieFlags(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if (!sub_4BB23C(data)) {
+    if (!_windowSetMovieFlags(data)) {
         programFatalError("Error setting movie flags\n");
     }
 }
@@ -51,7 +51,7 @@ void opSetMovieFlags(Program* program)
 // 0x46287C
 void opStopMovie(Program* program)
 {
-    sub_4BB2C4();
+    _windowStopMovie();
     program->flags |= PROGRAM_FLAG_0x40;
 }
 
@@ -72,10 +72,10 @@ void opDeleteRegion(Program* program)
         }
     }
 
-    sub_4B81C4(program->field_84);
+    _selectWindowID(program->field_84);
 
     const char* regionName = data != -1 ? programGetString(program, opcode, data) : NULL;
-    sub_4BB0A8(regionName);
+    _windowDeleteRegion(regionName);
 }
 
 // checkregion
@@ -95,7 +95,7 @@ void opCheckRegion(Program* program)
 
     const char* regionName = programGetString(program, opcode, data);
 
-    bool regionExists = sub_4BA988(regionName);
+    bool regionExists = _windowCheckRegionExists(regionName);
     programStackPushInt32(program, regionExists);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
@@ -107,7 +107,7 @@ void opSayStart(Program* program)
     dword_59E164 = 0;
 
     program->flags |= PROGRAM_FLAG_0x20;
-    int rc = sub_430D40(program);
+    int rc = _dialogStart(program);
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc != 0) {
@@ -129,7 +129,7 @@ void opSayStartPos(Program* program)
     dword_59E164 = data;
 
     program->flags |= PROGRAM_FLAG_0x20;
-    int rc = sub_430D40(program);
+    int rc = _dialogStart(program);
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc != 0) {
@@ -174,7 +174,7 @@ void opSayGoToReply(Program* program)
         string = programGetString(program, opcode, data);
     }
 
-    if (sub_430DE4(string) != 0) {
+    if (_dialogGotoReply(string) != 0) {
         programFatalError("Error during goto, couldn't find reply target %s", string);
     }
 }
@@ -183,7 +183,7 @@ void opSayGoToReply(Program* program)
 // 0x4637EC
 void opSayGetLastPos(Program* program)
 {
-    int value = sub_431184();
+    int value = _dialogGetExitPoint();
     programStackPushInt32(program, value);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
@@ -192,7 +192,7 @@ void opSayGetLastPos(Program* program)
 // 0x463810
 void opSayQuit(Program* program)
 {
-    if (sub_431198() != 0) {
+    if (_dialogQuit() != 0) {
         programFatalError("Error quitting option.");
     }
 }
@@ -242,7 +242,7 @@ void opAddRegionFlag(Program* program)
     }
 
     const char* regionName = programGetString(program, opcode[1], data[1]);
-    if (!sub_4BAF2C(regionName, data[0])) {
+    if (!_windowSetRegionFlag(regionName, data[0])) {
         // NOTE: Original code calls programGetString one more time with the
         // same params.
         programFatalError("Error setting flag on region %s", regionName);
@@ -279,7 +279,7 @@ void opClearNamed(Program* program)
     }
 
     char* string = programGetString(program, opcode, data);
-    sub_48859C(string);
+    _nevs_clearevent(string);
 }
 
 // signalnamed
@@ -298,7 +298,7 @@ void opSignalNamed(Program* program)
     }
 
     char* str = programGetString(program, opcode, data);
-    sub_48862C(str);
+    _nevs_signal(str);
 }
 
 // addkey
@@ -562,7 +562,7 @@ void opSayReplyFlags(Program* program)
         programFatalError("Invalid arg 1 given to sayreplyflags");
     }
 
-    if (!sub_431420(data)) {
+    if (!_dialogSetOptionFlags(data)) {
         programFatalError("Error setting reply flags");
     }
 }
@@ -582,7 +582,7 @@ void opSayOptionFlags(Program* program)
         programFatalError("Invalid arg 1 given to sayoptionflags");
     }
 
-    if (!sub_431420(data)) {
+    if (!_dialogSetOptionFlags(data)) {
         programFatalError("Error setting option flags");
     }
 }
@@ -639,7 +639,7 @@ void opSaySetSpacing(Program* program)
 // 0x46604C
 void opSayRestart(Program* program)
 {
-    if (sub_430DB8() != 0) {
+    if (_dialogRestart() != 0) {
         programFatalError("Error restarting option");
     }
 }
@@ -821,7 +821,7 @@ int interpreterSoundPause(int value)
     }
 
     int rc;
-    if (sub_4ADBC4(sound, 0x01)) {
+    if (_soundType(sound, 0x01)) {
         rc = soundStop(sound);
     } else {
         rc = soundPause(sound);
@@ -873,7 +873,7 @@ int interpreterSoundResume(int value)
     }
 
     int rc;
-    if (sub_4ADBC4(sound, 0x01)) {
+    if (_soundType(sound, 0x01)) {
         rc = soundPlay(sound);
     } else {
         rc = soundResume(sound);
@@ -994,29 +994,29 @@ void opSetOneOptPause(Program* program)
     }
 
     if (data) {
-        if ((sub_431554() & 8) == 0) {
+        if ((_dialogGetMediaFlag() & 8) == 0) {
             return;
         }
     } else {
-        if ((sub_431554() & 8) != 0) {
+        if ((_dialogGetMediaFlag() & 8) != 0) {
             return;
         }
     }
 
-    sub_431530(8);
+    _dialogToggleMediaFlag(8);
 }
 
 // 0x466994
-void sub_466994()
+void _updateIntLib()
 {
-    sub_4886AC();
+    _nevs_update();
     sub_45D878();
 }
 
 // 0x4669A0
-void sub_4669A0()
+void _intlibClose()
 {
-    sub_431434();
+    _dialogClose();
     sub_45CDD4();
 
     for (int index = 0; index < INTERPRETER_SOUNDS_LENGTH; index++) {
@@ -1025,7 +1025,7 @@ void sub_4669A0()
         }
     }
 
-    sub_4883AC();
+    _nevs_close();
 
     if (off_59E160 != NULL) {
         internal_free_safe(off_59E160, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
@@ -1035,7 +1035,7 @@ void sub_4669A0()
 }
 
 // 0x466A04
-bool sub_466A04(int key)
+bool _intLibDoInput(int key)
 {
     if (key < 0 || key >= INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH) {
         return false;
@@ -1043,7 +1043,7 @@ bool sub_466A04(int key)
 
     if (gInterpreterAnyKeyHandlerProgram != NULL) {
         if (gIntepreterAnyKeyHandlerProc != 0) {
-            sub_46DB58(gInterpreterAnyKeyHandlerProgram, gIntepreterAnyKeyHandlerProc);
+            _executeProc(gInterpreterAnyKeyHandlerProgram, gIntepreterAnyKeyHandlerProc);
         }
         return true;
     }
@@ -1054,22 +1054,22 @@ bool sub_466A04(int key)
     }
 
     if (entry->proc != 0) {
-        sub_46DB58(entry->program, entry->proc);
+        _executeProc(entry->program, entry->proc);
     }
 
     return true;
 }
 
 // 0x466A70
-void sub_466A70()
+void _initIntlib()
 {
     // TODO: Incomplete.
-    sub_488418();
-    sub_45CDD8();
+    _nevs_initonce();
+    _initIntExtra();
 }
 
 // 0x466F6C
-void sub_466F6C(OFF_59E160 fn)
+void _interpretRegisterProgramDeleteCallback(OFF_59E160 fn)
 {
     int index;
     for (index = 0; index < dword_59E158; index++) {
@@ -1091,7 +1091,7 @@ void sub_466F6C(OFF_59E160 fn)
 }
 
 // 0x467040
-void sub_467040(Program* program)
+void _removeProgramReferences_(Program* program)
 {
     for (int index = 0; index < INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH; index++) {
         if (program == gInterpreterKeyHandlerEntries[index].program) {
