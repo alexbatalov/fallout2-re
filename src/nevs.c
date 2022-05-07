@@ -44,12 +44,12 @@ void _nevs_close()
 }
 
 // 0x4883D4
-void _nevs_removeprogramreferences(int a1)
+void _nevs_removeprogramreferences(Program* program)
 {
     if (off_6391C8 != NULL) {
         for (int i = 0; i < NEVS_COUNT; i++) {
             Nevs* nevs = &(off_6391C8[i]);
-            if (nevs->field_0 != 0 && nevs->field_24 == a1) {
+            if (nevs->field_0 != 0 && nevs->program == program) {
                 memset(nevs, 0, sizeof(*nevs));
             }
         }
@@ -92,7 +92,7 @@ Nevs* _nevs_find(const char* a1)
 }
 
 // 0x4884C8
-int _nevs_addevent(const char* a1, int a2, int a3, int a4)
+int _nevs_addevent(const char* a1, Program* program, int proc, int a4)
 {
     Nevs* nevs;
 
@@ -107,8 +107,8 @@ int _nevs_addevent(const char* a1, int a2, int a3, int a4)
 
     nevs->field_0 = 1;
     strcpy(nevs->field_4, a1);
-    nevs->field_24 = a2;
-    nevs->field_28 = a3;
+    nevs->program = program;
+    nevs->proc = proc;
     nevs->field_2C = a4;
     nevs->field_38 = NULL;
 
@@ -141,9 +141,9 @@ int _nevs_signal(const char* a1)
         return 1;
     }
 
-    debugPrint("nep: %p,  used = %u, prog = %p, proc = %d", nevs, nevs->field_0, nevs->field_24, nevs->field_28);
+    debugPrint("nep: %p,  used = %u, prog = %p, proc = %d", nevs, nevs->field_0, nevs->program, nevs->proc);
 
-    if (nevs->field_0 && (nevs->field_24 && nevs->field_28 || nevs->field_38) && !nevs->field_34) {
+    if (nevs->field_0 && (nevs->program && nevs->proc || nevs->field_38) && !nevs->field_34) {
         nevs->field_30++;
         dword_6391CC++;
         return 0;
@@ -169,7 +169,7 @@ void _nevs_update()
 
     for (int index = 0; index < NEVS_COUNT; index++) {
         Nevs* nevs = &(off_6391C8[index]);
-        if (nevs->field_0 && (nevs->field_24 && nevs->field_28 || nevs->field_38) && !nevs->field_34) {
+        if (nevs->field_0 && (nevs->program && nevs->proc || nevs->field_38) && !nevs->field_34) {
             v1 = nevs->field_30;
             if (nevs->field_34 < v1) {
                 v2 = v1 - 1;
@@ -180,8 +180,7 @@ void _nevs_update()
                 dword_6391CC += v2;
 
                 if (nevs->field_38 == NULL) {
-                    // TODO: Incomplete.
-                    // _executeProc(nevs->field_24, nevs->field_28);
+                    _executeProc(nevs->program, nevs->proc);
                 } else {
                     nevs->field_38();
                 }

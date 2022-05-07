@@ -45,6 +45,7 @@ void opHideMouse(Program* program);
 void opShowMouse(Program* program);
 void opSetGlobalMouseFunc(Program* Program);
 void opLoadPaletteTable(Program* program);
+void opAddNamedEvent(Program* program);
 void opClearNamed(Program* program);
 void opSignalNamed(Program* program);
 void opAddKey(Program* program);
