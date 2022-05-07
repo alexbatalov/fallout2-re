@@ -88,6 +88,7 @@ extern int dword_672DAC;
 extern int dword_672DB0;
 extern int dword_672DB4;
 
+bool sub_4B7680();
 bool _selectWindowID(int index);
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment);
 char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLengthPtr);

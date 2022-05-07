@@ -121,6 +121,19 @@ int dword_672DB0;
 // 0x672DB4
 int dword_672DB4;
 
+// 0x4B7680
+bool sub_4B7680()
+{
+    STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
+    if (ptr->window == -1) {
+        return false;
+    }
+
+    windowRefresh(ptr->window);
+
+    return true;
+}
+
 // 0x4B81C4
 bool _selectWindowID(int index)
 {
