@@ -2626,6 +2626,7 @@ void sub_447CA0(int a1)
             sub_447300(gGameDialogHeadFid, FIDGET_NEUTRAL);
             break;
         }
+        break;
     case GAME_DIALOG_REACTION_NEUTRAL:
         break;
     case GAME_DIALOG_REACTION_BAD:
@@ -2643,6 +2644,7 @@ void sub_447CA0(int a1)
             sub_447300(gGameDialogHeadFid, FIDGET_BAD);
             break;
         }
+        break;
     }
 }
 

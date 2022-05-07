@@ -1609,6 +1609,7 @@ void opSubtract(Program* program)
 
         stackPushInt32(program->stack, &(program->stackPointer), *(int*)&resf);
         programStackPushInt16(program, VALUE_TYPE_FLOAT);
+        break;
     case VALUE_TYPE_INT:
         switch (type[0]) {
         case VALUE_TYPE_FLOAT:
@@ -1622,6 +1623,7 @@ void opSubtract(Program* program)
             programStackPushInt16(program, VALUE_TYPE_INT);
             break;
         }
+        break;
     }
 }
 
@@ -1656,6 +1658,7 @@ void opMultiply(Program* program)
 
         stackPushInt32(program->stack, &(program->stackPointer), *(int*)&resf);
         programStackPushInt16(program, VALUE_TYPE_FLOAT);
+        break;
     case VALUE_TYPE_INT:
         switch (type[0]) {
         case VALUE_TYPE_FLOAT:
@@ -1669,6 +1672,7 @@ void opMultiply(Program* program)
             programStackPushInt16(program, VALUE_TYPE_INT);
             break;
         }
+        break;
     }
 }
 
@@ -1731,6 +1735,7 @@ void opDivide(Program* program)
             stackPushInt32(program->stack, &(program->stackPointer), value[1] / value[0]);
             programStackPushInt16(program, VALUE_TYPE_INT);
         }
+        break;
     }
 }
 
@@ -1812,6 +1817,7 @@ void opLogicalOperatorAnd(Program* program)
         default:
             __assume(0);
         }
+        break;
     case VALUE_TYPE_FLOAT:
         switch (type[0]) {
         case VALUE_TYPE_STRING:
@@ -1886,6 +1892,7 @@ void opLogicalOperatorOr(Program* program)
         default:
             __assume(0);
         }
+        break;
     case VALUE_TYPE_FLOAT:
         switch (type[0]) {
         case VALUE_TYPE_STRING:
@@ -1913,6 +1920,7 @@ void opLogicalOperatorOr(Program* program)
             break;
         case VALUE_TYPE_INT:
             result = (value[1] != 0) || (value[0] != 0);
+            break;
         default:
             __assume(0);
         }
