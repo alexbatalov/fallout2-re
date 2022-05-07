@@ -5,6 +5,7 @@
 #include "memory_manager.h"
 #include "sound.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -160,7 +161,7 @@ int audioSeek(int fileHandle, long offset, int origin)
         pos = offset + audioFile->fileSize;
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     if ((audioFile->flags & AUDIO_FILE_COMPRESSED) != 0) {

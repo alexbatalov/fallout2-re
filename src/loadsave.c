@@ -40,6 +40,7 @@
 #include "word_wrap.h"
 #include "world_map.h"
 
+#include <assert.h>
 #include <direct.h>
 #include <stdio.h>
 #include <time.h>
@@ -709,7 +710,7 @@ int lsgLoadGame(int mode)
             windowType = LOAD_SAVE_WINDOW_TYPE_PICK_QUICK_LOAD_SLOT;
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         if (lsgWindowInit(windowType) == -1) {
@@ -1155,8 +1156,7 @@ int lsgWindowInit(int windowType)
         messageId = 101;
         break;
     default:
-        // Should be unreachable
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     char* msg;
@@ -1788,7 +1788,7 @@ void _DrawInfoBox(int a1)
         color = byte_6A38D0[32328];
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     fontDrawText(dest, text, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);

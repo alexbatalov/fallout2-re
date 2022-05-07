@@ -11,6 +11,8 @@
 #include "map.h"
 #include "object.h"
 
+#include <assert.h>
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 
@@ -932,7 +934,7 @@ int _tile_num_beyond(int from, int to, int distance)
         }
     }
 
-    __assume(0);
+    assert(false && "Should be unreachable");
 }
 
 // Probably returns true if tile is a border.

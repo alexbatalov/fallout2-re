@@ -20,6 +20,7 @@
 #include "tile.h"
 #include "window_manager.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 // 0x518BF8
@@ -1486,8 +1487,7 @@ void gameMouseObjectsShow()
             rect = &rect1;
             break;
         default:
-            // NOTE: Should be unreachable.
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         tileWindowRefreshRect(rect, gElevation);

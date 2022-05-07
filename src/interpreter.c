@@ -7,6 +7,7 @@
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 
+#include <assert.h>
 #include <stdio.h>
 #include <varargs.h>
 
@@ -964,7 +965,7 @@ void opConditionalOperatorNotEqual(Program* program)
             str_ptr[0] = text[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         res = strcmp(str_ptr[1], str_ptr[0]) != 0;
@@ -985,7 +986,7 @@ void opConditionalOperatorNotEqual(Program* program)
             res = floats[1] != (float)data[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1004,11 +1005,11 @@ void opConditionalOperatorNotEqual(Program* program)
             res = data[1] != data[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), res);
@@ -1054,7 +1055,7 @@ void opConditionalOperatorEqual(Program* program)
             str_ptr[0] = text[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         res = strcmp(str_ptr[1], str_ptr[0]) == 0;
@@ -1075,7 +1076,7 @@ void opConditionalOperatorEqual(Program* program)
             res = floats[1] == (float)value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1094,11 +1095,11 @@ void opConditionalOperatorEqual(Program* program)
             res = value[1] == value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), res);
@@ -1144,7 +1145,7 @@ void opConditionalOperatorLessThanEquals(Program* program)
             str_ptr[0] = text[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         res = strcmp(str_ptr[1], str_ptr[0]) <= 0;
@@ -1165,7 +1166,7 @@ void opConditionalOperatorLessThanEquals(Program* program)
             res = floats[1] <= (float)value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1184,11 +1185,11 @@ void opConditionalOperatorLessThanEquals(Program* program)
             res = value[1] <= value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), res);
@@ -1235,7 +1236,7 @@ void opConditionalOperatorGreaterThanEquals(Program* program)
             str_ptr[0] = text[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         res = strcmp(str_ptr[1], str_ptr[0]) >= 0;
@@ -1256,7 +1257,7 @@ void opConditionalOperatorGreaterThanEquals(Program* program)
             res = floats[1] >= (float)value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1275,11 +1276,11 @@ void opConditionalOperatorGreaterThanEquals(Program* program)
             res = value[1] >= value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), res);
@@ -1324,7 +1325,7 @@ void opConditionalOperatorLessThan(Program* program)
             str_ptr[0] = text[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         res = strcmp(str_ptr[1], str_ptr[0]) < 0;
@@ -1345,7 +1346,7 @@ void opConditionalOperatorLessThan(Program* program)
             res = floats[1] < (float)values[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1364,11 +1365,11 @@ void opConditionalOperatorLessThan(Program* program)
             res = values[1] < values[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), res);
@@ -1414,7 +1415,7 @@ void opConditionalOperatorGreaterThan(Program* program)
             str_ptr[0] = text[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         res = strcmp(str_ptr[1], str_ptr[0]) > 0;
@@ -1435,7 +1436,7 @@ void opConditionalOperatorGreaterThan(Program* program)
             res = floats[1] > (float)value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1454,11 +1455,11 @@ void opConditionalOperatorGreaterThan(Program* program)
             res = value[1] > value[0];
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), res);
@@ -1815,7 +1816,7 @@ void opLogicalOperatorAnd(Program* program)
             result = value[0] != 0;
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_FLOAT:
@@ -1831,7 +1832,7 @@ void opLogicalOperatorAnd(Program* program)
             result = (value[1] & 0x7FFFFFFF) && (value[0] != 0);
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1847,11 +1848,11 @@ void opLogicalOperatorAnd(Program* program)
             result = (value[1] != 0) && (value[0] != 0);
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), result);
@@ -1890,7 +1891,7 @@ void opLogicalOperatorOr(Program* program)
             result = 1;
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_FLOAT:
@@ -1906,7 +1907,7 @@ void opLogicalOperatorOr(Program* program)
             result = (value[1] & 0x7FFFFFFF) || (value[0] != 0);
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     case VALUE_TYPE_INT:
@@ -1922,11 +1923,11 @@ void opLogicalOperatorOr(Program* program)
             result = (value[1] != 0) || (value[0] != 0);
             break;
         default:
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     stackPushInt32(program->stack, &(program->stackPointer), result);

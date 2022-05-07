@@ -23,6 +23,8 @@
 #include "tile.h"
 #include "world_map.h"
 
+#include <assert.h>
+
 // 0x5195F8
 bool gObjectsInitialized = false;
 
@@ -4489,8 +4491,7 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
                     v14 = ebx;
                     break;
                 default:
-                    __assume(0);
-                    break;
+                    assert(false && "Should be unreachable");
                 }
 
                 if (v14 == 0) {

@@ -24,6 +24,7 @@
 #include "tile.h"
 #include "world_map.h"
 
+#include <assert.h>
 #include <stdio.h>
 
 // 0x49A990
@@ -59,8 +60,7 @@ int _obj_new_sid(Object* object, int* sidPtr)
     } else if (objectType == OBJ_TYPE_MISC) {
         sid = -1;
     } else {
-        // Should be unreachable.
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     if (sid == -1) {

@@ -34,6 +34,7 @@
 #include "tile.h"
 #include "window_manager.h"
 
+#include <assert.h>
 #include <intrin.h>
 #include <stdio.h>
 
@@ -1038,8 +1039,7 @@ void _display_inventory(int a1, int a2, int inventoryWindowType)
         blitBufferToBuffer(windowGetBuffer(dword_59E97C) + 35 * (stru_6AC9F0.right - stru_6AC9F0.left + 1) + 100, 64, 48 * gInventorySlotsCount, stru_6AC9F0.right - stru_6AC9F0.left + 1, windowBuffer + pitch * 35 + 20, pitch);
         v49 = -20;
     } else {
-        // Should be unreachable.
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     if (inventoryWindowType == INVENTORY_WINDOW_TYPE_NORMAL
@@ -1145,7 +1145,7 @@ void _display_target_inventory(int a1, int a2, Inventory* inventory, int invento
         unsigned char* src = windowGetBuffer(dword_59E97C);
         blitBufferToBuffer(src + (stru_6AC9F0.right - stru_6AC9F0.left + 1) * 35 + 475, 64, 48 * gInventorySlotsCount, stru_6AC9F0.right - stru_6AC9F0.left + 1, windowBuffer + 480 * 35 + 395, 480);
     } else {
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     int y = 0;
@@ -1161,7 +1161,7 @@ void _display_target_inventory(int a1, int a2, Inventory* inventory, int invento
         } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_TRADE) {
             offset = pitch * (y + 39) + 397;
         } else {
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         InventoryItem* inventoryItem = &(inventory->items[inventory->length - (v27 + 1)]);
@@ -4158,7 +4158,7 @@ void inventoryOpenTrade(int win, Object* a2, Object* a3, Object* a4, int a5)
         modifier = -15;
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     int keyCode = -1;

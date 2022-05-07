@@ -6,6 +6,7 @@
 #include "sound_decoder.h"
 #include "sound_effects_list.h"
 
+#include <assert.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -254,7 +255,7 @@ int soundEffectsCacheFileSeek(int handle, long offset, int origin)
         position = soundEffect->dataSize;
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     long normalizedOffset = abs(offset);

@@ -33,6 +33,7 @@
 #include "tile.h"
 #include "window_manager.h"
 
+#include <assert.h>
 #include <intrin.h>
 #include <stdio.h>
 
@@ -3611,8 +3612,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
             v23 = 1;
             break;
         default:
-            // Should be unreachable.
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         if (v23 < 1) {
@@ -3860,8 +3860,7 @@ int _wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_til
             }
             break;
         default:
-            // should be unreachable
-            __assume(0);
+            assert(false && "Should be unreachable");
         }
 
         ++attempt;

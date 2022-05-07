@@ -4,6 +4,7 @@
 #include "memory_manager.h"
 #include "sound.h"
 
+#include <assert.h>
 #include <io.h>
 #include <stdio.h>
 #include <string.h>
@@ -165,7 +166,7 @@ int audioFileSeek(int fileHandle, long offset, int origin)
         a4 = audioFile->position + offset;
         break;
     default:
-        __assume(0);
+        assert(false && "Should be unreachable");
     }
 
     if ((audioFile->flags & AUDIO_FILE_COMPRESSED) != 0) {
