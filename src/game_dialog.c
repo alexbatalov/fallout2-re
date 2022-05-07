@@ -2626,6 +2626,7 @@ void _talk_to_critter_reacts(int a1)
             _gdSetupFidget(gGameDialogHeadFid, FIDGET_NEUTRAL);
             break;
         }
+        break;
     case GAME_DIALOG_REACTION_NEUTRAL:
         break;
     case GAME_DIALOG_REACTION_BAD:
@@ -2643,6 +2644,7 @@ void _talk_to_critter_reacts(int a1)
             _gdSetupFidget(gGameDialogHeadFid, FIDGET_BAD);
             break;
         }
+        break;
     }
 }
 
