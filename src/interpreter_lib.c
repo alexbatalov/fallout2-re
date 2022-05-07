@@ -1,5 +1,6 @@
 #include "interpreter_lib.h"
 
+#include "color.h"
 #include "core.h"
 #include "debug.h"
 #include "dialog.h"
@@ -506,6 +507,29 @@ void opShowMouse(Program* program)
 void opSetGlobalMouseFunc(Program* Program)
 {
     programFatalError("setglobalmousefunc not defined");
+}
+
+// loadpalettetable
+// 0x464ADC
+void opLoadPaletteTable(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+        if ((opcode & 0xF7FF) == VALUE_TYPE_INT && data != -1) {
+            programFatalError("Invalid type given to loadpalettetable");
+        }
+    }
+
+    const char* path = programGetString(program, opcode, data);
+    if (!colorPaletteLoad(path)) {
+        programFatalError(_colorError());
+    }
 }
 
 // clearnamed
