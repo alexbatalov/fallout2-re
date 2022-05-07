@@ -7,6 +7,8 @@
 
 #include <stdbool.h>
 
+#define MANAGED_WINDOW_COUNT (16)
+
 typedef void (*WINDOWDRAWINGPROC)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y);
 typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, unsigned char a10);
 
@@ -44,8 +46,8 @@ typedef struct ManagedButton {
 } ManagedButton;
 static_assert(sizeof(ManagedButton) == 0x7C, "wrong size");
 
-typedef struct STRUCT_6727B0 {
-    char field_0[32];
+typedef struct ManagedWindow {
+    char name[32];
     int window;
     int field_24;
     int field_28;
@@ -61,22 +63,22 @@ typedef struct STRUCT_6727B0 {
     int field_50;
     float field_54;
     float field_58;
-} STRUCT_6727B0;
+} ManagedWindow;
 
 typedef int (*INITVIDEOFN)();
 
 extern int dword_51DCAC;
 extern int dword_51DCB0;
 extern int dword_51DCB4;
-extern int dword_51DCB8;
+extern int gCurrentManagedWindowIndex;
 extern INITVIDEOFN off_51DCBC[12];
 extern Size stru_51DD1C[12];
 
-extern int dword_66E770[16];
+extern int dword_66E770[MANAGED_WINDOW_COUNT];
 extern char byte_66E7B0[64 * 256];
-extern STRUCT_6727B0 stru_6727B0[16];
+extern ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 
-extern void(*off_672D78)(int, STRUCT_6727B0*);
+extern void(*off_672D78)(int, ManagedWindow*);
 extern int dword_672D7C;
 extern int dword_672D88;
 extern int dword_672D8C;
