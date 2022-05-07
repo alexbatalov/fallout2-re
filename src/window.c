@@ -26,18 +26,18 @@ int dword_51DCB8 = -1;
 
 // 0x51DCBC
 INITVIDEOFN off_51DCBC[12] = {
-    sub_4CAD08,
-    sub_4CAD64,
-    sub_4CAD5C,
-    sub_4CAD40,
-    sub_4CAD5C,
-    sub_4CAD94,
-    sub_4CAD5C,
-    sub_4CADA8,
-    sub_4CAD5C,
-    sub_4CADBC,
-    sub_4CAD5C,
-    sub_4CADD0,
+    init_mode_320_200,
+    init_mode_640_480,
+    init_mode_640_480_16,
+    init_mode_320_400,
+    init_mode_640_480_16,
+    init_mode_640_400,
+    init_mode_640_480_16,
+    init_mode_800_600,
+    init_mode_640_480_16,
+    init_mode_1024_768,
+    init_mode_640_480_16,
+    init_mode_1280_1024,
 };
 
 // 0x51DD1C
@@ -122,7 +122,7 @@ int dword_672DB0;
 int dword_672DB4;
 
 // 0x4B81C4
-bool sub_4B81C4(int index)
+bool selectWindowID(int index)
 {
     if (index < 0 || index >= 16) {
         return false;
@@ -143,7 +143,7 @@ bool sub_4B81C4(int index)
 }
 
 // 0x4B8414
-void sub_4B8414(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
+void windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
     if (y + fontGetLineHeight() > maxY) {
         return;
@@ -212,7 +212,7 @@ void sub_4B8414(int win, char* string, int stringLength, int width, int maxY, in
 }
 
 // 0x4B8638
-char** sub_4B8638(char* string, int maxLength, int a3, int* substringListLengthPtr)
+char** windowWordWrap(char* string, int maxLength, int a3, int* substringListLengthPtr)
 {
     if (string == NULL) {
         *substringListLengthPtr = 0;
@@ -285,7 +285,7 @@ char** sub_4B8638(char* string, int maxLength, int a3, int* substringListLengthP
 }
 
 // 0x4B880C
-void sub_4B880C(char** substringList, int substringListLength)
+void windowFreeWordList(char** substringList, int substringListLength)
 {
     if (substringList == NULL) {
         return;
@@ -301,45 +301,45 @@ void sub_4B880C(char** substringList, int substringListLength)
 // Renders multiline string in the specified bounding box.
 //
 // 0x4B8854
-void sub_4B8854(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9)
+void windowWrapLineWithSpacing(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9)
 {
     if (string == NULL) {
         return;
     }
 
     int substringListLength;
-    char** substringList = sub_4B8638(string, width, 0, &substringListLength);
+    char** substringList = windowWordWrap(string, width, 0, &substringListLength);
 
     for (int index = 0; index < substringListLength; index++) {
         int v1 = y + index * (a9 + fontGetLineHeight());
-        sub_4B8414(win, substringList[index], strlen(substringList[index]), width, height + y, x, v1, flags, textAlignment);
+        windowPrintBuf(win, substringList[index], strlen(substringList[index]), width, height + y, x, v1, flags, textAlignment);
     }
 
-    sub_4B880C(substringList, substringListLength);
+    windowFreeWordList(substringList, substringListLength);
 }
 
 // Renders multiline string in the specified bounding box.
 //
 // 0x4B88FC
-void sub_4B88FC(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment)
+void windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment)
 {
-    sub_4B8854(win, string, width, height, x, y, flags, textAlignment, 0);
+    windowWrapLineWithSpacing(win, string, width, height, x, y, flags, textAlignment, 0);
 }
 
 // 0x4B9048
-int sub_4B9048()
+int windowGetXres()
 {
     return dword_672D7C;
 }
 
 // 0x4B9050
-int sub_4B9050()
+int windowGetYres()
 {
     return dword_672D88;
 }
 
 // 0x4B9058
-void sub_4B9058(Program* program)
+void removeProgramReferences_3(Program* program)
 {
     for (int index = 0; index < 16; index++) {
         STRUCT_6727B0* ptr = &(stru_6727B0[index]);
@@ -372,13 +372,13 @@ void sub_4B9058(Program* program)
 }
 
 // 0x4B9190
-void sub_4B9190(int resolution, int a2)
+void initWindow(int resolution, int a2)
 {
     char err[MAX_PATH];
     int rc;
     int i, j;
 
-    sub_466F6C(sub_4B9058);
+    interpretRegisterProgramDeleteCallback(removeProgramReferences_3);
 
     dword_672DAC = 0;
     dword_672DA0 = 0;
@@ -462,9 +462,9 @@ void sub_4B9190(int resolution, int a2)
     gWidgetFont = 100;
     fontSetCurrent(100);
 
-    sub_48568C();
+    initMousemgr();
 
-    sub_485288(sub_4670B8);
+    mousemgrSetNameMangler(interpretMangleName);
 
     for (i = 0; i < 64; i++) {
         for (j = 0; j < 256; j++) {
@@ -474,14 +474,14 @@ void sub_4B9190(int resolution, int a2)
 }
 
 // 0x4B947C
-void sub_4B947C()
+void windowClose()
 {
     // TODO: Incomplete, but required for graceful exit.
 
     for (int index = 0; index < 16; index++) {
         STRUCT_6727B0* ptr = &(stru_6727B0[index]);
         if (ptr->window != -1) {
-            // sub_4B78A4(ptr);
+            // deleteWindow(ptr);
         }
     }
 
@@ -492,7 +492,7 @@ void sub_4B947C()
 // Deletes button with the specified name or all buttons if it's NULL.
 //
 // 0x4B9548
-bool sub_4B9548(const char* buttonName)
+bool windowDeleteButton(const char* buttonName)
 {
     if (dword_51DCB8 != -1) {
         return false;
@@ -588,7 +588,7 @@ bool sub_4B9548(const char* buttonName)
 }
 
 // 0x4B9928
-bool sub_4B9928(const char* buttonName, int value)
+bool windowSetButtonFlag(const char* buttonName, int value)
 {
     if (dword_51DCB8 != -1) {
         return false;
@@ -611,7 +611,7 @@ bool sub_4B9928(const char* buttonName, int value)
 }
 
 // 0x4BA11C
-bool sub_4BA11C(const char* buttonName, Program* program, int a3, int a4, int a5, int a6)
+bool windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6)
 {
     if (dword_51DCB8 != -1) {
         return false;
@@ -638,7 +638,7 @@ bool sub_4BA11C(const char* buttonName, Program* program, int a3, int a4, int a5
 }
 
 // 0x4BA1B4
-bool sub_4BA1B4(const char* buttonName, Program* program, int a3, int a4)
+bool windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4)
 {
     if (dword_51DCB8 != -1) {
         return false;
@@ -668,16 +668,16 @@ bool sub_4BA1B4(const char* buttonName, Program* program, int a3, int a4)
 // value.
 //
 // 0x4BA844
-void sub_4BA844()
+void windowEndRegion()
 {
     STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
     Region* region = ptr->regions[ptr->currentRegionIndex];
-    sub_4BAB68(region->points->x, region->points->y, false);
-    sub_4A2B50(region);
+    windowAddRegionPoint(region->points->x, region->points->y, false);
+    regionSetBound(region);
 }
 
 // 0x4BA988
-bool sub_4BA988(const char* regionName)
+bool windowCheckRegionExists(const char* regionName)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -701,7 +701,7 @@ bool sub_4BA988(const char* regionName)
 }
 
 // 0x4BA9FC
-bool sub_4BA9FC(int initialCapacity)
+bool windowStartRegion(int initialCapacity)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -742,7 +742,7 @@ bool sub_4BA9FC(int initialCapacity)
 }
 
 // 0x4BAB68
-bool sub_4BAB68(int x, int y, bool a3)
+bool windowAddRegionPoint(int x, int y, bool a3)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -765,7 +765,7 @@ bool sub_4BAB68(int x, int y, bool a3)
 }
 
 // 0x4BADC0
-bool sub_4BADC0(const char* regionName, Program* program, int a3, int a4, int a5, int a6)
+bool windowAddRegionProc(const char* regionName, Program* program, int a3, int a4, int a5, int a6)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -790,7 +790,7 @@ bool sub_4BADC0(const char* regionName, Program* program, int a3, int a4, int a5
 }
 
 // 0x4BAE8C
-bool sub_4BAE8C(const char* regionName, Program* program, int a3, int a4)
+bool windowAddRegionRightProc(const char* regionName, Program* program, int a3, int a4)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -813,7 +813,7 @@ bool sub_4BAE8C(const char* regionName, Program* program, int a3, int a4)
 }
 
 // 0x4BAF2C
-bool sub_4BAF2C(const char* regionName, int value)
+bool windowSetRegionFlag(const char* regionName, int value)
 {
     if (dword_51DCB8 != -1) {
         STRUCT_6727B0* ptr = &(stru_6727B0[dword_51DCB8]);
@@ -832,7 +832,7 @@ bool sub_4BAF2C(const char* regionName, int value)
 }
 
 // 0x4BAFA8
-bool sub_4BAFA8(const char* regionName)
+bool windowAddRegionName(const char* regionName)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -865,7 +865,7 @@ bool sub_4BAFA8(const char* regionName)
 // Delete region with the specified name or all regions if it's NULL.
 //
 // 0x4BB0A8
-bool sub_4BB0A8(const char* regionName)
+bool windowDeleteRegion(const char* regionName)
 {
     if (dword_51DCB8 == -1) {
         return false;
@@ -911,23 +911,23 @@ bool sub_4BB0A8(const char* regionName)
 }
 
 // 0x4BB220
-void sub_4BB220()
+void updateWindows()
 {
-    sub_487BEC();
+    movieUpdate();
     // TODO: Incomplete.
-    // sub_485704();
-    // sub_4B6A54();
-    sub_4B5C24();
+    // mousemgrUpdate();
+    // checkAllRegions();
+    update_widgets();
 }
 
 // 0x4BB234
-int sub_4BB234()
+int windowMoviePlaying()
 {
-    return sub_487C88();
+    return moviePlaying();
 }
 
 // 0x4BB23C
-bool sub_4BB23C(int flags)
+bool windowSetMovieFlags(int flags)
 {
     if (movieSetFlags(flags) != 0) {
         return false;
@@ -937,9 +937,9 @@ bool sub_4BB23C(int flags)
 }
 
 // 0x4BB24C
-bool sub_4BB24C(char* filePath)
+bool windowPlayMovie(char* filePath)
 {
-    if (sub_487AC8(stru_6727B0[dword_51DCB8].window, filePath) != 0) {
+    if (movieRun(stru_6727B0[dword_51DCB8].window, filePath) != 0) {
         return false;
     }
 
@@ -947,9 +947,9 @@ bool sub_4BB24C(char* filePath)
 }
 
 // 0x4BB280
-bool sub_4BB280(char* filePath, int a2, int a3, int a4, int a5)
+bool windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5)
 {
-    if (sub_487B1C(stru_6727B0[dword_51DCB8].window, filePath, a2, a3, a4, a5) != 0) {
+    if (movieRunRect(stru_6727B0[dword_51DCB8].window, filePath, a2, a3, a4, a5) != 0) {
         return false;
     }
 
@@ -957,7 +957,7 @@ bool sub_4BB280(char* filePath, int a2, int a3, int a4, int a5)
 }
 
 // 0x4BB2C4
-void sub_4BB2C4()
+void windowStopMovie()
 {
-    sub_487150();
+    movieStop();
 }

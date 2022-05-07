@@ -42,7 +42,7 @@ void opSetMovieFlags(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if (!sub_4BB23C(data)) {
+    if (!windowSetMovieFlags(data)) {
         programFatalError("Error setting movie flags\n");
     }
 }
@@ -51,7 +51,7 @@ void opSetMovieFlags(Program* program)
 // 0x46287C
 void opStopMovie(Program* program)
 {
-    sub_4BB2C4();
+    windowStopMovie();
     program->flags |= PROGRAM_FLAG_0x40;
 }
 
@@ -72,10 +72,10 @@ void opDeleteRegion(Program* program)
         }
     }
 
-    sub_4B81C4(program->field_84);
+    selectWindowID(program->field_84);
 
     const char* regionName = data != -1 ? programGetString(program, opcode, data) : NULL;
-    sub_4BB0A8(regionName);
+    windowDeleteRegion(regionName);
 }
 
 // checkregion
@@ -95,7 +95,7 @@ void opCheckRegion(Program* program)
 
     const char* regionName = programGetString(program, opcode, data);
 
-    bool regionExists = sub_4BA988(regionName);
+    bool regionExists = windowCheckRegionExists(regionName);
     programStackPushInt32(program, regionExists);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
