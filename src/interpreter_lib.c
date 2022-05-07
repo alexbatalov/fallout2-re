@@ -100,6 +100,51 @@ void opCheckRegion(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
+// addregionproc
+// 0x462C10
+void opAddRegionProc(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid procedure 4 name given to addregionproc");
+    }
+
+    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid procedure 3 name given to addregionproc");
+    }
+
+    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid procedure 2 name given to addregionproc");
+    }
+
+    if ((opcode[3] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid procedure 1 name given to addregionproc");
+    }
+
+    if ((opcode[4] & 0xF7FF) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid name given to addregionproc");
+    }
+
+    const char* regionName = programGetString(program, opcode[4], data[4]);
+    _selectWindowID(program->field_84);
+
+    if (!_windowAddRegionProc(regionName, program, data[3], data[2], data[1], data[0])) {
+        programFatalError("Error setting procedures to region %s\n", regionName);
+    }
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)

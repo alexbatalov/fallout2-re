@@ -24,6 +24,7 @@ extern int dword_59E164;
 
 void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
+void opAddRegionProc(Program* program);
 void opSayStart(Program* program);
 void opDeleteRegion(Program* program);
 void opCheckRegion(Program* program);
