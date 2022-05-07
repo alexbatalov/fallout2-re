@@ -501,6 +501,13 @@ void opShowMouse(Program* program)
     mouseShowCursor();
 }
 
+// setglobalmousefunc
+// 0x4649C4
+void opSetGlobalMouseFunc(Program* Program)
+{
+    programFatalError("setglobalmousefunc not defined");
+}
+
 // clearnamed
 // 0x464C80
 void opClearNamed(Program* program)

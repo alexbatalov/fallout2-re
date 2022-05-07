@@ -43,6 +43,7 @@ void opShowWin(Program* program);
 void opDeleteButton(Program* program);
 void opHideMouse(Program* program);
 void opShowMouse(Program* program);
+void opSetGlobalMouseFunc(Program* Program);
 void opClearNamed(Program* program);
 void opSignalNamed(Program* program);
 void opAddKey(Program* program);
