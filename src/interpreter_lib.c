@@ -446,6 +446,14 @@ void opAddButtonRightProc(Program* program)
     }
 }
 
+// showwin
+// 0x4643D4
+void opShowWin(Program* program)
+{
+    _selectWindowID(program->field_84);
+    sub_4B7680();
+}
+
 // hidemouse
 // 0x46489C
 void opHideMouse(Program* program)
