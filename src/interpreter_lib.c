@@ -557,6 +557,31 @@ void opAddNamedEvent(Program* program)
     _nevs_addevent(v1, program, data[0], 0);
 }
 
+// addnamedhandler
+// 0x464BE8
+void opAddNamedHandler(Program* program)
+{
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid type given to addnamedhandler");
+    }
+
+    const char* v1 = programGetString(program, opcode[1], data[1]);
+    _nevs_addevent(v1, program, data[0], 1);
+}
+
 // clearnamed
 // 0x464C80
 void opClearNamed(Program* program)
