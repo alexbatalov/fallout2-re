@@ -145,6 +145,43 @@ void opAddRegionProc(Program* program)
     }
 }
 
+// addregionrightproc
+// 0x462DDC
+void opAddRegionRightProc(Program* program)
+{
+    opcode_t opcode[3];
+    int data[3];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 3; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid procedure 2 name given to addregionrightproc");
+    }
+
+    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid procedure 1 name given to addregionrightproc");
+    }
+
+    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid name given to addregionrightproc");
+    }
+
+    const char* regionName = programGetString(program, opcode[2], data[2]);
+    _selectWindowID(program->field_84);
+
+    if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
+        programFatalError("ErrorError setting right button procedures to region %s\n", regionName);
+    }
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)
