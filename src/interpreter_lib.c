@@ -454,6 +454,39 @@ void opShowWin(Program* program)
     sub_4B7680();
 }
 
+// deletebutton
+// 0x4643E4
+void opDeleteButton(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+        if ((opcode & 0xF7FF) == VALUE_TYPE_INT && data != -1) {
+            programFatalError("Invalid type given to delete button");
+        }
+    }
+
+    _selectWindowID(program->field_84);
+
+    if ((opcode & 0xF7FF) == VALUE_TYPE_INT) {
+        if (_windowDeleteButton(NULL)) {
+            return;
+        }
+    } else {
+        const char* buttonName = programGetString(program, opcode, data);
+        if (_windowDeleteButton(buttonName)) {
+            return;
+        }
+    }
+    
+    programFatalError("Error deleting button");
+}
+
 // hidemouse
 // 0x46489C
 void opHideMouse(Program* program)

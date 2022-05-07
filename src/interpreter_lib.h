@@ -40,6 +40,7 @@ void opAddRegionFlag(Program* program);
 void opAddButtonProc(Program* program);
 void opAddButtonRightProc(Program* program);
 void opShowWin(Program* program);
+void opDeleteButton(Program* program);
 void opHideMouse(Program* program);
 void opShowMouse(Program* program);
 void opClearNamed(Program* program);
