@@ -37,6 +37,7 @@ void opSayQuit(Program* program);
 void opSayMessageTimeout(Program* program);
 void opAddButtonFlag(Program* program);
 void opAddRegionFlag(Program* program);
+void opAddButtonProc(Program* program);
 void opHideMouse(Program* program);
 void opShowMouse(Program* program);
 void opClearNamed(Program* program);
