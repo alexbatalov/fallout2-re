@@ -64,7 +64,7 @@ int sub_4C5D54(int a1)
 }
 
 // 0x4C5D58
-bool db_total()
+bool _db_total()
 {
     return true;
 }
@@ -331,10 +331,10 @@ int fileReadInt32(File* stream, int* valuePtr)
     return 0;
 }
 
-// NOTE: Uncollapsed 0x4C614C. The opposite of [db_fwriteLong]. It can be either
+// NOTE: Uncollapsed 0x4C614C. The opposite of [_db_fwriteLong]. It can be either
 // signed vs. unsigned variant, as well as int vs. long. It's provided here to
-// identify places where data was written with [db_fwriteLong].
-int db_freadInt(File* stream, int* valuePtr)
+// identify places where data was written with [_db_fwriteLong].
+int _db_freadInt(File* stream, int* valuePtr)
 {
     return fileReadInt32(stream, valuePtr);
 }
@@ -342,7 +342,7 @@ int db_freadInt(File* stream, int* valuePtr)
 // NOTE: Probably uncollapsed 0x4C614C.
 int fileReadUInt32(File* stream, unsigned int* valuePtr)
 {
-    return db_freadInt(stream, (int*)valuePtr);
+    return _db_freadInt(stream, (int*)valuePtr);
 }
 
 // NOTE: Uncollapsed 0x4C614C. The opposite of [fileWriteFloat].
@@ -399,14 +399,14 @@ int fileWriteUInt16(File* stream, unsigned short value)
 int fileWriteInt32(File* stream, int value)
 {
     // NOTE: Uninline.
-    return db_fwriteLong(stream, value);
+    return _db_fwriteLong(stream, value);
 }
 
 // NOTE: Can either be signed vs. unsigned variant of [fileWriteInt32],
 // or int vs. long.
 //
 // 0x4C6244
-int db_fwriteLong(File* stream, int value)
+int _db_fwriteLong(File* stream, int value)
 {
     if (fileWriteInt16(stream, (value >> 16) & 0xFFFF) == -1) {
         return -1;
@@ -422,19 +422,19 @@ int db_fwriteLong(File* stream, int value)
 // NOTE: Probably uncollapsed 0x4C6214 or 0x4C6244.
 int fileWriteUInt32(File* stream, unsigned int value)
 {
-    return db_fwriteLong(stream, (int)value);
+    return _db_fwriteLong(stream, (int)value);
 }
 
 // 0x4C62C4
 int fileWriteFloat(File* stream, float value)
 {
     // NOTE: Uninline.
-    return db_fwriteLong(stream, *(int*)&value);
+    return _db_fwriteLong(stream, *(int*)&value);
 }
 
 int fileWriteBool(File* stream, bool value)
 {
-    return db_fwriteLong(stream, value ? 1 : 0);
+    return _db_fwriteLong(stream, value ? 1 : 0);
 }
 
 // 0x4C62FC
@@ -505,8 +505,8 @@ int fileReadInt32List(File* stream, int* arr, int count)
     return 0;
 }
 
-// NOTE: Uncollapsed 0x4C63BC. The opposite of [db_fwriteLongCount].
-int db_freadIntCount(File* stream, int* arr, int count)
+// NOTE: Uncollapsed 0x4C63BC. The opposite of [_db_fwriteLongCount].
+int _db_freadIntCount(File* stream, int* arr, int count)
 {
     return fileReadInt32List(stream, arr, count);
 }
@@ -562,7 +562,7 @@ int fileWriteInt32List(File* stream, int* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
-        if (db_fwriteLong(stream, arr[index]) == -1) {
+        if (_db_fwriteLong(stream, arr[index]) == -1) {
             return -1;
         }
     }
@@ -573,7 +573,7 @@ int fileWriteInt32List(File* stream, int* arr, int count)
 // NOTE: Not sure about signed/unsigned int/long.
 //
 // 0x4C6550
-int db_fwriteLongCount(File* stream, int* arr, int count)
+int _db_fwriteLongCount(File* stream, int* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         int value = arr[index];
@@ -608,14 +608,14 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
 
     memset(fileList, 0, sizeof(*fileList));
 
-    if (!xbuild_filelist(pattern, fileList)) {
+    if (!_xbuild_filelist(pattern, fileList)) {
         free(fileList);
         return 0;
     }
 
     int length = 0;
     if (fileList->fileNamesLength != 0) {
-        qsort(fileList->fileNames, fileList->fileNamesLength, sizeof(*fileList->fileNames), db_list_compare);
+        qsort(fileList->fileNames, fileList->fileNamesLength, sizeof(*fileList->fileNames), _db_list_compare);
 
         int fileNamesLength = fileList->fileNamesLength;
         for (int index = 0; index < fileNamesLength - 1; index++) {
@@ -727,7 +727,7 @@ void sub_4C68E4()
 }
 
 // 0x4C68E8
-int db_list_compare(const void* p1, const void* p2)
+int _db_list_compare(const void* p1, const void* p2)
 {
     return stricmp(*(const char**)p1, *(const char**)p2);
 }

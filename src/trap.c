@@ -3,6 +3,6 @@
 // NOTE: Likely collapsed trapInit/trapExit.
 //
 // 0x4B4190
-void trap_init()
+void _trap_init()
 {
 }

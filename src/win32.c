@@ -51,17 +51,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
     dword_51E448 = CreateMutexA(0, TRUE, "GNW95MUTEX");
     if (GetLastError() == ERROR_SUCCESS) {
         ShowCursor(0);
-        if (InitClass(hInst)) {
-            if (InitInstance()) {
-                if (LoadDirectX()) {
+        if (_InitClass(hInst)) {
+            if (_InitInstance()) {
+                if (_LoadDirectX()) {
                     gInstance = hInst;
                     gCmdLine = lpCmdLine;
                     gCmdShow = nCmdShow;
                     argsInit(&args);
                     if (argsParse(&args, lpCmdLine)) {
-                        signal(1, SignalHandler);
-                        signal(3, SignalHandler);
-                        signal(5, SignalHandler);
+                        signal(1, _SignalHandler);
+                        signal(3, _SignalHandler);
+                        signal(5, _SignalHandler);
                         gProgramIsActive = TRUE;
                         falloutMain(args.argc, args.argv);
                         argsFree(&args);
@@ -76,11 +76,11 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
 }
 
 // 0x4DE7F4
-ATOM InitClass(HINSTANCE hInstance)
+ATOM _InitClass(HINSTANCE hInstance)
 {
     WNDCLASSA wc;
     wc.style = 3;
-    wc.lpfnWndProc = WindowProc;
+    wc.lpfnWndProc = _WindowProc;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = hInstance;
@@ -94,7 +94,7 @@ ATOM InitClass(HINSTANCE hInstance)
 }
 
 // 0x4DE864
-bool InitInstance()
+bool _InitInstance()
 {
     OSVERSIONINFOA osvi;
     BOOL result;
@@ -120,7 +120,7 @@ bool InitInstance()
 }
 
 // 0x4DE8D0
-bool LoadDirectX()
+bool _LoadDirectX()
 {
     gDDrawDLL = LoadLibraryA("DDRAW.DLL");
     if (gDDrawDLL == NULL) {
@@ -152,12 +152,12 @@ bool LoadDirectX()
         goto err;
     }
 
-    atexit(UnloadDirectX);
+    atexit(_UnloadDirectX);
 
     return true;
 
 err:
-    UnloadDirectX();
+    _UnloadDirectX();
 
     MessageBoxA(NULL, "This program requires Windows 95 with DirectX 3.0a or later or Windows NT version 4.0 with Service Pack 3 or greater.", "Could not load DirectX", MB_ICONSTOP);
 
@@ -165,7 +165,7 @@ err:
 }
 
 // 0x4DE988
-void UnloadDirectX(void)
+void _UnloadDirectX(void)
 {
     if (gDSoundDLL != NULL) {
         FreeLibrary(gDSoundDLL);
@@ -187,13 +187,13 @@ void UnloadDirectX(void)
 }
 
 // 0x4DE9F4
-void SignalHandler(int sig)
+void _SignalHandler(int sig)
 {
     // TODO: Incomplete.
 }
 
 // 0x4DE9FC
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
     case WM_DESTROY:
@@ -229,10 +229,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_ACTIVATEAPP:
         gProgramIsActive = wParam;
         if (wParam) {
-            GNW95_hook_input(1);
+            _GNW95_hook_input(1);
             windowRefreshAll(&stru_6AC9F0);
         } else {
-            GNW95_hook_input(0);
+            _GNW95_hook_input(0);
         }
 
         return 0;

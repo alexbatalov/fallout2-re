@@ -169,7 +169,7 @@ int tileIsVisible(int tile)
 }
 
 // 0x45409C
-int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
+int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 {
     if (a1 == gDude) {
         bool v1 = true;
@@ -177,7 +177,7 @@ int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
             v1 = false;
         }
 
-        intface_update_items(v1, -1, -1);
+        _intface_update_items(v1, -1, -1);
     }
 
     int fid = a1->fid;
@@ -209,7 +209,7 @@ int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
             newFid = buildFid((fid & 0xF000000) >> 24, dword_5108A4, (fid & 0xFF0000) >> 16, v8, (fid & 0x70000000) >> 28);
         }
 
-        adjust_ac(a1, a2, NULL);
+        _adjust_ac(a1, a2, NULL);
     }
 
     if (newFid != -1) {
@@ -685,13 +685,13 @@ void opMarkAreaKnown(Program* program)
     // TODO: Provide meaningful names.
     if (data[2] == 0) {
         if (data[0] == CITY_STATE_INVISIBLE) {
-            wmAreaSetVisibleState(data[1], 0, 1);
+            _wmAreaSetVisibleState(data[1], 0, 1);
         } else {
-            wmAreaSetVisibleState(data[1], 1, 1);
-            wmAreaMarkVisitedState(data[1], data[0]);
+            _wmAreaSetVisibleState(data[1], 1, 1);
+            _wmAreaMarkVisitedState(data[1], data[0]);
         }
     } else if (data[2] == 1) {
-        wmMapMarkVisited(data[1]);
+        _wmMapMarkVisited(data[1]);
     }
 }
 
@@ -741,7 +741,7 @@ void opRandom(Program* program)
     }
 
     int result;
-    if (vcr_status() == 2) {
+    if (_vcr_status() == 2) {
         result = randomBetween(data[1], data[0]);
     } else {
         result = (data[0] - data[1]) / 2;
@@ -805,15 +805,15 @@ void opMoveTo(Program* program)
 
     if (object != NULL) {
         if (object == gDude) {
-            bool v1 = tile_get_scroll_limiting();
-            bool v2 = tile_get_scroll_blocking();
+            bool v1 = _tile_get_scroll_limiting();
+            bool v2 = _tile_get_scroll_blocking();
 
             if (v1) {
-                tile_disable_scroll_limiting();
+                _tile_disable_scroll_limiting();
             }
 
             if (v2) {
-                tile_disable_scroll_blocking();
+                _tile_disable_scroll_blocking();
             }
 
             Rect rect;
@@ -823,18 +823,18 @@ void opMoveTo(Program* program)
             }
 
             if (v1) {
-                tile_enable_scroll_limiting();
+                _tile_enable_scroll_limiting();
             }
 
             if (v2) {
-                tile_enable_scroll_blocking();
+                _tile_enable_scroll_blocking();
             }
         } else {
             Rect before;
             objectGetRect(object, &before);
 
             if (object->elevation != elevation && (object->pid >> 24) == OBJ_TYPE_CRITTER) {
-                combat_delete_critter(object);
+                _combat_delete_critter(object);
             }
 
             Rect after;
@@ -880,7 +880,7 @@ void opCreateObject(Program* program)
 
     Object* object = NULL;
 
-    if (isLoadingGame() != 0) {
+    if (_isLoadingGame() != 0) {
         debugPrint("\nError: attempt to Create critter in load/save-game: %s!", program->name);
         goto out;
     }
@@ -940,7 +940,7 @@ void opCreateObject(Program* program)
         object->id = scriptsNewObjectId();
         script->field_1C = object->id;
         script->owner = object;
-        scr_find_str_run_info(sid - 1, &(script->field_50), object->sid);
+        _scr_find_str_run_info(sid - 1, &(script->field_50), object->sid);
     };
 
 out:
@@ -975,7 +975,7 @@ void opDestroyObject(Program* program)
     }
 
     if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
-        if (isLoadingGame()) {
+        if (_isLoadingGame()) {
             debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
@@ -985,20 +985,20 @@ void opDestroyObject(Program* program)
     bool isSelf = object == scriptGetSelf(program);
 
     if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
-        combat_delete_critter(object);
+        _combat_delete_critter(object);
     }
 
     Object* owner = objectGetOwner(object);
     if (owner != NULL) {
-        int quantity = item_count(owner, object);
+        int quantity = _item_count(owner, object);
         itemRemove(owner, object, quantity);
 
         if (owner == gDude) {
             bool v11 = gameUiIsDisabled() ? false : true;
-            intface_update_items(v11, -1, -1);
+            _intface_update_items(v11, -1, -1);
         }
 
-        obj_connect(object, 1, 0, NULL);
+        _obj_connect(object, 1, 0, NULL);
 
         if (isSelf) {
             object->sid = -1;
@@ -1934,7 +1934,7 @@ void opDrop(Program* program)
         return;
     }
 
-    obj_drop(script->target, object);
+    _obj_drop(script->target, object);
 }
 
 // add_obj_to_inven
@@ -1967,7 +1967,7 @@ void opAddObjectToInventory(Program* program)
     if (item->owner == NULL) {
         if (itemAdd(owner, item, 1) == 0) {
             Rect rect;
-            obj_disconnect(item, &rect);
+            _obj_disconnect(item, &rect);
             tileWindowRefreshRect(&rect, item->elevation);
         }
     } else {
@@ -2024,11 +2024,11 @@ void opRemoveObjectFromInventory(Program* program)
 
     if (itemRemove(owner, item, 1) == 0) {
         Rect rect;
-        obj_connect(item, 1, 0, &rect);
+        _obj_connect(item, 1, 0, &rect);
         tileWindowRefreshRect(&rect, item->elevation);
 
         if (updateFlags) {
-            correctFidForRemovedItem(owner, item, flags);
+            _correctFidForRemovedItem(owner, item, flags);
         }
     }
 }
@@ -2090,7 +2090,7 @@ void opWieldItem(Program* program)
         newArmor = item;
     }
 
-    if (inven_wield(critter, item, hand) == -1) {
+    if (_inven_wield(critter, item, hand) == -1) {
         scriptPredefinedError(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" inven_wield failed!  ERROR ERROR ERROR!");
         return;
@@ -2098,7 +2098,7 @@ void opWieldItem(Program* program)
 
     if (critter == gDude) {
         if (v1) {
-            adjust_ac(critter, oldArmor, newArmor);
+            _adjust_ac(critter, oldArmor, newArmor);
         }
 
         bool v2 = true;
@@ -2106,7 +2106,7 @@ void opWieldItem(Program* program)
             v2 = false;
         }
 
-        intface_update_items(v2, -1, -1);
+        _intface_update_items(v2, -1, -1);
     }
 }
 
@@ -2148,9 +2148,9 @@ void opUseObject(Program* program)
 
     Object* self = scriptGetSelf(program);
     if ((self->pid >> 24) == OBJ_TYPE_CRITTER) {
-        action_use_an_object(script->target, object);
+        _action_use_an_object(script->target, object);
     } else {
-        obj_use(self, object);
+        _obj_use(self, object);
     }
 }
 
@@ -2191,7 +2191,7 @@ void opObjectCanSeeObject(Program* program)
 
             if (objectCanHearObject(object1, object2)) {
                 Object* a5;
-                make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
+                _make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
                 if (a5 == object2) {
                     canSee = true;
                 }
@@ -2257,7 +2257,7 @@ void opAttackComplex(Program* program)
         return;
     }
 
-    if (gdialogActive()) {
+    if (_gdialogActive()) {
         // TODO: Might be an error, program flag is not removed.
         return;
     }
@@ -2362,14 +2362,14 @@ void opStartGameDialog(Program* program)
 
     gGameDialogSid = scriptGetSid(program);
     gGameDialogSpeaker = scriptGetSelf(program);
-    gdialogInitFromScript(gGameDialogHeadFid, gGameDialogReactionOrFidget);
+    _gdialogInitFromScript(gGameDialogHeadFid, gGameDialogReactionOrFidget);
 }
 
 // end_dialogue
 // 0x456F80
 void opEndGameDialog(Program* program)
 {
-    if (gdialogExitFromScript() != -1) {
+    if (_gdialogExitFromScript() != -1) {
         gGameDialogSpeaker = NULL;
         gGameDialogSid = -1;
     }
@@ -2391,7 +2391,7 @@ void opGameDialogReaction(Program* program)
     }
 
     gGameDialogReactionOrFidget = value;
-    talk_to_critter_reacts(value);
+    _talk_to_critter_reacts(value);
 }
 
 // metarule3
@@ -2420,23 +2420,23 @@ void opMetarule3(Program* program)
     switch (rule) {
     case METARULE3_CLR_FIXED_TIMED_EVENTS:
         if (1) {
-            scrSetQueueTestVals((Object*)data[2], data[1]);
-            queue_clear_type(EVENT_TYPE_SCRIPT, scrQueueRemoveFixed);
+            _scrSetQueueTestVals((Object*)data[2], data[1]);
+            _queue_clear_type(EVENT_TYPE_SCRIPT, _scrQueueRemoveFixed);
         }
         break;
     case METARULE3_MARK_SUBTILE:
-        result = wmSubTileMarkRadiusVisited(data[2], data[1], data[0]);
+        result = _wmSubTileMarkRadiusVisited(data[2], data[1], data[0]);
         break;
     case METARULE3_GET_KILL_COUNT:
         result = killsGetByType(data[2]);
         break;
     case METARULE3_MARK_MAP_ENTRANCE:
-        result = wmMapMarkMapEntranceState(data[2], data[1], data[0]);
+        result = _wmMapMarkMapEntranceState(data[2], data[1], data[0]);
         break;
     case METARULE3_WM_SUBTILE_STATE:
         if (1) {
             int state;
-            if (wmSubTileGetVisitedState(data[2], data[1], &state) == 0) {
+            if (_wmSubTileGetVisitedState(data[2], data[1], &state) == 0) {
                 result = state;
             }
         }
@@ -2492,7 +2492,7 @@ void opMetarule3(Program* program)
         result = carIsEmpty() ? 1 : 0;
         break;
     case METARULE3_111:
-        result = map_target_load_area();
+        result = _map_target_load_area();
         break;
     }
 
@@ -2568,7 +2568,7 @@ void opSetObjectVisibility(Program* program)
         return;
     }
 
-    if (isLoadingGame()) {
+    if (_isLoadingGame()) {
         debugPrint("Error: attempt to set_obj_visibility in load/save-game: %s!", program->name);
         return;
     }
@@ -2897,7 +2897,7 @@ void opKillCritter(Program* program)
         return;
     }
 
-    if (isLoadingGame()) {
+    if (_isLoadingGame()) {
         debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
     }
 
@@ -2907,7 +2907,7 @@ void opKillCritter(Program* program)
     bool isSelf = self == object;
 
     reg_anim_clear(object);
-    combat_delete_critter(object);
+    _combat_delete_critter(object);
     critterKill(object, deathFrame, 1);
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -2918,7 +2918,7 @@ void opKillCritter(Program* program)
 }
 
 // [forceBack] is to force fall back animation, otherwise it's fall front if it's present
-int correctDeath(Object* critter, int anim, bool forceBack)
+int _correctDeath(Object* critter, int anim, bool forceBack)
 {
     if (anim >= ANIM_BIG_HOLE_SF && anim <= ANIM_FALL_FRONT_BLOOD_SF) {
         int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
@@ -2974,7 +2974,7 @@ void opKillCritterType(Program* program)
     int pid = data[1];
     int deathFrame = data[0];
 
-    if (isLoadingGame()) {
+    if (_isLoadingGame()) {
         debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
         return;
     }
@@ -3003,9 +3003,9 @@ void opKillCritterType(Program* program)
             reg_anim_clear(obj);
 
             if (deathFrame != 0) {
-                combat_delete_critter(obj);
+                _combat_delete_critter(obj);
                 if (deathFrame == 1) {
-                    int anim = correctDeath(obj, dword_518ED0[v3], 1);
+                    int anim = _correctDeath(obj, dword_518ED0[v3], 1);
                     critterKill(obj, anim, 1);
                     v3 += 1;
                     if (v3 >= 11) {
@@ -3081,7 +3081,7 @@ void opCritterDamage(Program* program)
     bool animate = (damageTypeWithFlags & 0x200) == 0;
     bool bypassArmor = (damageTypeWithFlags & 0x100) != 0;
     int damageType = damageTypeWithFlags & ~(0x100 | 0x200);
-    action_dmg(self->tile, self->elevation, amount, amount, damageType, animate, bypassArmor);
+    _action_dmg(self->tile, self->elevation, amount, amount, damageType, animate, bypassArmor);
 
     program->flags &= PROGRAM_FLAG_0x20;
 
@@ -3376,7 +3376,7 @@ void opGameDialogSystemEnter(Program* program)
         return;
     }
 
-    if (game_state_request(4) == -1) {
+    if (_game_state_request(4) == -1) {
         return;
     }
 
@@ -3569,12 +3569,12 @@ void opCritterAttemptPlacement(Program* program)
     }
 
     if (elevation != critter->elevation && critter->pid >> 24 == OBJ_TYPE_CRITTER) {
-        combat_delete_critter(critter);
+        _combat_delete_critter(critter);
     }
 
     objectSetLocation(critter, 0, elevation, NULL);
 
-    int rc = obj_attempt_placement(critter, tile, elevation, 1);
+    int rc = _obj_attempt_placement(critter, tile, elevation, 1);
     programStackPushInt32(program, rc);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
@@ -3682,7 +3682,7 @@ void opCritterAddTrait(Program* program)
                         break;
                     }
 
-                    if (isLoadingGame()) {
+                    if (_isLoadingGame()) {
                         break;
                     }
 
@@ -3777,7 +3777,7 @@ void opGetProtoData(Program* program)
     int member = data[0];
 
     int value = 0;
-    int valueType = proto_data_member(pid, member, &value);
+    int valueType = _proto_data_member(pid, member, &value);
     switch (valueType) {
     case PROTO_DATA_MEMBER_TYPE_INT:
         programStackPushInt32(program, value);
@@ -3819,7 +3819,7 @@ void opGetMessageString(Program* program)
 
     char* string;
     if (messageIndex >= 1) {
-        string = scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
+        string = _scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
         if (string == NULL) {
             debugPrint("\nError: No message file EXISTS!: index %d, line %d", messageListIndex, messageIndex);
             string = off_518EFC;
@@ -3946,7 +3946,7 @@ void opWorldmap(Program* program)
 
 // inven_cmds
 // 0x459178
-void op_inven_cmds(Program* program)
+void _op_inven_cmds(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -3973,7 +3973,7 @@ void op_inven_cmds(Program* program)
     if (obj != NULL) {
         switch (cmd) {
         case 13:
-            item = inven_index_ptr(obj, index);
+            item = _inven_index_ptr(obj, index);
             break;
         }
     } else {
@@ -4128,25 +4128,25 @@ void opMetarule(Program* program)
         result = 0;
         break;
     case METARULE_PARTY_COUNT:
-        result = getPartyMemberCount();
+        result = _getPartyMemberCount();
         break;
     case METARULE_AREA_KNOWN:
-        result = wmAreaVisitedState(param);
+        result = _wmAreaVisitedState(param);
         break;
     case METARULE_WHO_ON_DRUGS:
         result = queueHasEvent((Object*)param, EVENT_TYPE_DRUG);
         break;
     case METARULE_MAP_KNOWN:
-        result = wmMapIsKnown(param);
+        result = _wmMapIsKnown(param);
         break;
     case METARULE_IS_LOADGAME:
-        result = isLoadingGame();
+        result = _isLoadingGame();
         break;
     case METARULE_CAR_CURRENT_TOWN:
         result = carGetCity();
         break;
     case METARULE_GIVE_CAR_TO_PARTY:
-        result = wmCarGiveToParty();
+        result = _wmCarGiveToParty();
         break;
     case METARULE_GIVE_CAR_GAS:
         result = carAddFuel(param);
@@ -4157,9 +4157,9 @@ void opMetarule(Program* program)
     case METARULE_DROP_ALL_INVEN:
         if (1) {
             Object* object = (Object*)param;
-            result = item_drop_all(object, object->tile);
+            result = _item_drop_all(object, object->tile);
             if (gDude == object) {
-                intface_update_items(false, -1, -1);
+                _intface_update_items(false, -1, -1);
                 interfaceRenderArmorClass(false);
             }
         }
@@ -4168,13 +4168,13 @@ void opMetarule(Program* program)
         // TODO: Incomplete.
         break;
     case METARULE_GET_WORLDMAP_XPOS:
-        wmGetPartyWorldPos(&result, NULL);
+        _wmGetPartyWorldPos(&result, NULL);
         break;
     case METARULE_GET_WORLDMAP_YPOS:
-        wmGetPartyWorldPos(NULL, &result);
+        _wmGetPartyWorldPos(NULL, &result);
         break;
     case METARULE_CURRENT_TOWN:
-        if (wmGetPartyCurArea(&result) == -1) {
+        if (_wmGetPartyCurArea(&result) == -1) {
             debugPrint("\nIntextra: Error: metarule: current_town");
         }
         break;
@@ -4276,7 +4276,7 @@ void opAnim(Program* program)
             combatData = &(obj->data.critter.combat);
         }
 
-        anim = correctDeath(obj, anim, true);
+        anim = _correctDeath(obj, anim, true);
 
         reg_anim_begin(1);
 
@@ -4664,7 +4664,7 @@ void opAddMultipleObjectsToInventory(Program* program)
 
     if (itemAdd(object, item, quantity) == 0) {
         Rect rect;
-        obj_disconnect(item, &rect);
+        _obj_disconnect(item, &rect);
         tileWindowRefreshRect(&rect, item->elevation);
     }
 }
@@ -4700,7 +4700,7 @@ void opRemoveMultipleObjectsFromInventory(Program* program)
 
     bool itemWasEquipped = (item->flags & 0x07000000) != 0;
 
-    int quantity = item_count(owner, item);
+    int quantity = _item_count(owner, item);
     if (quantity > quantityToRemove) {
         quantity = quantityToRemove;
     }
@@ -4708,14 +4708,14 @@ void opRemoveMultipleObjectsFromInventory(Program* program)
     if (quantity != 0) {
         if (itemRemove(owner, item, quantity) == 0) {
             Rect updatedRect;
-            obj_connect(item, 1, 0, &updatedRect);
+            _obj_connect(item, 1, 0, &updatedRect);
             if (itemWasEquipped) {
                 if (owner == gDude) {
                     bool v1 = true;
                     if (gameUiIsDisabled()) {
                         v1 = false;
                     }
-                    intface_update_items(v1, -1, -1);
+                    _intface_update_items(v1, -1, -1);
                 }
             }
         }
@@ -4802,11 +4802,11 @@ void opGetDaysSinceLastVisit(Program* program)
 
 // gsay_start
 // 0x45A56C
-void op_gsay_start(Program* program)
+void _op_gsay_start(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
-    if (gdialogStart() != 0) {
+    if (_gdialogStart() != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
         programFatalError("Error starting dialog.");
     }
@@ -4816,16 +4816,16 @@ void op_gsay_start(Program* program)
 
 // gsay_end
 // 0x45A5B0
-void op_gsay_end(Program* program)
+void _op_gsay_end(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
-    gdialogGo();
+    _gdialogGo();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
 // gsay_reply
 // 0x45A5D4
-void op_gsay_reply(Program* program)
+void _op_gsay_reply(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4868,7 +4868,7 @@ void op_gsay_reply(Program* program)
 
 // gsay_option
 // 0x45A6C4
-void op_gsay_option(Program* program)
+void _op_gsay_option(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4933,7 +4933,7 @@ void op_gsay_option(Program* program)
 
 // gsay_message
 // 0x45A8AC
-void op_gsay_message(Program* program)
+void _op_gsay_message(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4974,14 +4974,14 @@ void op_gsay_message(Program* program)
     }
 
     gameDialogAddMessageOptionWithProcIdentifier(-2, -2, NULL, 50);
-    gdialogSayMessage();
+    _gdialogSayMessage();
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
 // giq_option
 // 0x45A9B4
-void op_giq_option(Program* program)
+void _op_giq_option(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -5245,8 +5245,8 @@ void opCritterInjure(Program* program)
         if ((flags & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
             int v1;
             int v2;
-            intface_get_item_states(&v1, &v2);
-            intface_update_items(true, v1, v2);
+            _intface_get_item_states(&v1, &v2);
+            _intface_update_items(true, v1, v2);
         }
     }
 }
@@ -5261,7 +5261,7 @@ void opCombatIsInitialized(Program* program)
 
 // gdialog_barter
 // 0x45AFA0
-void op_gdialog_barter(Program* program)
+void _op_gdialog_barter(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5306,7 +5306,7 @@ void opGetRunningBurningGuy(Program* program)
 }
 
 // inven_unwield
-void op_inven_unwield(Program* program)
+void _op_inven_unwield(Program* program)
 {
     Object* obj;
     int v1;
@@ -5318,7 +5318,7 @@ void op_inven_unwield(Program* program)
         v1 = 0;
     }
 
-    inven_unwield(obj, v1);
+    _inven_unwield(obj, v1);
 }
 
 // obj_is_locked
@@ -5603,7 +5603,7 @@ void opItemCapsAdjust(Program* program)
 }
 
 // anim_action_frame
-void op_anim_action_frame(Program* program)
+void _op_anim_action_frame(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5736,8 +5736,8 @@ void opCritterModifySkill(Program* program)
                 if (critter == gDude) {
                     int v1;
                     int v2;
-                    intface_get_item_states(&v1, &v2);
-                    intface_update_items(false, v1, v2);
+                    _intface_get_item_states(&v1, &v2);
+                    _intface_update_items(false, v1, v2);
                 }
             } else {
                 scriptPredefinedError(program, "critter_mod_skill", SCRIPT_ERROR_FOLLOWS);
@@ -6082,12 +6082,12 @@ void opDestroyMultipleObjects(Program* program)
     int result = 0;
 
     if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
-        combat_delete_critter(object);
+        _combat_delete_critter(object);
     }
 
     Object* owner = objectGetOwner(object);
     if (owner != NULL) {
-        int quantityToDestroy = item_count(owner, object);
+        int quantityToDestroy = _item_count(owner, object);
         if (quantityToDestroy > quantity) {
             quantityToDestroy = quantity;
         }
@@ -6099,10 +6099,10 @@ void opDestroyMultipleObjects(Program* program)
             if (gameUiIsDisabled()) {
                 v1 = false;
             }
-            intface_update_items(v1, -1, -1);
+            _intface_update_items(v1, -1, -1);
         }
 
-        obj_connect(object, 1, 0, NULL);
+        _obj_connect(object, 1, 0, NULL);
 
         if (isSelf) {
             object->sid = -1;
@@ -6174,9 +6174,9 @@ void opUseObjectOnObject(Program* program)
 
     Object* self = scriptGetSelf(program);
     if ((self->pid >> 24) == OBJ_TYPE_CRITTER) {
-        action_use_an_item_on_object(self, target, item);
+        _action_use_an_item_on_object(self, target, item);
     } else {
-        obj_use_item_on(self, target, item);
+        _obj_use_item_on(self, target, item);
     }
 }
 
@@ -6240,24 +6240,24 @@ void opMoveObjectInventoryToObject(Program* program)
             flags |= 0x02000000;
         }
 
-        correctFidForRemovedItem(object1, item2, flags);
+        _correctFidForRemovedItem(object1, item2, flags);
     }
 
-    item_move_all(object1, object2);
+    _item_move_all(object1, object2);
 
     if (object1 == gDude) {
         if (oldArmor != NULL) {
-            adjust_ac(gDude, oldArmor, NULL);
+            _adjust_ac(gDude, oldArmor, NULL);
         }
 
-        proto_dude_update_gender();
+        _proto_dude_update_gender();
 
         bool v1 = true;
         if (gameUiIsDisabled()) {
             v1 = false;
         }
 
-        intface_update_items(v1, -1, -1);
+        _intface_update_items(v1, -1, -1);
     }
 }
 
@@ -6528,7 +6528,7 @@ void opTerminateCombat(Program* program)
             if ((self->pid >> 24) == 1) {
                 self->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
                 self->data.critter.combat.whoHitMe = NULL;
-                combatAIInfoSetLastTarget(self, NULL);
+                _combatAIInfoSetLastTarget(self, NULL);
             }
         }
     }
@@ -6581,7 +6581,7 @@ void opCritterStopAttacking(Program* program)
     if (obj != NULL) {
         obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
         obj->data.critter.combat.whoHitMe = NULL;
-        combatAIInfoSetLastTarget(obj, NULL);
+        _combatAIInfoSetLastTarget(obj, NULL);
     } else {
         scriptPredefinedError(program, "critter_stop_attacking", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -6681,7 +6681,7 @@ void sub_45CDD4()
 }
 
 // 0x45CDD8
-void initIntExtra()
+void _initIntExtra()
 {
     interpreterRegisterOpcode(0x80A1, opGiveExpPoints); // op_give_exp_points
     interpreterRegisterOpcode(0x80A2, opScrReturn); // op_scr_return
@@ -6787,7 +6787,7 @@ void initIntExtra()
     interpreterRegisterOpcode(0x8106, opCritterGetInventoryObject); // op_critter_inven_obj
     interpreterRegisterOpcode(0x8107, opSetObjectLightLevel); // op_obj_set_light_level
     interpreterRegisterOpcode(0x8108, opWorldmap); // op_scripts_request_world_map
-    interpreterRegisterOpcode(0x8109, op_inven_cmds); // op_inven_cmds
+    interpreterRegisterOpcode(0x8109, _op_inven_cmds); // op_inven_cmds
     interpreterRegisterOpcode(0x810A, opFloatMessage); // op_float_msg
     interpreterRegisterOpcode(0x810B, opMetarule); // op_metarule
     interpreterRegisterOpcode(0x810C, opAnim); // op_anim
@@ -6806,12 +6806,12 @@ void initIntExtra()
     interpreterRegisterOpcode(0x8119, opGetDay); // op_day
     interpreterRegisterOpcode(0x811A, opExplosion); // op_explosion
     interpreterRegisterOpcode(0x811B, opGetDaysSinceLastVisit); // op_days_since_visited
-    interpreterRegisterOpcode(0x811C, op_gsay_start);
-    interpreterRegisterOpcode(0x811D, op_gsay_end);
-    interpreterRegisterOpcode(0x811E, op_gsay_reply); // op_gsay_reply
-    interpreterRegisterOpcode(0x811F, op_gsay_option); // op_gsay_option
-    interpreterRegisterOpcode(0x8120, op_gsay_message); // op_gsay_message
-    interpreterRegisterOpcode(0x8121, op_giq_option); // op_giq_option
+    interpreterRegisterOpcode(0x811C, _op_gsay_start);
+    interpreterRegisterOpcode(0x811D, _op_gsay_end);
+    interpreterRegisterOpcode(0x811E, _op_gsay_reply); // op_gsay_reply
+    interpreterRegisterOpcode(0x811F, _op_gsay_option); // op_gsay_option
+    interpreterRegisterOpcode(0x8120, _op_gsay_message); // op_gsay_message
+    interpreterRegisterOpcode(0x8121, _op_giq_option); // op_giq_option
     interpreterRegisterOpcode(0x8122, opPoison); // op_poison
     interpreterRegisterOpcode(0x8123, opGetPoison); // op_get_poison
     interpreterRegisterOpcode(0x8124, opPartyAdd); // op_party_add
@@ -6819,10 +6819,10 @@ void initIntExtra()
     interpreterRegisterOpcode(0x8126, opRegAnimAnimateForever); // op_reg_anim_animate_forever
     interpreterRegisterOpcode(0x8127, opCritterInjure); // op_critter_injure
     interpreterRegisterOpcode(0x8128, opCombatIsInitialized); // op_is_in_combat
-    interpreterRegisterOpcode(0x8129, op_gdialog_barter); // op_gdialog_barter
+    interpreterRegisterOpcode(0x8129, _op_gdialog_barter); // op_gdialog_barter
     interpreterRegisterOpcode(0x812A, opGetGameDifficulty); // op_game_difficulty
     interpreterRegisterOpcode(0x812B, opGetRunningBurningGuy); // op_running_burning_guy
-    interpreterRegisterOpcode(0x812C, op_inven_unwield); // op_inven_unwield
+    interpreterRegisterOpcode(0x812C, _op_inven_unwield); // op_inven_unwield
     interpreterRegisterOpcode(0x812D, opObjectIsLocked); // op_obj_is_locked
     interpreterRegisterOpcode(0x812E, opObjectLock); // op_obj_lock
     interpreterRegisterOpcode(0x812F, opObjectUnlock); // op_obj_unlock
@@ -6836,7 +6836,7 @@ void initIntExtra()
     interpreterRegisterOpcode(0x8137, opFadeIn); // op_gfade_in
     interpreterRegisterOpcode(0x8138, opItemCapsTotal); // op_item_caps_total
     interpreterRegisterOpcode(0x8139, opItemCapsAdjust); // op_item_caps_adjust
-    interpreterRegisterOpcode(0x813A, op_anim_action_frame); // op_anim_action_frame
+    interpreterRegisterOpcode(0x813A, _op_anim_action_frame); // op_anim_action_frame
     interpreterRegisterOpcode(0x813B, opRegAnimPlaySfx); // op_reg_anim_play_sfx
     interpreterRegisterOpcode(0x813C, opCritterModifySkill); // op_critter_mod_skill
     interpreterRegisterOpcode(0x813D, opSfxBuildCharName); // op_sfx_build_char_name

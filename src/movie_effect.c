@@ -44,7 +44,7 @@ void movieEffectsReset()
     }
 
     movieSetPaletteProc(NULL);
-    movieSetPaletteFunc(NULL);
+    _movieSetPaletteFunc(NULL);
     movieEffectsClear();
 
     dword_6391C4 = false;
@@ -60,7 +60,7 @@ void movieEffectsExit()
     }
 
     movieSetPaletteProc(NULL);
-    movieSetPaletteFunc(NULL);
+    _movieSetPaletteFunc(NULL);
     movieEffectsClear();
 
     dword_6391C4 = false;
@@ -76,7 +76,7 @@ int movieEffectsLoad(const char* filePath)
     }
 
     movieSetPaletteProc(NULL);
-    movieSetPaletteFunc(NULL);
+    _movieSetPaletteFunc(NULL);
     movieEffectsClear();
     dword_6391C4 = false;
     memset(byte_638EC4, 0, sizeof(byte_638EC4));
@@ -180,8 +180,8 @@ int movieEffectsLoad(const char* filePath)
         }
 
         if (movieEffectsCreated != 0) {
-            movieSetPaletteProc(moviefx_callback_func);
-            movieSetPaletteFunc(moviefx_palette_func);
+            movieSetPaletteProc(_moviefx_callback_func);
+            _movieSetPaletteFunc(_moviefx_palette_func);
             rc = 0;
         }
     }
@@ -196,14 +196,14 @@ out:
 }
 
 // 0x4880F0
-void moviefx_stop()
+void _moviefx_stop()
 {
     if (!gMovieEffectsInitialized) {
         return;
     }
 
     movieSetPaletteProc(NULL);
-    movieSetPaletteFunc(NULL);
+    _movieSetPaletteFunc(NULL);
 
     movieEffectsClear();
 
@@ -212,7 +212,7 @@ void moviefx_stop()
 }
 
 // 0x488144
-void moviefx_callback_func(int frame)
+void _moviefx_callback_func(int frame)
 {
     MovieEffect* movieEffect = gMovieEffectHead;
     while (movieEffect != NULL) {
@@ -247,7 +247,7 @@ void moviefx_callback_func(int frame)
 }
 
 // 0x4882AC
-void moviefx_palette_func(unsigned char* palette, int start, int end)
+void _moviefx_palette_func(unsigned char* palette, int start, int end)
 {
     memcpy(byte_638EC4 + 3 * start, palette, 3 * (end - start + 1));
 

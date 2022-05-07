@@ -14,7 +14,7 @@
 static_assert(sizeof(AudioFile) == 28, "wrong size");
 
 // 0x5108C0
-AudioFileIsCompressedProc* off_5108C0 = defaultCompressionFunc__;
+AudioFileIsCompressedProc* off_5108C0 = _defaultCompressionFunc__;
 
 // 0x56CB10
 AudioFile* gAudioFileList;
@@ -23,7 +23,7 @@ AudioFile* gAudioFileList;
 int gAudioFileListLength;
 
 // 0x41A850
-bool defaultCompressionFunc__(char* filePath)
+bool _defaultCompressionFunc__(char* filePath)
 {
     char* pch = strrchr(filePath, '.');
     if (pch != NULL) {

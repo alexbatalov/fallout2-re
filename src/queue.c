@@ -26,18 +26,18 @@ QueueListNode* gQueueListHead;
 
 // 0x51C540
 EventTypeDescription gEventTypeDescriptions[EVENT_TYPE_COUNT] = {
-    { drugEffectEventProcess, internal_free, drugEffectEventRead, drugEffectEventWrite, true, item_d_clear },
-    { knockoutEventProcess, NULL, NULL, NULL, true, critter_wake_clear },
-    { withdrawalEventProcess, internal_free, withdrawalEventRead, withdrawalEventWrite, true, item_wd_clear },
+    { drugEffectEventProcess, internal_free, drugEffectEventRead, drugEffectEventWrite, true, _item_d_clear },
+    { knockoutEventProcess, NULL, NULL, NULL, true, _critter_wake_clear },
+    { withdrawalEventProcess, internal_free, withdrawalEventRead, withdrawalEventWrite, true, _item_wd_clear },
     { scriptEventProcess, internal_free, scriptEventRead, scriptEventWrite, true, NULL },
     { gameTimeEventProcess, NULL, NULL, NULL, true, NULL },
     { poisonEventProcess, NULL, NULL, NULL, false, NULL },
     { radiationEventProcess, internal_free, radiationEventRead, radiationEventWrite, false, NULL },
     { flareEventProcess, NULL, NULL, NULL, true, flareEventProcess },
-    { explosionEventProcess, NULL, NULL, NULL, true, queue_explode_exit },
-    { miscItemTrickleEventProcess, NULL, NULL, NULL, true, item_m_turn_off_from_queue },
-    { sneakEventProcess, NULL, NULL, NULL, true, critter_sneak_clear },
-    { explosionFailureEventProcess, NULL, NULL, NULL, true, queue_explode_exit },
+    { explosionEventProcess, NULL, NULL, NULL, true, _queue_explode_exit },
+    { miscItemTrickleEventProcess, NULL, NULL, NULL, true, _item_m_turn_off_from_queue },
+    { sneakEventProcess, NULL, NULL, NULL, true, _critter_sneak_clear },
+    { explosionFailureEventProcess, NULL, NULL, NULL, true, _queue_explode_exit },
     { mapUpdateEventProcess, NULL, NULL, NULL, true, NULL },
     { ambientSoundEffectEventProcess, internal_free, NULL, NULL, true, NULL },
 };
@@ -101,7 +101,7 @@ int queueLoad(File* stream)
         } else {
             obj = objectFindFirst();
             while (obj != NULL) {
-                obj = inven_find_id(obj, objectId);
+                obj = _inven_find_id(obj, objectId);
                 if (obj != NULL) {
                     break;
                 }
@@ -376,7 +376,7 @@ void queueClear()
 }
 
 // 0x4A2790
-void queue_clear_type(int eventType, QueueEventHandler* fn)
+void _queue_clear_type(int eventType, QueueEventHandler* fn)
 {
     QueueListNode** ptr = &gQueueListHead;
     QueueListNode* curr = *ptr;
@@ -421,7 +421,7 @@ int queueGetNextEventTime()
 // 0x4A281C
 int flareEventProcess(Object* obj, void* data)
 {
-    obj_destroy(obj);
+    _obj_destroy(obj);
     return 1;
 }
 
@@ -432,7 +432,7 @@ int explosionEventProcess(Object* obj, void* data)
 }
 
 // 0x4A2830
-int queue_explode_exit(Object* obj, void* data)
+int _queue_explode_exit(Object* obj, void* data)
 {
     return sub_4A2834(obj, false);
 }
@@ -476,7 +476,7 @@ int sub_4A2834(Object* explosive, bool a2)
     if (actionExplode(tile, elevation, minDamage, maxDamage, gDude, a2) == -2) {
         queueAddEvent(50, explosive, NULL, EVENT_TYPE_EXPLOSION);
     } else {
-        obj_destroy(explosive);
+        _obj_destroy(explosive);
     }
 
     return 1;
@@ -497,12 +497,12 @@ int explosionFailureEventProcess(Object* obj, void* data)
 }
 
 // 0x4A2920
-void queue_leaving_map()
+void _queue_leaving_map()
 {
     for (int eventType = 0; eventType < EVENT_TYPE_COUNT; eventType++) {
         EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[eventType]);
         if (eventTypeDescription->field_10) {
-            queue_clear_type(eventType, eventTypeDescription->field_14);
+            _queue_clear_type(eventType, eventTypeDescription->field_14);
         }
     }
 }

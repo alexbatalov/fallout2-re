@@ -57,12 +57,12 @@ extern int dword_5193B4;
 extern char byte_613CA0[14];
 extern char byte_613CAE[50];
 
-char* lips_fix_string(const char* fileName, size_t length);
+char* _lips_fix_string(const char* fileName, size_t length);
 void lipsTicker();
 int lipsStart();
 int lipsReadV1(LipsData* a1, File* stream);
 int lipsLoad(const char* audioFileName, const char* headFileName);
-int lips_make_speech();
+int _lips_make_speech();
 int lipsFree();
 
 #endif /* LIPS_H */

@@ -117,7 +117,7 @@ short word_51E2E8 = 0;
 // 0x51E2EA
 int gModifierKeysState = 0;
 
-// TODO: It's kb_next_ascii_English_US (not implemented yet).
+// TODO: It's _kb_next_ascii_English_US (not implemented yet).
 //
 // 0x51E2EC
 int (*off_51E2EC)() = keyboardDequeueLogicalKeyCode;
@@ -317,7 +317,7 @@ int gRedShift;
 int gGreenShift;
 
 // 0x6ACA18
-void (*off_6ACA18)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y) = GNW95_ShowRect;
+void (*off_6ACA18)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y) = _GNW95_ShowRect;
 
 // 0x6ACA1C
 void (*dword_6ACA1C)() = NULL;
@@ -380,13 +380,13 @@ int coreInit(int a1)
         return -1;
     }
 
-    if (GNW95_input_init() == -1) {
+    if (_GNW95_input_init() == -1) {
         return -1;
     }
 
-    GNW95_hook_input(1);
+    _GNW95_hook_input(1);
     buildNormalizedQwertyKeys();
-    GNW95_clear_time_stamps();
+    _GNW95_clear_time_stamps();
 
     dword_6AC764 = a1;
     gInputEventQueueWriteIndex = 0;
@@ -407,8 +407,8 @@ int coreInit(int a1)
 // 0x4C8B40
 void coreExit()
 {
-    GNW95_hook_keyboard(0);
-    GNW95_input_init();
+    _GNW95_hook_keyboard(0);
+    _GNW95_input_init();
     mouseFree();
     keyboardFree();
     directInputFree();
@@ -422,47 +422,47 @@ void coreExit()
 }
 
 // 0x4C8B78
-int get_input()
+int _get_input()
 {
     int v3;
 
-    GNW95_process_message();
+    _GNW95_process_message();
 
     if (!gProgramIsActive) {
-        GNW95_lost_focus();
+        _GNW95_lost_focus();
     }
 
-    process_bk();
+    _process_bk();
 
     v3 = dequeueInputEvent();
     if (v3 == -1 && mouseGetEvent() & 0x33) {
         mouseGetPosition(&dword_6AC750, &dword_6AC754);
         return -2;
     } else {
-        return GNW_check_menu_bars(v3);
+        return _GNW_check_menu_bars(v3);
     }
 
     return -1;
 }
 
 // 0x4C8BDC
-void process_bk()
+void _process_bk()
 {
     int v1;
 
     tickersExecute();
 
-    if (vcr_update() != 3) {
-        mouse_info();
+    if (_vcr_update() != 3) {
+        _mouse_info();
     }
 
-    v1 = win_check_all_buttons();
+    v1 = _win_check_all_buttons();
     if (v1 != -1) {
         enqueueInputEvent(v1);
         return;
     }
 
-    v1 = kb_getch();
+    v1 = _kb_getch();
     if (v1 != -1) {
         enqueueInputEvent(v1);
         return;
@@ -625,7 +625,7 @@ void pause()
 
         int win = gPauseHandler();
 
-        while (get_input() != KEY_ESCAPE) {
+        while (_get_input() != KEY_ESCAPE) {
         }
 
         gPaused = false;
@@ -660,7 +660,7 @@ int pauseHandlerDefaultImpl()
     v6 = v2 - 8 - v1;
     v7 = fontGetStringWidth("Done");
     // TODO: Incomplete.
-    // win_register_text_button(win, (len - v7 - 16) / 2, v6 - 6, -1, -1, -1, 27, "Done", 0);
+    // _win_register_text_button(win, (len - v7 - 16) / 2, v6 - 6, -1, -1, -1, 27, "Done", 0);
 
     windowRefresh(win);
 
@@ -704,7 +704,7 @@ void takeScreenshot()
     off_6AC7DC = v2;
     off_6ACA18 = v0;
 
-    unsigned char* palette = getSystemPalette();
+    unsigned char* palette = _getSystemPalette();
     gScreenshotHandler(width, height, gScreenshotBuffer, palette);
     internal_free(gScreenshotBuffer);
 }
@@ -848,7 +848,7 @@ void screenshotHandlerConfigure(int keyCode, ScreenshotHandler* handler)
 }
 
 // 0x4C9370
-unsigned int get_time()
+unsigned int _get_time()
 {
 #pragma warning(suppress : 28159)
     return GetTickCount();
@@ -858,15 +858,15 @@ unsigned int get_time()
 void coreDelayProcessingEvents(unsigned int delay)
 {
     // NOTE: Uninline.
-    unsigned int start = get_time();
-    unsigned int end = get_time();
+    unsigned int start = _get_time();
+    unsigned int end = _get_time();
 
     // NOTE: Uninline.
     unsigned int diff = getTicksBetween(end, start);
     while (diff < delay) {
-        process_bk();
+        _process_bk();
 
-        end = get_time();
+        end = _get_time();
 
         // NOTE: Uninline.
         diff = getTicksBetween(end, start);
@@ -906,7 +906,7 @@ unsigned int getTicksBetween(unsigned int end, unsigned int start)
 }
 
 // 0x4C9410
-unsigned int get_bk_time()
+unsigned int _get_bk_time()
 {
     return gTickerLastTimestamp;
 }
@@ -1242,9 +1242,9 @@ void buildNormalizedQwertyKeys()
 }
 
 // 0x4C9BB4
-void GNW95_hook_input(int a1)
+void _GNW95_hook_input(int a1)
 {
-    GNW95_hook_keyboard(a1);
+    _GNW95_hook_keyboard(a1);
 
     if (a1) {
         mouseDeviceAcquire();
@@ -1254,13 +1254,13 @@ void GNW95_hook_input(int a1)
 }
 
 // 0x4C9C20
-int GNW95_input_init()
+int _GNW95_input_init()
 {
     return 0;
 }
 
 // 0x4C9C28
-int GNW95_hook_keyboard(int a1)
+int _GNW95_hook_keyboard(int a1)
 {
     if (a1 == dword_51E244) {
         return 0;
@@ -1279,7 +1279,7 @@ int GNW95_hook_keyboard(int a1)
     }
 
     if (keyboardDeviceAcquire()) {
-        dword_6AC758 = SetWindowsHookExA(WH_KEYBOARD, GNW95_keyboard_hook, 0, GetCurrentThreadId());
+        dword_6AC758 = SetWindowsHookExA(WH_KEYBOARD, _GNW95_keyboard_hook, 0, GetCurrentThreadId());
         keyboardReset();
         dword_51E244 = a1;
 
@@ -1290,7 +1290,7 @@ int GNW95_hook_keyboard(int a1)
 }
 
 // 0x4C9C4C
-LRESULT CALLBACK GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK _GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (nCode >= 0) {
         if (wParam == VK_DELETE && lParam & 0x20000000 && GetAsyncKeyState(VK_CONTROL) & 0x80000000)
@@ -1316,16 +1316,16 @@ next:
 }
 
 // 0x4C9CF0
-void GNW95_process_message()
+void _GNW95_process_message()
 {
     if (gProgramIsActive && !keyboardIsDisabled()) {
         KeyboardData data;
         while (keyboardDeviceGetData(&data)) {
-            GNW95_process_key(&data);
+            _GNW95_process_key(&data);
         }
 
         // NOTE: Uninline
-        int tick = get_time();
+        int tick = _get_time();
 
         for (int key = 0; key < 256; key++) {
             STRUCT_6ABF50* ptr = &(stru_6ABF50[key]);
@@ -1335,7 +1335,7 @@ void GNW95_process_message()
                 if (elapsedTime > delay) {
                     data.key = key;
                     data.down = 1;
-                    GNW95_process_key(&data);
+                    _GNW95_process_key(&data);
 
                     ptr->tick = tick;
                     ptr->repeatCount++;
@@ -1354,7 +1354,7 @@ void GNW95_process_message()
 }
 
 // 0x4C9DF0
-void GNW95_clear_time_stamps()
+void _GNW95_clear_time_stamps()
 {
     for (int index = 0; index < 256; index++) {
         stru_6ABF50[index].tick = -1;
@@ -1363,7 +1363,7 @@ void GNW95_clear_time_stamps()
 }
 
 // 0x4C9E14
-void GNW95_process_key(KeyboardData* data)
+void _GNW95_process_key(KeyboardData* data)
 {
     short key = data->key & 0xFF;
 
@@ -1391,36 +1391,36 @@ void GNW95_process_key(KeyboardData* data)
     if (dword_51E2F8 == 1) {
         if (dword_51E304 & 1) {
             dword_51E308 = 2;
-            vcr_stop();
+            _vcr_stop();
         }
     } else {
         if ((key & 0x0100) != 0) {
-            kb_simulate_key(224);
+            _kb_simulate_key(224);
             qwertyKey -= 0x80;
         }
 
         STRUCT_6ABF50* ptr = &(stru_6ABF50[data->key & 0xFF]);
         if (data->down == 1) {
-            ptr->tick = get_time();
+            ptr->tick = _get_time();
             ptr->repeatCount = 0;
         } else {
             qwertyKey |= 0x80;
             ptr->tick = -1;
         }
 
-        kb_simulate_key(qwertyKey);
+        _kb_simulate_key(qwertyKey);
     }
 }
 
 // 0x4C9EEC
-void GNW95_lost_focus()
+void _GNW95_lost_focus()
 {
     if (off_51E238 != NULL) {
         off_51E238(0);
     }
 
     while (!gProgramIsActive) {
-        GNW95_process_message();
+        _GNW95_process_message();
 
         if (off_51E234 != NULL) {
             off_51E234();
@@ -1455,7 +1455,7 @@ int mouseInit()
     gMouseCursorY = stru_6AC9F0.bottom / 2;
     dword_6AC794 = stru_6AC9F0.right / 2;
     dword_6AC79C = stru_6AC9F0.bottom / 2;
-    dword_6AC7D4 = get_time();
+    dword_6AC7D4 = _get_time();
 
     return 0;
 }
@@ -1471,7 +1471,7 @@ void mouseFree()
     }
 
     if (dword_51E29C != NULL) {
-        tickersRemove(mouse_anim);
+        tickersRemove(_mouse_anim);
         dword_51E29C = NULL;
     }
 }
@@ -1541,7 +1541,7 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
     byte_6AC7E0 = a7;
 
     if (dword_51E29C) {
-        tickersRemove(mouse_anim);
+        tickersRemove(_mouse_anim);
         dword_51E29C = NULL;
     }
 
@@ -1555,7 +1555,7 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
 
     gMouseCursorY += v12;
 
-    mouse_clip();
+    _mouse_clip();
 
     if (!cursorWasHidden) {
         mouseShowCursor();
@@ -1570,10 +1570,10 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
 // NOTE: Looks like this code is not reachable.
 //
 // 0x4CA2D0
-void mouse_anim()
+void _mouse_anim()
 {
     if (getTicksSince(dword_51E2A8) >= dword_6AC7B4) {
-        dword_51E2A8 = get_time();
+        dword_51E2A8 = _get_time();
 
         if (++dword_6AC7B8 == dword_6AC7C8) {
             dword_6AC7B8 = 0;
@@ -1601,7 +1601,7 @@ void mouseShowCursor()
     v2 = gMouseCursorData;
     if (gMouseInitialized) {
         if (!off_6AC7D8 || !gCursorIsHidden) {
-            win_get_mouse_buf(gMouseCursorData);
+            _win_get_mouse_buf(gMouseCursorData);
             v2 = gMouseCursorData;
             v3 = 0;
 
@@ -1674,7 +1674,7 @@ void mouseHideCursor()
 }
 
 // 0x4CA59C
-void mouse_info()
+void _mouse_info()
 {
     if (!gMouseInitialized) {
         return;
@@ -1716,7 +1716,7 @@ void mouse_info()
     if (dword_51E2F8 == 1) {
         if (((dword_51E304 & 4) && buttons) || ((dword_51E304 & 2) && (x || y))) {
             dword_51E308 = 2;
-            vcr_stop();
+            _vcr_stop();
             return;
         }
         x = 0;
@@ -1724,11 +1724,11 @@ void mouse_info()
         buttons = gMouseButtonsState;
     }
 
-    mouse_simulate_input(x, y, buttons);
+    _mouse_simulate_input(x, y, buttons);
 }
 
 // 0x4CA698
-void mouse_simulate_input(int delta_x, int delta_y, int buttons)
+void _mouse_simulate_input(int delta_x, int delta_y, int buttons)
 {
     if (!gMouseInitialized || gCursorIsHidden) {
         return;
@@ -1737,7 +1737,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     if (delta_x || delta_y || buttons != gMouseButtonsState) {
         if (dword_51E2F8 == 0) {
             if (dword_51E2F4 == 4095) {
-                vcr_dump_buffer();
+                _vcr_dump_buffer();
             }
 
             STRUCT_51E2F0* ptr = &(off_51E2F0[dword_51E2F4]);
@@ -1753,7 +1753,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     } else {
         if (gMouseButtonsState == 0) {
             if (!dword_51E290) {
-                dword_6AC7D4 = get_time();
+                dword_6AC7D4 = _get_time();
                 dword_51E290 = 1;
             }
 
@@ -1776,7 +1776,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
 
             if (getTicksSince(gMouseLeftButtonDownTimestamp) > BUTTON_REPEAT_TIME) {
                 gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-                gMouseLeftButtonDownTimestamp = get_time();
+                gMouseLeftButtonDownTimestamp = _get_time();
             }
         } else {
             gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_UP;
@@ -1784,7 +1784,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     } else {
         if ((buttons & 0x01) != 0) {
             gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-            gMouseLeftButtonDownTimestamp = get_time();
+            gMouseLeftButtonDownTimestamp = _get_time();
         }
     }
 
@@ -1793,7 +1793,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
             gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_REPEAT;
             if (getTicksSince(gMouseRightButtonDownTimestamp) > BUTTON_REPEAT_TIME) {
                 gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-                gMouseRightButtonDownTimestamp = get_time();
+                gMouseRightButtonDownTimestamp = _get_time();
             }
         } else {
             gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_UP;
@@ -1801,7 +1801,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     } else {
         if (buttons & 0x02) {
             gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-            gMouseRightButtonDownTimestamp = get_time();
+            gMouseRightButtonDownTimestamp = _get_time();
         }
     }
 
@@ -1816,7 +1816,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
 
         gMouseCursorX += delta_x;
         gMouseCursorY += delta_y;
-        mouse_clip();
+        _mouse_clip();
 
         windowRefreshAll(&mouseRect);
 
@@ -1828,7 +1828,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
 }
 
 // 0x4CA8C8
-bool mouse_in(int left, int top, int right, int bottom)
+bool _mouse_in(int left, int top, int right, int bottom)
 {
     if (!gMouseInitialized) {
         return false;
@@ -1841,7 +1841,7 @@ bool mouse_in(int left, int top, int right, int bottom)
 }
 
 // 0x4CA934
-bool mouse_click_in(int left, int top, int right, int bottom)
+bool _mouse_click_in(int left, int top, int right, int bottom)
 {
     if (!gMouseInitialized) {
         return false;
@@ -1870,17 +1870,17 @@ void mouseGetPosition(int* xPtr, int* yPtr)
 }
 
 // 0x4CAA04
-void mouse_set_position(int a1, int a2)
+void _mouse_set_position(int a1, int a2)
 {
     gMouseCursorX = a1 - dword_6AC7D0;
     gMouseCursorY = a2 - dword_6AC7CC;
     dword_6AC79C = a2 - dword_6AC7CC;
     dword_6AC794 = a1 - dword_6AC7D0;
-    mouse_clip();
+    _mouse_clip();
 }
 
 // 0x4CAA38
-void mouse_clip()
+void _mouse_clip()
 {
     if (dword_6AC7D0 + gMouseCursorX < stru_6AC9F0.left) {
         gMouseCursorX = stru_6AC9F0.left - dword_6AC7D0;
@@ -1908,7 +1908,7 @@ bool cursorIsHidden()
 }
 
 // 0x4CAB5C
-void mouse_get_raw_state(int* out_x, int* out_y, int* out_buttons)
+void _mouse_get_raw_state(int* out_x, int* out_y, int* out_buttons)
 {
     MouseData mouseData;
     if (!mouseDeviceGetData(&mouseData)) {
@@ -1957,51 +1957,51 @@ void mmxSetEnabled(bool a1)
 }
 
 // 0x4CAD08
-int init_mode_320_200()
+int _init_mode_320_200()
 {
-    return GNW95_init_mode_ex(320, 200, 8);
+    return _GNW95_init_mode_ex(320, 200, 8);
 }
 
 // 0x4CAD40
-int init_mode_320_400()
+int _init_mode_320_400()
 {
-    return GNW95_init_mode_ex(320, 400, 8);
+    return _GNW95_init_mode_ex(320, 400, 8);
 }
 
 // 0x4CAD5C
-int init_mode_640_480_16()
+int _init_mode_640_480_16()
 {
     return -1;
 }
 
 // 0x4CAD64
-int init_mode_640_480()
+int _init_mode_640_480()
 {
-    return init_vesa_mode(640, 480);
+    return _init_vesa_mode(640, 480);
 }
 
 // 0x4CAD94
-int init_mode_640_400()
+int _init_mode_640_400()
 {
-    return init_vesa_mode(640, 400);
+    return _init_vesa_mode(640, 400);
 }
 
 // 0x4CADA8
-int init_mode_800_600()
+int _init_mode_800_600()
 {
-    return init_vesa_mode(800, 600);
+    return _init_vesa_mode(800, 600);
 }
 
 // 0x4CADBC
-int init_mode_1024_768()
+int _init_mode_1024_768()
 {
-    return init_vesa_mode(1024, 768);
+    return _init_vesa_mode(1024, 768);
 }
 
 // 0x4CADD0
-int init_mode_1280_1024()
+int _init_mode_1280_1024()
 {
-    return init_vesa_mode(1280, 1024);
+    return _init_vesa_mode(1280, 1024);
 }
 
 // 0x4CADF8
@@ -2010,7 +2010,7 @@ void sub_4CADF8()
 }
 
 // 0x4CADFC
-void zero_vid_mem()
+void _zero_vid_mem()
 {
     if (dword_6ACA1C) {
         dword_6ACA1C();
@@ -2018,9 +2018,9 @@ void zero_vid_mem()
 }
 
 // 0x4CAE1C
-int GNW95_init_mode_ex(int width, int height, int bpp)
+int _GNW95_init_mode_ex(int width, int height, int bpp)
 {
-    if (GNW95_init_window() == -1) {
+    if (_GNW95_init_window() == -1) {
         return -1;
     }
 
@@ -2037,27 +2037,27 @@ int GNW95_init_mode_ex(int width, int height, int bpp)
 
     if (bpp == 8) {
         off_6AC7D8 = NULL;
-        off_6ACA18 = GNW95_ShowRect;
-        dword_6ACA1C = GNW95_zero_vid_mem;
-        off_6AC7DC = GNW95_ShowRect;
+        off_6ACA18 = _GNW95_ShowRect;
+        dword_6ACA1C = _GNW95_zero_vid_mem;
+        off_6AC7DC = _GNW95_ShowRect;
     } else {
          dword_6ACA1C = NULL;
-         off_6AC7DC = GNW95_MouseShowRect16;
-         off_6AC7D8 = GNW95_MouseShowTransRect16;
-         off_6ACA18 = GNW95_ShowRect16;
+         off_6AC7DC = _GNW95_MouseShowRect16;
+         off_6AC7D8 = _GNW95_MouseShowTransRect16;
+         off_6ACA18 = _GNW95_ShowRect16;
     }
 
     return 0;
 }
 
 // 0x4CAECC
-int init_vesa_mode(int width, int height)
+int _init_vesa_mode(int width, int height)
 {
-    return GNW95_init_mode_ex(width, height, 8);
+    return _GNW95_init_mode_ex(width, height, 8);
 }
 
 // 0x4CAEDC
-int GNW95_init_window()
+int _GNW95_init_window()
 {
     if (gProgramWindow == NULL) {
         int width = GetSystemMetrics(SM_CXSCREEN);
@@ -2333,7 +2333,7 @@ unsigned char* directDrawGetPalette()
 }
 
 // 0x4CB850
-void GNW95_ShowRect(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
+void _GNW95_ShowRect(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
 {
     DDSURFACEDESC ddsd;
     HRESULT hr;
@@ -2363,7 +2363,7 @@ void GNW95_ShowRect(unsigned char* src, int srcPitch, int a3, int srcX, int srcY
 }
 
 // 0x4CB93C
-void GNW95_MouseShowRect16(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
+void _GNW95_MouseShowRect16(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
 {
     DDSURFACEDESC ddsd;
     HRESULT hr;
@@ -2408,13 +2408,13 @@ void GNW95_MouseShowRect16(unsigned char* src, int srcPitch, int a3, int srcX, i
 }
 
 // 0x4CBA44
-void GNW95_ShowRect16(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
+void _GNW95_ShowRect16(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY)
 {
-    GNW95_MouseShowRect16(src, srcPitch, a3, srcX, srcY, srcWidth, srcHeight, destX, destY);
+    _GNW95_MouseShowRect16(src, srcPitch, a3, srcX, srcY, srcWidth, srcHeight, destX, destY);
 }
 
 // 0x4CBAB0
-void GNW95_MouseShowTransRect16(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, unsigned char keyColor)
+void _GNW95_MouseShowTransRect16(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int srcWidth, int srcHeight, int destX, int destY, unsigned char keyColor)
 {
     DDSURFACEDESC ddsd;
     HRESULT hr;
@@ -2463,7 +2463,7 @@ void GNW95_MouseShowTransRect16(unsigned char* src, int srcPitch, int a3, int sr
 // Clears drawing surface.
 //
 // 0x4CBBC8
-void GNW95_zero_vid_mem()
+void _GNW95_zero_vid_mem()
 {
     DDSURFACEDESC ddsd;
     HRESULT hr;
@@ -2513,11 +2513,11 @@ int keyboardInit()
     gKeyboardEventQueueReadIndex = 0;
 
     keyboardDeviceReset();
-    GNW95_clear_time_stamps();
-    kb_init_lock_status();
+    _GNW95_clear_time_stamps();
+    _kb_init_lock_status();
     keyboardSetLayout(KEYBOARD_LAYOUT_QWERTY);
 
-    dword_6AD930 = get_time();
+    dword_6AD930 = _get_time();
 
     return 0;
 }
@@ -2543,10 +2543,10 @@ void keyboardReset()
     }
 
     keyboardDeviceReset();
-    GNW95_clear_time_stamps();
+    _GNW95_clear_time_stamps();
 }
 
-int kb_getch()
+int _kb_getch()
 {
     int rc = -1;
 
@@ -2583,24 +2583,24 @@ void keyboardSetLayout(int keyboardLayout)
 
     switch (keyboardLayout) {
     case KEYBOARD_LAYOUT_QWERTY:
-        off_51E2EC = kb_next_ascii_English_US;
+        off_51E2EC = _kb_next_ascii_English_US;
         keyboardBuildQwertyConfiguration();
         break;
     // case KEYBOARD_LAYOUT_FRENCH:
     //    off_51E2EC = sub_4CC5BC;
-    //    kb_map_ascii_French();
+    //    _kb_map_ascii_French();
     //    break;
     // case KEYBOARD_LAYOUT_GERMAN:
     //    off_51E2EC = sub_4CC94C;
-    //    kb_map_ascii_German();
+    //    _kb_map_ascii_German();
     //    break;
     // case KEYBOARD_LAYOUT_ITALIAN:
     //    off_51E2EC = sub_4CCE14;
-    //    kb_map_ascii_Italian();
+    //    _kb_map_ascii_Italian();
     //    break;
     // case KEYBOARD_LAYOUT_SPANISH:
     //    off_51E2EC = sub_4CD0E0;
-    //    kb_map_ascii_Spanish();
+    //    _kb_map_ascii_Spanish();
     //    break;
     default:
         gKeyboardLayout = oldKeyboardLayout;
@@ -2615,7 +2615,7 @@ int keyboardGetLayout()
 }
 
 // TODO: Key type is likely short.
-void kb_simulate_key(int key)
+void _kb_simulate_key(int key)
 {
     if (dword_51E2F8 == 0) {
         if (dword_51E2F4 != 4095) {
@@ -2628,7 +2628,7 @@ void kb_simulate_key(int key)
         }
     }
 
-    dword_6AD930 = get_bk_time();
+    dword_6AD930 = _get_bk_time();
 
     if (key == 224) {
         word_51E2E8 = 0x80;
@@ -2752,7 +2752,7 @@ void kb_simulate_key(int key)
 }
 
 // 0x4CC2F0
-int kb_next_ascii_English_US()
+int _kb_next_ascii_English_US()
 {
     KeyboardEvent* keyboardEvent;
     if (keyboardPeekEvent(0, &keyboardEvent) != 0) {
@@ -4394,7 +4394,7 @@ void keyboardBuildSpanishConfiguration()
 }
 
 // 0x4D24F8
-void kb_init_lock_status()
+void _kb_init_lock_status()
 {
     if (GetKeyState(VK_CAPITAL) & 1) {
         gModifierKeysState |= MODIFIER_KEY_STATE_CAPS_LOCK;
@@ -4435,7 +4435,7 @@ int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr)
 }
 
 // 0x4D2680
-bool vcr_record(const char* fileName)
+bool _vcr_record(const char* fileName)
 {
     if (dword_51E2F8 != 2) {
         return false;
@@ -4454,12 +4454,12 @@ bool vcr_record(const char* fileName)
         return false;
     }
 
-    vcr_clear_buffer();
+    _vcr_clear_buffer();
 
     dword_51E314 = fileOpen(fileName, "wb");
     if (dword_51E314 == NULL) {
         if (off_51E2F0 != NULL) {
-            vcr_clear_buffer();
+            _vcr_clear_buffer();
             internal_free(off_51E2F0);
             off_51E2F0 = NULL;
         }
@@ -4467,7 +4467,7 @@ bool vcr_record(const char* fileName)
     }
 
     if (dword_51E310 == 0) {
-        dword_51E310 = atexit(vcr_stop);
+        dword_51E310 = atexit(_vcr_stop);
     }
 
     STRUCT_51E2F0* entry = &(off_51E2F0[dword_51E2F4]);
@@ -4477,14 +4477,14 @@ bool vcr_record(const char* fileName)
     entry->type_1_field_14 = keyboardGetLayout();
 
     while (mouseGetEvent() != 0) {
-        mouse_info();
+        _mouse_info();
     }
 
     mouseGetPosition(&(entry->type_1_field_C), &(entry->type_1_field_10));
 
     dword_51E300 = 1;
     dword_51E2F4++;
-    dword_51E30C = get_time();
+    dword_51E30C = _get_time();
     keyboardReset();
     dword_51E2F8 = 0;
     
@@ -4492,7 +4492,7 @@ bool vcr_record(const char* fileName)
 }
 
 // 0x4D28F4
-int vcr_stop(void)
+int _vcr_stop(void)
 {
     if (dword_51E2F8 == 0 || dword_51E2F8 == 1) {
         dword_51E2F8 |= 0x80000000;
@@ -4504,20 +4504,20 @@ int vcr_stop(void)
 }
 
 // 0x4D2918
-int vcr_status()
+int _vcr_status()
 {
     return dword_51E2F8;
 }
 
 // 0x4D2930
-int vcr_update()
+int _vcr_update()
 {
     // TODO: Incomplete.
     return 0;
 }
 
 // 0x4D2CD0
-bool vcr_clear_buffer()
+bool _vcr_clear_buffer()
 {
     if (off_51E2F0 == NULL) {
         return false;
@@ -4529,14 +4529,14 @@ bool vcr_clear_buffer()
 }
 
 // 0x4D2CF0
-int vcr_dump_buffer()
+int _vcr_dump_buffer()
 {
     if (!off_51E2F0 || !dword_51E314) {
         return 0;
     }
 
     for (int index = 0; index < dword_51E2F4; index++) {
-        if (vcr_save_record(&(off_51E2F0[index]), dword_51E314)) {
+        if (_vcr_save_record(&(off_51E2F0[index]), dword_51E314)) {
             dword_51E2F4 = 0;
             return 1;
         }
@@ -4546,17 +4546,17 @@ int vcr_dump_buffer()
 }
 
 // 0x4D2E00
-bool vcr_save_record(STRUCT_51E2F0* ptr, File* stream)
+bool _vcr_save_record(STRUCT_51E2F0* ptr, File* stream)
 {
-    if (db_fwriteLong(stream, ptr->type) == -1) goto err;
-    if (db_fwriteLong(stream, ptr->field_4) == -1) goto err;
-    if (db_fwriteLong(stream, ptr->field_8) == -1) goto err;
+    if (_db_fwriteLong(stream, ptr->type) == -1) goto err;
+    if (_db_fwriteLong(stream, ptr->field_4) == -1) goto err;
+    if (_db_fwriteLong(stream, ptr->field_8) == -1) goto err;
 
     switch (ptr->type) {
     case 1:
-        if (db_fwriteLong(stream, ptr->type_1_field_C) == -1) goto err;
-        if (db_fwriteLong(stream, ptr->type_1_field_10) == -1) goto err;
-        if (db_fwriteLong(stream, ptr->type_1_field_14) == -1) goto err;
+        if (_db_fwriteLong(stream, ptr->type_1_field_C) == -1) goto err;
+        if (_db_fwriteLong(stream, ptr->type_1_field_10) == -1) goto err;
+        if (_db_fwriteLong(stream, ptr->type_1_field_14) == -1) goto err;
 
         return true;
     case 2:
@@ -4564,9 +4564,9 @@ bool vcr_save_record(STRUCT_51E2F0* ptr, File* stream)
 
         return true;
     case 3:
-        if (db_fwriteLong(stream, ptr->dx) == -1) goto err;
-        if (db_fwriteLong(stream, ptr->dy) == -1) goto err;
-        if (db_fwriteLong(stream, ptr->buttons) == -1) goto err;
+        if (_db_fwriteLong(stream, ptr->dx) == -1) goto err;
+        if (_db_fwriteLong(stream, ptr->dy) == -1) goto err;
+        if (_db_fwriteLong(stream, ptr->buttons) == -1) goto err;
 
         return true;
     }
@@ -4577,17 +4577,17 @@ err:
 }
 
 // 0x4D2EE4
-bool vcr_load_record(STRUCT_51E2F0* ptr, File* stream)
+bool _vcr_load_record(STRUCT_51E2F0* ptr, File* stream)
 {
-    if (db_freadInt(stream, &(ptr->type)) == -1) goto err;
-    if (db_freadInt(stream, &(ptr->field_4)) == -1) goto err;
-    if (db_freadInt(stream, &(ptr->field_8)) == -1) goto err;
+    if (_db_freadInt(stream, &(ptr->type)) == -1) goto err;
+    if (_db_freadInt(stream, &(ptr->field_4)) == -1) goto err;
+    if (_db_freadInt(stream, &(ptr->field_8)) == -1) goto err;
 
     switch (ptr->type) {
     case 1:
-        if (db_freadInt(stream, &(ptr->type_1_field_C)) == -1) goto err;
-        if (db_freadInt(stream, &(ptr->type_1_field_10)) == -1) goto err;
-        if (db_freadInt(stream, &(ptr->type_1_field_14)) == -1) goto err;
+        if (_db_freadInt(stream, &(ptr->type_1_field_C)) == -1) goto err;
+        if (_db_freadInt(stream, &(ptr->type_1_field_10)) == -1) goto err;
+        if (_db_freadInt(stream, &(ptr->type_1_field_14)) == -1) goto err;
 
         return true;
     case 2:
@@ -4595,9 +4595,9 @@ bool vcr_load_record(STRUCT_51E2F0* ptr, File* stream)
 
         return true;
     case 3:
-        if (db_freadInt(stream, &(ptr->dx)) == -1) goto err;
-        if (db_freadInt(stream, &(ptr->dy)) == -1) goto err;
-        if (db_freadInt(stream, &(ptr->buttons)) == -1) goto err;
+        if (_db_freadInt(stream, &(ptr->dx)) == -1) goto err;
+        if (_db_freadInt(stream, &(ptr->dy)) == -1) goto err;
+        if (_db_freadInt(stream, &(ptr->buttons)) == -1) goto err;
 
         return true;
     }

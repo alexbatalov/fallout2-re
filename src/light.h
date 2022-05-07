@@ -19,7 +19,7 @@ extern int gLightIntensity[ELEVATION_COUNT][HEX_GRID_SIZE];
 int lightInit();
 int lightGetLightLevel();
 void lightSetLightLevel(int lightLevel, bool shouldUpdateScreen);
-int light_get_tile(int elevation, int tile);
+int _light_get_tile(int elevation, int tile);
 int lightGetIntensity(int elevation, int tile);
 void lightSetIntensity(int elevation, int tile, int intensity);
 void lightIncreaseIntensity(int elevation, int tile, int intensity);

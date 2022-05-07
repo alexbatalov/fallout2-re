@@ -36,6 +36,6 @@ int soundEffectsListCopyFileNames(char** fileNameList);
 int soundEffectsListPopulateFileSizes();
 int soundEffectsListSort();
 int soundEffectsListCompareByName(const void* a1, const void* a2);
-int sfxl_ad_reader(int fileHandle, void* buf, unsigned int size);
+int _sfxl_ad_reader(int fileHandle, void* buf, unsigned int size);
 
 #endif /* SOUND_EFFECTS_LIST_H */

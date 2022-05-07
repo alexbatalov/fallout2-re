@@ -295,7 +295,7 @@ int critterAdjustPoison(Object* critter, int amount)
     if (newPoison > 0) {
         critter->data.critter.poison = newPoison;
 
-        queue_clear_type(EVENT_TYPE_POISON, NULL);
+        _queue_clear_type(EVENT_TYPE_POISON, NULL);
         queueAddEvent(10 * (505 - 5 * newPoison), gDude, NULL, EVENT_TYPE_POISON);
 
         // You have been poisoned!
@@ -432,7 +432,7 @@ int critterAdjustRadiation(Object* obj, int amount)
 }
 
 // 0x42D4F4
-int critter_check_rads(Object* obj)
+int _critter_check_rads(Object* obj)
 {
     if (obj != gDude) {
         return 0;
@@ -446,7 +446,7 @@ int critter_check_rads(Object* obj)
 
     dword_56D7CC = 0;
 
-    queue_clear_type(EVENT_TYPE_RADIATION, get_rad_damage_level);
+    _queue_clear_type(EVENT_TYPE_RADIATION, _get_rad_damage_level);
 
     // NOTE: Uninline
     int radiation = critterGetRadiation(obj);
@@ -487,7 +487,7 @@ int critter_check_rads(Object* obj)
 }
 
 // 0x42D618
-int get_rad_damage_level(Object* obj, void* data)
+int _get_rad_damage_level(Object* obj, void* data)
 {
     RadiationEvent* radiationEvent = data;
 
@@ -497,12 +497,12 @@ int get_rad_damage_level(Object* obj, void* data)
 }
 
 // 0x42D624
-int clear_rad_damage(Object* obj, void* data)
+int _clear_rad_damage(Object* obj, void* data)
 {
     RadiationEvent* radiationEvent = data;
 
     if (radiationEvent->isHealing) {
-        process_rads(obj, radiationEvent->radiationLevel, true);
+        _process_rads(obj, radiationEvent->radiationLevel, true);
     }
 
     return 1;
@@ -511,7 +511,7 @@ int clear_rad_damage(Object* obj, void* data)
 // Applies radiation.
 //
 // 0x42D63C
-void process_rads(Object* obj, int radiationLevel, bool isHealing)
+void _process_rads(Object* obj, int radiationLevel, bool isHealing)
 {
     MessageListItem messageListItem;
 
@@ -568,14 +568,14 @@ int radiationEventProcess(Object* obj, void* data)
         // Schedule healing stats event in 7 days.
         RadiationEvent* newRadiationEvent = internal_malloc(sizeof(*newRadiationEvent));
         if (newRadiationEvent != NULL) {
-            queue_clear_type(EVENT_TYPE_RADIATION, clear_rad_damage);
+            _queue_clear_type(EVENT_TYPE_RADIATION, _clear_rad_damage);
             newRadiationEvent->radiationLevel = radiationEvent->radiationLevel;
             newRadiationEvent->isHealing = 1;
             queueAddEvent(GAME_TIME_TICKS_PER_DAY * 7, obj, newRadiationEvent, EVENT_TYPE_RADIATION);
         }
     }
 
-    process_rads(obj, radiationEvent->radiationLevel, radiationEvent->isHealing);
+    _process_rads(obj, radiationEvent->radiationLevel, radiationEvent->isHealing);
 
     return 1;
 }
@@ -721,7 +721,7 @@ char* killTypeGetDescription(int killType)
 }
 
 // 0x42D9F4
-int critter_heal_hours(Object* critter, int a2)
+int _critter_heal_hours(Object* critter, int a2)
 {
     if ((critter->pid >> 24) != OBJ_TYPE_CRITTER) {
         return -1;
@@ -737,7 +737,7 @@ int critter_heal_hours(Object* critter, int a2)
 }
 
 // 0x42DA54
-int critterClearObjDrugs(Object* obj, void* data)
+int _critterClearObjDrugs(Object* obj, void* data)
 {
     return obj == off_518438;
 }
@@ -756,7 +756,7 @@ void critterKill(Object* critter, int anim, bool a3)
     // NOTE: Original code uses goto to jump out from nested conditions below.
     bool shouldChangeFid = false;
     int fid;
-    if (critter_is_prone(critter)) {
+    if (_critter_is_prone(critter)) {
         int current = (critter->fid & 0xFF0000) >> 16;
         if (current == ANIM_FALL_BACK || current == ANIM_FALL_FRONT) {
             bool back = false;
@@ -786,12 +786,12 @@ void critterKill(Object* critter, int anim, bool a3)
         }
 
         fid = buildFid(1, critter->fid & 0xFFF, anim, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
-        obj_fix_violence_settings(&fid);
+        _obj_fix_violence_settings(&fid);
         if (!artExists(fid)) {
             debugPrint("\nError: Critter Kill: Can't match fid!");
 
             fid = buildFid(1, critter->fid & 0xFFF, ANIM_FALL_BACK_BLOOD_SF, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
-            obj_fix_violence_settings(&fid);
+            _obj_fix_violence_settings(&fid);
         }
 
         shouldChangeFid = true;
@@ -807,16 +807,16 @@ void critterKill(Object* critter, int anim, bool a3)
         rectUnion(&updatedRect, &tempRect, &updatedRect);
     }
 
-    if (!critter_flag_check(critter->pid, 2048)) {
+    if (!_critter_flag_check(critter->pid, 2048)) {
         critter->flags |= 0x10;
-        obj_toggle_flat(critter, &tempRect);
+        _obj_toggle_flat(critter, &tempRect);
     }
 
     // NOTE: using uninitialized updatedRect/tempRect if fid was not set.
 
     rectUnion(&updatedRect, &tempRect, &updatedRect);
 
-    obj_turn_off_light(critter, &tempRect);
+    _obj_turn_off_light(critter, &tempRect);
     rectUnion(&updatedRect, &tempRect, &updatedRect);
 
     critter->data.critter.hp = 0;
@@ -828,9 +828,9 @@ void critterKill(Object* critter, int anim, bool a3)
     }
 
     off_518438 = critter;
-    queue_clear_type(EVENT_TYPE_DRUG, critterClearObjDrugs);
+    _queue_clear_type(EVENT_TYPE_DRUG, _critterClearObjDrugs);
 
-    item_destroy_all_hidden(critter);
+    _item_destroy_all_hidden(critter);
 
     if (a3) {
         tileWindowRefreshRect(&updatedRect, elevation);
@@ -911,7 +911,7 @@ bool critterIsCrippled(Object* critter)
 }
 
 // 0x42DD80
-bool critter_is_prone(Object* critter)
+bool _critter_is_prone(Object* critter)
 {
     if (critter == NULL) {
         return false;
@@ -1152,7 +1152,7 @@ int sneakEventProcess(Object* obj, void* data)
 }
 
 // 0x42E3E4
-int critter_sneak_clear(Object* obj, void* data)
+int _critter_sneak_clear(Object* obj, void* data)
 {
     dudeDisableState(DUDE_STATE_SNEAKING);
     return 1;
@@ -1184,14 +1184,14 @@ int knockoutEventProcess(Object* obj, void* data)
     if (isInCombat()) {
         obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
     } else {
-        dude_standup(obj);
+        _dude_standup(obj);
     }
 
     return 0;
 }
 
 // 0x42E460
-int critter_wake_clear(Object* obj, void* data)
+int _critter_wake_clear(Object* obj, void* data)
 {
     if ((obj->pid >> 24) != OBJ_TYPE_CRITTER) {
         return 0;
@@ -1210,7 +1210,7 @@ int critter_wake_clear(Object* obj, void* data)
 }
 
 // 0x42E4C0
-int critter_set_who_hit_me(Object* a1, Object* a2)
+int _critter_set_who_hit_me(Object* a1, Object* a2)
 {
     if (a1 == NULL) {
         return -1;
@@ -1233,10 +1233,10 @@ int critter_set_who_hit_me(Object* a1, Object* a2)
 }
 
 // 0x42E564
-bool critter_can_obj_dude_rest()
+bool _critter_can_obj_dude_rest()
 {
     bool v1 = false;
-    if (!wmMapCanRestHere(gElevation)) {
+    if (!_wmMapCanRestHere(gElevation)) {
         v1 = true;
     }
 
@@ -1309,7 +1309,7 @@ bool critterIsFleeing(Object* critter)
 // Checks proto critter flag.
 //
 // 0x42E6AC
-bool critter_flag_check(int pid, int flag)
+bool _critter_flag_check(int pid, int flag)
 {
     if (pid == -1) {
         return false;

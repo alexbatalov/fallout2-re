@@ -1,6 +1,6 @@
 #ifndef TRAP_H
 #define TRAP_H
 
-void trap_init();
+void _trap_init();
 
 #endif /* TRAP_H */

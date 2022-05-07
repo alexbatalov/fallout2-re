@@ -51,7 +51,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
     soundContinueAll();
 
     char localizedPath[MAX_PATH];
-    if (message_make_path(localizedPath, filePath)) {
+    if (_message_make_path(localizedPath, filePath)) {
         gCreditsFile = fileOpen(localizedPath, "rt");
         if (gCreditsFile != NULL) {
             soundContinueAll();
@@ -137,7 +137,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                                     unsigned char* dest = intermediateBuffer + CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH + (CREDITS_WINDOW_WIDTH - v19) / 2;
                                     unsigned char* src = stringBuffer;
                                     for (int index = 0; index < lineHeight; index++) {
-                                        if (get_input() != -1) {
+                                        if (_get_input() != -1) {
                                             stop = true;
                                             break;
                                         }
@@ -162,7 +162,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                                         while (getTicksSince(tick) < CREDITS_WINDOW_SCROLLING_DELAY) {
                                         }
 
-                                        tick = get_time();
+                                        tick = _get_time();
 
                                         windowRefresh(window);
 
@@ -176,7 +176,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                                 if (!stop) {
                                     for (int index = 0; index < CREDITS_WINDOW_HEIGHT; index++) {
-                                        if (get_input() != -1) {
+                                        if (_get_input() != -1) {
                                             break;
                                         }
 
@@ -200,7 +200,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                                         while (getTicksSince(tick) < CREDITS_WINDOW_SCROLLING_DELAY) {
                                         }
 
-                                        tick = get_time();
+                                        tick = _get_time();
 
                                         windowRefresh(window);
                                     }

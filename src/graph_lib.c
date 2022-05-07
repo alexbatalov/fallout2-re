@@ -64,7 +64,7 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
         return -1;
     }
 
-    InitTree();
+    _InitTree();
 
     memset(off_596EA4, ' ', 4078);
 
@@ -82,10 +82,10 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
     dword_596E98 = count;
 
     for (int index = 4077; index > 4059; index--) {
-        InsertNode(index);
+        _InsertNode(index);
     }
 
-    InsertNode(4078);
+    _InsertNode(4078);
 
     unsigned char v29[32];
     v29[1] = 0;
@@ -152,7 +152,7 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
                 break;
             }
 
-            DeleteNode(v10);
+            _DeleteNode(v10);
 
             unsigned char* v19 = off_596EA4 + v10;
             off_596EA4[v10] = v34;
@@ -163,15 +163,15 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
 
             v3 = (v3 + 1) & 0xFFF;
             v10 = (v10 + 1) & 0xFFF;
-            InsertNode(v3);
+            _InsertNode(v3);
         }
 
         for (; v16 < v38; v16++) {
-            DeleteNode(v10);
+            _DeleteNode(v10);
             v3 = (v3 + 1) & 0xFFF;
             v10 = (v10 + 1) & 0xFFF;
             if (--count != 0) {
-                InsertNode(v3);
+                _InsertNode(v3);
             }
         }
     }
@@ -203,7 +203,7 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
 }
 
 // 0x44F5F0
-void InitTree()
+void _InitTree()
 {
     for (int index = 4097; index < 4353; index++) {
         off_596E9C[index] = 4096;
@@ -215,7 +215,7 @@ void InitTree()
 }
 
 // 0x44F63C
-void InsertNode(int a1)
+void _InsertNode(int a1)
 {
     off_596EA0[a1] = 4096;
     off_596E9C[a1] = 4096;
@@ -281,7 +281,7 @@ void InsertNode(int a1)
 }
 
 // 0x44F7EC
-void DeleteNode(int a1)
+void _DeleteNode(int a1)
 {
     if (off_596E90[a1] != 4096) {
         int v5;

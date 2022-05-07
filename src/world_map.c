@@ -616,7 +616,7 @@ int worldmapInit()
 {
     char path[MAX_PATH];
 
-    if (wmGenDataInit() == -1) {
+    if (_wmGenDataInit() == -1) {
         return -1;
     }
 
@@ -636,16 +636,16 @@ int worldmapInit()
 
     dword_672EFC = WM_TILE_WIDTH * gWorldmapGridWidth - WM_VIEW_WIDTH;
     dword_672F00 = WM_TILE_HEIGHT * (gWorldmapTilesLength / gWorldmapGridWidth) - WM_VIEW_HEIGHT;
-    off_51DE34 = getColorBlendTable(byte_6A38D0[992]);
+    off_51DE34 = _getColorBlendTable(byte_6A38D0[992]);
 
-    wmMarkSubTileRadiusVisited(dword_672E0C, dword_672E10);
-    wmWorldMapSaveTempData();
+    _wmMarkSubTileRadiusVisited(dword_672E0C, dword_672E10);
+    _wmWorldMapSaveTempData();
 
     return 0;
 }
 
 // 0x4BC984
-int wmGenDataInit()
+int _wmGenDataInit()
 {
     dword_672E04 = 0;
     dword_672E08 = -1;
@@ -751,7 +751,7 @@ int wmGenDataInit()
 }
 
 // 0x4BCBFC
-int wmGenDataReset()
+int _wmGenDataReset()
 {
     dword_672E04 = 0;
     off_672E14 = 0;
@@ -830,7 +830,7 @@ int wmGenDataReset()
     gWorldmapMonthsFrm = NULL;
     gWorldmapNumbersFrm = NULL;
 
-    wmMarkSubTileRadiusVisited(dword_672E0C, dword_672E10);
+    _wmMarkSubTileRadiusVisited(dword_672E0C, dword_672E10);
 
     return 0;
 }
@@ -879,7 +879,7 @@ void worldmapExit()
     gMapsLength = 0;
 
     if (off_51DE34 != NULL) {
-        freeColorBlendTable(byte_6A38D0[992]);
+        _freeColorBlendTable(byte_6A38D0[992]);
         off_51DE34 = NULL;
     }
 
@@ -892,10 +892,10 @@ int worldmapReset()
     gWorldmapOffsetX = 0;
     gWorldmapOffsetY = 0;
 
-    wmWorldMapLoadTempData();
-    wmMarkAllSubTiles(0);
+    _wmWorldMapLoadTempData();
+    _wmMarkAllSubTiles(0);
 
-    return wmGenDataReset();
+    return _wmGenDataReset();
 }
 
 // 0x4BCF28
@@ -1056,13 +1056,13 @@ int worldmapLoad(File* stream)
         if (fileReadInt32(stream, &(encounter_entry->counter)) == -1) return -1;
     }
 
-    wmInterfaceCenterOnParty();
+    _wmInterfaceCenterOnParty();
 
     return 0;
 }
 
 // 0x4BD678
-int wmWorldMapSaveTempData()
+int _wmWorldMapSaveTempData()
 {
     File* stream = fileOpen("worldmap.dat", "wb");
     if (stream == NULL) {
@@ -1080,7 +1080,7 @@ int wmWorldMapSaveTempData()
 }
 
 // 0x4BD6B4
-int wmWorldMapLoadTempData()
+int _wmWorldMapLoadTempData()
 {
     File* stream = fileOpen("worldmap.dat", "rb");
     if (stream == NULL) {
@@ -1118,7 +1118,7 @@ int worldmapConfigInit()
 
         char* terrainTypes;
         configGetString(&config, "data", "terrain_types", &terrainTypes);
-        wmParseTerrainTypes(&config, terrainTypes);
+        _wmParseTerrainTypes(&config, terrainTypes);
 
         for (int index = 0;; index++) {
             char section[40];
@@ -1287,7 +1287,7 @@ int worldmapConfigLoadEncounterEntry(EncounterEntry* entry, char* string)
             }
         }
 
-        if (wmParseEncounterSubEncStr(entry, &string) == -1) {
+        if (_wmParseEncounterSubEncStr(entry, &string) == -1) {
             break;
         }
 
@@ -1306,7 +1306,7 @@ int worldmapConfigLoadEncounterEntry(EncounterEntry* entry, char* string)
 }
 
 // 0x4BDCA8
-int wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
+int _wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
 {
     char* string = *stringPtr;
     if (strnicmp(string, "enc:", 4) != 0) {
@@ -1330,7 +1330,7 @@ int wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
         ENCOUNTER_ENTRY_ENC* entry = &(encounterEntry->field_54[encounterEntry->field_50]);
 
         // NOTE: Uninline.
-        wmEncounterSubEncSlotInit(entry);
+        _wmEncounterSubEncSlotInit(entry);
 
         if (*string == '(') {
             string++;
@@ -1367,7 +1367,7 @@ int wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
         char ch = *end;
         *end = '\0';
 
-        if (strParseStrFromFunc(&string, &(entry->field_8), wmParseFindSubEncTypeMatch) == -1) {
+        if (strParseStrFromFunc(&string, &(entry->field_8), _wmParseFindSubEncTypeMatch) == -1) {
             return -1;
         }
 
@@ -1410,7 +1410,7 @@ int wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
 }
 
 // 0x4BDE94
-int wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
+int _wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
 {
     *valuePtr = 0;
 
@@ -1419,11 +1419,11 @@ int wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
         return 0;
     }
 
-    if (wmFindEncBaseTypeMatch(str, valuePtr) == 0) {
+    if (_wmFindEncBaseTypeMatch(str, valuePtr) == 0) {
         return 0;
     }
 
-    if (wmReadEncBaseType(str, valuePtr) == 0) {
+    if (_wmReadEncBaseType(str, valuePtr) == 0) {
         return 0;
     }
 
@@ -1431,7 +1431,7 @@ int wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
 }
 
 // 0x4BDED8
-int wmFindEncBaseTypeMatch(char* str, int* valuePtr)
+int _wmFindEncBaseTypeMatch(char* str, int* valuePtr)
 {
     for (int index = 0; index < dword_673038; index++) {
         if (stricmp(off_672FF4[index].name, str) == 0) {
@@ -1445,7 +1445,7 @@ int wmFindEncBaseTypeMatch(char* str, int* valuePtr)
 }
 
 // 0x4BDF34
-int wmReadEncBaseType(char* name, int* valuePtr)
+int _wmReadEncBaseType(char* name, int* valuePtr)
 {
     char section[40];
     sprintf(section, "Encounter: %s", name);
@@ -1471,12 +1471,12 @@ int wmReadEncBaseType(char* name, int* valuePtr)
     ENC_BASE_TYPE* entry = &(arr[dword_673038 - 1]);
 
     // NOTE: Uninline.
-    wmEncBaseTypeSlotInit(entry);
+    _wmEncBaseTypeSlotInit(entry);
 
     strncpy(entry->name, name, 40);
 
     while (1) {
-        if (wmParseEncBaseSubTypeStr(&(entry->field_38[entry->field_34]), &string) == -1) {
+        if (_wmParseEncBaseSubTypeStr(&(entry->field_38[entry->field_34]), &string) == -1) {
             return -1;
         }
 
@@ -1511,12 +1511,12 @@ int wmReadEncBaseType(char* name, int* valuePtr)
 }
 
 // 0x4BE140
-int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
+int _wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
 {
     char* string = *stringPtr;
 
     // NOTE: Uninline.
-    if (wmEncBaseSubTypeSlotInit(ptr) == -1) {
+    if (_wmEncBaseSubTypeSlotInit(ptr) == -1) {
         return -1;
     }
 
@@ -1542,7 +1542,7 @@ int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
             break;
         }
 
-        wmParseEncounterItemType(&string, &(ptr->items[ptr->itemsLength]), &(ptr->itemsLength), ":");
+        _wmParseEncounterItemType(&string, &(ptr->items[ptr->itemsLength]), &(ptr->itemsLength), ":");
     }
 
     strParseIntWithKey(&string, "script", &(ptr->script), ":");
@@ -1554,7 +1554,7 @@ int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
 // NOTE: Inlined.
 //
 // 0x4BE2A0
-int wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry)
+int _wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry)
 {
     entry->name[0] = '\0';
     entry->position = ENCOUNTER_FORMATION_TYPE_SURROUNDING;
@@ -1568,7 +1568,7 @@ int wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry)
 // NOTE: Inlined.
 //
 // 0x4BE2C4
-int wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry)
+int _wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry)
 {
     entry->field_28 = -1;
     entry->field_2C = 1;
@@ -1587,7 +1587,7 @@ int wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry)
 // NOTE: Inlined.
 //
 // 0x4BE32C
-int wmEncounterSubEncSlotInit(ENCOUNTER_ENTRY_ENC* entry)
+int _wmEncounterSubEncSlotInit(ENCOUNTER_ENTRY_ENC* entry)
 {
     entry->minQuantity = 1;
     entry->maxQuantity = 1;
@@ -1671,7 +1671,7 @@ int worldmapConfigInitEncounterCondition(EncounterCondition* condition)
 }
 
 // 0x4BE414
-int wmParseTerrainTypes(Config* config, char* string)
+int _wmParseTerrainTypes(Config* config, char* string)
 {
     if (*string == '\0') {
         return -1;
@@ -1729,14 +1729,14 @@ int wmParseTerrainTypes(Config* config, char* string)
     }
 
     for (int index = 0; index < gTerrainsLength; index++) {
-        wmParseTerrainRndMaps(config, &(gTerrains[index]));
+        _wmParseTerrainRndMaps(config, &(gTerrains[index]));
     }
 
     return 0;
 }
 
 // 0x4BE598
-int wmParseTerrainRndMaps(Config* config, Terrain* terrain)
+int _wmParseTerrainRndMaps(Config* config, Terrain* terrain)
 {
     char section[40];
     sprintf(section, "Random Maps: %s", terrain->field_0);
@@ -1827,7 +1827,7 @@ int worldmapFindTerrainByLookupName(char* string, int* valuePtr)
 }
 
 // 0x4BE7A4
-int wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3, const char* delim)
+int _wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3, const char* delim)
 {
     char* string;
     int v2, v3;
@@ -1862,7 +1862,7 @@ int wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3,
     if (strcmp(string, "item") == 0) {
         *stringPtr += v2 + 1;
         v20 = 1;
-        wmParseItemType(string + v3 + 1, a2);
+        _wmParseItemType(string + v3 + 1, a2);
         *a3 = *a3 + 1;
     }
 
@@ -1873,7 +1873,7 @@ int wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3,
 }
 
 // 0x4BE888
-int wmParseItemType(char* string, ENC_BASE_TYPE_38_48* ptr)
+int _wmParseItemType(char* string, ENC_BASE_TYPE_38_48* ptr)
 {
     while (*string == ' ') {
         string++;
@@ -2231,7 +2231,7 @@ int cityInit()
     CityInfo* city;
     EntranceInfo* entrance;
 
-    if (wmMapInit() == -1) {
+    if (_wmMapInit() == -1) {
         return -1;
     }
 
@@ -2428,7 +2428,7 @@ int worldmapMapInfoInit(MapInfo* map)
 }
 
 // 0x4BF4BC
-int wmMapInit()
+int _wmMapInit()
 {
     char* str;
     int num;
@@ -2667,25 +2667,25 @@ int mapGetIndexByFileName(char* name)
 }
 
 // 0x4BFA44
-bool wmMapIdxIsSaveable(int map_index)
+bool _wmMapIdxIsSaveable(int map_index)
 {
     return (gMaps[map_index].flags & MAP_SAVED) != 0;
 }
 
 // 0x4BFA64
-bool wmMapIsSaveable()
+bool _wmMapIsSaveable()
 {
     return (gMaps[gMapHeader.field_34].flags & MAP_SAVED) != 0;
 }
 
 // 0x4BFA90
-bool wmMapDeadBodiesAge()
+bool _wmMapDeadBodiesAge()
 {
     return (gMaps[gMapHeader.field_34].flags & MAP_DEAD_BODIES_AGE) != 0;
 }
 
 // 0x4BFABC
-bool wmMapCanRestHere(int elevation)
+bool _wmMapCanRestHere(int elevation)
 {
     int flags[3];
 
@@ -2699,13 +2699,13 @@ bool wmMapCanRestHere(int elevation)
 }
 
 // 0x4BFAFC
-bool wmMapPipboyActive()
+bool _wmMapPipboyActive()
 {
     return gameMovieIsSeen(MOVIE_VSUIT);
 }
 
 // 0x4BFB08
-int wmMapMarkVisited(int mapIndex)
+int _wmMapMarkVisited(int mapIndex)
 {
     if (mapIndex < 0 || mapIndex >= gMapsLength) {
         return -1;
@@ -2717,17 +2717,17 @@ int wmMapMarkVisited(int mapIndex)
     }
 
     int cityIndex;
-    if (wmMatchAreaContainingMapIdx(mapIndex, &cityIndex) == -1) {
+    if (_wmMatchAreaContainingMapIdx(mapIndex, &cityIndex) == -1) {
         return -1;
     }
 
-    wmAreaMarkVisitedState(cityIndex, 2);
+    _wmAreaMarkVisitedState(cityIndex, 2);
 
     return 0;
 }
 
 // 0x4BFB64
-int wmMatchEntranceFromMap(int cityIndex, int mapIndex, int* entranceIndexPtr)
+int _wmMatchEntranceFromMap(int cityIndex, int mapIndex, int* entranceIndexPtr)
 {
     CityInfo* city = &(gCities[cityIndex]);
 
@@ -2745,7 +2745,7 @@ int wmMatchEntranceFromMap(int cityIndex, int mapIndex, int* entranceIndexPtr)
 }
 
 // 0x4BFBE8
-int wmMatchEntranceElevFromMap(int cityIndex, int a2, int a3, int* entranceIndexPtr)
+int _wmMatchEntranceElevFromMap(int cityIndex, int a2, int a3, int* entranceIndexPtr)
 {
     CityInfo* city = &(gCities[cityIndex]);
 
@@ -2764,7 +2764,7 @@ int wmMatchEntranceElevFromMap(int cityIndex, int a2, int a3, int* entranceIndex
 }
 
 // 0x4BFC7C
-int wmMatchAreaFromMap(int mapIndex, int* cityIndexPtr)
+int _wmMatchAreaFromMap(int mapIndex, int* cityIndexPtr)
 {
     for (int cityIndex = 0; cityIndex < gCitiesLength; cityIndex++) {
         CityInfo* city = &(gCities[cityIndex]);
@@ -2785,7 +2785,7 @@ int wmMatchAreaFromMap(int mapIndex, int* cityIndexPtr)
 // Mark map entrance.
 //
 // 0x4BFD50
-int wmMapMarkMapEntranceState(int mapIndex, int elevation, int state)
+int _wmMapMarkMapEntranceState(int mapIndex, int elevation, int state)
 {
     if (mapIndex < 0 || mapIndex >= gMapsLength) {
         return -1;
@@ -2797,12 +2797,12 @@ int wmMapMarkMapEntranceState(int mapIndex, int elevation, int state)
     }
 
     int cityIndex;
-    if (wmMatchAreaContainingMapIdx(mapIndex, &cityIndex) == -1) {
+    if (_wmMatchAreaContainingMapIdx(mapIndex, &cityIndex) == -1) {
         return -1;
     }
 
     int entranceIndex;
-    if (wmMatchEntranceElevFromMap(cityIndex, mapIndex, elevation, &entranceIndex) == -1) {
+    if (_wmMatchEntranceElevFromMap(cityIndex, mapIndex, elevation, &entranceIndex) == -1) {
         return -1;
     }
 
@@ -2814,20 +2814,20 @@ int wmMapMarkMapEntranceState(int mapIndex, int elevation, int state)
 }
 
 // 0x4BFE0C
-void wmWorldMap()
+void _wmWorldMap()
 {
-    wmWorldMapFunc(0);
+    _wmWorldMapFunc(0);
 }
 
 // 0x4BFE10
-int wmWorldMapFunc(int a1)
+int _wmWorldMapFunc(int a1)
 {
     if (worldmapWindowInit() == -1) {
         worldmapWindowFree();
         return -1;
     }
 
-    wmMatchWorldPosToArea(dword_672E0C, dword_672E10, &dword_672E08);
+    _wmMatchWorldPosToArea(dword_672E0C, dword_672E10, &dword_672E08);
 
     unsigned int v24 = 0;
     int map = -1;
@@ -2835,8 +2835,8 @@ int wmWorldMapFunc(int a1)
 
     int rc = 0;
     for (;;) {
-        int keyCode = get_input();
-        unsigned int tick = get_time();
+        int keyCode = _get_input();
+        unsigned int tick = _get_time();
 
         int mouseX;
         int mouseY;
@@ -2849,7 +2849,7 @@ int wmWorldMapFunc(int a1)
             showQuitConfirmationDialog();
         }
 
-        scriptsCheckGameEvents(NULL, gWorldmapWindow);
+        _scriptsCheckGameEvents(NULL, gWorldmapWindow);
 
         if (dword_5186CC != 0) {
             break;
@@ -2891,7 +2891,7 @@ int wmWorldMapFunc(int a1)
                     gWorldmapTravelDestY = 0;
                     gWorldmapIsTravelling = false;
 
-                    wmMatchWorldPosToArea(v4, v5, &dword_672E08);
+                    _wmMatchWorldPosToArea(v4, v5, &dword_672E08);
 
                     gWorldmapIsInCar = false;
 
@@ -2920,32 +2920,32 @@ int wmWorldMapFunc(int a1)
             worldmapWindowRefresh();
 
             if (getTicksBetween(tick, v24) > 1000) {
-                if (partyMemberRestingHeal(3)) {
+                if (_partyMemberRestingHeal(3)) {
                     interfaceRenderHitPoints(false);
                     v24 = tick;
                 }
             }
 
-            wmMarkSubTileRadiusVisited(dword_672E0C, dword_672E10);
+            _wmMarkSubTileRadiusVisited(dword_672E0C, dword_672E10);
 
             if (dword_672E28 <= 0) {
                 gWorldmapIsTravelling = false;
-                wmMatchWorldPosToArea(dword_672E0C, dword_672E10, &dword_672E08);
+                _wmMatchWorldPosToArea(dword_672E0C, dword_672E10, &dword_672E08);
             }
 
             worldmapWindowRefresh();
 
-            if (wmGameTimeIncrement(18000)) {
+            if (_wmGameTimeIncrement(18000)) {
                 if (dword_5186CC != 0) {
                     break;
                 }
             }
 
             if (gWorldmapIsTravelling) {
-                if (wmRndEncounterOccurred()) {
+                if (_wmRndEncounterOccurred()) {
                     if (dword_672E4C != -1) {
                         if (gWorldmapIsInCar) {
-                            wmMatchAreaContainingMapIdx(dword_672E4C, &dword_672E68);
+                            _wmMatchAreaContainingMapIdx(dword_672E4C, &dword_672E68);
                         }
                         mapLoadById(dword_672E4C);
                     }
@@ -2955,7 +2955,7 @@ int wmWorldMapFunc(int a1)
         }
 
         if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0 && (mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-            if (mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
+            if (_mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
                 if (!gWorldmapIsTravelling && !dword_672E00 && abs(dword_672E0C - v4) < 5 && abs(dword_672E10 - v5) < 5) {
                     dword_672E00 = true;
                     worldmapWindowRefresh();
@@ -2979,7 +2979,7 @@ int wmWorldMapFunc(int a1)
                                 break;
                             }
                         } else {
-                            if (wmAreaFindFirstValidMap(&map) == -1) {
+                            if (_wmAreaFindFirstValidMap(&map) == -1) {
                                 v25 = -1;
                                 break;
                             }
@@ -2994,7 +2994,7 @@ int wmWorldMapFunc(int a1)
                         if (gWorldmapIsInCar) {
                             gWorldmapIsInCar = false;
                             if (dword_672E08 == -1) {
-                                wmMatchAreaContainingMapIdx(map, &dword_672E68);
+                                _wmMatchAreaContainingMapIdx(map, &dword_672E68);
                             } else {
                                 dword_672E68 = dword_672E08;
                             }
@@ -3004,8 +3004,8 @@ int wmWorldMapFunc(int a1)
                     }
                 }
             } else {
-                if (mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
-                    wmPartyInitWalking(v4, v5);
+                if (_mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
+                    _wmPartyInitWalking(v4, v5);
                 }
 
                 dword_672E00 = 0;
@@ -3018,11 +3018,11 @@ int wmWorldMapFunc(int a1)
 
             if (dword_672F58 > -1) {
                 if (dword_672F54 <= dword_672F10) {
-                    wmInterfaceScrollTabsStop();
+                    _wmInterfaceScrollTabsStop();
                 }
             } else {
                 if (dword_672F54 >= dword_672F10) {
-                    wmInterfaceScrollTabsStop();
+                    _wmInterfaceScrollTabsStop();
                 }
             }
         }
@@ -3037,7 +3037,7 @@ int wmWorldMapFunc(int a1)
 
                     if (map != -1) {
                         if (gWorldmapIsInCar) {
-                            wmMatchAreaContainingMapIdx(map, &dword_672E68);
+                            _wmMatchAreaContainingMapIdx(map, &dword_672E68);
                         }
 
                         mapLoadById(map);
@@ -3045,7 +3045,7 @@ int wmWorldMapFunc(int a1)
                 }
             }
         } else if (keyCode == KEY_HOME) {
-            wmInterfaceCenterOnParty();
+            _wmInterfaceCenterOnParty();
         } else if (keyCode == KEY_ARROW_UP) {
             worldmapWindowScroll(20, 20, 0, -1, 0, 1);
         } else if (keyCode == KEY_ARROW_LEFT) {
@@ -3055,17 +3055,17 @@ int wmWorldMapFunc(int a1)
         } else if (keyCode == KEY_ARROW_RIGHT) {
             worldmapWindowScroll(20, 20, 1, 0, 0, 1);
         } else if (keyCode == KEY_CTRL_ARROW_UP) {
-            wmInterfaceScrollTabsStart(-27);
+            _wmInterfaceScrollTabsStart(-27);
         } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
-            wmInterfaceScrollTabsStart(27);
+            _wmInterfaceScrollTabsStart(27);
         } else if (keyCode >= KEY_CTRL_F1 && keyCode <= KEY_CTRL_F7) {
             int quickDestinationIndex = dword_672F10 / 27 + (keyCode - KEY_CTRL_F1);
             if (quickDestinationIndex < gQuickDestinationsLength) {
                 int cityIndex = gQuickDestinations[quickDestinationIndex];
                 CityInfo* city = &(gCities[cityIndex]);
-                if (wmAreaIsKnown(city->field_28)) {
+                if (_wmAreaIsKnown(city->field_28)) {
                     if (dword_672E08 != cityIndex) {
-                        wmPartyInitWalking(city->x, city->y);
+                        _wmPartyInitWalking(city->x, city->y);
                         dword_672E00 = 0;
                     }
                 }
@@ -3085,7 +3085,7 @@ int wmWorldMapFunc(int a1)
 }
 
 // 0x4C056C
-int wmCheckGameAreaEvents()
+int _wmCheckGameAreaEvents()
 {
     if (dword_672E08 == CITY_FAKE_VAULT_13_A) {
         if (dword_672E08 < gCitiesLength) {
@@ -3096,14 +3096,14 @@ int wmCheckGameAreaEvents()
             gCities[CITY_FAKE_VAULT_13_B].state = 1;
         }
 
-        wmAreaMarkVisitedState(CITY_FAKE_VAULT_13_B, 2);
+        _wmAreaMarkVisitedState(CITY_FAKE_VAULT_13_B, 2);
     }
 
     return 0;
 }
 
 // 0x4C05C4
-int wmInterfaceCenterOnParty()
+int _wmInterfaceCenterOnParty()
 {
     int v0;
     int v1;
@@ -3135,9 +3135,9 @@ int wmInterfaceCenterOnParty()
 }
 
 // 0x4C0634
-int wmRndEncounterOccurred()
+int _wmRndEncounterOccurred()
 {
-    unsigned int v0 = get_time();
+    unsigned int v0 = _get_time();
     if (getTicksBetween(v0, dword_51DEA0) < 1500) {
         return 0;
     }
@@ -3153,7 +3153,7 @@ int wmRndEncounterOccurred()
     }
 
     int v26;
-    wmMatchWorldPosToArea(dword_672E0C, dword_672E10, &v26);
+    _wmMatchWorldPosToArea(dword_672E0C, dword_672E10, &v26);
     if (v26 != -1) {
         return 0;
     }
@@ -3164,7 +3164,7 @@ int wmRndEncounterOccurred()
             dword_672E4C = v26;
             dword_672E04 = true;
             if (gWorldmapIsInCar) {
-                wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &dword_672E68);
+                _wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &dword_672E68);
             }
             mapLoadById(MAP_IN_GAME_MOVIE1);
             return 1;
@@ -3172,7 +3172,7 @@ int wmRndEncounterOccurred()
     }
 
     // NOTE: Uninline.
-    wmPartyFindCurSubTile();
+    _wmPartyFindCurSubTile();
 
     int dayPart;
     int gameTimeHour = gameTimeGetHour();
@@ -3205,7 +3205,7 @@ int wmRndEncounterOccurred()
         return 0;
     }
 
-    wmRndEncounterPick();
+    _wmRndEncounterPick();
 
     int v8 = 1;
     dword_672E48 = 1;
@@ -3215,7 +3215,7 @@ int wmRndEncounterOccurred()
     EncounterEntry* encounter = &(encounterTable->entries[dword_672E54]);
     if ((encounter->flags & ENCOUNTER_ENTRY_SPECIAL) != 0) {
         dword_672E58 = 2;
-        wmMatchAreaContainingMapIdx(dword_672E4C, &v26);
+        _wmMatchAreaContainingMapIdx(dword_672E4C, &v26);
 
         CityInfo* city = &(gCities[v26]);
         CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[city->size]);
@@ -3269,7 +3269,7 @@ int wmRndEncounterOccurred()
 
         TileInfo* tile;
         // NOTE: Uninline.
-        wmFindCurTileFromPos(dword_672E10, dword_672E0C, &tile);
+        _wmFindCurTileFromPos(dword_672E10, dword_672E0C, &tile);
         debugPrint("\nEncounter Difficulty Mod: %d", tile->encounterDifficultyModifier);
 
         outdoorsman += tile->encounterDifficultyModifier;
@@ -3326,13 +3326,13 @@ int wmRndEncounterOccurred()
 // NOTE: Inlined.
 //
 // 0x4C0BE4
-int wmPartyFindCurSubTile()
+int _wmPartyFindCurSubTile()
 {
-    return wmFindCurSubTileFromPos(dword_672E0C, dword_672E10, &off_672E14);
+    return _wmFindCurSubTileFromPos(dword_672E0C, dword_672E10, &off_672E14);
 }
 
 // 0x4C0C00
-int wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtile)
+int _wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtile)
 {
     int tileIndex = y / WM_TILE_HEIGHT * gWorldmapGridWidth + x / WM_TILE_WIDTH % gWorldmapGridWidth;
     TileInfo* tile = &(gWorldmapTiles[tileIndex]);
@@ -3347,7 +3347,7 @@ int wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtile)
 // NOTE: Inlined.
 //
 // 0x4C0CA8
-int wmFindCurTileFromPos(int x, int y, TileInfo** tile)
+int _wmFindCurTileFromPos(int x, int y, TileInfo** tile)
 {
     int tileIndex = y / WM_TILE_HEIGHT * gWorldmapGridWidth + x / WM_TILE_WIDTH % gWorldmapGridWidth;
     *tile = &(gWorldmapTiles[tileIndex]);
@@ -3356,11 +3356,11 @@ int wmFindCurTileFromPos(int x, int y, TileInfo** tile)
 }
 
 // 0x4C0CF4
-int wmRndEncounterPick()
+int _wmRndEncounterPick()
 {
     if (off_672E14 == NULL) {
         // NOTE: Uninline.
-        wmPartyFindCurSubTile();
+        _wmPartyFindCurSubTile();
     }
 
     dword_672E50 = off_672E14->encounterType;
@@ -3374,7 +3374,7 @@ int wmRndEncounterPick()
         EncounterEntry* encounterTableEntry = &(encounterTable->entries[index]);
 
         bool selected = true;
-        if (wmEvalConditional(&(encounterTableEntry->condition), NULL) == 0) {
+        if (_wmEvalConditional(&(encounterTableEntry->condition), NULL) == 0) {
             selected = false;
         }
 
@@ -3511,7 +3511,7 @@ int worldmapSetupRandomEncounter()
             break;
         }
 
-        int partyMemberCount = getPartyMemberCount();
+        int partyMemberCount = _getPartyMemberCount();
         if (partyMemberCount > 2) {
             v9 += 2;
         }
@@ -3541,8 +3541,8 @@ int worldmapSetupRandomEncounter()
                                 combat.maxDamage = 500;
                                 combat.field_1C = 0;
 
-                                caiSetupTeamCombat(v35, v0);
-                                scripts_request_combat_locked(&combat);
+                                _caiSetupTeamCombat(v35, v0);
+                                _scripts_request_combat_locked(&combat);
                             }
                         } else {
                             if (!isInCombat()) {
@@ -3558,8 +3558,8 @@ int worldmapSetupRandomEncounter()
                                 combat.maxDamage = 500;
                                 combat.field_1C = 0;
 
-                                caiSetupTeamCombat(gDude, v0);
-                                scripts_request_combat_locked(&combat);
+                                _caiSetupTeamCombat(gDude, v0);
+                                _scripts_request_combat_locked(&combat);
                             }
                         }
                     }
@@ -3587,7 +3587,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
 
     debugPrint("\nwmSetupCritterObjs: typeIdx: %d, Formation: %s", type_idx, gEncounterFormationTypeKeys[v25->position]);
 
-    if (wmSetupRndNextTileNumInit(v25) == -1) {
+    if (_wmSetupRndNextTileNumInit(v25) == -1) {
         return -1;
     }
 
@@ -3598,7 +3598,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
             continue;
         }
 
-        if (!wmEvalConditional(&(v5->condition), &critterCount)) {
+        if (!_wmEvalConditional(&(v5->condition), &critterCount)) {
             continue;
         }
 
@@ -3621,7 +3621,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
 
         for (int j = 0; j < v23; j++) {
             int tile;
-            if (wmSetupRndNextTileNum(v25, v5, &tile) == -1) {
+            if (_wmSetupRndNextTileNum(v25, v5, &tile) == -1) {
                 debugPrint("\nERROR: wmSetupCritterObjs: wmSetupRndNextTileNum:");
                 continue;
             }
@@ -3653,13 +3653,13 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
                     object->sid = -1;
                 }
 
-                obj_new_sid_inst(object, SCRIPT_TYPE_CRITTER, v5->script - 1);
+                _obj_new_sid_inst(object, SCRIPT_TYPE_CRITTER, v5->script - 1);
             }
 
             if (v25->position != ENCOUNTER_FORMATION_TYPE_SURROUNDING) {
                 objectSetLocation(object, tile, gElevation, NULL);
             } else {
-                obj_attempt_placement(object, tile, 0, 0);
+                _obj_attempt_placement(object, tile, 0, 0);
             }
 
             int direction = tileGetRotationTo(tile, gDude->tile);
@@ -3694,10 +3694,10 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
                     return -1;
                 }
 
-                obj_disconnect(item, NULL);
+                _obj_disconnect(item, NULL);
 
                 if (v10->isEquipped) {
-                    if (inven_wield(object, item, 1) == -1) {
+                    if (_inven_wield(object, item, 1) == -1) {
                         debugPrint("\nERROR: wmSetupCritterObjs: Inven Wield Failed: %d on %s: Critter Fid: %d", item->pid, critterGetName(object), object->fid);
                     }
                 }
@@ -3709,7 +3709,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
 }
 
 // 0x4C155C
-int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
+int _wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
 {
     for (int index = 0; index < 2; index++) {
         dword_672DC8[index] = 0;
@@ -3773,7 +3773,7 @@ int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
 
 // wmSetupRndNextTileNum
 // 0x4C16F0
-int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile_num)
+int _wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile_num)
 {
     int tile_num;
 
@@ -3867,7 +3867,7 @@ int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile
         ++attempt;
         ++dword_51DEA8;
 
-        if (wmEvalTileNumForPlacement(tile_num)) {
+        if (_wmEvalTileNumForPlacement(tile_num)) {
             break;
         }
 
@@ -3890,13 +3890,13 @@ int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile
 }
 
 // 0x4C1A64
-bool wmEvalTileNumForPlacement(int tile)
+bool _wmEvalTileNumForPlacement(int tile)
 {
-    if (obj_blocking_at(gDude, tile, gElevation) != NULL) {
+    if (_obj_blocking_at(gDude, tile, gElevation) != NULL) {
         return false;
     }
 
-    if (pathfinderFindPath(gDude, gDude->tile, tile, NULL, 0, obj_shoot_blocking_at) == 0) {
+    if (pathfinderFindPath(gDude, gDude->tile, tile, NULL, 0, _obj_shoot_blocking_at) == 0) {
         return false;
     }
 
@@ -3904,7 +3904,7 @@ bool wmEvalTileNumForPlacement(int tile)
 }
 
 // 0x4C1AC8
-bool wmEvalConditional(EncounterCondition* a1, int* a2)
+bool _wmEvalConditional(EncounterCondition* a1, int* a2)
 {
     int value;
 
@@ -3916,12 +3916,12 @@ bool wmEvalConditional(EncounterCondition* a1, int* a2)
         switch (ptr->type) {
         case ENCOUNTER_CONDITION_TYPE_GLOBAL:
             value = gameGetGlobalVar(ptr->param);
-            if (!wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
+            if (!_wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_NUMBER_OF_CRITTERS:
-            if (!wmEvalSubConditional(*a2, ptr->conditionalOperator, ptr->value)) {
+            if (!_wmEvalSubConditional(*a2, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
@@ -3933,19 +3933,19 @@ bool wmEvalConditional(EncounterCondition* a1, int* a2)
             break;
         case ENCOUNTER_CONDITION_TYPE_PLAYER:
             value = pcGetStat(PC_STAT_LEVEL);
-            if (!wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
+            if (!_wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_DAYS_PLAYED:
             value = gameTimeGetTime();
-            if (!wmEvalSubConditional(value / GAME_TIME_TICKS_PER_DAY, ptr->conditionalOperator, ptr->value)) {
+            if (!_wmEvalSubConditional(value / GAME_TIME_TICKS_PER_DAY, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_TIME_OF_DAY:
             value = gameTimeGetHour();
-            if (!wmEvalSubConditional(value / 100, ptr->conditionalOperator, ptr->value)) {
+            if (!_wmEvalSubConditional(value / 100, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
@@ -3963,7 +3963,7 @@ bool wmEvalConditional(EncounterCondition* a1, int* a2)
 }
 
 // 0x4C1C0C
-bool wmEvalSubConditional(int operand1, int condionalOperator, int operand2)
+bool _wmEvalSubConditional(int operand1, int condionalOperator, int operand2)
 {
     switch (condionalOperator) {
     case ENCOUNTER_CONDITIONAL_OPERATOR_EQUAL:
@@ -3980,7 +3980,7 @@ bool wmEvalSubConditional(int operand1, int condionalOperator, int operand2)
 }
 
 // 0x4C1C50
-bool wmGameTimeIncrement(int a1)
+bool _wmGameTimeIncrement(int a1)
 {
     if (a1 == 0) {
         return false;
@@ -4016,7 +4016,7 @@ bool wmGameTimeIncrement(int a1)
 // Reads .msk file if needed.
 //
 // 0x4C1CE8
-int wmGrabTileWalkMask(int tile)
+int _wmGrabTileWalkMask(int tile)
 {
     TileInfo* tileInfo = &(gWorldmapTiles[tile]);
     if (tileInfo->walkMaskData != NULL) {
@@ -4052,10 +4052,10 @@ int wmGrabTileWalkMask(int tile)
 }
 
 // 0x4C1D9C
-bool wmWorldPosInvalid(int a1, int a2)
+bool _wmWorldPosInvalid(int a1, int a2)
 {
     int v3 = a2 / WM_TILE_HEIGHT * gWorldmapGridWidth + a1 / WM_TILE_WIDTH % gWorldmapGridWidth;
-    if (wmGrabTileWalkMask(v3) == -1) {
+    if (_wmGrabTileWalkMask(v3) == -1) {
         return false;
     }
 
@@ -4074,7 +4074,7 @@ bool wmWorldPosInvalid(int a1, int a2)
 }
 
 // 0x4C1E54
-void wmPartyInitWalking(int x, int y)
+void _wmPartyInitWalking(int x, int y)
 {
     gWorldmapTravelDestX = x;
     gWorldmapTravelDestY = y;
@@ -4114,8 +4114,8 @@ void wmPartyInitWalking(int x, int y)
         dword_672E40 = -dword_672E40;
     }
 
-    if (!wmCursorIsVisible()) {
-        wmInterfaceCenterOnParty();
+    if (!_wmCursorIsVisible()) {
+        _wmInterfaceCenterOnParty();
     }
 }
 
@@ -4132,7 +4132,7 @@ void worldmapPerformTravel()
     }
 
     // NOTE: Uninline.
-    wmPartyFindCurSubTile();
+    _wmPartyFindCurSubTile();
 
     Terrain* terrain = &(gTerrains[off_672E14->terrain]);
     int v1 = terrain->field_28 - perkGetRank(gDude, PERK_PATHFINDER);
@@ -4144,11 +4144,11 @@ void worldmapPerformTravel()
         int v3;
         int v4;
         if (dword_672E2C >= 0) {
-            if (wmWorldPosInvalid(dword_672E3C + dword_672E0C, dword_672E44 + dword_672E10)) {
+            if (_wmWorldPosInvalid(dword_672E3C + dword_672E0C, dword_672E44 + dword_672E10)) {
                 gWorldmapTravelDestX = 0;
                 gWorldmapTravelDestY = 0;
                 gWorldmapIsTravelling = false;
-                wmMatchWorldPosToArea(dword_672E0C, dword_672E0C, &dword_672E08);
+                _wmMatchWorldPosToArea(dword_672E0C, dword_672E0C, &dword_672E08);
                 dword_672E28 = 0;
                 return;
             }
@@ -4159,11 +4159,11 @@ void worldmapPerformTravel()
             v4 = dword_672E44;
             dword_672E10 += dword_672E44;
         } else {
-            if (wmWorldPosInvalid(dword_672E38 + dword_672E0C, dword_672E40 + dword_672E10) == 1) {
+            if (_wmWorldPosInvalid(dword_672E38 + dword_672E0C, dword_672E40 + dword_672E10) == 1) {
                 gWorldmapTravelDestX = 0;
                 gWorldmapTravelDestY = 0;
                 gWorldmapIsTravelling = false;
-                wmMatchWorldPosToArea(dword_672E0C, dword_672E0C, &dword_672E08);
+                _wmMatchWorldPosToArea(dword_672E0C, dword_672E0C, &dword_672E08);
                 dword_672E28 = 0;
                 return;
             }
@@ -4187,7 +4187,7 @@ void worldmapPerformTravel()
 }
 
 // 0x4C219C
-void wmInterfaceScrollTabsStart(int a1)
+void _wmInterfaceScrollTabsStart(int a1)
 {
     int i;
     int v3;
@@ -4239,11 +4239,11 @@ L11:
         return;
     }
 
-    wmInterfaceScrollTabsStop();
+    _wmInterfaceScrollTabsStop();
 }
 
 // 0x4C2270
-void wmInterfaceScrollTabsStop()
+void _wmInterfaceScrollTabsStop()
 {
     int i;
 
@@ -4261,14 +4261,14 @@ int worldmapWindowInit()
     Art* frm;
     CacheEntry* frmHandle;
     
-    dword_51DEA0 = get_time();
+    dword_51DEA0 = _get_time();
     dword_672FAC = fontGetCurrent();
     fontSetCurrent(0);
 
-    map_save_in_game(true);
+    _map_save_in_game(true);
 
     const char* backgroundSoundFileName = gWorldmapIsInCar ? "20car" : "23world";
-    gsound_background_play_level_music(backgroundSoundFileName, 12);
+    _gsound_background_play_level_music(backgroundSoundFileName, 12);
 
     indicatorBarHide();
     isoDisable();
@@ -4615,7 +4615,7 @@ int worldmapWindowInit()
 
     tickersAdd(worldmapWindowHandleMouseScrolling);
 
-    if (wmMakeTabsLabelList(&gQuickDestinations, &gQuickDestinationsLength) == -1) {
+    if (_wmMakeTabsLabelList(&gQuickDestinations, &gQuickDestinationsLength) == -1) {
         return -1;
     }
 
@@ -4627,7 +4627,7 @@ int worldmapWindowInit()
 
     windowRefresh(gWorldmapWindow);
     scriptsDisable();
-    scr_remove_all();
+    _scr_remove_all();
 
     return 0;
 }
@@ -4927,9 +4927,9 @@ void worldmapWindowHandleMouseScrolling()
             }
         }
 
-        unsigned int tick = get_bk_time();
+        unsigned int tick = _get_bk_time();
         if (getTicksBetween(tick, dword_51DEB0) > 50) {
-            dword_51DEB0 = get_bk_time();
+            dword_51DEB0 = _get_bk_time();
             worldmapWindowScroll(20, 20, dx, dy, &dword_51DEB4, true);
         }
 
@@ -4948,7 +4948,7 @@ void worldmapWindowHandleMouseScrolling()
 }
 
 // 0x4C3434
-int wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6)
+int _wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6)
 {
     int v7;
     int v8;
@@ -5006,7 +5006,7 @@ int wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a
 }
 
 // 0x4C3550
-void wmMarkSubTileRadiusVisited(int x, int y)
+void _wmMarkSubTileRadiusVisited(int x, int y)
 {
     int radius = 1;
 
@@ -5014,13 +5014,13 @@ void wmMarkSubTileRadiusVisited(int x, int y)
         radius = 2;
     }
 
-    wmSubTileMarkRadiusVisited(x, y, radius);
+    _wmSubTileMarkRadiusVisited(x, y, radius);
 }
 
 // Mark worldmap tile as visible?/visited?
 //
 // 0x4C35A8
-int wmSubTileMarkRadiusVisited(int x, int y, int radius)
+int _wmSubTileMarkRadiusVisited(int x, int y, int radius)
 {
     int v4, v5;
 
@@ -5030,7 +5030,7 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
 
     for (int i = -radius; i <= radius; i++) {
         for (int v6 = -radius; v6 <= radius; v6++) {
-            wmMarkSubTileOffsetVisitedFunc(tile, v4, v5, v6, i, SUBTILE_STATE_KNOWN);
+            _wmMarkSubTileOffsetVisitedFunc(tile, v4, v5, v6, i, SUBTILE_STATE_KNOWN);
         }
     }
 
@@ -5040,17 +5040,17 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
     switch (subtile->field_4) {
     case 2:
         while (v5-- > 0) {
-            wmMarkSubTileOffsetVisitedFunc(tile, v4, 0, v5, 0, SUBTILE_STATE_VISITED);
+            _wmMarkSubTileOffsetVisitedFunc(tile, v4, 0, v5, 0, SUBTILE_STATE_VISITED);
         }
         break;
     case 4:
         while (v4-- > -1) {
-            wmMarkSubTileOffsetVisitedFunc(tile, v4, 0, v5, 0, SUBTILE_STATE_VISITED);
+            _wmMarkSubTileOffsetVisitedFunc(tile, v4, 0, v5, 0, SUBTILE_STATE_VISITED);
         }
 
         if (tile % gWorldmapGridWidth > 0) {
             for (int i = 0; i < 7; i++) {
-                wmMarkSubTileOffsetVisitedFunc(tile - 1, i + 1, v5, 0, 0, SUBTILE_STATE_VISITED);
+                _wmMarkSubTileOffsetVisitedFunc(tile - 1, i + 1, v5, 0, 0, SUBTILE_STATE_VISITED);
             }
         }
         break;
@@ -5060,7 +5060,7 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
 }
 
 // 0x4C3740
-int wmSubTileGetVisitedState(int x, int y, int* a3)
+int _wmSubTileGetVisitedState(int x, int y, int* a3)
 {
     TileInfo* tile;
     SubtileInfo* ptr;
@@ -5075,7 +5075,7 @@ int wmSubTileGetVisitedState(int x, int y, int* a3)
 // Load tile art if needed.
 //
 // 0x4C37EC
-int wmTileGrabArt(int tile_index)
+int _wmTileGrabArt(int tile_index)
 {
     TileInfo* tile = &(gWorldmapTiles[tile_index]);
     if (tile->data != NULL) {
@@ -5114,7 +5114,7 @@ int worldmapWindowRefresh()
         int v23 = 0;
         int height;
         while (x < WM_VIEW_WIDTH) {
-            if (wmTileGrabArt(v0) == -1) {
+            if (_wmTileGrabArt(v0) == -1) {
                 return -1;
             }
 
@@ -5237,7 +5237,7 @@ int worldmapWindowRefresh()
         v30 += v29;
     }
 
-    wmDrawCursorStopped();
+    _wmDrawCursorStopped();
 
     worldmapWindowRenderChrome(true);
 
@@ -5294,7 +5294,7 @@ void worldmapWindowRenderDate(bool shouldRefreshWindow)
 }
 
 // 0x4C3F00
-int wmMatchWorldPosToArea(int a1, int a2, int* a3)
+int _wmMatchWorldPosToArea(int a1, int a2, int* a3)
 {
     int v3 = a2 + WM_VIEW_Y;
     int v4 = a1 + WM_VIEW_X;
@@ -5329,7 +5329,7 @@ int wmMatchWorldPosToArea(int a1, int a2, int* a3)
 // 0x4C3FA8
 int worldmapWindowRenderCity(CityInfo* city, CitySizeDescription* citySizeDescription, unsigned char* dest, int x, int y)
 {
-    dark_translucent_trans_buf_to_buf(citySizeDescription->data,
+    _dark_translucent_trans_buf_to_buf(citySizeDescription->data,
         citySizeDescription->width,
         citySizeDescription->height,
         citySizeDescription->width,
@@ -5346,7 +5346,7 @@ int worldmapWindowRenderCity(CityInfo* city, CitySizeDescription* citySizeDescri
     if (nameY < maxY) {
         MessageListItem messageListItem;
         const char* name;
-        if (wmAreaIsKnown(city->field_28)) {
+        if (_wmAreaIsKnown(city->field_28)) {
             name = getmsg(&gMapMessageList, &messageListItem, 1500 + city->field_28);
         } else {
             name = getmsg(&gWorldmapMessageList, &messageListItem, 1004);
@@ -5428,7 +5428,7 @@ int worldmapWindowDimSubtile(TileInfo* tileInfo, int column, int row, int x, int
 }
 
 // 0x4C41EC
-int wmDrawCursorStopped()
+int _wmDrawCursorStopped()
 {
     unsigned char* src;
     int width;
@@ -5476,7 +5476,7 @@ int wmDrawCursorStopped()
 }
 
 // 0x4C4490
-bool wmCursorIsVisible()
+bool _wmCursorIsVisible()
 {
     return dword_672E0C >= gWorldmapOffsetX
         && dword_672E10 >= gWorldmapOffsetY
@@ -5487,7 +5487,7 @@ bool wmCursorIsVisible()
 // Copy city short name.
 //
 // 0x4C450C
-int wmGetAreaIdxName(int index, char* name)
+int _wmGetAreaIdxName(int index, char* name)
 {
     MessageListItem messageListItem;
 
@@ -5500,7 +5500,7 @@ int wmGetAreaIdxName(int index, char* name)
 // Returns true if world area is known.
 //
 // 0x4C453C
-bool wmAreaIsKnown(int cityIndex)
+bool _wmAreaIsKnown(int cityIndex)
 {
     if (!cityIsValid(cityIndex)) {
         return false;
@@ -5517,7 +5517,7 @@ bool wmAreaIsKnown(int cityIndex)
 }
 
 // 0x4C457C
-int wmAreaVisitedState(int area)
+int _wmAreaVisitedState(int area)
 {
     if (!cityIsValid(area)) {
         return 0;
@@ -5532,15 +5532,15 @@ int wmAreaVisitedState(int area)
 }
 
 // 0x4C45BC
-bool wmMapIsKnown(int mapIndex)
+bool _wmMapIsKnown(int mapIndex)
 {
     int cityIndex;
-    if (wmMatchAreaFromMap(mapIndex, &cityIndex) != 0) {
+    if (_wmMatchAreaFromMap(mapIndex, &cityIndex) != 0) {
         return false;
     }
 
     int entranceIndex;
-    if (wmMatchEntranceFromMap(cityIndex, mapIndex, &entranceIndex) != 0) {
+    if (_wmMatchEntranceFromMap(cityIndex, mapIndex, &entranceIndex) != 0) {
         return false;
     }
 
@@ -5555,7 +5555,7 @@ bool wmMapIsKnown(int mapIndex)
 }
 
 // 0x4C4634
-bool wmAreaMarkVisitedState(int cityIndex, int a2)
+bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 {
     if (!cityIsValid(cityIndex)) {
         return FALSE;
@@ -5564,13 +5564,13 @@ bool wmAreaMarkVisitedState(int cityIndex, int a2)
     CityInfo* city = &(gCities[cityIndex]);
     int v5 = city->field_40;
     if (v5 && city->state == 1) {
-        wmMarkSubTileRadiusVisited(city->x, city->y);
+        _wmMarkSubTileRadiusVisited(city->x, city->y);
     }
 
     city->field_40 = a2;
 
     SubtileInfo* subtile;
-    if (wmFindCurSubTileFromPos(city->x, city->y, &subtile) == -1) {
+    if (_wmFindCurSubTileFromPos(city->x, city->y, &subtile) == -1) {
         return FALSE;
     }
 
@@ -5584,7 +5584,7 @@ bool wmAreaMarkVisitedState(int cityIndex, int a2)
 }
 
 // 0x4C46CC
-bool wmAreaSetVisibleState(int cityIndex, int a2, int a3)
+bool _wmAreaSetVisibleState(int cityIndex, int a2, int a3)
 {
     if (!cityIsValid(cityIndex)) {
         return FALSE;
@@ -5625,7 +5625,7 @@ int worldmapCitySetPos(int cityIndex, int x, int y)
 // Returns current town x/y.
 //
 // 0x4C47A4
-int wmGetPartyWorldPos(int* out_x, int* out_y)
+int _wmGetPartyWorldPos(int* out_x, int* out_y)
 {
     if (out_x != NULL) {
         *out_x = dword_672E0C;
@@ -5641,7 +5641,7 @@ int wmGetPartyWorldPos(int* out_x, int* out_y)
 // Returns current town.
 //
 // 0x4C47C0
-int wmGetPartyCurArea(int* a1)
+int _wmGetPartyCurArea(int* a1)
 {
     if (a1) {
         *a1 = dword_672E08;
@@ -5652,7 +5652,7 @@ int wmGetPartyCurArea(int* a1)
 }
 
 // 0x4C47D8
-void wmMarkAllSubTiles(int a1)
+void _wmMarkAllSubTiles(int a1)
 {
     for (int tileIndex = 0; tileIndex < gWorldmapTilesLength; tileIndex++) {
         TileInfo* tile = &(gWorldmapTiles[tileIndex]);
@@ -5666,9 +5666,9 @@ void wmMarkAllSubTiles(int a1)
 }
 
 // 0x4C4850
-void wmTownMap()
+void _wmTownMap()
 {
-    wmWorldMapFunc(1);
+    _wmWorldMapFunc(1);
 }
 
 // 0x4C485C
@@ -5688,7 +5688,7 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
     CityInfo* city = &(gCities[dword_672E08]);
 
     for (;;) {
-        int keyCode = get_input();
+        int keyCode = _get_input();
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             showQuitConfirmationDialog();
         }
@@ -5717,12 +5717,12 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
                 if (v10 < gQuickDestinationsLength) {
                     int v11 = gQuickDestinations[v10];
                     CityInfo* v12 = &(gCities[v11]);
-                    if (!wmAreaIsKnown(v12->field_28)) {
+                    if (!_wmAreaIsKnown(v12->field_28)) {
                         break;
                     }
 
                     if (v11 != dword_672E08) {
-                        wmPartyInitWalking(v12->x, v12->y);
+                        _wmPartyInitWalking(v12->x, v12->y);
 
                         dword_672E00 = 0;
 
@@ -5731,9 +5731,9 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
                 }
             } else {
                 if (keyCode == KEY_CTRL_ARROW_UP) {
-                    wmInterfaceScrollTabsStart(-27);
+                    _wmInterfaceScrollTabsStart(-27);
                 } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
-                    wmInterfaceScrollTabsStart(27);
+                    _wmInterfaceScrollTabsStart(27);
                 } else if (keyCode == 2069) {
                     if (worldmapCityMapViewRefresh() == -1) {
                         return -1;
@@ -5952,7 +5952,7 @@ int carGetCity()
 }
 
 // 0x4C4E94
-int wmCarGiveToParty()
+int _wmCarGiveToParty()
 {
     MessageListItem messageListItem;
     static_assert(sizeof(messageListItem) == sizeof(stru_4BC880), "wrong size");
@@ -6271,7 +6271,7 @@ int worldmapRenderQuickDestinations()
 // Creates array of cities available as quick destinations.
 //
 // 0x4C55D4
-int wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengthPtr)
+int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengthPtr)
 {
     int* quickDestinations = *quickDestinationsPtr;
 
@@ -6294,7 +6294,7 @@ int wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLength
 
     int quickDestinationsLength = *quickDestinationsLengthPtr;
     for (int index = 0; index < gCitiesLength; index++) {
-        if (wmAreaIsKnown(index) && gCities[index].labelFid != -1) {
+        if (_wmAreaIsKnown(index) && gCities[index].labelFid != -1) {
             quickDestinationsLength++;
             *quickDestinationsLengthPtr = quickDestinationsLength;
 
@@ -6352,7 +6352,7 @@ void worldmapWindowRenderDial(bool shouldRefreshWindow)
 }
 
 // 0x4C5804
-int wmAreaFindFirstValidMap(int* out_a1)
+int _wmAreaFindFirstValidMap(int* out_a1)
 {
     *out_a1 = -1;
 
@@ -6394,7 +6394,7 @@ int worldmapStartMapMusic()
             break;
         }
 
-        if (gsound_background_play_level_music(map->music, 12) == -1) {
+        if (_gsound_background_play_level_music(map->music, 12) == -1) {
             break;
         }
 
@@ -6434,7 +6434,7 @@ int worldmapSetMapMusic(int mapIndex, const char* name)
 }
 
 // 0x4C59A4
-int wmMatchAreaContainingMapIdx(int mapIndex, int* cityIndexPtr)
+int _wmMatchAreaContainingMapIdx(int mapIndex, int* cityIndexPtr)
 {
     *cityIndexPtr = 0;
 
@@ -6453,7 +6453,7 @@ int wmMatchAreaContainingMapIdx(int mapIndex, int* cityIndexPtr)
 }
 
 // 0x4C5A1C
-int wmTeleportToArea(int cityIndex)
+int _wmTeleportToArea(int cityIndex)
 {
     if (!cityIsValid(cityIndex)) {
         return -1;

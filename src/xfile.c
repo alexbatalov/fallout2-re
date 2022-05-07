@@ -529,7 +529,7 @@ bool xbaseOpen(const char* path)
     return true;
 }
 
-int xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList* fileList)
+int _xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList* fileList)
 {
     assert(pattern); // "filespec", "xfile.c", 845
     assert(handler); // "enumfunc", "xfile.c", 846
@@ -673,9 +673,9 @@ int xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList* 
     return findFindClose(&directoryFileFindData);
 }
 
-int xbuild_filelist(const char* pattern, FileList* fileList)
+int _xbuild_filelist(const char* pattern, FileList* fileList)
 {
-    xenumfiles(pattern, xlistenumfunc, fileList);
+    _xenumfiles(pattern, _xlistenumfunc, fileList);
     return fileList->fileNamesLength != -1;
 }
 
@@ -798,7 +798,7 @@ void xbaseExitHandler(void)
     xbaseCloseAll();
 }
 
-bool xlistenumfunc(XFileEnumerationContext* context)
+bool _xlistenumfunc(XFileEnumerationContext* context)
 {
     if (context->type == XFILE_ENUMERATION_ENTRY_TYPE_DIRECTORY) {
         return true;

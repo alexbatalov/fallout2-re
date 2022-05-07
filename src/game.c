@@ -126,7 +126,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     runElectronicRegistration();
     programWindowSetTitle(windowTitle);
-    initWindow(1, a4);
+    _initWindow(1, a4);
     paletteInit();
 
     char* language;
@@ -146,7 +146,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
         showSplash();
     }
 
-    trap_init();
+    _trap_init();
 
     interfaceFontsInit();
     fontManagerAdd(&gModernFontManager);
@@ -173,7 +173,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
     queueInit();
     critterInit();
     aiInit();
-    inven_reset_dude();
+    _inven_reset_dude();
 
     if (gameSoundInit() != 0) {
         debugPrint("Sound initialization failed.\n");
@@ -236,7 +236,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">game_load_info\t");
 
-    if (scr_game_init() != 0) {
+    if (_scr_game_init() != 0) {
         debugPrint("Failed on scr_game_init\n");
         return -1;
     }
@@ -250,13 +250,13 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">wmWorldMap_init\t");
 
-    CharEditInit();
+    _CharEditInit();
     debugPrint(">CharEditInit\t");
 
     pipboyInit();
     debugPrint(">pip_init\t\t");
 
-    InitLoadSave();
+    _InitLoadSave();
     lsgInit();
     debugPrint(">InitLoadSave\t");
 
@@ -304,7 +304,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">scr_disable\t");
 
-    if (init_options_menu() != 0) {
+    if (_init_options_menu() != 0) {
         debugPrint("Failed on init_options_menu\n");
         return -1;
     }
@@ -337,27 +337,27 @@ void gameReset()
     lsgInit();
     critterReset();
     aiReset();
-    inven_reset_dude();
+    _inven_reset_dude();
     gameSoundReset();
-    movieStop();
+    _movieStop();
     movieEffectsReset();
     gameMoviesReset();
     isoReset();
     gameMouseReset();
     protoReset();
-    scr_reset();
+    _scr_reset();
     gameLoadGlobalVars();
     scriptsReset();
     worldmapReset();
     partyMembersReset();
-    CharEditInit();
+    _CharEditInit();
     pipboyReset();
-    ResetLoadSave();
+    _ResetLoadSave();
     gameDialogReset();
     combatReset();
     dword_5186CC = 0;
     automapReset();
-    init_options_menu();
+    _init_options_menu();
 }
 
 // 0x442C34
@@ -369,7 +369,7 @@ void gameExit()
     messageListFree(&gMiscMessageList);
     combatExit();
     gameDialogExit();
-    scr_game_exit();
+    _scr_game_exit();
     
     // NOTE: Uninline.
     gameFreeGlobalVars();
@@ -398,8 +398,8 @@ void gameExit()
     partyMembersExit();
     endgameDeathEndingExit();
     interfaceFontsExit();
-    trap_init();
-    windowClose();
+    _trap_init();
+    _windowClose();
     dbExit();
     gameConfigExit(true);
 }
@@ -408,7 +408,7 @@ void gameExit()
 int gameHandleKey(int eventCode, bool isInCombatMode)
 {
     if (dword_5186B8 == 5) {
-        gdialogSystemEnter();
+        _gdialogSystemEnter();
     }
 
     if (eventCode == -1) {
@@ -434,18 +434,18 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             }
         }
 
-        gmouse_handle_event(mouseX, mouseY, mouseState);
+        _gmouse_handle_event(mouseX, mouseY, mouseState);
         return 0;
     }
 
-    if (gmouse_is_scrolling()) {
+    if (_gmouse_is_scrolling()) {
         return 0;
     }
 
     switch (eventCode) {
     case -20:
         if (interfaceBarEnabled()) {
-            intface_use_item();
+            _intface_use_item();
         }
         break;
     case KEY_CTRL_Q:
@@ -470,7 +470,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_N:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            intface_toggle_item_state();
+            _intface_toggle_item_state();
         }
         break;
     case KEY_UPPERCASE_M:
@@ -490,7 +490,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
             bool isoWasEnabled = isoDisable();
-            editor_design(false);
+            _editor_design(false);
             if (isoWasEnabled) {
                 isoEnable();
             }
@@ -549,7 +549,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 debugPrint("\n ** Error calling skilldex_select()! ** \n");
                 break;
             case SKILLDEX_RC_SNEAK:
-                action_skill_use(SKILL_SNEAK);
+                _action_skill_use(SKILL_SNEAK);
                 break;
             case SKILLDEX_RC_LOCKPICK:
                 mode = GAME_MOUSE_MODE_USE_LOCKPICK;
@@ -590,7 +590,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (gIsMapper) {
             tileSetCenter(gDude->tile, TILE_SET_CENTER_FLAG_0x01);
         } else {
-            tile_scroll_to(gDude->tile, 2);
+            _tile_scroll_to(gDude->tile, 2);
         }
 
         break;
@@ -599,7 +599,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
             gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            action_skill_use(SKILL_SNEAK);
+            _action_skill_use(SKILL_SNEAK);
         }
         break;
     case KEY_2:
@@ -801,7 +801,7 @@ void gameUiDisable(int a1)
 {
     if (!gGameUiDisabled) {
         gameMouseObjectsHide();
-        gmouse_disable(a1);
+        _gmouse_disable(a1);
         keyboardDisable();
         interfaceBarDisable();
         gGameUiDisabled = true;
@@ -816,7 +816,7 @@ void gameUiEnable()
         interfaceBarEnable();
         keyboardEnable();
         keyboardReset();
-        gmouse_enable();
+        _gmouse_enable();
         gameMouseObjectsShow();
         gGameUiDisabled = false;
     }
@@ -867,7 +867,7 @@ int globalVarsRead(const char* path, const char* section, int* out_vars_num, int
     char str[258];
     char* ch;
 
-    inven_reset_dude();
+    _inven_reset_dude();
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -932,13 +932,13 @@ int globalVarsRead(const char* path, const char* section, int* out_vars_num, int
 }
 
 // 0x443E2C
-int game_state()
+int _game_state()
 {
     return dword_5186B8;
 }
 
 // 0x443E34
-int game_state_request(int a1)
+int _game_state_request(int a1)
 {
     if (a1 == 0) {
         a1 = 1;
@@ -957,7 +957,7 @@ int game_state_request(int a1)
 }
 
 // 0x443E90
-void game_state_update()
+void _game_state_update()
 {
     int v0;
 
@@ -1038,11 +1038,11 @@ void showHelp()
                 colorPaletteLoad("art\\intrface\\helpscrn.pal");
                 paletteSetEntries(stru_51DF34);
 
-                while (get_input() == -1 && dword_5186CC == 0) {
+                while (_get_input() == -1 && dword_5186CC == 0) {
                 }
 
                 while (mouseGetEvent() != 0) {
-                    get_input();
+                    _get_input();
                 }
 
                 paletteSetEntries(gPaletteBlack);

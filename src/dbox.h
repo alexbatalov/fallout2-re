@@ -26,6 +26,6 @@ extern int dword_510900[7];
 extern int dword_51091C[7];
 
 int showDialogBox(const char* title, const char** body, int bodyLength, int x, int y, int titleColor, const char* a8, int bodyColor, int flags);
-int save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLength, int x, int y, int flags);
+int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLength, int x, int y, int flags);
 
 #endif /* DBOX_H */

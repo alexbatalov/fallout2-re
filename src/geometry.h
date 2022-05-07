@@ -25,10 +25,10 @@ typedef struct RectListNode {
 
 extern RectListNode* off_51DEF4;
 
-void GNW_rect_exit();
-void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect);
-RectListNode* rect_malloc();
-void rect_free(RectListNode* entry);
+void _GNW_rect_exit();
+void _rect_clip_list(RectListNode** rectListNodePtr, Rect* rect);
+RectListNode* _rect_malloc();
+void _rect_free(RectListNode* entry);
 void rectUnion(const Rect* s1, const Rect* s2, Rect* r);
 int rectIntersection(const Rect* a1, const Rect* a2, Rect* a3);
 

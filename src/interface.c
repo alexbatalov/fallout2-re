@@ -388,7 +388,7 @@ int interfaceInit()
         goto err;
     }
 
-    buttonSetCallbacks(gInventoryButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gInventoryButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 18, 0, 0, 0);
     gOptionsButtonUpFrmData = artLockFrameData(fid, 0, 0, &gOptionsButtonUpFrmHandle);
@@ -407,7 +407,7 @@ int interfaceInit()
         goto err;
     }
 
-    buttonSetCallbacks(gOptionsButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gOptionsButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 6, 0, 0, 0);
     gSkilldexButtonUpFrmData = artLockFrameData(fid, 0, 0, &gSkilldexButtonUpFrmHandle);
@@ -433,7 +433,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gSkilldexButton, gSkilldexButtonMaskFrmData);
-    buttonSetCallbacks(gSkilldexButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gSkilldexButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 13, 0, 0, 0);
     gMapButtonUpFrmData = artLockFrameData(fid, 0, 0, &gMapButtonUpFrmHandle);
@@ -459,7 +459,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gMapButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gMapButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gMapButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 59, 0, 0, 0);
     gPipboyButtonUpFrmData = artLockFrameData(fid, 0, 0, &gPipboyButtonUpFrmHandle);
@@ -479,7 +479,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gPipboyButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gPipboyButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gPipboyButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 57, 0, 0, 0);
     gCharacterButtonUpFrmData = artLockFrameData(fid, 0, 0, &gCharacterButtonUpFrmHandle);
@@ -499,7 +499,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gCharacterButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gCharacterButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gCharacterButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 32, 0, 0, 0);
     gSingleAttackButtonUpData = artLockFrameData(fid, 0, 0, &gSingleAttackButtonUpHandle);
@@ -528,7 +528,7 @@ int interfaceInit()
     }
 
     buttonSetRightMouseCallbacks(gSingleAttackButton, -1, KEY_LOWERCASE_N, NULL, NULL);
-    buttonSetCallbacks(gSingleAttackButton, gsound_lrg_butt_press, gsound_lrg_butt_release);
+    buttonSetCallbacks(gSingleAttackButton, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
 
     fid = buildFid(6, 6, 0, 0, 0);
     gChangeHandsButtonUpFrmData = artLockFrameData(fid, 0, 0, &gChangeHandsButtonUpFrmHandle);
@@ -555,7 +555,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gChangeHandsButton, gChangeHandsButtonMaskFrmData);
-    buttonSetCallbacks(gChangeHandsButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gChangeHandsButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     fid = buildFid(6, 82, 0, 0, 0);
     gNumbersFrmData = artLockFrameData(fid, 0, 0, &gNumbersFrmHandle);
@@ -855,7 +855,7 @@ int interfaceLoad(File* stream)
         }
         indicatorBarRefresh();
     } else {
-        intface_show();
+        _intface_show();
     }
 
     interfaceRenderHitPoints(false);
@@ -863,7 +863,7 @@ int interfaceLoad(File* stream)
 
     gInterfaceCurrentHand = interfaceCurrentHand;
 
-    intface_update_items(false, -1, -1);
+    _intface_update_items(false, -1, -1);
 
     if (interfaceBarEndButtonsIsVisible != gInterfaceBarEndButtonsIsVisible) {
         if (interfaceBarEndButtonsIsVisible) {
@@ -900,11 +900,11 @@ int interfaceSave(File* stream)
 }
 
 // 0x45EA10
-void intface_show()
+void _intface_show()
 {
     if (gInterfaceBarWindow != -1) {
         if (dword_518F14) {
-            intface_update_items(false, -1, -1);
+            _intface_update_items(false, -1, -1);
             interfaceRenderHitPoints(false);
             interfaceRenderArmorClass(false);
             windowUnhide(gInterfaceBarWindow);
@@ -967,7 +967,7 @@ bool interfaceBarEnabled()
 void interfaceBarRefresh()
 {
     if (gInterfaceBarWindow != -1) {
-        intface_update_items(false, -1, -1);
+        _intface_update_items(false, -1, -1);
         interfaceRenderHitPoints(false);
         interfaceRenderArmorClass(false);
         indicatorBarRefresh();
@@ -1144,7 +1144,7 @@ int interfaceGetCurrentHitMode(int* hitMode, bool* aiming)
 }
 
 // 0x45EFEC
-int intface_update_items(bool a1, int a2, int a3)
+int _intface_update_items(bool a1, int a2, int a3)
 {
     bool v33 = a1;
     if (isoIsDisabled()) {
@@ -1161,13 +1161,13 @@ int intface_update_items(bool a1, int a2, int a3)
     Object* item1 = critterGetItem1(gDude);
     if (item1 == p1->item && p1->item != NULL) {
         if (p1->item != NULL) {
-            p1->isDisabled = can_use_weapon(item1);
+            p1->isDisabled = _can_use_weapon(item1);
             p1->itemFid = itemGetInventoryFid(item1);
         }
     } else {
         p1->item = item1;
         if (item1 != NULL) {
-            p1->isDisabled = can_use_weapon(item1);
+            p1->isDisabled = _can_use_weapon(item1);
             p1->primaryHitMode = HIT_MODE_LEFT_WEAPON_PRIMARY;
             p1->secondaryHitMode = HIT_MODE_LEFT_WEAPON_SECONDARY;
             p1->isWeapon = itemGetType(item1) == ITEM_TYPE_WEAPON;
@@ -1221,14 +1221,14 @@ int intface_update_items(bool a1, int a2, int a3)
     Object* item2 = critterGetItem2(gDude);
     if (item2 == p2->item && p2->item != NULL) {
         if (p2->item != NULL) {
-            p2->isDisabled = can_use_weapon(p2->item);
+            p2->isDisabled = _can_use_weapon(p2->item);
             p2->itemFid = itemGetInventoryFid(p2->item);
         }
     } else {
         p2->item = item2;
 
         if (item2 != NULL) {
-            p2->isDisabled = can_use_weapon(item2);
+            p2->isDisabled = _can_use_weapon(item2);
             p2->primaryHitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
             p2->secondaryHitMode = HIT_MODE_RIGHT_WEAPON_SECONDARY;
             p2->isWeapon = itemGetType(item2) == ITEM_TYPE_WEAPON;
@@ -1329,7 +1329,7 @@ int interfaceBarSwapHands(bool animated)
 }
 
 // 0x45F4B4
-int intface_get_item_states(int* a1, int* a2)
+int _intface_get_item_states(int* a1, int* a2)
 {
     *a1 = stru_5970F8[HAND_LEFT].field_10;
     *a2 = stru_5970F8[HAND_RIGHT].field_10;
@@ -1337,7 +1337,7 @@ int intface_get_item_states(int* a1, int* a2)
 }
 
 // 0x45F4E0
-int intface_toggle_item_state()
+int _intface_toggle_item_state()
 {
     if (gInterfaceBarWindow == -1) {
         return -1;
@@ -1355,7 +1355,7 @@ int intface_toggle_item_state()
                 done = true;
                 break;
             case INTERFACE_ACTION_PRIMARY_AIMING:
-                if (item_w_called_shot(gDude, ptr->primaryHitMode)) {
+                if (_item_w_called_shot(gDude, ptr->primaryHitMode)) {
                     done = true;
                 }
                 break;
@@ -1370,7 +1370,7 @@ int intface_toggle_item_state()
                 if (ptr->secondaryHitMode != HIT_MODE_PUNCH
                     && ptr->secondaryHitMode != HIT_MODE_KICK
                     && weaponGetAttackTypeForHitMode(ptr->item, ptr->secondaryHitMode) != ATTACK_TYPE_NONE
-                    && item_w_called_shot(ptr->item, ptr->secondaryHitMode)) {
+                    && _item_w_called_shot(ptr->item, ptr->secondaryHitMode)) {
                     done = true;
                 }
                 break;
@@ -1394,7 +1394,7 @@ int intface_toggle_item_state()
 }
 
 // 0x45F5EC
-void intface_use_item()
+void _intface_use_item()
 {
     if (gInterfaceBarWindow == -1) {
         return;
@@ -1409,9 +1409,9 @@ void intface_use_item()
                     ? HIT_MODE_LEFT_WEAPON_RELOAD
                     : HIT_MODE_RIGHT_WEAPON_RELOAD;
 
-                int actionPointsRequired = item_mp_cost(gDude, hitMode, false);
+                int actionPointsRequired = _item_mp_cost(gDude, hitMode, false);
                 if (actionPointsRequired < gDude->data.critter.combat.ap) {
-                    if (intface_item_reload() == 0) {
+                    if (_intface_item_reload() == 0) {
                         if (actionPointsRequired > gDude->data.critter.combat.ap) {
                             gDude->data.critter.combat.ap = 0;
                         } else {
@@ -1421,24 +1421,24 @@ void intface_use_item()
                     }
                 }
             } else {
-                intface_item_reload();
+                _intface_item_reload();
             }
         } else {
             gameMouseSetCursor(MOUSE_CURSOR_CROSSHAIR);
             gameMouseSetMode(GAME_MOUSE_MODE_CROSSHAIR);
             if (!isInCombat()) {
-                combat(NULL);
+                _combat(NULL);
             }
         }
-    } else if (proto_action_can_use_on(ptr->item->pid)) {
+    } else if (_proto_action_can_use_on(ptr->item->pid)) {
         gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
         gameMouseSetMode(GAME_MOUSE_MODE_USE_CROSSHAIR);
-    } else if (obj_action_can_use(ptr->item)) {
+    } else if (_obj_action_can_use(ptr->item)) {
         if (isInCombat()) {
-            int actionPointsRequired = item_mp_cost(gDude, ptr->secondaryHitMode, false);
+            int actionPointsRequired = _item_mp_cost(gDude, ptr->secondaryHitMode, false);
             if (actionPointsRequired <= gDude->data.critter.combat.ap) {
-                obj_use_item(gDude, ptr->item);
-                intface_update_items(false, -1, -1);
+                _obj_use_item(gDude, ptr->item);
+                _intface_update_items(false, -1, -1);
                 if (actionPointsRequired > gDude->data.critter.combat.ap) {
                     gDude->data.critter.combat.ap = 0;
                 } else {
@@ -1448,8 +1448,8 @@ void intface_use_item()
                 interfaceRenderActionPoints(gDude->data.critter.combat.ap, dword_56D39C);
             }
         } else {
-            obj_use_item(gDude, ptr->item);
-            intface_update_items(false, -1, -1);
+            _obj_use_item(gDude, ptr->item);
+            _intface_update_items(false, -1, -1);
         }
     }
 }
@@ -1473,7 +1473,7 @@ int interfaceGetActiveItem(Object** itemPtr)
 }
 
 // 0x45F838
-int intface_update_ammo_lights()
+int _intface_update_ammo_lights()
 {
     if (gInterfaceBarWindow == -1) {
         return -1;
@@ -1539,7 +1539,7 @@ void interfaceBarEndButtonsShow(bool animated)
                     windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
                 }
 
-                time = get_time();
+                time = _get_time();
                 frame++;
             }
             gameMouseRefresh();
@@ -1594,7 +1594,7 @@ void interfaceBarEndButtonsHide(bool animated)
                     windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
                 }
 
-                time = get_time();
+                time = _get_time();
                 frame--;
             }
             gameMouseRefresh();
@@ -1674,10 +1674,10 @@ int interfaceBarRefreshMainAction()
 
         if (p->isWeapon == 0) {
             int fid;
-            if (proto_action_can_use_on(p->item->pid)) {
+            if (_proto_action_can_use_on(p->item->pid)) {
                 // USE ON
                 fid = buildFid(6, 294, 0, 0, 0);
-            } else if (obj_action_can_use(p->item)) {
+            } else if (_obj_action_can_use(p->item)) {
                 // USE
                 fid = buildFid(6, 292, 0, 0, 0);
             } else {
@@ -1692,11 +1692,11 @@ int interfaceBarRefreshMainAction()
                     int height = artGetHeight(useTextFrm, 0, 0);
                     unsigned char* data = artGetFrameData(useTextFrm, 0, 0);
                     blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * 7 + 181 - width, 188);
-                    dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, 5, 188, 59641);
+                    _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, 5, 188, 59641);
                     artUnlock(useTextFrmHandle);
                 }
 
-                actionPoints = item_mp_cost(gDude, p->primaryHitMode, false);
+                actionPoints = _item_mp_cost(gDude, p->primaryHitMode, false);
             }
         } else {
             int primaryFid = -1;
@@ -1719,7 +1719,7 @@ int interfaceBarRefreshMainAction()
                 hitMode = p->secondaryHitMode;
                 break;
             case INTERFACE_ACTION_RELOAD:
-                actionPoints = item_mp_cost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
+                actionPoints = _item_mp_cost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
                 supplementaryFid = buildFid(6, 291, 0, 0, 0);
                 break;
             }
@@ -1739,13 +1739,13 @@ int interfaceBarRefreshMainAction()
                         height -= 2;
                     }
 
-                    dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, v9, 188, 59641);
+                    _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, v9, 188, 59641);
                     artUnlock(supplementaryFrmHandle);
                 }
             }
 
             if (hitMode != -1) {
-                actionPoints = item_w_mp_cost(gDude, hitMode, supplementaryFid != -1);
+                actionPoints = _item_w_mp_cost(gDude, hitMode, supplementaryFid != -1);
 
                 int id;
                 int anim = critterGetAnimationForHitMode(gDude, hitMode);
@@ -1829,7 +1829,7 @@ int interfaceBarRefreshMainAction()
                     int height = artGetHeight(primaryFrm, 0, 0);
                     unsigned char* data = artGetFrameData(primaryFrm, 0, 0);
                     blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * 7 + 181 - width, 188);
-                    dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, 5, 188, 59641);
+                    _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, 5, 188, 59641);
                     artUnlock(primaryFrmHandle);
                 }
             }
@@ -1855,7 +1855,7 @@ int interfaceBarRefreshMainAction()
                 height -= 2;
             }
 
-            dark_trans_buf_to_buf(data, width, height, width, byte_597154, 7 + 1, v29, 188, 59641);
+            _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 7 + 1, v29, 188, 59641);
             artUnlock(handle);
 
             int offset = width + 7;
@@ -1875,7 +1875,7 @@ int interfaceBarRefreshMainAction()
                     v40 = 0;
                     height -= 2;
                 }
-                dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, byte_597154, offset + 7 + 1, v40, 188, 59641);
+                _dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, byte_597154, offset + 7 + 1, v40, 188, 59641);
 
                 artUnlock(handle);
             }
@@ -1903,13 +1903,13 @@ int interfaceBarRefreshMainAction()
                 height -= 2;
             }
 
-            dark_trans_buf_to_buf(data, width, height, width, byte_597154, v46 + 1, v47, 188, 63571);
+            _dark_trans_buf_to_buf(data, width, height, width, byte_597154, v46 + 1, v47, 188, 63571);
             artUnlock(itemFrmHandle);
         }
     }
 
     if (!gInterfaceBarInitialized) {
-        intface_update_ammo_lights();
+        _intface_update_ammo_lights();
 
         windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarMainActionRect);
 
@@ -1924,14 +1924,14 @@ int interfaceBarRefreshMainAction()
 }
 
 // 0x460658
-int intface_redraw_items_callback(Object* a1, Object* a2)
+int _intface_redraw_items_callback(Object* a1, Object* a2)
 {
     interfaceBarRefreshMainAction();
     return 0;
 }
 
 // 0x460660
-int intface_change_fid_callback(Object* a1, Object* a2)
+int _intface_change_fid_callback(Object* a1, Object* a2)
 {
     gInterfaceBarSwapHandsInProgress = false;
     return 0;
@@ -1952,7 +1952,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         reg_anim_animate(gDude, ANIM_PUT_AWAY, 0);
     }
 
-    reg_anim_11_1(NULL, NULL, intface_redraw_items_callback, -1);
+    reg_anim_11_1(NULL, NULL, _intface_redraw_items_callback, -1);
 
     Object* item = stru_5970F8[gInterfaceCurrentHand].item;
     if (item != NULL && item->lightDistance > 4) {
@@ -1966,7 +1966,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         reg_anim_17(gDude, fid, -1);
     }
 
-    reg_anim_11_1(NULL, NULL, intface_change_fid_callback, -1);
+    reg_anim_11_1(NULL, NULL, _intface_change_fid_callback, -1);
 
     if (reg_anim_end() == -1) {
         return;
@@ -1975,7 +1975,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     bool interfaceBarWasEnabled = gInterfaceBarEnabled;
 
     interfaceBarDisable();
-    gmouse_disable(0);
+    _gmouse_disable(0);
 
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
 
@@ -1984,12 +1984,12 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
             break;
         }
 
-        get_input();
+        _get_input();
     }
 
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
-    gmouse_enable();
+    _gmouse_enable();
 
     if (interfaceBarWasEnabled) {
         interfaceBarEnable();
@@ -2026,8 +2026,8 @@ int endTurnButtonInit()
         return -1;
     }
 
-    win_register_button_disable(gEndTurnButton, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData);
-    buttonSetCallbacks(gEndTurnButton, gsound_med_butt_press, gsound_med_butt_release);
+    _win_register_button_disable(gEndTurnButton, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData);
+    buttonSetCallbacks(gEndTurnButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     return 0;
 }
@@ -2089,8 +2089,8 @@ int endCombatButtonInit()
         return -1;
     }
 
-    win_register_button_disable(gEndCombatButton, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData);
-    buttonSetCallbacks(gEndCombatButton, gsound_med_butt_press, gsound_med_butt_release);
+    _win_register_button_disable(gEndCombatButton, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData);
+    buttonSetCallbacks(gEndCombatButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     return 0;
 }
@@ -2157,19 +2157,19 @@ void interfaceUpdateAmmoBar(int x, int ratio)
 }
 
 // 0x460B20
-int intface_item_reload()
+int _intface_item_reload()
 {
     if (gInterfaceBarWindow == -1) {
         return -1;
     }
 
     bool v0 = false;
-    while (item_w_try_reload(gDude, stru_5970F8[gInterfaceCurrentHand].item) != -1) {
+    while (_item_w_try_reload(gDude, stru_5970F8[gInterfaceCurrentHand].item) != -1) {
         v0 = true;
     }
 
-    intface_toggle_item_state();
-    intface_update_items(false, -1, -1);
+    _intface_toggle_item_state();
+    _intface_update_items(false, -1, -1);
 
     if (!v0) {
         return -1;
@@ -2241,7 +2241,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 }
 
                 blitBufferToBuffer(upSrc, 9, 17, 360, onesDest, 640);
-                mouse_info();
+                _mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
                 windowRefreshRect(gInterfaceBarWindow, &numbersRect);
@@ -2250,7 +2250,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
 
                 if (ones > 9 || ones < 0) {
                     blitBufferToBuffer(upSrc, 9, 17, 360, tensDest, 640);
-                    mouse_info();
+                    _mouse_info();
                     gameMouseRefresh();
                     coreDelay(delay);
                     windowRefreshRect(gInterfaceBarWindow, &numbersRect);
@@ -2259,7 +2259,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                     ones -= 10 * v49;
                     if (tens == 10 || tens == -1) {
                         blitBufferToBuffer(upSrc, 9, 17, 360, hundredsDest, 640);
-                        mouse_info();
+                        _mouse_info();
                         gameMouseRefresh();
                         coreDelay(delay);
                         windowRefreshRect(gInterfaceBarWindow, &numbersRect);
@@ -2271,7 +2271,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                         }
 
                         blitBufferToBuffer(downSrc, 9, 17, 360, hundredsDest, 640);
-                        mouse_info();
+                        _mouse_info();
                         gameMouseRefresh();
                         coreDelay(delay);
                         windowRefreshRect(gInterfaceBarWindow, &numbersRect);
@@ -2283,7 +2283,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 }
 
                 blitBufferToBuffer(downSrc, 9, 17, 360, onesDest, 640);
-                mouse_info();
+                _mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
                 windowRefreshRect(gInterfaceBarWindow, &numbersRect);
@@ -2295,7 +2295,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 blitBufferToBuffer(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
 
                 blitBufferToBuffer(previousValue >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
-                mouse_info();
+                _mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
                 windowRefreshRect(gInterfaceBarWindow, &numbersRect);

@@ -34,19 +34,19 @@ extern int dword_6B23C0;
 extern int dword_6B23C4;
 extern char gProgramWindowTitle[256];
 
-int win_debug(char* a1);
-void win_debug_delete();
-int win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7);
-int win_register_menu_pulldown(int win, int x, char* str, int a4);
-int win_width_needed(char** fileNameList, int fileNameListLength);
-int GNW_process_menu(struc_177* ptr, int i);
-int calc_max_field_chars_wcursor(int a1, int a2);
-void GNW_intr_init();
-void GNW_intr_exit();
-void tm_watch_msgs();
-void tm_kill_msg();
-void tm_kill_out_of_order(int a1);
-void tm_click_response(int btn);
-int tm_index_active(int a1);
+int _win_debug(char* a1);
+void _win_debug_delete();
+int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7);
+int _win_register_menu_pulldown(int win, int x, char* str, int a4);
+int _win_width_needed(char** fileNameList, int fileNameListLength);
+int _GNW_process_menu(struc_177* ptr, int i);
+int _calc_max_field_chars_wcursor(int a1, int a2);
+void _GNW_intr_init();
+void _GNW_intr_exit();
+void _tm_watch_msgs();
+void _tm_kill_msg();
+void _tm_kill_out_of_order(int a1);
+void _tm_click_response(int btn);
+int _tm_index_active(int a1);
 
 #endif /* WINDOW_MANAGER_PRIVATE_H */

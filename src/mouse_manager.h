@@ -5,12 +5,12 @@ extern char* (*off_5195A8)(char*);
 extern int (*off_5195AC)();
 extern int (*off_5195B0)();
 
-char* defaultNameMangler(char* a1);
-int defaultRateCallback();
-int defaultTimeCallback();
-void mousemgrSetNameMangler(char* (*func)(char*));
-void initMousemgr();
-void mouseHide();
-void mouseShow();
+char* _defaultNameMangler(char* a1);
+int _defaultRateCallback();
+int _defaultTimeCallback();
+void _mousemgrSetNameMangler(char* (*func)(char*));
+void _initMousemgr();
+void _mouseHide();
+void _mouseShow();
 
 #endif /* MOUSE_MANAGER_H */

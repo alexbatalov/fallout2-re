@@ -39,7 +39,7 @@ typedef struct Region {
 
 extern char byte_50D394[];
 
-void regionSetBound(Region* region);
+void _regionSetBound(Region* region);
 Region* regionCreate(int a1);
 void regionAddPoint(Region* region, int x, int y);
 void regionDelete(Region* region);

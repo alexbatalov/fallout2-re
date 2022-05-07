@@ -57,7 +57,7 @@ extern unsigned char* off_6ADB04;
 
 bool soundDecoderPrepare(SoundDecoder* a1, SoundDecoderReadProc* readProc, int fileHandle);
 unsigned char soundDecoderReadNextChunk(SoundDecoder* a1);
-void init_pack_tables();
+void _init_pack_tables();
 
 int sub_4D3D9C(SoundDecoder* soundDecoder, int offset, int bits);
 int sub_4D3DA0(SoundDecoder* soundDecoder, int offset, int bits);
@@ -75,9 +75,9 @@ int sub_4D47A4(SoundDecoder* soundDecoder, int offset, int bits);
 int sub_4D4870(SoundDecoder* soundDecoder, int offset, int bits);
 
 int sub_4D493C(SoundDecoder* ptr);
-void untransform_subband0(unsigned char* a1, unsigned char* a2, int a3, int a4);
-void untransform_subband(unsigned char* a1, unsigned char* a2, int a3, int a4);
-void untransform_all(SoundDecoder* a1);
+void _untransform_subband0(unsigned char* a1, unsigned char* a2, int a3, int a4);
+void _untransform_subband(unsigned char* a1, unsigned char* a2, int a3, int a4);
+void _untransform_all(SoundDecoder* a1);
 size_t soundDecoderDecode(SoundDecoder* soundDecoder, void* buffer, size_t size);
 void soundDecoderFree(SoundDecoder* soundDecoder);
 SoundDecoder* soundDecoderInit(SoundDecoderReadProc* readProc, int fileHandle, int* out_a3, int* out_a4, int* out_a5);

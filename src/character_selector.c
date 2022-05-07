@@ -157,7 +157,7 @@ int characterSelectorOpen()
             break;
         }
 
-        int keyCode = get_input();
+        int keyCode = _get_input();
 
         switch (keyCode) {
         case KEY_MINUS:
@@ -176,8 +176,8 @@ int characterSelectorOpen()
             break;
         case KEY_UPPERCASE_C:
         case KEY_LOWERCASE_C:
-            ResetPlayer();
-            if (editor_design(1) == 0) {
+            _ResetPlayer();
+            if (_editor_design(1) == 0) {
                 rc = 2;
                 done = true;
             }
@@ -185,7 +185,7 @@ int characterSelectorOpen()
             break;
         case KEY_UPPERCASE_M:
         case KEY_LOWERCASE_M:
-            if (!editor_design(1)) {
+            if (!_editor_design(1)) {
                 rc = 2;
                 done = true;
             }
@@ -311,7 +311,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowPreviousButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowPreviousButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     // Setup "Next" button.
     fid = buildFid(6, 124, 0, 0, 0);
@@ -343,7 +343,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowNextButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowNextButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
     // Setup "Take" button.
     fid = buildFid(6, 8, 0, 0, 0);
@@ -375,7 +375,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowTakeButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowTakeButton, _gsound_red_butt_press, _gsound_red_butt_release);
 
     // Setup "Modify" button.
     fid = buildFid(6, 8, 0, 0, 0);
@@ -406,7 +406,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowModifyButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowModifyButton, _gsound_red_butt_press, _gsound_red_butt_release);
 
     // Setup "Create" button.
     fid = buildFid(6, 8, 0, 0, 0);
@@ -438,7 +438,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowCreateButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowCreateButton, _gsound_red_butt_press, _gsound_red_butt_release);
 
     // Setup "Back" button.
     fid = buildFid(6, 8, 0, 0, 0);
@@ -470,7 +470,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowBackButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowBackButton, _gsound_red_butt_press, _gsound_red_butt_release);
 
     gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;
 
@@ -612,7 +612,7 @@ bool characterSelectorWindowRefresh()
 {
     char path[FILENAME_MAX];
     sprintf(path, "%s.gcd", gPremadeCharacterDescriptions[gCurrentPremadeCharacter].fileName);
-    if (proto_dude_init(path) == -1) {
+    if (_proto_dude_init(path) == -1) {
         debugPrint("\n ** Error in dude init! **\n");
         return false;
     }

@@ -13,7 +13,7 @@ char byte_50D394[] = "<null>";
 // Probably recalculates bounding box of the region.
 //
 // 0x4A2B50
-void regionSetBound(Region* region)
+void _regionSetBound(Region* region)
 {
     int v1 = INT_MAX;
     int v2 = INT_MIN;

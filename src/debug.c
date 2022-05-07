@@ -22,27 +22,27 @@ int dword_51DF00 = 0;
 DebugPrintProc* gDebugPrintProc = NULL;
 
 // 0x4C6CD0
-void GNW_debug_init()
+void _GNW_debug_init()
 {
-    atexit(debug_exit);
+    atexit(_debug_exit);
 }
 
 // 0x4C6CDC
-void debug_register_mono()
+void _debug_register_mono()
 {
-    if (gDebugPrintProc != debug_mono) {
+    if (gDebugPrintProc != _debug_mono) {
         if (off_51DEF8 != NULL) {
             fclose(off_51DEF8);
             off_51DEF8 = NULL;
         }
 
-        gDebugPrintProc = debug_mono;
-        debug_clear();
+        gDebugPrintProc = _debug_mono;
+        _debug_clear();
     }
 }
 
 // 0x4C6D18
-void debug_register_log(const char* fileName, const char* mode)
+void _debug_register_log(const char* fileName, const char* mode)
 {
     if ((mode[0] == 'w' && mode[1] == 'a') && mode[1] == 't') {
         if (off_51DEF8 != NULL) {
@@ -50,25 +50,25 @@ void debug_register_log(const char* fileName, const char* mode)
         }
 
         off_51DEF8 = fopen(fileName, mode);
-        gDebugPrintProc = debug_log;
+        gDebugPrintProc = _debug_log;
     }
 }
 
 // 0x4C6D5C
-void debug_register_screen()
+void _debug_register_screen()
 {
-    if (gDebugPrintProc != debug_screen) {
+    if (gDebugPrintProc != _debug_screen) {
         if (off_51DEF8 != NULL) {
             fclose(off_51DEF8);
             off_51DEF8 = NULL;
         }
 
-        gDebugPrintProc = debug_screen;
+        gDebugPrintProc = _debug_screen;
     }
 }
 
 // 0x4C6D90
-void debug_register_env()
+void _debug_register_env()
 {
     const char* type = getenv("DEBUGACTIVE");
     if (type == NULL) {
@@ -85,20 +85,20 @@ void debug_register_env()
 
     if (strcmp(copy, "mono") == 0) {
         // NOTE: Uninline.
-        debug_register_mono();
+        _debug_register_mono();
     } else if (strcmp(copy, "log") == 0) {
-        debug_register_log("debug.log", "wt");
+        _debug_register_log("debug.log", "wt");
     } else if (strcmp(copy, "screen") == 0) {
         // NOTE: Uninline.
-        debug_register_screen();
+        _debug_register_screen();
     } else if (strcmp(copy, "gnw") == 0) {
-        if (gDebugPrintProc != win_debug) {
+        if (gDebugPrintProc != _win_debug) {
             if (off_51DEF8 != NULL) {
                 fclose(off_51DEF8);
                 off_51DEF8 = NULL;
             }
 
-            gDebugPrintProc = win_debug;
+            gDebugPrintProc = _win_debug;
         }
     }
 
@@ -106,7 +106,7 @@ void debug_register_env()
 }
 
 // 0x4C6F18
-void debug_register_func(DebugPrintProc* proc)
+void _debug_register_func(DebugPrintProc* proc)
 {
     if (gDebugPrintProc != proc) {
         if (off_51DEF8 != NULL) {
@@ -146,7 +146,7 @@ int debugPrint(const char* format, ...)
 }
 
 // 0x4C6F94
-int debug_puts(char* string)
+int _debug_puts(char* string)
 {
     if (gDebugPrintProc != NULL) {
         return gDebugPrintProc(string);
@@ -156,27 +156,27 @@ int debug_puts(char* string)
 }
 
 // 0x4C6FAC
-void debug_clear()
+void _debug_clear()
 {
     // TODO: Something with segments.
 }
 
 // 0x4C7004
-int debug_mono(char* string)
+int _debug_mono(char* string)
 {
-    if (gDebugPrintProc == debug_mono) {
+    if (gDebugPrintProc == _debug_mono) {
         while (*string != '\0') {
             char ch = *string++;
-            debug_putc(ch);
+            _debug_putc(ch);
         }
     }
     return 0;
 }
 
 // 0x4C7028
-int debug_log(char* string)
+int _debug_log(char* string)
 {
-    if (gDebugPrintProc == debug_log) {
+    if (gDebugPrintProc == _debug_log) {
         if (off_51DEF8 == NULL) {
             return -1;
         }
@@ -194,9 +194,9 @@ int debug_log(char* string)
 }
 
 // 0x4C7068
-int debug_screen(char* string)
+int _debug_screen(char* string)
 {
-    if (gDebugPrintProc == debug_screen) {
+    if (gDebugPrintProc == _debug_screen) {
         printf(string);
     }
 
@@ -204,19 +204,19 @@ int debug_screen(char* string)
 }
 
 // 0x4C709C
-void debug_putc()
+void _debug_putc()
 {
     // TODO: Something with segments.
 }
 
 // 0x4C71AC
-void debug_scroll()
+void _debug_scroll()
 {
     // TODO: Something with segments.
 }
 
 // 0x4C71E8
-void debug_exit(void)
+void _debug_exit(void)
 {
     if (off_51DEF8 != NULL) {
         fclose(off_51DEF8);

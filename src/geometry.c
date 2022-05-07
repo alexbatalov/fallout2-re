@@ -8,7 +8,7 @@
 RectListNode* off_51DEF4 = NULL;
 
 // 0x4C6900
-void GNW_rect_exit()
+void _GNW_rect_exit()
 {
     while (off_51DEF4 != NULL) {
         RectListNode* next = off_51DEF4->next;
@@ -18,7 +18,7 @@ void GNW_rect_exit()
 }
 
 // 0x4C6924
-void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
+void _rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
 {
     Rect v1;
     rectCopy(&v1, rect);
@@ -39,7 +39,7 @@ void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
             off_51DEF4 = rectListNode;
 
             if (v2.top < v1.top) {
-                RectListNode* newRectListNode = rect_malloc();
+                RectListNode* newRectListNode = _rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -55,7 +55,7 @@ void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
             }
 
             if (v2.bottom > v1.bottom) {
-                RectListNode* newRectListNode = rect_malloc();
+                RectListNode* newRectListNode = _rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -71,7 +71,7 @@ void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
             }
 
             if (v2.left < v1.left) {
-                RectListNode* newRectListNode = rect_malloc();
+                RectListNode* newRectListNode = _rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -85,7 +85,7 @@ void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
             }
 
             if (v2.right > v1.right) {
-                RectListNode* newRectListNode = rect_malloc();
+                RectListNode* newRectListNode = _rect_malloc();
                 if (newRectListNode == NULL) {
                     return;
                 }
@@ -104,7 +104,7 @@ void rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
 }
 
 // 0x4C6BB8
-RectListNode* rect_malloc()
+RectListNode* _rect_malloc()
 {
     if (off_51DEF4 == NULL) {
         for (int index = 0; index < 10; index++) {
@@ -114,7 +114,7 @@ RectListNode* rect_malloc()
             }
 
             // NOTE: Uninline.
-            rect_free(rectListNode);
+            _rect_free(rectListNode);
         }
     }
 
@@ -129,7 +129,7 @@ RectListNode* rect_malloc()
 }
 
 // 0x4C6C04
-void rect_free(RectListNode* rectListNode)
+void _rect_free(RectListNode* rectListNode)
 {
     rectListNode->next = off_51DEF4;
     off_51DEF4 = rectListNode;

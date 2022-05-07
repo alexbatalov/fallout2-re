@@ -18,14 +18,14 @@ extern Nevs* off_6391C8;
 
 extern int dword_6391CC;
 
-Nevs* nevs_alloc();
-void nevs_close();
-void nevs_removeprogramreferences(int a1);
-void nevs_initonce();
-Nevs* nevs_find(const char* a1);
-int nevs_addevent(const char* a1, int a2, int a3, int a4);
-int nevs_clearevent(const char* a1);
-int nevs_signal(const char* a1);
-void nevs_update();
+Nevs* _nevs_alloc();
+void _nevs_close();
+void _nevs_removeprogramreferences(int a1);
+void _nevs_initonce();
+Nevs* _nevs_find(const char* a1);
+int _nevs_addevent(const char* a1, int a2, int a3, int a4);
+int _nevs_clearevent(const char* a1);
+int _nevs_signal(const char* a1);
+void _nevs_update();
 
 #endif /* NEVS_H */

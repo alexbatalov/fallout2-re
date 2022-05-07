@@ -50,7 +50,7 @@ void lightSetLightLevel(int lightLevel, bool shouldUpdateScreen)
 }
 
 // TODO: Looks strange - it tries to clamp intensity as light level?
-int light_get_tile(int elevation, int tile)
+int _light_get_tile(int elevation, int tile)
 {
     if (!elevationIsValid(elevation)) {
         return 0;

@@ -448,7 +448,7 @@ int soundEffectsCacheFileReadCompressed(int handle, void* buf, unsigned int size
     int v1;
     int v2;
     int v3;
-    SoundDecoder* soundDecoder = soundDecoderInit(sfxc_ad_reader, handle, &v1, &v2, &v3);
+    SoundDecoder* soundDecoder = soundDecoderInit(_sfxc_ad_reader, handle, &v1, &v2, &v3);
 
     if (soundEffect->position != 0) {
         void* temp = internal_malloc(soundEffect->position);
@@ -477,7 +477,7 @@ int soundEffectsCacheFileReadCompressed(int handle, void* buf, unsigned int size
 }
 
 // 0x4A9774
-int sfxc_ad_reader(int handle, void* buf, unsigned int size)
+int _sfxc_ad_reader(int handle, void* buf, unsigned int size)
 {
     if (size == 0) {
         return 0;

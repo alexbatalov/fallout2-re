@@ -407,7 +407,7 @@ int soundEffectsListPopulateFileSizes()
                 int v1;
                 int v2;
                 int v3;
-                SoundDecoder* soundDecoder = soundDecoderInit(sfxl_ad_reader, (int)stream, &v1, &v2, &v3);
+                SoundDecoder* soundDecoder = soundDecoderInit(_sfxl_ad_reader, (int)stream, &v1, &v2, &v3);
                 entry->dataSize = 2 * v3;
                 soundDecoderFree(soundDecoder);
                 fileClose(stream);
@@ -445,7 +445,7 @@ int soundEffectsListCompareByName(const void* a1, const void* a2)
 }
 
 // read via xfile
-int sfxl_ad_reader(int fileHandle, void* buf, unsigned int size)
+int _sfxl_ad_reader(int fileHandle, void* buf, unsigned int size)
 {
     return fileRead(buf, 1, size, (File*)fileHandle);
 }

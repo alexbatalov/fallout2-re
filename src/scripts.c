@@ -354,13 +354,13 @@ int gameTimeEventProcess(Object* obj, void* data)
 
     objectUnjamAll();
 
-    if (!gdialogActive()) {
-        scriptsCheckGameEvents(&movie_index, -1);
+    if (!_gdialogActive()) {
+        _scriptsCheckGameEvents(&movie_index, -1);
     }
 
-    v4 = critter_check_rads(gDude);
+    v4 = _critter_check_rads(gDude);
 
-    queue_clear_type(4, 0);
+    _queue_clear_type(4, 0);
 
     gameTimeScheduleUpdateEvent();
 
@@ -372,7 +372,7 @@ int gameTimeEventProcess(Object* obj, void* data)
 }
 
 // 0x4A3690
-int scriptsCheckGameEvents(int* moviePtr, int window)
+int _scriptsCheckGameEvents(int* moviePtr, int window)
 {
     int movie = -1;
     int movieFlags = GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC;
@@ -391,9 +391,9 @@ int scriptsCheckGameEvents(int* moviePtr, int window)
             if (!gameMovieIsSeen(MOVIE_ARTIMER4)) {
                 adjustRep = true;
                 movie = MOVIE_ARTIMER4;
-                wmAreaSetVisibleState(CITY_ARROYO, 0, 1);
-                wmAreaSetVisibleState(CITY_DESTROYED_ARROYO, 1, 1);
-                wmAreaMarkVisitedState(CITY_DESTROYED_ARROYO, 2);
+                _wmAreaSetVisibleState(CITY_ARROYO, 0, 1);
+                _wmAreaSetVisibleState(CITY_DESTROYED_ARROYO, 1, 1);
+                _wmAreaMarkVisitedState(CITY_DESTROYED_ARROYO, 2);
             }
 
         } else if (day >= 270 && gameGetGlobalVar(GVAR_FALLOUT_2) != 3) {
@@ -447,7 +447,7 @@ int mapUpdateEventProcess(Object* obj, void* data)
 {
     scriptsExecMapUpdateScripts(SCRIPT_PROC_MAP_UPDATE);
 
-    queue_clear_type(EVENT_TYPE_MAP_UPDATE_EVENT, NULL);
+    _queue_clear_type(EVENT_TYPE_MAP_UPDATE_EVENT, NULL);
 
     if (gMapHeader.name[0] == '\0') {
         return 0;
@@ -529,7 +529,7 @@ Object* scriptGetSelf(Program* program)
     int fid = buildFid(6, 3, 0, 0, 0);
     objectCreateWithFidPid(&object, fid, -1);
     objectHide(object, NULL);
-    obj_toggle_flat(object, NULL);
+    _obj_toggle_flat(object, NULL);
     object->sid = sid;
 
     // NOTE: Redundant, we've already obtained script earlier. Probably
@@ -610,38 +610,38 @@ Program* scriptsCreateProgramByName(const char* name)
 }
 
 // 0x4A3C2C
-void doBkProcesses()
+void _doBkProcesses()
 {
     if (!dword_66774C) {
-        dword_667748 = get_bk_time();
+        dword_667748 = _get_bk_time();
         dword_66774C = 1;
     }
 
-    int v0 = get_bk_time();
+    int v0 = _get_bk_time();
     if (gScriptsEnabled) {
         dword_667748 = v0;
 
         // NOTE: There is a loop at 0x4A3C64, consisting of one iteration, going
         // downwards from 1.
         for (int index = 0; index < 1; index++) {
-            updatePrograms();
+            _updatePrograms();
         }
     }
 
-    updateWindows();
+    _updateWindows();
 
     if (gScriptsEnabled && dword_51C718) {
-        if (!gdialogActive()) {
-            script_chk_critters();
-            script_chk_timed_events();
+        if (!_gdialogActive()) {
+            _script_chk_critters();
+            _script_chk_timed_events();
         }
     }
 }
 
 // 0x4A3CA0
-void script_chk_critters()
+void _script_chk_critters()
 {
-    if (!gdialogActive() && !isInCombat()) {
+    if (!_gdialogActive() && !isInCombat()) {
         ScriptList* scriptList;
         ScriptListExtent* scriptListExtent;
 
@@ -682,16 +682,16 @@ void script_chk_critters()
 // TODO: Check.
 //
 // 0x4A3D84
-void script_chk_timed_events()
+void _script_chk_timed_events()
 {
-    int v0 = get_bk_time();
+    int v0 = _get_bk_time();
 
     int v1 = false;
     if (!isInCombat()) {
         v1 = true;
     }
 
-    if (game_state() != 4) {
+    if (_game_state() != 4) {
         if (getTicksBetween(v0, dword_51C7E4) >= 30000) {
             dword_51C7E4 = v0;
             scriptsExecMapUpdateScripts(SCRIPT_PROC_MAP_UPDATE);
@@ -722,14 +722,14 @@ void script_chk_timed_events()
 }
 
 // 0x4A3E30
-void scrSetQueueTestVals(Object* a1, int a2)
+void _scrSetQueueTestVals(Object* a1, int a2)
 {
     dword_51C7E8 = a1;
     dword_51C7EC = a2;
 }
 
 // 0x4A3E3C
-int scrQueueRemoveFixed(Object* obj, void* data)
+int _scrQueueRemoveFixed(Object* obj, void* data)
 {
     ScriptEvent* scriptEvent = data;
     return obj == dword_51C7E8 && scriptEvent->field_4 == dword_51C7EC;
@@ -821,7 +821,7 @@ int scriptsClearPendingRequests()
 // NOTE: Inlined.
 //
 // 0x4A3F90
-int scripts_clear_combat_requests(Script* script)
+int _scripts_clear_combat_requests(Script* script)
 {
     if ((gScriptsRequests & SCRIPT_REQUEST_COMBAT) != 0 && stru_664958.attacker == script->owner) {
         gScriptsRequests &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
@@ -837,16 +837,16 @@ int scriptsHandleRequests()
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_COMBAT) != 0) {
-        if (!action_explode_running()) {
+        if (!_action_explode_running()) {
             // entering combat
             gScriptsRequests &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
             memcpy(&stru_664980, &stru_664958, sizeof(stru_664980));
 
             if ((gScriptsRequests & SCRIPT_REQUEST_0x40) != 0) {
                 gScriptsRequests &= ~SCRIPT_REQUEST_0x40;
-                combat(NULL);
+                _combat(NULL);
             } else {
-                combat(&stru_664980);
+                _combat(&stru_664980);
                 memset(&stru_664980, 0, sizeof(stru_664980));
             }
         }
@@ -854,12 +854,12 @@ int scriptsHandleRequests()
 
     if ((gScriptsRequests & SCRIPT_REQUEST_0x02) != 0) {
         gScriptsRequests &= ~SCRIPT_REQUEST_0x02;
-        wmTownMap();
+        _wmTownMap();
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_WORLD_MAP) != 0) {
         gScriptsRequests &= ~SCRIPT_REQUEST_WORLD_MAP;
-        wmWorldMap();
+        _wmWorldMap();
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_ELEVATOR) != 0) {
@@ -876,7 +876,7 @@ int scriptsHandleRequests()
                 if (elevation == gElevation) {
                     reg_anim_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
-                    obj_attempt_placement(gDude, tile, elevation, 0);
+                    _obj_attempt_placement(gDude, tile, elevation, 0);
                 } else {
                     Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
                     while (elevatorDoors != NULL) {
@@ -891,14 +891,14 @@ int scriptsHandleRequests()
 
                     reg_anim_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
-                    obj_attempt_placement(gDude, tile, elevation, 0);
+                    _obj_attempt_placement(gDude, tile, elevation, 0);
 
                     if (elevatorDoors != NULL) {
                         objectSetFrame(elevatorDoors, 0, NULL);
                         objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
                         elevatorDoors->flags &= ~0xA0000010;
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
-                        obj_rebuild_all_light();
+                        _obj_rebuild_all_light();
                     } else {
                         debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
                     }
@@ -920,7 +920,7 @@ int scriptsHandleRequests()
                     objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
                     elevatorDoors->flags &= ~0xA0000010;
                     elevatorDoors->data.scenery.door.openFlags &= ~0x01;
-                    obj_rebuild_all_light();
+                    _obj_rebuild_all_light();
                 } else {
                     debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
                 }
@@ -968,7 +968,7 @@ int scriptsHandleRequests()
 }
 
 // 0x4A43A0
-int scripts_check_state_in_combat()
+int _scripts_check_state_in_combat()
 {
     if ((gScriptsRequests & SCRIPT_REQUEST_ELEVATOR) != 0) {
         int map = gMapHeader.field_34;
@@ -982,7 +982,7 @@ int scripts_check_state_in_combat()
                 if (elevation == gElevation) {
                     reg_anim_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
-                    obj_attempt_placement(gDude, tile, elevation, 0);
+                    _obj_attempt_placement(gDude, tile, elevation, 0);
                 } else {
                     Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
                     while (elevatorDoors != NULL) {
@@ -997,14 +997,14 @@ int scripts_check_state_in_combat()
 
                     reg_anim_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
-                    obj_attempt_placement(gDude, tile, elevation, 0);
+                    _obj_attempt_placement(gDude, tile, elevation, 0);
 
                     if (elevatorDoors != NULL) {
                         objectSetFrame(elevatorDoors, 0, NULL);
                         objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
                         elevatorDoors->flags &= ~0xA0000010;
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
-                        obj_rebuild_all_light();
+                        _obj_rebuild_all_light();
                     } else {
                         debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
                     }
@@ -1055,7 +1055,7 @@ int scriptsRequestCombat(STRUCT_664980* a1)
 // Likely related to random encounter, ala scriptsRequestRandomEncounter RELEASE
 //
 // 0x4A45D4
-void scripts_request_combat_locked(STRUCT_664980* a1)
+void _scripts_request_combat_locked(STRUCT_664980* a1)
 {
     if (a1 != NULL) {
         memcpy(&stru_664958, a1, sizeof(stru_664958));
@@ -1250,12 +1250,12 @@ int scriptExecProc(int sid, int proc)
 
         script->action = 0;
         programListNodeCreate(program);
-        interpret(program, -1);
+        _interpret(program, -1);
     }
 
     script->action = proc;
 
-    executeProcedure(program, v9);
+    _executeProcedure(program, v9);
 
     script->source = NULL;
 
@@ -1355,7 +1355,7 @@ int scriptsFreeScriptsList()
 }
 
 // 0x4A4F28
-int scr_find_str_run_info(int scriptIndex, int* a2, int sid)
+int _scr_find_str_run_info(int scriptIndex, int* a2, int sid)
 {
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
@@ -1395,7 +1395,7 @@ int scriptsSetDudeScript()
 
     proto->critter.sid = 0x4000000;
 
-    obj_new_sid(gDude, &(gDude->sid));
+    _obj_new_sid(gDude, &(gDude->sid));
 
     Script* script;
     if (scriptGetScript(gDude->sid, &script) == -1) {
@@ -1445,15 +1445,15 @@ int scriptsInit()
         }
     }
 
-    scr_remove_all();
-    interpretOutputFunc(win_debug);
+    _scr_remove_all();
+    _interpretOutputFunc(_win_debug);
     interpreterRegisterOpcodeHandlers();
-    scr_header_load();
+    _scr_header_load();
 
     // NOTE: Uninline.
     scriptsClearPendingRequests();
 
-    partyMemberClear();
+    _partyMemberClear();
 
     if (scriptsLoadScriptsList() == -1) {
         return -1;
@@ -1463,20 +1463,20 @@ int scriptsInit()
 }
 
 // 0x4A5120
-int scr_reset()
+int _scr_reset()
 {
-    scr_remove_all();
+    _scr_remove_all();
 
     // NOTE: Uninline.
     scriptsClearPendingRequests();
 
-    partyMemberClear();
+    _partyMemberClear();
 
     return 0;
 }
 
 // 0x4A5138
-int scr_game_init()
+int _scr_game_init()
 {
     int i;
     char path[MAX_PATH];
@@ -1503,7 +1503,7 @@ int scr_game_init()
     dword_51C71C = 1;
     gGameTime = 1;
     gameTimeSetTime(302400);
-    tickersAdd(doBkProcesses);
+    tickersAdd(_doBkProcesses);
 
     if (scriptsSetDudeScript() == -1) {
         return -1;
@@ -1521,10 +1521,10 @@ int scr_game_init()
 int scriptsReset()
 {
     debugPrint("\nScripts: [Game Reset]");
-    scr_game_exit();
-    scr_game_init();
-    partyMemberClear();
-    scr_remove_all_force();
+    _scr_game_exit();
+    _scr_game_init();
+    _partyMemberClear();
+    _scr_remove_all_force();
     return scriptsSetDudeScript();
 }
 
@@ -1538,9 +1538,9 @@ int scriptsExit()
         return -1;
     }
 
-    scr_remove_all();
-    scr_remove_all_force();
-    interpretClose();
+    _scr_remove_all();
+    _scr_remove_all_force();
+    _interpretClose();
     programListFree();
 
     // NOTE: Uninline.
@@ -1554,7 +1554,7 @@ int scriptsExit()
 
 // scr_message_free
 // 0x4A52F4
-int scr_message_free()
+int _scr_message_free()
 {
     for (int index = 0; index < 1450; index++) {
         MessageList* messageList = &(stru_6649D4[index]);
@@ -1575,15 +1575,15 @@ int scr_message_free()
 }
 
 // 0x4A535C
-int scr_game_exit()
+int _scr_game_exit()
 {
     dword_51C71C = 0;
     gScriptsEnabled = false;
     dword_51C718 = 0;
-    scr_message_free();
-    scr_remove_all();
+    _scr_message_free();
+    _scr_remove_all();
     programListFree();
-    tickersRemove(doBkProcesses);
+    tickersRemove(_doBkProcesses);
     messageListFree(&gScrMessageList);
     if (scriptsClearDudeScript() == -1) {
         return -1;
@@ -1617,13 +1617,13 @@ int scriptsDisable()
 }
 
 // 0x4A53E0
-void scr_enable_critters()
+void _scr_enable_critters()
 {
     dword_51C718 = 1;
 }
 
 // 0x4A53F0
-void scr_disable_critters()
+void _scr_disable_critters()
 {
     dword_51C718 = 0;
 }
@@ -1664,7 +1664,7 @@ int scriptsSkipGameGlobalVars(File* stream)
 }
 
 // 0x4A5490
-int scr_header_load()
+int _scr_header_load()
 {
     dword_51C6AC = 0;
 
@@ -2204,7 +2204,7 @@ int scriptRemove(int sid)
 
     if ((script->flags & SCRIPT_FLAG_0x10) == 0) {
         // NOTE: Uninline.
-        scripts_clear_combat_requests(script);
+        _scripts_clear_combat_requests(script);
 
         if (scriptsRemoveLocalVars(script) == -1) {
             debugPrint("\nERROR Removing local vars on scr_remove!!\n");
@@ -2263,10 +2263,10 @@ int scriptRemove(int sid)
 }
 
 // 0x4A63E0
-int scr_remove_all()
+int _scr_remove_all()
 {
-    queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
-    scr_message_free();
+    _queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
+    _scr_message_free();
 
     for (int scrType = 0; scrType < SCRIPT_TYPE_COUNT; scrType++) {
         ScriptList* scriptList = &(gScriptLists[scrType]);
@@ -2303,16 +2303,16 @@ int scr_remove_all()
     gMapSid = -1;
 
     programListFree();
-    exportClearAllVariables();
+    _exportClearAllVariables();
 
     return 0;
 }
 
 // 0x4A64A8
-int scr_remove_all_force()
+int _scr_remove_all_force()
 {
-    queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
-    scr_message_free();
+    _queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
+    _scr_message_free();
 
     for (int type = 0; type < SCRIPT_TYPE_COUNT; type++) {
         ScriptList* scriptList = &(gScriptLists[type]);
@@ -2333,7 +2333,7 @@ int scr_remove_all_force()
     gScriptsEnumerationElevation = 0;
     gMapSid = -1;
     programListFree();
-    exportClearAllVariables();
+    _exportClearAllVariables();
 
     return 0;
 }
@@ -2401,13 +2401,13 @@ Script* scriptGetNextSpatialScript()
 }
 
 // 0x4A65F0
-void scr_spatials_enable()
+void _scr_spatials_enable()
 {
     dword_51C6BC = true;
 }
 
 // 0x4A6600
-void scr_spatials_disable()
+void _scr_spatials_disable()
 {
     dword_51C6BC = false;
 }
@@ -2609,14 +2609,14 @@ int scriptsGetMessageList(int a1, MessageList** messageListPtr)
 }
 
 // 0x4A6C50
-char* scr_get_msg_str(int messageListId, int messageId)
+char* _scr_get_msg_str(int messageListId, int messageId)
 {
-    return scr_get_msg_str_speech(messageListId, messageId, 0);
+    return _scr_get_msg_str_speech(messageListId, messageId, 0);
 }
 
 // message_str
 // 0x4A6C5C
-char* scr_get_msg_str_speech(int messageListId, int messageId, int a3)
+char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
 {
     if (messageListId == 0 && messageId == 0) {
         return off_51C7F4;
@@ -2649,7 +2649,7 @@ char* scr_get_msg_str_speech(int messageListId, int messageId, int a3)
     }
 
     if (a3) {
-        if (gdialogActive()) {
+        if (_gdialogActive()) {
             if (messageListItem.audio != NULL && messageListItem.audio[0] != '\0') {
                 if (messageListItem.flags & 0x01) {
                     gameDialogStartLips(NULL);
@@ -2688,12 +2688,12 @@ int scriptGetLocalVar(int sid, int variable, int* value)
 
     if (script->localVarsCount == 0) {
         // NOTE: Uninline.
-        scr_find_str_run_info(script->field_14, &(script->field_50), sid);
+        _scr_find_str_run_info(script->field_14, &(script->field_50), sid);
     }
 
     if (script->localVarsCount > 0) {
         if (script->localVarsOffset == -1) {
-            script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
+            script->localVarsOffset = _map_malloc_local_var(script->localVarsCount);
         }
 
         *value = mapGetLocalVar(script->localVarsOffset + variable);
@@ -2712,7 +2712,7 @@ int scriptSetLocalVar(int sid, int variable, int value)
 
     if (script->localVarsCount == 0) {
         // NOTE: Uninline.
-        scr_find_str_run_info(script->field_14, &(script->field_50), sid);
+        _scr_find_str_run_info(script->field_14, &(script->field_50), sid);
     }
 
     if (script->localVarsCount <= 0) {
@@ -2720,7 +2720,7 @@ int scriptSetLocalVar(int sid, int variable, int value)
     }
 
     if (script->localVarsOffset == -1) {
-        script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
+        script->localVarsOffset = _map_malloc_local_var(script->localVarsCount);
     }
 
     mapSetLocalVar(script->localVarsOffset + variable, value);
@@ -2732,13 +2732,13 @@ int scriptSetLocalVar(int sid, int variable, int value)
 // by script.
 //
 // 0x4A6EFC
-bool scr_end_combat()
+bool _scr_end_combat()
 {
     if (gMapSid == 0 || gMapSid == -1) {
         return false;
     }
 
-    int team = combat_player_knocked_out_by();
+    int team = _combat_player_knocked_out_by();
     if (team == -1) {
         return false;
     }
@@ -2763,7 +2763,7 @@ bool scr_end_combat()
 }
 
 // 0x4A6F70
-int scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
+int _scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
 {
     int scriptExtentsCount = gScriptLists[SCRIPT_TYPE_SPATIAL].length + gScriptLists[SCRIPT_TYPE_ITEM].length;
     if (scriptExtentsCount == 0) {

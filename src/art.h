@@ -158,7 +158,7 @@ unsigned char* artLockFrameDataReturningSize(int fid, CacheEntry** out_cache_ent
 int artUnlock(CacheEntry* cache_entry);
 int artCacheFlush();
 int artCopyFileName(int a1, int a2, char* a3);
-int art_get_code(int a1, int a2, char* a3, char* a4);
+int _art_get_code(int a1, int a2, char* a3, char* a4);
 char* artBuildFilePath(int a1);
 int artReadList(const char* path, char** out_arr, int* out_count);
 int artGetFramesPerSecond(Art* art);
@@ -172,10 +172,10 @@ int artGetRotationOffsets(Art* art, int rotation, int* out_offset_x, int* out_of
 unsigned char* artGetFrameData(Art* art, int frame, int direction);
 ArtFrame* artGetFrame(Art* art, int frame, int direction);
 bool artExists(int fid);
-bool art_fid_valid(int fid);
-int art_alias_num(int a1);
+bool _art_fid_valid(int fid);
+int _art_alias_num(int a1);
 int artCritterFidShouldRun(int a1);
-int art_alias_fid(int a1);
+int _art_alias_fid(int a1);
 int artCacheGetFileSizeImpl(int a1, int* out_size);
 int artCacheReadDataImpl(int a1, int* a2, unsigned char* data);
 void artCacheFreeImpl(void* ptr);

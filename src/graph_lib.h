@@ -11,9 +11,9 @@ extern int dword_596EA8;
 extern int dword_596EAC;
 
 int graphCompress(unsigned char* a1, unsigned char* a2, int a3);
-void InitTree();
-void InsertNode(int a1);
-void DeleteNode(int a1);
+void _InitTree();
+void _InsertNode(int a1);
+void _DeleteNode(int a1);
 int graphDecompress(unsigned char* a1, unsigned char* a2, int a3);
 
 #endif /* GRAPH_LIB_H */

@@ -162,7 +162,7 @@ void* off_56DBE8;
 void* off_56DBEC;
 
 // 0x42F434
-STRUCT_56DAE0_FIELD_4* getReply()
+STRUCT_56DAE0_FIELD_4* _getReply()
 {
     STRUCT_56DAE0_FIELD_4* v0;
     STRUCT_56DAE0_FIELD_4_FIELD_C* v1;
@@ -181,14 +181,14 @@ STRUCT_56DAE0_FIELD_4* getReply()
 }
 
 // 0x42F4C0
-void replyAddOption(const char* a1, const char* a2, int a3)
+void _replyAddOption(const char* a1, const char* a2, int a3)
 {
     STRUCT_56DAE0_FIELD_4* v18;
     int v17;
     char* v14;
     char* v15;
 
-    v18 = getReply();
+    v18 = _getReply();
     v17 = v18->field_14 - 1;
     v18->field_C[v17].field_8 = 2;
 
@@ -214,13 +214,13 @@ void replyAddOption(const char* a1, const char* a2, int a3)
 }
 
 // 0x42F624
-void replyAddOptionProc(const char* a1, const char* a2, int a3)
+void _replyAddOptionProc(const char* a1, const char* a2, int a3)
 {
     STRUCT_56DAE0_FIELD_4* v5;
     int v13;
     char* v11;
 
-    v5 = getReply();
+    v5 = _getReply();
     v13 = v5->field_14 - 1;
 
     v5->field_C[v13].field_8 = 1;
@@ -241,7 +241,7 @@ void replyAddOptionProc(const char* a1, const char* a2, int a3)
 }
 
 // 0x42F714
-void optionFree(STRUCT_56DAE0_FIELD_4_FIELD_C* a1)
+void _optionFree(STRUCT_56DAE0_FIELD_4_FIELD_C* a1)
 {
     if (a1->field_0 != NULL) {
         internal_free_safe(a1->field_0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 844
@@ -255,7 +255,7 @@ void optionFree(STRUCT_56DAE0_FIELD_4_FIELD_C* a1)
 }
 
 // 0x42F754
-void replyFree()
+void _replyFree()
 {
     int i;
     int j;
@@ -268,7 +268,7 @@ void replyFree()
 
         if (v6->field_C != NULL) {
             for (j = 0; j < v6->field_14; j++) {
-                optionFree(&(v6->field_C[j]));
+                _optionFree(&(v6->field_C[j]));
             }
 
             internal_free_safe(v6->field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 857
@@ -293,14 +293,14 @@ void replyFree()
 }
 
 // 0x42FB94
-int endDialog()
+int _endDialog()
 {
     if (dword_5184B4 == -1) {
         return -1;
     }
 
     dword_5184BC = stru_56DAE0[dword_5184B4].field_10;
-    replyFree();
+    _replyFree();
 
     if (gDialogReplyTitle != NULL) {
         internal_free_safe(gDialogReplyTitle, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 986
@@ -313,37 +313,37 @@ int endDialog()
 }
 
 // 0x42FC70
-void printLine(int win, char** strings, int strings_num, int a4, int a5, int a6, int a7, int a8, int a9)
+void _printLine(int win, char** strings, int strings_num, int a4, int a5, int a6, int a7, int a8, int a9)
 {
     int i;
     int v11;
 
     for (i = 0; i < strings_num; i++) {
         v11 = a7 + i * fontGetLineHeight();
-        windowPrintBuf(win, strings[i], strlen(strings[i]), a4, a5 + a7, a6, v11, a8, a9);
+        _windowPrintBuf(win, strings[i], strlen(strings[i]), a4, a5 + a7, a6, v11, a8, a9);
     }
 }
 
 // 0x42FCF0
-void printStr(int win, char* a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+void _printStr(int win, char* a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
 {
     char** strings;
     int strings_num;
 
-    strings = windowWordWrap(a2, a3, 0, &strings_num);
-    printLine(win, strings, strings_num, a3, a4, a5, a6, a7, a8);
-    windowFreeWordList(strings, strings_num);
+    strings = _windowWordWrap(a2, a3, 0, &strings_num);
+    _printLine(win, strings, strings_num, a3, a4, a5, a6, a7, a8);
+    _windowFreeWordList(strings, strings_num);
 }
 
 // 0x430104
-int abortReply(int a1)
+int _abortReply(int a1)
 {
     int result;
     int y;
     int x;
 
     if (dword_56DB90 == 2) {
-        return moviePlaying() == 0;
+        return _moviePlaying() == 0;
     } else if (dword_56DB90 == 3) {
         return 1;
     }
@@ -366,7 +366,7 @@ int abortReply(int a1)
 }
 
 // 0x430180
-void endReply()
+void _endReply()
 {
     if (dword_56DB90 != 2) {
         if (dword_56DB90 == 1) {
@@ -382,7 +382,7 @@ void endReply()
 }
 
 // 0x4301E8
-void drawStr(int win, char* str, int font, int width, int height, int left, int top, int a8, int a9, int a10)
+void _drawStr(int win, char* str, int font, int width, int height, int left, int top, int a8, int a9, int a10)
 {
     int old_font;
     Rect rect;
@@ -390,7 +390,7 @@ void drawStr(int win, char* str, int font, int width, int height, int left, int 
     old_font = widgetGetFont();
     widgetSetFont(font);
 
-    printStr(win, str, width, height, left, top, a8, a9, a10);
+    _printStr(win, str, width, height, left, top, a8, a9, a10);
 
     rect.left = left;
     rect.top = top;
@@ -401,7 +401,7 @@ void drawStr(int win, char* str, int font, int width, int height, int left, int 
 }
 
 // 0x430D40
-int dialogStart(Program* a1)
+int _dialogStart(Program* a1)
 {
     STRUCT_56DAE0* ptr;
 
@@ -424,7 +424,7 @@ int dialogStart(Program* a1)
 }
 
 // 0x430DB8
-int dialogRestart()
+int _dialogRestart()
 {
     if (dword_5184B4 == -1) {
         return 1;
@@ -436,7 +436,7 @@ int dialogRestart()
 }
 
 // 0x430DE4
-int dialogGotoReply(const char* a1)
+int _dialogGotoReply(const char* a1)
 {
     STRUCT_56DAE0* ptr;
     STRUCT_56DAE0_FIELD_4* v5;
@@ -482,50 +482,50 @@ int dialogSetReplyTitle(const char* a1)
 }
 
 // 0x430EFC
-int dialogReply(const char* a1, const char* a2)
+int _dialogReply(const char* a1, const char* a2)
 {
     // TODO: Incomplete.
-    // replyAddNew(a1, a2);
+    // _replyAddNew(a1, a2);
     return 0;
 }
 
 // 0x430F04
-int dialogOption(const char* a1, const char* a2)
+int _dialogOption(const char* a1, const char* a2)
 {
     if (stru_56DAE0[dword_5184B4].field_C == -1) {
         return 0;
     }
 
-    replyAddOption(a1, a2, 0);
+    _replyAddOption(a1, a2, 0);
 
     return 0;
 }
 
 // 0x430F38
-int dialogOptionProc(const char* a1, const char* a2)
+int _dialogOptionProc(const char* a1, const char* a2)
 {
     if (stru_56DAE0[dword_5184B4].field_C == -1) {
         return 1;
     }
 
-    replyAddOptionProc(a1, a2, 0);
+    _replyAddOptionProc(a1, a2, 0);
 
     return 0;
 }
 
 // 0x431184
-int dialogGetExitPoint()
+int _dialogGetExitPoint()
 {
     return dword_5184B8 + (dword_5184BC << 16);
 }
 
 // 0x431198
-int dialogQuit()
+int _dialogQuit()
 {
     if (dword_518504) {
         dword_518500 = 1;
     } else {
-        endDialog();
+        _endDialog();
     }
 
     return 0;
@@ -564,7 +564,7 @@ int dialogSetBorder(int a1, int a2)
 }
 
 // 0x431218
-int dialogSetScrollUp(int a1, int a2, void* a3, void* a4, void* a5, void* a6, int a7)
+int _dialogSetScrollUp(int a1, int a2, void* a3, void* a4, void* a5, void* a6, int a7)
 {
     dword_56DBD4 = a1;
     dword_56DBD8 = a2;
@@ -595,7 +595,7 @@ int dialogSetScrollUp(int a1, int a2, void* a3, void* a4, void* a5, void* a6, in
 }
 
 // 0x4312C0
-int dialogSetScrollDown(int a1, int a2, void* a3, void* a4, void* a5, void* a6, int a7)
+int _dialogSetScrollDown(int a1, int a2, void* a3, void* a4, void* a5, void* a6, int a7)
 {
     dword_56DBB4 = a1;
     dword_56DBB8 = a2;
@@ -658,7 +658,7 @@ int dialogSetReplyColor(float a1, float a2, float a3)
 }
 
 // 0x431420
-int dialogSetOptionFlags(int flags)
+int _dialogSetOptionFlags(int flags)
 {
     word_56DB60 = flags & 0xFFFF;
 
@@ -666,7 +666,7 @@ int dialogSetOptionFlags(int flags)
 }
 
 // 0x431434
-void dialogClose()
+void _dialogClose()
 {
     if (off_56DBE0) {
         internal_free_safe(off_56DBE0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2818
@@ -702,20 +702,20 @@ void dialogClose()
 }
 
 // 0x431518
-int dialogGetDialogDepth()
+int _dialogGetDialogDepth()
 {
     return dword_5184B4;
 }
 
 // 0x431520
-void dialogRegisterWinDrawCallbacks(DialogFunc1* a1, DialogFunc2* a2)
+void _dialogRegisterWinDrawCallbacks(DialogFunc1* a1, DialogFunc2* a2)
 {
     off_5184E4 = a1;
     off_5184E8 = a2;
 }
 
 // 0x431530
-int dialogToggleMediaFlag(int a1)
+int _dialogToggleMediaFlag(int a1)
 {
     if ((a1 & dword_518508) == a1) {
         dword_518508 &= ~a1;
@@ -727,7 +727,7 @@ int dialogToggleMediaFlag(int a1)
 }
 
 // 0x431554
-int dialogGetMediaFlag()
+int _dialogGetMediaFlag()
 {
     return dword_518508;
 }

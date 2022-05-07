@@ -14,17 +14,17 @@ const float flt_50EB20 = 31.0;
 int dword_66E6A0[32];
 
 // 0x4B5A64
-void showRegion(int a1)
+void _showRegion(int a1)
 {
     // TODO: Incomplete.
 }
 
 // 0x4B5C24
-int update_widgets()
+int _update_widgets()
 {
     for (int index = 0; index < 32; index++) {
         if (dword_66E6A0[index]) {
-            showRegion(dword_66E6A0[index]);
+            _showRegion(dword_66E6A0[index]);
         }
     }
 

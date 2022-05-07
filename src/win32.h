@@ -33,11 +33,11 @@ extern HMODULE gDDrawDLL;
 extern HMODULE gDInputDLL;
 extern HMODULE gDSoundDLL;
 
-ATOM InitClass(HINSTANCE hInstance);
-bool InitInstance();
-bool LoadDirectX();
-void UnloadDirectX(void);
-void SignalHandler(int sig);
-LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+ATOM _InitClass(HINSTANCE hInstance);
+bool _InitInstance();
+bool _LoadDirectX();
+void _UnloadDirectX(void);
+void _SignalHandler(int sig);
+LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 #endif /* WIN32_H */

@@ -471,7 +471,7 @@ int skillGetFrmId(int skill)
 }
 
 // 0x4AAC2C
-void show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int criticalChanceModifier)
+void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int criticalChanceModifier)
 {
     if (obj != gDude) {
         return;
@@ -714,7 +714,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                         sprintf(text, prefix.text, messageListItem.text);
                         displayMonitorAddMessage(text);
-                        show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                        _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
 
                         giveExp = false;
                     }
@@ -758,7 +758,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 v1 = 1;
-                show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
                 paletteFadeTo(stru_51DF34);
 
@@ -901,7 +901,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     sprintf(text, prefix.text, messageListItem.text);
                     displayMonitorAddMessage(text);
 
-                    show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                    _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                     giveExp = false;
                 }
             }
@@ -938,7 +938,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 v1 = 1;
-                show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
                 paletteFadeTo(stru_51DF34);
 
@@ -987,7 +987,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
     }
 
     if (giveExp) {
-        show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+        _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
     }
 
     if (skill == SKILL_FIRST_AID || skill == SKILL_DOCTOR) {
@@ -1012,7 +1012,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 
         if (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
             // check facing: -25% if face to face
-            if (is_hit_from_front(a1, a2)) {
+            if (_is_hit_from_front(a1, a2)) {
                 stealChance -= 25;
             }
         }

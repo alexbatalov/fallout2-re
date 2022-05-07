@@ -374,7 +374,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
     bool done = false;
     int keyCode;
     while (!done) {
-        keyCode = get_input();
+        keyCode = _get_input();
         if (keyCode == KEY_ESCAPE) {
             done = true;
         }
@@ -414,7 +414,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
             float v41 = (float)keyCode * v42;
             float v44 = (float)(*elevationPtr) * v42;
             do {
-                unsigned int tick = get_time();
+                unsigned int tick = _get_time();
                 v44 += v43;
                 blitBufferToBuffer(
                     gElevatorFrmData[ELEVATOR_FRM_GAUGE] + v18 * (int)v44,
@@ -582,7 +582,7 @@ int elevatorWindowInit(int elevator)
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
+            buttonSetCallbacks(btn, _gsound_red_butt_press, NULL);
         }
         y += 60;
     }

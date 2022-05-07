@@ -275,7 +275,7 @@ void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, i
         interfaceFontDrawImpl(buf + pitch + 1, string, length, pitch, (color & ~0xFF) | byte_6A38D0[0]);
     }
 
-    unsigned char* palette = getColorBlendTable(color & 0xFF);
+    unsigned char* palette = _getColorBlendTable(color & 0xFF);
 
     int monospacedCharacterWidth;
     if ((color & FONT_MONO) != 0) {
@@ -333,5 +333,5 @@ void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, i
         }
     }
 
-    freeColorBlendTable(color & 0xFF);
+    _freeColorBlendTable(color & 0xFF);
 }

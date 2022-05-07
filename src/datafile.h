@@ -3,6 +3,6 @@
 
 extern unsigned char byte_56D7E0[768];
 
-unsigned char* datafileGetPalette();
+unsigned char* _datafileGetPalette();
 
 #endif /* DATAFILE_H */

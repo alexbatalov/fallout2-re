@@ -59,7 +59,7 @@ char byte_613CA0[14];
 char byte_613CAE[50];
 
 // 0x47AAC0
-char* lips_fix_string(const char* fileName, size_t length)
+char* _lips_fix_string(const char* fileName, size_t length)
 {
     strncpy(byte_613CAE, fileName, length);
     return byte_613CAE;
@@ -75,7 +75,7 @@ void lipsTicker()
     v0 = dword_519244;
 
     if ((gLipsData.flags & LIPS_FLAG_0x02) != 0) {
-        int v1 = soundGetPosition(gLipsData.sound);
+        int v1 = _soundGetPosition(gLipsData.sound);
 
         speech_marker = &(gLipsData.markers[v0]);
         while (v1 > speech_marker->position) {
@@ -140,7 +140,7 @@ int lipsStart()
     gLipsData.flags |= LIPS_FLAG_0x02;
     dword_519244 = 0;
 
-    if (soundSetPosition(gLipsData.sound, gLipsData.field_20) != 0) {
+    if (_soundSetPosition(gLipsData.sound, gLipsData.field_20) != 0) {
         debugPrint("Failed set of start_offset!\n");
     }
 
@@ -161,7 +161,7 @@ int lipsStart()
     int speechVolume = speechGetVolume();
     soundSetVolume(gLipsData.sound, (int)(speechVolume * 0.69));
 
-    dword_5193B4 = get_time();
+    dword_5193B4 = _get_time();
 
     if (soundPlay(gLipsData.sound) != 0) {
         debugPrint("Failed play!\n");
@@ -251,7 +251,7 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
 
     strcpy(gLipsData.field_50, v60);
 
-    strcat(path, lips_fix_string(gLipsData.field_50, sizeof(gLipsData.field_50)));
+    strcat(path, _lips_fix_string(gLipsData.field_50, sizeof(gLipsData.field_50)));
     strcat(path, ".");
     strcat(path, gLipsData.field_60);
 
@@ -375,7 +375,7 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
     strcpy(gLipsData.field_5C, "TXT");
     strcpy(gLipsData.field_60, "LIP");
 
-    lips_make_speech();
+    _lips_make_speech();
 
     dword_519244 = 0;
     gLipsCurrentPhoneme = gLipsData.phonemes[0];
@@ -385,7 +385,7 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
 
 // lips_make_speech
 // 0x47B5D0
-int lips_make_speech()
+int _lips_make_speech()
 {
     if (gLipsData.field_14 != NULL) {
         internal_free(gLipsData.field_14);
@@ -393,7 +393,7 @@ int lips_make_speech()
     }
 
     char path[MAX_PATH];
-    char* v1 = lips_fix_string(gLipsData.field_50, sizeof(gLipsData.field_50));
+    char* v1 = _lips_fix_string(gLipsData.field_50, sizeof(gLipsData.field_50));
     sprintf(path, "%s%s\\%s.%s", "SOUND\\SPEECH\\", byte_613CA0, v1, "ACM");
 
     if (gLipsData.sound != NULL) {

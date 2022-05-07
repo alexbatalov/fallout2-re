@@ -12,7 +12,7 @@ ExternalVariable gExternalVariables[1013];
 // NOTE: Inlined.
 //
 // 0x440F10
-unsigned int hashName(const char* identifier)
+unsigned int _hashName(const char* identifier)
 {
     unsigned int v1 = 0;
     const char* pch = identifier;
@@ -30,7 +30,7 @@ unsigned int hashName(const char* identifier)
 ExternalProcedure* externalProcedureFind(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = hashName(identifier);
+    unsigned int v1 = _hashName(identifier);
     unsigned int v2 = v1;
 
     ExternalProcedure* externalProcedure = &(gExternalProcedures[v1]);
@@ -61,7 +61,7 @@ ExternalProcedure* externalProcedureFind(const char* identifier)
 ExternalProcedure* externalProcedureAdd(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = hashName(identifier);
+    unsigned int v1 = _hashName(identifier);
     unsigned int a2 = v1;
 
     ExternalProcedure* externalProcedure = &(gExternalProcedures[v1]);
@@ -88,7 +88,7 @@ ExternalProcedure* externalProcedureAdd(const char* identifier)
 ExternalVariable* externalVariableFind(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = hashName(identifier);
+    unsigned int v1 = _hashName(identifier);
     unsigned int v2 = v1;
 
     ExternalVariable* exportedVariable = &(gExternalVariables[v1]);
@@ -120,7 +120,7 @@ ExternalVariable* externalVariableFind(const char* identifier)
 ExternalVariable* externalVariableAdd(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = hashName(identifier);
+    unsigned int v1 = _hashName(identifier);
     unsigned int v2 = v1;
 
     ExternalVariable* exportedVariable = &(gExternalVariables[v1]);
@@ -223,7 +223,7 @@ int externalVariableCreate(Program* program, const char* identifier)
 }
 
 // 0x4414FC
-void removeProgramReferences(Program* program)
+void _removeProgramReferences(Program* program)
 {
     for (int index = 0; index < 1013; index++) {
         ExternalProcedure* externalProcedure = &(gExternalProcedures[index]);
@@ -235,9 +235,9 @@ void removeProgramReferences(Program* program)
 }
 
 // 0x44152C
-void initExport()
+void _initExport()
 {
-    interpretRegisterProgramDeleteCallback(removeProgramReferences);
+    _interpretRegisterProgramDeleteCallback(_removeProgramReferences);
 }
 
 // 0x441538
@@ -299,7 +299,7 @@ int externalProcedureCreate(Program* program, const char* identifier, int addres
 }
 
 // 0x441824
-void exportClearAllVariables()
+void _exportClearAllVariables()
 {
     for (int index = 0; index < 1013; index++) {
         ExternalVariable* exportedVariable = &(gExternalVariables[index]);
