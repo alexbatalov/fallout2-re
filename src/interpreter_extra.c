@@ -1684,12 +1684,11 @@ void opTileInTileRect(Program* program)
         points[arg].y = data[arg] / 200;
     }
 
-    // TODO: Check.
     int x = points[0].x;
     int y = points[0].y;
 
-    int minX = points[4].x;
-    int maxX = points[1].x;
+    int minX = points[1].x;
+    int maxX = points[4].x;
 
     int minY = points[4].y;
     int maxY = points[1].y;
