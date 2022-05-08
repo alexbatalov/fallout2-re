@@ -2941,45 +2941,41 @@ void opCheckProcedureArgumentCount(Program* program)
 // 0x46C6B4
 void opLookupStringProc(Program* program)
 {
-    opcode_t type;
-    int value;
-    char err[260];
-    char* str;
-    int procedures_count;
-    unsigned char* procedure_ptr;
-    int i;
-    int procedure_name_idx;
-    char* procedure_name;
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
 
-    type = programStackPopInt16(program);
-    value = programStackPopInt32(program);
-
-    if (type == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, type, value);
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
         programFatalError("Wrong type given to lookup_string_proc\n");
     }
 
-    str = programGetString(program, type, value);
+    const char* procedureNameToLookup = programGetString(program, opcode, data);
 
-    procedures_count = stackReadInt32(program->procedures, 0);
-    procedure_ptr = program->procedures + 24;
+    int procedureCount = stackReadInt32(program->procedures, 0);
 
-    for (i = 0; i < procedures_count; i++) {
-        procedure_name_idx = stackReadInt32(procedure_ptr, 0);
-        procedure_name = programGetIdentifier(program, procedure_name_idx);
-        if (stricmp(procedure_name, str) == 0) {
-            programStackPushInt32(program, i);
+    // Skip procedure count (4 bytes) and main procedure, which cannot be
+    // looked up.
+    unsigned char* procedurePtr = program->procedures + 4 + sizeof(Procedure);
+
+    // Start with 1 since we've skipped main procedure, which is always at
+    // index 0.
+    for (int index = 1; index < procedureCount; index++) {
+        int offset = stackReadInt32(procedurePtr, 0);
+        const char* procedureName = programGetIdentifier(program, offset);
+        if (stricmp(procedureName, procedureNameToLookup) == 0) {
+            programStackPushInt32(program, index);
             programStackPushInt16(program, VALUE_TYPE_INT);
             return;
         }
 
-        procedure_ptr += 24;
+        procedurePtr += sizeof(Procedure);
     }
 
-    sprintf(err, "Couldn't find string procedure %s\n", str);
+    char err[260];
+    sprintf(err, "Couldn't find string procedure %s\n", procedureNameToLookup);
     programFatalError(err);
 }
 
