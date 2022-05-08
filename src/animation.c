@@ -1393,44 +1393,45 @@ int _anim_set_end(int animationSequenceIndex)
 }
 
 // 0x415E24
-int _anim_can_use_door(Object* a1, Object* a2)
+bool canUseDoor(Object* critter, Object* door)
 {
-    int body_type;
-    Proto* proto;
-
-    // TODO: Check.
-    if (a1 == gDude) {
-        if (_obj_portal_is_walk_thru(a2) == 0) {
-            return 0;
+    if (critter == gDude) {
+        if (!_obj_portal_is_walk_thru(door)) {
+            return false;
         }
     }
 
-    if ((a1->fid & 0xF000000) >> 24 != 1) {
-        return 0;
+    if ((critter->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER) {
+        return false;
     }
 
-    if ((a2->fid & 0xF000000) >> 24 != 2) {
-        return 0;
+    if ((door->fid & 0xF000000) >> 24 != OBJ_TYPE_SCENERY) {
+        return false;
     }
 
-    body_type = critterGetBodyType(a1);
-    if (body_type != BODY_TYPE_BIPED && body_type != BODY_TYPE_ROBOTIC) {
-        return 0;
+    int bodyType = critterGetBodyType(critter);
+    if (bodyType != BODY_TYPE_BIPED && bodyType != BODY_TYPE_ROBOTIC) {
+        return false;
     }
 
-    if (protoGetProto(a2->pid, &proto) == -1) {
-        return 0;
+    Proto* proto;
+    if (protoGetProto(door->pid, &proto) == -1) {
+        return false;
     }
 
     if (proto->scenery.type != SCENERY_TYPE_DOOR) {
-        return 0;
+        return false;
     }
 
-    if (objectIsLocked(a1)) {
-        return 0;
+    if (objectIsLocked(door)) {
+        return false;
     }
 
-    return critterGetKillType(a1) != KILL_TYPE_GECKO;
+    if (critterGetKillType(critter) == KILL_TYPE_GECKO) {
+        return false;
+    }
+
+    return true;
 }
 
 // 0x415EE8
@@ -1529,7 +1530,7 @@ int pathfinderFindPath(Object* object, int from, int to, unsigned char* rotation
             if (tile != to) {
                 Object* v24 = callback(object, tile, object->elevation);
                 if (v24 != NULL) {
-                    if (_anim_can_use_door(object, v24) == 0) {
+                    if (!canUseDoor(object, v24)) {
                         continue;
                     }
                 }
@@ -2137,7 +2138,7 @@ void _object_move(int index)
         int v10 = tileGetTileInDirection(object->tile, rotation, 1);
         Object* v12 = _obj_blocking_at(object, v10, object->elevation);
         if (v12 != NULL) {
-            if (_anim_can_use_door(object, v12) == 0) {
+            if (!canUseDoor(object, v12)) {
                 p530014->field_1C = _make_path(object, object->tile, p530014->field_24, p530014->rotations, 1);
                 if (p530014->field_1C != 0) {
                     objectSetLocation(object, object->tile, object->elevation, &temp);

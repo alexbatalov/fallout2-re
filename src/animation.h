@@ -254,7 +254,7 @@ int reg_anim_26(int a1, int a2);
 int animationRunSequence(int a1);
 int _anim_set_continue(int a1, int a2);
 int _anim_set_end(int a1);
-int _anim_can_use_door(Object* a1, Object* a2);
+bool canUseDoor(Object* critter, Object* door);
 int _make_path(Object* object, int from, int to, unsigned char* a4, int a5);
 int pathfinderFindPath(Object* object, int from, int to, unsigned char* rotations, int a5, PathBuilderCallback* callback);
 int _idist(int a1, int a2, int a3, int a4);
