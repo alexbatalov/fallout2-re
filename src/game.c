@@ -590,6 +590,23 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             }
         }
         break;
+    case KEY_UPPERCASE_Z:
+    case KEY_LOWERCASE_Z:
+        if (interfaceBarEnabled()) {
+            if (isInCombatMode) {
+                soundPlayFile("iisxxxx1");
+
+                // Pipboy not available in combat!
+                MessageListItem messageListItem;
+                char title[128];
+                strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
+                showDialogBox(title, NULL, 0, 192, 116, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+            } else {
+                soundPlayFile("ib1p1xx1");
+                pipboyOpen(true);
+            }
+        }
+        break;
     case KEY_HOME:
         if (gDude->elevation != gElevation) {
             mapSetElevation(gDude->elevation);
