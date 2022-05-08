@@ -4730,7 +4730,7 @@ void objectDrawOutline(Object* object, Rect* rect)
                     v54++;
                 }
 
-                if (color > v43 + color - 1) {
+                if (v54 > v43 + color - 1) {
                     v54 = color;
                 }
             }
