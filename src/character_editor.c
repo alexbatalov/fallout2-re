@@ -442,7 +442,7 @@ char byte_570A28;
 unsigned char byte_570A29;
 unsigned char byte_570A2A;
 
-//
+// 0x431DF8
 int _editor_design(bool isCreationMode)
 {
     char* messageListItemText;
@@ -643,6 +643,10 @@ int _editor_design(bool isCreationMode)
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(dword_570158[gCharacterEditorIsCreationMode - 61]);
+                        windowRefresh(characterEditorWindowHandle);
+                    } else {
+                        editorAdjustSkill(keyCode);
+                        windowRefresh(characterEditorWindowHandle);
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
@@ -662,6 +666,10 @@ int _editor_design(bool isCreationMode)
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(dword_570158[gCharacterEditorIsCreationMode - 61]);
+                        windowRefresh(characterEditorWindowHandle);
+                    } else {
+                        editorAdjustSkill(keyCode);
+                        windowRefresh(characterEditorWindowHandle);
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
@@ -4572,23 +4580,23 @@ void editorAdjustSkill(int keyCode)
         return;
     }
 
-    int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+    int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
     dword_5709C0 = 4;
 
-    bool v40 = false;
-    int v3 = 0;
+    bool isUsingKeyboard = false;
+    int rc = 0;
 
     switch (keyCode) {
-    case '+':
-    case 'N':
-    case 333:
-        v40 = true;
+    case KEY_PLUS:
+    case KEY_UPPERCASE_N:
+    case KEY_ARROW_RIGHT:
+        isUsingKeyboard = true;
         keyCode = 521;
         break;
-    case '-':
-    case 'J':
-    case 331:
-        v40 = true;
+    case KEY_MINUS:
+    case KEY_UPPERCASE_J:
+    case KEY_ARROW_LEFT:
+        isUsingKeyboard = true;
         keyCode = 523;
         break;
     }
@@ -4602,22 +4610,22 @@ void editorAdjustSkill(int keyCode)
         body2,
     };
 
-    int v43 = 0;
+    int repeatDelay = 0;
     for (;;) {
         dword_5709C4 = _get_time();
-        if (v43 <= dbl_5018F0) {
-            v43++;
+        if (repeatDelay <= dbl_5018F0) {
+            repeatDelay++;
         }
 
-        if (v43 == 1 || v43 > dbl_5018F0) {
-            if (v43 > dbl_5018F0) {
+        if (repeatDelay == 1 || repeatDelay > dbl_5018F0) {
+            if (repeatDelay > dbl_5018F0) {
                 dword_5709C0++;
                 if (dword_5709C0 > 24) {
                     dword_5709C0 = 24;
                 }
             }
 
-            v3 = 1;
+            rc = 1;
             if (keyCode == 521) {
                 if (pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
                     if (skillAdd(gDude, dword_51852C) == -3) {
@@ -4629,7 +4637,7 @@ void editorAdjustSkill(int keyCode)
                         // Unable to increment it.
                         strcpy(body2, getmsg(&editorMessageList, &editorMessageListItem, 133));
                         showDialogBox(title, body, 2, 192, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_LARGE);
-                        v3 = -1;
+                        rc = -1;
                     }
                 }
                 else {
@@ -4638,19 +4646,19 @@ void editorAdjustSkill(int keyCode)
                     // Not enough skill points available.
                     strcpy(title, getmsg(&editorMessageList, &editorMessageListItem, 136));
                     showDialogBox(title, NULL, 0, 192, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_LARGE);
-                    v3 = -1;
+                    rc = -1;
                 }
             } else if (keyCode == 523) {
                 if (skillGetValue(gDude, dword_51852C) <= dword_56FC60[dword_51852C]) {
-                    v3 = 0;
+                    rc = 0;
                 }
                 else {
                     if (skillSub(gDude, dword_51852C) == -2) {
-                        v3 = 0;
+                        rc = 0;
                     }
                 }
 
-                if (v3 == 0) {
+                if (rc == 0) {
                     soundPlayFile("iisxxxx1");
 
                     sprintf(title, "%s:", skillGetName(dword_51852C));
@@ -4659,7 +4667,7 @@ void editorAdjustSkill(int keyCode)
                     // Unable to decrement it.
                     strcpy(body2, getmsg(&editorMessageList, &editorMessageListItem, 135));
                     showDialogBox(title, body, 2, 192, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_LARGE);
-                    v3 = -1;
+                    rc = -1;
                 }
             }
 
@@ -4668,21 +4676,20 @@ void editorAdjustSkill(int keyCode)
             editorRenderSkills(1);
 
             int flags;
-            if (v3 == 1) {
+            if (rc == 1) {
                 flags = ANIMATE;
             } else {
                 flags = 0;
             }
 
-            characterEditorRenderBigNumber(522, 228, flags, pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS), sp, characterEditorWindowHandle);
+            characterEditorRenderBigNumber(522, 228, flags, pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS), unspentSp, characterEditorWindowHandle);
 
             windowRefresh(characterEditorWindowHandle);
         }
 
-        if (!v40) {
-            debugPrint("v43: %d\n", v43);
-            sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
-            if (v43 >= dbl_5018F0) {
+        if (!isUsingKeyboard) {
+            unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+            if (repeatDelay >= dbl_5018F0) {
                 while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
                 }
             }
@@ -4692,10 +4699,11 @@ void editorAdjustSkill(int keyCode)
             }
 
             int keyCode = _get_input();
-            if (keyCode == 522 || keyCode == 524 || v3 == -1) {
-                break;
+            if (keyCode != 522 && keyCode != 524 && rc != -1) {
+                continue;
             }
         }
+        return;
     }
 }
 
