@@ -1148,18 +1148,20 @@ int actionPickUp(Object* critter, Object* item)
     return reg_anim_end();
 }
 
+// TODO: Looks like the name is a little misleading, container can only be a
+// critter, which is enforced by this function as well as at the call sites.
+// Used to loot corpses, so probably should be something like actionLootCorpse.
+// Check if it can be called with a living critter.
+//
 // 0x4123E8
-int _action_loot_container(Object* a1, Object* a2)
+int _action_loot_container(Object* critter, Object* container)
 {
-    int anim;
-    int v9;
-
-    if ((a2->fid & 0xF000000) >> 24 != 1) {
+    if ((container->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER) {
         return -1;
     }
 
-    if (a1 == gDude) {
-        anim = (gDude->fid & 0xFF0000) >> 16;
+    if (critter == gDude) {
+        int anim = (gDude->fid & 0xFF0000) >> 16;
         if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
             reg_anim_clear(gDude);
         }
@@ -1167,25 +1169,20 @@ int _action_loot_container(Object* a1, Object* a2)
 
     if (isInCombat()) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_obj(a1, a2, a1->data.critter.combat.ap, 0);
+        reg_anim_obj_move_to_obj(critter, container, critter->data.critter.combat.ap, 0);
     } else {
-        if (a1 == gDude) {
-            v9 = 2;
-        } else {
-            v9 = 1;
-        }
-        reg_anim_begin(v9);
+        reg_anim_begin(critter == gDude ? 2 : 1);
 
-        if (objectGetDistanceBetween(a1, a2) < 5) {
-            reg_anim_obj_move_to_obj(a1, a2, -1, 0);
+        if (objectGetDistanceBetween(critter, container) < 5) {
+            reg_anim_obj_move_to_obj(critter, container, -1, 0);
         } else {
-            reg_anim_obj_run_to_obj(a1, a2, -1, 0);
+            reg_anim_obj_run_to_obj(critter, container, -1, 0);
         }
     }
 
-    reg_anim_11_1(a1, a2, _is_next_to, -1);
-    reg_anim_11_1(a1, a2, _check_scenery_ap_cost, -1);
-    reg_anim_11_1(a1, a2, scriptsRequestLooting, -1);
+    reg_anim_11_1(critter, container, _is_next_to, -1);
+    reg_anim_11_0(critter, container, _check_scenery_ap_cost, -1);
+    reg_anim_11_0(critter, container, scriptsRequestLooting, -1);
     return reg_anim_end();
 }
 
