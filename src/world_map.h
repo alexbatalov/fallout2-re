@@ -738,7 +738,7 @@ bool _wmMapCanRestHere(int elevation);
 bool _wmMapPipboyActive();
 int _wmMapMarkVisited(int map_index);
 int _wmMatchEntranceFromMap(int cityIndex, int mapIndex, int* entranceIndexPtr);
-int _wmMatchEntranceElevFromMap(int a1, int a2, int a3, int* out_a4);
+int _wmMatchEntranceElevFromMap(int cityIndex, int map, int elevation, int* entranceIndexPtr);
 int _wmMatchAreaFromMap(int a1, int* out_a2);
 int _wmMapMarkMapEntranceState(int a1, int a2, int a3);
 void _wmWorldMap();

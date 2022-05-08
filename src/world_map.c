@@ -2746,14 +2746,14 @@ int _wmMatchEntranceFromMap(int cityIndex, int mapIndex, int* entranceIndexPtr)
 }
 
 // 0x4BFBE8
-int _wmMatchEntranceElevFromMap(int cityIndex, int a2, int a3, int* entranceIndexPtr)
+int _wmMatchEntranceElevFromMap(int cityIndex, int map, int elevation, int* entranceIndexPtr)
 {
     CityInfo* city = &(gCities[cityIndex]);
 
     for (int entranceIndex = 0; entranceIndex < city->entrancesLength; entranceIndex++) {
         EntranceInfo* entrance = &(city->entrances[entranceIndex]);
-        if (entrance->y == a2) {
-            if (a3 == -1 || entrance->map == -1 || a3 == entrance->map) {
+        if (entrance->map == map) {
+            if (elevation == -1 || entrance->elevation == -1 || elevation == entrance->elevation) {
                 *entranceIndexPtr = entranceIndex;
                 return 0;
             }

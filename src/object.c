@@ -1403,7 +1403,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
                         transition.rotation = data->misc.rotation;
                         mapSetTransition(&transition);
 
-                        _wmMapMarkMapEntranceState(transition.map, transition.tile, 1);
+                        _wmMapMarkMapEntranceState(transition.map, transition.elevation, 1);
                     }
                 }
             }
