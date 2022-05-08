@@ -98,7 +98,7 @@ ExternalVariable* externalVariableFind(const char* identifier)
 
     do {
         exportedVariable = &(gExternalVariables[v1]);
-        if (exportedVariable->name[0] != '\0') {
+        if (exportedVariable->name[0] == '\0') {
             break;
         }
 
