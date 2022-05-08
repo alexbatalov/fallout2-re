@@ -3143,13 +3143,14 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
         }
 
         for (;;) {
-            Object* v21 = _item_w_unload(item);
-            if (v21 != NULL) {
+            Object* ammo = _item_w_unload(item);
+            if (ammo == NULL) {
+                break;
             }
 
             Rect rect;
-            _obj_disconnect(v21, &rect);
-            itemAdd(v41, v21, 1);
+            _obj_disconnect(ammo, &rect);
+            itemAdd(v41, ammo, 1);
         }
 
         if (v43 == NULL) {
