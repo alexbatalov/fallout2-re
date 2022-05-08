@@ -466,6 +466,14 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         soundPlayFile("ib1p1xx1");
         showPause(false);
         break;
+    case KEY_UPPERCASE_A:
+    case KEY_LOWERCASE_A:
+        if (interfaceBarEnabled()) {
+            if (!isInCombatMode) {
+                _combat(NULL);
+            }
+        }
+        break;
     case KEY_UPPERCASE_N:
     case KEY_LOWERCASE_N:
         if (interfaceBarEnabled()) {
