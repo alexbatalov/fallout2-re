@@ -79,8 +79,8 @@ void lipsTicker()
 
         speech_marker = &(gLipsData.markers[v0]);
         while (v1 > speech_marker->position) {
-            v0++;
             gLipsCurrentPhoneme = gLipsData.phonemes[v0];
+            v0++;
 
             if (v0 >= gLipsData.field_2C) {
                 v0 = 0;
