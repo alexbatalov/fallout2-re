@@ -32,6 +32,59 @@ OFF_59E160* off_59E160;
 // 0x59E164
 int dword_59E164;
 
+// format
+// 0x461850
+void opFormat(Program* program)
+{
+    opcode_t opcode[6];
+    int data[6];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 6; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 6 given to format\n");
+    }
+
+    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 5 given to format\n");
+    }
+
+    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 4 given to format\n");
+    }
+
+    if ((opcode[3] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 3 given to format\n");
+    }
+
+    if ((opcode[4] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 2 given to format\n");
+    }
+
+    if ((opcode[5] & 0xF7FF) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid arg 1 given to format\n");
+    }
+
+    char* string = programGetString(program, opcode[5], data[5]);
+    int x = data[4];
+    int y = data[3];
+    int width = data[2];
+    int height = data[1];
+    int textAlignment = data[0];
+
+    if (!sub_4B89B0(string, x, y, width, height, textAlignment)) {
+        programFatalError("Error formatting message\n");
+    }
+}
+
 // print
 // 0x461A5C
 void opPrint(Program* program)
