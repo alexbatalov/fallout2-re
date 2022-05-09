@@ -4164,7 +4164,31 @@ void opMetarule(Program* program)
         }
         break;
     case METARULE_INVEN_UNWIELD_WHO:
-        // TODO: Incomplete.
+        if (1) {
+            Object* object = (Object*)param;
+
+            int hand = HAND_RIGHT;
+            if (object == gDude) {
+                if (interfaceGetCurrentHand() == HAND_LEFT) {
+                    hand = HAND_LEFT;
+                }
+            }
+
+            result = _invenUnwieldFunc(object, hand, 0);
+
+            if (object == gDude) {
+                bool v1 = true;
+                if (gameUiIsDisabled()) {
+                    v1 = false;
+                }
+                _intface_update_items(v1, -1, -1);
+            } else {
+                Object* item = critterGetItem1(object);
+                if (itemGetType(item) == ITEM_TYPE_WEAPON) {
+                    item->flags &= ~0x1000000;
+                }
+            }
+        }
         break;
     case METARULE_GET_WORLDMAP_XPOS:
         _wmGetPartyWorldPos(&result, NULL);
