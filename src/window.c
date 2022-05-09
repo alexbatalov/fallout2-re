@@ -182,6 +182,17 @@ int sub_4B821C(const char* windowName)
     return -1;
 }
 
+// 0x4B82DC
+unsigned char* sub_4B82DC()
+{
+    if (gCurrentManagedWindowIndex != -1) {
+        ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+        return windowGetBuffer(managedWindow->window);
+    }
+
+    return NULL;
+}
+
 // 0x4B8414
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
