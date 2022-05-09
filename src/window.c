@@ -193,6 +193,34 @@ unsigned char* sub_4B82DC()
     return NULL;
 }
 
+// 0x4B8330
+int sub_4B8330(const char* windowName)
+{
+    if (dword_51DCB4 >= MANAGED_WINDOW_COUNT) {
+        return -1;
+    }
+
+    int oldCurrentWindowIndex = gCurrentManagedWindowIndex;
+
+    int windowIndex = sub_4B821C(windowName);
+    if (windowIndex == -1) {
+        return -1;
+    }
+
+    // TODO: Check.
+    for (int index = 0; index < dword_51DCB4; index++) {
+        if (dword_66E770[index] == oldCurrentWindowIndex) {
+            memcpy(&(dword_66E770[index]), &(dword_66E770[index + 1]), sizeof(*dword_66E770) * (dword_51DCB4 - index));
+            break;
+        }
+    }
+
+    dword_51DCB4++;
+    dword_66E770[dword_51DCB4] = oldCurrentWindowIndex;
+
+    return windowIndex;
+}
+
 // 0x4B8414
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
