@@ -2901,7 +2901,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
     int actionMenuItemsLength;
     const int* actionMenuItems;
     if (itemType == ITEM_TYPE_WEAPON && _item_w_can_unload(item)) {
-        if (inventoryWindowType == INVENTORY_WINDOW_TYPE_NORMAL && objectGetOwner(item) != gDude) {
+        if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL && objectGetOwner(item) != gDude) {
             actionMenuItemsLength = 3;
             actionMenuItems = dword_519154;
         } else {
