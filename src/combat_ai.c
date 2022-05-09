@@ -1286,14 +1286,16 @@ int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
     off_51805C = a1;
     qsort(off_56D620, dword_56D61C, sizeof(*off_56D620), _compare_nearer);
 
+    int foundTargetCount = 0;
     int team = a1->data.critter.combat.team;
 
-    for (int index = 0; index < 3 && index < dword_56D61C; index++) {
+    for (int index = 0; foundTargetCount < 3 && index < dword_56D61C; index++) {
         Object* candidate = off_56D620[index];
         if (candidate != a1) {
             if (a2 != NULL && *a2 == NULL) {
                 if ((candidate->data.critter.combat.results & DAM_DEAD) == 0
                     && candidate->data.critter.combat.whoHitMe == a1) {
+                    foundTargetCount++;
                     *a2 = candidate;
                 }
             }
@@ -1305,6 +1307,7 @@ int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
                         && whoHitCandidate != a1
                         && team != whoHitCandidate->data.critter.combat.team
                         && (whoHitCandidate->data.critter.combat.results & DAM_DEAD) == 0) {
+                        foundTargetCount++;
                         *a3 = whoHitCandidate;
                     }
                 }
@@ -1316,6 +1319,7 @@ int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
                     Object* whoHitCandidate = candidate->data.critter.combat.whoHitMe;
                     if (whoHitCandidate != NULL
                         && whoHitCandidate->data.critter.combat.team == team) {
+                        foundTargetCount++;
                         *a4 = candidate;
                     }
                 }
