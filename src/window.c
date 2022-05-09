@@ -339,6 +339,24 @@ void _windowWrapLine(int win, char* string, int width, int height, int x, int y,
     _windowWrapLineWithSpacing(win, string, width, height, x, y, flags, textAlignment, 0);
 }
 
+// 0x4B8920
+bool sub_4B8920(char* string, int a2, int textAlignment)
+{
+    if (gCurrentManagedWindowIndex == -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    int width = (int)(a2 * managedWindow->field_54);
+    int height = windowGetHeight(managedWindow->window);
+    int x = managedWindow->field_44;
+    int y = managedWindow->field_48;
+    int flags = widgetGetTextColor() | 0x2000000;
+    _windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
+
+    return true;
+}
+
 // 0x4B9048
 int _windowGetXres()
 {
