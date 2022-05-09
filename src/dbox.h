@@ -27,5 +27,6 @@ extern int dword_51091C[7];
 
 int showDialogBox(const char* title, const char** body, int bodyLength, int x, int y, int titleColor, const char* a8, int bodyColor, int flags);
 int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLength, int x, int y, int flags);
+void sub_41FBDC(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch);
 
 #endif /* DBOX_H */

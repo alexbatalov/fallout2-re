@@ -598,3 +598,22 @@ int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLen
         fontDrawText(windowBuffer + frmSizes[0].width * 16 + 49, a1, frmSizes[0].width, frmSizes[0].width, byte_6A38D0[18979]);
     }
 }
+
+// 0x41FBDC
+void sub_41FBDC(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch)
+{
+    int lineHeight = fontGetLineHeight();
+    int y = 49;
+    bufferFill(buffer + y * pitch + 55, 190, 124, pitch, 100);
+    if (fileListLength != 0) {
+        if (fileListLength - pageOffset > 12) {
+            fileListLength = 12;
+        }
+
+        for (int index = 0; index < fileListLength; index++) {
+            int color = index == selectedIndex ? byte_6A38D0[32747] : byte_6A38D0[992];
+            fontDrawText(buffer + y * index + 55, fileList[index], pitch, pitch, color);
+            y += lineHeight;
+        }
+    }
+}
