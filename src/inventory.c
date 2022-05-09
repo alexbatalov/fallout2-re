@@ -2583,7 +2583,7 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
     }
 
     if (item_obj) {
-        item_obj->flags &= 0x3000000;
+        item_obj->flags &= ~0x3000000;
     }
 
     if (v6 == a2 && ((obj->fid & 0xF000) >> 12) != 0) {
