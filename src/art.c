@@ -131,7 +131,7 @@ int artInit()
     }
 
     gArtCritterFidShoudRunData = internal_malloc(sizeof(*gArtCritterFidShoudRunData) * gArtListDescriptions[1].fileNamesLength);
-    if (off_56CAEC == NULL) {
+    if (gArtCritterFidShoudRunData == NULL) {
         gArtListDescriptions[1].fileNamesLength = 0;
         debugPrint("Out of memory for artCritterFidShouldRunData in art_init\n");
         cacheFree(&gArtCache);
