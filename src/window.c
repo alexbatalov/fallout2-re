@@ -221,6 +221,20 @@ int sub_4B8330(const char* windowName)
     return windowIndex;
 }
 
+// 0x4B83D4
+int sub_4B83D4()
+{
+    if (dword_51DCB4 == -1) {
+        return -1;
+    }
+
+    int windowIndex = dword_66E770[dword_51DCB4];
+    ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+    dword_51DCB4--;
+
+    return sub_4B821C(managedWindow->name);
+}
+
 // 0x4B8414
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
