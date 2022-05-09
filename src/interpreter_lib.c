@@ -58,6 +58,51 @@ void opPrint(Program* program)
     }
 }
 
+// printrect
+// 0x461F1C
+void opPrintRect(Program* program)
+{
+    _selectWindowID(program->field_84);
+
+    opcode_t opcode[3];
+    int data[3];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 3; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT || data[0] > 2) {
+        programFatalError("Invalid arg 3 given to printrect, expecting int");
+    }
+
+    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 2 given to printrect, expecting int");
+    }
+
+    char string[80];
+    switch (opcode[2] & 0xF7FF) {
+    case VALUE_TYPE_STRING:
+        sprintf(string, "%s", programGetString(program, opcode[2], data[2]));
+        break;
+    case VALUE_TYPE_FLOAT:
+        sprintf(string, "%.5f", *((float*)&data[2]));
+        break;
+    case VALUE_TYPE_INT:
+        sprintf(string, "%d", data[2]);
+        break;
+    }
+
+    if (!sub_4B8920(string, data[1], data[0])) {
+        programFatalError("Error in printrect");
+    }
+}
+
 // movieflags
 // 0x462584
 void opSetMovieFlags(Program* program)

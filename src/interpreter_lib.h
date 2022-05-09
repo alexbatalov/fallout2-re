@@ -23,6 +23,7 @@ extern OFF_59E160* off_59E160;
 extern int dword_59E164;
 
 void opPrint(Program* program);
+void opPrintRect(Program* program);
 void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
 void opAddRegionProc(Program* program);
