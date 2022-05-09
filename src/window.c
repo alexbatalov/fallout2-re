@@ -357,6 +357,16 @@ bool sub_4B8920(char* string, int a2, int textAlignment)
     return true;
 }
 
+// 0x4B89B0
+bool sub_4B89B0(char* string, int x, int y, int width, int height, int textAlignment)
+{
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    int flags = widgetGetTextColor() | 0x2000000;
+    _windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
+
+    return true;
+}
+
 // 0x4B9048
 int _windowGetXres()
 {

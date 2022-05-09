@@ -98,6 +98,7 @@ void _windowFreeWordList(char** substringList, int substringListLength);
 void _windowWrapLineWithSpacing(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9);
 void _windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
 bool sub_4B8920(char* string, int a2, int textAlignment);
+bool sub_4B89B0(char* string, int x, int y, int width, int height, int textAlignment);
 int _windowGetXres();
 int _windowGetYres();
 void _removeProgramReferences_3(Program* program);
