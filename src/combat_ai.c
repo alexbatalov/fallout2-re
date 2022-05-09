@@ -39,7 +39,7 @@ int gAiPacketsLength = 0;
 AiPacket* gAiPackets = NULL;
 
 // 0x518068
-int dword_518068 = 0;
+bool gAiInitialized = false;
 
 // 0x51806C
 const char* gAreaAttackModeKeys[AREA_ATTACK_MODE_COUNT] = {
@@ -397,7 +397,7 @@ int aiInit()
 
     configFree(&config);
 
-    dword_518068 = 1;
+    gAiInitialized = true;
 
     return 0;
 
@@ -453,7 +453,7 @@ int aiExit()
     internal_free(gAiPackets);
     gAiPacketsLength = 0;
 
-    dword_518068 = 0;
+    gAiInitialized = false;
 
     // NOTE: Uninline.
     if (aiMessageListFree() != 0) {
