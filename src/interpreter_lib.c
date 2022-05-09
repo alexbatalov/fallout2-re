@@ -32,6 +32,32 @@ OFF_59E160* off_59E160;
 // 0x59E164
 int dword_59E164;
 
+// print
+// 0x461A5C
+void opPrint(Program* program)
+{
+    _selectWindowID(program->field_84);
+
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    switch (opcode & 0xF7FF) {
+    case VALUE_TYPE_STRING:
+        _interpretOutput("%s", programGetString(program, opcode, data));
+        break;
+    case VALUE_TYPE_FLOAT:
+        _interpretOutput("%.5f", *((float*)&data));
+        break;
+    case VALUE_TYPE_INT:
+        _interpretOutput("%d", data);
+        break;
+    }
+}
+
 // movieflags
 // 0x462584
 void opSetMovieFlags(Program* program)
