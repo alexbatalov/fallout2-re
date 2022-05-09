@@ -920,7 +920,8 @@ int _ai_check_drugs(Object* critter)
                 int drugPid = drug->pid;
                 int index;
                 for (index = 0; index < AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT; index++) {
-                    if (ai->chem_primary_desire[index] == drugPid) {
+                    // TODO: Find out why it checks for inequality at 0x4286B1.
+                    if (ai->chem_primary_desire[index] != drugPid) {
                         break;
                     }
                 }
