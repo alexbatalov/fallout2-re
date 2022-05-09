@@ -155,6 +155,33 @@ bool _selectWindowID(int index)
     return true;
 }
 
+// 0x4B821C
+int sub_4B821C(const char* windowName)
+{
+    if (gCurrentManagedWindowIndex != -1) {
+        ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+        if (stricmp(managedWindow->name, windowName) == 0) {
+            return gCurrentManagedWindowIndex;
+        }
+    }
+
+    int index;
+    for (index = 0; index < MANAGED_WINDOW_COUNT; index++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[index]);
+        if (managedWindow->window != -1) {
+            if (stricmp(managedWindow->name, windowName) == 0) {
+                break;
+            }
+        }
+    }
+
+    if (!_selectWindowID(index)) {
+        return index;
+    }
+
+    return -1;
+}
+
 // 0x4B8414
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
