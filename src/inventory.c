@@ -3292,7 +3292,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
             int endIndex = critterCount - 1;
             for (int index = 0; index < critterCount; index++) {
                 Object* critter = critters[index];
-                if ((critter->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
+                if ((critter->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) == 0) {
                     critters[index] = critters[endIndex];
                     critters[endIndex] = critter;
                     critterCount--;
@@ -3409,6 +3409,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                     critterIndex = critterCount - 1;
                 }
 
+                a2 = critters[critterIndex];
                 off_59E978 = &(a2->data.inventory);
                 off_59E81C[0] = a2;
                 dword_59E948 = 0;
@@ -3430,6 +3431,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                     critterIndex = 0;
                 }
 
+                a2 = critters[critterIndex];
                 off_59E978 = &(a2->data.inventory);
                 off_59E81C[0] = a2;
                 dword_59E948 = 0;
