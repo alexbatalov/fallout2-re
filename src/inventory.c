@@ -1753,10 +1753,11 @@ void _switch_hand(Object* a1, Object** a2, Object** a3, int a4)
             return;
         }
 
-        if (a3 != NULL && (a3 != &gInventoryArmor || itemGetType(a1) == ITEM_TYPE_ARMOR)) {
+        if (a3 != NULL && (a3 != &gInventoryArmor || itemGetType(*a2) == ITEM_TYPE_ARMOR)) {
             if (a3 == &gInventoryArmor) {
                 _adjust_ac(off_59E86C[0], gInventoryArmor, *a2);
             }
+            *a3 = *a2;
         } else {
             if (a4 != -1) {
                 itemRemove(off_519058, a1, 1);
@@ -1770,14 +1771,21 @@ void _switch_hand(Object* a1, Object** a2, Object** a3, int a4)
             }
 
             a4 = -1;
-        }
-    }
 
-    if (a3 != NULL) {
-        if (a3 == &gInventoryArmor) {
-            _adjust_ac(off_59E86C[0], gInventoryArmor, NULL);
+            if (a3 != NULL) {
+                if (a3 == &gInventoryArmor) {
+                    _adjust_ac(off_59E86C[0], gInventoryArmor, NULL);
+                }
+                *a3 = NULL;
+            }
         }
-        *a3 = NULL;
+    } else {
+        if (a3 != NULL) {
+            if (a3 == &gInventoryArmor) {
+                _adjust_ac(off_59E86C[0], gInventoryArmor, NULL);
+            }
+            *a3 = NULL;
+        }
     }
 
     *a2 = a1;
