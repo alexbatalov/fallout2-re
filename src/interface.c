@@ -1410,7 +1410,7 @@ void _intface_use_item()
                     : HIT_MODE_RIGHT_WEAPON_RELOAD;
 
                 int actionPointsRequired = _item_mp_cost(gDude, hitMode, false);
-                if (actionPointsRequired < gDude->data.critter.combat.ap) {
+                if (actionPointsRequired <= gDude->data.critter.combat.ap) {
                     if (_intface_item_reload() == 0) {
                         if (actionPointsRequired > gDude->data.critter.combat.ap) {
                             gDude->data.critter.combat.ap = 0;
