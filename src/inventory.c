@@ -2533,8 +2533,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                 }
             }
 
-            // TODO: Check.
-            if (a4 && isoIsDisabled()) {
+            if (a4 && !isoIsDisabled()) {
                 if (weaponAnimationCode != 0) {
                     reg_anim_18(critter, weaponAnimationCode, -1);
                 } else {
