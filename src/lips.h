@@ -49,13 +49,13 @@ typedef struct LipsData {
 
 extern unsigned char gLipsCurrentPhoneme;
 extern unsigned char gLipsPreviousPhoneme;
-extern int dword_519244;
+extern int _head_marker_current;
 extern bool gLipsPhonemeChanged;
 extern LipsData gLipsData;
-extern int dword_5193B4;
+extern int _speechStartTime;
 
-extern char byte_613CA0[14];
-extern char byte_613CAE[50];
+extern char _lips_subdir_name[14];
+extern char _tmp_str[50];
 
 char* _lips_fix_string(const char* fileName, size_t length);
 void lipsTicker();

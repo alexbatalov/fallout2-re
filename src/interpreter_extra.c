@@ -40,10 +40,10 @@
 #include <stdio.h>
 
 // 0x504B04
-char byte_504B04[] = "Error";
+char _Error_0[] = "Error";
 
 // 0x504B0C
-char byte_504B0C[] = "<Critter>";
+char _aCritter[] = "<Critter>";
 
 // Maps light level to light intensity.
 //
@@ -85,7 +85,7 @@ const unsigned short word_453F9C[MOVIE_COUNT] = {
 Rect stru_453FC0 = { 0, 0, 640, 480 };
 
 // 0x518EC0
-const char* off_518EC0[SCRIPT_ERROR_COUNT] = {
+const char* _dbg_error_strs[SCRIPT_ERROR_COUNT] = {
     "unimped",
     "obj is NULL",
     "can't match program to sid",
@@ -93,7 +93,7 @@ const char* off_518EC0[SCRIPT_ERROR_COUNT] = {
 };
 
 // 0x518ED0
-const int dword_518ED0[11] = {
+const int _ftList[11] = {
     ANIM_FALL_BACK_BLOOD_SF,
     ANIM_BIG_HOLE_SF,
     ANIM_CHARRED_BODY_SF,
@@ -108,15 +108,15 @@ const int dword_518ED0[11] = {
 };
 
 // 0x518EFC
-char* off_518EFC = byte_504B04;
+char* _errStr = _Error_0;
 
 // Last message type during op_float_msg sequential.
 //
 // 0x518F00
-int dword_518F00 = 1;
+int _last_color = 1;
 
 // 0x518F04
-char* off_518F04 = byte_504B0C;
+char* _strName = _aCritter;
 
 // NOTE: This value is a little bit odd. It's used to handle 2 operations:
 // [opStartGameDialog] and [opGameDialogReaction]. It's not used outside those
@@ -136,7 +136,7 @@ void scriptPredefinedError(Program* program, const char* name, int error)
 {
     char string[260];
 
-    sprintf(string, "Script Error: %s: op_%s: %s", program->name, name, off_518EC0[error]);
+    sprintf(string, "Script Error: %s: op_%s: %s", program->name, name, _dbg_error_strs[error]);
 
     debugPrint(string);
 }
@@ -206,7 +206,7 @@ int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
         }
     } else {
         if (a1 == gDude) {
-            newFid = buildFid((fid & 0xF000000) >> 24, dword_5108A4, (fid & 0xFF0000) >> 16, v8, (fid & 0x70000000) >> 28);
+            newFid = buildFid((fid & 0xF000000) >> 24, _art_vault_guy_num, (fid & 0xFF0000) >> 16, v8, (fid & 0x70000000) >> 28);
         }
 
         _adjust_ac(a1, a2, NULL);
@@ -715,7 +715,7 @@ void opReactionInfluence(Program* program)
         }
     }
 
-    int result = sub_4A29F0();
+    int result = _reaction_influence_();
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
@@ -3004,7 +3004,7 @@ void opKillCritterType(Program* program)
             if (deathFrame != 0) {
                 _combat_delete_critter(obj);
                 if (deathFrame == 1) {
-                    int anim = _correctDeath(obj, dword_518ED0[v3], 1);
+                    int anim = _correctDeath(obj, _ftList[v3], 1);
                     critterKill(obj, anim, 1);
                     v3 += 1;
                     if (v3 >= 11) {
@@ -3821,10 +3821,10 @@ void opGetMessageString(Program* program)
         string = _scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
         if (string == NULL) {
             debugPrint("\nError: No message file EXISTS!: index %d, line %d", messageListIndex, messageIndex);
-            string = off_518EFC;
+            string = _errStr;
         }
     } else {
-        string = off_518EFC;
+        string = _errStr;
     }
 
     programStackPushInt32(program, programPushString(program, string));
@@ -4014,8 +4014,8 @@ void opFloatMessage(Program* program)
     Object* obj = (Object*)data[2];
     int floatingMessageType = data[0];
 
-    int color = byte_6A38D0[32747];
-    int a5 = byte_6A38D0[0];
+    int color = _colorTable[32747];
+    int a5 = _colorTable[0];
     int font = 101;
 
     if (obj == NULL) {
@@ -4034,52 +4034,52 @@ void opFloatMessage(Program* program)
     }
 
     if (floatingMessageType == FLOATING_MESSAGE_TYPE_COLOR_SEQUENCE) {
-        floatingMessageType = dword_518F00 + 1;
+        floatingMessageType = _last_color + 1;
         if (floatingMessageType >= FLOATING_MESSAGE_TYPE_COUNT) {
             floatingMessageType = FLOATING_MESSAGE_TYPE_BLACK;
         }
-        dword_518F00 = floatingMessageType;
+        _last_color = floatingMessageType;
     }
 
     switch (floatingMessageType) {
     case FLOATING_MESSAGE_TYPE_WARNING:
-        color = byte_6A38D0[31744];
-        a5 = byte_6A38D0[0];
+        color = _colorTable[31744];
+        a5 = _colorTable[0];
         font = 103;
         tileSetCenter(gDude->tile, TILE_SET_CENTER_FLAG_0x01);
         break;
     case FLOATING_MESSAGE_TYPE_NORMAL:
     case FLOATING_MESSAGE_TYPE_YELLOW:
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
         break;
     case FLOATING_MESSAGE_TYPE_BLACK:
     case FLOATING_MESSAGE_TYPE_PURPLE:
     case FLOATING_MESSAGE_TYPE_GREY:
-        color = byte_6A38D0[10570];
+        color = _colorTable[10570];
         break;
     case FLOATING_MESSAGE_TYPE_RED:
-        color = byte_6A38D0[31744];
+        color = _colorTable[31744];
         break;
     case FLOATING_MESSAGE_TYPE_GREEN:
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
         break;
     case FLOATING_MESSAGE_TYPE_BLUE:
-        color = byte_6A38D0[31];
+        color = _colorTable[31];
         break;
     case FLOATING_MESSAGE_TYPE_NEAR_WHITE:
-        color = byte_6A38D0[21140];
+        color = _colorTable[21140];
         break;
     case FLOATING_MESSAGE_TYPE_LIGHT_RED:
-        color = byte_6A38D0[32074];
+        color = _colorTable[32074];
         break;
     case FLOATING_MESSAGE_TYPE_WHITE:
-        color = byte_6A38D0[32767];
+        color = _colorTable[32767];
         break;
     case FLOATING_MESSAGE_TYPE_DARK_GREY:
-        color = byte_6A38D0[8456];
+        color = _colorTable[8456];
         break;
     case FLOATING_MESSAGE_TYPE_LIGHT_GREY:
-        color = byte_6A38D0[15855];
+        color = _colorTable[15855];
         break;
     }
 
@@ -4117,7 +4117,7 @@ void opMetarule(Program* program)
     switch (rule) {
     case METARULE_SIGNAL_END_GAME:
         result = 0;
-        dword_5186CC = 2;
+        _game_user_wants_to_quit = 2;
         break;
     case METARULE_FIRST_RUN:
         result = (gMapHeader.flags & MAP_SAVED) == 0;
@@ -5556,7 +5556,7 @@ void opFadeIn(Program* program)
     }
 
     if (data != 0) {
-        paletteFadeTo(stru_51DF34);
+        paletteFadeTo(_cmap);
     } else {
         scriptPredefinedError(program, "gfade_in", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -6545,7 +6545,7 @@ void opCritterSetFleeState(Program* program)
 void opTerminateCombat(Program* program)
 {
     if (isInCombat()) {
-        dword_5186CC = 1;
+        _game_user_wants_to_quit = 1;
         Object* self = scriptGetSelf(program);
         if (self != NULL) {
             if ((self->pid >> 24) == 1) {
@@ -6667,12 +6667,12 @@ void opGetObjectName(Program* program)
 
     Object* obj = (Object*)data;
     if (obj != NULL) {
-        off_518F04 = objectGetName(obj);
+        _strName = objectGetName(obj);
     } else {
         scriptPredefinedError(program, "obj_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    int stringOffset = programPushString(program, off_518F04);
+    int stringOffset = programPushString(program, _strName);
 
     programStackPushInt32(program, stringOffset);
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
@@ -6699,7 +6699,7 @@ void opGetPcStat(Program* program)
 }
 
 // 0x45CDD4
-void sub_45CDD4()
+void _intExtraClose_()
 {
 }
 
@@ -6890,6 +6890,6 @@ void _initIntExtra()
 }
 
 // 0x45D878
-void sub_45D878()
+void _intExtraRemoveProgramReferences_()
 {
 }

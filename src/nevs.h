@@ -16,9 +16,9 @@ typedef struct Nevs {
     void (*field_38)();
 } Nevs;
 
-extern Nevs* off_6391C8;
+extern Nevs* _nevs;
 
-extern int dword_6391CC;
+extern int _anyhits;
 
 Nevs* _nevs_alloc();
 void _nevs_close();

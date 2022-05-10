@@ -92,7 +92,7 @@ int queueGetNextEventTime();
 int flareEventProcess(Object* obj, void* data);
 int explosionEventProcess(Object* obj, void* data);
 int _queue_explode_exit(Object* obj, void* data);
-int sub_4A2834(Object* obj, bool a2);
+int _queue_do_explosion_(Object* obj, bool a2);
 int explosionFailureEventProcess(Object* obj, void* data);
 void _queue_leaving_map();
 bool queueIsEmpty();

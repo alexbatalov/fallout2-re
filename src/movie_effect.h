@@ -26,8 +26,8 @@ typedef struct MovieEffect {
 extern bool gMovieEffectsInitialized;
 extern MovieEffect* gMovieEffectHead;
 
-extern unsigned char byte_638EC4[768];
-extern bool dword_6391C4;
+extern unsigned char _source_palette[768];
+extern bool _inside_fade;
 
 int movieEffectsInit();
 void movieEffectsReset();

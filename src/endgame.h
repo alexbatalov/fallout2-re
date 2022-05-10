@@ -37,12 +37,12 @@ typedef struct EndgameEnding {
     int direction;
 } EndgameEnding;
 
-extern char byte_50B00C[];
+extern char _aEnglish_2[];
 
 extern int gEndgameEndingSubtitlesLength;
 extern int gEndgameEndingSubtitlesCharactersCount;
 extern int gEndgameEndingSubtitlesCurrentLine;
-extern int dword_518674;
+extern int _endgame_maybe_done;
 extern EndgameDeathEnding* gEndgameDeathEndings;
 extern int gEndgameDeathEndingsLength;
 
@@ -54,8 +54,8 @@ extern EndgameEnding* gEndgameEndings;
 extern char** gEndgameEndingSubtitles;
 extern bool gEndgameEndingSubtitlesEnabled;
 extern bool gEndgameEndingSubtitlesEnded;
-extern bool dword_570BD4;
-extern bool dword_570BD8;
+extern bool _endgame_map_enabled;
+extern bool _endgame_mouse_state;
 extern int gEndgameEndingsLength;
 extern bool gEndgameEndingVoiceOverSubtitlesLoaded;
 extern unsigned int gEndgameEndingSubtitlesReferenceTime;

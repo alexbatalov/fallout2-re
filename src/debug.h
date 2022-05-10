@@ -5,9 +5,9 @@
 
 typedef int(DebugPrintProc)(char* string);
 
-extern FILE* off_51DEF8;
-extern int dword_51DEFC;
-extern int dword_51DF00;
+extern FILE* _fd;
+extern int _curx;
+extern int _cury;
 extern DebugPrintProc* gDebugPrintProc;
 
 void _GNW_debug_init();

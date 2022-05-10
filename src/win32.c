@@ -32,7 +32,7 @@ int gCmdShow = 0;
 bool gProgramIsActive = false;
 
 // GNW95MUTEX
-HANDLE dword_51E448 = NULL;
+HANDLE _GNW95_mutex = NULL;
 
 // 0x51E44C
 HMODULE gDDrawDLL = NULL;
@@ -48,7 +48,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
 {
     CommandLineArguments args;
 
-    dword_51E448 = CreateMutexA(0, TRUE, "GNW95MUTEX");
+    _GNW95_mutex = CreateMutexA(0, TRUE, "GNW95MUTEX");
     if (GetLastError() == ERROR_SUCCESS) {
         ShowCursor(0);
         if (_InitClass(hInst)) {
@@ -70,7 +70,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
                 }
             }
         }
-        CloseHandle(dword_51E448);
+        CloseHandle(_GNW95_mutex);
     }
     return 0;
 }
@@ -230,7 +230,7 @@ LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         gProgramIsActive = wParam;
         if (wParam) {
             _GNW95_hook_input(1);
-            windowRefreshAll(&stru_6AC9F0);
+            windowRefreshAll(&_scr_size);
         } else {
             _GNW95_hook_input(0);
         }

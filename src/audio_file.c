@@ -15,7 +15,7 @@
 static_assert(sizeof(AudioFile) == 28, "wrong size");
 
 // 0x5108C0
-AudioFileIsCompressedProc* off_5108C0 = _defaultCompressionFunc__;
+AudioFileIsCompressedProc* _queryCompressedFunc_2 = _defaultCompressionFunc__;
 
 // 0x56CB10
 AudioFile* gAudioFileList;
@@ -47,7 +47,7 @@ int audioFileOpen(const char* fname, int flags, ...)
     strcpy(path, fname);
 
     int compression;
-    if (off_5108C0(path)) {
+    if (_queryCompressedFunc_2(path)) {
         compression = 2;
     } else {
         compression = 0;
@@ -233,7 +233,7 @@ int audioFileWrite(int fileHandle, const void* buffer, unsigned int size)
 // 0x41AD68
 int audioFileInit(AudioFileIsCompressedProc* isCompressedProc)
 {
-    off_5108C0 = isCompressedProc;
+    _queryCompressedFunc_2 = isCompressedProc;
     gAudioFileList = NULL;
     gAudioFileListLength = 0;
 

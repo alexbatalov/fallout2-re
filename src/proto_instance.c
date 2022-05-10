@@ -235,7 +235,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
     if (!scriptOverrides) {
         char* description = objectGetDescription(target);
-        if (description != NULL && strcmp(description, off_664824) == 0) {
+        if (description != NULL && strcmp(description, _proto_none_str) == 0) {
             description = NULL;
         }
 
@@ -768,7 +768,7 @@ int _obj_use_book(Object* book)
 
     scriptsExecMapUpdateProc();
 
-    paletteFadeTo(stru_51DF34);
+    paletteFadeTo(_cmap);
 
     // You read the book.
     messageListItem.num = 800;
@@ -1377,7 +1377,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
         obj->data.critter.combat.ap = actionPoints - 3;
 
         if (obj == gDude) {
-            interfaceRenderActionPoints(gDude->data.critter.combat.ap, dword_56D39C);
+            interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
         }
 
         return 0;

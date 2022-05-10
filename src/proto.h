@@ -95,35 +95,35 @@ typedef enum PrototypeMessage {
     PROTOTYPE_MESSAGE_DESCRIPTION,
 } PrototypeMesage;
 
-extern char byte_50CF3C[];
+extern char _aProto_0[];
 
-extern char byte_51C18C[MAX_PATH];
-extern ProtoList stru_51C290[11];
-extern const size_t dword_51C340[11];
-extern int dword_51C36C;
+extern char _cd_path_base[MAX_PATH];
+extern ProtoList _protoLists[11];
+extern const size_t _proto_sizes[11];
+extern int _protos_been_initialized;
 extern CritterProto gDudeProto;
-extern char* off_51C534;
-extern int dword_51C538;
-extern int dword_51C53C;
+extern char* _proto_path_base;
+extern int _init_true;
+extern int _retval;
 
-extern char* off_66452C;
-extern char* off_664530[PERK_COUNT];
-extern char* off_66470C;
-extern char* off_664710;
-extern char* off_664714[STAT_COUNT];
-extern MessageList stru_6647AC[6];
+extern char* _mp_perk_code_None;
+extern char* _mp_perk_code_strs[PERK_COUNT];
+extern char* _mp_critter_stats_list;
+extern char* _critter_stats_list_None;
+extern char* _critter_stats_list_strs[STAT_COUNT];
+extern MessageList _proto_msg_files[6];
 extern char* gRaceTypeNames[2];
 extern char* gSceneryTypeNames[6];
 extern MessageList gProtoMessageList;
 extern char* gMaterialTypeNames[8];
-extern char* off_664824;
+extern char* _proto_none_str;
 extern char* gBodyTypeNames[3];
 extern char* gItemTypeNames[7];
 extern char* gDamageTypeNames[7];
 extern char* gCaliberTypeNames[19];
 
-extern char** off_6648B8;
-extern char** off_6648BC;
+extern char** _perk_code_strs;
+extern char** _critter_stats_list;
 
 int _proto_list_str(int pid, char* proto_path);
 bool _proto_action_can_use(int pid);

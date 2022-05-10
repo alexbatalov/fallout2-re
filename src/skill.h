@@ -32,11 +32,11 @@ extern const int gRepairableDamageFlags[REPAIRABLE_DAMAGE_FLAGS_LENGTH];
 extern const int gHealableDamageFlags[HEALABLE_DAMAGE_FLAGS_LENGTH];
 
 extern SkillDescription gSkillDescriptions[SKILL_COUNT];
-extern int dword_51D430;
-extern int dword_51D434;
-extern int dword_51D438;
+extern int _gIsSteal;
+extern int _gStealCount;
+extern int _gStealSize;
 
-extern int dword_667F98[SKILL_COUNT][SKILLS_MAX_USES_PER_DAY];
+extern int _timesSkillUsed[SKILL_COUNT][SKILLS_MAX_USES_PER_DAY];
 extern int gTaggedSkills[NUM_TAGGED_SKILLS];
 extern MessageList gSkillsMessageList;
 

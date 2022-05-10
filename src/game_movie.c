@@ -235,7 +235,7 @@ int gameMoviePlay(int movie, int flags)
     int v11 = 0;
     int buttons;
     do {
-        if (!_moviePlaying() || dword_5186CC || _get_input() != -1) {
+        if (!_moviePlaying() || _game_user_wants_to_quit || _get_input() != -1) {
             break;
         }
 
@@ -266,9 +266,9 @@ int gameMoviePlay(int movie, int flags)
 
         widgetSetFont(oldFont);
 
-        float r = (float)((sub_4C72E0(oldTextColor) & 0x7C00) >> 10) * flt_50352A;
-        float g = (float)((sub_4C72E0(oldTextColor) & 0x3E0) >> 5) * flt_50352A;
-        float b = (float)(sub_4C72E0(oldTextColor) & 0x1F) * flt_50352A;
+        float r = (float)((_Color2RGB_(oldTextColor) & 0x7C00) >> 10) * flt_50352A;
+        float g = (float)((_Color2RGB_(oldTextColor) & 0x3E0) >> 5) * flt_50352A;
+        float b = (float)(_Color2RGB_(oldTextColor) & 0x1F) * flt_50352A;
         widgetSetTextColor(r, g, b);
     }
 
@@ -283,7 +283,7 @@ int gameMoviePlay(int movie, int flags)
             colorPaletteLoad("color.pal");
         }
 
-        paletteFadeTo(stru_51DF34);
+        paletteFadeTo(_cmap);
         gGameMovieFaded = false;
     }
 
@@ -295,7 +295,7 @@ int gameMoviePlay(int movie, int flags)
 void gameMovieFadeOut()
 {
     if (gGameMovieFaded) {
-        paletteFadeTo(stru_51DF34);
+        paletteFadeTo(_cmap);
         gGameMovieFaded = false;
     }
 }

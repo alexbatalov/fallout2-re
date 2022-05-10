@@ -12,29 +12,29 @@
 #include <varargs.h>
 
 // 0x50942C
-char byte_50942C[] = "<couldn't find proc>";
+char _aCouldnTFindPro[] = "<couldn't find proc>";
 
 // sayTimeoutMsg
 // 0x519038
-int dword_519038 = 0;
+int _TimeOut = 0;
 
 // 0x51903C
-int dword_51903C = 1;
+int _Enabled = 1;
 
 // 0x519040
-int (*off_519040)() = _defaultTimerFunc;
+int (*_timerFunc)() = _defaultTimerFunc;
 
 // 0x519044
-int dword_519044 = 1000;
+int _timerTick = 1000;
 
 // 0x519048
-char* (*off_519048)(char*) = sub_4670B4;
+char* (*_filenameFunc)(char*) = _defaultFilename_;
 
 // 0x51904C
-int (*off_51904C)(char*) = _outputStr;
+int (*_outputFunc)(char*) = _outputStr;
 
 // 0x519050
-int dword_519050 = 10;
+int _cpuBurstSize = 10;
 
 // 0x59E230
 OpcodeHandler* gInterpreterOpcodeHandlers[342];
@@ -44,8 +44,8 @@ Program* gInterpreterCurrentProgram;
 
 // 0x59E790
 ProgramListNode* gInterpreterProgramListHead;
-int dword_59E794;
-int dword_59E798;
+int _suspendEvents;
+int _busy;
 
 // 0x4670A0
 int _defaultTimerFunc()
@@ -54,7 +54,7 @@ int _defaultTimerFunc()
 }
 
 // 0x4670B4
-char* sub_4670B4(char* s)
+char* _defaultFilename_(char* s)
 {
     return s;
 }
@@ -62,7 +62,7 @@ char* sub_4670B4(char* s)
 // 0x4670B8
 char* _interpretMangleName(char* s)
 {
-    return off_519048(s);
+    return _filenameFunc(s);
 }
 
 // 0x4670C0
@@ -74,19 +74,19 @@ int _outputStr(char* a1)
 // 0x4670C8
 int _checkWait(Program* program)
 {
-    return 1000 * off_519040() / dword_519044 <= program->field_70;
+    return 1000 * _timerFunc() / _timerTick <= program->field_70;
 }
 
 // 0x4670FC
 void _interpretOutputFunc(int (*func)(char*))
 {
-    off_51904C = func;
+    _outputFunc = func;
 }
 
 // 0x467104
 int _interpretOutput(const char* format, ...)
 {
-    if (off_51904C == NULL) {
+    if (_outputFunc == NULL) {
         return 0;
     }
 
@@ -121,7 +121,7 @@ char* programGetCurrentProcedureName(Program* program)
         identifierOffset = stackReadInt32(ptr, 0);
     }
 
-    return byte_50942C;
+    return _aCouldnTFindPro;
 }
 
 // 0x4671F0
@@ -717,8 +717,8 @@ void opDelayedCall(Program* program)
 
     int delay = 1000 * data[1];
 
-    if (!dword_59E794) {
-        delay += 1000 * off_519040() / dword_519044;
+    if (!_suspendEvents) {
+        delay += 1000 * _timerFunc() / _timerTick;
     }
 
     int flags = stackReadInt32(procedure_ptr, 4);
@@ -771,7 +771,7 @@ void opWait(Program* program)
         programFatalError("Invalid type given to wait\n");
     }
 
-    program->field_74 = 1000 * off_519040() / dword_519044;
+    program->field_74 = 1000 * _timerFunc() / _timerTick;
     program->field_70 = program->field_74 + data;
     program->field_7C = _checkWait;
     program->flags |= PROGRAM_FLAG_0x10;
@@ -2982,7 +2982,7 @@ void opLookupStringProc(Program* program)
 // 0x46C7DC
 void interpreterRegisterOpcodeHandlers()
 {
-    dword_51903C = 1;
+    _Enabled = 1;
 
     // NOTE: The original code has different sorting.
     interpreterRegisterOpcode(OPCODE_NOOP, opNoop);
@@ -3080,11 +3080,11 @@ void _interpret(Program* program, int a2)
 
     Program* oldCurrentProgram = gInterpreterCurrentProgram;
 
-    if (!dword_51903C) {
+    if (!_Enabled) {
         return;
     }
 
-    if (dword_59E798) {
+    if (_busy) {
         return;
     }
 
@@ -3093,7 +3093,7 @@ void _interpret(Program* program, int a2)
     }
 
     if (program->field_78 == -1) {
-        program->field_78 = 1000 * off_519040() / dword_519044;
+        program->field_78 = 1000 * _timerFunc() / _timerTick;
     }
 
     gInterpreterCurrentProgram = program;
@@ -3118,16 +3118,16 @@ void _interpret(Program* program, int a2)
         }
 
         if ((program->flags & PROGRAM_FLAG_0x10) != 0) {
-            dword_59E798 = 1;
+            _busy = 1;
 
             if (program->field_7C != NULL) {
                 if (!program->field_7C(program)) {
-                    dword_59E798 = 0;
+                    _busy = 0;
                     continue;
                 }
             }
 
-            dword_59E798 = 0;
+            _busy = 0;
             program->field_7C = NULL;
             program->flags &= ~PROGRAM_FLAG_0x10;
         }
@@ -3429,7 +3429,7 @@ void _updatePrograms()
     while (curr != NULL) {
         ProgramListNode* next = curr->next;
         if (curr->program != NULL) {
-            _interpret(curr->program, dword_519050);
+            _interpret(curr->program, _cpuBurstSize);
         }
         if (curr->program->exited) {
             programListNodeFree(curr);

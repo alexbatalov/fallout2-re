@@ -81,7 +81,7 @@
 #define BIG_NUM_ANIMATION_DELAY 123
 
 // 0x431C40
-int dword_431C40[EDITOR_GRAPHIC_COUNT] = {
+int _grph_id[EDITOR_GRAPHIC_COUNT] = {
     170,
     175,
     176,
@@ -135,7 +135,7 @@ int dword_431C40[EDITOR_GRAPHIC_COUNT] = {
 };
 
 // flags to preload fid
-const unsigned char byte_431D08[EDITOR_GRAPHIC_COUNT] = {
+const unsigned char _copyflag[EDITOR_GRAPHIC_COUNT] = {
     0,
     0,
     1,
@@ -204,7 +204,7 @@ const int word_431D3A[EDITOR_DERIVED_STAT_COUNT] = {
 };
 
 // y offsets for stats +/- buttons
-const int dword_431D50[7] = {
+const int _StatYpos[7] = {
     37,
     70,
     103,
@@ -248,9 +248,9 @@ const double dbl_501713 = 19.2;
 const double dbl_5018F0 = 19.2;
 const double dbl_5019BE = 14.4;
 
-bool dword_518528 = false;
-int dword_51852C = 0;
-int dword_518534 = 27;
+bool _bk_enable_0 = false;
+int _skill_cursor = 0;
+int _slider_y = 27;
 
 // 0x518538
 int characterEditorRemainingCharacterPoints = 0;
@@ -313,53 +313,53 @@ const int gAddictionReputationFrmIds[ADDICTION_REPUTATION_COUNT] = {
 };
 
 // btn
-int dword_518624 = -1;
+int _folder_up_button = -1;
 
 // btn
-int dword_518628 = -1;
+int _folder_down_button = -1;
 
-char byte_56FB60[256];
-int dword_56FC60[SKILL_COUNT];
+char _folder_card_string[256];
+int _skillsav[SKILL_COUNT];
 
 // 0x56FCA8
 MessageList editorMessageList;
 
-STRUCT_56FCB0 stru_56FCB0[DIALOG_PICKER_NUM_OPTIONS];
+STRUCT_56FCB0 _name_sort_list[DIALOG_PICKER_NUM_OPTIONS];
 
 // buttons for selecting traits
-int dword_5700A8[TRAIT_COUNT];
+int _trait_bids[TRAIT_COUNT];
 
 // 0x5700E8
 MessageListItem editorMessageListItem;
 
-char byte_5700F8[48];
-char byte_570128[48];
+char _old_str1[48];
+char _old_str2[48];
 
 // buttons for tagging skills
-int dword_570158[SKILL_COUNT];
+int _tag_bids[SKILL_COUNT];
 
 // pc name
-char byte_5701A0[32];
+char _name_save[32];
 
-Size stru_5701C0[EDITOR_GRAPHIC_COUNT];
+Size _GInfo[EDITOR_GRAPHIC_COUNT];
 
-CacheEntry* dword_570350[EDITOR_GRAPHIC_COUNT];
-unsigned char* dword_570418[EDITOR_GRAPHIC_COUNT];
-unsigned char* dword_5704E0[EDITOR_GRAPHIC_COUNT];
+CacheEntry* _grph_key[EDITOR_GRAPHIC_COUNT];
+unsigned char* _grphcpy[EDITOR_GRAPHIC_COUNT];
+unsigned char* _grphbmp[EDITOR_GRAPHIC_COUNT];
 
-int dword_5705A8;
-int dword_5705AC;
-int dword_5705B0;
-int dword_5705B4;
-char* off_5705B8;
-char* off_5705BC;
-int dword_5705C0;
-int dword_5705C4;
-int dword_5705C8;
-char* off_5705CC;
-int dword_5705D0;
-int dword_5705D4;
-int dword_5705D8;
+int _folder_max_lines;
+int _folder_line;
+int _folder_card_fid;
+int _folder_top_line;
+char* _folder_card_title;
+char* _folder_card_title2;
+int _folder_yoffset;
+int _folder_karma_top_line;
+int _folder_highlight_line;
+char* _folder_card_desc;
+int _folder_ypos;
+int _folder_kills_top_line;
+int _folder_perk_top_line;
 
 // 0x5705DC
 unsigned char* gEditorPerkBackgroundBuffer;
@@ -367,11 +367,11 @@ unsigned char* gEditorPerkBackgroundBuffer;
 // 0x5705E0
 int gEditorPerkWindow;
 
-int dword_5705E4;
-int dword_5705E8;
+int _SliderPlusID;
+int _SliderNegID;
 
 // - stats buttons
-int dword_5705EC[7];
+int _stat_bids_minus[7];
 
 // 0x570608
 unsigned char* characterEditorWindowBuf;
@@ -380,37 +380,37 @@ unsigned char* characterEditorWindowBuf;
 int characterEditorWindowHandle;
 
 // + stats buttons
-int dword_570610[7];
+int _stat_bids_plus[7];
 
 // 0x57062C
 unsigned char* gEditorPerkWindowBuffer;
 
-CritterProtoData stru_570630;
+CritterProtoData _dude_data;
 
 // 0x5707A4
 unsigned char* characterEditorWindowBackgroundBuf;
 
-int dword_5707A8;
-int dword_5707AC;
+int _cline;
+int _oldsline;
 
 // unspent hit points
-int dword_5707B0;
+int _upsent_points_back;
 
-int dword_5707B4;
+int _last_level;
 
 // 0x5707B8
 int characterEditorWindowOldFont;
 
-int dword_5707BC;
+int _kills_count;
 
 // character editor background
-CacheEntry* off_5707C0;
+CacheEntry* _bck_key;
 
 // current hit points
-int dword_5707C4;
+int _hp_back;
 
-int dword_5707C8; // mouse y
-int dword_5707CC; // mouse x
+int _mouse_ypos; // mouse y
+int _mouse_xpos; // mouse x
 
 // 0x5707D0
 int characterEditorSelectedItem;
@@ -418,29 +418,29 @@ int characterEditorSelectedItem;
 // 0x5707D4
 int characterEditorWindowSelectedFolder;
 
-int dword_5707D8;
-int dword_5707DC;
-int dword_5707E0;
-int dword_5707E4[PERK_COUNT];
-unsigned int dword_5709C0;
-unsigned int dword_5709C4;
-int dword_5709C8;
-int dword_5709CC;
-int dword_5709E8;
-int dword_5709EC;
+int _frstc_draw1;
+int _crow;
+int _frstc_draw2;
+int _perk_back[PERK_COUNT];
+unsigned int _repFtime;
+unsigned int _frame_time;
+int _old_tags;
+int _last_level_back;
+int _card_old_fid2;
+int _card_old_fid1;
 // 0x5709D0
 bool gCharacterEditorIsCreationMode;
-int dword_5709D4[NUM_TAGGED_SKILLS];
-int dword_5709F0[2];
+int _tag_skill_back[NUM_TAGGED_SKILLS];
+int _trait_back[2];
 // current index for selecting new trait
-int dword_5709FC;
-int dword_570A00;
-int dword_570A04[TRAITS_MAX_SELECTED_COUNT];
-int dword_570A10;
-int dword_570A14[NUM_TAGGED_SKILLS];
-char byte_570A28;
-unsigned char byte_570A29;
-unsigned char byte_570A2A;
+int _trait_count;
+int _optrt_count;
+int _temp_trait[TRAITS_MAX_SELECTED_COUNT];
+int _tagskill_count;
+int _temp_tag_skill[NUM_TAGGED_SKILLS];
+char _free_perk_back;
+unsigned char _free_perk;
+unsigned char _first_skill_list;
 
 // 0x431DF8
 int _editor_design(bool isCreationMode)
@@ -472,7 +472,7 @@ int _editor_design(bool isCreationMode)
 
     int rc = -1;
     while (rc == -1) {
-        dword_5709C4 = _get_time();
+        _frame_time = _get_time();
         int keyCode = _get_input();
 
         bool done = false;
@@ -498,14 +498,14 @@ int _editor_design(bool isCreationMode)
                     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 119);
                     strcpy(line2, messageListItemText);
 
-                    showDialogBox(line1, lines, 1, 192, 126, byte_6A38D0[32328], 0, byte_6A38D0[32328], 0);
+                    showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
                     windowRefresh(characterEditorWindowHandle);
 
                     rc = -1;
                     continue;
                 }
 
-                if (dword_570A10 > 0) {
+                if (_tagskill_count > 0) {
                     soundPlayFile("iisxxxx1");
 
                     // You must select all tag skills
@@ -516,7 +516,7 @@ int _editor_design(bool isCreationMode)
                     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 143);
                     strcpy(line2, messageListItemText);
 
-                    showDialogBox(line1, lines, 1, 192, 126, byte_6A38D0[32328], 0, byte_6A38D0[32328], 0);
+                    showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
                     windowRefresh(characterEditorWindowHandle);
 
                     rc = -1;
@@ -534,7 +534,7 @@ int _editor_design(bool isCreationMode)
                     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 158);
                     strcpy(line2, messageListItemText);
 
-                    showDialogBox(line1, lines, 1, 192, 126, byte_6A38D0[32328], 0, byte_6A38D0[32328], 0);
+                    showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
                     windowRefresh(characterEditorWindowHandle);
 
                     rc = -1;
@@ -552,7 +552,7 @@ int _editor_design(bool isCreationMode)
                     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 161);
                     strcpy(line2, messageListItemText);
 
-                    if (showDialogBox(line1, lines, 1, 192, 126, byte_6A38D0[32328], 0, byte_6A38D0[32328], DIALOG_BOX_YES_NO) == 0) {
+                    if (showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
                         windowRefresh(characterEditorWindowHandle);
 
                         rc = -1;
@@ -566,7 +566,7 @@ int _editor_design(bool isCreationMode)
         } else if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             showQuitConfirmationDialog();
             windowRefresh(characterEditorWindowHandle);
-        } else if (keyCode == 502 || keyCode == KEY_ESCAPE || keyCode == KEY_UPPERCASE_C || keyCode == KEY_LOWERCASE_C || dword_5186CC != 0) {
+        } else if (keyCode == 502 || keyCode == KEY_ESCAPE || keyCode == KEY_UPPERCASE_C || keyCode == KEY_LOWERCASE_C || _game_user_wants_to_quit != 0) {
             windowRefresh(characterEditorWindowHandle);
             rc = 1;
         } else if (gCharacterEditorIsCreationMode && (keyCode == 517 || keyCode == KEY_UPPERCASE_N || keyCode == KEY_LOWERCASE_N)) {
@@ -637,12 +637,12 @@ int _editor_design(bool isCreationMode)
             case KEY_UPPERCASE_J:
                 if (characterEditorSelectedItem >= 0 && characterEditorSelectedItem < 7) {
                     if (gCharacterEditorIsCreationMode) {
-                        _win_button_press_and_release(dword_5705EC[characterEditorSelectedItem]);
+                        _win_button_press_and_release(_stat_bids_minus[characterEditorSelectedItem]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
-                        _win_button_press_and_release(dword_570158[gCharacterEditorIsCreationMode - 61]);
+                        _win_button_press_and_release(_tag_bids[gCharacterEditorIsCreationMode - 61]);
                         windowRefresh(characterEditorWindowHandle);
                     } else {
                         editorAdjustSkill(keyCode);
@@ -650,7 +650,7 @@ int _editor_design(bool isCreationMode)
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
-                        _win_button_press_and_release(dword_5700A8[gCharacterEditorIsCreationMode - 82]);
+                        _win_button_press_and_release(_trait_bids[gCharacterEditorIsCreationMode - 82]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 }
@@ -660,12 +660,12 @@ int _editor_design(bool isCreationMode)
             case KEY_UPPERCASE_N:
                 if (characterEditorSelectedItem >= 0 && characterEditorSelectedItem < 7) {
                     if (gCharacterEditorIsCreationMode) {
-                        _win_button_press_and_release(dword_570610[characterEditorSelectedItem]);
+                        _win_button_press_and_release(_stat_bids_plus[characterEditorSelectedItem]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
-                        _win_button_press_and_release(dword_570158[gCharacterEditorIsCreationMode - 61]);
+                        _win_button_press_and_release(_tag_bids[gCharacterEditorIsCreationMode - 61]);
                         windowRefresh(characterEditorWindowHandle);
                     } else {
                         editorAdjustSkill(keyCode);
@@ -673,7 +673,7 @@ int _editor_design(bool isCreationMode)
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
-                        _win_button_press_and_release(dword_5700A8[gCharacterEditorIsCreationMode - 82]);
+                        _win_button_press_and_release(_trait_bids[gCharacterEditorIsCreationMode - 82]);
                         windowRefresh(characterEditorWindowHandle);
                     }
                 }
@@ -681,7 +681,7 @@ int _editor_design(bool isCreationMode)
             case KEY_ARROW_UP:
                 if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) {
                     if (characterEditorSelectedItem == 10) {
-                        if (dword_5705B4 <= 0) {
+                        if (_folder_top_line <= 0) {
                             _folder_scroll(-1);
                         }
                     }
@@ -715,7 +715,7 @@ int _editor_design(bool isCreationMode)
                     }
 
                     if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
-                        dword_51852C = characterEditorSelectedItem - 61;
+                        _skill_cursor = characterEditorSelectedItem - 61;
                     }
 
                     editorRenderPrimaryStat(RENDER_ALL_STATS, 0, 0);
@@ -730,8 +730,8 @@ int _editor_design(bool isCreationMode)
                 break;
             case KEY_ARROW_DOWN:
                 if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) {
-                    if (characterEditorSelectedItem - 10 < dword_5705AC - dword_5705B4) {
-                        if (characterEditorSelectedItem - 10 == dword_5705A8 - 1) {
+                    if (characterEditorSelectedItem - 10 < _folder_line - _folder_top_line) {
+                        if (characterEditorSelectedItem - 10 == _folder_max_lines - 1) {
                             _folder_scroll(1);
                         }
 
@@ -768,7 +768,7 @@ int _editor_design(bool isCreationMode)
                     }
 
                     if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
-                        dword_51852C = characterEditorSelectedItem - 61;
+                        _skill_cursor = characterEditorSelectedItem - 61;
                     }
 
                     editorRenderPrimaryStat(RENDER_ALL_STATS, 0, 0);
@@ -857,26 +857,26 @@ int characterEditorWindowInit()
     char kills[32];
 
     characterEditorWindowOldFont = fontGetCurrent();
-    dword_5709C8 = 0;
-    dword_518528 = 0;
-    dword_5709E8 = -1;
-    dword_5709EC = -1;
-    dword_5707E0 = 0;
-    dword_5707D8 = 0;
-    byte_570A2A = 1;
-    byte_570128[0] = '\0';
-    byte_5700F8[0] = '\0';
+    _old_tags = 0;
+    _bk_enable_0 = 0;
+    _card_old_fid2 = -1;
+    _card_old_fid1 = -1;
+    _frstc_draw2 = 0;
+    _frstc_draw1 = 0;
+    _first_skill_list = 1;
+    _old_str2[0] = '\0';
+    _old_str1[0] = '\0';
 
     fontSetCurrent(101);
 
-    dword_518534 = dword_51852C * (fontGetLineHeight() + 1) + 27;
+    _slider_y = _skill_cursor * (fontGetLineHeight() + 1) + 27;
 
     // skills
-    skillsGetTagged(dword_570A14, NUM_TAGGED_SKILLS);
+    skillsGetTagged(_temp_tag_skill, NUM_TAGGED_SKILLS);
 
     v1 = 0;
     for (i = 3; i >= 0; i--) {
-        if (dword_570A14[i] != -1) {
+        if (_temp_tag_skill[i] != -1) {
             break;
         }
 
@@ -887,24 +887,24 @@ int characterEditorWindowInit()
         v1--;
     }
 
-    dword_570A10 = v1;
+    _tagskill_count = v1;
 
     // traits
-    traitsGetSelected(&(dword_570A04[0]), &(dword_570A04[1]));
+    traitsGetSelected(&(_temp_trait[0]), &(_temp_trait[1]));
 
     v3 = 0;
     for (i = 1; i >= 0; i--) {
-        if (dword_570A04[i] != -1) {
+        if (_temp_trait[i] != -1) {
             break;
         }
 
         v3++;
     }
 
-    dword_5709FC = v3;
+    _trait_count = v3;
 
     if (!gCharacterEditorIsCreationMode) {
-        dword_518528 = isoDisable();
+        _bk_enable_0 = isoDisable();
     }
 
     colorCycleDisable();
@@ -921,7 +921,7 @@ int characterEditorWindowInit()
     }
 
     fid = buildFid(6, (gCharacterEditorIsCreationMode ? 169 : 177), 0, 0, 0);
-    characterEditorWindowBackgroundBuf = artLockFrameDataReturningSize(fid, &off_5707C0, &(stru_5701C0[0].width), &(stru_5701C0[0].height));
+    characterEditorWindowBackgroundBuf = artLockFrameDataReturningSize(fid, &_bck_key, &(_GInfo[0].width), &(_GInfo[0].height));
     if (characterEditorWindowBackgroundBuf == NULL) {
         messageListFree(&editorMessageList);
         return -1;
@@ -938,24 +938,24 @@ int characterEditorWindowInit()
     soundContinueAll();
 
     for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-        fid = buildFid(6, dword_431C40[i], 0, 0, 0);
-        dword_5704E0[i] = artLockFrameDataReturningSize(fid, &(dword_570350[i]), &(stru_5701C0[i].width), &(stru_5701C0[i].height));
-        if (dword_5704E0[i] == NULL) {
+        fid = buildFid(6, _grph_id[i], 0, 0, 0);
+        _grphbmp[i] = artLockFrameDataReturningSize(fid, &(_grph_key[i]), &(_GInfo[i].width), &(_GInfo[i].height));
+        if (_grphbmp[i] == NULL) {
             break;
         }
     }
 
     if (i != EDITOR_GRAPHIC_COUNT) {
         while (--i >= 0) {
-            artUnlock(dword_570350[i]);
+            artUnlock(_grph_key[i]);
         }
         return -1;
 
-        artUnlock(off_5707C0);
+        artUnlock(_bck_key);
 
         messageListFree(&editorMessageList);
 
-        if (dword_518528) {
+        if (_bk_enable_0) {
             isoEnable();
         }
 
@@ -967,32 +967,32 @@ int characterEditorWindowInit()
     soundContinueAll();
 
     for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-        if (byte_431D08[i]) {
-            dword_570418[i] = internal_malloc(stru_5701C0[i].width * stru_5701C0[i].height);
-            if (dword_570418[i] == NULL) {
+        if (_copyflag[i]) {
+            _grphcpy[i] = internal_malloc(_GInfo[i].width * _GInfo[i].height);
+            if (_grphcpy[i] == NULL) {
                 break;
             }
-            memcpy(dword_570418[i], dword_5704E0[i], stru_5701C0[i].width * stru_5701C0[i].height);
+            memcpy(_grphcpy[i], _grphbmp[i], _GInfo[i].width * _GInfo[i].height);
         } else {
-            dword_570418[i] = (unsigned char*)-1;
+            _grphcpy[i] = (unsigned char*)-1;
         }
     }
 
     if (i != EDITOR_GRAPHIC_COUNT) {
         while (--i >= 0) {
-            if (byte_431D08[i]) {
-                internal_free(dword_570418[i]);
+            if (_copyflag[i]) {
+                internal_free(_grphcpy[i]);
             }
         }
 
         for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-            artUnlock(dword_570350[i]);
+            artUnlock(_grph_key[i]);
         }
 
-        artUnlock(off_5707C0);
+        artUnlock(_bck_key);
 
         messageListFree(&editorMessageList);
-        if (dword_518528) {
+        if (_bk_enable_0) {
             isoEnable();
         }
 
@@ -1005,16 +1005,16 @@ int characterEditorWindowInit()
     characterEditorWindowHandle = windowCreate(0, 0, 640, 480, 256, 18);
     if (characterEditorWindowHandle == -1) {
         for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-            if (byte_431D08[i]) {
-                internal_free(dword_570418[i]);
+            if (_copyflag[i]) {
+                internal_free(_grphcpy[i]);
             }
-            artUnlock(dword_570350[i]);
+            artUnlock(_grph_key[i]);
         }
 
-        artUnlock(off_5707C0);
+        artUnlock(_bck_key);
 
         messageListFree(&editorMessageList);
-        if (dword_518528) {
+        if (_bk_enable_0) {
             isoEnable();
         }
 
@@ -1032,22 +1032,22 @@ int characterEditorWindowInit()
 
         // CHAR POINTS
         str = getmsg(&editorMessageList, &editorMessageListItem, 116);
-        fontDrawText(characterEditorWindowBuf + (286 * 640) + 14, str, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(characterEditorWindowBuf + (286 * 640) + 14, str, 640, 640, _colorTable[18979]);
         characterEditorRenderBigNumber(126, 282, 0, characterEditorRemainingCharacterPoints, 0, characterEditorWindowHandle);
 
         // OPTIONS
         str = getmsg(&editorMessageList, &editorMessageListItem, 101);
-        fontDrawText(characterEditorWindowBuf + (454 * 640) + 363, str, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(characterEditorWindowBuf + (454 * 640) + 363, str, 640, 640, _colorTable[18979]);
 
         // OPTIONAL TRAITS
         str = getmsg(&editorMessageList, &editorMessageListItem, 139);
-        fontDrawText(characterEditorWindowBuf + (326 * 640) + 52, str, 640, 640, byte_6A38D0[18979]);
-        characterEditorRenderBigNumber(522, 228, 0, dword_570A00, 0, characterEditorWindowHandle);
+        fontDrawText(characterEditorWindowBuf + (326 * 640) + 52, str, 640, 640, _colorTable[18979]);
+        characterEditorRenderBigNumber(522, 228, 0, _optrt_count, 0, characterEditorWindowHandle);
 
         // TAG SKILLS
         str = getmsg(&editorMessageList, &editorMessageListItem, 138);
-        fontDrawText(characterEditorWindowBuf + (233 * 640) + 422, str, 640, 640, byte_6A38D0[18979]);
-        characterEditorRenderBigNumber(522, 228, 0, dword_570A10, 0, characterEditorWindowHandle);
+        fontDrawText(characterEditorWindowBuf + (233 * 640) + 422, str, 640, 640, _colorTable[18979]);
+        characterEditorRenderBigNumber(522, 228, 0, _tagskill_count, 0, characterEditorWindowHandle);
     } else {
         fontSetCurrent(103);
 
@@ -1063,69 +1063,69 @@ int characterEditorWindowInit()
         // perks selected
         len = fontGetStringWidth(perks);
         fontDrawText(
-            dword_570418[46] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
+            _grphcpy[46] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
             perks,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            byte_6A38D0[18979]);
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _colorTable[18979]);
 
         len = fontGetStringWidth(karma);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
             karma,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            byte_6A38D0[14723]);
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _colorTable[14723]);
 
         len = fontGetStringWidth(kills);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
             kills,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            byte_6A38D0[14723]);
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _colorTable[14723]);
 
         // karma selected
         len = fontGetStringWidth(perks);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
             perks,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            byte_6A38D0[14723]);
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _colorTable[14723]);
 
         len = fontGetStringWidth(karma);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
             karma,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            byte_6A38D0[18979]);
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _colorTable[18979]);
 
         len = fontGetStringWidth(kills);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
             kills,
-            stru_5701C0[46].width,
-            stru_5701C0[46].width,
-            byte_6A38D0[14723]);
+            _GInfo[46].width,
+            _GInfo[46].width,
+            _colorTable[14723]);
 
         // kills selected
         len = fontGetStringWidth(perks);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
             perks,
-            stru_5701C0[46].width,
-            stru_5701C0[46].width,
-            byte_6A38D0[14723]);
+            _GInfo[46].width,
+            _GInfo[46].width,
+            _colorTable[14723]);
 
         len = fontGetStringWidth(karma);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
             karma,
-            stru_5701C0[46].width,
-            stru_5701C0[46].width,
-            byte_6A38D0[14723]);
+            _GInfo[46].width,
+            _GInfo[46].width,
+            _colorTable[14723]);
 
         len = fontGetStringWidth(kills);
-        fontDrawText(dword_570418[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
+        fontDrawText(_grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
             kills,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            byte_6A38D0[18979]);
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _colorTable[18979]);
 
         editorRenderFolders();
 
@@ -1133,7 +1133,7 @@ int characterEditorWindowInit()
 
         // PRINT
         str = getmsg(&editorMessageList, &editorMessageListItem, 103);
-        fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, byte_6A38D0[18979]);
+        fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, _colorTable[18979]);
 
         editorRenderPcStats();
         _folder_init();
@@ -1143,46 +1143,46 @@ int characterEditorWindowInit()
 
     // CANCEL
     str = getmsg(&editorMessageList, &editorMessageListItem, 102);
-    fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * CANCEL_BTN_Y) + CANCEL_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, byte_6A38D0[18979]);
+    fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * CANCEL_BTN_Y) + CANCEL_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, _colorTable[18979]);
 
     // DONE
     str = getmsg(&editorMessageList, &editorMessageListItem, 100);
-    fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * DONE_BTN_Y) + DONE_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, byte_6A38D0[18979]);
+    fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * DONE_BTN_Y) + DONE_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, _colorTable[18979]);
 
     editorRenderPrimaryStat(RENDER_ALL_STATS, 0, 0);
     editorRenderSecondaryStats();
 
     if (!gCharacterEditorIsCreationMode) {
-        dword_5705E4 = buttonCreate(
+        _SliderPlusID = buttonCreate(
             characterEditorWindowHandle,
             614,
             20,
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height,
+            _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
+            _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height,
             -1,
             522,
             521,
             522,
-            dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_OFF],
-            dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
+            _grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_OFF],
+            _grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
             0,
             96);
-        dword_5705E8 = buttonCreate(
+        _SliderNegID = buttonCreate(
             characterEditorWindowHandle,
             614,
-            20 + stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height - 1,
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_OFF].height,
+            20 + _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height - 1,
+            _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
+            _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_OFF].height,
             -1,
             524,
             523,
             524,
-            dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_OFF],
-            dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
+            _grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_OFF],
+            _grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
             0,
             96);
-        buttonSetCallbacks(dword_5705E4, _gsound_red_butt_press, NULL);
-        buttonSetCallbacks(dword_5705E8, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(_SliderPlusID, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(_SliderNegID, _gsound_red_butt_press, NULL);
     }
 
     editorRenderSkills(0);
@@ -1198,149 +1198,149 @@ int characterEditorWindowInit()
             characterEditorWindowHandle,
             x,
             NAME_BUTTON_Y,
-            stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_NAME_ON].height,
+            _GInfo[EDITOR_GRAPHIC_NAME_ON].width,
+            _GInfo[EDITOR_GRAPHIC_NAME_ON].height,
             -1,
             -1,
             -1,
             NAME_BTN_CODE,
-            dword_570418[EDITOR_GRAPHIC_NAME_OFF],
-            dword_570418[EDITOR_GRAPHIC_NAME_ON],
+            _grphcpy[EDITOR_GRAPHIC_NAME_OFF],
+            _grphcpy[EDITOR_GRAPHIC_NAME_ON],
             0,
             32);
         if (btn != -1) {
-            buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_NAME_MASK]);
+            buttonSetMask(btn, _grphbmp[EDITOR_GRAPHIC_NAME_MASK]);
             buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
         }
 
-        x += stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width;
+        x += _GInfo[EDITOR_GRAPHIC_NAME_ON].width;
         btn = buttonCreate(
             characterEditorWindowHandle,
             x,
             NAME_BUTTON_Y,
-            stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_AGE_ON].height,
+            _GInfo[EDITOR_GRAPHIC_AGE_ON].width,
+            _GInfo[EDITOR_GRAPHIC_AGE_ON].height,
             -1,
             -1,
             -1,
             AGE_BTN_CODE,
-            dword_570418[EDITOR_GRAPHIC_AGE_OFF],
-            dword_570418[EDITOR_GRAPHIC_AGE_ON],
+            _grphcpy[EDITOR_GRAPHIC_AGE_OFF],
+            _grphcpy[EDITOR_GRAPHIC_AGE_ON],
             0,
             32);
         if (btn != -1) {
-            buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_AGE_MASK]);
+            buttonSetMask(btn, _grphbmp[EDITOR_GRAPHIC_AGE_MASK]);
             buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
         }
 
-        x += stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width;
+        x += _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
         btn = buttonCreate(
             characterEditorWindowHandle,
             x,
             NAME_BUTTON_Y,
-            stru_5701C0[EDITOR_GRAPHIC_SEX_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_SEX_ON].height,
+            _GInfo[EDITOR_GRAPHIC_SEX_ON].width,
+            _GInfo[EDITOR_GRAPHIC_SEX_ON].height,
             -1,
             -1,
             -1,
             SEX_BTN_CODE,
-            dword_570418[EDITOR_GRAPHIC_SEX_OFF],
-            dword_570418[EDITOR_GRAPHIC_SEX_ON],
+            _grphcpy[EDITOR_GRAPHIC_SEX_OFF],
+            _grphcpy[EDITOR_GRAPHIC_SEX_ON],
             0,
             32);
         if (btn != -1) {
-            buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_SEX_MASK]);
+            buttonSetMask(btn, _grphbmp[EDITOR_GRAPHIC_SEX_MASK]);
             buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
         }
 
         y = TAG_SKILLS_BUTTON_Y;
         for (i = 0; i < SKILL_COUNT; i++) {
-            dword_570158[i] = buttonCreate(
+            _tag_bids[i] = buttonCreate(
                 characterEditorWindowHandle,
                 TAG_SKILLS_BUTTON_X,
                 y,
-                stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].width,
-                stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height,
+                _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].width,
+                _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height,
                 -1,
                 -1,
                 -1,
                 TAG_SKILLS_BUTTON_CODE + i,
-                dword_5704E0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_OFF],
-                dword_5704E0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON],
+                _grphbmp[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_OFF],
+                _grphbmp[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON],
                 NULL,
                 32);
-            y += stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height;
+            y += _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height;
         }
 
         y = OPTIONAL_TRAITS_BTN_Y;
         for (i = 0; i < TRAIT_COUNT / 2; i++) {
-            dword_5700A8[i] = buttonCreate(
+            _trait_bids[i] = buttonCreate(
                 characterEditorWindowHandle,
                 OPTIONAL_TRAITS_LEFT_BTN_X,
                 y,
-                stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].width,
-                stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height,
+                _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].width,
+                _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height,
                 -1,
                 -1,
                 -1,
                 OPTIONAL_TRAITS_BTN_CODE + i,
-                dword_5704E0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_OFF],
-                dword_5704E0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON],
+                _grphbmp[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_OFF],
+                _grphbmp[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON],
                 NULL,
                 32);
-            y += stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height + OPTIONAL_TRAITS_BTN_SPACE;
+            y += _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height + OPTIONAL_TRAITS_BTN_SPACE;
         }
 
         y = OPTIONAL_TRAITS_BTN_Y;
         for (i = TRAIT_COUNT / 2; i < TRAIT_COUNT; i++) {
-            dword_5700A8[i] = buttonCreate(
+            _trait_bids[i] = buttonCreate(
                 characterEditorWindowHandle,
                 OPTIONAL_TRAITS_RIGHT_BTN_X,
                 y,
-                stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].width,
-                stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height,
+                _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].width,
+                _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height,
                 -1,
                 -1,
                 -1,
                 OPTIONAL_TRAITS_BTN_CODE + i,
-                dword_5704E0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_OFF],
-                dword_5704E0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON],
+                _grphbmp[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_OFF],
+                _grphbmp[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON],
                 NULL,
                 32);
-            y += stru_5701C0[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height + OPTIONAL_TRAITS_BTN_SPACE;
+            y += _GInfo[EDITOR_GRAPHIC_TAG_SKILL_BUTTON_ON].height + OPTIONAL_TRAITS_BTN_SPACE;
         }
 
         characterEditorWindowRenderTraits();
     } else {
         x = NAME_BUTTON_X;
-        blitBufferToBufferTrans(dword_570418[EDITOR_GRAPHIC_NAME_OFF],
-            stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_NAME_ON].height,
-            stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width,
+        blitBufferToBufferTrans(_grphcpy[EDITOR_GRAPHIC_NAME_OFF],
+            _GInfo[EDITOR_GRAPHIC_NAME_ON].width,
+            _GInfo[EDITOR_GRAPHIC_NAME_ON].height,
+            _GInfo[EDITOR_GRAPHIC_NAME_ON].width,
             characterEditorWindowBuf + (EDITOR_WIN_WIDTH * NAME_BUTTON_Y) + x,
             EDITOR_WIN_WIDTH);
 
-        x += stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width;
-        blitBufferToBufferTrans(dword_570418[EDITOR_GRAPHIC_AGE_OFF],
-            stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_AGE_ON].height,
-            stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width,
+        x += _GInfo[EDITOR_GRAPHIC_NAME_ON].width;
+        blitBufferToBufferTrans(_grphcpy[EDITOR_GRAPHIC_AGE_OFF],
+            _GInfo[EDITOR_GRAPHIC_AGE_ON].width,
+            _GInfo[EDITOR_GRAPHIC_AGE_ON].height,
+            _GInfo[EDITOR_GRAPHIC_AGE_ON].width,
             characterEditorWindowBuf + (EDITOR_WIN_WIDTH * NAME_BUTTON_Y) + x,
             EDITOR_WIN_WIDTH);
 
-        x += stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width;
-        blitBufferToBufferTrans(dword_570418[EDITOR_GRAPHIC_SEX_OFF],
-            stru_5701C0[EDITOR_GRAPHIC_SEX_ON].width,
-            stru_5701C0[EDITOR_GRAPHIC_SEX_ON].height,
-            stru_5701C0[EDITOR_GRAPHIC_SEX_ON].width,
+        x += _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
+        blitBufferToBufferTrans(_grphcpy[EDITOR_GRAPHIC_SEX_OFF],
+            _GInfo[EDITOR_GRAPHIC_SEX_ON].width,
+            _GInfo[EDITOR_GRAPHIC_SEX_ON].height,
+            _GInfo[EDITOR_GRAPHIC_SEX_ON].width,
             characterEditorWindowBuf + (EDITOR_WIN_WIDTH * NAME_BUTTON_Y) + x,
             EDITOR_WIN_WIDTH);
 
         btn = buttonCreate(characterEditorWindowHandle,
             11,
             327,
-            stru_5701C0[EDITOR_GRAPHIC_FOLDER_MASK].width,
-            stru_5701C0[EDITOR_GRAPHIC_FOLDER_MASK].height,
+            _GInfo[EDITOR_GRAPHIC_FOLDER_MASK].width,
+            _GInfo[EDITOR_GRAPHIC_FOLDER_MASK].height,
             -1,
             -1,
             -1,
@@ -1350,45 +1350,45 @@ int characterEditorWindowInit()
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetMask(btn, dword_5704E0[EDITOR_GRAPHIC_FOLDER_MASK]);
+            buttonSetMask(btn, _grphbmp[EDITOR_GRAPHIC_FOLDER_MASK]);
         }
     }
 
     if (gCharacterEditorIsCreationMode) {
         // +/- buttons for stats
         for (i = 0; i < 7; i++) {
-            dword_570610[i] = buttonCreate(characterEditorWindowHandle,
+            _stat_bids_plus[i] = buttonCreate(characterEditorWindowHandle,
                 SPECIAL_STATS_BTN_X,
-                dword_431D50[i],
-                stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
-                stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height,
+                _StatYpos[i],
+                _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
+                _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height,
                 -1,
                 518,
                 503 + i,
                 518,
-                dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_OFF],
-                dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
+                _grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_OFF],
+                _grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
                 NULL,
                 32);
-            if (dword_570610[i] != -1) {
-                buttonSetCallbacks(dword_570610[i], _gsound_red_butt_press, NULL);
+            if (_stat_bids_plus[i] != -1) {
+                buttonSetCallbacks(_stat_bids_plus[i], _gsound_red_butt_press, NULL);
             }
 
-            dword_5705EC[i] = buttonCreate(characterEditorWindowHandle,
+            _stat_bids_minus[i] = buttonCreate(characterEditorWindowHandle,
                 SPECIAL_STATS_BTN_X,
-                dword_431D50[i] + stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height - 1,
-                stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
-                stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height,
+                _StatYpos[i] + _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height - 1,
+                _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
+                _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height,
                 -1,
                 518,
                 510 + i,
                 518,
-                dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_OFF],
-                dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
+                _grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_OFF],
+                _grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
                 NULL,
                 32);
-            if (dword_5705EC[i] != -1) {
-                buttonSetCallbacks(dword_5705EC[i], _gsound_red_butt_press, NULL);
+            if (_stat_bids_minus[i] != -1) {
+                buttonSetCallbacks(_stat_bids_minus[i], _gsound_red_butt_press, NULL);
             }
         }
     }
@@ -1400,14 +1400,14 @@ int characterEditorWindowInit()
         characterEditorWindowHandle,
         343,
         454,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         501,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1418,14 +1418,14 @@ int characterEditorWindowInit()
         characterEditorWindowHandle,
         552,
         454,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         502,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1436,14 +1436,14 @@ int characterEditorWindowInit()
         characterEditorWindowHandle,
         455,
         454,
-        stru_5701C0[23].width,
-        stru_5701C0[23].height,
+        _GInfo[23].width,
+        _GInfo[23].height,
         -1,
         -1,
         -1,
         500,
-        dword_5704E0[23],
-        dword_5704E0[24],
+        _grphbmp[23],
+        _grphbmp[24],
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1459,27 +1459,27 @@ int characterEditorWindowInit()
 // 0x433AA8
 void characterEditorWindowFree()
 {
-    if (dword_518628 != -1) {
-        buttonDestroy(dword_518628);
-        dword_518628 = -1;
+    if (_folder_down_button != -1) {
+        buttonDestroy(_folder_down_button);
+        _folder_down_button = -1;
     }
 
-    if (dword_518624 != -1) {
-        buttonDestroy(dword_518624);
-        dword_518624 = -1;
+    if (_folder_up_button != -1) {
+        buttonDestroy(_folder_up_button);
+        _folder_up_button = -1;
     }
 
     windowDestroy(characterEditorWindowHandle);
 
     for (int index = 0; index < EDITOR_GRAPHIC_COUNT; index++) {
-        artUnlock(dword_570350[index]);
+        artUnlock(_grph_key[index]);
 
-        if (byte_431D08[index]) {
-            internal_free(dword_570418[index]);
+        if (_copyflag[index]) {
+            internal_free(_grphcpy[index]);
         }
     }
 
-    artUnlock(off_5707C0);
+    artUnlock(_bck_key);
 
     // NOTE: Uninline.
     genericReputationFree();
@@ -1491,7 +1491,7 @@ void characterEditorWindowFree()
 
     interfaceBarRefresh();
 
-    if (dword_518528) {
+    if (_bk_enable_0) {
         isoEnable();
     }
 
@@ -1501,8 +1501,8 @@ void characterEditorWindowFree()
     fontSetCurrent(characterEditorWindowOldFont);
 
     if (gCharacterEditorIsCreationMode == 1) {
-        skillsSetTagged(dword_570A14, 3);
-        traitsSetSelected(dword_570A04[0], dword_570A04[1]);
+        skillsSetTagged(_temp_tag_skill, 3);
+        traitsSetSelected(_temp_trait[0], _temp_trait[1]);
         characterEditorSelectedItem = 0;
         critterAdjustHitPoints(gDude, 1000);
     }
@@ -1517,18 +1517,18 @@ void _CharEditInit()
     int i;
 
     characterEditorSelectedItem = 0;
-    dword_51852C = 0;
-    dword_518534 = 27;
-    byte_570A29 = 0;
+    _skill_cursor = 0;
+    _slider_y = 27;
+    _free_perk = 0;
     characterEditorWindowSelectedFolder = EDITOR_FOLDER_PERKS;
     
     for (i = 0; i < 2; i++) {
-        dword_570A04[i] = -1;
-        dword_5709F0[i] = -1;
+        _temp_trait[i] = -1;
+        _trait_back[i] = -1;
     }
 
     characterEditorRemainingCharacterPoints = 5;
-    dword_5707B4 = 1;
+    _last_level = 1;
 }
 
 // handle name input
@@ -1561,7 +1561,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
 
     int rc = 1;
     while (rc == 1) {
-        dword_5709C4 = _get_time();
+        _frame_time = _get_time();
 
         int keyCode = _get_input();
         if (keyCode == cancelKeyCode) {
@@ -1569,7 +1569,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
         } else if (keyCode == KEY_RETURN) {
             soundPlayFile("ib1p1xx1");
             rc = 0;
-        } else if (keyCode == KEY_ESCAPE || dword_5186CC != 0) {
+        } else if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
             rc = -1;
         } else {
             if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && nameLength >= 1) {
@@ -1611,7 +1611,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
 
         windowRefresh(win);
 
-        while (getTicksSince(dword_5709C4) < 1000 / 24) { }
+        while (getTicksSince(_frame_time) < 1000 / 24) { }
     }
 
     if (rc == 0 || nameLength > 0) {
@@ -1669,31 +1669,31 @@ void editorRenderFolders()
 
     switch (characterEditorWindowSelectedFolder) {
     case EDITOR_FOLDER_PERKS:
-        blitBufferToBuffer(dword_570418[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED],
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+        blitBufferToBuffer(_grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED],
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             characterEditorWindowBuf + (327 * 640) + 11,
             640);
         editorRenderPerks();
         break;
     case EDITOR_FOLDER_KARMA:
-        blitBufferToBuffer(dword_570418[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED],
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+        blitBufferToBuffer(_grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED],
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             characterEditorWindowBuf + (327 * 640) + 11,
             640);
         editorRenderKarma();
         break;
     case EDITOR_FOLDER_KILLS:
-        blitBufferToBuffer(dword_570418[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED],
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
-            stru_5701C0[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+        blitBufferToBuffer(_grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED],
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
+            _GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             characterEditorWindowBuf + (327 * 640) + 11,
             640);
-        dword_5707BC = editorRenderKills();
+        _kills_count = editorRenderKills();
         break;
     default:
         debugPrint("\n ** Unknown folder type! **\n");
@@ -1712,37 +1712,37 @@ void editorRenderPerks()
 
     _folder_clear();
 
-    if (dword_570A04[0] != -1) {
+    if (_temp_trait[0] != -1) {
         // TRAITS
         string = getmsg(&editorMessageList, &editorMessageListItem, 156);
         if (_folder_print_seperator(string)) {
-            dword_5705B0 = 54;
+            _folder_card_fid = 54;
             // Optional Traits
-            off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 146);
-            off_5705BC = NULL;
+            _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 146);
+            _folder_card_title2 = NULL;
             // Optional traits describe your character in more detail. All traits will have positive and negative effects. You may choose up to two traits during creation.
-            off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 147);
+            _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 147);
             hasContent = true;
         }
 
-        if (dword_570A04[0] != -1) {
-            string = traitGetName(dword_570A04[0]);
+        if (_temp_trait[0] != -1) {
+            string = traitGetName(_temp_trait[0]);
             if (_folder_print_line(string)) {
-                dword_5705B0 = traitGetFrmId(dword_570A04[0]);
-                off_5705B8 = traitGetName(dword_570A04[0]);
-                off_5705BC = NULL;
-                off_5705CC = traitGetDescription(dword_570A04[0]);
+                _folder_card_fid = traitGetFrmId(_temp_trait[0]);
+                _folder_card_title = traitGetName(_temp_trait[0]);
+                _folder_card_title2 = NULL;
+                _folder_card_desc = traitGetDescription(_temp_trait[0]);
                 hasContent = true;
             }
         }
 
-        if (dword_570A04[1] != -1) {
-            string = traitGetName(dword_570A04[1]);
+        if (_temp_trait[1] != -1) {
+            string = traitGetName(_temp_trait[1]);
             if (_folder_print_line(string)) {
-                dword_5705B0 = traitGetFrmId(dword_570A04[1]);
-                off_5705B8 = traitGetName(dword_570A04[1]);
-                off_5705BC = NULL;
-                off_5705CC = traitGetDescription(dword_570A04[1]);
+                _folder_card_fid = traitGetFrmId(_temp_trait[1]);
+                _folder_card_title = traitGetName(_temp_trait[1]);
+                _folder_card_title2 = NULL;
+                _folder_card_desc = traitGetDescription(_temp_trait[1]);
                 hasContent = true;
             }
         }
@@ -1771,10 +1771,10 @@ void editorRenderPerks()
                 }
 
                 if (_folder_print_line(perkName)) {
-                    dword_5705B0 = perkGetFrmId(perk);
-                    off_5705B8 = perkGetName(perk);
-                    off_5705BC = NULL;
-                    off_5705CC = perkGetDescription(perk);
+                    _folder_card_fid = perkGetFrmId(perk);
+                    _folder_card_title = perkGetName(perk);
+                    _folder_card_title2 = NULL;
+                    _folder_card_desc = perkGetDescription(perk);
                     hasContent = true;
                 }
             }
@@ -1782,12 +1782,12 @@ void editorRenderPerks()
     }
 
     if (!hasContent) {
-        dword_5705B0 = 71;
+        _folder_card_fid = 71;
         // Perks
-        off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 124);
-        off_5705BC = NULL;
+        _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 124);
+        _folder_card_title2 = NULL;
         // Perks add additional abilities. Every third experience level, you can choose one perk.
-        off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 127);
+        _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 127);
     }
 }
 
@@ -1824,21 +1824,21 @@ int editorRenderKills()
         for (i = 0; i < usedKills; i++) {
             KillInfo* killInfo = &(kills[i]);
             if (editorDrawKillsEntry(killInfo->name, killInfo->kills)) {
-                dword_5705B0 = 46;
-                off_5705B8 = byte_56FB60;
-                off_5705BC = NULL;
-                off_5705CC = killTypeGetDescription(kills[i].killTypeId);
-                sprintf(byte_56FB60, "%s %s", killInfo->name, getmsg(&editorMessageList, &editorMessageListItem, 126));
+                _folder_card_fid = 46;
+                _folder_card_title = _folder_card_string;
+                _folder_card_title2 = NULL;
+                _folder_card_desc = killTypeGetDescription(kills[i].killTypeId);
+                sprintf(_folder_card_string, "%s %s", killInfo->name, getmsg(&editorMessageList, &editorMessageListItem, 126));
                 hasContent = true;
             }
         }
     }
 
     if (!hasContent) {
-        dword_5705B0 = 46;
-        off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 126);
-        off_5705BC = NULL;
-        off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 129);
+        _folder_card_fid = 46;
+        _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 126);
+        _folder_card_title2 = NULL;
+        _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 129);
     }
 
     return usedKills;
@@ -1864,12 +1864,12 @@ void characterEditorRenderBigNumber(int x, int y, int flags, int value, int prev
     rect.right = x + BIG_NUM_WIDTH * 2;
     rect.bottom = y + BIG_NUM_HEIGHT;
 
-    numbersGraphicBufferPtr = dword_5704E0[0];
+    numbersGraphicBufferPtr = _grphbmp[0];
 
     if (flags & RED_NUMBERS) {
         // First half of the bignum.frm is white,
         // second half is red.
-        numbersGraphicBufferPtr += stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width / 2;
+        numbersGraphicBufferPtr += _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width / 2;
     }
 
     tensBufferPtr = windowBuf + windowWidth * y + x;
@@ -1881,43 +1881,43 @@ void characterEditorRenderBigNumber(int x, int y, int flags, int value, int prev
 
         if (flags & ANIMATE) {
             if (previousValue % 10 != ones) {
-                dword_5709C4 = _get_time();
+                _frame_time = _get_time();
                 blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
-                    stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+                    _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                     onesBufferPtr,
                     windowWidth);
                 windowRefreshRect(windowHandle, &rect);
-                while (getTicksSince(dword_5709C4) < BIG_NUM_ANIMATION_DELAY)
+                while (getTicksSince(_frame_time) < BIG_NUM_ANIMATION_DELAY)
                     ;
             }
 
             blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * ones,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
-                stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+                _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 onesBufferPtr,
                 windowWidth);
             windowRefreshRect(windowHandle, &rect);
 
             if (previousValue / 10 != tens) {
-                dword_5709C4 = _get_time();
+                _frame_time = _get_time();
                 blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
-                    stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+                    _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                     tensBufferPtr,
                     windowWidth);
                 windowRefreshRect(windowHandle, &rect);
-                while (getTicksSince(dword_5709C4) < BIG_NUM_ANIMATION_DELAY)
+                while (getTicksSince(_frame_time) < BIG_NUM_ANIMATION_DELAY)
                     ;
             }
 
             blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
-                stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+                _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 tensBufferPtr,
                 windowWidth);
             windowRefreshRect(windowHandle, &rect);
@@ -1925,13 +1925,13 @@ void characterEditorRenderBigNumber(int x, int y, int flags, int value, int prev
             blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
-                stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+                _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 tensBufferPtr,
                 windowWidth);
             blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * ones,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
-                stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+                _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 onesBufferPtr,
                 windowWidth);
         }
@@ -1940,13 +1940,13 @@ void characterEditorRenderBigNumber(int x, int y, int flags, int value, int prev
         blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 9,
             BIG_NUM_WIDTH,
             BIG_NUM_HEIGHT,
-            stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+            _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
             tensBufferPtr,
             windowWidth);
         blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 9,
             BIG_NUM_WIDTH,
             BIG_NUM_HEIGHT,
-            stru_5701C0[EDITOR_GRAPHIC_BIG_NUMBERS].width,
+            _GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
             onesBufferPtr,
             windowWidth);
     }
@@ -1972,9 +1972,9 @@ void editorRenderPcStats()
     // LEVEL
     y = 280;
     if (characterEditorSelectedItem != 7) {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     } else {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     }
 
     int level = pcGetStat(PC_STAT_LEVEL);
@@ -1986,9 +1986,9 @@ void editorRenderPcStats()
     // EXPERIENCE
     y += fontGetLineHeight() + 1;
     if (characterEditorSelectedItem != 8) {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     } else {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     }
 
     int exp = pcGetStat(PC_STAT_EXPERIENCE);
@@ -2000,9 +2000,9 @@ void editorRenderPcStats()
     // EXP NEEDED TO NEXT LEVEL
     y += fontGetLineHeight() + 1;
     if (characterEditorSelectedItem != 9) {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     } else {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     }
 
     int expToNextLevel = pcGetExperienceForNextLevel();
@@ -2046,12 +2046,12 @@ void editorRenderPrimaryStat(int stat, bool animate, int previousValue)
     }
 
     if (characterEditorSelectedItem == stat) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
-    off = 640 * (dword_431D50[stat] + 8) + 103;
+    off = 640 * (_StatYpos[stat] + 8) + 103;
 
     // TODO: The original code is different.
     if (gCharacterEditorIsCreationMode) {
@@ -2067,7 +2067,7 @@ void editorRenderPrimaryStat(int stat, bool animate, int previousValue)
             flags |= RED_NUMBERS;
         }
 
-        characterEditorRenderBigNumber(58, dword_431D50[stat], flags, value, previousValue, characterEditorWindowHandle);
+        characterEditorRenderBigNumber(58, _StatYpos[stat], flags, value, previousValue, characterEditorWindowHandle);
 
         blitBufferToBuffer(characterEditorWindowBackgroundBuf + off, 40, fontGetLineHeight(), 640, characterEditorWindowBuf + off, 640);
 
@@ -2077,10 +2077,10 @@ void editorRenderPrimaryStat(int stat, bool animate, int previousValue)
         }
 
         description = getmsg(&editorMessageList, &editorMessageListItem, messageListItemId);
-        fontDrawText(characterEditorWindowBuf + 640 * (dword_431D50[stat] + 8) + 103, description, 640, 640, color);
+        fontDrawText(characterEditorWindowBuf + 640 * (_StatYpos[stat] + 8) + 103, description, 640, 640, color);
     } else {
         value = critterGetStat(gDude, stat);
-        characterEditorRenderBigNumber(58, dword_431D50[stat], 0, value, 0, characterEditorWindowHandle);
+        characterEditorRenderBigNumber(58, _StatYpos[stat], 0, value, 0, characterEditorWindowHandle);
         blitBufferToBuffer(characterEditorWindowBackgroundBuf + off, 40, fontGetLineHeight(), 640, characterEditorWindowBuf + off, 640);
 
         value = critterGetStat(gDude, stat);
@@ -2108,19 +2108,19 @@ void editorRenderGender()
 
     strcpy(text, str);
 
-    width = stru_5701C0[EDITOR_GRAPHIC_SEX_ON].width;
+    width = _GInfo[EDITOR_GRAPHIC_SEX_ON].width;
     x = (width / 2) - (fontGetStringWidth(text) / 2);
 
-    memcpy(dword_570418[11],
-        dword_5704E0[EDITOR_GRAPHIC_SEX_ON],
-        width * stru_5701C0[EDITOR_GRAPHIC_SEX_ON].height);
-    memcpy(dword_570418[EDITOR_GRAPHIC_SEX_OFF],
-        dword_5704E0[10],
-        width * stru_5701C0[EDITOR_GRAPHIC_SEX_OFF].height);
+    memcpy(_grphcpy[11],
+        _grphbmp[EDITOR_GRAPHIC_SEX_ON],
+        width * _GInfo[EDITOR_GRAPHIC_SEX_ON].height);
+    memcpy(_grphcpy[EDITOR_GRAPHIC_SEX_OFF],
+        _grphbmp[10],
+        width * _GInfo[EDITOR_GRAPHIC_SEX_OFF].height);
 
     x += 6 * width;
-    fontDrawText(dword_570418[EDITOR_GRAPHIC_SEX_ON] + x, text, width, width, byte_6A38D0[14723]);
-    fontDrawText(dword_570418[EDITOR_GRAPHIC_SEX_OFF] + x, text, width, width, byte_6A38D0[18979]);
+    fontDrawText(_grphcpy[EDITOR_GRAPHIC_SEX_ON] + x, text, width, width, _colorTable[14723]);
+    fontDrawText(_grphcpy[EDITOR_GRAPHIC_SEX_OFF] + x, text, width, width, _colorTable[18979]);
 }
 
 // 0x43501C
@@ -2138,19 +2138,19 @@ void editorRenderAge()
 
     sprintf(text, "%s %d", str, age);
 
-    width = stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width;
+    width = _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
     x = (width / 2) + 1 - (fontGetStringWidth(text) / 2);
 
-    memcpy(dword_570418[EDITOR_GRAPHIC_AGE_ON],
-        dword_5704E0[EDITOR_GRAPHIC_AGE_ON],
-        width * stru_5701C0[EDITOR_GRAPHIC_AGE_ON].height);
-    memcpy(dword_570418[EDITOR_GRAPHIC_AGE_OFF],
-        dword_5704E0[EDITOR_GRAPHIC_AGE_OFF],
-        width * stru_5701C0[EDITOR_GRAPHIC_AGE_ON].height);
+    memcpy(_grphcpy[EDITOR_GRAPHIC_AGE_ON],
+        _grphbmp[EDITOR_GRAPHIC_AGE_ON],
+        width * _GInfo[EDITOR_GRAPHIC_AGE_ON].height);
+    memcpy(_grphcpy[EDITOR_GRAPHIC_AGE_OFF],
+        _grphbmp[EDITOR_GRAPHIC_AGE_OFF],
+        width * _GInfo[EDITOR_GRAPHIC_AGE_ON].height);
 
     x += 6 * width;
-    fontDrawText(dword_570418[EDITOR_GRAPHIC_AGE_ON] + x, text, width, width, byte_6A38D0[14723]);
-    fontDrawText(dword_570418[EDITOR_GRAPHIC_AGE_OFF] + x, text, width, width, byte_6A38D0[18979]);
+    fontDrawText(_grphcpy[EDITOR_GRAPHIC_AGE_ON] + x, text, width, width, _colorTable[14723]);
+    fontDrawText(_grphcpy[EDITOR_GRAPHIC_AGE_OFF] + x, text, width, width, _colorTable[18979]);
 }
 
 // 0x435118
@@ -2194,19 +2194,19 @@ void editorRenderName()
         }
     }
 
-    width = stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width;
+    width = _GInfo[EDITOR_GRAPHIC_NAME_ON].width;
     x = (width / 2) + 3 - (fontGetStringWidth(text) / 2);
 
-    memcpy(dword_570418[EDITOR_GRAPHIC_NAME_ON],
-        dword_5704E0[EDITOR_GRAPHIC_NAME_ON],
-        stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width * stru_5701C0[EDITOR_GRAPHIC_NAME_ON].height);
-    memcpy(dword_570418[EDITOR_GRAPHIC_NAME_OFF],
-        dword_5704E0[EDITOR_GRAPHIC_NAME_OFF],
-        stru_5701C0[EDITOR_GRAPHIC_NAME_OFF].width * stru_5701C0[EDITOR_GRAPHIC_NAME_OFF].height);
+    memcpy(_grphcpy[EDITOR_GRAPHIC_NAME_ON],
+        _grphbmp[EDITOR_GRAPHIC_NAME_ON],
+        _GInfo[EDITOR_GRAPHIC_NAME_ON].width * _GInfo[EDITOR_GRAPHIC_NAME_ON].height);
+    memcpy(_grphcpy[EDITOR_GRAPHIC_NAME_OFF],
+        _grphbmp[EDITOR_GRAPHIC_NAME_OFF],
+        _GInfo[EDITOR_GRAPHIC_NAME_OFF].width * _GInfo[EDITOR_GRAPHIC_NAME_OFF].height);
 
     x += 6 * width;
-    fontDrawText(dword_570418[EDITOR_GRAPHIC_NAME_ON] + x, text, width, width, byte_6A38D0[14723]);
-    fontDrawText(dword_570418[EDITOR_GRAPHIC_NAME_OFF] + x, text, width, width, byte_6A38D0[18979]);
+    fontDrawText(_grphcpy[EDITOR_GRAPHIC_NAME_ON] + x, text, width, width, _colorTable[14723]);
+    fontDrawText(_grphcpy[EDITOR_GRAPHIC_NAME_OFF] + x, text, width, width, _colorTable[18979]);
 }
 
 // 0x43527C
@@ -2228,9 +2228,9 @@ void editorRenderSecondaryStats()
 
     // Hit Points
     if (characterEditorSelectedItem == EDITOR_HIT_POINTS) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     int currHp;
@@ -2255,15 +2255,15 @@ void editorRenderSecondaryStats()
 
     if (characterEditorSelectedItem == EDITOR_POISONED) {
         if (critterGetPoison(gDude) != 0) {
-            color = byte_6A38D0[15845];
+            color = _colorTable[15845];
         } else {
-            color = byte_6A38D0[32747];
+            color = _colorTable[32747];
         }
     } else {
         if (critterGetPoison(gDude) != 0) {
-            color = byte_6A38D0[992];
+            color = _colorTable[992];
         } else {
-            color = byte_6A38D0[1313];
+            color = _colorTable[1313];
         }
     }
 
@@ -2276,15 +2276,15 @@ void editorRenderSecondaryStats()
 
     if (characterEditorSelectedItem == EDITOR_RADIATED) {
         if (critterGetRadiation(gDude) != 0) {
-            color = byte_6A38D0[15845];
+            color = _colorTable[15845];
         } else {
-            color = byte_6A38D0[32747];
+            color = _colorTable[32747];
         }
     } else {
         if (critterGetRadiation(gDude) != 0) {
-            color = byte_6A38D0[992];
+            color = _colorTable[992];
         } else {
-            color = byte_6A38D0[1313];
+            color = _colorTable[1313];
         }
     }
 
@@ -2296,9 +2296,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_EYE_DAMAGE) {
-        color = (conditions & DAM_BLIND) ? byte_6A38D0[15845] : byte_6A38D0[32747];
+        color = (conditions & DAM_BLIND) ? _colorTable[15845] : _colorTable[32747];
     } else {
-        color = (conditions & DAM_BLIND) ? byte_6A38D0[992] : byte_6A38D0[1313];
+        color = (conditions & DAM_BLIND) ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 314);
@@ -2309,9 +2309,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_RIGHT_ARM) {
-        color = (conditions & DAM_CRIP_ARM_RIGHT) ? byte_6A38D0[15845] : byte_6A38D0[32747];
+        color = (conditions & DAM_CRIP_ARM_RIGHT) ? _colorTable[15845] : _colorTable[32747];
     } else {
-        color = (conditions & DAM_CRIP_ARM_RIGHT) ? byte_6A38D0[992] : byte_6A38D0[1313];
+        color = (conditions & DAM_CRIP_ARM_RIGHT) ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 315);
@@ -2322,9 +2322,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_LEFT_ARM) {
-        color = (conditions & DAM_CRIP_ARM_LEFT) ? byte_6A38D0[15845] : byte_6A38D0[32747];
+        color = (conditions & DAM_CRIP_ARM_LEFT) ? _colorTable[15845] : _colorTable[32747];
     } else {
-        color = (conditions & DAM_CRIP_ARM_LEFT) ? byte_6A38D0[992] : byte_6A38D0[1313];
+        color = (conditions & DAM_CRIP_ARM_LEFT) ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 316);
@@ -2335,9 +2335,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_RIGHT_LEG) {
-        color = (conditions & DAM_CRIP_LEG_RIGHT) ? byte_6A38D0[15845] : byte_6A38D0[32747];
+        color = (conditions & DAM_CRIP_LEG_RIGHT) ? _colorTable[15845] : _colorTable[32747];
     } else {
-        color = (conditions & DAM_CRIP_LEG_RIGHT) ? byte_6A38D0[992] : byte_6A38D0[1313];
+        color = (conditions & DAM_CRIP_LEG_RIGHT) ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 317);
@@ -2348,9 +2348,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_LEFT_LEG) {
-        color = (conditions & DAM_CRIP_LEG_LEFT) ? byte_6A38D0[15845] : byte_6A38D0[32747];
+        color = (conditions & DAM_CRIP_LEG_LEFT) ? _colorTable[15845] : _colorTable[32747];
     } else {
-        color = (conditions & DAM_CRIP_LEG_LEFT) ? byte_6A38D0[992] : byte_6A38D0[1313];
+        color = (conditions & DAM_CRIP_LEG_LEFT) ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 318);
@@ -2363,9 +2363,9 @@ void editorRenderSecondaryStats()
 
     // Armor Class
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_ARMOR_CLASS) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 302);
@@ -2379,9 +2379,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_ACTION_POINTS) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 301);
@@ -2395,9 +2395,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_CARRY_WEIGHT) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 311);
@@ -2411,9 +2411,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_MELEE_DAMAGE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 304);
@@ -2427,9 +2427,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_DAMAGE_RESISTANCE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 305);
@@ -2443,9 +2443,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_POISON_RESISTANCE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 306);
@@ -2459,9 +2459,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_RADIATION_RESISTANCE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 307);
@@ -2475,9 +2475,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_SEQUENCE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 308);
@@ -2491,9 +2491,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_HEALING_RATE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 309);
@@ -2507,9 +2507,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_CRITICAL_CHANCE) {
-        color = byte_6A38D0[32747];
+        color = _colorTable[32747];
     } else {
-        color = byte_6A38D0[992];
+        color = _colorTable[992];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 309);
@@ -2536,10 +2536,10 @@ void editorRenderSkills(int a1)
     }
 
     if (gCharacterEditorIsCreationMode == 0 && a1 == 0) {
-        buttonDestroy(dword_5705E4);
-        buttonDestroy(dword_5705E8);
-        dword_5705E8 = -1;
-        dword_5705E4 = -1;
+        buttonDestroy(_SliderPlusID);
+        buttonDestroy(_SliderNegID);
+        _SliderNegID = -1;
+        _SliderPlusID = -1;
     }
 
     blitBufferToBuffer(characterEditorWindowBackgroundBuf + 370, 270, 252, 640, characterEditorWindowBuf + 370, 640);
@@ -2548,46 +2548,46 @@ void editorRenderSkills(int a1)
 
     // SKILLS
     str = getmsg(&editorMessageList, &editorMessageListItem, 117);
-    fontDrawText(characterEditorWindowBuf + 640 * 5 + 380, str, 640, 640, byte_6A38D0[18979]);
+    fontDrawText(characterEditorWindowBuf + 640 * 5 + 380, str, 640, 640, _colorTable[18979]);
 
     if (!gCharacterEditorIsCreationMode) {
         // SKILL POINTS
         str = getmsg(&editorMessageList, &editorMessageListItem, 112);
-        fontDrawText(characterEditorWindowBuf + 640 * 233 + 400, str, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(characterEditorWindowBuf + 640 * 233 + 400, str, 640, 640, _colorTable[18979]);
 
         value = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
         characterEditorRenderBigNumber(522, 228, 0, value, 0, characterEditorWindowHandle);
     } else {
         // TAG SKILLS
         str = getmsg(&editorMessageList, &editorMessageListItem, 138);
-        fontDrawText(characterEditorWindowBuf + 640 * 233 + 422, str, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(characterEditorWindowBuf + 640 * 233 + 422, str, 640, 640, _colorTable[18979]);
 
         // TODO: Check.
-        if (a1 == 2 && !byte_570A2A) {
-            characterEditorRenderBigNumber(522, 228, ANIMATE, dword_570A10, dword_5709C8, characterEditorWindowHandle);
+        if (a1 == 2 && !_first_skill_list) {
+            characterEditorRenderBigNumber(522, 228, ANIMATE, _tagskill_count, _old_tags, characterEditorWindowHandle);
         } else {
-            characterEditorRenderBigNumber(522, 228, 0, dword_570A10, 0, characterEditorWindowHandle);
-            byte_570A2A = 0;
+            characterEditorRenderBigNumber(522, 228, 0, _tagskill_count, 0, characterEditorWindowHandle);
+            _first_skill_list = 0;
         }
     }
 
-    skillsSetTagged(dword_570A14, NUM_TAGGED_SKILLS);
+    skillsSetTagged(_temp_tag_skill, NUM_TAGGED_SKILLS);
 
     fontSetCurrent(101);
 
     y = 27;
     for (i = 0; i < SKILL_COUNT; i++) {
         if (i == selectedSkill) {
-            if (i != dword_570A14[0] && i != dword_570A14[1] && i != dword_570A14[2] && i != dword_570A14[3]) {
-                color = byte_6A38D0[32747];
+            if (i != _temp_tag_skill[0] && i != _temp_tag_skill[1] && i != _temp_tag_skill[2] && i != _temp_tag_skill[3]) {
+                color = _colorTable[32747];
             } else {
-                color = byte_6A38D0[32767];
+                color = _colorTable[32767];
             }
         } else {
-            if (i != dword_570A14[0] && i != dword_570A14[1] && i != dword_570A14[2] && i != dword_570A14[3]) {
-                color = byte_6A38D0[992];
+            if (i != _temp_tag_skill[0] && i != _temp_tag_skill[1] && i != _temp_tag_skill[2] && i != _temp_tag_skill[3]) {
+                color = _colorTable[992];
             } else {
-                color = byte_6A38D0[21140];
+                color = _colorTable[21140];
             }
         }
 
@@ -2604,52 +2604,52 @@ void editorRenderSkills(int a1)
     }
 
     if (!gCharacterEditorIsCreationMode) {
-        y = dword_51852C * (fontGetLineHeight() + 1);
-        dword_518534 = y + 27;
+        y = _skill_cursor * (fontGetLineHeight() + 1);
+        _slider_y = y + 27;
 
         blitBufferToBufferTrans(
-            dword_5704E0[EDITOR_GRAPHIC_SLIDER],
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER].width,
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER].height,
-            stru_5701C0[EDITOR_GRAPHIC_SLIDER].width,
+            _grphbmp[EDITOR_GRAPHIC_SLIDER],
+            _GInfo[EDITOR_GRAPHIC_SLIDER].width,
+            _GInfo[EDITOR_GRAPHIC_SLIDER].height,
+            _GInfo[EDITOR_GRAPHIC_SLIDER].width,
             characterEditorWindowBuf + 640 * (y + 16) + 592,
             640);
 
         if (a1 == 0) {
-            if (dword_5705E4 == -1) {
-                dword_5705E4 = buttonCreate(
+            if (_SliderPlusID == -1) {
+                _SliderPlusID = buttonCreate(
                     characterEditorWindowHandle,
                     614,
-                    dword_518534 - 7,
-                    stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
-                    stru_5701C0[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height,
+                    _slider_y - 7,
+                    _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
+                    _GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height,
                     -1,
                     522,
                     521,
                     522,
-                    dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_OFF],
-                    dword_5704E0[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
+                    _grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_OFF],
+                    _grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(dword_5705E4, _gsound_red_butt_press, NULL);
+                buttonSetCallbacks(_SliderPlusID, _gsound_red_butt_press, NULL);
             }
 
-            if (dword_5705E8 == -1) {
-                dword_5705E8 = buttonCreate(
+            if (_SliderNegID == -1) {
+                _SliderNegID = buttonCreate(
                     characterEditorWindowHandle,
                     614,
-                    dword_518534 + 4 - 12 + stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height,
-                    stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
-                    stru_5701C0[EDITOR_GRAPHIC_SLIDER_MINUS_OFF].height,
+                    _slider_y + 4 - 12 + _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height,
+                    _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
+                    _GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_OFF].height,
                     -1,
                     524,
                     523,
                     524,
-                    dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_OFF],
-                    dword_5704E0[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
+                    _grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_OFF],
+                    _grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(dword_5705E8, _gsound_red_butt_press, NULL);
+                buttonSetCallbacks(_SliderNegID, _gsound_red_butt_press, NULL);
             }
         }
     }
@@ -2704,7 +2704,7 @@ void editorRenderDetails()
             }
         }
     } else if ((characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) || (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98)) {
-        _DrawCard(dword_5705B0, off_5705B8, off_5705BC, off_5705CC);
+        _DrawCard(_folder_card_fid, _folder_card_title, _folder_card_title2, _folder_card_desc);
     } else if (characterEditorSelectedItem >= 43 && characterEditorSelectedItem < 51) {
         switch (characterEditorSelectedItem) {
         case EDITOR_HIT_POINTS:
@@ -2805,8 +2805,8 @@ int characterEditorEditName()
 {
     char* text;
 
-    int windowWidth = stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width;
-    int windowHeight = stru_5701C0[EDITOR_GRAPHIC_CHARWIN].height;
+    int windowWidth = _GInfo[EDITOR_GRAPHIC_CHARWIN].width;
+    int windowHeight = _GInfo[EDITOR_GRAPHIC_CHARWIN].height;
 
     int win = windowCreate(17, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (win == -1) {
@@ -2816,38 +2816,38 @@ int characterEditorEditName()
     unsigned char* windowBuf = windowGetBuffer(win);
 
     // Copy background
-    memcpy(windowBuf, dword_5704E0[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
+    memcpy(windowBuf, _grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
     blitBufferToBufferTrans(
-        dword_5704E0[EDITOR_GRAPHIC_NAME_BOX],
-        stru_5701C0[EDITOR_GRAPHIC_NAME_BOX].width,
-        stru_5701C0[EDITOR_GRAPHIC_NAME_BOX].height,
-        stru_5701C0[EDITOR_GRAPHIC_NAME_BOX].width,
+        _grphbmp[EDITOR_GRAPHIC_NAME_BOX],
+        _GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
+        _GInfo[EDITOR_GRAPHIC_NAME_BOX].height,
+        _GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
         windowBuf + windowWidth * 13 + 13,
         windowWidth);
-    blitBufferToBufferTrans(dword_5704E0[EDITOR_GRAPHIC_DONE_BOX],
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].width,
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].height,
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].width,
+    blitBufferToBufferTrans(_grphbmp[EDITOR_GRAPHIC_DONE_BOX],
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].height,
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
         windowBuf + windowWidth * 40 + 13,
         windowWidth);
 
     fontSetCurrent(103);
 
     text = getmsg(&editorMessageList, &editorMessageListItem, 100);
-    fontDrawText(windowBuf + windowWidth * 44 + 50, text, windowWidth, windowWidth, byte_6A38D0[18979]);
+    fontDrawText(windowBuf + windowWidth * 44 + 50, text, windowWidth, windowWidth, _colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         26,
         44,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         500,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
@@ -2870,7 +2870,7 @@ int characterEditorEditName()
     char nameCopy[64];
     strcpy(nameCopy, name);
 
-    if (_get_input_str(win, 500, nameCopy, 11, 23, 19, byte_6A38D0[992], 100, 0) != -1) {
+    if (_get_input_str(win, 500, nameCopy, 11, 23, 19, _colorTable[992], 100, 0) != -1) {
         if (nameCopy[0] != '\0') {
             dudeSetName(nameCopy);
             editorRenderName();
@@ -2882,14 +2882,14 @@ int characterEditorEditName()
     // NOTE: original code is a bit different, the following chunk of code written two times.
 
     fontSetCurrent(101);
-    blitBufferToBuffer(dword_5704E0[EDITOR_GRAPHIC_NAME_BOX],
-        stru_5701C0[EDITOR_GRAPHIC_NAME_BOX].width,
-        stru_5701C0[EDITOR_GRAPHIC_NAME_BOX].height,
-        stru_5701C0[EDITOR_GRAPHIC_NAME_BOX].width,
-        windowBuf + stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width * 13 + 13,
-        stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width);
+    blitBufferToBuffer(_grphbmp[EDITOR_GRAPHIC_NAME_BOX],
+        _GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
+        _GInfo[EDITOR_GRAPHIC_NAME_BOX].height,
+        _GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
+        windowBuf + _GInfo[EDITOR_GRAPHIC_CHARWIN].width * 13 + 13,
+        _GInfo[EDITOR_GRAPHIC_CHARWIN].width);
 
-    _PrintName(windowBuf, stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width);
+    _PrintName(windowBuf, _GInfo[EDITOR_GRAPHIC_CHARWIN].width);
 
     strcpy(nameCopy, name);
 
@@ -2913,7 +2913,7 @@ void _PrintName(unsigned char* buf, int a2)
     // TODO: Check.
     strcpy(str, v4);
 
-    fontDrawText(buf + 19 * a2 + 21, str, a2, a2, byte_6A38D0[992]);
+    fontDrawText(buf + 19 * a2 + 21, str, a2, a2, _colorTable[992]);
 }
 
 // 0x436FEC
@@ -2935,37 +2935,37 @@ int characterEditorRunEditAgeDialog()
 
     int savedAge = critterGetStat(gDude, STAT_AGE);
 
-    windowWidth = stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width;
-    windowHeight = stru_5701C0[EDITOR_GRAPHIC_CHARWIN].height;
+    windowWidth = _GInfo[EDITOR_GRAPHIC_CHARWIN].width;
+    windowHeight = _GInfo[EDITOR_GRAPHIC_CHARWIN].height;
 
-    win = windowCreate(stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width + 9, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    win = windowCreate(_GInfo[EDITOR_GRAPHIC_NAME_ON].width + 9, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (win == -1) {
         return -1;
     }
 
     windowBuf = windowGetBuffer(win);
 
-    memcpy(windowBuf, dword_5704E0[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
+    memcpy(windowBuf, _grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
     blitBufferToBufferTrans(
-        dword_5704E0[EDITOR_GRAPHIC_AGE_BOX],
-        stru_5701C0[EDITOR_GRAPHIC_AGE_BOX].width,
-        stru_5701C0[EDITOR_GRAPHIC_AGE_BOX].height,
-        stru_5701C0[EDITOR_GRAPHIC_AGE_BOX].width,
+        _grphbmp[EDITOR_GRAPHIC_AGE_BOX],
+        _GInfo[EDITOR_GRAPHIC_AGE_BOX].width,
+        _GInfo[EDITOR_GRAPHIC_AGE_BOX].height,
+        _GInfo[EDITOR_GRAPHIC_AGE_BOX].width,
         windowBuf + windowWidth * 7 + 8,
         windowWidth);
     blitBufferToBufferTrans(
-        dword_5704E0[EDITOR_GRAPHIC_DONE_BOX],
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].width,
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].height,
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].width,
+        _grphbmp[EDITOR_GRAPHIC_DONE_BOX],
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].height,
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
         windowBuf + windowWidth * 40 + 13,
-        stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width);
+        _GInfo[EDITOR_GRAPHIC_CHARWIN].width);
 
     fontSetCurrent(103);
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 100);
-    fontDrawText(windowBuf + windowWidth * 44 + 50, messageListItemText, windowWidth, windowWidth, byte_6A38D0[18979]);
+    fontDrawText(windowBuf + windowWidth * 44 + 50, messageListItemText, windowWidth, windowWidth, _colorTable[18979]);
 
     age = critterGetStat(gDude, STAT_AGE);
     characterEditorRenderBigNumber(55, 10, 0, age, 0, win);
@@ -2973,14 +2973,14 @@ int characterEditorRunEditAgeDialog()
     doneBtn = buttonCreate(win,
         26,
         44,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         500,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
@@ -2990,14 +2990,14 @@ int characterEditorRunEditAgeDialog()
     nextBtn = buttonCreate(win,
         105,
         13,
-        stru_5701C0[EDITOR_GRAPHIC_LEFT_ARROW_DOWN].width,
-        stru_5701C0[EDITOR_GRAPHIC_LEFT_ARROW_DOWN].height,
+        _GInfo[EDITOR_GRAPHIC_LEFT_ARROW_DOWN].width,
+        _GInfo[EDITOR_GRAPHIC_LEFT_ARROW_DOWN].height,
         -1,
         503,
         501,
         503,
-        dword_5704E0[EDITOR_GRAPHIC_RIGHT_ARROW_UP],
-        dword_5704E0[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_RIGHT_ARROW_UP],
+        _grphbmp[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (nextBtn != -1) {
@@ -3007,14 +3007,14 @@ int characterEditorRunEditAgeDialog()
     prevBtn = buttonCreate(win,
         19,
         13,
-        stru_5701C0[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN].width,
-        stru_5701C0[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN].height,
+        _GInfo[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN].width,
+        _GInfo[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN].height,
         -1,
         504,
         502,
         504,
-        dword_5704E0[EDITOR_GRAPHIC_LEFT_ARROW_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LEFT_ARROW_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LEFT_ARROW_UP],
+        _grphbmp[EDITOR_GRAPHIC_LEFT_ARROW_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (prevBtn != -1) {
@@ -3022,7 +3022,7 @@ int characterEditorRunEditAgeDialog()
     }
 
     while (true) {
-        dword_5709C4 = _get_time();
+        _frame_time = _get_time();
         change = 0;
         flags = 0;
         int v32 = 0;
@@ -3036,7 +3036,7 @@ int characterEditorRunEditAgeDialog()
 
             windowDestroy(win);
             return 0;
-        } else if (keyCode == KEY_ESCAPE || dword_5186CC != 0) {
+        } else if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
             break;
         } else if (keyCode == 501) {
             age = critterGetStat(gDude, STAT_AGE);
@@ -3082,10 +3082,10 @@ int characterEditorRunEditAgeDialog()
         if (change != 0) {
             int v33 = 0;
 
-            dword_5709C0 = 4;
+            _repFtime = 4;
 
             while (true) {
-                dword_5709C4 = _get_time();
+                _frame_time = _get_time();
 
                 v33++;
 
@@ -3093,9 +3093,9 @@ int characterEditorRunEditAgeDialog()
                     v32 = true;
 
                     if (v33 > dbl_50170B) {
-                        dword_5709C0++;
-                        if (dword_5709C0 > 24) {
-                            dword_5709C0 = 24;
+                        _repFtime++;
+                        if (_repFtime > 24) {
+                            _repFtime = 24;
                         }
                     }
 
@@ -3128,22 +3128,22 @@ int characterEditorRunEditAgeDialog()
                 }
 
                 if (v33 > dbl_50170B) {
-                    while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0)
+                    while (getTicksSince(_frame_time) < 1000 / _repFtime)
                         ;
                 } else {
-                    while (getTicksSince(dword_5709C4) < 1000 / 24)
+                    while (getTicksSince(_frame_time) < 1000 / 24)
                         ;
                 }
 
                 keyCode = _get_input();
-                if (keyCode == 503 || keyCode == 504 || dword_5186CC != 0) {
+                if (keyCode == 503 || keyCode == 504 || _game_user_wants_to_quit != 0) {
                     break;
                 }
             }
         } else {
             windowRefresh(win);
 
-            while (getTicksSince(dword_5709C4) < 1000 / 24)
+            while (getTicksSince(_frame_time) < 1000 / 24)
                 ;
         }
     }
@@ -3163,12 +3163,12 @@ void characterEditorEditGender()
 {
     char* text;
 
-    int windowWidth = stru_5701C0[EDITOR_GRAPHIC_CHARWIN].width;
-    int windowHeight = stru_5701C0[EDITOR_GRAPHIC_CHARWIN].height;
+    int windowWidth = _GInfo[EDITOR_GRAPHIC_CHARWIN].width;
+    int windowHeight = _GInfo[EDITOR_GRAPHIC_CHARWIN].height;
 
     int x = 9;
-    x += stru_5701C0[EDITOR_GRAPHIC_NAME_ON].width;
-    x += stru_5701C0[EDITOR_GRAPHIC_AGE_ON].width;
+    x += _GInfo[EDITOR_GRAPHIC_NAME_ON].width;
+    x += _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
     int win = windowCreate(x, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
 
     if (win == -1) {
@@ -3178,31 +3178,31 @@ void characterEditorEditGender()
     unsigned char* windowBuf = windowGetBuffer(win);
 
     // Copy background
-    memcpy(windowBuf, dword_5704E0[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
+    memcpy(windowBuf, _grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
-    blitBufferToBufferTrans(dword_5704E0[EDITOR_GRAPHIC_DONE_BOX],
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].width,
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].height,
-        stru_5701C0[EDITOR_GRAPHIC_DONE_BOX].width,
+    blitBufferToBufferTrans(_grphbmp[EDITOR_GRAPHIC_DONE_BOX],
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].height,
+        _GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
         windowBuf + windowWidth * 44 + 15,
         windowWidth);
 
     fontSetCurrent(103);
 
     text = getmsg(&editorMessageList, &editorMessageListItem, 100);
-    fontDrawText(windowBuf + windowWidth * 48 + 52, text, windowWidth, windowWidth, byte_6A38D0[18979]);
+    fontDrawText(windowBuf + windowWidth * 48 + 52, text, windowWidth, windowWidth, _colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         28,
         48,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         500,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
@@ -3213,14 +3213,14 @@ void characterEditorEditGender()
     btns[0] = buttonCreate(win,
         22,
         2,
-        stru_5701C0[EDITOR_GRAPHIC_MALE_ON].width,
-        stru_5701C0[EDITOR_GRAPHIC_MALE_ON].height,
+        _GInfo[EDITOR_GRAPHIC_MALE_ON].width,
+        _GInfo[EDITOR_GRAPHIC_MALE_ON].height,
         -1,
         -1,
         501,
         -1,
-        dword_5704E0[EDITOR_GRAPHIC_MALE_OFF],
-        dword_5704E0[EDITOR_GRAPHIC_MALE_ON],
+        _grphbmp[EDITOR_GRAPHIC_MALE_OFF],
+        _grphbmp[EDITOR_GRAPHIC_MALE_ON],
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[0] != -1) {
@@ -3230,14 +3230,14 @@ void characterEditorEditGender()
     btns[1] = buttonCreate(win,
         71,
         3,
-        stru_5701C0[EDITOR_GRAPHIC_FEMALE_ON].width,
-        stru_5701C0[EDITOR_GRAPHIC_FEMALE_ON].height,
+        _GInfo[EDITOR_GRAPHIC_FEMALE_ON].width,
+        _GInfo[EDITOR_GRAPHIC_FEMALE_ON].height,
         -1,
         -1,
         502,
         -1,
-        dword_5704E0[EDITOR_GRAPHIC_FEMALE_OFF],
-        dword_5704E0[EDITOR_GRAPHIC_FEMALE_ON],
+        _grphbmp[EDITOR_GRAPHIC_FEMALE_OFF],
+        _grphbmp[EDITOR_GRAPHIC_FEMALE_ON],
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[1] != -1) {
@@ -3249,7 +3249,7 @@ void characterEditorEditGender()
     _win_set_button_rest_state(btns[savedGender], 1, 0);
 
     while (true) {
-        dword_5709C4 = _get_time();
+        _frame_time = _get_time();
 
         int eventCode = _get_input();
 
@@ -3260,7 +3260,7 @@ void characterEditorEditGender()
             break;
         }
 
-        if (eventCode == KEY_ESCAPE || dword_5186CC != 0) {
+        if (eventCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
             critterSetBaseStat(gDude, STAT_GENDER, savedGender);
             editorRenderPrimaryStat(RENDER_ALL_STATS, 0, 0);
             editorRenderSecondaryStats();
@@ -3288,7 +3288,7 @@ void characterEditorEditGender()
 
         windowRefresh(win);
 
-        while (getTicksSince(dword_5709C4) < 41)
+        while (getTicksSince(_frame_time) < 41)
             ;
     }
 
@@ -3299,7 +3299,7 @@ void characterEditorEditGender()
 // 0x4379BC
 void characterEditorHandleIncDecPrimaryStat(int eventCode)
 {
-    dword_5709C0 = 4;
+    _repFtime = 4;
 
     int savedRemainingCharacterPoints = characterEditorRemainingCharacterPoints;
 
@@ -3314,16 +3314,16 @@ void characterEditorHandleIncDecPrimaryStat(int eventCode)
 
     bool cont = true;
     do {
-        dword_5709C4 = _get_time();
+        _frame_time = _get_time();
         if (v11 <= 19.2) {
             v11++;
         }
 
         if (v11 == 1 || v11 > 19.2) {
             if (v11 > 19.2) {
-                dword_5709C0++;
-                if (dword_5709C0 > 24) {
-                    dword_5709C0 = 24;
+                _repFtime++;
+                if (_repFtime > 24) {
+                    _repFtime = 24;
                 }
             }
 
@@ -3362,11 +3362,11 @@ void characterEditorHandleIncDecPrimaryStat(int eventCode)
         }
 
         if (v11 >= 19.2) {
-            unsigned int delay = 1000 / dword_5709C0;
-            while (getTicksSince(dword_5709C4) < delay) {
+            unsigned int delay = 1000 / _repFtime;
+            while (getTicksSince(_frame_time) < delay) {
             }
         } else {
-            while (getTicksSince(dword_5709C4) < 1000 / 24) {
+            while (getTicksSince(_frame_time) < 1000 / 24) {
             }
         }
     } while (_get_input() != 518 && cont);
@@ -3377,17 +3377,17 @@ void characterEditorHandleIncDecPrimaryStat(int eventCode)
 // handle options dialog
 int _OptionWindow()
 {
-    int width = stru_5701C0[43].width;
-    int height = stru_5701C0[43].height;
+    int width = _GInfo[43].width;
+    int height = _GInfo[43].height;
 
     if (gCharacterEditorIsCreationMode) {
-        int win = windowCreate(238, 90, stru_5701C0[41].width, stru_5701C0[41].height, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+        int win = windowCreate(238, 90, _GInfo[41].width, _GInfo[41].height, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
         if (win == -1) {
             return -1;
         }
 
         unsigned char* windowBuffer = windowGetBuffer(win);
-        memcpy(windowBuffer, dword_5704E0[41], stru_5701C0[41].width * stru_5701C0[41].height);
+        memcpy(windowBuffer, _grphbmp[41], _GInfo[41].width * _GInfo[41].height);
 
         fontSetCurrent(103);
 
@@ -3416,8 +3416,8 @@ int _OptionWindow()
                     break;
                 }
 
-                memcpy(down[index], dword_5704E0[43], size);
-                memcpy(up[index], dword_5704E0[42], size);
+                memcpy(down[index], _grphbmp[43], size);
+                memcpy(up[index], _grphbmp[42], size);
 
                 const char* msg = getmsg(&editorMessageList, &editorMessageListItem, 600 + index);
 
@@ -3426,8 +3426,8 @@ int _OptionWindow()
 
                 int length = fontGetStringWidth(dest);
                 int v60 = width / 2 - length / 2;
-                fontDrawText(up[index] + v60, dest, width, width, byte_6A38D0[18979]);
-                fontDrawText(down[index] + v60, dest, width, width, byte_6A38D0[14723]);
+                fontDrawText(up[index] + v60, dest, width, width, _colorTable[18979]);
+                fontDrawText(down[index] + v60, dest, width, width, _colorTable[14723]);
 
                 int btn = buttonCreate(win, 13, y, width, height, -1, -1, -1, 500 + index, up[index], down[index], NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {
@@ -3457,7 +3457,7 @@ int _OptionWindow()
         while (rc != 0) {
             int keyCode = _get_input();
 
-            if (dword_5186CC != 0) {
+            if (_game_user_wants_to_quit != 0) {
                 rc = 2;
             } else if (keyCode == 504) {
                 rc = 2;
@@ -3476,14 +3476,14 @@ int _OptionWindow()
                 strcpy(line2, getmsg(&editorMessageList, &editorMessageListItem, 606));
 
                 const char* lines[] = { line1, line2 };
-                if (showDialogBox(NULL, lines, 2, 169, 126, byte_6A38D0[992], NULL, byte_6A38D0[992], 0x10) != 0) {
+                if (showDialogBox(NULL, lines, 2, 169, 126, _colorTable[992], NULL, _colorTable[992], 0x10) != 0) {
                     _ResetPlayer();
-                    skillsGetTagged(dword_570A14, NUM_TAGGED_SKILLS);
+                    skillsGetTagged(_temp_tag_skill, NUM_TAGGED_SKILLS);
 
                     int v224 = 3;
                     int v225 = 0;
                     do {
-                        if (dword_570A14[v224] != -1) {
+                        if (_temp_tag_skill[v224] != -1) {
                             break;
                         }
                         --v224;
@@ -3494,21 +3494,21 @@ int _OptionWindow()
                         v225--;
                     }
 
-                    dword_570A10 = v225;
+                    _tagskill_count = v225;
 
-                    traitsGetSelected(&dword_570A04[0], &dword_570A04[1]);
+                    traitsGetSelected(&_temp_trait[0], &_temp_trait[1]);
 
                     int v226 = 1;
                     int v227 = 0;
                     do {
-                        if (dword_570A04[v226] != -1) {
+                        if (_temp_trait[v226] != -1) {
                             break;
                         }
                         --v226;
                         ++v227;
                     } while (v226 > -1);
 
-                    dword_5709FC = v227;
+                    _trait_count = v227;
                     critterUpdateDerivedStats(gDude);
                     _ResetScreen();
                 }
@@ -3546,7 +3546,7 @@ int _OptionWindow()
                             strcpy(v240, getmsg(&editorMessageList, &editorMessageListItem, 610));
 
                             const char* lines[] = { v240 };
-                            if (showDialogBox(dest, lines, 1, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0x10) != 0) {
+                            if (showDialogBox(dest, lines, 1, 169, 126, _colorTable[32328], NULL, _colorTable[32328], 0x10) != 0) {
                                 rc = 1;
                             } else {
                                 rc = 0;
@@ -3564,7 +3564,7 @@ int _OptionWindow()
                                     "%s%s",
                                     strupr(v236),
                                     getmsg(&editorMessageList, &editorMessageListItem, 607));
-                                showDialogBox(dest, NULL, 0, 169, 126, byte_6A38D0[992], NULL, byte_6A38D0[992], 0);
+                                showDialogBox(dest, NULL, 0, 169, 126, _colorTable[992], NULL, _colorTable[992], 0);
                             } else {
                                 soundPlayFile("iisxxxx1");
 
@@ -3573,7 +3573,7 @@ int _OptionWindow()
                                     getmsg(&editorMessageList, &editorMessageListItem, 611),
                                     strupr(v236),
                                     "!");
-                                showDialogBox(dest, NULL, 0, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[992], 0x01);
+                                showDialogBox(dest, NULL, 0, 169, 126, _colorTable[32328], NULL, _colorTable[992], 0x01);
                             }
                         }
                     }
@@ -3583,7 +3583,7 @@ int _OptionWindow()
                     soundPlayFile("iisxxxx1");
 
                     strcpy(dest, getmsg(&editorMessageList, &editorMessageListItem, 615));
-                    showDialogBox(dest, NULL, 0, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+                    showDialogBox(dest, NULL, 0, 169, 126, _colorTable[32328], NULL, _colorTable[32328], 0);
 
                     rc = 0;
                 }
@@ -3605,7 +3605,7 @@ int _OptionWindow()
                     strcpy(path, getmsg(&editorMessageList, &editorMessageListItem, 615));
                     rc = 0;
 
-                    showDialogBox(path, NULL, 0, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+                    showDialogBox(path, NULL, 0, 169, 126, _colorTable[32328], NULL, _colorTable[32328], 0);
                 }
             } else if (keyCode == 500 || keyCode == KEY_UPPERCASE_S || keyCode == KEY_LOWERCASE_S) {
                 // TODO: Incomplete.
@@ -3637,7 +3637,7 @@ int _OptionWindow()
 
         // Error reading file list!
         strcpy(pattern, getmsg(&editorMessageList, &editorMessageListItem, 615));
-        showDialogBox(pattern, NULL, 0, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+        showDialogBox(pattern, NULL, 0, 169, 126, _colorTable[32328], NULL, _colorTable[32328], 0);
         return 0;
     }
 
@@ -3665,7 +3665,7 @@ int _OptionWindow()
             strcpy(line2, getmsg(&editorMessageList, &editorMessageListItem, 610));
 
             const char* lines[] = { line2 };
-            v42 = showDialogBox(title, lines, 1, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0x10);
+            v42 = showDialogBox(title, lines, 1, 169, 126, _colorTable[32328], NULL, _colorTable[32328], 0x10);
             if (v42) {
                 v42 = 1;
             }
@@ -3685,7 +3685,7 @@ int _OptionWindow()
                     getmsg(&editorMessageList, &editorMessageListItem, 611),
                     strupr(fileName),
                     "!");
-                showDialogBox(title, NULL, 0, 169, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 1);
+                showDialogBox(title, NULL, 0, 169, 126, _colorTable[32328], NULL, _colorTable[32328], 1);
             }
         }
     }
@@ -3912,15 +3912,15 @@ int characterPrintToFile(const char* fileName)
     fileWriteString("\n", stream);
     fileWriteString("\n", stream);
 
-    if (dword_570A04[0] != -1) {
+    if (_temp_trait[0] != -1) {
         // ::: Traits :::
         sprintf(title1, "%s\n", getmsg(&editorMessageList, &editorMessageListItem, 650));
         fileWriteString(title1, stream);
 
         // NOTE: The original code does not use loop, or it was optimized away.
         for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
-            if (dword_570A04[index] != -1) {
-                sprintf(title1, "  %s", traitGetName(dword_570A04[index]));
+            if (_temp_trait[index] != -1) {
+                sprintf(title1, "  %s", traitGetName(_temp_trait[index]));
                 fileWriteString(title1, stream);
                 fileWriteString("\n", stream);
             }
@@ -4181,8 +4181,8 @@ char* _AddDots(char* string, int length)
 void _ResetScreen()
 {
     characterEditorSelectedItem = 0;
-    dword_51852C = 0;
-    dword_518534 = 27;
+    _skill_cursor = 0;
+    _slider_y = 27;
     characterEditorWindowSelectedFolder = 0;
 
     if (gCharacterEditorIsCreationMode) {
@@ -4228,27 +4228,27 @@ void _SavePlayer()
 {
     Proto* proto;
     protoGetProto(gDude->pid, &proto);
-    critterProtoDataCopy(&stru_570630, &(proto->critter.data));
+    critterProtoDataCopy(&_dude_data, &(proto->critter.data));
 
-    dword_5707C4 = critterGetHitPoints(gDude);
+    _hp_back = critterGetHitPoints(gDude);
 
-    strncpy(byte_5701A0, critterGetName(gDude), 32);
+    strncpy(_name_save, critterGetName(gDude), 32);
 
-    dword_5709CC = dword_5707B4;
+    _last_level_back = _last_level;
     for (int perk = 0; perk < PERK_COUNT; perk++) {
-        dword_5707E4[perk] = perkGetRank(gDude, perk);
+        _perk_back[perk] = perkGetRank(gDude, perk);
     }
 
-    byte_570A28 = byte_570A29;
+    _free_perk_back = _free_perk;
 
-    dword_5707B0 = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+    _upsent_points_back = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
 
-    skillsGetTagged(dword_5709D4, NUM_TAGGED_SKILLS);
+    skillsGetTagged(_tag_skill_back, NUM_TAGGED_SKILLS);
 
-    traitsGetSelected(&(dword_5709F0[0]), &(dword_5709F0[1]));
+    traitsGetSelected(&(_trait_back[0]), &(_trait_back[1]));
 
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
-        dword_56FC60[skill] = skillGetValue(gDude, skill);
+        _skillsav[skill] = skillGetValue(gDude, skill);
     }
 }
 
@@ -4263,25 +4263,25 @@ void _RestorePlayer()
     _pop_perks();
 
     protoGetProto(gDude->pid, &proto);
-    critterProtoDataCopy(&(proto->critter.data), &stru_570630);
+    critterProtoDataCopy(&(proto->critter.data), &_dude_data);
 
-    dudeSetName(byte_5701A0);
+    dudeSetName(_name_save);
 
-    dword_5707B4 = dword_5709CC;
-    byte_570A29 = byte_570A28;
+    _last_level = _last_level_back;
+    _free_perk = _free_perk_back;
 
-    pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, dword_5707B0);
+    pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, _upsent_points_back);
 
-    skillsSetTagged(dword_5709D4, NUM_TAGGED_SKILLS);
+    skillsSetTagged(_tag_skill_back, NUM_TAGGED_SKILLS);
 
-    traitsSetSelected(dword_5709F0[0], dword_5709F0[1]);
+    traitsSetSelected(_trait_back[0], _trait_back[1]);
 
-    skillsGetTagged(dword_570A14, NUM_TAGGED_SKILLS);
+    skillsGetTagged(_temp_tag_skill, NUM_TAGGED_SKILLS);
 
     i = 4;
     v3 = 0;
     for (v3 = 0; v3 < 4; v3++) {
-        if (dword_570A14[--i] != -1) {
+        if (_temp_tag_skill[--i] != -1) {
             break;
         }
     }
@@ -4290,24 +4290,24 @@ void _RestorePlayer()
         v3 -= gCharacterEditorIsCreationMode;
     }
 
-    dword_570A10 = v3;
+    _tagskill_count = v3;
 
-    traitsGetSelected(&(dword_570A04[0]), &(dword_570A04[1]));
+    traitsGetSelected(&(_temp_trait[0]), &(_temp_trait[1]));
 
     i = 2;
     v3 = 0;
     for (v3 = 0; v3 < 2; v3++) {
-        if (dword_570A04[v3] != -1) {
+        if (_temp_trait[v3] != -1) {
             break;
         }
     }
 
-    dword_5709FC = v3;
+    _trait_count = v3;
 
     critterUpdateDerivedStats(gDude);
 
     cur_hp = critterGetHitPoints(gDude);
-    critterAdjustHitPoints(gDude, dword_5707C4 - cur_hp);
+    critterAdjustHitPoints(gDude, _hp_back - cur_hp);
 }
 
 char* _itostndn(int value, char* dest)
@@ -4371,7 +4371,7 @@ int _DrawCard(int graphicId, const char* name, const char* attributes, char* des
     ptr = buf;
     for (y = 0; y < size.height; y++) {
         for (x = 0; x < size.width; x++) {
-            if (sub_44EBC0(*ptr) < 2 && v9 >= x) {
+            if (_HighRGB_(*ptr) < 2 && v9 >= x) {
                 v9 = x;
             }
             ptr++;
@@ -4385,19 +4385,19 @@ int _DrawCard(int graphicId, const char* name, const char* attributes, char* des
 
     fontSetCurrent(102);
 
-    fontDrawText(characterEditorWindowBuf + 640 * 272 + 348, name, 640, 640, byte_6A38D0[0]);
+    fontDrawText(characterEditorWindowBuf + 640 * 272 + 348, name, 640, 640, _colorTable[0]);
     int nameFontLineHeight = fontGetLineHeight();
     if (attributes != NULL) {
         int nameWidth = fontGetStringWidth(name);
 
         fontSetCurrent(101);
         int attributesFontLineHeight = fontGetLineHeight();
-        fontDrawText(characterEditorWindowBuf + 640 * (268 + nameFontLineHeight - attributesFontLineHeight) + 348 + nameWidth + 8, attributes, 640, 640, byte_6A38D0[0]);
+        fontDrawText(characterEditorWindowBuf + 640 * (268 + nameFontLineHeight - attributesFontLineHeight) + 348 + nameWidth + 8, attributes, 640, 640, _colorTable[0]);
     }
 
     y = nameFontLineHeight;
-    windowDrawLine(characterEditorWindowHandle, 348, y + 272, 613, y + 272, byte_6A38D0[0]);
-    windowDrawLine(characterEditorWindowHandle, 348, y + 273, 613, y + 273, byte_6A38D0[0]);
+    windowDrawLine(characterEditorWindowHandle, 348, y + 272, 613, y + 272, _colorTable[0]);
+    windowDrawLine(characterEditorWindowHandle, 348, y + 273, 613, y + 273, _colorTable[0]);
 
     fontSetCurrent(101);
 
@@ -4414,19 +4414,19 @@ int _DrawCard(int graphicId, const char* name, const char* attributes, char* des
         short ending = beginnings[i + 1];
         char c = description[ending];
         description[ending] = '\0';
-        fontDrawText(characterEditorWindowBuf + 640 * y + 348, description + beginning, 640, 640, byte_6A38D0[0]);
+        fontDrawText(characterEditorWindowBuf + 640 * y + 348, description + beginning, 640, 640, _colorTable[0]);
         description[ending] = c;
         y += descriptionFontLineHeight;
     }
 
-    if ((graphicId != dword_5709EC || strcmp(name, byte_5700F8) != 0) && dword_5707D8) {
+    if ((graphicId != _card_old_fid1 || strcmp(name, _old_str1) != 0) && _frstc_draw1) {
         soundPlayFile("isdxxxx1");
     }
 
-    strcpy(byte_5700F8, name);
+    strcpy(_old_str1, name);
 
-    dword_5709EC = graphicId;
-    dword_5707D8 = 1;
+    _card_old_fid1 = graphicId;
+    _frstc_draw1 = 1;
 
     artUnlock(graphicHandle);
 
@@ -4435,13 +4435,13 @@ int _DrawCard(int graphicId, const char* name, const char* attributes, char* des
 
 void _FldrButton()
 {
-    mouseGetPosition(&dword_5707CC, &dword_5707C8);
+    mouseGetPosition(&_mouse_xpos, &_mouse_ypos);
     soundPlayFile("ib3p1xx1");
 
-    if (dword_5707CC >= 208) {
+    if (_mouse_xpos >= 208) {
         characterEditorSelectedItem = 41;
         characterEditorWindowSelectedFolder = EDITOR_FOLDER_KILLS;
-    } else if (dword_5707CC > 110) {
+    } else if (_mouse_xpos > 110) {
         characterEditorSelectedItem = 42;
         characterEditorWindowSelectedFolder = EDITOR_FOLDER_KARMA;
     } else {
@@ -4455,16 +4455,16 @@ void _FldrButton()
 
 void _InfoButton(int eventCode)
 {
-    mouseGetPosition(&dword_5707CC, &dword_5707C8);
+    mouseGetPosition(&_mouse_xpos, &_mouse_ypos);
 
     switch (eventCode) {
     case 525:
         if (1) {
             // TODO: Original code is slightly different.
-            double mouseY = dword_5707C8;
+            double mouseY = _mouse_ypos;
             for (int index = 0; index < 7; index++) {
-                double buttonTop = dword_431D50[index];
-                double buttonBottom = dword_431D50[index] + 22;
+                double buttonTop = _StatYpos[index];
+                double buttonBottom = _StatYpos[index] + 22;
                 double allowance = 5.0 - index * 0.25;
                 if (mouseY >= buttonTop - allowance && mouseY <= buttonBottom + allowance) {
                     characterEditorSelectedItem = index;
@@ -4477,7 +4477,7 @@ void _InfoButton(int eventCode)
         if (gCharacterEditorIsCreationMode) {
             characterEditorSelectedItem = 7;
         } else {
-            int offset = dword_5707C8 - 280;
+            int offset = _mouse_ypos - 280;
             if (offset < 0) {
                 offset = 0;
             }
@@ -4488,7 +4488,7 @@ void _InfoButton(int eventCode)
     case 527:
         if (!gCharacterEditorIsCreationMode) {
             fontSetCurrent(101);
-            int offset = dword_5707C8 - 364;
+            int offset = _mouse_ypos - 364;
             if (offset < 0) {
                 offset = 0;
             }
@@ -4497,7 +4497,7 @@ void _InfoButton(int eventCode)
         break;
     case 528:
         if (1) {
-            int offset = dword_5707C8 - 41;
+            int offset = _mouse_ypos - 41;
             if (offset < 0) {
                 offset = 0;
             }
@@ -4506,7 +4506,7 @@ void _InfoButton(int eventCode)
         }
         break;
     case 529: {
-        int offset = dword_5707C8 - 175;
+        int offset = _mouse_ypos - 175;
         if (offset < 0) {
             offset = 0;
         }
@@ -4519,17 +4519,17 @@ void _InfoButton(int eventCode)
         break;
     case 531:
         if (1) {
-            int offset = dword_5707C8 - 27;
+            int offset = _mouse_ypos - 27;
             if (offset < 0) {
                 offset = 0;
             }
 
-            dword_51852C = offset * 0.092307694;
-            if (dword_51852C >= 18) {
-                dword_51852C = 17;
+            _skill_cursor = offset * 0.092307694;
+            if (_skill_cursor >= 18) {
+                _skill_cursor = 17;
             }
 
-            characterEditorSelectedItem = dword_51852C + 61;
+            characterEditorSelectedItem = _skill_cursor + 61;
         }
         break;
     case 532:
@@ -4543,7 +4543,7 @@ void _InfoButton(int eventCode)
             fontSetCurrent(101);
 
             // TODO: Original code is slightly different.
-            double mouseY = dword_5707C8;
+            double mouseY = _mouse_ypos;
             double fontLineHeight = fontGetLineHeight();
             double y = 353.0;
             double step = fontGetLineHeight() + 3 + 0.56;
@@ -4560,7 +4560,7 @@ void _InfoButton(int eventCode)
             }
 
             characterEditorSelectedItem = index + 82;
-            if (dword_5707CC >= 169) {
+            if (_mouse_xpos >= 169) {
                 characterEditorSelectedItem += 8;
             }
         }
@@ -4584,7 +4584,7 @@ void editorAdjustSkill(int keyCode)
     }
 
     int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
-    dword_5709C0 = 4;
+    _repFtime = 4;
 
     bool isUsingKeyboard = false;
     int rc = 0;
@@ -4615,31 +4615,31 @@ void editorAdjustSkill(int keyCode)
 
     int repeatDelay = 0;
     for (;;) {
-        dword_5709C4 = _get_time();
+        _frame_time = _get_time();
         if (repeatDelay <= dbl_5018F0) {
             repeatDelay++;
         }
 
         if (repeatDelay == 1 || repeatDelay > dbl_5018F0) {
             if (repeatDelay > dbl_5018F0) {
-                dword_5709C0++;
-                if (dword_5709C0 > 24) {
-                    dword_5709C0 = 24;
+                _repFtime++;
+                if (_repFtime > 24) {
+                    _repFtime = 24;
                 }
             }
 
             rc = 1;
             if (keyCode == 521) {
                 if (pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
-                    if (skillAdd(gDude, dword_51852C) == -3) {
+                    if (skillAdd(gDude, _skill_cursor) == -3) {
                         soundPlayFile("iisxxxx1");
 
-                        sprintf(title, "%s:", skillGetName(dword_51852C));
+                        sprintf(title, "%s:", skillGetName(_skill_cursor));
                         // At maximum level.
                         strcpy(body1, getmsg(&editorMessageList, &editorMessageListItem, 132));
                         // Unable to increment it.
                         strcpy(body2, getmsg(&editorMessageList, &editorMessageListItem, 133));
-                        showDialogBox(title, body, 2, 192, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_LARGE);
+                        showDialogBox(title, body, 2, 192, 126, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
                         rc = -1;
                     }
                 }
@@ -4648,15 +4648,15 @@ void editorAdjustSkill(int keyCode)
 
                     // Not enough skill points available.
                     strcpy(title, getmsg(&editorMessageList, &editorMessageListItem, 136));
-                    showDialogBox(title, NULL, 0, 192, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_LARGE);
+                    showDialogBox(title, NULL, 0, 192, 126, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
                     rc = -1;
                 }
             } else if (keyCode == 523) {
-                if (skillGetValue(gDude, dword_51852C) <= dword_56FC60[dword_51852C]) {
+                if (skillGetValue(gDude, _skill_cursor) <= _skillsav[_skill_cursor]) {
                     rc = 0;
                 }
                 else {
-                    if (skillSub(gDude, dword_51852C) == -2) {
+                    if (skillSub(gDude, _skill_cursor) == -2) {
                         rc = 0;
                     }
                 }
@@ -4664,17 +4664,17 @@ void editorAdjustSkill(int keyCode)
                 if (rc == 0) {
                     soundPlayFile("iisxxxx1");
 
-                    sprintf(title, "%s:", skillGetName(dword_51852C));
+                    sprintf(title, "%s:", skillGetName(_skill_cursor));
                     // At minimum level.
                     strcpy(body1, getmsg(&editorMessageList, &editorMessageListItem, 134));
                     // Unable to decrement it.
                     strcpy(body2, getmsg(&editorMessageList, &editorMessageListItem, 135));
-                    showDialogBox(title, body, 2, 192, 126, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_LARGE);
+                    showDialogBox(title, body, 2, 192, 126, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
                     rc = -1;
                 }
             }
 
-            characterEditorSelectedItem = dword_51852C + 61;
+            characterEditorSelectedItem = _skill_cursor + 61;
             editorRenderDetails();
             editorRenderSkills(1);
 
@@ -4693,11 +4693,11 @@ void editorAdjustSkill(int keyCode)
         if (!isUsingKeyboard) {
             unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             if (repeatDelay >= dbl_5018F0) {
-                while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
+                while (getTicksSince(_frame_time) < 1000 / _repFtime) {
                 }
             }
             else {
-                while (getTicksSince(dword_5709C4) < 1000 / 24) {
+                while (getTicksSince(_frame_time) < 1000 / 24) {
                 }
             }
 
@@ -4717,7 +4717,7 @@ void characterEditorToggleTaggedSkill(int skill)
 
     insertionIndex = 0;
     for (int index = 3; index >= 0; index--) {
-        if (dword_570A14[index] != -1) {
+        if (_temp_tag_skill[index] != -1) {
             break;
         }
         insertionIndex++;
@@ -4727,29 +4727,29 @@ void characterEditorToggleTaggedSkill(int skill)
         insertionIndex -= 1;
     }
 
-    dword_5709C8 = insertionIndex;
+    _old_tags = insertionIndex;
 
-    if (skill == dword_570A14[0] || skill == dword_570A14[1] || skill == dword_570A14[2] || skill == dword_570A14[3]) {
-        if (skill == dword_570A14[0]) {
-            dword_570A14[0] = dword_570A14[1];
-            dword_570A14[1] = dword_570A14[2];
-            dword_570A14[2] = -1;
-        } else if (skill == dword_570A14[1]) {
-            dword_570A14[1] = dword_570A14[2];
-            dword_570A14[2] = -1;
+    if (skill == _temp_tag_skill[0] || skill == _temp_tag_skill[1] || skill == _temp_tag_skill[2] || skill == _temp_tag_skill[3]) {
+        if (skill == _temp_tag_skill[0]) {
+            _temp_tag_skill[0] = _temp_tag_skill[1];
+            _temp_tag_skill[1] = _temp_tag_skill[2];
+            _temp_tag_skill[2] = -1;
+        } else if (skill == _temp_tag_skill[1]) {
+            _temp_tag_skill[1] = _temp_tag_skill[2];
+            _temp_tag_skill[2] = -1;
         } else {
-            dword_570A14[2] = -1;
+            _temp_tag_skill[2] = -1;
         }
     } else {
-        if (dword_570A10 > 0) {
+        if (_tagskill_count > 0) {
             insertionIndex = 0;
             for (int index = 0; index < 3; index++) {
-                if (dword_570A14[index] == -1) {
+                if (_temp_tag_skill[index] == -1) {
                     break;
                 }
                 insertionIndex++;
             }
-            dword_570A14[insertionIndex] = skill;
+            _temp_tag_skill[insertionIndex] = skill;
         } else {
             soundPlayFile("iisxxxx1");
 
@@ -4760,13 +4760,13 @@ void characterEditorToggleTaggedSkill(int skill)
             strcpy(line2, getmsg(&editorMessageList, &editorMessageListItem, 141));
 
             const char* lines[] = { line2 };
-            showDialogBox(line1, lines, 1, 192, 126, byte_6A38D0[32328], 0, byte_6A38D0[32328], 0);
+            showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
         }
     }
 
     insertionIndex = 0;
     for (int index = 3; index >= 0; index--) {
-        if (dword_570A14[index] != -1) {
+        if (_temp_tag_skill[index] != -1) {
             break;
         }
         insertionIndex++;
@@ -4776,7 +4776,7 @@ void characterEditorToggleTaggedSkill(int skill)
         insertionIndex -= 1;
     }
 
-    dword_570A10 = insertionIndex;
+    _tagskill_count = insertionIndex;
 
     characterEditorSelectedItem = skill + 61;
     editorRenderPrimaryStat(RENDER_ALL_STATS, 0, 0);
@@ -4808,27 +4808,27 @@ void characterEditorWindowRenderTraits()
 
     fontSetCurrent(101);
 
-    traitsSetSelected(dword_570A04[0], dword_570A04[1]);
+    traitsSetSelected(_temp_trait[0], _temp_trait[1]);
 
     step = fontGetLineHeight() + 3 + 0.56;
     y = 353;
     for (i = 0; i < 8; i++) {
         if (i == v0) {
-            if (i != dword_570A04[0] && i != dword_570A04[1]) {
-                color = byte_6A38D0[32747];
+            if (i != _temp_trait[0] && i != _temp_trait[1]) {
+                color = _colorTable[32747];
             } else {
-                color = byte_6A38D0[32767];
+                color = _colorTable[32767];
             }
 
-            dword_5705B0 = traitGetFrmId(i);
-            off_5705B8 = traitGetName(i);
-            off_5705BC = NULL;
-            off_5705CC = traitGetDescription(i);
+            _folder_card_fid = traitGetFrmId(i);
+            _folder_card_title = traitGetName(i);
+            _folder_card_title2 = NULL;
+            _folder_card_desc = traitGetDescription(i);
         } else {
-            if (i != dword_570A04[0] && i != dword_570A04[1]) {
-                color = byte_6A38D0[992];
+            if (i != _temp_trait[0] && i != _temp_trait[1]) {
+                color = _colorTable[992];
             } else {
-                color = byte_6A38D0[21140];
+                color = _colorTable[21140];
             }
         }
 
@@ -4840,21 +4840,21 @@ void characterEditorWindowRenderTraits()
     y = 353;
     for (i = 8; i < 16; i++) {
         if (i == v0) {
-            if (i != dword_570A04[0] && i != dword_570A04[1]) {
-                color = byte_6A38D0[32747];
+            if (i != _temp_trait[0] && i != _temp_trait[1]) {
+                color = _colorTable[32747];
             } else {
-                color = byte_6A38D0[32767];
+                color = _colorTable[32767];
             }
 
-            dword_5705B0 = traitGetFrmId(i);
-            off_5705B8 = traitGetName(i);
-            off_5705BC = NULL;
-            off_5705CC = traitGetDescription(i);
+            _folder_card_fid = traitGetFrmId(i);
+            _folder_card_title = traitGetName(i);
+            _folder_card_title2 = NULL;
+            _folder_card_desc = traitGetDescription(i);
         } else {
-            if (i != dword_570A04[0] && i != dword_570A04[1]) {
-                color = byte_6A38D0[992];
+            if (i != _temp_trait[0] && i != _temp_trait[1]) {
+                color = _colorTable[992];
             } else {
-                color = byte_6A38D0[21140];
+                color = _colorTable[21140];
             }
         }
 
@@ -4867,15 +4867,15 @@ void characterEditorWindowRenderTraits()
 // 0x43BB0C
 void characterEditorToggleOptionalTrait(int trait)
 {
-    if (trait == dword_570A04[0] || trait == dword_570A04[1]) {
-        if (trait == dword_570A04[0]) {
-            dword_570A04[0] = dword_570A04[1];
-            dword_570A04[1] = -1;
+    if (trait == _temp_trait[0] || trait == _temp_trait[1]) {
+        if (trait == _temp_trait[0]) {
+            _temp_trait[0] = _temp_trait[1];
+            _temp_trait[1] = -1;
         } else {
-            dword_570A04[1] = -1;
+            _temp_trait[1] = -1;
         }
     } else {
-        if (dword_5709FC == 0) {
+        if (_trait_count == 0) {
             soundPlayFile("iisxxxx1");
 
             char line1[128];
@@ -4885,23 +4885,23 @@ void characterEditorToggleOptionalTrait(int trait)
             strcpy(line2, getmsg(&editorMessageList, &editorMessageListItem, 149));
 
             const char* lines = { line2 };
-            showDialogBox(line1, &lines, 1, 192, 126, byte_6A38D0[32328], 0, byte_6A38D0[32328], 0);
+            showDialogBox(line1, &lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
         } else {
             for (int index = 0; index < 2; index++) {
-                if (dword_570A04[index] == -1) {
-                    dword_570A04[index] = trait;
+                if (_temp_trait[index] == -1) {
+                    _temp_trait[index] = trait;
                     break;
                 }
             }
         }
     }
 
-    dword_5709FC = 0;
+    _trait_count = 0;
     for (int index = 1; index != 0; index--) {
-        if (dword_570A04[index] != -1) {
+        if (_temp_trait[index] != -1) {
             break;
         }
-        dword_5709FC++;
+        _trait_count++;
     }
 
     characterEditorSelectedItem = trait + EDITOR_FIRST_TRAIT;
@@ -4949,10 +4949,10 @@ void editorRenderKarma()
                     getmsg(&editorMessageList, &editorMessageListItem, reputationDescription->name));
 
                 if (_folder_print_line(formattedText)) {
-                    dword_5705B0 = karmaDescription->art_num;
-                    off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 125);
-                    off_5705BC = NULL;
-                    off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->description);
+                    _folder_card_fid = karmaDescription->art_num;
+                    _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 125);
+                    _folder_card_title2 = NULL;
+                    _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->description);
                     hasSelection = true;
                 }
             }
@@ -4960,10 +4960,10 @@ void editorRenderKarma()
             if (gGameGlobalVars[karmaDescription->gvar] != 0) {
                 msg = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->name);
                 if (_folder_print_line(msg)) {
-                    dword_5705B0 = karmaDescription->art_num;
-                    off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->name);
-                    off_5705BC = NULL;
-                    off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->description);
+                    _folder_card_fid = karmaDescription->art_num;
+                    _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->name);
+                    _folder_card_title2 = NULL;
+                    _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, karmaDescription->description);
                     hasSelection = true;
                 }
             }
@@ -4977,10 +4977,10 @@ void editorRenderKarma()
             if (!hasTownReputationHeading) {
                 msg = getmsg(&editorMessageList, &editorMessageListItem, 4000);
                 if (_folder_print_seperator(msg)) {
-                    dword_5705B0 = 48;
-                    off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 4000);
-                    off_5705BC = NULL;
-                    off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 4100);
+                    _folder_card_fid = 48;
+                    _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 4000);
+                    _folder_card_title2 = NULL;
+                    _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 4100);
                 }
                 hasTownReputationHeading = true;
             }
@@ -5023,10 +5023,10 @@ void editorRenderKarma()
                 msg);
 
             if (_folder_print_line(formattedText)) {
-                dword_5705B0 = townReputationGraphicId;
-                off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, townReputationBaseMessageId);
-                off_5705BC = NULL;
-                off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, townReputationBaseMessageId + 100);
+                _folder_card_fid = townReputationGraphicId;
+                _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, townReputationBaseMessageId);
+                _folder_card_title2 = NULL;
+                _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, townReputationBaseMessageId + 100);
                 hasSelection = 1;
             }
         }
@@ -5039,10 +5039,10 @@ void editorRenderKarma()
                 // Addictions
                 msg = getmsg(&editorMessageList, &editorMessageListItem, 4001);
                 if (_folder_print_seperator(msg)) {
-                    dword_5705B0 = 53;
-                    off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 4001);
-                    off_5705BC = NULL;
-                    off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 4101);
+                    _folder_card_fid = 53;
+                    _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 4001);
+                    _folder_card_title2 = NULL;
+                    _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 4101);
                     hasSelection = 1;
                 }
                 hasAddictionsHeading = true;
@@ -5050,29 +5050,29 @@ void editorRenderKarma()
 
             msg = getmsg(&editorMessageList, &editorMessageListItem, 1004 + index);
             if (_folder_print_line(msg)) {
-                dword_5705B0 = gAddictionReputationFrmIds[index];
-                off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 1004 + index);
-                off_5705BC = NULL;
-                off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 1104 + index);
+                _folder_card_fid = gAddictionReputationFrmIds[index];
+                _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 1004 + index);
+                _folder_card_title2 = NULL;
+                _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 1104 + index);
                 hasSelection = 1;
             }
         }
     }
 
     if (!hasSelection) {
-        dword_5705B0 = 47;
-        off_5705B8 = getmsg(&editorMessageList, &editorMessageListItem, 125);
-        off_5705BC = NULL;
-        off_5705CC = getmsg(&editorMessageList, &editorMessageListItem, 128);
+        _folder_card_fid = 47;
+        _folder_card_title = getmsg(&editorMessageList, &editorMessageListItem, 125);
+        _folder_card_title2 = NULL;
+        _folder_card_desc = getmsg(&editorMessageList, &editorMessageListItem, 128);
     }
 }
 
 //
 int _editor_save(File* stream)
 {
-    if (fileWriteInt32(stream, dword_5707B4) == -1)
+    if (fileWriteInt32(stream, _last_level) == -1)
         return -1;
-    if (fileWriteUInt8(stream, byte_570A29) == -1)
+    if (fileWriteUInt8(stream, _free_perk) == -1)
         return -1;
 
     return 0;
@@ -5081,9 +5081,9 @@ int _editor_save(File* stream)
 //
 int _editor_load(File* stream)
 {
-    if (fileReadInt32(stream, &dword_5707B4) == -1)
+    if (fileReadInt32(stream, &_last_level) == -1)
         return -1;
-    if (fileReadUInt8(stream, &byte_570A29) == -1)
+    if (fileReadUInt8(stream, &_free_perk) == -1)
         return -1;
 
     return 0;
@@ -5093,15 +5093,15 @@ int _editor_load(File* stream)
 void _editor_reset()
 {
     characterEditorRemainingCharacterPoints = 5;
-    dword_5707B4 = 1;
+    _last_level = 1;
 }
 
 // level up if needed
 int _UpdateLevel()
 {
     int level = pcGetStat(PC_STAT_LEVEL);
-    if (level != dword_5707B4 && level <= PC_LEVEL_MAX) {
-        for (int nextLevel = dword_5707B4 + 1; nextLevel <= level; nextLevel++) {
+    if (level != _last_level && level <= PC_LEVEL_MAX) {
+        for (int nextLevel = _last_level + 1; nextLevel <= level; nextLevel++) {
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             sp += 5;
             sp += critterGetBaseStatWithTraitModifier(gDude, STAT_INTELLIGENCE) * 2;
@@ -5136,13 +5136,13 @@ int _UpdateLevel()
                 }
 
                 if (nextLevel % progression == 0) {
-                    byte_570A29 = 1;
+                    _free_perk = 1;
                 }
             }
         }
     }
 
-    if (byte_570A29 != 0) {
+    if (_free_perk != 0) {
         characterEditorWindowSelectedFolder = 0;
         editorRenderFolders();
         windowRefresh(characterEditorWindowHandle);
@@ -5155,11 +5155,11 @@ int _UpdateLevel()
             editorRenderFolders();
         } else if (rc == 1) {
             editorRenderFolders();
-            byte_570A29 = 0;
+            _free_perk = 0;
         }
     }
 
-    dword_5707B4 = level;
+    _last_level = level;
 
     return 1;
 }
@@ -5178,7 +5178,7 @@ void _RedrwDPrks()
     _ListDPerks();
 
     // NOTE: Original code is slightly different, but basically does the same thing.
-    int perk = stru_56FCB0[dword_5707DC + dword_5707A8].field_0;
+    int perk = _name_sort_list[_crow + _cline].field_0;
     int perkFrmId = perkGetFrmId(perk);
     char* perkName = perkGetName(perk);
     char* perkDescription = perkGetDescription(perk);
@@ -5199,11 +5199,11 @@ void _RedrwDPrks()
 // 0x43C4F0
 int editorSelectPerk()
 {
-    dword_5707DC = 0;
-    dword_5707A8 = 0;
-    dword_5709E8 = -1;
-    byte_570128[0] = '\0';
-    dword_5707E0 = 0;
+    _crow = 0;
+    _cline = 0;
+    _card_old_fid2 = -1;
+    _old_str2[0] = '\0';
+    _frstc_draw2 = 0;
 
     CacheEntry* backgroundFrmHandle;
     int backgroundWidth;
@@ -5230,14 +5230,14 @@ int editorSelectPerk()
     btn = buttonCreate(gEditorPerkWindow,
         48,
         186,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         500,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -5247,14 +5247,14 @@ int editorSelectPerk()
     btn = buttonCreate(gEditorPerkWindow,
         153,
         186,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
-        stru_5701C0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
+        _GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         502,
-        dword_5704E0[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
-        dword_5704E0[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
+        _grphbmp[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP],
+        _grphbmp[EDITOR_GRAPHIC_LILTTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -5264,14 +5264,14 @@ int editorSelectPerk()
     btn = buttonCreate(gEditorPerkWindow,
         25,
         46,
-        stru_5701C0[EDITOR_GRAPHIC_UP_ARROW_ON].width,
-        stru_5701C0[EDITOR_GRAPHIC_UP_ARROW_ON].height,
+        _GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].width,
+        _GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].height,
         -1,
         574,
         572,
         574,
-        dword_5704E0[EDITOR_GRAPHIC_UP_ARROW_OFF],
-        dword_5704E0[EDITOR_GRAPHIC_UP_ARROW_ON],
+        _grphbmp[EDITOR_GRAPHIC_UP_ARROW_OFF],
+        _grphbmp[EDITOR_GRAPHIC_UP_ARROW_ON],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -5280,15 +5280,15 @@ int editorSelectPerk()
 
     btn = buttonCreate(gEditorPerkWindow,
         25,
-        47 + stru_5701C0[EDITOR_GRAPHIC_UP_ARROW_ON].height,
-        stru_5701C0[EDITOR_GRAPHIC_UP_ARROW_ON].width,
-        stru_5701C0[EDITOR_GRAPHIC_UP_ARROW_ON].height,
+        47 + _GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].height,
+        _GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].width,
+        _GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].height,
         -1,
         575,
         573,
         575,
-        dword_5704E0[EDITOR_GRAPHIC_DOWN_ARROW_OFF],
-        dword_5704E0[EDITOR_GRAPHIC_DOWN_ARROW_ON],
+        _grphbmp[EDITOR_GRAPHIC_DOWN_ARROW_OFF],
+        _grphbmp[EDITOR_GRAPHIC_DOWN_ARROW_ON],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -5315,20 +5315,20 @@ int editorSelectPerk()
 
     // PICK A NEW PERK
     msg = getmsg(&editorMessageList, &editorMessageListItem, 152);
-    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[18979]);
+    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[18979]);
 
     // DONE
     msg = getmsg(&editorMessageList, &editorMessageListItem, 100);
-    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 186 + 69, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[18979]);
+    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 186 + 69, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[18979]);
 
     // CANCEL
     msg = getmsg(&editorMessageList, &editorMessageListItem, 102);
-    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 186 + 171, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[18979]);
+    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 186 + 171, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[18979]);
 
     int count = _ListDPerks();
     
     // NOTE: Original code is slightly different, but does the same thing.
-    int perk = stru_56FCB0[dword_5707DC + dword_5707A8].field_0;
+    int perk = _name_sort_list[_crow + _cline].field_0;
     int perkFrmId = perkGetFrmId(perk);
     char* perkName = perkGetName(perk);
     char* perkDescription = perkGetDescription(perk);
@@ -5347,7 +5347,7 @@ int editorSelectPerk()
     int rc = _InputPDLoop(count, _RedrwDPrks);
 
     if (rc == 1) {
-        if (perkAdd(gDude, stru_56FCB0[dword_5707DC + dword_5707A8].field_0) == -1) {
+        if (perkAdd(gDude, _name_sort_list[_crow + _cline].field_0) == -1) {
             debugPrint("\n*** Unable to add perk! ***\n");
             rc = 2;
         }
@@ -5356,19 +5356,19 @@ int editorSelectPerk()
     rc &= 1;
 
     if (rc != 0) {
-        if (perkGetRank(gDude, PERK_TAG) != 0 && dword_5707E4[PERK_TAG] == 0) {
+        if (perkGetRank(gDude, PERK_TAG) != 0 && _perk_back[PERK_TAG] == 0) {
             if (!editorHandleTag()) {
                 perkRemove(gDude, PERK_TAG);
             }
-        } else if (perkGetRank(gDude, PERK_MUTATE) != 0 && dword_5707E4[PERK_MUTATE] == 0) {
+        } else if (perkGetRank(gDude, PERK_MUTATE) != 0 && _perk_back[PERK_MUTATE] == 0) {
             if (!editorHandleMutate()) {
                 perkRemove(gDude, PERK_MUTATE);
             }
-        } else if (perkGetRank(gDude, PERK_LIFEGIVER) != dword_5707E4[PERK_LIFEGIVER]) {
+        } else if (perkGetRank(gDude, PERK_LIFEGIVER) != _perk_back[PERK_LIFEGIVER]) {
             int maxHp = critterGetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS);
             critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
             critterAdjustHitPoints(gDude, 4);
-        } else if (perkGetRank(gDude, PERK_EDUCATED) != dword_5707E4[PERK_EDUCATED]) {
+        } else if (perkGetRank(gDude, PERK_EDUCATED) != _perk_back[PERK_EDUCATED]) {
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);
         }
@@ -5396,7 +5396,7 @@ int _InputPDLoop(int count, void(*refreshProc)())
     int v3 = count - 11;
 
     int height = fontGetLineHeight();
-    dword_5707AC = -2;
+    _oldsline = -2;
     int v16 = height + 2;
 
     int v7 = 0;
@@ -5412,53 +5412,53 @@ int _InputPDLoop(int count, void(*refreshProc)())
             soundPlayFile("ib1p1xx1");
             rc = 1;
         } else if (keyCode == 501) {
-            mouseGetPosition(&dword_5707CC, &dword_5707C8);
-            dword_5707A8 = (dword_5707C8 - 134) / v16;
-            if ((dword_5707C8 - 134) / v16 >= 0) {
-                if (count - 1 < (dword_5707C8 - 134) / v16)
-                    dword_5707A8 = count - 1;
+            mouseGetPosition(&_mouse_xpos, &_mouse_ypos);
+            _cline = (_mouse_ypos - 134) / v16;
+            if ((_mouse_ypos - 134) / v16 >= 0) {
+                if (count - 1 < (_mouse_ypos - 134) / v16)
+                    _cline = count - 1;
             } else {
-                dword_5707A8 = 0;
+                _cline = 0;
             }
 
-            if (dword_5707A8 == dword_5707AC) {
+            if (_cline == _oldsline) {
                 soundPlayFile("ib1p1xx1");
                 rc = 1;
             }
-            dword_5707AC = dword_5707A8;
+            _oldsline = _cline;
             refreshProc();
         }
-        else if (keyCode == 502 || keyCode == KEY_ESCAPE || dword_5186CC != 0) {
+        else if (keyCode == 502 || keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
             rc = 2;
         }
         else {
             switch (keyCode) {
             case KEY_ARROW_UP:
-                dword_5707AC = -2;
+                _oldsline = -2;
 
-                dword_5707DC--;
-                if (dword_5707DC < 0) {
-                    dword_5707DC = 0;
+                _crow--;
+                if (_crow < 0) {
+                    _crow = 0;
 
-                    dword_5707A8--;
-                    if (dword_5707A8 < 0) {
-                        dword_5707A8 = 0;
+                    _cline--;
+                    if (_cline < 0) {
+                        _cline = 0;
                     }
                 }
 
                 refreshProc();
                 break;
             case KEY_PAGE_UP:
-                dword_5707AC = -2;
+                _oldsline = -2;
 
                 for (int index = 0; index < 11; index++) {
-                    dword_5707DC--;
-                    if (dword_5707DC < 0) {
-                        dword_5707DC = 0;
+                    _crow--;
+                    if (_crow < 0) {
+                        _crow = 0;
 
-                        dword_5707A8--;
-                        if (dword_5707A8 < 0) {
-                            dword_5707A8 = 0;
+                        _cline--;
+                        if (_cline < 0) {
+                            _cline = 0;
                         }
                     }
                 }
@@ -5466,47 +5466,47 @@ int _InputPDLoop(int count, void(*refreshProc)())
                 refreshProc();
                 break;
             case KEY_ARROW_DOWN:
-                dword_5707AC = -2;
+                _oldsline = -2;
 
                 if (count > 11) {
-                    dword_5707DC++;
-                    if (dword_5707DC > count - 11) {
-                        dword_5707DC = count - 11;
+                    _crow++;
+                    if (_crow > count - 11) {
+                        _crow = count - 11;
 
-                        dword_5707A8++;
-                        if (dword_5707A8 > 10) {
-                            dword_5707A8 = 10;
+                        _cline++;
+                        if (_cline > 10) {
+                            _cline = 10;
                         }
                     }
                 }
                 else {
-                    dword_5707A8++;
-                    if (dword_5707A8 > count - 1) {
-                        dword_5707A8 = count - 1;
+                    _cline++;
+                    if (_cline > count - 1) {
+                        _cline = count - 1;
                     }
                 }
 
                 refreshProc();
                 break;
             case KEY_PAGE_DOWN:
-                dword_5707AC = -2;
+                _oldsline = -2;
 
                 for (int index = 0; index < 11; index++) {
                     if (count > 11) {
-                        dword_5707DC++;
-                        if (dword_5707DC > count - 11) {
-                            dword_5707DC = count - 11;
+                        _crow++;
+                        if (_crow > count - 11) {
+                            _crow = count - 11;
 
-                            dword_5707A8++;
-                            if (dword_5707A8 > 10) {
-                                dword_5707A8 = 10;
+                            _cline++;
+                            if (_cline > 10) {
+                                _cline = 10;
                             }
                         }
                     }
                     else {
-                        dword_5707A8++;
-                        if (dword_5707A8 > count - 1) {
-                            dword_5707A8 = count - 1;
+                        _cline++;
+                        if (_cline > count - 1) {
+                            _cline = count - 1;
                         }
                     }
                 }
@@ -5514,72 +5514,72 @@ int _InputPDLoop(int count, void(*refreshProc)())
                 refreshProc();
                 break;
             case 572:
-                dword_5709C0 = 4;
-                dword_5707AC = -2;
+                _repFtime = 4;
+                _oldsline = -2;
 
                 do {
-                    dword_5709C4 = _get_time();
+                    _frame_time = _get_time();
                     if (v19 <= dbl_5019BE) {
                         v19++;
                     }
 
                     if (v19 == 1 || v19 > dbl_5019BE) {
                         if (v19 > dbl_5019BE) {
-                            dword_5709C0++;
-                            if (dword_5709C0 > 24) {
-                                dword_5709C0 = 24;
+                            _repFtime++;
+                            if (_repFtime > 24) {
+                                _repFtime = 24;
                             }
                         }
 
-                        dword_5707DC--;
-                        if (dword_5707DC < 0) {
-                            dword_5707DC = 0;
+                        _crow--;
+                        if (_crow < 0) {
+                            _crow = 0;
 
-                            dword_5707A8--;
-                            if (dword_5707A8 < 0) {
-                                dword_5707A8 = 0;
+                            _cline--;
+                            if (_cline < 0) {
+                                _cline = 0;
                             }
                         }
                         refreshProc();
                     }
 
                     if (v19 < dbl_5019BE) {
-                        while (getTicksSince(dword_5709C4) < 1000 / 24) {
+                        while (getTicksSince(_frame_time) < 1000 / 24) {
                         }
                     }
                     else {
-                        while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
+                        while (getTicksSince(_frame_time) < 1000 / _repFtime) {
                         }
                     }
                 } while (_get_input() != 574);
 
                 break;
             case 573:
-                dword_5707AC = -2;
-                dword_5709C0 = 4;
+                _oldsline = -2;
+                _repFtime = 4;
 
                 if (count > 11) {
                     do {
-                        dword_5709C4 = _get_time();
+                        _frame_time = _get_time();
                         if (v19 <= dbl_5019BE) {
                             v19++;
                         }
 
                         if (v19 == 1 || v19 > dbl_5019BE) {
                             if (v19 > dbl_5019BE) {
-                                dword_5709C0++;
-                                if (dword_5709C0 > 24) {
-                                    dword_5709C0 = 24;
+                                _repFtime++;
+                                if (_repFtime > 24) {
+                                    _repFtime = 24;
                                 }
                             }
 
-                            dword_5707DC++;
-                            if (dword_5707DC > count - 11) {
-                                dword_5707DC = count - 11;
+                            _crow++;
+                            if (_crow > count - 11) {
+                                _crow = count - 11;
 
-                                dword_5707A8++;
-                                if (dword_5707A8 > 10) {
-                                    dword_5707A8 = 10;
+                                _cline++;
+                                if (_cline > 10) {
+                                    _cline = 10;
                                 }
                             }
 
@@ -5587,69 +5587,69 @@ int _InputPDLoop(int count, void(*refreshProc)())
                         }
 
                         if (v19 < dbl_5019BE) {
-                            while (getTicksSince(dword_5709C4) < 1000 / 24) {
+                            while (getTicksSince(_frame_time) < 1000 / 24) {
                             }
                         }
                         else {
-                            while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
+                            while (getTicksSince(_frame_time) < 1000 / _repFtime) {
                             }
                         }
                     } while (_get_input() != 575);
                 }
                 else {
                     do {
-                        dword_5709C4 = _get_time();
+                        _frame_time = _get_time();
                         if (v19 <= dbl_5019BE) {
                             v19++;
                         }
 
                         if (v19 == 1 || v19 > dbl_5019BE) {
                             if (v19 > dbl_5019BE) {
-                                dword_5709C0++;
-                                if (dword_5709C0 > 24) {
-                                    dword_5709C0 = 24;
+                                _repFtime++;
+                                if (_repFtime > 24) {
+                                    _repFtime = 24;
                                 }
                             }
 
-                            dword_5707A8++;
-                            if (dword_5707A8 > count - 1) {
-                                dword_5707A8 = count - 1;
+                            _cline++;
+                            if (_cline > count - 1) {
+                                _cline = count - 1;
                             }
 
                             refreshProc();
                         }
 
                         if (v19 < dbl_5019BE) {
-                            while (getTicksSince(dword_5709C4) < 1000 / 24) {
+                            while (getTicksSince(_frame_time) < 1000 / 24) {
                             }
                         } else {
-                            while (getTicksSince(dword_5709C4) < 1000 / dword_5709C0) {
+                            while (getTicksSince(_frame_time) < 1000 / _repFtime) {
                             }
                         }
                     } while (_get_input() != 575);
                 }
                 break;
             case KEY_HOME:
-                dword_5707DC = 0;
-                dword_5707A8 = 0;
-                dword_5707AC = -2;
+                _crow = 0;
+                _cline = 0;
+                _oldsline = -2;
                 refreshProc();
                 break;
             case KEY_END:
-                dword_5707AC = -2;
+                _oldsline = -2;
                 if (count > 11) {
-                    dword_5707DC = count - 11;
-                    dword_5707A8 = 10;
+                    _crow = count - 11;
+                    _cline = 10;
                 }
                 else {
-                    dword_5707A8 = count - 1;
+                    _cline = count - 1;
                 }
                 refreshProc();
                 break;
             default:
-                if (getTicksSince(dword_5709C4) > 700) {
-                    dword_5709C4 = _get_time();
-                    dword_5707AC = -2;
+                if (getTicksSince(_frame_time) > 700) {
+                    _frame_time = _get_time();
+                    _oldsline = -2;
                 }
                 break;
             }
@@ -5679,39 +5679,39 @@ int _ListDPerks()
     }
 
     for (int perk = 0; perk < PERK_COUNT; perk++) {
-        stru_56FCB0[perk].field_0 = 0;
-        stru_56FCB0[perk].field_4 = NULL;
+        _name_sort_list[perk].field_0 = 0;
+        _name_sort_list[perk].field_4 = NULL;
     }
 
     for (int index = 0; index < count; index++) {
-        stru_56FCB0[index].field_0 = perks[index];
-        stru_56FCB0[index].field_4 = perkGetName(perks[index]);
+        _name_sort_list[index].field_0 = perks[index];
+        _name_sort_list[index].field_4 = perkGetName(perks[index]);
     }
 
-    qsort(stru_56FCB0, count, sizeof(*stru_56FCB0), _name_sort_comp);
+    qsort(_name_sort_list, count, sizeof(*_name_sort_list), _name_sort_comp);
 
-    int v16 = count - dword_5707DC;
+    int v16 = count - _crow;
     if (v16 > 11) {
         v16 = 11;
     }
 
-    v16 += dword_5707DC;
+    v16 += _crow;
 
     int y = 43;
     int yStep = fontGetLineHeight() + 2;
-    for (int index = dword_5707DC; index < v16; index++) {
+    for (int index = _crow; index < v16; index++) {
         int color;
-        if (index == dword_5707DC + dword_5707A8) {
-            color = byte_6A38D0[32747];
+        if (index == _crow + _cline) {
+            color = _colorTable[32747];
         } else {
-            color = byte_6A38D0[992];
+            color = _colorTable[992];
         }
 
-        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, stru_56FCB0[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, _name_sort_list[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
 
-        if (perkGetRank(gDude, stru_56FCB0[index].field_0) != 0) {
+        if (perkGetRank(gDude, _name_sort_list[index].field_0) != 0) {
             char rankString[256];
-            sprintf(rankString, "(%d)", perkGetRank(gDude, stru_56FCB0[index].field_0));
+            sprintf(rankString, "(%d)", perkGetRank(gDude, _name_sort_list[index].field_0));
             fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 207, rankString, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
         }
 
@@ -5726,11 +5726,11 @@ void _RedrwDMPrk()
 {
     blitBufferToBuffer(gEditorPerkBackgroundBuffer + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, gEditorPerkWindowBuffer + 280, PERK_WINDOW_WIDTH);
 
-    _ListMyTraits(dword_570A00);
+    _ListMyTraits(_optrt_count);
 
-    char* traitName = stru_56FCB0[dword_5707DC + dword_5707A8].field_4;
-    char* tratDescription = traitGetDescription(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
-    int frmId = traitGetFrmId(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
+    char* traitName = _name_sort_list[_crow + _cline].field_4;
+    char* tratDescription = traitGetDescription(_name_sort_list[_crow + _cline].field_0);
+    int frmId = traitGetFrmId(_name_sort_list[_crow + _cline].field_0);
     _DrawCard2(frmId, traitName, NULL, tratDescription);
 
     windowRefresh(gEditorPerkWindow);
@@ -5739,61 +5739,61 @@ void _RedrwDMPrk()
 // 0x43D38C
 bool editorHandleMutate()
 {
-    dword_5709E8 = -1;
-    byte_570128[0] = '\0';
-    dword_5707E0 = 0;
+    _card_old_fid2 = -1;
+    _old_str2[0] = '\0';
+    _frstc_draw2 = 0;
 
     int traitCount = TRAITS_MAX_SELECTED_COUNT - 1;
     int traitIndex = 0;
     while (traitCount >= 0) {
-        if (dword_570A04[traitIndex] != -1) {
+        if (_temp_trait[traitIndex] != -1) {
             break;
         }
         traitCount--;
         traitIndex++;
     }
 
-    dword_5709FC = TRAITS_MAX_SELECTED_COUNT - traitIndex;
+    _trait_count = TRAITS_MAX_SELECTED_COUNT - traitIndex;
 
     bool result = true;
-    if (dword_5709FC >= 1) {
+    if (_trait_count >= 1) {
         fontSetCurrent(103);
 
         blitBufferToBuffer(gEditorPerkBackgroundBuffer + PERK_WINDOW_WIDTH * 14 + 49, 206, fontGetLineHeight() + 2, PERK_WINDOW_WIDTH, gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
 
         // LOSE A TRAIT
         char* msg = getmsg(&editorMessageList, &editorMessageListItem, 154);
-        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[18979]);
+        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[18979]);
 
-        dword_570A00 = 0;
-        dword_5707A8 = 0;
-        dword_5707DC = 0;
+        _optrt_count = 0;
+        _cline = 0;
+        _crow = 0;
         _RedrwDMPrk();
 
-        int rc = _InputPDLoop(dword_5709FC, _RedrwDMPrk);
+        int rc = _InputPDLoop(_trait_count, _RedrwDMPrk);
         if (rc == 1) {
-            if (dword_5707A8 == 0) {
-                if (dword_5709FC == 1) {
-                    dword_570A04[0] = -1;
-                    dword_570A04[1] = -1;
+            if (_cline == 0) {
+                if (_trait_count == 1) {
+                    _temp_trait[0] = -1;
+                    _temp_trait[1] = -1;
                 }
                 else {
-                    if (stru_56FCB0[0].field_0 == dword_570A04[0]) {
-                        dword_570A04[0] = dword_570A04[1];
-                        dword_570A04[1] = -1;
+                    if (_name_sort_list[0].field_0 == _temp_trait[0]) {
+                        _temp_trait[0] = _temp_trait[1];
+                        _temp_trait[1] = -1;
                     }
                     else {
-                        dword_570A04[1] = -1;
+                        _temp_trait[1] = -1;
                     }
                 }
             }
             else {
-                if (stru_56FCB0[0].field_0 == dword_570A04[0]) {
-                    dword_570A04[1] = -1;
+                if (_name_sort_list[0].field_0 == _temp_trait[0]) {
+                    _temp_trait[1] = -1;
                 }
                 else {
-                    dword_570A04[0] = dword_570A04[1];
-                    dword_570A04[1] = -1;
+                    _temp_trait[0] = _temp_trait[1];
+                    _temp_trait[1] = -1;
                 }
             }
         }
@@ -5809,30 +5809,30 @@ bool editorHandleMutate()
 
         // PICK A NEW TRAIT
         char* msg = getmsg(&editorMessageList, &editorMessageListItem, 153);
-        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[18979]);
+        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[18979]);
 
-        dword_5707A8 = 0;
-        dword_5707DC = 0;
-        dword_570A00 = 1;
+        _cline = 0;
+        _crow = 0;
+        _optrt_count = 1;
 
         _RedrwDMPrk();
 
-        int count = 16 - dword_5709FC;
+        int count = 16 - _trait_count;
         if (count > 16) {
             count = 16;
         }
 
         int rc = _InputPDLoop(count, _RedrwDMPrk);
         if (rc == 1) {
-            if (dword_5709FC != 0) {
-                dword_570A04[1] = stru_56FCB0[dword_5707A8 + dword_5707DC].field_0;
+            if (_trait_count != 0) {
+                _temp_trait[1] = _name_sort_list[_cline + _crow].field_0;
             }
             else {
-                dword_570A04[0] = stru_56FCB0[dword_5707A8 + dword_5707DC].field_0;
-                dword_570A04[1] = -1;
+                _temp_trait[0] = _name_sort_list[_cline + _crow].field_0;
+                _temp_trait[1] = -1;
             }
 
-            traitsSetSelected(dword_570A04[0], dword_570A04[1]);
+            traitsSetSelected(_temp_trait[0], _temp_trait[1]);
         }
         else {
             result = false;
@@ -5840,7 +5840,7 @@ bool editorHandleMutate()
     }
 
     if (!result) {
-        memcpy(dword_570A04, dword_5709F0, sizeof(dword_570A04));
+        memcpy(_temp_trait, _trait_back, sizeof(_temp_trait));
     }
 
     return result;
@@ -5853,9 +5853,9 @@ void _RedrwDMTagSkl()
 
     _ListNewTagSkills();
 
-    char* name = stru_56FCB0[dword_5707DC + dword_5707A8].field_4;
-    char* description = skillGetDescription(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
-    int frmId = skillGetFrmId(stru_56FCB0[dword_5707DC + dword_5707A8].field_0);
+    char* name = _name_sort_list[_crow + _cline].field_4;
+    char* description = skillGetDescription(_name_sort_list[_crow + _cline].field_0);
+    int frmId = skillGetFrmId(_name_sort_list[_crow + _cline].field_0);
     _DrawCard2(frmId, name, NULL, description);
 
     windowRefresh(gEditorPerkWindow);
@@ -5870,24 +5870,24 @@ bool editorHandleTag()
 
     // PICK A NEW TAG SKILL
     char* messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 155);
-    fontDrawText(gEditorPerkWindowBuffer + 573 * 16 + 49, messageListItemText, 573, 573, byte_6A38D0[18979]);
+    fontDrawText(gEditorPerkWindowBuffer + 573 * 16 + 49, messageListItemText, 573, 573, _colorTable[18979]);
 
-    dword_5707A8 = 0;
-    dword_5707DC = 0;
-    dword_5709E8 = -1;
-    byte_570128[0] = '\0';
-    dword_5707E0 = 0;
+    _cline = 0;
+    _crow = 0;
+    _card_old_fid2 = -1;
+    _old_str2[0] = '\0';
+    _frstc_draw2 = 0;
     _RedrwDMTagSkl();
 
-    int rc = _InputPDLoop(dword_570A00, _RedrwDMTagSkl);
+    int rc = _InputPDLoop(_optrt_count, _RedrwDMTagSkl);
     if (rc != 1) {
-        memcpy(dword_570A14, dword_5709D4, sizeof(dword_570A14));
-        skillsSetTagged(dword_5709D4, NUM_TAGGED_SKILLS);
+        memcpy(_temp_tag_skill, _tag_skill_back, sizeof(_temp_tag_skill));
+        skillsSetTagged(_tag_skill_back, NUM_TAGGED_SKILLS);
         return false;
     }
     
-    dword_570A14[3] = stru_56FCB0[dword_5707DC + dword_5707A8].field_0;
-    skillsSetTagged(dword_570A14, NUM_TAGGED_SKILLS);
+    _temp_tag_skill[3] = _name_sort_list[_crow + _cline].field_0;
+    skillsSetTagged(_temp_tag_skill, NUM_TAGGED_SKILLS);
 
     return true;
 }
@@ -5898,31 +5898,31 @@ void _ListNewTagSkills()
 
     fontSetCurrent(101);
 
-    dword_570A00 = 0;
+    _optrt_count = 0;
 
     int y = 43;
     int yStep = fontGetLineHeight() + 2;
 
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
-        if (skill != dword_570A14[0] && skill != dword_570A14[1] && skill != dword_570A14[2] && skill != dword_570A14[3]) {
-            stru_56FCB0[dword_570A00].field_0 = skill;
-            stru_56FCB0[dword_570A00].field_4 = skillGetName(skill);
-            dword_570A00++;
+        if (skill != _temp_tag_skill[0] && skill != _temp_tag_skill[1] && skill != _temp_tag_skill[2] && skill != _temp_tag_skill[3]) {
+            _name_sort_list[_optrt_count].field_0 = skill;
+            _name_sort_list[_optrt_count].field_4 = skillGetName(skill);
+            _optrt_count++;
         }
     }
 
-    qsort(stru_56FCB0, dword_570A00, sizeof(*stru_56FCB0), _name_sort_comp);
+    qsort(_name_sort_list, _optrt_count, sizeof(*_name_sort_list), _name_sort_comp);
 
-    for (int index = dword_5707DC; index < dword_5707DC + 11; index++) {
+    for (int index = _crow; index < _crow + 11; index++) {
         int color;
-        if (index == dword_5707A8 + dword_5707DC) {
-            color = byte_6A38D0[32747];
+        if (index == _cline + _crow) {
+            color = _colorTable[32747];
         }
         else {
-            color = byte_6A38D0[992];
+            color = _colorTable[992];
         }
 
-        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, stru_56FCB0[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, _name_sort_list[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
         y += yStep;
     }
 }
@@ -5939,49 +5939,49 @@ int _ListMyTraits(int a1)
     if (a1 != 0) {
         int count = 0;
         for (int trait = 0; trait < TRAIT_COUNT; trait++) {
-            if (trait != dword_5709F0[0] && trait != dword_5709F0[1]) {
-                stru_56FCB0[count].field_0 = trait;
-                stru_56FCB0[count].field_4 = traitGetName(trait);
+            if (trait != _trait_back[0] && trait != _trait_back[1]) {
+                _name_sort_list[count].field_0 = trait;
+                _name_sort_list[count].field_4 = traitGetName(trait);
                 count++;
             }
         }
 
-        qsort(stru_56FCB0, count, sizeof(*stru_56FCB0), _name_sort_comp);
+        qsort(_name_sort_list, count, sizeof(*_name_sort_list), _name_sort_comp);
 
-        for (int index = dword_5707DC; index < dword_5707DC + 11; index++) {
+        for (int index = _crow; index < _crow + 11; index++) {
             int color;
-            if (index == dword_5707A8 + dword_5707DC) {
-                color = byte_6A38D0[32747];
+            if (index == _cline + _crow) {
+                color = _colorTable[32747];
             }
             else {
-                color = byte_6A38D0[992];
+                color = _colorTable[992];
             }
 
-            fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, stru_56FCB0[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+            fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, _name_sort_list[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
             y += yStep;
         }
     }
     else {
         // NOTE: Original code does not use loop.
         for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
-            stru_56FCB0[index].field_0 = dword_570A04[index];
-            stru_56FCB0[index].field_4 = traitGetName(dword_570A04[index]);
+            _name_sort_list[index].field_0 = _temp_trait[index];
+            _name_sort_list[index].field_4 = traitGetName(_temp_trait[index]);
         }
 
-        if (dword_5709FC > 1) {
-            qsort(stru_56FCB0, dword_5709FC, sizeof(*stru_56FCB0), _name_sort_comp);
+        if (_trait_count > 1) {
+            qsort(_name_sort_list, _trait_count, sizeof(*_name_sort_list), _name_sort_comp);
         }
 
-        for (int index = 0; index < dword_5709FC; index++) {
+        for (int index = 0; index < _trait_count; index++) {
             int color;
-            if (index == dword_5707A8) {
-                color = byte_6A38D0[32747];
+            if (index == _cline) {
+                color = _colorTable[32747];
             }
             else {
-                color = byte_6A38D0[992];
+                color = _colorTable[992];
             }
 
-            fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, stru_56FCB0[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+            fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 45, _name_sort_list[index].field_4, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
             y += yStep;
         }
     }
@@ -6015,7 +6015,7 @@ int _DrawCard2(int frmId, const char* name, const char* rank, char* description)
     for (int y = 0; y < height; y++) {
         unsigned char* stride = data;
         for (int x = 0; x < width; x++) {
-            if (sub_44EBC0(*stride) < 2) {
+            if (_HighRGB_(*stride) < 2) {
                 if (extraDescriptionWidth > x) {
                     extraDescriptionWidth = x;
                 }
@@ -6034,18 +6034,18 @@ int _DrawCard2(int frmId, const char* name, const char* rank, char* description)
     fontSetCurrent(102);
     int nameHeight = fontGetLineHeight();
 
-    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 27 + 280, name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[0]);
+    fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * 27 + 280, name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[0]);
 
     if (rank != NULL) {
         int rankX = fontGetStringWidth(name) + 280 + 8;
         fontSetCurrent(101);
 
         int rankHeight = fontGetLineHeight();
-        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * (23 + nameHeight - rankHeight) + rankX, rank, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[0]);
+        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * (23 + nameHeight - rankHeight) + rankX, rank, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[0]);
     }
 
-    windowDrawLine(gEditorPerkWindow, 280, 27 + nameHeight, 545, 27 + nameHeight, byte_6A38D0[0]);
-    windowDrawLine(gEditorPerkWindow, 280, 28 + nameHeight, 545, 28 + nameHeight, byte_6A38D0[0]);
+    windowDrawLine(gEditorPerkWindow, 280, 27 + nameHeight, 545, 27 + nameHeight, _colorTable[0]);
+    windowDrawLine(gEditorPerkWindow, 280, 28 + nameHeight, 545, 28 + nameHeight, _colorTable[0]);
 
     fontSetCurrent(101);
 
@@ -6066,23 +6066,23 @@ int _DrawCard2(int frmId, const char* name, const char* rank, char* description)
         char ch = *ending;
         *ending = '\0';
 
-        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 280, beginning, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, byte_6A38D0[0]);
+        fontDrawText(gEditorPerkWindowBuffer + PERK_WINDOW_WIDTH * y + 280, beginning, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, _colorTable[0]);
 
         *ending = ch;
 
         y += yStep;
     }
 
-    if (frmId != dword_5709E8 || strcmp(byte_570128, name) != 0) {
-        if (dword_5707E0) {
+    if (frmId != _card_old_fid2 || strcmp(_old_str2, name) != 0) {
+        if (_frstc_draw2) {
             soundPlayFile("isdxxxx1");
         }
     }
 
-    strcpy(byte_570128, name);
+    strcpy(_old_str2, name);
 
-    dword_5709E8 = frmId;
-    dword_5707E0 = 1;
+    _card_old_fid2 = frmId;
+    _frstc_draw2 = 1;
     artUnlock(handle);
 
     return 0;
@@ -6094,7 +6094,7 @@ void _pop_perks()
     for (int perk = 0; perk < PERK_COUNT; perk++) {
         for (;;) {
             int rank = perkGetRank(gDude, perk);
-            if (rank <= dword_5707E4[perk]) {
+            if (rank <= _perk_back[perk]) {
                 break;
             }
 
@@ -6105,7 +6105,7 @@ void _pop_perks()
     for (int i = 0; i < PERK_COUNT; i++) {
         for(;;) {
             int rank = perkGetRank(gDude, i);
-            if (rank >= dword_5707E4[i]) {
+            if (rank >= _perk_back[i]) {
                 break;
             }
 
@@ -6131,39 +6131,39 @@ int _is_supper_bonus()
 //
 int _folder_init()
 {
-    dword_5705C4 = 0;
-    dword_5705D8 = 0;
-    dword_5705D4 = 0;
+    _folder_karma_top_line = 0;
+    _folder_perk_top_line = 0;
+    _folder_kills_top_line = 0;
 
-    if (dword_518624 == -1) {
-        dword_518624 = buttonCreate(characterEditorWindowHandle, 317, 364, stru_5701C0[22].width, stru_5701C0[22].height, -1, -1, -1, 17000, dword_5704E0[21], dword_5704E0[22], NULL, 32);
-        if (dword_518624 == -1) {
+    if (_folder_up_button == -1) {
+        _folder_up_button = buttonCreate(characterEditorWindowHandle, 317, 364, _GInfo[22].width, _GInfo[22].height, -1, -1, -1, 17000, _grphbmp[21], _grphbmp[22], NULL, 32);
+        if (_folder_up_button == -1) {
             return -1;
         }
 
-        buttonSetCallbacks(dword_518624, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(_folder_up_button, _gsound_red_butt_press, NULL);
     }
 
-    if (dword_518628 == -1) {
-        dword_518628 = buttonCreate(characterEditorWindowHandle,
+    if (_folder_down_button == -1) {
+        _folder_down_button = buttonCreate(characterEditorWindowHandle,
             317,
-            365 + stru_5701C0[22].height,
-            stru_5701C0[4].width,
-            stru_5701C0[4].height,
-            dword_518628,
-            dword_518628,
-            dword_518628,
+            365 + _GInfo[22].height,
+            _GInfo[4].width,
+            _GInfo[4].height,
+            _folder_down_button,
+            _folder_down_button,
+            _folder_down_button,
             17001,
-            dword_5704E0[3],
-            dword_5704E0[4],
+            _grphbmp[3],
+            _grphbmp[4],
             0,
             32);
-        if (dword_518628 == -1) {
-            buttonDestroy(dword_518624);
+        if (_folder_down_button == -1) {
+            buttonDestroy(_folder_up_button);
             return -1;
         }
 
-        buttonSetCallbacks(dword_518628, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(_folder_down_button, _gsound_red_butt_press, NULL);
     }
 
     return 0;
@@ -6175,35 +6175,35 @@ void _folder_scroll(int direction)
 
     switch (characterEditorWindowSelectedFolder) {
     case EDITOR_FOLDER_PERKS:
-        v1 = &dword_5705D8;
+        v1 = &_folder_perk_top_line;
         break;
     case EDITOR_FOLDER_KARMA:
-        v1 = &dword_5705C4;
+        v1 = &_folder_karma_top_line;
         break;
     case EDITOR_FOLDER_KILLS:
-        v1 = &dword_5705D4;
+        v1 = &_folder_kills_top_line;
         break;
     default:
         return;
     }
 
     if (direction >= 0) {
-        if (dword_5705A8 + dword_5705B4 <= dword_5705AC) {
-            dword_5705B4++;
+        if (_folder_max_lines + _folder_top_line <= _folder_line) {
+            _folder_top_line++;
             if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43 && characterEditorSelectedItem != 10) {
                 characterEditorSelectedItem--;
             }
         }
     } else {
-        if (dword_5705B4 > 0) {
-            dword_5705B4--;
-            if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43 && dword_5705A8 + 9 > characterEditorSelectedItem) {
+        if (_folder_top_line > 0) {
+            _folder_top_line--;
+            if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43 && _folder_max_lines + 9 > characterEditorSelectedItem) {
                 characterEditorSelectedItem++;
             }
         }
     }
 
-    *v1 = dword_5705B4;
+    *v1 = _folder_top_line;
     editorRenderFolders();
 
     if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) {
@@ -6214,7 +6214,7 @@ void _folder_scroll(int direction)
             640,
             characterEditorWindowBuf + 640 * 267 + 345,
             640);
-        _DrawCard(dword_5705B0, off_5705B8, off_5705BC, off_5705CC);
+        _DrawCard(_folder_card_fid, _folder_card_title, _folder_card_title2, _folder_card_desc);
     }
 }
 
@@ -6223,28 +6223,28 @@ void _folder_clear()
 {
     int v0;
 
-    dword_5705AC = 0;
-    dword_5705D0 = 364;
+    _folder_line = 0;
+    _folder_ypos = 364;
 
     v0 = fontGetLineHeight();
 
-    dword_5705A8 = 9;
-    dword_5705C0 = v0 + 1;
+    _folder_max_lines = 9;
+    _folder_yoffset = v0 + 1;
 
     if (characterEditorSelectedItem < 10 || characterEditorSelectedItem >= 43)
-        dword_5705C8 = -1;
+        _folder_highlight_line = -1;
     else
-        dword_5705C8 = characterEditorSelectedItem - 10;
+        _folder_highlight_line = characterEditorSelectedItem - 10;
 
     if (characterEditorWindowSelectedFolder < 1) {
         if (characterEditorWindowSelectedFolder)
             return;
 
-        dword_5705B4 = dword_5705D8;
+        _folder_top_line = _folder_perk_top_line;
     } else if (characterEditorWindowSelectedFolder == 1) {
-        dword_5705B4 = dword_5705C4;
+        _folder_top_line = _folder_karma_top_line;
     } else if (characterEditorWindowSelectedFolder == 2) {
-        dword_5705B4 = dword_5705D4;
+        _folder_top_line = _folder_kills_top_line;
     }
 }
 
@@ -6258,26 +6258,26 @@ int _folder_print_seperator(const char* string)
     int gap;
     int v8 = 0;
 
-    if (dword_5705A8 + dword_5705B4 > dword_5705AC) {
-        if (dword_5705AC >= dword_5705B4) {
-            if (dword_5705AC - dword_5705B4 == dword_5705C8) {
+    if (_folder_max_lines + _folder_top_line > _folder_line) {
+        if (_folder_line >= _folder_top_line) {
+            if (_folder_line - _folder_top_line == _folder_highlight_line) {
                 v8 = 1;
             }
             lineHeight = fontGetLineHeight();
             x = 280;
-            y = dword_5705D0 + lineHeight / 2;
+            y = _folder_ypos + lineHeight / 2;
             if (string != NULL) {
                 gap = fontGetLetterSpacing();
                 // TODO: Not sure about this.
                 lineLen = fontGetStringWidth(string) + gap * 4;
                 x = (x - lineLen) / 2;
-                fontDrawText(characterEditorWindowBuf + 640 * dword_5705D0 + 34 + x + gap * 2, string, 640, 640, byte_6A38D0[992]);
-                windowDrawLine(characterEditorWindowHandle, 34 + x + lineLen, y, 34 + 280, y, byte_6A38D0[992]);
+                fontDrawText(characterEditorWindowBuf + 640 * _folder_ypos + 34 + x + gap * 2, string, 640, 640, _colorTable[992]);
+                windowDrawLine(characterEditorWindowHandle, 34 + x + lineLen, y, 34 + 280, y, _colorTable[992]);
             }
-            windowDrawLine(characterEditorWindowHandle, 34, y, 34 + x, y, byte_6A38D0[992]);
-            dword_5705D0 += dword_5705C0;
+            windowDrawLine(characterEditorWindowHandle, 34, y, 34 + x, y, _colorTable[992]);
+            _folder_ypos += _folder_yoffset;
         }
-        dword_5705AC++;
+        _folder_line++;
         return v8;
     } else {
         return 0;
@@ -6289,20 +6289,20 @@ bool _folder_print_line(const char* string)
     bool success = false;
     int color;
 
-    if (dword_5705A8 + dword_5705B4 > dword_5705AC) {
-        if (dword_5705AC >= dword_5705B4) {
-            if (dword_5705AC - dword_5705B4 == dword_5705C8) {
+    if (_folder_max_lines + _folder_top_line > _folder_line) {
+        if (_folder_line >= _folder_top_line) {
+            if (_folder_line - _folder_top_line == _folder_highlight_line) {
                 success = true;
-                color = byte_6A38D0[32747];
+                color = _colorTable[32747];
             } else {
-                color = byte_6A38D0[992];
+                color = _colorTable[992];
             }
 
-            fontDrawText(characterEditorWindowBuf + 640 * dword_5705D0 + 34, string, 640, 640, color);
-            dword_5705D0 += dword_5705C0;
+            fontDrawText(characterEditorWindowBuf + 640 * _folder_ypos + 34, string, 640, 640, color);
+            _folder_ypos += _folder_yoffset;
         }
 
-        dword_5705AC++;
+        _folder_line++;
     }
 
     return success;
@@ -6316,13 +6316,13 @@ bool editorDrawKillsEntry(const char* name, int kills)
     int gap;
 
     bool success = false;
-    if (dword_5705A8 + dword_5705B4 > dword_5705AC) {
-        if (dword_5705AC >= dword_5705B4) {
-            if (dword_5705AC - dword_5705B4 == dword_5705C8) {
-                color = byte_6A38D0[32747];
+    if (_folder_max_lines + _folder_top_line > _folder_line) {
+        if (_folder_line >= _folder_top_line) {
+            if (_folder_line - _folder_top_line == _folder_highlight_line) {
+                color = _colorTable[32747];
                 success = true;
             } else {
-                color = byte_6A38D0[992];
+                color = _colorTable[992];
             }
 
             itoa(kills, killsString, 10);
@@ -6330,18 +6330,18 @@ bool editorDrawKillsEntry(const char* name, int kills)
 
             // TODO: Check.
             gap = fontGetLetterSpacing();
-            int v11 = dword_5705D0 + fontGetLineHeight() / 2;
+            int v11 = _folder_ypos + fontGetLineHeight() / 2;
 
-            fontDrawText(characterEditorWindowBuf + 640 * dword_5705D0 + 34, name, 640, 640, color);
+            fontDrawText(characterEditorWindowBuf + 640 * _folder_ypos + 34, name, 640, 640, color);
 
             int v12 = fontGetStringWidth(name);
             windowDrawLine(characterEditorWindowHandle, 34 + v12 + gap, v11, 314 - v6 - gap, v11, color);
 
-            fontDrawText(characterEditorWindowBuf + 640 * dword_5705D0 + 314 - v6, killsString, 640, 640, color);
-            dword_5705D0 += dword_5705C0;
+            fontDrawText(characterEditorWindowBuf + 640 * _folder_ypos + 314 - v6, killsString, 640, 640, color);
+            _folder_ypos += _folder_yoffset;
         }
 
-        dword_5705AC++;
+        _folder_line++;
     }
 
     return success;

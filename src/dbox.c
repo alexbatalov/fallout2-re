@@ -21,37 +21,37 @@ const int gDialogBoxBackgroundFrmIds[DIALOG_TYPE_COUNT] = {
 };
 
 // 0x5108D0
-const int dword_5108D0[DIALOG_TYPE_COUNT] = {
+const int _ytable[DIALOG_TYPE_COUNT] = {
     23,
     27,
 };
 
 // 0x5108D8
-const int dword_5108D8[DIALOG_TYPE_COUNT] = {
+const int _xtable[DIALOG_TYPE_COUNT] = {
     29,
     29,
 };
 
 // 0x5108E0
-const int dword_5108E0[DIALOG_TYPE_COUNT] = {
+const int _doneY[DIALOG_TYPE_COUNT] = {
     81,
     98,
 };
 
 // 0x5108E8
-const int dword_5108E8[DIALOG_TYPE_COUNT] = {
+const int _doneX[DIALOG_TYPE_COUNT] = {
     51,
     37,
 };
 
 // 0x5108F0
-const int dword_5108F0[DIALOG_TYPE_COUNT] = {
+const int _dblines[DIALOG_TYPE_COUNT] = {
     5,
     6,
 };
 
 // 0x510900
-int dword_510900[7] = {
+int _flgids[7] = {
     224, // loadbox.frm - character editor
     8, // lilredup.frm - little red button up
     9, // lilreddn.frm - little red button down
@@ -62,7 +62,7 @@ int dword_510900[7] = {
 };
 
 // 0x51091C
-int dword_51091C[7] = {
+int _flgids2[7] = {
     225, // savebox.frm - character editor
     8, // lilredup.frm - little red button up
     9, // lilreddn.frm - little red button down
@@ -188,8 +188,8 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
             return -1;
         }
 
-        int v27 = hasTwoButtons ? dword_5108E8[dialogType] : (backgroundWidth - doneBoxWidth) / 2;
-        blitBufferToBuffer(doneBox, doneBoxWidth, doneBoxHeight, doneBoxWidth, windowBuf + backgroundWidth * dword_5108E0[dialogType] + v27, backgroundWidth);
+        int v27 = hasTwoButtons ? _doneX[dialogType] : (backgroundWidth - doneBoxWidth) / 2;
+        blitBufferToBuffer(doneBox, doneBoxWidth, doneBoxHeight, doneBoxWidth, windowBuf + backgroundWidth * _doneY[dialogType] + v27, backgroundWidth);
 
         if (!messageListInit(&messageList)) {
             artUnlock(upButtonHandle);
@@ -220,10 +220,10 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
         // 101 - YES
         messageListItem.num = (flags & DIALOG_BOX_YES_NO) == 0 ? 100 : 101;
         if (messageListGetItem(&messageList, &messageListItem)) {
-            fontDrawText(windowBuf + backgroundWidth * (dword_5108E0[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, byte_6A38D0[18979]);
+            fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, _colorTable[18979]);
         }
 
-        int btn = buttonCreate(win, v27 + 13, dword_5108E0[dialogType] + 4, downButtonWidth, downButtonHeight, -1, -1, -1, 500, upButton, downButton, NULL, BUTTON_FLAG_TRANSPARENT);
+        int btn = buttonCreate(win, v27 + 13, _doneY[dialogType] + 4, downButtonWidth, downButtonHeight, -1, -1, -1, 500, upButton, downButton, NULL, BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
             buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
         }
@@ -243,15 +243,15 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 doneBoxWidth,
                 doneBoxHeight,
                 doneBoxWidth,
-                windowBuf + backgroundWidth * dword_5108E0[dialogType] + dword_5108E8[dialogType] + doneBoxWidth + 24,
+                windowBuf + backgroundWidth * _doneY[dialogType] + _doneX[dialogType] + doneBoxWidth + 24,
                 backgroundWidth);
 
-            fontDrawText(windowBuf + backgroundWidth * (dword_5108E0[dialogType] + 3) + dword_5108E8[dialogType] + doneBoxWidth + 59,
-                a8, backgroundWidth, backgroundWidth, byte_6A38D0[18979]);
+            fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + _doneX[dialogType] + doneBoxWidth + 59,
+                a8, backgroundWidth, backgroundWidth, _colorTable[18979]);
 
             int btn = buttonCreate(win,
-                doneBoxWidth + dword_5108E8[dialogType] + 37,
-                dword_5108E0[dialogType] + 4,
+                doneBoxWidth + _doneX[dialogType] + 37,
+                _doneY[dialogType] + 4,
                 downButtonWidth,
                 downButtonHeight,
                 -1, -1, -1, 501, upButton, downButton, 0, BUTTON_FLAG_TRANSPARENT);
@@ -316,17 +316,17 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 doneBoxWidth,
                 doneBoxHeight,
                 doneBoxWidth,
-                windowBuf + backgroundWidth * dword_5108E0[dialogType] + dword_5108E8[dialogType],
+                windowBuf + backgroundWidth * _doneY[dialogType] + _doneX[dialogType],
                 backgroundWidth);
 
             fontSetCurrent(103);
 
-            fontDrawText(windowBuf + backgroundWidth * (dword_5108E0[dialogType] + 3) + dword_5108E8[dialogType] + 35,
-                a8, backgroundWidth, backgroundWidth, byte_6A38D0[18979]);
+            fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + _doneX[dialogType] + 35,
+                a8, backgroundWidth, backgroundWidth, _colorTable[18979]);
 
             int btn = buttonCreate(win,
-                dword_5108E8[dialogType] + 13,
-                dword_5108E0[dialogType] + 4,
+                _doneX[dialogType] + 13,
+                _doneY[dialogType] + 4,
                 downButtonWidth,
                 downButtonHeight,
                 -1,
@@ -347,16 +347,16 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
 
     fontSetCurrent(101);
 
-    int v23 = dword_5108D0[dialogType];
+    int v23 = _ytable[dialogType];
 
     if ((flags & DIALOG_BOX_NO_VERTICAL_CENTERING) == 0) {
-        int v41 = dword_5108F0[dialogType] * fontGetLineHeight() / 2 + v23;
+        int v41 = _dblines[dialogType] * fontGetLineHeight() / 2 + v23;
         v23 = v41 - ((bodyLength + 1) * fontGetLineHeight() / 2);
     }
 
     if (hasTitle) {
         if ((flags & DIALOG_BOX_NO_HORIZONTAL_CENTERING) != 0) {
-            fontDrawText(windowBuf + backgroundWidth * v23 + dword_5108D8[dialogType], title, backgroundWidth, backgroundWidth, titleColor);
+            fontDrawText(windowBuf + backgroundWidth * v23 + _xtable[dialogType], title, backgroundWidth, backgroundWidth, titleColor);
         } else {
             int length = fontGetStringWidth(title);
             fontDrawText(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, title, backgroundWidth, backgroundWidth, titleColor);
@@ -368,7 +368,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
         int len = fontGetStringWidth(body[v94]);
         if (len <= backgroundWidth - 26) {
             if ((flags & DIALOG_BOX_NO_HORIZONTAL_CENTERING) != 0) {
-                fontDrawText(windowBuf + backgroundWidth * v23 + dword_5108D8[dialogType], body[v94], backgroundWidth, backgroundWidth, bodyColor);
+                fontDrawText(windowBuf + backgroundWidth * v23 + _xtable[dialogType], body[v94], backgroundWidth, backgroundWidth, bodyColor);
             } else {
                 int length = fontGetStringWidth(body[v94]);
                 fontDrawText(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, body[v94], backgroundWidth, backgroundWidth, bodyColor);
@@ -392,7 +392,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 string[v51] = '\0';
 
                 if ((flags & DIALOG_BOX_NO_HORIZONTAL_CENTERING) != 0) {
-                    fontDrawText(windowBuf + backgroundWidth * v23 + dword_5108D8[dialogType], string, backgroundWidth, backgroundWidth, bodyColor);
+                    fontDrawText(windowBuf + backgroundWidth * v23 + _xtable[dialogType], string, backgroundWidth, backgroundWidth, bodyColor);
                 } else {
                     int length = fontGetStringWidth(string);
                     fontDrawText(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, string, backgroundWidth, backgroundWidth, bodyColor);
@@ -425,7 +425,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
             }
         }
 
-        if (dword_5186CC != 0) {
+        if (_game_user_wants_to_quit != 0) {
             rc = 1;
         }
     }
@@ -454,7 +454,7 @@ int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLen
     Size frmSizes[7];
 
     for (int index = 0; index < 7; index++) {
-        int fid = buildFid(6, dword_51091C[index], 0, 0, 0);
+        int fid = buildFid(6, _flgids2[index], 0, 0, 0);
         frmBuffers[index] = artLockFrameDataReturningSize(fid, &(frmHandles[index]), &(frmSizes[index].width), &(frmSizes[index].height));
         if (frmBuffers[index] == NULL) {
             while (--index >= 0) {
@@ -505,11 +505,11 @@ int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLen
 
     // DONE
     const char* done = getmsg(&messageList, &messageListItem, 100);
-    fontDrawText(windowBuffer + frmSizes[0].width * 213 + 79, done, frmSizes[0].width, frmSizes[0].width, byte_6A38D0[18979]);
+    fontDrawText(windowBuffer + frmSizes[0].width * 213 + 79, done, frmSizes[0].width, frmSizes[0].width, _colorTable[18979]);
 
     // CANCEL
     const char* cancel = getmsg(&messageList, &messageListItem, 103);
-    fontDrawText(windowBuffer + frmSizes[0].width * 213 + 182, cancel, frmSizes[0].width, frmSizes[0].width, byte_6A38D0[18979]);
+    fontDrawText(windowBuffer + frmSizes[0].width * 213 + 182, cancel, frmSizes[0].width, frmSizes[0].width, _colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         58,
@@ -595,12 +595,12 @@ int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLen
         0);
 
     if (a1 != NULL) {
-        fontDrawText(windowBuffer + frmSizes[0].width * 16 + 49, a1, frmSizes[0].width, frmSizes[0].width, byte_6A38D0[18979]);
+        fontDrawText(windowBuffer + frmSizes[0].width * 16 + 49, a1, frmSizes[0].width, frmSizes[0].width, _colorTable[18979]);
     }
 }
 
 // 0x41FBDC
-void sub_41FBDC(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch)
+void _PrntFlist(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch)
 {
     int lineHeight = fontGetLineHeight();
     int y = 49;
@@ -611,7 +611,7 @@ void sub_41FBDC(unsigned char* buffer, char** fileList, int pageOffset, int file
         }
 
         for (int index = 0; index < fileListLength; index++) {
-            int color = index == selectedIndex ? byte_6A38D0[32747] : byte_6A38D0[992];
+            int color = index == selectedIndex ? _colorTable[32747] : _colorTable[992];
             fontDrawText(buffer + y * index + 55, fileList[index], pitch, pitch, color);
             y += lineHeight;
         }

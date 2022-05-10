@@ -20,7 +20,7 @@ extern char* gSoundEffectsListPath;
 extern int gSoundEffectsListPathLength;
 extern SoundEffectsListEntry* gSoundEffectsListEntries;
 extern int gSoundEffectsListEntriesLength;
-extern int dword_667F94;
+extern int _sfxl_compression;
 
 bool soundEffectsListIsValidTag(int tag);
 int soundEffectsListInit(const char* soundEffectsPath, int a2, int debugLevel);

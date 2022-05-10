@@ -4,7 +4,7 @@
 extern const float flt_50EB1C;
 extern const float flt_50EB20;
 
-extern int dword_66E6A0[32];
+extern int _updateRegions[32];
 
 void _showRegion(int a1);
 int _update_widgets();

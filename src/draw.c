@@ -256,7 +256,7 @@ void _lighten_buf(unsigned char* buf, int width, int height, int pitch)
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             unsigned char p = *buf;
-            *buf++ = byte_6838D0[(p << 8) + 147];
+            *buf++ = _intensityColorTable[(p << 8) + 147];
         }
         buf += skip;
     }

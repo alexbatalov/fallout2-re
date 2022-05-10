@@ -29,7 +29,7 @@
 #include "trait.h"
 
 // 0x5106D0
-int dword_5106D0 = 0;
+int _action_in_explode = 0;
 
 // 0x5106E0
 const int gNormalDeathAnimations[DAMAGE_TYPE_COUNT] = {
@@ -1341,7 +1341,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             char* msg = skillsGetGenericResponse(partyMember, v32);
 
             Rect rect;
-            if (textObjectAdd(partyMember, msg, 101, byte_6A38D0[32747], byte_6A38D0[0], &rect) == 0) {
+            if (textObjectAdd(partyMember, msg, 101, _colorTable[32747], _colorTable[0], &rect) == 0) {
                 tileWindowRefreshRect(&rect, gElevation);
             }
 
@@ -1457,14 +1457,14 @@ int _pick_fall(Object* obj, int anim)
 // 0x412CE4
 bool _action_explode_running()
 {
-    return dword_5106D0 != 0;
+    return _action_in_explode != 0;
 }
 
 // action_explode
 // 0x412CF4
 int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object* a5, bool a6)
 {
-    if (a6 && dword_5106D0) {
+    if (a6 && _action_in_explode) {
         return -2;
     }
 
@@ -1540,7 +1540,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
     attackComputeDeathFlags(attack);
 
     if (a6) {
-        dword_5106D0 = 1;
+        _action_in_explode = 1;
 
         reg_anim_begin(2);
         _register_priority(1);
@@ -1565,7 +1565,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         reg_anim_11_1((Object*)attack, a5, (AnimationProc*)_report_explosion, -1);
         reg_anim_11_1(NULL, NULL, _finished_explosion, -1);
         if (reg_anim_end() == -1) {
-            dword_5106D0 = 0;
+            _action_in_explode = 0;
 
             objectDestroy(explosion, NULL);
 
@@ -1686,7 +1686,7 @@ int _report_explosion(Attack* attack, Object* a2)
 // 0x4132C0
 int _finished_explosion(Object* a1, Object* a2)
 {
-    dword_5106D0 = 0;
+    _action_in_explode = 0;
     return 0;
 }
 

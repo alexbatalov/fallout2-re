@@ -428,17 +428,17 @@ int flareEventProcess(Object* obj, void* data)
 // 0x4A2828
 int explosionEventProcess(Object* obj, void* data)
 {
-    return sub_4A2834(obj, true);
+    return _queue_do_explosion_(obj, true);
 }
 
 // 0x4A2830
 int _queue_explode_exit(Object* obj, void* data)
 {
-    return sub_4A2834(obj, false);
+    return _queue_do_explosion_(obj, false);
 }
 
 // 0x4A2834
-int sub_4A2834(Object* explosive, bool a2)
+int _queue_do_explosion_(Object* explosive, bool a2)
 {
     int tile;
     int elevation;
@@ -493,7 +493,7 @@ int explosionFailureEventProcess(Object* obj, void* data)
         displayMonitorAddMessage(msg.text);
     }
 
-    return sub_4A2834(obj, true);
+    return _queue_do_explosion_(obj, true);
 }
 
 // 0x4A2920

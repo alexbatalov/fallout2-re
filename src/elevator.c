@@ -255,7 +255,7 @@ const char gElevatorLevelLabels[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
 };
 
 // 0x51862C
-const char* off_51862C[12] = {
+const char* _sfxtable[12] = {
     "ELV1_1",
     "ELV1_1",
     "ERROR",
@@ -409,7 +409,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
                 v29 = -v29;
             }
 
-            soundPlayFile(off_51862C[gElevatorLevels[elevator] - 2 + v29]);
+            soundPlayFile(_sfxtable[gElevatorLevels[elevator] - 2 + v29]);
 
             float v41 = (float)keyCode * v42;
             float v44 = (float)(*elevationPtr) * v42;

@@ -10,7 +10,7 @@
 #include <string.h>
 
 // 0x5108BC
-AudioFileIsCompressedProc* off_5108BC = _defaultCompressionFunc;
+AudioFileIsCompressedProc* _queryCompressedFunc = _defaultCompressionFunc;
 
 // 0x56CB00
 int gAudioListLength;
@@ -43,7 +43,7 @@ int audioOpen(const char* fname, int flags, ...)
     sprintf(path, fname);
 
     int compression;
-    if (off_5108BC(path)) {
+    if (_queryCompressedFunc(path)) {
         compression = 2;
     } else {
         compression = 0;
@@ -231,7 +231,7 @@ int audioWrite(int handle, const void* buf, unsigned int size)
 // 0x41A7D4
 int audioInit(AudioFileIsCompressedProc* isCompressedProc)
 {
-    off_5108BC = isCompressedProc;
+    _queryCompressedFunc = isCompressedProc;
     gAudioList = NULL;
     gAudioListLength = 0;
 

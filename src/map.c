@@ -40,13 +40,13 @@
 char byte_50B058[] = "";
 
 // 0x50B30C
-char byte_50B30C[] = "ERROR! F2";
+char _aErrorF2[] = "ERROR! F2";
 
 // 0x519540
-IsoWindowRefreshProc* off_519540 = isoWindowRefreshRectGame;
+IsoWindowRefreshProc* _map_scroll_refresh = isoWindowRefreshRectGame;
 
 // 0x519544
-const int dword_519544[ELEVATION_COUNT] = {
+const int _map_data_elev_flags[ELEVATION_COUNT] = {
     2,
     4,
     8,
@@ -92,13 +92,13 @@ int gMapGlobalVarsLength = 0;
 int gElevation = 0;
 
 // 0x51957C
-char* off_51957C = byte_50B058;
+char* _errMapName = byte_50B058;
 
 // 0x519584
-int dword_519584 = -1;
+int _wmMapIdx = -1;
 
 // 0x614868
-TileData stru_614868[ELEVATION_COUNT];
+TileData _square_data[ELEVATION_COUNT];
 
 // 0x631D28
 MapTransition gMapTransition;
@@ -119,18 +119,18 @@ unsigned char* gIsoWindowBuffer;
 MapHeader gMapHeader;
 
 // 0x631E40
-TileData* dword_631E40[ELEVATION_COUNT];
+TileData* _square[ELEVATION_COUNT];
 
 // 0x631E4C
 int gIsoWindow;
 
 // 0x631E50
-char byte_631E50[40];
+char _scratchStr[40];
 
 // Last map file name.
 //
 // 0x631E78
-char byte_631E78[MAX_PATH];
+char _map_path[MAX_PATH];
 
 // iso_init
 // 0x481CA0
@@ -140,10 +140,10 @@ int isoInit()
     _tile_disable_scroll_blocking();
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        dword_631E40[elevation] = &(stru_614868[elevation]);
+        _square[elevation] = &(_square_data[elevation]);
     }
 
-    gIsoWindow = windowCreate(0, 0, stru_6AC9F0.right - stru_6AC9F0.left + 1, stru_6AC9F0.bottom - stru_6AC9F0.top - 99, 256, 10);
+    gIsoWindow = windowCreate(0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, 256, 10);
     if (gIsoWindow == -1) {
         debugPrint("win_add failed in iso_init\n");
         return -1;
@@ -167,14 +167,14 @@ int isoInit()
 
     debugPrint(">art_init\t\t");
 
-    if (tileInit(dword_631E40, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, gIsoWindowBuffer, stru_6AC9F0.right - stru_6AC9F0.left + 1, stru_6AC9F0.bottom - stru_6AC9F0.top - 99, stru_6AC9F0.right - stru_6AC9F0.left + 1, isoWindowRefreshRect) != 0) {
+    if (tileInit(_square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, gIsoWindowBuffer, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, isoWindowRefreshRect) != 0) {
         debugPrint("tile_init failed in iso_init\n");
         return -1;
     }
 
     debugPrint(">tile_init\t\t");
 
-    if (objectsInit(gIsoWindowBuffer, stru_6AC9F0.right - stru_6AC9F0.left + 1, stru_6AC9F0.bottom - stru_6AC9F0.top - 99, stru_6AC9F0.right - stru_6AC9F0.left + 1) != 0) {
+    if (objectsInit(gIsoWindowBuffer, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
         debugPrint("obj_init failed in iso_init\n");
         return -1;
     }
@@ -256,7 +256,7 @@ void _map_init()
     char* executable;
     configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, "executable", &executable);
     if (stricmp(executable, "mapper") == 0) {
-        off_519540 = isoWindowRefreshRectMapper;
+        _map_scroll_refresh = isoWindowRefreshRectMapper;
     }
 
     if (messageListInit(&gMapMessageList)) {
@@ -511,7 +511,7 @@ char* mapGetCityName(int map)
 {
     int city;
     if (_wmMatchAreaContainingMapIdx(map, &city) == -1) {
-        return byte_50B30C;
+        return _aErrorF2;
     }
 
     MessageListItem messageListItem;
@@ -520,16 +520,16 @@ char* mapGetCityName(int map)
 }
 
 // 0x48268C
-char* sub_48268C(int map)
+char* _map_get_description_idx_(int map)
 {
     int city;
     if (_wmMatchAreaContainingMapIdx(map, &city) == 0) {
-        _wmGetAreaIdxName(city, byte_631E50);
+        _wmGetAreaIdxName(city, _scratchStr);
     } else {
-        strcpy(byte_631E50, off_51957C);
+        strcpy(_scratchStr, _errMapName);
     }
 
-    return byte_631E50;
+    return _scratchStr;
 }
 
 // 0x4826B8
@@ -577,9 +577,9 @@ int mapScroll(int dx, int dy)
     Rect r2;
     rectCopy(&r2, &r1);
 
-    int width = stru_6AC9F0.right - stru_6AC9F0.left + 1;
+    int width = _scr_size.right - _scr_size.left + 1;
     int pitch = width;
-    int height = stru_6AC9F0.bottom - stru_6AC9F0.top - 99;
+    int height = _scr_size.bottom - _scr_size.top - 99;
 
     if (screenDx != 0) {
         width -= 32;
@@ -601,7 +601,7 @@ int mapScroll(int dx, int dy)
     if (screenDy < 0) {
         r1.bottom = r1.top - screenDy;
         src = gIsoWindowBuffer + pitch * (height - 1);
-        dest = gIsoWindowBuffer + pitch * (stru_6AC9F0.bottom - stru_6AC9F0.top - 100);
+        dest = gIsoWindowBuffer + pitch * (_scr_size.bottom - _scr_size.top - 100);
         if (screenDx < 0) {
             dest -= screenDx;
         } else {
@@ -628,11 +628,11 @@ int mapScroll(int dx, int dy)
     }
 
     if (screenDx != 0) {
-        off_519540(&r2);
+        _map_scroll_refresh(&r2);
     }
 
     if (screenDy != 0) {
-        off_519540(&r1);
+        _map_scroll_refresh(&r1);
     }
 
     windowRefresh(gIsoWindow);
@@ -644,8 +644,8 @@ int mapScroll(int dx, int dy)
 char* mapBuildPath(char* name)
 {
     if (*name != '\\') {
-        sprintf(byte_631E78, "maps\\%s", name);
-        return byte_631E78;
+        sprintf(_map_path, "maps\\%s", name);
+        return _map_path;
     }
     return name;
 }
@@ -744,7 +744,7 @@ int mapLoadById(int map)
         return -1;
     }
 
-    dword_519584 = map;
+    _wmMapIdx = map;
 
     int rc = mapLoadByName(name);
 
@@ -769,7 +769,7 @@ int mapLoad(File* stream)
 
     int rc = 0;
 
-    windowFill(gIsoWindow, 0, 0, stru_6AC9F0.right - stru_6AC9F0.left + 1, stru_6AC9F0.bottom - stru_6AC9F0.top - 99, byte_6A38D0[0]);
+    windowFill(gIsoWindow, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _colorTable[0]);
     windowRefresh(gIsoWindow);
     _anim_stop();
     scriptsDisable();
@@ -1025,7 +1025,7 @@ int mapLoadSaved(char* fileName)
 
         _strmfe(gMapHeader.name, v15, "SAV");
 
-        sub_4800C8("MAPS\\", gMapHeader.name);
+        _MapDirEraseFile_("MAPS\\", gMapHeader.name);
 
         strcpy(gMapHeader.name, v15);
     }
@@ -1175,7 +1175,7 @@ int mapSetTransition(MapTransition* transition)
     }
 
     if (isInCombat()) {
-        dword_5186CC = 1;
+        _game_user_wants_to_quit = 1;
     }
 
     return 0;
@@ -1306,12 +1306,12 @@ int _map_save_file(File* stream)
         for (tile = 0; tile < SQUARE_GRID_SIZE; tile++) {
             int fid;
 
-            fid = buildFid(4, dword_631E40[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
+            fid = buildFid(4, _square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
             if (fid != buildFid(4, 1, 0, 0, 0)) {
                 break;
             }
 
-            fid = buildFid(4, (dword_631E40[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
+            fid = buildFid(4, (_square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
             if (fid != buildFid(4, 1, 0, 0, 0)) {
                 break;
             }
@@ -1326,15 +1326,15 @@ int _map_save_file(File* stream)
                 }
 
                 if (object != NULL) {
-                    gMapHeader.flags &= ~dword_519544[elevation];
+                    gMapHeader.flags &= ~_map_data_elev_flags[elevation];
                 } else {
-                    gMapHeader.flags |= dword_519544[elevation];
+                    gMapHeader.flags |= _map_data_elev_flags[elevation];
                 }
             } else {
-                gMapHeader.flags |= dword_519544[elevation];
+                gMapHeader.flags |= _map_data_elev_flags[elevation];
             }
         } else {
-            gMapHeader.flags &= ~dword_519544[elevation];
+            gMapHeader.flags &= ~_map_data_elev_flags[elevation];
         }
     }
 
@@ -1353,8 +1353,8 @@ int _map_save_file(File* stream)
     }
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        if ((gMapHeader.flags & dword_519544[elevation]) == 0) {
-            _db_fwriteLongCount(stream, dword_631E40[elevation]->field_0, SQUARE_GRID_SIZE);
+        if ((gMapHeader.flags & _map_data_elev_flags[elevation]) == 0) {
+            _db_fwriteLongCount(stream, _square[elevation]->field_0, SQUARE_GRID_SIZE);
         }
     }
 
@@ -1363,13 +1363,13 @@ int _map_save_file(File* stream)
     if (scriptSaveAll(stream) == -1) {
         sprintf(err, "Error saving scripts in %s", gMapHeader.name);
         // TODO: Incomplete.
-        // _win_msg(err, 80, 80, byte_6A38D0[31744]);
+        // _win_msg(err, 80, 80, _colorTable[31744]);
     }
 
     if (objectSaveAll(stream) == -1) {
         sprintf(err, "Error saving objects in %s", gMapHeader.name);
         // TODO: Incomplete.
-        // _win_msg(err, 80, 80, byte_6A38D0[31744]);
+        // _win_msg(err, 80, 80, _colorTable[31744]);
     }
 
     scriptsEnable();
@@ -1412,7 +1412,7 @@ int _map_save_in_game(bool a1)
 
         strcpy(name, gMapHeader.name);
         _strmfe(gMapHeader.name, name, "SAV");
-        sub_4800C8("MAPS\\", gMapHeader.name);
+        _MapDirEraseFile_("MAPS\\", gMapHeader.name);
         strcpy(gMapHeader.name, name);
     } else {
         debugPrint("\n Saving \".SAV\" map.");
@@ -1486,10 +1486,10 @@ void isoWindowRefreshRectMapper(Rect* rect)
         return;
     }
 
-    bufferFill(gIsoWindowBuffer + clampedDirtyRect.top * (stru_6AC9F0.right - stru_6AC9F0.left + 1) + clampedDirtyRect.left,
+    bufferFill(gIsoWindowBuffer + clampedDirtyRect.top * (_scr_size.right - _scr_size.left + 1) + clampedDirtyRect.left,
         clampedDirtyRect.right - clampedDirtyRect.left + 1,
         clampedDirtyRect.bottom - clampedDirtyRect.top + 1,
-        stru_6AC9F0.right - stru_6AC9F0.left + 1,
+        _scr_size.right - _scr_size.left + 1,
         0);
     tileRenderFloorsInRect(&clampedDirtyRect, gElevation);
     _grid_render(&clampedDirtyRect, gElevation);
@@ -1549,7 +1549,7 @@ void _map_place_dude_and_mouse()
 void _square_reset()
 {
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        int* p = dword_631E40[elevation]->field_0;
+        int* p = _square[elevation]->field_0;
         for (int y = 0; y < SQUARE_GRID_HEIGHT; y++) {
             for (int x = 0; x < SQUARE_GRID_WIDTH; x++) {
                 // TODO: Strange math, initially right, but need to figure it out and
@@ -1583,8 +1583,8 @@ int _square_load(File* stream, int flags)
     _square_reset();
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        if ((flags & dword_519544[elevation]) == 0) {
-            int* arr = dword_631E40[elevation]->field_0;
+        if ((flags & _map_data_elev_flags[elevation]) == 0) {
+            int* arr = _square[elevation]->field_0;
             if (_db_freadIntCount(stream, arr, SQUARE_GRID_SIZE) != 0) {
                 return -1;
             }

@@ -14,7 +14,7 @@ int gColorCycleSpeedFactor = 1;
 // Green.
 //
 // 0x518440
-unsigned char byte_518440[12] = {
+unsigned char _slime[12] = {
     0, 108, 0,
     11, 115, 7,
     27, 123, 15,
@@ -24,7 +24,7 @@ unsigned char byte_518440[12] = {
 // Light gray?
 //
 // 0x51844C
-unsigned char byte_51844C[18] = {
+unsigned char _shoreline[18] = {
     83, 63, 43,
     75, 59, 43,
     67, 55, 39,
@@ -36,7 +36,7 @@ unsigned char byte_51844C[18] = {
 // Orange.
 //
 // 0x51845E
-unsigned char byte_51845E[15] = {
+unsigned char _fire_slow[15] = {
     255, 0, 0,
     215, 0, 0,
     147, 43, 11,
@@ -47,7 +47,7 @@ unsigned char byte_51845E[15] = {
 // Red.
 //
 // 0x51846D
-unsigned char byte_51846D[15] = {
+unsigned char _fire_fast[15] = {
     71, 0, 0,
     123, 0, 0,
     179, 0, 0,
@@ -58,7 +58,7 @@ unsigned char byte_51846D[15] = {
 // Light blue.
 //
 // 0x51847C
-unsigned char byte_51847C[15] = {
+unsigned char _monitors[15] = {
     107, 107, 111,
     99, 103, 127,
     87, 107, 143,
@@ -75,25 +75,25 @@ bool gColorCycleInitialized = false;
 bool gColorCycleEnabled = false;
 
 // 0x518494
-int dword_518494 = 0;
+int _slime_start = 0;
 
 // 0x518498
-int dword_518498 = 0;
+int _shoreline_start = 0;
 
 // 0x51849C
-int dword_51849C = 0;
+int _fire_slow_start = 0;
 
 // 0x5184A0
-int dword_5184A0 = 0;
+int _fire_fast_start = 0;
 
 // 0x5184A4
-int dword_5184A4 = 0;
+int _monitors_start = 0;
 
 // 0x5184A8
-unsigned char byte_5184A8 = 0;
+unsigned char _bobber_red = 0;
 
 // 0x5184A9
-signed char byte_5184A9 = -4;
+signed char _bobber_diff = -4;
 
 // 0x56D7D0
 unsigned int gColorCycleTimestamp3;
@@ -124,23 +124,23 @@ void colorCycleInit()
     }
 
     for (int index = 0; index < 12; index++) {
-        byte_518440[index] >>= 2;
+        _slime[index] >>= 2;
     }
 
     for (int index = 0; index < 18; index++) {
-        byte_51844C[index] >>= 2;
+        _shoreline[index] >>= 2;
     }
 
     for (int index = 0; index < 15; index++) {
-        byte_51845E[index] >>= 2;
+        _fire_slow[index] >>= 2;
     }
 
     for (int index = 0; index < 15; index++) {
-        byte_51846D[index] >>= 2;
+        _fire_fast[index] >>= 2;
     }
 
     for (int index = 0; index < 15; index++) {
-        byte_51847C[index] >>= 2;
+        _monitors[index] >>= 2;
     }
 
     tickersAdd(colorCycleTicker);
@@ -222,47 +222,47 @@ void colorCycleTicker()
 
         int paletteIndex = 229 * 3;
 
-        for (int index = dword_518494; index < 12; index++) {
-            palette[paletteIndex++] = byte_518440[index];
+        for (int index = _slime_start; index < 12; index++) {
+            palette[paletteIndex++] = _slime[index];
         }
 
-        for (int index = 0; index < dword_518494; index++) {
-            palette[paletteIndex++] = byte_518440[index];
+        for (int index = 0; index < _slime_start; index++) {
+            palette[paletteIndex++] = _slime[index];
         }
 
-        dword_518494 -= 3;
-        if (dword_518494 < 0) {
-            dword_518494 = 9;
+        _slime_start -= 3;
+        if (_slime_start < 0) {
+            _slime_start = 9;
         }
 
         paletteIndex = 248 * 3;
 
-        for (int index = dword_518498; index < 18; index++) {
-            palette[paletteIndex++] = byte_51844C[index];
+        for (int index = _shoreline_start; index < 18; index++) {
+            palette[paletteIndex++] = _shoreline[index];
         }
 
-        for (int index = 0; index < dword_518498; index++) {
-            palette[paletteIndex++] = byte_51844C[index];
+        for (int index = 0; index < _shoreline_start; index++) {
+            palette[paletteIndex++] = _shoreline[index];
         }
 
-        dword_518498 -= 3;
-        if (dword_518498 < 0) {
-            dword_518498 = 15;
+        _shoreline_start -= 3;
+        if (_shoreline_start < 0) {
+            _shoreline_start = 15;
         }
 
         paletteIndex = 238 * 3;
 
-        for (int index = dword_51849C; index < 15; index++) {
-            palette[paletteIndex++] = byte_51845E[index];
+        for (int index = _fire_slow_start; index < 15; index++) {
+            palette[paletteIndex++] = _fire_slow[index];
         }
 
-        for (int index = 0; index < dword_51849C; index++) {
-            palette[paletteIndex++] = byte_51845E[index];
+        for (int index = 0; index < _fire_slow_start; index++) {
+            palette[paletteIndex++] = _fire_slow[index];
         }
 
-        dword_51849C -= 3;
-        if (dword_51849C < 0) {
-            dword_51849C = 12;
+        _fire_slow_start -= 3;
+        if (_fire_slow_start < 0) {
+            _fire_slow_start = 12;
         }
     }
 
@@ -272,17 +272,17 @@ void colorCycleTicker()
 
         int paletteIndex = 243 * 3;
 
-        for (int index = dword_5184A0; index < 15; index++) {
-            palette[paletteIndex++] = byte_51846D[index];
+        for (int index = _fire_fast_start; index < 15; index++) {
+            palette[paletteIndex++] = _fire_fast[index];
         }
 
-        for (int index = 0; index < dword_5184A0; index++) {
-            palette[paletteIndex++] = byte_51846D[index];
+        for (int index = 0; index < _fire_fast_start; index++) {
+            palette[paletteIndex++] = _fire_fast[index];
         }
 
-        dword_5184A0 -= 3;
-        if (dword_5184A0 < 0) {
-            dword_5184A0 = 12;
+        _fire_fast_start -= 3;
+        if (_fire_fast_start < 0) {
+            _fire_fast_start = 12;
         }
     }
 
@@ -292,18 +292,18 @@ void colorCycleTicker()
 
         int paletteIndex = 233 * 3;
 
-        for (int index = dword_5184A4; index < 15; index++) {
-            palette[paletteIndex++] = byte_51847C[index];
+        for (int index = _monitors_start; index < 15; index++) {
+            palette[paletteIndex++] = _monitors[index];
         }
 
-        for (int index = 0; index < dword_5184A4; index++) {
-            palette[paletteIndex++] = byte_51847C[index];
+        for (int index = 0; index < _monitors_start; index++) {
+            palette[paletteIndex++] = _monitors[index];
         }
 
-        dword_5184A4 -= 3;
+        _monitors_start -= 3;
 
-        if (dword_5184A4 < 0) {
-            dword_5184A4 = 12;
+        if (_monitors_start < 0) {
+            _monitors_start = 12;
         }
     }
 
@@ -311,14 +311,14 @@ void colorCycleTicker()
         changed = true;
         gColorCycleTimestamp4 = time;
 
-        if (byte_5184A8 == 0 || byte_5184A8 == 60) {
-            byte_5184A9 = -byte_5184A9;
+        if (_bobber_red == 0 || _bobber_red == 60) {
+            _bobber_diff = -_bobber_diff;
         }
 
-        byte_5184A8 += byte_5184A9;
+        _bobber_red += _bobber_diff;
 
         int paletteIndex = 254 * 3;
-        palette[paletteIndex++] = byte_5184A8;
+        palette[paletteIndex++] = _bobber_red;
         palette[paletteIndex++] = 0;
         palette[paletteIndex++] = 0;
     }

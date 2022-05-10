@@ -16,7 +16,7 @@ unsigned char gLipsCurrentPhoneme = 0;
 unsigned char gLipsPreviousPhoneme = 0;
 
 // 0x519244
-int dword_519244 = 0;
+int _head_marker_current = 0;
 
 // 0x519248
 bool gLipsPhonemeChanged = true;
@@ -50,19 +50,19 @@ LipsData gLipsData = {
 };
 
 // 0x5193B4
-int dword_5193B4 = 0;
+int _speechStartTime = 0;
 
 // 0x613CA0
-char byte_613CA0[14];
+char _lips_subdir_name[14];
 
 // 0x613CAE
-char byte_613CAE[50];
+char _tmp_str[50];
 
 // 0x47AAC0
 char* _lips_fix_string(const char* fileName, size_t length)
 {
-    strncpy(byte_613CAE, fileName, length);
-    return byte_613CAE;
+    strncpy(_tmp_str, fileName, length);
+    return _tmp_str;
 }
 
 // 0x47AAD8
@@ -72,7 +72,7 @@ void lipsTicker()
     SpeechMarker* speech_marker;
     int v5;
 
-    v0 = dword_519244;
+    v0 = _head_marker_current;
 
     if ((gLipsData.flags & LIPS_FLAG_0x02) != 0) {
         int v1 = _soundGetPosition(gLipsData.sound);
@@ -87,9 +87,9 @@ void lipsTicker()
                 gLipsCurrentPhoneme = gLipsData.phonemes[0];
 
                 if ((gLipsData.flags & LIPS_FLAG_0x01) == 0) {
-                    dword_519244 = 0;
+                    _head_marker_current = 0;
                     soundStop(gLipsData.sound);
-                    v0 = dword_519244;
+                    v0 = _head_marker_current;
                     gLipsData.flags &= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
                 }
 
@@ -100,7 +100,7 @@ void lipsTicker()
         }
 
         if (v0 >= gLipsData.field_2C - 1) {
-            dword_519244 = v0;
+            _head_marker_current = v0;
 
             v5 = 0;
             if (gLipsData.field_2C <= 5) {
@@ -115,9 +115,9 @@ void lipsTicker()
                 gLipsCurrentPhoneme = gLipsData.phonemes[0];
 
                 if ((gLipsData.flags & LIPS_FLAG_0x01) == 0) {
-                    dword_519244 = 0;
+                    _head_marker_current = 0;
                     soundStop(gLipsData.sound);
-                    v0 = dword_519244;
+                    v0 = _head_marker_current;
                     gLipsData.flags &= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
                 }
             }
@@ -129,7 +129,7 @@ void lipsTicker()
         gLipsPhonemeChanged = true;
     }
 
-    dword_519244 = v0;
+    _head_marker_current = v0;
 
     soundContinueAll();
 }
@@ -138,15 +138,15 @@ void lipsTicker()
 int lipsStart()
 {
     gLipsData.flags |= LIPS_FLAG_0x02;
-    dword_519244 = 0;
+    _head_marker_current = 0;
 
     if (_soundSetPosition(gLipsData.sound, gLipsData.field_20) != 0) {
         debugPrint("Failed set of start_offset!\n");
     }
 
-    int v2 = dword_519244;
+    int v2 = _head_marker_current;
     while (1) {
-        dword_519244 = v2;
+        _head_marker_current = v2;
 
         SpeechMarker* speechEntry = &(gLipsData.markers[v2]);
         if (gLipsData.field_20 <= speechEntry->position) {
@@ -161,11 +161,11 @@ int lipsStart()
     int speechVolume = speechGetVolume();
     soundSetVolume(gLipsData.sound, (int)(speechVolume * 0.69));
 
-    dword_5193B4 = _get_time();
+    _speechStartTime = _get_time();
 
     if (soundPlay(gLipsData.sound) != 0) {
         debugPrint("Failed play!\n");
-        dword_519244 = 0;
+        _head_marker_current = 0;
 
         soundStop(gLipsData.sound);
         gLipsData.flags |= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
@@ -231,9 +231,9 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
     char path[260];
     strcpy(path, "SOUND\\SPEECH\\");
 
-    strcpy(byte_613CA0, headFileName);
+    strcpy(_lips_subdir_name, headFileName);
 
-    strcat(path, byte_613CA0);
+    strcat(path, _lips_subdir_name);
 
     strcat(path, "\\");
 
@@ -377,7 +377,7 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
 
     _lips_make_speech();
 
-    dword_519244 = 0;
+    _head_marker_current = 0;
     gLipsCurrentPhoneme = gLipsData.phonemes[0];
 
     return 0;
@@ -394,7 +394,7 @@ int _lips_make_speech()
 
     char path[MAX_PATH];
     char* v1 = _lips_fix_string(gLipsData.field_50, sizeof(gLipsData.field_50));
-    sprintf(path, "%s%s\\%s.%s", "SOUND\\SPEECH\\", byte_613CA0, v1, "ACM");
+    sprintf(path, "%s%s\\%s.%s", "SOUND\\SPEECH\\", _lips_subdir_name, v1, "ACM");
 
     if (gLipsData.sound != NULL) {
         soundDelete(gLipsData.sound);
@@ -435,7 +435,7 @@ int lipsFree()
     }
 
     if (gLipsData.sound != NULL) {
-        dword_519244 = 0;
+        _head_marker_current = 0;
 
         soundStop(gLipsData.sound);
 

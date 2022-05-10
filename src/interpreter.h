@@ -168,22 +168,22 @@ typedef struct ProgramListNode {
     struct ProgramListNode* prev; // prev
 } ProgramListNode;
 
-extern int dword_519038;
-extern int dword_51903C;
-extern int (*off_519040)();
-extern int dword_519044;
-extern char* (*off_519048)(char*);
-extern int (*off_51904C)(char*);
-extern int dword_519050;
+extern int _TimeOut;
+extern int _Enabled;
+extern int (*_timerFunc)();
+extern int _timerTick;
+extern char* (*_filenameFunc)(char*);
+extern int (*_outputFunc)(char*);
+extern int _cpuBurstSize;
 
 extern OpcodeHandler* gInterpreterOpcodeHandlers[OPCODE_MAX_COUNT];
 extern Program* gInterpreterCurrentProgram;
 extern ProgramListNode* gInterpreterProgramListHead;
-extern int dword_59E794;
-extern int dword_59E798;
+extern int _suspendEvents;
+extern int _busy;
 
 int _defaultTimerFunc();
-char* sub_4670B4(char* s);
+char* _defaultFilename_(char* s);
 char* _interpretMangleName(char* s);
 int _outputStr(char* a1);
 int _checkWait(Program* program);

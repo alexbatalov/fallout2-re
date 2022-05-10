@@ -200,16 +200,16 @@ static_assert(sizeof(STRUCT_530014) == 3240, "wrong size");
 
 typedef Object* PathBuilderCallback(Object* object, int tile, int elevation);
 
-extern int dword_510718;
+extern int _curr_sad;
 extern int gAnimationSequenceCurrentIndex;
-extern int dword_510720;
-extern bool dword_510724;
-extern bool dword_510728;
-extern int dword_51072C;
-extern unsigned int dword_510730;
-extern unsigned int dword_510734;
+extern int _anim_in_init;
+extern bool _anim_in_anim_stop;
+extern bool _anim_in_bk;
+extern int _lastDestination;
+extern unsigned int _last_time_;
+extern unsigned int _next_time;
 
-extern STRUCT_530014 stru_530014[24];
+extern STRUCT_530014 _sad[24];
 extern PathNode gClosedPathNodeList[2000];
 extern AnimationSequence gAnimationSequences[32];
 extern unsigned char gPathfinderProcessedTiles[5000];

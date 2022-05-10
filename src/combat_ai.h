@@ -70,7 +70,7 @@ typedef struct STRUCT_832 {
     int field_340;
 } STRUCT_832;
 
-extern Object* off_51805C;
+extern Object* _combat_obj;
 extern int gAiPacketsLength;
 extern AiPacket* gAiPackets;
 extern int dword_518068;
@@ -82,19 +82,19 @@ extern const char* gDistanceModeKeys[DISTANCE_COUNT];
 extern const char* gRunAwayModeKeys[RUN_AWAY_MODE_COUNT];
 extern const char* gDispositionKeys[DISPOSITION_COUNT];
 extern const char* gHurtTooMuchKeys[HURT_COUNT];
-extern const int dword_518124[5];
-extern const int dword_518138[6];
-extern Object* off_518150;
-extern Object* off_518154;
-extern const int dword_518158[BEST_WEAPON_COUNT + 1][5];
-extern const int dword_51820C[DISTANCE_COUNT];
+extern const int _rmatchHurtVals[5];
+extern const int _hp_run_away_value[6];
+extern Object* _attackerTeamObj;
+extern Object* _targetTeamObj;
+extern const int _weapPrefOrderings[BEST_WEAPON_COUNT + 1][5];
+extern const int _aiPartyMemberDistances[DISTANCE_COUNT];
 extern int gLanguageFilter;
 
 extern MessageList gCombatAiMessageList;
-extern char byte_56D518[260];
-extern int dword_56D61C;
-extern Object** off_56D620;
-extern char byte_56D624[268];
+extern char _target_str[260];
+extern int _curr_crit_num;
+extern Object** _curr_crit_list;
+extern char _attack_str[268];
 
 void _parse_hurt_str(char* str, int* out_value);
 int _cai_match_str_to_list(const char* str, const char** list, int count, int* out_value);

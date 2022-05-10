@@ -9,11 +9,11 @@
 #define COLOR_CYCLE_PERIOD_4 (33U)
 
 extern int gColorCycleSpeedFactor;
-extern unsigned char byte_518440[12];
-extern unsigned char byte_51844C[18];
-extern unsigned char byte_51845E[15];
-extern unsigned char byte_51846D[15];
-extern unsigned char byte_51847C[15];
+extern unsigned char _slime[12];
+extern unsigned char _shoreline[18];
+extern unsigned char _fire_slow[15];
+extern unsigned char _fire_fast[15];
+extern unsigned char _monitors[15];
 extern bool gColorCycleEnabled;
 extern bool gColorCycleInitialized;
 

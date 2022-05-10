@@ -28,24 +28,24 @@ typedef enum MainMenuOption {
     MAIN_MENU_OPTIONS,
 } MainMenuOption;
 
-extern char byte_5194C8[];
-extern int dword_5194D8;
-extern char** off_5194DC;
-extern int dword_5194E0;
-extern int dword_5194E4;
-extern bool dword_5194E8;
+extern char _mainMap[];
+extern int _main_game_paused;
+extern char** _main_selfrun_list;
+extern int _main_selfrun_count;
+extern int _main_selfrun_index;
+extern bool _main_show_death_scene;
 extern int mainMenuWindowHandle;
 extern unsigned char* mainMenuWindowBuf;
 extern unsigned char* gMainMenuBackgroundFrmData;
 extern unsigned char* gMainMenuButtonUpFrmData;
 extern unsigned char* gMainMenuButtonDownFrmData;
-extern bool dword_519504;
+extern bool _in_main_menu;
 extern bool gMainMenuWindowInitialized;
 extern unsigned int gMainMenuScreensaverDelay;
 extern const int gMainMenuButtonKeyBindings[MAIN_MENU_BUTTON_COUNT];
-extern const int dword_519528[MAIN_MENU_BUTTON_COUNT];
+extern const int _return_values[MAIN_MENU_BUTTON_COUNT];
 
-extern bool dword_614838;
+extern bool _main_death_voiceover_done;
 extern int gMainMenuButtons[MAIN_MENU_BUTTON_COUNT];
 extern bool gMainMenuWindowHidden;
 extern CacheEntry* gMainMenuButtonUpFrmHandle;

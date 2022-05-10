@@ -24,12 +24,12 @@
 #include "trait.h"
 
 // 0x509FFC
-char byte_509FFC[] = "<item>";
+char _aItem_1[] = "<item>";
 
 // Maps weapon extended flags to skill.
 //
 // 0x519160
-const int dword_519160[9] = {
+const int _attack_skill[9] = {
     -1,
     SKILL_UNARMED,
     SKILL_UNARMED,
@@ -44,7 +44,7 @@ const int dword_519160[9] = {
 // A map of item's extendedFlags to animation.
 //
 // 0x519184
-const int dword_519184[9] = {
+const int _attack_anim[9] = {
     ANIM_STAND,
     ANIM_THROW_PUNCH,
     ANIM_KICK_LEG,
@@ -59,7 +59,7 @@ const int dword_519184[9] = {
 // Maps weapon extended flags to weapon class
 //
 // 0x5191A8
-const int dword_5191A8[9] = {
+const int _attack_subtype[9] = {
     ATTACK_TYPE_NONE, // 0 // None
     ATTACK_TYPE_UNARMED, // 1 // Punch // Brass Knuckles, Power First
     ATTACK_TYPE_UNARMED, // 2 // Kick?
@@ -85,7 +85,7 @@ DrugDescription gDrugDescriptions[ADDICTION_COUNT] = {
 };
 
 // 0x519238
-char* off_519238 = byte_509FFC;
+char* _name_item = _aItem_1;
 
 // item.msg
 //
@@ -93,13 +93,13 @@ char* off_519238 = byte_509FFC;
 MessageList gItemsMessageList;
 
 // 0x59E988
-int dword_59E988;
+int _wd_onset;
 
 // 0x59E98C
-Object* off_59E98C;
+Object* _wd_obj;
 
 // 0x59E990
-int dword_59E990;
+int _wd_gvar;
 
 // 0x4770E0
 int itemsInit()
@@ -133,7 +133,7 @@ void itemsExit()
 // NOTE: Collapsed.
 //
 // 0x477154
-int sub_477154(File* stream)
+int _item_load_(File* stream)
 {
     return 0;
 }
@@ -141,13 +141,13 @@ int sub_477154(File* stream)
 // NOTE: Uncollapsed 0x477154.
 int itemsLoad(File* stream)
 {
-    return sub_477154(stream);
+    return _item_load_(stream);
 }
 
 // NOTE: Uncollapsed 0x477154.
 int itemsSave(File* stream)
 {
-    return sub_477154(stream);
+    return _item_load_(stream);
 }
 
 // 0x477158
@@ -610,8 +610,8 @@ bool _item_identical(Object* a1, Object* a2)
 // 0x477AE4
 char* itemGetName(Object* obj)
 {
-    off_519238 = protoGetName(obj->pid);
-    return off_519238;
+    _name_item = protoGetName(obj->pid);
+    return _name_item;
 }
 
 // 0x477AF4
@@ -1063,7 +1063,7 @@ int weaponGetAttackTypeForHitMode(Object* weapon, int hitMode)
         index = (proto->item.extendedFlags & 0xF0) >> 4;
     }
 
-    return dword_5191A8[index];
+    return _attack_subtype[index];
 }
 
 // 0x4782CC
@@ -1083,7 +1083,7 @@ int weaponGetSkillForHitMode(Object* weapon, int hitMode)
         index = (proto->item.extendedFlags & 0xF0) >> 4;
     }
 
-    int skill = dword_519160[index];
+    int skill = _attack_skill[index];
 
     if (skill == SKILL_SMALL_GUNS) {
         int damageType = weaponGetDamageType(NULL, weapon);
@@ -1264,7 +1264,7 @@ int weaponGetAnimationForHitMode(Object* weapon, int hitMode)
         index = (proto->item.extendedFlags & 0xF0) >> 4;
     }
 
-    return dword_519184[index];
+    return _attack_anim[index];
 }
 
 // 0x478674
@@ -2718,9 +2718,9 @@ int _item_d_take_drug(Object* critter, Object* item)
         }
     }
 
-    off_59E98C = critter;
-    dword_59E990 = drugGetAddictionGvarByPid(item->pid);
-    dword_59E988 = proto->item.data.drug.withdrawalOnset;
+    _wd_obj = critter;
+    _wd_gvar = drugGetAddictionGvarByPid(item->pid);
+    _wd_onset = proto->item.data.drug.withdrawalOnset;
 
     _queue_clear_type(EVENT_TYPE_WITHDRAWAL, _item_wd_clear_all);
 
@@ -2872,21 +2872,21 @@ int _item_wd_clear_all(Object* a1, void* data)
 {
     WithdrawalEvent* withdrawalEvent = data;
 
-    if (a1 != off_59E98C) {
+    if (a1 != _wd_obj) {
         return 0;
     }
 
-    if (drugGetAddictionGvarByPid(withdrawalEvent->pid) != dword_59E990) {
+    if (drugGetAddictionGvarByPid(withdrawalEvent->pid) != _wd_gvar) {
         return 0;
     }
 
     if (!withdrawalEvent->field_0) {
-        performWithdrawalEnd(off_59E98C, withdrawalEvent->perk);
+        performWithdrawalEnd(_wd_obj, withdrawalEvent->perk);
     }
 
-    _insert_withdrawal(a1, 1, dword_59E988, withdrawalEvent->perk, withdrawalEvent->pid);
+    _insert_withdrawal(a1, 1, _wd_onset, withdrawalEvent->perk, withdrawalEvent->pid);
 
-    off_59E98C = NULL;
+    _wd_obj = NULL;
 
     return 1;
 }

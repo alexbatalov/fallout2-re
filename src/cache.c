@@ -10,7 +10,7 @@ static_assert(sizeof(CacheEntry) == 32, "wrong size");
 static_assert(sizeof(Cache) == 84, "wrong size");
 
 // 0x510938
-int dword_510938 = 0;
+int _lock_sound_ticker = 0;
 
 // cache_init
 // 0x41FCC0
@@ -94,8 +94,8 @@ bool cacheLock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr)
             return false;
         }
 
-        dword_510938 %= 4;
-        if (dword_510938 == 0) {
+        _lock_sound_ticker %= 4;
+        if (_lock_sound_ticker == 0) {
             soundContinueAll();
         }
     } else {

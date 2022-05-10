@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 // 0x51C8D8
-int dword_51C8D8 = 0;
+int _selfrun_state = 0;
 
 // 0x4A8BE0
 int _selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr)
@@ -39,6 +39,6 @@ int _selfrun_free_list(char*** fileListPtr)
 // 0x4A8E74
 void _selfrun_playback_callback()
 {
-    dword_5186CC = 2;
-    dword_51C8D8 = 0;
+    _game_user_wants_to_quit = 2;
+    _selfrun_state = 0;
 }

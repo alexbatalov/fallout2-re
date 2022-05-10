@@ -32,22 +32,22 @@
 #include <intrin.h>
 
 // 0x5194C8
-char byte_5194C8[] = "artemple.map";
+char _mainMap[] = "artemple.map";
 
 // 0x5194D8
-int dword_5194D8 = 0;
+int _main_game_paused = 0;
 
 // 0x5194DC
-char** off_5194DC = NULL;
+char** _main_selfrun_list = NULL;
 
 // 0x5194E0
-int dword_5194E0 = 0;
+int _main_selfrun_count = 0;
 
 // 0x5194E4
-int dword_5194E4 = 0;
+int _main_selfrun_index = 0;
 
 // 0x5194E8
-bool dword_5194E8 = false;
+bool _main_show_death_scene = false;
 
 // 0x5194F0
 int gMainMenuWindow = -1;
@@ -65,7 +65,7 @@ unsigned char* gMainMenuButtonUpFrmData = NULL;
 unsigned char* gMainMenuButtonDownFrmData = NULL;
 
 // 0x519504
-bool dword_519504 = false;
+bool _in_main_menu = false;
 
 // 0x519508
 bool gMainMenuWindowInitialized = false;
@@ -84,7 +84,7 @@ const int gMainMenuButtonKeyBindings[MAIN_MENU_BUTTON_COUNT] = {
 };
 
 // 0x519528
-const int dword_519528[MAIN_MENU_BUTTON_COUNT] = {
+const int _return_values[MAIN_MENU_BUTTON_COUNT] = {
     MAIN_MENU_INTRO,
     MAIN_MENU_NEW_GAME,
     MAIN_MENU_LOAD_GAME,
@@ -94,7 +94,7 @@ const int dword_519528[MAIN_MENU_BUTTON_COUNT] = {
 };
 
 // 0x614838
-bool dword_614838;
+bool _main_death_voiceover_done;
 
 // 0x614840
 int gMainMenuButtons[MAIN_MENU_BUTTON_COUNT];
@@ -149,15 +149,15 @@ int falloutMain(int argc, char** argv)
                 if (characterSelectorOpen() == 2) {
                     gameMoviePlay(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
                     randomSeedPrerandom(-1);
-                    _main_load_new(byte_5194C8);
+                    _main_load_new(_mainMap);
                     mainLoop();
                     paletteFadeTo(gPaletteWhite);
                     objectHide(gDude, NULL);
                     _map_exit();
                     gameReset();
-                    if (dword_5194E8 != 0) {
+                    if (_main_show_death_scene != 0) {
                         showDeath();
-                        dword_5194E8 = 0;
+                        _main_show_death_scene = 0;
                     }
                 }
 
@@ -166,20 +166,20 @@ int falloutMain(int argc, char** argv)
                 break;
             case MAIN_MENU_LOAD_GAME:
                 if (1) {
-                    int win = windowCreate(0, 0, 640, 480, byte_6A38D0[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+                    int win = windowCreate(0, 0, 640, 480, _colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
                     mainMenuWindowHide(true);
                     mainMenuWindowFree();
                     backgroundSoundDelete();
-                    dword_5186CC = 0;
+                    _game_user_wants_to_quit = 0;
                     gDude->flags &= ~0x08;
-                    dword_5194E8 = 0;
+                    _main_show_death_scene = 0;
                     objectShow(gDude, NULL);
                     mouseHideCursor();
                     _map_init();
                     gameMouseSetCursor(MOUSE_CURSOR_NONE);
                     mouseShowCursor();
                     colorPaletteLoad("color.pal");
-                    paletteFadeTo(stru_51DF34);
+                    paletteFadeTo(_cmap);
                     int loadGameRc = lsgLoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
                     if (loadGameRc == -1) {
                         debugPrint("\n ** Error running LoadGame()! **\n");
@@ -195,9 +195,9 @@ int falloutMain(int argc, char** argv)
                     objectHide(gDude, NULL);
                     _map_exit();
                     gameReset();
-                    if (dword_5194E8 != 0) {
+                    if (_main_show_death_scene != 0) {
                         showDeath();
-                        dword_5194E8 = 0;
+                        _main_show_death_scene = 0;
                     }
                     mainMenuWindowInit();
                 }
@@ -257,12 +257,12 @@ bool falloutInit(int argc, char** argv)
         return false;
     }
 
-    if (off_5194DC != NULL) {
+    if (_main_selfrun_list != NULL) {
         _main_selfrun_exit();
     }
 
-    if (_selfrun_get_list(&off_5194DC, &dword_5194E0) == 0) {
-        dword_5194E4 = 0;
+    if (_selfrun_get_list(&_main_selfrun_list, &_main_selfrun_count) == 0) {
+        _main_selfrun_index = 0;
     }
 
     return true;
@@ -271,17 +271,17 @@ bool falloutInit(int argc, char** argv)
 // 0x480D4C
 int _main_load_new(char* mapFileName)
 {
-    dword_5186CC = 0;
-    dword_5194E8 = 0;
+    _game_user_wants_to_quit = 0;
+    _main_show_death_scene = 0;
     gDude->flags &= ~(0x08);
     objectShow(gDude, NULL);
     mouseHideCursor();
 
-    int win = windowCreate(0, 0, 640, 480, byte_6A38D0[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    int win = windowCreate(0, 0, 640, 480, _colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     windowRefresh(win);
 
     colorPaletteLoad("color.pal");
-    paletteFadeTo(stru_51DF34);
+    paletteFadeTo(_cmap);
     _map_init();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
     mouseShowCursor();
@@ -290,7 +290,7 @@ int _main_load_new(char* mapFileName)
     paletteFadeTo(gPaletteWhite);
     windowDestroy(win);
     colorPaletteLoad("color.pal");
-    paletteFadeTo(stru_51DF34);
+    paletteFadeTo(_cmap);
     return 0;
 }
 
@@ -302,11 +302,11 @@ void mainLoop()
         mouseShowCursor();
     }
 
-    dword_5194D8 = 0;
+    _main_game_paused = 0;
 
     scriptsEnable();
 
-    while (dword_5186CC == 0) {
+    while (_game_user_wants_to_quit == 0) {
         int keyCode = _get_input();
         gameHandleKey(keyCode, false);
 
@@ -314,14 +314,14 @@ void mainLoop()
 
         mapHandleTransition();
 
-        if (dword_5194D8 != 0) {
-            dword_5194D8 = 0;
+        if (_main_game_paused != 0) {
+            _main_game_paused = 0;
         }
 
         if ((gDude->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
             endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_DEATH);
-            dword_5194E8 = 1;
-            dword_5186CC = 2;
+            _main_show_death_scene = 1;
+            _game_user_wants_to_quit = 2;
         }
     }
 
@@ -335,13 +335,13 @@ void mainLoop()
 // 0x480F38
 void _main_selfrun_exit()
 {
-    if (off_5194DC != NULL) {
-        _selfrun_free_list(&off_5194DC);
+    if (_main_selfrun_list != NULL) {
+        _selfrun_free_list(&_main_selfrun_list);
     }
 
-    dword_5194E0 = 0;
-    dword_5194E4 = 0;
-    off_5194DC = NULL;
+    _main_selfrun_count = 0;
+    _main_selfrun_index = 0;
+    _main_selfrun_list = NULL;
 }
 
 // 0x48118C
@@ -398,7 +398,7 @@ void showDeath()
                         bufferFill(p - 602, 564, fontGetLineHeight() * count + 2, 640, 0);
                         p += 40;
                         for (int index = 0; index < count; index++) {
-                            fontDrawText(p, text + beginnings[index], 560, 640, byte_6A38D0[32767]);
+                            fontDrawText(p, text + beginnings[index], 560, 640, _colorTable[32767]);
                             p += 640 * fontGetLineHeight();
                         }
                     }
@@ -408,9 +408,9 @@ void showDeath()
             windowRefresh(win);
 
             colorPaletteLoad("art\\intrface\\death.pal");
-            paletteFadeTo(stru_51DF34);
+            paletteFadeTo(_cmap);
 
-            dword_614838 = false;
+            _main_death_voiceover_done = false;
             speechSetEndCallback(_main_death_voiceover_callback);
 
             unsigned int delay;
@@ -426,7 +426,7 @@ void showDeath()
             int keyCode;
             do {
                 keyCode = _get_input();
-            } while (keyCode == -1 && !dword_614838 && getTicksSince(time) < delay);
+            } while (keyCode == -1 && !_main_death_voiceover_done && getTicksSince(time) < delay);
 
             speechSetEndCallback(NULL);
 
@@ -458,7 +458,7 @@ void showDeath()
 // 0x4814A8
 void _main_death_voiceover_callback()
 {
-    dword_614838 = true;
+    _main_death_voiceover_done = true;
 }
 
 // Read endgame subtitle.
@@ -474,7 +474,7 @@ int _mainDeathGrabTextFile(const char* fileName, char* dest)
     char* language = NULL;
     if (!configGetString(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         debugPrint("MAIN: Error grabing language for ending. Defaulting to english.\n");
-        language = byte_50B00C;
+        language = _aEnglish_2;
     }
 
     char path[MAX_PATH];
@@ -597,14 +597,14 @@ int mainMenuWindowInit()
     // Copyright.
     msg.num = 20;
     if (messageListGetItem(&gMiscMessageList, &msg)) {
-        windowDrawText(gMainMenuWindow, msg.text, 0, 15, 460, byte_6A38D0[21091] | 0x6000000);
+        windowDrawText(gMainMenuWindow, msg.text, 0, 15, 460, _colorTable[21091] | 0x6000000);
     }
 
     // Version.
     char version[VERSION_MAX];
     versionGetVersion(version);
     len = fontGetStringWidth(version);
-    windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, byte_6A38D0[21091] | 0x6000000);
+    windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, _colorTable[21091] | 0x6000000);
 
     // menuup.frm
     fid = buildFid(6, 299, 0, 0, 0);
@@ -640,7 +640,7 @@ int mainMenuWindowInit()
         msg.num = 9 + index;
         if (messageListGetItem(&gMiscMessageList, &msg)) {
             len = fontGetStringWidth(msg.text);
-            fontDrawText(gMainMenuWindowBuffer + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, byte_6A38D0[21091]);
+            fontDrawText(gMainMenuWindowBuffer + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, _colorTable[21091]);
         }
     }
 
@@ -723,7 +723,7 @@ void mainMenuWindowUnhide(bool animate)
 
     if (animate) {
         colorPaletteLoad("color.pal");
-        paletteFadeTo(stru_51DF34);
+        paletteFadeTo(_cmap);
     }
 
     gMainMenuWindowHidden = false;
@@ -738,7 +738,7 @@ int _main_menu_is_enabled()
 // 0x481AEC
 int mainMenuWindowHandleEvents()
 {
-    dword_519504 = true;
+    _in_main_menu = true;
 
     bool oldCursorIsHidden = cursorIsHidden();
     if (oldCursorIsHidden) {
@@ -755,7 +755,7 @@ int mainMenuWindowHandleEvents()
             if (keyCode == gMainMenuButtonKeyBindings[buttonIndex] || keyCode == toupper(gMainMenuButtonKeyBindings[buttonIndex])) {
                 soundPlayFile("nmselec1");
 
-                rc = dword_519528[buttonIndex];
+                rc = _return_values[buttonIndex];
 
                 if (buttonIndex == MAIN_MENU_BUTTON_CREDITS && (gPressedPhysicalKeys[DIK_RSHIFT] != KEY_STATE_UP || gPressedPhysicalKeys[DIK_LSHIFT] != KEY_STATE_UP)) {
                     rc = MAIN_MENU_QUOTES;
@@ -784,12 +784,12 @@ int mainMenuWindowHandleEvents()
             }
         }
 
-        if (keyCode == KEY_ESCAPE || dword_5186CC == 3) {
+        if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit == 3) {
             rc = MAIN_MENU_EXIT;
             soundPlayFile("nmselec1");
             break;
-        } else if (dword_5186CC == 2) {
-            dword_5186CC = 0;
+        } else if (_game_user_wants_to_quit == 2) {
+            _game_user_wants_to_quit = 0;
         } else {
             if (getTicksSince(tick) >= gMainMenuScreensaverDelay) {
                 rc = MAIN_MENU_TIMEOUT;
@@ -801,7 +801,7 @@ int mainMenuWindowHandleEvents()
         mouseHideCursor();
     }
 
-    dword_519504 = false;
+    _in_main_menu = false;
 
     return rc;
 }

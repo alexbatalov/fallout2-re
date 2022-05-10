@@ -13,13 +13,13 @@ typedef enum Roll {
 extern const double dbl_50D4BA;
 extern const double dbl_50D4C2;
 
-extern int dword_51C694;
+extern int _iy;
 
-extern int dword_6648D0[32];
-extern int dword_664950;
+extern int _iv[32];
+extern int _idum;
 
 void randomInit();
-int sub_4A2FFC();
+int _roll_reset_();
 void randomReset();
 void randomExit();
 int randomSave(File* stream);

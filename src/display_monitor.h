@@ -30,12 +30,12 @@ extern int gDisplayMonitorScrollUpButton;
 
 extern char gDisplayMonitorLines[DISPLAY_MONITOR_LINES_CAPACITY][DISPLAY_MONITOR_LINE_LENGTH];
 extern unsigned char* gDisplayMonitorBackgroundFrmData;
-extern int dword_56FB40;
+extern int _max_disp;
 extern bool gDisplayMonitorEnabled;
-extern int dword_56FB48;
-extern int dword_56FB4C;
+extern int _disp_curr;
+extern int _intface_full_width;
 extern int gDisplayMonitorLinesCapacity;
-extern int dword_56FB54;
+extern int _disp_start;
 extern unsigned int gDisplayMonitorLastBeepTimestamp;
 
 int displayMonitorInit();

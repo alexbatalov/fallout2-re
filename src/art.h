@@ -132,17 +132,17 @@ typedef enum DudeNativeLook {
 
 extern ArtListDescription gArtListDescriptions[OBJ_TYPE_COUNT];
 extern bool gArtLanguageInitialized;
-extern const char* off_51089C;
-extern const char* off_5108A0;
-extern int dword_5108A4;
-extern int dword_5108A8[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
-extern int dword_5108B8;
+extern const char* _head1;
+extern const char* _head2;
+extern int _art_vault_guy_num;
+extern int _art_vault_person_nums[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
+extern int _art_mapper_blank_tile;
 
 extern char gArtLanguage[32];
 extern Cache gArtCache;
-extern char byte_56C9E4[MAX_PATH];
+extern char _art_name[MAX_PATH];
 extern HeadDescription* gHeadDescriptions;
-extern int* off_56CAEC;
+extern int* _anon_alias;
 extern int* gArtCritterFidShoudRunData;
 
 int artInit();

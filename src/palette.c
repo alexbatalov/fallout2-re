@@ -23,7 +23,7 @@ void paletteInit()
 {
     memset(gPaletteBlack, 0, 256 * 3);
     memset(gPaletteWhite, 63, 256 * 3);
-    memcpy(gPalette, stru_51DF34, 256 * 3);
+    memcpy(gPalette, _cmap, 256 * 3);
 
     unsigned int tick = _get_time();
     if (backgroundSoundIsEnabled() || speechIsEnabled()) {
@@ -53,20 +53,20 @@ void paletteInit()
 // NOTE: Collapsed.
 //
 // 0x493AD0
-void sub_493AD0()
+void _palette_reset_()
 {
 }
 
 // NOTE: Uncollapsed 0x493AD0.
 void paletteReset()
 {
-    sub_493AD0();
+    _palette_reset_();
 }
 
 // NOTE: Uncollapsed 0x493AD0.
 void paletteExit()
 {
-    sub_493AD0();
+    _palette_reset_();
 }
 
 // 0x493AD4

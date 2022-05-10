@@ -21,14 +21,14 @@
 #include <stdio.h>
 
 // 0x41ADE0
-const int dword_41ADE0[AUTOMAP_MAP_COUNT][ELEVATION_COUNT] = {
+const int _defam[AUTOMAP_MAP_COUNT][ELEVATION_COUNT] = {
     { -1, -1, -1 },
     { -1, -1, -1 },
     { -1, -1, -1 },
 };
 
 // 0x41B560
-const int dword_41B560[AUTOMAP_MAP_COUNT] = {
+const int _displayMapList[AUTOMAP_MAP_COUNT] = {
     -1,
     -1,
     -1,
@@ -252,7 +252,7 @@ int automapSave(File* stream)
 // 0x41B8B4
 int _automapDisplayMap(int map)
 {
-    return dword_41B560[map];
+    return _displayMapList[map];
 }
 
 // 0x41B8BC
@@ -278,10 +278,10 @@ void automapShow(bool isInGame, bool isUsingScanner)
 
     int color;
     if (isInGame) {
-        color = byte_6A38D0[8456];
+        color = _colorTable[8456];
         _obj_process_seen();
     } else {
-        color = byte_6A38D0[22025];
+        color = _colorTable[22025];
     }
 
     int oldFont = fontGetCurrent();
@@ -301,7 +301,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
 
     int switchBtn = buttonCreate(window, 457, 340, 42, 74, -1, -1, KEY_LOWERCASE_L, KEY_LOWERCASE_H, frmData[AUTOMAP_FRM_SWITCH_UP], frmData[AUTOMAP_FRM_SWITCH_DOWN], NULL, BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01);
     if (switchBtn != -1) {
-        buttonSetCallbacks(switchBtn, sub_451980, sub_451980);
+        buttonSetCallbacks(switchBtn, _gsound_toggle_butt_press_, _gsound_toggle_butt_press_);
     }
 
     if ((gAutomapFlags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
@@ -384,7 +384,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
                     // 17 - The motion sensor is not installed.
                     // 18 - The motion sensor has no charges remaining.
                     const char* title = getmsg(&gMiscMessageList, &messageListItem, scanner != NULL ? 18 : 17);
-                    showDialogBox(title, NULL, 0, 165, 140, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+                    showDialogBox(title, NULL, 0, 165, 140, _colorTable[32328], NULL, _colorTable[32328], 0);
                 }
             }
 
@@ -399,7 +399,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
             break;
         }
 
-        if (dword_5186CC != 0) {
+        if (_game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -428,9 +428,9 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
 {
     int color;
     if ((flags & AUTOMAP_IN_GAME) != 0) {
-        color = byte_6A38D0[8456];
+        color = _colorTable[8456];
     } else {
-        color = byte_6A38D0[22025];
+        color = _colorTable[22025];
     }
 
     windowFill(window, 0, 0, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, color);
@@ -452,24 +452,24 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
                 && (object->flags & 0x01) == 0
                 && (flags & AUTOMAP_WITH_SCANNER) != 0
                 && (object->data.critter.combat.results & DAM_DEAD) == 0) {
-                objectColor = byte_6A38D0[31744];
+                objectColor = _colorTable[31744];
             } else {
                 if ((object->flags & 0x40000000) == 0) {
                     continue;
                 }
 
                 if (object->pid == PROTO_ID_0x2000031) {
-                    objectColor = byte_6A38D0[32328];
+                    objectColor = _colorTable[32328];
                 } else if (objectType == OBJ_TYPE_WALL) {
-                    objectColor = byte_6A38D0[992];
+                    objectColor = _colorTable[992];
                 } else if (objectType == OBJ_TYPE_SCENERY
                     && (flags & AUTOMAP_WTH_HIGH_DETAILS) != 0
                     && object->pid != PROTO_ID_0x2000158) {
-                    objectColor = byte_6A38D0[480];
+                    objectColor = _colorTable[480];
                 } else if (object == gDude) {
-                    objectColor = byte_6A38D0[31744];
+                    objectColor = _colorTable[31744];
                 } else {
-                    objectColor = byte_6A38D0[0];
+                    objectColor = _colorTable[0];
                 }
             }
         }
@@ -478,29 +478,29 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
         if ((flags & AUTOMAP_IN_GAME) == 0) {
             switch (objectType) {
             case OBJ_TYPE_ITEM:
-                objectColor = byte_6A38D0[6513];
+                objectColor = _colorTable[6513];
                 break;
             case OBJ_TYPE_CRITTER:
-                objectColor = byte_6A38D0[28672];
+                objectColor = _colorTable[28672];
                 break;
             case OBJ_TYPE_SCENERY:
-                objectColor = byte_6A38D0[448];
+                objectColor = _colorTable[448];
                 break;
             case OBJ_TYPE_WALL:
-                objectColor = byte_6A38D0[12546];
+                objectColor = _colorTable[12546];
                 break;
             case OBJ_TYPE_MISC:
-                objectColor = byte_6A38D0[31650];
+                objectColor = _colorTable[31650];
                 break;
             default:
-                objectColor = byte_6A38D0[0];
+                objectColor = _colorTable[0];
             }
         }
 
-        if (objectColor != byte_6A38D0[0]) {
+        if (objectColor != _colorTable[0]) {
             unsigned char* v12 = windowBuffer + v10;
             if ((flags & AUTOMAP_IN_GAME) != 0) {
-                if (*v12 != byte_6A38D0[992] || objectColor != byte_6A38D0[480]) {
+                if (*v12 != _colorTable[992] || objectColor != _colorTable[480]) {
                     v12[0] = objectColor;
                     v12[1] = objectColor;
                 }
@@ -526,9 +526,9 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
 
     int textColor;
     if ((flags & AUTOMAP_IN_GAME) != 0) {
-        textColor = byte_6A38D0[992];
+        textColor = _colorTable[992];
     } else {
-        textColor = byte_6A38D0[12546];
+        textColor = _colorTable[12546];
     }
 
     if (mapGetCurrentMap() != -1) {
@@ -549,8 +549,8 @@ int automapRenderInPipboyWindow(int window, int map, int elevation)
 {
     unsigned char* windowBuffer = windowGetBuffer(window) + 640 * AUTOMAP_PIPBOY_VIEW_Y + AUTOMAP_PIPBOY_VIEW_X;
 
-    unsigned char wallColor = byte_6A38D0[992];
-    unsigned char sceneryColor = byte_6A38D0[480];
+    unsigned char wallColor = _colorTable[992];
+    unsigned char sceneryColor = _colorTable[480];
 
     gAutomapEntry.data = internal_malloc(11024);
     if (gAutomapEntry.data == NULL) {
@@ -1036,7 +1036,7 @@ int automapCreate()
 {
     gAutomapHeader.version = 1;
     gAutomapHeader.dataSize = 1925;
-    memcpy(gAutomapHeader.offsets, dword_41ADE0, sizeof(dword_41ADE0));
+    memcpy(gAutomapHeader.offsets, _defam, sizeof(_defam));
 
     char path[MAX_PATH];
     sprintf(path, "%s\\%s", "MAPS", AUTOMAP_DB);

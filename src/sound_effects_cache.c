@@ -22,7 +22,7 @@ const char* off_50DE04 = "";
 bool gSoundEffectsCacheInitialized = false;
 
 // 0x51C8F4
-int dword_51C8F4 = 1;
+int _sfxc_cmpr = 1;
 
 // sfxc_pcache
 // 0x51C8EC
@@ -39,7 +39,7 @@ char* gSoundEffectsCacheEffectsPath = NULL;
 SoundEffect* gSoundEffects = NULL;
 
 // 0x51C8E8
-int dword_51C8E8 = 0;
+int _sfxc_files_open = 0;
 
 // sfxc_init
 // 0x4A8FC0
@@ -62,7 +62,7 @@ int soundEffectsCacheInit(int cacheSize, const char* effectsPath)
         return -1;
     }
 
-    if (soundEffectsListInit(gSoundEffectsCacheEffectsPath, dword_51C8F4, gSoundEffectsCacheDebugLevel) != SFXL_OK) {
+    if (soundEffectsListInit(gSoundEffectsCacheEffectsPath, _sfxc_cmpr, gSoundEffectsCacheDebugLevel) != SFXL_OK) {
         internal_free(gSoundEffectsCacheEffectsPath);
         return -1;
     }
@@ -130,7 +130,7 @@ void soundEffectsCacheFlush()
 // 0x4A915C
 int soundEffectsCacheFileOpen(const char* fname, int mode, ...)
 {
-    if (dword_51C8E8 >= SOUND_EFFECTS_MAX_COUNT) {
+    if (_sfxc_files_open >= SOUND_EFFECTS_MAX_COUNT) {
         return -1;
     }
 
@@ -210,7 +210,7 @@ int soundEffectsCacheFileRead(int handle, void* buf, unsigned int size)
         bytesToRead = soundEffect->dataSize - soundEffect->position;
     }
 
-    switch (dword_51C8F4) {
+    switch (_sfxc_cmpr) {
     case 0:
         memcpy(buf, soundEffect->data + soundEffect->position, bytesToRead);
         break;
@@ -359,7 +359,7 @@ int soundEffectsCacheCreateHandles()
         soundEffect->used = false;
     }
 
-    dword_51C8E8 = 0;
+    _sfxc_files_open = 0;
 
     return 0;
 }
@@ -367,7 +367,7 @@ int soundEffectsCacheCreateHandles()
 // 0x4A9518
 void soundEffectsCacheFreeHandles()
 {
-    if (dword_51C8E8) {
+    if (_sfxc_files_open) {
         for (int index = 0; index < SOUND_EFFECTS_MAX_COUNT; index++) {
             SoundEffect* soundEffect = &(gSoundEffects[index]);
             if (!soundEffect->used) {
@@ -382,7 +382,7 @@ void soundEffectsCacheFreeHandles()
 // 0x4A9550
 int soundEffectsCreate(int* handlePtr, int tag, void* data, CacheEntry* cacheHandle)
 {
-    if (dword_51C8E8 >= SOUND_EFFECTS_MAX_COUNT) {
+    if (_sfxc_files_open >= SOUND_EFFECTS_MAX_COUNT) {
         return -1;
     }
 

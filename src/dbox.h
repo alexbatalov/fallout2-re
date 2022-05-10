@@ -17,16 +17,16 @@ typedef enum DialogType {
 } DialogType;
 
 extern const int gDialogBoxBackgroundFrmIds[DIALOG_TYPE_COUNT];
-extern const int dword_5108D0[DIALOG_TYPE_COUNT];
-extern const int dword_5108D8[DIALOG_TYPE_COUNT];
-extern const int dword_5108E0[DIALOG_TYPE_COUNT];
-extern const int dword_5108E8[DIALOG_TYPE_COUNT];
-extern const int dword_5108F0[DIALOG_TYPE_COUNT];
-extern int dword_510900[7];
-extern int dword_51091C[7];
+extern const int _ytable[DIALOG_TYPE_COUNT];
+extern const int _xtable[DIALOG_TYPE_COUNT];
+extern const int _doneY[DIALOG_TYPE_COUNT];
+extern const int _doneX[DIALOG_TYPE_COUNT];
+extern const int _dblines[DIALOG_TYPE_COUNT];
+extern int _flgids[7];
+extern int _flgids2[7];
 
 int showDialogBox(const char* title, const char** body, int bodyLength, int x, int y, int titleColor, const char* a8, int bodyColor, int flags);
 int _save_file_dialog(char* a1, char** fileList, char* fileName, int fileListLength, int x, int y, int flags);
-void sub_41FBDC(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch);
+void _PrntFlist(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch);
 
 #endif /* DBOX_H */

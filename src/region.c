@@ -8,7 +8,7 @@
 
 static_assert(sizeof(Region) == 140, "wrong size");
 
-char byte_50D394[] = "<null>";
+char _aNull[] = "<null>";
 
 // Probably recalculates bounding box of the region.
 //
@@ -156,7 +156,7 @@ char* regionGetName(Region* region)
 {
     if (region == NULL) {
         debugPrint("regionGetName(): null region ptr\n");
-        return byte_50D394;
+        return _aNull;
     }
 
     return region->name;

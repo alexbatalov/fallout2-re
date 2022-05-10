@@ -24,23 +24,23 @@ typedef struct DrugDescription {
     int field_8;
 } DrugDescription;
 
-extern char byte_509FFC[];
+extern char _aItem_1[];
 
-extern const int dword_519160[9];
-extern const int dword_519184[9];
-extern const int dword_5191A8[9];
+extern const int _attack_skill[9];
+extern const int _attack_anim[9];
+extern const int _attack_subtype[9];
 extern DrugDescription gDrugDescriptions[ADDICTION_COUNT];
-extern char* off_519238;
+extern char* _name_item;
 
 extern MessageList gItemsMessageList;
-extern int dword_59E988;
-extern Object* off_59E98C;
-extern int dword_59E990;
+extern int _wd_onset;
+extern Object* _wd_obj;
+extern int _wd_gvar;
 
 int itemsInit();
 void itemsReset();
 void itemsExit();
-int sub_477154(File* stream);
+int _item_load_(File* stream);
 int itemsLoad(File* stream);
 int itemsSave(File* stream);
 int itemAttemptAdd(Object* owner, Object* itemToAdd, int quantity);

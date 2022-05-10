@@ -17,10 +17,10 @@ bool gMovieEffectsInitialized = false;
 MovieEffect* gMovieEffectHead = NULL;
 
 // 0x638EC4
-unsigned char byte_638EC4[768];
+unsigned char _source_palette[768];
 
 // 0x6391C4
-bool dword_6391C4;
+bool _inside_fade;
 
 // 0x487CC0
 int movieEffectsInit()
@@ -29,7 +29,7 @@ int movieEffectsInit()
         return -1;
     }
 
-    memset(byte_638EC4, 0, sizeof(byte_638EC4));
+    memset(_source_palette, 0, sizeof(_source_palette));
 
     gMovieEffectsInitialized = true;
 
@@ -47,9 +47,9 @@ void movieEffectsReset()
     _movieSetPaletteFunc(NULL);
     movieEffectsClear();
 
-    dword_6391C4 = false;
+    _inside_fade = false;
 
-    memset(byte_638EC4, 0, sizeof(byte_638EC4));
+    memset(_source_palette, 0, sizeof(_source_palette));
 }
 
 // 0x487D30
@@ -63,9 +63,9 @@ void movieEffectsExit()
     _movieSetPaletteFunc(NULL);
     movieEffectsClear();
 
-    dword_6391C4 = false;
+    _inside_fade = false;
 
-    memset(byte_638EC4, 0, sizeof(byte_638EC4));
+    memset(_source_palette, 0, sizeof(_source_palette));
 }
 
 // 0x487D7C
@@ -78,8 +78,8 @@ int movieEffectsLoad(const char* filePath)
     movieSetPaletteProc(NULL);
     _movieSetPaletteFunc(NULL);
     movieEffectsClear();
-    dword_6391C4 = false;
-    memset(byte_638EC4, 0, sizeof(byte_638EC4));
+    _inside_fade = false;
+    memset(_source_palette, 0, sizeof(_source_palette));
 
     if (filePath == NULL) {
         return -1;
@@ -170,7 +170,7 @@ int movieEffectsLoad(const char* filePath)
             movieEffect->b = fadeColor[2] & 0xFF;
 
             if (movieEffect->startFrame <= 1) {
-                dword_6391C4 = true;
+                _inside_fade = true;
             }
 
             movieEffect->next = gMovieEffectHead;
@@ -207,8 +207,8 @@ void _moviefx_stop()
 
     movieEffectsClear();
 
-    dword_6391C4 = false;
-    memset(byte_638EC4, 0, sizeof(byte_638EC4));
+    _inside_fade = false;
+    memset(_source_palette, 0, sizeof(_source_palette));
 }
 
 // 0x488144
@@ -228,30 +228,30 @@ void _moviefx_callback_func(int frame)
 
         if (movieEffect->fadeType == MOVIE_EFFECT_TYPE_FADE_IN) {
             for (int index = 0; index < 256; index++) {
-                palette[index * 3] = movieEffect->r - (step * (movieEffect->r - byte_638EC4[index * 3]) / movieEffect->steps);
-                palette[index * 3 + 1] = movieEffect->g - (step * (movieEffect->g - byte_638EC4[index * 3 + 1]) / movieEffect->steps);
-                palette[index * 3 + 2] = movieEffect->b - (step * (movieEffect->b - byte_638EC4[index * 3 + 2]) / movieEffect->steps);
+                palette[index * 3] = movieEffect->r - (step * (movieEffect->r - _source_palette[index * 3]) / movieEffect->steps);
+                palette[index * 3 + 1] = movieEffect->g - (step * (movieEffect->g - _source_palette[index * 3 + 1]) / movieEffect->steps);
+                palette[index * 3 + 2] = movieEffect->b - (step * (movieEffect->b - _source_palette[index * 3 + 2]) / movieEffect->steps);
             }
         } else {
             for (int index = 0; index < 256; index++) {
-                palette[index * 3] = byte_638EC4[index * 3] - (step * (byte_638EC4[index * 3] - movieEffect->r) / movieEffect->steps);
-                palette[index * 3 + 1] = byte_638EC4[index * 3 + 1] - (step * (byte_638EC4[index * 3 + 1] - movieEffect->g) / movieEffect->steps);
-                palette[index * 3 + 2] = byte_638EC4[index * 3 + 2] - (step * (byte_638EC4[index * 3 + 2] - movieEffect->b) / movieEffect->steps);
+                palette[index * 3] = _source_palette[index * 3] - (step * (_source_palette[index * 3] - movieEffect->r) / movieEffect->steps);
+                palette[index * 3 + 1] = _source_palette[index * 3 + 1] - (step * (_source_palette[index * 3 + 1] - movieEffect->g) / movieEffect->steps);
+                palette[index * 3 + 2] = _source_palette[index * 3 + 2] - (step * (_source_palette[index * 3 + 2] - movieEffect->b) / movieEffect->steps);
             }
         }
 
         paletteSetEntries(palette);
     }
 
-    dword_6391C4 = movieEffect != NULL;
+    _inside_fade = movieEffect != NULL;
 }
 
 // 0x4882AC
 void _moviefx_palette_func(unsigned char* palette, int start, int end)
 {
-    memcpy(byte_638EC4 + 3 * start, palette, 3 * (end - start + 1));
+    memcpy(_source_palette + 3 * start, palette, 3 * (end - start + 1));
 
-    if (!dword_6391C4) {
+    if (!_inside_fade) {
         paletteSetEntriesInRange(palette, start, end);
     }
 }

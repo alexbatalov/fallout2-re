@@ -23,19 +23,19 @@
 #include <stdio.h>
 
 // 0x50CF3C
-char byte_50CF3C[] = "proto\\";
+char _aProto_0[] = "proto\\";
 
 // 0x50D1B0
-char byte_50D1B0[] = "Drug Stat (Special)";
+char _aDrugStatSpecia[] = "Drug Stat (Special)";
 
 // 0x50D1C4
-char byte_50D1C4[] = "None";
+char _aNone_1[] = "None";
 
 // 0x51C18C
-char byte_51C18C[MAX_PATH];
+char _cd_path_base[MAX_PATH];
 
 // 0x51C290
-ProtoList stru_51C290[11] = {
+ProtoList _protoLists[11] = {
     { 0, 0, 0, 1 },
     { 0, 0, 0, 1 },
     { 0, 0, 0, 1 },
@@ -50,7 +50,7 @@ ProtoList stru_51C290[11] = {
 };
 
 // 0x51C340
-const size_t dword_51C340[11] = {
+const size_t _proto_sizes[11] = {
     sizeof(ItemProto), // 0x84
     sizeof(CritterProto), // 0x1A0
     sizeof(SceneryProto), // 0x38
@@ -65,7 +65,7 @@ const size_t dword_51C340[11] = {
 };
 
 // 0x51C36C
-int dword_51C36C = 0;
+int _protos_been_initialized = 0;
 
 // obj_dude_proto
 // 0x51C370
@@ -92,28 +92,28 @@ CritterProto gDudeProto = {
 };
 
 // 0x51C534
-char* off_51C534 = byte_50CF3C;
+char* _proto_path_base = _aProto_0;
 
 // 0x51C538
-int dword_51C538 = 0;
+int _init_true = 0;
 
 // 0x51C53C
-int dword_51C53C = 0;
+int _retval = 0;
 
 // 0x66452C
-char* off_66452C;
+char* _mp_perk_code_None;
 
 // 0x664530
-char* off_664530[PERK_COUNT];
+char* _mp_perk_code_strs[PERK_COUNT];
 
 // 0x66470C
-char* off_66470C;
+char* _mp_critter_stats_list;
 
 // 0x664710
-char* off_664710;
+char* _critter_stats_list_None;
 
 // 0x664714
-char* off_664714[STAT_COUNT];
+char* _critter_stats_list_strs[STAT_COUNT];
 
 // Message list by object type
 // 0 - pro_item.msg
@@ -124,7 +124,7 @@ char* off_664714[STAT_COUNT];
 // 5 - pro_misc.msg
 //
 // 0x6647AC
-MessageList stru_6647AC[6];
+MessageList _proto_msg_files[6];
 
 // 0x6647DC
 char* gRaceTypeNames[RACE_TYPE_COUNT];
@@ -143,7 +143,7 @@ char* gMaterialTypeNames[MATERIAL_TYPE_COUNT];
 // "<None>" from proto.msg
 //
 // 0x664824
-char* off_664824;
+char* _proto_none_str;
 
 // 0x664828
 char* gBodyTypeNames[BODY_TYPE_COUNT];
@@ -160,12 +160,12 @@ char* gCaliberTypeNames[CALIBER_TYPE_COUNT];
 // Perk names.
 //
 // 0x6648B8
-char** off_6648B8;
+char** _perk_code_strs;
 
 // Stat names.
 //
 // 0x6648BC
-char** off_6648BC;
+char** _critter_stats_list;
 
 // Append proto file name to proto_path from proto.lst.
 //
@@ -186,7 +186,7 @@ int _proto_list_str(int pid, char* proto_path)
         return -1;
     }
 
-    strcpy(path, byte_51C18C);
+    strcpy(path, _cd_path_base);
     strcat(path, "proto\\");
     strcat(path, artGetObjectTypeName(pid >> 24));
     strcat(path, "\\");
@@ -303,12 +303,12 @@ int _proto_action_can_pickup(int pid)
 // 0x49EAA4
 char* protoGetMessage(int pid, int message)
 {
-    char* v1 = off_664824;
+    char* v1 = _proto_none_str;
 
     Proto* proto;
     if (protoGetProto(pid, &proto) != -1) {
         if (proto->messageId != -1) {
-            MessageList* messageList = &(stru_6647AC[pid >> 24]);
+            MessageList* messageList = &(_proto_msg_files[pid >> 24]);
 
             MessageListItem messageListItem;
             messageListItem.num = proto->messageId + message;
@@ -340,7 +340,7 @@ char* protoGetDescription(int pid)
 // 0x49EDB4
 int _proto_critter_init(Proto* a1, int a2)
 {
-    if (!dword_51C36C) {
+    if (!_protos_been_initialized) {
         return -1;
     }
 
@@ -593,7 +593,7 @@ int _proto_update_gen(Object* obj)
 {
     Proto* proto;
 
-    if (!dword_51C36C) {
+    if (!_protos_been_initialized) {
         return -1;
     }
 
@@ -664,7 +664,7 @@ int _proto_update_gen(Object* obj)
 // 0x49F8A0
 int _proto_update_init(Object* obj)
 {
-    if (!dword_51C36C) {
+    if (!_protos_been_initialized) {
         return -1;
     }
 
@@ -718,12 +718,12 @@ int _proto_dude_update_gender()
 
     int frmId;
     if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
-        frmId = dword_5108A8[nativeLook][GENDER_MALE];
+        frmId = _art_vault_person_nums[nativeLook][GENDER_MALE];
     } else {
-        frmId = dword_5108A8[nativeLook][GENDER_FEMALE];
+        frmId = _art_vault_person_nums[nativeLook][GENDER_FEMALE];
     }
 
-    dword_5108A4 = frmId;
+    _art_vault_guy_num = frmId;
 
     if (critterGetArmor(gDude) == NULL) {
         int v1 = 0;
@@ -731,11 +731,11 @@ int _proto_dude_update_gender()
             v1 = (gDude->fid & 0xF000) >> 12;
         }
 
-        int fid = buildFid(1, dword_5108A4, 0, v1, 0);
+        int fid = buildFid(1, _art_vault_guy_num, 0, v1, 0);
         objectSetFid(gDude, fid, NULL);
     }
 
-    proto->fid = buildFid(1, dword_5108A4, 0, 0, 0);
+    proto->fid = buildFid(1, _art_vault_guy_num, 0, 0, 0);
 
     return 0;
 }
@@ -744,13 +744,13 @@ int _proto_dude_update_gender()
 // 0x49FA64
 int _proto_dude_init(const char* path)
 {
-    gDudeProto.fid = buildFid(1, dword_5108A4, 0, 0, 0);
+    gDudeProto.fid = buildFid(1, _art_vault_guy_num, 0, 0, 0);
 
-    if (dword_51C538) {
+    if (_init_true) {
         _obj_inven_free(&(gDude->data.inventory));
     }
 
-    dword_51C538 = 1;
+    _init_true = 1;
 
     Proto* proto;
     if (protoGetProto(0x1000000, &proto) == -1) {
@@ -765,7 +765,7 @@ int _proto_dude_init(const char* path)
     _ResetPlayer();
 
     if (gcdLoad(path) == -1) {
-        dword_51C53C = -1;
+        _retval = -1;
     }
 
     proto->critter.data.baseStats[STAT_DAMAGE_RESISTANCE_EMP] = 100;
@@ -788,7 +788,7 @@ int _proto_dude_init(const char* path)
     critterUpdateDerivedStats(gDude);
     critterAdjustHitPoints(gDude, 10000);
 
-    if (dword_51C53C) {
+    if (_retval) {
         debugPrint("\n ** Error in proto_dude_init()! **\n");
     }
 
@@ -1069,12 +1069,12 @@ int protoInit()
 
     _proto_header_load();
 
-    dword_51C36C = 1;
+    _protos_been_initialized = 1;
 
     _proto_dude_init("premade\\player.gcd");
 
     for (i = 0; i < 6; i++) {
-        if (!messageListInit(&(stru_6647AC[i]))) {
+        if (!messageListInit(&(_proto_msg_files[i]))) {
             debugPrint("\nError: Initing proto message files!");
             return -1;
         }
@@ -1083,28 +1083,28 @@ int protoInit()
     for (i = 0; i < 6; i++) {
         sprintf(path, "%spro_%.4s%s", asc_5186C8, artGetObjectTypeName(i), ".msg");
 
-        if (!messageListLoad(&(stru_6647AC[i]), path)) {
+        if (!messageListLoad(&(_proto_msg_files[i]), path)) {
             debugPrint("\nError: Loading proto message files!");
             return -1;
         }
     }
 
-    off_66470C = byte_50D1B0;
-    off_6648BC = off_664714;
-    off_664710 = byte_50D1C4;
+    _mp_critter_stats_list = _aDrugStatSpecia;
+    _critter_stats_list = _critter_stats_list_strs;
+    _critter_stats_list_None = _aNone_1;
     for (i = 0; i < STAT_COUNT; i++) {
-        off_664714[i] = statGetName(i);
-        if (off_664714[i] == NULL) {
+        _critter_stats_list_strs[i] = statGetName(i);
+        if (_critter_stats_list_strs[i] == NULL) {
             debugPrint("\nError: Finding stat names!");
             return -1;
         }
     }
 
-    off_66452C = byte_50D1C4;
-    off_6648B8 = off_664530;
+    _mp_perk_code_None = _aNone_1;
+    _perk_code_strs = _mp_perk_code_strs;
     for (i = 0; i < PERK_COUNT; i++) {
-        off_664530[i] = perkGetName(i);
-        if (off_664530[i] == NULL) {
+        _mp_perk_code_strs[i] = perkGetName(i);
+        if (_mp_perk_code_strs[i] == NULL) {
             debugPrint("\nError: Finding perk names!");
             return -1;
         }
@@ -1122,7 +1122,7 @@ int protoInit()
         return -1;
     }
 
-    off_664824 = getmsg(&gProtoMessageList, &messageListItem, 10);
+    _proto_none_str = getmsg(&gProtoMessageList, &messageListItem, 10);
 
     // material type names
     for (i = 0; i < MATERIAL_TYPE_COUNT; i++) {
@@ -1182,7 +1182,7 @@ void protoReset()
 
     _proto_header_load();
 
-    dword_51C36C = 1;
+    _protos_been_initialized = 1;
     _proto_dude_init("premade\\player.gcd");
 }
 
@@ -1196,7 +1196,7 @@ void protoExit()
     }
 
     for (i = 0; i < 6; i++) {
-        messageListFree(&(stru_6647AC[i]));
+        messageListFree(&(_proto_msg_files[i]));
     }
 
     messageListFree(&gProtoMessageList);
@@ -1208,15 +1208,15 @@ void protoExit()
 int _proto_header_load()
 {
     for (int index = 0; index < 6; index++) {
-        ProtoList* ptr = &(stru_51C290[index]);
+        ProtoList* ptr = &(_protoLists[index]);
         ptr->head = NULL;
         ptr->tail = NULL;
         ptr->length = 0;
         ptr->max_entries_num = 1;
 
         char path[MAX_PATH];
-        strcpy(path, byte_51C18C);
-        strcat(path, off_51C534);
+        strcpy(path, _cd_path_base);
+        strcat(path, _proto_path_base);
         strcat(path, artGetObjectTypeName(index));
         strcat(path, "\\");
         strcat(path, artGetObjectTypeName(index));
@@ -1627,8 +1627,8 @@ int _proto_save_pid(int pid)
     }
 
     char path[260];
-    strcpy(path, byte_51C18C);
-    strcat(path, off_51C534);
+    strcpy(path, _cd_path_base);
+    strcat(path, _proto_path_base);
 
     if (pid != -1) {
         strcat(path, artGetObjectTypeName(pid >> 24));
@@ -1654,7 +1654,7 @@ int _proto_save_pid(int pid)
 int _proto_load_pid(int pid, Proto** protoPtr)
 {
     char path[MAX_PATH];
-    strcpy(path, byte_51C18C);
+    strcpy(path, _cd_path_base);
 
     strcat(path, "proto\\");
 
@@ -1692,7 +1692,7 @@ int _proto_load_pid(int pid, Proto** protoPtr)
 // allocate memory for proto of given type and adds it to proto cache
 int _proto_find_free_subnode(int type, Proto** protoPtr)
 {
-    size_t size = (type >= 0 && type < 11) ? dword_51C340[type] : 0;
+    size_t size = (type >= 0 && type < 11) ? _proto_sizes[type] : 0;
 
     Proto* proto = internal_malloc(size);
     *protoPtr = proto;
@@ -1700,7 +1700,7 @@ int _proto_find_free_subnode(int type, Proto** protoPtr)
         return -1;
     }
 
-    ProtoList* protoList = &(stru_51C290[type]);
+    ProtoList* protoList = &(_protoLists[type]);
     ProtoListExtent* protoListExtent = protoList->tail;
 
     if (protoList->head != NULL) {
@@ -1747,7 +1747,7 @@ int _proto_find_free_subnode(int type, Proto** protoPtr)
 // 0x4A2040
 void _proto_remove_some_list(int type)
 {
-    ProtoList* protoList = &(stru_51C290[type]);
+    ProtoList* protoList = &(_protoLists[type]);
     ProtoListExtent* protoListExtent = protoList->head;
     if (protoListExtent != NULL) {
         protoList->length--;
@@ -1766,7 +1766,7 @@ void _proto_remove_some_list(int type)
 // 0x4A2094
 void _proto_remove_list(int type)
 {
-    ProtoList* protoList = &(stru_51C290[type]);
+    ProtoList* protoList = &(_protoLists[type]);
 
     ProtoListExtent* curr = protoList->head;
     while (curr != NULL) {
@@ -1808,7 +1808,7 @@ int protoGetProto(int pid, Proto** protoPtr)
         return 0;
     }
 
-    ProtoList* protoList = &(stru_51C290[pid >> 24]);
+    ProtoList* protoList = &(_protoLists[pid >> 24]);
     ProtoListExtent* protoListExtent = protoList->head;
     while (protoListExtent != NULL) {
         for (int index = 0; index < protoListExtent->length; index++) {
@@ -1833,8 +1833,8 @@ int protoGetProto(int pid, Proto** protoPtr)
 // 0x4A21DC
 int _proto_new_id(int a1)
 {
-    int result = stru_51C290[a1].max_entries_num;
-    stru_51C290[a1].max_entries_num = result + 1;
+    int result = _protoLists[a1].max_entries_num;
+    _protoLists[a1].max_entries_num = result + 1;
 
     return result;
 }
@@ -1842,7 +1842,7 @@ int _proto_new_id(int a1)
 // 0x4A2214
 int _proto_max_id(int a1)
 {
-    return stru_51C290[a1].max_entries_num;
+    return _protoLists[a1].max_entries_num;
 }
 
 // 0x4A22C0

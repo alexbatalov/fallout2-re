@@ -17,10 +17,10 @@ typedef void (*OFF_59E160)(Program*);
 extern Sound* gInterpreterSounds[INTERPRETER_SOUNDS_LENGTH];
 extern InterpreterKeyHandlerEntry gInterpreterKeyHandlerEntries[INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH];
 extern int gIntepreterAnyKeyHandlerProc;
-extern int dword_59E158;
+extern int _numCallbacks;
 extern Program* gInterpreterAnyKeyHandlerProgram;
-extern OFF_59E160* off_59E160;
-extern int dword_59E164;
+extern OFF_59E160* _callbacks;
+extern int _sayStartingPosition;
 
 void opFormat(Program* program);
 void opPrint(Program* program);

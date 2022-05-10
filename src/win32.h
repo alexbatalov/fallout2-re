@@ -28,7 +28,7 @@ extern HINSTANCE gInstance;
 extern LPSTR gCmdLine;
 extern int gCmdShow;
 extern bool gProgramIsActive;
-extern HANDLE dword_51E448;
+extern HANDLE _GNW95_mutex;
 extern HMODULE gDDrawDLL;
 extern HMODULE gDInputDLL;
 extern HMODULE gDSoundDLL;

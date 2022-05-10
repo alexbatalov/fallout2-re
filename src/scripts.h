@@ -173,32 +173,32 @@ typedef struct ScriptList {
 
 static_assert(sizeof(ScriptList) == 0x10, "wrong size");
 
-extern char byte_50D6B8[];
+extern char _Error_2[];
 extern char byte_50D6C0[];
 
-extern int dword_51C6AC;
+extern int _num_script_indexes;
 extern int gScriptsEnumerationScriptIndex;
 extern ScriptListExtent* gScriptsEnumerationScriptListExtent;
 extern int gScriptsEnumerationElevation;
-extern bool dword_51C6BC;
+extern bool _scr_SpatialsEnabled;
 extern ScriptList gScriptLists[SCRIPT_TYPE_COUNT];
 extern const char* gScriptsBasePath;
 extern bool gScriptsEnabled;
-extern int dword_51C718;
-extern int dword_51C71C;
+extern int _script_engine_run_critters;
+extern int _script_engine_game_mode;
 extern int gGameTime;
 extern const int gGameTimeDaysPerMonth[12];
 extern const char* gScriptProcNames[SCRIPT_PROC_COUNT];
 extern ScriptsListEntry* gScriptsListEntries;
 extern int gScriptsListEntriesLength;
-extern int dword_51C7D4;
-extern int dword_51C7DC;
-extern int dword_51C7E0;
-extern int dword_51C7E4;
-extern Object* dword_51C7E8;
-extern int dword_51C7EC;
-extern char* off_51C7F0;
-extern char* off_51C7F4;
+extern int _cur_id;
+extern int _count_;
+extern int _last_time__;
+extern int _last_light_time;
+extern Object* _scrQueueTestObj;
+extern int _scrQueueTestValue;
+extern char* _err_str;
+extern char* _blank_str;
 
 extern ScriptRequests gScriptsRequests;
 extern STRUCT_664980 stru_664958;
@@ -214,12 +214,12 @@ extern Object* gScriptsRequestedLootingBy;
 extern Object* gScriptsRequestedLootingFrom;
 extern Object* gScriptsRequestedStealingBy;
 extern Object* gScriptsRequestedStealingFrom;
-extern MessageList stru_6649D4[1450];
+extern MessageList _script_dialog_msgs[1450];
 extern MessageList gScrMessageList;
-extern char byte_66772C[7];
-extern int dword_667748;
-extern bool dword_66774C;
-extern char byte_667750[20];
+extern char _hour_str[7];
+extern int _lasttime;
+extern bool _set;
+extern char _tempStr1[20];
 
 int gameTimeGetTime();
 void gameTimeGetDate(int* monthPtr, int* dayPtr, int* yearPtr);

@@ -11,7 +11,7 @@
 #include <string.h>
 
 // 0x50B79C
-char byte_50B79C[] = "Error";
+char _Error_1[] = "Error";
 
 // 0x50B960
 const char* gBadwordsReplacements = "!@#$%&*@#*!&$%#&%#*%!$&%@*$@&";
@@ -28,12 +28,12 @@ int* gBadwordsLengths = NULL;
 // Default text for getmsg when no entry is found.
 //
 // 0x5195A4
-char* off_5195A4 = byte_50B79C;
+char* _message_error_str = _Error_1;
 
 // Temporary message list item text used during filtering badwords.
 //
 // 0x63207C
-char byte_63207C[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
+char _bad_copy[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
 
 // 0x484770
 int badwordsInit()
@@ -489,7 +489,7 @@ char* getmsg(MessageList* msg, MessageListItem* entry, int num)
     entry->num = num;
 
     if (!messageListGetItem(msg, entry)) {
-        entry->text = off_5195A4;
+        entry->text = _message_error_str;
         debugPrint("\n ** String not found @ getmsg(), MESSAGE.C **\n");
     }
 
@@ -522,22 +522,22 @@ bool messageListFilterBadwords(MessageList* messageList)
 
     for (int index = 0; index < messageList->entries_num; index++) {
         MessageListItem* item = &(messageList->entries[index]);
-        strcpy(byte_63207C, item->text);
-        strupr(byte_63207C);
+        strcpy(_bad_copy, item->text);
+        strupr(_bad_copy);
 
         for (int badwordIndex = 0; badwordIndex < gBadwordsCount; badwordIndex++) {
             // I don't quite understand the loop below. It has no stop
             // condition besides no matching substring. It also overwrites
             // already masked words on every iteration.
-            for (char* p = byte_63207C;; p++) {
+            for (char* p = _bad_copy;; p++) {
                 const char* substr = strstr(p, gBadwords[badwordIndex]);
                 if (substr == NULL) {
                     break;
                 }
 
-                if (substr == byte_63207C || (!isalpha(substr[-1]) && !isalpha(substr[gBadwordsLengths[badwordIndex]]))) {
+                if (substr == _bad_copy || (!isalpha(substr[-1]) && !isalpha(substr[gBadwordsLengths[badwordIndex]]))) {
                     item->flags |= MESSAGE_LIST_ITEM_TEXT_FILTERED;
-                    char* ptr = item->text + (substr - byte_63207C);
+                    char* ptr = item->text + (substr - _bad_copy);
 
                     for (int j = 0; j < gBadwordsLengths[badwordIndex]; j++) {
                         *ptr++ = gBadwordsReplacements[replacementsIndex++];

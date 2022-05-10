@@ -64,9 +64,9 @@ typedef struct MapTransition {
 typedef void IsoWindowRefreshProc(Rect* rect);
 
 extern char byte_50B058[];
-extern char byte_50B30C[];
-extern IsoWindowRefreshProc* off_519540;
-extern const int dword_519544[ELEVATION_COUNT];
+extern char _aErrorF2[];
+extern IsoWindowRefreshProc* _map_scroll_refresh;
+extern const int _map_data_elev_flags[ELEVATION_COUNT];
 extern unsigned int gIsoWindowScrollTimestamp;
 extern bool gIsoEnabled;
 extern int gEnteringElevation;
@@ -78,19 +78,19 @@ extern int* gMapGlobalVars;
 extern int gMapLocalVarsLength;
 extern int gMapGlobalVarsLength;
 extern int gElevation;
-extern char* off_51957C;
-extern int dword_519584;
+extern char* _errMapName;
+extern int _wmMapIdx;
 
-extern TileData stru_614868[ELEVATION_COUNT];
+extern TileData _square_data[ELEVATION_COUNT];
 extern MapTransition gMapTransition;
 extern Rect gIsoWindowRect;
 extern MessageList gMapMessageList;
 extern unsigned char* gIsoWindowBuffer;
 extern MapHeader gMapHeader;
-extern TileData* dword_631E40[ELEVATION_COUNT];
+extern TileData* _square[ELEVATION_COUNT];
 extern int gIsoWindow;
-extern char byte_631E50[40];
-extern char byte_631E78[MAX_PATH];
+extern char _scratchStr[40];
+extern char _map_path[MAX_PATH];
 
 int isoInit();
 void isoReset();
@@ -111,7 +111,7 @@ char* mapGetName(int map_num, int elev);
 bool _is_map_idx_same(int map_num1, int map_num2);
 int _get_map_idx_same(int map_num1, int map_num2);
 char* mapGetCityName(int map_num);
-char* sub_48268C(int map_index);
+char* _map_get_description_idx_(int map_index);
 int mapGetCurrentMap();
 int mapScroll(int dx, int dy);
 char* mapBuildPath(char* name);

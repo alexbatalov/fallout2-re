@@ -29,39 +29,39 @@
 bool gObjectsInitialized = false;
 
 // 0x5195FC
-int dword_5195FC = 0;
+int _updateHexWidth = 0;
 
 // 0x519600
-int dword_519600 = 0;
+int _updateHexHeight = 0;
 
 // 0x519604
-int dword_519604 = 0;
+int _updateHexArea = 0;
 
 // 0x519608
-int* off_519608[2] = {
+int* _orderTable[2] = {
     NULL,
     NULL,
 };
 
 // 0x519610
-int* off_519610[2] = {
+int* _offsetTable[2] = {
     NULL,
     NULL,
 };
 
 // 0x519618
-int* off_519618 = NULL;
+int* _offsetDivTable = NULL;
 
 // 0x51961C
-int* off_51961C = NULL;
+int* _offsetModTable = NULL;
 
 // 0x519620
-ObjectListNode** off_519620 = NULL;
+ObjectListNode** _renderTable = NULL;
 
-// Number of objects in off_639C00.
+// Number of objects in _outlinedObjects.
 //
 // 0x519624
-int dword_519624 = 0;
+int _outlineCount = 0;
 
 // Contains objects that are not bounded to tiles.
 //
@@ -69,7 +69,7 @@ int dword_519624 = 0;
 ObjectListNode* gObjectListHead = NULL;
 
 // 0x51962C
-int dword_51962C = 0;
+int _centerToUpperLeft = 0;
 
 // 0x519630
 int gObjectFindElevation = 0;
@@ -87,7 +87,7 @@ int* gObjectFids = NULL;
 int gObjectFidsLength = 0;
 
 // 0x51964C
-Rect stru_51964C[9] = {
+Rect _light_rect[9] = {
     { 0, 0, 96, 42 },
     { 0, 0, 160, 74 },
     { 0, 0, 224, 106 },
@@ -100,7 +100,7 @@ Rect stru_51964C[9] = {
 };
 
 // 0x5196DC
-int dword_5196DC[36] = {
+int _light_distance[36] = {
     1,
     2,
     3,
@@ -143,40 +143,40 @@ int dword_5196DC[36] = {
 int gViolenceLevel = -1;
 
 // 0x519770
-int dword_519770 = -1;
+int _obj_last_roof_x = -1;
 
 // 0x519774
-int dword_519774 = -1;
+int _obj_last_roof_y = -1;
 
 // 0x519778
-int dword_519778 = -1;
+int _obj_last_elev = -1;
 
 // 0x51977C
-int dword_51977C = 1;
+int _obj_last_is_empty = 1;
 
 // 0x519780
-unsigned char* dword_519780 = NULL;
+unsigned char* _wallBlendTable = NULL;
 
 // 0x519784
-unsigned char* dword_519784 = NULL;
+unsigned char* _glassBlendTable = NULL;
 
 // 0x519788
-unsigned char* dword_519788 = NULL;
+unsigned char* _steamBlendTable = NULL;
 
 // 0x51978C
-unsigned char* dword_51978C = NULL;
+unsigned char* _energyBlendTable = NULL;
 
 // 0x519790
-unsigned char* dword_519790 = NULL;
+unsigned char* _redBlendTable = NULL;
 
 // 0x519794
-Object* off_519794 = NULL;
+Object* _moveBlockObj = NULL;
 
 // 0x519798
-int dword_519798 = 0;
+int _objItemOutlineState = 0;
 
 // 0x51979C
-int dword_51979C[9] = {
+int _cd_order[9] = {
     1,
     0,
     3,
@@ -189,10 +189,10 @@ int dword_51979C[9] = {
 };
 
 // 0x6391D0
-int dword_6391D0[6][36];
+int _light_blocked[6][36];
 
 // 0x639530
-int dword_639530[2][6][36];
+int _light_offsets[2][6][36];
 
 // 0x639BF0
 Rect gObjectsWindowRect;
@@ -200,10 +200,10 @@ Rect gObjectsWindowRect;
 // Likely outlined objects on the screen.
 //
 // 0x639C00
-Object* off_639C00[100];
+Object* _outlinedObjects[100];
 
 // 0x639D90
-int dword_639D90;
+int _updateAreaPixelBounds;
 
 // 0x639D94
 int dword_639D94;
@@ -220,10 +220,10 @@ int dword_639D9C;
 ObjectListNode* gObjectListHeadByTile[HEX_GRID_SIZE];
 
 // 0x660EA0
-unsigned char byte_660EA0[256];
+unsigned char _glassGrayTable[256];
 
 // 0x660FA0
-unsigned char byte_660FA0[256];
+unsigned char _commonGrayTable[256];
 
 // 0x6610A0
 int gObjectsWindowBufferSize;
@@ -250,24 +250,24 @@ int gObjectsWindowWidth;
 Object* gDude;
 
 // 0x6610BC
-char byte_6610BC[5001];
+char _obj_seen_check[5001];
 
 // 0x662445
-char byte_662445[5001];
+char _obj_seen[5001];
 
 // obj_init
 // 0x488780
 int objectsInit(unsigned char* buf, int width, int height, int pitch)
 {
-    memset(byte_662445, 0, 5001);
+    memset(_obj_seen, 0, 5001);
     dword_639D98 = width + 320;
-    dword_639D90 = -320;
+    _updateAreaPixelBounds = -320;
     dword_639D9C = height + 240;
     dword_639D94 = -240;
 
-    dword_5195FC = (dword_639D98 + 320 + 1) / 32 + 1;
-    dword_519600 = (dword_639D9C + 240 + 1) / 12 + 1;
-    dword_519604 = dword_5195FC * dword_519600;
+    _updateHexWidth = (dword_639D98 + 320 + 1) / 32 + 1;
+    _updateHexHeight = (dword_639D9C + 240 + 1) / 12 + 1;
+    _updateHexArea = _updateHexWidth * _updateHexHeight;
 
     memset(gObjectListHeadByTile, 0, sizeof(gObjectListHeadByTile));
 
@@ -294,7 +294,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
     _obj_light_table_init();
     _obj_blend_table_init();
 
-    dword_51962C = tileFromScreenXY(dword_639D90, dword_639D94, 0) - gCenterTile;
+    _centerToUpperLeft = tileFromScreenXY(_updateAreaPixelBounds, dword_639D94, 0) - gCenterTile;
     gObjectsWindowWidth = width;
     gObjectsWindowHeight = height;
     gObjectsWindowBuffer = buf;
@@ -307,7 +307,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
     gObjectsWindowBufferSize = height * width;
     gObjectsWindowPitch = pitch;
 
-    int dudeFid = buildFid(1, dword_5108A4, 0, 0, 0);
+    int dudeFid = buildFid(1, _art_vault_guy_num, 0, 0, 0);
     objectCreateWithFidPid(&gDude, dudeFid, 0x1000000);
 
     gDude->flags |= 0x0400;
@@ -350,7 +350,7 @@ void objectsReset()
     if (gObjectsInitialized) {
         textObjectsReset();
         _obj_remove_all();
-        memset(byte_662445, 0, 5001);
+        memset(_obj_seen, 0, 5001);
         lightResetIntensity();
     }
 }
@@ -743,15 +743,15 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
     int v23 = (v18 - v4 + 1) / 12;
 
     int odd = gCenterTile & 1;
-    int* v7 = off_519608[odd];
-    int* v8 = off_519610[odd];
+    int* v7 = _orderTable[odd];
+    int* v8 = _offsetTable[odd];
 
-    dword_519624 = 0;
+    _outlineCount = 0;
 
     int v34 = 0;
-    for (int i = 0; i < dword_519604; i++) {
+    for (int i = 0; i < _updateHexArea; i++) {
         int v9 = *v7++;
-        if (v23 > off_519618[v9] && v20 > off_51961C[v9]) {
+        if (v23 > _offsetDivTable[v9] && v20 > _offsetModTable[v9]) {
             int v2;
 
             ObjectListNode* objectListNode = gObjectListHeadByTile[v19 + v8[v9]];
@@ -779,8 +779,8 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
                         _obj_render_object(objectListNode->obj, &updatedRect, v2);
 
                         if ((objectListNode->obj->outline & OUTLINE_TYPE_MASK) != 0) {
-                            if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0 && dword_519624 < 100) {
-                                off_639C00[dword_519624++] = objectListNode->obj;
+                            if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0 && _outlineCount < 100) {
+                                _outlinedObjects[_outlineCount++] = objectListNode->obj;
                             }
                         }
                     }
@@ -790,7 +790,7 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
             }
 
             if (objectListNode != NULL) {
-                off_519620[v34++] = objectListNode;
+                _renderTable[v34++] = objectListNode;
             }
         }
     }
@@ -798,7 +798,7 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
     for (int i = 0; i < v34; i++) {
         int v2;
 
-        ObjectListNode* objectListNode = off_519620[i];
+        ObjectListNode* objectListNode = _renderTable[i];
         if (objectListNode != NULL) {
             v2 = lightLevel;
             int w = _light_get_tile(elevation, objectListNode->obj->tile);
@@ -818,8 +818,8 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
                     _obj_render_object(object, &updatedRect, v2);
 
                     if ((objectListNode->obj->outline & OUTLINE_TYPE_MASK) != 0) {
-                        if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0 && dword_519624 < 100) {
-                            off_639C00[dword_519624++] = objectListNode->obj;
+                        if ((objectListNode->obj->outline & OUTLINE_DISABLED) == 0 && _outlineCount < 100) {
+                            _outlinedObjects[_outlineCount++] = objectListNode->obj;
                         }
                     }
                 }
@@ -842,8 +842,8 @@ void _obj_render_post_roof(Rect* rect, int elevation)
         return;
     }
 
-    for (int index = 0; index < dword_519624; index++) {
-        objectDrawOutline(off_639C00[index], &updatedRect);
+    for (int index = 0; index < _outlineCount; index++) {
+        objectDrawOutline(_outlinedObjects[index], &updatedRect);
     }
 
     textObjectsRenderInRect(&updatedRect);
@@ -1411,19 +1411,19 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
             objectListNode = objectListNode->next;
         }
 
-        byte_662445[tile >> 3] |= 1 << (tile & 7);
+        _obj_seen[tile >> 3] |= 1 << (tile & 7);
 
         int v14 = tile % 200 / 2;
         int v15 = tile / 200 / 2;
-        if (v14 != dword_519770 || v15 != dword_519774 || elevation != dword_519778) {
-            int v16 = dword_631E40[elevation]->field_0[v14 + 100 * v15];
+        if (v14 != _obj_last_roof_x || v15 != _obj_last_roof_y || elevation != _obj_last_elev) {
+            int v16 = _square[elevation]->field_0[v14 + 100 * v15];
             int v31 = buildFid(4, (v16 >> 16) & 0xFFF, 0, 0, 0);
-            int v32 = dword_631E40[elevation]->field_0[dword_519770 + 100 * dword_519774];
+            int v32 = _square[elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y];
             int v34 = buildFid(4, 1, 0, 0, 0) == v31;
 
-            if (v34 != dword_51977C || (((v16 >> 16) & 0xF000) >> 12) != (((v32 >> 16) & 0xF000) >> 12)) {
-                if (dword_51977C == 0) {
-                    _tile_fill_roof(dword_519770, dword_519774, elevation, 1);
+            if (v34 != _obj_last_is_empty || (((v16 >> 16) & 0xF000) >> 12) != (((v32 >> 16) & 0xF000) >> 12)) {
+                if (_obj_last_is_empty == 0) {
+                    _tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, elevation, 1);
                 }
 
                 if (v34 == 0) {
@@ -1431,14 +1431,14 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
                 }
 
                 if (rect != NULL) {
-                    rectUnion(rect, &stru_6AC9F0, rect);
+                    rectUnion(rect, &_scr_size, rect);
                 }
             }
 
-            dword_519770 = v14;
-            dword_519774 = v15;
-            dword_519778 = elevation;
-            dword_51977C = v34;
+            _obj_last_roof_x = v14;
+            _obj_last_roof_y = v15;
+            _obj_last_elev = elevation;
+            _obj_last_is_empty = v34;
         }
 
         if (rect != NULL) {
@@ -1453,11 +1453,11 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
             mapSetElevation(elevation);
             tileSetCenter(tile, TILE_SET_CENTER_FLAG_0x01 | TILE_SET_CENTER_FLAG_0x02);
             if (isInCombat()) {
-                dword_5186CC = 1;
+                _game_user_wants_to_quit = 1;
             }
         }
     } else {
-        if (elevation != dword_519778 && (obj->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (elevation != _obj_last_elev && (obj->pid >> 24) == OBJ_TYPE_CRITTER) {
             _combat_delete_critter(obj);
         }
     }
@@ -1468,9 +1468,9 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 // 0x48A9A0
 int _obj_reset_roof()
 {
-    int fid = buildFid(4, (dword_631E40[gDude->elevation]->field_0[dword_519770 + 100 * dword_519774] >> 16) & 0xFFF, 0, 0, 0);
+    int fid = buildFid(4, (_square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
     if (fid != buildFid(4, 1, 0, 0, 0)) {
-        _tile_fill_roof(dword_519770, dword_519774, gDude->elevation, 1);
+        _tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, gDude->elevation, 1);
     }
     return 0;
 }
@@ -2101,10 +2101,10 @@ void _obj_remove_all()
         node = next;
     }
 
-    dword_519774 = -1;
-    dword_519778 = -1;
-    dword_51977C = 1;
-    dword_519770 = -1;
+    _obj_last_roof_y = -1;
+    _obj_last_elev = -1;
+    _obj_last_is_empty = 1;
+    _obj_last_roof_x = -1;
 }
 
 // 0x48B3A8
@@ -2472,11 +2472,11 @@ Object* _obj_ai_blocking_at(Object* a1, int tile, int elevation)
                 if (objectType == OBJ_TYPE_CRITTER
                     || objectType == OBJ_TYPE_SCENERY
                     || objectType == OBJ_TYPE_WALL) {
-                    if (off_519794 != NULL || objectType != OBJ_TYPE_CRITTER) {
+                    if (_moveBlockObj != NULL || objectType != OBJ_TYPE_CRITTER) {
                         return object;
                     }
 
-                    off_519794 = object;
+                    _moveBlockObj = object;
                 }
             }
         }
@@ -2501,11 +2501,11 @@ Object* _obj_ai_blocking_at(Object* a1, int tile, int elevation)
                         if (objectType == OBJ_TYPE_CRITTER
                             || objectType == OBJ_TYPE_SCENERY
                             || objectType == OBJ_TYPE_WALL) {
-                            if (off_519794 != NULL || objectType != OBJ_TYPE_CRITTER) {
+                            if (_moveBlockObj != NULL || objectType != OBJ_TYPE_CRITTER) {
                                 return object;
                             }
 
-                            off_519794 = object;
+                            _moveBlockObj = object;
                         }
                     }
                 }
@@ -2732,7 +2732,7 @@ void _dark_trans_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int
             if (b != 0) {
                 if (b < 0xE5) {
                     int t = (b << 8) + lightModifier;
-                    b = byte_6838D0[t];
+                    b = _intensityColorTable[t];
                 }
 
                 *dp = b;
@@ -2765,7 +2765,7 @@ void _dark_translucent_trans_buf_to_buf(unsigned char* src, int srcWidth, int sr
                 index = a10[index + destByte];
                 index <<= 8;
                 index += lightModifier;
-                *dest = byte_6838D0[index];
+                *dest = _intensityColorTable[index];
             }
 
             src++;
@@ -2790,18 +2790,18 @@ void _intensity_mask_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight,
             unsigned char b = *src;
             if (b != 0) {
                 int off = (b << 8) + light;
-                b = byte_6838D0[off];
+                b = _intensityColorTable[off];
                 unsigned char m = *mask;
                 if (m != 0) {
                     unsigned char d = *dest;
                     int off = (d << 8) + 128 - m;
-                    int q = byte_6838D0[off];
+                    int q = _intensityColorTable[off];
 
                     off = (b << 8) + m;
-                    m = byte_6838D0[off];
+                    m = _intensityColorTable[off];
 
                     off = (m << 8) + q;
-                    b = byte_6738D0[off];
+                    b = _colorMixAddTable[off];
                 }
                 *dest = b;
             }
@@ -2958,17 +2958,17 @@ int _obj_create_intersect_list(int x, int y, int elevation, int objectType, Obje
     int v5 = tileFromScreenXY(x - 320, y - 240, elevation);
     *entriesPtr = NULL;
 
-    if (dword_519604 <= 0) {
+    if (_updateHexArea <= 0) {
         return 0;
     }
 
     int count = 0;
 
     int parity = gCenterTile & 1;
-    for (int index = 0; index < dword_519604; index++) {
-        int v7 = off_519608[parity][index];
-        if (off_519618[v7] < 30 && off_51961C[v7] < 20) {
-            ObjectListNode* objectListNode = gObjectListHeadByTile[off_519610[parity][v7] + v5];
+    for (int index = 0; index < _updateHexArea; index++) {
+        int v7 = _orderTable[parity][index];
+        if (_offsetDivTable[v7] < 30 && _offsetModTable[v7] < 20) {
+            ObjectListNode* objectListNode = gObjectListHeadByTile[_offsetTable[parity][v7] + v5];
             while (objectListNode != NULL) {
                 Object* object = objectListNode->obj;
                 if (object->elevation > elevation) {
@@ -3010,7 +3010,7 @@ void _obj_delete_intersect_list(ObjectWithFlags** entriesPtr)
 // 0x48C788
 void _obj_clear_seen()
 {
-    memset(byte_662445, 0, sizeof(byte_662445));
+    memset(_obj_seen, 0, sizeof(_obj_seen));
 }
 
 // 0x48C7A0
@@ -3024,25 +3024,25 @@ void _obj_process_seen()
     int v3;
     ObjectListNode* obj_entry;
 
-    memset(byte_6610BC, 0, 5001);
+    memset(_obj_seen_check, 0, 5001);
 
     v0 = 400;
     for (i = 0; i < 5001; i++) {
-        if (byte_662445[i] != 0) {
+        if (_obj_seen[i] != 0) {
             for (v3 = i - 400; v3 != v0; v3 += 25) {
                 if (v3 >= 0 && v3 < 5001) {
-                    byte_6610BC[v3] = -1;
+                    _obj_seen_check[v3] = -1;
                     if (v3 > 0) {
-                        byte_6610BC[v3 - 1] = -1;
+                        _obj_seen_check[v3 - 1] = -1;
                     }
                     if (v3 < 5000) {
-                        byte_6610BC[v3 + 1] = -1;
+                        _obj_seen_check[v3 + 1] = -1;
                     }
                     if (v3 > 1) {
-                        byte_6610BC[v3 - 2] = -1;
+                        _obj_seen_check[v3 - 2] = -1;
                     }
                     if (v3 < 4999) {
-                        byte_6610BC[v3 + 2] = -1;
+                        _obj_seen_check[v3 + 2] = -1;
                     }
                 }
             }
@@ -3052,10 +3052,10 @@ void _obj_process_seen()
 
     v7 = 0;
     for (i = 0; i < 5001; i++) {
-        if (byte_6610BC[i] != 0) {
+        if (_obj_seen_check[i] != 0) {
             v8 = 1;
             for (v5 = v7; v5 < v7 + 8; v5++) {
-                if (v8 & byte_6610BC[i]) {
+                if (v8 & _obj_seen_check[i]) {
                     if (v5 < 40000) {
                         for (obj_entry = gObjectListHeadByTile[v5]; obj_entry != NULL; obj_entry = obj_entry->next) {
                             if (obj_entry->obj->elevation == gDude->elevation) {
@@ -3070,7 +3070,7 @@ void _obj_process_seen()
         v7 += 8;
     }
 
-    memset(byte_662445, 0, 5001);
+    memset(_obj_seen, 0, 5001);
 }
 
 // 0x48C8E4
@@ -3111,7 +3111,7 @@ void _obj_preload_art_cache(int flags)
 
     if ((flags & 0x02) == 0) {
         for (int i = 0; i < SQUARE_GRID_SIZE; i++) {
-            int v3 = dword_631E40[0]->field_0[i];
+            int v3 = _square[0]->field_0[i];
             arr[v3 & 0xFFF] = 1;
             arr[(v3 >> 16) & 0xFFF] = 1;
         }
@@ -3119,7 +3119,7 @@ void _obj_preload_art_cache(int flags)
 
     if ((flags & 0x04) == 0) {
         for (int i = 0; i < SQUARE_GRID_SIZE; i++) {
-            int v3 = dword_631E40[1]->field_0[i];
+            int v3 = _square[1]->field_0[i];
             arr[v3 & 0xFFF] = 1;
             arr[(v3 >> 16) & 0xFFF] = 1;
         }
@@ -3127,7 +3127,7 @@ void _obj_preload_art_cache(int flags)
 
     if ((flags & 0x08) == 0) {
         for (int i = 0; i < SQUARE_GRID_SIZE; i++) {
-            int v3 = dword_631E40[2]->field_0[i];
+            int v3 = _square[2]->field_0[i];
             arr[v3 & 0xFFF] = 1;
             arr[(v3 >> 16) & 0xFFF] = 1;
         }
@@ -3189,28 +3189,28 @@ int _obj_offset_table_init()
 {
     int i;
 
-    if (off_519610[0] != NULL) {
+    if (_offsetTable[0] != NULL) {
         return -1;
     }
 
-    if (off_519610[1] != NULL) {
+    if (_offsetTable[1] != NULL) {
         return -1;
     }
 
-    off_519610[0] = internal_malloc(sizeof(int) * dword_519604);
-    if (off_519610[0] == NULL) {
+    _offsetTable[0] = internal_malloc(sizeof(int) * _updateHexArea);
+    if (_offsetTable[0] == NULL) {
         goto err;
     }
 
-    off_519610[1] = internal_malloc(sizeof(int) * dword_519604);
-    if (off_519610[1] == NULL) {
+    _offsetTable[1] = internal_malloc(sizeof(int) * _updateHexArea);
+    if (_offsetTable[1] == NULL) {
         goto err;
     }
 
     for (int i = 0; i < 2; i++) {
-        int tile = tileFromScreenXY(dword_639D90, dword_639D94, 0);
+        int tile = tileFromScreenXY(_updateAreaPixelBounds, dword_639D94, 0);
         if (tile != -1) {
-            int* v5 = off_519610[gCenterTile & 1];
+            int* v5 = _offsetTable[gCenterTile & 1];
             int v20;
             int v19;
             tileToScreenXY(tile, &v20, &v19, 0);
@@ -3218,13 +3218,13 @@ int _obj_offset_table_init()
             int v23 = 16;
             v20 += 16;
             v19 += 8;
-            if (v20 > dword_639D90) {
+            if (v20 > _updateAreaPixelBounds) {
                 v23 = -v23;
             }
 
             int v6 = v20;
-            for (int j = 0; j < dword_519600; j++) {
-                for (int m = 0; m < dword_5195FC; m++) {
+            for (int j = 0; j < _updateHexHeight; j++) {
+                for (int m = 0; m < _updateHexWidth; m++) {
                     int t = tileFromScreenXY(v6, v19, 0);
                     if (t == -1) {
                         goto err;
@@ -3245,22 +3245,22 @@ int _obj_offset_table_init()
         }
     }
 
-    off_519618 = internal_malloc(sizeof(int) * dword_519604);
-    if (off_519618 == NULL) {
+    _offsetDivTable = internal_malloc(sizeof(int) * _updateHexArea);
+    if (_offsetDivTable == NULL) {
         goto err;
     }
 
-    for (i = 0; i < dword_519604; i++) {
-        off_519618[i] = i / dword_5195FC;
+    for (i = 0; i < _updateHexArea; i++) {
+        _offsetDivTable[i] = i / _updateHexWidth;
     }
 
-    off_51961C = internal_malloc(sizeof(int) * dword_519604);
-    if (off_51961C == NULL) {
+    _offsetModTable = internal_malloc(sizeof(int) * _updateHexArea);
+    if (_offsetModTable == NULL) {
         goto err;
     }
 
-    for (i = 0; i < dword_519604; i++) {
-        off_51961C[i] = i % dword_5195FC;
+    for (i = 0; i < _updateHexArea; i++) {
+        _offsetModTable[i] = i % _updateHexWidth;
     }
 
     return 0;
@@ -3274,51 +3274,51 @@ err:
 // 0x48CDA0
 void _obj_offset_table_exit()
 {
-    if (off_51961C != NULL) {
-        internal_free(off_51961C);
-        off_51961C = NULL;
+    if (_offsetModTable != NULL) {
+        internal_free(_offsetModTable);
+        _offsetModTable = NULL;
     }
 
-    if (off_519618 != NULL) {
-        internal_free(off_519618);
-        off_519618 = NULL;
+    if (_offsetDivTable != NULL) {
+        internal_free(_offsetDivTable);
+        _offsetDivTable = NULL;
     }
 
-    if (off_519610[1] != NULL) {
-        internal_free(off_519610[1]);
-        off_519610[1] = NULL;
+    if (_offsetTable[1] != NULL) {
+        internal_free(_offsetTable[1]);
+        _offsetTable[1] = NULL;
     }
 
-    if (off_519610[0] != NULL) {
-        internal_free(off_519610[0]);
-        off_519610[0] = NULL;
+    if (_offsetTable[0] != NULL) {
+        internal_free(_offsetTable[0]);
+        _offsetTable[0] = NULL;
     }
 }
 
 // 0x48CE10
 int _obj_order_table_init()
 {
-    if (off_519608[0] != NULL || off_519608[1] != NULL) {
+    if (_orderTable[0] != NULL || _orderTable[1] != NULL) {
         return -1;
     }
 
-    off_519608[0] = internal_malloc(sizeof(int) * dword_519604);
-    if (off_519608[0] == NULL) {
+    _orderTable[0] = internal_malloc(sizeof(int) * _updateHexArea);
+    if (_orderTable[0] == NULL) {
         goto err;
     }
 
-    off_519608[1] = internal_malloc(sizeof(int) * dword_519604);
-    if (off_519608[1] == NULL) {
+    _orderTable[1] = internal_malloc(sizeof(int) * _updateHexArea);
+    if (_orderTable[1] == NULL) {
         goto err;
     }
 
-    for (int index = 0; index < dword_519604; index++) {
-        off_519608[0][index] = index;
-        off_519608[1][index] = index;
+    for (int index = 0; index < _updateHexArea; index++) {
+        _orderTable[0][index] = index;
+        _orderTable[1][index] = index;
     }
 
-    qsort(off_519608[0], dword_519604, sizeof(int), _obj_order_comp_func_even);
-    qsort(off_519608[1], dword_519604, sizeof(int), _obj_order_comp_func_odd);
+    qsort(_orderTable[0], _updateHexArea, sizeof(int), _obj_order_comp_func_even);
+    qsort(_orderTable[1], _updateHexArea, sizeof(int), _obj_order_comp_func_odd);
 
     return 0;
 
@@ -3335,7 +3335,7 @@ int _obj_order_comp_func_even(const void* a1, const void* a2)
 {
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
-    return off_519610[0][v1] - off_519610[0][v2];
+    return _offsetTable[0][v1] - _offsetTable[0][v2];
 }
 
 // 0x48CF38
@@ -3343,7 +3343,7 @@ int _obj_order_comp_func_odd(const void* a1, const void* a2)
 {
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
-    return off_519610[1][v1] - off_519610[1][v2];
+    return _offsetTable[1][v1] - _offsetTable[1][v2];
 }
 
 // NOTE: Inlined.
@@ -3351,31 +3351,31 @@ int _obj_order_comp_func_odd(const void* a1, const void* a2)
 // 0x48CF50
 void _obj_order_table_exit()
 {
-    if (off_519608[1] != NULL) {
-        internal_free(off_519608[1]);
-        off_519608[1] = NULL;
+    if (_orderTable[1] != NULL) {
+        internal_free(_orderTable[1]);
+        _orderTable[1] = NULL;
     }
 
-    if (off_519608[0] != NULL) {
-        internal_free(off_519608[0]);
-        off_519608[0] = NULL;
+    if (_orderTable[0] != NULL) {
+        internal_free(_orderTable[0]);
+        _orderTable[0] = NULL;
     }
 }
 
 // 0x48CF8C
 int _obj_render_table_init()
 {
-    if (off_519620 != NULL) {
+    if (_renderTable != NULL) {
         return -1;
     }
 
-    off_519620 = internal_malloc(sizeof(*off_519620) * dword_519604);
-    if (off_519620 == NULL) {
+    _renderTable = internal_malloc(sizeof(*_renderTable) * _updateHexArea);
+    if (_renderTable == NULL) {
         return -1;
     }
 
-    for (int index = 0; index < dword_519604; index++) {
-        off_519620[index] = NULL;
+    for (int index = 0; index < _updateHexArea; index++) {
+        _renderTable[index] = NULL;
     }
 
     return 0;
@@ -3386,9 +3386,9 @@ int _obj_render_table_init()
 // 0x48D000
 void _obj_render_table_exit()
 {
-    if (off_519620 != NULL) {
-        internal_free(off_519620);
-        off_519620 = NULL;
+    if (_renderTable != NULL) {
+        internal_free(_renderTable);
+        _renderTable = NULL;
     }
 }
 
@@ -3399,7 +3399,7 @@ void _obj_light_table_init()
         int v4 = gCenterTile + s;
         for (int i = 0; i < 6; i++) {
             int v15 = 8;
-            int* p = dword_639530[v4 & 1][i];
+            int* p = _light_offsets[v4 & 1][i];
             for (int j = 0; j < 8; j++) {
                 int tile = tileGetTileInDirection(v4, (i + 1) % 6, j);
 
@@ -3417,21 +3417,21 @@ void _obj_light_table_init()
 void _obj_blend_table_init()
 {
     for (int index = 0; index < 256; index++) {
-        int r = (sub_4C72E0(index) & 0x7C00) >> 10;
-        int g = (sub_4C72E0(index) & 0x3E0) >> 5;
-        int b = sub_4C72E0(index) & 0x1F;
-        byte_660EA0[index] = ((r + 5 * g + 4 * b) / 10) >> 2;
-        byte_660FA0[index] = ((b + 3 * r + 6 * g) / 10) >> 2;
+        int r = (_Color2RGB_(index) & 0x7C00) >> 10;
+        int g = (_Color2RGB_(index) & 0x3E0) >> 5;
+        int b = _Color2RGB_(index) & 0x1F;
+        _glassGrayTable[index] = ((r + 5 * g + 4 * b) / 10) >> 2;
+        _commonGrayTable[index] = ((b + 3 * r + 6 * g) / 10) >> 2;
     }
 
-    byte_660EA0[0] = 0;
-    byte_660FA0[0] = 0;
+    _glassGrayTable[0] = 0;
+    _commonGrayTable[0] = 0;
 
-    dword_519780 = _getColorBlendTable(byte_6A38D0[25439]);
-    dword_519784 = _getColorBlendTable(byte_6A38D0[10239]);
-    dword_519788 = _getColorBlendTable(byte_6A38D0[32767]);
-    dword_51978C = _getColorBlendTable(byte_6A38D0[30689]);
-    dword_519790 = _getColorBlendTable(byte_6A38D0[31744]);
+    _wallBlendTable = _getColorBlendTable(_colorTable[25439]);
+    _glassBlendTable = _getColorBlendTable(_colorTable[10239]);
+    _steamBlendTable = _getColorBlendTable(_colorTable[32767]);
+    _energyBlendTable = _getColorBlendTable(_colorTable[30689]);
+    _redBlendTable = _getColorBlendTable(_colorTable[31744]);
 }
 
 // NOTE: Inlined.
@@ -3439,11 +3439,11 @@ void _obj_blend_table_init()
 // 0x48D2E8
 void _obj_blend_table_exit()
 {
-    _freeColorBlendTable(byte_6A38D0[25439]);
-    _freeColorBlendTable(byte_6A38D0[10239]);
-    _freeColorBlendTable(byte_6A38D0[32767]);
-    _freeColorBlendTable(byte_6A38D0[30689]);
-    _freeColorBlendTable(byte_6A38D0[31744]);
+    _freeColorBlendTable(_colorTable[25439]);
+    _freeColorBlendTable(_colorTable[10239]);
+    _freeColorBlendTable(_colorTable[32767]);
+    _freeColorBlendTable(_colorTable[30689]);
+    _freeColorBlendTable(_colorTable[31744]);
 }
 
 // 0x48D348
@@ -3961,7 +3961,7 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
         obj->lightIntensity = 65536;
     }
 
-    int(*v70)[36] = dword_639530[obj->tile & 1];
+    int(*v70)[36] = _light_offsets[obj->tile & 1];
     int v7 = (obj->lightIntensity - 655) / (obj->lightDistance + 1);
     int v28[36];
     v28[0] = obj->lightIntensity - v7;
@@ -4002,7 +4002,7 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
     v28[35] = v28[6] - v7;
 
     for (int index = 0; index < 36; index++) {
-        if (obj->lightDistance >= dword_5196DC[index]) {
+        if (obj->lightDistance >= _light_distance[index]) {
             for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
                 int v14;
                 int nextRotation = (rotation + 1) % ROTATION_COUNT;
@@ -4016,477 +4016,477 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
                     v14 = 0;
                     break;
                 case 1:
-                    v14 = dword_6391D0[rotation][0];
+                    v14 = _light_blocked[rotation][0];
                     break;
                 case 2:
-                    v14 = dword_6391D0[rotation][1];
+                    v14 = _light_blocked[rotation][1];
                     break;
                 case 3:
-                    v14 = dword_6391D0[rotation][2];
+                    v14 = _light_blocked[rotation][2];
                     break;
                 case 4:
-                    v14 = dword_6391D0[rotation][3];
+                    v14 = _light_blocked[rotation][3];
                     break;
                 case 5:
-                    v14 = dword_6391D0[rotation][4];
+                    v14 = _light_blocked[rotation][4];
                     break;
                 case 6:
-                    v14 = dword_6391D0[rotation][5];
+                    v14 = _light_blocked[rotation][5];
                     break;
                 case 7:
-                    v14 = dword_6391D0[rotation][6];
+                    v14 = _light_blocked[rotation][6];
                     break;
                 case 8:
-                    v14 = dword_6391D0[rotation][0] & dword_6391D0[nextRotation][0];
+                    v14 = _light_blocked[rotation][0] & _light_blocked[nextRotation][0];
                     break;
                 case 9:
-                    v14 = dword_6391D0[rotation][1] & dword_6391D0[rotation][8];
+                    v14 = _light_blocked[rotation][1] & _light_blocked[rotation][8];
                     break;
                 case 10:
-                    v14 = dword_6391D0[rotation][2] & dword_6391D0[rotation][9];
+                    v14 = _light_blocked[rotation][2] & _light_blocked[rotation][9];
                     break;
                 case 11:
-                    v14 = dword_6391D0[rotation][3] & dword_6391D0[rotation][10];
+                    v14 = _light_blocked[rotation][3] & _light_blocked[rotation][10];
                     break;
                 case 12:
-                    v14 = dword_6391D0[rotation][4] & dword_6391D0[rotation][11];
+                    v14 = _light_blocked[rotation][4] & _light_blocked[rotation][11];
                     break;
                 case 13:
-                    v14 = dword_6391D0[rotation][5] & dword_6391D0[rotation][12];
+                    v14 = _light_blocked[rotation][5] & _light_blocked[rotation][12];
                     break;
                 case 14:
-                    v14 = dword_6391D0[rotation][6] & dword_6391D0[rotation][13];
+                    v14 = _light_blocked[rotation][6] & _light_blocked[rotation][13];
                     break;
                 case 15:
-                    v14 = dword_6391D0[rotation][8] & dword_6391D0[nextRotation][1];
+                    v14 = _light_blocked[rotation][8] & _light_blocked[nextRotation][1];
                     break;
                 case 16:
-                    v14 = dword_6391D0[rotation][8] | (dword_6391D0[rotation][9] & dword_6391D0[rotation][15]);
+                    v14 = _light_blocked[rotation][8] | (_light_blocked[rotation][9] & _light_blocked[rotation][15]);
                     break;
                 case 17:
-                    edx = dword_6391D0[rotation][9];
-                    edx |= dword_6391D0[rotation][10];
-                    ebx = dword_6391D0[rotation][8];
-                    esi = dword_6391D0[rotation][16];
+                    edx = _light_blocked[rotation][9];
+                    edx |= _light_blocked[rotation][10];
+                    ebx = _light_blocked[rotation][8];
+                    esi = _light_blocked[rotation][16];
                     ebx &= edx;
                     edx &= esi;
-                    edi = dword_6391D0[rotation][15];
+                    edi = _light_blocked[rotation][15];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][10];
-                    eax = dword_6391D0[rotation][9];
+                    edx = _light_blocked[rotation][10];
+                    eax = _light_blocked[rotation][9];
                     edx |= edi;
                     eax &= edx;
                     v14 = ebx | eax;
                     break;
                 case 18:
-                    edx = dword_6391D0[rotation][0];
-                    ebx = dword_6391D0[rotation][9];
-                    esi = dword_6391D0[rotation][10];
+                    edx = _light_blocked[rotation][0];
+                    ebx = _light_blocked[rotation][9];
+                    esi = _light_blocked[rotation][10];
                     edx |= ebx;
-                    edi = dword_6391D0[rotation][11];
+                    edi = _light_blocked[rotation][11];
                     edx |= esi;
-                    ebx = dword_6391D0[rotation][17];
+                    ebx = _light_blocked[rotation][17];
                     edx |= edi;
                     ebx &= edx;
                     edx = esi;
-                    esi = dword_6391D0[rotation][16];
-                    edi = dword_6391D0[rotation][9];
+                    esi = _light_blocked[rotation][16];
+                    edi = _light_blocked[rotation][9];
                     edx &= esi;
                     edx |= edi;
                     edx |= ebx;
                     v14 = edx;
                     break;
                 case 19:
-                    edx = dword_6391D0[rotation][17];
-                    edi = dword_6391D0[rotation][18];
-                    ebx = dword_6391D0[rotation][11];
+                    edx = _light_blocked[rotation][17];
+                    edi = _light_blocked[rotation][18];
+                    ebx = _light_blocked[rotation][11];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][10];
+                    esi = _light_blocked[rotation][10];
                     ebx &= edx;
-                    edx = dword_6391D0[rotation][9];
+                    edx = _light_blocked[rotation][9];
                     edx |= esi;
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][12];
+                    edx = _light_blocked[rotation][12];
                     edx &= edi;
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 20:
-                    edx = dword_6391D0[rotation][2];
-                    esi = dword_6391D0[rotation][11];
-                    edi = dword_6391D0[rotation][12];
-                    ebx = dword_6391D0[rotation][8];
+                    edx = _light_blocked[rotation][2];
+                    esi = _light_blocked[rotation][11];
+                    edi = _light_blocked[rotation][12];
+                    ebx = _light_blocked[rotation][8];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][9];
+                    esi = _light_blocked[rotation][9];
                     edx |= edi;
-                    edi = dword_6391D0[rotation][10];
+                    edi = _light_blocked[rotation][10];
                     ebx &= edx;
                     edx &= esi;
-                    esi = dword_6391D0[rotation][17];
+                    esi = _light_blocked[rotation][17];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][16];
+                    edx = _light_blocked[rotation][16];
                     ebx |= edi;
-                    edi = dword_6391D0[rotation][18];
+                    edi = _light_blocked[rotation][18];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][19];
+                    esi = _light_blocked[rotation][19];
                     edx |= edi;
-                    eax = dword_6391D0[rotation][11];
+                    eax = _light_blocked[rotation][11];
                     edx |= esi;
                     eax &= edx;
                     ebx |= eax;
                     v14 = ebx;
                     break;
                 case 21:
-                    v14 = (dword_6391D0[rotation][8] & dword_6391D0[nextRotation][1])
-                        | (dword_6391D0[rotation][15] & dword_6391D0[nextRotation][2]);
+                    v14 = (_light_blocked[rotation][8] & _light_blocked[nextRotation][1])
+                        | (_light_blocked[rotation][15] & _light_blocked[nextRotation][2]);
                     break;
                 case 22:
-                    edx = dword_6391D0[nextRotation][1];
-                    ebx = dword_6391D0[rotation][15];
-                    esi = dword_6391D0[rotation][21];
+                    edx = _light_blocked[nextRotation][1];
+                    ebx = _light_blocked[rotation][15];
+                    esi = _light_blocked[rotation][21];
                     edx |= ebx;
-                    ebx = dword_6391D0[rotation][8];
+                    ebx = _light_blocked[rotation][8];
                     edx |= esi;
                     ebx &= edx;
-                    edx = dword_6391D0[rotation][9];
+                    edx = _light_blocked[rotation][9];
                     edi = esi;
                     edx |= esi;
-                    esi = dword_6391D0[rotation][15];
+                    esi = _light_blocked[rotation][15];
                     edx &= esi;
                     ebx |= edx;
                     edx = esi;
-                    esi = dword_6391D0[rotation][16];
+                    esi = _light_blocked[rotation][16];
                     edx |= edi;
                     edx &= esi;
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 23:
-                    edx = dword_6391D0[rotation][3];
-                    ebx = dword_6391D0[rotation][16];
-                    esi = dword_6391D0[rotation][15];
+                    edx = _light_blocked[rotation][3];
+                    ebx = _light_blocked[rotation][16];
+                    esi = _light_blocked[rotation][15];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][9];
+                    edx = _light_blocked[rotation][9];
                     edx &= esi;
-                    edi = dword_6391D0[rotation][22];
+                    edi = _light_blocked[rotation][22];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][17];
+                    edx = _light_blocked[rotation][17];
                     edx &= edi;
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 24:
-                    edx = dword_6391D0[rotation][0];
-                    edi = dword_6391D0[rotation][9];
-                    ebx = dword_6391D0[rotation][10];
+                    edx = _light_blocked[rotation][0];
+                    edi = _light_blocked[rotation][9];
+                    ebx = _light_blocked[rotation][10];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][17];
+                    esi = _light_blocked[rotation][17];
                     edx |= ebx;
-                    edi = dword_6391D0[rotation][18];
+                    edi = _light_blocked[rotation][18];
                     edx |= esi;
-                    ebx = dword_6391D0[rotation][16];
+                    ebx = _light_blocked[rotation][16];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][16];
+                    esi = _light_blocked[rotation][16];
                     ebx &= edx;
-                    edx = dword_6391D0[rotation][15];
-                    edi = dword_6391D0[rotation][23];
+                    edx = _light_blocked[rotation][15];
+                    edi = _light_blocked[rotation][23];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][9];
+                    esi = _light_blocked[rotation][9];
                     edx |= edi;
-                    edi = dword_6391D0[rotation][8];
+                    edi = _light_blocked[rotation][8];
                     edx &= esi;
                     edx |= edi;
-                    esi = dword_6391D0[rotation][22];
+                    esi = _light_blocked[rotation][22];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][15];
-                    edi = dword_6391D0[rotation][23];
+                    edx = _light_blocked[rotation][15];
+                    edi = _light_blocked[rotation][23];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][17];
+                    esi = _light_blocked[rotation][17];
                     edx |= edi;
                     edx &= esi;
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][18];
+                    edx = _light_blocked[rotation][18];
                     edx &= edi;
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 25:
-                    edx = dword_6391D0[rotation][8];
-                    edi = dword_6391D0[rotation][15];
-                    ebx = dword_6391D0[rotation][16];
+                    edx = _light_blocked[rotation][8];
+                    edi = _light_blocked[rotation][15];
+                    ebx = _light_blocked[rotation][16];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][23];
+                    esi = _light_blocked[rotation][23];
                     edx |= ebx;
-                    edi = dword_6391D0[rotation][24];
+                    edi = _light_blocked[rotation][24];
                     edx |= esi;
-                    ebx = dword_6391D0[rotation][9];
+                    ebx = _light_blocked[rotation][9];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][1];
+                    esi = _light_blocked[rotation][1];
                     ebx &= edx;
-                    edx = dword_6391D0[rotation][8];
+                    edx = _light_blocked[rotation][8];
                     edx &= esi;
-                    edi = dword_6391D0[rotation][16];
+                    edi = _light_blocked[rotation][16];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][8];
-                    esi = dword_6391D0[rotation][17];
+                    edx = _light_blocked[rotation][8];
+                    esi = _light_blocked[rotation][17];
                     edx |= edi;
-                    edi = dword_6391D0[rotation][24];
+                    edi = _light_blocked[rotation][24];
                     esi |= edx;
                     esi |= edi;
-                    esi &= dword_6391D0[rotation][10];
-                    edi = dword_6391D0[rotation][23];
+                    esi &= _light_blocked[rotation][10];
+                    edi = _light_blocked[rotation][23];
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][17];
+                    esi = _light_blocked[rotation][17];
                     edx |= edi;
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][24];
-                    edi = dword_6391D0[rotation][18];
+                    esi = _light_blocked[rotation][24];
+                    edi = _light_blocked[rotation][18];
                     edx |= esi;
                     edx &= edi;
-                    esi = dword_6391D0[rotation][19];
+                    esi = _light_blocked[rotation][19];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][0];
-                    eax = dword_6391D0[rotation][24];
+                    edx = _light_blocked[rotation][0];
+                    eax = _light_blocked[rotation][24];
                     edx |= esi;
                     eax &= edx;
                     ebx |= eax;
                     v14 = ebx;
                     break;
                 case 26:
-                    ebx = dword_6391D0[rotation][8];
-                    esi = dword_6391D0[nextRotation][1];
-                    edi = dword_6391D0[nextRotation][2];
+                    ebx = _light_blocked[rotation][8];
+                    esi = _light_blocked[nextRotation][1];
+                    edi = _light_blocked[nextRotation][2];
                     esi &= ebx;
-                    ebx = dword_6391D0[rotation][15];
+                    ebx = _light_blocked[rotation][15];
                     ebx &= edi;
-                    eax = dword_6391D0[rotation][21];
+                    eax = _light_blocked[rotation][21];
                     ebx |= esi;
-                    eax &= dword_6391D0[nextRotation][3];
+                    eax &= _light_blocked[nextRotation][3];
                     ebx |= eax;
                     v14 = ebx;
                     break;
                 case 27:
-                    edx = dword_6391D0[nextRotation][0];
-                    edi = dword_6391D0[rotation][15];
-                    esi = dword_6391D0[rotation][21];
+                    edx = _light_blocked[nextRotation][0];
+                    edi = _light_blocked[rotation][15];
+                    esi = _light_blocked[rotation][21];
                     edx |= edi;
-                    edi = dword_6391D0[rotation][26];
+                    edi = _light_blocked[rotation][26];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][22];
+                    esi = _light_blocked[rotation][22];
                     edx |= edi;
-                    edi = dword_6391D0[nextRotation][1];
+                    edi = _light_blocked[nextRotation][1];
                     esi &= edx;
-                    edx = dword_6391D0[rotation][8];
-                    ebx = dword_6391D0[rotation][15];
+                    edx = _light_blocked[rotation][8];
+                    ebx = _light_blocked[rotation][15];
                     edx &= edi;
                     edx |= ebx;
-                    edi = dword_6391D0[rotation][16];
+                    edi = _light_blocked[rotation][16];
                     esi |= edx;
-                    edx = dword_6391D0[rotation][8];
-                    eax = dword_6391D0[rotation][21];
+                    edx = _light_blocked[rotation][8];
+                    eax = _light_blocked[rotation][21];
                     edx |= edi;
                     eax &= edx;
                     esi |= eax;
                     v14 = esi;
                     break;
                 case 28:
-                    ebx = dword_6391D0[rotation][9];
-                    edi = dword_6391D0[rotation][16];
-                    esi = dword_6391D0[rotation][23];
-                    edx = dword_6391D0[nextRotation][0];
+                    ebx = _light_blocked[rotation][9];
+                    edi = _light_blocked[rotation][16];
+                    esi = _light_blocked[rotation][23];
+                    edx = _light_blocked[nextRotation][0];
                     ebx |= edi;
-                    edi = dword_6391D0[rotation][15];
+                    edi = _light_blocked[rotation][15];
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][8];
+                    esi = _light_blocked[rotation][8];
                     ebx &= edi;
-                    edi = dword_6391D0[rotation][21];
+                    edi = _light_blocked[rotation][21];
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][22];
+                    esi = _light_blocked[rotation][22];
                     edx |= edi;
-                    edi = dword_6391D0[rotation][27];
+                    edi = _light_blocked[rotation][27];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][16];
+                    esi = _light_blocked[rotation][16];
                     edx |= edi;
                     edx &= esi;
-                    edi = dword_6391D0[rotation][17];
+                    edi = _light_blocked[rotation][17];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][9];
-                    esi = dword_6391D0[rotation][23];
+                    edx = _light_blocked[rotation][9];
+                    esi = _light_blocked[rotation][23];
                     edx |= edi;
-                    edi = dword_6391D0[rotation][22];
+                    edi = _light_blocked[rotation][22];
                     edx |= esi;
                     edx &= edi;
                     ebx |= edx;
                     edx = esi;
-                    edx &= dword_6391D0[rotation][27];
+                    edx &= _light_blocked[rotation][27];
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 29:
-                    edx = dword_6391D0[rotation][8];
-                    edi = dword_6391D0[rotation][16];
-                    ebx = dword_6391D0[rotation][23];
+                    edx = _light_blocked[rotation][8];
+                    edi = _light_blocked[rotation][16];
+                    ebx = _light_blocked[rotation][23];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][15];
+                    esi = _light_blocked[rotation][15];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][9];
+                    edx = _light_blocked[rotation][9];
                     edx &= esi;
-                    edi = dword_6391D0[rotation][22];
+                    edi = _light_blocked[rotation][22];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][17];
+                    edx = _light_blocked[rotation][17];
                     edx &= edi;
-                    esi = dword_6391D0[rotation][28];
+                    esi = _light_blocked[rotation][28];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][24];
+                    edx = _light_blocked[rotation][24];
                     edx &= esi;
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 30:
-                    ebx = dword_6391D0[rotation][8];
-                    esi = dword_6391D0[nextRotation][1];
-                    edi = dword_6391D0[nextRotation][2];
+                    ebx = _light_blocked[rotation][8];
+                    esi = _light_blocked[nextRotation][1];
+                    edi = _light_blocked[nextRotation][2];
                     esi &= ebx;
-                    ebx = dword_6391D0[rotation][15];
+                    ebx = _light_blocked[rotation][15];
                     ebx &= edi;
-                    edi = dword_6391D0[nextRotation][3];
+                    edi = _light_blocked[nextRotation][3];
                     esi |= ebx;
-                    ebx = dword_6391D0[rotation][21];
+                    ebx = _light_blocked[rotation][21];
                     ebx &= edi;
-                    eax = dword_6391D0[rotation][26];
+                    eax = _light_blocked[rotation][26];
                     ebx |= esi;
-                    eax &= dword_6391D0[nextRotation][4];
+                    eax &= _light_blocked[nextRotation][4];
                     ebx |= eax;
                     v14 = ebx;
                     break;
                 case 31:
-                    edx = dword_6391D0[rotation][8];
-                    esi = dword_6391D0[nextRotation][1];
-                    edi = dword_6391D0[rotation][15];
+                    edx = _light_blocked[rotation][8];
+                    esi = _light_blocked[nextRotation][1];
+                    edi = _light_blocked[rotation][15];
                     edx &= esi;
-                    ebx = dword_6391D0[rotation][21];
+                    ebx = _light_blocked[rotation][21];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][22];
+                    esi = _light_blocked[rotation][22];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][8];
-                    edi = dword_6391D0[rotation][27];
+                    edx = _light_blocked[rotation][8];
+                    edi = _light_blocked[rotation][27];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][26];
+                    esi = _light_blocked[rotation][26];
                     edx |= edi;
                     edx &= esi;
                     ebx |= edx;
                     edx = edi;
-                    edx &= dword_6391D0[rotation][30];
+                    edx &= _light_blocked[rotation][30];
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 32:
-                    ebx = dword_6391D0[rotation][8];
-                    edi = dword_6391D0[rotation][9];
-                    esi = dword_6391D0[rotation][16];
+                    ebx = _light_blocked[rotation][8];
+                    edi = _light_blocked[rotation][9];
+                    esi = _light_blocked[rotation][16];
                     ebx |= edi;
-                    edi = dword_6391D0[rotation][23];
+                    edi = _light_blocked[rotation][23];
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][28];
+                    esi = _light_blocked[rotation][28];
                     ebx |= edi;
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][15];
+                    esi = _light_blocked[rotation][15];
                     esi &= ebx;
-                    edx = dword_6391D0[rotation][8];
-                    edx &= dword_6391D0[nextRotation][1];
-                    ebx = dword_6391D0[rotation][16];
+                    edx = _light_blocked[rotation][8];
+                    edx &= _light_blocked[nextRotation][1];
+                    ebx = _light_blocked[rotation][16];
                     esi |= edx;
-                    edx = dword_6391D0[rotation][8];
+                    edx = _light_blocked[rotation][8];
                     edx |= ebx;
-                    ebx = dword_6391D0[rotation][28];
-                    edi = dword_6391D0[rotation][21];
+                    ebx = _light_blocked[rotation][28];
+                    edi = _light_blocked[rotation][21];
                     ebx |= edx;
                     ebx &= edi;
-                    edi = dword_6391D0[rotation][23];
+                    edi = _light_blocked[rotation][23];
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][22];
+                    esi = _light_blocked[rotation][22];
                     edx |= edi;
                     ebx |= esi;
-                    esi = dword_6391D0[rotation][28];
-                    edi = dword_6391D0[rotation][27];
+                    esi = _light_blocked[rotation][28];
+                    edi = _light_blocked[rotation][27];
                     edx |= esi;
                     edx &= edi;
-                    esi = dword_6391D0[rotation][31];
+                    esi = _light_blocked[rotation][31];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][0];
-                    edi = dword_6391D0[rotation][28];
+                    edx = _light_blocked[rotation][0];
+                    edi = _light_blocked[rotation][28];
                     edx |= esi;
                     edx &= edi;
                     ebx |= edx;
                     v14 = ebx;
                     break;
                 case 33:
-                    esi = dword_6391D0[rotation][8];
-                    edi = dword_6391D0[nextRotation][1];
-                    ebx = dword_6391D0[rotation][15];
+                    esi = _light_blocked[rotation][8];
+                    edi = _light_blocked[nextRotation][1];
+                    ebx = _light_blocked[rotation][15];
                     esi &= edi;
-                    ebx &= dword_6391D0[nextRotation][2];
-                    edi = dword_6391D0[nextRotation][3];
+                    ebx &= _light_blocked[nextRotation][2];
+                    edi = _light_blocked[nextRotation][3];
                     esi |= ebx;
-                    ebx = dword_6391D0[rotation][21];
+                    ebx = _light_blocked[rotation][21];
                     ebx &= edi;
-                    edi = dword_6391D0[nextRotation][4];
+                    edi = _light_blocked[nextRotation][4];
                     esi |= ebx;
-                    ebx = dword_6391D0[rotation][26];
+                    ebx = _light_blocked[rotation][26];
                     ebx &= edi;
-                    eax = dword_6391D0[rotation][30];
+                    eax = _light_blocked[rotation][30];
                     ebx |= esi;
-                    eax &= dword_6391D0[nextRotation][5];
+                    eax &= _light_blocked[nextRotation][5];
                     ebx |= eax;
                     v14 = ebx;
                     break;
                 case 34:
-                    edx = dword_6391D0[nextRotation][2];
-                    edi = dword_6391D0[rotation][26];
-                    ebx = dword_6391D0[rotation][30];
+                    edx = _light_blocked[nextRotation][2];
+                    edi = _light_blocked[rotation][26];
+                    ebx = _light_blocked[rotation][30];
                     edx |= edi;
-                    esi = dword_6391D0[rotation][15];
+                    esi = _light_blocked[rotation][15];
                     edx |= ebx;
-                    ebx = dword_6391D0[rotation][8];
-                    edi = dword_6391D0[rotation][21];
+                    ebx = _light_blocked[rotation][8];
+                    edi = _light_blocked[rotation][21];
                     ebx &= edx;
                     edx &= esi;
-                    esi = dword_6391D0[rotation][22];
+                    esi = _light_blocked[rotation][22];
                     ebx |= edx;
-                    edx = dword_6391D0[rotation][16];
+                    edx = _light_blocked[rotation][16];
                     ebx |= edi;
-                    edi = dword_6391D0[rotation][27];
+                    edi = _light_blocked[rotation][27];
                     edx |= esi;
-                    esi = dword_6391D0[rotation][31];
+                    esi = _light_blocked[rotation][31];
                     edx |= edi;
-                    eax = dword_6391D0[rotation][26];
+                    eax = _light_blocked[rotation][26];
                     edx |= esi;
                     eax &= edx;
                     ebx |= eax;
                     v14 = ebx;
                     break;
                 case 35:
-                    ebx = dword_6391D0[rotation][8];
-                    esi = dword_6391D0[nextRotation][1];
-                    edi = dword_6391D0[nextRotation][2];
+                    ebx = _light_blocked[rotation][8];
+                    esi = _light_blocked[nextRotation][1];
+                    edi = _light_blocked[nextRotation][2];
                     esi &= ebx;
-                    ebx = dword_6391D0[rotation][15];
+                    ebx = _light_blocked[rotation][15];
                     ebx &= edi;
-                    edi = dword_6391D0[nextRotation][3];
+                    edi = _light_blocked[nextRotation][3];
                     esi |= ebx;
-                    ebx = dword_6391D0[rotation][21];
+                    ebx = _light_blocked[rotation][21];
                     ebx &= edi;
-                    edi = dword_6391D0[nextRotation][4];
+                    edi = _light_blocked[nextRotation][4];
                     esi |= ebx;
-                    ebx = dword_6391D0[rotation][26];
+                    ebx = _light_blocked[rotation][26];
                     ebx &= edi;
-                    edi = dword_6391D0[nextRotation][5];
+                    edi = _light_blocked[nextRotation][5];
                     esi |= ebx;
-                    ebx = dword_6391D0[rotation][30];
+                    ebx = _light_blocked[rotation][30];
                     ebx &= edi;
-                    eax = dword_6391D0[rotation][33];
+                    eax = _light_blocked[rotation][33];
                     ebx |= esi;
-                    eax &= dword_6391D0[nextRotation][6];
+                    eax &= _light_blocked[nextRotation][6];
                     ebx |= eax;
                     v14 = ebx;
                     break;
@@ -4565,13 +4565,13 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
                     }
                 }
 
-                dword_6391D0[rotation][index] = v14;
+                _light_blocked[rotation][index] = v14;
             }
         }
     }
 
     if (rect != NULL) {
-        Rect* lightDistanceRect = &(stru_51964C[obj->lightDistance]);
+        Rect* lightDistanceRect = &(_light_rect[obj->lightDistance]);
         memcpy(rect, lightDistanceRect, sizeof(*lightDistanceRect));
 
         int x;
@@ -4678,19 +4678,19 @@ void objectDrawOutline(Object* object, Rect* rect)
             v44 = frameHeight / 5;
             break;
         case OUTLINE_TYPE_2:
-            color = byte_6A38D0[31744];
+            color = _colorTable[31744];
             v44 = 0;
             if (v53 != 0) {
-                v47 = byte_660FA0;
-                v48 = dword_519790;
+                v47 = _commonGrayTable;
+                v48 = _redBlendTable;
             }
             break;
         case OUTLINE_TYPE_4:
-            color = byte_6A38D0[15855];
+            color = _colorTable[15855];
             v44 = 0;
             if (v53 != 0) {
-                v47 = byte_660FA0;
-                v48 = dword_519780;
+                v47 = _commonGrayTable;
+                v48 = _wallBlendTable;
             }
             break;
         case OUTLINE_TYPE_FRIENDLY:
@@ -4701,10 +4701,10 @@ void objectDrawOutline(Object* object, Rect* rect)
             break;
         case OUTLINE_TYPE_ITEM:
             v44 = 0;
-            color = byte_6A38D0[30632];
+            color = _colorTable[30632];
             if (v53 != 0) {
-                v47 = byte_660FA0;
-                v48 = dword_519790;
+                v47 = _commonGrayTable;
+                v48 = _redBlendTable;
             }
             break;
         case OUTLINE_TYPE_32:
@@ -4714,7 +4714,7 @@ void objectDrawOutline(Object* object, Rect* rect)
             v44 = frameHeight;
             break;
         default:
-            color = byte_6A38D0[31775];
+            color = _colorTable[31775];
             v53 = 0;
             v44 = 0;
             break;
@@ -5032,19 +5032,19 @@ void _obj_render_object(Object* object, Rect* rect, int light)
     int v29 = object->flags & 0x0FC000;
     switch (v29) {
     case 0x4000:
-        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519790, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, _redBlendTable, _commonGrayTable);
         break;
     case 0x10000:
-        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, 0x10000, dword_519780, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, 0x10000, _wallBlendTable, _commonGrayTable);
         break;
     case 0x20000:
-        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519784, byte_660EA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, _glassBlendTable, _glassGrayTable);
         break;
     case 0x40000:
-        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_519788, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, _steamBlendTable, _commonGrayTable);
         break;
     case 0x80000:
-        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, dword_51978C, byte_660FA0);
+        _dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light, _energyBlendTable, _commonGrayTable);
         break;
     default:
         _dark_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, gObjectsWindowBuffer, objectRect.left, objectRect.top, gObjectsWindowPitch, light);
@@ -5113,8 +5113,8 @@ int _obj_preload_sort(const void* a1, const void* a2)
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
 
-    int v3 = dword_51979C[(v1 & 0xF000000) >> 24];
-    int v4 = dword_51979C[(v2 & 0xF000000) >> 24];
+    int v3 = _cd_order[(v1 & 0xF000000) >> 24];
+    int v4 = _cd_order[(v2 & 0xF000000) >> 24];
 
     int cmp = v3 - v4;
     if (cmp != 0) {
