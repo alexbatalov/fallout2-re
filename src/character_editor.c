@@ -3217,8 +3217,8 @@ void characterEditorEditGender()
         stru_5701C0[EDITOR_GRAPHIC_MALE_ON].height,
         -1,
         -1,
+        501,
         -1,
-        500,
         dword_5704E0[EDITOR_GRAPHIC_MALE_OFF],
         dword_5704E0[EDITOR_GRAPHIC_MALE_ON],
         NULL,
@@ -3234,8 +3234,8 @@ void characterEditorEditGender()
         stru_5701C0[EDITOR_GRAPHIC_FEMALE_ON].height,
         -1,
         -1,
+        502,
         -1,
-        500,
         dword_5704E0[EDITOR_GRAPHIC_FEMALE_OFF],
         dword_5704E0[EDITOR_GRAPHIC_FEMALE_ON],
         NULL,
@@ -3271,8 +3271,11 @@ void characterEditorEditGender()
         switch (eventCode) {
         case KEY_ARROW_LEFT:
         case KEY_ARROW_RIGHT:
-            _win_set_button_rest_state(btns[0], 1 - _win_button_down(btns[0]), 1);
-            _win_set_button_rest_state(btns[1], _win_button_down(btns[0]), 1);
+            if (1) {
+                bool wasMale = _win_button_down(btns[0]);
+                _win_set_button_rest_state(btns[0], !wasMale, 1);
+                _win_set_button_rest_state(btns[1], wasMale, 1);
+            }
             break;
         case 501:
         case 502:
