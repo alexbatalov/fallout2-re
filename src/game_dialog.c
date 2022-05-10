@@ -486,6 +486,9 @@ int dword_58F4E0;
 // - there are three separate elements, two of which are not used, therefore
 // they are not referenced anywhere, but they take up their space.
 //
+// See `_gdProcessChoice` for more info how this unreferenced range plays
+// important role.
+//
 // 0x58F4E4
 char gDialogReplyText[900];
 
@@ -1805,10 +1808,20 @@ int _gdProcess()
 // 0x4468DC
 int _gdProcessChoice(int a1)
 {
+    // FIXME: There is a buffer underread bug when `a1` is -1 (pressing 0 on the
+    // keyboard, see `_gdProcess`). When it happens the game looks into unused
+    // continuation of `gDialogReplyText` (within 0x58F868-0x58FF70 range) which
+    // is initialized to 0 according to C spec. I was not able to replicate the
+    // same behaviour by extending gDialogReplyText to 2700 bytes or introduce
+    // new 1800 bytes buffer in between, at least not in debug builds. In order
+    // to preserve original behaviour this dummy dialog option entry is used.
+    GameDialogOptionEntry dummy;
+    memset(&dummy, 0, sizeof(dummy));
+
     mouseHideCursor();
     _gdProcessCleanup();
 
-    GameDialogOptionEntry* dialogOptionEntry = &(gDialogOptionEntries[a1]);
+    GameDialogOptionEntry* dialogOptionEntry = a1 != -1 ? &(gDialogOptionEntries[a1]) : &dummy;
     if (dialogOptionEntry->messageListId == -4) {
         gameDialogSetReviewOptionText(dialogOptionEntry->text);
     } else {
@@ -1831,7 +1844,8 @@ int _gdProcessChoice(int a1)
         v1 = 1;
         break;
     default:
-        // See 0x446907 in ecx but this branch should be unreachable.
+        // See 0x446907 in ecx but this branch should be unreachable. Due to the
+        // bug described above, this code is reachable.
         v1 = GAME_DIALOG_REACTION_NEUTRAL;
         debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
         break;
@@ -1867,7 +1881,11 @@ int _gdProcessChoice(int a1)
 // 0x446A18
 void gameDialogOptionOnMouseEnter(int index)
 {
-    GameDialogOptionEntry* dialogOptionEntry = &(gDialogOptionEntries[index]);
+    // FIXME: See explanation in `_gdProcessChoice`.
+    GameDialogOptionEntry dummy;
+    memset(&dummy, 0, sizeof(dummy));
+
+    GameDialogOptionEntry* dialogOptionEntry = index != -1 ? &(gDialogOptionEntries[index]) : &dummy;
     if (dialogOptionEntry->btn == 0) {
         return;
     }
@@ -2597,6 +2615,10 @@ void gameDialogTicker()
     }
 }
 
+// FIXME: Due to the bug in `_gdProcessChoice` this function can receive invalid
+// reaction value (50 instead of expected -1, 0, 1). It's handled gracefully by
+// the game.
+//
 // 0x447CA0
 void _talk_to_critter_reacts(int a1)
 {
