@@ -47,6 +47,10 @@ I don't have much experience with `cmake` so I'm open to any improvements.
 
 Please do not submit new features at this time. Once reference implementation is completed, the development will be continued in the new repository. This repository will be left intact for historical reasons.
 
+## Legal
+
+The source code in this repository is produced by reverse engineering the original binary. There are couple of exceptions for reverse engineering under DMCA - documentation, interoperability, fair use. Documentation is needed to achieve interoperability. Running your legally purchased copy on modern Mac M1 for example (interoperability in action) constitutes fair use. Publishing this stuff to wide audience is questionable. Eventually it's up to Bethesda/Microsoft to takedown the project or leave it be. See [#29](https://github.com/alexbatalov/fallout2-re/issues/29) for discussion.
+
 ## License
 
 The source code in this repository is for education and research purposes only. No commercial use of any kind. That's all I know.
