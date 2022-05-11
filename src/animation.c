@@ -1366,7 +1366,7 @@ int _anim_set_end(int animationSequenceIndex)
                     }
                 }
             }
-        } else if (i > animationSequence->field_0) {
+        } else if (i >= animationSequence->field_0) {
             if (animationDescription->field_24 & 0x01) {
                 animationDescription->proc(animationDescription->destinationObj, animationDescription->owner);
             } else {
