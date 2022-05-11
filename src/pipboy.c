@@ -893,9 +893,13 @@ void pipboyWindowHandleStatus(int a1)
 
                 v13 += 1;
 
-                for (; index < gQuestsCount - 1; index += 1) {
-                    QuestDescription* nextQuestDescription = &(gQuestDescriptions[index]);
-                    if (questDescription->location != nextQuestDescription->location) {
+                // Skip quests in the same location.
+                //
+                // FIXME: This code should be identical to the one in the 
+                // `pipboyWindowRenderQuestLocationList`. See buffer overread
+                // bug involved.
+                for (; index < gQuestsCount; index++) {
+                    if (gQuestDescriptions[index].location != gQuestDescriptions[index + 1].location) {
                         break;
                     }
                 }
@@ -1021,7 +1025,13 @@ void pipboyWindowRenderQuestLocationList(int a1)
         gPipboyQuestLocationsCount += 1;
 
         // Skip quests in the same location.
-        for (; index < gQuestsCount - 1; index++) {
+        //
+        // FIXME: There is a buffer overread bug at the end of the loop. It does
+        // not manifest because dynamically allocated memory blocks have special
+        // footer guard. Location field is the first in the struct and matches
+        // size of the guard. So on the final iteration it compares location of
+        // the last quest with this special guard (0xBEEFCAFE).
+        for (; index < gQuestsCount; index++) {
             if (gQuestDescriptions[index].location != gQuestDescriptions[index + 1].location) {
                 break;
             }
