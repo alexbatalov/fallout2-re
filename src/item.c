@@ -739,29 +739,32 @@ int itemGetCost(Object* obj)
     case ITEM_TYPE_CONTAINER:
         cost += objectGetCost(obj);
         break;
-    case ITEM_TYPE_WEAPON: {
-        // NOTE: Uninline.
-        int ammoQuantity = ammoGetQuantity(obj);
-        if (ammoQuantity > 0) {
+    case ITEM_TYPE_WEAPON:
+        if (1) {
             // NOTE: Uninline.
-            int ammoTypePid = weaponGetAmmoTypePid(obj);
-            if (ammoTypePid != -1) {
-                Proto* ammoProto;
-                protoGetProto(ammoTypePid, &ammoProto);
+            int ammoQuantity = ammoGetQuantity(obj);
+            if (ammoQuantity > 0) {
+                // NOTE: Uninline.
+                int ammoTypePid = weaponGetAmmoTypePid(obj);
+                if (ammoTypePid != -1) {
+                    Proto* ammoProto;
+                    protoGetProto(ammoTypePid, &ammoProto);
 
-                cost += ammoQuantity * ammoProto->item.cost / ammoProto->item.data.ammo.quantity;
+                    cost += ammoQuantity * ammoProto->item.cost / ammoProto->item.data.ammo.quantity;
+                }
             }
         }
         break;
-    }
-    case ITEM_TYPE_AMMO: {
-        // NOTE: Uninline.
-        int ammoQuantity = ammoGetQuantity(obj);
-        // NOTE: Uninline.
-        int ammoCapacity = ammoGetCapacity(obj);
-        cost *= ammoQuantity / ammoCapacity;
+    case ITEM_TYPE_AMMO:
+        if (1) {
+            // NOTE: Uninline.
+            int ammoQuantity = ammoGetQuantity(obj);
+            cost *= ammoQuantity;
+            // NOTE: Uninline.
+            int ammoCapacity = ammoGetCapacity(obj);
+            cost /= ammoCapacity;
+        }
         break;
-    }
     }
 
     return cost;
@@ -785,8 +788,18 @@ int objectGetCost(Object* obj)
             Proto* proto;
             protoGetProto(inventoryItem->item->pid, &proto);
 
-            // TODO: Probably wrong.
-            cost += itemGetCost(inventoryItem->item) * (inventoryItem->quantity - 1);
+            // Ammo stack in inventory is a bit special. It is counted in clips,
+            // `inventoryItem->quantity` is the number of clips. The ammo object
+            // itself tracks remaining number of ammo in only one instance of
+            // the clip implying all other clips in the stack are full.
+            //
+            // In order to correctly calculate cost of the ammo stack, add cost
+            // of all full clips...
+            cost += proto->item.cost * (inventoryItem->quantity - 1);
+
+            // ...and add cost of the current clip, which is proportional to
+            // it's capacity.
+            cost += itemGetCost(inventoryItem->item);
         } else {
             cost += itemGetCost(inventoryItem->item) * inventoryItem->quantity;
         }
