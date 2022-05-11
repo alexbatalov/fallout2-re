@@ -73,7 +73,7 @@ typedef struct STRUCT_832 {
 extern Object* off_51805C;
 extern int gAiPacketsLength;
 extern AiPacket* gAiPackets;
-extern int dword_518068;
+extern bool gAiInitialized;
 extern const char* gAreaAttackModeKeys[AREA_ATTACK_MODE_COUNT];
 extern const char* gAttackWhoKeys[ATTACK_WHO_COUNT];
 extern const char* gBestWeaponKeys[BEST_WEAPON_COUNT];
