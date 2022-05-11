@@ -534,7 +534,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
     int criticalChance = critterGetStat(obj, STAT_CRITICAL_CHANCE) + criticalChanceModifier;
 
-    int damageHealingAttempts = 0;
+    int damageHealingAttempts = 1;
     int v1 = 0;
     int v2 = 0;
 
