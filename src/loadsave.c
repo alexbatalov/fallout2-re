@@ -257,10 +257,10 @@ int lsgSaveGame(int mode)
         sprintf(_gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
         strcat(_gmpath, "SAVE.DAT");
 
-        File* stream = fileOpen(_gmpath, "rb");
-        if (stream != NULL) {
+        _flptr = fileOpen(_gmpath, "rb");
+        if (_flptr != NULL) {
             lsgLoadHeaderInSlot(_slot_cursor);
-            fileClose(stream);
+            fileClose(_flptr);
         }
 
         _snapshotBuf = NULL;
