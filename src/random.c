@@ -18,13 +18,13 @@ const double dbl_50D4BA = 36.42;
 const double dbl_50D4C2 = 4000;
 
 // 0x51C694
-int dword_51C694 = 0;
+int _iy = 0;
 
 // 0x6648D0
-int dword_6648D0[32];
+int _iv[32];
 
 // 0x664950
-int dword_664950;
+int _idum;
 
 // 0x4A2FE0
 void randomInit()
@@ -41,7 +41,7 @@ void randomInit()
 // Note: Collapsed.
 //
 // 0x4A2FFC
-int sub_4A2FFC()
+int _roll_reset_()
 {
     return 0;
 }
@@ -49,25 +49,25 @@ int sub_4A2FFC()
 // NOTE: Uncollapsed 0x4A2FFC.
 void randomReset()
 {
-    sub_4A2FFC();
+    _roll_reset_();
 }
 
 // NOTE: Uncollapsed 0x4A2FFC.
 void randomExit()
 {
-    sub_4A2FFC();
+    _roll_reset_();
 }
 
 // NOTE: Uncollapsed 0x4A2FFC.
 int randomSave(File* stream)
 {
-    return sub_4A2FFC();
+    return _roll_reset_();
 }
 
 // NOTE: Uncollapsed 0x4A2FFC.
 int randomLoad(File* stream)
 {
-    return sub_4A2FFC();
+    return _roll_reset_();
 }
 
 // Rolls d% against [difficulty].
@@ -139,7 +139,7 @@ int randomBetween(int min, int max)
 // 0x4A30FC
 int random(int max)
 {
-    int v1 = 16807 * (dword_664950 % 127773) - 2836 * (dword_664950 / 127773);
+    int v1 = 16807 * (_idum % 127773) - 2836 * (_idum / 127773);
 
     if (v1 < 0) {
         v1 += 0x7FFFFFFF;
@@ -149,11 +149,11 @@ int random(int max)
         v1 += 0x7FFFFFFF;
     }
 
-    int v2 = dword_51C694 & 0x1F;
-    int v3 = dword_6648D0[v2];
-    dword_6648D0[v2] = v1;
-    dword_51C694 = v3;
-    dword_664950 = v1;
+    int v2 = _iy & 0x1F;
+    int v3 = _iv[v2];
+    _iv[v2] = v1;
+    _iy = v3;
+    _idum = v1;
 
     return v3 % max;
 }
@@ -194,12 +194,12 @@ void randomSeedPrerandomInternal(int seed)
         }
 
         if (index < 32) {
-            dword_6648D0[index] = num;
+            _iv[index] = num;
         }
     }
 
-    dword_51C694 = dword_6648D0[0];
-    dword_664950 = num;
+    _iy = _iv[0];
+    _idum = num;
 }
 
 // Provides seed for random number generator.

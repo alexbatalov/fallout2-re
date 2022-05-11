@@ -32,15 +32,15 @@ ArtListDescription gArtListDescriptions[OBJ_TYPE_COUNT] = {
 bool gArtLanguageInitialized = false;
 
 // 0x51089C
-const char* off_51089C = "gggnnnbbbgnb";
+const char* _head1 = "gggnnnbbbgnb";
 
 // 0x5108A0
-const char* off_5108A0 = "vfngfbnfvppp";
+const char* _head2 = "vfngfbnfvppp";
 
 // Current native look base fid.
 //
 // 0x5108A4
-int dword_5108A4 = 0;
+int _art_vault_guy_num = 0;
 
 // Base fids for unarmored dude.
 //
@@ -54,12 +54,12 @@ int dword_5108A4 = 0;
 // index, not gender.
 //
 // 0x5108A8
-int dword_5108A8[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
+int _art_vault_person_nums[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
 
 // Index of "grid001.frm" in tiles.lst.
 //
 // 0x5108B8
-int dword_5108B8 = 1;
+int _art_mapper_blank_tile = 1;
 
 // Non-english language name.
 //
@@ -72,7 +72,7 @@ char gArtLanguage[32];
 Cache gArtCache;
 
 // 0x56C9E4
-char byte_56C9E4[MAX_PATH];
+char _art_name[MAX_PATH];
 
 // head_info
 // 0x56CAE8
@@ -80,7 +80,7 @@ HeadDescription* gHeadDescriptions;
 
 // anon_alias
 // 0x56CAEC
-int* off_56CAEC;
+int* _anon_alias;
 
 // artCritterFidShouldRunData
 // 0x56CAF0
@@ -113,7 +113,7 @@ int artInit()
 
     for (i = 0; i < 11; i++) {
         gArtListDescriptions[i].flags = 0;
-        sprintf(path, "%s%s%s\\%s.lst", byte_51C18C, "art\\", gArtListDescriptions[i].name, gArtListDescriptions[i].name);
+        sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[i].name, gArtListDescriptions[i].name);
 
         if (artReadList(path, &(gArtListDescriptions[i].fileNames), &(gArtListDescriptions[i].fileNamesLength)) != 0) {
             debugPrint("art_read_lst failed in art_init\n");
@@ -122,8 +122,8 @@ int artInit()
         }
     }
 
-    off_56CAEC = internal_malloc(sizeof(*off_56CAEC) * gArtListDescriptions[1].fileNamesLength);
-    if (off_56CAEC == NULL) {
+    _anon_alias = internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[1].fileNamesLength);
+    if (_anon_alias == NULL) {
         gArtListDescriptions[1].fileNamesLength = 0;
         debugPrint("Out of memory for anon_alias in art_init\n");
         cacheFree(&gArtCache);
@@ -142,7 +142,7 @@ int artInit()
         gArtCritterFidShoudRunData[i] = 0;
     }
 
-    sprintf(path, "%s%s%s\\%s.lst", byte_51C18C, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].name);
+    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].name);
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -154,16 +154,16 @@ int artInit()
     ptr = gArtListDescriptions[1].fileNames;
     for (i = 0; i < gArtListDescriptions[1].fileNamesLength; i++) {
         if (stricmp(ptr, "hmjmps") == 0) {
-            dword_5108A8[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_MALE] = i;
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_MALE] = i;
         } else if (stricmp(ptr, "hfjmps") == 0) {
-            dword_5108A8[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_FEMALE] = i;
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_FEMALE] = i;
         }
 
         if (stricmp(ptr, "hmwarr") == 0) {
-            dword_5108A8[DUDE_NATIVE_LOOK_TRIBAL][GENDER_MALE] = i;
-            dword_5108A4 = i;
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_TRIBAL][GENDER_MALE] = i;
+            _art_vault_guy_num = i;
         } else if (stricmp(ptr, "hfprim") == 0) {
-            dword_5108A8[DUDE_NATIVE_LOOK_TRIBAL][GENDER_FEMALE] = i;
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_TRIBAL][GENDER_FEMALE] = i;
         }
 
         ptr += 13;
@@ -181,7 +181,7 @@ int artInit()
         }
 
         if (*curr != '\0') {
-            off_56CAEC[i] = atoi(curr + 1);
+            _anon_alias[i] = atoi(curr + 1);
 
             ptr = curr + 1;
             curr = ptr;
@@ -191,7 +191,7 @@ int artInit()
 
             gArtCritterFidShoudRunData[i] = *curr != '\0' ? atoi(ptr) : 0;
         } else {
-            off_56CAEC[i] = dword_5108A4;
+            _anon_alias[i] = _art_vault_guy_num;
             gArtCritterFidShoudRunData[i] = 1;
         }
     }
@@ -201,7 +201,7 @@ int artInit()
     ptr = gArtListDescriptions[4].fileNames;
     for (i = 0; i < gArtListDescriptions[4].fileNamesLength; i++) {
         if (stricmp(ptr, "grid001.frm") == 0) {
-            dword_5108B8 = i;
+            _art_mapper_blank_tile = i;
         }
     }
 
@@ -213,7 +213,7 @@ int artInit()
         return -1;
     }
 
-    sprintf(path, "%s%s%s\\%s.lst", byte_51C18C, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].name);
+    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].name);
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -279,7 +279,7 @@ void artExit()
 {
     cacheFree(&gArtCache);
 
-    internal_free(off_56CAEC);
+    internal_free(_anon_alias);
     internal_free(gArtCritterFidShoudRunData);
 
     for (int index = 0; index < OBJ_TYPE_COUNT; index++) {
@@ -566,7 +566,7 @@ char* artBuildFilePath(int fid)
         v2 = v1;
     }
 
-    *byte_56C9E4 = '\0';
+    *_art_name = '\0';
 
     v3 = v2 & 0xFFF;
     v4 = (v2 & 0xFF0000) >> 16;
@@ -588,22 +588,22 @@ char* artBuildFilePath(int fid)
             return NULL;
         }
         if (v10) {
-            sprintf(byte_56C9E4, "%s%s%s\\%s%c%c.fr%c", byte_51C18C, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].fileNames + v8, v11, v12, v10 + 47);
+            sprintf(_art_name, "%s%s%s\\%s%c%c.fr%c", _cd_path_base, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].fileNames + v8, v11, v12, v10 + 47);
         } else {
-            sprintf(byte_56C9E4, "%s%s%s\\%s%c%c.frm", byte_51C18C, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].fileNames + v8, v11, v12);
+            sprintf(_art_name, "%s%s%s\\%s%c%c.frm", _cd_path_base, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].fileNames + v8, v11, v12);
         }
     } else if (type == 8) {
-        v9 = off_5108A0[v4];
+        v9 = _head2[v4];
         if (v9 == 'f') {
-            sprintf(byte_56C9E4, "%s%s%s\\%s%c%c%d.frm", byte_51C18C, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].fileNames + v8, off_51089C[v4], 102, v5);
+            sprintf(_art_name, "%s%s%s\\%s%c%c%d.frm", _cd_path_base, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].fileNames + v8, _head1[v4], 102, v5);
         } else {
-            sprintf(byte_56C9E4, "%s%s%s\\%s%c%c.frm", byte_51C18C, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].fileNames + v8, off_51089C[v4], v9);
+            sprintf(_art_name, "%s%s%s\\%s%c%c.frm", _cd_path_base, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].fileNames + v8, _head1[v4], v9);
         }
     } else {
-        sprintf(byte_56C9E4, "%s%s%s\\%s", byte_51C18C, "art\\", gArtListDescriptions[type].name, gArtListDescriptions[type].fileNames + v8);
+        sprintf(_art_name, "%s%s%s\\%s", _cd_path_base, "art\\", gArtListDescriptions[type].name, gArtListDescriptions[type].fileNames + v8);
     }
 
-    return byte_56C9E4;
+    return _art_name;
 }
 
 // art_read_lst
@@ -810,9 +810,9 @@ bool artExists(int fid)
     result = false;
 
     if ((fid & 0xF000000) >> 24 == 1) {
-        v3 = sub_4C5D54(1);
-        // sub_4C5D54(dword_58E94C);
-        sub_4C5D54(0);
+        v3 = _db_current(1);
+        // _db_current(_critter_db_handle);
+        _db_current(0);
     }
 
     char* filePath = artBuildFilePath(fid);
@@ -830,7 +830,7 @@ bool artExists(int fid)
 out:
 
     if (v3 != -1) {
-        sub_4C5D54(v3);
+        _db_current(v3);
     }
 
     return result;
@@ -856,7 +856,7 @@ bool _art_fid_valid(int fid)
 // 0x419998
 int _art_alias_num(int index)
 {
-    return off_56CAEC[index];
+    return _anon_alias[index];
 }
 
 // 0x4199AC
@@ -882,7 +882,7 @@ int _art_alias_fid(int fid)
     if (v2 != 1 || v3 != 27 && v3 != 29 && v3 != 30 && v3 != 55 && v3 != 57 && v3 != 58 && v3 != 33 && v3 != 64)
         result = -1;
     else
-        result = ((fid & 0x70000000) >> 28 << 28) & 0x70000000 | (v3 << 16) & 0xFF0000 | 0x1000000 | (((fid & 0xF000) >> 12) << 12) & 0xF000 | off_56CAEC[fid & 0xFFF] & 0xFFF;
+        result = ((fid & 0x70000000) >> 28 << 28) & 0x70000000 | (v3 << 16) & 0xFF0000 | 0x1000000 | (((fid & 0xF000) >> 12) << 12) & 0xF000 | _anon_alias[fid & 0xFFF] & 0xFFF;
 
     return result;
 }
@@ -902,9 +902,9 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
     result = -1;
 
     if ((fid & 0xF000000) >> 24 == 1) {
-        v4 = sub_4C5D54(1);
-        // sub_4C5D54(dword_58E94C);
-        sub_4C5D54(0);
+        v4 = _db_current(1);
+        // _db_current(_critter_db_handle);
+        _db_current(0);
     }
 
     str = artBuildFilePath(fid);
@@ -939,7 +939,7 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
     }
 
     if (v4 != -1) {
-        sub_4C5D54(v4);
+        _db_current(v4);
     }
 
     return result;
@@ -959,9 +959,9 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
     result = -1;
 
     if ((fid & 0xF000000) >> 24 == 1) {
-        v4 = sub_4C5D54(1);
-        // sub_4C5D54(dword_58E94C);
-        sub_4C5D54(0);
+        v4 = _db_current(1);
+        // _db_current(_critter_db_handle);
+        _db_current(0);
     }
 
     str = artBuildFilePath(fid);
@@ -997,7 +997,7 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
     }
 
     if (v4 != -1) {
-        sub_4C5D54(v4);
+        _db_current(v4);
     }
 
     return result;

@@ -22,7 +22,7 @@ typedef struct AudioFile {
 
 typedef bool(AudioFileIsCompressedProc)(char* filePath);
 
-extern AudioFileIsCompressedProc* off_5108C0;
+extern AudioFileIsCompressedProc* _queryCompressedFunc_2;
 
 extern AudioFile* gAudioFileList;
 extern int gAudioFileListLength;

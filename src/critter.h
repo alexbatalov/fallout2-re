@@ -50,20 +50,20 @@ typedef enum DudeState {
     DUDE_STATE_ADDICTED = 4,
 } DudeState;
 
-extern char byte_50141C[];
+extern char _aCorpse[];
 extern char byte_501494[];
 
-extern char* off_51833C;
+extern char* _name_critter;
 extern const int gRadiationEnduranceModifiers[RADIATION_LEVEL_COUNT];
 extern const int gRadiationEffectStats[RADIATION_EFFECT_COUNT];
 extern const int gRadiationEffectPenalties[RADIATION_LEVEL_COUNT][RADIATION_EFFECT_COUNT];
-extern Object* off_518438;
+extern Object* _critterClearObj;
 
 extern MessageList gCritterMessageList;
 extern char gDudeName[DUDE_NAME_MAX_LENGTH];
-extern int dword_56D77C;
+extern int _sneak_working;
 extern int gKillsByType[KILL_TYPE_COUNT];
-extern int dword_56D7CC;
+extern int _old_rad_level;
 
 int critterInit();
 void critterReset();

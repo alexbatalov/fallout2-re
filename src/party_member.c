@@ -37,7 +37,7 @@ int gPartyMemberDescriptionsLength = 0;
 int* gPartyMemberPids = NULL;
 
 //
-STRUCT_519DA8* off_519DA4 = NULL;
+STRUCT_519DA8* _itemSaveListHead = NULL;
 
 // List of party members, it's length is [gPartyMemberDescriptionsLength] + 20.
 //
@@ -50,19 +50,19 @@ STRUCT_519DA8* gPartyMembers = NULL;
 int gPartyMembersLength = 0;
 
 // 0x519DB0
-int dword_519DB0 = 20000;
+int _partyMemberItemCount = 20000;
 
 // 0x519DB4
-int dword_519DB4 = 0;
+int _partyStatePrepped = 0;
 
 // 0x519DB8
 PartyMemberDescription* gPartyMemberDescriptions = NULL;
 
 // 0x519DBC
-STRU_519DBC* off_519DBC = NULL;
+STRU_519DBC* _partyMemberLevelUpInfoList = NULL;
 
 // 0x519DC0
-int dword_519DC0 = 20000;
+int _curID = 20000;
 
 // partyMember_init
 // 0x493BC0
@@ -110,10 +110,10 @@ int partyMembersInit()
 
     memset(gPartyMemberDescriptions, 0, sizeof(*gPartyMemberDescriptions) * gPartyMemberDescriptionsLength);
 
-    off_519DBC = internal_malloc(sizeof(*off_519DBC) * gPartyMemberDescriptionsLength);
-    if (off_519DBC == NULL) goto err;
+    _partyMemberLevelUpInfoList = internal_malloc(sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
+    if (_partyMemberLevelUpInfoList == NULL) goto err;
 
-    memset(off_519DBC, 0, sizeof(*off_519DBC) * gPartyMemberDescriptionsLength);
+    memset(_partyMemberLevelUpInfoList, 0, sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
 
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         sprintf(section, "Party Member %d", index);
@@ -221,9 +221,9 @@ err:
 void partyMembersReset()
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        off_519DBC[index].field_0 = 0;
-        off_519DBC[index].field_4 = 0;
-        off_519DBC[index].field_8 = 0;
+        _partyMemberLevelUpInfoList[index].field_0 = 0;
+        _partyMemberLevelUpInfoList[index].field_4 = 0;
+        _partyMemberLevelUpInfoList[index].field_8 = 0;
     }
 }
 
@@ -231,9 +231,9 @@ void partyMembersReset()
 void partyMembersExit()
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        off_519DBC[index].field_0 = 0;
-        off_519DBC[index].field_4 = 0;
-        off_519DBC[index].field_8 = 0;
+        _partyMemberLevelUpInfoList[index].field_0 = 0;
+        _partyMemberLevelUpInfoList[index].field_4 = 0;
+        _partyMemberLevelUpInfoList[index].field_8 = 0;
     }
 
     gPartyMemberDescriptionsLength = 0;
@@ -253,9 +253,9 @@ void partyMembersExit()
         gPartyMemberDescriptions = NULL;
     }
 
-    if (off_519DBC != NULL) {
-        internal_free(off_519DBC);
-        off_519DBC = NULL;
+    if (_partyMemberLevelUpInfoList != NULL) {
+        internal_free(_partyMemberLevelUpInfoList);
+        _partyMemberLevelUpInfoList = NULL;
     }
 }
 
@@ -290,9 +290,9 @@ void partyMemberDescriptionInit(PartyMemberDescription* partyMemberDescription)
     partyMemberDescription->level_pids[0] = -1;
 
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        off_519DBC[index].field_0 = 0;
-        off_519DBC[index].field_4 = 0;
-        off_519DBC[index].field_8 = 0;
+        _partyMemberLevelUpInfoList[index].field_0 = 0;
+        _partyMemberLevelUpInfoList[index].field_4 = 0;
+        _partyMemberLevelUpInfoList[index].field_8 = 0;
     }
 }
 
@@ -311,7 +311,7 @@ int partyMemberAdd(Object* object)
         }
     }
 
-    if (dword_519DB4) {
+    if (_partyStatePrepped) {
         debugPrint("\npartyMemberAdd DENIED: %s\n", critterGetName(object));
         return -1;
     }
@@ -371,7 +371,7 @@ int partyMemberRemove(Object* object)
         return -1;
     }
 
-    if (dword_519DB4) {
+    if (_partyStatePrepped) {
         debugPrint("\npartyMemberRemove DENIED: %s\n", critterGetName(object));
         return -1;
     }
@@ -403,7 +403,7 @@ int partyMemberRemove(Object* object)
 // 0x49460C
 int _partyMemberPrepSave()
 {
-    dword_519DB4 = 1;
+    _partyStatePrepped = 1;
 
     for (int index = 0; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* ptr = &(gPartyMembers[index]);
@@ -437,7 +437,7 @@ int _partyMemberUnPrepSave()
         }
     }
 
-    dword_519DB4 = 0;
+    _partyStatePrepped = 0;
 
     return 0;
 }
@@ -446,7 +446,7 @@ int _partyMemberUnPrepSave()
 int partyMembersSave(File* stream)
 {
     if (fileWriteInt32(stream, gPartyMembersLength) == -1) return -1;
-    if (fileWriteInt32(stream, dword_519DB0) == -1) return -1;
+    if (fileWriteInt32(stream, _partyMemberItemCount) == -1) return -1;
 
     for (int index = 1; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
@@ -454,7 +454,7 @@ int partyMembersSave(File* stream)
     }
 
     for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        STRU_519DBC* ptr = &(off_519DBC[index]);
+        STRU_519DBC* ptr = &(_partyMemberLevelUpInfoList[index]);
         if (fileWriteInt32(stream, ptr->field_0) == -1) return -1;
         if (fileWriteInt32(stream, ptr->field_4) == -1) return -1;
         if (fileWriteInt32(stream, ptr->field_8) == -1) return -1;
@@ -466,11 +466,11 @@ int partyMembersSave(File* stream)
 // 0x4947AC
 int _partyMemberPrepLoad()
 {
-    if (dword_519DB4) {
+    if (_partyStatePrepped) {
         return -1;
     }
 
-    dword_519DB4 = 1;
+    _partyStatePrepped = 1;
 
     for (int index = 0; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* ptr_519DA8 = &(gPartyMembers[index]);
@@ -554,7 +554,7 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
 // 0x4949C4
 int _partyMemberRecoverLoad()
 {
-    if (dword_519DB4 != 1) {
+    if (_partyStatePrepped != 1) {
         debugPrint("\npartyMemberRecoverLoad DENIED");
         return -1;
     }
@@ -569,17 +569,17 @@ int _partyMemberRecoverLoad()
         debugPrint("[Party Member %d]: %s\n", index, critterGetName(gPartyMembers[index].object));
     }
 
-    STRUCT_519DA8* v6 = off_519DA4;
+    STRUCT_519DA8* v6 = _itemSaveListHead;
     while (v6 != NULL) {
-        off_519DA4 = v6->next;
+        _itemSaveListHead = v6->next;
 
         _partyMemberItemRecover(v6);
         internal_free(v6);
 
-        v6 = off_519DA4;
+        v6 = _itemSaveListHead;
     }
 
-    dword_519DB4 = 0;
+    _partyStatePrepped = 0;
 
     if (!_isLoadingGame()) {
         _partyFixMultipleMembers();
@@ -646,7 +646,7 @@ int partyMembersLoad(File* stream)
     // FIXME: partyMemberObjectIds is never free'd in this function, obviously memory leak.
 
     if (fileReadInt32(stream, &gPartyMembersLength) == -1) return -1;
-    if (fileReadInt32(stream, &dword_519DB0) == -1) return -1;
+    if (fileReadInt32(stream, &_partyMemberItemCount) == -1) return -1;
 
     gPartyMembers->object = gDude;
 
@@ -689,7 +689,7 @@ int partyMembersLoad(File* stream)
     _partyFixMultipleMembers();
 
     for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        STRU_519DBC* ptr_519DBC = &(off_519DBC[index]);
+        STRU_519DBC* ptr_519DBC = &(_partyMemberLevelUpInfoList[index]);
 
         if (fileReadInt32(stream, &(ptr_519DBC->field_0)) == -1) return -1;
         if (fileReadInt32(stream, &(ptr_519DBC->field_4)) == -1) return -1;
@@ -702,7 +702,7 @@ int partyMembersLoad(File* stream)
 // 0x494D7C
 void _partyMemberClear()
 {
-    if (dword_519DB4) {
+    if (_partyStatePrepped) {
         _partyMemberUnPrepSave();
     }
 
@@ -715,7 +715,7 @@ void _partyMemberClear()
     _scr_remove_all();
     _partyMemberClearItemList();
 
-    dword_519DB4 = 0;
+    _partyStatePrepped = 0;
 }
 
 // 0x494DD0
@@ -844,11 +844,11 @@ int _partyMemberNewObjID()
     Object* object;
 
     do {
-        dword_519DC0++;
+        _curID++;
 
         object = objectFindFirst();
         while (object != NULL) {
-            if (object->id == dword_519DC0) {
+            if (object->id == _curID) {
                 break;
             }
 
@@ -858,11 +858,11 @@ int _partyMemberNewObjID()
             for (index = 0; index < inventory->length; index++) {
                 InventoryItem* inventoryItem = &(inventory->items[index]);
                 Object* item = inventoryItem->item;
-                if (item->id == dword_519DC0) {
+                if (item->id == _curID) {
                     break;
                 }
 
-                if (_partyMemberNewObjIDRecurseFind(item, dword_519DC0)) {
+                if (_partyMemberNewObjIDRecurseFind(item, _curID)) {
                     break;
                 }
             }
@@ -875,9 +875,9 @@ int _partyMemberNewObjID()
         }
     } while (object != NULL);
 
-    dword_519DC0++;
+    _curID++;
 
-    return dword_519DC0;
+    return _curID;
 }
 
 // 0x4950F4
@@ -979,8 +979,8 @@ int _partyMemberItemSave(Object* object)
             node->vars = NULL;
         }
 
-        STRUCT_519DA8* temp = off_519DA4;
-        off_519DA4 = node;
+        STRUCT_519DA8* temp = _itemSaveListHead;
+        _itemSaveListHead = node;
         node->next = temp;
     }
 
@@ -1011,13 +1011,13 @@ int _partyMemberItemRecover(STRUCT_519DA8* a1)
 
     memcpy(script, a1->script, sizeof(*script));
 
-    a1->object->sid = dword_519DB0 | (SCRIPT_TYPE_ITEM << 24);
-    script->sid = dword_519DB0 | (SCRIPT_TYPE_ITEM << 24);
+    a1->object->sid = _partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
+    script->sid = _partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
 
     script->program = NULL;
     script->flags &= ~(SCRIPT_FLAG_0x01 | SCRIPT_FLAG_0x04 | SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
 
-    dword_519DB0++;
+    _partyMemberItemCount++;
 
     internal_free(a1->script);
     a1->script = NULL;
@@ -1033,9 +1033,9 @@ int _partyMemberItemRecover(STRUCT_519DA8* a1)
 // 0x4954C4
 int _partyMemberClearItemList()
 {
-    while (off_519DA4 != NULL) {
-        STRUCT_519DA8* node = off_519DA4;
-        off_519DA4 = off_519DA4->next;
+    while (_itemSaveListHead != NULL) {
+        STRUCT_519DA8* node = _itemSaveListHead;
+        _itemSaveListHead = _itemSaveListHead->next;
 
         if (node->script != NULL) {
             internal_free(node->script);
@@ -1048,7 +1048,7 @@ int _partyMemberClearItemList()
         internal_free(node);
     }
 
-    dword_519DB0 = 20000;
+    _partyMemberItemCount = 20000;
 
     return 0;
 }
@@ -1438,7 +1438,7 @@ int _partyMemberIncLevels()
             continue;
         }
 
-        ptr_519DBC = &(off_519DBC[v0]);
+        ptr_519DBC = &(_partyMemberLevelUpInfoList[v0]);
 
         if (ptr_519DBC->field_0 >= party_member->level_pids_num) {
             continue;
@@ -1474,7 +1474,7 @@ int _partyMemberIncLevels()
                     if (messageListGetItem(&gMiscMessageList, &msg)) {
                         name = critterGetName(obj);
                         sprintf(str, msg.text, name);
-                        textObjectAdd(obj, str, 101, byte_6A38D0[0x7FFF], byte_6A38D0[0], &v19);
+                        textObjectAdd(obj, str, 101, _colorTable[0x7FFF], _colorTable[0], &v19);
                         tileWindowRefreshRect(&v19, obj->elevation);
                     }
                 }

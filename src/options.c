@@ -24,7 +24,7 @@
 #include <stdio.h>
 
 // 0x48FBD0
-const int dword_48FBD0[PRIMARY_PREF_COUNT] = {
+const int _row1Ytab[PRIMARY_PREF_COUNT] = {
     48,
     125,
     203,
@@ -33,7 +33,7 @@ const int dword_48FBD0[PRIMARY_PREF_COUNT] = {
 };
 
 // 0x48FBDA
-const int dword_48FBDA[SECONDARY_PREF_COUNT] = {
+const int _row2Ytab[SECONDARY_PREF_COUNT] = {
     49,
     116,
     181,
@@ -43,7 +43,7 @@ const int dword_48FBDA[SECONDARY_PREF_COUNT] = {
 };
 
 // 0x48FBE6
-const int dword_48FBE6[RANGE_PREF_COUNT] = {
+const int _row3Ytab[RANGE_PREF_COUNT] = {
     19,
     94,
     165,
@@ -189,7 +189,7 @@ MessageListItem gOptionsMessageListItem;
 unsigned char* gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_COUNT];
 
 // 0x663878
-unsigned char* off_663878[OPTIONS_WINDOW_BUTTONS_COUNT];
+unsigned char* _opbtns[OPTIONS_WINDOW_BUTTONS_COUNT];
 
 // 0x6638A0
 CacheEntry* gPreferencesWindowFrmHandles[PREFERENCES_WINDOW_FRM_COUNT];
@@ -321,13 +321,13 @@ int gPreferencesRunning1;
 int gPreferencesCombatSpeed1;
 
 //
-int dword_6639A0;
+int _plyrspdbid;
 
 // 0x6639A4
 int gPreferencesItemHighlight1;
 
 // 0x6639A8
-bool dword_6639A8;
+bool _changed;
 
 // 0x6639AC
 int gPreferencesCombatMessages1;
@@ -371,7 +371,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
             rc = 1;
         }
 
-        if (keyCode == KEY_ESCAPE || keyCode == 504 || dword_5186CC != 0) {
+        if (keyCode == KEY_ESCAPE || keyCode == 504 || _game_user_wants_to_quit != 0) {
             rc = 0;
         } else {
             switch (keyCode) {
@@ -472,10 +472,10 @@ int optionsWindowInit()
 
     int cycle = 0;
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        off_663878[index] = internal_malloc(gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
-        if (off_663878[index] == NULL) {
+        _opbtns[index] = internal_malloc(gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
+        if (_opbtns[index] == NULL) {
             while (--index >= 0) {
-                internal_free(off_663878[index]);
+                internal_free(_opbtns[index]);
             }
 
             for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
@@ -489,7 +489,7 @@ int optionsWindowInit()
 
         cycle = cycle ^ 1;
 
-        memcpy(off_663878[index], gOptionsWindowFrmData[cycle + 1], gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height);
+        memcpy(_opbtns[index], gOptionsWindowFrmData[cycle + 1], gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height);
     }
 
     gOptionsWindow = windowCreate(
@@ -502,7 +502,7 @@ int optionsWindowInit()
 
     if (gOptionsWindow == -1) {
         for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-            internal_free(off_663878[index]);
+            internal_free(_opbtns[index]);
         }
 
         for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
@@ -542,10 +542,10 @@ int optionsWindowInit()
             textX = 0;
         }
 
-        fontDrawText(off_663878[index] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, byte_6A38D0[18979]);
-        fontDrawText(off_663878[index + 1] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, byte_6A38D0[14723]);
+        fontDrawText(_opbtns[index] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, _colorTable[18979]);
+        fontDrawText(_opbtns[index + 1] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, _colorTable[14723]);
 
-        int btn = buttonCreate(gOptionsWindow, 13, buttonY, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, off_663878[index], off_663878[index + 1], NULL, 32);
+        int btn = buttonCreate(gOptionsWindow, 13, buttonY, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, _opbtns[index], _opbtns[index + 1], NULL, 32);
         if (btn != -1) {
             buttonSetCallbacks(btn, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
         }
@@ -568,7 +568,7 @@ int optionsWindowFree()
     messageListFree(&gOptionsMessageList);
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        internal_free(off_663878[index]);
+        internal_free(_opbtns[index]);
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
@@ -680,7 +680,7 @@ int showPause(bool a1)
         messageItemText,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
-        byte_6A38D0[18979]);
+        _colorTable[18979]);
 
     fontSetCurrent(104);
 
@@ -692,7 +692,7 @@ int showPause(bool a1)
         path,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
-        byte_6A38D0[18979]);
+        _colorTable[18979]);
 
     int doneBtn = buttonCreate(window,
         26,
@@ -730,7 +730,7 @@ int showPause(bool a1)
                 done = true;
             }
 
-            if (dword_5186CC != 0) {
+            if (_game_user_wants_to_quit != 0) {
                 done = true;
             }
         }
@@ -812,7 +812,7 @@ void _SetSystemPrefs()
     configGetDouble(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gPreferencesBrightness1);
     configGetDouble(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, &gPreferencesMouseSensitivity1);
 
-    sub_4931F8();
+    _JustUpdate_();
 }
 
 // Copy options (1) to (2).
@@ -868,7 +868,7 @@ void _RestoreSettings()
     gPreferencesMouseSensitivity1 = gPreferencesMouseSensitivity2;
     gPreferencesSpeechVolume1 = gPreferencesSpeechVolume2;
 
-    sub_4931F8();
+    _JustUpdate_();
 }
 
 // 0x492F60
@@ -899,14 +899,14 @@ void preferencesSetDefaults(bool a1)
         for (int index = 0; index < PREF_COUNT; index++) {
             _UpdateThing(index);
         }
-        _win_set_button_rest_state(dword_6639A0, gPreferencesPlayerSpeedup1, 0);
+        _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
         windowRefresh(gPreferencesWindow);
-        dword_6639A8 = true;
+        _changed = true;
     }
 }
 
 // 0x4931F8
-void sub_4931F8()
+void _JustUpdate_()
 {
     gPreferencesGameDifficulty1 = min(max(gPreferencesGameDifficulty1, 0), 2);
     gPreferencesCombatDifficulty1 = min(max(gPreferencesCombatDifficulty1, 0), 2);
@@ -1008,14 +1008,14 @@ void _UpdateThing(int index)
             const char* s;
             if (*p != '\0') {
                 *p = '\0';
-                fontDrawText(gPreferencesWindowBuffer + 640 * y + x, copy, 640, 640, byte_6A38D0[18979]);
+                fontDrawText(gPreferencesWindowBuffer + 640 * y + x, copy, 640, 640, _colorTable[18979]);
                 s = p + 1;
                 y += fontGetLineHeight();
             } else {
                 s = copy;
             }
 
-            fontDrawText(gPreferencesWindowBuffer + 640 * y + x, s, 640, 640, byte_6A38D0[18979]);
+            fontDrawText(gPreferencesWindowBuffer + 640 * y + x, s, 640, 640, _colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
@@ -1040,7 +1040,7 @@ void _UpdateThing(int index)
                 x = meta->knobX + word_48FC06[value] - fontGetStringWidth(text);
                 meta->minX = x;
             }
-            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 5) + x, text, 640, 640, byte_6A38D0[18979]);
+            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 5) + x, text, 640, 640, _colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
@@ -1166,7 +1166,7 @@ void _UpdateThing(int index)
                 x = 624 - fontGetStringWidth(str);
                 break;
             }
-            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, byte_6A38D0[18979]);
+            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, _colorTable[18979]);
         }
     } else {
         // return false;
@@ -1292,7 +1292,7 @@ int preferencesLoad(File* stream)
     gPreferencesMouseSensitivity1 = mouseSensitivity;
     gPreferencesTextBaseDelay1 = textBaseDelay;
 
-    sub_4931F8();
+    _JustUpdate_();
     _SavePrefs(0);
 
     return 0;
@@ -1302,7 +1302,7 @@ err:
     debugPrint("\nOPTION MENU: Error loading option data!, using defaults.\n");
 
     preferencesSetDefaults(false);
-    sub_4931F8();
+    _JustUpdate_();
     _SavePrefs(0);
 
     return -1;
@@ -1384,7 +1384,7 @@ int preferencesWindowInit()
         }
     }
 
-    dword_6639A8 = false;
+    _changed = false;
 
     gPreferencesWindow = windowCreate(0, 0, 640, 480, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (gPreferencesWindow == -1) {
@@ -1402,7 +1402,7 @@ int preferencesWindowInit()
     fontSetCurrent(104);
 
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 100);
-    fontDrawText(gPreferencesWindowBuffer + 640 * 10 + 74, messageItemText, 640, 640, byte_6A38D0[18979]);
+    fontDrawText(gPreferencesWindowBuffer + 640 * 10 + 74, messageItemText, 640, 640, _colorTable[18979]);
 
     fontSetCurrent(103);
 
@@ -1410,34 +1410,34 @@ int preferencesWindowInit()
     for (i = 0; i < PRIMARY_PREF_COUNT; i++) {
         messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
         x = 99 - fontGetStringWidth(messageItemText) / 2;
-        fontDrawText(gPreferencesWindowBuffer + 640 * dword_48FBD0[i] + x, messageItemText, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(gPreferencesWindowBuffer + 640 * _row1Ytab[i] + x, messageItemText, 640, 640, _colorTable[18979]);
     }
 
     for (i = 0; i < SECONDARY_PREF_COUNT; i++) {
         messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
-        fontDrawText(gPreferencesWindowBuffer + 640 * dword_48FBDA[i] + 206, messageItemText, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(gPreferencesWindowBuffer + 640 * _row2Ytab[i] + 206, messageItemText, 640, 640, _colorTable[18979]);
     }
 
     for (i = 0; i < RANGE_PREF_COUNT; i++) {
         messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
-        fontDrawText(gPreferencesWindowBuffer + 640 * dword_48FBE6[i] + 384, messageItemText, 640, 640, byte_6A38D0[18979]);
+        fontDrawText(gPreferencesWindowBuffer + 640 * _row3Ytab[i] + 384, messageItemText, 640, 640, _colorTable[18979]);
     }
 
     // DEFAULT
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 120);
-    fontDrawText(gPreferencesWindowBuffer + 640 * 449 + 43, messageItemText, 640, 640, byte_6A38D0[18979]);
+    fontDrawText(gPreferencesWindowBuffer + 640 * 449 + 43, messageItemText, 640, 640, _colorTable[18979]);
 
     // DONE
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 4);
-    fontDrawText(gPreferencesWindowBuffer + 640 * 449 + 169, messageItemText, 640, 640, byte_6A38D0[18979]);
+    fontDrawText(gPreferencesWindowBuffer + 640 * 449 + 169, messageItemText, 640, 640, _colorTable[18979]);
 
     // CANCEL
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 121);
-    fontDrawText(gPreferencesWindowBuffer + 640 * 449 + 283, messageItemText, 640, 640, byte_6A38D0[18979]);
+    fontDrawText(gPreferencesWindowBuffer + 640 * 449 + 283, messageItemText, 640, 640, _colorTable[18979]);
 
     // Affect player speed
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 122);
-    fontDrawText(gPreferencesWindowBuffer + 640 * 72 + 405, messageItemText, 640, 640, byte_6A38D0[18979]);
+    fontDrawText(gPreferencesWindowBuffer + 640 * 72 + 405, messageItemText, 640, 640, _colorTable[18979]);
 
     for (i = 0; i < PREF_COUNT; i++) {
         _UpdateThing(i);
@@ -1482,7 +1482,7 @@ int preferencesWindowInit()
         gPreferenceDescriptions[i].btn = buttonCreate(gPreferencesWindow, x, y, width, height, mouseEnterEventCode, mouseExitEventCode, mouseDownEventCode, mouseUpEventCode, NULL, NULL, NULL, 32);
     }
 
-    dword_6639A0 = buttonCreate(gPreferencesWindow, 
+    _plyrspdbid = buttonCreate(gPreferencesWindow, 
         383,
         68,
         gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF].width,
@@ -1495,11 +1495,11 @@ int preferencesWindowInit()
         gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_CHECKBOX_ON], 
         NULL, 
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01 | BUTTON_FLAG_0x02);
-    if (dword_6639A0 != -1) {
-        _win_set_button_rest_state(dword_6639A0, gPreferencesPlayerSpeedup1, 0);
+    if (_plyrspdbid != -1) {
+        _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
     }
 
-    buttonSetCallbacks(dword_6639A0, _gsound_med_butt_press, _gsound_med_butt_press);
+    buttonSetCallbacks(_plyrspdbid, _gsound_med_butt_press, _gsound_med_butt_press);
 
     // DEFAULT
     btn = buttonCreate(gPreferencesWindow,
@@ -1565,9 +1565,9 @@ int preferencesWindowInit()
 // 0x492870
 int preferencesWindowFree()
 {
-    if (dword_6639A8) {
+    if (_changed) {
         _SavePrefs(1);
-        sub_4931F8();
+        _JustUpdate_();
         _combat_highlight_change();
     }
 
@@ -1621,7 +1621,7 @@ int _do_prefscreen()
             preferencesSetDefaults(true);
             break;
         default:
-            if (eventCode == KEY_ESCAPE || eventCode == 528 || dword_5186CC != 0) {
+            if (eventCode == KEY_ESCAPE || eventCode == 528 || _game_user_wants_to_quit != 0) {
                 _RestoreSettings();
                 rc = 0;
             } else if (eventCode >= 505 && eventCode <= 524) {
@@ -1718,7 +1718,7 @@ void _DoThing(int eventCode)
             soundPlayFile("ib3lu1x1");
             _UpdateThing(preferenceIndex);
             windowRefresh(gPreferencesWindow);
-            dword_6639A8 = true;
+            _changed = true;
             return;
         }
     } else if (preferenceIndex >= FIRST_SECONDARY_PREF && preferenceIndex <= LAST_SECONDARY_PREF) {
@@ -1752,7 +1752,7 @@ void _DoThing(int eventCode)
             soundPlayFile("ib2lu1x1");
             _UpdateThing(preferenceIndex);
             windowRefresh(gPreferencesWindow);
-            dword_6639A8 = true;
+            _changed = true;
             return;
         }
     } else if (preferenceIndex >= FIRST_RANGE_PREF && preferenceIndex <= LAST_RANGE_PREF) {
@@ -1797,7 +1797,7 @@ void _DoThing(int eventCode)
                 soundPlayFile("ib1lu1x1");
                 _UpdateThing(preferenceIndex);
                 windowRefresh(gPreferencesWindow);
-                dword_6639A8 = true;
+                _changed = true;
                 return;
             }
 
@@ -1914,7 +1914,7 @@ void _DoThing(int eventCode)
                         x = 624 - fontGetStringWidth(str);
                         break;
                     }
-                    fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, byte_6A38D0[18979]);
+                    fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, _colorTable[18979]);
                 }
             } else {
                 int off = 640 * meta->knobY + 384;
@@ -1931,7 +1931,7 @@ void _DoThing(int eventCode)
         gPreferencesPlayerSpeedup1 ^= 1;
     }
 
-    dword_6639A8 = true;
+    _changed = true;
 }
 
 // 0x48FC48

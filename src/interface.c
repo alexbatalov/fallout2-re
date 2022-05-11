@@ -58,7 +58,7 @@ bool gInterfaceBarSwapHandsInProgress = false;
 bool gInterfaceBarEnabled = false;
 
 // 0x518F14
-bool dword_518F14 = false;
+bool _intfaceHidden = false;
 
 // 0x518F18
 int gInventoryButton = -1;
@@ -128,7 +128,7 @@ CacheEntry* gSingleAttackButtonUpHandle = NULL;
 CacheEntry* gSingleAttackButtonDownHandle = NULL;
 
 //
-CacheEntry* off_518F74 = NULL;
+CacheEntry* _itemButtonDisabledKey = NULL;
 
 // 0x518F78
 int gInterfaceCurrentHand = HAND_LEFT;
@@ -231,7 +231,7 @@ int gInterfaceLastRenderedArmorClass = 0;
 int gIndicatorSlots[INDICATOR_SLOTS_COUNT];
 
 // 0x5970F8
-STRUCT_5970F8 stru_5970F8[HAND_COUNT];
+STRUCT_5970F8 _itemButtonItems[HAND_COUNT];
 
 // 0x597128
 CacheEntry* gYellowLightFrmHandle;
@@ -264,7 +264,7 @@ unsigned char* gChangeHandsButtonDownFrmData;
 unsigned char* gEndTurnButtonDownFrmData;
 
 // 0x597154
-unsigned char byte_597154[188 * 67];
+unsigned char _itemButtonDown[188 * 67];
 
 // 0x59A288
 unsigned char* gEndTurnButtonUpFrmData;
@@ -279,7 +279,7 @@ unsigned char* gCharacterButtonUpFrmData;
 unsigned char* gSingleAttackButtonUpData;
 
 // 0x59A298
-unsigned char* off_59A298;
+unsigned char* _itemButtonDisabled;
 
 // 0x59A29C
 unsigned char* gMapButtonDownFrmData;
@@ -300,7 +300,7 @@ unsigned char* gPipboyButtonDownFrmData;
 unsigned char* gMapButtonMaskFrmData;
 
 // 0x59A2B4
-unsigned char byte_59A2B4[188 * 67];
+unsigned char _itemButtonUp[188 * 67];
 
 // 0x59D3E8
 unsigned char* gMapButtonUpFrmData;
@@ -352,7 +352,7 @@ int interfaceInit()
 
     gInterfaceBarInitialized = 1;
 
-    gInterfaceBarWindow = windowCreate(0, 379, 640, 100, byte_6A38D0[0], WINDOW_HIDDEN);
+    gInterfaceBarWindow = windowCreate(0, 379, 640, 100, _colorTable[0], WINDOW_HIDDEN);
     if (gInterfaceBarWindow == -1) {
         goto err;
     }
@@ -514,15 +514,15 @@ int interfaceInit()
     }
 
     fid = buildFid(6, 73, 0, 0, 0);
-    off_59A298 = artLockFrameData(fid, 0, 0, &off_518F74);
-    if (off_59A298 == NULL) {
+    _itemButtonDisabled = artLockFrameData(fid, 0, 0, &_itemButtonDisabledKey);
+    if (_itemButtonDisabled == NULL) {
         goto err;
     }
 
-    memcpy(byte_59A2B4, gSingleAttackButtonUpData, sizeof(byte_59A2B4));
-    memcpy(byte_597154, gSingleAttackButtonDownData, sizeof(byte_597154));
+    memcpy(_itemButtonUp, gSingleAttackButtonUpData, sizeof(_itemButtonUp));
+    memcpy(_itemButtonDown, gSingleAttackButtonDownData, sizeof(_itemButtonDown));
 
-    gSingleAttackButton = buttonCreate(gInterfaceBarWindow, 267, 26, 188, 67, -1, -1, -1, -20, byte_59A2B4, byte_597154, NULL, BUTTON_FLAG_TRANSPARENT);
+    gSingleAttackButton = buttonCreate(gInterfaceBarWindow, 267, 26, 188, 67, -1, -1, -1, -20, _itemButtonUp, _itemButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
     if (gSingleAttackButton == -1) {
         goto err;
     }
@@ -591,14 +591,14 @@ int interfaceInit()
 
     // FIXME: For unknown reason these values initialized with -1. It's never
     // checked for -1, so I have no explanation for this.
-    stru_5970F8[HAND_LEFT].item = (Object*)-1;
-    stru_5970F8[HAND_RIGHT].item = (Object*)-1;
+    _itemButtonItems[HAND_LEFT].item = (Object*)-1;
+    _itemButtonItems[HAND_RIGHT].item = (Object*)-1;
 
     displayMonitorInit();
 
     gInterfaceBarEnabled = true;
     gInterfaceBarInitialized = false;
-    dword_518F14 = 1;
+    _intfaceHidden = 1;
 
     return 0;
 
@@ -614,9 +614,9 @@ void interfaceReset()
 {
     interfaceBarEnable();
 
-    if (gInterfaceBarWindow != -1 && !dword_518F14) {
+    if (gInterfaceBarWindow != -1 && !_intfaceHidden) {
         windowHide(gInterfaceBarWindow);
-        dword_518F14 = 1;
+        _intfaceHidden = 1;
     }
 
     indicatorBarRefresh();
@@ -682,10 +682,10 @@ void interfaceFree()
             gSingleAttackButton = -1;
         }
 
-        if (off_59A298 != NULL) {
-            artUnlock(off_518F74);
-            off_518F74 = NULL;
-            off_59A298 = NULL;
+        if (_itemButtonDisabled != NULL) {
+            artUnlock(_itemButtonDisabledKey);
+            _itemButtonDisabledKey = NULL;
+            _itemButtonDisabled = NULL;
         }
 
         if (gSingleAttackButtonDownData != NULL) {
@@ -849,9 +849,9 @@ int interfaceLoad(File* stream)
     }
 
     if (v2) {
-        if (gInterfaceBarWindow != -1 && !dword_518F14) {
+        if (gInterfaceBarWindow != -1 && !_intfaceHidden) {
             windowHide(gInterfaceBarWindow);
-            dword_518F14 = 1;
+            _intfaceHidden = 1;
         }
         indicatorBarRefresh();
     } else {
@@ -892,7 +892,7 @@ int interfaceSave(File* stream)
     }
 
     if (fileWriteInt32(stream, gInterfaceBarEnabled) == -1) return -1;
-    if (fileWriteInt32(stream, dword_518F14) == -1) return -1;
+    if (fileWriteInt32(stream, _intfaceHidden) == -1) return -1;
     if (fileWriteInt32(stream, gInterfaceCurrentHand) == -1) return -1;
     if (fileWriteInt32(stream, gInterfaceBarEndButtonsIsVisible) == -1) return -1;
 
@@ -903,12 +903,12 @@ int interfaceSave(File* stream)
 void _intface_show()
 {
     if (gInterfaceBarWindow != -1) {
-        if (dword_518F14) {
+        if (_intfaceHidden) {
             _intface_update_items(false, -1, -1);
             interfaceRenderHitPoints(false);
             interfaceRenderArmorClass(false);
             windowUnhide(gInterfaceBarWindow);
-            dword_518F14 = false;
+            _intfaceHidden = false;
         }
     }
     indicatorBarRefresh();
@@ -925,7 +925,7 @@ void interfaceBarEnable()
         buttonEnable(gPipboyButton);
         buttonEnable(gCharacterButton);
 
-        if (stru_5970F8[gInterfaceCurrentHand].isDisabled == 0) {
+        if (_itemButtonItems[gInterfaceCurrentHand].isDisabled == 0) {
             buttonEnable(gSingleAttackButton);
         }
 
@@ -948,7 +948,7 @@ void interfaceBarDisable()
         buttonDisable(gMapButton);
         buttonDisable(gPipboyButton);
         buttonDisable(gCharacterButton);
-        if (stru_5970F8[gInterfaceCurrentHand].isDisabled == 0) {
+        if (_itemButtonItems[gInterfaceCurrentHand].isDisabled == 0) {
             buttonDisable(gSingleAttackButton);
         }
         buttonDisable(gEndTurnButton);
@@ -1125,18 +1125,18 @@ int interfaceGetCurrentHitMode(int* hitMode, bool* aiming)
 
     *aiming = false;
 
-    switch (stru_5970F8[gInterfaceCurrentHand].field_10) {
+    switch (_itemButtonItems[gInterfaceCurrentHand].field_10) {
     case INTERFACE_ACTION_PRIMARY_AIMING:
         *aiming = true;
         // FALLTHROUGH
     case INTERFACE_ACTION_PRIMARY:
-        *hitMode = stru_5970F8[gInterfaceCurrentHand].primaryHitMode;
+        *hitMode = _itemButtonItems[gInterfaceCurrentHand].primaryHitMode;
         return 0;
     case INTERFACE_ACTION_SECONDARY_AIMING:
         *aiming = true;
         // FALLTHROUGH
     case INTERFACE_ACTION_SECONDARY:
-        *hitMode = stru_5970F8[gInterfaceCurrentHand].secondaryHitMode;
+        *hitMode = _itemButtonItems[gInterfaceCurrentHand].secondaryHitMode;
         return 0;
     }
 
@@ -1155,9 +1155,9 @@ int _intface_update_items(bool a1, int a2, int a3)
         return -1;
     }
 
-    Object* oldItem = stru_5970F8[gInterfaceCurrentHand].item;
+    Object* oldItem = _itemButtonItems[gInterfaceCurrentHand].item;
 
-    STRUCT_5970F8* p1 = &(stru_5970F8[HAND_LEFT]);
+    STRUCT_5970F8* p1 = &(_itemButtonItems[HAND_LEFT]);
     Object* item1 = critterGetItem1(gDude);
     if (item1 == p1->item && p1->item != NULL) {
         if (p1->item != NULL) {
@@ -1216,7 +1216,7 @@ int _intface_update_items(bool a1, int a2, int a3)
         }
     }
 
-    STRUCT_5970F8* p2 = &(stru_5970F8[HAND_RIGHT]);
+    STRUCT_5970F8* p2 = &(_itemButtonItems[HAND_RIGHT]);
 
     Object* item2 = critterGetItem2(gDude);
     if (item2 == p2->item && p2->item != NULL) {
@@ -1277,7 +1277,7 @@ int _intface_update_items(bool a1, int a2, int a3)
     }
 
     if (v33) {
-        STRUCT_5970F8* p = &(stru_5970F8[gInterfaceCurrentHand]);
+        STRUCT_5970F8* p = &(_itemButtonItems[gInterfaceCurrentHand]);
         if (p->item != oldItem) {
             int animationCode = 0;
             if (p->item != NULL) {
@@ -1307,7 +1307,7 @@ int interfaceBarSwapHands(bool animated)
     gInterfaceCurrentHand = 1 - gInterfaceCurrentHand;
 
     if (animated) {
-        Object* item = stru_5970F8[gInterfaceCurrentHand].item;
+        Object* item = _itemButtonItems[gInterfaceCurrentHand].item;
         int animationCode = 0;
         if (item != NULL) {
             if (itemGetType(item) == ITEM_TYPE_WEAPON) {
@@ -1331,8 +1331,8 @@ int interfaceBarSwapHands(bool animated)
 // 0x45F4B4
 int _intface_get_item_states(int* a1, int* a2)
 {
-    *a1 = stru_5970F8[HAND_LEFT].field_10;
-    *a2 = stru_5970F8[HAND_RIGHT].field_10;
+    *a1 = _itemButtonItems[HAND_LEFT].field_10;
+    *a2 = _itemButtonItems[HAND_RIGHT].field_10;
     return 0;
 }
 
@@ -1343,7 +1343,7 @@ int _intface_toggle_item_state()
         return -1;
     }
 
-    STRUCT_5970F8* ptr = &(stru_5970F8[gInterfaceCurrentHand]);
+    STRUCT_5970F8* ptr = &(_itemButtonItems[gInterfaceCurrentHand]);
 
     int v1 = ptr->field_10;
     if (ptr->isWeapon != 0) {
@@ -1400,7 +1400,7 @@ void _intface_use_item()
         return;
     }
 
-    STRUCT_5970F8* ptr = &(stru_5970F8[gInterfaceCurrentHand]);
+    STRUCT_5970F8* ptr = &(_itemButtonItems[gInterfaceCurrentHand]);
 
     if (ptr->isWeapon != 0) {
         if (ptr->field_10 == INTERFACE_ACTION_RELOAD) {
@@ -1417,7 +1417,7 @@ void _intface_use_item()
                         } else {
                             gDude->data.critter.combat.ap -= actionPointsRequired;
                         }
-                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, dword_56D39C);
+                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
                     }
                 }
             } else {
@@ -1445,7 +1445,7 @@ void _intface_use_item()
                     gDude->data.critter.combat.ap -= actionPointsRequired;
                 }
 
-                interfaceRenderActionPoints(gDude->data.critter.combat.ap, dword_56D39C);
+                interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
             }
         } else {
             _obj_use_item(gDude, ptr->item);
@@ -1467,7 +1467,7 @@ int interfaceGetActiveItem(Object** itemPtr)
         return -1;
     }
 
-    *itemPtr = stru_5970F8[gInterfaceCurrentHand].item;
+    *itemPtr = _itemButtonItems[gInterfaceCurrentHand].item;
 
     return 0;
 }
@@ -1479,7 +1479,7 @@ int _intface_update_ammo_lights()
         return -1;
     }
 
-    STRUCT_5970F8* p = &(stru_5970F8[gInterfaceCurrentHand]);
+    STRUCT_5970F8* p = &(_itemButtonItems[gInterfaceCurrentHand]);
 
     int ratio = 0;
 
@@ -1665,12 +1665,12 @@ int interfaceBarRefreshMainAction()
 
     buttonEnable(gSingleAttackButton);
 
-    STRUCT_5970F8* p = &(stru_5970F8[gInterfaceCurrentHand]);
+    STRUCT_5970F8* p = &(_itemButtonItems[gInterfaceCurrentHand]);
     int actionPoints = -1;
 
     if (p->isDisabled == 0) {
-        memcpy(byte_59A2B4, gSingleAttackButtonUpData, sizeof(byte_59A2B4));
-        memcpy(byte_597154, gSingleAttackButtonDownData, sizeof(byte_597154));
+        memcpy(_itemButtonUp, gSingleAttackButtonUpData, sizeof(_itemButtonUp));
+        memcpy(_itemButtonDown, gSingleAttackButtonDownData, sizeof(_itemButtonDown));
 
         if (p->isWeapon == 0) {
             int fid;
@@ -1691,8 +1691,8 @@ int interfaceBarRefreshMainAction()
                     int width = artGetWidth(useTextFrm, 0, 0);
                     int height = artGetHeight(useTextFrm, 0, 0);
                     unsigned char* data = artGetFrameData(useTextFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * 7 + 181 - width, 188);
-                    _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, 5, 188, 59641);
+                    blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * 7 + 181 - width, 188);
+                    _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     artUnlock(useTextFrmHandle);
                 }
 
@@ -1731,7 +1731,7 @@ int interfaceBarRefreshMainAction()
                     int width = artGetWidth(supplementaryFrm, 0, 0);
                     int height = artGetHeight(supplementaryFrm, 0, 0);
                     unsigned char* data = artGetFrameData(supplementaryFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * (60 - height) + (181 - width), 188);
+                    blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * (60 - height) + (181 - width), 188);
 
                     int v9 = 60 - height - 2;
                     if (v9 < 0) {
@@ -1739,7 +1739,7 @@ int interfaceBarRefreshMainAction()
                         height -= 2;
                     }
 
-                    _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, v9, 188, 59641);
+                    _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, v9, 188, 59641);
                     artUnlock(supplementaryFrmHandle);
                 }
             }
@@ -1828,8 +1828,8 @@ int interfaceBarRefreshMainAction()
                     int width = artGetWidth(primaryFrm, 0, 0);
                     int height = artGetHeight(primaryFrm, 0, 0);
                     unsigned char* data = artGetFrameData(primaryFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * 7 + 181 - width, 188);
-                    _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 181 - width + 1, 5, 188, 59641);
+                    blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * 7 + 181 - width, 188);
+                    _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     artUnlock(primaryFrmHandle);
                 }
             }
@@ -1847,7 +1847,7 @@ int interfaceBarRefreshMainAction()
             int height = artGetHeight(art, 0, 0);
             unsigned char* data = artGetFrameData(art, 0, 0);
 
-            blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * (60 - height) + 7, 188);
+            blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * (60 - height) + 7, 188);
 
             int v29 = 60 - height - 2;
             if (v29 < 0) {
@@ -1855,7 +1855,7 @@ int interfaceBarRefreshMainAction()
                 height -= 2;
             }
 
-            _dark_trans_buf_to_buf(data, width, height, width, byte_597154, 7 + 1, v29, 188, 59641);
+            _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 7 + 1, v29, 188, 59641);
             artUnlock(handle);
 
             int offset = width + 7;
@@ -1868,21 +1868,21 @@ int interfaceBarRefreshMainAction()
                 height = artGetHeight(art, 0, 0);
                 data = artGetFrameData(art, 0, 0);
 
-                blitBufferToBufferTrans(data + actionPoints * 10, 10, height, width, byte_59A2B4 + 188 * (60 - height) + 7 + offset, 188);
+                blitBufferToBufferTrans(data + actionPoints * 10, 10, height, width, _itemButtonUp + 188 * (60 - height) + 7 + offset, 188);
 
                 int v40 = 60 - height - 2;
                 if (v40 < 0) {
                     v40 = 0;
                     height -= 2;
                 }
-                _dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, byte_597154, offset + 7 + 1, v40, 188, 59641);
+                _dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, _itemButtonDown, offset + 7 + 1, v40, 188, 59641);
 
                 artUnlock(handle);
             }
         }
     } else {
-        memcpy(byte_59A2B4, off_59A298, sizeof(byte_59A2B4));
-        memcpy(byte_597154, off_59A298, sizeof(byte_597154));
+        memcpy(_itemButtonUp, _itemButtonDisabled, sizeof(_itemButtonUp));
+        memcpy(_itemButtonDown, _itemButtonDisabled, sizeof(_itemButtonDown));
     }
 
     if (p->itemFid != -1) {
@@ -1896,14 +1896,14 @@ int interfaceBarRefreshMainAction()
             int v46 = (188 - width) / 2;
             int v47 = (67 - height) / 2 - 2;
 
-            blitBufferToBufferTrans(data, width, height, width, byte_59A2B4 + 188 * ((67 - height) / 2) + v46, 188);
+            blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * ((67 - height) / 2) + v46, 188);
 
             if (v47 < 0) {
                 v47 = 0;
                 height -= 2;
             }
 
-            _dark_trans_buf_to_buf(data, width, height, width, byte_597154, v46 + 1, v47, 188, 63571);
+            _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, v46 + 1, v47, 188, 63571);
             artUnlock(itemFrmHandle);
         }
     }
@@ -1954,7 +1954,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
 
     reg_anim_11_1(NULL, NULL, _intface_redraw_items_callback, -1);
 
-    Object* item = stru_5970F8[gInterfaceCurrentHand].item;
+    Object* item = _itemButtonItems[gInterfaceCurrentHand].item;
     if (item != NULL && item->lightDistance > 4) {
         reg_anim_update_light(gDude, item->lightDistance, 0);
     }
@@ -1980,7 +1980,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
 
     while (gInterfaceBarSwapHandsInProgress) {
-        if (dword_5186CC) {
+        if (_game_user_wants_to_quit) {
             break;
         }
 
@@ -2164,7 +2164,7 @@ int _intface_item_reload()
     }
 
     bool v0 = false;
-    while (_item_w_try_reload(gDude, stru_5970F8[gInterfaceCurrentHand].item) != -1) {
+    while (_item_w_try_reload(gDude, _itemButtonItems[gInterfaceCurrentHand].item) != -1) {
         v0 = true;
     }
 
@@ -2175,7 +2175,7 @@ int _intface_item_reload()
         return -1;
     }
 
-    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, stru_5970F8[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, _itemButtonItems[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
     soundPlayFile(sfx);
 
     return 0;
@@ -2371,7 +2371,7 @@ int indicatorBarInit()
         char text[1024];
         strcpy(text, getmsg(&messageList, &messageListItem, indicator->title));
 
-        int color = indicator->isBad ? byte_6A38D0[31744] : byte_6A38D0[992];
+        int color = indicator->isBad ? _colorTable[31744] : _colorTable[992];
 
         memcpy(indicator->data, indicatorBoxFrmData, INDICATOR_BOX_WIDTH * INDICATOR_BOX_HEIGHT);
 
@@ -2430,7 +2430,7 @@ void indicatorBarReset()
 // 0x4614CC
 int indicatorBarRefresh()
 {
-    if (gInterfaceBarWindow != -1 && gIndicatorBarIsVisible && !dword_518F14) {
+    if (gInterfaceBarWindow != -1 && gIndicatorBarIsVisible && !_intfaceHidden) {
         for (int index = 0; index < INDICATOR_SLOTS_COUNT; index++) {
             gIndicatorSlots[index] = -1;
         }
@@ -2481,7 +2481,7 @@ int indicatorBarRefresh()
                 INDICATOR_BAR_Y,
                 (INDICATOR_BOX_WIDTH - INDICATOR_BOX_CONNECTOR_WIDTH) * count,
                 INDICATOR_BOX_HEIGHT,
-                byte_6A38D0[0],
+                _colorTable[0],
                 0);
             indicatorBarRender(count);
             windowRefresh(gIndicatorBarWindow);

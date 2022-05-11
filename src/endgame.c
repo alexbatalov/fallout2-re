@@ -33,7 +33,7 @@
 #define ENDGAME_ENDING_MAX_SUBTITLES (50)
 
 // 0x50B00C
-char byte_50B00C[] = ENGLISH;
+char _aEnglish_2[] = ENGLISH;
 
 // The number of lines in current subtitles file.
 //
@@ -57,7 +57,7 @@ int gEndgameEndingSubtitlesCharactersCount = 0;
 int gEndgameEndingSubtitlesCurrentLine = 0;
 
 // 0x518674
-int dword_518674 = 0;
+int _endgame_maybe_done = 0;
 
 // enddeath.txt
 //
@@ -112,10 +112,10 @@ bool gEndgameEndingSubtitlesEnabled;
 bool gEndgameEndingSubtitlesEnded;
 
 // 0x570BD4
-bool dword_570BD4;
+bool _endgame_map_enabled;
 
 // 0x570BD8
-bool dword_570BD8;
+bool _endgame_mouse_state;
 
 // The number of endings in [gEndgameEndings] array.
 //
@@ -184,7 +184,7 @@ void endgamePlayMovie()
     backgroundSoundDelete();
     isoDisable();
     paletteFadeTo(gPaletteBlack);
-    dword_518674 = 0;
+    _endgame_maybe_done = 0;
     tickersAdd(_endgame_movie_bk_process);
     backgroundSoundSetEndCallback(_endgame_movie_callback);
     backgroundSoundLoad("akiss", 12, 14, 15);
@@ -200,7 +200,7 @@ void endgamePlayMovie()
     tickersRemove(_endgame_movie_bk_process);
     backgroundSoundDelete();
     colorPaletteLoad("color.pal");
-    paletteFadeTo(stru_51DF34);
+    paletteFadeTo(_cmap);
     isoEnable();
     endgameEndingHandleContinuePlaying();
 }
@@ -234,9 +234,9 @@ int endgameEndingHandleContinuePlaying()
     MessageListItem messageListItem;
     messageListItem.num = 30;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, NULL, 0, 169, 117, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_YES_NO);
+        rc = showDialogBox(messageListItem.text, NULL, 0, 169, 117, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc == 0) {
-            dword_5186CC = 2;
+            _game_user_wants_to_quit = 2;
         }
     } else {
         rc = -1;
@@ -269,11 +269,11 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         int width = artGetWidth(background, 0, 0);
         int height = artGetHeight(background, 0, 0);
         unsigned char* backgroundData = artGetFrameData(background, 0, 0);
-        bufferFill(gEndgameEndingSlideshowWindowBuffer, 640, 480, 640, byte_6A38D0[0]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer, 640, 480, 640, _colorTable[0]);
         endgameEndingLoadPalette(6, 327);
 
         unsigned char palette[768];
-        memcpy(palette, stru_51DF34, 768);
+        memcpy(palette, _cmap, 768);
 
         paletteSetEntries(gPaletteBlack);
         endgameEndingVoiceOverInit(narratorFileName);
@@ -370,7 +370,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         artUnlock(backgroundHandle);
 
         paletteFadeTo(gPaletteBlack);
-        bufferFill(gEndgameEndingSlideshowWindowBuffer, 640, 480, 640, byte_6A38D0[0]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer, 640, 480, 640, _colorTable[0]);
         windowRefresh(gEndgameEndingSlideshowWindow);
     }
 
@@ -404,7 +404,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
             delay = 3000;
         }
 
-        paletteFadeTo(stru_51DF34);
+        paletteFadeTo(_cmap);
 
         coreDelayProcessingEvents(500);
 
@@ -469,13 +469,13 @@ int endgameEndingSlideshowWindowInit()
 
     backgroundSoundDelete();
 
-    dword_570BD4 = isoDisable();
+    _endgame_map_enabled = isoDisable();
 
     colorCycleDisable();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
     bool oldCursorIsHidden = cursorIsHidden();
-    dword_570BD8 = oldCursorIsHidden == 0;
+    _endgame_mouse_state = oldCursorIsHidden == 0;
 
     if (oldCursorIsHidden) {
         mouseShowCursor();
@@ -486,7 +486,7 @@ int endgameEndingSlideshowWindowInit()
 
     paletteFadeTo(gPaletteBlack);
 
-    gEndgameEndingSlideshowWindow = windowCreate(0, 0, 640, 480, byte_6A38D0[0], 4);
+    gEndgameEndingSlideshowWindow = windowCreate(0, 0, 640, 480, _colorTable[0], 4);
     if (gEndgameEndingSlideshowWindow == -1) {
         return -1;
     }
@@ -555,18 +555,18 @@ void endgameEndingSlideshowWindowFree()
     speechSetEndCallback(NULL);
     windowDestroy(gEndgameEndingSlideshowWindow);
 
-    if (!dword_570BD8) {
+    if (!_endgame_mouse_state) {
         mouseHideCursor();
     }
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
     colorPaletteLoad("color.pal");
-    paletteFadeTo(stru_51DF34);
+    paletteFadeTo(_cmap);
 
     colorCycleEnable();
 
-    if (dword_570BD4) {
+    if (_endgame_map_enabled) {
         isoEnable();
     }
 }
@@ -765,8 +765,8 @@ void endgameEndingRefreshSubtitles()
 
         int width = fontGetStringWidth(beginning);
         int x = (640 - width) / 2;
-        bufferFill(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, width, height, 640, byte_6A38D0[0]);
-        fontDrawText(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, beginning, width, 640, byte_6A38D0[32767]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, width, height, 640, _colorTable[0]);
+        fontDrawText(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, beginning, width, 640, _colorTable[32767]);
 
         *ending = c;
 
@@ -792,13 +792,13 @@ void endgameEndingSubtitlesFree()
 // 0x440728
 void _endgame_movie_callback()
 {
-    dword_518674 = 1;
+    _endgame_maybe_done = 1;
 }
 
 // 0x440734
 void _endgame_movie_bk_process()
 {
-    if (dword_518674) {
+    if (_endgame_maybe_done) {
         backgroundSoundLoad("10labone", 11, 14, 16);
         backgroundSoundSetEndCallback(NULL);
         tickersRemove(_endgame_movie_bk_process);

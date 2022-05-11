@@ -14,40 +14,40 @@
 #define CALLED_SHOW_WINDOW_WIDTH (504)
 #define CALLED_SHOW_WINDOW_HEIGHT (309)
 
-extern char byte_500B50[];
+extern char _a_1[];
 
-extern int dword_51093C;
-extern int dword_510940;
+extern int _combat_turn_running;
+extern int _combatNumTurns;
 extern unsigned int gCombatState;
-extern STRUCT_510948* off_510948;
-extern STRUCT_664980* off_51094C;
-extern bool dword_510950;
-extern const int dword_510954[HIT_LOCATION_COUNT];
+extern STRUCT_510948* _aiInfoList;
+extern STRUCT_664980* _gcsd;
+extern bool _combat_call_display;
+extern const int _hit_location_penalty[HIT_LOCATION_COUNT];
 extern CriticalHitDescription gCriticalHitTables[KILL_TYPE_COUNT][HIT_LOCATION_COUNT][CRTICIAL_EFFECT_COUNT];
 extern CriticalHitDescription gPlayerCriticalHitTable[HIT_LOCATION_COUNT][CRTICIAL_EFFECT_COUNT];
-extern int dword_517F98;
-extern bool dword_517F9C;
-extern const int dword_517FA0[WEAPON_CRITICAL_FAILURE_TYPE_COUNT][WEAPON_CRITICAL_FAILURE_EFFECT_COUNT];
-extern const int dword_51802C[4];
-extern const int dword_51803C[4];
-extern const int dword_51804C[4];
+extern int _combat_end_due_to_load;
+extern bool _combat_cleanup_enabled;
+extern const int _cf_table[WEAPON_CRITICAL_FAILURE_TYPE_COUNT][WEAPON_CRITICAL_FAILURE_EFFECT_COUNT];
+extern const int _call_ty[4];
+extern const int _hit_loc_left[4];
+extern const int _hit_loc_right[4];
 
-extern Attack stru_56D2B0;
+extern Attack _main_ctd;
 extern MessageList gCombatMessageList;
 extern Object* gCalledShotCritter;
 extern int gCalledShotWindow;
-extern int dword_56D378;
-extern int dword_56D37C;
-extern Object* off_56D380;
-extern int dword_56D384;
-extern Object* off_56D388;
-extern int dword_56D38C;
-extern Object** off_56D390;
-extern int dword_56D394;
-extern int dword_56D398;
-extern int dword_56D39C;
-extern Attack stru_56D3A0;
-extern Attack stru_56D458;
+extern int _combat_elev;
+extern int _list_total;
+extern Object* _combat_ending_guy;
+extern int _list_noncom;
+extern Object* _combat_turn_obj;
+extern int _combat_highlight;
+extern Object** _combat_list;
+extern int _list_com;
+extern int _combat_exps;
+extern int _combat_free_move;
+extern Attack _shoot_ctd;
+extern Attack _explosion_ctd;
 
 int combatInit();
 void combatReset();
@@ -115,8 +115,8 @@ void _combat_standup(Object* a1);
 void _print_tohit(unsigned char* dest, int dest_pitch, int a3);
 char* hitLocationGetName(Object* critter, int hitLocation);
 void _draw_loc_off(int a1, int a2);
-void sub_4261C0(int a1, int a2);
-void sub_4261CC(int eventCode, int color);
+void _draw_loc_on_(int a1, int a2);
+void _draw_loc_(int eventCode, int color);
 int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode);
 int _combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool aiming);
 bool _combat_to_hit(Object* target, int* accuracy);

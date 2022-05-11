@@ -71,8 +71,8 @@ typedef struct AutomapEntry {
     unsigned char* data;
 } AutomapEntry;
 
-extern const int dword_41ADE0[AUTOMAP_MAP_COUNT][ELEVATION_COUNT];
-extern const int dword_41B560[AUTOMAP_MAP_COUNT];
+extern const int _defam[AUTOMAP_MAP_COUNT][ELEVATION_COUNT];
+extern const int _displayMapList[AUTOMAP_MAP_COUNT];
 extern const int gAutomapFrmIds[AUTOMAP_FRM_COUNT];
 
 extern int gAutomapFlags;

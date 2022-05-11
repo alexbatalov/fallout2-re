@@ -13,19 +13,19 @@
 #include <stdio.h>
 
 // 0x51DCAC
-int dword_51DCAC = 250;
+int _holdTime = 250;
 
 // 0x51DCB0
-int dword_51DCB0 = 1;
+int _checkRegionEnable = 1;
 
 // 0x51DCB4
-int dword_51DCB4 = -1;
+int _winTOS = -1;
 
 // 051DCB8
 int gCurrentManagedWindowIndex = -1;
 
 // 0x51DCBC
-INITVIDEOFN off_51DCBC[12] = {
+INITVIDEOFN _gfx_init[12] = {
     _init_mode_320_200,
     _init_mode_640_480,
     _init_mode_640_480_16,
@@ -41,7 +41,7 @@ INITVIDEOFN off_51DCBC[12] = {
 };
 
 // 0x51DD1C
-Size stru_51DD1C[12] = {
+Size _sizes_x[12] = {
     { 320, 200 },
     { 640, 480 },
     { 640, 240 },
@@ -57,19 +57,19 @@ Size stru_51DD1C[12] = {
 };
 
 // 0x51DD7C
-int dword_51DD7C = 0;
+int _numInputFunc = 0;
 
 // 0x51DD80
-int dword_51DD80 = -1;
+int _lastWin = -1;
 
 // 0x51DD84
-int dword_51DD84 = 1;
+int _said_quit = 1;
 
 // 0x66E770
-int dword_66E770[MANAGED_WINDOW_COUNT];
+int _winStack[MANAGED_WINDOW_COUNT];
 
 // 0x66E7B0
-char byte_66E7B0[64 * 256];
+char _alphaBlendTable[64 * 256];
 
 // 0x6727B0
 ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
@@ -77,18 +77,18 @@ ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 // NOTE: This value is never set.
 //
 // 0x672D78
-void (*off_672D78)(int, ManagedWindow*);
+void (*_selectWindowFunc)(int, ManagedWindow*);
 
 // 0x672D7C
-int dword_672D7C;
+int _xres;
 
 // 0x672D88
-int dword_672D88;
+int _yres;
 
 // Highlight color (maybe r).
 //
 // 0x672D8C
-int dword_672D8C;
+int _currentHighlightColorR;
 
 // 0x672D90
 int gWidgetFont;
@@ -96,12 +96,12 @@ int gWidgetFont;
 // Text color (maybe g).
 //
 // 0x672DA0
-int dword_672DA0;
+int _currentTextColorG;
 
 // text color (maybe b).
 //
 // 0x672DA4
-int dword_672DA4;
+int _currentTextColorB;
 
 // 0x672DA8
 int gWidgetTextFlags;
@@ -109,20 +109,20 @@ int gWidgetTextFlags;
 // Text color (maybe r)
 //
 // 0x672DAC
-int dword_672DAC;
+int _currentTextColorR;
 
 // highlight color (maybe g)
 //
 // 0x672DB0
-int dword_672DB0;
+int _currentHighlightColorG;
 
 // Highlight color (maybe b).
 //
 // 0x672DB4
-int dword_672DB4;
+int _currentHighlightColorB;
 
 // 0x4B7680
-bool sub_4B7680()
+bool _windowDraw()
 {
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     if (managedWindow->window == -1) {
@@ -148,15 +148,15 @@ bool _selectWindowID(int index)
 
     gCurrentManagedWindowIndex = index;
 
-    if (off_672D78 != NULL) {
-        off_672D78(index, managedWindow);
+    if (_selectWindowFunc != NULL) {
+        _selectWindowFunc(index, managedWindow);
     }
 
     return true;
 }
 
 // 0x4B821C
-int sub_4B821C(const char* windowName)
+int _selectWindow(const char* windowName)
 {
     if (gCurrentManagedWindowIndex != -1) {
         ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
@@ -183,7 +183,7 @@ int sub_4B821C(const char* windowName)
 }
 
 // 0x4B82DC
-unsigned char* sub_4B82DC()
+unsigned char* _windowGetBuffer()
 {
     if (gCurrentManagedWindowIndex != -1) {
         ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
@@ -194,45 +194,45 @@ unsigned char* sub_4B82DC()
 }
 
 // 0x4B8330
-int sub_4B8330(const char* windowName)
+int _pushWindow(const char* windowName)
 {
-    if (dword_51DCB4 >= MANAGED_WINDOW_COUNT) {
+    if (_winTOS >= MANAGED_WINDOW_COUNT) {
         return -1;
     }
 
     int oldCurrentWindowIndex = gCurrentManagedWindowIndex;
 
-    int windowIndex = sub_4B821C(windowName);
+    int windowIndex = _selectWindow(windowName);
     if (windowIndex == -1) {
         return -1;
     }
 
     // TODO: Check.
-    for (int index = 0; index < dword_51DCB4; index++) {
-        if (dword_66E770[index] == oldCurrentWindowIndex) {
-            memcpy(&(dword_66E770[index]), &(dword_66E770[index + 1]), sizeof(*dword_66E770) * (dword_51DCB4 - index));
+    for (int index = 0; index < _winTOS; index++) {
+        if (_winStack[index] == oldCurrentWindowIndex) {
+            memcpy(&(_winStack[index]), &(_winStack[index + 1]), sizeof(*_winStack) * (_winTOS - index));
             break;
         }
     }
 
-    dword_51DCB4++;
-    dword_66E770[dword_51DCB4] = oldCurrentWindowIndex;
+    _winTOS++;
+    _winStack[_winTOS] = oldCurrentWindowIndex;
 
     return windowIndex;
 }
 
 // 0x4B83D4
-int sub_4B83D4()
+int _popWindow()
 {
-    if (dword_51DCB4 == -1) {
+    if (_winTOS == -1) {
         return -1;
     }
 
-    int windowIndex = dword_66E770[dword_51DCB4];
+    int windowIndex = _winStack[_winTOS];
     ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
-    dword_51DCB4--;
+    _winTOS--;
 
-    return sub_4B821C(managedWindow->name);
+    return _selectWindow(managedWindow->name);
 }
 
 // 0x4B8414
@@ -420,7 +420,7 @@ void _windowWrapLine(int win, char* string, int width, int height, int x, int y,
 }
 
 // 0x4B8920
-bool sub_4B8920(char* string, int a2, int textAlignment)
+bool _windowPrintRect(char* string, int a2, int textAlignment)
 {
     if (gCurrentManagedWindowIndex == -1) {
         return false;
@@ -438,7 +438,7 @@ bool sub_4B8920(char* string, int a2, int textAlignment)
 }
 
 // 0x4B89B0
-bool sub_4B89B0(char* string, int x, int y, int width, int height, int textAlignment)
+bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment)
 {
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     int flags = widgetGetTextColor() | 0x2000000;
@@ -450,13 +450,13 @@ bool sub_4B89B0(char* string, int x, int y, int width, int height, int textAlign
 // 0x4B9048
 int _windowGetXres()
 {
-    return dword_672D7C;
+    return _xres;
 }
 
 // 0x4B9050
 int _windowGetYres()
 {
-    return dword_672D88;
+    return _yres;
 }
 
 // 0x4B9058
@@ -501,26 +501,26 @@ void _initWindow(int resolution, int a2)
 
     _interpretRegisterProgramDeleteCallback(_removeProgramReferences_3);
 
-    dword_672DAC = 0;
-    dword_672DA0 = 0;
-    dword_672DA4 = 0;
-    dword_672D8C = 0;
-    dword_672DB0 = 0;
+    _currentTextColorR = 0;
+    _currentTextColorG = 0;
+    _currentTextColorB = 0;
+    _currentHighlightColorR = 0;
+    _currentHighlightColorG = 0;
     gWidgetTextFlags = 0x2010000;
 
-    dword_672D88 = stru_51DD1C[resolution].height; // screen height
-    dword_672DB4 = 0;
-    dword_672D7C = stru_51DD1C[resolution].width; // screen width
+    _yres = _sizes_x[resolution].height; // screen height
+    _currentHighlightColorB = 0;
+    _xres = _sizes_x[resolution].width; // screen width
 
     for (int i = 0; i < MANAGED_WINDOW_COUNT; i++) {
         gManagedWindows[i].window = -1;
     }
 
-    rc = windowManagerInit(off_51DCBC[resolution], directDrawFree, a2);
+    rc = windowManagerInit(_gfx_init[resolution], directDrawFree, a2);
     if (rc != WINDOW_MANAGER_OK) {
         switch (rc) {
         case WINDOW_MANAGER_ERR_INITIALIZING_VIDEO_MODE:
-            sprintf(err, "Error initializing video mode %dx%d\n", dword_672D7C, dword_672D88);
+            sprintf(err, "Error initializing video mode %dx%d\n", _xres, _yres);
             showMesageBox(err);
             exit(1);
             break;
@@ -589,7 +589,7 @@ void _initWindow(int resolution, int a2)
 
     for (i = 0; i < 64; i++) {
         for (j = 0; j < 256; j++) {
-            byte_66E7B0[(i << 8) + j] = ((i * j) >> 9);
+            _alphaBlendTable[(i << 8) + j] = ((i * j) >> 9);
         }
     }
 }

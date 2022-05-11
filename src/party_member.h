@@ -37,14 +37,14 @@ typedef struct STRUCT_519DA8 {
 
 extern int gPartyMemberDescriptionsLength;
 extern int* gPartyMemberPids;
-extern STRUCT_519DA8* off_519DA4;
+extern STRUCT_519DA8* _itemSaveListHead;
 extern STRUCT_519DA8* gPartyMembers;
 extern int gPartyMembersLength;
-extern int dword_519DB0;
-extern int dword_519DB4;
+extern int _partyMemberItemCount;
+extern int _partyStatePrepped;
 extern PartyMemberDescription* gPartyMemberDescriptions;
-extern STRU_519DBC* off_519DBC;
-extern int dword_519DC0;
+extern STRU_519DBC* _partyMemberLevelUpInfoList;
+extern int _curID;
 
 int partyMembersInit();
 void partyMembersReset();

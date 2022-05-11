@@ -85,7 +85,7 @@ int skilldexOpen()
     while (rc == -1) {
         int keyCode = _get_input();
 
-        if (keyCode == KEY_ESCAPE || keyCode == 500 || dword_5186CC != 0) {
+        if (keyCode == KEY_ESCAPE || keyCode == 500 || _game_user_wants_to_quit != 0) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
             soundPlayFile("ib1p1xx1");
@@ -219,7 +219,7 @@ int skilldexWindowInit()
         title,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        byte_6A38D0[18979]);
+        _colorTable[18979]);
 
     // Render skill values.
     int valueY = 48;
@@ -274,13 +274,13 @@ int skilldexWindowInit()
             name,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width,
-            byte_6A38D0[18979]);
+            _colorTable[18979]);
 
         fontDrawText(gSkilldexButtonsData[index * 2 + 1] + gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width * nameY + nameX,
             name,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
-            byte_6A38D0[14723]);
+            _colorTable[14723]);
 
         int btn = buttonCreate(gSkilldexWindow,
             15,
@@ -308,7 +308,7 @@ int skilldexWindowInit()
         cancel,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        byte_6A38D0[18979]);
+        _colorTable[18979]);
 
     int cancelBtn = buttonCreate(gSkilldexWindow,
         48,

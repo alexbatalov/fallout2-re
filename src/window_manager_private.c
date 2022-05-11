@@ -8,50 +8,50 @@
 #include <stdio.h>
 
 // 0x51E414
-int dword_51E414 = -1;
+int _wd = -1;
 
 // 0x51E418
-int dword_51E418 = 0;
+int _curr_menu = 0;
 
 // 0x51E41C
-bool dword_51E41C = false;
+bool _tm_watch_active = false;
 
 // 0x6B2340
-STRUCT_6B2340 stru_6B2340[5];
+STRUCT_6B2340 _tm_location[5];
 
 // 0x6B2368
-int dword_6B2368;
+int _tm_text_x;
 
 // 0x6B236C
-int dword_6B236C;
+int _tm_h;
 
 // 0x6B2370
-STRUCT_6B2370 stru_6B2370[5];
+STRUCT_6B2370 _tm_queue[5];
 
 // 0x6B23AC
-int dword_6B23AC;
+int _tm_persistence;
 
 // 0x6B23B0
-int dword_6B23B0;
+int _scr_center_x;
 
 // 0x6B23B4
-int dword_6B23B4;
+int _tm_text_y;
 
 // 0x6B23B8
-int dword_6B23B8;
+int _tm_kill;
 
 // 0x6B23BC
-int dword_6B23BC;
+int _tm_add;
 
 // x
 //
 // 0x6B23C0
-int dword_6B23C0;
+int _curry;
 
 // y
 //
 // 0x6B23C4
-int dword_6B23C4;
+int _currx;
 
 // 0x6B23D0
 char gProgramWindowTitle[256];
@@ -65,7 +65,7 @@ int _win_debug(char* a1)
 
     // TODO: Incomplete.
 
-    windowRefresh(dword_51E414);
+    windowRefresh(_wd);
 
     return 0;
 }
@@ -73,8 +73,8 @@ int _win_debug(char* a1)
 // 0x4DC65C
 void _win_debug_delete()
 {
-    windowDestroy(dword_51E414);
-    dword_51E414 = -1;
+    windowDestroy(_wd);
+    _wd = -1;
 }
 
 // 0x4DC674
@@ -218,27 +218,27 @@ void _GNW_intr_init()
     int v1, v2;
     int i;
 
-    dword_6B23AC = 3000;
-    dword_6B23BC = 0;
-    dword_6B23B8 = -1;
-    dword_6B23B0 = stru_6AC9F0.right / 2;
+    _tm_persistence = 3000;
+    _tm_add = 0;
+    _tm_kill = -1;
+    _scr_center_x = _scr_size.right / 2;
 
-    if (stru_6AC9F0.bottom >= 479) {
-        dword_6B23B4 = 16;
-        dword_6B2368 = 16;
+    if (_scr_size.bottom >= 479) {
+        _tm_text_y = 16;
+        _tm_text_x = 16;
     } else {
-        dword_6B23B4 = 10;
-        dword_6B2368 = 10;
+        _tm_text_y = 10;
+        _tm_text_x = 10;
     }
 
-    dword_6B236C = 2 * dword_6B23B4 + fontGetLineHeight();
+    _tm_h = 2 * _tm_text_y + fontGetLineHeight();
 
-    v1 = stru_6AC9F0.bottom >> 3;
-    v2 = stru_6AC9F0.bottom >> 2;
+    v1 = _scr_size.bottom >> 3;
+    v2 = _scr_size.bottom >> 2;
 
     for (i = 0; i < 5; i++) {
-        stru_6B2340[i].field_4 = v1 * i + v2;
-        stru_6B2340[i].field_0 = 0;
+        _tm_location[i].field_4 = v1 * i + v2;
+        _tm_location[i].field_0 = 0;
     }
 }
 
@@ -246,7 +246,7 @@ void _GNW_intr_init()
 void _GNW_intr_exit()
 {
     tickersRemove(_tm_watch_msgs);
-    while (dword_6B23B8 != -1) {
+    while (_tm_kill != -1) {
         _tm_kill_msg();
     }
 }
@@ -254,19 +254,19 @@ void _GNW_intr_exit()
 // 0x4DD66C
 void _tm_watch_msgs()
 {
-    if (dword_51E41C) {
+    if (_tm_watch_active) {
         return;
     }
 
-    dword_51E41C = 1;
-    while (dword_6B23B8 != -1) {
-        if (getTicksSince(stru_6B2370[dword_6B23B8].field_0) < dword_6B23AC) {
+    _tm_watch_active = 1;
+    while (_tm_kill != -1) {
+        if (getTicksSince(_tm_queue[_tm_kill].field_0) < _tm_persistence) {
             break;
         }
 
         _tm_kill_msg();
     }
-    dword_51E41C = 0;
+    _tm_watch_active = 0;
 }
 
 // 0x4DD6C0
@@ -274,24 +274,24 @@ void _tm_kill_msg()
 {
     int v0;
 
-    v0 = dword_6B23B8;
+    v0 = _tm_kill;
     if (v0 != -1) {
-        windowDestroy(stru_6B2370[dword_6B23B8].field_4);
-        stru_6B2340[stru_6B2370[dword_6B23B8].field_8].field_0 = 0;
+        windowDestroy(_tm_queue[_tm_kill].field_4);
+        _tm_location[_tm_queue[_tm_kill].field_8].field_0 = 0;
 
         if (v0 == 5) {
             v0 = 0;
         }
 
-        if (v0 == dword_6B23BC) {
-            dword_6B23BC = 0;
-            dword_6B23B8 = -1;
+        if (v0 == _tm_add) {
+            _tm_add = 0;
+            _tm_kill = -1;
             tickersRemove(_tm_watch_msgs);
-            v0 = dword_6B23B8;
+            v0 = _tm_kill;
         }
     }
 
-    dword_6B23B8 = v0;
+    _tm_kill = v0;
 }
 
 // 0x4DD744
@@ -300,7 +300,7 @@ void _tm_kill_out_of_order(int a1)
     int v7;
     int v6;
 
-    if (dword_6B23B8 == -1) {
+    if (_tm_kill == -1) {
         return;
     }
 
@@ -308,11 +308,11 @@ void _tm_kill_out_of_order(int a1)
         return;
     }
 
-    windowDestroy(stru_6B2370[a1].field_4);
+    windowDestroy(_tm_queue[a1].field_4);
 
-    stru_6B2340[stru_6B2370[a1].field_8].field_0 = 0;
+    _tm_location[_tm_queue[a1].field_8].field_0 = 0;
 
-    if (a1 != dword_6B23B8) {
+    if (a1 != _tm_kill) {
         v6 = a1;
         do {
             v7 = v6 - 1;
@@ -320,18 +320,18 @@ void _tm_kill_out_of_order(int a1)
                 v7 = 4;
             }
 
-            memcpy(&(stru_6B2370[v6]), &(stru_6B2370[v7]), sizeof(STRUCT_6B2370));
+            memcpy(&(_tm_queue[v6]), &(_tm_queue[v7]), sizeof(STRUCT_6B2370));
             v6 = v7;
-        } while (v7 != dword_6B23B8);
+        } while (v7 != _tm_kill);
     }
 
-    if (++dword_6B23B8 == 5) {
-        dword_6B23B8 = 0;
+    if (++_tm_kill == 5) {
+        _tm_kill = 0;
     }
 
-    if (dword_6B23BC == dword_6B23B8) {
-        dword_6B23BC = 0;
-        dword_6B23B8 = -1;
+    if (_tm_add == _tm_kill) {
+        _tm_add = 0;
+        _tm_kill = -1;
         tickersRemove(_tm_watch_msgs);
     }
 }
@@ -342,19 +342,19 @@ void _tm_click_response(int btn)
     int win;
     int v3;
 
-    if (dword_6B23B8 == -1) {
+    if (_tm_kill == -1) {
         return;
     }
 
     win = buttonGetWindowId(btn);
-    v3 = dword_6B23B8;
-    while (win != stru_6B2370[v3].field_4) {
+    v3 = _tm_kill;
+    while (win != _tm_queue[v3].field_4) {
         v3++;
         if (v3 == 5) {
             v3 = 0;
         }
 
-        if (v3 == dword_6B23B8 || !_tm_index_active(v3))
+        if (v3 == _tm_kill || !_tm_index_active(v3))
             return;
     }
 
@@ -364,11 +364,11 @@ void _tm_click_response(int btn)
 // 0x4DD870
 int _tm_index_active(int a1)
 {
-    if (dword_6B23B8 != dword_6B23BC) {
-        if (dword_6B23B8 >= dword_6B23BC) {
-            if (a1 >= dword_6B23BC && a1 < dword_6B23B8)
+    if (_tm_kill != _tm_add) {
+        if (_tm_kill >= _tm_add) {
+            if (a1 >= _tm_add && a1 < _tm_kill)
                 return 0;
-        } else if (a1 < dword_6B23B8 || a1 >= dword_6B23BC) {
+        } else if (a1 < _tm_kill || a1 >= _tm_add) {
             return 0;
         }
     }

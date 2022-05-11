@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 
-extern int dword_5106D0;
+extern int _action_in_explode;
 extern const int gNormalDeathAnimations[DAMAGE_TYPE_COUNT];
 extern const int gMaximumBloodDeathAnimations[DAMAGE_TYPE_COUNT];
 

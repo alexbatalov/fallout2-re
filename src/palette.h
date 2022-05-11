@@ -7,7 +7,7 @@ extern unsigned char gPaletteBlack[256 * 3];
 extern int gPaletteFadeSteps;
 
 void paletteInit();
-void sub_493AD0();
+void _palette_reset_();
 void paletteReset();
 void paletteExit();
 void paletteFadeTo(unsigned char* palette);

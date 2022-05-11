@@ -23,7 +23,7 @@ typedef struct RectListNode {
     struct RectListNode* next;
 } RectListNode;
 
-extern RectListNode* off_51DEF4;
+extern RectListNode* _rectList;
 
 void _GNW_rect_exit();
 void _rect_clip_list(RectListNode** rectListNodePtr, Rect* rect);

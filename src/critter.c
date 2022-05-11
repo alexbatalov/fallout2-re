@@ -28,13 +28,13 @@
 #include <stdio.h>
 
 // 0x50141C
-char byte_50141C[] = "corpse";
+char _aCorpse[] = "corpse";
 
 // 0x501494
 char byte_501494[] = "";
 
 // 0x51833C
-char* off_51833C = byte_50141C;
+char* _name_critter = _aCorpse;
 
 // Modifiers to endurance for performing radiation damage check.
 //
@@ -89,7 +89,7 @@ const int gRadiationEffectPenalties[RADIATION_LEVEL_COUNT][RADIATION_EFFECT_COUN
 };
 
 // 0x518438
-Object* off_518438 = NULL;
+Object* _critterClearObj = NULL;
 
 // scrname.msg
 //
@@ -100,7 +100,7 @@ MessageList gCritterMessageList;
 char gDudeName[DUDE_NAME_MAX_LENGTH];
 
 // 0x56D77C
-int dword_56D77C;
+int _sneak_working;
 
 // 0x56D780
 int gKillsByType[KILL_TYPE_COUNT];
@@ -108,7 +108,7 @@ int gKillsByType[KILL_TYPE_COUNT];
 // Something with radiation.
 //
 // 0x56D7CC
-int dword_56D7CC;
+int _old_rad_level;
 
 // scrname_init
 // 0x42CF50
@@ -150,7 +150,7 @@ void critterExit()
 // 0x42D01C
 int critterLoad(File* stream)
 {
-    if (fileReadInt32(stream, &dword_56D77C) == -1) {
+    if (fileReadInt32(stream, &_sneak_working) == -1) {
         return -1;
     }
 
@@ -163,7 +163,7 @@ int critterLoad(File* stream)
 // 0x42D058
 int critterSave(File* stream)
 {
-    if (fileWriteInt32(stream, dword_56D77C) == -1) {
+    if (fileWriteInt32(stream, _sneak_working) == -1) {
         return -1;
     }
 
@@ -208,7 +208,7 @@ char* critterGetName(Object* obj)
         name = protoGetName(obj->pid);
     }
 
-    off_51833C = name;
+    _name_critter = name;
 
     return name;
 }
@@ -444,7 +444,7 @@ int _critter_check_rads(Object* obj)
         return 0;
     }
 
-    dword_56D7CC = 0;
+    _old_rad_level = 0;
 
     _queue_clear_type(EVENT_TYPE_RADIATION, _get_rad_damage_level);
 
@@ -469,7 +469,7 @@ int _critter_check_rads(Object* obj)
         radiationLevel++;
     }
 
-    if (radiationLevel > dword_56D7CC) {
+    if (radiationLevel > _old_rad_level) {
         // Create timer event for applying radiation damage.
         RadiationEvent* radiationEvent = internal_malloc(sizeof(*radiationEvent));
         if (radiationEvent == NULL) {
@@ -491,7 +491,7 @@ int _get_rad_damage_level(Object* obj, void* data)
 {
     RadiationEvent* radiationEvent = data;
 
-    dword_56D7CC = radiationEvent->radiationLevel;
+    _old_rad_level = radiationEvent->radiationLevel;
 
     return 0;
 }
@@ -739,7 +739,7 @@ int _critter_heal_hours(Object* critter, int a2)
 // 0x42DA54
 int _critterClearObjDrugs(Object* obj, void* data)
 {
-    return obj == off_518438;
+    return obj == _critterClearObj;
 }
 
 // 0x42DA64
@@ -827,7 +827,7 @@ void critterKill(Object* critter, int anim, bool a3)
         critter->sid = -1;
     }
 
-    off_518438 = critter;
+    _critterClearObj = critter;
     _queue_clear_type(EVENT_TYPE_DRUG, _critterClearObjDrugs);
 
     _item_destroy_all_hidden(critter);
@@ -838,7 +838,7 @@ void critterKill(Object* critter, int anim, bool a3)
 
     if (critter == gDude) {
         endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_DEATH);
-        dword_5186CC = 2;
+        _game_user_wants_to_quit = 2;
     }
 }
 
@@ -1127,7 +1127,7 @@ int sneakEventProcess(Object* obj, void* data)
     int sneak = skillGetValue(gDude, SKILL_SNEAK);
     if (skillRoll(gDude, SKILL_SNEAK, 0, NULL) < ROLL_SUCCESS) {
         time = 600;
-        dword_56D77C = false;
+        _sneak_working = false;
 
         if (sneak > 250)
             time = 100;
@@ -1143,7 +1143,7 @@ int sneakEventProcess(Object* obj, void* data)
             time = 400;
     } else {
         time = 600;
-        dword_56D77C = true;
+        _sneak_working = true;
     }
 
     queueAddEvent(time, gDude, NULL, EVENT_TYPE_SNEAK);
@@ -1165,7 +1165,7 @@ bool dudeIsSneaking()
 {
     // NOTE: Uninline.
     if (dudeHasState(DUDE_STATE_SNEAKING)) {
-        return dword_56D77C;
+        return _sneak_working;
     }
 
     return false;

@@ -10,10 +10,10 @@
 #include "window_manager_private.h"
 
 // NOT USED.
-void (*off_51E234)() = NULL;
+void (*_idle_func)() = NULL;
 
 // NOT USED.
-void (*off_51E238)(int) = NULL;
+void (*_focus_func)(int) = NULL;
 
 // 0x51E23C
 int gKeyboardKeyRepeatRate = 80;
@@ -22,7 +22,7 @@ int gKeyboardKeyRepeatRate = 80;
 int gKeyboardKeyRepeatDelay = 500;
 
 // 0x51E244
-bool dword_51E244 = false;
+bool _keyboard_hooked = false;
 
 // The default mouse cursor buffer.
 //
@@ -49,22 +49,22 @@ unsigned char gMouseDefaultCursor[MOUSE_DEFAULT_CURSOR_SIZE] = {
 };
 
 // 0x51E290
-int dword_51E290 = 0;
+int _mouse_idling = 0;
 
 // 0x51E294
 unsigned char* gMouseCursorData = NULL;
 
 // 0x51E298
-unsigned char* dword_51E298 = NULL;
+unsigned char* _mouse_shape = NULL;
 
 // 0x51E29C
-unsigned char* dword_51E29C = NULL;
+unsigned char* _mouse_fptr = NULL;
 
 // 0x51E2A0
 double gMouseSensitivity = 1.0;
 
 // 0x51E2A8
-unsigned int dword_51E2A8 = 0;
+unsigned int _ticker_ = 0;
 
 // 0x51E2AC
 int gMouseButtonsState = 0;
@@ -85,7 +85,7 @@ LPDIRECTDRAWPALETTE gDirectDrawPalette = NULL;
 // meaning.
 //
 // 0x51E2C4
-void (*off_51E2C4)() = NULL;
+void (*_update_palette_func)() = NULL;
 
 // 0x51E2C8
 bool gMmxEnabled = true;
@@ -94,16 +94,16 @@ bool gMmxEnabled = true;
 bool gMmxProbed = false;
 
 // 0x51E2D0
-unsigned char byte_51E2D0 = 0;
+unsigned char _kb_installed = 0;
 
 // 0x51E2D4
 bool gKeyboardDisabled = false;
 
 // 0x51E2D8
-int dword_51E2D8 = 0;
+int _kb_numpad_disabled = 0;
 
 // 0x51E2DC
-int dword_51E2DC = 0;
+int _kb_numlock_disabled = 0;
 
 // 0x51E2E0
 int gKeyboardEventQueueWriteIndex = 0;
@@ -120,41 +120,41 @@ int gModifierKeysState = 0;
 // TODO: It's _kb_next_ascii_English_US (not implemented yet).
 //
 // 0x51E2EC
-int (*off_51E2EC)() = keyboardDequeueLogicalKeyCode;
+int (*_kb_scan_to_ascii)() = keyboardDequeueLogicalKeyCode;
 
 // 0x51E2F0
-STRUCT_51E2F0* off_51E2F0 = NULL;
+STRUCT_51E2F0* _vcr_buffer = NULL;
 
-// number of entries in off_51E2F0
+// number of entries in _vcr_buffer
 // 0x51E2F4
-int dword_51E2F4 = 0;
+int _vcr_buffer_index = 0;
 
 // 0x51E2F8
-int dword_51E2F8 = 2;
+int _vcr_state = 2;
 
 // 0x51E2FC
-int dword_51E2FC = 0;
+int _vcr_time = 0;
 
 // 0x51E300
-int dword_51E300 = 0;
+int _vcr_counter = 0;
 
 // 0x51E304
-int dword_51E304 = 0;
+int _vcr_terminate_flags = 0;
 
 // 0x51E308
-int dword_51E308 = 0;
+int _vcr_terminated_condition = 0;
 
 // 0x51E30C
-int dword_51E30C = 0;
+int _vcr_start_time = 0;
 
 // 0x51E310
-int dword_51E310 = 0;
+int _vcr_registered_atexit = 0;
 
 // 0x51E314
-File* dword_51E314 = NULL;
+File* _vcr_file = NULL;
 
 // 0x51E318
-int dword_51E318 = 0;
+int _vcr_buffer_end = 0;
 
 // A map of DIK_* constants normalized for QWERTY keyboard.
 //
@@ -170,16 +170,16 @@ unsigned char gNormalizedQwertyKeys[256];
 InputEvent gInputEventQueue[40];
 
 // 0x6ABF50
-STRUCT_6ABF50 stru_6ABF50[256];
+STRUCT_6ABF50 _GNW95_key_time_stamps[256];
 
 // 0x6AC750
-int dword_6AC750;
+int _input_mx;
 
 // 0x6AC754
-int dword_6AC754;
+int _input_my;
 
 // 0x6AC758
-HHOOK dword_6AC758;
+HHOOK _GNW95_keyboardHandle;
 
 // 0x6AC75C
 bool gPaused;
@@ -188,7 +188,7 @@ bool gPaused;
 int gScreenshotKeyCode;
 
 // 0x6AC764
-int dword_6AC764;
+int _using_msec_timer;
 
 // 0x6AC768
 int gPauseKeyCode;
@@ -222,18 +222,18 @@ bool gCursorIsHidden;
 
 // x (1)
 // 0x6AC794
-int dword_6AC794;
+int _raw_x;
 
 // 0x6AC798
 int gMouseCursorHeight;
 
 // y (1)
 // 0x6AC79C
-int dword_6AC79C;
+int _raw_y;
 
 // mouse event (1)
 // 0x6AC7A0
-int dword_6AC7A0;
+int _raw_buttons;
 
 // 0x6AC7A4
 int gMouseCursorY;
@@ -242,16 +242,16 @@ int gMouseCursorY;
 int gMouseCursorX;
 
 // 0x6AC7AC
-int dword_6AC7AC;
+int _mouse_disabled;
 
 // 0x6AC7B0
 int gMouseEvent;
 
 // 0x6AC7B4
-unsigned int dword_6AC7B4;
+unsigned int _mouse_speed;
 
 // 0x6AC7B8
-int dword_6AC7B8;
+int _mouse_curr_frame;
 
 // 0x6AC7BC
 bool gMouseInitialized;
@@ -263,25 +263,25 @@ int gMouseCursorPitch;
 int gMouseCursorWidth;
 
 // 0x6AC7C8
-int dword_6AC7C8;
+int _mouse_num_frames;
 
 // 0x6AC7CC
-int dword_6AC7CC;
+int _mouse_hoty;
 
 // 0x6AC7D0
-int dword_6AC7D0;
+int _mouse_hotx;
 
 // 0x6AC7D4
-unsigned int dword_6AC7D4;
+unsigned int _mouse_idle_start_time;
 
 // 0x6AC7D8
-WindowDrawingProc2* off_6AC7D8;
+WindowDrawingProc2* _mouse_blit_trans;
 
 // 0x6AC7DC
-WINDOWDRAWINGPROC off_6AC7DC;
+WINDOWDRAWINGPROC _mouse_blit;
 
 // 0x6AC7E0
-unsigned char byte_6AC7E0;
+unsigned char _mouse_trans;
 
 // 0x6AC7E4
 int gMouseRightButtonDownTimestamp;
@@ -296,7 +296,7 @@ int gMousePreviousEvent;
 unsigned short gSixteenBppPalette[256];
 
 // screen rect
-Rect stru_6AC9F0;
+Rect _scr_size;
 
 // 0x6ACA00
 int gGreenMask;
@@ -317,10 +317,10 @@ int gRedShift;
 int gGreenShift;
 
 // 0x6ACA18
-void (*off_6ACA18)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y) = _GNW95_ShowRect;
+void (*_scr_blit)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y) = _GNW95_ShowRect;
 
 // 0x6ACA1C
-void (*dword_6ACA1C)() = NULL;
+void (*_zero_mem)() = NULL;
 
 // 0x6ACA20
 bool gMmxSupported;
@@ -352,7 +352,7 @@ LogicalKeyEntry gLogicalKeyEntries[256];
 unsigned char gPressedPhysicalKeys[256];
 
 // 0x6AD930
-unsigned int dword_6AD930;
+unsigned int _kb_idle_start_time;
 
 // 0x6AD934
 KeyboardEvent gLastKeyboardEvent;
@@ -388,11 +388,11 @@ int coreInit(int a1)
     buildNormalizedQwertyKeys();
     _GNW95_clear_time_stamps();
 
-    dword_6AC764 = a1;
+    _using_msec_timer = a1;
     gInputEventQueueWriteIndex = 0;
     gInputEventQueueReadIndex = -1;
-    dword_6AC750 = -1;
-    dword_6AC754 = -1;
+    _input_mx = -1;
+    _input_my = -1;
     gRunLoopDisabled = 0;
     gPaused = false;
     gPauseKeyCode = KEY_ALT_P;
@@ -436,7 +436,7 @@ int _get_input()
 
     v3 = dequeueInputEvent();
     if (v3 == -1 && mouseGetEvent() & 0x33) {
-        mouseGetPosition(&dword_6AC750, &dword_6AC754);
+        mouseGetPosition(&_input_mx, &_input_my);
         return -2;
     } else {
         return _GNW_check_menu_bars(v3);
@@ -516,8 +516,8 @@ int dequeueInputEvent()
 
     InputEvent* inputEvent = &(gInputEventQueue[gInputEventQueueReadIndex]);
     int eventCode = inputEvent->logicalKey;
-    dword_6AC750 = inputEvent->mouseX;
-    dword_6AC754 = inputEvent->mouseY;
+    _input_mx = inputEvent->mouseX;
+    _input_my = inputEvent->mouseY;
 
     gInputEventQueueReadIndex++;
 
@@ -648,14 +648,14 @@ int pauseHandlerDefaultImpl()
     v1 = fontGetLineHeight();
     v2 = 3 * v1 + 16;
 
-    win = windowCreate((stru_6AC9F0.right - stru_6AC9F0.left + 1 - len) / 2, (stru_6AC9F0.bottom - stru_6AC9F0.top + 1 - v2) / 2, len, v2, 256, 20);
+    win = windowCreate((_scr_size.right - _scr_size.left + 1 - len) / 2, (_scr_size.bottom - _scr_size.top + 1 - v2) / 2, len, v2, 256, 20);
     if (win == -1) {
         return -1;
     }
 
     windowDrawBorder(win);
     buf = windowGetBuffer(win);
-    fontDrawText(buf + 8 * len + 16, "Paused", len, len, byte_6A38D0[31744]);
+    fontDrawText(buf + 8 * len + 16, "Paused", len, len, _colorTable[31744]);
 
     v6 = v2 - 8 - v1;
     v7 = fontGetStringWidth("Done");
@@ -682,27 +682,27 @@ void pauseHandlerConfigure(int keyCode, PauseHandler* handler)
 // 0x4C8F4C
 void takeScreenshot()
 {
-    int width = stru_6AC9F0.right - stru_6AC9F0.left + 1;
-    int height = stru_6AC9F0.bottom - stru_6AC9F0.top + 1;
+    int width = _scr_size.right - _scr_size.left + 1;
+    int height = _scr_size.bottom - _scr_size.top + 1;
     gScreenshotBuffer = internal_malloc(width * height);
     if (gScreenshotBuffer == NULL) {
         return;
     }
 
-    WINDOWDRAWINGPROC v0 = off_6ACA18;
-    off_6ACA18 = screenshotBlitter;
+    WINDOWDRAWINGPROC v0 = _scr_blit;
+    _scr_blit = screenshotBlitter;
 
-    WINDOWDRAWINGPROC v2 = off_6AC7DC;
-    off_6AC7DC = screenshotBlitter;
+    WINDOWDRAWINGPROC v2 = _mouse_blit;
+    _mouse_blit = screenshotBlitter;
 
-    WindowDrawingProc2* v1 = off_6AC7D8;
-    off_6AC7D8 = NULL;
+    WindowDrawingProc2* v1 = _mouse_blit_trans;
+    _mouse_blit_trans = NULL;
 
-    windowRefreshAll(&stru_6AC9F0);
+    windowRefreshAll(&_scr_size);
 
-    off_6AC7D8 = v1;
-    off_6AC7DC = v2;
-    off_6ACA18 = v0;
+    _mouse_blit_trans = v1;
+    _mouse_blit = v2;
+    _scr_blit = v0;
 
     unsigned char* palette = _getSystemPalette();
     gScreenshotHandler(width, height, gScreenshotBuffer, palette);
@@ -712,7 +712,7 @@ void takeScreenshot()
 // 0x4C8FF0
 void screenshotBlitter(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int width, int height, int destX, int destY)
 {
-    int destWidth = stru_6AC9F0.right - stru_6AC9F0.left + 1;
+    int destWidth = _scr_size.right - _scr_size.left + 1;
     blitBufferToBuffer(src + srcPitch * srcY + srcX, width, height, srcPitch, gScreenshotBuffer + destWidth * destY + destX, destWidth);
 }
 
@@ -1262,26 +1262,26 @@ int _GNW95_input_init()
 // 0x4C9C28
 int _GNW95_hook_keyboard(int a1)
 {
-    if (a1 == dword_51E244) {
+    if (a1 == _keyboard_hooked) {
         return 0;
     }
 
     if (!a1) {
         keyboardDeviceUnacquire();
 
-        UnhookWindowsHookEx(dword_6AC758);
+        UnhookWindowsHookEx(_GNW95_keyboardHandle);
 
         keyboardReset();
 
-        dword_51E244 = a1;
+        _keyboard_hooked = a1;
 
         return 0;
     }
 
     if (keyboardDeviceAcquire()) {
-        dword_6AC758 = SetWindowsHookExA(WH_KEYBOARD, _GNW95_keyboard_hook, 0, GetCurrentThreadId());
+        _GNW95_keyboardHandle = SetWindowsHookExA(WH_KEYBOARD, _GNW95_keyboard_hook, 0, GetCurrentThreadId());
         keyboardReset();
-        dword_51E244 = a1;
+        _keyboard_hooked = a1;
 
         return 0;
     }
@@ -1312,7 +1312,7 @@ LRESULT CALLBACK _GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam)
 
 next:
 
-    return CallNextHookEx(dword_6AC758, nCode, wParam, lParam);
+    return CallNextHookEx(_GNW95_keyboardHandle, nCode, wParam, lParam);
 }
 
 // 0x4C9CF0
@@ -1328,7 +1328,7 @@ void _GNW95_process_message()
         int tick = _get_time();
 
         for (int key = 0; key < 256; key++) {
-            STRUCT_6ABF50* ptr = &(stru_6ABF50[key]);
+            STRUCT_6ABF50* ptr = &(_GNW95_key_time_stamps[key]);
             if (ptr->tick != -1) {
                 int elapsedTime = ptr->tick > tick ? INT_MAX : tick - ptr->tick;
                 int delay = ptr->repeatCount == 0 ? gKeyboardKeyRepeatDelay : gKeyboardKeyRepeatRate;
@@ -1357,8 +1357,8 @@ void _GNW95_process_message()
 void _GNW95_clear_time_stamps()
 {
     for (int index = 0; index < 256; index++) {
-        stru_6ABF50[index].tick = -1;
-        stru_6ABF50[index].repeatCount = 0;
+        _GNW95_key_time_stamps[index].tick = -1;
+        _GNW95_key_time_stamps[index].repeatCount = 0;
     }
 }
 
@@ -1388,9 +1388,9 @@ void _GNW95_process_key(KeyboardData* data)
 
     int qwertyKey = gNormalizedQwertyKeys[data->key & 0xFF];
 
-    if (dword_51E2F8 == 1) {
-        if (dword_51E304 & 1) {
-            dword_51E308 = 2;
+    if (_vcr_state == 1) {
+        if (_vcr_terminate_flags & 1) {
+            _vcr_terminated_condition = 2;
             _vcr_stop();
         }
     } else {
@@ -1399,7 +1399,7 @@ void _GNW95_process_key(KeyboardData* data)
             qwertyKey -= 0x80;
         }
 
-        STRUCT_6ABF50* ptr = &(stru_6ABF50[data->key & 0xFF]);
+        STRUCT_6ABF50* ptr = &(_GNW95_key_time_stamps[data->key & 0xFF]);
         if (data->down == 1) {
             ptr->tick = _get_time();
             ptr->repeatCount = 0;
@@ -1415,20 +1415,20 @@ void _GNW95_process_key(KeyboardData* data)
 // 0x4C9EEC
 void _GNW95_lost_focus()
 {
-    if (off_51E238 != NULL) {
-        off_51E238(0);
+    if (_focus_func != NULL) {
+        _focus_func(0);
     }
 
     while (!gProgramIsActive) {
         _GNW95_process_message();
 
-        if (off_51E234 != NULL) {
-            off_51E234();
+        if (_idle_func != NULL) {
+            _idle_func();
         }
     }
 
-    if (off_51E238 != NULL) {
-        off_51E238(1);
+    if (_focus_func != NULL) {
+        _focus_func(1);
     }
 }
 
@@ -1436,7 +1436,7 @@ void _GNW95_lost_focus()
 int mouseInit()
 {
     gMouseInitialized = false;
-    dword_6AC7AC = 0;
+    _mouse_disabled = 0;
 
     gCursorIsHidden = true;
 
@@ -1451,11 +1451,11 @@ int mouseInit()
     }
 
     gMouseInitialized = true;
-    gMouseCursorX = stru_6AC9F0.right / 2;
-    gMouseCursorY = stru_6AC9F0.bottom / 2;
-    dword_6AC794 = stru_6AC9F0.right / 2;
-    dword_6AC79C = stru_6AC9F0.bottom / 2;
-    dword_6AC7D4 = _get_time();
+    gMouseCursorX = _scr_size.right / 2;
+    gMouseCursorY = _scr_size.bottom / 2;
+    _raw_x = _scr_size.right / 2;
+    _raw_y = _scr_size.bottom / 2;
+    _mouse_idle_start_time = _get_time();
 
     return 0;
 }
@@ -1470,9 +1470,9 @@ void mouseFree()
         gMouseCursorData = NULL;
     }
 
-    if (dword_51E29C != NULL) {
+    if (_mouse_fptr != NULL) {
         tickersRemove(_mouse_anim);
-        dword_51E29C = NULL;
+        _mouse_fptr = NULL;
     }
 }
 
@@ -1482,13 +1482,13 @@ void mousePrepareDefaultCursor()
     for (int index = 0; index < 64; index++) {
         switch (gMouseDefaultCursor[index]) {
         case 0:
-            gMouseDefaultCursor[index] = byte_6A38D0[0];
+            gMouseDefaultCursor[index] = _colorTable[0];
             break;
         case 1:
-            gMouseDefaultCursor[index] = byte_6A38D0[8456];
+            gMouseDefaultCursor[index] = _colorTable[8456];
             break;
         case 15:
-            gMouseDefaultCursor[index] = byte_6A38D0[32767];
+            gMouseDefaultCursor[index] = _colorTable[32767];
             break;
         }
     }
@@ -1508,7 +1508,7 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
 
     if (a1 == NULL) {
         // NOTE: Original code looks tail recursion optimization.
-        return mouseSetFrame(gMouseDefaultCursor, MOUSE_DEFAULT_CURSOR_WIDTH, MOUSE_DEFAULT_CURSOR_HEIGHT, MOUSE_DEFAULT_CURSOR_WIDTH, 1, 1, byte_6A38D0[0]);
+        return mouseSetFrame(gMouseDefaultCursor, MOUSE_DEFAULT_CURSOR_WIDTH, MOUSE_DEFAULT_CURSOR_HEIGHT, MOUSE_DEFAULT_CURSOR_WIDTH, 1, 1, _colorTable[0]);
     }
 
     bool cursorWasHidden = gCursorIsHidden;
@@ -1537,21 +1537,21 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
     gMouseCursorWidth = width;
     gMouseCursorHeight = height;
     gMouseCursorPitch = pitch;
-    dword_51E298 = v9;
-    byte_6AC7E0 = a7;
+    _mouse_shape = v9;
+    _mouse_trans = a7;
 
-    if (dword_51E29C) {
+    if (_mouse_fptr) {
         tickersRemove(_mouse_anim);
-        dword_51E29C = NULL;
+        _mouse_fptr = NULL;
     }
 
-    v11 = dword_6AC7D0 - v7;
-    dword_6AC7D0 = v7;
+    v11 = _mouse_hotx - v7;
+    _mouse_hotx = v7;
 
     gMouseCursorX += v11;
 
-    v12 = dword_6AC7CC - v8;
-    dword_6AC7CC = v8;
+    v12 = _mouse_hoty - v8;
+    _mouse_hoty = v8;
 
     gMouseCursorY += v12;
 
@@ -1561,8 +1561,8 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
         mouseShowCursor();
     }
 
-    dword_6AC794 = gMouseCursorX;
-    dword_6AC79C = gMouseCursorY;
+    _raw_x = gMouseCursorX;
+    _raw_y = gMouseCursorY;
 
     return 0;
 }
@@ -1572,14 +1572,14 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
 // 0x4CA2D0
 void _mouse_anim()
 {
-    if (getTicksSince(dword_51E2A8) >= dword_6AC7B4) {
-        dword_51E2A8 = _get_time();
+    if (getTicksSince(_ticker_) >= _mouse_speed) {
+        _ticker_ = _get_time();
 
-        if (++dword_6AC7B8 == dword_6AC7C8) {
-            dword_6AC7B8 = 0;
+        if (++_mouse_curr_frame == _mouse_num_frames) {
+            _mouse_curr_frame = 0;
         }
 
-        dword_51E298 = gMouseCursorWidth * dword_6AC7B8 * gMouseCursorHeight + dword_51E29C;
+        _mouse_shape = gMouseCursorWidth * _mouse_curr_frame * gMouseCursorHeight + _mouse_fptr;
 
         if (!gCursorIsHidden) {
             mouseShowCursor();
@@ -1600,15 +1600,15 @@ void mouseShowCursor()
 
     v2 = gMouseCursorData;
     if (gMouseInitialized) {
-        if (!off_6AC7D8 || !gCursorIsHidden) {
+        if (!_mouse_blit_trans || !gCursorIsHidden) {
             _win_get_mouse_buf(gMouseCursorData);
             v2 = gMouseCursorData;
             v3 = 0;
 
             for (i = 0; i < gMouseCursorHeight; i++) {
                 for (v4 = 0; v4 < gMouseCursorWidth; v4++) {
-                    v6 = dword_51E298[i * gMouseCursorPitch + v4];
-                    if (v6 != byte_6AC7E0) {
+                    v6 = _mouse_shape[i * gMouseCursorPitch + v4];
+                    if (v6 != _mouse_trans) {
                         v2[v3] = v6;
                     }
                     v3++;
@@ -1616,37 +1616,37 @@ void mouseShowCursor()
             }
         }
 
-        if (gMouseCursorX >= stru_6AC9F0.left) {
-            if (gMouseCursorWidth + gMouseCursorX - 1 <= stru_6AC9F0.right) {
+        if (gMouseCursorX >= _scr_size.left) {
+            if (gMouseCursorWidth + gMouseCursorX - 1 <= _scr_size.right) {
                 v8 = gMouseCursorWidth;
                 v7 = 0;
             } else {
                 v7 = 0;
-                v8 = stru_6AC9F0.right - gMouseCursorX + 1;
+                v8 = _scr_size.right - gMouseCursorX + 1;
             }
         } else {
-            v7 = stru_6AC9F0.left - gMouseCursorX;
-            v8 = gMouseCursorWidth - (stru_6AC9F0.left - gMouseCursorX);
+            v7 = _scr_size.left - gMouseCursorX;
+            v8 = gMouseCursorWidth - (_scr_size.left - gMouseCursorX);
         }
 
-        if (gMouseCursorY >= stru_6AC9F0.top) {
-            if (gMouseCursorHeight + gMouseCursorY - 1 <= stru_6AC9F0.bottom) {
+        if (gMouseCursorY >= _scr_size.top) {
+            if (gMouseCursorHeight + gMouseCursorY - 1 <= _scr_size.bottom) {
                 v9 = 0;
                 v10 = gMouseCursorHeight;
             } else {
                 v9 = 0;
-                v10 = stru_6AC9F0.bottom - gMouseCursorY + 1;
+                v10 = _scr_size.bottom - gMouseCursorY + 1;
             }
         } else {
-            v9 = stru_6AC9F0.top - gMouseCursorY;
-            v10 = gMouseCursorHeight - (stru_6AC9F0.top - gMouseCursorY);
+            v9 = _scr_size.top - gMouseCursorY;
+            v10 = gMouseCursorHeight - (_scr_size.top - gMouseCursorY);
         }
 
         gMouseCursorData = v2;
-        if (off_6AC7D8 && gCursorIsHidden) {
-            off_6AC7D8(dword_51E298, gMouseCursorPitch, gMouseCursorHeight, v7, v9, v8, v10, v7 + gMouseCursorX, v9 + gMouseCursorY, byte_6AC7E0);
+        if (_mouse_blit_trans && gCursorIsHidden) {
+            _mouse_blit_trans(_mouse_shape, gMouseCursorPitch, gMouseCursorHeight, v7, v9, v8, v10, v7 + gMouseCursorX, v9 + gMouseCursorY, _mouse_trans);
         } else {
-            off_6AC7DC(gMouseCursorData, gMouseCursorWidth, gMouseCursorHeight, v7, v9, v8, v10, v7 + gMouseCursorX, v9 + gMouseCursorY);
+            _mouse_blit(gMouseCursorData, gMouseCursorWidth, gMouseCursorHeight, v7, v9, v8, v10, v7 + gMouseCursorX, v9 + gMouseCursorY);
         }
 
         v2 = gMouseCursorData;
@@ -1684,7 +1684,7 @@ void _mouse_info()
         return;
     }
 
-    if (dword_6AC7AC) {
+    if (_mouse_disabled) {
         return;
     }
 
@@ -1713,9 +1713,9 @@ void _mouse_info()
     x = (int)(x * gMouseSensitivity);
     y = (int)(y * gMouseSensitivity);
 
-    if (dword_51E2F8 == 1) {
-        if (((dword_51E304 & 4) && buttons) || ((dword_51E304 & 2) && (x || y))) {
-            dword_51E308 = 2;
+    if (_vcr_state == 1) {
+        if (((_vcr_terminate_flags & 4) && buttons) || ((_vcr_terminate_flags & 2) && (x || y))) {
+            _vcr_terminated_condition = 2;
             _vcr_stop();
             return;
         }
@@ -1735,37 +1735,37 @@ void _mouse_simulate_input(int delta_x, int delta_y, int buttons)
     }
 
     if (delta_x || delta_y || buttons != gMouseButtonsState) {
-        if (dword_51E2F8 == 0) {
-            if (dword_51E2F4 == 4095) {
+        if (_vcr_state == 0) {
+            if (_vcr_buffer_index == 4095) {
                 _vcr_dump_buffer();
             }
 
-            STRUCT_51E2F0* ptr = &(off_51E2F0[dword_51E2F4]);
+            STRUCT_51E2F0* ptr = &(_vcr_buffer[_vcr_buffer_index]);
             ptr->type = 3;
-            ptr->field_4 = dword_51E2FC;
-            ptr->field_8 = dword_51E300;
+            ptr->field_4 = _vcr_time;
+            ptr->field_8 = _vcr_counter;
             ptr->dx = delta_x;
             ptr->dy = delta_y;
             ptr->buttons = buttons;
 
-            dword_51E2F4++;
+            _vcr_buffer_index++;
         }
     } else {
         if (gMouseButtonsState == 0) {
-            if (!dword_51E290) {
-                dword_6AC7D4 = _get_time();
-                dword_51E290 = 1;
+            if (!_mouse_idling) {
+                _mouse_idle_start_time = _get_time();
+                _mouse_idling = 1;
             }
 
             gMouseButtonsState = 0;
-            dword_6AC7A0 = 0;
+            _raw_buttons = 0;
             gMouseEvent = 0;
 
             return;
         }
     }
 
-    dword_51E290 = 0;
+    _mouse_idling = 0;
     gMouseButtonsState = buttons;
     gMousePreviousEvent = gMouseEvent;
     gMouseEvent = 0;
@@ -1805,7 +1805,7 @@ void _mouse_simulate_input(int delta_x, int delta_y, int buttons)
         }
     }
 
-    dword_6AC7A0 = gMouseEvent;
+    _raw_buttons = gMouseEvent;
 
     if (delta_x != 0 || delta_y != 0) {
         Rect mouseRect;
@@ -1822,8 +1822,8 @@ void _mouse_simulate_input(int delta_x, int delta_y, int buttons)
 
         mouseShowCursor();
 
-        dword_6AC794 = gMouseCursorX;
-        dword_6AC79C = gMouseCursorY;
+        _raw_x = gMouseCursorX;
+        _raw_y = gMouseCursorY;
     }
 }
 
@@ -1847,10 +1847,10 @@ bool _mouse_click_in(int left, int top, int right, int bottom)
         return false;
     }
 
-    return dword_6AC7CC + gMouseCursorY >= top
-        && dword_6AC7D0 + gMouseCursorX <= right
-        && dword_6AC7D0 + gMouseCursorX >= left
-        && dword_6AC7CC + gMouseCursorY <= bottom;
+    return _mouse_hoty + gMouseCursorY >= top
+        && _mouse_hotx + gMouseCursorX <= right
+        && _mouse_hotx + gMouseCursorX >= left
+        && _mouse_hoty + gMouseCursorY <= bottom;
 }
 
 // 0x4CA9A0
@@ -1865,33 +1865,33 @@ void mouseGetRect(Rect* rect)
 // 0x4CA9DC
 void mouseGetPosition(int* xPtr, int* yPtr)
 {
-    *xPtr = dword_6AC7D0 + gMouseCursorX;
-    *yPtr = dword_6AC7CC + gMouseCursorY;
+    *xPtr = _mouse_hotx + gMouseCursorX;
+    *yPtr = _mouse_hoty + gMouseCursorY;
 }
 
 // 0x4CAA04
 void _mouse_set_position(int a1, int a2)
 {
-    gMouseCursorX = a1 - dword_6AC7D0;
-    gMouseCursorY = a2 - dword_6AC7CC;
-    dword_6AC79C = a2 - dword_6AC7CC;
-    dword_6AC794 = a1 - dword_6AC7D0;
+    gMouseCursorX = a1 - _mouse_hotx;
+    gMouseCursorY = a2 - _mouse_hoty;
+    _raw_y = a2 - _mouse_hoty;
+    _raw_x = a1 - _mouse_hotx;
     _mouse_clip();
 }
 
 // 0x4CAA38
 void _mouse_clip()
 {
-    if (dword_6AC7D0 + gMouseCursorX < stru_6AC9F0.left) {
-        gMouseCursorX = stru_6AC9F0.left - dword_6AC7D0;
-    } else if (dword_6AC7D0 + gMouseCursorX > stru_6AC9F0.right) {
-        gMouseCursorX = stru_6AC9F0.right - dword_6AC7D0;
+    if (_mouse_hotx + gMouseCursorX < _scr_size.left) {
+        gMouseCursorX = _scr_size.left - _mouse_hotx;
+    } else if (_mouse_hotx + gMouseCursorX > _scr_size.right) {
+        gMouseCursorX = _scr_size.right - _mouse_hotx;
     }
 
-    if (dword_6AC7CC + gMouseCursorY < stru_6AC9F0.top) {
-        gMouseCursorY = stru_6AC9F0.top - dword_6AC7CC;
-    } else if (dword_6AC7CC + gMouseCursorY > stru_6AC9F0.bottom) {
-        gMouseCursorY = stru_6AC9F0.bottom - dword_6AC7CC;
+    if (_mouse_hoty + gMouseCursorY < _scr_size.top) {
+        gMouseCursorY = _scr_size.top - _mouse_hoty;
+    } else if (_mouse_hoty + gMouseCursorY > _scr_size.bottom) {
+        gMouseCursorY = _scr_size.bottom - _mouse_hoty;
     }
 }
 
@@ -1918,21 +1918,21 @@ void _mouse_get_raw_state(int* out_x, int* out_y, int* out_buttons)
         mouseData.buttons[1] = (gMouseEvent & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0;
     }
 
-    dword_6AC7A0 = 0;
-    dword_6AC794 += mouseData.x;
-    dword_6AC79C += mouseData.y;
+    _raw_buttons = 0;
+    _raw_x += mouseData.x;
+    _raw_y += mouseData.y;
 
     if (mouseData.buttons[0] != 0) {
-        dword_6AC7A0 |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
+        _raw_buttons |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
     }
 
     if (mouseData.buttons[1] != 0) {
-        dword_6AC7A0 |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
+        _raw_buttons |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
     }
 
-    *out_x = dword_6AC794;
-    *out_y = dword_6AC79C;
-    *out_buttons = dword_6AC7A0;
+    *out_x = _raw_x;
+    *out_y = _raw_y;
+    *out_buttons = _raw_buttons;
 }
 
 // 0x4CAC3C
@@ -2005,15 +2005,15 @@ int _init_mode_1280_1024()
 }
 
 // 0x4CADF8
-void sub_4CADF8()
+void _get_start_mode_()
 {
 }
 
 // 0x4CADFC
 void _zero_vid_mem()
 {
-    if (dword_6ACA1C) {
-        dword_6ACA1C();
+    if (_zero_mem) {
+        _zero_mem();
     }
 }
 
@@ -2028,23 +2028,23 @@ int _GNW95_init_mode_ex(int width, int height, int bpp)
         return -1;
     }
 
-    stru_6AC9F0.left = 0;
-    stru_6AC9F0.top = 0;
-    stru_6AC9F0.right = width - 1;
-    stru_6AC9F0.bottom = height - 1;
+    _scr_size.left = 0;
+    _scr_size.top = 0;
+    _scr_size.right = width - 1;
+    _scr_size.bottom = height - 1;
 
     mmxSetEnabled(TRUE);
 
     if (bpp == 8) {
-        off_6AC7D8 = NULL;
-        off_6ACA18 = _GNW95_ShowRect;
-        dword_6ACA1C = _GNW95_zero_vid_mem;
-        off_6AC7DC = _GNW95_ShowRect;
+        _mouse_blit_trans = NULL;
+        _scr_blit = _GNW95_ShowRect;
+        _zero_mem = _GNW95_zero_vid_mem;
+        _mouse_blit = _GNW95_ShowRect;
     } else {
-         dword_6ACA1C = NULL;
-         off_6AC7DC = _GNW95_MouseShowRect16;
-         off_6AC7D8 = _GNW95_MouseShowTransRect16;
-         off_6ACA18 = _GNW95_ShowRect16;
+         _zero_mem = NULL;
+         _mouse_blit = _GNW95_MouseShowRect16;
+         _mouse_blit_trans = _GNW95_MouseShowTransRect16;
+         _scr_blit = _GNW95_ShowRect16;
     }
 
     return 0;
@@ -2245,11 +2245,11 @@ void directDrawSetPaletteInRange(unsigned char* palette, int start, int count)
             gSixteenBppPalette[index] = rgb;
         }
 
-        windowRefreshAll(&stru_6AC9F0);
+        windowRefreshAll(&_scr_size);
     }
 
-    if (off_51E2C4 != NULL) {
-        off_51E2C4();
+    if (_update_palette_func != NULL) {
+        _update_palette_func();
     }
 }
 
@@ -2286,11 +2286,11 @@ void directDrawSetPalette(unsigned char* palette)
             gSixteenBppPalette[index] = rgb;
         }
 
-        windowRefreshAll(&stru_6AC9F0);
+        windowRefreshAll(&_scr_size);
     }
 
-    if (off_51E2C4 != NULL) {
-        off_51E2C4();
+    if (_update_palette_func != NULL) {
+        _update_palette_func();
     }
 }
 
@@ -2500,11 +2500,11 @@ void _GNW95_zero_vid_mem()
 // 0x4CBC90
 int keyboardInit()
 {
-    if (byte_51E2D0) {
+    if (_kb_installed) {
         return -1;
     }
 
-    byte_51E2D0 = 1;
+    _kb_installed = 1;
     gPressedPhysicalKeysCount = 0;
 
     memset(gPressedPhysicalKeys, 0, 256);
@@ -2517,7 +2517,7 @@ int keyboardInit()
     _kb_init_lock_status();
     keyboardSetLayout(KEYBOARD_LAYOUT_QWERTY);
 
-    dword_6AD930 = _get_time();
+    _kb_idle_start_time = _get_time();
 
     return 0;
 }
@@ -2525,15 +2525,15 @@ int keyboardInit()
 // 0x4CBD00
 void keyboardFree()
 {
-    if (byte_51E2D0) {
-        byte_51E2D0 = 0;
+    if (_kb_installed) {
+        _kb_installed = 0;
     }
 }
 
 // 0x4CBDA8
 void keyboardReset()
 {
-    if (byte_51E2D0) {
+    if (_kb_installed) {
         gPressedPhysicalKeysCount = 0;
 
         memset(&gPressedPhysicalKeys, 0, 256);
@@ -2550,8 +2550,8 @@ int _kb_getch()
 {
     int rc = -1;
 
-    if (byte_51E2D0 != 0) {
-        rc = off_51E2EC();
+    if (_kb_installed != 0) {
+        rc = _kb_scan_to_ascii();
     }
 
     return rc;
@@ -2583,23 +2583,23 @@ void keyboardSetLayout(int keyboardLayout)
 
     switch (keyboardLayout) {
     case KEYBOARD_LAYOUT_QWERTY:
-        off_51E2EC = _kb_next_ascii_English_US;
+        _kb_scan_to_ascii = _kb_next_ascii_English_US;
         keyboardBuildQwertyConfiguration();
         break;
     // case KEYBOARD_LAYOUT_FRENCH:
-    //    off_51E2EC = sub_4CC5BC;
+    //    _kb_scan_to_ascii = sub_4CC5BC;
     //    _kb_map_ascii_French();
     //    break;
     // case KEYBOARD_LAYOUT_GERMAN:
-    //    off_51E2EC = sub_4CC94C;
+    //    _kb_scan_to_ascii = sub_4CC94C;
     //    _kb_map_ascii_German();
     //    break;
     // case KEYBOARD_LAYOUT_ITALIAN:
-    //    off_51E2EC = sub_4CCE14;
+    //    _kb_scan_to_ascii = sub_4CCE14;
     //    _kb_map_ascii_Italian();
     //    break;
     // case KEYBOARD_LAYOUT_SPANISH:
-    //    off_51E2EC = sub_4CD0E0;
+    //    _kb_scan_to_ascii = sub_4CD0E0;
     //    _kb_map_ascii_Spanish();
     //    break;
     default:
@@ -2617,18 +2617,18 @@ int keyboardGetLayout()
 // TODO: Key type is likely short.
 void _kb_simulate_key(int key)
 {
-    if (dword_51E2F8 == 0) {
-        if (dword_51E2F4 != 4095) {
-            STRUCT_51E2F0* ptr = &(off_51E2F0[dword_51E2F4]);
+    if (_vcr_state == 0) {
+        if (_vcr_buffer_index != 4095) {
+            STRUCT_51E2F0* ptr = &(_vcr_buffer[_vcr_buffer_index]);
             ptr->type = 2;
             ptr->type_2_field_C = key & 0xFFFF;
-            ptr->field_4 = dword_51E2FC;
-            ptr->field_8 = dword_51E300;
-            dword_51E2F4++;
+            ptr->field_4 = _vcr_time;
+            ptr->field_8 = _vcr_counter;
+            _vcr_buffer_index++;
         }
     }
 
-    dword_6AD930 = _get_bk_time();
+    _kb_idle_start_time = _get_bk_time();
 
     if (key == 224) {
         word_51E2E8 = 0x80;
@@ -2664,7 +2664,7 @@ void _kb_simulate_key(int key)
                 if (gPressedPhysicalKeys[DIK_LCONTROL] == KEY_STATE_UP && gPressedPhysicalKeys[DIK_RCONTROL] == KEY_STATE_UP) {
                     // TODO: Missing check for QWERTY keyboard layout.
                     if ((gModifierKeysState & MODIFIER_KEY_STATE_CAPS_LOCK) != 0) {
-                        // TODO: There is some strange code checking for dword_6AD938, check in
+                        // TODO: There is some strange code checking for _kb_layout, check in
                         // debugger.
                         gModifierKeysState &= ~MODIFIER_KEY_STATE_CAPS_LOCK;
                     } else {
@@ -2698,7 +2698,7 @@ void _kb_simulate_key(int key)
             }
 
             if (gModifierKeysState != 0) {
-                if ((gModifierKeysState & MODIFIER_KEY_STATE_NUM_LOCK) != 0 && !dword_51E2DC) {
+                if ((gModifierKeysState & MODIFIER_KEY_STATE_NUM_LOCK) != 0 && !_kb_numlock_disabled) {
                     gLastKeyboardEvent.modifiers |= KEYBOARD_EVENT_MODIFIER_NUM_LOCK;
                 }
 
@@ -2847,7 +2847,7 @@ int keyboardDequeueLogicalKeyCode()
     case DIK_SUBTRACT:
     case DIK_ADD:
     case DIK_NUMPADENTER:
-        if (dword_51E2D8 != 0) {
+        if (_kb_numpad_disabled != 0) {
             if (gKeyboardEventQueueReadIndex != gKeyboardEventQueueWriteIndex) {
                 gKeyboardEventQueueReadIndex++;
                 gKeyboardEventQueueReadIndex &= (KEY_QUEUE_SIZE - 1);
@@ -2865,7 +2865,7 @@ int keyboardDequeueLogicalKeyCode()
     case DIK_NUMPAD7:
     case DIK_NUMPAD8:
     case DIK_NUMPAD9:
-        if (dword_51E2D8 != 0) {
+        if (_kb_numpad_disabled != 0) {
             if (gKeyboardEventQueueReadIndex != gKeyboardEventQueueWriteIndex) {
                 gKeyboardEventQueueReadIndex++;
                 gKeyboardEventQueueReadIndex &= (KEY_QUEUE_SIZE - 1);
@@ -4437,7 +4437,7 @@ int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr)
 // 0x4D2680
 bool _vcr_record(const char* fileName)
 {
-    if (dword_51E2F8 != 2) {
+    if (_vcr_state != 2) {
         return false;
     }
 
@@ -4445,32 +4445,32 @@ bool _vcr_record(const char* fileName)
         return false;
     }
 
-    if (off_51E2F0 != NULL) {
+    if (_vcr_buffer != NULL) {
         return false;
     }
 
-    off_51E2F0 = internal_malloc(sizeof(*off_51E2F0) * 4096);
-    if (off_51E2F0 == NULL) {
+    _vcr_buffer = internal_malloc(sizeof(*_vcr_buffer) * 4096);
+    if (_vcr_buffer == NULL) {
         return false;
     }
 
     _vcr_clear_buffer();
 
-    dword_51E314 = fileOpen(fileName, "wb");
-    if (dword_51E314 == NULL) {
-        if (off_51E2F0 != NULL) {
+    _vcr_file = fileOpen(fileName, "wb");
+    if (_vcr_file == NULL) {
+        if (_vcr_buffer != NULL) {
             _vcr_clear_buffer();
-            internal_free(off_51E2F0);
-            off_51E2F0 = NULL;
+            internal_free(_vcr_buffer);
+            _vcr_buffer = NULL;
         }
         return false;
     }
 
-    if (dword_51E310 == 0) {
-        dword_51E310 = atexit(_vcr_stop);
+    if (_vcr_registered_atexit == 0) {
+        _vcr_registered_atexit = atexit(_vcr_stop);
     }
 
-    STRUCT_51E2F0* entry = &(off_51E2F0[dword_51E2F4]);
+    STRUCT_51E2F0* entry = &(_vcr_buffer[_vcr_buffer_index]);
     entry->type = 1;
     entry->field_4 = 0;
     entry->field_8 = 0;
@@ -4482,11 +4482,11 @@ bool _vcr_record(const char* fileName)
 
     mouseGetPosition(&(entry->type_1_field_C), &(entry->type_1_field_10));
 
-    dword_51E300 = 1;
-    dword_51E2F4++;
-    dword_51E30C = _get_time();
+    _vcr_counter = 1;
+    _vcr_buffer_index++;
+    _vcr_start_time = _get_time();
     keyboardReset();
-    dword_51E2F8 = 0;
+    _vcr_state = 0;
     
     return true;
 }
@@ -4494,8 +4494,8 @@ bool _vcr_record(const char* fileName)
 // 0x4D28F4
 int _vcr_stop(void)
 {
-    if (dword_51E2F8 == 0 || dword_51E2F8 == 1) {
-        dword_51E2F8 |= 0x80000000;
+    if (_vcr_state == 0 || _vcr_state == 1) {
+        _vcr_state |= 0x80000000;
     }
 
     keyboardReset();
@@ -4506,7 +4506,7 @@ int _vcr_stop(void)
 // 0x4D2918
 int _vcr_status()
 {
-    return dword_51E2F8;
+    return _vcr_state;
 }
 
 // 0x4D2930
@@ -4519,11 +4519,11 @@ int _vcr_update()
 // 0x4D2CD0
 bool _vcr_clear_buffer()
 {
-    if (off_51E2F0 == NULL) {
+    if (_vcr_buffer == NULL) {
         return false;
     }
 
-    dword_51E2F4 = 0;
+    _vcr_buffer_index = 0;
 
     return true;
 }
@@ -4531,13 +4531,13 @@ bool _vcr_clear_buffer()
 // 0x4D2CF0
 int _vcr_dump_buffer()
 {
-    if (!off_51E2F0 || !dword_51E314) {
+    if (!_vcr_buffer || !_vcr_file) {
         return 0;
     }
 
-    for (int index = 0; index < dword_51E2F4; index++) {
-        if (_vcr_save_record(&(off_51E2F0[index]), dword_51E314)) {
-            dword_51E2F4 = 0;
+    for (int index = 0; index < _vcr_buffer_index; index++) {
+        if (_vcr_save_record(&(_vcr_buffer[index]), _vcr_file)) {
+            _vcr_buffer_index = 0;
             return 1;
         }
     }

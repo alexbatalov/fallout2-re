@@ -65,16 +65,16 @@
 #define SPLASH_COUNT (10)
 
 // 0x501C9C
-char byte_501C9C[] = "game\\";
+char _aGame_0[] = "game\\";
 
 // 0x5020B8
-char byte_5020B8[] = VERSION_BUILD_TIME;
+char _aDec11199816543[] = VERSION_BUILD_TIME;
 
 // 0x5186B4
 bool gGameUiDisabled = false;
 
 // 0x5186B8
-int dword_5186B8 = 0;
+int _game_state_cur = 0;
 
 // 0x5186BC
 bool gIsMapper = false;
@@ -86,10 +86,10 @@ int* gGameGlobalVars = NULL;
 int gGameGlobalVarsLength = 0;
 
 // 0x5186C8
-const char* asc_5186C8 = byte_501C9C;
+const char* asc_5186C8 = _aGame_0;
 
 // 0x5186CC
-int dword_5186CC = 0;
+int _game_user_wants_to_quit = 0;
 
 // misc.msg
 //
@@ -99,12 +99,12 @@ MessageList gMiscMessageList;
 // master.dat loading result
 //
 // 0x58E948
-int dword_58E948;
+int _master_db_handle;
 
 // critter.dat loading result
 //
 // 0x58E94C
-int dword_58E94C;
+int _critter_db_handle;
 
 // 0x442580
 int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4, int argc, char** argv)
@@ -355,7 +355,7 @@ void gameReset()
     _ResetLoadSave();
     gameDialogReset();
     combatReset();
-    dword_5186CC = 0;
+    _game_user_wants_to_quit = 0;
     automapReset();
     _init_options_menu();
 }
@@ -407,7 +407,7 @@ void gameExit()
 // 0x442D44
 int gameHandleKey(int eventCode, bool isInCombatMode)
 {
-    if (dword_5186B8 == 5) {
+    if (_game_state_cur == 5) {
         _gdialogSystemEnter();
     }
 
@@ -423,14 +423,14 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
 
         if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-                if (mouseX == stru_6AC9F0.left || mouseX == stru_6AC9F0.right
-                    || mouseY == stru_6AC9F0.top || mouseY == stru_6AC9F0.bottom) {
-                    dword_518D98 = true;
+                if (mouseX == _scr_size.left || mouseX == _scr_size.right
+                    || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
+                    _gmouse_clicked_on_edge = true;
                 }
             }
         } else {
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
-                dword_518D98 = false;
+                _gmouse_clicked_on_edge = false;
             }
         }
 
@@ -532,7 +532,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 char title[128];
                 strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
-                showDialogBox(title, NULL, 0, 192, 116, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+                showDialogBox(title, NULL, 0, 192, 116, _colorTable[32328], NULL, _colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
                 pipboyOpen(false);
@@ -600,7 +600,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 char title[128];
                 strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
-                showDialogBox(title, NULL, 0, 192, 116, byte_6A38D0[32328], NULL, byte_6A38D0[32328], 0);
+                showDialogBox(title, NULL, 0, 192, 116, _colorTable[32328], NULL, _colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
                 pipboyOpen(true);
@@ -798,7 +798,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             char version[VERSION_MAX];
             versionGetVersion(version);
             displayMonitorAddMessage(version);
-            displayMonitorAddMessage(byte_5020B8);
+            displayMonitorAddMessage(_aDec11199816543);
         }
         break;
     case KEY_ARROW_LEFT:
@@ -959,7 +959,7 @@ int globalVarsRead(const char* path, const char* section, int* out_vars_num, int
 // 0x443E2C
 int _game_state()
 {
-    return dword_5186B8;
+    return _game_state_cur;
 }
 
 // 0x443E34
@@ -973,8 +973,8 @@ int _game_state_request(int a1)
         a1 = 5;
     }
 
-    if (dword_5186B8 != 4 || a1 != 5) {
-        dword_5186B8 = a1;
+    if (_game_state_cur != 4 || a1 != 5) {
+        _game_state_cur = a1;
         return 0;
     }
 
@@ -986,8 +986,8 @@ void _game_state_update()
 {
     int v0;
 
-    v0 = dword_5186B8;
-    switch (dword_5186B8) {
+    v0 = _game_state_cur;
+    switch (_game_state_cur) {
     case 1:
         v0 = 0;
         break;
@@ -998,7 +998,7 @@ void _game_state_update()
         v0 = 4;
     }
 
-    dword_5186B8 = v0;
+    _game_state_cur = v0;
 }
 
 // 0x443EF0
@@ -1061,9 +1061,9 @@ void showHelp()
                 artUnlock(backgroundHandle);
                 windowUnhide(win);
                 colorPaletteLoad("art\\intrface\\helpscrn.pal");
-                paletteSetEntries(stru_51DF34);
+                paletteSetEntries(_cmap);
 
-                while (_get_input() == -1 && dword_5186CC == 0) {
+                while (_get_input() == -1 && _game_user_wants_to_quit == 0) {
                 }
 
                 while (mouseGetEvent() != 0) {
@@ -1076,7 +1076,7 @@ void showHelp()
 
         windowDestroy(win);
         colorPaletteLoad("color.pal");
-        paletteSetEntries(stru_51DF34);
+        paletteSetEntries(_cmap);
     }
 
     if (colorCycleWasEnabled) {
@@ -1120,9 +1120,9 @@ int showQuitConfirmationDialog()
     MessageListItem messageListItem;
     messageListItem.num = 0;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, 0, 0, 169, 117, byte_6A38D0[32328], NULL, byte_6A38D0[32328], DIALOG_BOX_YES_NO);
+        rc = showDialogBox(messageListItem.text, 0, 0, 169, 117, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc != 0) {
-            dword_5186CC = 2;
+            _game_user_wants_to_quit = 2;
         }
     } else {
         rc = -1;
@@ -1159,7 +1159,7 @@ int gameDbInit()
     patch_file_name = NULL;
 
     if (configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_HASHING_KEY, &hashing)) {
-        sub_4C68E4();
+        _db_enable_hash_table_();
     }
 
     configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_DAT_KEY, &main_file_name);
@@ -1172,8 +1172,8 @@ int gameDbInit()
         patch_file_name = NULL;
     }
 
-    dword_58E948 = dbOpen(main_file_name, 0, patch_file_name, 1);
-    if (dword_58E948 == -1) {
+    _master_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
+    if (_master_db_handle == -1) {
         showMesageBox("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
@@ -1188,8 +1188,8 @@ int gameDbInit()
         patch_file_name = NULL;
     }
 
-    dword_58E94C = dbOpen(main_file_name, 0, patch_file_name, 1);
-    if (dword_58E94C == -1) {
+    _critter_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
+    if (_critter_db_handle == -1) {
         showMesageBox("Could not find the critter datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
@@ -1258,7 +1258,7 @@ void showSplash()
     fileRead(data, 1, SPLASH_WIDTH * SPLASH_HEIGHT, stream);
     fileClose(stream);
 
-    off_6ACA18(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0);
+    _scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0);
     paletteFadeTo(palette);
 
     internal_free(data);

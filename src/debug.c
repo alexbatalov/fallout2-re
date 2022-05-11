@@ -10,13 +10,13 @@
 #include <windows.h>
 
 // 0x51DEF8
-FILE* off_51DEF8 = NULL;
+FILE* _fd = NULL;
 
 // 0x51DEFC
-int dword_51DEFC = 0;
+int _curx = 0;
 
 // 0x51DF00
-int dword_51DF00 = 0;
+int _cury = 0;
 
 // 0x51DF04
 DebugPrintProc* gDebugPrintProc = NULL;
@@ -31,9 +31,9 @@ void _GNW_debug_init()
 void _debug_register_mono()
 {
     if (gDebugPrintProc != _debug_mono) {
-        if (off_51DEF8 != NULL) {
-            fclose(off_51DEF8);
-            off_51DEF8 = NULL;
+        if (_fd != NULL) {
+            fclose(_fd);
+            _fd = NULL;
         }
 
         gDebugPrintProc = _debug_mono;
@@ -45,11 +45,11 @@ void _debug_register_mono()
 void _debug_register_log(const char* fileName, const char* mode)
 {
     if ((mode[0] == 'w' && mode[1] == 'a') && mode[1] == 't') {
-        if (off_51DEF8 != NULL) {
-            fclose(off_51DEF8);
+        if (_fd != NULL) {
+            fclose(_fd);
         }
 
-        off_51DEF8 = fopen(fileName, mode);
+        _fd = fopen(fileName, mode);
         gDebugPrintProc = _debug_log;
     }
 }
@@ -58,9 +58,9 @@ void _debug_register_log(const char* fileName, const char* mode)
 void _debug_register_screen()
 {
     if (gDebugPrintProc != _debug_screen) {
-        if (off_51DEF8 != NULL) {
-            fclose(off_51DEF8);
-            off_51DEF8 = NULL;
+        if (_fd != NULL) {
+            fclose(_fd);
+            _fd = NULL;
         }
 
         gDebugPrintProc = _debug_screen;
@@ -93,9 +93,9 @@ void _debug_register_env()
         _debug_register_screen();
     } else if (strcmp(copy, "gnw") == 0) {
         if (gDebugPrintProc != _win_debug) {
-            if (off_51DEF8 != NULL) {
-                fclose(off_51DEF8);
-                off_51DEF8 = NULL;
+            if (_fd != NULL) {
+                fclose(_fd);
+                _fd = NULL;
             }
 
             gDebugPrintProc = _win_debug;
@@ -109,9 +109,9 @@ void _debug_register_env()
 void _debug_register_func(DebugPrintProc* proc)
 {
     if (gDebugPrintProc != proc) {
-        if (off_51DEF8 != NULL) {
-            fclose(off_51DEF8);
-            off_51DEF8 = NULL;
+        if (_fd != NULL) {
+            fclose(_fd);
+            _fd = NULL;
         }
 
         gDebugPrintProc = proc;
@@ -177,15 +177,15 @@ int _debug_mono(char* string)
 int _debug_log(char* string)
 {
     if (gDebugPrintProc == _debug_log) {
-        if (off_51DEF8 == NULL) {
+        if (_fd == NULL) {
             return -1;
         }
 
-        if (fprintf(off_51DEF8, string) < 0) {
+        if (fprintf(_fd, string) < 0) {
             return -1;
         }
 
-        if (fflush(off_51DEF8) == EOF) {
+        if (fflush(_fd) == EOF) {
             return -1;
         }
     }
@@ -218,7 +218,7 @@ void _debug_scroll()
 // 0x4C71E8
 void _debug_exit(void)
 {
-    if (off_51DEF8 != NULL) {
-        fclose(off_51DEF8);
+    if (_fd != NULL) {
+        fclose(_fd);
     }
 }

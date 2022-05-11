@@ -28,12 +28,12 @@ typedef struct SoundEffect {
 
 extern const char* off_50DE04;
 extern bool gSoundEffectsCacheInitialized;
-extern int dword_51C8F4;
+extern int _sfxc_cmpr;
 extern Cache* gSoundEffectsCache;
 extern int gSoundEffectsCacheDebugLevel;
 extern char* gSoundEffectsCacheEffectsPath;
 extern SoundEffect* gSoundEffects;
-extern int dword_51C8E8;
+extern int _sfxc_files_open;
 
 int soundEffectsCacheInit(int cache_size, const char* effectsPath);
 void soundEffectsCacheExit();

@@ -9,22 +9,22 @@
 static_assert(sizeof(Nevs) == 60, "wrong size");
 
 // 0x6391C8
-Nevs* off_6391C8;
+Nevs* _nevs;
 
 // 0x6391CC
-int dword_6391CC;
+int _anyhits;
 
 // nevs_alloc
 // 0x488340
 Nevs* _nevs_alloc()
 {
-    if (off_6391C8 == NULL) {
+    if (_nevs == NULL) {
         debugPrint("nevs_alloc(): nevs_initonce() not called!");
         exit(99);
     }
 
     for (int i = 0; i < NEVS_COUNT; i++) {
-        Nevs* nevs = &(off_6391C8[i]);
+        Nevs* nevs = &(_nevs[i]);
         if (nevs->field_0 == 0) {
             memset(nevs, 0, sizeof(Nevs));
             return nevs;
@@ -37,18 +37,18 @@ Nevs* _nevs_alloc()
 // 0x4883AC
 void _nevs_close()
 {
-    if (off_6391C8 != NULL) {
-        internal_free_safe(off_6391C8, __FILE__, __LINE__); // "..\\int\\NEVS.C", 97
-        off_6391C8 = NULL;
+    if (_nevs != NULL) {
+        internal_free_safe(_nevs, __FILE__, __LINE__); // "..\\int\\NEVS.C", 97
+        _nevs = NULL;
     }
 }
 
 // 0x4883D4
 void _nevs_removeprogramreferences(Program* program)
 {
-    if (off_6391C8 != NULL) {
+    if (_nevs != NULL) {
         for (int i = 0; i < NEVS_COUNT; i++) {
-            Nevs* nevs = &(off_6391C8[i]);
+            Nevs* nevs = &(_nevs[i]);
             if (nevs->field_0 != 0 && nevs->program == program) {
                 memset(nevs, 0, sizeof(*nevs));
             }
@@ -63,9 +63,9 @@ void _nevs_initonce()
     // TODO: Incomplete.
     // _interpretRegisterProgramDeleteCallback(_nevs_removeprogramreferences);
 
-    if (off_6391C8 == NULL) {
-        off_6391C8 = internal_calloc_safe(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
-        if (off_6391C8 == NULL) {
+    if (_nevs == NULL) {
+        _nevs = internal_calloc_safe(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
+        if (_nevs == NULL) {
             debugPrint("nevs_initonce(): out of memory");
             exit(99);
         }
@@ -76,13 +76,13 @@ void _nevs_initonce()
 // 0x48846C
 Nevs* _nevs_find(const char* a1)
 {
-    if (!off_6391C8) {
+    if (!_nevs) {
         debugPrint("nevs_find(): nevs_initonce() not called!");
         exit(99);
     }
 
     for (int index = 0; index < NEVS_COUNT; index++) {
-        Nevs* nevs = &(off_6391C8[index]);
+        Nevs* nevs = &(_nevs[index]);
         if (nevs->field_0 != 0 && stricmp(nevs->field_4, a1) == 0) {
             return nevs;
         }
@@ -145,7 +145,7 @@ int _nevs_signal(const char* a1)
 
     if (nevs->field_0 && (nevs->program && nevs->proc || nevs->field_38) && !nevs->field_34) {
         nevs->field_30++;
-        dword_6391CC++;
+        _anyhits++;
         return 0;
     }
 
@@ -159,16 +159,16 @@ void _nevs_update()
     int v1;
     int v2;
 
-    if (dword_6391CC == 0) {
+    if (_anyhits == 0) {
         return;
     }
 
-    debugPrint("nevs_update(): we have anyhits = %u\n", dword_6391CC);
+    debugPrint("nevs_update(): we have anyhits = %u\n", _anyhits);
 
-    dword_6391CC = 0;
+    _anyhits = 0;
 
     for (int index = 0; index < NEVS_COUNT; index++) {
-        Nevs* nevs = &(off_6391C8[index]);
+        Nevs* nevs = &(_nevs[index]);
         if (nevs->field_0 && (nevs->program && nevs->proc || nevs->field_38) && !nevs->field_34) {
             v1 = nevs->field_30;
             if (nevs->field_34 < v1) {
@@ -177,7 +177,7 @@ void _nevs_update()
 
                 nevs->field_30--;
 
-                dword_6391CC += v2;
+                _anyhits += v2;
 
                 if (nevs->field_38 == NULL) {
                     _executeProc(nevs->program, nevs->proc);

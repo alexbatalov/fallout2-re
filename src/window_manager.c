@@ -17,19 +17,19 @@ static_assert(sizeof(Window) == 68, "wrong size");
 static_assert(sizeof(Button) == 124, "wrong size");
 
 // 0x50FA30
-char byte_50FA30[] = "";
+char _path_patches[] = "";
 
 // 0x51E3D8
-bool dword_51E3D8 = false;
+bool _GNW95_already_running = false;
 
 // 0x51E3DC
-HANDLE dword_51E3DC = INVALID_HANDLE_VALUE;
+HANDLE _GNW95_title_mutex = INVALID_HANDLE_VALUE;
 
 // 0x51E3E0
 bool gWindowSystemInitialized = false;
 
 // 0x51E3E4
-int dword_51E3E4[6] = {
+int _GNW_wcolor[6] = {
     0,
     0,
     0,
@@ -39,13 +39,13 @@ int dword_51E3E4[6] = {
 };
 
 // 0x51E3FC
-unsigned char* off_51E3FC = NULL;
+unsigned char* _screen_buffer = NULL;
 
 // 0x51E400
-bool dword_51E400 = false;
+bool _insideWinExit = false;
 
 // 0x51E404
-int dword_51E404 = -1;
+int _last_button_winID = -1;
 
 // 0x6ADD90
 int gOrderedWindowIds[MAX_WINDOW_COUNT];
@@ -60,22 +60,22 @@ VideoSystemExitProc* gVideoSystemExitProc;
 int gWindowsLength;
 
 // 0x6ADF28
-int dword_6ADF28;
+int _window_flags;
 
 // 0x6ADF2C
-bool dword_6ADF2C;
+bool _buffering;
 
 // 0x6ADF30
-int dword_6ADF30;
+int _bk_color;
 
 // 0x6ADF34
 VideoSystemInitProc* gVideoSystemInitProc;
 
 // 0x6ADF38
-int dword_6ADF38;
+int _doing_refresh_all;
 
 // 0x6ADF3C
-void* off_6ADF3C;
+void* _GNW_texture;
 
 // 0x6ADF40
 RadioGroup gRadioGroups[RADIO_GROUP_LIST_CAPACITY];
@@ -83,14 +83,14 @@ RadioGroup gRadioGroups[RADIO_GROUP_LIST_CAPACITY];
 // 0x4D5C30
 int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* videoSystemExitProc, int a3)
 {
-    CloseHandle(dword_51E448);
-    dword_51E448 = INVALID_HANDLE_VALUE;
+    CloseHandle(_GNW95_mutex);
+    _GNW95_mutex = INVALID_HANDLE_VALUE;
 
-    if (dword_51E3D8) {
+    if (_GNW95_already_running) {
         return WINDOW_MANAGER_ERR_ALREADY_RUNNING;
     }
 
-    if (dword_51E3DC == INVALID_HANDLE_VALUE) {
+    if (_GNW95_title_mutex == INVALID_HANDLE_VALUE) {
         return WINDOW_MANAGER_ERR_TITLE_NOT_SET;
     }
 
@@ -101,7 +101,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     __stosd((unsigned long*)gOrderedWindowIds, -1, MAX_WINDOW_COUNT);
 
     if (!_db_total()) {
-        if (dbOpen(NULL, 0, byte_50FA30, 1) == -1) {
+        if (dbOpen(NULL, 0, _path_patches, 1) == -1) {
             return WINDOW_MANAGER_ERR_INITIALIZING_DEFAULT_DATABASE;
         }
     }
@@ -110,7 +110,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         return WINDOW_MANAGER_ERR_INITIALIZING_TEXT_FONTS;
     }
 
-    sub_4CADF8();
+    _get_start_mode_();
 
     gVideoSystemInitProc = videoSystemInitProc;
     gVideoSystemExitProc = directInputFree;
@@ -129,8 +129,8 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     }
 
     if (a3 & 1) {
-        off_51E3FC = internal_malloc((stru_6AC9F0.bottom - stru_6AC9F0.top + 1) * (stru_6AC9F0.right - stru_6AC9F0.left + 1));
-        if (off_51E3FC == NULL) {
+        _screen_buffer = internal_malloc((_scr_size.bottom - _scr_size.top + 1) * (_scr_size.right - _scr_size.left + 1));
+        if (_screen_buffer == NULL) {
             if (gVideoSystemExitProc != NULL) {
                 gVideoSystemExitProc();
             } else {
@@ -141,8 +141,8 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         }
     }
 
-    dword_6ADF2C = false;
-    dword_6ADF38 = 0;
+    _buffering = false;
+    _doing_refresh_all = 0;
 
     colorPaletteSetFileIO(paletteOpenFileImpl, paletteReadFileImpl, paletteCloseFileImpl);
     colorPaletteSetMemoryProcs(internal_malloc, internal_realloc, internal_free);
@@ -156,8 +156,8 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
                 directDrawFree();
             }
 
-            if (off_51E3FC != NULL) {
-                internal_free(off_51E3FC);
+            if (_screen_buffer != NULL) {
+                internal_free(_screen_buffer);
             }
 
             return WINDOW_MANAGER_ERR_NO_MEMORY;
@@ -187,8 +187,8 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
             directDrawFree();
         }
 
-        if (off_51E3FC != NULL) {
-            internal_free(off_51E3FC);
+        if (_screen_buffer != NULL) {
+            internal_free(_screen_buffer);
         }
 
         return WINDOW_MANAGER_ERR_NO_MEMORY;
@@ -196,12 +196,12 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
 
     window->id = 0;
     window->flags = 0;
-    window->rect.left = stru_6AC9F0.left;
-    window->rect.top = stru_6AC9F0.top;
-    window->rect.right = stru_6AC9F0.right;
-    window->rect.bottom = stru_6AC9F0.bottom;
-    window->width = stru_6AC9F0.right - stru_6AC9F0.left + 1;
-    window->height = stru_6AC9F0.bottom - stru_6AC9F0.top + 1;
+    window->rect.left = _scr_size.left;
+    window->rect.top = _scr_size.top;
+    window->rect.right = _scr_size.right;
+    window->rect.bottom = _scr_size.bottom;
+    window->width = _scr_size.right - _scr_size.left + 1;
+    window->height = _scr_size.bottom - _scr_size.top + 1;
     window->field_24 = 0;
     window->field_28 = 0;
     window->buffer = NULL;
@@ -212,16 +212,16 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
 
     gWindowsLength = 1;
     gWindowSystemInitialized = 1;
-    dword_51E3E4[3] = 21140;
-    dword_51E3E4[4] = 32747;
-    dword_51E3E4[5] = 31744;
+    _GNW_wcolor[3] = 21140;
+    _GNW_wcolor[4] = 32747;
+    _GNW_wcolor[5] = 31744;
     gOrderedWindowIds[0] = 0;
-    off_6ADF3C = NULL;
-    dword_6ADF30 = 0;
-    dword_51E3E4[0] = 10570;
-    dword_6ADF28 = a3;
-    dword_51E3E4[2] = 8456;
-    dword_51E3E4[1] = 15855;
+    _GNW_texture = NULL;
+    _bk_color = 0;
+    _GNW_wcolor[0] = 10570;
+    _window_flags = a3;
+    _GNW_wcolor[2] = 8456;
+    _GNW_wcolor[1] = 15855;
 
     atexit(windowManagerExit);
 
@@ -231,8 +231,8 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
 // 0x4D616C
 void windowManagerExit(void)
 {
-    if (!dword_51E400) {
-        dword_51E400 = true;
+    if (!_insideWinExit) {
+        _insideWinExit = true;
         if (gWindowSystemInitialized) {
             _GNW_intr_exit();
 
@@ -240,12 +240,12 @@ void windowManagerExit(void)
                 windowFree(gWindows[index]->id);
             }
 
-            if (off_6ADF3C != NULL) {
-                internal_free(off_6ADF3C);
+            if (_GNW_texture != NULL) {
+                internal_free(_GNW_texture);
             }
 
-            if (off_51E3FC != NULL) {
-                internal_free(off_51E3FC);
+            if (_screen_buffer != NULL) {
+                internal_free(_screen_buffer);
             }
 
             if (gVideoSystemExitProc != NULL) {
@@ -259,10 +259,10 @@ void windowManagerExit(void)
 
             gWindowSystemInitialized = false;
 
-            CloseHandle(dword_51E3DC);
-            dword_51E3DC = INVALID_HANDLE_VALUE;
+            CloseHandle(_GNW95_title_mutex);
+            _GNW95_title_mutex = INVALID_HANDLE_VALUE;
         }
-        dword_51E400 = false;
+        _insideWinExit = false;
     }
 }
 
@@ -282,11 +282,11 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
         return -1;
     }
 
-    if (width > rectGetWidth(&stru_6AC9F0)) {
+    if (width > rectGetWidth(&_scr_size)) {
         return -1;
     }
 
-    if (height > rectGetHeight(&stru_6AC9F0)) {
+    if (height > rectGetHeight(&_scr_size)) {
         return -1;
     }
 
@@ -309,7 +309,7 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
     window->id = index;
 
     if ((flags & WINDOW_FLAG_0x01) != 0) {
-        flags |= dword_6ADF28;
+        flags |= _window_flags;
     }
 
     window->width = width;
@@ -319,12 +319,12 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
     window->field_28 = rand() & 0xFFFE;
 
     if (a4 == 256) {
-        if (off_6ADF3C == NULL) {
-            a4 = byte_6A38D0[dword_51E3E4[0]];
+        if (_GNW_texture == NULL) {
+            a4 = _colorTable[_GNW_wcolor[0]];
         }
     } else if ((a4 & 0xFF00) != 0) {
         int v1 = (a4 & 0xFF00) >> 8;
-        a4 = (a4 & ~0xFFFF) | byte_6A38D0[dword_51E3E4[v1]];
+        a4 = (a4 & ~0xFFFF) | _colorTable[_GNW_wcolor[v1]];
     }
 
     window->buttonListHead = 0;
@@ -431,8 +431,8 @@ void windowFree(int win)
 // 0x4D6558
 void _win_buffering(bool a1)
 {
-    if (off_51E3FC != NULL) {
-        dword_6ADF2C = a1;
+    if (_screen_buffer != NULL) {
+        _buffering = a1;
     }
 }
 
@@ -453,10 +453,10 @@ void windowDrawBorder(int win)
     _lighten_buf(window->buffer + window->width - 5, 5, window->height, window->width);
     _lighten_buf(window->buffer + window->width * (window->height - 5) + 5, window->width - 10, 5, window->width);
 
-    bufferDrawRect(window->buffer, window->width, 0, 0, window->width - 1, window->height - 1, byte_6A38D0[0]);
+    bufferDrawRect(window->buffer, window->width, 0, 0, window->width - 1, window->height - 1, _colorTable[0]);
 
-    bufferDrawRectShadowed(window->buffer, window->width, 1, 1, window->width - 2, window->height - 2, byte_6A38D0[dword_51E3E4[1]], byte_6A38D0[dword_51E3E4[2]]);
-    bufferDrawRectShadowed(window->buffer, window->width, 5, 5, window->width - 6, window->height - 6, byte_6A38D0[dword_51E3E4[2]], byte_6A38D0[dword_51E3E4[1]]);
+    bufferDrawRectShadowed(window->buffer, window->width, 1, 1, window->width - 2, window->height - 2, _colorTable[_GNW_wcolor[1]], _colorTable[_GNW_wcolor[2]]);
+    bufferDrawRectShadowed(window->buffer, window->width, 5, 5, window->width - 6, window->height - 6, _colorTable[_GNW_wcolor[2]], _colorTable[_GNW_wcolor[1]]);
 }
 
 // 0x4D684C
@@ -502,8 +502,8 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
     }
 
     if (!(a6 & 0x02000000)) {
-        if (window->field_20 == 256 && off_6ADF3C != NULL) {
-            _buf_texture(buf, v7, fontGetLineHeight(), window->width, off_6ADF3C, window->field_24 + x, window->field_28 + y);
+        if (window->field_20 == 256 && _GNW_texture != NULL) {
+            _buf_texture(buf, v7, fontGetLineHeight(), window->width, _GNW_texture, window->field_24 + x, window->field_28 + y);
         } else {
             bufferFill(buf, v7, fontGetLineHeight(), window->width, window->field_20);
         }
@@ -511,7 +511,7 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
 
     if (a6 & 0xFF00) {
         int t = (a6 & 0xFF00) >> 8;
-        v27 = (a6 & ~0xFFFF) | byte_6A38D0[dword_51E3E4[t]];
+        v27 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[t]];
     } else {
         v27 = a6;
     }
@@ -544,7 +544,7 @@ void windowDrawLine(int win, int left, int top, int right, int bottom, int color
 
     if (color & 0xFF00) {
         int t = (color & 0xFF00) >> 8;
-        color = (color & ~0xFFFF) | byte_6A38D0[dword_51E3E4[t]];
+        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[t]];
     }
 
     bufferDrawLine(window->buffer, window->width, left, top, right, bottom, color);
@@ -565,7 +565,7 @@ void windowDrawRect(int win, int left, int top, int right, int bottom, int color
 
     if ((color & 0xFF00) != 0) {
         int v1 = (color & 0xFF00) >> 8;
-        color = (color & ~0xFFFF) | byte_6A38D0[dword_51E3E4[v1]];
+        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[v1]];
     }
 
     if (right < left) {
@@ -597,14 +597,14 @@ void windowFill(int win, int x, int y, int width, int height, int a6)
     }
 
     if (a6 == 256) {
-        if (off_6ADF3C != NULL) {
-            _buf_texture(window->buffer + window->width * y + x, width, height, window->width, off_6ADF3C, x + window->field_24, y + window->field_28);
+        if (_GNW_texture != NULL) {
+            _buf_texture(window->buffer + window->width * y + x, width, height, window->width, _GNW_texture, x + window->field_24, y + window->field_28);
         } else {
-            a6 = byte_6A38D0[dword_51E3E4[0]] & 0xFF;
+            a6 = _colorTable[_GNW_wcolor[0]] & 0xFF;
         }
     } else if ((a6 & 0xFF00) != 0) {
         int v1 = (a6 & 0xFF00) >> 8;
-        a6 = (a6 & ~0xFFFF) | byte_6A38D0[dword_51E3E4[v1]];
+        a6 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[v1]];
     }
 
     if (a6 < 256) {
@@ -697,12 +697,12 @@ void _win_move(int win, int x, int y)
         x += 2;
     }
 
-    if (x + window->width - 1 > stru_6AC9F0.right) {
-        x = stru_6AC9F0.right - window->width + 1;
+    if (x + window->width - 1 > _scr_size.right) {
+        x = _scr_size.right - window->width + 1;
     }
 
-    if (y + window->height - 1 > stru_6AC9F0.bottom) {
-        y = stru_6AC9F0.bottom - window->height + 1;
+    if (y + window->height - 1 > _scr_size.bottom) {
+        y = _scr_size.bottom - window->height + 1;
     }
 
     if ((window->flags & WINDOW_FLAG_0x0100) != 0) {
@@ -773,7 +773,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
         return;
     }
 
-    if ((window->flags & WINDOW_FLAG_0x20) && dword_6ADF2C && !dword_6ADF38) {
+    if ((window->flags & WINDOW_FLAG_0x20) && _buffering && !_doing_refresh_all) {
         // TODO: Incomplete.
     } else {
         v26 = _rect_malloc();
@@ -801,7 +801,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                     _GNW_button_refresh(window, &(v20->rect));
 
                     if (a3) {
-                        if (dword_6ADF2C && (window->flags & WINDOW_FLAG_0x20)) {
+                        if (_buffering && (window->flags & WINDOW_FLAG_0x20)) {
                             window->blitProc(window->buffer + v20->rect.left - window->rect.left + (v20->rect.top - window->rect.top) * window->width,
                                 v20->rect.right - v20->rect.left + 1,
                                 v20->rect.bottom - v20->rect.top + 1,
@@ -818,26 +818,26 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                                 dest_pitch);
                         }
                     } else {
-                        if (dword_6ADF2C) {
+                        if (_buffering) {
                             if (window->flags & WINDOW_FLAG_0x20) {
                                 window->blitProc(
                                     window->buffer + v20->rect.left - window->rect.left + (v20->rect.top - window->rect.top) * window->width,
                                     v20->rect.right - v20->rect.left + 1,
                                     v20->rect.bottom - v20->rect.top + 1,
                                     window->width,
-                                    off_51E3FC + v20->rect.top * (stru_6AC9F0.right - stru_6AC9F0.left + 1) + v20->rect.left,
-                                    stru_6AC9F0.right - stru_6AC9F0.left + 1);
+                                    _screen_buffer + v20->rect.top * (_scr_size.right - _scr_size.left + 1) + v20->rect.left,
+                                    _scr_size.right - _scr_size.left + 1);
                             } else {
                                 blitBufferToBuffer(
                                     window->buffer + v20->rect.left - window->rect.left + (v20->rect.top - window->rect.top) * window->width,
                                     v20->rect.right - v20->rect.left + 1,
                                     v20->rect.bottom - v20->rect.top + 1,
                                     window->width,
-                                    off_51E3FC + v20->rect.top * (stru_6AC9F0.right - stru_6AC9F0.left + 1) + v20->rect.left,
-                                    stru_6AC9F0.right - stru_6AC9F0.left + 1);
+                                    _screen_buffer + v20->rect.top * (_scr_size.right - _scr_size.left + 1) + v20->rect.left,
+                                    _scr_size.right - _scr_size.left + 1);
                             }
                         } else {
-                            off_6ACA18(
+                            _scr_blit(
                                 window->buffer + v20->rect.left - window->rect.left + (v20->rect.top - window->rect.top) * window->width,
                                 window->width,
                                 window->rect.bottom - v20->rect.bottom + 1,
@@ -859,7 +859,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                     int height = v16->rect.bottom - v16->rect.top + 1;
                     unsigned char* buf = internal_malloc(width * height);
                     if (buf != NULL) {
-                        bufferFill(buf, width, height, width, dword_6ADF30);
+                        bufferFill(buf, width, height, width, _bk_color);
                         if (dest_pitch != 0) {
                             blitBufferToBuffer(
                                 buf,
@@ -869,15 +869,15 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                                 a3 + dest_pitch * (v16->rect.top - rect->top) + v16->rect.left - rect->left,
                                 dest_pitch);
                         } else {
-                            if (dword_6ADF2C) {
+                            if (_buffering) {
                                 blitBufferToBuffer(buf,
                                     width,
                                     height,
                                     width,
-                                    off_51E3FC + v16->rect.top * (stru_6AC9F0.right - stru_6AC9F0.left + 1) + v16->rect.left,
-                                    stru_6AC9F0.right - stru_6AC9F0.left + 1);
+                                    _screen_buffer + v16->rect.top * (_scr_size.right - _scr_size.left + 1) + v16->rect.left,
+                                    _scr_size.right - _scr_size.left + 1);
                             } else {
-                                off_6ACA18(buf, width, height, 0, 0, width, height, v16->rect.left, v16->rect.top);
+                                _scr_blit(buf, width, height, 0, 0, width, height, v16->rect.left, v16->rect.top);
                             }
                         }
 
@@ -891,10 +891,10 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
             while (v23) {
                 v24 = v23->next;
 
-                if (dword_6ADF2C && !a3) {
-                    off_6ACA18(
-                        off_51E3FC + v23->rect.left + (stru_6AC9F0.right - stru_6AC9F0.left + 1) * v23->rect.top,
-                        stru_6AC9F0.right - stru_6AC9F0.left + 1,
+                if (_buffering && !a3) {
+                    _scr_blit(
+                        _screen_buffer + v23->rect.left + (_scr_size.right - _scr_size.left + 1) * v23->rect.top,
+                        _scr_size.right - _scr_size.left + 1,
                         v23->rect.bottom - v23->rect.top + 1,
                         0,
                         0,
@@ -909,7 +909,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                 v23 = v24;
             }
 
-            if (!dword_6ADF38 && a3 == NULL && cursorIsHidden() == 0) {
+            if (!_doing_refresh_all && a3 == NULL && cursorIsHidden() == 0) {
                 if (_mouse_in(rect->left, rect->top, rect->right, rect->bottom)) {
                     mouseShowCursor();
                 }
@@ -940,18 +940,18 @@ void _win_clip(Window* window, RectListNode** rectListNodePtr, unsigned char* a3
 
         Window* window = gWindows[win];
         if (!(window->flags & WINDOW_HIDDEN)) {
-            if (!dword_6ADF2C || !(window->flags & WINDOW_FLAG_0x20)) {
+            if (!_buffering || !(window->flags & WINDOW_FLAG_0x20)) {
                 _rect_clip_list(rectListNodePtr, &(window->rect));
             }
 
-            if (!dword_6ADF38) {
+            if (!_doing_refresh_all) {
                 _GNW_win_refresh(window, &(window->rect), NULL);
                 _rect_clip_list(rectListNodePtr, &(window->rect));
             }
         }
     }
 
-    if (a3 == off_51E3FC || a3 == NULL) {
+    if (a3 == _screen_buffer || a3 == NULL) {
         if (cursorIsHidden() == 0) {
             Rect rect;
             mouseGetRect(&rect);
@@ -1001,13 +1001,13 @@ void _win_get_mouse_buf(unsigned char* a1)
 // 0x4D7814
 void _refresh_all(Rect* rect, unsigned char* a2)
 {
-    dword_6ADF38 = 1;
+    _doing_refresh_all = 1;
 
     for (int index = 0; index < gWindowsLength; index++) {
         _GNW_win_refresh(gWindows[index], rect, a2);
     }
 
-    dword_6ADF38 = 0;
+    _doing_refresh_all = 0;
 
     if (a2 == NULL) {
         if (!cursorIsHidden()) {
@@ -1214,8 +1214,8 @@ void _win_text(int win, char** fileNameList, int fileNameListLength, int maxWidt
             windowDrawText(win, fileName, maxWidth, x, y, flags);
         } else {
             if (maxWidth != 0) {
-                bufferDrawLine(ptr, width, 0, v1, v3, v1, byte_6A38D0[dword_51E3E4[2]]);
-                bufferDrawLine(ptr, width, 0, v2, v3, v2, byte_6A38D0[dword_51E3E4[1]]);
+                bufferDrawLine(ptr, width, 0, v1, v3, v1, _colorTable[_GNW_wcolor[2]]);
+                bufferDrawLine(ptr, width, 0, v2, v3, v2, _colorTable[_GNW_wcolor[1]]);
             }
         }
 
@@ -1231,10 +1231,10 @@ void programWindowSetTitle(const char* title)
         return;
     }
 
-    if (dword_51E3DC == INVALID_HANDLE_VALUE) {
-        dword_51E3DC = CreateMutexA(NULL, TRUE, title);
+    if (_GNW95_title_mutex == INVALID_HANDLE_VALUE) {
+        _GNW95_title_mutex = CreateMutexA(NULL, TRUE, title);
         if (GetLastError() != ERROR_SUCCESS) {
-            dword_51E3D8 = true;
+            _GNW95_already_running = true;
             return;
         }
     }
@@ -1619,7 +1619,7 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
 
                 window->field_34 = NULL;
 
-                dword_51E404 = window->id;
+                _last_button_winID = window->id;
 
                 if (!(field_34->flags & BUTTON_FLAG_DISABLED)) {
                     if (field_34->mouseExitProc != NULL) {
@@ -1646,7 +1646,7 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
 
                 window->field_34 = field_38;
 
-                dword_51E404 = window->id;
+                _last_button_winID = window->id;
 
                 if (!(field_38->flags & BUTTON_FLAG_DISABLED)) {
                     if (field_38->mouseEnterProc != NULL) {
@@ -1660,11 +1660,11 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
             }
         }
 
-        int v25 = dword_51E404;
-        if (dword_51E404 != -1 && dword_51E404 != window->id) {
-            Window* v26 = windowGetWindow(dword_51E404);
+        int v25 = _last_button_winID;
+        if (_last_button_winID != -1 && _last_button_winID != window->id) {
+            Window* v26 = windowGetWindow(_last_button_winID);
             if (v26 != NULL) {
-                dword_51E404 = -1;
+                _last_button_winID = -1;
 
                 Button* v28 = v26->field_34;
                 if (v28 != NULL) {
@@ -1865,7 +1865,7 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
             }
         }
 
-        dword_51E404 = window->id;
+        _last_button_winID = window->id;
 
         if (button != NULL) {
             if (cb != NULL) {
@@ -1895,7 +1895,7 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
     }
 
     if (*keyCodePtr != -1) {
-        dword_51E404 = window->id;
+        _last_button_winID = window->id;
 
         if ((field_34->flags & BUTTON_FLAG_DISABLED) == 0) {
             if (field_34->mouseExitProc != NULL) {
@@ -1958,7 +1958,7 @@ int buttonGetWindowId(int btn)
 // 0x4D92B4
 int _win_last_button_winID()
 {
-    return dword_51E404;
+    return _last_button_winID;
 }
 
 // 0x4D92BC

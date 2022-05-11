@@ -9,7 +9,7 @@
 int gameMemoryInit()
 {
     dictionarySetMemoryProcs(internal_malloc, internal_realloc, internal_free);
-    sub_4C68B8(internal_malloc, internal_strdup, internal_free);
+    _db_register_mem(internal_malloc, internal_strdup, internal_free);
     memoryManagerSetProcs(gameMemoryMalloc, gameMemoryRealloc, gameMemoryFree);
 
     return 0;

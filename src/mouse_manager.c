@@ -3,16 +3,16 @@
 #include "core.h"
 
 // 0x5195A8
-char* (*off_5195A8)(char*) = _defaultNameMangler;
+char* (*_mouseNameMangler)(char*) = _defaultNameMangler;
 
 // 0x5195AC
-int (*off_5195AC)() = _defaultRateCallback;
+int (*_rateCallback)() = _defaultRateCallback;
 
 // 0x5195B0
-int (*off_5195B0)() = _defaultTimeCallback;
+int (*_currentTimeCallback)() = _defaultTimeCallback;
 
 // 0x5195B4
-int dword_5195B4 = 1;
+int _curref = 1;
 
 // 0x485250
 char* _defaultNameMangler(char* a1)
@@ -35,7 +35,7 @@ int _defaultTimeCallback()
 // 0x485288
 void _mousemgrSetNameMangler(char* (*func)(char*))
 {
-    off_5195A8 = func;
+    _mouseNameMangler = func;
 }
 
 // 0x48568C

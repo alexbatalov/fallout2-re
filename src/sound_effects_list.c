@@ -36,7 +36,7 @@ SoundEffectsListEntry* gSoundEffectsListEntries = NULL;
 int gSoundEffectsListEntriesLength = 0;
 
 // 0x667F94
-int dword_667F94;
+int _sfxl_compression;
 
 // sfxl_tag_is_legal
 // 0x4A98E0
@@ -55,7 +55,7 @@ int soundEffectsListInit(const char* soundEffectsPath, int a2, int debugLevel)
     // memcpy(path, byte_4A97E0, 0xFF);
 
     gSoundEffectsListDebugLevel = debugLevel;
-    dword_667F94 = a2;
+    _sfxl_compression = a2;
     gSoundEffectsListEntriesLength = 0;
 
     gSoundEffectsListPath = internal_strdup(soundEffectsPath);
@@ -294,7 +294,7 @@ void soundEffectsListClear()
 int soundEffectsListPopulateFileNames()
 {
     const char* extension;
-    switch (dword_667F94) {
+    switch (_sfxl_compression) {
     case 0:
         extension = "*.SND";
         break;
@@ -392,7 +392,7 @@ int soundEffectsListPopulateFileSizes()
 
         entry->fileSize = fileSize;
 
-        switch (dword_667F94) {
+        switch (_sfxl_compression) {
         case 0:
             entry->dataSize = fileSize;
             break;

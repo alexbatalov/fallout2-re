@@ -69,18 +69,18 @@ SkillDescription gSkillDescriptions[SKILL_COUNT] = {
 };
 
 // 0x51D430
-int dword_51D430 = 0;
+int _gIsSteal = 0;
 
 // Something about stealing, base value?
 //
 // 0x51D434
-int dword_51D434 = 0;
+int _gStealCount = 0;
 
 // 0x51D438
-int dword_51D438 = 0;
+int _gStealSize = 0;
 
 // 0x667F98
-int dword_667F98[SKILL_COUNT][SKILLS_MAX_USES_PER_DAY];
+int _timesSkillUsed[SKILL_COUNT][SKILLS_MAX_USES_PER_DAY];
 
 // 0x668070
 int gTaggedSkills[NUM_TAGGED_SKILLS];
@@ -127,7 +127,7 @@ int skillsInit()
         gTaggedSkills[index] = -1;
     }
 
-    memset(dword_667F98, 0, sizeof(dword_667F98));
+    memset(_timesSkillUsed, 0, sizeof(_timesSkillUsed));
 
     return 0;
 }
@@ -139,7 +139,7 @@ void skillsReset()
         gTaggedSkills[index] = -1;
     }
 
-    memset(dword_667F98, 0, sizeof(dword_667F98));
+    memset(_timesSkillUsed, 0, sizeof(_timesSkillUsed));
 }
 
 // 0x4AA478
@@ -614,7 +614,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             scriptsExecMapUpdateProc();
-            paletteFadeTo(stru_51DF34);
+            paletteFadeTo(_cmap);
         } else {
             if (obj == gDude) {
                 // 501: You look healty already
@@ -760,7 +760,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(stru_51DF34);
+                paletteFadeTo(_cmap);
 
                 giveExp = false;
             } else {
@@ -774,7 +774,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 displayMonitorAddMessage(text);
 
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(stru_51DF34);
+                paletteFadeTo(_cmap);
             }
         } else {
             if (obj == gDude) {
@@ -940,7 +940,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(stru_51DF34);
+                paletteFadeTo(_cmap);
 
                 giveExp = false;
             } else {
@@ -954,7 +954,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 displayMonitorAddMessage(text);
 
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(stru_51DF34);
+                paletteFadeTo(_cmap);
             }
         } else {
             if (obj == gDude) {
@@ -1002,7 +1002,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 {
     int howMuch;
 
-    int stealChance = dword_51D434;
+    int stealChance = _gStealCount;
     stealChance--;
     stealChance = -stealChance;
 
@@ -1117,13 +1117,13 @@ int skillGetGameDifficultyModifier(int skill)
 int skillGetFreeUsageSlot(int skill)
 {
     for (int slot = 0; slot < SKILLS_MAX_USES_PER_DAY; slot++) {
-        if (dword_667F98[skill][slot] == 0) {
+        if (_timesSkillUsed[skill][slot] == 0) {
             return slot;
         }
     }
 
     int time = gameTimeGetTime();
-    int hoursSinceLastUsage = (time - dword_667F98[skill][SKILLS_MAX_USES_PER_DAY - 1]) / 36000;
+    int hoursSinceLastUsage = (time - _timesSkillUsed[skill][SKILLS_MAX_USES_PER_DAY - 1]) / 36000;
     if (hoursSinceLastUsage <= 24) {
         return -1;
     }
@@ -1139,13 +1139,13 @@ int skillUpdateLastUse(int skill)
         return -1;
     }
 
-    if (dword_667F98[skill][slot] != 0) {
+    if (_timesSkillUsed[skill][slot] != 0) {
         for (int i = 0; i < slot - 1; i++) {
-            dword_667F98[skill][i] = dword_667F98[skill][i + 1];
+            _timesSkillUsed[skill][i] = _timesSkillUsed[skill][i + 1];
         }
     }
 
-    dword_667F98[skill][slot] = gameTimeGetTime();
+    _timesSkillUsed[skill][slot] = gameTimeGetTime();
 
     return 0;
 }
@@ -1153,13 +1153,13 @@ int skillUpdateLastUse(int skill)
 // 0x4ABF3C
 int skillsUsageSave(File* stream)
 {
-    return fileWriteInt32List(stream, (int*)dword_667F98, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
+    return fileWriteInt32List(stream, (int*)_timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
 }
 
 // 0x4ABF5C
 int skillsUsageLoad(File* stream)
 {
-    return fileReadInt32List(stream, (int*)dword_667F98, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
+    return fileReadInt32List(stream, (int*)_timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
 }
 
 // 0x4ABF7C

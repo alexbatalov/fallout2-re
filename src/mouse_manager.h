@@ -1,9 +1,9 @@
 #ifndef MOUSE_MANAGER_H
 #define MOUSE_MANAGER_H
 
-extern char* (*off_5195A8)(char*);
-extern int (*off_5195AC)();
-extern int (*off_5195B0)();
+extern char* (*_mouseNameMangler)(char*);
+extern int (*_rateCallback)();
+extern int (*_currentTimeCallback)();
 
 char* _defaultNameMangler(char* a1);
 int _defaultRateCallback();

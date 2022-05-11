@@ -38,22 +38,22 @@ char gDisplayMonitorLines[DISPLAY_MONITOR_LINES_CAPACITY][DISPLAY_MONITOR_LINE_L
 unsigned char* gDisplayMonitorBackgroundFrmData;
 
 // 0x56FB40
-int dword_56FB40;
+int _max_disp;
 
 // 0x56FB44
 bool gDisplayMonitorEnabled;
 
 // 0x56FB48
-int dword_56FB48;
+int _disp_curr;
 
 // 0x56FB4C
-int dword_56FB4C;
+int _intface_full_width;
 
 // 0x56FB50
 int gDisplayMonitorLinesCapacity;
 
 // 0x56FB54
-int dword_56FB54;
+int _disp_start;
 
 // 0x56FB58
 unsigned int gDisplayMonitorLastBeepTimestamp;
@@ -66,9 +66,9 @@ int displayMonitorInit()
         fontSetCurrent(DISPLAY_MONITOR_FONT);
 
         gDisplayMonitorLinesCapacity = DISPLAY_MONITOR_LINES_CAPACITY;
-        dword_56FB40 = DISPLAY_MONITOR_HEIGHT / fontGetLineHeight();
-        dword_56FB54 = 0;
-        dword_56FB48 = 0;
+        _max_disp = DISPLAY_MONITOR_HEIGHT / fontGetLineHeight();
+        _disp_start = 0;
+        _disp_curr = 0;
         fontSetCurrent(oldFont);
 
         gDisplayMonitorBackgroundFrmData = internal_malloc(DISPLAY_MONITOR_WIDTH * DISPLAY_MONITOR_HEIGHT);
@@ -85,11 +85,11 @@ int displayMonitorInit()
         }
 
         unsigned char* backgroundFrmData = artGetFrameData(backgroundFrm, 0, 0);
-        dword_56FB4C = artGetWidth(backgroundFrm, 0, 0);
-        blitBufferToBuffer(backgroundFrmData + dword_56FB4C * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X,
+        _intface_full_width = artGetWidth(backgroundFrm, 0, 0);
+        blitBufferToBuffer(backgroundFrmData + _intface_full_width * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X,
             DISPLAY_MONITOR_WIDTH,
             DISPLAY_MONITOR_HEIGHT,
-            dword_56FB4C,
+            _intface_full_width,
             gDisplayMonitorBackgroundFrmData,
             DISPLAY_MONITOR_WIDTH);
 
@@ -144,8 +144,8 @@ int displayMonitorInit()
             gDisplayMonitorLines[index][0] = '\0';
         }
 
-        dword_56FB54 = 0;
-        dword_56FB48 = 0;
+        _disp_start = 0;
+        _disp_curr = 0;
 
         displayMonitorRefresh();
     }
@@ -161,8 +161,8 @@ int displayMonitorReset()
             gDisplayMonitorLines[index][0] = '\0';
         }
 
-        dword_56FB54 = 0;
-        dword_56FB48 = 0;
+        _disp_start = 0;
+        _disp_curr = 0;
         displayMonitorRefresh();
     }
     return 0;
@@ -205,8 +205,8 @@ void displayMonitorAddMessage(char* str)
     // TODO: Refactor these two loops.
     char* v1 = NULL;
     while (true) {
-        while (fontGetStringWidth(str) < DISPLAY_MONITOR_WIDTH - dword_56FB40 - knobWidth) {
-            char* temp = gDisplayMonitorLines[dword_56FB54];
+        while (fontGetStringWidth(str) < DISPLAY_MONITOR_WIDTH - _max_disp - knobWidth) {
+            char* temp = gDisplayMonitorLines[_disp_start];
             int length;
             if (knob != '\0') {
                 *temp++ = knob;
@@ -217,12 +217,12 @@ void displayMonitorAddMessage(char* str)
                 length = DISPLAY_MONITOR_LINE_LENGTH - 1;
             }
             strncpy(temp, str, length);
-            gDisplayMonitorLines[dword_56FB54][DISPLAY_MONITOR_LINE_LENGTH - 1] = '\0';
-            dword_56FB54 = (dword_56FB54 + 1) % gDisplayMonitorLinesCapacity;
+            gDisplayMonitorLines[_disp_start][DISPLAY_MONITOR_LINE_LENGTH - 1] = '\0';
+            _disp_start = (_disp_start + 1) % gDisplayMonitorLinesCapacity;
 
             if (v1 == NULL) {
                 fontSetCurrent(oldFont);
-                dword_56FB48 = dword_56FB54;
+                _disp_curr = _disp_start;
                 displayMonitorRefresh();
                 return;
             }
@@ -247,11 +247,11 @@ void displayMonitorAddMessage(char* str)
         }
     }
 
-    char* temp = gDisplayMonitorLines[dword_56FB54];
+    char* temp = gDisplayMonitorLines[_disp_start];
     int length;
     if (knob != '\0') {
         temp++;
-        gDisplayMonitorLines[dword_56FB54][0] = knob;
+        gDisplayMonitorLines[_disp_start][0] = knob;
         length = DISPLAY_MONITOR_LINE_LENGTH - 2;
         knob = '\0';
     } else {
@@ -259,11 +259,11 @@ void displayMonitorAddMessage(char* str)
     }
     strncpy(temp, str, length);
 
-    gDisplayMonitorLines[dword_56FB54][DISPLAY_MONITOR_LINE_LENGTH - 1] = '\0';
-    dword_56FB54 = (dword_56FB54 + 1) % gDisplayMonitorLinesCapacity;
+    gDisplayMonitorLines[_disp_start][DISPLAY_MONITOR_LINE_LENGTH - 1] = '\0';
+    _disp_start = (_disp_start + 1) % gDisplayMonitorLinesCapacity;
 
     fontSetCurrent(oldFont);
-    dword_56FB48 = dword_56FB54;
+    _disp_curr = _disp_start;
     displayMonitorRefresh();
 }
 
@@ -279,20 +279,20 @@ void displayMonitorRefresh()
         return;
     }
 
-    buf += dword_56FB4C * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X;
+    buf += _intface_full_width * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X;
     blitBufferToBuffer(gDisplayMonitorBackgroundFrmData,
         DISPLAY_MONITOR_WIDTH,
         DISPLAY_MONITOR_HEIGHT,
         DISPLAY_MONITOR_WIDTH,
         buf,
-        dword_56FB4C);
+        _intface_full_width);
 
     int oldFont = fontGetCurrent();
     fontSetCurrent(DISPLAY_MONITOR_FONT);
 
-    for (int index = 0; index < dword_56FB40; index++) {
-        int stringIndex = (dword_56FB48 + gDisplayMonitorLinesCapacity + index - dword_56FB40) % gDisplayMonitorLinesCapacity;
-        fontDrawText(buf + index * dword_56FB4C * fontGetLineHeight(), gDisplayMonitorLines[stringIndex], DISPLAY_MONITOR_WIDTH, dword_56FB4C, byte_6A38D0[992]);
+    for (int index = 0; index < _max_disp; index++) {
+        int stringIndex = (_disp_curr + gDisplayMonitorLinesCapacity + index - _max_disp) % gDisplayMonitorLinesCapacity;
+        fontDrawText(buf + index * _intface_full_width * fontGetLineHeight(), gDisplayMonitorLines[stringIndex], DISPLAY_MONITOR_WIDTH, _intface_full_width, _colorTable[992]);
 
         // Even though the display monitor is rectangular, it's graphic is not.
         // To give a feel of depth it's covered by some metal canopy and
@@ -309,8 +309,8 @@ void displayMonitorRefresh()
 // 0x431B70
 void displayMonitorScrollUpOnMouseDown(int btn, int keyCode)
 {
-    if ((gDisplayMonitorLinesCapacity + dword_56FB48 - 1) % gDisplayMonitorLinesCapacity != dword_56FB54) {
-        dword_56FB48 = (gDisplayMonitorLinesCapacity + dword_56FB48 - 1) % gDisplayMonitorLinesCapacity;
+    if ((gDisplayMonitorLinesCapacity + _disp_curr - 1) % gDisplayMonitorLinesCapacity != _disp_start) {
+        _disp_curr = (gDisplayMonitorLinesCapacity + _disp_curr - 1) % gDisplayMonitorLinesCapacity;
         displayMonitorRefresh();
     }
 }
@@ -318,8 +318,8 @@ void displayMonitorScrollUpOnMouseDown(int btn, int keyCode)
 // 0x431B9C
 void displayMonitorScrollDownOnMouseDown(int btn, int keyCode)
 {
-    if (dword_56FB48 != dword_56FB54) {
-        dword_56FB48 = (dword_56FB48 + 1) % gDisplayMonitorLinesCapacity;
+    if (_disp_curr != _disp_start) {
+        _disp_curr = (_disp_curr + 1) % gDisplayMonitorLinesCapacity;
         displayMonitorRefresh();
     }
 }

@@ -5,15 +5,15 @@
 #include <stdlib.h>
 
 // 0x51DEF4
-RectListNode* off_51DEF4 = NULL;
+RectListNode* _rectList = NULL;
 
 // 0x4C6900
 void _GNW_rect_exit()
 {
-    while (off_51DEF4 != NULL) {
-        RectListNode* next = off_51DEF4->next;
-        internal_free(off_51DEF4);
-        off_51DEF4 = next;
+    while (_rectList != NULL) {
+        RectListNode* next = _rectList->next;
+        internal_free(_rectList);
+        _rectList = next;
     }
 }
 
@@ -35,8 +35,8 @@ void _rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
 
             *rectListNodePtr = rectListNode->next;
 
-            rectListNode->next = off_51DEF4;
-            off_51DEF4 = rectListNode;
+            rectListNode->next = _rectList;
+            _rectList = rectListNode;
 
             if (v2.top < v1.top) {
                 RectListNode* newRectListNode = _rect_malloc();
@@ -106,7 +106,7 @@ void _rect_clip_list(RectListNode** rectListNodePtr, Rect* rect)
 // 0x4C6BB8
 RectListNode* _rect_malloc()
 {
-    if (off_51DEF4 == NULL) {
+    if (_rectList == NULL) {
         for (int index = 0; index < 10; index++) {
             RectListNode* rectListNode = internal_malloc(sizeof(*rectListNode));
             if (rectListNode == NULL) {
@@ -118,12 +118,12 @@ RectListNode* _rect_malloc()
         }
     }
 
-    if (off_51DEF4 == NULL) {
+    if (_rectList == NULL) {
         return NULL;
     }
 
-    RectListNode* rectListNode = off_51DEF4;
-    off_51DEF4 = off_51DEF4->next;
+    RectListNode* rectListNode = _rectList;
+    _rectList = _rectList->next;
 
     return rectListNode;
 }
@@ -131,8 +131,8 @@ RectListNode* _rect_malloc()
 // 0x4C6C04
 void _rect_free(RectListNode* rectListNode)
 {
-    rectListNode->next = off_51DEF4;
-    off_51DEF4 = rectListNode;
+    rectListNode->next = _rectList;
+    _rectList = rectListNode;
 }
 
 // Calculates a union of two source rectangles and places it into result

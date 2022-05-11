@@ -3,7 +3,7 @@
 
 #include "audio_file.h"
 
-extern AudioFileIsCompressedProc* off_5108BC;
+extern AudioFileIsCompressedProc* _queryCompressedFunc;
 
 extern int gAudioListLength;
 extern AudioFile* gAudioList;

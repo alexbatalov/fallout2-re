@@ -17,21 +17,21 @@ typedef struct STRUCT_6B2370 {
     int field_8;
 } STRUCT_6B2370;
 
-extern int dword_51E414;
-extern int dword_51E418;
-extern bool dword_51E41C;
+extern int _wd;
+extern int _curr_menu;
+extern bool _tm_watch_active;
 
-extern STRUCT_6B2340 stru_6B2340[5];
-extern int dword_6B2368;
-extern int dword_6B236C;
-extern STRUCT_6B2370 stru_6B2370[5];
-extern int dword_6B23AC;
-extern int dword_6B23B0;
-extern int dword_6B23B4;
-extern int dword_6B23B8;
-extern int dword_6B23BC;
-extern int dword_6B23C0;
-extern int dword_6B23C4;
+extern STRUCT_6B2340 _tm_location[5];
+extern int _tm_text_x;
+extern int _tm_h;
+extern STRUCT_6B2370 _tm_queue[5];
+extern int _tm_persistence;
+extern int _scr_center_x;
+extern int _tm_text_y;
+extern int _tm_kill;
+extern int _tm_add;
+extern int _curry;
+extern int _currx;
 extern char gProgramWindowTitle[256];
 
 int _win_debug(char* a1);

@@ -37,15 +37,15 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
     colorPaletteLoad("color.pal");
 
     if (useReversedStyle) {
-        gCreditsWindowTitleColor = byte_6A38D0[18917];
+        gCreditsWindowTitleColor = _colorTable[18917];
         gCreditsWindowNameFont = 103;
         gCreditsWindowTitleFont = 104;
-        gCreditsWindowNameColor = byte_6A38D0[13673];
+        gCreditsWindowNameColor = _colorTable[13673];
     } else {
-        gCreditsWindowTitleColor = byte_6A38D0[13673];
+        gCreditsWindowTitleColor = _colorTable[13673];
         gCreditsWindowNameFont = 104;
         gCreditsWindowTitleFont = 103;
-        gCreditsWindowNameColor = byte_6A38D0[18917];
+        gCreditsWindowNameColor = _colorTable[18917];
     }
 
     soundContinueAll();
@@ -64,7 +64,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                 mouseShowCursor();
             }
 
-            int window = windowCreate(0, 0, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_HEIGHT, byte_6A38D0[0], 20);
+            int window = windowCreate(0, 0, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_HEIGHT, _colorTable[0], 20);
             soundContinueAll();
             if (window != -1) {
                 unsigned char* windowBuffer = windowGetBuffer(window);
@@ -73,7 +73,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                     if (backgroundBuffer) {
                         soundContinueAll();
 
-                        memset(backgroundBuffer, byte_6A38D0[0], CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
+                        memset(backgroundBuffer, _colorTable[0], CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
 
                         if (backgroundFid != -1) {
                             CacheEntry* backgroundFrmHandle;
@@ -115,7 +115,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                                 windowRefresh(window);
 
-                                paletteFadeTo(stru_51DF34);
+                                paletteFadeTo(_cmap);
 
                                 unsigned char* v40 = intermediateBuffer + CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH;
                                 char str[260];
@@ -247,7 +247,7 @@ bool creditsFileParseNextLine(char* dest, int* font, int* color)
             pch = string + 1;
         } else if (string[0] == '#') {
             *font = gCreditsWindowNameFont;
-            *color = byte_6A38D0[17969];
+            *color = _colorTable[17969];
             pch = string + 1;
         } else {
             *font = gCreditsWindowNameFont;

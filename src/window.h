@@ -67,42 +67,42 @@ typedef struct ManagedWindow {
 
 typedef int (*INITVIDEOFN)();
 
-extern int dword_51DCAC;
-extern int dword_51DCB0;
-extern int dword_51DCB4;
+extern int _holdTime;
+extern int _checkRegionEnable;
+extern int _winTOS;
 extern int gCurrentManagedWindowIndex;
-extern INITVIDEOFN off_51DCBC[12];
-extern Size stru_51DD1C[12];
+extern INITVIDEOFN _gfx_init[12];
+extern Size _sizes_x[12];
 
-extern int dword_66E770[MANAGED_WINDOW_COUNT];
-extern char byte_66E7B0[64 * 256];
+extern int _winStack[MANAGED_WINDOW_COUNT];
+extern char _alphaBlendTable[64 * 256];
 extern ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 
-extern void(*off_672D78)(int, ManagedWindow*);
-extern int dword_672D7C;
-extern int dword_672D88;
-extern int dword_672D8C;
+extern void(*_selectWindowFunc)(int, ManagedWindow*);
+extern int _xres;
+extern int _yres;
+extern int _currentHighlightColorR;
 extern int gWidgetFont;
-extern int dword_672DA0;
-extern int dword_672DA4;
+extern int _currentTextColorG;
+extern int _currentTextColorB;
 extern int gWidgetTextFlags;
-extern int dword_672DAC;
-extern int dword_672DB0;
-extern int dword_672DB4;
+extern int _currentTextColorR;
+extern int _currentHighlightColorG;
+extern int _currentHighlightColorB;
 
-bool sub_4B7680();
+bool _windowDraw();
 bool _selectWindowID(int index);
-int sub_4B821C(const char* windowName);
-unsigned char* sub_4B82DC();
-int sub_4B8330(const char* windowName);
-int sub_4B83D4();
+int _selectWindow(const char* windowName);
+unsigned char* _windowGetBuffer();
+int _pushWindow(const char* windowName);
+int _popWindow();
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment);
 char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLengthPtr);
 void _windowFreeWordList(char** substringList, int substringListLength);
 void _windowWrapLineWithSpacing(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9);
 void _windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
-bool sub_4B8920(char* string, int a2, int textAlignment);
-bool sub_4B89B0(char* string, int x, int y, int width, int height, int textAlignment);
+bool _windowPrintRect(char* string, int a2, int textAlignment);
+bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment);
 int _windowGetXres();
 int _windowGetYres();
 void _removeProgramReferences_3(Program* program);

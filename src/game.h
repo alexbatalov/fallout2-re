@@ -6,19 +6,19 @@
 
 #include <stdbool.h>
 
-extern char byte_501C9C[];
+extern char _aGame_0[];
 
 extern bool gGameUiDisabled;
-extern int dword_5186B8;
+extern int _game_state_cur;
 extern bool gIsMapper;
 extern int* gGameGlobalVars;
 extern int gGameGlobalVarsLength;
 extern const char* asc_5186C8;
-extern int dword_5186CC;
+extern int _game_user_wants_to_quit;
 
 extern MessageList gMiscMessageList;
-extern int dword_58E948;
-extern int dword_58E94C;
+extern int _master_db_handle;
+extern int _critter_db_handle;
 
 int gameInitWithOptions(const char* windowTitle, bool isMapper, int a3, int a4, int argc, char** argv);
 void gameReset();

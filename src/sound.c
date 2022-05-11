@@ -10,13 +10,13 @@
 static_assert(sizeof(Sound) == 156, "wrong size");
 
 // 0x51D478
-STRUCT_51D478* off_51D478 = NULL;
+STRUCT_51D478* _fadeHead = NULL;
 
 // 0x51D47C
-STRUCT_51D478* off_51D47C = NULL;
+STRUCT_51D478* _fadeFreeList = NULL;
 
 // 0x51D480
-unsigned int dword_51D480 = UINT_MAX;
+unsigned int _fadeEventHandle = UINT_MAX;
 
 // 0x51D488
 MallocProc* gSoundMallocProc = soundMallocProcDefaultImpl;
@@ -40,7 +40,7 @@ SoundFileIO gSoundDefaultFileIO = {
 };
 
 // 0x51D4B4
-char* (*off_51D4B4)(char* path) = sub_4AC78C;
+char* (*_nameMangler)(char* path) = _defaultMangler_;
 
 // 0x51D4B8
 const char* gSoundErrorDescriptions[SOUND_ERR_COUNT] = {
@@ -83,27 +83,27 @@ const char* gSoundErrorDescriptions[SOUND_ERR_COUNT] = {
 int gSoundLastError;
 
 // 0x668154
-int dword_668154;
+int _masterVol;
 
 // 0x668158
 LPDIRECTSOUNDBUFFER gDirectSoundPrimaryBuffer;
 
 // 0x66815C
-int dword_66815C;
+int _sampleRate;
 
 // Number of sounds currently playing.
 //
 // 0x668160
-int dword_668160;
+int _numSounds;
 
 // 0x668164
-int dword_668164;
+int _deviceInit;
 
 // 0x668168
-int dword_668168;
+int _dataSize;
 
 // 0x66816C
-int dword_66816C;
+int _numBuffers;
 
 // 0x668170
 bool gSoundInitialized;
@@ -141,7 +141,7 @@ void soundSetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeP
 }
 
 // 0x4AC78C
-char* sub_4AC78C(char* fname)
+char* _defaultMangler_(char* fname)
 {
     return fname;
 }
@@ -356,11 +356,11 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
         return gSoundLastError;
     }
 
-    dword_66815C = rate;
-    dword_668168 = a4;
-    dword_66816C = a2;
+    _sampleRate = rate;
+    _dataSize = a4;
+    _numBuffers = a2;
     gSoundInitialized = true;
-    dword_668164 = 1;
+    _deviceInit = 1;
 
     DSBUFFERDESC dsbdesc;
     memset(&dsbdesc, 0, sizeof(dsbdesc));
@@ -483,14 +483,14 @@ void soundExit()
         gSoundListHead = next;
     }
 
-    if (dword_51D480 != -1) {
-        _removeTimedEvent(&dword_51D480);
+    if (_fadeEventHandle != -1) {
+        _removeTimedEvent(&_fadeEventHandle);
     }
 
-    while (off_51D47C != NULL) {
-        STRUCT_51D478* next = off_51D47C->next;
-        gSoundFreeProc(off_51D47C);
-        off_51D47C = next;
+    while (_fadeFreeList != NULL) {
+        STRUCT_51D478* next = _fadeFreeList->next;
+        gSoundFreeProc(_fadeFreeList);
+        _fadeFreeList = next;
     }
 
     if (gDirectSoundPrimaryBuffer != NULL) {
@@ -536,21 +536,21 @@ Sound* soundAllocate(int a1, int a2)
         a2 |= 0x02;
     }
 
-    wfxFormat->nSamplesPerSec = dword_66815C;
+    wfxFormat->nSamplesPerSec = _sampleRate;
     wfxFormat->nBlockAlign = wfxFormat->nChannels * (wfxFormat->wBitsPerSample / 8);
     wfxFormat->cbSize = 0;
     wfxFormat->nAvgBytesPerSec = wfxFormat->nBlockAlign * wfxFormat->nSamplesPerSec;
 
     sound->field_3C = a2;
     sound->field_44 = a1;
-    sound->field_7C = dword_668168;
+    sound->field_7C = _dataSize;
     sound->field_64 = 0;
     sound->directSoundBuffer = 0;
     sound->field_40 = 0;
     sound->directSoundBufferDescription.dwSize = sizeof(DSBUFFERDESC);
     sound->directSoundBufferDescription.dwFlags = DSBCAPS_GETCURRENTPOSITION2;
-    sound->field_78 = dword_66816C;
-    sound->readLimit = sound->field_7C * dword_66816C;
+    sound->field_78 = _numBuffers;
+    sound->readLimit = sound->field_7C * _numBuffers;
 
     if (a2 & 0x2) {
         sound->directSoundBufferDescription.dwFlags |= DSBCAPS_CTRLVOLUME;
@@ -665,7 +665,7 @@ int soundLoad(Sound* sound, char* filePath)
         return gSoundLastError;
     }
 
-    sound->io.fd = sound->io.open(off_51D4B4(filePath), 0x0200);
+    sound->io.fd = sound->io.open(_nameMangler(filePath), 0x0200);
     if (sound->io.fd == -1) {
         gSoundLastError = SOUND_FILE_NOT_FOUND;
         return gSoundLastError;
@@ -807,7 +807,7 @@ int soundPlay(Sound* sound)
 
     sound->field_40 |= SOUND_FLAG_SOUND_IS_PLAYING;
 
-    ++dword_668160;
+    ++_numSounds;
 
     gSoundLastError = SOUND_NO_ERROR;
     return gSoundLastError;
@@ -840,7 +840,7 @@ int soundStop(Sound* sound)
     }
 
     sound->field_40 &= ~SOUND_FLAG_SOUND_IS_PLAYING;
-    dword_668160--;
+    _numSounds--;
 
     gSoundLastError = SOUND_NO_ERROR;
     return gSoundLastError;
@@ -926,7 +926,7 @@ int soundContinue(Sound* sound)
             sound->field_40 |= 0x01;
 
             if (sound->field_40 & 0x02) {
-                --dword_668160;
+                --_numSounds;
             }
 
             soundStop(sound);
@@ -1098,7 +1098,7 @@ int soundSetVolume(Sound* sound, int volume)
         return gSoundLastError;
     }
 
-    normalizedVolume = _soundVolumeHMItoDirectSound(dword_668154 * volume / VOLUME_MAX);
+    normalizedVolume = _soundVolumeHMItoDirectSound(_masterVol * volume / VOLUME_MAX);
 
     hr = IDirectSoundBuffer_SetVolume(sound->directSoundBuffer, normalizedVolume);
     if (hr != DS_OK) {
@@ -1118,7 +1118,7 @@ int _soundGetVolume(Sound* sound)
     int v8;
     int diff;
 
-    if (!dword_668164) {
+    if (!_deviceInit) {
         gSoundLastError = SOUND_NOT_INITIALIZED;
         return gSoundLastError;
     }
@@ -1138,7 +1138,7 @@ int _soundGetVolume(Sound* sound)
         v13 = (int)(32767.0 / pow(2.0, (volume * 0.001)));
     }
 
-    v8 = VOLUME_MAX * v13 / dword_668154;
+    v8 = VOLUME_MAX * v13 / _masterVol;
     diff = abs(v8 - sound->volume);
     if (diff > 20) {
         debugPrint("Actual sound volume differs significantly from noted volume actual %x stored %x, diff %d.", v8, sound->volume, diff);
@@ -1187,7 +1187,7 @@ int soundSetChannels(Sound* sound, int channels)
 
         format->nBlockAlign = (2 * format->wBitsPerSample) / 8;
         format->nChannels = 2;
-        format->nAvgBytesPerSec = format->nBlockAlign * dword_66815C;
+        format->nAvgBytesPerSec = format->nBlockAlign * _sampleRate;
     }
 
     gSoundLastError = SOUND_NO_ERROR;
@@ -1347,7 +1347,7 @@ void soundDeleteInternal(Sound* sound)
     Sound* v11;
 
     if (sound->field_40 & 0x04) {
-        curr = off_51D478;
+        curr = _fadeHead;
 
         while (curr != NULL) {
             if (sound == curr->field_0) {
@@ -1410,7 +1410,7 @@ int _soundSetMasterVolume(int volume)
         return gSoundLastError;
     }
 
-    dword_668154 = volume;
+    _masterVol = volume;
 
     Sound* curr = gSoundListHead;
     while (curr != NULL) {
@@ -1423,7 +1423,7 @@ int _soundSetMasterVolume(int volume)
 }
 
 // 0x4AE5C8
-void CALLBACK sub_4AE5C8(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
+void CALLBACK _doTimerEvent(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2)
 {
     void (*fn)();
 
@@ -1545,7 +1545,7 @@ void _removeFadeSound(STRUCT_51D478* a1)
     if (prev != NULL) {
         prev->next = a1->next;
     } else {
-        off_51D478 = a1->next;
+        _fadeHead = a1->next;
     }
 
     next = a1->next;
@@ -1556,8 +1556,8 @@ void _removeFadeSound(STRUCT_51D478* a1)
     a1->field_0->field_40 &= ~(0x04);
     a1->field_0 = NULL;
 
-    tmp = off_51D47C;
-    off_51D47C = a1;
+    tmp = _fadeFreeList;
+    _fadeFreeList = a1;
     a1->next = tmp;
 }
 
@@ -1566,7 +1566,7 @@ void _fadeSounds()
 {
     STRUCT_51D478* ptr;
 
-    ptr = off_51D478;
+    ptr = _fadeHead;
     while (ptr != NULL) {
         if ((ptr->field_10 > ptr->field_8 || ptr->field_10 + ptr->field_4 < ptr->field_8) && (ptr->field_10 < ptr->field_8 || ptr->field_10 + ptr->field_4 > ptr->field_8)) {
             ptr->field_10 += ptr->field_4;
@@ -1595,9 +1595,9 @@ void _fadeSounds()
         }
     }
 
-    if (off_51D478 == NULL && dword_51D480 != -1) {
-        timeKillEvent(dword_51D480);
-        dword_51D480 = -1;
+    if (_fadeHead == NULL && _fadeEventHandle != -1) {
+        timeKillEvent(_fadeEventHandle);
+        _fadeEventHandle = -1;
     }
 }
 
@@ -1606,7 +1606,7 @@ int _internalSoundFade(Sound* sound, int a2, int a3, int a4)
 {
     STRUCT_51D478* ptr;
 
-    if (!dword_668164) {
+    if (!_deviceInit) {
         gSoundLastError = SOUND_NOT_INITIALIZED;
         return gSoundLastError;
     }
@@ -1618,7 +1618,7 @@ int _internalSoundFade(Sound* sound, int a2, int a3, int a4)
 
     ptr = NULL;
     if (sound->field_40 & 0x04) {
-        ptr = off_51D478;
+        ptr = _fadeHead;
         while (ptr != NULL) {
             if (ptr->field_0 == sound) {
                 break;
@@ -1629,22 +1629,22 @@ int _internalSoundFade(Sound* sound, int a2, int a3, int a4)
     }
 
     if (ptr == NULL) {
-        if (off_51D47C != NULL) {
-            ptr = off_51D47C;
-            off_51D47C = off_51D47C->next;
+        if (_fadeFreeList != NULL) {
+            ptr = _fadeFreeList;
+            _fadeFreeList = _fadeFreeList->next;
         } else {
             ptr = (STRUCT_51D478*)gSoundMallocProc(sizeof(STRUCT_51D478));
         }
 
         if (ptr != NULL) {
-            if (off_51D478 != NULL) {
-                off_51D478->prev = ptr;
+            if (_fadeHead != NULL) {
+                _fadeHead->prev = ptr;
             }
 
             ptr->field_0 = sound;
             ptr->prev = NULL;
-            ptr->next = off_51D478;
-            off_51D478 = ptr;
+            ptr->next = _fadeHead;
+            _fadeHead = ptr;
         }
     }
 
@@ -1679,13 +1679,13 @@ int _internalSoundFade(Sound* sound, int a2, int a3, int a4)
         soundPlay(sound);
     }
 
-    if (dword_51D480 != -1) {
+    if (_fadeEventHandle != -1) {
         gSoundLastError = SOUND_NO_ERROR;
         return gSoundLastError;
     }
 
-    dword_51D480 = timeSetEvent(40, 10, sub_4AE5C8, (DWORD_PTR)_fadeSounds, 1);
-    if (dword_51D480 == 0) {
+    _fadeEventHandle = timeSetEvent(40, 10, _doTimerEvent, (DWORD_PTR)_fadeSounds, 1);
+    if (_fadeEventHandle == 0) {
         gSoundLastError = SOUND_UNKNOWN_ERROR;
         return gSoundLastError;
     }

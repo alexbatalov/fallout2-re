@@ -29,7 +29,7 @@
 #include <time.h>
 
 // 0x50D6B8
-char byte_50D6B8[] = "Error";
+char _Error_2[] = "Error";
 
 // 0x50D6C0
 char byte_50D6C0[] = "";
@@ -37,7 +37,7 @@ char byte_50D6C0[] = "";
 // Number of lines in scripts.lst
 //
 // 0x51C6AC
-int dword_51C6AC = 0;
+int _num_script_indexes = 0;
 
 // 0x51C6B0
 int gScriptsEnumerationScriptIndex = 0;
@@ -49,7 +49,7 @@ ScriptListExtent* gScriptsEnumerationScriptListExtent = NULL;
 int gScriptsEnumerationElevation = 0;
 
 // 0x51C6BC
-bool dword_51C6BC = true;
+bool _scr_SpatialsEnabled = true;
 
 // 0x51C6C0
 ScriptList gScriptLists[SCRIPT_TYPE_COUNT];
@@ -61,10 +61,10 @@ const char* gScriptsBasePath = "scripts\\";
 bool gScriptsEnabled = false;
 
 // 0x51C718
-int dword_51C718 = 0;
+int _script_engine_run_critters = 0;
 
 // 0x51C71C
-int dword_51C71C = 0;
+int _script_engine_game_mode = 0;
 
 // Game time in ticks (1/10 second).
 //
@@ -128,28 +128,28 @@ ScriptsListEntry* gScriptsListEntries = NULL;
 int gScriptsListEntriesLength = 0;
 
 // 0x51C7D4
-int dword_51C7D4 = 4;
+int _cur_id = 4;
 
 // 0x51C7DC
-int dword_51C7DC = 0;
+int _count_ = 0;
 
 // 0x51C7E0
-int dword_51C7E0 = 0;
+int _last_time__ = 0;
 
 // 0x51C7E4
-int dword_51C7E4 = 0;
+int _last_light_time = 0;
 
 // 0x51C7E8
-Object* dword_51C7E8 = NULL;
+Object* _scrQueueTestObj = NULL;
 
 // 0x51C7EC
-int dword_51C7EC = 0;
+int _scrQueueTestValue = 0;
 
 // 0x51C7F0
-char* off_51C7F0 = byte_50D6B8;
+char* _err_str = _Error_2;
 
 // 0x51C7F4
-char* off_51C7F4 = byte_50D6C0;
+char* _blank_str = byte_50D6C0;
 
 // 0x664954
 ScriptRequests gScriptsRequests;
@@ -194,7 +194,7 @@ Object* gScriptsRequestedStealingBy;
 Object* gScriptsRequestedStealingFrom;
 
 // 0x6649D4
-MessageList stru_6649D4[1450];
+MessageList _script_dialog_msgs[1450];
 
 // scr.msg
 //
@@ -204,16 +204,16 @@ MessageList gScrMessageList;
 // time string (h:ss)
 //
 // 0x66772C
-char byte_66772C[7];
+char _hour_str[7];
 
 // 0x667748
-int dword_667748;
+int _lasttime;
 
 // 0x66774C
-bool dword_66774C;
+bool _set;
 
 // 0x667750
-char byte_667750[20];
+char _tempStr1[20];
 
 // TODO: Make unsigned.
 //
@@ -279,8 +279,8 @@ int gameTimeGetHour()
 // 0x4A3420
 char* gameTimeGetTimeString()
 {
-    sprintf(byte_66772C, "%d:%02d", (gGameTime / 600) / 60 % 24, (gGameTime / 600) % 60);
-    return byte_66772C;
+    sprintf(_hour_str, "%d:%02d", (gGameTime / 600) / 60 % 24, (gGameTime / 600) % 60);
+    return _hour_str;
 }
 
 // TODO: Make unsigned.
@@ -305,7 +305,7 @@ void gameTimeAddTicks(int ticks)
     unsigned int year = gGameTime / GAME_TIME_TICKS_PER_YEAR;
     if (year >= 13) {
         endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_TIMEOUT);
-        dword_5186CC = 2;
+        _game_user_wants_to_quit = 2;
     }
 
     // FIXME: This condition will never be true.
@@ -430,7 +430,7 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
     }
 
     if (endgame) {
-        dword_5186CC = 2;
+        _game_user_wants_to_quit = 2;
     } else {
         tileWindowRefresh();
     }
@@ -467,11 +467,11 @@ int scriptsNewObjectId()
     Object* ptr;
 
     do {
-        dword_51C7D4++;
+        _cur_id++;
         ptr = objectFindFirst();
 
         while (ptr) {
-            if (dword_51C7D4 == ptr->id) {
+            if (_cur_id == ptr->id) {
                 break;
             }
 
@@ -479,13 +479,13 @@ int scriptsNewObjectId()
         }
     } while (ptr);
 
-    if (dword_51C7D4 >= 18000) {
+    if (_cur_id >= 18000) {
         debugPrint("\n    ERROR: new_obj_id() !!!! Picked PLAYER ID!!!!");
     }
 
-    dword_51C7D4++;
+    _cur_id++;
 
-    return dword_51C7D4;
+    return _cur_id;
 }
 
 // 0x4A390C
@@ -601,7 +601,7 @@ Program* scriptsCreateProgramByName(const char* name)
 {
     char path[MAX_PATH];
 
-    strcpy(path, byte_51C18C);
+    strcpy(path, _cd_path_base);
     strcat(path, gScriptsBasePath);
     strcat(path, name);
     strcat(path, ".int");
@@ -612,14 +612,14 @@ Program* scriptsCreateProgramByName(const char* name)
 // 0x4A3C2C
 void _doBkProcesses()
 {
-    if (!dword_66774C) {
-        dword_667748 = _get_bk_time();
-        dword_66774C = 1;
+    if (!_set) {
+        _lasttime = _get_bk_time();
+        _set = 1;
     }
 
     int v0 = _get_bk_time();
     if (gScriptsEnabled) {
-        dword_667748 = v0;
+        _lasttime = v0;
 
         // NOTE: There is a loop at 0x4A3C64, consisting of one iteration, going
         // downwards from 1.
@@ -630,7 +630,7 @@ void _doBkProcesses()
 
     _updateWindows();
 
-    if (gScriptsEnabled && dword_51C718) {
+    if (gScriptsEnabled && _script_engine_run_critters) {
         if (!_gdialogActive()) {
             _script_chk_critters();
             _script_chk_timed_events();
@@ -654,15 +654,15 @@ void _script_chk_critters()
             scriptListExtent = scriptListExtent->next;
         }
 
-        dword_51C7DC += 1;
-        if (dword_51C7DC >= scriptsCount) {
-            dword_51C7DC = 0;
+        _count_ += 1;
+        if (_count_ >= scriptsCount) {
+            _count_ = 0;
         }
 
-        if (dword_51C7DC < scriptsCount) {
+        if (_count_ < scriptsCount) {
             int proc = isInCombat() ? SCRIPT_PROC_COMBAT : SCRIPT_PROC_CRITTER;
-            int extentIndex = dword_51C7DC / SCRIPT_LIST_EXTENT_SIZE;
-            int scriptIndex = dword_51C7DC % SCRIPT_LIST_EXTENT_SIZE;
+            int extentIndex = _count_ / SCRIPT_LIST_EXTENT_SIZE;
+            int scriptIndex = _count_ % SCRIPT_LIST_EXTENT_SIZE;
 
             scriptList = &(gScriptLists[SCRIPT_TYPE_CRITTER]);
             scriptListExtent = scriptList->head;
@@ -692,16 +692,16 @@ void _script_chk_timed_events()
     }
 
     if (_game_state() != 4) {
-        if (getTicksBetween(v0, dword_51C7E4) >= 30000) {
-            dword_51C7E4 = v0;
+        if (getTicksBetween(v0, _last_light_time) >= 30000) {
+            _last_light_time = v0;
             scriptsExecMapUpdateScripts(SCRIPT_PROC_MAP_UPDATE);
         }
     } else {
         v1 = false;
     }
 
-    if (getTicksBetween(v0, dword_51C7E0) >= 100) {
-        dword_51C7E0 = v0;
+    if (getTicksBetween(v0, _last_time__) >= 100) {
+        _last_time__ = v0;
         if (!isInCombat()) {
             gGameTime += 1;
         }
@@ -724,15 +724,15 @@ void _script_chk_timed_events()
 // 0x4A3E30
 void _scrSetQueueTestVals(Object* a1, int a2)
 {
-    dword_51C7E8 = a1;
-    dword_51C7EC = a2;
+    _scrQueueTestObj = a1;
+    _scrQueueTestValue = a2;
 }
 
 // 0x4A3E3C
 int _scrQueueRemoveFixed(Object* obj, void* data)
 {
     ScriptEvent* scriptEvent = data;
-    return obj == dword_51C7E8 && scriptEvent->field_4 == dword_51C7EC;
+    return obj == _scrQueueTestObj && scriptEvent->field_4 == _scrQueueTestValue;
 }
 
 // 0x4A3E60
@@ -1071,7 +1071,7 @@ void _scripts_request_combat_locked(STRUCT_664980* a1)
 void scriptsRequestWorldMap()
 {
     if (isInCombat()) {
-        dword_5186CC = 1;
+        _game_user_wants_to_quit = 1;
     }
 
     gScriptsRequests |= SCRIPT_REQUEST_WORLD_MAP;
@@ -1440,7 +1440,7 @@ int scriptsInit()
     }
 
     for (int index = 0; index < 1450; index++) {
-        if (!messageListInit(&(stru_6649D4[index]))) {
+        if (!messageListInit(&(_script_dialog_msgs[index]))) {
             return -1;
         }
     }
@@ -1487,7 +1487,7 @@ int _scr_game_init()
     }
 
     for (i = 0; i < 1450; i++) {
-        if (!messageListInit(&(stru_6649D4[i]))) {
+        if (!messageListInit(&(_script_dialog_msgs[i]))) {
             debugPrint("\nERROR IN SCRIPT_DIALOG_MSGS!");
             return -1;
         }
@@ -1500,7 +1500,7 @@ int _scr_game_init()
     }
 
     gScriptsEnabled = true;
-    dword_51C71C = 1;
+    _script_engine_game_mode = 1;
     gGameTime = 1;
     gameTimeSetTime(302400);
     tickersAdd(_doBkProcesses);
@@ -1509,7 +1509,7 @@ int _scr_game_init()
         return -1;
     }
 
-    dword_51C6BC = true;
+    _scr_SpatialsEnabled = true;
 
     // NOTE: Uninline.
     scriptsClearPendingRequests();
@@ -1532,7 +1532,7 @@ int scriptsReset()
 int scriptsExit()
 {
     gScriptsEnabled = false;
-    dword_51C718 = 0;
+    _script_engine_run_critters = 0;
     if (!messageListFree(&gScrMessageList)) {
         debugPrint("\nError exiting script message file!");
         return -1;
@@ -1557,7 +1557,7 @@ int scriptsExit()
 int _scr_message_free()
 {
     for (int index = 0; index < 1450; index++) {
-        MessageList* messageList = &(stru_6649D4[index]);
+        MessageList* messageList = &(_script_dialog_msgs[index]);
         if (messageList->entries_num != 0) {
             if (!messageListFree(messageList)) {
                 debugPrint("\nERROR in scr_message_free!");
@@ -1577,9 +1577,9 @@ int _scr_message_free()
 // 0x4A535C
 int _scr_game_exit()
 {
-    dword_51C71C = 0;
+    _script_engine_game_mode = 0;
     gScriptsEnabled = false;
-    dword_51C718 = 0;
+    _script_engine_run_critters = 0;
     _scr_message_free();
     _scr_remove_all();
     programListFree();
@@ -1599,11 +1599,11 @@ int _scr_game_exit()
 // 0x4A53A8
 int scriptsEnable()
 {
-    if (!dword_51C71C) {
+    if (!_script_engine_game_mode) {
         return -1;
     }
 
-    dword_51C718 = 1;
+    _script_engine_run_critters = 1;
     gScriptsEnabled = true;
     return 0;
 }
@@ -1619,13 +1619,13 @@ int scriptsDisable()
 // 0x4A53E0
 void _scr_enable_critters()
 {
-    dword_51C718 = 1;
+    _script_engine_run_critters = 1;
 }
 
 // 0x4A53F0
 void _scr_disable_critters()
 {
-    dword_51C718 = 0;
+    _script_engine_run_critters = 0;
 }
 
 // 0x4A5400
@@ -1666,10 +1666,10 @@ int scriptsSkipGameGlobalVars(File* stream)
 // 0x4A5490
 int _scr_header_load()
 {
-    dword_51C6AC = 0;
+    _num_script_indexes = 0;
 
     char path[MAX_PATH];
-    strcpy(path, byte_51C18C);
+    strcpy(path, _cd_path_base);
     strcat(path, gScriptsBasePath);
     strcat(path, "scripts.lst");
 
@@ -1685,11 +1685,11 @@ int _scr_header_load()
         }
 
         if (ch == '\n') {
-            dword_51C6AC++;
+            _num_script_indexes++;
         }
     }
 
-    dword_51C6AC++;
+    _num_script_indexes++;
 
     fileClose(stream);
 
@@ -2403,13 +2403,13 @@ Script* scriptGetNextSpatialScript()
 // 0x4A65F0
 void _scr_spatials_enable()
 {
-    dword_51C6BC = true;
+    _scr_SpatialsEnabled = true;
 }
 
 // 0x4A6600
 void _scr_spatials_disable()
 {
-    dword_51C6BC = false;
+    _scr_SpatialsEnabled = false;
 }
 
 // 0x4A6610
@@ -2431,11 +2431,11 @@ bool scriptsExecSpatialProc(Object* object, int tile, int elevation)
         return false;
     }
 
-    if (!dword_51C6BC) {
+    if (!_scr_SpatialsEnabled) {
         return false;
     }
 
-    dword_51C6BC = false;
+    _scr_SpatialsEnabled = false;
 
     int builtTile = ((elevation << 29) & 0xE0000000) | tile;
 
@@ -2460,7 +2460,7 @@ bool scriptsExecSpatialProc(Object* object, int tile, int elevation)
         scriptExecProc(script->sid, SCRIPT_PROC_SPATIAL);
     }
 
-    dword_51C6BC = true;
+    _scr_SpatialsEnabled = true;
 
     return true;
 }
@@ -2500,7 +2500,7 @@ void scriptsExecMapUpdateProc()
 // 0x4A67EC
 void scriptsExecMapUpdateScripts(int proc)
 {
-    dword_51C6BC = false;
+    _scr_SpatialsEnabled = false;
 
     int fixedParam = 0;
     if (proc == SCRIPT_PROC_MAP_ENTER) {
@@ -2561,7 +2561,7 @@ void scriptsExecMapUpdateScripts(int proc)
 
     internal_free(sidList);
 
-    dword_51C6BC = true;
+    _scr_SpatialsEnabled = true;
 }
 
 // 0x4A69A0
@@ -2578,7 +2578,7 @@ int scriptsGetMessageList(int a1, MessageList** messageListPtr)
     }
 
     int messageListIndex = a1 - 1;
-    MessageList* messageList = &(stru_6649D4[messageListIndex]);
+    MessageList* messageList = &(_script_dialog_msgs[messageListIndex]);
     if (messageList->entries_num == 0) {
         char scriptName[20];
         scriptName[0] = '\0';
@@ -2619,11 +2619,11 @@ char* _scr_get_msg_str(int messageListId, int messageId)
 char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
 {
     if (messageListId == 0 && messageId == 0) {
-        return off_51C7F4;
+        return _blank_str;
     }
 
     if (messageListId == -1 && messageId == -1) {
-        return off_51C7F4;
+        return _blank_str;
     }
 
     if (messageListId == -2 && messageId == -2) {
@@ -2645,7 +2645,7 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
     messageListItem.num = messageId;
     if (!messageListGetItem(messageList, &messageListItem)) {
         debugPrint("\nError: can't find message: List: %d, Num: %d!", messageListId, messageId);
-        return off_51C7F0;
+        return _err_str;
     }
 
     if (a3) {
@@ -2671,10 +2671,10 @@ int scriptGetLocalVar(int sid, int variable, int* value)
     if (sid >> 24 == SCRIPT_TYPE_SYSTEM) {
         debugPrint("\nError! System scripts/Map scripts not allowed local_vars! ");
 
-        byte_667750[0] = '\0';
-        scriptsGetFileName(sid & 0xFFFFFF, byte_667750);
+        _tempStr1[0] = '\0';
+        scriptsGetFileName(sid & 0xFFFFFF, _tempStr1);
 
-        debugPrint(":%s\n", byte_667750);
+        debugPrint(":%s\n", _tempStr1);
 
         *value = -1;
         return -1;
@@ -2778,7 +2778,7 @@ int _scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
     ScriptListExtent* extent;
     int scriptsCount = 0;
 
-    dword_51C6BC = false;
+    _scr_SpatialsEnabled = false;
 
     extent = gScriptLists[SCRIPT_TYPE_ITEM].head;
     while (extent != NULL) {
@@ -2841,7 +2841,7 @@ int _scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
         internal_free(scriptIds);
     }
 
-    dword_51C6BC = true;
+    _scr_SpatialsEnabled = true;
 
     return 0;
 }

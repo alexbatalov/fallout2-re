@@ -29,31 +29,31 @@
 #include <stdio.h>
 
 // 0x510718
-int dword_510718 = 0;
+int _curr_sad = 0;
 
 // 0x51071C
 int gAnimationSequenceCurrentIndex = -1;
 
 // 0x510720
-int dword_510720 = 0;
+int _anim_in_init = 0;
 
 // 0x510724
-bool dword_510724 = false;
+bool _anim_in_anim_stop = false;
 
 // 0x510728
-bool dword_510728 = false;
+bool _anim_in_bk = false;
 
 // 0x51072C
-int dword_51072C = -2;
+int _lastDestination = -2;
 
 // 0x510730
-unsigned int dword_510730 = 0;
+unsigned int _last_time_ = 0;
 
 // 0x510734
-unsigned int dword_510734 = 0;
+unsigned int _next_time = 0;
 
 // 0x530014
-STRUCT_530014 stru_530014[24];
+STRUCT_530014 _sad[24];
 
 // 0x542FD4
 PathNode gClosedPathNodeList[2000];
@@ -77,20 +77,20 @@ Object* dword_56C7E0[100];
 // 0x413A20
 void animationInit()
 {
-    dword_510720 = 1;
+    _anim_in_init = 1;
     animationReset();
-    dword_510720 = 0;
+    _anim_in_init = 0;
 }
 
 // 0x413A40
 void animationReset()
 {
-    if (!dword_510720) {
+    if (!_anim_in_init) {
         // NOTE: Uninline.
         _anim_stop();
     }
 
-    dword_510718 = 0;
+    _curr_sad = 0;
     gAnimationSequenceCurrentIndex = -1;
 
     for (int index = 0; index < ANIMATION_SEQUENCE_LIST_CAPACITY; index++) {
@@ -113,7 +113,7 @@ int reg_anim_begin(int flags)
         return -1;
     }
 
-    if (dword_510724) {
+    if (_anim_in_anim_stop) {
         return -1;
     }
 
@@ -1306,8 +1306,8 @@ int _anim_set_end(int animationSequenceIndex)
         return -1;
     }
 
-    for (i = 0; i < dword_510718; i++) {
-        ptr_530014 = &(stru_530014[i]);
+    for (i = 0; i < _curr_sad; i++) {
+        ptr_530014 = &(_sad[i]);
         if (ptr_530014->animationSequenceIndex == animationSequenceIndex) {
             ptr_530014->field_20 = -1000;
         }
@@ -1352,9 +1352,9 @@ int _anim_set_end(int animationSequenceIndex)
                         }
 
                         if (k == animationSequence->animationIndex) {
-                            for (int m = 0; m < dword_510718; m++) {
-                                if (stru_530014[m].obj == owner) {
-                                    stru_530014[m].field_20 = -1000;
+                            for (int m = 0; m < _curr_sad; m++) {
+                                if (_sad[m].obj == owner) {
+                                    _sad[m].field_20 = -1000;
                                     break;
                                 }
                             }
@@ -1383,7 +1383,7 @@ int _anim_set_end(int animationSequenceIndex)
         _combat_anim_finished();
     }
 
-    if (dword_510728) {
+    if (_anim_in_bk) {
         animationSequence->flags = 0x20;
     } else {
         animationSequence->flags = 0;
@@ -1882,7 +1882,7 @@ int animateMoveObjectToObject(Object* a1, Object* a2, int a3, int anim, int anim
         return -1;
     }
 
-    ptr = &(stru_530014[v10]);
+    ptr = &(_sad[v10]);
     v13 = (((a1->flags & 0x0800) != 0) + 1); // TODO: What the hell is this?
     ptr->field_1C -= v13;
     if (ptr->field_1C <= 0) {
@@ -1917,7 +1917,7 @@ int animateMoveObjectToTile(Object* obj, int tile, int elev, int a4, int anim, i
     }
 
     if (_obj_blocking_at(obj, tile, elev)) {
-        ptr = &(stru_530014[v1]);
+        ptr = &(_sad[v1]);
         ptr->field_1C--;
         if (ptr->field_1C <= 0) {
             ptr->field_20 = -1000;
@@ -1938,11 +1938,11 @@ int _anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, int an
 {
     STRUCT_530014* ptr;
 
-    if (dword_510718 == 24) {
+    if (_curr_sad == 24) {
         return -1;
     }
 
-    ptr = &(stru_530014[dword_510718]);
+    ptr = &(_sad[_curr_sad]);
     ptr->obj = obj;
 
     if (a5) {
@@ -1969,17 +1969,17 @@ int _anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, int an
         ptr->field_1C = a3;
     }
 
-    return dword_510718++;
+    return _curr_sad++;
 }
 
 // 0x416F54
 int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags)
 {
-    if (dword_510718 == 24) {
+    if (_curr_sad == 24) {
         return -1;
     }
 
-    STRUCT_530014* ptr = &(stru_530014[dword_510718]);
+    STRUCT_530014* ptr = &(_sad[_curr_sad]);
     ptr->obj = obj;
     ptr->flags = flags | 0x02;
     if (anim == -1) {
@@ -2009,7 +2009,7 @@ int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, 
         return -1;
     }
 
-    dword_510718++;
+    _curr_sad++;
 
     return 0;
 }
@@ -2019,11 +2019,11 @@ int _anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int ani
 {
     STRUCT_530014* ptr;
 
-    if (dword_510718 == 24) {
+    if (_curr_sad == 24) {
         return -1;
     }
 
-    ptr = &(stru_530014[dword_510718]);
+    ptr = &(_sad[_curr_sad]);
     ptr->flags = 0x02;
     ptr->obj = obj;
     if (anim == -1) {
@@ -2043,7 +2043,7 @@ int _anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int ani
         return -1;
     }
 
-    dword_510718++;
+    _curr_sad++;
 
     return 0;
 }
@@ -2053,7 +2053,7 @@ int _check_for_falling(Object* obj, int anim, int a3)
 {
     STRUCT_530014* ptr;
 
-    if (dword_510718 == 24) {
+    if (_curr_sad == 24) {
         return -1;
     }
 
@@ -2061,7 +2061,7 @@ int _check_for_falling(Object* obj, int anim, int a3)
         return -1;
     }
 
-    ptr = &(stru_530014[dword_510718]);
+    ptr = &(_sad[_curr_sad]);
     ptr->flags = 0x02;
     ptr->obj = obj;
     if (anim == -1) {
@@ -2080,7 +2080,7 @@ int _check_for_falling(Object* obj, int anim, int a3)
         return -1;
     }
 
-    dword_510718++;
+    _curr_sad++;
 
     return 0;
 }
@@ -2088,7 +2088,7 @@ int _check_for_falling(Object* obj, int anim, int a3)
 // 0x417360
 void _object_move(int index)
 {
-    STRUCT_530014* p530014 = &(stru_530014[index]);
+    STRUCT_530014* p530014 = &(_sad[index]);
     Object* object = p530014->obj;
 
     Rect dirty;
@@ -2130,7 +2130,7 @@ void _object_move(int index)
 
     int rotation = p530014->rotations[p530014->field_20];
     int y = dword_51D984[rotation];
-    int x = dword_51D96C[rotation];
+    int x = _off_tile[rotation];
     if (x > 0 && x <= object->x || x < 0 && x >= object->x || y > 0 && y <= object->y || y < 0 && y >= object->y) {
         x = object->x - x;
         y = object->y - y;
@@ -2167,24 +2167,24 @@ void _object_move(int index)
             int v17 = 0;
             if (isInCombat() && ((object->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
                 int v18 = critterGetMovementPointCostAdjustedForCrippledLegs(object, 1);
-                if (dword_56D39C < v18) {
+                if (_combat_free_move < v18) {
                     int ap = object->data.critter.combat.ap;
-                    int v20 = v18 - dword_56D39C;
-                    dword_56D39C = 0;
+                    int v20 = v18 - _combat_free_move;
+                    _combat_free_move = 0;
                     if (v20 > ap) {
                         object->data.critter.combat.ap = 0;
                     } else {
                         object->data.critter.combat.ap = ap - v20;
                     }
                 } else {
-                    dword_56D39C -= v18;
+                    _combat_free_move -= v18;
                 }
 
                 if (object == gDude) {
-                    interfaceRenderActionPoints(gDude->data.critter.combat.ap, dword_56D39C);
+                    interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
                 }
 
-                v17 = (object->data.critter.combat.ap + dword_56D39C) <= 0;
+                v17 = (object->data.critter.combat.ap + _combat_free_move) <= 0;
             }
 
             p530014->field_20 += 1;
@@ -2210,7 +2210,7 @@ void _object_move(int index)
 // 0x4177C0
 void _object_straight_move(int index)
 {
-    STRUCT_530014* p530014 = &(stru_530014[index]);
+    STRUCT_530014* p530014 = &(_sad[index]);
     Object* object = p530014->obj;
 
     Rect dirtyRect;
@@ -2261,11 +2261,11 @@ void _object_straight_move(int index)
 // 0x4179B8
 int _anim_animate(Object* obj, int anim, int animationSequenceIndex, int flags)
 {
-    if (dword_510718 == 24) {
+    if (_curr_sad == 24) {
         return -1;
     }
 
-    STRUCT_530014* ptr = &(stru_530014[dword_510718]);
+    STRUCT_530014* ptr = &(_sad[_curr_sad]);
 
     int fid;
     if (anim == ANIM_TAKE_OUT) {
@@ -2288,7 +2288,7 @@ int _anim_animate(Object* obj, int anim, int animationSequenceIndex, int flags)
     ptr->field_20 = 0;
     ptr->field_1C = 0;
 
-    dword_510718++;
+    _curr_sad++;
 
     return 0;
 }
@@ -2296,14 +2296,14 @@ int _anim_animate(Object* obj, int anim, int animationSequenceIndex, int flags)
 // 0x417B30
 void _object_animate()
 {
-    if (dword_510718 == 0) {
+    if (_curr_sad == 0) {
         return;
     }
 
-    dword_510728 = 1;
+    _anim_in_bk = 1;
 
-    for (int index = 0; index < dword_510718; index++) {
-        STRUCT_530014* p530014 = &(stru_530014[index]);
+    for (int index = 0; index < _curr_sad; index++) {
+        STRUCT_530014* p530014 = &(_sad[index]);
         if (p530014->field_20 == -1000) {
             continue;
         }
@@ -2335,8 +2335,8 @@ void _object_animate()
         }
 
         if (p530014->field_20 == 0) {
-            for (int index = 0; index < dword_510718; index++) {
-                STRUCT_530014* other530014 = &(stru_530014[index]);
+            for (int index = 0; index < _curr_sad; index++) {
+                STRUCT_530014* other530014 = &(_sad[index]);
                 if (object == other530014->obj && other530014->field_20 == -2000) {
                     other530014->field_20 = -1000;
                     _anim_set_continue(other530014->animationSequenceIndex, 1);
@@ -2456,7 +2456,7 @@ void _object_animate()
         }
     }
 
-    dword_510728 = 0;
+    _anim_in_bk = 0;
 
     _object_anim_compact();
 }
@@ -2472,27 +2472,27 @@ void _object_anim_compact()
     }
 
     int index = 0;
-    for (; index < dword_510718; index++) {
-        if (stru_530014[index].field_20 == -1000) {
+    for (; index < _curr_sad; index++) {
+        if (_sad[index].field_20 == -1000) {
             int v2 = index + 1;
-            for (; v2 < dword_510718; v2++) {
-                if (stru_530014[v2].field_20 != -1000) {
+            for (; v2 < _curr_sad; v2++) {
+                if (_sad[v2].field_20 != -1000) {
                     break;
                 }
             }
 
-            if (v2 == dword_510718) {
+            if (v2 == _curr_sad) {
                 break;
             }
 
             if (index != v2) {
-                memcpy(&(stru_530014[index]), &(stru_530014[v2]), sizeof(STRUCT_530014));
-                stru_530014[v2].field_20 = -1000;
-                stru_530014[v2].flags = 0;
+                memcpy(&(_sad[index]), &(_sad[v2]), sizeof(STRUCT_530014));
+                _sad[v2].field_20 = -1000;
+                _sad[v2].flags = 0;
             }
         }
     }
-    dword_510718 = index;
+    _curr_sad = index;
 }
 
 // 0x417FFC
@@ -2541,11 +2541,11 @@ int _dude_move(int a1)
         return -1;
     }
 
-    if (dword_51072C == tile) {
+    if (_lastDestination == tile) {
         return _dude_run(a1);
     }
 
-    dword_51072C = tile;
+    _lastDestination = tile;
 
     reg_anim_begin(2);
 
@@ -2580,7 +2580,7 @@ int _dude_run(int a1)
 // 0x418168
 void _dude_fidget()
 {
-    if (dword_5186CC != 0) {
+    if (_game_user_wants_to_quit != 0) {
         return;
     }
 
@@ -2597,11 +2597,11 @@ void _dude_fidget()
     }
 
     unsigned int v0 = _get_bk_time();
-    if (getTicksBetween(v0, dword_510730) <= dword_510734) {
+    if (getTicksBetween(v0, _last_time_) <= _next_time) {
         return;
     }
 
-    dword_510730 = v0;
+    _last_time_ = v0;
 
     int v5 = 0;
     Object* object = objectFindFirstAtElevation(gDude->elevation);
@@ -2615,7 +2615,7 @@ void _dude_fidget()
             objectGetRect(object, &rect);
 
             Rect intersection;
-            if (rectIntersection(&rect, &stru_6AC9F0, &intersection) == 0 && (gMapHeader.field_34 != 97 || object->pid != 0x10000FA)) {
+            if (rectIntersection(&rect, &_scr_size, &intersection) == 0 && (gMapHeader.field_34 != 97 || object->pid != 0x10000FA)) {
                 dword_56C7E0[v5++] = object;
             }
         }
@@ -2663,7 +2663,7 @@ void _dude_fidget()
         v13 = 7;
     }
 
-    dword_510734 = randomBetween(0, 3000) + 1000 * v13;
+    _next_time = randomBetween(0, 3000) + 1000 * v13;
 }
 
 // 0x418378
@@ -2794,15 +2794,15 @@ int _anim_change_fid(Object* obj, int animationSequenceIndex, int fid)
 // 0x4186CC
 void _anim_stop()
 {
-    dword_510724 = 1;
+    _anim_in_anim_stop = 1;
     gAnimationSequenceCurrentIndex = -1;
 
     for (int index = 0; index < ANIMATION_SEQUENCE_LIST_CAPACITY; index++) {
         _anim_set_end(index);
     }
 
-    dword_510724 = 0;
-    dword_510718 = 0;
+    _anim_in_anim_stop = 0;
+    _curr_sad = 0;
 }
 
 // 0x418708
@@ -2814,7 +2814,7 @@ int _check_gravity(int tile, int elevation)
         tileToScreenXY(tile, &x, &y, elevation);
 
         int v4 = _square_num(x + 2, y + 8, elevation);
-        int fid = buildFid(4, dword_631E40[elevation]->field_0[v4] & 0xFFF, 0, 0, 0);
+        int fid = buildFid(4, _square[elevation]->field_0[v4] & 0xFFF, 0, 0, 0);
         if (fid != buildFid(4, 1, 0, 0, 0)) {
             break;
         }

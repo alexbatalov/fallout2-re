@@ -20,28 +20,28 @@
 double const dbl_50E7C7 = -4.0;
 
 // 0x51D950
-bool dword_51D950 = false;
+bool _borderInitialized = false;
 
 // 0x51D954
-bool dword_51D954 = true;
+bool _scroll_blocking_on = true;
 
 // 0x51D958
-bool dword_51D958 = true;
+bool _scroll_limiting_on = true;
 
 // 0x51D95C
-int dword_51D95C = 1;
+int _show_roof = 1;
 
 // 0x51D960
-int dword_51D960 = 0;
+int _show_grid = 0;
 
 // 0x51D964
-TileWindowRefreshElevationProc* off_51D964 = _refresh_game;
+TileWindowRefreshElevationProc* _tile_refresh = _refresh_game;
 
 // 0x51D968
 bool gTileEnabled = true;
 
 // 0x51D96C
-const int dword_51D96C[6] = {
+const int _off_tile[6] = {
     16,
     32,
     16,
@@ -61,7 +61,7 @@ const int dword_51D984[6] = {
 };
 
 // 0x51D99C
-STRUCT_51D99C stru_51D99C[13] = {
+STRUCT_51D99C _rightside_up_table[13] = {
     { -1, 2 },
     { 78, 2 },
     { 76, 6 },
@@ -78,7 +78,7 @@ STRUCT_51D99C stru_51D99C[13] = {
 };
 
 // 0x51DA04
-STRUCT_51DA04 stru_51DA04[13] = {
+STRUCT_51DA04 _upside_down_table[13] = {
     { 0, 32 },
     { 48, 32 },
     { 49, 30 },
@@ -95,7 +95,7 @@ STRUCT_51DA04 stru_51DA04[13] = {
 };
 
 // 0x51DA6C
-STRUCT_51DA6C stru_51DA6C[10] = {
+STRUCT_51DA6C _verticies[10] = {
     { 16, -1, -201, 0 },
     { 48, -2, -2, 0 },
     { 960, 0, 0, 0 },
@@ -109,7 +109,7 @@ STRUCT_51DA6C stru_51DA6C[10] = {
 };
 
 // 0x51DB0C
-STRUCT_51DB0C stru_51DB0C[5] = {
+STRUCT_51DB0C _rightside_up_triangles[5] = {
     { 2, 3, 0 },
     { 3, 4, 1 },
     { 5, 6, 3 },
@@ -118,7 +118,7 @@ STRUCT_51DB0C stru_51DB0C[5] = {
 };
 
 // 0x51DB48
-STRUCT_51DB48 stru_51DB48[5] = {
+STRUCT_51DB48 _upside_down_triangles[5] = {
     { 0, 3, 1 },
     { 2, 5, 3 },
     { 3, 6, 4 },
@@ -127,27 +127,27 @@ STRUCT_51DB48 stru_51DB48[5] = {
 };
 
 // 0x668224
-int dword_668224[3280];
+int _intensity_map[3280];
 
 // 0x66B564
-int dword_66B564[2][6];
+int _dir_tile2[2][6];
 
 // Deltas to perform tile calculations in given direction.
 //
 // 0x66B594
-int dword_66B594[2][6];
+int _dir_tile[2][6];
 
 // 0x66B5C4
-unsigned char byte_66B5C4[512];
+unsigned char _tile_grid_blocked[512];
 
 // 0x66B7C4
-unsigned char byte_66B7C4[512];
+unsigned char _tile_grid_occupied[512];
 
 // 0x66B9C4
-unsigned char byte_66B9C4[512];
+unsigned char _tile_mask[512];
 
 // 0x66BBC4
-int dword_66BBC4 = 0;
+int _tile_border = 0;
 
 // 0x66BBC8
 int dword_66BBC8 = 0;
@@ -162,28 +162,28 @@ int dword_66BBD0 = 0;
 Rect gTileWindowRect;
 
 // 0x66BBE4
-unsigned char byte_66BBE4[32 * 16];
+unsigned char _tile_grid[32 * 16];
 
 // 0x66BDE4
-int dword_66BDE4;
+int _square_rect;
 
 // 0x66BDE8
-int dword_66BDE8;
+int _square_x;
 
 // 0x66BDEC
-int dword_66BDEC;
+int _square_offx;
 
 // 0x66BDF0
-int dword_66BDF0;
+int _square_offy;
 
 // 0x66BDF4
 TileWindowRefreshProc* gTileWindowRefreshProc;
 
 // 0x66BDF8
-int dword_66BDF8;
+int _tile_offy;
 
 // 0x66BDFC
-int dword_66BDFC;
+int _tile_offx;
 
 // 0x66BE00
 int gSquareGridSize;
@@ -196,7 +196,7 @@ int gSquareGridSize;
 int gHexGridWidth;
 
 // 0x66BE08
-TileData** dword_66BE08;
+TileData** _squares;
 
 // 0x66BE0C
 unsigned char* gTileWindowBuffer;
@@ -212,10 +212,10 @@ int gHexGridHeight;
 int gTileWindowHeight;
 
 // 0x66BE18
-int dword_66BE18;
+int _tile_x;
 
 // 0x66BE1C
-int dword_66BE1C;
+int _tile_y;
 
 // The number of tiles in the hex grid.
 //
@@ -252,58 +252,58 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
     int v25;
 
     gSquareGridWidth = squareGridWidth;
-    dword_66BE08 = a1;
+    _squares = a1;
     gHexGridHeight = hexGridHeight;
     gSquareGridHeight = squareGridHeight;
     gHexGridWidth = hexGridWidth;
-    dword_66B594[0][0] = -1;
-    dword_66B594[0][4] = 1;
-    dword_66B594[1][1] = -1;
+    _dir_tile[0][0] = -1;
+    _dir_tile[0][4] = 1;
+    _dir_tile[1][1] = -1;
     gHexGridSize = hexGridWidth * hexGridHeight;
-    dword_66B594[1][3] = 1;
+    _dir_tile[1][3] = 1;
     gTileWindowBuffer = buf;
-    dword_66B564[0][0] = -1;
+    _dir_tile2[0][0] = -1;
     gTileWindowWidth = windowWidth;
-    dword_66B564[0][3] = -1;
+    _dir_tile2[0][3] = -1;
     gTileWindowHeight = windowHeight;
-    dword_66B564[1][1] = 1;
+    _dir_tile2[1][1] = 1;
     gTileWindowPitch = windowPitch;
-    dword_66B564[1][2] = 1;
+    _dir_tile2[1][2] = 1;
     gTileWindowRect.right = windowWidth - 1;
     gSquareGridSize = squareGridHeight * squareGridWidth;
     gTileWindowRect.bottom = windowHeight - 1;
     gTileWindowRect.left = 0;
     gTileWindowRefreshProc = windowRefreshProc;
     gTileWindowRect.top = 0;
-    dword_66B594[0][1] = hexGridWidth - 1;
-    dword_66B594[0][2] = hexGridWidth;
-    dword_51D960 = 0;
-    dword_66B594[0][3] = hexGridWidth + 1;
-    dword_66B594[1][2] = hexGridWidth;
-    dword_66B564[0][4] = hexGridWidth;
-    dword_66B564[0][5] = hexGridWidth;
-    dword_66B594[0][5] = -hexGridWidth;
-    dword_66B594[1][0] = -hexGridWidth - 1;
-    dword_66B594[1][4] = 1 - hexGridWidth;
-    dword_66B594[1][5] = -hexGridWidth;
-    dword_66B564[0][1] = -hexGridWidth - 1;
-    dword_66B564[1][4] = -hexGridWidth;
-    dword_66B564[0][2] = hexGridWidth - 1;
-    dword_66B564[1][5] = -hexGridWidth;
-    dword_66B564[1][0] = hexGridWidth + 1;
-    dword_66B564[1][3] = 1 - hexGridWidth;
+    _dir_tile[0][1] = hexGridWidth - 1;
+    _dir_tile[0][2] = hexGridWidth;
+    _show_grid = 0;
+    _dir_tile[0][3] = hexGridWidth + 1;
+    _dir_tile[1][2] = hexGridWidth;
+    _dir_tile2[0][4] = hexGridWidth;
+    _dir_tile2[0][5] = hexGridWidth;
+    _dir_tile[0][5] = -hexGridWidth;
+    _dir_tile[1][0] = -hexGridWidth - 1;
+    _dir_tile[1][4] = 1 - hexGridWidth;
+    _dir_tile[1][5] = -hexGridWidth;
+    _dir_tile2[0][1] = -hexGridWidth - 1;
+    _dir_tile2[1][4] = -hexGridWidth;
+    _dir_tile2[0][2] = hexGridWidth - 1;
+    _dir_tile2[1][5] = -hexGridWidth;
+    _dir_tile2[1][0] = hexGridWidth + 1;
+    _dir_tile2[1][3] = 1 - hexGridWidth;
 
     v11 = 0;
     v12 = 0;
     do {
         v13 = 64;
         do {
-            byte_66B9C4[v12++] = v13 > v11;
+            _tile_mask[v12++] = v13 > v11;
             v13 -= 4;
         } while (v13);
 
         do {
-            byte_66B9C4[v12++] = v13 > v11 ? 2 : 0;
+            _tile_mask[v12++] = v13 > v11 ? 2 : 0;
             v13 += 4;
         } while (v13 != 64);
 
@@ -314,7 +314,7 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
     do {
         v13 = 0;
         do {
-            byte_66B9C4[v12++] = 0;
+            _tile_mask[v12++] = 0;
             v13++;
         } while (v13 < 32);
         v11++;
@@ -324,65 +324,65 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
     do {
         v13 = 0;
         do {
-            byte_66B9C4[v12++] = v13 > v11 ? 0 : 3;
+            _tile_mask[v12++] = v13 > v11 ? 0 : 3;
             v13 += 4;
         } while (v13 != 64);
 
         v13 = 64;
         do {
-            byte_66B9C4[v12++] = v13 > v11 ? 0 : 4;
+            _tile_mask[v12++] = v13 > v11 ? 0 : 4;
             v13 -= 4;
         } while (v13);
 
         v11 += 16;
     } while (v11 != 64);
 
-    bufferFill(byte_66BBE4, 32, 16, 32, 0);
-    bufferDrawLine(byte_66BBE4, 32, 16, 0, 31, 4, byte_6A38D0[4228]);
-    bufferDrawLine(byte_66BBE4, 32, 31, 4, 31, 12, byte_6A38D0[4228]);
-    bufferDrawLine(byte_66BBE4, 32, 31, 12, 16, 15, byte_6A38D0[4228]);
-    bufferDrawLine(byte_66BBE4, 32, 0, 12, 16, 15, byte_6A38D0[4228]);
-    bufferDrawLine(byte_66BBE4, 32, 0, 4, 0, 12, byte_6A38D0[4228]);
-    bufferDrawLine(byte_66BBE4, 32, 16, 0, 0, 4, byte_6A38D0[4228]);
+    bufferFill(_tile_grid, 32, 16, 32, 0);
+    bufferDrawLine(_tile_grid, 32, 16, 0, 31, 4, _colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 31, 4, 31, 12, _colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 31, 12, 16, 15, _colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 0, 12, 16, 15, _colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 0, 4, 0, 12, _colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 16, 0, 0, 4, _colorTable[4228]);
 
-    bufferFill(byte_66B7C4, 32, 16, 32, 0);
-    bufferDrawLine(byte_66B7C4, 32, 16, 0, 31, 4, byte_6A38D0[31]);
-    bufferDrawLine(byte_66B7C4, 32, 31, 4, 31, 12, byte_6A38D0[31]);
-    bufferDrawLine(byte_66B7C4, 32, 31, 12, 16, 15, byte_6A38D0[31]);
-    bufferDrawLine(byte_66B7C4, 32, 0, 12, 16, 15, byte_6A38D0[31]);
-    bufferDrawLine(byte_66B7C4, 32, 0, 4, 0, 12, byte_6A38D0[31]);
-    bufferDrawLine(byte_66B7C4, 32, 16, 0, 0, 4, byte_6A38D0[31]);
+    bufferFill(_tile_grid_occupied, 32, 16, 32, 0);
+    bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 31, 4, _colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 31, 4, 31, 12, _colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 31, 12, 16, 15, _colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 0, 12, 16, 15, _colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 0, 4, 0, 12, _colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 0, 4, _colorTable[31]);
 
-    bufferFill(byte_66B5C4, 32, 16, 32, 0);
-    bufferDrawLine(byte_66B5C4, 32, 16, 0, 31, 4, byte_6A38D0[31744]);
-    bufferDrawLine(byte_66B5C4, 32, 31, 4, 31, 12, byte_6A38D0[31744]);
-    bufferDrawLine(byte_66B5C4, 32, 31, 12, 16, 15, byte_6A38D0[31744]);
-    bufferDrawLine(byte_66B5C4, 32, 0, 12, 16, 15, byte_6A38D0[31744]);
-    bufferDrawLine(byte_66B5C4, 32, 0, 4, 0, 12, byte_6A38D0[31744]);
-    bufferDrawLine(byte_66B5C4, 32, 16, 0, 0, 4, byte_6A38D0[31744]);
+    bufferFill(_tile_grid_blocked, 32, 16, 32, 0);
+    bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 31, 4, _colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 31, 4, 31, 12, _colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 31, 12, 16, 15, _colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 0, 12, 16, 15, _colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 0, 4, 0, 12, _colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 0, 4, _colorTable[31744]);
 
     for (v20 = 0; v20 < 16; v20++) {
         v21 = v20 * 32;
         v22 = 31;
         v23 = v21 + 31;
 
-        if (byte_66B5C4[v23] == 0) {
+        if (_tile_grid_blocked[v23] == 0) {
             do {
                 --v22;
                 --v23;
-            } while (v22 > 0 && byte_66B5C4[v23] == 0);
+            } while (v22 > 0 && _tile_grid_blocked[v23] == 0);
         }
 
         v24 = v21;
         v25 = 0;
-        if (byte_66B5C4[v21] == 0) {
+        if (_tile_grid_blocked[v21] == 0) {
             do {
                 ++v25;
                 ++v24;
-            } while (v25 < 32 && byte_66B5C4[v24] == 0);
+            } while (v25 < 32 && _tile_grid_blocked[v24] == 0);
         }
 
-        bufferDrawLine(byte_66B5C4, 32, v25, v20, v22, v20, byte_6A38D0[31744]);
+        bufferDrawLine(_tile_grid_blocked, 32, v25, v20, v22, v20, _colorTable[31744]);
     }
 
     tileSetCenter(hexGridWidth * (hexGridHeight / 2) + hexGridWidth / 2, 2);
@@ -391,7 +391,7 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
     char* executable;
     configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
     if (stricmp(executable, "mapper") == 0) {
-        off_51D964 = _refresh_mapper;
+        _tile_refresh = _refresh_mapper;
     }
 
     return 0;
@@ -403,39 +403,39 @@ void _tile_set_border(int windowWidth, int windowHeight, int hexGridWidth, int h
     int v1 = tileFromScreenXY(-320, -240, 0);
     int v2 = tileFromScreenXY(-320, windowHeight + 240, 0);
 
-    dword_66BBC4 = abs(hexGridWidth - 1 - v2 % hexGridWidth - dword_66BE18) + 6;
-    dword_66BBC8 = abs(dword_66BE1C - v1 / hexGridWidth) + 7;
-    dword_66BBCC = hexGridWidth - dword_66BBC4 - 1;
+    _tile_border = abs(hexGridWidth - 1 - v2 % hexGridWidth - _tile_x) + 6;
+    dword_66BBC8 = abs(_tile_y - v1 / hexGridWidth) + 7;
+    dword_66BBCC = hexGridWidth - _tile_border - 1;
     dword_66BBD0 = hexGridHeight - dword_66BBC8 - 1;
 
-    if ((dword_66BBC4 & 1) == 0) {
-        dword_66BBC4++;
+    if ((_tile_border & 1) == 0) {
+        _tile_border++;
     }
 
     if ((dword_66BBCC & 1) == 0) {
-        dword_66BBC4--;
+        _tile_border--;
     }
 
-    dword_51D950 = true;
+    _borderInitialized = true;
 }
 
 // NOTE: Collapsed.
 //
 // 0x4B129C
-void sub_4B129C()
+void _tile_reset_()
 {
 }
 
 // NOTE: Uncollapsed 0x4B129C.
 void tileReset()
 {
-    sub_4B129C();
+    _tile_reset_();
 }
 
 // NOTE: Uncollapsed 0x4B129C.
 void tileExit()
 {
-    sub_4B129C();
+    _tile_reset_();
 }
 
 // 0x4B12A8
@@ -455,7 +455,7 @@ void tileWindowRefreshRect(Rect* rect, int elevation)
 {
     if (gTileEnabled) {
         if (elevation == gElevation) {
-            off_51D964(rect, elevation);
+            _tile_refresh(rect, elevation);
         }
     }
 }
@@ -464,7 +464,7 @@ void tileWindowRefreshRect(Rect* rect, int elevation)
 void tileWindowRefresh()
 {
     if (gTileEnabled) {
-        off_51D964(&gTileWindowRect, gElevation);
+        _tile_refresh(&gTileWindowRect, gElevation);
     }
 }
 
@@ -475,7 +475,7 @@ int tileSetCenter(int tile, int flags)
         return -1;
     }
 
-    if ((dword_51D958 & ((flags & TILE_SET_CENTER_FLAG_0x02) == 0)) != 0) {
+    if ((_scroll_limiting_on & ((flags & TILE_SET_CENTER_FLAG_0x02) == 0)) != 0) {
         int tileScreenX;
         int tileScreenY;
         tileToScreenXY(tile, &tileScreenX, &tileScreenY, gElevation);
@@ -487,15 +487,15 @@ int tileSetCenter(int tile, int flags)
         int dx = abs(dudeScreenX - tileScreenX);
         int dy = abs(dudeScreenY - tileScreenY);
 
-        if (dx > abs(dudeScreenX - dword_66BDFC)
-            || dy > abs(dudeScreenY - dword_66BDF8)) {
+        if (dx > abs(dudeScreenX - _tile_offx)
+            || dy > abs(dudeScreenY - _tile_offy)) {
             if (dx >= 480 || dy >= 400) {
                 return -1;
             }
         }
     }
 
-    if ((dword_51D954 & ((flags & TILE_SET_CENTER_FLAG_0x02) == 0)) != 0) {
+    if ((_scroll_blocking_on & ((flags & TILE_SET_CENTER_FLAG_0x02) == 0)) != 0) {
         if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
             return -1;
         }
@@ -504,37 +504,37 @@ int tileSetCenter(int tile, int flags)
     int v9 = gHexGridWidth - 1 - tile % gHexGridWidth;
     int v10 = tile / gHexGridWidth;
 
-    if (dword_51D950) {
-        if (v9 <= dword_66BBC4 || v9 >= dword_66BBCC || v10 <= dword_66BBC8 || v10 >= dword_66BBD0) {
+    if (_borderInitialized) {
+        if (v9 <= _tile_border || v9 >= dword_66BBCC || v10 <= dword_66BBC8 || v10 >= dword_66BBD0) {
             return -1;
         }
     }
 
-    dword_66BE1C = v10;
-    dword_66BDFC = (gTileWindowWidth - 32) / 2;
-    dword_66BE18 = v9;
-    dword_66BDF8 = (gTileWindowHeight - 16) / 2;
+    _tile_y = v10;
+    _tile_offx = (gTileWindowWidth - 32) / 2;
+    _tile_x = v9;
+    _tile_offy = (gTileWindowHeight - 16) / 2;
 
     if (v9 & 1) {
-        dword_66BE18 -= 1;
-        dword_66BDFC -= 32;
+        _tile_x -= 1;
+        _tile_offx -= 32;
     }
 
-    dword_66BDE8 = dword_66BE18 / 2;
-    dword_66BDE4 = dword_66BE1C / 2;
-    dword_66BDEC = dword_66BDFC - 16;
-    dword_66BDF0 = dword_66BDF8 - 2;
+    _square_x = _tile_x / 2;
+    _square_rect = _tile_y / 2;
+    _square_offx = _tile_offx - 16;
+    _square_offy = _tile_offy - 2;
 
-    if (dword_66BE1C & 1) {
-        dword_66BDF0 -= 12;
-        dword_66BDEC -= 16;
+    if (_tile_y & 1) {
+        _square_offy -= 12;
+        _square_offx -= 16;
     }
 
     gCenterTile = tile;
 
     if (flags & TILE_SET_CENTER_FLAG_0x01) {
         if (gTileEnabled) {
-            off_51D964(&gTileWindowRect, gElevation);
+            _tile_refresh(&gTileWindowRect, gElevation);
         }
     }
 
@@ -583,7 +583,7 @@ void _refresh_game(Rect* rect, int elevation)
 // 0x4B166C
 int _tile_roof_visible()
 {
-    return dword_51D95C;
+    return _show_roof;
 }
 
 // 0x4B1674
@@ -601,15 +601,15 @@ int tileToScreenXY(int tile, int* screenX, int* screenY, int elevation)
     v3 = gHexGridWidth - 1 - tile % gHexGridWidth;
     v4 = tile / gHexGridWidth;
 
-    *screenX = dword_66BDFC;
-    *screenY = dword_66BDF8;
+    *screenX = _tile_offx;
+    *screenY = _tile_offy;
 
-    v5 = (v3 - dword_66BE18) / -2;
-    *screenX += 48 * ((v3 - dword_66BE18) / 2);
+    v5 = (v3 - _tile_x) / -2;
+    *screenX += 48 * ((v3 - _tile_x) / 2);
     *screenY += 12 * v5;
 
     if (v3 & 1) {
-        if (v3 <= dword_66BE18) {
+        if (v3 <= _tile_x) {
             *screenX -= 16;
             *screenY += 12;
         } else {
@@ -617,7 +617,7 @@ int tileToScreenXY(int tile, int* screenX, int* screenY, int elevation)
         }
     }
 
-    v6 = v4 - dword_66BE1C;
+    v6 = v4 - _tile_y;
     *screenX += 16 * v6;
     *screenY += 12 * v6;
 
@@ -639,14 +639,14 @@ int tileFromScreenXY(int screenX, int screenY, int elevation)
     int v11;
     int v12;
 
-    v2 = screenY - dword_66BDF8;
+    v2 = screenY - _tile_offy;
     if (v2 >= 0) {
         v3 = v2 / 12;
     } else {
         v3 = (v2 + 1) / 12 - 1;
     }
 
-    v4 = screenX - dword_66BDFC - 16 * v3;
+    v4 = screenX - _tile_offx - 16 * v3;
     v5 = v2 - 12 * v3;
 
     if (v4 >= 0) {
@@ -664,10 +664,10 @@ int tileFromScreenXY(int screenX, int screenY, int elevation)
         v9++;
     }
 
-    v10 = dword_66BE1C + v7;
-    v11 = dword_66BE18 + v9;
+    v10 = _tile_y + v7;
+    v11 = _tile_x + v9;
 
-    switch (byte_66B9C4[32 * v5 + v8]) {
+    switch (_tile_mask[32 * v5 + v8]) {
     case 2:
         v11++;
         if (v11 & 1) {
@@ -750,7 +750,7 @@ int tileDistanceBetween(int tile1, int tile2)
             }
         }
 
-        v2 += dword_66B594[v2 % gHexGridWidth & 1][v9];
+        v2 += _dir_tile[v2 % gHexGridWidth & 1][v9];
     }
 
     return i;
@@ -805,7 +805,7 @@ int tileGetTileInDirection(int tile, int rotation, int distance)
         }
 
         int parity = (newTile % gHexGridWidth) & 1;
-        newTile += dword_66B594[parity][rotation];
+        newTile += _dir_tile[parity][rotation];
     }
 
     return newTile;
@@ -968,37 +968,37 @@ int _tile_on_edge(int tile)
 // 0x4B1D80
 void _tile_enable_scroll_blocking()
 {
-    dword_51D954 = true;
+    _scroll_blocking_on = true;
 }
 
 // 0x4B1D8C
 void _tile_disable_scroll_blocking()
 {
-    dword_51D954 = false;
+    _scroll_blocking_on = false;
 }
 
 // 0x4B1D98
 bool _tile_get_scroll_blocking()
 {
-    return dword_51D954;
+    return _scroll_blocking_on;
 }
 
 // 0x4B1DA0
 void _tile_enable_scroll_limiting()
 {
-    dword_51D958 = true;
+    _scroll_limiting_on = true;
 }
 
 // 0x4B1DAC
 void _tile_disable_scroll_limiting()
 {
-    dword_51D958 = false;
+    _scroll_limiting_on = false;
 }
 
 // 0x4B1DB8
 bool _tile_get_scroll_limiting()
 {
-    return dword_51D958;
+    return _scroll_limiting_on;
 }
 
 // 0x4B1DC0
@@ -1016,16 +1016,16 @@ int _square_coord(int a1, int* a2, int* a3, int elevation)
 
     v5 = gSquareGridWidth - 1 - a1 % gSquareGridWidth;
     v6 = a1 / gSquareGridWidth;
-    v7 = dword_66BDE8;
+    v7 = _square_x;
 
-    *a2 = dword_66BDEC;
-    *a3 = dword_66BDF0;
+    *a2 = _square_offx;
+    *a3 = _square_offy;
 
     v8 = v5 - v7;
     *a2 += 48 * v8;
     *a3 -= 12 * v8;
 
-    v9 = v6 - dword_66BDE4;
+    v9 = v6 - _square_rect;
     *a2 += 32 * v9;
     *a3 += 24 * v9;
 
@@ -1048,15 +1048,15 @@ int squareTileToScreenXY(int a1, int* a2, int* a3, int elevation)
 
     v5 = gSquareGridWidth - 1 - a1 % gSquareGridWidth;
     v6 = a1 / gSquareGridWidth;
-    v7 = dword_66BDE8;
-    *a2 = dword_66BDEC;
-    *a3 = dword_66BDF0;
+    v7 = _square_x;
+    *a2 = _square_offx;
+    *a3 = _square_offy;
 
     v8 = v5 - v7;
     *a2 += 48 * v8;
     *a3 -= 12 * v8;
 
-    v9 = v6 - dword_66BDE4;
+    v9 = v6 - _square_rect;
     *a2 += 32 * v9;
     v10 = 24 * v9 + *a3;
     *a3 = v10;
@@ -1088,8 +1088,8 @@ void _square_xy(int a1, int a2, int elevation, int* a3, int* a4)
     int v6;
     int v8;
 
-    v4 = a1 - dword_66BDEC;
-    v5 = a2 - dword_66BDF0 - 12;
+    v4 = a1 - _square_offx;
+    v5 = a2 - _square_offy - 12;
     v6 = 3 * v4 - 4 * v5;
     *a3 = v6 >= 0 ? (v6 / 192) : ((v6 + 1) / 192 - 1);
 
@@ -1098,8 +1098,8 @@ void _square_xy(int a1, int a2, int elevation, int* a3, int* a4)
         ? ((v8 - ((v8 >> 31) << 7)) >> 7)
         : ((((v8 + 1) - (((v8 + 1) >> 31) << 7)) >> 7) - 1);
 
-    *a3 += dword_66BDE8;
-    *a4 += dword_66BDE4;
+    *a3 += _square_x;
+    *a4 += _square_rect;
 
     *a3 = gSquareGridWidth - 1 - *a3;
 }
@@ -1112,8 +1112,8 @@ void _square_xy_roof(int a1, int a2, int elevation, int* a3, int* a4)
     int v6;
     int v8;
 
-    v4 = a1 - dword_66BDEC;
-    v5 = a2 + 96 - dword_66BDF0 - 12;
+    v4 = a1 - _square_offx;
+    v5 = a2 + 96 - _square_offy - 12;
     v6 = 3 * v4 - 4 * v5;
 
     *a3 = (v6 >= 0) ? (v6 / 192) : ((v6 + 1) / 192 - 1);
@@ -1123,8 +1123,8 @@ void _square_xy_roof(int a1, int a2, int elevation, int* a3, int* a4)
         ? ((v8 - ((v8 >> 31) << 7)) >> 7)
         : ((((v8 + 1) - (((v8 + 1) >> 31) << 7)) >> 7) - 1);
 
-    *a3 += dword_66BDE8;
-    *a4 += dword_66BDE4;
+    *a3 += _square_x;
+    *a4 += _square_rect;
 
     *a3 = gSquareGridWidth - 1 - *a3;
 }
@@ -1132,7 +1132,7 @@ void _square_xy_roof(int a1, int a2, int elevation, int* a3, int* a4)
 // 0x4B20E8
 void tileRenderRoofsInRect(Rect* rect, int elevation)
 {
-    if (!dword_51D95C) {
+    if (!_show_roof) {
         return;
     }
 
@@ -1171,7 +1171,7 @@ void tileRenderRoofsInRect(Rect* rect, int elevation)
     for (int y = minY; y <= maxY; y++) {
         for (int x = minX; x <= maxX; x++) {
             int squareTile = baseSquareTile + x;
-            int frmId = dword_66BE08[elevation]->field_0[squareTile];
+            int frmId = _squares[elevation]->field_0[squareTile];
             frmId >>= 16;
             if ((((frmId & 0xF000) >> 12) & 0x01) == 0) {
                 int fid = buildFid(4, frmId & 0xFFF, 0, 0, 0);
@@ -1192,7 +1192,7 @@ void _roof_fill_on(int a1, int a2, int elevation)
 {
     while ((a1 >= 0 && a1 < gSquareGridWidth) && (a2 >= 0 && a2 < gSquareGridHeight)) {
         int squareTile = gSquareGridWidth * a2 + a1;
-        int value = dword_66BE08[elevation]->field_0[squareTile];
+        int value = _squares[elevation]->field_0[squareTile];
         int upper = (value >> 16) & 0xFFFF;
 
         int id = upper & 0xFFF;
@@ -1207,7 +1207,7 @@ void _roof_fill_on(int a1, int a2, int elevation)
 
         flag &= ~0x01;
 
-        dword_66BE08[elevation]->field_0[squareTile] = (value & 0xFFFF) | (((flag << 12) | id) << 16);
+        _squares[elevation]->field_0[squareTile] = (value & 0xFFFF) | (((flag << 12) | id) << 16);
 
         _roof_fill_on(a1 - 1, a2, elevation);
         _roof_fill_on(a1 + 1, a2, elevation);
@@ -1232,7 +1232,7 @@ void sub_4B23DC(int a1, int a2, int elevation)
 {
     while ((a1 >= 0 && a1 < gSquareGridWidth) && (a2 >= 0 && a2 < gSquareGridHeight)) {
         int squareTile = gSquareGridWidth * a2 + a1;
-        int value = dword_66BE08[elevation]->field_0[squareTile];
+        int value = _squares[elevation]->field_0[squareTile];
         int upper = (value >> 16) & 0xFFFF;
 
         int id = upper & 0xFFF;
@@ -1247,7 +1247,7 @@ void sub_4B23DC(int a1, int a2, int elevation)
 
         flag |= 0x01;
 
-        dword_66BE08[elevation]->field_0[squareTile] = (value & 0xFFFF) | (((flag << 12) | id) << 16);
+        _squares[elevation]->field_0[squareTile] = (value & 0xFFFF) | (((flag << 12) | id) << 16);
 
         sub_4B23DC(a1 - 1, a2, elevation);
         sub_4B23DC(a1 + 1, a2, elevation);
@@ -1403,7 +1403,7 @@ void tileRenderFloorsInRect(Rect* rect, int elevation)
     for (int v15 = v9; v15 <= v7; v15++) {
         for (int i = v10; i <= v8; i++) {
             int v3 = v11 + i;
-            int frmId = dword_66BE08[elevation]->field_0[v3];
+            int frmId = _squares[elevation]->field_0[v3];
             if ((((frmId & 0xF000) >> 12) & 0x01) == 0) {
                 int v12;
                 int v13;
@@ -1419,7 +1419,7 @@ void tileRenderFloorsInRect(Rect* rect, int elevation)
 // 0x4B2B10
 bool _square_roof_intersect(int x, int y, int elevation)
 {
-    if (!dword_51D95C) {
+    if (!_show_roof) {
         return false;
     }
 
@@ -1429,7 +1429,7 @@ bool _square_roof_intersect(int x, int y, int elevation)
     int tileY;
     _square_xy_roof(x, y, elevation, &tileX, &tileY);
 
-    TileData* ptr = dword_66BE08[elevation];
+    TileData* ptr = _squares[elevation];
     int idx = gSquareGridWidth * tileY + tileX;
     int upper = ptr->field_0[gSquareGridWidth * tileY + tileX] >> 16;
     int fid = buildFid(4, upper & 0xFFF, 0, 0, 0);
@@ -1461,7 +1461,7 @@ bool _square_roof_intersect(int x, int y, int elevation)
 // 0x4B2E98
 void _grid_render(Rect* rect, int elevation)
 {
-    if (!dword_51D960) {
+    if (!_show_grid) {
         return;
     }
 
@@ -1495,7 +1495,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
     }
 
     if (_obj_blocking_at(NULL, tile, elevation) != NULL) {
-        blitBufferToBufferTrans(byte_66B5C4 + 32 * (r.top - y) + (r.left - x),
+        blitBufferToBufferTrans(_tile_grid_blocked + 32 * (r.top - y) + (r.left - x),
             r.right - r.left + 1,
             r.bottom - r.top + 1,
             32,
@@ -1505,7 +1505,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
     }
 
     if (_obj_occupied(tile, elevation)) {
-        blitBufferToBufferTrans(byte_66B7C4 + 32 * (r.top - y) + (r.left - x),
+        blitBufferToBufferTrans(_tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
             r.right - r.left + 1,
             r.bottom - r.top + 1,
             32,
@@ -1514,7 +1514,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
         return;
     }
 
-    _translucent_trans_buf_to_buf(byte_66B7C4 + 32 * (r.top - y) + (r.left - x),
+    _translucent_trans_buf_to_buf(_tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
         r.right - r.left + 1,
         r.bottom - r.top + 1,
         32,
@@ -1522,8 +1522,8 @@ void _draw_grid(int tile, int elevation, Rect* rect)
         0,
         0,
         gTileWindowPitch,
-        dword_519780,
-        byte_660FA0);
+        _wallBlendTable,
+        _commonGrayTable);
 }
 
 // 0x4B30C4
@@ -1609,17 +1609,17 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
         int v17 = lightGetLightLevel();
         for (int i = v15 & 1; i < 10; i++) {
             // NOTE: calling _light_get_tile two times, probably a result of using __min kind macro
-            int v21 = _light_get_tile(elev, v15 + stru_51DA6C[i].field_4);
+            int v21 = _light_get_tile(elev, v15 + _verticies[i].field_4);
             if (v21 <= v17) {
                 v21 = v17;
             }
 
-            stru_51DA6C[i].field_C = v21;
+            _verticies[i].field_C = v21;
         }
 
         int v23 = 0;
         for (int i = 0; i < 9; i++) {
-            if (stru_51DA6C[i + 1].field_C != stru_51DA6C[i].field_C) {
+            if (_verticies[i + 1].field_C != _verticies[i].field_C) {
                 break;
             }
 
@@ -1628,25 +1628,25 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
 
         if (v23 == 9) {
             unsigned char* buf = artGetFrameData(art, 0, 0);
-            _dark_trans_buf_to_buf(buf + frameWidth * v78 + v79, v77, v76, frameWidth, gTileWindowBuffer, x, y, gTileWindowPitch, stru_51DA6C[0].field_C);
+            _dark_trans_buf_to_buf(buf + frameWidth * v78 + v79, v77, v76, frameWidth, gTileWindowBuffer, x, y, gTileWindowPitch, _verticies[0].field_C);
             goto out;
         }
 
         for (int i = 0; i < 5; i++) {
-            STRUCT_51DB0C* ptr_51DB0C = &(stru_51DB0C[i]);
-            int v32 = stru_51DA6C[ptr_51DB0C->field_8].field_C;
-            int v33 = stru_51DA6C[ptr_51DB0C->field_8].field_0;
-            int v34 = stru_51DA6C[ptr_51DB0C->field_4].field_C - stru_51DA6C[ptr_51DB0C->field_0].field_C;
+            STRUCT_51DB0C* ptr_51DB0C = &(_rightside_up_triangles[i]);
+            int v32 = _verticies[ptr_51DB0C->field_8].field_C;
+            int v33 = _verticies[ptr_51DB0C->field_8].field_0;
+            int v34 = _verticies[ptr_51DB0C->field_4].field_C - _verticies[ptr_51DB0C->field_0].field_C;
             // TODO: Probably wrong.
             int v35 = v34 / 32;
-            int v36 = (stru_51DA6C[ptr_51DB0C->field_0].field_C - v32) / 13;
-            int* v37 = &(dword_668224[v33]);
+            int v36 = (_verticies[ptr_51DB0C->field_0].field_C - v32) / 13;
+            int* v37 = &(_intensity_map[v33]);
             if (v35 != 0) {
                 if (v36 != 0) {
                     for (int i = 0; i < 13; i++) {
                         int v41 = v32;
-                        int v42 = stru_51D99C[i].field_4;
-                        v37 += stru_51D99C[i].field_0;
+                        int v42 = _rightside_up_table[i].field_4;
+                        v37 += _rightside_up_table[i].field_0;
                         for (int j = 0; j < v42; j++) {
                             *v37++ = v41;
                             v41 += v35;
@@ -1656,8 +1656,8 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
                 } else {
                     for (int i = 0; i < 13; i++) {
                         int v38 = v32;
-                        int v39 = stru_51D99C[i].field_4;
-                        v37 += stru_51D99C[i].field_0;
+                        int v39 = _rightside_up_table[i].field_4;
+                        v37 += _rightside_up_table[i].field_0;
                         for (int j = 0; j < v39; j++) {
                             *v37++ = v38;
                             v38 += v35;
@@ -1667,8 +1667,8 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
             } else {
                 if (v36 != 0) {
                     for (int i = 0; i < 13; i++) {
-                        int v46 = stru_51D99C[i].field_4;
-                        v37 += stru_51D99C[i].field_0;
+                        int v46 = _rightside_up_table[i].field_4;
+                        v37 += _rightside_up_table[i].field_0;
                         for (int j = 0; j < v46; j++) {
                             *v37++ = v32;
                         }
@@ -1676,8 +1676,8 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
                     }
                 } else {
                     for (int i = 0; i < 13; i++) {
-                        int v44 = stru_51D99C[i].field_4;
-                        v37 += stru_51D99C[i].field_0;
+                        int v44 = _rightside_up_table[i].field_4;
+                        v37 += _rightside_up_table[i].field_0;
                         for (int j = 0; j < v44; j++) {
                             *v37++ = v32;
                         }
@@ -1687,20 +1687,20 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
         }
 
         for (int i = 0; i < 5; i++) {
-            STRUCT_51DB48* ptr_51DB48 = &(stru_51DB48[i]);
-            int v50 = stru_51DA6C[ptr_51DB48->field_0].field_C;
-            int v51 = stru_51DA6C[ptr_51DB48->field_0].field_0;
-            int v52 = stru_51DA6C[ptr_51DB48->field_8].field_C - v50;
+            STRUCT_51DB48* ptr_51DB48 = &(_upside_down_triangles[i]);
+            int v50 = _verticies[ptr_51DB48->field_0].field_C;
+            int v51 = _verticies[ptr_51DB48->field_0].field_0;
+            int v52 = _verticies[ptr_51DB48->field_8].field_C - v50;
             // TODO: Probably wrong.
             int v53 = v52 / 32;
-            int v54 = (stru_51DA6C[ptr_51DB48->field_4].field_C - v50) / 13;
-            int* v55 = &(dword_668224[v51]);
+            int v54 = (_verticies[ptr_51DB48->field_4].field_C - v50) / 13;
+            int* v55 = &(_intensity_map[v51]);
             if (v53 != 0) {
                 if (v54 != 0) {
                     for (int i = 0; i < 13; i++) {
                         int v59 = v50;
-                        int v60 = stru_51DA04[i].field_4;
-                        v55 += stru_51DA04[i].field_0;
+                        int v60 = _upside_down_table[i].field_4;
+                        v55 += _upside_down_table[i].field_0;
                         for (int j = 0; j < v60; j++) {
                             *v55++ = v59;
                             v59 += v53;
@@ -1710,8 +1710,8 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
                 } else {
                     for (int i = 0; i < 13; i++) {
                         int v56 = v50;
-                        int v57 = stru_51DA04[i].field_4;
-                        v55 += stru_51DA04[i].field_0;
+                        int v57 = _upside_down_table[i].field_4;
+                        v55 += _upside_down_table[i].field_0;
                         for (int j = 0; j < v57; j++) {
                             *v55++ = v56;
                             v56 += v53;
@@ -1721,8 +1721,8 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
             } else {
                 if (v54 != 0) {
                     for (int i = 0; i < 13; i++) {
-                        int v64 = stru_51DA04[i].field_4;
-                        v55 += stru_51DA04[i].field_0;
+                        int v64 = _upside_down_table[i].field_4;
+                        v55 += _upside_down_table[i].field_0;
                         for (int j = 0; j < v64; j++) {
                             *v55++ = v50;
                         }
@@ -1730,8 +1730,8 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
                     }
                 } else {
                     for (int i = 0; i < 13; i++) {
-                        int v62 = stru_51DA04[i].field_4;
-                        v55 += stru_51DA04[i].field_0;
+                        int v62 = _upside_down_table[i].field_4;
+                        v55 += _upside_down_table[i].field_0;
                         for (int j = 0; j < v62; j++) {
                             *v55++ = v50;
                         }
@@ -1742,7 +1742,7 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
 
         unsigned char* v66 = gTileWindowBuffer + gTileWindowPitch * y + x;
         unsigned char* v67 = artGetFrameData(art, 0, 0) + frameWidth * v78 + v79;
-        int* v68 = &(dword_668224[160 + 80 * v78]) + v79;
+        int* v68 = &(_intensity_map[160 + 80 * v78]) + v79;
         int v86 = frameWidth - v77;
         int v85 = gTileWindowPitch - v77;
         int v87 = 80 - v77;
@@ -1751,7 +1751,7 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
             for (int kk = 0; kk < v77; kk++) {
                 if (*v67 != 0) {
                     int t = (*v67 << 8) + (*v68 >> 9);
-                    *v66 = byte_6838D0[t];
+                    *v66 = _intensityColorTable[t];
                 }
                 v67++;
                 v68++;
@@ -1912,7 +1912,7 @@ int _tile_scroll_to(int tile, int flags)
 
     if ((flags & 0x02) != 0) {
         if (gTileEnabled) {
-            off_51D964(&gTileWindowRect, gElevation);
+            _tile_refresh(&gTileWindowRect, gElevation);
         }
     }
 

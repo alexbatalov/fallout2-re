@@ -30,7 +30,7 @@
 #include <stdio.h>
 
 // 0x51805C
-Object* off_51805C = NULL;
+Object* _combat_obj = NULL;
 
 // 0x518060
 int gAiPacketsLength = 0;
@@ -122,7 +122,7 @@ const char* gHurtTooMuchKeys[HURT_COUNT] = {
 // hurt_too_much
 //
 // 0x518124
-const int dword_518124[5] = {
+const int _rmatchHurtVals[5] = {
     DAM_BLIND,
     DAM_CRIP_LEG_LEFT | DAM_CRIP_LEG_RIGHT | DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT,
     DAM_CRIP_LEG_LEFT | DAM_CRIP_LEG_RIGHT,
@@ -133,7 +133,7 @@ const int dword_518124[5] = {
 // Hit points in percent to choose run away mode.
 //
 // 0x518138
-const int dword_518138[6] = {
+const int _hp_run_away_value[6] = {
     0,
     25,
     40,
@@ -143,13 +143,13 @@ const int dword_518138[6] = {
 };
 
 // 0x518150
-Object* off_518150 = NULL;
+Object* _attackerTeamObj = NULL;
 
 // 0x518154
-Object* off_518154 = NULL;
+Object* _targetTeamObj = NULL;
 
 // 0x518158
-const int dword_518158[BEST_WEAPON_COUNT + 1][5] = {
+const int _weapPrefOrderings[BEST_WEAPON_COUNT + 1][5] = {
     { ATTACK_TYPE_RANGED, ATTACK_TYPE_THROW, ATTACK_TYPE_MELEE, ATTACK_TYPE_UNARMED, 0 },
     { ATTACK_TYPE_RANGED, ATTACK_TYPE_THROW, ATTACK_TYPE_MELEE, ATTACK_TYPE_UNARMED, 0 }, // BEST_WEAPON_NO_PREF
     { ATTACK_TYPE_MELEE, 0, 0, 0, 0 }, // BEST_WEAPON_MELEE
@@ -162,7 +162,7 @@ const int dword_518158[BEST_WEAPON_COUNT + 1][5] = {
 };
 
 // 0x51820C
-const int dword_51820C[DISTANCE_COUNT] = {
+const int _aiPartyMemberDistances[DISTANCE_COUNT] = {
     5,
     7,
     7,
@@ -179,16 +179,16 @@ int gLanguageFilter = -1;
 MessageList gCombatAiMessageList;
 
 // 0x56D518
-char byte_56D518[260];
+char _target_str[260];
 
 // 0x56D61C
-int dword_56D61C;
+int _curr_crit_num;
 
 // 0x56D620
-Object** off_56D620;
+Object** _curr_crit_list;
 
 // 0x56D624
-char byte_56D624[268];
+char _attack_str[268];
 
 // parse hurt_too_much
 void _parse_hurt_str(char* str, int* valuePtr)
@@ -210,7 +210,7 @@ void _parse_hurt_str(char* str, int* valuePtr)
 
         for (i = 0; i < 4; i++) {
             if (strcmp(str, gHurtTooMuchKeys[i]) == 0) {
-                *valuePtr |= dword_518124[i];
+                *valuePtr |= _rmatchHurtVals[i];
                 break;
             }
         }
@@ -649,7 +649,7 @@ int aiGetRunAwayMode(Object* obj)
     v6 = v5 / critterGetStat(obj, STAT_MAXIMUM_HIT_POINTS);
 
     for (i = 0; i < 6; i++) {
-        if (v6 >= dword_518138[i]) {
+        if (v6 >= _hp_run_away_value[i]) {
             v3 = i;
         }
     }
@@ -708,7 +708,7 @@ int aiSetRunAwayMode(Object* obj, int runAwayMode)
     ai->run_away_mode = runAwayMode;
 
     int maximumHp = critterGetStat(obj, STAT_MAXIMUM_HIT_POINTS);
-    ai->min_hp = maximumHp - maximumHp * dword_518138[runAwayMode] / 100;
+    ai->min_hp = maximumHp - maximumHp * _hp_run_away_value[runAwayMode] / 100;
 
     int currentHp = critterGetStat(obj, STAT_CURRENT_HIT_POINTS);
     const char* name = critterGetName(obj);
@@ -858,13 +858,13 @@ int _ai_check_drugs(Object* critter)
             v2 = 30;
             break;
         case 4:
-            if ((dword_510940 % 3) == 0) {
+            if ((_combatNumTurns % 3) == 0) {
                 v26 = 25;
             }
             v2 = 50;
             break;
         case 5:
-            if ((dword_510940 % 3) == 0) {
+            if ((_combatNumTurns % 3) == 0) {
                 v26 = 75;
             }
             v2 = 50;
@@ -1126,8 +1126,8 @@ int _compare_nearer(const void* a1, const void* a2)
         }
     }
 
-    int distance1 = objectGetDistanceBetween(v1, off_51805C);
-    int distance2 = objectGetDistanceBetween(v2, off_51805C);
+    int distance1 = objectGetDistanceBetween(v1, _combat_obj);
+    int distance2 = objectGetDistanceBetween(v2, _combat_obj);
 
     if (distance1 < distance2) {
         return -1;
@@ -1216,15 +1216,15 @@ Object* _ai_find_nearest_team(Object* a1, Object* a2, int a3)
         return NULL;
     }
 
-    if (dword_56D61C == 0) {
+    if (_curr_crit_num == 0) {
         return NULL;
     }
 
-    off_51805C = a1;
-    qsort(off_56D620, dword_56D61C, sizeof(*off_56D620), _compare_nearer);
+    _combat_obj = a1;
+    qsort(_curr_crit_list, _curr_crit_num, sizeof(*_curr_crit_list), _compare_nearer);
 
-    for (i = 0; i < dword_56D61C; i++) {
-        obj = off_56D620[i];
+    for (i = 0; i < _curr_crit_num; i++) {
+        obj = _curr_crit_list[i];
         if (a1 != obj && !(obj->data.critter.combat.results & 0x80) && ((a3 & 0x02) && a2->data.critter.combat.team != obj->data.critter.combat.team || (a3 & 0x01) && a2->data.critter.combat.team == obj->data.critter.combat.team)) {
             return obj;
         }
@@ -1240,17 +1240,17 @@ Object* _ai_find_nearest_team_in_combat(Object* a1, Object* a2, int a3)
         return NULL;
     }
 
-    if (dword_56D61C == 0) {
+    if (_curr_crit_num == 0) {
         return NULL;
     }
 
     int team = a2->data.critter.combat.team;
 
-    off_51805C = a1;
-    qsort(off_56D620, dword_56D61C, sizeof(*off_56D620), _compare_nearer);
+    _combat_obj = a1;
+    qsort(_curr_crit_list, _curr_crit_num, sizeof(*_curr_crit_list), _compare_nearer);
 
-    for (int index = 0; index < dword_56D61C; index++) {
-        Object* obj = off_56D620[index];
+    for (int index = 0; index < _curr_crit_num; index++) {
+        Object* obj = _curr_crit_list[index];
         if (obj != a1
             && (obj->data.critter.combat.results & DAM_DEAD) == 0
             && ((a3 & 0x02) != 0 && team != obj->data.critter.combat.team
@@ -1279,18 +1279,18 @@ int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
         *a4 = NULL;
     }
 
-    if (dword_56D61C == 0) {
+    if (_curr_crit_num == 0) {
         return 0;
     }
 
-    off_51805C = a1;
-    qsort(off_56D620, dword_56D61C, sizeof(*off_56D620), _compare_nearer);
+    _combat_obj = a1;
+    qsort(_curr_crit_list, _curr_crit_num, sizeof(*_curr_crit_list), _compare_nearer);
 
     int foundTargetCount = 0;
     int team = a1->data.critter.combat.team;
 
-    for (int index = 0; foundTargetCount < 3 && index < dword_56D61C; index++) {
-        Object* candidate = off_56D620[index];
+    for (int index = 0; foundTargetCount < 3 && index < _curr_crit_num; index++) {
+        Object* candidate = _curr_crit_list[index];
         if (candidate != a1) {
             if (a2 != NULL && *a2 == NULL) {
                 if ((candidate->data.critter.combat.results & DAM_DEAD) == 0
@@ -1431,7 +1431,7 @@ Object* _ai_danger_source(Object* a1)
         break;
     default:
         compareProc = _compare_nearer;
-        off_51805C = a1;
+        _combat_obj = a1;
         break;
     }
 
@@ -1464,8 +1464,8 @@ int _caiSetupTeamCombat(Object* a1, Object* a2)
         obj = objectFindNextAtElevation();
     }
 
-    off_518150 = a1;
-    off_518154 = a2;
+    _attackerTeamObj = a1;
+    _targetTeamObj = a2;
 
     return 0;
 }
@@ -1486,18 +1486,18 @@ int _caiTeamCombatInit(Object** a1, int a2)
         return 0;
     }
 
-    if (off_518150 == NULL) {
+    if (_attackerTeamObj == NULL) {
         return 0;
     }
 
-    v9 = off_518150->data.critter.combat.team;
-    v10 = off_518154->data.critter.combat.team;
+    v9 = _attackerTeamObj->data.critter.combat.team;
+    v10 = _targetTeamObj->data.critter.combat.team;
 
     for (i = 0; i < a2; i++) {
         if (a1[i]->data.critter.combat.team == v9) {
-            v8 = off_518154;
+            v8 = _targetTeamObj;
         } else if (a1[i]->data.critter.combat.team == v10) {
-            v8 = off_518150;
+            v8 = _attackerTeamObj;
         } else {
             continue;
         }
@@ -1505,8 +1505,8 @@ int _caiTeamCombatInit(Object** a1, int a2)
         a1[i]->data.critter.combat.whoHitMe = _ai_find_nearest_team(a1[i], v8, 1);
     }
 
-    off_518150 = NULL;
-    off_518154 = NULL;
+    _attackerTeamObj = NULL;
+    _targetTeamObj = NULL;
 
     return 0;
 }
@@ -1514,8 +1514,8 @@ int _caiTeamCombatInit(Object** a1, int a2)
 // 0x4292C0
 void _caiTeamCombatExit()
 {
-    off_518154 = 0;
-    off_518150 = 0;
+    _targetTeamObj = 0;
+    _attackerTeamObj = 0;
 }
 
 // 0x4292D4
@@ -1565,7 +1565,7 @@ bool _caiHasWeapPrefType(AiPacket* ai, int attackType)
     int bestWeapon = ai->best_weapon + 1;
 
     for (int index = 0; index < 5; index++) {
-        if (attackType == dword_518158[bestWeapon][index]) {
+        if (attackType == _weapPrefOrderings[bestWeapon][index]) {
             return true;
         }
     }
@@ -1645,7 +1645,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
 
     if (!v24) {
         for (int index = 0; index < ATTACK_TYPE_COUNT; index++) {
-            if (dword_518158[ai->best_weapon + 1][index] == attackType1) {
+            if (_weapPrefOrderings[ai->best_weapon + 1][index] == attackType1) {
                 v26 = index;
                 break;
             }
@@ -1690,7 +1690,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
 
     if (!v23) {
         for (int index = 0; index < ATTACK_TYPE_COUNT; index++) {
-            if (dword_518158[ai->best_weapon + 1][index] == attackType2) {
+            if (_weapPrefOrderings[ai->best_weapon + 1][index] == attackType2) {
                 v25 = index;
                 break;
             }
@@ -1922,7 +1922,7 @@ Object* _ai_search_environ(Object* critter, int itemType)
         return NULL;
     }
 
-    off_51805C = critter;
+    _combat_obj = critter;
     qsort(objects, count, sizeof(*objects), _compare_nearer);
 
     int perception = critterGetStat(critter, STAT_PERCEPTION) + 5;
@@ -2109,15 +2109,15 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
     }
 
     if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_blocking_at) == 0) {
-        off_519794 = NULL;
+        _moveBlockObj = NULL;
         if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_ai_blocking_at) == 0
-            && off_519794 != NULL
-            && (off_519794->pid >> 24) == OBJ_TYPE_CRITTER) {
+            && _moveBlockObj != NULL
+            && (_moveBlockObj->pid >> 24) == OBJ_TYPE_CRITTER) {
             if (v19) {
                 a2->flags &= ~0x01;
             }
 
-            a2 = off_519794;
+            a2 = _moveBlockObj;
             if ((a2->flags & 0x800) != 0) {
                 v19 = true;
                 a2->flags |= 0x01;
@@ -2178,7 +2178,7 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
         return -1;
     }
 
-    if (dword_56D61C == 0) {
+    if (_curr_crit_num == 0) {
         return -1;
     }
 
@@ -2199,8 +2199,8 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
         tiles[index] = -1;
     }
 
-    for (int index = 0; index < dword_56D61C; index++) {
-        Object* obj = off_56D620[index];
+    for (int index = 0; index < _curr_crit_num; index++) {
+        Object* obj = _curr_crit_list[index];
         if ((obj->data.critter.combat.results & DAM_DEAD) == 0
             && obj->data.critter.combat.team == v1.field_32C
             && _combatAIInfoGetLastTarget(obj) == v1.field_4
@@ -2214,7 +2214,7 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
         }
     }
 
-    off_51805C = a1;
+    _combat_obj = a1;
 
     qsort(v1.field_8, v1.field_328, sizeof(*v1.field_8), _compare_nearer);
 
@@ -2648,14 +2648,14 @@ void _cai_attempt_w_reload(Object* critter_obj, int a2)
 // 0x42AF78
 void _combat_ai_begin(int a1, void* a2)
 {
-    dword_56D61C = a1;
+    _curr_crit_num = a1;
 
     if (a1 != 0) {
-        off_56D620 = internal_malloc(sizeof(Object*) * a1);
-        if (off_56D620) {
-            memcpy(off_56D620, a2, sizeof(Object*) * a1);
+        _curr_crit_list = internal_malloc(sizeof(Object*) * a1);
+        if (_curr_crit_list) {
+            memcpy(_curr_crit_list, a2, sizeof(Object*) * a1);
         } else {
-            dword_56D61C = 0;
+            _curr_crit_num = 0;
         }
     }
 }
@@ -2663,11 +2663,11 @@ void _combat_ai_begin(int a1, void* a2)
 // 0x42AFBC
 void _combat_ai_over()
 {
-    if (dword_56D61C) {
-        internal_free(off_56D620);
+    if (_curr_crit_num) {
+        internal_free(_curr_crit_list);
     }
 
-    dword_56D61C = 0;
+    _curr_crit_num = 0;
 }
 
 // 0x42AFDC
@@ -2731,7 +2731,7 @@ int _cai_get_min_hp(AiPacket* ai)
 
     int run_away_mode = ai->run_away_mode;
     if (run_away_mode >= 0 && run_away_mode < RUN_AWAY_MODE_COUNT) {
-        return dword_518138[run_away_mode];
+        return _hp_run_away_value[run_away_mode];
     } else if (run_away_mode == -1) {
         return ai->min_hp;
     }
@@ -2829,7 +2829,7 @@ void _combat_ai(Object* a1, Object* a2)
             // NOTE: Uninline
             int distance = aiGetDistance(a1);
             if (distance != -1) {
-                v21 = dword_51820C[distance];
+                v21 = _aiPartyMemberDistances[distance];
             }
         }
     }
@@ -3019,27 +3019,27 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
     case AI_MESSAGE_TYPE_RUN:
         start = ai->run.start;
         end = ai->run.end;
-        string = byte_56D624;
+        string = _attack_str;
         break;
     case AI_MESSAGE_TYPE_MOVE:
         start = ai->move.start;
         end = ai->move.end;
-        string = byte_56D624;
+        string = _attack_str;
         break;
     case AI_MESSAGE_TYPE_ATTACK:
         start = ai->attack.start;
         end = ai->attack.end;
-        string = byte_56D624;
+        string = _attack_str;
         break;
     case AI_MESSAGE_TYPE_MISS:
         start = ai->miss.start;
         end = ai->miss.end;
-        string = byte_56D518;
+        string = _target_str;
         break;
     case AI_MESSAGE_TYPE_HIT:
         start = ai->hit[attack->defenderHitLocation].start;
         end = ai->hit[attack->defenderHitLocation].end;
-        string = byte_56D518;
+        string = _target_str;
         break;
     default:
         return -1;
@@ -3074,10 +3074,10 @@ int _ai_print_msg(Object* critter, int type)
     switch (type) {
     case AI_MESSAGE_TYPE_HIT:
     case AI_MESSAGE_TYPE_MISS:
-        string = byte_56D518;
+        string = _target_str;
         break;
     default:
-        string = byte_56D624;
+        string = _attack_str;
         break;
     }
 
@@ -3103,12 +3103,12 @@ Object* _combat_ai_random_target(Attack* attack)
 
     Object* critter = NULL;
 
-    if (dword_56D61C != 0) {
+    if (_curr_crit_num != 0) {
         // Randomize starting critter.
-        int start = randomBetween(0, dword_56D61C - 1);
+        int start = randomBetween(0, _curr_crit_num - 1);
         int index = start;
         while (true) {
-            Object* obj = off_56D620[index];
+            Object* obj = _curr_crit_list[index];
             if (obj != attack->attacker
                 && obj != attack->defender
                 && _can_see(attack->attacker, obj)
@@ -3118,7 +3118,7 @@ Object* _combat_ai_random_target(Attack* attack)
             }
 
             index += 1;
-            if (index == dword_56D61C) {
+            if (index == _curr_crit_num) {
                 index = 0;
             }
 
@@ -3298,8 +3298,8 @@ void aiMessageListReloadIfNeeded()
 // 0x42BC60
 void _combatai_notify_onlookers(Object* a1)
 {
-    for (int index = 0; index < dword_56D61C; index++) {
-        Object* obj = off_56D620[index];
+    for (int index = 0; index < _curr_crit_num; index++) {
+        Object* obj = _curr_crit_list[index];
         if ((obj->data.critter.combat.maneuver & CRITTER_MANEUVER_0x01) == 0) {
             if (objectCanHearObject(obj, a1)) {
                 obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
@@ -3319,8 +3319,8 @@ void _combatai_notify_friends(Object* a1)
 {
     int team = a1->data.critter.combat.team;
 
-    for (int index = 0; index < dword_56D61C; index++) {
-        Object* obj = off_56D620[index];
+    for (int index = 0; index < _curr_crit_num; index++) {
+        Object* obj = _curr_crit_list[index];
         if ((obj->data.critter.combat.maneuver & CRITTER_MANEUVER_0x01) == 0 && team == obj->data.critter.combat.team) {
             if (objectCanHearObject(obj, a1)) {
                 obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
@@ -3333,11 +3333,11 @@ void _combatai_notify_friends(Object* a1)
 void _combatai_delete_critter(Object* obj)
 {
     // TODO: Check entire function.
-    for (int i = 0; i < dword_56D61C; i++) {
-        if (obj == off_56D620[i]) {
-            dword_56D61C--;
-            off_56D620[i] = off_56D620[dword_56D61C];
-            off_56D620[dword_56D61C] = obj;
+    for (int i = 0; i < _curr_crit_num; i++) {
+        if (obj == _curr_crit_list[i]) {
+            _curr_crit_num--;
+            _curr_crit_list[i] = _curr_crit_list[_curr_crit_num];
+            _curr_crit_list[_curr_crit_num] = obj;
             break;
         }
     }

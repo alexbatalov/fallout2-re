@@ -58,7 +58,7 @@ int dbOpen(const char* filePath1, int a2, const char* filePath2, int a4)
 // to guess it's name.
 //
 // 0x4C5D54
-int sub_4C5D54(int a1)
+int _db_current(int a1)
 {
     return 0;
 }
@@ -694,7 +694,7 @@ void fileNameListFree(char*** fileNameListPtr, int a2)
 // for building file name list.
 //
 // 0x4C68B8
-void sub_4C68B8(MallocProc* mallocProc, StrdupProc* strdupProc, FreeProc* freeProc)
+void _db_register_mem(MallocProc* mallocProc, StrdupProc* strdupProc, FreeProc* freeProc)
 {
 }
 
@@ -722,7 +722,7 @@ void fileSetReadProgressHandler(FileReadProgressHandler* handler, int size)
 // it does nothing. It's impossible to guess it's name.
 //
 // 0x4C68E4
-void sub_4C68E4()
+void _db_enable_hash_table_()
 {
 }
 

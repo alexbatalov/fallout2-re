@@ -114,25 +114,25 @@ typedef struct STRUCT_51D478 {
     struct STRUCT_51D478* next;
 } STRUCT_51D478;
 
-extern STRUCT_51D478* off_51D478;
-extern STRUCT_51D478* off_51D47C;
+extern STRUCT_51D478* _fadeHead;
+extern STRUCT_51D478* _fadeFreeList;
 
-extern unsigned int dword_51D480;
+extern unsigned int _fadeEventHandle;
 extern MallocProc* gSoundMallocProc;
 extern ReallocProc* gSoundReallocProc;
 extern FreeProc* gSoundFreeProc;
 extern SoundFileIO gSoundDefaultFileIO;
-extern char* (*off_51D4B4)(char* path);
+extern char* (*_nameMangler)(char* path);
 extern const char* gSoundErrorDescriptions[SOUND_ERR_COUNT];
 
 extern int gSoundLastError;
-extern int dword_668154;
+extern int _masterVol;
 extern LPDIRECTSOUNDBUFFER gDirectSoundPrimaryBuffer;
-extern int dword_66815C;
-extern int dword_668160;
-extern int dword_668164;
-extern int dword_668168;
-extern int dword_66816C;
+extern int _sampleRate;
+extern int _numSounds;
+extern int _deviceInit;
+extern int _dataSize;
+extern int _numBuffers;
 extern bool gSoundInitialized;
 extern Sound* gSoundListHead;
 extern LPDIRECTSOUND gDirectSound;
@@ -142,7 +142,7 @@ void* soundReallocProcDefaultImpl(void* ptr, size_t size);
 void soundFreeProcDefaultImpl(void* ptr);
 void soundSetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 
-char* sub_4AC78C(char* fname);
+char* _defaultMangler_(char* fname);
 const char* soundGetErrorDescription(int err);
 void _refreshSoundBuffers(Sound* sound);
 int soundInit(int a1, int a2, int a3, int a4, int rate);
@@ -174,7 +174,7 @@ int soundResume(Sound* sound);
 int soundSetFileIO(Sound* sound, SoundOpenProc* openProc, SoundCloseProc* closeProc, SoundReadProc* readProc, SoundWriteProc* writeProc, SoundSeekProc* seekProc, SoundTellProc* tellProc, SoundFileLengthProc* fileLengthProc);
 void soundDeleteInternal(Sound* sound);
 int _soundSetMasterVolume(int value);
-void CALLBACK sub_4AE5C8(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
+void CALLBACK _doTimerEvent(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PTR dw1, DWORD_PTR dw2);
 void _removeTimedEvent(unsigned int* timerId);
 int _soundGetPosition(Sound* sound);
 int _soundSetPosition(Sound* sound, int a2);

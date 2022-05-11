@@ -114,18 +114,18 @@ typedef enum OpRegAnimFunc {
     OP_REG_ANIM_FUNC_END = 3,
 } OpRegAnimFunc;
 
-extern char byte_504B04[];
-extern char byte_504B0C[];
+extern char _Error_0[];
+extern char _aCritter[];
 
 extern const int dword_453F90[3];
 extern const unsigned short word_453F9C[MOVIE_COUNT];
 extern Rect stru_453FC0;
 
-extern const char* off_518EC0[SCRIPT_ERROR_COUNT];
-extern const int dword_518ED0[11];
-extern char* off_518EFC;
-extern int dword_518F00;
-extern char* off_518F04;
+extern const char* _dbg_error_strs[SCRIPT_ERROR_COUNT];
+extern const int _ftList[11];
+extern char* _errStr;
+extern int _last_color;
+extern char* _strName;
 
 extern int gGameDialogReactionOrFidget;
 
@@ -314,8 +314,8 @@ void opCritterStopAttacking(Program* program);
 void opTileGetObjectWithPid(Program* program);
 void opGetObjectName(Program* program);
 void opGetPcStat(Program* program);
-void sub_45CDD4();
+void _intExtraClose_();
 void _initIntExtra();
-void sub_45D878();
+void _intExtraRemoveProgramReferences_();
 
 #endif /* INTERPRETER_EXTRA_H */

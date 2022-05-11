@@ -23,15 +23,15 @@ typedef struct MessageList {
     MessageListItem* entries;
 } MessageList;
 
-extern char byte_50B79C[];
+extern char _Error_1[];
 extern const char* gBadwordsReplacements;
 
 extern char** gBadwords;
 extern int gBadwordsCount;
 extern int* gBadwordsLengths;
-extern char* off_5195A4;
+extern char* _message_error_str;
 
-extern char byte_63207C[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
+extern char _bad_copy[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
 
 int badwordsInit();
 void badwordsExit();

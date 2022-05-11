@@ -28,7 +28,7 @@ int reactionTranslateValue(int a1)
 }
 
 // 0x4A29F0
-int sub_4A29F0()
+int _reaction_influence_()
 {
     return 0;
 }

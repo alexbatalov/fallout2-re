@@ -152,26 +152,26 @@ typedef struct RadioGroup {
 typedef int(VideoSystemInitProc)();
 typedef void(VideoSystemExitProc)();
 
-char byte_50FA30[];
+char _path_patches[];
 
-extern bool dword_51E3D8;
-extern HANDLE dword_51E3DC;
+extern bool _GNW95_already_running;
+extern HANDLE _GNW95_title_mutex;
 extern bool gWindowSystemInitialized;
-extern int dword_51E3E4[6];
-extern unsigned char* off_51E3FC;
-extern bool dword_51E400;
-extern int dword_51E404;
+extern int _GNW_wcolor[6];
+extern unsigned char* _screen_buffer;
+extern bool _insideWinExit;
+extern int _last_button_winID;
 
 extern int gOrderedWindowIds[MAX_WINDOW_COUNT];
 extern Window* gWindows[MAX_WINDOW_COUNT];
 extern VideoSystemExitProc* gVideoSystemExitProc;
 extern int gWindowsLength;
-extern int dword_6ADF28;
-extern bool dword_6ADF2C;
-extern int dword_6ADF30;
+extern int _window_flags;
+extern bool _buffering;
+extern int _bk_color;
 extern VideoSystemInitProc* gVideoSystemInitProc;
-extern int dword_6ADF38;
-extern void* off_6ADF3C;
+extern int _doing_refresh_all;
+extern void* _GNW_texture;
 extern RadioGroup gRadioGroups[RADIO_GROUP_LIST_CAPACITY];
 
 int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* videoSystemExitProc, int a3);

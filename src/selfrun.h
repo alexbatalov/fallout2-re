@@ -1,7 +1,7 @@
 #ifndef SELFRUN_H
 #define SELFRUN_H
 
-extern int dword_51C8D8;
+extern int _selfrun_state;
 
 int _selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr);
 int _selfrun_free_list(char*** fileListPtr);

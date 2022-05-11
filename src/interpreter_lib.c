@@ -18,19 +18,19 @@ InterpreterKeyHandlerEntry gInterpreterKeyHandlerEntries[INTERPRETER_KEY_HANDLER
 // 0x59E154
 int gIntepreterAnyKeyHandlerProc;
 
-// Number of entries in off_59E160.
+// Number of entries in _callbacks.
 //
 // 0x59E158
-int dword_59E158;
+int _numCallbacks;
 
 // 0x59E15C
 Program* gInterpreterAnyKeyHandlerProgram;
 
 // 0x59E160
-OFF_59E160* off_59E160;
+OFF_59E160* _callbacks;
 
 // 0x59E164
-int dword_59E164;
+int _sayStartingPosition;
 
 // format
 // 0x461850
@@ -80,7 +80,7 @@ void opFormat(Program* program)
     int height = data[1];
     int textAlignment = data[0];
 
-    if (!sub_4B89B0(string, x, y, width, height, textAlignment)) {
+    if (!_windowFormatMessage(string, x, y, width, height, textAlignment)) {
         programFatalError("Error formatting message\n");
     }
 }
@@ -151,7 +151,7 @@ void opPrintRect(Program* program)
         break;
     }
 
-    if (!sub_4B8920(string, data[1], data[0])) {
+    if (!_windowPrintRect(string, data[1], data[0])) {
         programFatalError("Error in printrect");
     }
 }
@@ -311,7 +311,7 @@ void opAddRegionRightProc(Program* program)
 // 0x4633E4
 void opSayStart(Program* program)
 {
-    dword_59E164 = 0;
+    _sayStartingPosition = 0;
 
     program->flags |= PROGRAM_FLAG_0x20;
     int rc = _dialogStart(program);
@@ -333,7 +333,7 @@ void opSayStartPos(Program* program)
         programPopString(program, opcode, data);
     }
 
-    dword_59E164 = data;
+    _sayStartingPosition = data;
 
     program->flags |= PROGRAM_FLAG_0x20;
     int rc = _dialogStart(program);
@@ -420,7 +420,7 @@ void opSayMessageTimeout(Program* program)
         programFatalError("sayMsgTimeout:  invalid var type passed.");
     }
 
-    dword_519038 = data;
+    _TimeOut = data;
 }
 
 // addbuttonflag
@@ -576,7 +576,7 @@ void opAddButtonRightProc(Program* program)
 void opShowWin(Program* program)
 {
     _selectWindowID(program->field_84);
-    sub_4B7680();
+    _windowDraw();
 }
 
 // deletebutton
@@ -1453,14 +1453,14 @@ void opSetOneOptPause(Program* program)
 void _updateIntLib()
 {
     _nevs_update();
-    sub_45D878();
+    _intExtraRemoveProgramReferences_();
 }
 
 // 0x4669A0
 void _intlibClose()
 {
     _dialogClose();
-    sub_45CDD4();
+    _intExtraClose_();
 
     for (int index = 0; index < INTERPRETER_SOUNDS_LENGTH; index++) {
         if (gInterpreterSounds[index] != NULL) {
@@ -1470,10 +1470,10 @@ void _intlibClose()
 
     _nevs_close();
 
-    if (off_59E160 != NULL) {
-        internal_free_safe(off_59E160, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
-        off_59E160 = NULL;
-        dword_59E158 = 0;
+    if (_callbacks != NULL) {
+        internal_free_safe(_callbacks, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
+        _callbacks = NULL;
+        _numCallbacks = 0;
     }
 }
 
@@ -1515,22 +1515,22 @@ void _initIntlib()
 void _interpretRegisterProgramDeleteCallback(OFF_59E160 fn)
 {
     int index;
-    for (index = 0; index < dword_59E158; index++) {
-        if (off_59E160[index] == NULL) {
+    for (index = 0; index < _numCallbacks; index++) {
+        if (_callbacks[index] == NULL) {
             break;
         }
     }
 
-    if (index == dword_59E158) {
-        if (off_59E160 != NULL) {
-            off_59E160 = internal_realloc_safe(off_59E160, sizeof(*off_59E160) * (dword_59E158 + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
+    if (index == _numCallbacks) {
+        if (_callbacks != NULL) {
+            _callbacks = internal_realloc_safe(_callbacks, sizeof(*_callbacks) * (_numCallbacks + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
         } else {
-            off_59E160 = internal_malloc_safe(sizeof(*off_59E160), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
+            _callbacks = internal_malloc_safe(sizeof(*_callbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
         }
-        dword_59E158++;
+        _numCallbacks++;
     }
 
-    off_59E160[index] = fn;
+    _callbacks[index] = fn;
 }
 
 // 0x467040
@@ -1542,10 +1542,10 @@ void _removeProgramReferences_(Program* program)
         }
     }
 
-    sub_45D878();
+    _intExtraRemoveProgramReferences_();
 
-    for (int index = 0; index < dword_59E158; index++) {
-        OFF_59E160 fn = off_59E160[index];
+    for (int index = 0; index < _numCallbacks; index++) {
+        OFF_59E160 fn = _callbacks[index];
         if (fn != NULL) {
             fn(program);
         }
