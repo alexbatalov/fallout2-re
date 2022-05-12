@@ -3060,27 +3060,31 @@ void _gdialog_barter_destroy_win()
 void _gdialog_barter_cleanup_tables()
 {
     Inventory* inventory;
+    int length;
 
     inventory = &(_peon_table_obj->data.inventory);
-    for (int index = 0; index < inventory->length; index++) {
-        InventoryItem* inventoryItem = &(inventory->items[index]);
-        int quantity = _item_count(_peon_table_obj, inventoryItem->item);
-        _item_move_force(_peon_table_obj, gDude, inventoryItem->item, quantity);
+    length = inventory->length;
+    for (int index = 0; index < length; index++) {
+        Object* item = inventory->items->item;
+        int quantity = _item_count(_peon_table_obj, item);
+        _item_move_force(_peon_table_obj, gDude, item, quantity);
     }
 
     inventory = &(_barterer_table_obj->data.inventory);
-    for (int index = 0; index < inventory->length; index++) {
-        InventoryItem* inventoryItem = &(inventory->items[index]);
-        int quantity = _item_count(_barterer_table_obj, inventoryItem->item);
-        _item_move_force(_barterer_table_obj, gGameDialogSpeaker, inventoryItem->item, quantity);
+    length = inventory->length;
+    for (int index = 0; index < length; index++) {
+        Object* item = inventory->items->item;
+        int quantity = _item_count(_barterer_table_obj, item);
+        _item_move_force(_barterer_table_obj, gGameDialogSpeaker, item, quantity);
     }
 
     if (_barterer_temp_obj != NULL) {
         inventory = &(_barterer_temp_obj->data.inventory);
-        for (int index = 0; index < inventory->length; index++) {
-            InventoryItem* inventoryItem = &(inventory->items[index]);
-            int quantity = _item_count(_barterer_temp_obj, inventoryItem->item);
-            _item_move_force(_barterer_temp_obj, gGameDialogSpeaker, inventoryItem->item, quantity);
+        length = inventory->length;
+        for (int index = 0; index < length; index++) {
+            Object* item = inventory->items->item;
+            int quantity = _item_count(_barterer_temp_obj, item);
+            _item_move_force(_barterer_temp_obj, gGameDialogSpeaker, item, quantity);
         }
     }
 }
