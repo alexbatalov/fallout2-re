@@ -2663,7 +2663,7 @@ int _inven_from_button(int keyCode, Object** a2, Object*** a3, Object** a4)
 
             inventoryItem = &(_target_pud->items[_target_pud->length - (index + 1)]);
             v8 = inventoryItem->item;
-            v7 = _btable;
+            v7 = _target_stack[_target_curr_stack];
         } else if (keyCode < 2400) {
             int index = _ptable_offset + keyCode - 2300;
             if (index >= _ptable_pud->length) {
