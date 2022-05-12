@@ -5392,12 +5392,12 @@ int _combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool
 
     Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);
     if (weapon != NULL) {
-        if ((defender->data.critter.combat.results & DAM_CRIP_ARM_LEFT) != 0
-            && (defender->data.critter.combat.results & DAM_CRIP_ARM_RIGHT) != 0) {
+        if ((attacker->data.critter.combat.results & DAM_CRIP_ARM_LEFT) != 0
+            && (attacker->data.critter.combat.results & DAM_CRIP_ARM_RIGHT) != 0) {
             return 7; // both hands crippled
         }
 
-        if ((defender->data.critter.combat.results & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
+        if ((attacker->data.critter.combat.results & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
             if (weaponIsTwoHanded(weapon)) {
                 return 6; // crippled one arm for two-handed weapon
             }
