@@ -435,6 +435,7 @@ int _show_damage_extras(Attack* attack)
             v8 = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
             v9 = tileGetRotationTo(attack->attacker->tile, obj->tile);
             _show_damage_to_object(obj, attack->extrasDamage[index], attack->extrasFlags[index], attack->weapon, v6, attack->extrasKnockback[index], v9, v8, attack->attacker, 0);
+            reg_anim_end();
         }
     }
 

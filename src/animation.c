@@ -1051,7 +1051,7 @@ int reg_anim_26(int a1, int delay)
         return -1;
     }
 
-    v5 = _anim_free_slot(a1 | 0x01);
+    v5 = _anim_free_slot(a1 | 0x0100);
     if (v5 == -1) {
         return -1;
     }

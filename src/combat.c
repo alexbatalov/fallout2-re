@@ -3826,7 +3826,7 @@ void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
         if (v11 != NULL
             && (v11->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER
             && (v11->data.critter.combat.results & DAM_DEAD) == 0
-            && (v11->flags & 0x80000000)
+            && (v11->flags & 0x80000000) == 0
             && !_combat_is_shot_blocked(v11, v11->tile, tile, NULL, NULL)) {
             if (v11 == attack->attacker) {
                 attack->attackerFlags &= ~DAM_HIT;
@@ -3841,18 +3841,20 @@ void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
                     }
                 }
 
-                attack->extrasHitLocation[index] = HIT_LOCATION_TORSO;
-                attack->extras[index] = v11;
-                attackInit(&_explosion_ctd, attack->attacker, v11, attack->hitMode, HIT_LOCATION_TORSO);
-                if (!a4) {
-                    _explosion_ctd.attackerFlags |= DAM_HIT;
-                    attackComputeDamage(&_explosion_ctd, 1, 2);
-                }
+                if (index == attack->extrasLength) {
+                    attack->extrasHitLocation[index] = HIT_LOCATION_TORSO;
+                    attack->extras[index] = v11;
+                    attackInit(&_explosion_ctd, attack->attacker, v11, attack->hitMode, HIT_LOCATION_TORSO);
+                    if (!a4) {
+                        _explosion_ctd.attackerFlags |= DAM_HIT;
+                        attackComputeDamage(&_explosion_ctd, 1, 2);
+                    }
 
-                attack->extrasDamage[index] = _explosion_ctd.defenderDamage;
-                attack->extrasFlags[index] = _explosion_ctd.defenderFlags;
-                attack->extrasKnockback[index] = _explosion_ctd.defenderKnockback;
-                attack->extrasLength += 1;
+                    attack->extrasDamage[index] = _explosion_ctd.defenderDamage;
+                    attack->extrasFlags[index] = _explosion_ctd.defenderFlags;
+                    attack->extrasKnockback[index] = _explosion_ctd.defenderKnockback;
+                    attack->extrasLength += 1;
+                }
             }
         }
     }
