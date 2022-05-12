@@ -696,9 +696,39 @@ int objectSaveAll(File* stream)
                     continue;
                 }
 
-                // NOTE: Uninline.
-                if (_obj_save_obj(stream, object) == -1) {
+                CritterCombatData* combatData = NULL;
+                Object* whoHitMe = NULL;
+                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                    combatData = &(object->data.critter.combat);
+                    whoHitMe = combatData->whoHitMe;
+                    if (whoHitMe != 0) {
+                        if (combatData->whoHitMeCid != -1) {
+                            combatData->whoHitMeCid = whoHitMe->cid;
+                        }
+                    } else {
+                        combatData->whoHitMeCid = -1;
+                    }
+                }
+
+                if (objectWrite(object, stream) == -1) {
                     return -1;
+                }
+
+                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                    combatData->whoHitMe = whoHitMe;
+                }
+
+                Inventory* inventory = &(object->data.inventory);
+                for (int index = 0; index < inventory->length; index++) {
+                    InventoryItem* inventoryItem = &(inventory->items[index]);
+
+                    if (fileWriteInt32(stream, inventoryItem->quantity) == -1) {
+                        return -1;
+                    }
+
+                    if (_obj_save_obj(stream, inventoryItem->item) == -1) {
+                        return -1;
+                    }
                 }
 
                 objectCountAtElevation++;
@@ -3574,7 +3604,7 @@ int _obj_save_dude(File* stream)
     gDude->flags &= ~0x04;
     gDude->sid = -1;
 
-    _obj_save_obj(stream, gDude);
+    int rc = _obj_save_obj(stream, gDude);
 
     gDude->sid = field_78;
     gDude->flags |= 0x04;
@@ -3584,7 +3614,7 @@ int _obj_save_dude(File* stream)
         return -1;
     }
 
-    return 0;
+    return rc;
 }
 
 // obj_load_dude
