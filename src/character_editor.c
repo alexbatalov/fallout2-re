@@ -2512,7 +2512,7 @@ void editorRenderSecondaryStats()
         color = _colorTable[992];
     }
 
-    messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 309);
+    messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 310);
     sprintf(t, "%s", messageListItemText);
     fontDrawText(characterEditorWindowBuf + 640 * y + 194, t, 640, 640, color);
 
