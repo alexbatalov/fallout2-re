@@ -3063,12 +3063,13 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
             if (v56 > 0) {
                 if (v56 == 1) {
                     itemSetMoney(item, 1);
+                    _obj_drop(v41, item);
                 } else {
-                    if (itemRemove(v41, item, v56 - 1) != 0) {
+                    if (itemRemove(v41, item, v56 - 1) == 0) {
                         Object* a2;
-                        if (_inven_from_button(keyCode, &a2, &v43, &v41) == 0) {
+                        if (_inven_from_button(keyCode, &a2, &v43, &v41) != 0) {
                             itemSetMoney(a2, v56);
-                            _obj_drop(a2, v41);
+                            _obj_drop(v41, a2);
                         } else {
                             itemAdd(v41, item, v56 - 1);
                         }

@@ -533,22 +533,22 @@ int _obj_pickup(Object* critter, Object* item)
     }
 
     if (!overriden) {
-        int v10;
+        int rc;
         if (item->pid == PROTO_ID_MONEY) {
             int amount = itemGetMoney(item);
             if (amount <= 0) {
                 amount = 1;
             }
 
-            v10 = itemAttemptAdd(critter, item, 1);
-            if (v10 == 0) {
+            rc = itemAttemptAdd(critter, item, amount);
+            if (rc == 0) {
                 itemSetMoney(item, 0);
             }
         } else {
-            v10 = itemAttemptAdd(critter, item, 1);
+            rc = itemAttemptAdd(critter, item, 1);
         }
 
-        if (v10 == 0) {
+        if (rc == 0) {
             Rect rect;
             _obj_disconnect(item, &rect);
             tileWindowRefreshRect(&rect, item->elevation);
