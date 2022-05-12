@@ -1370,7 +1370,7 @@ int _intface_toggle_item_state()
                 if (ptr->secondaryHitMode != HIT_MODE_PUNCH
                     && ptr->secondaryHitMode != HIT_MODE_KICK
                     && weaponGetAttackTypeForHitMode(ptr->item, ptr->secondaryHitMode) != ATTACK_TYPE_NONE
-                    && _item_w_called_shot(ptr->item, ptr->secondaryHitMode)) {
+                    && _item_w_called_shot(gDude, ptr->secondaryHitMode)) {
                     done = true;
                 }
                 break;
