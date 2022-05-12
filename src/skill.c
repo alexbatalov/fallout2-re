@@ -1002,27 +1002,27 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 {
     int howMuch;
 
-    int stealChance = _gStealCount;
-    stealChance--;
-    stealChance = -stealChance;
+    int stealModifier = _gStealCount;
+    stealModifier--;
+    stealModifier = -stealModifier;
 
     if (a1 != gDude || !perkHasRank(a1, PERK_PICKPOCKET)) {
         // -4% per item size
-        stealChance -= 4 * itemGetSize(item);
+        stealModifier -= 4 * itemGetSize(item);
 
         if (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
             // check facing: -25% if face to face
             if (_is_hit_from_front(a1, a2)) {
-                stealChance -= 25;
+                stealModifier -= 25;
             }
         }
     }
 
     if ((a2->data.critter.combat.results & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN)) != 0) {
-        stealChance += 20;
+        stealModifier += 20;
     }
 
-    stealChance += skillGetValue(a1, SKILL_STEAL);
+    int stealChance = stealModifier + skillGetValue(a1, SKILL_STEAL);
     if (stealChance > 95) {
         stealChance = 95;
     }
@@ -1043,9 +1043,9 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
     } else {
         int catchChance;
         if ((a2->pid >> 24) == OBJ_TYPE_CRITTER) {
-            catchChance = skillGetValue(a2, SKILL_STEAL) - stealChance;
+            catchChance = skillGetValue(a2, SKILL_STEAL) - stealModifier;
         } else {
-            catchChance = 30 - stealChance;
+            catchChance = 30 - stealModifier;
         }
 
         catchRoll = randomRoll(catchChance, 0, &howMuch);

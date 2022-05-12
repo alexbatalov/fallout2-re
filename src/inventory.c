@@ -3360,6 +3360,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
 
     bool isCaughtStealing = false;
     int stealingXp = 0;
+    int stealingXpBonus = 10;
     for (;;) {
         if (_game_user_wants_to_quit != 0) {
             break;
@@ -3476,7 +3477,8 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                             if (rc == 1) {
                                 isCaughtStealing = true;
                             } else if (rc == 2) {
-                                stealingXp += 10;
+                                stealingXp += stealingXpBonus;
+                                stealingXpBonus += 10;
                             }
 
                             _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_LOOT);
@@ -3499,7 +3501,8 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                             if (rc == 1) {
                                 isCaughtStealing = true;
                             } else if (rc == 2) {
-                                stealingXp += 10;
+                                stealingXp += stealingXpBonus;
+                                stealingXpBonus += 10;
                             }
 
                             _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_LOOT);
