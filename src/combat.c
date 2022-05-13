@@ -3469,6 +3469,7 @@ int _shoot_along_path(Attack* attack, int a2, int a3, int anim)
                         attack->extrasDamage[index] = _shoot_ctd.defenderDamage;
                         attack->extrasFlags[index] = _shoot_ctd.defenderFlags;
                         attack->extrasKnockback[index] = _shoot_ctd.defenderKnockback;
+                        attack->extrasLength++;
                     } else {
                         if (anim == ANIM_FIRE_BURST) {
                             attack->extrasDamage[index] += _shoot_ctd.defenderDamage;
