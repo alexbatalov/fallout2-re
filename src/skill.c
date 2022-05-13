@@ -371,11 +371,10 @@ int skillSub(Object* critter, int skill)
 
     proto->critter.data.skills[skill] -= 1;
 
-    // TODO: Check, looks odd.
     if (skillIsTagged(skill)) {
-        int v2 = skillsGetCost(skillValue);
-        int v3 = skillsGetCost(skillGetValue(critter, skill));
-        if (v2 == v3) {
+        int oldSkillCost = skillsGetCost(skillValue);
+        int newSkillCost = skillsGetCost(skillGetValue(critter, skill));
+        if (oldSkillCost != newSkillCost) {
             rc = pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp - 1);
             if (rc != 0) {
                 return rc;
