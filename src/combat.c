@@ -4098,19 +4098,20 @@ int attackDetermineToHit(Object* attacker, int tile, Object* defender, int hitLo
         ? ((defender->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER
         : false;
 
-    bool isUsingWeapon = false;
+    bool isRangedWeapon = false;
 
     int accuracy;
     if (weapon == NULL || hitMode == HIT_MODE_PUNCH || hitMode == HIT_MODE_KICK || (hitMode >= FIRST_ADVANCED_UNARMED_HIT_MODE && hitMode <= LAST_ADVANCED_UNARMED_HIT_MODE)) {
         accuracy = skillGetValue(attacker, SKILL_UNARMED);
     } else {
-        isUsingWeapon = true;
         accuracy = _item_w_skill_level(attacker, hitMode);
 
         int modifier = 0;
 
         int attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
         if (attackType == ATTACK_TYPE_RANGED || attackType == ATTACK_TYPE_THROW) {
+            isRangedWeapon = true;
+
             int v29 = 0;
             int v25 = 0;
 
@@ -4210,7 +4211,7 @@ int attackDetermineToHit(Object* attacker, int tile, Object* defender, int hitLo
         accuracy -= armorClass;
     }
 
-    if (isUsingWeapon) {
+    if (isRangedWeapon) {
         accuracy += _hit_location_penalty[hitLocation];
     } else {
         accuracy += _hit_location_penalty[hitLocation] / 2;
