@@ -2769,76 +2769,60 @@ int _text_num_lines(const char* a1, int a2)
 // 0x447FA0
 int gameDialogDrawText(unsigned char* buffer, Rect* rect, char* string, int* a4, int height, int pitch, int color, int a7)
 {
-    char* substring;
+    char* start;
     if (a4 != NULL) {
-        substring = string + *a4;
+        start = string + *a4;
     } else {
-        substring = string;
+        start = string;
     }
 
-    if (substring == NULL) {
-        if (a4 != NULL) {
-            *a4 = 0;
-        }
-        return rect->top;
-    }
-
-    // TODO: The loops below are too complex, needs testing.
-    int v10 = rect->right - rect->left;
-    char* v8 = NULL;
-    while (true) {
-        if (*substring == '\0') {
-            if (a4 != NULL) {
-                *a4 = 0;
+    int maxWidth = rect->right - rect->left;
+    char* end = NULL;
+    while (start != NULL && *start != '\0') {
+        if (fontGetStringWidth(start) > maxWidth) {
+            end = start + 1;
+            while (*end != '\0' && *end != ' ') {
+                end++;
             }
 
-            return rect->top;
-        }
-
-        if (fontGetStringWidth(substring) > v10) {
-            v8 = substring + 1;
-            while (*v8 != '\0' && *v8 != ' ') {
-                v8++;
-            }
-
-            if (*v8 != '\0') {
-                char* v15 = v8 + 1;
-                while (true) {
-                    while (*v15 != '\0' && *v15 != ' ') {
-                        v15++;
+            if (*end != '\0') {
+                char* lookahead = end + 1;
+                while (lookahead != NULL) {
+                    while (*lookahead != '\0' && *lookahead != ' ') {
+                        lookahead++;
                     }
 
-                    if (*v15 == '\0') {
-                        break;
+                    if (*lookahead == '\0') {
+                        lookahead = NULL;
+                    } else {
+                        *lookahead = '\0';
+                        if (fontGetStringWidth(start) >= maxWidth) {
+                            *lookahead = ' ';
+                            lookahead = NULL;
+                        } else {
+                            end = lookahead;
+                            *lookahead = ' ';
+                            lookahead++;
+                        }
                     }
-
-                    *v15 = '\0';
-                    if (fontGetStringWidth(substring) >= v10) {
-                        break;
-                    }
-
-                    v8 = v15;
-                    *v15 = ' ';
-                    v15++;
                 }
-                *v15 = ' ';
-
-                if (*v8 == ' ') {
-                    *v8 = 0;
+                
+                if (*end == ' ') {
+                    *end = '\0';
                 }
             } else {
                 if (rect->bottom - fontGetLineHeight() < rect->top) {
                     return rect->top;
                 }
 
-                if (a7 != 1 || substring == string) {
-                    fontDrawText(buffer + pitch * rect->top + 10, substring, v10, pitch, color);
+                if (a7 != 1 || start == string) {
+                    fontDrawText(buffer + pitch * rect->top + 10, start, maxWidth, pitch, color);
                 } else {
-                    fontDrawText(buffer + pitch * rect->top, substring, v10, pitch, color);
+                    fontDrawText(buffer + pitch * rect->top, start, maxWidth, pitch, color);
                 }
 
                 if (a4 != NULL) {
-                    *a4 += strlen(substring) + 1;
+                    *a4 += strlen(start) + 1;
                 }
 
                 rect->top += height;
@@ -2846,52 +2830,50 @@ int gameDialogDrawText(unsigned char* buffer, Rect* rect, char* string, int* a4,
             }
         }
 
-        if (fontGetStringWidth(substring) > v10) {
+        if (fontGetStringWidth(start) > maxWidth) {
             debugPrint("\nError: display_msg: word too long!");
             break;
         }
 
         if (a7 != 0) {
             if (rect->bottom - fontGetLineHeight() < rect->top) {
-                if (v8 != NULL && *v8 != '\0') {
-                    *v8 = ' ';
+                if (end != NULL && *end != '\0') {
+                    *end = ' ';
                 }
                 return rect->top;
             }
 
             unsigned char* dest;
-            if (a7 != 1 || substring == string) {
+            if (a7 != 1 || start == string) {
                 dest = buffer + 10;
             } else {
                 dest = buffer;
             }
-            fontDrawText(dest + pitch * rect->top, substring, v10, pitch, color);
+            fontDrawText(dest + pitch * rect->top, start, maxWidth, pitch, color);
         }
 
-        if (a4 != NULL && v8 != NULL) {
-            *a4 += strlen(substring) + 1;
+        if (a4 != NULL && end != NULL) {
+            *a4 += strlen(start) + 1;
         }
 
         rect->top += height;
 
-        if (v8 != NULL) {
-            substring = v8 + 1;
-            if (*v8 == '\0') {
-                *v8 = ' ';
+        if (end != NULL) {
+            start = end + 1;
+            if (*end == '\0') {
+                *end = ' ';
             }
-            v8 = NULL;
+            end = NULL;
         } else {
-            substring = NULL;
-        }
-
-        if (substring == NULL) {
-            if (a4 != NULL) {
-                *a4 = 0;
-            }
-
-            return rect->top;
+            start = NULL;
         }
     }
+
+    if (a4 != NULL) {
+        *a4 = 0;
+    }
+
+    return rect->top;
 }
 
 // 0x448214
