@@ -730,7 +730,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
-                hpToHeal = randomBetween(minimumHpToHeal + 1, maximumHpToHeal + 5);
+                hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
                 critterAdjustHitPoints(a2, hpToHeal);
 
                 if (obj == gDude) {
@@ -740,7 +740,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         return -1;
                     }
 
-                    if (maximumHp < currentHp < hpToHeal) {
+                    if (maximumHp - currentHp < hpToHeal) {
                         hpToHeal = maximumHp - currentHp;
                     }
                     sprintf(text, messageListItem.text, hpToHeal);
@@ -920,7 +920,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         return -1;
                     }
 
-                    if (maximumHp < currentHp < hpToHeal) {
+                    if (maximumHp - currentHp < hpToHeal) {
                         hpToHeal = maximumHp - currentHp;
                     }
                     sprintf(text, messageListItem.text, hpToHeal);
