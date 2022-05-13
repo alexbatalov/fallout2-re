@@ -5562,7 +5562,7 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 
     CityInfo* city = &(gCities[cityIndex]);
     int v5 = city->field_40;
-    if (v5 && city->state == 1) {
+    if (city->state == 1 && a2 != 0) {
         _wmMarkSubTileRadiusVisited(city->x, city->y);
     }
 
@@ -5575,7 +5575,7 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 
     if (a2 == 1) {
         subtile->state = SUBTILE_STATE_KNOWN;
-    } else if (a2 == 2 && !v5) {
+    } else if (a2 == 2 && v5 == 0) {
         city->field_40 = 1;
     }
 
