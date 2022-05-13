@@ -546,7 +546,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                debugPrint(messageListItem.text);
+                displayMonitorAddMessage(messageListItem.text);
             }
 
             return -1;
