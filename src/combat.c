@@ -5369,11 +5369,11 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
     artUnlock(upHandle);
     windowDestroy(gCalledShotWindow);
 
-    if (eventCode == VK_ESCAPE) {
+    if (eventCode == KEY_ESCAPE) {
         return -1;
     }
 
-    *hitLocation = eventCode;
+    *hitLocation = eventCode < 4 ? _hit_loc_left[eventCode] : _hit_loc_right[eventCode - 4];
 
     soundPlayFile("icsxxxx1");
 
