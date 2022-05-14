@@ -2273,7 +2273,7 @@ void inventoryRenderSummary()
                 MessageListItem rangeMessageListItem;
                 rangeMessageListItem.num = 16; // Rng:
                 if (messageListGetItem(&gInventoryMessageList, &rangeMessageListItem)) {
-                    sprintf(formattedText, "%s %d-%d   %s %d", messageListItem.text, damageMin, damageMax + meleeDamage, rangeMessageListItem.text, attackType);
+                    sprintf(formattedText, "%s %d-%d   %s %d", messageListItem.text, damageMin, damageMax + meleeDamage, rangeMessageListItem.text, range);
                 }
             }
 
