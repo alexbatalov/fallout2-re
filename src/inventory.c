@@ -2175,7 +2175,7 @@ void inventoryRenderSummary()
 
         char valueText[80]; // TODO: Size is probably wrong.
         if (v57[index] == -1) {
-            int value = critterGetStat(_stack[0], v57[index]);
+            int value = critterGetStat(_stack[0], v56[index]);
             sprintf(valueText, "   %d", value);
         } else {
             int value1 = critterGetStat(_stack[0], v56[index]);
