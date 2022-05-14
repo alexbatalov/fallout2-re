@@ -2883,14 +2883,14 @@ void combatAttemptEnd()
 {
     if (_combat_elev == gDude->elevation) {
         MessageListItem messageListItem;
-        int team = gDude->data.critter.combat.team;
+        int dudeTeam = gDude->data.critter.combat.team;
 
         for (int index = 0; index < _list_com; index++) {
             Object* critter = _combat_list[index];
             if (critter != gDude) {
                 int critterTeam = critter->data.critter.combat.team;
                 Object* critterWhoHitMe = critter->data.critter.combat.whoHitMe;
-                if (critterTeam != team || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == team)) {
+                if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
                     if (!_combatai_want_to_stop(critter)) {
                         messageListItem.num = 103;
                         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
@@ -2907,7 +2907,7 @@ void combatAttemptEnd()
             if (critter != gDude) {
                 int critterTeam = critter->data.critter.combat.team;
                 Object* critterWhoHitMe = critter->data.critter.combat.whoHitMe;
-                if (critterTeam == team || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
+                if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
                     if (_combatai_want_to_join(critter)) {
                         messageListItem.num = 103;
                         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
