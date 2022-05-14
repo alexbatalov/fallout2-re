@@ -386,16 +386,14 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
         movieFlags = GAME_MOVIE_FADE_IN | GAME_MOVIE_STOP_MUSIC;
         endgame = true;
     } else {
-        // TODO: Not sure about these series of conditions.
-        if (day >= 360 && gameGetGlobalVar(GVAR_FALLOUT_2) != 3) {
+        if (day >= 360 || gameGetGlobalVar(GVAR_FALLOUT_2) >= 3) {
+            movie = MOVIE_ARTIMER4;
             if (!gameMovieIsSeen(MOVIE_ARTIMER4)) {
                 adjustRep = true;
-                movie = MOVIE_ARTIMER4;
                 _wmAreaSetVisibleState(CITY_ARROYO, 0, 1);
                 _wmAreaSetVisibleState(CITY_DESTROYED_ARROYO, 1, 1);
                 _wmAreaMarkVisitedState(CITY_DESTROYED_ARROYO, 2);
             }
-
         } else if (day >= 270 && gameGetGlobalVar(GVAR_FALLOUT_2) != 3) {
             adjustRep = true;
             movie = MOVIE_ARTIMER3;
