@@ -1307,7 +1307,9 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         debugPrint("\nskill_use: invalid skill used.");
     }
 
-    Object* v1 = gDude;
+    // Performer is either dude, or party member who's best at the specified
+    // skill in entire party, and this skill is his/her own best.
+    Object* performer = gDude;
 
     if (a1 == gDude) {
         Object* partyMember = partyMemberGetBestInSkill(skill);
@@ -1316,16 +1318,23 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             partyMember = NULL;
         }
 
+        // Only dude can perform stealing.
         if (skill == SKILL_STEAL) {
             partyMember = NULL;
         }
 
         if (partyMember != NULL) {
-            v1 = partyMember;
+            if (partyMemberGetBestSkill(partyMember) != skill) {
+                partyMember = NULL;
+            }
+        }
+
+        if (partyMember != NULL) {
+            performer = partyMember;
             int anim = (partyMember->fid & 0xFF0000) >> 16;
             if (anim != ANIM_WALK && anim != ANIM_RUNNING) {
                 if (anim != ANIM_STAND) {
-                    v1 = gDude;
+                    performer = gDude;
                     partyMember = NULL;
                 }
             } else {
@@ -1347,37 +1356,37 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             }
 
             if (v32) {
-                v1 = gDude;
+                performer = gDude;
                 partyMember = NULL;
             }
         }
 
         if (partyMember == NULL) {
-            int anim = (v1->fid & 0xFF0000) >> 16;
+            int anim = (performer->fid & 0xFF0000) >> 16;
             if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
-                reg_anim_clear(v1);
+                reg_anim_clear(performer);
             }
         }
     }
 
     if (isInCombat()) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_obj(v1, a2, v1->data.critter.combat.ap, 0);
+        reg_anim_obj_move_to_obj(performer, a2, performer->data.critter.combat.ap, 0);
     } else {
         reg_anim_begin(a1 == gDude ? 2 : 1);
         if (a2 != gDude) {
-            if (objectGetDistanceBetween(v1, a2) >= 5) {
-                reg_anim_obj_run_to_obj(v1, a2, -1, 0);
+            if (objectGetDistanceBetween(performer, a2) >= 5) {
+                reg_anim_obj_run_to_obj(performer, a2, -1, 0);
             } else {
-                reg_anim_obj_move_to_obj(v1, a2, -1, 0);
+                reg_anim_obj_move_to_obj(performer, a2, -1, 0);
             }
         }
     }
 
-    reg_anim_11_1(v1, a2, _is_next_to, -1);
+    reg_anim_11_1(performer, a2, _is_next_to, -1);
 
     int anim = (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
-    int fid = buildFid(1, v1->fid & 0xFFF, anim, 0, v1->rotation + 1);
+    int fid = buildFid(1, performer->fid & 0xFFF, anim, 0, performer->rotation + 1);
 
     CacheEntry* artHandle;
     Art* art = artLock(fid, &artHandle);
@@ -1386,9 +1395,9 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         artUnlock(artHandle);
     }
 
-    reg_anim_animate(v1, anim, -1);
+    reg_anim_animate(performer, anim, -1);
     // TODO: Get rid of casts.
-    reg_anim_12(v1, a2, (void*)skill, (AnimationProc2*)_obj_use_skill_on, -1);
+    reg_anim_12(performer, a2, (void*)skill, (AnimationProc2*)_obj_use_skill_on, -1);
     return reg_anim_end();
 }
 
