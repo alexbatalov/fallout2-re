@@ -1620,57 +1620,57 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
 // 0x413144
 int _report_explosion(Attack* attack, Object* a2)
 {
-    int v19;
+    bool mainTargetWasDead;
     if (attack->defender != NULL) {
-        v19 = attack->defender->data.critter.combat.results & DAM_DEAD;
+        mainTargetWasDead = (attack->defender->data.critter.combat.results & DAM_DEAD) != 0;
     } else {
-        v19 = 0;
+        mainTargetWasDead = false;
     }
 
-    int v18[6];
+    bool extrasWasDead[6];
     for (int index = 0; index < attack->extrasLength; index++) {
-        v18[index] = attack->extrasFlags[index] & DAM_DEAD;
+        extrasWasDead[index] = (attack->extras[index]->data.critter.combat.results & DAM_DEAD) != 0;
     }
 
     attackComputeDeathFlags(attack);
     _combat_display(attack);
     _apply_damage(attack, false);
 
-    Object* v21 = NULL;
+    Object* anyDefender = NULL;
     int xp = 0;
     if (a2 != NULL) {
         if (attack->defender != NULL && attack->defender != a2) {
             if ((attack->defender->data.critter.combat.results & DAM_DEAD) != 0) {
-                if (a2 == gDude && !v19) {
+                if (a2 == gDude && !mainTargetWasDead) {
                     xp += critterGetExp(attack->defender);
                 }
             } else {
                 _critter_set_who_hit_me(attack->defender, a2);
-                v21 = attack->defender;
+                anyDefender = attack->defender;
             }
         }
 
         for (int index = 0; index < attack->extrasLength; index++) {
             Object* critter = attack->extras[index];
             if (critter != a2) {
-                if ((attack->extrasFlags[index] & DAM_DEAD) != 0) {
-                    if (a2 == gDude && v18[index] == 0) {
+                if ((critter->data.critter.combat.results & DAM_DEAD) != 0) {
+                    if (a2 == gDude && !extrasWasDead[index]) {
                         xp += critterGetExp(critter);
                     }
                 } else {
                     _critter_set_who_hit_me(critter, a2);
 
-                    if (v21 == NULL) {
-                        v21 = critter;
+                    if (anyDefender == NULL) {
+                        anyDefender = critter;
                     }
                 }
             }
         }
 
-        if (v21 != NULL) {
+        if (anyDefender != NULL) {
             if (!isInCombat()) {
                 STRUCT_664980 combat;
-                combat.attacker = v21;
+                combat.attacker = anyDefender;
                 combat.defender = a2;
                 combat.actionPointsBonus = 0;
                 combat.accuracyBonus = 0;
