@@ -1217,7 +1217,7 @@ int soundEffectPlay(Sound* sound)
         return -1;
     }
 
-    if (sound != NULL) {
+    if (sound == NULL) {
         return -1;
     }
 
