@@ -795,6 +795,8 @@ int soundPlay(Sound* sound)
         _soundRewind(sound);
     }
 
+    soundSetVolume(sound, sound->volume);
+
     hr = IDirectSoundBuffer_Play(sound->directSoundBuffer, 0, 0, sound->field_3C & 0x20 ? DSBPLAY_LOOPING : 0);
 
     IDirectSoundBuffer_GetCurrentPosition(sound->directSoundBuffer, &readPos, &writePos);
