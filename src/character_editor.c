@@ -2416,7 +2416,7 @@ void editorRenderSecondaryStats()
     fontDrawText(characterEditorWindowBuf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(gDude, STAT_CARRY_WEIGHT), t, 10);
-    fontDrawText(characterEditorWindowBuf + 640 * y + 288, t, 640, 640, color);
+    fontDrawText(characterEditorWindowBuf + 640 * y + 288, t, 640, 640, critterIsEncumbered(gDude) ? _colorTable[31744] : color);
 
     // Melee Damage
     y += fontGetLineHeight() + 3;
