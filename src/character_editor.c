@@ -1958,7 +1958,18 @@ void editorRenderPcStats()
     int color;
     int y;
     char* formattedValue;
-    char formattedValueBuffer[8];
+    // NOTE: The length of this buffer is 8 bytes, which is enough to display
+    // 999,999 (7 bytes NULL-terminated) experience points. Usually a player
+    // will never gain that much during normal gameplay.
+    //
+    // However it's possible to use one of the F2 modding tools and savegame
+    // editors to receive rediculous amount of experience points. Vanilla is
+    // able to handle it, because `stringBuffer` acts as continuation of
+    // `formattedValueBuffer`. This is not the case with MSVC, where
+    // insufficient space for xp greater then 999,999 ruins the stack. In order
+    // to fix the `formattedValueBuffer` is expanded to 16 bytes, so it should
+    // be possible to store max 32-bit integer (4,294,967,295).
+    char formattedValueBuffer[16];
     char stringBuffer[128];
 
     if (gCharacterEditorIsCreationMode == 1) {
