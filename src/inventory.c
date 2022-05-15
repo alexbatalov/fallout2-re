@@ -2220,7 +2220,9 @@ void inventoryRenderSummary()
             // Unarmed dmg:
             messageListItem.num = 24;
             if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                int damage = critterGetStat(_stack[0], STAT_UNARMED_DAMAGE) + 2;
+                // TODO: Figure out why it uses STAT_MELEE_DAMAGE instead of
+                // STAT_UNARMED_DAMAGE.
+                int damage = critterGetStat(_stack[0], STAT_MELEE_DAMAGE) + 2;
                 sprintf(formattedText, "%s 1-%d", messageListItem.text, damage);
             }
 
