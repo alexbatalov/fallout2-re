@@ -1213,6 +1213,8 @@ int soundSetReadLimit(Sound* sound, int readLimit)
     return gSoundLastError;
 }
 
+// TODO: Check, looks like it uses couple of inlined functions.
+//
 // 0x4AE0E4
 int soundPause(Sound* sound)
 {
@@ -1257,6 +1259,8 @@ int soundPause(Sound* sound)
     return soundStop(sound);
 }
 
+// TODO: Check, looks like it uses couple of inlined functions.
+//
 // 0x4AE1F0
 int soundResume(Sound* sound)
 {
@@ -1272,8 +1276,8 @@ int soundResume(Sound* sound)
         return gSoundLastError;
     }
 
-    if (!(sound->field_40 & SOUND_FLAG_SOUND_IS_PLAYING)) {
-        gSoundLastError = SOUND_NOT_PLAYING;
+    if ((sound->field_40 & SOUND_FLAG_SOUND_IS_PLAYING) != 0) {
+        gSoundLastError = SOUND_NOT_PAUSED;
         return gSoundLastError;
     }
 
