@@ -54,7 +54,7 @@ extern const int gElevatorLevels[ELEVATOR_COUNT];
 extern const ElevatorDescription gElevatorDescriptions[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX];
 extern const char gElevatorLevelLabels[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX];
 
-extern const char* _sfxtable[12];
+extern const char* gElevatorSoundEffects[ELEVATOR_LEVEL_MAX - 1][ELEVATOR_LEVEL_MAX];
 
 extern Size gElevatorFrmSizes[ELEVATOR_FRM_COUNT];
 extern int gElevatorBackgroundFrmWidth;

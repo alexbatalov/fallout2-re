@@ -255,19 +255,25 @@ const char gElevatorLevelLabels[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
 };
 
 // 0x51862C
-const char* _sfxtable[12] = {
-    "ELV1_1",
-    "ELV1_1",
-    "ERROR",
-    "ERROR",
-    "ELV1_2",
-    "ELV1_2",
-    "ELV1_1",
-    "ERROR",
-    "ELV1_3",
-    "ELV1_3",
-    "ELV2_3",
-    "ELV1_1",
+const char* gElevatorSoundEffects[ELEVATOR_LEVEL_MAX - 1][ELEVATOR_LEVEL_MAX] = {
+    {
+        "ELV1_1",
+        "ELV1_1",
+        "ERROR",
+        "ERROR",
+    },
+    {
+        "ELV1_2",
+        "ELV1_2",
+        "ELV1_1",
+        "ERROR",
+    },
+    {
+        "ELV1_3",
+        "ELV1_3",
+        "ELV2_3",
+        "ELV1_1",
+    },
 };
 
 // 0x570A2C
@@ -404,12 +410,12 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
                 v43 = -v43;
             }
 
-            int v29 = keyCode - *elevationPtr;
-            if (v29 < 0) {
-                v29 = -v29;
+            int numberOfLevelsTravelled = keyCode - *elevationPtr;
+            if (numberOfLevelsTravelled < 0) {
+                numberOfLevelsTravelled = -numberOfLevelsTravelled;
             }
 
-            soundPlayFile(_sfxtable[gElevatorLevels[elevator] - 2 + v29]);
+            soundPlayFile(gElevatorSoundEffects[gElevatorLevels[elevator] - 2][numberOfLevelsTravelled]);
 
             float v41 = (float)keyCode * v42;
             float v44 = (float)(*elevationPtr) * v42;
