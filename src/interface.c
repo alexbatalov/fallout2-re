@@ -1700,37 +1700,37 @@ int interfaceBarRefreshMainAction()
             }
         } else {
             int primaryFid = -1;
-            int supplementaryFid = -1;
+            int bullseyeFid = -1;
             int hitMode = -1;
 
             // NOTE: This value is decremented at 0x45FEAC, probably to build
             // jump table.
             switch (p->field_10) {
             case INTERFACE_ACTION_PRIMARY_AIMING:
-                supplementaryFid = buildFid(6, 288, 0, 0, 0);
+                bullseyeFid = buildFid(6, 288, 0, 0, 0);
                 // FALLTHROUGH
             case INTERFACE_ACTION_PRIMARY:
                 hitMode = p->primaryHitMode;
                 break;
             case INTERFACE_ACTION_SECONDARY_AIMING:
-                supplementaryFid = buildFid(6, 288, 0, 0, 0);
+                bullseyeFid = buildFid(6, 288, 0, 0, 0);
                 // FALLTHROUGH
             case INTERFACE_ACTION_SECONDARY:
                 hitMode = p->secondaryHitMode;
                 break;
             case INTERFACE_ACTION_RELOAD:
                 actionPoints = _item_mp_cost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
-                supplementaryFid = buildFid(6, 291, 0, 0, 0);
+                primaryFid = buildFid(6, 291, 0, 0, 0);
                 break;
             }
 
-            if (supplementaryFid != -1) {
-                CacheEntry* supplementaryFrmHandle;
-                Art* supplementaryFrm = artLock(supplementaryFid, &supplementaryFrmHandle);
-                if (supplementaryFrm != NULL) {
-                    int width = artGetWidth(supplementaryFrm, 0, 0);
-                    int height = artGetHeight(supplementaryFrm, 0, 0);
-                    unsigned char* data = artGetFrameData(supplementaryFrm, 0, 0);
+            if (bullseyeFid != -1) {
+                CacheEntry* bullseyeFrmHandle;
+                Art* bullseyeFrm = artLock(bullseyeFid, &bullseyeFrmHandle);
+                if (bullseyeFrm != NULL) {
+                    int width = artGetWidth(bullseyeFrm, 0, 0);
+                    int height = artGetHeight(bullseyeFrm, 0, 0);
+                    unsigned char* data = artGetFrameData(bullseyeFrm, 0, 0);
                     blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * (60 - height) + (181 - width), 188);
 
                     int v9 = 60 - height - 2;
@@ -1740,12 +1740,12 @@ int interfaceBarRefreshMainAction()
                     }
 
                     _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, v9, 188, 59641);
-                    artUnlock(supplementaryFrmHandle);
+                    artUnlock(bullseyeFrmHandle);
                 }
             }
 
             if (hitMode != -1) {
-                actionPoints = _item_w_mp_cost(gDude, hitMode, supplementaryFid != -1);
+                actionPoints = _item_w_mp_cost(gDude, hitMode, bullseyeFid != -1);
 
                 int id;
                 int anim = critterGetAnimationForHitMode(gDude, hitMode);
