@@ -27,7 +27,6 @@
 #include "tile.h"
 #include "window_manager.h"
 
-#include <intrin.h>
 #include <stdio.h>
 
 // 0x519D9C
@@ -275,13 +274,33 @@ int partyMemberGetDescription(Object* object, PartyMemberDescription** partyMemb
 // 0x49425C
 void partyMemberDescriptionInit(PartyMemberDescription* partyMemberDescription)
 {
-    __stosd((unsigned long*)partyMemberDescription->areaAttackMode, 0, AREA_ATTACK_MODE_COUNT);
-    __stosd((unsigned long*)partyMemberDescription->runAwayMode, 0, RUN_AWAY_MODE_COUNT);
-    __stosd((unsigned long*)partyMemberDescription->bestWeapon, 0, BEST_WEAPON_COUNT);
-    __stosd((unsigned long*)partyMemberDescription->distanceMode, 0, DISTANCE_COUNT);
-    __stosd((unsigned long*)partyMemberDescription->attackWho, 0, ATTACK_WHO_COUNT);
-    __stosd((unsigned long*)partyMemberDescription->chemUse, 0, CHEM_USE_COUNT);
-    __stosd((unsigned long*)partyMemberDescription->disposition, 0, DISPOSITION_COUNT);
+    for (int index = 0; index < AREA_ATTACK_MODE_COUNT; index++) {
+        partyMemberDescription->areaAttackMode[index] = 0;
+    }
+
+    for (int index = 0; index < RUN_AWAY_MODE_COUNT; index++) {
+        partyMemberDescription->runAwayMode[index] = 0;
+    }
+
+    for (int index = 0; index < BEST_WEAPON_COUNT; index++) {
+        partyMemberDescription->bestWeapon[index] = 0;
+    }
+
+    for (int index = 0; index < DISTANCE_COUNT; index++) {
+        partyMemberDescription->distanceMode[index] = 0;
+    }
+
+    for (int index = 0; index < ATTACK_WHO_COUNT; index++) {
+        partyMemberDescription->attackWho[index] = 0;
+    }
+
+    for (int index = 0; index < CHEM_USE_COUNT; index++) {
+        partyMemberDescription->chemUse[index] = 0;
+    }
+
+    for (int index = 0; index < DISPOSITION_COUNT; index++) {
+        partyMemberDescription->disposition[index] = 0;
+    }
 
     partyMemberDescription->level_minimum = 0;
     partyMemberDescription->level_up_every = 0;

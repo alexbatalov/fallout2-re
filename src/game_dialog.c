@@ -31,7 +31,6 @@
 #include "window_manager.h"
 
 #include <assert.h>
-#include <intrin.h>
 #include <stdio.h>
 
 // 0x444D10
@@ -4036,7 +4035,9 @@ int _gdialog_window_create()
         return -1;
     }
 
-    __stosd((unsigned long*)_gdialog_buttons, -1, 9);
+    for (int index = 0; index < 9; index++) {
+        _gdialog_buttons[index] = -1;
+    }
 
     CacheEntry* backgroundFrmHandle;
     // 389 - di_talkp.frm - dialog screen subwindow (party members)

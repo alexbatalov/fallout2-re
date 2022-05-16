@@ -26,7 +26,6 @@
 #include "text_object.h"
 #include "tile.h"
 
-#include <intrin.h>
 #include <stdio.h>
 
 // 0x51805C
@@ -254,7 +253,9 @@ void aiPacketInit(AiPacket* ai)
     ai->attack_who = -1;
     ai->chem_use = -1;
 
-    __stosd((unsigned long*)ai->chem_primary_desire, -1, AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT);
+    for (int index = 0; index < AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT; index++) {
+        ai->chem_primary_desire[index] = -1;
+    }
 
     ai->disposition = -1;
 }

@@ -27,7 +27,6 @@
 #include "tile.h"
 #include "window_manager.h"
 
-#include <intrin.h>
 #include <stdio.h>
 
 #define INDICATOR_BAR_X 0

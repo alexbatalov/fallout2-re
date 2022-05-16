@@ -29,8 +29,6 @@
 #include "word_wrap.h"
 #include "world_map.h"
 
-#include <intrin.h>
-
 // 0x5194C8
 char _mainMap[] = "artemple.map";
 
@@ -622,7 +620,9 @@ int mainMenuWindowInit()
         return -1;
     }
 
-    __stosd((unsigned long*)gMainMenuButtons, -1, MAIN_MENU_BUTTON_COUNT);
+    for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
+        gMainMenuButtons[index] = -1;
+    }
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         gMainMenuButtons[index] = buttonCreate(gMainMenuWindow, 30, 19 + index * 42 - index, 26, 26, -1, -1, 1111, gMainMenuButtonKeyBindings[index], gMainMenuButtonUpFrmData, gMainMenuButtonDownFrmData, 0, 32);

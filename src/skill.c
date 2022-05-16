@@ -21,7 +21,6 @@
 #include "stat.h"
 #include "trait.h"
 
-#include <intrin.h>
 #include <stdio.h>
 
 // Damage flags which can be repaired using "Repair" skill.

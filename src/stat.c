@@ -18,7 +18,6 @@
 #include "tile.h"
 #include "trait.h"
 
-#include <intrin.h>
 #include <stdio.h>
 
 // 0x51D53C

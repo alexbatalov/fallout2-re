@@ -35,7 +35,6 @@
 #include "window_manager.h"
 
 #include <assert.h>
-#include <intrin.h>
 #include <stdio.h>
 
 // 0x46E6D0
@@ -3317,7 +3316,9 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                 unsigned char* buttonDownData;
                 int btn;
 
-                __stosd((unsigned long*)arrowFrmHandles, (unsigned long)INVALID_CACHE_ENTRY, INVENTORY_ARROW_FRM_COUNT);
+                for (int index = 0; index < INVENTORY_ARROW_FRM_COUNT; index++) {
+                    arrowFrmHandles[index] = INVALID_CACHE_ENTRY;
+                }
 
                 // Setup left arrow button.
                 fid = buildFid(6, arrowFrmIds[INVENTORY_ARROW_FRM_LEFT_ARROW_UP], 0, 0, 0);

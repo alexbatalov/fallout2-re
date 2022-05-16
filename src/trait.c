@@ -5,7 +5,6 @@
 #include "skill.h"
 #include "stat.h"
 
-#include <intrin.h>
 #include <stdio.h>
 
 // 0x66BE38
@@ -64,7 +63,8 @@ int traitsInit()
         }
     }
 
-    __stosd((unsigned long*)gSelectedTraits, -1, TRAITS_MAX_SELECTED_COUNT);
+    // NOTE: Uninline.
+    traitsReset();
 
     return true;
 }
@@ -72,7 +72,9 @@ int traitsInit()
 // 0x4B3ADC
 void traitsReset()
 {
-    __stosd((unsigned long*)gSelectedTraits, -1, TRAITS_MAX_SELECTED_COUNT);
+    for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
+        gSelectedTraits[index] = -1;
+    }
 }
 
 // 0x4B3AF8

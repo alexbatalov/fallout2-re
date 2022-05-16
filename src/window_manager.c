@@ -10,8 +10,6 @@
 #include "text_font.h"
 #include "window_manager_private.h"
 
-#include <intrin.h>
-
 static_assert(sizeof(struc_177) == 572, "wrong size");
 static_assert(sizeof(Window) == 68, "wrong size");
 static_assert(sizeof(Button) == 124, "wrong size");
@@ -98,7 +96,9 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         return WINDOW_MANAGER_ERR_WINDOW_SYSTEM_ALREADY_INITIALIZED;
     }
 
-    __stosd((unsigned long*)gOrderedWindowIds, -1, MAX_WINDOW_COUNT);
+    for (int index = 0; index < MAX_WINDOW_COUNT; index++) {
+        gOrderedWindowIds[index] = -1;
+    }
 
     if (!_db_total()) {
         if (dbOpen(NULL, 0, _path_patches, 1) == -1) {

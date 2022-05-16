@@ -215,7 +215,6 @@ void randomValidatePrerandom()
 {
     int results[25];
 
-    // NOTE: Original code uses [__stosd].
     for (int index = 0; index < 25; index++) {
         results[index] = 0;
     }

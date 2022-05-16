@@ -34,7 +34,6 @@
 #include "window_manager.h"
 
 #include <assert.h>
-#include <intrin.h>
 #include <stdio.h>
 
 static_assert(sizeof(Terrain) == 128, "wrong size");
@@ -1666,7 +1665,9 @@ int worldmapConfigInitEncounterCondition(EncounterCondition* condition)
         conditionEntry->value = 0;
     }
 
-    __stosd((unsigned long*)(condition->logicalOperators), ENCOUNTER_LOGICAL_OPERATOR_NONE, 2);
+    for (int index = 0; index < 2; index++) {
+        condition->logicalOperators[index] = ENCOUNTER_LOGICAL_OPERATOR_NONE;
+    }
 
     return 0;
 }

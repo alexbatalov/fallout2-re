@@ -24,7 +24,6 @@
 #include "window_manager_private.h"
 #include "world_map.h"
 
-#include <intrin.h>
 #include <stdio.h>
 #include <time.h>
 
@@ -1892,7 +1891,10 @@ int scriptRead(Script* scr, File* stream)
     scr->owner = NULL;
     scr->source = NULL;
     scr->target = NULL;
-    __stosd((unsigned long*)scr->procs, 0, SCRIPT_PROC_COUNT);
+
+    for (int index = 0; index < SCRIPT_PROC_COUNT; index++) {
+        scr->procs[index] = 0;
+    }
 
     if (!(gMapHeader.flags & 1)) {
         scr->localVarsCount = 0;
