@@ -3477,7 +3477,7 @@ int _OptionWindow()
                 // DONE
                 rc = 2;
                 soundPlayFile("ib1p1xx1");
-            } else if (keyCode == VK_ESCAPE) {
+            } else if (keyCode == KEY_ESCAPE) {
                 rc = 2;
             } else if (keyCode == 503 || keyCode == KEY_UPPERCASE_E || keyCode == KEY_LOWERCASE_E) {
                 // ERASE

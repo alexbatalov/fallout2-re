@@ -1979,7 +1979,7 @@ void inventoryOpenUseItemOn(Object* a1)
                             } else {
                                 _action_use_an_item_on_object(gDude, a1, inventoryItem->item);
                             }
-                            keyCode = VK_ESCAPE;
+                            keyCode = KEY_ESCAPE;
                         } else {
                             keyCode = -1;
                         }
@@ -1988,7 +1988,7 @@ void inventoryOpenUseItemOn(Object* a1)
             }
         }
 
-        if (keyCode == VK_ESCAPE) {
+        if (keyCode == KEY_ESCAPE) {
             break;
         }
     }
@@ -4605,12 +4605,12 @@ int inventoryQuantitySelect(int inventoryWindowType, Object* item, int max)
     bool v5 = false;
     for (;;) {
         int keyCode = _get_input();
-        if (keyCode == VK_ESCAPE) {
+        if (keyCode == KEY_ESCAPE) {
             inventoryQuantityWindowFree(inventoryWindowType);
             return -1;
         }
 
-        if (keyCode == VK_RETURN) {
+        if (keyCode == KEY_RETURN) {
             if (value >= min && value <= max) {
                 if (inventoryWindowType != INVENTORY_WINDOW_TYPE_SET_TIMER || value % 10 == 0) {
                     soundPlayFile("ib1p1xx1");

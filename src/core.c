@@ -3686,8 +3686,8 @@ void keyboardBuildQwertyConfiguration()
     gLogicalKeyEntries[DIK_NUMPAD3].rmenu = KEY_ALT_PAGE_DOWN;
     gLogicalKeyEntries[DIK_NUMPAD3].ctrl = KEY_CTRL_PAGE_DOWN;
 
-    gLogicalKeyEntries[DIK_NUMPADENTER].unmodified = VK_RETURN;
-    gLogicalKeyEntries[DIK_NUMPADENTER].shift = VK_RETURN;
+    gLogicalKeyEntries[DIK_NUMPADENTER].unmodified = KEY_RETURN;
+    gLogicalKeyEntries[DIK_NUMPADENTER].shift = KEY_RETURN;
     gLogicalKeyEntries[DIK_NUMPADENTER].lmenu = -1;
     gLogicalKeyEntries[DIK_NUMPADENTER].rmenu = -1;
     gLogicalKeyEntries[DIK_NUMPADENTER].ctrl = -1;

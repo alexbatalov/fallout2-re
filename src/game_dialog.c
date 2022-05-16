@@ -1288,7 +1288,7 @@ int gameDialogShowReview()
             showQuitConfirmationDialog();
         }
 
-        if (_game_user_wants_to_quit != 0 || keyCode == VK_ESCAPE) {
+        if (_game_user_wants_to_quit != 0 || keyCode == KEY_ESCAPE) {
             break;
         }
 

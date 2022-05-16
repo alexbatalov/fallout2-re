@@ -171,7 +171,7 @@ int characterSelectorOpen()
             break;
         case KEY_UPPERCASE_B:
         case KEY_LOWERCASE_B:
-        case VK_ESCAPE:
+        case KEY_ESCAPE:
             rc = 3;
             done = true;
             break;
