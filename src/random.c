@@ -124,9 +124,9 @@ int randomBetween(int min, int max)
     int result;
 
     if (min <= max) {
-        result = min + random(max - min + 1);
+        result = min + getRandom(max - min + 1);
     } else {
-        result = max + random(min - max + 1);
+        result = max + getRandom(min - max + 1);
     }
 
     if (result < min || result > max) {
@@ -138,7 +138,7 @@ int randomBetween(int min, int max)
 }
 
 // 0x4A30FC
-int random(int max)
+int getRandom(int max)
 {
     int v1 = 16807 * (_idum % 127773) - 2836 * (_idum / 127773);
 

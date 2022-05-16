@@ -27,7 +27,7 @@ int randomLoad(File* stream);
 int randomRoll(int difficulty, int criticalSuccessModifier, int* howMuchPtr);
 int randomTranslateRoll(int delta, int criticalSuccessModifier);
 int randomBetween(int min, int max);
-int random(int max);
+int getRandom(int max);
 void randomSeedPrerandom(int seed);
 int randomInt32();
 void randomSeedPrerandomInternal(int seed);
