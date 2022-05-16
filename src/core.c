@@ -2033,7 +2033,7 @@ int _GNW95_init_mode_ex(int width, int height, int bpp)
     _scr_size.right = width - 1;
     _scr_size.bottom = height - 1;
 
-    mmxSetEnabled(TRUE);
+    mmxSetEnabled(true);
 
     if (bpp == 8) {
         _mouse_blit_trans = NULL;

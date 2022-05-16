@@ -2171,7 +2171,7 @@ void editorRenderName()
     char text[32];
     int x, width;
     char *pch, tmp;
-    BOOL has_space;
+    bool has_space;
 
     fontSetCurrent(103);
 
@@ -2180,12 +2180,12 @@ void editorRenderName()
 
     if (fontGetStringWidth(text) > 100) {
         pch = text;
-        has_space = FALSE;
+        has_space = false;
         while (*pch != '\0') {
             tmp = *pch;
             *pch = '\0';
             if (tmp == ' ') {
-                has_space = TRUE;
+                has_space = true;
             }
 
             if (fontGetStringWidth(text) > 100) {

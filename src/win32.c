@@ -62,7 +62,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
                         signal(1, _SignalHandler);
                         signal(3, _SignalHandler);
                         signal(5, _SignalHandler);
-                        gProgramIsActive = TRUE;
+                        gProgramIsActive = true;
                         falloutMain(args.argc, args.argv);
                         argsFree(&args);
                         return 1;
@@ -97,7 +97,7 @@ ATOM _InitClass(HINSTANCE hInstance)
 bool _InitInstance()
 {
     OSVERSIONINFOA osvi;
-    BOOL result;
+    bool result;
 
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOA);
 

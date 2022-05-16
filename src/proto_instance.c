@@ -1872,34 +1872,34 @@ bool _obj_is_lockable(Object* obj)
     Proto* proto;
 
     if (obj == NULL) {
-        return FALSE;
+        return false;
     }
 
     if (protoGetProto(obj->pid, &proto) == -1) {
-        return FALSE;
+        return false;
     }
 
     switch (obj->pid >> 24) {
     case OBJ_TYPE_ITEM:
         if (proto->item.type == ITEM_TYPE_CONTAINER) {
-            return TRUE;
+            return true;
         }
         break;
     case OBJ_TYPE_SCENERY:
         if (proto->scenery.type == SCENERY_TYPE_DOOR) {
-            return TRUE;
+            return true;
         }
         break;
     }
 
-    return FALSE;
+    return false;
 }
 
 // 0x49D1C8
 bool objectIsLocked(Object* obj)
 {
     if (obj == NULL) {
-        return FALSE;
+        return false;
     }
 
     ObjectData* data = &(obj->data);
@@ -1910,7 +1910,7 @@ bool objectIsLocked(Object* obj)
         return data->scenery.door.openFlags & DOOR_FLAG_LOCKED;
     }
 
-    return FALSE;
+    return false;
 }
 
 // 0x49D20C
@@ -1959,27 +1959,27 @@ bool _obj_is_openable(Object* obj)
     Proto* proto;
 
     if (obj == NULL) {
-        return FALSE;
+        return false;
     }
 
     if (protoGetProto(obj->pid, &proto) == -1) {
-        return FALSE;
+        return false;
     }
 
     switch (obj->pid >> 24) {
     case OBJ_TYPE_ITEM:
         if (proto->item.type == ITEM_TYPE_CONTAINER) {
-            return TRUE;
+            return true;
         }
         break;
     case OBJ_TYPE_SCENERY:
         if (proto->scenery.type == SCENERY_TYPE_DOOR) {
-            return TRUE;
+            return true;
         }
         break;
     }
 
-    return FALSE;
+    return false;
 }
 
 // 0x49D2E4
@@ -2053,20 +2053,20 @@ int objectClose(Object* obj)
 bool objectIsJammed(Object* obj)
 {
     if (!_obj_is_lockable(obj)) {
-        return FALSE;
+        return false;
     }
 
     if ((obj->pid >> 24) == OBJ_TYPE_SCENERY) {
         if ((obj->data.scenery.door.openFlags & OBJ_JAMMED) != 0) {
-            return TRUE;
+            return true;
         }
     } else {
         if ((obj->data.flags & OBJ_JAMMED) != 0) {
-            return TRUE;
+            return true;
         }
     }
 
-    return FALSE;
+    return false;
 }
 
 // jam_lock

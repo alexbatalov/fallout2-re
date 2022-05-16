@@ -99,7 +99,7 @@ int _rm_hold = 0;
 int _rm_active = 0;
 
 // 0x51EE20
-BOOL dword_51EE20 = false;
+bool dword_51EE20 = false;
 
 // 0x51F018
 int dword_51F018[256];
@@ -711,7 +711,7 @@ void _sub_4F4DD()
 
     // TODO: Incomplete.
 
-    dword_51EE20 = TRUE;
+    dword_51EE20 = true;
 }
 
 // 0x4F4E20
@@ -1135,20 +1135,20 @@ void _MVE_sndSync()
 {
     DWORD dwCurrentPlayCursor;
     DWORD dwCurrentWriteCursor;
-    BOOL v10;
+    bool v10;
     DWORD dwStatus;
     int v1;
-    BOOL v2;
+    bool v2;
     int v3;
     int v4;
-    BOOL v5;
-    BOOL v0;
+    bool v5;
+    bool v0;
     int v6;
     int v7;
     int v8;
     int v9;
 
-    v0 = FALSE;
+    v0 = false;
 
     _sync_late = _syncWaitLevel(_sync_wait_quanta >> 2) > -_sync_wait_quanta >> 1 && !_sync_FrameDropped;
     _sync_FrameDropped = 0;
@@ -1177,15 +1177,15 @@ void _MVE_sndSync()
 
         if (dwCurrentPlayCursor <= dword_6B36A4) {
             if (v1 < dwCurrentPlayCursor || v1 >= dword_6B36A4) {
-                v2 = FALSE;
+                v2 = false;
             } else {
-                v2 = TRUE;
+                v2 = true;
             }
         } else {
             if (v1 < dwCurrentPlayCursor && v1 >= dword_6B36A4) {
-                v2 = FALSE;
+                v2 = false;
             } else {
-                v2 = TRUE;
+                v2 = true;
             }
         }
 
@@ -1201,14 +1201,14 @@ void _MVE_sndSync()
 
                 if (dwCurrentWriteCursor >= dwCurrentPlayCursor) {
                     if (v4 >= dwCurrentPlayCursor && v4 < dwCurrentWriteCursor) {
-                        v5 = TRUE;
+                        v5 = true;
                     } else {
-                        v5 = FALSE;
+                        v5 = false;
                     }
                 } else if (v4 >= dwCurrentPlayCursor || v4 < dwCurrentWriteCursor) {
-                    v5 = TRUE;
+                    v5 = true;
                 } else {
-                    v5 = FALSE;
+                    v5 = false;
                 }
 
                 if (v5) {
@@ -1242,15 +1242,15 @@ void _MVE_sndSync()
 
             if (dwCurrentWriteCursor >= v9) {
                 if (v6 < dwCurrentPlayCursor || v6 >= dwCurrentWriteCursor) {
-                    v10 = FALSE;
+                    v10 = false;
                 } else {
-                    v10 = TRUE;
+                    v10 = true;
                 }
             } else {
                 if (v6 >= v9 || v6 < dwCurrentWriteCursor) {
-                    v10 = TRUE;
+                    v10 = true;
                 } else {
-                    v10 = FALSE;
+                    v10 = false;
                 }
             }
 
@@ -1260,7 +1260,7 @@ void _MVE_sndSync()
 
             break;
         }
-        v0 = TRUE;
+        v0 = true;
     }
 
     if (dword_6B3660 != dword_6B3AE4) {

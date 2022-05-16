@@ -2056,12 +2056,12 @@ bool _obj_action_can_talk_to(Object* obj)
 bool _obj_portal_is_walk_thru(Object* obj)
 {
     if ((obj->pid >> 24) != OBJ_TYPE_SCENERY) {
-        return FALSE;
+        return false;
     }
 
     Proto* proto;
     if (protoGetProto(obj->pid, &proto) == -1) {
-        return FALSE;
+        return false;
     }
 
     return (proto->scenery.data.generic.field_0 & 0x04) != 0;

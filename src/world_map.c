@@ -5557,7 +5557,7 @@ bool _wmMapIsKnown(int mapIndex)
 bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 {
     if (!cityIsValid(cityIndex)) {
-        return FALSE;
+        return false;
     }
 
     CityInfo* city = &(gCities[cityIndex]);
@@ -5570,7 +5570,7 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 
     SubtileInfo* subtile;
     if (_wmFindCurSubTileFromPos(city->x, city->y, &subtile) == -1) {
-        return FALSE;
+        return false;
     }
 
     if (a2 == 1) {
@@ -5579,23 +5579,23 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
         city->field_40 = 1;
     }
 
-    return TRUE;
+    return true;
 }
 
 // 0x4C46CC
 bool _wmAreaSetVisibleState(int cityIndex, int a2, int a3)
 {
     if (!cityIsValid(cityIndex)) {
-        return FALSE;
+        return false;
     }
 
     CityInfo* city = &(gCities[cityIndex]);
     if (city->field_3C != 1 || a3) {
         city->state = a2;
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 // wm_area_set_pos

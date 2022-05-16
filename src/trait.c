@@ -66,7 +66,7 @@ int traitsInit()
 
     __stosd((unsigned long*)gSelectedTraits, -1, TRAITS_MAX_SELECTED_COUNT);
 
-    return TRUE;
+    return true;
 }
 
 // 0x4B3ADC

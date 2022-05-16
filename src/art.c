@@ -895,7 +895,7 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
     char* ptr;
     int result;
     char path[MAX_PATH];
-    BOOL loaded;
+    bool loaded;
     int fileSize;
 
     v4 = -1;
@@ -909,7 +909,7 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
 
     str = artBuildFilePath(fid);
     if (str != NULL) {
-        loaded = FALSE;
+        loaded = false;
         if (gArtLanguageInitialized) {
             ptr = str;
             while (*ptr != '\0' && *ptr != '\\') {
@@ -922,13 +922,13 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
 
             sprintf(path, "art\\%s\\%s", gArtLanguage, ptr);
             if (dbGetFileSize(path, &fileSize) == 0) {
-                loaded = TRUE;
+                loaded = true;
             }
         }
 
         if (!loaded) {
             if (dbGetFileSize(str, &fileSize) == 0) {
-                loaded = TRUE;
+                loaded = true;
             }
         }
 
@@ -953,7 +953,7 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
     char* ptr;
     int result;
     char path[MAX_PATH];
-    BOOL loaded;
+    bool loaded;
 
     v4 = -1;
     result = -1;
@@ -966,7 +966,7 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
 
     str = artBuildFilePath(fid);
     if (str != NULL) {
-        loaded = FALSE;
+        loaded = false;
         if (gArtLanguageInitialized) {
             ptr = str;
             while (*ptr != '\0' && *ptr != '\\') {
@@ -979,13 +979,13 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
 
             sprintf(path, "art\\%s\\%s", gArtLanguage, ptr);
             if (artRead(str, data) == 0) {
-                loaded = TRUE;
+                loaded = true;
             }
         }
 
         if (!loaded) {
             if (artRead(str, data) == 0) {
-                loaded = TRUE;
+                loaded = true;
             }
         }
 

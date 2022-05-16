@@ -70,7 +70,7 @@ extern int dword_51EE0C;
 extern void (*_pal_SetPalette)(unsigned char*, int, int);
 extern int _rm_hold;
 extern int _rm_active;
-extern BOOL dword_51EE20;
+extern bool dword_51EE20;
 extern int dword_51F018[256];
 extern unsigned short word_51F418[256];
 extern unsigned short word_51F618[256];

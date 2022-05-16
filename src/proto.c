@@ -265,18 +265,18 @@ bool _proto_action_can_talk_to(int pid)
 {
     Proto* proto;
     if (protoGetProto(pid, &proto) == -1) {
-        return FALSE;
+        return false;
     }
 
     if ((pid >> 24) == OBJ_TYPE_CRITTER) {
-        return TRUE;
+        return true;
     }
 
     if (proto->critter.extendedFlags & 0x4000) {
-        return TRUE;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 // Likely returns true if item with given pid can be picked up.
