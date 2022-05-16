@@ -6,6 +6,7 @@
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static_assert(sizeof(DBase) == 20, "wrong size");
 static_assert(sizeof(DBaseEntry) == 20, "wrong size");

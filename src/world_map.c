@@ -35,6 +35,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 static_assert(sizeof(Terrain) == 128, "wrong size");
 static_assert(sizeof(ENC_BASE_TYPE) == 3056, "wrong size");

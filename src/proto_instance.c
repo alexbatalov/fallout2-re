@@ -26,6 +26,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x49A990
 MessageListItem stru_49A990;

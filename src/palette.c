@@ -6,6 +6,8 @@
 #include "debug.h"
 #include "game_sound.h"
 
+#include <string.h>
+
 // 0x6639D0
 unsigned char gPalette[256 * 3];
 

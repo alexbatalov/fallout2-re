@@ -31,6 +31,7 @@
 #include "world_map.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 

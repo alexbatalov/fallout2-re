@@ -3,6 +3,7 @@
 #include "debug.h"
 #include "scripts.h"
 
+#include <limits.h>
 #include <stdlib.h>
 
 // clang-format off

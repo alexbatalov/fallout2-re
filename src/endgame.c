@@ -25,6 +25,7 @@
 #include "word_wrap.h"
 #include "world_map.h"
 
+#include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>

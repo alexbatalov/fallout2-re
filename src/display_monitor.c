@@ -12,6 +12,8 @@
 #include "text_font.h"
 #include "window_manager.h"
 
+#include <string.h>
+
 // 0x51850C
 bool gDisplayMonitorInitialized = false;
 

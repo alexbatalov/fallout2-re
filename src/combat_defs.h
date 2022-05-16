@@ -138,7 +138,7 @@ typedef struct CriticalHitDescription {
 
     // Damage flags that will be applied to defender.
     int flags;
-    
+
     // Stat to check to upgrade this critical hit to massive critical hit or
     // -1 if there is no massive critical hit.
     int massiveCriticalStat;

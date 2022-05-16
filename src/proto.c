@@ -21,6 +21,7 @@
 
 #include <direct.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x50CF3C
 char _aProto_0[] = "proto\\";

@@ -36,6 +36,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x500B50
 char _a_1[] = ".";

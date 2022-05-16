@@ -22,6 +22,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x518BF8
 bool gGameMouseInitialized = false;

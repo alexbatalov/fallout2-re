@@ -3,6 +3,9 @@
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 
+#include <ctype.h>
+#include <string.h>
+
 // 0x570C00
 ExternalProcedure gExternalProcedures[1013];
 

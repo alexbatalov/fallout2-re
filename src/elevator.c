@@ -11,6 +11,9 @@
 #include "scripts.h"
 #include "window_manager.h"
 
+#include <ctype.h>
+#include <string.h>
+
 // 0x43E950
 const int gElevatorFrmIds[ELEVATOR_FRM_COUNT] = {
     141, // ebut_in.frm - map elevator screen
@@ -429,7 +432,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
                     gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width,
                     gElevatorWindowBuffer + gElevatorBackgroundFrmWidth * 41 + 121,
                     gElevatorBackgroundFrmWidth);
-                
+
                 windowRefresh(gElevatorWindow);
 
                 while (getTicksSince(tick) < delay) {

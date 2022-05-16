@@ -370,7 +370,7 @@ void gameExit()
     combatExit();
     gameDialogExit();
     _scr_game_exit();
-    
+
     // NOTE: Uninline.
     gameFreeGlobalVars();
 

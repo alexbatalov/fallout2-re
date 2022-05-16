@@ -9,6 +9,8 @@
 #include "proto.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // 0x510738
 ArtListDescription gArtListDescriptions[OBJ_TYPE_COUNT] = {

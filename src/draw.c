@@ -4,6 +4,8 @@
 #include "core.h"
 #include "mmx.h"
 
+#include <string.h>
+
 // 0x4D2FC0
 void bufferDrawLine(unsigned char* buf, int pitch, int x1, int y1, int x2, int y2, int color)
 {

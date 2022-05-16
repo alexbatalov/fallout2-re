@@ -8,8 +8,10 @@
 #include "memory_manager.h"
 
 #include <assert.h>
+#include <stdarg.h>
 #include <stdio.h>
-#include <varargs.h>
+#include <stdlib.h>
+#include <string.h>
 
 // 0x50942C
 char _aCouldnTFindPro[] = "<couldn't find proc>";

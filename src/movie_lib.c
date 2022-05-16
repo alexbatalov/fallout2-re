@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x51EBD8
 int dword_51EBD8 = 0;

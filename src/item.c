@@ -23,6 +23,8 @@
 #include "tile.h"
 #include "trait.h"
 
+#include <string.h>
+
 // 0x509FFC
 char _aItem_1[] = "<item>";
 

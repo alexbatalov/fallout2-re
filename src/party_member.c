@@ -28,6 +28,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x519D9C
 int gPartyMemberDescriptionsLength = 0;

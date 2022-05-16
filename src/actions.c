@@ -28,6 +28,9 @@
 #include "tile.h"
 #include "trait.h"
 
+#include <limits.h>
+#include <string.h>
+
 // 0x5106D0
 int _action_in_explode = 0;
 

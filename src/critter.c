@@ -26,6 +26,7 @@
 #include "world_map.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x50141C
 char _aCorpse[] = "corpse";

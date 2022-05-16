@@ -2,6 +2,7 @@
 
 #include "core.h"
 
+#include <string.h>
 #include <math.h>
 
 // 0x50F930

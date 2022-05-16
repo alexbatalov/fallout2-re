@@ -7,7 +7,7 @@
 // Max number of prototypes of one type to be stored in prototype cache lists.
 // Once this value is reached the top most proto extent is removed from the
 // cache list.
-// 
+//
 // See:
 // - [sub_4A2108]
 // - [sub_4A2040]
@@ -195,15 +195,6 @@ enum {
 #define PROTO_ID_0x5000010 0x5000010
 // last exit grid
 #define PROTO_ID_0x5000017 0x5000017
-
-typedef enum CritterProtoFlags {
-} CritterProtoFlags;
-
-typedef enum CritterProtoExtendedFlags {
-} CritterProtoExtendedFlags;
-
-typedef enum CritterProtoDataFlags {
-} CritterProtoDataFlags;
 
 typedef enum ItemProtoFlags {
     ItemProtoFlags_0x08 = 0x08,
@@ -487,7 +478,7 @@ typedef struct ProtoList {
     // Number of extents in the list.
     int length;
     // Number of lines in proto/{type}/{type}.lst.
-    int max_entries_num; 
+    int max_entries_num;
 } ProtoList;
 
 #endif /* PROTO_TYPES_H */

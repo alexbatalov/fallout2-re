@@ -8,6 +8,7 @@
 #include "sound.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x519240
 unsigned char gLipsCurrentPhoneme = 0;

@@ -27,6 +27,7 @@
 #include "tile.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x51805C
 Object* _combat_obj = NULL;

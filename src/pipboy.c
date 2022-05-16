@@ -28,7 +28,9 @@
 #include "word_wrap.h"
 #include "world_map.h"
 
+#include <ctype.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x496FC0
 const Rect gPipboyWindowContentRect = {

@@ -38,6 +38,7 @@
 #include "world_map.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x504B04
 char _Error_0[] = "Error";

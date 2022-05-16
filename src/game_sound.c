@@ -23,6 +23,7 @@
 
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x5035BC
 char _aSoundSfx[] = "sound\\sfx\\";

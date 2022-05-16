@@ -7,6 +7,7 @@
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // 0x6B24D0
 XBase* gXbaseHead;

@@ -6,6 +6,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x51E414
 int _wd = -1;

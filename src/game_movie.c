@@ -16,6 +16,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x50352A
 const float flt_50352A = 0.032258064f;

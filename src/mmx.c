@@ -2,6 +2,8 @@
 
 #include "core.h"
 
+#include <string.h>
+
 // Return `true` if CPU supports MMX.
 //
 // 0x4E08A0

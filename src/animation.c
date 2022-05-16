@@ -27,6 +27,7 @@
 #include "trait.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x510718
 int _curr_sad = 0;

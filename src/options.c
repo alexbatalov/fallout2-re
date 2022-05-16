@@ -22,6 +22,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x48FBD0
 const int _row1Ytab[PRIMARY_PREF_COUNT] = {
@@ -239,7 +240,7 @@ int gPreferencesGameDifficulty2;
 // 0x663928
 int gPreferencesCombatDifficulty2;
 
-// 0x66392C 
+// 0x66392C
 int gPreferencesViolenceLevel2;
 
 // 0x663930
@@ -533,7 +534,7 @@ int optionsWindowInit()
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index += 2) {
         char text[128];
-        
+
         const char* msg = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, index / 2);
         strcpy(text, msg);
 
@@ -698,14 +699,14 @@ int showPause(bool a1)
         26,
         46,
         frmSizes[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
-        frmSizes[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP].height, 
-        -1, 
-        -1, 
-        -1, 
-        504, 
-        frmData[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP], 
-        frmData[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN], 
-        NULL, 
+        frmSizes[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP].height,
+        -1,
+        -1,
+        -1,
+        504,
+        frmData[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
+        frmData[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
         buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
@@ -967,7 +968,7 @@ void _UpdateThing(int index)
     fontSetCurrent(101);
 
     PreferenceDescription* meta = &(gPreferenceDescriptions[index]);
-    
+
     if (index >= FIRST_PRIMARY_PREF && index <= LAST_PRIMARY_PREF) {
         int primaryOptionIndex = index - FIRST_PRIMARY_PREF;
 
@@ -1482,18 +1483,18 @@ int preferencesWindowInit()
         gPreferenceDescriptions[i].btn = buttonCreate(gPreferencesWindow, x, y, width, height, mouseEnterEventCode, mouseExitEventCode, mouseDownEventCode, mouseUpEventCode, NULL, NULL, NULL, 32);
     }
 
-    _plyrspdbid = buttonCreate(gPreferencesWindow, 
+    _plyrspdbid = buttonCreate(gPreferencesWindow,
         383,
         68,
         gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF].width,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_CHECKBOX_ON].height, 
+        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_CHECKBOX_ON].height,
         -1,
-        -1, 
+        -1,
         524,
-        524, 
+        524,
         gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF],
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_CHECKBOX_ON], 
-        NULL, 
+        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_CHECKBOX_ON],
+        NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01 | BUTTON_FLAG_0x02);
     if (_plyrspdbid != -1) {
         _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
@@ -1503,17 +1504,17 @@ int preferencesWindowInit()
 
     // DEFAULT
     btn = buttonCreate(gPreferencesWindow,
-        23, 
-        450, 
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width, 
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height, 
-        -1, 
-        -1, 
+        23,
+        450,
+        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
+        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
         -1,
-        527, 
+        -1,
+        -1,
+        527,
         gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN], 
-        NULL, 
+        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
         buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
@@ -1522,15 +1523,15 @@ int preferencesWindowInit()
     // DONE
     btn = buttonCreate(gPreferencesWindow,
         148,
-        450, 
+        450,
         gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
         gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
-        -1, 
-        -1, 
-        -1, 
-        504, 
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP], 
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN], 
+        -1,
+        -1,
+        -1,
+        504,
+        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
+        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1540,16 +1541,16 @@ int preferencesWindowInit()
     // CANCEL
     btn = buttonCreate(gPreferencesWindow,
         263,
-        450, 
+        450,
         gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
         gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
-        -1, 
-        -1, 
-        -1, 
-        528, 
+        -1,
+        -1,
+        -1,
+        528,
         gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
         gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
-        NULL, 
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
         buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);

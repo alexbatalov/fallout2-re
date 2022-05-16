@@ -13,6 +13,7 @@
 #include "word_wrap.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x5108C8
 const int gDialogBoxBackgroundFrmIds[DIALOG_TYPE_COUNT] = {

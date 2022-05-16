@@ -19,6 +19,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x41ADE0
 const int _defam[AUTOMAP_MAP_COUNT][ELEVATION_COUNT] = {

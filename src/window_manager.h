@@ -4,6 +4,7 @@
 #include "geometry.h"
 
 #include <stdbool.h>
+#include <stddef.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -152,7 +153,7 @@ typedef struct RadioGroup {
 typedef int(VideoSystemInitProc)();
 typedef void(VideoSystemExitProc)();
 
-char _path_patches[];
+extern char _path_patches[];
 
 extern bool _GNW95_already_running;
 extern HANDLE _GNW95_title_mutex;

@@ -16,6 +16,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x51D43C
 bool gSkilldexWindowIsoWasEnabled = false;

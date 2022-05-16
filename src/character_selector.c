@@ -22,6 +22,7 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // 0x51C84C
 int gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;

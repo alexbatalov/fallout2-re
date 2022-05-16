@@ -12,6 +12,8 @@
 #include "text_font.h"
 #include "window_manager.h"
 
+#include <string.h>
+
 // 0x5195B8
 int gMovieWindow = -1;
 

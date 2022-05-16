@@ -24,6 +24,7 @@
 #include "world_map.h"
 
 #include <assert.h>
+#include <string.h>
 
 // 0x5195F8
 bool gObjectsInitialized = false;
