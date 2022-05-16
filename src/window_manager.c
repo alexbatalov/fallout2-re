@@ -840,7 +840,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                             _scr_blit(
                                 window->buffer + v20->rect.left - window->rect.left + (v20->rect.top - window->rect.top) * window->width,
                                 window->width,
-                                window->rect.bottom - v20->rect.bottom + 1,
+                                v20->rect.bottom - v20->rect.bottom + 1,
                                 0,
                                 0,
                                 v20->rect.right - v20->rect.left + 1,
@@ -942,11 +942,11 @@ void _win_clip(Window* window, RectListNode** rectListNodePtr, unsigned char* a3
         if (!(window->flags & WINDOW_HIDDEN)) {
             if (!_buffering || !(window->flags & WINDOW_FLAG_0x20)) {
                 _rect_clip_list(rectListNodePtr, &(window->rect));
-            }
-
-            if (!_doing_refresh_all) {
-                _GNW_win_refresh(window, &(window->rect), NULL);
-                _rect_clip_list(rectListNodePtr, &(window->rect));
+            } else {
+                if (!_doing_refresh_all) {
+                    _GNW_win_refresh(window, &(window->rect), NULL);
+                    _rect_clip_list(rectListNodePtr, &(window->rect));
+                }
             }
         }
     }
