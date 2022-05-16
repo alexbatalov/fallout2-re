@@ -477,7 +477,7 @@ void enqueueInputEvent(int a1)
     }
 
     if (a1 == gPauseKeyCode) {
-        pause();
+        pauseGame();
         return;
     }
 
@@ -618,7 +618,7 @@ void tickersDisable()
 }
 
 // 0x4C8DFC
-void pause()
+void pauseGame()
 {
     if (!gPaused) {
         gPaused = true;

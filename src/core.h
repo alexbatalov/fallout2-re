@@ -538,7 +538,7 @@ void tickersAdd(TickerProc* fn);
 void tickersRemove(TickerProc* fn);
 void tickersEnable();
 void tickersDisable();
-void pause();
+void pauseGame();
 int pauseHandlerDefaultImpl();
 void pauseHandlerConfigure(int keyCode, PauseHandler* fn);
 void takeScreenshot();
