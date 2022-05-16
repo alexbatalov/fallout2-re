@@ -2837,7 +2837,7 @@ int gameDialogDrawText(unsigned char* buffer, Rect* rect, char* string, int* a4,
 
         if (a7 != 0) {
             if (rect->bottom - fontGetLineHeight() < rect->top) {
-                if (end != NULL && *end != '\0') {
+                if (end != NULL && *end == '\0') {
                     *end = ' ';
                 }
                 return rect->top;
