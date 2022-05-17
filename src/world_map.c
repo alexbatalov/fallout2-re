@@ -3272,7 +3272,7 @@ int _wmRndEncounterOccurred()
 
         TileInfo* tile;
         // NOTE: Uninline.
-        _wmFindCurTileFromPos(_world_ypos, _world_xpos, &tile);
+        _wmFindCurTileFromPos(_world_xpos, _world_ypos, &tile);
         debugPrint("\nEncounter Difficulty Mod: %d", tile->encounterDifficultyModifier);
 
         outdoorsman += tile->encounterDifficultyModifier;
