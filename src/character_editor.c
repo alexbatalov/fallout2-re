@@ -2406,17 +2406,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_POISONED) {
-        if (critterGetPoison(gDude) != 0) {
-            color = _colorTable[15845];
-        } else {
-            color = _colorTable[32747];
-        }
+        color = critterGetPoison(gDude) != 0 ? _colorTable[32747] : _colorTable[15845];
     } else {
-        if (critterGetPoison(gDude) != 0) {
-            color = _colorTable[992];
-        } else {
-            color = _colorTable[1313];
-        }
+        color = critterGetPoison(gDude) != 0 ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 312);
@@ -2427,17 +2419,9 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_RADIATED) {
-        if (critterGetRadiation(gDude) != 0) {
-            color = _colorTable[15845];
-        } else {
-            color = _colorTable[32747];
-        }
+        color = critterGetRadiation(gDude) != 0 ? _colorTable[32747] : _colorTable[15845];
     } else {
-        if (critterGetRadiation(gDude) != 0) {
-            color = _colorTable[992];
-        } else {
-            color = _colorTable[1313];
-        }
+        color = critterGetRadiation(gDude) != 0 ? _colorTable[992] : _colorTable[1313];
     }
 
     messageListItemText = getmsg(&editorMessageList, &editorMessageListItem, 313);
@@ -2448,7 +2432,7 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_EYE_DAMAGE) {
-        color = (conditions & DAM_BLIND) ? _colorTable[15845] : _colorTable[32747];
+        color = (conditions & DAM_BLIND) ? _colorTable[32747] : _colorTable[15845];
     } else {
         color = (conditions & DAM_BLIND) ? _colorTable[992] : _colorTable[1313];
     }
@@ -2461,7 +2445,7 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_RIGHT_ARM) {
-        color = (conditions & DAM_CRIP_ARM_RIGHT) ? _colorTable[15845] : _colorTable[32747];
+        color = (conditions & DAM_CRIP_ARM_RIGHT) ? _colorTable[32747] : _colorTable[15845];
     } else {
         color = (conditions & DAM_CRIP_ARM_RIGHT) ? _colorTable[992] : _colorTable[1313];
     }
@@ -2474,7 +2458,7 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_LEFT_ARM) {
-        color = (conditions & DAM_CRIP_ARM_LEFT) ? _colorTable[15845] : _colorTable[32747];
+        color = (conditions & DAM_CRIP_ARM_LEFT) ? _colorTable[32747] : _colorTable[15845];
     } else {
         color = (conditions & DAM_CRIP_ARM_LEFT) ? _colorTable[992] : _colorTable[1313];
     }
@@ -2487,7 +2471,7 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_RIGHT_LEG) {
-        color = (conditions & DAM_CRIP_LEG_RIGHT) ? _colorTable[15845] : _colorTable[32747];
+        color = (conditions & DAM_CRIP_LEG_RIGHT) ? _colorTable[32747] : _colorTable[15845];
     } else {
         color = (conditions & DAM_CRIP_LEG_RIGHT) ? _colorTable[992] : _colorTable[1313];
     }
@@ -2500,7 +2484,7 @@ void editorRenderSecondaryStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_CRIPPLED_LEFT_LEG) {
-        color = (conditions & DAM_CRIP_LEG_LEFT) ? _colorTable[15845] : _colorTable[32747];
+        color = (conditions & DAM_CRIP_LEG_LEFT) ? _colorTable[32747] : _colorTable[15845];
     } else {
         color = (conditions & DAM_CRIP_LEG_LEFT) ? _colorTable[992] : _colorTable[1313];
     }
