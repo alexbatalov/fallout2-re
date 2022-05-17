@@ -814,13 +814,18 @@ int _editor_design(bool isCreationMode)
             case KEY_ARROW_UP:
                 if (characterEditorSelectedItem >= 10 && characterEditorSelectedItem < 43) {
                     if (characterEditorSelectedItem == 10) {
-                        if (_folder_top_line <= 0) {
+                        if (_folder_top_line > 0) {
                             _folder_scroll(-1);
+                            characterEditorSelectedItem--;
+                            editorRenderFolders();
+                            editorRenderDetails();
                         }
+                    } else {
+                        characterEditorSelectedItem--;
+                        editorRenderFolders();
+                        editorRenderDetails();
                     }
-                    characterEditorSelectedItem -= 1;
-                    editorRenderFolders();
-                    editorRenderDetails();
+
                     windowRefresh(characterEditorWindowHandle);
                 } else {
                     switch (characterEditorSelectedItem) {
