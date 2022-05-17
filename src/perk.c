@@ -654,10 +654,16 @@ int perkGetSkillModifier(Object* critter, int skill)
             modifier += 5;
         }
 
-        break;
+        // FALLTHROUGH
     case SKILL_BARTER:
-        if (perkHasRank(critter, PERK_SALESMAN)) {
-            modifier += 20;
+        if (perkHasRank(critter, PERK_NEGOTIATOR)) {
+            modifier += 10;
+        }
+
+        if (skill == SKILL_BARTER) {
+            if (perkHasRank(critter, PERK_SALESMAN)) {
+                modifier += 20;
+            }
         }
 
         break;
