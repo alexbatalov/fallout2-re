@@ -650,6 +650,10 @@ int perkGetSkillModifier(Object* critter, int skill)
             modifier += 20;
         }
 
+        if (perkHasRank(critter, PERK_EXPERT_EXCREMENT_EXPEDITOR)) {
+            modifier += 5;
+        }
+
         break;
     case SKILL_BARTER:
         if (perkHasRank(critter, PERK_SALESMAN)) {
