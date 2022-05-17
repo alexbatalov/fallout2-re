@@ -2117,6 +2117,8 @@ void inventoryRenderSummary()
     static_assert(sizeof(v57) == sizeof(dword_46E6EC), "wrong size");
     memcpy(v57, dword_46E6EC, sizeof(v57));
 
+    char formattedText[80];
+
     int oldFont = fontGetCurrent();
     fontSetCurrent(101);
 
@@ -2124,16 +2126,12 @@ void inventoryRenderSummary()
 
     int fid = buildFid(6, 48, 0, 0, 0);
 
-    // #region Background
-
     CacheEntry* backgroundHandle;
     unsigned char* backgroundData = artLockFrameData(fid, 0, 0, &backgroundHandle);
     if (backgroundData != NULL) {
         blitBufferToBuffer(backgroundData + 499 * 44 + 297, 152, 188, 499, windowBuffer + 499 * 44 + 297, 499);
     }
     artUnlock(backgroundHandle);
-
-    // #endregion
 
     // Render character name.
     const char* critterName = critterGetName(_stack[0]);
@@ -2157,9 +2155,8 @@ void inventoryRenderSummary()
         }
 
         int value = critterGetStat(_stack[0], stat);
-        char valueText[4]; // TODO: Size is probably wrong.
-        sprintf(valueText, "%d", value);
-        fontDrawText(windowBuffer + offset + 24, valueText, 80, 499, _colorTable[992]);
+        sprintf(formattedText, "%d", value);
+        fontDrawText(windowBuffer + offset + 24, formattedText, 80, 499, _colorTable[992]);
 
         offset += 499 * fontGetLineHeight();
     }
@@ -2172,18 +2169,17 @@ void inventoryRenderSummary()
             fontDrawText(windowBuffer + offset + 40, messageListItem.text, 80, 499, _colorTable[992]);
         }
 
-        char valueText[80]; // TODO: Size is probably wrong.
         if (v57[index] == -1) {
             int value = critterGetStat(_stack[0], v56[index]);
-            sprintf(valueText, "   %d", value);
+            sprintf(formattedText, "   %d", value);
         } else {
             int value1 = critterGetStat(_stack[0], v56[index]);
             int value2 = critterGetStat(_stack[0], v57[index]);
             const char* format = index != 0 ? "%d/%d%%" : "%d/%d";
-            sprintf(valueText, format, value1, value2);
+            sprintf(formattedText, format, value1, value2);
         }
 
-        fontDrawText(windowBuffer + offset + 104, valueText, 80, 499, _colorTable[992]);
+        fontDrawText(windowBuffer + offset + 104, formattedText, 80, 499, _colorTable[992]);
 
         offset += 499 * fontGetLineHeight();
     }
@@ -2206,6 +2202,8 @@ void inventoryRenderSummary()
     for (int index = 0; index < 2; index += 1) {
         Object* item = itemsInHands[index];
         if (item == NULL) {
+            formattedText[0] = '\0';
+
             // No item
             messageListItem.num = 14;
             if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
@@ -2213,8 +2211,6 @@ void inventoryRenderSummary()
             }
 
             offset += 499 * fontGetLineHeight();
-
-            char formattedText[80]; // TODO: Size is probably wrong.
 
             // Unarmed dmg:
             messageListItem.num = 24;
@@ -2258,6 +2254,8 @@ void inventoryRenderSummary()
 
         int attackType = weaponGetAttackTypeForHitMode(item, hitModes[index]);
 
+        formattedText[0] = '\0';
+
         int meleeDamage;
         if (attackType == ATTACK_TYPE_MELEE || attackType == ATTACK_TYPE_UNARMED) {
             meleeDamage = critterGetStat(_stack[0], STAT_MELEE_DAMAGE);
@@ -2267,7 +2265,6 @@ void inventoryRenderSummary()
 
         messageListItem.num = 15; // Dmg:
         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-            char formattedText[80]; // TODO: Size is probably wrong.
             if (attackType != 4 && range <= 1) {
                 sprintf(formattedText, "%s %d-%d", messageListItem.text, damageMin, damageMax + meleeDamage);
             } else {
@@ -2284,9 +2281,9 @@ void inventoryRenderSummary()
         offset += 499 * fontGetLineHeight();
 
         if (ammoGetCapacity(item) > 0) {
-            char formattedText[80]; // TODO: Size is probably wrong.
-
             int ammoTypePid = weaponGetAmmoTypePid(item);
+
+            formattedText[0] = '\0';
 
             messageListItem.num = 17; // Ammo:
             if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
@@ -2320,8 +2317,6 @@ void inventoryRenderSummary()
         if (_stack[0]->pid >> 24 == OBJ_TYPE_CRITTER) {
             int carryWeight = critterGetStat(_stack[0], STAT_CARRY_WEIGHT);
             int inventoryWeight = objectGetInventoryWeight(_stack[0]);
-
-            char formattedText[80]; // TODO: Size is probably wrong.
             sprintf(formattedText, "%s %d/%d", messageListItem.text, inventoryWeight, carryWeight);
 
             int color = _colorTable[992];
@@ -2332,8 +2327,6 @@ void inventoryRenderSummary()
             fontDrawText(windowBuffer + offset + 15, formattedText, 120, 499, color);
         } else {
             int inventoryWeight = objectGetInventoryWeight(_stack[0]);
-
-            char formattedText[80]; // TODO: Size is probably wrong.
             sprintf(formattedText, "%s %d", messageListItem.text, inventoryWeight);
 
             fontDrawText(windowBuffer + offset + 30, formattedText, 80, 499, _colorTable[992]);
