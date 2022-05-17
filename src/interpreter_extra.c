@@ -3503,21 +3503,21 @@ void opRadiationIncrease(Program* program)
 
 // radiation_dec
 // 0x458800
-void opRadiationDecrease(Program* s)
+void opRadiationDecrease(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(s);
-        data[arg] = programStackPopInt32(s);
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(s, opcode[arg], data[arg]);
+            programPopString(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to radiation_dec", s->name, arg);
+            programFatalError("script error: %s: invalid arg %d to radiation_dec", program->name, arg);
         }
     }
 
@@ -3525,18 +3525,14 @@ void opRadiationDecrease(Program* s)
     int amount = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(s, "radiation_dec", SCRIPT_ERROR_OBJECT_IS_NULL);
+        scriptPredefinedError(program, "radiation_dec", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     int radiation = critterGetRadiation(object);
-    if (radiation >= 0) {
-        radiation -= amount;
-    } else {
-        radiation = 0;
-    }
+    int adjustment = radiation >= 0 ? -amount : 0;
 
-    critterAdjustRadiation(object, radiation);
+    critterAdjustRadiation(object, adjustment);
 }
 
 // critter_attempt_placement
