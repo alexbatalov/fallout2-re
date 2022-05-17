@@ -173,12 +173,8 @@ int tileIsVisible(int tile)
 int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 {
     if (a1 == gDude) {
-        bool v1 = true;
-        if (gameUiIsDisabled()) {
-            v1 = false;
-        }
-
-        _intface_update_items(v1, -1, -1);
+        bool animated = !gameUiIsDisabled();
+        interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
     int fid = a1->fid;
@@ -995,8 +991,8 @@ void opDestroyObject(Program* program)
         itemRemove(owner, object, quantity);
 
         if (owner == gDude) {
-            bool v11 = gameUiIsDisabled() ? false : true;
-            _intface_update_items(v11, -1, -1);
+            bool animated = !gameUiIsDisabled();
+            interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
         _obj_connect(object, 1, 0, NULL);
@@ -2101,12 +2097,8 @@ void opWieldItem(Program* program)
             _adjust_ac(critter, oldArmor, newArmor);
         }
 
-        bool v2 = true;
-        if (gameUiIsDisabled()) {
-            v2 = false;
-        }
-
-        _intface_update_items(v2, -1, -1);
+        bool animated = !gameUiIsDisabled();
+        interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
 
@@ -4155,7 +4147,7 @@ void opMetarule(Program* program)
             Object* object = (Object*)param;
             result = _item_drop_all(object, object->tile);
             if (gDude == object) {
-                _intface_update_items(false, -1, -1);
+                interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 interfaceRenderArmorClass(false);
             }
         }
@@ -4174,11 +4166,8 @@ void opMetarule(Program* program)
             result = _invenUnwieldFunc(object, hand, 0);
 
             if (object == gDude) {
-                bool v1 = true;
-                if (gameUiIsDisabled()) {
-                    v1 = false;
-                }
-                _intface_update_items(v1, -1, -1);
+                bool animated = !gameUiIsDisabled();
+                interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             } else {
                 Object* item = critterGetItem1(object);
                 if (itemGetType(item) == ITEM_TYPE_WEAPON) {
@@ -4731,11 +4720,8 @@ void opRemoveMultipleObjectsFromInventory(Program* program)
             _obj_connect(item, 1, 0, &updatedRect);
             if (itemWasEquipped) {
                 if (owner == gDude) {
-                    bool v1 = true;
-                    if (gameUiIsDisabled()) {
-                        v1 = false;
-                    }
-                    _intface_update_items(v1, -1, -1);
+                    bool animated = !gameUiIsDisabled();
+                    interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 }
             }
         }
@@ -5263,10 +5249,10 @@ void opCritterInjure(Program* program)
 
     if (critter == gDude) {
         if ((flags & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
-            int v1;
-            int v2;
-            _intface_get_item_states(&v1, &v2);
-            _intface_update_items(true, v1, v2);
+            int leftItemAction;
+            int rightItemAction;
+            interfaceGetItemActions(&leftItemAction, &rightItemAction);
+            interfaceUpdateItems(true, leftItemAction, rightItemAction);
         }
     }
 }
@@ -5754,10 +5740,10 @@ void opCritterModifySkill(Program* program)
                 // TODO: Checking for critter is dude twice probably means this
                 // is inlined function.
                 if (critter == gDude) {
-                    int v1;
-                    int v2;
-                    _intface_get_item_states(&v1, &v2);
-                    _intface_update_items(false, v1, v2);
+                    int leftItemAction;
+                    int rightItemAction;
+                    interfaceGetItemActions(&leftItemAction, &rightItemAction);
+                    interfaceUpdateItems(false, leftItemAction, rightItemAction);
                 }
             } else {
                 scriptPredefinedError(program, "critter_mod_skill", SCRIPT_ERROR_FOLLOWS);
@@ -6115,11 +6101,8 @@ void opDestroyMultipleObjects(Program* program)
         itemRemove(owner, object, quantityToDestroy);
 
         if (owner == gDude) {
-            bool v1 = true;
-            if (gameUiIsDisabled()) {
-                v1 = false;
-            }
-            _intface_update_items(v1, -1, -1);
+            bool animated = !gameUiIsDisabled();
+            interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
         _obj_connect(object, 1, 0, NULL);
@@ -6272,12 +6255,8 @@ void opMoveObjectInventoryToObject(Program* program)
 
         _proto_dude_update_gender();
 
-        bool v1 = true;
-        if (gameUiIsDisabled()) {
-            v1 = false;
-        }
-
-        _intface_update_items(v1, -1, -1);
+        bool animated = !gameUiIsDisabled();
+        interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
 

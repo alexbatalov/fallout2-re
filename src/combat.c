@@ -2623,10 +2623,10 @@ void _combat_over()
 
     tileWindowRefresh();
 
-    int v13;
-    int v12;
-    _intface_get_item_states(&v13, &v12);
-    _intface_update_items(true, v13, v12);
+    int leftItemAction;
+    int rightItemAction;
+    interfaceGetItemActions(&leftItemAction, &rightItemAction);
+    interfaceUpdateItems(true, leftItemAction, rightItemAction);
 
     gDude->data.critter.combat.ap = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
 
@@ -4574,10 +4574,10 @@ void _set_new_results(Object* critter, int flags)
     if (critter == gDude && (flags & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
         critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
 
-        int v5;
-        int v4;
-        _intface_get_item_states(&v5, &v4);
-        _intface_update_items(true, v5, v4);
+        int leftItemAction;
+        int rightItemAction;
+        interfaceGetItemActions(&leftItemAction, &rightItemAction);
+        interfaceUpdateItems(true, leftItemAction, rightItemAction);
     } else {
         critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
     }

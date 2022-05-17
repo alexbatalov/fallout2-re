@@ -230,7 +230,7 @@ int gInterfaceLastRenderedArmorClass = 0;
 int gIndicatorSlots[INDICATOR_SLOTS_COUNT];
 
 // 0x5970F8
-STRUCT_5970F8 _itemButtonItems[HAND_COUNT];
+InterfaceItemState gInterfaceItemStates[HAND_COUNT];
 
 // 0x597128
 CacheEntry* gYellowLightFrmHandle;
@@ -590,8 +590,8 @@ int interfaceInit()
 
     // FIXME: For unknown reason these values initialized with -1. It's never
     // checked for -1, so I have no explanation for this.
-    _itemButtonItems[HAND_LEFT].item = (Object*)-1;
-    _itemButtonItems[HAND_RIGHT].item = (Object*)-1;
+    gInterfaceItemStates[HAND_LEFT].item = (Object*)-1;
+    gInterfaceItemStates[HAND_RIGHT].item = (Object*)-1;
 
     displayMonitorInit();
 
@@ -862,7 +862,7 @@ int interfaceLoad(File* stream)
 
     gInterfaceCurrentHand = interfaceCurrentHand;
 
-    _intface_update_items(false, -1, -1);
+    interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
 
     if (interfaceBarEndButtonsIsVisible != gInterfaceBarEndButtonsIsVisible) {
         if (interfaceBarEndButtonsIsVisible) {
@@ -903,7 +903,7 @@ void _intface_show()
 {
     if (gInterfaceBarWindow != -1) {
         if (_intfaceHidden) {
-            _intface_update_items(false, -1, -1);
+            interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             interfaceRenderHitPoints(false);
             interfaceRenderArmorClass(false);
             windowUnhide(gInterfaceBarWindow);
@@ -924,7 +924,7 @@ void interfaceBarEnable()
         buttonEnable(gPipboyButton);
         buttonEnable(gCharacterButton);
 
-        if (_itemButtonItems[gInterfaceCurrentHand].isDisabled == 0) {
+        if (gInterfaceItemStates[gInterfaceCurrentHand].isDisabled == 0) {
             buttonEnable(gSingleAttackButton);
         }
 
@@ -947,7 +947,7 @@ void interfaceBarDisable()
         buttonDisable(gMapButton);
         buttonDisable(gPipboyButton);
         buttonDisable(gCharacterButton);
-        if (_itemButtonItems[gInterfaceCurrentHand].isDisabled == 0) {
+        if (gInterfaceItemStates[gInterfaceCurrentHand].isDisabled == 0) {
             buttonDisable(gSingleAttackButton);
         }
         buttonDisable(gEndTurnButton);
@@ -966,7 +966,7 @@ bool interfaceBarEnabled()
 void interfaceBarRefresh()
 {
     if (gInterfaceBarWindow != -1) {
-        _intface_update_items(false, -1, -1);
+        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         interfaceRenderHitPoints(false);
         interfaceRenderArmorClass(false);
         indicatorBarRefresh();
@@ -1124,18 +1124,18 @@ int interfaceGetCurrentHitMode(int* hitMode, bool* aiming)
 
     *aiming = false;
 
-    switch (_itemButtonItems[gInterfaceCurrentHand].field_10) {
-    case INTERFACE_ACTION_PRIMARY_AIMING:
+    switch (gInterfaceItemStates[gInterfaceCurrentHand].action) {
+    case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
         *aiming = true;
         // FALLTHROUGH
-    case INTERFACE_ACTION_PRIMARY:
-        *hitMode = _itemButtonItems[gInterfaceCurrentHand].primaryHitMode;
+    case INTERFACE_ITEM_ACTION_PRIMARY:
+        *hitMode = gInterfaceItemStates[gInterfaceCurrentHand].primaryHitMode;
         return 0;
-    case INTERFACE_ACTION_SECONDARY_AIMING:
+    case INTERFACE_ITEM_ACTION_SECONDARY_AIMING:
         *aiming = true;
         // FALLTHROUGH
-    case INTERFACE_ACTION_SECONDARY:
-        *hitMode = _itemButtonItems[gInterfaceCurrentHand].secondaryHitMode;
+    case INTERFACE_ITEM_ACTION_SECONDARY:
+        *hitMode = gInterfaceItemStates[gInterfaceCurrentHand].secondaryHitMode;
         return 0;
     }
 
@@ -1143,50 +1143,49 @@ int interfaceGetCurrentHitMode(int* hitMode, bool* aiming)
 }
 
 // 0x45EFEC
-int _intface_update_items(bool a1, int a2, int a3)
+int interfaceUpdateItems(bool animated, int leftItemAction, int rightItemAction)
 {
-    bool v33 = a1;
     if (isoIsDisabled()) {
-        v33 = false;
+        animated = false;
     }
 
     if (gInterfaceBarWindow == -1) {
         return -1;
     }
 
-    Object* oldItem = _itemButtonItems[gInterfaceCurrentHand].item;
+    Object* oldCurrentItem = gInterfaceItemStates[gInterfaceCurrentHand].item;
 
-    STRUCT_5970F8* p1 = &(_itemButtonItems[HAND_LEFT]);
+    InterfaceItemState* leftItemState = &(gInterfaceItemStates[HAND_LEFT]);
     Object* item1 = critterGetItem1(gDude);
-    if (item1 == p1->item && p1->item != NULL) {
-        if (p1->item != NULL) {
-            p1->isDisabled = _can_use_weapon(item1);
-            p1->itemFid = itemGetInventoryFid(item1);
+    if (item1 == leftItemState->item && leftItemState->item != NULL) {
+        if (leftItemState->item != NULL) {
+            leftItemState->isDisabled = _can_use_weapon(item1);
+            leftItemState->itemFid = itemGetInventoryFid(item1);
         }
     } else {
-        p1->item = item1;
+        leftItemState->item = item1;
         if (item1 != NULL) {
-            p1->isDisabled = _can_use_weapon(item1);
-            p1->primaryHitMode = HIT_MODE_LEFT_WEAPON_PRIMARY;
-            p1->secondaryHitMode = HIT_MODE_LEFT_WEAPON_SECONDARY;
-            p1->isWeapon = itemGetType(item1) == ITEM_TYPE_WEAPON;
+            leftItemState->isDisabled = _can_use_weapon(item1);
+            leftItemState->primaryHitMode = HIT_MODE_LEFT_WEAPON_PRIMARY;
+            leftItemState->secondaryHitMode = HIT_MODE_LEFT_WEAPON_SECONDARY;
+            leftItemState->isWeapon = itemGetType(item1) == ITEM_TYPE_WEAPON;
 
-            if (a2 == -1) {
-                if (p1->isWeapon != 0) {
-                    p1->field_10 = INTERFACE_ACTION_PRIMARY;
+            if (leftItemAction == INTERFACE_ITEM_ACTION_DEFAULT) {
+                if (leftItemState->isWeapon != 0) {
+                    leftItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
                 } else {
-                    p1->field_10 = INTERFACE_ACTION_USE;
+                    leftItemState->action = INTERFACE_ITEM_ACTION_USE;
                 }
             } else {
-                p1->field_10 = a2;
+                leftItemState->action = leftItemAction;
             }
 
-            p1->itemFid = itemGetInventoryFid(item1);
+            leftItemState->itemFid = itemGetInventoryFid(item1);
         } else {
-            p1->isDisabled = 0;
-            p1->isWeapon = 1;
-            p1->field_10 = INTERFACE_ACTION_PRIMARY;
-            p1->itemFid = -1;
+            leftItemState->isDisabled = 0;
+            leftItemState->isWeapon = 1;
+            leftItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
+            leftItemState->itemFid = -1;
 
             int unarmed = skillGetValue(gDude, SKILL_UNARMED);
             int agility = critterGetStat(gDude, STAT_AGILITY);
@@ -1194,59 +1193,59 @@ int _intface_update_items(bool a1, int a2, int a3)
             int level = pcGetStat(PC_STAT_LEVEL);
 
             if (unarmed > 99 && agility > 6 && strength > 4 && level > 8) {
-                p1->primaryHitMode = HIT_MODE_HAYMAKER;
+                leftItemState->primaryHitMode = HIT_MODE_HAYMAKER;
             } else if (unarmed > 74 && agility > 5 && strength > 4 && level > 5) {
-                p1->primaryHitMode = HIT_MODE_HAMMER_PUNCH;
+                leftItemState->primaryHitMode = HIT_MODE_HAMMER_PUNCH;
             } else if (unarmed > 54 && agility > 5) {
-                p1->primaryHitMode = HIT_MODE_STRONG_PUNCH;
+                leftItemState->primaryHitMode = HIT_MODE_STRONG_PUNCH;
             } else {
-                p1->primaryHitMode = HIT_MODE_PUNCH;
+                leftItemState->primaryHitMode = HIT_MODE_PUNCH;
             }
 
             if (unarmed > 129 && agility > 6 && strength > 4 && level > 15) {
-                p1->secondaryHitMode = HIT_MODE_PIERCING_STRIKE;
+                leftItemState->secondaryHitMode = HIT_MODE_PIERCING_STRIKE;
             } else if (unarmed > 114 && agility > 6 && strength > 4 && level > 11) {
-                p1->secondaryHitMode = HIT_MODE_PALM_STRIKE;
+                leftItemState->secondaryHitMode = HIT_MODE_PALM_STRIKE;
             } else if (unarmed > 74 && agility > 6 && strength > 4 && level > 4) {
-                p1->secondaryHitMode = HIT_MODE_JAB;
+                leftItemState->secondaryHitMode = HIT_MODE_JAB;
             } else {
-                p1->secondaryHitMode = HIT_MODE_PUNCH;
+                leftItemState->secondaryHitMode = HIT_MODE_PUNCH;
             }
         }
     }
 
-    STRUCT_5970F8* p2 = &(_itemButtonItems[HAND_RIGHT]);
+    InterfaceItemState* rightItemState = &(gInterfaceItemStates[HAND_RIGHT]);
 
     Object* item2 = critterGetItem2(gDude);
-    if (item2 == p2->item && p2->item != NULL) {
-        if (p2->item != NULL) {
-            p2->isDisabled = _can_use_weapon(p2->item);
-            p2->itemFid = itemGetInventoryFid(p2->item);
+    if (item2 == rightItemState->item && rightItemState->item != NULL) {
+        if (rightItemState->item != NULL) {
+            rightItemState->isDisabled = _can_use_weapon(rightItemState->item);
+            rightItemState->itemFid = itemGetInventoryFid(rightItemState->item);
         }
     } else {
-        p2->item = item2;
+        rightItemState->item = item2;
 
         if (item2 != NULL) {
-            p2->isDisabled = _can_use_weapon(item2);
-            p2->primaryHitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
-            p2->secondaryHitMode = HIT_MODE_RIGHT_WEAPON_SECONDARY;
-            p2->isWeapon = itemGetType(item2) == ITEM_TYPE_WEAPON;
+            rightItemState->isDisabled = _can_use_weapon(item2);
+            rightItemState->primaryHitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
+            rightItemState->secondaryHitMode = HIT_MODE_RIGHT_WEAPON_SECONDARY;
+            rightItemState->isWeapon = itemGetType(item2) == ITEM_TYPE_WEAPON;
 
-            if (a3 == -1) {
-                if (p2->isWeapon != 0) {
-                    p2->field_10 = INTERFACE_ACTION_PRIMARY;
+            if (rightItemAction == INTERFACE_ITEM_ACTION_DEFAULT) {
+                if (rightItemState->isWeapon != 0) {
+                    rightItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
                 } else {
-                    p2->field_10 = INTERFACE_ACTION_USE;
+                    rightItemState->action = INTERFACE_ITEM_ACTION_USE;
                 }
             } else {
-                p2->field_10 = a3;
+                rightItemState->action = rightItemAction;
             }
-            p2->itemFid = itemGetInventoryFid(item2);
+            rightItemState->itemFid = itemGetInventoryFid(item2);
         } else {
-            p2->isDisabled = 0;
-            p2->isWeapon = 1;
-            p2->field_10 = INTERFACE_ACTION_PRIMARY;
-            p2->itemFid = -1;
+            rightItemState->isDisabled = 0;
+            rightItemState->isWeapon = 1;
+            rightItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
+            rightItemState->itemFid = -1;
 
             int unarmed = skillGetValue(gDude, SKILL_UNARMED);
             int agility = critterGetStat(gDude, STAT_AGILITY);
@@ -1254,34 +1253,34 @@ int _intface_update_items(bool a1, int a2, int a3)
             int level = pcGetStat(PC_STAT_LEVEL);
 
             if (unarmed > 79 && agility > 5 && strength > 5 && level > 8) {
-                p2->primaryHitMode = HIT_MODE_POWER_KICK;
+                rightItemState->primaryHitMode = HIT_MODE_POWER_KICK;
             } else if (unarmed > 59 && agility > 5 && level > 5) {
-                p2->primaryHitMode = HIT_MODE_SNAP_KICK;
+                rightItemState->primaryHitMode = HIT_MODE_SNAP_KICK;
             } else if (unarmed > 39 && agility > 5) {
-                p2->primaryHitMode = HIT_MODE_STRONG_KICK;
+                rightItemState->primaryHitMode = HIT_MODE_STRONG_KICK;
             } else {
-                p2->primaryHitMode = HIT_MODE_KICK;
+                rightItemState->primaryHitMode = HIT_MODE_KICK;
             }
 
             if (unarmed > 124 && agility > 7 && strength > 5 && level > 14) {
-                p2->secondaryHitMode = HIT_MODE_PIERCING_KICK;
+                rightItemState->secondaryHitMode = HIT_MODE_PIERCING_KICK;
             } else if (unarmed > 99 && agility > 6 && strength > 5 && level > 11) {
-                p2->secondaryHitMode = HIT_MODE_HOOK_KICK;
+                rightItemState->secondaryHitMode = HIT_MODE_HOOK_KICK;
             } else if (unarmed > 59 && agility > 6 && strength > 5 && level > 5) {
-                p2->secondaryHitMode = HIT_MODE_HIP_KICK;
+                rightItemState->secondaryHitMode = HIT_MODE_HIP_KICK;
             } else {
-                p2->secondaryHitMode = HIT_MODE_KICK;
+                rightItemState->secondaryHitMode = HIT_MODE_KICK;
             }
         }
     }
 
-    if (v33) {
-        STRUCT_5970F8* p = &(_itemButtonItems[gInterfaceCurrentHand]);
-        if (p->item != oldItem) {
+    if (animated) {
+        Object* newCurrentItem = gInterfaceItemStates[gInterfaceCurrentHand].item;
+        if (newCurrentItem != oldCurrentItem) {
             int animationCode = 0;
-            if (p->item != NULL) {
-                if (itemGetType(p->item) == ITEM_TYPE_WEAPON) {
-                    animationCode = weaponGetAnimationCode(p->item);
+            if (newCurrentItem != NULL) {
+                if (itemGetType(newCurrentItem) == ITEM_TYPE_WEAPON) {
+                    animationCode = weaponGetAnimationCode(newCurrentItem);
                 }
             }
 
@@ -1306,7 +1305,7 @@ int interfaceBarSwapHands(bool animated)
     gInterfaceCurrentHand = 1 - gInterfaceCurrentHand;
 
     if (animated) {
-        Object* item = _itemButtonItems[gInterfaceCurrentHand].item;
+        Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
         int animationCode = 0;
         if (item != NULL) {
             if (itemGetType(item) == ITEM_TYPE_WEAPON) {
@@ -1328,64 +1327,64 @@ int interfaceBarSwapHands(bool animated)
 }
 
 // 0x45F4B4
-int _intface_get_item_states(int* a1, int* a2)
+int interfaceGetItemActions(int* leftItemAction, int* rightItemAction)
 {
-    *a1 = _itemButtonItems[HAND_LEFT].field_10;
-    *a2 = _itemButtonItems[HAND_RIGHT].field_10;
+    *leftItemAction = gInterfaceItemStates[HAND_LEFT].action;
+    *rightItemAction = gInterfaceItemStates[HAND_RIGHT].action;
     return 0;
 }
 
 // 0x45F4E0
-int _intface_toggle_item_state()
+int interfaceCycleItemAction()
 {
     if (gInterfaceBarWindow == -1) {
         return -1;
     }
 
-    STRUCT_5970F8* ptr = &(_itemButtonItems[gInterfaceCurrentHand]);
+    InterfaceItemState* itemState = &(gInterfaceItemStates[gInterfaceCurrentHand]);
 
-    int v1 = ptr->field_10;
-    if (ptr->isWeapon != 0) {
+    int oldAction = itemState->action;
+    if (itemState->isWeapon != 0) {
         bool done = false;
         while (!done) {
-            ptr->field_10++;
-            switch (ptr->field_10) {
-            case INTERFACE_ACTION_PRIMARY:
+            itemState->action++;
+            switch (itemState->action) {
+            case INTERFACE_ITEM_ACTION_PRIMARY:
                 done = true;
                 break;
-            case INTERFACE_ACTION_PRIMARY_AIMING:
-                if (_item_w_called_shot(gDude, ptr->primaryHitMode)) {
+            case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
+                if (_item_w_called_shot(gDude, itemState->primaryHitMode)) {
                     done = true;
                 }
                 break;
-            case INTERFACE_ACTION_SECONDARY:
-                if (ptr->secondaryHitMode != HIT_MODE_PUNCH
-                    && ptr->secondaryHitMode != HIT_MODE_KICK
-                    && weaponGetAttackTypeForHitMode(ptr->item, ptr->secondaryHitMode) != ATTACK_TYPE_NONE) {
+            case INTERFACE_ITEM_ACTION_SECONDARY:
+                if (itemState->secondaryHitMode != HIT_MODE_PUNCH
+                    && itemState->secondaryHitMode != HIT_MODE_KICK
+                    && weaponGetAttackTypeForHitMode(itemState->item, itemState->secondaryHitMode) != ATTACK_TYPE_NONE) {
                     done = true;
                 }
                 break;
-            case INTERFACE_ACTION_SECONDARY_AIMING:
-                if (ptr->secondaryHitMode != HIT_MODE_PUNCH
-                    && ptr->secondaryHitMode != HIT_MODE_KICK
-                    && weaponGetAttackTypeForHitMode(ptr->item, ptr->secondaryHitMode) != ATTACK_TYPE_NONE
-                    && _item_w_called_shot(gDude, ptr->secondaryHitMode)) {
+            case INTERFACE_ITEM_ACTION_SECONDARY_AIMING:
+                if (itemState->secondaryHitMode != HIT_MODE_PUNCH
+                    && itemState->secondaryHitMode != HIT_MODE_KICK
+                    && weaponGetAttackTypeForHitMode(itemState->item, itemState->secondaryHitMode) != ATTACK_TYPE_NONE
+                    && _item_w_called_shot(gDude, itemState->secondaryHitMode)) {
                     done = true;
                 }
                 break;
-            case INTERFACE_ACTION_RELOAD:
-                if (ammoGetCapacity(ptr->item) != ammoGetQuantity(ptr->item)) {
+            case INTERFACE_ITEM_ACTION_RELOAD:
+                if (ammoGetCapacity(itemState->item) != ammoGetQuantity(itemState->item)) {
                     done = true;
                 }
                 break;
-            case INTERFACE_ACTION_COUNT:
-                ptr->field_10 = INTERFACE_ACTION_USE;
+            case INTERFACE_ITEM_ACTION_COUNT:
+                itemState->action = INTERFACE_ITEM_ACTION_USE;
                 break;
             }
         }
     }
 
-    if (v1 != ptr->field_10) {
+    if (oldAction != itemState->action) {
         interfaceBarRefreshMainAction();
     }
 
@@ -1399,10 +1398,10 @@ void _intface_use_item()
         return;
     }
 
-    STRUCT_5970F8* ptr = &(_itemButtonItems[gInterfaceCurrentHand]);
+    InterfaceItemState* ptr = &(gInterfaceItemStates[gInterfaceCurrentHand]);
 
     if (ptr->isWeapon != 0) {
-        if (ptr->field_10 == INTERFACE_ACTION_RELOAD) {
+        if (ptr->action == INTERFACE_ITEM_ACTION_RELOAD) {
             if (isInCombat()) {
                 int hitMode = gInterfaceCurrentHand == HAND_LEFT
                     ? HIT_MODE_LEFT_WEAPON_RELOAD
@@ -1437,7 +1436,7 @@ void _intface_use_item()
             int actionPointsRequired = _item_mp_cost(gDude, ptr->secondaryHitMode, false);
             if (actionPointsRequired <= gDude->data.critter.combat.ap) {
                 _obj_use_item(gDude, ptr->item);
-                _intface_update_items(false, -1, -1);
+                interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 if (actionPointsRequired > gDude->data.critter.combat.ap) {
                     gDude->data.critter.combat.ap = 0;
                 } else {
@@ -1448,7 +1447,7 @@ void _intface_use_item()
             }
         } else {
             _obj_use_item(gDude, ptr->item);
-            _intface_update_items(false, -1, -1);
+            interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
     }
 }
@@ -1466,7 +1465,7 @@ int interfaceGetActiveItem(Object** itemPtr)
         return -1;
     }
 
-    *itemPtr = _itemButtonItems[gInterfaceCurrentHand].item;
+    *itemPtr = gInterfaceItemStates[gInterfaceCurrentHand].item;
 
     return 0;
 }
@@ -1478,7 +1477,7 @@ int _intface_update_ammo_lights()
         return -1;
     }
 
-    STRUCT_5970F8* p = &(_itemButtonItems[gInterfaceCurrentHand]);
+    InterfaceItemState* p = &(gInterfaceItemStates[gInterfaceCurrentHand]);
 
     int ratio = 0;
 
@@ -1664,19 +1663,19 @@ int interfaceBarRefreshMainAction()
 
     buttonEnable(gSingleAttackButton);
 
-    STRUCT_5970F8* p = &(_itemButtonItems[gInterfaceCurrentHand]);
+    InterfaceItemState* itemState = &(gInterfaceItemStates[gInterfaceCurrentHand]);
     int actionPoints = -1;
 
-    if (p->isDisabled == 0) {
+    if (itemState->isDisabled == 0) {
         memcpy(_itemButtonUp, gSingleAttackButtonUpData, sizeof(_itemButtonUp));
         memcpy(_itemButtonDown, gSingleAttackButtonDownData, sizeof(_itemButtonDown));
 
-        if (p->isWeapon == 0) {
+        if (itemState->isWeapon == 0) {
             int fid;
-            if (_proto_action_can_use_on(p->item->pid)) {
+            if (_proto_action_can_use_on(itemState->item->pid)) {
                 // USE ON
                 fid = buildFid(6, 294, 0, 0, 0);
-            } else if (_obj_action_can_use(p->item)) {
+            } else if (_obj_action_can_use(itemState->item)) {
                 // USE
                 fid = buildFid(6, 292, 0, 0, 0);
             } else {
@@ -1695,7 +1694,7 @@ int interfaceBarRefreshMainAction()
                     artUnlock(useTextFrmHandle);
                 }
 
-                actionPoints = _item_mp_cost(gDude, p->primaryHitMode, false);
+                actionPoints = _item_mp_cost(gDude, itemState->primaryHitMode, false);
             }
         } else {
             int primaryFid = -1;
@@ -1704,20 +1703,20 @@ int interfaceBarRefreshMainAction()
 
             // NOTE: This value is decremented at 0x45FEAC, probably to build
             // jump table.
-            switch (p->field_10) {
-            case INTERFACE_ACTION_PRIMARY_AIMING:
+            switch (itemState->action) {
+            case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
                 bullseyeFid = buildFid(6, 288, 0, 0, 0);
                 // FALLTHROUGH
-            case INTERFACE_ACTION_PRIMARY:
-                hitMode = p->primaryHitMode;
+            case INTERFACE_ITEM_ACTION_PRIMARY:
+                hitMode = itemState->primaryHitMode;
                 break;
-            case INTERFACE_ACTION_SECONDARY_AIMING:
+            case INTERFACE_ITEM_ACTION_SECONDARY_AIMING:
                 bullseyeFid = buildFid(6, 288, 0, 0, 0);
                 // FALLTHROUGH
-            case INTERFACE_ACTION_SECONDARY:
-                hitMode = p->secondaryHitMode;
+            case INTERFACE_ITEM_ACTION_SECONDARY:
+                hitMode = itemState->secondaryHitMode;
                 break;
-            case INTERFACE_ACTION_RELOAD:
+            case INTERFACE_ITEM_ACTION_RELOAD:
                 actionPoints = _item_mp_cost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
                 primaryFid = buildFid(6, 291, 0, 0, 0);
                 break;
@@ -1884,9 +1883,9 @@ int interfaceBarRefreshMainAction()
         memcpy(_itemButtonDown, _itemButtonDisabled, sizeof(_itemButtonDown));
     }
 
-    if (p->itemFid != -1) {
+    if (itemState->itemFid != -1) {
         CacheEntry* itemFrmHandle;
-        Art* itemFrm = artLock(p->itemFid, &itemFrmHandle);
+        Art* itemFrm = artLock(itemState->itemFid, &itemFrmHandle);
         if (itemFrm != NULL) {
             int width = artGetWidth(itemFrm, 0, 0);
             int height = artGetHeight(itemFrm, 0, 0);
@@ -1912,7 +1911,7 @@ int interfaceBarRefreshMainAction()
 
         windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarMainActionRect);
 
-        if (p->isDisabled != 0) {
+        if (itemState->isDisabled != 0) {
             buttonDisable(gSingleAttackButton);
         } else {
             buttonEnable(gSingleAttackButton);
@@ -1953,7 +1952,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
 
     reg_anim_11_1(NULL, NULL, _intface_redraw_items_callback, -1);
 
-    Object* item = _itemButtonItems[gInterfaceCurrentHand].item;
+    Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
     if (item != NULL && item->lightDistance > 4) {
         reg_anim_update_light(gDude, item->lightDistance, 0);
     }
@@ -2163,18 +2162,18 @@ int _intface_item_reload()
     }
 
     bool v0 = false;
-    while (_item_w_try_reload(gDude, _itemButtonItems[gInterfaceCurrentHand].item) != -1) {
+    while (_item_w_try_reload(gDude, gInterfaceItemStates[gInterfaceCurrentHand].item) != -1) {
         v0 = true;
     }
 
-    _intface_toggle_item_state();
-    _intface_update_items(false, -1, -1);
+    interfaceCycleItemAction();
+    interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
 
     if (!v0) {
         return -1;
     }
 
-    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, _itemButtonItems[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, gInterfaceItemStates[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
     soundPlayFile(sfx);
 
     return 0;

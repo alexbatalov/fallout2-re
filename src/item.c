@@ -2363,7 +2363,7 @@ int miscItemTurnOff(Object* item)
     }
 
     if (owner == gDude) {
-        _intface_update_items(false, -1, -1);
+        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
     if (owner == gDude) {

@@ -691,9 +691,9 @@ int _action_ranged(Attack* attack, int anim)
                     weaponFid = weapon->fid;
                     int weaponFlags = weapon->flags;
 
-                    int v46;
-                    int v45;
-                    _intface_get_item_states(&v46, &v45);
+                    int leftItemAction;
+                    int rightItemAction;
+                    interfaceGetItemActions(&leftItemAction, &rightItemAction);
 
                     itemRemove(attack->attacker, weapon, 1);
                     v50 = _item_replace(attack->attacker, weapon, weaponFlags & OBJECT_IN_ANY_HAND);
@@ -703,12 +703,12 @@ int _action_ranged(Attack* attack, int anim)
                     if (attack->attacker == gDude) {
                         if (v50 == NULL) {
                             if ((weaponFlags & OBJECT_IN_LEFT_HAND) != 0) {
-                                v46 = -1;
+                                leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                             } else if ((weaponFlags & OBJECT_IN_RIGHT_HAND) != 0) {
-                                v45 = -1;
+                                rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                             }
                         }
-                        _intface_update_items(false, v46, v45);
+                        interfaceUpdateItems(false, leftItemAction, rightItemAction);
                     }
 
                     _obj_connect(weapon, attack->attacker->tile, attack->attacker->elevation, NULL);

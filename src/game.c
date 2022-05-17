@@ -478,7 +478,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_N:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            _intface_toggle_item_state();
+            interfaceCycleItemAction();
         }
         break;
     case KEY_UPPERCASE_M:

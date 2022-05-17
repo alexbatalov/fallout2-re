@@ -610,7 +610,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
     }
 
     if (v11 <= 2 && critter == gDude) {
-        _intface_update_items(false, -1, -1);
+        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
     return rc;
@@ -1100,20 +1100,20 @@ int _obj_use_item(Object* a1, Object* a2)
             itemRemove(root, a2, 1);
             Object* v8 = _item_replace(root, a2, flags);
             if (root == gDude) {
-                int v12;
-                int v13;
-                _intface_get_item_states(&v12, &v13);
+                int leftItemAction;
+                int rightItemAction;
+                interfaceGetItemActions(&leftItemAction, &rightItemAction);
                 if (v8 == NULL) {
                     if ((flags & OBJECT_IN_LEFT_HAND) != 0) {
-                        v12 = -1;
+                        leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                     } else if ((flags & OBJECT_IN_RIGHT_HAND) != 0) {
-                        v13 = -1;
+                        rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                     } else {
-                        v12 = -1;
-                        v13 = -1;
+                        leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
+                        rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                     }
                 }
-                _intface_update_items(false, v12, v13);
+                interfaceUpdateItems(false, leftItemAction, rightItemAction);
             }
         }
 
@@ -1336,24 +1336,24 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
 
             Object* v7 = _item_replace(a1, a3, flags);
 
-            int v11;
-            int v10;
+            int leftItemAction;
+            int rightItemAction;
             if (a1 == gDude) {
-                _intface_get_item_states(&v11, &v10);
+                interfaceGetItemActions(&leftItemAction, &rightItemAction);
             }
 
             if (v7 == NULL) {
                 if ((flags & OBJECT_IN_LEFT_HAND) != 0) {
-                    v11 = -1;
+                    leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                 } else if ((flags & OBJECT_IN_RIGHT_HAND) != 0) {
-                    v10 = -1;
+                    rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                 } else {
-                    v11 = -1;
-                    v10 = -1;
+                    leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
+                    rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                 }
             }
 
-            _intface_update_items(false, v11, v10);
+            interfaceUpdateItems(false, leftItemAction, rightItemAction);
         }
 
         _obj_destroy(a3);

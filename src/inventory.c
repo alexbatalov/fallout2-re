@@ -454,7 +454,7 @@ void inventoryOpen()
     inventoryCommonFree();
 
     if (_inven_dude == gDude) {
-        _intface_update_items(false, -1, -1);
+        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
 

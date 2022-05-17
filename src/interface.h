@@ -16,15 +16,16 @@ typedef enum Hand {
     HAND_COUNT,
 } Hand;
 
-typedef enum InterfaceAction {
-    INTERFACE_ACTION_USE,
-    INTERFACE_ACTION_PRIMARY,
-    INTERFACE_ACTION_PRIMARY_AIMING,
-    INTERFACE_ACTION_SECONDARY,
-    INTERFACE_ACTION_SECONDARY_AIMING,
-    INTERFACE_ACTION_RELOAD,
-    INTERFACE_ACTION_COUNT,
-} InterfaceAction;
+typedef enum InterfaceItemAction {
+    INTERFACE_ITEM_ACTION_DEFAULT = -1,
+    INTERFACE_ITEM_ACTION_USE,
+    INTERFACE_ITEM_ACTION_PRIMARY,
+    INTERFACE_ITEM_ACTION_PRIMARY_AIMING,
+    INTERFACE_ITEM_ACTION_SECONDARY,
+    INTERFACE_ITEM_ACTION_SECONDARY_AIMING,
+    INTERFACE_ITEM_ACTION_RELOAD,
+    INTERFACE_ITEM_ACTION_COUNT,
+} InterfaceItemAction;
 
 // The values of it's members are offsets to beginning of numbers in
 // numbers.frm.
@@ -71,15 +72,15 @@ typedef struct IndicatorDescription {
     unsigned char* data;
 } IndicatorDescription;
 
-typedef struct STRUCT_5970F8 {
+typedef struct InterfaceItemState {
     Object* item;
     unsigned char isDisabled;
     unsigned char isWeapon;
     int primaryHitMode;
     int secondaryHitMode;
-    int field_10;
+    int action;
     int itemFid;
-} STRUCT_5970F8;
+} InterfaceItemState;
 
 extern bool gInterfaceBarInitialized;
 extern bool gInterfaceBarSwapHandsInProgress;
@@ -136,7 +137,7 @@ extern int gInterfaceLastRenderedHitPointsColor;
 extern int gInterfaceLastRenderedArmorClass;
 
 extern int gIndicatorSlots[INDICATOR_SLOTS_COUNT];
-extern STRUCT_5970F8 _itemButtonItems[HAND_COUNT];
+extern InterfaceItemState gInterfaceItemStates[HAND_COUNT];
 extern CacheEntry* gYellowLightFrmHandle;
 extern CacheEntry* gRedLightFrmHandle;
 extern CacheEntry* gNumbersFrmHandle;
@@ -185,10 +186,10 @@ void interfaceRenderHitPoints(bool animate);
 void interfaceRenderArmorClass(bool animate);
 void interfaceRenderActionPoints(int actionPointsLeft, int bonusActionPoints);
 int interfaceGetCurrentHitMode(int* hitMode, bool* aiming);
-int _intface_update_items(bool a1, int a2, int a3);
+int interfaceUpdateItems(bool animated, int leftItemAction, int rightItemAction);
 int interfaceBarSwapHands(bool animated);
-int _intface_get_item_states(int* a1, int* a2);
-int _intface_toggle_item_state();
+int interfaceGetItemActions(int* leftItemAction, int* rightItemAction);
+int interfaceCycleItemAction();
 void _intface_use_item();
 int interfaceGetCurrentHand();
 int interfaceGetActiveItem(Object** a1);
