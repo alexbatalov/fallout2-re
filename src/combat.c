@@ -4546,40 +4546,40 @@ void _check_for_death(Object* object, int damage, int* flags)
 }
 
 // 0x424F2C
-void _set_new_results(Object* a1, int a2)
+void _set_new_results(Object* critter, int flags)
 {
-    if (a1 == NULL) {
+    if (critter == NULL) {
         return;
     }
 
-    if (((a1->pid & 0xF000000) >> 24) != OBJ_TYPE_CRITTER) {
+    if (((critter->fid & 0xF000000) >> 24) != OBJ_TYPE_CRITTER) {
         return;
     }
 
-    if (_critter_flag_check(a1->pid, 0x0400)) {
+    if (_critter_flag_check(critter->pid, 0x0400)) {
         return;
     }
 
-    if ((a1->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if ((critter->pid >> 24) != OBJ_TYPE_CRITTER) {
         return;
     }
 
-    if ((a2 & DAM_DEAD) != 0) {
-        queueRemoveEvents(a1);
-    } else if ((a2 & DAM_KNOCKED_OUT) != 0) {
-        int endurance = critterGetStat(a1, STAT_ENDURANCE);
-        queueAddEvent(10 * (35 - 3 * endurance), a1, NULL, EVENT_TYPE_KNOCKOUT);
+    if ((flags & DAM_DEAD) != 0) {
+        queueRemoveEvents(critter);
+    } else if ((flags & DAM_KNOCKED_OUT) != 0) {
+        int endurance = critterGetStat(critter, STAT_ENDURANCE);
+        queueAddEvent(10 * (35 - 3 * endurance), critter, NULL, EVENT_TYPE_KNOCKOUT);
     }
 
-    if (a1 == gDude && (a2 & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) == 0) {
-        a1->data.critter.combat.results |= (a2 & 0x80FF);
+    if (critter == gDude && (flags & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
+        critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
 
         int v5;
         int v4;
         _intface_get_item_states(&v5, &v4);
         _intface_update_items(true, v5, v4);
     } else {
-        a1->data.critter.combat.results |= (a2 & 0x80FF);
+        critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
     }
 }
 
