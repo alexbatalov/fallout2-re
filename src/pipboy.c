@@ -1455,20 +1455,21 @@ void pipboyHandleVideoArchive(int a1)
         pipboyWindowCreateButtons(2, _view_page, false);
     } else if (a1 >= 0 && a1 <= _view_page) {
         soundPlayFile("ib1p1xx1");
-        int movie = 2;
 
-        pipboyRenderVideoArchive(movie);
+        pipboyRenderVideoArchive(a1);
 
-        // TODO: Not sure about this loop.
-        for (; movie < 16; movie++) {
-            a1 -= 1;
-            if (gameMovieIsSeen(movie) && (a1 <= 0)) {
-                break;
+        int movie;
+        for (movie = 2; movie < 16; movie++) {
+            if (gameMovieIsSeen(movie)) {
+                a1--;
+                if (a1 <= 0) {
+                    break;
+                }
             }
         }
 
         if (movie <= MOVIE_COUNT) {
-            gameMoviePlay(movie, 11);
+            gameMoviePlay(movie, GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC);
         } else {
             debugPrint("\n ** Selected movie not found in list! **\n");
         }
