@@ -796,7 +796,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
         return -1;
     }
 
-    if (flare->flags & 0x2000) {
+    if ((flare->flags & OBJECT_FLAG_0x2000) != 0) {
         if (critter_obj == gDude) {
             // The flare is already lit.
             messageListItem.num = 588;
@@ -854,7 +854,7 @@ int _obj_use_explosive(Object* explosive)
         return -1;
     }
 
-    if (explosive->flags & 0x2000) {
+    if ((explosive->flags & OBJECT_FLAG_0x2000) != 0) {
         // The timer is already ticking.
         messageListItem.num = 590;
         if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
@@ -1096,17 +1096,17 @@ int _obj_use_item(Object* a1, Object* a2)
     if (rc == 1 || rc == 2) {
         Object* root = objectGetOwner(a2);
         if (root != NULL) {
-            int v14 = a2->flags & 0x3000000;
+            int flags = a2->flags & OBJECT_IN_ANY_HAND;
             itemRemove(root, a2, 1);
-            Object* v8 = _item_replace(root, a2, v14);
+            Object* v8 = _item_replace(root, a2, flags);
             if (root == gDude) {
                 int v12;
                 int v13;
                 _intface_get_item_states(&v12, &v13);
                 if (v8 == NULL) {
-                    if ((v14 & 0x1000000) != 0) {
+                    if ((flags & OBJECT_IN_LEFT_HAND) != 0) {
                         v12 = -1;
-                    } else if ((v14 & 0x2000000) != 0) {
+                    } else if ((flags & OBJECT_IN_RIGHT_HAND) != 0) {
                         v13 = -1;
                     } else {
                         v12 = -1;
@@ -1331,10 +1331,10 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
 
     if (rc == 1) {
         if (a1 != NULL) {
-            int v5 = a3->flags & 0x3000000;
+            int flags = a3->flags & OBJECT_IN_ANY_HAND;
             itemRemove(a1, a3, 1);
 
-            Object* v7 = _item_replace(a1, a3, v5);
+            Object* v7 = _item_replace(a1, a3, flags);
 
             int v11;
             int v10;
@@ -1343,9 +1343,9 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
             }
 
             if (v7 == NULL) {
-                if ((v5 & 0x1000000) != 0) {
+                if ((flags & OBJECT_IN_LEFT_HAND) != 0) {
                     v11 = -1;
-                } else if ((v5 & 0x2000000) != 0) {
+                } else if ((flags & OBJECT_IN_RIGHT_HAND) != 0) {
                     v10 = -1;
                 } else {
                     v11 = -1;
@@ -1593,7 +1593,7 @@ int _set_door_state_closed(Object* a1, Object* a2)
 int _check_door_state(Object* a1, Object* a2)
 {
     if ((a1->data.scenery.door.openFlags & 0x01) == 0) {
-        a1->flags &= ~0xA0000010;
+        a1->flags &= ~OBJECT_OPEN_DOOR;
 
         _obj_rebuild_all_light();
         tileWindowRefresh();
@@ -1628,7 +1628,7 @@ int _check_door_state(Object* a1, Object* a2)
         artUnlock(artHandle);
         return 0;
     } else {
-        a1->flags |= 0xA0000010;
+        a1->flags |= OBJECT_OPEN_DOOR;
 
         _obj_rebuild_all_light();
         tileWindowRefresh();

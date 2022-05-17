@@ -342,7 +342,7 @@ int partyMemberAdd(Object* object)
     partyMember->vars = NULL;
 
     object->id = (object->pid & 0xFFFFFF) + 18000;
-    object->flags |= 0x0404;
+    object->flags |= (OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
 
     gPartyMembersLength++;
 
@@ -400,7 +400,7 @@ int partyMemberRemove(Object* object)
         gPartyMembers[index].object = gPartyMembers[gPartyMembersLength - 1].object;
     }
 
-    object->flags &= ~(0x404);
+    object->flags &= ~(OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
 
     gPartyMembersLength--;
 
@@ -429,7 +429,7 @@ int _partyMemberPrepSave()
         STRUCT_519DA8* ptr = &(gPartyMembers[index]);
 
         if (index > 0) {
-            ptr->object->flags &= ~0x0404;
+            ptr->object->flags &= ~(OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
         }
 
         Script* script;
@@ -448,7 +448,7 @@ int _partyMemberUnPrepSave()
         STRUCT_519DA8* ptr = &(gPartyMembers[index]);
 
         if (index > 0) {
-            ptr->object->flags |= 0x0404;
+            ptr->object->flags |= (OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
         }
 
         Script* script;
@@ -749,7 +749,7 @@ int _partyMemberSyncPosition()
     for (int index = 1; index < gPartyMembersLength; index++) {
         STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
         Object* partyMemberObj = partyMember->object;
-        if ((partyMemberObj->flags & 0x01) == 0 && (partyMemberObj->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if ((partyMemberObj->flags & OBJECT_HIDDEN) == 0 && (partyMemberObj->pid >> 24) == OBJ_TYPE_CRITTER) {
             int rotation;
             if ((n % 2) != 0) {
                 rotation = clockwiseRotation;
@@ -850,7 +850,7 @@ int _getPartyMemberCount()
     for (int index = 1; index < gPartyMembersLength; index++) {
         Object* object = gPartyMembers[index].object;
 
-        if ((object->pid >> 24) != OBJ_TYPE_CRITTER || critterIsDead(object) || (object->flags & 1) != 0) {
+        if ((object->pid >> 24) != OBJ_TYPE_CRITTER || critterIsDead(object) || (object->flags & OBJECT_HIDDEN) != 0) {
             count--;
         }
     }
@@ -1110,7 +1110,7 @@ Object* partyMemberGetBestInSkill(int skill)
 
     for (int index = 0; index < gPartyMembersLength; index++) {
         Object* object = gPartyMembers[index].object;
-        if ((object->flags & 1) == 0 && (object->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if ((object->flags & OBJECT_HIDDEN) == 0 && (object->pid >> 24) == OBJ_TYPE_CRITTER) {
             int value = skillGetValue(object, skill);
             if (value > bestValue) {
                 bestValue = value;
@@ -1131,7 +1131,7 @@ int partyGetBestSkillValue(int skill)
 
     for (int index = 0; index < gPartyMembersLength; index++) {
         Object* object = gPartyMembers[index].object;
-        if ((object->flags & 1) == 0 && (object->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if ((object->flags & OBJECT_HIDDEN) == 0 && (object->pid >> 24) == OBJ_TYPE_CRITTER) {
             int value = skillGetValue(object, skill);
             if (value > bestValue) {
                 bestValue = value;
@@ -1581,7 +1581,7 @@ bool partyIsAnyoneCanBeHealedByRest()
 
         if ((object->pid >> 24) != OBJ_TYPE_CRITTER) continue;
         if (critterIsDead(object)) continue;
-        if ((object->flags & 0x01) != 0) continue;
+        if ((object->flags & OBJECT_HIDDEN) != 0) continue;
         if (critterGetKillType(object) == KILL_TYPE_ROBOT) continue;
 
         int currentHp = critterGetHitPoints(object);
@@ -1608,7 +1608,7 @@ int partyGetMaxWoundToHealByRest()
 
         if ((object->pid >> 24) != OBJ_TYPE_CRITTER) continue;
         if (critterIsDead(object)) continue;
-        if ((object->flags & 0x01) != 0) continue;
+        if ((object->flags & OBJECT_HIDDEN) != 0) continue;
         if (critterGetKillType(object) == KILL_TYPE_ROBOT) continue;
 
         int currentHp = critterGetHitPoints(object);

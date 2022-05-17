@@ -1682,7 +1682,7 @@ int _make_straight_path_func(Object* a1, int from, int to, STRUCT_530014_28* a4,
     if (a5 != NULL) {
         Object* v11 = a7(a1, from, a1->elevation);
         if (v11 != NULL) {
-            if (v11 != *a5 && (a6 != 32 || (v11->flags & 0x80000000) == 0)) {
+            if (v11 != *a5 && (a6 != 32 || (v11->flags & OBJECT_FLAG_0x80000000) == 0)) {
                 *a5 = v11;
                 return 0;
             }
@@ -1774,7 +1774,7 @@ int _make_straight_path_func(Object* a1, int from, int to, STRUCT_530014_28* a4,
                 if (a5 != NULL) {
                     Object* obj = a7(a1, tile, a1->elevation);
                     if (obj != NULL) {
-                        if (obj != *a5 && (a6 != 32 || (obj->flags & 0x80000000) == 0)) {
+                        if (obj != *a5 && (a6 != 32 || (obj->flags & OBJECT_FLAG_0x80000000) == 0)) {
                             *a5 = obj;
                             break;
                         }
@@ -1827,7 +1827,7 @@ int _make_straight_path_func(Object* a1, int from, int to, STRUCT_530014_28* a4,
                 if (a5 != NULL) {
                     Object* obj = a7(a1, tile, a1->elevation);
                     if (obj != NULL) {
-                        if (obj != *a5 && (a6 != 32 || (obj->flags & 0x80000000) == 0)) {
+                        if (obj != *a5 && (a6 != 32 || (obj->flags & OBJECT_FLAG_0x80000000) == 0)) {
                             *a5 = obj;
                             break;
                         }
@@ -1865,18 +1865,17 @@ int _make_straight_path_func(Object* a1, int from, int to, STRUCT_530014_28* a4,
 // 0x4167F8
 int animateMoveObjectToObject(Object* a1, Object* a2, int a3, int anim, int animationSequenceIndex)
 {
-    int v8;
     int v10;
     int v13;
     STRUCT_530014* ptr;
 
-    v8 = a2->flags & 0x01;
-    a2->flags |= 0x01;
+    int hidden = (a2->flags & OBJECT_HIDDEN);
+    a2->flags |= OBJECT_HIDDEN;
 
     v10 = _anim_move(a1, a2->tile, a2->elevation, -1, anim, 0, animationSequenceIndex);
 
-    if (v8 == 0) {
-        a2->flags &= ~0x01;
+    if (hidden == 0) {
+        a2->flags &= ~OBJECT_HIDDEN;
     }
 
     if (v10 == -1) {
@@ -1884,7 +1883,7 @@ int animateMoveObjectToObject(Object* a1, Object* a2, int a3, int anim, int anim
     }
 
     ptr = &(_sad[v10]);
-    v13 = (((a1->flags & 0x0800) != 0) + 1); // TODO: What the hell is this?
+    v13 = (((a1->flags & OBJECT_FLAG_0x800) != 0) + 1); // TODO: What the hell is this?
     ptr->field_1C -= v13;
     if (ptr->field_1C <= 0) {
         ptr->field_20 = -1000;
@@ -2593,7 +2592,7 @@ void _dude_fidget()
         return;
     }
 
-    if ((gDude->flags & 0x01) != 0) {
+    if ((gDude->flags & OBJECT_HIDDEN) != 0) {
         return;
     }
 
@@ -2611,7 +2610,7 @@ void _dude_fidget()
             break;
         }
 
-        if ((object->flags & 0x01) == 0 && ((object->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER && ((object->fid & 0xFF0000) >> 16) == 0 && !critterIsDead(object)) {
+        if ((object->flags & OBJECT_HIDDEN) == 0 && ((object->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER && ((object->fid & 0xFF0000) >> 16) == 0 && !critterIsDead(object)) {
             Rect rect;
             objectGetRect(object, &rect);
 

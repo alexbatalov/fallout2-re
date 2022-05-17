@@ -398,7 +398,7 @@ int _show_death(Object* obj, int anim)
     }
 
     if (_critter_flag_check(obj->pid, 2048) == 0) {
-        obj->flags |= 0x10;
+        obj->flags |= OBJECT_NO_BLOCK;
         if (_obj_toggle_flat(obj, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
         }
@@ -696,15 +696,15 @@ int _action_ranged(Attack* attack, int anim)
                     _intface_get_item_states(&v46, &v45);
 
                     itemRemove(attack->attacker, weapon, 1);
-                    v50 = _item_replace(attack->attacker, weapon, weaponFlags & 0x3000000);
+                    v50 = _item_replace(attack->attacker, weapon, weaponFlags & OBJECT_IN_ANY_HAND);
                     objectSetFid(projectile, projectileProto->fid, NULL);
                     _cAIPrepWeaponItem(attack->attacker, weapon);
 
                     if (attack->attacker == gDude) {
                         if (v50 == NULL) {
-                            if ((weaponFlags & 0x1000000) != 0) {
+                            if ((weaponFlags & OBJECT_IN_LEFT_HAND) != 0) {
                                 v46 = -1;
-                            } else if ((weaponFlags & 0x2000000) != 0) {
+                            } else if ((weaponFlags & OBJECT_IN_RIGHT_HAND) != 0) {
                                 v45 = -1;
                             }
                         }
@@ -1494,7 +1494,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
     }
 
     objectHide(explosion, NULL);
-    explosion->flags |= 0x04;
+    explosion->flags |= OBJECT_TEMPORARY;
 
     objectSetLocation(explosion, tile, elevation, NULL);
 
@@ -1512,7 +1512,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         }
 
         objectHide(adjacentExplosions[rotation], NULL);
-        adjacentExplosions[rotation]->flags |= 0x04;
+        adjacentExplosions[rotation]->flags |= OBJECT_TEMPORARY;
 
         int adjacentTile = tileGetTileInDirection(tile, rotation, 1);
         objectSetLocation(adjacentExplosions[rotation], adjacentTile, elevation, NULL);
@@ -1718,7 +1718,7 @@ int _compute_explosion_damage(int min, int max, Object* a3, int* a4)
     }
 
     if (a4 != NULL) {
-        if ((a3->flags & 0x800) == 0) {
+        if ((a3->flags & OBJECT_FLAG_0x800) == 0) {
             *a4 = v7 / 10;
         }
     }
@@ -1800,7 +1800,7 @@ void _action_dmg(int tile, int elevation, int minDamage, int maxDamage, int dama
 
     objectHide(obj, NULL);
 
-    obj->flags |= 0x04;
+    obj->flags |= OBJECT_TEMPORARY;
 
     objectSetLocation(obj, tile, elevation, NULL);
 
@@ -1885,7 +1885,7 @@ int _compute_dmg_damage(int min, int max, Object* obj, int* a4, int damageType)
     }
 
     if (a4 != NULL) {
-        if (!(obj->flags & (0x08 << 8)) && damageType != 4) {
+        if ((obj->flags & OBJECT_FLAG_0x800) == 0 && damageType != DAMAGE_TYPE_ELECTRICAL) {
             *a4 = v10 / 10;
         }
     }

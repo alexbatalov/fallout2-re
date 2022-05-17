@@ -2963,13 +2963,13 @@ int _gdialog_barter_create_win()
             buttonSetCallbacks(_gdialog_buttons[1], _gsound_med_butt_press, _gsound_med_butt_release);
 
             if (objectCreateWithFidPid(&_peon_table_obj, -1, -1) != -1) {
-                _peon_table_obj->flags |= OBJECT_IS_INVISIBLE;
+                _peon_table_obj->flags |= OBJECT_HIDDEN;
 
                 if (objectCreateWithFidPid(&_barterer_table_obj, -1, -1) != -1) {
-                    _barterer_table_obj->flags |= OBJECT_IS_INVISIBLE;
+                    _barterer_table_obj->flags |= OBJECT_HIDDEN;
 
                     if (objectCreateWithFidPid(&_barterer_temp_obj, gGameDialogSpeaker->fid, -1) != -1) {
-                        _barterer_temp_obj->flags |= OBJECT_IS_INVISIBLE | OBJECT_FLAG_0x04;
+                        _barterer_temp_obj->flags |= OBJECT_HIDDEN | OBJECT_TEMPORARY;
                         _barterer_temp_obj->sid = -1;
                         return 0;
                     }

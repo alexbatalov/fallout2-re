@@ -245,7 +245,7 @@ int itemAdd(Object* owner, Object* itemToAdd, int quantity)
         inventory->items[inventory->length].quantity = quantity;
 
         if (itemToAdd->pid == PROTO_ID_STEALTH_BOY_II) {
-            if ((itemToAdd->flags & 0x03000000) != 0) {
+            if ((itemToAdd->flags & OBJECT_IN_ANY_HAND) != 0) {
                 // NOTE: Uninline.
                 stealthBoyTurnOn(owner);
             }
@@ -350,7 +350,7 @@ int itemRemove(Object* owner, Object* itemToRemove, int quantity)
     }
 
     itemToRemove->owner = NULL;
-    itemToRemove->flags &= ~0x07000000;
+    itemToRemove->flags &= ~OBJECT_EQUIPPED;
 
     return 0;
 }
@@ -515,10 +515,10 @@ int _item_drop_all(Object* critter, int tile)
 
             item->data.item.misc.charges = inventoryItem->quantity;
         } else {
-            if ((item->flags & 0x07000000) != 0) {
+            if ((item->flags & OBJECT_EQUIPPED) != 0) {
                 hasEquippedItems = true;
 
-                if ((item->flags & 0x04000000) != 0) {
+                if ((item->flags & OBJECT_WORN) != 0) {
                     Proto* proto;
                     if (protoGetProto(critter->pid, &proto) == -1) {
                         return -1;
@@ -567,11 +567,11 @@ bool _item_identical(Object* a1, Object* a2)
         return false;
     }
 
-    if (a1->flags & 0x7002000) {
+    if ((a1->flags & (OBJECT_EQUIPPED | OBJECT_FLAG_0x2000)) != 0) {
         return false;
     }
 
-    if (a2->flags & 0x7002000) {
+    if ((a2->flags & (OBJECT_EQUIPPED | OBJECT_FLAG_0x2000)) != 0) {
         return false;
     }
 
@@ -809,17 +809,17 @@ int objectGetCost(Object* obj)
 
     if ((obj->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
         Object* item2 = critterGetItem2(obj);
-        if (item2 != NULL && (item2->flags & 0x02000000) == 0) {
+        if (item2 != NULL && (item2->flags & OBJECT_IN_RIGHT_HAND) == 0) {
             cost += itemGetCost(item2);
         }
 
         Object* item1 = critterGetItem1(obj);
-        if (item1 != NULL && (item1->flags & 0x01000000) == 0) {
+        if (item1 != NULL && (item1->flags & OBJECT_IN_LEFT_HAND) == 0) {
             cost += itemGetCost(item1);
         }
 
         Object* armor = critterGetArmor(obj);
-        if (armor != NULL && (armor->flags & 0x04000000) == 0) {
+        if (armor != NULL && (armor->flags & OBJECT_WORN) == 0) {
             cost += itemGetCost(armor);
         }
     }
@@ -848,21 +848,21 @@ int objectGetInventoryWeight(Object* obj)
     if (((obj->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
         Object* item2 = critterGetItem2(obj);
         if (item2 != NULL) {
-            if ((item2->flags & 0x02000000) == 0) {
+            if ((item2->flags & OBJECT_IN_RIGHT_HAND) == 0) {
                 weight += itemGetWeight(item2);
             }
         }
 
         Object* item1 = critterGetItem1(obj);
         if (item1 != NULL) {
-            if ((item1->flags & 0x01000000) == 0) {
+            if ((item1->flags & OBJECT_IN_LEFT_HAND) == 0) {
                 weight += itemGetWeight(item1);
             }
         }
 
         Object* armor = critterGetArmor(obj);
         if (armor != NULL) {
-            if ((armor->flags & 0x04000000) == 0) {
+            if ((armor->flags & OBJECT_WORN) == 0) {
                 weight += itemGetWeight(armor);
             }
         }
@@ -980,14 +980,14 @@ int _item_queued(Object* obj)
         return false;
     }
 
-    if ((obj->flags & 0x2000) != 0) {
+    if ((obj->flags & OBJECT_FLAG_0x2000) != 0) {
         return true;
     }
 
     Inventory* inventory = &(obj->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        if ((inventoryItem->item->flags & 0x2000) != 0) {
+        if ((inventoryItem->item->flags & OBJECT_FLAG_0x2000) != 0) {
             return true;
         }
 
@@ -2393,11 +2393,11 @@ int _item_m_turn_off_from_queue(Object* obj, void* data)
 // 0x479960
 int stealthBoyTurnOn(Object* object)
 {
-    if ((object->flags & 0x20000) != 0) {
+    if ((object->flags & OBJECT_FLAG_0x20000) != 0) {
         return -1;
     }
 
-    object->flags |= 0x20000;
+    object->flags |= OBJECT_FLAG_0x20000;
 
     Rect rect;
     objectGetRect(object, &rect);
@@ -2419,11 +2419,11 @@ int stealthBoyTurnOff(Object* critter, Object* item)
         return -1;
     }
 
-    if ((critter->flags & 0x20000) == 0) {
+    if ((critter->flags & OBJECT_FLAG_0x20000) == 0) {
         return -1;
     }
 
-    critter->flags &= ~0x20000;
+    critter->flags &= ~OBJECT_FLAG_0x20000;
 
     Rect rect;
     objectGetRect(critter, &rect);

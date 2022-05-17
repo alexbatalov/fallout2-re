@@ -2536,7 +2536,7 @@ void _combat_update_critter_outline_for_los(Object* critter, bool a2)
     } else {
         int v7 = objectGetDistanceBetween(gDude, critter);
         int v8 = critterGetStat(gDude, STAT_PERCEPTION) * 5;
-        if ((critter->flags & 0x020000) != 0) {
+        if ((critter->flags & OBJECT_FLAG_0x20000) != 0) {
             v8 /= 2;
         }
 
@@ -3376,7 +3376,7 @@ bool _check_ranged_miss(Attack* attack)
         while (curr != to) {
             _make_straight_path_func(attack->attacker, curr, to, NULL, &critter, 32, _obj_shoot_blocking_at);
             if (critter != NULL) {
-                if ((critter->flags & 0x80000000) == 0) {
+                if ((critter->flags & OBJECT_FLAG_0x80000000) == 0) {
                     if ((critter->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER) {
                         roll = ROLL_SUCCESS;
                         break;
@@ -3406,7 +3406,7 @@ bool _check_ranged_miss(Attack* attack)
 
     attack->defenderHitLocation = HIT_LOCATION_TORSO;
 
-    if (roll < ROLL_SUCCESS || critter == NULL || (critter->flags & 0x80000000) == 0) {
+    if (roll < ROLL_SUCCESS || critter == NULL || (critter->flags & OBJECT_FLAG_0x80000000) == 0) {
         return false;
     }
 
@@ -3741,7 +3741,7 @@ int attackCompute(Attack* attack)
                 v25 = _obj_blocking_at(NULL, attack->tile, attack->defender->elevation);
             }
 
-            if (v25 != NULL && (v25->flags & 0x80000000) == 0) {
+            if (v25 != NULL && (v25->flags & OBJECT_FLAG_0x80000000) == 0) {
                 attack->attackerFlags |= DAM_HIT;
                 attack->defender = v25;
                 attackComputeDamage(attack, 1, 2);
@@ -3828,7 +3828,7 @@ void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
         if (v11 != NULL
             && (v11->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER
             && (v11->data.critter.combat.results & DAM_DEAD) == 0
-            && (v11->flags & 0x80000000) == 0
+            && (v11->flags & OBJECT_FLAG_0x80000000) == 0
             && !_combat_is_shot_blocked(v11, v11->tile, tile, NULL, NULL)) {
             if (v11 == attack->attacker) {
                 attack->attackerFlags &= ~DAM_HIT;
@@ -4218,7 +4218,7 @@ int attackDetermineToHit(Object* attacker, int tile, Object* defender, int hitLo
         accuracy += _hit_location_penalty[hitLocation] / 2;
     }
 
-    if (defender != NULL && (defender->flags & 0x800) != 0) {
+    if (defender != NULL && (defender->flags & OBJECT_FLAG_0x800) != 0) {
         accuracy += 15;
     }
 
@@ -4400,7 +4400,7 @@ void attackComputeDamage(Attack* attack, int ammoQuantity, int a3)
     }
 
     if (knockbackDistancePtr != NULL
-        && (critter->flags & 0x0800) == 0
+        && (critter->flags & OBJECT_FLAG_0x800) == 0
         && (damageType == DAMAGE_TYPE_EXPLOSION || attack->weapon == NULL || weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode) == ATTACK_TYPE_MELEE)
         && (critter->pid >> 24) == OBJ_TYPE_CRITTER
         && _critter_flag_check(critter->pid, 0x4000) == 0) {
@@ -5662,7 +5662,7 @@ bool _combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
                         if ((a4->data.critter.combat.results & DAM_DEAD) == 0) {
                             *a5 += 1;
 
-                            if ((a4->flags & 0x0800) != 0) {
+                            if ((a4->flags & OBJECT_FLAG_0x800) != 0) {
                                 *a5 += 1;
                             }
                         }
@@ -5670,7 +5670,7 @@ bool _combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
                 }
             }
 
-            if ((v9->flags & 0x0800) != 0) {
+            if ((v9->flags & OBJECT_FLAG_0x800) != 0) {
                 int rotation = tileGetRotationTo(current, to);
                 current = tileGetTileInDirection(current, rotation, 1);
             } else {

@@ -232,7 +232,7 @@ int queueAddEvent(int delay, Object* obj, void* data, int eventType)
     newQueueListNode->data = data;
 
     if (obj != NULL) {
-        obj->flags |= 0x2000; // FIXME: check offsets
+        obj->flags |= OBJECT_FLAG_0x2000;
     }
 
     QueueListNode** v3 = &gQueueListHead;

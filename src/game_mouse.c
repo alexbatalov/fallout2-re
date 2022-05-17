@@ -591,7 +591,7 @@ void gameMouseRefresh()
             gameMouseSetCursor(MOUSE_CURSOR_NONE);
         }
 
-        if ((gGameMouseHexCursor->flags & 0x01) != 0) {
+        if ((gGameMouseHexCursor->flags & OBJECT_HIDDEN) != 0) {
             gameMouseObjectsShow();
         }
 
@@ -603,7 +603,7 @@ void gameMouseRefresh()
         tileWindowRefreshRect(&r1, gElevation);
     }
 
-    if ((gGameMouseHexCursor->flags & 0x01) != 0 || _gmouse_mapper_mode != 0) {
+    if ((gGameMouseHexCursor->flags & OBJECT_HIDDEN) != 0 || _gmouse_mapper_mode != 0) {
         return;
     }
 
@@ -857,7 +857,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
     }
 
     if ((mouseState & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
-        if ((mouseState & MOUSE_EVENT_RIGHT_BUTTON_REPEAT) == 0 && (gGameMouseHexCursor->flags & 0x01) == 0) {
+        if ((mouseState & MOUSE_EVENT_RIGHT_BUTTON_REPEAT) == 0 && (gGameMouseHexCursor->flags & OBJECT_HIDDEN) == 0) {
             gameMouseCycleMode();
         }
         return;
@@ -1211,7 +1211,7 @@ int gameMouseSetCursor(int cursor)
     if (cursor >= FIRST_GAME_MOUSE_ANIMATED_CURSOR) {
         unsigned int tick = _get_time();
 
-        if (!(gGameMouseHexCursor->flags & 1)) {
+        if ((gGameMouseHexCursor->flags & OBJECT_HIDDEN) == 0) {
             gameMouseObjectsHide();
         }
 
@@ -1413,7 +1413,7 @@ int gameMouseSetBouncingCursorFid(int fid)
         v1 |= 2;
     }
 
-    if ((gGameMouseHexCursor->flags & OBJECT_IS_INVISIBLE) == 0) {
+    if ((gGameMouseHexCursor->flags & OBJECT_HIDDEN) == 0) {
         if (v1 == 1) {
             tileWindowRefreshRect(&oldRect, gElevation);
         } else if (v1 == 2) {
@@ -1530,7 +1530,7 @@ void gameMouseObjectsHide()
 // 0x44CEB0
 bool gameMouseObjectsIsVisible()
 {
-    return (gGameMouseHexCursor->flags & OBJECT_IS_INVISIBLE) == 0;
+    return (gGameMouseHexCursor->flags & OBJECT_HIDDEN) == 0;
 }
 
 // 0x44CEC4
@@ -1910,17 +1910,17 @@ int gameMouseObjectsInit()
         return -1;
     }
 
-    gGameMouseBouncingCursor->flags |= 0x20000000;
-    gGameMouseBouncingCursor->flags |= 0x04;
-    gGameMouseBouncingCursor->flags |= 0x0400;
-    gGameMouseBouncingCursor->flags |= 0x80000000;
-    gGameMouseBouncingCursor->flags |= 0x10;
+    gGameMouseBouncingCursor->flags |= OBJECT_FLAG_0x20000000;
+    gGameMouseBouncingCursor->flags |= OBJECT_TEMPORARY;
+    gGameMouseBouncingCursor->flags |= OBJECT_FLAG_0x400;
+    gGameMouseBouncingCursor->flags |= OBJECT_FLAG_0x80000000;
+    gGameMouseBouncingCursor->flags |= OBJECT_NO_BLOCK;
 
-    gGameMouseHexCursor->flags |= 0x0400;
-    gGameMouseHexCursor->flags |= 0x04;
-    gGameMouseHexCursor->flags |= 0x20000000;
-    gGameMouseHexCursor->flags |= 0x80000000;
-    gGameMouseHexCursor->flags |= 0x10;
+    gGameMouseHexCursor->flags |= OBJECT_FLAG_0x400;
+    gGameMouseHexCursor->flags |= OBJECT_TEMPORARY;
+    gGameMouseHexCursor->flags |= OBJECT_FLAG_0x20000000;
+    gGameMouseHexCursor->flags |= OBJECT_FLAG_0x80000000;
+    gGameMouseHexCursor->flags |= OBJECT_NO_BLOCK;
 
     _obj_toggle_flat(gGameMouseHexCursor, NULL);
 
@@ -1973,8 +1973,8 @@ void gameMouseObjectsFree()
     if (gGameMouseObjectsInitialized) {
         gameMouseActionMenuFree();
 
-        gGameMouseBouncingCursor->flags &= ~0x04;
-        gGameMouseHexCursor->flags &= ~0x04;
+        gGameMouseBouncingCursor->flags &= ~OBJECT_TEMPORARY;
+        gGameMouseHexCursor->flags &= ~OBJECT_TEMPORARY;
 
         objectDestroy(gGameMouseBouncingCursor, NULL);
         objectDestroy(gGameMouseHexCursor, NULL);
@@ -2179,7 +2179,7 @@ int _gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
             configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
             if (stricmp(executable, "mapper") == 0) {
                 if (_tile_roof_visible()) {
-                    if ((gDude->flags & OBJECT_IS_INVISIBLE) == 0) {
+                    if ((gDude->flags & OBJECT_HIDDEN) == 0) {
                         y1 = -83;
                     }
                 }

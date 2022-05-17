@@ -809,7 +809,7 @@ void critterKill(Object* critter, int anim, bool a3)
     }
 
     if (!_critter_flag_check(critter->pid, 2048)) {
-        critter->flags |= 0x10;
+        critter->flags |= OBJECT_NO_BLOCK;
         _obj_toggle_flat(critter, &tempRect);
     }
 

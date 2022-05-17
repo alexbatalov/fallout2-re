@@ -2102,12 +2102,12 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
 
     Object* v18 = a2;
 
-    bool v19;
+    bool shouldUnhide;
     if ((a2->flags & 0x800) != 0) {
-        v19 = true;
-        a2->flags |= 0x01;
+        shouldUnhide = true;
+        a2->flags |= OBJECT_HIDDEN;
     } else {
-        v19 = false;
+        shouldUnhide = false;
     }
 
     if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_blocking_at) == 0) {
@@ -2115,22 +2115,22 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_ai_blocking_at) == 0
             && _moveBlockObj != NULL
             && (_moveBlockObj->pid >> 24) == OBJ_TYPE_CRITTER) {
-            if (v19) {
-                a2->flags &= ~0x01;
+            if (shouldUnhide) {
+                a2->flags &= ~OBJECT_HIDDEN;
             }
 
             a2 = _moveBlockObj;
             if ((a2->flags & 0x800) != 0) {
-                v19 = true;
-                a2->flags |= 0x01;
+                shouldUnhide = true;
+                a2->flags |= OBJECT_HIDDEN;
             } else {
-                v19 = false;
+                shouldUnhide = false;
             }
         }
     }
 
-    if (v19) {
-        a2->flags &= ~0x01;
+    if (shouldUnhide) {
+        a2->flags &= ~OBJECT_HIDDEN;
     }
 
     int tile = a2->tile;
@@ -2139,13 +2139,13 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
     }
 
     if (actionPoints >= critterGetStat(a1, STAT_MAXIMUM_ACTION_POINTS) / 2 && artCritterFidShouldRun(a1->fid)) {
-        if ((a2->flags & 0x800) != 0) {
+        if ((a2->flags & OBJECT_FLAG_0x800) != 0) {
             reg_anim_obj_run_to_obj(a1, a2, actionPoints, 0);
         } else {
             reg_anim_obj_run_to_tile(a1, tile, a1->elevation, actionPoints, 0);
         }
     } else {
-        if ((a2->flags & 0x800) != 0) {
+        if ((a2->flags & OBJECT_FLAG_0x800) != 0) {
             reg_anim_obj_move_to_obj(a1, a2, actionPoints, 0);
         } else {
             reg_anim_obj_move_to_tile(a1, tile, a1->elevation, actionPoints, 0);
@@ -2852,7 +2852,7 @@ bool _combatai_want_to_join(Object* a1)
 {
     _process_bk();
 
-    if ((a1->flags & 0x01) != 0) {
+    if ((a1->flags & OBJECT_HIDDEN) != 0) {
         return false;
     }
 
@@ -3194,7 +3194,7 @@ bool objectCanHearObject(Object* a1, Object* a2)
     int sneak = skillGetValue(a2, SKILL_SNEAK);
     if (_can_see(a1, a2)) {
         int v8 = perception * 5;
-        if ((a2->flags & 0x20000) != 0) {
+        if ((a2->flags & OBJECT_FLAG_0x20000) != 0) {
             v8 /= 2;
         }
 

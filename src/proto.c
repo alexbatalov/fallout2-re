@@ -778,12 +778,12 @@ int _proto_dude_init(const char* path)
     _proto_dude_update_gender();
     _inven_reset_dude();
 
-    if (gDude->flags & 0x08) {
+    if ((gDude->flags & OBJECT_FLAG_0x08) != 0) {
         _obj_toggle_flat(gDude, NULL);
     }
 
-    if (gDude->flags & 0x10) {
-        gDude->flags &= ~(0x10);
+    if ((gDude->flags & OBJECT_NO_BLOCK) != 0) {
+        gDude->flags &= ~OBJECT_NO_BLOCK;
     }
 
     critterUpdateDerivedStats(gDude);
@@ -1175,7 +1175,7 @@ void protoReset()
 
     gDude->pid = 0x1000000;
     gDude->sid = -1;
-    gDude->flags &= 0xFFF03FFF;
+    gDude->flags &= ~OBJECT_FLAG_0xFC000;
 
     for (i = 0; i < 6; i++) {
         _proto_remove_list(i);

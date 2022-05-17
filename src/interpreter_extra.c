@@ -1003,7 +1003,7 @@ void opDestroyObject(Program* program)
 
         if (isSelf) {
             object->sid = -1;
-            object->flags |= 0x05;
+            object->flags |= (OBJECT_HIDDEN | OBJECT_TEMPORARY);
         } else {
             reg_anim_clear(object);
             objectDestroy(object, NULL);
@@ -2006,17 +2006,17 @@ void opRemoveObjectFromInventory(Program* program)
     bool updateFlags = false;
     int flags = 0;
 
-    if ((item->flags & 0x7000000) != 0) {
-        if ((item->flags & 0x1000000) != 0) {
-            flags |= 0x1000000;
+    if ((item->flags & OBJECT_EQUIPPED) != 0) {
+        if ((item->flags & OBJECT_IN_LEFT_HAND) != 0) {
+            flags |= OBJECT_IN_LEFT_HAND;
         }
 
-        if ((item->flags & 0x2000000) != 0) {
-            flags |= 0x2000000;
+        if ((item->flags & OBJECT_IN_RIGHT_HAND) != 0) {
+            flags |= OBJECT_IN_RIGHT_HAND;
         }
 
-        if ((item->flags & 0x4000000) != 0) {
-            flags |= 0x4000000;
+        if ((item->flags & OBJECT_WORN) != 0) {
+            flags |= OBJECT_WORN;
         }
 
         updateFlags = true;
@@ -2239,13 +2239,13 @@ void opAttackComplex(Program* program)
         return;
     }
 
-    if (!critterIsActive(self) || (self->flags & 0x01) != 0) {
+    if (!critterIsActive(self) || (self->flags & OBJECT_HIDDEN) != 0) {
         debugPrint("\n   But is already Inactive (Dead/Stunned/Invisible)");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
 
-    if (!critterIsActive(target) || (target->flags & 0x01) != 0) {
+    if (!critterIsActive(target) || (target->flags & OBJECT_HIDDEN) != 0) {
         debugPrint("\n   But target is already dead or invisible");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
@@ -2574,7 +2574,7 @@ void opSetObjectVisibility(Program* program)
     }
 
     if (invisible != 0) {
-        if ((obj->flags & OBJECT_IS_INVISIBLE) == 0) {
+        if ((obj->flags & OBJECT_HIDDEN) == 0) {
             if (isInCombat()) {
                 objectDisableOutline(obj, NULL);
                 objectClearOutline(obj, NULL);
@@ -2583,16 +2583,16 @@ void opSetObjectVisibility(Program* program)
             Rect rect;
             if (objectHide(obj, &rect) != -1) {
                 if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
-                    obj->flags |= OBJECT_IS_INVISIBLE_BY_SCRIPT;
+                    obj->flags |= OBJECT_NO_BLOCK;
                 }
 
                 tileWindowRefreshRect(&rect, obj->elevation);
             }
         }
     } else {
-        if ((obj->flags & OBJECT_IS_INVISIBLE) != 0) {
+        if ((obj->flags & OBJECT_HIDDEN) != 0) {
             if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
-                obj->flags &= ~OBJECT_IS_INVISIBLE_BY_SCRIPT;
+                obj->flags &= ~OBJECT_NO_BLOCK;
             }
 
             Rect rect;
@@ -2992,7 +2992,7 @@ void opKillCritterType(Program* program)
             continue;
         }
 
-        if ((obj->flags & 0x01) == 0 && obj->pid == pid && !critterIsDead(obj)) {
+        if ((obj->flags & OBJECT_HIDDEN) == 0 && obj->pid == pid && !critterIsDead(obj)) {
             if (obj == previousObj || count > 200) {
                 scriptPredefinedError(program, "kill_critter_type", SCRIPT_ERROR_FOLLOWS);
                 debugPrint(" Infinite loop destroying critters!");
@@ -3235,7 +3235,7 @@ void opHasTrait(Program* program)
                 result = object->rotation;
                 break;
             case CRITTER_TRAIT_OBJECT_IS_INVISIBLE:
-                result = (object->flags & OBJECT_IS_INVISIBLE) == 0;
+                result = (object->flags & OBJECT_HIDDEN) == 0;
                 break;
             case CRITTER_TRAIT_OBJECT_GET_INVENTORY_WEIGHT:
                 result = objectGetInventoryWeight(object);
@@ -4186,7 +4186,7 @@ void opMetarule(Program* program)
             } else {
                 Object* item = critterGetItem1(object);
                 if (itemGetType(item) == ITEM_TYPE_WEAPON) {
-                    item->flags &= ~0x1000000;
+                    item->flags &= ~OBJECT_IN_LEFT_HAND;
                 }
             }
         }
@@ -4722,7 +4722,7 @@ void opRemoveMultipleObjectsFromInventory(Program* program)
         return;
     }
 
-    bool itemWasEquipped = (item->flags & 0x07000000) != 0;
+    bool itemWasEquipped = (item->flags & OBJECT_EQUIPPED) != 0;
 
     int quantity = _item_count(owner, item);
     if (quantity > quantityToRemove) {
@@ -6024,13 +6024,13 @@ void opAttackSetup(Program* program)
     program->flags |= PROGRAM_FLAG_0x20;
 
     if (attacker != NULL) {
-        if (!critterIsActive(attacker) || (attacker->flags & OBJECT_IS_INVISIBLE) != 0) {
+        if (!critterIsActive(attacker) || (attacker->flags & OBJECT_HIDDEN) != 0) {
             debugPrint("\n   But is already dead or invisible");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
         }
 
-        if (!critterIsActive(defender) || (defender->flags & OBJECT_IS_INVISIBLE) != 0) {
+        if (!critterIsActive(defender) || (defender->flags & OBJECT_HIDDEN) != 0) {
             debugPrint("\n   But target is already dead or invisible");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
@@ -6130,7 +6130,7 @@ void opDestroyMultipleObjects(Program* program)
 
         if (isSelf) {
             object->sid = -1;
-            object->flags |= (OBJECT_IS_INVISIBLE | OBJECT_FLAG_0x04);
+            object->flags |= (OBJECT_HIDDEN | OBJECT_TEMPORARY);
         } else {
             reg_anim_clear(object);
             objectDestroy(object, NULL);

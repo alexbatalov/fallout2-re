@@ -893,7 +893,7 @@ int scriptsHandleRequests()
                     if (elevatorDoors != NULL) {
                         objectSetFrame(elevatorDoors, 0, NULL);
                         objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
-                        elevatorDoors->flags &= ~0xA0000010;
+                        elevatorDoors->flags &= ~OBJECT_OPEN_DOOR;
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
                         _obj_rebuild_all_light();
                     } else {
@@ -915,7 +915,7 @@ int scriptsHandleRequests()
                 if (elevatorDoors != NULL) {
                     objectSetFrame(elevatorDoors, 0, NULL);
                     objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
-                    elevatorDoors->flags &= ~0xA0000010;
+                    elevatorDoors->flags &= ~OBJECT_OPEN_DOOR;
                     elevatorDoors->data.scenery.door.openFlags &= ~0x01;
                     _obj_rebuild_all_light();
                 } else {
@@ -999,7 +999,7 @@ int _scripts_check_state_in_combat()
                     if (elevatorDoors != NULL) {
                         objectSetFrame(elevatorDoors, 0, NULL);
                         objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
-                        elevatorDoors->flags &= ~0xA0000010;
+                        elevatorDoors->flags &= ~OBJECT_OPEN_DOOR;
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
                         _obj_rebuild_all_light();
                     } else {
@@ -2423,7 +2423,7 @@ bool scriptsExecSpatialProc(Object* object, int tile, int elevation)
         return false;
     }
 
-    if ((object->flags & 0x01) != 0 || (object->flags & 0x08) != 0) {
+    if ((object->flags & OBJECT_HIDDEN) != 0 || (object->flags & OBJECT_FLAG_0x08) != 0) {
         return false;
     }
 

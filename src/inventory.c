@@ -852,14 +852,14 @@ bool _setup_inventory(int inventoryWindowType)
     for (int index = 0; index < _pud->length; index++) {
         InventoryItem* inventoryItem = &(_pud->items[index]);
         Object* item = inventoryItem->item;
-        if ((item->flags & 0x01000000) != 0) {
-            if ((item->flags & 0x02000000) != 0) {
+        if ((item->flags & OBJECT_IN_LEFT_HAND) != 0) {
+            if ((item->flags & OBJECT_IN_RIGHT_HAND) != 0) {
                 gInventoryRightHandItem = item;
             }
             gInventoryLeftHandItem = item;
-        } else if ((item->flags & 0x2000000) != 0) {
+        } else if ((item->flags & OBJECT_IN_RIGHT_HAND) != 0) {
             gInventoryRightHandItem = item;
-        } else if ((item->flags & 0x04000000) != 0) {
+        } else if ((item->flags & OBJECT_WORN) != 0) {
             gInventoryArmor = item;
         }
     }
@@ -891,21 +891,21 @@ void _exit_inventory(bool shouldEnableIso)
     _inven_dude = _stack[0];
 
     if (gInventoryLeftHandItem != NULL) {
-        gInventoryLeftHandItem->flags |= 0x01000000;
+        gInventoryLeftHandItem->flags |= OBJECT_IN_LEFT_HAND;
         if (gInventoryLeftHandItem == gInventoryRightHandItem) {
-            gInventoryLeftHandItem->flags |= 0x02000000;
+            gInventoryLeftHandItem->flags |= OBJECT_IN_RIGHT_HAND;
         }
 
         itemAdd(_inven_dude, gInventoryLeftHandItem, 1);
     }
 
     if (gInventoryRightHandItem != NULL && gInventoryRightHandItem != gInventoryLeftHandItem) {
-        gInventoryRightHandItem->flags |= 0x02000000;
+        gInventoryRightHandItem->flags |= OBJECT_IN_RIGHT_HAND;
         itemAdd(_inven_dude, gInventoryRightHandItem, 1);
     }
 
     if (gInventoryArmor != NULL) {
-        gInventoryArmor->flags |= 0x04000000;
+        gInventoryArmor->flags |= OBJECT_WORN;
         itemAdd(_inven_dude, gInventoryArmor, 1);
     }
 
@@ -2013,7 +2013,7 @@ Object* critterGetItem2(Object* critter)
     inventory = &(critter->data.inventory);
     for (i = 0; i < inventory->length; i++) {
         item = inventory->items[i].item;
-        if (item->flags & 0x02000000) {
+        if (item->flags & OBJECT_IN_RIGHT_HAND) {
             return item;
         }
     }
@@ -2035,7 +2035,7 @@ Object* critterGetItem1(Object* critter)
     inventory = &(critter->data.inventory);
     for (i = 0; i < inventory->length; i++) {
         item = inventory->items[i].item;
-        if (item->flags & 0x01000000) {
+        if (item->flags & OBJECT_IN_LEFT_HAND) {
             return item;
         }
     }
@@ -2057,7 +2057,7 @@ Object* critterGetArmor(Object* critter)
     inventory = &(critter->data.inventory);
     for (i = 0; i < inventory->length; i++) {
         item = inventory->items[i].item;
-        if (item->flags & 0x04000000) {
+        if (item->flags & OBJECT_WORN) {
             return item;
         }
     }
@@ -2437,10 +2437,10 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
     if (itemType == ITEM_TYPE_ARMOR) {
         Object* armor = critterGetArmor(critter);
         if (armor != NULL) {
-            armor->flags = ~0x4000000;
+            armor->flags = ~OBJECT_WORN;
         }
 
-        item->flags |= 0x4000000;
+        item->flags |= OBJECT_WORN;
 
         int baseFrmId;
         if (critterGetStat(critter, STAT_GENDER) == GENDER_FEMALE) {
@@ -2480,15 +2480,15 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         Object* v17;
         if (a3) {
             v17 = critterGetItem2(critter);
-            item->flags |= 0x2000000;
+            item->flags |= OBJECT_IN_RIGHT_HAND;
         } else {
             v17 = critterGetItem1(critter);
-            item->flags |= 0x1000000;
+            item->flags |= OBJECT_IN_LEFT_HAND;
         }
 
         Rect rect;
         if (v17 != NULL) {
-            v17->flags &= ~(0x1000000 | 0x2000000);
+            v17->flags &= ~OBJECT_IN_ANY_HAND;
 
             if (v17->pid == PROTO_ID_LIT_FLARE) {
                 int lightIntensity;
@@ -2592,7 +2592,7 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
     }
 
     if (item_obj) {
-        item_obj->flags &= ~0x3000000;
+        item_obj->flags &= ~OBJECT_IN_ANY_HAND;
     }
 
     if (v6 == a2 && ((obj->fid & 0xF000) >> 12) != 0) {
@@ -3532,17 +3532,17 @@ int inventoryOpenLooting(Object* a1, Object* a2)
 
     if (_gIsSteal) {
         if (item1 != NULL) {
-            item1->flags |= 0x1000000;
+            item1->flags |= OBJECT_IN_LEFT_HAND;
             itemAdd(a2, item1, 1);
         }
 
         if (item2 != NULL) {
-            item2->flags |= 0x2000000;
+            item2->flags |= OBJECT_IN_RIGHT_HAND;
             itemAdd(a2, item2, 1);
         }
 
         if (armor != NULL) {
-            armor->flags |= 0x4000000;
+            armor->flags |= OBJECT_WORN;
             itemAdd(a2, armor, 1);
         }
     }
@@ -3731,11 +3731,11 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
 
                 if (rc != 1) {
                     if (_item_move(a3, _inven_dude, a1, quantityToMove) == 0) {
-                        if ((a1->flags & 0x2000000) != 0) {
+                        if ((a1->flags & OBJECT_IN_RIGHT_HAND) != 0) {
                             a3->fid = buildFid((a3->fid & 0xF000000) >> 24, a3->fid & 0xFFF, (a3->fid & 0xFF0000) >> 16, 0, a3->rotation + 1);
                         }
 
-                        a3->flags &= ~0x7000000;
+                        a3->flags &= ~OBJECT_EQUIPPED;
 
                         rc = 2;
                     } else {
@@ -4344,12 +4344,12 @@ void inventoryOpenTrade(int win, Object* a2, Object* a3, Object* a4, int a5)
     objectDestroy(a1a, NULL);
 
     if (armor != NULL) {
-        armor->flags |= 0x4000000;
+        armor->flags |= OBJECT_WORN;
         itemAdd(a2, armor, 1);
     }
 
     if (item2 != NULL) {
-        item2->flags |= 0x2000000;
+        item2->flags |= OBJECT_IN_RIGHT_HAND;
         itemAdd(a2, item2, 1);
     }
 
