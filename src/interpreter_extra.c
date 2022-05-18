@@ -2169,7 +2169,7 @@ void opObjectCanSeeObject(Program* program)
     Object* object1 = (Object*)data[1];
     Object* object2 = (Object*)data[0];
 
-    bool canSee = false;
+    int result = 0;
 
     if (object1 != NULL && object2 != NULL) {
         if (object2->tile != -1) {
@@ -2185,7 +2185,7 @@ void opObjectCanSeeObject(Program* program)
                 Object* a5;
                 _make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
                 if (a5 == object2) {
-                    canSee = true;
+                    result = 1;
                 }
             }
         }
@@ -2193,7 +2193,7 @@ void opObjectCanSeeObject(Program* program)
         scriptPredefinedError(program, "obj_can_see_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, canSee);
+    programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
@@ -6450,6 +6450,7 @@ void opObjectOnScreen(Program* program)
         scriptPredefinedError(program, "obj_on_screen", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
+    //debugPrint("ObjOnScreen: %d\n", result);
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
