@@ -1343,6 +1343,9 @@ Object* _ai_danger_source(Object* a1)
     bool v2 = false;
     int attackWho;
 
+    Object* targets[4];
+    targets[0] = NULL;
+
     if (objectIsPartyMember(a1)) {
         int disposition = a1 != NULL ? aiGetPacket(a1)->disposition : 0;
 
@@ -1395,10 +1398,10 @@ Object* _ai_danger_source(Object* a1)
         attackWho = -1;
     }
 
-    Object* v14[4];
+    
     Object* whoHitMe = a1->data.critter.combat.whoHitMe;
     if (whoHitMe == NULL || a1 == whoHitMe) {
-        v14[0] = NULL;
+        targets[0] = NULL;
     } else {
         if ((whoHitMe->data.critter.combat.results & DAM_DEAD) == 0) {
             if (attackWho == ATTACK_WHO_WHOMEVER || attackWho == -1) {
@@ -1406,19 +1409,19 @@ Object* _ai_danger_source(Object* a1)
             }
         } else {
             if (whoHitMe->data.critter.combat.team != a1->data.critter.combat.team) {
-                v14[0] = _ai_find_nearest_team(a1, whoHitMe, 1);
+                targets[0] = _ai_find_nearest_team(a1, whoHitMe, 1);
             } else {
-                v14[0] = NULL;
+                targets[0] = NULL;
             }
         }
     }
 
-    _ai_find_attackers(a1, &(v14[1]), &(v14[2]), &(v14[3]));
+    _ai_find_attackers(a1, &(targets[1]), &(targets[2]), &(targets[3]));
 
     if (v2) {
         for (int index = 0; index < 4; index++) {
-            if (v14[index] != NULL && critterIsFleeing(v14[index])) {
-                v14[index] = NULL;
+            if (targets[index] != NULL && critterIsFleeing(targets[index])) {
+                targets[index] = NULL;
             }
         }
     }
@@ -1437,10 +1440,10 @@ Object* _ai_danger_source(Object* a1)
         break;
     }
 
-    qsort(v14, 4, sizeof(*v14), compareProc);
+    qsort(targets, 4, sizeof(*targets), compareProc);
 
     for (int index = 0; index < 4; index++) {
-        Object* candidate = v14[index];
+        Object* candidate = targets[index];
         if (candidate != NULL && objectCanHearObject(a1, candidate)) {
             if (pathfinderFindPath(a1, a1->tile, candidate->tile, NULL, 0, _obj_blocking_at) != 0
                 || _combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == 0) {
