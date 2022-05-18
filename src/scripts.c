@@ -1800,7 +1800,7 @@ int scriptSaveAll(File* stream)
                             }
 
                             lastScriptExtent = previousScriptExtent;
-                            backwardsIndex = lastScriptExtent->length;
+                            backwardsIndex = lastScriptExtent->length - 1;
                         }
                     }
 
