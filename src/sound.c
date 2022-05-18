@@ -42,7 +42,7 @@ SoundFileIO gSoundDefaultFileIO = {
 };
 
 // 0x51D4B4
-char* (*_nameMangler)(char* path) = _defaultMangler_;
+SoundFileNameMangler* gSoundFileNameMangler = soundFileManglerDefaultImpl;
 
 // 0x51D4B8
 const char* gSoundErrorDescriptions[SOUND_ERR_COUNT] = {
@@ -143,7 +143,7 @@ void soundSetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeP
 }
 
 // 0x4AC78C
-char* _defaultMangler_(char* fname)
+char* soundFileManglerDefaultImpl(char* fname)
 {
     return fname;
 }
@@ -667,7 +667,7 @@ int soundLoad(Sound* sound, char* filePath)
         return gSoundLastError;
     }
 
-    sound->io.fd = sound->io.open(_nameMangler(filePath), 0x0200);
+    sound->io.fd = sound->io.open(gSoundFileNameMangler(filePath), 0x0200);
     if (sound->io.fd == -1) {
         gSoundLastError = SOUND_FILE_NOT_FOUND;
         return gSoundLastError;

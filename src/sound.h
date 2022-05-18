@@ -47,6 +47,7 @@ typedef enum SoundError {
     SOUND_ERR_COUNT,
 } SoundError;
 
+typedef char*(SoundFileNameMangler)(char*);
 typedef int SoundOpenProc(const char* filePath, int flags, ...);
 typedef int SoundCloseProc(int fileHandle);
 typedef int SoundReadProc(int fileHandle, void* buf, unsigned int size);
@@ -122,7 +123,7 @@ extern MallocProc* gSoundMallocProc;
 extern ReallocProc* gSoundReallocProc;
 extern FreeProc* gSoundFreeProc;
 extern SoundFileIO gSoundDefaultFileIO;
-extern char* (*_nameMangler)(char* path);
+extern SoundFileNameMangler* gSoundFileNameMangler;
 extern const char* gSoundErrorDescriptions[SOUND_ERR_COUNT];
 
 extern int gSoundLastError;
@@ -142,7 +143,7 @@ void* soundReallocProcDefaultImpl(void* ptr, size_t size);
 void soundFreeProcDefaultImpl(void* ptr);
 void soundSetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 
-char* _defaultMangler_(char* fname);
+char* soundFileManglerDefaultImpl(char* fname);
 const char* soundGetErrorDescription(int err);
 void _refreshSoundBuffers(Sound* sound);
 int soundInit(int a1, int a2, int a3, int a4, int rate);
