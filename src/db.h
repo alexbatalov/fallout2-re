@@ -11,6 +11,11 @@ typedef XFile File;
 typedef void FileReadProgressHandler();
 typedef char* StrdupProc(const char* string);
 
+typedef struct FileList {
+    XList xlist;
+    struct FileList* next;
+} FileList;
+
 extern FileReadProgressHandler* gFileReadProgressHandler;
 extern int gFileReadProgressBytesRead;
 

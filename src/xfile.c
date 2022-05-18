@@ -530,15 +530,16 @@ bool xbaseOpen(const char* path)
     return true;
 }
 
-int _xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList* fileList)
+// 0x4DFB3C
+bool xlistEnumerate(const char* pattern, XListEnumerationHandler* handler, XList* xlist)
 {
     assert(pattern); // "filespec", "xfile.c", 845
     assert(handler); // "enumfunc", "xfile.c", 846
 
     DirectoryFileFindData directoryFileFindData;
-    XFileEnumerationContext context;
+    XListEnumerationContext context;
 
-    context.fileList = fileList;
+    context.xlist = xlist;
 
     char drive[_MAX_DRIVE];
     char dir[_MAX_DIR];
@@ -674,29 +675,27 @@ int _xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList*
     return findFindClose(&directoryFileFindData);
 }
 
-int _xbuild_filelist(const char* pattern, FileList* fileList)
+// 0x4DFF28
+bool xlistInit(const char* pattern, XList* xlist)
 {
-    _xenumfiles(pattern, _xlistenumfunc, fileList);
-    return fileList->fileNamesLength != -1;
+    xlistEnumerate(pattern, xlistEnumerateHandler, xlist);
+    return xlist->fileNamesLength != -1;
 }
 
 // 0x4DFF48
-void fileListFree(FileList* fileList)
+void xlistFree(XList* xlist)
 {
-    assert(fileList); // "list", "xfile.c", 949
+    assert(xlist); // "list", "xfile.c", 949
 
-    for (int index = 0; index < fileList->fileNamesLength; index++) {
-        if (fileList->fileNames[index] != NULL) {
-            free(fileList->fileNames[index]);
+    for (int index = 0; index < xlist->fileNamesLength; index++) {
+        if (xlist->fileNames[index] != NULL) {
+            free(xlist->fileNames[index]);
         }
     }
 
-    free(fileList->fileNames);
+    free(xlist->fileNames);
 
-    // NOTE: Reset 8 bytes at 0x4DFF90, not sure how to express that clearly.
-    // I guess the idea was to clear everything but the pointer to next node in
-    // list.
-    memset(fileList, 0, sizeof(*fileList) - sizeof(fileList->next));
+    memset(xlist, 0, sizeof(*xlist));
 }
 
 // Recursively creates specified file path.
@@ -799,31 +798,32 @@ void xbaseExitHandler(void)
     xbaseCloseAll();
 }
 
-bool _xlistenumfunc(XFileEnumerationContext* context)
+// 0x4E0278
+bool xlistEnumerateHandler(XListEnumerationContext* context)
 {
     if (context->type == XFILE_ENUMERATION_ENTRY_TYPE_DIRECTORY) {
         return true;
     }
 
-    FileList* fileList = context->fileList;
+    XList* xlist = context->xlist;
 
-    char** fileNames = (char**)realloc(fileList->fileNames, sizeof(*fileNames) * (fileList->fileNamesLength + 1));
+    char** fileNames = (char**)realloc(xlist->fileNames, sizeof(*fileNames) * (xlist->fileNamesLength + 1));
     if (fileNames == NULL) {
-        fileListFree(fileList);
-        fileList->fileNamesLength = -1;
+        xlistFree(xlist);
+        xlist->fileNamesLength = -1;
         return false;
     }
 
-    fileList->fileNames = fileNames;
+    xlist->fileNames = fileNames;
 
-    fileNames[fileList->fileNamesLength] = strdup(context->name);
-    if (fileNames[fileList->fileNamesLength] == NULL) {
-        fileListFree(fileList);
-        fileList->fileNamesLength = -1;
+    fileNames[xlist->fileNamesLength] = strdup(context->name);
+    if (fileNames[xlist->fileNamesLength] == NULL) {
+        xlistFree(xlist);
+        xlist->fileNamesLength = -1;
         return false;
     }
 
-    fileList->fileNamesLength++;
+    xlist->fileNamesLength++;
 
     return true;
 }

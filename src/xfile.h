@@ -40,11 +40,10 @@ typedef struct XFile {
     };
 } XFile;
 
-typedef struct FileList {
+typedef struct XList {
     int fileNamesLength;
     char** fileNames;
-    struct FileList* next;
-} FileList;
+} XList;
 
 typedef enum XFileEnumerationEntryType {
     XFILE_ENUMERATION_ENTRY_TYPE_FILE,
@@ -52,13 +51,13 @@ typedef enum XFileEnumerationEntryType {
     XFILE_ENUMERATION_ENTRY_TYPE_DFILE,
 } XFileEnumerationEntryType;
 
-typedef struct XFileEnumerationContext {
+typedef struct XListEnumerationContext {
     char name[FILENAME_MAX];
     unsigned char type;
-    FileList* fileList;
-} XFileEnumerationContext;
+    XList* xlist;
+} XListEnumerationContext;
 
-typedef bool XFileEnumerationHandler(XFileEnumerationContext* context);
+typedef bool(XListEnumerationHandler)(XListEnumerationContext* context);
 
 extern XBase* gXbaseHead;
 extern bool gXbaseExitHandlerRegistered;
@@ -80,12 +79,12 @@ int xfileEof(XFile* stream);
 long xfileGetSize(XFile* stream);
 bool xbaseReopenAll(char* paths);
 bool xbaseOpen(const char* path);
-int _xenumfiles(const char* pattern, XFileEnumerationHandler* handler, FileList* fileList);
-int _xbuild_filelist(const char* pattern, FileList* fileList);
-void fileListFree(FileList* fileList);
+bool xlistEnumerate(const char* pattern, XListEnumerationHandler* handler, XList* xlist);
+bool xlistInit(const char* pattern, XList* xlist);
+void xlistFree(XList* xlist);
 int xbaseMakeDirectory(const char* path);
 void xbaseCloseAll();
 void xbaseExitHandler(void);
-bool _xlistenumfunc(XFileEnumerationContext* context);
+bool xlistEnumerateHandler(XListEnumerationContext* context);
 
 #endif /* XFILE_H */

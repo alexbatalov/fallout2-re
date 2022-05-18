@@ -608,21 +608,22 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
 
     memset(fileList, 0, sizeof(*fileList));
 
-    if (!_xbuild_filelist(pattern, fileList)) {
+    XList* xlist = &(fileList->xlist);
+    if (!xlistInit(pattern, xlist)) {
         free(fileList);
         return 0;
     }
 
     int length = 0;
-    if (fileList->fileNamesLength != 0) {
-        qsort(fileList->fileNames, fileList->fileNamesLength, sizeof(*fileList->fileNames), _db_list_compare);
+    if (xlist->fileNamesLength != 0) {
+        qsort(xlist->fileNames, xlist->fileNamesLength, sizeof(*xlist->fileNames), _db_list_compare);
 
-        int fileNamesLength = fileList->fileNamesLength;
+        int fileNamesLength = xlist->fileNamesLength;
         for (int index = 0; index < fileNamesLength - 1; index++) {
-            if (stricmp(fileList->fileNames[index], fileList->fileNames[index + 1]) == 0) {
-                char* temp = fileList->fileNames[index + 1];
-                memmove(&(fileList->fileNames[index + 1]), &(fileList->fileNames[index + 2]), sizeof(*fileList->fileNames) * (fileList->fileNamesLength - index - 1));
-                fileList->fileNames[fileList->fileNamesLength - 1] = temp;
+            if (stricmp(xlist->fileNames[index], xlist->fileNames[index + 1]) == 0) {
+                char* temp = xlist->fileNames[index + 1];
+                memmove(&(xlist->fileNames[index + 1]), &(xlist->fileNames[index + 2]), sizeof(*xlist->fileNames) * (xlist->fileNamesLength - index - 1));
+                xlist->fileNames[xlist->fileNamesLength - 1] = temp;
 
                 fileNamesLength--;
                 index--;
@@ -632,7 +633,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
         bool v1 = *pattern == '*';
 
         for (int index = 0; index < fileNamesLength; index += 1) {
-            const char* name = fileList->fileNames[index];
+            const char* name = xlist->fileNames[index];
             char dir[_MAX_DIR];
             char fileName[_MAX_FNAME];
             char extension[_MAX_EXT];
@@ -648,7 +649,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
             }
 
             if (!v2) {
-                sprintf(fileList->fileNames[index], "%s%s", fileName, extension);
+                sprintf(xlist->fileNames[index], "%s%s", fileName, extension);
                 length++;
             }
         }
@@ -657,7 +658,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
     fileList->next = gFileListHead;
     gFileListHead = fileList;
 
-    *fileNameListPtr = fileList->fileNames;
+    *fileNameListPtr = xlist->fileNames;
 
     return length;
 }
@@ -671,7 +672,7 @@ void fileNameListFree(char*** fileNameListPtr, int a2)
 
     FileList* currentFileList = gFileListHead;
     FileList* previousFileList = gFileListHead;
-    while (*fileNameListPtr != currentFileList->fileNames) {
+    while (*fileNameListPtr != currentFileList->xlist.fileNames) {
         previousFileList = currentFileList;
         currentFileList = currentFileList->next;
         if (currentFileList == NULL) {
@@ -685,7 +686,7 @@ void fileNameListFree(char*** fileNameListPtr, int a2)
         previousFileList->next = currentFileList->next;
     }
 
-    fileListFree(currentFileList);
+    xlistFree(&(currentFileList->xlist));
 
     free(currentFileList);
 }
