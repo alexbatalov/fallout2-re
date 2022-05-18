@@ -650,7 +650,7 @@ void opLoadPaletteTable(Program* program)
         }
     }
 
-    const char* path = programGetString(program, opcode, data);
+    char* path = programGetString(program, opcode, data);
     if (!colorPaletteLoad(path)) {
         programFatalError(_colorError());
     }

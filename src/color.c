@@ -32,9 +32,8 @@ ReallocProc* gColorPaletteReallocProc = colorPaletteReallocDefaultImpl;
 // 0x51DF2C
 FreeProc* gColorPaletteFreeProc = colorPaletteFreeDefaultImpl;
 
-// NOTE: This value is never set, so it's impossible to understand it's
-// meaning.
-void (*_colorNameMangler)() = NULL;
+// 0x51DF30
+ColorFileNameManger* gColorFileNameMangler = NULL;
 
 // 0x51DF34
 unsigned char _cmap[768] = {
@@ -353,10 +352,10 @@ void _setMixTableColor(int a1)
 }
 
 // 0x4C78E4
-bool colorPaletteLoad(const char* path)
+bool colorPaletteLoad(char* path)
 {
-    if (_colorNameMangler) {
-        _colorNameMangler();
+    if (gColorFileNameMangler != NULL) {
+        path = gColorFileNameMangler(path);
     }
 
     // NOTE: Uninline.

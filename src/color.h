@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+typedef char*(ColorFileNameManger)(char*);
 typedef void(ColorTransitionCallback)();
 
 typedef int(ColorPaletteFileOpenProc)(const char* path, int mode);
@@ -22,7 +23,7 @@ extern ColorTransitionCallback* gColorPaletteTransitionCallback;
 extern MallocProc* gColorPaletteMallocProc;
 extern ReallocProc* gColorPaletteReallocProc;
 extern FreeProc* gColorPaletteFreeProc;
-extern void (*_colorNameMangler)();
+extern ColorFileNameManger* gColorFileNameMangler;
 extern unsigned char _cmap[768];
 
 extern unsigned char _systemCmap[256 * 3];
@@ -54,7 +55,7 @@ void _setSystemPaletteEntries(unsigned char* a1, int a2, int a3);
 void _setIntensityTableColor(int a1);
 void _setIntensityTables();
 void _setMixTableColor(int a1);
-bool colorPaletteLoad(const char* path);
+bool colorPaletteLoad(char* path);
 char* _colorError();
 void _buildBlendTable(unsigned char* ptr, unsigned char ch);
 void _rebuildColorBlendTables();
