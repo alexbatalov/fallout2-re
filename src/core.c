@@ -100,7 +100,7 @@ unsigned char _kb_installed = 0;
 bool gKeyboardDisabled = false;
 
 // 0x51E2D8
-int _kb_numpad_disabled = 0;
+bool gKeyboardNumpadDisabled = false;
 
 // 0x51E2DC
 int _kb_numlock_disabled = 0;
@@ -2847,7 +2847,7 @@ int keyboardDequeueLogicalKeyCode()
     case DIK_SUBTRACT:
     case DIK_ADD:
     case DIK_NUMPADENTER:
-        if (_kb_numpad_disabled != 0) {
+        if (gKeyboardNumpadDisabled) {
             if (gKeyboardEventQueueReadIndex != gKeyboardEventQueueWriteIndex) {
                 gKeyboardEventQueueReadIndex++;
                 gKeyboardEventQueueReadIndex &= (KEY_QUEUE_SIZE - 1);
@@ -2865,7 +2865,7 @@ int keyboardDequeueLogicalKeyCode()
     case DIK_NUMPAD7:
     case DIK_NUMPAD8:
     case DIK_NUMPAD9:
-        if (_kb_numpad_disabled != 0) {
+        if (gKeyboardNumpadDisabled) {
             if (gKeyboardEventQueueReadIndex != gKeyboardEventQueueWriteIndex) {
                 gKeyboardEventQueueReadIndex++;
                 gKeyboardEventQueueReadIndex &= (KEY_QUEUE_SIZE - 1);
