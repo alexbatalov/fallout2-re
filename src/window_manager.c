@@ -1505,12 +1505,12 @@ Button* buttonCreateInternal(int win, int x, int y, int width, int height, int m
         }
     }
 
-    int index = 0;
-    while (buttonGetButton(index, NULL) != NULL) {
-        index++;
+    int buttonId = 1;
+    while (buttonGetButton(buttonId, NULL) != NULL) {
+        buttonId++;
     }
 
-    button->id = index;
+    button->id = buttonId;
     button->flags = flags;
     button->rect.left = x;
     button->rect.top = y;
