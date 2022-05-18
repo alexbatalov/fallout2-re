@@ -103,7 +103,7 @@ bool gKeyboardDisabled = false;
 bool gKeyboardNumpadDisabled = false;
 
 // 0x51E2DC
-int _kb_numlock_disabled = 0;
+bool gKeyboardNumlockDisabled = false;
 
 // 0x51E2E0
 int gKeyboardEventQueueWriteIndex = 0;
@@ -2698,7 +2698,7 @@ void _kb_simulate_key(int key)
             }
 
             if (gModifierKeysState != 0) {
-                if ((gModifierKeysState & MODIFIER_KEY_STATE_NUM_LOCK) != 0 && !_kb_numlock_disabled) {
+                if ((gModifierKeysState & MODIFIER_KEY_STATE_NUM_LOCK) != 0 && !gKeyboardNumlockDisabled) {
                     gLastKeyboardEvent.modifiers |= KEYBOARD_EVENT_MODIFIER_NUM_LOCK;
                 }
 

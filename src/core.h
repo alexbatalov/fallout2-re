@@ -448,7 +448,7 @@ extern bool gMmxProbed;
 extern unsigned char _kb_installed;
 extern bool gKeyboardDisabled;
 extern bool gKeyboardNumpadDisabled;
-extern int _kb_numlock_disabled;
+extern bool gKeyboardNumlockDisabled;
 extern int gKeyboardEventQueueWriteIndex;
 extern int gKeyboardEventQueueReadIndex;
 extern short word_51E2E8;
