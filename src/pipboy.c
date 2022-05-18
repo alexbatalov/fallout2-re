@@ -1713,7 +1713,19 @@ void pipboyWindowCreateButtons(int start, int count, bool a3)
 void pipboyWindowDestroyButtons()
 {
     if (gPipboyWindowButtonCount != 0) {
-        for (int index = gPipboyWindowButtonStart; index < gPipboyWindowButtonCount; index++) {
+        // NOTE: There is a buffer overread bug. In original binary it leads to
+        // reading continuation (from 0x6644B8 onwards), which finally destroys
+        // button in `gPipboyWindow` (id #3), which corresponds to Skilldex
+        // button. Other buttons can be destroyed depending on the last mouse
+        // position. I was not able to replicate this exact behaviour with MSVC.
+        // So here is a small fix, which is an exception to "Do not fix vanilla
+        // bugs" strategy.
+        int end = gPipboyWindowButtonStart + gPipboyWindowButtonCount;
+        if (end > 22) {
+            end = 22;
+        }
+
+        for (int index = gPipboyWindowButtonStart; index < end; index++) {
             buttonDestroy(_HotLines[index]);
         }
     }
