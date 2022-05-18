@@ -344,7 +344,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
     }
 
     if (index < ELEVATOR_LEVEL_MAX) {
-        if (elevatorDescription[index].tile != -1) {
+        if (elevatorDescription[*elevationPtr + index].tile != -1) {
             *elevationPtr += index;
         }
     }
