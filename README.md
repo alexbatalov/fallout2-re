@@ -1,14 +1,14 @@
-# Fallout 2
+# Fallout 2 Reference Edition
 
 In this repository you'll find reverse engineered source code for Fallout 2.
 
 ## Goal
 
-The goal of this project is to restore original source code as close possible with all it's imperfections. This means Windows/x86/640x480 among many other things.
+The goal of this project is to restore original source code as close possible with all it's imperfections. This means Windows/x86/640x480 among many other things. There is a separate project - [Fallout 2 Community Edition](https://github.com/alexbatalov/fallout2-ce) - which is not bounded by this goal.
 
 ## Status
 
-The game is playable and you can complete the [speedrun](https://fallout.fandom.com/wiki/Forum:Speedrun#Fallout_2). I don't know if a normal walkthrough is possible (i.e. finishing majority of quests), likely it's not. Function-wise about 4% (150 of 3800 functions) of the code is not yet decompiled. Notably dialog, widget system, and interpreter lib. Most of them are not essential to gameplay (probably leftovers from Fallout 1), while others (especially marked as `incomplete`) will lead to crashes when used.
+The game is playable and you can complete the [speedrun](https://fallout.fandom.com/wiki/Forum:Speedrun#Fallout_2). One of the testers completed the game and checked 97% of the content, so normal [walkthrough](https://lemmings19.github.io/fallout-2-walkthrough/) works as well. Function-wise about 4% (150 of 3800 functions) of the code is not yet decompiled. Notably dialog, widget system, and interpreter lib. Most of them are not essential to gameplay (probably leftovers from Fallout 1), while others (especially marked as `incomplete`) will lead to crashes when used.
 
 ## Installation
 
@@ -45,7 +45,7 @@ I don't have much experience with `cmake` so I'm open to any improvements.
 
 ### No new features
 
-Please do not submit new features at this time. Once reference implementation is completed, the development will be continued in the new repository. This repository will be left intact for historical reasons.
+Please do not submit new features to this repository, only things related to reversing original binary. Once the game is fully decompiled, this repository will be left intact for historical reasons. See [Community Edition](https://github.com/alexbatalov/fallout2-ce) for everything else.
 
 ## Legal
 
