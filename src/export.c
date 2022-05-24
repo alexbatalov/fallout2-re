@@ -163,7 +163,7 @@ int externalVariableSetValue(Program* program, const char* name, opcode_t opcode
             const char* stringValue = programGetString(program, opcode, data);
             exportedVariable->type = VALUE_TYPE_DYNAMIC_STRING;
 
-            exportedVariable->stringValue = internal_malloc_safe(strlen(stringValue) + 1, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 175
+            exportedVariable->stringValue = (char*)internal_malloc_safe(strlen(stringValue) + 1, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 175
             strcpy(exportedVariable->stringValue, stringValue);
         }
     } else {
@@ -215,7 +215,7 @@ int externalVariableCreate(Program* program, const char* identifier)
 
         strncpy(exportedVariable->name, identifier, 31);
 
-        exportedVariable->programName = internal_malloc_safe(strlen(programName) + 1, __FILE__, __LINE__); // // "..\\int\\EXPORT.C", 243
+        exportedVariable->programName = (char*)internal_malloc_safe(strlen(programName) + 1, __FILE__, __LINE__); // // "..\\int\\EXPORT.C", 243
         strcpy(exportedVariable->programName, programName);
     }
 

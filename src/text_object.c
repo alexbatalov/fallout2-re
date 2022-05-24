@@ -152,7 +152,7 @@ int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rec
         return -1;
     }
 
-    TextObject* textObject = internal_malloc(sizeof(*textObject));
+    TextObject* textObject = (TextObject*)internal_malloc(sizeof(*textObject));
     if (textObject == NULL) {
         return -1;
     }
@@ -203,7 +203,7 @@ int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rec
     }
 
     int size = textObject->width * textObject->height;
-    textObject->data = internal_malloc(size);
+    textObject->data = (unsigned char*)internal_malloc(size);
     if (textObject->data == NULL) {
         fontSetCurrent(oldFont);
         return -1;

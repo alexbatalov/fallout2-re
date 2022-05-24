@@ -73,7 +73,7 @@ int soundEffectsCacheInit(int cacheSize, const char* effectsPath)
         return -1;
     }
 
-    gSoundEffectsCache = internal_malloc(sizeof(*gSoundEffectsCache));
+    gSoundEffectsCache = (Cache*)internal_malloc(sizeof(*gSoundEffectsCache));
     if (gSoundEffectsCache == NULL) {
         soundEffectsCacheFreeHandles();
         soundEffectsListExit();
@@ -235,7 +235,7 @@ int soundEffectsCacheFileWrite(int handle, const void* buf, unsigned int size)
 }
 
 // 0x4A9358
-int soundEffectsCacheFileSeek(int handle, long offset, int origin)
+long soundEffectsCacheFileSeek(int handle, long offset, int origin)
 {
     if (!soundEffectsIsValidHandle(handle)) {
         return -1;
@@ -349,7 +349,7 @@ void soundEffectsCacheFreeImpl(void* ptr)
 // 0x4A94D4
 int soundEffectsCacheCreateHandles()
 {
-    gSoundEffects = internal_malloc(sizeof(*gSoundEffects) * SOUND_EFFECTS_MAX_COUNT);
+    gSoundEffects = (SoundEffect*)internal_malloc(sizeof(*gSoundEffects) * SOUND_EFFECTS_MAX_COUNT);
     if (gSoundEffects == NULL) {
         return -1;
     }
@@ -409,7 +409,7 @@ int soundEffectsCreate(int* handlePtr, int tag, void* data, CacheEntry* cacheHan
     soundEffect->position = 0;
     soundEffect->dataPosition = 0;
 
-    soundEffect->data = data;
+    soundEffect->data = (unsigned char*)data;
 
     *handlePtr = index;
 

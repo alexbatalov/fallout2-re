@@ -85,9 +85,9 @@ int audioOpen(const char* fname, int flags, ...)
 
     if (index == gAudioListLength) {
         if (gAudioList != NULL) {
-            gAudioList = internal_realloc_safe(gAudioList, sizeof(*gAudioList) * (gAudioListLength + 1), __FILE__, __LINE__); // "..\int\audio.c", 216
+            gAudioList = (AudioFile*)internal_realloc_safe(gAudioList, sizeof(*gAudioList) * (gAudioListLength + 1), __FILE__, __LINE__); // "..\int\audio.c", 216
         } else {
-            gAudioList = internal_malloc_safe(sizeof(*gAudioList), __FILE__, __LINE__); // "..\int\audio.c", 218
+            gAudioList = (AudioFile*)internal_malloc_safe(sizeof(*gAudioList), __FILE__, __LINE__); // "..\int\audio.c", 218
         }
         gAudioListLength++;
     }
@@ -142,7 +142,7 @@ int audioRead(int fileHandle, void* buffer, unsigned int size)
 }
 
 // 0x41A5E0
-int audioSeek(int fileHandle, long offset, int origin)
+long audioSeek(int fileHandle, long offset, int origin)
 {
     int pos;
     unsigned char* buf;
@@ -173,7 +173,7 @@ int audioSeek(int fileHandle, long offset, int origin)
             audioFile->fileSize *= 2;
 
             if (pos != 0) {
-                buf = internal_malloc_safe(4096, __FILE__, __LINE__); // "..\int\audio.c", 361
+                buf = (unsigned char*)internal_malloc_safe(4096, __FILE__, __LINE__); // "..\int\audio.c", 361
                 while (pos > 4096) {
                     pos -= 4096;
                     audioRead(fileHandle, buf, 4096);
@@ -186,7 +186,7 @@ int audioSeek(int fileHandle, long offset, int origin)
                 internal_free_safe(buf, __FILE__, __LINE__); // // "..\int\audio.c", 367
             }
         } else {
-            buf = internal_malloc_safe(1024, __FILE__, __LINE__); // "..\int\audio.c", 321
+            buf = (unsigned char*)internal_malloc_safe(1024, __FILE__, __LINE__); // "..\int\audio.c", 321
             v10 = audioFile->position - pos;
             while (v10 > 1024) {
                 v10 -= 1024;

@@ -553,7 +553,7 @@ int automapRenderInPipboyWindow(int window, int map, int elevation)
     unsigned char wallColor = _colorTable[992];
     unsigned char sceneryColor = _colorTable[480];
 
-    gAutomapEntry.data = internal_malloc(11024);
+    gAutomapEntry.data = (unsigned char*)internal_malloc(11024);
     if (gAutomapEntry.data == NULL) {
         debugPrint("\nAUTOMAP: Error allocating data buffer!\n");
         return -1;
@@ -621,9 +621,9 @@ int automapSaveCurrent()
     debugPrint("\nAUTOMAP: Saving AutoMap DB index %d, level %d\n", map, elevation);
 
     bool dataBuffersAllocated = false;
-    gAutomapEntry.data = internal_malloc(11024);
+    gAutomapEntry.data = (unsigned char*)internal_malloc(11024);
     if (gAutomapEntry.data != NULL) {
-        gAutomapEntry.compressedData = internal_malloc(11024);
+        gAutomapEntry.compressedData = (unsigned char*)internal_malloc(11024);
         if (gAutomapEntry.compressedData != NULL) {
             dataBuffersAllocated = true;
         }
@@ -903,7 +903,7 @@ int automapLoadEntry(int map, int elevation)
     }
 
     if (gAutomapEntry.isCompressed == 1) {
-        gAutomapEntry.compressedData = internal_malloc(11024);
+        gAutomapEntry.compressedData = (unsigned char*)internal_malloc(11024);
         if (gAutomapEntry.compressedData == NULL) {
             debugPrint("\nAUTOMAP: Error allocating decompression buffer!\n");
             fileClose(stream);

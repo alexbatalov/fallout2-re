@@ -1695,7 +1695,7 @@ int _proto_find_free_subnode(int type, Proto** protoPtr)
 {
     size_t size = (type >= 0 && type < 11) ? _proto_sizes[type] : 0;
 
-    Proto* proto = internal_malloc(size);
+    Proto* proto = (Proto*)internal_malloc(size);
     *protoPtr = proto;
     if (proto == NULL) {
         return -1;
@@ -1706,7 +1706,7 @@ int _proto_find_free_subnode(int type, Proto** protoPtr)
 
     if (protoList->head != NULL) {
         if (protoListExtent->length == PROTO_LIST_EXTENT_SIZE) {
-            ProtoListExtent* newExtent = protoListExtent->next = internal_malloc(sizeof(ProtoListExtent));
+            ProtoListExtent* newExtent = protoListExtent->next = (ProtoListExtent*)internal_malloc(sizeof(ProtoListExtent));
             if (protoListExtent == NULL) {
                 internal_free(proto);
                 *protoPtr = NULL;
@@ -1722,7 +1722,7 @@ int _proto_find_free_subnode(int type, Proto** protoPtr)
             protoListExtent = newExtent;
         }
     } else {
-        protoListExtent = internal_malloc(sizeof(ProtoListExtent));
+        protoListExtent = (ProtoListExtent*)internal_malloc(sizeof(ProtoListExtent));
         if (protoListExtent == NULL) {
             internal_free(proto);
             *protoPtr = NULL;

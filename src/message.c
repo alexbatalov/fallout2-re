@@ -50,13 +50,13 @@ int badwordsInit()
         gBadwordsCount++;
     }
 
-    gBadwords = internal_malloc(sizeof(*gBadwords) * gBadwordsCount);
+    gBadwords = (char**)internal_malloc(sizeof(*gBadwords) * gBadwordsCount);
     if (gBadwords == NULL) {
         fileClose(stream);
         return -1;
     }
 
-    gBadwordsLengths = internal_malloc(sizeof(*gBadwordsLengths) * gBadwordsCount);
+    gBadwordsLengths = (int*)internal_malloc(sizeof(*gBadwordsLengths) * gBadwordsCount);
     if (gBadwordsLengths == NULL) {
         internal_free(gBadwords);
         fileClose(stream);
@@ -353,7 +353,7 @@ bool _message_add(MessageList* msg, MessageListItem* new_entry)
         }
     } else {
         if (msg->entries != NULL) {
-            entries = internal_realloc(msg->entries, sizeof(MessageListItem) * (msg->entries_num + 1));
+            entries = (MessageListItem*)internal_realloc(msg->entries, sizeof(MessageListItem) * (msg->entries_num + 1));
             if (entries == NULL) {
                 return false;
             }
@@ -365,7 +365,7 @@ bool _message_add(MessageList* msg, MessageListItem* new_entry)
                 memmove(&(msg->entries[index + 1]), &(msg->entries[index]), sizeof(MessageListItem) * (msg->entries_num - index));
             }
         } else {
-            msg->entries = internal_malloc(sizeof(MessageListItem));
+            msg->entries = (MessageListItem*)internal_malloc(sizeof(MessageListItem));
             if (msg->entries == NULL) {
                 return false;
             }

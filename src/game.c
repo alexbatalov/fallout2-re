@@ -933,7 +933,7 @@ int globalVarsRead(const char* path, const char* section, int* out_vars_num, int
         }
 
         *out_vars_num = *out_vars_num + 1;
-        *out_vars = internal_realloc(*out_vars, sizeof(int) * *out_vars_num);
+        *out_vars = (int*)internal_realloc(*out_vars, sizeof(int) * *out_vars_num);
 
         if (*out_vars == NULL) {
             exit(1);
@@ -1239,13 +1239,13 @@ void showSplash()
         return;
     }
 
-    unsigned char* palette = internal_malloc(768);
+    unsigned char* palette = (unsigned char*)internal_malloc(768);
     if (palette == NULL) {
         fileClose(stream);
         return;
     }
 
-    unsigned char* data = internal_malloc(SPLASH_WIDTH * SPLASH_HEIGHT);
+    unsigned char* data = (unsigned char*)internal_malloc(SPLASH_WIDTH * SPLASH_HEIGHT);
     if (data == NULL) {
         internal_free(palette);
         fileClose(stream);

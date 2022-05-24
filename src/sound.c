@@ -517,12 +517,12 @@ Sound* soundAllocate(int a1, int a2)
         return NULL;
     }
 
-    Sound* sound = gSoundMallocProc(sizeof(*sound));
+    Sound* sound = (Sound*)gSoundMallocProc(sizeof(*sound));
     memset(sound, 0, sizeof(*sound));
 
     memcpy(&(sound->io), &gSoundDefaultFileIO, sizeof(gSoundDefaultFileIO));
 
-    WAVEFORMATEX* wfxFormat = gSoundMallocProc(sizeof(*wfxFormat));
+    WAVEFORMATEX* wfxFormat = (WAVEFORMATEX*)gSoundMallocProc(sizeof(*wfxFormat));
     memset(wfxFormat, 0, sizeof(*wfxFormat));
 
     wfxFormat->wFormatTag = 1;

@@ -43,7 +43,7 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
     argc++;
 
     commandLineArguments->argc = argc;
-    commandLineArguments->argv = malloc(sizeof(*commandLineArguments->argv) * argc);
+    commandLineArguments->argv = (char**)malloc(sizeof(*commandLineArguments->argv) * argc);
     if (commandLineArguments->argv == NULL) {
         argsFree(commandLineArguments);
         return false;

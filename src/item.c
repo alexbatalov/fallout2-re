@@ -232,7 +232,7 @@ int itemAdd(Object* owner, Object* itemToAdd, int quantity)
 
     if (index == inventory->length) {
         if (inventory->length == inventory->capacity || inventory->items == NULL) {
-            InventoryItem* inventoryItems = internal_realloc(inventory->items, sizeof(InventoryItem) * (inventory->capacity + 10));
+            InventoryItem* inventoryItems = (InventoryItem*)internal_realloc(inventory->items, sizeof(InventoryItem) * (inventory->capacity + 10));
             if (inventoryItems == NULL) {
                 return -1;
             }
@@ -2539,7 +2539,7 @@ int _insert_drug_effect(Object* critter, Object* item, int a3, int* stats, int* 
         return -1;
     }
 
-    DrugEffectEvent* drugEffectEvent = internal_malloc(sizeof(*drugEffectEvent));
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)internal_malloc(sizeof(*drugEffectEvent));
     if (drugEffectEvent == NULL) {
         return -1;
     }
@@ -2692,7 +2692,7 @@ bool _drug_effect_allowed(Object* critter, int pid)
 
     // TODO: Probably right, but let's check it once.
     int count = 0;
-    DrugEffectEvent* drugEffectEvent = queueFindFirstEvent(critter, EVENT_TYPE_DRUG);
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)queueFindFirstEvent(critter, EVENT_TYPE_DRUG);
     while (drugEffectEvent != NULL) {
         if (drugEffectEvent->drugPid == pid) {
             count++;
@@ -2700,7 +2700,7 @@ bool _drug_effect_allowed(Object* critter, int pid)
                 return false;
             }
         }
-        drugEffectEvent = queueFindNextEvent(critter, EVENT_TYPE_DRUG);
+        drugEffectEvent = (DrugEffectEvent*)queueFindNextEvent(critter, EVENT_TYPE_DRUG);
     }
 
     return true;
@@ -2796,7 +2796,7 @@ int _item_d_clear(Object* obj, void* data)
 // 0x47A198
 int drugEffectEventProcess(Object* obj, void* data)
 {
-    DrugEffectEvent* drugEffectEvent = data;
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)data;
 
     if (obj == NULL) {
         return 0;
@@ -2818,7 +2818,7 @@ int drugEffectEventProcess(Object* obj, void* data)
 // 0x47A1D0
 int drugEffectEventRead(File* stream, void** dataPtr)
 {
-    DrugEffectEvent* drugEffectEvent = internal_malloc(sizeof(*drugEffectEvent));
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)internal_malloc(sizeof(*drugEffectEvent));
     if (drugEffectEvent == NULL) {
         return -1;
     }
@@ -2838,7 +2838,7 @@ err:
 // 0x47A254
 int drugEffectEventWrite(File* stream, void* data)
 {
-    DrugEffectEvent* drugEffectEvent = data;
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)data;
 
     if (fileWriteInt32List(stream, drugEffectEvent->stats, 3) == -1) return -1;
     if (fileWriteInt32List(stream, drugEffectEvent->modifiers, 3) == -1) return -1;
@@ -2849,7 +2849,7 @@ int drugEffectEventWrite(File* stream, void* data)
 // 0x47A290
 int _insert_withdrawal(Object* obj, int a2, int duration, int perk, int pid)
 {
-    WithdrawalEvent* withdrawalEvent = internal_malloc(sizeof(*withdrawalEvent));
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)internal_malloc(sizeof(*withdrawalEvent));
     if (withdrawalEvent == NULL) {
         return -1;
     }
@@ -2869,7 +2869,7 @@ int _insert_withdrawal(Object* obj, int a2, int duration, int perk, int pid)
 // 0x47A2FC
 int _item_wd_clear(Object* obj, void* data)
 {
-    WithdrawalEvent* withdrawalEvent = data;
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)data;
 
     if (objectIsPartyMember(obj)) {
         return 0;
@@ -2885,7 +2885,7 @@ int _item_wd_clear(Object* obj, void* data)
 // 0x47A324
 int _item_wd_clear_all(Object* a1, void* data)
 {
-    WithdrawalEvent* withdrawalEvent = data;
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)data;
 
     if (a1 != _wd_obj) {
         return 0;
@@ -2909,7 +2909,7 @@ int _item_wd_clear_all(Object* a1, void* data)
 // 0x47A384
 int withdrawalEventProcess(Object* obj, void* data)
 {
-    WithdrawalEvent* withdrawalEvent = data;
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)data;
 
     if (withdrawalEvent->field_0) {
         performWithdrawalStart(obj, withdrawalEvent->perk, withdrawalEvent->pid);
@@ -2937,7 +2937,7 @@ int withdrawalEventProcess(Object* obj, void* data)
 // 0x47A404
 int withdrawalEventRead(File* stream, void** dataPtr)
 {
-    WithdrawalEvent* withdrawalEvent = internal_malloc(sizeof(*withdrawalEvent));
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)internal_malloc(sizeof(*withdrawalEvent));
     if (withdrawalEvent == NULL) {
         return -1;
     }
@@ -2958,7 +2958,7 @@ err:
 // 0x47A484
 int withdrawalEventWrite(File* stream, void* data)
 {
-    WithdrawalEvent* withdrawalEvent = data;
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)data;
 
     if (fileWriteInt32(stream, withdrawalEvent->field_0) == -1) return -1;
     if (fileWriteInt32(stream, withdrawalEvent->pid) == -1) return -1;

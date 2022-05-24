@@ -601,7 +601,7 @@ int fileWriteUInt32List(File* stream, unsigned int* arr, int count)
 // 0x4C6628
 int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a4)
 {
-    FileList* fileList = malloc(sizeof(*fileList));
+    FileList* fileList = (FileList*)malloc(sizeof(*fileList));
     if (fileList == NULL) {
         return 0;
     }

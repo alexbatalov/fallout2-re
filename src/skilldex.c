@@ -147,7 +147,7 @@ int skilldexWindowInit()
     bool cycle = false;
     int buttonDataIndex;
     for (buttonDataIndex = 0; buttonDataIndex < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; buttonDataIndex++) {
-        gSkilldexButtonsData[buttonDataIndex] = internal_malloc(gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].height * gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width + 512);
+        gSkilldexButtonsData[buttonDataIndex] = (unsigned char*)internal_malloc(gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].height * gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width + 512);
         if (gSkilldexButtonsData[buttonDataIndex] == NULL) {
             break;
         }

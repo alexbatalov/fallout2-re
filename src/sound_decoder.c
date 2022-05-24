@@ -77,7 +77,7 @@ bool soundDecoderPrepare(SoundDecoder* soundDecoder, SoundDecoderReadProc* readP
     soundDecoder->readProc = readProc;
     soundDecoder->fd = fileHandle;
 
-    soundDecoder->bufferIn = malloc(SOUND_DECODER_IN_BUFFER_SIZE);
+    soundDecoder->bufferIn = (unsigned char*)malloc(SOUND_DECODER_IN_BUFFER_SIZE);
     if (soundDecoder->bufferIn == NULL) {
         return false;
     }
@@ -1100,7 +1100,7 @@ SoundDecoder* soundDecoderInit(SoundDecoderReadProc* readProc, int fileHandle, i
     int v20;
     int v73;
 
-    SoundDecoder* soundDecoder = malloc(sizeof(*soundDecoder));
+    SoundDecoder* soundDecoder = (SoundDecoder*)malloc(sizeof(*soundDecoder));
     if (soundDecoder == NULL) {
         return NULL;
     }
@@ -1172,7 +1172,7 @@ SoundDecoder* soundDecoderInit(SoundDecoderReadProc* readProc, int fileHandle, i
     soundDecoder->field_3C = soundDecoder->field_38 * soundDecoder->field_24;
 
     if (v73 != 0) {
-        soundDecoder->field_30 = malloc(sizeof(unsigned char*) * v73);
+        soundDecoder->field_30 = (unsigned char*)malloc(sizeof(unsigned char*) * v73);
         if (soundDecoder->field_30 == NULL) {
             goto L66;
         }
@@ -1180,7 +1180,7 @@ SoundDecoder* soundDecoderInit(SoundDecoderReadProc* readProc, int fileHandle, i
         memset(soundDecoder->field_30, 0, sizeof(unsigned char*) * v73);
     }
 
-    soundDecoder->field_34 = malloc(sizeof(unsigned char*) * soundDecoder->field_2C);
+    soundDecoder->field_34 = (unsigned char*)malloc(sizeof(unsigned char*) * soundDecoder->field_2C);
     if (soundDecoder->field_34 == NULL) {
         goto L66;
     }
@@ -1188,7 +1188,7 @@ SoundDecoder* soundDecoderInit(SoundDecoderReadProc* readProc, int fileHandle, i
     soundDecoder->field_50 = 0;
 
     if (gSoundDecodersCount == 1) {
-        _AudioDecoder_scale_tbl = malloc(0x20000);
+        _AudioDecoder_scale_tbl = (unsigned char*)malloc(0x20000);
         _AudioDecoder_scale0 = _AudioDecoder_scale_tbl + 0x10000;
     }
 

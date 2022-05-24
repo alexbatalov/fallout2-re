@@ -1151,7 +1151,7 @@ int worldmapConfigInit()
 
             gWorldmapTilesLength++;
 
-            TileInfo* worldmapTiles = internal_realloc(gWorldmapTiles, sizeof(*gWorldmapTiles) * gWorldmapTilesLength);
+            TileInfo* worldmapTiles = (TileInfo*)internal_realloc(gWorldmapTiles, sizeof(*gWorldmapTiles) * gWorldmapTilesLength);
             if (worldmapTiles == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading tiles!");
                 exit(1);
@@ -1206,7 +1206,7 @@ int worldmapConfigLoadEncounterTable(Config* config, char* lookupName, char* sec
 {
     gEncounterTablesLength++;
 
-    EncounterTable* encounterTables = internal_realloc(gEncounterTables, sizeof(EncounterTable) * gEncounterTablesLength);
+    EncounterTable* encounterTables = (EncounterTable*)internal_realloc(gEncounterTables, sizeof(EncounterTable) * gEncounterTablesLength);
     if (encounterTables == NULL) {
         showMesageBox("\nwmConfigInit::Error loading Encounter Table!");
         exit(1);
@@ -1461,7 +1461,7 @@ int _wmReadEncBaseType(char* name, int* valuePtr)
 
     _wmMaxEncBaseTypes++;
 
-    ENC_BASE_TYPE* arr = internal_realloc(_wmEncBaseTypeList, sizeof(*_wmEncBaseTypeList) * _wmMaxEncBaseTypes);
+    ENC_BASE_TYPE* arr = (ENC_BASE_TYPE*)internal_realloc(_wmEncBaseTypeList, sizeof(*_wmEncBaseTypeList) * _wmMaxEncBaseTypes);
     if (arr == NULL) {
         showMesageBox("\nwmConfigInit::Error Reading EncBaseType!");
         exit(1);
@@ -1692,7 +1692,7 @@ int _wmParseTerrainTypes(Config* config, char* string)
 
     gTerrainsLength = terrainCount;
 
-    gTerrains = internal_malloc(sizeof(*gTerrains) * terrainCount);
+    gTerrains = (Terrain*)internal_malloc(sizeof(*gTerrains) * terrainCount);
     if (gTerrains == NULL) {
         return -1;
     }
@@ -2252,7 +2252,7 @@ int cityInit()
 
             gCitiesLength++;
 
-            cities = internal_realloc(gCities, sizeof(CityInfo) * gCitiesLength);
+            cities = (CityInfo*)internal_realloc(gCities, sizeof(CityInfo) * gCitiesLength);
             if (cities == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
@@ -2457,7 +2457,7 @@ int _wmMapInit()
 
             gMapsLength++;
 
-            maps = internal_realloc(gMaps, sizeof(*gMaps) * gMapsLength);
+            maps = (MapInfo*)internal_realloc(gMaps, sizeof(*gMaps) * gMapsLength);
             if (maps == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading maps!");
                 exit(1);
@@ -4028,7 +4028,7 @@ int _wmGrabTileWalkMask(int tile)
         return 0;
     }
 
-    tileInfo->walkMaskData = internal_malloc(13200);
+    tileInfo->walkMaskData = (unsigned char*)internal_malloc(13200);
     if (tileInfo->walkMaskData == NULL) {
         return -1;
     }
@@ -6286,7 +6286,7 @@ int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengt
 
     int capacity = 10;
 
-    quickDestinations = internal_malloc(sizeof(*quickDestinations) * capacity);
+    quickDestinations = (int*)internal_malloc(sizeof(*quickDestinations) * capacity);
     *quickDestinationsPtr = quickDestinations;
 
     if (quickDestinations == NULL) {
@@ -6302,7 +6302,7 @@ int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengt
             if (capacity <= quickDestinationsLength) {
                 capacity += 10;
 
-                quickDestinations = internal_realloc(quickDestinations, sizeof(*quickDestinations) * capacity);
+                quickDestinations = (int*)internal_realloc(quickDestinations, sizeof(*quickDestinations) * capacity);
                 if (quickDestinations == NULL) {
                     return -1;
                 }

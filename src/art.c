@@ -124,7 +124,7 @@ int artInit()
         }
     }
 
-    _anon_alias = internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[1].fileNamesLength);
+    _anon_alias = (int*)internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[1].fileNamesLength);
     if (_anon_alias == NULL) {
         gArtListDescriptions[1].fileNamesLength = 0;
         debugPrint("Out of memory for anon_alias in art_init\n");
@@ -132,7 +132,7 @@ int artInit()
         return -1;
     }
 
-    gArtCritterFidShoudRunData = internal_malloc(sizeof(*gArtCritterFidShoudRunData) * gArtListDescriptions[1].fileNamesLength);
+    gArtCritterFidShoudRunData = (int*)internal_malloc(sizeof(*gArtCritterFidShoudRunData) * gArtListDescriptions[1].fileNamesLength);
     if (gArtCritterFidShoudRunData == NULL) {
         gArtListDescriptions[1].fileNamesLength = 0;
         debugPrint("Out of memory for artCritterFidShouldRunData in art_init\n");
@@ -207,7 +207,7 @@ int artInit()
         }
     }
 
-    gHeadDescriptions = internal_malloc(sizeof(HeadDescription) * gArtListDescriptions[8].fileNamesLength);
+    gHeadDescriptions = (HeadDescription*)internal_malloc(sizeof(HeadDescription) * gArtListDescriptions[8].fileNamesLength);
     if (gHeadDescriptions == NULL) {
         gArtListDescriptions[8].fileNamesLength = 0;
         debugPrint("Out of memory for head_info in art_init\n");
@@ -632,7 +632,7 @@ int artReadList(const char* path, char** out_arr, int* out_count)
 
     *out_count = count;
 
-    arr = internal_malloc(13 * count);
+    arr = (char*)internal_malloc(13 * count);
     *out_arr = arr;
     if (arr == NULL) {
         goto err;

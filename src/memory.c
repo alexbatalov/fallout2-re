@@ -32,7 +32,7 @@ char* internal_strdup(const char* string)
 {
     char* copy = NULL;
     if (string != NULL) {
-        copy = gMallocProc(strlen(string) + 1);
+        copy = (char*)gMallocProc(strlen(string) + 1);
         strcpy(copy, string);
     }
     return copy;
@@ -52,7 +52,7 @@ void* memoryBlockMallocImpl(size_t size)
     if (size != 0) {
         size += sizeof(MemoryBlockHeader) + sizeof(MemoryBlockFooter);
 
-        unsigned char* block = malloc(size);
+        unsigned char* block = (unsigned char*)malloc(size);
         if (block != NULL) {
             MemoryBlockHeader* header = (MemoryBlockHeader*)block;
             header->size = size;
@@ -101,7 +101,7 @@ void* memoryBlockReallocImpl(void* ptr, size_t size)
             size += sizeof(MemoryBlockHeader) + sizeof(MemoryBlockFooter);
         }
 
-        unsigned char* newBlock = realloc(block, size);
+        unsigned char* newBlock = (unsigned char*)realloc(block, size);
         if (newBlock != NULL) {
             MemoryBlockHeader* newHeader = (MemoryBlockHeader*)newBlock;
             newHeader->size = size;

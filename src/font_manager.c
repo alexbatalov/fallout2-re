@@ -124,7 +124,7 @@ int interfaceFontLoad(int font_index)
 
     fileSize -= sizeof(InterfaceFontDescriptor);
 
-    fontDescriptor->data = internal_malloc_safe(fileSize, __FILE__, __LINE__); // FONTMGR.C, 259
+    fontDescriptor->data = (unsigned char*)internal_malloc_safe(fileSize, __FILE__, __LINE__); // FONTMGR.C, 259
     if (fontDescriptor->data == NULL) goto err;
 
     if (fileRead(fontDescriptor->data, fileSize, 1, stream) != 1) {

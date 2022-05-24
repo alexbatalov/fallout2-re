@@ -108,7 +108,7 @@ RectListNode* _rect_malloc()
 {
     if (_rectList == NULL) {
         for (int index = 0; index < 10; index++) {
-            RectListNode* rectListNode = internal_malloc(sizeof(*rectListNode));
+            RectListNode* rectListNode = (RectListNode*)internal_malloc(sizeof(*rectListNode));
             if (rectListNode == NULL) {
                 break;
             }

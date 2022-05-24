@@ -89,28 +89,28 @@ int partyMembersInit()
         sprintf(section, "Party Member %d", gPartyMemberDescriptionsLength);
     }
 
-    gPartyMemberPids = internal_malloc(sizeof(*gPartyMemberPids) * gPartyMemberDescriptionsLength);
+    gPartyMemberPids = (int*)internal_malloc(sizeof(*gPartyMemberPids) * gPartyMemberDescriptionsLength);
     if (gPartyMemberPids == NULL) {
         goto err;
     }
 
     memset(gPartyMemberPids, 0, sizeof(*gPartyMemberPids) * gPartyMemberDescriptionsLength);
 
-    gPartyMembers = internal_malloc(sizeof(*gPartyMembers) * (gPartyMemberDescriptionsLength + 20));
+    gPartyMembers = (STRUCT_519DA8*)internal_malloc(sizeof(*gPartyMembers) * (gPartyMemberDescriptionsLength + 20));
     if (gPartyMembers == NULL) {
         goto err;
     }
 
     memset(gPartyMembers, 0, sizeof(*gPartyMembers) * (gPartyMemberDescriptionsLength + 20));
 
-    gPartyMemberDescriptions = internal_malloc(sizeof(*gPartyMemberDescriptions) * gPartyMemberDescriptionsLength);
+    gPartyMemberDescriptions = (PartyMemberDescription*)internal_malloc(sizeof(*gPartyMemberDescriptions) * gPartyMemberDescriptionsLength);
     if (gPartyMemberDescriptions == NULL) {
         goto err;
     }
 
     memset(gPartyMemberDescriptions, 0, sizeof(*gPartyMemberDescriptions) * gPartyMemberDescriptionsLength);
 
-    _partyMemberLevelUpInfoList = internal_malloc(sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
+    _partyMemberLevelUpInfoList = (STRU_519DBC*)internal_malloc(sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
     if (_partyMemberLevelUpInfoList == NULL) goto err;
 
     memset(_partyMemberLevelUpInfoList, 0, sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
@@ -530,7 +530,7 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
         return 0;
     }
 
-    a1->script = internal_malloc(sizeof(*script));
+    a1->script = (Script*)internal_malloc(sizeof(*script));
     if (a1->script == NULL) {
         showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
         exit(1);
@@ -539,7 +539,7 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
     memcpy(a1->script, script, sizeof(*script));
 
     if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
-        a1->vars = internal_malloc(sizeof(*a1->vars) * script->localVarsCount);
+        a1->vars = (int*)internal_malloc(sizeof(*a1->vars) * script->localVarsCount);
         if (a1->vars == NULL) {
             showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
             exit(1);
@@ -658,7 +658,7 @@ int _partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
 // 0x494BBC
 int partyMembersLoad(File* stream)
 {
-    int* partyMemberObjectIds = internal_malloc(sizeof(*partyMemberObjectIds) * (gPartyMemberDescriptionsLength + 20));
+    int* partyMemberObjectIds = (int*)internal_malloc(sizeof(*partyMemberObjectIds) * (gPartyMemberDescriptionsLength + 20));
     if (partyMemberObjectIds == NULL) {
         return -1;
     }
@@ -971,7 +971,7 @@ int _partyMemberItemSave(Object* object)
             object->id = script->field_1C;
         }
 
-        STRUCT_519DA8* node = internal_malloc(sizeof(*node));
+        STRUCT_519DA8* node = (STRUCT_519DA8*)internal_malloc(sizeof(*node));
         if (node == NULL) {
             showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
@@ -979,7 +979,7 @@ int _partyMemberItemSave(Object* object)
 
         node->object = object;
 
-        node->script = internal_malloc(sizeof(*script));
+        node->script = (Script*)internal_malloc(sizeof(*script));
         if (node->script == NULL) {
             showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
@@ -988,7 +988,7 @@ int _partyMemberItemSave(Object* object)
         memcpy(node->script, script, sizeof(*script));
 
         if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
-            node->vars = internal_malloc(sizeof(*node->vars) * script->localVarsCount);
+            node->vars = (int*)internal_malloc(sizeof(*node->vars) * script->localVarsCount);
             if (node->vars == NULL) {
                 showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
                 exit(1);

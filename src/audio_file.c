@@ -88,9 +88,9 @@ int audioFileOpen(const char* fname, int flags, ...)
 
     if (index == gAudioFileListLength) {
         if (gAudioFileList != NULL) {
-            gAudioFileList = internal_realloc_safe(gAudioFileList, sizeof(*gAudioFileList) * (gAudioFileListLength + 1), __FILE__, __LINE__); // "..\int\audiof.c", 207
+            gAudioFileList = (AudioFile*)internal_realloc_safe(gAudioFileList, sizeof(*gAudioFileList) * (gAudioFileListLength + 1), __FILE__, __LINE__); // "..\int\audiof.c", 207
         } else {
-            gAudioFileList = internal_malloc_safe(sizeof(*gAudioFileList), __FILE__, __LINE__); // "..\int\audiof.c", 209
+            gAudioFileList = (AudioFile*)internal_malloc_safe(sizeof(*gAudioFileList), __FILE__, __LINE__); // "..\int\audiof.c", 209
         }
         gAudioFileListLength++;
     }
@@ -147,7 +147,7 @@ int audioFileRead(int fileHandle, void* buffer, unsigned int size)
 }
 
 // 0x41AB74
-int audioFileSeek(int fileHandle, long offset, int origin)
+long audioFileSeek(int fileHandle, long offset, int origin)
 {
     void* buf;
     int remaining;

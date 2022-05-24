@@ -170,10 +170,10 @@ STRUCT_56DAE0_FIELD_4* _getReply()
     v0 = &(_dialog[_tods].field_4[_dialog[_tods].field_C]);
     if (v0->field_C == NULL) {
         v0->field_14 = 1;
-        v1 = internal_malloc_safe(sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C), __FILE__, __LINE__); // "..\\int\\DIALOG.C", 789
+        v1 = (STRUCT_56DAE0_FIELD_4_FIELD_C*)internal_malloc_safe(sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C), __FILE__, __LINE__); // "..\\int\\DIALOG.C", 789
     } else {
         v0->field_14++;
-        v1 = internal_realloc_safe(v0->field_C, sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C) * v0->field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 793
+        v1 = (STRUCT_56DAE0_FIELD_4_FIELD_C*)internal_realloc_safe(v0->field_C, sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C) * v0->field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 793
     }
     v0->field_C = v1;
 
@@ -193,7 +193,7 @@ void _replyAddOption(const char* a1, const char* a2, int a3)
     v18->field_C[v17].field_8 = 2;
 
     if (a1 != NULL) {
-        v14 = internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 805
+        v14 = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 805
         strcpy(v14, a1);
         v18->field_C[v17].field_0 = v14;
     } else {
@@ -201,7 +201,7 @@ void _replyAddOption(const char* a1, const char* a2, int a3)
     }
 
     if (a2 != NULL) {
-        v15 = internal_malloc_safe(strlen(a2) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 810
+        v15 = (char*)internal_malloc_safe(strlen(a2) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 810
         strcpy(v15, a2);
         v18->field_C[v17].field_4 = v15;
     } else {
@@ -226,7 +226,7 @@ void _replyAddOptionProc(const char* a1, const char* a2, int a3)
     v5->field_C[v13].field_8 = 1;
 
     if (a1 != NULL) {
-        v11 = internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 830
+        v11 = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 830
         strcpy(v11, a1);
         v5->field_C[v13].field_0 = v11;
     } else {
@@ -472,7 +472,7 @@ int dialogSetReplyTitle(const char* a1)
     }
 
     if (a1 != NULL) {
-        gDialogReplyTitle = internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2564
+        gDialogReplyTitle = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2564
         strcpy(gDialogReplyTitle, a1);
     } else {
         gDialogReplyTitle = NULL;

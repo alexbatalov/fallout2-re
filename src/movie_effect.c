@@ -111,7 +111,7 @@ int movieEffectsLoad(const char* filePath)
         goto out;
     }
 
-    int* movieEffectFrameList = internal_malloc(sizeof(*movieEffectFrameList) * movieEffectsLength);
+    int* movieEffectFrameList = (int*)internal_malloc(sizeof(*movieEffectFrameList) * movieEffectsLength);
     if (movieEffectFrameList == NULL) {
         goto out;
     }
@@ -155,7 +155,7 @@ int movieEffectsLoad(const char* filePath)
                 continue;
             }
 
-            MovieEffect* movieEffect = internal_malloc(sizeof(*movieEffect));
+            MovieEffect* movieEffect = (MovieEffect*)internal_malloc(sizeof(*movieEffect));
             if (movieEffect == NULL) {
                 continue;
             }

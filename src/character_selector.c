@@ -267,7 +267,7 @@ bool characterSelectorWindowInit()
         gCharacterSelectorWindowBuffer,
         CS_WINDOW_WIDTH);
 
-    gCharacterSelectorBackground = internal_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
+    gCharacterSelectorBackground = (unsigned char*)internal_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
     if (gCharacterSelectorBackground == NULL)
         goto err;
 

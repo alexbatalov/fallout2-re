@@ -602,7 +602,7 @@ int lsgSaveGame(int mode)
 // 0x47C5B4
 int _QuickSnapShot()
 {
-    _snapshot = internal_malloc(LS_PREVIEW_SIZE);
+    _snapshot = (unsigned char*)internal_malloc(LS_PREVIEW_SIZE);
     if (_snapshot == NULL) {
         return -1;
     }
@@ -1052,7 +1052,7 @@ int lsgWindowInit(int windowType)
         return -1;
     }
 
-    _snapshot = internal_malloc(61632);
+    _snapshot = (unsigned char*)internal_malloc(61632);
     if (_snapshot == NULL) {
         messageListFree(&gLoadSaveMessageList);
         fontSetCurrent(gLoadSaveWindowOldFont);

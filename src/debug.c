@@ -76,7 +76,7 @@ void _debug_register_env()
         return;
     }
 
-    char* copy = internal_malloc(strlen(type) + 1);
+    char* copy = (char*)internal_malloc(strlen(type) + 1);
     if (copy == NULL) {
         return;
     }
@@ -205,7 +205,7 @@ int _debug_screen(char* string)
 }
 
 // 0x4C709C
-void _debug_putc()
+void _debug_putc(char ch)
 {
     // TODO: Something with segments.
 }

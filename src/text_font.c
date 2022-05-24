@@ -131,7 +131,7 @@ int textFontLoad(int font)
         goto out;
     }
 
-    textFontDescriptor->glyphs = internal_malloc(textFontDescriptor->glyphCount * sizeof(TextFontGlyph));
+    textFontDescriptor->glyphs = (TextFontGlyph*)internal_malloc(textFontDescriptor->glyphCount * sizeof(TextFontGlyph));
     if (textFontDescriptor->glyphs == NULL) {
         goto out;
     }
@@ -141,7 +141,7 @@ int textFontLoad(int font)
     }
 
     int dataSize = textFontDescriptor->lineHeight * ((textFontDescriptor->glyphs[textFontDescriptor->glyphCount - 1].width + 7) >> 3) + textFontDescriptor->glyphs[textFontDescriptor->glyphCount - 1].dataOffset;
-    textFontDescriptor->data = internal_malloc(dataSize);
+    textFontDescriptor->data = (unsigned char*)internal_malloc(dataSize);
     if (textFontDescriptor->data == NULL) {
         goto out;
     }

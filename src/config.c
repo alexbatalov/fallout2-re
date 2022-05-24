@@ -37,11 +37,11 @@ void configFree(Config* config)
     for (int sectionIndex = 0; sectionIndex < config->entriesLength; sectionIndex++) {
         DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
 
-        ConfigSection* section = sectionEntry->value;
+        ConfigSection* section = (ConfigSection*)sectionEntry->value;
         for (int keyValueIndex = 0; keyValueIndex < section->entriesLength; keyValueIndex++) {
             DictionaryEntry* keyValueEntry = &(section->entries[keyValueIndex]);
 
-            char** value = keyValueEntry->value;
+            char** value = (char**)keyValueEntry->value;
             internal_free(*value);
             *value = NULL;
         }
@@ -120,7 +120,7 @@ bool configGetString(Config* config, const char* sectionKey, const char* key, ch
     }
 
     DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
-    ConfigSection* section = sectionEntry->value;
+    ConfigSection* section = (ConfigSection*)sectionEntry->value;
 
     int index = dictionaryGetIndexByKey(section, key);
     if (index == -1) {
@@ -151,13 +151,13 @@ bool configSetString(Config* config, const char* sectionKey, const char* key, co
     }
 
     DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
-    ConfigSection* section = sectionEntry->value;
+    ConfigSection* section = (ConfigSection*)sectionEntry->value;
 
     int index = dictionaryGetIndexByKey(section, key);
     if (index != -1) {
         DictionaryEntry* keyValueEntry = &(section->entries[index]);
 
-        char** existingValue = keyValueEntry->value;
+        char** existingValue = (char**)keyValueEntry->value;
         internal_free(*existingValue);
         *existingValue = NULL;
 
@@ -303,7 +303,7 @@ bool configWrite(Config* config, const char* filePath, bool isDb)
             DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
             filePrintFormatted(stream, "[%s]\n", sectionEntry->key);
 
-            ConfigSection* section = sectionEntry->value;
+            ConfigSection* section = (ConfigSection*)sectionEntry->value;
             for (int index = 0; index < section->entriesLength; index++) {
                 DictionaryEntry* keyValueEntry = &(section->entries[index]);
                 filePrintFormatted(stream, "%s=%s\n", keyValueEntry->key, *(char**)keyValueEntry->value);
@@ -323,7 +323,7 @@ bool configWrite(Config* config, const char* filePath, bool isDb)
             DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
             fprintf(stream, "[%s]\n", sectionEntry->key);
 
-            ConfigSection* section = sectionEntry->value;
+            ConfigSection* section = (ConfigSection*)sectionEntry->value;
             for (int index = 0; index < section->entriesLength; index++) {
                 DictionaryEntry* keyValueEntry = &(section->entries[index]);
                 fprintf(stream, "%s=%s\n", keyValueEntry->key, *(char**)keyValueEntry->value);

@@ -415,25 +415,25 @@ Program* programCreateByPath(const char* path)
     }
 
     int fileSize = fileGetSize(stream);
-    unsigned char* data = internal_malloc_safe(fileSize, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 458
+    unsigned char* data = (unsigned char*)internal_malloc_safe(fileSize, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 458
 
     fileRead(data, 1, fileSize, stream);
     fileClose(stream);
 
-    Program* program = internal_malloc_safe(sizeof(Program), __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 463
+    Program* program = (Program*)internal_malloc_safe(sizeof(Program), __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 463
     memset(program, 0, sizeof(Program));
 
-    program->name = internal_malloc_safe(strlen(path) + 1, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 466
+    program->name = (char*)internal_malloc_safe(strlen(path) + 1, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 466
     strcpy(program->name, path);
 
     program->child = NULL;
     program->parent = NULL;
     program->field_78 = -1;
-    program->stack = internal_calloc_safe(1, 4096, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 472
+    program->stack = (unsigned char*)internal_calloc_safe(1, 4096, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 472
     program->exited = false;
     program->basePointer = -1;
     program->framePointer = -1;
-    program->returnStack = internal_calloc_safe(1, 4096, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 473
+    program->returnStack = (unsigned char*)internal_calloc_safe(1, 4096, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 473
     program->data = data;
     program->procedures = data + 42;
     program->identifiers = 24 * stackReadInt32(program->procedures, 0) + program->procedures + 4;
@@ -564,13 +564,13 @@ int programPushString(Program* program, char* string)
             heap += v2 + 4;
         }
     } else {
-        program->dynamicStrings = internal_malloc_safe(8, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 631
+        program->dynamicStrings = (unsigned char*)internal_malloc_safe(8, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 631
         *(int*)(program->dynamicStrings) = 0;
         *(short*)(program->dynamicStrings + 4) = 0x8000;
         *(short*)(program->dynamicStrings + 6) = 1;
     }
 
-    program->dynamicStrings = internal_realloc_safe(program->dynamicStrings, *(int*)(program->dynamicStrings) + 8 + 4 + v27, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 640
+    program->dynamicStrings = (unsigned char*)internal_realloc_safe(program->dynamicStrings, *(int*)(program->dynamicStrings) + 8 + 4 + v27, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 640
 
     v20 = program->dynamicStrings + *(int*)(program->dynamicStrings) + 4;
     if ((*(short*)v20 & 0xFFFF) != 0x8000) {
@@ -1498,20 +1498,20 @@ void opAdd(Program* program)
         case VALUE_TYPE_STRING:
         case VALUE_TYPE_DYNAMIC_STRING:
             t = programGetString(program, opcodes[0], values[0]);
-            str_ptr[0] = internal_malloc_safe(strlen(t) + 1, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1002
+            str_ptr[0] = (char*)internal_malloc_safe(strlen(t) + 1, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1002
             strcpy(str_ptr[0], t);
             break;
         case VALUE_TYPE_FLOAT:
-            str_ptr[0] = internal_malloc_safe(80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1011
+            str_ptr[0] = (char*)internal_malloc_safe(80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1011
             sprintf(str_ptr[0], "%.5f", floats[0]);
             break;
         case VALUE_TYPE_INT:
-            str_ptr[0] = internal_malloc_safe(80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1007
+            str_ptr[0] = (char*)internal_malloc_safe(80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1007
             sprintf(str_ptr[0], "%d", values[0]);
             break;
         }
 
-        t = internal_malloc_safe(strlen(str_ptr[1]) + strlen(str_ptr[0]) + 1, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1015
+        t = (char*)internal_malloc_safe(strlen(str_ptr[1]) + strlen(str_ptr[0]) + 1, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1015
         strcpy(t, str_ptr[1]);
         strcat(t, str_ptr[0]);
 
@@ -1526,7 +1526,7 @@ void opAdd(Program* program)
         case VALUE_TYPE_STRING:
         case VALUE_TYPE_DYNAMIC_STRING:
             str_ptr[0] = programGetString(program, opcodes[0], values[0]);
-            t = internal_malloc_safe(strlen(str_ptr[0]) + 80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1039
+            t = (char*)internal_malloc_safe(strlen(str_ptr[0]) + 80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1039
             sprintf(t, "%.5f", floats[1]);
             strcat(t, str_ptr[0]);
 
@@ -1552,7 +1552,7 @@ void opAdd(Program* program)
         case VALUE_TYPE_STRING:
         case VALUE_TYPE_DYNAMIC_STRING:
             str_ptr[0] = programGetString(program, opcodes[0], values[0]);
-            t = internal_malloc_safe(strlen(str_ptr[0]) + 80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1070
+            t = (char*)internal_malloc_safe(strlen(str_ptr[0]) + 80, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 1070
             sprintf(t, "%d", values[1]);
             strcat(t, str_ptr[0]);
 
@@ -3412,7 +3412,7 @@ void programListNodeCreate(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x02;
 
-    ProgramListNode* programListNode = internal_malloc_safe(sizeof(*programListNode), __FILE__, __LINE__); // .\\int\\INTRPRET.C, 2907
+    ProgramListNode* programListNode = (ProgramListNode*)internal_malloc_safe(sizeof(*programListNode), __FILE__, __LINE__); // .\\int\\INTRPRET.C, 2907
     programListNode->program = program;
     programListNode->next = gInterpreterProgramListHead;
     programListNode->prev = NULL;

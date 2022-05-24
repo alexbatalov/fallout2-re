@@ -1951,7 +1951,7 @@ int combatLoad(File* stream)
     int i;
     int j;
 
-    if (fileReadInt32(stream, &gCombatState) == -1) return -1;
+    if (fileReadUInt32(stream, &gCombatState) == -1) return -1;
 
     if (!isInCombat()) {
         obj = objectFindFirst();
@@ -2026,7 +2026,7 @@ int combatLoad(File* stream)
         internal_free(_aiInfoList);
     }
 
-    _aiInfoList = internal_malloc(sizeof(*_aiInfoList) * _list_total);
+    _aiInfoList = (STRUCT_510948*)internal_malloc(sizeof(*_aiInfoList) * _list_total);
     if (_aiInfoList == NULL) {
         return -1;
     }
@@ -2401,7 +2401,7 @@ void _combat_begin(Object* a1)
         _list_total = objectListCreate(-1, _combat_elev, OBJ_TYPE_CRITTER, &_combat_list);
         _list_noncom = _list_total;
         _list_com = 0;
-        _aiInfoList = internal_malloc(sizeof(*_aiInfoList) * _list_total);
+        _aiInfoList = (STRUCT_510948*)internal_malloc(sizeof(*_aiInfoList) * _list_total);
         if (_aiInfoList == NULL) {
             return;
         }

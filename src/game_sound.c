@@ -1932,7 +1932,7 @@ int _gsound_get_music_path(char** out_value, const char* key)
         return 0;
     }
 
-    v4 = internal_malloc(v3 - 1 + 2);
+    v4 = (char*)internal_malloc(v3 - 1 + 2);
     if (v4 == NULL) {
         if (gGameSoundDebugEnabled) {
             debugPrint("Out of memory in gsound_get_music_path.\n");
@@ -2057,7 +2057,7 @@ int ambientSoundEffectEventProcess(Object* a1, void* data)
 {
     _queue_clear_type(EVENT_TYPE_GSOUND_SFX_EVENT, NULL);
 
-    AmbientSoundEffectEvent* soundEffectEvent = data;
+    AmbientSoundEffectEvent* soundEffectEvent = (AmbientSoundEffectEvent*)data;
     int ambientSoundEffectIndex = -1;
     if (soundEffectEvent != NULL) {
         ambientSoundEffectIndex = soundEffectEvent->ambientSoundEffectIndex;
@@ -2067,7 +2067,7 @@ int ambientSoundEffectEventProcess(Object* a1, void* data)
         }
     }
 
-    AmbientSoundEffectEvent* nextSoundEffectEvent = internal_malloc(sizeof(*nextSoundEffectEvent));
+    AmbientSoundEffectEvent* nextSoundEffectEvent = (AmbientSoundEffectEvent*)internal_malloc(sizeof(*nextSoundEffectEvent));
     if (nextSoundEffectEvent == NULL) {
         return -1;
     }

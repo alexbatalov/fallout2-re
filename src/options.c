@@ -473,7 +473,7 @@ int optionsWindowInit()
 
     int cycle = 0;
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        _opbtns[index] = internal_malloc(gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
+        _opbtns[index] = (unsigned char*)internal_malloc(gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
         if (_opbtns[index] == NULL) {
             while (--index >= 0) {
                 internal_free(_opbtns[index]);

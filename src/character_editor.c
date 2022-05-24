@@ -1105,7 +1105,7 @@ int characterEditorWindowInit()
 
     for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
         if (_copyflag[i]) {
-            _grphcpy[i] = internal_malloc(_GInfo[i].width * _GInfo[i].height);
+            _grphcpy[i] = (unsigned char*)internal_malloc(_GInfo[i].width * _GInfo[i].height);
             if (_grphcpy[i] == NULL) {
                 break;
             }
@@ -3542,13 +3542,13 @@ int _OptionWindow()
             }
 
             do {
-                down[index] = internal_malloc(size);
+                down[index] = (unsigned char*)internal_malloc(size);
                 if (down[index] == NULL) {
                     err = 1;
                     break;
                 }
 
-                up[index] = internal_malloc(size);
+                up[index] = (unsigned char*)internal_malloc(size);
                 if (up[index] == NULL) {
                     err = 2;
                     break;
@@ -6547,7 +6547,7 @@ int karmaInit()
 
         entry.description = atoi(tok);
 
-        KarmaEntry* entries = internal_realloc(gKarmaEntries, sizeof(*entries) * (gKarmaEntriesLength + 1));
+        KarmaEntry* entries = (KarmaEntry*)internal_realloc(gKarmaEntries, sizeof(*entries) * (gKarmaEntriesLength + 1));
         if (entries == NULL) {
             fileClose(stream);
 
@@ -6632,7 +6632,7 @@ int genericReputationInit()
 
         entry.name = atoi(tok);
 
-        GenericReputationEntry* entries = internal_realloc(gGenericReputationEntries, sizeof(*entries) * (gGenericReputationEntriesLength + 1));
+        GenericReputationEntry* entries = (GenericReputationEntry*)internal_realloc(gGenericReputationEntries, sizeof(*entries) * (gGenericReputationEntriesLength + 1));
         if (entries == NULL) {
             fileClose(stream);
 

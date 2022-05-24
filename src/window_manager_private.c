@@ -105,7 +105,7 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6,
         return -1;
     }
 
-    struc_177* v14 = window->field_3C = internal_malloc(sizeof(struc_177));
+    struc_177* v14 = window->field_3C = (struc_177*)internal_malloc(sizeof(struc_177));
     if (v14 == NULL) {
         return -1;
     }
@@ -197,7 +197,7 @@ int _GNW_process_menu(struc_177* ptr, int i)
 // 0x4DD03C
 int _calc_max_field_chars_wcursor(int a1, int a2)
 {
-    char* str = internal_malloc(17);
+    char* str = (char*)internal_malloc(17);
     if (str == NULL) {
         return -1;
     }

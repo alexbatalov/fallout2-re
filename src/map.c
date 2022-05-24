@@ -418,7 +418,7 @@ int _map_malloc_local_var(int a1)
     int oldMapLocalVarsLength = gMapLocalVarsLength;
     gMapLocalVarsLength += a1;
 
-    int* vars = internal_realloc(gMapLocalVars, sizeof(*vars) * gMapLocalVarsLength);
+    int* vars = (int*)internal_realloc(gMapLocalVars, sizeof(*vars) * gMapLocalVarsLength);
     if (vars == NULL) {
         debugPrint("\nError: Ran out of memory!");
     }
@@ -813,7 +813,7 @@ int mapLoad(File* stream)
     mapGlobalVariablesFree();
 
     if (gMapHeader.globalVariablesCount != 0) {
-        gMapGlobalVars = internal_malloc(sizeof(*gMapGlobalVars) * gMapHeader.globalVariablesCount);
+        gMapGlobalVars = (int*)internal_malloc(sizeof(*gMapGlobalVars) * gMapHeader.globalVariablesCount);
         if (gMapGlobalVars == NULL) {
             goto err;
         }
@@ -829,7 +829,7 @@ int mapLoad(File* stream)
     mapLocalVariablesFree();
 
     if (gMapHeader.localVariablesCount != 0) {
-        gMapLocalVars = internal_malloc(sizeof(*gMapLocalVars) * gMapHeader.localVariablesCount);
+        gMapLocalVars = (int*)internal_malloc(sizeof(*gMapLocalVars) * gMapHeader.localVariablesCount);
         if (gMapLocalVars == NULL) {
             goto err;
         }
@@ -1076,7 +1076,7 @@ int _map_age_dead_critters()
 
     int capacity = 100;
     int count = 0;
-    Object** objects = internal_malloc(sizeof(*objects) * capacity);
+    Object** objects = (Object**)internal_malloc(sizeof(*objects) * capacity);
 
     obj = objectFindFirst();
     while (obj != NULL) {
@@ -1088,7 +1088,7 @@ int _map_age_dead_critters()
 
                     if (count >= capacity) {
                         capacity *= 2;
-                        objects = internal_realloc(objects, sizeof(*objects) * capacity);
+                        objects = (Object**)internal_realloc(objects, sizeof(*objects) * capacity);
                         if (objects == NULL) {
                             debugPrint("\nError: Out of Memory!");
                             return -1;
@@ -1100,7 +1100,7 @@ int _map_age_dead_critters()
             objects[count++] = obj;
             if (count >= capacity) {
                 capacity *= 2;
-                objects = internal_realloc(objects, sizeof(*objects) * capacity);
+                objects = (Object**)internal_realloc(objects, sizeof(*objects) * capacity);
                 if (objects == NULL) {
                     debugPrint("\nError: Out of Memory!");
                     return -1;

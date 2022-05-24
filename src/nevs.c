@@ -64,7 +64,7 @@ void _nevs_initonce()
     // _interpretRegisterProgramDeleteCallback(_nevs_removeprogramreferences);
 
     if (_nevs == NULL) {
-        _nevs = internal_calloc_safe(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
+        _nevs = (Nevs*)internal_calloc_safe(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
         if (_nevs == NULL) {
             debugPrint("nevs_initonce(): out of memory");
             exit(99);

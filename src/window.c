@@ -248,7 +248,7 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
         stringLength = 255;
     }
 
-    char* stringCopy = internal_malloc_safe(stringLength + 1, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1078
+    char* stringCopy = (char*)internal_malloc_safe(stringLength + 1, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1078
     strncpy(stringCopy, string, stringLength);
     stringCopy[stringLength] = '\0';
 
@@ -264,7 +264,7 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
         stringHeight++;
     }
 
-    unsigned char* backgroundBuffer = internal_calloc_safe(stringWidth, stringHeight, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
+    unsigned char* backgroundBuffer = (unsigned char*)internal_calloc_safe(stringWidth, stringHeight, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
     unsigned char* backgroundBufferPtr = backgroundBuffer;
     fontDrawText(backgroundBuffer, stringCopy, stringWidth, stringWidth, flags);
 
@@ -338,12 +338,12 @@ char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLe
             }
 
             if (substringList != NULL) {
-                substringList = internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1166
+                substringList = (char**)internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1166
             } else {
-                substringList = internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1167
+                substringList = (char**)internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1167
             }
 
-            char* substring = internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
+            char* substring = (char*)internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
             strncpy(substring, start, pch - start);
             substring[pch - start] = '\0';
 
@@ -361,12 +361,12 @@ char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLe
 
     if (start != pch) {
         if (substringList != NULL) {
-            substringList = internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1184
+            substringList = (char**)internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1184
         } else {
-            substringList = internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1185
+            substringList = (char**)internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1185
         }
 
-        char* substring = internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
+        char* substring = (char*)internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
         strncpy(substring, start, pch - start);
         substring[pch - start] = '\0';
 
@@ -833,7 +833,7 @@ bool _windowStartRegion(int initialCapacity)
     int newRegionIndex;
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     if (managedWindow->regions == NULL) {
-        managedWindow->regions = internal_malloc_safe(sizeof(&(managedWindow->regions)), __FILE__, __LINE__); // "..\int\WINDOW.C", 2167
+        managedWindow->regions = (Region**)internal_malloc_safe(sizeof(&(managedWindow->regions)), __FILE__, __LINE__); // "..\int\WINDOW.C", 2167
         managedWindow->regionsLength = 1;
         newRegionIndex = 0;
     } else {
@@ -846,7 +846,7 @@ bool _windowStartRegion(int initialCapacity)
         }
 
         if (newRegionIndex == managedWindow->regionsLength) {
-            managedWindow->regions = internal_realloc_safe(managedWindow->regions, sizeof(&(managedWindow->regions)) * (managedWindow->regionsLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 2178
+            managedWindow->regions = (Region**)internal_realloc_safe(managedWindow->regions, sizeof(&(managedWindow->regions)) * (managedWindow->regionsLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 2178
             managedWindow->regionsLength++;
         }
     }

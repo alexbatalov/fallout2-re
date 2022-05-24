@@ -126,7 +126,7 @@ void* internal_calloc_safe(int count, int size, const char* file, int line)
 char* strdup_safe(const char* string, const char* file, int line)
 {
     size_t size = strlen(string) + 1;
-    char* copy = gMemoryManagerMallocProc(size);
+    char* copy = (char*)gMemoryManagerMallocProc(size);
     if (copy == NULL) {
         memoryManagerFatalAllocationError("strdup", size, file, line);
     }

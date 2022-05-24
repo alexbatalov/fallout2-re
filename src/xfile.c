@@ -47,7 +47,7 @@ XFile* xfileOpen(const char* filePath, const char* mode)
     assert(filePath); // "filename", "xfile.c", 162
     assert(mode); // "mode", "xfile.c", 163
 
-    XFile* stream = malloc(sizeof(*stream));
+    XFile* stream = (XFile*)malloc(sizeof(*stream));
     if (stream == NULL) {
         return NULL;
     }
@@ -482,7 +482,7 @@ bool xbaseOpen(const char* path)
         return true;
     }
 
-    XBase* xbase = malloc(sizeof(*xbase));
+    XBase* xbase = (XBase*)malloc(sizeof(*xbase));
     if (xbase == NULL) {
         return false;
     }

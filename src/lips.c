@@ -292,7 +292,7 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
         }
     }
 
-    gLipsData.phonemes = internal_malloc(gLipsData.field_24);
+    gLipsData.phonemes = (unsigned char*)internal_malloc(gLipsData.field_24);
     if (gLipsData.phonemes == NULL) {
         debugPrint("Out of memory in lips_load_file.'\n");
         return -1;
@@ -314,7 +314,7 @@ int lipsLoad(const char* audioFileName, const char* headFileName)
         }
     }
 
-    gLipsData.markers = internal_malloc(sizeof(*speech_marker) * gLipsData.field_2C);
+    gLipsData.markers = (SpeechMarker*)internal_malloc(sizeof(*speech_marker) * gLipsData.field_2C);
     if (gLipsData.markers == NULL) {
         debugPrint("Out of memory in lips_load_file.'\n");
         return -1;

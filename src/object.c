@@ -463,7 +463,7 @@ int objectLoadAllInternal(File* stream)
     }
 
     if (objectCount != 0) {
-        gObjectFids = internal_malloc(sizeof(*gObjectFids) * objectCount);
+        gObjectFids = (int*)internal_malloc(sizeof(*gObjectFids) * objectCount);
         memset(gObjectFids, 0, sizeof(*gObjectFids) * objectCount);
         if (gObjectFids == NULL) {
             return -1;
@@ -526,7 +526,7 @@ int objectLoadAllInternal(File* stream)
 
             Inventory* inventory = &(objectListNode->obj->data.inventory);
             if (inventory->length != 0) {
-                inventory->items = internal_malloc(sizeof(InventoryItem) * inventory->capacity);
+                inventory->items = (InventoryItem*)internal_malloc(sizeof(InventoryItem) * inventory->capacity);
                 if (inventory->items == NULL) {
                     return -1;
                 }
@@ -539,7 +539,7 @@ int objectLoadAllInternal(File* stream)
                     }
 
                     if (fixMapInventory) {
-                        inventoryItem->item = internal_malloc(sizeof(Object));
+                        inventoryItem->item = (Object*)internal_malloc(sizeof(Object));
                         if (inventoryItem->item == NULL) {
                             debugPrint("Error loading inventory\n");
                             return -1;
@@ -2679,7 +2679,7 @@ int objectListCreate(int tile, int elevation, int objectType, Object*** objectLi
         return 0;
     }
 
-    Object** objects = *objectListPtr = internal_malloc(sizeof(*objects) * count);
+    Object** objects = *objectListPtr = (Object**)internal_malloc(sizeof(*objects) * count);
     if (objects == NULL) {
         return -1;
     }
@@ -3011,7 +3011,7 @@ int _obj_create_intersect_list(int x, int y, int elevation, int objectType, Obje
                     && object != gEgg) {
                     int flags = _obj_intersects_with(object, x, y);
                     if (flags != 0) {
-                        ObjectWithFlags* entries = internal_realloc(*entriesPtr, sizeof(*entries) * (count + 1));
+                        ObjectWithFlags* entries = (ObjectWithFlags*)internal_realloc(*entriesPtr, sizeof(*entries) * (count + 1));
                         if (entries != NULL) {
                             *entriesPtr = entries;
                             entries[count].object = object;
@@ -3228,12 +3228,12 @@ int _obj_offset_table_init()
         return -1;
     }
 
-    _offsetTable[0] = internal_malloc(sizeof(int) * _updateHexArea);
+    _offsetTable[0] = (int*)internal_malloc(sizeof(int) * _updateHexArea);
     if (_offsetTable[0] == NULL) {
         goto err;
     }
 
-    _offsetTable[1] = internal_malloc(sizeof(int) * _updateHexArea);
+    _offsetTable[1] = (int*)internal_malloc(sizeof(int) * _updateHexArea);
     if (_offsetTable[1] == NULL) {
         goto err;
     }
@@ -3276,7 +3276,7 @@ int _obj_offset_table_init()
         }
     }
 
-    _offsetDivTable = internal_malloc(sizeof(int) * _updateHexArea);
+    _offsetDivTable = (int*)internal_malloc(sizeof(int) * _updateHexArea);
     if (_offsetDivTable == NULL) {
         goto err;
     }
@@ -3285,7 +3285,7 @@ int _obj_offset_table_init()
         _offsetDivTable[i] = i / _updateHexWidth;
     }
 
-    _offsetModTable = internal_malloc(sizeof(int) * _updateHexArea);
+    _offsetModTable = (int*)internal_malloc(sizeof(int) * _updateHexArea);
     if (_offsetModTable == NULL) {
         goto err;
     }
@@ -3333,12 +3333,12 @@ int _obj_order_table_init()
         return -1;
     }
 
-    _orderTable[0] = internal_malloc(sizeof(int) * _updateHexArea);
+    _orderTable[0] = (int*)internal_malloc(sizeof(int) * _updateHexArea);
     if (_orderTable[0] == NULL) {
         goto err;
     }
 
-    _orderTable[1] = internal_malloc(sizeof(int) * _updateHexArea);
+    _orderTable[1] = (int*)internal_malloc(sizeof(int) * _updateHexArea);
     if (_orderTable[1] == NULL) {
         goto err;
     }
@@ -3400,7 +3400,7 @@ int _obj_render_table_init()
         return -1;
     }
 
-    _renderTable = internal_malloc(sizeof(*_renderTable) * _updateHexArea);
+    _renderTable = (ObjectListNode**)internal_malloc(sizeof(*_renderTable) * _updateHexArea);
     if (_renderTable == NULL) {
         return -1;
     }
@@ -3575,7 +3575,7 @@ int _obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner
         return 0;
     }
 
-    InventoryItem* inventoryItems = inventory->items = internal_malloc(sizeof(*inventoryItems) * inventory->capacity);
+    InventoryItem* inventoryItems = inventory->items = (InventoryItem*)internal_malloc(sizeof(*inventoryItems) * inventory->capacity);
     if (inventoryItems == NULL) {
         return -1;
     }
@@ -3701,7 +3701,7 @@ int objectAllocate(Object** objectPtr)
         return -1;
     }
 
-    Object* object = *objectPtr = internal_malloc(sizeof(Object));
+    Object* object = *objectPtr = (Object*)internal_malloc(sizeof(Object));
     if (object == NULL) {
         return -1;
     }
@@ -3747,7 +3747,7 @@ int objectListNodeCreate(ObjectListNode** nodePtr)
         return -1;
     }
 
-    ObjectListNode* node = *nodePtr = internal_malloc(sizeof(*node));
+    ObjectListNode* node = *nodePtr = (ObjectListNode*)internal_malloc(sizeof(*node));
     if (node == NULL) {
         return -1;
     }

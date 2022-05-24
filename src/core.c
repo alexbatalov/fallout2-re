@@ -585,7 +585,7 @@ void tickersAdd(TickerProc* proc)
         curr = curr->next;
     }
 
-    curr = internal_malloc(sizeof(*curr));
+    curr = (TickerListNode*)internal_malloc(sizeof(*curr));
     curr->flags = 0;
     curr->proc = proc;
     curr->next = gTickerListHead;
@@ -684,7 +684,7 @@ void takeScreenshot()
 {
     int width = _scr_size.right - _scr_size.left + 1;
     int height = _scr_size.bottom - _scr_size.top + 1;
-    gScreenshotBuffer = internal_malloc(width * height);
+    gScreenshotBuffer = (unsigned char*)internal_malloc(width * height);
     if (gScreenshotBuffer == NULL) {
         return;
     }
@@ -1519,7 +1519,7 @@ int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, i
     }
 
     if (width != gMouseCursorWidth || height != gMouseCursorHeight) {
-        unsigned char* buf = internal_malloc(width * height);
+        unsigned char* buf = (unsigned char*)internal_malloc(width * height);
         if (buf == NULL) {
             if (!cursorWasHidden) {
                 mouseShowCursor();
@@ -4449,7 +4449,7 @@ bool _vcr_record(const char* fileName)
         return false;
     }
 
-    _vcr_buffer = internal_malloc(sizeof(*_vcr_buffer) * 4096);
+    _vcr_buffer = (STRUCT_51E2F0*)internal_malloc(sizeof(*_vcr_buffer) * 4096);
     if (_vcr_buffer == NULL) {
         return false;
     }

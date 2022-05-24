@@ -515,7 +515,7 @@ int endgameEndingSlideshowWindowInit()
 
     sprintf(gEndgameEndingSubtitlesLocalizedPath, "text\\%s\\cuts\\", language);
 
-    gEndgameEndingSubtitles = internal_malloc(sizeof(*gEndgameEndingSubtitles) * ENDGAME_ENDING_MAX_SUBTITLES);
+    gEndgameEndingSubtitles = (char**)internal_malloc(sizeof(*gEndgameEndingSubtitles) * ENDGAME_ENDING_MAX_SUBTITLES);
     if (gEndgameEndingSubtitles == NULL) {
         gEndgameEndingSubtitlesEnabled = false;
         return 0;
@@ -525,7 +525,7 @@ int endgameEndingSlideshowWindowInit()
         gEndgameEndingSubtitles[index] = NULL;
     }
 
-    gEndgameEndingSubtitlesTimings = internal_malloc(sizeof(*gEndgameEndingSubtitlesTimings) * ENDGAME_ENDING_MAX_SUBTITLES);
+    gEndgameEndingSubtitlesTimings = (unsigned int*)internal_malloc(sizeof(*gEndgameEndingSubtitlesTimings) * ENDGAME_ENDING_MAX_SUBTITLES);
     if (gEndgameEndingSubtitlesTimings == NULL) {
         internal_free(gEndgameEndingSubtitles);
         gEndgameEndingSubtitlesEnabled = false;
@@ -879,7 +879,7 @@ int endgameEndingInit()
             entry.direction = 1;
         }
 
-        entries = internal_realloc(gEndgameEndings, sizeof(*entries) * (gEndgameEndingsLength + 1));
+        entries = (EndgameEnding*)internal_realloc(gEndgameEndings, sizeof(*entries) * (gEndgameEndingsLength + 1));
         if (entries == NULL) {
             goto err;
         }
@@ -1001,7 +1001,7 @@ int endgameDeathEndingInit()
             entry.voiceOverBaseName[narrator_file_len - 1] = '\0';
         }
 
-        entries = internal_realloc(gEndgameDeathEndings, sizeof(*entries) * (gEndgameDeathEndingsLength + 1));
+        entries = (EndgameDeathEnding*)internal_realloc(gEndgameDeathEndings, sizeof(*entries) * (gEndgameDeathEndingsLength + 1));
         if (entries == NULL) {
             goto err;
         }

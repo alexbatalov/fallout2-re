@@ -76,7 +76,7 @@ int soundEffectsListInit(const char* soundEffectsPath, int a2, int debugLevel)
         fileReadString(path, 255, stream);
         gSoundEffectsListEntriesLength = atoi(path);
 
-        gSoundEffectsListEntries = internal_malloc(sizeof(*gSoundEffectsListEntries) * gSoundEffectsListEntriesLength);
+        gSoundEffectsListEntries = (SoundEffectsListEntry*)internal_malloc(sizeof(*gSoundEffectsListEntries) * gSoundEffectsListEntriesLength);
         for (int index = 0; index < gSoundEffectsListEntriesLength; index++) {
             SoundEffectsListEntry* entry = &(gSoundEffectsListEntries[index]);
 
@@ -171,7 +171,7 @@ int soundEffectsListGetTag(char* name, int* tagPtr)
     SoundEffectsListEntry dummy;
     dummy.name = name + gSoundEffectsListPathLength;
 
-    SoundEffectsListEntry* entry = bsearch(&dummy, gSoundEffectsListEntries, gSoundEffectsListEntriesLength, sizeof(*gSoundEffectsListEntries), soundEffectsListCompareByName);
+    SoundEffectsListEntry* entry = (SoundEffectsListEntry*)bsearch(&dummy, gSoundEffectsListEntries, gSoundEffectsListEntriesLength, sizeof(*gSoundEffectsListEntries), soundEffectsListCompareByName);
     if (entry == NULL) {
         return SFXL_ERR;
     }
@@ -198,7 +198,7 @@ int soundEffectsListGetFilePath(int tag, char** pathPtr)
 
     char* name = gSoundEffectsListEntries[index].name;
 
-    char* path = internal_malloc(strlen(gSoundEffectsListPath) + strlen(name) + 1);
+    char* path = (char*)internal_malloc(strlen(gSoundEffectsListPath) + strlen(name) + 1);
     if (path == NULL) {
         return SFXL_ERR;
     }
@@ -305,7 +305,7 @@ int soundEffectsListPopulateFileNames()
         return SFXL_ERR;
     }
 
-    char* pattern = internal_malloc(strlen(gSoundEffectsListPath) + strlen(extension) + 1);
+    char* pattern = (char*)internal_malloc(strlen(gSoundEffectsListPath) + strlen(extension) + 1);
     if (pattern == NULL) {
         return SFXL_ERR;
     }
@@ -326,7 +326,7 @@ int soundEffectsListPopulateFileNames()
         return SFXL_ERR;
     }
 
-    gSoundEffectsListEntries = internal_malloc(sizeof(*gSoundEffectsListEntries) * gSoundEffectsListEntriesLength);
+    gSoundEffectsListEntries = (SoundEffectsListEntry*)internal_malloc(sizeof(*gSoundEffectsListEntries) * gSoundEffectsListEntriesLength);
     if (gSoundEffectsListEntries == NULL) {
         fileNameListFree(&fileNameList, 0);
         return SFXL_ERR;
@@ -366,7 +366,7 @@ int soundEffectsListCopyFileNames(char** fileNameList)
 int soundEffectsListPopulateFileSizes()
 {
 
-    char* path = internal_malloc(gSoundEffectsListPathLength + 13);
+    char* path = (char*)internal_malloc(gSoundEffectsListPathLength + 13);
     if (path == NULL) {
         return SFXL_ERR;
     }

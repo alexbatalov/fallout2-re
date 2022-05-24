@@ -151,7 +151,7 @@ char* _err_str = _Error_2;
 char* _blank_str = byte_50D6C0;
 
 // 0x664954
-ScriptRequests gScriptsRequests;
+unsigned int gScriptsRequests;
 
 // 0x664958
 STRUCT_664980 stru_664958;
@@ -728,14 +728,14 @@ void _scrSetQueueTestVals(Object* a1, int a2)
 // 0x4A3E3C
 int _scrQueueRemoveFixed(Object* obj, void* data)
 {
-    ScriptEvent* scriptEvent = data;
+    ScriptEvent* scriptEvent = (ScriptEvent*)data;
     return obj == _scrQueueTestObj && scriptEvent->field_4 == _scrQueueTestValue;
 }
 
 // 0x4A3E60
 int scriptAddTimerEvent(int sid, int delay, int param)
 {
-    ScriptEvent* scriptEvent = internal_malloc(sizeof(*scriptEvent));
+    ScriptEvent* scriptEvent = (ScriptEvent*)internal_malloc(sizeof(*scriptEvent));
     if (scriptEvent == NULL) {
         return -1;
     }
@@ -760,7 +760,7 @@ int scriptAddTimerEvent(int sid, int delay, int param)
 // 0x4A3EDC
 int scriptEventWrite(File* stream, void* data)
 {
-    ScriptEvent* scriptEvent = data;
+    ScriptEvent* scriptEvent = (ScriptEvent*)data;
 
     if (fileWriteInt32(stream, scriptEvent->sid) == -1) return -1;
     if (fileWriteInt32(stream, scriptEvent->field_4) == -1) return -1;
@@ -771,7 +771,7 @@ int scriptEventWrite(File* stream, void* data)
 // 0x4A3F04
 int scriptEventRead(File* stream, void** dataPtr)
 {
-    ScriptEvent* scriptEvent = internal_malloc(sizeof(*scriptEvent));
+    ScriptEvent* scriptEvent = (ScriptEvent*)internal_malloc(sizeof(*scriptEvent));
     if (scriptEvent == NULL) {
         return -1;
     }
@@ -794,7 +794,7 @@ err:
 // 0x4A3F4C
 int scriptEventProcess(Object* obj, void* data)
 {
-    ScriptEvent* scriptEvent = data;
+    ScriptEvent* scriptEvent = (ScriptEvent*)data;
 
     Script* script;
     if (scriptGetScript(scriptEvent->sid, &script) == -1) {
@@ -1302,7 +1302,7 @@ int scriptsLoadScriptsList()
     while (fileReadString(string, 260, stream)) {
         gScriptsListEntriesLength++;
 
-        ScriptsListEntry* entries = internal_realloc(gScriptsListEntries, sizeof(*entries) * gScriptsListEntriesLength);
+        ScriptsListEntry* entries = (ScriptsListEntry*)internal_realloc(gScriptsListEntries, sizeof(*entries) * gScriptsListEntriesLength);
         if (entries == NULL) {
             return -1;
         }
@@ -1645,7 +1645,7 @@ int scriptsLoadGameGlobalVars(File* stream)
 // 0x4A5448
 int scriptsSkipGameGlobalVars(File* stream)
 {
-    int* vars = internal_malloc(sizeof(*vars) * gGameGlobalVarsLength);
+    int* vars = (int*)internal_malloc(sizeof(*vars) * gGameGlobalVarsLength);
     if (vars == NULL) {
         return -1;
     }
@@ -1943,7 +1943,7 @@ int scriptLoadAll(File* stream)
                 scriptList->length++;
             }
 
-            ScriptListExtent* extent = internal_malloc(sizeof(*extent));
+            ScriptListExtent* extent = (ScriptListExtent*)internal_malloc(sizeof(*extent));
             scriptList->head = extent;
             scriptList->tail = extent;
             if (extent == NULL) {
@@ -1967,7 +1967,7 @@ int scriptLoadAll(File* stream)
 
             ScriptListExtent* prevExtent = extent;
             for (int extentIndex = 1; extentIndex < scriptList->length; extentIndex++) {
-                ScriptListExtent* extent = internal_malloc(sizeof(*extent));
+                ScriptListExtent* extent = (ScriptListExtent*)internal_malloc(sizeof(*extent));
                 if (extent == NULL) {
                     return -1;
                 }
@@ -2059,7 +2059,7 @@ int scriptAdd(int* sidPtr, int scriptType)
     if (scriptList->head != NULL) {
         // There is at least one extent available, which means tail is also set.
         if (scriptListExtent->length == SCRIPT_LIST_EXTENT_SIZE) {
-            ScriptListExtent* newExtent = scriptListExtent->next = internal_malloc(sizeof(*newExtent));
+            ScriptListExtent* newExtent = scriptListExtent->next = (ScriptListExtent*)internal_malloc(sizeof(*newExtent));
             if (newExtent == NULL) {
                 return -1;
             }
@@ -2074,7 +2074,7 @@ int scriptAdd(int* sidPtr, int scriptType)
         }
     } else {
         // Script head
-        scriptListExtent = internal_malloc(sizeof(ScriptListExtent));
+        scriptListExtent = (ScriptListExtent*)internal_malloc(sizeof(ScriptListExtent));
         if (scriptListExtent == NULL) {
             return -1;
         }
@@ -2139,7 +2139,7 @@ int scriptsRemoveLocalVars(Script* script)
                     gMapLocalVars + (script->localVarsOffset + script->localVarsCount),
                     sizeof(*gMapLocalVars) * (oldMapLocalVarsCount - script->localVarsCount - script->localVarsOffset));
 
-                gMapLocalVars = internal_realloc(gMapLocalVars, sizeof(*gMapLocalVars) * gMapLocalVarsLength);
+                gMapLocalVars = (int*)internal_realloc(gMapLocalVars, sizeof(*gMapLocalVars) * gMapLocalVarsLength);
                 if (gMapLocalVars == NULL) {
                     debugPrint("\nError in mem_realloc in scr_remove_local_vars!\n");
                 }
@@ -2523,7 +2523,7 @@ void scriptsExecMapUpdateScripts(int proc)
         return;
     }
 
-    int* sidList = internal_malloc(sizeof(*sidList) * sidListCapacity);
+    int* sidList = (int*)internal_malloc(sizeof(*sidList) * sidListCapacity);
     if (sidList == NULL) {
         debugPrint("\nError: scr_exec_map_update_scripts: Out of memory for sidList!");
         return;
@@ -2770,7 +2770,7 @@ int _scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
         return 0;
     }
 
-    int* scriptIds = internal_malloc(sizeof(*scriptIds) * scriptExtentsCount * SCRIPT_LIST_EXTENT_SIZE);
+    int* scriptIds = (int*)internal_malloc(sizeof(*scriptIds) * scriptExtentsCount * SCRIPT_LIST_EXTENT_SIZE);
     if (scriptIds == NULL) {
         return -1;
     }

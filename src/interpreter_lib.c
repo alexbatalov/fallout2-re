@@ -1523,9 +1523,9 @@ void _interpretRegisterProgramDeleteCallback(OFF_59E160 fn)
 
     if (index == _numCallbacks) {
         if (_callbacks != NULL) {
-            _callbacks = internal_realloc_safe(_callbacks, sizeof(*_callbacks) * (_numCallbacks + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
+            _callbacks = (OFF_59E160*)internal_realloc_safe(_callbacks, sizeof(*_callbacks) * (_numCallbacks + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
         } else {
-            _callbacks = internal_malloc_safe(sizeof(*_callbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
+            _callbacks = (OFF_59E160*)internal_malloc_safe(sizeof(*_callbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
         }
         _numCallbacks++;
     }

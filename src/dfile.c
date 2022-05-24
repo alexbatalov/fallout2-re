@@ -25,7 +25,7 @@ DBase* dbaseOpen(const char* filePath)
         return NULL;
     }
 
-    DBase* dbase = malloc(sizeof(*dbase));
+    DBase* dbase = (DBase*)malloc(sizeof(*dbase));
     if (dbase == NULL) {
         fclose(stream);
         return NULL;
@@ -64,7 +64,7 @@ DBase* dbaseOpen(const char* filePath)
         goto err;
     }
 
-    dbase->entries = malloc(sizeof(*dbase->entries) * dbase->entriesLength);
+    dbase->entries = (DBaseEntry*)malloc(sizeof(*dbase->entries) * dbase->entriesLength);
     if (dbase->entries == NULL) {
         goto err;
     }
@@ -81,7 +81,7 @@ DBase* dbaseOpen(const char* filePath)
             break;
         }
 
-        entry->path = malloc(pathLength + 1);
+        entry->path = (char*)malloc(pathLength + 1);
         if (entry->path == NULL) {
             break;
         }
@@ -415,7 +415,7 @@ size_t dfileRead(void* ptr, size_t size, size_t count, DFile* stream)
 
     size_t extraBytesRead = 0;
     if ((stream->flags & DFILE_HAS_UNGETC) != 0) {
-        unsigned char* byteBuffer = ptr;
+        unsigned char* byteBuffer = (unsigned char*)ptr;
         *byteBuffer++ = stream->ungotten & 0xFF;
         ptr = byteBuffer;
 
@@ -602,7 +602,7 @@ int dbaseFindEntryByFilePath(const void* a1, const void* a2)
 // 0x4E5D9C
 DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* mode, DFile* dfile)
 {
-    DBaseEntry* entry = bsearch(filePath, dbase->entries, dbase->entriesLength, sizeof(*dbase->entries), dbaseFindEntryByFilePath);
+    DBaseEntry* entry = (DBaseEntry*)bsearch(filePath, dbase->entries, dbase->entriesLength, sizeof(*dbase->entries), dbaseFindEntryByFilePath);
     if (entry == NULL) {
         goto err;
     }
@@ -612,7 +612,7 @@ DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* mode, D
     }
 
     if (dfile == NULL) {
-        dfile = malloc(sizeof(*dfile));
+        dfile = (DFile*)malloc(sizeof(*dfile));
         if (dfile == NULL) {
             return NULL;
         }
@@ -655,12 +655,12 @@ DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* mode, D
         // passed via parameter, which might already have stream and
         // buffer allocated.
         if (dfile->decompressionStream == NULL) {
-            dfile->decompressionStream = malloc(sizeof(*dfile->decompressionStream));
+            dfile->decompressionStream = (z_streamp)malloc(sizeof(*dfile->decompressionStream));
             if (dfile->decompressionStream == NULL) {
                 goto err;
             }
 
-            dfile->decompressionBuffer = malloc(DFILE_DECOMPRESSION_BUFFER_SIZE);
+            dfile->decompressionBuffer = (unsigned char*)malloc(DFILE_DECOMPRESSION_BUFFER_SIZE);
             if (dfile->decompressionBuffer == NULL) {
                 goto err;
             }
@@ -765,7 +765,7 @@ int dfileReadCharInternal(DFile* stream)
 bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
 {
     if ((stream->flags & DFILE_HAS_COMPRESSED_UNGETC) != 0) {
-        unsigned char* byteBuffer = ptr;
+        unsigned char* byteBuffer = (unsigned char*)ptr;
         *byteBuffer++ = stream->compressedUngotten & 0xFF;
         ptr = byteBuffer;
 
@@ -779,7 +779,7 @@ bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
         }
     }
 
-    stream->decompressionStream->next_out = ptr;
+    stream->decompressionStream->next_out = (Bytef*)ptr;
     stream->decompressionStream->avail_out = size;
 
     do {

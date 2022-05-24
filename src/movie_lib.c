@@ -620,7 +620,7 @@ int _ioReset(int stream)
 
     _io_handle = stream;
 
-    mve = _ioRead(sizeof(Mve));
+    mve = (Mve*)_ioRead(sizeof(Mve));
     if (mve == NULL) {
         return 0;
     }

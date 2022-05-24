@@ -2009,7 +2009,7 @@ int pipboyRenderScreensaver()
 
     _gmouse_disable(0);
 
-    unsigned char* buf = internal_malloc(412 * 374);
+    unsigned char* buf = (unsigned char*)internal_malloc(412 * 374);
     if (buf == NULL) {
         return -1;
     }
@@ -2240,7 +2240,7 @@ int questInit()
 
         entry.completedThreshold = atoi(tok);
 
-        QuestDescription* entries = internal_realloc(gQuestDescriptions, sizeof(*gQuestDescriptions) * (gQuestsCount + 1));
+        QuestDescription* entries = (QuestDescription*)internal_realloc(gQuestDescriptions, sizeof(*gQuestDescriptions) * (gQuestsCount + 1));
         if (entries == NULL) {
             goto err;
         }
@@ -2336,7 +2336,7 @@ int holodiskInit()
 
         entry.description = atoi(tok);
 
-        HolodiskDescription* entries = internal_realloc(gHolodiskDescriptions, sizeof(*gHolodiskDescriptions) * (gHolodisksCount + 1));
+        HolodiskDescription* entries = (HolodiskDescription*)internal_realloc(gHolodiskDescriptions, sizeof(*gHolodiskDescriptions) * (gHolodisksCount + 1));
         if (entries == NULL) {
             goto err;
         }

@@ -472,7 +472,7 @@ int _critter_check_rads(Object* obj)
 
     if (radiationLevel > _old_rad_level) {
         // Create timer event for applying radiation damage.
-        RadiationEvent* radiationEvent = internal_malloc(sizeof(*radiationEvent));
+        RadiationEvent* radiationEvent = (RadiationEvent*)internal_malloc(sizeof(*radiationEvent));
         if (radiationEvent == NULL) {
             return 0;
         }
@@ -490,7 +490,7 @@ int _critter_check_rads(Object* obj)
 // 0x42D618
 int _get_rad_damage_level(Object* obj, void* data)
 {
-    RadiationEvent* radiationEvent = data;
+    RadiationEvent* radiationEvent = (RadiationEvent*)data;
 
     _old_rad_level = radiationEvent->radiationLevel;
 
@@ -567,7 +567,7 @@ int radiationEventProcess(Object* obj, void* data)
     RadiationEvent* radiationEvent = data;
     if (!radiationEvent->isHealing) {
         // Schedule healing stats event in 7 days.
-        RadiationEvent* newRadiationEvent = internal_malloc(sizeof(*newRadiationEvent));
+        RadiationEvent* newRadiationEvent = (RadiationEvent*)internal_malloc(sizeof(*newRadiationEvent));
         if (newRadiationEvent != NULL) {
             _queue_clear_type(EVENT_TYPE_RADIATION, _clear_rad_damage);
             newRadiationEvent->radiationLevel = radiationEvent->radiationLevel;
@@ -584,7 +584,7 @@ int radiationEventProcess(Object* obj, void* data)
 // 0x42D7A0
 int radiationEventRead(File* stream, void** dataPtr)
 {
-    RadiationEvent* radiationEvent = internal_malloc(sizeof(*radiationEvent));
+    RadiationEvent* radiationEvent = (RadiationEvent*)internal_malloc(sizeof(*radiationEvent));
     if (radiationEvent == NULL) {
         return -1;
     }
@@ -604,7 +604,7 @@ err:
 // 0x42D7FC
 int radiationEventWrite(File* stream, void* data)
 {
-    RadiationEvent* radiationEvent = data;
+    RadiationEvent* radiationEvent = (RadiationEvent*)data;
 
     if (fileWriteInt32(stream, radiationEvent->radiationLevel) == -1) return -1;
     if (fileWriteInt32(stream, radiationEvent->isHealing) == -1) return -1;

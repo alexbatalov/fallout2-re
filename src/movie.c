@@ -88,7 +88,7 @@ int _lastMovieY;
 MovieSubtitleListNode* gMovieSubtitleHead;
 
 // 0x638E78
-MovieExtendedFlags gMovieFlags;
+unsigned int gMovieFlags;
 
 // 0x638E7C
 int _movieAlphaFlag;
@@ -361,7 +361,7 @@ void _cleanupMovie(int a1)
         DDSURFACEDESC ddsd;
         ddsd.dwSize = sizeof(DDSURFACEDESC);
         if (IDirectDrawSurface_Lock(gMovieDirectDrawSurface, 0, &ddsd, 1, NULL) == DD_OK) {
-            _lastMovieBuffer = internal_malloc_safe(_lastMovieBH * _lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
+            _lastMovieBuffer = (unsigned char*)internal_malloc_safe(_lastMovieBH * _lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
             blitBufferToBuffer((unsigned char*)ddsd.lpSurface + ddsd.lPitch * _lastMovieSX + _lastMovieSY, _lastMovieBW, _lastMovieBH, ddsd.lPitch, _lastMovieBuffer, _lastMovieBW);
             IDirectDrawSurface_Unlock(gMovieDirectDrawSurface, ddsd.lpSurface);
         } else {
@@ -543,7 +543,7 @@ void movieLoadSubtitles(char* filePath)
             break;
         }
 
-        MovieSubtitleListNode* subtitle = internal_malloc_safe(sizeof(*subtitle), __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1050
+        MovieSubtitleListNode* subtitle = (MovieSubtitleListNode*)internal_malloc_safe(sizeof(*subtitle), __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1050
         subtitle->next = NULL;
 
         subtitleCount++;

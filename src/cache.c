@@ -27,7 +27,7 @@ bool cacheInit(Cache* cache, CacheSizeProc* sizeProc, CacheReadProc* readProc, C
     cache->entriesLength = 0;
     cache->entriesCapacity = CACHE_ENTRIES_INITIAL_CAPACITY;
     cache->hits = 0;
-    cache->entries = internal_malloc(sizeof(*cache->entries) * cache->entriesCapacity);
+    cache->entries = (CacheEntry**)internal_malloc(sizeof(*cache->entries) * cache->entriesCapacity);
     cache->sizeProc = sizeProc;
     cache->readProc = readProc;
     cache->freeProc = freeProc;
@@ -191,7 +191,7 @@ bool cachePrintStats(Cache* cache, char* dest)
 // 0x4203AC
 bool cacheFetchEntryForKey(Cache* cache, int key, int* indexPtr)
 {
-    CacheEntry* cacheEntry = internal_malloc(sizeof(*cacheEntry));
+    CacheEntry* cacheEntry = (CacheEntry*)internal_malloc(sizeof(*cacheEntry));
     if (cacheEntry == NULL) {
         return false;
     }
@@ -405,7 +405,7 @@ bool cacheResetStatistics(Cache* cache)
         return false;
     }
 
-    CacheEntry** entries = internal_malloc(sizeof(*entries) * cache->entriesLength);
+    CacheEntry** entries = (CacheEntry**)internal_malloc(sizeof(*entries) * cache->entriesLength);
     if (entries == NULL) {
         return false;
     }
@@ -442,7 +442,7 @@ bool cacheEnsureSize(Cache* cache, int size)
         return true;
     }
 
-    CacheEntry** entries = internal_malloc(sizeof(*entries) * cache->entriesLength);
+    CacheEntry** entries = (CacheEntry**)internal_malloc(sizeof(*entries) * cache->entriesLength);
     if (entries != NULL) {
         memcpy(entries, cache->entries, sizeof(*entries) * cache->entriesLength);
         qsort(entries, cache->entriesLength, sizeof(*entries), cacheEntriesCompareByUsage);
@@ -542,7 +542,7 @@ bool cacheSetCapacity(Cache* cache, int newCapacity)
         return false;
     }
 
-    CacheEntry** entries = internal_realloc(cache->entries, sizeof(*cache->entries) * newCapacity);
+    CacheEntry** entries = (CacheEntry**)internal_realloc(cache->entries, sizeof(*cache->entries) * newCapacity);
     if (entries == NULL) {
         return false;
     }

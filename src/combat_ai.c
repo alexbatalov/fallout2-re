@@ -282,7 +282,7 @@ int aiInit()
         return -1;
     }
 
-    gAiPackets = internal_malloc(sizeof(*gAiPackets) * config.entriesLength);
+    gAiPackets = (AiPacket*)internal_malloc(sizeof(*gAiPackets) * config.entriesLength);
     if (gAiPackets == NULL) {
         goto err;
     }
@@ -2656,7 +2656,7 @@ void _combat_ai_begin(int a1, void* a2)
     _curr_crit_num = a1;
 
     if (a1 != 0) {
-        _curr_crit_list = internal_malloc(sizeof(Object*) * a1);
+        _curr_crit_list = (Object**)internal_malloc(sizeof(Object*) * a1);
         if (_curr_crit_list) {
             memcpy(_curr_crit_list, a2, sizeof(Object*) * a1);
         } else {

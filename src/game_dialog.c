@@ -1462,7 +1462,7 @@ int gameDialogAddReviewText(const char* string)
         entry->replyText = NULL;
     }
 
-    entry->replyText = internal_malloc(strlen(string) + 1);
+    entry->replyText = (char*)internal_malloc(strlen(string) + 1);
     strcpy(entry->replyText, string);
 
     entry->optionMessageListId = -3;
@@ -1502,7 +1502,7 @@ int gameDialogSetReviewOptionText(const char* string)
     entry->optionMessageListId = -4;
     entry->optionMessageId = -4;
 
-    entry->optionText = internal_malloc(strlen(string) + 1);
+    entry->optionText = (char*)internal_malloc(strlen(string) + 1);
     strcpy(entry->optionText, string);
 
     return 0;
@@ -2148,7 +2148,7 @@ int _gdCreateHeadWindow()
         Rect* rect = &(_backgrndRects[index]);
         int width = rect->right - rect->left;
         int height = rect->bottom - rect->top;
-        _backgrndBufs[index] = internal_malloc(width * height);
+        _backgrndBufs[index] = (unsigned char*)internal_malloc(width * height);
         if (_backgrndBufs[index] == NULL) {
             return -1;
         }

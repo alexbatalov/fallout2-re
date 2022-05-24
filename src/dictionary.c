@@ -56,7 +56,7 @@ int dictionaryInit(Dictionary* dictionary, int initialCapacity, size_t valueSize
     int rc = 0;
 
     if (initialCapacity != 0) {
-        dictionary->entries = gDictionaryMallocProc(sizeof(*dictionary->entries) * initialCapacity);
+        dictionary->entries = (DictionaryEntry*)gDictionaryMallocProc(sizeof(*dictionary->entries) * initialCapacity);
         if (dictionary->entries == NULL) {
             rc = -1;
         }
@@ -82,7 +82,7 @@ int dictionarySetCapacity(Dictionary* dictionary, int newCapacity)
         return -1;
     }
 
-    DictionaryEntry* entries = gDictionaryReallocProc(dictionary->entries, sizeof(*dictionary->entries) * newCapacity);
+    DictionaryEntry* entries = (DictionaryEntry*)gDictionaryReallocProc(dictionary->entries, sizeof(*dictionary->entries) * newCapacity);
     if (entries == NULL) {
         return -1;
     }
@@ -215,7 +215,7 @@ int dictionaryAddValue(Dictionary* dictionary, const char* key, const void* valu
     }
 
     // Make a copy of the key.
-    char* keyCopy = gDictionaryMallocProc(strlen(key) + 1);
+    char* keyCopy = (char*)gDictionaryMallocProc(strlen(key) + 1);
     if (keyCopy == NULL) {
         return -1;
     }
