@@ -4387,6 +4387,7 @@ void _container_enter(int keyCode, int inventoryWindowType)
                 _stack[_curr_stack] = item;
                 _stack_offset[_curr_stack] = 0;
 
+                _inven_dude = _stack[_curr_stack];
                 _pud = &(item->data.inventory);
 
                 _adjust_fid();
