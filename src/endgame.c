@@ -26,12 +26,16 @@
 #include "world_map.h"
 
 #include <ctype.h>
+#include <limits.h>
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
 
 // The maximum number of subtitle lines per slide.
 #define ENDGAME_ENDING_MAX_SUBTITLES (50)
+
+#define ENDGAME_ENDING_WINDOW_WIDTH 640
+#define ENDGAME_ENDING_WINDOW_HEIGHT 480
 
 // 0x50B00C
 char _aEnglish_2[] = ENGLISH;
@@ -270,7 +274,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         int width = artGetWidth(background, 0, 0);
         int height = artGetHeight(background, 0, 0);
         unsigned char* backgroundData = artGetFrameData(background, 0, 0);
-        bufferFill(gEndgameEndingSlideshowWindowBuffer, 640, 480, 640, _colorTable[0]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, _colorTable[0]);
         endgameEndingLoadPalette(6, 327);
 
         unsigned char palette[768];
@@ -312,7 +316,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
 
             // TODO: Complex math, setup scene in debugger.
             if (getTicksSince(since) >= v9) {
-                blitBufferToBuffer(backgroundData + start, 640, 480, width, gEndgameEndingSlideshowWindowBuffer, 640);
+                blitBufferToBuffer(backgroundData + start, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, width, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
 
                 if (subtitlesLoaded) {
                     endgameEndingRefreshSubtitles();
@@ -371,7 +375,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         artUnlock(backgroundHandle);
 
         paletteFadeTo(gPaletteBlack);
-        bufferFill(gEndgameEndingSlideshowWindowBuffer, 640, 480, 640, _colorTable[0]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, _colorTable[0]);
         windowRefresh(gEndgameEndingSlideshowWindow);
     }
 
@@ -391,7 +395,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
 
     unsigned char* backgroundData = artGetFrameData(background, 0, 0);
     if (backgroundData != NULL) {
-        blitBufferToBuffer(backgroundData, 640, 480, 640, gEndgameEndingSlideshowWindowBuffer, 640);
+        blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
         windowRefresh(gEndgameEndingSlideshowWindow);
 
         endgameEndingLoadPalette((fid & 0xF000000) >> 24, fid & 0xFFF);
@@ -434,7 +438,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
                 break;
             }
 
-            blitBufferToBuffer(backgroundData, 640, 480, 640, gEndgameEndingSlideshowWindowBuffer, 640);
+            blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
             endgameEndingRefreshSubtitles();
             windowRefresh(gEndgameEndingSlideshowWindow);
             soundContinueAll();
@@ -487,7 +491,14 @@ int endgameEndingSlideshowWindowInit()
 
     paletteFadeTo(gPaletteBlack);
 
-    gEndgameEndingSlideshowWindow = windowCreate(0, 0, 640, 480, _colorTable[0], 4);
+    int windowEndgameEndingX = 0;
+    int windowEndgameEndingY = 0;
+    gEndgameEndingSlideshowWindow = windowCreate(windowEndgameEndingX,
+        windowEndgameEndingY,
+        ENDGAME_ENDING_WINDOW_WIDTH,
+        ENDGAME_ENDING_WINDOW_HEIGHT,
+        _colorTable[0],
+        WINDOW_FLAG_0x04);
     if (gEndgameEndingSlideshowWindow == -1) {
         return -1;
     }

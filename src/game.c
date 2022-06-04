@@ -56,6 +56,7 @@
 
 #include <io.h>
 #include <stdio.h>
+#include <string.h>
 
 #define HELP_SCREEN_WIDTH (640)
 #define HELP_SCREEN_HEIGHT (480)
@@ -1048,7 +1049,9 @@ void showHelp()
     bool colorCycleWasEnabled = colorCycleEnabled();
     colorCycleDisable();
 
-    int win = windowCreate(0, 0, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, 0, WINDOW_HIDDEN | WINDOW_FLAG_0x04);
+    int helpWindowX = 0;
+    int helpWindowY = 0;
+    int win = windowCreate(helpWindowX, helpWindowY, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, 0, WINDOW_HIDDEN | WINDOW_FLAG_0x04);
     if (win != -1) {
         unsigned char* windowBuffer = windowGetBuffer(win);
         if (windowBuffer != NULL) {
@@ -1258,7 +1261,9 @@ void showSplash()
     fileRead(data, 1, SPLASH_WIDTH * SPLASH_HEIGHT, stream);
     fileClose(stream);
 
-    _scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0);
+    int splashWindowX = 0;
+    int splashWindowY = 0;
+    _scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, splashWindowX, splashWindowY);
     paletteFadeTo(palette);
 
     internal_free(data);

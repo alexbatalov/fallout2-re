@@ -24,7 +24,9 @@
 #include "window_manager_private.h"
 #include "world_map.h"
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
 
 // 0x50D6B8

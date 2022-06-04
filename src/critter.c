@@ -500,7 +500,7 @@ int _get_rad_damage_level(Object* obj, void* data)
 // 0x42D624
 int _clear_rad_damage(Object* obj, void* data)
 {
-    RadiationEvent* radiationEvent = data;
+    RadiationEvent* radiationEvent = (RadiationEvent*)data;
 
     if (radiationEvent->isHealing) {
         _process_rads(obj, radiationEvent->radiationLevel, true);
@@ -564,7 +564,7 @@ void _process_rads(Object* obj, int radiationLevel, bool isHealing)
 // 0x42D740
 int radiationEventProcess(Object* obj, void* data)
 {
-    RadiationEvent* radiationEvent = data;
+    RadiationEvent* radiationEvent = (RadiationEvent*)data;
     if (!radiationEvent->isHealing) {
         // Schedule healing stats event in 7 days.
         RadiationEvent* newRadiationEvent = (RadiationEvent*)internal_malloc(sizeof(*newRadiationEvent));

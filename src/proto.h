@@ -90,6 +90,11 @@ typedef enum ProtoDataMemberType {
     PROTO_DATA_MEMBER_TYPE_STRING = 2,
 } ProtoDataMemberType;
 
+typedef union ProtoDataMemberValue {
+    int integerValue;
+    char* stringValue;
+} ProtoDataMemberValue;
+
 typedef enum PrototypeMessage {
     PROTOTYPE_MESSAGE_NAME,
     PROTOTYPE_MESSAGE_DESCRIPTION,
@@ -143,7 +148,7 @@ int _proto_update_gen(Object* obj);
 int _proto_update_init(Object* obj);
 int _proto_dude_update_gender();
 int _proto_dude_init(const char* path);
-int _proto_data_member(int pid, int member, int* value);
+int protoGetDataMember(int pid, int member, ProtoDataMemberValue* value);
 int protoInit();
 void protoReset();
 void protoExit();

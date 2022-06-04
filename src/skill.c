@@ -22,6 +22,7 @@
 #include "trait.h"
 
 #include <stdio.h>
+#include <string.h>
 
 // Damage flags which can be repaired using "Repair" skill.
 //

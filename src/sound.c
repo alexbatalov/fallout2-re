@@ -8,6 +8,7 @@
 #include <math.h>
 #include <mmsystem.h>
 #include <stdlib.h>
+#include <string.h>
 
 static_assert(sizeof(Sound) == 156, "wrong size");
 

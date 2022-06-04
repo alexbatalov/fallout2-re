@@ -18,6 +18,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define GAME_MOVIE_WINDOW_WIDTH 640
+#define GAME_MOVIE_WINDOW_HEIGHT 480
+
 // 0x50352A
 const float flt_50352A = 0.032258064f;
 
@@ -43,7 +46,7 @@ const char* gMovieFileNames[MOVIE_COUNT] = {
 };
 
 // 0x518DE4
-char* gMoviePaletteFilePaths[MOVIE_COUNT] = {
+const char* gMoviePaletteFilePaths[MOVIE_COUNT] = {
     NULL,
     "art\\cuts\\introsub.pal",
     "art\\cuts\\eldersub.pal",
@@ -166,7 +169,14 @@ int gameMoviePlay(int movie, int flags)
         gGameMovieFaded = true;
     }
 
-    int win = windowCreate(0, 0, 640, 480, 0, WINDOW_FLAG_0x10);
+    int gameMovieWindowX = 0;
+    int gameMovieWindowY = 0;
+    int win = windowCreate(gameMovieWindowX,
+        gameMovieWindowY,
+        GAME_MOVIE_WINDOW_WIDTH, 
+        GAME_MOVIE_WINDOW_HEIGHT,
+        0,
+        WINDOW_FLAG_0x10);
     if (win == -1) {
         gGameMovieIsPlaying = false;
         return -1;
@@ -199,7 +209,7 @@ int gameMoviePlay(int movie, int flags)
     int oldTextColor;
     int oldFont;
     if (subtitlesEnabled) {
-        char* subtitlesPaletteFilePath;
+        const char* subtitlesPaletteFilePath;
         if (gMoviePaletteFilePaths[movie] != NULL) {
             subtitlesPaletteFilePath = gMoviePaletteFilePaths[movie];
         } else {

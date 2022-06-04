@@ -29,6 +29,16 @@
 #include "word_wrap.h"
 #include "world_map.h"
 
+#include <ctype.h>
+#include <limits.h>
+#include <string.h>
+
+#define MAIN_MENU_WINDOW_WIDTH 640
+#define MAIN_MENU_WINDOW_HEIGHT 480
+
+#define DEATH_WINDOW_WIDTH 640
+#define DEATH_WINDOW_HEIGHT 480
+
 // 0x5194C8
 char _mainMap[] = "artemple.map";
 
@@ -354,7 +364,14 @@ void showDeath()
         mouseShowCursor();
     }
 
-    int win = windowCreate(0, 0, 640, 480, 0, WINDOW_FLAG_0x04);
+    int deathWindowX = 0;
+    int deathWindowY = 0;
+    int win = windowCreate(deathWindowX,
+        deathWindowY,
+        DEATH_WINDOW_WIDTH,
+        DEATH_WINDOW_HEIGHT,
+        0,
+        WINDOW_FLAG_0x04);
     if (win != -1) {
         do {
             unsigned char* windowBuffer = windowGetBuffer(win);
@@ -570,7 +587,14 @@ int mainMenuWindowInit()
 
     colorPaletteLoad("color.pal");
 
-    gMainMenuWindow = windowCreate(0, 0, 640, 480, 0, 12);
+    int mainMenuWindowX = 0;
+    int mainMenuWindowY = 0;
+    gMainMenuWindow = windowCreate(mainMenuWindowX,
+        mainMenuWindowY,
+        MAIN_MENU_WINDOW_WIDTH,
+        MAIN_MENU_WINDOW_HEIGHT,
+        0,
+        WINDOW_HIDDEN | WINDOW_FLAG_0x04);
     if (gMainMenuWindow == -1) {
         mainMenuWindowFree();
         return -1;

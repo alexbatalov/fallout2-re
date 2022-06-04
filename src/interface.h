@@ -35,6 +35,12 @@ typedef enum InterfaceNumbersColor {
     INTERFACE_NUMBERS_COLOR_RED = 240,
 } InterfaceNumbersColor;
 
+#define INDICATOR_BOX_WIDTH 130
+#define INDICATOR_BOX_HEIGHT 21
+
+#define INTERFACE_BAR_WIDTH 640
+#define INTERFACE_BAR_HEIGHT 100
+
 // The maximum number of indicator boxes the indicator bar can display.
 //
 // For unknown reason this number is 6, even though there are only 5 different

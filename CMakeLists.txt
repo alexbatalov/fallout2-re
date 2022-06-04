@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(fallout2-re LANGUAGES C)
+set(EXECUTABLE_NAME fallout2-re)
 
-add_executable(fallout2-re WIN32
+project(${EXECUTABLE_NAME})
+
+add_executable(${EXECUTABLE_NAME} WIN32
     "src/actions.c"
     "src/actions.h"
     "src/animation.c"
@@ -226,14 +228,19 @@ add_executable(fallout2-re WIN32
     "src/xfile.h"
 )
 
-target_compile_definitions(fallout2-re PUBLIC
+target_compile_definitions(${EXECUTABLE_NAME} PUBLIC
     _CRT_SECURE_NO_WARNINGS
     _CRT_NONSTDC_NO_WARNINGS
 )
 
-target_link_libraries(fallout2-re
+target_link_libraries(${EXECUTABLE_NAME}
     winmm
 )
 
 add_subdirectory("third_party/fpattern")
+target_link_libraries(${EXECUTABLE_NAME} ${FPATTERN_LIBRARY})
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${FPATTERN_INCLUDE_DIR})
+
 add_subdirectory("third_party/zlib")
+target_link_libraries(${EXECUTABLE_NAME} ${ZLIB_LIBRARIES})
+target_include_directories(${EXECUTABLE_NAME} PRIVATE ${ZLIB_INCLUDE_DIRS})

@@ -28,12 +28,10 @@
 #include "window_manager.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #define INDICATOR_BAR_X 0
 #define INDICATOR_BAR_Y 358
-
-#define INDICATOR_BOX_WIDTH 130
-#define INDICATOR_BOX_HEIGHT 21
 
 // The width of connectors in the indicator box.
 //
@@ -351,7 +349,10 @@ int interfaceInit()
 
     gInterfaceBarInitialized = 1;
 
-    gInterfaceBarWindow = windowCreate(0, 379, 640, 100, _colorTable[0], WINDOW_HIDDEN);
+    int interfaceBarWindowX = 0;
+    int interfaceBarWindowY = 480 - INTERFACE_BAR_HEIGHT - 1;
+
+    gInterfaceBarWindow = windowCreate(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, _colorTable[0], WINDOW_HIDDEN);
     if (gInterfaceBarWindow == -1) {
         goto err;
     }
@@ -367,7 +368,7 @@ int interfaceInit()
         goto err;
     }
 
-    blitBufferToBuffer(backgroundFrmData, 640, 99, 640, gInterfaceWindowBuffer, 640);
+    blitBufferToBuffer(backgroundFrmData, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT - 1, INTERFACE_BAR_WIDTH, gInterfaceWindowBuffer, 640);
     artUnlock(backgroundFrmHandle);
 
     fid = buildFid(6, 47, 0, 0, 0);

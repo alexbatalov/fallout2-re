@@ -4276,7 +4276,9 @@ int worldmapWindowInit()
     colorCycleDisable();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
-    gWorldmapWindow = windowCreate(0, 0, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, _colorTable[0], WINDOW_FLAG_0x04);
+    int worldmapWindowX = 0;
+    int worldmapWindowY = 0;
+    gWorldmapWindow = windowCreate(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, _colorTable[0], WINDOW_FLAG_0x04);
     if (gWorldmapWindow == -1) {
         return -1;
     }

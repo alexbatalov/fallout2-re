@@ -27,6 +27,7 @@
 #include "tile.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 // 0x51805C
@@ -1398,7 +1399,6 @@ Object* _ai_danger_source(Object* a1)
         attackWho = -1;
     }
 
-    
     Object* whoHitMe = a1->data.critter.combat.whoHitMe;
     if (whoHitMe == NULL || a1 == whoHitMe) {
         targets[0] = NULL;

@@ -37,8 +37,10 @@
 
 #define RENDER_ALL_STATS 7
 
-#define EDITOR_WIN_WIDTH 640
-#define EDITOR_WIN_HEIGHT 480
+#define EDITOR_WINDOW_X 0
+#define EDITOR_WINDOW_Y 0
+#define EDITOR_WINDOW_WIDTH 640
+#define EDITOR_WINDOW_HEIGHT 480
 
 #define NAME_BUTTON_X 9
 #define NAME_BUTTON_Y 0
@@ -74,6 +76,11 @@
 #define PERK_WINDOW_Y 91
 #define PERK_WINDOW_WIDTH 573
 #define PERK_WINDOW_HEIGHT 230
+
+#define PERK_WINDOW_LIST_X 45
+#define PERK_WINDOW_LIST_Y 43
+#define PERK_WINDOW_LIST_WIDTH 192
+#define PERK_WINDOW_LIST_HEIGHT 129
 
 #define ANIMATE 0x01
 #define RED_NUMBERS 0x02
@@ -1139,7 +1146,14 @@ int characterEditorWindowInit()
         return -1;
     }
 
-    characterEditorWindowHandle = windowCreate(0, 0, 640, 480, 256, 18);
+    int editorWindowX = EDITOR_WINDOW_X;
+    int editorWindowY = EDITOR_WINDOW_Y;
+    characterEditorWindowHandle = windowCreate(editorWindowX,
+        editorWindowY,
+        EDITOR_WINDOW_WIDTH,
+        EDITOR_WINDOW_HEIGHT,
+        256,
+        WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (characterEditorWindowHandle == -1) {
         for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
             if (_copyflag[i]) {
@@ -1270,7 +1284,7 @@ int characterEditorWindowInit()
 
         // PRINT
         str = getmsg(&editorMessageList, &editorMessageListItem, 103);
-        fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, _colorTable[18979]);
+        fontDrawText(characterEditorWindowBuf + (EDITOR_WINDOW_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, _colorTable[18979]);
 
         editorRenderPcStats();
         _folder_init();
@@ -1280,11 +1294,11 @@ int characterEditorWindowInit()
 
     // CANCEL
     str = getmsg(&editorMessageList, &editorMessageListItem, 102);
-    fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * CANCEL_BTN_Y) + CANCEL_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, _colorTable[18979]);
+    fontDrawText(characterEditorWindowBuf + (EDITOR_WINDOW_WIDTH * CANCEL_BTN_Y) + CANCEL_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, _colorTable[18979]);
 
     // DONE
     str = getmsg(&editorMessageList, &editorMessageListItem, 100);
-    fontDrawText(characterEditorWindowBuf + (EDITOR_WIN_WIDTH * DONE_BTN_Y) + DONE_BTN_X, str, EDITOR_WIN_WIDTH, EDITOR_WIN_WIDTH, _colorTable[18979]);
+    fontDrawText(characterEditorWindowBuf + (EDITOR_WINDOW_WIDTH * DONE_BTN_Y) + DONE_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, _colorTable[18979]);
 
     editorRenderPrimaryStat(RENDER_ALL_STATS, 0, 0);
     editorRenderSecondaryStats();
@@ -1454,24 +1468,24 @@ int characterEditorWindowInit()
             _GInfo[EDITOR_GRAPHIC_NAME_ON].width,
             _GInfo[EDITOR_GRAPHIC_NAME_ON].height,
             _GInfo[EDITOR_GRAPHIC_NAME_ON].width,
-            characterEditorWindowBuf + (EDITOR_WIN_WIDTH * NAME_BUTTON_Y) + x,
-            EDITOR_WIN_WIDTH);
+            characterEditorWindowBuf + (EDITOR_WINDOW_WIDTH * NAME_BUTTON_Y) + x,
+            EDITOR_WINDOW_WIDTH);
 
         x += _GInfo[EDITOR_GRAPHIC_NAME_ON].width;
         blitBufferToBufferTrans(_grphcpy[EDITOR_GRAPHIC_AGE_OFF],
             _GInfo[EDITOR_GRAPHIC_AGE_ON].width,
             _GInfo[EDITOR_GRAPHIC_AGE_ON].height,
             _GInfo[EDITOR_GRAPHIC_AGE_ON].width,
-            characterEditorWindowBuf + (EDITOR_WIN_WIDTH * NAME_BUTTON_Y) + x,
-            EDITOR_WIN_WIDTH);
+            characterEditorWindowBuf + (EDITOR_WINDOW_WIDTH * NAME_BUTTON_Y) + x,
+            EDITOR_WINDOW_WIDTH);
 
         x += _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
         blitBufferToBufferTrans(_grphcpy[EDITOR_GRAPHIC_SEX_OFF],
             _GInfo[EDITOR_GRAPHIC_SEX_ON].width,
             _GInfo[EDITOR_GRAPHIC_SEX_ON].height,
             _GInfo[EDITOR_GRAPHIC_SEX_ON].width,
-            characterEditorWindowBuf + (EDITOR_WIN_WIDTH * NAME_BUTTON_Y) + x,
-            EDITOR_WIN_WIDTH);
+            characterEditorWindowBuf + (EDITOR_WINDOW_WIDTH * NAME_BUTTON_Y) + x,
+            EDITOR_WINDOW_WIDTH);
 
         btn = buttonCreate(characterEditorWindowHandle,
             11,
@@ -2944,7 +2958,9 @@ int characterEditorEditName()
     int windowWidth = _GInfo[EDITOR_GRAPHIC_CHARWIN].width;
     int windowHeight = _GInfo[EDITOR_GRAPHIC_CHARWIN].height;
 
-    int win = windowCreate(17, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    int nameWindowX = 17;
+    int nameWindowY = 0;
+    int win = windowCreate(nameWindowX, nameWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (win == -1) {
         return -1;
     }
@@ -3074,7 +3090,9 @@ int characterEditorRunEditAgeDialog()
     windowWidth = _GInfo[EDITOR_GRAPHIC_CHARWIN].width;
     windowHeight = _GInfo[EDITOR_GRAPHIC_CHARWIN].height;
 
-    win = windowCreate(_GInfo[EDITOR_GRAPHIC_NAME_ON].width + 9, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    int ageWindowX = _GInfo[EDITOR_GRAPHIC_NAME_ON].width + 9;
+    int ageWindowY = 0;
+    win = windowCreate(ageWindowX, ageWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (win == -1) {
         return -1;
     }
@@ -3302,10 +3320,11 @@ void characterEditorEditGender()
     int windowWidth = _GInfo[EDITOR_GRAPHIC_CHARWIN].width;
     int windowHeight = _GInfo[EDITOR_GRAPHIC_CHARWIN].height;
 
-    int x = 9;
-    x += _GInfo[EDITOR_GRAPHIC_NAME_ON].width;
-    x += _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
-    int win = windowCreate(x, 0, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    int genderWindowX = 9
+        + _GInfo[EDITOR_GRAPHIC_NAME_ON].width
+        + _GInfo[EDITOR_GRAPHIC_AGE_ON].width;
+    int genderWindowY = 0;
+    int win = windowCreate(genderWindowX, genderWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
 
     if (win == -1) {
         return;
@@ -5363,7 +5382,9 @@ int editorSelectPerk()
         return -1;
     }
 
-    gEditorPerkWindow = windowCreate(PERK_WINDOW_X, PERK_WINDOW_Y, PERK_WINDOW_WIDTH, PERK_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    int perkWindowX = PERK_WINDOW_X;
+    int perkWindowY = PERK_WINDOW_Y;
+    gEditorPerkWindow = windowCreate(perkWindowX, perkWindowY, PERK_WINDOW_WIDTH, PERK_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (gEditorPerkWindow == -1) {
         artUnlock(backgroundFrmHandle);
         debugPrint("\n *** Error running perks dialog window ***\n");
@@ -5444,10 +5465,10 @@ int editorSelectPerk()
     }
 
     buttonCreate(gEditorPerkWindow,
-        45,
-        43,
-        192,
-        129,
+        PERK_WINDOW_LIST_X,
+        PERK_WINDOW_LIST_Y,
+        PERK_WINDOW_LIST_WIDTH,
+        PERK_WINDOW_LIST_HEIGHT,
         -1,
         -1,
         -1,
@@ -5562,9 +5583,9 @@ int _InputPDLoop(int count, void (*refreshProc)())
             rc = 1;
         } else if (keyCode == 501) {
             mouseGetPosition(&_mouse_xpos, &_mouse_ypos);
-            _cline = (_mouse_ypos - 134) / v16;
-            if ((_mouse_ypos - 134) / v16 >= 0) {
-                if (count - 1 < (_mouse_ypos - 134) / v16)
+            _cline = (_mouse_ypos - (PERK_WINDOW_Y + PERK_WINDOW_LIST_Y)) / v16;
+            if (_cline >= 0) {
+                if (count - 1 < _cline)
                     _cline = count - 1;
             } else {
                 _cline = 0;

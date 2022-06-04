@@ -10,6 +10,8 @@
 #include "tile.h"
 #include "word_wrap.h"
 
+#include <string.h>
+
 static_assert(sizeof(TextObject) == 48, "wrong size");
 
 // 0x51D944

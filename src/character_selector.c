@@ -239,11 +239,16 @@ int characterSelectorOpen()
 // 0x4A7468
 bool characterSelectorWindowInit()
 {
+    int backgroundFid;
+    unsigned char* backgroundFrmData;
+
     if (gCharacterSelectorWindow != -1) {
         return false;
     }
 
-    gCharacterSelectorWindow = windowCreate(0, 0, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, _colorTable[0], 0);
+    int characterSelectorWindowX = 0;
+    int characterSelectorWindowY = 0;
+    gCharacterSelectorWindow = windowCreate(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, _colorTable[0], 0);
     if (gCharacterSelectorWindow == -1) {
         goto err;
     }
@@ -254,8 +259,8 @@ bool characterSelectorWindowInit()
     }
 
     CacheEntry* backgroundFrmHandle;
-    int backgroundFid = buildFid(6, 174, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &backgroundFrmHandle);
+    backgroundFid = buildFid(6, 174, 0, 0, 0);
+    backgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData == NULL) {
         goto err;
     }

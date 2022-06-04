@@ -233,6 +233,11 @@ bool heapHandleListInit(Heap* heap)
 // 0x452AD0
 bool heapBlockAllocate(Heap* heap, int* handleIndexPtr, int size, int a4)
 {
+    HeapBlockHeader* blockHeader;
+    int state;
+    int blockSize;
+    HeapHandle* handle;
+
     if (heap == NULL || handleIndexPtr == NULL || size == 0) {
         goto err;
     }
@@ -246,16 +251,16 @@ bool heapBlockAllocate(Heap* heap, int* handleIndexPtr, int size, int a4)
         goto err;
     }
 
-    HeapBlockHeader* blockHeader = (HeapBlockHeader*)block;
-    int state = blockHeader->state;
+    blockHeader = (HeapBlockHeader*)block;
+    state = blockHeader->state;
 
     int handleIndex;
     if (!heapFindFreeHandle(heap, &handleIndex)) {
         goto err_no_handle;
     }
 
-    int blockSize = blockHeader->size;
-    HeapHandle* handle = &(heap->handles[handleIndex]);
+    blockSize = blockHeader->size;
+    handle = &(heap->handles[handleIndex]);
 
     if (state == HEAP_BLOCK_STATE_SYSTEM) {
         // Bind block to handle.
@@ -597,6 +602,14 @@ bool heapFindFreeHandle(Heap* heap, int* handleIndexPtr)
 // 0x453588
 bool heapFindFreeBlock(Heap* heap, int size, void** blockPtr, int a4)
 {
+    unsigned char* biggestFreeBlock;
+    HeapBlockHeader* biggestFreeBlockHeader;
+    int biggestFreeBlockSize;
+    HeapMoveableExtent* extent;
+    int reservedFreeBlockIndex;
+    HeapBlockHeader* blockHeader;
+    HeapBlockFooter* blockFooter;
+
     if (!heapBuildFreeBlocksList(heap)) {
         goto system;
     }
@@ -610,9 +623,9 @@ bool heapFindFreeBlock(Heap* heap, int size, void** blockPtr, int a4)
     }
 
     // Take last free block (the biggest one).
-    unsigned char* biggestFreeBlock = gHeapFreeBlocks[heap->freeBlocks - 1];
-    HeapBlockHeader* biggestFreeBlockHeader = (HeapBlockHeader*)biggestFreeBlock;
-    int biggestFreeBlockSize = biggestFreeBlockHeader->size;
+    biggestFreeBlock = gHeapFreeBlocks[heap->freeBlocks - 1];
+    biggestFreeBlockHeader = (HeapBlockHeader*)biggestFreeBlock;
+    biggestFreeBlockSize = biggestFreeBlockHeader->size;
 
     // Make sure it can encompass new block of given size.
     if (biggestFreeBlockSize >= size) {
@@ -759,8 +772,8 @@ bool heapFindFreeBlock(Heap* heap, int size, void** blockPtr, int a4)
         goto system;
     }
 
-    HeapMoveableExtent* extent = &(gHeapMoveableExtents[extentIndex]);
-    int reservedFreeBlockIndex = 0;
+    extent = &(gHeapMoveableExtents[extentIndex]);
+    reservedFreeBlockIndex = 0;
     for (int moveableBlockIndex = 0; moveableBlockIndex < extent->moveableBlocksLength; moveableBlockIndex++) {
         unsigned char* moveableBlock = gHeapMoveableBlocks[moveableBlockIndex];
         HeapBlockHeader* moveableBlockHeader = (HeapBlockHeader*)moveableBlock;
@@ -813,13 +826,13 @@ bool heapFindFreeBlock(Heap* heap, int size, void** blockPtr, int a4)
     heap->freeSize += (extent->blocksLength - 1) * HEAP_BLOCK_OVERHEAD_SIZE;
 
     // Create one free block from entire moveable extent.
-    HeapBlockHeader* blockHeader = (HeapBlockHeader*)extent->data;
+    blockHeader = (HeapBlockHeader*)extent->data;
     blockHeader->guard = HEAP_BLOCK_HEADER_GUARD;
     blockHeader->size = extent->size + (extent->blocksLength - 1) * HEAP_BLOCK_OVERHEAD_SIZE;
     blockHeader->state = HEAP_BLOCK_STATE_FREE;
     blockHeader->handle_index = -1;
 
-    HeapBlockFooter* blockFooter = (HeapBlockFooter*)(extent->data + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
+    blockFooter = (HeapBlockFooter*)(extent->data + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
     blockFooter->guard = HEAP_BLOCK_FOOTER_GUARD;
 
     *blockPtr = extent->data;

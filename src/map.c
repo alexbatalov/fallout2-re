@@ -35,6 +35,7 @@
 
 #include <direct.h>
 #include <stdio.h>
+#include <string.h>
 
 // 0x50B058
 char byte_50B058[] = "";
