@@ -4392,7 +4392,7 @@ void gameDialogRenderTalkingHead(Art* headFrm, int frame)
 
         unsigned char* src = windowGetBuffer(gIsoWindow);
         blitBufferToBuffer(
-            src + ((GAME_DIALOG_WINDOW_WIDTH - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
+            src + ((_scr_size.bottom - _scr_size.top + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
             388,
             200,
             _scr_size.right - _scr_size.left + 1,
