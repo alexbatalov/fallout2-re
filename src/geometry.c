@@ -3,6 +3,7 @@
 #include "memory.h"
 
 #include <stdlib.h>
+#include <minwindef.h>
 
 // 0x51DEF4
 RectListNode* _rectList = NULL;
