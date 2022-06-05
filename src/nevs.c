@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 static_assert(sizeof(Nevs) == 60, "wrong size");
 

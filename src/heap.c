@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 static_assert(sizeof(HeapBlockHeader) == 16, "wrong size");
 static_assert(sizeof(HeapBlockFooter) == 4, "wrong size");

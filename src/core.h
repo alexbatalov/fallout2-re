@@ -7,6 +7,7 @@
 #include "window.h"
 
 #include <stdbool.h>
+#include <assert.h>
 
 #define MOUSE_DEFAULT_CURSOR_WIDTH 8
 #define MOUSE_DEFAULT_CURSOR_HEIGHT 8

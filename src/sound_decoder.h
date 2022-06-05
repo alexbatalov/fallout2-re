@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+#include <assert.h>
 
 #define SOUND_DECODER_IN_BUFFER_SIZE (512)
 

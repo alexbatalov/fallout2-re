@@ -2,6 +2,7 @@
 #define TEXT_FONT_H
 
 #include <stdbool.h>
+#include <assert.h>
 
 // The maximum number of text fonts.
 #define TEXT_FONT_MAX (10)
