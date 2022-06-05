@@ -12,6 +12,7 @@
 #include <mmreg.h>
 
 #define DIRECTSOUND_VERSION 0x0300
+#include <mmsystem.h>
 #include <dsound.h>
 
 #include <stdbool.h>
