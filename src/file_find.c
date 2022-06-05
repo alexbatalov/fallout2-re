@@ -3,7 +3,7 @@
 // 0x4E6380
 bool fileFindFirst(const char* path, DirectoryFileFindData* findData)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     findData->hFind = FindFirstFileA(path, &(findData->ffd));
     if (findData->hFind == INVALID_HANDLE_VALUE) {
         return false;
@@ -29,7 +29,7 @@ bool fileFindFirst(const char* path, DirectoryFileFindData* findData)
 // 0x4E63A8
 bool fileFindNext(DirectoryFileFindData* findData)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     if (!FindNextFileA(findData->hFind, &(findData->ffd))) {
         return false;
     }
@@ -49,7 +49,7 @@ bool fileFindNext(DirectoryFileFindData* findData)
 // 0x4E63CC
 bool findFindClose(DirectoryFileFindData* findData)
 {
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) || defined(__MINGW32__)
     FindClose(findData->hFind);
 #elif defined(__WATCOMC__)
     if (closedir(findData->dir) != 0) {
