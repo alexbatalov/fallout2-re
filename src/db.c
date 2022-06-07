@@ -649,7 +649,19 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
             }
 
             if (!v2) {
-                sprintf(xlist->fileNames[index], "%s%s", fileName, extension);
+                // FIXME: There is a buffer overlow bug in this implementation.
+                // `fileNames` entries are dynamically allocated strings
+                // themselves produced by `strdup` in `xlistEnumerateHandler`.
+                // In some circumstances we can end up placing long file name
+                // in a short buffer (if that shorter buffer is alphabetically
+                // preceding current file name).
+                //
+                // It can be easily spotted by creating `a.txt` in the game
+                // directory and then trying print character data from character
+                // editor. Because of compiler differencies original game will
+                // crash immediately, and RE can crash anytime after closing
+                // file dialog.
+                sprintf(xlist->fileNames[length], "%s%s", fileName, extension);
                 length++;
             }
         }
