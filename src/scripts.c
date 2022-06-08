@@ -1776,18 +1776,16 @@ int scriptSaveAll(File* stream)
             for (int index = 0; index < scriptExtent->length; index++) {
                 Script* script = &(scriptExtent->scripts[index]);
 
+                lastScriptExtent = scriptList->tail;
                 if ((script->flags & SCRIPT_FLAG_0x08) != 0) {
                     scriptCount--;
 
-                    lastScriptExtent = scriptList->tail;
                     int backwardsIndex = lastScriptExtent->length - 1;
-                    while (lastScriptExtent != scriptExtent || backwardsIndex > index) {
-                        if (lastScriptExtent == scriptExtent) {
-                            if (backwardsIndex >= index) {
-                                break;
-                            }
-                        }
+                    if (lastScriptExtent == scriptExtent && backwardsIndex <= index) {
+                        break;
+                    }
 
+                    while (lastScriptExtent != scriptExtent || backwardsIndex > index) {
                         Script* backwardsScript = &(lastScriptExtent->scripts[backwardsIndex]);
                         if ((backwardsScript->flags & SCRIPT_FLAG_0x08) == 0) {
                             break;
