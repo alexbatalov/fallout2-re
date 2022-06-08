@@ -2681,7 +2681,7 @@ int scriptGetLocalVar(int sid, int variable, int* value)
     }
 
     Script* script;
-    if (scriptGetScript(sid, &script) == 1) {
+    if (scriptGetScript(sid, &script) == -1) {
         *value = -1;
         return -1;
     }
