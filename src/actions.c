@@ -359,7 +359,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
             animationRegisterCallbackForced(a1, weapon, _obj_drop, -1);
             fid = buildFid(5, 10, 0, 0, 0);
             animationRegisterSetFid(weapon, fid, 0);
-            reg_anim_6(weapon, ANIM_STAND, 0);
+            animationRegisterAnimateAndHide(weapon, ANIM_STAND, 0);
 
             sfx_name = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a1);
             animationRegisterPlaySoundEffect(weapon, sfx_name, 0);
@@ -771,7 +771,7 @@ int _action_ranged(Attack* attack, int anim)
                         const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, attack->hitMode, attack->defender);
                         animationRegisterPlaySoundEffect(projectile, sfx, 0);
 
-                        reg_anim_6(projectile, ANIM_STAND, 0);
+                        animationRegisterAnimateAndHide(projectile, ANIM_STAND, 0);
 
                         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
                             if (objectCreateWithFidPid(&(neighboors[rotation]), explosionFid, -1) != -1) {
@@ -792,7 +792,7 @@ int _action_ranged(Attack* attack, int anim)
                                 }
 
                                 animationRegisterUnsetFlag(neighboors[rotation], OBJECT_HIDDEN, delay);
-                                reg_anim_6(neighboors[rotation], ANIM_STAND, 0);
+                                animationRegisterAnimateAndHide(neighboors[rotation], ANIM_STAND, 0);
                             }
                         }
 
@@ -1559,12 +1559,12 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         _register_priority(1);
         animationRegisterPlaySoundEffect(explosion, "whn1xxx1", 0);
         animationRegisterUnsetFlag(explosion, OBJECT_HIDDEN, 0);
-        reg_anim_6(explosion, ANIM_STAND, 0);
+        animationRegisterAnimateAndHide(explosion, ANIM_STAND, 0);
         _show_damage(attack, 0, 1);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
             animationRegisterUnsetFlag(adjacentExplosions[rotation], OBJECT_HIDDEN, 0);
-            reg_anim_6(adjacentExplosions[rotation], ANIM_STAND, 0);
+            animationRegisterAnimateAndHide(adjacentExplosions[rotation], ANIM_STAND, 0);
         }
 
         animationRegisterCallbackForced(explosion, 0, _combat_explode_scenery, -1);
