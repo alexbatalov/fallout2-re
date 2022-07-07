@@ -895,6 +895,33 @@ int reg_anim_11_1(Object* a1, Object* a2, AnimationProc* proc, int delay)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// The [flag] parameter should be one of OBJECT_* flags. The way it's handled
+// down the road implies it should not be a group of flags (joined with bitwise
+// OR), but a one particular flag.
+//
+// 0x415034
+int animationRegisterSetFlag(Object* object, int flag, int delay)
+{
+    if (_check_registry(object) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
+    AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->type = ANIM_KIND_14;
+    animationDescription->field_2C = NULL;
+    animationDescription->owner = object;
+    animationDescription->field_24 = flag;
+    animationDescription->delay = delay;
+
+    gAnimationDescriptionCurrentIndex++;
+
+    return 0;
+}
+
 // 0x4150A8
 int reg_anim_15(Object* obj, int a2, int delay)
 {
