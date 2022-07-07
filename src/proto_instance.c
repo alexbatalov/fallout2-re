@@ -1712,7 +1712,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
             step = 1;
         }
 
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
         for (int i = start; i != end; i += step) {
             if (i != 0) {
@@ -1795,7 +1795,7 @@ int _obj_use_container(Object* critter, Object* item)
         return -1;
     }
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
     if (item->frame == 0) {
         const char* sfx = sfxBuildOpenName(item, SCENERY_SOUND_EFFECT_OPEN);
@@ -2006,7 +2006,7 @@ int objectOpenClose(Object* obj)
 
     objectUnjamLock(obj);
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
     if (obj->frame != 0) {
         animationRegisterCallbackForced(obj, obj, _set_door_state_closed, -1);

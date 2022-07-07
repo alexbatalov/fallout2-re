@@ -800,7 +800,7 @@ int aiSetDisposition(Object* obj, int disposition)
 // 0x428398
 int _ai_magic_hands(Object* critter, Object* item, int num)
 {
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
     animationRegisterAnimate(critter, ANIM_MAGIC_HANDS_MIDDLE, 0);
 
@@ -1031,7 +1031,7 @@ void _ai_run_away(Object* a1, Object* a2)
         }
 
         if (actionPoints > 0) {
-            reg_anim_begin(2);
+            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
             _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_RUN, 0);
             animationRegisterRunToTile(a1, destination, a1->elevation, combatData->ap, 0);
             if (reg_anim_end() == 0) {
@@ -1078,7 +1078,7 @@ int _ai_move_away(Object* a1, Object* a2, int a3)
         }
 
         if (actionPoints > 0) {
-            reg_anim_begin(2);
+            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
             animationRegisterMoveToTile(a1, destination, a1->elevation, actionPoints, 0);
             if (reg_anim_end() == 0) {
                 _combat_turn_run();
@@ -2097,7 +2097,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         return -1;
     }
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
     if (a4) {
         _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_MOVE, 0);
@@ -2393,7 +2393,7 @@ int _ai_attack(Object* a1, Object* a2, int a3)
         return -1;
     }
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
     animationRegisterRotateToTile(a1, a2->tile);
     reg_anim_end();
     _combat_turn_run();
@@ -2716,7 +2716,7 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
 
     int tile = a1->tile;
     if (_cai_retargetTileFromFriendlyFire(a1, a2, &tile) == 0 && tile != a1->tile) {
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterMoveToTile(a1, tile, a1->elevation, a1->data.critter.combat.ap, 0);
         if (reg_anim_end() != 0) {
             return -1;

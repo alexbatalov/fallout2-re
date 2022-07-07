@@ -2564,7 +2564,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
 {
     if (a4) {
         if (!isoIsDisabled()) {
-            reg_anim_begin(2);
+            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         }
     }
 
@@ -2732,7 +2732,7 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
 
     if (v6 == a2 && ((obj->fid & 0xF000) >> 12) != 0) {
         if (a3 && !isoIsDisabled()) {
-            reg_anim_begin(2);
+            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
             const char* sfx = sfxBuildCharName(obj, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
             animationRegisterPlaySoundEffect(obj, sfx, 0);

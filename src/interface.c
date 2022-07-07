@@ -1942,7 +1942,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     gInterfaceBarSwapHandsInProgress = true;
 
     reg_anim_clear(gDude);
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
     animationRegisterSetLightDistance(gDude, 4, 0);
 
     if (previousWeaponAnimationCode != 0) {

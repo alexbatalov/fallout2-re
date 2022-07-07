@@ -41,6 +41,78 @@ typedef enum AnimKind {
     ANIM_KIND_28 = 28,
 } AnimKind;
 
+typedef enum AnimationRequestOptions {
+    ANIMATION_REQUEST_UNRESERVED = 0x01,
+    ANIMATION_REQUEST_RESERVED = 0x02,
+    ANIMATION_REQUEST_NO_STAND = 0x04,
+    ANIMATION_REQUEST_0x100 = 0x100,
+    ANIMATION_REQUEST_INSIGNIFICANT = 0x200,
+} AnimationRequestOptions;
+
+typedef enum AnimationSequenceFlags {
+    // Specifies that the animation sequence has high priority, it cannot be
+    // cleared.
+    ANIM_SEQ_PRIORITIZED = 0x01,
+
+    // Specifies that the animation sequence started combat animation mode and
+    // therefore should balance it with appropriate finish call.
+    ANIM_SEQ_COMBAT_ANIM_STARTED = 0x02,
+
+    // Specifies that the animation sequence is reserved (TODO: explain what it
+    // actually means).
+    ANIM_SEQ_RESERVED = 0x04,
+
+    // Specifies that the animation sequence is in the process of adding actions
+    // to it (that is in the middle of begin/end calls).
+    ANIM_SEQ_ACCUMULATING = 0x08,
+
+    // TODO: Add description.
+    ANIM_SEQ_0x10 = 0x10,
+
+    // TODO: Add description.
+    ANIM_SEQ_0x20 = 0x20,
+
+    // Specifies that the animation sequence is negligible and will be end
+    // immediately when a new animation sequence is requested for the same
+    // object.
+    ANIM_SEQ_INSIGNIFICANT = 0x40,
+
+    // Specifies that the animation sequence should not return to ANIM_STAND
+    // when it's completed.
+    ANIM_SEQ_NO_STAND = 0x80,
+} AnimationSequenceFlags;
+
+typedef enum AnimationSadFlags {
+    // Specifies that the animation should play from end to start.
+    ANIM_SAD_REVERSE = 0x01,
+
+    // Specifies that the animation should use straight movement mode (as
+    // opposed to normal movement mode).
+    ANIM_SAD_STRAIGHT = 0x02,
+
+    // Specifies that no frame change should occur during animation.
+    ANIM_SAD_NO_ANIM = 0x04,
+
+    // Specifies that the animation should be played fully from start to finish.
+    //
+    // NOTE: This flag is only used together with straight movement mode to
+    // implement knockdown. Without this flag when the knockdown distance is
+    // short, say 1 or 2 tiles, knockdown animation might not be completed by
+    // the time critter reached it's destination. With this flag set animation
+    // will be played to it's final frame.
+    ANIM_SAD_WAIT_FOR_COMPLETION = 0x10,
+
+    // Unknown, set once, never read.
+    ANIM_SAD_0x20 = 0x20,
+
+    // Specifies that the owner of the animation should be hidden when animation
+    // is completed.
+    ANIM_SAD_HIDE_ON_END = 0x40,
+    
+    // Specifies that the animation should never end.
+    ANIM_SAD_FOREVER = 0x80,
+} AnimationSadFlags;
+
 // Basic animations: 0-19
 // Knockdown and death: 20-35
 // Change positions: 36-37
@@ -163,7 +235,7 @@ typedef struct AnimationSequence {
     int animationIndex;
     // Number of scheduled animations in [animations] array.
     int length;
-    int flags;
+    unsigned int flags;
     AnimationDescription animations[ANIMATION_DESCRIPTION_LIST_CAPACITY];
 } AnimationSequence;
 
@@ -186,7 +258,7 @@ typedef struct STRUCT_530014_28 {
 // TODO: I don't know what `sad` means, but it's definitely better than
 // `STRUCT_530014`. Find a better name.
 typedef struct AnimationSad {
-    int flags; // flags
+    unsigned int flags;
     Object* obj;
     int fid; // fid
     int anim;

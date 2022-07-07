@@ -433,7 +433,7 @@ int _show_damage_extras(Attack* attack)
             }
 
             v6 = delta != 0 && delta != 1 && delta != 5;
-            reg_anim_begin(2);
+            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
             _register_priority(1);
             v8 = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
             v9 = tileGetRotationTo(attack->attacker->tile, obj->tile);
@@ -537,7 +537,7 @@ int _action_melee(Attack* attack, int anim)
     const char* sfx_name;
     char sfx_name_temp[16];
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
     _register_priority(1);
 
     fid = buildFid(1, attack->attacker->fid & 0xFFF, anim, (attack->attacker->fid & 0xF000) >> 12, attack->attacker->rotation + 1);
@@ -633,7 +633,7 @@ int _action_ranged(Attack* attack, int anim)
     Object* neighboors[6];
     memset(neighboors, 0, sizeof(neighboors));
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
     _register_priority(1);
 
     Object* projectile = NULL;
@@ -905,60 +905,55 @@ int _is_next_to(Object* a1, Object* a2)
 // 0x411DB4
 int _action_climb_ladder(Object* a1, Object* a2)
 {
-    int anim;
-    int v5;
-    int v6;
-    int tile_num;
-    int v11;
-    const char* sfx_name;
-
     if (a1 == gDude) {
-        anim = (gDude->fid & 0xFF0000) >> 16;
+        int anim = (gDude->fid & 0xFF0000) >> 16;
         if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
             reg_anim_clear(gDude);
         }
     }
 
+    int animationRequestOptions;
+    int actionPoints;
     if (isInCombat()) {
-        v5 = 2;
-        v6 = a1->data.critter.combat.ap;
+        animationRequestOptions = ANIMATION_REQUEST_RESERVED;
+        actionPoints = a1->data.critter.combat.ap;
     } else {
-        v5 = 1;
-        v6 = -1;
+        animationRequestOptions = ANIMATION_REQUEST_UNRESERVED;
+        actionPoints = -1;
     }
 
     if (a1 == gDude) {
-        v5 = 2;
+        animationRequestOptions = ANIMATION_REQUEST_RESERVED;
     }
 
-    v5 |= 4;
-    reg_anim_begin(v5);
+    animationRequestOptions |= ANIMATION_REQUEST_NO_STAND;
+    reg_anim_begin(animationRequestOptions);
 
-    tile_num = tileGetTileInDirection(a2->tile, 2, 1);
-    if (v6 != -1 || objectGetDistanceBetween(a1, a2) < 5) {
-        animationRegisterMoveToTile(a1, tile_num, a2->elevation, v6, 0);
+    int tile = tileGetTileInDirection(a2->tile, ROTATION_SE, 1);
+    if (actionPoints != -1 || objectGetDistanceBetween(a1, a2) < 5) {
+        animationRegisterMoveToTile(a1, tile, a2->elevation, actionPoints, 0);
     } else {
-        animationRegisterRunToTile(a1, tile_num, a2->elevation, v6, 0);
+        animationRegisterRunToTile(a1, tile, a2->elevation, actionPoints, 0);
     }
 
     animationRegisterCallbackForced(a1, a2, _is_next_to, -1);
     animationRegisterRotateToTile(a1, a2->tile);
     animationRegisterCallbackForced(a1, a2, _check_scenery_ap_cost, -1);
 
-    v11 = (a1->fid & 0xF000) >> 12;
-    if (v11 != 0) {
-        sfx_name = sfxBuildCharName(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
-        animationRegisterPlaySoundEffect(a1, sfx_name, -1);
+    int weaponAnimationCode = (a1->fid & 0xF000) >> 12;
+    if (weaponAnimationCode != 0) {
+        const char* puttingAwaySfx = sfxBuildCharName(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
+        animationRegisterPlaySoundEffect(a1, puttingAwaySfx, -1);
         animationRegisterAnimate(a1, ANIM_PUT_AWAY, 0);
     }
 
-    sfx_name = sfxBuildCharName(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
-    animationRegisterPlaySoundEffect(a1, sfx_name, -1);
+    const char* climbingSfx = sfxBuildCharName(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
+    animationRegisterPlaySoundEffect(a1, climbingSfx, -1);
     animationRegisterAnimate(a1, ANIM_CLIMB_LADDER, 0);
     animationRegisterCallback(a1, a2, _obj_use, -1);
 
-    if (v11 != 0) {
-        animationRegisterTakeOutWeapon(a1, v11, -1);
+    if (weaponAnimationCode != 0) {
+        animationRegisterTakeOutWeapon(a1, weaponAnimationCode, -1);
     }
 
     return reg_anim_end();
@@ -986,21 +981,21 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
             }
         }
 
-        int v9;
+        int animationRequestOptions;
         int actionPoints;
         if (isInCombat()) {
-            v9 = 2;
+            animationRequestOptions = ANIMATION_REQUEST_RESERVED;
             actionPoints = a1->data.critter.combat.ap;
         } else {
-            v9 = 1;
+            animationRequestOptions = ANIMATION_REQUEST_UNRESERVED;
             actionPoints = -1;
         }
 
         if (a1 == gDude) {
-            v9 = 2;
+            animationRequestOptions = ANIMATION_REQUEST_RESERVED;
         }
 
-        reg_anim_begin(v9);
+        reg_anim_begin(animationRequestOptions);
 
         if (actionPoints != -1 || objectGetDistanceBetween(a1, a2) < 5) {
             animationRegisterMoveToObject(a1, a2, actionPoints, 0);
@@ -1073,11 +1068,10 @@ int actionPickUp(Object* critter, Object* item)
     }
 
     if (isInCombat()) {
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterMoveToObject(critter, item, critter->data.critter.combat.ap, 0);
     } else {
-        int flags = (critter == gDude) ? 2 : 1;
-        reg_anim_begin(flags);
+        reg_anim_begin(critter == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
         if (objectGetDistanceBetween(critter, item) >= 5) {
             animationRegisterRunToObject(critter, item, -1, 0);
         } else {
@@ -1174,10 +1168,10 @@ int _action_loot_container(Object* critter, Object* container)
     }
 
     if (isInCombat()) {
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterMoveToObject(critter, container, critter->data.critter.combat.ap, 0);
     } else {
-        reg_anim_begin(critter == gDude ? 2 : 1);
+        reg_anim_begin(critter == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
 
         if (objectGetDistanceBetween(critter, container) < 5) {
             animationRegisterMoveToObject(critter, container, -1, 0);
@@ -1375,10 +1369,10 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
     }
 
     if (isInCombat()) {
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterMoveToObject(performer, a2, performer->data.critter.combat.ap, 0);
     } else {
-        reg_anim_begin(a1 == gDude ? 2 : 1);
+        reg_anim_begin(a1 == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
         if (a2 != gDude) {
             if (objectGetDistanceBetween(performer, a2) >= 5) {
                 animationRegisterRunToObject(performer, a2, -1, 0);
@@ -1557,7 +1551,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
     if (a6) {
         _action_in_explode = 1;
 
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         _register_priority(1);
         animationRegisterPlaySoundEffect(explosion, "whn1xxx1", 0);
         animationRegisterUnsetFlag(explosion, OBJECT_HIDDEN, 0);
@@ -1745,10 +1739,10 @@ int actionTalk(Object* a1, Object* a2)
     }
 
     if (isInCombat()) {
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterMoveToObject(a1, a2, a1->data.critter.combat.ap, 0);
     } else {
-        reg_anim_begin((a1 == gDude) ? 2 : 1);
+        reg_anim_begin(a1 == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
 
         if (objectGetDistanceBetween(a1, a2) >= 9 || _combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
             animationRegisterRunToObject(a1, a2, -1, 0);
@@ -1828,7 +1822,7 @@ void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int dam
     attackComputeDeathFlags(attack);
 
     if (animated) {
-        reg_anim_begin(2);
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterPlaySoundEffect(attacker, "whc1xxx1", 0);
         _show_damage(attack, gMaximumBloodDeathAnimations[damageType], 0);
         // TODO: Get rid of casts.
@@ -2005,7 +1999,7 @@ int actionPush(Object* a1, Object* a2)
         actionPoints = -1;
     }
 
-    reg_anim_begin(2);
+    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
     animationRegisterRotateToTile(a2, tile);
     animationRegisterMoveToTile(a2, tile, a2->elevation, actionPoints, 0);
     return reg_anim_end();

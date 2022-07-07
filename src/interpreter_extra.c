@@ -1551,7 +1551,7 @@ void opAnimateStand(Program* program)
     }
 
     if (!isInCombat()) {
-        reg_anim_begin(1);
+        reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
         animationRegisterAnimate(object, ANIM_STAND, 0);
         reg_anim_end();
     }
@@ -1587,7 +1587,7 @@ void opAnimateStandReverse(Program* program)
     }
 
     if (!isInCombat()) {
-        reg_anim_begin(0x01);
+        reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
         animationRegisterAnimateReversed(object, ANIM_STAND, 0);
         reg_anim_end();
     }
@@ -1647,7 +1647,7 @@ void opAnimateMoveObjectToTile(Program* program)
         flags &= ~0x10;
     }
 
-    reg_anim_begin(1);
+    reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
 
     if (flags == 0) {
         animationRegisterMoveToTile(object, tile, object->elevation, -1, 0);
@@ -4289,7 +4289,7 @@ void opAnim(Program* program)
 
         anim = _correctDeath(obj, anim, true);
 
-        reg_anim_begin(1);
+        reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
 
         // TODO: Not sure about the purpose, why it handles knock down flag?
         if (frame == 0) {
