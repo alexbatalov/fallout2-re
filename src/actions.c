@@ -1785,39 +1785,39 @@ int _talk_to(Object* a1, Object* a2)
 }
 
 // 0x413494
-void _action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor)
+void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor)
 {
     Attack* attack = (Attack*)internal_malloc(sizeof(*attack));
     if (attack == NULL) {
         return;
     }
 
-    Object* obj;
-    if (objectCreateWithFidPid(&obj, FID_0x20001F5, -1) == -1) {
+    Object* attacker;
+    if (objectCreateWithFidPid(&attacker, FID_0x20001F5, -1) == -1) {
         internal_free(attack);
         return;
     }
 
-    objectHide(obj, NULL);
+    objectHide(attacker, NULL);
 
-    obj->flags |= OBJECT_TEMPORARY;
+    attacker->flags |= OBJECT_TEMPORARY;
 
-    objectSetLocation(obj, tile, elevation, NULL);
+    objectSetLocation(attacker, tile, elevation, NULL);
 
-    Object* v9 = _obj_blocking_at(NULL, tile, elevation);
-    attackInit(attack, obj, v9, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+    Object* defender = _obj_blocking_at(NULL, tile, elevation);
+    attackInit(attack, attacker, defender, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
     gameUiDisable(1);
 
-    if (v9 != NULL) {
-        reg_anim_clear(v9);
+    if (defender != NULL) {
+        reg_anim_clear(defender);
 
         int damage;
         if (bypassArmor) {
             damage = maxDamage;
         } else {
-            damage = _compute_dmg_damage(minDamage, maxDamage, v9, &(attack->defenderKnockback), damageType);
+            damage = _compute_dmg_damage(minDamage, maxDamage, defender, &(attack->defenderKnockback), damageType);
         }
 
         attack->defenderDamage = damage;
@@ -1827,29 +1827,28 @@ void _action_dmg(int tile, int elevation, int minDamage, int maxDamage, int dama
 
     if (animated) {
         reg_anim_begin(2);
-        reg_anim_play_sfx(obj, "whc1xxx1", 0);
+        reg_anim_play_sfx(attacker, "whc1xxx1", 0);
         _show_damage(attack, gMaximumBloodDeathAnimations[damageType], 0);
         // TODO: Get rid of casts.
         reg_anim_11_1((Object*)attack, NULL, (AnimationProc*)_report_dmg, 0);
-        reg_anim_hide(obj);
+        reg_anim_hide(attacker);
 
         if (reg_anim_end() == -1) {
-            objectDestroy(obj, NULL);
+            objectDestroy(attacker, NULL);
             internal_free(attack);
             return;
         }
     } else {
-        if (v9 != NULL) {
+        if (defender != NULL) {
             if ((attack->defenderFlags & DAM_DEAD) != 0) {
-                critterKill(v9, -1, 1);
+                critterKill(defender, -1, 1);
             }
         }
 
-        _combat_display(attack);
-        _apply_damage(attack, false);
-        internal_free(attack);
-        gameUiEnable();
-        objectDestroy(obj, NULL);
+        // NOTE: Uninline.
+        _report_dmg(attack, NULL);
+
+        objectDestroy(attacker, NULL);
     }
 
     gameUiEnable();

@@ -42,7 +42,7 @@ int _compute_explosion_damage(int min, int max, Object* a3, int* a4);
 int actionTalk(Object* a1, Object* a2);
 int _can_talk_to(Object* a1, Object* a2);
 int _talk_to(Object* a1, Object* a2);
-void _action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor);
+void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor);
 int _report_dmg(Attack* attack, Object* a2);
 int _compute_dmg_damage(int min, int max, Object* obj, int* a4, int damage_type);
 bool actionCheckPush(Object* a1, Object* a2);

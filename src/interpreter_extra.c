@@ -3074,7 +3074,7 @@ void opCritterDamage(Program* program)
     bool animate = (damageTypeWithFlags & 0x200) == 0;
     bool bypassArmor = (damageTypeWithFlags & 0x100) != 0;
     int damageType = damageTypeWithFlags & ~(0x100 | 0x200);
-    _action_dmg(object->tile, object->elevation, amount, amount, damageType, animate, bypassArmor);
+    actionDamage(object->tile, object->elevation, amount, amount, damageType, animate, bypassArmor);
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 
