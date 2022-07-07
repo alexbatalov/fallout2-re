@@ -261,7 +261,7 @@ int animationRegisterSetFlag(Object* object, int flag, int delay);
 int animationRegisterUnsetFlag(Object* object, int flag, int delay);
 int animationRegisterSetFid(Object* owner, int fid, int delay);
 int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int delay);
-int reg_anim_update_light(Object* obj, int fid, int a3);
+int animationRegisterSetLightDistance(Object* owner, int lightDistance, int delay);
 int animationRegisterToggleOutline(Object* object, bool outline, int delay);
 int reg_anim_play_sfx(Object* obj, const char* a2, int a3);
 int reg_anim_animate_forever(Object* obj, int a2, int a3);

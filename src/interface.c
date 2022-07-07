@@ -1943,7 +1943,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
 
     reg_anim_clear(gDude);
     reg_anim_begin(2);
-    reg_anim_update_light(gDude, 4, 0);
+    animationRegisterSetLightDistance(gDude, 4, 0);
 
     if (previousWeaponAnimationCode != 0) {
         const char* sfx = sfxBuildCharName(gDude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
@@ -1955,7 +1955,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
 
     Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
     if (item != NULL && item->lightDistance > 4) {
-        reg_anim_update_light(gDude, item->lightDistance, 0);
+        animationRegisterSetLightDistance(gDude, item->lightDistance, 0);
     }
 
     if (weaponAnimationCode != 0) {

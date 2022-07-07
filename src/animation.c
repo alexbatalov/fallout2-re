@@ -997,9 +997,9 @@ int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int d
 }
 
 // 0x415334
-int reg_anim_update_light(Object* obj, int lightDistance, int delay)
+int animationRegisterSetLightDistance(Object* owner, int lightDistance, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -1008,7 +1008,7 @@ int reg_anim_update_light(Object* obj, int lightDistance, int delay)
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_19;
     animationDescription->field_2C = NULL;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
     animationDescription->lightDistance = lightDistance;
     animationDescription->delay = delay;
 
