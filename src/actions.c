@@ -726,7 +726,7 @@ int _action_ranged(Attack* attack, int anim)
                 int projectileRotation = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
                 objectSetRotation(projectile, projectileRotation, NULL);
 
-                reg_anim_15(projectile, 1, actionFrame);
+                animationRegisterUnsetFlag(projectile, OBJECT_HIDDEN, actionFrame);
 
                 const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_AMMO_FLYING, weapon, attack->hitMode, attack->defender);
                 reg_anim_play_sfx(projectile, sfx, 0);
@@ -791,7 +791,7 @@ int _action_ranged(Attack* attack, int anim)
                                     }
                                 }
 
-                                reg_anim_15(neighboors[rotation], 1, delay);
+                                animationRegisterUnsetFlag(neighboors[rotation], OBJECT_HIDDEN, delay);
                                 reg_anim_6(neighboors[rotation], ANIM_STAND, 0);
                             }
                         }
@@ -1558,12 +1558,12 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         reg_anim_begin(2);
         _register_priority(1);
         reg_anim_play_sfx(explosion, "whn1xxx1", 0);
-        reg_anim_15(explosion, 1, 0);
+        animationRegisterUnsetFlag(explosion, OBJECT_HIDDEN, 0);
         reg_anim_6(explosion, ANIM_STAND, 0);
         _show_damage(attack, 0, 1);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-            reg_anim_15(adjacentExplosions[rotation], 1, 0);
+            animationRegisterUnsetFlag(adjacentExplosions[rotation], OBJECT_HIDDEN, 0);
             reg_anim_6(adjacentExplosions[rotation], ANIM_STAND, 0);
         }
 

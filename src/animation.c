@@ -922,10 +922,14 @@ int animationRegisterSetFlag(Object* object, int flag, int delay)
     return 0;
 }
 
+// The [flag] parameter should be one of OBJECT_* flags. The way it's handled
+// down the road implies it should not be a group of flags (joined with bitwise
+// OR), but a one particular flag.
+//
 // 0x4150A8
-int reg_anim_15(Object* obj, int a2, int delay)
+int animationRegisterUnsetFlag(Object* object, int flag, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(object) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -934,8 +938,8 @@ int reg_anim_15(Object* obj, int a2, int delay)
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_15;
     animationDescription->field_2C = NULL;
-    animationDescription->owner = obj;
-    animationDescription->field_24 = a2;
+    animationDescription->owner = object;
+    animationDescription->field_24 = flag;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
