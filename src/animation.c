@@ -546,7 +546,7 @@ int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actio
 }
 
 // 0x4145D0
-int animateRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay)
+int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay)
 {
     if (_check_registry(object) == -1) {
         _anim_cleanup();

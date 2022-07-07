@@ -295,7 +295,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                         _make_straight_path(a1, a1->tile, tile, NULL, &v35, 4);
                         if (v35 == NULL) {
                             reg_anim_set_rotation_to_tile(a1, tile);
-                            animateRegisterMoveToTileStraight(a1, tile, a1->elevation, anim, 0);
+                            animationRegisterMoveToTileStraight(a1, tile, a1->elevation, anim, 0);
                             break;
                         }
                         randomDistance--;
@@ -733,11 +733,11 @@ int _action_ranged(Attack* attack, int anim)
 
                 int v24;
                 if ((attack->attackerFlags & DAM_HIT) != 0) {
-                    animateRegisterMoveToTileStraight(projectile, attack->defender->tile, attack->defender->elevation, ANIM_WALK, 0);
+                    animationRegisterMoveToTileStraight(projectile, attack->defender->tile, attack->defender->elevation, ANIM_WALK, 0);
                     actionFrame = _make_straight_path(projectile, projectileOrigin, attack->defender->tile, NULL, NULL, 32) - 1;
                     v24 = attack->defender->tile;
                 } else {
-                    animateRegisterMoveToTileStraight(projectile, attack->tile, attack->defender->elevation, ANIM_WALK, 0);
+                    animationRegisterMoveToTileStraight(projectile, attack->tile, attack->defender->elevation, ANIM_WALK, 0);
                     actionFrame = 0;
                     v24 = attack->tile;
                 }
