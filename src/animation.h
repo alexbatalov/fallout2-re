@@ -135,6 +135,7 @@ typedef struct AnimationDescription {
         int fid; // for type == 17
         int weaponAnimationCode; // for type == 18
         int lightDistance; // for type == 19
+        bool outline; // for type == 24
     };
     int elevation;
     int anim; // anim
@@ -259,6 +260,7 @@ int animationRegisterUnsetFlag(Object* object, int flag, int delay);
 int reg_anim_17(Object* obj, int fid, int a3);
 int reg_anim_18(Object* obj, int a2, int a3);
 int reg_anim_update_light(Object* obj, int fid, int a3);
+int animationRegisterToggleOutline(Object* object, bool outline, int delay);
 int reg_anim_play_sfx(Object* obj, const char* a2, int a3);
 int reg_anim_animate_forever(Object* obj, int a2, int a3);
 int reg_anim_26(int a1, int a2);

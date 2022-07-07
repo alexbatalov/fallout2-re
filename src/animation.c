@@ -1032,6 +1032,29 @@ int reg_anim_update_light(Object* obj, int lightDistance, int delay)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4153A8
+int animationRegisterToggleOutline(Object* object, bool outline, int delay)
+{
+    if (_check_registry(object) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
+    AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->type = ANIM_KIND_24;
+    animationDescription->field_2C = NULL;
+    animationDescription->owner = object;
+    animationDescription->outline = outline;
+    animationDescription->delay = delay;
+
+    gAnimationDescriptionCurrentIndex++;
+
+    return 0;
+}
+
 // 0x41541C
 int reg_anim_play_sfx(Object* obj, const char* soundEffectName, int delay)
 {
@@ -1282,7 +1305,7 @@ int animationRunSequence(int animationSequenceIndex)
             rc = _check_for_falling(animationDescription->owner, animationDescription->anim, animationSequenceIndex);
             break;
         case ANIM_KIND_24:
-            if (animationDescription->tile) {
+            if (animationDescription->outline) {
                 if (objectEnableOutline(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
