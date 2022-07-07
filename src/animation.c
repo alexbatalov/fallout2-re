@@ -347,26 +347,26 @@ int animationIsBusy(Object* a1)
 }
 
 // 0x413F5C
-int reg_anim_obj_move_to_obj(Object* a1, Object* a2, int actionPoints, int delay)
+int animationRegisterMoveToObject(Object* owner, Object* destination, int actionPoints, int delay)
 {
-    if (_check_registry(a1) == -1 || actionPoints == 0) {
+    if (_check_registry(owner) == -1 || actionPoints == 0) {
         _anim_cleanup();
         return -1;
     }
 
-    if (a1->tile == a2->tile && a1->elevation == a2->elevation) {
+    if (owner->tile == destination->tile && owner->elevation == destination->elevation) {
         return 0;
     }
 
     AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_OBJ;
     animationDescription->anim = ANIM_WALK;
-    animationDescription->owner = a1;
-    animationDescription->destinationObj = a2;
+    animationDescription->owner = owner;
+    animationDescription->destinationObj = destination;
     animationDescription->field_28 = actionPoints;
     animationDescription->delay = delay;
 
-    int fid = buildFid((a1->fid & 0xF000000) >> 24, a1->fid & 0xFFF, animationDescription->anim, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
+    int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
         _anim_cleanup();
@@ -378,7 +378,7 @@ int reg_anim_obj_move_to_obj(Object* a1, Object* a2, int actionPoints, int delay
 
     gAnimationDescriptionCurrentIndex++;
 
-    return reg_anim_set_rotation_to_tile(a1, a2->tile);
+    return reg_anim_set_rotation_to_tile(owner, destination->tile);
 }
 
 // 0x41405C
@@ -412,7 +412,7 @@ int reg_anim_obj_run_to_obj(Object* owner, Object* destination, int actionPoints
             }
             displayMonitorAddMessage(formatted_text);
         }
-        return reg_anim_obj_move_to_obj(owner, destination, actionPoints, delay);
+        return animationRegisterMoveToObject(owner, destination, actionPoints, delay);
     }
 
     AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);

@@ -1003,7 +1003,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
         reg_anim_begin(v9);
 
         if (actionPoints != -1 || objectGetDistanceBetween(a1, a2) < 5) {
-            reg_anim_obj_move_to_obj(a1, a2, actionPoints, 0);
+            animationRegisterMoveToObject(a1, a2, actionPoints, 0);
         } else {
             reg_anim_obj_run_to_obj(a1, a2, -1, 0);
         }
@@ -1074,14 +1074,14 @@ int actionPickUp(Object* critter, Object* item)
 
     if (isInCombat()) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_obj(critter, item, critter->data.critter.combat.ap, 0);
+        animationRegisterMoveToObject(critter, item, critter->data.critter.combat.ap, 0);
     } else {
         int flags = (critter == gDude) ? 2 : 1;
         reg_anim_begin(flags);
         if (objectGetDistanceBetween(critter, item) >= 5) {
             reg_anim_obj_run_to_obj(critter, item, -1, 0);
         } else {
-            reg_anim_obj_move_to_obj(critter, item, -1, 0);
+            animationRegisterMoveToObject(critter, item, -1, 0);
         }
     }
 
@@ -1173,12 +1173,12 @@ int _action_loot_container(Object* critter, Object* container)
 
     if (isInCombat()) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_obj(critter, container, critter->data.critter.combat.ap, 0);
+        animationRegisterMoveToObject(critter, container, critter->data.critter.combat.ap, 0);
     } else {
         reg_anim_begin(critter == gDude ? 2 : 1);
 
         if (objectGetDistanceBetween(critter, container) < 5) {
-            reg_anim_obj_move_to_obj(critter, container, -1, 0);
+            animationRegisterMoveToObject(critter, container, -1, 0);
         } else {
             reg_anim_obj_run_to_obj(critter, container, -1, 0);
         }
@@ -1374,14 +1374,14 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
 
     if (isInCombat()) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_obj(performer, a2, performer->data.critter.combat.ap, 0);
+        animationRegisterMoveToObject(performer, a2, performer->data.critter.combat.ap, 0);
     } else {
         reg_anim_begin(a1 == gDude ? 2 : 1);
         if (a2 != gDude) {
             if (objectGetDistanceBetween(performer, a2) >= 5) {
                 reg_anim_obj_run_to_obj(performer, a2, -1, 0);
             } else {
-                reg_anim_obj_move_to_obj(performer, a2, -1, 0);
+                animationRegisterMoveToObject(performer, a2, -1, 0);
             }
         }
     }
@@ -1744,7 +1744,7 @@ int actionTalk(Object* a1, Object* a2)
 
     if (isInCombat()) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_obj(a1, a2, a1->data.critter.combat.ap, 0);
+        animationRegisterMoveToObject(a1, a2, a1->data.critter.combat.ap, 0);
     } else {
         reg_anim_begin((a1 == gDude) ? 2 : 1);
 

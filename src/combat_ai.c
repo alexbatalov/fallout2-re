@@ -2149,7 +2149,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         }
     } else {
         if ((a2->flags & OBJECT_MULTIHEX) != 0) {
-            reg_anim_obj_move_to_obj(a1, a2, actionPoints, 0);
+            animationRegisterMoveToObject(a1, a2, actionPoints, 0);
         } else {
             reg_anim_obj_move_to_tile(a1, tile, a1->elevation, actionPoints, 0);
         }

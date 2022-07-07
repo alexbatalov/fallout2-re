@@ -4502,7 +4502,7 @@ void opRegAnimObjectMoveToObject(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            reg_anim_obj_move_to_obj(object, dest, -1, delay);
+            animationRegisterMoveToObject(object, dest, -1, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_obj_move_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         }

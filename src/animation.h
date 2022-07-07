@@ -240,7 +240,7 @@ int reg_anim_end();
 void _anim_cleanup();
 int _check_registry(Object* obj);
 int animationIsBusy(Object* a1);
-int reg_anim_obj_move_to_obj(Object* a1, Object* a2, int actionPoints, int delay);
+int animationRegisterMoveToObject(Object* owner, Object* destination, int actionPoints, int delay);
 int reg_anim_obj_run_to_obj(Object* owner, Object* destination, int actionPoints, int delay);
 int reg_anim_obj_move_to_tile(Object* obj, int tile_num, int elev, int actionPoints, int delay);
 int reg_anim_obj_run_to_tile(Object* obj, int tile_num, int elev, int actionPoints, int delay);
