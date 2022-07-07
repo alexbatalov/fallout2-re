@@ -254,7 +254,7 @@ int animationRegisterHideObject(Object* object);
 int animationRegisterHideObjectForced(Object* object);
 int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int delay);
 int reg_anim_12(Object* a1, Object* a2, void* a3, AnimationProc2* proc, int delay);
-int reg_anim_11_1(Object* a1, Object* a2, AnimationProc* proc, int delay);
+int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc, int delay);
 int animationRegisterSetFlag(Object* object, int flag, int delay);
 int animationRegisterUnsetFlag(Object* object, int flag, int delay);
 int reg_anim_17(Object* obj, int fid, int a3);

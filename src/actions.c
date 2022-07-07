@@ -356,7 +356,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
 
     if (weapon != NULL) {
         if ((flags & DAM_EXPLODE) != 0) {
-            reg_anim_11_1(a1, weapon, _obj_drop, -1);
+            animationRegisterCallbackForced(a1, weapon, _obj_drop, -1);
             fid = buildFid(5, 10, 0, 0, 0);
             reg_anim_17(weapon, fid, 0);
             reg_anim_6(weapon, ANIM_STAND, 0);
@@ -366,15 +366,15 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
 
             animationRegisterHideObjectForced(weapon);
         } else if ((flags & DAM_DESTROY) != 0) {
-            reg_anim_11_1(a1, weapon, _internal_destroy, -1);
+            animationRegisterCallbackForced(a1, weapon, _internal_destroy, -1);
         } else if ((flags & DAM_DROP) != 0) {
-            reg_anim_11_1(a1, weapon, _obj_drop, -1);
+            animationRegisterCallbackForced(a1, weapon, _obj_drop, -1);
         }
     }
 
     if ((flags & DAM_DEAD) != 0) {
         // TODO: Get rid of casts.
-        reg_anim_11_1(a1, (Object*)anim, (AnimationProc*)_show_death, -1);
+        animationRegisterCallbackForced(a1, (Object*)anim, (AnimationProc*)_show_death, -1);
     }
 }
 
@@ -941,9 +941,9 @@ int _action_climb_ladder(Object* a1, Object* a2)
         reg_anim_obj_run_to_tile(a1, tile_num, a2->elevation, v6, 0);
     }
 
-    reg_anim_11_1(a1, a2, _is_next_to, -1);
+    animationRegisterCallbackForced(a1, a2, _is_next_to, -1);
     reg_anim_set_rotation_to_tile(a1, a2->tile);
-    reg_anim_11_1(a1, a2, _check_scenery_ap_cost, -1);
+    animationRegisterCallbackForced(a1, a2, _check_scenery_ap_cost, -1);
 
     v11 = (a1->fid & 0xF000) >> 12;
     if (v11 != 0) {
@@ -1008,7 +1008,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
             reg_anim_obj_run_to_obj(a1, a2, -1, 0);
         }
 
-        reg_anim_11_1(a1, a2, _is_next_to, -1);
+        animationRegisterCallbackForced(a1, a2, _is_next_to, -1);
 
         if (a3 == NULL) {
             animationRegisterCallback(a1, a2, _check_scenery_ap_cost, -1);
@@ -1085,7 +1085,7 @@ int actionPickUp(Object* critter, Object* item)
         }
     }
 
-    reg_anim_11_1(critter, item, _is_next_to, -1);
+    animationRegisterCallbackForced(critter, item, _is_next_to, -1);
     animationRegisterCallback(critter, item, _check_scenery_ap_cost, -1);
 
     Proto* itemProto;
@@ -1184,7 +1184,7 @@ int _action_loot_container(Object* critter, Object* container)
         }
     }
 
-    reg_anim_11_1(critter, container, _is_next_to, -1);
+    animationRegisterCallbackForced(critter, container, _is_next_to, -1);
     animationRegisterCallback(critter, container, _check_scenery_ap_cost, -1);
     animationRegisterCallback(critter, container, scriptsRequestLooting, -1);
     return reg_anim_end();
@@ -1386,7 +1386,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         }
     }
 
-    reg_anim_11_1(performer, a2, _is_next_to, -1);
+    animationRegisterCallbackForced(performer, a2, _is_next_to, -1);
 
     int anim = (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
     int fid = buildFid(1, performer->fid & 0xFFF, anim, 0, performer->rotation + 1);
@@ -1567,7 +1567,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
             reg_anim_6(adjacentExplosions[rotation], ANIM_STAND, 0);
         }
 
-        reg_anim_11_1(explosion, 0, _combat_explode_scenery, -1);
+        animationRegisterCallbackForced(explosion, 0, _combat_explode_scenery, -1);
         animationRegisterHideObjectForced(explosion);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
@@ -1575,8 +1575,8 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         }
 
         // TODO: Get rid of casts.
-        reg_anim_11_1((Object*)attack, a5, (AnimationProc*)_report_explosion, -1);
-        reg_anim_11_1(NULL, NULL, _finished_explosion, -1);
+        animationRegisterCallbackForced((Object*)attack, a5, (AnimationProc*)_report_explosion, -1);
+        animationRegisterCallbackForced(NULL, NULL, _finished_explosion, -1);
         if (reg_anim_end() == -1) {
             _action_in_explode = 0;
 
@@ -1753,7 +1753,7 @@ int actionTalk(Object* a1, Object* a2)
         }
     }
 
-    reg_anim_11_1(a1, a2, _can_talk_to, -1);
+    animationRegisterCallbackForced(a1, a2, _can_talk_to, -1);
     animationRegisterCallback(a1, a2, _talk_to, -1);
     return reg_anim_end();
 }
@@ -1830,7 +1830,7 @@ void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int dam
         reg_anim_play_sfx(attacker, "whc1xxx1", 0);
         _show_damage(attack, gMaximumBloodDeathAnimations[damageType], 0);
         // TODO: Get rid of casts.
-        reg_anim_11_1((Object*)attack, NULL, (AnimationProc*)_report_dmg, 0);
+        animationRegisterCallbackForced((Object*)attack, NULL, (AnimationProc*)_report_dmg, 0);
         animationRegisterHideObjectForced(attacker);
 
         if (reg_anim_end() == -1) {

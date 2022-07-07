@@ -873,7 +873,7 @@ int reg_anim_12(Object* a1, Object* a2, void* a3, AnimationProc2* proc, int dela
 }
 
 // 0x414FAC
-int reg_anim_11_1(Object* a1, Object* a2, AnimationProc* proc, int delay)
+int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc, int delay)
 {
     if (_check_registry(NULL) == -1 || proc == NULL) {
         _anim_cleanup();

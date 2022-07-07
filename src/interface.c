@@ -1951,7 +1951,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         reg_anim_animate(gDude, ANIM_PUT_AWAY, 0);
     }
 
-    reg_anim_11_1(NULL, NULL, _intface_redraw_items_callback, -1);
+    animationRegisterCallbackForced(NULL, NULL, _intface_redraw_items_callback, -1);
 
     Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
     if (item != NULL && item->lightDistance > 4) {
@@ -1965,7 +1965,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         reg_anim_17(gDude, fid, -1);
     }
 
-    reg_anim_11_1(NULL, NULL, _intface_change_fid_callback, -1);
+    animationRegisterCallbackForced(NULL, NULL, _intface_change_fid_callback, -1);
 
     if (reg_anim_end() == -1) {
         return;

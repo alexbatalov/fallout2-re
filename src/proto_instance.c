@@ -1736,7 +1736,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
             }
         }
 
-        reg_anim_11_1(a2, a2, _check_door_state, -1);
+        animationRegisterCallbackForced(a2, a2, _check_door_state, -1);
 
         reg_anim_end();
     }
@@ -2009,21 +2009,21 @@ int objectOpenClose(Object* obj)
     reg_anim_begin(2);
 
     if (obj->frame != 0) {
-        reg_anim_11_1(obj, obj, _set_door_state_closed, -1);
+        animationRegisterCallbackForced(obj, obj, _set_door_state_closed, -1);
 
         const char* sfx = sfxBuildOpenName(obj, SCENERY_SOUND_EFFECT_CLOSED);
         reg_anim_play_sfx(obj, sfx, -1);
 
         reg_anim_animate_reverse(obj, 0, 0);
     } else {
-        reg_anim_11_1(obj, obj, _set_door_state_open, -1);
+        animationRegisterCallbackForced(obj, obj, _set_door_state_open, -1);
 
         const char* sfx = sfxBuildOpenName(obj, SCENERY_SOUND_EFFECT_OPEN);
         reg_anim_play_sfx(obj, sfx, -1);
         reg_anim_animate(obj, 0, 0);
     }
 
-    reg_anim_11_1(obj, obj, _check_door_state, -1);
+    animationRegisterCallbackForced(obj, obj, _check_door_state, -1);
 
     reg_anim_end();
 
