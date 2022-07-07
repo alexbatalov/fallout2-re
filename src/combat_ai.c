@@ -802,7 +802,7 @@ int _ai_magic_hands(Object* critter, Object* item, int num)
 {
     reg_anim_begin(2);
 
-    reg_anim_animate(critter, ANIM_MAGIC_HANDS_MIDDLE, 0);
+    animationRegisterAnimate(critter, ANIM_MAGIC_HANDS_MIDDLE, 0);
 
     if (reg_anim_end() == 0) {
         if (isInCombat()) {

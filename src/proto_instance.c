@@ -1732,7 +1732,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
                 const char* sfx = sfxBuildOpenName(a2, SCENERY_SOUND_EFFECT_CLOSED);
                 animationRegisterPlaySoundEffect(a2, sfx, -1);
 
-                reg_anim_animate(a2, 0, 0);
+                animationRegisterAnimate(a2, ANIM_STAND, 0);
             }
         }
 
@@ -1800,7 +1800,7 @@ int _obj_use_container(Object* critter, Object* item)
     if (item->frame == 0) {
         const char* sfx = sfxBuildOpenName(item, SCENERY_SOUND_EFFECT_OPEN);
         animationRegisterPlaySoundEffect(item, sfx, 0);
-        reg_anim_animate(item, 0, 0);
+        animationRegisterAnimate(item, ANIM_STAND, 0);
     } else {
         const char* sfx = sfxBuildOpenName(item, SCENERY_SOUND_EFFECT_CLOSED);
         animationRegisterPlaySoundEffect(item, sfx, 0);
@@ -2020,7 +2020,7 @@ int objectOpenClose(Object* obj)
 
         const char* sfx = sfxBuildOpenName(obj, SCENERY_SOUND_EFFECT_OPEN);
         animationRegisterPlaySoundEffect(obj, sfx, -1);
-        reg_anim_animate(obj, 0, 0);
+        animationRegisterAnimate(obj, ANIM_STAND, 0);
     }
 
     animationRegisterCallbackForced(obj, obj, _check_door_state, -1);

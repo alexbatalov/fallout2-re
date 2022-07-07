@@ -2464,7 +2464,7 @@ void _combat_begin(Object* a1)
 
             reg_anim_clear(v1);
             reg_anim_begin(2);
-            reg_anim_animate(v1, 6, -1);
+            animationRegisterAnimate(v1, ANIM_UP_STAIRS_RIGHT, -1);
             animationRegisterSetFid(v1, fid, -1);
             reg_anim_end();
 
@@ -2617,7 +2617,7 @@ void _combat_over()
                 (critter->fid & 0x70000000) >> 28);
             reg_anim_clear(critter);
             reg_anim_begin(2);
-            reg_anim_animate(critter, 6, -1);
+            animationRegisterAnimate(critter, ANIM_UP_STAIRS_RIGHT, -1);
             animationRegisterSetFid(critter, fid, -1);
             reg_anim_end();
 

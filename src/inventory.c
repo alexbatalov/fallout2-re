@@ -2672,7 +2672,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                     if (!isoIsDisabled()) {
                         const char* soundEffectName = sfxBuildCharName(critter, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
                         animationRegisterPlaySoundEffect(critter, soundEffectName, 0);
-                        reg_anim_animate(critter, ANIM_PUT_AWAY, 0);
+                        animationRegisterAnimate(critter, ANIM_PUT_AWAY, 0);
                     }
                 }
             }
@@ -2737,7 +2737,7 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
             const char* sfx = sfxBuildCharName(obj, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
             animationRegisterPlaySoundEffect(obj, sfx, 0);
 
-            reg_anim_animate(obj, 39, 0);
+            animationRegisterAnimate(obj, ANIM_PUT_AWAY, 0);
 
             fid = buildFid(1, obj->fid & 0xFFF, 0, 0, obj->rotation + 1);
             animationRegisterSetFid(obj, fid, -1);

@@ -1948,7 +1948,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     if (previousWeaponAnimationCode != 0) {
         const char* sfx = sfxBuildCharName(gDude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
         animationRegisterPlaySoundEffect(gDude, sfx, 0);
-        reg_anim_animate(gDude, ANIM_PUT_AWAY, 0);
+        animationRegisterAnimate(gDude, ANIM_PUT_AWAY, 0);
     }
 
     animationRegisterCallbackForced(NULL, NULL, _intface_redraw_items_callback, -1);

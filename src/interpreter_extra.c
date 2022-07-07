@@ -1552,7 +1552,7 @@ void opAnimateStand(Program* program)
 
     if (!isInCombat()) {
         reg_anim_begin(1);
-        reg_anim_animate(object, ANIM_STAND, 0);
+        animationRegisterAnimate(object, ANIM_STAND, 0);
         reg_anim_end();
     }
 }
@@ -4293,7 +4293,7 @@ void opAnim(Program* program)
 
         // TODO: Not sure about the purpose, why it handles knock down flag?
         if (frame == 0) {
-            reg_anim_animate(obj, anim, 0);
+            animationRegisterAnimate(obj, anim, 0);
             if (anim >= ANIM_FALL_BACK && anim <= ANIM_FALL_FRONT_BLOOD) {
                 int fid = buildFid(1, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 28);
                 animationRegisterSetFid(obj, fid, -1);
@@ -4435,7 +4435,7 @@ void opRegAnimAnimate(Program* program)
         int violenceLevel = VIOLENCE_LEVEL_NONE;
         if (anim != 20 || object == NULL || object->pid != 0x100002F || (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel) && violenceLevel >= 2)) {
             if (object != NULL) {
-                reg_anim_animate(object, anim, delay);
+                animationRegisterAnimate(object, anim, delay);
             } else {
                 scriptPredefinedError(program, "reg_anim_animate", SCRIPT_ERROR_OBJECT_IS_NULL);
             }

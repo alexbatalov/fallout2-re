@@ -88,7 +88,7 @@ int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int d
 
     if (distance <= 0) {
         tile = obj->tile;
-        reg_anim_animate(obj, *anim, 0);
+        animationRegisterAnimate(obj, *anim, 0);
     } else {
         tile = tileGetTileInDirection(obj->tile, rotation, distance);
         reg_anim_knockdown(obj, tile, obj->elevation, *anim, 0);
@@ -118,7 +118,7 @@ int _action_blood(Object* obj, int anim, int delay)
 
     int fid = buildFid(1, obj->fid & 0xFFF, bloodyAnim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     if (artExists(fid)) {
-        reg_anim_animate(obj, bloodyAnim, delay);
+        animationRegisterAnimate(obj, bloodyAnim, delay);
     } else {
         bloodyAnim = anim;
     }
@@ -272,7 +272,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                     animationRegisterPlaySoundEffect(a1, sfx_name, a10);
 
                     anim = _pick_fall(a1, anim);
-                    reg_anim_animate(a1, anim, 0);
+                    animationRegisterAnimate(a1, anim, 0);
 
                     if (anim == ANIM_FALL_FRONT || anim == ANIM_FALL_BACK) {
                         anim = _action_blood(a1, anim, -1);
@@ -284,7 +284,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                     sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                     animationRegisterPlaySoundEffect(a1, sfx_name, a10);
 
-                    reg_anim_animate(a1, anim, 0);
+                    animationRegisterAnimate(a1, anim, 0);
 
                     int randomDistance = randomBetween(2, 5);
                     int randomRotation = randomBetween(0, 5);
@@ -305,7 +305,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                 anim = ANIM_BURNED_TO_NOTHING;
                 sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                 animationRegisterPlaySoundEffect(a1, sfx_name, -1);
-                reg_anim_animate(a1, anim, 0);
+                animationRegisterAnimate(a1, anim, 0);
             }
         } else {
             if ((flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN)) != 0) {
@@ -316,10 +316,10 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                     actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, 0);
                 } else {
                     anim = _pick_fall(a1, anim);
-                    reg_anim_animate(a1, anim, 0);
+                    animationRegisterAnimate(a1, anim, 0);
                 }
             } else if ((flags & DAM_ON_FIRE) != 0 && artExists(buildFid(1, a1->fid & 0xFFF, ANIM_FIRE_DANCE, (a1->fid & 0xF000) >> 12, a1->rotation + 1))) {
-                reg_anim_animate(a1, ANIM_FIRE_DANCE, a10);
+                animationRegisterAnimate(a1, ANIM_FIRE_DANCE, a10);
 
                 fid = buildFid(1, a1->fid & 0xFFF, ANIM_STAND, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
                 animationRegisterSetFid(a1, fid, -1);
@@ -328,9 +328,9 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                     anim = isFallingBack ? ANIM_FALL_BACK : ANIM_FALL_FRONT;
                     actionKnockdown(a1, &anim, knockbackDistance, knockbackRotation, a10);
                     if (anim == ANIM_FALL_BACK) {
-                        reg_anim_animate(a1, ANIM_BACK_TO_STANDING, -1);
+                        animationRegisterAnimate(a1, ANIM_BACK_TO_STANDING, -1);
                     } else {
-                        reg_anim_animate(a1, ANIM_PRONE_TO_STANDING, -1);
+                        animationRegisterAnimate(a1, ANIM_PRONE_TO_STANDING, -1);
                     }
                 } else {
                     if (isFallingBack || !artExists(buildFid(1, a1->fid & 0xFFF, ANIM_HIT_FROM_BACK, (a1->fid & 0xF000) >> 12, a1->rotation + 1))) {
@@ -342,7 +342,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                     sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                     animationRegisterPlaySoundEffect(a1, sfx_name, a10);
 
-                    reg_anim_animate(a1, anim, 0);
+                    animationRegisterAnimate(a1, anim, 0);
                 }
             }
         }
@@ -578,13 +578,13 @@ int _action_melee(Attack* attack, int anim)
 
         strcpy(sfx_name_temp, sfx_name);
 
-        reg_anim_animate(attack->attacker, anim, 0);
+        animationRegisterAnimate(attack->attacker, anim, 0);
         animationRegisterPlaySoundEffect(attack->attacker, sfx_name_temp, v17);
         _show_damage(attack, anim, 0);
     } else {
         if (attack->defender->data.critter.combat.results & 0x03) {
             animationRegisterPlaySoundEffect(attack->attacker, sfx_name_temp, -1);
-            reg_anim_animate(attack->attacker, anim, 0);
+            animationRegisterAnimate(attack->attacker, anim, 0);
         } else {
             fid = buildFid(1, attack->defender->fid & 0xFFF, ANIM_DODGE_ANIM, (attack->defender->fid & 0xF000) >> 12, attack->defender->rotation + 1);
             art = artLock(fid, &cache_entry);
@@ -594,17 +594,17 @@ int _action_melee(Attack* attack, int anim)
 
                 if (v18 <= v17) {
                     animationRegisterPlaySoundEffect(attack->attacker, sfx_name_temp, -1);
-                    reg_anim_animate(attack->attacker, anim, 0);
+                    animationRegisterAnimate(attack->attacker, anim, 0);
 
                     sfx_name = sfxBuildCharName(attack->defender, ANIM_DODGE_ANIM, CHARACTER_SOUND_EFFECT_UNUSED);
                     animationRegisterPlaySoundEffect(attack->defender, sfx_name, v17 - v18);
-                    reg_anim_animate(attack->defender, 13, 0);
+                    animationRegisterAnimate(attack->defender, ANIM_DODGE_ANIM, 0);
                 } else {
                     sfx_name = sfxBuildCharName(attack->defender, ANIM_DODGE_ANIM, CHARACTER_SOUND_EFFECT_UNUSED);
                     animationRegisterPlaySoundEffect(attack->defender, sfx_name, -1);
-                    reg_anim_animate(attack->defender, 13, 0);
+                    animationRegisterAnimate(attack->defender, ANIM_DODGE_ANIM, 0);
                     animationRegisterPlaySoundEffect(attack->attacker, sfx_name_temp, v18 - v17);
-                    reg_anim_animate(attack->attacker, anim, 0);
+                    animationRegisterAnimate(attack->attacker, anim, 0);
                 }
             }
         }
@@ -664,7 +664,7 @@ int _action_ranged(Attack* attack, int anim)
             isGrenade = true;
         }
     } else {
-        reg_anim_animate(attack->attacker, ANIM_POINT, -1);
+        animationRegisterAnimate(attack->attacker, ANIM_POINT, -1);
     }
 
     _combatai_msg(attack->attacker, attack, AI_MESSAGE_TYPE_ATTACK, 0);
@@ -677,7 +677,7 @@ int _action_ranged(Attack* attack, int anim)
     }
     animationRegisterPlaySoundEffect(attack->attacker, sfx, -1);
 
-    reg_anim_animate(attack->attacker, anim, 0);
+    animationRegisterAnimate(attack->attacker, anim, 0);
 
     if (anim != ANIM_FIRE_CONTINUOUS) {
         if ((attack->attackerFlags & DAM_HIT) != 0 || (attack->attackerFlags & DAM_CRITICAL) == 0) {
@@ -814,7 +814,7 @@ int _action_ranged(Attack* attack, int anim)
                 if ((attack->attackerFlags & DAM_HIT) == 0) {
                     Object* defender = attack->defender;
                     if ((defender->data.critter.combat.results & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN)) == 0) {
-                        reg_anim_animate(defender, ANIM_DODGE_ANIM, actionFrame);
+                        animationRegisterAnimate(defender, ANIM_DODGE_ANIM, actionFrame);
                         l56 = true;
                     }
                 }
@@ -860,7 +860,7 @@ int _action_ranged(Attack* attack, int anim)
                 animationRegisterSetFid(attack->attacker, fid, -1);
             }
         } else {
-            reg_anim_animate(attack->attacker, ANIM_UNPOINT, -1);
+            animationRegisterAnimate(attack->attacker, ANIM_UNPOINT, -1);
         }
     }
 
@@ -949,12 +949,12 @@ int _action_climb_ladder(Object* a1, Object* a2)
     if (v11 != 0) {
         sfx_name = sfxBuildCharName(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
         animationRegisterPlaySoundEffect(a1, sfx_name, -1);
-        reg_anim_animate(a1, 39, 0);
+        animationRegisterAnimate(a1, ANIM_PUT_AWAY, 0);
     }
 
     sfx_name = sfxBuildCharName(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
     animationRegisterPlaySoundEffect(a1, sfx_name, -1);
-    reg_anim_animate(a1, 4, 0);
+    animationRegisterAnimate(a1, ANIM_CLIMB_LADDER, 0);
     animationRegisterCallback(a1, a2, _obj_use, -1);
 
     if (v11 != 0) {
@@ -1018,21 +1018,21 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
         if (a2a != 0) {
             const char* sfx = sfxBuildCharName(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
             animationRegisterPlaySoundEffect(a1, sfx, -1);
-            reg_anim_animate(a1, ANIM_PUT_AWAY, 0);
+            animationRegisterAnimate(a1, ANIM_PUT_AWAY, 0);
         }
 
-        int v13;
-        int v12 = (a2->fid & 0xF000000) >> 24;
-        if (v12 == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) {
-            v13 = ANIM_MAGIC_HANDS_GROUND;
-        } else if (v12 == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & 0x01) != 0) {
-            v13 = ANIM_MAGIC_HANDS_GROUND;
+        int anim;
+        int objectType = (a2->fid & 0xF000000) >> 24;
+        if (objectType == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) {
+            anim = ANIM_MAGIC_HANDS_GROUND;
+        } else if (objectType == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & 0x01) != 0) {
+            anim = ANIM_MAGIC_HANDS_GROUND;
         } else {
-            v13 = ANIM_MAGIC_HANDS_MIDDLE;
+            anim = ANIM_MAGIC_HANDS_MIDDLE;
         }
 
         if (sceneryType != SCENERY_TYPE_STAIRS && a3 == NULL) {
-            reg_anim_animate(a1, v13, -1);
+            animationRegisterAnimate(a1, anim, -1);
         }
 
         if (a3 != NULL) {
@@ -1092,7 +1092,7 @@ int actionPickUp(Object* critter, Object* item)
     protoGetProto(item->pid, &itemProto);
 
     if (itemProto->item.type != ITEM_TYPE_CONTAINER || _proto_action_can_pickup(item->pid)) {
-        reg_anim_animate(critter, ANIM_MAGIC_HANDS_GROUND, 0);
+        animationRegisterAnimate(critter, ANIM_MAGIC_HANDS_GROUND, 0);
 
         int fid = buildFid(1, critter->fid & 0xFFF, ANIM_MAGIC_HANDS_GROUND, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
 
@@ -1113,18 +1113,20 @@ int actionPickUp(Object* critter, Object* item)
 
         animationRegisterCallback(critter, item, _obj_pickup, actionFrame);
     } else {
-        int v27 = (critter->fid & 0xF000) >> 12;
-        if (v27 != 0) {
+        int weaponAnimationCode = (critter->fid & 0xF000) >> 12;
+        if (weaponAnimationCode != 0) {
             const char* sfx = sfxBuildCharName(critter, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
             animationRegisterPlaySoundEffect(critter, sfx, -1);
-            reg_anim_animate(critter, ANIM_PUT_AWAY, -1);
+            animationRegisterAnimate(critter, ANIM_PUT_AWAY, -1);
         }
 
         // ground vs middle animation
-        int animationCode = 10 + ((itemProto->item.data.container.openFlags & 0x01) == 0);
-        reg_anim_animate(critter, animationCode, 0);
+        int anim = (itemProto->item.data.container.openFlags & 0x01) == 0
+            ? ANIM_MAGIC_HANDS_MIDDLE
+            : ANIM_MAGIC_HANDS_GROUND;
+        animationRegisterAnimate(critter, anim, 0);
 
-        int fid = buildFid(1, critter->fid & 0xFFF, animationCode, 0, critter->rotation + 1);
+        int fid = buildFid(1, critter->fid & 0xFFF, anim, 0, critter->rotation + 1);
 
         int actionFrame;
         CacheEntry* cacheEntry;
@@ -1140,8 +1142,8 @@ int actionPickUp(Object* critter, Object* item)
             animationRegisterCallback(critter, item, _obj_use_container, actionFrame);
         }
 
-        if (v27 != 0) {
-            animationRegisterTakeOutWeapon(critter, v27, -1);
+        if (weaponAnimationCode != 0) {
+            animationRegisterTakeOutWeapon(critter, weaponAnimationCode, -1);
         }
 
         if (item->frame == 0 || item->frame == 1) {
@@ -1398,7 +1400,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         artUnlock(artHandle);
     }
 
-    reg_anim_animate(performer, anim, -1);
+    animationRegisterAnimate(performer, anim, -1);
     // TODO: Get rid of casts.
     animationRegisterCallback3(performer, a2, (void*)skill, (AnimationCallback3*)_obj_use_skill_on, -1);
     return reg_anim_end();
