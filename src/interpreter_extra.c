@@ -4535,7 +4535,7 @@ void opRegAnimObjectRunToObject(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            reg_anim_obj_run_to_obj(object, dest, -1, delay);
+            animationRegisterRunToObject(object, dest, -1, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_obj_run_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         }

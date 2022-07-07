@@ -1005,7 +1005,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
         if (actionPoints != -1 || objectGetDistanceBetween(a1, a2) < 5) {
             animationRegisterMoveToObject(a1, a2, actionPoints, 0);
         } else {
-            reg_anim_obj_run_to_obj(a1, a2, -1, 0);
+            animationRegisterRunToObject(a1, a2, -1, 0);
         }
 
         animationRegisterCallbackForced(a1, a2, _is_next_to, -1);
@@ -1079,7 +1079,7 @@ int actionPickUp(Object* critter, Object* item)
         int flags = (critter == gDude) ? 2 : 1;
         reg_anim_begin(flags);
         if (objectGetDistanceBetween(critter, item) >= 5) {
-            reg_anim_obj_run_to_obj(critter, item, -1, 0);
+            animationRegisterRunToObject(critter, item, -1, 0);
         } else {
             animationRegisterMoveToObject(critter, item, -1, 0);
         }
@@ -1180,7 +1180,7 @@ int _action_loot_container(Object* critter, Object* container)
         if (objectGetDistanceBetween(critter, container) < 5) {
             animationRegisterMoveToObject(critter, container, -1, 0);
         } else {
-            reg_anim_obj_run_to_obj(critter, container, -1, 0);
+            animationRegisterRunToObject(critter, container, -1, 0);
         }
     }
 
@@ -1379,7 +1379,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         reg_anim_begin(a1 == gDude ? 2 : 1);
         if (a2 != gDude) {
             if (objectGetDistanceBetween(performer, a2) >= 5) {
-                reg_anim_obj_run_to_obj(performer, a2, -1, 0);
+                animationRegisterRunToObject(performer, a2, -1, 0);
             } else {
                 animationRegisterMoveToObject(performer, a2, -1, 0);
             }
@@ -1749,7 +1749,7 @@ int actionTalk(Object* a1, Object* a2)
         reg_anim_begin((a1 == gDude) ? 2 : 1);
 
         if (objectGetDistanceBetween(a1, a2) >= 9 || _combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
-            reg_anim_obj_run_to_obj(a1, a2, -1, 0);
+            animationRegisterRunToObject(a1, a2, -1, 0);
         }
     }
 

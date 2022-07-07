@@ -382,13 +382,8 @@ int animationRegisterMoveToObject(Object* owner, Object* destination, int action
 }
 
 // 0x41405C
-int reg_anim_obj_run_to_obj(Object* owner, Object* destination, int actionPoints, int delay)
+int animationRegisterRunToObject(Object* owner, Object* destination, int actionPoints, int delay)
 {
-    MessageListItem msg;
-    const char* text;
-    const char* name;
-    char formatted_text[90]; // TODO: Size is probably wrong.
-
     if (_check_registry(owner) == -1 || actionPoints == 0) {
         _anim_cleanup();
         return -1;
@@ -400,17 +395,19 @@ int reg_anim_obj_run_to_obj(Object* owner, Object* destination, int actionPoints
 
     if (critterIsEncumbered(owner)) {
         if (objectIsPartyMember(owner)) {
+            char formattedText[92];
+            MessageListItem messageListItem;
+
             if (owner == gDude) {
                 // You are overloaded.
-                text = getmsg(&gMiscMessageList, &msg, 8000);
-                strcpy(formatted_text, text);
+                strcpy(formattedText, getmsg(&gMiscMessageList, &messageListItem, 8000));
             } else {
                 // %s is overloaded.
-                name = critterGetName(owner);
-                text = getmsg(&gMiscMessageList, &msg, 8001);
-                sprintf(formatted_text, text, name);
+                sprintf(formattedText,
+                    getmsg(&gMiscMessageList, &messageListItem, 8001),
+                    critterGetName(owner));
             }
-            displayMonitorAddMessage(formatted_text);
+            displayMonitorAddMessage(formattedText);
         }
         return animationRegisterMoveToObject(owner, destination, actionPoints, delay);
     }
