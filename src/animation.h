@@ -264,7 +264,7 @@ int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int d
 int animationRegisterSetLightDistance(Object* owner, int lightDistance, int delay);
 int animationRegisterToggleOutline(Object* object, bool outline, int delay);
 int animationRegisterPlaySoundEffect(Object* owner, const char* soundEffectName, int delay);
-int reg_anim_animate_forever(Object* obj, int a2, int a3);
+int animationRegisterAnimateForever(Object* owner, int anim, int delay);
 int reg_anim_26(int a1, int a2);
 int animationRunSequence(int a1);
 int _anim_set_continue(int a1, int a2);

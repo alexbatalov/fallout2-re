@@ -5204,7 +5204,7 @@ void opRegAnimAnimateForever(Program* prg)
 
     if (!isInCombat()) {
         if (obj != NULL) {
-            reg_anim_animate_forever(obj, anim, -1);
+            animationRegisterAnimateForever(obj, anim, -1);
         } else {
             scriptPredefinedError(prg, "reg_anim_animate_forever", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
