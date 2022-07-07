@@ -2394,7 +2394,7 @@ int _ai_attack(Object* a1, Object* a2, int a3)
     }
 
     reg_anim_begin(2);
-    reg_anim_set_rotation_to_tile(a1, a2->tile);
+    animationRegisterRotateToTile(a1, a2->tile);
     reg_anim_end();
     _combat_turn_run();
 

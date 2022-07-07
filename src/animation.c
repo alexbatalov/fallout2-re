@@ -378,7 +378,7 @@ int animationRegisterMoveToObject(Object* owner, Object* destination, int action
 
     gAnimationDescriptionCurrentIndex++;
 
-    return reg_anim_set_rotation_to_tile(owner, destination->tile);
+    return animationRegisterRotateToTile(owner, destination->tile);
 }
 
 // 0x41405C
@@ -440,7 +440,7 @@ int animationRegisterRunToObject(Object* owner, Object* destination, int actionP
     animationDescription->field_2C = NULL;
 
     gAnimationDescriptionCurrentIndex++;
-    return reg_anim_set_rotation_to_tile(owner, destination->tile);
+    return animationRegisterRotateToTile(owner, destination->tile);
 }
 
 // 0x414294
@@ -709,7 +709,7 @@ int reg_anim_6(Object* obj, int anim, int delay)
 }
 
 // 0x414C50
-int reg_anim_set_rotation_to_tile(Object* owner, int tile)
+int animationRegisterRotateToTile(Object* owner, int tile)
 {
     if (_check_registry(owner) == -1) {
         _anim_cleanup();
@@ -723,6 +723,7 @@ int reg_anim_set_rotation_to_tile(Object* owner, int tile)
     animationDescription->field_2C = NULL;
     animationDescription->owner = owner;
     animationDescription->tile = tile;
+
     gAnimationDescriptionCurrentIndex++;
 
     return 0;

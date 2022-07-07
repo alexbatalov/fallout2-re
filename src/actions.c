@@ -294,7 +294,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                         Object* v35 = NULL;
                         _make_straight_path(a1, a1->tile, tile, NULL, &v35, 4);
                         if (v35 == NULL) {
-                            reg_anim_set_rotation_to_tile(a1, tile);
+                            animationRegisterRotateToTile(a1, tile);
                             animationRegisterMoveToTileStraight(a1, tile, a1->elevation, anim, 0);
                             break;
                         }
@@ -550,7 +550,7 @@ int _action_melee(Attack* attack, int anim)
     artUnlock(cache_entry);
 
     tileGetTileInDirection(attack->attacker->tile, attack->attacker->rotation, 1);
-    reg_anim_set_rotation_to_tile(attack->attacker, attack->defender->tile);
+    animationRegisterRotateToTile(attack->attacker, attack->defender->tile);
 
     delta = attack->attacker->rotation - attack->defender->rotation;
     if (delta < 0) {
@@ -656,7 +656,7 @@ int _action_ranged(Attack* attack, int anim)
 
     tileGetTileInDirection(attack->attacker->tile, attack->attacker->rotation, 1);
 
-    reg_anim_set_rotation_to_tile(attack->attacker, attack->defender->tile);
+    animationRegisterRotateToTile(attack->attacker, attack->defender->tile);
 
     bool isGrenade = false;
     if (anim == ANIM_THROW_ANIM) {
@@ -942,7 +942,7 @@ int _action_climb_ladder(Object* a1, Object* a2)
     }
 
     animationRegisterCallbackForced(a1, a2, _is_next_to, -1);
-    reg_anim_set_rotation_to_tile(a1, a2->tile);
+    animationRegisterRotateToTile(a1, a2->tile);
     animationRegisterCallbackForced(a1, a2, _check_scenery_ap_cost, -1);
 
     v11 = (a1->fid & 0xF000) >> 12;
@@ -2004,7 +2004,7 @@ int actionPush(Object* a1, Object* a2)
     }
 
     reg_anim_begin(2);
-    reg_anim_set_rotation_to_tile(a2, tile);
+    animationRegisterRotateToTile(a2, tile);
     animationRegisterMoveToTile(a2, tile, a2->elevation, actionPoints, 0);
     return reg_anim_end();
 }
