@@ -938,7 +938,7 @@ int _action_climb_ladder(Object* a1, Object* a2)
     if (v6 != -1 || objectGetDistanceBetween(a1, a2) < 5) {
         animationRegisterMoveToTile(a1, tile_num, a2->elevation, v6, 0);
     } else {
-        reg_anim_obj_run_to_tile(a1, tile_num, a2->elevation, v6, 0);
+        animationRegisterRunToTile(a1, tile_num, a2->elevation, v6, 0);
     }
 
     animationRegisterCallbackForced(a1, a2, _is_next_to, -1);

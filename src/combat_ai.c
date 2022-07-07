@@ -1033,7 +1033,7 @@ void _ai_run_away(Object* a1, Object* a2)
         if (actionPoints > 0) {
             reg_anim_begin(2);
             _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_RUN, 0);
-            reg_anim_obj_run_to_tile(a1, destination, a1->elevation, combatData->ap, 0);
+            animationRegisterRunToTile(a1, destination, a1->elevation, combatData->ap, 0);
             if (reg_anim_end() == 0) {
                 _combat_turn_run();
             }
@@ -2145,7 +2145,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         if ((a2->flags & OBJECT_MULTIHEX) != 0) {
             animationRegisterRunToObject(a1, a2, actionPoints, 0);
         } else {
-            reg_anim_obj_run_to_tile(a1, tile, a1->elevation, actionPoints, 0);
+            animationRegisterRunToTile(a1, tile, a1->elevation, actionPoints, 0);
         }
     } else {
         if ((a2->flags & OBJECT_MULTIHEX) != 0) {

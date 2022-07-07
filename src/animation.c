@@ -480,58 +480,47 @@ int animationRegisterMoveToTile(Object* owner, int tile, int elevation, int acti
 }
 
 // 0x414394
-int reg_anim_obj_run_to_tile(Object* obj, int tile_num, int elev, int actionPoints, int delay)
+int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actionPoints, int delay)
 {
-    MessageListItem msg;
-    const char* text;
-    const char* name;
-    char str[72]; // TODO: Size is probably wrong.
-    AnimationDescription* animationDescription;
-    int fid;
-
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1 || actionPoints == 0) {
         _anim_cleanup();
         return -1;
     }
 
-    if (actionPoints == 0) {
-        _anim_cleanup();
-        return -1;
-    }
-
-    if (tile_num == obj->tile && elev == obj->elevation) {
+    if (tile == owner->tile && elevation == owner->elevation) {
         return 0;
     }
 
-    if (critterIsEncumbered(obj)) {
-        if (objectIsPartyMember(obj)) {
-            if (obj == gDude) {
+    if (critterIsEncumbered(owner)) {
+        if (objectIsPartyMember(owner)) {
+            MessageListItem messageListItem;
+            char formattedText[72];
+
+            if (owner == gDude) {
                 // You are overloaded.
-                text = getmsg(&gMiscMessageList, &msg, 8000);
-                strcpy(str, text);
+                strcpy(formattedText, getmsg(&gMiscMessageList, &messageListItem, 8000));
             } else {
                 // %s is overloaded.
-                name = critterGetName(obj);
-                text = getmsg(&gMiscMessageList, &msg, 8001);
-                sprintf(str, text, name);
+                sprintf(formattedText,
+                    getmsg(&gMiscMessageList, &messageListItem, 8001),
+                    critterGetName(owner));
             }
 
-            displayMonitorAddMessage(str);
+            displayMonitorAddMessage(formattedText);
         }
 
-        return animationRegisterMoveToTile(obj, tile_num, elev, actionPoints, delay);
+        return animationRegisterMoveToTile(owner, tile, elevation, actionPoints, delay);
     }
 
-    animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
+    AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_TILE;
-    animationDescription->owner = obj;
-    animationDescription->tile = tile_num;
-    animationDescription->elevation = elev;
+    animationDescription->owner = owner;
+    animationDescription->tile = tile;
+    animationDescription->elevation = elevation;
 
-    // TODO: Check.
-    if ((obj->fid & 0xF000000) >> 24 == 1 && (obj->data.critter.combat.results & DAM_CRIP_LEG_ANY)
-        || obj == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING)
-        || !artExists(buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, ANIM_RUNNING, 0, obj->rotation + 1))) {
+    if ((owner->fid & 0xF000000) >> 24 == 1 && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY)
+        || owner == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING)
+        || !artExists(buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1))) {
         animationDescription->anim = ANIM_WALK;
     } else {
         animationDescription->anim = ANIM_RUNNING;
@@ -540,7 +529,7 @@ int reg_anim_obj_run_to_tile(Object* obj, int tile_num, int elev, int actionPoin
     animationDescription->field_28 = actionPoints;
     animationDescription->delay = delay;
 
-    fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, animationDescription->anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     animationDescription->field_2C = NULL;
     if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
@@ -2634,7 +2623,7 @@ int _dude_run(int a1)
 
     reg_anim_begin(2);
 
-    reg_anim_obj_run_to_tile(gDude, tile_num, gDude->elevation, a4, 0);
+    animationRegisterRunToTile(gDude, tile_num, gDude->elevation, a4, 0);
 
     return reg_anim_end();
 }
