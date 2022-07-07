@@ -826,7 +826,7 @@ int animationRegisterHideObjectForced(Object* object)
 }
 
 // 0x414E98
-int reg_anim_11_0(Object* a1, Object* a2, AnimationProc* proc, int delay)
+int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int delay)
 {
     if (_check_registry(NULL) == -1 || proc == NULL) {
         _anim_cleanup();

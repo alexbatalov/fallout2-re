@@ -1717,7 +1717,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
         for (int i = start; i != end; i += step) {
             if (i != 0) {
                 if (a3 == 0) {
-                    reg_anim_11_0(a2, a2, _set_door_state_closed, -1);
+                    animationRegisterCallback(a2, a2, _set_door_state_closed, -1);
                 }
 
                 const char* sfx = sfxBuildOpenName(a2, SCENERY_SOUND_EFFECT_CLOSED);
@@ -1726,7 +1726,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
                 reg_anim_animate_reverse(a2, 0, 0);
             } else {
                 if (a3 == 0) {
-                    reg_anim_11_0(a2, a2, _set_door_state_open, -1);
+                    animationRegisterCallback(a2, a2, _set_door_state_open, -1);
                 }
 
                 const char* sfx = sfxBuildOpenName(a2, SCENERY_SOUND_EFFECT_CLOSED);

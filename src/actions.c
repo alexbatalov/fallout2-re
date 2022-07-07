@@ -955,7 +955,7 @@ int _action_climb_ladder(Object* a1, Object* a2)
     sfx_name = sfxBuildCharName(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
     reg_anim_play_sfx(a1, sfx_name, -1);
     reg_anim_animate(a1, 4, 0);
-    reg_anim_11_0(a1, a2, _obj_use, -1);
+    animationRegisterCallback(a1, a2, _obj_use, -1);
 
     if (v11 != 0) {
         reg_anim_18(a1, v11, -1);
@@ -1011,7 +1011,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
         reg_anim_11_1(a1, a2, _is_next_to, -1);
 
         if (a3 == NULL) {
-            reg_anim_11_0(a1, a2, _check_scenery_ap_cost, -1);
+            animationRegisterCallback(a1, a2, _check_scenery_ap_cost, -1);
         }
 
         int a2a = (a1->fid & 0xF000) >> 12;
@@ -1039,7 +1039,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
             // TODO: Get rid of cast.
             reg_anim_12(a1, a2, a3, (AnimationProc2*)_obj_use_item_on, -1);
         } else {
-            reg_anim_11_0(a1, a2, _obj_use, -1);
+            animationRegisterCallback(a1, a2, _obj_use, -1);
         }
 
         if (a2a != 0) {
@@ -1086,7 +1086,7 @@ int actionPickUp(Object* critter, Object* item)
     }
 
     reg_anim_11_1(critter, item, _is_next_to, -1);
-    reg_anim_11_0(critter, item, _check_scenery_ap_cost, -1);
+    animationRegisterCallback(critter, item, _check_scenery_ap_cost, -1);
 
     Proto* itemProto;
     protoGetProto(item->pid, &itemProto);
@@ -1111,7 +1111,7 @@ int actionPickUp(Object* critter, Object* item)
             reg_anim_play_sfx(item, sfx, actionFrame);
         }
 
-        reg_anim_11_0(critter, item, _obj_pickup, actionFrame);
+        animationRegisterCallback(critter, item, _obj_pickup, actionFrame);
     } else {
         int v27 = (critter->fid & 0xF000) >> 12;
         if (v27 != 0) {
@@ -1137,7 +1137,7 @@ int actionPickUp(Object* critter, Object* item)
         }
 
         if (item->frame != 1) {
-            reg_anim_11_0(critter, item, _obj_use_container, actionFrame);
+            animationRegisterCallback(critter, item, _obj_use_container, actionFrame);
         }
 
         if (v27 != 0) {
@@ -1145,7 +1145,7 @@ int actionPickUp(Object* critter, Object* item)
         }
 
         if (item->frame == 0 || item->frame == 1) {
-            reg_anim_11_0(critter, item, scriptsRequestLooting, -1);
+            animationRegisterCallback(critter, item, scriptsRequestLooting, -1);
         }
     }
 
@@ -1185,8 +1185,8 @@ int _action_loot_container(Object* critter, Object* container)
     }
 
     reg_anim_11_1(critter, container, _is_next_to, -1);
-    reg_anim_11_0(critter, container, _check_scenery_ap_cost, -1);
-    reg_anim_11_0(critter, container, scriptsRequestLooting, -1);
+    animationRegisterCallback(critter, container, _check_scenery_ap_cost, -1);
+    animationRegisterCallback(critter, container, scriptsRequestLooting, -1);
     return reg_anim_end();
 }
 
@@ -1754,7 +1754,7 @@ int actionTalk(Object* a1, Object* a2)
     }
 
     reg_anim_11_1(a1, a2, _can_talk_to, -1);
-    reg_anim_11_0(a1, a2, _talk_to, -1);
+    animationRegisterCallback(a1, a2, _talk_to, -1);
     return reg_anim_end();
 }
 
