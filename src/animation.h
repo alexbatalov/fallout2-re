@@ -8,8 +8,9 @@
 
 #include <stdbool.h>
 
-#define ANIMATION_SEQUENCE_LIST_CAPACITY (32)
-#define ANIMATION_DESCRIPTION_LIST_CAPACITY (55)
+#define ANIMATION_SEQUENCE_LIST_CAPACITY 32
+#define ANIMATION_DESCRIPTION_LIST_CAPACITY 55
+#define ANIMATION_SAD_LIST_CAPACITY 24
 
 typedef enum AnimKind {
     ANIM_KIND_OBJ_MOVE_TO_OBJ = 0,
@@ -179,13 +180,21 @@ typedef struct STRUCT_530014_28 {
     int y;
 } STRUCT_530014_28;
 
-typedef struct STRUCT_530014 {
+// TODO: I don't know what `sad` means, but it's definitely better than
+// `STRUCT_530014`. Find a better name.
+typedef struct AnimationSad {
     int flags; // flags
     Object* obj;
     int fid; // fid
-    int field_C;
-    int field_10;
-    int field_14; // animation speed?
+    int anim;
+
+    // Timestamp (in game ticks) when animation last occurred.
+    unsigned int animationTimestamp;
+
+    // Number of ticks per frame (taking art's fps and overall animation speed
+    // settings into account).
+    unsigned int ticksPerFrame;
+
     int animationSequenceIndex;
     int field_1C; // length of field_28
     int field_20; // current index in field_28
@@ -194,22 +203,22 @@ typedef struct STRUCT_530014 {
         unsigned char rotations[3200];
         STRUCT_530014_28 field_28[200];
     };
-} STRUCT_530014;
+} AnimationSad;
 
-static_assert(sizeof(STRUCT_530014) == 3240, "wrong size");
+static_assert(sizeof(AnimationSad) == 3240, "wrong size");
 
 typedef Object* PathBuilderCallback(Object* object, int tile, int elevation);
 
-extern int _curr_sad;
+extern int gAnimationCurrentSad;
 extern int gAnimationSequenceCurrentIndex;
-extern int _anim_in_init;
-extern bool _anim_in_anim_stop;
+extern bool gAnimationInInit;
+extern bool gAnimationInStop;
 extern bool _anim_in_bk;
 extern int _lastDestination;
 extern unsigned int _last_time_;
 extern unsigned int _next_time;
 
-extern STRUCT_530014 _sad[24];
+extern AnimationSad gAnimationSads[ANIMATION_SAD_LIST_CAPACITY];
 extern PathNode gClosedPathNodeList[2000];
 extern AnimationSequence gAnimationSequences[32];
 extern unsigned char gPathfinderProcessedTiles[5000];
@@ -280,8 +289,8 @@ void _dude_stand(Object* obj, int rotation, int fid);
 void _dude_standup(Object* a1);
 int actionRotate(Object* obj, int delta, int animationSequenceIndex);
 int _anim_change_fid(Object* obj, int animationSequenceIndex, int fid);
-void _anim_stop();
+void animationStop();
 int _check_gravity(int tile, int elevation);
-unsigned int _compute_tpf(Object* object, int fid);
+unsigned int animationComputeTicksPerFrame(Object* object, int fid);
 
 #endif /* ANIMATION_H */

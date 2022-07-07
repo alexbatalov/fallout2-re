@@ -30,16 +30,16 @@
 #include <string.h>
 
 // 0x510718
-int _curr_sad = 0;
+int gAnimationCurrentSad = 0;
 
 // 0x51071C
 int gAnimationSequenceCurrentIndex = -1;
 
 // 0x510720
-int _anim_in_init = 0;
+bool gAnimationInInit = false;
 
 // 0x510724
-bool _anim_in_anim_stop = false;
+bool gAnimationInStop = false;
 
 // 0x510728
 bool _anim_in_bk = false;
@@ -54,7 +54,7 @@ unsigned int _last_time_ = 0;
 unsigned int _next_time = 0;
 
 // 0x530014
-STRUCT_530014 _sad[24];
+AnimationSad gAnimationSads[ANIMATION_SAD_LIST_CAPACITY];
 
 // 0x542FD4
 PathNode gClosedPathNodeList[2000];
@@ -78,20 +78,20 @@ Object* dword_56C7E0[100];
 // 0x413A20
 void animationInit()
 {
-    _anim_in_init = 1;
+    gAnimationInInit = true;
     animationReset();
-    _anim_in_init = 0;
+    gAnimationInInit = false;
 }
 
 // 0x413A40
 void animationReset()
 {
-    if (!_anim_in_init) {
+    if (!gAnimationInInit) {
         // NOTE: Uninline.
-        _anim_stop();
+        animationStop();
     }
 
-    _curr_sad = 0;
+    gAnimationCurrentSad = 0;
     gAnimationSequenceCurrentIndex = -1;
 
     for (int index = 0; index < ANIMATION_SEQUENCE_LIST_CAPACITY; index++) {
@@ -104,7 +104,7 @@ void animationReset()
 void animationExit()
 {
     // NOTE: Uninline.
-    _anim_stop();
+    animationStop();
 }
 
 // 0x413AF4
@@ -114,7 +114,7 @@ int reg_anim_begin(int flags)
         return -1;
     }
 
-    if (_anim_in_anim_stop) {
+    if (gAnimationInStop) {
         return -1;
     }
 
@@ -1294,7 +1294,6 @@ int _anim_set_end(int animationSequenceIndex)
 {
     AnimationSequence* animationSequence;
     AnimationDescription* animationDescription;
-    STRUCT_530014* ptr_530014;
     int i;
     Rect v27;
 
@@ -1307,10 +1306,10 @@ int _anim_set_end(int animationSequenceIndex)
         return -1;
     }
 
-    for (i = 0; i < _curr_sad; i++) {
-        ptr_530014 = &(_sad[i]);
-        if (ptr_530014->animationSequenceIndex == animationSequenceIndex) {
-            ptr_530014->field_20 = -1000;
+    for (i = 0; i < gAnimationCurrentSad; i++) {
+        AnimationSad* sad = &(gAnimationSads[i]);
+        if (sad->animationSequenceIndex == animationSequenceIndex) {
+            sad->field_20 = -1000;
         }
     }
 
@@ -1353,9 +1352,9 @@ int _anim_set_end(int animationSequenceIndex)
                         }
 
                         if (k == animationSequence->animationIndex) {
-                            for (int m = 0; m < _curr_sad; m++) {
-                                if (_sad[m].obj == owner) {
-                                    _sad[m].field_20 = -1000;
+                            for (int m = 0; m < gAnimationCurrentSad; m++) {
+                                if (gAnimationSads[m].obj == owner) {
+                                    gAnimationSads[m].field_20 = -1000;
                                     break;
                                 }
                             }
@@ -1879,25 +1878,25 @@ int animateMoveObjectToObject(Object* from, Object* to, int a3, int anim, int an
         return -1;
     }
 
-    STRUCT_530014* ptr = &(_sad[moveSadIndex]);
+    AnimationSad* sad = &(gAnimationSads[moveSadIndex]);
     // NOTE: Original code is somewhat different. Due to some kind of
     // optimization this value is either 1 or 2, which is later used in
     // subsequent calculations and rotations array lookup.
     bool isMultihex = (from->flags & OBJECT_MULTIHEX);
-    ptr->field_1C -= (isMultihex ? 2 : 1);
-    if (ptr->field_1C <= 0) {
-        ptr->field_20 = -1000;
+    sad->field_1C -= (isMultihex ? 2 : 1);
+    if (sad->field_1C <= 0) {
+        sad->field_20 = -1000;
         _anim_set_continue(animationSequenceIndex, 0);
     }
 
-    ptr->field_24 = tileGetTileInDirection(to->tile, ptr->rotations[isMultihex ? ptr->field_1C + 1 : ptr->field_1C], 1);
+    sad->field_24 = tileGetTileInDirection(to->tile, sad->rotations[isMultihex ? sad->field_1C + 1 : sad->field_1C], 1);
 
     if (isMultihex) {
-        ptr->field_24 = tileGetTileInDirection(ptr->field_24, ptr->rotations[ptr->field_1C], 1);
+        sad->field_24 = tileGetTileInDirection(sad->field_24, sad->rotations[sad->field_1C], 1);
     }
 
-    if (a3 != -1 && a3 < ptr->field_1C) {
-        ptr->field_1C = a3;
+    if (a3 != -1 && a3 < sad->field_1C) {
+        sad->field_1C = a3;
     }
 
     return 0;
@@ -1906,7 +1905,6 @@ int animateMoveObjectToObject(Object* from, Object* to, int a3, int anim, int an
 // 0x416CFC
 int animateMoveObjectToTile(Object* obj, int tile, int elev, int a4, int anim, int animationSequenceIndex)
 {
-    STRUCT_530014* ptr;
     int v1;
 
     v1 = _anim_move(obj, tile, elev, -1, anim, 0, animationSequenceIndex);
@@ -1915,16 +1913,16 @@ int animateMoveObjectToTile(Object* obj, int tile, int elev, int a4, int anim, i
     }
 
     if (_obj_blocking_at(obj, tile, elev)) {
-        ptr = &(_sad[v1]);
-        ptr->field_1C--;
-        if (ptr->field_1C <= 0) {
-            ptr->field_20 = -1000;
+        AnimationSad* sad = &(gAnimationSads[v1]);
+        sad->field_1C--;
+        if (sad->field_1C <= 0) {
+            sad->field_20 = -1000;
             _anim_set_continue(animationSequenceIndex, 0);
         }
 
-        ptr->field_24 = tileGetTileInDirection(tile, ptr->rotations[ptr->field_1C], 1);
-        if (a4 != -1 && a4 < ptr->field_1C) {
-            ptr->field_1C = a4;
+        sad->field_24 = tileGetTileInDirection(tile, sad->rotations[sad->field_1C], 1);
+        if (a4 != -1 && a4 < sad->field_1C) {
+            sad->field_1C = a4;
         }
     }
 
@@ -1934,62 +1932,60 @@ int animateMoveObjectToTile(Object* obj, int tile, int elev, int a4, int anim, i
 // 0x416DFC
 int _anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, int animationSequenceIndex)
 {
-    STRUCT_530014* ptr;
-
-    if (_curr_sad == 24) {
+    if (gAnimationCurrentSad == ANIMATION_SAD_LIST_CAPACITY) {
         return -1;
     }
 
-    ptr = &(_sad[_curr_sad]);
-    ptr->obj = obj;
+    AnimationSad* sad = &(gAnimationSads[gAnimationCurrentSad]);
+    sad->obj = obj;
 
     if (a5) {
-        ptr->flags = 0x20;
+        sad->flags = 0x20;
     } else {
-        ptr->flags = 0;
+        sad->flags = 0;
     }
 
-    ptr->field_20 = -2000;
-    ptr->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
-    ptr->field_10 = 0;
-    ptr->field_14 = _compute_tpf(obj, ptr->fid);
-    ptr->field_24 = tile;
-    ptr->animationSequenceIndex = animationSequenceIndex;
-    ptr->field_C = anim;
+    sad->field_20 = -2000;
+    sad->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    sad->animationTimestamp = 0;
+    sad->ticksPerFrame = animationComputeTicksPerFrame(obj, sad->fid);
+    sad->field_24 = tile;
+    sad->animationSequenceIndex = animationSequenceIndex;
+    sad->anim = anim;
 
-    ptr->field_1C = _make_path(obj, obj->tile, tile, ptr->rotations, a5);
-    if (ptr->field_1C == 0) {
-        ptr->field_20 = -1000;
+    sad->field_1C = _make_path(obj, obj->tile, tile, sad->rotations, a5);
+    if (sad->field_1C == 0) {
+        sad->field_20 = -1000;
         return -1;
     }
 
-    if (a3 != -1 && ptr->field_1C > a3) {
-        ptr->field_1C = a3;
+    if (a3 != -1 && sad->field_1C > a3) {
+        sad->field_1C = a3;
     }
 
-    return _curr_sad++;
+    return gAnimationCurrentSad++;
 }
 
 // 0x416F54
 int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags)
 {
-    if (_curr_sad == 24) {
+    if (gAnimationCurrentSad == ANIMATION_SAD_LIST_CAPACITY) {
         return -1;
     }
 
-    STRUCT_530014* ptr = &(_sad[_curr_sad]);
-    ptr->obj = obj;
-    ptr->flags = flags | 0x02;
+    AnimationSad* sad = &(gAnimationSads[gAnimationCurrentSad]);
+    sad->obj = obj;
+    sad->flags = flags | 0x02;
     if (anim == -1) {
-        ptr->fid = obj->fid;
-        ptr->flags |= 0x04;
+        sad->fid = obj->fid;
+        sad->flags |= 0x04;
     } else {
-        ptr->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        sad->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
-    ptr->field_20 = -2000;
-    ptr->field_10 = 0;
-    ptr->field_14 = _compute_tpf(obj, ptr->fid);
-    ptr->animationSequenceIndex = animationSequenceIndex;
+    sad->field_20 = -2000;
+    sad->animationTimestamp = 0;
+    sad->ticksPerFrame = animationComputeTicksPerFrame(obj, sad->fid);
+    sad->animationSequenceIndex = animationSequenceIndex;
 
     int v15;
     if (((obj->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
@@ -2001,13 +1997,13 @@ int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, 
         v15 = 32;
     }
 
-    ptr->field_1C = _make_straight_path(obj, obj->tile, tile, ptr->field_28, NULL, v15);
-    if (ptr->field_1C == 0) {
-        ptr->field_20 = -1000;
+    sad->field_1C = _make_straight_path(obj, obj->tile, tile, sad->field_28, NULL, v15);
+    if (sad->field_1C == 0) {
+        sad->field_20 = -1000;
         return -1;
     }
 
-    _curr_sad++;
+    gAnimationCurrentSad++;
 
     return 0;
 }
@@ -2015,33 +2011,31 @@ int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, 
 // 0x41712C
 int _anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex)
 {
-    STRUCT_530014* ptr;
-
-    if (_curr_sad == 24) {
+    if (gAnimationCurrentSad == ANIMATION_SAD_LIST_CAPACITY) {
         return -1;
     }
 
-    ptr = &(_sad[_curr_sad]);
-    ptr->flags = 0x02;
-    ptr->obj = obj;
+    AnimationSad* sad = &(gAnimationSads[gAnimationCurrentSad]);
+    sad->flags = 0x02;
+    sad->obj = obj;
     if (anim == -1) {
-        ptr->fid = obj->fid;
-        ptr->flags |= 0x04;
+        sad->fid = obj->fid;
+        sad->flags |= 0x04;
     } else {
-        ptr->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        sad->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
-    ptr->field_20 = -2000;
-    ptr->field_10 = 0;
-    ptr->field_14 = _compute_tpf(obj, ptr->fid);
-    ptr->animationSequenceIndex = animationSequenceIndex;
+    sad->field_20 = -2000;
+    sad->animationTimestamp = 0;
+    sad->ticksPerFrame = animationComputeTicksPerFrame(obj, sad->fid);
+    sad->animationSequenceIndex = animationSequenceIndex;
     // TODO: Incomplete.
     // ptr->field_1C = _make_stair_path(obj, obj->tile_index, obj->elevation, tile, elevation, ptr->field_28, 0);
-    if (ptr->field_1C == 0) {
-        ptr->field_20 = -1000;
+    if (sad->field_1C == 0) {
+        sad->field_20 = -1000;
         return -1;
     }
 
-    _curr_sad++;
+    gAnimationCurrentSad++;
 
     return 0;
 }
@@ -2049,9 +2043,7 @@ int _anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int ani
 // 0x417248
 int _check_for_falling(Object* obj, int anim, int a3)
 {
-    STRUCT_530014* ptr;
-
-    if (_curr_sad == 24) {
+    if (gAnimationCurrentSad == ANIMATION_SAD_LIST_CAPACITY) {
         return -1;
     }
 
@@ -2059,26 +2051,26 @@ int _check_for_falling(Object* obj, int anim, int a3)
         return -1;
     }
 
-    ptr = &(_sad[_curr_sad]);
-    ptr->flags = 0x02;
-    ptr->obj = obj;
+    AnimationSad* sad = &(gAnimationSads[gAnimationCurrentSad]);
+    sad->flags = 0x02;
+    sad->obj = obj;
     if (anim == -1) {
-        ptr->fid = obj->fid;
-        ptr->flags |= 0x04;
+        sad->fid = obj->fid;
+        sad->flags |= 0x04;
     } else {
-        ptr->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        sad->fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
-    ptr->field_20 = -2000;
-    ptr->field_10 = 0;
-    ptr->field_14 = _compute_tpf(obj, ptr->fid);
-    ptr->animationSequenceIndex = a3;
-    ptr->field_1C = _make_straight_path_func(obj, obj->tile, obj->tile, ptr->field_28, 0, 16, _obj_blocking_at);
-    if (ptr->field_1C == 0) {
-        ptr->field_20 = -1000;
+    sad->field_20 = -2000;
+    sad->animationTimestamp = 0;
+    sad->ticksPerFrame = animationComputeTicksPerFrame(obj, sad->fid);
+    sad->animationSequenceIndex = a3;
+    sad->field_1C = _make_straight_path_func(obj, obj->tile, obj->tile, sad->field_28, 0, 16, _obj_blocking_at);
+    if (sad->field_1C == 0) {
+        sad->field_20 = -1000;
         return -1;
     }
 
-    _curr_sad++;
+    gAnimationCurrentSad++;
 
     return 0;
 }
@@ -2086,26 +2078,26 @@ int _check_for_falling(Object* obj, int anim, int a3)
 // 0x417360
 void _object_move(int index)
 {
-    STRUCT_530014* p530014 = &(_sad[index]);
-    Object* object = p530014->obj;
+    AnimationSad* sad = &(gAnimationSads[index]);
+    Object* object = sad->obj;
 
     Rect dirty;
     Rect temp;
 
-    if (p530014->field_20 == -2000) {
+    if (sad->field_20 == -2000) {
         objectSetLocation(object, object->tile, object->elevation, &dirty);
 
         objectSetFrame(object, 0, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        objectSetRotation(object, p530014->rotations[0], &temp);
+        objectSetRotation(object, sad->rotations[0], &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        int fid = buildFid((object->fid & 0xF000000) >> 24, object->fid & 0xFFF, p530014->field_C, (object->fid & 0xF000) >> 12, object->rotation + 1);
+        int fid = buildFid((object->fid & 0xF000000) >> 24, object->fid & 0xFFF, sad->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
         objectSetFid(object, fid, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        p530014->field_20 = 0;
+        sad->field_20 = 0;
     } else {
         objectSetNextFrame(object, &dirty);
     }
@@ -2126,7 +2118,7 @@ void _object_move(int index)
     _obj_offset(object, frameX, frameY, &temp);
     rectUnion(&dirty, &temp, &dirty);
 
-    int rotation = p530014->rotations[p530014->field_20];
+    int rotation = sad->rotations[sad->field_20];
     int y = dword_51D984[rotation];
     int x = _off_tile[rotation];
     if (x > 0 && x <= object->x || x < 0 && x >= object->x || y > 0 && y <= object->y || y < 0 && y >= object->y) {
@@ -2137,20 +2129,20 @@ void _object_move(int index)
         Object* v12 = _obj_blocking_at(object, v10, object->elevation);
         if (v12 != NULL) {
             if (!canUseDoor(object, v12)) {
-                p530014->field_1C = _make_path(object, object->tile, p530014->field_24, p530014->rotations, 1);
-                if (p530014->field_1C != 0) {
+                sad->field_1C = _make_path(object, object->tile, sad->field_24, sad->rotations, 1);
+                if (sad->field_1C != 0) {
                     objectSetLocation(object, object->tile, object->elevation, &temp);
                     rectUnion(&dirty, &temp, &dirty);
 
                     objectSetFrame(object, 0, &temp);
                     rectUnion(&dirty, &temp, &dirty);
 
-                    objectSetRotation(object, p530014->rotations[0], &temp);
+                    objectSetRotation(object, sad->rotations[0], &temp);
                     rectUnion(&dirty, &temp, &dirty);
 
-                    p530014->field_20 = 0;
+                    sad->field_20 = 0;
                 } else {
-                    p530014->field_20 = -1000;
+                    sad->field_20 = -1000;
                 }
                 v10 = -1;
             } else {
@@ -2185,12 +2177,12 @@ void _object_move(int index)
                 v17 = (object->data.critter.combat.ap + _combat_free_move) <= 0;
             }
 
-            p530014->field_20 += 1;
+            sad->field_20 += 1;
 
-            if (p530014->field_20 == p530014->field_1C || v17) {
-                p530014->field_20 = -1000;
+            if (sad->field_20 == sad->field_1C || v17) {
+                sad->field_20 = -1000;
             } else {
-                objectSetRotation(object, p530014->rotations[p530014->field_20], &temp);
+                objectSetRotation(object, sad->rotations[sad->field_20], &temp);
                 rectUnion(&dirty, &temp, &dirty);
 
                 _obj_offset(object, x, y, &temp);
@@ -2200,23 +2192,23 @@ void _object_move(int index)
     }
 
     tileWindowRefreshRect(&dirty, object->elevation);
-    if (p530014->field_20 == -1000) {
-        _anim_set_continue(p530014->animationSequenceIndex, 1);
+    if (sad->field_20 == -1000) {
+        _anim_set_continue(sad->animationSequenceIndex, 1);
     }
 }
 
 // 0x4177C0
 void _object_straight_move(int index)
 {
-    STRUCT_530014* p530014 = &(_sad[index]);
-    Object* object = p530014->obj;
+    AnimationSad* sad = &(gAnimationSads[index]);
+    Object* object = sad->obj;
 
     Rect dirtyRect;
     Rect temp;
 
-    if (p530014->field_20 == -2000) {
-        objectSetFid(object, p530014->fid, &dirtyRect);
-        p530014->field_20 = 0;
+    if (sad->field_20 == -2000) {
+        objectSetFid(object, sad->fid, &dirtyRect);
+        sad->field_20 = 0;
     } else {
         objectGetRect(object, &dirtyRect);
     }
@@ -2227,13 +2219,13 @@ void _object_straight_move(int index)
         int lastFrame = artGetFrameCount(art) - 1;
         artUnlock(cacheHandle);
 
-        if ((p530014->flags & 0x04) == 0 && ((p530014->flags & 0x10) == 0 || lastFrame > object->frame)) {
+        if ((sad->flags & 0x04) == 0 && ((sad->flags & 0x10) == 0 || lastFrame > object->frame)) {
             objectSetNextFrame(object, &temp);
             rectUnion(&dirtyRect, &temp, &dirtyRect);
         }
 
-        if (p530014->field_20 < p530014->field_1C) {
-            STRUCT_530014_28* v12 = &(p530014->field_28[p530014->field_20]);
+        if (sad->field_20 < sad->field_1C) {
+            STRUCT_530014_28* v12 = &(sad->field_28[sad->field_20]);
 
             objectSetLocation(object, v12->tile, v12->elevation, &temp);
             rectUnion(&dirtyRect, &temp, &dirtyRect);
@@ -2241,17 +2233,17 @@ void _object_straight_move(int index)
             _obj_offset(object, v12->x, v12->y, &temp);
             rectUnion(&dirtyRect, &temp, &dirtyRect);
 
-            p530014->field_20++;
+            sad->field_20++;
         }
 
-        if (p530014->field_20 == p530014->field_1C && ((p530014->flags & 0x10) == 0 || object->frame == lastFrame)) {
-            p530014->field_20 = -1000;
+        if (sad->field_20 == sad->field_1C && ((sad->flags & 0x10) == 0 || object->frame == lastFrame)) {
+            sad->field_20 = -1000;
         }
 
-        tileWindowRefreshRect(&dirtyRect, p530014->obj->elevation);
+        tileWindowRefreshRect(&dirtyRect, sad->obj->elevation);
 
-        if (p530014->field_20 == -1000) {
-            _anim_set_continue(p530014->animationSequenceIndex, 1);
+        if (sad->field_20 == -1000) {
+            _anim_set_continue(sad->animationSequenceIndex, 1);
         }
     }
 }
@@ -2259,18 +2251,18 @@ void _object_straight_move(int index)
 // 0x4179B8
 int _anim_animate(Object* obj, int anim, int animationSequenceIndex, int flags)
 {
-    if (_curr_sad == 24) {
+    if (gAnimationCurrentSad == ANIMATION_SAD_LIST_CAPACITY) {
         return -1;
     }
 
-    STRUCT_530014* ptr = &(_sad[_curr_sad]);
+    AnimationSad* sad = &(gAnimationSads[gAnimationCurrentSad]);
 
     int fid;
     if (anim == ANIM_TAKE_OUT) {
-        ptr->flags = 0;
+        sad->flags = 0;
         fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, ANIM_TAKE_OUT, flags, obj->rotation + 1);
     } else {
-        ptr->flags = flags;
+        sad->flags = flags;
         fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
 
@@ -2278,15 +2270,15 @@ int _anim_animate(Object* obj, int anim, int animationSequenceIndex, int flags)
         return -1;
     }
 
-    ptr->obj = obj;
-    ptr->fid = fid;
-    ptr->animationSequenceIndex = animationSequenceIndex;
-    ptr->field_10 = 0;
-    ptr->field_14 = _compute_tpf(obj, ptr->fid);
-    ptr->field_20 = 0;
-    ptr->field_1C = 0;
+    sad->obj = obj;
+    sad->fid = fid;
+    sad->animationSequenceIndex = animationSequenceIndex;
+    sad->animationTimestamp = 0;
+    sad->ticksPerFrame = animationComputeTicksPerFrame(obj, sad->fid);
+    sad->field_20 = 0;
+    sad->field_1C = 0;
 
-    _curr_sad++;
+    gAnimationCurrentSad++;
 
     return 0;
 }
@@ -2294,33 +2286,33 @@ int _anim_animate(Object* obj, int anim, int animationSequenceIndex, int flags)
 // 0x417B30
 void _object_animate()
 {
-    if (_curr_sad == 0) {
+    if (gAnimationCurrentSad == 0) {
         return;
     }
 
     _anim_in_bk = 1;
 
-    for (int index = 0; index < _curr_sad; index++) {
-        STRUCT_530014* p530014 = &(_sad[index]);
-        if (p530014->field_20 == -1000) {
+    for (int index = 0; index < gAnimationCurrentSad; index++) {
+        AnimationSad* sad = &(gAnimationSads[index]);
+        if (sad->field_20 == -1000) {
             continue;
         }
 
-        Object* object = p530014->obj;
+        Object* object = sad->obj;
 
         int time = _get_time();
-        if (getTicksBetween(time, p530014->field_10) < p530014->field_14) {
+        if (getTicksBetween(time, sad->animationTimestamp) < sad->ticksPerFrame) {
             continue;
         }
 
-        p530014->field_10 = time;
+        sad->animationTimestamp = time;
 
-        if (animationRunSequence(p530014->animationSequenceIndex) == -1) {
+        if (animationRunSequence(sad->animationSequenceIndex) == -1) {
             continue;
         }
 
-        if (p530014->field_1C > 0) {
-            if ((p530014->flags & 0x02) != 0) {
+        if (sad->field_1C > 0) {
+            if ((sad->flags & 0x02) != 0) {
                 _object_straight_move(index);
             } else {
                 int savedTile = object->tile;
@@ -2332,15 +2324,15 @@ void _object_animate()
             continue;
         }
 
-        if (p530014->field_20 == 0) {
-            for (int index = 0; index < _curr_sad; index++) {
-                STRUCT_530014* other530014 = &(_sad[index]);
-                if (object == other530014->obj && other530014->field_20 == -2000) {
-                    other530014->field_20 = -1000;
-                    _anim_set_continue(other530014->animationSequenceIndex, 1);
+        if (sad->field_20 == 0) {
+            for (int index = 0; index < gAnimationCurrentSad; index++) {
+                AnimationSad* otherSad = &(gAnimationSads[index]);
+                if (object == otherSad->obj && otherSad->field_20 == -2000) {
+                    otherSad->field_20 = -1000;
+                    _anim_set_continue(otherSad->animationSequenceIndex, 1);
                 }
             }
-            p530014->field_20 = -2000;
+            sad->field_20 = -2000;
         }
 
         Rect dirtyRect;
@@ -2348,20 +2340,20 @@ void _object_animate()
 
         objectGetRect(object, &dirtyRect);
 
-        if (object->fid == p530014->fid) {
-            if ((p530014->flags & 0x01) == 0) {
+        if (object->fid == sad->fid) {
+            if ((sad->flags & 0x01) == 0) {
                 CacheEntry* cacheHandle;
                 Art* art = artLock(object->fid, &cacheHandle);
                 if (art != NULL) {
-                    if ((p530014->flags & 0x80) == 0 && object->frame == artGetFrameCount(art) - 1) {
-                        p530014->field_20 = -1000;
+                    if ((sad->flags & 0x80) == 0 && object->frame == artGetFrameCount(art) - 1) {
+                        sad->field_20 = -1000;
                         artUnlock(cacheHandle);
 
-                        if ((p530014->flags & 0x40) != 0 && objectHide(object, &tempRect) == 0) {
+                        if ((sad->flags & 0x40) != 0 && objectHide(object, &tempRect) == 0) {
                             tileWindowRefreshRect(&tempRect, object->elevation);
                         }
 
-                        _anim_set_continue(p530014->animationSequenceIndex, 1);
+                        _anim_set_continue(sad->animationSequenceIndex, 1);
                         continue;
                     } else {
                         objectSetNextFrame(object, &tempRect);
@@ -2383,7 +2375,7 @@ void _object_animate()
                 continue;
             }
 
-            if ((p530014->flags & 0x80) != 0 || object->frame != 0) {
+            if ((sad->flags & 0x80) != 0 || object->frame != 0) {
                 int x;
                 int y;
 
@@ -2404,8 +2396,8 @@ void _object_animate()
                 continue;
             }
 
-            p530014->field_20 = -1000;
-            _anim_set_continue(p530014->animationSequenceIndex, 1);
+            sad->field_20 = -1000;
+            _anim_set_continue(sad->animationSequenceIndex, 1);
         } else {
             int x;
             int y;
@@ -2421,13 +2413,13 @@ void _object_animate()
             }
 
             Rect v29;
-            objectSetFid(object, p530014->fid, &v29);
+            objectSetFid(object, sad->fid, &v29);
             rectUnion(&dirtyRect, &v29, &dirtyRect);
 
             art = artLock(object->fid, &cacheHandle);
             if (art != NULL) {
                 int frame;
-                if ((p530014->flags & 0x01) != 0) {
+                if ((sad->flags & 0x01) != 0) {
                     frame = artGetFrameCount(art) - 1;
                 } else {
                     frame = 0;
@@ -2470,27 +2462,27 @@ void _object_anim_compact()
     }
 
     int index = 0;
-    for (; index < _curr_sad; index++) {
-        if (_sad[index].field_20 == -1000) {
+    for (; index < gAnimationCurrentSad; index++) {
+        if (gAnimationSads[index].field_20 == -1000) {
             int v2 = index + 1;
-            for (; v2 < _curr_sad; v2++) {
-                if (_sad[v2].field_20 != -1000) {
+            for (; v2 < gAnimationCurrentSad; v2++) {
+                if (gAnimationSads[v2].field_20 != -1000) {
                     break;
                 }
             }
 
-            if (v2 == _curr_sad) {
+            if (v2 == gAnimationCurrentSad) {
                 break;
             }
 
             if (index != v2) {
-                memcpy(&(_sad[index]), &(_sad[v2]), sizeof(STRUCT_530014));
-                _sad[v2].field_20 = -1000;
-                _sad[v2].flags = 0;
+                memcpy(&(gAnimationSads[index]), &(gAnimationSads[v2]), sizeof(AnimationSad));
+                gAnimationSads[v2].field_20 = -1000;
+                gAnimationSads[v2].flags = 0;
             }
         }
     }
-    _curr_sad = index;
+    gAnimationCurrentSad = index;
 }
 
 // 0x417FFC
@@ -2790,17 +2782,17 @@ int _anim_change_fid(Object* obj, int animationSequenceIndex, int fid)
 }
 
 // 0x4186CC
-void _anim_stop()
+void animationStop()
 {
-    _anim_in_anim_stop = 1;
+    gAnimationInStop = true;
     gAnimationSequenceCurrentIndex = -1;
 
     for (int index = 0; index < ANIMATION_SEQUENCE_LIST_CAPACITY; index++) {
         _anim_set_end(index);
     }
 
-    _anim_in_anim_stop = 0;
-    _curr_sad = 0;
+    gAnimationInStop = false;
+    gAnimationCurrentSad = 0;
 }
 
 // 0x418708
@@ -2821,7 +2813,7 @@ int _check_gravity(int tile, int elevation)
 }
 
 // 0x418794
-unsigned int _compute_tpf(Object* object, int fid)
+unsigned int animationComputeTicksPerFrame(Object* object, int fid)
 {
     int fps;
 

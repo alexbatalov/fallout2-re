@@ -768,7 +768,7 @@ int _gdialogInitFromScript(int headFid, int reaction)
         return 0;
     }
 
-    _anim_stop();
+    animationStop();
 
     _boxesWereDisabled = indicatorBarHide();
     gGameDialogSpeakerIsPartyMember = objectIsPartyMember(gGameDialogSpeaker);

@@ -2396,7 +2396,7 @@ int _combatAIInfoSetLastItem(Object* obj, Object* a2)
 void _combat_begin(Object* a1)
 {
     _combat_turn_running = 0;
-    _anim_stop();
+    animationStop();
     tickersRemove(_dude_fidget);
     _combat_elev = gElevation;
 
