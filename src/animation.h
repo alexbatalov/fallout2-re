@@ -259,7 +259,7 @@ int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallba
 int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc, int delay);
 int animationRegisterSetFlag(Object* object, int flag, int delay);
 int animationRegisterUnsetFlag(Object* object, int flag, int delay);
-int reg_anim_17(Object* obj, int fid, int a3);
+int animationRegisterSetFid(Object* owner, int fid, int delay);
 int reg_anim_18(Object* obj, int a2, int a3);
 int reg_anim_update_light(Object* obj, int fid, int a3);
 int animationRegisterToggleOutline(Object* object, bool outline, int delay);

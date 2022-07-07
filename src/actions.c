@@ -322,7 +322,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
                 reg_anim_animate(a1, ANIM_FIRE_DANCE, a10);
 
                 fid = buildFid(1, a1->fid & 0xFFF, ANIM_STAND, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
-                reg_anim_17(a1, fid, -1);
+                animationRegisterSetFid(a1, fid, -1);
             } else {
                 if (knockbackDistance != 0) {
                     anim = isFallingBack ? ANIM_FALL_BACK : ANIM_FALL_FRONT;
@@ -358,7 +358,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
         if ((flags & DAM_EXPLODE) != 0) {
             animationRegisterCallbackForced(a1, weapon, _obj_drop, -1);
             fid = buildFid(5, 10, 0, 0, 0);
-            reg_anim_17(weapon, fid, 0);
+            animationRegisterSetFid(weapon, fid, 0);
             reg_anim_6(weapon, ANIM_STAND, 0);
 
             sfx_name = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a1);
@@ -762,11 +762,11 @@ int _action_ranged(Attack* attack, int anim)
                         }
 
                         if (isGrenade) {
-                            reg_anim_17(projectile, weaponFid, -1);
+                            animationRegisterSetFid(projectile, weaponFid, -1);
                         }
 
                         int explosionFid = buildFid(5, explosionFrmId, 0, 0, 0);
-                        reg_anim_17(projectile, explosionFid, -1);
+                        animationRegisterSetFid(projectile, explosionFid, -1);
 
                         const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, attack->hitMode, attack->defender);
                         reg_anim_play_sfx(projectile, sfx, 0);
@@ -835,7 +835,7 @@ int _action_ranged(Attack* attack, int anim)
     if (projectile != NULL && (isGrenade || damageType == DAMAGE_TYPE_EXPLOSION)) {
         animationRegisterHideObjectForced(projectile);
     } else if (anim == ANIM_THROW_ANIM && projectile != NULL) {
-        reg_anim_17(projectile, weaponFid, -1);
+        animationRegisterSetFid(projectile, weaponFid, -1);
     }
 
     for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
@@ -857,7 +857,7 @@ int _action_ranged(Attack* attack, int anim)
 
             if (!l9) {
                 int fid = buildFid(1, attack->attacker->fid & 0xFFF, ANIM_STAND, 0, attack->attacker->rotation + 1);
-                reg_anim_17(attack->attacker, fid, -1);
+                animationRegisterSetFid(attack->attacker, fid, -1);
             }
         } else {
             reg_anim_animate(attack->attacker, ANIM_UNPOINT, -1);

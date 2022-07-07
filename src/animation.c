@@ -933,9 +933,9 @@ int animationRegisterUnsetFlag(Object* object, int flag, int delay)
 }
 
 // 0x41518C
-int reg_anim_17(Object* obj, int fid, int delay)
+int animationRegisterSetFid(Object* owner, int fid, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -943,7 +943,7 @@ int reg_anim_17(Object* obj, int fid, int delay)
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_17;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
     animationDescription->fid = fid;
     animationDescription->delay = delay;
     animationDescription->field_2C = NULL;

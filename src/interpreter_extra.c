@@ -4296,7 +4296,7 @@ void opAnim(Program* program)
             reg_anim_animate(obj, anim, 0);
             if (anim >= ANIM_FALL_BACK && anim <= ANIM_FALL_FRONT_BLOOD) {
                 int fid = buildFid(1, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 28);
-                reg_anim_17(obj, fid, -1);
+                animationRegisterSetFid(obj, fid, -1);
             }
 
             if (combatData != NULL) {
@@ -4316,7 +4316,7 @@ void opAnim(Program* program)
                 combatData->results |= DAM_KNOCKED_DOWN;
             }
 
-            reg_anim_17(obj, fid, -1);
+            animationRegisterSetFid(obj, fid, -1);
         }
 
         reg_anim_end();

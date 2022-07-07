@@ -2591,7 +2591,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         if (critter == gDude) {
             if (!isoIsDisabled()) {
                 int fid = buildFid(1, baseFrmId, 0, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
-                reg_anim_17(critter, fid, 0);
+                animationRegisterSetFid(critter, fid, 0);
             }
         } else {
             _adjust_ac(critter, armor, item);
@@ -2682,7 +2682,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                     reg_anim_18(critter, weaponAnimationCode, -1);
                 } else {
                     int fid = buildFid(1, critter->fid & 0xFFF, 0, 0, critter->rotation + 1);
-                    reg_anim_17(critter, fid, -1);
+                    animationRegisterSetFid(critter, fid, -1);
                 }
             } else {
                 int fid = buildFid(1, critter->fid & 0xFFF, 0, weaponAnimationCode, critter->rotation + 1);
@@ -2740,7 +2740,7 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
             reg_anim_animate(obj, 39, 0);
 
             fid = buildFid(1, obj->fid & 0xFFF, 0, 0, obj->rotation + 1);
-            reg_anim_17(obj, fid, -1);
+            animationRegisterSetFid(obj, fid, -1);
 
             return reg_anim_end();
         }

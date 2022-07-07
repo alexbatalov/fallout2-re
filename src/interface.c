@@ -1962,7 +1962,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         reg_anim_18(gDude, weaponAnimationCode, -1);
     } else {
         int fid = buildFid(1, gDude->fid & 0xFFF, ANIM_STAND, 0, gDude->rotation + 1);
-        reg_anim_17(gDude, fid, -1);
+        animationRegisterSetFid(gDude, fid, -1);
     }
 
     animationRegisterCallbackForced(NULL, NULL, _intface_change_fid_callback, -1);
