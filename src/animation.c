@@ -965,7 +965,7 @@ int animationRegisterSetFid(Object* owner, int fid, int delay)
 int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int delay)
 {
     const char* sfx = sfxBuildCharName(owner, ANIM_TAKE_OUT, weaponAnimationCode);
-    if (reg_anim_play_sfx(owner, sfx, delay) == -1) {
+    if (animationRegisterPlaySoundEffect(owner, sfx, delay) == -1) {
         return -1;
     }
 
@@ -1041,9 +1041,9 @@ int animationRegisterToggleOutline(Object* object, bool outline, int delay)
 }
 
 // 0x41541C
-int reg_anim_play_sfx(Object* obj, const char* soundEffectName, int delay)
+int animationRegisterPlaySoundEffect(Object* owner, const char* soundEffectName, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -1051,10 +1051,10 @@ int reg_anim_play_sfx(Object* obj, const char* soundEffectName, int delay)
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_EXEC;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
     if (soundEffectName != NULL) {
-        int volume = _gsound_compute_relative_volume(obj);
-        animationDescription->sound = soundEffectLoadWithVolume(soundEffectName, obj, volume);
+        int volume = _gsound_compute_relative_volume(owner);
+        animationDescription->sound = soundEffectLoadWithVolume(soundEffectName, owner, volume);
         if (animationDescription->sound != NULL) {
             animationDescription->soundProc = _gsnd_anim_sound;
         } else {
@@ -2697,7 +2697,7 @@ void _dude_fidget()
 
         if (v8) {
             const char* sfx = sfxBuildCharName(object, ANIM_STAND, CHARACTER_SOUND_EFFECT_UNUSED);
-            reg_anim_play_sfx(object, sfx, 0);
+            animationRegisterPlaySoundEffect(object, sfx, 0);
         }
 
         reg_anim_animate(object, 0, 0);

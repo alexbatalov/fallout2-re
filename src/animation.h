@@ -263,7 +263,7 @@ int animationRegisterSetFid(Object* owner, int fid, int delay);
 int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int delay);
 int animationRegisterSetLightDistance(Object* owner, int lightDistance, int delay);
 int animationRegisterToggleOutline(Object* object, bool outline, int delay);
-int reg_anim_play_sfx(Object* obj, const char* a2, int a3);
+int animationRegisterPlaySoundEffect(Object* owner, const char* soundEffectName, int delay);
 int reg_anim_animate_forever(Object* obj, int a2, int a3);
 int reg_anim_26(int a1, int a2);
 int animationRunSequence(int a1);

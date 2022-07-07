@@ -5687,7 +5687,7 @@ void opRegAnimPlaySfx(Program* program)
     }
 
     if (obj != NULL) {
-        reg_anim_play_sfx(obj, soundEffectName, delay);
+        animationRegisterPlaySoundEffect(obj, soundEffectName, delay);
     } else {
         scriptPredefinedError(program, "reg_anim_play_sfx", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
