@@ -364,7 +364,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
             sfx_name = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a1);
             reg_anim_play_sfx(weapon, sfx_name, 0);
 
-            reg_anim_hide(weapon);
+            animationRegisterHideObjectForced(weapon);
         } else if ((flags & DAM_DESTROY) != 0) {
             reg_anim_11_1(a1, weapon, _internal_destroy, -1);
         } else if ((flags & DAM_DROP) != 0) {
@@ -800,7 +800,7 @@ int _action_ranged(Attack* attack, int anim)
                     }
                 } else {
                     if (anim != ANIM_THROW_ANIM) {
-                        reg_anim_hide(projectile);
+                        animationRegisterHideObjectForced(projectile);
                     }
                 }
 
@@ -833,14 +833,14 @@ int _action_ranged(Attack* attack, int anim)
     }
 
     if (projectile != NULL && (isGrenade || damageType == DAMAGE_TYPE_EXPLOSION)) {
-        reg_anim_hide(projectile);
+        animationRegisterHideObjectForced(projectile);
     } else if (anim == ANIM_THROW_ANIM && projectile != NULL) {
         reg_anim_17(projectile, weaponFid, -1);
     }
 
     for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
         if (neighboors[rotation] != NULL) {
-            reg_anim_hide(neighboors[rotation]);
+            animationRegisterHideObjectForced(neighboors[rotation]);
         }
     }
 
@@ -1568,10 +1568,10 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
         }
 
         reg_anim_11_1(explosion, 0, _combat_explode_scenery, -1);
-        reg_anim_hide(explosion);
+        animationRegisterHideObjectForced(explosion);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-            reg_anim_hide(adjacentExplosions[rotation]);
+            animationRegisterHideObjectForced(adjacentExplosions[rotation]);
         }
 
         // TODO: Get rid of casts.
@@ -1831,7 +1831,7 @@ void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int dam
         _show_damage(attack, gMaximumBloodDeathAnimations[damageType], 0);
         // TODO: Get rid of casts.
         reg_anim_11_1((Object*)attack, NULL, (AnimationProc*)_report_dmg, 0);
-        reg_anim_hide(attacker);
+        animationRegisterHideObjectForced(attacker);
 
         if (reg_anim_end() == -1) {
             objectDestroy(attacker, NULL);

@@ -806,9 +806,9 @@ int animationRegisterHideObject(Object* object)
 }
 
 // 0x414E20
-int reg_anim_hide(Object* obj)
+int animationRegisterHideObjectForced(Object* object)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(object) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -819,7 +819,7 @@ int reg_anim_hide(Object* obj)
     animationDescription->delay = -1;
     animationDescription->field_2C = NULL;
     animationDescription->field_24 = 1;
-    animationDescription->owner = obj;
+    animationDescription->owner = object;
     gAnimationDescriptionCurrentIndex++;
 
     return 0;
