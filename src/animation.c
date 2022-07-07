@@ -783,6 +783,28 @@ int reg_anim_rotate_counter_clockwise(Object* obj)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x414DA8
+int animationRegisterHideObject(Object* object)
+{
+    if (_check_registry(object) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
+    AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->type = ANIM_KIND_HIDE;
+    animationDescription->delay = -1;
+    animationDescription->field_2C = NULL;
+    animationDescription->field_24 = 0;
+    animationDescription->owner = object;
+    gAnimationDescriptionCurrentIndex++;
+
+    return 0;
+}
+
 // 0x414E20
 int reg_anim_hide(Object* obj)
 {
