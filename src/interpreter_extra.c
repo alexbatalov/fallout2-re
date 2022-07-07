@@ -1650,7 +1650,7 @@ void opAnimateMoveObjectToTile(Program* program)
     reg_anim_begin(1);
 
     if (flags == 0) {
-        reg_anim_obj_move_to_tile(object, tile, object->elevation, -1, 0);
+        animationRegisterMoveToTile(object, tile, object->elevation, -1, 0);
     } else {
         reg_anim_obj_run_to_tile(object, tile, object->elevation, -1, 0);
     }
@@ -4568,7 +4568,7 @@ void opRegAnimObjectMoveToTile(Program* prg)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            reg_anim_obj_move_to_tile(object, tile, object->elevation, -1, delay);
+            animationRegisterMoveToTile(object, tile, object->elevation, -1, delay);
         } else {
             scriptPredefinedError(prg, "reg_anim_obj_move_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
         }

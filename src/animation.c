@@ -444,38 +444,35 @@ int animationRegisterRunToObject(Object* owner, Object* destination, int actionP
 }
 
 // 0x414294
-int reg_anim_obj_move_to_tile(Object* obj, int tile_num, int elev, int actionPoints, int delay)
+int animationRegisterMoveToTile(Object* owner, int tile, int elevation, int actionPoints, int delay)
 {
-    AnimationDescription* ptr;
-    int fid;
-
-    if (_check_registry(obj) == -1 || actionPoints == 0) {
+    if (_check_registry(owner) == -1 || actionPoints == 0) {
         _anim_cleanup();
         return -1;
     }
 
-    if (tile_num == obj->tile && elev == obj->elevation) {
+    if (tile == owner->tile && elevation == owner->elevation) {
         return 0;
     }
 
-    ptr = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
-    ptr->type = ANIM_KIND_OBJ_MOVE_TO_TILE;
-    ptr->anim = ANIM_WALK;
-    ptr->owner = obj;
-    ptr->tile = tile_num;
-    ptr->elevation = elev;
-    ptr->field_28 = actionPoints;
-    ptr->delay = delay;
+    AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_TILE;
+    animationDescription->anim = ANIM_WALK;
+    animationDescription->owner = owner;
+    animationDescription->tile = tile;
+    animationDescription->elevation = elevation;
+    animationDescription->field_28 = actionPoints;
+    animationDescription->delay = delay;
+    animationDescription->field_2C = NULL;
 
-    ptr->field_2C = NULL;
-    fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, ptr->anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
-    if (artLock(fid, &(ptr->field_2C)) == NULL) {
+    int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(ptr->field_2C);
-    ptr->field_2C = NULL;
+    artUnlock(animationDescription->field_2C);
+    animationDescription->field_2C = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -522,7 +519,7 @@ int reg_anim_obj_run_to_tile(Object* obj, int tile_num, int elev, int actionPoin
             displayMonitorAddMessage(str);
         }
 
-        return reg_anim_obj_move_to_tile(obj, tile_num, elev, actionPoints, delay);
+        return animationRegisterMoveToTile(obj, tile_num, elev, actionPoints, delay);
     }
 
     animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
@@ -2614,7 +2611,7 @@ int _dude_move(int a1)
 
     reg_anim_begin(2);
 
-    reg_anim_obj_move_to_tile(gDude, tile, gDude->elevation, a1, 0);
+    animationRegisterMoveToTile(gDude, tile, gDude->elevation, a1, 0);
 
     return reg_anim_end();
 }

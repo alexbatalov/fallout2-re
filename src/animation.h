@@ -242,7 +242,7 @@ int _check_registry(Object* obj);
 int animationIsBusy(Object* a1);
 int animationRegisterMoveToObject(Object* owner, Object* destination, int actionPoints, int delay);
 int animationRegisterRunToObject(Object* owner, Object* destination, int actionPoints, int delay);
-int reg_anim_obj_move_to_tile(Object* obj, int tile_num, int elev, int actionPoints, int delay);
+int animationRegisterMoveToTile(Object* owner, int tile, int elevation, int actionPoints, int delay);
 int reg_anim_obj_run_to_tile(Object* obj, int tile_num, int elev, int actionPoints, int delay);
 int animateRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay);
 int reg_anim_knockdown(Object* obj, int tile, int elev, int anim, int delay);

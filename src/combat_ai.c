@@ -1079,7 +1079,7 @@ int _ai_move_away(Object* a1, Object* a2, int a3)
 
         if (actionPoints > 0) {
             reg_anim_begin(2);
-            reg_anim_obj_move_to_tile(a1, destination, a1->elevation, actionPoints, 0);
+            animationRegisterMoveToTile(a1, destination, a1->elevation, actionPoints, 0);
             if (reg_anim_end() == 0) {
                 _combat_turn_run();
             }
@@ -2151,7 +2151,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         if ((a2->flags & OBJECT_MULTIHEX) != 0) {
             animationRegisterMoveToObject(a1, a2, actionPoints, 0);
         } else {
-            reg_anim_obj_move_to_tile(a1, tile, a1->elevation, actionPoints, 0);
+            animationRegisterMoveToTile(a1, tile, a1->elevation, actionPoints, 0);
         }
     }
 
@@ -2717,7 +2717,7 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
     int tile = a1->tile;
     if (_cai_retargetTileFromFriendlyFire(a1, a2, &tile) == 0 && tile != a1->tile) {
         reg_anim_begin(2);
-        reg_anim_obj_move_to_tile(a1, tile, a1->elevation, a1->data.critter.combat.ap, 0);
+        animationRegisterMoveToTile(a1, tile, a1->elevation, a1->data.critter.combat.ap, 0);
         if (reg_anim_end() != 0) {
             return -1;
         }

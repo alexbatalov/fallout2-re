@@ -936,7 +936,7 @@ int _action_climb_ladder(Object* a1, Object* a2)
 
     tile_num = tileGetTileInDirection(a2->tile, 2, 1);
     if (v6 != -1 || objectGetDistanceBetween(a1, a2) < 5) {
-        reg_anim_obj_move_to_tile(a1, tile_num, a2->elevation, v6, 0);
+        animationRegisterMoveToTile(a1, tile_num, a2->elevation, v6, 0);
     } else {
         reg_anim_obj_run_to_tile(a1, tile_num, a2->elevation, v6, 0);
     }
@@ -2005,7 +2005,7 @@ int actionPush(Object* a1, Object* a2)
 
     reg_anim_begin(2);
     reg_anim_set_rotation_to_tile(a2, tile);
-    reg_anim_obj_move_to_tile(a2, tile, a2->elevation, actionPoints, 0);
+    animationRegisterMoveToTile(a2, tile, a2->elevation, actionPoints, 0);
     return reg_anim_end();
 }
 
