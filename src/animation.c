@@ -649,9 +649,9 @@ int animationRegisterAnimate(Object* owner, int anim, int delay)
 }
 
 // 0x414AA8
-int reg_anim_animate_reverse(Object* obj, int anim, int delay)
+int animationRegisterAnimateReversed(Object* owner, int anim, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -659,12 +659,12 @@ int reg_anim_animate_reverse(Object* obj, int anim, int delay)
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_ANIMATE_REVERSE;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
     animationDescription->field_2C = NULL;
 
-    int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, animationDescription->anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
     if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
         _anim_cleanup();
         return -1;

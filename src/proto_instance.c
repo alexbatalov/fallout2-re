@@ -1723,7 +1723,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
                 const char* sfx = sfxBuildOpenName(a2, SCENERY_SOUND_EFFECT_CLOSED);
                 animationRegisterPlaySoundEffect(a2, sfx, -1);
 
-                reg_anim_animate_reverse(a2, 0, 0);
+                animationRegisterAnimateReversed(a2, ANIM_STAND, 0);
             } else {
                 if (a3 == 0) {
                     animationRegisterCallback(a2, a2, _set_door_state_open, -1);
@@ -1804,7 +1804,7 @@ int _obj_use_container(Object* critter, Object* item)
     } else {
         const char* sfx = sfxBuildOpenName(item, SCENERY_SOUND_EFFECT_CLOSED);
         animationRegisterPlaySoundEffect(item, sfx, 0);
-        reg_anim_animate_reverse(item, 0, 0);
+        animationRegisterAnimateReversed(item, ANIM_STAND, 0);
     }
 
     reg_anim_end();
@@ -2014,7 +2014,7 @@ int objectOpenClose(Object* obj)
         const char* sfx = sfxBuildOpenName(obj, SCENERY_SOUND_EFFECT_CLOSED);
         animationRegisterPlaySoundEffect(obj, sfx, -1);
 
-        reg_anim_animate_reverse(obj, 0, 0);
+        animationRegisterAnimateReversed(obj, ANIM_STAND, 0);
     } else {
         animationRegisterCallbackForced(obj, obj, _set_door_state_open, -1);
 

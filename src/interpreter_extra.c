@@ -1588,7 +1588,7 @@ void opAnimateStandReverse(Program* program)
 
     if (!isInCombat()) {
         reg_anim_begin(0x01);
-        reg_anim_animate_reverse(object, ANIM_STAND, 0);
+        animationRegisterAnimateReversed(object, ANIM_STAND, 0);
         reg_anim_end();
     }
 }
@@ -4304,7 +4304,7 @@ void opAnim(Program* program)
             }
         } else {
             int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
-            reg_anim_animate_reverse(obj, anim, 0);
+            animationRegisterAnimateReversed(obj, anim, 0);
 
             if (anim == ANIM_PRONE_TO_STANDING) {
                 fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, ANIM_FALL_FRONT_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
@@ -4469,7 +4469,7 @@ void opRegAnimAnimateReverse(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            reg_anim_animate_reverse(object, anim, delay);
+            animationRegisterAnimateReversed(object, anim, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_animate_reverse", SCRIPT_ERROR_OBJECT_IS_NULL);
         }

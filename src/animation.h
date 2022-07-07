@@ -247,7 +247,7 @@ int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actio
 int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay);
 int reg_anim_knockdown(Object* obj, int tile, int elev, int anim, int delay);
 int animationRegisterAnimate(Object* owner, int anim, int delay);
-int reg_anim_animate_reverse(Object* obj, int anim, int delay);
+int animationRegisterAnimateReversed(Object* owner, int anim, int delay);
 int animationRegisterAnimateAndHide(Object* owner, int anim, int delay);
 int animationRegisterRotateToTile(Object* owner, int tile);
 int animationRegisterRotateClockwise(Object* owner);
