@@ -962,14 +962,14 @@ int animationRegisterSetFid(Object* owner, int fid, int delay)
 }
 
 // 0x415238
-int reg_anim_18(Object* obj, int weaponAnimationCode, int delay)
+int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int delay)
 {
-    const char* sfx = sfxBuildCharName(obj, ANIM_TAKE_OUT, weaponAnimationCode);
-    if (reg_anim_play_sfx(obj, sfx, delay) == -1) {
+    const char* sfx = sfxBuildCharName(owner, ANIM_TAKE_OUT, weaponAnimationCode);
+    if (reg_anim_play_sfx(owner, sfx, delay) == -1) {
         return -1;
     }
 
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -979,10 +979,10 @@ int reg_anim_18(Object* obj, int weaponAnimationCode, int delay)
     animationDescription->type = ANIM_KIND_18;
     animationDescription->anim = ANIM_TAKE_OUT;
     animationDescription->delay = 0;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
     animationDescription->weaponAnimationCode = weaponAnimationCode;
 
-    int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, obj->rotation + 1);
+    int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, owner->rotation + 1);
     if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
         _anim_cleanup();
         return -1;

@@ -2679,7 +2679,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
 
             if (a4 && !isoIsDisabled()) {
                 if (weaponAnimationCode != 0) {
-                    reg_anim_18(critter, weaponAnimationCode, -1);
+                    animationRegisterTakeOutWeapon(critter, weaponAnimationCode, -1);
                 } else {
                     int fid = buildFid(1, critter->fid & 0xFFF, 0, 0, critter->rotation + 1);
                     animationRegisterSetFid(critter, fid, -1);

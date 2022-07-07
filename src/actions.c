@@ -850,7 +850,7 @@ int _action_ranged(Attack* attack, int anim)
             if (v50 != NULL) {
                 int v38 = weaponGetAnimationCode(v50);
                 if (v38 != 0) {
-                    reg_anim_18(attack->attacker, v38, -1);
+                    animationRegisterTakeOutWeapon(attack->attacker, v38, -1);
                     l9 = true;
                 }
             }
@@ -958,7 +958,7 @@ int _action_climb_ladder(Object* a1, Object* a2)
     animationRegisterCallback(a1, a2, _obj_use, -1);
 
     if (v11 != 0) {
-        reg_anim_18(a1, v11, -1);
+        animationRegisterTakeOutWeapon(a1, v11, -1);
     }
 
     return reg_anim_end();
@@ -1043,7 +1043,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
         }
 
         if (a2a != 0) {
-            reg_anim_18(a1, a2a, -1);
+            animationRegisterTakeOutWeapon(a1, a2a, -1);
         }
 
         return reg_anim_end();
@@ -1141,7 +1141,7 @@ int actionPickUp(Object* critter, Object* item)
         }
 
         if (v27 != 0) {
-            reg_anim_18(critter, v27, -1);
+            animationRegisterTakeOutWeapon(critter, v27, -1);
         }
 
         if (item->frame == 0 || item->frame == 1) {
