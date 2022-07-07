@@ -251,7 +251,7 @@ int reg_anim_animate_reverse(Object* obj, int anim, int delay);
 int reg_anim_6(Object* obj, int anim, int delay);
 int reg_anim_set_rotation_to_tile(Object* owner, int tile);
 int reg_anim_rotate_clockwise(Object* obj);
-int reg_anim_rotate_counter_clockwise(Object* obj);
+int animationRegisterRotateCounterClockwise(Object* obj);
 int animationRegisterHideObject(Object* object);
 int animationRegisterHideObjectForced(Object* object);
 int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int delay);

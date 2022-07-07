@@ -748,9 +748,9 @@ int reg_anim_rotate_clockwise(Object* obj)
 }
 
 // 0x414D38
-int reg_anim_rotate_counter_clockwise(Object* obj)
+int animationRegisterRotateCounterClockwise(Object* owner)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -760,7 +760,7 @@ int reg_anim_rotate_counter_clockwise(Object* obj)
     animationDescription->type = ANIM_KIND_ROTATE_COUNTER_CLOCKWISE;
     animationDescription->delay = -1;
     animationDescription->field_2C = NULL;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
     gAnimationDescriptionCurrentIndex++;
 
     return 0;
