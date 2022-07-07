@@ -729,9 +729,9 @@ int reg_anim_set_rotation_to_tile(Object* owner, int tile)
 }
 
 // 0x414CC8
-int reg_anim_rotate_clockwise(Object* obj)
+int animationRegisterRotateClockwise(Object* owner)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
@@ -741,7 +741,8 @@ int reg_anim_rotate_clockwise(Object* obj)
     animationDescription->type = ANIM_KIND_ROTATE_CLOCKWISE;
     animationDescription->delay = -1;
     animationDescription->field_2C = NULL;
-    animationDescription->owner = obj;
+    animationDescription->owner = owner;
+
     gAnimationDescriptionCurrentIndex++;
 
     return 0;
@@ -761,6 +762,7 @@ int animationRegisterRotateCounterClockwise(Object* owner)
     animationDescription->delay = -1;
     animationDescription->field_2C = NULL;
     animationDescription->owner = owner;
+
     gAnimationDescriptionCurrentIndex++;
 
     return 0;

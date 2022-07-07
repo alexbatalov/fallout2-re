@@ -702,7 +702,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case KEY_DOT:
     case KEY_GREATER:
         if (reg_anim_begin(0) == 0) {
-            reg_anim_rotate_clockwise(gDude);
+            animationRegisterRotateClockwise(gDude);
             reg_anim_end();
         }
         break;
