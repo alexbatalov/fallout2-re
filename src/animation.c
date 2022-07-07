@@ -563,14 +563,14 @@ int reg_anim_obj_run_to_tile(Object* obj, int tile_num, int elev, int actionPoin
 }
 
 // 0x4145D0
-int reg_anim_2(Object* obj, int tile_num, int elev, int anim, int delay)
+int animateRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(object) == -1) {
         _anim_cleanup();
         return -1;
     }
 
-    if (tile_num == obj->tile && elev == obj->elevation) {
+    if (tile == object->tile && elevation == object->elevation) {
         return 0;
     }
 
@@ -578,14 +578,14 @@ int reg_anim_2(Object* obj, int tile_num, int elev, int anim, int delay)
 
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
     animationDescription->type = ANIM_KIND_2;
-    animationDescription->owner = obj;
-    animationDescription->tile = tile_num;
-    animationDescription->elevation = elev;
+    animationDescription->owner = object;
+    animationDescription->tile = tile;
+    animationDescription->elevation = elevation;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
     animationDescription->field_2C = NULL;
 
-    int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, animationDescription->anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    int fid = buildFid((object->fid & 0xF000000) >> 24, object->fid & 0xFFF, animationDescription->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
     if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
         _anim_cleanup();
         return -1;
