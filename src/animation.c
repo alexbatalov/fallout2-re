@@ -848,10 +848,12 @@ int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int d
     return 0;
 }
 
+// Same as `animationRegisterCallback` but accepting 3 parameters.
+//
 // 0x414F20
-int reg_anim_12(Object* a1, Object* a2, void* a3, AnimationProc2* proc, int delay)
+int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallback3* proc, int delay)
 {
-    if (_check_registry(NULL) == -1 || !proc) {
+    if (_check_registry(NULL) == -1 || proc == NULL) {
         _anim_cleanup();
         return -1;
     }
@@ -863,7 +865,7 @@ int reg_anim_12(Object* a1, Object* a2, void* a3, AnimationProc2* proc, int dela
     animationDescription->field_2C = NULL;
     animationDescription->owner = a2;
     animationDescription->destinationObj = a1;
-    animationDescription->field_20 = proc;
+    animationDescription->callback3 = proc;
     animationDescription->field_28_void = a3;
     animationDescription->delay = delay;
 
@@ -1246,7 +1248,7 @@ int animationRunSequence(int animationSequenceIndex)
             }
             break;
         case ANIM_KIND_EXEC_2:
-            rc = animationDescription->field_20(animationDescription->destinationObj, animationDescription->owner, animationDescription->field_28_obj);
+            rc = animationDescription->callback3(animationDescription->destinationObj, animationDescription->owner, animationDescription->field_28_obj);
             if (rc == 0) {
                 rc = _anim_set_continue(animationSequenceIndex, 0);
             }

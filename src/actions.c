@@ -1037,7 +1037,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
 
         if (a3 != NULL) {
             // TODO: Get rid of cast.
-            reg_anim_12(a1, a2, a3, (AnimationProc2*)_obj_use_item_on, -1);
+            animationRegisterCallback3(a1, a2, a3, (AnimationCallback3*)_obj_use_item_on, -1);
         } else {
             animationRegisterCallback(a1, a2, _obj_use, -1);
         }
@@ -1400,7 +1400,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
 
     reg_anim_animate(performer, anim, -1);
     // TODO: Get rid of casts.
-    reg_anim_12(performer, a2, (void*)skill, (AnimationProc2*)_obj_use_skill_on, -1);
+    animationRegisterCallback3(performer, a2, (void*)skill, (AnimationCallback3*)_obj_use_skill_on, -1);
     return reg_anim_end();
 }
 

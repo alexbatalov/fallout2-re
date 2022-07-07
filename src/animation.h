@@ -121,7 +121,9 @@ typedef enum AnimationType {
 
 typedef int AnimationProc(Object*, Object*);
 typedef int AnimationSoundProc(Sound*);
-typedef int AnimationProc2(Object*, Object*, void*);
+
+// Signature of animation callback accepting 3 parameters.
+typedef int AnimationCallback3(Object*, Object*, void*);
 
 typedef struct AnimationDescription {
     int type;
@@ -144,7 +146,7 @@ typedef struct AnimationDescription {
         AnimationProc* proc;
         AnimationSoundProc* soundProc;
     };
-    AnimationProc2* field_20; // func
+    AnimationCallback3* callback3;
     int field_24;
     union {
         int field_28; // actionPoints
@@ -253,7 +255,7 @@ int reg_anim_rotate_counter_clockwise(Object* obj);
 int animationRegisterHideObject(Object* object);
 int animationRegisterHideObjectForced(Object* object);
 int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int delay);
-int reg_anim_12(Object* a1, Object* a2, void* a3, AnimationProc2* proc, int delay);
+int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallback3* proc, int delay);
 int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc, int delay);
 int animationRegisterSetFlag(Object* object, int flag, int delay);
 int animationRegisterUnsetFlag(Object* object, int flag, int delay);
