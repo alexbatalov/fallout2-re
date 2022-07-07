@@ -678,7 +678,7 @@ void opAddNamedEvent(Program* program)
     }
 
     const char* v1 = programGetString(program, opcode[1], data[1]);
-    _nevs_addevent(v1, program, data[0], 0);
+    _nevs_addevent(v1, program, data[0], NEVS_TYPE_EVENT);
 }
 
 // addnamedhandler
@@ -703,7 +703,7 @@ void opAddNamedHandler(Program* program)
     }
 
     const char* v1 = programGetString(program, opcode[1], data[1]);
-    _nevs_addevent(v1, program, data[0], 1);
+    _nevs_addevent(v1, program, data[0], NEVS_TYPE_HANDLER);
 }
 
 // clearnamed

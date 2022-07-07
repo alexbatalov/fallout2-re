@@ -5250,7 +5250,7 @@ void opCritterInjure(Program* program)
     }
 
     if (critter == gDude) {
-        if ((flags & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0) {
+        if ((flags & DAM_CRIP_ARM_ANY) != 0) {
             int leftItemAction;
             int rightItemAction;
             interfaceGetItemActions(&leftItemAction, &rightItemAction);

@@ -2238,7 +2238,7 @@ int cityInit()
         return -1;
     }
 
-    if (configInit(&cfg) == -1) {
+    if (!configInit(&cfg)) {
         return -1;
     }
 

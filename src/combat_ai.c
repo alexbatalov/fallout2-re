@@ -1738,7 +1738,7 @@ bool _ai_can_use_weapon(Object* critter, Object* weapon, int hitMode)
         return false;
     }
 
-    if ((damageFlags & (DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT)) != 0 && weaponIsTwoHanded(weapon)) {
+    if ((damageFlags & DAM_CRIP_ARM_ANY) != 0 && weaponIsTwoHanded(weapon)) {
         return false;
     }
 

@@ -183,7 +183,7 @@ int _proto_list_str(int pid, char* proto_path)
         return -1;
     }
 
-    if (str == NULL) {
+    if (proto_path == NULL) {
         return -1;
     }
 
