@@ -95,7 +95,7 @@ int _determine_to_hit(Object* a1, Object* a2, int hitLocation, int hitMode);
 int _determine_to_hit_no_range(Object* a1, Object* a2, int a3, int a4, unsigned char* a5);
 int _determine_to_hit_from_tile(Object* a1, int a2, Object* a3, int a4, int a5);
 int attackDetermineToHit(Object* attacker, int tile, Object* defender, int hitLocation, int hitMode, int a6);
-void attackComputeDamage(Attack* attack, int ammoQuantity, int a3);
+void attackComputeDamage(Attack* attack, int ammoQuantity, int bonusDamageMultiplier);
 void attackComputeDeathFlags(Attack* attack);
 void _apply_damage(Attack* attack, bool animated);
 void _check_for_death(Object* a1, int a2, int* a3);

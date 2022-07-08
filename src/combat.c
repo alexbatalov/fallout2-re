@@ -4284,7 +4284,7 @@ int attackDetermineToHit(Object* attacker, int tile, Object* defender, int hitLo
 }
 
 // 0x4247B8
-void attackComputeDamage(Attack* attack, int ammoQuantity, int a3)
+void attackComputeDamage(Attack* attack, int ammoQuantity, int bonusDamageMultiplier)
 {
     int* damagePtr;
     Object* critter;
@@ -4359,7 +4359,7 @@ void attackComputeDamage(Attack* attack, int ammoQuantity, int a3)
         damageResistance = 0;
     }
 
-    int damageMultiplier = a3 * weaponGetAmmoDamageMultiplier(attack->weapon);
+    int damageMultiplier = bonusDamageMultiplier * weaponGetAmmoDamageMultiplier(attack->weapon);
     int damageDivisor = weaponGetAmmoDamageDivisor(attack->weapon);
 
     for (int index = 0; index < ammoQuantity; index++) {
