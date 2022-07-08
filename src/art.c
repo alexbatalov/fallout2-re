@@ -932,43 +932,37 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
 // 0x419B78
 int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
 {
-    int v4;
-    char* str;
-    char* ptr;
-    int result;
-    char path[MAX_PATH];
-    bool loaded;
-
-    v4 = -1;
-    result = -1;
+    int oldDb = -1;
+    int result = -1;
 
     if ((fid & 0xF000000) >> 24 == 1) {
-        v4 = _db_current(1);
-        // _db_current(_critter_db_handle);
-        _db_current(0);
+        oldDb = _db_current(1);
+        _db_current(_critter_db_handle);
     }
 
-    str = artBuildFilePath(fid);
-    if (str != NULL) {
-        loaded = false;
+    char* artFileName = artBuildFilePath(fid);
+    if (artFileName != NULL) {
+        bool loaded = false;
         if (gArtLanguageInitialized) {
-            ptr = str;
-            while (*ptr != '\0' && *ptr != '\\') {
-                ptr++;
+            char* pch = artFileName;
+            while (*pch != '\0' && *pch != '\\') {
+                pch++;
             }
 
-            if (*ptr == '\0') {
-                ptr = str;
+            if (*pch == '\0') {
+                pch = artFileName;
             }
 
-            sprintf(path, "art\\%s\\%s", gArtLanguage, ptr);
-            if (artRead(str, data) == 0) {
+            char localizedPath[MAX_PATH];
+            sprintf(localizedPath, "art\\%s\\%s", gArtLanguage, pch);
+
+            if (artRead(localizedPath, data) == 0) {
                 loaded = true;
             }
         }
 
         if (!loaded) {
-            if (artRead(str, data) == 0) {
+            if (artRead(artFileName, data) == 0) {
                 loaded = true;
             }
         }
@@ -980,8 +974,8 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
         }
     }
 
-    if (v4 != -1) {
-        _db_current(v4);
+    if (oldDb != -1) {
+        _db_current(oldDb);
     }
 
     return result;
