@@ -3,6 +3,7 @@
 #include "animation.h"
 #include "debug.h"
 #include "draw.h"
+#include "game.h"
 #include "game_config.h"
 #include "memory.h"
 #include "object.h"
@@ -795,34 +796,24 @@ ArtFrame* artGetFrame(Art* art, int frame, int rotation)
 // 0x4198C8
 bool artExists(int fid)
 {
-    int v3;
-    bool result;
-
-    v3 = -1;
-    result = false;
+    bool result = false;
+    int oldDb = -1;
 
     if ((fid & 0xF000000) >> 24 == 1) {
-        v3 = _db_current(1);
-        // _db_current(_critter_db_handle);
-        _db_current(0);
+        oldDb = _db_current(1);
+        _db_current(_critter_db_handle);
     }
 
     char* filePath = artBuildFilePath(fid);
-    if (filePath == NULL) {
-        goto out;
+    if (filePath != NULL) {
+        int fileSize;
+        if (dbGetFileSize(filePath, &fileSize) != -1) {
+            result = true;
+        }
     }
 
-    int fileSize;
-    if (dbGetFileSize(filePath, &fileSize) == -1) {
-        goto out;
-    }
-
-    result = true;
-
-out:
-
-    if (v3 != -1) {
-        _db_current(v3);
+    if (oldDb != -1) {
+        _db_current(oldDb);
     }
 
     return result;
