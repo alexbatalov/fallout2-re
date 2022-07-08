@@ -564,7 +564,7 @@ char* artBuildFilePath(int fid)
 
     v10 = (fid & 0x70000000) >> 28;
 
-    v1 = _art_alias_fid(fid);
+    v1 = artAliasFid(fid);
     if (v1 != -1) {
         v2 = v1;
     }
@@ -853,21 +853,27 @@ int artCritterFidShouldRun(int fid)
 }
 
 // 0x4199D4
-int _art_alias_fid(int fid)
+int artAliasFid(int fid)
 {
-    int v2;
-    int v3;
-    int result;
+    int type = (fid & 0xF000000) >> 24;
+    int anim = (fid & 0xFF0000) >> 16;
+    if (type == 1) {
+        if (anim == ANIM_ELECTRIFY
+            || anim == ANIM_BURNED_TO_NOTHING
+            || anim == ANIM_ELECTRIFIED_TO_NOTHING
+            || anim == ANIM_ELECTRIFY_SF
+            || anim == ANIM_BURNED_TO_NOTHING_SF
+            || anim == ANIM_ELECTRIFIED_TO_NOTHING_SF
+            || anim == ANIM_FIRE_DANCE
+            || anim == ANIM_CALLED_SHOT_PIC) {
+            // NOTE: Original code is slightly different. It uses many mutually
+            // mirrored bitwise operators. Probably result of some macros for
+            // getting/setting individual bits on fid.
+            return (fid & 0x70000000) | ((anim << 16) & 0xFF0000) | 0x1000000 | (fid & 0xF000) | (_anon_alias[fid & 0xFFF] & 0xFFF);
+        }
+    }
 
-    v2 = (fid & 0xF000000) >> 24;
-    v3 = (fid & 0xFF0000) >> 16;
-
-    if (v2 != 1 || v3 != 27 && v3 != 29 && v3 != 30 && v3 != 55 && v3 != 57 && v3 != 58 && v3 != 33 && v3 != 64)
-        result = -1;
-    else
-        result = ((fid & 0x70000000) >> 28 << 28) & 0x70000000 | (v3 << 16) & 0xFF0000 | 0x1000000 | (((fid & 0xF000) >> 12) << 12) & 0xF000 | _anon_alias[fid & 0xFFF] & 0xFFF;
-
-    return result;
+    return -1;
 }
 
 // 0x419A78

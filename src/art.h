@@ -173,7 +173,7 @@ bool artExists(int fid);
 bool _art_fid_valid(int fid);
 int _art_alias_num(int a1);
 int artCritterFidShouldRun(int a1);
-int _art_alias_fid(int a1);
+int artAliasFid(int fid);
 int artCacheGetFileSizeImpl(int a1, int* out_size);
 int artCacheReadDataImpl(int a1, int* a2, unsigned char* data);
 void artCacheFreeImpl(void* ptr);
