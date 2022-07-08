@@ -1966,6 +1966,185 @@ int animateMoveObjectToObject(Object* from, Object* to, int a3, int anim, int an
     return 0;
 }
 
+// 0x41695C
+int _make_stair_path(Object* object, int from, int fromElevation, int to, int toElevation, STRUCT_530014_28* a6, Object** obstaclePtr)
+{
+    int elevation = fromElevation;
+    if (elevation > toElevation) {
+        elevation = toElevation;
+    }
+
+    int fromX;
+    int fromY;
+    tileToScreenXY(from, &fromX, &fromY, fromElevation);
+    fromX += 16;
+    fromY += 8;
+
+    int toX;
+    int toY;
+    tileToScreenXY(to, &toX, &toY, toElevation);
+    toX += 16;
+    toY += 8;
+
+    if (obstaclePtr != NULL) {
+        *obstaclePtr = NULL;
+    }
+
+    int ddx = 2 * abs(toX - fromX);
+
+    int stepX;
+    int deltaX = toX - fromX;
+    if (deltaX > 0) {
+        stepX = 1;
+    } else if (deltaX < 0) {
+        stepX = -1;
+    } else {
+        stepX = 0;
+    }
+
+    int ddy = 2 * abs(toY - fromY);
+
+    int stepY;
+    int deltaY = toY - fromY;
+    if (deltaY > 0) {
+        stepY = 1;
+    } else if (deltaY < 0) {
+        stepY = -1;
+    } else {
+        stepY = 0;
+    }
+
+    int tileX = fromX;
+    int tileY = fromY;
+
+    int pathNodeIndex = 0;
+    int prevTile = from;
+    int iteration = 0;
+    int tile;
+
+    if (ddx > ddy) {
+        int middle = ddy - ddx / 2;
+        while (true) {
+            tile = tileFromScreenXY(tileX, tileY, elevation);
+
+            iteration += 1;
+            if (iteration == 16) {
+                if (pathNodeIndex >= 200) {
+                    return 0;
+                }
+
+                if (a6 != NULL) {
+                    STRUCT_530014_28* pathNode = &(a6[pathNodeIndex]);
+                    pathNode->tile = tile;
+                    pathNode->elevation = elevation;
+
+                    tileToScreenXY(tile, &fromX, &fromY, elevation);
+                    pathNode->x = tileX - fromX - 16;
+                    pathNode->y = tileY - fromY - 8;
+                }
+
+                iteration = 0;
+                pathNodeIndex++;
+            }
+
+            if (tileX == toX) {
+                break;
+            }
+
+            if (middle >= 0) {
+                tileY += stepY;
+                middle -= ddx;
+            }
+
+            tileX += stepX;
+            middle += ddy;
+
+            if (tile != prevTile) {
+                if (obstaclePtr != NULL) {
+                    *obstaclePtr = _obj_blocking_at(object, tile, object->elevation);
+                    if (*obstaclePtr != NULL) {
+                        break;
+                    }
+                }
+                prevTile = tile;
+            }
+        }
+    } else {
+        int middle = ddx - ddy / 2;
+        while (true) {
+            tile = tileFromScreenXY(tileX, tileY, elevation);
+
+            iteration += 1;
+            if (iteration == 16) {
+                if (pathNodeIndex >= 200) {
+                    return 0;
+                }
+
+                if (a6 != NULL) {
+                    STRUCT_530014_28* pathNode = &(a6[pathNodeIndex]);
+                    pathNode->tile = tile;
+                    pathNode->elevation = elevation;
+
+                    tileToScreenXY(tile, &fromX, &fromY, elevation);
+                    pathNode->x = tileX - fromX - 16;
+                    pathNode->y = tileY - fromY - 8;
+                }
+
+                iteration = 0;
+                pathNodeIndex++;
+            }
+
+            if (tileY == toY) {
+                break;
+            }
+
+            if (middle >= 0) {
+                tileX += stepX;
+                middle -= ddy;
+            }
+
+            tileY += stepY;
+            middle += ddx;
+
+            if (tile != prevTile) {
+                if (obstaclePtr != NULL) {
+                    *obstaclePtr = _obj_blocking_at(object, tile, object->elevation);
+                    if (*obstaclePtr != NULL) {
+                        break;
+                    }
+                }
+                prevTile = tile;
+            }
+        }
+    }
+
+    if (iteration != 0) {
+        if (pathNodeIndex >= 200) {
+            return 0;
+        }
+
+        if (a6 != NULL) {
+            STRUCT_530014_28* pathNode = &(a6[pathNodeIndex]);
+            pathNode->tile = tile;
+            pathNode->elevation = elevation;
+
+            tileToScreenXY(tile, &fromX, &fromY, elevation);
+            pathNode->x = tileX - fromX - 16;
+            pathNode->y = tileY - fromY - 8;
+        }
+
+        pathNodeIndex++;
+    } else {
+        if (pathNodeIndex > 0) {
+            if (a6 != NULL) {
+                a6[pathNodeIndex - 1].elevation = toElevation;
+            }
+        }
+    }
+
+    return pathNodeIndex;
+}
+
 // 0x416CFC
 int animateMoveObjectToTile(Object* obj, int tile, int elev, int a4, int anim, int animationSequenceIndex)
 {
@@ -2092,8 +2271,7 @@ int _anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int ani
     sad->animationTimestamp = 0;
     sad->ticksPerFrame = animationComputeTicksPerFrame(obj, sad->fid);
     sad->animationSequenceIndex = animationSequenceIndex;
-    // TODO: Incomplete.
-    // ptr->field_1C = _make_stair_path(obj, obj->tile_index, obj->elevation, tile, elevation, ptr->field_28, 0);
+    sad->field_1C = _make_stair_path(obj, obj->tile, obj->elevation, tile, elevation, sad->field_28, NULL);
     if (sad->field_1C == 0) {
         sad->field_20 = -1000;
         return -1;

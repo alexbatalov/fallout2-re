@@ -390,6 +390,7 @@ int _tile_idistance(int tile1, int tile2);
 int _make_straight_path(Object* a1, int from, int to, STRUCT_530014_28* pathNodes, Object** a5, int a6);
 int _make_straight_path_func(Object* a1, int from, int to, STRUCT_530014_28* a4, Object** a5, int a6, Object* (*a7)(Object*, int, int));
 int animateMoveObjectToObject(Object* from, Object* to, int a3, int anim, int animationSequenceIndex);
+int _make_stair_path(Object* object, int from, int fromElevation, int to, int toElevation, STRUCT_530014_28* a6, Object** obstaclePtr);
 int animateMoveObjectToTile(Object* obj, int tile_num, int elev, int a4, int anim, int animationSequenceIndex);
 int _anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, int animationSequenceIndex);
 int animateMoveObjectToTileStraight(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags);
