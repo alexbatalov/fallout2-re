@@ -1188,7 +1188,7 @@ void soundEffectDelete(Sound* sound)
 }
 
 // 0x4514F0
-int _gsnd_anim_sound(Sound* sound)
+int _gsnd_anim_sound(Sound* sound, void* a2)
 {
     if (!gGameSoundInitialized) {
         return 0;

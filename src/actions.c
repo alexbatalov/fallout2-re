@@ -374,7 +374,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
 
     if ((flags & DAM_DEAD) != 0) {
         // TODO: Get rid of casts.
-        animationRegisterCallbackForced(a1, (Object*)anim, (AnimationProc*)_show_death, -1);
+        animationRegisterCallbackForced(a1, (void*)anim, (AnimationCallback*)_show_death, -1);
     }
 }
 
@@ -1032,7 +1032,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
 
         if (a3 != NULL) {
             // TODO: Get rid of cast.
-            animationRegisterCallback3(a1, a2, a3, (AnimationCallback3*)_obj_use_item_on, -1);
+            animationRegisterCallback3(a1, a2, a3, _obj_use_item_on, -1);
         } else {
             animationRegisterCallback(a1, a2, _obj_use, -1);
         }
@@ -1570,8 +1570,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
             animationRegisterHideObjectForced(adjacentExplosions[rotation]);
         }
 
-        // TODO: Get rid of casts.
-        animationRegisterCallbackForced((Object*)attack, a5, (AnimationProc*)_report_explosion, -1);
+        animationRegisterCallbackForced(attack, a5, _report_explosion, -1);
         animationRegisterCallbackForced(NULL, NULL, _finished_explosion, -1);
         if (reg_anim_end() == -1) {
             _action_in_explode = 0;
@@ -1825,8 +1824,7 @@ void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int dam
         reg_anim_begin(ANIMATION_REQUEST_RESERVED);
         animationRegisterPlaySoundEffect(attacker, "whc1xxx1", 0);
         _show_damage(attack, gMaximumBloodDeathAnimations[damageType], 0);
-        // TODO: Get rid of casts.
-        animationRegisterCallbackForced((Object*)attack, NULL, (AnimationProc*)_report_dmg, 0);
+        animationRegisterCallbackForced(attack, NULL, _report_dmg, 0);
         animationRegisterHideObjectForced(attacker);
 
         if (reg_anim_end() == -1) {

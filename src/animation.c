@@ -202,7 +202,7 @@ int reg_anim_clear(Object* a1)
         int animationDescriptionIndex;
         for (animationDescriptionIndex = 0; animationDescriptionIndex < animationSequence->length; animationDescriptionIndex++) {
             AnimationDescription* animationDescription = &(animationSequence->animations[animationDescriptionIndex]);
-            if (a1 != animationDescription->owner || animationDescription->type == 11) {
+            if (a1 != animationDescription->owner || animationDescription->kind == 11) {
                 continue;
             }
 
@@ -267,12 +267,12 @@ void _anim_cleanup()
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     for (int index = 0; index < gAnimationDescriptionCurrentIndex; index++) {
         AnimationDescription* animationDescription = &(animationSequence->animations[index]);
-        if (animationDescription->field_2C != NULL) {
-            artUnlock(animationDescription->field_2C);
+        if (animationDescription->artCacheKey != NULL) {
+            artUnlock(animationDescription->artCacheKey);
         }
 
-        if (animationDescription->type == ANIM_KIND_EXEC && animationDescription->soundProc == _gsnd_anim_sound) {
-            soundEffectDelete(animationDescription->sound);
+        if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == _gsnd_anim_sound) {
+            soundEffectDelete(animationDescription->param1);
         }
     }
 
@@ -300,7 +300,7 @@ int _check_registry(Object* obj)
         if (animationSequenceIndex != gAnimationSequenceCurrentIndex && animationSequence->field_0 != -1000) {
             for (int animationDescriptionIndex = 0; animationDescriptionIndex < animationSequence->length; animationDescriptionIndex++) {
                 AnimationDescription* animationDescription = &(animationSequence->animations[animationDescriptionIndex]);
-                if (obj == animationDescription->owner && animationDescription->type != 11) {
+                if (obj == animationDescription->owner && animationDescription->kind != 11) {
                     if ((animationSequence->flags & ANIM_SEQ_INSIGNIFICANT) == 0) {
                         return -1;
                     }
@@ -332,7 +332,7 @@ int animationIsBusy(Object* a1)
                     continue;
                 }
 
-                if (animationDescription->type == ANIM_KIND_EXEC) {
+                if (animationDescription->kind == ANIM_KIND_CALLBACK) {
                     continue;
                 }
 
@@ -361,22 +361,22 @@ int animationRegisterMoveToObject(Object* owner, Object* destination, int action
     }
 
     AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_OBJ;
+    animationDescription->kind = ANIM_KIND_MOVE_TO_OBJECT;
     animationDescription->anim = ANIM_WALK;
     animationDescription->owner = owner;
-    animationDescription->destinationObj = destination;
-    animationDescription->field_28 = actionPoints;
+    animationDescription->destination = destination;
+    animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -415,9 +415,9 @@ int animationRegisterRunToObject(Object* owner, Object* destination, int actionP
     }
 
     AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_OBJ;
+    animationDescription->kind = ANIM_KIND_MOVE_TO_OBJECT;
     animationDescription->owner = owner;
-    animationDescription->destinationObj = destination;
+    animationDescription->destination = destination;
 
     if ((owner->fid & 0xF000000) >> 24 == 1 && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY)
         || owner == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING)
@@ -427,19 +427,19 @@ int animationRegisterRunToObject(Object* owner, Object* destination, int actionP
         animationDescription->anim = ANIM_RUNNING;
     }
 
-    animationDescription->field_28 = actionPoints;
+    animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
-    animationDescription->field_2C = NULL;
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    animationDescription->artCacheKey = NULL;
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
     return animationRegisterRotateToTile(owner, destination->tile);
@@ -458,23 +458,23 @@ int animationRegisterMoveToTile(Object* owner, int tile, int elevation, int acti
     }
 
     AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_TILE;
+    animationDescription->kind = ANIM_KIND_MOVE_TO_TILE;
     animationDescription->anim = ANIM_WALK;
     animationDescription->owner = owner;
     animationDescription->tile = tile;
     animationDescription->elevation = elevation;
-    animationDescription->field_28 = actionPoints;
+    animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -515,7 +515,7 @@ int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actio
     }
 
     AnimationDescription* animationDescription = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_OBJ_MOVE_TO_TILE;
+    animationDescription->kind = ANIM_KIND_MOVE_TO_TILE;
     animationDescription->owner = owner;
     animationDescription->tile = tile;
     animationDescription->elevation = elevation;
@@ -528,19 +528,19 @@ int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actio
         animationDescription->anim = ANIM_RUNNING;
     }
 
-    animationDescription->field_28 = actionPoints;
+    animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
-    animationDescription->field_2C = NULL;
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    animationDescription->artCacheKey = NULL;
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -562,22 +562,22 @@ int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation,
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
 
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_2;
+    animationDescription->kind = ANIM_KIND_MOVE_TO_TILE_STRAIGHT;
     animationDescription->owner = object;
     animationDescription->tile = tile;
     animationDescription->elevation = elevation;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((object->fid & 0xF000000) >> 24, object->fid & 0xFFF, animationDescription->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -585,35 +585,35 @@ int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation,
 }
 
 // 0x4146C4
-int reg_anim_knockdown(Object* obj, int tile, int elev, int anim, int delay)
+int reg_anim_knockdown(Object* obj, int tile, int elevation, int anim, int delay)
 {
     if (_check_registry(obj) == -1) {
         _anim_cleanup();
         return -1;
     }
 
-    if (tile == obj->tile && elev == obj->elevation) {
+    if (tile == obj->tile && elevation == obj->elevation) {
         return 0;
     }
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_KNOCKDOWN;
+    animationDescription->kind = ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT;
     animationDescription->owner = obj;
     animationDescription->tile = tile;
-    animationDescription->elevation = elev;
+    animationDescription->elevation = elevation;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, animationDescription->anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -630,20 +630,20 @@ int animationRegisterAnimate(Object* owner, int anim, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_ANIMATE;
+    animationDescription->kind = ANIM_KIND_ANIMATE;
     animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -660,20 +660,20 @@ int animationRegisterAnimateReversed(Object* owner, int anim, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_ANIMATE_REVERSE;
+    animationDescription->kind = ANIM_KIND_ANIMATE_REVERSED;
     animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -690,20 +690,20 @@ int animationRegisterAnimateAndHide(Object* owner, int anim, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_6;
+    animationDescription->kind = ANIM_KIND_ANIMATE_AND_HIDE;
     animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -720,9 +720,9 @@ int animationRegisterRotateToTile(Object* owner, int tile)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_SET_ROTATION_TO_TILE;
+    animationDescription->kind = ANIM_KIND_ROTATE_TO_TILE;
     animationDescription->delay = -1;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = owner;
     animationDescription->tile = tile;
 
@@ -741,9 +741,9 @@ int animationRegisterRotateClockwise(Object* owner)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_ROTATE_CLOCKWISE;
+    animationDescription->kind = ANIM_KIND_ROTATE_CLOCKWISE;
     animationDescription->delay = -1;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = owner;
 
     gAnimationDescriptionCurrentIndex++;
@@ -761,9 +761,9 @@ int animationRegisterRotateCounterClockwise(Object* owner)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_ROTATE_COUNTER_CLOCKWISE;
+    animationDescription->kind = ANIM_KIND_ROTATE_COUNTER_CLOCKWISE;
     animationDescription->delay = -1;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = owner;
 
     gAnimationDescriptionCurrentIndex++;
@@ -783,10 +783,10 @@ int animationRegisterHideObject(Object* object)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_HIDE;
+    animationDescription->kind = ANIM_KIND_HIDE;
     animationDescription->delay = -1;
-    animationDescription->field_2C = NULL;
-    animationDescription->field_24 = 0;
+    animationDescription->artCacheKey = NULL;
+    animationDescription->extendedFlags = 0;
     animationDescription->owner = object;
     gAnimationDescriptionCurrentIndex++;
 
@@ -803,10 +803,10 @@ int animationRegisterHideObjectForced(Object* object)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_HIDE;
+    animationDescription->kind = ANIM_KIND_HIDE;
     animationDescription->delay = -1;
-    animationDescription->field_2C = NULL;
-    animationDescription->field_24 = 1;
+    animationDescription->artCacheKey = NULL;
+    animationDescription->extendedFlags = ANIMATION_SEQUENCE_FORCED;
     animationDescription->owner = object;
     gAnimationDescriptionCurrentIndex++;
 
@@ -814,7 +814,7 @@ int animationRegisterHideObjectForced(Object* object)
 }
 
 // 0x414E98
-int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int delay)
+int animationRegisterCallback(void* a1, void* a2, AnimationCallback* proc, int delay)
 {
     if (_check_registry(NULL) == -1 || proc == NULL) {
         _anim_cleanup();
@@ -823,12 +823,12 @@ int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int d
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_EXEC;
-    animationDescription->field_24 = 0;
-    animationDescription->field_2C = NULL;
-    animationDescription->owner = a2;
-    animationDescription->destinationObj = a1;
-    animationDescription->proc = proc;
+    animationDescription->kind = ANIM_KIND_CALLBACK;
+    animationDescription->extendedFlags = 0;
+    animationDescription->artCacheKey = NULL;
+    animationDescription->param2 = a2;
+    animationDescription->param1 = a1;
+    animationDescription->callback = proc;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
@@ -839,7 +839,7 @@ int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int d
 // Same as `animationRegisterCallback` but accepting 3 parameters.
 //
 // 0x414F20
-int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallback3* proc, int delay)
+int animationRegisterCallback3(void* a1, void* a2, void* a3, AnimationCallback3* proc, int delay)
 {
     if (_check_registry(NULL) == -1 || proc == NULL) {
         _anim_cleanup();
@@ -848,13 +848,13 @@ int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallba
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_EXEC_2;
-    animationDescription->field_24 = 0;
-    animationDescription->field_2C = NULL;
-    animationDescription->owner = a2;
-    animationDescription->destinationObj = a1;
+    animationDescription->kind = ANIM_KIND_CALLBACK3;
+    animationDescription->extendedFlags = 0;
+    animationDescription->artCacheKey = NULL;
+    animationDescription->param2 = a2;
+    animationDescription->param1 = a1;
     animationDescription->callback3 = proc;
-    animationDescription->field_28_void = a3;
+    animationDescription->param3 = a3;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
@@ -863,7 +863,7 @@ int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallba
 }
 
 // 0x414FAC
-int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc, int delay)
+int animationRegisterCallbackForced(void* a1, void* a2, AnimationCallback* proc, int delay)
 {
     if (_check_registry(NULL) == -1 || proc == NULL) {
         _anim_cleanup();
@@ -872,12 +872,12 @@ int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc,
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_EXEC;
-    animationDescription->field_24 = 1;
-    animationDescription->field_2C = NULL;
-    animationDescription->owner = a2;
-    animationDescription->destinationObj = a1;
-    animationDescription->proc = proc;
+    animationDescription->kind = ANIM_KIND_CALLBACK;
+    animationDescription->extendedFlags = ANIMATION_SEQUENCE_FORCED;
+    animationDescription->artCacheKey = NULL;
+    animationDescription->param2 = a2;
+    animationDescription->param1 = a1;
+    animationDescription->callback = proc;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
@@ -901,10 +901,10 @@ int animationRegisterSetFlag(Object* object, int flag, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_14;
-    animationDescription->field_2C = NULL;
+    animationDescription->kind = ANIM_KIND_SET_FLAG;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = object;
-    animationDescription->field_24 = flag;
+    animationDescription->objectFlag = flag;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
@@ -926,10 +926,10 @@ int animationRegisterUnsetFlag(Object* object, int flag, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_15;
-    animationDescription->field_2C = NULL;
+    animationDescription->kind = ANIM_KIND_UNSET_FLAG;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = object;
-    animationDescription->field_24 = flag;
+    animationDescription->objectFlag = flag;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
@@ -947,19 +947,19 @@ int animationRegisterSetFid(Object* owner, int fid, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_17;
+    animationDescription->kind = ANIM_KIND_SET_FID;
     animationDescription->owner = owner;
     animationDescription->fid = fid;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -981,20 +981,20 @@ int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int d
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_18;
+    animationDescription->kind = ANIM_KIND_TAKE_OUT_WEAPON;
     animationDescription->anim = ANIM_TAKE_OUT;
     animationDescription->delay = 0;
     animationDescription->owner = owner;
     animationDescription->weaponAnimationCode = weaponAnimationCode;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -1011,8 +1011,8 @@ int animationRegisterSetLightDistance(Object* owner, int lightDistance, int dela
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_19;
-    animationDescription->field_2C = NULL;
+    animationDescription->kind = ANIM_KIND_SET_LIGHT_DISTANCE;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = owner;
     animationDescription->lightDistance = lightDistance;
     animationDescription->delay = delay;
@@ -1034,8 +1034,8 @@ int animationRegisterToggleOutline(Object* object, bool outline, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_24;
-    animationDescription->field_2C = NULL;
+    animationDescription->kind = ANIM_KIND_TOGGLE_OUTLINE;
+    animationDescription->artCacheKey = NULL;
     animationDescription->owner = object;
     animationDescription->outline = outline;
     animationDescription->delay = delay;
@@ -1055,21 +1055,21 @@ int animationRegisterPlaySoundEffect(Object* owner, const char* soundEffectName,
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_EXEC;
+    animationDescription->kind = ANIM_KIND_CALLBACK;
     animationDescription->owner = owner;
     if (soundEffectName != NULL) {
         int volume = _gsound_compute_relative_volume(owner);
-        animationDescription->sound = soundEffectLoadWithVolume(soundEffectName, owner, volume);
-        if (animationDescription->sound != NULL) {
-            animationDescription->soundProc = _gsnd_anim_sound;
+        animationDescription->param1 = soundEffectLoadWithVolume(soundEffectName, owner, volume);
+        if (animationDescription->param1 != NULL) {
+            animationDescription->callback = _gsnd_anim_sound;
         } else {
-            animationDescription->type = ANIM_KIND_28;
+            animationDescription->kind = ANIM_KIND_NOOP;
         }
     } else {
-        animationDescription->type = ANIM_KIND_28;
+        animationDescription->kind = ANIM_KIND_NOOP;
     }
 
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
     animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
@@ -1087,20 +1087,20 @@ int animationRegisterAnimateForever(Object* owner, int anim, int delay)
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->type = ANIM_KIND_ANIMATE_FOREVER;
+    animationDescription->kind = ANIM_KIND_ANIMATE_FOREVER;
     animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->field_2C = NULL;
+    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->field_2C)) == NULL) {
+    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
     }
 
-    artUnlock(animationDescription->field_2C);
-    animationDescription->field_2C = NULL;
+    artUnlock(animationDescription->artCacheKey);
+    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -1110,27 +1110,25 @@ int animationRegisterAnimateForever(Object* owner, int anim, int delay)
 // 0x415598
 int reg_anim_26(int a1, int delay)
 {
-    AnimationDescription* ptr;
-    int v5;
-
     if (_check_registry(NULL) == -1) {
         _anim_cleanup();
         return -1;
     }
 
-    v5 = _anim_free_slot(a1 | ANIMATION_REQUEST_0x100);
-    if (v5 == -1) {
+    int animationSequenceIndex = _anim_free_slot(a1 | ANIMATION_REQUEST_0x100);
+    if (animationSequenceIndex == -1) {
         return -1;
     }
 
-    gAnimationSequences[v5].flags = ANIM_SEQ_0x10;
+    gAnimationSequences[animationSequenceIndex].flags = ANIM_SEQ_0x10;
 
-    ptr = &(gAnimationSequences[gAnimationSequenceCurrentIndex].animations[gAnimationDescriptionCurrentIndex]);
-    ptr->owner = NULL;
-    ptr->type = ANIM_KIND_26;
-    ptr->field_2C = NULL;
-    ptr->field_28 = v5;
-    ptr->delay = delay;
+    AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
+    AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->owner = NULL;
+    animationDescription->kind = ANIM_KIND_26;
+    animationDescription->artCacheKey = NULL;
+    animationDescription->animationSequenceIndex = animationSequenceIndex;
+    animationDescription->delay = delay;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -1170,26 +1168,26 @@ int animationRunSequence(int animationSequenceIndex)
 
         int rc;
         Rect rect;
-        switch (animationDescription->type) {
-        case ANIM_KIND_OBJ_MOVE_TO_OBJ:
-            rc = animateMoveObjectToObject(animationDescription->owner, animationDescription->destinationObj, animationDescription->field_28, animationDescription->anim, animationSequenceIndex);
+        switch (animationDescription->kind) {
+        case ANIM_KIND_MOVE_TO_OBJECT:
+            rc = animateMoveObjectToObject(animationDescription->owner, animationDescription->destination, animationDescription->actionPoints, animationDescription->anim, animationSequenceIndex);
             break;
-        case ANIM_KIND_OBJ_MOVE_TO_TILE:
-            rc = animateMoveObjectToTile(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->field_28, animationDescription->anim, animationSequenceIndex);
+        case ANIM_KIND_MOVE_TO_TILE:
+            rc = animateMoveObjectToTile(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->actionPoints, animationDescription->anim, animationSequenceIndex);
             break;
-        case ANIM_KIND_2:
-            rc = _anim_move_straight_to_tile(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex, 0);
+        case ANIM_KIND_MOVE_TO_TILE_STRAIGHT:
+            rc = animateMoveObjectToTileStraight(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_KNOCKDOWN:
-            rc = _anim_move_straight_to_tile(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex, ANIM_SAD_WAIT_FOR_COMPLETION);
+        case ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT:
+            rc = animateMoveObjectToTileStraight(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex, ANIM_SAD_WAIT_FOR_COMPLETION);
             break;
         case ANIM_KIND_ANIMATE:
             rc = _anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_ANIMATE_REVERSE:
+        case ANIM_KIND_ANIMATE_REVERSED:
             rc = _anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, ANIM_SAD_REVERSE);
             break;
-        case ANIM_KIND_6:
+        case ANIM_KIND_ANIMATE_AND_HIDE:
             rc = _anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, ANIM_SAD_HIDE_ON_END);
             if (rc == -1) {
                 Rect rect;
@@ -1206,7 +1204,7 @@ int animationRunSequence(int animationSequenceIndex)
         case ANIM_KIND_ANIMATE_FOREVER:
             rc = _anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, ANIM_SAD_FOREVER);
             break;
-        case ANIM_KIND_SET_ROTATION_TO_TILE:
+        case ANIM_KIND_ROTATE_TO_TILE:
             if (!_critter_is_prone(animationDescription->owner)) {
                 int rotation = tileGetRotationTo(animationDescription->owner->tile, animationDescription->tile);
                 _dude_stand(animationDescription->owner, rotation, -1);
@@ -1229,61 +1227,61 @@ int animationRunSequence(int animationSequenceIndex)
             }
             rc = 0;
             break;
-        case ANIM_KIND_EXEC:
-            rc = animationDescription->proc(animationDescription->destinationObj, animationDescription->owner);
+        case ANIM_KIND_CALLBACK:
+            rc = animationDescription->callback(animationDescription->param1, animationDescription->param2);
             if (rc == 0) {
                 rc = _anim_set_continue(animationSequenceIndex, 0);
             }
             break;
-        case ANIM_KIND_EXEC_2:
-            rc = animationDescription->callback3(animationDescription->destinationObj, animationDescription->owner, animationDescription->field_28_obj);
+        case ANIM_KIND_CALLBACK3:
+            rc = animationDescription->callback3(animationDescription->param1, animationDescription->param2, animationDescription->param3);
             if (rc == 0) {
                 rc = _anim_set_continue(animationSequenceIndex, 0);
             }
             break;
-        case ANIM_KIND_14:
-            if (animationDescription->field_24 == 32) {
+        case ANIM_KIND_SET_FLAG:
+            if (animationDescription->objectFlag == OBJECT_LIGHTING) {
                 if (_obj_turn_on_light(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
-            } else if (animationDescription->field_24 == 1) {
+            } else if (animationDescription->objectFlag == OBJECT_HIDDEN) {
                 if (objectHide(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else {
-                animationDescription->owner->flags |= animationDescription->field_24;
+                animationDescription->owner->flags |= animationDescription->objectFlag;
             }
 
             rc = _anim_set_continue(animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_15:
-            if (animationDescription->field_24 == 32) {
+        case ANIM_KIND_UNSET_FLAG:
+            if (animationDescription->objectFlag == OBJECT_LIGHTING) {
                 if (_obj_turn_off_light(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
-            } else if (animationDescription->field_24 == 1) {
+            } else if (animationDescription->objectFlag == OBJECT_HIDDEN) {
                 if (objectShow(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else {
-                animationDescription->owner->flags &= ~animationDescription->field_24;
+                animationDescription->owner->flags &= ~animationDescription->objectFlag;
             }
 
             rc = _anim_set_continue(animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_16:
+        case ANIM_KIND_TOGGLE_FLAT:
             if (_obj_toggle_flat(animationDescription->owner, &rect) == 0) {
                 tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
             }
             rc = _anim_set_continue(animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_17:
+        case ANIM_KIND_SET_FID:
             rc = _anim_change_fid(animationDescription->owner, animationSequenceIndex, animationDescription->fid);
             break;
-        case ANIM_KIND_18:
+        case ANIM_KIND_TAKE_OUT_WEAPON:
             rc = _anim_animate(animationDescription->owner, ANIM_TAKE_OUT, animationSequenceIndex, animationDescription->tile);
             break;
-        case ANIM_KIND_19:
+        case ANIM_KIND_SET_LIGHT_DISTANCE:
             objectSetLight(animationDescription->owner, animationDescription->lightDistance, animationDescription->owner->lightIntensity, &rect);
             tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
             rc = _anim_set_continue(animationSequenceIndex, 0);
@@ -1294,7 +1292,7 @@ int animationRunSequence(int animationSequenceIndex)
         case ANIM_KIND_23:
             rc = _check_for_falling(animationDescription->owner, animationDescription->anim, animationSequenceIndex);
             break;
-        case ANIM_KIND_24:
+        case ANIM_KIND_TOGGLE_OUTLINE:
             if (animationDescription->outline) {
                 if (objectEnableOutline(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
@@ -1307,13 +1305,13 @@ int animationRunSequence(int animationSequenceIndex)
             rc = _anim_set_continue(animationSequenceIndex, 0);
             break;
         case ANIM_KIND_26:
-            gAnimationSequences[animationDescription->field_28].flags &= ~ANIM_SEQ_0x10;
-            rc = _anim_set_continue(animationDescription->field_28, 1);
+            gAnimationSequences[animationDescription->animationSequenceIndex].flags &= ~ANIM_SEQ_0x10;
+            rc = _anim_set_continue(animationDescription->animationSequenceIndex, 1);
             if (rc != -1) {
                 rc = _anim_set_continue(animationSequenceIndex, 0);
             }
             break;
-        case ANIM_KIND_28:
+        case ANIM_KIND_NOOP:
             rc = _anim_set_continue(animationSequenceIndex, 0);
             break;
         default:
@@ -1381,7 +1379,7 @@ int _anim_set_end(int animationSequenceIndex)
 
     for (i = 0; i < animationSequence->length; i++) {
         animationDescription = &(animationSequence->animations[i]);
-        if (animationDescription->type == ANIM_KIND_HIDE && ((i < animationSequence->animationIndex) || (animationDescription->field_24 & 0x01))) {
+        if (animationDescription->kind == ANIM_KIND_HIDE && ((i < animationSequence->animationIndex) || (animationDescription->extendedFlags & ANIMATION_SEQUENCE_FORCED))) {
             objectDestroy(animationDescription->owner, &v27);
             tileWindowRefreshRect(&v27, animationDescription->owner->elevation);
         }
@@ -1389,20 +1387,20 @@ int _anim_set_end(int animationSequenceIndex)
 
     for (i = 0; i < animationSequence->length; i++) {
         animationDescription = &(animationSequence->animations[i]);
-        if (animationDescription->field_2C) {
-            artUnlock(animationDescription->field_2C);
+        if (animationDescription->artCacheKey) {
+            artUnlock(animationDescription->artCacheKey);
         }
 
-        if (animationDescription->type != 11 && animationDescription->type != 12) {
+        if (animationDescription->kind != 11 && animationDescription->kind != 12) {
             // TODO: Check.
-            if (animationDescription->type != ANIM_KIND_26) {
+            if (animationDescription->kind != ANIM_KIND_26) {
                 Object* owner = animationDescription->owner;
                 if (((owner->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
                     int j = 0;
                     for (; j < i; j++) {
                         AnimationDescription* ad = &(animationSequence->animations[j]);
                         if (owner == ad->owner) {
-                            if (ad->type != 11 && ad->type != 12) {
+                            if (ad->kind != ANIM_KIND_CALLBACK && ad->kind != ANIM_KIND_CALLBACK3) {
                                 break;
                             }
                         }
@@ -1412,7 +1410,7 @@ int _anim_set_end(int animationSequenceIndex)
                         int k = 0;
                         for (; k < animationSequence->animationIndex; k++) {
                             AnimationDescription* ad = &(animationSequence->animations[k]);
-                            if (ad->type == 10 && ad->owner == owner) {
+                            if (ad->kind == ANIM_KIND_HIDE && ad->owner == owner) {
                                 break;
                             }
                         }
@@ -1433,11 +1431,11 @@ int _anim_set_end(int animationSequenceIndex)
                 }
             }
         } else if (i >= animationSequence->field_0) {
-            if (animationDescription->field_24 & 0x01) {
-                animationDescription->proc(animationDescription->destinationObj, animationDescription->owner);
+            if (animationDescription->extendedFlags & ANIMATION_SEQUENCE_FORCED) {
+                animationDescription->callback(animationDescription->param1, animationDescription->param2);
             } else {
-                if (animationDescription->type == ANIM_KIND_EXEC && animationDescription->soundProc == _gsnd_anim_sound) {
-                    soundEffectDelete(animationDescription->sound);
+                if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == _gsnd_anim_sound) {
+                    soundEffectDelete(animationDescription->param1);
                 }
             }
         }
@@ -2033,7 +2031,7 @@ int _anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, int an
 }
 
 // 0x416F54
-int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags)
+int animateMoveObjectToTileStraight(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags)
 {
     if (gAnimationCurrentSad == ANIMATION_SAD_LIST_CAPACITY) {
         return -1;

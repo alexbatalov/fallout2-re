@@ -3065,7 +3065,7 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
     strncpy(string, messageListItem.text, 259);
 
     // TODO: Get rid of casts.
-    return animationRegisterCallback(a1, (Object*)type, (AnimationProc*)_ai_print_msg, delay);
+    return animationRegisterCallback(a1, (void*)type, (AnimationCallback*)_ai_print_msg, delay);
 }
 
 // 0x42B80C

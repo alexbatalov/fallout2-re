@@ -4,7 +4,6 @@
 #include "art.h"
 #include "combat_defs.h"
 #include "obj_types.h"
-#include "sound.h"
 
 #include <stdbool.h>
 
@@ -12,34 +11,36 @@
 #define ANIMATION_DESCRIPTION_LIST_CAPACITY 55
 #define ANIMATION_SAD_LIST_CAPACITY 24
 
-typedef enum AnimKind {
-    ANIM_KIND_OBJ_MOVE_TO_OBJ = 0,
-    ANIM_KIND_OBJ_MOVE_TO_TILE = 1,
-    ANIM_KIND_2 = 2,
-    ANIM_KIND_KNOCKDOWN = 3,
+#define ANIMATION_SEQUENCE_FORCED 0x01
+
+typedef enum AnimationKind {
+    ANIM_KIND_MOVE_TO_OBJECT = 0,
+    ANIM_KIND_MOVE_TO_TILE = 1,
+    ANIM_KIND_MOVE_TO_TILE_STRAIGHT = 2,
+    ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT = 3,
     ANIM_KIND_ANIMATE = 4,
-    ANIM_KIND_ANIMATE_REVERSE = 5,
-    ANIM_KIND_6 = 6,
-    ANIM_KIND_SET_ROTATION_TO_TILE = 7,
+    ANIM_KIND_ANIMATE_REVERSED = 5,
+    ANIM_KIND_ANIMATE_AND_HIDE = 6,
+    ANIM_KIND_ROTATE_TO_TILE = 7,
     ANIM_KIND_ROTATE_CLOCKWISE = 8,
     ANIM_KIND_ROTATE_COUNTER_CLOCKWISE = 9,
     ANIM_KIND_HIDE = 10,
-    ANIM_KIND_EXEC = 11,
-    ANIM_KIND_EXEC_2 = 12,
-    ANIM_KIND_14 = 14,
-    ANIM_KIND_15 = 15,
-    ANIM_KIND_16 = 16,
-    ANIM_KIND_17 = 17,
-    ANIM_KIND_18 = 18,
-    ANIM_KIND_19 = 19,
+    ANIM_KIND_CALLBACK = 11,
+    ANIM_KIND_CALLBACK3 = 12,
+    ANIM_KIND_SET_FLAG = 14,
+    ANIM_KIND_UNSET_FLAG = 15,
+    ANIM_KIND_TOGGLE_FLAT = 16,
+    ANIM_KIND_SET_FID = 17,
+    ANIM_KIND_TAKE_OUT_WEAPON = 18,
+    ANIM_KIND_SET_LIGHT_DISTANCE = 19,
     ANIM_KIND_20 = 20,
     ANIM_KIND_23 = 23,
-    ANIM_KIND_24 = 24,
+    ANIM_KIND_TOGGLE_OUTLINE = 24,
     ANIM_KIND_ANIMATE_FOREVER = 25,
     ANIM_KIND_26 = 26,
     ANIM_KIND_27 = 27,
-    ANIM_KIND_28 = 28,
-} AnimKind;
+    ANIM_KIND_NOOP = 28,
+} AnimationKind;
 
 typedef enum AnimationRequestOptions {
     ANIMATION_REQUEST_UNRESERVED = 0x01,
@@ -191,41 +192,81 @@ typedef enum AnimationType {
     LAST_SF_DEATH_ANIM = ANIM_FALL_FRONT_BLOOD_SF,
 } AnimationType;
 
-typedef int AnimationProc(Object*, Object*);
-typedef int AnimationSoundProc(Sound*);
+// Signature of animation callback accepting 2 parameters.
+typedef int AnimationCallback(void*, void*);
 
 // Signature of animation callback accepting 3 parameters.
-typedef int AnimationCallback3(Object*, Object*, void*);
+typedef int AnimationCallback3(void*, void*, void*);
 
 typedef struct AnimationDescription {
-    int type;
-    Object* owner;
+    int kind;
     union {
-        Object* destinationObj;
-        Sound* sound;
+        Object* owner;
+
+        // - ANIM_KIND_CALLBACK
+        // - ANIM_KIND_CALLBACK3
+        void* param2;
+    };
+
+    union {
+        // - ANIM_KIND_MOVE_TO_OBJECT
+        Object* destination;
+
+        // - ANIM_KIND_CALLBACK
+        void* param1;
     };
     union {
-        int tile;
-        int fid; // for type == 17
-        int weaponAnimationCode; // for type == 18
-        int lightDistance; // for type == 19
-        bool outline; // for type == 24
+        // - ANIM_KIND_MOVE_TO_TILE
+        // - ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT
+        // - ANIM_KIND_MOVE_TO_TILE_STRAIGHT
+        struct {
+            int tile;
+            int elevation;
+        };
+
+        // ANIM_KIND_SET_FID
+        int fid;
+
+        // ANIM_KIND_TAKE_OUT_WEAPON
+        int weaponAnimationCode;
+        
+        // ANIM_KIND_SET_LIGHT_DISTANCE
+        int lightDistance;
+
+        // ANIM_KIND_TOGGLE_OUTLINE
+        bool outline;
     };
-    int elevation;
-    int anim; // anim
-    int delay; // delay
-    union {
-        AnimationProc* proc;
-        AnimationSoundProc* soundProc;
-    };
+    int anim;
+    int delay;
+    
+    // ANIM_KIND_CALLBACK
+    AnimationCallback* callback;
+
+    // ANIM_KIND_CALLBACK3
     AnimationCallback3* callback3;
-    int field_24;
+
     union {
-        int field_28; // actionPoints
-        Object* field_28_obj; // obj in type == 12
-        void* field_28_void;
+        // - ANIM_KIND_SET_FLAG
+        // - ANIM_KIND_UNSET_FLAG
+        unsigned int objectFlag;
+
+        // - ANIM_KIND_HIDE
+        // - ANIM_KIND_CALLBACK
+        unsigned int extendedFlags;
     };
-    CacheEntry* field_2C;
+
+    union {
+        // - ANIM_KIND_MOVE_TO_TILE
+        // - ANIM_KIND_MOVE_TO_OBJECT
+        int actionPoints;
+        
+        // ANIM_KIND_26
+        int animationSequenceIndex;
+
+        // ANIM_KIND_CALLBACK3
+        void* param3;
+    };
+    CacheEntry* artCacheKey;
 } AnimationDescription;
 
 typedef struct AnimationSequence {
@@ -326,9 +367,9 @@ int animationRegisterRotateClockwise(Object* owner);
 int animationRegisterRotateCounterClockwise(Object* owner);
 int animationRegisterHideObject(Object* object);
 int animationRegisterHideObjectForced(Object* object);
-int animationRegisterCallback(Object* a1, Object* a2, AnimationProc* proc, int delay);
-int animationRegisterCallback3(Object* a1, Object* a2, void* a3, AnimationCallback3* proc, int delay);
-int animationRegisterCallbackForced(Object* a1, Object* a2, AnimationProc* proc, int delay);
+int animationRegisterCallback(void* a1, void* a2, AnimationCallback* proc, int delay);
+int animationRegisterCallback3(void* a1, void* a2, void* a3, AnimationCallback3* proc, int delay);
+int animationRegisterCallbackForced(void* a1, void* a2, AnimationCallback* proc, int delay);
 int animationRegisterSetFlag(Object* object, int flag, int delay);
 int animationRegisterUnsetFlag(Object* object, int flag, int delay);
 int animationRegisterSetFid(Object* owner, int fid, int delay);
@@ -351,7 +392,7 @@ int _make_straight_path_func(Object* a1, int from, int to, STRUCT_530014_28* a4,
 int animateMoveObjectToObject(Object* from, Object* to, int a3, int anim, int animationSequenceIndex);
 int animateMoveObjectToTile(Object* obj, int tile_num, int elev, int a4, int anim, int animationSequenceIndex);
 int _anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, int animationSequenceIndex);
-int _anim_move_straight_to_tile(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags);
+int animateMoveObjectToTileStraight(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex, int flags);
 int _anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int animationSequenceIndex);
 int _check_for_falling(Object* obj, int anim, int a3);
 void _object_move(int index);
