@@ -1111,3 +1111,20 @@ int artWriteFrameData(unsigned char* data, File* stream, int count)
 
     return 0;
 }
+
+// NOTE: Unused.
+//
+// 0x41A138
+int artWriteHeader(Art* art, File* stream)
+{
+    if (fileWriteInt32(stream, art->field_0) == -1) return -1;
+    if (fileWriteInt16(stream, art->framesPerSecond) == -1) return -1;
+    if (fileWriteInt16(stream, art->actionFrame) == -1) return -1;
+    if (fileWriteInt16(stream, art->frameCount) == -1) return -1;
+    if (fileWriteInt16List(stream, art->xOffsets, ROTATION_COUNT) == -1) return -1;
+    if (fileWriteInt16List(stream, art->yOffsets, ROTATION_COUNT) == -1) return -1;
+    if (fileWriteInt32List(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
+    if (fileWriteInt32(stream, art->field_3A) == -1) return -1;
+
+    return 0;
+}

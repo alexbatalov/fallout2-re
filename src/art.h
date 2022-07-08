@@ -182,5 +182,6 @@ int artReadFrameData(unsigned char* data, File* stream, int count);
 int artReadHeader(Art* art, File* stream);
 int artRead(const char* path, unsigned char* data);
 int artWriteFrameData(unsigned char* data, File* stream, int count);
+int artWriteHeader(Art* art, File* stream);
 
 #endif
