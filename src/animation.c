@@ -585,28 +585,28 @@ int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation,
 }
 
 // 0x4146C4
-int reg_anim_knockdown(Object* obj, int tile, int elevation, int anim, int delay)
+int animationRegisterMoveToTileStraightAndWaitForComplete(Object* owner, int tile, int elevation, int anim, int delay)
 {
-    if (_check_registry(obj) == -1) {
+    if (_check_registry(owner) == -1) {
         _anim_cleanup();
         return -1;
     }
 
-    if (tile == obj->tile && elevation == obj->elevation) {
+    if (tile == owner->tile && elevation == owner->elevation) {
         return 0;
     }
 
     AnimationSequence* animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
     AnimationDescription* animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
-    animationDescription->kind = ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT;
-    animationDescription->owner = obj;
+    animationDescription->kind = ANIM_KIND_MOVE_TO_TILE_STRAIGHT_AND_WAIT_FOR_COMPLETE;
+    animationDescription->owner = owner;
     animationDescription->tile = tile;
     animationDescription->elevation = elevation;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
     animationDescription->artCacheKey = NULL;
 
-    int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, animationDescription->anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    int fid = buildFid((owner->fid & 0xF000000) >> 24, owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
     if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
         _anim_cleanup();
         return -1;
@@ -1178,7 +1178,7 @@ int animationRunSequence(int animationSequenceIndex)
         case ANIM_KIND_MOVE_TO_TILE_STRAIGHT:
             rc = animateMoveObjectToTileStraight(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT:
+        case ANIM_KIND_MOVE_TO_TILE_STRAIGHT_AND_WAIT_FOR_COMPLETE:
             rc = animateMoveObjectToTileStraight(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex, ANIM_SAD_WAIT_FOR_COMPLETION);
             break;
         case ANIM_KIND_ANIMATE:

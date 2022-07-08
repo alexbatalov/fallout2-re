@@ -91,7 +91,7 @@ int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int d
         animationRegisterAnimate(obj, *anim, 0);
     } else {
         tile = tileGetTileInDirection(obj->tile, rotation, distance);
-        reg_anim_knockdown(obj, tile, obj->elevation, *anim, 0);
+        animationRegisterMoveToTileStraightAndWaitForComplete(obj, tile, obj->elevation, *anim, 0);
     }
 
     return tile;

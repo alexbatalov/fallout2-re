@@ -17,7 +17,7 @@ typedef enum AnimationKind {
     ANIM_KIND_MOVE_TO_OBJECT = 0,
     ANIM_KIND_MOVE_TO_TILE = 1,
     ANIM_KIND_MOVE_TO_TILE_STRAIGHT = 2,
-    ANIM_KIND_ANIMATE_AND_MOVE_TO_TILE_STRAIGHT = 3,
+    ANIM_KIND_MOVE_TO_TILE_STRAIGHT_AND_WAIT_FOR_COMPLETE = 3,
     ANIM_KIND_ANIMATE = 4,
     ANIM_KIND_ANIMATE_REVERSED = 5,
     ANIM_KIND_ANIMATE_AND_HIDE = 6,
@@ -358,7 +358,7 @@ int animationRegisterRunToObject(Object* owner, Object* destination, int actionP
 int animationRegisterMoveToTile(Object* owner, int tile, int elevation, int actionPoints, int delay);
 int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actionPoints, int delay);
 int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay);
-int reg_anim_knockdown(Object* obj, int tile, int elev, int anim, int delay);
+int animationRegisterMoveToTileStraightAndWaitForComplete(Object* owner, int tile, int elev, int anim, int delay);
 int animationRegisterAnimate(Object* owner, int anim, int delay);
 int animationRegisterAnimateReversed(Object* owner, int anim, int delay);
 int animationRegisterAnimateAndHide(Object* owner, int anim, int delay);
