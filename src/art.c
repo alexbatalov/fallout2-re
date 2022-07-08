@@ -1128,3 +1128,36 @@ int artWriteHeader(Art* art, File* stream)
 
     return 0;
 }
+
+// NOTE: Unused.
+//
+// 0x41A1E8
+int artWrite(const char* path, unsigned char* data)
+{
+    if (data == NULL) {
+        return -1;
+    }
+
+    File* stream = fileOpen(path, "wb");
+    if (stream == NULL) {
+        return -1;
+    }
+
+    Art* art = (Art*)data;
+    if (artWriteHeader(art, stream) == -1) {
+        fileClose(stream);
+        return -1;
+    }
+
+    for (int index = 0; index < ROTATION_COUNT; index++) {
+        if (index == 0 || art->dataOffsets[index - 1] != art->dataOffsets[index]) {
+            if (artWriteFrameData(data + sizeof(Art) + art->dataOffsets[index], stream, art->frameCount) != 0) {
+                fileClose(stream);
+                return -1;
+            }
+        }
+    }
+
+    fileClose(stream);
+    return 0;
+}
