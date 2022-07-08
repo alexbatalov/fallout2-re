@@ -879,44 +879,39 @@ int artAliasFid(int fid)
 // 0x419A78
 int artCacheGetFileSizeImpl(int fid, int* sizePtr)
 {
-    int v4;
-    char* str;
-    char* ptr;
-    int result;
-    char path[MAX_PATH];
-    bool loaded;
-    int fileSize;
-
-    v4 = -1;
-    result = -1;
+    int oldDb = -1;
+    int result = -1;
 
     if ((fid & 0xF000000) >> 24 == 1) {
-        v4 = _db_current(1);
-        // _db_current(_critter_db_handle);
-        _db_current(0);
+        oldDb = _db_current(1);
+        _db_current(_critter_db_handle);
     }
 
-    str = artBuildFilePath(fid);
-    if (str != NULL) {
-        loaded = false;
+    char* artFilePath = artBuildFilePath(fid);
+    if (artFilePath != NULL) {
+        int fileSize;
+        bool loaded = false;
+
         if (gArtLanguageInitialized) {
-            ptr = str;
-            while (*ptr != '\0' && *ptr != '\\') {
-                ptr++;
+            char* pch = artFilePath;
+            while (*pch != '\0' && *pch != '\\') {
+                pch++;
             }
 
-            if (*ptr == '\0') {
-                ptr = str;
+            if (*pch == '\0') {
+                pch = artFilePath;
             }
 
-            sprintf(path, "art\\%s\\%s", gArtLanguage, ptr);
-            if (dbGetFileSize(path, &fileSize) == 0) {
+            char localizedPath[MAX_PATH];
+            sprintf(localizedPath, "art\\%s\\%s", gArtLanguage, pch);
+
+            if (dbGetFileSize(localizedPath, &fileSize) == 0) {
                 loaded = true;
             }
         }
 
         if (!loaded) {
-            if (dbGetFileSize(str, &fileSize) == 0) {
+            if (dbGetFileSize(artFilePath, &fileSize) == 0) {
                 loaded = true;
             }
         }
@@ -927,8 +922,8 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
         }
     }
 
-    if (v4 != -1) {
-        _db_current(v4);
+    if (oldDb != -1) {
+        _db_current(oldDb);
     }
 
     return result;
