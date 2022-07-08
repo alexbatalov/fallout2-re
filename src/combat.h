@@ -87,7 +87,7 @@ int _shoot_along_path(Attack* attack, int a2, int a3, int anim);
 int _compute_spray(Attack* attack, int accuracy, int* a3, int* a4, int anim);
 int attackComputeEnhancedKnockout(Attack* attack);
 int attackCompute(Attack* attack);
-void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4);
+void _compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4);
 int attackComputeCriticalHit(Attack* a1);
 int _attackFindInvalidFlags(Object* a1, Object* a2);
 int attackComputeCriticalFailure(Attack* attack);

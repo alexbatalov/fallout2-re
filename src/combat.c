@@ -3770,7 +3770,7 @@ int attackCompute(Attack* attack)
 
 // compute_explosion_on_extras
 // 0x423C10
-void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
+void _compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
 {
     Object* attacker;
 
@@ -3813,9 +3813,9 @@ void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
             }
         } else {
             v22++;
-            if (a3 && _item_w_grenade_dmg_radius(attack->weapon) < v22) {
+            if (isGrenade && _item_w_grenade_dmg_radius(attack->weapon) < v22) {
                 v5 = -1;
-            } else if (a3 || _item_w_rocket_dmg_radius(attack->weapon) >= v22) {
+            } else if (isGrenade || _item_w_rocket_dmg_radius(attack->weapon) >= v22) {
                 v5 = tileGetTileInDirection(v19, ROTATION_NE, 1);
             } else {
                 v5 = -1;
@@ -3830,13 +3830,13 @@ void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
             break;
         }
 
-        Object* v11 = _obj_blocking_at(attacker, v5, attack->attacker->elevation);
-        if (v11 != NULL
-            && (v11->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER
-            && (v11->data.critter.combat.results & DAM_DEAD) == 0
-            && (v11->flags & OBJECT_SHOOT_THRU) == 0
-            && !_combat_is_shot_blocked(v11, v11->tile, tile, NULL, NULL)) {
-            if (v11 == attack->attacker) {
+        Object* obstacle = _obj_blocking_at(attacker, v5, attack->attacker->elevation);
+        if (obstacle != NULL
+            && (obstacle->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER
+            && (obstacle->data.critter.combat.results & DAM_DEAD) == 0
+            && (obstacle->flags & OBJECT_SHOOT_THRU) == 0
+            && !_combat_is_shot_blocked(obstacle, obstacle->tile, tile, NULL, NULL)) {
+            if (obstacle == attack->attacker) {
                 attack->attackerFlags &= ~DAM_HIT;
                 attackComputeDamage(attack, 1, 2);
                 attack->attackerFlags |= DAM_HIT;
@@ -3844,15 +3844,15 @@ void _compute_explosion_on_extras(Attack* attack, int a2, int a3, int a4)
             } else {
                 int index;
                 for (index = 0; index < attack->extrasLength; index++) {
-                    if (attack->extras[index] == v11) {
+                    if (attack->extras[index] == obstacle) {
                         break;
                     }
                 }
 
                 if (index == attack->extrasLength) {
                     attack->extrasHitLocation[index] = HIT_LOCATION_TORSO;
-                    attack->extras[index] = v11;
-                    attackInit(&_explosion_ctd, attack->attacker, v11, attack->hitMode, HIT_LOCATION_TORSO);
+                    attack->extras[index] = obstacle;
+                    attackInit(&_explosion_ctd, attack->attacker, obstacle, attack->hitMode, HIT_LOCATION_TORSO);
                     if (!a4) {
                         _explosion_ctd.attackerFlags |= DAM_HIT;
                         attackComputeDamage(&_explosion_ctd, 1, 2);
