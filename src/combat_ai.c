@@ -1622,7 +1622,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
         avgDamage1 = (maxDamage - minDamage) / 2;
         if (_item_w_area_damage_radius(weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
             attack.weapon = weapon1;
-            _compute_explosion_on_extras(&attack, 0, _item_w_is_grenade(weapon1), 1);
+            _compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon1), 1);
             avgDamage1 *= attack.extrasLength + 1;
         }
 
@@ -1666,7 +1666,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
         avgDamage2 = (maxDamage - minDamage) / 2;
         if (_item_w_area_damage_radius(weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
             attack.weapon = weapon2;
-            _compute_explosion_on_extras(&attack, 0, _item_w_is_grenade(weapon2), 1);
+            _compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon2), 1);
             avgDamage2 *= attack.extrasLength + 1;
         }
 

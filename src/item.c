@@ -1904,14 +1904,10 @@ int _item_w_compute_ammo_cost(Object* obj, int* inout_a2)
     return 0;
 }
 
-// Returns true if weapon's damage is explosion, plasma, or emp.
-// Probably checks if weapon is granade.
-//
 // 0x4790E8
-bool _item_w_is_grenade(Object* weapon)
+bool weaponIsGrenade(Object* weapon)
 {
     int damageType = weaponGetDamageType(NULL, weapon);
-
     return damageType == DAMAGE_TYPE_EXPLOSION || damageType == DAMAGE_TYPE_PLASMA || damageType == DAMAGE_TYPE_EMP;
 }
 
@@ -1930,7 +1926,7 @@ int _item_w_area_damage_radius(Object* weapon, int hitMode)
         }
     } else if (attackType == ATTACK_TYPE_THROW) {
         // NOTE: Uninline.
-        if (_item_w_is_grenade(weapon)) {
+        if (weaponIsGrenade(weapon)) {
             // NOTE: Uninline.
             v1 = _item_w_grenade_dmg_radius(weapon);
         }

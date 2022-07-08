@@ -1357,9 +1357,7 @@ char* sfxBuildWeaponName(int effectType, Object* weapon, int hitMode, Object* ta
         v6 = 1;
     }
 
-    int damageType = weaponGetDamageType(NULL, weapon);
-    // TODO: Check damageType conditions.
-    if (effectTypeCode != 'H' || target == NULL || damageType == DAMAGE_TYPE_EXPLOSION || damageType == DAMAGE_TYPE_PLASMA || damageType == DAMAGE_TYPE_EMP) {
+    if (effectTypeCode != 'H' || target == NULL || weaponIsGrenade(weapon)) {
         materialCode = 'X';
     } else {
         const int type = (target->fid & 0xF000000) >> 24;
