@@ -158,7 +158,7 @@ int artCacheFlush();
 int artCopyFileName(int a1, int a2, char* a3);
 int _art_get_code(int a1, int a2, char* a3, char* a4);
 char* artBuildFilePath(int a1);
-int artReadList(const char* path, char** out_arr, int* out_count);
+int artReadList(const char* path, char** artListPtr, int* artListSizePtr);
 int artGetFramesPerSecond(Art* art);
 int artGetActionFrame(Art* art);
 int artGetFrameCount(Art* art);

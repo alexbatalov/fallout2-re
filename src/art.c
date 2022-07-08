@@ -610,55 +610,45 @@ char* artBuildFilePath(int fid)
 
 // art_read_lst
 // 0x419664
-int artReadList(const char* path, char** out_arr, int* out_count)
+int artReadList(const char* path, char** artListPtr, int* artListSizePtr)
 {
-    File* stream;
-    char str[200];
-    char* arr;
-    int count;
-    char* brk;
-
-    stream = fileOpen(path, "rt");
+    File* stream = fileOpen(path, "rt");
     if (stream == NULL) {
         return -1;
     }
 
-    count = 0;
-    while (fileReadString(str, sizeof(str), stream)) {
+    int count = 0;
+    char string[200];
+    while (fileReadString(string, sizeof(string), stream)) {
         count++;
     }
 
     fileSeek(stream, 0, SEEK_SET);
 
-    *out_count = count;
+    *artListSizePtr = count;
 
-    arr = (char*)internal_malloc(13 * count);
-    *out_arr = arr;
-    if (arr == NULL) {
-        goto err;
+    char* artList = (char*)internal_malloc(13 * count);
+    *artListPtr = artList;
+    if (artList == NULL) {
+        fileClose(stream);
+        return -1;
     }
 
-    while (fileReadString(str, sizeof(str), stream)) {
-        brk = strpbrk(str, " ,;\r\t\n");
+    while (fileReadString(string, sizeof(string), stream)) {
+        char* brk = strpbrk(string, " ,;\r\t\n");
         if (brk != NULL) {
             *brk = '\0';
         }
 
-        strncpy(arr, str, 12);
-        arr[12] = '\0';
+        strncpy(artList, string, 12);
+        artList[12] = '\0';
 
-        arr += 13;
+        artList += 13;
     }
 
     fileClose(stream);
 
     return 0;
-
-err:
-
-    fileClose(stream);
-
-    return -1;
 }
 
 // 0x419760
