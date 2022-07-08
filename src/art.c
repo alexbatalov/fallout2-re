@@ -1089,3 +1089,25 @@ int artRead(const char* path, unsigned char* data)
     fileClose(stream);
     return 0;
 }
+
+// NOTE: Unused.
+//
+// 0x41A070
+int artWriteFrameData(unsigned char* data, File* stream, int count)
+{
+    unsigned char* ptr = data;
+    for (int index = 0; index < count; index++) {
+        ArtFrame* frame = (ArtFrame*)ptr;
+
+        if (fileWriteInt16(stream, frame->width) == -1) return -1;
+        if (fileWriteInt16(stream, frame->height) == -1) return -1;
+        if (fileWriteInt32(stream, frame->size) == -1) return -1;
+        if (fileWriteInt16(stream, frame->x) == -1) return -1;
+        if (fileWriteInt16(stream, frame->y) == -1) return -1;
+        if (fileWrite(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
+
+        ptr += sizeof(ArtFrame) + frame->size;
+    }
+
+    return 0;
+}
