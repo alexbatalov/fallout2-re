@@ -269,7 +269,7 @@ bool falloutInit(int argc, char** argv)
         _main_selfrun_exit();
     }
 
-    if (_selfrun_get_list(&_main_selfrun_list, &_main_selfrun_count) == 0) {
+    if (selfrunInitFileList(&_main_selfrun_list, &_main_selfrun_count) == 0) {
         _main_selfrun_index = 0;
     }
 
@@ -344,7 +344,7 @@ void mainLoop()
 void _main_selfrun_exit()
 {
     if (_main_selfrun_list != NULL) {
-        _selfrun_free_list(&_main_selfrun_list);
+        selfrunFreeFileList(&_main_selfrun_list);
     }
 
     _main_selfrun_count = 0;
