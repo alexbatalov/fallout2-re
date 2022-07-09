@@ -739,7 +739,7 @@ void opRandom(Program* program)
     }
 
     int result;
-    if (_vcr_status() == 2) {
+    if (vcrGetState() == VCR_STATE_TURNED_OFF) {
         result = randomBetween(data[1], data[0]);
     } else {
         result = (data[0] - data[1]) / 2;

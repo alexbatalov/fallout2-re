@@ -981,7 +981,7 @@ void _win_drag(int win)
 
     tickersExecute();
 
-    if (_vcr_update() != 3) {
+    if (vcrUpdate() != 3) {
         _mouse_info();
     }
 

@@ -2826,7 +2826,7 @@ void _dude_fidget()
         return;
     }
 
-    if (_vcr_status() != 2) {
+    if (vcrGetState() != VCR_STATE_TURNED_OFF) {
         return;
     }
 
