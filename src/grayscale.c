@@ -2,6 +2,8 @@
 
 #include "color.h"
 
+#include <minwindef.h>
+
 // 0x596D90
 unsigned char _GreyTable[256];
 
