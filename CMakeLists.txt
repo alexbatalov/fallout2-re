@@ -155,6 +155,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/palette.h"
     "src/party_member.c"
     "src/party_member.h"
+    "src/pcx.c"
+    "src/pcx.h"
     "src/perk_defs.h"
     "src/perk.c"
     "src/perk.h"
