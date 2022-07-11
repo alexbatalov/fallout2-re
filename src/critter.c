@@ -238,14 +238,14 @@ int critterGetHitPoints(Object* critter)
 }
 
 // 0x42D1A4
-int critterAdjustHitPoints(Object* critter, int a2)
+int critterAdjustHitPoints(Object* critter, int hp)
 {
     if ((critter->pid >> 24) != OBJ_TYPE_CRITTER) {
         return 0;
     }
 
     int maximumHp = critterGetStat(critter, STAT_MAXIMUM_HIT_POINTS);
-    int newHp = critter->data.critter.hp + a2;
+    int newHp = critter->data.critter.hp + hp;
 
     critter->data.critter.hp = newHp;
     if (maximumHp >= newHp) {
