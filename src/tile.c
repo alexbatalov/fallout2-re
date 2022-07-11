@@ -1527,7 +1527,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
 // 0x4B30C4
 void tileRenderFloor(int fid, int x, int y, Rect* rect)
 {
-    if (artIsObjectTypeHidden((fid & 0xF000000) >> 24) != 0) {
+    if (artIsObjectTypeHidden(OBJECT_TYPE(fid)) != 0) {
         return;
     }
 

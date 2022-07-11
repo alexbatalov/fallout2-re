@@ -155,7 +155,7 @@ unsigned char* artLockFrameData(int fid, int frame, int direction, CacheEntry** 
 unsigned char* artLockFrameDataReturningSize(int fid, CacheEntry** out_cache_entry, int* widthPtr, int* heightPtr);
 int artUnlock(CacheEntry* cache_entry);
 int artCacheFlush();
-int artCopyFileName(int a1, int a2, char* a3);
+int artCopyFileName(int objectType, int a2, char* a3);
 int _art_get_code(int a1, int a2, char* a3, char* a4);
 char* artBuildFilePath(int a1);
 int artReadList(const char* path, char** artListPtr, int* artListSizePtr);

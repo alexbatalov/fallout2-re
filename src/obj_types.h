@@ -27,6 +27,8 @@ enum {
     OBJ_TYPE_COUNT,
 };
 
+#define OBJECT_TYPE(value) ((value) & 0xF000000) >> 24
+
 typedef enum OutlineType {
     OUTLINE_TYPE_HOSTILE = 1,
     OUTLINE_TYPE_2 = 2,
