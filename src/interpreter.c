@@ -2257,7 +2257,7 @@ void op801F(Program* program)
         }
     }
 
-    program->field_84 = data[0];
+    program->windowId = data[0];
     program->field_7C = (int (*)(Program*))data[1];
     program->flags = data[2] & 0xFFFF;
 }
@@ -2791,7 +2791,7 @@ void opCallStart(Program* program)
     _interpret(program->child, 24);
 
     program->child->parent = program;
-    program->child->field_84 = program->field_84;
+    program->child->windowId = program->windowId;
 }
 
 // spawn
@@ -2839,7 +2839,7 @@ void opSpawn(Program* program)
     _interpret(program->child, 24);
 
     program->child->parent = program;
-    program->child->field_84 = program->field_84;
+    program->child->windowId = program->windowId;
 
     if ((program->flags & PROGRAM_FLAG_CRITICAL_SECTION) != 0) {
         program->child->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
@@ -2872,7 +2872,7 @@ Program* forkProgram(Program* program)
 
     _interpret(forked, 24);
 
-    forked->field_84 = program->field_84;
+    forked->windowId = program->windowId;
 
     return forked;
 }
@@ -3194,7 +3194,7 @@ void _setupCallWithReturnVal(Program* program, int address, int returnAddress)
     stackPushInt32(program->stack, &(program->stackPointer), (intptr_t)program->field_7C);
     programStackPushInt16(program, VALUE_TYPE_INT);
 
-    stackPushInt32(program->stack, &(program->stackPointer), program->field_84);
+    stackPushInt32(program->stack, &(program->stackPointer), program->windowId);
     programStackPushInt16(program, VALUE_TYPE_INT);
 
     program->flags &= ~0xFFFF;
@@ -3225,12 +3225,12 @@ void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int a
     stackPushInt32(program2->stack, &(program2->stackPointer), (intptr_t)program2->field_7C);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
-    stackPushInt32(program2->stack, &(program2->stackPointer), program2->field_84);
+    stackPushInt32(program2->stack, &(program2->stackPointer), program2->windowId);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
     program2->flags &= ~0xFFFF;
     program2->instructionPointer = address;
-    program2->field_84 = program1->field_84;
+    program2->windowId = program1->windowId;
 
     program1->flags |= PROGRAM_FLAG_0x20;
 }
