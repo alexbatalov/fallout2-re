@@ -706,11 +706,11 @@ void opDelayedCall(Program* program)
         }
 
         if (arg == 0) {
-            if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+            if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
                 programFatalError("Invalid procedure type given to call");
             }
         } else if (arg == 1) {
-            if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+            if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
                 programFatalError("Invalid time given to call");
             }
         }
@@ -745,11 +745,11 @@ void opConditionalCall(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure type given to conditional call");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid address given to conditional call");
     }
 
@@ -770,7 +770,7 @@ void opWait(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid type given to wait\n");
     }
 
@@ -790,7 +790,7 @@ void opCancel(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("invalid type given to cancel");
     }
 
@@ -2225,7 +2225,7 @@ void opCall(Program* program)
         programPopString(program, type, value);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid address given to call");
     }
 
@@ -2419,7 +2419,7 @@ void op8024(Program* program)
     programReturnStackPopInt16(program);
     v10->flags = stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
-    if ((type & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         str = programGetString(program, type, value);
         stackPushInt32(v10->stack, &(v10->stackPointer), programPushString(v10, str));
         type = VALUE_TYPE_DYNAMIC_STRING;
@@ -2772,7 +2772,7 @@ void opCallStart(Program* program)
         programPopString(program, type, value);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to callstart");
     }
 
@@ -2814,7 +2814,7 @@ void opSpawn(Program* program)
         programPopString(program, type, value);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to spawn");
     }
 
@@ -2951,7 +2951,7 @@ void opLookupStringProc(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Wrong type given to lookup_string_proc\n");
     }
 
