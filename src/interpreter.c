@@ -115,12 +115,12 @@ char* programGetCurrentProcedureName(Program* program)
     int identifierOffset = stackReadInt32(ptr, 0);
 
     for (int index = 0; index < procedureCount; index++) {
-        int nextProcedureOffset = stackReadInt32(ptr + 24, 16);
+        int nextProcedureOffset = stackReadInt32(ptr + sizeof(Procedure), 16);
         if (program->instructionPointer >= procedureOffset && program->instructionPointer < nextProcedureOffset) {
             return (char*)(program->identifiers + identifierOffset);
         }
 
-        ptr += 24;
+        ptr += sizeof(Procedure);
         identifierOffset = stackReadInt32(ptr, 0);
     }
 
@@ -437,7 +437,7 @@ Program* programCreateByPath(const char* path)
     program->returnStack = (unsigned char*)internal_calloc_safe(1, 4096, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 473
     program->data = data;
     program->procedures = data + 42;
-    program->identifiers = 24 * stackReadInt32(program->procedures, 0) + program->procedures + 4;
+    program->identifiers = sizeof(Procedure) * stackReadInt32(program->procedures, 0) + program->procedures + 4;
     program->staticStrings = program->identifiers + stackReadInt32(program->identifiers, 0) + 4;
 
     return program;
@@ -716,7 +716,7 @@ void opDelayedCall(Program* program)
         }
     }
 
-    unsigned char* procedure_ptr = program->procedures + 4 + 24 * data[0];
+    unsigned char* procedure_ptr = program->procedures + 4 + sizeof(Procedure) * data[0];
 
     int delay = 1000 * data[1];
 
@@ -753,7 +753,7 @@ void opConditionalCall(Program* program)
         programFatalError("Invalid address given to conditional call");
     }
 
-    unsigned char* procedure_ptr = program->procedures + 4 + 24 * data[0];
+    unsigned char* procedure_ptr = program->procedures + 4 + sizeof(Procedure) * data[0];
     int flags = stackReadInt32(procedure_ptr, 4);
 
     stackWriteInt32(flags | PROCEDURE_FLAG_CONDITIONAL, procedure_ptr, 4);
@@ -2229,7 +2229,7 @@ void opCall(Program* program)
         programFatalError("Invalid address given to call");
     }
 
-    unsigned char* ptr = program->procedures + 4 + 24 * value;
+    unsigned char* ptr = program->procedures + 4 + sizeof(Procedure) * value;
 
     int flags = stackReadInt32(ptr, 4);
     if ((flags & 4) != 0) {
@@ -2931,9 +2931,9 @@ void opCheckProcedureArgumentCount(Program* program)
     int expectedArgumentCount = data[0];
     int procedureIndex = data[1];
 
-    int actualArgumentCount = stackReadInt32(program->procedures + 4 + 24 * procedureIndex, 20);
+    int actualArgumentCount = stackReadInt32(program->procedures + 4 + sizeof(Procedure) * procedureIndex, 20);
     if (actualArgumentCount != expectedArgumentCount) {
-        const char* identifier = programGetIdentifier(program, stackReadInt32(program->procedures + 4 + 24 * procedureIndex, 0));
+        const char* identifier = programGetIdentifier(program, stackReadInt32(program->procedures + 4 + sizeof(Procedure) * procedureIndex, 0));
         char err[260];
         sprintf(err, "Wrong number of args to procedure %s\n", identifier);
         programFatalError(err);
@@ -3245,9 +3245,9 @@ void _executeProc(Program* program, int procedure_index)
     unsigned char* procedure_ptr;
     int flags;
     char err[256];
-    Program* v12;
+    Program* context;
 
-    procedure_ptr = program->procedures + 4 + 24 * procedure_index;
+    procedure_ptr = program->procedures + 4 + sizeof(Procedure) * procedure_index;
     flags = stackReadInt32(procedure_ptr, 4);
     if (!(flags & PROCEDURE_FLAG_IMPORTED)) {
         address = stackReadInt32(procedure_ptr, 16);
@@ -3262,7 +3262,7 @@ void _executeProc(Program* program, int procedure_index)
         }
 
         program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        v12 = program;
+        context = program;
     } else {
         identifier = programGetIdentifier(program, stackReadInt32(procedure_ptr, 0));
         external_program = externalProcedureGetProgram(identifier, &address, &arguments_count);
@@ -3285,7 +3285,7 @@ void _executeProc(Program* program, int procedure_index)
         programStackPushInt32(external_program, 0);
         programStackPushInt16(external_program, VALUE_TYPE_INT);
 
-        procedure_ptr = external_program->procedures + 4 + 24 * procedure_index;
+        procedure_ptr = external_program->procedures + 4 + sizeof(Procedure) * procedure_index;
         flags = stackReadInt32(procedure_ptr, 4);
 
         if (!(flags & PROCEDURE_FLAG_CRITICAL)) {
@@ -3293,10 +3293,10 @@ void _executeProc(Program* program, int procedure_index)
         }
 
         external_program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        v12 = external_program;
+        context = external_program;
     }
 
-    _interpret(v12, 0);
+    _interpret(context, 0);
 }
 
 // Returns index of the procedure with specified name or -1 if no such
@@ -3333,10 +3333,10 @@ void _executeProcedure(Program* program, int procedure_index)
     jmp_buf jmp_buf;
     Program* v13;
 
-    procedure_ptr = program->procedures + 4 + 24 * procedure_index;
+    procedure_ptr = program->procedures + 4 + sizeof(Procedure) * procedure_index;
     flags = stackReadInt32(procedure_ptr, 4);
 
-    if (flags & 0x04) {
+    if (flags & PROCEDURE_FLAG_IMPORTED) {
         identifier = programGetIdentifier(program, stackReadInt32(procedure_ptr, 0));
         external_program = externalProcedureGetProgram(identifier, &address, &arguments_count);
         if (external_program == NULL) {
