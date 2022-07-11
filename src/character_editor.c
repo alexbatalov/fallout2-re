@@ -1064,7 +1064,7 @@ int characterEditorWindowInit()
         return -1;
     }
 
-    fid = buildFid(6, (gCharacterEditorIsCreationMode ? 169 : 177), 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, (gCharacterEditorIsCreationMode ? 169 : 177), 0, 0, 0);
     gCharacterEditorWindowBackgroundBuffer = artLockFrameDataReturningSize(fid, &gCharacterEditorWindowBackgroundHandle, &(gCharacterEditorFrmSize[0].width), &(gCharacterEditorFrmSize[0].height));
     if (gCharacterEditorWindowBackgroundBuffer == NULL) {
         messageListFree(&gCharacterEditorMessageList);
@@ -1082,7 +1082,7 @@ int characterEditorWindowInit()
     soundContinueAll();
 
     for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-        fid = buildFid(6, gCharacterEditorFrmIds[i], 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, gCharacterEditorFrmIds[i], 0, 0, 0);
         gCharacterEditorFrmData[i] = artLockFrameDataReturningSize(fid, &(gCharacterEditorFrmHandle[i]), &(gCharacterEditorFrmSize[i].width), &(gCharacterEditorFrmSize[i].height));
         if (gCharacterEditorFrmData[i] == NULL) {
             break;
@@ -4672,7 +4672,7 @@ int characterEditorDrawCardWithOptions(int graphicId, const char* name, const ch
     short beginnings[WORD_WRAP_MAX_COUNT];
     short beginningsCount;
 
-    fid = buildFid(10, graphicId, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_SKILLDEX, graphicId, 0, 0, 0);
     buf = artLockFrameDataReturningSize(fid, &graphicHandle, &(size.width), &(size.height));
     if (buf == NULL) {
         return -1;
@@ -5523,7 +5523,7 @@ int perkDialogShow()
     CacheEntry* backgroundFrmHandle;
     int backgroundWidth;
     int backgroundHeight;
-    int fid = buildFid(6, 86, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_INTERFACE, 86, 0, 0, 0);
     gPerkDialogBackgroundBuffer = artLockFrameDataReturningSize(fid, &backgroundFrmHandle, &backgroundWidth, &backgroundHeight);
     if (gPerkDialogBackgroundBuffer == NULL) {
         debugPrint("\n *** Error running perks dialog window ***\n");
@@ -6300,7 +6300,7 @@ int perkDialogOptionCompare(const void* a1, const void* a2)
 // 0x43DB54
 int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* description)
 {
-    int fid = buildFid(10, frmId, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_SKILLDEX, frmId, 0, 0, 0);
 
     CacheEntry* handle;
     int width;

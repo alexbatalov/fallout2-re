@@ -902,7 +902,7 @@ int mapLoad(File* stream)
         }
 
         Object* object;
-        int fid = buildFid(5, 12, 0, 0, 0);
+        int fid = buildFid(OBJ_TYPE_MISC, 12, 0, 0, 0);
         objectCreateWithFidPid(&object, fid, -1);
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_TEMPORARY | OBJECT_HIDDEN);
         objectSetLocation(object, 1, 0, NULL);
@@ -1307,13 +1307,13 @@ int _map_save_file(File* stream)
         for (tile = 0; tile < SQUARE_GRID_SIZE; tile++) {
             int fid;
 
-            fid = buildFid(4, _square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
-            if (fid != buildFid(4, 1, 0, 0, 0)) {
+            fid = buildFid(OBJ_TYPE_TILE, _square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
+            if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                 break;
             }
 
-            fid = buildFid(4, (_square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
-            if (fid != buildFid(4, 1, 0, 0, 0)) {
+            fid = buildFid(OBJ_TYPE_TILE, (_square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
+            if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                 break;
             }
         }
@@ -1527,7 +1527,7 @@ void _map_place_dude_and_mouse()
     if (gDude != NULL) {
         if (((gDude->fid & 0xFF0000) >> 16) != 0) {
             objectSetFrame(gDude, 0, 0);
-            gDude->fid = buildFid(1, gDude->fid & 0xFFF, ANIM_STAND, (gDude->fid & 0xF000) >> 12, gDude->rotation + 1);
+            gDude->fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, (gDude->fid & 0xF000) >> 12, gDude->rotation + 1);
         }
 
         if (gDude->tile == -1) {
@@ -1557,11 +1557,11 @@ void _square_reset()
                 // check subsequent calls.
                 int fid = *p;
                 fid &= ~0xFFFF;
-                *p = ((buildFid(4, 1, 0, 0, 0) & 0xFFF | (((fid >> 16) & 0xF000) >> 12)) << 16) | (fid & 0xFFFF);
+                *p = ((buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0) & 0xFFF | (((fid >> 16) & 0xF000) >> 12)) << 16) | (fid & 0xFFFF);
 
                 fid = *p;
                 int v3 = (fid & 0xF000) >> 12;
-                int v4 = (buildFid(4, 1, 0, 0, 0) & 0xFFF) | v3;
+                int v4 = (buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0) & 0xFFF) | v3;
 
                 fid &= ~0xFFFF;
 

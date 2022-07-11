@@ -1172,8 +1172,8 @@ void tileRenderRoofsInRect(Rect* rect, int elevation)
             int frmId = gTileSquares[elevation]->field_0[squareTile];
             frmId >>= 16;
             if ((((frmId & 0xF000) >> 12) & 0x01) == 0) {
-                int fid = buildFid(4, frmId & 0xFFF, 0, 0, 0);
-                if (fid != buildFid(4, 1, 0, 0, 0)) {
+                int fid = buildFid(OBJ_TYPE_TILE, frmId & 0xFFF, 0, 0, 0);
+                if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                     int screenX;
                     int screenY;
                     squareTileToRoofScreenXY(squareTile, &screenX, &screenY, elevation);
@@ -1194,7 +1194,7 @@ void _roof_fill_on(int a1, int a2, int elevation)
         int upper = (value >> 16) & 0xFFFF;
 
         int id = upper & 0xFFF;
-        if (buildFid(4, id, 0, 0, 0) == buildFid(4, 1, 0, 0, 0)) {
+        if (buildFid(OBJ_TYPE_TILE, id, 0, 0, 0) == buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
             break;
         }
 
@@ -1234,7 +1234,7 @@ void sub_4B23DC(int a1, int a2, int elevation)
         int upper = (value >> 16) & 0xFFFF;
 
         int id = upper & 0xFFF;
-        if (buildFid(4, id, 0, 0, 0) == buildFid(4, 1, 0, 0, 0)) {
+        if (buildFid(OBJ_TYPE_TILE, id, 0, 0, 0) == buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
             break;
         }
 
@@ -1406,7 +1406,7 @@ void tileRenderFloorsInRect(Rect* rect, int elevation)
                 int v12;
                 int v13;
                 squareTileToScreenXY(v3, &v12, &v13, elevation);
-                int fid = buildFid(4, frmId & 0xFFF, 0, 0, 0);
+                int fid = buildFid(OBJ_TYPE_TILE, frmId & 0xFFF, 0, 0, 0);
                 tileRenderFloor(fid, v12, v13, rect);
             }
         }
@@ -1430,10 +1430,10 @@ bool _square_roof_intersect(int x, int y, int elevation)
     TileData* ptr = gTileSquares[elevation];
     int idx = gSquareGridWidth * tileY + tileX;
     int upper = ptr->field_0[gSquareGridWidth * tileY + tileX] >> 16;
-    int fid = buildFid(4, upper & 0xFFF, 0, 0, 0);
-    if (fid != buildFid(4, 1, 0, 0, 0)) {
+    int fid = buildFid(OBJ_TYPE_TILE, upper & 0xFFF, 0, 0, 0);
+    if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
         if ((((upper & 0xF000) >> 12) & 1) == 0) {
-            int fid = buildFid(4, upper & 0xFFF, 0, 0, 0);
+            int fid = buildFid(OBJ_TYPE_TILE, upper & 0xFFF, 0, 0, 0);
             CacheEntry* handle;
             Art* art = artLock(fid, &handle);
             if (art != NULL) {

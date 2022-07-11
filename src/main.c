@@ -381,7 +381,7 @@ void showDeath()
 
             // DEATH.FRM
             CacheEntry* backgroundHandle;
-            int fid = buildFid(6, 309, 0, 0, 0);
+            int fid = buildFid(OBJ_TYPE_INTERFACE, 309, 0, 0, 0);
             unsigned char* background = artLockFrameData(fid, 0, 0, &backgroundHandle);
             if (background == NULL) {
                 break;
@@ -603,7 +603,7 @@ int mainMenuWindowInit()
     gMainMenuWindowBuffer = windowGetBuffer(gMainMenuWindow);
 
     // mainmenu.frm
-    int backgroundFid = buildFid(6, 140, 0, 0, 0);
+    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 140, 0, 0, 0);
     gMainMenuBackgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &gMainMenuBackgroundFrmHandle);
     if (gMainMenuBackgroundFrmData == NULL) {
         mainMenuWindowFree();
@@ -629,7 +629,7 @@ int mainMenuWindowInit()
     windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, _colorTable[21091] | 0x6000000);
 
     // menuup.frm
-    fid = buildFid(6, 299, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
     gMainMenuButtonUpFrmData = artLockFrameData(fid, 0, 0, &gMainMenuButtonUpFrmHandle);
     if (gMainMenuButtonUpFrmData == NULL) {
         mainMenuWindowFree();
@@ -637,7 +637,7 @@ int mainMenuWindowInit()
     }
 
     // menudown.frm
-    fid = buildFid(6, 300, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 300, 0, 0, 0);
     gMainMenuButtonDownFrmData = artLockFrameData(fid, 0, 0, &gMainMenuButtonDownFrmHandle);
     if (gMainMenuButtonDownFrmData == NULL) {
         mainMenuWindowFree();
