@@ -364,6 +364,11 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
     for (; cursorPos <= maxLength; cursorPos++) {
         int keyCode = _get_input();
         if (keyCode != -1) {
+            if (keyCode == KEY_ESCAPE) {
+                dest[cursorPos] = '\0';
+                return -1;
+            }
+
             if (keyCode == KEY_BACKSPACE) {
                 if (cursorPos > 0) {
                     stringWidth = fontGetStringWidth(dest);
