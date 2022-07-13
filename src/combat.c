@@ -3291,7 +3291,7 @@ void attackInit(Attack* attack, Object* attacker, Object* defender, int hitMode,
 int _combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 {
     if (a1 != gDude && hitMode == HIT_MODE_PUNCH && randomBetween(1, 4) == 1) {
-        int fid = buildFid(1, a1->fid & 0xFFF, ANIM_KICK_LEG, (a1->fid & 0xF000) >> 12, (a1->fid & 0x70000000) >> 28);
+        int fid = buildFid(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_KICK_LEG, (a1->fid & 0xF000) >> 12, (a1->fid & 0x70000000) >> 28);
         if (artExists(fid)) {
             hitMode = HIT_MODE_KICK;
         }
@@ -5194,7 +5194,7 @@ void _combat_standup(Object* a1)
 void _print_tohit(unsigned char* dest, int destPitch, int accuracy)
 {
     CacheEntry* numbersFrmHandle;
-    int numbersFrmFid = buildFid(6, 82, 0, 0, 0);
+    int numbersFrmFid = buildFid(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
     unsigned char* numbersFrmData = artLockFrameData(numbersFrmFid, 0, 0, &numbersFrmHandle);
     if (numbersFrmData == NULL) {
         return;
@@ -5281,7 +5281,7 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
 
     unsigned char* windowBuffer = windowGetBuffer(gCalledShotWindow);
 
-    fid = buildFid(6, 118, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 118, 0, 0, 0);
     data = artLockFrameData(fid, 0, 0, &handle);
     if (data == NULL) {
         windowDestroy(gCalledShotWindow);
@@ -5291,14 +5291,14 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
     blitBufferToBuffer(data, CALLED_SHOT_WINDOW_WIDTH, CALLED_SHOT_WINDOW_HEIGHT, CALLED_SHOT_WINDOW_WIDTH, windowBuffer, CALLED_SHOT_WINDOW_WIDTH);
     artUnlock(handle);
 
-    fid = buildFid(1, critter->fid & 0xFFF, ANIM_CALLED_SHOT_PIC, 0, 0);
+    fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_CALLED_SHOT_PIC, 0, 0);
     data = artLockFrameData(fid, 0, 0, &handle);
     if (data != NULL) {
         blitBufferToBuffer(data, 170, 225, 170, windowBuffer + CALLED_SHOT_WINDOW_WIDTH * 31 + 168, CALLED_SHOT_WINDOW_WIDTH);
         artUnlock(handle);
     }
 
-    fid = buildFid(6, 8, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
 
     CacheEntry* upHandle;
     unsigned char* up = artLockFrameData(fid, 0, 0, &upHandle);
@@ -5307,7 +5307,7 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
         return -1;
     }
 
-    fid = buildFid(6, 9, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
 
     CacheEntry* downHandle;
     unsigned char* down = artLockFrameData(fid, 0, 0, &downHandle);

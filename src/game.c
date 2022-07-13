@@ -1055,7 +1055,7 @@ void showHelp()
     if (win != -1) {
         unsigned char* windowBuffer = windowGetBuffer(win);
         if (windowBuffer != NULL) {
-            int backgroundFid = buildFid(6, 297, 0, 0, 0);
+            int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 297, 0, 0, 0);
             CacheEntry* backgroundHandle;
             unsigned char* backgroundData = artLockFrameData(backgroundFid, 0, 0, &backgroundHandle);
             if (backgroundData != NULL) {

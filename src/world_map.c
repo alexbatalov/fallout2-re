@@ -1164,7 +1164,7 @@ int worldmapConfigInit()
             // NOTE: Uninline.
             worldmapTileInfoInit(tile);
 
-            tile->fid = buildFid(6, artIndex, 0, 0, 0);
+            tile->fid = buildFid(OBJ_TYPE_INTERFACE, artIndex, 0, 0, 0);
 
             int encounterDifficulty;
             if (configGetInt(&config, section, "encounter_difficulty", &encounterDifficulty)) {
@@ -2268,14 +2268,14 @@ int cityInit()
             city->field_28 = area_idx;
 
             if (num != -1) {
-                num = buildFid(6, num, 0, 0, 0);
+                num = buildFid(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
             }
 
             city->mapFid = num;
 
             if (configGetInt(&cfg, section, "townmap_label_art_idx", &num)) {
                 if (num != -1) {
-                    num = buildFid(6, num, 0, 0, 0);
+                    num = buildFid(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
                 }
 
                 city->labelFid = num;
@@ -4283,7 +4283,7 @@ int worldmapWindowInit()
         return -1;
     }
 
-    fid = buildFid(6, 136, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
     frm = artLock(fid, &gWorldmapBoxFrmHandle);
     if (frm == NULL) {
         return -1;
@@ -4295,7 +4295,7 @@ int worldmapWindowInit()
     artUnlock(gWorldmapBoxFrmHandle);
     gWorldmapBoxFrmHandle = INVALID_CACHE_ENTRY;
 
-    fid = buildFid(6, 136, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
     gWorldmapBoxFrmData = artLockFrameData(fid, 0, 0, &gWorldmapBoxFrmHandle);
     if (gWorldmapBoxFrmData == NULL) {
         return -1;
@@ -4311,7 +4311,7 @@ int worldmapWindowInit()
     for (int citySize = 0; citySize < CITY_SIZE_COUNT; citySize++) {
         CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[citySize]);
 
-        fid = buildFid(6, 336 + citySize, 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, 336 + citySize, 0, 0, 0);
         citySizeDescription->fid = fid;
 
         frm = artLock(fid, &(citySizeDescription->handle));
@@ -4332,7 +4332,7 @@ int worldmapWindowInit()
         }
     }
 
-    fid = buildFid(6, 168, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 168, 0, 0, 0);
     frm = artLock(fid, &gWorldmapHotspotUpFrmHandle);
     if (frm == NULL) {
         return -1;
@@ -4345,18 +4345,18 @@ int worldmapWindowInit()
     gWorldmapHotspotUpFrmHandle = INVALID_CACHE_ENTRY;
 
     // hotspot1.frm - town map selector shape #1
-    fid = buildFid(6, 168, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 168, 0, 0, 0);
     gWorldmapHotspotUpFrmData = artLockFrameData(fid, 0, 0, &gWorldmapHotspotUpFrmHandle);
 
     // hotspot2.frm - town map selector shape #2
-    fid = buildFid(6, 223, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 223, 0, 0, 0);
     gWorldmapHotspotDownFrmData = artLockFrameData(fid, 0, 0, &gWorldmapHotspotDownFrmHandle);
     if (gWorldmapHotspotDownFrmData == NULL) {
         return -1;
     }
 
     // wmaptarg.frm - world map move target maker #1
-    fid = buildFid(6, 139, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 139, 0, 0, 0);
     frm = artLock(fid, &gWorldmapDestinationMarkerFrmHandle);
     if (frm == NULL) {
         return -1;
@@ -4369,7 +4369,7 @@ int worldmapWindowInit()
     gWorldmapDestinationMarkerFrmHandle = INVALID_CACHE_ENTRY;
 
     // wmaploc.frm - world map location marker
-    fid = buildFid(6, 138, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 138, 0, 0, 0);
     frm = artLock(fid, &gWorldmapLocationMarkerFrmHandle);
     if (frm == NULL) {
         return -1;
@@ -4382,21 +4382,21 @@ int worldmapWindowInit()
     gWorldmapLocationMarkerFrmHandle = INVALID_CACHE_ENTRY;
 
     // wmaptarg.frm - world map move target maker #1
-    fid = buildFid(6, 139, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 139, 0, 0, 0);
     gWorldmapDestinationMarkerFrmData = artLockFrameData(fid, 0, 0, &gWorldmapDestinationMarkerFrmHandle);
     if (gWorldmapDestinationMarkerFrmData == NULL) {
         return -1;
     }
 
     // wmaploc.frm - world map location marker
-    fid = buildFid(6, 138, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 138, 0, 0, 0);
     gWorldmapLocationMarkerFrmData = artLockFrameData(fid, 0, 0, &gWorldmapLocationMarkerFrmHandle);
     if (gWorldmapLocationMarkerFrmData == NULL) {
         return -1;
     }
 
     for (int index = 0; index < WORLD_MAP_ENCOUNTER_FRM_COUNT; index++) {
-        fid = buildFid(6, gWorldmapEncounterFrmIds[index], 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, gWorldmapEncounterFrmIds[index], 0, 0, 0);
         frm = artLock(fid, &(gWorldmapEncounterFrmHandles[index]));
         if (frm == NULL) {
             return -1;
@@ -4416,7 +4416,7 @@ int worldmapWindowInit()
     }
 
     // wmtabs.frm - worldmap town tabs underlay
-    fid = buildFid(6, 364, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 364, 0, 0, 0);
     frm = artLock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
@@ -4433,14 +4433,14 @@ int worldmapWindowInit()
     }
 
     // wmtbedge.frm - worldmap town tabs edging overlay
-    fid = buildFid(6, 367, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 367, 0, 0, 0);
     gWorldmapTownTabsEdgeFrmData = artLockFrameData(fid, 0, 0, &gWorldmapTownTabsEdgeFrmHandle);
     if (gWorldmapTownTabsEdgeFrmData == NULL) {
         return -1;
     }
 
     // wmdial.frm - worldmap night/day dial
-    fid = buildFid(6, 365, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 365, 0, 0, 0);
     gWorldmapDialFrm = artLock(fid, &gWorldmapDialFrmHandle);
     if (gWorldmapDialFrm == NULL) {
         return -1;
@@ -4450,7 +4450,7 @@ int worldmapWindowInit()
     gWorldmapDialFrmHeight = artGetHeight(gWorldmapDialFrm, 0, 0);
 
     // wmscreen - worldmap overlay screen
-    fid = buildFid(6, 363, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 363, 0, 0, 0);
     frm = artLock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
@@ -4467,7 +4467,7 @@ int worldmapWindowInit()
     }
 
     // wmglobe.frm - worldmap globe stamp overlay
-    fid = buildFid(6, 366, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 366, 0, 0, 0);
     frm = artLock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
@@ -4484,7 +4484,7 @@ int worldmapWindowInit()
     }
 
     // lilredup.frm - little red button up
-    fid = buildFid(6, 8, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
     frm = artLock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
@@ -4498,18 +4498,18 @@ int worldmapWindowInit()
     gWorldmapLittleRedButtonUpFrmData = artLockFrameData(fid, 0, 0, &gWorldmapLittleRedButtonUpFrmHandle);
 
     // lilreddn.frm - little red button down
-    fid = buildFid(6, 9, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
     gWorldmapLittleRedButtonDownFrmData = artLockFrameData(fid, 0, 0, &gWorldmapLittleRedButtonDownFrmHandle);
 
     // months.frm - month strings for pip boy
-    fid = buildFid(6, 129, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 129, 0, 0, 0);
     gWorldmapMonthsFrm = artLock(fid, &gWorldmapMonthsFrmHandle);
     if (gWorldmapMonthsFrm == NULL) {
         return -1;
     }
 
     // numbers.frm - numbers for the hit points and fatigue counters
-    fid = buildFid(6, 82, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
     gWorldmapNumbersFrm = artLock(fid, &gWorldmapNumbersFrmHandle);
     if (gWorldmapNumbersFrm == NULL) {
         return -1;
@@ -4549,7 +4549,7 @@ int worldmapWindowInit()
     for (int index = 0; index < WORLDMAP_ARROW_FRM_COUNT; index++) {
         // 200 - uparwon.frm - character editor
         // 199 - uparwoff.frm - character editor
-        fid = buildFid(6, 200 - index, 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, 200 - index, 0, 0, 0);
         frm = artLock(fid, &(gWorldmapTownListScrollUpFrmHandle[index]));
         if (frm == NULL) {
             return -1;
@@ -4563,7 +4563,7 @@ int worldmapWindowInit()
     for (int index = 0; index < WORLDMAP_ARROW_FRM_COUNT; index++) {
         // 182 - dnarwon.frm - character editor
         // 181 - dnarwoff.frm - character editor
-        fid = buildFid(6, 182 - index, 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, 182 - index, 0, 0, 0);
         frm = artLock(fid, &(gWorldmapTownListScrollDownFrmHandle[index]));
         if (frm == NULL) {
             return -1;
@@ -4606,7 +4606,7 @@ int worldmapWindowInit()
 
     if (gWorldmapIsInCar) {
         // wmcarmve.frm - worldmap car movie
-        fid = buildFid(6, 433, 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, 433, 0, 0, 0);
         gWorldmapCarFrm = artLock(fid, &gWorldmapCarFrmHandle);
         if (gWorldmapCarFrm == NULL) {
             return -1;

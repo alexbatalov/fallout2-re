@@ -267,7 +267,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
     unsigned char* frmData[AUTOMAP_FRM_COUNT];
     CacheEntry* frmHandle[AUTOMAP_FRM_COUNT];
     for (int index = 0; index < AUTOMAP_FRM_COUNT; index++) {
-        int fid = buildFid(6, frmIds[index], 0, 0, 0);
+        int fid = buildFid(OBJ_TYPE_INTERFACE, frmIds[index], 0, 0, 0);
         frmData[index] = artLockFrameData(fid, 0, 0, &(frmHandle[index]));
         if (frmData[index] == NULL) {
             while (--index >= 0) {
