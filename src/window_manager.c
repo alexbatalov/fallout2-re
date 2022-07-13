@@ -1332,6 +1332,103 @@ int buttonCreate(int win, int x, int y, int width, int height, int mouseEnterEve
     return button->id;
 }
 
+// 0x4D8308
+int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, int mouseExitEventCode, int mouseDownEventCode, int mouseUpEventCode, const char* title, int flags)
+{
+    Window* window = windowGetWindow(win);
+
+    if (!gWindowSystemInitialized) {
+        return -1;
+    }
+
+    if (window == NULL) {
+        return -1;
+    }
+
+    int buttonWidth = fontGetStringWidth(title) + 16;
+    int buttonHeight = fontGetLineHeight() + 7;
+    unsigned char* normal = (unsigned char*)internal_malloc(buttonWidth * buttonHeight);
+    if (normal == NULL) {
+        return -1;
+    }
+
+    unsigned char* pressed = (unsigned char*)internal_malloc(buttonWidth * buttonHeight);
+    if (pressed == NULL) {
+        internal_free(normal);
+        return -1;
+    }
+
+    if (window->field_20 == 256 && _GNW_texture != NULL) {
+        // TODO: Incomplete.
+    } else {
+        bufferFill(normal, buttonWidth, buttonHeight, buttonWidth, window->field_20);
+        bufferFill(pressed, buttonWidth, buttonHeight, buttonWidth, window->field_20);
+    }
+
+    _lighten_buf(normal, buttonWidth, buttonHeight, buttonWidth);
+
+    fontDrawText(normal + buttonWidth * 3 + 8, title, buttonWidth, buttonWidth, _colorTable[_GNW_wcolor[3]]);
+    bufferDrawRectShadowed(normal,
+        buttonWidth,
+        2,
+        2,
+        buttonWidth - 3,
+        buttonHeight - 3,
+        _colorTable[_GNW_wcolor[1]],
+        _colorTable[_GNW_wcolor[2]]);
+    bufferDrawRectShadowed(normal,
+        buttonWidth,
+        1,
+        1,
+        buttonWidth - 2,
+        buttonHeight - 2,
+        _colorTable[_GNW_wcolor[1]],
+        _colorTable[_GNW_wcolor[2]]);
+    bufferDrawRect(normal, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, _colorTable[0]);
+
+    fontDrawText(pressed + buttonWidth * 4 + 9, title, buttonWidth, buttonWidth, _colorTable[_GNW_wcolor[3]]);
+    bufferDrawRectShadowed(pressed,
+        buttonWidth,
+        2,
+        2,
+        buttonWidth - 3,
+        buttonHeight - 3,
+        _colorTable[_GNW_wcolor[2]],
+        _colorTable[_GNW_wcolor[1]]);
+    bufferDrawRectShadowed(pressed,
+        buttonWidth,
+        1,
+        1,
+        buttonWidth - 2,
+        buttonHeight - 2,
+        _colorTable[_GNW_wcolor[2]],
+        _colorTable[_GNW_wcolor[1]]);
+    bufferDrawRect(pressed, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, _colorTable[0]);
+
+    Button* button = buttonCreateInternal(win,
+        x,
+        y,
+        buttonWidth,
+        buttonHeight,
+        mouseEnterEventCode,
+        mouseExitEventCode,
+        mouseDownEventCode,
+        mouseUpEventCode,
+        flags,
+        normal,
+        pressed,
+        NULL);
+    if (button == NULL) {
+        internal_free(normal);
+        internal_free(pressed);
+        return -1;
+    }
+
+    _button_draw(button, window, button->mouseUpImage, 0, NULL, 0);
+
+    return button->id;
+}
+
 // 0x4D8674
 int _win_register_button_disable(int btn, unsigned char* up, unsigned char* down, unsigned char* hover)
 {
