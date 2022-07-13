@@ -209,13 +209,115 @@ int _win_msg(const char* string, int x, int y, int flags)
 }
 
 // 0x4DC30C
-int _win_debug(char* a1)
+int _win_debug(char* string)
 {
     if (!gWindowSystemInitialized) {
         return -1;
     }
 
-    // TODO: Incomplete.
+    int lineHeight = fontGetLineHeight();
+
+    if (_wd == -1) {
+        _wd = windowCreate(80, 80, 300, 192, 256, WINDOW_FLAG_0x04);
+        if (_wd == -1) {
+            return -1;
+        }
+
+        windowDrawBorder(_wd);
+
+        Window* window = windowGetWindow(_wd);
+        unsigned char* windowBuffer = window->buffer;
+
+        windowFill(_wd, 8, 8, 284, lineHeight, 0x100 | 1);
+
+        windowDrawText(_wd,
+            "Debug",
+            0,
+            (300 - fontGetStringWidth("Debug")) / 2,
+            8,
+            0x2000000 | 0x100 | 4);
+
+        bufferDrawRectShadowed(windowBuffer,
+            300,
+            8,
+            8,
+            291,
+            lineHeight + 8,
+            _colorTable[_GNW_wcolor[2]],
+            _colorTable[_GNW_wcolor[1]]);
+
+        windowFill(_wd, 9, 26, 282, 135, 0x100 | 1);
+
+        bufferDrawRectShadowed(windowBuffer,
+            300,
+            8,
+            25,
+            291,
+            lineHeight + 145,
+            _colorTable[_GNW_wcolor[2]],
+            _colorTable[_GNW_wcolor[1]]);
+
+        _currx = 9;
+        _curry = 26;
+
+        int btn = _win_register_text_button(_wd,
+            (300 - fontGetStringWidth("Close")) / 2,
+            192 - 8 - lineHeight - 6,
+            -1,
+            -1,
+            -1,
+            -1,
+            "Close",
+            0);
+        buttonSetMouseCallbacks(btn, NULL, NULL, NULL, _win_debug_delete);
+
+        buttonCreate(_wd,
+            8,
+            8,
+            284,
+            lineHeight,
+            -1,
+            -1,
+            -1,
+            -1,
+            NULL,
+            NULL,
+            NULL,
+            BUTTON_FLAG_0x10);
+    }
+
+    char temp[2];
+    temp[1] = '\0';
+
+    char* pch = string;
+    while (*pch != '\0') {
+        int characterWidth = fontGetCharacterWidth(*pch);
+        if (*pch == '\n' || _currx + characterWidth > 291) {
+            _currx = 9;
+            _curry += lineHeight;
+        }
+
+        while (160 - _curry < lineHeight) {
+            Window* window = windowGetWindow(_wd);
+            unsigned char* windowBuffer = window->buffer;
+            blitBufferToBuffer(windowBuffer + lineHeight * 300 + 300 * 26 + 9,
+                282,
+                134 - lineHeight - 1,
+                300,
+                windowBuffer + 300 * 26 + 9,
+                300);
+            _curry -= lineHeight;
+            windowFill(_wd, 9, _curry, 282, lineHeight, 0x100 | 1);
+        }
+
+        if (*pch != '\n') {
+            temp[0] = *pch;
+            windowDrawText(_wd, temp, 0, _currx, _curry, 0x2000000 | 0x100 | 4);
+            _currx += characterWidth + fontGetLetterSpacing();
+        }
+
+        pch++;
+    }
 
     windowRefresh(_wd);
 
@@ -223,7 +325,7 @@ int _win_debug(char* a1)
 }
 
 // 0x4DC65C
-void _win_debug_delete()
+void _win_debug_delete(int btn, int keyCode)
 {
     windowDestroy(_wd);
     _wd = -1;
