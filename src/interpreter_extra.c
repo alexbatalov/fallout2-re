@@ -230,7 +230,7 @@ void opGiveExpPoints(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to give_exp_points", program->name);
     }
 
@@ -250,7 +250,7 @@ void opScrReturn(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to scr_return", program->name);
     }
 
@@ -273,7 +273,7 @@ void opPlaySfx(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("script error: %s: invalid arg to play_sfx", program->name);
     }
 
@@ -296,7 +296,7 @@ void opSetMapStart(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to set_map_start", program->name, arg);
         }
     }
@@ -337,7 +337,7 @@ void opOverrideMapStart(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to override_map_start", program->name, arg);
         }
     }
@@ -389,7 +389,7 @@ void opHasSkill(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to has_skill", program->name, arg);
         }
     }
@@ -425,7 +425,7 @@ void opUsingSkill(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to using_skill", program->name, arg);
         }
     }
@@ -503,7 +503,7 @@ void opSkillContest(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to skill_contest", program->name, arg);
         }
     }
@@ -528,7 +528,7 @@ void opDoCheck(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to do_check", program->name, arg);
         }
     }
@@ -577,7 +577,7 @@ void opSuccess(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to success", program->name);
     }
 
@@ -609,7 +609,7 @@ void opCritical(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to critical", program->name);
     }
 
@@ -641,7 +641,7 @@ void opHowMuch(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to how_much", program->name);
     }
 
@@ -675,7 +675,7 @@ void opMarkAreaKnown(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to mark_area_known", program->name, arg);
         }
     }
@@ -708,7 +708,7 @@ void opReactionInfluence(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reaction_influence", program->name, arg);
         }
     }
@@ -733,7 +733,7 @@ void opRandom(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to random", program->name, arg);
         }
     }
@@ -764,7 +764,7 @@ void opRollDice(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to roll_dice", program->name, arg);
         }
     }
@@ -866,7 +866,7 @@ void opCreateObject(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to create_object", program->name, arg);
         }
     }
@@ -1076,7 +1076,7 @@ void opObjectIsCarryingObjectWithPid(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to obj_is_carrying_obj", program->name, arg);
         }
     }
@@ -1110,7 +1110,7 @@ void opTileContainsObjectWithPid(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to tile_contains_obj_pid", program->name, arg);
         }
     }
@@ -1221,7 +1221,7 @@ void opGetLocalVar(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         // FIXME: The error message is wrong.
         programFatalError("script error: %s: invalid arg to op_global_var", program->name);
     }
@@ -1250,7 +1250,7 @@ void opSetLocalVar(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to set_local_var", program->name, arg);
         }
     }
@@ -1273,7 +1273,7 @@ void opGetMapVar(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to op_map_var", program->name);
     }
 
@@ -1298,7 +1298,7 @@ void opSetMapVar(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to set_map_var", program->name, arg);
         }
     }
@@ -1320,7 +1320,7 @@ void opGetGlobalVar(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to op_global_var", program->name);
     }
 
@@ -1351,7 +1351,7 @@ void opSetGlobalVar(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to set_global_var", program->name, arg);
         }
     }
@@ -1396,7 +1396,7 @@ void opGetObjectType(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to op_obj_type", program->name);
     }
 
@@ -1422,7 +1422,7 @@ void opGetItemType(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to op_item_subtype", program->name);
     }
 
@@ -1457,7 +1457,7 @@ void opGetCritterStat(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to get_critter_stat", program->name, arg);
         }
     }
@@ -1494,7 +1494,7 @@ void opSetCritterStat(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to set_critter_stat", program->name, arg);
         }
     }
@@ -1533,7 +1533,7 @@ void opAnimateStand(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to animate_stand_obj", program->name);
     }
 
@@ -1721,7 +1721,7 @@ void opTileDistanceBetween(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to tile_distance", program->name, arg);
         }
     }
@@ -1756,7 +1756,7 @@ void opTileDistanceBetweenObjects(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to tile_distance_objs", program->name, arg);
         }
     }
@@ -1793,7 +1793,7 @@ void opGetObjectTile(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to tile_num", program->name);
     }
 
@@ -1906,7 +1906,7 @@ void opDrop(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to drop_obj", program->name);
     }
 
@@ -2114,7 +2114,7 @@ void opUseObject(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to use_obj", program->name);
     }
 
@@ -2671,7 +2671,7 @@ void opWorldmapCitySetPos(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to wm_area_set_pos", program->name, arg);
         }
     }
@@ -2701,7 +2701,7 @@ void opSetExitGrids(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to set_exit_grids", program->name, arg);
         }
     }
@@ -2734,7 +2734,7 @@ void opAnimBusy(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to anim_busy", program->name);
     }
 
@@ -2766,7 +2766,7 @@ void opCritterHeal(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to critter_heal", program->name, arg);
         }
     }
@@ -2795,7 +2795,7 @@ void opSetLightLevel(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to set_light_level", program->name);
     }
 
@@ -2845,7 +2845,7 @@ void opGetObjectElevation(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to elevation", program->name);
     }
 
@@ -3098,7 +3098,7 @@ void opAddTimerEvent(Program* s)
             programPopString(s, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to add_timer_event", s->name, arg);
         }
     }
@@ -3130,7 +3130,7 @@ void opRemoveTimerEvent(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to rm_timer_event", program->name);
     }
 
@@ -3158,7 +3158,7 @@ void opGameTicks(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to game_ticks", program->name);
     }
 
@@ -3334,7 +3334,7 @@ void opTileIsVisible(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to tile_is_visible", program->name);
     }
 
@@ -3406,7 +3406,7 @@ void opGetCritterState(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to critter_state", program->name);
     }
 
@@ -3447,7 +3447,7 @@ void opGameTimeAdvance(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to game_time_advance", program->name);
     }
 
@@ -3478,7 +3478,7 @@ void opRadiationIncrease(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to radiation_inc", program->name, arg);
         }
     }
@@ -3509,7 +3509,7 @@ void opRadiationDecrease(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to radiation_dec", program->name, arg);
         }
     }
@@ -3579,7 +3579,7 @@ void opGetObjectPid(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_pid", program->name);
     }
 
@@ -3949,7 +3949,7 @@ void _op_inven_cmds(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to inven_cmds", program->name, arg);
         }
     }
@@ -4095,7 +4095,7 @@ void opMetarule(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to metarule", program->name, arg);
         }
     }
@@ -4350,7 +4350,7 @@ void opObjectCarryingObjectByPid(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to obj_carrying_pid_obj", program->name, arg);
         }
     }
@@ -4384,7 +4384,7 @@ void opRegAnimFunc(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_func", program->name, arg);
         }
     }
@@ -4422,7 +4422,7 @@ void opRegAnimAnimate(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_animate", program->name, arg);
         }
     }
@@ -4458,7 +4458,7 @@ void opRegAnimAnimateReverse(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_animate_reverse", program->name, arg);
         }
     }
@@ -4491,7 +4491,7 @@ void opRegAnimObjectMoveToObject(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_obj_move_to_obj", program->name, arg);
         }
     }
@@ -4524,7 +4524,7 @@ void opRegAnimObjectRunToObject(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_obj_run_to_obj", program->name, arg);
         }
     }
@@ -4557,7 +4557,7 @@ void opRegAnimObjectMoveToTile(Program* prg)
             programPopString(prg, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_obj_move_to_tile", prg->name, arg);
         }
     }
@@ -4590,7 +4590,7 @@ void opRegAnimObjectRunToTile(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_obj_run_to_tile", program->name, arg);
         }
     }
@@ -4624,7 +4624,7 @@ void opPlayGameMovie(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to play_gmovie", program->name);
     }
 
@@ -4654,7 +4654,7 @@ void opAddMultipleObjectsToInventory(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to add_mult_objs_to_inven", program->name, arg);
         }
     }
@@ -4770,7 +4770,7 @@ void opExplosion(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to explosion", program->name, arg);
         }
     }
@@ -5081,7 +5081,7 @@ void opPoison(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to poison", program->name, arg);
         }
     }
@@ -5110,7 +5110,7 @@ void opGetPoison(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to get_poison", program->name);
     }
 
@@ -5142,7 +5142,7 @@ void opPartyAdd(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to party_add", program->name);
     }
 
@@ -5166,7 +5166,7 @@ void opPartyRemove(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to party_remove", program->name);
     }
 
@@ -5194,7 +5194,7 @@ void opRegAnimAnimateForever(Program* prg)
             programPopString(prg, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to reg_anim_animate_forever", prg->name, arg);
         }
     }
@@ -5278,7 +5278,7 @@ void _op_gdialog_barter(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to gdialog_barter", program->name);
     }
 
@@ -5340,7 +5340,7 @@ void opObjectIsLocked(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_is_locked", program->name);
     }
 
@@ -5368,7 +5368,7 @@ void opObjectLock(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_lock", program->name);
     }
 
@@ -5392,7 +5392,7 @@ void opObjectUnlock(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_unlock", program->name);
     }
 
@@ -5416,7 +5416,7 @@ void opObjectIsOpen(Program* s)
         programPopString(s, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_is_open", s->name);
     }
 
@@ -5444,7 +5444,7 @@ void opObjectOpen(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_open", program->name);
     }
 
@@ -5468,7 +5468,7 @@ void opObjectClose(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_close", program->name);
     }
 
@@ -5514,7 +5514,7 @@ void opFadeOut(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to gfade_out", program->name);
     }
 
@@ -5536,7 +5536,7 @@ void opFadeIn(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to gfade_in", program->name);
     }
 
@@ -5558,7 +5558,7 @@ void opItemCapsTotal(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to item_caps_total", program->name);
     }
 
@@ -5590,7 +5590,7 @@ void opItemCapsAdjust(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to item_caps_adjust", program->name, arg);
         }
     }
@@ -5624,7 +5624,7 @@ void _op_anim_action_frame(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to anim_action_frame", program->name, arg);
         }
     }
@@ -5666,11 +5666,11 @@ void opRegAnimPlaySfx(Program* program)
         }
 
         if (arg == 1) {
-            if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_STRING) {
+            if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
                 programFatalError("script error: %s: invalid arg %d to reg_anim_play_sfx", program->name, arg);
             }
         } else {
-            if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+            if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
                 programFatalError("script error: %s: invalid arg %d to reg_anim_play_sfx", program->name, arg);
             }
         }
@@ -5775,7 +5775,7 @@ void opSfxBuildCharName(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to sfx_build_char_name", program->name, arg);
         }
     }
@@ -5809,7 +5809,7 @@ void opSfxBuildAmbientName(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to sfx_build_ambient_name", program->name);
     }
 
@@ -6282,7 +6282,7 @@ void opGetObjectFid(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_art_fid", program->name);
     }
 
@@ -6310,7 +6310,7 @@ void opGetFidAnim(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to art_anim", program->name);
     }
 
@@ -6329,7 +6329,7 @@ void opGetPartyMember(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to party_member_obj", program->name);
     }
 
@@ -6353,7 +6353,7 @@ void opGetRotationToTile(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to rotation_to_tile", program->name, arg);
         }
     }
@@ -6377,7 +6377,7 @@ void opJamLock(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to jam_lock", program->name);
     }
 
@@ -6397,7 +6397,7 @@ void opGameDialogSetBarterMod(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to gdialog_set_barter_mod", program->name);
     }
 
@@ -6431,7 +6431,7 @@ void opObjectOnScreen(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_on_screen", program->name);
     }
 
@@ -6468,7 +6468,7 @@ void opCritterIsFleeing(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to critter_is_fleeing", program->name);
     }
 
@@ -6500,7 +6500,7 @@ void opCritterSetFleeState(Program* program)
             programPopString(program, opcode[arg], data[arg]);
         }
 
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("script error: %s: invalid arg %d to critter_set_flee_state", program->name, arg);
         }
     }
@@ -6547,7 +6547,7 @@ void opDebugMessage(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("script error: %s: invalid arg to debug_msg", program->name);
     }
 
@@ -6574,7 +6574,7 @@ void opCritterStopAttacking(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to critter_stop_attacking", program->name);
     }
 
@@ -6640,7 +6640,7 @@ void opGetObjectName(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to obj_name", program->name);
     }
 
@@ -6668,7 +6668,7 @@ void opGetPcStat(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("script error: %s: invalid arg to get_pc_stat", program->name);
     }
 
