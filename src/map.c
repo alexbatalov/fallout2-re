@@ -1052,7 +1052,7 @@ int _map_age_dead_critters()
             && obj != gDude
             && !objectIsPartyMember(obj)
             && !critterIsDead(obj)) {
-            obj->data.critter.combat.maneuver &= 0x04;
+            obj->data.critter.combat.maneuver &= CRITTER_MANUEVER_FLEEING;
             if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_FLAG_0x200) == 0) {
                 _critter_heal_hours(obj, v4);
             }

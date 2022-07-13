@@ -2424,7 +2424,7 @@ void _combat_begin(Object* a1)
         for (int index = 0; index < _list_total; index++) {
             Object* critter = _combat_list[index];
             CritterCombatData* combatData = &(critter->data.critter.combat);
-            combatData->maneuver &= 0x01;
+            combatData->maneuver &= CRITTER_MANEUVER_0x01;
             combatData->damageLastTurn = 0;
             combatData->whoHitMe = NULL;
             combatData->ap = 0;
@@ -2597,7 +2597,7 @@ void _combat_over()
     for (int index = 0; index < _list_noncom + _list_com; index++) {
         Object* critter = _combat_list[index];
         critter->data.critter.combat.damageLastTurn = 0;
-        critter->data.critter.combat.maneuver = 0;
+        critter->data.critter.combat.maneuver = CRITTER_MANEUVER_NONE;
     }
 
     for (int index = 0; index < _list_total; index++) {
@@ -2727,7 +2727,7 @@ void _combat_add_noncoms()
     for (int index = _list_com; index < _list_com + _list_noncom; index++) {
         Object* obj = _combat_list[index];
         if (_combatai_want_to_join(obj)) {
-            obj->data.critter.combat.maneuver = 0;
+            obj->data.critter.combat.maneuver = CRITTER_MANEUVER_NONE;
 
             Object** objectPtr1 = &(_combat_list[index]);
             Object** objectPtr2 = &(_combat_list[_list_com]);
