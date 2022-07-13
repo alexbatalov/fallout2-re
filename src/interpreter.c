@@ -115,12 +115,12 @@ char* programGetCurrentProcedureName(Program* program)
     int identifierOffset = stackReadInt32(ptr, 0);
 
     for (int index = 0; index < procedureCount; index++) {
-        int nextProcedureOffset = stackReadInt32(ptr + 24, 16);
+        int nextProcedureOffset = stackReadInt32(ptr + sizeof(Procedure), 16);
         if (program->instructionPointer >= procedureOffset && program->instructionPointer < nextProcedureOffset) {
             return (char*)(program->identifiers + identifierOffset);
         }
 
-        ptr += 24;
+        ptr += sizeof(Procedure);
         identifierOffset = stackReadInt32(ptr, 0);
     }
 
@@ -437,7 +437,7 @@ Program* programCreateByPath(const char* path)
     program->returnStack = (unsigned char*)internal_calloc_safe(1, 4096, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 473
     program->data = data;
     program->procedures = data + 42;
-    program->identifiers = 24 * stackReadInt32(program->procedures, 0) + program->procedures + 4;
+    program->identifiers = sizeof(Procedure) * stackReadInt32(program->procedures, 0) + program->procedures + 4;
     program->staticStrings = program->identifiers + stackReadInt32(program->identifiers, 0) + 4;
 
     return program;
@@ -706,17 +706,17 @@ void opDelayedCall(Program* program)
         }
 
         if (arg == 0) {
-            if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+            if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
                 programFatalError("Invalid procedure type given to call");
             }
         } else if (arg == 1) {
-            if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+            if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
                 programFatalError("Invalid time given to call");
             }
         }
     }
 
-    unsigned char* procedure_ptr = program->procedures + 4 + 24 * data[0];
+    unsigned char* procedure_ptr = program->procedures + 4 + sizeof(Procedure) * data[0];
 
     int delay = 1000 * data[1];
 
@@ -745,15 +745,15 @@ void opConditionalCall(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure type given to conditional call");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid address given to conditional call");
     }
 
-    unsigned char* procedure_ptr = program->procedures + 4 + 24 * data[0];
+    unsigned char* procedure_ptr = program->procedures + 4 + sizeof(Procedure) * data[0];
     int flags = stackReadInt32(procedure_ptr, 4);
 
     stackWriteInt32(flags | PROCEDURE_FLAG_CONDITIONAL, procedure_ptr, 4);
@@ -770,7 +770,7 @@ void opWait(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid type given to wait\n");
     }
 
@@ -790,7 +790,7 @@ void opCancel(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("invalid type given to cancel");
     }
 
@@ -2225,11 +2225,11 @@ void opCall(Program* program)
         programPopString(program, type, value);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid address given to call");
     }
 
-    unsigned char* ptr = program->procedures + 4 + 24 * value;
+    unsigned char* ptr = program->procedures + 4 + sizeof(Procedure) * value;
 
     int flags = stackReadInt32(ptr, 4);
     if ((flags & 4) != 0) {
@@ -2257,7 +2257,7 @@ void op801F(Program* program)
         }
     }
 
-    program->field_84 = data[0];
+    program->windowId = data[0];
     program->field_7C = (int (*)(Program*))data[1];
     program->flags = data[2] & 0xFFFF;
 }
@@ -2419,7 +2419,7 @@ void op8024(Program* program)
     programReturnStackPopInt16(program);
     v10->flags = stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
-    if ((type & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         str = programGetString(program, type, value);
         stackPushInt32(v10->stack, &(v10->stackPointer), programPushString(v10, str));
         type = VALUE_TYPE_DYNAMIC_STRING;
@@ -2772,7 +2772,7 @@ void opCallStart(Program* program)
         programPopString(program, type, value);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to callstart");
     }
 
@@ -2791,7 +2791,7 @@ void opCallStart(Program* program)
     _interpret(program->child, 24);
 
     program->child->parent = program;
-    program->child->field_84 = program->field_84;
+    program->child->windowId = program->windowId;
 }
 
 // spawn
@@ -2814,7 +2814,7 @@ void opSpawn(Program* program)
         programPopString(program, type, value);
     }
 
-    if ((type & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to spawn");
     }
 
@@ -2839,7 +2839,7 @@ void opSpawn(Program* program)
     _interpret(program->child, 24);
 
     program->child->parent = program;
-    program->child->field_84 = program->field_84;
+    program->child->windowId = program->windowId;
 
     if ((program->flags & PROGRAM_FLAG_CRITICAL_SECTION) != 0) {
         program->child->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
@@ -2872,7 +2872,7 @@ Program* forkProgram(Program* program)
 
     _interpret(forked, 24);
 
-    forked->field_84 = program->field_84;
+    forked->windowId = program->windowId;
 
     return forked;
 }
@@ -2931,9 +2931,9 @@ void opCheckProcedureArgumentCount(Program* program)
     int expectedArgumentCount = data[0];
     int procedureIndex = data[1];
 
-    int actualArgumentCount = stackReadInt32(program->procedures + 4 + 24 * procedureIndex, 20);
+    int actualArgumentCount = stackReadInt32(program->procedures + 4 + sizeof(Procedure) * procedureIndex, 20);
     if (actualArgumentCount != expectedArgumentCount) {
-        const char* identifier = programGetIdentifier(program, stackReadInt32(program->procedures + 4 + 24 * procedureIndex, 0));
+        const char* identifier = programGetIdentifier(program, stackReadInt32(program->procedures + 4 + sizeof(Procedure) * procedureIndex, 0));
         char err[260];
         sprintf(err, "Wrong number of args to procedure %s\n", identifier);
         programFatalError(err);
@@ -2951,7 +2951,7 @@ void opLookupStringProc(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Wrong type given to lookup_string_proc\n");
     }
 
@@ -3194,7 +3194,7 @@ void _setupCallWithReturnVal(Program* program, int address, int returnAddress)
     stackPushInt32(program->stack, &(program->stackPointer), (intptr_t)program->field_7C);
     programStackPushInt16(program, VALUE_TYPE_INT);
 
-    stackPushInt32(program->stack, &(program->stackPointer), program->field_84);
+    stackPushInt32(program->stack, &(program->stackPointer), program->windowId);
     programStackPushInt16(program, VALUE_TYPE_INT);
 
     program->flags &= ~0xFFFF;
@@ -3225,12 +3225,12 @@ void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int a
     stackPushInt32(program2->stack, &(program2->stackPointer), (intptr_t)program2->field_7C);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
-    stackPushInt32(program2->stack, &(program2->stackPointer), program2->field_84);
+    stackPushInt32(program2->stack, &(program2->stackPointer), program2->windowId);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
     program2->flags &= ~0xFFFF;
     program2->instructionPointer = address;
-    program2->field_84 = program1->field_84;
+    program2->windowId = program1->windowId;
 
     program1->flags |= PROGRAM_FLAG_0x20;
 }
@@ -3245,9 +3245,9 @@ void _executeProc(Program* program, int procedure_index)
     unsigned char* procedure_ptr;
     int flags;
     char err[256];
-    Program* v12;
+    Program* context;
 
-    procedure_ptr = program->procedures + 4 + 24 * procedure_index;
+    procedure_ptr = program->procedures + 4 + sizeof(Procedure) * procedure_index;
     flags = stackReadInt32(procedure_ptr, 4);
     if (!(flags & PROCEDURE_FLAG_IMPORTED)) {
         address = stackReadInt32(procedure_ptr, 16);
@@ -3262,7 +3262,7 @@ void _executeProc(Program* program, int procedure_index)
         }
 
         program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        v12 = program;
+        context = program;
     } else {
         identifier = programGetIdentifier(program, stackReadInt32(procedure_ptr, 0));
         external_program = externalProcedureGetProgram(identifier, &address, &arguments_count);
@@ -3285,7 +3285,7 @@ void _executeProc(Program* program, int procedure_index)
         programStackPushInt32(external_program, 0);
         programStackPushInt16(external_program, VALUE_TYPE_INT);
 
-        procedure_ptr = external_program->procedures + 4 + 24 * procedure_index;
+        procedure_ptr = external_program->procedures + 4 + sizeof(Procedure) * procedure_index;
         flags = stackReadInt32(procedure_ptr, 4);
 
         if (!(flags & PROCEDURE_FLAG_CRITICAL)) {
@@ -3293,10 +3293,10 @@ void _executeProc(Program* program, int procedure_index)
         }
 
         external_program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        v12 = external_program;
+        context = external_program;
     }
 
-    _interpret(v12, 0);
+    _interpret(context, 0);
 }
 
 // Returns index of the procedure with specified name or -1 if no such
@@ -3333,10 +3333,10 @@ void _executeProcedure(Program* program, int procedure_index)
     jmp_buf jmp_buf;
     Program* v13;
 
-    procedure_ptr = program->procedures + 4 + 24 * procedure_index;
+    procedure_ptr = program->procedures + 4 + sizeof(Procedure) * procedure_index;
     flags = stackReadInt32(procedure_ptr, 4);
 
-    if (flags & 0x04) {
+    if (flags & PROCEDURE_FLAG_IMPORTED) {
         identifier = programGetIdentifier(program, stackReadInt32(procedure_ptr, 0));
         external_program = externalProcedureGetProgram(identifier, &address, &arguments_count);
         if (external_program == NULL) {
