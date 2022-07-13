@@ -1008,7 +1008,7 @@ int mapLoadSaved(char* fileName)
     int rc = mapLoadByName(mapName);
 
     if (gameTimeGetTime() >= gMapHeader.field_38) {
-        if (((gameTimeGetTime() - gMapHeader.field_38) / 36000) >= 24) {
+        if (((gameTimeGetTime() - gMapHeader.field_38) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
             objectUnjamAll();
         }
 
@@ -1041,7 +1041,7 @@ int _map_age_dead_critters()
         return 0;
     }
 
-    int hoursSinceLastVisit = (gameTimeGetTime() - gMapHeader.field_38) / 36000;
+    int hoursSinceLastVisit = (gameTimeGetTime() - gMapHeader.field_38) / GAME_TIME_TICKS_PER_HOUR;
     if (hoursSinceLastVisit == 0) {
         return 0;
     }

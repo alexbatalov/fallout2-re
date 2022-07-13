@@ -479,7 +479,7 @@ int _critter_check_rads(Object* obj)
 
         radiationEvent->radiationLevel = radiationLevel;
         radiationEvent->isHealing = 0;
-        queueAddEvent(36000 * randomBetween(4, 18), obj, radiationEvent, EVENT_TYPE_RADIATION);
+        queueAddEvent(GAME_TIME_TICKS_PER_HOUR * randomBetween(4, 18), obj, radiationEvent, EVENT_TYPE_RADIATION);
     }
 
     proto->critter.data.flags &= ~(CRITTER_FLAG_0x2);

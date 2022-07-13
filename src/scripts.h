@@ -17,6 +17,9 @@
 #define SCRIPT_FLAG_0x08 (0x08)
 #define SCRIPT_FLAG_0x10 (0x10)
 
+// 60 * 60 * 10
+#define GAME_TIME_TICKS_PER_HOUR 36000
+
 // 24 * 60 * 60 * 10
 #define GAME_TIME_TICKS_PER_DAY (864000)
 

@@ -1825,7 +1825,7 @@ bool pipboyRest(int hours, int minutes, int duration)
                     rc = true;
                 }
 
-                unsigned int v8 = (unsigned int)((double)hour / v7 * (hours * 36000.0) + gameTime);
+                unsigned int v8 = (unsigned int)((double)hour / v7 * (hours * GAME_TIME_TICKS_PER_HOUR) + gameTime);
                 unsigned int nextEventTime = queueGetNextEventTime();
                 if (!rc && v8 >= nextEventTime) {
                     gameTimeSetTime(nextEventTime + 1);
@@ -1862,7 +1862,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             }
 
             if (!rc) {
-                gameTimeSetTime(gameTime + 36000 * hours);
+                gameTimeSetTime(gameTime + GAME_TIME_TICKS_PER_HOUR * hours);
             }
 
             pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
