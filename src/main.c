@@ -375,7 +375,10 @@ void _main_selfrun_record()
     if (fileListLength != 0) {
         int selectedFileIndex = sub_4DA6C0("Select Map", fileList, fileListLength, 0, 80, 80, 65796);
         if (selectedFileIndex != -1) {
-            char recordingName[12];
+            // NOTE: It's size is likely 13 chars (on par with SelfrunData
+            // fields), but due to the padding it takes 16 chars on stack.
+            char recordingName[13];
+            recordingName[0] = '\0';
             if (_win_get_str(recordingName, 11, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
                 memset(&selfrunData, 0, sizeof(selfrunData));
                 if (selfrunPrepareRecording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {

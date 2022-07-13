@@ -138,7 +138,7 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
 
     windowRefresh(win);
 
-    sub_4DCA5C(win,
+    _win_input_str(win,
         dest,
         length,
         16,
@@ -336,10 +336,106 @@ int _win_width_needed(char** fileNameList, int fileNameListLength)
 }
 
 // 0x4DCA5C
-int sub_4DCA5C(int win, char* dest, int maxLength, int x, int y, int color1, int color2)
+int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textColor, int backgroundColor)
 {
-    // TODO: Incomplete.
-    return -1;
+    Window* window = windowGetWindow(win);
+    unsigned char* buffer = window->buffer + window->width * y + x;
+
+    int cursorPos = strlen(dest);
+    dest[cursorPos] = '_';
+    dest[cursorPos + 1] = '\0';
+
+    int lineHeight = fontGetLineHeight();
+    int stringWidth = fontGetStringWidth(dest);
+    bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+    fontDrawText(buffer, dest, stringWidth, window->width, textColor);
+
+    Rect dirtyRect;
+    dirtyRect.left = window->rect.left + x;
+    dirtyRect.top = window->rect.top + y;
+    dirtyRect.right = dirtyRect.left + stringWidth;
+    dirtyRect.bottom = dirtyRect.top + lineHeight;
+    _GNW_win_refresh(window, &dirtyRect, NULL);
+
+    // NOTE: This loop is slightly different compared to other input handling
+    // loops. Cursor position is managed inside an incrementing loop. Cursor is
+    // decremented in the loop body when key is not handled.
+    bool isFirstKey = true;
+    for (; cursorPos <= maxLength; cursorPos++) {
+        int keyCode = _get_input();
+        if (keyCode != -1) {
+            if (keyCode == KEY_BACKSPACE) {
+                if (cursorPos > 0) {
+                    stringWidth = fontGetStringWidth(dest);
+
+                    if (isFirstKey) {
+                        bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+
+                        dirtyRect.left = window->rect.left + x;
+                        dirtyRect.top = window->rect.top + y;
+                        dirtyRect.right = dirtyRect.left + stringWidth;
+                        dirtyRect.bottom = dirtyRect.top + lineHeight;
+                        _GNW_win_refresh(window, &dirtyRect, NULL);
+
+                        dest[0] = '_';
+                        dest[1] = '\0';
+                        cursorPos = 1;
+                    } else {
+                        dest[cursorPos] = ' ';
+                        dest[cursorPos - 1] = '_';
+                    }
+
+                    bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+                    fontDrawText(buffer, dest, stringWidth, window->width, textColor);
+
+                    dirtyRect.left = window->rect.left + x;
+                    dirtyRect.top = window->rect.top + y;
+                    dirtyRect.right = dirtyRect.left + stringWidth;
+                    dirtyRect.bottom = dirtyRect.top + lineHeight;
+                    _GNW_win_refresh(window, &dirtyRect, NULL);
+
+                    dest[cursorPos] = '\0';
+                    cursorPos -= 2;
+
+                    isFirstKey = false;
+                } else {
+                    cursorPos--;
+                }
+            } else if (keyCode == KEY_RETURN) {
+                break;
+            } else {
+                if (cursorPos == maxLength) {
+                    cursorPos = maxLength - 1;
+                } else {
+                    if (keyCode > 0 && keyCode < 256) {
+                        dest[cursorPos] = keyCode;
+                        dest[cursorPos + 1] = '_';
+                        dest[cursorPos + 2] = '\0';
+
+                        int stringWidth = fontGetStringWidth(dest);
+                        bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+                        fontDrawText(buffer, dest, stringWidth, window->width, textColor);
+
+                        dirtyRect.left = window->rect.left + x;
+                        dirtyRect.top = window->rect.top + y;
+                        dirtyRect.right = dirtyRect.left + stringWidth;
+                        dirtyRect.bottom = dirtyRect.top + lineHeight;
+                        _GNW_win_refresh(window, &dirtyRect, NULL);
+
+                        isFirstKey = false;
+                    } else {
+                        cursorPos--;
+                    }
+                }
+            }
+        } else {
+            cursorPos--;
+        }
+    }
+
+    dest[cursorPos] = '\0';
+
+    return 0;
 }
 
 // 0x4DC930

@@ -43,7 +43,7 @@ void _win_debug_delete();
 int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7);
 int _win_register_menu_pulldown(int win, int x, char* str, int a4);
 int _win_width_needed(char** fileNameList, int fileNameListLength);
-int sub_4DCA5C(int win, char* dest, int maxLength, int x, int y, int color1, int color2);
+int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textColor, int backgroundColor);
 int _GNW_process_menu(struc_177* ptr, int i);
 int _calc_max_field_chars_wcursor(int a1, int a2);
 void _GNW_intr_init();
