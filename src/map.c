@@ -1041,8 +1041,8 @@ int _map_age_dead_critters()
         return 0;
     }
 
-    int v4 = (gameTimeGetTime() - gMapHeader.field_38) / 36000;
-    if (v4 == 0) {
+    int hoursSinceLastVisit = (gameTimeGetTime() - gMapHeader.field_38) / 36000;
+    if (hoursSinceLastVisit == 0) {
         return 0;
     }
 
@@ -1052,26 +1052,20 @@ int _map_age_dead_critters()
             && obj != gDude
             && !objectIsPartyMember(obj)
             && !critterIsDead(obj)) {
-            obj->data.critter.combat.maneuver &= CRITTER_MANUEVER_FLEEING;
+            obj->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
             if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_FLAG_0x200) == 0) {
-                _critter_heal_hours(obj, v4);
+                _critter_heal_hours(obj, hoursSinceLastVisit);
             }
         }
         obj = objectFindNext();
     }
 
-    int v20;
-    if (v4 <= 336) {
-        if (v4 > 144) {
-            v20 = 1;
-        } else {
-            v20 = 0;
-        }
+    int agingType;
+    if (hoursSinceLastVisit > 6 * 24) {
+        agingType = 1;
+    } else if (hoursSinceLastVisit > 14 * 24) {
+        agingType = 2;
     } else {
-        v20 = 2;
-    }
-
-    if (v20 == 0) {
         return 0;
     }
 
@@ -1097,7 +1091,7 @@ int _map_age_dead_critters()
                     }
                 }
             }
-        } else if (v20 == 2 && type == OBJ_TYPE_MISC && obj->pid == 0x500000B) {
+        } else if (agingType == 2 && type == OBJ_TYPE_MISC && obj->pid == 0x500000B) {
             objects[count++] = obj;
             if (count >= capacity) {
                 capacity *= 2;
@@ -1119,13 +1113,13 @@ int _map_age_dead_critters()
                 _item_drop_all(obj, obj->tile);
             }
 
-            Object* a1;
-            if (objectCreateWithPid(&a1, 0x5000004) == -1) {
+            Object* blood;
+            if (objectCreateWithPid(&blood, 0x5000004) == -1) {
                 rc = -1;
                 break;
             }
 
-            objectSetLocation(a1, obj->tile, obj->elevation, NULL);
+            objectSetLocation(blood, obj->tile, obj->elevation, NULL);
 
             Proto* proto;
             protoGetProto(obj->pid, &proto);
@@ -1140,7 +1134,7 @@ int _map_age_dead_critters()
                 }
             }
 
-            objectSetFrame(a1, frame, NULL);
+            objectSetFrame(blood, frame, NULL);
         }
 
         reg_anim_clear(obj);
