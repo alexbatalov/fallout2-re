@@ -648,31 +648,37 @@ void pauseGame()
 // 0x4C8E38
 int pauseHandlerDefaultImpl()
 {
-    int len;
-    int v1;
-    int v2;
-    int win;
-    unsigned char* buf;
-    int v6;
-    int v7;
+    int windowWidth = fontGetStringWidth("Paused") + 32;
+    int windowHeight = 3 * fontGetLineHeight() + 16;
 
-    len = fontGetStringWidth("Paused") + 32;
-    v1 = fontGetLineHeight();
-    v2 = 3 * v1 + 16;
-
-    win = windowCreate((_scr_size.right - _scr_size.left + 1 - len) / 2, (_scr_size.bottom - _scr_size.top + 1 - v2) / 2, len, v2, 256, 20);
+    int win = windowCreate((rectGetWidth(&_scr_size) - windowWidth) / 2,
+        (rectGetHeight(&_scr_size) - windowHeight) / 2,
+        windowWidth,
+        windowHeight,
+        256,
+        WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     if (win == -1) {
         return -1;
     }
 
     windowDrawBorder(win);
-    buf = windowGetBuffer(win);
-    fontDrawText(buf + 8 * len + 16, "Paused", len, len, _colorTable[31744]);
 
-    v6 = v2 - 8 - v1;
-    v7 = fontGetStringWidth("Done");
-    // TODO: Incomplete.
-    // _win_register_text_button(win, (len - v7 - 16) / 2, v6 - 6, -1, -1, -1, 27, "Done", 0);
+    unsigned char* windowBuffer = windowGetBuffer(win);
+    fontDrawText(windowBuffer + 8 * windowWidth + 16,
+        "Paused",
+        windowWidth,
+        windowWidth,
+        _colorTable[31744]);
+
+    _win_register_text_button(win,
+        (windowWidth - fontGetStringWidth("Done") - 16) / 2,
+        windowHeight - 8 - fontGetLineHeight() - 6,
+        -1,
+        -1, 
+        -1, 
+        KEY_ESCAPE,
+        "Done",
+        0);
 
     windowRefresh(win);
 
