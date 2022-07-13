@@ -323,8 +323,8 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
             a4 = _colorTable[_GNW_wcolor[0]];
         }
     } else if ((a4 & 0xFF00) != 0) {
-        int v1 = (a4 & 0xFF00) >> 8;
-        a4 = (a4 & ~0xFFFF) | _colorTable[_GNW_wcolor[v1]];
+        int colorIndex = (a4 & 0xFF) - 1;
+        a4 = (a4 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
     }
 
     window->buttonListHead = 0;
@@ -509,9 +509,9 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
         }
     }
 
-    if (a6 & 0xFF00) {
-        int t = (a6 & 0xFF00) >> 8;
-        v27 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[t]];
+    if ((a6 & 0xFF00) != 0) {
+        int colorIndex = (a6 & 0xFF) - 1;
+        v27 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
     } else {
         v27 = a6;
     }
@@ -542,9 +542,9 @@ void windowDrawLine(int win, int left, int top, int right, int bottom, int color
         return;
     }
 
-    if (color & 0xFF00) {
-        int t = (color & 0xFF00) >> 8;
-        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[t]];
+    if ((color & 0xFF00) != 0) {
+        int colorIndex = (color & 0xFF) - 1;
+        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
     }
 
     bufferDrawLine(window->buffer, window->width, left, top, right, bottom, color);
@@ -564,8 +564,8 @@ void windowDrawRect(int win, int left, int top, int right, int bottom, int color
     }
 
     if ((color & 0xFF00) != 0) {
-        int v1 = (color & 0xFF00) >> 8;
-        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[v1]];
+        int colorIndex = (color & 0xFF) - 1;
+        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
     }
 
     if (right < left) {
@@ -603,8 +603,8 @@ void windowFill(int win, int x, int y, int width, int height, int a6)
             a6 = _colorTable[_GNW_wcolor[0]] & 0xFF;
         }
     } else if ((a6 & 0xFF00) != 0) {
-        int v1 = (a6 & 0xFF00) >> 8;
-        a6 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[v1]];
+        int colorIndex = (a6 & 0xFF) - 1;
+        a6 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
     }
 
     if (a6 < 256) {
