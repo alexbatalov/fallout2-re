@@ -2456,7 +2456,7 @@ void _combat_begin(Object* a1)
         _gmouse_enable_scrolling();
 
         if (v1 != NULL && !_isLoadingGame()) {
-            int fid = buildFid((v1->fid & 0xF000000) >> 24,
+            int fid = buildFid(OBJECT_TYPE(v1->fid),
                 100,
                 (v1->fid & 0xFF0000) >> 16,
                 (v1->fid & 0xF000) >> 12,
@@ -2610,7 +2610,7 @@ void _combat_over()
         scriptSetFixedParam(critter->sid, 0);
 
         if (critter->pid == 0x1000098 && !critterIsDead(critter) && !_isLoadingGame()) {
-            int fid = buildFid((critter->fid & 0xF000000) >> 24,
+            int fid = buildFid(OBJECT_TYPE(critter->fid),
                 99,
                 (critter->fid & 0xFF0000) >> 16,
                 (critter->fid & 0xF000) >> 12,
@@ -3383,7 +3383,7 @@ bool _check_ranged_miss(Attack* attack)
             _make_straight_path_func(attack->attacker, curr, to, NULL, &critter, 32, _obj_shoot_blocking_at);
             if (critter != NULL) {
                 if ((critter->flags & OBJECT_SHOOT_THRU) == 0) {
-                    if ((critter->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER) {
+                    if (OBJECT_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
                         roll = ROLL_SUCCESS;
                         break;
                     }
@@ -3440,7 +3440,7 @@ int _shoot_along_path(Attack* attack, int a2, int a3, int anim)
         _make_straight_path_func(attack->attacker, v7, a2, NULL, &critter, 32, _obj_shoot_blocking_at);
 
         if (critter != NULL) {
-            if (((critter->fid & 0xF000000) >> 24) != OBJ_TYPE_CRITTER) {
+            if (OBJECT_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
                 break;
             }
 
@@ -3832,7 +3832,7 @@ void _compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4
 
         Object* obstacle = _obj_blocking_at(attacker, v5, attack->attacker->elevation);
         if (obstacle != NULL
-            && (obstacle->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER
+            && OBJECT_TYPE(obstacle->fid) == OBJ_TYPE_CRITTER
             && (obstacle->data.critter.combat.results & DAM_DEAD) == 0
             && (obstacle->flags & OBJECT_SHOOT_THRU) == 0
             && !_combat_is_shot_blocked(obstacle, obstacle->tile, tile, NULL, NULL)) {
@@ -4102,7 +4102,7 @@ int attackDetermineToHit(Object* attacker, int tile, Object* defender, int hitLo
     Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);
 
     bool targetIsCritter = defender != NULL
-        ? ((defender->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER
+        ? OBJECT_TYPE(defender->fid) == OBJ_TYPE_CRITTER
         : false;
 
     bool isRangedWeapon = false;
@@ -4305,7 +4305,7 @@ void attackComputeDamage(Attack* attack, int ammoQuantity, int bonusDamageMultip
 
     *damagePtr = 0;
 
-    if ((critter->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER) {
+    if (OBJECT_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
         return;
     }
 
@@ -4449,7 +4449,7 @@ void attackComputeDeathFlags(Attack* attack)
 void _apply_damage(Attack* attack, bool animated)
 {
     Object* attacker = attack->attacker;
-    bool attackerIsCritter = attacker != NULL && (attacker->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER;
+    bool attackerIsCritter = attacker != NULL && OBJECT_TYPE(attacker->fid) == OBJ_TYPE_CRITTER;
     bool v5 = attack->defender != attack->oops;
 
     if (attackerIsCritter && (attacker->data.critter.combat.results & DAM_DEAD) != 0) {
@@ -4464,7 +4464,7 @@ void _apply_damage(Attack* attack, bool animated)
     }
 
     Object* defender = attack->defender;
-    bool defenderIsCritter = defender != NULL && (defender->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER;
+    bool defenderIsCritter = defender != NULL && OBJECT_TYPE(defender->fid) == OBJ_TYPE_CRITTER;
 
     if (!defenderIsCritter && !v5) {
         bool v9 = objectIsPartyMember(attack->defender) && objectIsPartyMember(attack->attacker) ? false : true;
@@ -4510,7 +4510,7 @@ void _apply_damage(Attack* attack, bool animated)
 
     for (int index = 0; index < attack->extrasLength; index++) {
         Object* obj = attack->extras[index];
-        if ((obj->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER && (obj->data.critter.combat.results & DAM_DEAD) == 0) {
+        if (OBJECT_TYPE(obj->fid) == OBJ_TYPE_CRITTER && (obj->data.critter.combat.results & DAM_DEAD) == 0) {
             _set_new_results(obj, attack->extrasFlags[index]);
 
             if (defenderIsCritter) {
@@ -4558,7 +4558,7 @@ void _set_new_results(Object* critter, int flags)
         return;
     }
 
-    if (((critter->fid & 0xF000000) >> 24) != OBJ_TYPE_CRITTER) {
+    if (OBJECT_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
         return;
     }
 
@@ -4596,7 +4596,7 @@ void _damage_object(Object* a1, int damage, bool animated, int a4, Object* a5)
         return;
     }
 
-    if ((a1->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER) {
+    if (OBJECT_TYPE(a1->fid) != OBJ_TYPE_CRITTER) {
         return;
     }
 
@@ -4725,7 +4725,7 @@ void _combat_display(Attack* attack)
         && attack->oops != NULL
         && attack->defender != attack->oops
         && (attack->attackerFlags & DAM_HIT) != 0) {
-        if ((attack->defender->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
+        if (OBJECT_TYPE(attack->defender->fid) == OBJ_TYPE_CRITTER) {
             if (attack->oops == gDude) {
                 // 608 (male) - Oops! %s was hit instead of you!
                 // 708 (female) - Oops! %s was hit instead of you!
@@ -4781,7 +4781,7 @@ void _combat_display(Attack* attack)
         if (v21 != NULL && (v21->data.critter.combat.results & DAM_DEAD) == 0) {
             text[0] = '\0';
 
-            if ((v21->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
+            if (OBJECT_TYPE(v21->fid) == OBJ_TYPE_CRITTER) {
                 if (attack->defenderHitLocation == HIT_LOCATION_TORSO) {
                     if ((attack->attackerFlags & DAM_CRITICAL) != 0) {
                         switch (attack->defenderDamage) {
@@ -5666,7 +5666,7 @@ bool _combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
     while (obstacle != NULL && current != to) {
         _make_straight_path_func(a1, current, to, 0, &obstacle, 32, _obj_shoot_blocking_at);
         if (obstacle != NULL) {
-            if ((obstacle->fid & 0xF000000) >> 24 != OBJ_TYPE_CRITTER && obstacle != a4) {
+            if (OBJECT_TYPE(obstacle->fid) != OBJ_TYPE_CRITTER && obstacle != a4) {
                 return true;
             }
 

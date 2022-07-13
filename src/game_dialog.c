@@ -3367,7 +3367,7 @@ void partyMemberControlWindowUpdate()
 
     // Render preview.
     CacheEntry* previewHandle;
-    int previewFid = buildFid((gGameDialogSpeaker->fid & 0xF000000) >> 24, gGameDialogSpeaker->fid & 0xFFF, ANIM_STAND, (gGameDialogSpeaker->fid & 0xF000) >> 12, ROTATION_SW);
+    int previewFid = buildFid(OBJECT_TYPE(gGameDialogSpeaker->fid), gGameDialogSpeaker->fid & 0xFFF, ANIM_STAND, (gGameDialogSpeaker->fid & 0xF000) >> 12, ROTATION_SW);
     Art* preview = artLock(previewFid, &previewHandle);
     if (preview != NULL) {
         int width = artGetWidth(preview, 0, ROTATION_SW);

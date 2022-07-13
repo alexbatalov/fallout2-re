@@ -1204,7 +1204,7 @@ int _critter_wake_clear(Object* obj, void* data)
 
     obj->data.critter.combat.results &= ~(DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN);
 
-    int fid = buildFid((obj->fid & 0xF000000) >> 24, obj->fid & 0xFFF, ANIM_STAND, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    int fid = buildFid(OBJECT_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_STAND, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     objectSetFid(obj, fid, 0);
 
     return 0;
@@ -1217,7 +1217,7 @@ int _critter_set_who_hit_me(Object* a1, Object* a2)
         return -1;
     }
 
-    if (a2 != NULL && ((a2->fid & 0xF000000) >> 24) != OBJ_TYPE_CRITTER) {
+    if (a2 != NULL && OBJECT_TYPE(a2->fid) != OBJ_TYPE_CRITTER) {
         return -1;
     }
 

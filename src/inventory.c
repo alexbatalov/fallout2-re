@@ -1982,7 +1982,7 @@ void _adjust_ac(Object* critter, Object* oldArmor, Object* newArmor)
 void _adjust_fid()
 {
     int fid;
-    if ((_inven_dude->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
+    if (OBJECT_TYPE(_inven_dude->fid) == OBJ_TYPE_CRITTER) {
         Proto* proto;
 
         int v0 = _art_vault_guy_num;
@@ -3339,7 +3339,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
         return 0;
     }
 
-    if (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_CRITTER) {
+    if (OBJECT_TYPE(a2->fid) == OBJ_TYPE_CRITTER) {
         if (_critter_flag_check(a2->pid, CRITTER_FLAG_0x20)) {
             // You can't find anything to take from that.
             messageListItem.num = 50;
@@ -3350,7 +3350,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
         }
     }
 
-    if (((a2->fid & 0xF000000) >> 24) == OBJ_TYPE_ITEM) {
+    if (OBJECT_TYPE(a2->fid) == OBJ_TYPE_ITEM) {
         if (itemGetType(a2) == ITEM_TYPE_CONTAINER) {
             if (a2->frame == 0) {
                 CacheEntry* handle;
@@ -3424,7 +3424,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
     int critterCount = 0;
     int critterIndex = 0;
     if (!_gIsSteal) {
-        if ((a2->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
+        if (OBJECT_TYPE(a2->fid) == OBJ_TYPE_CRITTER) {
             critterCount = objectListCreate(a2->tile, a2->elevation, OBJ_TYPE_CRITTER, &critters);
             int endIndex = critterCount - 1;
             for (int index = 0; index < critterCount; index++) {
@@ -3867,7 +3867,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
                 if (rc != 1) {
                     if (_item_move(a3, _inven_dude, a1, quantityToMove) == 0) {
                         if ((a1->flags & OBJECT_IN_RIGHT_HAND) != 0) {
-                            a3->fid = buildFid((a3->fid & 0xF000000) >> 24, a3->fid & 0xFFF, (a3->fid & 0xFF0000) >> 16, 0, a3->rotation + 1);
+                            a3->fid = buildFid(OBJECT_TYPE(a3->fid), a3->fid & 0xFFF, (a3->fid & 0xFF0000) >> 16, 0, a3->rotation + 1);
                         }
 
                         a3->flags &= ~OBJECT_EQUIPPED;

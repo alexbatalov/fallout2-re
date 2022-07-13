@@ -1397,7 +1397,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
     }
 
     if (isInCombat()) {
-        if ((obj->fid & 0xF000000) >> 24 == OBJ_TYPE_CRITTER) {
+        if (OBJECT_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
             bool v8 = obj->outline != 0 && (obj->outline & OUTLINE_DISABLED) == 0;
             _combat_update_critter_outline_for_los(obj, v8);
         }
@@ -1417,7 +1417,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
             }
 
             if (elevation == elev) {
-                if ((obj->fid & 0xF000000) >> 24 == OBJ_TYPE_MISC) {
+                if (OBJECT_TYPE(obj->fid) == OBJ_TYPE_MISC) {
                     if (obj->pid >= 0x5000010 && obj->pid <= 0x5000017) {
                         ObjectData* data = &(obj->data);
 
@@ -2153,7 +2153,7 @@ Object* objectFindFirst()
     }
 
     while (objectListNode != NULL) {
-        if (artIsObjectTypeHidden((objectListNode->obj->fid & 0xF000000) >> 24) == 0) {
+        if (artIsObjectTypeHidden(OBJECT_TYPE(objectListNode->obj->fid)) == 0) {
             gObjectFindLastObjectListNode = objectListNode;
             return objectListNode->obj;
         }
@@ -2180,7 +2180,7 @@ Object* objectFindNext()
 
         while (objectListNode != NULL) {
             Object* object = objectListNode->obj;
-            if (!artIsObjectTypeHidden((object->fid & 0xF000000) >> 24)) {
+            if (!artIsObjectTypeHidden(OBJECT_TYPE(object->fid))) {
                 gObjectFindLastObjectListNode = objectListNode;
                 return object;
             }
@@ -2203,7 +2203,7 @@ Object* objectFindFirstAtElevation(int elevation)
         while (objectListNode != NULL) {
             Object* object = objectListNode->obj;
             if (object->elevation == elevation) {
-                if (!artIsObjectTypeHidden((object->fid & 0xF000000) >> 24)) {
+                if (!artIsObjectTypeHidden(OBJECT_TYPE(object->fid))) {
                     gObjectFindLastObjectListNode = objectListNode;
                     return object;
                 }
@@ -2233,7 +2233,7 @@ Object* objectFindNextAtElevation()
         while (objectListNode != NULL) {
             Object* object = objectListNode->obj;
             if (object->elevation == gObjectFindElevation) {
-                if (!artIsObjectTypeHidden((object->fid & 0xF000000) >> 24)) {
+                if (!artIsObjectTypeHidden(OBJECT_TYPE(object->fid))) {
                     gObjectFindLastObjectListNode = objectListNode;
                     return object;
                 }
@@ -2256,7 +2256,7 @@ Object* objectFindFirstAtLocation(int elevation, int tile)
     while (objectListNode != NULL) {
         Object* object = objectListNode->obj;
         if (object->elevation == elevation) {
-            if (!artIsObjectTypeHidden((object->fid & 0xF000000) >> 24)) {
+            if (!artIsObjectTypeHidden(OBJECT_TYPE(object->fid))) {
                 gObjectFindLastObjectListNode = objectListNode;
                 return object;
             }
@@ -2280,7 +2280,7 @@ Object* objectFindNextAtLocation()
     while (objectListNode != NULL) {
         Object* object = objectListNode->obj;
         if (object->elevation == gObjectFindElevation) {
-            if (!artIsObjectTypeHidden((object->fid & 0xF000000) >> 24)) {
+            if (!artIsObjectTypeHidden(OBJECT_TYPE(object->fid))) {
                 gObjectFindLastObjectListNode = objectListNode;
                 return object;
             }
@@ -2395,7 +2395,7 @@ Object* _obj_blocking_at(Object* a1, int tile, int elev)
         v7 = objectListNode->obj;
         if (v7->elevation == elev) {
             if ((v7->flags & OBJECT_HIDDEN) == 0 && (v7->flags & OBJECT_NO_BLOCK) == 0 && v7 != a1) {
-                type = (v7->fid & 0xF000000) >> 24;
+                type = OBJECT_TYPE(v7->fid);
                 if (type == OBJ_TYPE_CRITTER
                     || type == OBJ_TYPE_SCENERY
                     || type == OBJ_TYPE_WALL) {
@@ -2415,7 +2415,7 @@ Object* _obj_blocking_at(Object* a1, int tile, int elev)
                 if ((v7->flags & OBJECT_MULTIHEX) != 0) {
                     if (v7->elevation == elev) {
                         if ((v7->flags & OBJECT_HIDDEN) == 0 && (v7->flags & OBJECT_NO_BLOCK) == 0 && v7 != a1) {
-                            type = (v7->fid & 0xF000000) >> 24;
+                            type = OBJECT_TYPE(v7->fid);
                             if (type == OBJ_TYPE_CRITTER
                                 || type == OBJ_TYPE_SCENERY
                                 || type == OBJ_TYPE_WALL) {
@@ -2445,7 +2445,7 @@ Object* _obj_shoot_blocking_at(Object* obj, int tile, int elev)
         if (candidate->elevation == elev) {
             unsigned int flags = candidate->flags;
             if ((flags & OBJECT_HIDDEN) == 0 && ((flags & OBJECT_NO_BLOCK) == 0 || (flags & OBJECT_SHOOT_THRU) == 0) && candidate != obj) {
-                int type = (candidate->fid & 0xF000000) >> 24;
+                int type = OBJECT_TYPE(candidate->fid);
                 if (type == OBJ_TYPE_CRITTER || type == OBJ_TYPE_SCENERY || type == OBJ_TYPE_WALL) {
                     return candidate;
                 }
@@ -2467,7 +2467,7 @@ Object* _obj_shoot_blocking_at(Object* obj, int tile, int elev)
             if ((flags & OBJECT_MULTIHEX) != 0) {
                 if (candidate->elevation == elev) {
                     if ((flags & OBJECT_HIDDEN) == 0 && (flags & OBJECT_NO_BLOCK) == 0 && candidate != obj) {
-                        int type = (candidate->fid & 0xF000000) >> 24;
+                        int type = OBJECT_TYPE(candidate->fid);
                         if (type == OBJ_TYPE_CRITTER || type == OBJ_TYPE_SCENERY || type == OBJ_TYPE_WALL) {
                             return candidate;
                         }
@@ -2495,7 +2495,7 @@ Object* _obj_ai_blocking_at(Object* a1, int tile, int elevation)
             if ((object->flags & OBJECT_HIDDEN) == 0
                 && (object->flags & OBJECT_NO_BLOCK) == 0
                 && object != a1) {
-                int objectType = (object->fid & 0xF000000) >> 24;
+                int objectType = OBJECT_TYPE(object->fid);
                 if (objectType == OBJ_TYPE_CRITTER
                     || objectType == OBJ_TYPE_SCENERY
                     || objectType == OBJ_TYPE_WALL) {
@@ -2524,7 +2524,7 @@ Object* _obj_ai_blocking_at(Object* a1, int tile, int elevation)
                     if ((object->flags & OBJECT_HIDDEN) == 0
                         && (object->flags & OBJECT_NO_BLOCK) == 0
                         && object != a1) {
-                        int objectType = (object->fid & 0xF000000) >> 24;
+                        int objectType = OBJECT_TYPE(object->fid);
                         if (objectType == OBJ_TYPE_CRITTER
                             || objectType == OBJ_TYPE_SCENERY
                             || objectType == OBJ_TYPE_WALL) {
@@ -2578,7 +2578,7 @@ Object* _obj_sight_blocking_at(Object* a1, int tile, int elevation)
             && (object->flags & OBJECT_HIDDEN) == 0
             && (object->flags & OBJECT_LIGHT_THRU) == 0
             && object != a1) {
-            int objectType = (object->fid & 0xF000000) >> 24;
+            int objectType = OBJECT_TYPE(object->fid);
             if (objectType == OBJ_TYPE_SCENERY || objectType == OBJ_TYPE_WALL) {
                 return object;
             }
@@ -2652,7 +2652,7 @@ int objectListCreate(int tile, int elevation, int objectType, Object*** objectLi
                 Object* obj = objectListNode->obj;
                 if ((obj->flags & OBJECT_HIDDEN) == 0
                     && obj->elevation == elevation
-                    && ((obj->fid & 0xF000000) >> 24) == objectType) {
+                    && OBJECT_TYPE(obj->fid) == objectType) {
                     count++;
                 }
                 objectListNode = objectListNode->next;
@@ -2664,7 +2664,7 @@ int objectListCreate(int tile, int elevation, int objectType, Object*** objectLi
             Object* obj = objectListNode->obj;
             if ((obj->flags & OBJECT_HIDDEN) == 0
                 && obj->elevation == elevation
-                && ((objectListNode->obj->fid & 0xF000000) >> 24) == objectType) {
+                && OBJECT_TYPE(objectListNode->obj->fid) == objectType) {
                 count++;
             }
             objectListNode = objectListNode->next;
@@ -2687,7 +2687,7 @@ int objectListCreate(int tile, int elevation, int objectType, Object*** objectLi
                 Object* obj = objectListNode->obj;
                 if ((obj->flags & OBJECT_HIDDEN) == 0
                     && obj->elevation == elevation
-                    && ((obj->fid & 0xF000000) >> 24) == objectType) {
+                    && OBJECT_TYPE(obj->fid) == objectType) {
                     *objects++ = obj;
                 }
                 objectListNode = objectListNode->next;
@@ -2699,7 +2699,7 @@ int objectListCreate(int tile, int elevation, int objectType, Object*** objectLi
             Object* obj = objectListNode->obj;
             if ((obj->flags & OBJECT_HIDDEN) == 0
                 && obj->elevation == elevation
-                && ((obj->fid & 0xF000000) >> 24) == objectType) {
+                && OBJECT_TYPE(obj->fid) == objectType) {
                 *objects++ = obj;
             }
             objectListNode = objectListNode->next;
@@ -2942,7 +2942,7 @@ int _obj_intersects_with(Object* object, int x, int y)
                                 flags |= 0x02;
                             }
                         } else {
-                            int type = (object->fid & 0xF000000) >> 24;
+                            int type = OBJECT_TYPE(object->fid);
                             if (type == OBJ_TYPE_SCENERY || type == OBJ_TYPE_WALL) {
                                 Proto* proto;
                                 protoGetProto(object->pid, &proto);
@@ -3003,7 +3003,7 @@ int _obj_create_intersect_list(int x, int y, int elevation, int objectType, Obje
                 }
 
                 if (object->elevation == elevation
-                    && (objectType == -1 || (object->fid & 0xF000000) >> 24 == objectType)
+                    && (objectType == -1 || OBJECT_TYPE(object->fid) == objectType)
                     && object != gEgg) {
                     int flags = _obj_intersects_with(object, x, y);
                     if (flags != 0) {
@@ -3103,7 +3103,7 @@ void _obj_process_seen()
 // 0x48C8E4
 char* objectGetName(Object* obj)
 {
-    int objectType = (obj->fid & 0xF000000) >> 24;
+    int objectType = OBJECT_TYPE(obj->fid);
     switch (objectType) {
     case OBJ_TYPE_ITEM:
         return itemGetName(obj);
@@ -3117,7 +3117,7 @@ char* objectGetName(Object* obj)
 // 0x48C914
 char* objectGetDescription(Object* obj)
 {
-    if (((obj->fid & 0xF000000) >> 24) == OBJ_TYPE_ITEM) {
+    if (OBJECT_TYPE(obj->fid) == OBJ_TYPE_ITEM) {
         return itemGetDescription(obj);
     }
 
@@ -3165,13 +3165,13 @@ void _obj_preload_art_cache(int flags)
     int v11 = gObjectFidsLength;
     int v12 = gObjectFidsLength;
 
-    if ((gObjectFids[v12 - 1] & 0xF000000) >> 24 == 3) {
-        int v13 = 0;
+    if (OBJECT_TYPE(gObjectFids[v12 - 1]) == OBJ_TYPE_WALL) {
+        int objectType = OBJ_TYPE_ITEM;
         do {
             v11--;
-            v13 = (gObjectFids[v12 - 1] & 0xF000000) >> 24;
+            objectType = OBJECT_TYPE(gObjectFids[v12 - 1]);
             v12--;
-        } while (v13 == 3);
+        } while (objectType == OBJ_TYPE_WALL);
         v11++;
     }
 
@@ -4541,7 +4541,7 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
 
                                     v14 = (objectListNode->obj->flags & OBJECT_LIGHT_THRU) == 0;
 
-                                    if ((objectListNode->obj->fid & 0xF000000) >> 24 == OBJ_TYPE_WALL) {
+                                    if (OBJECT_TYPE(objectListNode->obj->fid) == OBJ_TYPE_WALL) {
                                         if ((objectListNode->obj->flags & OBJECT_FLAT) == 0) {
                                             Proto* proto;
                                             protoGetProto(objectListNode->obj->pid, &proto);
@@ -4872,7 +4872,7 @@ void objectDrawOutline(Object* object, Rect* rect)
 // 0x48F1B0
 void _obj_render_object(Object* object, Rect* rect, int light)
 {
-    int type = (object->fid & 0xF000000) >> 24;
+    int type = OBJECT_TYPE(object->fid);
     if (artIsObjectTypeHidden(type)) {
         return;
     }
@@ -5139,8 +5139,8 @@ int _obj_preload_sort(const void* a1, const void* a2)
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
 
-    int v3 = _cd_order[(v1 & 0xF000000) >> 24];
-    int v4 = _cd_order[(v2 & 0xF000000) >> 24];
+    int v3 = _cd_order[OBJECT_TYPE(v1)];
+    int v4 = _cd_order[OBJECT_TYPE(v2)];
 
     int cmp = v3 - v4;
     if (cmp != 0) {
