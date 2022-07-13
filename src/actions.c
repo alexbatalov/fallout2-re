@@ -59,7 +59,7 @@ const int gMaximumBloodDeathAnimations[DAMAGE_TYPE_COUNT] = {
 // 0x410468
 int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int delay)
 {
-    if (_critter_flag_check(obj->pid, 0x4000)) {
+    if (_critter_flag_check(obj->pid, CRITTER_FLAG_0x4000)) {
         return -1;
     }
 
@@ -154,7 +154,7 @@ int _pick_death(Object* attacker, Object* defender, Object* weapon, int damage, 
     int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
 
-    if (_critter_flag_check(defender->pid, 0x1000)) {
+    if (_critter_flag_check(defender->pid, CRITTER_FLAG_0x1000)) {
         return _check_death(defender, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_NORMAL, isFallingBack);
     }
 
@@ -245,7 +245,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
     int fid;
     const char* sfx_name;
 
-    if (_critter_flag_check(a1->pid, 0x4000)) {
+    if (_critter_flag_check(a1->pid, CRITTER_FLAG_0x4000)) {
         knockbackDistance = 0;
     }
 
@@ -397,7 +397,7 @@ int _show_death(Object* obj, int anim)
         }
     }
 
-    if (_critter_flag_check(obj->pid, 2048) == 0) {
+    if (_critter_flag_check(obj->pid, CRITTER_FLAG_0x800) == 0) {
         obj->flags |= OBJECT_NO_BLOCK;
         if (_obj_toggle_flat(obj, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
@@ -408,7 +408,7 @@ int _show_death(Object* obj, int anim)
         rectUnion(&v8, &v7, &v8);
     }
 
-    if (anim >= 30 && anim <= 31 && _critter_flag_check(obj->pid, 4096) == 0 && _critter_flag_check(obj->pid, 64) == 0) {
+    if (anim >= 30 && anim <= 31 && _critter_flag_check(obj->pid, CRITTER_FLAG_0x1000) == 0 && _critter_flag_check(obj->pid, CRITTER_FLAG_0x40) == 0) {
         _item_drop_all(obj, obj->tile);
     }
 
@@ -1863,7 +1863,7 @@ int _report_dmg(Attack* attack, Object* a2)
 // 0x413660
 int _compute_dmg_damage(int min, int max, Object* obj, int* a4, int damageType)
 {
-    if (!_critter_flag_check(obj->pid, 0x4000)) {
+    if (!_critter_flag_check(obj->pid, CRITTER_FLAG_0x4000)) {
         a4 = NULL;
     }
 

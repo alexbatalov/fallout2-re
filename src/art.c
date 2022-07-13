@@ -988,7 +988,7 @@ void artCacheFreeImpl(void* ptr)
 }
 
 // 0x419C88
-int buildFid(int objectType, int a2, int anim, int a3, int rotation)
+int buildFid(int objectType, int frmId, int anim, int a3, int rotation)
 {
     int v7, v8, v9, v10;
 
@@ -1004,7 +1004,7 @@ int buildFid(int objectType, int a2, int anim, int a3, int rotation)
 
     v7 = ((a3 << 12) & 0xF000) | (anim << 16) & 0xFF0000 | 0x1000000;
     v8 = (rotation << 28) & 0x70000000 | v7;
-    v9 = a2 & 0xFFF;
+    v9 = frmId & 0xFFF;
 
     if (artExists(v9 | v8) != 0) {
         goto out;
@@ -1025,7 +1025,7 @@ zero:
 
 out:
 
-    return (v10 << 28) & 0x70000000 | (objectType << 24) | (anim << 16) & 0xFF0000 | (a3 << 12) & 0xF000 | a2 & 0xFFF;
+    return (v10 << 28) & 0x70000000 | (objectType << 24) | (anim << 16) & 0xFF0000 | (a3 << 12) & 0xF000 | frmId & 0xFFF;
 }
 
 // 0x419D60

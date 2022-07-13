@@ -154,11 +154,11 @@ int externalVariableSetValue(Program* program, const char* name, opcode_t opcode
         return 1;
     }
 
-    if ((exportedVariable->type & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 169
     }
 
-    if ((opcode & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         if (program != NULL) {
             const char* stringValue = programGetString(program, opcode, data);
             exportedVariable->type = VALUE_TYPE_DYNAMIC_STRING;
@@ -184,7 +184,7 @@ int externalVariableGetValue(Program* program, const char* name, opcode_t* opcod
 
     *opcodePtr = exportedVariable->type;
 
-    if ((exportedVariable->type & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         *dataPtr = programPushString(program, exportedVariable->stringValue);
     } else {
         *dataPtr = exportedVariable->value;
@@ -204,7 +204,7 @@ int externalVariableCreate(Program* program, const char* identifier)
             return 1;
         }
 
-        if ((exportedVariable->type & 0xF7FF) == VALUE_TYPE_STRING) {
+        if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
             internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 234
         }
     } else {
@@ -307,7 +307,7 @@ void _exportClearAllVariables()
     for (int index = 0; index < 1013; index++) {
         ExternalVariable* exportedVariable = &(gExternalVariables[index]);
         if (exportedVariable->name[0] != '\0') {
-            if ((exportedVariable->type & 0xF7FF) == VALUE_TYPE_STRING) {
+            if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
                 if (exportedVariable->stringValue != NULL) {
                     internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 387
                 }

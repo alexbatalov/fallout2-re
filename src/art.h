@@ -177,7 +177,7 @@ int artAliasFid(int fid);
 int artCacheGetFileSizeImpl(int a1, int* out_size);
 int artCacheReadDataImpl(int a1, int* a2, unsigned char* data);
 void artCacheFreeImpl(void* ptr);
-int buildFid(int a1, int a2, int a3, int a4, int a5);
+int buildFid(int a1, int frmId, int a3, int a4, int a5);
 int artReadFrameData(unsigned char* data, File* stream, int count);
 int artReadHeader(Art* art, File* stream);
 int artRead(const char* path, unsigned char* data);

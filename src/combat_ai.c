@@ -1464,7 +1464,7 @@ int _caiSetupTeamCombat(Object* a1, Object* a2)
     obj = objectFindFirstAtElevation(a1->elevation);
     while (obj != NULL) {
         if ((obj->pid >> 24) == OBJ_TYPE_CRITTER && obj != gDude) {
-            obj->data.critter.combat.maneuver |= 0x01;
+            obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
         }
         obj = objectFindNextAtElevation();
     }
