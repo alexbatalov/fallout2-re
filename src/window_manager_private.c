@@ -57,6 +57,26 @@ int _currx;
 // 0x6B23D0
 char gProgramWindowTitle[256];
 
+// 0x4DA6C0
+int sub_4DA6C0(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7)
+{
+    return sub_4DA70C(title, fileList, fileListLength, a4, x, y, a7, 0);
+}
+
+// 0x4DA70C
+int sub_4DA70C(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7, int a8)
+{
+    // TODO: Incomplete.
+    return -1;
+}
+
+// 0x4DB478
+int sub_4DB478(char* dest, int length, const char* title, int x, int y)
+{
+    // TODO: Incomplete.
+    return -1;
+}
+
 // 0x4DC30C
 int _win_debug(char* a1)
 {

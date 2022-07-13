@@ -27,6 +27,7 @@
 #include "text_font.h"
 #include "version.h"
 #include "window_manager.h"
+#include "window_manager_private.h"
 #include "word_wrap.h"
 #include "world_map.h"
 
@@ -254,7 +255,7 @@ int falloutMain(int argc, char** argv)
                 backgroundSoundDelete();
                 break;
             case MAIN_MENU_SELFRUN:
-                // _main_selfrun_record();
+                _main_selfrun_record();
                 break;
             }
         }
@@ -361,6 +362,53 @@ void _main_selfrun_exit()
     _main_selfrun_count = 0;
     _main_selfrun_index = 0;
     _main_selfrun_list = NULL;
+}
+
+// 0x480F64
+void _main_selfrun_record()
+{
+    SelfrunData selfrunData;
+    bool ready = false; 
+
+    char** fileList;
+    int fileListLength = fileNameListInit("maps\\*.map", &fileList, 0, 0);
+    if (fileListLength != 0) {
+        int selectedFileIndex = sub_4DA6C0("Select Map", fileList, fileListLength, 0, 80, 80, 65796);
+        if (selectedFileIndex != -1) {
+            char recordingName[12];
+            if (sub_4DB478(recordingName, 11, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
+                memset(&selfrunData, 0, sizeof(selfrunData));
+                if (selfrunPrepareRecording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {
+                    ready = true;
+                }
+            }
+        }
+        fileNameListFree(&fileList, 0);
+    }
+
+    if (ready) {
+        mainMenuWindowHide(true);
+        mainMenuWindowFree();
+        backgroundSoundDelete();
+        randomSeedPrerandom(0xBEEFFEED);
+        gameReset();
+        _proto_dude_init("premade\\combat.gcd");
+        _main_load_new(selfrunData.field_D);
+        selfrunRecordingLoop(&selfrunData);
+        paletteFadeTo(gPaletteWhite);
+        objectHide(gDude, NULL);
+        _map_exit();
+        gameReset();
+        mainMenuWindowInit();
+
+        if (_main_selfrun_list != NULL) {
+            _main_selfrun_exit();
+        }
+
+        if (selfrunInitFileList(&_main_selfrun_list, &_main_selfrun_count) == 0) {
+            _main_selfrun_index = 0;
+        }
+    }
 }
 
 // 0x48109C

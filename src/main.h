@@ -58,6 +58,7 @@ bool falloutInit(int argc, char** argv);
 int _main_load_new(char* fname);
 void mainLoop();
 void _main_selfrun_exit();
+void _main_selfrun_record();
 void _main_selfrun_play();
 void showDeath();
 void _main_death_voiceover_callback();
