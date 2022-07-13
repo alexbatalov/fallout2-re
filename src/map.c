@@ -1007,8 +1007,8 @@ int mapLoadSaved(char* fileName)
 
     int rc = mapLoadByName(mapName);
 
-    if (gameTimeGetTime() >= gMapHeader.field_38) {
-        if (((gameTimeGetTime() - gMapHeader.field_38) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
+    if (gameTimeGetTime() >= gMapHeader.lastVisitTime) {
+        if (((gameTimeGetTime() - gMapHeader.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
             objectUnjamAll();
         }
 
@@ -1041,7 +1041,7 @@ int _map_age_dead_critters()
         return 0;
     }
 
-    int hoursSinceLastVisit = (gameTimeGetTime() - gMapHeader.field_38) / GAME_TIME_TICKS_PER_HOUR;
+    int hoursSinceLastVisit = (gameTimeGetTime() - gMapHeader.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR;
     if (hoursSinceLastVisit == 0) {
         return 0;
     }
@@ -1398,7 +1398,7 @@ int _map_save_in_game(bool a1)
     }
 
     gMapHeader.flags |= 0x01;
-    gMapHeader.field_38 = gameTimeGetTime();
+    gMapHeader.lastVisitTime = gameTimeGetTime();
 
     char name[16];
 
@@ -1616,7 +1616,7 @@ int mapHeaderWrite(MapHeader* ptr, File* stream)
     if (fileWriteInt32(stream, ptr->darkness) == -1) return -1;
     if (fileWriteInt32(stream, ptr->globalVariablesCount) == -1) return -1;
     if (fileWriteInt32(stream, ptr->field_34) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->field_38) == -1) return -1;
+    if (fileWriteInt32(stream, ptr->lastVisitTime) == -1) return -1;
     if (fileWriteInt32List(stream, ptr->field_3C, 44) == -1) return -1;
 
     return 0;
@@ -1636,7 +1636,7 @@ int mapHeaderRead(MapHeader* ptr, File* stream)
     if (fileReadInt32(stream, &(ptr->darkness)) == -1) return -1;
     if (fileReadInt32(stream, &(ptr->globalVariablesCount)) == -1) return -1;
     if (fileReadInt32(stream, &(ptr->field_34)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->field_38)) == -1) return -1;
+    if (fileReadInt32(stream, &(ptr->lastVisitTime)) == -1) return -1;
     if (fileReadInt32List(stream, ptr->field_3C, 44) == -1) return -1;
 
     return 0;

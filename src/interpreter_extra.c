@@ -3020,7 +3020,7 @@ void opKillCritterType(Program* program)
 
             objectFindFirst();
 
-            gMapHeader.field_38 = gameTimeGetTime();
+            gMapHeader.lastVisitTime = gameTimeGetTime();
         }
 
         obj = objectFindNext();
@@ -4798,8 +4798,8 @@ void opGetDaysSinceLastVisit(Program* program)
 {
     int days;
 
-    if (gMapHeader.field_38 != 0) {
-        days = (gameTimeGetTime() - gMapHeader.field_38) / GAME_TIME_TICKS_PER_DAY;
+    if (gMapHeader.lastVisitTime != 0) {
+        days = (gameTimeGetTime() - gMapHeader.lastVisitTime) / GAME_TIME_TICKS_PER_DAY;
     } else {
         days = -1;
     }
