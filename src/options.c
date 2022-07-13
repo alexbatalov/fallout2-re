@@ -460,7 +460,7 @@ int optionsWindowInit()
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-        int fid = buildFid(6, gOptionsWindowFrmIds[index], 0, 0, 0);
+        int fid = buildFid(OBJ_TYPE_INTERFACE, gOptionsWindowFrmIds[index], 0, 0, 0);
         gOptionsWindowFrmData[index] = artLockFrameDataReturningSize(fid, &(gOptionsWindowFrmHandles[index]), &(gOptionsWindowFrmSizes[index].width), &(gOptionsWindowFrmSizes[index].height));
 
         if (gOptionsWindowFrmData[index] == NULL) {
@@ -617,7 +617,7 @@ int showPause(bool a1)
     _ShadeScreen(a1);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
-        int fid = buildFid(6, graphicIds[index], 0, 0, 0);
+        int fid = buildFid(OBJ_TYPE_INTERFACE, graphicIds[index], 0, 0, 0);
         frmData[index] = artLockFrameDataReturningSize(fid, &(frmHandles[index]), &(frmSizes[index].width), &(frmSizes[index].height));
         if (frmData[index] == NULL) {
             while (--index >= 0) {
@@ -1385,7 +1385,7 @@ int preferencesWindowInit()
     _SaveSettings();
 
     for (i = 0; i < PREFERENCES_WINDOW_FRM_COUNT; i++) {
-        fid = buildFid(6, gPreferencesWindowFrmIds[i], 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, gPreferencesWindowFrmIds[i], 0, 0, 0);
         gPreferencesWindowFrmData[i] = artLockFrameDataReturningSize(fid, &(gPreferencesWindowFrmHandles[i]), &(gPreferencesWindowFrmSizes[i].width), &(gPreferencesWindowFrmSizes[i].height));
         if (gPreferencesWindowFrmData[i] == NULL) {
             for (; i != 0; i--) {

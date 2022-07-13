@@ -362,7 +362,7 @@ int interfaceInit()
         goto err;
     }
 
-    fid = buildFid(6, 16, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 16, 0, 0, 0);
     backgroundFrmData = artLockFrameData(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData == NULL) {
         goto err;
@@ -371,13 +371,13 @@ int interfaceInit()
     blitBufferToBuffer(backgroundFrmData, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT - 1, INTERFACE_BAR_WIDTH, gInterfaceWindowBuffer, 640);
     artUnlock(backgroundFrmHandle);
 
-    fid = buildFid(6, 47, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 47, 0, 0, 0);
     gInventoryButtonUpFrmData = artLockFrameData(fid, 0, 0, &gInventoryButtonUpFrmHandle);
     if (gInventoryButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 46, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 46, 0, 0, 0);
     gInventoryButtonDownFrmData = artLockFrameData(fid, 0, 0, &gInventoryButtonDownFrmHandle);
     if (gInventoryButtonDownFrmData == NULL) {
         goto err;
@@ -390,13 +390,13 @@ int interfaceInit()
 
     buttonSetCallbacks(gInventoryButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 18, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 18, 0, 0, 0);
     gOptionsButtonUpFrmData = artLockFrameData(fid, 0, 0, &gOptionsButtonUpFrmHandle);
     if (gOptionsButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 17, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 17, 0, 0, 0);
     gOptionsButtonDownFrmData = artLockFrameData(fid, 0, 0, &gOptionsButtonDownFrmHandle);
     if (gOptionsButtonDownFrmData == NULL) {
         goto err;
@@ -409,19 +409,19 @@ int interfaceInit()
 
     buttonSetCallbacks(gOptionsButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     gSkilldexButtonUpFrmData = artLockFrameData(fid, 0, 0, &gSkilldexButtonUpFrmHandle);
     if (gSkilldexButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 7, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 7, 0, 0, 0);
     gSkilldexButtonDownFrmData = artLockFrameData(fid, 0, 0, &gSkilldexButtonDownFrmHandle);
     if (gSkilldexButtonDownFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     gSkilldexButtonMaskFrmData = artLockFrameData(fid, 0, 0, &gSkilldexButtonMaskFrmHandle);
     if (gSkilldexButtonMaskFrmData == NULL) {
         goto err;
@@ -435,19 +435,19 @@ int interfaceInit()
     buttonSetMask(gSkilldexButton, gSkilldexButtonMaskFrmData);
     buttonSetCallbacks(gSkilldexButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 13, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
     gMapButtonUpFrmData = artLockFrameData(fid, 0, 0, &gMapButtonUpFrmHandle);
     if (gMapButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 10, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 10, 0, 0, 0);
     gMapButtonDownFrmData = artLockFrameData(fid, 0, 0, &gMapButtonDownFrmHandle);
     if (gMapButtonDownFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 13, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
     gMapButtonMaskFrmData = artLockFrameData(fid, 0, 0, &gMapButtonMaskFrmHandle);
     if (gMapButtonMaskFrmData == NULL) {
         goto err;
@@ -461,13 +461,13 @@ int interfaceInit()
     buttonSetMask(gMapButton, gMapButtonMaskFrmData);
     buttonSetCallbacks(gMapButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 59, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 59, 0, 0, 0);
     gPipboyButtonUpFrmData = artLockFrameData(fid, 0, 0, &gPipboyButtonUpFrmHandle);
     if (gPipboyButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 58, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 58, 0, 0, 0);
     gPipboyButtonDownFrmData = artLockFrameData(fid, 0, 0, &gPipboyButtonDownFrmHandle);
     if (gPipboyButtonDownFrmData == NULL) {
         goto err;
@@ -481,13 +481,13 @@ int interfaceInit()
     buttonSetMask(gPipboyButton, gMapButtonMaskFrmData);
     buttonSetCallbacks(gPipboyButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 57, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 57, 0, 0, 0);
     gCharacterButtonUpFrmData = artLockFrameData(fid, 0, 0, &gCharacterButtonUpFrmHandle);
     if (gCharacterButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 56, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 56, 0, 0, 0);
     gCharacterButtonDownFrmData = artLockFrameData(fid, 0, 0, &gCharacterButtonDownFrmHandle);
     if (gCharacterButtonDownFrmData == NULL) {
         goto err;
@@ -501,19 +501,19 @@ int interfaceInit()
     buttonSetMask(gCharacterButton, gMapButtonMaskFrmData);
     buttonSetCallbacks(gCharacterButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 32, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 32, 0, 0, 0);
     gSingleAttackButtonUpData = artLockFrameData(fid, 0, 0, &gSingleAttackButtonUpHandle);
     if (gSingleAttackButtonUpData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 31, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 31, 0, 0, 0);
     gSingleAttackButtonDownData = artLockFrameData(fid, 0, 0, &gSingleAttackButtonDownHandle);
     if (gSingleAttackButtonDownData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 73, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 73, 0, 0, 0);
     _itemButtonDisabled = artLockFrameData(fid, 0, 0, &_itemButtonDisabledKey);
     if (_itemButtonDisabled == NULL) {
         goto err;
@@ -530,19 +530,19 @@ int interfaceInit()
     buttonSetRightMouseCallbacks(gSingleAttackButton, -1, KEY_LOWERCASE_N, NULL, NULL);
     buttonSetCallbacks(gSingleAttackButton, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
 
-    fid = buildFid(6, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     gChangeHandsButtonUpFrmData = artLockFrameData(fid, 0, 0, &gChangeHandsButtonUpFrmHandle);
     if (gChangeHandsButtonUpFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 7, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 7, 0, 0, 0);
     gChangeHandsButtonDownFrmData = artLockFrameData(fid, 0, 0, &gChangeHandsButtonDownFrmHandle);
     if (gChangeHandsButtonDownFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 6, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     gChangeHandsButtonMaskFrmData = artLockFrameData(fid, 0, 0, &gChangeHandsButtonMaskFrmHandle);
     if (gChangeHandsButtonMaskFrmData == NULL) {
         goto err;
@@ -557,25 +557,25 @@ int interfaceInit()
     buttonSetMask(gChangeHandsButton, gChangeHandsButtonMaskFrmData);
     buttonSetCallbacks(gChangeHandsButton, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    fid = buildFid(6, 82, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
     gNumbersFrmData = artLockFrameData(fid, 0, 0, &gNumbersFrmHandle);
     if (gNumbersFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 83, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 83, 0, 0, 0);
     gGreenLightFrmData = artLockFrameData(fid, 0, 0, &gGreenLightFrmHandle);
     if (gGreenLightFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 84, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 84, 0, 0, 0);
     gYellowLightFrmData = artLockFrameData(fid, 0, 0, &gYellowLightFrmHandle);
     if (gYellowLightFrmData == NULL) {
         goto err;
     }
 
-    fid = buildFid(6, 85, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 85, 0, 0, 0);
     gRedLightFrmData = artLockFrameData(fid, 0, 0, &gRedLightFrmHandle);
     if (gRedLightFrmData == NULL) {
         goto err;
@@ -1516,7 +1516,7 @@ void interfaceBarEndButtonsShow(bool animated)
         return;
     }
 
-    int fid = buildFid(6, 104, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_INTERFACE, 104, 0, 0, 0);
     CacheEntry* handle;
     Art* art = artLock(fid, &handle);
     if (art == NULL) {
@@ -1568,7 +1568,7 @@ void interfaceBarEndButtonsHide(bool animated)
         return;
     }
 
-    int fid = buildFid(6, 104, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_INTERFACE, 104, 0, 0, 0);
     CacheEntry* handle;
     Art* art = artLock(fid, &handle);
     if (art == NULL) {
@@ -1617,7 +1617,7 @@ void interfaceBarEndButtonsRenderGreenLights()
         buttonEnable(gEndCombatButton);
 
         // endltgrn.frm - green lights around end turn/combat window
-        int lightsFid = buildFid(6, 109, 0, 0, 0);
+        int lightsFid = buildFid(OBJ_TYPE_INTERFACE, 109, 0, 0, 0);
         CacheEntry* lightsFrmHandle;
         unsigned char* lightsFrmData = artLockFrameData(lightsFid, 0, 0, &lightsFrmHandle);
         if (lightsFrmData == NULL) {
@@ -1641,7 +1641,7 @@ void interfaceBarEndButtonsRenderRedLights()
 
         CacheEntry* lightsFrmHandle;
         // endltred.frm - red lights around end turn/combat window
-        int lightsFid = buildFid(6, 110, 0, 0, 0);
+        int lightsFid = buildFid(OBJ_TYPE_INTERFACE, 110, 0, 0, 0);
         unsigned char* lightsFrmData = artLockFrameData(lightsFid, 0, 0, &lightsFrmHandle);
         if (lightsFrmData == NULL) {
             return;
@@ -1675,10 +1675,10 @@ int interfaceBarRefreshMainAction()
             int fid;
             if (_proto_action_can_use_on(itemState->item->pid)) {
                 // USE ON
-                fid = buildFid(6, 294, 0, 0, 0);
+                fid = buildFid(OBJ_TYPE_INTERFACE, 294, 0, 0, 0);
             } else if (_obj_action_can_use(itemState->item)) {
                 // USE
-                fid = buildFid(6, 292, 0, 0, 0);
+                fid = buildFid(OBJ_TYPE_INTERFACE, 292, 0, 0, 0);
             } else {
                 fid = -1;
             }
@@ -1706,20 +1706,20 @@ int interfaceBarRefreshMainAction()
             // jump table.
             switch (itemState->action) {
             case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
-                bullseyeFid = buildFid(6, 288, 0, 0, 0);
+                bullseyeFid = buildFid(OBJ_TYPE_INTERFACE, 288, 0, 0, 0);
                 // FALLTHROUGH
             case INTERFACE_ITEM_ACTION_PRIMARY:
                 hitMode = itemState->primaryHitMode;
                 break;
             case INTERFACE_ITEM_ACTION_SECONDARY_AIMING:
-                bullseyeFid = buildFid(6, 288, 0, 0, 0);
+                bullseyeFid = buildFid(OBJ_TYPE_INTERFACE, 288, 0, 0, 0);
                 // FALLTHROUGH
             case INTERFACE_ITEM_ACTION_SECONDARY:
                 hitMode = itemState->secondaryHitMode;
                 break;
             case INTERFACE_ITEM_ACTION_RELOAD:
                 actionPoints = _item_mp_cost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
-                primaryFid = buildFid(6, 291, 0, 0, 0);
+                primaryFid = buildFid(OBJ_TYPE_INTERFACE, 291, 0, 0, 0);
                 break;
             }
 
@@ -1817,7 +1817,7 @@ int interfaceBarRefreshMainAction()
                     break;
                 }
 
-                primaryFid = buildFid(6, id, 0, 0, 0);
+                primaryFid = buildFid(OBJ_TYPE_INTERFACE, id, 0, 0, 0);
             }
 
             if (primaryFid != -1) {
@@ -1837,7 +1837,7 @@ int interfaceBarRefreshMainAction()
 
     if (actionPoints >= 0 && actionPoints < 10) {
         // movement point text
-        int fid = buildFid(6, 289, 0, 0, 0);
+        int fid = buildFid(OBJ_TYPE_INTERFACE, 289, 0, 0, 0);
 
         CacheEntry* handle;
         Art* art = artLock(fid, &handle);
@@ -1860,7 +1860,7 @@ int interfaceBarRefreshMainAction()
             int offset = width + 7;
 
             // movement point numbers - ten numbers 0 to 9, each 10 pixels wide.
-            fid = buildFid(6, 290, 0, 0, 0);
+            fid = buildFid(OBJ_TYPE_INTERFACE, 290, 0, 0, 0);
             art = artLock(fid, &handle);
             if (art != NULL) {
                 width = artGetWidth(art, 0, 0);
@@ -1961,7 +1961,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     if (weaponAnimationCode != 0) {
         animationRegisterTakeOutWeapon(gDude, weaponAnimationCode, -1);
     } else {
-        int fid = buildFid(1, gDude->fid & 0xFFF, ANIM_STAND, 0, gDude->rotation + 1);
+        int fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, 0, gDude->rotation + 1);
         animationRegisterSetFid(gDude, fid, -1);
     }
 
@@ -2008,13 +2008,13 @@ int endTurnButtonInit()
         return -1;
     }
 
-    fid = buildFid(6, 105, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 105, 0, 0, 0);
     gEndTurnButtonUpFrmData = artLockFrameData(fid, 0, 0, &gEndTurnButtonUpFrmHandle);
     if (gEndTurnButtonUpFrmData == NULL) {
         return -1;
     }
 
-    fid = buildFid(6, 106, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 106, 0, 0, 0);
     gEndTurnButtonDownFrmData = artLockFrameData(fid, 0, 0, &gEndTurnButtonDownFrmHandle);
     if (gEndTurnButtonDownFrmData == NULL) {
         return -1;
@@ -2071,13 +2071,13 @@ int endCombatButtonInit()
         return -1;
     }
 
-    fid = buildFid(6, 107, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 107, 0, 0, 0);
     gEndCombatButtonUpFrmData = artLockFrameData(fid, 0, 0, &gEndCombatButtonUpFrmHandle);
     if (gEndCombatButtonUpFrmData == NULL) {
         return -1;
     }
 
-    fid = buildFid(6, 108, 0, 0, 0);
+    fid = buildFid(OBJ_TYPE_INTERFACE, 108, 0, 0, 0);
     gEndCombatButtonDownFrmData = artLockFrameData(fid, 0, 0, &gEndCombatButtonDownFrmHandle);
     if (gEndCombatButtonDownFrmData == NULL) {
         return -1;
@@ -2336,7 +2336,7 @@ int indicatorBarInit()
     CacheEntry* indicatorBoxFrmHandle;
     int width;
     int height;
-    int indicatorBoxFid = buildFid(6, 126, 0, 0, 0);
+    int indicatorBoxFid = buildFid(OBJ_TYPE_INTERFACE, 126, 0, 0, 0);
     unsigned char* indicatorBoxFrmData = artLockFrameDataReturningSize(indicatorBoxFid, &indicatorBoxFrmHandle, &width, &height);
     if (indicatorBoxFrmData == NULL) {
         debugPrint("\nINTRFACE: Error initializing indicator box graphics! **\n");

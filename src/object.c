@@ -302,7 +302,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
     gObjectsWindowBufferSize = height * width;
     gObjectsWindowPitch = pitch;
 
-    dudeFid = buildFid(1, _art_vault_guy_num, 0, 0, 0);
+    dudeFid = buildFid(OBJ_TYPE_CRITTER, _art_vault_guy_num, 0, 0, 0);
     objectCreateWithFidPid(&gDude, dudeFid, 0x1000000);
 
     gDude->flags |= OBJECT_FLAG_0x400;
@@ -316,7 +316,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
         exit(1);
     }
 
-    eggFid = buildFid(6, 2, 0, 0, 0);
+    eggFid = buildFid(OBJ_TYPE_INTERFACE, 2, 0, 0, 0);
     objectCreateWithFidPid(&gEgg, eggFid, -1);
     gEgg->flags |= OBJECT_FLAG_0x400;
     gEgg->flags |= OBJECT_TEMPORARY;
@@ -413,7 +413,7 @@ int objectRead(Object* obj, File* stream)
     } else {
         if (obj->data.misc.map <= 0) {
             if ((obj->fid & 0xFFF) < 33) {
-                obj->fid = buildFid(5, (obj->fid & 0xFFF) + 16, (obj->fid & 0xFF0000) >> 16, 0, 0);
+                obj->fid = buildFid(OBJ_TYPE_MISC, (obj->fid & 0xFFF) + 16, (obj->fid & 0xFF0000) >> 16, 0, 0);
             }
         }
     }
@@ -1444,9 +1444,9 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         int v15 = tile / 200 / 2;
         if (v14 != _obj_last_roof_x || v15 != _obj_last_roof_y || elevation != _obj_last_elev) {
             int v16 = _square[elevation]->field_0[v14 + 100 * v15];
-            int v31 = buildFid(4, (v16 >> 16) & 0xFFF, 0, 0, 0);
+            int v31 = buildFid(OBJ_TYPE_TILE, (v16 >> 16) & 0xFFF, 0, 0, 0);
             int v32 = _square[elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y];
-            int v34 = buildFid(4, 1, 0, 0, 0) == v31;
+            int v34 = buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0) == v31;
 
             if (v34 != _obj_last_is_empty || (((v16 >> 16) & 0xF000) >> 12) != (((v32 >> 16) & 0xF000) >> 12)) {
                 if (_obj_last_is_empty == 0) {
@@ -1495,8 +1495,8 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 // 0x48A9A0
 int _obj_reset_roof()
 {
-    int fid = buildFid(4, (_square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
-    if (fid != buildFid(4, 1, 0, 0, 0)) {
+    int fid = buildFid(OBJ_TYPE_TILE, (_square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
+    if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
         _tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, gDude->elevation, 1);
     }
     return 0;
@@ -3190,7 +3190,7 @@ void _obj_preload_art_cache(int flags)
 
     for (int i = 0; i < 4096; i++) {
         if (arr[i] != 0) {
-            int fid = buildFid(4, i, 0, 0, 0);
+            int fid = buildFid(OBJ_TYPE_TILE, i, 0, 0, 0);
             if (artLock(fid, &cache_handle) != NULL) {
                 artUnlock(cache_handle);
             }
@@ -5125,7 +5125,7 @@ void _obj_fix_violence_settings(int* fid)
         anim = (anim == ANIM_FALL_BACK_BLOOD_SF)
             ? ANIM_FALL_BACK_SF
             : ANIM_FALL_FRONT_SF;
-        *fid = buildFid(1, *fid & 0xFFF, anim, (*fid & 0xF000) >> 12, (*fid & 0x70000000) >> 28);
+        *fid = buildFid(OBJ_TYPE_CRITTER, *fid & 0xFFF, anim, (*fid & 0xF000) >> 12, (*fid & 0x70000000) >> 28);
     }
 
     if (shouldResetViolenceLevel) {

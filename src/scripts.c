@@ -525,7 +525,7 @@ Object* scriptGetSelf(Program* program)
     }
 
     Object* object;
-    int fid = buildFid(6, 3, 0, 0, 0);
+    int fid = buildFid(OBJ_TYPE_INTERFACE, 3, 0, 0, 0);
     objectCreateWithFidPid(&object, fid, -1);
     objectHide(object, NULL);
     _obj_toggle_flat(object, NULL);
