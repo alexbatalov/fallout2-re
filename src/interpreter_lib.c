@@ -89,7 +89,7 @@ void opFormat(Program* program)
 // 0x461A5C
 void opPrint(Program* program)
 {
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -115,7 +115,7 @@ void opPrint(Program* program)
 // 0x461F1C
 void opPrintRect(Program* program)
 {
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     opcode_t opcode[3];
     int data[3];
@@ -197,7 +197,7 @@ void opDeleteRegion(Program* program)
         }
     }
 
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     const char* regionName = data != -1 ? programGetString(program, opcode, data) : NULL;
     _windowDeleteRegion(regionName);
@@ -263,7 +263,7 @@ void opAddRegionProc(Program* program)
     }
 
     const char* regionName = programGetString(program, opcode[4], data[4]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddRegionProc(regionName, program, data[3], data[2], data[1], data[0])) {
         programFatalError("Error setting procedures to region %s\n", regionName);
@@ -300,7 +300,7 @@ void opAddRegionRightProc(Program* program)
     }
 
     const char* regionName = programGetString(program, opcode[2], data[2]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
         programFatalError("ErrorError setting right button procedures to region %s\n", regionName);
@@ -527,7 +527,7 @@ void opAddButtonProc(Program* program)
     }
 
     const char* buttonName = programGetString(program, opcode[4], data[4]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddButtonProc(buttonName, program, data[3], data[2], data[1], data[0])) {
         programFatalError("Error setting procedures to button %s\n", buttonName);
@@ -564,7 +564,7 @@ void opAddButtonRightProc(Program* program)
     }
 
     const char* regionName = programGetString(program, opcode[2], data[2]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
         programFatalError("Error setting right button procedures to button %s\n", regionName);
@@ -575,7 +575,7 @@ void opAddButtonRightProc(Program* program)
 // 0x4643D4
 void opShowWin(Program* program)
 {
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
     _windowDraw();
 }
 
@@ -596,7 +596,7 @@ void opDeleteButton(Program* program)
         }
     }
 
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
         if (_windowDeleteButton(NULL)) {
