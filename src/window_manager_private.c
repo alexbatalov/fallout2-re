@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "core.h"
+#include "draw.h"
 #include "memory.h"
 #include "text_font.h"
 #include "window_manager.h"
@@ -72,10 +73,82 @@ int sub_4DA70C(const char* title, char** fileList, int fileListLength, int a4, i
 }
 
 // 0x4DB478
-int sub_4DB478(char* dest, int length, const char* title, int x, int y)
+int _win_get_str(char* dest, int length, const char* title, int x, int y)
 {
-    // TODO: Incomplete.
-    return -1;
+    if (!gWindowSystemInitialized) {
+        return -1;
+    }
+
+    int titleWidth = fontGetStringWidth(title) + 12;
+    if (titleWidth < fontGetMonospacedCharacterWidth() * length) {
+        titleWidth = fontGetMonospacedCharacterWidth() * length;
+    }
+
+    int windowWidth = titleWidth + 16;
+    if (windowWidth < 160) {
+        windowWidth = 160;
+    }
+
+    int windowHeight = 5 * fontGetLineHeight() + 16;
+
+    int win = windowCreate(x, y, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    if (win == -1) {
+        return -1;
+    }
+
+    windowDrawBorder(win);
+
+    unsigned char* windowBuffer = windowGetBuffer(win);
+
+    bufferFill(windowBuffer + windowWidth * (fontGetLineHeight() + 14) + 14,
+        windowWidth - 28,
+        fontGetLineHeight() + 2,
+        windowWidth,
+        _colorTable[_GNW_wcolor[0]]);
+    fontDrawText(windowBuffer + windowWidth * 8 + 8, title, windowWidth, windowWidth, _colorTable[_GNW_wcolor[4]]);
+
+    bufferDrawRectShadowed(windowBuffer,
+        windowWidth,
+        14,
+        fontGetLineHeight() + 14,
+        windowWidth - 14,
+        2 * fontGetLineHeight() + 16,
+        _colorTable[_GNW_wcolor[2]],
+        _colorTable[_GNW_wcolor[1]]);
+
+    _win_register_text_button(win,
+        windowWidth / 2 - 72,
+        windowHeight - 8 - fontGetLineHeight() - 6,
+        -1,
+        -1,
+        -1,
+        KEY_RETURN,
+        "Done",
+        0);
+
+    _win_register_text_button(win,
+        windowWidth / 2 + 8,
+        windowHeight - 8 - fontGetLineHeight() - 6,
+        -1,
+        -1,
+        -1,
+        KEY_ESCAPE,
+        "Cancel",
+        0);
+
+    windowRefresh(win);
+
+    sub_4DCA5C(win,
+        dest,
+        length,
+        16,
+        fontGetLineHeight() + 16,
+        _colorTable[_GNW_wcolor[3]],
+        _colorTable[_GNW_wcolor[0]]);
+
+    windowDestroy(win);
+
+    return 0;
 }
 
 // 0x4DBA98
@@ -260,6 +333,13 @@ int _win_width_needed(char** fileNameList, int fileNameListLength)
     }
 
     return maxWidth;
+}
+
+// 0x4DCA5C
+int sub_4DCA5C(int win, char* dest, int maxLength, int x, int y, int color1, int color2)
+{
+    // TODO: Incomplete.
+    return -1;
 }
 
 // 0x4DC930

@@ -376,7 +376,7 @@ void _main_selfrun_record()
         int selectedFileIndex = sub_4DA6C0("Select Map", fileList, fileListLength, 0, 80, 80, 65796);
         if (selectedFileIndex != -1) {
             char recordingName[12];
-            if (sub_4DB478(recordingName, 11, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
+            if (_win_get_str(recordingName, 11, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
                 memset(&selfrunData, 0, sizeof(selfrunData));
                 if (selfrunPrepareRecording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {
                     ready = true;
