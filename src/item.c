@@ -1552,7 +1552,7 @@ int _item_w_range(Object* critter, int hitMode)
         return range;
     }
 
-    if (_critter_flag_check(critter->pid, 0x2000)) {
+    if (_critter_flag_check(critter->pid, CRITTER_FLAG_0x2000)) {
         return 2;
     }
 

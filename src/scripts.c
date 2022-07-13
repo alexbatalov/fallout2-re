@@ -731,7 +731,7 @@ void _scrSetQueueTestVals(Object* a1, int a2)
 int _scrQueueRemoveFixed(Object* obj, void* data)
 {
     ScriptEvent* scriptEvent = (ScriptEvent*)data;
-    return obj == _scrQueueTestObj && scriptEvent->field_4 == _scrQueueTestValue;
+    return obj == _scrQueueTestObj && scriptEvent->fixedParam == _scrQueueTestValue;
 }
 
 // 0x4A3E60
@@ -743,7 +743,7 @@ int scriptAddTimerEvent(int sid, int delay, int param)
     }
 
     scriptEvent->sid = sid;
-    scriptEvent->field_4 = param;
+    scriptEvent->fixedParam = param;
 
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
@@ -765,7 +765,7 @@ int scriptEventWrite(File* stream, void* data)
     ScriptEvent* scriptEvent = (ScriptEvent*)data;
 
     if (fileWriteInt32(stream, scriptEvent->sid) == -1) return -1;
-    if (fileWriteInt32(stream, scriptEvent->field_4) == -1) return -1;
+    if (fileWriteInt32(stream, scriptEvent->fixedParam) == -1) return -1;
 
     return 0;
 }
@@ -779,7 +779,7 @@ int scriptEventRead(File* stream, void** dataPtr)
     }
 
     if (fileReadInt32(stream, &(scriptEvent->sid)) == -1) goto err;
-    if (fileReadInt32(stream, &(scriptEvent->field_4)) == -1) goto err;
+    if (fileReadInt32(stream, &(scriptEvent->fixedParam)) == -1) goto err;
 
     *dataPtr = scriptEvent;
 
@@ -803,7 +803,7 @@ int scriptEventProcess(Object* obj, void* data)
         return 0;
     }
 
-    script->fixedParam = scriptEvent->field_4;
+    script->fixedParam = scriptEvent->fixedParam;
 
     scriptExecProc(scriptEvent->sid, SCRIPT_PROC_TIMED);
 

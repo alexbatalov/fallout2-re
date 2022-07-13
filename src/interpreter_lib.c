@@ -49,27 +49,27 @@ void opFormat(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 6 given to format\n");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 5 given to format\n");
     }
 
-    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 4 given to format\n");
     }
 
-    if ((opcode[3] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 3 given to format\n");
     }
 
-    if ((opcode[4] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 2 given to format\n");
     }
 
-    if ((opcode[5] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[5] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid arg 1 given to format\n");
     }
 
@@ -89,7 +89,7 @@ void opFormat(Program* program)
 // 0x461A5C
 void opPrint(Program* program)
 {
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -98,7 +98,7 @@ void opPrint(Program* program)
         programPopString(program, opcode, data);
     }
 
-    switch (opcode & 0xF7FF) {
+    switch (opcode & VALUE_TYPE_MASK) {
     case VALUE_TYPE_STRING:
         _interpretOutput("%s", programGetString(program, opcode, data));
         break;
@@ -115,7 +115,7 @@ void opPrint(Program* program)
 // 0x461F1C
 void opPrintRect(Program* program)
 {
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     opcode_t opcode[3];
     int data[3];
@@ -130,16 +130,16 @@ void opPrintRect(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT || data[0] > 2) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT || data[0] > 2) {
         programFatalError("Invalid arg 3 given to printrect, expecting int");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 2 given to printrect, expecting int");
     }
 
     char string[80];
-    switch (opcode[2] & 0xF7FF) {
+    switch (opcode[2] & VALUE_TYPE_MASK) {
     case VALUE_TYPE_STRING:
         sprintf(string, "%s", programGetString(program, opcode[2], data[2]));
         break;
@@ -191,13 +191,13 @@ void opDeleteRegion(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
-        if ((opcode & 0xF7FF) == VALUE_TYPE_INT && data != -1) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data != -1) {
             programFatalError("Invalid type given to deleteregion");
         }
     }
 
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     const char* regionName = data != -1 ? programGetString(program, opcode, data) : NULL;
     _windowDeleteRegion(regionName);
@@ -214,7 +214,7 @@ void opCheckRegion(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid arg 1 given to checkregion();\n");
     }
 
@@ -242,28 +242,28 @@ void opAddRegionProc(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 4 name given to addregionproc");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 3 name given to addregionproc");
     }
 
-    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 2 name given to addregionproc");
     }
 
-    if ((opcode[3] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 1 name given to addregionproc");
     }
 
-    if ((opcode[4] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid name given to addregionproc");
     }
 
     const char* regionName = programGetString(program, opcode[4], data[4]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddRegionProc(regionName, program, data[3], data[2], data[1], data[0])) {
         programFatalError("Error setting procedures to region %s\n", regionName);
@@ -287,20 +287,20 @@ void opAddRegionRightProc(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 2 name given to addregionrightproc");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 1 name given to addregionrightproc");
     }
 
-    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid name given to addregionrightproc");
     }
 
     const char* regionName = programGetString(program, opcode[2], data[2]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
         programFatalError("ErrorError setting right button procedures to region %s\n", regionName);
@@ -356,7 +356,7 @@ void opSayReplyTitle(Program* program)
     }
 
     char* string = NULL;
-    if ((opcode & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         string = programGetString(program, opcode, data);
     }
 
@@ -377,7 +377,7 @@ void opSayGoToReply(Program* program)
     }
 
     char* string = NULL;
-    if ((opcode & 0xF7FF) == VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         string = programGetString(program, opcode, data);
     }
 
@@ -416,7 +416,7 @@ void opSayMessageTimeout(Program* program)
     }
 
     // TODO: What the hell is this?
-    if ((opcode & 0xF7FF) == 0x4000) {
+    if ((opcode & VALUE_TYPE_MASK) == 0x4000) {
         programFatalError("sayMsgTimeout:  invalid var type passed.");
     }
 
@@ -440,11 +440,11 @@ void opAddButtonFlag(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 2 given to addbuttonflag");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid arg 1 given to addbuttonflag");
     }
 
@@ -473,11 +473,11 @@ void opAddRegionFlag(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 2 given to addregionflag");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid arg 1 given to addregionflag");
     }
 
@@ -506,28 +506,28 @@ void opAddButtonProc(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 4 name given to addbuttonproc");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 3 name given to addbuttonproc");
     }
 
-    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 2 name given to addbuttonproc");
     }
 
-    if ((opcode[3] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 1 name given to addbuttonproc");
     }
 
-    if ((opcode[4] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid name given to addbuttonproc");
     }
 
     const char* buttonName = programGetString(program, opcode[4], data[4]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddButtonProc(buttonName, program, data[3], data[2], data[1], data[0])) {
         programFatalError("Error setting procedures to button %s\n", buttonName);
@@ -551,20 +551,20 @@ void opAddButtonRightProc(Program* program)
         }
     }
 
-    if ((opcode[0] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 2 name given to addbuttonrightproc");
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid procedure 1 name given to addbuttonrightproc");
     }
 
-    if ((opcode[2] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid name given to addbuttonrightproc");
     }
 
     const char* regionName = programGetString(program, opcode[2], data[2]);
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
     if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
         programFatalError("Error setting right button procedures to button %s\n", regionName);
@@ -575,7 +575,7 @@ void opAddButtonRightProc(Program* program)
 // 0x4643D4
 void opShowWin(Program* program)
 {
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
     _windowDraw();
 }
 
@@ -590,15 +590,15 @@ void opDeleteButton(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
-        if ((opcode & 0xF7FF) == VALUE_TYPE_INT && data != -1) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data != -1) {
             programFatalError("Invalid type given to delete button");
         }
     }
 
-    _selectWindowID(program->field_84);
+    _selectWindowID(program->windowId);
 
-    if ((opcode & 0xF7FF) == VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
         if (_windowDeleteButton(NULL)) {
             return;
         }
@@ -644,8 +644,8 @@ void opLoadPaletteTable(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
-        if ((opcode & 0xF7FF) == VALUE_TYPE_INT && data != -1) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data != -1) {
             programFatalError("Invalid type given to loadpalettetable");
         }
     }
@@ -673,7 +673,7 @@ void opAddNamedEvent(Program* program)
         }
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to addnamedevent");
     }
 
@@ -698,7 +698,7 @@ void opAddNamedHandler(Program* program)
         }
     }
 
-    if ((opcode[1] & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to addnamedhandler");
     }
 
@@ -717,7 +717,7 @@ void opClearNamed(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to clearnamed");
     }
 
@@ -736,7 +736,7 @@ void opSignalNamed(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_STRING) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         programFatalError("Invalid type given to signalnamed");
     }
 
@@ -762,7 +762,7 @@ void opAddKey(Program* program)
     }
 
     for (int arg = 0; arg < 2; arg++) {
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("Invalid arg %d given to addkey", arg + 1);
         }
     }
@@ -794,7 +794,7 @@ void opDeleteKey(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to deletekey");
     }
 
@@ -824,7 +824,7 @@ void opSetFont(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to setfont");
     }
 
@@ -844,7 +844,7 @@ void opSetTextFlags(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to setflags");
     }
 
@@ -872,7 +872,7 @@ void opSetTextColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & 0xF7FF) != VALUE_TYPE_FLOAT && (opcode[arg] & 0xF7FF) != VALUE_TYPE_INT)
+        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
             || floats[arg] == 0.0) {
             programFatalError("Invalid type given to settextcolor");
         }
@@ -906,7 +906,7 @@ void opSayOptionColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & 0xF7FF) != VALUE_TYPE_FLOAT && (opcode[arg] & 0xF7FF) != VALUE_TYPE_INT)
+        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
             || floats[arg] == 0.0) {
             programFatalError("Invalid type given to sayoptioncolor");
         }
@@ -941,7 +941,7 @@ void opSayReplyColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & 0xF7FF) != VALUE_TYPE_FLOAT && (opcode[arg] & 0xF7FF) != VALUE_TYPE_INT)
+        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
             || floats[arg] == 0.0) {
             programFatalError("Invalid type given to sayreplycolor");
         }
@@ -975,7 +975,7 @@ void opSetHighlightColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & 0xF7FF) != VALUE_TYPE_FLOAT && (opcode[arg] & 0xF7FF) != VALUE_TYPE_INT)
+        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
             || floats[arg] == 0.0) {
             programFatalError("Invalid type given to sethighlightcolor");
         }
@@ -1001,7 +1001,7 @@ void opSayReplyFlags(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to sayreplyflags");
     }
 
@@ -1021,7 +1021,7 @@ void opSayOptionFlags(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to sayoptionflags");
     }
 
@@ -1048,7 +1048,7 @@ void opSayBorder(Program* program)
     }
 
     for (int arg = 0; arg < 2; arg++) {
-        if ((opcode[arg] & 0xF7FF) != VALUE_TYPE_INT) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             programFatalError("Invalid arg %d given to sayborder", arg + 1);
         }
     }
@@ -1069,7 +1069,7 @@ void opSaySetSpacing(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to saysetspacing");
     }
 
@@ -1342,7 +1342,7 @@ void opSoundPause(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to soundpause");
     }
 
@@ -1360,7 +1360,7 @@ void opSoundResume(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to soundresume");
     }
 
@@ -1378,7 +1378,7 @@ void opSoundStop(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to soundstop");
     }
 
@@ -1396,7 +1396,7 @@ void opSoundRewind(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to soundrewind");
     }
 
@@ -1414,7 +1414,7 @@ void opSoundDelete(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid arg 1 given to sounddelete");
     }
 
@@ -1432,7 +1432,7 @@ void opSetOneOptPause(Program* program)
         programPopString(program, opcode, data);
     }
 
-    if ((opcode & 0xF7FF) != VALUE_TYPE_INT) {
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("SetOneOptPause: invalid arg passed (non-integer).");
     }
 

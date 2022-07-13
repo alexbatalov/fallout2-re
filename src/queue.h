@@ -38,7 +38,7 @@ typedef struct WithdrawalEvent {
 
 typedef struct ScriptEvent {
     int sid;
-    int field_4;
+    int fixedParam;
 } ScriptEvent;
 
 typedef struct RadiationEvent {
