@@ -1,5 +1,6 @@
 #include "window_manager_private.h"
 
+#include "color.h"
 #include "core.h"
 #include "memory.h"
 #include "text_font.h"
@@ -75,6 +76,63 @@ int sub_4DB478(char* dest, int length, const char* title, int x, int y)
 {
     // TODO: Incomplete.
     return -1;
+}
+
+// 0x4DBA98
+int _win_msg(const char* string, int x, int y, int flags)
+{
+    if (!gWindowSystemInitialized) {
+        return -1;
+    }
+
+    int windowHeight = 3 * fontGetLineHeight() + 16;
+
+    int windowWidth = fontGetStringWidth(string) + 16;
+    if (windowWidth < 80) {
+        windowWidth = 80;
+    }
+
+    windowWidth += 16;
+
+    int win = windowCreate(x, y, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    if (win == -1) {
+        return -1;
+    }
+
+    windowDrawBorder(win);
+
+    Window* window = windowGetWindow(win);
+    unsigned char* windowBuffer = window->buffer;
+
+    int color;
+    if ((flags & 0xFF00) != 0) {
+        int index = (flags & 0xFF) - 1;
+        color = _colorTable[_GNW_wcolor[index]];
+        color |= flags & ~0xFFFF;
+    } else {
+        color = flags;
+    }
+
+    fontDrawText(windowBuffer + windowWidth * 8 + 16, string, windowWidth, windowWidth, color);
+
+    _win_register_text_button(win,
+        windowWidth / 2 - 32,
+        windowHeight - 8 - fontGetLineHeight() - 6,
+        -1,
+        -1,
+        -1,
+        KEY_ESCAPE,
+        "Done",
+        0);
+
+    windowRefresh(win);
+
+    while (_get_input() != KEY_ESCAPE) {
+    }
+
+    windowDestroy(win);
+
+    return 0;
 }
 
 // 0x4DC30C

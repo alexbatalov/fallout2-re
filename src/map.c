@@ -31,6 +31,7 @@
 #include "text_object.h"
 #include "tile.h"
 #include "window_manager.h"
+#include "window_manager_private.h"
 #include "world_map.h"
 
 #include <direct.h>
@@ -1357,14 +1358,12 @@ int _map_save_file(File* stream)
 
     if (scriptSaveAll(stream) == -1) {
         sprintf(err, "Error saving scripts in %s", gMapHeader.name);
-        // TODO: Incomplete.
-        // _win_msg(err, 80, 80, _colorTable[31744]);
+        _win_msg(err, 80, 80, _colorTable[31744]);
     }
 
     if (objectSaveAll(stream) == -1) {
         sprintf(err, "Error saving objects in %s", gMapHeader.name);
-        // TODO: Incomplete.
-        // _win_msg(err, 80, 80, _colorTable[31744]);
+        _win_msg(err, 80, 80, _colorTable[31744]);
     }
 
     scriptsEnable();

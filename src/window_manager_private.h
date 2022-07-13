@@ -37,6 +37,7 @@ extern char gProgramWindowTitle[256];
 int sub_4DA6C0(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7);
 int sub_4DA70C(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7, int a8);
 int sub_4DB478(char* dest, int length, const char* title, int x, int y);
+int _win_msg(const char* string, int x, int y, int flags);
 int _win_debug(char* a1);
 void _win_debug_delete();
 int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7);
