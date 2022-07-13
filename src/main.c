@@ -20,6 +20,7 @@
 #include "object.h"
 #include "options.h"
 #include "palette.h"
+#include "proto.h"
 #include "random.h"
 #include "scripts.h"
 #include "selfrun.h"
@@ -56,6 +57,16 @@ int _main_selfrun_index = 0;
 
 // 0x5194E8
 bool _main_show_death_scene = false;
+
+// A switch to pick selfrun vs. intro video for screensaver:
+// - `false` - will play next selfrun recording
+// - `true` - will play intro video
+//
+// This value will alternate on every attempt, even if there are no selfrun
+// recordings.
+//
+// 0x5194EC
+bool gMainMenuScreensaverCycle = false;
 
 // 0x5194F0
 int gMainMenuWindow = -1;
@@ -213,8 +224,8 @@ int falloutMain(int argc, char** argv)
             case MAIN_MENU_TIMEOUT:
                 debugPrint("Main menu timed-out\n");
                 // FALLTHROUGH
-            case MAIN_MENU_3:
-                // _main_selfrun_play();
+            case MAIN_MENU_SCREENSAVER:
+                _main_selfrun_play();
                 break;
             case MAIN_MENU_OPTIONS:
                 mainMenuWindowHide(false);
@@ -350,6 +361,39 @@ void _main_selfrun_exit()
     _main_selfrun_count = 0;
     _main_selfrun_index = 0;
     _main_selfrun_list = NULL;
+}
+
+// 0x48109C
+void _main_selfrun_play()
+{
+    if (!gMainMenuScreensaverCycle && _main_selfrun_count > 0) {
+        SelfrunData selfrunData;
+        if (selfrunPreparePlayback(_main_selfrun_list[_main_selfrun_index], &selfrunData) == 0) {
+            mainMenuWindowHide(true);
+            mainMenuWindowFree();
+            backgroundSoundDelete();
+            randomSeedPrerandom(0xBEEFFEED);
+            gameReset();
+            _proto_dude_init("premade\\combat.gcd");
+            _main_load_new(selfrunData.field_D);
+            selfrunPlaybackLoop(&selfrunData);
+            paletteFadeTo(gPaletteWhite);
+            objectHide(gDude, NULL);
+            _map_exit();
+            gameReset();
+            mainMenuWindowInit();
+        }
+
+        _main_selfrun_index++;
+        if (_main_selfrun_index >= _main_selfrun_count) {
+            _main_selfrun_index = 0;
+        }
+    } else {
+        mainMenuWindowHide(true);
+        gameMoviePlay(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
+    }
+
+    gMainMenuScreensaverCycle = !gMainMenuScreensaverCycle;
 }
 
 // 0x48118C
@@ -798,7 +842,7 @@ int mainMenuWindowHandleEvents()
             } else if (keyCode == KEY_MINUS || keyCode == KEY_UNDERSCORE) {
                 brightnessDecrease();
             } else if (keyCode == KEY_UPPERCASE_D || keyCode == KEY_LOWERCASE_D) {
-                rc = MAIN_MENU_3;
+                rc = MAIN_MENU_SCREENSAVER;
                 continue;
             } else if (keyCode == 1111) {
                 if (!(mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT)) {

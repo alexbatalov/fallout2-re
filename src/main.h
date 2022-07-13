@@ -19,7 +19,7 @@ typedef enum MainMenuOption {
     MAIN_MENU_INTRO,
     MAIN_MENU_NEW_GAME,
     MAIN_MENU_LOAD_GAME,
-    MAIN_MENU_3,
+    MAIN_MENU_SCREENSAVER,
     MAIN_MENU_TIMEOUT,
     MAIN_MENU_CREDITS,
     MAIN_MENU_QUOTES,
@@ -34,6 +34,7 @@ extern char** _main_selfrun_list;
 extern int _main_selfrun_count;
 extern int _main_selfrun_index;
 extern bool _main_show_death_scene;
+extern bool gMainMenuScreensaverCycle;
 extern int mainMenuWindowHandle;
 extern unsigned char* mainMenuWindowBuf;
 extern unsigned char* gMainMenuBackgroundFrmData;
@@ -57,6 +58,7 @@ bool falloutInit(int argc, char** argv);
 int _main_load_new(char* fname);
 void mainLoop();
 void _main_selfrun_exit();
+void _main_selfrun_play();
 void showDeath();
 void _main_death_voiceover_callback();
 int _mainDeathGrabTextFile(const char* fileName, char* dest);
