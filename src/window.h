@@ -93,6 +93,7 @@ extern int _currentHighlightColorB;
 int _windowWidth();
 int _windowHeight();
 bool _windowDraw();
+int _windowOutput(char* string);
 bool _selectWindowID(int index);
 int _selectWindow(const char* windowName);
 unsigned char* _windowGetBuffer();

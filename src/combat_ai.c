@@ -3148,7 +3148,7 @@ int _combatai_rating(Object* obj)
         return 0;
     }
 
-    if (OBJECT_TYPE(obj->fid) != OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(obj->fid) != OBJ_TYPE_CRITTER) {
         return 0;
     }
 
