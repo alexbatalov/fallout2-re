@@ -148,6 +148,24 @@ bool _windowDraw()
     return true;
 }
 
+// 0x4B80A4
+int _windowOutput(char* string)
+{
+    if (gCurrentManagedWindowIndex == -1) {
+        return 0;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+
+    int x = (int)(managedWindow->field_44 * managedWindow->field_54);
+    int y = (int)(managedWindow->field_48 * managedWindow->field_58);
+    // NOTE: Uses `add` at 0x4B810E, not bitwise `or`.
+    int flags = widgetGetTextColor() + widgetGetTextFlags();
+    windowDrawText(managedWindow->window, string, 0, x, y, flags);
+
+    return 1;
+}
+
 // 0x4B81C4
 bool _selectWindowID(int index)
 {
