@@ -514,7 +514,7 @@ int objectLoadAllInternal(File* stream)
 
             _obj_insert(objectListNode);
 
-            if ((objectListNode->obj->flags & OBJECT_FLAG_0x400) && PID_TYPE(objectListNode->obj->flags) == OBJ_TYPE_CRITTER && objectListNode->obj->pid != 18000) {
+            if ((objectListNode->obj->flags & OBJECT_FLAG_0x400) && PID_TYPE(objectListNode->obj->pid) == OBJ_TYPE_CRITTER && objectListNode->obj->pid != 18000) {
                 objectListNode->obj->flags &= ~OBJECT_FLAG_0x400;
             }
 
