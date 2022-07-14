@@ -3867,7 +3867,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
                 if (rc != 1) {
                     if (_item_move(a3, _inven_dude, a1, quantityToMove) == 0) {
                         if ((a1->flags & OBJECT_IN_RIGHT_HAND) != 0) {
-                            a3->fid = buildFid(FID_TYPE(a3->fid), a3->fid & 0xFFF, (a3->fid & 0xFF0000) >> 16, 0, a3->rotation + 1);
+                            a3->fid = buildFid(FID_TYPE(a3->fid), a3->fid & 0xFFF, FID_ANIM_TYPE(a3->fid), 0, a3->rotation + 1);
                         }
 
                         a3->flags &= ~OBJECT_EQUIPPED;

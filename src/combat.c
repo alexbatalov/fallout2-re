@@ -2458,7 +2458,7 @@ void _combat_begin(Object* a1)
         if (v1 != NULL && !_isLoadingGame()) {
             int fid = buildFid(FID_TYPE(v1->fid),
                 100,
-                (v1->fid & 0xFF0000) >> 16,
+                FID_ANIM_TYPE(v1->fid),
                 (v1->fid & 0xF000) >> 12,
                 (v1->fid & 0x70000000) >> 28);
 
@@ -2612,7 +2612,7 @@ void _combat_over()
         if (critter->pid == 0x1000098 && !critterIsDead(critter) && !_isLoadingGame()) {
             int fid = buildFid(FID_TYPE(critter->fid),
                 99,
-                (critter->fid & 0xFF0000) >> 16,
+                FID_ANIM_TYPE(critter->fid),
                 (critter->fid & 0xF000) >> 12,
                 (critter->fid & 0x70000000) >> 28);
             reg_anim_clear(critter);

@@ -249,7 +249,7 @@ void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, b
         knockbackDistance = 0;
     }
 
-    anim = (a1->fid & 0xFF0000) >> 16;
+    anim = FID_ANIM_TYPE(a1->fid);
     if (!_critter_is_prone(a1)) {
         if ((flags & DAM_DEAD) != 0) {
             fid = buildFid(OBJ_TYPE_MISC, 10, 0, 0, 0);
@@ -906,7 +906,7 @@ int _is_next_to(Object* a1, Object* a2)
 int _action_climb_ladder(Object* a1, Object* a2)
 {
     if (a1 == gDude) {
-        int anim = (gDude->fid & 0xFF0000) >> 16;
+        int anim = FID_ANIM_TYPE(gDude->fid);
         if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
             reg_anim_clear(gDude);
         }
@@ -975,7 +975,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
 
     if (sceneryType != SCENERY_TYPE_LADDER_UP || a3 != NULL) {
         if (a1 == gDude) {
-            int anim = (gDude->fid & 0xFF0000) >> 16;
+            int anim = FID_ANIM_TYPE(gDude->fid);
             if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
                 reg_anim_clear(gDude);
             }
@@ -1061,7 +1061,7 @@ int actionPickUp(Object* critter, Object* item)
     }
 
     if (critter == gDude) {
-        int animationCode = (gDude->fid & 0xFF0000) >> 16;
+        int animationCode = FID_ANIM_TYPE(gDude->fid);
         if (animationCode == ANIM_WALK || animationCode == ANIM_RUNNING) {
             reg_anim_clear(gDude);
         }
@@ -1161,7 +1161,7 @@ int _action_loot_container(Object* critter, Object* container)
     }
 
     if (critter == gDude) {
-        int anim = (gDude->fid & 0xFF0000) >> 16;
+        int anim = FID_ANIM_TYPE(gDude->fid);
         if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
             reg_anim_clear(gDude);
         }
@@ -1330,7 +1330,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
 
         if (partyMember != NULL) {
             performer = partyMember;
-            int anim = (partyMember->fid & 0xFF0000) >> 16;
+            int anim = FID_ANIM_TYPE(partyMember->fid);
             if (anim != ANIM_WALK && anim != ANIM_RUNNING) {
                 if (anim != ANIM_STAND) {
                     performer = gDude;
@@ -1361,7 +1361,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
         }
 
         if (partyMember == NULL) {
-            int anim = (performer->fid & 0xFF0000) >> 16;
+            int anim = FID_ANIM_TYPE(performer->fid);
             if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
                 reg_anim_clear(performer);
             }
@@ -1732,7 +1732,7 @@ int actionTalk(Object* a1, Object* a2)
         return -1;
     }
 
-    int anim = (gDude->fid & 0xFF0000) >> 16;
+    int anim = FID_ANIM_TYPE(gDude->fid);
     if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
         reg_anim_clear(gDude);
     }

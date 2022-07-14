@@ -546,9 +546,9 @@ int _item_drop_all(Object* critter, int tile)
 
     if (hasEquippedItems) {
         Rect updatedRect;
-        int fid = buildFid(OBJ_TYPE_CRITTER, frmId, (critter->fid & 0xFF0000) >> 16, 0, (critter->fid & 0x70000000) >> 28);
+        int fid = buildFid(OBJ_TYPE_CRITTER, frmId, FID_ANIM_TYPE(critter->fid), 0, (critter->fid & 0x70000000) >> 28);
         objectSetFid(critter, fid, &updatedRect);
-        if (((critter->fid & 0xFF0000) >> 16) == 0) {
+        if (FID_ANIM_TYPE(critter->fid) == ANIM_STAND) {
             tileWindowRefreshRect(&updatedRect, gElevation);
         }
     }
