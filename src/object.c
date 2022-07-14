@@ -5085,7 +5085,7 @@ void _obj_render_object(Object* object, Rect* rect, int light)
 // 0x48FA14
 void _obj_fix_violence_settings(int* fid)
 {
-    if ((*fid >> 24) != OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(*fid) != OBJ_TYPE_CRITTER) {
         return;
     }
 
