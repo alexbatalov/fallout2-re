@@ -14,6 +14,9 @@ char _aColor_cColorTa[] = "color.c: color table not found\n";
 // 0x50F984
 char _aColor_cColorpa[] = "color.c: colorpalettestack overflow";
 
+// 0x50F9AC
+char aColor_cColor_0[] = "color.c: colorpalettestack underflow";
+
 // 0x51DF10
 char* _errorStr = _aColor_cNoError;
 
@@ -585,6 +588,38 @@ bool colorPushColorPalette()
     memcpy(entry->colorTable, _colorTable, sizeof(_colorTable));
 
     gColorPaletteStackSize++;
+
+    return true;
+}
+
+// NOTE: Unused.
+//
+// 0x4C88E0
+bool colorPopColorPalette()
+{
+    if (gColorPaletteStackSize == 0) {
+        _errorStr = aColor_cColor_0;
+        return false;
+    }
+
+    gColorPaletteStackSize--;
+
+    ColorPaletteStackEntry* entry = gColorPaletteStack[gColorPaletteStackSize];
+
+    memcpy(_mappedColor, entry->mappedColors, sizeof(_mappedColor));
+    memcpy(_cmap, entry->cmap, sizeof(_cmap));
+    memcpy(_colorTable, entry->colorTable, sizeof(_colorTable));
+
+    free(entry);
+    gColorPaletteStack[gColorPaletteStackSize] = NULL;
+
+    _setIntensityTables();
+
+    for (int index = 0; index < 256; index++) {
+        _setMixTableColor(index);
+    }
+
+    _rebuildColorBlendTables();
 
     return true;
 }
