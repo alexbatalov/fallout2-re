@@ -11,6 +11,9 @@ char _aColor_cNoError[] = "color.c: No errors\n";
 // 0x50F95C
 char _aColor_cColorTa[] = "color.c: color table not found\n";
 
+// 0x50F984
+char _aColor_cColorpa[] = "color.c: colorpalettestack overflow";
+
 // 0x51DF10
 char* _errorStr = _aColor_cNoError;
 
@@ -40,6 +43,9 @@ unsigned char _cmap[768] = {
     0x3F, 0x3F, 0x3F
 };
 
+// 0x673050
+ColorPaletteStackEntry* gColorPaletteStack[COLOR_PALETTE_STACK_CAPACITY];
+
 // 0x673090
 unsigned char _systemCmap[256 * 3];
 
@@ -63,6 +69,9 @@ unsigned char _colorMixMulTable[65536];
 
 // 0x6A38D0
 unsigned char _colorTable[32768];
+
+// 0x6AB8D0
+int gColorPaletteStackSize;
 
 // 0x6AB928
 ColorPaletteFileReadProc* gColorPaletteFileReadProc;
@@ -556,6 +565,28 @@ void colorSetBrightness(double value)
     }
 
     _setSystemPalette(_systemCmap);
+}
+
+// NOTE: Unused.
+//
+// 0x4C8828
+bool colorPushColorPalette()
+{
+    if (gColorPaletteStackSize >= COLOR_PALETTE_STACK_CAPACITY) {
+        _errorStr = _aColor_cColorpa;
+        return false;
+    }
+
+    ColorPaletteStackEntry* entry = (ColorPaletteStackEntry*)malloc(sizeof(*entry));
+    gColorPaletteStack[gColorPaletteStackSize] = entry;
+
+    memcpy(entry->mappedColors, _mappedColor, sizeof(_mappedColor));
+    memcpy(entry->cmap, _cmap, sizeof(_cmap));
+    memcpy(entry->colorTable, _colorTable, sizeof(_colorTable));
+
+    gColorPaletteStackSize++;
+
+    return true;
 }
 
 // 0x4C89CC

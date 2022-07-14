@@ -6,12 +6,20 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+#define COLOR_PALETTE_STACK_CAPACITY 16
+
 typedef const char*(ColorFileNameManger)(const char*);
 typedef void(ColorTransitionCallback)();
 
 typedef int(ColorPaletteFileOpenProc)(const char* path, int mode);
 typedef int(ColorPaletteFileReadProc)(int fd, void* buffer, size_t size);
 typedef int(ColorPaletteCloseProc)(int fd);
+
+typedef struct ColorPaletteStackEntry {
+    unsigned char mappedColors[256];
+    unsigned char cmap[768];
+    unsigned char colorTable[32768];
+} ColorPaletteStackEntry;
 
 extern char _aColor_cNoError[];
 extern char _aColor_cColorTa[];
@@ -26,6 +34,7 @@ extern FreeProc* gColorPaletteFreeProc;
 extern ColorFileNameManger* gColorFileNameMangler;
 extern unsigned char _cmap[768];
 
+extern ColorPaletteStackEntry* gColorPaletteStack[COLOR_PALETTE_STACK_CAPACITY];
 extern unsigned char _systemCmap[256 * 3];
 extern unsigned char _currentGammaTable[64];
 extern unsigned char* _blendTable[256];
@@ -34,6 +43,7 @@ extern unsigned char _colorMixAddTable[65536];
 extern unsigned char _intensityColorTable[65536];
 extern unsigned char _colorMixMulTable[65536];
 extern unsigned char _colorTable[32768];
+extern int gColorPaletteStackSize;
 extern ColorPaletteFileReadProc* gColorPaletteFileReadProc;
 extern ColorPaletteCloseProc* gColorPaletteFileCloseProc;
 extern ColorPaletteFileOpenProc* gColorPaletteFileOpenProc;
@@ -63,6 +73,7 @@ unsigned char* _getColorBlendTable(int ch);
 void _freeColorBlendTable(int a1);
 void colorPaletteSetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 void colorSetBrightness(double value);
+bool colorPushColorPalette();
 bool _initColors();
 void _colorsClose();
 
