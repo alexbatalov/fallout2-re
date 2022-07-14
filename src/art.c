@@ -998,11 +998,11 @@ int buildFid(int objectType, int frmId, int animType, int a3, int rotation)
         goto zero;
     }
 
-    if (anim == ANIM_FIRE_DANCE || anim < ANIM_FALL_BACK || anim > ANIM_FALL_FRONT_BLOOD) {
+    if (animType == ANIM_FIRE_DANCE || animType < ANIM_FALL_BACK || animType > ANIM_FALL_FRONT_BLOOD) {
         goto zero;
     }
 
-    v7 = ((a3 << 12) & 0xF000) | (anim << 16) & 0xFF0000 | 0x1000000;
+    v7 = ((a3 << 12) & 0xF000) | (animType << 16) & 0xFF0000 | 0x1000000;
     v8 = (rotation << 28) & 0x70000000 | v7;
     v9 = frmId & 0xFFF;
 
@@ -1025,7 +1025,7 @@ zero:
 
 out:
 
-    return (v10 << 28) & 0x70000000 | (objectType << 24) | (anim << 16) & 0xFF0000 | (a3 << 12) & 0xF000 | frmId & 0xFFF;
+    return (v10 << 28) & 0x70000000 | (objectType << 24) | (animType << 16) & 0xFF0000 | (a3 << 12) & 0xF000 | frmId & 0xFFF;
 }
 
 // 0x419D60
