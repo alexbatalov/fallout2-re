@@ -1049,7 +1049,7 @@ int _map_age_dead_critters()
 
     Object* obj = objectFindFirst();
     while (obj != NULL) {
-        if (obj->pid >> 24 == OBJ_TYPE_CRITTER
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER
             && obj != gDude
             && !objectIsPartyMember(obj)
             && !critterIsDead(obj)) {
@@ -1076,7 +1076,7 @@ int _map_age_dead_critters()
 
     obj = objectFindFirst();
     while (obj != NULL) {
-        int type = obj->pid >> 24;
+        int type = PID_TYPE(obj->pid);
         if (type == OBJ_TYPE_CRITTER) {
             if (obj != gDude && critterIsDead(obj)) {
                 if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_FLAG_0x200) == 0) {
@@ -1109,7 +1109,7 @@ int _map_age_dead_critters()
     int rc = 0;
     for (int index = 0; index < count; index++) {
         Object* obj = objects[index];
-        if (obj->pid >> 24 == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
             if (_critter_flag_check(obj->pid, CRITTER_FLAG_0x40) == 0) {
                 _item_drop_all(obj, obj->tile);
             }
@@ -1239,7 +1239,7 @@ void _map_fix_critter_combat_data()
             continue;
         }
 
-        if ((object->pid >> 24) != OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) {
             continue;
         }
 

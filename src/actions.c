@@ -1217,7 +1217,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             return -1;
         }
 
-        if ((a2->pid >> 24) != OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(a2->pid) != OBJ_TYPE_CRITTER) {
             return -1;
         }
         break;
@@ -1232,7 +1232,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             return -1;
         }
 
-        if ((a2->pid >> 24) != OBJ_TYPE_ITEM && (a2->pid >> 24) != OBJ_TYPE_SCENERY) {
+        if (PID_TYPE(a2->pid) != OBJ_TYPE_ITEM && PID_TYPE(a2->pid) != OBJ_TYPE_SCENERY) {
             return -1;
         }
 
@@ -1248,7 +1248,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             return -1;
         }
 
-        if ((a2->pid >> 24) != OBJ_TYPE_ITEM && (a2->pid >> 24) != OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(a2->pid) != OBJ_TYPE_ITEM && PID_TYPE(a2->pid) != OBJ_TYPE_CRITTER) {
             return -1;
         }
 
@@ -1268,7 +1268,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             return -1;
         }
 
-        if ((a2->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(a2->pid) == OBJ_TYPE_CRITTER) {
             return -1;
         }
 
@@ -1285,7 +1285,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             return -1;
         }
 
-        if ((a2->pid >> 24) != OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(a2->pid) != OBJ_TYPE_CRITTER) {
             break;
         }
 

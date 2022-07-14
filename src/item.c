@@ -435,7 +435,7 @@ int _item_move_all_hidden(Object* a1, Object* a2)
         for (int j = i; j < inventory->length;) {
             bool v5;
             InventoryItem* inventoryItem = &(inventory->items[j]);
-            if (inventoryItem->item->pid >> 24 == OBJ_TYPE_ITEM) {
+            if (PID_TYPE(inventoryItem->item->pid) == OBJ_TYPE_ITEM) {
                 Proto* proto;
                 if (protoGetProto(inventoryItem->item->pid, &proto) != -1) {
                     v5 = (proto->item.extendedFlags & ItemProtoExtendedFlags_NaturalWeapon) == 0;
@@ -467,7 +467,7 @@ int _item_destroy_all_hidden(Object* a1)
         for (int j = i; j < inventory->length;) {
             bool v5;
             InventoryItem* inventoryItem = &(inventory->items[j]);
-            if (inventoryItem->item->pid >> 24 == OBJ_TYPE_ITEM) {
+            if (PID_TYPE(inventoryItem->item->pid) == OBJ_TYPE_ITEM) {
                 Proto* proto;
                 if (protoGetProto(inventoryItem->item->pid, &proto) != -1) {
                     v5 = (proto->item.extendedFlags & ItemProtoExtendedFlags_NaturalWeapon) == 0;
@@ -629,7 +629,7 @@ int itemGetType(Object* item)
         return ITEM_TYPE_MISC;
     }
 
-    if ((item->pid >> 24) != OBJ_TYPE_ITEM) {
+    if (PID_TYPE(item->pid) != OBJ_TYPE_ITEM) {
         return ITEM_TYPE_MISC;
     }
 
@@ -1050,7 +1050,7 @@ int weaponIsNatural(Object* obj)
 {
     Proto* proto;
 
-    if ((obj->pid >> 24) != OBJ_TYPE_ITEM) {
+    if (PID_TYPE(obj->pid) != OBJ_TYPE_ITEM) {
         return 0;
     }
 
@@ -2798,7 +2798,7 @@ int drugEffectEventProcess(Object* obj, void* data)
         return 0;
     }
 
-    if ((obj->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(obj->pid) != OBJ_TYPE_CRITTER) {
         return 0;
     }
 
@@ -2967,7 +2967,7 @@ int withdrawalEventWrite(File* stream, void* data)
 // 0x47A4C4
 void performWithdrawalStart(Object* obj, int perk, int pid)
 {
-    if ((obj->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(obj->pid) != OBJ_TYPE_CRITTER) {
         debugPrint("\nERROR: perform_withdrawal_start: Was called on non-critter!");
         return;
     }
@@ -2997,7 +2997,7 @@ void performWithdrawalStart(Object* obj, int perk, int pid)
 // 0x47A558
 void performWithdrawalEnd(Object* obj, int perk)
 {
-    if ((obj->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(obj->pid) != OBJ_TYPE_CRITTER) {
         debugPrint("\nERROR: perform_withdrawal_end: Was called on non-critter!");
         return;
     }

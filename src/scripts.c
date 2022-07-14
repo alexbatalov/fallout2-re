@@ -880,7 +880,7 @@ int scriptsHandleRequests()
                     Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
                     while (elevatorDoors != NULL) {
                         int pid = elevatorDoors->pid;
-                        if ((pid >> 24) == OBJ_TYPE_SCENERY
+                        if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                             && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
                             && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
                             break;
@@ -906,7 +906,7 @@ int scriptsHandleRequests()
                 Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
                 while (elevatorDoors != NULL) {
                     int pid = elevatorDoors->pid;
-                    if ((pid >> 24) == OBJ_TYPE_SCENERY
+                    if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                         && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
                         && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
                         break;
@@ -986,7 +986,7 @@ int _scripts_check_state_in_combat()
                     Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
                     while (elevatorDoors != NULL) {
                         int pid = elevatorDoors->pid;
-                        if ((pid >> 24) == OBJ_TYPE_SCENERY
+                        if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                             && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
                             && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
                             break;
