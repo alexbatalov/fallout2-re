@@ -8,7 +8,10 @@
 #include "interpreter_extra.h"
 #include "memory_manager.h"
 #include "nevs.h"
+#include "select_file_list.h"
+#include "text_font.h"
 #include "widget.h"
+#include "window_manager_private.h"
 
 // 0x59D5D0
 Sound* gInterpreterSounds[INTERPRETER_SOUNDS_LENGTH];
@@ -150,6 +153,64 @@ void opPrint(Program* program)
         _interpretOutput("%d", data);
         break;
     }
+}
+
+// selectfilelist
+// 0x461B10
+void opSelectFileList(Program* program)
+{
+    program->flags |= PROGRAM_FLAG_0x20;
+
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Error, invalid arg 2 given to selectfilelist");
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Error, invalid arg 1 given to selectfilelist");
+    }
+
+    char* pattern = programGetString(program, opcode[0], data[0]);
+    char* title = programGetString(program, opcode[1], data[1]);
+
+    int fileListLength;
+    char** fileList = _getFileList(_interpretMangleName(pattern), &fileListLength);
+    if (fileList != NULL && fileListLength != 0) {
+        int selectedIndex = _win_list_select(title,
+            fileList,
+            fileListLength,
+            NULL,
+            320 - fontGetStringWidth(title) / 2,
+            200,
+            _colorTable[0x7FFF] | 0x10000);
+
+        if (selectedIndex != -1) {
+            programStackPushInt32(program, programPushString(program, fileList[selectedIndex]));
+            programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+        } else {
+            programStackPushInt32(program, 0);
+            programStackPushInt16(program, VALUE_TYPE_INT);
+        }
+
+        _freeFileList(fileList);
+    } else {
+        programStackPushInt32(program, 0);
+        programStackPushInt16(program, VALUE_TYPE_INT);
+    }
+
+    program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
 // printrect

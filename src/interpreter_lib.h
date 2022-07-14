@@ -25,6 +25,7 @@ extern int _sayStartingPosition;
 void opFillWin3x3(Program* program);
 void opFormat(Program* program);
 void opPrint(Program* program);
+void opSelectFileList(Program* program);
 void opPrintRect(Program* program);
 void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
