@@ -651,5 +651,9 @@ void _colorsClose()
         _freeColorBlendTable(index);
     }
 
-    // TODO: Incomplete.
+    for (int index = 0; index < gColorPaletteStackSize; index++) {
+        free(gColorPaletteStack[index]);
+    }
+
+    gColorPaletteStackSize = 0;
 }
