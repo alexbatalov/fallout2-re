@@ -460,6 +460,34 @@ int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int it
     return 0;
 }
 
+// 0x4DC8D0
+void _win_delete_menu_bar(int win)
+{
+    Window* window = windowGetWindow(win);
+
+    if (!gWindowSystemInitialized) {
+        return;
+    }
+
+    if (window == NULL) {
+        return;
+    }
+
+    if (window->menuBar == NULL) {
+        return;
+    }
+
+    windowFill(win,
+        window->menuBar->rect.left,
+        window->menuBar->rect.top,
+        rectGetWidth(&(window->menuBar->rect)),
+        rectGetHeight(&(window->menuBar->rect)),
+        window->field_20);
+
+    internal_free(window->menuBar);
+    window->menuBar = NULL;
+}
+
 // 0x4DC9F0
 int _find_first_letter(int ch, char** stringList, int stringListLength)
 {

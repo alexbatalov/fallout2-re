@@ -45,6 +45,7 @@ int _win_debug(char* string);
 void _win_debug_delete(int btn, int keyCode);
 int _win_register_menu_bar(int win, int x, int y, int width, int height, int borderColor, int backgroundColor);
 int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int itemsLength, char** items, int a7, int a8);
+void _win_delete_menu_bar(int win);
 int _find_first_letter(int ch, char** stringList, int stringListLength);
 int _win_width_needed(char** fileNameList, int fileNameListLength);
 int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textColor, int backgroundColor);
