@@ -402,7 +402,7 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int bor
 }
 
 // 0x4DC768
-int _win_register_menu_pulldown(int win, int x, char* str, int a4)
+int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int itemsLength, char** items, int a7, int a8)
 {
     Window* window = windowGetWindow(win);
 
@@ -423,14 +423,16 @@ int _win_register_menu_pulldown(int win, int x, char* str, int a4)
         return -1;
     }
 
+    int titleX = menuBar->rect.left + x;
+    int titleY = (menuBar->rect.top + menuBar->rect.bottom - fontGetLineHeight()) / 2;
     int btn = buttonCreate(win,
-        menuBar->rect.left + x,
-        (menuBar->rect.top + menuBar->rect.bottom - fontGetLineHeight()) / 2,
-        fontGetStringWidth(str),
+        titleX,
+        titleY,
+        fontGetStringWidth(title),
         fontGetLineHeight(),
         -1,
         -1,
-        a4,
+        keyCode,
         -1,
         NULL,
         NULL,
@@ -440,7 +442,20 @@ int _win_register_menu_pulldown(int win, int x, char* str, int a4)
         return -1;
     }
 
-    // TODO: Incomplete.
+    windowDrawText(win, title, 0, titleX, titleY, window->menuBar->borderColor | 0x2000000);
+
+    MenuPulldown* pulldown = &(window->menuBar->pulldowns[window->menuBar->pulldownsLength]);
+    pulldown->rect.left = titleX;
+    pulldown->rect.top = titleY;
+    pulldown->rect.right = fontGetStringWidth(title) + titleX - 1;
+    pulldown->rect.bottom = fontGetLineHeight() + titleY - 1;
+    pulldown->keyCode = keyCode;
+    pulldown->itemsLength = itemsLength;
+    pulldown->items = items;
+    pulldown->field_1C = a7;
+    pulldown->field_20 = a8;
+
+    window->menuBar->pulldownsLength++;
 
     return 0;
 }
