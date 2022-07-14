@@ -40,13 +40,13 @@ int selfrunFreeFileList(char*** fileListPtr)
 }
 
 // 0x4A8C28
-int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunHeader)
+int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunData)
 {
     if (fileName == NULL) {
         return -1;
     }
 
-    if (selfrunHeader == NULL) {
+    if (selfrunData == NULL) {
         return -1;
     }
 
@@ -61,7 +61,7 @@ int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunHeader)
     char path[MAX_PATH];
     sprintf(path, "%s%s", "selfrun\\", fileName);
 
-    if (selfrunReadData(path, selfrunHeader) != 0) {
+    if (selfrunReadData(path, selfrunData) != 0) {
         return -1;
     }
 
@@ -75,7 +75,7 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
 {
     if (gSelfrunState == SELFRUN_STATE_PLAYING) {
         char path[MAX_PATH];
-        sprintf(path, "%s%s", "selfrun\\", selfrunData->field_0);
+        sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
 
         if (vcrPlay(path, VCR_TERMINATE_ON_KEY_PRESS | VCR_TERMINATE_ON_MOUSE_PRESS, selfrunPlaybackCompleted)) {
             bool cursorWasHidden = cursorIsHidden();
@@ -85,7 +85,7 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
 
             while (gSelfrunState == SELFRUN_STATE_PLAYING) {
                 int keyCode = _get_input();
-                if (keyCode != selfrunData->field_1C) {
+                if (keyCode != selfrunData->stopKeyCode) {
                     gameHandleKey(keyCode, false);
                 }
             }
@@ -102,13 +102,13 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
 }
 
 // 0x4A8D28
-int selfrunPrepareRecording(const char* a1, char* a2, SelfrunData* selfrunData)
+int selfrunPrepareRecording(const char* recordingName, const char* mapFileName, SelfrunData* selfrunData)
 {
-    if (a1 == NULL) {
+    if (recordingName == NULL) {
         return -1;
     }
 
-    if (a2 == NULL) {
+    if (mapFileName == NULL) {
         return -1;
     }
 
@@ -120,13 +120,13 @@ int selfrunPrepareRecording(const char* a1, char* a2, SelfrunData* selfrunData)
         return -1;
     }
 
-    sprintf(a2, "%s%s", a1, ".vcr");
-    strcpy(selfrunData->field_D, a2);
+    sprintf(selfrunData->recordingFileName, "%s%s", recordingName, ".vcr");
+    strcpy(selfrunData->mapFileName, mapFileName);
 
-    selfrunData->field_1C = KEY_CTRL_R;
+    selfrunData->stopKeyCode = KEY_CTRL_R;
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s%s", "selfrun\\", a1, ".sdf");
+    sprintf(path, "%s%s%s", "selfrun\\", recordingName, ".sdf");
 
     if (selfrunWriteData(path, selfrunData) != 0) {
         return -1;
@@ -142,7 +142,7 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
 {
     if (gSelfrunState == SELFRUN_STATE_RECORDING) {
         char path[MAX_PATH];
-        sprintf(path, "%s%s", "selfrun\\", selfrunData->field_0);
+        sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
         if (vcrRecord(path)) {
             if (!cursorIsHidden()) {
                 mouseShowCursor();
@@ -151,7 +151,7 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
             bool done = false;
             while (!done) {
                 int keyCode = _get_input();
-                if (keyCode == selfrunData->field_1C) {
+                if (keyCode == selfrunData->stopKeyCode) {
                     vcrStop();
                     _game_user_wants_to_quit = 2;
                     done = true;
@@ -189,9 +189,9 @@ int selfrunReadData(const char* path, SelfrunData* selfrunData)
     }
 
     int rc = -1;
-    if (fileReadFixedLengthString(stream, selfrunData->field_0, 13) == 0
-        && fileReadFixedLengthString(stream, selfrunData->field_D, 13) == 0
-        && fileReadInt32(stream, &(selfrunData->field_1C)) == 0) {
+    if (fileReadFixedLengthString(stream, selfrunData->recordingFileName, SELFRUN_RECORDING_FILE_NAME_LENGTH) == 0
+        && fileReadFixedLengthString(stream, selfrunData->mapFileName, SELFRUN_MAP_FILE_NAME_LENGTH) == 0
+        && fileReadInt32(stream, &(selfrunData->stopKeyCode)) == 0) {
         rc = 0;
     }
 
@@ -225,9 +225,9 @@ int selfrunWriteData(const char* path, SelfrunData* selfrunData)
     }
 
     int rc = -1;
-    if (fileWriteFixedLengthString(stream, selfrunData->field_0, 13) == 0
-        && fileWriteFixedLengthString(stream, selfrunData->field_D, 13) == 0
-        && fileWriteInt32(stream, selfrunData->field_1C) == 0) {
+    if (fileWriteFixedLengthString(stream, selfrunData->recordingFileName, SELFRUN_RECORDING_FILE_NAME_LENGTH) == 0
+        && fileWriteFixedLengthString(stream, selfrunData->mapFileName, SELFRUN_MAP_FILE_NAME_LENGTH) == 0
+        && fileWriteInt32(stream, selfrunData->stopKeyCode) == 0) {
         rc = 0;
     }
 

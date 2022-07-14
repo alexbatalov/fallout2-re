@@ -377,9 +377,9 @@ void _main_selfrun_record()
         if (selectedFileIndex != -1) {
             // NOTE: It's size is likely 13 chars (on par with SelfrunData
             // fields), but due to the padding it takes 16 chars on stack.
-            char recordingName[13];
+            char recordingName[SELFRUN_RECORDING_FILE_NAME_LENGTH];
             recordingName[0] = '\0';
-            if (_win_get_str(recordingName, 11, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
+            if (_win_get_str(recordingName, sizeof(recordingName) - 2, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
                 memset(&selfrunData, 0, sizeof(selfrunData));
                 if (selfrunPrepareRecording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {
                     ready = true;
@@ -396,7 +396,7 @@ void _main_selfrun_record()
         randomSeedPrerandom(0xBEEFFEED);
         gameReset();
         _proto_dude_init("premade\\combat.gcd");
-        _main_load_new(selfrunData.field_D);
+        _main_load_new(selfrunData.mapFileName);
         selfrunRecordingLoop(&selfrunData);
         paletteFadeTo(gPaletteWhite);
         objectHide(gDude, NULL);
@@ -426,7 +426,7 @@ void _main_selfrun_play()
             randomSeedPrerandom(0xBEEFFEED);
             gameReset();
             _proto_dude_init("premade\\combat.gcd");
-            _main_load_new(selfrunData.field_D);
+            _main_load_new(selfrunData.mapFileName);
             selfrunPlaybackLoop(&selfrunData);
             paletteFadeTo(gPaletteWhite);
             objectHide(gDude, NULL);
