@@ -28,6 +28,7 @@ enum {
 };
 
 #define OBJECT_TYPE(value) ((value) & 0xF000000) >> 24
+#define SID_TYPE(value) (value) >> 24
 
 typedef enum OutlineType {
     OUTLINE_TYPE_HOSTILE = 1,

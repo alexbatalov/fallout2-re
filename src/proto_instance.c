@@ -68,7 +68,7 @@ int _obj_new_sid(Object* object, int* sidPtr)
         return -1;
     }
 
-    int scriptType = sid >> 24;
+    int scriptType = SID_TYPE(sid);
     if (scriptAdd(sidPtr, scriptType) == -1) {
         return -1;
     }

@@ -576,7 +576,7 @@ void gameDialogEnter(Object* a1, int a2)
         return;
     }
 
-    if ((a1->pid >> 24) != OBJ_TYPE_ITEM && (a1->sid >> 24) != SCRIPT_TYPE_SPATIAL) {
+    if ((a1->pid >> 24) != OBJ_TYPE_ITEM && SID_TYPE(a1->sid) != SCRIPT_TYPE_SPATIAL) {
         MessageListItem messageListItem;
 
         int rc = _action_can_talk_to(gDude, a1);

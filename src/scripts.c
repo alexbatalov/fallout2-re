@@ -520,7 +520,7 @@ Object* scriptGetSelf(Program* program)
         return script->owner;
     }
 
-    if ((sid >> 24) != SCRIPT_TYPE_SPATIAL) {
+    if (SID_TYPE(sid) != SCRIPT_TYPE_SPATIAL) {
         return NULL;
     }
 
@@ -1709,7 +1709,7 @@ int scriptWrite(Script* scr, File* stream)
     if (fileWriteInt32(stream, scr->sid) == -1) return -1;
     if (fileWriteInt32(stream, scr->field_4) == -1) return -1;
 
-    switch (scr->sid >> 24) {
+    switch (SID_TYPE(scr->sid)) {
     case SCRIPT_TYPE_SPATIAL:
         if (fileWriteInt32(stream, scr->sp.built_tile) == -1) return -1;
         if (fileWriteInt32(stream, scr->sp.radius) == -1) return -1;
@@ -1862,7 +1862,7 @@ int scriptRead(Script* scr, File* stream)
     if (fileReadInt32(stream, &(scr->sid)) == -1) return -1;
     if (fileReadInt32(stream, &(scr->field_4)) == -1) return -1;
 
-    switch (scr->sid >> 24) {
+    switch (SID_TYPE(scr->sid)) {
     case SCRIPT_TYPE_SPATIAL:
         if (fileReadInt32(stream, &(scr->sp.built_tile)) == -1) return -1;
         if (fileReadInt32(stream, &(scr->sp.radius)) == -1) return -1;
@@ -2017,7 +2017,7 @@ int scriptGetScript(int sid, Script** scriptPtr)
         return -1;
     }
 
-    ScriptList* scriptList = &(gScriptLists[sid >> 24]);
+    ScriptList* scriptList = &(gScriptLists[SID_TYPE(sid)]);
     ScriptListExtent* scriptListExtent = scriptList->head;
 
     while (scriptListExtent != NULL) {
@@ -2172,7 +2172,7 @@ int scriptRemove(int sid)
         return -1;
     }
 
-    ScriptList* scriptList = &(gScriptLists[sid >> 24]);
+    ScriptList* scriptList = &(gScriptLists[SID_TYPE(sid)]);
 
     ScriptListExtent* scriptListExtent = scriptList->head;
     int index;
@@ -2668,7 +2668,7 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
 // 0x4A6D64
 int scriptGetLocalVar(int sid, int variable, int* value)
 {
-    if (sid >> 24 == SCRIPT_TYPE_SYSTEM) {
+    if (SID_TYPE(sid) == SCRIPT_TYPE_SYSTEM) {
         debugPrint("\nError! System scripts/Map scripts not allowed local_vars! ");
 
         _tempStr1[0] = '\0';
