@@ -311,7 +311,7 @@ int artIsObjectTypeHidden(int objectType)
 // 0x418F7C
 int artGetFidgetCount(int headFid)
 {
-    if (OBJECT_TYPE(headFid) != OBJ_TYPE_HEAD) {
+    if (FID_TYPE(headFid) != OBJ_TYPE_HEAD) {
         return 0;
     }
 
@@ -574,7 +574,7 @@ char* artBuildFilePath(int fid)
     v3 = v2 & 0xFFF;
     v4 = (v2 & 0xFF0000) >> 16;
     v5 = (v2 & 0xF000) >> 12;
-    type = OBJECT_TYPE(v2);
+    type = FID_TYPE(v2);
 
     if (v3 >= gArtListDescriptions[type].fileNamesLength) {
         return NULL;
@@ -799,7 +799,7 @@ bool artExists(int fid)
     bool result = false;
     int oldDb = -1;
 
-    if (OBJECT_TYPE(fid) == OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current(1);
         _db_current(_critter_db_handle);
     }
@@ -845,7 +845,7 @@ int _art_alias_num(int index)
 // 0x4199AC
 int artCritterFidShouldRun(int fid)
 {
-    if (OBJECT_TYPE(fid) == OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         return gArtCritterFidShoudRunData[fid & 0xFFF];
     }
 
@@ -855,7 +855,7 @@ int artCritterFidShouldRun(int fid)
 // 0x4199D4
 int artAliasFid(int fid)
 {
-    int type = OBJECT_TYPE(fid);
+    int type = FID_TYPE(fid);
     int anim = (fid & 0xFF0000) >> 16;
     if (type == 1) {
         if (anim == ANIM_ELECTRIFY
@@ -882,7 +882,7 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
     int oldDb = -1;
     int result = -1;
 
-    if (OBJECT_TYPE(fid) == OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current(1);
         _db_current(_critter_db_handle);
     }
@@ -935,7 +935,7 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
     int oldDb = -1;
     int result = -1;
 
-    if (OBJECT_TYPE(fid) == OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current(1);
         _db_current(_critter_db_handle);
     }

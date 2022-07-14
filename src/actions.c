@@ -426,7 +426,7 @@ int _show_damage_extras(Attack* attack)
 
     for (int index = 0; index < attack->extrasLength; index++) {
         Object* obj = attack->extras[index];
-        if (OBJECT_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
+        if (FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
             int delta = attack->attacker->rotation - obj->rotation;
             if (delta < 0) {
                 delta = -delta;
@@ -456,7 +456,7 @@ void _show_damage(Attack* attack, int a2, int a3)
     v5 = a3;
     for (int index = 0; index < attack->extrasLength; index++) {
         Object* object = attack->extras[index];
-        if (OBJECT_TYPE(object->fid) == OBJ_TYPE_CRITTER) {
+        if (FID_TYPE(object->fid) == OBJ_TYPE_CRITTER) {
             reg_anim_26(2, v5);
             v5 = 0;
         }
@@ -478,7 +478,7 @@ void _show_damage(Attack* attack, int a2, int a3)
 
             v15 = delta != 0 && delta != 1 && delta != 5;
 
-            if (OBJECT_TYPE(attack->defender->fid) == OBJ_TYPE_CRITTER) {
+            if (FID_TYPE(attack->defender->fid) == OBJ_TYPE_CRITTER) {
                 if (attack->attacker->fid == 33554933) {
                     v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
                     _show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, a2, attack->attacker, a3);
@@ -963,7 +963,7 @@ int _action_climb_ladder(Object* a1, Object* a2)
 int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
 {
     Proto* proto = NULL;
-    int type = OBJECT_TYPE(a2->fid);
+    int type = FID_TYPE(a2->fid);
     int sceneryType = -1;
     if (type == OBJ_TYPE_SCENERY) {
         if (protoGetProto(a2->pid, &proto) == -1) {
@@ -1017,7 +1017,7 @@ int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3)
         }
 
         int anim;
-        int objectType = OBJECT_TYPE(a2->fid);
+        int objectType = FID_TYPE(a2->fid);
         if (objectType == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) {
             anim = ANIM_MAGIC_HANDS_GROUND;
         } else if (objectType == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & 0x01) != 0) {
@@ -1056,7 +1056,7 @@ int _action_use_an_object(Object* a1, Object* a2)
 // 0x412134
 int actionPickUp(Object* critter, Object* item)
 {
-    if (OBJECT_TYPE(item->fid) != OBJ_TYPE_ITEM) {
+    if (FID_TYPE(item->fid) != OBJ_TYPE_ITEM) {
         return -1;
     }
 
@@ -1100,7 +1100,7 @@ int actionPickUp(Object* critter, Object* item)
         }
 
         char sfx[16];
-        if (artCopyFileName(OBJECT_TYPE(item->fid), item->fid & 0xFFF, sfx) == 0) {
+        if (artCopyFileName(FID_TYPE(item->fid), item->fid & 0xFFF, sfx) == 0) {
             // NOTE: looks like they copy sfx one more time, what for?
             animationRegisterPlaySoundEffect(item, sfx, actionFrame);
         }
@@ -1156,7 +1156,7 @@ int actionPickUp(Object* critter, Object* item)
 // 0x4123E8
 int _action_loot_container(Object* critter, Object* container)
 {
-    if (OBJECT_TYPE(container->fid) != OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(container->fid) != OBJ_TYPE_CRITTER) {
         return -1;
     }
 
@@ -1384,7 +1384,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
 
     animationRegisterCallbackForced(performer, a2, _is_next_to, -1);
 
-    int anim = (OBJECT_TYPE(a2->fid) == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
+    int anim = (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
     int fid = buildFid(OBJ_TYPE_CRITTER, performer->fid & 0xFFF, anim, 0, performer->rotation + 1);
 
     CacheEntry* artHandle;
@@ -1516,7 +1516,7 @@ int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object*
 
     Object* critter = _obj_blocking_at(NULL, tile, elevation);
     if (critter != NULL) {
-        if (OBJECT_TYPE(critter->fid) != OBJ_TYPE_CRITTER || (critter->data.critter.combat.results & DAM_DEAD) != 0) {
+        if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER || (critter->data.critter.combat.results & DAM_DEAD) != 0) {
             critter = NULL;
         }
     }
@@ -1728,7 +1728,7 @@ int actionTalk(Object* a1, Object* a2)
         return -1;
     }
 
-    if (OBJECT_TYPE(a2->fid) != OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(a2->fid) != OBJ_TYPE_CRITTER) {
         return -1;
     }
 
@@ -1890,7 +1890,7 @@ int _compute_dmg_damage(int min, int max, Object* obj, int* a4, int damageType)
 bool actionCheckPush(Object* a1, Object* a2)
 {
     // Cannot push anything but critters.
-    if (OBJECT_TYPE(a2->fid) != OBJ_TYPE_CRITTER) {
+    if (FID_TYPE(a2->fid) != OBJ_TYPE_CRITTER) {
         return false;
     }
 

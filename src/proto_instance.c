@@ -153,7 +153,7 @@ int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
         return -1;
     }
 
-    if (OBJECT_TYPE(a2->fid) == OBJ_TYPE_TILE) {
+    if (FID_TYPE(a2->fid) == OBJ_TYPE_TILE) {
         return -1;
     }
 
@@ -217,7 +217,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
         return -1;
     }
 
-    if (OBJECT_TYPE(target->fid) == OBJ_TYPE_TILE) {
+    if (FID_TYPE(target->fid) == OBJ_TYPE_TILE) {
         return -1;
     }
 
@@ -1400,7 +1400,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
 // 0x49C740
 int _obj_use(Object* a1, Object* a2)
 {
-    int type = OBJECT_TYPE(a2->fid);
+    int type = FID_TYPE(a2->fid);
     if (a1 == gDude) {
         if (type != OBJ_TYPE_SCENERY) {
             return -1;
@@ -1747,7 +1747,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
 // 0x49CE7C
 int _obj_use_container(Object* critter, Object* item)
 {
-    if (OBJECT_TYPE(item->fid) != OBJ_TYPE_ITEM) {
+    if (FID_TYPE(item->fid) != OBJ_TYPE_ITEM) {
         return -1;
     }
 
