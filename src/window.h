@@ -49,8 +49,8 @@ static_assert(sizeof(ManagedButton) == 0x7C, "wrong size");
 typedef struct ManagedWindow {
     char name[32];
     int window;
-    int field_24;
-    int field_28;
+    int width;
+    int height;
     Region** regions;
     int currentRegionIndex;
     int regionsLength;
@@ -90,6 +90,8 @@ extern int _currentTextColorR;
 extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
+int _windowWidth();
+int _windowHeight();
 bool _windowDraw();
 bool _selectWindowID(int index);
 int _selectWindow(const char* windowName);
@@ -127,5 +129,6 @@ bool _windowSetMovieFlags(int flags);
 bool _windowPlayMovie(char* filePath);
 bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5);
 void _windowStopMovie();
+void sub_4BBFC4(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight);
 
 #endif /* WINDOW_H */

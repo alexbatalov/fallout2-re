@@ -123,6 +123,18 @@ int _currentHighlightColorG;
 // 0x672DB4
 int _currentHighlightColorB;
 
+// 0x4B7734
+int _windowWidth()
+{
+    return gManagedWindows[gCurrentManagedWindowIndex].width;
+}
+
+// 0x4B7754
+int _windowHeight()
+{
+    return gManagedWindows[gCurrentManagedWindowIndex].height;
+}
+
 // 0x4B7680
 bool _windowDraw()
 {
@@ -1083,4 +1095,10 @@ bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5)
 void _windowStopMovie()
 {
     _movieStop();
+}
+
+// 0x4BBFC4
+void sub_4BBFC4(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight)
+{
+    // TODO: Incomplete.
 }

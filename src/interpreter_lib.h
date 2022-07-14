@@ -22,6 +22,7 @@ extern Program* gInterpreterAnyKeyHandlerProgram;
 extern OFF_59E160* _callbacks;
 extern int _sayStartingPosition;
 
+void opFillWin3x3(Program* program);
 void opFormat(Program* program);
 void opPrint(Program* program);
 void opPrintRect(Program* program);

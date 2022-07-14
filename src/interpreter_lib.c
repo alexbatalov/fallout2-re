@@ -2,6 +2,7 @@
 
 #include "color.h"
 #include "core.h"
+#include "datafile.h"
 #include "debug.h"
 #include "dialog.h"
 #include "interpreter_extra.h"
@@ -31,6 +32,46 @@ OFF_59E160* _callbacks;
 
 // 0x59E164
 int _sayStartingPosition;
+
+// fillwin3x3
+// 0x461780
+void opFillWin3x3(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid type given to fillwin3x3");
+    }
+
+    char* fileName = programGetString(program, opcode, data);
+    char* mangledFileName = _interpretMangleName(fileName);
+
+    int imageWidth;
+    int imageHeight;
+    unsigned char* imageData = sub_42EFCC(mangledFileName, &imageWidth, &imageHeight);
+    if (imageData == NULL) {
+        programFatalError("cannot load 3x3 file '%s'", mangledFileName);
+    }
+
+    _selectWindowID(program->windowId);
+
+    int windowHeight = _windowHeight();
+    int windowWidth = _windowWidth();
+    unsigned char* windowBuffer = _windowGetBuffer();
+    sub_4BBFC4(imageData,
+        imageWidth,
+        imageHeight,
+        windowBuffer,
+        windowWidth,
+        windowHeight);
+
+    internal_free_safe(imageData, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 94
+}
 
 // format
 // 0x461850
