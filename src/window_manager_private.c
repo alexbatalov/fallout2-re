@@ -422,6 +422,23 @@ int _win_register_menu_pulldown(int win, int x, char* str, int a4)
     return 0;
 }
 
+// 0x4DC9F0
+int _find_first_letter(int ch, char** stringList, int stringListLength)
+{
+    if (ch >= 'A' && ch <= 'Z') {
+        ch += ' ';
+    }
+
+    for (int index = 0; index < stringListLength; index++) {
+        char* string = stringList[index];
+        if (string[0] == ch || string[0] == ch - ' ') {
+            return index;
+        }
+    }
+    
+    return -1;
+}
+
 // 0x4DCA30
 int _win_width_needed(char** fileNameList, int fileNameListLength)
 {
