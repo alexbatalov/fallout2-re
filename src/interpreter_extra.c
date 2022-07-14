@@ -200,11 +200,11 @@ int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
         }
 
         if (v8 == 0) {
-            newFid = buildFid(OBJECT_TYPE(fid), fid & 0xFFF, (fid & 0xFF0000) >> 16, 0, (fid & 0x70000000) >> 28);
+            newFid = buildFid(FID_TYPE(fid), fid & 0xFFF, (fid & 0xFF0000) >> 16, 0, (fid & 0x70000000) >> 28);
         }
     } else {
         if (a1 == gDude) {
-            newFid = buildFid(OBJECT_TYPE(fid), _art_vault_guy_num, (fid & 0xFF0000) >> 16, v8, (fid & 0x70000000) >> 28);
+            newFid = buildFid(FID_TYPE(fid), _art_vault_guy_num, (fid & 0xFF0000) >> 16, v8, (fid & 0x70000000) >> 28);
         }
 
         _adjust_ac(a1, a2, NULL);
@@ -1404,7 +1404,7 @@ void opGetObjectType(Program* program)
 
     int objectType = -1;
     if (object != NULL) {
-        objectType = OBJECT_TYPE(object->fid);
+        objectType = FID_TYPE(object->fid);
     }
 
     programStackPushInt32(program, objectType);
@@ -2464,7 +2464,7 @@ void opMetarule3(Program* program)
             Object* obj = (Object*)data[2];
             int frmId = data[1];
 
-            int fid = buildFid(OBJECT_TYPE(obj->fid),
+            int fid = buildFid(FID_TYPE(obj->fid),
                 frmId,
                 (obj->fid & 0xFF0000) >> 16,
                 (obj->fid & 0xF000) >> 12,
@@ -4303,13 +4303,13 @@ void opAnim(Program* program)
                 combatData->results &= DAM_KNOCKED_DOWN;
             }
         } else {
-            int fid = buildFid(OBJECT_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
+            int fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
             animationRegisterAnimateReversed(obj, anim, 0);
 
             if (anim == ANIM_PRONE_TO_STANDING) {
-                fid = buildFid(OBJECT_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_FRONT_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
+                fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_FRONT_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
             } else if (anim == ANIM_BACK_TO_STANDING) {
-                fid = buildFid(OBJECT_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_BACK_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
+                fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_BACK_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
             }
 
             if (combatData != NULL) {
@@ -5635,7 +5635,7 @@ void _op_anim_action_frame(Program* program)
     int actionFrame = 0;
 
     if (object != NULL) {
-        int fid = buildFid(OBJECT_TYPE(object->fid), object->fid & 0xFFF, anim, 0, object->rotation);
+        int fid = buildFid(FID_TYPE(object->fid), object->fid & 0xFFF, anim, 0, object->rotation);
         CacheEntry* frmHandle;
         Art* frm = artLock(fid, &frmHandle);
         if (frm != NULL) {
