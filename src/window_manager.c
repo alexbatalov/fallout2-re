@@ -10,7 +10,7 @@
 #include "text_font.h"
 #include "window_manager_private.h"
 
-static_assert(sizeof(struc_177) == 572, "wrong size");
+static_assert(sizeof(MenuBar) == 572, "wrong size");
 static_assert(sizeof(Window) == 68, "wrong size");
 static_assert(sizeof(Button) == 124, "wrong size");
 
@@ -208,7 +208,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     window->buttonListHead = NULL;
     window->field_34 = NULL;
     window->field_38 = 0;
-    window->field_3C = 0;
+    window->menuBar = NULL;
 
     gWindowsLength = 1;
     gWindowSystemInitialized = 1;
@@ -330,7 +330,7 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
     window->buttonListHead = 0;
     window->field_34 = 0;
     window->field_38 = 0;
-    window->field_3C = 0;
+    window->menuBar = NULL;
     window->blitProc = blitBufferToBufferTrans;
     window->field_20 = a4;
     gOrderedWindowIds[index] = gWindowsLength;
@@ -414,8 +414,8 @@ void windowFree(int win)
         internal_free(window->buffer);
     }
 
-    if (window->field_3C != NULL) {
-        internal_free(window->field_3C);
+    if (window->menuBar != NULL) {
+        internal_free(window->menuBar);
     }
 
     Button* curr = window->buttonListHead;
@@ -1169,10 +1169,10 @@ int _GNW_check_menu_bars(int a1)
     int v1 = a1;
     for (int index = gWindowsLength - 1; index >= 1; index--) {
         Window* window = gWindows[index];
-        if (window->field_3C != NULL) {
-            for (int v2 = 0; v2 < window->field_3C->entriesCount; v2++) {
-                if (v1 == window->field_3C->entries[v2].field_10) {
-                    v1 = _GNW_process_menu(window->field_3C, v2);
+        if (window->menuBar != NULL) {
+            for (int pulldownIndex = 0; pulldownIndex < window->menuBar->pulldownsLength; pulldownIndex++) {
+                if (v1 == window->menuBar->pulldowns[pulldownIndex].keyCode) {
+                    v1 = _GNW_process_menu(window->menuBar, pulldownIndex);
                     break;
                 }
             }

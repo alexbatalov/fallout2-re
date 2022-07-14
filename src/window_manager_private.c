@@ -14,7 +14,7 @@
 int _wd = -1;
 
 // 0x51E418
-int _curr_menu = 0;
+MenuBar* _curr_menu = NULL;
 
 // 0x51E41C
 bool _tm_watch_active = false;
@@ -355,7 +355,7 @@ void _win_debug_delete(int btn, int keyCode)
 }
 
 // 0x4DC674
-int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7)
+int _win_register_menu_bar(int win, int x, int y, int width, int height, int borderColor, int backgroundColor)
 {
     Window* window = windowGetWindow(win);
 
@@ -367,7 +367,7 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6,
         return -1;
     }
 
-    if (window->field_3C != NULL) {
+    if (window->menuBar != NULL) {
         return -1;
     }
 
@@ -381,22 +381,22 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6,
         return -1;
     }
 
-    struc_177* v14 = window->field_3C = (struc_177*)internal_malloc(sizeof(struc_177));
-    if (v14 == NULL) {
+    MenuBar* menuBar = window->menuBar = (MenuBar*)internal_malloc(sizeof(MenuBar));
+    if (menuBar == NULL) {
         return -1;
     }
 
-    v14->win = win;
-    v14->rect.left = x;
-    v14->rect.top = y;
-    v14->rect.right = right - 1;
-    v14->rect.bottom = bottom - 1;
-    v14->entriesCount = 0;
-    v14->field_234 = a6;
-    v14->field_238 = a7;
+    menuBar->win = win;
+    menuBar->rect.left = x;
+    menuBar->rect.top = y;
+    menuBar->rect.right = right - 1;
+    menuBar->rect.bottom = bottom - 1;
+    menuBar->pulldownsLength = 0;
+    menuBar->borderColor = borderColor;
+    menuBar->backgroundColor = backgroundColor;
 
-    windowFill(win, x, y, width, height, a7);
-    windowDrawRect(win, x, y, right - 1, bottom - 1, a6);
+    windowFill(win, x, y, width, height, backgroundColor);
+    windowDrawRect(win, x, y, right - 1, bottom - 1, borderColor);
 
     return 0;
 }
@@ -414,18 +414,18 @@ int _win_register_menu_pulldown(int win, int x, char* str, int a4)
         return -1;
     }
 
-    struc_177* field_3C = window->field_3C;
-    if (field_3C == NULL) {
+    MenuBar* menuBar = window->menuBar;
+    if (menuBar == NULL) {
         return -1;
     }
 
-    if (window->field_3C->entriesCount == 15) {
+    if (window->menuBar->pulldownsLength == 15) {
         return -1;
     }
 
     int btn = buttonCreate(win,
-        field_3C->rect.left + x,
-        (field_3C->rect.top + field_3C->rect.bottom - fontGetLineHeight()) / 2,
+        menuBar->rect.left + x,
+        (menuBar->rect.top + menuBar->rect.bottom - fontGetLineHeight()) / 2,
         fontGetStringWidth(str),
         fontGetLineHeight(),
         -1,
@@ -585,12 +585,53 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
     return 0;
 }
 
-// 0x4DC930
-int _GNW_process_menu(struc_177* ptr, int i)
+// 0x4DBD04
+int sub_4DBD04(int win, Rect* rect, char** items, int itemsLength, int a5, int a6, MenuBar* menuBar, int pulldownIndex)
 {
-    // TODO: Incomplete
+    // TODO: Incomplete.
+    return -1;
+}
 
-    return 0;
+// 0x4DC930
+int _GNW_process_menu(MenuBar* menuBar, int pulldownIndex)
+{
+    if (_curr_menu != NULL) {
+        return -1;
+    }
+
+    _curr_menu = menuBar;
+
+    int keyCode;
+    Rect rect;
+    do {
+        MenuPulldown* pulldown = &(menuBar->pulldowns[pulldownIndex]);
+        int win = _create_pull_down(pulldown->items,
+            pulldown->itemsLength,
+            pulldown->rect.left,
+            menuBar->rect.bottom + 1,
+            pulldown->field_1C,
+            pulldown->field_20,
+            &rect);
+        if (win == -1) {
+            _curr_menu = NULL;
+            return -1;
+        }
+
+        keyCode = sub_4DBD04(win, &rect, pulldown->items, pulldown->itemsLength, pulldown->field_1C, pulldown->field_20, menuBar, pulldownIndex);
+        if (keyCode < -1) {
+            pulldownIndex = -2 - keyCode;
+        }
+    } while (keyCode < -1);
+
+    if (keyCode != -1) {
+        inputEventQueueReset();
+        enqueueInputEvent(keyCode);
+        keyCode = menuBar->pulldowns[pulldownIndex].keyCode;
+    }
+
+    _curr_menu = NULL;
+
+    return keyCode;
 }
 
 // Calculates max length of string needed to represent a1 or a2.

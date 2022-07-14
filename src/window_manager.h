@@ -64,26 +64,23 @@ typedef enum ButtonFlags {
     BUTTON_FLAG_RIGHT_MOUSE_BUTTON_CONFIGURED = 0x080000,
 } ButtonFlags;
 
-typedef struct struc_176 {
-    int field_0;
-    int field_4;
-    int field_8;
-    int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
+typedef struct MenuPulldown {
+    Rect rect;
+    int keyCode;
+    int itemsLength;
+    char** items;
     int field_1C;
     int field_20;
-} struc_176;
+} MenuPulldown;
 
-typedef struct struc_177 {
+typedef struct MenuBar {
     int win;
     Rect rect;
-    int entriesCount;
-    struc_176 entries[15];
-    int field_234;
-    int field_238;
-} struc_177;
+    int pulldownsLength;
+    MenuPulldown pulldowns[15];
+    int borderColor;
+    int backgroundColor;
+} MenuBar;
 
 typedef void WindowBlitProc(unsigned char* src, int width, int height, int srcPitch, unsigned char* dest, int destPitch);
 
@@ -105,7 +102,7 @@ typedef struct Window {
     Button* buttonListHead;
     Button* field_34;
     Button* field_38;
-    struc_177* field_3C;
+    MenuBar* menuBar;
     WindowBlitProc* blitProc;
 } Window;
 

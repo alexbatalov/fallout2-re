@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 
-typedef struct struc_177 struc_177;
+typedef struct MenuBar MenuBar;
 
 typedef struct STRUCT_6B2340 {
     int field_0;
@@ -20,7 +20,7 @@ typedef struct STRUCT_6B2370 {
 } STRUCT_6B2370;
 
 extern int _wd;
-extern int _curr_menu;
+extern MenuBar* _curr_menu;
 extern bool _tm_watch_active;
 
 extern STRUCT_6B2340 _tm_location[5];
@@ -43,12 +43,13 @@ int _win_msg(const char* string, int x, int y, int flags);
 int _create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect);
 int _win_debug(char* string);
 void _win_debug_delete(int btn, int keyCode);
-int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7);
+int _win_register_menu_bar(int win, int x, int y, int width, int height, int borderColor, int backgroundColor);
 int _win_register_menu_pulldown(int win, int x, char* str, int a4);
 int _find_first_letter(int ch, char** stringList, int stringListLength);
 int _win_width_needed(char** fileNameList, int fileNameListLength);
 int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textColor, int backgroundColor);
-int _GNW_process_menu(struc_177* ptr, int i);
+int sub_4DBD04(int win, Rect* rect, char** items, int itemsLength, int a5, int a6, MenuBar* menuBar, int pulldownIndex);
+int _GNW_process_menu(MenuBar* menuBar, int pulldownIndex);
 int _calc_max_field_chars_wcursor(int a1, int a2);
 void _GNW_intr_init();
 void _GNW_intr_exit();
