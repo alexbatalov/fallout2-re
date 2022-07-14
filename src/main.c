@@ -373,7 +373,7 @@ void _main_selfrun_record()
     char** fileList;
     int fileListLength = fileNameListInit("maps\\*.map", &fileList, 0, 0);
     if (fileListLength != 0) {
-        int selectedFileIndex = sub_4DA6C0("Select Map", fileList, fileListLength, 0, 80, 80, 65796);
+        int selectedFileIndex = _win_list_select("Select Map", fileList, fileListLength, 0, 80, 80, 0x10000 | 0x100 | 4);
         if (selectedFileIndex != -1) {
             // NOTE: It's size is likely 13 chars (on par with SelfrunData
             // fields), but due to the padding it takes 16 chars on stack.

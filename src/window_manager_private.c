@@ -60,16 +60,459 @@ int _currx;
 char gProgramWindowTitle[256];
 
 // 0x4DA6C0
-int sub_4DA6C0(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7)
+int _win_list_select(const char* title, char** fileList, int fileListLength, ListSelectionHandler* callback, int x, int y, int a7)
 {
-    return sub_4DA70C(title, fileList, fileListLength, a4, x, y, a7, 0);
+    return _win_list_select_at(title, fileList, fileListLength, callback, x, y, a7, 0);
 }
 
 // 0x4DA70C
-int sub_4DA70C(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7, int a8)
+int _win_list_select_at(const char* title, char** items, int itemsLength, ListSelectionHandler* callback, int x, int y, int a7, int a8)
 {
-    // TODO: Incomplete.
-    return -1;
+    if (!gWindowSystemInitialized) {
+        return -1;
+    }
+
+    int listViewWidth = _win_width_needed(items, itemsLength);
+    int windowWidth = listViewWidth + 16;
+
+    int titleWidth = fontGetStringWidth(title);
+    if (titleWidth > windowWidth) {
+        windowWidth = titleWidth;
+        listViewWidth = titleWidth - 16;
+    }
+
+    windowWidth += 20;
+
+    int win;
+    int windowHeight;
+    int listViewCapacity = 10;
+    for (int heightMultiplier = 13; heightMultiplier > 8; heightMultiplier--) {
+        windowHeight = heightMultiplier * fontGetLineHeight() + 22;
+        win = windowCreate(x, y, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+        if (win != -1) {
+            break;
+        }
+        listViewCapacity--;
+    }
+
+    if (win == -1) {
+        return -1;
+    }
+
+    Window* window = windowGetWindow(win);
+    Rect* windowRect = &(window->rect);
+    unsigned char* windowBuffer = window->buffer;
+
+    bufferDrawRect(windowBuffer,
+        windowWidth,
+        0,
+        0,
+        windowWidth - 1,
+        windowHeight - 1,
+        _colorTable[0]);
+    bufferDrawRectShadowed(windowBuffer,
+        windowWidth,
+        1,
+        1,
+        windowWidth - 2,
+        windowHeight - 2,
+        _colorTable[_GNW_wcolor[1]],
+        _colorTable[_GNW_wcolor[2]]);
+
+    bufferFill(windowBuffer + windowWidth * 5 + 5,
+        windowWidth - 11,
+        fontGetLineHeight() + 3,
+        windowWidth,
+        _colorTable[_GNW_wcolor[0]]);
+    
+    fontDrawText(windowBuffer + windowWidth / 2 + 8 * windowWidth - fontGetStringWidth(title) / 2,
+        title,
+        windowWidth,
+        windowWidth,
+        _colorTable[_GNW_wcolor[3]]);
+
+    bufferDrawRectShadowed(windowBuffer,
+        windowWidth,
+        5,
+        5,
+        windowWidth - 6,
+        fontGetLineHeight() + 8,
+        _colorTable[_GNW_wcolor[2]],
+        _colorTable[_GNW_wcolor[1]]);
+    
+    int listViewX = 8;
+    int listViewY = fontGetLineHeight() + 16;
+    unsigned char* listViewBuffer = windowBuffer + windowWidth * listViewY + listViewX;
+    int listViewMaxY = listViewCapacity * fontGetLineHeight() + listViewY;
+
+    bufferFill(listViewBuffer + windowWidth * (-2) + (-3),
+        listViewWidth + listViewX - 2,
+        listViewCapacity * fontGetLineHeight() + 2,
+        windowWidth,
+        _colorTable[_GNW_wcolor[0]]);
+
+    int scrollOffset = a8;
+    if (a8 < 0 || a8 >= itemsLength) {
+        scrollOffset = 0;
+    }
+
+    // Relative to `scrollOffset`.
+    int selectedItemIndex;
+    if (itemsLength - scrollOffset < listViewCapacity) {
+        int newScrollOffset = itemsLength - listViewCapacity;
+        if (newScrollOffset < 0) {
+            newScrollOffset = 0;
+        }
+        int oldScrollOffset = scrollOffset;
+        scrollOffset = newScrollOffset;
+        selectedItemIndex = oldScrollOffset - newScrollOffset;
+    } else {
+        selectedItemIndex = 0;
+    }
+
+    char** itemsTO = items + a8;
+    _win_text(win,
+        items + a8,
+        itemsLength < listViewCapacity ? itemsLength : listViewCapacity,
+        listViewWidth,
+        listViewX,
+        listViewY,
+        a7 | 0x2000000);
+
+    _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
+        listViewWidth,
+        fontGetLineHeight(),
+        windowWidth);
+
+    bufferDrawRectShadowed(windowBuffer,
+        windowWidth,
+        5,
+        listViewY - 3,
+        listViewWidth + 10,
+        listViewMaxY,
+        _colorTable[_GNW_wcolor[2]],
+        _colorTable[_GNW_wcolor[1]]);
+
+    _win_register_text_button(win,
+        windowWidth - 25,
+        listViewY - 3,
+        -1,
+        -1,
+        KEY_ARROW_UP,
+        -1,
+        "\x18",
+        0);
+
+    _win_register_text_button(win,
+        windowWidth - 25,
+        listViewMaxY - fontGetLineHeight() - 5,
+        -1,
+        -1,
+        KEY_ARROW_DOWN,
+        -1,
+        "\x19",
+        0);
+    
+    _win_register_text_button(win,
+        windowWidth / 2 - 32,
+        windowHeight - 8 - fontGetLineHeight() - 6,
+        -1,
+        -1,
+        -1,
+        KEY_ESCAPE,
+        "Done",
+        0);
+
+    int scrollbarX = windowWidth - 21;
+    int scrollbarY = listViewY + fontGetLineHeight() + 7;
+    int scrollbarKnobSize = 14;
+    int scrollbarHeight = listViewMaxY - scrollbarY;
+    unsigned char* scrollbarBuffer = windowBuffer + windowWidth * scrollbarY + scrollbarX;
+
+    bufferFill(scrollbarBuffer,
+        scrollbarKnobSize + 1,
+        scrollbarHeight - fontGetLineHeight() - 8,
+        windowWidth,
+        _colorTable[_GNW_wcolor[0]]);
+
+    buttonCreate(win,
+        scrollbarX,
+        scrollbarY,
+        scrollbarKnobSize + 1,
+        scrollbarHeight - fontGetLineHeight() - 8, 
+        -1, 
+        -1, 
+        2048, 
+        -1, 
+        NULL, 
+        NULL, 
+        NULL, 
+        0);
+
+    bufferDrawRectShadowed(windowBuffer,
+        windowWidth,
+        windowWidth - 22,
+        scrollbarY - 1,
+        scrollbarX + scrollbarKnobSize + 1,
+        listViewMaxY - fontGetLineHeight() - 9,
+        _colorTable[_GNW_wcolor[2]],
+        _colorTable[_GNW_wcolor[1]]);
+    bufferDrawRectShadowed(windowBuffer,
+        windowWidth,
+        scrollbarX,
+        scrollbarY,
+        scrollbarX + scrollbarKnobSize,
+        scrollbarY + scrollbarKnobSize,
+        _colorTable[_GNW_wcolor[1]],
+        _colorTable[_GNW_wcolor[2]]);
+
+    _lighten_buf(scrollbarBuffer, scrollbarKnobSize, scrollbarKnobSize, windowWidth);
+
+    for (int index = 0; index < listViewCapacity; index++) {
+        buttonCreate(win,
+            listViewX,
+            listViewY + index * fontGetLineHeight(),
+            listViewWidth,
+            fontGetLineHeight(),
+            512 + index,
+            -1,
+            1024 + index,
+            -1,
+            NULL,
+            NULL,
+            NULL,
+            0);
+    }
+
+    buttonCreate(win,
+        0, 
+        0, 
+        windowWidth, 
+        fontGetLineHeight() + 8, 
+        -1, 
+        -1, 
+        -1, 
+        -1, 
+        NULL, 
+        NULL, 
+        NULL, 
+        BUTTON_FLAG_0x10);
+    
+    windowRefresh(win);
+
+    int absoluteSelectedItemIndex = -1;
+
+    // Relative to `scrollOffset`.
+    int previousSelectedItemIndex = -1;
+    while (1) {
+        int keyCode = _get_input();
+        int mouseX;
+        int mouseY;
+        mouseGetPosition(&mouseX, &mouseY);
+
+        if (keyCode == KEY_RETURN || (keyCode >= 1024 && keyCode < listViewCapacity + 1024)) {
+            if (selectedItemIndex != -1) {
+                absoluteSelectedItemIndex = scrollOffset + selectedItemIndex;
+                if (absoluteSelectedItemIndex < itemsLength) {
+                    if (callback == NULL) {
+                        break;
+                    }
+
+                    callback(items, absoluteSelectedItemIndex);
+                }
+                absoluteSelectedItemIndex = -1;
+            }
+        } else if (keyCode == 2048) {
+            if (window->rect.top + scrollbarY > mouseY) {
+                keyCode = KEY_PAGE_UP;
+            } else if (window->rect.top + scrollbarKnobSize + scrollbarY < mouseY) {
+                keyCode = KEY_PAGE_DOWN;
+            }
+        }
+
+        if (keyCode == KEY_ESCAPE) {
+            break;
+        }
+        
+        if (keyCode >= 512 && keyCode < listViewCapacity + 512) {
+            int itemIndex = keyCode - 512;
+            if (itemIndex != selectedItemIndex && itemIndex < itemsLength) {
+                previousSelectedItemIndex = selectedItemIndex;
+                selectedItemIndex = itemIndex;
+                keyCode = -3;
+            } else {
+                continue;
+            }
+        } else {
+            switch (keyCode) {
+            case KEY_HOME:
+                if (scrollOffset > 0) {
+                    keyCode = -4;
+                    scrollOffset = 0;
+                }
+                break;
+            case KEY_ARROW_UP:
+                if (selectedItemIndex > 0) {
+                    keyCode = -3;
+                    previousSelectedItemIndex = selectedItemIndex;
+                    selectedItemIndex -= 1;
+                } else {
+                    if (scrollOffset > 0) {
+                        keyCode = -4;
+                        scrollOffset -= 1;
+                    }
+                }
+                break;
+            case KEY_PAGE_UP:
+                if (scrollOffset > 0) {
+                    scrollOffset -= listViewCapacity;
+                    if (scrollOffset < 0) {
+                        scrollOffset = 0;
+                    }
+                    keyCode = -4;
+                }
+                break;
+            case KEY_END:
+                if (scrollOffset < itemsLength - listViewCapacity) {
+                    keyCode = -4;
+                    scrollOffset = itemsLength - listViewCapacity;
+                }
+                break;
+            case KEY_ARROW_DOWN:
+                if (selectedItemIndex < listViewCapacity - 1 && selectedItemIndex < itemsLength - 1) {
+                    keyCode = -3;
+                    previousSelectedItemIndex = selectedItemIndex;
+                    selectedItemIndex += 1;
+                } else {
+                    if (scrollOffset + listViewCapacity < itemsLength) {
+                        keyCode = -4;
+                        scrollOffset += 1;
+                    }
+                }
+                break;
+            case KEY_PAGE_DOWN:
+                if (scrollOffset < itemsLength - listViewCapacity) {
+                    scrollOffset += listViewCapacity;
+                    if (scrollOffset > itemsLength - listViewCapacity) {
+                        scrollOffset = itemsLength - listViewCapacity;
+                    }
+                    keyCode = -4;
+                }
+                break;
+            default:
+                if (itemsLength > listViewCapacity) {
+                    if ((keyCode >= 'a' && keyCode <= 'z')
+                        || (keyCode >= 'A' && keyCode <= 'Z')) {
+                        int found = _find_first_letter(keyCode, items, itemsLength);
+                        if (found != -1) {
+                            scrollOffset = found;
+                            if (scrollOffset > itemsLength - listViewCapacity) {
+                                scrollOffset = itemsLength - listViewCapacity;
+                            }
+                            keyCode = -4;
+                            selectedItemIndex = found - scrollOffset;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        if (keyCode == -4) {
+            bufferFill(listViewBuffer,
+                listViewWidth,
+                listViewMaxY - listViewY,
+                windowWidth,
+                _colorTable[_GNW_wcolor[0]]);
+
+            _win_text(win,
+                items + scrollOffset,
+                itemsLength < listViewCapacity ? itemsLength : listViewCapacity,
+                listViewWidth,
+                listViewX,
+                listViewY,
+                a7 | 0x2000000);
+
+            _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
+                listViewWidth,
+                fontGetLineHeight(),
+                windowWidth);
+
+            if (itemsLength > listViewCapacity) {
+                bufferFill(windowBuffer + windowWidth * scrollbarY + scrollbarX,
+                    scrollbarKnobSize + 1,
+                    scrollbarKnobSize + 1,
+                    windowWidth,
+                    _colorTable[_GNW_wcolor[0]]);
+
+                scrollbarY = (scrollOffset * (listViewMaxY - listViewY - 2 * fontGetLineHeight() - 16 - scrollbarKnobSize - 1)) / (itemsLength - listViewCapacity)
+                    + listViewY + fontGetLineHeight() + 7;
+
+                bufferDrawRectShadowed(windowBuffer,
+                    windowWidth,
+                    scrollbarX,
+                    scrollbarY,
+                    scrollbarX + scrollbarKnobSize,
+                    scrollbarY + scrollbarKnobSize,
+                    _colorTable[_GNW_wcolor[1]],
+                    _colorTable[_GNW_wcolor[2]]);
+
+                _lighten_buf(windowBuffer + windowWidth * scrollbarY + scrollbarX,
+                    scrollbarKnobSize,
+                    scrollbarKnobSize,
+                    windowWidth);
+                
+                _GNW_win_refresh(window, windowRect, NULL);
+            }
+        } else if (keyCode == -3) {
+            Rect itemRect;
+            itemRect.left = windowRect->left + listViewX;
+            itemRect.right = itemRect.left + listViewWidth;
+
+            if (previousSelectedItemIndex != -1) {
+                itemRect.top = windowRect->top + listViewY + previousSelectedItemIndex * fontGetLineHeight();
+                itemRect.bottom = itemRect.top + fontGetLineHeight();
+
+                bufferFill(listViewBuffer + windowWidth * previousSelectedItemIndex * fontGetLineHeight(),
+                    listViewWidth,
+                    fontGetLineHeight(),
+                    windowWidth,
+                    _colorTable[_GNW_wcolor[0]]);
+
+                int color;
+                if ((a7 & 0xFF00) != 0) {
+                    int colorIndex = (a7 & 0xFF) - 1;
+                    color = (a7 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+                } else {
+                    color = a7;
+                }
+
+                fontDrawText(listViewBuffer + windowWidth * previousSelectedItemIndex * fontGetLineHeight(),
+                    items[scrollOffset + previousSelectedItemIndex],
+                    windowWidth,
+                    windowWidth,
+                    color);
+
+                _GNW_win_refresh(window, &itemRect, NULL);
+            }
+
+            if (selectedItemIndex != -1) {
+                itemRect.top = windowRect->top + listViewY + selectedItemIndex * fontGetLineHeight();
+                itemRect.bottom = itemRect.top + fontGetLineHeight();
+
+                _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
+                    listViewWidth,
+                    fontGetLineHeight(),
+                    windowWidth);
+
+                _GNW_win_refresh(window, &itemRect, NULL);
+            }
+        }
+    }
+
+    windowDestroy(win);
+
+    return absoluteSelectedItemIndex;
 }
 
 // 0x4DB478

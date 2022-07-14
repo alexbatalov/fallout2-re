@@ -7,6 +7,8 @@
 
 typedef struct MenuBar MenuBar;
 
+typedef void(ListSelectionHandler)(char** items, int index);
+
 typedef struct STRUCT_6B2340 {
     int field_0;
     int field_4;
@@ -36,8 +38,8 @@ extern int _curry;
 extern int _currx;
 extern char gProgramWindowTitle[256];
 
-int sub_4DA6C0(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7);
-int sub_4DA70C(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7, int a8);
+int _win_list_select(const char* title, char** fileList, int fileListLength, ListSelectionHandler* callback, int x, int y, int a7);
+int _win_list_select_at(const char* title, char** fileList, int fileListLength, ListSelectionHandler* callback, int x, int y, int a7, int a8);
 int _win_get_str(char* dest, int length, const char* title, int x, int y);
 int _win_msg(const char* string, int x, int y, int flags);
 int _win_pull_down(char** items, int itemsLength, int x, int y, int a5);
