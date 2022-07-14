@@ -2113,7 +2113,7 @@ int _GameMap2Slot(File* stream)
             continue;
         }
 
-        const char* critterItemPath = (pid >> 24) == OBJ_TYPE_CRITTER ? "PROTO\\CRITTERS" : "PROTO\\ITEMS";
+        const char* critterItemPath = PID_TYPE(pid) == OBJ_TYPE_CRITTER ? "PROTO\\CRITTERS" : "PROTO\\ITEMS";
         sprintf(_str0, "%s\\%s\\%s", _patches, critterItemPath, path);
         sprintf(_str1, "%s\\%s\\%s%.2d\\%s\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, critterItemPath, path);
         if (fileCopyCompressed(_str0, _str1) == -1) {
@@ -2246,7 +2246,7 @@ int _SlotMap2Game(File* stream)
             if (pid != -2) {
                 char protoPath[MAX_PATH];
                 if (_proto_list_str(pid, protoPath) == 0) {
-                    const char* basePath = pid >> 24 == OBJ_TYPE_CRITTER
+                    const char* basePath = PID_TYPE(pid) == OBJ_TYPE_CRITTER
                         ? "PROTO\\CRITTERS"
                         : "PROTO\\ITEMS";
                     sprintf(_str0, "%s\\%s\\%s", _patches, basePath, protoPath);

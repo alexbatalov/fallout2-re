@@ -407,7 +407,7 @@ int objectRead(Object* obj, File* stream)
     }
 
     if (obj->pid < 0x5000010 || obj->pid > 0x5000017) {
-        if ((obj->pid >> 24) == 0 && !(gMapHeader.flags & 0x01)) {
+        if (PID_TYPE(obj->pid) == 0 && !(gMapHeader.flags & 0x01)) {
             _object_fix_weapon_ammo(obj);
         }
     } else {
@@ -514,7 +514,7 @@ int objectLoadAllInternal(File* stream)
 
             _obj_insert(objectListNode);
 
-            if ((objectListNode->obj->flags & OBJECT_FLAG_0x400) && (objectListNode->obj->flags >> 24) == OBJ_TYPE_CRITTER && objectListNode->obj->pid != 18000) {
+            if ((objectListNode->obj->flags & OBJECT_FLAG_0x400) && PID_TYPE(objectListNode->obj->flags) == OBJ_TYPE_CRITTER && objectListNode->obj->pid != 18000) {
                 objectListNode->obj->flags &= ~OBJECT_FLAG_0x400;
             }
 
@@ -589,7 +589,7 @@ void _obj_fix_combat_cid_for_dude()
 // 0x48911C
 void _object_fix_weapon_ammo(Object* obj)
 {
-    if ((obj->pid >> 24) != OBJ_TYPE_ITEM) {
+    if (PID_TYPE(obj->pid) != OBJ_TYPE_ITEM) {
         return;
     }
 
@@ -611,7 +611,7 @@ void _object_fix_weapon_ammo(Object* obj)
             obj->data.item.weapon.ammoQuantity = proto->item.data.weapon.ammoCapacity;
         }
     } else {
-        if ((obj->pid >> 24) == OBJ_TYPE_MISC) {
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_MISC) {
             // FIXME: looks like this code in unreachable
             charges = obj->data.item.misc.charges;
             if (charges == 0xCCCCCCCC) {
@@ -693,7 +693,7 @@ int objectSaveAll(File* stream)
 
                 CritterCombatData* combatData = NULL;
                 Object* whoHitMe = NULL;
-                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     combatData = &(object->data.critter.combat);
                     whoHitMe = combatData->whoHitMe;
                     if (whoHitMe != 0) {
@@ -709,7 +709,7 @@ int objectSaveAll(File* stream)
                     return -1;
                 }
 
-                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     combatData->whoHitMe = whoHitMe;
                 }
 
@@ -911,7 +911,7 @@ int objectCreateWithFidPid(Object** objectPtr, int fid, int pid)
     objectListNode->obj->pid = pid;
     objectListNode->obj->id = scriptsNewObjectId();
 
-    if (pid == -1 || (pid >> 24) == OBJ_TYPE_TILE) {
+    if (pid == -1 || PID_TYPE(pid) == OBJ_TYPE_TILE) {
         Inventory* inventory = &(objectListNode->obj->data.inventory);
         inventory->length = 0;
         inventory->items = NULL;
@@ -1484,7 +1484,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
             }
         }
     } else {
-        if (elevation != _obj_last_elev && (obj->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (elevation != _obj_last_elev && PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
             _combat_delete_critter(obj);
         }
     }
@@ -2046,13 +2046,13 @@ bool _obj_action_can_use(Object* obj)
 // 0x48B278
 bool _obj_action_can_talk_to(Object* obj)
 {
-    return _proto_action_can_talk_to(obj->pid) && ((obj->pid >> 24) == OBJ_TYPE_CRITTER) && critterIsActive(obj);
+    return _proto_action_can_talk_to(obj->pid) && (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) && critterIsActive(obj);
 }
 
 // 0x48B2A8
 bool _obj_portal_is_walk_thru(Object* obj)
 {
-    if ((obj->pid >> 24) != OBJ_TYPE_SCENERY) {
+    if (PID_TYPE(obj->pid) != OBJ_TYPE_SCENERY) {
         return false;
     }
 
@@ -3482,7 +3482,7 @@ int _obj_save_obj(File* stream, Object* object)
 
     CritterCombatData* combatData = NULL;
     Object* whoHitMe = NULL;
-    if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         combatData = &(object->data.critter.combat);
         whoHitMe = combatData->whoHitMe;
         if (whoHitMe != 0) {
@@ -3498,7 +3498,7 @@ int _obj_save_obj(File* stream, Object* object)
         return -1;
     }
 
-    if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         combatData->whoHitMe = whoHitMe;
     }
 
