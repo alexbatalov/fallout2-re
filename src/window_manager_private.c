@@ -208,6 +208,29 @@ int _win_msg(const char* string, int x, int y, int flags)
     return 0;
 }
 
+// 0x4DBC34
+int _create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect)
+{
+    int windowHeight = stringListLength * fontGetLineHeight() + 16;
+    int windowWidth = _win_width_needed(stringList, stringListLength) + 4;
+    if (windowHeight < 2 || windowWidth < 2) {
+        return -1;
+    }
+
+    int win = windowCreate(x, y, windowWidth, windowHeight, a6, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    if (win == -1) {
+        return -1;
+    }
+
+    _win_text(win, stringList, stringListLength, windowWidth - 4, 2, 8, a5);
+    windowDrawRect(win, 0, 0, windowWidth - 1, windowHeight - 1, _colorTable[0]);
+    windowDrawRect(win, 1, 1, windowWidth - 2, windowHeight - 2, a5);
+    windowRefresh(win);
+    windowGetRect(win, rect);
+
+    return win;
+}
+
 // 0x4DC30C
 int _win_debug(char* string)
 {

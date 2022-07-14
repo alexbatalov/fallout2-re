@@ -1,6 +1,8 @@
 #ifndef WINDOW_MANAGER_PRIVATE_H
 #define WINDOW_MANAGER_PRIVATE_H
 
+#include "geometry.h"
+
 #include <stdbool.h>
 
 typedef struct struc_177 struc_177;
@@ -38,6 +40,7 @@ int sub_4DA6C0(const char* title, char** fileList, int fileListLength, int a4, i
 int sub_4DA70C(const char* title, char** fileList, int fileListLength, int a4, int x, int y, int a7, int a8);
 int _win_get_str(char* dest, int length, const char* title, int x, int y);
 int _win_msg(const char* string, int x, int y, int flags);
+int _create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect);
 int _win_debug(char* string);
 void _win_debug_delete(int btn, int keyCode);
 int _win_register_menu_bar(int win, int x, int y, int width, int height, int a6, int a7);
