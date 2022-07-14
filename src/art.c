@@ -299,13 +299,13 @@ void artExit()
 // 0x418F1C
 char* artGetObjectTypeName(int objectType)
 {
-    return objectType >= 0 && objectType < OBJ_TYPE_COUNT ? gArtListDescriptions[objectType].name : NULL;
+    return objectType >= OBJ_TYPE_ITEM && objectType < OBJ_TYPE_COUNT ? gArtListDescriptions[objectType].name : NULL;
 }
 
 // 0x418F34
 int artIsObjectTypeHidden(int objectType)
 {
-    return objectType >= 0 && objectType < OBJ_TYPE_COUNT ? gArtListDescriptions[objectType].flags & 1 : 0;
+    return objectType >= OBJ_TYPE_ITEM && objectType < OBJ_TYPE_COUNT ? gArtListDescriptions[objectType].flags & 1 : 0;
 }
 
 // 0x418F7C

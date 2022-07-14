@@ -399,7 +399,7 @@ void opHasSkill(Program* program)
 
     int result = 0;
     if (object != NULL) {
-        if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
             result = skillGetValue(object, skill);
         }
     } else {
@@ -472,7 +472,7 @@ void opRollVsSkill(Program* program)
 
     int roll = ROLL_CRITICAL_FAILURE;
     if (object != NULL) {
-        if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
             int sid = scriptGetSid(program);
 
             Script* script;
@@ -831,7 +831,7 @@ void opMoveTo(Program* program)
             Rect before;
             objectGetRect(object, &before);
 
-            if (object->elevation != elevation && (object->pid >> 24) == OBJ_TYPE_CRITTER) {
+            if (object->elevation != elevation && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                 _combat_delete_critter(object);
             }
 
@@ -904,7 +904,7 @@ void opCreateObject(Program* program)
 
     if (sid != -1) {
         int scriptType = 0;
-        switch (object->pid >> 24) {
+        switch (PID_TYPE(object->pid)) {
         case OBJ_TYPE_CRITTER:
             scriptType = SCRIPT_TYPE_CRITTER;
             break;
@@ -972,7 +972,7 @@ void opDestroyObject(Program* program)
         return;
     }
 
-    if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         if (_isLoadingGame()) {
             debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
             program->flags &= ~PROGRAM_FLAG_0x20;
@@ -982,7 +982,7 @@ void opDestroyObject(Program* program)
 
     bool isSelf = object == scriptGetSelf(program);
 
-    if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         _combat_delete_critter(object);
     }
 
@@ -1430,7 +1430,7 @@ void opGetItemType(Program* program)
 
     int itemType = -1;
     if (obj != NULL) {
-        if ((obj->pid >> 24) == OBJ_TYPE_ITEM) {
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_ITEM) {
             Proto* proto;
             if (protoGetProto(obj->pid, &proto) != -1) {
                 itemType = itemGetType(obj);
@@ -2063,7 +2063,7 @@ void opWieldItem(Program* program)
         return;
     }
 
-    if ((critter->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
         scriptPredefinedError(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Only works for critters!  ERROR ERROR ERROR!");
         return;
@@ -2140,7 +2140,7 @@ void opUseObject(Program* program)
     }
 
     Object* self = scriptGetSelf(program);
-    if ((self->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         _action_use_an_object(script->target, object);
     } else {
         _obj_use(self, object);
@@ -2323,7 +2323,7 @@ void opStartGameDialog(Program* program)
     }
 
     gGameDialogHeadFid = -1;
-    if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
         Proto* proto;
         if (protoGetProto(obj->pid, &proto) == -1) {
             return;
@@ -2444,7 +2444,7 @@ void opMetarule3(Program* program)
 
             Object* object = objectFindFirstAtLocation(elevation, tile);
             while (object != NULL) {
-                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     if (critterFound) {
                         result = (int)object;
                         break;
@@ -2575,7 +2575,7 @@ void opSetObjectVisibility(Program* program)
 
             Rect rect;
             if (objectHide(obj, &rect) != -1) {
-                if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
                     obj->flags |= OBJECT_NO_BLOCK;
                 }
 
@@ -2584,7 +2584,7 @@ void opSetObjectVisibility(Program* program)
         }
     } else {
         if ((obj->flags & OBJECT_HIDDEN) != 0) {
-            if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
+            if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
                 obj->flags &= ~OBJECT_NO_BLOCK;
             }
 
@@ -3060,7 +3060,7 @@ void opCritterDamage(Program* program)
         return;
     }
 
-    if ((object->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) {
         scriptPredefinedError(program, "critter_damage", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Can't call on non-critters!");
         return;
@@ -3215,12 +3215,12 @@ void opHasTrait(Program* program)
         case CRITTER_TRAIT_OBJECT:
             switch (param) {
             case CRITTER_TRAIT_OBJECT_AI_PACKET:
-                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     result = object->data.critter.combat.aiPacket;
                 }
                 break;
             case CRITTER_TRAIT_OBJECT_TEAM:
-                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     result = object->data.critter.combat.team;
                 }
                 break;
@@ -3359,7 +3359,7 @@ void opGameDialogSystemEnter(Program* program)
     }
 
     Object* self = scriptGetSelf(program);
-    if ((self->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         if (!critterIsActive(self)) {
             return;
         }
@@ -3413,7 +3413,7 @@ void opGetCritterState(Program* program)
     Object* critter = (Object*)data;
 
     int state = CRITTER_STATE_DEAD;
-    if (critter != NULL && (critter->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (critter != NULL && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
         if (critterIsActive(critter)) {
             state = CRITTER_STATE_NORMAL;
 
@@ -3557,7 +3557,7 @@ void opCritterAttemptPlacement(Program* program)
         return;
     }
 
-    if (elevation != critter->elevation && critter->pid >> 24 == OBJ_TYPE_CRITTER) {
+    if (elevation != critter->elevation && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
         _combat_delete_critter(critter);
     }
 
@@ -3631,7 +3631,7 @@ void opCritterAddTrait(Program* program)
     int value = data[0];
 
     if (object != NULL) {
-        if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
             switch (kind) {
             case CRITTER_TRAIT_PERK:
                 if (1) {
@@ -3723,7 +3723,7 @@ void opCritterRemoveTrait(Program* program)
         return;
     }
 
-    if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         switch (kind) {
         case CRITTER_TRAIT_PERK:
             while (perkGetRank(object, param) > 0) {
@@ -3847,7 +3847,7 @@ void opCritterGetInventoryObject(Program* program)
 
     int result = 0;
 
-    if ((critter->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
         switch (type) {
         case INVEN_TYPE_WORN:
             result = (int)critterGetArmor(critter);
@@ -4198,7 +4198,7 @@ void opMetarule(Program* program)
     case METARULE_WEAPON_DAMAGE_TYPE:
         if (1) {
             Object* object = (Object*)param;
-            if ((object->pid >> 24) == OBJ_TYPE_ITEM) {
+            if (PID_TYPE(object->pid) == OBJ_TYPE_ITEM) {
                 if (itemGetType(object) == ITEM_TYPE_WEAPON) {
                     result = weaponGetDamageType(NULL, object);
                     break;
@@ -4217,7 +4217,7 @@ void opMetarule(Program* program)
     case METARULE_CRITTER_BARTERS:
         if (1) {
             Object* object = (Object*)param;
-            if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+            if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                 Proto* proto;
                 protoGetProto(object->pid, &proto);
                 if ((proto->critter.data.flags & CRITTER_FLAG_0x2) != 0) {
@@ -4283,7 +4283,7 @@ void opAnim(Program* program)
 
     if (anim < ANIM_COUNT) {
         CritterCombatData* combatData = NULL;
-        if ((obj->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
             combatData = &(obj->data.critter.combat);
         }
 
@@ -5118,7 +5118,7 @@ void opGetPoison(Program* program)
 
     int poison = 0;
     if (obj != NULL) {
-        if (obj->pid >> 24 == 1) {
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
             poison = critterGetPoison(obj);
         } else {
             debugPrint("\nScript Error: get_poison: who is not a critter!");
@@ -5718,7 +5718,7 @@ void opCritterModifySkill(Program* program)
     int points = data[0];
 
     if (critter != NULL && points != 0) {
-        if (critter->pid >> 24 == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
             if (critter == gDude) {
                 int normalizedPoints = abs(points);
                 if (skillIsTagged(skill)) {
@@ -6089,7 +6089,7 @@ void opDestroyMultipleObjects(Program* program)
 
     int result = 0;
 
-    if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         _combat_delete_critter(object);
     }
 
@@ -6178,7 +6178,7 @@ void opUseObjectOnObject(Program* program)
     }
 
     Object* self = scriptGetSelf(program);
-    if ((self->pid >> 24) == OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         _action_use_an_item_on_object(self, target, item);
     } else {
         _obj_use_item_on(self, target, item);
@@ -6527,7 +6527,7 @@ void opTerminateCombat(Program* program)
         _game_user_wants_to_quit = 1;
         Object* self = scriptGetSelf(program);
         if (self != NULL) {
-            if ((self->pid >> 24) == 1) {
+            if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
                 self->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
                 self->data.critter.combat.whoHitMe = NULL;
                 _combatAIInfoSetLastTarget(self, NULL);

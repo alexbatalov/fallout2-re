@@ -1041,7 +1041,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         catchRoll = ROLL_SUCCESS;
     } else {
         int catchChance;
-        if ((a2->pid >> 24) == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(a2->pid) == OBJ_TYPE_CRITTER) {
             catchChance = skillGetValue(a2, SKILL_STEAL) - stealModifier;
         } else {
             catchChance = 30 - stealModifier;

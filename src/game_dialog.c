@@ -576,7 +576,7 @@ void gameDialogEnter(Object* a1, int a2)
         return;
     }
 
-    if ((a1->pid >> 24) != OBJ_TYPE_ITEM && (a1->sid >> 24) != SCRIPT_TYPE_SPATIAL) {
+    if (PID_TYPE(a1->pid) != OBJ_TYPE_ITEM && (a1->sid >> 24) != SCRIPT_TYPE_SPATIAL) {
         MessageListItem messageListItem;
 
         int rc = _action_can_talk_to(gDude, a1);
@@ -789,7 +789,7 @@ int _gdialogInitFromScript(int headFid, int reaction)
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     textObjectsReset();
 
-    if ((gGameDialogSpeaker->pid >> 24) != OBJ_TYPE_ITEM) {
+    if (PID_TYPE(gGameDialogSpeaker->pid) != OBJ_TYPE_ITEM) {
         _tile_scroll_to(gGameDialogSpeaker->tile, 2);
     }
 
@@ -828,7 +828,7 @@ int _gdialogExitFromScript()
     dialogReviewEntriesClear();
     tickersRemove(gameDialogTicker);
 
-    if (gGameDialogSpeaker->pid >> 24 != OBJ_TYPE_ITEM) {
+    if (PID_TYPE(gGameDialogSpeaker->pid) != OBJ_TYPE_ITEM) {
         if (gGameDialogOldDudeTile != gDude->tile) {
             gGameDialogOldCenterTile = gDude->tile;
         }
@@ -3448,7 +3448,7 @@ int _gdPickAIUpdateMsg(Object* critter)
 // 0x449330
 int _gdCanBarter()
 {
-    if ((gGameDialogSpeaker->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(gGameDialogSpeaker->pid) != OBJ_TYPE_CRITTER) {
         return 1;
     }
 
@@ -4051,7 +4051,7 @@ void _gdCustomUpdateSetting(int option, int value)
 // 0x44A52C
 void gameDialogBarterButtonUpMouseUp(int btn, int keyCode)
 {
-    if ((gGameDialogSpeaker->pid >> 24) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(gGameDialogSpeaker->pid) != OBJ_TYPE_CRITTER) {
         return;
     }
 

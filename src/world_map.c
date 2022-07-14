@@ -1491,7 +1491,7 @@ int _wmReadEncBaseType(char* name, int* valuePtr)
 
             for (int index = 0; index < entry->field_34; index++) {
                 ENC_BASE_TYPE_38* ptr = &(entry->field_38[index]);
-                if ((ptr->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(ptr->pid) == OBJ_TYPE_CRITTER) {
                     ptr->team = team;
                 }
             }
@@ -3638,13 +3638,13 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
             }
 
             if (*critterPtr == NULL) {
-                if ((v5->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(v5->pid) == OBJ_TYPE_CRITTER) {
                     *critterPtr = object;
                 }
             }
 
             if (v5->team != -1) {
-                if ((object->pid >> 24) == OBJ_TYPE_CRITTER) {
+                if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     object->data.critter.combat.team = v5->team;
                 }
             }

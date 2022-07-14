@@ -2456,7 +2456,7 @@ void inventoryRenderSummary()
     // Total wt:
     messageListItem.num = 20;
     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-        if (_stack[0]->pid >> 24 == OBJ_TYPE_CRITTER) {
+        if (PID_TYPE(_stack[0]->pid) == OBJ_TYPE_CRITTER) {
             int carryWeight = critterGetStat(_stack[0], STAT_CARRY_WEIGHT);
             int inventoryWeight = objectGetInventoryWeight(_stack[0]);
             sprintf(formattedText, "%s %d/%d", messageListItem.text, inventoryWeight, carryWeight);
@@ -3736,7 +3736,7 @@ int inventoryOpenStealing(Object* a1, Object* a2)
         return -1;
     }
 
-    _gIsSteal = (a1->pid >> 24) == OBJ_TYPE_CRITTER && critterIsActive(a2);
+    _gIsSteal = PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER && critterIsActive(a2);
     _gStealCount = 0;
     _gStealSize = 0;
 
