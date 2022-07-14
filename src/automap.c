@@ -447,7 +447,7 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
             continue;
         }
 
-        int objectType = OBJECT_TYPE(object->fid);
+        int objectType = FID_TYPE(object->fid);
         unsigned char objectColor;
 
         if ((flags & AUTOMAP_IN_GAME) != 0) {
@@ -1013,7 +1013,7 @@ void _decode_map_data(int elevation)
         if (object->tile != -1 && (object->flags & OBJECT_SEEN) != 0) {
             int contentType;
 
-            int objectType = OBJECT_TYPE(object->fid);
+            int objectType = FID_TYPE(object->fid);
             if (objectType == OBJ_TYPE_SCENERY && object->pid != PROTO_ID_0x2000158) {
                 contentType = 2;
             } else if (objectType == OBJ_TYPE_WALL) {

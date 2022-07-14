@@ -398,7 +398,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
         blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
         windowRefresh(gEndgameEndingSlideshowWindow);
 
-        endgameEndingLoadPalette(OBJECT_TYPE(fid), fid & 0xFFF);
+        endgameEndingLoadPalette(FID_TYPE(fid), fid & 0xFFF);
 
         endgameEndingVoiceOverInit(narratorFileName);
 
