@@ -208,6 +208,22 @@ int _win_msg(const char* string, int x, int y, int flags)
     return 0;
 }
 
+// 0x4DBBC4
+int _win_pull_down(char** items, int itemsLength, int x, int y, int a5)
+{
+    if (!gWindowSystemInitialized) {
+        return -1;
+    }
+
+    Rect rect;
+    int win = _create_pull_down(items, itemsLength, x, y, a5, _colorTable[_GNW_wcolor[0]], &rect);
+    if (win == -1) {
+        return -1;
+    }
+
+    return sub_4DBD04(win, &rect, items, itemsLength, a5, _colorTable[_GNW_wcolor[0]], NULL, -1);
+}
+
 // 0x4DBC34
 int _create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect)
 {
