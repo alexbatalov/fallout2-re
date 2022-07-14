@@ -258,6 +258,31 @@ void opPrintRect(Program* program)
     }
 }
 
+// 0x46209C
+void opSelect(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid type given to select");
+    }
+
+    const char* windowName = programGetString(program, opcode, data);
+    int win = _pushWindow(windowName);
+    if (win == -1) {
+        programFatalError("Error selecing window %s\n", programGetString(program, opcode, data));
+    }
+
+    program->windowId = win;
+
+    _interpretOutputFunc(_windowOutput);
+}
+
 // movieflags
 // 0x462584
 void opSetMovieFlags(Program* program)
