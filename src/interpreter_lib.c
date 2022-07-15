@@ -45,6 +45,9 @@ int _sayStartingPosition;
 // 0x59E168
 char byte_59E168[100];
 
+// 0x59E1CC
+char byte_59E1CC[100];
+
 // fillwin3x3
 // 0x461780
 void opFillWin3x3(Program* program)
@@ -455,6 +458,45 @@ void opPlayMovie(Program* program)
 
     char* mangledFileName = _interpretMangleName(byte_59E168);
     if (!_windowPlayMovie(mangledFileName)) {
+        programFatalError("Error playing movie");
+    }
+}
+
+// playmovierect
+// 0x4626C4
+void opPlayMovieRect(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        // FIXME: Wrong function name, should playmovierect.
+        programFatalError("Invalid arg given to playmovie");
+    }
+
+    strcpy(byte_59E1CC, programGetString(program, opcode[4], data[4]));
+
+    if (strrchr(byte_59E1CC, '.') == NULL) {
+        strcat(byte_59E1CC, ".mve");
+    }
+
+    _selectWindowID(program->windowId);
+
+    program->field_7C = _checkMovie;
+    program->flags |= PROGRAM_FLAG_0x10;
+
+    char* mangledFileName = _interpretMangleName(byte_59E1CC);
+    if (!_windowPlayMovieRect(mangledFileName, data[3], data[2], data[1], data[0])) {
         programFatalError("Error playing movie");
     }
 }

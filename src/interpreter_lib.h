@@ -24,6 +24,7 @@ extern Program* gInterpreterAnyKeyHandlerProgram;
 extern OFF_59E160* _callbacks;
 extern int _sayStartingPosition;
 extern char byte_59E168[100];
+extern char byte_59E1CC[100];
 
 void opFillWin3x3(Program* program);
 void opFormat(Program* program);
