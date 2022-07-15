@@ -46,6 +46,7 @@ void opAddRegionRightProc(Program* program);
 void opCreateWin(Program* program);
 void opResizeWin(Program* program);
 void opScaleWin(Program* program);
+void opDeleteWin(Program* program);
 void opSayStart(Program* program);
 void opDeleteRegion(Program* program);
 void opActivateRegion(Program* program);

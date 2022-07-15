@@ -826,6 +826,26 @@ void opScaleWin(Program* program)
     }
 }
 
+// deletewin
+// 0x46337C
+void opDeleteWin(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    const char* windowName = programGetString(program, opcode, data);
+
+    if (!_deleteWindow(windowName)) {
+        programFatalError("Error deleting window %s\n", windowName);
+    }
+
+    program->windowId = _popWindow();
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)

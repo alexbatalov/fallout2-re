@@ -155,6 +155,13 @@ bool _windowDraw()
     return true;
 }
 
+// 0x4B78A4
+bool _deleteWindow(const char* windowName)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4B7AC4
 int sub_4B7AC4(const char* windowName, int x, int y, int width, int height)
 {
