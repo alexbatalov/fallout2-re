@@ -42,6 +42,9 @@ OFF_59E160* _callbacks;
 // 0x59E164
 int _sayStartingPosition;
 
+// 0x59E168
+char byte_59E168[100];
+
 // fillwin3x3
 // 0x461780
 void opFillWin3x3(Program* program)
@@ -399,7 +402,7 @@ void opFadeOut(Program* program)
 }
 
 // 0x462570
-int _checkMovie()
+int _checkMovie(Program* program)
 {
     if (_dialogGetDialogDepth() > 0) {
         return 1;
@@ -421,6 +424,38 @@ void opSetMovieFlags(Program* program)
 
     if (!_windowSetMovieFlags(data)) {
         programFatalError("Error setting movie flags\n");
+    }
+}
+
+// playmovie
+// 0x4625D0
+void opPlayMovie(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid type given to playmovie");
+    }
+
+    strcpy(byte_59E168, programGetString(program, opcode, data));
+
+    if (strrchr(byte_59E168, '.') == NULL) {
+        strcat(byte_59E168, ".mve");
+    }
+
+    _selectWindowID(program->windowId);
+
+    program->flags |= PROGRAM_FLAG_0x10;
+    program->field_7C = _checkMovie;
+
+    char* mangledFileName = _interpretMangleName(byte_59E168);
+    if (!_windowPlayMovie(mangledFileName)) {
+        programFatalError("Error playing movie");
     }
 }
 

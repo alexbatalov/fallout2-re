@@ -23,6 +23,7 @@ extern int _numCallbacks;
 extern Program* gInterpreterAnyKeyHandlerProgram;
 extern OFF_59E160* _callbacks;
 extern int _sayStartingPosition;
+extern char byte_59E168[100];
 
 void opFillWin3x3(Program* program);
 void opFormat(Program* program);
@@ -35,8 +36,9 @@ void opDisplayRaw(Program* program);
 void sub_46222C(unsigned char* a1, unsigned char* a2, int a3, float a4, int a5);
 void opFadeIn(Program* program);
 void opFadeOut(Program* program);
-int _checkMovie();
+int _checkMovie(Program* program);
 void opSetMovieFlags(Program* program);
+void opPlayMovie(Program* program);
 void opStopMovie(Program* program);
 void opAddRegionProc(Program* program);
 void opAddRegionRightProc(Program* program);
