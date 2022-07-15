@@ -108,6 +108,7 @@ int dialogSetReplyTitle(const char* a1);
 int _dialogReply(const char* a1, const char* a2);
 int _dialogOption(const char* a1, const char* a2);
 int _dialogOptionProc(const char* a1, int a2);
+int sub_430FD4(const char* a1, const char* a2, int timeout);
 int sub_431088(int a1);
 int _dialogGetExitPoint();
 int _dialogQuit();

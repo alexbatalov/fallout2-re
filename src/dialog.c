@@ -513,6 +513,13 @@ int _dialogOptionProc(const char* a1, int a2)
     return 0;
 }
 
+// 0x430FD4
+int sub_430FD4(const char* a1, const char* a2, int timeout)
+{
+    // TODO: Incomplete.
+    return -1;
+}
+
 // 0x431088
 int sub_431088(int a1)
 {

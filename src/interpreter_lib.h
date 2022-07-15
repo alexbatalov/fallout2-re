@@ -62,6 +62,7 @@ void opSayEnd(Program* program);
 void opSayGetLastPos(Program* program);
 void opSayQuit(Program* program);
 void opSayMessageTimeout(Program* program);
+void opSayMessage(Program* program);
 void opAddButtonFlag(Program* program);
 void opAddRegionFlag(Program* program);
 void opAddButtonProc(Program* program);
