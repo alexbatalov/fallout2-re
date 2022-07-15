@@ -2310,7 +2310,33 @@ int interpreterSoundResume(int value)
 // 0x466698
 void opSoundPlay(Program* program)
 {
-    // TODO: Incomplete.
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 2 given to soundplay");
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid arg 1 given to soundplay");
+    }
+
+    char* fileName = programGetString(program, opcode[1], data[1]);
+    char* mangledFileName = _interpretMangleName(fileName);
+    int rc = interpreterSoundPlay(mangledFileName, data[0]);
+
+    programStackPushInt32(program, rc);
+    programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
 // soundpause
