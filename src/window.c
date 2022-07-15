@@ -479,6 +479,12 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
     return true;
 }
 
+// 0x4B8C68
+void sub_4B8C68(const char* fileName)
+{
+    // TODO: Incomplete.
+}
+
 // 0x4B9048
 int _windowGetXres()
 {

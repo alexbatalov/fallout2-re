@@ -283,6 +283,29 @@ void opSelect(Program* program)
     _interpretOutputFunc(_windowOutput);
 }
 
+// display
+// 0x46213C
+void opDisplay(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid type given to display");
+    }
+
+    char* fileName = programGetString(program, opcode, data);
+
+    _selectWindowID(program->windowId);
+
+    char* mangledFileName = _interpretMangleName(fileName);
+    sub_4B8C68(mangledFileName);
+}
+
 // movieflags
 // 0x462584
 void opSetMovieFlags(Program* program)

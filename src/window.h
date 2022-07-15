@@ -106,6 +106,7 @@ void _windowWrapLineWithSpacing(int win, char* string, int width, int height, in
 void _windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
 bool _windowPrintRect(char* string, int a2, int textAlignment);
 bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment);
+void sub_4B8C68(const char* fileName);
 int _windowGetXres();
 int _windowGetYres();
 void _removeProgramReferences_3(Program* program);
