@@ -903,6 +903,13 @@ bool sub_4BA694(float r, float g, float b)
     return false;
 }
 
+// 0x4BA738
+bool sub_4BA738(int x, int y, int width, int height, float r, float g, float b)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // TODO: There is a value returned, not sure which one - could be either
 // currentRegionIndex or points array. For now it can be safely ignored since
 // the only caller of this function is opAddRegion, which ignores the returned

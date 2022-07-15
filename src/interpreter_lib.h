@@ -74,6 +74,7 @@ void opAddButtonRightProc(Program* program);
 void opShowWin(Program* program);
 void opDeleteButton(Program* program);
 void opFillWin(Program* program);
+void opFillRect(Program* program);
 void opHideMouse(Program* program);
 void opShowMouse(Program* program);
 void opSetGlobalMouseFunc(Program* Program);

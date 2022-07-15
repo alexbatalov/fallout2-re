@@ -128,6 +128,7 @@ bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3,
 bool sub_4BA34C(const char* buttonName, const char* text);
 bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5, int a6);
 bool sub_4BA694(float r, float g, float b);
+bool sub_4BA738(int x, int y, int width, int height, float r, float g, float b);
 void _windowEndRegion();
 bool _windowCheckRegionExists(const char* regionName);
 bool _windowStartRegion(int initialCapacity);
