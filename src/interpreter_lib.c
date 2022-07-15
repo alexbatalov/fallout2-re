@@ -798,6 +798,34 @@ void opResizeWin(Program* program)
     }
 }
 
+// scalewin
+// 0x463204
+void opScaleWin(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    const char* windowName = programGetString(program, opcode[4], data[4]);
+    int x = (data[3] * _windowGetXres() + 639) / 640;
+    int y = (data[2] * _windowGetYres() + 479) / 480;
+    int width = (data[1] * _windowGetXres() + 639) / 640;
+    int height = (data[0] * _windowGetYres() + 479) / 480;;
+
+    if (sub_4B7E7C(windowName, x, y, width, height) == -1) {
+        programFatalError("Couldn't scale window.");
+    }
+}
+
 // saystart
 // 0x4633E4
 void opSayStart(Program* program)

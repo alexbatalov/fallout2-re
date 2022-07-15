@@ -162,6 +162,13 @@ int sub_4B7AC4(const char* windowName, int x, int y, int width, int height)
     return -1;
 }
 
+// 0x4B7E7C
+int sub_4B7E7C(const char* windowName, int x, int y, int width, int height)
+{
+    // TODO: Incomplete.
+    return -1;
+}
+
 // 0x4B7F3C
 int sub_4B7F3C(const char* windowName, int x, int y, int width, int height, int a6, int flags)
 {
