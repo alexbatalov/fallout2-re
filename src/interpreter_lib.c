@@ -969,6 +969,46 @@ void opSayReply(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
+// sayoption
+void opSayOption(Program* program)
+{
+    program->flags |= PROGRAM_FLAG_0x20;
+
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    const char* v1;
+    if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v1 = programGetString(program, opcode[1], data[1]);
+    } else {
+        v1 = NULL;
+    }
+
+    const char* v2;
+    if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v2 = programGetString(program, opcode[0], data[0]);
+    } else {
+        v2 = NULL;
+    }
+
+    if (_dialogReply(v1, v2) != 0) {
+        program->flags &= ~PROGRAM_FLAG_0x20;
+        programFatalError("Error setting option.");
+    }
+
+    program->flags &= ~PROGRAM_FLAG_0x20;
+}
+
 // saygetlastpos
 // 0x4637EC
 void opSayGetLastPos(Program* program)
