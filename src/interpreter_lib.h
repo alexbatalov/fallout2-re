@@ -47,6 +47,7 @@ void opSayStart(Program* program);
 void opDeleteRegion(Program* program);
 void opActivateRegion(Program* program);
 void opCheckRegion(Program* program);
+void opAddRegion(Program* program);
 void opSayStartPos(Program* program);
 void opSayReplyTitle(Program* program);
 void opSayGoToReply(Program* program);

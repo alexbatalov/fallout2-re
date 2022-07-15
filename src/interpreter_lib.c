@@ -575,6 +575,91 @@ void opCheckRegion(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
+// addregion
+// 0x462A1C
+void opAddRegion(Program* program)
+{
+    opcode_t opcode;
+    int data;
+
+    opcode = programStackPopInt16(program);
+    data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid number of elements given to region");
+    }
+
+    int args = data;
+
+    if (args < 2) {
+        programFatalError("addregion call without enough points!");
+    }
+
+    _selectWindowID(program->windowId);
+
+    _windowStartRegion(args / 2);
+
+    while (args >= 2) {
+        opcode = programStackPopInt16(program);
+        data = programStackPopInt32(program);
+
+        if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode, data);
+        }
+
+        if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+            programFatalError("Invalid y value given to region");
+        }
+
+        int y = data;
+
+        opcode = programStackPopInt16(program);
+        data = programStackPopInt32(program);
+
+        if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode, data);
+        }
+
+        if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+            programFatalError("Invalid x value given to region");
+        }
+
+        int x = data;
+        
+        y = (y * _windowGetYres() + 479) / 480;
+        x = (x * _windowGetXres() + 639) / 640;
+        args -= 2;
+
+        _windowAddRegionPoint(x, y, true);
+    }
+
+    if (args == 0) {
+        programFatalError("Unnamed regions not allowed\n");
+        _windowEndRegion();
+    } else {
+        opcode = programStackPopInt16(program);
+        data = programStackPopInt32(program);
+
+        if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode, data);
+        }
+
+        if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && opcode == VALUE_TYPE_INT) {
+            if (data != 0) {
+                programFatalError("Invalid name given to region");
+            }
+        }
+
+        const char* regionName = programGetString(program, opcode, data);
+        _windowAddRegionName(regionName);
+        _windowEndRegion();
+    }
+}
+
 // addregionproc
 // 0x462C10
 void opAddRegionProc(Program* program)
