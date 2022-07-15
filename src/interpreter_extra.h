@@ -279,7 +279,7 @@ void opGameUiDisable(Program* program);
 void opGameUiEnable(Program* program);
 void opGameUiIsDisabled(Program* program);
 void opFadeOut(Program* program);
-void opFadeIn(Program* program);
+void opGameFadeIn(Program* program);
 void opItemCapsTotal(Program* program);
 void opItemCapsAdjust(Program* program);
 void _op_anim_action_frame(Program* program);

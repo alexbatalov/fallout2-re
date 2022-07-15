@@ -16,8 +16,14 @@
 // 0x59D5D0
 Sound* gInterpreterSounds[INTERPRETER_SOUNDS_LENGTH];
 
+// 0x59D650
+unsigned char stru_59D650[256 * 3];
+
 // 0x59D950
 InterpreterKeyHandlerEntry gInterpreterKeyHandlerEntries[INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH];
+
+// 0x59E150
+int dword_59E150;
 
 // 0x59E154
 int gIntepreterAnyKeyHandlerProc;
@@ -327,6 +333,37 @@ void opDisplayRaw(Program* program)
 
     char* mangledFileName = _interpretMangleName(fileName);
     sub_4B8CA8(mangledFileName);
+}
+
+// 0x46222C
+void sub_46222C(unsigned char* a1, unsigned char* a2, int a3, float a4, int a5)
+{
+    // TODO: Incomplete.
+}
+
+// fadein
+// 0x462400
+void opFadeIn(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid type given to fadein\n");
+    }
+
+    program->flags |= PROGRAM_FLAG_0x20;
+
+    _setSystemPalette(stru_59D650);
+
+    sub_46222C(stru_59D650, _cmap, 64, (float)data, 1);
+    dword_59E150 = 1;
+
+    program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
 // movieflags

@@ -15,7 +15,9 @@ typedef struct InterpreterKeyHandlerEntry {
 typedef void (*OFF_59E160)(Program*);
 
 extern Sound* gInterpreterSounds[INTERPRETER_SOUNDS_LENGTH];
+extern unsigned char stru_59D650[256 * 3];
 extern InterpreterKeyHandlerEntry gInterpreterKeyHandlerEntries[INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH];
+extern int dword_59E150;
 extern int gIntepreterAnyKeyHandlerProc;
 extern int _numCallbacks;
 extern Program* gInterpreterAnyKeyHandlerProgram;
@@ -30,6 +32,8 @@ void opPrintRect(Program* program);
 void opSelect(Program* program);
 void opDisplay(Program* program);
 void opDisplayRaw(Program* program);
+void sub_46222C(unsigned char* a1, unsigned char* a2, int a3, float a4, int a5);
+void opFadeIn(Program* program);
 void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
 void opAddRegionProc(Program* program);
