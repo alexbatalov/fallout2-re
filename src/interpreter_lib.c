@@ -925,6 +925,50 @@ void opSayGoToReply(Program* program)
     }
 }
 
+// sayreply
+// 0x463584
+void opSayReply(Program* program)
+{
+    program->flags |= PROGRAM_FLAG_0x20;
+
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    const char* v1;
+    if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v1 = programGetString(program, opcode[1], data[1]);
+    } else {
+        v1 = NULL;
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        const char* v2 = programGetString(program, opcode[0], data[0]);
+        if (_dialogOption(v1, v2) != 0) {
+            program->flags &= ~PROGRAM_FLAG_0x20;
+            programFatalError("Error setting option.");
+        }
+    } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
+        if (_dialogOptionProc(v1, data[0]) != 0) {
+            program->flags &= ~PROGRAM_FLAG_0x20;
+            programFatalError("Error setting option.");
+        }
+    } else {
+        programFatalError("Invalid arg 2 to sayOption");
+    }
+
+    program->flags &= ~PROGRAM_FLAG_0x20;
+}
+
 // saygetlastpos
 // 0x4637EC
 void opSayGetLastPos(Program* program)

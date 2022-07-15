@@ -55,6 +55,7 @@ void opAddRegion(Program* program);
 void opSayStartPos(Program* program);
 void opSayReplyTitle(Program* program);
 void opSayGoToReply(Program* program);
+void opSayReply(Program* program);
 void opSayGetLastPos(Program* program);
 void opSayQuit(Program* program);
 void opSayMessageTimeout(Program* program);

@@ -214,7 +214,7 @@ void _replyAddOption(const char* a1, const char* a2, int a3)
 }
 
 // 0x42F624
-void _replyAddOptionProc(const char* a1, const char* a2, int a3)
+void _replyAddOptionProc(const char* a1, int a2, int a3)
 {
     STRUCT_56DAE0_FIELD_4* v5;
     int v13;
@@ -233,7 +233,7 @@ void _replyAddOptionProc(const char* a1, const char* a2, int a3)
         v5->field_C[v13].field_0 = NULL;
     }
 
-    v5->field_C[v13].field_4 = (char*)a2;
+    v5->field_C[v13].field_4 = a2;
 
     v5->field_C[v13].field_18 = widgetGetFont();
     v5->field_C[v13].field_1A = word_56DB60;
@@ -502,7 +502,7 @@ int _dialogOption(const char* a1, const char* a2)
 }
 
 // 0x430F38
-int _dialogOptionProc(const char* a1, const char* a2)
+int _dialogOptionProc(const char* a1, int a2)
 {
     if (_dialog[_tods].field_C == -1) {
         return 1;
