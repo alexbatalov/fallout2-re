@@ -1016,6 +1016,19 @@ int _checkDialog(Program* program)
     return _dialogGetDialogDepth() != -1;
 }
 
+// 0x4637A4
+void opSayEnd(Program* program)
+{
+    program->flags |= PROGRAM_FLAG_0x20;
+    int rc = sub_431088(_sayStartingPosition);
+    program->flags &= ~PROGRAM_FLAG_0x20;
+
+    if (rc == -2) {
+        program->field_7C = _checkDialog;
+        program->flags |= PROGRAM_FLAG_0x10;
+    }
+}
+
 // saygetlastpos
 // 0x4637EC
 void opSayGetLastPos(Program* program)

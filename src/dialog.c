@@ -513,6 +513,13 @@ int _dialogOptionProc(const char* a1, int a2)
     return 0;
 }
 
+// 0x431088
+int sub_431088(int a1)
+{
+    // TODO: Incomplete.
+    return -1;
+}
+
 // 0x431184
 int _dialogGetExitPoint()
 {
