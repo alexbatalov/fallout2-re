@@ -876,6 +876,19 @@ bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3,
     return false;
 }
 
+// 0x4BA34C
+bool sub_4BA34C(const char* buttonName, const char* text)
+{
+    return sub_4BA364(buttonName, text, 2, 2, 0, 0);
+}
+
+// 0x4BA364
+bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5, int a6)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // TODO: There is a value returned, not sure which one - could be either
 // currentRegionIndex or points array. For now it can be safely ignored since
 // the only caller of this function is opAddRegion, which ignores the returned

@@ -67,6 +67,7 @@ void opGotoXY(Program* program);
 void opAddButtonFlag(Program* program);
 void opAddRegionFlag(Program* program);
 void opAddButton(Program* program);
+void opAddButtonText(Program* program);
 void opAddButtonProc(Program* program);
 void opAddButtonRightProc(Program* program);
 void opShowWin(Program* program);

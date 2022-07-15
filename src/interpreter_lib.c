@@ -1275,6 +1275,40 @@ void opAddButton(Program* program)
     sub_4B99C8(buttonName, x, y, width, height, 0);
 }
 
+// addbuttontext
+// 0x463DF4
+void opAddButtonText(Program* program)
+{
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid text string given to addbuttontext");
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid name string given to addbuttontext");
+    }
+
+    const char* text = programGetString(program, opcode[0], data[0]);
+    const char* buttonName = programGetString(program, opcode[1], data[1]);
+
+    if (!sub_4BA34C(buttonName, text)) {
+        programFatalError("Error setting text to button %s\n",
+            programGetString(program, opcode[1], data[1]));
+    }
+}
+
 // addbuttonproc
 // 0x4640DC
 void opAddButtonProc(Program* program)

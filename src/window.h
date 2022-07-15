@@ -124,6 +124,8 @@ bool _windowDeleteButton(const char* buttonName);
 bool _windowSetButtonFlag(const char* buttonName, int value);
 bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6);
 bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4);
+bool sub_4BA34C(const char* buttonName, const char* text);
+bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5, int a6);
 void _windowEndRegion();
 bool _windowCheckRegionExists(const char* regionName);
 bool _windowStartRegion(int initialCapacity);
