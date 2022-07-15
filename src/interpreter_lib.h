@@ -29,6 +29,7 @@ void opSelectFileList(Program* program);
 void opPrintRect(Program* program);
 void opSelect(Program* program);
 void opDisplay(Program* program);
+void opDisplayRaw(Program* program);
 void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
 void opAddRegionProc(Program* program);
