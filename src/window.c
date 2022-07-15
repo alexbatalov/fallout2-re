@@ -155,6 +155,13 @@ bool _windowDraw()
     return true;
 }
 
+// 0x4B7F3C
+int sub_4B7F3C(const char* windowName, int x, int y, int width, int height, int a6, int flags)
+{
+    // TODO: Incomplete.
+    return -1;
+}
+
 // 0x4B80A4
 int _windowOutput(char* string)
 {

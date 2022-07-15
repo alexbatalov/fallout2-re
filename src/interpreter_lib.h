@@ -43,6 +43,7 @@ void opPlayMovie(Program* program);
 void opStopMovie(Program* program);
 void opAddRegionProc(Program* program);
 void opAddRegionRightProc(Program* program);
+void opCreateWin(Program* program);
 void opSayStart(Program* program);
 void opDeleteRegion(Program* program);
 void opActivateRegion(Program* program);
