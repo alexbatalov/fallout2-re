@@ -94,6 +94,7 @@ int sub_4B6DE8(const char* regionName, int a2);
 int _windowWidth();
 int _windowHeight();
 bool _windowDraw();
+int sub_4B7AC4(const char* windowName, int x, int y, int width, int height);
 int sub_4B7F3C(const char* windowName, int x, int y, int width, int height, int a6, int flags);
 int _windowOutput(char* string);
 bool _selectWindowID(int index);
