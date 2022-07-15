@@ -1009,6 +1009,13 @@ void opSayOption(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
+// 0x46378C
+int _checkDialog(Program* program)
+{
+    program->flags |= PROGRAM_FLAG_0x40;
+    return _dialogGetDialogDepth() != -1;
+}
+
 // saygetlastpos
 // 0x4637EC
 void opSayGetLastPos(Program* program)

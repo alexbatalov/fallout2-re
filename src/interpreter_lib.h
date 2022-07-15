@@ -57,6 +57,7 @@ void opSayReplyTitle(Program* program);
 void opSayGoToReply(Program* program);
 void opSayReply(Program* program);
 void opSayOption(Program* program);
+int _checkDialog(Program* program);
 void opSayGetLastPos(Program* program);
 void opSayQuit(Program* program);
 void opSayMessageTimeout(Program* program);
