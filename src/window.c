@@ -896,6 +896,13 @@ bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5
     return false;
 }
 
+// 0x4BA694
+bool sub_4BA694(float r, float g, float b)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // TODO: There is a value returned, not sure which one - could be either
 // currentRegionIndex or points array. For now it can be safely ignored since
 // the only caller of this function is opAddRegion, which ignores the returned

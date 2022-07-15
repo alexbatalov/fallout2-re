@@ -1473,6 +1473,59 @@ void opDeleteButton(Program* program)
     programFatalError("Error deleting button");
 }
 
+// fillwin
+// 0x46449C
+void opFillWin(Program* program)
+{
+    opcode_t opcode[3];
+    int data[3];
+    float* floats = (float*)data;
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 3; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT) {
+        if ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
+            if (data[2] == 1) {
+                floats[2] = 1.0;
+            } else if (data[2] != 0) {
+                programFatalError("Invalid red value given to fillwin");
+            }
+        }
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT) {
+        if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
+            if (data[1] == 1) {
+                floats[1] = 1.0;
+            } else if (data[1] != 0) {
+                programFatalError("Invalid green value given to fillwin");
+            }
+        }
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT) {
+        if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
+            if (data[0] == 1) {
+                floats[0] = 1.0;
+            } else if (data[0] != 0) {
+                programFatalError("Invalid blue value given to fillwin");
+            }
+        }
+    }
+
+    _selectWindowID(program->windowId);
+
+    sub_4BA694(floats[2], floats[1], floats[0]);
+}
+
 // hidemouse
 // 0x46489C
 void opHideMouse(Program* program)
