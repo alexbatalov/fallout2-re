@@ -45,6 +45,7 @@ void opAddRegionProc(Program* program);
 void opAddRegionRightProc(Program* program);
 void opSayStart(Program* program);
 void opDeleteRegion(Program* program);
+void opActivateRegion(Program* program);
 void opCheckRegion(Program* program);
 void opSayStartPos(Program* program);
 void opSayReplyTitle(Program* program);

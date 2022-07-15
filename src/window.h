@@ -90,6 +90,7 @@ extern int _currentTextColorR;
 extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
+int sub_4B6DE8(const char* regionName, int a2);
 int _windowWidth();
 int _windowHeight();
 bool _windowDraw();

@@ -532,6 +532,27 @@ void opDeleteRegion(Program* program)
     _windowDeleteRegion(regionName);
 }
 
+// activateregion
+// 0x462924
+void opActivateRegion(Program* program)
+{
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    const char* regionName = programGetString(program, opcode[1], data[1]);
+    sub_4B6DE8(regionName, data[0]);
+}
+
 // checkregion
 // 0x4629A0
 void opCheckRegion(Program* program)
