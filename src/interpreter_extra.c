@@ -5505,7 +5505,7 @@ void opGameUiIsDisabled(Program* program)
 
 // gfade_out
 // 0x45B404
-void opFadeOut(Program* program)
+void opGameFadeOut(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6834,7 +6834,7 @@ void _initIntExtra()
     interpreterRegisterOpcode(0x8133, opGameUiDisable); // op_game_ui_disable
     interpreterRegisterOpcode(0x8134, opGameUiEnable); // op_game_ui_enable
     interpreterRegisterOpcode(0x8135, opGameUiIsDisabled); // op_game_ui_is_disabled
-    interpreterRegisterOpcode(0x8136, opFadeOut); // op_gfade_out
+    interpreterRegisterOpcode(0x8136, opGameFadeOut); // op_gfade_out
     interpreterRegisterOpcode(0x8137, opGameFadeIn); // op_gfade_in
     interpreterRegisterOpcode(0x8138, opItemCapsTotal); // op_item_caps_total
     interpreterRegisterOpcode(0x8139, opItemCapsAdjust); // op_item_caps_adjust

@@ -366,6 +366,38 @@ void opFadeIn(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
+// fadeout
+// 0x4624B4
+void opFadeOut(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        // FIXME: Wrong function name, should be fadeout.
+        programFatalError("Invalid type given to fadein\n");
+    }
+
+    program->flags |= PROGRAM_FLAG_0x20;
+
+    bool cursorWasHidden = cursorIsHidden();
+    mouseHideCursor();
+
+    sub_46222C(_getSystemPalette(), stru_59D650, 64, (float)data, 1);
+
+    if (!cursorWasHidden) {
+        mouseShowCursor();
+    }
+
+    dword_59E150 = 0;
+
+    program->flags &= ~PROGRAM_FLAG_0x20;
+}
+
 // movieflags
 // 0x462584
 void opSetMovieFlags(Program* program)

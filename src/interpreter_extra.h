@@ -278,7 +278,7 @@ void opObjectClose(Program* program);
 void opGameUiDisable(Program* program);
 void opGameUiEnable(Program* program);
 void opGameUiIsDisabled(Program* program);
-void opFadeOut(Program* program);
+void opGameFadeOut(Program* program);
 void opGameFadeIn(Program* program);
 void opItemCapsTotal(Program* program);
 void opItemCapsAdjust(Program* program);
