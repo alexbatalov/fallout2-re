@@ -1309,6 +1309,47 @@ void opAddButtonText(Program* program)
     }
 }
 
+// addbuttongfx
+// 0x463EEC
+void opAddButtonGfx(Program* program)
+{
+    opcode_t opcode[4];
+    int data[4];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 4; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if (((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING || ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[2] == 0))
+        || ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING || ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[1] == 0))
+        || ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING || ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0))) {
+
+        if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+            // FIXME: Wrong function name, should be addbuttongfx.
+            programFatalError("Invalid name given to addbuttontext");
+        }
+
+        const char* buttonName = programGetString(program, opcode[3], data[3]);
+        const char* fileName1 = _interpretMangleName(programGetString(program, opcode[2], data[2]));
+        const char* fileName2 = _interpretMangleName(programGetString(program, opcode[1], data[1]));
+        const char* fileName3 = _interpretMangleName(programGetString(program, opcode[0], data[0]));
+
+        _selectWindowID(program->windowId);
+
+        if (!sub_4B9DD0(buttonName, fileName1, fileName2, fileName3)) {
+            programFatalError("Error setting graphics to button %s\n", buttonName);
+        }
+    } else {
+        programFatalError("Invalid filename given to addbuttongfx");
+    }
+}
+
 // addbuttonproc
 // 0x4640DC
 void opAddButtonProc(Program* program)

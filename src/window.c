@@ -824,6 +824,13 @@ bool _windowSetButtonFlag(const char* buttonName, int value)
     return false;
 }
 
+// 0x4B9DD0
+bool sub_4B9DD0(const char* buttonName, const char* a2, const char* a3, const char* a4)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4BA11C
 bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6)
 {
