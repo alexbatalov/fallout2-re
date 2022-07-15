@@ -413,7 +413,7 @@ int objectRead(Object* obj, File* stream)
     } else {
         if (obj->data.misc.map <= 0) {
             if ((obj->fid & 0xFFF) < 33) {
-                obj->fid = buildFid(OBJ_TYPE_MISC, (obj->fid & 0xFFF) + 16, (obj->fid & 0xFF0000) >> 16, 0, 0);
+                obj->fid = buildFid(OBJ_TYPE_MISC, (obj->fid & 0xFFF) + 16, FID_ANIM_TYPE(obj->fid), 0, 0);
             }
         }
     }
@@ -5120,7 +5120,7 @@ void _obj_fix_violence_settings(int* fid)
         break;
     }
 
-    int anim = (*fid & 0xFF0000) >> 16;
+    int anim = FID_ANIM_TYPE(*fid);
     if (anim >= start && anim <= end) {
         anim = (anim == ANIM_FALL_BACK_BLOOD_SF)
             ? ANIM_FALL_BACK_SF

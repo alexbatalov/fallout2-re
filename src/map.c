@@ -1518,7 +1518,7 @@ void _map_place_dude_and_mouse()
     _obj_clear_seen();
 
     if (gDude != NULL) {
-        if (((gDude->fid & 0xFF0000) >> 16) != 0) {
+        if (FID_ANIM_TYPE(gDude->fid) != ANIM_STAND) {
             objectSetFrame(gDude, 0, 0);
             gDude->fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, (gDude->fid & 0xF000) >> 12, gDude->rotation + 1);
         }

@@ -572,7 +572,7 @@ char* artBuildFilePath(int fid)
     *_art_name = '\0';
 
     v3 = v2 & 0xFFF;
-    v4 = (v2 & 0xFF0000) >> 16;
+    v4 = FID_ANIM_TYPE(v2);
     v5 = (v2 & 0xF000) >> 12;
     type = FID_TYPE(v2);
 
@@ -580,7 +580,7 @@ char* artBuildFilePath(int fid)
         return NULL;
     }
 
-    if (type < 0 || type >= 11) {
+    if (type < OBJ_TYPE_ITEM || type >= OBJ_TYPE_COUNT) {
         return NULL;
     }
 
@@ -856,8 +856,8 @@ int artCritterFidShouldRun(int fid)
 int artAliasFid(int fid)
 {
     int type = FID_TYPE(fid);
-    int anim = (fid & 0xFF0000) >> 16;
-    if (type == 1) {
+    int anim = FID_ANIM_TYPE(fid);
+    if (type == OBJ_TYPE_CRITTER) {
         if (anim == ANIM_ELECTRIFY
             || anim == ANIM_BURNED_TO_NOTHING
             || anim == ANIM_ELECTRIFIED_TO_NOTHING
@@ -988,7 +988,7 @@ void artCacheFreeImpl(void* ptr)
 }
 
 // 0x419C88
-int buildFid(int objectType, int frmId, int anim, int a3, int rotation)
+int buildFid(int objectType, int frmId, int animType, int a3, int rotation)
 {
     int v7, v8, v9, v10;
 
@@ -998,11 +998,11 @@ int buildFid(int objectType, int frmId, int anim, int a3, int rotation)
         goto zero;
     }
 
-    if (anim == 33 || anim < 20 || anim > 35) {
+    if (animType == ANIM_FIRE_DANCE || animType < ANIM_FALL_BACK || animType > ANIM_FALL_FRONT_BLOOD) {
         goto zero;
     }
 
-    v7 = ((a3 << 12) & 0xF000) | (anim << 16) & 0xFF0000 | 0x1000000;
+    v7 = ((a3 << 12) & 0xF000) | (animType << 16) & 0xFF0000 | 0x1000000;
     v8 = (rotation << 28) & 0x70000000 | v7;
     v9 = frmId & 0xFFF;
 
@@ -1025,7 +1025,7 @@ zero:
 
 out:
 
-    return (v10 << 28) & 0x70000000 | (objectType << 24) | (anim << 16) & 0xFF0000 | (a3 << 12) & 0xF000 | frmId & 0xFFF;
+    return (v10 << 28) & 0x70000000 | (objectType << 24) | (animType << 16) & 0xFF0000 | (a3 << 12) & 0xF000 | frmId & 0xFFF;
 }
 
 // 0x419D60

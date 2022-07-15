@@ -200,11 +200,11 @@ int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
         }
 
         if (v8 == 0) {
-            newFid = buildFid(FID_TYPE(fid), fid & 0xFFF, (fid & 0xFF0000) >> 16, 0, (fid & 0x70000000) >> 28);
+            newFid = buildFid(FID_TYPE(fid), fid & 0xFFF, FID_ANIM_TYPE(fid), 0, (fid & 0x70000000) >> 28);
         }
     } else {
         if (a1 == gDude) {
-            newFid = buildFid(FID_TYPE(fid), _art_vault_guy_num, (fid & 0xFF0000) >> 16, v8, (fid & 0x70000000) >> 28);
+            newFid = buildFid(FID_TYPE(fid), _art_vault_guy_num, FID_ANIM_TYPE(fid), v8, (fid & 0x70000000) >> 28);
         }
 
         _adjust_ac(a1, a2, NULL);
@@ -2466,7 +2466,7 @@ void opMetarule3(Program* program)
 
             int fid = buildFid(FID_TYPE(obj->fid),
                 frmId,
-                (obj->fid & 0xFF0000) >> 16,
+                FID_ANIM_TYPE(obj->fid),
                 (obj->fid & 0xF000) >> 12,
                 (obj->fid & 0x70000000) >> 28);
 
@@ -2980,7 +2980,7 @@ void opKillCritterType(Program* program)
 
     Object* obj = objectFindFirst();
     while (obj != NULL) {
-        if (((obj->fid & 0xFF0000) >> 16) >= ANIM_FALL_BACK_SF) {
+        if (FID_ANIM_TYPE(obj->fid) >= ANIM_FALL_BACK_SF) {
             obj = objectFindNext();
             continue;
         }
@@ -3417,7 +3417,7 @@ void opGetCritterState(Program* program)
         if (critterIsActive(critter)) {
             state = CRITTER_STATE_NORMAL;
 
-            int anim = (critter->fid & 0xFF0000) >> 16;
+            int anim = FID_ANIM_TYPE(critter->fid);
             if (anim >= ANIM_FALL_BACK_SF && anim <= ANIM_FALL_FRONT_SF) {
                 state = CRITTER_STATE_PRONE;
             }
@@ -6314,7 +6314,7 @@ void opGetFidAnim(Program* program)
         programFatalError("script error: %s: invalid arg to art_anim", program->name);
     }
 
-    programStackPushInt32(program, (data & 0xFF0000) >> 16);
+    programStackPushInt32(program, FID_ANIM_TYPE(data));
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 

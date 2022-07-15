@@ -758,7 +758,7 @@ void critterKill(Object* critter, int anim, bool a3)
     bool shouldChangeFid = false;
     int fid;
     if (_critter_is_prone(critter)) {
-        int current = (critter->fid & 0xFF0000) >> 16;
+        int current = FID_ANIM_TYPE(critter->fid);
         if (current == ANIM_FALL_BACK || current == ANIM_FALL_FRONT) {
             bool back = false;
             if (current == ANIM_FALL_BACK) {
@@ -922,7 +922,7 @@ bool _critter_is_prone(Object* critter)
         return false;
     }
 
-    int anim = (critter->fid & 0xFF0000) >> 16;
+    int anim = FID_ANIM_TYPE(critter->fid);
 
     return (critter->data.critter.combat.results & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN)) != 0
         || anim >= FIRST_KNOCKDOWN_AND_DEATH_ANIM && anim <= LAST_KNOCKDOWN_AND_DEATH_ANIM

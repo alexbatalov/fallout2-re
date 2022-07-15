@@ -2232,7 +2232,7 @@ int animateMoveObjectToTileStraight(Object* obj, int tile, int elevation, int an
 
     int v15;
     if (FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
-        if (((obj->fid & 0xFF0000) >> 16) == ANIM_JUMP_BEGIN)
+        if (FID_ANIM_TYPE(obj->fid) == ANIM_JUMP_BEGIN)
             v15 = 16;
         else
             v15 = 4;
@@ -2848,7 +2848,7 @@ void _dude_fidget()
             break;
         }
 
-        if ((object->flags & OBJECT_HIDDEN) == 0 && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER && ((object->fid & 0xFF0000) >> 16) == 0 && !critterIsDead(object)) {
+        if ((object->flags & OBJECT_HIDDEN) == 0 && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER && FID_ANIM_TYPE(object->fid) == ANIM_STAND && !critterIsDead(object)) {
             Rect rect;
             objectGetRect(object, &rect);
 
@@ -2949,7 +2949,7 @@ void _dude_stand(Object* obj, int rotation, int fid)
 
     if (fid == -1) {
         int anim;
-        if (((obj->fid & 0xFF0000) >> 16) == ANIM_FIRE_DANCE) {
+        if (FID_ANIM_TYPE(obj->fid) == ANIM_FIRE_DANCE) {
             anim = ANIM_FIRE_DANCE;
         } else {
             anim = ANIM_STAND;
@@ -2979,7 +2979,7 @@ void _dude_standup(Object* a1)
     reg_anim_begin(ANIMATION_REQUEST_RESERVED);
 
     int anim;
-    if ((a1->fid & 0xFF0000) >> 16 == ANIM_FALL_BACK) {
+    if (FID_ANIM_TYPE(a1->fid) == ANIM_FALL_BACK) {
         anim = ANIM_BACK_TO_STANDING;
     } else {
         anim = ANIM_PRONE_TO_STANDING;
@@ -3015,7 +3015,7 @@ int _anim_change_fid(Object* obj, int animationSequenceIndex, int fid)
     Rect rect;
     Rect v7;
 
-    if ((fid & 0xFF0000) >> 16) {
+    if (FID_ANIM_TYPE(fid)) {
         objectSetFid(obj, fid, &rect);
         objectSetFrame(obj, 0, &v7);
         rectUnion(&rect, &v7, &rect);
@@ -3075,7 +3075,7 @@ unsigned int animationComputeTicksPerFrame(Object* object, int fid)
     }
 
     if (isInCombat()) {
-        if (((fid & 0xFF0000) >> 16) == 1) {
+        if (FID_ANIM_TYPE(fid) == ANIM_WALK) {
             int playerSpeedup = 0;
             configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
 
