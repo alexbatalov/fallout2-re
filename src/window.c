@@ -521,6 +521,13 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
     return true;
 }
 
+// 0x4B99C8
+bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4B8C68
 void sub_4B8C68(const char* fileName)
 {

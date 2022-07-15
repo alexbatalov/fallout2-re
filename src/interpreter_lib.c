@@ -1202,6 +1202,79 @@ void opAddRegionFlag(Program* program)
     }
 }
 
+// addbutton
+// 0x463BE8
+void opAddButton(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    opcode[0] = programStackPopInt16(program);
+    data[0] = programStackPopInt32(program);
+
+    if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[0], data[0]);
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid height given to addbutton");
+    }
+
+    opcode[1] = programStackPopInt16(program);
+    data[1] = programStackPopInt32(program);
+
+    if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[1], data[1]);
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid width given to addbutton");
+    }
+
+    opcode[2] = programStackPopInt16(program);
+    data[2] = programStackPopInt32(program);
+
+    if (opcode[2] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[2], data[2]);
+    }
+
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid y given to addbutton");
+    }
+
+    opcode[3] = programStackPopInt16(program);
+    data[3] = programStackPopInt32(program);
+
+    if (opcode[3] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[3], data[3]);
+    }
+
+    if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid x given to addbutton");
+    }
+
+    opcode[4] = programStackPopInt16(program);
+    data[4] = programStackPopInt32(program);
+
+    if (opcode[4] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[4], data[4]);
+    }
+
+    if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid name given to addbutton");
+    }
+
+    _selectWindowID(program->windowId);
+
+    int height = (data[0] * _windowGetYres() + 479) / 480;
+    int width = (data[1] * _windowGetXres() + 639) / 640;
+    int y = (data[2] * _windowGetYres() + 479) / 480;
+    int x = (data[1] * _windowGetXres() + 639) / 640;
+    const char* buttonName = programGetString(program, opcode[4], data[4]);
+
+    sub_4B99C8(buttonName, x, y, width, height, 0);
+}
+
 // addbuttonproc
 // 0x4640DC
 void opAddButtonProc(Program* program)
