@@ -398,6 +398,16 @@ void opFadeOut(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
+// 0x462570
+int _checkMovie()
+{
+    if (_dialogGetDialogDepth() > 0) {
+        return 1;
+    }
+
+    return _windowMoviePlaying();
+}
+
 // movieflags
 // 0x462584
 void opSetMovieFlags(Program* program)

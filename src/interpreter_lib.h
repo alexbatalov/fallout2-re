@@ -35,6 +35,7 @@ void opDisplayRaw(Program* program);
 void sub_46222C(unsigned char* a1, unsigned char* a2, int a3, float a4, int a5);
 void opFadeIn(Program* program);
 void opFadeOut(Program* program);
+int _checkMovie();
 void opSetMovieFlags(Program* program);
 void opStopMovie(Program* program);
 void opAddRegionProc(Program* program);
