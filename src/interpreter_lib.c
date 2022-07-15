@@ -1107,6 +1107,35 @@ void opSayMessage(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
+// gotoxy
+// 0x463980
+void opGotoXY(Program* program)
+{
+    opcode_t opcode[2];
+    int data[2];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 2; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT
+        || (opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid operand given to gotoxy");
+    }
+
+    _selectWindowID(program->windowId);
+
+    int x = data[1];
+    int y = data[0];
+    sub_4B814C(x, y);
+}
+
 // addbuttonflag
 // 0x463A38
 void opAddButtonFlag(Program* program)

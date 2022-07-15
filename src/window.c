@@ -201,6 +201,13 @@ int _windowOutput(char* string)
     return 1;
 }
 
+// 0x4B814C
+bool sub_4B814C(int x, int y)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4B81C4
 bool _selectWindowID(int index)
 {
