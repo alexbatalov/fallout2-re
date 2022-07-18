@@ -776,7 +776,7 @@ int _gdialogInitFromScript(int headFid, int reaction)
     fontSetCurrent(101);
     dialogSetReplyWindow(135, 225, 379, 58, NULL);
     dialogSetReplyColor(0.3f, 0.3f, 0.3f);
-    dialogSetOptionWindow(127, 335, 393, 117, 0);
+    dialogSetOptionWindow(127, 335, 393, 117, NULL);
     dialogSetOptionColor(0.2f, 0.2f, 0.2f);
     dialogSetReplyTitle(NULL);
     _dialogRegisterWinDrawCallbacks(_demo_copy_title, _demo_copy_options);

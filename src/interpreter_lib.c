@@ -2045,6 +2045,39 @@ void opSayOptionFlags(Program* program)
     }
 }
 
+// sayoptionwindow
+// 0x465760
+void opSayOptionWindow(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    char* v1;
+    if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v1 = programGetString(program, opcode[0], data[0]);
+        v1 = _interpretMangleName(v1);
+        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1556
+    } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0) {
+        v1 = NULL;
+    } else {
+        programFatalError("Invalid arg 5 given to sayoptionwindow");
+    }
+
+    if (dialogSetOptionWindow(data[4], data[3], data[2], data[1], v1) != 0) {
+        programFatalError("Error setting option window");
+    }
+}
+
 // sayborder
 // 0x4658B8
 void opSayBorder(Program* program)

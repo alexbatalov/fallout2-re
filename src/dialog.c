@@ -75,7 +75,7 @@ int dword_56DB6C;
 int dword_56DB70;
 
 // 0x56DB74
-int _rand2plus;
+char* off_56DB74;
 
 // 0x56DB7C
 int dword_56DB7C;
@@ -546,13 +546,13 @@ int _dialogQuit()
 }
 
 // 0x4311B8
-int dialogSetOptionWindow(int a1, int a2, int a3, int a4, int a5)
+int dialogSetOptionWindow(int a1, int a2, int a3, int a4, char* a5)
 {
     dword_56DB6C = a1;
     dword_56DB70 = a2;
     dword_56DB64 = a3;
     dword_56DB68 = a4;
-    _rand2plus = a5;
+    off_56DB74 = a5;
     return 0;
 }
 

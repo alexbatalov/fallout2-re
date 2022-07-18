@@ -94,6 +94,7 @@ void opSetHighlightColor(Program* program);
 void opSayReplyWindow(Program* program);
 void opSayReplyFlags(Program* program);
 void opSayOptionFlags(Program* program);
+void opSayOptionWindow(Program* program);
 void opSayBorder(Program* program);
 void opSaySetSpacing(Program* program);
 void opSayRestart(Program* program);
