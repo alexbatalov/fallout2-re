@@ -30,6 +30,7 @@ void opFillWin3x3(Program* program);
 void opFormat(Program* program);
 void opPrint(Program* program);
 void opSelectFileList(Program* program);
+void opTokenize(Program* program);
 void opPrintRect(Program* program);
 void opSelect(Program* program);
 void opDisplay(Program* program);

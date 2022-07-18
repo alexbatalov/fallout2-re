@@ -226,6 +226,105 @@ void opSelectFileList(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
+// tokenize
+// 0x461CA0
+void opTokenize(Program* program)
+{
+    opcode_t opcode[3];
+    int data[3];
+
+    opcode[0] = programStackPopInt16(program);
+    data[0] = programStackPopInt32(program);
+
+    if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[0], data[0]);
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Error, invalid arg 3 to tokenize.");
+    }
+
+    opcode[1] = programStackPopInt16(program);
+    data[1] = programStackPopInt32(program);
+
+    if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[1], data[1]);
+    }
+
+    char* prev = NULL;
+    if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
+        if (data[1] != 0) {
+            programFatalError("Error, invalid arg 2 to tokenize. (only accept 0 for int value)");
+        }
+    } else if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        prev = programGetString(program, opcode[1], data[1]);
+    } else {
+        programFatalError("Error, invalid arg 2 to tokenize. (string)");
+    }
+
+    opcode[2] = programStackPopInt16(program);
+    data[2] = programStackPopInt32(program);
+
+    if (opcode[2] == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode[2], data[2]);
+    }
+
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Error, invalid arg 1 to tokenize.");
+    }
+
+    char* string = programGetString(program, opcode[2], data[2]);
+    char* temp = NULL;
+
+    if (prev != NULL) {
+        char* start = strstr(string, prev);
+        if (start != NULL) {
+            start += strlen(prev);
+            while (*start != data[0] && *start != '\0') {
+                start++;
+            }
+        }
+
+        if (*start == data[0]) {
+            int length = 0;
+            char* end = start + 1;
+            while (*end != data[0] && *end != '\0') {
+                end++;
+                length++;
+            }
+
+            temp = (char*)internal_calloc_safe(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C, 230
+            strncpy(temp, start, length);
+            programStackPushInt32(program, programPushString(program, temp));
+            programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+        } else {
+            programStackPushInt32(program, 0);
+            programStackPushInt16(program, VALUE_TYPE_INT);
+        }
+    } else {
+        int length = 0;
+        char* end = string;
+        while (*end != data[0] && *end != '\0') {
+            end++;
+            length++;
+        }
+
+        if (string != NULL) {
+            temp = (char*)internal_calloc_safe(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 248
+            strncpy(temp, string, length);
+            programStackPushInt32(program, programPushString(program, temp));
+            programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+        } else {
+            programStackPushInt32(program, 0);
+            programStackPushInt16(program, VALUE_TYPE_INT);
+        }
+    }
+
+    if (temp != NULL) {
+        internal_free_safe(temp, __FILE__, __LINE__); // "..\\int\\INTLIB.C" , 260
+    }
+}
+
 // printrect
 // 0x461F1C
 void opPrintRect(Program* program)
