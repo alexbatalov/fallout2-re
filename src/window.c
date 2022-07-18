@@ -1,5 +1,6 @@
 #include "window.h"
 
+#include "color.h"
 #include "core.h"
 #include "datafile.h"
 #include "draw.h"
@@ -958,10 +959,25 @@ bool sub_4BA694(float r, float g, float b)
 }
 
 // 0x4BA738
-bool sub_4BA738(int x, int y, int width, int height, float r, float g, float b)
+bool _windowFillRect(int x, int y, int width, int height, float r, float g, float b)
 {
-    // TODO: Incomplete.
-    return false;
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+
+    x = (int)(x * managedWindow->field_54);
+    y = (int)(y * managedWindow->field_58);
+    width = (int)(width * managedWindow->field_54);
+    height = (int)(height * managedWindow->field_58);
+
+    int colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
+
+    windowFill(managedWindow->window,
+        x,
+        y,
+        width,
+        height,
+        _colorTable[colorIndex]);
+
+    return true;
 }
 
 // TODO: There is a value returned, not sure which one - could be either

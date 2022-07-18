@@ -1689,7 +1689,7 @@ void opFillRect(Program* program)
 
     _selectWindowID(program->windowId);
 
-    sub_4BA738(data[6], data[5], data[4], data[3], floats[2], floats[1], floats[0]);
+    _windowFillRect(data[6], data[5], data[4], data[3], floats[2], floats[1], floats[0]);
 }
 
 // hidemouse
