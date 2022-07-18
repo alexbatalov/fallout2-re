@@ -77,6 +77,7 @@ void opFillWin(Program* program);
 void opFillRect(Program* program);
 void opHideMouse(Program* program);
 void opShowMouse(Program* program);
+void opMouseShape(Program* program);
 void opSetGlobalMouseFunc(Program* Program);
 void opDisplayGfx(Program* program);
 void opLoadPaletteTable(Program* program);

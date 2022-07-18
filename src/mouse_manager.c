@@ -44,6 +44,13 @@ void _initMousemgr()
     mouseSetSensitivity(1.0);
 }
 
+// 0x485E58
+bool sub_485E58(char* fileName, int a2, int a3)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4865C4
 void _mouseHide()
 {

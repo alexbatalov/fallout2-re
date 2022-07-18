@@ -7,6 +7,7 @@
 #include "dialog.h"
 #include "interpreter_extra.h"
 #include "memory_manager.h"
+#include "mouse_manager.h"
 #include "nevs.h"
 #include "select_file_list.h"
 #include "text_font.h"
@@ -1606,6 +1607,41 @@ void opHideMouse(Program* program)
 void opShowMouse(Program* program)
 {
     mouseShowCursor();
+}
+
+// mouseshape
+// 0x4648AC
+void opMouseShape(Program* program)
+{
+    opcode_t opcode[3];
+    int data[3];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 3; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 3 given to mouseshape");
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 2 given to mouseshape");
+    }
+
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+        programFatalError("Invalid filename given to mouseshape");
+    }
+
+    char *fileName = programGetString(program, opcode[2], data[2]);
+    if (!sub_485E58(fileName, data[1], data[0])) {
+        programFatalError("Error loading mouse shape.");
+    }
 }
 
 // setglobalmousefunc
