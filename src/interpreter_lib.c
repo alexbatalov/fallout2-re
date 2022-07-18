@@ -1231,7 +1231,7 @@ void opGotoXY(Program* program)
 
     int x = data[1];
     int y = data[0];
-    sub_4B814C(x, y);
+    _windowGotoXY(x, y);
 }
 
 // addbuttonflag

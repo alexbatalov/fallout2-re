@@ -102,7 +102,7 @@ int sub_4B7AC4(const char* windowName, int x, int y, int width, int height);
 int sub_4B7E7C(const char* windowName, int x, int y, int width, int height);
 int sub_4B7F3C(const char* windowName, int x, int y, int width, int height, int a6, int flags);
 int _windowOutput(char* string);
-bool sub_4B814C(int x, int y);
+bool _windowGotoXY(int x, int y);
 bool _selectWindowID(int index);
 int _selectWindow(const char* windowName);
 unsigned char* _windowGetBuffer();

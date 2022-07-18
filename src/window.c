@@ -216,10 +216,17 @@ int _windowOutput(char* string)
 }
 
 // 0x4B814C
-bool sub_4B814C(int x, int y)
+bool _windowGotoXY(int x, int y)
 {
-    // TODO: Incomplete.
-    return false;
+    if (gCurrentManagedWindowIndex == -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    managedWindow->field_44 = (int)(x * managedWindow->field_54);
+    managedWindow->field_48 = (int)(y * managedWindow->field_58);
+
+    return true;
 }
 
 // 0x4B81C4
