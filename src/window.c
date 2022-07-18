@@ -952,10 +952,19 @@ bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5
 }
 
 // 0x4BA694
-bool sub_4BA694(float r, float g, float b)
+bool _windowFill(float r, float g, float b)
 {
-    // TODO: Incomplete.
-    return false;
+    int colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    windowFill(managedWindow->window,
+        0,
+        0,
+        _windowWidth(),
+        _windowHeight(),
+        _colorTable[colorIndex]);
+
+    return true;
 }
 
 // 0x4BA738

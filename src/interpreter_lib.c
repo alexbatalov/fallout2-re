@@ -1621,7 +1621,7 @@ void opFillWin(Program* program)
 
     _selectWindowID(program->windowId);
 
-    sub_4BA694(floats[2], floats[1], floats[0]);
+    _windowFill(floats[2], floats[1], floats[0]);
 }
 
 // fillrect
