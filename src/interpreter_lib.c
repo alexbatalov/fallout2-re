@@ -2916,9 +2916,95 @@ bool _intLibDoInput(int key)
 // 0x466A70
 void _initIntlib()
 {
-    // TODO: Incomplete.
+    sub_4B6C48(_intLibDoInput);
+
+    interpreterRegisterOpcode(0x806A, opFillWin3x3);
+    interpreterRegisterOpcode(0x808C, opDeleteButton);
+    interpreterRegisterOpcode(0x8086, opAddButton);
+    interpreterRegisterOpcode(0x8088, opAddButtonFlag);
+    interpreterRegisterOpcode(0x8087, opAddButtonText);
+    interpreterRegisterOpcode(0x8089, opAddButtonGfx);
+    interpreterRegisterOpcode(0x808A, opAddButtonProc);
+    interpreterRegisterOpcode(0x808B, opAddButtonRightProc);
+    interpreterRegisterOpcode(0x8067, opShowWin);
+    interpreterRegisterOpcode(0x8068, opFillWin);
+    interpreterRegisterOpcode(0x8069, opFillRect);
+    interpreterRegisterOpcode(0x8072, opPrint);
+    interpreterRegisterOpcode(0x8073, opFormat);
+    interpreterRegisterOpcode(0x8074, opPrintRect);
+    interpreterRegisterOpcode(0x8075, opSetFont);
+    interpreterRegisterOpcode(0x8076, opSetTextFlags);
+    interpreterRegisterOpcode(0x8077, opSetTextColor);
+    interpreterRegisterOpcode(0x8078, opSetHighlightColor);
+    interpreterRegisterOpcode(0x8064, opSelect);
+    interpreterRegisterOpcode(0x806B, opDisplay);
+    interpreterRegisterOpcode(0x806D, opDisplayRaw);
+    interpreterRegisterOpcode(0x806C, opDisplayGfx);
+    interpreterRegisterOpcode(0x806F, opFadeIn);
+    interpreterRegisterOpcode(0x8070, opFadeOut);
+    interpreterRegisterOpcode(0x807A, opPlayMovie);
+    interpreterRegisterOpcode(0x807B, opSetMovieFlags);
+    interpreterRegisterOpcode(0x807C, opPlayMovieRect);
+    interpreterRegisterOpcode(0x8079, opStopMovie);
+    interpreterRegisterOpcode(0x807F, opAddRegion);
+    interpreterRegisterOpcode(0x8080, opAddRegionFlag);
+    interpreterRegisterOpcode(0x8081, opAddRegionProc);
+    interpreterRegisterOpcode(0x8082, opAddRegionRightProc);
+    interpreterRegisterOpcode(0x8083, opDeleteRegion);
+    interpreterRegisterOpcode(0x8084, opActivateRegion);
+    interpreterRegisterOpcode(0x8085, opCheckRegion);
+    interpreterRegisterOpcode(0x8062, opCreateWin);
+    interpreterRegisterOpcode(0x8063, opDeleteWin);
+    interpreterRegisterOpcode(0x8065, opResizeWin);
+    interpreterRegisterOpcode(0x8066, opScaleWin);
+    interpreterRegisterOpcode(0x804E, opSayStart);
+    interpreterRegisterOpcode(0x804F, opSayStartPos);
+    interpreterRegisterOpcode(0x8050, opSayReplyTitle);
+    interpreterRegisterOpcode(0x8051, opSayGoToReply);
+    interpreterRegisterOpcode(0x8053, opSayReply);
+    interpreterRegisterOpcode(0x8052, opSayOption);
+    interpreterRegisterOpcode(0x804D, opSayEnd);
+    interpreterRegisterOpcode(0x804C, opSayQuit);
+    interpreterRegisterOpcode(0x8054, opSayMessage);
+    interpreterRegisterOpcode(0x8055, opSayReplyWindow);
+    interpreterRegisterOpcode(0x8056, opSayOptionWindow);
+    interpreterRegisterOpcode(0x805F, opSayReplyFlags);
+    interpreterRegisterOpcode(0x8060, opSayOptionFlags);
+    interpreterRegisterOpcode(0x8057, opSayBorder);
+    interpreterRegisterOpcode(0x8058, opSayScrollUp);
+    interpreterRegisterOpcode(0x8059, opSayScrollDown);
+    interpreterRegisterOpcode(0x805A, opSaySetSpacing);
+    interpreterRegisterOpcode(0x805B, opSayOptionColor);
+    interpreterRegisterOpcode(0x805C, opSayReplyColor);
+    interpreterRegisterOpcode(0x805D, opSayRestart);
+    interpreterRegisterOpcode(0x805E, opSayGetLastPos);
+    interpreterRegisterOpcode(0x8061, opSayMessageTimeout);
+    interpreterRegisterOpcode(0x8071, opGotoXY);
+    interpreterRegisterOpcode(0x808D, opHideMouse);
+    interpreterRegisterOpcode(0x808E, opShowMouse);
+    interpreterRegisterOpcode(0x8090, opRefreshMouse);
+    interpreterRegisterOpcode(0x808F, opMouseShape);
+    interpreterRegisterOpcode(0x8091, opSetGlobalMouseFunc);
+    interpreterRegisterOpcode(0x806E, opLoadPaletteTable);
+    interpreterRegisterOpcode(0x8092, opAddNamedEvent);
+    interpreterRegisterOpcode(0x8093, opAddNamedHandler);
+    interpreterRegisterOpcode(0x8094, opClearNamed);
+    interpreterRegisterOpcode(0x8095, opSignalNamed);
+    interpreterRegisterOpcode(0x8096, opAddKey);
+    interpreterRegisterOpcode(0x8097, opDeleteKey);
+    interpreterRegisterOpcode(0x8098, opSoundPlay);
+    interpreterRegisterOpcode(0x8099, opSoundPause);
+    interpreterRegisterOpcode(0x809A, opSoundResume);
+    interpreterRegisterOpcode(0x809B, opSoundStop);
+    interpreterRegisterOpcode(0x809C, opSoundRewind);
+    interpreterRegisterOpcode(0x809D, opSoundDelete);
+    interpreterRegisterOpcode(0x809E, opSetOneOptPause);
+    interpreterRegisterOpcode(0x809F, opSelectFileList);
+    interpreterRegisterOpcode(0x80A0, opTokenize);
+
     _nevs_initonce();
     _initIntExtra();
+    dialogInit();
 }
 
 // 0x466F6C

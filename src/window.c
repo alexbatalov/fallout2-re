@@ -130,6 +130,12 @@ bool sub_4B69BC()
     return false;
 }
 
+// 0x4B6C48
+void sub_4B6C48(WindowInputHandler* callback)
+{
+    // TODO: Incomplete.
+}
+
 // 0x4B6DE8
 int sub_4B6DE8(const char* regionName, int a2)
 {

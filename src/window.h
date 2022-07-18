@@ -11,6 +11,7 @@
 
 typedef void (*WINDOWDRAWINGPROC)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y);
 typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, unsigned char a10);
+typedef bool (WindowInputHandler)(int key);
 
 typedef enum TextAlignment {
     TEXT_ALIGNMENT_LEFT,
@@ -91,6 +92,7 @@ extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
 bool sub_4B69BC();
+void sub_4B6C48(WindowInputHandler* callback);
 int sub_4B6DE8(const char* regionName, int a2);
 int _windowWidth();
 int _windowHeight();

@@ -121,6 +121,7 @@ int dialogSetOptionSpacing(int value);
 int dialogSetOptionColor(float a1, float a2, float a3);
 int dialogSetReplyColor(float a1, float a2, float a3);
 int _dialogSetOptionFlags(int flags);
+void dialogInit();
 void _dialogClose();
 int _dialogGetDialogDepth();
 void _dialogRegisterWinDrawCallbacks(DialogFunc1* a1, DialogFunc2* a2);

@@ -679,6 +679,11 @@ int _dialogSetOptionFlags(int flags)
     return 1;
 }
 
+// 0x431430
+void dialogInit()
+{
+}
+
 // 0x431434
 void _dialogClose()
 {
