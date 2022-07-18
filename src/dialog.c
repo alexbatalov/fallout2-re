@@ -90,7 +90,7 @@ int dword_56DB84;
 int dword_56DB88;
 
 // 0x56DB8C
-int dword_56DB8C;
+char* off_56DB8C;
 
 // 0x56DB90
 int _replyPlaying;
@@ -557,13 +557,13 @@ int dialogSetOptionWindow(int a1, int a2, int a3, int a4, int a5)
 }
 
 // 0x4311E0
-int dialogSetReplyWindow(int a1, int a2, int a3, int a4, int a5)
+int dialogSetReplyWindow(int a1, int a2, int a3, int a4, char* a5)
 {
     dword_56DB84 = a1;
     dword_56DB88 = a2;
     dword_56DB7C = a3;
     dword_56DB80 = a4;
-    dword_56DB8C = a5;
+    off_56DB8C = a5;
 
     return 0;
 }

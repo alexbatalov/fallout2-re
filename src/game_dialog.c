@@ -774,7 +774,7 @@ int _gdialogInitFromScript(int headFid, int reaction)
     gGameDialogSpeakerIsPartyMember = objectIsPartyMember(gGameDialogSpeaker);
     _oldFont = fontGetCurrent();
     fontSetCurrent(101);
-    dialogSetReplyWindow(135, 225, 379, 58, 0);
+    dialogSetReplyWindow(135, 225, 379, 58, NULL);
     dialogSetReplyColor(0.3f, 0.3f, 0.3f);
     dialogSetOptionWindow(127, 335, 393, 117, 0);
     dialogSetOptionColor(0.2f, 0.2f, 0.2f);

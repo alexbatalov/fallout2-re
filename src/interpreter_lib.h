@@ -91,6 +91,7 @@ void opSetTextColor(Program* program);
 void opSayOptionColor(Program* program);
 void opSayReplyColor(Program* program);
 void opSetHighlightColor(Program* program);
+void opSayReplyWindow(Program* program);
 void opSayReplyFlags(Program* program);
 void opSayOptionFlags(Program* program);
 void opSayBorder(Program* program);

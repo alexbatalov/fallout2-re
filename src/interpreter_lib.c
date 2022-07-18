@@ -1972,6 +1972,39 @@ void opSetHighlightColor(Program* program)
     }
 }
 
+// sayreplywindow
+// 0x465530
+void opSayReplyWindow(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    char* v1;
+    if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v1 = programGetString(program, opcode[0], data[0]);
+        v1 = _interpretMangleName(v1);
+        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1510
+    } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0) {
+        v1 = NULL;
+    } else {
+        programFatalError("Invalid arg 5 given to sayreplywindow");
+    }
+
+    if (dialogSetReplyWindow(data[4], data[3], data[2], data[1], v1) != 0) {
+        programFatalError("Error setting reply window");
+    }
+}
+
 // sayreplyflags
 // 0x465688
 void opSayReplyFlags(Program* program)
