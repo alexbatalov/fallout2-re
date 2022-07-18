@@ -86,6 +86,9 @@ void (*_selectWindowFunc)(int, ManagedWindow*);
 // 0x672D7C
 int _xres;
 
+// 0x672D80
+DisplayInWindowCallback* gDisplayInWindowCallback;
+
 // 0x672D84
 WindowDeleteCallback* gWindowDeleteCallback;
 
@@ -612,6 +615,46 @@ bool _windowPrint(char* string, int a2, int x, int y, int a5)
     windowDrawText(managedWindow->window, string, a2, x, y, a5);
 
     return true;
+}
+
+// 0x4B8B10
+void _displayInWindow(unsigned char* data, int width, int height, int pitch)
+{
+    if (gDisplayInWindowCallback != NULL) {
+        // NOTE: The second parameter is unclear as there is no distinction
+        // between address of entire window struct and it's name (since it's the
+        // first field). I bet on name since it matches WindowDeleteCallback,
+        // which accepts window index and window name as seen at 0x4B7927).
+        gDisplayInWindowCallback(gCurrentManagedWindowIndex,
+            gManagedWindows[gCurrentManagedWindowIndex].name,
+            data,
+            width,
+            height);
+    }
+
+    if (width == pitch) {
+        // NOTE: Uninline.
+        if (pitch == _windowWidth() && height == _windowHeight()) {
+            // NOTE: Uninline.
+            unsigned char* windowBuffer = _windowGetBuffer();
+            memcpy(windowBuffer, data, height * width);
+        } else {
+            // NOTE: Uninline.
+            unsigned char* windowBuffer = _windowGetBuffer();
+            _drawScaledBuf(windowBuffer, _windowWidth(), _windowHeight(), data, width, height);
+        }
+    } else {
+        // NOTE: Uninline.
+        unsigned char* windowBuffer = _windowGetBuffer();
+        _drawScaled(windowBuffer,
+            _windowWidth(),
+            _windowHeight(),
+            _windowWidth(),
+            data,
+            width,
+            height,
+            pitch);
+    }
 }
 
 // 0x4B99C8
@@ -1358,6 +1401,18 @@ bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5)
 void _windowStopMovie()
 {
     _movieStop();
+}
+
+// 0x4BB3A8
+void _drawScaled(unsigned char* dest, int destWidth, int destHeight, int destPitch, unsigned char* src, int srcWidth, int srcHeight, int srcPitch)
+{
+    // TODO: Incomplete.
+}
+
+// 0x4BB5D0
+void _drawScaledBuf(unsigned char* dest, int destWidth, int destHeight, unsigned char* src, int srcWidth, int srcHeight)
+{
+    // TODO: Incomplete.
 }
 
 // 0x4BBFC4

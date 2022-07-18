@@ -13,6 +13,7 @@ typedef void (*WINDOWDRAWINGPROC)(unsigned char* src, int src_pitch, int a3, int
 typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, unsigned char a10);
 typedef bool (WindowInputHandler)(int key);
 typedef void (WindowDeleteCallback)(int windowIndex, const char* windowName);
+typedef void (DisplayInWindowCallback)(int windowIndex, const char* windowName, unsigned char* data, int width, int height);
 
 typedef enum TextAlignment {
     TEXT_ALIGNMENT_LEFT,
@@ -82,6 +83,7 @@ extern ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 
 extern void(*_selectWindowFunc)(int, ManagedWindow*);
 extern int _xres;
+extern DisplayInWindowCallback* gDisplayInWindowCallback;
 extern WindowDeleteCallback* gWindowDeleteCallback;
 extern int _yres;
 extern int _currentHighlightColorR;
@@ -118,6 +120,7 @@ void _windowWrapLine(int win, char* string, int width, int height, int x, int y,
 bool _windowPrintRect(char* string, int a2, int textAlignment);
 bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment);
 bool _windowPrint(char* string, int a2, int x, int y, int a5);
+void _displayInWindow(unsigned char* data, int width, int height, int pitch);
 bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags);
 void sub_4B8C68(const char* fileName);
 void sub_4B8CA8(const char* fileName);
@@ -152,6 +155,8 @@ bool _windowSetMovieFlags(int flags);
 bool _windowPlayMovie(char* filePath);
 bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5);
 void _windowStopMovie();
+void _drawScaled(unsigned char* dest, int destWidth, int destHeight, int destPitch, unsigned char* src, int srcWidth, int srcHeight, int srcPitch);
+void _drawScaledBuf(unsigned char* dest, int destWidth, int destHeight, unsigned char* src, int srcWidth, int srcHeight);
 void sub_4BBFC4(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight);
 
 #endif /* WINDOW_H */
