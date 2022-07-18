@@ -85,7 +85,7 @@ int _obj_new_sid(Object* object, int* sidPtr)
     }
 
     if (scriptType == SCRIPT_TYPE_SPATIAL) {
-        script->sp.built_tile = object->tile | ((object->elevation << 29) & 0xE0000000);
+        script->sp.built_tile = builtTileCreate(object->tile, object->elevation);
         script->sp.radius = 3;
     }
 
@@ -120,7 +120,7 @@ int _obj_new_sid_inst(Object* obj, int scriptType, int a3)
 
     script->field_14 = a3;
     if (scriptType == SCRIPT_TYPE_SPATIAL) {
-        script->sp.built_tile = ((obj->elevation << 29) & 0xE0000000) | obj->tile;
+        script->sp.built_tile = builtTileCreate(obj->tile, obj->elevation);
         script->sp.radius = 3;
     }
 
@@ -1476,21 +1476,21 @@ int _obj_use(Object* a1, Object* a2)
 // 0x49C900
 int useLadderDown(Object* a1, Object* ladder, int a3)
 {
-    int builtTile = ladder->data.scenery.ladder.field_4;
+    int builtTile = ladder->data.scenery.ladder.destinationBuiltTile;
     if (builtTile == -1) {
         return -1;
     }
 
-    int tile = builtTile & 0x3FFFFFF;
-    int elevation = (builtTile & 0xE0000000) >> 29;
-    if (ladder->data.scenery.ladder.field_0 != 0) {
+    int tile = builtTileGetTile(builtTile);
+    int elevation = builtTileGetElevation(builtTile);
+    if (ladder->data.scenery.ladder.destinationMap != 0) {
         MapTransition transition;
         memset(&transition, 0, sizeof(transition));
 
-        transition.map = ladder->data.scenery.ladder.field_0;
+        transition.map = ladder->data.scenery.ladder.destinationMap;
         transition.elevation = elevation;
         transition.tile = tile;
-        transition.rotation = (builtTile & 0x1C000000) >> 26;
+        transition.rotation = builtTileGetRotation(builtTile);
 
         mapSetTransition(&transition);
 
@@ -1510,21 +1510,21 @@ int useLadderDown(Object* a1, Object* ladder, int a3)
 // 0x49C9A4
 int useLadderUp(Object* a1, Object* ladder, int a3)
 {
-    int builtTile = ladder->data.scenery.ladder.field_4;
+    int builtTile = ladder->data.scenery.ladder.destinationBuiltTile;
     if (builtTile == -1) {
         return -1;
     }
 
-    int tile = builtTile & 0x3FFFFFF;
-    int elevation = (builtTile & 0xE0000000) >> 29;
-    if (ladder->data.scenery.ladder.field_0 != 0) {
+    int tile = builtTileGetTile(builtTile);
+    int elevation = builtTileGetElevation(builtTile);
+    if (ladder->data.scenery.ladder.destinationMap != 0) {
         MapTransition transition;
         memset(&transition, 0, sizeof(transition));
 
-        transition.map = ladder->data.scenery.ladder.field_0;
+        transition.map = ladder->data.scenery.ladder.destinationMap;
         transition.elevation = elevation;
         transition.tile = tile;
-        transition.rotation = (builtTile & 0x1C000000) >> 26;
+        transition.rotation = builtTileGetRotation(builtTile);
 
         mapSetTransition(&transition);
 
@@ -1544,21 +1544,21 @@ int useLadderUp(Object* a1, Object* ladder, int a3)
 // 0x49CA48
 int useStairs(Object* a1, Object* stairs, int a3)
 {
-    int builtTile = stairs->data.scenery.stairs.field_4;
+    int builtTile = stairs->data.scenery.stairs.destinationBuiltTile;
     if (builtTile == -1) {
         return -1;
     }
 
-    int tile = builtTile & 0x3FFFFFF;
-    int elevation = (builtTile & 0xE0000000) >> 29;
-    if (stairs->data.scenery.stairs.field_0 > 0) {
+    int tile = builtTileGetTile(builtTile);
+    int elevation = builtTileGetElevation(builtTile);
+    if (stairs->data.scenery.stairs.destinationMap > 0) {
         MapTransition transition;
         memset(&transition, 0, sizeof(transition));
 
-        transition.map = stairs->data.scenery.stairs.field_0;
+        transition.map = stairs->data.scenery.stairs.destinationMap;
         transition.elevation = elevation;
         transition.tile = tile;
-        transition.rotation = (builtTile & 0x1C000000) >> 26;
+        transition.rotation = builtTileGetRotation(builtTile);
 
         mapSetTransition(&transition);
 

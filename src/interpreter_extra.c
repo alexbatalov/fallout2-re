@@ -931,7 +931,7 @@ void opCreateObject(Program* program)
         script->field_14 = sid - 1;
 
         if (scriptType == SCRIPT_TYPE_SPATIAL) {
-            script->sp.built_tile = ((object->elevation << 29) & 0xE0000000) | object->tile;
+            script->sp.built_tile = builtTileCreate(object->tile, object->elevation);
             script->sp.radius = 3;
         }
 

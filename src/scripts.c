@@ -548,7 +548,7 @@ Object* scriptGetSelf(Program* program)
         Script* spatialScript = scriptGetFirstSpatialScript(elevation);
         while (spatialScript != NULL) {
             if (spatialScript == script) {
-                objectSetLocation(object, script->sp.built_tile & 0x3FFFFFF, elevation, NULL);
+                objectSetLocation(object, builtTileGetTile(script->sp.built_tile), elevation, NULL);
                 return object;
             }
             spatialScript = scriptGetNextSpatialScript();
@@ -2350,7 +2350,7 @@ Script* scriptGetFirstSpatialScript(int elevation)
     }
 
     Script* script = &(gScriptsEnumerationScriptListExtent->scripts[0]);
-    if ((script->flags & SCRIPT_FLAG_0x02) != 0 || ((script->sp.built_tile & 0xE0000000) >> 29) != elevation) {
+    if ((script->flags & SCRIPT_FLAG_0x02) != 0 || builtTileGetElevation(script->sp.built_tile) != elevation) {
         script = scriptGetNextSpatialScript();
     }
 
@@ -2382,7 +2382,7 @@ Script* scriptGetNextSpatialScript()
         }
 
         Script* script = &(scriptListExtent->scripts[scriptIndex]);
-        if ((script->flags & SCRIPT_FLAG_0x02) == 0 && ((script->sp.built_tile & 0xE0000000) >> 29) == gScriptsEnumerationElevation) {
+        if ((script->flags & SCRIPT_FLAG_0x02) == 0 && builtTileGetElevation(script->sp.built_tile) == gScriptsEnumerationElevation) {
             break;
         }
     }
@@ -2437,7 +2437,7 @@ bool scriptsExecSpatialProc(Object* object, int tile, int elevation)
 
     _scr_SpatialsEnabled = false;
 
-    int builtTile = ((elevation << 29) & 0xE0000000) | tile;
+    int builtTile = builtTileCreate(tile, elevation);
 
     for (Script* script = scriptGetFirstSpatialScript(elevation); script != NULL; script = scriptGetNextSpatialScript()) {
         if (builtTile == script->sp.built_tile) {
@@ -2448,7 +2448,7 @@ bool scriptsExecSpatialProc(Object* object, int tile, int elevation)
                 continue;
             }
 
-            int distance = tileDistanceBetween(script->sp.built_tile & 0x3FFFFFF, tile);
+            int distance = tileDistanceBetween(builtTileGetTile(script->sp.built_tile), tile);
             if (distance > script->sp.radius) {
                 continue;
             }
@@ -2810,8 +2810,8 @@ int _scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
             }
 
             if (script->procs[SCRIPT_PROC_DAMAGE] > 0
-                && (script->sp.built_tile & 0xE0000000) >> 29 == elevation
-                && tileDistanceBetween(script->sp.built_tile & 0x3FFFFFF, tile) <= radius) {
+                && builtTileGetElevation(script->sp.built_tile) == elevation
+                && tileDistanceBetween(builtTileGetTile(script->sp.built_tile), tile) <= radius) {
                 scriptIds[scriptsCount] = script->sid;
                 scriptsCount += 1;
             }

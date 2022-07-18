@@ -199,8 +199,8 @@ typedef struct DoorSceneryData {
 } DoorSceneryData;
 
 typedef struct StairsSceneryData {
-    int field_0; // obj_pudg.pudstairs.destMap
-    int field_4; // obj_pudg.pudstairs.destBuiltTile
+    int destinationMap; // obj_pudg.pudstairs.destMap
+    int destinationBuiltTile; // obj_pudg.pudstairs.destBuiltTile
 } StairsSceneryData;
 
 typedef struct ElevatorSceneryData {
@@ -209,8 +209,8 @@ typedef struct ElevatorSceneryData {
 } ElevatorSceneryData;
 
 typedef struct LadderSceneryData {
-    int field_0;
-    int field_4;
+    int destinationMap;
+    int destinationBuiltTile;
 } LadderSceneryData;
 
 typedef union SceneryObjectData {
@@ -276,5 +276,31 @@ typedef struct ObjectListNode {
     Object* obj;
     struct ObjectListNode* next;
 } ObjectListNode;
+
+#define BUILT_TILE_TILE_MASK 0x3FFFFFF
+#define BUILT_TILE_ELEVATION_MASK 0xE0000000
+#define BUILT_TILE_ELEVATION_SHIFT 29
+#define BUILT_TILE_ROTATION_MASK 0x1C000000
+#define BUILT_TILE_ROTATION_SHIFT 26
+
+static inline int builtTileGetTile(int builtTile)
+{
+    return builtTile & BUILT_TILE_TILE_MASK;
+}
+
+static inline int builtTileGetElevation(int builtTile)
+{
+    return (builtTile & BUILT_TILE_ELEVATION_MASK) >> BUILT_TILE_ELEVATION_SHIFT;
+}
+
+static inline int builtTileGetRotation(int builtTile)
+{
+    return (builtTile & BUILT_TILE_ROTATION_MASK) >> BUILT_TILE_ROTATION_SHIFT;
+}
+
+static inline int builtTileCreate(int tile, int elevation)
+{
+    return tile | ((elevation << BUILT_TILE_ELEVATION_SHIFT) & BUILT_TILE_ELEVATION_MASK);
+}
 
 #endif /* OBJ_TYPES_H */
