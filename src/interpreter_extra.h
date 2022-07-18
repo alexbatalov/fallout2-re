@@ -316,6 +316,7 @@ void opGetObjectName(Program* program);
 void opGetPcStat(Program* program);
 void _intExtraClose_();
 void _initIntExtra();
-void _intExtraRemoveProgramReferences_();
+void intExtraUpdate();
+void intExtraRemoveProgramReferences(Program* program);
 
 #endif /* INTERPRETER_EXTRA_H */

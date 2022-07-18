@@ -6868,7 +6868,16 @@ void _initIntExtra()
     interpreterRegisterOpcode(0x8155, opCritterStopAttacking); // op_critter_stop_attacking
 }
 
+// NOTE: Uncollapsed 0x45D878.
+//
 // 0x45D878
-void _intExtraRemoveProgramReferences_()
+void intExtraUpdate()
+{
+}
+
+// NOTE: Uncollapsed 0x45D878.
+//
+// 0x45D878
+void intExtraRemoveProgramReferences(Program* program)
 {
 }

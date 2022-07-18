@@ -612,7 +612,7 @@ void _initWindow(int resolution, int a2)
     int rc;
     int i, j;
 
-    _interpretRegisterProgramDeleteCallback(_removeProgramReferences_3);
+    intLibRegisterProgramDeleteCallback(_removeProgramReferences_3);
 
     _currentTextColorR = 0;
     _currentTextColorG = 0;

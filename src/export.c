@@ -240,7 +240,7 @@ void _removeProgramReferences(Program* program)
 // 0x44152C
 void _initExport()
 {
-    _interpretRegisterProgramDeleteCallback(_removeProgramReferences);
+    intLibRegisterProgramDeleteCallback(_removeProgramReferences);
 }
 
 // 0x441538

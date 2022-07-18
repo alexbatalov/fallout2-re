@@ -354,7 +354,7 @@ void _detachProgram(Program* program)
 void _purgeProgram(Program* program)
 {
     if (!program->exited) {
-        _removeProgramReferences_(program);
+        intLibRemoveProgramReferences(program);
         program->exited = true;
     }
 }
@@ -2731,7 +2731,7 @@ void opExit(Program* program)
     }
 
     if (!program->exited) {
-        _removeProgramReferences_(program);
+        intLibRemoveProgramReferences(program);
         program->exited = true;
     }
 }
@@ -3065,7 +3065,7 @@ void interpreterRegisterOpcodeHandlers()
     interpreterRegisterOpcode(OPCODE_START_CRITICAL, opEnterCriticalSection);
     interpreterRegisterOpcode(OPCODE_END_CRITICAL, opLeaveCriticalSection);
 
-    _initIntlib();
+    intLibInit();
     _initExport();
 }
 
@@ -3073,7 +3073,7 @@ void interpreterRegisterOpcodeHandlers()
 void _interpretClose()
 {
     externalVariablesClear();
-    _intlibClose();
+    intLibExit();
 }
 
 // 0x46CCA4
@@ -3440,7 +3440,7 @@ void _updatePrograms()
         curr = next;
     }
     _doEvents();
-    _updateIntLib();
+    intLibUpdate();
 }
 
 // 0x46E238

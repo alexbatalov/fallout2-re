@@ -15,39 +15,37 @@
 #include "window_manager_private.h"
 
 // 0x59D5D0
-Sound* gInterpreterSounds[INTERPRETER_SOUNDS_LENGTH];
+Sound* gIntLibSounds[INT_LIB_SOUNDS_CAPACITY];
 
 // 0x59D650
-unsigned char stru_59D650[256 * 3];
+unsigned char gIntLibFadePalette[256 * 3];
 
 // 0x59D950
-InterpreterKeyHandlerEntry gInterpreterKeyHandlerEntries[INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH];
+IntLibKeyHandlerEntry gIntLibKeyHandlerEntries[INT_LIB_KEY_HANDLERS_CAPACITY];
 
 // 0x59E150
-int dword_59E150;
+bool gIntLibIsPaletteFaded;
 
 // 0x59E154
-int gIntepreterAnyKeyHandlerProc;
+int gIntLibGenericKeyHandlerProc;
 
-// Number of entries in _callbacks.
-//
 // 0x59E158
-int _numCallbacks;
+int gIntLibProgramDeleteCallbacksLength;
 
 // 0x59E15C
-Program* gInterpreterAnyKeyHandlerProgram;
+Program* gIntLibGenericKeyHandlerProgram;
 
 // 0x59E160
-OFF_59E160* _callbacks;
+IntLibProgramDeleteCallback** gIntLibProgramDeleteCallbacks;
 
 // 0x59E164
-int _sayStartingPosition;
+int gIntLibSayStartingPosition;
 
 // 0x59E168
-char byte_59E168[100];
+char gIntLibPlayMovieFileName[100];
 
 // 0x59E1CC
-char byte_59E1CC[100];
+char gIntLibPlayMovieRectFileName[100];
 
 // fillwin3x3
 // 0x461780
@@ -464,10 +462,10 @@ void opFadeIn(Program* program)
 
     program->flags |= PROGRAM_FLAG_0x20;
 
-    _setSystemPalette(stru_59D650);
+    _setSystemPalette(gIntLibFadePalette);
 
-    sub_46222C(stru_59D650, _cmap, 64, (float)data, 1);
-    dword_59E150 = 1;
+    sub_46222C(gIntLibFadePalette, _cmap, 64, (float)data, 1);
+    gIntLibIsPaletteFaded = true;
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
@@ -493,19 +491,19 @@ void opFadeOut(Program* program)
     bool cursorWasHidden = cursorIsHidden();
     mouseHideCursor();
 
-    sub_46222C(_getSystemPalette(), stru_59D650, 64, (float)data, 1);
+    sub_46222C(_getSystemPalette(), gIntLibFadePalette, 64, (float)data, 1);
 
     if (!cursorWasHidden) {
         mouseShowCursor();
     }
 
-    dword_59E150 = 0;
+    gIntLibIsPaletteFaded = false;
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
 // 0x462570
-int _checkMovie(Program* program)
+int intLibCheckMovie(Program* program)
 {
     if (_dialogGetDialogDepth() > 0) {
         return 1;
@@ -545,18 +543,18 @@ void opPlayMovie(Program* program)
         programFatalError("Invalid type given to playmovie");
     }
 
-    strcpy(byte_59E168, programGetString(program, opcode, data));
+    strcpy(gIntLibPlayMovieFileName, programGetString(program, opcode, data));
 
-    if (strrchr(byte_59E168, '.') == NULL) {
-        strcat(byte_59E168, ".mve");
+    if (strrchr(gIntLibPlayMovieFileName, '.') == NULL) {
+        strcat(gIntLibPlayMovieFileName, ".mve");
     }
 
     _selectWindowID(program->windowId);
 
     program->flags |= PROGRAM_FLAG_0x10;
-    program->field_7C = _checkMovie;
+    program->field_7C = intLibCheckMovie;
 
-    char* mangledFileName = _interpretMangleName(byte_59E168);
+    char* mangledFileName = _interpretMangleName(gIntLibPlayMovieFileName);
     if (!_windowPlayMovie(mangledFileName)) {
         programFatalError("Error playing movie");
     }
@@ -584,18 +582,18 @@ void opPlayMovieRect(Program* program)
         programFatalError("Invalid arg given to playmovie");
     }
 
-    strcpy(byte_59E1CC, programGetString(program, opcode[4], data[4]));
+    strcpy(gIntLibPlayMovieRectFileName, programGetString(program, opcode[4], data[4]));
 
-    if (strrchr(byte_59E1CC, '.') == NULL) {
-        strcat(byte_59E1CC, ".mve");
+    if (strrchr(gIntLibPlayMovieRectFileName, '.') == NULL) {
+        strcat(gIntLibPlayMovieRectFileName, ".mve");
     }
 
     _selectWindowID(program->windowId);
 
-    program->field_7C = _checkMovie;
+    program->field_7C = intLibCheckMovie;
     program->flags |= PROGRAM_FLAG_0x10;
 
-    char* mangledFileName = _interpretMangleName(byte_59E1CC);
+    char* mangledFileName = _interpretMangleName(gIntLibPlayMovieRectFileName);
     if (!_windowPlayMovieRect(mangledFileName, data[3], data[2], data[1], data[0])) {
         programFatalError("Error playing movie");
     }
@@ -950,7 +948,7 @@ void opDeleteWin(Program* program)
 // 0x4633E4
 void opSayStart(Program* program)
 {
-    _sayStartingPosition = 0;
+    gIntLibSayStartingPosition = 0;
 
     program->flags |= PROGRAM_FLAG_0x20;
     int rc = _dialogStart(program);
@@ -972,7 +970,7 @@ void opSayStartPos(Program* program)
         programPopString(program, opcode, data);
     }
 
-    _sayStartingPosition = data;
+    gIntLibSayStartingPosition = data;
 
     program->flags |= PROGRAM_FLAG_0x20;
     int rc = _dialogStart(program);
@@ -1110,7 +1108,7 @@ void opSayOption(Program* program)
 }
 
 // 0x46378C
-int _checkDialog(Program* program)
+int intLibCheckDialog(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x40;
     return _dialogGetDialogDepth() != -1;
@@ -1120,11 +1118,11 @@ int _checkDialog(Program* program)
 void opSayEnd(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
-    int rc = sub_431088(_sayStartingPosition);
+    int rc = sub_431088(gIntLibSayStartingPosition);
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc == -2) {
-        program->field_7C = _checkDialog;
+        program->field_7C = intLibCheckDialog;
         program->flags |= PROGRAM_FLAG_0x10;
     }
 }
@@ -1910,15 +1908,15 @@ void opAddKey(Program* program)
     int proc = data[0];
 
     if (key == -1) {
-        gIntepreterAnyKeyHandlerProc = proc;
-        gInterpreterAnyKeyHandlerProgram = program;
+        gIntLibGenericKeyHandlerProc = proc;
+        gIntLibGenericKeyHandlerProgram = program;
     } else {
-        if (key > INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH - 1) {
+        if (key > INT_LIB_KEY_HANDLERS_CAPACITY - 1) {
             programFatalError("Key out of range");
         }
 
-        gInterpreterKeyHandlerEntries[key].program = program;
-        gInterpreterKeyHandlerEntries[key].proc = proc;
+        gIntLibKeyHandlerEntries[key].program = program;
+        gIntLibKeyHandlerEntries[key].proc = proc;
     }
 }
 
@@ -1940,15 +1938,15 @@ void opDeleteKey(Program* program)
     int key = data;
 
     if (key == -1) {
-        gIntepreterAnyKeyHandlerProc = 0;
-        gInterpreterAnyKeyHandlerProgram = NULL;
+        gIntLibGenericKeyHandlerProc = 0;
+        gIntLibGenericKeyHandlerProgram = NULL;
     } else {
-        if (key > INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH - 1) {
+        if (key > INT_LIB_KEY_HANDLERS_CAPACITY - 1) {
             programFatalError("Key out of range");
         }
 
-        gInterpreterKeyHandlerEntries[key].program = NULL;
-        gInterpreterKeyHandlerEntries[key].proc = 0;
+        gIntLibKeyHandlerEntries[key].program = NULL;
+        gIntLibKeyHandlerEntries[key].proc = 0;
     }
 }
 
@@ -2472,7 +2470,7 @@ void opSayRestart(Program* program)
 }
 
 // 0x466064
-void interpreterSoundCallback(void* userData, int a2)
+void intLibSoundCallback(void* userData, int a2)
 {
     if (a2 == 1) {
         Sound** sound = (Sound**)userData;
@@ -2481,7 +2479,7 @@ void interpreterSoundCallback(void* userData, int a2)
 }
 
 // 0x466070
-int interpreterSoundDelete(int value)
+int intLibSoundDelete(int value)
 {
     if (value == -1) {
         return 1;
@@ -2492,7 +2490,7 @@ int interpreterSoundDelete(int value)
     }
 
     int index = value & ~0xA0000000;
-    Sound* sound = gInterpreterSounds[index];
+    Sound* sound = gIntLibSounds[index];
     if (sound == NULL) {
         return 0;
     }
@@ -2503,13 +2501,13 @@ int interpreterSoundDelete(int value)
 
     soundDelete(sound);
 
-    gInterpreterSounds[index] = NULL;
+    gIntLibSounds[index] = NULL;
 
     return 1;
 }
 
 // 0x466110
-int interpreterSoundPlay(char* fileName, int mode)
+int intLibSoundPlay(char* fileName, int mode)
 {
     int v3 = 1;
     int v5 = 0;
@@ -2540,22 +2538,22 @@ int interpreterSoundPlay(char* fileName, int mode)
     }
 
     int index;
-    for (index = 0; index < INTERPRETER_SOUNDS_LENGTH; index++) {
-        if (gInterpreterSounds[index] == NULL) {
+    for (index = 0; index < INT_LIB_SOUNDS_CAPACITY; index++) {
+        if (gIntLibSounds[index] == NULL) {
             break;
         }
     }
 
-    if (index == INTERPRETER_SOUNDS_LENGTH) {
+    if (index == INT_LIB_SOUNDS_CAPACITY) {
         return -1;
     }
 
-    Sound* sound = gInterpreterSounds[index] = soundAllocate(v3, v5);
+    Sound* sound = gIntLibSounds[index] = soundAllocate(v3, v5);
     if (sound == NULL) {
         return -1;
     }
 
-    soundSetCallback(sound, interpreterSoundCallback, &(gInterpreterSounds[index]));
+    soundSetCallback(sound, intLibSoundCallback, &(gIntLibSounds[index]));
 
     if (mode & 0x01) {
         soundSetLooping(sound, 0xFFFF);
@@ -2626,12 +2624,12 @@ int interpreterSoundPlay(char* fileName, int mode)
 err:
 
     soundDelete(sound);
-    gInterpreterSounds[index] = NULL;
+    gIntLibSounds[index] = NULL;
     return -1;
 }
 
 // 0x46655C
-int interpreterSoundPause(int value)
+int intLibSoundPause(int value)
 {
     if (value == -1) {
         return 1;
@@ -2642,7 +2640,7 @@ int interpreterSoundPause(int value)
     }
 
     int index = value & ~0xA0000000;
-    Sound* sound = gInterpreterSounds[index];
+    Sound* sound = gIntLibSounds[index];
     if (sound == NULL) {
         return 0;
     }
@@ -2657,7 +2655,7 @@ int interpreterSoundPause(int value)
 }
 
 // 0x4665C8
-int interpreterSoundRewind(int value)
+int intLibSoundRewind(int value)
 {
     if (value == -1) {
         return 1;
@@ -2668,7 +2666,7 @@ int interpreterSoundRewind(int value)
     }
 
     int index = value & ~0xA0000000;
-    Sound* sound = gInterpreterSounds[index];
+    Sound* sound = gIntLibSounds[index];
     if (sound == NULL) {
         return 0;
     }
@@ -2683,7 +2681,7 @@ int interpreterSoundRewind(int value)
 }
 
 // 0x46662C
-int interpreterSoundResume(int value)
+int intLibSoundResume(int value)
 {
     if (value == -1) {
         return 1;
@@ -2694,7 +2692,7 @@ int interpreterSoundResume(int value)
     }
 
     int index = value & ~0xA0000000;
-    Sound* sound = gInterpreterSounds[index];
+    Sound* sound = gIntLibSounds[index];
     if (sound == NULL) {
         return 0;
     }
@@ -2735,7 +2733,7 @@ void opSoundPlay(Program* program)
 
     char* fileName = programGetString(program, opcode[1], data[1]);
     char* mangledFileName = _interpretMangleName(fileName);
-    int rc = interpreterSoundPlay(mangledFileName, data[0]);
+    int rc = intLibSoundPlay(mangledFileName, data[0]);
 
     programStackPushInt32(program, rc);
     programStackPushInt16(program, VALUE_TYPE_INT);
@@ -2756,7 +2754,7 @@ void opSoundPause(Program* program)
         programFatalError("Invalid arg 1 given to soundpause");
     }
 
-    interpreterSoundPause(data);
+    intLibSoundPause(data);
 }
 
 // soundresume
@@ -2774,7 +2772,7 @@ void opSoundResume(Program* program)
         programFatalError("Invalid arg 1 given to soundresume");
     }
 
-    interpreterSoundResume(data);
+    intLibSoundResume(data);
 }
 
 // soundstop
@@ -2792,7 +2790,7 @@ void opSoundStop(Program* program)
         programFatalError("Invalid arg 1 given to soundstop");
     }
 
-    interpreterSoundPause(data);
+    intLibSoundPause(data);
 }
 
 // soundrewind
@@ -2810,7 +2808,7 @@ void opSoundRewind(Program* program)
         programFatalError("Invalid arg 1 given to soundrewind");
     }
 
-    interpreterSoundRewind(data);
+    intLibSoundRewind(data);
 }
 
 // sounddelete
@@ -2828,7 +2826,7 @@ void opSoundDelete(Program* program)
         programFatalError("Invalid arg 1 given to sounddelete");
     }
 
-    interpreterSoundDelete(data);
+    intLibSoundDelete(data);
 }
 
 // SetOneOptPause
@@ -2860,48 +2858,48 @@ void opSetOneOptPause(Program* program)
 }
 
 // 0x466994
-void _updateIntLib()
+void intLibUpdate()
 {
     _nevs_update();
-    _intExtraRemoveProgramReferences_();
+    intExtraUpdate();
 }
 
 // 0x4669A0
-void _intlibClose()
+void intLibExit()
 {
     _dialogClose();
     _intExtraClose_();
 
-    for (int index = 0; index < INTERPRETER_SOUNDS_LENGTH; index++) {
-        if (gInterpreterSounds[index] != NULL) {
-            interpreterSoundDelete(index | 0xA0000000);
+    for (int index = 0; index < INT_LIB_SOUNDS_CAPACITY; index++) {
+        if (gIntLibSounds[index] != NULL) {
+            intLibSoundDelete(index | 0xA0000000);
         }
     }
 
     _nevs_close();
 
-    if (_callbacks != NULL) {
-        internal_free_safe(_callbacks, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
-        _callbacks = NULL;
-        _numCallbacks = 0;
+    if (gIntLibProgramDeleteCallbacks != NULL) {
+        internal_free_safe(gIntLibProgramDeleteCallbacks, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
+        gIntLibProgramDeleteCallbacks = NULL;
+        gIntLibProgramDeleteCallbacksLength = 0;
     }
 }
 
 // 0x466A04
-bool _intLibDoInput(int key)
+bool intLibDoInput(int key)
 {
-    if (key < 0 || key >= INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH) {
+    if (key < 0 || key >= INT_LIB_KEY_HANDLERS_CAPACITY) {
         return false;
     }
 
-    if (gInterpreterAnyKeyHandlerProgram != NULL) {
-        if (gIntepreterAnyKeyHandlerProc != 0) {
-            _executeProc(gInterpreterAnyKeyHandlerProgram, gIntepreterAnyKeyHandlerProc);
+    if (gIntLibGenericKeyHandlerProgram != NULL) {
+        if (gIntLibGenericKeyHandlerProc != 0) {
+            _executeProc(gIntLibGenericKeyHandlerProgram, gIntLibGenericKeyHandlerProc);
         }
         return true;
     }
 
-    InterpreterKeyHandlerEntry* entry = &(gInterpreterKeyHandlerEntries[key]);
+    IntLibKeyHandlerEntry* entry = &(gIntLibKeyHandlerEntries[key]);
     if (entry->program == NULL) {
         return false;
     }
@@ -2914,9 +2912,9 @@ bool _intLibDoInput(int key)
 }
 
 // 0x466A70
-void _initIntlib()
+void intLibInit()
 {
-    sub_4B6C48(_intLibDoInput);
+    sub_4B6C48(intLibDoInput);
 
     interpreterRegisterOpcode(0x806A, opFillWin3x3);
     interpreterRegisterOpcode(0x808C, opDeleteButton);
@@ -3008,42 +3006,42 @@ void _initIntlib()
 }
 
 // 0x466F6C
-void _interpretRegisterProgramDeleteCallback(OFF_59E160 fn)
+void intLibRegisterProgramDeleteCallback(IntLibProgramDeleteCallback* callback)
 {
     int index;
-    for (index = 0; index < _numCallbacks; index++) {
-        if (_callbacks[index] == NULL) {
+    for (index = 0; index < gIntLibProgramDeleteCallbacksLength; index++) {
+        if (gIntLibProgramDeleteCallbacks[index] == NULL) {
             break;
         }
     }
 
-    if (index == _numCallbacks) {
-        if (_callbacks != NULL) {
-            _callbacks = (OFF_59E160*)internal_realloc_safe(_callbacks, sizeof(*_callbacks) * (_numCallbacks + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
+    if (index == gIntLibProgramDeleteCallbacksLength) {
+        if (gIntLibProgramDeleteCallbacks != NULL) {
+            gIntLibProgramDeleteCallbacks = (IntLibProgramDeleteCallback**)internal_realloc_safe(gIntLibProgramDeleteCallbacks, sizeof(*gIntLibProgramDeleteCallbacks) * (gIntLibProgramDeleteCallbacksLength + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
         } else {
-            _callbacks = (OFF_59E160*)internal_malloc_safe(sizeof(*_callbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
+            gIntLibProgramDeleteCallbacks = (IntLibProgramDeleteCallback**)internal_malloc_safe(sizeof(*gIntLibProgramDeleteCallbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
         }
-        _numCallbacks++;
+        gIntLibProgramDeleteCallbacksLength++;
     }
 
-    _callbacks[index] = fn;
+    gIntLibProgramDeleteCallbacks[index] = callback;
 }
 
 // 0x467040
-void _removeProgramReferences_(Program* program)
+void intLibRemoveProgramReferences(Program* program)
 {
-    for (int index = 0; index < INTERPRETER_KEY_HANDLER_ENTRIES_LENGTH; index++) {
-        if (program == gInterpreterKeyHandlerEntries[index].program) {
-            gInterpreterKeyHandlerEntries[index].program = NULL;
+    for (int index = 0; index < INT_LIB_KEY_HANDLERS_CAPACITY; index++) {
+        if (program == gIntLibKeyHandlerEntries[index].program) {
+            gIntLibKeyHandlerEntries[index].program = NULL;
         }
     }
 
-    _intExtraRemoveProgramReferences_();
+    intExtraRemoveProgramReferences(program);
 
-    for (int index = 0; index < _numCallbacks; index++) {
-        OFF_59E160 fn = _callbacks[index];
-        if (fn != NULL) {
-            fn(program);
+    for (int index = 0; index < gIntLibProgramDeleteCallbacksLength; index++) {
+        IntLibProgramDeleteCallback* callback = gIntLibProgramDeleteCallbacks[index];
+        if (callback != NULL) {
+            callback(program);
         }
     }
 }
