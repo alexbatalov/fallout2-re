@@ -563,11 +563,11 @@ int objectDataWrite(Object* obj, File* stream)
                 break;
             case SCENERY_TYPE_LADDER_UP:
                 if (fileWriteInt32(stream, data->scenery.ladder.field_0) == -1) return -1;
-                if (fileWriteInt32(stream, data->scenery.elevator.level) == -1) return -1;
+                if (fileWriteInt32(stream, data->scenery.ladder.field_4) == -1) return -1;
                 break;
             case SCENERY_TYPE_LADDER_DOWN:
                 if (fileWriteInt32(stream, data->scenery.ladder.field_0) == -1) return -1;
-                if (fileWriteInt32(stream, data->scenery.elevator.level) == -1) return -1;
+                if (fileWriteInt32(stream, data->scenery.ladder.field_4) == -1) return -1;
                 break;
             default:
                 break;
