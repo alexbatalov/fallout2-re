@@ -150,16 +150,16 @@ int dword_56DBD8;
 int dword_56DBDC;
 
 // 0x56DBE0
-void* off_56DBE0;
+char* off_56DBE0;
 
 // 0x56DBE4
-void* off_56DBE4;
+char* off_56DBE4;
 
 // 0x56DBE8
-void* off_56DBE8;
+char* off_56DBE8;
 
 // 0x56DBEC
-void* off_56DBEC;
+char* off_56DBEC;
 
 // 0x42F434
 STRUCT_56DAE0_FIELD_4* _getReply()
@@ -578,7 +578,7 @@ int dialogSetBorder(int a1, int a2)
 }
 
 // 0x431218
-int _dialogSetScrollUp(int a1, int a2, void* a3, void* a4, void* a5, void* a6, int a7)
+int _dialogSetScrollUp(int a1, int a2, char* a3, char* a4, char* a5, char* a6, int a7)
 {
     _upButton = a1;
     dword_56DBD8 = a2;

@@ -2106,6 +2106,85 @@ void opSayBorder(Program* program)
     }
 }
 
+// sayscrollup
+// 0x465978
+void opSayScrollUp(Program* program)
+{
+    opcode_t opcode[6];
+    int data[6];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 6; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    char* v1 = NULL;
+    char* v2 = NULL;
+    char* v3 = NULL;
+    char* v4 = NULL;
+    int v5 = 0;
+
+    if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
+        if (data[0] != -1 && data[0] != 0) {
+            programFatalError("Invalid arg 4 given to sayscrollup");
+        }
+
+        if (data[0] == -1) {
+            v5 = 1;
+        }
+    } else {
+        if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
+            programFatalError("Invalid arg 4 given to sayscrollup");
+        }
+    }
+    
+    if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[1] != 0) {
+        programFatalError("Invalid arg 3 given to sayscrollup");
+    }
+
+    if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[2] != 0) {
+        programFatalError("Invalid arg 2 given to sayscrollup");
+    }
+
+    if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[3] != 0) {
+        programFatalError("Invalid arg 1 given to sayscrollup");
+    }
+
+    
+    if ((opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v1 = programGetString(program, opcode[3], data[3]);
+        v1 = _interpretMangleName(v1);
+        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1611
+    }
+
+    if ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v2 = programGetString(program, opcode[2], data[2]);
+        v2 = _interpretMangleName(v2);
+        v2 = strdup_safe(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1613
+    }
+
+    if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v3 = programGetString(program, opcode[1], data[1]);
+        v3 = _interpretMangleName(v3);
+        v3 = strdup_safe(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1615
+    }
+
+    if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+        v4 = programGetString(program, opcode[0], data[0]);
+        v4 = _interpretMangleName(v4);
+        v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1617
+    }
+
+    if (_dialogSetScrollUp(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
+        programFatalError("Error setting scroll up");
+    }
+}
+
 // saysetspacing
 // 0x465FE0
 void opSaySetSpacing(Program* program)
