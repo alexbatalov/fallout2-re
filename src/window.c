@@ -547,6 +547,13 @@ void sub_4B8CA8(const char* fileName)
     // TODO: Incomplete.
 }
 
+// 0x4B8E50
+bool sub_4B8E50(const char* fileName, int a2, int a3, int a4, int a5)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4B9048
 int _windowGetXres()
 {

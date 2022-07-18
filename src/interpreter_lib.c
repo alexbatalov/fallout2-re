@@ -1615,6 +1615,28 @@ void opSetGlobalMouseFunc(Program* Program)
     programFatalError("setglobalmousefunc not defined");
 }
 
+// displaygfx
+// 0x4649D4
+void opDisplayGfx(Program* program)
+{
+    opcode_t opcode[5];
+    int data[5];
+
+    // NOTE: Original code does not use loop.
+    for (int arg = 0; arg < 5; arg++) {
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
+
+        if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
+            programPopString(program, opcode[arg], data[arg]);
+        }
+    }
+
+    char* fileName = programGetString(program, opcode[4], data[4]);
+    char* mangledFileName = _interpretMangleName(fileName);
+    sub_4B8E50(mangledFileName, data[3], data[2], data[1], data[0]);
+}
+
 // loadpalettetable
 // 0x464ADC
 void opLoadPaletteTable(Program* program)
