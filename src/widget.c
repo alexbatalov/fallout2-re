@@ -89,3 +89,9 @@ int widgetSetHighlightColor(float a1, float a2, float a3)
 
     return 1;
 }
+
+// 0x4B5998
+void sub_4B5998(int win)
+{
+    // TODO: Incomplete.
+}

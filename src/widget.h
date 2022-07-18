@@ -16,5 +16,6 @@ unsigned char widgetGetTextColor();
 unsigned char widgetGetHighlightColor();
 int widgetSetTextColor(float a1, float a2, float a3);
 int widgetSetHighlightColor(float a1, float a2, float a3);
+void sub_4B5998(int win);
 
 #endif /* WIDGET_H */

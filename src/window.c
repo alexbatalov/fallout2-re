@@ -86,6 +86,9 @@ void (*_selectWindowFunc)(int, ManagedWindow*);
 // 0x672D7C
 int _xres;
 
+// 0x672D84
+WindowDeleteCallback* gWindowDeleteCallback;
+
 // 0x672D88
 int _yres;
 
@@ -173,8 +176,64 @@ bool _windowDraw()
 // 0x4B78A4
 bool _deleteWindow(const char* windowName)
 {
-    // TODO: Incomplete.
-    return false;
+    int index;
+    for (index = 0; index < MANAGED_WINDOW_COUNT; index++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[index]);
+        if (stricmp(managedWindow->name, windowName) == 0) {
+            break;
+        }
+    }
+
+    if (index == MANAGED_WINDOW_COUNT) {
+        return false;
+    }
+
+    if (gWindowDeleteCallback != NULL) {
+        gWindowDeleteCallback(index, windowName);
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[index]);
+    sub_4B5998(managedWindow->window);
+    windowDestroy(managedWindow->window);
+    managedWindow->window = -1;
+    managedWindow->name[0] = '\0';
+
+    if (managedWindow->buttons != NULL) {
+        for (int index = 0; index < managedWindow->buttonsLength; index++) {
+            ManagedButton* button = &(managedWindow->buttons[index]);
+            if (button->field_48 != NULL) {
+                internal_free_safe(button->field_48, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 802
+            }
+
+            if (button->field_4C != NULL) {
+                internal_free_safe(button->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 804
+            }
+
+            if (button->field_40 != NULL) {
+                internal_free_safe(button->field_40, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 806
+            }
+
+            if (button->field_44 != NULL) {
+                internal_free_safe(button->field_44, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 808
+            }
+        }
+
+        internal_free_safe(managedWindow->buttons, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 810
+    }
+
+    if (managedWindow->regions != NULL) {
+        for (int index = 0; index < managedWindow->regionsLength; index++) {
+            Region* region = managedWindow->regions[index];
+            if (region != NULL) {
+                regionDelete(region);
+            }
+        }
+
+        internal_free_safe(managedWindow->regions, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 818
+        managedWindow->regions = NULL;
+    }
+
+    return true;
 }
 
 // 0x4B7AC4
