@@ -1767,7 +1767,7 @@ void opDisplayGfx(Program* program)
 
     char* fileName = programGetString(program, opcode[4], data[4]);
     char* mangledFileName = _interpretMangleName(fileName);
-    sub_4B8E50(mangledFileName, data[3], data[2], data[1], data[0]);
+    _windowDisplay(mangledFileName, data[3], data[2], data[1], data[0]);
 }
 
 // loadpalettetable

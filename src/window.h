@@ -118,7 +118,8 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
 bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags);
 void sub_4B8C68(const char* fileName);
 void sub_4B8CA8(const char* fileName);
-bool sub_4B8E50(const char* fileName, int a2, int a3, int a4, int a5);
+bool _windowDisplay(char* fileName, int x, int y, int width, int height);
+bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight);
 int _windowGetXres();
 int _windowGetYres();
 void _removeProgramReferences_3(Program* program);

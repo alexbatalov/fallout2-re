@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include "core.h"
+#include "datafile.h"
 #include "draw.h"
 #include "interpreter_lib.h"
 #include "memory_manager.h"
@@ -554,10 +555,36 @@ void sub_4B8CA8(const char* fileName)
 }
 
 // 0x4B8E50
-bool sub_4B8E50(const char* fileName, int a2, int a3, int a4, int a5)
+bool _windowDisplay(char* fileName, int x, int y, int width, int height)
 {
-    // TODO: Incomplete.
-    return false;
+    int imageWidth;
+    int imageHeight;
+    unsigned char* imageData = sub_42EFCC(fileName, &imageWidth, &imageHeight);
+    if (imageData == NULL) {
+        return false;
+    }
+
+    _windowDisplayBuf(imageData, imageWidth, imageHeight, x, y, width, height);
+
+    internal_free_safe(imageData, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1376
+
+    return true;
+}
+
+// 0x4B8EF0
+bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight)
+{
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    unsigned char* windowBuffer = windowGetBuffer(managedWindow->window);
+
+    blitBufferToBuffer(src,
+        destWidth,
+        destHeight,
+        srcWidth,
+        windowBuffer + managedWindow->width * destY + destX,
+        managedWindow->width);
+
+    return true;
 }
 
 // 0x4B9048
