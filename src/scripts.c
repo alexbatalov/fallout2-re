@@ -1089,8 +1089,8 @@ int scriptsRequestElevator(Object* a1, int a2)
         return -1;
     }
 
-    // TODO: What the hell is this?
-    tile -= 1005;
+    // In the following code we are looking for an elevator. 5 tiles in each direction
+    tile = tile - (HEX_GRID_WIDTH * 5)  - 5; // left upper corner
 
     Object* obj;
     for (int y = -5; y < 5; y++) {
@@ -1115,12 +1115,12 @@ int scriptsRequestElevator(Object* a1, int a2)
             break;
         }
 
-        tile += 190;
+        tile += HEX_GRID_WIDTH - 10;
     }
 
     if (obj != NULL) {
-        elevatorType = obj->data.scenery.elevator.field_0;
-        elevatorLevel = obj->data.scenery.elevator.field_4;
+        elevatorType = obj->data.scenery.elevator.type;
+        elevatorLevel = obj->data.scenery.elevator.level;
     }
 
     if (elevatorType == -1) {

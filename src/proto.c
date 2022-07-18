@@ -469,8 +469,8 @@ int objectDataRead(Object* obj, File* stream)
                 if (fileReadInt32(stream, &(obj->data.scenery.stairs.field_0)) == -1) return -1;
                 break;
             case SCENERY_TYPE_ELEVATOR:
-                if (fileReadInt32(stream, &(obj->data.scenery.elevator.field_0)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.scenery.elevator.field_4)) == -1) return -1;
+                if (fileReadInt32(stream, &(obj->data.scenery.elevator.type)) == -1) return -1;
+                if (fileReadInt32(stream, &(obj->data.scenery.elevator.level)) == -1) return -1;
                 break;
             case SCENERY_TYPE_LADDER_UP:
                 if (gMapHeader.version == 19) {
@@ -558,16 +558,16 @@ int objectDataWrite(Object* obj, File* stream)
                 if (fileWriteInt32(stream, data->scenery.stairs.field_0) == -1) return -1;
                 break;
             case SCENERY_TYPE_ELEVATOR:
-                if (fileWriteInt32(stream, data->scenery.elevator.field_0) == -1) return -1;
-                if (fileWriteInt32(stream, data->scenery.elevator.field_4) == -1) return -1;
+                if (fileWriteInt32(stream, data->scenery.elevator.type) == -1) return -1;
+                if (fileWriteInt32(stream, data->scenery.elevator.level) == -1) return -1;
                 break;
             case SCENERY_TYPE_LADDER_UP:
                 if (fileWriteInt32(stream, data->scenery.ladder.field_0) == -1) return -1;
-                if (fileWriteInt32(stream, data->scenery.elevator.field_4) == -1) return -1;
+                if (fileWriteInt32(stream, data->scenery.ladder.field_4) == -1) return -1;
                 break;
             case SCENERY_TYPE_LADDER_DOWN:
                 if (fileWriteInt32(stream, data->scenery.ladder.field_0) == -1) return -1;
-                if (fileWriteInt32(stream, data->scenery.elevator.field_4) == -1) return -1;
+                if (fileWriteInt32(stream, data->scenery.ladder.field_4) == -1) return -1;
                 break;
             default:
                 break;
@@ -638,8 +638,8 @@ int _proto_update_gen(Object* obj)
             data->scenery.stairs.field_0 = proto->scenery.data.stairs.field_4;
             break;
         case SCENERY_TYPE_ELEVATOR:
-            data->scenery.elevator.field_0 = proto->scenery.data.elevator.field_0;
-            data->scenery.elevator.field_4 = proto->scenery.data.elevator.field_4;
+            data->scenery.elevator.type = proto->scenery.data.elevator.type;
+            data->scenery.elevator.level = proto->scenery.data.elevator.level;
             break;
         case SCENERY_TYPE_LADDER_UP:
         case SCENERY_TYPE_LADDER_DOWN:
@@ -1341,8 +1341,8 @@ int protoSceneryDataRead(SceneryProtoData* scenery_data, int type, File* stream)
 
         return 0;
     case SCENERY_TYPE_ELEVATOR:
-        if (fileReadInt32(stream, &(scenery_data->elevator.field_0)) == -1) return -1;
-        if (fileReadInt32(stream, &(scenery_data->elevator.field_4)) == -1) return -1;
+        if (fileReadInt32(stream, &(scenery_data->elevator.type)) == -1) return -1;
+        if (fileReadInt32(stream, &(scenery_data->elevator.level)) == -1) return -1;
 
         return 0;
     case SCENERY_TYPE_LADDER_UP:
@@ -1527,8 +1527,8 @@ int protoSceneryDataWrite(SceneryProtoData* scenery_data, int type, File* stream
 
         return 0;
     case SCENERY_TYPE_ELEVATOR:
-        if (fileWriteInt32(stream, scenery_data->elevator.field_0) == -1) return -1;
-        if (fileWriteInt32(stream, scenery_data->elevator.field_4) == -1) return -1;
+        if (fileWriteInt32(stream, scenery_data->elevator.type) == -1) return -1;
+        if (fileWriteInt32(stream, scenery_data->elevator.level) == -1) return -1;
 
         return 0;
     case SCENERY_TYPE_LADDER_UP:

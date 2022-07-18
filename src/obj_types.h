@@ -204,8 +204,8 @@ typedef struct StairsSceneryData {
 } StairsSceneryData;
 
 typedef struct ElevatorSceneryData {
-    int field_0; // obj_pudg.pudelevator.elevType
-    int field_4; // obj_pudg.pudelevator.elevLevel
+    int type;
+    int level;
 } ElevatorSceneryData;
 
 typedef struct LadderSceneryData {
