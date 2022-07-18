@@ -293,7 +293,7 @@ static const DIOBJECTDATAFORMAT dfDIKeyboard[] = {
 };
 
 // 0x4FDF20
-static const DIDATAFORMAT c_dfDIKeyboard = {
+const DIDATAFORMAT c_dfDIKeyboard = {
     sizeof(DIDATAFORMAT),
     sizeof(DIOBJECTDATAFORMAT),
     DIDF_RELAXIS,
