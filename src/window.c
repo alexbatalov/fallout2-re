@@ -602,6 +602,18 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
     return true;
 }
 
+// 0x4B8A60
+bool _windowPrint(char* string, int a2, int x, int y, int a5)
+{
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    x = (int)(x * managedWindow->field_54);
+    y = (int)(y * managedWindow->field_58);
+
+    windowDrawText(managedWindow->window, string, a2, x, y, a5);
+
+    return true;
+}
+
 // 0x4B99C8
 bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags)
 {
