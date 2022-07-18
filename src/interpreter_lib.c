@@ -1795,6 +1795,26 @@ void opDeleteKey(Program* program)
     }
 }
 
+// refreshmouse
+// 0x464EB0
+void opRefreshMouse(Program* program)
+{
+    opcode_t opcode = programStackPopInt16(program);
+    int data = programStackPopInt32(program);
+
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        programPopString(program, opcode, data);
+    }
+
+    if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
+        programFatalError("Invalid arg 1 given to refreshmouse");
+    }
+
+    if (!sub_4B69BC()) {
+        _executeProc(program, data);
+    }
+}
+
 // setfont
 // 0x464F18
 void opSetFont(Program* program)

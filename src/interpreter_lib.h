@@ -85,6 +85,7 @@ void opClearNamed(Program* program);
 void opSignalNamed(Program* program);
 void opAddKey(Program* program);
 void opDeleteKey(Program* program);
+void opRefreshMouse(Program* program);
 void opSetFont(Program* program);
 void opSetTextFlags(Program* program);
 void opSetTextColor(Program* program);

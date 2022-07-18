@@ -123,6 +123,13 @@ int _currentHighlightColorG;
 // 0x672DB4
 int _currentHighlightColorB;
 
+// 0x4B69BC
+bool sub_4B69BC()
+{
+    // TODO: Incomplete.
+    return false;
+}
+
 // 0x4B6DE8
 int sub_4B6DE8(const char* regionName, int a2)
 {
