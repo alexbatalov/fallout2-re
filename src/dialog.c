@@ -126,16 +126,16 @@ int dword_56DBB8;
 int dword_56DBBC;
 
 // 0x56DBC0
-void* off_56DBC0;
+char* off_56DBC0;
 
 // 0x56DBC4
-void* off_56DBC4;
+char* off_56DBC4;
 
 // 0x56DBC8
-void* off_56DBC8;
+char* off_56DBC8;
 
 // 0x56DBCC
-void* off_56DBCC;
+char* off_56DBCC;
 
 // 0x56DBD0
 char* gDialogReplyTitle;
@@ -609,7 +609,7 @@ int _dialogSetScrollUp(int a1, int a2, char* a3, char* a4, char* a5, char* a6, i
 }
 
 // 0x4312C0
-int _dialogSetScrollDown(int a1, int a2, void* a3, void* a4, void* a5, void* a6, int a7)
+int _dialogSetScrollDown(int a1, int a2, char* a3, char* a4, char* a5, char* a6, int a7)
 {
     _downButton = a1;
     dword_56DBB8 = a2;

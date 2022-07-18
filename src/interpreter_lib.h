@@ -97,6 +97,7 @@ void opSayOptionFlags(Program* program);
 void opSayOptionWindow(Program* program);
 void opSayBorder(Program* program);
 void opSayScrollUp(Program* program);
+void opSayScrollDown(Program* program);
 void opSaySetSpacing(Program* program);
 void opSayRestart(Program* program);
 void interpreterSoundCallback(void* userData, int a2);
