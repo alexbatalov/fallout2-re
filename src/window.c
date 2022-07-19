@@ -159,31 +159,56 @@ int sub_4B6DE8(const char* regionName, int a2)
 // 0x4B6F60
 void _doButtonOn(int btn, int keyCode)
 {
-    sub_4B6F68(btn, 2);
+    sub_4B6F68(btn, MANAGED_BUTTON_MOUSE_EVENT_ENTER);
 }
 
 // 0x4B6F68
-void sub_4B6F68(int btn, int a2)
+void sub_4B6F68(int btn, int mouseEvent)
 {
-    // TODO: Incomplete.
+    int win = _win_last_button_winID();
+    if (win == -1) {
+        return;
+    }
+
+    for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+        if (managedWindow->window == win) {
+            for (int buttonIndex = 0; buttonIndex < managedWindow->buttonsLength; buttonIndex++) {
+                ManagedButton* managedButton = &(managedWindow->buttons[buttonIndex]);
+                if (managedButton->btn == btn) {
+                    if ((managedButton->flags & 0x02) != 0) {
+                        _win_set_button_rest_state(managedButton->btn, 0, 0);
+                    } else {
+                        if (managedButton->program != NULL && managedButton->procs[mouseEvent] != 0) {
+                            _executeProc(managedButton->program, managedButton->procs[mouseEvent]);
+                        }
+
+                        if (managedButton->mouseEventCallback != NULL) {
+                            managedButton->mouseEventCallback(managedButton->mouseEventCallbackUserData, mouseEvent);
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 // 0x4B7028
 void _doButtonOff(int btn, int keyCode)
 {
-    sub_4B6F68(btn, 3);
+    sub_4B6F68(btn, MANAGED_BUTTON_MOUSE_EVENT_EXIT);
 }
 
 // 0x4B7034
 void _doButtonPress(int btn, int keyCode)
 {
-    sub_4B6F68(btn, 0);
+    sub_4B6F68(btn, MANAGED_BUTTON_MOUSE_EVENT_BUTTON_DOWN);
 }
 
 // 0x4B703C
 void _doButtonRelease(int btn, int keyCode)
 {
-    sub_4B6F68(btn, 1);
+    sub_4B6F68(btn, MANAGED_BUTTON_MOUSE_EVENT_BUTTON_UP);
 }
 
 // 0x4B7118
@@ -777,10 +802,10 @@ void _removeProgramReferences_3(Program* program)
                 ManagedButton* managedButton = &(managedWindow->buttons[index]);
                 if (program == managedButton->program) {
                     managedButton->program = NULL;
-                    managedButton->field_5C = 0;
-                    managedButton->field_60 = 0;
-                    managedButton->field_54 = 0;
-                    managedButton->field_58 = 0;
+                    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_ENTER] = 0;
+                    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_EXIT] = 0;
+                    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_BUTTON_DOWN] = 0;
+                    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_BUTTON_UP] = 0;
                 }
             }
 
@@ -1095,15 +1120,15 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
     strncpy(managedButton->name, buttonName, 31);
     managedButton->program = NULL;
     managedButton->flags = 0;
-    managedButton->field_58 = 0;
-    managedButton->field_68 = 0;
-    managedButton->field_6C = 0;
-    managedButton->field_70 = 0;
+    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_BUTTON_UP] = 0;
+    managedButton->rightProcs[MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_UP] = 0;
+    managedButton->mouseEventCallback = NULL;
+    managedButton->rightMouseEventCallback = NULL;
     managedButton->field_50 = 0;
-    managedButton->field_54 = 0;
-    managedButton->field_60 = 0;
-    managedButton->field_5C = 0;
-    managedButton->field_64 = 0;
+    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_BUTTON_DOWN] = 0;
+    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_EXIT] = 0;
+    managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_ENTER] = 0;
+    managedButton->rightProcs[MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_DOWN] = 0;
     managedButton->width = width;
     managedButton->height = height;
     managedButton->x = x;
@@ -1205,7 +1230,7 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
 }
 
 // 0x4BA11C
-bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6)
+bool _windowAddButtonProc(const char* buttonName, Program* program, int mouseEnterProc, int mouseExitProc, int mouseDownProc, int mouseUpProc)
 {
     if (gCurrentManagedWindowIndex != -1) {
         return false;
@@ -1219,10 +1244,10 @@ bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int 
     for (int index = 0; index < managedWindow->buttonsLength; index++) {
         ManagedButton* managedButton = &(managedWindow->buttons[index]);
         if (stricmp(managedButton->name, buttonName) == 0) {
-            managedButton->field_5C = a3;
-            managedButton->field_60 = a4;
-            managedButton->field_54 = a5;
-            managedButton->field_58 = a6;
+            managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_ENTER] = mouseEnterProc;
+            managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_EXIT] = mouseExitProc;
+            managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_BUTTON_DOWN] = mouseDownProc;
+            managedButton->procs[MANAGED_BUTTON_MOUSE_EVENT_BUTTON_UP] = mouseUpProc;
             managedButton->program = program;
             return true;
         }
@@ -1232,7 +1257,7 @@ bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int 
 }
 
 // 0x4BA1B4
-bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4)
+bool _windowAddButtonRightProc(const char* buttonName, Program* program, int rightMouseDownProc, int rightMouseUpProc)
 {
     if (gCurrentManagedWindowIndex != -1) {
         return false;
@@ -1246,8 +1271,8 @@ bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3,
     for (int index = 0; index < managedWindow->buttonsLength; index++) {
         ManagedButton* managedButton = &(managedWindow->buttons[index]);
         if (stricmp(managedButton->name, buttonName) == 0) {
-            managedButton->field_68 = a4;
-            managedButton->field_64 = a3;
+            managedButton->rightProcs[MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_UP] = rightMouseUpProc;
+            managedButton->rightProcs[MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_DOWN] = rightMouseDownProc;
             managedButton->program = program;
             return true;
         }

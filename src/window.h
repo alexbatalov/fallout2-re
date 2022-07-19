@@ -15,12 +15,27 @@ typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int 
 typedef bool (WindowInputHandler)(int key);
 typedef void (WindowDeleteCallback)(int windowIndex, const char* windowName);
 typedef void (DisplayInWindowCallback)(int windowIndex, const char* windowName, unsigned char* data, int width, int height);
+typedef void (ManagedButtonMouseEventCallback)(void* userData, int eventType);
 
 typedef enum TextAlignment {
     TEXT_ALIGNMENT_LEFT,
     TEXT_ALIGNMENT_RIGHT,
     TEXT_ALIGNMENT_CENTER,
 } TextAlignment;
+
+typedef enum ManagedButtonMouseEvent {
+    MANAGED_BUTTON_MOUSE_EVENT_BUTTON_DOWN,
+    MANAGED_BUTTON_MOUSE_EVENT_BUTTON_UP,
+    MANAGED_BUTTON_MOUSE_EVENT_ENTER,
+    MANAGED_BUTTON_MOUSE_EVENT_EXIT,
+    MANAGED_BUTTON_MOUSE_EVENT_COUNT,
+} ManagedButtonMouseEvent;
+
+typedef enum ManagedButtonRightMouseEvent {
+    MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_DOWN,
+    MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_UP,
+    MANAGED_BUTTON_RIGHT_MOUSE_EVENT_COUNT,
+} ManagedButtonRightMouseEvent;
 
 typedef struct ManagedButton {
     int btn;
@@ -37,16 +52,12 @@ typedef struct ManagedButton {
     unsigned char* hover;
     void* field_4C;
     void* field_50;
-    int field_54;
-    int field_58;
-    int field_5C;
-    int field_60;
-    int field_64;
-    int field_68;
-    int field_6C;
-    int field_70;
-    int field_74;
-    int field_78;
+    int procs[MANAGED_BUTTON_MOUSE_EVENT_COUNT];
+    int rightProcs[MANAGED_BUTTON_RIGHT_MOUSE_EVENT_COUNT];
+    ManagedButtonMouseEventCallback* mouseEventCallback;
+    ManagedButtonMouseEventCallback* rightMouseEventCallback;
+    void* mouseEventCallbackUserData;
+    void* rightMouseEventCallbackUserData;
 } ManagedButton;
 static_assert(sizeof(ManagedButton) == 0x7C, "wrong size");
 
@@ -102,7 +113,7 @@ bool sub_4B69BC();
 void sub_4B6C48(WindowInputHandler* callback);
 int sub_4B6DE8(const char* regionName, int a2);
 void _doButtonOn(int btn, int keyCode);
-void sub_4B6F68(int btn, int a2);
+void sub_4B6F68(int btn, int mouseEvent);
 void _doButtonOff(int btn, int keyCode);
 void _doButtonPress(int btn, int keyCode);
 void _doButtonRelease(int btn, int keyCode);
@@ -143,8 +154,8 @@ bool _windowDeleteButton(const char* buttonName);
 bool _windowSetButtonFlag(const char* buttonName, int value);
 bool _windowAddButton(const char* buttonName, int x, int y, int width, int height, int flags);
 bool _windowAddButtonGfx(const char* buttonName, char* a2, char* a3, char* a4);
-bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6);
-bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4);
+bool _windowAddButtonProc(const char* buttonName, Program* program, int mouseEnterProc, int mouseExitProc, int mouseDownProc, int mouseUpProc);
+bool _windowAddButtonRightProc(const char* buttonName, Program* program, int rightMouseDownProc, int rightMouseUpProc);
 bool _windowAddButtonText(const char* buttonName, const char* text);
 bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, int pressedImageOffsetX, int pressedImageOffsetY, int normalImageOffsetX, int normalImageOffsetY);
 bool _windowFill(float r, float g, float b);
