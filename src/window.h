@@ -111,6 +111,7 @@ extern int _currentTextColorR;
 extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
+bool _checkRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent);
 bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent);
 bool _windowRefreshRegions();
 bool _checkAllRegions();

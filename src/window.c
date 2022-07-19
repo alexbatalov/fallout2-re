@@ -143,11 +143,53 @@ int _currentHighlightColorG;
 // 0x672DB4
 int _currentHighlightColorB;
 
-// 0x4B6858
-bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
+// 0x4B62E4
+bool _checkRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
 {
     // TODO: Incomplete.
     return false;
+}
+
+// 0x4B6858
+bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
+{
+    bool rc = _checkRegion(windowIndex, mouseX, mouseY, mouseEvent);
+
+    ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+    int v1 = managedWindow->field_38;
+
+    for (int index = 0; index < managedWindow->regionsLength; index++) {
+        Region* region = managedWindow->regions[index];
+        if (region != NULL) {
+            if (region->field_6C != 0) {
+                region->field_6C = 0;
+                rc = true;
+
+                if (region->mouseEventCallback != NULL) {
+                    region->mouseEventCallback(region, region->mouseEventCallbackUserData, 2);
+                    if (v1 != managedWindow->field_38) {
+                        return true;
+                    }
+                }
+
+                if (region->rightMouseEventCallback != NULL) {
+                    region->rightMouseEventCallback(region, region->rightMouseEventCallbackUserData, 2);
+                    if (v1 != managedWindow->field_38) {
+                        return true;
+                    }
+                }
+
+                if (region->program != NULL && region->procs[2] != 0) {
+                    _executeProc(region->program, region->procs[2]);
+                    if (v1 != managedWindow->field_38) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return rc;
 }
 
 // 0x4B69BC
