@@ -1083,7 +1083,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
     }
 
     for (int index = 0; index < managedWindow->buttonsLength; index++) {
-        ManagedButton* managedButton = &(gManagedWindows->buttons[index]);
+        ManagedButton* managedButton = &(managedWindow->buttons[index]);
         if (stricmp(managedButton->name, buttonName) == 0) {
             int normalImageHeight = fontGetLineHeight() + 1;
             int normalImageWidth = fontGetStringWidth(text) + 1;
