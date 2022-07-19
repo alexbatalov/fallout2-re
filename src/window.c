@@ -77,6 +77,9 @@ char _alphaBlendTable[64 * 256];
 // 0x6727B0
 ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 
+// 0x672D74
+ManagedWindowCreateCallback* off_672D74;
+
 // NOTE: This value is never set.
 //
 // 0x672D78
@@ -404,10 +407,53 @@ int sub_4B7E7C(const char* windowName, int x, int y, int width, int height)
 }
 
 // 0x4B7F3C
-int sub_4B7F3C(const char* windowName, int x, int y, int width, int height, int a6, int flags)
+int _createWindow(const char* windowName, int x, int y, int width, int height, int a6, int flags)
 {
-    // TODO: Incomplete.
-    return -1;
+    int windowIndex = -1;
+
+    // NOTE: Original code is slightly different.
+    for (int index = 0; index < MANAGED_WINDOW_COUNT; index++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[index]);
+        if (managedWindow->window == -1) {
+            windowIndex = index;
+            break;
+        } else {
+            if (stricmp(managedWindow->name, windowName) == 0) {
+                _deleteWindow(windowName);
+                windowIndex = index;
+                break;
+            }
+        }
+    }
+
+    if (windowIndex == -1) {
+        return -1;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+    strncpy(managedWindow->name, windowName, 32);
+    managedWindow->field_54 = 1.0;
+    managedWindow->field_58 = 1.0;
+    managedWindow->field_38 = 0;
+    managedWindow->regions = NULL;
+    managedWindow->regionsLength = 0;
+    managedWindow->width = width;
+    managedWindow->height = height;
+    managedWindow->buttons = NULL;
+    managedWindow->buttonsLength = 0;
+
+    flags |= 0x101;
+    if (off_672D74 != NULL) {
+        off_672D74(windowIndex, managedWindow->name, &flags);
+    }
+
+    managedWindow->window = windowCreate(x, y, width, height, a6, flags);
+    managedWindow->field_48 = 0;
+    managedWindow->field_44 = 0;
+    managedWindow->field_4C = a6;
+    managedWindow->field_50 = flags;
+
+    return windowIndex;
 }
 
 // 0x4B80A4

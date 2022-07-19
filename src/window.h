@@ -16,6 +16,7 @@ typedef bool (WindowInputHandler)(int key);
 typedef void (WindowDeleteCallback)(int windowIndex, const char* windowName);
 typedef void (DisplayInWindowCallback)(int windowIndex, const char* windowName, unsigned char* data, int width, int height);
 typedef void (ManagedButtonMouseEventCallback)(void* userData, int eventType);
+typedef void (ManagedWindowCreateCallback)(int windowIndex, const char* windowName, int* flagsPtr);
 
 typedef enum TextAlignment {
     TEXT_ALIGNMENT_LEFT,
@@ -93,7 +94,8 @@ extern int _winStack[MANAGED_WINDOW_COUNT];
 extern char _alphaBlendTable[64 * 256];
 extern ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 
-extern void(*_selectWindowFunc)(int, ManagedWindow*);
+extern ManagedWindowCreateCallback* off_672D74;
+extern void (*_selectWindowFunc)(int, ManagedWindow*);
 extern int _xres;
 extern DisplayInWindowCallback* gDisplayInWindowCallback;
 extern WindowDeleteCallback* gWindowDeleteCallback;
@@ -127,7 +129,7 @@ bool _windowDraw();
 bool _deleteWindow(const char* windowName);
 int sub_4B7AC4(const char* windowName, int x, int y, int width, int height);
 int sub_4B7E7C(const char* windowName, int x, int y, int width, int height);
-int sub_4B7F3C(const char* windowName, int x, int y, int width, int height, int a6, int flags);
+int _createWindow(const char* windowName, int x, int y, int width, int height, int a6, int flags);
 int _windowOutput(char* string);
 bool _windowGotoXY(int x, int y);
 bool _selectWindowID(int index);

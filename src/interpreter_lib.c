@@ -863,7 +863,7 @@ void opCreateWin(Program* program)
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int height = (data[0] * _windowGetYres() + 479) / 480;;
 
-    if (sub_4B7F3C(windowName, x, y, width, height, _colorTable[0], 0) == -1) {
+    if (_createWindow(windowName, x, y, width, height, _colorTable[0], 0) == -1) {
         programFatalError("Couldn't create window.");
     }
 }
