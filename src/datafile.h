@@ -15,7 +15,7 @@ void datafileSetLoader(DatafileLoader* loader);
 void sub_42EE84(unsigned char* data, unsigned char* palette, int width, int height);
 void sub_42EEF8(unsigned char* data, unsigned char* palette, int width, int height);
 unsigned char* datafileReadRaw(char* path, int* widthPtr, int* heightPtr);
-unsigned char* sub_42EFCC(char* path, int* widthPtr, int* heightPtr);
+unsigned char* datafileRead(char* path, int* widthPtr, int* heightPtr);
 unsigned char* sub_42EFF4(char* path);
 void sub_42F024(unsigned char* data, int* widthPtr, int* heightPtr);
 unsigned char* datafileGetPalette();

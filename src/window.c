@@ -662,7 +662,7 @@ void _displayFile(char* fileName)
 {
     int width;
     int height;
-    unsigned char* data = sub_42EFCC(fileName, &width, &height);
+    unsigned char* data = datafileRead(fileName, &width, &height);
     if (data != NULL) {
         _displayInWindow(data, width, height, width);
         internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1294
@@ -693,7 +693,7 @@ bool _windowDisplay(char* fileName, int x, int y, int width, int height)
 {
     int imageWidth;
     int imageHeight;
-    unsigned char* imageData = sub_42EFCC(fileName, &imageWidth, &imageHeight);
+    unsigned char* imageData = datafileRead(fileName, &imageWidth, &imageHeight);
     if (imageData == NULL) {
         return false;
     }

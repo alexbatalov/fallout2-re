@@ -67,7 +67,7 @@ void opFillWin3x3(Program* program)
 
     int imageWidth;
     int imageHeight;
-    unsigned char* imageData = sub_42EFCC(mangledFileName, &imageWidth, &imageHeight);
+    unsigned char* imageData = datafileRead(mangledFileName, &imageWidth, &imageHeight);
     if (imageData == NULL) {
         programFatalError("cannot load 3x3 file '%s'", mangledFileName);
     }

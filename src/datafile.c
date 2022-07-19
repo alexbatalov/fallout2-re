@@ -101,7 +101,7 @@ unsigned char* datafileReadRaw(char* path, int* widthPtr, int* heightPtr)
 }
 
 // 0x42EFCC
-unsigned char* sub_42EFCC(char* path, int* widthPtr, int* heightPtr)
+unsigned char* datafileRead(char* path, int* widthPtr, int* heightPtr)
 {
     unsigned char* v1 = datafileReadRaw(path, widthPtr, heightPtr);
     if (v1 != NULL) {
