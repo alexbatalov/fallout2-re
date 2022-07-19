@@ -22,10 +22,7 @@ typedef struct Region {
     int field_4C;
     int field_50;
     int proc;
-    int field_58;
-    int field_5C;
-    int field_60;
-    int field_64;
+    int rightProcs[4];
     int field_68;
     int field_6C;
     int field_70;

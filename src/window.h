@@ -115,6 +115,7 @@ bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
 bool _windowRefreshRegions();
 bool _checkAllRegions();
 void _windowAddInputFunc(WindowInputHandler* handler);
+void _doRegionRightFunc(Region* region, int a2);
 int sub_4B6DE8(const char* regionName, int a2);
 void _doButtonOn(int btn, int keyCode);
 void sub_4B6F68(int btn, int mouseEvent);

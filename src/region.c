@@ -64,12 +64,12 @@ Region* regionCreate(int initialCapacity)
     region->field_28 = INT_MIN;
     region->field_30 = INT_MAX;
     region->proc = 0;
-    region->field_5C = 0;
-    region->field_64 = 0;
+    region->rightProcs[1] = 0;
+    region->rightProcs[3] = 0;
     region->field_68 = 0;
-    region->field_6C = 0;
+    region->rightProcs[0] = 0;
     region->field_70 = 0;
-    region->field_60 = 0;
+    region->rightProcs[2] = 0;
     region->field_78 = NULL;
     region->field_7C = NULL;
     region->field_80 = 0;
@@ -80,7 +80,7 @@ Region* regionCreate(int initialCapacity)
     region->field_50 = 0;
     region->field_4C = 0;
     region->field_48 = 0;
-    region->field_58 = 0;
+    region->rightProcs[0] = 0;
 
     return region;
 }

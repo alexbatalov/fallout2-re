@@ -163,7 +163,7 @@ bool _windowRefreshRegions()
         if (managedWindow->window == win) {
             for (int regionIndex = 0; regionIndex < managedWindow->regionsLength; regionIndex++) {
                 Region* region = managedWindow->regions[regionIndex];
-                region->field_64 = 0;
+                region->rightProcs[3] = 0;
             }
 
             int mouseEvent = mouseGetEvent();
@@ -197,8 +197,8 @@ bool _checkAllRegions()
 
                 for (int regionIndex = 0; regionIndex < managedWindow->regionsLength; regionIndex++) {
                     Region* region = managedWindow->regions[regionIndex];
-                    if (region != NULL && region->field_64 != 0) {
-                        region->field_64 = 0;
+                    if (region != NULL && region->rightProcs[3] != 0) {
+                        region->rightProcs[3] = 0;
                         if (region->field_78 != NULL) {
                             region->field_78(region, region->field_80, 3);
                             if (v1 != managedWindow->field_38) {
@@ -254,6 +254,24 @@ void _windowAddInputFunc(WindowInputHandler* handler)
     gWindowInputHandlers[gWindowInputHandlersLength] = handler;
     gWindowInputHandlersLength++;
 
+}
+
+// 0x4B6CE8
+void _doRegionRightFunc(Region* region, int a2)
+{
+    int v1 = gManagedWindows[gCurrentManagedWindowIndex].field_38;
+    if (region->field_7C != NULL) {
+        region->field_7C(region, region->field_84, a2);
+        if (v1 != gManagedWindows[gCurrentManagedWindowIndex].field_38) {
+            return;
+        }
+    }
+
+    if (a2 < 4) {
+        if (region->program != NULL && region->rightProcs[a2] != 0) {
+            _executeProc(region->program, region->rightProcs[a2]);
+        }
+    }
 }
 
 // 0x4B6DE8
@@ -1878,8 +1896,8 @@ bool _windowAddRegionRightProc(const char* regionName, Program* program, int a3,
         Region* region = managedWindow->regions[index];
         if (region != NULL) {
             if (stricmp(region->name, regionName) == 0) {
-                region->field_58 = a3;
-                region->field_5C = a4;
+                region->rightProcs[0] = a3;
+                region->rightProcs[1] = a4;
                 region->program = program;
                 return true;
             }
