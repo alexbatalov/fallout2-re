@@ -120,7 +120,7 @@ void _doButtonRelease(int btn, int keyCode);
 void _doRightButtonPress(int btn, int keyCode);
 void sub_4B704C(int btn, int mouseEvent);
 void _doRightButtonRelease(int btn, int keyCode);
-void sub_4B7118(int width, int height, unsigned char* normal, unsigned char* pressed, int a5);
+void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* pressed, unsigned char* a5);
 int _windowWidth();
 int _windowHeight();
 bool _windowDraw();
