@@ -149,6 +149,72 @@ bool sub_4B69BC()
     return false;
 }
 
+// 0x4B6858
+bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
+{
+    // TODO: Incomplete.
+    return false;
+}
+
+// 0x4B6A54
+bool _checkAllRegions()
+{
+    if (!_checkRegionEnable) {
+        return false;
+    }
+
+    int mouseX;
+    int mouseY;
+    mouseGetPosition(&mouseX, &mouseY);
+
+    int mouseEvent = mouseGetEvent();
+    int win = windowGetAtPoint(mouseX, mouseY);
+
+    for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+        if (managedWindow->window != -1 && managedWindow->window == win) {
+            if (_lastWin != -1 && _lastWin != windowIndex && gManagedWindows[_lastWin].window != -1) {
+                ManagedWindow* managedWindow = &(gManagedWindows[_lastWin]);
+                int v1 = managedWindow->field_38;
+
+                for (int regionIndex = 0; regionIndex < managedWindow->regionsLength; regionIndex++) {
+                    Region* region = managedWindow->regions[regionIndex];
+                    if (region != NULL && region->field_64 != 0) {
+                        region->field_64 = 0;
+                        if (region->field_78 != NULL) {
+                            region->field_78(region, region->field_80, 3);
+                            if (v1 != managedWindow->field_38) {
+                                return true;
+                            }
+                        }
+
+                        if (region->field_7C != NULL) {
+                            region->field_7C(region, region->field_84, 3);
+                            if (v1 != managedWindow->field_38) {
+                                return true;
+                            }
+                        }
+
+                        if (region->program != NULL && region->proc != 0) {
+                            _executeProc(region->program, region->proc);
+                            if (v1 != managedWindow->field_38) {
+                                return 1;
+                            }
+                        }
+                    }
+                }
+                _lastWin = -1;
+            } else {
+                _lastWin = windowIndex;
+            }
+
+            return _windowCheckRegion(windowIndex, mouseX, mouseY, mouseEvent);
+        }
+    }
+
+    return false;
+}
+
 // 0x4B6C48
 void _windowAddInputFunc(WindowInputHandler* handler)
 {
@@ -966,7 +1032,7 @@ void _removeProgramReferences_3(Program* program)
                         region->program = NULL;
                         region->field_4C = 0;
                         region->field_48 = 0;
-                        region->field_54 = 0;
+                        region->proc = 0;
                         region->field_50 = 0;
                     }
                 }
@@ -1770,7 +1836,7 @@ bool _windowAddRegionProc(const char* regionName, Program* program, int a3, int 
         if (region != NULL) {
             if (stricmp(region->name, regionName) == 0) {
                 region->field_50 = a3;
-                region->field_54 = a4;
+                region->proc = a4;
                 region->field_48 = a5;
                 region->field_4C = a6;
                 region->program = program;
@@ -1909,7 +1975,7 @@ void _updateWindows()
     _movieUpdate();
     // TODO: Incomplete.
     // _mousemgrUpdate();
-    // _checkAllRegions();
+    _checkAllRegions();
     _update_widgets();
 }
 

@@ -21,7 +21,7 @@ typedef struct Region {
     int field_48;
     int field_4C;
     int field_50;
-    int field_54;
+    int proc;
     int field_58;
     int field_5C;
     int field_60;
@@ -30,8 +30,8 @@ typedef struct Region {
     int field_6C;
     int field_70;
     int field_74;
-    int field_78;
-    int field_7C;
+    void(*field_78)(struct Region* region, int a2, int a3);
+    void(*field_7C)(struct Region* region, int a2, int a3);
     int field_80;
     int field_84;
     void* userData;
