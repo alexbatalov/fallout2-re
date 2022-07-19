@@ -213,8 +213,8 @@ bool _checkAllRegions()
                             }
                         }
 
-                        if (region->program != NULL && region->proc != 0) {
-                            _executeProc(region->program, region->proc);
+                        if (region->program != NULL && region->procs[3] != 0) {
+                            _executeProc(region->program, region->procs[3]);
                             if (v1 != managedWindow->field_38) {
                                 return 1;
                             }
@@ -262,6 +262,24 @@ void _doRegionRightFunc(Region* region, int a2)
     int v1 = gManagedWindows[gCurrentManagedWindowIndex].field_38;
     if (region->field_7C != NULL) {
         region->field_7C(region, region->field_84, a2);
+        if (v1 != gManagedWindows[gCurrentManagedWindowIndex].field_38) {
+            return;
+        }
+    }
+
+    if (a2 < 4) {
+        if (region->program != NULL && region->rightProcs[a2] != 0) {
+            _executeProc(region->program, region->rightProcs[a2]);
+        }
+    }
+}
+
+// 0x4B6D68
+void _doRegionFunc(Region* region, int a2)
+{
+    int v1 = gManagedWindows[gCurrentManagedWindowIndex].field_38;
+    if (region->field_78 != NULL) {
+        region->field_78(region, region->field_80, a2);
         if (v1 != gManagedWindows[gCurrentManagedWindowIndex].field_38) {
             return;
         }
@@ -1066,10 +1084,10 @@ void _removeProgramReferences_3(Program* program)
                 if (region != NULL) {
                     if (program == region->program) {
                         region->program = NULL;
-                        region->field_4C = 0;
-                        region->field_48 = 0;
-                        region->proc = 0;
-                        region->field_50 = 0;
+                        region->procs[1] = 0;
+                        region->procs[0] = 0;
+                        region->procs[3] = 0;
+                        region->procs[2] = 0;
                     }
                 }
             }
@@ -1871,10 +1889,10 @@ bool _windowAddRegionProc(const char* regionName, Program* program, int a3, int 
         Region* region = managedWindow->regions[index];
         if (region != NULL) {
             if (stricmp(region->name, regionName) == 0) {
-                region->field_50 = a3;
-                region->proc = a4;
-                region->field_48 = a5;
-                region->field_4C = a6;
+                region->procs[2] = a3;
+                region->procs[3] = a4;
+                region->procs[0] = a5;
+                region->procs[1] = a6;
                 region->program = program;
                 return true;
             }

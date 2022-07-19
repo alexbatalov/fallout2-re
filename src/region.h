@@ -18,10 +18,7 @@ typedef struct Region {
     int pointsLength;
     int pointsCapacity;
     Program* program;
-    int field_48;
-    int field_4C;
-    int field_50;
-    int proc;
+    int procs[4];
     int rightProcs[4];
     int field_68;
     int field_6C;
