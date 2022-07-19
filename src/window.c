@@ -199,15 +199,15 @@ bool _checkAllRegions()
                     Region* region = managedWindow->regions[regionIndex];
                     if (region != NULL && region->rightProcs[3] != 0) {
                         region->rightProcs[3] = 0;
-                        if (region->field_78 != NULL) {
-                            region->field_78(region, region->field_80, 3);
+                        if (region->mouseEventCallback != NULL) {
+                            region->mouseEventCallback(region, region->mouseEventCallbackUserData, 3);
                             if (v1 != managedWindow->field_38) {
                                 return true;
                             }
                         }
 
-                        if (region->field_7C != NULL) {
-                            region->field_7C(region, region->field_84, 3);
+                        if (region->rightMouseEventCallback != NULL) {
+                            region->rightMouseEventCallback(region, region->rightMouseEventCallbackUserData, 3);
                             if (v1 != managedWindow->field_38) {
                                 return true;
                             }
@@ -260,8 +260,8 @@ void _windowAddInputFunc(WindowInputHandler* handler)
 void _doRegionRightFunc(Region* region, int a2)
 {
     int v1 = gManagedWindows[gCurrentManagedWindowIndex].field_38;
-    if (region->field_7C != NULL) {
-        region->field_7C(region, region->field_84, a2);
+    if (region->rightMouseEventCallback != NULL) {
+        region->rightMouseEventCallback(region, region->rightMouseEventCallbackUserData, a2);
         if (v1 != gManagedWindows[gCurrentManagedWindowIndex].field_38) {
             return;
         }
@@ -278,8 +278,8 @@ void _doRegionRightFunc(Region* region, int a2)
 void _doRegionFunc(Region* region, int a2)
 {
     int v1 = gManagedWindows[gCurrentManagedWindowIndex].field_38;
-    if (region->field_78 != NULL) {
-        region->field_78(region, region->field_80, a2);
+    if (region->mouseEventCallback != NULL) {
+        region->mouseEventCallback(region, region->mouseEventCallbackUserData, a2);
         if (v1 != gManagedWindows[gCurrentManagedWindowIndex].field_38) {
             return;
         }

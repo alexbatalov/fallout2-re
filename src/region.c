@@ -70,10 +70,10 @@ Region* regionCreate(int initialCapacity)
     region->rightProcs[0] = 0;
     region->field_70 = 0;
     region->rightProcs[2] = 0;
-    region->field_78 = NULL;
-    region->field_7C = NULL;
-    region->field_80 = 0;
-    region->field_84 = 0;
+    region->mouseEventCallback = NULL;
+    region->rightMouseEventCallback = NULL;
+    region->mouseEventCallbackUserData = 0;
+    region->rightMouseEventCallbackUserData = 0;
     region->pointsLength = 0;
     region->field_24 = region->field_28;
     region->field_2C = region->field_30;

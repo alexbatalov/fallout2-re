@@ -6,6 +6,10 @@
 
 #define REGION_NAME_LENGTH (32)
 
+typedef struct Region Region;
+
+typedef void RegionMouseEventCallback(Region* region, void* userData, int event);
+
 typedef struct Region {
     char name[REGION_NAME_LENGTH];
     Point* points;
@@ -24,10 +28,10 @@ typedef struct Region {
     int field_6C;
     int field_70;
     int field_74;
-    void(*field_78)(struct Region* region, int a2, int a3);
-    void(*field_7C)(struct Region* region, int a2, int a3);
-    int field_80;
-    int field_84;
+    RegionMouseEventCallback* mouseEventCallback;
+    RegionMouseEventCallback* rightMouseEventCallback;
+    void* mouseEventCallbackUserData;
+    void* rightMouseEventCallbackUserData;
     void* userData;
 } Region;
 
