@@ -211,6 +211,55 @@ void _doButtonRelease(int btn, int keyCode)
     sub_4B6F68(btn, MANAGED_BUTTON_MOUSE_EVENT_BUTTON_UP);
 }
 
+// NOTE: Unused.
+//
+// 0x4B7048
+void _doRightButtonPress(int btn, int keyCode)
+{
+    sub_4B704C(btn, MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_DOWN);
+}
+
+// NOTE: Unused.
+//
+// 0x4B704C
+void sub_4B704C(int btn, int mouseEvent)
+{
+    int win = _win_last_button_winID();
+    if (win == -1) {
+        return;
+    }
+
+    for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+        if (managedWindow->window == win) {
+            for (int buttonIndex = 0; buttonIndex < managedWindow->buttonsLength; buttonIndex++) {
+                ManagedButton* managedButton = &(managedWindow->buttons[buttonIndex]);
+                if (managedButton->btn == btn) {
+                    if ((managedButton->flags & 0x02) != 0) {
+                        _win_set_button_rest_state(managedButton->btn, 0, 0);
+                    } else {
+                        if (managedButton->program != NULL && managedButton->rightProcs[mouseEvent] != 0) {
+                            _executeProc(managedButton->program, managedButton->rightProcs[mouseEvent]);
+                        }
+
+                        if (managedButton->rightMouseEventCallback != NULL) {
+                            managedButton->rightMouseEventCallback(managedButton->rightMouseEventCallbackUserData, mouseEvent);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// NOTE: Unused.
+//
+// 0x4B710C
+void _doRightButtonRelease(int btn, int keyCode)
+{
+    sub_4B704C(btn, MANAGED_BUTTON_RIGHT_MOUSE_EVENT_BUTTON_UP);
+}
+
 // 0x4B7118
 void sub_4B7118(int width, int height, unsigned char* normal, unsigned char* pressed, int a5)
 {
@@ -1300,6 +1349,33 @@ bool _windowAddButtonCfunc(const char* buttonName, ManagedButtonMouseEventCallba
         if (stricmp(managedButton->name, buttonName) == 0) {
             managedButton->mouseEventCallbackUserData = userData;
             managedButton->mouseEventCallback = callback;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+// NOTE: Unused.
+//
+// 0x4BA2B4
+bool _windowAddButtonRightCfunc(const char* buttonName, ManagedButtonMouseEventCallback* callback, void* userData)
+{
+    if (gCurrentManagedWindowIndex != -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    if (managedWindow->buttons == NULL) {
+        return false;
+    }
+
+    for (int index = 0; index < managedWindow->buttonsLength; index++) {
+        ManagedButton* managedButton = &(managedWindow->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            managedButton->rightMouseEventCallback = callback;
+            managedButton->rightMouseEventCallbackUserData = userData;
+            buttonSetRightMouseCallbacks(managedButton->btn, -1, -1, _doRightButtonPress, _doRightButtonRelease);
             return true;
         }
     }
