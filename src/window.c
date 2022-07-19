@@ -1281,6 +1281,32 @@ bool _windowAddButtonRightProc(const char* buttonName, Program* program, int rig
     return false;
 }
 
+// NOTE: Unused.
+//
+// 0x4BA238
+bool _windowAddButtonCfunc(const char* buttonName, ManagedButtonMouseEventCallback* callback, void* userData)
+{
+    if (gCurrentManagedWindowIndex != -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    if (managedWindow->buttons == NULL) {
+        return false;
+    }
+
+    for (int index = 0; index < managedWindow->buttonsLength; index++) {
+        ManagedButton* managedButton = &(managedWindow->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            managedButton->mouseEventCallbackUserData = userData;
+            managedButton->mouseEventCallback = callback;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // 0x4BA34C
 bool _windowAddButtonText(const char* buttonName, const char* text)
 {

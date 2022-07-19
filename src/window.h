@@ -156,6 +156,7 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
 bool _windowAddButtonGfx(const char* buttonName, char* a2, char* a3, char* a4);
 bool _windowAddButtonProc(const char* buttonName, Program* program, int mouseEnterProc, int mouseExitProc, int mouseDownProc, int mouseUpProc);
 bool _windowAddButtonRightProc(const char* buttonName, Program* program, int rightMouseDownProc, int rightMouseUpProc);
+bool _windowAddButtonCfunc(const char* buttonName, ManagedButtonMouseEventCallback* callback, void* userData);
 bool _windowAddButtonText(const char* buttonName, const char* text);
 bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, int pressedImageOffsetX, int pressedImageOffsetY, int normalImageOffsetX, int normalImageOffsetY);
 bool _windowFill(float r, float g, float b);
