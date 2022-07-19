@@ -1434,13 +1434,13 @@ void opAddButtonGfx(Program* program)
         }
 
         const char* buttonName = programGetString(program, opcode[3], data[3]);
-        const char* fileName1 = _interpretMangleName(programGetString(program, opcode[2], data[2]));
-        const char* fileName2 = _interpretMangleName(programGetString(program, opcode[1], data[1]));
-        const char* fileName3 = _interpretMangleName(programGetString(program, opcode[0], data[0]));
+        char* pressedFileName = _interpretMangleName(programGetString(program, opcode[2], data[2]));
+        char* normalFileName = _interpretMangleName(programGetString(program, opcode[1], data[1]));
+        char* hoverFileName = _interpretMangleName(programGetString(program, opcode[0], data[0]));
 
         _selectWindowID(program->windowId);
 
-        if (!sub_4B9DD0(buttonName, fileName1, fileName2, fileName3)) {
+        if (!_windowAddButtonGfx(buttonName, pressedFileName, normalFileName, hoverFileName)) {
             programFatalError("Error setting graphics to button %s\n", buttonName);
         }
     } else {

@@ -1006,9 +1006,53 @@ bool _windowSetButtonFlag(const char* buttonName, int value)
 }
 
 // 0x4B9DD0
-bool sub_4B9DD0(const char* buttonName, const char* a2, const char* a3, const char* a4)
+bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* normalFileName, char* hoverFileName)
 {
-    // TODO: Incomplete.
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    for (int index = 0; index < managedWindow->buttonsLength; index++) {
+        ManagedButton* managedButton = &(managedWindow->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            int width;
+            int height;
+
+            if (pressedFileName != NULL) {
+                unsigned char* pressed = datafileRead(pressedFileName, &width, &height);
+                if (pressed != NULL) {
+                    _drawScaledBuf(managedButton->pressed, managedButton->width, managedButton->height, pressed, width, height);
+                    internal_free_safe(pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1834
+                }
+            }
+
+            if (normalFileName != NULL) {
+                unsigned char* normal = datafileRead(normalFileName, &width, &height);
+                if (normal != NULL) {
+                    _drawScaledBuf(managedButton->normal, managedButton->width, managedButton->height, normal, width, height);
+                    internal_free_safe(normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1842
+                }
+            }
+
+            if (hoverFileName != NULL) {
+                unsigned char* hover = datafileRead(normalFileName, &width, &height);
+                if (hover != NULL) {
+                    if (managedButton->hover == NULL) {
+                        managedButton->hover = (unsigned char*)internal_malloc_safe(managedButton->height * managedButton->width, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1849
+                    }
+
+                    _drawScaledBuf(managedButton->hover, managedButton->width, managedButton->height, hover, width, height);
+                    internal_free_safe(hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1853
+                }
+            }
+
+            if ((managedButton->field_18 & 0x20) != 0) {
+                buttonSetMask(managedButton->btn, managedButton->normal);
+            }
+
+            _win_register_button_image(managedButton->btn, managedButton->normal, managedButton->pressed, managedButton->hover, 0);
+
+            return true;
+        }
+    }
+
     return false;
 }
 

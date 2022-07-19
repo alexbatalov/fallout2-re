@@ -133,7 +133,7 @@ void _initWindow(int resolution, int a2);
 void _windowClose();
 bool _windowDeleteButton(const char* buttonName);
 bool _windowSetButtonFlag(const char* buttonName, int value);
-bool sub_4B9DD0(const char* buttonName, const char* a2, const char* a3, const char* a4);
+bool _windowAddButtonGfx(const char* buttonName, char* a2, char* a3, char* a4);
 bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6);
 bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4);
 bool _windowAddButtonText(const char* buttonName, const char* text);
