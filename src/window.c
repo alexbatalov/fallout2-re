@@ -674,7 +674,7 @@ void _displayFileRaw(char* fileName)
 {
     int width;
     int height;
-    unsigned char* data = sub_42EF60(fileName, &width, &height);
+    unsigned char* data = datafileReadRaw(fileName, &width, &height);
     if (data != NULL) {
         _displayInWindow(data, width, height, width);
         internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1305

@@ -5,6 +5,7 @@
 #include "color.h"
 #include "db.h"
 #include "memory_manager.h"
+#include "pcx.h"
 
 // 0x5184AC
 DatafileLoader* gDatafileLoader = NULL;
@@ -82,14 +83,13 @@ void sub_42EEF8(unsigned char* data, unsigned char* palette, int width, int heig
 }
 
 // 0x42EF60
-unsigned char* sub_42EF60(char* path, int* widthPtr, int* heightPtr)
+unsigned char* datafileReadRaw(char* path, int* widthPtr, int* heightPtr)
 {
     char* mangledPath = gDatafileNameMangler(path);
     char* dot = strrchr(mangledPath, '.');
     if (dot != NULL) {
         if (stricmp(dot + 1, "pcx")) {
-            // TODO: Incomplete.
-            //return sub_496494(mangledPath, a2, a3, _pal);
+            return pcxRead(mangledPath, widthPtr, heightPtr, gDatafilePalette);
         }
     }
 
@@ -103,7 +103,7 @@ unsigned char* sub_42EF60(char* path, int* widthPtr, int* heightPtr)
 // 0x42EFCC
 unsigned char* sub_42EFCC(char* path, int* widthPtr, int* heightPtr)
 {
-    unsigned char* v1 = sub_42EF60(path, widthPtr, heightPtr);
+    unsigned char* v1 = datafileReadRaw(path, widthPtr, heightPtr);
     if (v1 != NULL) {
         sub_42EE84(v1, gDatafilePalette, *widthPtr, *heightPtr);
     }
@@ -117,7 +117,7 @@ unsigned char* sub_42EFF4(char* path)
 {
     int width;
     int height;
-    unsigned char* v3 = sub_42EF60(path, &width, &height);
+    unsigned char* v3 = datafileReadRaw(path, &width, &height);
     if (v3 != NULL) {
         internal_free_safe(v3, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 148
         return gDatafilePalette;
