@@ -1401,7 +1401,7 @@ void opAddButtonText(Program* program)
     const char* text = programGetString(program, opcode[0], data[0]);
     const char* buttonName = programGetString(program, opcode[1], data[1]);
 
-    if (!sub_4BA34C(buttonName, text)) {
+    if (!_windowAddButtonText(buttonName, text)) {
         programFatalError("Error setting text to button %s\n",
             programGetString(program, opcode[1], data[1]));
     }

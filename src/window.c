@@ -1065,7 +1065,7 @@ bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3,
 }
 
 // 0x4BA34C
-bool sub_4BA34C(const char* buttonName, const char* text)
+bool _windowAddButtonText(const char* buttonName, const char* text)
 {
     return _windowAddButtonTextWithOffsets(buttonName, text, 2, 2, 0, 0);
 }

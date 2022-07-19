@@ -136,7 +136,7 @@ bool _windowSetButtonFlag(const char* buttonName, int value);
 bool sub_4B9DD0(const char* buttonName, const char* a2, const char* a3, const char* a4);
 bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6);
 bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4);
-bool sub_4BA34C(const char* buttonName, const char* text);
+bool _windowAddButtonText(const char* buttonName, const char* text);
 bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, int pressedImageOffsetX, int pressedImageOffsetY, int normalImageOffsetX, int normalImageOffsetY);
 bool _windowFill(float r, float g, float b);
 bool _windowFillRect(int x, int y, int width, int height, float r, float g, float b);
