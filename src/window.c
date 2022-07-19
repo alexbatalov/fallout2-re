@@ -142,17 +142,35 @@ int _currentHighlightColorG;
 // 0x672DB4
 int _currentHighlightColorB;
 
-// 0x4B69BC
-bool sub_4B69BC()
+// 0x4B6858
+bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
 {
     // TODO: Incomplete.
     return false;
 }
 
-// 0x4B6858
-bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
+// 0x4B69BC
+bool _windowRefreshRegions()
 {
-    // TODO: Incomplete.
+    int mouseX;
+    int mouseY;
+    mouseGetPosition(&mouseX, &mouseY);
+
+    int win = windowGetAtPoint(mouseX, mouseY);
+
+    for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {
+        ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
+        if (managedWindow->window == win) {
+            for (int regionIndex = 0; regionIndex < managedWindow->regionsLength; regionIndex++) {
+                Region* region = managedWindow->regions[regionIndex];
+                region->field_64 = 0;
+            }
+
+            int mouseEvent = mouseGetEvent();
+            return _windowCheckRegion(windowIndex, mouseX, mouseY, mouseEvent);
+        }
+    }
+
     return false;
 }
 

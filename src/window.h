@@ -111,8 +111,8 @@ extern int _currentTextColorR;
 extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
-bool sub_4B69BC();
 bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent);
+bool _windowRefreshRegions();
 bool _checkAllRegions();
 void _windowAddInputFunc(WindowInputHandler* handler);
 int sub_4B6DE8(const char* regionName, int a2);

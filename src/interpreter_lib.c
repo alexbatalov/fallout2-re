@@ -1965,7 +1965,7 @@ void opRefreshMouse(Program* program)
         programFatalError("Invalid arg 1 given to refreshmouse");
     }
 
-    if (!sub_4B69BC()) {
+    if (!_windowRefreshRegions()) {
         _executeProc(program, data);
     }
 }
