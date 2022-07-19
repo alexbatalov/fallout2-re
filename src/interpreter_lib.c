@@ -436,7 +436,7 @@ void opDisplayRaw(Program* program)
     _selectWindowID(program->windowId);
 
     char* mangledFileName = _interpretMangleName(fileName);
-    sub_4B8CA8(mangledFileName);
+    _displayFileRaw(mangledFileName);
 }
 
 // 0x46222C
