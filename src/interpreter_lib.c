@@ -2914,7 +2914,7 @@ bool intLibDoInput(int key)
 // 0x466A70
 void intLibInit()
 {
-    sub_4B6C48(intLibDoInput);
+    _windowAddInputFunc(intLibDoInput);
 
     interpreterRegisterOpcode(0x806A, opFillWin3x3);
     interpreterRegisterOpcode(0x808C, opDeleteButton);

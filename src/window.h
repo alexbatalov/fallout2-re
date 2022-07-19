@@ -93,7 +93,7 @@ extern Size _sizes_x[12];
 extern int _winStack[MANAGED_WINDOW_COUNT];
 extern char _alphaBlendTable[64 * 256];
 extern ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
-
+extern WindowInputHandler** gWindowInputHandlers;
 extern ManagedWindowCreateCallback* off_672D74;
 extern void (*_selectWindowFunc)(int, ManagedWindow*);
 extern int _xres;
@@ -112,7 +112,7 @@ extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
 bool sub_4B69BC();
-void sub_4B6C48(WindowInputHandler* callback);
+void _windowAddInputFunc(WindowInputHandler* handler);
 int sub_4B6DE8(const char* regionName, int a2);
 void _doButtonOn(int btn, int keyCode);
 void sub_4B6F68(int btn, int mouseEvent);

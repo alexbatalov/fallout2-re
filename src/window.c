@@ -60,7 +60,7 @@ Size _sizes_x[12] = {
 };
 
 // 0x51DD7C
-int _numInputFunc = 0;
+int gWindowInputHandlersLength = 0;
 
 // 0x51DD80
 int _lastWin = -1;
@@ -76,6 +76,9 @@ char _alphaBlendTable[64 * 256];
 
 // 0x6727B0
 ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
+
+// 0x672D70
+WindowInputHandler** gWindowInputHandlers;
 
 // 0x672D74
 ManagedWindowCreateCallback* off_672D74;
@@ -147,9 +150,26 @@ bool sub_4B69BC()
 }
 
 // 0x4B6C48
-void sub_4B6C48(WindowInputHandler* callback)
+void _windowAddInputFunc(WindowInputHandler* handler)
 {
-    // TODO: Incomplete.
+    int index;
+    for (index = 0; index < gWindowInputHandlersLength; index++) {
+        if (gWindowInputHandlers[index] == NULL) {
+            break;
+        }
+    }
+
+    if (index == gWindowInputHandlersLength) {
+        if (gWindowInputHandlers != NULL) {
+            gWindowInputHandlers = (WindowInputHandler**)internal_realloc_safe(gWindowInputHandlers, sizeof(*gWindowInputHandlers) * (gWindowInputHandlersLength + 1), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 521
+        } else {
+            gWindowInputHandlers = (WindowInputHandler**)internal_malloc_safe(sizeof(*gWindowInputHandlers), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 523
+        }
+    }
+
+    gWindowInputHandlers[gWindowInputHandlersLength] = handler;
+    gWindowInputHandlersLength++;
+
 }
 
 // 0x4B6DE8
