@@ -293,10 +293,33 @@ void _doRegionFunc(Region* region, int a2)
 }
 
 // 0x4B6DE8
-int sub_4B6DE8(const char* regionName, int a2)
+bool _windowActivateRegion(const char* regionName, int a2)
 {
-    // TODO: Incomplete.
-    return 0;
+    if (gCurrentManagedWindowIndex == -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+
+    if (a2 <= 4) {
+        for (int index = 0; index < managedWindow->regionsLength; index++) {
+            Region* region = managedWindow->regions[index];
+            if (stricmp(regionGetName(region), regionName) == 0) {
+                _doRegionFunc(region, a2);
+                return true;
+            }
+        }
+    } else {
+        for (int index = 0; index < managedWindow->regionsLength; index++) {
+            Region* region = managedWindow->regions[index];
+            if (stricmp(regionGetName(region), regionName) == 0) {
+                _doRegionRightFunc(region, a2 - 5);
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 // 0x4B6F60

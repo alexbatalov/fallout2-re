@@ -648,7 +648,7 @@ void opActivateRegion(Program* program)
     }
 
     const char* regionName = programGetString(program, opcode[1], data[1]);
-    sub_4B6DE8(regionName, data[0]);
+    _windowActivateRegion(regionName, data[0]);
 }
 
 // checkregion
