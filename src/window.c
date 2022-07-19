@@ -657,17 +657,23 @@ void _displayInWindow(unsigned char* data, int width, int height, int pitch)
     }
 }
 
+// 0x4B8C68
+void _displayFile(char* fileName)
+{
+    int width;
+    int height;
+    unsigned char* data = sub_42EFCC(fileName, &width, &height);
+    if (data != NULL) {
+        _displayInWindow(data, width, height, width);
+        internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1294
+    }
+}
+
 // 0x4B99C8
 bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags)
 {
     // TODO: Incomplete.
     return false;
-}
-
-// 0x4B8C68
-void sub_4B8C68(const char* fileName)
-{
-    // TODO: Incomplete.
 }
 
 // 0x4B8CA8

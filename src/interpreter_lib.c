@@ -413,7 +413,7 @@ void opDisplay(Program* program)
     _selectWindowID(program->windowId);
 
     char* mangledFileName = _interpretMangleName(fileName);
-    sub_4B8C68(mangledFileName);
+    _displayFile(mangledFileName);
 }
 
 // displayraw
