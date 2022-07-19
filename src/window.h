@@ -23,17 +23,17 @@ typedef enum TextAlignment {
 
 typedef struct ManagedButton {
     int btn;
-    int field_4;
-    int field_8;
+    int width;
+    int height;
     int field_C;
     int field_10;
     int flags;
     int field_18;
     char name[32];
     Program* program;
-    void* field_40;
-    void* field_44;
-    void* field_48;
+    unsigned char* pressed;
+    unsigned char* normal;
+    unsigned char* hover;
     void* field_4C;
     void* field_50;
     int field_54;
@@ -137,7 +137,7 @@ bool sub_4B9DD0(const char* buttonName, const char* a2, const char* a3, const ch
 bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6);
 bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4);
 bool sub_4BA34C(const char* buttonName, const char* text);
-bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5, int a6);
+bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, int pressedImageOffsetX, int pressedImageOffsetY, int normalImageOffsetX, int normalImageOffsetY);
 bool _windowFill(float r, float g, float b);
 bool _windowFillRect(int x, int y, int width, int height, float r, float g, float b);
 void _windowEndRegion();

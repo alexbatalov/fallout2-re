@@ -204,20 +204,20 @@ bool _deleteWindow(const char* windowName)
     if (managedWindow->buttons != NULL) {
         for (int index = 0; index < managedWindow->buttonsLength; index++) {
             ManagedButton* button = &(managedWindow->buttons[index]);
-            if (button->field_48 != NULL) {
-                internal_free_safe(button->field_48, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 802
+            if (button->hover != NULL) {
+                internal_free_safe(button->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 802
             }
 
             if (button->field_4C != NULL) {
                 internal_free_safe(button->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 804
             }
 
-            if (button->field_40 != NULL) {
-                internal_free_safe(button->field_40, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 806
+            if (button->pressed != NULL) {
+                internal_free_safe(button->pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 806
             }
 
-            if (button->field_44 != NULL) {
-                internal_free_safe(button->field_44, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 808
+            if (button->normal != NULL) {
+                internal_free_safe(button->normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 808
             }
         }
 
@@ -903,9 +903,9 @@ bool _windowDeleteButton(const char* buttonName)
             ManagedButton* managedButton = &(managedWindow->buttons[index]);
             buttonDestroy(managedButton->btn);
 
-            if (managedButton->field_48 != NULL) {
-                internal_free_safe(managedButton->field_48, __FILE__, __LINE__); // "..\int\WINDOW.C", 1648
-                managedButton->field_48 = NULL;
+            if (managedButton->hover != NULL) {
+                internal_free_safe(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1648
+                managedButton->hover = NULL;
             }
 
             if (managedButton->field_4C != NULL) {
@@ -913,18 +913,18 @@ bool _windowDeleteButton(const char* buttonName)
                 managedButton->field_4C = NULL;
             }
 
-            if (managedButton->field_40 != NULL) {
-                internal_free_safe(managedButton->field_40, __FILE__, __LINE__); // "..\int\WINDOW.C", 1650
-                managedButton->field_40 = NULL;
+            if (managedButton->pressed != NULL) {
+                internal_free_safe(managedButton->pressed, __FILE__, __LINE__); // "..\int\WINDOW.C", 1650
+                managedButton->pressed = NULL;
             }
 
-            if (managedButton->field_44 != NULL) {
-                internal_free_safe(managedButton->field_44, __FILE__, __LINE__); // "..\int\WINDOW.C", 1651
-                managedButton->field_44 = NULL;
+            if (managedButton->normal != NULL) {
+                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1651
+                managedButton->normal = NULL;
             }
 
             if (managedButton->field_50 != NULL) {
-                internal_free_safe(managedButton->field_44, __FILE__, __LINE__); // "..\int\WINDOW.C", 1652
+                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1652
                 managedButton->field_50 = NULL;
             }
         }
@@ -941,9 +941,9 @@ bool _windowDeleteButton(const char* buttonName)
         if (stricmp(managedButton->name, buttonName) == 0) {
             buttonDestroy(managedButton->btn);
 
-            if (managedButton->field_48 != NULL) {
-                internal_free_safe(managedButton->field_48, __FILE__, __LINE__); // "..\int\WINDOW.C", 1665
-                managedButton->field_48 = NULL;
+            if (managedButton->hover != NULL) {
+                internal_free_safe(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1665
+                managedButton->hover = NULL;
             }
 
             if (managedButton->field_4C != NULL) {
@@ -951,14 +951,14 @@ bool _windowDeleteButton(const char* buttonName)
                 managedButton->field_4C = NULL;
             }
 
-            if (managedButton->field_40 != NULL) {
-                internal_free_safe(managedButton->field_40, __FILE__, __LINE__); // "..\int\WINDOW.C", 1667
-                managedButton->field_40 = NULL;
+            if (managedButton->pressed != NULL) {
+                internal_free_safe(managedButton->pressed, __FILE__, __LINE__); // "..\int\WINDOW.C", 1667
+                managedButton->pressed = NULL;
             }
 
-            if (managedButton->field_44 != NULL) {
-                internal_free_safe(managedButton->field_44, __FILE__, __LINE__); // "..\int\WINDOW.C", 1668
-                managedButton->field_44 = NULL;
+            if (managedButton->normal != NULL) {
+                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1668
+                managedButton->normal = NULL;
             }
 
             // FIXME: Probably leaking field_50. It's freed when deleting all
@@ -1067,13 +1067,133 @@ bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3,
 // 0x4BA34C
 bool sub_4BA34C(const char* buttonName, const char* text)
 {
-    return sub_4BA364(buttonName, text, 2, 2, 0, 0);
+    return _windowAddButtonTextWithOffsets(buttonName, text, 2, 2, 0, 0);
 }
 
 // 0x4BA364
-bool sub_4BA364(const char* buttonName, const char* text, int a3, int a4, int a5, int a6)
+bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, int pressedImageOffsetX, int pressedImageOffsetY, int normalImageOffsetX, int normalImageOffsetY)
 {
-    // TODO: Incomplete.
+    if (gCurrentManagedWindowIndex == -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    if (managedWindow->buttons == NULL) {
+        return false;
+    }
+
+    for (int index = 0; index < managedWindow->buttonsLength; index++) {
+        ManagedButton* managedButton = &(gManagedWindows->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            int normalImageHeight = fontGetLineHeight() + 1;
+            int normalImageWidth = fontGetStringWidth(text) + 1;
+            unsigned char* buffer = (unsigned char*)internal_malloc_safe(normalImageHeight * normalImageWidth, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2010
+
+            int normalImageX = (managedButton->width - normalImageWidth) / 2 + normalImageOffsetX;
+            int normalImageY = (managedButton->height - normalImageHeight) / 2 + normalImageOffsetY;
+
+            if (normalImageX < 0) {
+                normalImageWidth -= normalImageX;
+                normalImageX = 0;
+            }
+
+            if (normalImageX + normalImageWidth >= managedButton->width) {
+                normalImageWidth = managedButton->width - normalImageX;
+            }
+
+            if (normalImageY < 0) {
+                normalImageHeight -= normalImageY;
+                normalImageY = 0;
+            }
+
+            if (normalImageY + normalImageHeight >= managedButton->height) {
+                normalImageHeight = managedButton->height - normalImageY;
+            }
+
+            if (managedButton->normal != NULL) {
+                blitBufferToBuffer(managedButton->normal + managedButton->width * normalImageY + normalImageX,
+                    normalImageWidth,
+                    normalImageHeight,
+                    managedButton->width,
+                    buffer,
+                    normalImageWidth);
+            } else {
+                memset(buffer, 0, normalImageHeight * normalImageWidth);
+            }
+
+            fontDrawText(buffer,
+                text,
+                normalImageWidth,
+                normalImageWidth,
+                widgetGetTextColor() + widgetGetTextFlags());
+
+            blitBufferToBufferTrans(buffer,
+                normalImageWidth,
+                normalImageHeight,
+                normalImageWidth,
+                managedButton->normal + managedButton->width * normalImageY + normalImageX,
+                managedButton->width);
+
+            int pressedImageWidth = fontGetStringWidth(text) + 1;
+            int pressedImageHeight = fontGetLineHeight() + 1;
+
+            int pressedImageX = (managedButton->width - pressedImageWidth) / 2 + pressedImageOffsetX;
+            int pressedImageY = (managedButton->height - pressedImageHeight) / 2 + pressedImageOffsetY;
+
+            if (pressedImageX < 0) {
+                pressedImageWidth -= pressedImageX;
+                pressedImageX = 0;
+            }
+
+            if (pressedImageX + pressedImageWidth >= managedButton->width) {
+                pressedImageWidth = managedButton->width - pressedImageX;
+            }
+
+            if (pressedImageY < 0) {
+                pressedImageHeight -= pressedImageY;
+                pressedImageY = 0;
+            }
+
+            if (pressedImageY + pressedImageHeight >= managedButton->height) {
+                pressedImageHeight = managedButton->height - pressedImageY;
+            }
+
+            if (managedButton->pressed != NULL) {
+                blitBufferToBuffer(managedButton->pressed + managedButton->width * pressedImageY + pressedImageX,
+                    pressedImageWidth,
+                    pressedImageHeight,
+                    managedButton->width,
+                    buffer,
+                    pressedImageWidth);
+            } else {
+                memset(buffer, 0, pressedImageHeight * pressedImageWidth);
+            }
+
+            fontDrawText(buffer,
+                text,
+                pressedImageWidth,
+                pressedImageWidth,
+                widgetGetTextColor() + widgetGetTextFlags());
+
+            blitBufferToBufferTrans(buffer,
+                pressedImageWidth,
+                normalImageHeight,
+                normalImageWidth,
+                managedButton->pressed + managedButton->width * pressedImageY + pressedImageX,
+                managedButton->width);
+
+            internal_free_safe(buffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2078
+
+            if ((managedButton->field_18 & 0x20) != 0) {
+                buttonSetMask(managedButton->btn, managedButton->normal);
+            }
+
+            _win_register_button_image(managedButton->btn, managedButton->normal, managedButton->pressed, managedButton->hover, 0);
+
+            return true;
+        }
+    }
+
     return false;
 }
 
