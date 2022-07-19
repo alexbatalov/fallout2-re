@@ -1370,7 +1370,7 @@ void opAddButton(Program* program)
     int x = (data[1] * _windowGetXres() + 639) / 640;
     const char* buttonName = programGetString(program, opcode[4], data[4]);
 
-    sub_4B99C8(buttonName, x, y, width, height, 0);
+    _windowAddButton(buttonName, x, y, width, height, 0);
 }
 
 // addbuttontext

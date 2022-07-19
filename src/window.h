@@ -4,6 +4,7 @@
 #include "geometry.h"
 #include "interpreter.h"
 #include "region.h"
+#include "window_manager.h"
 
 #include <stdbool.h>
 
@@ -25,8 +26,8 @@ typedef struct ManagedButton {
     int btn;
     int width;
     int height;
-    int field_C;
-    int field_10;
+    int x;
+    int y;
     int flags;
     int field_18;
     char name[32];
@@ -88,6 +89,8 @@ extern WindowDeleteCallback* gWindowDeleteCallback;
 extern int _yres;
 extern int _currentHighlightColorR;
 extern int gWidgetFont;
+extern ButtonCallback* off_672D98;
+extern ButtonCallback* off_672D9C;
 extern int _currentTextColorG;
 extern int _currentTextColorB;
 extern int gWidgetTextFlags;
@@ -98,6 +101,12 @@ extern int _currentHighlightColorB;
 bool sub_4B69BC();
 void sub_4B6C48(WindowInputHandler* callback);
 int sub_4B6DE8(const char* regionName, int a2);
+void _doButtonOn(int btn, int keyCode);
+void sub_4B6F68(int btn, int a2);
+void _doButtonOff(int btn, int keyCode);
+void _doButtonPress(int btn, int keyCode);
+void _doButtonRelease(int btn, int keyCode);
+void sub_4B7118(int width, int height, unsigned char* normal, unsigned char* pressed, int a5);
 int _windowWidth();
 int _windowHeight();
 bool _windowDraw();
@@ -123,7 +132,6 @@ bool _windowPrint(char* string, int a2, int x, int y, int a5);
 void _displayInWindow(unsigned char* data, int width, int height, int pitch);
 void _displayFile(char* fileName);
 void _displayFileRaw(char* fileName);
-bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags);
 bool _windowDisplay(char* fileName, int x, int y, int width, int height);
 bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight);
 int _windowGetXres();
@@ -133,6 +141,7 @@ void _initWindow(int resolution, int a2);
 void _windowClose();
 bool _windowDeleteButton(const char* buttonName);
 bool _windowSetButtonFlag(const char* buttonName, int value);
+bool _windowAddButton(const char* buttonName, int x, int y, int width, int height, int flags);
 bool _windowAddButtonGfx(const char* buttonName, char* a2, char* a3, char* a4);
 bool _windowAddButtonProc(const char* buttonName, Program* program, int a3, int a4, int a5, int a6);
 bool _windowAddButtonRightProc(const char* buttonName, Program* program, int a3, int a4);

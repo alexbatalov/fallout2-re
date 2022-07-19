@@ -10,7 +10,6 @@
 #include "movie.h"
 #include "text_font.h"
 #include "widget.h"
-#include "window_manager.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -103,6 +102,12 @@ int _currentHighlightColorR;
 // 0x672D90
 int gWidgetFont;
 
+// 0x672D98
+ButtonCallback* off_672D98;
+
+// 0x672D9C
+ButtonCallback* off_672D9C;
+
 // Text color (maybe g).
 //
 // 0x672DA0
@@ -149,6 +154,42 @@ int sub_4B6DE8(const char* regionName, int a2)
 {
     // TODO: Incomplete.
     return 0;
+}
+
+// 0x4B6F60
+void _doButtonOn(int btn, int keyCode)
+{
+    sub_4B6F68(btn, 2);
+}
+
+// 0x4B6F68
+void sub_4B6F68(int btn, int a2)
+{
+    // TODO: Incomplete.
+}
+
+// 0x4B7028
+void _doButtonOff(int btn, int keyCode)
+{
+    sub_4B6F68(btn, 3);
+}
+
+// 0x4B7034
+void _doButtonPress(int btn, int keyCode)
+{
+    sub_4B6F68(btn, 0);
+}
+
+// 0x4B703C
+void _doButtonRelease(int btn, int keyCode)
+{
+    sub_4B6F68(btn, 1);
+}
+
+// 0x4B7118
+void sub_4B7118(int width, int height, unsigned char* normal, unsigned char* pressed, int a5)
+{
+    // TODO: Incomplete.
 }
 
 // 0x4B7734
@@ -681,13 +722,6 @@ void _displayFileRaw(char* fileName)
     }
 }
 
-// 0x4B99C8
-bool sub_4B99C8(const char* buttonName, int x, int y, int width, int height, int flags)
-{
-    // TODO: Incomplete.
-    return false;
-}
-
 // 0x4B8E50
 bool _windowDisplay(char* fileName, int x, int y, int width, int height)
 {
@@ -1003,6 +1037,120 @@ bool _windowSetButtonFlag(const char* buttonName, int value)
     }
 
     return false;
+}
+
+// 0x4B99C8
+bool _windowAddButton(const char* buttonName, int x, int y, int width, int height, int flags)
+{
+    if (gCurrentManagedWindowIndex == -1) {
+        return false;
+    }
+
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    int index;
+    for (index = 0; index < managedWindow->buttonsLength; index++) {
+        ManagedButton* managedButton = &(managedWindow->buttons[index]);
+        if (stricmp(managedButton->name, buttonName) == 0) {
+            buttonDestroy(managedButton->btn);
+
+            if (managedButton->hover != NULL) {
+                internal_free_safe(managedButton->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1748
+                managedButton->hover = NULL;
+            }
+
+            if (managedButton->field_4C != NULL) {
+                internal_free_safe(managedButton->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1749
+                managedButton->field_4C = NULL;
+            }
+
+            if (managedButton->pressed != NULL) {
+                internal_free_safe(managedButton->pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1750
+                managedButton->pressed = NULL;
+            }
+
+            if (managedButton->normal != NULL) {
+                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1751
+                managedButton->normal = NULL;
+            }
+
+            break;
+        }
+    }
+
+    if (index == managedWindow->buttonsLength) {
+        if (managedWindow->buttons == NULL) {
+            managedWindow->buttons = (ManagedButton*)internal_malloc_safe(sizeof(*managedWindow->buttons), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1758
+        } else {
+            managedWindow->buttons = (ManagedButton*)internal_realloc_safe(managedWindow->buttons, sizeof(*managedWindow->buttons) * (managedWindow->buttonsLength + 1), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1761
+        }
+        managedWindow->buttonsLength += 1;
+    }
+
+    x = (int)(x * managedWindow->field_54);
+    y = (int)(y * managedWindow->field_58);
+    width = (int)(width * managedWindow->field_54);
+    height = (int)(height * managedWindow->field_58);
+
+    ManagedButton* managedButton = &(managedWindow->buttons[index]);
+    strncpy(managedButton->name, buttonName, 31);
+    managedButton->program = NULL;
+    managedButton->flags = 0;
+    managedButton->field_58 = 0;
+    managedButton->field_68 = 0;
+    managedButton->field_6C = 0;
+    managedButton->field_70 = 0;
+    managedButton->field_50 = 0;
+    managedButton->field_54 = 0;
+    managedButton->field_60 = 0;
+    managedButton->field_5C = 0;
+    managedButton->field_64 = 0;
+    managedButton->width = width;
+    managedButton->height = height;
+    managedButton->x = x;
+    managedButton->y = y;
+
+    unsigned char* normal = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1792
+    unsigned char* pressed = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1793
+
+    if ((flags & BUTTON_FLAG_TRANSPARENT) != 0) {
+        memset(normal, 0, width * height);
+        memset(pressed, 0, width * height);
+    } else {
+        sub_4B7118(width, height, normal, pressed, 0);
+    }
+
+    managedButton->btn = buttonCreate(
+        managedWindow->window,
+        x,
+        y,
+        width,
+        height,
+        -1,
+        -1,
+        -1,
+        -1,
+        normal,
+        pressed,
+        NULL,
+        flags);
+    
+    if (off_672D98 != NULL || off_672D9C != NULL) {
+        buttonSetCallbacks(managedButton->btn, off_672D98, off_672D9C);
+    }
+
+    managedButton->hover = NULL;
+    managedButton->pressed = pressed;
+    managedButton->normal = normal;
+    managedButton->field_18 = flags;
+    managedButton->field_4C = NULL;
+    buttonSetMouseCallbacks(managedButton->btn, _doButtonOn, _doButtonOff, _doButtonPress, _doButtonRelease);
+    _windowSetButtonFlag(buttonName, 1);
+
+    if ((flags & BUTTON_FLAG_TRANSPARENT) != 0) {
+        buttonSetMask(managedButton->btn, normal);
+    }
+
+    return true;
 }
 
 // 0x4B9DD0
