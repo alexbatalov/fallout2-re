@@ -4,6 +4,7 @@
 #include "core.h"
 #include "datafile.h"
 #include "draw.h"
+#include "game.h"
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 #include "mouse_manager.h"
@@ -320,6 +321,35 @@ bool _windowActivateRegion(const char* regionName, int a2)
     }
 
     return false;
+}
+
+// 0x4B6ED0
+int _getInput()
+{
+    int keyCode = _get_input();
+    if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
+        showQuitConfirmationDialog();
+    }
+
+    if (_game_user_wants_to_quit != 0) {
+        _said_quit = 1 - _said_quit;
+        if (_said_quit) {
+            return -1;
+        }
+
+        return KEY_ESCAPE;
+    }
+
+    for (int index = 0; index < gWindowInputHandlersLength; index++) {
+        WindowInputHandler* handler = gWindowInputHandlers[index];
+        if (handler != NULL) {
+            if (handler(keyCode) != 0) {
+                return -1;
+            }
+        }
+    }
+
+    return keyCode;
 }
 
 // 0x4B6F60

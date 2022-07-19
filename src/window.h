@@ -118,6 +118,7 @@ void _windowAddInputFunc(WindowInputHandler* handler);
 void _doRegionRightFunc(Region* region, int a2);
 void _doRegionFunc(Region* region, int a2);
 bool _windowActivateRegion(const char* regionName, int a2);
+int _getInput();
 void _doButtonOn(int btn, int keyCode);
 void sub_4B6F68(int btn, int mouseEvent);
 void _doButtonOff(int btn, int keyCode);
