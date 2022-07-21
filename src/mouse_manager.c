@@ -44,6 +44,12 @@ void _initMousemgr()
     mouseSetSensitivity(1.0);
 }
 
+// 0x48569C
+void sub_48569C()
+{
+    // TODO: Incomplete.
+}
+
 // 0x485E58
 bool sub_485E58(char* fileName, int a2, int a3)
 {

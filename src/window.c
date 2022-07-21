@@ -1295,15 +1295,18 @@ void _initWindow(int resolution, int a2)
 // 0x4B947C
 void _windowClose()
 {
-    // TODO: Incomplete, but required for graceful exit.
-
     for (int index = 0; index < MANAGED_WINDOW_COUNT; index++) {
         ManagedWindow* managedWindow = &(gManagedWindows[index]);
         if (managedWindow->window != -1) {
-            // _deleteWindow(managedWindow);
+            _deleteWindow(managedWindow->name);
         }
     }
 
+    if (gWindowInputHandlers != NULL) {
+        internal_free_safe(gWindowInputHandlers, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1573
+    }
+
+    sub_48569C();
     dbExit();
     windowManagerExit();
 }

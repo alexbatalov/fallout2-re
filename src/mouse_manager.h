@@ -12,6 +12,7 @@ int _defaultRateCallback();
 int _defaultTimeCallback();
 void _mousemgrSetNameMangler(char* (*func)(char*));
 void _initMousemgr();
+void sub_48569C();
 bool sub_485E58(char* fileName, int a2, int a3);
 void _mouseHide();
 void _mouseShow();
