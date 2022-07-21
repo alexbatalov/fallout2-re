@@ -1,6 +1,8 @@
 #ifndef OBJ_TYPES_H
 #define OBJ_TYPES_H
 
+#include <assert.h>
+
 // Rotation
 typedef enum Rotation {
     ROTATION_NE, // 0

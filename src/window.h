@@ -7,6 +7,7 @@
 #include "window_manager.h"
 
 #include <stdbool.h>
+#include <assert.h>
 
 #define MANAGED_WINDOW_COUNT (16)
 

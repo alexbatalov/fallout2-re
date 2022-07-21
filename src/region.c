@@ -5,6 +5,7 @@
 
 #include <limits.h>
 #include <string.h>
+#include <assert.h>
 
 static_assert(sizeof(Region) == 140, "wrong size");
 
