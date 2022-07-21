@@ -1281,9 +1281,9 @@ void _initWindow(int resolution, int a2)
     gWidgetFont = 100;
     fontSetCurrent(100);
 
-    _initMousemgr();
+    mouseManagerInit();
 
-    _mousemgrSetNameMangler(_interpretMangleName);
+    mouseManagerSetNameMangler(_interpretMangleName);
 
     for (i = 0; i < 64; i++) {
         for (j = 0; j < 256; j++) {
@@ -1306,7 +1306,7 @@ void _windowClose()
         internal_free_safe(gWindowInputHandlers, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1573
     }
 
-    sub_48569C();
+    mouseManagerExit();
     dbExit();
     windowManagerExit();
 }
@@ -2125,8 +2125,7 @@ bool _windowDeleteRegion(const char* regionName)
 void _updateWindows()
 {
     _movieUpdate();
-    // TODO: Incomplete.
-    // _mousemgrUpdate();
+    mouseManagerUpdate();
     _checkAllRegions();
     _update_widgets();
 }

@@ -1736,7 +1736,7 @@ void opMouseShape(Program* program)
     }
 
     char *fileName = programGetString(program, opcode[2], data[2]);
-    if (!sub_485E58(fileName, data[1], data[0])) {
+    if (!mouseManagerSetMouseShape(fileName, data[1], data[0])) {
         programFatalError("Error loading mouse shape.");
     }
 }
