@@ -189,7 +189,7 @@ void _UnloadDirectX(void)
 // 0x4DE9F4
 void _SignalHandler(int sig)
 {
-    // TODO: Incomplete.
+    windowManagerExit();
 }
 
 // 0x4DE9FC
