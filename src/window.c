@@ -2326,6 +2326,59 @@ void _drawScaledBuf(unsigned char* dest, int destWidth, int destHeight, unsigned
     }
 }
 
+// 0x4BB7D8
+void _alphaBltBuf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* alphaWindowBuffer, unsigned char* alphaBuffer, unsigned char* dest, int destPitch)
+{
+    for (int y = 0; y < srcHeight; y++) {
+        for (int x = 0; x < srcWidth; x++) {
+            int rle = (alphaBuffer[0] << 8) + alphaBuffer[1];
+            alphaBuffer += 2;
+            if ((rle & 0x8000) != 0) {
+                rle &= ~0x8000;
+            } else if ((rle & 0x4000) != 0) {
+                rle &= ~0x4000;
+                memcpy(dest, src, rle);
+            } else {
+                unsigned char* destPtr = dest;
+                unsigned char* srcPtr = src;
+                unsigned char* alphaWindowBufferPtr = alphaWindowBuffer;
+                unsigned char* alphaBufferPtr = alphaBuffer;
+                for (int index = 0; index < rle; index++) {
+                    // TODO: Check.
+                    unsigned char* v1 = &(_cmap[*srcPtr * 3]);
+                    unsigned char* v2 = &(_cmap[*alphaWindowBufferPtr * 3]);
+                    unsigned char alpha = *alphaBufferPtr;
+
+                    // NOTE: Original code is slightly different.
+                    unsigned int r = _alphaBlendTable[(v1[0] << 8) | alpha] + _alphaBlendTable[(v2[0] << 8) | alpha];
+                    unsigned int g = _alphaBlendTable[(v1[1] << 8) | alpha] + _alphaBlendTable[(v2[1] << 8) | alpha];
+                    unsigned int b = _alphaBlendTable[(v1[2] << 8) | alpha] + _alphaBlendTable[(v2[2] << 8) | alpha];
+                    unsigned int colorIndex = (r << 10) | (g << 5) | b;
+
+                    *destPtr = _colorTable[colorIndex];
+                    
+                    destPtr++;
+                    srcPtr++;
+                    alphaWindowBufferPtr++;
+                    alphaBufferPtr++;
+                }
+
+                alphaBuffer += rle;
+                if ((rle & 1) != 0) {
+                    alphaBuffer++;
+                }
+            }
+
+            src += rle;
+            dest += rle;
+            alphaWindowBuffer += rle;
+        }
+
+        src += srcPitch - srcWidth;
+        dest += destPitch - srcWidth;
+    }
+}
+
 // 0x4BBFC4
 void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight)
 {
