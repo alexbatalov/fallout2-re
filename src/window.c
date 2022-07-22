@@ -296,7 +296,6 @@ void _windowAddInputFunc(WindowInputHandler* handler)
 
     gWindowInputHandlers[gWindowInputHandlersLength] = handler;
     gWindowInputHandlersLength++;
-
 }
 
 // 0x4B6CE8
@@ -903,7 +902,7 @@ char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLe
 
     char** substringList = NULL;
     int substringListLength = 0;
-    
+
     char* start = string;
     char* pch = string;
     int v1 = a3;
@@ -1526,7 +1525,7 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
         pressed,
         NULL,
         flags);
-    
+
     if (off_672D98 != NULL || off_672D9C != NULL) {
         buttonSetCallbacks(managedButton->btn, off_672D98, off_672D9C);
     }
@@ -2142,7 +2141,7 @@ bool _windowSetMovieFlags(int flags)
     if (movieSetFlags(flags) != 0) {
         return false;
     }
-    
+
     return true;
 }
 
@@ -2185,7 +2184,141 @@ void _drawScaledBuf(unsigned char* dest, int destWidth, int destHeight, unsigned
 }
 
 // 0x4BBFC4
-void sub_4BBFC4(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight)
+void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight)
 {
-    // TODO: Incomplete.
+    int chunkWidth = srcWidth / 3;
+    int chunkHeight = srcHeight / 3;
+
+    // Middle Middle
+    unsigned char* ptr = src + srcWidth * chunkHeight + chunkWidth;
+    for (int x = 0; x < destWidth; x += chunkWidth) {
+        for (int y = 0; y < destHeight; y += chunkHeight) {
+            int middleWidth;
+            if (x + chunkWidth >= destWidth) {
+                middleWidth = destWidth - x;
+            } else {
+                middleWidth = chunkWidth;
+            }
+            int middleY = y + chunkHeight;
+            if (middleY >= destHeight) {
+                middleY = destHeight;
+            }
+            blitBufferToBuffer(ptr,
+                middleWidth,
+                middleY - y,
+                srcWidth,
+                dest + destWidth * y + x,
+                destWidth);
+        }
+    }
+
+    // Middle Column
+    for (int x = 0; x < destWidth; x += chunkWidth) {
+        // Top Middle
+        int topMiddleX = chunkWidth + x;
+        if (topMiddleX >= destWidth) {
+            topMiddleX = destWidth;
+        }
+        int topMiddleHeight = chunkHeight;
+        if (topMiddleHeight >= destHeight) {
+            topMiddleHeight = destHeight;
+        }
+        blitBufferToBuffer(src + chunkWidth,
+            topMiddleX - x,
+            topMiddleHeight,
+            srcWidth,
+            dest + x,
+            destWidth);
+
+        // Bottom Middle
+        int bottomMiddleX = chunkWidth + x;
+        if (bottomMiddleX >= destWidth) {
+            bottomMiddleX = destWidth;
+        }
+        blitBufferToBuffer(src + srcWidth * 2 * chunkHeight + chunkWidth,
+            bottomMiddleX - x,
+            destHeight - (destHeight - chunkHeight),
+            srcWidth,
+            dest + destWidth * (destHeight - chunkHeight) + x,
+            destWidth);
+    }
+
+    // Middle Row
+    for (int y = 0; y < destHeight; y += chunkHeight) {
+        // Middle Left
+        int middleLeftWidth = chunkWidth;
+        if (middleLeftWidth >= destWidth) {
+            middleLeftWidth = destWidth;
+        }
+        int middleLeftY = chunkHeight + y;
+        if (middleLeftY >= destHeight) {
+            middleLeftY = destHeight;
+        }
+        blitBufferToBuffer(src + srcWidth * chunkHeight,
+            middleLeftWidth,
+            middleLeftY - y,
+            srcWidth,
+            dest + destWidth * y,
+            destWidth);
+
+        // Middle Right
+        int middleRightY = chunkHeight + y;
+        if (middleRightY >= destHeight) {
+            middleRightY = destHeight;
+        }
+        blitBufferToBuffer(src + 2 * chunkWidth + srcWidth * chunkHeight,
+            destWidth - (destWidth - chunkWidth),
+            middleRightY - y,
+            srcWidth,
+            dest + destWidth * y + destWidth - chunkWidth,
+            destWidth);
+    }
+
+    // Top Left
+    int topLeftWidth = chunkWidth;
+    if (topLeftWidth >= destWidth) {
+        topLeftWidth = destWidth;
+    }
+    int topLeftHeight = chunkHeight;
+    if (topLeftHeight >= destHeight) {
+        topLeftHeight = destHeight;
+    }
+    blitBufferToBuffer(src,
+        topLeftWidth,
+        topLeftHeight,
+        srcWidth,
+        dest,
+        destWidth);
+
+    // Bottom Left
+    int bottomLeftHeight = chunkHeight;
+    if (chunkHeight >= destHeight) {
+        bottomLeftHeight = destHeight;
+    }
+    blitBufferToBuffer(src + chunkWidth * 2,
+        destWidth - (destWidth - chunkWidth),
+        bottomLeftHeight,
+        srcWidth,
+        dest + destWidth - chunkWidth,
+        destWidth);
+
+    // Top Right
+    int topRightWidth = chunkWidth;
+    if (chunkWidth >= destWidth) {
+        topRightWidth = destWidth;
+    }
+    blitBufferToBuffer(src + srcWidth * 2 * chunkHeight,
+        topRightWidth,
+        destHeight - (destHeight - chunkHeight),
+        srcWidth,
+        dest + destWidth * (destHeight - chunkHeight),
+        destWidth);
+
+    // Bottom Right
+    blitBufferToBuffer(src + 2 * chunkWidth + srcWidth * 2 * chunkHeight,
+        destWidth - (destWidth - chunkWidth),
+        destHeight - (destHeight - chunkHeight),
+        srcWidth,
+        dest + destWidth * (destHeight - chunkHeight) + (destWidth - chunkWidth),
+        destWidth);
 }

@@ -77,7 +77,7 @@ void opFillWin3x3(Program* program)
     int windowHeight = _windowHeight();
     int windowWidth = _windowWidth();
     unsigned char* windowBuffer = _windowGetBuffer();
-    sub_4BBFC4(imageData,
+    _fillBuf3x3(imageData,
         imageWidth,
         imageHeight,
         windowBuffer,
