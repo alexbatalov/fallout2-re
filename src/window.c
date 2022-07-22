@@ -2253,7 +2253,77 @@ void _drawScaled(unsigned char* dest, int destWidth, int destHeight, int destPit
 // 0x4BB5D0
 void _drawScaledBuf(unsigned char* dest, int destWidth, int destHeight, unsigned char* src, int srcWidth, int srcHeight)
 {
-    // TODO: Incomplete.
+    if (destWidth == srcWidth && destHeight == srcHeight) {
+        memcpy(dest, src, srcWidth * srcHeight);
+        return;
+    }
+
+    int incrementX = (srcWidth << 16) / destWidth;
+    int incrementY = (srcHeight << 16) / destHeight;
+    int stepX = incrementX >> 16;
+    int stepY = incrementY >> 16;
+    int srcSkip = stepY * srcWidth;
+
+    if (srcSkip != 0) {
+        // Downscaling.
+        int srcPosY = 0;
+        for (int y = 0; y < destHeight; y++) {
+            int srcPosX = 0;
+            int offset = 0;
+            for (int x = 0; x < destWidth; x++) {
+                *dest++ = src[offset];
+                offset += stepX;
+
+                srcPosX += incrementX;
+                if (srcPosX >= 0x10000) {
+                    srcPosX &= 0xFFFF;
+                }
+            }
+
+            src += srcSkip;
+
+            srcPosY += stepY;
+            if (srcPosY >= 0x10000) {
+                srcPosY &= 0xFFFF;
+                src += srcWidth;
+            }
+        }
+    } else {
+        // Upscaling.
+        int y = 0;
+        int srcPosY = 0;
+        while (y < destHeight) {
+            unsigned char* destPtr = dest;
+
+            int srcPosX = 0;
+            int offset = 0;
+            for (int x = 0; x < destWidth; x++) {
+                *dest++ = src[offset];
+                offset += stepX;
+
+                srcPosX += stepX;
+                if (srcPosX >= 0x10000) {
+                    offset++;
+                    srcPosX &= 0xFFFF;
+                }
+            }
+
+            y++;
+            if (y < destHeight) {
+                srcPosY += incrementY;
+
+                while (y < destHeight && srcPosY < 0x10000) {
+                    memcpy(dest, destPtr, destWidth);
+                    dest += destWidth;
+                    srcPosY += incrementY;
+                    y++;
+                }
+
+                srcPosY &= 0xFFFF;
+                src += srcWidth;
+            }
+        }
+    }
 }
 
 // 0x4BBFC4
