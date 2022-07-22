@@ -81,7 +81,7 @@ void movieDirectImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int
 void movieBufferedImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9);
 int _movieScaleSubRectAlpha(int a1);
 int _blitAlpha(int win, unsigned char* data, int width, int height, int pitch);
-int _blitNormal(int win, int a2, int a3, int a4, int a5);
+int _blitNormal(int win, unsigned char* data, int width, int height, int pitch);
 void movieSetPaletteEntriesImpl(unsigned char* palette, int start, int end);
 int _noop();
 void movieInit();

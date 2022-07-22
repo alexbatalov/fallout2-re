@@ -288,17 +288,11 @@ int _blitAlpha(int win, unsigned char* data, int width, int height, int pitch)
 }
 
 // 0x486D84
-int _blitNormal(int win, int a2, int a3, int a4, int a5)
+int _blitNormal(int win, unsigned char* data, int width, int height, int pitch)
 {
-    unsigned char* buf;
-    int offset;
-
-    offset = windowGetWidth(win) * _movieY + _movieX;
-    buf = windowGetBuffer(win);
-
-    // TODO: Incomplete.
-    // _drawScaled(buf + offset, _movieW, _movieH, windowGetWidth(win), a2, a3, a4, a5);
-
+    int windowWidth = windowGetWidth(win);
+    unsigned char* windowBuffer = windowGetBuffer(win);
+    _drawScaled(windowBuffer + windowWidth * _movieY + _movieX, _movieW, _movieH, windowWidth, data, width, height, pitch);
     return 1;
 }
 
