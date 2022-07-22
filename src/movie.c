@@ -279,17 +279,11 @@ int _movieScaleSubRectAlpha(int a1)
 }
 
 // 0x486C80
-int _blitAlpha(int win, unsigned char* a2, int a3, int a4, int a5)
+int _blitAlpha(int win, unsigned char* data, int width, int height, int pitch)
 {
-    unsigned char* buf;
-    int offset;
-
-    offset = windowGetWidth(win) * _movieY + _movieX;
-    buf = windowGetBuffer(win);
-
-    // TODO: Incomplete.
-    // _alphaBltBuf(a2, a3, a4, a5, _alphaWindowBuf, _alphaBuf, buf + offset, windowGetWidth(win));
-
+    int windowWidth = windowGetWidth(win);
+    unsigned char* windowBuffer = windowGetBuffer(win);
+    _alphaBltBuf(data, width, height, pitch, _alphaWindowBuf, _alphaBuf, windowBuffer + windowWidth * _movieY + _movieX, windowWidth);
     return 1;
 }
 
