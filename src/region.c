@@ -45,6 +45,82 @@ void _regionSetBound(Region* region)
     }
 }
 
+// 0x4A2C14
+bool regionContainsPoint(Region* region, int x, int y)
+{
+    if (region == NULL) {
+        return false;
+    }
+
+    if (x < region->field_24 || x > region->field_2C || y < region->field_28 || y > region->field_30) {
+        return false;
+    }
+
+    int v1;
+
+    Point* prev = &(region->points[0]);
+    if (x >= prev->x) {
+        if (y >= prev->y) {
+            v1 = 2;
+        } else {
+            v1 = 1;
+        }
+    } else {
+        if (y >= prev->y) {
+            v1 = 3;
+        } else {
+            v1 = 0;
+        }
+    }
+
+    int v4 = 0;
+    for (int index = 0; index < region->pointsLength; index++) {
+        int v2;
+
+        Point* point = &(region->points[index + 1]);
+        if (x >= point->x) {
+            if (y >= point->y) {
+                v2 = 2;
+            } else {
+                v2 = 1;
+            }
+        } else {
+            if (y >= point->y) {
+                v2 = 3;
+            } else {
+                v2 = 0;
+            }
+        }
+
+        int v3 = v2 - v1;
+        switch (v3) {
+        case -3:
+            v3 = 1;
+            break;
+        case -2:
+        case 2:
+            if ((double)x < ((double)point->x - (double)(prev->x - point->x) / (double)(prev->y - point->y) * (double)(point->y - y))) {
+                v3 = -v3;
+            }
+            break;
+        case 3:
+            v3 = -1;
+            break;
+        }
+
+        prev = point;
+        v1 = v2;
+
+        v4 += v3;
+    }
+
+    if (v4 == 4 || v4 == -4) {
+        return true;
+    }
+
+    return false;
+}
+
 // 0x4A2D78
 Region* regionCreate(int initialCapacity)
 {

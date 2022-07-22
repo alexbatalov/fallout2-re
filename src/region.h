@@ -38,6 +38,7 @@ typedef struct Region {
 extern char _aNull[];
 
 void _regionSetBound(Region* region);
+bool regionContainsPoint(Region* region, int x, int y);
 Region* regionCreate(int a1);
 void regionAddPoint(Region* region, int x, int y);
 void regionDelete(Region* region);
