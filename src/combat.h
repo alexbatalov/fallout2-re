@@ -14,7 +14,7 @@ extern char _a_1[];
 extern int _combat_turn_running;
 extern int _combatNumTurns;
 extern unsigned int gCombatState;
-extern STRUCT_510948* _aiInfoList;
+extern CombatAIInfo* _aiInfoList;
 extern STRUCT_664980* _gcsd;
 extern bool _combat_call_display;
 extern const int _hit_location_penalty[HIT_LOCATION_COUNT];
