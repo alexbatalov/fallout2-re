@@ -630,7 +630,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
             }
         }
 
-        bool v1 = *pattern == '*';
+        bool isWildcard = *pattern == '*';
 
         for (int index = 0; index < fileNamesLength; index += 1) {
             const char* name = xlist->fileNames[index];
@@ -639,16 +639,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
             char extension[_MAX_EXT];
             _splitpath(name, NULL, dir, fileName, extension);
 
-            bool v2 = false;
-            if (v1) {
-                char* pch = dir;
-                while (*pch != '\0' && *pch != '\\') {
-                    pch++;
-                }
-                v2 = *pch != '\0';
-            }
-
-            if (!v2) {
+            if (!isWildcard || *dir == '\0' || strchr(dir, '\\') == NULL) {
                 // FIXME: There is a buffer overlow bug in this implementation.
                 // `fileNames` entries are dynamically allocated strings
                 // themselves produced by `strdup` in `xlistEnumerateHandler`.
