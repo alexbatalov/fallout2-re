@@ -1223,9 +1223,7 @@ int _proto_header_load()
         ptr->max_entries_num = 1;
 
         char path[MAX_PATH];
-        strcpy(path, _cd_path_base);
-        strcat(path, _proto_path_base);
-        strcat(path, artGetObjectTypeName(index));
+        _proto_make_path(path, index << 24);
         strcat(path, "\\");
         strcat(path, artGetObjectTypeName(index));
         strcat(path, ".lst");
