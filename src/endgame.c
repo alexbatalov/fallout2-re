@@ -703,23 +703,15 @@ int endgameEndingSubtitlesLoad(const char* filePath)
         char* pch;
 
         // Find and clamp string at EOL.
-        pch = string;
-        while (*pch != '\0' && *pch != '\n') {
-            pch++;
-        }
-
-        if (*pch != '\0') {
+        pch = strchr(string, '\n');
+        if (pch != NULL) {
             *pch = '\0';
         }
 
         // Find separator. The value before separator is ignored (as opposed to
         // movie subtitles, where the value before separator is a timing).
-        pch = string;
-        while (*pch != '\0' && *pch != ':') {
-            pch++;
-        }
-
-        if (*pch != '\0') {
+        pch = strchr(string, ':');
+        if (pch != NULL) {
             if (gEndgameEndingSubtitlesLength < ENDGAME_ENDING_MAX_SUBTITLES) {
                 gEndgameEndingSubtitles[gEndgameEndingSubtitlesLength] = internal_strdup(pch + 1);
                 gEndgameEndingSubtitlesLength++;
