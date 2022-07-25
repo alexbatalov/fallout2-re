@@ -93,10 +93,8 @@ int* gArtCritterFidShoudRunData;
 int artInit()
 {
     char path[MAX_PATH];
-    int i;
     File* stream;
-    char str[200];
-    char *ptr, *curr;
+    char string[200];
 
     int cacheSize;
     if (!configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_ART_CACHE_SIZE_KEY, &cacheSize)) {
@@ -114,20 +112,20 @@ int artInit()
         gArtLanguageInitialized = true;
     }
 
-    for (i = 0; i < 11; i++) {
-        gArtListDescriptions[i].flags = 0;
-        sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[i].name, gArtListDescriptions[i].name);
+    for (int objectType = 0; objectType < OBJ_TYPE_COUNT; objectType++) {
+        gArtListDescriptions[objectType].flags = 0;
+        sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[objectType].name, gArtListDescriptions[objectType].name);
 
-        if (artReadList(path, &(gArtListDescriptions[i].fileNames), &(gArtListDescriptions[i].fileNamesLength)) != 0) {
+        if (artReadList(path, &(gArtListDescriptions[objectType].fileNames), &(gArtListDescriptions[objectType].fileNamesLength)) != 0) {
             debugPrint("art_read_lst failed in art_init\n");
             cacheFree(&gArtCache);
             return -1;
         }
     }
 
-    _anon_alias = (int*)internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[1].fileNamesLength);
+    _anon_alias = (int*)internal_malloc(sizeof(*_anon_alias) * gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength);
     if (_anon_alias == NULL) {
-        gArtListDescriptions[1].fileNamesLength = 0;
+        gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debugPrint("Out of memory for anon_alias in art_init\n");
         cacheFree(&gArtCache);
         return -1;
@@ -135,17 +133,17 @@ int artInit()
 
     gArtCritterFidShoudRunData = (int*)internal_malloc(sizeof(*gArtCritterFidShoudRunData) * gArtListDescriptions[1].fileNamesLength);
     if (gArtCritterFidShoudRunData == NULL) {
-        gArtListDescriptions[1].fileNamesLength = 0;
+        gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debugPrint("Out of memory for artCritterFidShouldRunData in art_init\n");
         cacheFree(&gArtCache);
         return -1;
     }
 
-    for (i = 0; i < gArtListDescriptions[1].fileNamesLength; i++) {
-        gArtCritterFidShoudRunData[i] = 0;
+    for (int critterIndex = 0; critterIndex < gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength; critterIndex++) {
+        gArtCritterFidShoudRunData[critterIndex] = 0;
     }
 
-    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[1].name, gArtListDescriptions[1].name);
+    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[OBJ_TYPE_CRITTER].name, gArtListDescriptions[OBJ_TYPE_CRITTER].name);
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -154,69 +152,64 @@ int artInit()
         return -1;
     }
 
-    ptr = gArtListDescriptions[1].fileNames;
-    for (i = 0; i < gArtListDescriptions[1].fileNamesLength; i++) {
-        if (stricmp(ptr, "hmjmps") == 0) {
-            _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_MALE] = i;
-        } else if (stricmp(ptr, "hfjmps") == 0) {
-            _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_FEMALE] = i;
+    char* critterFileNames = gArtListDescriptions[OBJ_TYPE_CRITTER].fileNames;
+    for (int critterIndex = 0; critterIndex < gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength; critterIndex++) {
+        if (stricmp(critterFileNames, "hmjmps") == 0) {
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_MALE] = critterIndex;
+        } else if (stricmp(critterFileNames, "hfjmps") == 0) {
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_JUMPSUIT][GENDER_FEMALE] = critterIndex;
         }
 
-        if (stricmp(ptr, "hmwarr") == 0) {
-            _art_vault_person_nums[DUDE_NATIVE_LOOK_TRIBAL][GENDER_MALE] = i;
-            _art_vault_guy_num = i;
-        } else if (stricmp(ptr, "hfprim") == 0) {
-            _art_vault_person_nums[DUDE_NATIVE_LOOK_TRIBAL][GENDER_FEMALE] = i;
+        if (stricmp(critterFileNames, "hmwarr") == 0) {
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_TRIBAL][GENDER_MALE] = critterIndex;
+            _art_vault_guy_num = critterIndex;
+        } else if (stricmp(critterFileNames, "hfprim") == 0) {
+            _art_vault_person_nums[DUDE_NATIVE_LOOK_TRIBAL][GENDER_FEMALE] = critterIndex;
         }
 
-        ptr += 13;
+        critterFileNames += 13;
     }
 
-    for (i = 0; i < gArtListDescriptions[1].fileNamesLength; i++) {
-        if (!fileReadString(str, sizeof(str), stream)) {
+    for (int critterIndex = 0; critterIndex < gArtListDescriptions[OBJ_TYPE_CRITTER].fileNamesLength; critterIndex++) {
+        if (!fileReadString(string, sizeof(string), stream)) {
             break;
         }
 
-        ptr = str;
-        curr = ptr;
-        while (*curr != '\0' && *curr != ',') {
-            curr++;
-        }
+        char* sep1 = strchr(string, ',');
+        if (sep1 != NULL) {
+            _anon_alias[critterIndex] = atoi(sep1 + 1);
 
-        if (*curr != '\0') {
-            _anon_alias[i] = atoi(curr + 1);
-
-            ptr = curr + 1;
-            curr = ptr;
-            while (*curr != '\0' && *curr != ',') {
-                curr++;
+            char* sep2 = strchr(sep1 + 1, ',');
+            if (sep2 != NULL) {
+                gArtCritterFidShoudRunData[critterIndex] = atoi(sep2 + 1);
+            } else {
+                gArtCritterFidShoudRunData[critterIndex] = 0;
             }
-
-            gArtCritterFidShoudRunData[i] = *curr != '\0' ? atoi(ptr) : 0;
         } else {
-            _anon_alias[i] = _art_vault_guy_num;
-            gArtCritterFidShoudRunData[i] = 1;
+            _anon_alias[critterIndex] = _art_vault_guy_num;
+            gArtCritterFidShoudRunData[critterIndex] = 1;
         }
     }
 
     fileClose(stream);
 
-    ptr = gArtListDescriptions[4].fileNames;
-    for (i = 0; i < gArtListDescriptions[4].fileNamesLength; i++) {
-        if (stricmp(ptr, "grid001.frm") == 0) {
-            _art_mapper_blank_tile = i;
+    char* tileFileNames = gArtListDescriptions[OBJ_TYPE_TILE].fileNames;
+    for (int tileIndex = 0; tileIndex < gArtListDescriptions[OBJ_TYPE_TILE].fileNamesLength; tileIndex++) {
+        if (stricmp(tileFileNames, "grid001.frm") == 0) {
+            _art_mapper_blank_tile = tileIndex;
         }
+        tileFileNames += 13;
     }
 
-    gHeadDescriptions = (HeadDescription*)internal_malloc(sizeof(HeadDescription) * gArtListDescriptions[8].fileNamesLength);
+    gHeadDescriptions = (HeadDescription*)internal_malloc(sizeof(*gHeadDescriptions) * gArtListDescriptions[OBJ_TYPE_HEAD].fileNamesLength);
     if (gHeadDescriptions == NULL) {
-        gArtListDescriptions[8].fileNamesLength = 0;
+        gArtListDescriptions[OBJ_TYPE_HEAD].fileNamesLength = 0;
         debugPrint("Out of memory for head_info in art_init\n");
         cacheFree(&gArtCache);
         return -1;
     }
 
-    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[8].name, gArtListDescriptions[8].name);
+    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", gArtListDescriptions[OBJ_TYPE_HEAD].name, gArtListDescriptions[OBJ_TYPE_HEAD].name);
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -225,46 +218,42 @@ int artInit()
         return -1;
     }
 
-    for (i = 0; i < gArtListDescriptions[8].fileNamesLength; i++) {
-        if (!fileReadString(str, sizeof(str), stream)) {
+    for (int headIndex = 0; headIndex < gArtListDescriptions[OBJ_TYPE_HEAD].fileNamesLength; headIndex++) {
+        if (!fileReadString(string, sizeof(string), stream)) {
             break;
         }
 
-        ptr = str;
-        curr = ptr;
-        while (*curr != '\0' && *curr != ',') {
-            curr++;
+        char* sep1 = strchr(string, ',');
+        if (sep1 != NULL) {
+            *sep1 = '\0';
+        } else {
+            sep1 = string;
         }
 
-        if (*curr != '\0') {
-            ptr = curr + 1;
-            curr = ptr;
-            while (*curr != '\0' && *curr != ',') {
-                curr++;
-            }
-
-            if (*curr != '\0') {
-                gHeadDescriptions[i].goodFidgetCount = atoi(ptr);
-
-                ptr = curr + 1;
-                curr = ptr;
-                while (*curr != '\0' && *curr != ',') {
-                    curr++;
-                }
-
-                if (*curr != '\0') {
-                    gHeadDescriptions[i].neutralFidgetCount = atoi(ptr);
-
-                    ptr = curr + 1;
-                    curr = strpbrk(ptr, " ,;\t\n");
-                    if (curr != NULL) {
-                        *curr = '\0';
-                    }
-
-                    gHeadDescriptions[i].badFidgetCount = atoi(ptr);
-                }
-            }
+        char* sep2 = strchr(sep1, ',');
+        if (sep2 != NULL) {
+            *sep2 = '\0';
+        } else {
+            sep2 = sep1;
         }
+
+        gHeadDescriptions[headIndex].goodFidgetCount = atoi(sep1 + 1);
+
+        char* sep3 = strchr(sep2, ',');
+        if (sep3 != NULL) {
+            *sep3 = '\0';
+        } else {
+            sep3 = sep2;
+        }
+
+        gHeadDescriptions[headIndex].neutralFidgetCount = atoi(sep2 + 1);
+
+        char* sep4 = strpbrk(sep3 + 1, " ,;\t\n");
+        if (sep4 != NULL) {
+            *sep4 = '\0';
+        }
+
+        gHeadDescriptions[headIndex].badFidgetCount = atoi(sep3 + 1);
     }
 
     fileClose(stream);
