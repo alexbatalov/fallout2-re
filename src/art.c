@@ -893,12 +893,8 @@ int artCacheGetFileSizeImpl(int fid, int* sizePtr)
         bool loaded = false;
 
         if (gArtLanguageInitialized) {
-            char* pch = artFilePath;
-            while (*pch != '\0' && *pch != '\\') {
-                pch++;
-            }
-
-            if (*pch == '\0') {
+            char* pch = strchr(artFilePath, '\\');
+            if (pch == NULL) {
                 pch = artFilePath;
             }
 
