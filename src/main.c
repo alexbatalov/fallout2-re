@@ -618,39 +618,23 @@ int _mainDeathGrabTextFile(const char* fileName, char* dest)
 // 0x481598
 int _mainDeathWordWrap(char* text, int width, short* beginnings, short* count)
 {
-    // TODO: Probably wrong.
     while (true) {
-        char* p = text;
-        while (*p != ':') {
-            if (*p != '\0') {
-                p++;
-                if (*p == ':') {
-                    break;
-                }
-                if (*p != '\0') {
-                    continue;
-                }
-            }
-            p = NULL;
+        char* sep = strchr(text, ':');
+        if (sep == NULL) {
             break;
         }
 
-        if (p == NULL) {
+        if (sep - 1 < text) {
             break;
         }
-
-        if (p - 1 < text) {
-            break;
-        }
-        p[0] = ' ';
-        p[-1] = ' ';
+        sep[0] = ' ';
+        sep[-1] = ' ';
     }
 
     if (wordWrap(text, width, beginnings, count) == -1) {
         return -1;
     }
 
-    // TODO: Probably wrong.
     *count -= 1;
 
     for (int index = 1; index < *count; index++) {
