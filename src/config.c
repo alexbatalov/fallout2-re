@@ -409,12 +409,8 @@ bool configParseKeyValue(char* string, char* key, char* value)
     }
 
     // Find equals character.
-    char* pch = string;
-    while (*pch != '\0' && *pch != '=') {
-        pch++;
-    }
-
-    if (*pch == '\0') {
+    char* pch = strchr(string, '=');
+    if (pch == NULL) {
         return false;
     }
 
