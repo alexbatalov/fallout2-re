@@ -130,6 +130,7 @@ extern char* gCaliberTypeNames[19];
 extern char** _perk_code_strs;
 extern char** _critter_stats_list;
 
+void _proto_make_path(char* path, int pid);
 int _proto_list_str(int pid, char* proto_path);
 bool _proto_action_can_use(int pid);
 bool _proto_action_can_use_on(int pid);

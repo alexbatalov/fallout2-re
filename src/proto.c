@@ -168,17 +168,21 @@ char** _perk_code_strs;
 // 0x6648BC
 char** _critter_stats_list;
 
+// NOTE: Inlined.
+void _proto_make_path(char* path, int pid)
+{
+    strcpy(path, _cd_path_base);
+    strcat(path, _proto_path_base);
+    if (pid != -1) {
+        strcat(path, artGetObjectTypeName(PID_TYPE(pid)));
+    }
+}
+
 // Append proto file name to proto_path from proto.lst.
 //
 // 0x49E758
 int _proto_list_str(int pid, char* proto_path)
 {
-    char path[MAX_PATH];
-    char str[MAX_PATH];
-    char* pch;
-    File* stream;
-    int i;
-
     if (pid == -1) {
         return -1;
     }
@@ -187,17 +191,17 @@ int _proto_list_str(int pid, char* proto_path)
         return -1;
     }
 
-    strcpy(path, _cd_path_base);
-    strcat(path, "proto\\");
-    strcat(path, artGetObjectTypeName(PID_TYPE(pid)));
+    char path[MAX_PATH];
+    _proto_make_path(path, pid);
     strcat(path, "\\");
     strcat(path, artGetObjectTypeName(PID_TYPE(pid)));
     strcat(path, ".lst");
 
-    stream = fileOpen(path, "rt");
+    File* stream = fileOpen(path, "rt");
 
-    i = 1;
-    while (fileReadString(str, sizeof(str), stream)) {
+    int i = 1;
+    char string[256];
+    while (fileReadString(string, sizeof(string), stream)) {
         if (i == (pid & 0xFFFFFF)) {
             break;
         }
@@ -211,14 +215,17 @@ int _proto_list_str(int pid, char* proto_path)
         return -1;
     }
 
-    pch = str;
-    while (*pch != '\0' && *pch != '\n') {
-        *proto_path = *pch;
-        proto_path++;
-        pch++;
+    char* pch = strchr(string, ' ');
+    if (pch != NULL) {
+        *pch = '\0';
     }
 
-    *proto_path = '\0';
+    pch = strchr(string, '\n');
+    if (pch != NULL) {
+        *pch = '\0';
+    }
+
+    strcpy(proto_path, string);
 
     return 0;
 }
