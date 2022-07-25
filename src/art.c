@@ -940,12 +940,8 @@ int artCacheReadDataImpl(int fid, int* sizePtr, unsigned char* data)
     if (artFileName != NULL) {
         bool loaded = false;
         if (gArtLanguageInitialized) {
-            char* pch = artFileName;
-            while (*pch != '\0' && *pch != '\\') {
-                pch++;
-            }
-
-            if (*pch == '\0') {
+            char* pch = strchr(artFileName, '\\');
+            if (pch == NULL) {
                 pch = artFileName;
             }
 
