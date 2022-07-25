@@ -357,30 +357,19 @@ bool configParseLine(Config* config, char* string)
     char* pch;
 
     // Find comment marker and truncate the string.
-    pch = string;
-    while (*pch != '\0' && *pch != ';') {
-        pch++;
-    }
-
-    if (*pch != '\0') {
+    pch = strchr(string, ';');
+    if (pch != NULL) {
         *pch = '\0';
     }
 
     // Find opening bracket.
-    pch = string;
-    while (*pch != '\0' && *pch != '[') {
-        pch++;
-    }
-
-    if (*pch == '[') {
+    pch = strchr(string, '[');
+    if (pch != NULL) {
         char* sectionKey = pch + 1;
 
         // Find closing bracket.
-        while (*pch != '\0' && *pch != ']') {
-            pch++;
-        }
-
-        if (*pch == ']') {
+        pch = strchr(sectionKey, ']');
+        if (pch != NULL) {
             *pch = '\0';
             strcpy(gConfigLastSectionKey, sectionKey);
             return configTrimString(gConfigLastSectionKey);
