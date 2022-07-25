@@ -1632,14 +1632,8 @@ int _proto_save_pid(int pid)
         return -1;
     }
 
-    char path[260];
-    strcpy(path, _cd_path_base);
-    strcat(path, _proto_path_base);
-
-    if (pid != -1) {
-        strcat(path, artGetObjectTypeName(PID_TYPE(pid)));
-    }
-
+    char path[MAX_PATH];
+    _proto_make_path(path, pid);
     strcat(path, "\\");
 
     _proto_list_str(pid, path + strlen(path));
