@@ -30,7 +30,7 @@ bool gameUiIsDisabled();
 int gameGetGlobalVar(int var);
 int gameSetGlobalVar(int var, int value);
 int gameLoadGlobalVars();
-int globalVarsRead(const char* path, const char* section, int* out_vars_num, int** out_vars);
+int globalVarsRead(const char* path, const char* section, int* variablesListLengthPtr, int** variablesListPtr);
 int _game_state();
 int _game_state_request(int a1);
 void _game_state_update();
