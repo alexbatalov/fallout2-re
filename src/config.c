@@ -68,25 +68,20 @@ bool configParseCommandLineArguments(Config* config, int argc, char** argv)
     }
 
     for (int arg = 0; arg < argc; arg++) {
-        char* pch = argv[arg];
+        char* pch;
+        char* string = argv[arg];
 
         // Find opening bracket.
-        while (*pch != '\0' && *pch != '[') {
-            pch++;
-        }
-
-        if (*pch == '\0') {
+        pch = strchr(string, '[');
+        if (pch == NULL) {
             continue;
         }
 
         char* sectionKey = pch + 1;
 
         // Find closing bracket.
-        while (*pch != '\0' && *pch != ']') {
-            pch++;
-        }
-
-        if (*pch == '\0') {
+        pch = strchr(sectionKey, ']');
+        if (pch == NULL) {
             continue;
         }
 
