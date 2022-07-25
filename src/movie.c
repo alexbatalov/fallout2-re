@@ -692,30 +692,18 @@ void movieLoadSubtitles(char* filePath)
 
         char* pch;
 
-        pch = string;
-        while (*pch != '\0' && *pch != '\n') {
-            pch++;
-        }
-
-        if (*pch != '\0') {
+        pch = strchr(string, '\n');
+        if (pch != NULL) {
             *pch = '\0';
         }
 
-        pch = string;
-        while (*pch != '\0' && *pch != '\r') {
-            pch++;
-        }
-
-        if (*pch != '\0') {
+        pch = strchr(string, '\r');
+        if (pch != NULL) {
             *pch = '\0';
         }
 
-        pch = string;
-        while (*pch != '\0' && *pch != ':') {
-            pch++;
-        }
-
-        if (*pch != '\0') {
+        pch = strchr(string, ':');
+        if (pch != NULL) {
             *pch = '\0';
             subtitle->num = atoi(string);
             subtitle->text = strdup_safe(pch + 1, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1058
