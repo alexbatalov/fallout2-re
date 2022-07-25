@@ -264,6 +264,7 @@ void scriptsRequestDialog(Object* a1);
 void scriptsRequestEndgame();
 int scriptsRequestLooting(Object* a1, Object* a2);
 int scriptsRequestStealing(Object* a1, Object* a2);
+void _script_make_path(char* path);
 int scriptExecProc(int sid, int proc);
 int scriptLocateProcs(Script* scr);
 bool scriptHasProc(int sid, int proc);

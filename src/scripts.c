@@ -1176,6 +1176,13 @@ int scriptsRequestStealing(Object* a1, Object* a2)
     return 0;
 }
 
+// NOTE: Inlined.
+void _script_make_path(char* path)
+{
+    strcpy(path, _cd_path_base);
+    strcat(path, gScriptsBasePath);
+}
+
 // exec_script_proc
 // 0x4A4810
 int scriptExecProc(int sid, int proc)
@@ -1293,7 +1300,8 @@ bool scriptHasProc(int sid, int proc)
 int scriptsLoadScriptsList()
 {
     char path[MAX_PATH];
-    sprintf(path, "%s%s", "scripts\\", "scripts.lst");
+    _script_make_path(path);
+    strcat(path, "scripts.lst");
 
     File* stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -1668,8 +1676,7 @@ int _scr_header_load()
     _num_script_indexes = 0;
 
     char path[MAX_PATH];
-    strcpy(path, _cd_path_base);
-    strcat(path, gScriptsBasePath);
+    _script_make_path(path);
     strcat(path, "scripts.lst");
 
     File* stream = fileOpen(path, "rt");
