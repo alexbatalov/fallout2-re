@@ -207,36 +207,30 @@ bool configGetIntList(Config* config, const char* sectionKey, const char* key, i
     }
 
     char temp[CONFIG_FILE_MAX_LINE_LENGTH];
-    strncpy(temp, string, CONFIG_FILE_MAX_LINE_LENGTH - 1);
+    string = strncpy(temp, string, CONFIG_FILE_MAX_LINE_LENGTH - 1);
 
-    char* beginning = temp;
-    char* pch = beginning;
-    while (*pch != '\0') {
-        if (*pch == ',') {
-            *pch = '\0';
-
-            *arr++ = atoi(beginning);
-
-            *pch = ',';
-
-            pch++;
-            beginning = pch;
-
-            count--;
-
-            if (count < 0) {
-                break;
-            }
+    while (1) {
+        char* pch = strchr(string, ',');
+        if (pch == NULL) {
+            break;
         }
 
-        pch++;
+        count--;
+        if (count == 0) {
+            break;
+        }
+
+        *pch = '\0';
+        *arr++ = atoi(string);
+        string = pch + 1;
     }
 
     if (count <= 1) {
-        *arr = atoi(beginning);
+        *arr = atoi(string);
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 // 0x42C160
