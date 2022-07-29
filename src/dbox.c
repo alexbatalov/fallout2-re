@@ -486,7 +486,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
 }
 
 // 0x41DE90
-int showLoadFileDialog(char *title, char** fileList, char* dest, int fileListLength, int x, int y, int flags)
+int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags)
 {
     int oldFont = fontGetCurrent();
 
@@ -520,7 +520,6 @@ int showLoadFileDialog(char *title, char** fileList, char* dest, int fileListLen
         }
     }
 
-    
     int backgroundWidth = frmSizes[FILE_DIALOG_FRM_BACKGROUND].width;
     int backgroundHeight = frmSizes[FILE_DIALOG_FRM_BACKGROUND].height;
 
@@ -1053,7 +1052,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
 
     char fileNameCopy[32];
     strncpy(fileNameCopy, dest, 32);
-    
+
     int fileNameCopyLength = strlen(fileNameCopy);
     fileNameCopy[fileNameCopyLength + 1] = '\0';
     fileNameCopy[fileNameCopyLength] = ' ';

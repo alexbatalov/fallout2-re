@@ -14,7 +14,7 @@ typedef struct IntLibKeyHandlerEntry {
     int proc;
 } IntLibKeyHandlerEntry;
 
-typedef void (IntLibProgramDeleteCallback)(Program*);
+typedef void(IntLibProgramDeleteCallback)(Program*);
 
 extern Sound* gIntLibSounds[INT_LIB_SOUNDS_CAPACITY];
 extern unsigned char gIntLibFadePalette[256 * 3];

@@ -11,7 +11,6 @@
 #include <dirent.h>
 #endif
 
-
 // NOTE: This structure is significantly different from what was in the
 // original code. Watcom provides opendir/readdir/closedir implementations,
 // that use Win32 FindFirstFile/FindNextFile under the hood, which in turn

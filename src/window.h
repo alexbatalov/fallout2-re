@@ -12,11 +12,11 @@
 
 typedef void (*WINDOWDRAWINGPROC)(unsigned char* src, int src_pitch, int a3, int src_x, int src_y, int src_width, int src_height, int dest_x, int dest_y);
 typedef void WindowDrawingProc2(unsigned char* buf, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9, unsigned char a10);
-typedef bool (WindowInputHandler)(int key);
-typedef void (WindowDeleteCallback)(int windowIndex, const char* windowName);
-typedef void (DisplayInWindowCallback)(int windowIndex, const char* windowName, unsigned char* data, int width, int height);
-typedef void (ManagedButtonMouseEventCallback)(void* userData, int eventType);
-typedef void (ManagedWindowCreateCallback)(int windowIndex, const char* windowName, int* flagsPtr);
+typedef bool(WindowInputHandler)(int key);
+typedef void(WindowDeleteCallback)(int windowIndex, const char* windowName);
+typedef void(DisplayInWindowCallback)(int windowIndex, const char* windowName, unsigned char* data, int width, int height);
+typedef void(ManagedButtonMouseEventCallback)(void* userData, int eventType);
+typedef void(ManagedWindowCreateCallback)(int windowIndex, const char* windowName, int* flagsPtr);
 
 typedef enum TextAlignment {
     TEXT_ALIGNMENT_LEFT,

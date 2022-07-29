@@ -23,6 +23,8 @@ typedef struct ColorPaletteStackEntry {
 
 extern char _aColor_cNoError[];
 extern char _aColor_cColorTa[];
+extern char _aColor_cColorpa[];
+extern char aColor_cColor_0[];
 
 extern char* _errorStr;
 extern bool _colorsInited;

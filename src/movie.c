@@ -217,7 +217,7 @@ bool movieReadImpl(int fileHandle, void* buf, int count)
 }
 
 // 0x486654
-void movieDirectImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+void movieDirectImpl(LPDIRECTDRAWSURFACE surface, int srcWidth, int srcHeight, int srcX, int srcY, int destWidth, int destHeight, int a8, int a9)
 {
     int v14;
     int v15;
@@ -227,10 +227,10 @@ void movieDirectImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int
     ddsd.dwSize = sizeof(DDSURFACEDESC);
 
     RECT srcRect;
-    srcRect.left = a4;
-    srcRect.top = a5;
-    srcRect.right = a2 + a4;
-    srcRect.bottom = a3 + a5;
+    srcRect.left = srcX;
+    srcRect.top = srcY;
+    srcRect.right = srcWidth + srcX;
+    srcRect.bottom = srcHeight + srcY;
 
     v14 = gMovieWindowRect.right - gMovieWindowRect.left;
     v15 = gMovieWindowRect.right - gMovieWindowRect.left + 1;
@@ -239,55 +239,55 @@ void movieDirectImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int
 
     if (_movieScaleFlag) {
         if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
-            destRect.top = (gMovieWindowRect.bottom - gMovieWindowRect.top + 1 - a7) / 2;
-            destRect.left = (v15 - 4 * a2 / 3) / 2;
+            destRect.top = (gMovieWindowRect.bottom - gMovieWindowRect.top + 1 - destHeight) / 2;
+            destRect.left = (v15 - 4 * srcWidth / 3) / 2;
         } else {
             destRect.top = _movieY + gMovieWindowRect.top;
             destRect.left = gMovieWindowRect.left + _movieX;
         }
 
-        destRect.right = 4 * a2 / 3 + destRect.left;
-        destRect.bottom = a7 + destRect.top;
+        destRect.right = 4 * srcWidth / 3 + destRect.left;
+        destRect.bottom = destHeight + destRect.top;
     } else {
         if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
-            destRect.top = (gMovieWindowRect.bottom - gMovieWindowRect.top + 1 - a7) / 2;
-            destRect.left = (v15 - a6) / 2;
+            destRect.top = (gMovieWindowRect.bottom - gMovieWindowRect.top + 1 - destHeight) / 2;
+            destRect.left = (v15 - destWidth) / 2;
         } else {
             destRect.top = _movieY + gMovieWindowRect.top;
             destRect.left = gMovieWindowRect.left + _movieX;
         }
-        destRect.right = a6 + destRect.left;
-        destRect.bottom = a7 + destRect.top;
+        destRect.right = destWidth + destRect.left;
+        destRect.bottom = destHeight + destRect.top;
     }
 
-    _lastMovieSX = a4;
-    _lastMovieSY = a5;
+    _lastMovieSX = srcX;
+    _lastMovieSY = srcY;
     _lastMovieX = destRect.left;
     _lastMovieY = destRect.top;
-    _lastMovieBH = a3;
+    _lastMovieBH = srcHeight;
     _lastMovieW = destRect.right - destRect.left;
-    gMovieDirectDrawSurface = a1;
-    _lastMovieBW = a2;
+    gMovieDirectDrawSurface = surface;
+    _lastMovieBW = srcWidth;
     _lastMovieH = destRect.bottom - destRect.top;
 
     HRESULT hr;
     do {
         if (_movieCaptureFrameFunc != NULL) {
-            if (IDirectDrawSurface_Lock(a1, NULL, &ddsd, 1, NULL) == DD_OK) {
-                unsigned char* data = (unsigned char*)ddsd.lpSurface + ddsd.lPitch * a5 + a4;
+            if (IDirectDrawSurface_Lock(surface, NULL, &ddsd, 1, NULL) == DD_OK) {
+                unsigned char* data = (unsigned char*)ddsd.lpSurface + ddsd.lPitch * srcY + srcX;
                 _movieCaptureFrameFunc(data,
-                    a2,
-                    a3,
+                    srcWidth,
+                    srcHeight,
                     ddsd.lPitch,
                     destRect.left,
                     destRect.top,
                     destRect.right - destRect.left,
                     destRect.bottom - destRect.top);
-                IDirectDrawSurface_Unlock(a1, ddsd.lpSurface);
+                IDirectDrawSurface_Unlock(surface, ddsd.lpSurface);
             }
         }
 
-        hr = IDirectDrawSurface_Blt(gDirectDrawSurface1, &destRect, a1, &srcRect, 0, NULL);
+        hr = IDirectDrawSurface_Blt(gDirectDrawSurface1, &destRect, surface, &srcRect, 0, NULL);
     } while (hr != DD_OK && hr != DDERR_SURFACELOST && hr == DDERR_WASSTILLDRAWING);
 }
 
@@ -843,7 +843,7 @@ int _movieStart(int win, char* filePath, int (*a3)())
     if (_alphaHandle != NULL) {
         int size;
         fileReadInt32(_alphaHandle, &size);
-        
+
         short tmp;
         fileReadInt16(_alphaHandle, &tmp);
         fileReadInt16(_alphaHandle, &tmp);

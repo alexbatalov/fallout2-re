@@ -2,8 +2,8 @@
 
 #include "core.h"
 #include "db.h"
-#include "game_config.h"
 #include "game.h"
+#include "game_config.h"
 
 #include <direct.h>
 #include <stdlib.h>
@@ -155,8 +155,7 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
                     vcrStop();
                     _game_user_wants_to_quit = 2;
                     done = true;
-                }
-                else {
+                } else {
                     gameHandleKey(keyCode, false);
                 }
             }
@@ -213,7 +212,7 @@ int selfrunWriteData(const char* path, SelfrunData* selfrunData)
 
     char* masterPatches;
     configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatches);
-    
+
     char selfrunDirectoryPath[MAX_PATH];
     sprintf(selfrunDirectoryPath, "%s\\%s", masterPatches, "selfrun\\");
 

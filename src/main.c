@@ -368,7 +368,7 @@ void _main_selfrun_exit()
 void _main_selfrun_record()
 {
     SelfrunData selfrunData;
-    bool ready = false; 
+    bool ready = false;
 
     char** fileList;
     int fileListLength = fileNameListInit("maps\\*.map", &fileList, 0, 0);

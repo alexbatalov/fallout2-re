@@ -1,8 +1,8 @@
 #include "party_member.h"
 
-#include "combat_ai.h"
 #include "animation.h"
 #include "color.h"
+#include "combat_ai.h"
 #include "config.h"
 #include "critter.h"
 #include "debug.h"

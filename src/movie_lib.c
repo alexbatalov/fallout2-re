@@ -1362,8 +1362,6 @@ void _CallsSndBuff_Loc(unsigned char* a1, int a2)
 // 0x4F5B70
 int _MVE_sndAdd(unsigned char* dest, unsigned char** src_ptr, int a3, int a4, int a5)
 {
-    int v5;
-    int v7;
     unsigned char* src;
     int v9;
     unsigned short* v10;
@@ -1849,8 +1847,8 @@ void _nfPkDecomp(unsigned char* a1, unsigned char* a2, int a3, int a4, int a5, i
     int v11;
     int v13;
     int byte;
-    int value1;
-    int value2;
+    unsigned int value1;
+    unsigned int value2;
     int var_10;
     unsigned char map1[512];
     unsigned int map2[256];

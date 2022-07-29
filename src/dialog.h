@@ -8,8 +8,11 @@ typedef void DialogFunc2(int win);
 
 typedef struct STRUCT_56DAE0_FIELD_4_FIELD_C {
     char* field_0;
-    char* field_4;
-    int field_8;
+    union {
+        int proc;
+        char* string;
+    };
+    int kind;
     int field_C;
     int field_10;
     int field_14;

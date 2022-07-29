@@ -1604,9 +1604,9 @@ void _fadeSounds()
         }
     }
 
-    if (_fadeHead == NULL && _fadeEventHandle != -1) {
-        timeKillEvent(_fadeEventHandle);
-        _fadeEventHandle = -1;
+    if (_fadeHead == NULL) {
+        // NOTE: Uninline.
+        _removeTimedEvent(&_fadeEventHandle);
     }
 }
 

@@ -190,7 +190,7 @@ void _replyAddOption(const char* a1, const char* a2, int a3)
 
     v18 = _getReply();
     v17 = v18->field_14 - 1;
-    v18->field_C[v17].field_8 = 2;
+    v18->field_C[v17].kind = 2;
 
     if (a1 != NULL) {
         v14 = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 805
@@ -203,9 +203,9 @@ void _replyAddOption(const char* a1, const char* a2, int a3)
     if (a2 != NULL) {
         v15 = (char*)internal_malloc_safe(strlen(a2) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 810
         strcpy(v15, a2);
-        v18->field_C[v17].field_4 = v15;
+        v18->field_C[v17].string = v15;
     } else {
-        v18->field_C[v17].field_4 = NULL;
+        v18->field_C[v17].string = NULL;
     }
 
     v18->field_C[v17].field_18 = widgetGetFont();
@@ -223,7 +223,7 @@ void _replyAddOptionProc(const char* a1, int a2, int a3)
     v5 = _getReply();
     v13 = v5->field_14 - 1;
 
-    v5->field_C[v13].field_8 = 1;
+    v5->field_C[v13].kind = 1;
 
     if (a1 != NULL) {
         v11 = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 830
@@ -233,7 +233,7 @@ void _replyAddOptionProc(const char* a1, int a2, int a3)
         v5->field_C[v13].field_0 = NULL;
     }
 
-    v5->field_C[v13].field_4 = a2;
+    v5->field_C[v13].proc = a2;
 
     v5->field_C[v13].field_18 = widgetGetFont();
     v5->field_C[v13].field_1A = word_56DB60;
@@ -247,9 +247,9 @@ void _optionFree(STRUCT_56DAE0_FIELD_4_FIELD_C* a1)
         internal_free_safe(a1->field_0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 844
     }
 
-    if (a1->field_8 == 2) {
-        if (a1->field_4 != NULL) {
-            internal_free_safe(a1->field_4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 846
+    if (a1->kind == 2) {
+        if (a1->string != NULL) {
+            internal_free_safe(a1->string, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 846
         }
     }
 }

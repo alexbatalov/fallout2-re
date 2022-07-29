@@ -2043,7 +2043,7 @@ int combatLoad(File* stream)
         if (fileReadInt32(stream, &a2) == -1) return -1;
 
         if (a2 == -1) {
-            ptr->friendlyDead = 0;
+            ptr->friendlyDead = NULL;
         } else {
             ptr->friendlyDead = objectFindById(a2);
             if (ptr->friendlyDead == NULL) return -1;
@@ -2052,7 +2052,7 @@ int combatLoad(File* stream)
         if (fileReadInt32(stream, &a2) == -1) return -1;
 
         if (a2 == -1) {
-            ptr->lastTarget = 0;
+            ptr->lastTarget = NULL;
         } else {
             ptr->lastTarget = objectFindById(a2);
             if (ptr->lastTarget == NULL) return -1;
@@ -2061,7 +2061,7 @@ int combatLoad(File* stream)
         if (fileReadInt32(stream, &a2) == -1) return -1;
 
         if (a2 == -1) {
-            ptr->lastItem = 0;
+            ptr->lastItem = NULL;
         } else {
             ptr->lastItem = objectFindById(a2);
             if (ptr->lastItem == NULL) return -1;

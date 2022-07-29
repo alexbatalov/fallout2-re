@@ -3,8 +3,8 @@
 
 #include "art.h"
 #include "db.h"
-#include "message.h"
 #include "geometry.h"
+#include "message.h"
 
 #include <stdbool.h>
 

@@ -204,7 +204,8 @@ int soundEffectsCacheFileRead(int handle, void* buf, unsigned int size)
     }
 
     size_t bytesToRead;
-    if (size < (soundEffect->dataSize - soundEffect->position)) {
+    // NOTE: Original code uses signed comparison.
+    if ((int)size < (soundEffect->dataSize - soundEffect->position)) {
         bytesToRead = size;
     } else {
         bytesToRead = soundEffect->dataSize - soundEffect->position;
@@ -486,7 +487,7 @@ int _sfxc_ad_reader(int handle, void* buf, unsigned int size)
 
     SoundEffect* soundEffect = &(gSoundEffects[handle]);
 
-    int bytesToRead = soundEffect->fileSize - soundEffect->dataPosition;
+    unsigned int bytesToRead = soundEffect->fileSize - soundEffect->dataPosition;
     if (size <= bytesToRead) {
         bytesToRead = size;
     }

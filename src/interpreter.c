@@ -567,7 +567,7 @@ int programPushString(Program* program, char* string)
     } else {
         program->dynamicStrings = (unsigned char*)internal_malloc_safe(8, __FILE__, __LINE__); // "..\\int\\INTRPRET.C", 631
         *(int*)(program->dynamicStrings) = 0;
-        *(short*)(program->dynamicStrings + 4) = 0x8000;
+        *(unsigned short*)(program->dynamicStrings + 4) = 0x8000;
         *(short*)(program->dynamicStrings + 6) = 1;
     }
 
@@ -587,7 +587,7 @@ int programPushString(Program* program, char* string)
 
     v23 = v20 + v27;
     *(v23 + 3) = '\0';
-    *(short*)(v23 + 4) = 0x8000;
+    *(unsigned short*)(v23 + 4) = 0x8000;
     *(short*)(v23 + 6) = 1;
 
     return v20 + 4 - (program->dynamicStrings + 4);

@@ -1176,7 +1176,7 @@ int gameDialogReviewWindowInit(int* win)
     _reviewBackKey = INVALID_CACHE_ENTRY;
 
     unsigned char* buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_COUNT];
-    
+
     int index;
     for (index = 0; index < GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_COUNT; index++) {
         int fid = buildFid(OBJ_TYPE_INTERFACE, gGameDialogReviewWindowButtonFrmIds[index], 0, 0, 0);
@@ -1218,11 +1218,11 @@ int gameDialogReviewWindowInit(int* win)
         gGameDialogReviewWindowButtonHeights[GAME_DIALOG_REVIEW_WINDOW_BUTTON_SCROLL_DOWN],
         -1,
         -1,
-        -1, 
+        -1,
         KEY_ARROW_DOWN,
         buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_ARROW_DOWN_NORMAL],
-        buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_ARROW_DOWN_PRESSED], 
-        NULL, 
+        buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_ARROW_DOWN_PRESSED],
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (downBtn == -1) {
         gameDialogReviewWindowFree(win);
@@ -1231,18 +1231,18 @@ int gameDialogReviewWindowInit(int* win)
 
     buttonSetCallbacks(downBtn, _gsound_med_butt_press, _gsound_med_butt_release);
 
-    int doneBtn = buttonCreate(*win, 
-        499, 
-        398, 
-        gGameDialogReviewWindowButtonWidths[GAME_DIALOG_REVIEW_WINDOW_BUTTON_DONE], 
+    int doneBtn = buttonCreate(*win,
+        499,
+        398,
+        gGameDialogReviewWindowButtonWidths[GAME_DIALOG_REVIEW_WINDOW_BUTTON_DONE],
         gGameDialogReviewWindowButtonHeights[GAME_DIALOG_REVIEW_WINDOW_BUTTON_DONE],
-        -1, 
         -1,
-        -1, 
-        KEY_ESCAPE, 
-        buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_DONE_NORMAL], 
+        -1,
+        -1,
+        KEY_ESCAPE,
+        buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_DONE_NORMAL],
         buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_DONE_PRESSED],
-        NULL, 
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn == -1) {
         gameDialogReviewWindowFree(win);
@@ -1542,7 +1542,7 @@ int gameDialogSetReviewOptionText(const char* string)
 // 0x446288
 int _gdProcessInit()
 {
-    int upBtn; 
+    int upBtn;
     int downBtn;
     int optionsWindowX;
     int optionsWindowY;
@@ -2854,7 +2854,7 @@ int gameDialogDrawText(unsigned char* buffer, Rect* rect, char* string, int* a4,
                         }
                     }
                 }
-                
+
                 if (*end == ' ') {
                     *end = '\0';
                 }
@@ -3238,14 +3238,14 @@ int partyMemberControlWindowInit()
             buttonData->x,
             buttonData->y,
             width,
-            height, 
+            height,
             -1,
-            -1, 
-            buttonData->keyCode, 
-            -1, 
-            upButtonFrmData, 
+            -1,
+            buttonData->keyCode,
+            -1,
+            upButtonFrmData,
             downButtonFrmData,
-            NULL, 
+            NULL,
             BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x01);
         if (_gdialog_buttons[v21] == -1) {
             partyMemberControlWindowFree();

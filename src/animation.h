@@ -109,7 +109,7 @@ typedef enum AnimationSadFlags {
     // Specifies that the owner of the animation should be hidden when animation
     // is completed.
     ANIM_SAD_HIDE_ON_END = 0x40,
-    
+
     // Specifies that the animation should never end.
     ANIM_SAD_FOREVER = 0x80,
 } AnimationSadFlags;
@@ -231,7 +231,7 @@ typedef struct AnimationDescription {
 
         // ANIM_KIND_TAKE_OUT_WEAPON
         int weaponAnimationCode;
-        
+
         // ANIM_KIND_SET_LIGHT_DISTANCE
         int lightDistance;
 
@@ -240,7 +240,7 @@ typedef struct AnimationDescription {
     };
     int anim;
     int delay;
-    
+
     // ANIM_KIND_CALLBACK
     AnimationCallback* callback;
 
@@ -261,7 +261,7 @@ typedef struct AnimationDescription {
         // - ANIM_KIND_MOVE_TO_TILE
         // - ANIM_KIND_MOVE_TO_OBJECT
         int actionPoints;
-        
+
         // ANIM_KIND_26
         int animationSequenceIndex;
 

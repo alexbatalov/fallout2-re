@@ -674,8 +674,8 @@ int pauseHandlerDefaultImpl()
         (windowWidth - fontGetStringWidth("Done") - 16) / 2,
         windowHeight - 8 - fontGetLineHeight() - 6,
         -1,
-        -1, 
-        -1, 
+        -1,
+        -1,
         KEY_ESCAPE,
         "Done",
         0);
@@ -745,7 +745,7 @@ int screenshotHandlerDefaultImpl(int width, int height, unsigned char* data, uns
 
     for (index = 0; index < 100000; index++) {
         sprintf(fileName, "scr%.5d.bmp", index);
-        
+
         stream = fopen(fileName, "rb");
         if (stream == NULL) {
             break;
@@ -809,7 +809,7 @@ int screenshotHandlerDefaultImpl(int width, int height, unsigned char* data, uns
     // biCompression
     intValue = 0;
     fwrite(&intValue, sizeof(intValue), 1, stream);
-    
+
     // biSizeImage
     intValue = 0;
     fwrite(&intValue, sizeof(intValue), 1, stream);
@@ -2060,10 +2060,10 @@ int _GNW95_init_mode_ex(int width, int height, int bpp)
         _zero_mem = _GNW95_zero_vid_mem;
         _mouse_blit = _GNW95_ShowRect;
     } else {
-         _zero_mem = NULL;
-         _mouse_blit = _GNW95_MouseShowRect16;
-         _mouse_blit_trans = _GNW95_MouseShowTransRect16;
-         _scr_blit = _GNW95_ShowRect16;
+        _zero_mem = NULL;
+        _mouse_blit = _GNW95_MouseShowRect16;
+        _mouse_blit_trans = _GNW95_MouseShowTransRect16;
+        _scr_blit = _GNW95_ShowRect16;
     }
 
     return 0;
@@ -2487,7 +2487,7 @@ void _GNW95_zero_vid_mem()
     DDSURFACEDESC ddsd;
     HRESULT hr;
     unsigned char* surface;
-    
+
     if (!gProgramIsActive) {
         return;
     }
@@ -4500,7 +4500,7 @@ bool vcrRecord(const char* fileName)
     _vcr_start_time = _get_time();
     keyboardReset();
     gVcrState = VCR_STATE_RECORDING;
-    
+
     return true;
 }
 
@@ -4581,7 +4581,7 @@ int vcrUpdate()
         switch (gVcrState) {
         case VCR_STATE_RECORDING:
             vcrDump();
-            
+
             fileClose(gVcrFile);
             gVcrFile = NULL;
 
@@ -4624,7 +4624,7 @@ int vcrUpdate()
                     delay += (_vcr_counter - stru_6AD940.counter)
                         * (vcrEntry->time - stru_6AD940.time)
                         / (vcrEntry->counter - stru_6AD940.counter);
-                    
+
                     while (getTicksSince(_vcr_start_time) < delay) {
                     }
                 }
@@ -4641,29 +4641,29 @@ int vcrUpdate()
                 }
 
                 switch (_vcr_buffer[_vcr_buffer_index].type) {
-                    case VCR_ENTRY_TYPE_INITIAL_STATE:
-                        gVcrState = VCR_STATE_TURNED_OFF;
-                        gVcrOldKeyboardLayout = keyboardGetLayout();
-                        keyboardSetLayout(_vcr_buffer[_vcr_buffer_index].initial.keyboardLayout);
-                        while (mouseGetEvent() != 0) {
-                            _mouse_info();
-                        }
-                        gVcrState = VCR_ENTRY_TYPE_INITIAL_STATE;
-                        mouseHideCursor();
-                        _mouse_set_position(_vcr_buffer[_vcr_buffer_index].initial.mouseX, _vcr_buffer[_vcr_buffer_index].initial.mouseY);
-                        mouseShowCursor();
-                        keyboardReset();
-                        gVcrTerminateFlags = gVcrRequestedTerminationFlags;
-                        _vcr_start_time = _get_time();
-                        _vcr_counter = 0;
-                        break;
-                    case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-                        _kb_simulate_key(_vcr_buffer[_vcr_buffer_index].keyboardEvent.key);
-                        break;
-                    case VCR_ENTRY_TYPE_MOUSE_EVENT:
-                        rc = 3;
-                        _mouse_simulate_input(_vcr_buffer[_vcr_buffer_index].mouseEvent.dx, _vcr_buffer[_vcr_buffer_index].mouseEvent.dy, _vcr_buffer[_vcr_buffer_index].mouseEvent.buttons);
-                        break;
+                case VCR_ENTRY_TYPE_INITIAL_STATE:
+                    gVcrState = VCR_STATE_TURNED_OFF;
+                    gVcrOldKeyboardLayout = keyboardGetLayout();
+                    keyboardSetLayout(_vcr_buffer[_vcr_buffer_index].initial.keyboardLayout);
+                    while (mouseGetEvent() != 0) {
+                        _mouse_info();
+                    }
+                    gVcrState = VCR_ENTRY_TYPE_INITIAL_STATE;
+                    mouseHideCursor();
+                    _mouse_set_position(_vcr_buffer[_vcr_buffer_index].initial.mouseX, _vcr_buffer[_vcr_buffer_index].initial.mouseY);
+                    mouseShowCursor();
+                    keyboardReset();
+                    gVcrTerminateFlags = gVcrRequestedTerminationFlags;
+                    _vcr_start_time = _get_time();
+                    _vcr_counter = 0;
+                    break;
+                case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
+                    _kb_simulate_key(_vcr_buffer[_vcr_buffer_index].keyboardEvent.key);
+                    break;
+                case VCR_ENTRY_TYPE_MOUSE_EVENT:
+                    rc = 3;
+                    _mouse_simulate_input(_vcr_buffer[_vcr_buffer_index].mouseEvent.dx, _vcr_buffer[_vcr_buffer_index].mouseEvent.dy, _vcr_buffer[_vcr_buffer_index].mouseEvent.buttons);
+                    break;
                 }
 
                 memcpy(&stru_6AD940, &(_vcr_buffer[_vcr_buffer_index]), sizeof(stru_6AD940));
@@ -4745,7 +4745,7 @@ bool vcrDump()
             return false;
         }
     }
-    
+
     // NOTE: Uninline.
     if (!vcrClear()) {
         return false;

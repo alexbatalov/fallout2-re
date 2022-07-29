@@ -4840,7 +4840,7 @@ void characterEditorHandleInfoButtonPressed(int eventCode)
                 offset = 0;
             }
 
-            gCharacterEditorCurrentSkill = offset * 0.092307694;
+            gCharacterEditorCurrentSkill = (int)(offset * 0.092307694);
             if (gCharacterEditorCurrentSkill >= 18) {
                 gCharacterEditorCurrentSkill = 17;
             }
@@ -6385,7 +6385,7 @@ int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* desc
     strcpy(gPerkDialogCardTitle, name);
     gPerkDialogCardFrmId = frmId;
     gPerkDialogCardDrawn = true;
-    
+
     artUnlock(handle);
 
     return 0;

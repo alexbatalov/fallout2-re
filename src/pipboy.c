@@ -899,7 +899,7 @@ void pipboyWindowHandleStatus(int a1)
 
                 // Skip quests in the same location.
                 //
-                // FIXME: This code should be identical to the one in the 
+                // FIXME: This code should be identical to the one in the
                 // `pipboyWindowRenderQuestLocationList`. See buffer overread
                 // bug involved.
                 for (; index < gQuestsCount; index++) {

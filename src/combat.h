@@ -2,8 +2,8 @@
 #define COMBAT_H
 
 #include "animation.h"
-#include "db.h"
 #include "combat_defs.h"
+#include "db.h"
 #include "message.h"
 #include "obj_types.h"
 #include "party_member.h"

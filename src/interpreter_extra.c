@@ -1766,7 +1766,7 @@ void opTileDistanceBetweenObjects(Program* program)
 
     int distance = 9999;
     if (object1 != NULL && object2 != NULL) {
-        if (data[1] >= HEX_GRID_SIZE && data[0] >= HEX_GRID_SIZE) {
+        if ((unsigned int)data[1] >= HEX_GRID_SIZE && (unsigned int)data[0] >= HEX_GRID_SIZE) {
             if (object1->elevation == object2->elevation) {
                 if (object1->tile != -1 && object2->tile != -1) {
                     distance = tileDistanceBetween(object1->tile, object2->tile);
@@ -3085,21 +3085,21 @@ void opCritterDamage(Program* program)
 
 // add_timer_event
 // 0x457FF0
-void opAddTimerEvent(Program* s)
+void opAddTimerEvent(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(s);
-        data[arg] = programStackPopInt32(s);
+        opcode[arg] = programStackPopInt16(program);
+        data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(s, opcode[arg], data[arg]);
+            programPopString(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to add_timer_event", s->name, arg);
+            programFatalError("script error: %s: invalid arg %d to add_timer_event", program->name, arg);
         }
     }
 
@@ -3108,7 +3108,7 @@ void opAddTimerEvent(Program* s)
     int param = data[0];
 
     if (object == NULL) {
-        scriptError("\nScript Error: %s: op_add_timer_event: pobj is NULL!", s->name);
+        scriptError("\nScript Error: %s: op_add_timer_event: pobj is NULL!", program->name);
         return;
     }
 

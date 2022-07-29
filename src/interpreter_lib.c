@@ -638,7 +638,7 @@ void opActivateRegion(Program* program)
     int data[2];
 
     // NOTE: Original code does not use loop.
-    for (int arg = 0; arg < 5; arg++) {
+    for (int arg = 0; arg < 2; arg++) {
         opcode[arg] = programStackPopInt16(program);
         data[arg] = programStackPopInt32(program);
 
@@ -727,7 +727,7 @@ void opAddRegion(Program* program)
         }
 
         int x = data;
-        
+
         y = (y * _windowGetYres() + 479) / 480;
         x = (x * _windowGetXres() + 639) / 640;
         args -= 2;
@@ -861,7 +861,7 @@ void opCreateWin(Program* program)
     int x = (data[3] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
-    int height = (data[0] * _windowGetYres() + 479) / 480;;
+    int height = (data[0] * _windowGetYres() + 479) / 480;
 
     if (_createWindow(windowName, x, y, width, height, _colorTable[0], 0) == -1) {
         programFatalError("Couldn't create window.");
@@ -889,7 +889,7 @@ void opResizeWin(Program* program)
     int x = (data[3] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
-    int height = (data[0] * _windowGetYres() + 479) / 480;;
+    int height = (data[0] * _windowGetYres() + 479) / 480;
 
     if (sub_4B7AC4(windowName, x, y, width, height) == -1) {
         programFatalError("Couldn't resize window.");
@@ -917,7 +917,7 @@ void opScaleWin(Program* program)
     int x = (data[3] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
-    int height = (data[0] * _windowGetYres() + 479) / 480;;
+    int height = (data[0] * _windowGetYres() + 479) / 480;
 
     if (sub_4B7E7C(windowName, x, y, width, height) == -1) {
         programFatalError("Couldn't scale window.");
@@ -1367,7 +1367,7 @@ void opAddButton(Program* program)
     int height = (data[0] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
-    int x = (data[1] * _windowGetXres() + 639) / 640;
+    int x = (data[3] * _windowGetXres() + 639) / 640;
     const char* buttonName = programGetString(program, opcode[4], data[4]);
 
     _windowAddButton(buttonName, x, y, width, height, 0);
@@ -1567,7 +1567,7 @@ void opDeleteButton(Program* program)
             return;
         }
     }
-    
+
     programFatalError("Error deleting button");
 }
 
@@ -1735,7 +1735,7 @@ void opMouseShape(Program* program)
         programFatalError("Invalid filename given to mouseshape");
     }
 
-    char *fileName = programGetString(program, opcode[2], data[2]);
+    char* fileName = programGetString(program, opcode[2], data[2]);
     if (!mouseManagerSetMouseShape(fileName, data[1], data[0])) {
         programFatalError("Error loading mouse shape.");
     }
@@ -2317,7 +2317,7 @@ void opSayScrollUp(Program* program)
             programFatalError("Invalid arg 4 given to sayscrollup");
         }
     }
-    
+
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[1] != 0) {
         programFatalError("Invalid arg 3 given to sayscrollup");
     }
@@ -2330,7 +2330,6 @@ void opSayScrollUp(Program* program)
         programFatalError("Invalid arg 1 given to sayscrollup");
     }
 
-    
     if ((opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v1 = programGetString(program, opcode[3], data[3]);
         v1 = _interpretMangleName(v1);

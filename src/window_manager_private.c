@@ -32,7 +32,7 @@ int _tm_h;
 STRUCT_6B2370 _tm_queue[5];
 
 // 0x6B23AC
-int _tm_persistence;
+unsigned int _tm_persistence;
 
 // 0x6B23B0
 int _scr_center_x;
@@ -124,7 +124,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         fontGetLineHeight() + 3,
         windowWidth,
         _colorTable[_GNW_wcolor[0]]);
-    
+
     fontDrawText(windowBuffer + windowWidth / 2 + 8 * windowWidth - fontGetStringWidth(title) / 2,
         title,
         windowWidth,
@@ -139,7 +139,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         fontGetLineHeight() + 8,
         _colorTable[_GNW_wcolor[2]],
         _colorTable[_GNW_wcolor[1]]);
-    
+
     int listViewX = 8;
     int listViewY = fontGetLineHeight() + 16;
     unsigned char* listViewBuffer = windowBuffer + windowWidth * listViewY + listViewX;
@@ -212,7 +212,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         -1,
         "\x19",
         0);
-    
+
     _win_register_text_button(win,
         windowWidth / 2 - 32,
         windowHeight - 8 - fontGetLineHeight() - 6,
@@ -239,14 +239,14 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         scrollbarX,
         scrollbarY,
         scrollbarKnobSize + 1,
-        scrollbarHeight - fontGetLineHeight() - 8, 
-        -1, 
-        -1, 
-        2048, 
-        -1, 
-        NULL, 
-        NULL, 
-        NULL, 
+        scrollbarHeight - fontGetLineHeight() - 8,
+        -1,
+        -1,
+        2048,
+        -1,
+        NULL,
+        NULL,
+        NULL,
         0);
 
     bufferDrawRectShadowed(windowBuffer,
@@ -285,19 +285,19 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
     }
 
     buttonCreate(win,
-        0, 
-        0, 
-        windowWidth, 
-        fontGetLineHeight() + 8, 
-        -1, 
-        -1, 
-        -1, 
-        -1, 
-        NULL, 
-        NULL, 
-        NULL, 
+        0,
+        0,
+        windowWidth,
+        fontGetLineHeight() + 8,
+        -1,
+        -1,
+        -1,
+        -1,
+        NULL,
+        NULL,
+        NULL,
         BUTTON_FLAG_0x10);
-    
+
     windowRefresh(win);
 
     int absoluteSelectedItemIndex = -1;
@@ -333,7 +333,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         if (keyCode == KEY_ESCAPE) {
             break;
         }
-        
+
         if (keyCode >= 512 && keyCode < listViewCapacity + 512) {
             int itemIndex = keyCode - 512;
             if (itemIndex != selectedItemIndex && itemIndex < itemsLength) {
@@ -461,7 +461,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                     scrollbarKnobSize,
                     scrollbarKnobSize,
                     windowWidth);
-                
+
                 _GNW_win_refresh(window, windowRect, NULL);
             }
         } else if (keyCode == -3) {
@@ -960,7 +960,7 @@ int _find_first_letter(int ch, char** stringList, int stringListLength)
             return index;
         }
     }
-    
+
     return -1;
 }
 

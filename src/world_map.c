@@ -4261,7 +4261,7 @@ int worldmapWindowInit()
     int fid;
     Art* frm;
     CacheEntry* frmHandle;
-    
+
     _wmLastRndTime = _get_time();
     _fontnum = fontGetCurrent();
     fontSetCurrent(0);
@@ -4519,30 +4519,30 @@ int worldmapWindowInit()
     buttonCreate(gWorldmapWindow,
         WM_TOWN_WORLD_SWITCH_X,
         WM_TOWN_WORLD_SWITCH_Y,
-        littleRedButtonUpWidth, 
-        littleRedButtonUpHeight, 
-        -1, 
-        -1, 
+        littleRedButtonUpWidth,
+        littleRedButtonUpHeight,
+        -1,
+        -1,
         -1,
         KEY_UPPERCASE_T,
         gWorldmapLittleRedButtonUpFrmData,
         gWorldmapLittleRedButtonDownFrmData,
-        NULL, 
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
 
     for (int index = 0; index < 7; index++) {
         _wmTownMapSubButtonIds[index] = buttonCreate(gWorldmapWindow,
-            508, 
+            508,
             138 + 27 * index,
-            littleRedButtonUpWidth, 
-            littleRedButtonUpHeight, 
-            -1, 
+            littleRedButtonUpWidth,
+            littleRedButtonUpHeight,
             -1,
-            -1, 
-            KEY_CTRL_F1 + index, 
-            gWorldmapLittleRedButtonUpFrmData, 
-            gWorldmapLittleRedButtonDownFrmData, 
-            NULL, 
+            -1,
+            -1,
+            KEY_CTRL_F1 + index,
+            gWorldmapLittleRedButtonUpFrmData,
+            gWorldmapLittleRedButtonDownFrmData,
+            NULL,
             BUTTON_FLAG_TRANSPARENT);
     }
 
@@ -4578,30 +4578,30 @@ int worldmapWindowInit()
     buttonCreate(gWorldmapWindow,
         WM_TOWN_LIST_SCROLL_UP_X,
         WM_TOWN_LIST_SCROLL_UP_Y,
-        gWorldmapTownListScrollUpFrmWidth, 
-        gWorldmapTownListScrollUpFrmHeight, 
-        -1, 
-        -1, 
+        gWorldmapTownListScrollUpFrmWidth,
+        gWorldmapTownListScrollUpFrmHeight,
+        -1,
+        -1,
         -1,
         KEY_CTRL_ARROW_UP,
-        gWorldmapTownListScrollUpFrmData[WORLDMAP_ARROW_FRM_NORMAL], 
+        gWorldmapTownListScrollUpFrmData[WORLDMAP_ARROW_FRM_NORMAL],
         gWorldmapTownListScrollUpFrmData[WORLDMAP_ARROW_FRM_PRESSED],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
 
     // Scroll down button.
-    buttonCreate(gWorldmapWindow, 
-        WM_TOWN_LIST_SCROLL_DOWN_X, 
-        WM_TOWN_LIST_SCROLL_DOWN_Y, 
-        gWorldmapTownListScrollDownFrmWidth, 
+    buttonCreate(gWorldmapWindow,
+        WM_TOWN_LIST_SCROLL_DOWN_X,
+        WM_TOWN_LIST_SCROLL_DOWN_Y,
+        gWorldmapTownListScrollDownFrmWidth,
         gWorldmapTownListScrollDownFrmHeight,
         -1,
         -1,
-        -1, 
+        -1,
         KEY_CTRL_ARROW_DOWN,
-        gWorldmapTownListScrollDownFrmData[WORLDMAP_ARROW_FRM_NORMAL], 
+        gWorldmapTownListScrollDownFrmData[WORLDMAP_ARROW_FRM_NORMAL],
         gWorldmapTownListScrollDownFrmData[WORLDMAP_ARROW_FRM_PRESSED],
-        NULL, 
+        NULL,
         BUTTON_FLAG_TRANSPARENT);
 
     if (gWorldmapIsInCar) {

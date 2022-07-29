@@ -2356,7 +2356,7 @@ void _alphaBltBuf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch,
                     unsigned int colorIndex = (r << 10) | (g << 5) | b;
 
                     *destPtr = _colorTable[colorIndex];
-                    
+
                     destPtr++;
                     srcPtr++;
                     alphaWindowBufferPtr++;

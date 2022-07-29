@@ -24,8 +24,8 @@
 #include "window_manager_private.h"
 #include "world_map.h"
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
@@ -1090,7 +1090,7 @@ int scriptsRequestElevator(Object* a1, int a2)
     }
 
     // In the following code we are looking for an elevator. 5 tiles in each direction
-    tile = tile - (HEX_GRID_WIDTH * 5)  - 5; // left upper corner
+    tile = tile - (HEX_GRID_WIDTH * 5) - 5; // left upper corner
 
     Object* obj;
     for (int y = -5; y < 5; y++) {
@@ -1685,7 +1685,7 @@ int _scr_header_load()
     }
 
     while (1) {
-        char ch = fileReadChar(stream);
+        int ch = fileReadChar(stream);
         if (ch == -1) {
             break;
         }

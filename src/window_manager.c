@@ -1202,7 +1202,7 @@ void _win_text(int win, char** fileNameList, int fileNameListLength, int maxWidt
     int width = window->width;
     unsigned char* ptr = window->buffer + y * width + x;
     int lineHeight = fontGetLineHeight();
-    
+
     int step = width * lineHeight;
     int v1 = lineHeight / 2;
     int v2 = v1 + 1;

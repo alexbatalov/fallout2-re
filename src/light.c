@@ -1,8 +1,8 @@
 #include "light.h"
 
+#include "object.h"
 #include "perk.h"
 #include "tile.h"
-#include "object.h"
 
 #include <math.h>
 
@@ -107,7 +107,7 @@ void lightIncreaseIntensity(int elevation, int tile, int lightIntensity)
     if (!hexGridTileIsValid(tile)) {
         return;
     }
-    
+
     gLightIntensity[elevation][tile] += lightIntensity;
 }
 
@@ -121,7 +121,7 @@ void lightDecreaseIntensity(int elevation, int tile, int lightIntensity)
     if (!hexGridTileIsValid(tile)) {
         return;
     }
-    
+
     gLightIntensity[elevation][tile] -= lightIntensity;
 }
 
