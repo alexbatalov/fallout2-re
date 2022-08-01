@@ -84,12 +84,12 @@ typedef enum HitLocation {
     HIT_LOCATION_SPECIFIC_COUNT = HIT_LOCATION_COUNT - 1,
 } HitLocation;
 
-typedef struct CombatAIInfo {
+typedef struct CombatAiInfo {
     Object* friendlyDead;
     Object* lastTarget;
     Object* lastItem;
     int lastMove;
-} CombatAIInfo;
+} CombatAiInfo;
 
 typedef struct STRUCT_664980 {
     Object* attacker;

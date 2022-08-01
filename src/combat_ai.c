@@ -842,7 +842,7 @@ int _ai_check_drugs(Object* critter)
     int v25 = 0;
     int v28 = 0;
     int v29 = 0;
-    Object* v3 = _combatAIInfoGetLastItem(critter);
+    Object* v3 = aiInfoGetLastItem(critter);
     if (v3 == NULL) {
         AiPacket* ai = aiGetPacket(critter);
         if (ai == NULL) {
@@ -1370,7 +1370,7 @@ Object* _ai_danger_source(Object* a1)
         attackWho = aiGetPacket(a1)->attack_who;
         switch (attackWho) {
         case ATTACK_WHO_WHOMEVER_ATTACKING_ME: {
-            Object* candidate = _combatAIInfoGetLastTarget(gDude);
+            Object* candidate = aiInfoGetLastTarget(gDude);
             if (candidate == NULL || a1->data.critter.combat.team == candidate->data.critter.combat.team) {
                 break;
             }
@@ -1989,7 +1989,7 @@ Object* _ai_retrieve_object(Object* a1, Object* a2)
         a2 = NULL;
     }
 
-    _combatAIInfoSetLastItem(v3, a2);
+    aiInfoSetLastItem(v3, a2);
 
     return v3;
 }
@@ -2208,7 +2208,7 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
         Object* obj = _curr_crit_list[index];
         if ((obj->data.critter.combat.results & DAM_DEAD) == 0
             && obj->data.critter.combat.team == aiRetargetData.sourceTeam
-            && _combatAIInfoGetLastTarget(obj) == aiRetargetData.target
+            && aiInfoGetLastTarget(obj) == aiRetargetData.target
             && obj != aiRetargetData.source) {
             int rating = _combatai_rating(obj);
             if (rating >= aiRetargetData.sourceRating) {
@@ -2787,10 +2787,10 @@ void _combat_ai(Object* a1, Object* a2)
         && (a1->data.critter.combat.results & DAM_DEAD) == 0
         && a1->data.critter.combat.ap != 0
         && objectGetDistanceBetween(a1, a2) > ai->max_dist) {
-        Object* v13 = _combatAIInfoGetFriendlyDead(a1);
+        Object* v13 = aiInfoGetFriendlyDead(a1);
         if (v13 != NULL) {
             _ai_move_away(a1, v13, 10);
-            _combatAIInfoSetFriendlyDead(a1, NULL);
+            aiInfoSetFriendlyDead(a1, NULL);
         } else {
             int perception = critterGetStat(a1, STAT_PERCEPTION);
             if (!_ai_find_friend(a1, perception * 2, 5)) {
@@ -2803,10 +2803,10 @@ void _combat_ai(Object* a1, Object* a2)
         Object* whoHitMe = combatData->whoHitMe;
         if (whoHitMe != NULL) {
             if ((whoHitMe->data.critter.combat.results & DAM_DEAD) == 0 && combatData->damageLastTurn > 0) {
-                Object* v16 = _combatAIInfoGetFriendlyDead(a1);
+                Object* v16 = aiInfoGetFriendlyDead(a1);
                 if (v16 != NULL) {
                     _ai_move_away(a1, v16, 10);
-                    _combatAIInfoSetFriendlyDead(a1, NULL);
+                    aiInfoSetFriendlyDead(a1, NULL);
                 } else {
                     const char* name = critterGetName(a1);
                     debugPrint("%s: FLEEING: Somebody is shooting at me that I can't see!");
@@ -2816,11 +2816,11 @@ void _combat_ai(Object* a1, Object* a2)
         }
     }
 
-    Object* v18 = _combatAIInfoGetFriendlyDead(a1);
+    Object* v18 = aiInfoGetFriendlyDead(a1);
     if (v18 != NULL) {
         _ai_move_away(a1, v18, 10);
         if (objectGetDistanceBetween(a1, v18) >= 10) {
-            _combatAIInfoSetFriendlyDead(a1, NULL);
+            aiInfoSetFriendlyDead(a1, NULL);
         }
     }
 
@@ -2939,7 +2939,7 @@ int critterSetTeam(Object* obj, int team)
         }
     }
 
-    _combatAIInfoSetLastTarget(obj, NULL);
+    aiInfoSetLastTarget(obj, NULL);
 
     if (isInCombat()) {
         bool outlineWasEnabled = obj->outline != 0 && (obj->outline & OUTLINE_DISABLED) == 0;
@@ -3311,7 +3311,7 @@ void _combatai_notify_onlookers(Object* a1)
                 if ((a1->data.critter.combat.results & DAM_DEAD) != 0) {
                     if (!objectCanHearObject(obj, obj->data.critter.combat.whoHitMe)) {
                         debugPrint("\nSomebody Died and I don't know why!  Run!!!");
-                        _combatAIInfoSetFriendlyDead(obj, a1);
+                        aiInfoSetFriendlyDead(obj, a1);
                     }
                 }
             }

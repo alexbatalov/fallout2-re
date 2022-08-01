@@ -6530,7 +6530,7 @@ void opTerminateCombat(Program* program)
             if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
                 self->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
                 self->data.critter.combat.whoHitMe = NULL;
-                _combatAIInfoSetLastTarget(self, NULL);
+                aiInfoSetLastTarget(self, NULL);
             }
         }
     }
@@ -6583,7 +6583,7 @@ void opCritterStopAttacking(Program* program)
     if (obj != NULL) {
         obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
         obj->data.critter.combat.whoHitMe = NULL;
-        _combatAIInfoSetLastTarget(obj, NULL);
+        aiInfoSetLastTarget(obj, NULL);
     } else {
         scriptPredefinedError(program, "critter_stop_attacking", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
