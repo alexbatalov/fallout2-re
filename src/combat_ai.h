@@ -59,15 +59,15 @@ typedef struct AiPacket {
 typedef struct AiRetargetData {
     Object* source;
     Object* target;
-    Object* critter_list[100];
-    int rating_list[100];
-    int critter_count;
-    int source_team;
-    int source_rating;
-    int not_same_tile;
+    Object* critterList[100];
+    int ratingList[100];
+    int critterCount;
+    int sourceTeam;
+    int sourceRating;
+    bool notSameTile;
     int* tiles;
-    int tile_index;
-    int source_iq;
+    int currentTileIndex;
+    int sourceIntelligence;
 } AiRetargetData;
 
 extern Object* _combat_obj;
@@ -148,8 +148,8 @@ Object* _ai_search_environ(Object* critter, int itemType);
 Object* _ai_retrieve_object(Object* a1, Object* a2);
 int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3);
 int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4);
-int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3);
-int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* a1, int a2);
+int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr);
+int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile);
 bool _cai_attackWouldIntersect(Object* a1, Object* a2, Object* a3, int tile, int* distance);
 int _ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4);
 int _ai_called_shot(Object* a1, Object* a2, int a3);

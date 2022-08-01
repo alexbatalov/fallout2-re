@@ -2165,21 +2165,21 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
 }
 
 // 0x42A1D4
-int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
+int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr)
 {
-    if (a1 == NULL) {
+    if (source == NULL) {
         return -1;
     }
 
-    if (a2 == NULL) {
+    if (target == NULL) {
         return -1;
     }
 
-    if (a3 == NULL) {
+    if (tilePtr == NULL) {
         return -1;
     }
 
-    if (*a3 == -1) {
+    if (*tilePtr == -1) {
         return -1;
     }
 
@@ -2189,16 +2189,16 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
 
     int tiles[32];
 
-    AiRetargetData v1;
-    v1.source = a1;
-    v1.target = a2;
-    v1.source_team = a1->data.critter.combat.team;
-    v1.source_rating = _combatai_rating(a1);
-    v1.critter_count = 0;
-    v1.tiles = tiles;
-    v1.not_same_tile = *a3 != a1->tile;
-    v1.tile_index = 0;
-    v1.source_iq = critterGetStat(a1, STAT_INTELLIGENCE);
+    AiRetargetData aiRetargetData;
+    aiRetargetData.source = source;
+    aiRetargetData.target = target;
+    aiRetargetData.sourceTeam = source->data.critter.combat.team;
+    aiRetargetData.sourceRating = _combatai_rating(source);
+    aiRetargetData.critterCount = 0;
+    aiRetargetData.tiles = tiles;
+    aiRetargetData.notSameTile = *tilePtr != source->tile;
+    aiRetargetData.currentTileIndex = 0;
+    aiRetargetData.sourceIntelligence = critterGetStat(source, STAT_INTELLIGENCE);
 
     for (int index = 0; index < 32; index++) {
         tiles[index] = -1;
@@ -2207,23 +2207,23 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
     for (int index = 0; index < _curr_crit_num; index++) {
         Object* obj = _curr_crit_list[index];
         if ((obj->data.critter.combat.results & DAM_DEAD) == 0
-            && obj->data.critter.combat.team == v1.source_team
-            && _combatAIInfoGetLastTarget(obj) == v1.target
-            && obj != v1.source) {
-            int v10 = _combatai_rating(obj);
-            if (v10 >= v1.source_rating) {
-                v1.critter_list[v1.critter_count] = obj;
-                v1.rating_list[v1.critter_count] = v10;
-                v1.critter_count += 1;
+            && obj->data.critter.combat.team == aiRetargetData.sourceTeam
+            && _combatAIInfoGetLastTarget(obj) == aiRetargetData.target
+            && obj != aiRetargetData.source) {
+            int rating = _combatai_rating(obj);
+            if (rating >= aiRetargetData.sourceRating) {
+                aiRetargetData.critterList[aiRetargetData.critterCount] = obj;
+                aiRetargetData.ratingList[aiRetargetData.critterCount] = rating;
+                aiRetargetData.critterCount += 1;
             }
         }
     }
 
-    _combat_obj = a1;
+    _combat_obj = source;
 
-    qsort(v1.critter_list, v1.critter_count, sizeof(*v1.critter_list), _compare_nearer);
+    qsort(aiRetargetData.critterList, aiRetargetData.critterCount, sizeof(*aiRetargetData.critterList), _compare_nearer);
 
-    if (_cai_retargetTileFromFriendlyFireSubFunc(&v1, *a3) == 0) {
+    if (_cai_retargetTileFromFriendlyFireSubFunc(&aiRetargetData, *tilePtr) == 0) {
         int minDistance = 99999;
         int minDistanceIndex = -1;
 
@@ -2233,8 +2233,8 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
                 break;
             }
 
-            if (_obj_blocking_at(NULL, tile, a1->elevation) == 0) {
-                int distance = tileDistanceBetween(*a3, tile);
+            if (_obj_blocking_at(NULL, tile, source->elevation) == 0) {
+                int distance = tileDistanceBetween(*tilePtr, tile);
                 if (distance < minDistance) {
                     minDistance = distance;
                     minDistanceIndex = index;
@@ -2243,7 +2243,7 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
         }
 
         if (minDistanceIndex != -1) {
-            *a3 = tiles[minDistanceIndex];
+            *tilePtr = tiles[minDistanceIndex];
         }
     }
 
@@ -2251,24 +2251,24 @@ int _cai_retargetTileFromFriendlyFire(Object* a1, Object* a2, int* a3)
 }
 
 // 0x42A410
-int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* a1, int tile)
+int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile)
 {
-    if (a1->source_iq <= 0) {
+    if (aiRetargetData->sourceIntelligence <= 0) {
         return 0;
     }
 
     int distance = 1;
 
-    for (int index = 0; index < a1->critter_count; index++) {
-        Object* obj = a1->critter_list[index];
-        if (_cai_attackWouldIntersect(obj, a1->target, a1->source, tile, &distance)) {
+    for (int index = 0; index < aiRetargetData->critterCount; index++) {
+        Object* obj = aiRetargetData->critterList[index];
+        if (_cai_attackWouldIntersect(obj, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
             debugPrint("In the way!");
 
-            a1->tiles[a1->tile_index] = tileGetTileInDirection(tile, (obj->rotation + 1) % ROTATION_COUNT, distance);
-            a1->tiles[a1->tile_index + 1] = tileGetTileInDirection(tile, (obj->rotation + 5) % ROTATION_COUNT, distance);
+            aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tileGetTileInDirection(tile, (obj->rotation + 1) % ROTATION_COUNT, distance);
+            aiRetargetData->tiles[aiRetargetData->currentTileIndex + 1] = tileGetTileInDirection(tile, (obj->rotation + 5) % ROTATION_COUNT, distance);
 
-            a1->source_iq -= 2;
-            a1->tile_index += 2;
+            aiRetargetData->sourceIntelligence -= 2;
+            aiRetargetData->currentTileIndex += 2;
             break;
         }
     }
