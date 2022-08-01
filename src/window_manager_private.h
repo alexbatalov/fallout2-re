@@ -29,7 +29,7 @@ extern STRUCT_6B2340 _tm_location[5];
 extern int _tm_text_x;
 extern int _tm_h;
 extern STRUCT_6B2370 _tm_queue[5];
-extern int _tm_persistence;
+extern unsigned int _tm_persistence;
 extern int _scr_center_x;
 extern int _tm_text_y;
 extern int _tm_kill;
