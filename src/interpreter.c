@@ -1712,7 +1712,10 @@ void opDivide(Program* program)
             divisor = (float)value[0];
         }
 
-        if ((int)divisor & 0x7FFFFFFF) {
+        // NOTE: Original code is slightly different, it performs bitwise and
+        // with 0x7FFFFFFF in order to determine if it's zero. Probably some
+        // kind of compiler optimization.
+        if (divisor == 0.0) {
             programFatalError("Division (DIV) by zero");
         }
 
@@ -1724,7 +1727,8 @@ void opDivide(Program* program)
         if (type[0] == VALUE_TYPE_FLOAT) {
             divisor = float_value[0];
 
-            if ((int)divisor & 0x7FFFFFFF) {
+            // NOTE: Same as above.
+            if (divisor == 0.0) {
                 programFatalError("Division (DIV) by zero");
             }
 

@@ -3429,7 +3429,7 @@ int _shoot_along_path(Attack* attack, int a2, int a3, int anim)
 
     Object* critter = attack->attacker;
     while (critter != NULL) {
-        if (v5 <= 0 && anim != ANIM_FIRE_CONTINUOUS || v7 == a2 || attack->extrasLength >= 6) {
+        if ((v5 <= 0 && anim != ANIM_FIRE_CONTINUOUS) || v7 == a2 || attack->extrasLength >= 6) {
             break;
         }
 
@@ -3576,7 +3576,7 @@ int _compute_spray(Attack* attack, int accuracy, int* a3, int* a4, int anim)
     int v28 = _tile_num_beyond(attack->attacker->tile, v26, range);
     *a3 += _shoot_along_path(attack, v28, v30, anim);
 
-    if (roll != ROLL_FAILURE || *a3 <= 0 && attack->extrasLength <= 0) {
+    if (roll != ROLL_FAILURE || (*a3 <= 0 && attack->extrasLength <= 0)) {
         if (roll >= ROLL_SUCCESS && *a3 == 0 && attack->extrasLength == 0) {
             roll = ROLL_FAILURE;
         }
@@ -4627,7 +4627,7 @@ void _damage_object(Object* a1, int damage, bool animated, int a4, Object* a5)
 
         if (a1 != gDude) {
             Object* whoHitMe = a1->data.critter.combat.whoHitMe;
-            if (whoHitMe == gDude || whoHitMe != NULL && whoHitMe->data.critter.combat.team == gDude->data.critter.combat.team) {
+            if (whoHitMe == gDude || (whoHitMe != NULL && whoHitMe->data.critter.combat.team == gDude->data.critter.combat.team)) {
                 bool scriptOverrides = false;
                 Script* scr;
                 if (scriptGetScript(a1->sid, &scr) != -1) {
