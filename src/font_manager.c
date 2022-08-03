@@ -115,11 +115,11 @@ int interfaceFontLoad(int font_index)
         if (fileRead(&(glyph->width), 2, 1, stream) != 1) goto err;
         interfaceFontByteSwapInt16(&(glyph->width));
 
-        if (fileRead(&(glyph->field_2), 2, 1, stream) != 1) goto err;
-        interfaceFontByteSwapInt16(&(glyph->field_2));
+        if (fileRead(&(glyph->height), 2, 1, stream) != 1) goto err;
+        interfaceFontByteSwapInt16(&(glyph->height));
 
-        if (fileRead(&(glyph->field_4), 4, 1, stream) != 1) goto err;
-        interfaceFontByteSwapInt32(&(glyph->field_4));
+        if (fileRead(&(glyph->offset), 4, 1, stream) != 1) goto err;
+        interfaceFontByteSwapInt32(&(glyph->offset));
     }
 
     fileSize -= sizeof(InterfaceFontDescriptor);
@@ -307,12 +307,12 @@ void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, i
         }
 
         InterfaceFontGlyph* glyph = &(gCurrentInterfaceFontDescriptor->glyphs[ch & 0xFF]);
-        unsigned char* glyphDataPtr = gCurrentInterfaceFontDescriptor->data + glyph->field_4;
+        unsigned char* glyphDataPtr = gCurrentInterfaceFontDescriptor->data + glyph->offset;
 
         // Skip blank pixels (difference between font's line height and glyph height).
-        ptr += (gCurrentInterfaceFontDescriptor->field_0 - glyph->field_2) * pitch;
+        ptr += (gCurrentInterfaceFontDescriptor->field_0 - glyph->height) * pitch;
 
-        for (int y = 0; y < glyph->field_2; y++) {
+        for (int y = 0; y < glyph->height; y++) {
             for (int x = 0; x < glyph->width; x++) {
                 unsigned char byte = *glyphDataPtr++;
 
