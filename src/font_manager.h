@@ -10,8 +10,8 @@
 
 typedef struct InterfaceFontGlyph {
     short width;
-    short field_2;
-    int field_4;
+    short height;
+    int offset;
 } InterfaceFontGlyph;
 
 typedef struct InterfaceFontDescriptor {
