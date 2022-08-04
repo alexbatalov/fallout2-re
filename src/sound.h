@@ -4,7 +4,9 @@
 #include "memory_defs.h"
 #include "win32.h"
 
+#define SOUND_FLAG_SOUND_IS_DONE (0x01)
 #define SOUND_FLAG_SOUND_IS_PLAYING (0x02)
+#define SOUND_FLAG_SOUND_IS_FADING (0x04)
 #define SOUND_FLAG_SOUND_IS_PAUSED (0x08)
 
 #define VOLUME_MIN (0)
@@ -104,19 +106,19 @@ typedef struct Sound {
     struct Sound* prev;
 } Sound;
 
-typedef struct STRUCT_51D478 {
-    Sound* field_0;
-    int field_4;
-    int field_8;
-    int field_C;
-    int field_10;
+typedef struct FadeSound {
+    Sound* sound;
+    int deltaVolume;
+    int targetVolume;
+    int initialVolume;
+    int currentVolume;
     int field_14;
-    struct STRUCT_51D478* prev;
-    struct STRUCT_51D478* next;
-} STRUCT_51D478;
+    struct FadeSound* prev;
+    struct FadeSound* next;
+} FadeSound;
 
-extern STRUCT_51D478* _fadeHead;
-extern STRUCT_51D478* _fadeFreeList;
+extern FadeSound* _fadeHead;
+extern FadeSound* _fadeFreeList;
 
 extern unsigned int _fadeEventHandle;
 extern MallocProc* gSoundMallocProc;
@@ -179,10 +181,10 @@ void CALLBACK _doTimerEvent(UINT uTimerID, UINT uMsg, DWORD_PTR dwUser, DWORD_PT
 void _removeTimedEvent(unsigned int* timerId);
 int _soundGetPosition(Sound* sound);
 int _soundSetPosition(Sound* sound, int a2);
-void _removeFadeSound(STRUCT_51D478* a1);
+void _removeFadeSound(FadeSound* fadeSound);
 void _fadeSounds();
-int _internalSoundFade(Sound* sound, int a2, int a3, int a4);
-int _soundFade(Sound* sound, int a2, int a3);
+int _internalSoundFade(Sound* sound, int duration, int targetVolume, int a4);
+int _soundFade(Sound* sound, int duration, int targetVolume);
 void soundDeleteAll();
 void soundContinueAll();
 int soundSetDefaultFileIO(SoundOpenProc* openProc, SoundCloseProc* closeProc, SoundReadProc* readProc, SoundWriteProc* writeProc, SoundSeekProc* seekProc, SoundTellProc* tellProc, SoundFileLengthProc* fileLengthProc);
