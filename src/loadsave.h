@@ -11,6 +11,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#define LOAD_SAVE_SIGNATURE ("FALLOUT SAVE FILE")
 #define LOAD_SAVE_DESCRIPTION_LENGTH (30)
 #define LOAD_SAVE_HANDLER_COUNT (27)
 
@@ -45,28 +46,28 @@ typedef int SaveGameHandler(File* stream);
 
 #define LSGAME_MSG_NAME ("LSGAME.MSG")
 
-typedef struct STRUCT_613D30 {
-    char field_0[24];
-    short field_18;
-    short field_1A;
+typedef struct LoadSaveSlotData {
+    char signature[24];
+    short versionMinor;
+    short versionMajor;
     // TODO: The type is probably char, but it's read with the same function as
     // reading unsigned chars, which in turn probably result of collapsing
     // reading functions.
-    unsigned char field_1C;
-    char character_name[32];
+    unsigned char versionRelease;
+    char characterName[32];
     char description[LOAD_SAVE_DESCRIPTION_LENGTH];
-    short field_5C;
-    short field_5E;
-    short field_60;
-    int field_64;
-    short field_68;
-    short field_6A;
-    short field_6C;
-    int field_70;
-    short field_74;
-    short field_76;
-    char file_name[16];
-} STRUCT_613D30;
+    short fileMonth;
+    short fileDay;
+    short fileYear;
+    int fileTime;
+    short gameMonth;
+    short gameDay;
+    short gameYear;
+    int gameTime;
+    short elevation;
+    short map;
+    char fileName[16];
+} LoadSaveSlotData;
 
 typedef enum LoadSaveFrm {
     LOAD_SAVE_FRM_BACKGROUND,
@@ -96,7 +97,7 @@ extern int _loadingGame;
 
 extern Size gLoadSaveFrmSizes[LOAD_SAVE_FRM_COUNT];
 extern MessageList gLoadSaveMessageList;
-extern STRUCT_613D30 _LSData[10];
+extern LoadSaveSlotData _LSData[10];
 extern int _LSstatus[10];
 extern unsigned char* _thumbnail_image;
 extern unsigned char* _snapshotBuf;
