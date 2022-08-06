@@ -15,10 +15,10 @@ typedef struct InterfaceFontGlyph {
 } InterfaceFontGlyph;
 
 typedef struct InterfaceFontDescriptor {
-    short field_0;
+    short maxHeight;
     short letterSpacing;
     short wordSpacing;
-    short field_6;
+    short lineSpacing;
     short field_8;
     short field_A;
     InterfaceFontGlyph glyphs[256];

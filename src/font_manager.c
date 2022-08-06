@@ -44,7 +44,7 @@ int interfaceFontsInit()
 
     for (int font = 0; font < INTERFACE_FONT_MAX; font++) {
         if (interfaceFontLoad(font) == -1) {
-            gInterfaceFontDescriptors[font].field_0 = 0;
+            gInterfaceFontDescriptors[font].maxHeight = 0;
             gInterfaceFontDescriptors[font].data = NULL;
         } else {
             ++gInterfaceFontsLength;
@@ -97,8 +97,8 @@ int interfaceFontLoad(int font_index)
     interfaceFontByteSwapInt32(&sig);
     if (sig != 0x41414646) goto err;
 
-    if (fileRead(&(fontDescriptor->field_0), 2, 1, stream) != 1) goto err;
-    interfaceFontByteSwapInt16(&(fontDescriptor->field_0));
+    if (fileRead(&(fontDescriptor->maxHeight), 2, 1, stream) != 1) goto err;
+    interfaceFontByteSwapInt16(&(fontDescriptor->maxHeight));
 
     if (fileRead(&(fontDescriptor->letterSpacing), 2, 1, stream) != 1) goto err;
     interfaceFontByteSwapInt16(&(fontDescriptor->letterSpacing));
@@ -106,8 +106,8 @@ int interfaceFontLoad(int font_index)
     if (fileRead(&(fontDescriptor->wordSpacing), 2, 1, stream) != 1) goto err;
     interfaceFontByteSwapInt16(&(fontDescriptor->wordSpacing));
 
-    if (fileRead(&(fontDescriptor->field_6), 2, 1, stream) != 1) goto err;
-    interfaceFontByteSwapInt16(&(fontDescriptor->field_6));
+    if (fileRead(&(fontDescriptor->lineSpacing), 2, 1, stream) != 1) goto err;
+    interfaceFontByteSwapInt16(&(fontDescriptor->lineSpacing));
 
     for (int index = 0; index < 256; index++) {
         InterfaceFontGlyph* glyph = &(fontDescriptor->glyphs[index]);
@@ -164,7 +164,7 @@ int interfaceFontGetLineHeightImpl()
         return 0;
     }
 
-    return gCurrentInterfaceFontDescriptor->field_6 + gCurrentInterfaceFontDescriptor->field_0;
+    return gCurrentInterfaceFontDescriptor->lineSpacing + gCurrentInterfaceFontDescriptor->maxHeight;
 }
 
 // 0x442188
@@ -253,12 +253,12 @@ int interfaceFontGetMonospacedCharacterWidthImpl()
 
     int v1;
     if (gCurrentInterfaceFontDescriptor->wordSpacing <= gCurrentInterfaceFontDescriptor->field_8) {
-        v1 = gCurrentInterfaceFontDescriptor->field_6;
+        v1 = gCurrentInterfaceFontDescriptor->lineSpacing;
     } else {
         v1 = gCurrentInterfaceFontDescriptor->letterSpacing;
     }
 
-    return v1 + gCurrentInterfaceFontDescriptor->field_0;
+    return v1 + gCurrentInterfaceFontDescriptor->maxHeight;
 }
 
 // 0x4422B4
@@ -310,7 +310,7 @@ void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, i
         unsigned char* glyphDataPtr = gCurrentInterfaceFontDescriptor->data + glyph->offset;
 
         // Skip blank pixels (difference between font's line height and glyph height).
-        ptr += (gCurrentInterfaceFontDescriptor->field_0 - glyph->height) * pitch;
+        ptr += (gCurrentInterfaceFontDescriptor->maxHeight - glyph->height) * pitch;
 
         for (int y = 0; y < glyph->height; y++) {
             for (int x = 0; x < glyph->width; x++) {
@@ -327,7 +327,7 @@ void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, i
 
     if ((color & FONT_UNDERLINE) != 0) {
         int length = ptr - buf;
-        unsigned char* underlinePtr = buf + pitch * (gCurrentInterfaceFontDescriptor->field_0 - 1);
+        unsigned char* underlinePtr = buf + pitch * (gCurrentInterfaceFontDescriptor->maxHeight - 1);
         for (int index = 0; index < length; index++) {
             *underlinePtr++ = color & 0xFF;
         }
