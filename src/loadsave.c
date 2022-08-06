@@ -164,7 +164,7 @@ Size gLoadSaveFrmSizes[LOAD_SAVE_FRM_COUNT];
 MessageList gLoadSaveMessageList;
 
 // 0x613D30
-STRUCT_613D30 _LSData[10];
+LoadSaveSlotData _LSData[10];
 
 // 0x614280
 int _LSstatus[10];
@@ -1406,7 +1406,7 @@ int lsgLoadGameInSlot(int slot)
     sprintf(_gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
     strcat(_gmpath, "SAVE.DAT");
 
-    STRUCT_613D30* ptr = &(_LSData[slot]);
+    LoadSaveSlotData* ptr = &(_LSData[slot]);
     debugPrint("\nLOADSAVE: Load name: %s\n", ptr->description);
 
     _flptr = fileOpen(_gmpath, "rb");
@@ -1468,10 +1468,10 @@ int lsgSaveHeaderInSlot(int slot)
 {
     _ls_error_code = 4;
 
-    STRUCT_613D30* ptr = &(_LSData[slot]);
-    strncpy(ptr->field_0, "FALLOUT SAVE FILE", 24);
+    LoadSaveSlotData* ptr = &(_LSData[slot]);
+    strncpy(ptr->signature, LOAD_SAVE_SIGNATURE, 24);
 
-    if (fileWrite(ptr->field_0, 1, 24, _flptr) == -1) {
+    if (fileWrite(ptr->signature, 1, 24, _flptr) == -1) {
         return -1;
     }
 
@@ -1479,22 +1479,22 @@ int lsgSaveHeaderInSlot(int slot)
     temp[0] = VERSION_MAJOR;
     temp[1] = VERSION_MINOR;
 
-    ptr->field_18 = temp[0];
-    ptr->field_1A = temp[1];
+    ptr->versionMinor = temp[0];
+    ptr->versionMajor = temp[1];
 
     if (fileWriteInt16List(_flptr, temp, 2) == -1) {
         return -1;
     }
 
-    ptr->field_1C = VERSION_RELEASE;
+    ptr->versionRelease = VERSION_RELEASE;
     if (fileWriteUInt8(_flptr, VERSION_RELEASE) == -1) {
         return -1;
     }
 
     char* characterName = critterGetName(gDude);
-    strncpy(ptr->character_name, characterName, 32);
+    strncpy(ptr->characterName, characterName, 32);
 
-    if (fileWrite(ptr->character_name, 32, 1, _flptr) != 1) {
+    if (fileWrite(ptr->characterName, 32, 1, _flptr) != 1) {
         return -1;
     }
 
@@ -1509,16 +1509,16 @@ int lsgSaveHeaderInSlot(int slot)
     temp[1] = local->tm_mon + 1;
     temp[2] = local->tm_year + 1900;
 
-    ptr->field_5E = temp[0];
-    ptr->field_5C = temp[1];
-    ptr->field_60 = temp[2];
-    ptr->field_64 = local->tm_hour + local->tm_min;
+    ptr->fileDay = temp[0];
+    ptr->fileMonth = temp[1];
+    ptr->fileYear = temp[2];
+    ptr->fileTime = local->tm_hour + local->tm_min;
 
     if (fileWriteInt16List(_flptr, temp, 3) == -1) {
         return -1;
     }
 
-    if (_db_fwriteLong(_flptr, ptr->field_64) == -1) {
+    if (_db_fwriteLong(_flptr, ptr->fileTime) == -1) {
         return -1;
     }
 
@@ -1530,23 +1530,23 @@ int lsgSaveHeaderInSlot(int slot)
     temp[0] = month;
     temp[1] = day;
     temp[2] = year;
-    ptr->field_70 = gameTimeGetTime();
+    ptr->gameTime = gameTimeGetTime();
 
     if (fileWriteInt16List(_flptr, temp, 3) == -1) {
         return -1;
     }
 
-    if (_db_fwriteLong(_flptr, ptr->field_70) == -1) {
+    if (_db_fwriteLong(_flptr, ptr->gameTime) == -1) {
         return -1;
     }
 
-    ptr->field_74 = gElevation;
-    if (fileWriteInt16(_flptr, ptr->field_74) == -1) {
+    ptr->elevation = gElevation;
+    if (fileWriteInt16(_flptr, ptr->elevation) == -1) {
         return -1;
     }
 
-    ptr->field_76 = mapGetCurrentMap();
-    if (fileWriteInt16(_flptr, ptr->field_76) == -1) {
+    ptr->map = mapGetCurrentMap();
+    if (fileWriteInt16(_flptr, ptr->map) == -1) {
         return -1;
     }
 
@@ -1554,8 +1554,8 @@ int lsgSaveHeaderInSlot(int slot)
     strcpy(mapName, gMapHeader.name);
 
     char* v1 = _strmfe(_str, mapName, "sav");
-    strncpy(ptr->file_name, v1, 16);
-    if (fileWrite(ptr->file_name, 16, 1, _flptr) != 1) {
+    strncpy(ptr->fileName, v1, 16);
+    if (fileWrite(ptr->fileName, 16, 1, _flptr) != 1) {
         return -1;
     }
 
@@ -1578,13 +1578,13 @@ int lsgLoadHeaderInSlot(int slot)
 {
     _ls_error_code = 3;
 
-    STRUCT_613D30* ptr = &(_LSData[slot]);
+    LoadSaveSlotData* ptr = &(_LSData[slot]);
 
-    if (fileRead(ptr->field_0, 1, 24, _flptr) != 24) {
+    if (fileRead(ptr->signature, 1, 24, _flptr) != 24) {
         return -1;
     }
 
-    if (strncmp(ptr->field_0, "FALLOUT SAVE FILE", 18) != 0) {
+    if (strncmp(ptr->signature, LOAD_SAVE_SIGNATURE, 18) != 0) {
         debugPrint("\nLOADSAVE: ** Invalid save file on load! **\n");
         _ls_error_code = 2;
         return -1;
@@ -1595,20 +1595,20 @@ int lsgLoadHeaderInSlot(int slot)
         return -1;
     }
 
-    ptr->field_18 = v8[0];
-    ptr->field_1A = v8[1];
+    ptr->versionMinor = v8[0];
+    ptr->versionMajor = v8[1];
 
-    if (fileReadUInt8(_flptr, &(ptr->field_1C)) == -1) {
+    if (fileReadUInt8(_flptr, &(ptr->versionRelease)) == -1) {
         return -1;
     }
 
-    if (ptr->field_18 != 1 || ptr->field_1A != 2 || ptr->field_1C != 'R') {
-        debugPrint("\nLOADSAVE: Load slot #%d Version: %d.%d%c\n", slot, ptr->field_18, ptr->field_1A, ptr->field_1C);
+    if (ptr->versionMinor != 1 || ptr->versionMajor != 2 || ptr->versionRelease != 'R') {
+        debugPrint("\nLOADSAVE: Load slot #%d Version: %d.%d%c\n", slot, ptr->versionMinor, ptr->versionMajor, ptr->versionRelease);
         _ls_error_code = 1;
         return -1;
     }
 
-    if (fileRead(ptr->character_name, 32, 1, _flptr) != 1) {
+    if (fileRead(ptr->characterName, 32, 1, _flptr) != 1) {
         return -1;
     }
 
@@ -1620,11 +1620,11 @@ int lsgLoadHeaderInSlot(int slot)
         return -1;
     }
 
-    ptr->field_5C = v8[0];
-    ptr->field_5E = v8[1];
-    ptr->field_60 = v8[2];
+    ptr->fileMonth = v8[0];
+    ptr->fileDay = v8[1];
+    ptr->fileYear = v8[2];
 
-    if (_db_freadInt(_flptr, &(ptr->field_64)) == -1) {
+    if (_db_freadInt(_flptr, &(ptr->fileTime)) == -1) {
         return -1;
     }
 
@@ -1632,23 +1632,23 @@ int lsgLoadHeaderInSlot(int slot)
         return -1;
     }
 
-    ptr->field_68 = v8[0];
-    ptr->field_6A = v8[1];
-    ptr->field_6C = v8[2];
+    ptr->gameMonth = v8[0];
+    ptr->gameDay = v8[1];
+    ptr->gameYear = v8[2];
 
-    if (_db_freadInt(_flptr, &(ptr->field_70)) == -1) {
+    if (_db_freadInt(_flptr, &(ptr->gameTime)) == -1) {
         return -1;
     }
 
-    if (fileReadInt16(_flptr, &(ptr->field_74)) == -1) {
+    if (fileReadInt16(_flptr, &(ptr->elevation)) == -1) {
         return -1;
     }
 
-    if (fileReadInt16(_flptr, &(ptr->field_76)) == -1) {
+    if (fileReadInt16(_flptr, &(ptr->map)) == -1) {
         return -1;
     }
 
-    if (fileRead(ptr->file_name, 1, 16, _flptr) != 16) {
+    if (fileRead(ptr->fileName, 1, 16, _flptr) != 16) {
         return -1;
     }
 
@@ -1755,22 +1755,22 @@ void _DrawInfoBox(int a1)
     switch (_LSstatus[a1]) {
     case SLOT_STATE_OCCUPIED:
         do {
-            STRUCT_613D30* ptr = &(_LSData[a1]);
-            fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 254 + 396, ptr->character_name, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
+            LoadSaveSlotData* ptr = &(_LSData[a1]);
+            fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 254 + 396, ptr->characterName, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
-            int v4 = ptr->field_70 / 600;
-            int v5 = v4 % 60;
+            int v4 = ptr->gameTime / 600;
+            int minutes = v4 % 60;
             int v6 = 25 * (v4 / 60 % 24);
-            int v21 = 4 * v6 + v5;
+            int time = 4 * v6 + minutes;
 
-            text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 116 + ptr->field_68);
-            sprintf(_str, "%.2d %s %.4d   %.4d", ptr->field_6A, text, ptr->field_6C, v21);
+            text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 116 + ptr->gameMonth);
+            sprintf(_str, "%.2d %s %.4d   %.4d", ptr->gameDay, text, ptr->gameYear, time);
 
             int v2 = fontGetLineHeight();
             fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * (256 + v2) + 397, _str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
-            const char* v22 = mapGetName(ptr->field_76, ptr->field_74);
-            const char* v9 = mapGetCityName(ptr->field_76);
+            const char* v22 = mapGetName(ptr->map, ptr->elevation);
+            const char* v9 = mapGetCityName(ptr->map);
             sprintf(_str, "%s %s", v9, v22);
 
             int y = v2 + 3 + v2 + 256;
@@ -2073,7 +2073,7 @@ int _PrepLoad(File* stream)
     gameReset();
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
     gMapHeader.name[0] = '\0';
-    gameTimeSetTime(_LSData[_slot_cursor].field_70);
+    gameTimeSetTime(_LSData[_slot_cursor].gameTime);
     return 0;
 }
 
@@ -2081,7 +2081,7 @@ int _PrepLoad(File* stream)
 int _EndLoad(File* stream)
 {
     worldmapStartMapMusic();
-    dudeSetName(_LSData[_slot_cursor].character_name);
+    dudeSetName(_LSData[_slot_cursor].characterName);
     interfaceBarRefresh();
     indicatorBarRefresh();
     tileWindowRefresh();
@@ -2294,7 +2294,7 @@ int _SlotMap2Game(File* stream)
         return -1;
     }
 
-    if (mapLoadSaved(_LSData[_slot_cursor].file_name) == -1) {
+    if (mapLoadSaved(_LSData[_slot_cursor].fileName) == -1) {
         debugPrint("LOADSAVE: returning 13\n");
         return -1;
     }
