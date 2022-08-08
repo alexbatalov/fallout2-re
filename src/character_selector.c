@@ -181,6 +181,8 @@ int characterSelectorOpen()
             if (characterEditorShow(1) == 0) {
                 rc = 2;
                 done = true;
+            } else {
+                characterSelectorWindowRefresh();
             }
 
             break;
@@ -189,6 +191,8 @@ int characterSelectorOpen()
             if (!characterEditorShow(1)) {
                 rc = 2;
                 done = true;
+            } else {
+                characterSelectorWindowRefresh();
             }
 
             break;

@@ -1867,6 +1867,23 @@ int _obj_use_skill_on(Object* source, Object* target, int skill)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x49D140
+bool _obj_is_portal(Object* obj)
+{
+    if (obj == NULL) {
+        return false;
+    }
+
+    Proto* proto;
+    if (protoGetProto(obj->pid, &proto) == -1) {
+        return false;
+    }
+
+    return proto->scenery.type == SCENERY_TYPE_DOOR;
+}
+
 // 0x49D178
 bool _obj_is_lockable(Object* obj)
 {

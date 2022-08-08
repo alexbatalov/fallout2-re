@@ -2071,7 +2071,7 @@ void opWieldItem(Program* program)
 
     int hand = HAND_RIGHT;
 
-    bool v1 = false;
+    bool shouldAdjustArmorClass = false;
     Object* oldArmor = NULL;
     Object* newArmor = NULL;
     if (critter == gDude) {
@@ -2083,7 +2083,7 @@ void opWieldItem(Program* program)
             oldArmor = critterGetArmor(gDude);
         }
 
-        v1 = true;
+        shouldAdjustArmorClass = true;
         newArmor = item;
     }
 
@@ -2094,7 +2094,7 @@ void opWieldItem(Program* program)
     }
 
     if (critter == gDude) {
-        if (v1) {
+        if (shouldAdjustArmorClass) {
             _adjust_ac(critter, oldArmor, newArmor);
         }
 

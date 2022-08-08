@@ -42,6 +42,7 @@ int _check_door_state(Object* a1, Object* a2);
 int _obj_use_door(Object* a1, Object* a2, int a3);
 int _obj_use_container(Object* critter, Object* item);
 int _obj_use_skill_on(Object* a1, Object* a2, int skill);
+bool _obj_is_portal(Object* obj);
 bool _obj_is_lockable(Object* obj);
 bool objectIsLocked(Object* obj);
 int objectLock(Object* obj);

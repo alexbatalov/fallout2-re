@@ -115,6 +115,11 @@ typedef enum PipboyFrm {
     PIPBOY_FRM_COUNT,
 } PipboyFrm;
 
+typedef enum PipboyOpenIntent {
+    PIPBOY_OPEN_INTENT_UNSPECIFIED = 0,
+    PIPBOY_OPEN_INTENT_REST = 1,
+} PipboyOpenIntent;
+
 // Provides metadata information on quests.
 //
 // Loaded from `data/quest.txt`.
@@ -205,8 +210,8 @@ extern unsigned char _hot_back_line;
 extern unsigned char _holo_flag;
 extern unsigned char _stat_flag;
 
-int pipboyOpen(bool forceRest);
-int pipboyWindowInit(bool forceRest);
+int pipboyOpen(int intent);
+int pipboyWindowInit(int intent);
 void pipboyWindowFree();
 void _pip_init_();
 void pipboyInit();

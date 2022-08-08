@@ -282,6 +282,7 @@ int gameDialogWindowRenderBackground();
 int _talkToRefreshDialogWindowRect(Rect* rect);
 void gameDialogRenderHighlight(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int x, int y, int destPitch, unsigned char* a9, unsigned char* a10);
 void gameDialogRenderTalkingHead(Art* art, int frame);
-void gameDialogPrepareHighlights();
+void gameDialogHighlightsInit();
+void gameDialogHighlightsExit();
 
 #endif /* GAME_DIALOG_H */

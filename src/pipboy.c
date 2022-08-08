@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define PIPBOY_RAND_MAX (32767)
+
 // 0x496FC0
 const Rect gPipboyWindowContentRect = {
     PIPBOY_WINDOW_CONTENT_VIEW_X,
@@ -207,7 +209,7 @@ unsigned char _holo_flag;
 unsigned char _stat_flag;
 
 // 0x497004
-int pipboyOpen(bool forceRest)
+int pipboyOpen(int intent)
 {
     if (!_wmMapPipboyActive()) {
         // You aren't wearing the pipboy!
@@ -216,7 +218,8 @@ int pipboyOpen(bool forceRest)
         return 0;
     }
 
-    if (pipboyWindowInit(forceRest) == -1) {
+    intent = pipboyWindowInit(intent);
+    if (intent == -1) {
         return -1;
     }
 
@@ -226,9 +229,9 @@ int pipboyOpen(bool forceRest)
     while (true) {
         int keyCode = _get_input();
 
-        if (forceRest) {
+        if (intent == PIPBOY_OPEN_INTENT_REST) {
             keyCode = 504;
-            forceRest = false;
+            intent = PIPBOY_OPEN_INTENT_UNSPECIFIED;
         }
 
         mouseGetPosition(&gPipboyMouseX, &gPipboyMouseY);
@@ -281,7 +284,7 @@ int pipboyOpen(bool forceRest)
 }
 
 // 0x497228
-int pipboyWindowInit(bool forceRest)
+int pipboyWindowInit(int intent)
 {
     gPipboyWindowIsoWasEnabled = isoDisable();
 
@@ -402,7 +405,7 @@ int pipboyWindowInit(bool forceRest)
         y += 27;
     }
 
-    if (forceRest) {
+    if (intent == PIPBOY_OPEN_INTENT_REST) {
         if (!_critter_can_obj_dude_rest()) {
             blitBufferToBufferTrans(
                 gPipboyFrmData[PIPBOY_FRM_LOGO],
@@ -445,6 +448,8 @@ int pipboyWindowInit(bool forceRest)
 
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
             showDialogBox(text, NULL, 0, 192, 135, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_LARGE);
+
+            intent = PIPBOY_OPEN_INTENT_UNSPECIFIED;
         }
     } else {
         blitBufferToBufferTrans(
@@ -492,7 +497,7 @@ int pipboyWindowInit(bool forceRest)
     soundPlayFile("pipon");
     windowRefresh(gPipboyWindow);
 
-    return 0;
+    return intent;
 }
 
 // 0x497828
@@ -2039,10 +2044,10 @@ int pipboyRenderScreensaver()
             break;
         }
 
-        double random = randomBetween(0, RAND_MAX);
+        double random = randomBetween(0, PIPBOY_RAND_MAX);
 
         // TODO: Figure out what this constant means. Probably somehow related
-        // to RAND_MAX.
+        // to PIPBOY_RAND_MAX.
         if (random < 3047.3311) {
             int index = 0;
             for (; index < PIPBOY_BOMB_COUNT; index += 1) {
@@ -2054,7 +2059,7 @@ int pipboyRenderScreensaver()
             if (index < PIPBOY_BOMB_COUNT) {
                 PipboyBomb* bomb = &(bombs[index]);
                 int v27 = (350 - gPipboyFrmSizes[PIPBOY_FRM_BOMB].width / 4) + (406 - gPipboyFrmSizes[PIPBOY_FRM_BOMB].height / 4);
-                int v5 = (int)((double)randomBetween(0, RAND_MAX) / (double)RAND_MAX * (double)v27);
+                int v5 = (int)((double)randomBetween(0, PIPBOY_RAND_MAX) / (double)PIPBOY_RAND_MAX * (double)v27);
                 int v6 = gPipboyFrmSizes[PIPBOY_FRM_BOMB].height / 4;
                 if (PIPBOY_WINDOW_CONTENT_VIEW_HEIGHT - v6 >= v5) {
                     bomb->x = 602;
@@ -2065,7 +2070,7 @@ int pipboyRenderScreensaver()
                 }
 
                 bomb->field_10 = 1;
-                bomb->field_8 = (float)((double)randomBetween(0, RAND_MAX) * (2.75 / RAND_MAX) + 0.15);
+                bomb->field_8 = (float)((double)randomBetween(0, PIPBOY_RAND_MAX) * (2.75 / PIPBOY_RAND_MAX) + 0.15);
                 bomb->field_C = 0;
             }
         }
