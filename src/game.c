@@ -1181,6 +1181,7 @@ int gameDbInit()
 
     _critter_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
     if (_critter_db_handle == -1) {
+        _db_select(_master_db_handle);
         showMesageBox("Could not find the critter datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
@@ -1192,6 +1193,8 @@ int gameDbInit()
             dbOpen(filename, 0, NULL, 1);
         }
     }
+
+    _db_select(_master_db_handle);
 
     return 0;
 }
