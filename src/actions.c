@@ -5,11 +5,13 @@
 #include "combat.h"
 #include "combat_ai.h"
 #include "config.h"
+#include "core.h"
 #include "critter.h"
 #include "debug.h"
 #include "display_monitor.h"
 #include "game.h"
 #include "game_config.h"
+#include "game_mouse.h"
 #include "game_sound.h"
 #include "geometry.h"
 #include "interface.h"
@@ -1398,6 +1400,50 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
     // TODO: Get rid of casts.
     animationRegisterCallback3(performer, a2, (void*)skill, (AnimationCallback3*)_obj_use_skill_on, -1);
     return reg_anim_end();
+}
+
+// NOTE: Unused.
+//
+// 0x4129CC
+Object* _pick_object(int objectType, bool a2)
+{
+    Object* foundObject;
+    int mouseEvent;
+    int keyCode;
+
+    foundObject = NULL;
+
+    do {
+        _get_input();
+    } while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+
+    gameMouseSetCursor(MOUSE_CURSOR_PLUS);
+    gameMouseObjectsHide();
+
+    do {
+        if (_get_input() == -2) {
+            mouseEvent = mouseGetEvent();
+            if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
+                keyCode = 0;
+                foundObject = gameMouseGetObjectUnderCursor(objectType, a2, gElevation);
+                break;
+            }
+
+            if ((mouseEvent & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
+                keyCode = KEY_ESCAPE;
+                break;
+            }
+        }
+    } while (_game_user_wants_to_quit == 0);
+
+    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gameMouseObjectsShow();
+
+    if (keyCode == KEY_ESCAPE) {
+        return NULL;
+    }
+
+    return foundObject;
 }
 
 // 0x412BC4
