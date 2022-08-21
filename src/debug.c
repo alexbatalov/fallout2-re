@@ -234,7 +234,23 @@ void _debug_putc(char ch)
 // 0x4C71AC
 void _debug_scroll()
 {
-    // TODO: Something with segments.
+    char* buffer;
+    int x;
+    int y;
+
+    buffer = (char*)0xB0000;
+
+    for (y = 0; y < 24; y++) {
+        for (x = 0; x < 80 * 2; x++) {
+            buffer[0] = buffer[80 * 2];
+            buffer++;
+        }
+    }
+
+    for (x = 0; x < 80; x++) {
+        *buffer++ = ' ';
+        *buffer++ = 7;
+    }
 }
 
 // 0x4C71E8
