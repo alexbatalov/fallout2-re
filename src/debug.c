@@ -159,7 +159,28 @@ int _debug_puts(char* string)
 // 0x4C6FAC
 void _debug_clear()
 {
-    // TODO: Something with segments.
+    char* buffer;
+    int x;
+    int y;
+
+    buffer = NULL;
+
+    if (gDebugPrintProc == _debug_mono) {
+        buffer = (char*)0xB0000;
+    } else if (gDebugPrintProc == _debug_screen) {
+        buffer = (char*)0xB8000;
+    }
+
+    if (buffer != NULL) {
+        for (y = 0; y < 25; y++) {
+            for (x = 0; x < 80; x++) {
+                *buffer++ = ' ';
+                *buffer++ = 7;
+            }
+        }
+        _cury = 0;
+        _curx = 0;
+    }
 }
 
 // 0x4C7004
