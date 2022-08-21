@@ -23,6 +23,7 @@ int _debug_mono(char* string);
 int _debug_log(char* string);
 int _debug_screen(char* string);
 void _debug_putc(int ch);
+void _debug_scroll();
 void _debug_exit(void);
 
 #endif /* DEBUG_H */
