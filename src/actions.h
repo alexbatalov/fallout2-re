@@ -8,9 +8,12 @@
 #include <stdbool.h>
 
 extern int _action_in_explode;
+extern int _obj_fid;
+extern int _obj_pid_old;
 extern const int gNormalDeathAnimations[DAMAGE_TYPE_COUNT];
 extern const int gMaximumBloodDeathAnimations[DAMAGE_TYPE_COUNT];
 
+void _switch_dude();
 int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int delay);
 int _action_blood(Object* obj, int anim, int delay);
 int _pick_death(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack);

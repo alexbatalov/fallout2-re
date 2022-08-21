@@ -36,6 +36,12 @@
 // 0x5106D0
 int _action_in_explode = 0;
 
+// 0x5106D8
+int _obj_fid = -1;
+
+// 0x5106DC
+int _obj_pid_old = -1;
+
 // 0x5106E0
 const int gNormalDeathAnimations[DAMAGE_TYPE_COUNT] = {
     ANIM_DANCING_AUTOFIRE,
@@ -57,6 +63,26 @@ const int gMaximumBloodDeathAnimations[DAMAGE_TYPE_COUNT] = {
     ANIM_FALL_BACK,
     ANIM_EXPLODED_TO_NOTHING,
 };
+
+// NOTE: Unused.
+//
+// 0x410410
+void _switch_dude()
+{
+    Object* critter;
+    int gender;
+
+    critter = _pick_object(OBJ_TYPE_CRITTER, false);
+    if (critter != NULL) {
+        gender = critterGetStat(critter, STAT_GENDER);
+        critterSetBaseStat(gDude, STAT_GENDER, gender);
+
+        gDude = critter;
+        _obj_fid = critter->fid;
+        _obj_pid_old = critter->pid;
+        critter->pid = 0x1000000;
+    }
+}
 
 // 0x410468
 int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int delay)
