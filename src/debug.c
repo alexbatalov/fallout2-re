@@ -226,9 +226,50 @@ int _debug_screen(char* string)
 }
 
 // 0x4C709C
-void _debug_putc(char ch)
+void _debug_putc(int ch)
 {
-    // TODO: Something with segments.
+    char* buffer;
+
+    buffer = (char*)0xB0000;
+
+    switch (ch) {
+    case 7:
+        printf("\x07");
+        return;
+    case 8:
+        if (_curx > 0) {
+            _curx--;
+            buffer += 2 * _curx + 2 * 80 * _cury;
+            *buffer++ = ' ';
+            *buffer = 7;
+        }
+        return;
+    case 9:
+        do {
+            _debug_putc(' ');
+        } while ((_curx - 1) % 4 != 0);
+        return;
+    case 13:
+        _curx = 0;
+        return;
+    default:
+        buffer += 2 * _curx + 2 * 80 * _cury;
+        *buffer++ = ch;
+        *buffer = 7;
+        _curx++;
+        if (_curx < 80) {
+            return;
+        }
+        // FALLTHROUGH
+    case 10:
+        _curx = 0;
+        _cury++;
+        if (_cury > 24) {
+            _cury = 24;
+            _debug_scroll();
+        }
+        return;
+    }
 }
 
 // 0x4C71AC
