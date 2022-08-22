@@ -46,7 +46,7 @@ typedef struct TextInputRegion {
 
 typedef struct TextRegion {
     int win;
-    int field_4;
+    int isUsed;
     int x;
     int y;
     int width;
@@ -54,7 +54,7 @@ typedef struct TextRegion {
     int textAlignment;
     int textFlags;
     int backgroundColor;
-    int field_24;
+    int font;
 } TextRegion;
 
 extern UpdateRegion* _updateRegions[WIDGET_UPDATE_REGIONS_CAPACITY];
@@ -67,6 +67,7 @@ extern int _numTextRegions;
 
 void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
+int _win_add_text_region(int win, int x, int y, int width, int font, int textAlignment, int textFlags, int backgroundColor);
 int _win_print_text_region(int textRegionId, char* string);
 int _win_print_substr_region(int textRegionId, char* string, int stringLength);
 int _win_update_text_region(int textRegionId);

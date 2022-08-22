@@ -52,6 +52,54 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B5508
+int _win_add_text_region(int win, int x, int y, int width, int font, int textAlignment, int textFlags, int backgroundColor)
+{
+    int textRegionIndex;
+    int oldFont;
+    int height;
+
+    for (textRegionIndex = 0; textRegionIndex < _numTextRegions; textRegionIndex++) {
+        if (_textRegions[textRegionIndex].isUsed == 0) {
+            break;
+        }
+    }
+
+    if (textRegionIndex == _numTextRegions) {
+        if (_textRegions == NULL) {
+            _textRegions = (TextRegion*)internal_malloc_safe(sizeof(*_textRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 615
+        } else {
+            _textRegions = (TextRegion*)internal_realloc_safe(_textRegions, sizeof(*_textRegions) * (_numTextRegions + 1), __FILE__, __LINE__); // "..\int\WIDGET.C", 616
+        }
+        _numTextRegions++;
+    }
+
+    oldFont = fontGetCurrent();
+    fontSetCurrent(font);
+
+    height = fontGetLineHeight();
+
+    fontSetCurrent(oldFont);
+
+    if ((textFlags & FONT_SHADOW) != 0) {
+        width++;
+        height++;
+    }
+
+    _textRegions[textRegionIndex].isUsed = 1;
+    _textRegions[textRegionIndex].win = win;
+    _textRegions[textRegionIndex].x = x;
+    _textRegions[textRegionIndex].y = y;
+    _textRegions[textRegionIndex].width = width;
+    _textRegions[textRegionIndex].height = height;
+    _textRegions[textRegionIndex].font = font;
+    _textRegions[textRegionIndex].textAlignment = textAlignment;
+    _textRegions[textRegionIndex].textFlags = textFlags;
+    _textRegions[textRegionIndex].backgroundColor = backgroundColor;
+
+    return textRegionIndex + 1;
+}
+
 // 0x4B5634
 int _win_print_text_region(int textRegionId, char* string)
 {
@@ -60,9 +108,9 @@ int _win_print_text_region(int textRegionId, char* string)
 
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
-        if (_textRegions[textRegionIndex].field_4 != 0) {
+        if (_textRegions[textRegionIndex].isUsed != 0) {
             oldFont = fontGetCurrent();
-            fontSetCurrent(_textRegions[textRegionIndex].field_24);
+            fontSetCurrent(_textRegions[textRegionIndex].font);
 
             windowFill(_textRegions[textRegionIndex].win,
                 _textRegions[textRegionIndex].x,
@@ -98,9 +146,9 @@ int _win_print_substr_region(int textRegionId, char* string, int stringLength)
 
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
-        if (_textRegions[textRegionIndex].field_4 != 0) {
+        if (_textRegions[textRegionIndex].isUsed != 0) {
             oldFont = fontGetCurrent();
-            fontSetCurrent(_textRegions[textRegionIndex].field_24);
+            fontSetCurrent(_textRegions[textRegionIndex].font);
 
             windowFill(_textRegions[textRegionIndex].win,
                 _textRegions[textRegionIndex].x,
@@ -136,7 +184,7 @@ int _win_update_text_region(int textRegionId)
 
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
-        if (_textRegions[textRegionIndex].field_4 != 0) {
+        if (_textRegions[textRegionIndex].isUsed != 0) {
             rect.left = _textRegions[textRegionIndex].x;
             rect.top = _textRegions[textRegionIndex].y;
             rect.right = _textRegions[textRegionIndex].x + _textRegions[textRegionIndex].width;
@@ -156,8 +204,8 @@ int _win_delete_text_region(int textRegionId)
 
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
-        if (_textRegions[textRegionIndex].field_4 != 0) {
-            _textRegions[textRegionIndex].field_4 = 0;
+        if (_textRegions[textRegionIndex].isUsed != 0) {
+            _textRegions[textRegionIndex].isUsed = 0;
             return 1;
         }
     }
