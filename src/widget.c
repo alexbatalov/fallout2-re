@@ -52,10 +52,12 @@ void _insertChar(char* string, char ch, int pos, int length)
 }
 
 // 0x4B57E4
-int _win_update_text_region(int textRegionIndex)
+int _win_update_text_region(int textRegionId)
 {
+    int textRegionIndex;
     Rect rect;
 
+    textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
         if (_textRegions[textRegionIndex].field_4 != 0) {
             rect.left = _textRegions[textRegionIndex].x;
@@ -71,8 +73,11 @@ int _win_update_text_region(int textRegionIndex)
 }
 
 // 0x4B5864
-int _win_delete_text_region(int textRegionIndex)
+int _win_delete_text_region(int textRegionId)
 {
+    int textRegionIndex;
+
+    textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
         if (_textRegions[textRegionIndex].field_4 != 0) {
             _textRegions[textRegionIndex].field_4 = 0;
