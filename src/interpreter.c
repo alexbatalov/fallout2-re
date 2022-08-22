@@ -3339,58 +3339,48 @@ int programFindProcedure(Program* program, const char* name)
 }
 
 // 0x46DD2C
-void _executeProcedure(Program* program, int procedure_index)
+void _executeProcedure(Program* program, int procedureIndex)
 {
-    Program* external_program;
-    char* identifier;
-    int address;
-    int arguments_count;
-    unsigned char* procedure_ptr;
-    int flags;
+    unsigned char* procedurePtr;
+    char* procedureIdentifier;
+    int procedureAddress;
+    Program* externalProgram;
+    int externalProcedureAddress;
+    int externalProcedureArgumentCount;
+    int procedureFlags;
     char err[256];
-    jmp_buf jmp_buf;
-    Program* v13;
+    jmp_buf env;
 
-    procedure_ptr = program->procedures + 4 + sizeof(Procedure) * procedure_index;
-    flags = stackReadInt32(procedure_ptr, 4);
+    procedurePtr = program->procedures + 4 + sizeof(Procedure) * procedureIndex;
+    procedureFlags = stackReadInt32(procedurePtr, 4);
 
-    if (flags & PROCEDURE_FLAG_IMPORTED) {
-        identifier = programGetIdentifier(program, stackReadInt32(procedure_ptr, 0));
-        external_program = externalProcedureGetProgram(identifier, &address, &arguments_count);
-        if (external_program == NULL) {
-            sprintf(err, "External procedure %s not found\n", identifier);
-            // TODO: Incomplete.
-            // _interpretOutput(err);
-            return;
+    if ((procedureFlags & PROCEDURE_FLAG_IMPORTED) != 0) {
+        procedureIdentifier = programGetIdentifier(program, stackReadInt32(procedurePtr, 0));
+        externalProgram = externalProcedureGetProgram(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
+        if (externalProgram != NULL) {
+            if (externalProcedureArgumentCount == 0) {
+                // NOTE: Uninline.
+                _setupExternalCall(program, externalProgram, externalProcedureAddress, 32);
+                memcpy(env, program->env, sizeof(env));
+                _interpret(externalProgram, -1);
+                memcpy(externalProgram->env, env, sizeof(env));
+            } else {
+                sprintf(err, "External procedure cannot take arguments in interrupt context");
+                _interpretOutput(err);
+            }
+        } else {
+            sprintf(err, "External procedure %s not found\n", procedureIdentifier);
+            _interpretOutput(err);
         }
-
-        if (arguments_count != 0) {
-            sprintf(err, "External procedure cannot take arguments in interrupt context");
-            // TODO: Incomplete.
-            // _interpretOutput(err);
-            return;
-        }
-
-        // NOTE: Uninline.
-        _setupExternalCall(program, external_program, address, 32);
-
-        memcpy(jmp_buf, program->env, sizeof(jmp_buf));
-
-        v13 = external_program;
     } else {
-        address = stackReadInt32(procedure_ptr, 16);
+        procedureAddress = stackReadInt32(procedurePtr, 16);
 
         // NOTE: Uninline.
-        _setupCall(program, address, 24);
-
-        memcpy(jmp_buf, program->env, sizeof(jmp_buf));
-
-        v13 = program;
+        _setupCall(program, procedureAddress, 24);
+        memcpy(env, program->env, sizeof(env));
+        _interpret(program, -1);
+        memcpy(program->env, env, sizeof(env));
     }
-
-    _interpret(v13, -1);
-
-    memcpy(v13->env, jmp_buf, sizeof(jmp_buf));
 }
 
 // 0x46DEE4

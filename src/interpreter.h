@@ -299,7 +299,7 @@ void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int a
 void _setupExternalCall(Program* program1, Program* program2, int address, int a4);
 void _executeProc(Program* program, int procedure_index);
 int programFindProcedure(Program* prg, const char* name);
-void _executeProcedure(Program* program, int procedure_index);
+void _executeProcedure(Program* program, int procedureIndex);
 void _doEvents();
 void programListNodeFree(ProgramListNode* programListNode);
 void programListNodeCreate(Program* program);
