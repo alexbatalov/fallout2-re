@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include "datafile.h"
+#include "debug.h"
 #include "draw.h"
 #include "geometry.h"
 #include "memory_manager.h"
@@ -183,5 +185,32 @@ void _real_win_increment_status_bar(float a1)
         _statusBar.field_1C = _statusBar.field_20 + (int)(a1 * (_statusBar.field_24 - _statusBar.field_20));
         _drawStatusBar();
         soundContinueAll();
+    }
+}
+
+// 0x4B6020
+void _real_win_add_status_bar(int win, int a2, char* a3, char* a4, int x, int y)
+{
+    int imageWidth1;
+    int imageHeight1;
+    int imageWidth2;
+    int imageHeight2;
+
+    _freeStatusBar();
+
+    _statusBar.field_0 = datafileReadRaw(a4, &imageWidth1, &imageHeight1);
+    _statusBar.field_4 = datafileReadRaw(a3, &imageWidth2, &imageHeight2);
+
+    if (imageWidth2 == imageWidth1 && imageHeight2 == imageHeight1) {
+        _statusBar.x = x;
+        _statusBar.y = y;
+        _statusBar.width = imageWidth1;
+        _statusBar.height = imageHeight1;
+        _statusBar.win = win;
+        _real_win_set_status_bar(a2, 0, 0);
+        _statusBarActive = 1;
+    } else {
+        _freeStatusBar();
+        debugPrint("status bar dimensions not the same\n");
     }
 }
