@@ -2,8 +2,16 @@
 
 #include <string.h>
 
+#include "memory_manager.h"
+
 // 0x66E6A0
 int _updateRegions[32];
+
+// 0x66E720
+StatusBar _statusBar;
+
+// 0x66E75C
+int _statuBarActive;
 
 // 0x4B45A0
 void _deleteChar(char* string, int pos, int length)
@@ -46,4 +54,22 @@ int _update_widgets()
 void sub_4B5998(int win)
 {
     // TODO: Incomplete.
+}
+
+// 0x4B5D78
+void _freeStatusBar()
+{
+    if (_statusBar.field_0 != NULL) {
+        internal_free_safe(_statusBar.field_0, __FILE__, __LINE__); // "..\int\WIDGET.C", 891
+        _statusBar.field_0 = NULL;
+    }
+
+    if (_statusBar.field_4 != NULL) {
+        internal_free_safe(_statusBar.field_4, __FILE__, __LINE__); // "..\int\WIDGET.C", 892
+        _statusBar.field_4 = NULL;
+    }
+
+    memset(&_statusBar, 0, sizeof(_statusBar));
+
+    _statuBarActive = 0;
 }
