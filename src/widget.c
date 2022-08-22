@@ -23,7 +23,7 @@ int _numTextInputRegions;
 TextRegion* _textRegions;
 
 // 0x66E75C
-int _statuBarActive;
+int _statusBarActive;
 
 // 0x66E760
 int _numTextRegions;
@@ -86,7 +86,7 @@ void _freeStatusBar()
 
     memset(&_statusBar, 0, sizeof(_statusBar));
 
-    _statuBarActive = 0;
+    _statusBarActive = 0;
 }
 
 // 0x4B5DE4
@@ -127,7 +127,7 @@ void _drawStatusBar()
     Rect rect;
     unsigned char* dest;
 
-    if (_statuBarActive) {
+    if (_statusBarActive) {
         dest = windowGetBuffer(_statusBar.win) + _statusBar.y * windowGetWidth(_statusBar.win) + _statusBar.x;
 
         blitBufferToBuffer(_statusBar.field_0,

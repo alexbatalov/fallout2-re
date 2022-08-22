@@ -47,7 +47,7 @@ extern StatusBar _statusBar;
 extern TextInputRegion* _textInputRegions;
 extern int _numTextInputRegions;
 extern TextRegion* _textRegions;
-extern int _statuBarActive;
+extern int _statusBarActive;
 extern int _numTextRegions;
 
 void _deleteChar(char* string, int pos, int length);
