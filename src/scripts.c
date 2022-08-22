@@ -690,7 +690,7 @@ void _script_chk_timed_events()
         v1 = true;
     }
 
-    if (_game_state() != 4) {
+    if (_game_state() != GAME_STATE_4) {
         if (getTicksBetween(v0, _last_light_time) >= 30000) {
             _last_light_time = v0;
             scriptsExecMapUpdateScripts(SCRIPT_PROC_MAP_UPDATE);

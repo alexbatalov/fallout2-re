@@ -702,7 +702,7 @@ void _gdialogSystemEnter()
         _tile_scroll_to(gGameDialogOldCenterTile, 2);
     }
 
-    _game_state_request(2);
+    _game_state_request(GAME_STATE_2);
 
     _game_state_update();
 }

@@ -3369,7 +3369,7 @@ void opGameDialogSystemEnter(Program* program)
         return;
     }
 
-    if (_game_state_request(4) == -1) {
+    if (_game_state_request(GAME_STATE_4) == -1) {
         return;
     }
 

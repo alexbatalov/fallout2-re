@@ -75,7 +75,7 @@ char _aDec11199816543[] = VERSION_BUILD_TIME;
 bool gGameUiDisabled = false;
 
 // 0x5186B8
-int _game_state_cur = 0;
+int _game_state_cur = GAME_STATE_0;
 
 // 0x5186BC
 bool gIsMapper = false;
@@ -408,7 +408,8 @@ void gameExit()
 // 0x442D44
 int gameHandleKey(int eventCode, bool isInCombatMode)
 {
-    if (_game_state_cur == 5) {
+    // NOTE: Uninline.
+    if (_game_state() == GAME_STATE_5) {
         _gdialogSystemEnter();
     }
 
@@ -954,15 +955,15 @@ int _game_state()
 // 0x443E34
 int _game_state_request(int a1)
 {
-    if (a1 == 0) {
-        a1 = 1;
-    } else if (a1 == 2) {
-        a1 = 3;
-    } else if (a1 == 4) {
-        a1 = 5;
+    if (a1 == GAME_STATE_0) {
+        a1 = GAME_STATE_1;
+    } else if (a1 == GAME_STATE_2) {
+        a1 = GAME_STATE_3;
+    } else if (a1 == GAME_STATE_4) {
+        a1 = GAME_STATE_5;
     }
 
-    if (_game_state_cur != 4 || a1 != 5) {
+    if (_game_state_cur != GAME_STATE_4 || a1 != GAME_STATE_5) {
         _game_state_cur = a1;
         return 0;
     }
@@ -977,14 +978,14 @@ void _game_state_update()
 
     v0 = _game_state_cur;
     switch (_game_state_cur) {
-    case 1:
-        v0 = 0;
+    case GAME_STATE_1:
+        v0 = GAME_STATE_0;
         break;
-    case 3:
-        v0 = 2;
+    case GAME_STATE_3:
+        v0 = GAME_STATE_2;
         break;
-    case 5:
-        v0 = 4;
+    case GAME_STATE_5:
+        v0 = GAME_STATE_4;
     }
 
     _game_state_cur = v0;

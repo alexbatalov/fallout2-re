@@ -6,6 +6,15 @@
 
 #include <stdbool.h>
 
+typedef enum GameState {
+    GAME_STATE_0,
+    GAME_STATE_1,
+    GAME_STATE_2,
+    GAME_STATE_3,
+    GAME_STATE_4,
+    GAME_STATE_5,
+} GameState;
+
 extern char _aGame_0[];
 
 extern bool gGameUiDisabled;
