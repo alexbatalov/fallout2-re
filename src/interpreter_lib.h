@@ -37,7 +37,7 @@ void opPrintRect(Program* program);
 void opSelect(Program* program);
 void opDisplay(Program* program);
 void opDisplayRaw(Program* program);
-void sub_46222C(unsigned char* a1, unsigned char* a2, int a3, float a4, int a5);
+void _interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* newPalette, int a3, float duration, int shouldProcessBk);
 void opFadeIn(Program* program);
 void opFadeOut(Program* program);
 int intLibCheckMovie(Program* program);

@@ -440,9 +440,45 @@ void opDisplayRaw(Program* program)
 }
 
 // 0x46222C
-void sub_46222C(unsigned char* a1, unsigned char* a2, int a3, float a4, int a5)
+void _interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* newPalette, int a3, float duration, int shouldProcessBk)
 {
-    // TODO: Incomplete.
+    unsigned int time;
+    unsigned int previousTime;
+    unsigned int delta;
+    int step;
+    int steps;
+    int index;
+    unsigned char palette[256 * 3];
+
+    time = _get_time();
+    previousTime = time;
+    steps = (int)duration;
+    step = 0;
+    delta = 0;
+
+    if (duration != 0.0) {
+        while (step < steps) {
+            if (delta != 0) {
+                for (index = 0; index < 768; index++) {
+                    palette[index] = oldPalette[index] - (oldPalette[index] - newPalette[index]) * step / steps;
+                }
+
+                _setSystemPalette(palette);
+
+                previousTime = time;
+                step += delta;
+            }
+
+            if (shouldProcessBk) {
+                _process_bk();
+            }
+
+            time = _get_time();
+            delta = time - previousTime;
+        }
+    }
+
+    _setSystemPalette(newPalette);
 }
 
 // fadein
@@ -464,7 +500,7 @@ void opFadeIn(Program* program)
 
     _setSystemPalette(gIntLibFadePalette);
 
-    sub_46222C(gIntLibFadePalette, _cmap, 64, (float)data, 1);
+    _interpretFadePaletteBK(gIntLibFadePalette, _cmap, 64, (float)data, 1);
     gIntLibIsPaletteFaded = true;
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -491,7 +527,7 @@ void opFadeOut(Program* program)
     bool cursorWasHidden = cursorIsHidden();
     mouseHideCursor();
 
-    sub_46222C(_getSystemPalette(), gIntLibFadePalette, 64, (float)data, 1);
+    _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, (float)data, 1);
 
     if (!cursorWasHidden) {
         mouseShowCursor();
