@@ -175,3 +175,13 @@ void _real_win_update_status_bar(float a1, float a2)
         soundContinueAll();
     }
 }
+
+// 0x4B5FD4
+void _real_win_increment_status_bar(float a1)
+{
+    if (_statusBarActive) {
+        _statusBar.field_1C = _statusBar.field_20 + (int)(a1 * (_statusBar.field_24 - _statusBar.field_20));
+        _drawStatusBar();
+        soundContinueAll();
+    }
+}
