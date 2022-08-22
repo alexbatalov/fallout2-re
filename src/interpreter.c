@@ -86,7 +86,7 @@ int _outputStr(char* a1)
 // 0x4670C8
 int _checkWait(Program* program)
 {
-    return 1000 * _timerFunc() / _timerTick <= program->field_70;
+    return 1000 * _timerFunc() / _timerTick <= program->waitEnd;
 }
 
 // 0x4670FC
@@ -783,10 +783,10 @@ void opWait(Program* program)
         programFatalError("Invalid type given to wait\n");
     }
 
-    program->field_74 = 1000 * _timerFunc() / _timerTick;
-    program->field_70 = program->field_74 + data;
-    program->field_7C = _checkWait;
-    program->flags |= PROGRAM_FLAG_0x10;
+    program->waitStart = 1000 * _timerFunc() / _timerTick;
+    program->waitEnd = program->waitStart + data;
+    program->checkWaitFunc = _checkWait;
+    program->flags |= PROGRAM_IS_WAITING;
 }
 
 // 0x468218
@@ -2271,7 +2271,7 @@ void op801F(Program* program)
     }
 
     program->windowId = data[0];
-    program->field_7C = (int (*)(Program*))data[1];
+    program->checkWaitFunc = (InterpretCheckWaitFunc*)data[1];
     program->flags = data[2] & 0xFFFF;
 }
 
@@ -2350,7 +2350,7 @@ void op8026(Program* program)
     v1 = (Program*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
-    v1->field_7C = (int (*)(Program*))stackPopInt32(program->returnStack, &(program->returnStackPointer));
+    v1->checkWaitFunc = (InterpretCheckWaitFunc*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
     v1->flags = stackPopInt32(program->returnStack, &(program->returnStackPointer));
@@ -2374,7 +2374,7 @@ void op8022(Program* program)
     v1 = (Program*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
-    v1->field_7C = (int (*)(Program*))stackPopInt32(program->returnStack, &(program->returnStackPointer));
+    v1->checkWaitFunc = (InterpretCheckWaitFunc*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
     v1->flags = stackPopInt32(program->returnStack, &(program->returnStackPointer));
@@ -2394,7 +2394,7 @@ void op8023(Program* program)
     v1 = (Program*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
-    v1->field_7C = (int (*)(Program*))stackPopInt32(program->returnStack, &(program->returnStackPointer));
+    v1->checkWaitFunc = (InterpretCheckWaitFunc*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
     v1->flags = stackPopInt32(program->returnStack, &(program->returnStackPointer));
@@ -2427,7 +2427,7 @@ void op8024(Program* program)
     v10 = (Program*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
-    v10->field_7C = (int (*)(Program*))stackPopInt32(program->returnStack, &(program->returnStackPointer));
+    v10->checkWaitFunc = (InterpretCheckWaitFunc*)stackPopInt32(program->returnStack, &(program->returnStackPointer));
 
     programReturnStackPopInt16(program);
     v10->flags = stackPopInt32(program->returnStack, &(program->returnStackPointer));
@@ -3133,19 +3133,19 @@ void _interpret(Program* program, int a2)
             break;
         }
 
-        if ((program->flags & PROGRAM_FLAG_0x10) != 0) {
+        if ((program->flags & PROGRAM_IS_WAITING) != 0) {
             _busy = 1;
 
-            if (program->field_7C != NULL) {
-                if (!program->field_7C(program)) {
+            if (program->checkWaitFunc != NULL) {
+                if (!program->checkWaitFunc(program)) {
                     _busy = 0;
                     continue;
                 }
             }
 
             _busy = 0;
-            program->field_7C = NULL;
-            program->flags &= ~PROGRAM_FLAG_0x10;
+            program->checkWaitFunc = NULL;
+            program->flags &= ~PROGRAM_IS_WAITING;
         }
 
         int instructionPointer = program->instructionPointer;
@@ -3204,7 +3204,7 @@ void _setupCallWithReturnVal(Program* program, int address, int returnAddress)
     stackPushInt32(program->stack, &(program->stackPointer), program->flags & 0xFFFF);
     programStackPushInt16(program, VALUE_TYPE_INT);
 
-    stackPushInt32(program->stack, &(program->stackPointer), (intptr_t)program->field_7C);
+    stackPushInt32(program->stack, &(program->stackPointer), (intptr_t)program->checkWaitFunc);
     programStackPushInt16(program, VALUE_TYPE_INT);
 
     stackPushInt32(program->stack, &(program->stackPointer), program->windowId);
@@ -3233,7 +3233,7 @@ void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int a
     stackPushInt32(program2->returnStack, &(program2->returnStackPointer), program1->flags & 0xFFFF);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
-    stackPushInt32(program2->returnStack, &(program2->returnStackPointer), (intptr_t)program1->field_7C);
+    stackPushInt32(program2->returnStack, &(program2->returnStackPointer), (intptr_t)program1->checkWaitFunc);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
     stackPushInt32(program2->returnStack, &(program2->returnStackPointer), (intptr_t)program1);
@@ -3245,7 +3245,7 @@ void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int a
     stackPushInt32(program2->stack, &(program2->stackPointer), program2->flags & 0xFFFF);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
-    stackPushInt32(program2->stack, &(program2->stackPointer), (intptr_t)program2->field_7C);
+    stackPushInt32(program2->stack, &(program2->stackPointer), (intptr_t)program2->checkWaitFunc);
     programReturnStackPushInt16(program2, VALUE_TYPE_INT);
 
     stackPushInt32(program2->stack, &(program2->stackPointer), program2->windowId);

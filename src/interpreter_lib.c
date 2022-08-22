@@ -551,8 +551,8 @@ void opPlayMovie(Program* program)
 
     _selectWindowID(program->windowId);
 
-    program->flags |= PROGRAM_FLAG_0x10;
-    program->field_7C = intLibCheckMovie;
+    program->flags |= PROGRAM_IS_WAITING;
+    program->checkWaitFunc = intLibCheckMovie;
 
     char* mangledFileName = _interpretMangleName(gIntLibPlayMovieFileName);
     if (!_windowPlayMovie(mangledFileName)) {
@@ -590,8 +590,8 @@ void opPlayMovieRect(Program* program)
 
     _selectWindowID(program->windowId);
 
-    program->field_7C = intLibCheckMovie;
-    program->flags |= PROGRAM_FLAG_0x10;
+    program->checkWaitFunc = intLibCheckMovie;
+    program->flags |= PROGRAM_IS_WAITING;
 
     char* mangledFileName = _interpretMangleName(gIntLibPlayMovieRectFileName);
     if (!_windowPlayMovieRect(mangledFileName, data[3], data[2], data[1], data[0])) {
@@ -1122,8 +1122,8 @@ void opSayEnd(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc == -2) {
-        program->field_7C = intLibCheckDialog;
-        program->flags |= PROGRAM_FLAG_0x10;
+        program->checkWaitFunc = intLibCheckDialog;
+        program->flags |= PROGRAM_IS_WAITING;
     }
 }
 

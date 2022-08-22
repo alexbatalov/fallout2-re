@@ -99,7 +99,9 @@ typedef enum ProgramFlags {
     PROGRAM_FLAG_0x02 = 0x02,
     PROGRAM_FLAG_0x04 = 0x04,
     PROGRAM_FLAG_STOPPED = 0x08,
-    PROGRAM_FLAG_0x10 = 0x10,
+
+    // Program is in waiting state with `checkWaitFunc` set.
+    PROGRAM_IS_WAITING = 0x10,
     PROGRAM_FLAG_0x20 = 0x20,
     PROGRAM_FLAG_0x40 = 0x40,
     PROGRAM_FLAG_CRITICAL_SECTION = 0x80,
@@ -132,6 +134,9 @@ typedef struct Procedure {
     int field_14;
 } Procedure;
 
+typedef struct Program Program;
+typedef int(InterpretCheckWaitFunc)(Program* program);
+
 // It's size in original code is 144 (0x8C) bytes due to the different
 // size of `jmp_buf`.
 typedef struct Program {
@@ -151,10 +156,10 @@ typedef struct Program {
     unsigned char* identifiers;
     unsigned char* procedures;
     jmp_buf env;
-    unsigned int field_70; // end time of timer (field_74 + wait time)
-    unsigned int field_74; // time when wait was called
+    unsigned int waitEnd; // end time of timer (field_74 + wait time)
+    unsigned int waitStart; // time when wait was called
     int field_78; // time when program begin execution (for the first time)?, -1 - program never executed
-    int (*field_7C)(struct Program* s); // proc to check timer
+    InterpretCheckWaitFunc* checkWaitFunc;
     int flags; // flags
     int windowId;
     bool exited;
