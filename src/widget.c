@@ -267,13 +267,13 @@ int _win_delete_text_region(int textRegionId)
 }
 
 // 0x4B58A0
-int _win_delete_all_update_regions(int a1)
+int _win_delete_all_update_regions(int win)
 {
     int index;
 
     for (index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
         if (_updateRegions[index] != NULL) {
-            if (a1 == _updateRegions[index]->field_0) {
+            if (win == _updateRegions[index]->win) {
                 internal_free_safe(_updateRegions[index], __FILE__, __LINE__); // "..\int\WIDGET.C", 722
                 _updateRegions[index] = NULL;
             }
@@ -367,7 +367,60 @@ int _win_center_str(int win, char* string, int y, int a4)
 // 0x4B5A64
 void _showRegion(UpdateRegion* updateRegion)
 {
-    // TODO: Incomplete.
+    float value;
+    char stringBuffer[80];
+
+    switch (updateRegion->type & 0xFF) {
+    case 1:
+        value = (float)(*(int*)updateRegion->value);
+        break;
+    case 2:
+        value = *(float*)updateRegion->value;
+        break;
+    case 4:
+        value = *(float*)updateRegion->value / 65636.0f;
+        break;
+    case 8:
+        windowDrawText(updateRegion->win,
+            (char*)updateRegion->value,
+            0,
+            updateRegion->x,
+            updateRegion->y,
+            updateRegion->field_10);
+        return;
+    case 0x10:
+        break;
+    default:
+        debugPrint("Invalid input type given to win_register_update\n");
+        return;
+    }
+
+    switch (updateRegion->type & 0xFF00) {
+    case 0x100:
+        sprintf(stringBuffer, " %d ", (int)value);
+        break;
+    case 0x200:
+        sprintf(stringBuffer, " %f ", value);
+        break;
+    case 0x400:
+        sprintf(stringBuffer, " %6.2f%% ", value * 100.0f);
+        break;
+    case 0x800:
+        if (updateRegion->showFunc != NULL) {
+            updateRegion->showFunc(updateRegion->value);
+        }
+        return;
+    default:
+        debugPrint("Invalid output type given to win_register_update\n");
+        return;
+    }
+
+    windowDrawText(updateRegion->win,
+        stringBuffer,
+        0,
+        updateRegion->x,
+        updateRegion->y,
+        updateRegion->field_10 | 0x1000000);
 }
 
 // 0x4B5BE8
@@ -377,8 +430,8 @@ int _draw_widgets()
 
     for (index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
         if (_updateRegions[index] != NULL) {
-            if ((_updateRegions[index]->field_C & 0xFF00) == 0x800) {
-                _updateRegions[index]->drawFunc(_updateRegions[index]->field_14);
+            if ((_updateRegions[index]->type & 0xFF00) == 0x800) {
+                _updateRegions[index]->drawFunc(_updateRegions[index]->value);
             }
         }
     }
@@ -399,7 +452,7 @@ int _update_widgets()
 }
 
 // 0x4B5C4C
-int _win_register_update(int a1, int a2, int a3, int a4, UpdateRegionDrawFunc* drawFunc, int a6, int a7, int a8)
+int _win_register_update(int win, int x, int y, UpdateRegionShowFunc* showFunc, UpdateRegionDrawFunc* drawFunc, void* value, unsigned int type, int a8)
 {
     int updateRegionIndex;
 
@@ -414,13 +467,13 @@ int _win_register_update(int a1, int a2, int a3, int a4, UpdateRegionDrawFunc* d
     }
 
     _updateRegions[updateRegionIndex] = (UpdateRegion*)internal_malloc_safe(sizeof(*_updateRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 859
-    _updateRegions[updateRegionIndex]->field_0 = a1;
-    _updateRegions[updateRegionIndex]->field_4 = a2;
-    _updateRegions[updateRegionIndex]->field_8 = a3;
-    _updateRegions[updateRegionIndex]->field_C = a7;
+    _updateRegions[updateRegionIndex]->win = win;
+    _updateRegions[updateRegionIndex]->x = x;
+    _updateRegions[updateRegionIndex]->y = y;
+    _updateRegions[updateRegionIndex]->type = type;
     _updateRegions[updateRegionIndex]->field_10 = a8;
-    _updateRegions[updateRegionIndex]->field_14 = a6;
-    _updateRegions[updateRegionIndex]->field_18 = a4;
+    _updateRegions[updateRegionIndex]->value = value;
+    _updateRegions[updateRegionIndex]->showFunc = showFunc;
     _updateRegions[updateRegionIndex]->drawFunc = drawFunc;
 
     return updateRegionIndex;

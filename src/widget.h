@@ -16,16 +16,17 @@ typedef struct StatusBar {
     int field_24;
 } StatusBar;
 
-typedef void(UpdateRegionDrawFunc)(int a1);
+typedef void(UpdateRegionShowFunc)(void* value);
+typedef void(UpdateRegionDrawFunc)(void* value);
 
 typedef struct UpdateRegion {
-    int field_0;
-    int field_4;
-    int field_8;
-    int field_C;
+    int win;
+    int x;
+    int y;
+    unsigned int type;
     int field_10;
-    int field_14;
-    int field_18;
+    void* value;
+    UpdateRegionShowFunc* showFunc;
     UpdateRegionDrawFunc* drawFunc;
 } UpdateRegion;
 
@@ -85,7 +86,7 @@ int _win_center_str(int win, char* string, int y, int a4);
 void _showRegion(UpdateRegion* updateRegion);
 int _draw_widgets();
 int _update_widgets();
-int _win_register_update(int a1, int a2, int a3, int a4, UpdateRegionDrawFunc* drawFunc, int a6, int a7, int a8);
+int _win_register_update(int win, int x, int y, UpdateRegionShowFunc* showFunc, UpdateRegionDrawFunc* drawFunc, void* value, unsigned int type, int a8);
 int _win_delete_update_region(int updateRegionIndex);
 void _win_do_updateregions();
 void _freeStatusBar();
