@@ -52,6 +52,44 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B5634
+int _win_print_text_region(int textRegionId, char* string)
+{
+    int textRegionIndex;
+    int oldFont;
+
+    textRegionIndex = textRegionId - 1;
+    if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
+        if (_textRegions[textRegionIndex].field_4 != 0) {
+            oldFont = fontGetCurrent();
+            fontSetCurrent(_textRegions[textRegionIndex].field_24);
+
+            windowFill(_textRegions[textRegionIndex].win,
+                _textRegions[textRegionIndex].x,
+                _textRegions[textRegionIndex].y,
+                _textRegions[textRegionIndex].width,
+                _textRegions[textRegionIndex].height,
+                _textRegions[textRegionIndex].backgroundColor);
+
+            _windowPrintBuf(_textRegions[textRegionIndex].win,
+                string,
+                strlen(string),
+                _textRegions[textRegionIndex].width,
+                windowGetHeight(_textRegions[textRegionIndex].win),
+                _textRegions[textRegionIndex].x,
+                _textRegions[textRegionIndex].y,
+                _textRegions[textRegionIndex].textFlags | 0x2000000,
+                _textRegions[textRegionIndex].textAlignment);
+
+            fontSetCurrent(oldFont);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B5714
 int _win_print_substr_region(int textRegionId, char* string, int stringLength)
 {
