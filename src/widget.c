@@ -52,16 +52,38 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
-// 0x4B54C8
-int _win_set_text_input_delete_func(int textInputRegionId, int a2, int a3)
+// 0x4B541C
+int _win_delete_text_input_region(int textInputRegionId)
 {
     int textInputRegionIndex;
 
     textInputRegionIndex = textInputRegionId - 1;
     if (textInputRegionIndex >= 0 && textInputRegionIndex < _numTextInputRegions) {
         if (_textInputRegions[textInputRegionIndex].field_4 != 0) {
-            _textInputRegions[textInputRegionIndex].field_24 = a2;
-            _textInputRegions[textInputRegionIndex].field_2C = a3;
+            if (_textInputRegions[textInputRegionIndex].deleteFunc != NULL) {
+                _textInputRegions[textInputRegionIndex].deleteFunc(_textInputRegions[textInputRegionIndex].field_14, _textInputRegions[textInputRegionIndex].deleteFuncUserData);
+            }
+
+            // NOTE: Uninline.
+            _win_delete_text_region(_textInputRegions[textInputRegionIndex].textRegionId);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+// 0x4B54C8
+int _win_set_text_input_delete_func(int textInputRegionId, TextInputRegionDeleteFunc* deleteFunc, void* userData)
+{
+    int textInputRegionIndex;
+
+    textInputRegionIndex = textInputRegionId - 1;
+    if (textInputRegionIndex >= 0 && textInputRegionIndex < _numTextInputRegions) {
+        if (_textInputRegions[textInputRegionIndex].field_4 != 0) {
+            _textInputRegions[textInputRegionIndex].deleteFunc = deleteFunc;
+            _textInputRegions[textInputRegionIndex].deleteFuncUserData = userData;
             return 1;
         }
     }
