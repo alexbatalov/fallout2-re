@@ -74,6 +74,16 @@ void sub_4B5998(int win)
     // TODO: Incomplete.
 }
 
+// 0x4B5D54
+void _win_do_updateregions()
+{
+    for (int index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
+        if (_updateRegions[index]) {
+            _showRegion(_updateRegions[index]);
+        }
+    }
+}
+
 // 0x4B5D78
 void _freeStatusBar()
 {

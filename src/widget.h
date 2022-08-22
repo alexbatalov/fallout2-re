@@ -1,6 +1,8 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
+#define WIDGET_UPDATE_REGIONS_CAPACITY 32
+
 typedef struct StatusBar {
     unsigned char* field_0;
     unsigned char* field_4;
@@ -42,7 +44,7 @@ typedef struct TextRegion {
     int field_24;
 } TextRegion;
 
-extern int _updateRegions[32];
+extern int _updateRegions[WIDGET_UPDATE_REGIONS_CAPACITY];
 extern StatusBar _statusBar;
 extern TextInputRegion* _textInputRegions;
 extern int _numTextInputRegions;
@@ -54,6 +56,7 @@ void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
 void _showRegion(int a1);
 int _update_widgets();
+void _win_do_updateregions();
 void _freeStatusBar();
 void _initWidgets();
 void _widgetsClose();
