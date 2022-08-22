@@ -151,8 +151,8 @@ typedef struct Program {
     unsigned char* identifiers;
     unsigned char* procedures;
     jmp_buf env;
-    int field_70; // end time of timer (field_74 + wait time)
-    int field_74; // time when wait was called
+    unsigned int field_70; // end time of timer (field_74 + wait time)
+    unsigned int field_74; // time when wait was called
     int field_78; // time when program begin execution (for the first time)?, -1 - program never executed
     int (*field_7C)(struct Program* s); // proc to check timer
     int flags; // flags
@@ -160,6 +160,7 @@ typedef struct Program {
     bool exited;
 } Program;
 
+typedef unsigned int(InterpretTimerFunc)();
 typedef void OpcodeHandler(Program* program);
 
 typedef struct ProgramListNode {
@@ -170,8 +171,8 @@ typedef struct ProgramListNode {
 
 extern int _TimeOut;
 extern int _Enabled;
-extern int (*_timerFunc)();
-extern int _timerTick;
+extern InterpretTimerFunc* _timerFunc;
+extern unsigned int _timerTick;
 extern char* (*_filenameFunc)(char*);
 extern int (*_outputFunc)(char*);
 extern int _cpuBurstSize;
@@ -182,7 +183,8 @@ extern ProgramListNode* gInterpreterProgramListHead;
 extern int _suspendEvents;
 extern int _busy;
 
-int _defaultTimerFunc();
+unsigned int _defaultTimerFunc();
+void _interpretSetTimeFunc(InterpretTimerFunc* timerFunc, int timerTick);
 char* _defaultFilename_(char* s);
 char* _interpretMangleName(char* s);
 int _outputStr(char* a1);

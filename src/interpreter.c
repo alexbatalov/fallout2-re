@@ -25,10 +25,10 @@ int _TimeOut = 0;
 int _Enabled = 1;
 
 // 0x519040
-int (*_timerFunc)() = _defaultTimerFunc;
+InterpretTimerFunc* _timerFunc = _defaultTimerFunc;
 
 // 0x519044
-int _timerTick = 1000;
+unsigned int _timerTick = 1000;
 
 // 0x519048
 char* (*_filenameFunc)(char*) = _defaultFilename_;
@@ -51,9 +51,18 @@ int _suspendEvents;
 int _busy;
 
 // 0x4670A0
-int _defaultTimerFunc()
+unsigned int _defaultTimerFunc()
 {
     return _get_time();
+}
+
+// NOTE: Unused.
+//
+// 0x4670A8
+void _interpretSetTimeFunc(InterpretTimerFunc* timerFunc, int timerTick)
+{
+    _timerFunc = timerFunc;
+    _timerTick = timerTick;
 }
 
 // 0x4670B4
