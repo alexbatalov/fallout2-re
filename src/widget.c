@@ -52,6 +52,20 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B53D0
+int _win_delete_all_text_input_regions(int win)
+{
+    int index;
+
+    for (index = 0; index < _numTextInputRegions; index++) {
+        if (_textRegions[_textInputRegions[index].textRegionId - 1].win == win) {
+            _win_delete_text_input_region(index + 1);
+        }
+    }
+
+    return 1;
+}
+
 // 0x4B541C
 int _win_delete_text_input_region(int textInputRegionId)
 {
