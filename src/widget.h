@@ -67,6 +67,7 @@ void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
 void _showRegion(UpdateRegion* updateRegion);
 int _update_widgets();
+int _win_register_update(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
 void _win_do_updateregions();
 void _freeStatusBar();
 void _initWidgets();
