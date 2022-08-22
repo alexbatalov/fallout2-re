@@ -3379,7 +3379,70 @@ void _executeProcedure(Program* program, int procedureIndex)
 // 0x46DEE4
 void _doEvents()
 {
-    // TODO: Incomplete.
+    ProgramListNode* programListNode;
+    unsigned int time;
+    int procedureCount;
+    int procedureIndex;
+    unsigned char* procedurePtr;
+    int procedureFlags;
+    int oldProgramFlags;
+    int oldInstructionPointer;
+    opcode_t opcode;
+    int data;
+    jmp_buf env;
+
+    if (_suspendEvents) {
+        return;
+    }
+
+    programListNode = gInterpreterProgramListHead;
+    time = 1000 * _timerFunc() / _timerTick;
+
+    while (programListNode != NULL) {
+        procedureCount = stackReadInt32(programListNode->program->procedures, 0);
+
+        procedurePtr = programListNode->program->procedures + 4;
+        for (procedureIndex = 0; procedureIndex < procedureCount; procedureIndex++) {
+            procedureFlags = stackReadInt32(procedurePtr, 4);
+            if ((procedureFlags & PROCEDURE_FLAG_CONDITIONAL) != 0) {
+                memcpy(env, programListNode->program, sizeof(env));
+                oldProgramFlags = programListNode->program->flags;
+                oldInstructionPointer = programListNode->program->instructionPointer;
+
+                programListNode->program->flags = 0;
+                programListNode->program->instructionPointer = stackReadInt32(procedurePtr, 12);
+                _interpret(programListNode->program, -1);
+
+                if ((programListNode->program->flags & PROGRAM_FLAG_0x04) == 0) {
+                    opcode = programStackPopInt16(programListNode->program);
+                    data = programStackPopInt32(programListNode->program);
+                    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+                        programPopString(programListNode->program, opcode, data);
+                    }
+
+                    programListNode->program->flags = oldProgramFlags;
+                    programListNode->program->instructionPointer = oldInstructionPointer;
+
+                    if (data != 0) {
+                        // NOTE: Uninline.
+                        stackWriteInt32(0, procedurePtr, 4);
+                        _executeProc(programListNode->program, procedureIndex);
+                    }
+                }
+
+                memcpy(programListNode->program, env, sizeof(env));
+            } else if ((procedureFlags & PROCEDURE_FLAG_TIMED) != 0) {
+                if ((unsigned int)stackReadInt32(procedurePtr, 8) < time) {
+                    // NOTE: Uninline.
+                    stackWriteInt32(0, procedurePtr, 4);
+                    _executeProc(programListNode->program, procedureIndex);
+                }
+            }
+            procedurePtr += sizeof(Procedure);
+        }
+
+        programListNode = programListNode->next;
+    }
 }
 
 // 0x46E10C
