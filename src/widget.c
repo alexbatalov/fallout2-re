@@ -9,6 +9,7 @@
 #include "memory_manager.h"
 #include "sound.h"
 #include "text_font.h"
+#include "window.h"
 #include "window_manager.h"
 
 // 0x66E6A0
@@ -49,6 +50,44 @@ void _insertChar(char* string, char ch, int pos, int length)
         }
         string[pos] = ch;
     }
+}
+
+// 0x4B5714
+int _win_print_substr_region(int textRegionId, char* string, int stringLength)
+{
+    int textRegionIndex;
+    int oldFont;
+
+    textRegionIndex = textRegionId - 1;
+    if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
+        if (_textRegions[textRegionIndex].field_4 != 0) {
+            oldFont = fontGetCurrent();
+            fontSetCurrent(_textRegions[textRegionIndex].field_24);
+
+            windowFill(_textRegions[textRegionIndex].win,
+                _textRegions[textRegionIndex].x,
+                _textRegions[textRegionIndex].y,
+                _textRegions[textRegionIndex].width,
+                _textRegions[textRegionIndex].height,
+                _textRegions[textRegionIndex].backgroundColor);
+
+            _windowPrintBuf(_textRegions[textRegionIndex].win,
+                string,
+                stringLength,
+                _textRegions[textRegionIndex].width,
+                windowGetHeight(_textRegions[textRegionIndex].win),
+                _textRegions[textRegionIndex].x,
+                _textRegions[textRegionIndex].y,
+                _textRegions[textRegionIndex].textFlags | 0x2000000,
+                _textRegions[textRegionIndex].textAlignment);
+
+            fontSetCurrent(oldFont);
+
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 // 0x4B57E4

@@ -50,10 +50,10 @@ typedef struct TextRegion {
     int x;
     int y;
     int width;
-    int field_14;
-    int field_18;
-    int field_1C;
-    int field_20;
+    int height;
+    int textAlignment;
+    int textFlags;
+    int backgroundColor;
     int field_24;
 } TextRegion;
 
@@ -67,6 +67,7 @@ extern int _numTextRegions;
 
 void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
+int _win_print_substr_region(int textRegionId, char* string, int stringLength);
 int _win_update_text_region(int textRegionId);
 int _win_delete_text_region(int textRegionId);
 int _win_delete_all_update_regions(int a1);
