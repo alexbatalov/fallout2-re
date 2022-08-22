@@ -452,6 +452,20 @@ Program* programCreateByPath(const char* path)
     return program;
 }
 
+// NOTE: Inlined.
+//
+// 0x4678BC
+opcode_t _getOp(Program* program)
+{
+    int instructionPointer;
+
+    instructionPointer = program->instructionPointer;
+    program->instructionPointer = instructionPointer + 2;
+
+    // NOTE: Uninline.
+    return stackReadInt16(program->data, instructionPointer);
+}
+
 // 0x4678E0
 char* programGetString(Program* program, opcode_t opcode, int offset)
 {
@@ -3148,10 +3162,9 @@ void _interpret(Program* program, int a2)
             program->flags &= ~PROGRAM_IS_WAITING;
         }
 
-        int instructionPointer = program->instructionPointer;
-        program->instructionPointer = instructionPointer + 2;
+        // NOTE: Uninline.
+        opcode_t opcode = _getOp(program);
 
-        opcode_t opcode = stackReadInt16(program->data, instructionPointer);
         // TODO: Replace with field_82 and field_80?
         program->flags &= 0xFFFF;
         program->flags |= (opcode << 16);
