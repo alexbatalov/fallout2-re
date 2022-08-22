@@ -75,6 +75,7 @@ int _win_delete_text_region(int textRegionId);
 int _win_delete_all_update_regions(int a1);
 int _win_text_region_style(int textRegionId, int font, int textAlignment, int textFlags, int backgroundColor);
 int _widgetDoInput();
+int _win_center_str(int win, char* string, int y, int a4);
 void _showRegion(UpdateRegion* updateRegion);
 int _draw_widgets();
 int _update_widgets();

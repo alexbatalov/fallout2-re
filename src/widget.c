@@ -281,6 +281,19 @@ int _widgetDoInput()
     return 0;
 }
 
+// 0x4B5A2C
+int _win_center_str(int win, char* string, int y, int a4)
+{
+    int windowWidth;
+    int stringWidth;
+
+    windowWidth = windowGetWidth(win);
+    stringWidth = fontGetStringWidth(string);
+    windowDrawText(win, string, 0, (windowWidth - stringWidth) / 2, y, a4);
+
+    return 1;
+}
+
 // 0x4B5A64
 void _showRegion(UpdateRegion* updateRegion)
 {
