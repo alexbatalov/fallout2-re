@@ -257,6 +257,16 @@ opcode_t stackPopInt16(unsigned char* data, int* pointer)
     return stackReadInt16(data, *pointer);
 }
 
+// NOTE: Inlined.
+//
+// 0x467424
+void _interpretIncStringRef(Program* program, opcode_t opcode, int value)
+{
+    if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
+        *(short*)(program->dynamicStrings + 4 + value - 2) += 1;
+    }
+}
+
 // 0x467440
 void programPopString(Program* program, opcode_t opcode, int value)
 {
@@ -279,17 +289,15 @@ void programPopString(Program* program, opcode_t opcode, int value)
 // 0x46748C
 void programStackPushInt16(Program* program, int value)
 {
-    int v1, v2;
-    unsigned char* v3;
+    int stringOffset;
 
     stackPushInt16(program->stack, &(program->stackPointer), value);
 
     if (value == VALUE_TYPE_DYNAMIC_STRING) {
-        v1 = program->stackPointer;
-        if (v1 >= 6) {
-            v2 = stackReadInt32(program->stack, v1 - 6);
-            v3 = program->dynamicStrings + 4 + v2 - 2;
-            *(short*)v3 = *(short*)v3 + 1;
+        if (program->stackPointer >= 6) {
+            stringOffset = stackReadInt32(program->stack, program->stackPointer - 6);
+            // NOTE: Uninline.
+            _interpretIncStringRef(program, VALUE_TYPE_DYNAMIC_STRING, stringOffset);
         }
     }
 }
@@ -315,11 +323,16 @@ int programStackPopInt32(Program* program)
 // 0x467510
 void programReturnStackPushInt16(Program* program, int value)
 {
+    int stringOffset;
+
     stackPushInt16(program->returnStack, &(program->returnStackPointer), value);
 
-    if (value == VALUE_TYPE_DYNAMIC_STRING && program->stackPointer >= 6) {
-        int v4 = stackReadInt32(program->returnStack, program->returnStackPointer - 6);
-        *(short*)(program->dynamicStrings + 4 + v4 - 2) += 1;
+    if (value == VALUE_TYPE_DYNAMIC_STRING) {
+        if (program->stackPointer >= 6) {
+            stringOffset = stackReadInt32(program->returnStack, program->returnStackPointer - 6);
+            // NOTE: Uninline.
+            _interpretIncStringRef(program, VALUE_TYPE_DYNAMIC_STRING, stringOffset);
+        }
     }
 }
 
@@ -922,8 +935,8 @@ void opStore(Program* program)
     stackWriteInt16(opcode[1], program->stack, var_address + 4);
 
     if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        // increment ref count
-        *(short*)(program->dynamicStrings + 4 - 2 + data[1]) += 1;
+        // NOTE: Uninline.
+        _interpretIncStringRef(program, VALUE_TYPE_DYNAMIC_STRING, data[1]);
     }
 }
 
@@ -2561,7 +2574,8 @@ void opStoreGlobalVariable(Program* program)
     stackWriteInt16(type[1], program->stack, var_address + 4);
 
     if (type[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        *(short*)(program->dynamicStrings + 4 + value[1] - 2) += 1;
+        // NOTE: Uninline.
+        _interpretIncStringRef(program, VALUE_TYPE_DYNAMIC_STRING, value[1]);
     }
 }
 
