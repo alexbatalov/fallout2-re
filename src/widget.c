@@ -8,6 +8,7 @@
 #include "geometry.h"
 #include "memory_manager.h"
 #include "sound.h"
+#include "text_font.h"
 #include "window_manager.h"
 
 // 0x66E6A0
@@ -48,6 +49,25 @@ void _insertChar(char* string, char ch, int pos, int length)
         }
         string[pos] = ch;
     }
+}
+
+// 0x4B57E4
+int _win_update_text_region(int textRegionIndex)
+{
+    Rect rect;
+
+    if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
+        if (_textRegions[textRegionIndex].field_4 != 0) {
+            rect.left = _textRegions[textRegionIndex].x;
+            rect.top = _textRegions[textRegionIndex].y;
+            rect.right = _textRegions[textRegionIndex].x + _textRegions[textRegionIndex].width;
+            rect.bottom = _textRegions[textRegionIndex].y + fontGetLineHeight();
+            windowRefreshRect(_textRegions[textRegionIndex].win, &rect);
+            return 1;
+        }
+    }
+
+    return 0;
 }
 
 // 0x4B5864
