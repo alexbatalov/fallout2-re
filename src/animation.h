@@ -352,6 +352,7 @@ int _anim_free_slot(int a1);
 int _register_priority(int a1);
 int reg_anim_clear(Object* a1);
 int reg_anim_end();
+int _anim_preload(Object* object, int fid, CacheEntry** cacheEntryPtr);
 void _anim_cleanup();
 int _check_registry(Object* obj);
 int animationIsBusy(Object* a1);

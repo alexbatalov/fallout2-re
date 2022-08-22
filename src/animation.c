@@ -253,6 +253,20 @@ int reg_anim_end()
     return 0;
 }
 
+// 0x413D6C
+int _anim_preload(Object* object, int fid, CacheEntry** cacheEntryPtr)
+{
+    *cacheEntryPtr = NULL;
+
+    if (artLock(fid, cacheEntryPtr) != NULL) {
+        artUnlock(*cacheEntryPtr);
+        *cacheEntryPtr = NULL;
+        return 0;
+    }
+
+    return -1;
+}
+
 // 0x413D98
 void _anim_cleanup()
 {
@@ -370,13 +384,11 @@ int animationRegisterMoveToObject(Object* owner, Object* destination, int action
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -432,14 +444,11 @@ int animationRegisterRunToObject(Object* owner, Object* destination, int actionP
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
-    animationDescription->artCacheKey = NULL;
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
     return animationRegisterRotateToTile(owner, destination->tile);
@@ -465,16 +474,14 @@ int animationRegisterMoveToTile(Object* owner, int tile, int elevation, int acti
     animationDescription->elevation = elevation;
     animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
-    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -533,14 +540,11 @@ int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actio
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
-    animationDescription->artCacheKey = NULL;
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -568,16 +572,14 @@ int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation,
     animationDescription->elevation = elevation;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(object->fid), object->fid & 0xFFF, animationDescription->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(object, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -604,16 +606,14 @@ int animationRegisterMoveToTileStraightAndWaitForComplete(Object* owner, int til
     animationDescription->elevation = elevation;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -634,16 +634,14 @@ int animationRegisterAnimate(Object* owner, int anim, int delay)
     animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -667,13 +665,12 @@ int animationRegisterAnimateReversed(Object* owner, int anim, int delay)
     animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -697,13 +694,12 @@ int animationRegisterAnimateAndHide(Object* owner, int anim, int delay)
     animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -951,15 +947,12 @@ int animationRegisterSetFid(Object* owner, int fid, int delay)
     animationDescription->owner = owner;
     animationDescription->fid = fid;
     animationDescription->delay = delay;
-    animationDescription->artCacheKey = NULL;
 
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -988,13 +981,12 @@ int animationRegisterTakeOutWeapon(Object* owner, int weaponAnimationCode, int d
     animationDescription->weaponAnimationCode = weaponAnimationCode;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
@@ -1091,16 +1083,14 @@ int animationRegisterAnimateForever(Object* owner, int anim, int delay)
     animationDescription->owner = owner;
     animationDescription->anim = anim;
     animationDescription->delay = delay;
-    animationDescription->artCacheKey = NULL;
 
     int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
-    if (artLock(fid, &(animationDescription->artCacheKey)) == NULL) {
+
+    // NOTE: Uninline.
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
         _anim_cleanup();
         return -1;
     }
-
-    artUnlock(animationDescription->artCacheKey);
-    animationDescription->artCacheKey = NULL;
 
     gAnimationDescriptionCurrentIndex++;
 
