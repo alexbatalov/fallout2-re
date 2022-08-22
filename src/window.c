@@ -157,6 +157,18 @@ int windowSetFont(int a1)
     return 1;
 }
 
+// NOTE: Unused.
+//
+// 0x4B6138
+void windowResetTextAttributes()
+{
+    // NOTE: Uninline.
+    windowSetTextColor(1.0, 1.0, 1.0);
+
+    // NOTE: Uninline.
+    windowSetTextFlags(0x2000000 | 0x10000);
+}
+
 // 0x4B6160
 int windowGetTextFlags()
 {

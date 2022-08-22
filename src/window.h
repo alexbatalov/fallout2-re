@@ -113,6 +113,7 @@ extern int _currentHighlightColorB;
 
 int windowGetFont();
 int windowSetFont(int a1);
+void windowResetTextAttributes();
 int windowGetTextFlags();
 int windowSetTextFlags(int a1);
 unsigned char windowGetTextColor();
