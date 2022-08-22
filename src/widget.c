@@ -230,6 +230,43 @@ int _win_delete_all_update_regions(int a1)
     return 1;
 }
 
+// 0x4B58E8
+int _win_text_region_style(int textRegionId, int font, int textAlignment, int textFlags, int backgroundColor)
+{
+    int textRegionIndex;
+    int oldFont;
+    int height;
+
+    textRegionIndex = textRegionId - 1;
+    if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
+        if (_textRegions[textRegionIndex].isUsed != 0) {
+            _textRegions[textRegionIndex].font = font;
+            _textRegions[textRegionIndex].textAlignment = textAlignment;
+
+            oldFont = fontGetCurrent();
+            fontSetCurrent(font);
+
+            height = fontGetLineHeight();
+
+            fontSetCurrent(oldFont);
+
+            if ((_textRegions[textRegionIndex].textFlags & FONT_SHADOW) == 0
+                && (textFlags & FONT_SHADOW) != 0) {
+                height++;
+                _textRegions[textRegionIndex].width++;
+            }
+
+            _textRegions[textRegionIndex].height = height;
+            _textRegions[textRegionIndex].textFlags = textFlags;
+            _textRegions[textRegionIndex].backgroundColor = backgroundColor;
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B5A64
 void _showRegion(UpdateRegion* updateRegion)
 {
