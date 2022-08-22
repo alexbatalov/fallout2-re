@@ -55,7 +55,7 @@ void opFillWin3x3(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -100,7 +100,7 @@ void opFormat(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -150,7 +150,7 @@ void opPrint(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     switch (opcode & VALUE_TYPE_MASK) {
@@ -181,7 +181,7 @@ void opSelectFileList(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -235,7 +235,7 @@ void opTokenize(Program* program)
     data[0] = programStackPopInt32(program);
 
     if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[0], data[0]);
+        _interpretDecStringRef(program, opcode[0], data[0]);
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -246,7 +246,7 @@ void opTokenize(Program* program)
     data[1] = programStackPopInt32(program);
 
     if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[1], data[1]);
+        _interpretDecStringRef(program, opcode[1], data[1]);
     }
 
     char* prev = NULL;
@@ -264,7 +264,7 @@ void opTokenize(Program* program)
     data[2] = programStackPopInt32(program);
 
     if (opcode[2] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[2], data[2]);
+        _interpretDecStringRef(program, opcode[2], data[2]);
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -338,7 +338,7 @@ void opPrintRect(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -375,7 +375,7 @@ void opSelect(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -401,7 +401,7 @@ void opDisplay(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -424,7 +424,7 @@ void opDisplayRaw(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -453,7 +453,7 @@ void opFadeIn(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -478,7 +478,7 @@ void opFadeOut(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -520,7 +520,7 @@ void opSetMovieFlags(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if (!_windowSetMovieFlags(data)) {
@@ -536,7 +536,7 @@ void opPlayMovie(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -573,7 +573,7 @@ void opPlayMovieRect(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -615,7 +615,7 @@ void opDeleteRegion(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -643,7 +643,7 @@ void opActivateRegion(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -659,7 +659,7 @@ void opCheckRegion(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -684,7 +684,7 @@ void opAddRegion(Program* program)
     data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -706,7 +706,7 @@ void opAddRegion(Program* program)
         data = programStackPopInt32(program);
 
         if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode, data);
+            _interpretDecStringRef(program, opcode, data);
         }
 
         if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -719,7 +719,7 @@ void opAddRegion(Program* program)
         data = programStackPopInt32(program);
 
         if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode, data);
+            _interpretDecStringRef(program, opcode, data);
         }
 
         if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -743,7 +743,7 @@ void opAddRegion(Program* program)
         data = programStackPopInt32(program);
 
         if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode, data);
+            _interpretDecStringRef(program, opcode, data);
         }
 
         if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && opcode == VALUE_TYPE_INT) {
@@ -771,7 +771,7 @@ void opAddRegionProc(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -816,7 +816,7 @@ void opAddRegionRightProc(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -853,7 +853,7 @@ void opCreateWin(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -881,7 +881,7 @@ void opResizeWin(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -909,7 +909,7 @@ void opScaleWin(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -932,7 +932,7 @@ void opDeleteWin(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     const char* windowName = programGetString(program, opcode, data);
@@ -967,7 +967,7 @@ void opSayStartPos(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     gIntLibSayStartingPosition = data;
@@ -989,7 +989,7 @@ void opSayReplyTitle(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     char* string = NULL;
@@ -1010,7 +1010,7 @@ void opSayGoToReply(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     char* string = NULL;
@@ -1038,7 +1038,7 @@ void opSayReply(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1081,7 +1081,7 @@ void opSayOption(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1153,7 +1153,7 @@ void opSayMessageTimeout(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     // TODO: What the hell is this?
@@ -1179,7 +1179,7 @@ void opSayMessage(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1218,7 +1218,7 @@ void opGotoXY(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1247,7 +1247,7 @@ void opAddButtonFlag(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1280,7 +1280,7 @@ void opAddRegionFlag(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1311,7 +1311,7 @@ void opAddButton(Program* program)
     data[0] = programStackPopInt32(program);
 
     if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[0], data[0]);
+        _interpretDecStringRef(program, opcode[0], data[0]);
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1322,7 +1322,7 @@ void opAddButton(Program* program)
     data[1] = programStackPopInt32(program);
 
     if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[1], data[1]);
+        _interpretDecStringRef(program, opcode[1], data[1]);
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1333,7 +1333,7 @@ void opAddButton(Program* program)
     data[2] = programStackPopInt32(program);
 
     if (opcode[2] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[2], data[2]);
+        _interpretDecStringRef(program, opcode[2], data[2]);
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1344,7 +1344,7 @@ void opAddButton(Program* program)
     data[3] = programStackPopInt32(program);
 
     if (opcode[3] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[3], data[3]);
+        _interpretDecStringRef(program, opcode[3], data[3]);
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1355,7 +1355,7 @@ void opAddButton(Program* program)
     data[4] = programStackPopInt32(program);
 
     if (opcode[4] == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode[4], data[4]);
+        _interpretDecStringRef(program, opcode[4], data[4]);
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -1386,7 +1386,7 @@ void opAddButtonText(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1420,7 +1420,7 @@ void opAddButtonGfx(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1461,7 +1461,7 @@ void opAddButtonProc(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1506,7 +1506,7 @@ void opAddButtonRightProc(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1546,7 +1546,7 @@ void opDeleteButton(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -1585,7 +1585,7 @@ void opFillWin(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1638,7 +1638,7 @@ void opFillRect(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1719,7 +1719,7 @@ void opMouseShape(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1761,7 +1761,7 @@ void opDisplayGfx(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1778,7 +1778,7 @@ void opLoadPaletteTable(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -1806,7 +1806,7 @@ void opAddNamedEvent(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1831,7 +1831,7 @@ void opAddNamedHandler(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1851,7 +1851,7 @@ void opClearNamed(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -1870,7 +1870,7 @@ void opSignalNamed(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
@@ -1894,7 +1894,7 @@ void opAddKey(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1928,7 +1928,7 @@ void opDeleteKey(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1958,7 +1958,7 @@ void opRefreshMouse(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1978,7 +1978,7 @@ void opSetFont(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -1998,7 +1998,7 @@ void opSetTextFlags(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2024,7 +2024,7 @@ void opSetTextColor(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2058,7 +2058,7 @@ void opSayOptionColor(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2093,7 +2093,7 @@ void opSayReplyColor(Program* program)
         ;
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2127,7 +2127,7 @@ void opSetHighlightColor(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2160,7 +2160,7 @@ void opSayReplyWindow(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2188,7 +2188,7 @@ void opSayReplyFlags(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2208,7 +2208,7 @@ void opSayOptionFlags(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2233,7 +2233,7 @@ void opSayOptionWindow(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2266,7 +2266,7 @@ void opSayBorder(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2294,7 +2294,7 @@ void opSayScrollUp(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2372,7 +2372,7 @@ void opSayScrollDown(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2447,7 +2447,7 @@ void opSaySetSpacing(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2718,7 +2718,7 @@ void opSoundPlay(Program* program)
         data[arg] = programStackPopInt32(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            programPopString(program, opcode[arg], data[arg]);
+            _interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2746,7 +2746,7 @@ void opSoundPause(Program* program)
     int data = programStackPopInt32(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2764,7 +2764,7 @@ void opSoundResume(Program* program)
     int data = programStackPopInt32(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2782,7 +2782,7 @@ void opSoundStop(Program* program)
     int data = programStackPopInt32(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2800,7 +2800,7 @@ void opSoundRewind(Program* program)
     int data = programStackPopInt32(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2818,7 +2818,7 @@ void opSoundDelete(Program* program)
     int data = programStackPopInt32(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
@@ -2836,7 +2836,7 @@ void opSetOneOptPause(Program* program)
     int data = programStackPopInt32(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        programPopString(program, opcode, data);
+        _interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {

@@ -206,7 +206,7 @@ void stackPushInt16(unsigned char* a1, int* a2, int value);
 void stackPushInt32(unsigned char* a1, int* a2, int value);
 int stackPopInt32(unsigned char* a1, int* a2);
 opcode_t stackPopInt16(unsigned char* a1, int* a2);
-void programPopString(Program* program, opcode_t a2, int a3);
+void _interpretDecStringRef(Program* program, opcode_t a2, int a3);
 void programStackPushInt16(Program* program, int value);
 void programStackPushInt32(Program* program, int value);
 opcode_t programStackPopInt16(Program* program);
