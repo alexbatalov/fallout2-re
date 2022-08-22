@@ -294,6 +294,7 @@ void interpreterRegisterOpcodeHandlers();
 void _interpretClose();
 void _interpret(Program* program, int a2);
 void _setupCallWithReturnVal(Program* program, int address, int a3);
+void _setupCall(Program* program, int address, int returnAddress);
 void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int address, int a4);
 void _executeProc(Program* program, int procedure_index);
 int programFindProcedure(Program* prg, const char* name);

@@ -3205,6 +3205,16 @@ void _setupCallWithReturnVal(Program* program, int address, int returnAddress)
     program->instructionPointer = address;
 }
 
+// NOTE: Inlined.
+//
+// 0x46CF78
+void _setupCall(Program* program, int address, int returnAddress)
+{
+    _setupCallWithReturnVal(program, address, returnAddress);
+    programStackPushInt32(program, 0);
+    programStackPushInt16(program, VALUE_TYPE_INT);
+}
+
 // 0x46CF9C
 void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int address, int a4)
 {
@@ -3256,10 +3266,8 @@ void _executeProc(Program* program, int procedure_index)
     if (!(flags & PROCEDURE_FLAG_IMPORTED)) {
         address = stackReadInt32(procedure_ptr, 16);
 
-        _setupCallWithReturnVal(program, address, 20);
-
-        programStackPushInt32(program, 0);
-        programStackPushInt16(program, VALUE_TYPE_INT);
+        // NOTE: Uninline.
+        _setupCall(program, address, 20);
 
         if (!(flags & PROCEDURE_FLAG_CRITICAL)) {
             return;
@@ -3368,12 +3376,8 @@ void _executeProcedure(Program* program, int procedure_index)
     } else {
         address = stackReadInt32(procedure_ptr, 16);
 
-        _setupCallWithReturnVal(program, address, 24);
-
-        // Push number of arguments. It's always zero for built-in procs. This
-        // number is consumed by 0x802B.
-        programStackPushInt32(program, 0);
-        programStackPushInt16(program, VALUE_TYPE_INT);
+        // NOTE: Uninline.
+        _setupCall(program, address, 24);
 
         memcpy(jmp_buf, program->env, sizeof(jmp_buf));
 
