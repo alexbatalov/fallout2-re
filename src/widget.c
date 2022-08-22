@@ -32,13 +32,13 @@ int _update_widgets()
 }
 
 // 0x4B6120
-int widgetGetFont()
+int windowGetFont()
 {
     return gWidgetFont;
 }
 
 // 0x4B6128
-int widgetSetFont(int a1)
+int windowSetFont(int a1)
 {
     gWidgetFont = a1;
     fontSetCurrent(a1);
@@ -46,32 +46,32 @@ int widgetSetFont(int a1)
 }
 
 // 0x4B6160
-int widgetGetTextFlags()
+int windowGetTextFlags()
 {
     return gWidgetTextFlags;
 }
 
 // 0x4B6168
-int widgetSetTextFlags(int a1)
+int windowSetTextFlags(int a1)
 {
     gWidgetTextFlags = a1;
     return 1;
 }
 
 // 0x4B6174
-unsigned char widgetGetTextColor()
+unsigned char windowGetTextColor()
 {
     return _colorTable[_currentTextColorB | (_currentTextColorG << 5) | (_currentTextColorR << 10)];
 }
 
 // 0x4B6198
-unsigned char widgetGetHighlightColor()
+unsigned char windowGetHighlightColor()
 {
     return _colorTable[_currentHighlightColorB | (_currentHighlightColorG << 5) | (_currentHighlightColorR << 10)];
 }
 
 // 0x4B61BC
-int widgetSetTextColor(float a1, float a2, float a3)
+int windowSetTextColor(float a1, float a2, float a3)
 {
     _currentTextColorR = (int)(a1 * flt_50EB1C);
     _currentTextColorG = (int)(a2 * flt_50EB1C);
@@ -81,7 +81,7 @@ int widgetSetTextColor(float a1, float a2, float a3)
 }
 
 // 0x4B6208
-int widgetSetHighlightColor(float a1, float a2, float a3)
+int windowSetHighlightColor(float a1, float a2, float a3)
 {
     _currentHighlightColorR = (int)(a1 * flt_50EB20);
     _currentHighlightColorG = (int)(a2 * flt_50EB20);

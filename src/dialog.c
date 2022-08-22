@@ -208,7 +208,7 @@ void _replyAddOption(const char* a1, const char* a2, int a3)
         v18->field_C[v17].string = NULL;
     }
 
-    v18->field_C[v17].field_18 = widgetGetFont();
+    v18->field_C[v17].field_18 = windowGetFont();
     v18->field_C[v17].field_1A = word_56DB60;
     v18->field_C[v17].field_14 = a3;
 }
@@ -235,7 +235,7 @@ void _replyAddOptionProc(const char* a1, int a2, int a3)
 
     v5->field_C[v13].proc = a2;
 
-    v5->field_C[v13].field_18 = widgetGetFont();
+    v5->field_C[v13].field_18 = windowGetFont();
     v5->field_C[v13].field_1A = word_56DB60;
     v5->field_C[v13].field_14 = a3;
 }
@@ -387,8 +387,8 @@ void _drawStr(int win, char* str, int font, int width, int height, int left, int
     int old_font;
     Rect rect;
 
-    old_font = widgetGetFont();
-    widgetSetFont(font);
+    old_font = windowGetFont();
+    windowSetFont(font);
 
     _printStr(win, str, width, height, left, top, a8, a9, a10);
 
@@ -397,7 +397,7 @@ void _drawStr(int win, char* str, int font, int width, int height, int left, int
     rect.right = width + left;
     rect.bottom = height + top;
     windowRefreshRect(win, &rect);
-    widgetSetFont(old_font);
+    windowSetFont(old_font);
 }
 
 // 0x430D40

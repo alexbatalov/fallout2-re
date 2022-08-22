@@ -2021,7 +2021,7 @@ void opSetFont(Program* program)
         programFatalError("Invalid arg 1 given to setfont");
     }
 
-    if (!widgetSetFont(data)) {
+    if (!windowSetFont(data)) {
         programFatalError("Error setting font");
     }
 }
@@ -2041,7 +2041,7 @@ void opSetTextFlags(Program* program)
         programFatalError("Invalid arg 1 given to setflags");
     }
 
-    if (!widgetSetTextFlags(data)) {
+    if (!windowSetTextFlags(data)) {
         programFatalError("Error setting text flags");
     }
 }
@@ -2075,7 +2075,7 @@ void opSetTextColor(Program* program)
     float g = floats[1];
     float b = floats[0];
 
-    if (!widgetSetTextColor(r, g, b)) {
+    if (!windowSetTextColor(r, g, b)) {
         programFatalError("Error setting text color");
     }
 }
@@ -2178,7 +2178,7 @@ void opSetHighlightColor(Program* program)
     float g = floats[1];
     float b = floats[0];
 
-    if (!widgetSetHighlightColor(r, g, b)) {
+    if (!windowSetHighlightColor(r, g, b)) {
         programFatalError("Error setting text highlight color");
     }
 }

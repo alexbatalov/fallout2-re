@@ -702,7 +702,7 @@ int _windowOutput(char* string)
     int x = (int)(managedWindow->field_44 * managedWindow->field_54);
     int y = (int)(managedWindow->field_48 * managedWindow->field_58);
     // NOTE: Uses `add` at 0x4B810E, not bitwise `or`.
-    int flags = widgetGetTextColor() + widgetGetTextFlags();
+    int flags = windowGetTextColor() + windowGetTextFlags();
     windowDrawText(managedWindow->window, string, 0, x, y, flags);
 
     return 1;
@@ -1019,7 +1019,7 @@ bool _windowPrintRect(char* string, int a2, int textAlignment)
     int height = windowGetHeight(managedWindow->window);
     int x = managedWindow->field_44;
     int y = managedWindow->field_48;
-    int flags = widgetGetTextColor() | 0x2000000;
+    int flags = windowGetTextColor() | 0x2000000;
     _windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
 
     return true;
@@ -1029,7 +1029,7 @@ bool _windowPrintRect(char* string, int a2, int textAlignment)
 bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment)
 {
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-    int flags = widgetGetTextColor() | 0x2000000;
+    int flags = windowGetTextColor() | 0x2000000;
     _windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
 
     return true;
@@ -1762,7 +1762,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 text,
                 normalImageWidth,
                 normalImageWidth,
-                widgetGetTextColor() + widgetGetTextFlags());
+                windowGetTextColor() + windowGetTextFlags());
 
             blitBufferToBufferTrans(buffer,
                 normalImageWidth,
@@ -1810,7 +1810,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 text,
                 pressedImageWidth,
                 pressedImageWidth,
-                widgetGetTextColor() + widgetGetTextFlags());
+                windowGetTextColor() + windowGetTextFlags());
 
             blitBufferToBufferTrans(buffer,
                 pressedImageWidth,
