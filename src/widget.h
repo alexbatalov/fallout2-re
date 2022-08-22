@@ -67,6 +67,7 @@ extern int _numTextRegions;
 
 void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
+int _win_delete_text_region(int textRegionIndex);
 int _win_delete_all_update_regions(int a1);
 void _showRegion(UpdateRegion* updateRegion);
 int _draw_widgets();

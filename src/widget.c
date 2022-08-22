@@ -50,6 +50,19 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B5864
+int _win_delete_text_region(int textRegionIndex)
+{
+    if (textRegionIndex >= 0 && textRegionIndex <= _numTextRegions) {
+        if (_textRegions[textRegionIndex].field_4 != 0) {
+            _textRegions[textRegionIndex].field_4 = 0;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B58A0
 int _win_delete_all_update_regions(int a1)
 {
