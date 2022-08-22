@@ -5,6 +5,7 @@
 #include "draw.h"
 #include "geometry.h"
 #include "memory_manager.h"
+#include "sound.h"
 #include "window_manager.h"
 
 // 0x66E6A0
@@ -160,5 +161,17 @@ void _real_win_set_status_bar(int a1, int a2, int a3)
         _statusBar.field_20 = a2;
         _statusBar.field_24 = a3;
         _drawStatusBar();
+    }
+}
+
+// 0x4B5F80
+void _real_win_update_status_bar(float a1, float a2)
+{
+    if (_statusBarActive) {
+        _statusBar.field_1C = (int)(a1 * _statusBar.width);
+        _statusBar.field_20 = (int)(a1 * _statusBar.width);
+        _statusBar.field_24 = (int)(a2 * _statusBar.width);
+        _drawStatusBar();
+        soundContinueAll();
     }
 }
