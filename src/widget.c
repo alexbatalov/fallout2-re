@@ -11,7 +11,7 @@
 #include "window_manager.h"
 
 // 0x66E6A0
-int _updateRegions[32];
+UpdateRegion* _updateRegions[WIDGET_UPDATE_REGIONS_CAPACITY];
 
 // 0x66E720
 StatusBar _statusBar;
@@ -51,7 +51,7 @@ void _insertChar(char* string, char ch, int pos, int length)
 }
 
 // 0x4B5A64
-void _showRegion(int a1)
+void _showRegion(UpdateRegion* updateRegion)
 {
     // TODO: Incomplete.
 }
@@ -59,8 +59,8 @@ void _showRegion(int a1)
 // 0x4B5C24
 int _update_widgets()
 {
-    for (int index = 0; index < 32; index++) {
-        if (_updateRegions[index]) {
+    for (int index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
+        if (_updateRegions[index] != NULL) {
             _showRegion(_updateRegions[index]);
         }
     }
@@ -74,11 +74,39 @@ void sub_4B5998(int win)
     // TODO: Incomplete.
 }
 
+// 0x4B5C4C
+int _win_register_update(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
+{
+    int updateRegionIndex;
+
+    for (updateRegionIndex = 0; updateRegionIndex < WIDGET_UPDATE_REGIONS_CAPACITY; updateRegionIndex++) {
+        if (_updateRegions[updateRegionIndex] == NULL) {
+            break;
+        }
+    }
+
+    if (updateRegionIndex == WIDGET_UPDATE_REGIONS_CAPACITY) {
+        return -1;
+    }
+
+    _updateRegions[updateRegionIndex] = (UpdateRegion*)internal_malloc_safe(sizeof(*_updateRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 859
+    _updateRegions[updateRegionIndex]->field_0 = a1;
+    _updateRegions[updateRegionIndex]->field_4 = a2;
+    _updateRegions[updateRegionIndex]->field_8 = a3;
+    _updateRegions[updateRegionIndex]->field_C = a7;
+    _updateRegions[updateRegionIndex]->field_10 = a8;
+    _updateRegions[updateRegionIndex]->field_14 = a6;
+    _updateRegions[updateRegionIndex]->field_18 = a4;
+    _updateRegions[updateRegionIndex]->field_1C = a5;
+
+    return updateRegionIndex;
+}
+
 // 0x4B5D54
 void _win_do_updateregions()
 {
     for (int index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
-        if (_updateRegions[index]) {
+        if (_updateRegions[index] != NULL) {
             _showRegion(_updateRegions[index]);
         }
     }
@@ -105,7 +133,11 @@ void _freeStatusBar()
 // 0x4B5DE4
 void _initWidgets()
 {
-    memset(_updateRegions, 0, sizeof(_updateRegions));
+    int updateRegionIndex;
+
+    for (updateRegionIndex = 0; updateRegionIndex < WIDGET_UPDATE_REGIONS_CAPACITY; updateRegionIndex++) {
+        _updateRegions[updateRegionIndex] = NULL;
+    }
 
     _textRegions = NULL;
     _numTextRegions = 0;
