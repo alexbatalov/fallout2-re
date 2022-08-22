@@ -267,6 +267,20 @@ int _win_text_region_style(int textRegionId, int font, int textAlignment, int te
     return 0;
 }
 
+// 0x4B5A04
+int _widgetDoInput()
+{
+    int index;
+
+    for (index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
+        if (_updateRegions[index] != NULL) {
+            _showRegion(_updateRegions[index]);
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B5A64
 void _showRegion(UpdateRegion* updateRegion)
 {
