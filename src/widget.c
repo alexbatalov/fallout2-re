@@ -52,6 +52,23 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B54C8
+int _win_set_text_input_delete_func(int textInputRegionId, int a2, int a3)
+{
+    int textInputRegionIndex;
+
+    textInputRegionIndex = textInputRegionId - 1;
+    if (textInputRegionIndex >= 0 && textInputRegionIndex < _numTextInputRegions) {
+        if (_textInputRegions[textInputRegionIndex].field_4 != 0) {
+            _textInputRegions[textInputRegionIndex].field_24 = a2;
+            _textInputRegions[textInputRegionIndex].field_2C = a3;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B5508
 int _win_add_text_region(int win, int x, int y, int width, int font, int textAlignment, int textFlags, int backgroundColor)
 {
