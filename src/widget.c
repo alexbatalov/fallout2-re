@@ -50,6 +50,23 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B58A0
+int _win_delete_all_update_regions(int a1)
+{
+    int index;
+
+    for (index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
+        if (_updateRegions[index] != NULL) {
+            if (a1 == _updateRegions[index]->field_0) {
+                internal_free_safe(_updateRegions[index], __FILE__, __LINE__); // "..\int\WIDGET.C", 722
+                _updateRegions[index] = NULL;
+            }
+        }
+    }
+
+    return 1;
+}
+
 // 0x4B5A64
 void _showRegion(UpdateRegion* updateRegion)
 {
