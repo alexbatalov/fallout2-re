@@ -102,6 +102,20 @@ int _win_register_update(int a1, int a2, int a3, int a4, int a5, int a6, int a7,
     return updateRegionIndex;
 }
 
+// 0x4B5D0C
+int _win_delete_update_region(int updateRegionIndex)
+{
+    if (updateRegionIndex >= 0 && updateRegionIndex < WIDGET_UPDATE_REGIONS_CAPACITY) {
+        if (_updateRegions[updateRegionIndex] == NULL) {
+            internal_free_safe(_updateRegions[updateRegionIndex], __FILE__, __LINE__); // "..\int\WIDGET.C", 875
+            _updateRegions[updateRegionIndex] = NULL;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B5D54
 void _win_do_updateregions()
 {
