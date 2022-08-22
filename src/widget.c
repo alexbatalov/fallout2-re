@@ -56,6 +56,22 @@ void _showRegion(UpdateRegion* updateRegion)
     // TODO: Incomplete.
 }
 
+// 0x4B5BE8
+int _draw_widgets()
+{
+    int index;
+
+    for (index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
+        if (_updateRegions[index] != NULL) {
+            if ((_updateRegions[index]->field_C & 0xFF00) == 0x800) {
+                _updateRegions[index]->drawFunc(_updateRegions[index]->field_14);
+            }
+        }
+    }
+
+    return 1;
+}
+
 // 0x4B5C24
 int _update_widgets()
 {
@@ -75,7 +91,7 @@ void sub_4B5998(int win)
 }
 
 // 0x4B5C4C
-int _win_register_update(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8)
+int _win_register_update(int a1, int a2, int a3, int a4, UpdateRegionDrawFunc* drawFunc, int a6, int a7, int a8)
 {
     int updateRegionIndex;
 
@@ -97,7 +113,7 @@ int _win_register_update(int a1, int a2, int a3, int a4, int a5, int a6, int a7,
     _updateRegions[updateRegionIndex]->field_10 = a8;
     _updateRegions[updateRegionIndex]->field_14 = a6;
     _updateRegions[updateRegionIndex]->field_18 = a4;
-    _updateRegions[updateRegionIndex]->field_1C = a5;
+    _updateRegions[updateRegionIndex]->drawFunc = drawFunc;
 
     return updateRegionIndex;
 }

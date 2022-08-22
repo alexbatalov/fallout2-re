@@ -16,6 +16,8 @@ typedef struct StatusBar {
     int field_24;
 } StatusBar;
 
+typedef void(UpdateRegionDrawFunc)(int a1);
+
 typedef struct UpdateRegion {
     int field_0;
     int field_4;
@@ -24,7 +26,7 @@ typedef struct UpdateRegion {
     int field_10;
     int field_14;
     int field_18;
-    int field_1C;
+    UpdateRegionDrawFunc* drawFunc;
 } UpdateRegion;
 
 typedef struct TextInputRegion {
@@ -66,8 +68,9 @@ extern int _numTextRegions;
 void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
 void _showRegion(UpdateRegion* updateRegion);
+int _draw_widgets();
 int _update_widgets();
-int _win_register_update(int a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8);
+int _win_register_update(int a1, int a2, int a3, int a4, UpdateRegionDrawFunc* drawFunc, int a6, int a7, int a8);
 int _win_delete_update_region(int updateRegionIndex);
 void _win_do_updateregions();
 void _freeStatusBar();
