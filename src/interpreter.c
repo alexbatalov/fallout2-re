@@ -3249,6 +3249,14 @@ void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int a
     program1->flags |= PROGRAM_FLAG_0x20;
 }
 
+// 0x46D0B0
+void _setupExternalCall(Program* program1, Program* program2, int address, int a4)
+{
+    _setupExternalCallWithReturnVal(program1, program2, address, a4);
+    programStackPushInt32(program2, 0);
+    programStackPushInt16(program2, VALUE_TYPE_INT);
+}
+
 // 0x46DB58
 void _executeProc(Program* program, int procedure_index)
 {
@@ -3292,10 +3300,8 @@ void _executeProc(Program* program, int procedure_index)
             return;
         }
 
-        _setupExternalCallWithReturnVal(program, external_program, address, 28);
-
-        programStackPushInt32(external_program, 0);
-        programStackPushInt16(external_program, VALUE_TYPE_INT);
+        // NOTE: Uninline.
+        _setupExternalCall(program, external_program, address, 28);
 
         procedure_ptr = external_program->procedures + 4 + sizeof(Procedure) * procedure_index;
         flags = stackReadInt32(procedure_ptr, 4);
@@ -3365,10 +3371,8 @@ void _executeProcedure(Program* program, int procedure_index)
             return;
         }
 
-        _setupExternalCallWithReturnVal(program, external_program, address, 32);
-
-        programStackPushInt32(external_program, 0);
-        programStackPushInt16(external_program, VALUE_TYPE_INT);
+        // NOTE: Uninline.
+        _setupExternalCall(program, external_program, address, 32);
 
         memcpy(jmp_buf, program->env, sizeof(jmp_buf));
 
