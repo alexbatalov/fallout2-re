@@ -214,3 +214,17 @@ void _real_win_add_status_bar(int win, int a2, char* a3, char* a4, int x, int y)
         debugPrint("status bar dimensions not the same\n");
     }
 }
+
+// 0x4B60CC
+void _real_win_get_status_info(int a1, int* a2, int* a3, int* a4)
+{
+    if (_statusBarActive) {
+        *a2 = _statusBar.field_1C;
+        *a3 = _statusBar.field_20;
+        *a4 = _statusBar.field_24;
+    } else {
+        *a2 = -1;
+        *a3 = -1;
+        *a4 = -1;
+    }
+}
