@@ -10,8 +10,20 @@ int _updateRegions[32];
 // 0x66E720
 StatusBar _statusBar;
 
+// 0x66E750
+TextInputRegion* _textInputRegions;
+
+// 0x66E754
+int _numTextInputRegions;
+
+// 0x66E758
+TextRegion* _textRegions;
+
 // 0x66E75C
 int _statuBarActive;
+
+// 0x66E760
+int _numTextRegions;
 
 // 0x4B45A0
 void _deleteChar(char* string, int pos, int length)
@@ -72,4 +84,18 @@ void _freeStatusBar()
     memset(&_statusBar, 0, sizeof(_statusBar));
 
     _statuBarActive = 0;
+}
+
+// 0x4B5DE4
+void _initWidgets()
+{
+    memset(_updateRegions, 0, sizeof(_updateRegions));
+
+    _textRegions = NULL;
+    _numTextRegions = 0;
+
+    _textInputRegions = NULL;
+    _numTextInputRegions = 0;
+
+    _freeStatusBar();
 }
