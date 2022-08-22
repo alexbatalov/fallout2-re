@@ -63,6 +63,7 @@ void _real_win_update_status_bar(float a1, float a2);
 void _real_win_increment_status_bar(float a1);
 void _real_win_add_status_bar(int win, int a2, char* a3, char* a4, int x, int y);
 void _real_win_get_status_info(int a1, int* a2, int* a3, int* a4);
+void _real_win_modify_status_info(int a1, int a2, int a3, int a4);
 void sub_4B5998(int win);
 
 #endif /* WIDGET_H */

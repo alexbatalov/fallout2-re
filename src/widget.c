@@ -228,3 +228,13 @@ void _real_win_get_status_info(int a1, int* a2, int* a3, int* a4)
         *a4 = -1;
     }
 }
+
+// 0x4B6100
+void _real_win_modify_status_info(int a1, int a2, int a3, int a4)
+{
+    if (_statusBarActive) {
+        _statusBar.field_1C = a2;
+        _statusBar.field_20 = a3;
+        _statusBar.field_24 = a4;
+    }
+}
