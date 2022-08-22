@@ -111,6 +111,14 @@ extern int _currentTextColorR;
 extern int _currentHighlightColorG;
 extern int _currentHighlightColorB;
 
+int windowGetFont();
+int windowSetFont(int a1);
+int windowGetTextFlags();
+int windowSetTextFlags(int a1);
+unsigned char windowGetTextColor();
+unsigned char windowGetHighlightColor();
+int windowSetTextColor(float r, float g, float b);
+int windowSetHighlightColor(float r, float g, float b);
 bool _checkRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent);
 bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent);
 bool _windowRefreshRegions();

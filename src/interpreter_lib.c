@@ -11,7 +11,6 @@
 #include "nevs.h"
 #include "select_file_list.h"
 #include "text_font.h"
-#include "widget.h"
 #include "window_manager_private.h"
 
 // 0x59D5D0

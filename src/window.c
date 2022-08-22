@@ -143,6 +143,65 @@ int _currentHighlightColorG;
 // 0x672DB4
 int _currentHighlightColorB;
 
+// 0x4B6120
+int windowGetFont()
+{
+    return gWidgetFont;
+}
+
+// 0x4B6128
+int windowSetFont(int a1)
+{
+    gWidgetFont = a1;
+    fontSetCurrent(a1);
+    return 1;
+}
+
+// 0x4B6160
+int windowGetTextFlags()
+{
+    return gWidgetTextFlags;
+}
+
+// 0x4B6168
+int windowSetTextFlags(int a1)
+{
+    gWidgetTextFlags = a1;
+    return 1;
+}
+
+// 0x4B6174
+unsigned char windowGetTextColor()
+{
+    return _colorTable[_currentTextColorB | (_currentTextColorG << 5) | (_currentTextColorR << 10)];
+}
+
+// 0x4B6198
+unsigned char windowGetHighlightColor()
+{
+    return _colorTable[_currentHighlightColorB | (_currentHighlightColorG << 5) | (_currentHighlightColorR << 10)];
+}
+
+// 0x4B61BC
+int windowSetTextColor(float r, float g, float b)
+{
+    _currentTextColorR = (int)(r * 31.0);
+    _currentTextColorG = (int)(g * 31.0);
+    _currentTextColorB = (int)(b * 31.0);
+
+    return 1;
+}
+
+// 0x4B6208
+int windowSetHighlightColor(float r, float g, float b)
+{
+    _currentHighlightColorR = (int)(r * 31.0);
+    _currentHighlightColorG = (int)(g * 31.0);
+    _currentHighlightColorB = (int)(b * 31.0);
+
+    return 1;
+}
+
 // 0x4B62E4
 bool _checkRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
 {

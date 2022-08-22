@@ -4,7 +4,6 @@
 #include "memory_manager.h"
 #include "movie.h"
 #include "text_font.h"
-#include "widget.h"
 #include "window_manager.h"
 
 #include <string.h>

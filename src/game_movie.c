@@ -12,7 +12,6 @@
 #include "movie_effect.h"
 #include "palette.h"
 #include "text_font.h"
-#include "widget.h"
 #include "window_manager.h"
 
 #include <stdio.h>
