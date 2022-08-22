@@ -212,6 +212,7 @@ void programStackPushInt32(Program* program, int value);
 opcode_t programStackPopInt16(Program* program);
 int programStackPopInt32(Program* program);
 void programReturnStackPushInt16(Program* program, int value);
+void programReturnStackPushInt32(Program* program, int value);
 opcode_t programReturnStackPopInt16(Program* program);
 int programReturnStackPopInt32(Program* program);
 void _detachProgram(Program* program);

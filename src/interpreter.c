@@ -339,6 +339,14 @@ void programReturnStackPushInt16(Program* program, int value)
     }
 }
 
+// NOTE: Inlined.
+//
+// 0x467560
+void programReturnStackPushInt32(Program* program, int value)
+{
+    stackPushInt32(program->returnStack, &(program->returnStackPointer), value);
+}
+
 // 0x467574
 opcode_t programReturnStackPopInt16(Program* program)
 {
@@ -2262,25 +2270,114 @@ void opJump(Program* program)
 // 0x46B108
 void opCall(Program* program)
 {
-    opcode_t type = stackPopInt16(program->stack, &(program->stackPointer));
-    int value = stackPopInt32(program->stack, &(program->stackPointer));
+    opcode_t type;
+    int data;
+    opcode_t argumentType;
+    opcode_t argumentValue;
+    unsigned char* procedurePtr;
+    int procedureFlags;
+    char* procedureIdentifier;
+    Program* externalProgram;
+    int externalProcedureAddress;
+    int externalProcedureArgumentCount;
+    Program tempProgram;
+    char err[256];
+
+    type = stackPopInt16(program->stack, &(program->stackPointer));
+    data = stackPopInt32(program->stack, &(program->stackPointer));
     if (type == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, type, value);
+        _interpretDecStringRef(program, type, data);
     }
 
     if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         programFatalError("Invalid address given to call");
     }
 
-    unsigned char* ptr = program->procedures + 4 + sizeof(Procedure) * value;
+    procedurePtr = program->procedures + 4 + sizeof(Procedure) * data;
 
-    int flags = stackReadInt32(ptr, 4);
-    if ((flags & 4) != 0) {
-        // TODO: Incomplete.
+    procedureFlags = stackReadInt32(procedurePtr, 4);
+    if ((procedureFlags & PROCEDURE_FLAG_IMPORTED) != 0) {
+        procedureIdentifier = programGetIdentifier(program, stackReadInt32(procedurePtr, 0));
+        externalProgram = externalProcedureGetProgram(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
+        if (externalProgram == NULL) {
+            programFatalError("External procedure %s not found", procedureIdentifier);
+        }
+
+        type = stackPopInt16(program->stack, &(program->stackPointer));
+        data = stackPopInt32(program->stack, &(program->stackPointer));
+        if (type == VALUE_TYPE_DYNAMIC_STRING) {
+            _interpretDecStringRef(program, type, data);
+        }
+
+        if ((type & VALUE_TYPE_MASK) != VALUE_TYPE_INT || data != externalProcedureArgumentCount) {
+            sprintf(err, "Wrong number of arguments to external procedure %s.Expecting %d, got %d.", procedureIdentifier, externalProcedureArgumentCount, data);
+        }
+
+        programReturnStackPushInt32(externalProgram, program->instructionPointer);
+        programReturnStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programReturnStackPushInt32(externalProgram, program->flags);
+        programReturnStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programReturnStackPushInt32(externalProgram, (int)program->checkWaitFunc);
+        programReturnStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programReturnStackPushInt32(externalProgram, (int)program);
+        programReturnStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programReturnStackPushInt32(externalProgram, 36);
+        programReturnStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programStackPushInt32(externalProgram, externalProgram->flags);
+        programStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programStackPushInt32(externalProgram, (int)externalProgram->checkWaitFunc);
+        programStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        programStackPushInt32(externalProgram, externalProgram->windowId);
+        programStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        externalProgram->windowId = program->windowId;
+
+        tempProgram.stackPointer = 0;
+        tempProgram.returnStackPointer = 0;
+
+        while (data-- != 0) {
+            argumentType = programStackPopInt16(program);
+            argumentValue = programStackPopInt32(program);
+            if (argumentType == VALUE_TYPE_DYNAMIC_STRING) {
+                _interpretDecStringRef(program, argumentType, argumentValue);
+            }
+            programStackPushInt32(&tempProgram, argumentValue);
+            programStackPushInt16(&tempProgram, argumentType);
+        }
+
+        while (data++ < externalProcedureArgumentCount) {
+            argumentType = programStackPopInt16(&tempProgram);
+            argumentValue = programStackPopInt32(&tempProgram);
+            if (argumentType == VALUE_TYPE_DYNAMIC_STRING) {
+                _interpretDecStringRef(&tempProgram, argumentType, argumentValue);
+            }
+            programStackPushInt32(externalProgram, argumentValue);
+            programStackPushInt16(externalProgram, argumentType);
+        }
+
+        programStackPushInt32(externalProgram, externalProcedureArgumentCount);
+        programStackPushInt16(externalProgram, VALUE_TYPE_INT);
+
+        program->flags |= PROGRAM_FLAG_0x20;
+        externalProgram->flags = 0;
+        externalProgram->instructionPointer = externalProcedureAddress;
+
+        if ((procedureFlags & PROCEDURE_FLAG_CRITICAL) != 0 || (program->flags & PROGRAM_FLAG_CRITICAL_SECTION) != 0) {
+            // NOTE: Uninline.
+            opEnterCriticalSection(externalProgram);
+        }
     } else {
-        program->instructionPointer = stackReadInt32(ptr, 16);
-        if ((flags & 0x10) != 0) {
-            program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
+        program->instructionPointer = stackReadInt32(procedurePtr, 16);
+        if ((procedureFlags & PROCEDURE_FLAG_CRITICAL) != 0) {
+            // NOTE: Uninline.
+            opEnterCriticalSection(program);
         }
     }
 }
