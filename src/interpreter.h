@@ -297,7 +297,7 @@ void _setupCallWithReturnVal(Program* program, int address, int a3);
 void _setupCall(Program* program, int address, int returnAddress);
 void _setupExternalCallWithReturnVal(Program* program1, Program* program2, int address, int a4);
 void _setupExternalCall(Program* program1, Program* program2, int address, int a4);
-void _executeProc(Program* program, int procedure_index);
+void _executeProc(Program* program, int procedureIndex);
 int programFindProcedure(Program* prg, const char* name);
 void _executeProcedure(Program* program, int procedureIndex);
 void _doEvents();

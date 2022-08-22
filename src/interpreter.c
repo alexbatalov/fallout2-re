@@ -3258,63 +3258,56 @@ void _setupExternalCall(Program* program1, Program* program2, int address, int a
 }
 
 // 0x46DB58
-void _executeProc(Program* program, int procedure_index)
+void _executeProc(Program* program, int procedureIndex)
 {
-    Program* external_program;
-    char* identifier;
-    int address;
-    int arguments_count;
-    unsigned char* procedure_ptr;
-    int flags;
+    unsigned char* procedurePtr;
+    char* procedureIdentifier;
+    int procedureAddress;
+    Program* externalProgram;
+    int externalProcedureAddress;
+    int externalProcedureArgumentCount;
+    int procedureFlags;
     char err[256];
-    Program* context;
 
-    procedure_ptr = program->procedures + 4 + sizeof(Procedure) * procedure_index;
-    flags = stackReadInt32(procedure_ptr, 4);
-    if (!(flags & PROCEDURE_FLAG_IMPORTED)) {
-        address = stackReadInt32(procedure_ptr, 16);
-
-        // NOTE: Uninline.
-        _setupCall(program, address, 20);
-
-        if (!(flags & PROCEDURE_FLAG_CRITICAL)) {
-            return;
+    procedurePtr = program->procedures + 4 + sizeof(Procedure) * procedureIndex;
+    procedureFlags = stackReadInt32(procedurePtr, 4);
+    if ((procedureFlags & PROCEDURE_FLAG_IMPORTED) != 0) {
+        procedureIdentifier = programGetIdentifier(program, stackReadInt32(procedurePtr, 0));
+        externalProgram = externalProcedureGetProgram(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
+        if (externalProgram != NULL) {
+            if (externalProcedureArgumentCount == 0) {
+            } else {
+                sprintf(err, "External procedure cannot take arguments in interrupt context");
+                _interpretOutput(err);
+            }
+        } else {
+            sprintf(err, "External procedure %s not found\n", procedureIdentifier);
+            _interpretOutput(err);
         }
 
-        program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        context = program;
+        // NOTE: Uninline.
+        _setupExternalCall(program, externalProgram, externalProcedureAddress, 28);
+
+        procedurePtr = externalProgram->procedures + 4 + sizeof(Procedure) * procedureIndex;
+        procedureFlags = stackReadInt32(procedurePtr, 4);
+
+        if ((procedureFlags & PROCEDURE_FLAG_CRITICAL) != 0) {
+            // NOTE: Uninline.
+            opEnterCriticalSection(externalProgram);
+            _interpret(externalProgram, 0);
+        }
     } else {
-        identifier = programGetIdentifier(program, stackReadInt32(procedure_ptr, 0));
-        external_program = externalProcedureGetProgram(identifier, &address, &arguments_count);
-        if (external_program == NULL) {
-            sprintf(err, "External procedure %s not found\n", identifier);
-            // TODO: Incomplete.
-            // _interpretOutput(err);
-            return;
-        }
-
-        if (arguments_count != 0) {
-            sprintf(err, "External procedure cannot take arguments in interrupt context");
-            // TODO: Incomplete.
-            // _interpretOutput(err);
-            return;
-        }
+        procedureAddress = stackReadInt32(procedurePtr, 16);
 
         // NOTE: Uninline.
-        _setupExternalCall(program, external_program, address, 28);
+        _setupCall(program, procedureAddress, 20);
 
-        procedure_ptr = external_program->procedures + 4 + sizeof(Procedure) * procedure_index;
-        flags = stackReadInt32(procedure_ptr, 4);
-
-        if (!(flags & PROCEDURE_FLAG_CRITICAL)) {
-            return;
+        if ((procedureFlags & PROCEDURE_FLAG_CRITICAL) != 0) {
+            // NOTE: Uninline.
+            opEnterCriticalSection(program);
+            _interpret(program, 0);
         }
-
-        external_program->flags |= PROGRAM_FLAG_CRITICAL_SECTION;
-        context = external_program;
     }
-
-    _interpret(context, 0);
 }
 
 // Returns index of the procedure with specified name or -1 if no such
