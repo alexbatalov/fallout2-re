@@ -654,7 +654,7 @@ bool _deleteWindow(const char* windowName)
     }
 
     ManagedWindow* managedWindow = &(gManagedWindows[index]);
-    sub_4B5998(managedWindow->window);
+    _win_delete_widgets(managedWindow->window);
     windowDestroy(managedWindow->window);
     managedWindow->window = -1;
     managedWindow->name[0] = '\0';

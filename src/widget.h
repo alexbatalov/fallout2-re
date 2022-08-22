@@ -79,6 +79,7 @@ int _win_update_text_region(int textRegionId);
 int _win_delete_text_region(int textRegionId);
 int _win_delete_all_update_regions(int a1);
 int _win_text_region_style(int textRegionId, int font, int textAlignment, int textFlags, int backgroundColor);
+void _win_delete_widgets(int win);
 int _widgetDoInput();
 int _win_center_str(int win, char* string, int y, int a4);
 void _showRegion(UpdateRegion* updateRegion);
@@ -97,6 +98,5 @@ void _real_win_increment_status_bar(float a1);
 void _real_win_add_status_bar(int win, int a2, char* a3, char* a4, int x, int y);
 void _real_win_get_status_info(int a1, int* a2, int* a3, int* a4);
 void _real_win_modify_status_info(int a1, int a2, int a3, int a4);
-void sub_4B5998(int win);
 
 #endif /* WIDGET_H */

@@ -320,6 +320,23 @@ int _win_text_region_style(int textRegionId, int font, int textAlignment, int te
     return 0;
 }
 
+// 0x4B5998
+void _win_delete_widgets(int win)
+{
+    int index;
+
+    _win_delete_all_text_input_regions(win);
+
+    for (index = 0; index < _numTextRegions; index++) {
+        if (_textRegions[index].win == win) {
+            // NOTE: Uninline.
+            _win_delete_text_region(index + 1);
+        }
+    }
+
+    _win_delete_all_update_regions(win);
+}
+
 // 0x4B5A04
 int _widgetDoInput()
 {
@@ -379,12 +396,6 @@ int _update_widgets()
     }
 
     return 1;
-}
-
-// 0x4B5998
-void sub_4B5998(int win)
-{
-    // TODO: Incomplete.
 }
 
 // 0x4B5C4C
