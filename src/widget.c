@@ -151,3 +151,14 @@ void _drawStatusBar()
         windowRefreshRect(_statusBar.win, &rect);
     }
 }
+
+// 0x4B5F5C
+void _real_win_set_status_bar(int a1, int a2, int a3)
+{
+    if (_statusBarActive) {
+        _statusBar.field_1C = a2;
+        _statusBar.field_20 = a2;
+        _statusBar.field_24 = a3;
+        _drawStatusBar();
+    }
+}

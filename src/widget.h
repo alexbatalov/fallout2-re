@@ -58,6 +58,7 @@ void _freeStatusBar();
 void _initWidgets();
 void _widgetsClose();
 void _drawStatusBar();
+void _real_win_set_status_bar(int a1, int a2, int a3);
 void sub_4B5998(int win);
 
 #endif /* WIDGET_H */
