@@ -428,6 +428,8 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 if (mouseX == _scr_size.left || mouseX == _scr_size.right
                     || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
                     _gmouse_clicked_on_edge = true;
+                } else {
+                    _gmouse_clicked_on_edge = false;
                 }
             }
         } else {
@@ -448,6 +450,31 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case -20:
         if (interfaceBarEnabled()) {
             _intface_use_item();
+        }
+        break;
+    case -2:
+        if (1) {
+            int mouseEvent = mouseGetEvent();
+            int mouseX;
+            int mouseY;
+            mouseGetPosition(&mouseX, &mouseY);
+
+            if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
+                if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
+                    if (mouseX == _scr_size.left || mouseX == _scr_size.right
+                        || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
+                        _gmouse_clicked_on_edge = true;
+                    } else {
+                        _gmouse_clicked_on_edge = false;
+                    }
+                }
+            } else {
+                if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
+                    _gmouse_clicked_on_edge = false;
+                }
+            }
+
+            _gmouse_handle_event(mouseX, mouseY, mouseEvent);
         }
         break;
     case KEY_CTRL_Q:
@@ -695,14 +722,14 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case KEY_COMMA:
     case KEY_LESS:
-        if (reg_anim_begin(0) == 0) {
+        if (reg_anim_begin(ANIMATION_REQUEST_RESERVED) == 0) {
             animationRegisterRotateCounterClockwise(gDude);
             reg_anim_end();
         }
         break;
     case KEY_DOT:
     case KEY_GREATER:
-        if (reg_anim_begin(0) == 0) {
+        if (reg_anim_begin(ANIMATION_REQUEST_RESERVED) == 0) {
             animationRegisterRotateClockwise(gDude);
             reg_anim_end();
         }
@@ -816,8 +843,6 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         mapScroll(0, 1);
         break;
     }
-
-    // TODO: Incomplete.
 
     return 0;
 }
