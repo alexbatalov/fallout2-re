@@ -2,13 +2,13 @@
 #define WIDGET_H
 
 typedef struct StatusBar {
-    void* field_0;
-    void* field_4;
-    int field_8;
-    int field_C;
-    int field_10;
-    int field_14;
-    int field_18;
+    unsigned char* field_0;
+    unsigned char* field_4;
+    int win;
+    int x;
+    int y;
+    int width;
+    int height;
     int field_1C;
     int field_20;
     int field_24;
@@ -57,6 +57,7 @@ int _update_widgets();
 void _freeStatusBar();
 void _initWidgets();
 void _widgetsClose();
+void _drawStatusBar();
 void sub_4B5998(int win);
 
 #endif /* WIDGET_H */

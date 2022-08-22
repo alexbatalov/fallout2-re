@@ -2,7 +2,10 @@
 
 #include <string.h>
 
+#include "draw.h"
+#include "geometry.h"
 #include "memory_manager.h"
+#include "window_manager.h"
 
 // 0x66E6A0
 int _updateRegions[32];
@@ -116,4 +119,35 @@ void _widgetsClose()
     _numTextInputRegions = 0;
 
     _freeStatusBar();
+}
+
+// 0x4B5E7C
+void _drawStatusBar()
+{
+    Rect rect;
+    unsigned char* dest;
+
+    if (_statuBarActive) {
+        dest = windowGetBuffer(_statusBar.win) + _statusBar.y * windowGetWidth(_statusBar.win) + _statusBar.x;
+
+        blitBufferToBuffer(_statusBar.field_0,
+            _statusBar.width,
+            _statusBar.height,
+            _statusBar.width,
+            dest,
+            windowGetWidth(_statusBar.win));
+
+        blitBufferToBuffer(_statusBar.field_4,
+            _statusBar.field_1C,
+            _statusBar.height,
+            _statusBar.width,
+            dest,
+            windowGetWidth(_statusBar.win));
+
+        rect.left = _statusBar.x;
+        rect.top = _statusBar.y;
+        rect.right = _statusBar.x + _statusBar.width;
+        rect.bottom = _statusBar.y + _statusBar.height;
+        windowRefreshRect(_statusBar.win, &rect);
+    }
 }
