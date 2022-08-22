@@ -13,6 +13,17 @@ void _deleteChar(char* string, int pos, int length)
     }
 }
 
+// 0x4B45C8
+void _insertChar(char* string, char ch, int pos, int length)
+{
+    if (length >= pos) {
+        if (length > pos) {
+            memmove(string + pos + 1, string + pos, length - pos);
+        }
+        string[pos] = ch;
+    }
+}
+
 // 0x4B5A64
 void _showRegion(int a1)
 {
