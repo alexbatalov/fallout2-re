@@ -99,3 +99,21 @@ void _initWidgets()
 
     _freeStatusBar();
 }
+
+// 0x4B5E1C
+void _widgetsClose()
+{
+    if (_textRegions != NULL) {
+        internal_free_safe(_textRegions, __FILE__, __LINE__); // "..\int\WIDGET.C", 908
+    }
+    _textRegions = NULL;
+    _numTextRegions = 0;
+
+    if (_textInputRegions != NULL) {
+        internal_free_safe(_textInputRegions, __FILE__, __LINE__); // "..\int\WIDGET.C", 912
+    }
+    _textInputRegions = NULL;
+    _numTextInputRegions = 0;
+
+    _freeStatusBar();
+}

@@ -56,6 +56,7 @@ void _showRegion(int a1);
 int _update_widgets();
 void _freeStatusBar();
 void _initWidgets();
+void _widgetsClose();
 void sub_4B5998(int win);
 
 #endif /* WIDGET_H */
