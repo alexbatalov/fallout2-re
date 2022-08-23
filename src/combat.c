@@ -2388,6 +2388,26 @@ int aiInfoSetLastItem(Object* obj, Object* a2)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4219CC
+int _combatAIInfoGetLastMove(Object* object)
+{
+    if (!isInCombat()) {
+        return 0;
+    }
+
+    if (object == NULL) {
+        return -1;
+    }
+
+    if (object->cid == -1) {
+        return -1;
+    }
+
+    return _aiInfoList[object->cid].lastMove;
+}
+
 // 0x421A34
 void _combat_begin(Object* a1)
 {
