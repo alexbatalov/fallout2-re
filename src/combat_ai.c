@@ -598,6 +598,14 @@ int aiPacketWrite(File* stream, AiPacket* ai)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x428058
+int _combat_ai_num()
+{
+    return gAiPacketsLength;
+}
+
 // Get ai from object
 //
 // 0x4280B4
