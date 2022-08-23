@@ -445,6 +445,35 @@ int _show_death(Object* obj, int anim)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x410F48
+int _show_damage_target(Attack* attack)
+{
+    int frontHit;
+
+    if (FID_TYPE(attack->defender->fid) == OBJ_TYPE_CRITTER) {
+        // NOTE: Uninline.
+        frontHit = _is_hit_from_front(attack->attacker, attack->defender);
+
+        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+        _register_priority(1);
+        _show_damage_to_object(attack->defender,
+            attack->defenderDamage,
+            attack->defenderFlags,
+            attack->weapon,
+            frontHit,
+            attack->defenderKnockback,
+            tileGetRotationTo(attack->attacker->tile, attack->defender->tile),
+            critterGetAnimationForHitMode(attack->attacker, attack->hitMode),
+            attack->attacker,
+            0);
+        reg_anim_end();
+    }
+
+    return 0;
+}
+
 // 0x410FEC
 int _show_damage_extras(Attack* attack)
 {

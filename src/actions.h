@@ -21,6 +21,7 @@ int _check_death(Object* obj, int anim, int minViolenceLevel, bool isFallingBack
 int _internal_destroy(Object* a1, Object* a2);
 void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10);
 int _show_death(Object* obj, int anim);
+int _show_damage_target(Attack* attack);
 int _show_damage_extras(Attack* attack);
 void _show_damage(Attack* attack, int a2, int a3);
 int _action_attack(Attack* attack);
