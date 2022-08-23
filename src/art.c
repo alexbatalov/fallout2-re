@@ -313,6 +313,16 @@ int artIsObjectTypeHidden(int objectType)
     return objectType >= OBJ_TYPE_ITEM && objectType < OBJ_TYPE_COUNT ? gArtListDescriptions[objectType].flags & 1 : 0;
 }
 
+// NOTE: Unused.
+//
+// 0x418F50
+void art_toggle_disable(int objectType)
+{
+    if (objectType >= 0 && objectType < OBJ_TYPE_COUNT) {
+        gArtListDescriptions[objectType].flags ^= 1;
+    }
+}
+
 // 0x418F7C
 int artGetFidgetCount(int headFid)
 {

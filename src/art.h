@@ -148,6 +148,7 @@ void artReset();
 void artExit();
 char* artGetObjectTypeName(int objectType);
 int artIsObjectTypeHidden(int objectType);
+void art_toggle_disable(int objectType);
 int artGetFidgetCount(int headFid);
 void artRender(int fid, unsigned char* dest, int width, int height, int pitch);
 Art* artLock(int fid, CacheEntry** cache_entry);
