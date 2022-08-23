@@ -74,6 +74,7 @@ bool cacheLock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr);
 bool cacheUnlock(Cache* cache, CacheEntry* cacheEntry);
 int _cache_discard(Cache* cache, int key);
 bool cacheFlush(Cache* cache);
+int _cache_size(Cache* cache, int* sizePtr);
 bool cachePrintStats(Cache* cache, char* dest);
 bool cacheFetchEntryForKey(Cache* cache, int key, int* indexPtr);
 bool cacheInsertEntryAtIndex(Cache* cache, CacheEntry* cacheEntry, int index);

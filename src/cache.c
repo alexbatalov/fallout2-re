@@ -221,6 +221,24 @@ bool cacheFlush(Cache* cache)
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x420184
+int _cache_size(Cache* cache, int* sizePtr)
+{
+    if (cache == NULL) {
+        return 0;
+    }
+
+    if (sizePtr == NULL) {
+        return 0;
+    }
+
+    *sizePtr = cache->size;
+
+    return 1;
+}
+
 // 0x42019C
 bool cachePrintStats(Cache* cache, char* dest)
 {
