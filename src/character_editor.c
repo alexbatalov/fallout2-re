@@ -5442,15 +5442,8 @@ int characterEditorUpdateLevel()
 
             pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp);
 
-            int selectedPerksCount = 0;
-            for (int perk = 0; perk < PERK_COUNT; perk++) {
-                if (perkGetRank(gDude, perk) != 0) {
-                    selectedPerksCount += 1;
-                    if (selectedPerksCount >= 37) {
-                        break;
-                    }
-                }
-            }
+            // NOTE: Uninline.
+            int selectedPerksCount = PerkCount();
 
             if (selectedPerksCount < 37) {
                 int progression = 3;
@@ -6425,6 +6418,27 @@ void _pop_perks()
             perkAdd(gDude, i);
         }
     }
+}
+
+// NOTE: Inlined.
+//
+// 0x43DF24
+int PerkCount()
+{
+    int perk;
+    int perkCount;
+
+    perkCount = 0;
+    for (perk = 0; perk < PERK_COUNT; perk++) {
+        if (perkGetRank(gDude, perk) > 0) {
+            perkCount++;
+            if (perkCount >= 37) {
+                break;
+            }
+        }
+    }
+
+    return perkCount;
 }
 
 // validate SPECIAL stats are <= 10
