@@ -132,6 +132,7 @@ bool _ai_find_friend(Object* a1, int a2, int a3);
 int _compare_nearer(const void* a1, const void* a2);
 void _ai_sort_list_distance(Object** critterList, int length, Object* origin);
 int _compare_strength(const void* p1, const void* p2);
+void _ai_sort_list_strength(Object** critterList, int length);
 int _compare_weakness(const void* p1, const void* p2);
 Object* _ai_find_nearest_team(Object* a1, Object* a2, int a3);
 Object* _ai_find_nearest_team_in_combat(Object* a1, Object* a2, int a3);

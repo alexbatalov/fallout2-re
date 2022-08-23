@@ -1210,6 +1210,14 @@ int _compare_strength(const void* p1, const void* p2)
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x428BD0
+void _ai_sort_list_strength(Object** critterList, int length)
+{
+    qsort(critterList, length, sizeof(*critterList), _compare_strength);
+}
+
 // qsort compare unction - ranged then melee
 //
 // 0x428BE4
@@ -1463,7 +1471,8 @@ Object* _ai_danger_source(Object* a1)
 
     switch (attackWho) {
     case ATTACK_WHO_STRONGEST:
-        qsort(targets, 4, sizeof(*targets), _compare_strength);
+        // NOTE: Uninline.
+        _ai_sort_list_strength(targets, 4);
         break;
     case ATTACK_WHO_WEAKEST:
         qsort(targets, 4, sizeof(*targets), _compare_weakness);
