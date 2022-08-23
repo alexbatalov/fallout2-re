@@ -142,14 +142,8 @@ int displayMonitorInit()
         gDisplayMonitorEnabled = true;
         gDisplayMonitorInitialized = true;
 
-        for (int index = 0; index < gDisplayMonitorLinesCapacity; index++) {
-            gDisplayMonitorLines[index][0] = '\0';
-        }
-
-        _disp_start = 0;
-        _disp_curr = 0;
-
-        displayMonitorRefresh();
+        // NOTE: Uninline.
+        display_clear();
     }
 
     return 0;
@@ -158,15 +152,9 @@ int displayMonitorInit()
 // 0x431800
 int displayMonitorReset()
 {
-    if (gDisplayMonitorInitialized) {
-        for (int index = 0; index < gDisplayMonitorLinesCapacity; index++) {
-            gDisplayMonitorLines[index][0] = '\0';
-        }
+    // NOTE: Uninline.
+    display_clear();
 
-        _disp_start = 0;
-        _disp_curr = 0;
-        displayMonitorRefresh();
-    }
     return 0;
 }
 
@@ -267,6 +255,24 @@ void displayMonitorAddMessage(char* str)
     fontSetCurrent(oldFont);
     _disp_curr = _disp_start;
     displayMonitorRefresh();
+}
+
+// NOTE: Inlined.
+//
+// 0x431A2C
+void display_clear()
+{
+    int index;
+
+    if (gDisplayMonitorInitialized) {
+        for (index = 0; index < gDisplayMonitorLinesCapacity; index++) {
+            gDisplayMonitorLines[index][0] = '\0';
+        }
+
+        _disp_start = 0;
+        _disp_curr = 0;
+        displayMonitorRefresh();
+    }
 }
 
 // 0x431A78

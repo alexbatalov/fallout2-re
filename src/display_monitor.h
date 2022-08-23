@@ -42,6 +42,7 @@ int displayMonitorInit();
 int displayMonitorReset();
 void displayMonitorExit();
 void displayMonitorAddMessage(char* string);
+void display_clear();
 void displayMonitorRefresh();
 void displayMonitorScrollUpOnMouseDown(int btn, int keyCode);
 void displayMonitorScrollDownOnMouseDown(int btn, int keyCode);
