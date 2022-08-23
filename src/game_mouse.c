@@ -1307,6 +1307,14 @@ void _gmouse_3d_enable_modes()
     _gmouse_3d_modes_enabled = 1;
 }
 
+// NOTE: Unused.
+//
+// 0x44CA04
+void gmouse_3d_disable_modes()
+{
+    _gmouse_3d_modes_enabled = 0;
+}
+
 // 0x44CA18
 void gameMouseSetMode(int mode)
 {
