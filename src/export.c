@@ -166,6 +166,28 @@ ExternalVariable* externalVariableAdd(const char* identifier)
     return NULL;
 }
 
+// NOTE: Unused.
+//
+// 0x441220
+int exportStoreStringVariable(const char* identifier, const char* value)
+{
+    ExternalVariable* variable;
+
+    variable = externalVariableFind(identifier);
+    if (variable != NULL) {
+        if ((variable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+            internal_free_safe(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 155
+        }
+
+        variable->type = VALUE_TYPE_DYNAMIC_STRING;
+        variable->stringValue = strdup_safe(value, __FILE__, __LINE__); // "..\int\EXPORT.C", 159
+
+        return 0;
+    }
+
+    return 1;
+}
+
 // 0x44127C
 int externalVariableSetValue(Program* program, const char* name, opcode_t opcode, int data)
 {
