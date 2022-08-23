@@ -117,7 +117,8 @@ int critterInit()
 {
     dudeResetName();
 
-    memset(gKillsByType, 0, sizeof(gKillsByType));
+    // NOTE: Uninline.
+    critter_kill_count_clear();
 
     if (!messageListInit(&gCritterMessageList)) {
         debugPrint("\nError: Initing critter name message file!");
@@ -139,7 +140,9 @@ int critterInit()
 void critterReset()
 {
     dudeResetName();
-    memset(gKillsByType, 0, sizeof(gKillsByType));
+
+    // NOTE: Uninline;
+    critter_kill_count_clear();
 }
 
 // 0x42D004
@@ -625,6 +628,13 @@ int critterGetDamageType(Object* obj)
     }
 
     return proto->critter.data.damageType;
+}
+
+// 0x42D860
+int critter_kill_count_clear()
+{
+    memset(gKillsByType, 0, sizeof(gKillsByType));
+    return 0;
 }
 
 // 0x42D878

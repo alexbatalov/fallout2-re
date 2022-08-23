@@ -89,6 +89,7 @@ int radiationEventProcess(Object* obj, void* data);
 int radiationEventRead(File* stream, void** dataPtr);
 int radiationEventWrite(File* stream, void* data);
 int critterGetDamageType(Object* critter);
+int critter_kill_count_clear();
 int killsIncByType(int killType);
 int killsGetByType(int killType);
 int killsLoad(File* stream);
