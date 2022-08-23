@@ -1601,15 +1601,8 @@ int characterEditorWindowInit()
 // 0x433AA8
 void characterEditorWindowFree()
 {
-    if (gCharacterEditorFolderViewScrollDownBtn != -1) {
-        buttonDestroy(gCharacterEditorFolderViewScrollDownBtn);
-        gCharacterEditorFolderViewScrollDownBtn = -1;
-    }
-
-    if (gCharacterEditorFolderViewScrollUpBtn != -1) {
-        buttonDestroy(gCharacterEditorFolderViewScrollUpBtn);
-        gCharacterEditorFolderViewScrollUpBtn = -1;
-    }
+    // NOTE: Uninline.
+    folder_exit();
 
     windowDestroy(gCharacterEditorWindow);
 
@@ -6489,6 +6482,22 @@ int characterEditorFolderViewInit()
     }
 
     return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x43E090
+void folder_exit()
+{
+    if (gCharacterEditorFolderViewScrollDownBtn != -1) {
+        buttonDestroy(gCharacterEditorFolderViewScrollDownBtn);
+        gCharacterEditorFolderViewScrollDownBtn = -1;
+    }
+
+    if (gCharacterEditorFolderViewScrollUpBtn != -1) {
+        buttonDestroy(gCharacterEditorFolderViewScrollUpBtn);
+        gCharacterEditorFolderViewScrollUpBtn = -1;
+    }
 }
 
 // 0x43E0D4

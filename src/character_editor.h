@@ -303,6 +303,7 @@ int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* desc
 void _pop_perks();
 int _is_supper_bonus();
 int characterEditorFolderViewInit();
+void folder_exit();
 void characterEditorFolderViewScroll(int direction);
 void characterEditorFolderViewClear();
 int characterEditorFolderViewDrawHeading(const char* string);
