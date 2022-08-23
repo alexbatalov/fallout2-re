@@ -402,6 +402,14 @@ void _gmouse_disable_scrolling()
     _gmouse_scrolling_enabled = 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x44B4E4
+int gmouse_scrolling_is_enabled()
+{
+    return _gmouse_scrolling_enabled;
+}
+
 // 0x44B504
 int _gmouse_get_click_to_scroll()
 {
@@ -459,7 +467,8 @@ void gameMouseRefresh()
     if (gGameMouseCursor >= FIRST_GAME_MOUSE_ANIMATED_CURSOR) {
         _mouse_info();
 
-        if (_gmouse_scrolling_enabled) {
+        // NOTE: Uninline.
+        if (gmouse_scrolling_is_enabled()) {
             mouseGetPosition(&mouseX, &mouseY);
             int oldMouseCursor = gGameMouseCursor;
 
@@ -501,7 +510,8 @@ void gameMouseRefresh()
     }
 
     if (!_gmouse_enabled) {
-        if (_gmouse_scrolling_enabled) {
+        // NOTE: Uninline.
+        if (gmouse_scrolling_is_enabled()) {
             mouseGetPosition(&mouseX, &mouseY);
             int oldMouseCursor = gGameMouseCursor;
 
