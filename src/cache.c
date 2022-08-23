@@ -147,6 +147,34 @@ bool cacheUnlock(Cache* cache, CacheEntry* cacheEntry)
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4200EC
+int _cache_discard(Cache* cache, int key)
+{
+    int index;
+    CacheEntry* cacheEntry;
+
+    if (cache == NULL) {
+        return 0;
+    }
+
+    if (cacheFindIndexForKey(cache, key, &index) != 2) {
+        return 0;
+    }
+
+    cacheEntry = cache->entries[index];
+    if (cacheEntry->referenceCount != 0) {
+        return 0;
+    }
+
+    cacheEntry->flags |= CACHE_ENTRY_MARKED_FOR_EVICTION;
+
+    cacheSweep(cache);
+
+    return 1;
+}
+
 // cache_flush
 // 0x42012C
 bool cacheFlush(Cache* cache)
