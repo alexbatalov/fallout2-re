@@ -410,6 +410,17 @@ int gmouse_scrolling_is_enabled()
     return _gmouse_scrolling_enabled;
 }
 
+// NOTE: Unused.
+//
+// 0x44B4EC
+void gmouse_set_click_to_scroll(int a1)
+{
+    if (a1 != _gmouse_click_to_scroll) {
+        _gmouse_click_to_scroll = a1;
+        _gmouse_clicked_on_edge = 0;
+    }
+}
+
 // 0x44B504
 int _gmouse_get_click_to_scroll()
 {
