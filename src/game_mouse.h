@@ -170,6 +170,7 @@ int gameMouseGetMode();
 void gameMouseCycleMode();
 void _gmouse_3d_refresh();
 int gameMouseSetBouncingCursorFid(int fid);
+int gmouse_3d_get_fid();
 void gameMouseResetBouncingCursorFid();
 void gameMouseObjectsShow();
 void gameMouseObjectsHide();

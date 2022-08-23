@@ -1480,6 +1480,18 @@ int gameMouseSetBouncingCursorFid(int fid)
     return rc;
 }
 
+// NOTE: Unused.
+//
+// 0x44CCF4
+int gmouse_3d_get_fid()
+{
+    if (gGameMouseInitialized) {
+        return gGameMouseBouncingCursor->fid;
+    }
+
+    return -1;
+}
+
 // 0x44CD0C
 void gameMouseResetBouncingCursorFid()
 {
