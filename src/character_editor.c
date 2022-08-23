@@ -3777,13 +3777,9 @@ int characterEditorShowOptions()
                         _ResetPlayer();
 
                         if (gcdLoad(string4) == 0) {
-                            critterUpdateDerivedStats(gDude);
-                            pcStatsReset();
-                            for (int stat = 0; stat < SAVEABLE_STAT_COUNT; stat++) {
-                                critterSetBonusStat(gDude, stat, 0);
-                            }
-                            perksReset();
-                            critterUpdateDerivedStats(gDude);
+                            // NOTE: Uninline.
+                            CheckValidPlayer();
+
                             skillsGetTagged(gCharacterEditorTempTaggedSkills, 4);
 
                             int taggedSkillCount = 0;
@@ -4528,6 +4524,26 @@ void characterEditorRegisterInfoAreas()
     buttonCreate(gCharacterEditorWindow, 376, 5, 223, 20, -1, -1, 530, -1, NULL, NULL, NULL, 0);
     buttonCreate(gCharacterEditorWindow, 370, 27, 223, 195, -1, -1, 531, -1, NULL, NULL, NULL, 0);
     buttonCreate(gCharacterEditorWindow, 396, 228, 171, 25, -1, -1, 532, -1, NULL, NULL, NULL, 0);
+}
+
+// NOTE: Inlined.
+//
+// 0x43A79C
+int CheckValidPlayer()
+{
+    int stat;
+
+    critterUpdateDerivedStats(gDude);
+    pcStatsReset();
+
+    for (stat = 0; stat < SAVEABLE_STAT_COUNT; stat++) {
+        critterSetBonusStat(gDude, stat, 0);
+    }
+
+    perkResetRanks();
+    critterUpdateDerivedStats(gDude);
+
+    return 1;
 }
 
 // copy character to editor

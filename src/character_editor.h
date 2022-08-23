@@ -272,6 +272,7 @@ char* _AddSpaces(char* string, int length);
 char* _AddDots(char* string, int length);
 void characterEditorResetScreen();
 void characterEditorRegisterInfoAreas();
+int CheckValidPlayer();
 void characterEditorSavePlayer();
 void characterEditorRestorePlayer();
 char* _itostndn(int value, char* dest);
