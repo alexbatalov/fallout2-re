@@ -28,8 +28,8 @@ void colorCycleFree();
 void colorCycleDisable();
 void colorCycleEnable();
 bool colorCycleEnabled();
-void cycleSetSpeedFactor(int value);
 void colorCycleTicker();
+void change_cycle_speed(int value);
 int get_cycle_speed();
 
 #endif /* CYCLE_H */

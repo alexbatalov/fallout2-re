@@ -153,7 +153,7 @@ void colorCycleInit()
         cycleSpeedFactor = 1;
     }
 
-    cycleSetSpeedFactor(cycleSpeedFactor);
+    change_cycle_speed(cycleSpeedFactor);
 }
 
 // 0x42E8CC
@@ -195,13 +195,6 @@ void colorCycleEnable()
 bool colorCycleEnabled()
 {
     return gColorCycleEnabled;
-}
-
-// 0x42E950
-void cycleSetSpeedFactor(int value)
-{
-    gColorCycleSpeedFactor = value;
-    configSetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, value);
 }
 
 // 0x42E97C
@@ -326,6 +319,13 @@ void colorCycleTicker()
     if (changed) {
         paletteSetEntriesInRange(palette + 229 * 3, 229, 255);
     }
+}
+
+// 0x42E950
+void change_cycle_speed(int value)
+{
+    gColorCycleSpeedFactor = value;
+    configSetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, value);
 }
 
 // NOTE: Unused.
