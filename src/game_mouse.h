@@ -164,6 +164,7 @@ int gameMouseGetCursor();
 void gmouse_set_mapper_mode(int mode);
 void _gmouse_3d_enable_modes();
 void gmouse_3d_disable_modes();
+int gmouse_3d_modes_are_enabled();
 void gameMouseSetMode(int a1);
 int gameMouseGetMode();
 void gameMouseCycleMode();
