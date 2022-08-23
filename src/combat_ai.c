@@ -606,6 +606,24 @@ int _combat_ai_num()
     return gAiPacketsLength;
 }
 
+// 0x428060
+char* _combat_ai_name(int packetNum)
+{
+    int index;
+
+    if (packetNum < 0 || packetNum >= gAiPacketsLength) {
+        return NULL;
+    }
+
+    for (index = 0; index < gAiPacketsLength; index++) {
+        if (gAiPackets[index].packet_num == packetNum) {
+            return gAiPackets[index].name;
+        }
+    }
+
+    return NULL;
+}
+
 // Get ai from object
 //
 // 0x4280B4

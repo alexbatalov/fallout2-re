@@ -107,6 +107,7 @@ int aiSave(File* stream);
 int aiPacketRead(File* stream, AiPacket* ai);
 int aiPacketWrite(File* stream, AiPacket* ai);
 int _combat_ai_num();
+char* _combat_ai_name(int packetNum);
 AiPacket* aiGetPacket(Object* obj);
 AiPacket* aiGetPacketByNum(int aiPacketNum);
 int aiGetAreaAttackMode(Object* obj);
