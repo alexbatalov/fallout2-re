@@ -256,13 +256,11 @@ bool cachePrintStats(Cache* cache, char* dest)
 // 0x4203AC
 bool cacheFetchEntryForKey(Cache* cache, int key, int* indexPtr)
 {
-    CacheEntry* cacheEntry = (CacheEntry*)internal_malloc(sizeof(*cacheEntry));
-    if (cacheEntry == NULL) {
-        return false;
-    }
+    CacheEntry* cacheEntry;
 
-    if (!cacheEntryInit(cacheEntry)) {
-        return false;
+    // NOTE: Uninline.
+    if (_cache_create_item(&cacheEntry) != 1) {
+        return 0;
     }
 
     do {
@@ -415,6 +413,22 @@ int cacheFindIndexForKey(Cache* cache, int key, int* indexPtr)
     }
 
     return 3;
+}
+
+// NOTE: Inlined.
+//
+// 0x4206C0
+int _cache_create_item(CacheEntry** cacheEntryPtr)
+{
+    *cacheEntryPtr = (CacheEntry*)internal_malloc(sizeof(**cacheEntryPtr));
+
+    // FIXME: Wrong check, should be *cacheEntryPtr != NULL.
+    if (cacheEntryPtr != NULL) {
+        // NOTE: Uninline.
+        return cacheEntryInit(*cacheEntryPtr);
+    }
+
+    return 0;
 }
 
 // 0x420708

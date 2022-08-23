@@ -79,6 +79,7 @@ bool cachePrintStats(Cache* cache, char* dest);
 bool cacheFetchEntryForKey(Cache* cache, int key, int* indexPtr);
 bool cacheInsertEntryAtIndex(Cache* cache, CacheEntry* cacheEntry, int index);
 int cacheFindIndexForKey(Cache* cache, int key, int* indexPtr);
+int _cache_create_item(CacheEntry** cacheEntryPtr);
 bool cacheEntryInit(CacheEntry* cacheEntry);
 bool cacheEntryFree(Cache* cache, CacheEntry* cacheEntry);
 bool cacheClean(Cache* cache);
