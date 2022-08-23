@@ -154,6 +154,7 @@ Art* artLock(int fid, CacheEntry** cache_entry);
 unsigned char* artLockFrameData(int fid, int frame, int direction, CacheEntry** out_cache_entry);
 unsigned char* artLockFrameDataReturningSize(int fid, CacheEntry** out_cache_entry, int* widthPtr, int* heightPtr);
 int artUnlock(CacheEntry* cache_entry);
+int _art_discard(int fid);
 int artCacheFlush();
 int artCopyFileName(int objectType, int a2, char* a3);
 int _art_get_code(int a1, int a2, char* a3, char* a4);

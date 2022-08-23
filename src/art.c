@@ -468,6 +468,18 @@ int artCacheFlush()
     return cacheFlush(&gArtCache);
 }
 
+// NOTE: Unused.
+//
+// 0x419294
+int _art_discard(int fid)
+{
+    if (_cache_discard(&gArtCache, fid) == 0) {
+        return -1;
+    }
+
+    return 0;
+}
+
 // 0x4192B0
 int artCopyFileName(int objectType, int id, char* dest)
 {
