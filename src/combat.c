@@ -4000,24 +4000,8 @@ int attackComputeCriticalHit(Attack* attack)
         }
     }
 
-    if ((attack->defenderFlags & DAM_CRIP_RANDOM) != 0) {
-        attack->defenderFlags &= ~DAM_CRIP_RANDOM;
-
-        switch (randomBetween(0, 3)) {
-        case 0:
-            attack->defenderFlags |= DAM_CRIP_LEG_LEFT;
-            break;
-        case 1:
-            attack->defenderFlags |= DAM_CRIP_LEG_RIGHT;
-            break;
-        case 2:
-            attack->defenderFlags |= DAM_CRIP_ARM_LEFT;
-            break;
-        case 3:
-            attack->defenderFlags |= DAM_CRIP_ARM_RIGHT;
-            break;
-        }
-    }
+    // NOTE: Uninline.
+    _do_random_cripple(&(attack->defenderFlags));
 
     if (weaponGetPerk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
         attack->defenderFlags |= DAM_KNOCKED_OUT;
@@ -4116,24 +4100,8 @@ int attackComputeCriticalFailure(Attack* attack)
         }
     }
 
-    if ((attack->attackerFlags & DAM_CRIP_RANDOM) != 0) {
-        attack->attackerFlags &= ~DAM_CRIP_RANDOM;
-
-        switch (randomBetween(0, 3)) {
-        case 0:
-            attack->attackerFlags |= DAM_CRIP_LEG_LEFT;
-            break;
-        case 1:
-            attack->attackerFlags |= DAM_CRIP_LEG_RIGHT;
-            break;
-        case 2:
-            attack->attackerFlags |= DAM_CRIP_ARM_LEFT;
-            break;
-        case 3:
-            attack->attackerFlags |= DAM_CRIP_ARM_RIGHT;
-            break;
-        }
-    }
+    // NOTE: Uninline.
+    _do_random_cripple(&(attack->attackerFlags));
 
     if ((attack->attackerFlags & DAM_RANDOM_HIT) != 0) {
         attack->defender = _combat_ai_random_target(attack);
@@ -4154,6 +4122,27 @@ int attackComputeCriticalFailure(Attack* attack)
     }
 
     return 0;
+}
+
+// 0x42432C
+void _do_random_cripple(int* flagsPtr)
+{
+    *flagsPtr &= ~DAM_CRIP_RANDOM;
+
+    switch (randomBetween(0, 3)) {
+    case 0:
+        *flagsPtr |= DAM_CRIP_LEG_LEFT;
+        break;
+    case 1:
+        *flagsPtr |= DAM_CRIP_LEG_RIGHT;
+        break;
+    case 2:
+        *flagsPtr |= DAM_CRIP_ARM_LEFT;
+        break;
+    case 3:
+        *flagsPtr |= DAM_CRIP_ARM_RIGHT;
+        break;
+    }
 }
 
 // 0x42436C

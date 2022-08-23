@@ -97,6 +97,7 @@ void _compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4
 int attackComputeCriticalHit(Attack* a1);
 int _attackFindInvalidFlags(Object* a1, Object* a2);
 int attackComputeCriticalFailure(Attack* attack);
+void _do_random_cripple(int* flagsPtr);
 int _determine_to_hit(Object* a1, Object* a2, int hitLocation, int hitMode);
 int _determine_to_hit_no_range(Object* a1, Object* a2, int a3, int a4, unsigned char* a5);
 int _determine_to_hit_from_tile(Object* a1, int a2, Object* a3, int a4, int a5);
