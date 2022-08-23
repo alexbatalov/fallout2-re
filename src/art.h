@@ -181,6 +181,7 @@ void artCacheFreeImpl(void* ptr);
 int buildFid(int objectType, int frmId, int animType, int a4, int rotation);
 int artReadFrameData(unsigned char* data, File* stream, int count);
 int artReadHeader(Art* art, File* stream);
+int _load_frame(const char* path, Art** artPtr);
 int artRead(const char* path, unsigned char* data);
 int artWriteFrameData(unsigned char* data, File* stream, int count);
 int artWriteHeader(Art* art, File* stream);

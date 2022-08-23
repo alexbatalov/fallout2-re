@@ -1083,6 +1083,54 @@ int artReadHeader(Art* art, File* stream)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x419EC0
+int _load_frame(const char* path, Art** artPtr)
+{
+    int size;
+    File* stream;
+    int index;
+
+    if (dbGetFileSize(path, &size) == -1) {
+        return -2;
+    }
+
+    *artPtr = (Art*)internal_malloc(size);
+    if (*artPtr == NULL) {
+        return -1;
+    }
+
+    stream = fileOpen(path, "rb");
+    if (stream == NULL) {
+        return -2;
+    }
+
+    if (artReadHeader(*artPtr, stream) != 0) {
+        fileClose(stream);
+        internal_free(*artPtr);
+        return -3;
+    }
+
+    for (index = 0; index < ROTATION_COUNT; index++) {
+        if (index == 0 || (*artPtr)->dataOffsets[index - 1] != (*artPtr)->dataOffsets[index]) {
+            if (artReadFrameData((unsigned char*)(*artPtr) + sizeof(Art) + (*artPtr)->dataOffsets[index], stream, (*artPtr)->frameCount) != 0) {
+                break;
+            }
+        }
+    }
+
+    if (index < ROTATION_COUNT) {
+        fileClose(stream);
+        internal_free(*artPtr);
+        return -5;
+    }
+
+    fileClose(stream);
+
+    return 0;
+}
+
 // 0x419FC0
 int artRead(const char* path, unsigned char* data)
 {
