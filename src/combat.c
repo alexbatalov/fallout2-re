@@ -2408,6 +2408,28 @@ int _combatAIInfoGetLastMove(Object* object)
     return _aiInfoList[object->cid].lastMove;
 }
 
+// NOTE: Inlined.
+//
+// 0x421A00
+int _combatAIInfoSetLastMove(Object* object, int move)
+{
+    if (!isInCombat()) {
+        return 0;
+    }
+
+    if (object == NULL) {
+        return -1;
+    }
+
+    if (object->cid == -1) {
+        return -1;
+    }
+
+    _aiInfoList[object->cid].lastMove = move;
+
+    return 0;
+}
+
 // 0x421A34
 void _combat_begin(Object* a1)
 {
@@ -2446,10 +2468,8 @@ void _combat_begin(Object* a1)
             combatData->ap = 0;
             critter->cid = index;
 
-            // NOTE: Not sure about this code, field_C is already reset.
-            if (isInCombat() && critter != NULL && index != -1) {
-                _aiInfoList[index].lastMove = 0;
-            }
+            // NOTE: Uninline.
+            _combatAIInfoSetLastMove(critter, 0);
 
             scriptSetObjects(critter->sid, NULL, NULL);
             scriptSetFixedParam(critter->sid, 0);
@@ -3031,11 +3051,8 @@ void _combat_set_move_all()
 
         object->data.critter.combat.ap = actionPoints;
 
-        if (isInCombat()) {
-            if (object->cid != -1) {
-                _aiInfoList[object->cid].lastMove = 0;
-            }
-        }
+        // NOTE: Uninline.
+        _combatAIInfoSetLastMove(object, 0);
     }
 }
 

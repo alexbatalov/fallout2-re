@@ -63,6 +63,7 @@ int aiInfoSetLastTarget(Object* a1, Object* a2);
 Object* aiInfoGetLastItem(Object* obj);
 int aiInfoSetLastItem(Object* obj, Object* a2);
 int _combatAIInfoGetLastMove(Object* object);
+int _combatAIInfoSetLastMove(Object* object, int move);
 void _combat_begin(Object* a1);
 void _combat_begin_extra(Object* a1);
 void _combat_update_critter_outline_for_los(Object* critter, bool a2);
