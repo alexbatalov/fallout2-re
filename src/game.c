@@ -1016,6 +1016,17 @@ void _game_state_update()
     _game_state_cur = v0;
 }
 
+// NOTE: Unused.
+//
+// 0x443EC0
+void game_display_counter(double value)
+{
+    char stringBuffer[16];
+
+    sprintf(stringBuffer, "%f", value);
+    displayMonitorAddMessage(stringBuffer);
+}
+
 // 0x443EF0
 int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned char* palette)
 {

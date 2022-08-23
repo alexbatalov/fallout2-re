@@ -43,6 +43,7 @@ int globalVarsRead(const char* path, const char* section, int* variablesListLeng
 int _game_state();
 int _game_state_request(int a1);
 void _game_state_update();
+void game_display_counter(double value);
 int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned char* palette);
 void gameFreeGlobalVars();
 void showHelp();
