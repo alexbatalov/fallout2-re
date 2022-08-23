@@ -1097,6 +1097,22 @@ int gdHide()
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x445818
+int gdUnhide()
+{
+    if (_gd_replyWin != -1) {
+        windowUnhide(_gd_replyWin);
+    }
+
+    if (_gd_optionsWin != -1) {
+        windowUnhide(_gd_optionsWin);
+    }
+
+    return 0;
+}
+
 // 0x44585C
 int gameDialogAddMessageOption(int messageListId, int messageId, int reaction)
 {
