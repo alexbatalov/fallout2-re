@@ -261,6 +261,14 @@ int interfaceFontGetMonospacedCharacterWidthImpl()
     return v1 + gCurrentInterfaceFontDescriptor->maxHeight;
 }
 
+// NOTE: Unused.
+//
+// 0x4422AC
+int FMtext_curr()
+{
+    return gCurrentInterfaceFont;
+}
+
 // 0x4422B4
 void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, int pitch, int color)
 {

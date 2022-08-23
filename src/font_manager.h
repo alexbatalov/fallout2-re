@@ -44,6 +44,7 @@ int interfaceFontGetMonospacedStringWidthImpl(const char* string);
 int interfaceFontGetLetterSpacingImpl();
 int interfaceFontGetBufferSizeImpl(const char* string);
 int interfaceFontGetMonospacedCharacterWidthImpl();
+int FMtext_curr();
 void interfaceFontDrawImpl(unsigned char* buf, const char* string, int length, int pitch, int color);
 void interfaceFontByteSwapUInt32(unsigned int* value);
 void interfaceFontByteSwapInt32(int* value);
