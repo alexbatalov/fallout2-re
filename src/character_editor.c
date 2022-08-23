@@ -987,7 +987,6 @@ int characterEditorShow(bool isCreationMode)
 int characterEditorWindowInit()
 {
     int i;
-    int v1;
     char path[MAX_PATH];
     int fid;
     char* str;
@@ -1017,20 +1016,8 @@ int characterEditorWindowInit()
     // skills
     skillsGetTagged(gCharacterEditorTempTaggedSkills, NUM_TAGGED_SKILLS);
 
-    v1 = 0;
-    for (i = 3; i >= 0; i--) {
-        if (gCharacterEditorTempTaggedSkills[i] != -1) {
-            break;
-        }
-
-        v1++;
-    }
-
-    if (gCharacterEditorIsCreationMode) {
-        v1--;
-    }
-
-    gCharacterEditorTaggedSkillCount = v1;
+    // NOTE: Uninline.
+    gCharacterEditorTaggedSkillCount = tagskl_free();
 
     // traits
     traitsGetSelected(&(gCharacterEditorTempTraits[0]), &(gCharacterEditorTempTraits[1]));
@@ -3633,19 +3620,8 @@ int characterEditorShowOptions()
                     _ResetPlayer();
                     skillsGetTagged(gCharacterEditorTempTaggedSkills, NUM_TAGGED_SKILLS);
 
-                    int taggedSkillCount = 0;
-                    for (int index = 3; index >= 0; index--) {
-                        if (gCharacterEditorTempTaggedSkills[index] != -1) {
-                            break;
-                        }
-                        taggedSkillCount++;
-                    }
-
-                    if (gCharacterEditorIsCreationMode) {
-                        taggedSkillCount--;
-                    }
-
-                    gCharacterEditorTaggedSkillCount = taggedSkillCount;
+                    // NOTE: Uninline.
+                    gCharacterEditorTaggedSkillCount = tagskl_free();
 
                     traitsGetSelected(&gCharacterEditorTempTraits[0], &gCharacterEditorTempTraits[1]);
 
@@ -3759,19 +3735,8 @@ int characterEditorShowOptions()
 
                             skillsGetTagged(gCharacterEditorTempTaggedSkills, 4);
 
-                            int taggedSkillCount = 0;
-                            for (int index = 3; index >= 0; index--) {
-                                if (gCharacterEditorTempTaggedSkills[index] != -1) {
-                                    break;
-                                }
-                                taggedSkillCount++;
-                            }
-
-                            if (gCharacterEditorIsCreationMode) {
-                                taggedSkillCount--;
-                            }
-
-                            gCharacterEditorTaggedSkillCount = taggedSkillCount;
+                            // NOTE: Uninline.
+                            gCharacterEditorTaggedSkillCount = tagskl_free();
 
                             traitsGetSelected(&(gCharacterEditorTempTraits[0]), &(gCharacterEditorTempTraits[1]));
 
@@ -4553,8 +4518,6 @@ void characterEditorSavePlayer()
 void characterEditorRestorePlayer()
 {
     Proto* proto;
-    int i;
-    int v3;
     int cur_hp;
 
     _pop_perks();
@@ -4575,19 +4538,8 @@ void characterEditorRestorePlayer()
 
     skillsGetTagged(gCharacterEditorTempTaggedSkills, NUM_TAGGED_SKILLS);
 
-    i = 4;
-    v3 = 0;
-    for (v3 = 0; v3 < 4; v3++) {
-        if (gCharacterEditorTempTaggedSkills[--i] != -1) {
-            break;
-        }
-    }
-
-    if (gCharacterEditorIsCreationMode == 1) {
-        v3 -= gCharacterEditorIsCreationMode;
-    }
-
-    gCharacterEditorTaggedSkillCount = v3;
+    // NOTE: Uninline.
+    gCharacterEditorTaggedSkillCount = tagskl_free();
 
     traitsGetSelected(&(gCharacterEditorTempTraits[0]), &(gCharacterEditorTempTraits[1]));
 
@@ -5001,24 +4953,35 @@ void characterEditorHandleAdjustSkillButtonPressed(int keyCode)
     }
 }
 
+// 0x43B64C
+int tagskl_free()
+{
+    int taggedSkillCount;
+    int index;
+
+    taggedSkillCount = 0;
+    for (index = 3; index >= 0; index--) {
+        if (gCharacterEditorTempTaggedSkills[index] != -1) {
+            break;
+        }
+
+        taggedSkillCount++;
+    }
+
+    if (gCharacterEditorIsCreationMode == 1) {
+        taggedSkillCount--;
+    }
+
+    return taggedSkillCount;
+}
+
 // 0x43B67C
 void characterEditorToggleTaggedSkill(int skill)
 {
     int insertionIndex;
 
-    insertionIndex = 0;
-    for (int index = 3; index >= 0; index--) {
-        if (gCharacterEditorTempTaggedSkills[index] != -1) {
-            break;
-        }
-        insertionIndex++;
-    }
-
-    if (gCharacterEditorIsCreationMode) {
-        insertionIndex -= 1;
-    }
-
-    gCharacterEditorOldTaggedSkillCount = insertionIndex;
+    // NOTE: Uninline.
+    gCharacterEditorOldTaggedSkillCount = tagskl_free();
 
     if (skill == gCharacterEditorTempTaggedSkills[0] || skill == gCharacterEditorTempTaggedSkills[1] || skill == gCharacterEditorTempTaggedSkills[2] || skill == gCharacterEditorTempTaggedSkills[3]) {
         if (skill == gCharacterEditorTempTaggedSkills[0]) {
@@ -5055,19 +5018,8 @@ void characterEditorToggleTaggedSkill(int skill)
         }
     }
 
-    insertionIndex = 0;
-    for (int index = 3; index >= 0; index--) {
-        if (gCharacterEditorTempTaggedSkills[index] != -1) {
-            break;
-        }
-        insertionIndex++;
-    }
-
-    if (gCharacterEditorIsCreationMode) {
-        insertionIndex -= 1;
-    }
-
-    gCharacterEditorTaggedSkillCount = insertionIndex;
+    // NOTE: Uninline.
+    gCharacterEditorTaggedSkillCount = tagskl_free();
 
     characterEditorSelectedItem = skill + 61;
     characterEditorDrawPrimaryStat(RENDER_ALL_STATS, 0, 0);

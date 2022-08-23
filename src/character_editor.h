@@ -280,6 +280,7 @@ int characterEditorDrawCardWithOptions(int graphicId, const char* name, const ch
 void characterEditorHandleFolderButtonPressed();
 void characterEditorHandleInfoButtonPressed(int eventCode);
 void characterEditorHandleAdjustSkillButtonPressed(int a1);
+int tagskl_free();
 void characterEditorToggleTaggedSkill(int skill);
 void characterEditorDrawOptionalTraits();
 int get_trait_count();
