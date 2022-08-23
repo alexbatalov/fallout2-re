@@ -30,5 +30,6 @@ void colorCycleEnable();
 bool colorCycleEnabled();
 void cycleSetSpeedFactor(int value);
 void colorCycleTicker();
+int get_cycle_speed();
 
 #endif /* CYCLE_H */

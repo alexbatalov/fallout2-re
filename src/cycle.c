@@ -327,3 +327,11 @@ void colorCycleTicker()
         paletteSetEntriesInRange(palette + 229 * 3, 229, 255);
     }
 }
+
+// NOTE: Unused.
+//
+// 0x42E974
+int get_cycle_speed()
+{
+    return gColorCycleSpeedFactor;
+}
