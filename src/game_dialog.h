@@ -257,6 +257,7 @@ void gameDialogTicker();
 void _talk_to_critter_reacts(int a1);
 void _gdialog_scroll_subwin(int a1, int a2, unsigned char* a3, unsigned char* a4, unsigned char* a5, int a6, int a7);
 int _text_num_lines(const char* a1, int a2);
+int text_to_rect_wrapped(unsigned char* buffer, Rect* rect, char* string, int* a4, int height, int pitch, int color);
 int gameDialogDrawText(unsigned char* buffer, Rect* rect, char* string, int* a4, int height, int pitch, int color, int a7);
 void gameDialogSetBarterModifier(int modifier);
 int gameDialogBarter(int modifier);

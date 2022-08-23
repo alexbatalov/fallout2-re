@@ -922,7 +922,15 @@ void gameDialogRenderSupplementaryMessage(char* msg)
     int lineHeight = fontGetLineHeight();
 
     int a4 = 0;
-    gameDialogDrawText(windowBuffer, &_replyRect, msg, &a4, lineHeight, 379, _colorTable[992] | 0x2000000, 1);
+
+    // NOTE: Uninline.
+    text_to_rect_wrapped(windowBuffer,
+        &_replyRect,
+        msg,
+        &a4,
+        lineHeight,
+        379,
+        _colorTable[992] | 0x2000000);
 
     windowUnhide(_gd_replyWin);
     windowRefresh(gGameDialogReplyWindow);
@@ -1429,7 +1437,14 @@ void gameDialogReviewWindowUpdate(int win, int origin)
             exit(1);
         }
 
-        y = gameDialogDrawText(windowBuffer + 113, &entriesRect, replyText, NULL, fontGetLineHeight(), 640, _colorTable[768] | 0x2000000, 1);
+        // NOTE: Uninline.
+        y = text_to_rect_wrapped(windowBuffer + 113,
+                &entriesRect,
+                replyText,
+                NULL,
+                fontGetLineHeight(),
+                640,
+                _colorTable[768] | 0x2000000);
 
         if (dialogReviewEntry->optionMessageListId != -3) {
             sprintf(name, "%s:", objectGetName(gDude));
@@ -1448,7 +1463,14 @@ void gameDialogReviewWindowUpdate(int win, int origin)
                 exit(1);
             }
 
-            y = gameDialogDrawText(windowBuffer + 113, &entriesRect, optionText, NULL, fontGetLineHeight(), 640, _colorTable[15855] | 0x2000000, 1);
+            // NOTE: Uninline.
+            y = text_to_rect_wrapped(windowBuffer + 113,
+                    &entriesRect,
+                    optionText,
+                    NULL,
+                    fontGetLineHeight(),
+                    640,
+                    _colorTable[15855] | 0x2000000);
         }
 
         if (y >= 407) {
@@ -1989,8 +2011,14 @@ void gameDialogOptionOnMouseEnter(int index)
         }
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(gGameDialogOptionsWindow);
-    gameDialogDrawText(windowBuffer, &_optionRect, dialogOptionEntry->text, NULL, fontGetLineHeight(), 393, color, 1);
+    // NOTE: Uninline.
+    text_to_rect_wrapped(windowGetBuffer(gGameDialogOptionsWindow),
+        &_optionRect,
+        dialogOptionEntry->text,
+        NULL,
+        fontGetLineHeight(),
+        393,
+        color);
 
     _optionRect.left = 0;
     _optionRect.right = 391;
@@ -2031,8 +2059,14 @@ void gameDialogOptionOnMouseExit(int index)
     _optionRect.left = 5;
     _optionRect.right = 388;
 
-    unsigned char* windowBuffer = windowGetBuffer(gGameDialogOptionsWindow);
-    gameDialogDrawText(windowBuffer, &_optionRect, dialogOptionEntry->text, NULL, fontGetLineHeight(), 393, color, 1);
+    // NOTE: Uninline.
+    text_to_rect_wrapped(windowGetBuffer(gGameDialogOptionsWindow),
+        &_optionRect,
+        dialogOptionEntry->text,
+        NULL,
+        fontGetLineHeight(),
+        393,
+        color);
 
     _optionRect.right = 391;
     _optionRect.top = dialogOptionEntry->field_14;
@@ -2053,16 +2087,14 @@ void gameDialogRenderReply()
 
     _demo_copy_title(gGameDialogReplyWindow);
 
-    // Render reply.
-    unsigned char* windowBuffer = windowGetBuffer(gGameDialogReplyWindow);
-    gameDialogDrawText(windowBuffer,
+    // NOTE: Uninline.
+    text_to_rect_wrapped(windowGetBuffer(gGameDialogReplyWindow),
         &_replyRect,
         gDialogReplyText,
         &dword_58F4E0,
         fontGetLineHeight(),
         379,
-        _colorTable[992] | 0x2000000,
-        1);
+        _colorTable[992] | 0x2000000);
     windowRefresh(gGameDialogReplyWindow);
 }
 
@@ -2172,14 +2204,14 @@ void _gdProcessUpdate()
                 y = 0;
             }
 
-            gameDialogDrawText(windowGetBuffer(gGameDialogOptionsWindow),
+            // NOTE: Uninline.
+            text_to_rect_wrapped(windowGetBuffer(gGameDialogOptionsWindow),
                 &_optionRect,
                 dialogOptionEntry->text,
                 NULL,
                 fontGetLineHeight(),
                 393,
-                color,
-                1);
+                color);
 
             _optionRect.top += 2;
 
@@ -2838,6 +2870,14 @@ int _text_num_lines(const char* a1, int a2)
     }
 
     return v1;
+}
+
+// NOTE: Inlined.
+//
+// 0x447F80
+int text_to_rect_wrapped(unsigned char* buffer, Rect* rect, char* string, int* a4, int height, int pitch, int color)
+{
+    return gameDialogDrawText(buffer, rect, string, a4, height, pitch, color, 1);
 }
 
 // display_msg
