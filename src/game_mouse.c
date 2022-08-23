@@ -382,6 +382,14 @@ void _gmouse_disable(int a1)
     }
 }
 
+// NOTE: Unused.
+//
+// 0x44B4C4
+int gmouse_is_enabled()
+{
+    return _gmouse_enabled;
+}
+
 // 0x44B4CC
 void _gmouse_enable_scrolling()
 {
