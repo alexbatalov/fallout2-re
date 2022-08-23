@@ -1063,13 +1063,8 @@ void _gdialogUpdatePartyStatus()
         return;
     }
 
-    if (_gd_replyWin != -1) {
-        windowHide(_gd_replyWin);
-    }
-
-    if (_gd_optionsWin != -1) {
-        windowHide(_gd_optionsWin);
-    }
+    // NOTE: Uninline.
+    gdHide();
 
     _gdialog_window_destroy();
 
@@ -1084,6 +1079,22 @@ void _gdialogUpdatePartyStatus()
     if (_gd_optionsWin != -1) {
         windowUnhide(_gd_optionsWin);
     }
+}
+
+// NOTE: Inlined.
+//
+// 0x4457EC
+int gdHide()
+{
+    if (_gd_replyWin != -1) {
+        windowHide(_gd_replyWin);
+    }
+
+    if (_gd_optionsWin != -1) {
+        windowHide(_gd_optionsWin);
+    }
+
+    return 0;
 }
 
 // 0x44585C
@@ -3417,13 +3428,8 @@ void gameDialogCombatControlButtonOnMouseUp(int btn, int keyCode)
     _dialogue_switch_mode = 8;
     _dialogue_state = 10;
 
-    if (_gd_replyWin != -1) {
-        windowHide(_gd_replyWin);
-    }
-
-    if (_gd_optionsWin != -1) {
-        windowHide(_gd_optionsWin);
-    }
+    // NOTE: Uninline.
+    gdHide();
 }
 
 // 0x4492D0
@@ -4069,13 +4075,8 @@ void gameDialogBarterButtonUpMouseUp(int btn, int keyCode)
         _dialogue_switch_mode = 2;
         _dialogue_state = 4;
 
-        if (_gd_replyWin != -1) {
-            windowHide(_gd_replyWin);
-        }
-
-        if (_gd_optionsWin != -1) {
-            windowHide(_gd_optionsWin);
-        }
+        // NOTE: Uninline.
+        gdHide();
     } else {
         MessageListItem messageListItem;
         // This person will not barter with you.
