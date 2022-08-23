@@ -1072,13 +1072,8 @@ void _gdialogUpdatePartyStatus()
 
     _gdialog_window_create();
 
-    if (_gd_replyWin != -1) {
-        windowUnhide(_gd_replyWin);
-    }
-
-    if (_gd_optionsWin != -1) {
-        windowUnhide(_gd_optionsWin);
-    }
+    // NOTE: Uninline.
+    gdUnhide();
 }
 
 // NOTE: Inlined.
@@ -2620,13 +2615,9 @@ void gameDialogTicker()
         _dialogue_switch_mode = 0;
         _gdialog_barter_destroy_win();
         _gdialog_window_create();
-        if (_gd_replyWin != -1) {
-            windowUnhide(_gd_replyWin);
-        }
 
-        if (_gd_optionsWin != -1) {
-            windowUnhide(_gd_optionsWin);
-        }
+        // NOTE: Uninline.
+        gdUnhide();
 
         break;
     case 8:
