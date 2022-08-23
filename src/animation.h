@@ -34,7 +34,7 @@ typedef enum AnimationKind {
     ANIM_KIND_TAKE_OUT_WEAPON = 18,
     ANIM_KIND_SET_LIGHT_DISTANCE = 19,
     ANIM_KIND_MOVE_ON_STAIRS = 20,
-    ANIM_KIND_23 = 23,
+    ANIM_KIND_CHECK_FALLING = 23,
     ANIM_KIND_TOGGLE_OUTLINE = 24,
     ANIM_KIND_ANIMATE_FOREVER = 25,
     ANIM_KIND_26 = 26,
@@ -363,6 +363,7 @@ int animationRegisterRunToTile(Object* owner, int tile, int elevation, int actio
 int animationRegisterMoveToTileStraight(Object* object, int tile, int elevation, int anim, int delay);
 int animationRegisterMoveToTileStraightAndWaitForComplete(Object* owner, int tile, int elev, int anim, int delay);
 int _register_object_move_on_stairs(Object* owner, Object* stairs, int delay);
+int _register_object_check_falling(Object* owner, int delay);
 int animationRegisterAnimate(Object* owner, int anim, int delay);
 int animationRegisterAnimateReversed(Object* owner, int anim, int delay);
 int animationRegisterAnimateAndHide(Object* owner, int anim, int delay);

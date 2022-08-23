@@ -673,6 +673,40 @@ int _register_object_move_on_stairs(Object* owner, Object* stairs, int delay)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4148F0
+int _register_object_check_falling(Object* owner, int delay)
+{
+    AnimationSequence* animationSequence;
+    AnimationDescription* animationDescription;
+    int fid;
+
+    if (_check_registry(owner) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
+    animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->kind = ANIM_KIND_CHECK_FALLING;
+    animationDescription->anim = ANIM_FALLING;
+    animationDescription->owner = owner;
+    animationDescription->delay = delay;
+
+    fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+
+    // NOTE: Uninline
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    gAnimationDescriptionCurrentIndex++;
+
+    return 0;
+}
+
 // 0x4149D0
 int animationRegisterAnimate(Object* owner, int anim, int delay)
 {
@@ -1332,7 +1366,7 @@ int animationRunSequence(int animationSequenceIndex)
         case ANIM_KIND_MOVE_ON_STAIRS:
             rc = _anim_move_on_stairs(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex);
             break;
-        case ANIM_KIND_23:
+        case ANIM_KIND_CHECK_FALLING:
             rc = _check_for_falling(animationDescription->owner, animationDescription->anim, animationSequenceIndex);
             break;
         case ANIM_KIND_TOGGLE_OUTLINE:
