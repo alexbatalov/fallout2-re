@@ -80,6 +80,7 @@ void _combat_sequence();
 void combatAttemptEnd();
 void _combat_turn_run();
 int _combat_input();
+void _combat_end_turn();
 void _combat_set_move_all();
 int _combat_turn(Object* a1, bool a2);
 bool _combat_should_end();

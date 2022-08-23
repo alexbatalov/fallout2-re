@@ -3076,6 +3076,14 @@ int _combat_input()
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x42290C
+void _combat_end_turn()
+{
+    gCombatState &= ~COMBAT_STATE_0x02;
+}
+
 // 0x422914
 void _combat_set_move_all()
 {
