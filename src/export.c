@@ -119,6 +119,26 @@ ExternalVariable* externalVariableFind(const char* identifier)
     return NULL;
 }
 
+// NOTE: Unused.
+//
+// 0x441164
+int exportGetVariable(const char* identifier, opcode_t* typePtr, int* valuePtr)
+{
+    ExternalVariable* variable;
+    
+    variable = externalVariableFind(identifier);
+    if (variable != NULL) {
+        *typePtr = variable->type;
+        *valuePtr = variable->value;
+        return 1;
+    }
+
+    *typePtr = 0;
+    *valuePtr = 0;
+
+    return 0;
+}
+
 // 0x44118C
 ExternalVariable* externalVariableAdd(const char* identifier)
 {
