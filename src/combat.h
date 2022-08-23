@@ -73,6 +73,7 @@ void _combat_over();
 void _combat_over_from_load();
 void _combat_give_exps(int exp_points);
 void _combat_add_noncoms();
+int _combat_in_range(Object* critter);
 int _compare_faster(const void* a1, const void* a2);
 void _combat_sequence_init(Object* a1, Object* a2);
 void _combat_sequence();

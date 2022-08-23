@@ -2810,6 +2810,25 @@ void _combat_add_noncoms()
     }
 }
 
+// NOTE: Unused.
+//
+// 0x422374
+int _combat_in_range(Object* critter)
+{
+    int perception;
+    int index;
+
+    perception = critterGetStat(critter, STAT_PERCEPTION);
+
+    for (index = 0; index < _list_com; index++) {
+        if (objectGetDistanceBetween(_combat_list[index], critter) <= perception) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // Compares critters by sequence.
 //
 // 0x4223C8
