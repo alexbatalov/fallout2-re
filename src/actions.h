@@ -36,6 +36,7 @@ int _get_an_object(Object* item);
 int actionPickUp(Object* critter, Object* item);
 int _action_loot_container(Object* critter, Object* container);
 int _action_skill_use(int a1);
+int _action_use_skill_in_combat_error(Object* critter);
 int actionUseSkill(Object* a1, Object* a2, int skill);
 Object* _pick_object(int objectType, bool a2);
 bool _is_hit_from_front(Object* a1, Object* a2);
