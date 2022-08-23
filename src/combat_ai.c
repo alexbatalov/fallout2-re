@@ -1252,6 +1252,14 @@ int _compare_weakness(const void* p1, const void* p2)
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x428C28
+void _ai_sort_list_weakness(Object** critterList, int length)
+{
+    qsort(critterList, length, sizeof(*critterList), _compare_weakness);
+}
+
 // 0x428C3C
 Object* _ai_find_nearest_team(Object* a1, Object* a2, int a3)
 {
@@ -1475,7 +1483,8 @@ Object* _ai_danger_source(Object* a1)
         _ai_sort_list_strength(targets, 4);
         break;
     case ATTACK_WHO_WEAKEST:
-        qsort(targets, 4, sizeof(*targets), _compare_weakness);
+        // NOTE: Uninline.
+        _ai_sort_list_weakness(targets, 4);
         break;
     default:
         // NOTE: Uninline.
