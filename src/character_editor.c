@@ -988,7 +988,6 @@ int characterEditorWindowInit()
 {
     int i;
     int v1;
-    int v3;
     char path[MAX_PATH];
     int fid;
     char* str;
@@ -1036,16 +1035,8 @@ int characterEditorWindowInit()
     // traits
     traitsGetSelected(&(gCharacterEditorTempTraits[0]), &(gCharacterEditorTempTraits[1]));
 
-    v3 = 0;
-    for (i = 1; i >= 0; i--) {
-        if (gCharacterEditorTempTraits[i] != -1) {
-            break;
-        }
-
-        v3++;
-    }
-
-    gCharacterEditorTempTraitCount = v3;
+    // NOTE: Uninline.
+    gCharacterEditorTempTraitCount = get_trait_count();
 
     if (!gCharacterEditorIsCreationMode) {
         gCharacterEditorIsoWasEnabled = isoDisable();
@@ -3658,15 +3649,8 @@ int characterEditorShowOptions()
 
                     traitsGetSelected(&gCharacterEditorTempTraits[0], &gCharacterEditorTempTraits[1]);
 
-                    int traitCount = 0;
-                    for (int index = 1; index >= 0; index--) {
-                        if (gCharacterEditorTempTraits[index] != -1) {
-                            break;
-                        }
-                        traitCount++;
-                    }
-
-                    gCharacterEditorTempTraitCount = traitCount;
+                    // NOTE: Uninline.
+                    gCharacterEditorTempTraitCount = get_trait_count();
                     critterUpdateDerivedStats(gDude);
                     characterEditorResetScreen();
                 }
@@ -3791,15 +3775,8 @@ int characterEditorShowOptions()
 
                             traitsGetSelected(&(gCharacterEditorTempTraits[0]), &(gCharacterEditorTempTraits[1]));
 
-                            int traitCount = 0;
-                            for (int index = 1; index >= 0; index--) {
-                                if (gCharacterEditorTempTraits[index] != -1) {
-                                    break;
-                                }
-                                traitCount++;
-                            }
-
-                            gCharacterEditorTempTraitCount = traitCount;
+                            // NOTE: Uninline.
+                            gCharacterEditorTempTraitCount = get_trait_count();
 
                             critterUpdateDerivedStats(gDude);
 
@@ -4614,15 +4591,8 @@ void characterEditorRestorePlayer()
 
     traitsGetSelected(&(gCharacterEditorTempTraits[0]), &(gCharacterEditorTempTraits[1]));
 
-    i = 2;
-    v3 = 0;
-    for (v3 = 0; v3 < 2; v3++) {
-        if (gCharacterEditorTempTraits[v3] != -1) {
-            break;
-        }
-    }
-
-    gCharacterEditorTempTraitCount = v3;
+    // NOTE: Uninline.
+    gCharacterEditorTempTraitCount = get_trait_count();
 
     critterUpdateDerivedStats(gDude);
 
@@ -5185,6 +5155,26 @@ void characterEditorDrawOptionalTraits()
     }
 }
 
+// NOTE: Inlined.
+//
+// 0x43BAE8
+int get_trait_count()
+{
+    int traitCount;
+    int index;
+
+    traitCount = 0;
+    for (index = 1; index >= 0; index--) {
+        if (gCharacterEditorTempTraits[index] != -1) {
+            break;
+        }
+
+        traitCount++;
+    }
+
+    return traitCount;
+}
+
 // 0x43BB0C
 void characterEditorToggleOptionalTrait(int trait)
 {
@@ -5217,13 +5207,8 @@ void characterEditorToggleOptionalTrait(int trait)
         }
     }
 
-    gCharacterEditorTempTraitCount = 0;
-    for (int index = 1; index != 0; index--) {
-        if (gCharacterEditorTempTraits[index] != -1) {
-            break;
-        }
-        gCharacterEditorTempTraitCount++;
-    }
+    // NOTE: Uninline.
+    gCharacterEditorTempTraitCount = get_trait_count();
 
     characterEditorSelectedItem = trait + EDITOR_FIRST_TRAIT;
 
@@ -6054,17 +6039,8 @@ bool perkDialogHandleMutatePerk()
     gPerkDialogCardTitle[0] = '\0';
     gPerkDialogCardDrawn = false;
 
-    int traitCount = TRAITS_MAX_SELECTED_COUNT - 1;
-    int traitIndex = 0;
-    while (traitCount >= 0) {
-        if (gCharacterEditorTempTraits[traitIndex] != -1) {
-            break;
-        }
-        traitCount--;
-        traitIndex++;
-    }
-
-    gCharacterEditorTempTraitCount = TRAITS_MAX_SELECTED_COUNT - traitIndex;
+    // NOTE: Uninline.
+    gCharacterEditorTempTraitCount = TRAITS_MAX_SELECTED_COUNT - get_trait_count();
 
     bool result = true;
     if (gCharacterEditorTempTraitCount >= 1) {

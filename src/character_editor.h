@@ -282,6 +282,7 @@ void characterEditorHandleInfoButtonPressed(int eventCode);
 void characterEditorHandleAdjustSkillButtonPressed(int a1);
 void characterEditorToggleTaggedSkill(int skill);
 void characterEditorDrawOptionalTraits();
+int get_trait_count();
 void characterEditorToggleOptionalTrait(int trait);
 void characterEditorDrawKarmaFolder();
 int characterEditorSave(File* stream);
