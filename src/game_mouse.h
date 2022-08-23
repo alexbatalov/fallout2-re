@@ -179,6 +179,7 @@ Object* gameMouseGetObjectUnderCursor(int objectType, bool a2, int elevation);
 int gameMouseRenderPrimaryAction(int x, int y, int menuItem, int width, int height);
 int _gmouse_3d_pick_frame_hot(int* a1, int* a2);
 int gameMouseRenderActionMenuItems(int x, int y, const int* menuItems, int menuItemsCount, int width, int height);
+int gmouse_3d_menu_frame_hot(int* x, int* y);
 int gameMouseHighlightActionMenuItemAtIndex(int menuItemIndex);
 int gameMouseRenderAccuracy(const char* string, int color);
 int gameMouseRenderActionPoints(const char* string, int color);

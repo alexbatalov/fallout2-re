@@ -1835,6 +1835,16 @@ int gameMouseRenderActionMenuItems(int x, int y, const int* menuItems, int menuI
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x44D61C
+int gmouse_3d_menu_frame_hot(int* x, int* y)
+{
+    *x = _gmouse_3d_menu_frame_hot_x;
+    *y = _gmouse_3d_menu_frame_hot_y;
+    return 0;
+}
+
 // 0x44D630
 int gameMouseHighlightActionMenuItemAtIndex(int menuItemIndex)
 {
