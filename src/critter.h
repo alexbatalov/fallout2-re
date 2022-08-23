@@ -106,6 +106,7 @@ bool critterIsDead(Object* critter);
 bool critterIsCrippled(Object* critter);
 bool _critter_is_prone(Object* critter);
 int critterGetBodyType(Object* critter);
+int critter_load_data(CritterProtoData* critterData, const char* path);
 int gcdLoad(const char* path);
 int protoCritterDataRead(File* stream, CritterProtoData* critterData);
 int gcdSave(const char* path);

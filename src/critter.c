@@ -957,6 +957,27 @@ int critterGetBodyType(Object* critter)
     return proto->critter.data.bodyType;
 }
 
+// NOTE: Unused.
+//
+// 0x42DE10
+int critter_load_data(CritterProtoData* critterData, const char* path)
+{
+    File* stream;
+
+    stream = fileOpen(path, "rb");
+    if (stream == NULL) {
+        return -1;
+    }
+
+    if (protoCritterDataRead(stream, critterData) == -1) {
+        fileClose(stream);
+        return -1;
+    }
+
+    fileClose(stream);
+    return 0;
+}
+
 // 0x42DE58
 int gcdLoad(const char* path)
 {
