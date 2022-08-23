@@ -2538,6 +2538,16 @@ void _combat_begin_extra(Object* a1)
     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &_combat_highlight);
 }
 
+// 0x421D18
+void _combat_update_critters_in_los(int a1)
+{
+    int index;
+
+    for (index = 0; index < _list_total; index++) {
+        _combat_update_critter_outline_for_los(_combat_list[index], a1);
+    }
+}
+
 // Something with outlining.
 //
 // 0x421D50
@@ -3120,9 +3130,8 @@ int _combat_turn(Object* a1, bool a2)
 
                 interfaceBarEndButtonsRenderGreenLights();
 
-                for (int index = 0; index < _list_total; index++) {
-                    _combat_update_critter_outline_for_los(_combat_list[index], false);
-                }
+                // NOTE: Uninline.
+                _combat_update_critters_in_los(0);
 
                 if (_combat_highlight != 0) {
                     _combat_outline_on();
@@ -5645,9 +5654,8 @@ void _combat_outline_on()
         }
     }
 
-    for (int index = 0; index < _list_total; index++) {
-        _combat_update_critter_outline_for_los(_combat_list[index], 1);
-    }
+    // NOTE: Uninline.
+    _combat_update_critters_in_los(1);
 
     tileWindowRefresh();
 }

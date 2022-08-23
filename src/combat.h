@@ -67,6 +67,7 @@ int _combatAIInfoGetLastMove(Object* object);
 int _combatAIInfoSetLastMove(Object* object, int move);
 void _combat_begin(Object* a1);
 void _combat_begin_extra(Object* a1);
+void _combat_update_critters_in_los(int a1);
 void _combat_update_critter_outline_for_los(Object* critter, bool a2);
 void _combat_over();
 void _combat_over_from_load();
