@@ -189,6 +189,7 @@ int gameMouseObjectsReset();
 void gameMouseObjectsFree();
 int gameMouseActionMenuInit();
 void gameMouseActionMenuFree();
+int gmouse_3d_set_flat_fid(int fid, Rect* rect);
 int gameMouseUpdateHexCursorFid(Rect* rect);
 int _gmouse_3d_move_to(int x, int y, int elevation, Rect* a4);
 int gameMouseHandleScrolling(int x, int y, int cursor);
