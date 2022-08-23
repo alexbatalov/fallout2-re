@@ -69,6 +69,7 @@ typedef struct Cache {
 
 bool cacheInit(Cache* cache, CacheSizeProc* sizeProc, CacheReadProc* readProc, CacheFreeProc* freeProc, int maxSize);
 bool cacheFree(Cache* cache);
+int _cache_query(Cache* cache, int key);
 bool cacheLock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr);
 bool cacheUnlock(Cache* cache, CacheEntry* cacheEntry);
 int _cache_discard(Cache* cache, int key);

@@ -72,6 +72,24 @@ bool cacheFree(Cache* cache)
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x41FDC0
+int _cache_query(Cache* cache, int key)
+{
+    int index;
+
+    if (cache == NULL) {
+        return 0;
+    }
+
+    if (cacheFindIndexForKey(cache, key, &index) != 2) {
+        return 0;
+    }
+
+    return 1;
+}
+
 // 0x41FDE8
 bool cacheLock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr)
 {
