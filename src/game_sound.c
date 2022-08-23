@@ -295,7 +295,8 @@ int gameSoundInit()
     configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &gSpeechVolume);
     speechSetVolume(gSpeechVolume);
 
-    _gsound_background_fade = 0;
+    // NOTE: Uninline.
+    gsound_background_fade_set(0);
     gBackgroundSoundFileName[0] = '\0';
 
     return 0;
@@ -322,7 +323,8 @@ void gameSoundReset()
 
     backgroundSoundDelete();
 
-    _gsound_background_fade = 0;
+    // NOTE: Uninline.
+    gsound_background_fade_set(0);
 
     soundDeleteAll();
 
@@ -532,18 +534,74 @@ int backgroundSoundGetVolume()
     return gMusicVolume;
 }
 
-//
+// 0x450620
 int _gsound_background_volume_get_set(int volume)
 {
-    int oldMusicVolume = gMusicVolume;
+    int oldMusicVolume;
+
+    // NOTE: Uninline.
+    oldMusicVolume = backgroundSoundGetVolume();
     backgroundSoundSetVolume(volume);
+
     return oldMusicVolume;
+}
+
+// NOTE: Inlined.
+//
+// 0x450630
+void gsound_background_fade_set(int value)
+{
+    _gsound_background_fade = value;
+}
+
+// NOTE: Inlined.
+//
+// 0x450638
+int gsound_background_fade_get()
+{
+    return _gsound_background_fade;
+}
+
+// NOTE: Unused.
+//
+// 0x450640
+int gsound_background_fade_get_set(int value)
+{
+    int oldValue;
+
+    // NOTE: Uninline.
+    oldValue = gsound_background_fade_get();
+
+    // NOTE: Uninline.
+    gsound_background_fade_set(value);
+
+    return oldValue;
 }
 
 // 0x450650
 void backgroundSoundSetEndCallback(SoundEndCallback* callback)
 {
     gBackgroundSoundEndCallback = callback;
+}
+
+// 0x450658
+SoundEndCallback* gsound_background_callback_get()
+{
+    return gBackgroundSoundEndCallback;
+}
+
+// 0x450660
+SoundEndCallback* gsound_background_callback_get_set(SoundEndCallback* callback)
+{
+    SoundEndCallback* oldCallback;
+
+    // NOTE: Uninline.
+    oldCallback = gsound_background_callback_get();
+
+    // NOTE: Uninline.
+    backgroundSoundSetEndCallback(callback);
+
+    return oldCallback;
 }
 
 // NOTE: There are no references to this function.
@@ -712,6 +770,42 @@ int _gsound_background_play_level_music(const char* a1, int a2)
     return backgroundSoundLoad(a1, a2, 14, 16);
 }
 
+// 0x450A1C
+int gsound_background_play_preloaded()
+{
+    if (!gGameSoundInitialized) {
+        return -1;
+    }
+
+    if (!gMusicEnabled) {
+        return -1;
+    }
+
+    if (gBackgroundSound == NULL) {
+        return -1;
+    }
+
+    if (soundIsPlaying(gBackgroundSound)) {
+        return -1;
+    }
+
+    if (soundIsPaused(gBackgroundSound)) {
+        return -1;
+    }
+
+    if (_soundDone(gBackgroundSound)) {
+        return -1;
+    }
+
+    if (backgroundSoundPlay() != 0) {
+        soundDelete(gBackgroundSound);
+        gBackgroundSound = NULL;
+        return -1;
+    }
+
+    return 0;
+}
+
 // 0x450AB4
 void backgroundSoundDelete()
 {
@@ -827,6 +921,26 @@ int _gsound_speech_volume_get_set(int volume)
 void speechSetEndCallback(SoundEndCallback* callback)
 {
     gSpeechEndCallback = callback;
+}
+
+// 0x450C7C
+SoundEndCallback* gsound_speech_callback_get()
+{
+    return gSpeechEndCallback;
+}
+
+// 0x450C84
+SoundEndCallback* gsound_speech_callback_get_set(SoundEndCallback* callback)
+{
+    SoundEndCallback* oldCallback;
+
+    // NOTE: Uninline.
+    oldCallback = gsound_speech_callback_get();
+
+    // NOTE: Uninline.
+    speechSetEndCallback(callback);
+
+    return oldCallback;
 }
 
 // 0x450C94
@@ -1833,9 +1947,8 @@ int gameSoundFindSpeechSoundPath(char* dest, const char* src)
 
     sprintf(path, "%s%s%s", _sound_speech_path, src, ".ACM");
 
-    // Check for existence by getting file size.
-    int fileSize;
-    if (dbGetFileSize(path, &fileSize) != 0) {
+    // NOTE: Uninline.
+    if (gsound_file_exists_db(path)) {
         if (gGameSoundDebugEnabled) {
             debugPrint("-- find failed ");
         }
@@ -2033,6 +2146,14 @@ bool _gsound_file_exists_f(const char* fname)
     fclose(f);
 
     return true;
+}
+
+// 0x4524FC
+int gsound_file_exists_db(const char* path)
+{
+    int size;
+
+    return dbGetFileSize(path, &size) == 0;
 }
 
 // gsound_setup_paths
