@@ -1059,6 +1059,18 @@ int automapCreate()
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x41CD34
+int _YesWriteIndex(int mapIndex, int elevation)
+{
+    if (mapIndex < AUTOMAP_MAP_COUNT && elevation < ELEVATION_COUNT && mapIndex >= 0 && elevation >= 0) {
+        return _defam[mapIndex][elevation] >= 0;
+    }
+
+    return 0;
+}
+
 // Copy data from stream1 to stream2.
 //
 // 0x41CD6C

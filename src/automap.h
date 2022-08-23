@@ -96,6 +96,7 @@ int automapSaveHeader(File* stream);
 int automapLoadHeader(File* stream);
 void _decode_map_data(int elevation);
 int automapCreate();
+int _YesWriteIndex(int mapIndex, int elevation);
 int _copy_file_data(File* stream1, File* stream2, int length);
 int automapGetHeader(AutomapHeader** automapHeaderPtr);
 
