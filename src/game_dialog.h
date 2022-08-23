@@ -282,6 +282,7 @@ void _gdCustomUpdateSetting(int option, int value);
 void gameDialogBarterButtonUpMouseUp(int btn, int a2);
 int _gdialog_window_create();
 void _gdialog_window_destroy();
+int talk_to_create_background_window();
 int gameDialogWindowRenderBackground();
 int _talkToRefreshDialogWindowRect(Rect* rect);
 void gameDialogRenderHighlight(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int x, int y, int destPitch, unsigned char* a9, unsigned char* a10);

@@ -2242,14 +2242,8 @@ int _gdCreateHeadWindow()
 
     int windowWidth = GAME_DIALOG_WINDOW_WIDTH;
 
-    int backgroundWindowX = 0;
-    int backgroundWindowY = 0;
-    gGameDialogBackgroundWindow = windowCreate(backgroundWindowX,
-        backgroundWindowY,
-        windowWidth,
-        GAME_DIALOG_WINDOW_HEIGHT,
-        256,
-        WINDOW_FLAG_0x02);
+    // NOTE: Uninline.
+    talk_to_create_background_window();
     gameDialogWindowRenderBackground();
 
     unsigned char* buf = windowGetBuffer(gGameDialogBackgroundWindow);
@@ -4296,6 +4290,25 @@ void _gdialog_window_destroy()
         _gdialog_window_created = 0;
         gGameDialogWindow = -1;
     }
+}
+
+// NOTE: Inlined.
+//
+// 0x44AAD8
+int talk_to_create_background_window()
+{
+    gGameDialogBackgroundWindow = windowCreate(0,
+        0,
+        _scr_size.right - _scr_size.left + 1,
+        GAME_DIALOG_WINDOW_HEIGHT,
+        256,
+        WINDOW_FLAG_0x02);
+
+    if (gGameDialogBackgroundWindow != -1) {
+        return 0;
+    }
+
+    return -1;
 }
 
 // 0x44AB18
