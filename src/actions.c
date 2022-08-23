@@ -1124,6 +1124,14 @@ int _action_use_an_object(Object* a1, Object* a2)
     return _action_use_an_item_on_object(a1, a2, NULL);
 }
 
+// NOTE: Unused.
+//
+// 0x412120
+int _get_an_object(Object* item)
+{
+    return actionPickUp(gDude, item);
+}
+
 // 0x412134
 int actionPickUp(Object* critter, Object* item)
 {
