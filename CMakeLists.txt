@@ -39,6 +39,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/combat.h"
     "src/config.c"
     "src/config.h"
+    "src/counter.c"
+    "src/counter.h"
     "src/core.c"
     "src/core.h"
     "src/credits.c"
