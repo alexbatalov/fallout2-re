@@ -2242,6 +2242,21 @@ void _combat_data_init(Object* obj)
     obj->data.critter.combat.results = 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x4217FC
+void _combatInitAIInfoList()
+{
+    int index;
+
+    for (index = 0; index < _list_total; index++) {
+        _aiInfoList[index].friendlyDead = NULL;
+        _aiInfoList[index].lastTarget = NULL;
+        _aiInfoList[index].lastItem = NULL;
+        _aiInfoList[index].lastMove = 0;
+    }
+}
+
 // 0x421850
 int aiInfoCopy(int srcIndex, int destIndex)
 {
@@ -2450,13 +2465,8 @@ void _combat_begin(Object* a1)
             return;
         }
 
-        for (int index = 0; index < _list_total; index++) {
-            CombatAiInfo* aiInfo = &(_aiInfoList[index]);
-            aiInfo->friendlyDead = NULL;
-            aiInfo->lastTarget = NULL;
-            aiInfo->lastItem = NULL;
-            aiInfo->lastMove = 0;
-        }
+        // NOTE: Uninline.
+        _combatInitAIInfoList();
 
         Object* v1 = NULL;
         for (int index = 0; index < _list_total; index++) {

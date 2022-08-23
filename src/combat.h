@@ -55,6 +55,7 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
 bool _combatTestIncidentalHit(Object* a1, Object* a2, Object* a3, Object* a4);
 Object* _combat_whose_turn();
 void _combat_data_init(Object* obj);
+void _combatInitAIInfoList();
 int aiInfoCopy(int srcIndex, int destIndex);
 Object* aiInfoGetFriendlyDead(Object* obj);
 int aiInfoSetFriendlyDead(Object* a1, Object* a2);
