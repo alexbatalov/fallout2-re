@@ -620,6 +620,59 @@ int animationRegisterMoveToTileStraightAndWaitForComplete(Object* owner, int til
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4147B
+int _register_object_move_on_stairs(Object* owner, Object* stairs, int delay)
+{
+    int anim;
+    int destTile;
+    int destElevation;
+    AnimationSequence* animationSequence;
+    AnimationDescription* animationDescription;
+    int fid;
+
+    if (_check_registry(owner) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    if (owner->elevation == stairs->elevation) {
+        anim = ANIM_UP_STAIRS_LEFT;
+        destTile = stairs->tile + 4;
+        destElevation = stairs->elevation + 1;
+    } else {
+        anim = ANIM_DOWN_STAIRS_RIGHT;
+        destTile = stairs->tile + 200;
+        destElevation = stairs->elevation;
+    }
+
+    if (destTile == owner->tile && destElevation == owner->elevation) {
+        return 0;
+    }
+
+    animationSequence = &(gAnimationSequences[gAnimationSequenceCurrentIndex]);
+    animationDescription = &(animationSequence->animations[gAnimationDescriptionCurrentIndex]);
+    animationDescription->kind = ANIM_KIND_MOVE_ON_STAIRS;
+    animationDescription->owner = owner;
+    animationDescription->tile = destTile;
+    animationDescription->elevation = destElevation;
+    animationDescription->anim = anim;
+    animationDescription->delay = delay;
+
+    fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+
+    // NOTE: Uninline
+    if (_anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
+        _anim_cleanup();
+        return -1;
+    }
+
+    gAnimationDescriptionCurrentIndex++;
+
+    return 0;
+}
+
 // 0x4149D0
 int animationRegisterAnimate(Object* owner, int anim, int delay)
 {
@@ -1276,7 +1329,7 @@ int animationRunSequence(int animationSequenceIndex)
             tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
             rc = _anim_set_continue(animationSequenceIndex, 0);
             break;
-        case ANIM_KIND_20:
+        case ANIM_KIND_MOVE_ON_STAIRS:
             rc = _anim_move_on_stairs(animationDescription->owner, animationDescription->tile, animationDescription->elevation, animationDescription->anim, animationSequenceIndex);
             break;
         case ANIM_KIND_23:
