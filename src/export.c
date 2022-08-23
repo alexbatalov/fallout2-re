@@ -216,6 +216,34 @@ int externalVariableSetValue(Program* program, const char* name, opcode_t opcode
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x441330
+int exportStoreVariableByTag(const char* identifier, opcode_t type, int value)
+{
+    ExternalVariable* variable;
+
+    variable = externalVariableFind(identifier);
+    if (variable != NULL) {
+        if ((variable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+            internal_free_safe(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 191
+        }
+
+        if ((type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
+            variable->type = VALUE_TYPE_DYNAMIC_STRING;
+            variable->stringValue = (char*)internal_malloc_safe(strlen((char*)value) + 1, __FILE__, __LINE__); // "..\int\EXPORT.C", 196
+            strcpy(variable->stringValue, (char*)value);
+        } else {
+            variable->value = value;
+            variable->type = type;
+        }
+
+        return 0;
+    }
+
+    return 1;
+}
+
 // 0x4413D4
 int externalVariableGetValue(Program* program, const char* name, opcode_t* opcodePtr, int* dataPtr)
 {

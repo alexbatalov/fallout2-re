@@ -30,6 +30,7 @@ int exportGetVariable(const char* identifier, opcode_t* typePtr, int* valuePtr);
 ExternalVariable* externalVariableAdd(const char* identifier);
 int exportStoreStringVariable(const char* identifier, const char* value);
 int externalVariableSetValue(Program* program, const char* identifier, opcode_t opcode, int data);
+int exportStoreVariableByTag(const char* identifier, opcode_t type, int value);
 int externalVariableGetValue(Program* program, const char* name, opcode_t* opcodePtr, int* dataPtr);
 int externalVariableCreate(Program* program, const char* identifier);
 void _removeProgramReferences(Program* program);
