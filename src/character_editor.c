@@ -1099,12 +1099,9 @@ int characterEditorWindowInit()
 
         messageListFree(&gCharacterEditorMessageList);
 
-        if (gCharacterEditorIsoWasEnabled) {
-            isoEnable();
-        }
+        // NOTE: Uninline.
+        RstrBckgProc();
 
-        colorCycleEnable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
 
@@ -1136,12 +1133,9 @@ int characterEditorWindowInit()
         artUnlock(gCharacterEditorWindowBackgroundHandle);
 
         messageListFree(&gCharacterEditorMessageList);
-        if (gCharacterEditorIsoWasEnabled) {
-            isoEnable();
-        }
 
-        colorCycleEnable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        // NOTE: Uninline.
+        RstrBckgProc();
 
         return -1;
     }
@@ -1165,12 +1159,9 @@ int characterEditorWindowInit()
         artUnlock(gCharacterEditorWindowBackgroundHandle);
 
         messageListFree(&gCharacterEditorMessageList);
-        if (gCharacterEditorIsoWasEnabled) {
-            isoEnable();
-        }
 
-        colorCycleEnable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        // NOTE: Uninline.
+        RstrBckgProc();
 
         return -1;
     }
@@ -1642,12 +1633,8 @@ void characterEditorWindowFree()
 
     interfaceBarRefresh();
 
-    if (gCharacterEditorIsoWasEnabled) {
-        isoEnable();
-    }
-
-    colorCycleEnable();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    // NOTE: Uninline.
+    RstrBckgProc();
 
     fontSetCurrent(gCharacterEditorOldFont);
 
@@ -1659,6 +1646,20 @@ void characterEditorWindowFree()
     }
 
     indicatorBarShow();
+}
+
+// NOTE: Inlined.
+//
+// 0x433BEC
+void RstrBckgProc()
+{
+    if (gCharacterEditorIsoWasEnabled) {
+        isoEnable();
+    }
+    
+    colorCycleEnable();
+
+    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 }
 
 // CharEditInit
