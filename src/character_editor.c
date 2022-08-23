@@ -4553,9 +4553,9 @@ void characterEditorSavePlayer()
     strncpy(gCharacterEditorNameBackup, critterGetName(gDude), 32);
 
     gCharacterEditorLastLevelBackup = gCharacterEditorLastLevel;
-    for (int perk = 0; perk < PERK_COUNT; perk++) {
-        gCharacterEditorPerksBackup[perk] = perkGetRank(gDude, perk);
-    }
+
+    // NOTE: Uninline.
+    push_perks();
 
     gCharacterEditorHasFreePerkBackup = gCharacterEditorHasFreePerk;
 
@@ -6390,6 +6390,16 @@ int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* desc
     artUnlock(handle);
 
     return 0;
+}
+
+// 0x43DE94
+void push_perks()
+{
+    int perk;
+
+    for (perk = 0; perk < PERK_COUNT; perk++) {
+        gCharacterEditorPerksBackup[perk] = perkGetRank(gDude, perk);
+    }
 }
 
 // copy editor perks to character

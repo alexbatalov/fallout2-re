@@ -300,6 +300,7 @@ void perkDialogDrawSkills();
 int perkDialogDrawTraits(int a1);
 int perkDialogOptionCompare(const void* a1, const void* a2);
 int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* description);
+void push_perks();
 void _pop_perks();
 int PerkCount();
 int _is_supper_bonus();
