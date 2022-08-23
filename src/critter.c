@@ -1376,3 +1376,63 @@ bool _critter_flag_check(int pid, int flag)
     protoGetProto(pid, &proto);
     return (proto->critter.data.flags & flag) != 0;
 }
+
+// NOTE: Unused.
+//
+// 0x42E6F0
+void critter_flag_set(int pid, int flag)
+{
+    Proto* proto;
+
+    if (pid == -1) {
+        return;
+    }
+
+    if (PID_TYPE(pid) != OBJ_TYPE_CRITTER) {
+        return;
+    }
+
+    protoGetProto(pid, &proto);
+
+    proto->critter.data.flags |= flag;
+}
+
+// NOTE: Unused.
+//
+// 0x42E71C
+void critter_flag_unset(int pid, int flag)
+{
+    Proto* proto;
+
+    if (pid == -1) {
+        return;
+    }
+
+    if (PID_TYPE(pid) != OBJ_TYPE_CRITTER) {
+        return;
+    }
+
+    protoGetProto(pid, &proto);
+
+    proto->critter.data.flags &= ~flag;
+}
+
+// NOTE: Unused.
+//
+// 0x42E74C
+void critter_flag_toggle(int pid, int flag)
+{
+    Proto* proto;
+
+    if (pid == -1) {
+        return;
+    }
+
+    if (PID_TYPE(pid) != OBJ_TYPE_CRITTER) {
+        return;
+    }
+
+    protoGetProto(pid, &proto);
+
+    proto->critter.data.flags ^= flag;
+}
