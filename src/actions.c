@@ -684,6 +684,20 @@ int _action_melee(Attack* attack, int anim)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4115CC
+int _throw_change_fid(Object* object, int fid)
+{
+    Rect rect;
+
+    debugPrint("\n[throw_change_fid!]: %d", fid);
+    objectSetFid(object, fid, &rect);
+    tileWindowRefreshRect(&rect, gElevation);
+
+    return 0;
+}
+
 // 0x411600
 int _action_ranged(Attack* attack, int anim)
 {

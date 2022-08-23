@@ -26,6 +26,7 @@ int _show_damage_extras(Attack* attack);
 void _show_damage(Attack* attack, int a2, int a3);
 int _action_attack(Attack* attack);
 int _action_melee(Attack* attack, int a2);
+int _throw_change_fid(Object* object, int fid);
 int _action_ranged(Attack* attack, int a2);
 int _is_next_to(Object* a1, Object* a2);
 int _action_climb_ladder(Object* a1, Object* a2);
