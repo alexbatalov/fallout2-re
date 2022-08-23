@@ -109,6 +109,7 @@ int critterGetBodyType(Object* critter);
 int critter_load_data(CritterProtoData* critterData, const char* path);
 int gcdLoad(const char* path);
 int protoCritterDataRead(File* stream, CritterProtoData* critterData);
+int critter_save_data(CritterProtoData* critterData, const char* path);
 int gcdSave(const char* path);
 int protoCritterDataWrite(File* stream, CritterProtoData* critterData);
 void dudeDisableState(int state);

@@ -1050,6 +1050,27 @@ int protoCritterDataRead(File* stream, CritterProtoData* critterData)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x42E044
+int critter_save_data(CritterProtoData* critterData, const char* path)
+{
+    File* stream;
+
+    stream = fileOpen(path, "wb");
+    if (stream == NULL) {
+        return -1;
+    }
+
+    if (protoCritterDataWrite(stream, critterData) == -1) {
+        fileClose(stream);
+        return -1;
+    }
+
+    fileClose(stream);
+    return 0;
+}
+
 // 0x42E08C
 int gcdSave(const char* path)
 {
