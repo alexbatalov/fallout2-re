@@ -2214,6 +2214,14 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x42A1C0
+int _ai_move_closer(Object* a1, Object* a2, int a3)
+{
+    return _ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, a3);
+}
+
 // 0x42A1D4
 int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr)
 {
@@ -2576,7 +2584,8 @@ int _ai_try_attack(Object* a1, Object* a2)
                 v38 = 0;
             } else {
                 if (_ai_switch_weapons(a1, &hitMode, &weapon, a2) == -1 || weapon == NULL) {
-                    if (_ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, v38) == -1) {
+                    // NOTE: Uninline.
+                    if (_ai_move_closer(a1, a2, v38) == -1) {
                         return -1;
                     }
                 }
@@ -2750,7 +2759,8 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
         break;
     case DISTANCE_CHARGE:
         if (a2 != NULL) {
-            _ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, 1);
+            // NOTE: Uninline.
+            _ai_move_closer(a1, a2, 1);
         }
         break;
     case DISTANCE_SNIPE:

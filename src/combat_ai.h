@@ -153,6 +153,7 @@ Object* _ai_search_environ(Object* critter, int itemType);
 Object* _ai_retrieve_object(Object* a1, Object* a2);
 int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3);
 int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4);
+int _ai_move_closer(Object* a1, Object* a2, int a3);
 int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr);
 int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile);
 bool _cai_attackWouldIntersect(Object* a1, Object* a2, Object* a3, int tile, int* distance);
