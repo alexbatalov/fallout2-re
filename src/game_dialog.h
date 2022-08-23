@@ -219,6 +219,7 @@ int _gdialogGo();
 void _gdialogUpdatePartyStatus();
 int gdHide();
 int gdUnhide();
+int gdUnhideReply();
 int gameDialogAddMessageOption(int a1, int a2, int a3);
 int gameDialogAddTextOption(int a1, const char* a2, int a3);
 int gameDialogReviewWindowInit(int* win);

@@ -1108,6 +1108,18 @@ int gdUnhide()
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x445844
+int gdUnhideReply()
+{
+    if (_gd_replyWin != -1) {
+        windowUnhide(_gd_replyWin);
+    }
+
+    return 0;
+}
+
 // 0x44585C
 int gameDialogAddMessageOption(int messageListId, int messageId, int reaction)
 {
