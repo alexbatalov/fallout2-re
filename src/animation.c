@@ -1267,15 +1267,8 @@ int animationRunSequence(int animationSequenceIndex)
         case ANIM_KIND_ANIMATE_AND_HIDE:
             rc = _anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, ANIM_SAD_HIDE_ON_END);
             if (rc == -1) {
-                Rect rect;
-                if (objectHide(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->elevation);
-                }
-
-                if (animationSequenceIndex != -1) {
-                    _anim_set_continue(animationSequenceIndex, 0);
-                }
-                rc = 0;
+                // NOTE: Un inline.
+                rc = _anim_hide(animationDescription->owner, animationSequenceIndex);
             }
             break;
         case ANIM_KIND_ANIMATE_FOREVER:
@@ -1296,13 +1289,8 @@ int animationRunSequence(int animationSequenceIndex)
             rc = actionRotate(animationDescription->owner, -1, animationSequenceIndex);
             break;
         case ANIM_KIND_HIDE:
-            if (objectHide(animationDescription->owner, &rect) == 0) {
-                tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
-            }
-            if (animationSequenceIndex != -1) {
-                _anim_set_continue(animationSequenceIndex, 0);
-            }
-            rc = 0;
+            // NOTE: Uninline.
+            rc = _anim_hide(animationDescription->owner, animationSequenceIndex);
             break;
         case ANIM_KIND_CALLBACK:
             rc = animationDescription->callback(animationDescription->param1, animationDescription->param2);
@@ -2673,9 +2661,8 @@ void _object_animate()
                         artUnlock(cacheHandle);
 
                         if ((sad->flags & ANIM_SAD_HIDE_ON_END) != 0) {
-                            if (objectHide(object, &tempRect) == 0) {
-                                tileWindowRefreshRect(&tempRect, object->elevation);
-                            }
+                            // NOTE: Uninline.
+                            _anim_hide(object, -1);
                         }
 
                         _anim_set_continue(sad->animationSequenceIndex, 1);
@@ -3082,6 +3069,24 @@ int actionRotate(Object* obj, int delta, int animationSequenceIndex)
     }
 
     _anim_set_continue(animationSequenceIndex, 0);
+
+    return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x41862C
+int _anim_hide(Object* object, int animationSequenceIndex)
+{
+    Rect rect;
+
+    if (objectHide(object, &rect) == 0) {
+        tileWindowRefresh(&rect, object->elevation);
+    }
+
+    if (animationSequenceIndex != -1) {
+        _anim_set_continue(animationSequenceIndex, 0);
+    }
 
     return 0;
 }

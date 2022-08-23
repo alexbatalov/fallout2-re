@@ -413,6 +413,7 @@ void _dude_fidget();
 void _dude_stand(Object* obj, int rotation, int fid);
 void _dude_standup(Object* a1);
 int actionRotate(Object* obj, int delta, int animationSequenceIndex);
+int _anim_hide(Object* object, int animationSequenceIndex);
 int _anim_change_fid(Object* obj, int animationSequenceIndex, int fid);
 void animationStop();
 int _check_gravity(int tile, int elevation);
