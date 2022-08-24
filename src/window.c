@@ -606,6 +606,14 @@ void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* 
     }
 }
 
+// NOTE: Unused.
+//
+// 0x4B75F4
+void redrawButton(ManagedButton* button)
+{
+    _win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
+}
+
 // 0x4B7734
 int _windowWidth()
 {

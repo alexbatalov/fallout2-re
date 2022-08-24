@@ -140,6 +140,7 @@ void _doRightButtonPress(int btn, int keyCode);
 void sub_4B704C(int btn, int mouseEvent);
 void _doRightButtonRelease(int btn, int keyCode);
 void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* pressed, unsigned char* a5);
+void redrawButton(ManagedButton* button);
 int _windowWidth();
 int _windowHeight();
 bool _windowDraw();
