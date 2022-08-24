@@ -163,6 +163,7 @@ int _windowOutput(char* string);
 bool _windowGotoXY(int x, int y);
 bool _selectWindowID(int index);
 int _selectWindow(const char* windowName);
+int windowGetDefined(const char* name);
 unsigned char* _windowGetBuffer();
 int _pushWindow(const char* windowName);
 int _popWindow();

@@ -978,6 +978,22 @@ int _selectWindow(const char* windowName)
     return -1;
 }
 
+// NOTE: Unused.
+//
+// 0x4B82A0
+int windowGetDefined(const char* name)
+{
+    int index;
+
+    for (index = 0; index < MANAGED_WINDOW_COUNT; index++) {
+        if (gManagedWindows[index].window != -1 && stricmp(gManagedWindows[index].name, name) == 0) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4B82DC
 unsigned char* _windowGetBuffer()
 {
