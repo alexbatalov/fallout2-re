@@ -1238,7 +1238,7 @@ void _windowWrapLineWithSpacing(int win, char* string, int width, int height, in
 // Renders multiline string in the specified bounding box.
 //
 // 0x4B88FC
-void _windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment)
+void windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment)
 {
     _windowWrapLineWithSpacing(win, string, width, height, x, y, flags, textAlignment, 0);
 }
@@ -1256,7 +1256,9 @@ bool _windowPrintRect(char* string, int a2, int textAlignment)
     int x = managedWindow->field_44;
     int y = managedWindow->field_48;
     int flags = windowGetTextColor() | 0x2000000;
-    _windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
+
+    // NOTE: Uninline.
+    windowWrapLine(managedWindow->window, string, width, height, x, y, flags, textAlignment);
 
     return true;
 }
@@ -1266,7 +1268,9 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
 {
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     int flags = windowGetTextColor() | 0x2000000;
-    _windowWrapLineWithSpacing(managedWindow->window, string, width, height, x, y, flags, textAlignment, 0);
+
+    // NOTE: Uninline.
+    windowWrapLine(managedWindow->window, string, width, height, x, y, flags, textAlignment);
 
     return true;
 }
@@ -1276,7 +1280,7 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
 // 0x4B8A14
 int windowFormatMessageColor(char* string, int x, int y, int width, int height, int textAlignment, int flags)
 {
-    _windowWrapLine(gManagedWindows[gCurrentManagedWindowIndex].window, string, width, height, x, y, flags, textAlignment);
+    windowWrapLine(gManagedWindows[gCurrentManagedWindowIndex].window, string, width, height, x, y, flags, textAlignment);
 
     return 1;
 }

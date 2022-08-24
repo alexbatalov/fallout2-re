@@ -172,7 +172,7 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
 char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLengthPtr);
 void _windowFreeWordList(char** substringList, int substringListLength);
 void _windowWrapLineWithSpacing(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment, int a9);
-void _windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
+void windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
 bool _windowPrintRect(char* string, int a2, int textAlignment);
 bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment);
 int windowFormatMessageColor(char* string, int x, int y, int width, int height, int textAlignment, int flags);
