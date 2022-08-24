@@ -1,6 +1,7 @@
 #include "memory.h"
 
 #include "debug.h"
+#include "window_manager.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,6 +165,18 @@ void memoryBlockPrintStats()
     if (gMallocProc == memoryBlockMallocImpl) {
         debugPrint("Current memory allocated: %6d blocks, %9u bytes total\n", gMemoryBlocksCurrentCount, gMemoryBlocksCurrentSize);
         debugPrint("Max memory allocated:     %6d blocks, %9u bytes total\n", gMemoryBlockMaximumCount, gMemoryBlocksMaximumSize);
+    }
+}
+
+// NOTE: Unused.
+//
+// 0x4C5CA8
+void mem_register_func(MallocProc* mallocFunc, ReallocProc* reallocFunc, FreeProc* freeFunc)
+{
+    if (!gWindowSystemInitialized) {
+        gMallocProc = mallocFunc;
+        gReallocProc = reallocFunc;
+        gFreeProc = freeFunc;
     }
 }
 
