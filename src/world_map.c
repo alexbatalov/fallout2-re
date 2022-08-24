@@ -2852,7 +2852,8 @@ int _wmWorldMapFunc(int a1)
             showQuitConfirmationDialog();
         }
 
-        _scriptsCheckGameEvents(NULL, gWorldmapWindow);
+        // NOTE: Uninline.
+        wmCheckGameEvents();
 
         if (_game_user_wants_to_quit != 0) {
             break;
@@ -3135,6 +3136,14 @@ int _wmInterfaceCenterOnParty()
     worldmapWindowRefresh();
 
     return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x4C0624
+void wmCheckGameEvents()
+{
+    _scriptsCheckGameEvents(NULL, gWorldmapWindow);
 }
 
 // 0x4C0634

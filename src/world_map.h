@@ -745,6 +745,7 @@ void _wmWorldMap();
 int _wmWorldMapFunc(int a1);
 int _wmCheckGameAreaEvents();
 int _wmInterfaceCenterOnParty();
+void wmCheckGameEvents();
 int _wmRndEncounterOccurred();
 int _wmPartyFindCurSubTile();
 int _wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtile);
