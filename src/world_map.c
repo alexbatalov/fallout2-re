@@ -4968,6 +4968,14 @@ void worldmapWindowHandleMouseScrolling()
     }
 }
 
+// NOTE: Inlined.
+//
+// 0x4C340C
+int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
+{
+    return _wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_VISITED);
+}
+
 // 0x4C3434
 int _wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6)
 {
@@ -5061,17 +5069,20 @@ int _wmSubTileMarkRadiusVisited(int x, int y, int radius)
     switch (subtile->field_4) {
     case 2:
         while (v5-- > 0) {
-            _wmMarkSubTileOffsetVisitedFunc(tile, v4, 0, v5, 0, SUBTILE_STATE_VISITED);
+            // NOTE: Uninline.
+            wmMarkSubTileOffsetVisited(tile, v4, 0, v5, 0);
         }
         break;
     case 4:
         while (v4-- > -1) {
-            _wmMarkSubTileOffsetVisitedFunc(tile, v4, 0, v5, 0, SUBTILE_STATE_VISITED);
+            // NOTE: Uninline.
+            wmMarkSubTileOffsetVisited(tile, v4, 0, v5, 0);
         }
 
         if (tile % gWorldmapGridWidth > 0) {
             for (int i = 0; i < 7; i++) {
-                _wmMarkSubTileOffsetVisitedFunc(tile - 1, i + 1, v5, 0, 0, SUBTILE_STATE_VISITED);
+                // NOTE: Uninline.
+                wmMarkSubTileOffsetVisited(tile - 1, i + 1, v5, 0, 0);
             }
         }
         break;

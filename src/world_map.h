@@ -772,6 +772,7 @@ int worldmapWindowFree();
 int wmInterfaceScroll(int dx, int dy, bool* successPtr);
 int worldmapWindowScroll(int a1, int a2, int a3, int a4, bool* a5, bool a6);
 void worldmapWindowHandleMouseScrolling();
+int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX, int offsetY);
 int _wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6);
 void _wmMarkSubTileRadiusVisited(int x, int y);
 int _wmSubTileMarkRadiusVisited(int x, int y, int radius);
