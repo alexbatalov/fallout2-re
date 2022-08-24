@@ -769,6 +769,7 @@ void _wmInterfaceScrollTabsStop();
 void wmInterfaceScrollTabsUpdate();
 int worldmapWindowInit();
 int worldmapWindowFree();
+int wmInterfaceScroll(int dx, int dy, bool* successPtr);
 int worldmapWindowScroll(int a1, int a2, int a3, int a4, bool* a5, bool a6);
 void worldmapWindowHandleMouseScrolling();
 int _wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6);

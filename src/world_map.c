@@ -3039,13 +3039,17 @@ int _wmWorldMapFunc(int a1)
         } else if (keyCode == KEY_HOME) {
             _wmInterfaceCenterOnParty();
         } else if (keyCode == KEY_ARROW_UP) {
-            worldmapWindowScroll(20, 20, 0, -1, 0, 1);
+            // NOTE: Uninline.
+            wmInterfaceScroll(0, -1, NULL);
         } else if (keyCode == KEY_ARROW_LEFT) {
-            worldmapWindowScroll(20, 20, -1, 0, 0, 1);
+            // NOTE: Uninline.
+            wmInterfaceScroll(-1, 0, NULL);
         } else if (keyCode == KEY_ARROW_DOWN) {
-            worldmapWindowScroll(20, 20, 0, 1, 0, 1);
+            // NOTE: Uninline.
+            wmInterfaceScroll(0, 1, NULL);
         } else if (keyCode == KEY_ARROW_RIGHT) {
-            worldmapWindowScroll(20, 20, 1, 0, 0, 1);
+            // NOTE: Uninline.
+            wmInterfaceScroll(1, 0, NULL);
         } else if (keyCode == KEY_CTRL_ARROW_UP) {
             _wmInterfaceScrollTabsStart(-27);
         } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
@@ -4810,6 +4814,14 @@ int worldmapWindowFree()
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x4C31E8
+int wmInterfaceScroll(int dx, int dy, bool* successPtr)
+{
+    return worldmapWindowScroll(20, 20, dx, dy, successPtr, 1);
+}
+
 // FIXME: There is small bug in this function. There is [success] flag returned
 // by reference so that calling code can update scrolling mouse cursor to invalid
 // range. It works OK on straight directions. But in diagonals when scrolling in
@@ -4938,7 +4950,8 @@ void worldmapWindowHandleMouseScrolling()
         unsigned int tick = _get_bk_time();
         if (getTicksBetween(tick, _lastTime_2) > 50) {
             _lastTime_2 = _get_bk_time();
-            worldmapWindowScroll(20, 20, dx, dy, &_couldScroll, true);
+            // NOTE: Uninline.
+            wmInterfaceScroll(dx, dy, &_couldScroll);
         }
 
         if (!_couldScroll) {
