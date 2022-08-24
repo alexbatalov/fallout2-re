@@ -2354,6 +2354,30 @@ int windowAddRegionCfunc(const char* regionName, RegionMouseEventCallback* callb
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4BAD30
+int windowAddRegionRightCfunc(const char* regionName, RegionMouseEventCallback* callback, void* userData)
+{
+    int index;
+    Region* region;
+
+    if (gCurrentManagedWindowIndex == -1) {
+        return 0;
+    }
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].regionsLength; index++) {
+        region = gManagedWindows[gCurrentManagedWindowIndex].regions[index];
+        if (region != NULL && stricmp(region->name, regionName) == 0) {
+            region->rightMouseEventCallback = callback;
+            region->rightMouseEventCallbackUserData = userData;
+            return 1;
+        }
+    }
+    
+    return 0;
+}
+
 // 0x4BADC0
 bool _windowAddRegionProc(const char* regionName, Program* program, int a3, int a4, int a5, int a6)
 {
