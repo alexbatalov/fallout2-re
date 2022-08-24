@@ -792,6 +792,7 @@ int _wmGetAreaIdxName(int index, char* name);
 bool _wmAreaIsKnown(int city_index);
 int _wmAreaVisitedState(int a1);
 bool _wmMapIsKnown(int map_index);
+int wmAreaMarkVisited(int cityIndex);
 bool _wmAreaMarkVisitedState(int a1, int a2);
 bool _wmAreaSetVisibleState(int a1, int a2, int a3);
 int worldmapCitySetPos(int index, int x, int y);

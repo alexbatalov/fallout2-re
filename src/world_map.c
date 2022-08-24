@@ -2724,7 +2724,8 @@ int _wmMapMarkVisited(int mapIndex)
         return -1;
     }
 
-    _wmAreaMarkVisitedState(cityIndex, 2);
+    // NOTE: Uninline.
+    wmAreaMarkVisited(cityIndex);
 
     return 0;
 }
@@ -5615,6 +5616,12 @@ bool _wmMapIsKnown(int mapIndex)
     }
 
     return true;
+}
+
+// 0x4C4624
+int wmAreaMarkVisited(int cityIndex)
+{
+    return _wmAreaMarkVisitedState(cityIndex, CITY_STATE_VISITED);
 }
 
 // 0x4C4634
