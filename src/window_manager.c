@@ -613,7 +613,7 @@ void windowFill(int win, int x, int y, int width, int height, int a6)
 }
 
 // 0x4D6DAC
-void windowUnhide(int win)
+void win_show(int win)
 {
     Window* window;
     int v3;
@@ -974,7 +974,7 @@ void _win_drag(int win)
         return;
     }
 
-    windowUnhide(win);
+    win_show(win);
 
     Rect rect;
     rectCopy(&rect, &(window->rect));
@@ -1699,7 +1699,7 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
                 window->field_38 = NULL;
             }
         } else {
-            windowUnhide(window->id);
+            win_show(window->id);
         }
 
         if (field_34 != NULL) {

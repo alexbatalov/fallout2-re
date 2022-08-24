@@ -275,7 +275,7 @@ void _map_init()
     _map_new_map();
     tickersAdd(gameMouseRefresh);
     _gmouse_disable(0);
-    windowUnhide(gIsoWindow);
+    win_show(gIsoWindow);
 }
 
 // 0x482084

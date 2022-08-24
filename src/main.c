@@ -822,7 +822,7 @@ void mainMenuWindowUnhide(bool animate)
         return;
     }
 
-    windowUnhide(gMainMenuWindow);
+    win_show(gMainMenuWindow);
 
     if (animate) {
         colorPaletteLoad("color.pal");

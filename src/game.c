@@ -1087,7 +1087,7 @@ void showHelp()
                 paletteSetEntries(gPaletteBlack);
                 blitBufferToBuffer(backgroundData, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, HELP_SCREEN_WIDTH, windowBuffer, HELP_SCREEN_WIDTH);
                 artUnlock(backgroundHandle);
-                windowUnhide(win);
+                win_show(win);
                 colorPaletteLoad("art\\intrface\\helpscrn.pal");
                 paletteSetEntries(_cmap);
 

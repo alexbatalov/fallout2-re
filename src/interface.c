@@ -907,7 +907,7 @@ void _intface_show()
             interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             interfaceRenderHitPoints(false);
             interfaceRenderArmorClass(false);
-            windowUnhide(gInterfaceBarWindow);
+            win_show(gInterfaceBarWindow);
             _intfaceHidden = false;
         }
     }

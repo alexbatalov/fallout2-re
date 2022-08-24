@@ -932,7 +932,7 @@ void gameDialogRenderSupplementaryMessage(char* msg)
         379,
         _colorTable[992] | 0x2000000);
 
-    windowUnhide(_gd_replyWin);
+    win_show(_gd_replyWin);
     windowRefresh(gGameDialogReplyWindow);
 }
 
@@ -1106,11 +1106,11 @@ int gdHide()
 int gdUnhide()
 {
     if (_gd_replyWin != -1) {
-        windowUnhide(_gd_replyWin);
+        win_show(_gd_replyWin);
     }
 
     if (_gd_optionsWin != -1) {
-        windowUnhide(_gd_optionsWin);
+        win_show(_gd_optionsWin);
     }
 
     return 0;
@@ -1122,7 +1122,7 @@ int gdUnhide()
 int gdUnhideReply()
 {
     if (_gd_replyWin != -1) {
-        windowUnhide(_gd_replyWin);
+        win_show(_gd_replyWin);
     }
 
     return 0;
