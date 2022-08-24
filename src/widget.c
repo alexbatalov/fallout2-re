@@ -52,6 +52,80 @@ void _insertChar(char* string, char ch, int pos, int length)
     }
 }
 
+// 0x4B4788
+void _textInputRegionDispatch(int btn, int inputEvent)
+{
+    // TODO: Incomplete.
+}
+
+// 0x4B51D4
+int _win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
+{
+    int textInputRegionIndex;
+    int oldFont;
+    int btn;
+
+    if (textRegionId <= 0 || textRegionId > _numTextRegions) {
+        return 0;
+    }
+
+    if (_textRegions[textRegionId - 1].isUsed == 0) {
+        return 0;
+    }
+
+    for (textInputRegionIndex = 0; textInputRegionIndex < _numTextInputRegions; textInputRegionIndex++) {
+        if (_textInputRegions[textInputRegionIndex].isUsed == 0) {
+            break;
+        }
+    }
+
+    if (textInputRegionIndex == _numTextInputRegions) {
+        if (_textInputRegions == NULL) {
+            _textInputRegions = (TextInputRegion*)internal_malloc_safe(sizeof(*_textInputRegions), __FILE__, __LINE__);
+        } else {
+            _textInputRegions = (TextInputRegion*)internal_realloc_safe(_textInputRegions, sizeof(*_textInputRegions) * (_numTextInputRegions + 1), __FILE__, __LINE__);
+        }
+        _numTextInputRegions++;
+    }
+
+    _textInputRegions[textInputRegionIndex].field_28 = a4;
+    _textInputRegions[textInputRegionIndex].textRegionId = textRegionId;
+    _textInputRegions[textInputRegionIndex].isUsed = 1;
+    _textInputRegions[textInputRegionIndex].field_8 = a3;
+    _textInputRegions[textInputRegionIndex].field_C = 0;
+    _textInputRegions[textInputRegionIndex].text = text;
+    _textInputRegions[textInputRegionIndex].field_10 = strlen(text);
+    _textInputRegions[textInputRegionIndex].deleteFunc = NULL;
+    _textInputRegions[textInputRegionIndex].deleteFuncUserData = NULL;
+
+    oldFont = fontGetCurrent();
+    fontSetCurrent(_textRegions[textRegionId - 1].font);
+
+    btn = buttonCreate(_textRegions[textRegionId - 1].win,
+        _textRegions[textRegionId - 1].x,
+        _textRegions[textRegionId - 1].y,
+        _textRegions[textRegionId - 1].width,
+        fontGetLineHeight(),
+        -1,
+        -1,
+        -1,
+        (textInputRegionIndex + 1) | 0x400,
+        NULL,
+        NULL,
+        NULL,
+        0);
+    buttonSetMouseCallbacks(btn, NULL, NULL, NULL, _textInputRegionDispatch);
+
+    // NOTE: Uninline.
+    _win_print_text_region(textRegionId, text);
+
+    _textInputRegions[textInputRegionIndex].btn = btn;
+
+    fontSetCurrent(oldFont);
+
+    return textInputRegionIndex + 1;
+}
+
 // 0x4B53D0
 int _win_delete_all_text_input_regions(int win)
 {
@@ -73,9 +147,9 @@ int _win_delete_text_input_region(int textInputRegionId)
 
     textInputRegionIndex = textInputRegionId - 1;
     if (textInputRegionIndex >= 0 && textInputRegionIndex < _numTextInputRegions) {
-        if (_textInputRegions[textInputRegionIndex].field_4 != 0) {
+        if (_textInputRegions[textInputRegionIndex].isUsed != 0) {
             if (_textInputRegions[textInputRegionIndex].deleteFunc != NULL) {
-                _textInputRegions[textInputRegionIndex].deleteFunc(_textInputRegions[textInputRegionIndex].field_14, _textInputRegions[textInputRegionIndex].deleteFuncUserData);
+                _textInputRegions[textInputRegionIndex].deleteFunc(_textInputRegions[textInputRegionIndex].text, _textInputRegions[textInputRegionIndex].deleteFuncUserData);
             }
 
             // NOTE: Uninline.
@@ -95,7 +169,7 @@ int _win_set_text_input_delete_func(int textInputRegionId, TextInputRegionDelete
 
     textInputRegionIndex = textInputRegionId - 1;
     if (textInputRegionIndex >= 0 && textInputRegionIndex < _numTextInputRegions) {
-        if (_textInputRegions[textInputRegionIndex].field_4 != 0) {
+        if (_textInputRegions[textInputRegionIndex].isUsed != 0) {
             _textInputRegions[textInputRegionIndex].deleteFunc = deleteFunc;
             _textInputRegions[textInputRegionIndex].deleteFuncUserData = userData;
             return 1;

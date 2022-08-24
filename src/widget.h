@@ -30,18 +30,18 @@ typedef struct UpdateRegion {
     UpdateRegionDrawFunc* drawFunc;
 } UpdateRegion;
 
-typedef void(TextInputRegionDeleteFunc)(int a1, void* userData);
+typedef void(TextInputRegionDeleteFunc)(char* text, void* userData);
 
 typedef struct TextInputRegion {
     int textRegionId;
-    int field_4;
+    int isUsed;
     int field_8;
     int field_C;
     int field_10;
-    int field_14;
+    char* text;
     int field_18;
     int field_1C;
-    int field_20;
+    int btn;
     TextInputRegionDeleteFunc* deleteFunc;
     int field_28;
     void* deleteFuncUserData;
@@ -70,6 +70,8 @@ extern int _numTextRegions;
 
 void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
+void _textInputRegionDispatch(int btn, int inputEvent);
+int _win_add_text_input_region(int textRegionId, char* text, int a3, int a4);
 int _win_delete_all_text_input_regions(int win);
 int _win_delete_text_input_region(int textInputRegionId);
 int _win_set_text_input_delete_func(int textInputRegionId, TextInputRegionDeleteFunc* deleteFunc, void* userData);
