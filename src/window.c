@@ -631,6 +631,14 @@ bool _windowDraw()
     return true;
 }
 
+// NOTE: Inlined.
+//
+// 0x4B785C
+int windowGetGNWID()
+{
+    return gManagedWindows[gCurrentManagedWindowIndex].window;
+}
+
 // NOTE: Unused.
 //
 // 0x4B787C
@@ -1939,10 +1947,15 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
 // 0x4BA694
 bool _windowFill(float r, float g, float b)
 {
-    int colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
+    int colorIndex;
+    int wid;
+    
+    colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
 
-    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-    windowFill(managedWindow->window,
+    // NOTE: Uninline.
+    wid = windowGetGNWID();
+
+    windowFill(wid,
         0,
         0,
         _windowWidth(),
@@ -1955,16 +1968,22 @@ bool _windowFill(float r, float g, float b)
 // 0x4BA738
 bool _windowFillRect(int x, int y, int width, int height, float r, float g, float b)
 {
-    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    ManagedWindow* managedWindow;
+    int colorIndex;
+    int wid;
 
+    managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     x = (int)(x * managedWindow->field_54);
     y = (int)(y * managedWindow->field_58);
     width = (int)(width * managedWindow->field_54);
     height = (int)(height * managedWindow->field_58);
 
-    int colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
+    colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
 
-    windowFill(managedWindow->window,
+    // NOTE: Uninline.
+    wid = windowGetGNWID();
+
+    windowFill(wid,
         x,
         y,
         width,
@@ -2250,7 +2269,12 @@ bool _windowSetMovieFlags(int flags)
 // 0x4BB24C
 bool _windowPlayMovie(char* filePath)
 {
-    if (_movieRun(gManagedWindows[gCurrentManagedWindowIndex].window, filePath) != 0) {
+    int wid;
+
+    // NOTE: Uninline.
+    wid = windowGetGNWID();
+
+    if (_movieRun(wid, filePath) != 0) {
         return false;
     }
 
@@ -2260,7 +2284,12 @@ bool _windowPlayMovie(char* filePath)
 // 0x4BB280
 bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5)
 {
-    if (_movieRunRect(gManagedWindows[gCurrentManagedWindowIndex].window, filePath, a2, a3, a4, a5) != 0) {
+    int wid;
+
+    // NOTE: Uninline.
+    wid = windowGetGNWID();
+
+    if (_movieRunRect(wid, filePath, a2, a3, a4, a5) != 0) {
         return false;
     }
 
