@@ -106,11 +106,14 @@ int _currentHighlightColorR;
 // 0x672D90
 int gWidgetFont;
 
+// 0x672D94
+ButtonCallback* _soundDisableFunc;
+
 // 0x672D98
-ButtonCallback* off_672D98;
+ButtonCallback* _soundPressFunc;
 
 // 0x672D9C
-ButtonCallback* off_672D9C;
+ButtonCallback* _soundReleaseFunc;
 
 // Text color (maybe g).
 //
@@ -1720,6 +1723,16 @@ bool _windowSetButtonFlag(const char* buttonName, int value)
     return false;
 }
 
+// NOTE: Unused.
+//
+// 0x4B99B4
+void windowRegisterButtonSoundFunc(ButtonCallback* soundPressFunc, ButtonCallback* soundReleaseFunc, ButtonCallback* soundDisableFunc)
+{
+    _soundPressFunc = soundPressFunc;
+    _soundReleaseFunc = soundReleaseFunc;
+    _soundDisableFunc = soundDisableFunc;
+}
+
 // 0x4B99C8
 bool _windowAddButton(const char* buttonName, int x, int y, int width, int height, int flags)
 {
@@ -1815,8 +1828,8 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
         NULL,
         flags);
 
-    if (off_672D98 != NULL || off_672D9C != NULL) {
-        buttonSetCallbacks(managedButton->btn, off_672D98, off_672D9C);
+    if (_soundPressFunc != NULL || _soundReleaseFunc != NULL) {
+        buttonSetCallbacks(managedButton->btn, _soundPressFunc, _soundReleaseFunc);
     }
 
     managedButton->hover = NULL;
