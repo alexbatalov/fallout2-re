@@ -5210,7 +5210,7 @@ int worldmapWindowRefresh()
             int cityY = cityInfo->y - gWorldmapOffsetY;
             if (cityX >= 0 && cityX <= 472 - citySizeDescription->width
                 && cityY >= 0 && cityY <= 465 - citySizeDescription->height) {
-                worldmapWindowRenderCity(cityInfo, citySizeDescription, gWorldmapWindowBuffer, cityX, cityY);
+                wmInterfaceDrawCircleOverlay(cityInfo, citySizeDescription, gWorldmapWindowBuffer, cityX, cityY);
             }
         }
     }
@@ -5371,8 +5371,14 @@ int _wmMatchWorldPosToArea(int a1, int a2, int* a3)
 // can be any, but in this case it uses default text font, not interface font.
 //
 // 0x4C3FA8
-int worldmapWindowRenderCity(CityInfo* city, CitySizeDescription* citySizeDescription, unsigned char* dest, int x, int y)
+int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDescription, unsigned char* dest, int x, int y)
 {
+    MessageListItem messageListItem;
+    char name[40];
+    int nameY;
+    int maxY;
+    int width;
+
     _dark_translucent_trans_buf_to_buf(citySizeDescription->data,
         citySizeDescription->width,
         citySizeDescription->height,
@@ -5385,22 +5391,22 @@ int worldmapWindowRenderCity(CityInfo* city, CitySizeDescription* citySizeDescri
         _circleBlendTable,
         _commonGrayTable);
 
-    int nameY = y + citySizeDescription->height + 1;
-    int maxY = 464 - fontGetLineHeight();
+    nameY = y + citySizeDescription->height + 1;
+    maxY = 464 - fontGetLineHeight();
     if (nameY < maxY) {
-        MessageListItem messageListItem;
-        const char* name;
         if (_wmAreaIsKnown(city->field_28)) {
-            name = getmsg(&gMapMessageList, &messageListItem, 1500 + city->field_28);
+            // NOTE: Uninline.
+            wmGetAreaName(city, name);
         } else {
-            name = getmsg(&gWorldmapMessageList, &messageListItem, 1004);
+            strncpy(name, getmsg(&gWorldmapMessageList, &messageListItem, 1004), 40);
         }
 
-        char text[40];
-        strncpy(text, name, 40);
-
-        int width = fontGetStringWidth(text);
-        fontDrawText(dest + WM_WINDOW_WIDTH * nameY + x + citySizeDescription->width / 2 - width / 2, text, width, WM_WINDOW_WIDTH, _colorTable[992]);
+        width = fontGetStringWidth(name);
+        fontDrawText(dest + WM_WINDOW_WIDTH * nameY + x + citySizeDescription->width / 2 - width / 2,
+            name,
+            width,
+            WM_WINDOW_WIDTH,
+            _colorTable[992]);
     }
 
     return 0;

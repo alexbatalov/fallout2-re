@@ -782,7 +782,7 @@ int _wmTileGrabArt(int tile_index);
 int worldmapWindowRefresh();
 void worldmapWindowRenderDate(bool shouldRefreshWindow);
 int _wmMatchWorldPosToArea(int a1, int a2, int* a3);
-int worldmapWindowRenderCity(CityInfo* cityInfo, CitySizeDescription* citySizeInfo, unsigned char* buffer, int x, int y);
+int wmInterfaceDrawCircleOverlay(CityInfo* cityInfo, CitySizeDescription* citySizeInfo, unsigned char* buffer, int x, int y);
 void worldmapWindowDimRect(unsigned char* dest, int width, int height, int pitch);
 int worldmapWindowDimSubtile(TileInfo* tileInfo, int a2, int a3, int a4, int a5, int a6);
 int _wmDrawCursorStopped();
