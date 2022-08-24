@@ -1297,6 +1297,23 @@ bool _windowPrint(char* string, int a2, int x, int y, int a5)
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4B8ADC
+int windowPrintFont(char* string, int a2, int x, int y, int a5, int font)
+{
+    int oldFont;
+
+    oldFont = fontGetCurrent();
+    fontSetCurrent(font);
+
+    _windowPrint(string, a2, x, y, a5);
+
+    fontSetCurrent(oldFont);
+
+    return 1;
+}
+
 // 0x4B8B10
 void _displayInWindow(unsigned char* data, int width, int height, int pitch)
 {
