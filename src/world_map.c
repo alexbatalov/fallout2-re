@@ -3016,20 +3016,8 @@ int _wmWorldMapFunc(int a1)
             }
         }
 
-        if (_tabsOffset) {
-            _LastTabsYOffset += _tabsOffset;
-            worldmapWindowRenderChrome(true);
-
-            if (_tabsOffset > -1) {
-                if (dword_672F54 <= _LastTabsYOffset) {
-                    _wmInterfaceScrollTabsStop();
-                }
-            } else {
-                if (dword_672F54 >= _LastTabsYOffset) {
-                    _wmInterfaceScrollTabsStop();
-                }
-            }
-        }
+        // NOTE: Uninline.
+        wmInterfaceScrollTabsUpdate();
 
         if (keyCode == KEY_UPPERCASE_T || keyCode == KEY_LOWERCASE_T) {
             if (!gWorldmapIsTravelling && _WorldMapCurrArea != -1) {
@@ -4233,23 +4221,8 @@ void _wmInterfaceScrollTabsStart(int a1)
 
 L11:
 
-    if (!_tabsOffset) {
-        return;
-    }
-
-    _LastTabsYOffset += _tabsOffset;
-
-    worldmapWindowRenderChrome(true);
-
-    if (_tabsOffset > -1) {
-        if (dword_672F54 > _LastTabsYOffset) {
-            return;
-        }
-    } else if (dword_672F54 < _LastTabsYOffset) {
-        return;
-    }
-
-    _wmInterfaceScrollTabsStop();
+    // NOTE: Uninline.
+    wmInterfaceScrollTabsUpdate();
 }
 
 // 0x4C2270
@@ -4261,6 +4234,29 @@ void _wmInterfaceScrollTabsStop()
 
     for (i = 0; i < 7; i++) {
         buttonEnable(_wmTownMapSubButtonIds[i]);
+    }
+}
+
+// NOTE: Inlined.
+//
+// 0x4C2290
+void wmInterfaceScrollTabsUpdate()
+{
+    if (_tabsOffset != 0) {
+        _LastTabsYOffset += _tabsOffset;
+        worldmapWindowRenderChrome(1);
+
+        if (_tabsOffset >= 0) {
+            if (dword_672F54 <= _LastTabsYOffset) {
+                // NOTE: Uninline.
+                _wmInterfaceScrollTabsStop();
+            }
+        } else {
+            if (dword_672F54 >= _LastTabsYOffset) {
+                // NOTE: Uninline.
+                _wmInterfaceScrollTabsStop();
+            }
+        }
     }
 }
 

@@ -766,6 +766,7 @@ void _wmPartyInitWalking(int x, int y);
 void worldmapPerformTravel();
 void _wmInterfaceScrollTabsStart(int a1);
 void _wmInterfaceScrollTabsStop();
+void wmInterfaceScrollTabsUpdate();
 int worldmapWindowInit();
 int worldmapWindowFree();
 int worldmapWindowScroll(int a1, int a2, int a3, int a4, bool* a5, bool a6);
