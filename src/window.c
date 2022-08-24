@@ -10,7 +10,6 @@
 #include "mouse_manager.h"
 #include "movie.h"
 #include "text_font.h"
-#include "widget.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2588,4 +2587,122 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
         srcWidth,
         dest + destWidth * (destHeight - chunkHeight) + (destWidth - chunkWidth),
         destWidth);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC5E0
+int windowEnableCheckRegion()
+{
+    _checkRegionEnable = 1;
+    return 1;
+}
+
+// NOTE: Unused.
+//
+// 0x4BC5F0
+int windowDisableCheckRegion()
+{
+    _checkRegionEnable = 0;
+    return 1;
+}
+
+// NOTE: Unused.
+//
+// 0x4BC600
+int windowSetHoldTime(int value)
+{
+    _holdTime = value;
+    return 1;
+}
+
+// NOTE: Unused.
+//
+// 0x4BC60C
+int windowAddTextRegion(int x, int y, int width, int font, int textAlignment, int textFlags, int backgroundColor)
+{
+    if (gCurrentManagedWindowIndex == -1) {
+        return -1;
+    }
+
+    if (gManagedWindows[gCurrentManagedWindowIndex].window == -1) {
+        return -1;
+    }
+
+    return _win_add_text_region(gManagedWindows[gCurrentManagedWindowIndex].window,
+        x,
+        y,
+        width,
+        font,
+        textAlignment,
+        textFlags,
+        backgroundColor);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC668
+int windowPrintTextRegion(int textRegionId, char* string)
+{
+    return _win_print_text_region(textRegionId, string);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC670
+int windowUpdateTextRegion(int textRegionId)
+{
+    return _win_update_text_region(textRegionId);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC678
+int windowDeleteTextRegion(int textRegionId)
+{
+    return _win_delete_text_region(textRegionId);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC680
+int windowTextRegionStyle(int textRegionId, int font, int textAlignment, int textFlags, int backgroundColor)
+{
+    return _win_text_region_style(textRegionId, font, textAlignment, textFlags, backgroundColor);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC698
+int windowAddTextInputRegion(int textRegionId, char* text, int a3, int a4)
+{
+    return _win_add_text_input_region(textRegionId, text, a3, a4);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC6A0
+int windowDeleteTextInputRegion(int textInputRegionId)
+{
+    if (textInputRegionId != -1) {
+        return _win_delete_text_input_region(textInputRegionId);
+    }
+
+    if (gCurrentManagedWindowIndex == -1) {
+        return 0;
+    }
+
+    if (gManagedWindows[gCurrentManagedWindowIndex].window == -1) {
+        return 0;
+    }
+
+    return _win_delete_all_text_input_regions(gManagedWindows[gCurrentManagedWindowIndex].window);
+}
+
+// NOTE: Unused.
+//
+// 0x4BC6E4
+int windowSetTextInputDeleteFunc(int textInputRegionId, TextInputRegionDeleteFunc* deleteFunc, void* userData)
+{
+    return _win_set_text_input_delete_func(textInputRegionId, deleteFunc, userData);
 }

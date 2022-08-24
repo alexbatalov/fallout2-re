@@ -4,6 +4,7 @@
 #include "geometry.h"
 #include "interpreter.h"
 #include "region.h"
+#include "widget.h"
 #include "window_manager.h"
 
 #include <stdbool.h>
@@ -201,5 +202,16 @@ void _drawScaled(unsigned char* dest, int destWidth, int destHeight, int destPit
 void _drawScaledBuf(unsigned char* dest, int destWidth, int destHeight, unsigned char* src, int srcWidth, int srcHeight);
 void _alphaBltBuf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* a5, unsigned char* a6, unsigned char* dest, int destPitch);
 void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char* dest, int destWidth, int destHeight);
+int windowEnableCheckRegion();
+int windowDisableCheckRegion();
+int windowSetHoldTime(int value);
+int windowAddTextRegion(int x, int y, int width, int font, int textAlignment, int textFlags, int backgroundColor);
+int windowPrintTextRegion(int textRegionId, char* string);
+int windowUpdateTextRegion(int textRegionId);
+int windowDeleteTextRegion(int textRegionId);
+int windowTextRegionStyle(int textRegionId, int font, int textAlignment, int textFlags, int backgroundColor);
+int windowAddTextInputRegion(int textRegionId, char* text, int a3, int a4);
+int windowDeleteTextInputRegion(int textInputRegionId);
+int windowSetTextInputDeleteFunc(int textInputRegionId, TextInputRegionDeleteFunc* deleteFunc, void* userData);
 
 #endif /* WINDOW_H */
