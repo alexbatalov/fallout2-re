@@ -5528,6 +5528,19 @@ bool _wmCursorIsVisible()
         && _world_ypos < gWorldmapOffsetY + WM_VIEW_HEIGHT;
 }
 
+// NOTE: Inlined.
+//
+// 0x4C44D8
+int wmGetAreaName(CityInfo* city, char* name)
+{
+    MessageListItem messageListItem;
+
+    getmsg(&gMapMessageList, &messageListItem, city->field_28 + 1500);
+    strncpy(name, messageListItem.text, 40);
+
+    return 0;
+}
+
 // Copy city short name.
 //
 // 0x4C450C

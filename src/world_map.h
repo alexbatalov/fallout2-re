@@ -787,6 +787,7 @@ void worldmapWindowDimRect(unsigned char* dest, int width, int height, int pitch
 int worldmapWindowDimSubtile(TileInfo* tileInfo, int a2, int a3, int a4, int a5, int a6);
 int _wmDrawCursorStopped();
 bool _wmCursorIsVisible();
+int wmGetAreaName(CityInfo* city, char* name);
 int _wmGetAreaIdxName(int index, char* name);
 bool _wmAreaIsKnown(int city_index);
 int _wmAreaVisitedState(int a1);
