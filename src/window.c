@@ -1005,6 +1005,18 @@ unsigned char* _windowGetBuffer()
     return NULL;
 }
 
+// NOTE: Unused.
+//
+// 0x4B8308
+char* windowGetName()
+{
+    if (gCurrentManagedWindowIndex != -1) {
+        return gManagedWindows[gCurrentManagedWindowIndex].name;
+    }
+
+    return NULL;
+}
+
 // 0x4B8330
 int _pushWindow(const char* windowName)
 {

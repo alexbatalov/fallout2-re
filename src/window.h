@@ -165,6 +165,7 @@ bool _selectWindowID(int index);
 int _selectWindow(const char* windowName);
 int windowGetDefined(const char* name);
 unsigned char* _windowGetBuffer();
+char* windowGetName();
 int _pushWindow(const char* windowName);
 int _popWindow();
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment);
