@@ -1271,6 +1271,16 @@ bool _windowFormatMessage(char* string, int x, int y, int width, int height, int
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4B8A14
+int windowFormatMessageColor(char* string, int x, int y, int width, int height, int textAlignment, int flags)
+{
+    _windowWrapLine(gManagedWindows[gCurrentManagedWindowIndex].window, string, width, height, x, y, flags, textAlignment);
+
+    return 1;
+}
+
 // 0x4B8A60
 bool _windowPrint(char* string, int a2, int x, int y, int a5)
 {

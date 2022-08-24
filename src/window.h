@@ -175,6 +175,7 @@ void _windowWrapLineWithSpacing(int win, char* string, int width, int height, in
 void _windowWrapLine(int win, char* string, int width, int height, int x, int y, int flags, int textAlignment);
 bool _windowPrintRect(char* string, int a2, int textAlignment);
 bool _windowFormatMessage(char* string, int x, int y, int width, int height, int textAlignment);
+int windowFormatMessageColor(char* string, int x, int y, int width, int height, int textAlignment, int flags);
 bool _windowPrint(char* string, int a2, int x, int y, int a5);
 void _displayInWindow(unsigned char* data, int width, int height, int pitch);
 void _displayFile(char* fileName);
