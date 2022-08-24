@@ -820,6 +820,7 @@ int _wmMakeTabsLabelList(int** out_cities, int* out_len);
 int worldmapCompareCitiesByName(const void* a1, const void* a2);
 int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr);
 void worldmapWindowRenderDial(bool shouldRefreshWindow);
+void wmInterfaceDialSyncTime(bool shouldRefreshWindow);
 int _wmAreaFindFirstValidMap(int* out_a1);
 int worldmapStartMapMusic();
 int worldmapSetMapMusic(int a1, const char* name);

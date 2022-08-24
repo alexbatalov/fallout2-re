@@ -3997,14 +3997,8 @@ bool _wmGameTimeIncrement(int a1)
 
         gameTimeAddTicks(v1);
 
-        int hour = gameTimeGetHour() / 100;
-
-        int frameCount = artGetFrameCount(gWorldmapDialFrm);
-        int frame = (hour + 12) % frameCount;
-        if (gWorldmapDialFrmCurrentFrame != frame) {
-            gWorldmapDialFrmCurrentFrame = frame;
-            worldmapWindowRenderDial(true);
-        }
+        // NOTE: Uninline.
+        wmInterfaceDialSyncTime(true);
 
         worldmapWindowRenderDate(true);
 
@@ -6149,15 +6143,8 @@ int worldmapWindowRenderChrome(bool shouldRefreshWindow)
 
     worldmapRenderQuickDestinations();
 
-    int v1 = gameTimeGetHour();
-    v1 /= 100;
-
-    int frameCount = artGetFrameCount(gWorldmapDialFrm);
-    int newFrame = (v1 + 12) % frameCount;
-    if (gWorldmapDialFrmCurrentFrame != newFrame) {
-        gWorldmapDialFrmCurrentFrame = newFrame;
-        worldmapWindowRenderDial(false);
-    }
+    // NOTE: Uninline.
+    wmInterfaceDialSyncTime(false);
 
     worldmapWindowRenderDial(false);
 
@@ -6424,6 +6411,22 @@ void worldmapWindowRenderDial(bool shouldRefreshWindow)
         rect.right = rect.left + gWorldmapDialFrmWidth;
         rect.bottom = rect.top + gWorldmapDialFrmHeight;
         windowRefreshRect(gWorldmapWindow, &rect);
+    }
+}
+
+// NOTE: Inlined.
+//
+// 0x4C57BC
+void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
+{
+    int gameHour;
+    int frame;
+
+    gameHour = gameTimeGetHour();
+    frame = (gameHour / 100 + 12) % artGetFrameCount(gWorldmapDialFrm);
+    if (frame != gWorldmapDialFrmCurrentFrame) {
+        gWorldmapDialFrmCurrentFrame = frame;
+        worldmapWindowRenderDial(shouldRefreshWindow);
     }
 }
 
