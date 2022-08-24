@@ -41,6 +41,7 @@ void internal_free(void* ptr);
 void memoryBlockFreeImpl(void* ptr);
 void memoryBlockPrintStats();
 void mem_register_func(MallocProc* mallocFunc, ReallocProc* reallocFunc, FreeProc* freeFunc);
+void* mem_prep_block(void* block, size_t size);
 void memoryBlockValidate(void* block);
 
 #endif /* MEMORY_H */
