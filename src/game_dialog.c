@@ -1090,11 +1090,11 @@ void _gdialogUpdatePartyStatus()
 int gdHide()
 {
     if (_gd_replyWin != -1) {
-        windowHide(_gd_replyWin);
+        win_hide(_gd_replyWin);
     }
 
     if (_gd_optionsWin != -1) {
-        windowHide(_gd_optionsWin);
+        win_hide(_gd_optionsWin);
     }
 
     return 0;

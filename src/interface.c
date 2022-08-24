@@ -615,7 +615,7 @@ void interfaceReset()
     interfaceBarEnable();
 
     if (gInterfaceBarWindow != -1 && !_intfaceHidden) {
-        windowHide(gInterfaceBarWindow);
+        win_hide(gInterfaceBarWindow);
         _intfaceHidden = 1;
     }
 
@@ -850,7 +850,7 @@ int interfaceLoad(File* stream)
 
     if (v2) {
         if (gInterfaceBarWindow != -1 && !_intfaceHidden) {
-            windowHide(gInterfaceBarWindow);
+            win_hide(gInterfaceBarWindow);
             _intfaceHidden = 1;
         }
         indicatorBarRefresh();

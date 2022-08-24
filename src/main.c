@@ -806,7 +806,7 @@ void mainMenuWindowHide(bool animate)
         soundContinueAll();
     }
 
-    windowHide(gMainMenuWindow);
+    win_hide(gMainMenuWindow);
 
     gMainMenuWindowHidden = true;
 }

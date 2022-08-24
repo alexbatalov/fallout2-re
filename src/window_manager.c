@@ -652,7 +652,7 @@ void windowUnhide(int win)
 }
 
 // 0x4D6E64
-void windowHide(int win)
+void win_hide(int win)
 {
     if (!gWindowSystemInitialized) {
         return;

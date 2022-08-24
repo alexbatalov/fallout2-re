@@ -184,7 +184,7 @@ void windowDrawLine(int win, int left, int top, int right, int bottom, int color
 void windowDrawRect(int win, int left, int top, int right, int bottom, int color);
 void windowFill(int win, int x, int y, int width, int height, int a6);
 void windowUnhide(int win);
-void windowHide(int win);
+void win_hide(int win);
 void _win_move(int win_index, int x, int y);
 void windowRefresh(int win);
 void windowRefreshRect(int win, const Rect* rect);

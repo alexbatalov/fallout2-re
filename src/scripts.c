@@ -412,7 +412,7 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
             movie = -1;
         } else {
             if (window != -1) {
-                windowHide(window);
+                win_hide(window);
             }
 
             gameMoviePlay(movie, movieFlags);

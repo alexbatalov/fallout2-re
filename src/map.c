@@ -281,7 +281,7 @@ void _map_init()
 // 0x482084
 void _map_exit()
 {
-    windowHide(gIsoWindow);
+    win_hide(gIsoWindow);
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     tickersRemove(gameMouseRefresh);
     if (!messageListFree(&gMapMessageList)) {
