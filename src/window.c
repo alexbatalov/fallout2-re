@@ -710,6 +710,18 @@ int windowSY()
     return rect.top;
 }
 
+// NOTE: Unused.
+//
+// 0x4B77D4
+int pointInWindow(int x, int y)
+{
+    Rect rect;
+
+    win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
+
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+}
+
 // 0x4B7680
 bool _windowDraw()
 {
