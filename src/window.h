@@ -18,6 +18,7 @@ typedef void(WindowDeleteCallback)(int windowIndex, const char* windowName);
 typedef void(DisplayInWindowCallback)(int windowIndex, const char* windowName, unsigned char* data, int width, int height);
 typedef void(ManagedButtonMouseEventCallback)(void* userData, int eventType);
 typedef void(ManagedWindowCreateCallback)(int windowIndex, const char* windowName, int* flagsPtr);
+typedef void(ManagedWindowSelectFunc)(int windowIndex, const char* windowName);
 
 typedef enum TextAlignment {
     TEXT_ALIGNMENT_LEFT,
@@ -96,7 +97,7 @@ extern char _alphaBlendTable[64 * 256];
 extern ManagedWindow gManagedWindows[MANAGED_WINDOW_COUNT];
 extern WindowInputHandler** gWindowInputHandlers;
 extern ManagedWindowCreateCallback* off_672D74;
-extern void (*_selectWindowFunc)(int, ManagedWindow*);
+extern ManagedWindowSelectFunc* _selectWindowFunc;
 extern int _xres;
 extern DisplayInWindowCallback* gDisplayInWindowCallback;
 extern WindowDeleteCallback* gWindowDeleteCallback;
@@ -170,6 +171,7 @@ int _windowGetXres();
 int _windowGetYres();
 void _removeProgramReferences_3(Program* program);
 void _initWindow(int resolution, int a2);
+void windowSetWindowFuncs(ManagedWindowCreateCallback* createCallback, ManagedWindowSelectFunc* selectCallback, WindowDeleteCallback* deleteCallback, DisplayInWindowCallback* displayCallback);
 void _windowClose();
 bool _windowDeleteButton(const char* buttonName);
 bool _windowSetButtonFlag(const char* buttonName, int value);

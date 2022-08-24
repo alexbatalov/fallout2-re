@@ -83,10 +83,8 @@ WindowInputHandler** gWindowInputHandlers;
 // 0x672D74
 ManagedWindowCreateCallback* off_672D74;
 
-// NOTE: This value is never set.
-//
 // 0x672D78
-void (*_selectWindowFunc)(int, ManagedWindow*);
+ManagedWindowSelectFunc* _selectWindowFunc;
 
 // 0x672D7C
 int _xres;
@@ -807,7 +805,7 @@ bool _selectWindowID(int index)
     gCurrentManagedWindowIndex = index;
 
     if (_selectWindowFunc != NULL) {
-        _selectWindowFunc(index, managedWindow);
+        _selectWindowFunc(index, managedWindow->name);
     }
 
     return true;
@@ -1358,6 +1356,28 @@ void _initWindow(int resolution, int a2)
         for (j = 0; j < 256; j++) {
             _alphaBlendTable[(i << 8) + j] = ((i * j) >> 9);
         }
+    }
+}
+
+// NOTE: Unused.
+//
+// 0x4B9454
+void windowSetWindowFuncs(ManagedWindowCreateCallback* createCallback, ManagedWindowSelectFunc* selectCallback, WindowDeleteCallback* deleteCallback, DisplayInWindowCallback* displayCallback)
+{
+    if (createCallback != NULL) {
+        off_672D74 = createCallback;
+    }
+
+    if (selectCallback != NULL) {
+        _selectWindowFunc = selectCallback;
+    }
+
+    if (deleteCallback != NULL) {
+        gWindowDeleteCallback = deleteCallback;
+    }
+
+    if (displayCallback != NULL) {
+        gDisplayInWindowCallback = displayCallback;
     }
 }
 
