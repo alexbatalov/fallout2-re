@@ -611,6 +611,16 @@ int _wmMaxEncBaseTypes;
 // 0x67303C
 int gEncounterTablesLength;
 
+// 0x4BC890
+void wmSetFlags(int* flagsPtr, int flag, int value)
+{
+    if (value) {
+        *flagsPtr |= flag;
+    } else {
+        *flagsPtr &= ~flag;
+    }
+}
+
 // wmWorldMap_init
 // 0x4BC89C
 int worldmapInit()
@@ -2509,11 +2519,8 @@ int _wmMapInit()
                     return -1;
                 }
 
-                if (num) {
-                    map->flags |= MAP_SAVED;
-                } else {
-                    map->flags &= ~MAP_SAVED;
-                }
+                // NOTE: Uninline.
+                wmSetFlags(&(map->flags), MAP_SAVED, num);
             }
 
             if (configGetString(&config, section, "dead_bodies_age", &str)) {
@@ -2521,11 +2528,8 @@ int _wmMapInit()
                     return -1;
                 }
 
-                if (num) {
-                    map->flags |= MAP_DEAD_BODIES_AGE;
-                } else {
-                    map->flags &= ~MAP_DEAD_BODIES_AGE;
-                }
+                // NOTE: Uninline.
+                wmSetFlags(&(map->flags), MAP_DEAD_BODIES_AGE, num);
             }
 
             if (configGetString(&config, section, "can_rest_here", &str)) {
@@ -2533,31 +2537,22 @@ int _wmMapInit()
                     return -1;
                 }
 
-                if (num) {
-                    map->flags |= MAP_CAN_REST_ELEVATION_0;
-                } else {
-                    map->flags &= ~MAP_CAN_REST_ELEVATION_0;
-                }
+                // NOTE: Uninline.
+                wmSetFlags(&(map->flags), MAP_CAN_REST_ELEVATION_0, num);
 
                 if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
-                if (num) {
-                    map->flags |= MAP_CAN_REST_ELEVATION_1;
-                } else {
-                    map->flags &= ~MAP_CAN_REST_ELEVATION_1;
-                }
+                // NOTE: Uninline.
+                wmSetFlags(&(map->flags), MAP_CAN_REST_ELEVATION_1, num);
 
                 if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
-                if (num) {
-                    map->flags |= MAP_CAN_REST_ELEVATION_2;
-                } else {
-                    map->flags &= ~MAP_CAN_REST_ELEVATION_2;
-                }
+                // NOTE: Uninline.
+                wmSetFlags(&(map->flags), MAP_CAN_REST_ELEVATION_2, num);
             }
 
             if (configGetString(&config, section, "pipbody_active", &str)) {
@@ -2565,11 +2560,8 @@ int _wmMapInit()
                     return -1;
                 }
 
-                if (num) {
-                    map->flags |= MAP_PIPBOY_ACTIVE;
-                } else {
-                    map->flags &= ~MAP_PIPBOY_ACTIVE;
-                }
+                // NOTE: Uninline.
+                wmSetFlags(&(map->flags), MAP_PIPBOY_ACTIVE, num);
             }
 
             if (configGetString(&config, section, "random_start_point_0", &str)) {

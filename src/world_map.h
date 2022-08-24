@@ -686,6 +686,7 @@ extern EncounterTable* gEncounterTables;
 extern int _wmMaxEncBaseTypes;
 extern int gEncounterTablesLength;
 
+void wmSetFlags(int* flagsPtr, int flag, int value);
 int worldmapInit();
 int _wmGenDataInit();
 int _wmGenDataReset();
