@@ -4973,7 +4973,7 @@ void worldmapWindowHandleMouseScrolling()
 // 0x4C340C
 int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
 {
-    return _wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_VISITED);
+    return wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_VISITED);
 }
 
 // NOTE: Inlined.
@@ -4981,62 +4981,62 @@ int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX
 // 0x4C3420
 int wmMarkSubTileOffsetKnown(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
 {
-    return _wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_KNOWN);
+    return wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_KNOWN);
 }
 
 // 0x4C3434
-int _wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6)
+int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int offsetX, int offsetY, int subtileState)
 {
-    int v7;
-    int v8;
-    int v9;
-    int* v;
+    int actualTile;
+    int actualSubtileX;
+    int actualSubtileY;
+    TileInfo* tileInfo;
+    SubtileInfo* subtileInfo;
 
-    v7 = a2 + a4;
-    v8 = a1;
-    v9 = a3 + a5;
+    actualSubtileX = subtileX + offsetX;
+    actualTile = tile;
+    actualSubtileY = subtileY + offsetY;
 
-    if (v7 >= 0) {
-        if (v7 >= 7) {
-            if (a1 % gWorldmapGridWidth == gWorldmapGridWidth - 1) {
+    if (actualSubtileX >= 0) {
+        if (actualSubtileX >= SUBTILE_GRID_WIDTH) {
+            if (tile % gWorldmapGridWidth == gWorldmapGridWidth - 1) {
                 return -1;
             }
 
-            v8 = a1 + 1;
-            v7 %= 7;
+            actualTile = tile + 1;
+            actualSubtileX %= SUBTILE_GRID_WIDTH;
         }
     } else {
-        if (!(a1 % gWorldmapGridWidth)) {
+        if (!(tile % gWorldmapGridWidth)) {
             return -1;
         }
 
-        v7 += 7;
-        v8 = a1 - 1;
+        actualSubtileX += SUBTILE_GRID_WIDTH;
+        actualTile = tile - 1;
     }
 
-    if (v9 >= 0) {
-        if (v9 >= 6) {
-            if (v8 > gWorldmapTilesLength - gWorldmapGridWidth - 1) {
+    if (actualSubtileY >= 0) {
+        if (actualSubtileY >= SUBTILE_GRID_HEIGHT) {
+            if (actualTile > gWorldmapTilesLength - gWorldmapGridWidth - 1) {
                 return -1;
             }
 
-            v8 += gWorldmapGridWidth;
-            v9 %= 6;
+            actualTile += gWorldmapGridWidth;
+            actualSubtileY %= SUBTILE_GRID_HEIGHT;
         }
     } else {
-        if (v8 < gWorldmapGridWidth) {
+        if (actualTile < gWorldmapGridWidth) {
             return -1;
         }
 
-        v9 += 6;
-        v8 -= gWorldmapGridWidth;
+        actualSubtileY += SUBTILE_GRID_HEIGHT;
+        actualTile -= gWorldmapGridWidth;
     }
 
-    TileInfo* tile = &(gWorldmapTiles[v8]);
-    SubtileInfo* subtile = &(tile->subtiles[v9][v7]);
-    v = &(subtile->state);
-    if (a6 != 1 || *v == 0) {
-        *v = a6;
+    tileInfo = &(gWorldmapTiles[actualTile]);
+    subtileInfo = &(tileInfo->subtiles[actualSubtileY][actualSubtileX]);
+    if (subtileState != SUBTILE_STATE_KNOWN || subtileInfo->state == SUBTILE_STATE_UNKNOWN) {
+        subtileInfo->state = subtileState;
     }
 
     return 0;
