@@ -628,6 +628,20 @@ int windowHide()
     return 1;
 }
 
+// NOTE: Unused.
+//
+// 0x4B7648
+int windowShow()
+{
+    if (gManagedWindows[gCurrentManagedWindowIndex].window == -1) {
+        return 0;
+    }
+
+    win_show(gManagedWindows[gCurrentManagedWindowIndex].window);
+
+    return 1;
+}
+
 // 0x4B7734
 int _windowWidth()
 {
