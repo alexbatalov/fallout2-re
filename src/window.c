@@ -2274,6 +2274,19 @@ bool _windowAddRegionPoint(int x, int y, bool a3)
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4BAC5
+int windowAddRegionRect(int a1, int a2, int a3, int a4, int a5)
+{
+    _windowAddRegionPoint(a1, a2, a5);
+    _windowAddRegionPoint(a3, a2, a5);
+    _windowAddRegionPoint(a3, a4, a5);
+    _windowAddRegionPoint(a1, a4, a5);
+
+    return 0;
+}
+
 // 0x4BADC0
 bool _windowAddRegionProc(const char* regionName, Program* program, int a3, int a4, int a5, int a6)
 {

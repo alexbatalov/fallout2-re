@@ -205,6 +205,7 @@ void _windowEndRegion();
 bool _windowCheckRegionExists(const char* regionName);
 bool _windowStartRegion(int initialCapacity);
 bool _windowAddRegionPoint(int x, int y, bool a3);
+int windowAddRegionRect(int a1, int a2, int a3, int a4, int a5);
 bool _windowAddRegionProc(const char* regionName, Program* program, int a3, int a4, int a5, int a6);
 bool _windowAddRegionRightProc(const char* regionName, Program* program, int a3, int a4);
 bool _windowSetRegionFlag(const char* regionName, int value);
