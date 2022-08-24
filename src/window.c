@@ -2186,6 +2186,28 @@ void _windowEndRegion()
     _regionSetBound(region);
 }
 
+// NOTE: Unused.
+//
+// 0x4BA8A4
+void* windowRegionGetUserData(const char* windowRegionName)
+{
+    int index;
+    char* regionName;
+
+    if (gCurrentManagedWindowIndex == -1) {
+        return NULL;
+    }
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].regionsLength; index++) {
+        regionName = gManagedWindows[gCurrentManagedWindowIndex].regions[index]->name;
+        if (stricmp(regionName, windowRegionName) == 0) {
+            return regionGetUserData(gManagedWindows[gCurrentManagedWindowIndex].regions[index]);
+        }
+    }
+
+    return NULL;
+}
+
 // 0x4BA988
 bool _windowCheckRegionExists(const char* regionName)
 {
