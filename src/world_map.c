@@ -5051,47 +5051,50 @@ void _wmMarkSubTileRadiusVisited(int x, int y)
         radius = 2;
     }
 
-    _wmSubTileMarkRadiusVisited(x, y, radius);
+    wmSubTileMarkRadiusVisited(x, y, radius);
 }
 
-// Mark worldmap tile as visible?/visited?
-//
 // 0x4C35A8
-int _wmSubTileMarkRadiusVisited(int x, int y, int radius)
+int wmSubTileMarkRadiusVisited(int x, int y, int radius)
 {
-    int v4, v5;
+    int tile;
+    int subtileX;
+    int subtileY;
+    int offsetX;
+    int offsetY;
+    SubtileInfo* subtile;
 
-    int tile = x / WM_TILE_WIDTH % gWorldmapGridWidth + y / WM_TILE_HEIGHT * gWorldmapGridWidth;
-    v4 = x % WM_TILE_WIDTH / WM_SUBTILE_SIZE;
-    v5 = y % WM_TILE_HEIGHT / WM_SUBTILE_SIZE;
+    tile = x / WM_TILE_WIDTH % gWorldmapGridWidth + y / WM_TILE_HEIGHT * gWorldmapGridWidth;
+    subtileX = x % WM_TILE_WIDTH / WM_SUBTILE_SIZE;
+    subtileY = y % WM_TILE_HEIGHT / WM_SUBTILE_SIZE;
 
-    for (int i = -radius; i <= radius; i++) {
-        for (int v6 = -radius; v6 <= radius; v6++) {
+    for (offsetY = -radius; offsetY <= radius; offsetY++) {
+        for (offsetX = -radius; offsetX <= radius; offsetX++) {
             // NOTE: Uninline.
-            wmMarkSubTileOffsetKnown(tile, v4, v5, v6, i);
+            wmMarkSubTileOffsetKnown(tile, subtileX, subtileY, offsetX, offsetY);
         }
     }
 
-    SubtileInfo* subtile = &(gWorldmapTiles[tile].subtiles[v5][v4]);
+    subtile = &(gWorldmapTiles[tile].subtiles[subtileY][subtileX]);
     subtile->state = SUBTILE_STATE_VISITED;
 
     switch (subtile->field_4) {
     case 2:
-        while (v5-- > 0) {
+        while (subtileY-- > 0) {
             // NOTE: Uninline.
-            wmMarkSubTileOffsetVisited(tile, v4, 0, v5, 0);
+            wmMarkSubTileOffsetVisited(tile, subtileX, subtileY, 0, 0);
         }
         break;
     case 4:
-        while (v4-- > -1) {
+        while (subtileX-- >= 0) {
             // NOTE: Uninline.
-            wmMarkSubTileOffsetVisited(tile, v4, 0, v5, 0);
+            wmMarkSubTileOffsetVisited(tile, subtileX, subtileY, 0, 0);
         }
 
         if (tile % gWorldmapGridWidth > 0) {
-            for (int i = 0; i < 7; i++) {
+            for (subtileX = 0; subtileX < SUBTILE_GRID_WIDTH; subtileX++) {
                 // NOTE: Uninline.
-                wmMarkSubTileOffsetVisited(tile - 1, i + 1, v5, 0, 0);
+                wmMarkSubTileOffsetVisited(tile - 1, subtileX, subtileY, 0, 0);
             }
         }
         break;

@@ -2418,7 +2418,7 @@ void opMetarule3(Program* program)
         }
         break;
     case METARULE3_MARK_SUBTILE:
-        result = _wmSubTileMarkRadiusVisited(data[2], data[1], data[0]);
+        result = wmSubTileMarkRadiusVisited(data[2], data[1], data[0]);
         break;
     case METARULE3_GET_KILL_COUNT:
         result = killsGetByType(data[2]);
