@@ -682,8 +682,8 @@ int _create_pull_down(char** stringList, int stringListLength, int x, int y, int
     }
 
     _win_text(win, stringList, stringListLength, windowWidth - 4, 2, 8, a5);
-    windowDrawRect(win, 0, 0, windowWidth - 1, windowHeight - 1, _colorTable[0]);
-    windowDrawRect(win, 1, 1, windowWidth - 2, windowHeight - 2, a5);
+    win_box(win, 0, 0, windowWidth - 1, windowHeight - 1, _colorTable[0]);
+    win_box(win, 1, 1, windowWidth - 2, windowHeight - 2, a5);
     windowRefresh(win);
     win_get_rect(win, rect);
 
@@ -855,7 +855,7 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int bor
     menuBar->backgroundColor = backgroundColor;
 
     windowFill(win, x, y, width, height, backgroundColor);
-    windowDrawRect(win, x, y, right - 1, bottom - 1, borderColor);
+    win_box(win, x, y, right - 1, bottom - 1, borderColor);
 
     return 0;
 }

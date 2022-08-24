@@ -551,7 +551,7 @@ void windowDrawLine(int win, int left, int top, int right, int bottom, int color
 }
 
 // 0x4D6B88
-void windowDrawRect(int win, int left, int top, int right, int bottom, int color)
+void win_box(int win, int left, int top, int right, int bottom, int color)
 {
     Window* window = windowGetWindow(win);
 
