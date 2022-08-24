@@ -642,6 +642,19 @@ int windowShow()
     return 1;
 }
 
+// 0x4B7680
+int windowDraw()
+{
+    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
+    if (managedWindow->window == -1) {
+        return 0;
+    }
+
+    win_draw(managedWindow->window);
+
+    return 1;
+}
+
 // NOTE: Unused.
 //
 // 0x4B76B8
@@ -736,19 +749,6 @@ int windowGetRect(Rect* rect)
 int windowGetID()
 {
     return gCurrentManagedWindowIndex;
-}
-
-// 0x4B7680
-bool _windowDraw()
-{
-    ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-    if (managedWindow->window == -1) {
-        return false;
-    }
-
-    win_draw(managedWindow->window);
-
-    return true;
 }
 
 // NOTE: Inlined.

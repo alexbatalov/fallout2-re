@@ -143,6 +143,7 @@ void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* 
 void redrawButton(ManagedButton* button);
 int windowHide();
 int windowShow();
+int windowDraw();
 int windowDrawRect(int left, int top, int right, int bottom);
 int windowDrawRectID(int windowId, int left, int top, int right, int bottom);
 int _windowWidth();
@@ -152,7 +153,6 @@ int windowSY();
 int pointInWindow(int x, int y);
 int windowGetRect(Rect* rect);
 int windowGetID();
-bool _windowDraw();
 int windowGetGNWID();
 int windowGetSpecificGNWID(int windowIndex);
 bool _deleteWindow(const char* windowName);

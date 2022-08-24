@@ -1570,7 +1570,7 @@ void opAddButtonRightProc(Program* program)
 void opShowWin(Program* program)
 {
     _selectWindowID(program->windowId);
-    _windowDraw();
+    windowDraw();
 }
 
 // deletebutton
