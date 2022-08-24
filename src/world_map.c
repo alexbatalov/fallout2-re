@@ -4976,6 +4976,14 @@ int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX
     return _wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_VISITED);
 }
 
+// NOTE: Inlined.
+//
+// 0x4C3420
+int wmMarkSubTileOffsetKnown(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
+{
+    return _wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_KNOWN);
+}
+
 // 0x4C3434
 int _wmMarkSubTileOffsetVisitedFunc(int a1, int a2, int a3, int a4, int a5, int a6)
 {
@@ -5059,7 +5067,8 @@ int _wmSubTileMarkRadiusVisited(int x, int y, int radius)
 
     for (int i = -radius; i <= radius; i++) {
         for (int v6 = -radius; v6 <= radius; v6++) {
-            _wmMarkSubTileOffsetVisitedFunc(tile, v4, v5, v6, i, SUBTILE_STATE_KNOWN);
+            // NOTE: Uninline.
+            wmMarkSubTileOffsetKnown(tile, v4, v5, v6, i);
         }
     }
 
