@@ -4801,12 +4801,8 @@ int worldmapWindowFree()
 
     fontSetCurrent(_fontnum);
 
-    if (gQuickDestinations != NULL) {
-        internal_free(gQuickDestinations);
-        gQuickDestinations = NULL;
-    }
-
-    gQuickDestinationsLength = 0;
+    // NOTE: Uninline.
+    wmFreeTabsLabelList(&gQuickDestinations, &gQuickDestinationsLength);
 
     _wmInterfaceWasInitialized = 0;
 
@@ -6345,13 +6341,8 @@ int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengt
 {
     int* quickDestinations = *quickDestinationsPtr;
 
-    if (quickDestinations != NULL) {
-        internal_free(quickDestinations);
-        quickDestinations = NULL;
-    }
-
-    *quickDestinationsPtr = NULL;
-    *quickDestinationsLengthPtr = 0;
+    // NOTE: Uninline.
+    wmFreeTabsLabelList(quickDestinationsPtr, quickDestinationsLengthPtr);
 
     int capacity = 10;
 
@@ -6398,6 +6389,21 @@ int worldmapCompareCitiesByName(const void* a1, const void* a2)
     CityInfo* city2 = &(gCities[v2]);
 
     return stricmp(city1->name, city2->name);
+}
+
+// NOTE: Inlined.
+//
+// 0x4C5710
+int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr)
+{
+    if (*quickDestinationsListPtr != NULL) {
+        internal_free(*quickDestinationsListPtr);
+        *quickDestinationsListPtr = NULL;
+    }
+
+    *quickDestinationsLengthPtr = 0;
+
+    return 0;
 }
 
 // 0x4C5734
