@@ -631,6 +631,18 @@ bool _windowDraw()
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4B787C
+int windowGetSpecificGNWID(int windowIndex)
+{
+    if (windowIndex >= 0 && windowIndex < MANAGED_WINDOW_COUNT) {
+        return gManagedWindows[windowIndex].window;
+    }
+
+    return -1;
+}
+
 // 0x4B78A4
 bool _deleteWindow(const char* windowName)
 {
