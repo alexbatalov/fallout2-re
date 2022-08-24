@@ -730,6 +730,14 @@ int windowGetRect(Rect* rect)
     return win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, rect);
 }
 
+// NOTE: Unused.
+//
+// 0x4B7854
+int windowGetID()
+{
+    return gCurrentManagedWindowIndex;
+}
+
 // 0x4B7680
 bool _windowDraw()
 {
