@@ -2208,6 +2208,27 @@ void* windowRegionGetUserData(const char* windowRegionName)
     return NULL;
 }
 
+// NOTE: Unused.
+//
+// 0x4BA914
+void windowRegionSetUserData(const char* windowRegionName, void* userData)
+{
+    int index;
+    char* regionName;
+
+    if (gCurrentManagedWindowIndex == -1) {
+        return;
+    }
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].regionsLength; index++) {
+        regionName = gManagedWindows[gCurrentManagedWindowIndex].regions[index]->name;
+        if (stricmp(regionName, windowRegionName) == 0) {
+            regionSetUserData(gManagedWindows[gCurrentManagedWindowIndex].regions[index], userData);
+            return;
+        }
+    }
+}
+
 // 0x4BA988
 bool _windowCheckRegionExists(const char* regionName)
 {

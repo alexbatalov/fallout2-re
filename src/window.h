@@ -203,6 +203,7 @@ bool _windowFill(float r, float g, float b);
 bool _windowFillRect(int x, int y, int width, int height, float r, float g, float b);
 void _windowEndRegion();
 void* windowRegionGetUserData(const char* windowRegionName);
+void windowRegionSetUserData(const char* windowRegionName, void* userData);
 bool _windowCheckRegionExists(const char* regionName);
 bool _windowStartRegion(int initialCapacity);
 bool _windowAddRegionPoint(int x, int y, bool a3);
