@@ -614,6 +614,20 @@ void redrawButton(ManagedButton* button)
     _win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
 }
 
+// NOTE: Unused.
+//
+// 0x4B7610
+int windowHide()
+{
+    if (gManagedWindows[gCurrentManagedWindowIndex].window == -1) {
+        return 0;
+    }
+
+    win_hide(gManagedWindows[gCurrentManagedWindowIndex].window);
+
+    return 1;
+}
+
 // 0x4B7734
 int _windowWidth()
 {
