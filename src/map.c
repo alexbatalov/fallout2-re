@@ -1454,7 +1454,7 @@ void mapMakeMapsDirectory()
 // 0x483ED0
 void isoWindowRefreshRect(Rect* rect)
 {
-    windowRefreshRect(gIsoWindow, rect);
+    win_draw_rect(gIsoWindow, rect);
 }
 
 // 0x483EE4

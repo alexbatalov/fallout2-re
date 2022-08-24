@@ -331,7 +331,7 @@ void movieBufferedImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, i
                 _moviePreDrawFunc(gMovieWindow, &_movieRect);
             }
 
-            windowRefreshRect(gMovieWindow, &_movieRect);
+            win_draw_rect(gMovieWindow, &_movieRect);
         }
     }
 
@@ -523,7 +523,7 @@ void _cleanupMovie(int a1)
 
     if (_alphaWindowBuf != NULL) {
         blitBufferToBuffer(_alphaWindowBuf, _movieW, _movieH, _movieW, windowGetBuffer(gMovieWindow) + _movieY * windowGetWidth(gMovieWindow) + _movieX, windowGetWidth(gMovieWindow));
-        windowRefreshRect(gMovieWindow, &_movieRect);
+        win_draw_rect(gMovieWindow, &_movieRect);
     }
 
     if (_alphaHandle != NULL) {
@@ -770,7 +770,7 @@ void movieRenderSubtitles()
         rect.top = v2;
         rect.bottom = v2 + _subtitleH;
         rect.left = 0;
-        windowRefreshRect(gMovieWindow, &rect);
+        win_draw_rect(gMovieWindow, &rect);
 
         internal_free_safe(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1108
         internal_free_safe(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1109

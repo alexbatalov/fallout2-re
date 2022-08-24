@@ -316,7 +316,7 @@ int _win_update_text_region(int textRegionId)
             rect.top = _textRegions[textRegionIndex].y;
             rect.right = _textRegions[textRegionIndex].x + _textRegions[textRegionIndex].width;
             rect.bottom = _textRegions[textRegionIndex].y + fontGetLineHeight();
-            windowRefreshRect(_textRegions[textRegionIndex].win, &rect);
+            win_draw_rect(_textRegions[textRegionIndex].win, &rect);
             return 1;
         }
     }
@@ -658,7 +658,7 @@ void _drawStatusBar()
         rect.top = _statusBar.y;
         rect.right = _statusBar.x + _statusBar.width;
         rect.bottom = _statusBar.y + _statusBar.height;
-        windowRefreshRect(_statusBar.win, &rect);
+        win_draw_rect(_statusBar.win, &rect);
     }
 }
 

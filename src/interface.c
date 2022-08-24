@@ -1112,7 +1112,7 @@ void interfaceRenderActionPoints(int actionPointsLeft, int bonusActionPoints)
     }
 
     if (!gInterfaceBarInitialized) {
-        windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarActionPointsBarRect);
+        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarActionPointsBarRect);
     }
 }
 
@@ -1535,7 +1535,7 @@ void interfaceBarEndButtonsShow(bool animated)
                 unsigned char* src = artGetFrameData(art, frame, 0);
                 if (src != NULL) {
                     blitBufferToBuffer(src, 57, 58, 57, gInterfaceWindowBuffer + 640 * 38 + 580, 640);
-                    windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+                    win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
                 }
 
                 time = _get_time();
@@ -1546,7 +1546,7 @@ void interfaceBarEndButtonsShow(bool animated)
     } else {
         unsigned char* src = artGetFrameData(art, frameCount - 1, 0);
         blitBufferToBuffer(src, 57, 58, 57, gInterfaceWindowBuffer + 640 * 38 + 580, 640);
-        windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
     }
 
     artUnlock(handle);
@@ -1590,7 +1590,7 @@ void interfaceBarEndButtonsHide(bool animated)
                 unsigned char* dest = gInterfaceWindowBuffer + 640 * 38 + 580;
                 if (src != NULL) {
                     blitBufferToBuffer(src, 57, 58, 57, dest, 640);
-                    windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+                    win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
                 }
 
                 time = _get_time();
@@ -1602,7 +1602,7 @@ void interfaceBarEndButtonsHide(bool animated)
         unsigned char* dest = gInterfaceWindowBuffer + 640 * 38 + 580;
         unsigned char* src = artGetFrameData(art, 0, 0);
         blitBufferToBuffer(src, 57, 58, 57, dest, 640);
-        windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
     }
 
     artUnlock(handle);
@@ -1626,7 +1626,7 @@ void interfaceBarEndButtonsRenderGreenLights()
 
         soundPlayFile("icombat2");
         blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, gInterfaceWindowBuffer + 38 * 640 + 580, 640);
-        windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
 
         artUnlock(lightsFrmHandle);
     }
@@ -1649,7 +1649,7 @@ void interfaceBarEndButtonsRenderRedLights()
 
         soundPlayFile("icombat1");
         blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, gInterfaceWindowBuffer + 38 * 640 + 580, 640);
-        windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
 
         artUnlock(lightsFrmHandle);
     }
@@ -1910,7 +1910,7 @@ int interfaceBarRefreshMainAction()
     if (!gInterfaceBarInitialized) {
         _intface_update_ammo_lights();
 
-        windowRefreshRect(gInterfaceBarWindow, &gInterfaceBarMainActionRect);
+        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarMainActionRect);
 
         if (itemState->isDisabled != 0) {
             buttonDisable(gSingleAttackButton);
@@ -2151,7 +2151,7 @@ void interfaceUpdateAmmoBar(int x, int ratio)
         rect.top = 26;
         rect.right = x + 1;
         rect.bottom = 26 + 70;
-        windowRefreshRect(gInterfaceBarWindow, &rect);
+        win_draw_rect(gInterfaceBarWindow, &rect);
     }
 }
 
@@ -2229,7 +2229,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
 
     if (!gInterfaceBarInitialized) {
         Rect numbersRect = { x, y, x + 33, y + 17 };
-        windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+        win_draw_rect(gInterfaceBarWindow, &numbersRect);
         if (delay != 0) {
             int change = value - previousValue >= 0 ? 1 : -1;
             int v14 = previousValue >= 0 ? 1 : -1;
@@ -2243,7 +2243,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 _mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
-                windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                win_draw_rect(gInterfaceBarWindow, &numbersRect);
 
                 ones += v49;
 
@@ -2252,7 +2252,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                     _mouse_info();
                     gameMouseRefresh();
                     coreDelay(delay);
-                    windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                    win_draw_rect(gInterfaceBarWindow, &numbersRect);
 
                     tens += v49;
                     ones -= 10 * v49;
@@ -2261,7 +2261,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                         _mouse_info();
                         gameMouseRefresh();
                         coreDelay(delay);
-                        windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                        win_draw_rect(gInterfaceBarWindow, &numbersRect);
 
                         hundreds += v49;
                         tens -= 10 * v49;
@@ -2273,19 +2273,19 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                         _mouse_info();
                         gameMouseRefresh();
                         coreDelay(delay);
-                        windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                        win_draw_rect(gInterfaceBarWindow, &numbersRect);
                     }
 
                     blitBufferToBuffer(downSrc, 9, 17, 360, tensDest, 640);
                     coreDelay(delay);
-                    windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                    win_draw_rect(gInterfaceBarWindow, &numbersRect);
                 }
 
                 blitBufferToBuffer(downSrc, 9, 17, 360, onesDest, 640);
                 _mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
-                windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                win_draw_rect(gInterfaceBarWindow, &numbersRect);
 
                 previousValue += change;
 
@@ -2297,7 +2297,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 _mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
-                windowRefreshRect(gInterfaceBarWindow, &numbersRect);
+                win_draw_rect(gInterfaceBarWindow, &numbersRect);
             }
         }
     }

@@ -696,7 +696,7 @@ void pipboyWindowHandleStatus(int a1)
 
         gPipboyWindowHolodisksCount = pipboyWindowRenderHolodiskList(-1);
 
-        windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+        win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         pipboyWindowCreateButtons(2, gPipboyQuestLocationsCount + gPipboyWindowHolodisksCount + 1, false);
         win_draw(gPipboyWindow);
         return;
@@ -713,7 +713,7 @@ void pipboyWindowHandleStatus(int a1)
                 PIPBOY_WINDOW_WIDTH);
             pipboyWindowRenderQuestLocationList(a1);
             pipboyWindowRenderHolodiskList(-1);
-            windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+            win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
             coreDelayProcessingEvents(200);
             _stat_flag = 1;
         } else {
@@ -741,7 +741,7 @@ void pipboyWindowHandleStatus(int a1)
                     PIPBOY_WINDOW_WIDTH);
                 pipboyWindowRenderHolodiskList(_holodisk);
                 pipboyWindowRenderQuestLocationList(-1);
-                windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+                win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
                 coreDelayProcessingEvents(200);
                 pipboyWindowDestroyButtons();
                 pipboyRenderHolodiskText();
@@ -778,7 +778,7 @@ void pipboyWindowHandleStatus(int a1)
                     const char* text2 = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 214);
                     pipboyDrawText(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, _colorTable[992]);
 
-                    windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+                    win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
                     coreDelayProcessingEvents(200);
                     pipboyWindowHandleStatus(1024);
                 }
@@ -802,7 +802,7 @@ void pipboyWindowHandleStatus(int a1)
                 const char* text2 = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 200);
                 pipboyDrawText(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, _colorTable[992]);
 
-                windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+                win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
                 coreDelayProcessingEvents(200);
 
                 _view_page += 1;
@@ -832,7 +832,7 @@ void pipboyWindowHandleStatus(int a1)
             const char* text2 = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 200);
             pipboyDrawText(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, _colorTable[992]);
 
-            windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+            win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
             coreDelayProcessingEvents(200);
 
             _view_page -= 1;
@@ -865,7 +865,7 @@ void pipboyWindowHandleStatus(int a1)
             const char* text2 = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 200);
             pipboyDrawText(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, _colorTable[992]);
 
-            windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+            win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
             coreDelayProcessingEvents(200);
 
             if (_view_page <= 0) {
@@ -883,7 +883,7 @@ void pipboyWindowHandleStatus(int a1)
     if (a1 == 1025) {
         soundPlayFile("ib1p1xx1");
         pipboyDrawBackButton(_colorTable[32747]);
-        windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+        win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         coreDelayProcessingEvents(200);
         pipboyWindowHandleStatus(1024);
     }
@@ -991,7 +991,7 @@ void pipboyWindowHandleStatus(int a1)
         }
 
         pipboyDrawBackButton(_colorTable[992]);
-        windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+        win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         _stat_flag = 1;
     }
 }
@@ -1252,7 +1252,7 @@ void pipboyWindowHandleAutomaps(int a1)
 
         pipboyWindowCreateButtons(2, _actcnt, 0);
 
-        windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+        win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         _amlst_mode = 0;
         return;
     }
@@ -1267,7 +1267,7 @@ void pipboyWindowHandleAutomaps(int a1)
             soundPlayFile("ib1p1xx1");
             _PrintAMelevList(a1);
             automapRenderInPipboyWindow(gPipboyWindow, _sortlist[a1 - 1].field_6, _sortlist[a1 - 1].field_4);
-            windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+            win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         }
 
         return;
@@ -1277,12 +1277,12 @@ void pipboyWindowHandleAutomaps(int a1)
         soundPlayFile("ib1p1xx1");
         pipboyWindowDestroyButtons();
         _PrintAMList(a1);
-        windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+        win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         _amcty_indx = _sortlist[a1 - 1].field_4;
         _actcnt = _PrintAMelevList(1);
         pipboyWindowCreateButtons(0, _actcnt + 2, 1);
         automapRenderInPipboyWindow(gPipboyWindow, _sortlist[0].field_6, _sortlist[0].field_4);
-        windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+        win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         _amlst_mode = 1;
     }
 }
@@ -1544,7 +1544,7 @@ int pipboyRenderVideoArchive(int a1)
         msg_num++;
     }
 
-    windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+    win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
 
     return v5;
 }
@@ -1660,7 +1660,7 @@ void pipboyWindowRenderRestOptions(int a1)
         gPipboyCurrentLine++;
     }
 
-    windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+    win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
 }
 
 // 0x4997B8
@@ -2151,7 +2151,7 @@ int pipboyRenderScreensaver()
         if (v31 != 0) {
             v31 -= 1;
         } else {
-            windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+            win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
             while (getTicksSince(time) < 50) {
             }
         }
@@ -2166,7 +2166,7 @@ int pipboyRenderScreensaver()
 
     internal_free(buf);
 
-    windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
+    win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
     _gmouse_enable();
 
     return 0;

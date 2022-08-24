@@ -1482,7 +1482,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
     entriesRect.top = 76;
     entriesRect.bottom += 14;
     entriesRect.right = 434;
-    windowRefreshRect(win, &entriesRect);
+    win_draw_rect(win, &entriesRect);
 }
 
 // 0x445FDC
@@ -2023,7 +2023,7 @@ void gameDialogOptionOnMouseEnter(int index)
     _optionRect.left = 0;
     _optionRect.right = 391;
     _optionRect.top = dialogOptionEntry->field_14;
-    windowRefreshRect(gGameDialogOptionsWindow, &_optionRect);
+    win_draw_rect(gGameDialogOptionsWindow, &_optionRect);
 }
 
 // 0x446B5C
@@ -2071,7 +2071,7 @@ void gameDialogOptionOnMouseExit(int index)
     _optionRect.right = 391;
     _optionRect.top = dialogOptionEntry->field_14;
     _optionRect.left = 0;
-    windowRefreshRect(gGameDialogOptionsWindow, &_optionRect);
+    win_draw_rect(gGameDialogOptionsWindow, &_optionRect);
 }
 
 // 0x446C94
@@ -2806,7 +2806,7 @@ void _gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned char* a
                 v9,
                 GAME_DIALOG_WINDOW_WIDTH);
             rect.top -= 10;
-            windowRefreshRect(win, &rect);
+            win_draw_rect(win, &rect);
             v7 += 10;
             v9 -= 10 * (GAME_DIALOG_WINDOW_WIDTH);
 
@@ -2841,7 +2841,7 @@ void _gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned char* a
                 v9,
                 GAME_DIALOG_WINDOW_WIDTH);
 
-            windowRefreshRect(win, &rect);
+            win_draw_rect(win, &rect);
 
             rect.top += 10;
 
@@ -4365,7 +4365,7 @@ int _talkToRefreshDialogWindowRect(Rect* rect)
 
     artUnlock(backgroundFrmHandle);
 
-    windowRefreshRect(gGameDialogWindow, rect);
+    win_draw_rect(gGameDialogWindow, rect);
 
     return 0;
 }
@@ -4496,7 +4496,7 @@ void gameDialogRenderTalkingHead(Art* headFrm, int frame)
             GAME_DIALOG_WINDOW_WIDTH);
     }
 
-    windowRefreshRect(gGameDialogBackgroundWindow, &v27);
+    win_draw_rect(gGameDialogBackgroundWindow, &v27);
 }
 
 // 0x44B080

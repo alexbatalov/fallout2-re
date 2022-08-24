@@ -2017,7 +2017,7 @@ void characterEditorDrawBigNumber(int x, int y, int flags, int value, int previo
                     gCharacterEditorFrmSize[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                     onesBufferPtr,
                     windowWidth);
-                windowRefreshRect(windowHandle, &rect);
+                win_draw_rect(windowHandle, &rect);
                 while (getTicksSince(_frame_time) < BIG_NUM_ANIMATION_DELAY)
                     ;
             }
@@ -2028,7 +2028,7 @@ void characterEditorDrawBigNumber(int x, int y, int flags, int value, int previo
                 gCharacterEditorFrmSize[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 onesBufferPtr,
                 windowWidth);
-            windowRefreshRect(windowHandle, &rect);
+            win_draw_rect(windowHandle, &rect);
 
             if (previousValue / 10 != tens) {
                 _frame_time = _get_time();
@@ -2038,7 +2038,7 @@ void characterEditorDrawBigNumber(int x, int y, int flags, int value, int previo
                     gCharacterEditorFrmSize[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                     tensBufferPtr,
                     windowWidth);
-                windowRefreshRect(windowHandle, &rect);
+                win_draw_rect(windowHandle, &rect);
                 while (getTicksSince(_frame_time) < BIG_NUM_ANIMATION_DELAY)
                     ;
             }
@@ -2049,7 +2049,7 @@ void characterEditorDrawBigNumber(int x, int y, int flags, int value, int previo
                 gCharacterEditorFrmSize[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 tensBufferPtr,
                 windowWidth);
-            windowRefreshRect(windowHandle, &rect);
+            win_draw_rect(windowHandle, &rect);
         } else {
             blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
                 BIG_NUM_WIDTH,

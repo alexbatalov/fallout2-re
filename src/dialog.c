@@ -395,7 +395,7 @@ void _drawStr(int win, char* str, int font, int width, int height, int left, int
     rect.top = top;
     rect.right = width + left;
     rect.bottom = height + top;
-    windowRefreshRect(win, &rect);
+    win_draw_rect(win, &rect);
     windowSetFont(old_font);
 }
 

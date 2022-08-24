@@ -5316,7 +5316,7 @@ void worldmapWindowRenderDate(bool shouldRefreshWindow)
         rect.top = 12;
         rect.bottom = numbersFrmHeight + 12;
         rect.right = 630;
-        windowRefreshRect(gWorldmapWindow, &rect);
+        win_draw_rect(gWorldmapWindow, &rect);
     }
 }
 
@@ -6402,7 +6402,7 @@ void worldmapWindowRenderDial(bool shouldRefreshWindow)
         rect.top = WM_WINDOW_DIAL_Y - 1;
         rect.right = rect.left + gWorldmapDialFrmWidth;
         rect.bottom = rect.top + gWorldmapDialFrmHeight;
-        windowRefreshRect(gWorldmapWindow, &rect);
+        win_draw_rect(gWorldmapWindow, &rect);
     }
 }
 

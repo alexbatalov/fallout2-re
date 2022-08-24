@@ -310,7 +310,7 @@ void displayMonitorRefresh()
         buf++;
     }
 
-    windowRefreshRect(gInterfaceBarWindow, &gDisplayMonitorRect);
+    win_draw_rect(gInterfaceBarWindow, &gDisplayMonitorRect);
     fontSetCurrent(oldFont);
 }
 

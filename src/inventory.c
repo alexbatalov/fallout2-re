@@ -1519,7 +1519,7 @@ void _display_body(int fid, int inventoryWindowType)
 
             win = gInventoryWindow;
         }
-        windowRefreshRect(win, &rect);
+        win_draw_rect(win, &rect);
 
         artUnlock(backrgroundFrmHandle);
         artUnlock(handle);
@@ -1754,7 +1754,7 @@ void _inven_pickup(int keyCode, int a2)
             rect.right = rect.left + 180 - 1;
             rect.bottom = rect.top + 61 - 1;
         }
-        windowRefreshRect(gInventoryWindow, &rect);
+        win_draw_rect(gInventoryWindow, &rect);
     } else {
         _display_inventory(a2, v3, INVENTORY_WINDOW_TYPE_NORMAL);
     }
@@ -3121,7 +3121,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
         cursorData->frmData,
         0,
         BUTTON_FLAG_TRANSPARENT);
-    windowRefreshRect(gInventoryWindow, &rect);
+    win_draw_rect(gInventoryWindow, &rect);
 
     int menuItemIndex = 0;
     int previousMouseY = y;
@@ -3144,7 +3144,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
                 menuItemIndex--;
             }
             gameMouseHighlightActionMenuItemAtIndex(menuItemIndex);
-            windowRefreshRect(gInventoryWindow, &rect);
+            win_draw_rect(gInventoryWindow, &rect);
             previousMouseY = y;
         }
     }
@@ -3793,7 +3793,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
 
         rect.right = rect.left + INVENTORY_SLOT_WIDTH - 1;
         rect.bottom = rect.top + INVENTORY_SLOT_HEIGHT - 1;
-        windowRefreshRect(gInventoryWindow, &rect);
+        win_draw_rect(gInventoryWindow, &rect);
     }
 
     CacheEntry* inventoryFrmHandle;
@@ -4009,7 +4009,7 @@ void _barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5
 
         rect.right = rect.left + INVENTORY_SLOT_WIDTH - 1;
         rect.bottom = rect.top + INVENTORY_SLOT_HEIGHT - 1;
-        windowRefreshRect(gInventoryWindow, &rect);
+        win_draw_rect(gInventoryWindow, &rect);
     }
 
     CacheEntry* inventoryFrmHandle;
@@ -4092,7 +4092,7 @@ void _barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object*
 
         rect.right = rect.left + INVENTORY_SLOT_WIDTH - 1;
         rect.bottom = rect.top + INVENTORY_SLOT_HEIGHT - 1;
-        windowRefreshRect(gInventoryWindow, &rect);
+        win_draw_rect(gInventoryWindow, &rect);
     }
 
     CacheEntry* inventoryFrmHandle;
@@ -4194,7 +4194,7 @@ void inventoryWindowRenderInnerInventories(int win, Object* a2, Object* a3, int 
         rect.top = 24;
         rect.right = 223;
         rect.bottom = rect.top + v45;
-        windowRefreshRect(gInventoryWindow, &rect);
+        win_draw_rect(gInventoryWindow, &rect);
     }
 
     if (a3 != NULL) {
@@ -4232,7 +4232,7 @@ void inventoryWindowRenderInnerInventories(int win, Object* a2, Object* a3, int 
         rect.top = 24;
         rect.right = 318;
         rect.bottom = rect.top + v45;
-        windowRefreshRect(gInventoryWindow, &rect);
+        win_draw_rect(gInventoryWindow, &rect);
     }
 
     fontSetCurrent(oldFont);
@@ -4715,7 +4715,7 @@ void _draw_amount(int value, int inventoryWindowType)
     }
 
     artUnlock(handle);
-    windowRefreshRect(_mt_wid, &rect);
+    win_draw_rect(_mt_wid, &rect);
 }
 
 // 0x47688C

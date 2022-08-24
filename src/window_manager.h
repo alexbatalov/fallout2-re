@@ -187,7 +187,7 @@ void win_show(int win);
 void win_hide(int win);
 void _win_move(int win_index, int x, int y);
 void win_draw(int win);
-void windowRefreshRect(int win, const Rect* rect);
+void win_draw_rect(int win, const Rect* rect);
 void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3);
 void windowRefreshAll(Rect* rect);
 void _win_clip(Window* window, RectListNode** rect, unsigned char* a3);

@@ -741,7 +741,7 @@ void win_draw(int win)
 }
 
 // 0x4D6F80
-void windowRefreshRect(int win, const Rect* rect)
+void win_draw_rect(int win, const Rect* rect)
 {
     Window* window = windowGetWindow(win);
 
