@@ -811,7 +811,7 @@ int _movieStart(int win, char* filePath, int (*a3)())
 
     if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
         debugPrint("Direct ");
-        windowGetRect(gMovieWindow, &gMovieWindowRect);
+        win_get_rect(gMovieWindow, &gMovieWindowRect);
         debugPrint("Playing at (%d, %d)  ", _movieX + gMovieWindowRect.left, _movieY + gMovieWindowRect.top);
         _MVE_rmCallbacks(a3);
         _MVE_sfCallbacks(movieDirectImpl);

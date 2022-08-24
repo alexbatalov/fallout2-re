@@ -157,7 +157,7 @@ int isoInit()
         return -1;
     }
 
-    if (windowGetRect(gIsoWindow, &gIsoWindowRect) != 0) {
+    if (win_get_rect(gIsoWindow, &gIsoWindowRect) != 0) {
         debugPrint("win_get_rect failed in iso_init\n");
         return -1;
     }

@@ -2576,7 +2576,7 @@ void _demo_copy_options(int win)
     }
 
     Rect windowRect;
-    windowGetRect(gGameDialogWindow, &windowRect);
+    win_get_rect(gGameDialogWindow, &windowRect);
 
     unsigned char* src = windowGetBuffer(gGameDialogWindow);
     if (src == NULL) {
@@ -2608,7 +2608,7 @@ void _gDialogRefreshOptionsRect(int win, Rect* drawRect)
     }
 
     Rect windowRect;
-    windowGetRect(gGameDialogWindow, &windowRect);
+    win_get_rect(gGameDialogWindow, &windowRect);
 
     unsigned char* src = windowGetBuffer(gGameDialogWindow);
     if (src == NULL) {

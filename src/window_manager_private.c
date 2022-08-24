@@ -685,7 +685,7 @@ int _create_pull_down(char** stringList, int stringListLength, int x, int y, int
     windowDrawRect(win, 0, 0, windowWidth - 1, windowHeight - 1, _colorTable[0]);
     windowDrawRect(win, 1, 1, windowWidth - 2, windowHeight - 2, a5);
     windowRefresh(win);
-    windowGetRect(win, rect);
+    win_get_rect(win, rect);
 
     return win;
 }

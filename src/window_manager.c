@@ -1100,7 +1100,7 @@ int windowGetHeight(int win)
 
 // win_get_rect
 // 0x4D7950
-int windowGetRect(int win, Rect* rect)
+int win_get_rect(int win, Rect* rect)
 {
     Window* window = windowGetWindow(win);
 

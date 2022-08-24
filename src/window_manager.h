@@ -199,7 +199,7 @@ unsigned char* windowGetBuffer(int win);
 int windowGetAtPoint(int x, int y);
 int windowGetWidth(int win);
 int windowGetHeight(int win);
-int windowGetRect(int win, Rect* rect);
+int win_get_rect(int win, Rect* rect);
 int _win_check_all_buttons();
 Button* buttonGetButton(int btn, Window** out_win);
 int _GNW_check_menu_bars(int a1);
