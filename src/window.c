@@ -644,6 +644,22 @@ int windowShow()
 
 // NOTE: Unused.
 //
+// 0x4B76B8
+int windowDrawRect(int left, int top, int right, int bottom)
+{
+    Rect rect;
+
+    rect.left = left;
+    rect.top = top;
+    rect.right = right;
+    rect.bottom = bottom;
+    win_draw_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
+
+    return 1;
+}
+
+// NOTE: Unused.
+//
 // 0x4B76F8
 int windowDrawRectID(int windowId, int left, int top, int right, int bottom)
 {

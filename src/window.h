@@ -143,6 +143,7 @@ void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* 
 void redrawButton(ManagedButton* button);
 int windowHide();
 int windowShow();
+int windowDrawRect(int left, int top, int right, int bottom);
 int windowDrawRectID(int windowId, int left, int top, int right, int bottom);
 int _windowWidth();
 int _windowHeight();
