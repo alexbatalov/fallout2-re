@@ -680,7 +680,7 @@ int pauseHandlerDefaultImpl()
         "Done",
         0);
 
-    windowRefresh(win);
+    win_draw(win);
 
     return win;
 }

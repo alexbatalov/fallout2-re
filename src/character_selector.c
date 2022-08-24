@@ -484,7 +484,7 @@ bool characterSelectorWindowInit()
 
     gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;
 
-    windowRefresh(gCharacterSelectorWindow);
+    win_draw(gCharacterSelectorWindow);
 
     if (!characterSelectorWindowRefresh()) {
         goto err;
@@ -641,7 +641,7 @@ bool characterSelectorWindowRefresh()
         }
     }
 
-    windowRefresh(gCharacterSelectorWindow);
+    win_draw(gCharacterSelectorWindow);
 
     return success;
 }

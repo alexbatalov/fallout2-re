@@ -639,7 +639,7 @@ int characterEditorShow(bool isCreationMode)
                     strcpy(line2, messageListItemText);
 
                     showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
 
                     rc = -1;
                     continue;
@@ -657,7 +657,7 @@ int characterEditorShow(bool isCreationMode)
                     strcpy(line2, messageListItemText);
 
                     showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
 
                     rc = -1;
                     continue;
@@ -675,7 +675,7 @@ int characterEditorShow(bool isCreationMode)
                     strcpy(line2, messageListItemText);
 
                     showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], 0);
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
 
                     rc = -1;
                     continue;
@@ -693,7 +693,7 @@ int characterEditorShow(bool isCreationMode)
                     strcpy(line2, messageListItemText);
 
                     if (showDialogBox(line1, lines, 1, 192, 126, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
 
                         rc = -1;
                         continue;
@@ -701,33 +701,33 @@ int characterEditorShow(bool isCreationMode)
                 }
             }
 
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
             rc = 0;
         } else if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             showQuitConfirmationDialog();
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else if (keyCode == 502 || keyCode == KEY_ESCAPE || keyCode == KEY_UPPERCASE_C || keyCode == KEY_LOWERCASE_C || _game_user_wants_to_quit != 0) {
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
             rc = 1;
         } else if (gCharacterEditorIsCreationMode && (keyCode == 517 || keyCode == KEY_UPPERCASE_N || keyCode == KEY_LOWERCASE_N)) {
             characterEditorEditName();
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else if (gCharacterEditorIsCreationMode && (keyCode == 519 || keyCode == KEY_UPPERCASE_A || keyCode == KEY_LOWERCASE_A)) {
             characterEditorEditAge();
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else if (gCharacterEditorIsCreationMode && (keyCode == 520 || keyCode == KEY_UPPERCASE_S || keyCode == KEY_LOWERCASE_S)) {
             characterEditorEditGender();
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else if (gCharacterEditorIsCreationMode && (keyCode >= 503 && keyCode < 517)) {
             characterEditorAdjustPrimaryStat(keyCode);
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else if ((gCharacterEditorIsCreationMode && (keyCode == 501 || keyCode == KEY_UPPERCASE_O || keyCode == KEY_LOWERCASE_O))
             || (!gCharacterEditorIsCreationMode && (keyCode == 501 || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P))) {
             characterEditorShowOptions();
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else if (keyCode >= 525 && keyCode < 535) {
             characterEditorHandleInfoButtonPressed(keyCode);
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         } else {
             switch (keyCode) {
             case KEY_TAB:
@@ -770,7 +770,7 @@ int characterEditorShow(bool isCreationMode)
                 characterEditorDrawFolders();
                 characterEditorDrawDerivedStats();
                 characterEditorDrawCard();
-                windowRefresh(gCharacterEditorWindow);
+                win_draw(gCharacterEditorWindow);
                 break;
             case KEY_ARROW_LEFT:
             case KEY_MINUS:
@@ -778,20 +778,20 @@ int characterEditorShow(bool isCreationMode)
                 if (characterEditorSelectedItem >= 0 && characterEditorSelectedItem < 7) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(gCharacterEditorPrimaryStatMinusBtns[characterEditorSelectedItem]);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     }
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(gCharacterEditorTagSkillBtns[gCharacterEditorIsCreationMode - 61]);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     } else {
                         characterEditorHandleAdjustSkillButtonPressed(keyCode);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(gCharacterEditorOptionalTraitBtns[gCharacterEditorIsCreationMode - 82]);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     }
                 }
                 break;
@@ -801,20 +801,20 @@ int characterEditorShow(bool isCreationMode)
                 if (characterEditorSelectedItem >= 0 && characterEditorSelectedItem < 7) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(gCharacterEditorPrimaryStatPlusBtns[characterEditorSelectedItem]);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     }
                 } else if (characterEditorSelectedItem >= 61 && characterEditorSelectedItem < 79) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(gCharacterEditorTagSkillBtns[gCharacterEditorIsCreationMode - 61]);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     } else {
                         characterEditorHandleAdjustSkillButtonPressed(keyCode);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     }
                 } else if (characterEditorSelectedItem >= 82 && characterEditorSelectedItem < 98) {
                     if (gCharacterEditorIsCreationMode) {
                         _win_button_press_and_release(gCharacterEditorOptionalTraitBtns[gCharacterEditorIsCreationMode - 82]);
-                        windowRefresh(gCharacterEditorWindow);
+                        win_draw(gCharacterEditorWindow);
                     }
                 }
                 break;
@@ -833,7 +833,7 @@ int characterEditorShow(bool isCreationMode)
                         characterEditorDrawCard();
                     }
 
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 } else {
                     switch (characterEditorSelectedItem) {
                     case 0:
@@ -870,7 +870,7 @@ int characterEditorShow(bool isCreationMode)
                     characterEditorDrawFolders();
                     characterEditorDrawDerivedStats();
                     characterEditorDrawCard();
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 }
                 break;
             case KEY_ARROW_DOWN:
@@ -886,7 +886,7 @@ int characterEditorShow(bool isCreationMode)
                         characterEditorDrawCard();
                     }
 
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 } else {
                     switch (characterEditorSelectedItem) {
                     case 6:
@@ -923,39 +923,39 @@ int characterEditorShow(bool isCreationMode)
                     characterEditorDrawFolders();
                     characterEditorDrawDerivedStats();
                     characterEditorDrawCard();
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 }
                 break;
             case 521:
             case 523:
                 characterEditorHandleAdjustSkillButtonPressed(keyCode);
-                windowRefresh(gCharacterEditorWindow);
+                win_draw(gCharacterEditorWindow);
                 break;
             case 535:
                 characterEditorHandleFolderButtonPressed();
-                windowRefresh(gCharacterEditorWindow);
+                win_draw(gCharacterEditorWindow);
                 break;
             case 17000:
                 characterEditorFolderViewScroll(-1);
-                windowRefresh(gCharacterEditorWindow);
+                win_draw(gCharacterEditorWindow);
                 break;
             case 17001:
                 characterEditorFolderViewScroll(1);
-                windowRefresh(gCharacterEditorWindow);
+                win_draw(gCharacterEditorWindow);
                 break;
             default:
                 if (gCharacterEditorIsCreationMode && (keyCode >= 536 && keyCode < 554)) {
                     characterEditorToggleTaggedSkill(keyCode - 536);
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 } else if (gCharacterEditorIsCreationMode && (keyCode >= 555 && keyCode < 571)) {
                     characterEditorToggleOptionalTrait(keyCode - 555);
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 } else {
                     if (keyCode == 390) {
                         takeScreenshot();
                     }
 
-                    windowRefresh(gCharacterEditorWindow);
+                    win_draw(gCharacterEditorWindow);
                 }
             }
         }
@@ -1570,7 +1570,7 @@ int characterEditorWindowInit()
         buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
-    windowRefresh(gCharacterEditorWindow);
+    win_draw(gCharacterEditorWindow);
     indicatorBarHide();
 
     return 0;
@@ -1677,7 +1677,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
     bufferFill(windowBuffer + windowWidth * y + x, nameWidth, fontGetLineHeight(), windowWidth, backgroundColor);
     fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
 
-    windowRefresh(win);
+    win_draw(win);
 
     int blinkingCounter = 3;
     bool blink = false;
@@ -1702,7 +1702,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
                 fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
                 nameLength--;
 
-                windowRefresh(win);
+                win_draw(win);
             } else if ((keyCode >= KEY_FIRST_INPUT_CHARACTER && keyCode <= KEY_LAST_INPUT_CHARACTER) && nameLength < maxLength) {
                 if ((flags & 0x01) != 0) {
                     if (!_isdoschar(keyCode)) {
@@ -1718,7 +1718,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
                 fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
                 nameLength++;
 
-                windowRefresh(win);
+                win_draw(win);
             }
         }
 
@@ -1732,7 +1732,7 @@ int _get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x,
             bufferFill(windowBuffer + windowWidth * y + x + fontGetStringWidth(copy) - cursorWidth, cursorWidth, v60 - 2, windowWidth, color);
         }
 
-        windowRefresh(win);
+        win_draw(win);
 
         while (getTicksSince(_frame_time) < 1000 / 24) { }
     }
@@ -2978,7 +2978,7 @@ int characterEditorEditName()
         buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
-    windowRefresh(win);
+    win_draw(win);
 
     fontSetCurrent(101);
 
@@ -3201,8 +3201,8 @@ int characterEditorEditAge()
             characterEditorDrawAge();
             characterEditorDrawPrimaryStat(RENDER_ALL_STATS, 0, 0);
             characterEditorDrawDerivedStats();
-            windowRefresh(gCharacterEditorWindow);
-            windowRefresh(win);
+            win_draw(gCharacterEditorWindow);
+            win_draw(win);
         }
 
         if (change != 0) {
@@ -3248,8 +3248,8 @@ int characterEditorEditAge()
                         characterEditorDrawAge();
                         characterEditorDrawPrimaryStat(RENDER_ALL_STATS, 0, 0);
                         characterEditorDrawDerivedStats();
-                        windowRefresh(gCharacterEditorWindow);
-                        windowRefresh(win);
+                        win_draw(gCharacterEditorWindow);
+                        win_draw(win);
                     }
                 }
 
@@ -3267,7 +3267,7 @@ int characterEditorEditAge()
                 }
             }
         } else {
-            windowRefresh(win);
+            win_draw(win);
 
             while (getTicksSince(_frame_time) < 1000 / 24)
                 ;
@@ -3278,8 +3278,8 @@ int characterEditorEditAge()
     characterEditorDrawAge();
     characterEditorDrawPrimaryStat(RENDER_ALL_STATS, 0, 0);
     characterEditorDrawDerivedStats();
-    windowRefresh(gCharacterEditorWindow);
-    windowRefresh(win);
+    win_draw(gCharacterEditorWindow);
+    win_draw(win);
     windowDestroy(win);
     return 0;
 }
@@ -3391,7 +3391,7 @@ void characterEditorEditGender()
             critterSetBaseStat(gDude, STAT_GENDER, savedGender);
             characterEditorDrawPrimaryStat(RENDER_ALL_STATS, 0, 0);
             characterEditorDrawDerivedStats();
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
             break;
         }
 
@@ -3413,7 +3413,7 @@ void characterEditorEditGender()
             break;
         }
 
-        windowRefresh(win);
+        win_draw(win);
 
         while (getTicksSince(_frame_time) < 41)
             ;
@@ -3485,7 +3485,7 @@ void characterEditorAdjustPrimaryStat(int eventCode)
                 characterEditorSelectedItem = incrementingStat;
             }
 
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         }
 
         if (v11 >= 19.2) {
@@ -3845,7 +3845,7 @@ int characterEditorShowOptions()
                 }
             }
 
-            windowRefresh(win);
+            win_draw(win);
         }
 
         windowDestroy(win);
@@ -4438,7 +4438,7 @@ void characterEditorResetScreen()
     characterEditorDrawPrimaryStat(7, 0, 0);
     characterEditorDrawDerivedStats();
     characterEditorDrawCard();
-    windowRefresh(gCharacterEditorWindow);
+    win_draw(gCharacterEditorWindow);
 }
 
 // 0x43A5BC
@@ -4931,7 +4931,7 @@ void characterEditorHandleAdjustSkillButtonPressed(int keyCode)
 
             characterEditorDrawBigNumber(522, 228, flags, pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS), unspentSp, gCharacterEditorWindow);
 
-            windowRefresh(gCharacterEditorWindow);
+            win_draw(gCharacterEditorWindow);
         }
 
         if (!isUsingKeyboard) {
@@ -5026,7 +5026,7 @@ void characterEditorToggleTaggedSkill(int skill)
     characterEditorDrawDerivedStats();
     characterEditorDrawSkills(2);
     characterEditorDrawCard();
-    windowRefresh(gCharacterEditorWindow);
+    win_draw(gCharacterEditorWindow);
 }
 
 // 0x43B8A8
@@ -5171,7 +5171,7 @@ void characterEditorToggleOptionalTrait(int trait)
     characterEditorDrawPrimaryStat(RENDER_ALL_STATS, false, 0);
     characterEditorDrawDerivedStats();
     characterEditorDrawCard();
-    windowRefresh(gCharacterEditorWindow);
+    win_draw(gCharacterEditorWindow);
 }
 
 // 0x43BCE0
@@ -5398,7 +5398,7 @@ int characterEditorUpdateLevel()
     if (gCharacterEditorHasFreePerk != 0) {
         characterEditorWindowSelectedFolder = 0;
         characterEditorDrawFolders();
-        windowRefresh(gCharacterEditorWindow);
+        win_draw(gCharacterEditorWindow);
 
         int rc = perkDialogShow();
         if (rc == -1) {
@@ -5446,7 +5446,7 @@ void perkDialogRefreshPerks()
 
     perkDialogDrawCard(perkFrmId, perkName, perkRank, perkDescription);
 
-    windowRefresh(gPerkDialogWindow);
+    win_draw(gPerkDialogWindow);
 }
 
 // 0x43C4F0
@@ -5597,7 +5597,7 @@ int perkDialogShow()
     }
 
     perkDialogDrawCard(perkFrmId, perkName, perkRank, perkDescription);
-    windowRefresh(gPerkDialogWindow);
+    win_draw(gPerkDialogWindow);
 
     int rc = perkDialogHandleInput(count, perkDialogRefreshPerks);
 
@@ -5635,7 +5635,7 @@ int perkDialogShow()
     characterEditorDrawDerivedStats();
     characterEditorDrawFolders();
     characterEditorDrawCard();
-    windowRefresh(gCharacterEditorWindow);
+    win_draw(gCharacterEditorWindow);
 
     artUnlock(backgroundFrmHandle);
 
@@ -5981,7 +5981,7 @@ void perkDialogRefreshTraits()
     int frmId = traitGetFrmId(gPerkDialogOptionList[gPerkDialogTopLine + gPerkDialogCurrentLine].value);
     perkDialogDrawCard(frmId, traitName, NULL, tratDescription);
 
-    windowRefresh(gPerkDialogWindow);
+    win_draw(gPerkDialogWindow);
 }
 
 // 0x43D38C
@@ -6090,7 +6090,7 @@ void perkDialogRefreshSkills()
     int frmId = skillGetFrmId(gPerkDialogOptionList[gPerkDialogTopLine + gPerkDialogCurrentLine].value);
     perkDialogDrawCard(frmId, name, NULL, description);
 
-    windowRefresh(gPerkDialogWindow);
+    win_draw(gPerkDialogWindow);
 }
 
 // 0x43D6F8

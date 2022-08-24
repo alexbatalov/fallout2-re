@@ -933,7 +933,7 @@ void gameDialogRenderSupplementaryMessage(char* msg)
         _colorTable[992] | 0x2000000);
 
     win_show(_gd_replyWin);
-    windowRefresh(gGameDialogReplyWindow);
+    win_draw(gGameDialogReplyWindow);
 }
 
 // 0x4454FC
@@ -1292,7 +1292,7 @@ int gameDialogReviewWindowInit(int* win)
 
     fontSetCurrent(101);
 
-    windowRefresh(*win);
+    win_draw(*win);
 
     tickersRemove(gameDialogTicker);
 
@@ -1947,8 +1947,8 @@ int _gdProcessChoice(int a1)
 
     _demo_copy_title(gGameDialogReplyWindow);
     _demo_copy_options(gGameDialogOptionsWindow);
-    windowRefresh(gGameDialogReplyWindow);
-    windowRefresh(gGameDialogOptionsWindow);
+    win_draw(gGameDialogReplyWindow);
+    win_draw(gGameDialogOptionsWindow);
 
     gameDialogOptionOnMouseEnter(a1);
     _talk_to_critter_reacts(v1);
@@ -2095,7 +2095,7 @@ void gameDialogRenderReply()
         fontGetLineHeight(),
         379,
         _colorTable[992] | 0x2000000);
-    windowRefresh(gGameDialogReplyWindow);
+    win_draw(gGameDialogReplyWindow);
 }
 
 // 0x446D30
@@ -2231,8 +2231,8 @@ void _gdProcessUpdate()
     }
 
     gameDialogRenderCaps();
-    windowRefresh(gGameDialogReplyWindow);
-    windowRefresh(gGameDialogOptionsWindow);
+    win_draw(gGameDialogReplyWindow);
+    win_draw(gGameDialogOptionsWindow);
 }
 
 // 0x44715C
@@ -3330,7 +3330,7 @@ int partyMemberControlWindowInit()
 
     _dialogue_state = 10;
 
-    windowRefresh(gGameDialogWindow);
+    win_draw(gGameDialogWindow);
 
     return 0;
 }
@@ -3472,7 +3472,7 @@ void partyMemberControlWindowUpdate()
     fontDrawText(windowBuffer + windowWidth * 167 + 240, formattedText, 115, windowWidth, _colorTable[992]);
 
     fontSetCurrent(oldFont);
-    windowRefresh(gGameDialogWindow);
+    win_draw(gGameDialogWindow);
 }
 
 // 0x44928C
@@ -3867,7 +3867,7 @@ void partyMemberCustomizationWindowUpdate()
     msg = getmsg(&gCustomMessageList, &messageListItem, _custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE][_custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE]].messageId);
     fontDrawText(windowBuffer + windowWidth * 166 + 232, msg, 248, windowWidth, _colorTable[992]);
 
-    windowRefresh(gGameDialogWindow);
+    win_draw(gGameDialogWindow);
     fontSetCurrent(oldFont);
 }
 
@@ -3982,7 +3982,7 @@ int _gdCustomSelect(int a1)
 
     int value = _custom_current_selected[a1];
     _gdCustomSelectRedraw(windowBuffer, backgroundFrmWidth, a1, value);
-    windowRefresh(win);
+    win_draw(win);
 
     int minX = selectWindowX + 42;
     int minY = selectWindowY + 42;
@@ -4066,7 +4066,7 @@ int _gdCustomSelect(int a1)
                     if (enabled) {
                         value = newValue;
                         _gdCustomSelectRedraw(windowBuffer, backgroundFrmWidth, a1, newValue);
-                        windowRefresh(win);
+                        win_draw(win);
                     }
                 }
             }
@@ -4184,7 +4184,7 @@ int _gdialog_window_create()
             blitBufferToBuffer(v14 + screenWidth * (GAME_DIALOG_WINDOW_HEIGHT - _dialogue_subwin_len), screenWidth, _dialogue_subwin_len, screenWidth, v10, screenWidth);
 
             if (_dialogue_just_started) {
-                windowRefresh(gGameDialogBackgroundWindow);
+                win_draw(gGameDialogBackgroundWindow);
                 _gdialog_scroll_subwin(gGameDialogWindow, 1, backgroundFrmData, v10, 0, _dialogue_subwin_len, -1);
                 _dialogue_just_started = 0;
             } else {
@@ -4328,7 +4328,7 @@ int gameDialogWindowRenderBackground()
     artUnlock(backgroundFrmHandle);
 
     if (!_dialogue_just_started) {
-        windowRefresh(gGameDialogBackgroundWindow);
+        win_draw(gGameDialogBackgroundWindow);
     }
 
     return 0;

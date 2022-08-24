@@ -879,7 +879,7 @@ int interfaceLoad(File* stream)
 
     indicatorBarRefresh();
 
-    windowRefresh(gInterfaceBarWindow);
+    win_draw(gInterfaceBarWindow);
 
     return 0;
 }
@@ -971,7 +971,7 @@ void interfaceBarRefresh()
         interfaceRenderHitPoints(false);
         interfaceRenderArmorClass(false);
         indicatorBarRefresh();
-        windowRefresh(gInterfaceBarWindow);
+        win_draw(gInterfaceBarWindow);
     }
     indicatorBarRefresh();
 }
@@ -2483,7 +2483,7 @@ int indicatorBarRefresh()
                 _colorTable[0],
                 0);
             indicatorBarRender(count);
-            windowRefresh(gIndicatorBarWindow);
+            win_draw(gIndicatorBarWindow);
         }
 
         return count;

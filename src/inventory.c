@@ -551,7 +551,7 @@ void inventoryOpen()
                 } else if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
                     inventoryRenderSummary();
-                    windowRefresh(gInventoryWindow);
+                    win_draw(gInventoryWindow);
                 }
             } else if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if (keyCode >= 1000 && keyCode <= 1008) {
@@ -1255,7 +1255,7 @@ void _display_inventory(int a1, int a2, int inventoryWindowType)
         }
     }
 
-    windowRefresh(gInventoryWindow);
+    win_draw(gInventoryWindow);
 }
 
 // Render inventory item.
@@ -3028,7 +3028,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
             } else {
                 inventoryExamineItem(_stack[0], item);
             }
-            windowRefresh(gInventoryWindow);
+            win_draw(gInventoryWindow);
             return;
         }
     } while ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT) != MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT);
@@ -3584,13 +3584,13 @@ int inventoryOpenLooting(Object* a1, Object* a2)
             if (_target_stack_offset[_target_curr_stack] > 0) {
                 _target_stack_offset[_target_curr_stack] -= 1;
                 _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_LOOT);
-                windowRefresh(gInventoryWindow);
+                win_draw(gInventoryWindow);
             }
         } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
             if (_target_stack_offset[_target_curr_stack] + gInventorySlotsCount < _target_pud->length) {
                 _target_stack_offset[_target_curr_stack] += 1;
                 _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_LOOT);
-                windowRefresh(gInventoryWindow);
+                win_draw(gInventoryWindow);
             }
         } else if (keyCode >= 2500 && keyCode <= 2501) {
             _container_exit(keyCode, INVENTORY_WINDOW_TYPE_LOOT);
@@ -3775,7 +3775,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
         quantity = inventoryItem->quantity;
         if (quantity > 1) {
             _display_target_inventory(_target_stack_offset[_target_curr_stack], a2, _target_pud, INVENTORY_WINDOW_TYPE_LOOT);
-            windowRefresh(gInventoryWindow);
+            win_draw(gInventoryWindow);
             v38 = false;
         }
     }
@@ -4291,7 +4291,7 @@ void inventoryOpenTrade(int win, Object* a2, Object* a3, Object* a4, int a5)
     _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_TRADE);
     _display_inventory(_stack_offset[0], -1, INVENTORY_WINDOW_TYPE_TRADE);
     _display_body(a2->fid, INVENTORY_WINDOW_TYPE_TRADE);
-    windowRefresh(_barter_back_win);
+    win_draw(_barter_back_win);
     inventoryWindowRenderInnerInventories(win, a3, a4, -1);
 
     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
@@ -4386,13 +4386,13 @@ void inventoryOpenTrade(int win, Object* a2, Object* a3, Object* a4, int a5)
             if (_target_stack_offset[_target_curr_stack] > 0) {
                 _target_stack_offset[_target_curr_stack] -= 1;
                 _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_TRADE);
-                windowRefresh(gInventoryWindow);
+                win_draw(gInventoryWindow);
             }
         } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
             if (_target_stack_offset[_target_curr_stack] + gInventorySlotsCount < _target_pud->length) {
                 _target_stack_offset[_target_curr_stack] += 1;
                 _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, INVENTORY_WINDOW_TYPE_TRADE);
-                windowRefresh(gInventoryWindow);
+                win_draw(gInventoryWindow);
             }
         } else if (keyCode >= 2500 && keyCode <= 2501) {
             _container_exit(keyCode, INVENTORY_WINDOW_TYPE_TRADE);
@@ -4515,7 +4515,7 @@ void _container_enter(int keyCode, int inventoryWindowType)
 
                 _display_body(item->fid, inventoryWindowType);
                 _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, inventoryWindowType);
-                windowRefresh(gInventoryWindow);
+                win_draw(gInventoryWindow);
             }
         }
     } else {
@@ -4559,7 +4559,7 @@ void _container_exit(int keyCode, int inventoryWindowType)
             _target_pud = &(v5->data.inventory);
             _display_body(v5->fid, inventoryWindowType);
             _display_target_inventory(_target_stack_offset[_target_curr_stack], -1, _target_pud, inventoryWindowType);
-            windowRefresh(gInventoryWindow);
+            win_draw(gInventoryWindow);
         }
     }
 }
@@ -5002,7 +5002,7 @@ int inventoryQuantityWindowInit(int inventoryWindowType, Object* item)
         }
     }
 
-    windowRefresh(_mt_wid);
+    win_draw(_mt_wid);
     inventorySetCursor(INVENTORY_WINDOW_CURSOR_ARROW);
     fontSetCurrent(oldFont);
 

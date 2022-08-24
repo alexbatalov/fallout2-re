@@ -662,7 +662,7 @@ bool _windowDraw()
         return false;
     }
 
-    windowRefresh(managedWindow->window);
+    win_draw(managedWindow->window);
 
     return true;
 }

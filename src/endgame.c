@@ -322,7 +322,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
                     endgameEndingRefreshSubtitles();
                 }
 
-                windowRefresh(gEndgameEndingSlideshowWindow);
+                win_draw(gEndgameEndingSlideshowWindow);
 
                 since = _get_time();
 
@@ -376,7 +376,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
 
         paletteFadeTo(gPaletteBlack);
         bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, _colorTable[0]);
-        windowRefresh(gEndgameEndingSlideshowWindow);
+        win_draw(gEndgameEndingSlideshowWindow);
     }
 
     while (mouseGetEvent() != 0) {
@@ -396,7 +396,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
     unsigned char* backgroundData = artGetFrameData(background, 0, 0);
     if (backgroundData != NULL) {
         blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
-        windowRefresh(gEndgameEndingSlideshowWindow);
+        win_draw(gEndgameEndingSlideshowWindow);
 
         endgameEndingLoadPalette(FID_TYPE(fid), fid & 0xFFF);
 
@@ -440,7 +440,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
 
             blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
             endgameEndingRefreshSubtitles();
-            windowRefresh(gEndgameEndingSlideshowWindow);
+            win_draw(gEndgameEndingSlideshowWindow);
             soundContinueAll();
         }
 

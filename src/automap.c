@@ -542,7 +542,7 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
         windowDrawText(window, mapName, 240, 150, 396, textColor | 0x2000000);
     }
 
-    windowRefresh(window);
+    win_draw(window);
 }
 
 // Renders automap in Pipboy window.

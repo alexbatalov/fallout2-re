@@ -334,7 +334,7 @@ int skilldexWindowInit()
         buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
-    windowRefresh(gSkilldexWindow);
+    win_draw(gSkilldexWindow);
 
     return 0;
 }

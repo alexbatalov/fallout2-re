@@ -117,7 +117,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                                     windowBuffer,
                                     CREDITS_WINDOW_WIDTH);
 
-                                windowRefresh(window);
+                                win_draw(window);
 
                                 paletteFadeTo(_cmap);
 
@@ -168,7 +168,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                                         tick = _get_time();
 
-                                        windowRefresh(window);
+                                        win_draw(window);
 
                                         src += CREDITS_WINDOW_WIDTH;
                                     }
@@ -206,7 +206,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                                         tick = _get_time();
 
-                                        windowRefresh(window);
+                                        win_draw(window);
                                     }
                                 }
 

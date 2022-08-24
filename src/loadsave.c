@@ -324,7 +324,7 @@ int lsgSaveGame(int mode)
     }
 
     if (_GetSlotList() == -1) {
-        windowRefresh(gLoadSaveWindow);
+        win_draw(gLoadSaveWindow);
 
         soundPlayFile("iisxxxx1");
 
@@ -361,7 +361,7 @@ int lsgSaveGame(int mode)
     blitBufferToBuffer(src, 223, 132, LS_PREVIEW_WIDTH, gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 58 + 366, LS_WINDOW_WIDTH);
     _ShowSlotList(0);
     _DrawInfoBox(_slot_cursor);
-    windowRefresh(gLoadSaveWindow);
+    win_draw(gLoadSaveWindow);
 
     _dbleclkcntr = 24;
 
@@ -493,7 +493,7 @@ int lsgSaveGame(int mode)
                 _ShowSlotList(0);
             }
 
-            windowRefresh(gLoadSaveWindow);
+            win_draw(gLoadSaveWindow);
 
             _dbleclkcntr -= 1;
             if (_dbleclkcntr == 0) {
@@ -544,7 +544,7 @@ int lsgSaveGame(int mode)
                     showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
 
                     if (_GetSlotList() == -1) {
-                        windowRefresh(gLoadSaveWindow);
+                        win_draw(gLoadSaveWindow);
                         soundPlayFile("iisxxxx1");
 
                         // Error loading save agme list!
@@ -581,7 +581,7 @@ int lsgSaveGame(int mode)
                     blitBufferToBuffer(src, 223, 132, LS_PREVIEW_WIDTH, gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 58 + 366, LS_WINDOW_WIDTH);
                     _ShowSlotList(0);
                     _DrawInfoBox(_slot_cursor);
-                    windowRefresh(gLoadSaveWindow);
+                    win_draw(gLoadSaveWindow);
                     _dbleclkcntr = 24;
                 }
             }
@@ -663,7 +663,7 @@ int lsgLoadGame(int mode)
         if (window != -1) {
             unsigned char* windowBuffer = windowGetBuffer(window);
             bufferFill(windowBuffer, LS_WINDOW_WIDTH, LS_WINDOW_HEIGHT, LS_WINDOW_WIDTH, _colorTable[0]);
-            windowRefresh(window);
+            win_draw(window);
         }
 
         if (lsgLoadGameInSlot(_slot_cursor) != -1) {
@@ -731,7 +731,7 @@ int lsgLoadGame(int mode)
 
         if (_GetSlotList() == -1) {
             gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-            windowRefresh(gLoadSaveWindow);
+            win_draw(gLoadSaveWindow);
             soundPlayFile("iisxxxx1");
 
             const char* text1 = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 106);
@@ -762,7 +762,7 @@ int lsgLoadGame(int mode)
 
         _ShowSlotList(2);
         _DrawInfoBox(_slot_cursor);
-        windowRefresh(gLoadSaveWindow);
+        win_draw(gLoadSaveWindow);
         _dbleclkcntr = 24;
 
         int rc = -1;
@@ -921,7 +921,7 @@ int lsgLoadGame(int mode)
 
                             _ShowSlotList(2);
                             _DrawInfoBox(_slot_cursor);
-                            windowRefresh(gLoadSaveWindow);
+                            win_draw(gLoadSaveWindow);
                         }
 
                         if (v109 > 14.4) {
@@ -963,7 +963,7 @@ int lsgLoadGame(int mode)
                         _ShowSlotList(2);
                     }
 
-                    windowRefresh(gLoadSaveWindow);
+                    win_draw(gLoadSaveWindow);
 
                     _dbleclkcntr -= 1;
                     if (_dbleclkcntr == 0) {
@@ -1940,7 +1940,7 @@ int _GetComment(int a1)
         buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
-    windowRefresh(window);
+    win_draw(window);
 
     char description[LOAD_SAVE_DESCRIPTION_LENGTH];
     if (_LSstatus[_slot_cursor] == SLOT_STATE_OCCUPIED) {
@@ -1987,7 +1987,7 @@ int _get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* descripti
     bufferFill(windowBuffer + windowWidth * y + x, nameWidth, lineHeight, windowWidth, backgroundColor);
     fontDrawText(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
 
-    windowRefresh(win);
+    win_draw(win);
 
     int blinkCounter = 3;
     bool blink = false;
@@ -2035,7 +2035,7 @@ int _get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* descripti
                 fontDrawText(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
                 textLength++;
 
-                windowRefresh(win);
+                win_draw(win);
             }
         }
 
@@ -2046,7 +2046,7 @@ int _get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* descripti
 
             int color = blink ? backgroundColor : textColor;
             bufferFill(windowBuffer + windowWidth * y + x + fontGetStringWidth(text) - cursorWidth, cursorWidth, lineHeight - 2, windowWidth, color);
-            windowRefresh(win);
+            win_draw(win);
         }
 
         while (getTicksSince(tick) < 1000 / 24) {

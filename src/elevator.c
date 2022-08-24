@@ -379,7 +379,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
         gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width,
         gElevatorWindowBuffer + gElevatorBackgroundFrmWidth * 41 + 121,
         gElevatorBackgroundFrmWidth);
-    windowRefresh(gElevatorWindow);
+    win_draw(gElevatorWindow);
 
     bool done = false;
     int keyCode;
@@ -434,7 +434,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
                     gElevatorWindowBuffer + gElevatorBackgroundFrmWidth * 41 + 121,
                     gElevatorBackgroundFrmWidth);
 
-                windowRefresh(gElevatorWindow);
+                win_draw(gElevatorWindow);
 
                 while (getTicksSince(tick) < delay) {
                 }

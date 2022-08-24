@@ -186,7 +186,7 @@ void windowFill(int win, int x, int y, int width, int height, int a6);
 void win_show(int win);
 void win_hide(int win);
 void _win_move(int win_index, int x, int y);
-void windowRefresh(int win);
+void win_draw(int win);
 void windowRefreshRect(int win, const Rect* rect);
 void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3);
 void windowRefreshAll(Rect* rect);

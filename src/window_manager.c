@@ -725,7 +725,7 @@ void _win_move(int win, int x, int y)
 }
 
 // 0x4D6F5C
-void windowRefresh(int win)
+void win_draw(int win)
 {
     Window* window = windowGetWindow(win);
 

@@ -5413,7 +5413,7 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
         _draw_loc_(index + 4, _colorTable[992]);
     }
 
-    windowRefresh(gCalledShotWindow);
+    win_draw(gCalledShotWindow);
 
     bool gameUiWasDisabled = gameUiIsDisabled();
     if (gameUiWasDisabled) {

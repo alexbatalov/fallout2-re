@@ -298,7 +298,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         NULL,
         BUTTON_FLAG_0x10);
 
-    windowRefresh(win);
+    win_draw(win);
 
     int absoluteSelectedItemIndex = -1;
 
@@ -579,7 +579,7 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         "Cancel",
         0);
 
-    windowRefresh(win);
+    win_draw(win);
 
     _win_input_str(win,
         dest,
@@ -641,7 +641,7 @@ int _win_msg(const char* string, int x, int y, int flags)
         "Done",
         0);
 
-    windowRefresh(win);
+    win_draw(win);
 
     while (_get_input() != KEY_ESCAPE) {
     }
@@ -684,7 +684,7 @@ int _create_pull_down(char** stringList, int stringListLength, int x, int y, int
     _win_text(win, stringList, stringListLength, windowWidth - 4, 2, 8, a5);
     win_box(win, 0, 0, windowWidth - 1, windowHeight - 1, _colorTable[0]);
     win_box(win, 1, 1, windowWidth - 2, windowHeight - 2, a5);
-    windowRefresh(win);
+    win_draw(win);
     win_get_rect(win, rect);
 
     return win;
@@ -801,7 +801,7 @@ int _win_debug(char* string)
         pch++;
     }
 
-    windowRefresh(_wd);
+    win_draw(_wd);
 
     return 0;
 }

@@ -187,7 +187,7 @@ int gameMoviePlay(int movie, int flags)
         backgroundSoundPause();
     }
 
-    windowRefresh(win);
+    win_draw(win);
 
     bool subtitlesEnabled = false;
     int v1 = 4;

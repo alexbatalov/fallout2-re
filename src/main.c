@@ -298,7 +298,7 @@ int _main_load_new(char* mapFileName)
     mouseHideCursor();
 
     int win = windowCreate(0, 0, 640, 480, _colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
-    windowRefresh(win);
+    win_draw(win);
 
     colorPaletteLoad("color.pal");
     paletteFadeTo(_cmap);
@@ -515,7 +515,7 @@ void showDeath()
                 }
             }
 
-            windowRefresh(win);
+            win_draw(win);
 
             colorPaletteLoad("art\\intrface\\death.pal");
             paletteFadeTo(_cmap);

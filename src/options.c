@@ -560,7 +560,7 @@ int optionsWindowInit()
 
     fontSetCurrent(101);
 
-    windowRefresh(gOptionsWindow);
+    win_draw(gOptionsWindow);
 
     return 0;
 }
@@ -721,7 +721,7 @@ int showPause(bool a1)
         buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
     }
 
-    windowRefresh(window);
+    win_draw(window);
 
     bool done = false;
     while (!done) {
@@ -791,7 +791,7 @@ void _ShadeScreen(bool a1)
         unsigned char* windowBuffer = windowGetBuffer(gIsoWindow);
         grayscalePaletteApply(windowBuffer, windowWidth, windowHeight, windowWidth);
 
-        windowRefresh(gIsoWindow);
+        win_draw(gIsoWindow);
     }
 
     mouseShowCursor();
@@ -911,7 +911,7 @@ void preferencesSetDefaults(bool a1)
             _UpdateThing(index);
         }
         _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
-        windowRefresh(gPreferencesWindow);
+        win_draw(gPreferencesWindow);
         _changed = true;
     }
 }
@@ -1575,7 +1575,7 @@ int preferencesWindowInit()
 
     fontSetCurrent(101);
 
-    windowRefresh(gPreferencesWindow);
+    win_draw(gPreferencesWindow);
 
     return 0;
 }
@@ -1735,7 +1735,7 @@ void _DoThing(int eventCode)
             coreDelay(70);
             soundPlayFile("ib3lu1x1");
             _UpdateThing(preferenceIndex);
-            windowRefresh(gPreferencesWindow);
+            win_draw(gPreferencesWindow);
             _changed = true;
             return;
         }
@@ -1769,7 +1769,7 @@ void _DoThing(int eventCode)
             coreDelay(70);
             soundPlayFile("ib2lu1x1");
             _UpdateThing(preferenceIndex);
-            windowRefresh(gPreferencesWindow);
+            win_draw(gPreferencesWindow);
             _changed = true;
             return;
         }
@@ -1800,7 +1800,7 @@ void _DoThing(int eventCode)
         blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, 240, 12, PREFERENCES_WINDOW_WIDTH, gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, PREFERENCES_WINDOW_WIDTH);
         blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
 
-        windowRefresh(gPreferencesWindow);
+        win_draw(gPreferencesWindow);
 
         int sfxVolumeExample = 0;
         int speechVolumeExample = 0;
@@ -1814,7 +1814,7 @@ void _DoThing(int eventCode)
             if (mouseGetEvent() & 0x10) {
                 soundPlayFile("ib1lu1x1");
                 _UpdateThing(preferenceIndex);
-                windowRefresh(gPreferencesWindow);
+                win_draw(gPreferencesWindow);
                 _changed = true;
                 return;
             }
@@ -1940,7 +1940,7 @@ void _DoThing(int eventCode)
             }
 
             blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
-            windowRefresh(gPreferencesWindow);
+            win_draw(gPreferencesWindow);
 
             while (getTicksSince(tick) < 35)
                 ;

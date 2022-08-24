@@ -442,7 +442,7 @@ int pipboyWindowInit(int intent)
                     _colorTable[992]);
             }
 
-            windowRefresh(gPipboyWindow);
+            win_draw(gPipboyWindow);
 
             soundPlayFile("iisxxxx1");
 
@@ -487,7 +487,7 @@ int pipboyWindowInit(int intent)
                 _colorTable[992]);
         }
 
-        windowRefresh(gPipboyWindow);
+        win_draw(gPipboyWindow);
     }
 
     if (questInit() == -1) {
@@ -495,7 +495,7 @@ int pipboyWindowInit(int intent)
     }
 
     soundPlayFile("pipon");
-    windowRefresh(gPipboyWindow);
+    win_draw(gPipboyWindow);
 
     return intent;
 }
@@ -698,7 +698,7 @@ void pipboyWindowHandleStatus(int a1)
 
         windowRefreshRect(gPipboyWindow, &gPipboyWindowContentRect);
         pipboyWindowCreateButtons(2, gPipboyQuestLocationsCount + gPipboyWindowHolodisksCount + 1, false);
-        windowRefresh(gPipboyWindow);
+        win_draw(gPipboyWindow);
         return;
     }
 
@@ -1179,7 +1179,7 @@ void pipboyRenderHolodiskText()
 
     const char* moreOrDoneText = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, moreOrDoneTextId);
     pipboyDrawText(moreOrDoneText, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, _colorTable[992]);
-    windowRefresh(gPipboyWindow);
+    win_draw(gPipboyWindow);
 }
 
 // 0x498C40
@@ -1606,7 +1606,7 @@ void pipboyHandleAlarmClock(int a1)
             if (pipboyRest(hours, minutes, 0) == 0) {
                 pipboyDrawNumber(0, 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
             }
-            windowRefresh(gPipboyWindow);
+            win_draw(gPipboyWindow);
             break;
         case PIPBOY_REST_DURATION_UNTIL_HEALED:
         case PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED:
@@ -1793,7 +1793,7 @@ bool pipboyRest(int hours, int minutes, int duration)
 
                     pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
                     pipboyDrawDate();
-                    windowRefresh(gPipboyWindow);
+                    win_draw(gPipboyWindow);
 
                     while (getTicksSince(start) < 50) {
                     }
@@ -1812,7 +1812,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
             pipboyDrawDate();
             pipboyDrawHitPoints();
-            windowRefresh(gPipboyWindow);
+            win_draw(gPipboyWindow);
         }
 
         if (hours != 0 && !rc) {
@@ -1859,7 +1859,7 @@ bool pipboyRest(int hours, int minutes, int duration)
                     pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
                     pipboyDrawDate();
                     pipboyDrawHitPoints();
-                    windowRefresh(gPipboyWindow);
+                    win_draw(gPipboyWindow);
 
                     while (getTicksSince(start) < 50) {
                     }
@@ -1873,7 +1873,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
             pipboyDrawDate();
             pipboyDrawHitPoints();
-            windowRefresh(gPipboyWindow);
+            win_draw(gPipboyWindow);
         }
     } else if (duration == PIPBOY_REST_DURATION_UNTIL_HEALED || duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED) {
         int currentHp = critterGetHitPoints(gDude);
@@ -1941,7 +1941,7 @@ bool pipboyRest(int hours, int minutes, int duration)
 
     pipboyDrawNumber(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
     pipboyDrawDate();
-    windowRefresh(gPipboyWindow);
+    win_draw(gPipboyWindow);
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 

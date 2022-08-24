@@ -443,7 +443,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
         }
     }
 
-    windowRefresh(win);
+    win_draw(win);
 
     int rc = -1;
     while (rc == -1) {
@@ -660,7 +660,7 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
     fontSetCurrent(101);
 
     fileDialogRenderFileList(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
-    windowRefresh(win);
+    win_draw(win);
 
     int doubleClickSelectedFileIndex = -2;
     int doubleClickTimer = FILE_DIALOG_DOUBLE_CLICK_DELAY;
@@ -815,7 +815,7 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
                     }
 
                     fileDialogRenderFileList(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
-                    windowRefresh(win);
+                    win_draw(win);
                 }
 
                 unsigned int delay = (scrollCounter > 14.4) ? 1000 / scrollDelay : 1000 / 24;
@@ -833,7 +833,7 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
                 }
             }
         } else {
-            windowRefresh(win);
+            win_draw(win);
 
             doubleClickTimer--;
             if (doubleClickTimer == 0) {
@@ -1062,7 +1062,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
     bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
     fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
 
-    windowRefresh(win);
+    win_draw(win);
 
     int blinkingCounter = 3;
     bool blink = false;
@@ -1091,7 +1091,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
             fileNameCopy[fileNameCopyLength] = '\0';
             fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
             fileNameCopyLength--;
-            windowRefresh(win);
+            win_draw(win);
         } else if (keyCode < KEY_FIRST_INPUT_CHARACTER || keyCode > KEY_LAST_INPUT_CHARACTER || fileNameCopyLength >= 8) {
             if (keyCode == 502 && fileListLength != 0) {
                 int mouseX;
@@ -1210,7 +1210,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
             fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
             fileNameCopyLength++;
 
-            windowRefresh(win);
+            win_draw(win);
         }
 
         if (scrollDirection != FILE_DIALOG_SCROLL_DIRECTION_NONE) {
@@ -1257,7 +1257,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
                     }
 
                     fileDialogRenderFileList(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
-                    windowRefresh(win);
+                    win_draw(win);
                 }
 
                 // NOTE: Original code is slightly different. For unknown reason
@@ -1302,7 +1302,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
                 bufferFill(fileNameBufferPtr + fontGetStringWidth(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
             }
 
-            windowRefresh(win);
+            win_draw(win);
 
             doubleClickTimer--;
             if (doubleClickTimer == 0) {

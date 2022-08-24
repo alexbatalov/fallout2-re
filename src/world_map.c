@@ -4624,7 +4624,7 @@ int worldmapWindowInit()
         return -1;
     }
 
-    windowRefresh(gWorldmapWindow);
+    win_draw(gWorldmapWindow);
     scriptsDisable();
     _scr_remove_all();
 
@@ -5909,7 +5909,7 @@ int worldmapCityMapViewRefresh()
         }
     }
 
-    windowRefresh(gWorldmapWindow);
+    win_draw(gWorldmapWindow);
 
     return 0;
 }
@@ -6173,7 +6173,7 @@ int worldmapWindowRenderChrome(bool shouldRefreshWindow)
     worldmapWindowRenderDate(false);
 
     if (shouldRefreshWindow) {
-        windowRefresh(gWorldmapWindow);
+        win_draw(gWorldmapWindow);
     }
 
     return 0;
