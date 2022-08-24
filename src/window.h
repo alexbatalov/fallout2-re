@@ -148,6 +148,7 @@ int windowDrawRectID(int windowId, int left, int top, int right, int bottom);
 int _windowWidth();
 int _windowHeight();
 int windowSX();
+int windowSY();
 bool _windowDraw();
 int windowGetGNWID();
 int windowGetSpecificGNWID(int windowIndex);

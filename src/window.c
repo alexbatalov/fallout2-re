@@ -698,6 +698,18 @@ int windowSX()
     return rect.left;
 }
 
+// NOTE: Unused.
+//
+// 0x4B77A4
+int windowSY()
+{
+    Rect rect;
+
+    win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
+
+    return rect.top;
+}
+
 // 0x4B7680
 bool _windowDraw()
 {
