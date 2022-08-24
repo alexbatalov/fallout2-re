@@ -686,6 +686,18 @@ int _windowHeight()
     return gManagedWindows[gCurrentManagedWindowIndex].height;
 }
 
+// NOTE: Unused.
+//
+// 0x4B7774
+int windowSX()
+{
+    Rect rect;
+
+    win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
+
+    return rect.left;
+}
+
 // 0x4B7680
 bool _windowDraw()
 {
