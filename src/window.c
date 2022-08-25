@@ -1419,6 +1419,27 @@ bool _windowDisplay(char* fileName, int x, int y, int width, int height)
     return true;
 }
 
+// NOTE: Unused
+//
+// 0x4B8EA0
+int windowDisplayScaled(char* fileName, int x, int y, int width, int height)
+{
+    int imageWidth;
+    int imageHeight;
+    unsigned char* imageData;
+
+    imageData = datafileRead(fileName, &imageWidth, &imageHeight);
+    if (imageData == NULL) {
+        return 0;
+    }
+
+    windowDisplayBufScaled(imageData, imageWidth, imageHeight, x, y, width, height);
+
+    internal_free_safe(imageData, __FILE__, __LINE__); // "..\int\WINDOW.C", 1389
+
+    return 1;
+}
+
 // 0x4B8EF0
 bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight)
 {

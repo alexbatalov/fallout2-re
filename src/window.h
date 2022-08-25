@@ -184,6 +184,7 @@ void _displayFile(char* fileName);
 void _displayFileRaw(char* fileName);
 int windowDisplayRaw(char* fileName);
 bool _windowDisplay(char* fileName, int x, int y, int width, int height);
+int windowDisplayScaled(char* fileName, int x, int y, int width, int height);
 bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight);
 int windowDisplayTransBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight);
 int windowDisplayBufScaled(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight);
