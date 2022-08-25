@@ -1437,6 +1437,25 @@ bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int dest
 
 // NOTE: Unused.
 //
+// 0x4B8F64
+int windowDisplayTransBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight)
+{
+    unsigned char* windowBuffer;
+
+    windowBuffer = windowGetBuffer(gManagedWindows[gCurrentManagedWindowIndex].window);
+
+    blitBufferToBufferTrans(src,
+        destWidth,
+        destHeight,
+        srcWidth,
+        windowBuffer + destY * gManagedWindows[gCurrentManagedWindowIndex].width + destX,
+        gManagedWindows[gCurrentManagedWindowIndex].width);
+
+    return 1;
+}
+
+// NOTE: Unused.
+//
 // 0x4B8FD8
 int windowDisplayBufScaled(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight)
 {
