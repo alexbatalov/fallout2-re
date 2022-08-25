@@ -913,6 +913,14 @@ int _main_menu_is_enabled()
     return 1;
 }
 
+// NOTE: Unused.
+//
+// 0x481AB0
+void main_menu_set_timeout(unsigned int timeout)
+{
+    gMainMenuScreensaverDelay = 60000 * timeout;
+}
+
 // 0x481AEC
 int mainMenuWindowHandleEvents()
 {
