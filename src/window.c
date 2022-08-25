@@ -1435,6 +1435,26 @@ bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int dest
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4B8FD8
+int windowDisplayBufScaled(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight)
+{
+    unsigned char* windowBuffer;
+
+    windowBuffer = windowGetBuffer(gManagedWindows[gCurrentManagedWindowIndex].window);
+    _drawScaled(windowBuffer + destY * gManagedWindows[gCurrentManagedWindowIndex].width + destX,
+        destWidth,
+        destHeight,
+        gManagedWindows[gCurrentManagedWindowIndex].width,
+        src,
+        srcWidth,
+        srcHeight,
+        srcWidth);
+
+    return 1;
+}
+
 // 0x4B9048
 int _windowGetXres()
 {
