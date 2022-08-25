@@ -947,7 +947,8 @@ int mainMenuWindowHandleEvents()
 
         for (int buttonIndex = 0; buttonIndex < MAIN_MENU_BUTTON_COUNT; buttonIndex++) {
             if (keyCode == gMainMenuButtonKeyBindings[buttonIndex] || keyCode == toupper(gMainMenuButtonKeyBindings[buttonIndex])) {
-                soundPlayFile("nmselec1");
+                // NOTE: Uninline.
+                main_menu_play_sound("nmselec1");
 
                 rc = _return_values[buttonIndex];
 
@@ -972,7 +973,8 @@ int mainMenuWindowHandleEvents()
                 continue;
             } else if (keyCode == 1111) {
                 if (!(mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT)) {
-                    soundPlayFile("nmselec0");
+                    // NOTE: Uninline.
+                    main_menu_play_sound("nmselec0");
                 }
                 continue;
             }
@@ -980,7 +982,9 @@ int mainMenuWindowHandleEvents()
 
         if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit == 3) {
             rc = MAIN_MENU_EXIT;
-            soundPlayFile("nmselec1");
+
+            // NOTE: Uninline.
+            main_menu_play_sound("nmselec1");
             break;
         } else if (_game_user_wants_to_quit == 2) {
             _game_user_wants_to_quit = 0;
@@ -1008,4 +1012,12 @@ int main_menu_fatal_error()
     mainMenuWindowFree();
 
     return -1;
+}
+
+// NOTE: Inlined.
+//
+// 0x481C94
+void main_menu_play_sound(const char* fileName)
+{
+    soundPlayFile(fileName);
 }

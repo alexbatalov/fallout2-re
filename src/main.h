@@ -78,5 +78,6 @@ void main_menu_set_timeout(unsigned int timeout);
 unsigned int main_menu_get_timeout();
 int mainMenuWindowHandleEvents();
 int main_menu_fatal_error();
+void main_menu_play_sound(const char* fileName);
 
 #endif /* MAIN_H */
