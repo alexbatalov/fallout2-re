@@ -172,9 +172,13 @@ int falloutMain(int argc, char** argv)
                     _main_load_new(_mainMap);
                     mainLoop();
                     paletteFadeTo(gPaletteWhite);
-                    objectHide(gDude, NULL);
-                    _map_exit();
-                    gameReset();
+
+                    // NOTE: Uninline.
+                    main_unload_new();
+
+                    // NOTE: Uninline.
+                    main_reset_system();
+
                     if (_main_show_death_scene != 0) {
                         showDeath();
                         _main_show_death_scene = 0;
@@ -356,6 +360,13 @@ int main_loadgame_new()
     return 0;
 }
 
+// 0x480E34
+void main_unload_new()
+{
+    objectHide(gDude, NULL);
+    _map_exit();
+}
+
 // 0x480E48
 void mainLoop()
 {
@@ -444,8 +455,9 @@ void _main_selfrun_record()
         _main_load_new(selfrunData.mapFileName);
         selfrunRecordingLoop(&selfrunData);
         paletteFadeTo(gPaletteWhite);
-        objectHide(gDude, NULL);
-        _map_exit();
+
+        // NOTE: Uninline.
+        main_unload_new();
 
         // NOTE: Uninline.
         main_reset_system();
@@ -480,8 +492,9 @@ void _main_selfrun_play()
             _main_load_new(selfrunData.mapFileName);
             selfrunPlaybackLoop(&selfrunData);
             paletteFadeTo(gPaletteWhite);
-            objectHide(gDude, NULL);
-            _map_exit();
+
+            // NOTE: Uninline.
+            main_unload_new();
 
             // NOTE: Uninline.
             main_reset_system();
