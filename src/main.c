@@ -899,6 +899,14 @@ void mainMenuWindowUnhide(bool animate)
     gMainMenuWindowHidden = false;
 }
 
+// NOTE: Unused.
+//
+// 0x481A8C
+int main_menu_is_shown()
+{
+    return gMainMenuWindowInitialized ? gMainMenuWindowHidden == 0 : 0;
+}
+
 // 0x481AA8
 int _main_menu_is_enabled()
 {

@@ -72,6 +72,7 @@ int mainMenuWindowInit();
 void mainMenuWindowFree();
 void mainMenuWindowHide(bool animate);
 void mainMenuWindowUnhide(bool animate);
+int main_menu_is_shown();
 int _main_menu_is_enabled();
 int mainMenuWindowHandleEvents();
 
