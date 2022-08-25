@@ -1781,6 +1781,22 @@ bool _windowDeleteButton(const char* buttonName)
     return false;
 }
 
+// NOTE: Unused.
+//
+// 0x4B98C4
+int windowGetButtonID(const char* buttonName)
+{
+    int index;
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].buttonsLength; index++) {
+        if (stricmp(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].name, buttonName) == 0) {
+            return gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn;
+        }
+    }
+
+    return -1;
+}
+
 // 0x4B9928
 bool _windowSetButtonFlag(const char* buttonName, int value)
 {

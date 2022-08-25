@@ -195,6 +195,7 @@ void _initWindow(int resolution, int a2);
 void windowSetWindowFuncs(ManagedWindowCreateCallback* createCallback, ManagedWindowSelectFunc* selectCallback, WindowDeleteCallback* deleteCallback, DisplayInWindowCallback* displayCallback);
 void _windowClose();
 bool _windowDeleteButton(const char* buttonName);
+int windowGetButtonID(const char* buttonName);
 bool _windowSetButtonFlag(const char* buttonName, int value);
 void windowRegisterButtonSoundFunc(ButtonCallback* soundPressFunc, ButtonCallback* soundReleaseFunc, ButtonCallback* soundDisableFunc);
 bool _windowAddButton(const char* buttonName, int x, int y, int width, int height, int flags);
