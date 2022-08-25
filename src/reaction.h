@@ -10,8 +10,10 @@ typedef enum NpcReaction {
 } NpcReaction;
 
 int reactionSetValue(Object* critter, int a2);
+int level_to_reaction();
 int reactionTranslateValue(int a1);
 int _reaction_influence_();
+int reaction_to_level_internal(int sid, int reaction);
 int reactionGetValue(Object* critter);
 
 #endif /* REACTION_H */
