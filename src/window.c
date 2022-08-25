@@ -1381,6 +1381,27 @@ void _displayFileRaw(char* fileName)
     }
 }
 
+// NOTE: Unused.
+//
+// 0x4B8E0C
+int windowDisplayRaw(char* fileName)
+{
+    int imageWidth;
+    int imageHeight;
+    unsigned char* imageData;
+
+    imageData = datafileRead(fileName, &imageWidth, &imageHeight);
+    if (imageData == NULL) {
+        return 0;
+    }
+
+    _displayInWindow(imageData, imageWidth, imageHeight, imageWidth);
+
+    internal_free_safe(imageData, __FILE__, __LINE__); // "..\int\WINDOW.C", 1363
+
+    return 1;
+}
+
 // 0x4B8E50
 bool _windowDisplay(char* fileName, int x, int y, int width, int height)
 {

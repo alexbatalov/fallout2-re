@@ -182,6 +182,7 @@ int windowPrintFont(char* string, int a2, int x, int y, int a5, int font);
 void _displayInWindow(unsigned char* data, int width, int height, int pitch);
 void _displayFile(char* fileName);
 void _displayFileRaw(char* fileName);
+int windowDisplayRaw(char* fileName);
 bool _windowDisplay(char* fileName, int x, int y, int width, int height);
 bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight);
 int _windowGetXres();
