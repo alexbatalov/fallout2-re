@@ -75,6 +75,7 @@ void mainMenuWindowUnhide(bool animate);
 int main_menu_is_shown();
 int _main_menu_is_enabled();
 void main_menu_set_timeout(unsigned int timeout);
+unsigned int main_menu_get_timeout();
 int mainMenuWindowHandleEvents();
 
 #endif /* MAIN_H */

@@ -921,6 +921,14 @@ void main_menu_set_timeout(unsigned int timeout)
     gMainMenuScreensaverDelay = 60000 * timeout;
 }
 
+// NOTE: Unused.
+//
+// 0x481AD0
+unsigned int main_menu_get_timeout()
+{
+    return gMainMenuScreensaverDelay / 1000 / 60;
+}
+
 // 0x481AEC
 int mainMenuWindowHandleEvents()
 {
