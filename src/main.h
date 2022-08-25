@@ -58,6 +58,7 @@ bool falloutInit(int argc, char** argv);
 int main_reset_system();
 void main_exit_system();
 int _main_load_new(char* fname);
+int main_loadgame_new();
 void mainLoop();
 void _main_selfrun_exit();
 void _main_selfrun_record();

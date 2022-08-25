@@ -190,14 +190,10 @@ int falloutMain(int argc, char** argv)
                     mainMenuWindowHide(true);
                     mainMenuWindowFree();
                     backgroundSoundDelete();
-                    _game_user_wants_to_quit = 0;
-                    gDude->flags &= ~OBJECT_FLAT;
-                    _main_show_death_scene = 0;
-                    objectShow(gDude, NULL);
-                    mouseHideCursor();
-                    _map_init();
-                    gameMouseSetCursor(MOUSE_CURSOR_NONE);
-                    mouseShowCursor();
+                    
+                    // NOTE: Uninline.
+                    main_loadgame_new();
+
                     colorPaletteLoad("color.pal");
                     paletteFadeTo(_cmap);
                     int loadGameRc = lsgLoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
@@ -336,6 +332,27 @@ int _main_load_new(char* mapFileName)
     windowDestroy(win);
     colorPaletteLoad("color.pal");
     paletteFadeTo(_cmap);
+    return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x480DF8
+int main_loadgame_new()
+{
+    _game_user_wants_to_quit = 0;
+    _main_show_death_scene = 0;
+
+    gDude->flags &= ~OBJECT_FLAT;
+
+    objectShow(gDude, NULL);
+    mouseHideCursor();
+
+    _map_init();
+
+    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    mouseShowCursor();
+
     return 0;
 }
 
