@@ -580,6 +580,17 @@ void tileRefreshGame(Rect* rect, int elevation)
     gTileWindowRefreshProc(&rectToUpdate);
 }
 
+// 0x4B1634
+void tile_toggle_roof(int a1)
+{
+    gTileRoofIsVisible = 1 - gTileRoofIsVisible;
+
+    if (a1) {
+        // NOTE: Uninline.
+        tileWindowRefresh();
+    }
+}
+
 // 0x4B166C
 int tileRoofIsVisible()
 {
@@ -1078,6 +1089,23 @@ int squareTileFromScreenXY(int screenX, int screenY, int elevation)
     return -1;
 }
 
+// NOTE: Unused.
+//
+// 0x4B1F4C
+int square_num_roof(int screenX, int screenY, int elevation)
+{
+    int x;
+    int y;
+
+    squareTileScreenToCoordRoof(screenX, screenY, elevation, &x, &y);
+
+    if (x >= 0 && x < gSquareGridWidth && y >= 0 && y < gSquareGridHeight) {
+        return x + gSquareGridWidth * y;
+    }
+
+    return -1;
+}
+
 // 0x4B1F94
 void squareTileScreenToCoord(int screenX, int screenY, int elevation, int* coordX, int* coordY)
 {
@@ -1456,6 +1484,36 @@ bool _square_roof_intersect(int x, int y, int elevation)
     return result;
 }
 
+// NOTE: Unused.
+//
+// 0x4B2E60
+void grid_toggle()
+{
+    gTileGridIsVisible = 1 - gTileGridIsVisible;
+}
+
+// NOTE: Unused.
+//
+// 0x4B2E78
+void grid_on()
+{
+    gTileGridIsVisible = 1;
+}
+
+// NOTE: Unused.
+//
+// 0x4B2E84
+void grid_off()
+{
+    gTileGridIsVisible = 0;
+}
+
+// 0x4B2E90
+int get_grid_flag()
+{
+    return gTileGridIsVisible;
+}
+
 // 0x4B2E98
 void _grid_render(Rect* rect, int elevation)
 {
@@ -1468,6 +1526,21 @@ void _grid_render(Rect* rect, int elevation)
             int tile = tileFromScreenXY(x, y, elevation);
             _draw_grid(tile, elevation, rect);
         }
+    }
+}
+
+// 0x4B2EF0
+void grid_draw(int tile, int elevation)
+{
+    Rect rect;
+
+    tileToScreenXY(tile, &(rect.left), &(rect.top), elevation);
+
+    rect.right = rect.left + 32 - 1;
+    rect.bottom = rect.top + 16 - 1;
+    if (rectIntersection(&rect, &gTileWindowRect, &rect) != -1) {
+        _draw_grid(tile, elevation, &rect);
+        gTileWindowRefreshProc(&rect);
     }
 }
 
