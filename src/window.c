@@ -2023,6 +2023,29 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
 
 // NOTE: Unused.
 //
+// 0x4B9F40
+int windowAddButtonMask(const char* buttonName, unsigned char* buffer)
+{
+    int index;
+    ManagedButton* button;
+    unsigned char* copy;
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].buttonsLength; index++) {
+        button = &(gManagedWindows[gCurrentManagedWindowIndex].buttons[index]);
+        if (stricmp(button->name, buttonName) == 0) {
+            copy = (unsigned char*)internal_malloc_safe(button->width * button->height, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1871
+            memcpy(copy, buffer, button->width * button->height);
+            buttonSetMask(button->btn, copy);
+            button->field_50 = copy;
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+// NOTE: Unused.
+//
 // 0x4B9FC8
 int windowAddButtonBuf(const char* buttonName, unsigned char* normal, unsigned char* pressed, unsigned char* hover, int width, int height, int pitch)
 {
