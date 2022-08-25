@@ -264,9 +264,8 @@ int falloutMain(int argc, char** argv)
         }
     }
 
-    backgroundSoundDelete();
-    _main_selfrun_exit();
-    gameExit();
+    // NOTE: Uninline.
+    main_exit_system();
 
     autorunMutexClose();
 
@@ -299,6 +298,19 @@ int main_reset_system()
     gameReset();
 
     return 1;
+}
+
+// NOTE: Inlined.
+//
+// 0x480D18
+void main_exit_system()
+{
+    backgroundSoundDelete();
+
+    // NOTE: Uninline.
+    _main_selfrun_exit();
+
+    gameExit();
 }
 
 // 0x480D4C
