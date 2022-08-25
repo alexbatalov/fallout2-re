@@ -133,6 +133,7 @@ extern int gInventoryWindowMaxX;
 extern Inventory* _target_pud;
 extern int _barter_back_win;
 
+void inven_set_dude(Object* obj, int pid);
 void _inven_reset_dude();
 int inventoryMessageListInit();
 int inventoryMessageListFree();

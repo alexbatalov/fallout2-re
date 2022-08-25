@@ -406,6 +406,15 @@ Inventory* _target_pud;
 // 0x59E97C
 int _barter_back_win;
 
+// NOTE: Unused.
+//
+// 0x46E718
+void inven_set_dude(Object* obj, int pid)
+{
+    _inven_dude = obj;
+    _inven_pid = pid;
+}
+
 // 0x46E724
 void _inven_reset_dude()
 {
