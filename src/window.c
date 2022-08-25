@@ -1783,6 +1783,32 @@ bool _windowDeleteButton(const char* buttonName)
 
 // NOTE: Unused.
 //
+// 0x4B97F8
+void windowEnableButton(const char* buttonName, int enabled)
+{
+    int index;
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].buttonsLength; index++) {
+        if (stricmp(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].name, buttonName) == 0) {
+            if (enabled) {
+                if (_soundPressFunc != NULL || _soundReleaseFunc != NULL) {
+                    buttonSetCallbacks(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn, _soundPressFunc, _soundReleaseFunc);
+                }
+
+                gManagedWindows[gCurrentManagedWindowIndex].buttons[index].flags &= ~0x02;
+            } else {
+                if (_soundDisableFunc != NULL) {
+                    buttonSetCallbacks(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn, _soundDisableFunc, NULL);
+                }
+
+                gManagedWindows[gCurrentManagedWindowIndex].buttons[index].flags |= 0x02;
+            }
+        }
+    }
+}
+
+// NOTE: Unused.
+//
 // 0x4B98C4
 int windowGetButtonID(const char* buttonName)
 {
