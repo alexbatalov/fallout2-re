@@ -2021,6 +2021,66 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
     return false;
 }
 
+// NOTE: Unused.
+//
+// 0x4B9FC8
+int windowAddButtonBuf(const char* buttonName, unsigned char* normal, unsigned char* pressed, unsigned char* hover, int width, int height, int pitch)
+{
+    int index;
+    ManagedButton* button;
+
+    for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].buttonsLength; index++) {
+        button = &(gManagedWindows[gCurrentManagedWindowIndex].buttons[index]);
+        if (stricmp(button->name, buttonName) == 0) {
+            if (normal != NULL) {
+                memset(button->normal, 0, button->width * button->height);
+                _drawScaled(button->normal,
+                    button->width,
+                    button->height,
+                    button->width,
+                    normal,
+                    width,
+                    height,
+                    pitch);
+            }
+
+            if (pressed != NULL) {
+                memset(button->pressed, 0, button->width * button->height);
+                _drawScaled(button->pressed,
+                    button->width,
+                    button->height,
+                    button->width,
+                    pressed,
+                    width,
+                    height,
+                    pitch);
+            }
+
+            if (hover != NULL) {
+                memset(button->hover, 0, button->width * button->height);
+                _drawScaled(button->hover,
+                    button->width,
+                    button->height,
+                    button->width,
+                    hover,
+                    width,
+                    height,
+                    pitch);
+            }
+
+            if ((button->field_18 & 0x20) != 0) {
+                buttonSetMask(button->btn, button->normal);
+            }
+
+            _win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
+
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 // 0x4BA11C
 bool _windowAddButtonProc(const char* buttonName, Program* program, int mouseEnterProc, int mouseExitProc, int mouseDownProc, int mouseUpProc)
 {
