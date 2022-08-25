@@ -126,6 +126,14 @@ int _win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
     return textInputRegionIndex + 1;
 }
 
+// NOTE: Unused.
+//
+// 0x4B53A8
+void _windowSelectTextInputRegion(int textInputRegionId)
+{
+    _textInputRegionDispatch(_textInputRegions[textInputRegionId - 1].btn, textInputRegionId | 0x400);
+}
+
 // 0x4B53D0
 int _win_delete_all_text_input_regions(int win)
 {

@@ -72,6 +72,7 @@ void _deleteChar(char* string, int pos, int length);
 void _insertChar(char* string, char ch, int pos, int length);
 void _textInputRegionDispatch(int btn, int inputEvent);
 int _win_add_text_input_region(int textRegionId, char* text, int a3, int a4);
+void _windowSelectTextInputRegion(int textInputRegionId);
 int _win_delete_all_text_input_regions(int win);
 int _win_delete_text_input_region(int textInputRegionId);
 int _win_set_text_input_delete_func(int textInputRegionId, TextInputRegionDeleteFunc* deleteFunc, void* userData);
