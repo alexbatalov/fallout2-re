@@ -214,7 +214,10 @@ int falloutMain(int argc, char** argv)
                     }
                     objectHide(gDude, NULL);
                     _map_exit();
-                    gameReset();
+
+                    // NOTE: Uninline.
+                    main_reset_system();
+
                     if (_main_show_death_scene != 0) {
                         showDeath();
                         _main_show_death_scene = 0;
@@ -286,6 +289,16 @@ bool falloutInit(int argc, char** argv)
     }
 
     return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x480D0C
+int main_reset_system()
+{
+    gameReset();
+
+    return 1;
 }
 
 // 0x480D4C
@@ -394,14 +407,20 @@ void _main_selfrun_record()
         mainMenuWindowFree();
         backgroundSoundDelete();
         randomSeedPrerandom(0xBEEFFEED);
-        gameReset();
+
+        // NOTE: Uninline.
+        main_reset_system();
+
         _proto_dude_init("premade\\combat.gcd");
         _main_load_new(selfrunData.mapFileName);
         selfrunRecordingLoop(&selfrunData);
         paletteFadeTo(gPaletteWhite);
         objectHide(gDude, NULL);
         _map_exit();
-        gameReset();
+
+        // NOTE: Uninline.
+        main_reset_system();
+
         mainMenuWindowInit();
 
         if (_main_selfrun_list != NULL) {
@@ -424,14 +443,20 @@ void _main_selfrun_play()
             mainMenuWindowFree();
             backgroundSoundDelete();
             randomSeedPrerandom(0xBEEFFEED);
-            gameReset();
+
+            // NOTE: Uninline.
+            main_reset_system();
+
             _proto_dude_init("premade\\combat.gcd");
             _main_load_new(selfrunData.mapFileName);
             selfrunPlaybackLoop(&selfrunData);
             paletteFadeTo(gPaletteWhite);
             objectHide(gDude, NULL);
             _map_exit();
-            gameReset();
+
+            // NOTE: Uninline.
+            main_reset_system();
+
             mainMenuWindowInit();
         }
 

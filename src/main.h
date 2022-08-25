@@ -55,6 +55,7 @@ extern CacheEntry* gMainMenuBackgroundFrmHandle;
 
 int falloutMain(int argc, char** argv);
 bool falloutInit(int argc, char** argv);
+int main_reset_system();
 int _main_load_new(char* fname);
 void mainLoop();
 void _main_selfrun_exit();
