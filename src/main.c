@@ -742,8 +742,8 @@ int mainMenuWindowInit()
         0,
         WINDOW_HIDDEN | WINDOW_FLAG_0x04);
     if (gMainMenuWindow == -1) {
-        mainMenuWindowFree();
-        return -1;
+        // NOTE: Uninline.
+        return main_menu_fatal_error();
     }
 
     gMainMenuWindowBuffer = windowGetBuffer(gMainMenuWindow);
@@ -752,8 +752,8 @@ int mainMenuWindowInit()
     int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 140, 0, 0, 0);
     gMainMenuBackgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &gMainMenuBackgroundFrmHandle);
     if (gMainMenuBackgroundFrmData == NULL) {
-        mainMenuWindowFree();
-        return -1;
+        // NOTE: Uninline.
+        return main_menu_fatal_error();
     }
 
     blitBufferToBuffer(gMainMenuBackgroundFrmData, 640, 480, 640, gMainMenuWindowBuffer, 640);
@@ -778,16 +778,16 @@ int mainMenuWindowInit()
     fid = buildFid(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
     gMainMenuButtonUpFrmData = artLockFrameData(fid, 0, 0, &gMainMenuButtonUpFrmHandle);
     if (gMainMenuButtonUpFrmData == NULL) {
-        mainMenuWindowFree();
-        return -1;
+        // NOTE: Uninline.
+        return main_menu_fatal_error();
     }
 
     // menudown.frm
     fid = buildFid(OBJ_TYPE_INTERFACE, 300, 0, 0, 0);
     gMainMenuButtonDownFrmData = artLockFrameData(fid, 0, 0, &gMainMenuButtonDownFrmHandle);
     if (gMainMenuButtonDownFrmData == NULL) {
-        mainMenuWindowFree();
-        return -1;
+        // NOTE: Uninline.
+        return main_menu_fatal_error();
     }
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
@@ -797,8 +797,8 @@ int mainMenuWindowInit()
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         gMainMenuButtons[index] = buttonCreate(gMainMenuWindow, 30, 19 + index * 42 - index, 26, 26, -1, -1, 1111, gMainMenuButtonKeyBindings[index], gMainMenuButtonUpFrmData, gMainMenuButtonDownFrmData, 0, 32);
         if (gMainMenuButtons[index] == -1) {
-            mainMenuWindowFree();
-            return -1;
+            // NOTE: Uninline.
+            return main_menu_fatal_error();
         }
 
         buttonSetMask(gMainMenuButtons[index], gMainMenuButtonUpFrmData);
@@ -998,4 +998,14 @@ int mainMenuWindowHandleEvents()
     _in_main_menu = false;
 
     return rc;
+}
+
+// NOTE: Inlined.
+//
+// 0x481C88
+int main_menu_fatal_error()
+{
+    mainMenuWindowFree();
+
+    return -1;
 }

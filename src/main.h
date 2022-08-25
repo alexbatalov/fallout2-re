@@ -77,5 +77,6 @@ int _main_menu_is_enabled();
 void main_menu_set_timeout(unsigned int timeout);
 unsigned int main_menu_get_timeout();
 int mainMenuWindowHandleEvents();
+int main_menu_fatal_error();
 
 #endif /* MAIN_H */
