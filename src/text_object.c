@@ -114,6 +114,14 @@ void textObjectsEnable()
     gTextObjectsEnabled = true;
 }
 
+// NOTE: Unused.
+//
+// 0x4B02BC
+int text_object_is_enabled()
+{
+    return gTextObjectsEnabled;
+}
+
 // 0x4B02C4
 void textObjectsSetBaseDelay(double value)
 {
@@ -124,6 +132,14 @@ void textObjectsSetBaseDelay(double value)
     gTextObjectsBaseDelay = (int)(value * 1000.0);
 }
 
+// NOTE: Unused.
+//
+// 0x4B0308
+unsigned int text_object_get_base_delay()
+{
+    return gTextObjectsBaseDelay / 1000;
+}
+
 // 0x4B031C
 void textObjectsSetLineDelay(double value)
 {
@@ -132,6 +148,14 @@ void textObjectsSetLineDelay(double value)
     }
 
     gTextObjectsLineDelay = (int)(value * 1000.0);
+}
+
+// NOTE: Unused.
+//
+// 0x4B0358
+unsigned int text_object_get_line_delay()
+{
+    return gTextObjectsLineDelay / 1000;
 }
 
 // text_object_create
