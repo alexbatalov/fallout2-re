@@ -182,6 +182,7 @@ extern char* (*_filenameFunc)(char*);
 extern int (*_outputFunc)(char*);
 extern int _cpuBurstSize;
 
+extern unsigned int _suspendTime;
 extern OpcodeHandler* gInterpreterOpcodeHandlers[OPCODE_MAX_COUNT];
 extern Program* gInterpreterCurrentProgram;
 extern ProgramListNode* gInterpreterProgramListHead;
@@ -315,6 +316,7 @@ void programListNodeCreate(Program* program);
 void _updatePrograms();
 void programListFree();
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler);
+void interpretResumeEvents();
 int interpretSaveProgramState();
 void interpreterPrintStats();
 

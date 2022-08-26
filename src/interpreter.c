@@ -42,6 +42,9 @@ int _cpuBurstSize = 10;
 // 0x59E230
 OpcodeHandler* gInterpreterOpcodeHandlers[342];
 
+// 0x59E788
+unsigned int _suspendTime;
+
 // 0x59E78C
 Program* gInterpreterCurrentProgram;
 
@@ -3658,6 +3661,39 @@ void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
     }
 
     gInterpreterOpcodeHandlers[index] = handler;
+}
+
+// NOTE: Unused.
+//
+// 0x46E3C0
+void interpretResumeEvents()
+{
+    int counter;
+    ProgramListNode* programListNode;
+    unsigned int time;
+    int procedureCount;
+    int procedureIndex;
+    unsigned char* procedurePtr;
+
+    counter = _suspendEvents;
+    if (_suspendEvents != 0) {
+        _suspendEvents--;
+        if (counter == 1) {
+            programListNode = gInterpreterProgramListHead;
+            time = 1000 * (_timerFunc() - _suspendTime) / _timerTick;
+            while (programListNode != NULL) {
+                procedureCount = stackReadInt32(programListNode->program->procedures, 0);
+                procedurePtr = programListNode->program->procedures + 4;
+                for (procedureIndex = 0; procedureIndex < procedureCount; procedureIndex++) {
+                    if ((stackReadInt32(procedurePtr, 4) & PROCEDURE_FLAG_TIMED) != 0) {
+                        stackWriteInt32(stackReadInt32(procedurePtr, 8) + time, procedurePtr, 8);
+                    }
+                }
+                programListNode = programListNode->next;
+                procedurePtr += sizeof(Procedure);
+            }
+        }
+    }
 }
 
 // NOTE: Unused.
