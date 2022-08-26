@@ -226,6 +226,7 @@ int _win_last_button_winID();
 int buttonDestroy(int btn);
 void buttonFree(Button* ptr);
 void win_delete_button_win(int btn, int inputEvent);
+int button_new_id();
 int buttonEnable(int btn);
 int buttonDisable(int btn);
 int _win_set_button_rest_state(int btn, bool a2, int a3);

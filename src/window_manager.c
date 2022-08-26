@@ -1602,10 +1602,8 @@ Button* buttonCreateInternal(int win, int x, int y, int width, int height, int m
         }
     }
 
-    int buttonId = 1;
-    while (buttonGetButton(buttonId, NULL) != NULL) {
-        buttonId++;
-    }
+    // NOTE: Uninline.
+    int buttonId = button_new_id();
 
     button->id = buttonId;
     button->flags = flags;
@@ -2156,6 +2154,21 @@ void win_delete_button_win(int btn, int inputEvent)
         windowDestroy(window->id);
         enqueueInputEvent(inputEvent);
     }
+}
+
+// NOTE: Inlined.
+//
+// 0x4D9458
+int button_new_id()
+{
+    int btn;
+
+    btn = 1;
+    while (buttonGetButton(btn, NULL) != NULL) {
+        btn++;
+    }
+
+    return btn;
 }
 
 // 0x4D9474
