@@ -2143,6 +2143,21 @@ void buttonFree(Button* button)
     internal_free(button);
 }
 
+// NOTE: Unused.
+//
+// 0x4D9430
+void win_delete_button_win(int btn, int inputEvent)
+{
+    Button* button;
+    Window* window;
+
+    button = buttonGetButton(btn, &window);
+    if (button != NULL) {
+        windowDestroy(window->id);
+        enqueueInputEvent(inputEvent);
+    }
+}
+
 // 0x4D9474
 int buttonEnable(int btn)
 {
