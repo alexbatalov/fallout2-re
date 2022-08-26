@@ -315,6 +315,7 @@ void programListNodeCreate(Program* program);
 void _updatePrograms();
 void programListFree();
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler);
+int interpretSaveProgramState();
 void interpreterPrintStats();
 
 #endif /* INTERPRETER_H */

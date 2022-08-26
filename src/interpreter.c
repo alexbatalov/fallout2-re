@@ -3660,6 +3660,14 @@ void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
     gInterpreterOpcodeHandlers[index] = handler;
 }
 
+// NOTE: Unused.
+//
+// 0x46E4AC
+int interpretSaveProgramState()
+{
+    return 0;
+}
+
 // 0x46E5EC
 void interpreterPrintStats()
 {
