@@ -3665,6 +3665,17 @@ void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
 
 // NOTE: Unused.
 //
+// 0x46E3A0
+void interpretSuspendEvents()
+{
+    _suspendEvents++;
+    if (_suspendEvents == 1) {
+        _suspendTime = _timerFunc();
+    }
+}
+
+// NOTE: Unused.
+//
 // 0x46E3C0
 void interpretResumeEvents()
 {

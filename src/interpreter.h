@@ -316,6 +316,7 @@ void programListNodeCreate(Program* program);
 void _updatePrograms();
 void programListFree();
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler);
+void interpretSuspendEvents();
 void interpretResumeEvents();
 int interpretSaveProgramState();
 void interpreterPrintStats();
