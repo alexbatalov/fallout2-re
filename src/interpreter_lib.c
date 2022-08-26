@@ -480,6 +480,70 @@ void _interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* newPalett
     _setSystemPalette(newPalette);
 }
 
+// NOTE: Unused.
+//
+// 0x462330
+void interpretFadePalette(unsigned char* oldPalette, unsigned char* newPalette, int a3, float duration)
+{
+    _interpretFadePaletteBK(oldPalette, newPalette, a3, duration, 1);
+}
+
+// NOTE: Unused.
+int intlibGetFadeIn()
+{
+    return gIntLibIsPaletteFaded;
+}
+
+// NOTE: Inlined.
+//
+// 0x462348
+void interpretFadeOut(float duration)
+{
+    int cursorWasHidden;
+
+    cursorWasHidden = cursorIsHidden();
+    mouseHideCursor();
+
+    _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, duration, 1);
+
+    if (!cursorWasHidden) {
+        mouseShowCursor();
+    }
+}
+
+// NOTE: Inlined.
+//
+// 0x462380
+void interpretFadeIn(float duration)
+{
+    _interpretFadePaletteBK(gIntLibFadePalette, _cmap, 64, duration, 1);
+}
+
+// NOTE: Unused.
+//
+// 0x4623A4
+void interpretFadeOutNoBK(float duration)
+{
+    int cursorWasHidden;
+
+    cursorWasHidden = cursorIsHidden();
+    mouseHideCursor();
+
+    _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, duration, 0);
+
+    if (!cursorWasHidden) {
+        mouseShowCursor();
+    }
+}
+
+// NOTE: Unused.
+//
+// 0x4623DC
+void interpretFadeInNoBK(float duration)
+{
+    _interpretFadePaletteBK(gIntLibFadePalette, _cmap, 64, duration, 0);
+}
+
 // fadein
 // 0x462400
 void opFadeIn(Program* program)
@@ -499,7 +563,9 @@ void opFadeIn(Program* program)
 
     _setSystemPalette(gIntLibFadePalette);
 
-    _interpretFadePaletteBK(gIntLibFadePalette, _cmap, 64, (float)data, 1);
+    // NOTE: Uninline.
+    interpretFadeIn((float)data);
+
     gIntLibIsPaletteFaded = true;
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -523,14 +589,8 @@ void opFadeOut(Program* program)
 
     program->flags |= PROGRAM_FLAG_0x20;
 
-    bool cursorWasHidden = cursorIsHidden();
-    mouseHideCursor();
-
-    _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, (float)data, 1);
-
-    if (!cursorWasHidden) {
-        mouseShowCursor();
-    }
+    // NOTE: Uninline.
+    interpretFadeOut((float)data);
 
     gIntLibIsPaletteFaded = false;
 
@@ -1178,6 +1238,22 @@ void opSayQuit(Program* program)
     if (_dialogQuit() != 0) {
         programFatalError("Error quitting option.");
     }
+}
+
+// NOTE: Unused.
+//
+// 0x463828
+int getTimeOut()
+{
+    return _TimeOut;
+}
+
+// NOTE: Unused.
+//
+// 0x463830
+void setTimeOut(int value)
+{
+    _TimeOut = value;
 }
 
 // saymessagetimeout
