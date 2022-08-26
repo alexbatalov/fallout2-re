@@ -185,6 +185,7 @@ int interfaceLoad(File* stream);
 int interfaceSave(File* stream);
 void intface_hide();
 void _intface_show();
+int intface_is_hidden();
 void interfaceBarEnable();
 void interfaceBarDisable();
 bool interfaceBarEnabled();

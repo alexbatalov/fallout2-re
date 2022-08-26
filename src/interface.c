@@ -920,6 +920,14 @@ void _intface_show()
     indicatorBarRefresh();
 }
 
+// NOTE: Unused.
+//
+// 0x45EA5C
+int intface_is_hidden()
+{
+    return _intfaceHidden;
+}
+
 // 0x45EA64
 void interfaceBarEnable()
 {
