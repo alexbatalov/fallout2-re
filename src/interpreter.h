@@ -314,6 +314,7 @@ void _executeProcedure(Program* program, int procedureIndex);
 void _doEvents();
 void programListNodeFree(ProgramListNode* programListNode);
 void programListNodeCreate(Program* program);
+void interpretSetCPUBurstSize(int value);
 void _updatePrograms();
 void programListFree();
 void clearTopProgram();

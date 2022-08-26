@@ -3622,6 +3622,18 @@ void programListNodeCreate(Program* program)
     gInterpreterProgramListHead = programListNode;
 }
 
+// NOTE: Unused.
+//
+// 0x46E1DC
+void interpretSetCPUBurstSize(int value)
+{
+    if (value < 1) {
+        value = 1;
+    }
+
+    _cpuBurstSize = value;
+}
+
 // 0x46E1EC
 void _updatePrograms()
 {
