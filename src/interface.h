@@ -204,6 +204,7 @@ void interfaceBarEndButtonsShow(bool animated);
 void interfaceBarEndButtonsHide(bool animated);
 void interfaceBarEndButtonsRenderGreenLights();
 void interfaceBarEndButtonsRenderRedLights();
+int intface_init_items();
 int interfaceBarRefreshMainAction();
 int _intface_redraw_items_callback(Object* a1, Object* a2);
 int _intface_change_fid_callback(Object* a1, Object* a2);

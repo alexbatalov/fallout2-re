@@ -589,10 +589,8 @@ int interfaceInit()
 
     gInterfaceCurrentHand = HAND_LEFT;
 
-    // FIXME: For unknown reason these values initialized with -1. It's never
-    // checked for -1, so I have no explanation for this.
-    gInterfaceItemStates[HAND_LEFT].item = (Object*)-1;
-    gInterfaceItemStates[HAND_RIGHT].item = (Object*)-1;
+    // NOTE: Uninline.
+    intface_init_items();
 
     displayMonitorInit();
 
@@ -1653,6 +1651,19 @@ void interfaceBarEndButtonsRenderRedLights()
 
         artUnlock(lightsFrmHandle);
     }
+}
+
+// NOTE: Inlined.
+//
+// 0x45FD2C
+int intface_init_items()
+{
+    // FIXME: For unknown reason these values initialized with -1. It's never
+    // checked for -1, so I have no explanation for this.
+    gInterfaceItemStates[HAND_LEFT].item = (Object*)-1;
+    gInterfaceItemStates[HAND_RIGHT].item = (Object*)-1;
+
+    return 0;
 }
 
 // 0x45FD88
