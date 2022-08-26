@@ -445,6 +445,33 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
     return randomRoll(skillValue + modifier, criticalChance, howMuch);
 }
 
+// NOTE: Unused.
+//
+// 0x4AAB34
+int skill_contest(Object* attacker, Object* defender, int skill, int attackerModifier, int defenderModifier, int* howMuch)
+{
+    int attackerRoll;
+    int attackerHowMuch;
+    int defenderRoll;
+    int defenderHowMuch;
+
+    attackerRoll = skillRoll(attacker, skill, attackerModifier, &attackerHowMuch);
+    if (attackerRoll > ROLL_FAILURE) {
+        defenderRoll = skillRoll(defender, skill, defenderModifier, &defenderHowMuch);
+        if (defenderRoll > ROLL_FAILURE) {
+            attackerHowMuch -= defenderHowMuch;
+        }
+
+        attackerRoll = randomTranslateRoll(attackerHowMuch, 0);
+    }
+
+    if (howMuch != NULL) {
+        *howMuch = attackerHowMuch;
+    }
+
+    return attackerRoll;
+}
+
 // 0x4AAB9C
 char* skillGetName(int skill)
 {
