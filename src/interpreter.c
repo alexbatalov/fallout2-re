@@ -3663,6 +3663,45 @@ void clearTopProgram()
     gInterpreterProgramListHead = next;
 }
 
+// NOTE: Unused.
+//
+// 0x46E26C
+char** getProgramList(int* programListLengthPtr)
+{
+    char** programList;
+    int programListLength;
+    int index;
+    int it;
+    ProgramListNode* programListNode;
+
+    index = 0;
+    programListLength = 0;
+
+    for (it = 1; it <= 2; it++) {
+        programListNode = gInterpreterProgramListHead;
+        while (programListNode != NULL) {
+            if (it == 1) {
+                programListLength++;
+            } else if (it == 2) {
+                if (index < programListLength) {
+                    programList[index++] = strdup_safe(programListNode->program->name, __FILE__, __LINE__); // "..\int\INTRPRET.C", 3014
+                }
+            }
+            programListNode = programListNode->next;
+        }
+
+        if (it == 1) {
+            programList = (char**)internal_malloc_safe(sizeof(*programList) * programListLength, __FILE__, __LINE__); // "..\int\INTRPRET.C", 3021
+        }
+    }
+
+    if (programListLengthPtr != NULL) {
+        *programListLengthPtr = programListLength;
+    }
+
+    return programList;
+}
+
 // 0x46E368
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
 {
