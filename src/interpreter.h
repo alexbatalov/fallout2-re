@@ -303,6 +303,7 @@ void opCheckProcedureArgumentCount(Program* program);
 void opLookupStringProc(Program* program);
 void interpreterRegisterOpcodeHandlers();
 void _interpretClose();
+void interpretEnableInterpreter(int enabled);
 void _interpret(Program* program, int a2);
 void _setupCallWithReturnVal(Program* program, int address, int a3);
 void _setupCall(Program* program, int address, int returnAddress);

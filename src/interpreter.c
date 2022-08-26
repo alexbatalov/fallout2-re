@@ -3220,6 +3220,22 @@ void _interpretClose()
     intLibExit();
 }
 
+// NOTE: Unused.
+//
+// 0x46CC74
+void interpretEnableInterpreter(int enabled)
+{
+    _Enabled = enabled;
+
+    if (enabled) {
+        // NOTE: Uninline.
+        interpretResumeEvents();
+    } else {
+        // NOTE: Uninline.
+        interpretSuspendEvents();
+    }
+}
+
 // 0x46CCA4
 void _interpret(Program* program, int a2)
 {
