@@ -127,7 +127,8 @@ int skillsInit()
         gTaggedSkills[index] = -1;
     }
 
-    memset(_timesSkillUsed, 0, sizeof(_timesSkillUsed));
+    // NOTE: Uninline.
+    skill_use_slot_clear();
 
     return 0;
 }
@@ -139,7 +140,8 @@ void skillsReset()
         gTaggedSkills[index] = -1;
     }
 
-    memset(_timesSkillUsed, 0, sizeof(_timesSkillUsed));
+    // NOTE: Uninline.
+    skill_use_slot_clear();
 }
 
 // 0x4AA478
@@ -1173,6 +1175,15 @@ int skillUpdateLastUse(int skill)
 
     _timesSkillUsed[skill][slot] = gameTimeGetTime();
 
+    return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x4ABF24
+int skill_use_slot_clear()
+{
+    memset(_timesSkillUsed, 0, sizeof(_timesSkillUsed));
     return 0;
 }
 

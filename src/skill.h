@@ -69,6 +69,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 int skillGetGameDifficultyModifier(int skill);
 int skillGetFreeUsageSlot(int skill);
 int skillUpdateLastUse(int skill);
+int skill_use_slot_clear();
 int skillsUsageSave(File* stream);
 int skillsUsageLoad(File* stream);
 char* skillsGetGenericResponse(Object* critter, bool isDude);
