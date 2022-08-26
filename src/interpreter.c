@@ -3651,6 +3651,18 @@ void programListFree()
     }
 }
 
+// NOTE: Unused.
+//
+// 0x46E254
+void clearTopProgram()
+{
+    ProgramListNode* next;
+
+    next = gInterpreterProgramListHead->next;
+    programListNodeFree(gInterpreterProgramListHead);
+    gInterpreterProgramListHead = next;
+}
+
 // 0x46E368
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
 {

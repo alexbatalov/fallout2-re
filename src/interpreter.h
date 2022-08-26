@@ -316,6 +316,7 @@ void programListNodeFree(ProgramListNode* programListNode);
 void programListNodeCreate(Program* program);
 void _updatePrograms();
 void programListFree();
+void clearTopProgram();
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler);
 void interpretSetFilenameFunc(InterpretMangleFunc* func);
 void interpretSuspendEvents();
