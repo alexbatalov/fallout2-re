@@ -183,6 +183,7 @@ void interfaceReset();
 void interfaceFree();
 int interfaceLoad(File* stream);
 int interfaceSave(File* stream);
+void intface_hide();
 void _intface_show();
 void interfaceBarEnable();
 void interfaceBarDisable();

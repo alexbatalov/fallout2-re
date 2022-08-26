@@ -612,12 +612,9 @@ void interfaceReset()
 {
     interfaceBarEnable();
 
-    if (gInterfaceBarWindow != -1 && !_intfaceHidden) {
-        win_hide(gInterfaceBarWindow);
-        _intfaceHidden = 1;
-    }
+    // NOTE: Uninline.
+    intface_hide();
 
-    indicatorBarRefresh();
     displayMonitorReset();
 
     // NOTE: Uninline a seemingly inlined routine.
@@ -847,11 +844,8 @@ int interfaceLoad(File* stream)
     }
 
     if (v2) {
-        if (gInterfaceBarWindow != -1 && !_intfaceHidden) {
-            win_hide(gInterfaceBarWindow);
-            _intfaceHidden = 1;
-        }
-        indicatorBarRefresh();
+        // NOTE: Uninline.
+        intface_hide();
     } else {
         _intface_show();
     }
@@ -895,6 +889,20 @@ int interfaceSave(File* stream)
     if (fileWriteInt32(stream, gInterfaceBarEndButtonsIsVisible) == -1) return -1;
 
     return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x45E9E0
+void intface_hide()
+{
+    if (gInterfaceBarWindow != -1) {
+        if (!_intfaceHidden) {
+            win_hide(gInterfaceBarWindow);
+            _intfaceHidden = 1;
+        }
+    }
+    indicatorBarRefresh();
 }
 
 // 0x45EA10
