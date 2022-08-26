@@ -1255,7 +1255,8 @@ int scriptExecProc(int sid, int proc)
         }
 
         script->action = 0;
-        programListNodeCreate(program);
+        // NOTE: Uninline.
+        runProgram(program);
         _interpret(program, -1);
     }
 

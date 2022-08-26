@@ -2924,15 +2924,12 @@ void opCallStart(Program* program)
 
     name = programGetString(program, type, value);
 
-    name = _interpretMangleName(name);
-    program->child = programCreateByPath(name);
+    // NOTE: Uninline.
+    program->child = runScript(name);
     if (program->child == NULL) {
         sprintf(err, "Error spawning child %s", programGetString(program, type, value));
         programFatalError(err);
     }
-
-    programListNodeCreate(program->child);
-    _interpret(program->child, 24);
 
     program->child->parent = program;
     program->child->windowId = program->windowId;
@@ -2972,15 +2969,12 @@ void opSpawn(Program* program)
         name = NULL;
     }
 
-    name = _interpretMangleName(name);
-    program->child = programCreateByPath(name);
+    // NOTE: Uninline.
+    program->child = runScript(name);
     if (program->child == NULL) {
         sprintf(err, "Error spawning child %s", programGetString(program, type, value));
         programFatalError(err);
     }
-
-    programListNodeCreate(program->child);
-    _interpret(program->child, 24);
 
     program->child->parent = program;
     program->child->windowId = program->windowId;
@@ -3003,18 +2997,13 @@ Program* forkProgram(Program* program)
     }
 
     char* name = programGetString(program, opcode, data);
-    name = _interpretMangleName(name);
-    Program* forked = programCreateByPath(name);
+    Program* forked = runScript(name);
 
     if (forked == NULL) {
         char err[256];
         sprintf(err, "couldn't fork script '%s'", programGetString(program, opcode, data));
         programFatalError(err);
     }
-
-    programListNodeCreate(forked);
-
-    _interpret(forked, 24);
 
     forked->windowId = program->windowId;
 
@@ -3624,8 +3613,6 @@ void programListNodeFree(ProgramListNode* programListNode)
 // 0x46E154
 void programListNodeCreate(Program* program)
 {
-    program->flags |= PROGRAM_FLAG_0x02;
-
     ProgramListNode* programListNode = (ProgramListNode*)internal_malloc_safe(sizeof(*programListNode), __FILE__, __LINE__); // .\\int\\INTRPRET.C, 2907
     programListNode->program = program;
     programListNode->next = gInterpreterProgramListHead;
@@ -3636,6 +3623,33 @@ void programListNodeCreate(Program* program)
     }
 
     gInterpreterProgramListHead = programListNode;
+}
+
+// NOTE: Inlined.
+//
+// 0x46E15C
+void runProgram(Program* program)
+{
+    program->flags |= PROGRAM_FLAG_0x02;
+    programListNodeCreate(program);
+}
+
+// NOTE: Inlined.
+//
+// 0x46E19C
+Program* runScript(char* name)
+{
+    Program* program;
+
+    // NOTE: Uninline.
+    program = programCreateByPath(_interpretMangleName(name));
+    if (program != NULL) {
+        // NOTE: Uninline.
+        runProgram(program);
+        _interpret(program, 24);
+    }
+
+    return program;
 }
 
 // NOTE: Unused.
