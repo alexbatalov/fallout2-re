@@ -218,6 +218,7 @@ int endCombatButtonFree();
 void interfaceUpdateAmmoBar(int x, int ratio);
 int _intface_item_reload();
 void interfaceRenderCounter(int x, int y, int previousValue, int value, int offset, int delay);
+int intface_fatal_error(int rc);
 int indicatorBarInit();
 void interfaceBarFree();
 void indicatorBarReset();
