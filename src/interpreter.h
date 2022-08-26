@@ -165,6 +165,7 @@ typedef struct Program {
     bool exited;
 } Program;
 
+typedef char*(InterpretMangleFunc)(char* fileName);
 typedef unsigned int(InterpretTimerFunc)();
 typedef void OpcodeHandler(Program* program);
 
@@ -178,7 +179,7 @@ extern int _TimeOut;
 extern int _Enabled;
 extern InterpretTimerFunc* _timerFunc;
 extern unsigned int _timerTick;
-extern char* (*_filenameFunc)(char*);
+extern InterpretMangleFunc* _filenameFunc;
 extern int (*_outputFunc)(char*);
 extern int _cpuBurstSize;
 
@@ -316,6 +317,7 @@ void programListNodeCreate(Program* program);
 void _updatePrograms();
 void programListFree();
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler);
+void interpretSetFilenameFunc(InterpretMangleFunc* func);
 void interpretSuspendEvents();
 void interpretResumeEvents();
 int interpretSaveProgramState();

@@ -31,7 +31,7 @@ InterpretTimerFunc* _timerFunc = _defaultTimerFunc;
 unsigned int _timerTick = 1000;
 
 // 0x519048
-char* (*_filenameFunc)(char*) = _defaultFilename_;
+InterpretMangleFunc* _filenameFunc = _defaultFilename_;
 
 // 0x51904C
 int (*_outputFunc)(char*) = _outputStr;
@@ -3661,6 +3661,14 @@ void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
     }
 
     gInterpreterOpcodeHandlers[index] = handler;
+}
+
+// NOTE: Unused.
+//
+// 0x46E398
+void interpretSetFilenameFunc(InterpretMangleFunc* func)
+{
+    _filenameFunc = func;
 }
 
 // NOTE: Unused.
