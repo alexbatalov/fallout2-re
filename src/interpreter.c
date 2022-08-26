@@ -3702,6 +3702,24 @@ char** getProgramList(int* programListLengthPtr)
     return programList;
 }
 
+// NOTE: Unused.
+//
+// 0x46E31C
+void freeProgramList(char** programList, int programListLength)
+{
+    int index;
+
+    if (programList != NULL) {
+        for (index = 0; index < programListLength; index++) {
+            if (programList[index] != NULL) {
+                internal_free_safe(programList[index], __FILE__, __LINE__); // "..\int\INTRPRET.C", 3035
+            }
+        }
+    }
+
+    internal_free_safe(programList, __FILE__, __LINE__); // "..\int\INTRPRET.C", 3038
+}
+
 // 0x46E368
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler)
 {

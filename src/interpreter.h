@@ -318,6 +318,7 @@ void _updatePrograms();
 void programListFree();
 void clearTopProgram();
 char** getProgramList(int* programListLengthPtr);
+void freeProgramList(char** programList, int programListLength);
 void interpreterRegisterOpcode(int opcode, OpcodeHandler* handler);
 void interpretSetFilenameFunc(InterpretMangleFunc* func);
 void interpretSuspendEvents();
