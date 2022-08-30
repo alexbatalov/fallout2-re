@@ -366,14 +366,13 @@ typedef struct EntranceInfo {
 
 typedef struct CityInfo {
     char name[CITY_NAME_SIZE];
-    int field_28;
+    int areaId;
     int x;
     int y;
     int size;
     int state;
-    // lock state
-    int field_3C;
-    int field_40;
+    int lockState;
+    int visitedState;
     int mapFid;
     int labelFid;
     int entrancesLength;
