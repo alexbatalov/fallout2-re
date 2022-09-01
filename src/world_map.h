@@ -135,6 +135,11 @@ typedef enum CityState {
     CITY_STATE_INVISIBLE = -66,
 } CityState;
 
+typedef enum LockState {
+    LOCK_STATE_UNLOCKED,
+    LOCK_STATE_LOCKED,
+} LockState;
+
 typedef enum SubtileState {
     SUBTILE_STATE_UNKNOWN,
     SUBTILE_STATE_KNOWN,

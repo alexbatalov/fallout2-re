@@ -2221,8 +2221,8 @@ int worldmapCityInfoInit(CityInfo* area)
     area->x = 0;
     area->y = 0;
     area->size = CITY_SIZE_LARGE;
-    area->state = 0;
-    area->lockState = 0;
+    area->state = CITY_STATE_UNKNOWN;
+    area->lockState = LOCK_STATE_UNLOCKED;
     area->visitedState = 0;
     area->mapFid = -1;
     area->labelFid = -1;
@@ -2902,7 +2902,7 @@ int _wmWorldMapFunc(int a1)
                         int worldmapY = _world_ypos + gWorldmapHotspotUpFrmHeight / 2 + citySizeDescription->height / 2;
                         worldmapCitySetPos(CITY_CAR_OUT_OF_GAS, worldmapX, worldmapY);
 
-                        city->state = 1;
+                        city->state = CITY_STATE_KNOWN;
                         city->visitedState = 1;
 
                         _WorldMapCurrArea = CITY_CAR_OUT_OF_GAS;
@@ -3078,11 +3078,11 @@ int _wmCheckGameAreaEvents()
 {
     if (_WorldMapCurrArea == CITY_FAKE_VAULT_13_A) {
         if (_WorldMapCurrArea < gCitiesLength) {
-            gCities[CITY_FAKE_VAULT_13_A].state = 0;
+            gCities[CITY_FAKE_VAULT_13_A].state = CITY_STATE_UNKNOWN;
         }
 
         if (gCitiesLength > CITY_FAKE_VAULT_13_B) {
-            gCities[CITY_FAKE_VAULT_13_B].state = 1;
+            gCities[CITY_FAKE_VAULT_13_B].state = CITY_STATE_KNOWN;
         }
 
         _wmAreaMarkVisitedState(CITY_FAKE_VAULT_13_B, 2);
@@ -3223,8 +3223,8 @@ int _wmRndEncounterOccurred()
 
         if (v26 >= 0 && v26 < gCitiesLength) {
             CityInfo* city = &(gCities[v26]);
-            if (city->lockState != 1) {
-                city->state = 1;
+            if (city->lockState != LOCK_STATE_LOCKED) {
+                city->state = CITY_STATE_KNOWN;
             }
         }
     }
@@ -5570,7 +5570,7 @@ int _wmAreaVisitedState(int area)
     }
 
     CityInfo* city = &(gCities[area]);
-    if (city->visitedState && city->state == 1) {
+    if (city->visitedState && city->state == CITY_STATE_KNOWN) {
         return city->visitedState;
     }
 
@@ -5615,7 +5615,7 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 
     CityInfo* city = &(gCities[cityIndex]);
     int v5 = city->visitedState;
-    if (city->state == 1 && a2 != 0) {
+    if (city->state == CITY_STATE_KNOWN && a2 != 0) {
         _wmMarkSubTileRadiusVisited(city->x, city->y);
     }
 
@@ -5636,15 +5636,15 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 }
 
 // 0x4C46CC
-bool _wmAreaSetVisibleState(int cityIndex, int a2, int a3)
+bool _wmAreaSetVisibleState(int cityIndex, int state, int forceSet)
 {
     if (!cityIsValid(cityIndex)) {
         return false;
     }
 
     CityInfo* city = &(gCities[cityIndex]);
-    if (city->lockState != 1 || a3) {
-        city->state = a2;
+    if (city->lockState != LOCK_STATE_LOCKED || forceSet) {
+        city->state = state;
         return true;
     }
 
@@ -6026,7 +6026,7 @@ int _wmCarGiveToParty()
     mapSetTransition(&transition);
 
     CityInfo* city = &(gCities[CITY_CAR_OUT_OF_GAS]);
-    city->state = 0;
+    city->state = CITY_STATE_UNKNOWN;
     city->visitedState = 0;
 
     return 0;
