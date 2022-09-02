@@ -25,6 +25,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/autorun.h"
     "src/cache.c"
     "src/cache.h"
+    "src/cd.c"
+    "src/cd.h"
     "src/character_editor.c"
     "src/character_editor.h"
     "src/character_selector.c"
