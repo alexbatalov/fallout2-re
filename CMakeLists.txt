@@ -104,6 +104,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/game_vars.h"
     "src/game.c"
     "src/game.h"
+    "src/gdebug.c"
+    "src/gdebug.h"
     "src/geometry.c"
     "src/geometry.h"
     "src/graph_lib.c"
