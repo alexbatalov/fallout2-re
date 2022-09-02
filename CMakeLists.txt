@@ -67,6 +67,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/dictionary.h"
     "src/dinput.c"
     "src/dinput.h"
+    "src/diskspce.c"
+    "src/diskspce.h"
     "src/display_monitor.c"
     "src/display_monitor.h"
     "src/draw.c"
