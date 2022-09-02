@@ -936,7 +936,7 @@ int worldmapSave(File* stream)
         if (fileWriteInt32(stream, cityInfo->x) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->y) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->state) == -1) return -1;
-        if (fileWriteInt32(stream, cityInfo->field_40) == -1) return -1;
+        if (fileWriteInt32(stream, cityInfo->visitedState) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->entrancesLength) == -1) return -1;
 
         for (int entranceIndex = 0; entranceIndex < cityInfo->entrancesLength; entranceIndex++) {
@@ -1024,7 +1024,7 @@ int worldmapLoad(File* stream)
         if (fileReadInt32(stream, &(city->x)) == -1) return -1;
         if (fileReadInt32(stream, &(city->y)) == -1) return -1;
         if (fileReadInt32(stream, &(city->state)) == -1) return -1;
-        if (fileReadInt32(stream, &(city->field_40)) == -1) return -1;
+        if (fileReadInt32(stream, &(city->visitedState)) == -1) return -1;
 
         int entranceCount;
         if (fileReadInt32(stream, &(entranceCount)) == -1) {
@@ -2217,13 +2217,13 @@ int worldmapConfigParseEncounterConditionalOperator(char** stringPtr, int* condi
 int worldmapCityInfoInit(CityInfo* area)
 {
     area->name[0] = '\0';
-    area->field_28 = -1;
+    area->areaId = -1;
     area->x = 0;
     area->y = 0;
     area->size = CITY_SIZE_LARGE;
-    area->state = 0;
-    area->field_3C = 0;
-    area->field_40 = 0;
+    area->state = CITY_STATE_UNKNOWN;
+    area->lockState = LOCK_STATE_UNLOCKED;
+    area->visitedState = 0;
     area->mapFid = -1;
     area->labelFid = -1;
     area->entrancesLength = 0;
@@ -2275,7 +2275,7 @@ int cityInit()
             // NOTE: Uninline.
             worldmapCityInfoInit(city);
 
-            city->field_28 = area_idx;
+            city->areaId = area_idx;
 
             if (num != -1) {
                 num = buildFid(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
@@ -2321,7 +2321,7 @@ int cityInit()
             }
 
             if (configGetString(&cfg, section, "lock_state", &str)) {
-                if (strParseStrFromList(&str, &(city->field_3C), _wmStateStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &(city->lockState), _wmStateStrs, 2) == -1) {
                     return -1;
                 }
             }
@@ -2902,8 +2902,8 @@ int _wmWorldMapFunc(int a1)
                         int worldmapY = _world_ypos + gWorldmapHotspotUpFrmHeight / 2 + citySizeDescription->height / 2;
                         worldmapCitySetPos(CITY_CAR_OUT_OF_GAS, worldmapX, worldmapY);
 
-                        city->state = 1;
-                        city->field_40 = 1;
+                        city->state = CITY_STATE_KNOWN;
+                        city->visitedState = 1;
 
                         _WorldMapCurrArea = CITY_CAR_OUT_OF_GAS;
                     } else {
@@ -2970,7 +2970,7 @@ int _wmWorldMapFunc(int a1)
                 if (abs(_world_xpos - v4) < 5 && abs(_world_ypos - v5) < 5) {
                     if (_WorldMapCurrArea != -1) {
                         CityInfo* city = &(gCities[_WorldMapCurrArea]);
-                        if (city->field_40 == 2 && city->mapFid != -1) {
+                        if (city->visitedState == 2 && city->mapFid != -1) {
                             if (worldmapCityMapViewSelect(&map) == -1) {
                                 v25 = -1;
                                 break;
@@ -2981,7 +2981,7 @@ int _wmWorldMapFunc(int a1)
                                 break;
                             }
 
-                            city->field_40 = 2;
+                            city->visitedState = 2;
                         }
                     } else {
                         map = 0;
@@ -3015,7 +3015,7 @@ int _wmWorldMapFunc(int a1)
         if (keyCode == KEY_UPPERCASE_T || keyCode == KEY_LOWERCASE_T) {
             if (!gWorldmapIsTravelling && _WorldMapCurrArea != -1) {
                 CityInfo* city = &(gCities[_WorldMapCurrArea]);
-                if (city->field_40 == 2 && city->mapFid != -1) {
+                if (city->visitedState == 2 && city->mapFid != -1) {
                     if (worldmapCityMapViewSelect(&map) == -1) {
                         rc = -1;
                     }
@@ -3052,7 +3052,7 @@ int _wmWorldMapFunc(int a1)
             if (quickDestinationIndex < gQuickDestinationsLength) {
                 int cityIndex = gQuickDestinations[quickDestinationIndex];
                 CityInfo* city = &(gCities[cityIndex]);
-                if (_wmAreaIsKnown(city->field_28)) {
+                if (_wmAreaIsKnown(city->areaId)) {
                     if (_WorldMapCurrArea != cityIndex) {
                         _wmPartyInitWalking(city->x, city->y);
                         _wmGenData = 0;
@@ -3078,11 +3078,11 @@ int _wmCheckGameAreaEvents()
 {
     if (_WorldMapCurrArea == CITY_FAKE_VAULT_13_A) {
         if (_WorldMapCurrArea < gCitiesLength) {
-            gCities[CITY_FAKE_VAULT_13_A].state = 0;
+            gCities[CITY_FAKE_VAULT_13_A].state = CITY_STATE_UNKNOWN;
         }
 
         if (gCitiesLength > CITY_FAKE_VAULT_13_B) {
-            gCities[CITY_FAKE_VAULT_13_B].state = 1;
+            gCities[CITY_FAKE_VAULT_13_B].state = CITY_STATE_KNOWN;
         }
 
         _wmAreaMarkVisitedState(CITY_FAKE_VAULT_13_B, 2);
@@ -3223,8 +3223,8 @@ int _wmRndEncounterOccurred()
 
         if (v26 >= 0 && v26 < gCitiesLength) {
             CityInfo* city = &(gCities[v26]);
-            if (city->field_3C != 1) {
-                city->state = 1;
+            if (city->lockState != LOCK_STATE_LOCKED) {
+                city->state = CITY_STATE_KNOWN;
             }
         }
     }
@@ -5377,7 +5377,7 @@ int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDe
     nameY = y + citySizeDescription->height + 1;
     maxY = 464 - fontGetLineHeight();
     if (nameY < maxY) {
-        if (_wmAreaIsKnown(city->field_28)) {
+        if (_wmAreaIsKnown(city->areaId)) {
             // NOTE: Uninline.
             wmGetAreaName(city, name);
         } else {
@@ -5524,7 +5524,7 @@ int wmGetAreaName(CityInfo* city, char* name)
 {
     MessageListItem messageListItem;
 
-    getmsg(&gMapMessageList, &messageListItem, city->field_28 + 1500);
+    getmsg(&gMapMessageList, &messageListItem, city->areaId + 1500);
     strncpy(name, messageListItem.text, 40);
 
     return 0;
@@ -5553,7 +5553,7 @@ bool _wmAreaIsKnown(int cityIndex)
     }
 
     CityInfo* city = &(gCities[cityIndex]);
-    if (city->field_40) {
+    if (city->visitedState) {
         if (city->state == CITY_STATE_KNOWN) {
             return true;
         }
@@ -5570,8 +5570,8 @@ int _wmAreaVisitedState(int area)
     }
 
     CityInfo* city = &(gCities[area]);
-    if (city->field_40 && city->state == 1) {
-        return city->field_40;
+    if (city->visitedState && city->state == CITY_STATE_KNOWN) {
+        return city->visitedState;
     }
 
     return 0;
@@ -5614,12 +5614,12 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
     }
 
     CityInfo* city = &(gCities[cityIndex]);
-    int v5 = city->field_40;
-    if (city->state == 1 && a2 != 0) {
+    int v5 = city->visitedState;
+    if (city->state == CITY_STATE_KNOWN && a2 != 0) {
         _wmMarkSubTileRadiusVisited(city->x, city->y);
     }
 
-    city->field_40 = a2;
+    city->visitedState = a2;
 
     SubtileInfo* subtile;
     if (_wmFindCurSubTileFromPos(city->x, city->y, &subtile) == -1) {
@@ -5629,22 +5629,22 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
     if (a2 == 1) {
         subtile->state = SUBTILE_STATE_KNOWN;
     } else if (a2 == 2 && v5 == 0) {
-        city->field_40 = 1;
+        city->visitedState = 1;
     }
 
     return true;
 }
 
 // 0x4C46CC
-bool _wmAreaSetVisibleState(int cityIndex, int a2, int a3)
+bool _wmAreaSetVisibleState(int cityIndex, int state, int forceSet)
 {
     if (!cityIsValid(cityIndex)) {
         return false;
     }
 
     CityInfo* city = &(gCities[cityIndex]);
-    if (city->field_3C != 1 || a3) {
-        city->state = a2;
+    if (city->lockState != LOCK_STATE_LOCKED || forceSet) {
+        city->state = state;
         return true;
     }
 
@@ -5769,7 +5769,7 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
                 if (v10 < gQuickDestinationsLength) {
                     int v11 = gQuickDestinations[v10];
                     CityInfo* v12 = &(gCities[v11]);
-                    if (!_wmAreaIsKnown(v12->field_28)) {
+                    if (!_wmAreaIsKnown(v12->areaId)) {
                         break;
                     }
 
@@ -6026,8 +6026,8 @@ int _wmCarGiveToParty()
     mapSetTransition(&transition);
 
     CityInfo* city = &(gCities[CITY_CAR_OUT_OF_GAS]);
-    city->state = 0;
-    city->field_40 = 0;
+    city->state = CITY_STATE_UNKNOWN;
+    city->visitedState = 0;
 
     return 0;
 }

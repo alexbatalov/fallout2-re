@@ -135,6 +135,11 @@ typedef enum CityState {
     CITY_STATE_INVISIBLE = -66,
 } CityState;
 
+typedef enum LockState {
+    LOCK_STATE_UNLOCKED,
+    LOCK_STATE_LOCKED,
+} LockState;
+
 typedef enum SubtileState {
     SUBTILE_STATE_UNKNOWN,
     SUBTILE_STATE_KNOWN,
@@ -366,14 +371,13 @@ typedef struct EntranceInfo {
 
 typedef struct CityInfo {
     char name[CITY_NAME_SIZE];
-    int field_28;
+    int areaId;
     int x;
     int y;
     int size;
     int state;
-    // lock state
-    int field_3C;
-    int field_40;
+    int lockState;
+    int visitedState;
     int mapFid;
     int labelFid;
     int entrancesLength;
