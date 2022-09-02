@@ -630,6 +630,8 @@ int critterGetDamageType(Object* obj)
     return proto->critter.data.damageType;
 }
 
+// NOTE: Inlined.
+//
 // 0x42D860
 int critter_kill_count_clear()
 {

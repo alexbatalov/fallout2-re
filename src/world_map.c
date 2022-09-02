@@ -5765,16 +5765,16 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
             }
 
             if (keyCode >= KEY_CTRL_F1 && keyCode <= KEY_CTRL_F7) {
-                int v10 = _LastTabsYOffset / 27 + keyCode - KEY_CTRL_F1;
-                if (v10 < gQuickDestinationsLength) {
-                    int v11 = gQuickDestinations[v10];
-                    CityInfo* v12 = &(gCities[v11]);
-                    if (!_wmAreaIsKnown(v12->areaId)) {
+                int quickDestinationIndex = _LastTabsYOffset / 27 + keyCode - KEY_CTRL_F1;
+                if (quickDestinationIndex < gQuickDestinationsLength) {
+                    int cityIndex = gQuickDestinations[quickDestinationIndex];
+                    CityInfo* city = &(gCities[cityIndex]);
+                    if (!_wmAreaIsKnown(city->areaId)) {
                         break;
                     }
 
-                    if (v11 != _WorldMapCurrArea) {
-                        _wmPartyInitWalking(v12->x, v12->y);
+                    if (cityIndex != _WorldMapCurrArea) {
+                        _wmPartyInitWalking(city->x, city->y);
 
                         _wmGenData = 0;
 

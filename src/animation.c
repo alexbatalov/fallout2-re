@@ -253,6 +253,8 @@ int reg_anim_end()
     return 0;
 }
 
+// NOTE: Inlined.
+//
 // 0x413D6C
 int _anim_preload(Object* object, int fid, CacheEntry** cacheEntryPtr)
 {
@@ -1267,7 +1269,7 @@ int animationRunSequence(int animationSequenceIndex)
         case ANIM_KIND_ANIMATE_AND_HIDE:
             rc = _anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, ANIM_SAD_HIDE_ON_END);
             if (rc == -1) {
-                // NOTE: Un inline.
+                // NOTE: Uninline.
                 rc = _anim_hide(animationDescription->owner, animationSequenceIndex);
             }
             break;
@@ -3081,7 +3083,7 @@ int _anim_hide(Object* object, int animationSequenceIndex)
     Rect rect;
 
     if (objectHide(object, &rect) == 0) {
-        tileWindowRefresh(&rect, object->elevation);
+        tileWindowRefreshRect(&rect, object->elevation);
     }
 
     if (animationSequenceIndex != -1) {

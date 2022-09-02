@@ -2538,6 +2538,8 @@ void _combat_begin_extra(Object* a1)
     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &_combat_highlight);
 }
 
+// NOTE: Inlined.
+//
 // 0x421D18
 void _combat_update_critters_in_los(int a1)
 {
@@ -4000,8 +4002,10 @@ int attackComputeCriticalHit(Attack* attack)
         }
     }
 
-    // NOTE: Uninline.
-    _do_random_cripple(&(attack->defenderFlags));
+    if ((attack->defenderFlags & DAM_CRIP_RANDOM) != 0) {
+        // NOTE: Uninline.
+        _do_random_cripple(&(attack->defenderFlags));
+    }
 
     if (weaponGetPerk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
         attack->defenderFlags |= DAM_KNOCKED_OUT;
@@ -4100,8 +4104,10 @@ int attackComputeCriticalFailure(Attack* attack)
         }
     }
 
-    // NOTE: Uninline.
-    _do_random_cripple(&(attack->attackerFlags));
+    if ((attack->attackerFlags & DAM_CRIP_RANDOM) != 0) {
+        // NOTE: Uninline.
+        _do_random_cripple(&(attack->attackerFlags));
+    }
 
     if ((attack->attackerFlags & DAM_RANDOM_HIT) != 0) {
         attack->defender = _combat_ai_random_target(attack);
@@ -5473,7 +5479,7 @@ int _combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool
         tile = defender->tile;
         range = objectGetDistanceBetween(attacker, defender);
         if ((defender->data.critter.combat.results & DAM_DEAD) != 0) {
-            return 4; // defender is dead
+            return COMBAT_BAD_SHOT_ALREADY_DEAD;
         }
     }
 
@@ -5481,29 +5487,29 @@ int _combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool
     if (weapon != NULL) {
         if ((attacker->data.critter.combat.results & DAM_CRIP_ARM_LEFT) != 0
             && (attacker->data.critter.combat.results & DAM_CRIP_ARM_RIGHT) != 0) {
-            return 7; // both hands crippled
+            return COMBAT_BAD_SHOT_BOTH_ARMS_CRIPPLED;
         }
 
         if ((attacker->data.critter.combat.results & DAM_CRIP_ARM_ANY) != 0) {
             if (weaponIsTwoHanded(weapon)) {
-                return 6; // crippled one arm for two-handed weapon
+                return COMBAT_BAD_SHOT_ARM_CRIPPLED;
             }
         }
     }
 
     if (_item_w_mp_cost(attacker, hitMode, aiming) > attacker->data.critter.combat.ap) {
-        return 3; // not enough action points
+        return COMBAT_BAD_SHOT_NOT_ENOUGH_AP;
     }
 
     if (_item_w_range(attacker, hitMode) < range) {
-        return 2; // target out of range
+        return COMBAT_BAD_SHOT_OUT_OF_RANGE;
     }
 
     int attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
 
     if (ammoGetCapacity(weapon) > 0) {
         if (ammoGetQuantity(weapon) == 0) {
-            return 1; // out of ammo
+            return COMBAT_BAD_SHOT_NO_AMMO;
         }
     }
 
@@ -5511,11 +5517,11 @@ int _combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool
         || attackType == ATTACK_TYPE_THROW
         || _item_w_range(attacker, hitMode) > 1) {
         if (_combat_is_shot_blocked(attacker, attacker->tile, tile, defender, NULL)) {
-            return 5; // Your aim is blocked
+            return COMBAT_BAD_SHOT_AIM_BLOCKED;
         }
     }
 
-    return 0; // success
+    return COMBAT_BAD_SHOT_OK;
 }
 
 // 0x426744
@@ -5527,7 +5533,7 @@ bool _combat_to_hit(Object* target, int* accuracy)
         return false;
     }
 
-    if (_combat_check_bad_shot(gDude, target, hitMode, aiming) != 0) {
+    if (_combat_check_bad_shot(gDude, target, hitMode, aiming) != COMBAT_BAD_SHOT_OK) {
         return false;
     }
 
@@ -5560,7 +5566,7 @@ void _combat_attack_this(Object* a1)
 
     int rc = _combat_check_bad_shot(gDude, a1, hitMode, aiming);
     switch (rc) {
-    case 1:
+    case COMBAT_BAD_SHOT_NO_AMMO:
         item = critterGetWeaponForHitMode(gDude, hitMode);
         messageListItem.num = 101; // Out of ammo.
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
@@ -5570,13 +5576,13 @@ void _combat_attack_this(Object* a1)
         sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, item, hitMode, NULL);
         soundPlayFile(sfx);
         return;
-    case 2:
+    case COMBAT_BAD_SHOT_OUT_OF_RANGE:
         messageListItem.num = 102; // Target out of range.
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
             displayMonitorAddMessage(messageListItem.text);
         }
         return;
-    case 3:
+    case COMBAT_BAD_SHOT_NOT_ENOUGH_AP:
         item = critterGetWeaponForHitMode(gDude, hitMode);
         messageListItem.num = 100; // You need %d action points.
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
@@ -5585,21 +5591,21 @@ void _combat_attack_this(Object* a1)
             displayMonitorAddMessage(formattedText);
         }
         return;
-    case 4:
+    case COMBAT_BAD_SHOT_ALREADY_DEAD:
         return;
-    case 5:
+    case COMBAT_BAD_SHOT_AIM_BLOCKED:
         messageListItem.num = 104; // Your aim is blocked.
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
             displayMonitorAddMessage(messageListItem.text);
         }
         return;
-    case 6:
+    case COMBAT_BAD_SHOT_ARM_CRIPPLED:
         messageListItem.num = 106; // You cannot use two-handed weapons with a crippled arm.
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
             displayMonitorAddMessage(messageListItem.text);
         }
         return;
-    case 7:
+    case COMBAT_BAD_SHOT_BOTH_ARMS_CRIPPLED:
         messageListItem.num = 105; // You cannot use weapons with both arms crippled.
         if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
             displayMonitorAddMessage(messageListItem.text);

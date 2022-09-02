@@ -194,7 +194,7 @@ int falloutMain(int argc, char** argv)
                     mainMenuWindowHide(true);
                     mainMenuWindowFree();
                     backgroundSoundDelete();
-                    
+
                     // NOTE: Uninline.
                     main_loadgame_new();
 
@@ -212,8 +212,9 @@ int falloutMain(int argc, char** argv)
                     if (win != -1) {
                         windowDestroy(win);
                     }
-                    objectHide(gDude, NULL);
-                    _map_exit();
+
+                    // NOTE: Uninline.
+                    main_unload_new();
 
                     // NOTE: Uninline.
                     main_reset_system();
