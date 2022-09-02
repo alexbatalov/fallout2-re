@@ -13,12 +13,12 @@ typedef void RegionMouseEventCallback(Region* region, void* userData, int event)
 typedef struct Region {
     char name[REGION_NAME_LENGTH];
     Point* points;
-    int field_24;
-    int field_28;
-    int field_2C;
-    int field_30;
-    int field_34;
-    int field_38;
+    int minX;
+    int minY;
+    int maxX;
+    int maxY;
+    int centerX;
+    int centerY;
     int pointsLength;
     int pointsCapacity;
     Program* program;
@@ -27,7 +27,7 @@ typedef struct Region {
     int field_68;
     int field_6C;
     int field_70;
-    int field_74;
+    int flags;
     RegionMouseEventCallback* mouseEventCallback;
     RegionMouseEventCallback* rightMouseEventCallback;
     void* mouseEventCallbackUserData;
