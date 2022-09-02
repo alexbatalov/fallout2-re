@@ -19,6 +19,12 @@ typedef enum CacheEntryFlags {
     CACHE_ENTRY_MARKED_FOR_EVICTION = 0x01,
 } CacheEntryFlags;
 
+typedef enum CacheListRequestType {
+    CACHE_LIST_REQUEST_TYPE_ALL_ITEMS = 0,
+    CACHE_LIST_REQUEST_TYPE_LOCKED_ITEMS = 1,
+    CACHE_LIST_REQUEST_TYPE_UNLOCKED_ITEMS = 2,
+} CacheListRequestType;
+
 typedef int CacheSizeProc(int key, int* sizePtr);
 typedef int CacheReadProc(int key, int* sizePtr, unsigned char* buffer);
 typedef void CacheFreeProc(void* ptr);
@@ -76,6 +82,8 @@ int _cache_discard(Cache* cache, int key);
 bool cacheFlush(Cache* cache);
 int _cache_size(Cache* cache, int* sizePtr);
 bool cachePrintStats(Cache* cache, char* dest);
+int cache_create_list(Cache* cache, unsigned int a2, int** tagsPtr, int* tagsLengthPtr);
+int cache_destroy_list(int** tagsPtr);
 bool cacheFetchEntryForKey(Cache* cache, int key, int* indexPtr);
 bool cacheInsertEntryAtIndex(Cache* cache, CacheEntry* cacheEntry, int index);
 int cacheFindIndexForKey(Cache* cache, int key, int* indexPtr);
