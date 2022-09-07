@@ -69,13 +69,13 @@ const int gDayPartEncounterFrequencyModifiers[DAY_PART_COUNT] = {
 };
 
 // 0x4BC878
-const char* off_4BC878[2] = {
+const char* gWorldmapEncDefaultMsg[2] = {
     "You detect something up ahead.",
     "Do you wish to encounter it?",
 };
 
 // 0x4BC880
-MessageListItem stru_4BC880;
+MessageListItem gWorldmapMessageListItem;
 
 // 0x50EE44
 char _aCricket[] = "cricket";
@@ -297,7 +297,7 @@ int _wmTownMapButtonId[ENTRANCE_LIST_CAPACITY];
 int _wmGenData;
 
 // 0x672E04
-int _Meet_Frank_Horrigan;
+int gWorldmapShouldEncounterHorrigan;
 
 // Current_town.
 //
@@ -315,7 +315,7 @@ int _world_xpos;
 int _world_ypos;
 
 // 0x672E14
-SubtileInfo* _world_subtile;
+SubtileInfo* gWorldmapCurSubTile;
 
 // 0x672E18
 int dword_672E18;
@@ -357,13 +357,13 @@ int dword_672E44;
 int _wmEncounterIconShow;
 
 // 0x672E4C
-int _EncounterMapID;
+int gWorldmapEncMap;
 
 // 0x672E50
-int dword_672E50;
+int gWorldmapSubTileEncType;
 
 // 0x672E54
-int dword_672E54;
+int gWorldmapEncEntryId;
 
 // 0x672E58
 int _wmRndCursorFid;
@@ -573,7 +573,7 @@ CacheEntry* gWorldmapNumbersFrmHandle;
 Art* gWorldmapNumbersFrm;
 
 // 0x672FAC
-int _fontnum;
+int gWorldmapPreviousFont;
 
 // worldmap.msg
 //
@@ -658,11 +658,11 @@ int worldmapInit()
 // 0x4BC984
 int _wmGenDataInit()
 {
-    _Meet_Frank_Horrigan = 0;
+    gWorldmapShouldEncounterHorrigan = 0;
     _WorldMapCurrArea = -1;
     _world_xpos = 173;
     _world_ypos = 122;
-    _world_subtile = 0;
+    gWorldmapCurSubTile = 0;
     dword_672E18 = 0;
     gWorldmapIsTravelling = false;
     gWorldmapTravelDestX = -1;
@@ -675,9 +675,9 @@ int _wmGenDataInit()
     _y_line_inc = 0;
     dword_672E44 = 0;
     _wmEncounterIconShow = 0;
-    _EncounterMapID = -1;
-    dword_672E50 = -1;
-    dword_672E54 = -1;
+    gWorldmapEncMap = -1;
+    gWorldmapSubTileEncType = -1;
+    gWorldmapEncEntryId = -1;
     _wmRndCursorFid = -1;
     _old_world_xpos = 0;
     _old_world_ypos = 0;
@@ -764,8 +764,8 @@ int _wmGenDataInit()
 // 0x4BCBFC
 int _wmGenDataReset()
 {
-    _Meet_Frank_Horrigan = 0;
-    _world_subtile = 0;
+    gWorldmapShouldEncounterHorrigan = 0;
+    gWorldmapCurSubTile = 0;
     dword_672E18 = 0;
     gWorldmapIsTravelling = false;
     dword_672E28 = 0;
@@ -782,9 +782,9 @@ int _wmGenDataReset()
     _world_ypos = 122;
     gWorldmapTravelDestX = -1;
     gWorldmapTravelDestY = -1;
-    _EncounterMapID = -1;
-    dword_672E50 = -1;
-    dword_672E54 = -1;
+    gWorldmapEncMap = -1;
+    gWorldmapSubTileEncType = -1;
+    gWorldmapEncEntryId = -1;
     _wmRndCursorFid = -1;
     _carCurrentArea = -1;
     gWorldmapCarFuel = CAR_FUEL_MAX;
@@ -918,14 +918,14 @@ int worldmapSave(File* stream)
     EncounterTable* encounter_table;
     EncounterEntry* encounter_entry;
 
-    if (fileWriteInt32(stream, _Meet_Frank_Horrigan) == -1) return -1;
+    if (fileWriteInt32(stream, gWorldmapShouldEncounterHorrigan) == -1) return -1;
     if (fileWriteInt32(stream, _WorldMapCurrArea) == -1) return -1;
     if (fileWriteInt32(stream, _world_xpos) == -1) return -1;
     if (fileWriteInt32(stream, _world_ypos) == -1) return -1;
     if (fileWriteInt32(stream, _wmEncounterIconShow) == -1) return -1;
-    if (fileWriteInt32(stream, _EncounterMapID) == -1) return -1;
-    if (fileWriteInt32(stream, dword_672E50) == -1) return -1;
-    if (fileWriteInt32(stream, dword_672E54) == -1) return -1;
+    if (fileWriteInt32(stream, gWorldmapEncMap) == -1) return -1;
+    if (fileWriteInt32(stream, gWorldmapSubTileEncType) == -1) return -1;
+    if (fileWriteInt32(stream, gWorldmapEncEntryId) == -1) return -1;
     if (fileWriteBool(stream, gWorldmapIsInCar) == -1) return -1;
     if (fileWriteInt32(stream, _carCurrentArea) == -1) return -1;
     if (fileWriteInt32(stream, gWorldmapCarFuel) == -1) return -1;
@@ -1005,14 +1005,14 @@ int worldmapLoad(File* stream)
     EncounterTable* encounter_table;
     EncounterEntry* encounter_entry;
 
-    if (fileReadInt32(stream, &(_Meet_Frank_Horrigan)) == -1) return -1;
+    if (fileReadInt32(stream, &(gWorldmapShouldEncounterHorrigan)) == -1) return -1;
     if (fileReadInt32(stream, &(_WorldMapCurrArea)) == -1) return -1;
     if (fileReadInt32(stream, &(_world_xpos)) == -1) return -1;
     if (fileReadInt32(stream, &(_world_ypos)) == -1) return -1;
     if (fileReadInt32(stream, &(_wmEncounterIconShow)) == -1) return -1;
-    if (fileReadInt32(stream, &(_EncounterMapID)) == -1) return -1;
-    if (fileReadInt32(stream, &(dword_672E50)) == -1) return -1;
-    if (fileReadInt32(stream, &(dword_672E54)) == -1) return -1;
+    if (fileReadInt32(stream, &(gWorldmapEncMap)) == -1) return -1;
+    if (fileReadInt32(stream, &(gWorldmapSubTileEncType)) == -1) return -1;
+    if (fileReadInt32(stream, &(gWorldmapEncEntryId)) == -1) return -1;
     if (fileReadBool(stream, &(gWorldmapIsInCar)) == -1) return -1;
     if (fileReadInt32(stream, &(_carCurrentArea)) == -1) return -1;
     if (fileReadInt32(stream, &(gWorldmapCarFuel)) == -1) return -1;
@@ -2940,11 +2940,11 @@ int _wmWorldMapFunc(int a1)
 
             if (gWorldmapIsTravelling) {
                 if (_wmRndEncounterOccurred()) {
-                    if (_EncounterMapID != -1) {
+                    if (gWorldmapEncMap != -1) {
                         if (gWorldmapIsInCar) {
-                            _wmMatchAreaContainingMapIdx(_EncounterMapID, &_carCurrentArea);
+                            _wmMatchAreaContainingMapIdx(gWorldmapEncMap, &_carCurrentArea);
                         }
-                        mapLoadById(_EncounterMapID);
+                        mapLoadById(gWorldmapEncMap);
                     }
                     break;
                 }
@@ -3155,11 +3155,11 @@ int _wmRndEncounterOccurred()
         return 0;
     }
 
-    if (!_Meet_Frank_Horrigan) {
+    if (!gWorldmapShouldEncounterHorrigan) {
         unsigned int gameTime = gameTimeGetTime();
         if (gameTime / GAME_TIME_TICKS_PER_DAY > 35) {
-            _EncounterMapID = v26;
-            _Meet_Frank_Horrigan = true;
+            gWorldmapEncMap = v26;
+            gWorldmapShouldEncounterHorrigan = true;
             if (gWorldmapIsInCar) {
                 _wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &_carCurrentArea);
             }
@@ -3181,7 +3181,7 @@ int _wmRndEncounterOccurred()
         dayPart = DAY_PART_MORNING;
     }
 
-    int frequency = _wmFreqValues[_world_subtile->encounterChance[dayPart]];
+    int frequency = _wmFreqValues[gWorldmapCurSubTile->encounterChance[dayPart]];
     if (frequency > 0 && frequency < 100) {
         int gameDifficulty = GAME_DIFFICULTY_NORMAL;
         if (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
@@ -3208,11 +3208,11 @@ int _wmRndEncounterOccurred()
     _wmEncounterIconShow = 1;
     _wmRndCursorFid = 0;
 
-    EncounterTable* encounterTable = &(gEncounterTables[dword_672E50]);
-    EncounterEntry* encounter = &(encounterTable->entries[dword_672E54]);
+    EncounterTable* encounterTable = &(gEncounterTables[gWorldmapSubTileEncType]);
+    EncounterEntry* encounter = &(encounterTable->entries[gWorldmapEncEntryId]);
     if ((encounter->flags & ENCOUNTER_ENTRY_SPECIAL) != 0) {
         _wmRndCursorFid = 2;
-        _wmMatchAreaContainingMapIdx(_EncounterMapID, &v26);
+        _wmMatchAreaContainingMapIdx(gWorldmapEncMap, &v26);
 
         CityInfo* city = &(gCities[v26]);
         CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[city->size]);
@@ -3303,16 +3303,16 @@ int _wmRndEncounterOccurred()
     if (randomEncounterIsDetected) {
         MessageListItem messageListItem;
 
-        const char* title = off_4BC878[0];
-        const char* body = off_4BC878[1];
+        const char* title = gWorldmapEncDefaultMsg[0];
+        const char* body = gWorldmapEncDefaultMsg[1];
 
         title = getmsg(&gWorldmapMessageList, &messageListItem, 2999);
-        body = getmsg(&gWorldmapMessageList, &messageListItem, 3000 + 50 * dword_672E50 + dword_672E54);
+        body = getmsg(&gWorldmapMessageList, &messageListItem, 3000 + 50 * gWorldmapSubTileEncType + gWorldmapEncEntryId);
         if (showDialogBox(title, &body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
             _wmEncounterIconShow = 0;
-            _EncounterMapID = -1;
-            dword_672E50 = -1;
-            dword_672E54 = -1;
+            gWorldmapEncMap = -1;
+            gWorldmapSubTileEncType = -1;
+            gWorldmapEncEntryId = -1;
             return 0;
         }
     }
@@ -3325,7 +3325,7 @@ int _wmRndEncounterOccurred()
 // 0x4C0BE4
 int _wmPartyFindCurSubTile()
 {
-    return _wmFindCurSubTileFromPos(_world_xpos, _world_ypos, &_world_subtile);
+    return _wmFindCurSubTileFromPos(_world_xpos, _world_ypos, &gWorldmapCurSubTile);
 }
 
 // 0x4C0C00
@@ -3355,14 +3355,14 @@ int _wmFindCurTileFromPos(int x, int y, TileInfo** tile)
 // 0x4C0CF4
 int _wmRndEncounterPick()
 {
-    if (_world_subtile == NULL) {
+    if (gWorldmapCurSubTile == NULL) {
         // NOTE: Uninline.
         _wmPartyFindCurSubTile();
     }
 
-    dword_672E50 = _world_subtile->encounterType;
+    gWorldmapSubTileEncType = gWorldmapCurSubTile->encounterType;
 
-    EncounterTable* encounterTable = &(gEncounterTables[dword_672E50]);
+    EncounterTable* encounterTable = &(gEncounterTables[gWorldmapSubTileEncType]);
 
     int candidates[41];
     int candidatesLength = 0;
@@ -3432,24 +3432,24 @@ int _wmRndEncounterPick()
         index = candidatesLength - 1;
     }
 
-    dword_672E54 = candidates[index];
+    gWorldmapEncEntryId = candidates[index];
 
-    EncounterEntry* encounterTableEntry = &(encounterTable->entries[dword_672E54]);
+    EncounterEntry* encounterTableEntry = &(encounterTable->entries[gWorldmapEncEntryId]);
     if (encounterTableEntry->counter > 0) {
         encounterTableEntry->counter--;
     }
 
     if (encounterTableEntry->map == -1) {
         if (encounterTable->mapsLength <= 0) {
-            Terrain* terrain = &(gTerrains[_world_subtile->terrain]);
+            Terrain* terrain = &(gTerrains[gWorldmapCurSubTile->terrain]);
             int randomMapIndex = randomBetween(0, terrain->mapsLength - 1);
-            _EncounterMapID = terrain->maps[randomMapIndex];
+            gWorldmapEncMap = terrain->maps[randomMapIndex];
         } else {
             int randomMapIndex = randomBetween(0, encounterTable->mapsLength - 1);
-            _EncounterMapID = encounterTable->maps[randomMapIndex];
+            gWorldmapEncMap = encounterTable->maps[randomMapIndex];
         }
     } else {
-        _EncounterMapID = encounterTableEntry->map;
+        gWorldmapEncMap = encounterTableEntry->map;
     }
 
     return 0;
@@ -3462,18 +3462,18 @@ int worldmapSetupRandomEncounter()
     MessageListItem messageListItem;
     char* msg;
 
-    if (_EncounterMapID == -1) {
+    if (gWorldmapEncMap == -1) {
         return 0;
     }
 
-    EncounterTable* encounterTable = &(gEncounterTables[dword_672E50]);
-    EncounterEntry* encounterTableEntry = &(encounterTable->entries[dword_672E54]);
+    EncounterTable* encounterTable = &(gEncounterTables[gWorldmapSubTileEncType]);
+    EncounterEntry* encounterTableEntry = &(encounterTable->entries[gWorldmapEncEntryId]);
 
     // You encounter:
     msg = getmsg(&gWorldmapMessageList, &messageListItem, 2998);
     displayMonitorAddMessage(msg);
 
-    msg = getmsg(&gWorldmapMessageList, &messageListItem, 3000 + 50 * dword_672E50 + dword_672E54);
+    msg = getmsg(&gWorldmapMessageList, &messageListItem, 3000 + 50 * gWorldmapSubTileEncType + gWorldmapEncEntryId);
     displayMonitorAddMessage(msg);
 
     int gameDifficulty;
@@ -4123,7 +4123,7 @@ void worldmapPerformTravel()
     // NOTE: Uninline.
     _wmPartyFindCurSubTile();
 
-    Terrain* terrain = &(gTerrains[_world_subtile->terrain]);
+    Terrain* terrain = &(gTerrains[gWorldmapCurSubTile->terrain]);
     int v1 = terrain->field_28 - perkGetRank(gDude, PERK_PATHFINDER);
     if (v1 < 1) {
         v1 = 1;
@@ -4259,7 +4259,7 @@ int worldmapWindowInit()
     CacheEntry* frmHandle;
 
     _wmLastRndTime = _get_time();
-    _fontnum = fontGetCurrent();
+    gWorldmapPreviousFont = fontGetCurrent();
     fontSetCurrent(0);
 
     _map_save_in_game(true);
@@ -4777,15 +4777,15 @@ int worldmapWindowFree()
     }
 
     _wmEncounterIconShow = 0;
-    _EncounterMapID = -1;
-    dword_672E50 = -1;
-    dword_672E54 = -1;
+    gWorldmapEncMap = -1;
+    gWorldmapSubTileEncType = -1;
+    gWorldmapEncEntryId = -1;
 
     indicatorBarShow();
     isoEnable();
     colorCycleEnable();
 
-    fontSetCurrent(_fontnum);
+    fontSetCurrent(gWorldmapPreviousFont);
 
     // NOTE: Uninline.
     wmFreeTabsLabelList(&gQuickDestinations, &gQuickDestinationsLength);
@@ -6007,8 +6007,8 @@ int carGetCity()
 int _wmCarGiveToParty()
 {
     MessageListItem messageListItem;
-    static_assert(sizeof(messageListItem) == sizeof(stru_4BC880), "wrong size");
-    memcpy(&messageListItem, &stru_4BC880, sizeof(MessageListItem));
+    static_assert(sizeof(messageListItem) == sizeof(gWorldmapMessageListItem), "wrong size");
+    memcpy(&messageListItem, &gWorldmapMessageListItem, sizeof(MessageListItem));
 
     if (gWorldmapCarFuel <= 0) {
         // The car is out of power.
