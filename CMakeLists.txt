@@ -234,8 +234,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/window.h"
     "src/word_wrap.c"
     "src/word_wrap.h"
-    "src/world_map.c"
-    "src/world_map.h"
+    "src/worldmap.c"
+    "src/worldmap.h"
     "src/xfile.c"
     "src/xfile.h"
 )

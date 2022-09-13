@@ -29,7 +29,7 @@
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "word_wrap.h"
-#include "world_map.h"
+#include "worldmap.h"
 
 #include <ctype.h>
 #include <limits.h>

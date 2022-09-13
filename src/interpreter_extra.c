@@ -35,7 +35,7 @@
 #include "text_object.h"
 #include "tile.h"
 #include "trait.h"
-#include "world_map.h"
+#include "worldmap.h"
 
 #include <limits.h>
 #include <stdio.h>

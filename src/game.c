@@ -52,7 +52,7 @@
 #include "trap.h"
 #include "version.h"
 #include "window_manager.h"
-#include "world_map.h"
+#include "worldmap.h"
 
 #include <io.h>
 #include <stdio.h>
