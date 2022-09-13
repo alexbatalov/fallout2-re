@@ -1,12 +1,15 @@
 #include "worldmap.h"
 
 #include "animation.h"
+#include "art.h"
 #include "color.h"
 #include "combat.h"
 #include "combat_ai.h"
+#include "config.h"
 #include "core.h"
 #include "critter.h"
 #include "cycle.h"
+#include "db.h"
 #include "dbox.h"
 #include "debug.h"
 #include "display_monitor.h"
@@ -18,7 +21,10 @@
 #include "game_sound.h"
 #include "interface.h"
 #include "item.h"
+#include "map_defs.h"
 #include "memory.h"
+#include "message.h"
+#include "obj_types.h"
 #include "object.h"
 #include "party_member.h"
 #include "perk.h"
@@ -37,9 +43,44 @@
 #include <stdio.h>
 #include <string.h>
 
-static_assert(sizeof(Terrain) == 128, "wrong size");
-static_assert(sizeof(ENC_BASE_TYPE) == 3056, "wrong size");
-static_assert(sizeof(EncounterTable) == 7460, "wrong size");
+#define CITY_NAME_SIZE (40)
+#define TILE_WALK_MASK_NAME_SIZE (40)
+#define ENTRANCE_LIST_CAPACITY (10)
+
+#define MAP_AMBIENT_SOUND_EFFECTS_CAPACITY (6)
+#define MAP_STARTING_POINTS_CAPACITY (15)
+
+#define SUBTILE_GRID_WIDTH (7)
+#define SUBTILE_GRID_HEIGHT (6)
+
+#define ENCOUNTER_ENTRY_SPECIAL (0x01)
+
+#define ENCOUNTER_SUBINFO_DEAD (0x01)
+
+#define WM_WINDOW_DIAL_X (532)
+#define WM_WINDOW_DIAL_Y (48)
+
+#define WM_TOWN_LIST_SCROLL_UP_X (480)
+#define WM_TOWN_LIST_SCROLL_UP_Y (137)
+
+#define WM_TOWN_LIST_SCROLL_DOWN_X (WM_TOWN_LIST_SCROLL_UP_X)
+#define WM_TOWN_LIST_SCROLL_DOWN_Y (152)
+
+#define WM_WINDOW_GLOBE_OVERLAY_X (495)
+#define WM_WINDOW_GLOBE_OVERLAY_Y (330)
+
+#define WM_WINDOW_CAR_X (514)
+#define WM_WINDOW_CAR_Y (336)
+
+#define WM_WINDOW_CAR_OVERLAY_X (499)
+#define WM_WINDOW_CAR_OVERLAY_Y (330)
+
+#define WM_WINDOW_CAR_FUEL_BAR_X (500)
+#define WM_WINDOW_CAR_FUEL_BAR_Y (339)
+#define WM_WINDOW_CAR_FUEL_BAR_HEIGHT (70)
+
+#define WM_TOWN_WORLD_SWITCH_X (519)
+#define WM_TOWN_WORLD_SWITCH_Y (439)
 
 #define WM_TILE_WIDTH (350)
 #define WM_TILE_HEIGHT (300)
@@ -53,6 +94,262 @@ static_assert(sizeof(EncounterTable) == 7460, "wrong size");
 #define WM_VIEW_Y (21)
 #define WM_VIEW_WIDTH (450)
 #define WM_VIEW_HEIGHT (443)
+
+typedef enum EncounterFormationType {
+    ENCOUNTER_FORMATION_TYPE_SURROUNDING,
+    ENCOUNTER_FORMATION_TYPE_STRAIGHT_LINE,
+    ENCOUNTER_FORMATION_TYPE_DOUBLE_LINE,
+    ENCOUNTER_FORMATION_TYPE_WEDGE,
+    ENCOUNTER_FORMATION_TYPE_CONE,
+    ENCOUNTER_FORMATION_TYPE_HUDDLE,
+    ENCOUNTER_FORMATION_TYPE_COUNT,
+} EncounterFormationType;
+
+typedef enum EncounterFrequencyType {
+    ENCOUNTER_FREQUENCY_TYPE_NONE,
+    ENCOUNTER_FREQUENCY_TYPE_RARE,
+    ENCOUNTER_FREQUENCY_TYPE_UNCOMMON,
+    ENCOUNTER_FREQUENCY_TYPE_COMMON,
+    ENCOUNTER_FREQUENCY_TYPE_FREQUENT,
+    ENCOUNTER_FREQUENCY_TYPE_FORCED,
+    ENCOUNTER_FREQUENCY_TYPE_COUNT,
+} EncounterFrequencyType;
+
+typedef enum EncounterSceneryType {
+    ENCOUNTER_SCENERY_TYPE_NONE,
+    ENCOUNTER_SCENERY_TYPE_LIGHT,
+    ENCOUNTER_SCENERY_TYPE_NORMAL,
+    ENCOUNTER_SCENERY_TYPE_HEAVY,
+    ENCOUNTER_SCENERY_TYPE_COUNT,
+} EncounterSceneryType;
+
+typedef enum EncounterSituation {
+    ENCOUNTER_SITUATION_NOTHING,
+    ENCOUNTER_SITUATION_AMBUSH,
+    ENCOUNTER_SITUATION_FIGHTING,
+    ENCOUNTER_SITUATION_AND,
+    ENCOUNTER_SITUATION_COUNT,
+} EncounterSituation;
+
+typedef enum EncounterLogicalOperator {
+    ENCOUNTER_LOGICAL_OPERATOR_NONE,
+    ENCOUNTER_LOGICAL_OPERATOR_AND,
+    ENCOUNTER_LOGICAL_OPERATOR_OR,
+} EncounterLogicalOperator;
+
+typedef enum EncounterConditionType {
+    ENCOUNTER_CONDITION_TYPE_NONE = 0,
+    ENCOUNTER_CONDITION_TYPE_GLOBAL = 1,
+    ENCOUNTER_CONDITION_TYPE_NUMBER_OF_CRITTERS = 2,
+    ENCOUNTER_CONDITION_TYPE_RANDOM = 3,
+    ENCOUNTER_CONDITION_TYPE_PLAYER = 4,
+    ENCOUNTER_CONDITION_TYPE_DAYS_PLAYED = 5,
+    ENCOUNTER_CONDITION_TYPE_TIME_OF_DAY = 6,
+} EncounterConditionType;
+
+typedef enum EncounterConditionalOperator {
+    ENCOUNTER_CONDITIONAL_OPERATOR_NONE,
+    ENCOUNTER_CONDITIONAL_OPERATOR_EQUAL,
+    ENCOUNTER_CONDITIONAL_OPERATOR_NOT_EQUAL,
+    ENCOUNTER_CONDITIONAL_OPERATOR_LESS_THAN,
+    ENCOUNTER_CONDITIONAL_OPERATOR_GREATER_THAN,
+    ENCOUNTER_CONDITIONAL_OPERATOR_COUNT,
+} EncounterConditionalOperator;
+
+typedef enum Daytime {
+    DAY_PART_MORNING,
+    DAY_PART_AFTERNOON,
+    DAY_PART_NIGHT,
+    DAY_PART_COUNT,
+} Daytime;
+
+typedef enum LockState {
+    LOCK_STATE_UNLOCKED,
+    LOCK_STATE_LOCKED,
+} LockState;
+
+typedef enum SubtileState {
+    SUBTILE_STATE_UNKNOWN,
+    SUBTILE_STATE_KNOWN,
+    SUBTILE_STATE_VISITED,
+} SubtileState;
+
+typedef enum WorldMapEncounterFrm {
+    WORLD_MAP_ENCOUNTER_FRM_RANDOM_BRIGHT,
+    WORLD_MAP_ENCOUNTER_FRM_RANDOM_DARK,
+    WORLD_MAP_ENCOUNTER_FRM_SPECIAL_BRIGHT,
+    WORLD_MAP_ENCOUNTER_FRM_SPECIAL_DARK,
+    WORLD_MAP_ENCOUNTER_FRM_COUNT,
+} WorldMapEncounterFrm;
+
+typedef enum WorldmapArrowFrm {
+    WORLDMAP_ARROW_FRM_NORMAL,
+    WORLDMAP_ARROW_FRM_PRESSED,
+    WORLDMAP_ARROW_FRM_COUNT,
+} WorldmapArrowFrm;
+
+typedef enum CitySize {
+    CITY_SIZE_SMALL,
+    CITY_SIZE_MEDIUM,
+    CITY_SIZE_LARGE,
+    CITY_SIZE_COUNT,
+} CitySize;
+
+typedef struct EntranceInfo {
+    int state;
+    int x;
+    int y;
+    int map;
+    int elevation;
+    int tile;
+    int rotation;
+} EntranceInfo;
+
+typedef struct CityInfo {
+    char name[CITY_NAME_SIZE];
+    int areaId;
+    int x;
+    int y;
+    int size;
+    int state;
+    int lockState;
+    int visitedState;
+    int mapFid;
+    int labelFid;
+    int entrancesLength;
+    EntranceInfo entrances[ENTRANCE_LIST_CAPACITY];
+} CityInfo;
+
+typedef struct MapAmbientSoundEffectInfo {
+    char name[40];
+    int chance;
+} MapAmbientSoundEffectInfo;
+
+typedef struct MapStartPointInfo {
+    int elevation;
+    int tile;
+    int field_8;
+} MapStartPointInfo;
+
+typedef struct MapInfo {
+    char lookupName[40];
+    int field_28;
+    int field_2C;
+    char mapFileName[40];
+    char music[40];
+    int flags;
+    int ambientSoundEffectsLength;
+    MapAmbientSoundEffectInfo ambientSoundEffects[MAP_AMBIENT_SOUND_EFFECTS_CAPACITY];
+    int startPointsLength;
+    MapStartPointInfo startPoints[MAP_STARTING_POINTS_CAPACITY];
+} MapInfo;
+
+typedef struct Terrain {
+    char lookupName[40];
+    int type;
+    int mapsLength;
+    int maps[20];
+} Terrain;
+
+typedef struct EncounterConditionEntry {
+    int type;
+    int conditionalOperator;
+    int param;
+    int value;
+} EncounterConditionEntry;
+
+typedef struct EncounterCondition {
+    int entriesLength;
+    EncounterConditionEntry entries[3];
+    int logicalOperators[2];
+} EncounterCondition;
+
+typedef struct ENCOUNTER_ENTRY_ENC {
+    int minQuantity; // min
+    int maxQuantity; // max
+    int field_8;
+    int situation;
+} ENCOUNTER_ENTRY_ENC;
+
+typedef struct EncounterEntry {
+    int flags;
+    int map;
+    int scenery;
+    int chance;
+    int counter;
+    EncounterCondition condition;
+    int field_50;
+    ENCOUNTER_ENTRY_ENC field_54[6];
+} EncounterEntry;
+
+typedef struct EncounterTable {
+    char lookupName[40];
+    int field_28;
+    int mapsLength;
+    int maps[6];
+    int field_48;
+    int entriesLength;
+    EncounterEntry entries[41];
+} EncounterTable;
+
+typedef struct ENC_BASE_TYPE_38_48 {
+    int pid;
+    int minimumQuantity;
+    int maximumQuantity;
+    bool isEquipped;
+} ENC_BASE_TYPE_38_48;
+
+typedef struct ENC_BASE_TYPE_38 {
+    char field_0[40];
+    int field_28;
+    int field_2C;
+    int ratio;
+    int pid;
+    int flags;
+    int distance;
+    int tile;
+    int itemsLength;
+    ENC_BASE_TYPE_38_48 items[10];
+    int team;
+    int script;
+    EncounterCondition condition;
+} ENC_BASE_TYPE_38;
+
+typedef struct ENC_BASE_TYPE {
+    char name[40];
+    int position;
+    int spacing;
+    int distance;
+    int field_34;
+    ENC_BASE_TYPE_38 field_38[10];
+} ENC_BASE_TYPE;
+
+typedef struct SubtileInfo {
+    int terrain;
+    int field_4;
+    int encounterChance[DAY_PART_COUNT];
+    int encounterType;
+    int state;
+} SubtileInfo;
+
+// A worldmap tile is 7x6 area, thus consisting of 42 individual subtiles.
+typedef struct TileInfo {
+    int fid;
+    CacheEntry* handle;
+    unsigned char* data;
+    char walkMaskName[TILE_WALK_MASK_NAME_SIZE];
+    unsigned char* walkMaskData;
+    int encounterDifficultyModifier;
+    SubtileInfo subtiles[SUBTILE_GRID_HEIGHT][SUBTILE_GRID_WIDTH];
+} TileInfo;
+
+typedef struct CitySizeDescription {
+    int fid;
+    int width;
+    int height;
+    CacheEntry* handle;
+    unsigned char* data;
+} CitySizeDescription;
 
 typedef struct WmGenData {
     bool mousePressed;
@@ -173,49 +470,147 @@ typedef struct WmGenData {
     int oldFont;
 } WmGenData;
 
+static void wmSetFlags(int* flagsPtr, int flag, int value);
+static int wmGenDataInit();
+static int wmGenDataReset();
+static int wmWorldMapSaveTempData();
+static int wmWorldMapLoadTempData();
+static int wmConfigInit();
+static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKey);
+static int wmParseEncounterTableIndex(EncounterEntry* entry, char* string);
+static int wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr);
+static int wmParseFindSubEncTypeMatch(char* str, int* valuePtr);
+static int wmFindEncBaseTypeMatch(char* str, int* valuePtr);
+static int wmReadEncBaseType(char* name, int* valuePtr);
+static int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr);
+static int wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry);
+static int wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry);
+static int wmEncounterSubEncSlotInit(ENCOUNTER_ENTRY_ENC* entry);
+static int wmEncounterTypeSlotInit(EncounterEntry* entry);
+static int wmEncounterTableSlotInit(EncounterTable* encounterTable);
+static int wmTileSlotInit(TileInfo* tile);
+static int wmTerrainTypeSlotInit(Terrain* terrain);
+static int wmConditionalDataInit(EncounterCondition* condition);
+static int wmParseTerrainTypes(Config* config, char* string);
+static int wmParseTerrainRndMaps(Config* config, Terrain* terrain);
+static int wmParseSubTileInfo(TileInfo* tile, int row, int column, char* string);
+static int wmParseFindEncounterTypeMatch(char* string, int* valuePtr);
+static int wmParseFindTerrainTypeMatch(char* string, int* valuePtr);
+static int wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3, const char* delim);
+static int wmParseItemType(char* string, ENC_BASE_TYPE_38_48* ptr);
+static int wmParseConditional(char** stringPtr, const char* a2, EncounterCondition* condition);
+static int wmParseSubConditional(char** stringPtr, const char* a2, int* typePtr, int* operatorPtr, int* paramPtr, int* valuePtr);
+static int wmParseConditionalEval(char** stringPtr, int* conditionalOperatorPtr);
+static int wmAreaSlotInit(CityInfo* area);
+static int wmAreaInit();
+static int wmParseFindMapIdxMatch(char* string, int* valuePtr);
+static int wmEntranceSlotInit(EntranceInfo* entrance);
+static int wmMapSlotInit(MapInfo* map);
+static int wmMapInit();
+static int wmRStartSlotInit(MapStartPointInfo* rsp);
+static int wmMatchEntranceFromMap(int areaIdx, int mapIdx, int* entranceIdxPtr);
+static int wmMatchEntranceElevFromMap(int areaIdx, int mapIdx, int elevation, int* entranceIdxPtr);
+static int wmMatchAreaFromMap(int mapIdx, int* areaIdxPtr);
+static int wmWorldMapFunc(int a1);
+static int wmInterfaceCenterOnParty();
+static void wmCheckGameEvents();
+static int wmRndEncounterOccurred();
+static int wmPartyFindCurSubTile();
+static int wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtilePtr);
+static int wmFindCurTileFromPos(int x, int y, TileInfo** tilePtr);
+static int wmRndEncounterPick();
+static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCount);
+static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1);
+static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile_num);
+static bool wmEvalConditional(EncounterCondition* a1, int* a2);
+static bool wmEvalSubConditional(int operand1, int condionalOperator, int operand2);
+static bool wmGameTimeIncrement(int a1);
+static int wmGrabTileWalkMask(int tile);
+static bool wmWorldPosInvalid(int x, int y);
+static void wmPartyInitWalking(int x, int y);
+static void wmPartyWalkingStep();
+static void wmInterfaceScrollTabsStart(int delta);
+static void wmInterfaceScrollTabsStop();
+static void wmInterfaceScrollTabsUpdate();
+static int wmInterfaceInit();
+static int wmInterfaceExit();
+static int wmInterfaceScroll(int dx, int dy, bool* successPtr);
+static int wmInterfaceScrollPixel(int stepX, int stepY, int dx, int dy, bool* success, bool shouldRefresh);
+static void wmMouseBkProc();
+static int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX, int offsetY);
+static int wmMarkSubTileOffsetKnown(int tile, int subtileX, int subtileY, int offsetX, int offsetY);
+static int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int offsetX, int offsetY, int subtileState);
+static void wmMarkSubTileRadiusVisited(int x, int y);
+static int wmTileGrabArt(int tileIdx);
+static int wmInterfaceRefresh();
+static void wmInterfaceRefreshDate(bool shouldRefreshWindow);
+static int wmMatchWorldPosToArea(int x, int y, int* areaIdxPtr);
+static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDescription, unsigned char* dest, int x, int y);
+static void wmInterfaceDrawSubTileRectFogged(unsigned char* dest, int width, int height, int pitch);
+static int wmInterfaceDrawSubTileList(TileInfo* tileInfo, int column, int row, int x, int y, int a6);
+static int wmDrawCursorStopped();
+static bool wmCursorIsVisible();
+static int wmGetAreaName(CityInfo* city, char* name);
+static void wmMarkAllSubTiles(int state);
+static int wmTownMapFunc(int* mapIdxPtr);
+static int wmTownMapInit();
+static int wmTownMapRefresh();
+static int wmTownMapExit();
+static int wmRefreshInterfaceOverlay(bool shouldRefreshWindow);
+static void wmInterfaceRefreshCarFuel();
+static int wmRefreshTabs();
+static int wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengthPtr);
+static int wmTabsCompareNames(const void* a1, const void* a2);
+static int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr);
+static void wmRefreshInterfaceDial(bool shouldRefreshWindow);
+static void wmInterfaceDialSyncTime(bool shouldRefreshWindow);
+static int wmAreaFindFirstValidMap(int* mapIdxPtr);
+
+static bool cityIsValid(int areaIdx);
+
 // 0x4BC860
-const int _can_rest_here[ELEVATION_COUNT] = {
+static const int _can_rest_here[ELEVATION_COUNT] = {
     MAP_CAN_REST_ELEVATION_0,
     MAP_CAN_REST_ELEVATION_1,
     MAP_CAN_REST_ELEVATION_2,
 };
 
 // 0x4BC86C
-const int gDayPartEncounterFrequencyModifiers[DAY_PART_COUNT] = {
+static const int gDayPartEncounterFrequencyModifiers[DAY_PART_COUNT] = {
     40,
     30,
     0,
 };
 
 // 0x4BC878
-const char* gWorldmapEncDefaultMsg[2] = {
+static const char* gWorldmapEncDefaultMsg[2] = {
     "You detect something up ahead.",
     "Do you wish to encounter it?",
 };
 
 // 0x4BC880
-MessageListItem gWorldmapMessageListItem;
+static MessageListItem gWorldmapMessageListItem;
 
 // 0x50EE44
-char _aCricket[] = "cricket";
+static char _aCricket[] = "cricket";
 
 // 0x50EE4C
-char _aCricket1[] = "cricket1";
+static char _aCricket1[] = "cricket1";
 
 // 0x51DD88
-const char* _wmStateStrs[2] = {
+static const char* wmStateStrs[2] = {
     "off",
     "on"
 };
 
 // 0x51DD90
-const char* _wmYesNoStrs[2] = {
+static const char* wmYesNoStrs[2] = {
     "no",
     "yes",
 };
 
 // 0x51DD98
-const char* gEncounterFrequencyTypeKeys[ENCOUNTER_FREQUENCY_TYPE_COUNT] = {
+static const char* wmFreqStrs[ENCOUNTER_FREQUENCY_TYPE_COUNT] = {
     "none",
     "rare",
     "uncommon",
@@ -225,7 +620,7 @@ const char* gEncounterFrequencyTypeKeys[ENCOUNTER_FREQUENCY_TYPE_COUNT] = {
 };
 
 // 0x51DDB0
-const char* _wmFillStrs[9] = {
+static const char* wmFillStrs[9] = {
     "no_fill",
     "fill_n",
     "fill_s",
@@ -238,7 +633,7 @@ const char* _wmFillStrs[9] = {
 };
 
 // 0x51DDD4
-const char* _wmSceneryStrs[ENCOUNTER_SCENERY_TYPE_COUNT] = {
+static const char* wmSceneryStrs[ENCOUNTER_SCENERY_TYPE_COUNT] = {
     "none",
     "light",
     "normal",
@@ -246,85 +641,85 @@ const char* _wmSceneryStrs[ENCOUNTER_SCENERY_TYPE_COUNT] = {
 };
 
 // 0x51DDE4
-Terrain* gTerrains = NULL;
+static Terrain* wmTerrainTypeList = NULL;
 
 // 0x51DDE8
-int gTerrainsLength = 0;
+static int wmMaxTerrainTypes = 0;
 
 // 0x51DDEC
-TileInfo* gWorldmapTiles = NULL;
+static TileInfo* wmTileInfoList = NULL;
 
 // 0x51DDF0
-int gWorldmapTilesLength = 0;
+static int wmMaxTileNum = 0;
 
 // The width of worldmap grid in tiles.
 //
 // There is no separate variable for grid height, instead its calculated as
-// [gWorldmapTilesLength] / [gWorldmapTilesGridWidth].
+// [wmMaxTileNum] / [gWorldmapTilesGridWidth].
 //
 // num_horizontal_tiles
 // 0x51DDF4
-int gWorldmapGridWidth = 0;
+static int wmNumHorizontalTiles = 0;
 
 // 0x51DDF8
-CityInfo* gCities = NULL;
+static CityInfo* wmAreaInfoList = NULL;
 
 // 0x51DDFC
-int gCitiesLength = 0;
+static int wmMaxAreaNum = 0;
 
 // 0x51DE00
-const char* gCitySizeKeys[CITY_SIZE_COUNT] = {
+static const char* wmAreaSizeStrs[CITY_SIZE_COUNT] = {
     "small",
     "medium",
     "large",
 };
 
 // 0x51DE0C
-MapInfo* gMaps = NULL;
+static MapInfo* wmMapInfoList = NULL;
 
 // 0x51DE10
-int gMapsLength = 0;
+static int wmMaxMapNum = 0;
 
 // 0x51DE14
-int gWorldmapWindow = -1;
+static int wmBkWin = -1;
 
 // 0x51DE18
-CacheEntry* gWorldmapBoxFrmHandle = INVALID_CACHE_ENTRY;
+static CacheEntry* wmBkKey = INVALID_CACHE_ENTRY;
 
 // 0x51DE1C
-int gWorldmapBoxFrmWidth = 0;
+static int wmBkWidth = 0;
 
 // 0x51DE20
-int gWorldmapBoxFrmHeight = 0;
+static int wmBkHeight = 0;
 
 // 0x51DE24
-unsigned char* gWorldmapWindowBuffer = NULL;
+static unsigned char* wmBkWinBuf = NULL;
 
 // 0x51DE28
-unsigned char* gWorldmapBoxFrmData = NULL;
+static unsigned char* wmBkArtBuf = NULL;
 
 // 0x51DE2C
-int gWorldmapOffsetX = 0;
+static int wmWorldOffsetX = 0;
 
 // 0x51DE30
-int gWorldmapOffsetY = 0;
+static int wmWorldOffsetY = 0;
 
-//
-unsigned char* _circleBlendTable = NULL;
+// 0x51DE34
+unsigned char* circleBlendTable = NULL;
 
-//
-int _wmInterfaceWasInitialized = 0;
+// 0x51DE38
+static int wmInterfaceWasInitialized = 0;
 
-// encounter types
-const char* _wmEncOpStrs[ENCOUNTER_SITUATION_COUNT] = {
+// 0x51DE3C
+static const char* wmEncOpStrs[ENCOUNTER_SITUATION_COUNT] = {
     "nothing",
     "ambush",
     "fighting",
     "and",
 };
 
-// operators
-const char* _wmConditionalOpStrs[ENCOUNTER_CONDITIONAL_OPERATOR_COUNT] = {
+// 0x51DE4C
+static const char* wmConditionalOpStrs[ENCOUNTER_CONDITIONAL_OPERATOR_COUNT] = {
     "_",
     "==",
     "!=",
@@ -332,8 +727,14 @@ const char* _wmConditionalOpStrs[ENCOUNTER_CONDITIONAL_OPERATOR_COUNT] = {
     ">",
 };
 
+// 0x51DE64
+static const char* wmConditionalQualifierStrs[2] = {
+    "and",
+    "or",
+};
+
 // 0x51DE6C
-const char* gEncounterFormationTypeKeys[ENCOUNTER_FORMATION_TYPE_COUNT] = {
+static const char* wmFormationStrs[ENCOUNTER_FORMATION_TYPE_COUNT] = {
     "surrounding",
     "straight_line",
     "double_line",
@@ -343,7 +744,7 @@ const char* gEncounterFormationTypeKeys[ENCOUNTER_FORMATION_TYPE_COUNT] = {
 };
 
 // 0x51DE84
-int gWorldmapEncounterFrmIds[WORLD_MAP_ENCOUNTER_FRM_COUNT] = {
+static const int wmRndCursorFids[WORLD_MAP_ENCOUNTER_FRM_COUNT] = {
     154,
     155,
     438,
@@ -351,66 +752,66 @@ int gWorldmapEncounterFrmIds[WORLD_MAP_ENCOUNTER_FRM_COUNT] = {
 };
 
 // 0x51DE94
-int* gQuickDestinations = NULL;
+static int* wmLabelList = NULL;
 
 // 0x51DE98
-int gQuickDestinationsLength = 0;
+static int wmLabelCount = 0;
 
 // 0x51DE9C
-int _wmTownMapCurArea = -1;
+static int wmTownMapCurArea = -1;
 
 // 0x51DEA0
-unsigned int _wmLastRndTime = 0;
+static unsigned int wmLastRndTime = 0;
 
 // 0x51DEA4
-int _wmRndIndex = 0;
+static int wmRndIndex = 0;
 
 // 0x51DEA8
-int _wmRndCallCount = 0;
+static int wmRndCallCount = 0;
 
 // 0x51DEAC
-int _terrainCounter = 1;
+static int _terrainCounter = 1;
 
 // 0x51DEB0
-unsigned int _lastTime_2 = 0;
+static unsigned int _lastTime_2 = 0;
 
 // 0x51DEB4
-bool _couldScroll = true;
+static bool _couldScroll = true;
 
 // 0x51DEB8
-unsigned char* gWorldmapCityMapFrmData = NULL;
+static unsigned char* wmTownBuffer = NULL;
 
 // 0x51DEBC
-CacheEntry* gWorldmapCityMapFrmHandle = INVALID_CACHE_ENTRY;
+static CacheEntry* wmTownKey = INVALID_CACHE_ENTRY;
 
 // 0x51DEC0
-int gWorldmapCityMapFrmWidth = 0;
+static int wmTownWidth = 0;
 
 // 0x51DEC4
-int gWorldmapCityMapFrmHeight = 0;
+static int wmTownHeight = 0;
 
 // 0x51DEC8
-char* _wmRemapSfxList[2] = {
+static char* wmRemapSfxList[2] = {
     _aCricket,
     _aCricket1,
 };
 
 // 0x672DB8
-int _wmRndTileDirs[2];
+static int wmRndTileDirs[2];
 
 // 0x672DC0
-int _wmRndCenterTiles[2];
+static int wmRndCenterTiles[2];
 
 // 0x672DC8
-int _wmRndCenterRotations[2];
+static int wmRndCenterRotations[2];
 
 // 0x672DD0
-int _wmRndRotOffsets[2];
+static int wmRndRotOffsets[2];
 
 // Buttons for city entrances.
 //
 // 0x672DD8
-int _wmTownMapButtonId[ENTRANCE_LIST_CAPACITY];
+static int wmTownMapButtonId[ENTRANCE_LIST_CAPACITY];
 
 // NOTE: There are no symbols in |mapper2.exe| for the range between |wmGenData|
 // and |wmMsgFile| implying everything in between are fields of the large
@@ -422,41 +823,41 @@ static WmGenData wmGenData;
 // worldmap.msg
 //
 // 0x672FB0
-MessageList gWorldmapMessageList;
+static MessageList wmMsgFile;
 
 // 0x672FB8
-int _wmFreqValues[6];
+static int wmFreqValues[6];
 
 // 0x672FD0
-int _wmRndOriginalCenterTile;
+static int wmRndOriginalCenterTile;
 
 // worldmap.txt
 //
 // 0x672FD4
-Config* gWorldmapConfig;
+static Config* pConfigCfg;
 
 // 0x672FD8
-int _wmTownMapSubButtonIds[7];
+static int wmTownMapSubButtonIds[7];
 
 // 0x672FF4
-ENC_BASE_TYPE* _wmEncBaseTypeList;
+static ENC_BASE_TYPE* wmEncBaseTypeList;
 
 // 0x672FF8
-CitySizeDescription gCitySizeDescriptions[CITY_SIZE_COUNT];
+static CitySizeDescription wmSphereData[CITY_SIZE_COUNT];
 
 // 0x673034
-EncounterTable* gEncounterTables;
+static EncounterTable* wmEncounterTableList;
 
 // Number of enc_base_types.
 //
 // 0x673038
-int _wmMaxEncBaseTypes;
+static int _wmMaxEncBaseTypes;
 
 // 0x67303C
-int gEncounterTablesLength;
+static int wmMaxEncounterInfoTables;
 
 // 0x4BC890
-void wmSetFlags(int* flagsPtr, int flag, int value)
+static void wmSetFlags(int* flagsPtr, int flag, int value)
 {
     if (value) {
         *flagsPtr |= flag;
@@ -465,42 +866,41 @@ void wmSetFlags(int* flagsPtr, int flag, int value)
     }
 }
 
-// wmWorldMap_init
 // 0x4BC89C
-int worldmapInit()
+int wmWorldMap_init()
 {
     char path[MAX_PATH];
 
-    if (_wmGenDataInit() == -1) {
+    if (wmGenDataInit() == -1) {
         return -1;
     }
 
-    if (!messageListInit(&gWorldmapMessageList)) {
+    if (!messageListInit(&wmMsgFile)) {
         return -1;
     }
 
     sprintf(path, "%s%s", asc_5186C8, "worldmap.msg");
 
-    if (!messageListLoad(&gWorldmapMessageList, path)) {
+    if (!messageListLoad(&wmMsgFile, path)) {
         return -1;
     }
 
-    if (worldmapConfigInit() == -1) {
+    if (wmConfigInit() == -1) {
         return -1;
     }
 
-    wmGenData.viewportMaxX = WM_TILE_WIDTH * gWorldmapGridWidth - WM_VIEW_WIDTH;
-    wmGenData.viewportMaxY = WM_TILE_HEIGHT * (gWorldmapTilesLength / gWorldmapGridWidth) - WM_VIEW_HEIGHT;
-    _circleBlendTable = _getColorBlendTable(_colorTable[992]);
+    wmGenData.viewportMaxX = WM_TILE_WIDTH * wmNumHorizontalTiles - WM_VIEW_WIDTH;
+    wmGenData.viewportMaxY = WM_TILE_HEIGHT * (wmMaxTileNum / wmNumHorizontalTiles) - WM_VIEW_HEIGHT;
+    circleBlendTable = _getColorBlendTable(_colorTable[992]);
 
-    _wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
-    _wmWorldMapSaveTempData();
+    wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
+    wmWorldMapSaveTempData();
 
     return 0;
 }
 
 // 0x4BC984
-int _wmGenDataInit()
+static int wmGenDataInit()
 {
     wmGenData.didMeetFrankHorrigan = false;
     wmGenData.currentAreaId = -1;
@@ -606,7 +1006,7 @@ int _wmGenDataInit()
 }
 
 // 0x4BCBFC
-int _wmGenDataReset()
+static int wmGenDataReset()
 {
     wmGenData.didMeetFrankHorrigan = false;
     wmGenData.currentSubtile = NULL;
@@ -685,76 +1085,76 @@ int _wmGenDataReset()
     wmGenData.monthsFrm = NULL;
     wmGenData.numbersFrm = NULL;
 
-    _wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
+    wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
 
     return 0;
 }
 
 // 0x4BCE00
-void worldmapExit()
+void wmWorldMap_exit()
 {
-    if (gTerrains != NULL) {
-        internal_free(gTerrains);
-        gTerrains = NULL;
+    if (wmTerrainTypeList != NULL) {
+        internal_free(wmTerrainTypeList);
+        wmTerrainTypeList = NULL;
     }
 
-    if (gWorldmapTiles) {
-        internal_free(gWorldmapTiles);
-        gWorldmapTiles = NULL;
+    if (wmTileInfoList) {
+        internal_free(wmTileInfoList);
+        wmTileInfoList = NULL;
     }
 
-    gWorldmapGridWidth = 0;
-    gWorldmapTilesLength = 0;
+    wmNumHorizontalTiles = 0;
+    wmMaxTileNum = 0;
 
-    if (gEncounterTables != NULL) {
-        internal_free(gEncounterTables);
-        gEncounterTables = NULL;
+    if (wmEncounterTableList != NULL) {
+        internal_free(wmEncounterTableList);
+        wmEncounterTableList = NULL;
     }
 
-    gEncounterTablesLength = 0;
+    wmMaxEncounterInfoTables = 0;
 
-    if (_wmEncBaseTypeList != NULL) {
-        internal_free(_wmEncBaseTypeList);
-        _wmEncBaseTypeList = NULL;
+    if (wmEncBaseTypeList != NULL) {
+        internal_free(wmEncBaseTypeList);
+        wmEncBaseTypeList = NULL;
     }
 
     _wmMaxEncBaseTypes = 0;
 
-    if (gCities != NULL) {
-        internal_free(gCities);
-        gCities = NULL;
+    if (wmAreaInfoList != NULL) {
+        internal_free(wmAreaInfoList);
+        wmAreaInfoList = NULL;
     }
 
-    gCitiesLength = 0;
+    wmMaxAreaNum = 0;
 
-    if (gMaps != NULL) {
-        internal_free(gMaps);
+    if (wmMapInfoList != NULL) {
+        internal_free(wmMapInfoList);
     }
 
-    gMapsLength = 0;
+    wmMaxMapNum = 0;
 
-    if (_circleBlendTable != NULL) {
+    if (circleBlendTable != NULL) {
         _freeColorBlendTable(_colorTable[992]);
-        _circleBlendTable = NULL;
+        circleBlendTable = NULL;
     }
 
-    messageListFree(&gWorldmapMessageList);
+    messageListFree(&wmMsgFile);
 }
 
 // 0x4BCEF8
-int worldmapReset()
+int wmWorldMap_reset()
 {
-    gWorldmapOffsetX = 0;
-    gWorldmapOffsetY = 0;
+    wmWorldOffsetX = 0;
+    wmWorldOffsetY = 0;
 
-    _wmWorldMapLoadTempData();
-    _wmMarkAllSubTiles(0);
+    wmWorldMapLoadTempData();
+    wmMarkAllSubTiles(0);
 
-    return _wmGenDataReset();
+    return wmGenDataReset();
 }
 
 // 0x4BCF28
-int worldmapSave(File* stream)
+int wmWorldMap_save(File* stream)
 {
     int i;
     int j;
@@ -773,27 +1173,27 @@ int worldmapSave(File* stream)
     if (fileWriteBool(stream, wmGenData.isInCar) == -1) return -1;
     if (fileWriteInt32(stream, wmGenData.currentCarAreaId) == -1) return -1;
     if (fileWriteInt32(stream, wmGenData.carFuel) == -1) return -1;
-    if (fileWriteInt32(stream, gCitiesLength) == -1) return -1;
+    if (fileWriteInt32(stream, wmMaxAreaNum) == -1) return -1;
 
-    for (int cityIndex = 0; cityIndex < gCitiesLength; cityIndex++) {
-        CityInfo* cityInfo = &(gCities[cityIndex]);
+    for (int cityIdx = 0; cityIdx < wmMaxAreaNum; cityIdx++) {
+        CityInfo* cityInfo = &(wmAreaInfoList[cityIdx]);
         if (fileWriteInt32(stream, cityInfo->x) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->y) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->state) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->visitedState) == -1) return -1;
         if (fileWriteInt32(stream, cityInfo->entrancesLength) == -1) return -1;
 
-        for (int entranceIndex = 0; entranceIndex < cityInfo->entrancesLength; entranceIndex++) {
-            EntranceInfo* entrance = &(cityInfo->entrances[entranceIndex]);
+        for (int entranceIdx = 0; entranceIdx < cityInfo->entrancesLength; entranceIdx++) {
+            EntranceInfo* entrance = &(cityInfo->entrances[entranceIdx]);
             if (fileWriteInt32(stream, entrance->state) == -1) return -1;
         }
     }
 
-    if (fileWriteInt32(stream, gWorldmapTilesLength) == -1) return -1;
-    if (fileWriteInt32(stream, gWorldmapGridWidth) == -1) return -1;
+    if (fileWriteInt32(stream, wmMaxTileNum) == -1) return -1;
+    if (fileWriteInt32(stream, wmNumHorizontalTiles) == -1) return -1;
 
-    for (int tileIndex = 0; tileIndex < gWorldmapTilesLength; tileIndex++) {
-        TileInfo* tileInfo = &(gWorldmapTiles[tileIndex]);
+    for (int tileIndex = 0; tileIndex < wmMaxTileNum; tileIndex++) {
+        TileInfo* tileInfo = &(wmTileInfoList[tileIndex]);
 
         for (int column = 0; column < SUBTILE_GRID_HEIGHT; column++) {
             for (int row = 0; row < SUBTILE_GRID_WIDTH; row++) {
@@ -805,8 +1205,8 @@ int worldmapSave(File* stream)
     }
 
     k = 0;
-    for (i = 0; i < gEncounterTablesLength; i++) {
-        encounter_table = &(gEncounterTables[i]);
+    for (i = 0; i < wmMaxEncounterInfoTables; i++) {
+        encounter_table = &(wmEncounterTableList[i]);
 
         for (j = 0; j < encounter_table->entriesLength; j++) {
             encounter_entry = &(encounter_table->entries[j]);
@@ -819,8 +1219,8 @@ int worldmapSave(File* stream)
 
     if (fileWriteInt32(stream, k) == -1) return -1;
 
-    for (i = 0; i < gEncounterTablesLength; i++) {
-        encounter_table = &(gEncounterTables[i]);
+    for (i = 0; i < wmMaxEncounterInfoTables; i++) {
+        encounter_table = &(wmEncounterTableList[i]);
 
         for (j = 0; j < encounter_table->entriesLength; j++) {
             encounter_entry = &(encounter_table->entries[j]);
@@ -837,7 +1237,7 @@ int worldmapSave(File* stream)
 }
 
 // 0x4BD28C
-int worldmapLoad(File* stream)
+int wmWorldMap_load(File* stream)
 {
     int i;
     int j;
@@ -862,8 +1262,8 @@ int worldmapLoad(File* stream)
     if (fileReadInt32(stream, &(wmGenData.carFuel)) == -1) return -1;
     if (fileReadInt32(stream, &(cities_count)) == -1) return -1;
 
-    for (int cityIndex = 0; cityIndex < cities_count; cityIndex++) {
-        CityInfo* city = &(gCities[cityIndex]);
+    for (int cityIdx = 0; cityIdx < cities_count; cityIdx++) {
+        CityInfo* city = &(wmAreaInfoList[cityIdx]);
 
         if (fileReadInt32(stream, &(city->x)) == -1) return -1;
         if (fileReadInt32(stream, &(city->y)) == -1) return -1;
@@ -875,8 +1275,8 @@ int worldmapLoad(File* stream)
             return -1;
         }
 
-        for (int entranceIndex = 0; entranceIndex < entranceCount; entranceIndex++) {
-            EntranceInfo* entrance = &(city->entrances[entranceIndex]);
+        for (int entranceIdx = 0; entranceIdx < entranceCount; entranceIdx++) {
+            EntranceInfo* entrance = &(city->entrances[entranceIdx]);
 
             if (fileReadInt32(stream, &(entrance->state)) == -1) {
                 return -1;
@@ -888,7 +1288,7 @@ int worldmapLoad(File* stream)
     if (fileReadInt32(stream, &(v38)) == -1) return -1;
 
     for (int tileIndex = 0; tileIndex < v39; tileIndex++) {
-        TileInfo* tile = &(gWorldmapTiles[tileIndex]);
+        TileInfo* tile = &(wmTileInfoList[tileIndex]);
 
         for (int column = 0; column < SUBTILE_GRID_HEIGHT; column++) {
             for (int row = 0; row < SUBTILE_GRID_WIDTH; row++) {
@@ -903,7 +1303,7 @@ int worldmapLoad(File* stream)
 
     for (i = 0; i < v35; i++) {
         if (fileReadInt32(stream, &(j)) == -1) return -1;
-        encounter_table = &(gEncounterTables[j]);
+        encounter_table = &(wmEncounterTableList[j]);
 
         if (fileReadInt32(stream, &(k)) == -1) return -1;
         encounter_entry = &(encounter_table->entries[k]);
@@ -911,13 +1311,13 @@ int worldmapLoad(File* stream)
         if (fileReadInt32(stream, &(encounter_entry->counter)) == -1) return -1;
     }
 
-    _wmInterfaceCenterOnParty();
+    wmInterfaceCenterOnParty();
 
     return 0;
 }
 
 // 0x4BD678
-int _wmWorldMapSaveTempData()
+static int wmWorldMapSaveTempData()
 {
     File* stream = fileOpen("worldmap.dat", "wb");
     if (stream == NULL) {
@@ -925,7 +1325,7 @@ int _wmWorldMapSaveTempData()
     }
 
     int rc = 0;
-    if (worldmapSave(stream) == -1) {
+    if (wmWorldMap_save(stream) == -1) {
         rc = -1;
     }
 
@@ -935,7 +1335,7 @@ int _wmWorldMapSaveTempData()
 }
 
 // 0x4BD6B4
-int _wmWorldMapLoadTempData()
+static int wmWorldMapLoadTempData()
 {
     File* stream = fileOpen("worldmap.dat", "rb");
     if (stream == NULL) {
@@ -943,7 +1343,7 @@ int _wmWorldMapLoadTempData()
     }
 
     int rc = 0;
-    if (worldmapLoad(stream) == -1) {
+    if (wmWorldMap_load(stream) == -1) {
         rc = -1;
     }
 
@@ -953,9 +1353,9 @@ int _wmWorldMapLoadTempData()
 }
 
 // 0x4BD6F0
-int worldmapConfigInit()
+static int wmConfigInit()
 {
-    if (cityInit() == -1) {
+    if (wmAreaInit() == -1) {
         return -1;
     }
 
@@ -966,14 +1366,14 @@ int worldmapConfigInit()
 
     if (configRead(&config, "data\\worldmap.txt", true)) {
         for (int index = 0; index < ENCOUNTER_FREQUENCY_TYPE_COUNT; index++) {
-            if (!configGetInt(&config, "data", gEncounterFrequencyTypeKeys[index], &(_wmFreqValues[index]))) {
+            if (!configGetInt(&config, "data", wmFreqStrs[index], &(wmFreqValues[index]))) {
                 break;
             }
         }
 
         char* terrainTypes;
         configGetString(&config, "data", "terrain_types", &terrainTypes);
-        _wmParseTerrainTypes(&config, terrainTypes);
+        wmParseTerrainTypes(&config, terrainTypes);
 
         for (int index = 0;; index++) {
             char section[40];
@@ -984,12 +1384,12 @@ int worldmapConfigInit()
                 break;
             }
 
-            if (worldmapConfigLoadEncounterTable(&config, lookupName, section) == -1) {
+            if (wmReadEncounterType(&config, lookupName, section) == -1) {
                 return -1;
             }
         }
 
-        if (!configGetInt(&config, "Tile Data", "num_horizontal_tiles", &gWorldmapGridWidth)) {
+        if (!configGetInt(&config, "Tile Data", "num_horizontal_tiles", &wmNumHorizontalTiles)) {
             showMesageBox("\nwmConfigInit::Error loading tile data!");
             return -1;
         }
@@ -1003,20 +1403,20 @@ int worldmapConfigInit()
                 break;
             }
 
-            gWorldmapTilesLength++;
+            wmMaxTileNum++;
 
-            TileInfo* worldmapTiles = (TileInfo*)internal_realloc(gWorldmapTiles, sizeof(*gWorldmapTiles) * gWorldmapTilesLength);
+            TileInfo* worldmapTiles = (TileInfo*)internal_realloc(wmTileInfoList, sizeof(*wmTileInfoList) * wmMaxTileNum);
             if (worldmapTiles == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading tiles!");
                 exit(1);
             }
 
-            gWorldmapTiles = worldmapTiles;
+            wmTileInfoList = worldmapTiles;
 
-            TileInfo* tile = &(worldmapTiles[gWorldmapTilesLength - 1]);
+            TileInfo* tile = &(worldmapTiles[wmMaxTileNum - 1]);
 
             // NOTE: Uninline.
-            worldmapTileInfoInit(tile);
+            wmTileSlotInit(tile);
 
             tile->fid = buildFid(OBJ_TYPE_INTERFACE, artIndex, 0, 0, 0);
 
@@ -1041,7 +1441,7 @@ int worldmapConfigInit()
                         exit(1);
                     }
 
-                    if (worldmapConfigLoadSubtile(tile, row, column, subtileProps) == -1) {
+                    if (wmParseSubTileInfo(tile, row, column, subtileProps) == -1) {
                         showMesageBox("\nwmConfigInit::Error loading tiles!");
                         exit(1);
                     }
@@ -1056,24 +1456,24 @@ int worldmapConfigInit()
 }
 
 // 0x4BD9F0
-int worldmapConfigLoadEncounterTable(Config* config, char* lookupName, char* sectionKey)
+static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKey)
 {
-    gEncounterTablesLength++;
+    wmMaxEncounterInfoTables++;
 
-    EncounterTable* encounterTables = (EncounterTable*)internal_realloc(gEncounterTables, sizeof(EncounterTable) * gEncounterTablesLength);
+    EncounterTable* encounterTables = (EncounterTable*)internal_realloc(wmEncounterTableList, sizeof(EncounterTable) * wmMaxEncounterInfoTables);
     if (encounterTables == NULL) {
         showMesageBox("\nwmConfigInit::Error loading Encounter Table!");
         exit(1);
     }
 
-    gEncounterTables = encounterTables;
+    wmEncounterTableList = encounterTables;
 
-    EncounterTable* encounterTable = &(encounterTables[gEncounterTablesLength - 1]);
+    EncounterTable* encounterTable = &(encounterTables[wmMaxEncounterInfoTables - 1]);
 
     // NOTE: Uninline.
-    worldmapEncounterTableInit(encounterTable);
+    wmEncounterTableSlotInit(encounterTable);
 
-    encounterTable->field_28 = gEncounterTablesLength - 1;
+    encounterTable->field_28 = wmMaxEncounterInfoTables - 1;
     strncpy(encounterTable->lookupName, lookupName, 40);
 
     char* str;
@@ -1083,7 +1483,7 @@ int worldmapConfigLoadEncounterTable(Config* config, char* lookupName, char* sec
                 break;
             }
 
-            if (strParseStrFromFunc(&str, &(encounterTable->maps[encounterTable->mapsLength]), worldmapFindMapByLookupName) == -1) {
+            if (strParseStrFromFunc(&str, &(encounterTable->maps[encounterTable->mapsLength]), wmParseFindMapIdxMatch) == -1) {
                 break;
             }
 
@@ -1105,9 +1505,9 @@ int worldmapConfigLoadEncounterTable(Config* config, char* lookupName, char* sec
             exit(1);
         }
 
-        gWorldmapConfig = config;
+        pConfigCfg = config;
 
-        if (worldmapConfigLoadEncounterEntry(&(encounterTable->entries[encounterTable->entriesLength]), str) == -1) {
+        if (wmParseEncounterTableIndex(&(encounterTable->entries[encounterTable->entriesLength]), str) == -1) {
             return -1;
         }
 
@@ -1118,10 +1518,10 @@ int worldmapConfigLoadEncounterTable(Config* config, char* lookupName, char* sec
 }
 
 // 0x4BDB64
-int worldmapConfigLoadEncounterEntry(EncounterEntry* entry, char* string)
+static int wmParseEncounterTableIndex(EncounterEntry* entry, char* string)
 {
     // NOTE: Uninline.
-    if (worldmapEncounterTableEntryInit(entry) == -1) {
+    if (wmEncounterTypeSlotInit(entry) == -1) {
         return -1;
     }
 
@@ -1138,11 +1538,11 @@ int worldmapConfigLoadEncounterEntry(EncounterEntry* entry, char* string)
             char* pch = strstr(string, "map:");
             if (pch != NULL) {
                 string = pch + 4;
-                strParseStrFromFunc(&string, &(entry->map), worldmapFindMapByLookupName);
+                strParseStrFromFunc(&string, &(entry->map), wmParseFindMapIdxMatch);
             }
         }
 
-        if (_wmParseEncounterSubEncStr(entry, &string) == -1) {
+        if (wmParseEncounterSubEncStr(entry, &string) == -1) {
             break;
         }
 
@@ -1150,18 +1550,18 @@ int worldmapConfigLoadEncounterEntry(EncounterEntry* entry, char* string)
             char* pch = strstr(string, "scenery:");
             if (pch != NULL) {
                 string = pch + 8;
-                strParseStrFromList(&string, &(entry->scenery), _wmSceneryStrs, ENCOUNTER_SCENERY_TYPE_COUNT);
+                strParseStrFromList(&string, &(entry->scenery), wmSceneryStrs, ENCOUNTER_SCENERY_TYPE_COUNT);
             }
         }
 
-        worldmapConfigParseCondition(&string, "if", &(entry->condition));
+        wmParseConditional(&string, "if", &(entry->condition));
     }
 
     return 0;
 }
 
 // 0x4BDCA8
-int _wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
+static int wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
 {
     char* string = *stringPtr;
     if (strnicmp(string, "enc:", 4) != 0) {
@@ -1185,7 +1585,7 @@ int _wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
         ENCOUNTER_ENTRY_ENC* entry = &(encounterEntry->field_54[encounterEntry->field_50]);
 
         // NOTE: Uninline.
-        _wmEncounterSubEncSlotInit(entry);
+        wmEncounterSubEncSlotInit(entry);
 
         if (*string == '(') {
             string++;
@@ -1222,7 +1622,7 @@ int _wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
         char ch = *end;
         *end = '\0';
 
-        if (strParseStrFromFunc(&string, &(entry->field_8), _wmParseFindSubEncTypeMatch) == -1) {
+        if (strParseStrFromFunc(&string, &(entry->field_8), wmParseFindSubEncTypeMatch) == -1) {
             return -1;
         }
 
@@ -1241,7 +1641,7 @@ int _wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
         *end = '\0';
 
         if (*string != '\0') {
-            strParseStrFromList(&string, &(entry->situation), _wmEncOpStrs, ENCOUNTER_SITUATION_COUNT);
+            strParseStrFromList(&string, &(entry->situation), wmEncOpStrs, ENCOUNTER_SITUATION_COUNT);
         }
 
         *end = ch;
@@ -1265,7 +1665,7 @@ int _wmParseEncounterSubEncStr(EncounterEntry* encounterEntry, char** stringPtr)
 }
 
 // 0x4BDE94
-int _wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
+static int wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
 {
     *valuePtr = 0;
 
@@ -1274,11 +1674,11 @@ int _wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
         return 0;
     }
 
-    if (_wmFindEncBaseTypeMatch(str, valuePtr) == 0) {
+    if (wmFindEncBaseTypeMatch(str, valuePtr) == 0) {
         return 0;
     }
 
-    if (_wmReadEncBaseType(str, valuePtr) == 0) {
+    if (wmReadEncBaseType(str, valuePtr) == 0) {
         return 0;
     }
 
@@ -1286,10 +1686,10 @@ int _wmParseFindSubEncTypeMatch(char* str, int* valuePtr)
 }
 
 // 0x4BDED8
-int _wmFindEncBaseTypeMatch(char* str, int* valuePtr)
+static int wmFindEncBaseTypeMatch(char* str, int* valuePtr)
 {
     for (int index = 0; index < _wmMaxEncBaseTypes; index++) {
-        if (stricmp(_wmEncBaseTypeList[index].name, str) == 0) {
+        if (stricmp(wmEncBaseTypeList[index].name, str) == 0) {
             *valuePtr = index;
             return 0;
         }
@@ -1300,7 +1700,7 @@ int _wmFindEncBaseTypeMatch(char* str, int* valuePtr)
 }
 
 // 0x4BDF34
-int _wmReadEncBaseType(char* name, int* valuePtr)
+static int wmReadEncBaseType(char* name, int* valuePtr)
 {
     char section[40];
     sprintf(section, "Encounter: %s", name);
@@ -1309,29 +1709,29 @@ int _wmReadEncBaseType(char* name, int* valuePtr)
     sprintf(key, "type_00");
 
     char* string;
-    if (!configGetString(gWorldmapConfig, section, key, &string)) {
+    if (!configGetString(pConfigCfg, section, key, &string)) {
         return -1;
     }
 
     _wmMaxEncBaseTypes++;
 
-    ENC_BASE_TYPE* arr = (ENC_BASE_TYPE*)internal_realloc(_wmEncBaseTypeList, sizeof(*_wmEncBaseTypeList) * _wmMaxEncBaseTypes);
+    ENC_BASE_TYPE* arr = (ENC_BASE_TYPE*)internal_realloc(wmEncBaseTypeList, sizeof(*wmEncBaseTypeList) * _wmMaxEncBaseTypes);
     if (arr == NULL) {
         showMesageBox("\nwmConfigInit::Error Reading EncBaseType!");
         exit(1);
     }
 
-    _wmEncBaseTypeList = arr;
+    wmEncBaseTypeList = arr;
 
     ENC_BASE_TYPE* entry = &(arr[_wmMaxEncBaseTypes - 1]);
 
     // NOTE: Uninline.
-    _wmEncBaseTypeSlotInit(entry);
+    wmEncBaseTypeSlotInit(entry);
 
     strncpy(entry->name, name, 40);
 
     while (1) {
-        if (_wmParseEncBaseSubTypeStr(&(entry->field_38[entry->field_34]), &string) == -1) {
+        if (wmParseEncBaseSubTypeStr(&(entry->field_38[entry->field_34]), &string) == -1) {
             return -1;
         }
 
@@ -1339,9 +1739,9 @@ int _wmReadEncBaseType(char* name, int* valuePtr)
 
         sprintf(key, "type_%02d", entry->field_34);
 
-        if (!configGetString(gWorldmapConfig, section, key, &string)) {
+        if (!configGetString(pConfigCfg, section, key, &string)) {
             int team;
-            configGetInt(gWorldmapConfig, section, "team_num", &team);
+            configGetInt(pConfigCfg, section, "team_num", &team);
 
             for (int index = 0; index < entry->field_34; index++) {
                 ENC_BASE_TYPE_38* ptr = &(entry->field_38[index]);
@@ -1350,8 +1750,8 @@ int _wmReadEncBaseType(char* name, int* valuePtr)
                 }
             }
 
-            if (configGetString(gWorldmapConfig, section, "position", &string)) {
-                strParseStrFromList(&string, &(entry->position), gEncounterFormationTypeKeys, ENCOUNTER_FORMATION_TYPE_COUNT);
+            if (configGetString(pConfigCfg, section, "position", &string)) {
+                strParseStrFromList(&string, &(entry->position), wmFormationStrs, ENCOUNTER_FORMATION_TYPE_COUNT);
                 strParseIntWithKey(&string, "spacing", &(entry->spacing), ":");
                 strParseIntWithKey(&string, "distance", &(entry->distance), ":");
             }
@@ -1366,12 +1766,12 @@ int _wmReadEncBaseType(char* name, int* valuePtr)
 }
 
 // 0x4BE140
-int _wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
+static int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
 {
     char* string = *stringPtr;
 
     // NOTE: Uninline.
-    if (_wmEncBaseSubTypeSlotInit(ptr) == -1) {
+    if (wmEncBaseSubTypeSlotInit(ptr) == -1) {
         return -1;
     }
 
@@ -1397,11 +1797,11 @@ int _wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
             break;
         }
 
-        _wmParseEncounterItemType(&string, &(ptr->items[ptr->itemsLength]), &(ptr->itemsLength), ":");
+        wmParseEncounterItemType(&string, &(ptr->items[ptr->itemsLength]), &(ptr->itemsLength), ":");
     }
 
     strParseIntWithKey(&string, "script", &(ptr->script), ":");
-    worldmapConfigParseCondition(&string, "if", &(ptr->condition));
+    wmParseConditional(&string, "if", &(ptr->condition));
 
     return 0;
 }
@@ -1409,7 +1809,7 @@ int _wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
 // NOTE: Inlined.
 //
 // 0x4BE2A0
-int _wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry)
+static int wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry)
 {
     entry->name[0] = '\0';
     entry->position = ENCOUNTER_FORMATION_TYPE_SURROUNDING;
@@ -1423,7 +1823,7 @@ int _wmEncBaseTypeSlotInit(ENC_BASE_TYPE* entry)
 // NOTE: Inlined.
 //
 // 0x4BE2C4
-int _wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry)
+static int wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry)
 {
     entry->field_28 = -1;
     entry->field_2C = 1;
@@ -1436,13 +1836,13 @@ int _wmEncBaseSubTypeSlotInit(ENC_BASE_TYPE_38* entry)
     entry->script = -1;
     entry->team = -1;
 
-    return worldmapConfigInitEncounterCondition(&(entry->condition));
+    return wmConditionalDataInit(&(entry->condition));
 }
 
 // NOTE: Inlined.
 //
 // 0x4BE32C
-int _wmEncounterSubEncSlotInit(ENCOUNTER_ENTRY_ENC* entry)
+static int wmEncounterSubEncSlotInit(ENCOUNTER_ENTRY_ENC* entry)
 {
     entry->minQuantity = 1;
     entry->maxQuantity = 1;
@@ -1455,7 +1855,7 @@ int _wmEncounterSubEncSlotInit(ENCOUNTER_ENTRY_ENC* entry)
 // NOTE: Inlined.
 //
 // 0x4BE34C
-int worldmapEncounterTableEntryInit(EncounterEntry* entry)
+static int wmEncounterTypeSlotInit(EncounterEntry* entry)
 {
     entry->flags = 0;
     entry->map = -1;
@@ -1464,13 +1864,13 @@ int worldmapEncounterTableEntryInit(EncounterEntry* entry)
     entry->counter = -1;
     entry->field_50 = 0;
 
-    return worldmapConfigInitEncounterCondition(&(entry->condition));
+    return wmConditionalDataInit(&(entry->condition));
 }
 
 // NOTE: Inlined.
 //
 // 0x4BE3B8
-int worldmapEncounterTableInit(EncounterTable* encounterTable)
+static int wmEncounterTableSlotInit(EncounterTable* encounterTable)
 {
     encounterTable->lookupName[0] = '\0';
     encounterTable->mapsLength = 0;
@@ -1483,7 +1883,7 @@ int worldmapEncounterTableInit(EncounterTable* encounterTable)
 // NOTE: Inlined.
 //
 // 0x4BE3D4
-int worldmapTileInfoInit(TileInfo* tile)
+static int wmTileSlotInit(TileInfo* tile)
 {
     tile->fid = -1;
     tile->handle = INVALID_CACHE_ENTRY;
@@ -1498,7 +1898,7 @@ int worldmapTileInfoInit(TileInfo* tile)
 // NOTE: Inlined.
 //
 // 0x4BE400
-int worldmapTerrainInfoInit(Terrain* terrain)
+static int wmTerrainTypeSlotInit(Terrain* terrain)
 {
     terrain->lookupName[0] = '\0';
     terrain->type = 0;
@@ -1508,7 +1908,7 @@ int worldmapTerrainInfoInit(Terrain* terrain)
 }
 
 // 0x4BE378
-int worldmapConfigInitEncounterCondition(EncounterCondition* condition)
+static int wmConditionalDataInit(EncounterCondition* condition)
 {
     condition->entriesLength = 0;
 
@@ -1528,7 +1928,7 @@ int worldmapConfigInitEncounterCondition(EncounterCondition* condition)
 }
 
 // 0x4BE414
-int _wmParseTerrainTypes(Config* config, char* string)
+static int wmParseTerrainTypes(Config* config, char* string)
 {
     if (*string == '\0') {
         return -1;
@@ -1544,25 +1944,25 @@ int _wmParseTerrainTypes(Config* config, char* string)
         pch++;
     }
 
-    gTerrainsLength = terrainCount;
+    wmMaxTerrainTypes = terrainCount;
 
-    gTerrains = (Terrain*)internal_malloc(sizeof(*gTerrains) * terrainCount);
-    if (gTerrains == NULL) {
+    wmTerrainTypeList = (Terrain*)internal_malloc(sizeof(*wmTerrainTypeList) * terrainCount);
+    if (wmTerrainTypeList == NULL) {
         return -1;
     }
 
-    for (int index = 0; index < gTerrainsLength; index++) {
-        Terrain* terrain = &(gTerrains[index]);
+    for (int index = 0; index < wmMaxTerrainTypes; index++) {
+        Terrain* terrain = &(wmTerrainTypeList[index]);
 
         // NOTE: Uninline.
-        worldmapTerrainInfoInit(terrain);
+        wmTerrainTypeSlotInit(terrain);
     }
 
     strlwr(string);
 
     pch = string;
-    for (int index = 0; index < gTerrainsLength; index++) {
-        Terrain* terrain = &(gTerrains[index]);
+    for (int index = 0; index < wmMaxTerrainTypes; index++) {
+        Terrain* terrain = &(wmTerrainTypeList[index]);
 
         pch += strspn(pch, " ");
 
@@ -1585,15 +1985,15 @@ int _wmParseTerrainTypes(Config* config, char* string)
         }
     }
 
-    for (int index = 0; index < gTerrainsLength; index++) {
-        _wmParseTerrainRndMaps(config, &(gTerrains[index]));
+    for (int index = 0; index < wmMaxTerrainTypes; index++) {
+        wmParseTerrainRndMaps(config, &(wmTerrainTypeList[index]));
     }
 
     return 0;
 }
 
 // 0x4BE598
-int _wmParseTerrainRndMaps(Config* config, Terrain* terrain)
+static int wmParseTerrainRndMaps(Config* config, Terrain* terrain)
 {
     char section[40];
     sprintf(section, "Random Maps: %s", terrain->lookupName);
@@ -1607,7 +2007,7 @@ int _wmParseTerrainRndMaps(Config* config, Terrain* terrain)
             break;
         }
 
-        if (strParseStrFromFunc(&string, &(terrain->maps[terrain->mapsLength]), worldmapFindMapByLookupName) == -1) {
+        if (strParseStrFromFunc(&string, &(terrain->maps[terrain->mapsLength]), wmParseFindMapIdxMatch) == -1) {
             return -1;
         }
 
@@ -1622,26 +2022,26 @@ int _wmParseTerrainRndMaps(Config* config, Terrain* terrain)
 }
 
 // 0x4BE61C
-int worldmapConfigLoadSubtile(TileInfo* tile, int row, int column, char* string)
+static int wmParseSubTileInfo(TileInfo* tile, int row, int column, char* string)
 {
     SubtileInfo* subtile = &(tile->subtiles[column][row]);
     subtile->state = SUBTILE_STATE_UNKNOWN;
 
-    if (strParseStrFromFunc(&string, &(subtile->terrain), worldmapFindTerrainByLookupName) == -1) {
+    if (strParseStrFromFunc(&string, &(subtile->terrain), wmParseFindTerrainTypeMatch) == -1) {
         return -1;
     }
 
-    if (strParseStrFromList(&string, &(subtile->field_4), _wmFillStrs, 9) == -1) {
+    if (strParseStrFromList(&string, &(subtile->field_4), wmFillStrs, 9) == -1) {
         return -1;
     }
 
     for (int index = 0; index < DAY_PART_COUNT; index++) {
-        if (strParseStrFromList(&string, &(subtile->encounterChance[index]), gEncounterFrequencyTypeKeys, ENCOUNTER_FREQUENCY_TYPE_COUNT) == -1) {
+        if (strParseStrFromList(&string, &(subtile->encounterChance[index]), wmFreqStrs, ENCOUNTER_FREQUENCY_TYPE_COUNT) == -1) {
             return -1;
         }
     }
 
-    if (strParseStrFromFunc(&string, &(subtile->encounterType), worldmapFindEncounterTableByLookupName) == -1) {
+    if (strParseStrFromFunc(&string, &(subtile->encounterType), wmParseFindEncounterTypeMatch) == -1) {
         return -1;
     }
 
@@ -1649,10 +2049,10 @@ int worldmapConfigLoadSubtile(TileInfo* tile, int row, int column, char* string)
 }
 
 // 0x4BE6D4
-int worldmapFindEncounterTableByLookupName(char* string, int* valuePtr)
+static int wmParseFindEncounterTypeMatch(char* string, int* valuePtr)
 {
-    for (int index = 0; index < gEncounterTablesLength; index++) {
-        if (stricmp(string, gEncounterTables[index].lookupName) == 0) {
+    for (int index = 0; index < wmMaxEncounterInfoTables; index++) {
+        if (stricmp(string, wmEncounterTableList[index].lookupName) == 0) {
             *valuePtr = index;
             return 0;
         }
@@ -1666,10 +2066,10 @@ int worldmapFindEncounterTableByLookupName(char* string, int* valuePtr)
 }
 
 // 0x4BE73C
-int worldmapFindTerrainByLookupName(char* string, int* valuePtr)
+static int wmParseFindTerrainTypeMatch(char* string, int* valuePtr)
 {
-    for (int index = 0; index < gTerrainsLength; index++) {
-        Terrain* terrain = &(gTerrains[index]);
+    for (int index = 0; index < wmMaxTerrainTypes; index++) {
+        Terrain* terrain = &(wmTerrainTypeList[index]);
         if (stricmp(string, terrain->lookupName) == 0) {
             *valuePtr = index;
             return 0;
@@ -1684,7 +2084,7 @@ int worldmapFindTerrainByLookupName(char* string, int* valuePtr)
 }
 
 // 0x4BE7A4
-int _wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3, const char* delim)
+static int wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3, const char* delim)
 {
     char* string;
     int v2, v3;
@@ -1719,7 +2119,7 @@ int _wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3
     if (strcmp(string, "item") == 0) {
         *stringPtr += v2 + 1;
         v20 = 1;
-        _wmParseItemType(string + v3 + 1, a2);
+        wmParseItemType(string + v3 + 1, a2);
         *a3 = *a3 + 1;
     }
 
@@ -1730,7 +2130,7 @@ int _wmParseEncounterItemType(char** stringPtr, ENC_BASE_TYPE_38_48* a2, int* a3
 }
 
 // 0x4BE888
-int _wmParseItemType(char* string, ENC_BASE_TYPE_38_48* ptr)
+static int wmParseItemType(char* string, ENC_BASE_TYPE_38_48* ptr)
 {
     while (*string == ' ') {
         string++;
@@ -1791,11 +2191,11 @@ int _wmParseItemType(char* string, ENC_BASE_TYPE_38_48* ptr)
 }
 
 // 0x4BE988
-int worldmapConfigParseCondition(char** stringPtr, const char* a2, EncounterCondition* condition)
+static int wmParseConditional(char** stringPtr, const char* a2, EncounterCondition* condition)
 {
     while (condition->entriesLength < 3) {
         EncounterConditionEntry* conditionEntry = &(condition->entries[condition->entriesLength]);
-        if (worldmapConfigParseConditionEntry(stringPtr, a2, &(conditionEntry->type), &(conditionEntry->conditionalOperator), &(conditionEntry->param), &(conditionEntry->value)) == -1) {
+        if (wmParseSubConditional(stringPtr, a2, &(conditionEntry->type), &(conditionEntry->conditionalOperator), &(conditionEntry->param), &(conditionEntry->value)) == -1) {
             return -1;
         }
 
@@ -1822,7 +2222,7 @@ int worldmapConfigParseCondition(char** stringPtr, const char* a2, EncounterCond
 }
 
 // 0x4BEA24
-int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typePtr, int* operatorPtr, int* paramPtr, int* valuePtr)
+static int wmParseSubConditional(char** stringPtr, const char* a2, int* typePtr, int* operatorPtr, int* paramPtr, int* valuePtr)
 {
     char* pch;
     int v2;
@@ -1910,7 +2310,7 @@ int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typ
             string++;
         }
 
-        if (worldmapConfigParseEncounterConditionalOperator(&string, operatorPtr) != -1) {
+        if (wmParseConditionalEval(&string, operatorPtr) != -1) {
             *valuePtr = atoi(string);
 
             pch = strstr(string, ")");
@@ -1933,7 +2333,7 @@ int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typ
             string++;
         }
 
-        if (worldmapConfigParseEncounterConditionalOperator(&string, operatorPtr) != -1) {
+        if (wmParseConditionalEval(&string, operatorPtr) != -1) {
             *valuePtr = atoi(string);
 
             pch = strstr(string, ")");
@@ -1956,7 +2356,7 @@ int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typ
             string++;
         }
 
-        if (worldmapConfigParseEncounterConditionalOperator(&string, operatorPtr) != -1) {
+        if (wmParseConditionalEval(&string, operatorPtr) != -1) {
             *valuePtr = atoi(string);
 
             pch = strstr(string, ")");
@@ -1979,7 +2379,7 @@ int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typ
             string++;
         }
 
-        if (worldmapConfigParseEncounterConditionalOperator(&string, operatorPtr) != -1) {
+        if (wmParseConditionalEval(&string, operatorPtr) != -1) {
             *valuePtr = atoi(string);
 
             pch = strstr(string, ")");
@@ -2002,7 +2402,7 @@ int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typ
             string++;
         }
 
-        if (worldmapConfigParseEncounterConditionalOperator(&string, operatorPtr) != -1) {
+        if (wmParseConditionalEval(&string, operatorPtr) != -1) {
             *valuePtr = atoi(string);
 
             pch = strstr(string, ")");
@@ -2026,7 +2426,7 @@ int worldmapConfigParseConditionEntry(char** stringPtr, const char* a2, int* typ
 }
 
 // 0x4BEEBC
-int worldmapConfigParseEncounterConditionalOperator(char** stringPtr, int* conditionalOperatorPtr)
+static int wmParseConditionalEval(char** stringPtr, int* conditionalOperatorPtr)
 {
     char* string = *stringPtr;
 
@@ -2034,7 +2434,7 @@ int worldmapConfigParseEncounterConditionalOperator(char** stringPtr, int* condi
 
     int index;
     for (index = 0; index < ENCOUNTER_CONDITIONAL_OPERATOR_COUNT; index++) {
-        if (strstr(string, _wmConditionalOpStrs[index]) == string) {
+        if (strstr(string, wmConditionalOpStrs[index]) == string) {
             break;
         }
     }
@@ -2045,7 +2445,7 @@ int worldmapConfigParseEncounterConditionalOperator(char** stringPtr, int* condi
 
     *conditionalOperatorPtr = index;
 
-    string += strlen(_wmConditionalOpStrs[index]);
+    string += strlen(wmConditionalOpStrs[index]);
     while (*string == ' ') {
         string++;
     }
@@ -2058,7 +2458,7 @@ int worldmapConfigParseEncounterConditionalOperator(char** stringPtr, int* condi
 // NOTE: Inlined.
 //
 // 0x4BEF1C
-int worldmapCityInfoInit(CityInfo* area)
+static int wmAreaSlotInit(CityInfo* area)
 {
     area->name[0] = '\0';
     area->areaId = -1;
@@ -2076,7 +2476,7 @@ int worldmapCityInfoInit(CityInfo* area)
 }
 
 // 0x4BEF68
-int cityInit()
+static int wmAreaInit()
 {
     Config cfg;
     char section[40];
@@ -2088,7 +2488,7 @@ int cityInit()
     CityInfo* city;
     EntranceInfo* entrance;
 
-    if (_wmMapInit() == -1) {
+    if (wmMapInit() == -1) {
         return -1;
     }
 
@@ -2104,20 +2504,20 @@ int cityInit()
                 break;
             }
 
-            gCitiesLength++;
+            wmMaxAreaNum++;
 
-            cities = (CityInfo*)internal_realloc(gCities, sizeof(CityInfo) * gCitiesLength);
+            cities = (CityInfo*)internal_realloc(wmAreaInfoList, sizeof(CityInfo) * wmMaxAreaNum);
             if (cities == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
-            gCities = cities;
+            wmAreaInfoList = cities;
 
-            city = &(cities[gCitiesLength - 1]);
+            city = &(cities[wmMaxAreaNum - 1]);
 
             // NOTE: Uninline.
-            worldmapCityInfoInit(city);
+            wmAreaSlotInit(city);
 
             city->areaId = area_idx;
 
@@ -2160,12 +2560,12 @@ int cityInit()
                 exit(1);
             }
 
-            if (strParseStrFromList(&str, &(city->state), _wmStateStrs, 2) == -1) {
+            if (strParseStrFromList(&str, &(city->state), wmStateStrs, 2) == -1) {
                 return -1;
             }
 
             if (configGetString(&cfg, section, "lock_state", &str)) {
-                if (strParseStrFromList(&str, &(city->lockState), _wmStateStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &(city->lockState), wmStateStrs, 2) == -1) {
                     return -1;
                 }
             }
@@ -2175,7 +2575,7 @@ int cityInit()
                 exit(1);
             }
 
-            if (strParseStrFromList(&str, &(city->size), gCitySizeKeys, 3) == -1) {
+            if (strParseStrFromList(&str, &(city->size), wmAreaSizeStrs, 3) == -1) {
                 return -1;
             }
 
@@ -2189,9 +2589,9 @@ int cityInit()
                 entrance = &(city->entrances[city->entrancesLength]);
 
                 // NOTE: Uninline.
-                worldmapCityEntranceInfoInit(entrance);
+                wmEntranceSlotInit(entrance);
 
-                if (strParseStrFromList(&str, &(entrance->state), _wmStateStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &(entrance->state), wmStateStrs, 2) == -1) {
                     return -1;
                 }
 
@@ -2203,7 +2603,7 @@ int cityInit()
                     return -1;
                 }
 
-                if (strParseStrFromFunc(&str, &(entrance->map), &worldmapFindMapByLookupName) == -1) {
+                if (strParseStrFromFunc(&str, &(entrance->map), &wmParseFindMapIdxMatch) == -1) {
                     return -1;
                 }
 
@@ -2228,7 +2628,7 @@ int cityInit()
 
     configFree(&cfg);
 
-    if (gCitiesLength != CITY_COUNT) {
+    if (wmMaxAreaNum != CITY_COUNT) {
         showMesageBox("\nwmAreaInit::Error loading Cities!");
         exit(1);
     }
@@ -2237,10 +2637,10 @@ int cityInit()
 }
 
 // 0x4BF3E0
-int worldmapFindMapByLookupName(char* string, int* valuePtr)
+static int wmParseFindMapIdxMatch(char* string, int* valuePtr)
 {
-    for (int index = 0; index < gMapsLength; index++) {
-        MapInfo* map = &(gMaps[index]);
+    for (int index = 0; index < wmMaxMapNum; index++) {
+        MapInfo* map = &(wmMapInfoList[index]);
         if (stricmp(string, map->lookupName) == 0) {
             *valuePtr = index;
             return 0;
@@ -2256,7 +2656,7 @@ int worldmapFindMapByLookupName(char* string, int* valuePtr)
 // NOTE: Inlined.
 //
 // 0x4BF448
-int worldmapCityEntranceInfoInit(EntranceInfo* entrance)
+static int wmEntranceSlotInit(EntranceInfo* entrance)
 {
     entrance->state = 0;
     entrance->x = 0;
@@ -2270,7 +2670,7 @@ int worldmapCityEntranceInfoInit(EntranceInfo* entrance)
 }
 
 // 0x4BF47C
-int worldmapMapInfoInit(MapInfo* map)
+static int wmMapSlotInit(MapInfo* map)
 {
     map->lookupName[0] = '\0';
     map->field_28 = -1;
@@ -2285,7 +2685,7 @@ int worldmapMapInfoInit(MapInfo* map)
 }
 
 // 0x4BF4BC
-int _wmMapInit()
+static int wmMapInit()
 {
     char* str;
     int num;
@@ -2301,26 +2701,26 @@ int _wmMapInit()
     }
 
     if (configRead(&config, "data\\maps.txt", true)) {
-        for (int mapIndex = 0;; mapIndex++) {
+        for (int mapIdx = 0;; mapIdx++) {
             char section[40];
-            sprintf(section, "Map %03d", mapIndex);
+            sprintf(section, "Map %03d", mapIdx);
 
             if (!configGetString(&config, section, "lookup_name", &str)) {
                 break;
             }
 
-            gMapsLength++;
+            wmMaxMapNum++;
 
-            maps = (MapInfo*)internal_realloc(gMaps, sizeof(*gMaps) * gMapsLength);
+            maps = (MapInfo*)internal_realloc(wmMapInfoList, sizeof(*wmMapInfoList) * wmMaxMapNum);
             if (maps == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading maps!");
                 exit(1);
             }
 
-            gMaps = maps;
+            wmMapInfoList = maps;
 
-            map = &(maps[gMapsLength - 1]);
-            worldmapMapInfoInit(map);
+            map = &(maps[wmMaxMapNum - 1]);
+            wmMapSlotInit(map);
 
             strncpy(map->lookupName, str, 40);
 
@@ -2351,7 +2751,7 @@ int _wmMapInit()
 
                     if (map->ambientSoundEffectsLength >= MAP_AMBIENT_SOUND_EFFECTS_CAPACITY) {
                         if (str != NULL) {
-                            debugPrint("\nwmMapInit::Error reading ambient sfx.  Too many!  Str: %s, MapIdx: %d", map->lookupName, mapIndex);
+                            debugPrint("\nwmMapInit::Error reading ambient sfx.  Too many!  Str: %s, MapIdx: %d", map->lookupName, mapIdx);
                             str = NULL;
                         }
                     }
@@ -2359,7 +2759,7 @@ int _wmMapInit()
             }
 
             if (configGetString(&config, section, "saved", &str)) {
-                if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
@@ -2368,7 +2768,7 @@ int _wmMapInit()
             }
 
             if (configGetString(&config, section, "dead_bodies_age", &str)) {
-                if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
@@ -2377,21 +2777,21 @@ int _wmMapInit()
             }
 
             if (configGetString(&config, section, "can_rest_here", &str)) {
-                if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
                 // NOTE: Uninline.
                 wmSetFlags(&(map->flags), MAP_CAN_REST_ELEVATION_0, num);
 
-                if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
                 // NOTE: Uninline.
                 wmSetFlags(&(map->flags), MAP_CAN_REST_ELEVATION_1, num);
 
-                if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
@@ -2400,7 +2800,7 @@ int _wmMapInit()
             }
 
             if (configGetString(&config, section, "pipbody_active", &str)) {
-                if (strParseStrFromList(&str, &num, _wmYesNoStrs, 2) == -1) {
+                if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
 
@@ -2419,7 +2819,7 @@ int _wmMapInit()
                         rsp = &(map->startPoints[map->startPointsLength]);
 
                         // NOTE: Uninline.
-                        worldmapRandomStartingPointInit(rsp);
+                        wmRStartSlotInit(rsp);
 
                         strParseIntWithKey(&str, "elev", &(rsp->elevation), ":");
                         strParseIntWithKey(&str, "tile_num", &(rsp->tile), ":");
@@ -2446,7 +2846,7 @@ int _wmMapInit()
 // NOTE: Inlined.
 //
 // 0x4BF954
-int worldmapRandomStartingPointInit(MapStartPointInfo* rsp)
+static int wmRStartSlotInit(MapStartPointInfo* rsp)
 {
     rsp->elevation = 0;
     rsp->tile = -1;
@@ -2456,25 +2856,25 @@ int worldmapRandomStartingPointInit(MapStartPointInfo* rsp)
 }
 
 // 0x4BF96C
-int mapGetCount()
+int wmMapMaxCount()
 {
-    return gMapsLength;
+    return wmMaxMapNum;
 }
 
 // 0x4BF974
-int mapGetFileName(int map, char* dest)
+int wmMapIdxToName(int mapIdx, char* dest)
 {
-    if (map == -1 || map > gMapsLength) {
+    if (mapIdx == -1 || mapIdx > wmMaxMapNum) {
         dest[0] = '\0';
         return -1;
     }
 
-    sprintf(dest, "%s.MAP", gMaps[map].mapFileName);
+    sprintf(dest, "%s.MAP", wmMapInfoList[mapIdx].mapFileName);
     return 0;
 }
 
 // 0x4BF9BC
-int mapGetIndexByFileName(char* name)
+int wmMapMatchNameToIdx(char* name)
 {
     strlwr(name);
 
@@ -2491,8 +2891,8 @@ int mapGetIndexByFileName(char* name)
 
     int map = -1;
 
-    for (int index = 0; index < gMapsLength; index++) {
-        if (strcmp(gMaps[index].mapFileName, name) == 0) {
+    for (int index = 0; index < wmMaxMapNum; index++) {
+        if (strcmp(wmMapInfoList[index].mapFileName, name) == 0) {
             map = index;
             break;
         }
@@ -2506,25 +2906,25 @@ int mapGetIndexByFileName(char* name)
 }
 
 // 0x4BFA44
-bool _wmMapIdxIsSaveable(int map_index)
+bool wmMapIdxIsSaveable(int mapIdx)
 {
-    return (gMaps[map_index].flags & MAP_SAVED) != 0;
+    return (wmMapInfoList[mapIdx].flags & MAP_SAVED) != 0;
 }
 
 // 0x4BFA64
-bool _wmMapIsSaveable()
+bool wmMapIsSaveable()
 {
-    return (gMaps[gMapHeader.field_34].flags & MAP_SAVED) != 0;
+    return (wmMapInfoList[gMapHeader.field_34].flags & MAP_SAVED) != 0;
 }
 
 // 0x4BFA90
-bool _wmMapDeadBodiesAge()
+bool wmMapDeadBodiesAge()
 {
-    return (gMaps[gMapHeader.field_34].flags & MAP_DEAD_BODIES_AGE) != 0;
+    return (wmMapInfoList[gMapHeader.field_34].flags & MAP_DEAD_BODIES_AGE) != 0;
 }
 
 // 0x4BFABC
-bool _wmMapCanRestHere(int elevation)
+bool wmMapCanRestHere(int elevation)
 {
     int flags[3];
 
@@ -2532,142 +2932,142 @@ bool _wmMapCanRestHere(int elevation)
     static_assert(sizeof(flags) == sizeof(_can_rest_here), "wrong size");
     memcpy(flags, _can_rest_here, sizeof(flags));
 
-    MapInfo* map = &(gMaps[gMapHeader.field_34]);
+    MapInfo* map = &(wmMapInfoList[gMapHeader.field_34]);
 
     return (map->flags & flags[elevation]) != 0;
 }
 
 // 0x4BFAFC
-bool _wmMapPipboyActive()
+bool wmMapPipboyActive()
 {
     return gameMovieIsSeen(MOVIE_VSUIT);
 }
 
 // 0x4BFB08
-int _wmMapMarkVisited(int mapIndex)
+int wmMapMarkVisited(int mapIdx)
 {
-    if (mapIndex < 0 || mapIndex >= gMapsLength) {
+    if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
 
-    MapInfo* map = &(gMaps[mapIndex]);
+    MapInfo* map = &(wmMapInfoList[mapIdx]);
     if ((map->flags & MAP_SAVED) == 0) {
         return 0;
     }
 
-    int cityIndex;
-    if (_wmMatchAreaContainingMapIdx(mapIndex, &cityIndex) == -1) {
+    int areaIdx;
+    if (wmMatchAreaContainingMapIdx(mapIdx, &areaIdx) == -1) {
         return -1;
     }
 
     // NOTE: Uninline.
-    wmAreaMarkVisited(cityIndex);
+    wmAreaMarkVisited(areaIdx);
 
     return 0;
 }
 
 // 0x4BFB64
-int _wmMatchEntranceFromMap(int cityIndex, int mapIndex, int* entranceIndexPtr)
+static int wmMatchEntranceFromMap(int areaIdx, int mapIdx, int* entranceIdxPtr)
 {
-    CityInfo* city = &(gCities[cityIndex]);
+    CityInfo* city = &(wmAreaInfoList[areaIdx]);
 
-    for (int entranceIndex = 0; entranceIndex < city->entrancesLength; entranceIndex++) {
-        EntranceInfo* entrance = &(city->entrances[entranceIndex]);
+    for (int entranceIdx = 0; entranceIdx < city->entrancesLength; entranceIdx++) {
+        EntranceInfo* entrance = &(city->entrances[entranceIdx]);
 
-        if (mapIndex == entrance->map) {
-            *entranceIndexPtr = entranceIndex;
+        if (mapIdx == entrance->map) {
+            *entranceIdxPtr = entranceIdx;
             return 0;
         }
     }
 
-    *entranceIndexPtr = -1;
+    *entranceIdxPtr = -1;
     return -1;
 }
 
 // 0x4BFBE8
-int _wmMatchEntranceElevFromMap(int cityIndex, int map, int elevation, int* entranceIndexPtr)
+static int wmMatchEntranceElevFromMap(int cityIdx, int map, int elevation, int* entranceIdxPtr)
 {
-    CityInfo* city = &(gCities[cityIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
 
-    for (int entranceIndex = 0; entranceIndex < city->entrancesLength; entranceIndex++) {
-        EntranceInfo* entrance = &(city->entrances[entranceIndex]);
+    for (int entranceIdx = 0; entranceIdx < city->entrancesLength; entranceIdx++) {
+        EntranceInfo* entrance = &(city->entrances[entranceIdx]);
         if (entrance->map == map) {
             if (elevation == -1 || entrance->elevation == -1 || elevation == entrance->elevation) {
-                *entranceIndexPtr = entranceIndex;
+                *entranceIdxPtr = entranceIdx;
                 return 0;
             }
         }
     }
 
-    *entranceIndexPtr = -1;
+    *entranceIdxPtr = -1;
     return -1;
 }
 
 // 0x4BFC7C
-int _wmMatchAreaFromMap(int mapIndex, int* cityIndexPtr)
+static int wmMatchAreaFromMap(int mapIdx, int* cityIdxPtr)
 {
-    for (int cityIndex = 0; cityIndex < gCitiesLength; cityIndex++) {
-        CityInfo* city = &(gCities[cityIndex]);
+    for (int cityIdx = 0; cityIdx < wmMaxAreaNum; cityIdx++) {
+        CityInfo* city = &(wmAreaInfoList[cityIdx]);
 
-        for (int entranceIndex = 0; entranceIndex < city->entrancesLength; entranceIndex++) {
-            EntranceInfo* entrance = &(city->entrances[entranceIndex]);
-            if (mapIndex == entrance->map) {
-                *cityIndexPtr = cityIndex;
+        for (int entranceIdx = 0; entranceIdx < city->entrancesLength; entranceIdx++) {
+            EntranceInfo* entrance = &(city->entrances[entranceIdx]);
+            if (mapIdx == entrance->map) {
+                *cityIdxPtr = cityIdx;
                 return 0;
             }
         }
     }
 
-    *cityIndexPtr = -1;
+    *cityIdxPtr = -1;
     return -1;
 }
 
 // Mark map entrance.
 //
 // 0x4BFD50
-int _wmMapMarkMapEntranceState(int mapIndex, int elevation, int state)
+int wmMapMarkMapEntranceState(int mapIdx, int elevation, int state)
 {
-    if (mapIndex < 0 || mapIndex >= gMapsLength) {
+    if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
 
-    MapInfo* map = &(gMaps[mapIndex]);
+    MapInfo* map = &(wmMapInfoList[mapIdx]);
     if ((map->flags & MAP_SAVED) == 0) {
         return -1;
     }
 
-    int cityIndex;
-    if (_wmMatchAreaContainingMapIdx(mapIndex, &cityIndex) == -1) {
+    int cityIdx;
+    if (wmMatchAreaContainingMapIdx(mapIdx, &cityIdx) == -1) {
         return -1;
     }
 
-    int entranceIndex;
-    if (_wmMatchEntranceElevFromMap(cityIndex, mapIndex, elevation, &entranceIndex) == -1) {
+    int entranceIdx;
+    if (wmMatchEntranceElevFromMap(cityIdx, mapIdx, elevation, &entranceIdx) == -1) {
         return -1;
     }
 
-    CityInfo* city = &(gCities[cityIndex]);
-    EntranceInfo* entrance = &(city->entrances[entranceIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
+    EntranceInfo* entrance = &(city->entrances[entranceIdx]);
     entrance->state = state;
 
     return 0;
 }
 
 // 0x4BFE0C
-void _wmWorldMap()
+void wmWorldMap()
 {
-    _wmWorldMapFunc(0);
+    wmWorldMapFunc(0);
 }
 
 // 0x4BFE10
-int _wmWorldMapFunc(int a1)
+static int wmWorldMapFunc(int a1)
 {
-    if (worldmapWindowInit() == -1) {
-        worldmapWindowFree();
+    if (wmInterfaceInit() == -1) {
+        wmInterfaceExit();
         return -1;
     }
 
-    _wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosY, &(wmGenData.currentAreaId));
+    wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosY, &(wmGenData.currentAreaId));
 
     unsigned int v24 = 0;
     int map = -1;
@@ -2682,8 +3082,8 @@ int _wmWorldMapFunc(int a1)
         int mouseY;
         mouseGetPosition(&mouseX, &mouseY);
 
-        int v4 = gWorldmapOffsetX + mouseX - WM_VIEW_X;
-        int v5 = gWorldmapOffsetY + mouseY - WM_VIEW_Y;
+        int v4 = wmWorldOffsetX + mouseX - WM_VIEW_X;
+        int v5 = wmWorldOffsetY + mouseY - WM_VIEW_Y;
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             showQuitConfirmationDialog();
@@ -2699,25 +3099,25 @@ int _wmWorldMapFunc(int a1)
         int mouseEvent = mouseGetEvent();
 
         if (wmGenData.isWalking) {
-            worldmapPerformTravel();
+            wmPartyWalkingStep();
 
             if (wmGenData.isInCar) {
-                worldmapPerformTravel();
-                worldmapPerformTravel();
-                worldmapPerformTravel();
+                wmPartyWalkingStep();
+                wmPartyWalkingStep();
+                wmPartyWalkingStep();
 
                 if (gameGetGlobalVar(GVAR_CAR_BLOWER)) {
-                    worldmapPerformTravel();
+                    wmPartyWalkingStep();
                 }
 
                 if (gameGetGlobalVar(GVAR_NEW_RENO_CAR_UPGRADE)) {
-                    worldmapPerformTravel();
+                    wmPartyWalkingStep();
                 }
 
                 if (gameGetGlobalVar(GVAR_NEW_RENO_SUPER_CAR)) {
-                    worldmapPerformTravel();
-                    worldmapPerformTravel();
-                    worldmapPerformTravel();
+                    wmPartyWalkingStep();
+                    wmPartyWalkingStep();
+                    wmPartyWalkingStep();
                 }
 
                 wmGenData.carImageCurrentFrameIndex++;
@@ -2725,26 +3125,26 @@ int _wmWorldMapFunc(int a1)
                     wmGenData.carImageCurrentFrameIndex = 0;
                 }
 
-                carConsumeFuel(100);
+                wmCarUseGas(100);
 
                 if (wmGenData.carFuel <= 0) {
                     wmGenData.walkDestinationX = 0;
                     wmGenData.walkDestinationY = 0;
                     wmGenData.isWalking = false;
 
-                    _wmMatchWorldPosToArea(v4, v5, &(wmGenData.currentAreaId));
+                    wmMatchWorldPosToArea(v4, v5, &(wmGenData.currentAreaId));
 
                     wmGenData.isInCar = false;
 
                     if (wmGenData.currentAreaId == -1) {
                         wmGenData.currentCarAreaId = CITY_CAR_OUT_OF_GAS;
 
-                        CityInfo* city = &(gCities[CITY_CAR_OUT_OF_GAS]);
+                        CityInfo* city = &(wmAreaInfoList[CITY_CAR_OUT_OF_GAS]);
 
-                        CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[city->size]);
+                        CitySizeDescription* citySizeDescription = &(wmSphereData[city->size]);
                         int worldmapX = wmGenData.worldPosX + wmGenData.hotspotFrmWidth / 2 + citySizeDescription->width / 2;
                         int worldmapY = wmGenData.worldPosY + wmGenData.hotspotFrmHeight / 2 + citySizeDescription->height / 2;
-                        worldmapCitySetPos(CITY_CAR_OUT_OF_GAS, worldmapX, worldmapY);
+                        wmAreaSetWorldPos(CITY_CAR_OUT_OF_GAS, worldmapX, worldmapY);
 
                         city->state = CITY_STATE_KNOWN;
                         city->visitedState = 1;
@@ -2758,7 +3158,7 @@ int _wmWorldMapFunc(int a1)
                 }
             }
 
-            worldmapWindowRefresh();
+            wmInterfaceRefresh();
 
             if (getTicksBetween(tick, v24) > 1000) {
                 if (_partyMemberRestingHeal(3)) {
@@ -2767,26 +3167,26 @@ int _wmWorldMapFunc(int a1)
                 }
             }
 
-            _wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
+            wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
 
             if (wmGenData.walkDistance <= 0) {
                 wmGenData.isWalking = false;
-                _wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosY, &(wmGenData.currentAreaId));
+                wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosY, &(wmGenData.currentAreaId));
             }
 
-            worldmapWindowRefresh();
+            wmInterfaceRefresh();
 
-            if (_wmGameTimeIncrement(18000)) {
+            if (wmGameTimeIncrement(18000)) {
                 if (_game_user_wants_to_quit != 0) {
                     break;
                 }
             }
 
             if (wmGenData.isWalking) {
-                if (_wmRndEncounterOccurred()) {
+                if (wmRndEncounterOccurred()) {
                     if (wmGenData.encounterMapId != -1) {
                         if (wmGenData.isInCar) {
-                            _wmMatchAreaContainingMapIdx(wmGenData.encounterMapId, &(wmGenData.currentCarAreaId));
+                            wmMatchAreaContainingMapIdx(wmGenData.encounterMapId, &(wmGenData.currentCarAreaId));
                         }
                         mapLoadById(wmGenData.encounterMapId);
                     }
@@ -2799,7 +3199,7 @@ int _wmWorldMapFunc(int a1)
             if (_mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
                 if (!wmGenData.isWalking && !wmGenData.mousePressed && abs(wmGenData.worldPosX - v4) < 5 && abs(wmGenData.worldPosY - v5) < 5) {
                     wmGenData.mousePressed = true;
-                    worldmapWindowRefresh();
+                    wmInterfaceRefresh();
                 }
             } else {
                 continue;
@@ -2809,18 +3209,18 @@ int _wmWorldMapFunc(int a1)
         if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
             if (wmGenData.mousePressed) {
                 wmGenData.mousePressed = false;
-                worldmapWindowRefresh();
+                wmInterfaceRefresh();
 
                 if (abs(wmGenData.worldPosX - v4) < 5 && abs(wmGenData.worldPosY - v5) < 5) {
                     if (wmGenData.currentAreaId != -1) {
-                        CityInfo* city = &(gCities[wmGenData.currentAreaId]);
+                        CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
                         if (city->visitedState == 2 && city->mapFid != -1) {
-                            if (worldmapCityMapViewSelect(&map) == -1) {
+                            if (wmTownMapFunc(&map) == -1) {
                                 v25 = -1;
                                 break;
                             }
                         } else {
-                            if (_wmAreaFindFirstValidMap(&map) == -1) {
+                            if (wmAreaFindFirstValidMap(&map) == -1) {
                                 v25 = -1;
                                 break;
                             }
@@ -2835,7 +3235,7 @@ int _wmWorldMapFunc(int a1)
                         if (wmGenData.isInCar) {
                             wmGenData.isInCar = false;
                             if (wmGenData.currentAreaId == -1) {
-                                _wmMatchAreaContainingMapIdx(map, &(wmGenData.currentCarAreaId));
+                                wmMatchAreaContainingMapIdx(map, &(wmGenData.currentCarAreaId));
                             } else {
                                 wmGenData.currentCarAreaId = wmGenData.currentAreaId;
                             }
@@ -2846,7 +3246,7 @@ int _wmWorldMapFunc(int a1)
                 }
             } else {
                 if (_mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
-                    _wmPartyInitWalking(v4, v5);
+                    wmPartyInitWalking(v4, v5);
                 }
 
                 wmGenData.mousePressed = false;
@@ -2858,15 +3258,15 @@ int _wmWorldMapFunc(int a1)
 
         if (keyCode == KEY_UPPERCASE_T || keyCode == KEY_LOWERCASE_T) {
             if (!wmGenData.isWalking && wmGenData.currentAreaId != -1) {
-                CityInfo* city = &(gCities[wmGenData.currentAreaId]);
+                CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
                 if (city->visitedState == 2 && city->mapFid != -1) {
-                    if (worldmapCityMapViewSelect(&map) == -1) {
+                    if (wmTownMapFunc(&map) == -1) {
                         rc = -1;
                     }
 
                     if (map != -1) {
                         if (wmGenData.isInCar) {
-                            _wmMatchAreaContainingMapIdx(map, &(wmGenData.currentCarAreaId));
+                            wmMatchAreaContainingMapIdx(map, &(wmGenData.currentCarAreaId));
                         }
 
                         mapLoadById(map);
@@ -2874,7 +3274,7 @@ int _wmWorldMapFunc(int a1)
                 }
             }
         } else if (keyCode == KEY_HOME) {
-            _wmInterfaceCenterOnParty();
+            wmInterfaceCenterOnParty();
         } else if (keyCode == KEY_ARROW_UP) {
             // NOTE: Uninline.
             wmInterfaceScroll(0, -1, NULL);
@@ -2888,17 +3288,17 @@ int _wmWorldMapFunc(int a1)
             // NOTE: Uninline.
             wmInterfaceScroll(1, 0, NULL);
         } else if (keyCode == KEY_CTRL_ARROW_UP) {
-            _wmInterfaceScrollTabsStart(-27);
+            wmInterfaceScrollTabsStart(-27);
         } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
-            _wmInterfaceScrollTabsStart(27);
+            wmInterfaceScrollTabsStart(27);
         } else if (keyCode >= KEY_CTRL_F1 && keyCode <= KEY_CTRL_F7) {
             int quickDestinationIndex = wmGenData.tabsOffsetY / 27 + (keyCode - KEY_CTRL_F1);
-            if (quickDestinationIndex < gQuickDestinationsLength) {
-                int cityIndex = gQuickDestinations[quickDestinationIndex];
-                CityInfo* city = &(gCities[cityIndex]);
-                if (_wmAreaIsKnown(city->areaId)) {
-                    if (wmGenData.currentAreaId != cityIndex) {
-                        _wmPartyInitWalking(city->x, city->y);
+            if (quickDestinationIndex < wmLabelCount) {
+                int cityIdx = wmLabelList[quickDestinationIndex];
+                CityInfo* city = &(wmAreaInfoList[cityIdx]);
+                if (wmAreaIsKnown(city->areaId)) {
+                    if (wmGenData.currentAreaId != cityIdx) {
+                        wmPartyInitWalking(city->x, city->y);
                         wmGenData.mousePressed = false;
                     }
                 }
@@ -2910,7 +3310,7 @@ int _wmWorldMapFunc(int a1)
         }
     }
 
-    if (worldmapWindowFree() == -1) {
+    if (wmInterfaceExit() == -1) {
         return -1;
     }
 
@@ -2918,25 +3318,25 @@ int _wmWorldMapFunc(int a1)
 }
 
 // 0x4C056C
-int _wmCheckGameAreaEvents()
+int wmCheckGameAreaEvents()
 {
     if (wmGenData.currentAreaId == CITY_FAKE_VAULT_13_A) {
-        if (wmGenData.currentAreaId < gCitiesLength) {
-            gCities[CITY_FAKE_VAULT_13_A].state = CITY_STATE_UNKNOWN;
+        if (wmGenData.currentAreaId < wmMaxAreaNum) {
+            wmAreaInfoList[CITY_FAKE_VAULT_13_A].state = CITY_STATE_UNKNOWN;
         }
 
-        if (gCitiesLength > CITY_FAKE_VAULT_13_B) {
-            gCities[CITY_FAKE_VAULT_13_B].state = CITY_STATE_KNOWN;
+        if (wmMaxAreaNum > CITY_FAKE_VAULT_13_B) {
+            wmAreaInfoList[CITY_FAKE_VAULT_13_B].state = CITY_STATE_KNOWN;
         }
 
-        _wmAreaMarkVisitedState(CITY_FAKE_VAULT_13_B, 2);
+        wmAreaMarkVisitedState(CITY_FAKE_VAULT_13_B, 2);
     }
 
     return 0;
 }
 
 // 0x4C05C4
-int _wmInterfaceCenterOnParty()
+static int wmInterfaceCenterOnParty()
 {
     int v0;
     int v1;
@@ -2959,10 +3359,10 @@ int _wmInterfaceCenterOnParty()
         v1 = 0;
     }
 
-    gWorldmapOffsetX = v0;
-    gWorldmapOffsetY = v1;
+    wmWorldOffsetX = v0;
+    wmWorldOffsetY = v1;
 
-    worldmapWindowRefresh();
+    wmInterfaceRefresh();
 
     return 0;
 }
@@ -2970,20 +3370,20 @@ int _wmInterfaceCenterOnParty()
 // NOTE: Inlined.
 //
 // 0x4C0624
-void wmCheckGameEvents()
+static void wmCheckGameEvents()
 {
-    _scriptsCheckGameEvents(NULL, gWorldmapWindow);
+    _scriptsCheckGameEvents(NULL, wmBkWin);
 }
 
 // 0x4C0634
-int _wmRndEncounterOccurred()
+static int wmRndEncounterOccurred()
 {
     unsigned int v0 = _get_time();
-    if (getTicksBetween(v0, _wmLastRndTime) < 1500) {
+    if (getTicksBetween(v0, wmLastRndTime) < 1500) {
         return 0;
     }
 
-    _wmLastRndTime = v0;
+    wmLastRndTime = v0;
 
     if (abs(wmGenData.oldWorldPosX - wmGenData.worldPosX) < 3) {
         return 0;
@@ -2994,7 +3394,7 @@ int _wmRndEncounterOccurred()
     }
 
     int v26;
-    _wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosY, &v26);
+    wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosY, &v26);
     if (v26 != -1) {
         return 0;
     }
@@ -3005,7 +3405,7 @@ int _wmRndEncounterOccurred()
             wmGenData.encounterMapId = v26;
             wmGenData.didMeetFrankHorrigan = true;
             if (wmGenData.isInCar) {
-                _wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &(wmGenData.currentCarAreaId));
+                wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &(wmGenData.currentCarAreaId));
             }
             mapLoadById(MAP_IN_GAME_MOVIE1);
             return 1;
@@ -3013,7 +3413,7 @@ int _wmRndEncounterOccurred()
     }
 
     // NOTE: Uninline.
-    _wmPartyFindCurSubTile();
+    wmPartyFindCurSubTile();
 
     int dayPart;
     int gameTimeHour = gameTimeGetHour();
@@ -3025,7 +3425,7 @@ int _wmRndEncounterOccurred()
         dayPart = DAY_PART_MORNING;
     }
 
-    int frequency = _wmFreqValues[wmGenData.currentSubtile->encounterChance[dayPart]];
+    int frequency = wmFreqValues[wmGenData.currentSubtile->encounterChance[dayPart]];
     if (frequency > 0 && frequency < 100) {
         int gameDifficulty = GAME_DIFFICULTY_NORMAL;
         if (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
@@ -3046,27 +3446,27 @@ int _wmRndEncounterOccurred()
         return 0;
     }
 
-    _wmRndEncounterPick();
+    wmRndEncounterPick();
 
     int v8 = 1;
     wmGenData.encounterIconIsVisible = 1;
     wmGenData.encounterCursorId = 0;
 
-    EncounterTable* encounterTable = &(gEncounterTables[wmGenData.encounterTableId]);
+    EncounterTable* encounterTable = &(wmEncounterTableList[wmGenData.encounterTableId]);
     EncounterEntry* encounter = &(encounterTable->entries[wmGenData.encounterEntryId]);
     if ((encounter->flags & ENCOUNTER_ENTRY_SPECIAL) != 0) {
         wmGenData.encounterCursorId = 2;
-        _wmMatchAreaContainingMapIdx(wmGenData.encounterMapId, &v26);
+        wmMatchAreaContainingMapIdx(wmGenData.encounterMapId, &v26);
 
-        CityInfo* city = &(gCities[v26]);
-        CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[city->size]);
+        CityInfo* city = &(wmAreaInfoList[v26]);
+        CitySizeDescription* citySizeDescription = &(wmSphereData[city->size]);
         int worldmapX = wmGenData.worldPosX + wmGenData.hotspotFrmWidth / 2 + citySizeDescription->width / 2;
         int worldmapY = wmGenData.worldPosY + wmGenData.hotspotFrmHeight / 2 + citySizeDescription->height / 2;
-        worldmapCitySetPos(v26, worldmapX, worldmapY);
+        wmAreaSetWorldPos(v26, worldmapX, worldmapY);
         v8 = 3;
 
-        if (v26 >= 0 && v26 < gCitiesLength) {
-            CityInfo* city = &(gCities[v26]);
+        if (v26 >= 0 && v26 < wmMaxAreaNum) {
+            CityInfo* city = &(wmAreaInfoList[v26]);
             if (city->lockState != LOCK_STATE_LOCKED) {
                 city->state = CITY_STATE_KNOWN;
             }
@@ -3077,7 +3477,7 @@ int _wmRndEncounterOccurred()
     for (int index = 0; index < 7; index++) {
         wmGenData.encounterCursorId = v8 - wmGenData.encounterCursorId;
 
-        if (worldmapWindowRefresh() == -1) {
+        if (wmInterfaceRefresh() == -1) {
             return -1;
         }
 
@@ -3110,7 +3510,7 @@ int _wmRndEncounterOccurred()
 
         TileInfo* tile;
         // NOTE: Uninline.
-        _wmFindCurTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &tile);
+        wmFindCurTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &tile);
         debugPrint("\nEncounter Difficulty Mod: %d", tile->encounterDifficultyModifier);
 
         outdoorsman += tile->encounterDifficultyModifier;
@@ -3150,8 +3550,8 @@ int _wmRndEncounterOccurred()
         const char* title = gWorldmapEncDefaultMsg[0];
         const char* body = gWorldmapEncDefaultMsg[1];
 
-        title = getmsg(&gWorldmapMessageList, &messageListItem, 2999);
-        body = getmsg(&gWorldmapMessageList, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
+        title = getmsg(&wmMsgFile, &messageListItem, 2999);
+        body = getmsg(&wmMsgFile, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
         if (showDialogBox(title, &body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
             wmGenData.encounterIconIsVisible = 0;
             wmGenData.encounterMapId = -1;
@@ -3167,20 +3567,20 @@ int _wmRndEncounterOccurred()
 // NOTE: Inlined.
 //
 // 0x4C0BE4
-int _wmPartyFindCurSubTile()
+static int wmPartyFindCurSubTile()
 {
-    return _wmFindCurSubTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &(wmGenData.currentSubtile));
+    return wmFindCurSubTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &(wmGenData.currentSubtile));
 }
 
 // 0x4C0C00
-int _wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtile)
+static int wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtilePtr)
 {
-    int tileIndex = y / WM_TILE_HEIGHT * gWorldmapGridWidth + x / WM_TILE_WIDTH % gWorldmapGridWidth;
-    TileInfo* tile = &(gWorldmapTiles[tileIndex]);
+    int tileIndex = y / WM_TILE_HEIGHT * wmNumHorizontalTiles + x / WM_TILE_WIDTH % wmNumHorizontalTiles;
+    TileInfo* tile = &(wmTileInfoList[tileIndex]);
 
     int column = y % WM_TILE_HEIGHT / WM_SUBTILE_SIZE;
     int row = x % WM_TILE_WIDTH / WM_SUBTILE_SIZE;
-    *subtile = &(tile->subtiles[column][row]);
+    *subtilePtr = &(tile->subtiles[column][row]);
 
     return 0;
 }
@@ -3188,25 +3588,25 @@ int _wmFindCurSubTileFromPos(int x, int y, SubtileInfo** subtile)
 // NOTE: Inlined.
 //
 // 0x4C0CA8
-int _wmFindCurTileFromPos(int x, int y, TileInfo** tile)
+static int wmFindCurTileFromPos(int x, int y, TileInfo** tilePtr)
 {
-    int tileIndex = y / WM_TILE_HEIGHT * gWorldmapGridWidth + x / WM_TILE_WIDTH % gWorldmapGridWidth;
-    *tile = &(gWorldmapTiles[tileIndex]);
+    int tileIndex = y / WM_TILE_HEIGHT * wmNumHorizontalTiles + x / WM_TILE_WIDTH % wmNumHorizontalTiles;
+    *tilePtr = &(wmTileInfoList[tileIndex]);
 
     return 0;
 }
 
 // 0x4C0CF4
-int _wmRndEncounterPick()
+static int wmRndEncounterPick()
 {
     if (wmGenData.currentSubtile == NULL) {
         // NOTE: Uninline.
-        _wmPartyFindCurSubTile();
+        wmPartyFindCurSubTile();
     }
 
     wmGenData.encounterTableId = wmGenData.currentSubtile->encounterType;
 
-    EncounterTable* encounterTable = &(gEncounterTables[wmGenData.encounterTableId]);
+    EncounterTable* encounterTable = &(wmEncounterTableList[wmGenData.encounterTableId]);
 
     int candidates[41];
     int candidatesLength = 0;
@@ -3215,7 +3615,7 @@ int _wmRndEncounterPick()
         EncounterEntry* encounterTableEntry = &(encounterTable->entries[index]);
 
         bool selected = true;
-        if (_wmEvalConditional(&(encounterTableEntry->condition), NULL) == 0) {
+        if (wmEvalConditional(&(encounterTableEntry->condition), NULL) == 0) {
             selected = false;
         }
 
@@ -3285,12 +3685,12 @@ int _wmRndEncounterPick()
 
     if (encounterTableEntry->map == -1) {
         if (encounterTable->mapsLength <= 0) {
-            Terrain* terrain = &(gTerrains[wmGenData.currentSubtile->terrain]);
-            int randomMapIndex = randomBetween(0, terrain->mapsLength - 1);
-            wmGenData.encounterMapId = terrain->maps[randomMapIndex];
+            Terrain* terrain = &(wmTerrainTypeList[wmGenData.currentSubtile->terrain]);
+            int randommapIdx = randomBetween(0, terrain->mapsLength - 1);
+            wmGenData.encounterMapId = terrain->maps[randommapIdx];
         } else {
-            int randomMapIndex = randomBetween(0, encounterTable->mapsLength - 1);
-            wmGenData.encounterMapId = encounterTable->maps[randomMapIndex];
+            int randommapIdx = randomBetween(0, encounterTable->mapsLength - 1);
+            wmGenData.encounterMapId = encounterTable->maps[randommapIdx];
         }
     } else {
         wmGenData.encounterMapId = encounterTableEntry->map;
@@ -3299,9 +3699,8 @@ int _wmRndEncounterPick()
     return 0;
 }
 
-// wmSetupRandomEncounter
 // 0x4C0FA4
-int worldmapSetupRandomEncounter()
+int wmSetupRandomEncounter()
 {
     MessageListItem messageListItem;
     char* msg;
@@ -3310,14 +3709,14 @@ int worldmapSetupRandomEncounter()
         return 0;
     }
 
-    EncounterTable* encounterTable = &(gEncounterTables[wmGenData.encounterTableId]);
+    EncounterTable* encounterTable = &(wmEncounterTableList[wmGenData.encounterTableId]);
     EncounterEntry* encounterTableEntry = &(encounterTable->entries[wmGenData.encounterEntryId]);
 
     // You encounter:
-    msg = getmsg(&gWorldmapMessageList, &messageListItem, 2998);
+    msg = getmsg(&wmMsgFile, &messageListItem, 2998);
     displayMonitorAddMessage(msg);
 
-    msg = getmsg(&gWorldmapMessageList, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
+    msg = getmsg(&wmMsgFile, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
     displayMonitorAddMessage(msg);
 
     int gameDifficulty;
@@ -3326,7 +3725,7 @@ int worldmapSetupRandomEncounter()
     case ENCOUNTER_SCENERY_TYPE_LIGHT:
     case ENCOUNTER_SCENERY_TYPE_NORMAL:
     case ENCOUNTER_SCENERY_TYPE_HEAVY:
-        debugPrint("\nwmSetupRandomEncounter: Scenery Type: %s", _wmSceneryStrs[encounterTableEntry->scenery]);
+        debugPrint("\nwmSetupRandomEncounter: Scenery Type: %s", wmSceneryStrs[encounterTableEntry->scenery]);
         configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
         break;
     default:
@@ -3359,7 +3758,7 @@ int worldmapSetupRandomEncounter()
 
         if (v9 != 0) {
             Object* v35;
-            if (worldmapSetupCritters(v3->field_8, &v35, v9) == -1) {
+            if (wmSetupCritterObjs(v3->field_8, &v35, v9) == -1) {
                 scriptsRequestWorldMap();
                 return -1;
             }
@@ -3416,7 +3815,7 @@ int worldmapSetupRandomEncounter()
 
 // wmSetupCritterObjs
 // 0x4C11FC
-int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
+static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCount)
 {
     if (type_idx == -1) {
         return 0;
@@ -3424,11 +3823,11 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
 
     *critterPtr = 0;
 
-    ENC_BASE_TYPE* v25 = &(_wmEncBaseTypeList[type_idx]);
+    ENC_BASE_TYPE* v25 = &(wmEncBaseTypeList[type_idx]);
 
-    debugPrint("\nwmSetupCritterObjs: typeIdx: %d, Formation: %s", type_idx, gEncounterFormationTypeKeys[v25->position]);
+    debugPrint("\nwmSetupCritterObjs: typeIdx: %d, Formation: %s", type_idx, wmFormationStrs[v25->position]);
 
-    if (_wmSetupRndNextTileNumInit(v25) == -1) {
+    if (wmSetupRndNextTileNumInit(v25) == -1) {
         return -1;
     }
 
@@ -3439,7 +3838,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
             continue;
         }
 
-        if (!_wmEvalConditional(&(v5->condition), &critterCount)) {
+        if (!wmEvalConditional(&(v5->condition), &critterCount)) {
             continue;
         }
 
@@ -3461,7 +3860,7 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
 
         for (int j = 0; j < v23; j++) {
             int tile;
-            if (_wmSetupRndNextTileNum(v25, v5, &tile) == -1) {
+            if (wmSetupRndNextTileNum(v25, v5, &tile) == -1) {
                 debugPrint("\nERROR: wmSetupCritterObjs: wmSetupRndNextTileNum:");
                 continue;
             }
@@ -3549,28 +3948,28 @@ int worldmapSetupCritters(int type_idx, Object** critterPtr, int critterCount)
 }
 
 // 0x4C155C
-int _wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
+static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
 {
     for (int index = 0; index < 2; index++) {
-        _wmRndCenterRotations[index] = 0;
-        _wmRndTileDirs[index] = 0;
-        _wmRndCenterTiles[index] = -1;
+        wmRndCenterRotations[index] = 0;
+        wmRndTileDirs[index] = 0;
+        wmRndCenterTiles[index] = -1;
 
         if (index & 1) {
-            _wmRndRotOffsets[index] = 5;
+            wmRndRotOffsets[index] = 5;
         } else {
-            _wmRndRotOffsets[index] = 1;
+            wmRndRotOffsets[index] = 1;
         }
     }
 
-    _wmRndCallCount = 0;
+    wmRndCallCount = 0;
 
     switch (a1->position) {
     case ENCOUNTER_FORMATION_TYPE_SURROUNDING:
-        _wmRndCenterTiles[0] = gDude->tile;
-        _wmRndTileDirs[0] = randomBetween(0, ROTATION_COUNT - 1);
+        wmRndCenterTiles[0] = gDude->tile;
+        wmRndTileDirs[0] = randomBetween(0, ROTATION_COUNT - 1);
 
-        _wmRndOriginalCenterTile = _wmRndCenterTiles[0];
+        wmRndOriginalCenterTile = wmRndCenterTiles[0];
 
         return 0;
     case ENCOUNTER_FORMATION_TYPE_STRAIGHT_LINE:
@@ -3579,28 +3978,28 @@ int _wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
     case ENCOUNTER_FORMATION_TYPE_CONE:
     case ENCOUNTER_FORMATION_TYPE_HUDDLE:
         if (1) {
-            MapInfo* map = &(gMaps[gMapHeader.field_34]);
+            MapInfo* map = &(wmMapInfoList[gMapHeader.field_34]);
             if (map->startPointsLength != 0) {
                 int rspIndex = randomBetween(0, map->startPointsLength - 1);
                 MapStartPointInfo* rsp = &(map->startPoints[rspIndex]);
 
-                _wmRndCenterTiles[0] = rsp->tile;
-                _wmRndCenterTiles[1] = _wmRndCenterTiles[0];
+                wmRndCenterTiles[0] = rsp->tile;
+                wmRndCenterTiles[1] = wmRndCenterTiles[0];
 
-                _wmRndCenterRotations[0] = rsp->field_8;
-                _wmRndCenterRotations[1] = _wmRndCenterRotations[0];
+                wmRndCenterRotations[0] = rsp->field_8;
+                wmRndCenterRotations[1] = wmRndCenterRotations[0];
             } else {
-                _wmRndCenterRotations[0] = 0;
-                _wmRndCenterRotations[1] = 0;
+                wmRndCenterRotations[0] = 0;
+                wmRndCenterRotations[1] = 0;
 
-                _wmRndCenterTiles[0] = gDude->tile;
-                _wmRndCenterTiles[1] = gDude->tile;
+                wmRndCenterTiles[0] = gDude->tile;
+                wmRndCenterTiles[1] = gDude->tile;
             }
 
-            _wmRndTileDirs[0] = tileGetRotationTo(_wmRndCenterTiles[0], gDude->tile);
-            _wmRndTileDirs[1] = tileGetRotationTo(_wmRndCenterTiles[1], gDude->tile);
+            wmRndTileDirs[0] = tileGetRotationTo(wmRndCenterTiles[0], gDude->tile);
+            wmRndTileDirs[1] = tileGetRotationTo(wmRndCenterTiles[1], gDude->tile);
 
-            _wmRndOriginalCenterTile = _wmRndCenterTiles[0];
+            wmRndOriginalCenterTile = wmRndCenterTiles[0];
 
             return 0;
         }
@@ -3613,7 +4012,7 @@ int _wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
 
 // wmSetupRndNextTileNum
 // 0x4C16F0
-int _wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile_num)
+static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_tile_num)
 {
     int tile_num;
 
@@ -3641,62 +4040,62 @@ int _wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_til
 
                 int origin = a2->tile;
                 if (origin == -1) {
-                    origin = tileGetTileInDirection(gDude->tile, _wmRndTileDirs[0], distance);
+                    origin = tileGetTileInDirection(gDude->tile, wmRndTileDirs[0], distance);
                 }
 
-                if (++_wmRndTileDirs[0] >= ROTATION_COUNT) {
-                    _wmRndTileDirs[0] = 0;
+                if (++wmRndTileDirs[0] >= ROTATION_COUNT) {
+                    wmRndTileDirs[0] = 0;
                 }
 
                 int randomizedDistance = randomBetween(0, distance / 2);
                 int randomizedRotation = randomBetween(0, ROTATION_COUNT - 1);
-                tile_num = tileGetTileInDirection(origin, (randomizedRotation + _wmRndTileDirs[0]) % ROTATION_COUNT, randomizedDistance);
+                tile_num = tileGetTileInDirection(origin, (randomizedRotation + wmRndTileDirs[0]) % ROTATION_COUNT, randomizedDistance);
             }
             break;
         case ENCOUNTER_FORMATION_TYPE_STRAIGHT_LINE:
-            tile_num = _wmRndCenterTiles[_wmRndIndex];
-            if (_wmRndCallCount != 0) {
-                int rotation = (_wmRndRotOffsets[_wmRndIndex] + _wmRndTileDirs[_wmRndIndex]) % ROTATION_COUNT;
-                int origin = tileGetTileInDirection(_wmRndCenterTiles[_wmRndIndex], rotation, a1->spacing);
-                int v13 = tileGetTileInDirection(origin, (rotation + _wmRndRotOffsets[_wmRndIndex]) % ROTATION_COUNT, a1->spacing);
-                _wmRndCenterTiles[_wmRndIndex] = v13;
-                _wmRndIndex = 1 - _wmRndIndex;
+            tile_num = wmRndCenterTiles[wmRndIndex];
+            if (wmRndCallCount != 0) {
+                int rotation = (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT;
+                int origin = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], rotation, a1->spacing);
+                int v13 = tileGetTileInDirection(origin, (rotation + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                wmRndCenterTiles[wmRndIndex] = v13;
+                wmRndIndex = 1 - wmRndIndex;
                 tile_num = v13;
             }
             break;
         case ENCOUNTER_FORMATION_TYPE_DOUBLE_LINE:
-            tile_num = _wmRndCenterTiles[_wmRndIndex];
-            if (_wmRndCallCount != 0) {
-                int rotation = (_wmRndRotOffsets[_wmRndIndex] + _wmRndTileDirs[_wmRndIndex]) % ROTATION_COUNT;
-                int origin = tileGetTileInDirection(_wmRndCenterTiles[_wmRndIndex], rotation, a1->spacing);
-                int v17 = tileGetTileInDirection(origin, (rotation + _wmRndRotOffsets[_wmRndIndex]) % ROTATION_COUNT, a1->spacing);
-                _wmRndCenterTiles[_wmRndIndex] = v17;
-                _wmRndIndex = 1 - _wmRndIndex;
+            tile_num = wmRndCenterTiles[wmRndIndex];
+            if (wmRndCallCount != 0) {
+                int rotation = (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT;
+                int origin = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], rotation, a1->spacing);
+                int v17 = tileGetTileInDirection(origin, (rotation + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                wmRndCenterTiles[wmRndIndex] = v17;
+                wmRndIndex = 1 - wmRndIndex;
                 tile_num = v17;
             }
             break;
         case ENCOUNTER_FORMATION_TYPE_WEDGE:
-            tile_num = _wmRndCenterTiles[_wmRndIndex];
-            if (_wmRndCallCount != 0) {
-                tile_num = tileGetTileInDirection(_wmRndCenterTiles[_wmRndIndex], (_wmRndRotOffsets[_wmRndIndex] + _wmRndTileDirs[_wmRndIndex]) % ROTATION_COUNT, a1->spacing);
-                _wmRndCenterTiles[_wmRndIndex] = tile_num;
-                _wmRndIndex = 1 - _wmRndIndex;
+            tile_num = wmRndCenterTiles[wmRndIndex];
+            if (wmRndCallCount != 0) {
+                tile_num = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                wmRndCenterTiles[wmRndIndex] = tile_num;
+                wmRndIndex = 1 - wmRndIndex;
             }
             break;
         case ENCOUNTER_FORMATION_TYPE_CONE:
-            tile_num = _wmRndCenterTiles[_wmRndIndex];
-            if (_wmRndCallCount != 0) {
-                tile_num = tileGetTileInDirection(_wmRndCenterTiles[_wmRndIndex], (_wmRndTileDirs[_wmRndIndex] + 3 + _wmRndRotOffsets[_wmRndIndex]) % ROTATION_COUNT, a1->spacing);
-                _wmRndCenterTiles[_wmRndIndex] = tile_num;
-                _wmRndIndex = 1 - _wmRndIndex;
+            tile_num = wmRndCenterTiles[wmRndIndex];
+            if (wmRndCallCount != 0) {
+                tile_num = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], (wmRndTileDirs[wmRndIndex] + 3 + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                wmRndCenterTiles[wmRndIndex] = tile_num;
+                wmRndIndex = 1 - wmRndIndex;
             }
             break;
         case ENCOUNTER_FORMATION_TYPE_HUDDLE:
-            tile_num = _wmRndCenterTiles[0];
-            if (_wmRndCallCount != 0) {
-                _wmRndTileDirs[0] = (_wmRndTileDirs[0] + 1) % ROTATION_COUNT;
-                tile_num = tileGetTileInDirection(_wmRndCenterTiles[0], _wmRndTileDirs[0], a1->spacing);
-                _wmRndCenterTiles[0] = tile_num;
+            tile_num = wmRndCenterTiles[0];
+            if (wmRndCallCount != 0) {
+                wmRndTileDirs[0] = (wmRndTileDirs[0] + 1) % ROTATION_COUNT;
+                tile_num = tileGetTileInDirection(wmRndCenterTiles[0], wmRndTileDirs[0], a1->spacing);
+                wmRndCenterTiles[0] = tile_num;
             }
             break;
         default:
@@ -3704,15 +4103,15 @@ int _wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_til
         }
 
         ++attempt;
-        ++_wmRndCallCount;
+        ++wmRndCallCount;
 
-        if (_wmEvalTileNumForPlacement(tile_num)) {
+        if (wmEvalTileNumForPlacement(tile_num)) {
             break;
         }
 
         debugPrint("\nWARNING: EVAL-TILE-NUM FAILED!");
 
-        if (tileDistanceBetween(_wmRndOriginalCenterTile, _wmRndCenterTiles[_wmRndIndex]) > 25) {
+        if (tileDistanceBetween(wmRndOriginalCenterTile, wmRndCenterTiles[wmRndIndex]) > 25) {
             return -1;
         }
 
@@ -3729,7 +4128,7 @@ int _wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* out_til
 }
 
 // 0x4C1A64
-bool _wmEvalTileNumForPlacement(int tile)
+bool wmEvalTileNumForPlacement(int tile)
 {
     if (_obj_blocking_at(gDude, tile, gElevation) != NULL) {
         return false;
@@ -3743,7 +4142,7 @@ bool _wmEvalTileNumForPlacement(int tile)
 }
 
 // 0x4C1AC8
-bool _wmEvalConditional(EncounterCondition* a1, int* a2)
+static bool wmEvalConditional(EncounterCondition* a1, int* a2)
 {
     int value;
 
@@ -3755,12 +4154,12 @@ bool _wmEvalConditional(EncounterCondition* a1, int* a2)
         switch (ptr->type) {
         case ENCOUNTER_CONDITION_TYPE_GLOBAL:
             value = gameGetGlobalVar(ptr->param);
-            if (!_wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
+            if (!wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_NUMBER_OF_CRITTERS:
-            if (!_wmEvalSubConditional(*a2, ptr->conditionalOperator, ptr->value)) {
+            if (!wmEvalSubConditional(*a2, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
@@ -3772,19 +4171,19 @@ bool _wmEvalConditional(EncounterCondition* a1, int* a2)
             break;
         case ENCOUNTER_CONDITION_TYPE_PLAYER:
             value = pcGetStat(PC_STAT_LEVEL);
-            if (!_wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
+            if (!wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_DAYS_PLAYED:
             value = gameTimeGetTime();
-            if (!_wmEvalSubConditional(value / GAME_TIME_TICKS_PER_DAY, ptr->conditionalOperator, ptr->value)) {
+            if (!wmEvalSubConditional(value / GAME_TIME_TICKS_PER_DAY, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_TIME_OF_DAY:
             value = gameTimeGetHour();
-            if (!_wmEvalSubConditional(value / 100, ptr->conditionalOperator, ptr->value)) {
+            if (!wmEvalSubConditional(value / 100, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
@@ -3802,7 +4201,7 @@ bool _wmEvalConditional(EncounterCondition* a1, int* a2)
 }
 
 // 0x4C1C0C
-bool _wmEvalSubConditional(int operand1, int condionalOperator, int operand2)
+static bool wmEvalSubConditional(int operand1, int condionalOperator, int operand2)
 {
     switch (condionalOperator) {
     case ENCOUNTER_CONDITIONAL_OPERATOR_EQUAL:
@@ -3819,7 +4218,7 @@ bool _wmEvalSubConditional(int operand1, int condionalOperator, int operand2)
 }
 
 // 0x4C1C50
-bool _wmGameTimeIncrement(int a1)
+static bool wmGameTimeIncrement(int a1)
 {
     if (a1 == 0) {
         return false;
@@ -3836,7 +4235,7 @@ bool _wmGameTimeIncrement(int a1)
         // NOTE: Uninline.
         wmInterfaceDialSyncTime(true);
 
-        worldmapWindowRenderDate(true);
+        wmInterfaceRefreshDate(true);
 
         if (queueProcessEvents()) {
             break;
@@ -3849,9 +4248,9 @@ bool _wmGameTimeIncrement(int a1)
 // Reads .msk file if needed.
 //
 // 0x4C1CE8
-int _wmGrabTileWalkMask(int tile)
+static int wmGrabTileWalkMask(int tileIdx)
 {
-    TileInfo* tileInfo = &(gWorldmapTiles[tile]);
+    TileInfo* tileInfo = &(wmTileInfoList[tileIdx]);
     if (tileInfo->walkMaskData != NULL) {
         return 0;
     }
@@ -3885,14 +4284,14 @@ int _wmGrabTileWalkMask(int tile)
 }
 
 // 0x4C1D9C
-bool _wmWorldPosInvalid(int a1, int a2)
+static bool wmWorldPosInvalid(int x, int y)
 {
-    int v3 = a2 / WM_TILE_HEIGHT * gWorldmapGridWidth + a1 / WM_TILE_WIDTH % gWorldmapGridWidth;
-    if (_wmGrabTileWalkMask(v3) == -1) {
+    int tileIdx = y / WM_TILE_HEIGHT * wmNumHorizontalTiles + x / WM_TILE_WIDTH % wmNumHorizontalTiles;
+    if (wmGrabTileWalkMask(tileIdx) == -1) {
         return false;
     }
 
-    TileInfo* tileDescription = &(gWorldmapTiles[v3]);
+    TileInfo* tileDescription = &(wmTileInfoList[tileIdx]);
     unsigned char* mask = tileDescription->walkMaskData;
     if (mask == NULL) {
         return false;
@@ -3901,13 +4300,13 @@ bool _wmWorldPosInvalid(int a1, int a2)
     // Mask length is 13200, which is 300 * 44
     // 44 * 8 is 352, which is probably left 2 bytes intact
     // TODO: Check math.
-    int pos = (a2 % WM_TILE_HEIGHT) * 44 + (a1 % WM_TILE_WIDTH) / 8;
-    int bit = 1 << (((a1 % WM_TILE_WIDTH) / 8) & 3);
+    int pos = (y % WM_TILE_HEIGHT) * 44 + (x % WM_TILE_WIDTH) / 8;
+    int bit = 1 << (((x % WM_TILE_WIDTH) / 8) & 3);
     return (mask[pos] & bit) != 0;
 }
 
 // 0x4C1E54
-void _wmPartyInitWalking(int x, int y)
+static void wmPartyInitWalking(int x, int y)
 {
     wmGenData.walkDestinationX = x;
     wmGenData.walkDestinationY = y;
@@ -3947,13 +4346,13 @@ void _wmPartyInitWalking(int x, int y)
         wmGenData.walkWorldPosMainAxisStepY = -wmGenData.walkWorldPosMainAxisStepY;
     }
 
-    if (!_wmCursorIsVisible()) {
-        _wmInterfaceCenterOnParty();
+    if (!wmCursorIsVisible()) {
+        wmInterfaceCenterOnParty();
     }
 }
 
 // 0x4C1F90
-void worldmapPerformTravel()
+static void wmPartyWalkingStep()
 {
     if (wmGenData.walkDistance <= 0) {
         return;
@@ -3965,9 +4364,9 @@ void worldmapPerformTravel()
     }
 
     // NOTE: Uninline.
-    _wmPartyFindCurSubTile();
+    wmPartyFindCurSubTile();
 
-    Terrain* terrain = &(gTerrains[wmGenData.currentSubtile->terrain]);
+    Terrain* terrain = &(wmTerrainTypeList[wmGenData.currentSubtile->terrain]);
     int v1 = terrain->type - perkGetRank(gDude, PERK_PATHFINDER);
     if (v1 < 1) {
         v1 = 1;
@@ -3977,11 +4376,11 @@ void worldmapPerformTravel()
         int v3;
         int v4;
         if (wmGenData.walkLineDelta >= 0) {
-            if (_wmWorldPosInvalid(wmGenData.walkWorldPosCrossAxisStepX + wmGenData.worldPosX, wmGenData.walkWorldPosCrossAxisStepY + wmGenData.worldPosY)) {
+            if (wmWorldPosInvalid(wmGenData.walkWorldPosCrossAxisStepX + wmGenData.worldPosX, wmGenData.walkWorldPosCrossAxisStepY + wmGenData.worldPosY)) {
                 wmGenData.walkDestinationX = 0;
                 wmGenData.walkDestinationY = 0;
                 wmGenData.isWalking = false;
-                _wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosX, &(wmGenData.currentAreaId));
+                wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosX, &(wmGenData.currentAreaId));
                 wmGenData.walkDistance = 0;
                 return;
             }
@@ -3992,11 +4391,11 @@ void worldmapPerformTravel()
             v4 = wmGenData.walkWorldPosCrossAxisStepY;
             wmGenData.worldPosY += wmGenData.walkWorldPosCrossAxisStepY;
         } else {
-            if (_wmWorldPosInvalid(wmGenData.walkWorldPosMainAxisStepX + wmGenData.worldPosX, wmGenData.walkWorldPosMainAxisStepY + wmGenData.worldPosY) == 1) {
+            if (wmWorldPosInvalid(wmGenData.walkWorldPosMainAxisStepX + wmGenData.worldPosX, wmGenData.walkWorldPosMainAxisStepY + wmGenData.worldPosY) == 1) {
                 wmGenData.walkDestinationX = 0;
                 wmGenData.walkDestinationY = 0;
                 wmGenData.isWalking = false;
-                _wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosX, &(wmGenData.currentAreaId));
+                wmMatchWorldPosToArea(wmGenData.worldPosX, wmGenData.worldPosX, &(wmGenData.currentAreaId));
                 wmGenData.walkDistance = 0;
                 return;
             }
@@ -4008,7 +4407,7 @@ void worldmapPerformTravel()
             wmGenData.worldPosX += wmGenData.walkWorldPosMainAxisStepX;
         }
 
-        worldmapWindowScroll(1, 1, v3, v4, NULL, false);
+        wmInterfaceScrollPixel(1, 1, v3, v4, NULL, false);
 
         wmGenData.walkDistance -= 1;
         if (wmGenData.walkDistance == 0) {
@@ -4020,24 +4419,24 @@ void worldmapPerformTravel()
 }
 
 // 0x4C219C
-void _wmInterfaceScrollTabsStart(int a1)
+static void wmInterfaceScrollTabsStart(int delta)
 {
     int i;
     int v3;
 
     for (i = 0; i < 7; i++) {
-        buttonDisable(_wmTownMapSubButtonIds[i]);
+        buttonDisable(wmTownMapSubButtonIds[i]);
     }
 
     wmGenData.oldTabsOffsetY = wmGenData.tabsOffsetY;
 
-    v3 = wmGenData.tabsOffsetY + 7 * a1;
+    v3 = wmGenData.tabsOffsetY + 7 * delta;
 
-    if (a1 >= 0) {
+    if (delta >= 0) {
         if (wmGenData.tabsBackgroundFrmHeight - 230 <= wmGenData.oldTabsOffsetY) {
             goto L11;
         } else {
-            wmGenData.oldTabsOffsetY = wmGenData.tabsOffsetY + 7 * a1;
+            wmGenData.oldTabsOffsetY = wmGenData.tabsOffsetY + 7 * delta;
             if (v3 > wmGenData.tabsBackgroundFrmHeight - 230) {
             }
         }
@@ -4045,14 +4444,14 @@ void _wmInterfaceScrollTabsStart(int a1)
         if (wmGenData.tabsOffsetY <= 0) {
             goto L11;
         } else {
-            wmGenData.oldTabsOffsetY = wmGenData.tabsOffsetY + 7 * a1;
+            wmGenData.oldTabsOffsetY = wmGenData.tabsOffsetY + 7 * delta;
             if (v3 < 0) {
                 wmGenData.oldTabsOffsetY = 0;
             }
         }
     }
 
-    wmGenData.tabsScrollingDelta = a1;
+    wmGenData.tabsScrollingDelta = delta;
 
 L11:
 
@@ -4061,48 +4460,48 @@ L11:
 }
 
 // 0x4C2270
-void _wmInterfaceScrollTabsStop()
+static void wmInterfaceScrollTabsStop()
 {
     int i;
 
     wmGenData.tabsScrollingDelta = 0;
 
     for (i = 0; i < 7; i++) {
-        buttonEnable(_wmTownMapSubButtonIds[i]);
+        buttonEnable(wmTownMapSubButtonIds[i]);
     }
 }
 
 // NOTE: Inlined.
 //
 // 0x4C2290
-void wmInterfaceScrollTabsUpdate()
+static void wmInterfaceScrollTabsUpdate()
 {
     if (wmGenData.tabsScrollingDelta != 0) {
         wmGenData.tabsOffsetY += wmGenData.tabsScrollingDelta;
-        worldmapWindowRenderChrome(1);
+        wmRefreshInterfaceOverlay(1);
 
         if (wmGenData.tabsScrollingDelta >= 0) {
             if (wmGenData.oldTabsOffsetY <= wmGenData.tabsOffsetY) {
                 // NOTE: Uninline.
-                _wmInterfaceScrollTabsStop();
+                wmInterfaceScrollTabsStop();
             }
         } else {
             if (wmGenData.oldTabsOffsetY >= wmGenData.tabsOffsetY) {
                 // NOTE: Uninline.
-                _wmInterfaceScrollTabsStop();
+                wmInterfaceScrollTabsStop();
             }
         }
     }
 }
 
 // 0x4C2324
-int worldmapWindowInit()
+static int wmInterfaceInit()
 {
     int fid;
     Art* frm;
     CacheEntry* frmHandle;
 
-    _wmLastRndTime = _get_time();
+    wmLastRndTime = _get_time();
     wmGenData.oldFont = fontGetCurrent();
     fontSetCurrent(0);
 
@@ -4118,38 +4517,38 @@ int worldmapWindowInit()
 
     int worldmapWindowX = 0;
     int worldmapWindowY = 0;
-    gWorldmapWindow = windowCreate(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, _colorTable[0], WINDOW_FLAG_0x04);
-    if (gWorldmapWindow == -1) {
+    wmBkWin = windowCreate(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, _colorTable[0], WINDOW_FLAG_0x04);
+    if (wmBkWin == -1) {
         return -1;
     }
 
     fid = buildFid(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
-    frm = artLock(fid, &gWorldmapBoxFrmHandle);
+    frm = artLock(fid, &wmBkKey);
     if (frm == NULL) {
         return -1;
     }
 
-    gWorldmapBoxFrmWidth = artGetWidth(frm, 0, 0);
-    gWorldmapBoxFrmHeight = artGetHeight(frm, 0, 0);
+    wmBkWidth = artGetWidth(frm, 0, 0);
+    wmBkHeight = artGetHeight(frm, 0, 0);
 
-    artUnlock(gWorldmapBoxFrmHandle);
-    gWorldmapBoxFrmHandle = INVALID_CACHE_ENTRY;
+    artUnlock(wmBkKey);
+    wmBkKey = INVALID_CACHE_ENTRY;
 
     fid = buildFid(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
-    gWorldmapBoxFrmData = artLockFrameData(fid, 0, 0, &gWorldmapBoxFrmHandle);
-    if (gWorldmapBoxFrmData == NULL) {
+    wmBkArtBuf = artLockFrameData(fid, 0, 0, &wmBkKey);
+    if (wmBkArtBuf == NULL) {
         return -1;
     }
 
-    gWorldmapWindowBuffer = windowGetBuffer(gWorldmapWindow);
-    if (gWorldmapWindowBuffer == NULL) {
+    wmBkWinBuf = windowGetBuffer(wmBkWin);
+    if (wmBkWinBuf == NULL) {
         return -1;
     }
 
-    blitBufferToBuffer(gWorldmapBoxFrmData, gWorldmapBoxFrmWidth, gWorldmapBoxFrmHeight, gWorldmapBoxFrmWidth, gWorldmapWindowBuffer, WM_WINDOW_WIDTH);
+    blitBufferToBuffer(wmBkArtBuf, wmBkWidth, wmBkHeight, wmBkWidth, wmBkWinBuf, WM_WINDOW_WIDTH);
 
     for (int citySize = 0; citySize < CITY_SIZE_COUNT; citySize++) {
-        CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[citySize]);
+        CitySizeDescription* citySizeDescription = &(wmSphereData[citySize]);
 
         fid = buildFid(OBJ_TYPE_INTERFACE, 336 + citySize, 0, 0, 0);
         citySizeDescription->fid = fid;
@@ -4236,7 +4635,7 @@ int worldmapWindowInit()
     }
 
     for (int index = 0; index < WORLD_MAP_ENCOUNTER_FRM_COUNT; index++) {
-        fid = buildFid(OBJ_TYPE_INTERFACE, gWorldmapEncounterFrmIds[index], 0, 0, 0);
+        fid = buildFid(OBJ_TYPE_INTERFACE, wmRndCursorFids[index], 0, 0, 0);
         frm = artLock(fid, &(wmGenData.encounterCursorFrmHandle[index]));
         if (frm == NULL) {
             return -1;
@@ -4251,8 +4650,8 @@ int worldmapWindowInit()
         wmGenData.encounterCursorFrmData[index] = artLockFrameData(fid, 0, 0, &(wmGenData.encounterCursorFrmHandle[index]));
     }
 
-    for (int index = 0; index < gWorldmapTilesLength; index++) {
-        gWorldmapTiles[index].handle = INVALID_CACHE_ENTRY;
+    for (int index = 0; index < wmMaxTileNum; index++) {
+        wmTileInfoList[index].handle = INVALID_CACHE_ENTRY;
     }
 
     // wmtabs.frm - worldmap town tabs underlay
@@ -4356,7 +4755,7 @@ int worldmapWindowInit()
     }
 
     // create town/world switch button
-    buttonCreate(gWorldmapWindow,
+    buttonCreate(wmBkWin,
         WM_TOWN_WORLD_SWITCH_X,
         WM_TOWN_WORLD_SWITCH_Y,
         littleRedButtonUpWidth,
@@ -4371,7 +4770,7 @@ int worldmapWindowInit()
         BUTTON_FLAG_TRANSPARENT);
 
     for (int index = 0; index < 7; index++) {
-        _wmTownMapSubButtonIds[index] = buttonCreate(gWorldmapWindow,
+        wmTownMapSubButtonIds[index] = buttonCreate(wmBkWin,
             508,
             138 + 27 * index,
             littleRedButtonUpWidth,
@@ -4415,7 +4814,7 @@ int worldmapWindowInit()
     }
 
     // Scroll up button.
-    buttonCreate(gWorldmapWindow,
+    buttonCreate(wmBkWin,
         WM_TOWN_LIST_SCROLL_UP_X,
         WM_TOWN_LIST_SCROLL_UP_Y,
         wmGenData.scrollUpButtonFrmWidth,
@@ -4430,7 +4829,7 @@ int worldmapWindowInit()
         BUTTON_FLAG_TRANSPARENT);
 
     // Scroll down button.
-    buttonCreate(gWorldmapWindow,
+    buttonCreate(wmBkWin,
         WM_TOWN_LIST_SCROLL_DOWN_X,
         WM_TOWN_LIST_SCROLL_DOWN_Y,
         wmGenData.scrollDownButtonFrmWidth,
@@ -4456,19 +4855,19 @@ int worldmapWindowInit()
         wmGenData.carImageFrmHeight = artGetHeight(wmGenData.carImageFrm, 0, 0);
     }
 
-    tickersAdd(worldmapWindowHandleMouseScrolling);
+    tickersAdd(wmMouseBkProc);
 
-    if (_wmMakeTabsLabelList(&gQuickDestinations, &gQuickDestinationsLength) == -1) {
+    if (wmMakeTabsLabelList(&wmLabelList, &wmLabelCount) == -1) {
         return -1;
     }
 
-    _wmInterfaceWasInitialized = 1;
+    wmInterfaceWasInitialized = 1;
 
-    if (worldmapWindowRefresh() == -1) {
+    if (wmInterfaceRefresh() == -1) {
         return -1;
     }
 
-    win_draw(gWorldmapWindow);
+    win_draw(wmBkWin);
     scriptsDisable();
     _scr_remove_all();
 
@@ -4476,22 +4875,22 @@ int worldmapWindowInit()
 }
 
 // 0x4C2E44
-int worldmapWindowFree()
+static int wmInterfaceExit()
 {
     int i;
     TileInfo* tile;
 
-    tickersRemove(worldmapWindowHandleMouseScrolling);
+    tickersRemove(wmMouseBkProc);
 
-    if (gWorldmapBoxFrmData != NULL) {
-        artUnlock(gWorldmapBoxFrmHandle);
-        gWorldmapBoxFrmData = NULL;
+    if (wmBkArtBuf != NULL) {
+        artUnlock(wmBkKey);
+        wmBkArtBuf = NULL;
     }
-    gWorldmapBoxFrmHandle = INVALID_CACHE_ENTRY;
+    wmBkKey = INVALID_CACHE_ENTRY;
 
-    if (gWorldmapWindow != -1) {
-        windowDestroy(gWorldmapWindow);
-        gWorldmapWindow = -1;
+    if (wmBkWin != -1) {
+        windowDestroy(wmBkWin);
+        wmBkWin = -1;
     }
 
     if (wmGenData.hotspotNormalFrmHandle != INVALID_CACHE_ENTRY) {
@@ -4522,15 +4921,15 @@ int worldmapWindowFree()
     }
 
     for (i = 0; i < CITY_SIZE_COUNT; i++) {
-        CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[i]);
+        CitySizeDescription* citySizeDescription = &(wmSphereData[i]);
         // FIXME: probably unsafe code, no check for -1
         artUnlock(citySizeDescription->handle);
         citySizeDescription->handle = INVALID_CACHE_ENTRY;
         citySizeDescription->data = NULL;
     }
 
-    for (i = 0; i < gWorldmapTilesLength; i++) {
-        tile = &(gWorldmapTiles[i]);
+    for (i = 0; i < wmMaxTileNum; i++) {
+        tile = &(wmTileInfoList[i]);
         if (tile->handle != INVALID_CACHE_ENTRY) {
             artUnlock(tile->handle);
             tile->handle = INVALID_CACHE_ENTRY;
@@ -4632,9 +5031,9 @@ int worldmapWindowFree()
     fontSetCurrent(wmGenData.oldFont);
 
     // NOTE: Uninline.
-    wmFreeTabsLabelList(&gQuickDestinations, &gQuickDestinationsLength);
+    wmFreeTabsLabelList(&wmLabelList, &wmLabelCount);
 
-    _wmInterfaceWasInitialized = 0;
+    wmInterfaceWasInitialized = 0;
 
     scriptsEnable();
 
@@ -4644,9 +5043,9 @@ int worldmapWindowFree()
 // NOTE: Inlined.
 //
 // 0x4C31E8
-int wmInterfaceScroll(int dx, int dy, bool* successPtr)
+static int wmInterfaceScroll(int dx, int dy, bool* successPtr)
 {
-    return worldmapWindowScroll(20, 20, dx, dy, successPtr, 1);
+    return wmInterfaceScrollPixel(20, 20, dx, dy, successPtr, 1);
 }
 
 // FIXME: There is small bug in this function. There is [success] flag returned
@@ -4656,10 +5055,10 @@ int wmInterfaceScroll(int dx, int dy, bool* successPtr)
 // error.
 //
 // 0x4C3200
-int worldmapWindowScroll(int stepX, int stepY, int dx, int dy, bool* success, bool shouldRefresh)
+static int wmInterfaceScrollPixel(int stepX, int stepY, int dx, int dy, bool* success, bool shouldRefresh)
 {
-    int v6 = gWorldmapOffsetY;
-    int v7 = gWorldmapOffsetX;
+    int v6 = wmWorldOffsetY;
+    int v7 = wmWorldOffsetX;
 
     if (success != NULL) {
         *success = true;
@@ -4713,11 +5112,11 @@ int worldmapWindowScroll(int stepX, int stepY, int dx, int dy, bool* success, bo
         }
     }
 
-    gWorldmapOffsetY = v6;
-    gWorldmapOffsetX = v7;
+    wmWorldOffsetY = v6;
+    wmWorldOffsetX = v7;
 
     if (shouldRefresh) {
-        if (worldmapWindowRefresh() == -1) {
+        if (wmInterfaceRefresh() == -1) {
             return -1;
         }
     }
@@ -4726,7 +5125,7 @@ int worldmapWindowScroll(int stepX, int stepY, int dx, int dy, bool* success, bo
 }
 
 // 0x4C32EC
-void worldmapWindowHandleMouseScrolling()
+static void wmMouseBkProc()
 {
     int x;
     int y;
@@ -4798,7 +5197,7 @@ void worldmapWindowHandleMouseScrolling()
 // NOTE: Inlined.
 //
 // 0x4C340C
-int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
+static int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
 {
     return wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_VISITED);
 }
@@ -4806,13 +5205,13 @@ int wmMarkSubTileOffsetVisited(int tile, int subtileX, int subtileY, int offsetX
 // NOTE: Inlined.
 //
 // 0x4C3420
-int wmMarkSubTileOffsetKnown(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
+static int wmMarkSubTileOffsetKnown(int tile, int subtileX, int subtileY, int offsetX, int offsetY)
 {
     return wmMarkSubTileOffsetVisitedFunc(tile, subtileX, subtileY, offsetX, offsetY, SUBTILE_STATE_KNOWN);
 }
 
 // 0x4C3434
-int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int offsetX, int offsetY, int subtileState)
+static int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int offsetX, int offsetY, int subtileState)
 {
     int actualTile;
     int actualSubtileX;
@@ -4826,7 +5225,7 @@ int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int off
 
     if (actualSubtileX >= 0) {
         if (actualSubtileX >= SUBTILE_GRID_WIDTH) {
-            if (tile % gWorldmapGridWidth == gWorldmapGridWidth - 1) {
+            if (tile % wmNumHorizontalTiles == wmNumHorizontalTiles - 1) {
                 return -1;
             }
 
@@ -4834,7 +5233,7 @@ int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int off
             actualSubtileX %= SUBTILE_GRID_WIDTH;
         }
     } else {
-        if (!(tile % gWorldmapGridWidth)) {
+        if (!(tile % wmNumHorizontalTiles)) {
             return -1;
         }
 
@@ -4844,23 +5243,23 @@ int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int off
 
     if (actualSubtileY >= 0) {
         if (actualSubtileY >= SUBTILE_GRID_HEIGHT) {
-            if (actualTile > gWorldmapTilesLength - gWorldmapGridWidth - 1) {
+            if (actualTile > wmMaxTileNum - wmNumHorizontalTiles - 1) {
                 return -1;
             }
 
-            actualTile += gWorldmapGridWidth;
+            actualTile += wmNumHorizontalTiles;
             actualSubtileY %= SUBTILE_GRID_HEIGHT;
         }
     } else {
-        if (actualTile < gWorldmapGridWidth) {
+        if (actualTile < wmNumHorizontalTiles) {
             return -1;
         }
 
         actualSubtileY += SUBTILE_GRID_HEIGHT;
-        actualTile -= gWorldmapGridWidth;
+        actualTile -= wmNumHorizontalTiles;
     }
 
-    tileInfo = &(gWorldmapTiles[actualTile]);
+    tileInfo = &(wmTileInfoList[actualTile]);
     subtileInfo = &(tileInfo->subtiles[actualSubtileY][actualSubtileX]);
     if (subtileState != SUBTILE_STATE_KNOWN || subtileInfo->state == SUBTILE_STATE_UNKNOWN) {
         subtileInfo->state = subtileState;
@@ -4870,7 +5269,7 @@ int wmMarkSubTileOffsetVisitedFunc(int tile, int subtileX, int subtileY, int off
 }
 
 // 0x4C3550
-void _wmMarkSubTileRadiusVisited(int x, int y)
+static void wmMarkSubTileRadiusVisited(int x, int y)
 {
     int radius = 1;
 
@@ -4891,7 +5290,7 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
     int offsetY;
     SubtileInfo* subtile;
 
-    tile = x / WM_TILE_WIDTH % gWorldmapGridWidth + y / WM_TILE_HEIGHT * gWorldmapGridWidth;
+    tile = x / WM_TILE_WIDTH % wmNumHorizontalTiles + y / WM_TILE_HEIGHT * wmNumHorizontalTiles;
     subtileX = x % WM_TILE_WIDTH / WM_SUBTILE_SIZE;
     subtileY = y % WM_TILE_HEIGHT / WM_SUBTILE_SIZE;
 
@@ -4902,7 +5301,7 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
         }
     }
 
-    subtile = &(gWorldmapTiles[tile].subtiles[subtileY][subtileX]);
+    subtile = &(wmTileInfoList[tile].subtiles[subtileY][subtileX]);
     subtile->state = SUBTILE_STATE_VISITED;
 
     switch (subtile->field_4) {
@@ -4918,7 +5317,7 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
             wmMarkSubTileOffsetVisited(tile, subtileX, subtileY, 0, 0);
         }
 
-        if (tile % gWorldmapGridWidth > 0) {
+        if (tile % wmNumHorizontalTiles > 0) {
             for (subtileX = 0; subtileX < SUBTILE_GRID_WIDTH; subtileX++) {
                 // NOTE: Uninline.
                 wmMarkSubTileOffsetVisited(tile - 1, subtileX, subtileY, 0, 0);
@@ -4931,14 +5330,14 @@ int wmSubTileMarkRadiusVisited(int x, int y, int radius)
 }
 
 // 0x4C3740
-int _wmSubTileGetVisitedState(int x, int y, int* a3)
+int wmSubTileGetVisitedState(int x, int y, int* statePtr)
 {
     TileInfo* tile;
-    SubtileInfo* ptr;
+    SubtileInfo* subtile;
 
-    tile = &(gWorldmapTiles[y / WM_TILE_HEIGHT * gWorldmapGridWidth + x / WM_TILE_WIDTH % gWorldmapGridWidth]);
-    ptr = &(tile->subtiles[y % WM_TILE_HEIGHT / WM_SUBTILE_SIZE][x % WM_TILE_WIDTH / WM_SUBTILE_SIZE]);
-    *a3 = ptr->state;
+    tile = &(wmTileInfoList[y / WM_TILE_HEIGHT * wmNumHorizontalTiles + x / WM_TILE_WIDTH % wmNumHorizontalTiles]);
+    subtile = &(tile->subtiles[y % WM_TILE_HEIGHT / WM_SUBTILE_SIZE][x % WM_TILE_WIDTH / WM_SUBTILE_SIZE]);
+    *statePtr = subtile->state;
 
     return 0;
 }
@@ -4946,9 +5345,9 @@ int _wmSubTileGetVisitedState(int x, int y, int* a3)
 // Load tile art if needed.
 //
 // 0x4C37EC
-int _wmTileGrabArt(int tile_index)
+static int wmTileGrabArt(int tileIdx)
 {
-    TileInfo* tile = &(gWorldmapTiles[tile_index]);
+    TileInfo* tile = &(wmTileInfoList[tileIdx]);
     if (tile->data != NULL) {
         return 0;
     }
@@ -4958,20 +5357,20 @@ int _wmTileGrabArt(int tile_index)
         return 0;
     }
 
-    worldmapWindowFree();
+    wmInterfaceExit();
 
     return -1;
 }
 
 // 0x4C3830
-int worldmapWindowRefresh()
+static int wmInterfaceRefresh()
 {
-    if (_wmInterfaceWasInitialized != 1) {
+    if (wmInterfaceWasInitialized != 1) {
         return 0;
     }
 
-    int v17 = gWorldmapOffsetX % WM_TILE_WIDTH;
-    int v18 = gWorldmapOffsetY % WM_TILE_HEIGHT;
+    int v17 = wmWorldOffsetX % WM_TILE_WIDTH;
+    int v18 = wmWorldOffsetY % WM_TILE_HEIGHT;
     int v20 = WM_TILE_HEIGHT - v18;
     int v21 = WM_TILE_WIDTH * v18;
     int v19 = WM_TILE_WIDTH - v17;
@@ -4979,13 +5378,13 @@ int worldmapWindowRefresh()
     // Render tiles.
     int y = 0;
     int x = 0;
-    int v0 = gWorldmapOffsetY / WM_TILE_HEIGHT * gWorldmapGridWidth + gWorldmapOffsetX / WM_TILE_WIDTH % gWorldmapGridWidth;
+    int v0 = wmWorldOffsetY / WM_TILE_HEIGHT * wmNumHorizontalTiles + wmWorldOffsetX / WM_TILE_WIDTH % wmNumHorizontalTiles;
     while (y < WM_VIEW_HEIGHT) {
         x = 0;
         int v23 = 0;
         int height;
         while (x < WM_VIEW_WIDTH) {
-            if (_wmTileGrabArt(v0) == -1) {
+            if (wmTileGrabArt(v0) == -1) {
                 return -1;
             }
 
@@ -5011,12 +5410,12 @@ int worldmapWindowRefresh()
                 height = WM_VIEW_HEIGHT - y;
             }
 
-            TileInfo* tileInfo = &(gWorldmapTiles[v0]);
+            TileInfo* tileInfo = &(wmTileInfoList[v0]);
             blitBufferToBuffer(tileInfo->data + srcX,
                 width,
                 height,
                 WM_TILE_WIDTH,
-                gWorldmapWindowBuffer + WM_WINDOW_WIDTH * (y + WM_VIEW_Y) + WM_VIEW_X + x,
+                wmBkWinBuf + WM_WINDOW_WIDTH * (y + WM_VIEW_Y) + WM_VIEW_X + x,
                 WM_WINDOW_WIDTH);
             v0++;
 
@@ -5024,26 +5423,26 @@ int worldmapWindowRefresh()
             v23++;
         }
 
-        v0 += gWorldmapGridWidth - v23;
+        v0 += wmNumHorizontalTiles - v23;
         y += height;
     }
 
     // Render cities.
-    for (int index = 0; index < gCitiesLength; index++) {
-        CityInfo* cityInfo = &(gCities[index]);
+    for (int index = 0; index < wmMaxAreaNum; index++) {
+        CityInfo* cityInfo = &(wmAreaInfoList[index]);
         if (cityInfo->state != CITY_STATE_UNKNOWN) {
-            CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[cityInfo->size]);
-            int cityX = cityInfo->x - gWorldmapOffsetX;
-            int cityY = cityInfo->y - gWorldmapOffsetY;
+            CitySizeDescription* citySizeDescription = &(wmSphereData[cityInfo->size]);
+            int cityX = cityInfo->x - wmWorldOffsetX;
+            int cityY = cityInfo->y - wmWorldOffsetY;
             if (cityX >= 0 && cityX <= 472 - citySizeDescription->width
                 && cityY >= 0 && cityY <= 465 - citySizeDescription->height) {
-                wmInterfaceDrawCircleOverlay(cityInfo, citySizeDescription, gWorldmapWindowBuffer, cityX, cityY);
+                wmInterfaceDrawCircleOverlay(cityInfo, citySizeDescription, wmBkWinBuf, cityX, cityY);
             }
         }
     }
 
     // Hide unknown subtiles, dim unvisited.
-    int v25 = gWorldmapOffsetX / WM_TILE_WIDTH % gWorldmapGridWidth + gWorldmapOffsetY / WM_TILE_HEIGHT * gWorldmapGridWidth;
+    int v25 = wmWorldOffsetX / WM_TILE_WIDTH % wmNumHorizontalTiles + wmWorldOffsetY / WM_TILE_HEIGHT * wmNumHorizontalTiles;
     int v30 = 0;
     while (v30 < WM_VIEW_HEIGHT) {
         int v24 = 0;
@@ -5088,8 +5487,8 @@ int worldmapWindowRefresh()
 
                 int v15 = v33 + v35;
                 for (int column = 0; column < SUBTILE_GRID_WIDTH; column++) {
-                    TileInfo* tileInfo = &(gWorldmapTiles[v25]);
-                    worldmapWindowDimSubtile(tileInfo, column, row, v15, v34, 1);
+                    TileInfo* tileInfo = &(wmTileInfoList[v25]);
+                    wmInterfaceDrawSubTileList(tileInfo, column, row, v15, v34, 1);
 
                     v15 += WM_SUBTILE_SIZE;
                     v35 += WM_SUBTILE_SIZE;
@@ -5104,19 +5503,19 @@ int worldmapWindowRefresh()
             v33 += v31;
         }
 
-        v25 += gWorldmapGridWidth - v24;
+        v25 += wmNumHorizontalTiles - v24;
         v30 += v29;
     }
 
-    _wmDrawCursorStopped();
+    wmDrawCursorStopped();
 
-    worldmapWindowRenderChrome(true);
+    wmRefreshInterfaceOverlay(true);
 
     return 0;
 }
 
 // 0x4C3C9C
-void worldmapWindowRenderDate(bool shouldRefreshWindow)
+static void wmInterfaceRefreshDate(bool shouldRefreshWindow)
 {
     int month;
     int day;
@@ -5125,7 +5524,7 @@ void worldmapWindowRenderDate(bool shouldRefreshWindow)
 
     month--;
 
-    unsigned char* dest = gWorldmapWindowBuffer;
+    unsigned char* dest = wmBkWinBuf;
 
     int numbersFrmWidth = artGetWidth(wmGenData.numbersFrm, 0, 0);
     int numbersFrmHeight = artGetHeight(wmGenData.numbersFrm, 0, 0);
@@ -5160,22 +5559,22 @@ void worldmapWindowRenderDate(bool shouldRefreshWindow)
         rect.top = 12;
         rect.bottom = numbersFrmHeight + 12;
         rect.right = 630;
-        win_draw_rect(gWorldmapWindow, &rect);
+        win_draw_rect(wmBkWin, &rect);
     }
 }
 
 // 0x4C3F00
-int _wmMatchWorldPosToArea(int a1, int a2, int* a3)
+static int wmMatchWorldPosToArea(int x, int y, int* areaIdxPtr)
 {
-    int v3 = a2 + WM_VIEW_Y;
-    int v4 = a1 + WM_VIEW_X;
+    int v3 = y + WM_VIEW_Y;
+    int v4 = x + WM_VIEW_X;
 
     int index;
-    for (index = 0; index < gCitiesLength; index++) {
-        CityInfo* city = &(gCities[index]);
+    for (index = 0; index < wmMaxAreaNum; index++) {
+        CityInfo* city = &(wmAreaInfoList[index]);
         if (city->state) {
             if (v4 >= city->x && v3 >= city->y) {
-                CitySizeDescription* citySizeDescription = &(gCitySizeDescriptions[city->size]);
+                CitySizeDescription* citySizeDescription = &(wmSphereData[city->size]);
                 if (v4 <= city->x + citySizeDescription->width && v3 <= city->y + citySizeDescription->height) {
                     break;
                 }
@@ -5183,10 +5582,10 @@ int _wmMatchWorldPosToArea(int a1, int a2, int* a3)
         }
     }
 
-    if (index == gCitiesLength) {
-        *a3 = -1;
+    if (index == wmMaxAreaNum) {
+        *areaIdxPtr = -1;
     } else {
-        *a3 = index;
+        *areaIdxPtr = index;
     }
 
     return 0;
@@ -5198,7 +5597,7 @@ int _wmMatchWorldPosToArea(int a1, int a2, int* a3)
 // can be any, but in this case it uses default text font, not interface font.
 //
 // 0x4C3FA8
-int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDescription, unsigned char* dest, int x, int y)
+static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDescription, unsigned char* dest, int x, int y)
 {
     MessageListItem messageListItem;
     char name[40];
@@ -5215,17 +5614,17 @@ int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDe
         y,
         WM_WINDOW_WIDTH,
         0x10000,
-        _circleBlendTable,
+        circleBlendTable,
         _commonGrayTable);
 
     nameY = y + citySizeDescription->height + 1;
     maxY = 464 - fontGetLineHeight();
     if (nameY < maxY) {
-        if (_wmAreaIsKnown(city->areaId)) {
+        if (wmAreaIsKnown(city->areaId)) {
             // NOTE: Uninline.
             wmGetAreaName(city, name);
         } else {
-            strncpy(name, getmsg(&gWorldmapMessageList, &messageListItem, 1004), 40);
+            strncpy(name, getmsg(&wmMsgFile, &messageListItem, 1004), 40);
         }
 
         width = fontGetStringWidth(name);
@@ -5243,7 +5642,7 @@ int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* citySizeDe
 // slightly darken subtile which is known, but not visited.
 //
 // 0x4C40A8
-void worldmapWindowDimRect(unsigned char* dest, int width, int height, int pitch)
+static void wmInterfaceDrawSubTileRectFogged(unsigned char* dest, int width, int height, int pitch)
 {
     int skipY = pitch - width;
 
@@ -5258,7 +5657,7 @@ void worldmapWindowDimRect(unsigned char* dest, int width, int height, int pitch
 }
 
 // 0x4C40E4
-int worldmapWindowDimSubtile(TileInfo* tileInfo, int column, int row, int x, int y, int a6)
+static int wmInterfaceDrawSubTileList(TileInfo* tileInfo, int column, int row, int x, int y, int a6)
 {
     SubtileInfo* subtileInfo = &(tileInfo->subtiles[row][column]);
 
@@ -5290,13 +5689,13 @@ int worldmapWindowDimSubtile(TileInfo* tileInfo, int column, int row, int x, int
     }
 
     if (width > 0 && height > 0) {
-        unsigned char* dest = gWorldmapWindowBuffer + WM_WINDOW_WIDTH * destY + destX;
+        unsigned char* dest = wmBkWinBuf + WM_WINDOW_WIDTH * destY + destX;
         switch (subtileInfo->state) {
         case SUBTILE_STATE_UNKNOWN:
             bufferFill(dest, width, height, WM_WINDOW_WIDTH, _colorTable[0]);
             break;
         case SUBTILE_STATE_KNOWN:
-            worldmapWindowDimRect(dest, width, height, WM_WINDOW_WIDTH);
+            wmInterfaceDrawSubTileRectFogged(dest, width, height, WM_WINDOW_WIDTH);
             break;
         }
     }
@@ -5305,7 +5704,7 @@ int worldmapWindowDimSubtile(TileInfo* tileInfo, int column, int row, int x, int
 }
 
 // 0x4C41EC
-int _wmDrawCursorStopped()
+static int wmDrawCursorStopped()
 {
     unsigned char* src;
     int width;
@@ -5323,14 +5722,14 @@ int _wmDrawCursorStopped()
             height = wmGenData.locationMarkerFrmHeight;
         }
 
-        if (wmGenData.worldPosX >= gWorldmapOffsetX && wmGenData.worldPosX < gWorldmapOffsetX + WM_VIEW_WIDTH
-            && wmGenData.worldPosY >= gWorldmapOffsetY && wmGenData.worldPosY < gWorldmapOffsetY + WM_VIEW_HEIGHT) {
-            blitBufferToBufferTrans(src, width, height, width, gWorldmapWindowBuffer + WM_WINDOW_WIDTH * (WM_VIEW_Y - gWorldmapOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - gWorldmapOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
+        if (wmGenData.worldPosX >= wmWorldOffsetX && wmGenData.worldPosX < wmWorldOffsetX + WM_VIEW_WIDTH
+            && wmGenData.worldPosY >= wmWorldOffsetY && wmGenData.worldPosY < wmWorldOffsetY + WM_VIEW_HEIGHT) {
+            blitBufferToBufferTrans(src, width, height, width, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
         }
 
-        if (wmGenData.walkDestinationX >= gWorldmapOffsetX && wmGenData.walkDestinationX < gWorldmapOffsetX + WM_VIEW_WIDTH
-            && wmGenData.walkDestinationY >= gWorldmapOffsetY && wmGenData.walkDestinationY < gWorldmapOffsetY + WM_VIEW_HEIGHT) {
-            blitBufferToBufferTrans(wmGenData.destinationMarkerFrmData, wmGenData.destinationMarkerFrmWidth, wmGenData.destinationMarkerFrmHeight, wmGenData.destinationMarkerFrmWidth, gWorldmapWindowBuffer + WM_WINDOW_WIDTH * (WM_VIEW_Y - gWorldmapOffsetY + wmGenData.walkDestinationY - wmGenData.destinationMarkerFrmHeight / 2) + WM_VIEW_X - gWorldmapOffsetX + wmGenData.walkDestinationX - wmGenData.destinationMarkerFrmWidth / 2, WM_WINDOW_WIDTH);
+        if (wmGenData.walkDestinationX >= wmWorldOffsetX && wmGenData.walkDestinationX < wmWorldOffsetX + WM_VIEW_WIDTH
+            && wmGenData.walkDestinationY >= wmWorldOffsetY && wmGenData.walkDestinationY < wmWorldOffsetY + WM_VIEW_HEIGHT) {
+            blitBufferToBufferTrans(wmGenData.destinationMarkerFrmData, wmGenData.destinationMarkerFrmWidth, wmGenData.destinationMarkerFrmHeight, wmGenData.destinationMarkerFrmWidth, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.walkDestinationY - wmGenData.destinationMarkerFrmHeight / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.walkDestinationX - wmGenData.destinationMarkerFrmWidth / 2, WM_WINDOW_WIDTH);
         }
     } else {
         if (wmGenData.encounterIconIsVisible == 1) {
@@ -5343,9 +5742,9 @@ int _wmDrawCursorStopped()
             height = wmGenData.hotspotFrmHeight;
         }
 
-        if (wmGenData.worldPosX >= gWorldmapOffsetX && wmGenData.worldPosX < gWorldmapOffsetX + WM_VIEW_WIDTH
-            && wmGenData.worldPosY >= gWorldmapOffsetY && wmGenData.worldPosY < gWorldmapOffsetY + WM_VIEW_HEIGHT) {
-            blitBufferToBufferTrans(src, width, height, width, gWorldmapWindowBuffer + WM_WINDOW_WIDTH * (WM_VIEW_Y - gWorldmapOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - gWorldmapOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
+        if (wmGenData.worldPosX >= wmWorldOffsetX && wmGenData.worldPosX < wmWorldOffsetX + WM_VIEW_WIDTH
+            && wmGenData.worldPosY >= wmWorldOffsetY && wmGenData.worldPosY < wmWorldOffsetY + WM_VIEW_HEIGHT) {
+            blitBufferToBufferTrans(src, width, height, width, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
         }
     }
 
@@ -5353,18 +5752,18 @@ int _wmDrawCursorStopped()
 }
 
 // 0x4C4490
-bool _wmCursorIsVisible()
+static bool wmCursorIsVisible()
 {
-    return wmGenData.worldPosX >= gWorldmapOffsetX
-        && wmGenData.worldPosY >= gWorldmapOffsetY
-        && wmGenData.worldPosX < gWorldmapOffsetX + WM_VIEW_WIDTH
-        && wmGenData.worldPosY < gWorldmapOffsetY + WM_VIEW_HEIGHT;
+    return wmGenData.worldPosX >= wmWorldOffsetX
+        && wmGenData.worldPosY >= wmWorldOffsetY
+        && wmGenData.worldPosX < wmWorldOffsetX + WM_VIEW_WIDTH
+        && wmGenData.worldPosY < wmWorldOffsetY + WM_VIEW_HEIGHT;
 }
 
 // NOTE: Inlined.
 //
 // 0x4C44D8
-int wmGetAreaName(CityInfo* city, char* name)
+static int wmGetAreaName(CityInfo* city, char* name)
 {
     MessageListItem messageListItem;
 
@@ -5377,11 +5776,11 @@ int wmGetAreaName(CityInfo* city, char* name)
 // Copy city short name.
 //
 // 0x4C450C
-int _wmGetAreaIdxName(int index, char* name)
+int wmGetAreaIdxName(int areaIdx, char* name)
 {
     MessageListItem messageListItem;
 
-    getmsg(&gMapMessageList, &messageListItem, 1500 + index);
+    getmsg(&gMapMessageList, &messageListItem, 1500 + areaIdx);
     strncpy(name, messageListItem.text, 40);
 
     return 0;
@@ -5390,13 +5789,13 @@ int _wmGetAreaIdxName(int index, char* name)
 // Returns true if world area is known.
 //
 // 0x4C453C
-bool _wmAreaIsKnown(int cityIndex)
+bool wmAreaIsKnown(int cityIdx)
 {
-    if (!cityIsValid(cityIndex)) {
+    if (!cityIsValid(cityIdx)) {
         return false;
     }
 
-    CityInfo* city = &(gCities[cityIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
     if (city->visitedState) {
         if (city->state == CITY_STATE_KNOWN) {
             return true;
@@ -5407,13 +5806,13 @@ bool _wmAreaIsKnown(int cityIndex)
 }
 
 // 0x4C457C
-int _wmAreaVisitedState(int area)
+int wmAreaVisitedState(int areaIdx)
 {
-    if (!cityIsValid(area)) {
+    if (!cityIsValid(areaIdx)) {
         return 0;
     }
 
-    CityInfo* city = &(gCities[area]);
+    CityInfo* city = &(wmAreaInfoList[areaIdx]);
     if (city->visitedState && city->state == CITY_STATE_KNOWN) {
         return city->visitedState;
     }
@@ -5422,20 +5821,20 @@ int _wmAreaVisitedState(int area)
 }
 
 // 0x4C45BC
-bool _wmMapIsKnown(int mapIndex)
+bool wmMapIsKnown(int mapIdx)
 {
-    int cityIndex;
-    if (_wmMatchAreaFromMap(mapIndex, &cityIndex) != 0) {
+    int cityIdx;
+    if (wmMatchAreaFromMap(mapIdx, &cityIdx) != 0) {
         return false;
     }
 
-    int entranceIndex;
-    if (_wmMatchEntranceFromMap(cityIndex, mapIndex, &entranceIndex) != 0) {
+    int entranceIdx;
+    if (wmMatchEntranceFromMap(cityIdx, mapIdx, &entranceIdx) != 0) {
         return false;
     }
 
-    CityInfo* city = &(gCities[cityIndex]);
-    EntranceInfo* entrance = &(city->entrances[entranceIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
+    EntranceInfo* entrance = &(city->entrances[entranceIdx]);
 
     if (entrance->state != 1) {
         return false;
@@ -5445,34 +5844,34 @@ bool _wmMapIsKnown(int mapIndex)
 }
 
 // 0x4C4624
-int wmAreaMarkVisited(int cityIndex)
+int wmAreaMarkVisited(int cityIdx)
 {
-    return _wmAreaMarkVisitedState(cityIndex, CITY_STATE_VISITED);
+    return wmAreaMarkVisitedState(cityIdx, CITY_STATE_VISITED);
 }
 
 // 0x4C4634
-bool _wmAreaMarkVisitedState(int cityIndex, int a2)
+bool wmAreaMarkVisitedState(int cityIdx, int state)
 {
-    if (!cityIsValid(cityIndex)) {
+    if (!cityIsValid(cityIdx)) {
         return false;
     }
 
-    CityInfo* city = &(gCities[cityIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
     int v5 = city->visitedState;
-    if (city->state == CITY_STATE_KNOWN && a2 != 0) {
-        _wmMarkSubTileRadiusVisited(city->x, city->y);
+    if (city->state == CITY_STATE_KNOWN && state != 0) {
+        wmMarkSubTileRadiusVisited(city->x, city->y);
     }
 
-    city->visitedState = a2;
+    city->visitedState = state;
 
     SubtileInfo* subtile;
-    if (_wmFindCurSubTileFromPos(city->x, city->y, &subtile) == -1) {
+    if (wmFindCurSubTileFromPos(city->x, city->y, &subtile) == -1) {
         return false;
     }
 
-    if (a2 == 1) {
+    if (state == 1) {
         subtile->state = SUBTILE_STATE_KNOWN;
-    } else if (a2 == 2 && v5 == 0) {
+    } else if (state == 2 && v5 == 0) {
         city->visitedState = 1;
     }
 
@@ -5480,14 +5879,14 @@ bool _wmAreaMarkVisitedState(int cityIndex, int a2)
 }
 
 // 0x4C46CC
-bool _wmAreaSetVisibleState(int cityIndex, int state, int forceSet)
+bool wmAreaSetVisibleState(int cityIdx, int state, bool force)
 {
-    if (!cityIsValid(cityIndex)) {
+    if (!cityIsValid(cityIdx)) {
         return false;
     }
 
-    CityInfo* city = &(gCities[cityIndex]);
-    if (city->lockState != LOCK_STATE_LOCKED || forceSet) {
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
+    if (city->lockState != LOCK_STATE_LOCKED || force) {
         city->state = state;
         return true;
     }
@@ -5495,23 +5894,22 @@ bool _wmAreaSetVisibleState(int cityIndex, int state, int forceSet)
     return false;
 }
 
-// wm_area_set_pos
 // 0x4C4710
-int worldmapCitySetPos(int cityIndex, int x, int y)
+int wmAreaSetWorldPos(int cityIdx, int x, int y)
 {
-    if (!cityIsValid(cityIndex)) {
+    if (!cityIsValid(cityIdx)) {
         return -1;
     }
 
-    if (x < 0 || x >= WM_TILE_WIDTH * gWorldmapGridWidth) {
+    if (x < 0 || x >= WM_TILE_WIDTH * wmNumHorizontalTiles) {
         return -1;
     }
 
-    if (y < 0 || y >= WM_TILE_HEIGHT * (gWorldmapTilesLength / gWorldmapGridWidth)) {
+    if (y < 0 || y >= WM_TILE_HEIGHT * (wmMaxTileNum / wmNumHorizontalTiles)) {
         return -1;
     }
 
-    CityInfo* city = &(gCities[cityIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
     city->x = x;
     city->y = y;
 
@@ -5521,14 +5919,14 @@ int worldmapCitySetPos(int cityIndex, int x, int y)
 // Returns current town x/y.
 //
 // 0x4C47A4
-int _wmGetPartyWorldPos(int* out_x, int* out_y)
+int wmGetPartyWorldPos(int* xPtr, int* yPtr)
 {
-    if (out_x != NULL) {
-        *out_x = wmGenData.worldPosX;
+    if (xPtr != NULL) {
+        *xPtr = wmGenData.worldPosX;
     }
 
-    if (out_y != NULL) {
-        *out_y = wmGenData.worldPosY;
+    if (yPtr != NULL) {
+        *yPtr = wmGenData.worldPosY;
     }
 
     return 0;
@@ -5537,10 +5935,10 @@ int _wmGetPartyWorldPos(int* out_x, int* out_y)
 // Returns current town.
 //
 // 0x4C47C0
-int _wmGetPartyCurArea(int* a1)
+int wmGetPartyCurArea(int* areaIdxPtr)
 {
-    if (a1) {
-        *a1 = wmGenData.currentAreaId;
+    if (areaIdxPtr != NULL) {
+        *areaIdxPtr = wmGenData.currentAreaId;
         return 0;
     }
 
@@ -5548,32 +5946,32 @@ int _wmGetPartyCurArea(int* a1)
 }
 
 // 0x4C47D8
-void _wmMarkAllSubTiles(int a1)
+static void wmMarkAllSubTiles(int state)
 {
-    for (int tileIndex = 0; tileIndex < gWorldmapTilesLength; tileIndex++) {
-        TileInfo* tile = &(gWorldmapTiles[tileIndex]);
+    for (int tileIndex = 0; tileIndex < wmMaxTileNum; tileIndex++) {
+        TileInfo* tile = &(wmTileInfoList[tileIndex]);
         for (int column = 0; column < SUBTILE_GRID_HEIGHT; column++) {
             for (int row = 0; row < SUBTILE_GRID_WIDTH; row++) {
                 SubtileInfo* subtile = &(tile->subtiles[column][row]);
-                subtile->state = a1;
+                subtile->state = state;
             }
         }
     }
 }
 
 // 0x4C4850
-void _wmTownMap()
+void wmTownMap()
 {
-    _wmWorldMapFunc(1);
+    wmWorldMapFunc(1);
 }
 
 // 0x4C485C
-int worldmapCityMapViewSelect(int* mapIndexPtr)
+static int wmTownMapFunc(int* mapIdxPtr)
 {
-    *mapIndexPtr = -1;
+    *mapIdxPtr = -1;
 
-    if (worldmapCityMapViewInit() == -1) {
-        worldmapCityMapViewFree();
+    if (wmTownMapInit() == -1) {
+        wmTownMapExit();
         return -1;
     }
 
@@ -5581,7 +5979,7 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
         return -1;
     }
 
-    CityInfo* city = &(gCities[wmGenData.currentAreaId]);
+    CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
 
     for (;;) {
         int keyCode = _get_input();
@@ -5601,7 +5999,7 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
             if (keyCode >= KEY_1 && keyCode < KEY_1 + city->entrancesLength) {
                 EntranceInfo* entrance = &(city->entrances[keyCode - KEY_1]);
 
-                *mapIndexPtr = entrance->map;
+                *mapIdxPtr = entrance->map;
 
                 mapSetEnteringLocation(entrance->elevation, entrance->tile, entrance->rotation);
 
@@ -5610,15 +6008,15 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
 
             if (keyCode >= KEY_CTRL_F1 && keyCode <= KEY_CTRL_F7) {
                 int quickDestinationIndex = wmGenData.tabsOffsetY / 27 + keyCode - KEY_CTRL_F1;
-                if (quickDestinationIndex < gQuickDestinationsLength) {
-                    int cityIndex = gQuickDestinations[quickDestinationIndex];
-                    CityInfo* city = &(gCities[cityIndex]);
-                    if (!_wmAreaIsKnown(city->areaId)) {
+                if (quickDestinationIndex < wmLabelCount) {
+                    int cityIdx = wmLabelList[quickDestinationIndex];
+                    CityInfo* city = &(wmAreaInfoList[cityIdx]);
+                    if (!wmAreaIsKnown(city->areaId)) {
                         break;
                     }
 
-                    if (cityIndex != wmGenData.currentAreaId) {
-                        _wmPartyInitWalking(city->x, city->y);
+                    if (cityIdx != wmGenData.currentAreaId) {
+                        wmPartyInitWalking(city->x, city->y);
 
                         wmGenData.mousePressed = false;
 
@@ -5627,11 +6025,11 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
                 }
             } else {
                 if (keyCode == KEY_CTRL_ARROW_UP) {
-                    _wmInterfaceScrollTabsStart(-27);
+                    wmInterfaceScrollTabsStart(-27);
                 } else if (keyCode == KEY_CTRL_ARROW_DOWN) {
-                    _wmInterfaceScrollTabsStart(27);
+                    wmInterfaceScrollTabsStart(27);
                 } else if (keyCode == 2069) {
-                    if (worldmapCityMapViewRefresh() == -1) {
+                    if (wmTownMapRefresh() == -1) {
                         return -1;
                     }
                 }
@@ -5647,7 +6045,7 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
         }
     }
 
-    if (worldmapCityMapViewFree() == -1) {
+    if (wmTownMapExit() == -1) {
         return -1;
     }
 
@@ -5655,30 +6053,30 @@ int worldmapCityMapViewSelect(int* mapIndexPtr)
 }
 
 // 0x4C4A6C
-int worldmapCityMapViewInit()
+static int wmTownMapInit()
 {
-    _wmTownMapCurArea = wmGenData.currentAreaId;
+    wmTownMapCurArea = wmGenData.currentAreaId;
 
-    CityInfo* city = &(gCities[wmGenData.currentAreaId]);
+    CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
 
-    Art* mapFrm = artLock(city->mapFid, &gWorldmapCityMapFrmHandle);
+    Art* mapFrm = artLock(city->mapFid, &wmTownKey);
     if (mapFrm == NULL) {
         return -1;
     }
 
-    gWorldmapCityMapFrmWidth = artGetWidth(mapFrm, 0, 0);
-    gWorldmapCityMapFrmHeight = artGetHeight(mapFrm, 0, 0);
+    wmTownWidth = artGetWidth(mapFrm, 0, 0);
+    wmTownHeight = artGetHeight(mapFrm, 0, 0);
 
-    artUnlock(gWorldmapCityMapFrmHandle);
-    gWorldmapCityMapFrmHandle = INVALID_CACHE_ENTRY;
+    artUnlock(wmTownKey);
+    wmTownKey = INVALID_CACHE_ENTRY;
 
-    gWorldmapCityMapFrmData = artLockFrameData(city->mapFid, 0, 0, &gWorldmapCityMapFrmHandle);
-    if (gWorldmapCityMapFrmData == NULL) {
+    wmTownBuffer = artLockFrameData(city->mapFid, 0, 0, &wmTownKey);
+    if (wmTownBuffer == NULL) {
         return -1;
     }
 
     for (int index = 0; index < city->entrancesLength; index++) {
-        _wmTownMapButtonId[index] = -1;
+        wmTownMapButtonId[index] = -1;
     }
 
     for (int index = 0; index < city->entrancesLength; index++) {
@@ -5691,7 +6089,7 @@ int worldmapCityMapViewInit()
             continue;
         }
 
-        _wmTownMapButtonId[index] = buttonCreate(gWorldmapWindow,
+        wmTownMapButtonId[index] = buttonCreate(wmBkWin,
             entrance->x,
             entrance->y,
             wmGenData.hotspotFrmWidth,
@@ -5705,14 +6103,14 @@ int worldmapCityMapViewInit()
             NULL,
             BUTTON_FLAG_TRANSPARENT);
 
-        if (_wmTownMapButtonId[index] == -1) {
+        if (wmTownMapButtonId[index] == -1) {
             return -1;
         }
     }
 
-    tickersRemove(worldmapWindowHandleMouseScrolling);
+    tickersRemove(wmMouseBkProc);
 
-    if (worldmapCityMapViewRefresh() == -1) {
+    if (wmTownMapRefresh() == -1) {
         return -1;
     }
 
@@ -5720,18 +6118,18 @@ int worldmapCityMapViewInit()
 }
 
 // 0x4C4BD0
-int worldmapCityMapViewRefresh()
+static int wmTownMapRefresh()
 {
-    blitBufferToBuffer(gWorldmapCityMapFrmData,
-        gWorldmapCityMapFrmWidth,
-        gWorldmapCityMapFrmHeight,
-        gWorldmapCityMapFrmWidth,
-        gWorldmapWindowBuffer + WM_WINDOW_WIDTH * WM_VIEW_Y + WM_VIEW_X,
+    blitBufferToBuffer(wmTownBuffer,
+        wmTownWidth,
+        wmTownHeight,
+        wmTownWidth,
+        wmBkWinBuf + WM_WINDOW_WIDTH * WM_VIEW_Y + WM_VIEW_X,
         WM_WINDOW_WIDTH);
 
-    worldmapWindowRenderChrome(false);
+    wmRefreshInterfaceOverlay(false);
 
-    CityInfo* city = &(gCities[wmGenData.currentAreaId]);
+    CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
 
     for (int index = 0; index < city->entrancesLength; index++) {
         EntranceInfo* entrance = &(city->entrances[index]);
@@ -5744,52 +6142,52 @@ int worldmapCityMapViewRefresh()
         }
 
         MessageListItem messageListItem;
-        messageListItem.num = 200 + 10 * _wmTownMapCurArea + index;
-        if (messageListGetItem(&gWorldmapMessageList, &messageListItem)) {
+        messageListItem.num = 200 + 10 * wmTownMapCurArea + index;
+        if (messageListGetItem(&wmMsgFile, &messageListItem)) {
             if (messageListItem.text != NULL) {
                 int width = fontGetStringWidth(messageListItem.text);
-                windowDrawText(gWorldmapWindow, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, _colorTable[992] | 0x2010000);
+                windowDrawText(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, _colorTable[992] | 0x2010000);
             }
         }
     }
 
-    win_draw(gWorldmapWindow);
+    win_draw(wmBkWin);
 
     return 0;
 }
 
 // 0x4C4D00
-int worldmapCityMapViewFree()
+static int wmTownMapExit()
 {
-    if (gWorldmapCityMapFrmHandle != INVALID_CACHE_ENTRY) {
-        artUnlock(gWorldmapCityMapFrmHandle);
-        gWorldmapCityMapFrmHandle = INVALID_CACHE_ENTRY;
-        gWorldmapCityMapFrmData = NULL;
-        gWorldmapCityMapFrmWidth = 0;
-        gWorldmapCityMapFrmHeight = 0;
+    if (wmTownKey != INVALID_CACHE_ENTRY) {
+        artUnlock(wmTownKey);
+        wmTownKey = INVALID_CACHE_ENTRY;
+        wmTownBuffer = NULL;
+        wmTownWidth = 0;
+        wmTownHeight = 0;
     }
 
-    if (_wmTownMapCurArea != -1) {
-        CityInfo* city = &(gCities[_wmTownMapCurArea]);
+    if (wmTownMapCurArea != -1) {
+        CityInfo* city = &(wmAreaInfoList[wmTownMapCurArea]);
         for (int index = 0; index < city->entrancesLength; index++) {
-            if (_wmTownMapButtonId[index] != -1) {
-                buttonDestroy(_wmTownMapButtonId[index]);
-                _wmTownMapButtonId[index] = -1;
+            if (wmTownMapButtonId[index] != -1) {
+                buttonDestroy(wmTownMapButtonId[index]);
+                wmTownMapButtonId[index] = -1;
             }
         }
     }
 
-    if (worldmapWindowRefresh() == -1) {
+    if (wmInterfaceRefresh() == -1) {
         return -1;
     }
 
-    tickersAdd(worldmapWindowHandleMouseScrolling);
+    tickersAdd(wmMouseBkProc);
 
     return 0;
 }
 
 // 0x4C4DA4
-int carConsumeFuel(int amount)
+int wmCarUseGas(int amount)
 {
     if (gameGetGlobalVar(GVAR_NEW_RENO_SUPER_CAR) != 0) {
         amount -= amount * 90 / 100;
@@ -5815,7 +6213,7 @@ int carConsumeFuel(int amount)
 // Returns amount of fuel that does not fit into tank.
 //
 // 0x4C4E34
-int carAddFuel(int amount)
+int wmCarFillGas(int amount)
 {
     if ((amount + wmGenData.carFuel) <= CAR_FUEL_MAX) {
         wmGenData.carFuel += amount;
@@ -5830,25 +6228,25 @@ int carAddFuel(int amount)
 }
 
 // 0x4C4E74
-int carGetFuel()
+int wmCarGasAmount()
 {
     return wmGenData.carFuel;
 }
 
 // 0x4C4E7C
-bool carIsEmpty()
+bool wmCarIsOutOfGas()
 {
     return wmGenData.carFuel <= 0;
 }
 
 // 0x4C4E8C
-int carGetCity()
+int wmCarCurrentArea()
 {
     return wmGenData.currentCarAreaId;
 }
 
 // 0x4C4E94
-int _wmCarGiveToParty()
+int wmCarGiveToParty()
 {
     MessageListItem messageListItem;
     static_assert(sizeof(messageListItem) == sizeof(gWorldmapMessageListItem), "wrong size");
@@ -5856,7 +6254,7 @@ int _wmCarGiveToParty()
 
     if (wmGenData.carFuel <= 0) {
         // The car is out of power.
-        char* msg = getmsg(&gWorldmapMessageList, &messageListItem, 1502);
+        char* msg = getmsg(&wmMsgFile, &messageListItem, 1502);
         displayMonitorAddMessage(msg);
         return -1;
     }
@@ -5869,7 +6267,7 @@ int _wmCarGiveToParty()
     transition.map = -2;
     mapSetTransition(&transition);
 
-    CityInfo* city = &(gCities[CITY_CAR_OUT_OF_GAS]);
+    CityInfo* city = &(wmAreaInfoList[CITY_CAR_OUT_OF_GAS]);
     city->state = CITY_STATE_UNKNOWN;
     city->visitedState = 0;
 
@@ -5877,26 +6275,26 @@ int _wmCarGiveToParty()
 }
 
 // 0x4C4F28
-int ambientSoundEffectGetLength()
+int wmSfxMaxCount()
 {
-    int mapIndex = mapGetCurrentMap();
-    if (mapIndex < 0 || mapIndex >= gMapsLength) {
+    int mapIdx = mapGetCurrentMap();
+    if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
 
-    MapInfo* map = &(gMaps[mapIndex]);
+    MapInfo* map = &(wmMapInfoList[mapIdx]);
     return map->ambientSoundEffectsLength;
 }
 
 // 0x4C4F5C
-int ambientSoundEffectGetRandom()
+int wmSfxRollNextIdx()
 {
-    int mapIndex = mapGetCurrentMap();
-    if (mapIndex < 0 || mapIndex >= gMapsLength) {
+    int mapIdx = mapGetCurrentMap();
+    if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
 
-    MapInfo* map = &(gMaps[mapIndex]);
+    MapInfo* map = &(wmMapInfoList[mapIdx]);
 
     int totalChances = 0;
     for (int index = 0; index < map->ambientSoundEffectsLength; index++) {
@@ -5919,7 +6317,7 @@ int ambientSoundEffectGetRandom()
 }
 
 // 0x4C5004
-int ambientSoundEffectGetName(int ambientSoundEffectIndex, char** namePtr)
+int wmSfxIdxName(int sfxIdx, char** namePtr)
 {
     if (namePtr == NULL) {
         return -1;
@@ -5927,17 +6325,17 @@ int ambientSoundEffectGetName(int ambientSoundEffectIndex, char** namePtr)
 
     *namePtr = NULL;
 
-    int mapIndex = mapGetCurrentMap();
-    if (mapIndex < 0 || mapIndex >= gMapsLength) {
+    int mapIdx = mapGetCurrentMap();
+    if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
 
-    MapInfo* map = &(gMaps[mapIndex]);
-    if (ambientSoundEffectIndex < 0 || ambientSoundEffectIndex >= map->ambientSoundEffectsLength) {
+    MapInfo* map = &(wmMapInfoList[mapIdx]);
+    if (sfxIdx < 0 || sfxIdx >= map->ambientSoundEffectsLength) {
         return -1;
     }
 
-    MapAmbientSoundEffectInfo* ambientSoundEffectInfo = &(map->ambientSoundEffects[ambientSoundEffectIndex]);
+    MapAmbientSoundEffectInfo* ambientSoundEffectInfo = &(map->ambientSoundEffects[sfxIdx]);
     *namePtr = ambientSoundEffectInfo->name;
 
     int v1 = 0;
@@ -5960,7 +6358,7 @@ int ambientSoundEffectGetName(int ambientSoundEffectIndex, char** namePtr)
         }
 
         if (dayPart == DAY_PART_NIGHT) {
-            *namePtr = _wmRemapSfxList[v1 - 1];
+            *namePtr = wmRemapSfxList[v1 - 1];
         }
     }
 
@@ -5968,21 +6366,21 @@ int ambientSoundEffectGetName(int ambientSoundEffectIndex, char** namePtr)
 }
 
 // 0x4C50F4
-int worldmapWindowRenderChrome(bool shouldRefreshWindow)
+static int wmRefreshInterfaceOverlay(bool shouldRefreshWindow)
 {
-    blitBufferToBufferTrans(gWorldmapBoxFrmData,
-        gWorldmapBoxFrmWidth,
-        gWorldmapBoxFrmHeight,
-        gWorldmapBoxFrmWidth,
-        gWorldmapWindowBuffer,
+    blitBufferToBufferTrans(wmBkArtBuf,
+        wmBkWidth,
+        wmBkHeight,
+        wmBkWidth,
+        wmBkWinBuf,
         WM_WINDOW_WIDTH);
 
-    worldmapRenderQuickDestinations();
+    wmRefreshTabs();
 
     // NOTE: Uninline.
     wmInterfaceDialSyncTime(false);
 
-    worldmapWindowRenderDial(false);
+    wmRefreshInterfaceDial(false);
 
     if (wmGenData.isInCar) {
         unsigned char* data = artGetFrameData(wmGenData.carImageFrm, wmGenData.carImageCurrentFrameIndex, 0);
@@ -5994,44 +6392,44 @@ int worldmapWindowRenderChrome(bool shouldRefreshWindow)
             wmGenData.carImageFrmWidth,
             wmGenData.carImageFrmHeight,
             wmGenData.carImageFrmWidth,
-            gWorldmapWindowBuffer + WM_WINDOW_WIDTH * WM_WINDOW_CAR_Y + WM_WINDOW_CAR_X,
+            wmBkWinBuf + WM_WINDOW_WIDTH * WM_WINDOW_CAR_Y + WM_WINDOW_CAR_X,
             WM_WINDOW_WIDTH);
 
         blitBufferToBufferTrans(wmGenData.carImageOverlayFrmData,
             wmGenData.carImageOverlayFrmWidth,
             wmGenData.carImageOverlayFrmHeight,
             wmGenData.carImageOverlayFrmWidth,
-            gWorldmapWindowBuffer + WM_WINDOW_WIDTH * WM_WINDOW_CAR_OVERLAY_Y + WM_WINDOW_CAR_OVERLAY_X,
+            wmBkWinBuf + WM_WINDOW_WIDTH * WM_WINDOW_CAR_OVERLAY_Y + WM_WINDOW_CAR_OVERLAY_X,
             WM_WINDOW_WIDTH);
 
-        worldmapWindowRenderCarFuelBar();
+        wmInterfaceRefreshCarFuel();
     } else {
         blitBufferToBufferTrans(wmGenData.globeOverlayFrmData,
             wmGenData.globeOverlayFrmWidth,
             wmGenData.globeOverlayFrmHeight,
             wmGenData.globeOverlayFrmWidth,
-            gWorldmapWindowBuffer + WM_WINDOW_WIDTH * WM_WINDOW_GLOBE_OVERLAY_Y + WM_WINDOW_GLOBE_OVERLAY_X,
+            wmBkWinBuf + WM_WINDOW_WIDTH * WM_WINDOW_GLOBE_OVERLAY_Y + WM_WINDOW_GLOBE_OVERLAY_X,
             WM_WINDOW_WIDTH);
     }
 
-    worldmapWindowRenderDate(false);
+    wmInterfaceRefreshDate(false);
 
     if (shouldRefreshWindow) {
-        win_draw(gWorldmapWindow);
+        win_draw(wmBkWin);
     }
 
     return 0;
 }
 
 // 0x4C5244
-void worldmapWindowRenderCarFuelBar()
+static void wmInterfaceRefreshCarFuel()
 {
     int ratio = (WM_WINDOW_CAR_FUEL_BAR_HEIGHT * wmGenData.carFuel) / CAR_FUEL_MAX;
     if ((ratio & 1) != 0) {
         ratio -= 1;
     }
 
-    unsigned char* dest = gWorldmapWindowBuffer + WM_WINDOW_WIDTH * WM_WINDOW_CAR_FUEL_BAR_Y + WM_WINDOW_CAR_FUEL_BAR_X;
+    unsigned char* dest = wmBkWinBuf + WM_WINDOW_WIDTH * WM_WINDOW_CAR_FUEL_BAR_Y + WM_WINDOW_CAR_FUEL_BAR_X;
 
     for (int index = WM_WINDOW_CAR_FUEL_BAR_HEIGHT; index > ratio; index--) {
         *dest = 14;
@@ -6050,7 +6448,7 @@ void worldmapWindowRenderCarFuelBar()
 }
 
 // 0x4C52B0
-int worldmapRenderQuickDestinations()
+static int wmRefreshTabs()
 {
     unsigned char* v30;
     unsigned char* v0;
@@ -6067,14 +6465,14 @@ int worldmapRenderQuickDestinations()
     int v32;
     unsigned char* v13;
 
-    blitBufferToBufferTrans(wmGenData.tabsBackgroundFrmData + wmGenData.tabsBackgroundFrmWidth * wmGenData.tabsOffsetY + 9, 119, 178, wmGenData.tabsBackgroundFrmWidth, gWorldmapWindowBuffer + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
+    blitBufferToBufferTrans(wmGenData.tabsBackgroundFrmData + wmGenData.tabsBackgroundFrmWidth * wmGenData.tabsOffsetY + 9, 119, 178, wmGenData.tabsBackgroundFrmWidth, wmBkWinBuf + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
 
-    v30 = gWorldmapWindowBuffer + WM_WINDOW_WIDTH * 138 + 530;
-    v0 = gWorldmapWindowBuffer + WM_WINDOW_WIDTH * 138 + 530 - WM_WINDOW_WIDTH * (wmGenData.tabsOffsetY % 27);
+    v30 = wmBkWinBuf + WM_WINDOW_WIDTH * 138 + 530;
+    v0 = wmBkWinBuf + WM_WINDOW_WIDTH * 138 + 530 - WM_WINDOW_WIDTH * (wmGenData.tabsOffsetY % 27);
     v31 = wmGenData.tabsOffsetY / 27;
 
-    if (v31 < gQuickDestinationsLength) {
-        city = &(gCities[gQuickDestinations[v31]]);
+    if (v31 < wmLabelCount) {
+        city = &(wmAreaInfoList[wmLabelList[v31]]);
         if (city->labelFid != -1) {
             art = artLock(city->labelFid, &cache_entry);
             if (art == NULL) {
@@ -6106,8 +6504,8 @@ int worldmapRenderQuickDestinations()
     v32 = v31 + 6;
 
     for (int v14 = v31 + 1; v14 < v32; v14++) {
-        if (v14 < gQuickDestinationsLength) {
-            city = &(gCities[gQuickDestinations[v14]]);
+        if (v14 < wmLabelCount) {
+            city = &(wmAreaInfoList[wmLabelList[v14]]);
             if (city->labelFid != -1) {
                 art = artLock(city->labelFid, &cache_entry);
                 if (art == NULL) {
@@ -6130,8 +6528,8 @@ int worldmapRenderQuickDestinations()
         v13 += WM_WINDOW_WIDTH * 27;
     }
 
-    if (v31 + 6 < gQuickDestinationsLength) {
-        city = &(gCities[gQuickDestinations[v31 + 6]]);
+    if (v31 + 6 < wmLabelCount) {
+        city = &(wmAreaInfoList[wmLabelList[v31 + 6]]);
         if (city->labelFid != -1) {
             art = artLock(city->labelFid, &cache_entry);
             if (art == NULL) {
@@ -6152,7 +6550,7 @@ int worldmapRenderQuickDestinations()
         }
     }
 
-    blitBufferToBufferTrans(wmGenData.tabsBorderFrmData, 119, 178, 119, gWorldmapWindowBuffer + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
+    blitBufferToBufferTrans(wmGenData.tabsBorderFrmData, 119, 178, 119, wmBkWinBuf + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
 
     return 0;
 }
@@ -6160,7 +6558,7 @@ int worldmapRenderQuickDestinations()
 // Creates array of cities available as quick destinations.
 //
 // 0x4C55D4
-int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengthPtr)
+static int wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengthPtr)
 {
     int* quickDestinations = *quickDestinationsPtr;
 
@@ -6177,8 +6575,8 @@ int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengt
     }
 
     int quickDestinationsLength = *quickDestinationsLengthPtr;
-    for (int index = 0; index < gCitiesLength; index++) {
-        if (_wmAreaIsKnown(index) && gCities[index].labelFid != -1) {
+    for (int index = 0; index < wmMaxAreaNum; index++) {
+        if (wmAreaIsKnown(index) && wmAreaInfoList[index].labelFid != -1) {
             quickDestinationsLength++;
             *quickDestinationsLengthPtr = quickDestinationsLength;
 
@@ -6197,19 +6595,19 @@ int _wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestinationsLengt
         }
     }
 
-    qsort(quickDestinations, quickDestinationsLength, sizeof(*quickDestinations), worldmapCompareCitiesByName);
+    qsort(quickDestinations, quickDestinationsLength, sizeof(*quickDestinations), wmTabsCompareNames);
 
     return 0;
 }
 
 // 0x4C56C8
-int worldmapCompareCitiesByName(const void* a1, const void* a2)
+static int wmTabsCompareNames(const void* a1, const void* a2)
 {
     int v1 = *(int*)a1;
     int v2 = *(int*)a2;
 
-    CityInfo* city1 = &(gCities[v1]);
-    CityInfo* city2 = &(gCities[v2]);
+    CityInfo* city1 = &(wmAreaInfoList[v1]);
+    CityInfo* city2 = &(wmAreaInfoList[v2]);
 
     return stricmp(city1->name, city2->name);
 }
@@ -6217,7 +6615,7 @@ int worldmapCompareCitiesByName(const void* a1, const void* a2)
 // NOTE: Inlined.
 //
 // 0x4C5710
-int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr)
+static int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr)
 {
     if (*quickDestinationsListPtr != NULL) {
         internal_free(*quickDestinationsListPtr);
@@ -6230,14 +6628,14 @@ int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLe
 }
 
 // 0x4C5734
-void worldmapWindowRenderDial(bool shouldRefreshWindow)
+static void wmRefreshInterfaceDial(bool shouldRefreshWindow)
 {
     unsigned char* data = artGetFrameData(wmGenData.dialFrm, wmGenData.dialFrmCurrentFrameIndex, 0);
     blitBufferToBufferTrans(data,
         wmGenData.dialFrmWidth,
         wmGenData.dialFrmHeight,
         wmGenData.dialFrmWidth,
-        gWorldmapWindowBuffer + WM_WINDOW_WIDTH * WM_WINDOW_DIAL_Y + WM_WINDOW_DIAL_X,
+        wmBkWinBuf + WM_WINDOW_WIDTH * WM_WINDOW_DIAL_Y + WM_WINDOW_DIAL_X,
         WM_WINDOW_WIDTH);
 
     if (shouldRefreshWindow) {
@@ -6246,14 +6644,14 @@ void worldmapWindowRenderDial(bool shouldRefreshWindow)
         rect.top = WM_WINDOW_DIAL_Y - 1;
         rect.right = rect.left + wmGenData.dialFrmWidth;
         rect.bottom = rect.top + wmGenData.dialFrmHeight;
-        win_draw_rect(gWorldmapWindow, &rect);
+        win_draw_rect(wmBkWin, &rect);
     }
 }
 
 // NOTE: Inlined.
 //
 // 0x4C57BC
-void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
+static void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
 {
     int gameHour;
     int frame;
@@ -6262,20 +6660,20 @@ void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
     frame = (gameHour / 100 + 12) % artGetFrameCount(wmGenData.dialFrm);
     if (frame != wmGenData.dialFrmCurrentFrameIndex) {
         wmGenData.dialFrmCurrentFrameIndex = frame;
-        worldmapWindowRenderDial(shouldRefreshWindow);
+        wmRefreshInterfaceDial(shouldRefreshWindow);
     }
 }
 
 // 0x4C5804
-int _wmAreaFindFirstValidMap(int* out_a1)
+static int wmAreaFindFirstValidMap(int* mapIdxPtr)
 {
-    *out_a1 = -1;
+    *mapIdxPtr = -1;
 
     if (wmGenData.currentAreaId == -1) {
         return -1;
     }
 
-    CityInfo* city = &(gCities[wmGenData.currentAreaId]);
+    CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
     if (city->entrancesLength == 0) {
         return -1;
     }
@@ -6283,7 +6681,7 @@ int _wmAreaFindFirstValidMap(int* out_a1)
     for (int index = 0; index < city->entrancesLength; index++) {
         EntranceInfo* entrance = &(city->entrances[index]);
         if (entrance->state != 0) {
-            *out_a1 = entrance->map;
+            *mapIdxPtr = entrance->map;
             return 0;
         }
     }
@@ -6291,20 +6689,20 @@ int _wmAreaFindFirstValidMap(int* out_a1)
     EntranceInfo* entrance = &(city->entrances[0]);
     entrance->state = 1;
 
-    *out_a1 = entrance->map;
+    *mapIdxPtr = entrance->map;
     return 0;
 }
 
 // 0x4C58C0
-int worldmapStartMapMusic()
+int wmMapMusicStart()
 {
     do {
-        int mapIndex = mapGetCurrentMap();
-        if (mapIndex == -1 || mapIndex >= gMapsLength) {
+        int mapIdx = mapGetCurrentMap();
+        if (mapIdx == -1 || mapIdx >= wmMaxMapNum) {
             break;
         }
 
-        MapInfo* map = &(gMaps[mapIndex]);
+        MapInfo* map = &(wmMapInfoList[mapIdx]);
         if (strlen(map->music) == 0) {
             break;
         }
@@ -6321,11 +6719,10 @@ int worldmapStartMapMusic()
     return -1;
 }
 
-// wmSetMapMusic
 // 0x4C5928
-int worldmapSetMapMusic(int mapIndex, const char* name)
+int wmSetMapMusic(int mapIdx, const char* name)
 {
-    if (mapIndex == -1 || mapIndex >= gMapsLength) {
+    if (mapIdx == -1 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
 
@@ -6333,32 +6730,32 @@ int worldmapSetMapMusic(int mapIndex, const char* name)
         return -1;
     }
 
-    debugPrint("\nwmSetMapMusic: %d, %s", mapIndex, name);
+    debugPrint("\nwmSetMapMusic: %d, %s", mapIdx, name);
 
-    MapInfo* map = &(gMaps[mapIndex]);
+    MapInfo* map = &(wmMapInfoList[mapIdx]);
 
     strncpy(map->music, name, 40);
     map->music[39] = '\0';
 
-    if (mapGetCurrentMap() == mapIndex) {
+    if (mapGetCurrentMap() == mapIdx) {
         backgroundSoundDelete();
-        worldmapStartMapMusic();
+        wmMapMusicStart();
     }
 
     return 0;
 }
 
 // 0x4C59A4
-int _wmMatchAreaContainingMapIdx(int mapIndex, int* cityIndexPtr)
+int wmMatchAreaContainingMapIdx(int mapIdx, int* cityIdxPtr)
 {
-    *cityIndexPtr = 0;
+    *cityIdxPtr = 0;
 
-    for (int cityIndex = 0; cityIndex < gCitiesLength; cityIndex++) {
-        CityInfo* cityInfo = &(gCities[cityIndex]);
-        for (int entranceIndex = 0; entranceIndex < cityInfo->entrancesLength; entranceIndex++) {
-            EntranceInfo* entranceInfo = &(cityInfo->entrances[entranceIndex]);
-            if (entranceInfo->map == mapIndex) {
-                *cityIndexPtr = cityIndex;
+    for (int cityIdx = 0; cityIdx < wmMaxAreaNum; cityIdx++) {
+        CityInfo* cityInfo = &(wmAreaInfoList[cityIdx]);
+        for (int entranceIdx = 0; entranceIdx < cityInfo->entrancesLength; entranceIdx++) {
+            EntranceInfo* entranceInfo = &(cityInfo->entrances[entranceIdx]);
+            if (entranceInfo->map == mapIdx) {
+                *cityIdxPtr = cityIdx;
                 return 0;
             }
         }
@@ -6368,20 +6765,26 @@ int _wmMatchAreaContainingMapIdx(int mapIndex, int* cityIndexPtr)
 }
 
 // 0x4C5A1C
-int _wmTeleportToArea(int cityIndex)
+int wmTeleportToArea(int cityIdx)
 {
-    if (!cityIsValid(cityIndex)) {
+    if (!cityIsValid(cityIdx)) {
         return -1;
     }
 
-    wmGenData.currentAreaId = cityIndex;
+    wmGenData.currentAreaId = cityIdx;
     wmGenData.walkDestinationX = 0;
     wmGenData.walkDestinationY = 0;
     wmGenData.isWalking = false;
 
-    CityInfo* city = &(gCities[cityIndex]);
+    CityInfo* city = &(wmAreaInfoList[cityIdx]);
     wmGenData.worldPosX = city->x;
     wmGenData.worldPosY = city->y;
 
     return 0;
+}
+
+// TODO: Remove.
+static bool cityIsValid(int areaIdx)
+{
+    return areaIdx >= 0 && areaIdx < wmMaxAreaNum;
 }

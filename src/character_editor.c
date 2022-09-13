@@ -4227,7 +4227,7 @@ int characterPrintToFile(const char* fileName)
     bool hasTownReputationHeading = false;
     for (int index = 0; index < TOWN_REPUTATION_COUNT; index++) {
         const TownReputationEntry* pair = &(gTownReputationEntries[index]);
-        if (_wmAreaIsKnown(pair->city)) {
+        if (wmAreaIsKnown(pair->city)) {
             if (!hasTownReputationHeading) {
                 fileWriteString("\n", stream);
 
@@ -4237,7 +4237,7 @@ int characterPrintToFile(const char* fileName)
                 hasTownReputationHeading = true;
             }
 
-            _wmGetAreaIdxName(pair->city, title2);
+            wmGetAreaIdxName(pair->city, title2);
 
             int townReputation = gGameGlobalVars[pair->gvar];
 
@@ -5231,7 +5231,7 @@ void characterEditorDrawKarmaFolder()
     bool hasTownReputationHeading = false;
     for (int index = 0; index < TOWN_REPUTATION_COUNT; index++) {
         const TownReputationEntry* pair = &(gTownReputationEntries[index]);
-        if (_wmAreaIsKnown(pair->city)) {
+        if (wmAreaIsKnown(pair->city)) {
             if (!hasTownReputationHeading) {
                 msg = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 4000);
                 if (characterEditorFolderViewDrawHeading(msg)) {
@@ -5244,7 +5244,7 @@ void characterEditorDrawKarmaFolder()
             }
 
             char cityShortName[40];
-            _wmGetAreaIdxName(pair->city, cityShortName);
+            wmGetAreaIdxName(pair->city, cityShortName);
 
             int townReputation = gGameGlobalVars[pair->gvar];
 

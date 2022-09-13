@@ -344,7 +344,7 @@ int mapSetElevation(int elevation)
     }
 
     if (elevation != gElevation) {
-        _wmMapMarkMapEntranceState(gMapHeader.field_34, elevation, 1);
+        wmMapMarkMapEntranceState(gMapHeader.field_34, elevation, 1);
     }
 
     gElevation = elevation;
@@ -442,7 +442,7 @@ void mapSetStart(int tile, int elevation, int rotation)
 // 0x4824CC
 char* mapGetName(int map, int elevation)
 {
-    if (map < 0 || map >= mapGetCount()) {
+    if (map < 0 || map >= wmMapMaxCount()) {
         return NULL;
     }
 
@@ -459,29 +459,29 @@ char* mapGetName(int map, int elevation)
 // 0x482528
 bool _is_map_idx_same(int map1, int map2)
 {
-    if (map1 < 0 || map1 >= mapGetCount()) {
+    if (map1 < 0 || map1 >= wmMapMaxCount()) {
         return 0;
     }
 
-    if (map2 < 0 || map2 >= mapGetCount()) {
+    if (map2 < 0 || map2 >= wmMapMaxCount()) {
         return 0;
     }
 
-    if (!_wmMapIdxIsSaveable(map1)) {
+    if (!wmMapIdxIsSaveable(map1)) {
         return 0;
     }
 
-    if (!_wmMapIdxIsSaveable(map2)) {
+    if (!wmMapIdxIsSaveable(map2)) {
         return 0;
     }
 
     int city1;
-    if (_wmMatchAreaContainingMapIdx(map1, &city1) == -1) {
+    if (wmMatchAreaContainingMapIdx(map1, &city1) == -1) {
         return 0;
     }
 
     int city2;
-    if (_wmMatchAreaContainingMapIdx(map2, &city2) == -1) {
+    if (wmMatchAreaContainingMapIdx(map2, &city2) == -1) {
         return 0;
     }
 
@@ -492,12 +492,12 @@ bool _is_map_idx_same(int map1, int map2)
 int _get_map_idx_same(int map1, int map2)
 {
     int city1 = -1;
-    if (_wmMatchAreaContainingMapIdx(map1, &city1) == -1) {
+    if (wmMatchAreaContainingMapIdx(map1, &city1) == -1) {
         return -1;
     }
 
     int city2 = -2;
-    if (_wmMatchAreaContainingMapIdx(map2, &city2) == -1) {
+    if (wmMatchAreaContainingMapIdx(map2, &city2) == -1) {
         return -1;
     }
 
@@ -512,7 +512,7 @@ int _get_map_idx_same(int map1, int map2)
 char* mapGetCityName(int map)
 {
     int city;
-    if (_wmMatchAreaContainingMapIdx(map, &city) == -1) {
+    if (wmMatchAreaContainingMapIdx(map, &city) == -1) {
         return _aErrorF2;
     }
 
@@ -525,8 +525,8 @@ char* mapGetCityName(int map)
 char* _map_get_description_idx_(int map)
 {
     int city;
-    if (_wmMatchAreaContainingMapIdx(map, &city) == 0) {
-        _wmGetAreaIdxName(city, _scratchStr);
+    if (wmMatchAreaContainingMapIdx(map, &city) == 0) {
+        wmGetAreaIdxName(city, _scratchStr);
     } else {
         strcpy(_scratchStr, _errMapName);
     }
@@ -715,7 +715,7 @@ int mapLoadByName(char* fileName)
         if (stream != NULL) {
             fileClose(stream);
             rc = mapLoadSaved(fileName);
-            worldmapStartMapMusic();
+            wmMapMusicStart();
         }
     }
 
@@ -742,7 +742,7 @@ int mapLoadById(int map)
     scriptSetFixedParam(gMapSid, map);
 
     char name[16];
-    if (mapGetFileName(map, name) == -1) {
+    if (wmMapIdxToName(map, name) == -1) {
         return -1;
     }
 
@@ -750,7 +750,7 @@ int mapLoadById(int map)
 
     int rc = mapLoadByName(name);
 
-    worldmapStartMapMusic();
+    wmMapMusicStart();
 
     return rc;
 }
@@ -874,7 +874,7 @@ int mapLoad(File* stream)
     lightSetLightLevel(LIGHT_LEVEL_MAX, false);
     objectSetLocation(gDude, gCenterTile, gElevation, NULL);
     objectSetRotation(gDude, gEnteringRotation, NULL);
-    gMapHeader.field_34 = mapGetIndexByFileName(gMapHeader.name);
+    gMapHeader.field_34 = wmMapMatchNameToIdx(gMapHeader.name);
 
     if ((gMapHeader.flags & 1) == 0) {
         char path[MAX_PATH];
@@ -922,7 +922,7 @@ int mapLoad(File* stream)
         _scr_spatials_enable();
 
         error = "Error Setting up random encounter";
-        if (worldmapSetupRandomEncounter() == -1) {
+        if (wmSetupRandomEncounter() == -1) {
             goto err;
         }
     }
@@ -972,10 +972,10 @@ err:
         rc = -1;
     }
 
-    _wmMapMarkVisited(gMapHeader.field_34);
-    _wmMapMarkMapEntranceState(gMapHeader.field_34, gElevation, 1);
+    wmMapMarkVisited(gMapHeader.field_34);
+    wmMapMarkMapEntranceState(gMapHeader.field_34, gElevation, 1);
 
-    if (_wmCheckGameAreaEvents() != 0) {
+    if (wmCheckGameAreaEvents() != 0) {
         rc = -1;
     }
 
@@ -1019,7 +1019,7 @@ int mapLoadSaved(char* fileName)
         }
     }
 
-    if (!_wmMapIsSaveable()) {
+    if (!wmMapIsSaveable()) {
         debugPrint("\nDestroying RANDOM encounter map.");
 
         char v15[16];
@@ -1038,7 +1038,7 @@ int mapLoadSaved(char* fileName)
 // 0x48328C
 int _map_age_dead_critters()
 {
-    if (!_wmMapDeadBodiesAge()) {
+    if (!wmMapDeadBodiesAge()) {
         return 0;
     }
 
@@ -1151,7 +1151,7 @@ int _map_age_dead_critters()
 int _map_target_load_area()
 {
     int city = -1;
-    if (_wmMatchAreaContainingMapIdx(gMapHeader.field_34, &city) == -1) {
+    if (wmMatchAreaContainingMapIdx(gMapHeader.field_34, &city) == -1) {
         city = -1;
     }
     return city;
@@ -1191,13 +1191,13 @@ int mapHandleTransition()
     if (gMapTransition.map == -1) {
         if (!isInCombat()) {
             animationStop();
-            _wmTownMap();
+            wmTownMap();
             memset(&gMapTransition, 0, sizeof(gMapTransition));
         }
     } else if (gMapTransition.map == -2) {
         if (!isInCombat()) {
             animationStop();
-            _wmWorldMap();
+            wmWorldMap();
             memset(&gMapTransition, 0, sizeof(gMapTransition));
         }
     } else {
@@ -1221,8 +1221,8 @@ int mapHandleTransition()
             memset(&gMapTransition, 0, sizeof(gMapTransition));
 
             int city;
-            _wmMatchAreaContainingMapIdx(gMapHeader.field_34, &city);
-            if (_wmTeleportToArea(city) == -1) {
+            wmMatchAreaContainingMapIdx(gMapHeader.field_34, &city);
+            if (wmTeleportToArea(city) == -1) {
                 debugPrint("\nError: couldn't make jump on worldmap for map jump!");
             }
         }
@@ -1401,7 +1401,7 @@ int _map_save_in_game(bool a1)
 
     char name[16];
 
-    if (a1 && !_wmMapIsSaveable()) {
+    if (a1 && !wmMapIsSaveable()) {
         debugPrint("\nNot saving RANDOM encounter map.");
 
         strcpy(name, gMapHeader.name);

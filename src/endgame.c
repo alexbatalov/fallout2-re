@@ -1115,13 +1115,13 @@ int endgameDeathEndingValidate(int* percentage)
         }
 
         if (deathEnding->worldAreaKnown != -1) {
-            if (!_wmAreaIsKnown(deathEnding->worldAreaKnown)) {
+            if (!wmAreaIsKnown(deathEnding->worldAreaKnown)) {
                 continue;
             }
         }
 
         if (deathEnding->worldAreaNotKnown != -1) {
-            if (_wmAreaIsKnown(deathEnding->worldAreaNotKnown)) {
+            if (wmAreaIsKnown(deathEnding->worldAreaNotKnown)) {
                 continue;
             }
         }
