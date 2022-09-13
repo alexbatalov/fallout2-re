@@ -15,33 +15,33 @@ char _aNull[] = "<null>";
 // 0x4A2B50
 void _regionSetBound(Region* region)
 {
-    int v1 = INT_MAX;
-    int v2 = INT_MIN;
-    int v3 = INT_MAX;
-    int v4 = INT_MIN;
-    int v5 = 0;
-    int v6 = 0;
-    int v7 = 0;
+    int minX = INT_MAX;
+    int maxX = INT_MIN;
+    int minY = INT_MAX;
+    int maxY = INT_MIN;
+    int numPoints = 0;
+    int totalX = 0;
+    int totalY = 0;
 
     for (int index = 0; index < region->pointsLength; index++) {
         Point* point = &(region->points[index]);
-        if (v1 >= point->x) v1 = point->x;
-        if (v3 >= point->y) v3 = point->y;
-        if (v2 <= point->x) v2 = point->x;
-        if (v4 <= point->y) v4 = point->y;
-        v6 += point->x;
-        v7 += point->y;
-        v5++;
+        if (minX >= point->x) minX = point->x;
+        if (minY >= point->y) minY = point->y;
+        if (maxX <= point->x) maxX = point->x;
+        if (maxY <= point->y) maxY = point->y;
+        totalX += point->x;
+        totalY += point->y;
+        numPoints++;
     }
 
-    region->field_28 = v3;
-    region->field_2C = v2;
-    region->field_30 = v4;
-    region->field_24 = v1;
+    region->minY = minY;
+    region->maxX = maxX;
+    region->maxY = maxY;
+    region->minX = minX;
 
-    if (v5 != 0) {
-        region->field_34 = v6 / v5;
-        region->field_38 = v7 / v5;
+    if (numPoints != 0) {
+        region->centerX = totalX / numPoints;
+        region->centerY = totalY / numPoints;
     }
 }
 
@@ -52,7 +52,7 @@ bool regionContainsPoint(Region* region, int x, int y)
         return false;
     }
 
-    if (x < region->field_24 || x > region->field_2C || y < region->field_28 || y > region->field_30) {
+    if (x < region->minX || x > region->maxX || y < region->minY || y > region->maxY) {
         return false;
     }
 
@@ -136,9 +136,9 @@ Region* regionCreate(int initialCapacity)
     }
 
     region->name[0] = '\0';
-    region->field_74 = 0;
-    region->field_28 = INT_MIN;
-    region->field_30 = INT_MAX;
+    region->flags = 0;
+    region->minY = INT_MIN;
+    region->maxY = INT_MAX;
     region->procs[3] = 0;
     region->rightProcs[1] = 0;
     region->rightProcs[3] = 0;
@@ -151,8 +151,8 @@ Region* regionCreate(int initialCapacity)
     region->mouseEventCallbackUserData = 0;
     region->rightMouseEventCallbackUserData = 0;
     region->pointsLength = 0;
-    region->field_24 = region->field_28;
-    region->field_2C = region->field_30;
+    region->minX = region->minY;
+    region->maxX = region->maxY;
     region->procs[2] = 0;
     region->procs[1] = 0;
     region->procs[0] = 0;
@@ -265,5 +265,5 @@ void regionSetUserData(Region* region, void* data)
 // 0x4A2FD0
 void regionAddFlag(Region* region, int value)
 {
-    region->field_74 |= value;
+    region->flags |= value;
 }
