@@ -297,7 +297,7 @@ int _wmTownMapButtonId[ENTRANCE_LIST_CAPACITY];
 int _wmGenData;
 
 // 0x672E04
-int gWorldmapShouldEncounterHorrigan;
+int gWorldmapDidEncounterHorrigan;
 
 // Current_town.
 //
@@ -658,7 +658,7 @@ int worldmapInit()
 // 0x4BC984
 int _wmGenDataInit()
 {
-    gWorldmapShouldEncounterHorrigan = 0;
+    gWorldmapDidEncounterHorrigan = 0;
     _WorldMapCurrArea = -1;
     _world_xpos = 173;
     _world_ypos = 122;
@@ -764,7 +764,7 @@ int _wmGenDataInit()
 // 0x4BCBFC
 int _wmGenDataReset()
 {
-    gWorldmapShouldEncounterHorrigan = 0;
+    gWorldmapDidEncounterHorrigan = 0;
     gWorldmapCurSubTile = 0;
     dword_672E18 = 0;
     gWorldmapIsTravelling = false;
@@ -918,7 +918,7 @@ int worldmapSave(File* stream)
     EncounterTable* encounter_table;
     EncounterEntry* encounter_entry;
 
-    if (fileWriteInt32(stream, gWorldmapShouldEncounterHorrigan) == -1) return -1;
+    if (fileWriteInt32(stream, gWorldmapDidEncounterHorrigan) == -1) return -1;
     if (fileWriteInt32(stream, _WorldMapCurrArea) == -1) return -1;
     if (fileWriteInt32(stream, _world_xpos) == -1) return -1;
     if (fileWriteInt32(stream, _world_ypos) == -1) return -1;
@@ -1005,7 +1005,7 @@ int worldmapLoad(File* stream)
     EncounterTable* encounter_table;
     EncounterEntry* encounter_entry;
 
-    if (fileReadInt32(stream, &(gWorldmapShouldEncounterHorrigan)) == -1) return -1;
+    if (fileReadInt32(stream, &(gWorldmapDidEncounterHorrigan)) == -1) return -1;
     if (fileReadInt32(stream, &(_WorldMapCurrArea)) == -1) return -1;
     if (fileReadInt32(stream, &(_world_xpos)) == -1) return -1;
     if (fileReadInt32(stream, &(_world_ypos)) == -1) return -1;
@@ -3155,11 +3155,11 @@ int _wmRndEncounterOccurred()
         return 0;
     }
 
-    if (!gWorldmapShouldEncounterHorrigan) {
+    if (!gWorldmapDidEncounterHorrigan) {
         unsigned int gameTime = gameTimeGetTime();
         if (gameTime / GAME_TIME_TICKS_PER_DAY > 35) {
             gWorldmapEncMap = v26;
-            gWorldmapShouldEncounterHorrigan = true;
+            gWorldmapDidEncounterHorrigan = true;
             if (gWorldmapIsInCar) {
                 _wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &_carCurrentArea);
             }

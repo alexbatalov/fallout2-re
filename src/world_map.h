@@ -588,7 +588,7 @@ extern int _wmRndCenterRotations[2];
 extern int _wmRndRotOffsets[2];
 extern int _wmTownMapButtonId[ENTRANCE_LIST_CAPACITY];
 extern int _wmGenData;
-extern int gWorldmapShouldEncounterHorrigan;
+extern int gWorldmapDidEncounterHorrigan;
 extern int _WorldMapCurrArea;
 extern int _world_xpos;
 extern int _world_ypos;
