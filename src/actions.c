@@ -36,6 +36,9 @@
 // 0x5106D0
 int _action_in_explode = 0;
 
+// 0x5106D4
+unsigned int _rotation = 0;
+
 // 0x5106D8
 int _obj_fid = -1;
 
@@ -1511,6 +1514,80 @@ Object* _pick_object(int objectType, bool a2)
     }
 
     return foundObject;
+}
+
+// NOTE: Unused.
+//
+// 0x412A54
+int pick_hex()
+{
+    int elevation;
+    int inputEvent;
+    int tile;
+    Rect rect;
+
+    elevation = gElevation;
+
+    while (1) {
+        inputEvent = _get_input();
+        if (inputEvent == -2) {
+            break;
+        }
+
+        if (inputEvent == KEY_CTRL_ARROW_RIGHT) {
+            _rotation++;
+            if (_rotation > 5) {
+                _rotation = 0;
+            }
+
+            objectSetRotation(gGameMouseBouncingCursor, _rotation, &rect);
+            tileWindowRefreshRect(&rect, gGameMouseBouncingCursor->elevation);
+        }
+
+        if (inputEvent == KEY_CTRL_ARROW_LEFT) {
+            _rotation--;
+            if (_rotation == -1) {
+                _rotation = 5;
+            }
+
+            objectSetRotation(gGameMouseBouncingCursor, _rotation, &rect);
+            tileWindowRefreshRect(&rect, gGameMouseBouncingCursor->elevation);
+        }
+
+        if (inputEvent == KEY_PAGE_UP || inputEvent == KEY_PAGE_DOWN) {
+            if (inputEvent == KEY_PAGE_UP) {
+                mapSetElevation(gElevation + 1);
+            } else {
+                mapSetElevation(gElevation - 1);
+            }
+
+            rect.left = 30;
+            rect.top = 62;
+            rect.right = 50;
+            rect.bottom = 88;
+        }
+
+        if (_game_user_wants_to_quit != 0) {
+            return -1;
+        }
+    }
+
+    if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) == 0) {
+        return -1;
+    }
+
+    if (!_mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
+        return -1;
+    }
+
+    mouseGetPosition(&(rect.left), &(rect.top));
+
+    tile = tileFromScreenXY(rect.left, rect.top, elevation);
+    if (tile == -1) {
+        return -1;
+    }
+
+    return tile;
 }
 
 // 0x412BC4

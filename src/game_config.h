@@ -19,6 +19,7 @@
 #define GAME_CONFIG_MASTER_PATCHES_KEY "master_patches"
 #define GAME_CONFIG_CRITTER_DAT_KEY "critter_dat"
 #define GAME_CONFIG_CRITTER_PATCHES_KEY "critter_patches"
+#define GAME_CONFIG_PATCHES_KEY "patches"
 #define GAME_CONFIG_LANGUAGE_KEY "language"
 #define GAME_CONFIG_SCROLL_LOCK_KEY "scroll_lock"
 #define GAME_CONFIG_INTERRUPT_WALK_KEY "interrupt_walk"

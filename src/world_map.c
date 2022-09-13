@@ -1656,8 +1656,8 @@ int worldmapTileInfoInit(TileInfo* tile)
 // 0x4BE400
 int worldmapTerrainInfoInit(Terrain* terrain)
 {
-    terrain->field_0[0] = '\0';
-    terrain->field_28 = 0;
+    terrain->lookupName[0] = '\0';
+    terrain->type = 0;
     terrain->mapsLength = 0;
 
     return 0;
@@ -1730,8 +1730,8 @@ int _wmParseTerrainTypes(Config* config, char* string)
         char delimeter = pch[delimeterPos];
         pch[delimeterPos] = '\0';
 
-        strncpy(terrain->field_0, pch, 40);
-        terrain->field_28 = atoi(pch + delimeterPos + 1);
+        strncpy(terrain->lookupName, pch, 40);
+        terrain->type = atoi(pch + delimeterPos + 1);
 
         pch[delimeterPos] = delimeter;
         pch[endPos] = end;
@@ -1752,7 +1752,7 @@ int _wmParseTerrainTypes(Config* config, char* string)
 int _wmParseTerrainRndMaps(Config* config, Terrain* terrain)
 {
     char section[40];
-    sprintf(section, "Random Maps: %s", terrain->field_0);
+    sprintf(section, "Random Maps: %s", terrain->lookupName);
 
     for (;;) {
         char key[40];
@@ -1826,7 +1826,7 @@ int worldmapFindTerrainByLookupName(char* string, int* valuePtr)
 {
     for (int index = 0; index < gTerrainsLength; index++) {
         Terrain* terrain = &(gTerrains[index]);
-        if (stricmp(string, terrain->field_0) == 0) {
+        if (stricmp(string, terrain->lookupName) == 0) {
             *valuePtr = index;
             return 0;
         }
@@ -4124,7 +4124,7 @@ void worldmapPerformTravel()
     _wmPartyFindCurSubTile();
 
     Terrain* terrain = &(gTerrains[gWorldmapCurSubTile->terrain]);
-    int v1 = terrain->field_28 - perkGetRank(gDude, PERK_PATHFINDER);
+    int v1 = terrain->type - perkGetRank(gDude, PERK_PATHFINDER);
     if (v1 < 1) {
         v1 = 1;
     }

@@ -39,6 +39,7 @@ int _action_skill_use(int a1);
 int _action_use_skill_in_combat_error(Object* critter);
 int actionUseSkill(Object* a1, Object* a2, int skill);
 Object* _pick_object(int objectType, bool a2);
+int pick_hex();
 bool _is_hit_from_front(Object* a1, Object* a2);
 bool _can_see(Object* a1, Object* a2);
 int _pick_fall(Object* obj, int anim);

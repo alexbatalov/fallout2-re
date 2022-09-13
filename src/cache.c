@@ -251,6 +251,110 @@ bool cachePrintStats(Cache* cache, char* dest)
     return true;
 }
 
+// NOTE: Unused.
+//
+// 0x4201C0
+int cache_create_list(Cache* cache, unsigned int a2, int** tagsPtr, int* tagsLengthPtr)
+{
+    int cacheItemIndex;
+    int tagIndex;
+
+    if (cache == NULL) {
+        return 0;
+    }
+
+    if (tagsPtr == NULL) {
+        return 0;
+    }
+
+    if (tagsLengthPtr == NULL) {
+        return 0;
+    }
+
+    *tagsLengthPtr = 0;
+
+    switch (a2) {
+    case CACHE_LIST_REQUEST_TYPE_ALL_ITEMS:
+        *tagsPtr = (int*)internal_malloc(sizeof(*tagsPtr) * cache->entriesLength);
+        if (*tagsPtr == NULL) {
+            return 0;
+        }
+
+        for (cacheItemIndex = 0; cacheItemIndex < cache->entriesLength; cacheItemIndex++) {
+            (*tagsPtr)[cacheItemIndex] = cache->entries[cacheItemIndex]->key;
+        }
+
+        *tagsLengthPtr = cache->entriesLength;
+
+        break;
+    case CACHE_LIST_REQUEST_TYPE_LOCKED_ITEMS:
+        for (cacheItemIndex = 0; cacheItemIndex < cache->entriesLength; cacheItemIndex++) {
+            if (cache->entries[cacheItemIndex]->referenceCount != 0) {
+                (*tagsLengthPtr)++;
+            }
+        }
+
+        *tagsPtr = (int*)internal_malloc(sizeof(*tagsPtr) * (*tagsLengthPtr));
+        if (*tagsPtr == NULL) {
+            return 0;
+        }
+
+        tagIndex = 0;
+        for (cacheItemIndex = 0; cacheItemIndex < cache->entriesLength; cacheItemIndex++) {
+            if (cache->entries[cacheItemIndex]->referenceCount != 0) {
+                if (tagIndex < *tagsLengthPtr) {
+                    (*tagsPtr)[tagIndex++] = cache->entries[cacheItemIndex]->key;
+                }
+            }
+        }
+
+        break;
+    case CACHE_LIST_REQUEST_TYPE_UNLOCKED_ITEMS:
+        for (cacheItemIndex = 0; cacheItemIndex < cache->entriesLength; cacheItemIndex++) {
+            if (cache->entries[cacheItemIndex]->referenceCount == 0) {
+                (*tagsLengthPtr)++;
+            }
+        }
+
+        *tagsPtr = (int*)internal_malloc(sizeof(*tagsPtr) * (*tagsLengthPtr));
+        if (*tagsPtr == NULL) {
+            return 0;
+        }
+
+        tagIndex = 0;
+        for (cacheItemIndex = 0; cacheItemIndex < cache->entriesLength; cacheItemIndex++) {
+            if (cache->entries[cacheItemIndex]->referenceCount == 0) {
+                if (tagIndex < *tagsLengthPtr) {
+                    (*tagsPtr)[tagIndex++] = cache->entries[cacheItemIndex]->key;
+                }
+            }
+        }
+
+        break;
+    }
+
+    return 1;
+}
+
+// NOTE: Unused.
+//
+// 0x420384
+int cache_destroy_list(int** tagsPtr)
+{
+    if (tagsPtr == NULL) {
+        return 0;
+    }
+
+    if (*tagsPtr == NULL) {
+        return 0;
+    }
+
+    internal_free(*tagsPtr);
+    *tagsPtr = NULL;
+
+    return 1;
+}
+
 // Fetches entry for the specified key into the cache.
 //
 // 0x4203AC

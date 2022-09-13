@@ -409,8 +409,8 @@ typedef struct MapInfo {
 } MapInfo;
 
 typedef struct Terrain {
-    char field_0[40];
-    int field_28;
+    char lookupName[40];
+    int type;
     int mapsLength;
     int maps[20];
 } Terrain;
