@@ -1,8 +1,6 @@
 #ifndef MOVIE_LIB_H
 #define MOVIE_LIB_H
 
-#include "memory_defs.h"
-
 #define DIRECTDRAW_VERSION 0x0300
 #include <ddraw.h>
 
@@ -10,6 +8,8 @@
 #include <dsound.h>
 
 #include <stdbool.h>
+
+#include "memory_defs.h"
 
 typedef struct STRUCT_6B3690 {
     void* field_0;

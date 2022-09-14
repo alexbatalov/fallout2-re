@@ -1,13 +1,13 @@
 #include "audio.h"
 
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "db.h"
 #include "debug.h"
 #include "memory_manager.h"
 #include "sound.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 // 0x5108BC
 AudioFileIsCompressedProc* _queryCompressedFunc = _defaultCompressionFunc;

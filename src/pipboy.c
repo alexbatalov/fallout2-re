@@ -1,5 +1,9 @@
 #include "pipboy.h"
 
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "automap.h"
 #include "color.h"
 #include "combat.h"
@@ -27,10 +31,6 @@
 #include "window_manager.h"
 #include "word_wrap.h"
 #include "worldmap.h"
-
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 #define PIPBOY_RAND_MAX (32767)
 

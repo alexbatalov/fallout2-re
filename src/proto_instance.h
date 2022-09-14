@@ -1,10 +1,10 @@
 #ifndef PROTOTYPE_INSTANCES_H
 #define PROTOTYPE_INSTANCES_H
 
+#include <stdbool.h>
+
 #include "message.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 extern MessageListItem stru_49A990;
 

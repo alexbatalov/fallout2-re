@@ -1,9 +1,9 @@
 #include "color.h"
 
-#include "core.h"
-
 #include <math.h>
 #include <string.h>
+
+#include "core.h"
 
 // 0x50F930
 char _aColor_cNoError[] = "color.c: No errors\n";

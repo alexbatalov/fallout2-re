@@ -1,5 +1,9 @@
 #include "game_dialog.h"
 
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "actions.h"
 #include "color.h"
 #include "combat.h"
@@ -29,10 +33,6 @@
 #include "text_object.h"
 #include "tile.h"
 #include "window_manager.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 // NOTE: Rare case - as a compatibility measure with Community Edition, this
 // define is actually an expression as original game used. However leaving it

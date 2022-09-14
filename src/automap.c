@@ -1,5 +1,8 @@
 #include "automap.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "color.h"
 #include "config.h"
 #include "core.h"
@@ -17,9 +20,6 @@
 #include "object.h"
 #include "text_font.h"
 #include "window_manager.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x41ADE0
 const int _defam[AUTOMAP_MAP_COUNT][ELEVATION_COUNT] = {

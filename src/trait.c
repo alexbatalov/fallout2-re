@@ -1,11 +1,11 @@
 #include "trait.h"
 
+#include <stdio.h>
+
 #include "game.h"
 #include "object.h"
 #include "skill.h"
 #include "stat.h"
-
-#include <stdio.h>
 
 // 0x66BE38
 MessageList gTraitsMessageList;

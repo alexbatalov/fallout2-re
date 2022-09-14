@@ -1,9 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "dictionary.h"
-
 #include <stdbool.h>
+
+#include "dictionary.h"
 
 #define CONFIG_FILE_MAX_LINE_LENGTH (256)
 

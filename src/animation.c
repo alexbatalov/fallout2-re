@@ -1,5 +1,8 @@
 #include "animation.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "color.h"
 #include "combat.h"
 #include "combat_ai.h"
@@ -25,9 +28,6 @@
 #include "text_object.h"
 #include "tile.h"
 #include "trait.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x510718
 int gAnimationCurrentSad = 0;

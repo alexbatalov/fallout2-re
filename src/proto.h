@@ -1,6 +1,9 @@
 #ifndef PROTO_H
 #define PROTO_H
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include "db.h"
 #include "message.h"
 #include "obj_types.h"
@@ -8,9 +11,6 @@
 #include "proto_types.h"
 #include "skill_defs.h"
 #include "stat_defs.h"
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 typedef enum ItemDataMember {
     ITEM_DATA_MEMBER_PID = 0,

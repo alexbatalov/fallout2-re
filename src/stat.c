@@ -1,5 +1,7 @@
 #include "stat.h"
 
+#include <stdio.h>
+
 #include "combat.h"
 #include "core.h"
 #include "critter.h"
@@ -17,8 +19,6 @@
 #include "skill.h"
 #include "tile.h"
 #include "trait.h"
-
-#include <stdio.h>
 
 // 0x51D53C
 StatDescription gStatDescriptions[STAT_COUNT] = {

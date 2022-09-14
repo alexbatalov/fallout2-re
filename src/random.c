@@ -1,8 +1,5 @@
 #include "random.h"
 
-#include "debug.h"
-#include "scripts.h"
-
 #include <limits.h>
 #include <stdlib.h>
 
@@ -11,6 +8,9 @@
 #include <windows.h>
 #include <timeapi.h>
 // clang-format on
+
+#include "debug.h"
+#include "scripts.h"
 
 // 0x50D4BA
 const double dbl_50D4BA = 36.42;

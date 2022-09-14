@@ -1,10 +1,10 @@
 #include "db.h"
 
-#include "xfile.h"
-
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "xfile.h"
 
 // Generic file progress report handler.
 //

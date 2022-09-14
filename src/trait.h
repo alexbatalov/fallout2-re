@@ -1,11 +1,11 @@
 #ifndef TRAIT_H
 #define TRAIT_H
 
+#include <stdbool.h>
+
 #include "db.h"
 #include "message.h"
 #include "trait_defs.h"
-
-#include <stdbool.h>
 
 // Provides metadata about traits.
 typedef struct TraitDescription {

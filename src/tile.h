@@ -1,11 +1,11 @@
 #ifndef TILE_H
 #define TILE_H
 
+#include <stdbool.h>
+
 #include "geometry.h"
 #include "map.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 #define TILE_SET_CENTER_FLAG_0x01 0x01
 #define TILE_SET_CENTER_FLAG_0x02 0x02

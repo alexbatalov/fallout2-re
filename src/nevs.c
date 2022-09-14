@@ -1,11 +1,11 @@
 #include "nevs.h"
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "debug.h"
 #include "interpreter_lib.h"
 #include "memory_manager.h"
-
-#include <stdlib.h>
-#include <string.h>
 
 static_assert(sizeof(Nevs) == 60, "wrong size");
 

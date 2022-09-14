@@ -1,14 +1,14 @@
 #ifndef ART_H
 #define ART_H
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include "cache.h"
 #include "db.h"
 #include "heap.h"
 #include "obj_types.h"
 #include "proto_types.h"
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 typedef enum Head {
     HEAD_INVALID,

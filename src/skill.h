@@ -1,13 +1,13 @@
 #ifndef SKILL_H
 #define SKILL_H
 
+#include <stdbool.h>
+
 #include "db.h"
 #include "message.h"
 #include "obj_types.h"
 #include "proto_types.h"
 #include "skill_defs.h"
-
-#include <stdbool.h>
 
 #define SKILLS_MAX_USES_PER_DAY (3)
 

@@ -1,11 +1,11 @@
 #include "memory.h"
 
-#include "debug.h"
-#include "window_manager.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "debug.h"
+#include "window_manager.h"
 
 // 0x51DED0
 MallocProc* gMallocProc = memoryBlockMallocImpl;

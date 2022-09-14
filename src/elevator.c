@@ -1,5 +1,8 @@
 #include "elevator.h"
 
+#include <ctype.h>
+#include <string.h>
+
 #include "core.h"
 #include "cycle.h"
 #include "debug.h"
@@ -11,9 +14,6 @@
 #include "pipboy.h"
 #include "scripts.h"
 #include "window_manager.h"
-
-#include <ctype.h>
-#include <string.h>
 
 // 0x43E950
 const int gElevatorFrmIds[ELEVATOR_FRM_COUNT] = {

@@ -1,9 +1,9 @@
 #ifndef SOUND_EFFECTS_CACHE_H
 #define SOUND_EFFECTS_CACHE_H
 
-#include "cache.h"
-
 #include <stdbool.h>
+
+#include "cache.h"
 
 // The maximum number of sound effects that can be loaded and played
 // simultaneously.

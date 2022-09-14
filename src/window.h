@@ -1,13 +1,13 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <stdbool.h>
+
 #include "geometry.h"
 #include "interpreter.h"
 #include "region.h"
 #include "widget.h"
 #include "window_manager.h"
-
-#include <stdbool.h>
 
 #define MANAGED_WINDOW_COUNT (16)
 

@@ -1,5 +1,7 @@
 #include "perk.h"
 
+#include <stdio.h>
+
 #include "debug.h"
 #include "game.h"
 #include "game_config.h"
@@ -8,8 +10,6 @@
 #include "party_member.h"
 #include "skill.h"
 #include "stat.h"
-
-#include <stdio.h>
 
 // 0x519DCC
 PerkDescription gPerkDescriptions[PERK_COUNT] = {

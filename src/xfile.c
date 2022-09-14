@@ -1,13 +1,13 @@
 #include "xfile.h"
 
-#include "file_find.h"
-
 #include <assert.h>
 #include <direct.h>
 #include <io.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "file_find.h"
 
 // 0x6B24D0
 XBase* gXbaseHead;

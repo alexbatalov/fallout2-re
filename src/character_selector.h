@@ -1,9 +1,9 @@
 #ifndef CHARACTER_SELECTOR_H
 #define CHARACTER_SELECTOR_H
 
-#include "art.h"
-
 #include <stdbool.h>
+
+#include "art.h"
 
 #define CS_WINDOW_WIDTH (640)
 #define CS_WINDOW_HEIGHT (480)

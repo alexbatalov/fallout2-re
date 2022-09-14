@@ -1,11 +1,11 @@
 #ifndef ANIMATION_H
 #define ANIMATION_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "combat_defs.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 #define ANIMATION_SEQUENCE_LIST_CAPACITY 32
 #define ANIMATION_DESCRIPTION_LIST_CAPACITY 55

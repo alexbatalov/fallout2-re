@@ -1,13 +1,13 @@
 #ifndef SCRIPTS_H
 #define SCRIPTS_H
 
+#include <stdbool.h>
+
 #include "combat_defs.h"
 #include "db.h"
 #include "interpreter.h"
 #include "message.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 #define SCRIPT_LIST_EXTENT_SIZE 16
 

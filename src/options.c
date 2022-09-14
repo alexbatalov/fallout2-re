@@ -1,5 +1,9 @@
 #include "options.h"
 
+#include <math.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "color.h"
 #include "combat.h"
 #include "combat_ai.h"
@@ -19,10 +23,6 @@
 #include "text_object.h"
 #include "tile.h"
 #include "window_manager.h"
-
-#include <math.h>
-#include <stdio.h>
-#include <string.h>
 
 #define PREFERENCES_WINDOW_WIDTH 640
 #define PREFERENCES_WINDOW_HEIGHT 480

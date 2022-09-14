@@ -1,9 +1,5 @@
 #include "audio_file.h"
 
-#include "debug.h"
-#include "memory_manager.h"
-#include "sound.h"
-
 #include <assert.h>
 #include <io.h>
 #include <stdio.h>
@@ -11,6 +7,10 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "debug.h"
+#include "memory_manager.h"
+#include "sound.h"
 
 static_assert(sizeof(AudioFile) == 28, "wrong size");
 

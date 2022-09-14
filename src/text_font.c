@@ -1,14 +1,14 @@
 #include "text_font.h"
 
-#include "color.h"
-#include "db.h"
-#include "memory.h"
-
 #include <stdio.h>
 #include <string.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "color.h"
+#include "db.h"
+#include "memory.h"
 
 // 0x4D5530
 FontManager gTextFontManager = {

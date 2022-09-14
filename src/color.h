@@ -1,10 +1,10 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include "memory_defs.h"
-
 #include <stdbool.h>
 #include <stdlib.h>
+
+#include "memory_defs.h"
 
 #define COLOR_PALETTE_STACK_CAPACITY 16
 

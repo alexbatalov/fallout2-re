@@ -1,11 +1,11 @@
 #ifndef ACTIONS_H
 #define ACTIONS_H
 
+#include <stdbool.h>
+
 #include "combat_defs.h"
 #include "obj_types.h"
 #include "proto_types.h"
-
-#include <stdbool.h>
 
 extern int _action_in_explode;
 extern int _obj_fid;

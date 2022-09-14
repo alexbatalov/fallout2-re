@@ -1,11 +1,11 @@
 #ifndef ITEM_H
 #define ITEM_H
 
+#include <stdbool.h>
+
 #include "db.h"
 #include "message.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 #define ADDICTION_COUNT (9)
 

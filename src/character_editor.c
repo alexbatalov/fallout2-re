@@ -1,5 +1,10 @@
 #include "character_editor.h"
 
+#include <assert.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "art.h"
 #include "color.h"
 #include "core.h"
@@ -29,11 +34,6 @@
 #include "window_manager.h"
 #include "word_wrap.h"
 #include "worldmap.h"
-
-#include <assert.h>
-#include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 #define RENDER_ALL_STATS 7
 

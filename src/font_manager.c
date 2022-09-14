@@ -1,11 +1,11 @@
 #include "font_manager.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "color.h"
 #include "db.h"
 #include "memory_manager.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x518680
 bool gInterfaceFontsInitialized = false;

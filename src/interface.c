@@ -1,5 +1,8 @@
 #include "interface.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "animation.h"
 #include "color.h"
 #include "combat.h"
@@ -26,9 +29,6 @@
 #include "text_font.h"
 #include "tile.h"
 #include "window_manager.h"
-
-#include <stdio.h>
-#include <string.h>
 
 #define INDICATOR_BAR_X 0
 #define INDICATOR_BAR_Y 358

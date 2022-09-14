@@ -1,5 +1,9 @@
 #include "map.h"
 
+#include <direct.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "animation.h"
 #include "automap.h"
 #include "character_editor.h"
@@ -33,10 +37,6 @@
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "worldmap.h"
-
-#include <direct.h>
-#include <stdio.h>
-#include <string.h>
 
 // 0x50B058
 char byte_50B058[] = "";

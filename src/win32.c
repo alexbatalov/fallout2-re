@@ -1,11 +1,11 @@
 #include "win32.h"
 
+#include <signal.h>
+
 #include "args.h"
 #include "core.h"
 #include "main.h"
 #include "window_manager.h"
-
-#include <signal.h>
 
 // 0x51E428
 DirectDrawCreateProc* gDirectDrawCreateProc = NULL;

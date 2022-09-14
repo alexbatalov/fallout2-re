@@ -1,18 +1,18 @@
 #include "interpreter.h"
 
-#include "core.h"
-#include "db.h"
-#include "debug.h"
-#include "export.h"
-#include "interpreter_lib.h"
-#include "memory_manager.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "core.h"
+#include "db.h"
+#include "debug.h"
+#include "export.h"
+#include "interpreter_lib.h"
+#include "memory_manager.h"
 
 // 0x50942C
 char _aCouldnTFindPro[] = "<couldn't find proc>";

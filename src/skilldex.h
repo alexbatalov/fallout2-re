@@ -1,11 +1,11 @@
 #ifndef SKILLDEX_H
 #define SKILLDEX_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "geometry.h"
 #include "message.h"
-
-#include <stdbool.h>
 
 #define SKILLDEX_SKILL_BUTTON_BUFFER_COUNT (SKILLDEX_SKILL_COUNT * 2)
 

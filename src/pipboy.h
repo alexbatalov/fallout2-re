@@ -1,12 +1,12 @@
 #ifndef PIPBOY_H
 #define PIPBOY_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "db.h"
 #include "geometry.h"
 #include "message.h"
-
-#include <stdbool.h>
 
 #define PIPBOY_WINDOW_WIDTH (640)
 #define PIPBOY_WINDOW_HEIGHT (480)

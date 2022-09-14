@@ -1,5 +1,8 @@
 #include "object.h"
 
+#include <assert.h>
+#include <string.h>
+
 #include "animation.h"
 #include "art.h"
 #include "color.h"
@@ -22,9 +25,6 @@
 #include "text_object.h"
 #include "tile.h"
 #include "worldmap.h"
-
-#include <assert.h>
-#include <string.h>
 
 // 0x5195F8
 bool gObjectsInitialized = false;

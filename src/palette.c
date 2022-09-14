@@ -1,12 +1,12 @@
 #include "palette.h"
 
+#include <string.h>
+
 #include "color.h"
 #include "core.h"
 #include "cycle.h"
 #include "debug.h"
 #include "game_sound.h"
-
-#include <string.h>
 
 // 0x6639D0
 unsigned char gPalette[256 * 3];

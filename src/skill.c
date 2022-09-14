@@ -1,5 +1,8 @@
 #include "skill.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "actions.h"
 #include "color.h"
 #include "combat.h"
@@ -20,9 +23,6 @@
 #include "scripts.h"
 #include "stat.h"
 #include "trait.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // Damage flags which can be repaired using "Repair" skill.
 //

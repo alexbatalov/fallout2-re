@@ -1,9 +1,9 @@
 #ifndef FONT_MANAGER_H
 #define FONT_MANAGER_H
 
-#include "text_font.h"
-
 #include <stdbool.h>
+
+#include "text_font.h"
 
 // The maximum number of interface fonts.
 #define INTERFACE_FONT_MAX (16)

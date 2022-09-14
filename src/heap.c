@@ -1,11 +1,11 @@
 #include "heap.h"
 
-#include "debug.h"
-#include "memory.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "debug.h"
+#include "memory.h"
 
 static_assert(sizeof(HeapBlockHeader) == 16, "wrong size");
 static_assert(sizeof(HeapBlockFooter) == 4, "wrong size");

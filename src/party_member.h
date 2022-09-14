@@ -1,12 +1,12 @@
 #ifndef PARTY_MEMBER_H
 #define PARTY_MEMBER_H
 
+#include <stdbool.h>
+
 #include "combat_ai_defs.h"
 #include "db.h"
 #include "obj_types.h"
 #include "scripts.h"
-
-#include <stdbool.h>
 
 typedef struct PartyMemberDescription {
     bool areaAttackMode[AREA_ATTACK_MODE_COUNT];

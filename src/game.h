@@ -1,10 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <stdbool.h>
+
 #include "game_vars.h"
 #include "message.h"
-
-#include <stdbool.h>
 
 typedef enum GameState {
     GAME_STATE_0,

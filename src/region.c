@@ -1,10 +1,10 @@
 #include "region.h"
 
-#include "debug.h"
-#include "memory_manager.h"
-
 #include <limits.h>
 #include <string.h>
+
+#include "debug.h"
+#include "memory_manager.h"
 
 static_assert(sizeof(Region) == 140, "wrong size");
 

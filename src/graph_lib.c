@@ -1,9 +1,9 @@
 #include "graph_lib.h"
 
+#include <string.h>
+
 #include "debug.h"
 #include "memory.h"
-
-#include <string.h>
 
 // 0x596E90
 int* _dad_2;

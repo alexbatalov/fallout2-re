@@ -1,12 +1,12 @@
 #include "selfrun.h"
 
+#include <direct.h>
+#include <stdlib.h>
+
 #include "core.h"
 #include "db.h"
 #include "game.h"
 #include "game_config.h"
-
-#include <direct.h>
-#include <stdlib.h>
 
 // 0x51C8D8
 int gSelfrunState = SELFRUN_STATE_TURNED_OFF;

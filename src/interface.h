@@ -1,12 +1,12 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "db.h"
 #include "geometry.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 typedef enum Hand {
     // Item1 (Punch)

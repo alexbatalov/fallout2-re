@@ -1,5 +1,9 @@
 #include "interpreter_extra.h"
 
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "actions.h"
 #include "animation.h"
 #include "color.h"
@@ -36,10 +40,6 @@
 #include "tile.h"
 #include "trait.h"
 #include "worldmap.h"
-
-#include <limits.h>
-#include <stdio.h>
-#include <string.h>
 
 // 0x504B04
 char _Error_0[] = "Error";

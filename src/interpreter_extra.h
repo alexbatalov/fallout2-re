@@ -1,12 +1,12 @@
 #ifndef INTERPRETER_EXTRA_H
 #define INTERPRETER_EXTRA_H
 
+#include <stdbool.h>
+
 #include "game_movie.h"
 #include "geometry.h"
 #include "interpreter.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 typedef enum ScriptError {
     SCRIPT_ERROR_NOT_IMPLEMENTED,

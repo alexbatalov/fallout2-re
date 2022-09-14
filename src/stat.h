@@ -1,13 +1,13 @@
 #ifndef STAT_H
 #define STAT_H
 
+#include <stdbool.h>
+
 #include "db.h"
 #include "message.h"
 #include "obj_types.h"
 #include "proto_types.h"
 #include "stat_defs.h"
-
-#include <stdbool.h>
 
 #define STAT_ERR_INVALID_STAT (-5)
 

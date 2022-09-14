@@ -1,9 +1,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "art.h"
-
 #include <stdbool.h>
+
+#include "art.h"
 
 typedef enum MainMenuButton {
     MAIN_MENU_BUTTON_INTRO,

@@ -1,14 +1,14 @@
 #include "debug.h"
 
-#include "memory.h"
-#include "window_manager_private.h"
-
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "memory.h"
+#include "window_manager_private.h"
 
 // 0x51DEF8
 FILE* _fd = NULL;

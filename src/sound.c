@@ -1,14 +1,14 @@
 #include "sound.h"
 
-#include "debug.h"
-#include "memory.h"
-
 #include <io.h>
 #include <limits.h>
 #include <math.h>
 #include <mmsystem.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "debug.h"
+#include "memory.h"
 
 static_assert(sizeof(Sound) == 156, "wrong size");
 

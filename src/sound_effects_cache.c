@@ -1,16 +1,16 @@
 #include "sound_effects_cache.h"
 
-#include "db.h"
-#include "game_config.h"
-#include "memory.h"
-#include "sound_decoder.h"
-#include "sound_effects_list.h"
-
 #include <assert.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "db.h"
+#include "game_config.h"
+#include "memory.h"
+#include "sound_decoder.h"
+#include "sound_effects_list.h"
 
 static_assert(sizeof(SoundEffect) == 32, "wrong size");
 

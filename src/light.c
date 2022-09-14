@@ -1,10 +1,10 @@
 #include "light.h"
 
+#include <math.h>
+
 #include "object.h"
 #include "perk.h"
 #include "tile.h"
-
-#include <math.h>
 
 // 0x51923C
 int gLightLevel = LIGHT_LEVEL_MAX;

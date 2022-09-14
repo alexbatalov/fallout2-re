@@ -1,9 +1,9 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "map_defs.h"
-
 #include <stdbool.h>
+
+#include "map_defs.h"
 
 #define LIGHT_LEVEL_MIN (65536 / 4)
 #define LIGHT_LEVEL_MAX 65536

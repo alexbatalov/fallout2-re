@@ -1,9 +1,9 @@
 #ifndef CREDITS_H
 #define CREDITS_H
 
-#include "db.h"
-
 #include <stdbool.h>
+
+#include "db.h"
 
 #define CREDITS_WINDOW_WIDTH (640)
 #define CREDITS_WINDOW_HEIGHT (480)

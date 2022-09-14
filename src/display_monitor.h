@@ -1,9 +1,9 @@
 #ifndef DISPLAY_MONITOR_H
 #define DISPLAY_MONITOR_H
 
-#include "geometry.h"
-
 #include <stdbool.h>
+
+#include "geometry.h"
 
 // The maximum number of lines display monitor can hold. Once this value
 // is reached earlier messages are thrown away.

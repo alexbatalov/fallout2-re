@@ -1,9 +1,9 @@
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
-#include "memory_defs.h"
-
 #include <stdio.h>
+
+#include "memory_defs.h"
 
 // NOTE: I guess this marker is used as a type discriminator for implementing
 // nested dictionaries. That's why every dictionary-related function starts

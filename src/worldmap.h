@@ -1,9 +1,9 @@
 #ifndef WORLD_MAP_H
 #define WORLD_MAP_H
 
-#include "db.h"
-
 #include <stdbool.h>
+
+#include "db.h"
 
 #define CAR_FUEL_MAX (80000)
 

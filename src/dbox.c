@@ -1,5 +1,8 @@
 #include "dbox.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "art.h"
 #include "character_editor.h"
 #include "color.h"
@@ -12,9 +15,6 @@
 #include "text_font.h"
 #include "window_manager.h"
 #include "word_wrap.h"
-
-#include <stdio.h>
-#include <string.h>
 
 #define FILE_DIALOG_LINE_COUNT 12
 

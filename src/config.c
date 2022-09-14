@@ -1,12 +1,12 @@
 #include "config.h"
 
-#include "db.h"
-#include "memory.h"
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "db.h"
+#include "memory.h"
 
 // Last section key read from .INI file.
 //

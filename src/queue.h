@@ -1,10 +1,10 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include <stdbool.h>
+
 #include "db.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 typedef enum EventType {
     EVENT_TYPE_DRUG = 0,

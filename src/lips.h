@@ -1,11 +1,11 @@
 #ifndef LIPS_H
 #define LIPS_H
 
-#include "db.h"
-#include "sound.h"
-
 #include <stdbool.h>
 #include <stddef.h>
+
+#include "db.h"
+#include "sound.h"
 
 #define PHONEME_COUNT (42)
 

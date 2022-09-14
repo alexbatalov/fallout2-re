@@ -1,5 +1,11 @@
 #include "tile.h"
 
+#include <assert.h>
+#include <string.h>
+
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "color.h"
 #include "config.h"
 #include "core.h"
@@ -10,12 +16,6 @@
 #include "light.h"
 #include "map.h"
 #include "object.h"
-
-#include <assert.h>
-#include <string.h>
-
-#define _USE_MATH_DEFINES
-#include <math.h>
 
 // 0x50E7C7
 double const dbl_50E7C7 = -4.0;

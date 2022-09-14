@@ -1,14 +1,14 @@
 #include "sound_effects_list.h"
 
-#include "db.h"
-#include "debug.h"
-#include "memory.h"
-#include "sound_decoder.h"
-
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "db.h"
+#include "debug.h"
+#include "memory.h"
+#include "sound_decoder.h"
 
 // 0x51C8F8
 bool gSoundEffectsListInitialized = false;

@@ -1,11 +1,12 @@
 #ifndef XFILE_H
 #define XFILE_H
 
-#include "dfile.h"
-
 #include <stdbool.h>
 #include <stdio.h>
+
 #include <zlib.h>
+
+#include "dfile.h"
 
 typedef enum XFileType {
     XFILE_TYPE_FILE,

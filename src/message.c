@@ -1,14 +1,14 @@
 #include "message.h"
 
-#include "debug.h"
-#include "game_config.h"
-#include "memory.h"
-#include "random.h"
-
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "debug.h"
+#include "game_config.h"
+#include "memory.h"
+#include "random.h"
 
 // 0x50B79C
 char _Error_1[] = "Error";

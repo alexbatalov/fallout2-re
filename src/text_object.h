@@ -1,10 +1,10 @@
 #ifndef TEXT_OBJECT_H
 #define TEXT_OBJECT_H
 
+#include <stdbool.h>
+
 #include "geometry.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 // The maximum number of text objects that can exist at the same time.
 #define TEXT_OBJECTS_MAX_COUNT (20)

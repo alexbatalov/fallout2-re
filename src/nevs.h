@@ -1,9 +1,9 @@
 #ifndef NEVS_H
 #define NEVS_H
 
-#include "interpreter.h"
-
 #include <stdbool.h>
+
+#include "interpreter.h"
 
 #define NEVS_COUNT (40)
 

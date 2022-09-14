@@ -1,13 +1,13 @@
 #ifndef GAME_SOUND_H
 #define GAME_SOUND_H
 
-#include "obj_types.h"
-#include "sound.h"
-
 #include <stdbool.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "obj_types.h"
+#include "sound.h"
 
 typedef enum WeaponSoundEffect {
     WEAPON_SOUND_EFFECT_READY,

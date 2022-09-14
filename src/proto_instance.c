@@ -1,5 +1,9 @@
 #include "proto_instance.h"
 
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "animation.h"
 #include "color.h"
 #include "combat.h"
@@ -23,10 +27,6 @@
 #include "stat.h"
 #include "tile.h"
 #include "worldmap.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 // 0x49A990
 MessageListItem stru_49A990;

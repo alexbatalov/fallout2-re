@@ -1,5 +1,7 @@
 #include "item.h"
 
+#include <string.h>
+
 #include "animation.h"
 #include "automap.h"
 #include "combat.h"
@@ -22,8 +24,6 @@
 #include "stat.h"
 #include "tile.h"
 #include "trait.h"
-
-#include <string.h>
 
 // 0x509FFC
 char _aItem_1[] = "<item>";

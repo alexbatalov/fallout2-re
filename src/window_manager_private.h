@@ -1,9 +1,9 @@
 #ifndef WINDOW_MANAGER_PRIVATE_H
 #define WINDOW_MANAGER_PRIVATE_H
 
-#include "geometry.h"
-
 #include <stdbool.h>
+
+#include "geometry.h"
 
 typedef struct MenuBar MenuBar;
 

@@ -1,5 +1,8 @@
 #include "critter.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "animation.h"
 #include "character_editor.h"
 #include "combat.h"
@@ -24,9 +27,6 @@
 #include "tile.h"
 #include "trait.h"
 #include "worldmap.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x50141C
 char _aCorpse[] = "corpse";

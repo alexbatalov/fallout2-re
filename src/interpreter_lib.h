@@ -1,10 +1,10 @@
 #ifndef INTERPRETER_LIB_H
 #define INTERPRETER_LIB_H
 
+#include <stdbool.h>
+
 #include "interpreter.h"
 #include "sound.h"
-
-#include <stdbool.h>
 
 #define INT_LIB_SOUNDS_CAPACITY 32
 #define INT_LIB_KEY_HANDLERS_CAPACITY 256

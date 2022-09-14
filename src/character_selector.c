@@ -1,5 +1,8 @@
 #include "character_selector.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "character_editor.h"
 #include "color.h"
 #include "core.h"
@@ -20,9 +23,6 @@
 #include "text_font.h"
 #include "trait.h"
 #include "window_manager.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x51C84C
 int gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;

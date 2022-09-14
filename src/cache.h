@@ -1,9 +1,9 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#include "heap.h"
-
 #include <stdbool.h>
+
+#include "heap.h"
 
 #define INVALID_CACHE_ENTRY ((CacheEntry*)-1)
 

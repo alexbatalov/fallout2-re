@@ -1,5 +1,9 @@
 #include "game.h"
 
+#include <io.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "actions.h"
 #include "animation.h"
 #include "automap.h"
@@ -53,10 +57,6 @@
 #include "version.h"
 #include "window_manager.h"
 #include "worldmap.h"
-
-#include <io.h>
-#include <stdio.h>
-#include <string.h>
 
 #define HELP_SCREEN_WIDTH (640)
 #define HELP_SCREEN_HEIGHT (480)

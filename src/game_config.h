@@ -1,9 +1,9 @@
 #ifndef GAME_CONFIG_H
 #define GAME_CONFIG_H
 
-#include "config.h"
-
 #include <stdbool.h>
+
+#include "config.h"
 
 // The file name of the main config file.
 #define GAME_CONFIG_FILE_NAME "fallout2.cfg"

@@ -1,8 +1,8 @@
 #include "geometry.h"
 
-#include "memory.h"
-
 #include <stdlib.h>
+
+#include "memory.h"
 
 // 0x51DEF4
 RectListNode* _rectList = NULL;

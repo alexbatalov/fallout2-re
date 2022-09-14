@@ -1,14 +1,14 @@
 #include "lips.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "audio.h"
 #include "core.h"
 #include "debug.h"
 #include "game_sound.h"
 #include "memory.h"
 #include "sound.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x519240
 unsigned char gLipsCurrentPhoneme = 0;

@@ -1,9 +1,9 @@
 #include "string_parsers.h"
 
-#include "debug.h"
-
 #include <stdlib.h>
 #include <string.h>
+
+#include "debug.h"
 
 // strParseInt
 // 0x4AFD10

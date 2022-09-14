@@ -1,11 +1,11 @@
 #ifndef GAME_MOUSE_H
 #define GAME_MOUSE_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "geometry.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 typedef enum ScrollableDirections {
     SCROLLABLE_W = 0x01,

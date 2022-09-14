@@ -1,11 +1,12 @@
 #ifndef DFILE_H
 #define DFILE_H
 
+#include <stdbool.h>
+#include <stdio.h>
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include <stdbool.h>
-#include <stdio.h>
 #include <zlib.h>
 
 // The size of decompression buffer for reading compressed [DFile]s.

@@ -1,9 +1,9 @@
 #ifndef AUDIO_FILE_H
 #define AUDIO_FILE_H
 
-#include "sound_decoder.h"
-
 #include <stdbool.h>
+
+#include "sound_decoder.h"
 
 typedef enum AudioFileFlags {
     AUDIO_FILE_IN_USE = 0x01,

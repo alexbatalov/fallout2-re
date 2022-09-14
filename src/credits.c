@@ -1,5 +1,7 @@
 #include "credits.h"
 
+#include <string.h>
+
 #include "art.h"
 #include "color.h"
 #include "core.h"
@@ -13,8 +15,6 @@
 #include "sound.h"
 #include "text_font.h"
 #include "window_manager.h"
-
-#include <string.h>
 
 // 0x56D740
 File* gCreditsFile;

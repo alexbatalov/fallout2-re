@@ -1,5 +1,8 @@
 #include "party_member.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "animation.h"
 #include "color.h"
 #include "combat_ai.h"
@@ -26,9 +29,6 @@
 #include "text_object.h"
 #include "tile.h"
 #include "window_manager.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x519D9C
 int gPartyMemberDescriptionsLength = 0;

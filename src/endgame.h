@@ -1,11 +1,11 @@
 #ifndef ENDGAME_H
 #define ENDGAME_H
 
+#include <stdbool.h>
+
 // Provides [MAX_PATH].
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-#include <stdbool.h>
 
 typedef enum EndgameDeathEndingReason {
     // Dude died.

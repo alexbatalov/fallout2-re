@@ -1,5 +1,9 @@
 #include "window.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "color.h"
 #include "core.h"
 #include "datafile.h"
@@ -10,10 +14,6 @@
 #include "mouse_manager.h"
 #include "movie.h"
 #include "text_font.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 // 0x51DCAC
 int _holdTime = 250;

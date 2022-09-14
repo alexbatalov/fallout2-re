@@ -1,14 +1,14 @@
 #include "window_manager_private.h"
 
+#include <stdio.h>
+#include <string.h>
+
 #include "color.h"
 #include "core.h"
 #include "draw.h"
 #include "memory.h"
 #include "text_font.h"
 #include "window_manager.h"
-
-#include <stdio.h>
-#include <string.h>
 
 // 0x51E414
 int _wd = -1;

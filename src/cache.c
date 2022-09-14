@@ -1,13 +1,13 @@
 #include "cache.h"
 
-#include "debug.h"
-#include "memory.h"
-#include "sound.h"
-
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "debug.h"
+#include "memory.h"
+#include "sound.h"
 
 static_assert(sizeof(CacheEntry) == 32, "wrong size");
 static_assert(sizeof(Cache) == 84, "wrong size");

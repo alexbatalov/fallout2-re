@@ -1,5 +1,9 @@
 #include "inventory.h"
 
+#include <assert.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "actions.h"
 #include "animation.h"
 #include "art.h"
@@ -33,10 +37,6 @@
 #include "text_font.h"
 #include "tile.h"
 #include "window_manager.h"
-
-#include <assert.h>
-#include <stdio.h>
-#include <string.h>
 
 #define INVENTORY_WINDOW_X 80
 #define INVENTORY_WINDOW_Y 0

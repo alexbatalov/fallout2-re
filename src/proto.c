@@ -1,5 +1,9 @@
 #include "proto.h"
 
+#include <direct.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "art.h"
 #include "character_editor.h"
 #include "combat.h"
@@ -18,10 +22,6 @@
 #include "skill.h"
 #include "stat.h"
 #include "trait.h"
-
-#include <direct.h>
-#include <stdio.h>
-#include <string.h>
 
 // 0x50CF3C
 char _aProto_0[] = "proto\\";

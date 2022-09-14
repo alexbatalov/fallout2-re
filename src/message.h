@@ -1,9 +1,9 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "db.h"
-
 #include <stdbool.h>
+
+#include "db.h"
 
 #define BADWORD_LENGTH_MAX 80
 

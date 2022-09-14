@@ -1,5 +1,7 @@
 #include "display_monitor.h"
 
+#include <string.h>
+
 #include "art.h"
 #include "color.h"
 #include "combat.h"
@@ -11,8 +13,6 @@
 #include "memory.h"
 #include "text_font.h"
 #include "window_manager.h"
-
-#include <string.h>
 
 // 0x51850C
 bool gDisplayMonitorInitialized = false;

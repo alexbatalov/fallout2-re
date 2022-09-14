@@ -1,12 +1,12 @@
 #ifndef GAME_MOVIE_H
 #define GAME_MOVIE_H
 
-#include "db.h"
-
 #include <stdbool.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "db.h"
 
 typedef enum GameMovieFlags {
     GAME_MOVIE_FADE_IN = 0x01,

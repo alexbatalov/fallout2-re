@@ -1,14 +1,14 @@
 #ifndef GAME_DIALOG_H
 #define GAME_DIALOG_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "geometry.h"
 #include "interpreter.h"
 #include "lips.h"
 #include "message.h"
 #include "obj_types.h"
-
-#include <stdbool.h>
 
 #define DIALOG_REVIEW_ENTRIES_CAPACITY 80
 

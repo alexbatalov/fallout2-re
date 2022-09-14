@@ -1,12 +1,12 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include <stdbool.h>
+
 #include "art.h"
 #include "db.h"
 #include "geometry.h"
 #include "message.h"
-
-#include <stdbool.h>
 
 #define OPTIONS_WINDOW_BUTTONS_COUNT (10)
 #define PRIMARY_OPTION_VALUE_COUNT (4)

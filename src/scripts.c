@@ -1,5 +1,10 @@
 #include "scripts.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
 #include "actions.h"
 #include "automap.h"
 #include "combat.h"
@@ -23,11 +28,6 @@
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "worldmap.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
 
 // 0x50D6B8
 char _Error_2[] = "Error";

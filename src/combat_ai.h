@@ -1,14 +1,14 @@
 #ifndef COMBAT_AI_H
 #define COMBAT_AI_H
 
+#include <stdbool.h>
+
 #include "combat_ai_defs.h"
 #include "combat_defs.h"
 #include "db.h"
 #include "message.h"
 #include "obj_types.h"
 #include "party_member.h"
-
-#include <stdbool.h>
 
 #define AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT (3)
 

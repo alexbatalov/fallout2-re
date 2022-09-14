@@ -1,13 +1,13 @@
 #ifndef WINDOW_MANAGER_H
 #define WINDOW_MANAGER_H
 
-#include "geometry.h"
-
 #include <stdbool.h>
 #include <stddef.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
+#include "geometry.h"
 
 #define MAX_WINDOW_COUNT (50)
 

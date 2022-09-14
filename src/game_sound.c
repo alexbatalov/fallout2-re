@@ -1,5 +1,9 @@
 #include "game_sound.h"
 
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "animation.h"
 #include "audio.h"
 #include "audio_file.h"
@@ -20,10 +24,6 @@
 #include "stat.h"
 #include "window_manager.h"
 #include "worldmap.h"
-
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 
 // 0x5035BC
 char _aSoundSfx[] = "sound\\sfx\\";
