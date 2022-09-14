@@ -2805,7 +2805,7 @@ int _check_move(int* a1)
 {
     int x;
     int y;
-    mouseGetPosition(&x, &y);
+    mouse_get_position(&x, &y);
 
     int tile = tileFromScreenXY(x, y, gElevation);
     if (tile == -1) {

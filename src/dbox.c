@@ -685,7 +685,7 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
         } else if (keyCode == 502 && fileListLength != 0) {
             int mouseX;
             int mouseY;
-            mouseGetPosition(&mouseX, &mouseY);
+            mouse_get_position(&mouseX, &mouseY);
 
             int selectedLine = (mouseY - y - FILE_DIALOG_FILE_LIST_Y) / fontGetLineHeight();
             if (selectedLine - 1 < 0) {
@@ -1096,7 +1096,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
             if (keyCode == 502 && fileListLength != 0) {
                 int mouseX;
                 int mouseY;
-                mouseGetPosition(&mouseX, &mouseY);
+                mouse_get_position(&mouseX, &mouseY);
 
                 int selectedLine = (mouseY - y - FILE_DIALOG_FILE_LIST_Y) / fontGetLineHeight();
                 if (selectedLine - 1 < 0) {

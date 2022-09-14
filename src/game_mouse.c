@@ -338,9 +338,9 @@ void gameMouseExit()
         return;
     }
 
-    mouseHideCursor();
+    mouse_hide();
 
-    mouseSetFrame(NULL, 0, 0, 0, 0, 0, 0);
+    mouse_set_shape(NULL, 0, 0, 0, 0, 0, 0);
 
     // NOTE: Uninline.
     gameMouseObjectsFree();
@@ -435,7 +435,7 @@ int _gmouse_is_scrolling()
     if (_gmouse_scrolling_enabled) {
         int x;
         int y;
-        mouseGetPosition(&x, &y);
+        mouse_get_position(&x, &y);
         if (x == _scr_size.left || x == _scr_size.right || y == _scr_size.top || y == _scr_size.bottom) {
             switch (gGameMouseCursor) {
             case MOUSE_CURSOR_SCROLL_NW:
@@ -476,11 +476,11 @@ void gameMouseRefresh()
     int mouseY;
 
     if (gGameMouseCursor >= FIRST_GAME_MOUSE_ANIMATED_CURSOR) {
-        _mouse_info();
+        mouse_info();
 
         // NOTE: Uninline.
         if (gmouse_scrolling_is_enabled()) {
-            mouseGetPosition(&mouseX, &mouseY);
+            mouse_get_position(&mouseX, &mouseY);
             int oldMouseCursor = gGameMouseCursor;
 
             if (gameMouseHandleScrolling(mouseX, mouseY, gGameMouseCursor) == 0) {
@@ -523,7 +523,7 @@ void gameMouseRefresh()
     if (!_gmouse_enabled) {
         // NOTE: Uninline.
         if (gmouse_scrolling_is_enabled()) {
-            mouseGetPosition(&mouseX, &mouseY);
+            mouse_get_position(&mouseX, &mouseY);
             int oldMouseCursor = gGameMouseCursor;
 
             if (gameMouseHandleScrolling(mouseX, mouseY, gGameMouseCursor) == 0) {
@@ -562,7 +562,7 @@ void gameMouseRefresh()
         return;
     }
 
-    mouseGetPosition(&mouseX, &mouseY);
+    mouse_get_position(&mouseX, &mouseY);
 
     int oldMouseCursor = gGameMouseCursor;
     if (gameMouseHandleScrolling(mouseX, mouseY, MOUSE_CURSOR_NONE) == 0) {
@@ -883,7 +883,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         }
     }
 
-    if (!_mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
+    if (!mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
         return;
     }
 
@@ -1105,7 +1105,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
 
                     int v33 = mouseY;
                     int actionIndex = 0;
-                    while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
+                    while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
                         _get_input();
 
                         if (_game_user_wants_to_quit != 0) {
@@ -1114,7 +1114,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
 
                         int v48;
                         int v47;
-                        mouseGetPosition(&v48, &v47);
+                        mouse_get_position(&v48, &v47);
 
                         if (abs(v47 - v33) > 10) {
                             if (v33 >= v47) {
@@ -1137,7 +1137,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     gGameMouseLastY = mouseY;
                     _gmouse_3d_last_move_time = _get_time();
 
-                    _mouse_set_position(mouseX, v33);
+                    mouse_set_position(mouseX, v33);
 
                     if (gameMouseUpdateHexCursorFid(&v43) == 0) {
                         tileWindowRefreshRect(&v43, gElevation);
@@ -1276,7 +1276,7 @@ int gameMouseSetCursor(int cursor)
     offsetY = height - 1 - offsetY;
 
     unsigned char* mouseCursorFrmData = artGetFrameData(mouseCursorFrm, frame, 0);
-    if (mouseSetFrame(mouseCursorFrmData, width, height, width, offsetX, offsetY, 0) != 0) {
+    if (mouse_set_shape(mouseCursorFrmData, width, height, width, offsetX, offsetY, 0) != 0) {
         return -1;
     }
 
@@ -1354,7 +1354,7 @@ void gameMouseSetMode(int mode)
 
     int mouseX;
     int mouseY;
-    mouseGetPosition(&mouseX, &mouseY);
+    mouse_get_position(&mouseX, &mouseY);
 
     Rect r2;
     if (_gmouse_3d_move_to(mouseX, mouseY, gElevation, &r2) == 0) {
@@ -1607,7 +1607,7 @@ Object* gameMouseGetObjectUnderCursor(int objectType, bool a2, int elevation)
 {
     int mouseX;
     int mouseY;
-    mouseGetPosition(&mouseX, &mouseY);
+    mouse_get_position(&mouseX, &mouseY);
 
     bool v13 = false;
     if (objectType == -1) {
@@ -2005,7 +2005,7 @@ int gameMouseObjectsInit()
 
     int x;
     int y;
-    mouseGetPosition(&x, &y);
+    mouse_get_position(&x, &y);
 
     Rect v9;
     _gmouse_3d_move_to(x, y, gElevation, &v9);

@@ -501,13 +501,13 @@ void interpretFadeOut(float duration)
 {
     int cursorWasHidden;
 
-    cursorWasHidden = cursorIsHidden();
-    mouseHideCursor();
+    cursorWasHidden = mouse_hidden();
+    mouse_hide();
 
     _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, duration, 1);
 
     if (!cursorWasHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 }
 
@@ -526,13 +526,13 @@ void interpretFadeOutNoBK(float duration)
 {
     int cursorWasHidden;
 
-    cursorWasHidden = cursorIsHidden();
-    mouseHideCursor();
+    cursorWasHidden = mouse_hidden();
+    mouse_hide();
 
     _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, duration, 0);
 
     if (!cursorWasHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 }
 
@@ -1807,14 +1807,14 @@ void opFillRect(Program* program)
 // 0x46489C
 void opHideMouse(Program* program)
 {
-    mouseHideCursor();
+    mouse_hide();
 }
 
 // showmouse
 // 0x4648A4
 void opShowMouse(Program* program)
 {
-    mouseShowCursor();
+    mouse_show();
 }
 
 // mouseshape

@@ -148,6 +148,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/message.h"
     "src/mmx.c"
     "src/mmx.h"
+    "src/mouse.c"
+    "src/mouse.h"
     "src/mouse_manager.c"
     "src/mouse_manager.h"
     "src/movie_effect.c"

@@ -4680,7 +4680,7 @@ int characterEditorDrawCardWithOptions(int graphicId, const char* name, const ch
 // 0x43AE8
 void characterEditorHandleFolderButtonPressed()
 {
-    mouseGetPosition(&gCharacterEditorMouseX, &gCharacterEditorMouseY);
+    mouse_get_position(&gCharacterEditorMouseX, &gCharacterEditorMouseY);
     soundPlayFile("ib3p1xx1");
 
     if (gCharacterEditorMouseX >= 208) {
@@ -4701,7 +4701,7 @@ void characterEditorHandleFolderButtonPressed()
 // 0x43AF40
 void characterEditorHandleInfoButtonPressed(int eventCode)
 {
-    mouseGetPosition(&gCharacterEditorMouseX, &gCharacterEditorMouseY);
+    mouse_get_position(&gCharacterEditorMouseX, &gCharacterEditorMouseY);
 
     switch (eventCode) {
     case 525:
@@ -5668,7 +5668,7 @@ int perkDialogHandleInput(int count, void (*refreshProc)())
             soundPlayFile("ib1p1xx1");
             rc = 1;
         } else if (keyCode == 501) {
-            mouseGetPosition(&gCharacterEditorMouseX, &gCharacterEditorMouseY);
+            mouse_get_position(&gCharacterEditorMouseX, &gCharacterEditorMouseY);
             gPerkDialogCurrentLine = (gCharacterEditorMouseY - (PERK_WINDOW_Y + PERK_WINDOW_LIST_Y)) / v16;
             if (gPerkDialogCurrentLine >= 0) {
                 if (count - 1 < gPerkDialogCurrentLine)

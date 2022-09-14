@@ -413,7 +413,7 @@ int lsgSaveGame(int mode)
                 if (1) {
                     int mouseX;
                     int mouseY;
-                    mouseGetPosition(&mouseX, &mouseY);
+                    mouse_get_position(&mouseX, &mouseY);
 
                     _slot_cursor = (mouseY - 79) / (3 * fontGetLineHeight() + 4);
                     if (_slot_cursor < 0) {
@@ -616,9 +616,9 @@ int _QuickSnapShot()
         gameMouseObjectsHide();
     }
 
-    mouseHideCursor();
+    mouse_hide();
     tileWindowRefresh();
-    mouseShowCursor();
+    mouse_show();
 
     if (gameMouseWasVisible) {
         gameMouseObjectsShow();
@@ -812,7 +812,7 @@ int lsgLoadGame(int mode)
                         do {
                             int mouseX;
                             int mouseY;
-                            mouseGetPosition(&mouseX, &mouseY);
+                            mouse_get_position(&mouseX, &mouseY);
                             int v41 = (mouseY - 79) / (3 * fontGetLineHeight() + 4);
                             if (v41 < 0) {
                                 v41 = 0;
@@ -1087,9 +1087,9 @@ int lsgWindowInit(int windowType)
             gameMouseObjectsHide();
         }
 
-        mouseHideCursor();
+        mouse_hide();
         tileWindowRefresh();
-        mouseShowCursor();
+        mouse_show();
 
         if (gameMouseWasVisible) {
             gameMouseObjectsShow();

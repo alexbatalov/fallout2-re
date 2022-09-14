@@ -143,9 +143,9 @@ int characterSelectorOpen()
         return 0;
     }
 
-    bool cursorWasHidden = cursorIsHidden();
+    bool cursorWasHidden = mouse_hidden();
     if (cursorWasHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     colorPaletteLoad("color.pal");
@@ -234,7 +234,7 @@ int characterSelectorOpen()
     characterSelectorWindowFree();
 
     if (cursorWasHidden) {
-        mouseHideCursor();
+        mouse_hide();
     }
 
     return rc;

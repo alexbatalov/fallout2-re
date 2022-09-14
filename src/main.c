@@ -153,9 +153,9 @@ int falloutMain(int argc, char** argv)
             _gsound_background_play_level_music("07desert", 11);
             mainMenuWindowUnhide(1);
 
-            mouseShowCursor();
+            mouse_show();
             int mainMenuRc = mainMenuWindowHandleEvents();
-            mouseHideCursor();
+            mouse_hide();
 
             switch (mainMenuRc) {
             case MAIN_MENU_INTRO:
@@ -234,10 +234,10 @@ int falloutMain(int argc, char** argv)
                 break;
             case MAIN_MENU_OPTIONS:
                 mainMenuWindowHide(false);
-                mouseShowCursor();
+                mouse_show();
                 showOptionsWithInitialKeyCode(112);
                 gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-                mouseShowCursor();
+                mouse_show();
                 mainMenuWindowUnhide(0);
                 break;
             case MAIN_MENU_CREDITS:
@@ -321,7 +321,7 @@ int _main_load_new(char* mapFileName)
     _main_show_death_scene = 0;
     gDude->flags &= ~OBJECT_FLAT;
     objectShow(gDude, NULL);
-    mouseHideCursor();
+    mouse_hide();
 
     int win = windowCreate(0, 0, 640, 480, _colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     win_draw(win);
@@ -330,7 +330,7 @@ int _main_load_new(char* mapFileName)
     paletteFadeTo(_cmap);
     _map_init();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
-    mouseShowCursor();
+    mouse_show();
     mapLoadByName(mapFileName);
     wmMapMusicStart();
     paletteFadeTo(gPaletteWhite);
@@ -351,12 +351,12 @@ int main_loadgame_new()
     gDude->flags &= ~OBJECT_FLAT;
 
     objectShow(gDude, NULL);
-    mouseHideCursor();
+    mouse_hide();
 
     _map_init();
 
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
-    mouseShowCursor();
+    mouse_show();
 
     return 0;
 }
@@ -371,9 +371,9 @@ void main_unload_new()
 // 0x480E48
 void mainLoop()
 {
-    bool cursorWasHidden = cursorIsHidden();
+    bool cursorWasHidden = mouse_hidden();
     if (cursorWasHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     _main_game_paused = 0;
@@ -402,7 +402,7 @@ void mainLoop()
     scriptsDisable();
 
     if (cursorWasHidden) {
-        mouseHideCursor();
+        mouse_hide();
     }
 }
 
@@ -522,9 +522,9 @@ void showDeath()
     colorCycleDisable();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
-    bool oldCursorIsHidden = cursorIsHidden();
+    bool oldCursorIsHidden = mouse_hidden();
     if (oldCursorIsHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     int deathWindowX = 0;
@@ -550,7 +550,7 @@ void showDeath()
                 break;
             }
 
-            while (mouseGetEvent() != 0) {
+            while (mouse_get_buttons() != 0) {
                 _get_input();
             }
 
@@ -610,7 +610,7 @@ void showDeath()
 
             speechDelete();
 
-            while (mouseGetEvent() != 0) {
+            while (mouse_get_buttons() != 0) {
                 _get_input();
             }
 
@@ -625,7 +625,7 @@ void showDeath()
     }
 
     if (oldCursorIsHidden) {
-        mouseHideCursor();
+        mouse_hide();
     }
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
@@ -935,9 +935,9 @@ int mainMenuWindowHandleEvents()
 {
     _in_main_menu = true;
 
-    bool oldCursorIsHidden = cursorIsHidden();
+    bool oldCursorIsHidden = mouse_hidden();
     if (oldCursorIsHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     unsigned int tick = _get_time();
@@ -973,7 +973,7 @@ int mainMenuWindowHandleEvents()
                 rc = MAIN_MENU_SCREENSAVER;
                 continue;
             } else if (keyCode == 1111) {
-                if (!(mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT)) {
+                if (!(mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT)) {
                     // NOTE: Uninline.
                     main_menu_play_sound("nmselec0");
                 }
@@ -997,7 +997,7 @@ int mainMenuWindowHandleEvents()
     }
 
     if (oldCursorIsHidden) {
-        mouseHideCursor();
+        mouse_hide();
     }
 
     _in_main_menu = false;

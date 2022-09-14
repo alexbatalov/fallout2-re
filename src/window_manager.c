@@ -910,9 +910,9 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                 v23 = v24;
             }
 
-            if (!_doing_refresh_all && a3 == NULL && cursorIsHidden() == 0) {
-                if (_mouse_in(rect->left, rect->top, rect->right, rect->bottom)) {
-                    mouseShowCursor();
+            if (!_doing_refresh_all && a3 == NULL && mouse_hidden() == 0) {
+                if (mouse_in(rect->left, rect->top, rect->right, rect->bottom)) {
+                    mouse_show();
                 }
             }
         } else {
@@ -953,9 +953,9 @@ void _win_clip(Window* window, RectListNode** rectListNodePtr, unsigned char* a3
     }
 
     if (a3 == _screen_buffer || a3 == NULL) {
-        if (cursorIsHidden() == 0) {
+        if (mouse_hidden() == 0) {
             Rect rect;
-            mouseGetRect(&rect);
+            mouse_get_rect(&rect);
             _rect_clip_list(rectListNodePtr, &rect);
         }
     }
@@ -983,7 +983,7 @@ void _win_drag(int win)
     tickersExecute();
 
     if (vcr_update() != 3) {
-        _mouse_info();
+        mouse_info();
     }
 
     if ((window->flags & WINDOW_FLAG_0x0100) && (window->rect.left & 3)) {
@@ -995,7 +995,7 @@ void _win_drag(int win)
 void _win_get_mouse_buf(unsigned char* a1)
 {
     Rect rect;
-    mouseGetRect(&rect);
+    mouse_get_rect(&rect);
     _refresh_all(&rect, a1);
 }
 
@@ -1011,9 +1011,9 @@ void _refresh_all(Rect* rect, unsigned char* a2)
     _doing_refresh_all = 0;
 
     if (a2 == NULL) {
-        if (!cursorIsHidden()) {
-            if (_mouse_in(rect->left, rect->top, rect->right, rect->bottom)) {
-                mouseShowCursor();
+        if (!mouse_hidden()) {
+            if (mouse_in(rect->left, rect->top, rect->right, rect->bottom)) {
+                mouse_show();
             }
         }
     }
@@ -1691,8 +1691,8 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
 
     *keyCodePtr = -1;
 
-    if (_mouse_click_in(window->rect.left, window->rect.top, window->rect.right, window->rect.bottom)) {
-        int mouseEvent = mouseGetEvent();
+    if (mouse_click_in(window->rect.left, window->rect.top, window->rect.right, window->rect.bottom)) {
+        int mouseEvent = mouse_get_buttons();
         if ((window->flags & WINDOW_FLAG_0x40) || (mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) == 0) {
             if (mouseEvent == 0) {
                 window->field_38 = NULL;
@@ -2018,7 +2018,7 @@ int _GNW_check_buttons(Window* window, int* keyCodePtr)
 // 0x4D9214
 bool _button_under_mouse(Button* button, Rect* rect)
 {
-    if (!_mouse_click_in(rect->left, rect->top, rect->right, rect->bottom)) {
+    if (!mouse_click_in(rect->left, rect->top, rect->right, rect->bottom)) {
         return false;
     }
 
@@ -2028,7 +2028,7 @@ bool _button_under_mouse(Button* button, Rect* rect)
 
     int x;
     int y;
-    mouseGetPosition(&x, &y);
+    mouse_get_position(&x, &y);
     x -= rect->left;
     y -= rect->top;
 

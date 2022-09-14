@@ -3080,7 +3080,7 @@ static int wmWorldMapFunc(int a1)
 
         int mouseX;
         int mouseY;
-        mouseGetPosition(&mouseX, &mouseY);
+        mouse_get_position(&mouseX, &mouseY);
 
         int v4 = wmWorldOffsetX + mouseX - WM_VIEW_X;
         int v5 = wmWorldOffsetY + mouseY - WM_VIEW_Y;
@@ -3096,7 +3096,7 @@ static int wmWorldMapFunc(int a1)
             break;
         }
 
-        int mouseEvent = mouseGetEvent();
+        int mouseEvent = mouse_get_buttons();
 
         if (wmGenData.isWalking) {
             wmPartyWalkingStep();
@@ -3196,7 +3196,7 @@ static int wmWorldMapFunc(int a1)
         }
 
         if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0 && (mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-            if (_mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
+            if (mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
                 if (!wmGenData.isWalking && !wmGenData.mousePressed && abs(wmGenData.worldPosX - v4) < 5 && abs(wmGenData.worldPosY - v5) < 5) {
                     wmGenData.mousePressed = true;
                     wmInterfaceRefresh();
@@ -3245,7 +3245,7 @@ static int wmWorldMapFunc(int a1)
                     }
                 }
             } else {
-                if (_mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
+                if (mouse_click_in(WM_VIEW_X, WM_VIEW_Y, 472, 465)) {
                     wmPartyInitWalking(v4, v5);
                 }
 
@@ -5129,7 +5129,7 @@ static void wmMouseBkProc()
 {
     int x;
     int y;
-    mouseGetPosition(&x, &y);
+    mouse_get_position(&x, &y);
 
     int dx = 0;
     if (x == 639) {

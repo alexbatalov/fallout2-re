@@ -79,9 +79,9 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
         sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
 
         if (vcr_play(path, VCR_TERMINATE_ON_KEY_PRESS | VCR_TERMINATE_ON_MOUSE_PRESS, selfrunPlaybackCompleted)) {
-            bool cursorWasHidden = cursorIsHidden();
+            bool cursorWasHidden = mouse_hidden();
             if (cursorWasHidden) {
-                mouseShowCursor();
+                mouse_show();
             }
 
             while (gSelfrunState == SELFRUN_STATE_PLAYING) {
@@ -91,12 +91,12 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
                 }
             }
 
-            while (mouseGetEvent() != 0) {
+            while (mouse_get_buttons() != 0) {
                 _get_input();
             }
 
             if (cursorWasHidden) {
-                mouseHideCursor();
+                mouse_hide();
             }
         }
     }
@@ -145,8 +145,8 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
         char path[MAX_PATH];
         sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
         if (vcr_record(path)) {
-            if (!cursorIsHidden()) {
-                mouseShowCursor();
+            if (!mouse_hidden()) {
+                mouse_show();
             }
 
             bool done = false;

@@ -418,10 +418,10 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     }
 
     if (eventCode == -2) {
-        int mouseState = mouseGetEvent();
+        int mouseState = mouse_get_buttons();
         int mouseX;
         int mouseY;
-        mouseGetPosition(&mouseX, &mouseY);
+        mouse_get_position(&mouseX, &mouseY);
 
         if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
@@ -454,10 +454,10 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case -2:
         if (1) {
-            int mouseEvent = mouseGetEvent();
+            int mouseEvent = mouse_get_buttons();
             int mouseX;
             int mouseY;
-            mouseGetPosition(&mouseX, &mouseY);
+            mouse_get_position(&mouseX, &mouseY);
 
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
@@ -1094,7 +1094,7 @@ void showHelp()
                 while (_get_input() == -1 && _game_user_wants_to_quit == 0) {
                 }
 
-                while (mouseGetEvent() != 0) {
+                while (mouse_get_buttons() != 0) {
                     _get_input();
                 }
 
@@ -1134,9 +1134,9 @@ int showQuitConfirmationDialog()
         gameMouseObjectsHide();
     }
 
-    bool cursorWasHidden = cursorIsHidden();
+    bool cursorWasHidden = mouse_hidden();
     if (cursorWasHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     int oldCursor = gameMouseGetCursor();
@@ -1159,7 +1159,7 @@ int showQuitConfirmationDialog()
     gameMouseSetCursor(oldCursor);
 
     if (cursorWasHidden) {
-        mouseHideCursor();
+        mouse_hide();
     }
 
     if (gameMouseWasVisible) {

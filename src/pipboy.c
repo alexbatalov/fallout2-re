@@ -223,7 +223,7 @@ int pipboyOpen(int intent)
         return -1;
     }
 
-    mouseGetPosition(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
+    mouse_get_position(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
     gPipboyLastEventTimestamp = _get_time();
 
     while (true) {
@@ -234,7 +234,7 @@ int pipboyOpen(int intent)
             intent = PIPBOY_OPEN_INTENT_UNSPECIFIED;
         }
 
-        mouseGetPosition(&gPipboyMouseX, &gPipboyMouseY);
+        mouse_get_position(&gPipboyMouseX, &gPipboyMouseY);
 
         if (keyCode != -1 || gPipboyMouseX != gPipboyPreviousMouseX || gPipboyMouseY != gPipboyPreviousMouseY) {
             gPipboyLastEventTimestamp = _get_time();
@@ -245,7 +245,7 @@ int pipboyOpen(int intent)
                 pipboyRenderScreensaver();
 
                 gPipboyLastEventTimestamp = _get_time();
-                mouseGetPosition(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
+                mouse_get_position(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
             }
         }
 
@@ -2008,7 +2008,7 @@ int pipboyRenderScreensaver()
 {
     PipboyBomb bombs[PIPBOY_BOMB_COUNT];
 
-    mouseGetPosition(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
+    mouse_get_position(&gPipboyPreviousMouseX, &gPipboyPreviousMouseY);
 
     for (int index = 0; index < PIPBOY_BOMB_COUNT; index += 1) {
         bombs[index].field_10 = 0;
@@ -2039,7 +2039,7 @@ int pipboyRenderScreensaver()
     while (true) {
         unsigned int time = _get_time();
 
-        mouseGetPosition(&gPipboyMouseX, &gPipboyMouseY);
+        mouse_get_position(&gPipboyMouseX, &gPipboyMouseY);
         if (_get_input() != -1 || gPipboyPreviousMouseX != gPipboyMouseX || gPipboyPreviousMouseY != gPipboyMouseY) {
             break;
         }

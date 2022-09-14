@@ -224,17 +224,17 @@ int gameMoviePlay(int movie, int flags)
         windowSetFont(101);
     }
 
-    bool cursorWasHidden = cursorIsHidden();
+    bool cursorWasHidden = mouse_hidden();
     if (cursorWasHidden) {
         gameMouseSetCursor(MOUSE_CURSOR_NONE);
-        mouseShowCursor();
+        mouse_show();
     }
 
-    while (mouseGetEvent() != 0) {
-        _mouse_info();
+    while (mouse_get_buttons() != 0) {
+        mouse_info();
     }
 
-    mouseHideCursor();
+    mouse_hide();
     colorCycleDisable();
 
     movieEffectsLoad(movieFilePath);
@@ -251,7 +251,7 @@ int gameMoviePlay(int movie, int flags)
 
         int x;
         int y;
-        _mouse_get_raw_state(&x, &y, &buttons);
+        mouse_get_raw_state(&x, &y, &buttons);
 
         v11 |= buttons;
     } while (((v11 & 1) == 0 && (v11 & 2) == 0) || (buttons & 1) != 0 || (buttons & 2) != 0);
@@ -268,7 +268,7 @@ int gameMoviePlay(int movie, int flags)
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
     if (!cursorWasHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     if (subtitlesEnabled) {

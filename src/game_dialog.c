@@ -947,7 +947,7 @@ int _gdialogStart()
 // 0x445510
 int _gdialogSayMessage()
 {
-    mouseShowCursor();
+    mouse_show();
     _gdialogGo();
 
     gGameDialogOptionEntriesLength = 0;
@@ -1781,7 +1781,7 @@ int _gdProcess()
             break;
         }
 
-        if (keyCode == KEY_CTRL_B && !_mouse_click_in(135, 225, 514, 283)) {
+        if (keyCode == KEY_CTRL_B && !mouse_click_in(135, 225, 514, 283)) {
             if (gameMouseGetCursor() != MOUSE_CURSOR_ARROW) {
                 gameMouseSetCursor(MOUSE_CURSOR_ARROW);
             }
@@ -1912,7 +1912,7 @@ int _gdProcessChoice(int a1)
     GameDialogOptionEntry dummy;
     memset(&dummy, 0, sizeof(dummy));
 
-    mouseHideCursor();
+    mouse_hide();
     _gdProcessCleanup();
 
     GameDialogOptionEntry* dialogOptionEntry = a1 != -1 ? &(gDialogOptionEntries[a1]) : &dummy;
@@ -1961,7 +1961,7 @@ int _gdProcessChoice(int a1)
         }
     }
 
-    mouseShowCursor();
+    mouse_show();
 
     if (gGameDialogOptionEntriesLength == 0) {
         return -1;
@@ -2446,7 +2446,7 @@ void _gdPlayTransition(int anim)
         return;
     }
 
-    mouseHideCursor();
+    mouse_hide();
 
     debugPrint("Starting transition...\n");
 
@@ -2483,7 +2483,7 @@ void _gdPlayTransition(int anim)
     }
 
     debugPrint("Finished transition...\n");
-    mouseShowCursor();
+    mouse_show();
 }
 
 // 0x447724
@@ -3602,7 +3602,7 @@ void partyMemberControlWindowHandleEvents()
                     return;
                 }
             } else if (keyCode == -2) {
-                if (_mouse_click_in(441, 451, 540, 470)) {
+                if (mouse_click_in(441, 451, 540, 470)) {
                     aiSetDisposition(gGameDialogSpeaker, 0);
                     _dialogue_state = 13;
                     _dialogue_switch_mode = 11;
@@ -4013,17 +4013,17 @@ int _gdCustomSelect(int a1)
         } else if (keyCode == KEY_ESCAPE) {
             done = true;
         } else if (keyCode == -2) {
-            if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
+            if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
                 continue;
             }
 
-            if (!_mouse_click_in(minX, minY, maxX, maxY)) {
+            if (!mouse_click_in(minX, minY, maxX, maxY)) {
                 continue;
             }
 
             int mouseX;
             int mouseY;
-            mouseGetPosition(&mouseX, &mouseY);
+            mouse_get_position(&mouseX, &mouseY);
 
             int lineHeight = fontGetLineHeight();
             int newValue = (mouseY - minY) / lineHeight;

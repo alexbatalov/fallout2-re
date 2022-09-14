@@ -554,7 +554,7 @@ void inventoryOpen()
         } else if (keyCode == 2500) {
             _container_exit(keyCode, INVENTORY_WINDOW_TYPE_NORMAL);
         } else {
-            if ((mouseGetEvent() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
+            if ((mouse_get_buttons() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
                 if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_HAND) {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_ARROW);
                 } else if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
@@ -562,7 +562,7 @@ void inventoryOpen()
                     inventoryRenderSummary();
                     win_draw(gInventoryWindow);
                 }
-            } else if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
+            } else if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if (keyCode >= 1000 && keyCode <= 1008) {
                     if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
                         inventoryWindowOpenContextMenu(keyCode, INVENTORY_WINDOW_TYPE_NORMAL);
@@ -1617,7 +1617,7 @@ void inventorySetCursor(int cursor)
 
     if (cursor != INVENTORY_WINDOW_CURSOR_ARROW || _im_value == -1) {
         InventoryCursorData* cursorData = &(gInventoryCursorData[cursor]);
-        mouseSetFrame(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, cursorData->offsetX, cursorData->offsetY, 0);
+        mouse_set_shape(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, cursorData->offsetX, cursorData->offsetY, 0);
     } else {
         inventoryItemSlotOnMouseEnter(-1, _im_value);
     }
@@ -1629,7 +1629,7 @@ void inventoryItemSlotOnMouseEnter(int btn, int keyCode)
     if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
         int x;
         int y;
-        mouseGetPosition(&x, &y);
+        mouse_get_position(&x, &y);
 
         Object* a2a = NULL;
         if (_inven_from_button(keyCode, &a2a, NULL, NULL) != 0) {
@@ -1640,14 +1640,14 @@ void inventoryItemSlotOnMouseEnter(int btn, int keyCode)
             _gmouse_3d_pick_frame_hot(&v5, &v6);
 
             InventoryCursorData* cursorData = &(gInventoryCursorData[INVENTORY_WINDOW_CURSOR_PICK]);
-            mouseSetFrame(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, v5, v6, 0);
+            mouse_set_shape(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, v5, v6, 0);
 
             if (a2a != _last_target) {
                 _obj_look_at_func(_stack[0], a2a, gInventoryPrintItemDescriptionHandler);
             }
         } else {
             InventoryCursorData* cursorData = &(gInventoryCursorData[INVENTORY_WINDOW_CURSOR_ARROW]);
-            mouseSetFrame(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, cursorData->offsetX, cursorData->offsetY, 0);
+            mouse_set_shape(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, cursorData->offsetX, cursorData->offsetY, 0);
         }
 
         _last_target = a2a;
@@ -1661,7 +1661,7 @@ void inventoryItemSlotOnMouseExit(int btn, int keyCode)
 {
     if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
         InventoryCursorData* cursorData = &(gInventoryCursorData[INVENTORY_WINDOW_CURSOR_ARROW]);
-        mouseSetFrame(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, cursorData->offsetX, cursorData->offsetY, 0);
+        mouse_set_shape(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, cursorData->offsetX, cursorData->offsetY, 0);
     }
 
     _im_value = -1;
@@ -1775,7 +1775,7 @@ void _inven_pickup(int keyCode, int a2)
         int width = artGetWidth(itemInventoryFrm, 0, 0);
         int height = artGetHeight(itemInventoryFrm, 0, 0);
         unsigned char* itemInventoryFrmData = artGetFrameData(itemInventoryFrm, 0, 0);
-        mouseSetFrame(itemInventoryFrmData, width, height, width, width / 2, height / 2, 0);
+        mouse_set_shape(itemInventoryFrmData, width, height, width, width / 2, height / 2, 0);
         soundPlayFile("ipickup1");
     }
 
@@ -1786,17 +1786,17 @@ void _inven_pickup(int keyCode, int a2)
     do {
         _get_input();
         _display_body(-1, INVENTORY_WINDOW_TYPE_NORMAL);
-    } while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+    } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (itemInventoryFrm != NULL) {
         artUnlock(itemInventoryFrmHandle);
         soundPlayFile("iputdown");
     }
 
-    if (_mouse_click_in(INVENTORY_SCROLLER_ABS_X, INVENTORY_SCROLLER_ABS_Y, INVENTORY_SCROLLER_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_SCROLLER_ABS_Y)) {
+    if (mouse_click_in(INVENTORY_SCROLLER_ABS_X, INVENTORY_SCROLLER_ABS_Y, INVENTORY_SCROLLER_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_SCROLLER_ABS_Y)) {
         int x;
         int y;
-        mouseGetPosition(&x, &y);
+        mouse_get_position(&x, &y);
 
         int v18 = (y - 39) / 48 + a2;
         if (v18 < _pud->length) {
@@ -1827,19 +1827,19 @@ void _inven_pickup(int keyCode, int a2)
                 gInventoryRightHandItem = NULL;
             }
         }
-    } else if (_mouse_click_in(INVENTORY_LEFT_HAND_SLOT_ABS_X, INVENTORY_LEFT_HAND_SLOT_ABS_Y, INVENTORY_LEFT_HAND_SLOT_ABS_MAX_X, INVENTORY_LEFT_HAND_SLOT_ABS_MAX_Y)) {
+    } else if (mouse_click_in(INVENTORY_LEFT_HAND_SLOT_ABS_X, INVENTORY_LEFT_HAND_SLOT_ABS_Y, INVENTORY_LEFT_HAND_SLOT_ABS_MAX_X, INVENTORY_LEFT_HAND_SLOT_ABS_MAX_Y)) {
         if (gInventoryLeftHandItem != NULL && itemGetType(gInventoryLeftHandItem) == ITEM_TYPE_CONTAINER && gInventoryLeftHandItem != a1a) {
             _drop_into_container(gInventoryLeftHandItem, a1a, v3, v29, count);
         } else if (gInventoryLeftHandItem == NULL || _drop_ammo_into_weapon(gInventoryLeftHandItem, a1a, v29, count, keyCode)) {
             _switch_hand(a1a, &gInventoryLeftHandItem, v29, keyCode);
         }
-    } else if (_mouse_click_in(INVENTORY_RIGHT_HAND_SLOT_ABS_X, INVENTORY_RIGHT_HAND_SLOT_ABS_Y, INVENTORY_RIGHT_HAND_SLOT_ABS_MAX_X, INVENTORY_RIGHT_HAND_SLOT_ABS_MAX_Y)) {
+    } else if (mouse_click_in(INVENTORY_RIGHT_HAND_SLOT_ABS_X, INVENTORY_RIGHT_HAND_SLOT_ABS_Y, INVENTORY_RIGHT_HAND_SLOT_ABS_MAX_X, INVENTORY_RIGHT_HAND_SLOT_ABS_MAX_Y)) {
         if (gInventoryRightHandItem != NULL && itemGetType(gInventoryRightHandItem) == ITEM_TYPE_CONTAINER && gInventoryRightHandItem != a1a) {
             _drop_into_container(gInventoryRightHandItem, a1a, v3, v29, count);
         } else if (gInventoryRightHandItem == NULL || _drop_ammo_into_weapon(gInventoryRightHandItem, a1a, v29, count, keyCode)) {
             _switch_hand(a1a, &gInventoryRightHandItem, v29, v3);
         }
-    } else if (_mouse_click_in(INVENTORY_ARMOR_SLOT_ABS_X, INVENTORY_ARMOR_SLOT_ABS_Y, INVENTORY_ARMOR_SLOT_ABS_MAX_X, INVENTORY_ARMOR_SLOT_ABS_MAX_Y)) {
+    } else if (mouse_click_in(INVENTORY_ARMOR_SLOT_ABS_X, INVENTORY_ARMOR_SLOT_ABS_Y, INVENTORY_ARMOR_SLOT_ABS_MAX_X, INVENTORY_ARMOR_SLOT_ABS_MAX_Y)) {
         if (itemGetType(a1a) == ITEM_TYPE_ARMOR) {
             Object* v21 = gInventoryArmor;
             int v22 = 0;
@@ -1870,7 +1870,7 @@ void _inven_pickup(int keyCode, int a2)
                 gInventoryArmor = a1a;
             }
         }
-    } else if (_mouse_click_in(INVENTORY_PC_BODY_VIEW_ABS_X, INVENTORY_PC_BODY_VIEW_ABS_Y, INVENTORY_PC_BODY_VIEW_ABS_MAX_X, INVENTORY_PC_BODY_VIEW_ABS_MAX_Y)) {
+    } else if (mouse_click_in(INVENTORY_PC_BODY_VIEW_ABS_X, INVENTORY_PC_BODY_VIEW_ABS_Y, INVENTORY_PC_BODY_VIEW_ABS_MAX_X, INVENTORY_PC_BODY_VIEW_ABS_MAX_Y)) {
         if (_curr_stack != 0) {
             // TODO: Check this _curr_stack - 1, not sure.
             _drop_into_container(_stack[_curr_stack - 1], a1a, v3, v29, count);
@@ -2101,13 +2101,13 @@ void inventoryOpenUseItemOn(Object* a1)
             _container_exit(keyCode, INVENTORY_WINDOW_TYPE_USE_ITEM_ON);
             break;
         default:
-            if ((mouseGetEvent() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
+            if ((mouse_get_buttons() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
                 if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_HAND) {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_ARROW);
                 } else {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
                 }
-            } else if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
+            } else if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if (keyCode >= 1000 && keyCode < 1000 + gInventorySlotsCount) {
                     if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
                         inventoryWindowOpenContextMenu(keyCode, INVENTORY_WINDOW_TYPE_USE_ITEM_ON);
@@ -3030,7 +3030,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
             _display_body(-1, INVENTORY_WINDOW_TYPE_NORMAL);
         }
 
-        mouseState = mouseGetEvent();
+        mouseState = mouse_get_buttons();
         if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
             if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL) {
                 _obj_look_at_func(_stack[0], item, gInventoryPrintItemDescriptionHandler);
@@ -3048,7 +3048,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
 
     int x;
     int y;
-    mouseGetPosition(&x, &y);
+    mouse_get_position(&x, &y);
 
     int actionMenuItemsLength;
     const int* actionMenuItems;
@@ -3134,7 +3134,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
 
     int menuItemIndex = 0;
     int previousMouseY = y;
-    while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
+    while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
         _get_input();
 
         if (inventoryWindowType == INVENTORY_WINDOW_TYPE_NORMAL) {
@@ -3143,7 +3143,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
 
         int x;
         int y;
-        mouseGetPosition(&x, &y);
+        mouse_get_position(&x, &y);
         if (y - previousMouseY > 10 || previousMouseY - y > 10) {
             if (y >= previousMouseY || menuItemIndex <= 0) {
                 if (previousMouseY < y && menuItemIndex < actionMenuItemsLength - 1) {
@@ -3182,7 +3182,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
         artUnlock(backgroundFrmHandle);
     }
 
-    _mouse_set_position(x, y);
+    mouse_set_position(x, y);
 
     _display_inventory(_stack_offset[_curr_stack], -1, inventoryWindowType);
 
@@ -3604,13 +3604,13 @@ int inventoryOpenLooting(Object* a1, Object* a2)
         } else if (keyCode >= 2500 && keyCode <= 2501) {
             _container_exit(keyCode, INVENTORY_WINDOW_TYPE_LOOT);
         } else {
-            if ((mouseGetEvent() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
+            if ((mouse_get_buttons() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
                 if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_HAND) {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_ARROW);
                 } else {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
                 }
-            } else if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
+            } else if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if (keyCode >= 1000 && keyCode <= 1000 + gInventorySlotsCount) {
                     if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
                         inventoryWindowOpenContextMenu(keyCode, INVENTORY_WINDOW_TYPE_LOOT);
@@ -3812,13 +3812,13 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
         int width = artGetWidth(inventoryFrm, 0, 0);
         int height = artGetHeight(inventoryFrm, 0, 0);
         unsigned char* data = artGetFrameData(inventoryFrm, 0, 0);
-        mouseSetFrame(data, width, height, width, width / 2, height / 2, 0);
+        mouse_set_shape(data, width, height, width, width / 2, height / 2, 0);
         soundPlayFile("ipickup1");
     }
 
     do {
         _get_input();
-    } while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+    } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (inventoryFrm != NULL) {
         artUnlock(inventoryFrmHandle);
@@ -3829,7 +3829,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
     MessageListItem messageListItem;
 
     if (a4) {
-        if (_mouse_click_in(INVENTORY_LOOT_RIGHT_SCROLLER_ABS_X, INVENTORY_LOOT_RIGHT_SCROLLER_ABS_Y, INVENTORY_LOOT_RIGHT_SCROLLER_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_LOOT_RIGHT_SCROLLER_ABS_Y)) {
+        if (mouse_click_in(INVENTORY_LOOT_RIGHT_SCROLLER_ABS_X, INVENTORY_LOOT_RIGHT_SCROLLER_ABS_Y, INVENTORY_LOOT_RIGHT_SCROLLER_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_LOOT_RIGHT_SCROLLER_ABS_Y)) {
             int quantityToMove;
             if (quantity > 1) {
                 quantityToMove = inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity);
@@ -3858,7 +3858,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
             }
         }
     } else {
-        if (_mouse_click_in(INVENTORY_LOOT_LEFT_SCROLLER_ABS_X, INVENTORY_LOOT_LEFT_SCROLLER_ABS_Y, INVENTORY_LOOT_LEFT_SCROLLER_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_LOOT_LEFT_SCROLLER_ABS_Y)) {
+        if (mouse_click_in(INVENTORY_LOOT_LEFT_SCROLLER_ABS_X, INVENTORY_LOOT_LEFT_SCROLLER_ABS_Y, INVENTORY_LOOT_LEFT_SCROLLER_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_LOOT_LEFT_SCROLLER_ABS_Y)) {
             int quantityToMove;
             if (quantity > 1) {
                 quantityToMove = inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity);
@@ -4028,13 +4028,13 @@ void _barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5
         int width = artGetWidth(inventoryFrm, 0, 0);
         int height = artGetHeight(inventoryFrm, 0, 0);
         unsigned char* data = artGetFrameData(inventoryFrm, 0, 0);
-        mouseSetFrame(data, width, height, width, width / 2, height / 2, 0);
+        mouse_set_shape(data, width, height, width, width / 2, height / 2, 0);
         soundPlayFile("ipickup1");
     }
 
     do {
         _get_input();
-    } while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+    } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (inventoryFrm != NULL) {
         artUnlock(inventoryFrmHandle);
@@ -4044,7 +4044,7 @@ void _barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5
     MessageListItem messageListItem;
 
     if (a7) {
-        if (_mouse_click_in(INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_Y)) {
+        if (mouse_click_in(INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_LEFT_SCROLLER_TRACKING_ABS_Y)) {
             int quantityToMove = quantity > 1 ? inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (_item_move_force(_inven_dude, a6, a1, quantityToMove) == -1) {
@@ -4057,7 +4057,7 @@ void _barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5
             }
         }
     } else {
-        if (_mouse_click_in(INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_Y)) {
+        if (mouse_click_in(INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_INNER_RIGHT_SCROLLER_TRACKING_ABS_Y)) {
             int quantityToMove = quantity > 1 ? inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (_item_move_force(a5, a6, a1, quantityToMove) == -1) {
@@ -4111,13 +4111,13 @@ void _barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object*
         int width = artGetWidth(inventoryFrm, 0, 0);
         int height = artGetHeight(inventoryFrm, 0, 0);
         unsigned char* data = artGetFrameData(inventoryFrm, 0, 0);
-        mouseSetFrame(data, width, height, width, width / 2, height / 2, 0);
+        mouse_set_shape(data, width, height, width, width / 2, height / 2, 0);
         soundPlayFile("ipickup1");
     }
 
     do {
         _get_input();
-    } while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+    } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (inventoryFrm != NULL) {
         artUnlock(inventoryFrmHandle);
@@ -4127,7 +4127,7 @@ void _barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object*
     MessageListItem messageListItem;
 
     if (a6) {
-        if (_mouse_click_in(INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_Y)) {
+        if (mouse_click_in(INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_INNER_LEFT_SCROLLER_TRACKING_ABS_Y)) {
             int quantityToMove = quantity > 1 ? inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (_item_move_force(a5, _inven_dude, a1, quantityToMove) == -1) {
@@ -4140,7 +4140,7 @@ void _barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object*
             }
         }
     } else {
-        if (_mouse_click_in(INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_Y)) {
+        if (mouse_click_in(INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_X, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_Y, INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_MAX_X, INVENTORY_SLOT_HEIGHT * gInventorySlotsCount + INVENTORY_TRADE_RIGHT_SCROLLER_TRACKING_ABS_Y)) {
             int quantityToMove = quantity > 1 ? inventoryQuantitySelect(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, a1, quantity) : 1;
             if (quantityToMove != -1) {
                 if (_item_move_force(a5, a4, a1, quantityToMove) == -1) {
@@ -4406,13 +4406,13 @@ void inventoryOpenTrade(int win, Object* a2, Object* a3, Object* a4, int a5)
         } else if (keyCode >= 2500 && keyCode <= 2501) {
             _container_exit(keyCode, INVENTORY_WINDOW_TYPE_TRADE);
         } else {
-            if ((mouseGetEvent() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
+            if ((mouse_get_buttons() & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0) {
                 if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_HAND) {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_ARROW);
                 } else {
                     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
                 }
-            } else if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
+            } else if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if (keyCode >= 1000 && keyCode <= 1000 + gInventorySlotsCount) {
                     if (gInventoryCursor == INVENTORY_WINDOW_CURSOR_ARROW) {
                         inventoryWindowOpenContextMenu(keyCode, INVENTORY_WINDOW_TYPE_TRADE);
@@ -4772,11 +4772,11 @@ int inventoryQuantitySelect(int inventoryWindowType, Object* item, int max)
             v5 = false;
             if (value < max) {
                 if (inventoryWindowType == INVENTORY_WINDOW_TYPE_MOVE_ITEMS) {
-                    if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
+                    if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
                         _get_time();
 
                         unsigned int delay = 100;
-                        while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
+                        while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
                             if (value < max) {
                                 value++;
                             }
@@ -4805,11 +4805,11 @@ int inventoryQuantitySelect(int inventoryWindowType, Object* item, int max)
             v5 = false;
             if (value > min) {
                 if (inventoryWindowType == INVENTORY_WINDOW_TYPE_MOVE_ITEMS) {
-                    if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
+                    if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
                         _get_time();
 
                         unsigned int delay = 100;
-                        while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
+                        while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
                             if (value > min) {
                                 value--;
                             }

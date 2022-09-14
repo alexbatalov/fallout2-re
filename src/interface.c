@@ -2297,7 +2297,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 }
 
                 blitBufferToBuffer(upSrc, 9, 17, 360, onesDest, 640);
-                _mouse_info();
+                mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
                 win_draw_rect(gInterfaceBarWindow, &numbersRect);
@@ -2306,7 +2306,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
 
                 if (ones > 9 || ones < 0) {
                     blitBufferToBuffer(upSrc, 9, 17, 360, tensDest, 640);
-                    _mouse_info();
+                    mouse_info();
                     gameMouseRefresh();
                     coreDelay(delay);
                     win_draw_rect(gInterfaceBarWindow, &numbersRect);
@@ -2315,7 +2315,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                     ones -= 10 * v49;
                     if (tens == 10 || tens == -1) {
                         blitBufferToBuffer(upSrc, 9, 17, 360, hundredsDest, 640);
-                        _mouse_info();
+                        mouse_info();
                         gameMouseRefresh();
                         coreDelay(delay);
                         win_draw_rect(gInterfaceBarWindow, &numbersRect);
@@ -2327,7 +2327,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                         }
 
                         blitBufferToBuffer(downSrc, 9, 17, 360, hundredsDest, 640);
-                        _mouse_info();
+                        mouse_info();
                         gameMouseRefresh();
                         coreDelay(delay);
                         win_draw_rect(gInterfaceBarWindow, &numbersRect);
@@ -2339,7 +2339,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 }
 
                 blitBufferToBuffer(downSrc, 9, 17, 360, onesDest, 640);
-                _mouse_info();
+                mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
                 win_draw_rect(gInterfaceBarWindow, &numbersRect);
@@ -2351,7 +2351,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 blitBufferToBuffer(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
 
                 blitBufferToBuffer(previousValue >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
-                _mouse_info();
+                mouse_info();
                 gameMouseRefresh();
                 coreDelay(delay);
                 win_draw_rect(gInterfaceBarWindow, &numbersRect);

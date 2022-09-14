@@ -308,7 +308,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         int keyCode = _get_input();
         int mouseX;
         int mouseY;
-        mouseGetPosition(&mouseX, &mouseY);
+        mouse_get_position(&mouseX, &mouseY);
 
         if (keyCode == KEY_RETURN || (keyCode >= 1024 && keyCode < listViewCapacity + 1024)) {
             if (selectedItemIndex != -1) {

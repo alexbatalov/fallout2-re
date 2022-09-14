@@ -61,9 +61,9 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
             colorCycleDisable();
             gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
-            bool cursorWasHidden = cursorIsHidden();
+            bool cursorWasHidden = mouse_hidden();
             if (cursorWasHidden) {
-                mouseShowCursor();
+                mouse_show();
             }
 
             int creditsWindowX = 0;
@@ -225,7 +225,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
             }
 
             if (cursorWasHidden) {
-                mouseHideCursor();
+                mouse_hide();
             }
 
             gameMouseSetCursor(MOUSE_CURSOR_ARROW);

@@ -25,51 +25,6 @@ int gKeyboardKeyRepeatDelay = 500;
 // 0x51E244
 bool _keyboard_hooked = false;
 
-// The default mouse cursor buffer.
-//
-// Initially it contains color codes, which will be replaced at startup
-// according to loaded palette.
-//
-// Available color codes:
-// - 0: transparent
-// - 1: white
-// - 15:  black
-//
-// 0x51E250
-unsigned char gMouseDefaultCursor[MOUSE_DEFAULT_CURSOR_SIZE] = {
-    // clang-format off
-    1,  1,  1,  1,  1,  1,  1, 0,
-    1, 15, 15, 15, 15, 15,  1, 0,
-    1, 15, 15, 15, 15,  1,  1, 0,
-    1, 15, 15, 15, 15,  1,  1, 0,
-    1, 15, 15, 15, 15, 15,  1, 1,
-    1, 15,  1,  1, 15, 15, 15, 1,
-    1,  1,  1,  1,  1, 15, 15, 1,
-    0,  0,  0,  0,  1,  1,  1, 1,
-    // clang-format on
-};
-
-// 0x51E290
-int _mouse_idling = 0;
-
-// 0x51E294
-unsigned char* gMouseCursorData = NULL;
-
-// 0x51E298
-unsigned char* _mouse_shape = NULL;
-
-// 0x51E29C
-unsigned char* _mouse_fptr = NULL;
-
-// 0x51E2A0
-double gMouseSensitivity = 1.0;
-
-// 0x51E2A8
-unsigned int _ticker_ = 0;
-
-// 0x51E2AC
-int gMouseButtonsState = 0;
-
 // 0x51E2B0
 LPDIRECTDRAW gDirectDraw = NULL;
 
@@ -155,81 +110,6 @@ TickerListNode* gTickerListHead;
 // 0x6AC788
 unsigned int gTickerLastTimestamp;
 
-// 0x6AC790
-bool gCursorIsHidden;
-
-// x (1)
-// 0x6AC794
-int _raw_x;
-
-// 0x6AC798
-int gMouseCursorHeight;
-
-// y (1)
-// 0x6AC79C
-int _raw_y;
-
-// mouse event (1)
-// 0x6AC7A0
-int _raw_buttons;
-
-// 0x6AC7A4
-int gMouseCursorY;
-
-// 0x6AC7A8
-int gMouseCursorX;
-
-// 0x6AC7AC
-int _mouse_disabled;
-
-// 0x6AC7B0
-int gMouseEvent;
-
-// 0x6AC7B4
-unsigned int _mouse_speed;
-
-// 0x6AC7B8
-int _mouse_curr_frame;
-
-// 0x6AC7BC
-bool gMouseInitialized;
-
-// 0x6AC7C0
-int gMouseCursorPitch;
-
-// 0x6AC7C4
-int gMouseCursorWidth;
-
-// 0x6AC7C8
-int _mouse_num_frames;
-
-// 0x6AC7CC
-int _mouse_hoty;
-
-// 0x6AC7D0
-int _mouse_hotx;
-
-// 0x6AC7D4
-unsigned int _mouse_idle_start_time;
-
-// 0x6AC7D8
-WindowDrawingProc2* _mouse_blit_trans;
-
-// 0x6AC7DC
-WINDOWDRAWINGPROC _mouse_blit;
-
-// 0x6AC7E0
-unsigned char _mouse_trans;
-
-// 0x6AC7E4
-int gMouseRightButtonDownTimestamp;
-
-// 0x6AC7E8
-int gMouseLeftButtonDownTimestamp;
-
-// 0x6AC7EC
-int gMousePreviousEvent;
-
 // 0x6AC7F0
 unsigned short gSixteenBppPalette[256];
 
@@ -282,7 +162,7 @@ int coreInit(int a1)
         return -1;
     }
 
-    if (mouseInit() == -1) {
+    if (GNW_mouse_init() == -1) {
         return -1;
     }
 
@@ -315,7 +195,7 @@ void coreExit()
 {
     _GNW95_hook_keyboard(0);
     _GNW95_input_init();
-    mouseFree();
+    GNW_mouse_exit();
     GNW_kb_restore();
     directInputFree();
 
@@ -341,8 +221,8 @@ int _get_input()
     _process_bk();
 
     v3 = dequeueInputEvent();
-    if (v3 == -1 && mouseGetEvent() & 0x33) {
-        mouseGetPosition(&_input_mx, &_input_my);
+    if (v3 == -1 && mouse_get_buttons() & 0x33) {
+        mouse_get_position(&_input_mx, &_input_my);
         return -2;
     } else {
         return _GNW_check_menu_bars(v3);
@@ -359,7 +239,7 @@ void _process_bk()
     tickersExecute();
 
     if (vcr_update() != 3) {
-        _mouse_info();
+        mouse_info();
     }
 
     v1 = _win_check_all_buttons();
@@ -399,7 +279,7 @@ void enqueueInputEvent(int a1)
     InputEvent* inputEvent = &(gInputEventQueue[gInputEventQueueWriteIndex]);
     inputEvent->logicalKey = a1;
 
-    mouseGetPosition(&(inputEvent->mouseX), &(inputEvent->mouseY));
+    mouse_get_position(&(inputEvent->mouseX), &(inputEvent->mouseY));
 
     gInputEventQueueWriteIndex++;
 
@@ -601,19 +481,19 @@ void takeScreenshot()
         return;
     }
 
-    WINDOWDRAWINGPROC v0 = _scr_blit;
+    ScreenBlitFunc* v0 = _scr_blit;
     _scr_blit = screenshotBlitter;
 
-    WINDOWDRAWINGPROC v2 = _mouse_blit;
-    _mouse_blit = screenshotBlitter;
+    ScreenBlitFunc* v2 = mouse_blit;
+    mouse_blit = screenshotBlitter;
 
-    WindowDrawingProc2* v1 = _mouse_blit_trans;
-    _mouse_blit_trans = NULL;
+    ScreenTransBlitFunc* v1 = mouse_blit_trans;
+    mouse_blit_trans = NULL;
 
     windowRefreshAll(&_scr_size);
 
-    _mouse_blit_trans = v1;
-    _mouse_blit = v2;
+    mouse_blit_trans = v1;
+    mouse_blit = v2;
     _scr_blit = v0;
 
     unsigned char* palette = _getSystemPalette();
@@ -1344,518 +1224,6 @@ void _GNW95_lost_focus()
     }
 }
 
-// 0x4C9F40
-int mouseInit()
-{
-    gMouseInitialized = false;
-    _mouse_disabled = 0;
-
-    gCursorIsHidden = true;
-
-    mousePrepareDefaultCursor();
-
-    if (mouseSetFrame(NULL, 0, 0, 0, 0, 0, 0) == -1) {
-        return -1;
-    }
-
-    if (!mouseDeviceAcquire()) {
-        return -1;
-    }
-
-    gMouseInitialized = true;
-    gMouseCursorX = _scr_size.right / 2;
-    gMouseCursorY = _scr_size.bottom / 2;
-    _raw_x = _scr_size.right / 2;
-    _raw_y = _scr_size.bottom / 2;
-    _mouse_idle_start_time = _get_time();
-
-    return 0;
-}
-
-// 0x4C9FD8
-void mouseFree()
-{
-    mouseDeviceUnacquire();
-
-    if (gMouseCursorData != NULL) {
-        internal_free(gMouseCursorData);
-        gMouseCursorData = NULL;
-    }
-
-    if (_mouse_fptr != NULL) {
-        tickersRemove(_mouse_anim);
-        _mouse_fptr = NULL;
-    }
-}
-
-// 0x4CA01C
-void mousePrepareDefaultCursor()
-{
-    for (int index = 0; index < 64; index++) {
-        switch (gMouseDefaultCursor[index]) {
-        case 0:
-            gMouseDefaultCursor[index] = _colorTable[0];
-            break;
-        case 1:
-            gMouseDefaultCursor[index] = _colorTable[8456];
-            break;
-        case 15:
-            gMouseDefaultCursor[index] = _colorTable[32767];
-            break;
-        }
-    }
-}
-
-// 0x4CA0AC
-int mouseSetFrame(unsigned char* a1, int width, int height, int pitch, int a5, int a6, int a7)
-{
-    Rect rect;
-    unsigned char* v9;
-    int v11, v12;
-    int v7, v8;
-
-    v7 = a5;
-    v8 = a6;
-    v9 = a1;
-
-    if (a1 == NULL) {
-        // NOTE: Original code looks tail recursion optimization.
-        return mouseSetFrame(gMouseDefaultCursor, MOUSE_DEFAULT_CURSOR_WIDTH, MOUSE_DEFAULT_CURSOR_HEIGHT, MOUSE_DEFAULT_CURSOR_WIDTH, 1, 1, _colorTable[0]);
-    }
-
-    bool cursorWasHidden = gCursorIsHidden;
-    if (!gCursorIsHidden && gMouseInitialized) {
-        gCursorIsHidden = true;
-        mouseGetRect(&rect);
-        windowRefreshAll(&rect);
-    }
-
-    if (width != gMouseCursorWidth || height != gMouseCursorHeight) {
-        unsigned char* buf = (unsigned char*)internal_malloc(width * height);
-        if (buf == NULL) {
-            if (!cursorWasHidden) {
-                mouseShowCursor();
-            }
-            return -1;
-        }
-
-        if (gMouseCursorData != NULL) {
-            internal_free(gMouseCursorData);
-        }
-
-        gMouseCursorData = buf;
-    }
-
-    gMouseCursorWidth = width;
-    gMouseCursorHeight = height;
-    gMouseCursorPitch = pitch;
-    _mouse_shape = v9;
-    _mouse_trans = a7;
-
-    if (_mouse_fptr) {
-        tickersRemove(_mouse_anim);
-        _mouse_fptr = NULL;
-    }
-
-    v11 = _mouse_hotx - v7;
-    _mouse_hotx = v7;
-
-    gMouseCursorX += v11;
-
-    v12 = _mouse_hoty - v8;
-    _mouse_hoty = v8;
-
-    gMouseCursorY += v12;
-
-    _mouse_clip();
-
-    if (!cursorWasHidden) {
-        mouseShowCursor();
-    }
-
-    _raw_x = gMouseCursorX;
-    _raw_y = gMouseCursorY;
-
-    return 0;
-}
-
-// NOTE: Looks like this code is not reachable.
-//
-// 0x4CA2D0
-void _mouse_anim()
-{
-    if (getTicksSince(_ticker_) >= _mouse_speed) {
-        _ticker_ = _get_time();
-
-        if (++_mouse_curr_frame == _mouse_num_frames) {
-            _mouse_curr_frame = 0;
-        }
-
-        _mouse_shape = gMouseCursorWidth * _mouse_curr_frame * gMouseCursorHeight + _mouse_fptr;
-
-        if (!gCursorIsHidden) {
-            mouseShowCursor();
-        }
-    }
-}
-
-// 0x4CA34C
-void mouseShowCursor()
-{
-    int i;
-    unsigned char* v2;
-    int v7, v8;
-    int v9, v10;
-    int v4;
-    unsigned char v6;
-    int v3;
-
-    v2 = gMouseCursorData;
-    if (gMouseInitialized) {
-        if (!_mouse_blit_trans || !gCursorIsHidden) {
-            _win_get_mouse_buf(gMouseCursorData);
-            v2 = gMouseCursorData;
-            v3 = 0;
-
-            for (i = 0; i < gMouseCursorHeight; i++) {
-                for (v4 = 0; v4 < gMouseCursorWidth; v4++) {
-                    v6 = _mouse_shape[i * gMouseCursorPitch + v4];
-                    if (v6 != _mouse_trans) {
-                        v2[v3] = v6;
-                    }
-                    v3++;
-                }
-            }
-        }
-
-        if (gMouseCursorX >= _scr_size.left) {
-            if (gMouseCursorWidth + gMouseCursorX - 1 <= _scr_size.right) {
-                v8 = gMouseCursorWidth;
-                v7 = 0;
-            } else {
-                v7 = 0;
-                v8 = _scr_size.right - gMouseCursorX + 1;
-            }
-        } else {
-            v7 = _scr_size.left - gMouseCursorX;
-            v8 = gMouseCursorWidth - (_scr_size.left - gMouseCursorX);
-        }
-
-        if (gMouseCursorY >= _scr_size.top) {
-            if (gMouseCursorHeight + gMouseCursorY - 1 <= _scr_size.bottom) {
-                v9 = 0;
-                v10 = gMouseCursorHeight;
-            } else {
-                v9 = 0;
-                v10 = _scr_size.bottom - gMouseCursorY + 1;
-            }
-        } else {
-            v9 = _scr_size.top - gMouseCursorY;
-            v10 = gMouseCursorHeight - (_scr_size.top - gMouseCursorY);
-        }
-
-        gMouseCursorData = v2;
-        if (_mouse_blit_trans && gCursorIsHidden) {
-            _mouse_blit_trans(_mouse_shape, gMouseCursorPitch, gMouseCursorHeight, v7, v9, v8, v10, v7 + gMouseCursorX, v9 + gMouseCursorY, _mouse_trans);
-        } else {
-            _mouse_blit(gMouseCursorData, gMouseCursorWidth, gMouseCursorHeight, v7, v9, v8, v10, v7 + gMouseCursorX, v9 + gMouseCursorY);
-        }
-
-        v2 = gMouseCursorData;
-        gCursorIsHidden = false;
-    }
-    gMouseCursorData = v2;
-}
-
-// 0x4CA534
-void mouseHideCursor()
-{
-    Rect rect;
-
-    if (gMouseInitialized) {
-        if (!gCursorIsHidden) {
-            rect.left = gMouseCursorX;
-            rect.top = gMouseCursorY;
-            rect.right = gMouseCursorX + gMouseCursorWidth - 1;
-            rect.bottom = gMouseCursorY + gMouseCursorHeight - 1;
-
-            gCursorIsHidden = true;
-            windowRefreshAll(&rect);
-        }
-    }
-}
-
-// 0x4CA59C
-void _mouse_info()
-{
-    if (!gMouseInitialized) {
-        return;
-    }
-
-    if (gCursorIsHidden) {
-        return;
-    }
-
-    if (_mouse_disabled) {
-        return;
-    }
-
-    int x;
-    int y;
-    int buttons = 0;
-
-    MouseData mouseData;
-    if (mouseDeviceGetData(&mouseData)) {
-        x = mouseData.x;
-        y = mouseData.y;
-
-        if (mouseData.buttons[0] == 1) {
-            buttons |= MOUSE_STATE_LEFT_BUTTON_DOWN;
-        }
-
-        if (mouseData.buttons[1] == 1) {
-            buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
-        }
-    } else {
-        x = 0;
-        y = 0;
-    }
-
-    // Adjust for mouse senstivity.
-    x = (int)(x * gMouseSensitivity);
-    y = (int)(y * gMouseSensitivity);
-
-    if (vcr_state == VCR_STATE_PLAYING) {
-        if (((vcr_terminate_flags & VCR_TERMINATE_ON_MOUSE_PRESS) != 0 && buttons != 0)
-            || ((vcr_terminate_flags & VCR_TERMINATE_ON_MOUSE_MOVE) != 0 && (x != 0 || y != 0))) {
-            vcr_terminated_condition = VCR_PLAYBACK_COMPLETION_REASON_TERMINATED;
-            vcr_stop();
-            return;
-        }
-        x = 0;
-        y = 0;
-        buttons = gMouseButtonsState;
-    }
-
-    _mouse_simulate_input(x, y, buttons);
-}
-
-// 0x4CA698
-void _mouse_simulate_input(int delta_x, int delta_y, int buttons)
-{
-    if (!gMouseInitialized || gCursorIsHidden) {
-        return;
-    }
-
-    if (delta_x || delta_y || buttons != gMouseButtonsState) {
-        if (vcr_state == 0) {
-            if (vcr_buffer_index == VCR_BUFFER_CAPACITY - 1) {
-                vcr_dump_buffer();
-            }
-
-            VcrEntry* vcrEntry = &(vcr_buffer[vcr_buffer_index]);
-            vcrEntry->type = VCR_ENTRY_TYPE_MOUSE_EVENT;
-            vcrEntry->time = vcr_time;
-            vcrEntry->counter = vcr_counter;
-            vcrEntry->mouseEvent.dx = delta_x;
-            vcrEntry->mouseEvent.dy = delta_y;
-            vcrEntry->mouseEvent.buttons = buttons;
-
-            vcr_buffer_index++;
-        }
-    } else {
-        if (gMouseButtonsState == 0) {
-            if (!_mouse_idling) {
-                _mouse_idle_start_time = _get_time();
-                _mouse_idling = 1;
-            }
-
-            gMouseButtonsState = 0;
-            _raw_buttons = 0;
-            gMouseEvent = 0;
-
-            return;
-        }
-    }
-
-    _mouse_idling = 0;
-    gMouseButtonsState = buttons;
-    gMousePreviousEvent = gMouseEvent;
-    gMouseEvent = 0;
-
-    if ((gMousePreviousEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN_REPEAT) != 0) {
-        if ((buttons & 0x01) != 0) {
-            gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_REPEAT;
-
-            if (getTicksSince(gMouseLeftButtonDownTimestamp) > BUTTON_REPEAT_TIME) {
-                gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-                gMouseLeftButtonDownTimestamp = _get_time();
-            }
-        } else {
-            gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_UP;
-        }
-    } else {
-        if ((buttons & 0x01) != 0) {
-            gMouseEvent |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-            gMouseLeftButtonDownTimestamp = _get_time();
-        }
-    }
-
-    if ((gMousePreviousEvent & MOUSE_EVENT_RIGHT_BUTTON_DOWN_REPEAT) != 0) {
-        if ((buttons & 0x02) != 0) {
-            gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_REPEAT;
-            if (getTicksSince(gMouseRightButtonDownTimestamp) > BUTTON_REPEAT_TIME) {
-                gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-                gMouseRightButtonDownTimestamp = _get_time();
-            }
-        } else {
-            gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_UP;
-        }
-    } else {
-        if (buttons & 0x02) {
-            gMouseEvent |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-            gMouseRightButtonDownTimestamp = _get_time();
-        }
-    }
-
-    _raw_buttons = gMouseEvent;
-
-    if (delta_x != 0 || delta_y != 0) {
-        Rect mouseRect;
-        mouseRect.left = gMouseCursorX;
-        mouseRect.top = gMouseCursorY;
-        mouseRect.right = gMouseCursorWidth + gMouseCursorX - 1;
-        mouseRect.bottom = gMouseCursorHeight + gMouseCursorY - 1;
-
-        gMouseCursorX += delta_x;
-        gMouseCursorY += delta_y;
-        _mouse_clip();
-
-        windowRefreshAll(&mouseRect);
-
-        mouseShowCursor();
-
-        _raw_x = gMouseCursorX;
-        _raw_y = gMouseCursorY;
-    }
-}
-
-// 0x4CA8C8
-bool _mouse_in(int left, int top, int right, int bottom)
-{
-    if (!gMouseInitialized) {
-        return false;
-    }
-
-    return gMouseCursorHeight + gMouseCursorY > top
-        && right >= gMouseCursorX
-        && gMouseCursorWidth + gMouseCursorX > left
-        && bottom >= gMouseCursorY;
-}
-
-// 0x4CA934
-bool _mouse_click_in(int left, int top, int right, int bottom)
-{
-    if (!gMouseInitialized) {
-        return false;
-    }
-
-    return _mouse_hoty + gMouseCursorY >= top
-        && _mouse_hotx + gMouseCursorX <= right
-        && _mouse_hotx + gMouseCursorX >= left
-        && _mouse_hoty + gMouseCursorY <= bottom;
-}
-
-// 0x4CA9A0
-void mouseGetRect(Rect* rect)
-{
-    rect->left = gMouseCursorX;
-    rect->top = gMouseCursorY;
-    rect->right = gMouseCursorWidth + gMouseCursorX - 1;
-    rect->bottom = gMouseCursorHeight + gMouseCursorY - 1;
-}
-
-// 0x4CA9DC
-void mouseGetPosition(int* xPtr, int* yPtr)
-{
-    *xPtr = _mouse_hotx + gMouseCursorX;
-    *yPtr = _mouse_hoty + gMouseCursorY;
-}
-
-// 0x4CAA04
-void _mouse_set_position(int a1, int a2)
-{
-    gMouseCursorX = a1 - _mouse_hotx;
-    gMouseCursorY = a2 - _mouse_hoty;
-    _raw_y = a2 - _mouse_hoty;
-    _raw_x = a1 - _mouse_hotx;
-    _mouse_clip();
-}
-
-// 0x4CAA38
-void _mouse_clip()
-{
-    if (_mouse_hotx + gMouseCursorX < _scr_size.left) {
-        gMouseCursorX = _scr_size.left - _mouse_hotx;
-    } else if (_mouse_hotx + gMouseCursorX > _scr_size.right) {
-        gMouseCursorX = _scr_size.right - _mouse_hotx;
-    }
-
-    if (_mouse_hoty + gMouseCursorY < _scr_size.top) {
-        gMouseCursorY = _scr_size.top - _mouse_hoty;
-    } else if (_mouse_hoty + gMouseCursorY > _scr_size.bottom) {
-        gMouseCursorY = _scr_size.bottom - _mouse_hoty;
-    }
-}
-
-// 0x4CAAA0
-int mouseGetEvent()
-{
-    return gMouseEvent;
-}
-
-// 0x4CAAA8
-bool cursorIsHidden()
-{
-    return gCursorIsHidden;
-}
-
-// 0x4CAB5C
-void _mouse_get_raw_state(int* out_x, int* out_y, int* out_buttons)
-{
-    MouseData mouseData;
-    if (!mouseDeviceGetData(&mouseData)) {
-        mouseData.x = 0;
-        mouseData.y = 0;
-        mouseData.buttons[0] = (gMouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0;
-        mouseData.buttons[1] = (gMouseEvent & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0;
-    }
-
-    _raw_buttons = 0;
-    _raw_x += mouseData.x;
-    _raw_y += mouseData.y;
-
-    if (mouseData.buttons[0] != 0) {
-        _raw_buttons |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-    }
-
-    if (mouseData.buttons[1] != 0) {
-        _raw_buttons |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-    }
-
-    *out_x = _raw_x;
-    *out_y = _raw_y;
-    *out_buttons = _raw_buttons;
-}
-
-// 0x4CAC3C
-void mouseSetSensitivity(double value)
-{
-    if (value > 0 && value < 2.0) {
-        gMouseSensitivity = value;
-    }
-}
-
 // 0x4CACD0
 void mmxSetEnabled(bool a1)
 {
@@ -1949,14 +1317,14 @@ int _GNW95_init_mode_ex(int width, int height, int bpp)
     mmxSetEnabled(true);
 
     if (bpp == 8) {
-        _mouse_blit_trans = NULL;
+        mouse_blit_trans = NULL;
         _scr_blit = _GNW95_ShowRect;
         _zero_mem = _GNW95_zero_vid_mem;
-        _mouse_blit = _GNW95_ShowRect;
+        mouse_blit = _GNW95_ShowRect;
     } else {
         _zero_mem = NULL;
-        _mouse_blit = _GNW95_MouseShowRect16;
-        _mouse_blit_trans = _GNW95_MouseShowTransRect16;
+        mouse_blit = _GNW95_MouseShowRect16;
+        mouse_blit_trans = _GNW95_MouseShowTransRect16;
         _scr_blit = _GNW95_ShowRect16;
     }
 

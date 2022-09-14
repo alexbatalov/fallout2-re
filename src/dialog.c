@@ -350,10 +350,10 @@ int _abortReply(int a1)
     result = 1;
     if (a1) {
         if (_replyWin != -1) {
-            if (!(mouseGetEvent() & 0x10)) {
+            if (!(mouse_get_buttons() & 0x10)) {
                 result = 0;
             } else {
-                mouseGetPosition(&x, &y);
+                mouse_get_position(&x, &y);
 
                 if (windowGetAtPoint(x, y) != _replyWin) {
                     result = 0;

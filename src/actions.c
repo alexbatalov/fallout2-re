@@ -1485,14 +1485,14 @@ Object* _pick_object(int objectType, bool a2)
 
     do {
         _get_input();
-    } while ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
+    } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     gameMouseSetCursor(MOUSE_CURSOR_PLUS);
     gameMouseObjectsHide();
 
     do {
         if (_get_input() == -2) {
-            mouseEvent = mouseGetEvent();
+            mouseEvent = mouse_get_buttons();
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
                 keyCode = 0;
                 foundObject = gameMouseGetObjectUnderCursor(objectType, a2, gElevation);
@@ -1572,15 +1572,15 @@ int pick_hex()
         }
     }
 
-    if ((mouseGetEvent() & MOUSE_EVENT_LEFT_BUTTON_DOWN) == 0) {
+    if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_DOWN) == 0) {
         return -1;
     }
 
-    if (!_mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
+    if (!mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
         return -1;
     }
 
-    mouseGetPosition(&(rect.left), &(rect.top));
+    mouse_get_position(&(rect.left), &(rect.top));
 
     tile = tileFromScreenXY(rect.left, rect.top, elevation);
     if (tile == -1) {

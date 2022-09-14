@@ -781,9 +781,9 @@ int showPause(bool a1)
 void _ShadeScreen(bool a1)
 {
     if (a1) {
-        mouseHideCursor();
+        mouse_hide();
     } else {
-        mouseHideCursor();
+        mouse_hide();
         tileWindowRefresh();
 
         int windowWidth = 640;
@@ -794,7 +794,7 @@ void _ShadeScreen(bool a1)
         win_draw(gIsoWindow);
     }
 
-    mouseShowCursor();
+    mouse_show();
 }
 
 // 0x492AA8
@@ -953,7 +953,7 @@ void _JustUpdate_()
     backgroundSoundSetVolume(gPreferencesMusicVolume1);
     soundEffectsSetVolume(gPreferencesSoundEffectsVolume1);
     speechSetVolume(gPreferencesSpeechVolume1);
-    mouseSetSensitivity(gPreferencesMouseSensitivity1);
+    mouse_set_sensitivity(gPreferencesMouseSensitivity1);
     colorSetBrightness(gPreferencesBrightness1);
 }
 
@@ -1129,7 +1129,7 @@ void _UpdateThing(int index)
                 int x = (int)((gPreferencesMouseSensitivity1 - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
                 blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
 
-                mouseSetSensitivity(gPreferencesMouseSensitivity1);
+                mouse_set_sensitivity(gPreferencesMouseSensitivity1);
             }
             break;
         }
@@ -1659,7 +1659,7 @@ void _DoThing(int eventCode)
 {
     int x;
     int y;
-    mouseGetPosition(&x, &y);
+    mouse_get_position(&x, &y);
 
     // This preference index also contains out-of-bounds value 19,
     // which is the only preference expressed as checkbox.
@@ -1809,9 +1809,9 @@ void _DoThing(int eventCode)
 
             int tick = _get_time();
 
-            mouseGetPosition(&x, &y);
+            mouse_get_position(&x, &y);
 
-            if (mouseGetEvent() & 0x10) {
+            if (mouse_get_buttons() & 0x10) {
                 soundPlayFile("ib1lu1x1");
                 _UpdateThing(preferenceIndex);
                 win_draw(gPreferencesWindow);

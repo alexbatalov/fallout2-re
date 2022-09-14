@@ -89,11 +89,11 @@ bool vcr_record(const char* fileName)
     vcrEntry->counter = 0;
     vcrEntry->initial.keyboardLayout = kb_get_layout();
 
-    while (mouseGetEvent() != 0) {
-        _mouse_info();
+    while (mouse_get_buttons() != 0) {
+        mouse_info();
     }
 
-    mouseGetPosition(&(vcrEntry->initial.mouseX), &(vcrEntry->initial.mouseY));
+    mouse_get_position(&(vcrEntry->initial.mouseX), &(vcrEntry->initial.mouseY));
 
     vcr_counter = 1;
     vcr_buffer_index++;
@@ -134,8 +134,8 @@ bool vcr_play(const char* fileName, unsigned int terminationFlags, VcrPlaybackCo
         return false;
     }
 
-    while (mouseGetEvent() != 0) {
-        _mouse_info();
+    while (mouse_get_buttons() != 0) {
+        mouse_info();
     }
 
     kb_clear();
@@ -245,13 +245,13 @@ int vcr_update()
                     vcr_state = VCR_STATE_TURNED_OFF;
                     vcr_old_layout = kb_get_layout();
                     kb_set_layout(vcr_buffer[vcr_buffer_index].initial.keyboardLayout);
-                    while (mouseGetEvent() != 0) {
-                        _mouse_info();
+                    while (mouse_get_buttons() != 0) {
+                        mouse_info();
                     }
                     vcr_state = VCR_ENTRY_TYPE_INITIAL_STATE;
-                    mouseHideCursor();
-                    _mouse_set_position(vcr_buffer[vcr_buffer_index].initial.mouseX, vcr_buffer[vcr_buffer_index].initial.mouseY);
-                    mouseShowCursor();
+                    mouse_hide();
+                    mouse_set_position(vcr_buffer[vcr_buffer_index].initial.mouseX, vcr_buffer[vcr_buffer_index].initial.mouseY);
+                    mouse_show();
                     kb_clear();
                     vcr_terminate_flags = vcr_temp_terminate_flags;
                     vcr_start_time = _get_time();
@@ -262,7 +262,7 @@ int vcr_update()
                     break;
                 case VCR_ENTRY_TYPE_MOUSE_EVENT:
                     rc = 3;
-                    _mouse_simulate_input(vcr_buffer[vcr_buffer_index].mouseEvent.dx, vcr_buffer[vcr_buffer_index].mouseEvent.dy, vcr_buffer[vcr_buffer_index].mouseEvent.buttons);
+                    mouse_simulate_input(vcr_buffer[vcr_buffer_index].mouseEvent.dx, vcr_buffer[vcr_buffer_index].mouseEvent.dy, vcr_buffer[vcr_buffer_index].mouseEvent.buttons);
                     break;
                 }
 

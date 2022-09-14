@@ -268,7 +268,7 @@ bool _windowRefreshRegions()
 {
     int mouseX;
     int mouseY;
-    mouseGetPosition(&mouseX, &mouseY);
+    mouse_get_position(&mouseX, &mouseY);
 
     int win = windowGetAtPoint(mouseX, mouseY);
 
@@ -280,7 +280,7 @@ bool _windowRefreshRegions()
                 region->rightProcs[3] = 0;
             }
 
-            int mouseEvent = mouseGetEvent();
+            int mouseEvent = mouse_get_buttons();
             return _windowCheckRegion(windowIndex, mouseX, mouseY, mouseEvent);
         }
     }
@@ -297,9 +297,9 @@ bool _checkAllRegions()
 
     int mouseX;
     int mouseY;
-    mouseGetPosition(&mouseX, &mouseY);
+    mouse_get_position(&mouseX, &mouseY);
 
-    int mouseEvent = mouseGetEvent();
+    int mouseEvent = mouse_get_buttons();
     int win = windowGetAtPoint(mouseX, mouseY);
 
     for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {

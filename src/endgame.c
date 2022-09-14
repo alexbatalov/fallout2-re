@@ -226,9 +226,9 @@ int endgameEndingHandleContinuePlaying()
         gameMouseObjectsHide();
     }
 
-    bool oldCursorIsHidden = cursorIsHidden();
+    bool oldCursorIsHidden = mouse_hidden();
     if (oldCursorIsHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     int oldCursor = gameMouseGetCursor();
@@ -249,7 +249,7 @@ int endgameEndingHandleContinuePlaying()
 
     gameMouseSetCursor(oldCursor);
     if (oldCursorIsHidden) {
-        mouseHideCursor();
+        mouse_hide();
     }
 
     if (gameMouseWasVisible) {
@@ -379,7 +379,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         win_draw(gEndgameEndingSlideshowWindow);
     }
 
-    while (mouseGetEvent() != 0) {
+    while (mouse_get_buttons() != 0) {
         _get_input();
     }
 }
@@ -457,7 +457,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
 
         paletteFadeTo(gPaletteBlack);
 
-        while (mouseGetEvent() != 0) {
+        while (mouse_get_buttons() != 0) {
             _get_input();
         }
     }
@@ -479,11 +479,11 @@ int endgameEndingSlideshowWindowInit()
     colorCycleDisable();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
-    bool oldCursorIsHidden = cursorIsHidden();
+    bool oldCursorIsHidden = mouse_hidden();
     _endgame_mouse_state = oldCursorIsHidden == 0;
 
     if (oldCursorIsHidden) {
-        mouseShowCursor();
+        mouse_show();
     }
 
     gEndgameEndingSlideshowOldFont = fontGetCurrent();
@@ -568,7 +568,7 @@ void endgameEndingSlideshowWindowFree()
     windowDestroy(gEndgameEndingSlideshowWindow);
 
     if (!_endgame_mouse_state) {
-        mouseHideCursor();
+        mouse_hide();
     }
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
