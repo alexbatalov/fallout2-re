@@ -149,7 +149,7 @@ int falloutMain(int argc, char** argv)
     if (mainMenuWindowInit() == 0) {
         bool done = false;
         while (!done) {
-            keyboardReset();
+            kb_clear();
             _gsound_background_play_level_music("07desert", 11);
             mainMenuWindowUnhide(1);
 
@@ -554,7 +554,7 @@ void showDeath()
                 _get_input();
             }
 
-            keyboardReset();
+            kb_clear();
             inputEventQueueReset();
 
             blitBufferToBuffer(background, 640, 480, 640, windowBuffer, 640);
@@ -953,7 +953,7 @@ int mainMenuWindowHandleEvents()
 
                 rc = _return_values[buttonIndex];
 
-                if (buttonIndex == MAIN_MENU_BUTTON_CREDITS && (gPressedPhysicalKeys[DIK_RSHIFT] != KEY_STATE_UP || gPressedPhysicalKeys[DIK_LSHIFT] != KEY_STATE_UP)) {
+                if (buttonIndex == MAIN_MENU_BUTTON_CREDITS && (keys[DIK_RSHIFT] != KEY_STATE_UP || keys[DIK_LSHIFT] != KEY_STATE_UP)) {
                     rc = MAIN_MENU_QUOTES;
                 }
 

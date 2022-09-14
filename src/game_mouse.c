@@ -906,7 +906,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             bool running;
             configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &running);
 
-            if (gPressedPhysicalKeys[DIK_LSHIFT] || gPressedPhysicalKeys[DIK_RSHIFT]) {
+            if (keys[DIK_LSHIFT] || keys[DIK_RSHIFT]) {
                 if (running) {
                     _dude_move(actionPoints);
                     return;

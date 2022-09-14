@@ -133,13 +133,13 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
     char* language;
     if (configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         if (stricmp(language, FRENCH) == 0) {
-            keyboardSetLayout(KEYBOARD_LAYOUT_FRENCH);
+            kb_set_layout(KEYBOARD_LAYOUT_FRENCH);
         } else if (stricmp(language, GERMAN) == 0) {
-            keyboardSetLayout(KEYBOARD_LAYOUT_GERMAN);
+            kb_set_layout(KEYBOARD_LAYOUT_GERMAN);
         } else if (stricmp(language, ITALIAN) == 0) {
-            keyboardSetLayout(KEYBOARD_LAYOUT_ITALIAN);
+            kb_set_layout(KEYBOARD_LAYOUT_ITALIAN);
         } else if (stricmp(language, SPANISH) == 0) {
-            keyboardSetLayout(KEYBOARD_LAYOUT_SPANISH);
+            kb_set_layout(KEYBOARD_LAYOUT_SPANISH);
         }
     }
 
@@ -485,8 +485,8 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case KEY_TAB:
         if (interfaceBarEnabled()
-            && gPressedPhysicalKeys[DIK_LALT] == 0
-            && gPressedPhysicalKeys[DIK_RALT] == 0) {
+            && keys[DIK_LALT] == 0
+            && keys[DIK_RALT] == 0) {
             soundPlayFile("ib1p1xx1");
             automapShow(true, false);
         }
@@ -854,7 +854,7 @@ void gameUiDisable(int a1)
     if (!gGameUiDisabled) {
         gameMouseObjectsHide();
         _gmouse_disable(a1);
-        keyboardDisable();
+        kb_disable();
         interfaceBarDisable();
         gGameUiDisabled = true;
     }
@@ -866,8 +866,8 @@ void gameUiEnable()
 {
     if (gGameUiDisabled) {
         interfaceBarEnable();
-        keyboardEnable();
-        keyboardReset();
+        kb_enable();
+        kb_clear();
         _gmouse_enable();
         gameMouseObjectsShow();
         gGameUiDisabled = false;

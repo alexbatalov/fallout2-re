@@ -126,6 +126,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/inventory.h"
     "src/item.c"
     "src/item.h"
+    "src/kb.c"
+    "src/kb.h"
     "src/light.c"
     "src/light.h"
     "src/lips.c"

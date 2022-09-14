@@ -87,7 +87,7 @@ bool vcr_record(const char* fileName)
     vcrEntry->type = VCR_ENTRY_TYPE_INITIAL_STATE;
     vcrEntry->time = 0;
     vcrEntry->counter = 0;
-    vcrEntry->initial.keyboardLayout = keyboardGetLayout();
+    vcrEntry->initial.keyboardLayout = kb_get_layout();
 
     while (mouseGetEvent() != 0) {
         _mouse_info();
@@ -98,7 +98,7 @@ bool vcr_record(const char* fileName)
     vcr_counter = 1;
     vcr_buffer_index++;
     vcr_start_time = _get_time();
-    keyboardReset();
+    kb_clear();
     vcr_state = VCR_STATE_RECORDING;
 
     return true;
@@ -138,7 +138,7 @@ bool vcr_play(const char* fileName, unsigned int terminationFlags, VcrPlaybackCo
         _mouse_info();
     }
 
-    keyboardReset();
+    kb_clear();
 
     vcr_temp_terminate_flags = terminationFlags;
     vcr_notify_callback = callback;
@@ -161,7 +161,7 @@ int vcr_stop(void)
         vcr_state |= VCR_STATE_STOP_REQUESTED;
     }
 
-    keyboardReset();
+    kb_clear();
 
     return 1;
 }
@@ -196,7 +196,7 @@ int vcr_update()
             // NOTE: Uninline.
             vcr_destroy_buffer();
 
-            keyboardSetLayout(vcr_old_layout);
+            kb_set_layout(vcr_old_layout);
 
             if (vcr_notify_callback != NULL) {
                 vcr_notify_callback(vcr_terminated_condition);
@@ -243,8 +243,8 @@ int vcr_update()
                 switch (vcr_buffer[vcr_buffer_index].type) {
                 case VCR_ENTRY_TYPE_INITIAL_STATE:
                     vcr_state = VCR_STATE_TURNED_OFF;
-                    vcr_old_layout = keyboardGetLayout();
-                    keyboardSetLayout(vcr_buffer[vcr_buffer_index].initial.keyboardLayout);
+                    vcr_old_layout = kb_get_layout();
+                    kb_set_layout(vcr_buffer[vcr_buffer_index].initial.keyboardLayout);
                     while (mouseGetEvent() != 0) {
                         _mouse_info();
                     }
@@ -252,13 +252,13 @@ int vcr_update()
                     mouseHideCursor();
                     _mouse_set_position(vcr_buffer[vcr_buffer_index].initial.mouseX, vcr_buffer[vcr_buffer_index].initial.mouseY);
                     mouseShowCursor();
-                    keyboardReset();
+                    kb_clear();
                     vcr_terminate_flags = vcr_temp_terminate_flags;
                     vcr_start_time = _get_time();
                     vcr_counter = 0;
                     break;
                 case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-                    _kb_simulate_key(vcr_buffer[vcr_buffer_index].keyboardEvent.key);
+                    kb_simulate_key(vcr_buffer[vcr_buffer_index].keyboardEvent.key);
                     break;
                 case VCR_ENTRY_TYPE_MOUSE_EVENT:
                     rc = 3;
