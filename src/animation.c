@@ -28,6 +28,7 @@
 #include "text_object.h"
 #include "tile.h"
 #include "trait.h"
+#include "vcr.h"
 
 // 0x510718
 int gAnimationCurrentSad = 0;
@@ -2892,7 +2893,7 @@ void _dude_fidget()
         return;
     }
 
-    if (vcrGetState() != VCR_STATE_TURNED_OFF) {
+    if (vcr_status() != VCR_STATE_TURNED_OFF) {
         return;
     }
 

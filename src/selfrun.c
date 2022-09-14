@@ -7,6 +7,7 @@
 #include "db.h"
 #include "game.h"
 #include "game_config.h"
+#include "vcr.h"
 
 // 0x51C8D8
 int gSelfrunState = SELFRUN_STATE_TURNED_OFF;
@@ -50,7 +51,7 @@ int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunData)
         return -1;
     }
 
-    if (vcrGetState() != VCR_STATE_TURNED_OFF) {
+    if (vcr_status() != VCR_STATE_TURNED_OFF) {
         return -1;
     }
 
@@ -77,7 +78,7 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
         char path[MAX_PATH];
         sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
 
-        if (vcrPlay(path, VCR_TERMINATE_ON_KEY_PRESS | VCR_TERMINATE_ON_MOUSE_PRESS, selfrunPlaybackCompleted)) {
+        if (vcr_play(path, VCR_TERMINATE_ON_KEY_PRESS | VCR_TERMINATE_ON_MOUSE_PRESS, selfrunPlaybackCompleted)) {
             bool cursorWasHidden = cursorIsHidden();
             if (cursorWasHidden) {
                 mouseShowCursor();
@@ -112,7 +113,7 @@ int selfrunPrepareRecording(const char* recordingName, const char* mapFileName, 
         return -1;
     }
 
-    if (vcrGetState() != VCR_STATE_TURNED_OFF) {
+    if (vcr_status() != VCR_STATE_TURNED_OFF) {
         return -1;
     }
 
@@ -143,7 +144,7 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
     if (gSelfrunState == SELFRUN_STATE_RECORDING) {
         char path[MAX_PATH];
         sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
-        if (vcrRecord(path)) {
+        if (vcr_record(path)) {
             if (!cursorIsHidden()) {
                 mouseShowCursor();
             }
@@ -152,7 +153,7 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
             while (!done) {
                 int keyCode = _get_input();
                 if (keyCode == selfrunData->stopKeyCode) {
-                    vcrStop();
+                    vcr_stop();
                     _game_user_wants_to_quit = 2;
                     done = true;
                 } else {

@@ -39,6 +39,7 @@
 #include "text_object.h"
 #include "tile.h"
 #include "trait.h"
+#include "vcr.h"
 #include "worldmap.h"
 
 // 0x504B04
@@ -739,7 +740,7 @@ void opRandom(Program* program)
     }
 
     int result;
-    if (vcrGetState() == VCR_STATE_TURNED_OFF) {
+    if (vcr_status() == VCR_STATE_TURNED_OFF) {
         result = randomBetween(data[1], data[0]);
     } else {
         result = (data[0] - data[1]) / 2;

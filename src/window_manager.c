@@ -8,6 +8,7 @@
 #include "memory.h"
 #include "palette.h"
 #include "text_font.h"
+#include "vcr.h"
 #include "window_manager_private.h"
 
 static_assert(sizeof(MenuBar) == 572, "wrong size");
@@ -981,7 +982,7 @@ void _win_drag(int win)
 
     tickersExecute();
 
-    if (vcrUpdate() != 3) {
+    if (vcr_update() != 3) {
         _mouse_info();
     }
 

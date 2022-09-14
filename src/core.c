@@ -6,6 +6,7 @@
 #include "memory.h"
 #include "mmx.h"
 #include "text_font.h"
+#include "vcr.h"
 #include "window_manager.h"
 #include "window_manager_private.h"
 
@@ -121,49 +122,6 @@ int gModifierKeysState = 0;
 //
 // 0x51E2EC
 int (*_kb_scan_to_ascii)() = keyboardDequeueLogicalKeyCode;
-
-// 0x51E2F0
-VcrEntry* _vcr_buffer = NULL;
-
-// number of entries in _vcr_buffer
-// 0x51E2F4
-int _vcr_buffer_index = 0;
-
-// 0x51E2F8
-unsigned int gVcrState = VCR_STATE_TURNED_OFF;
-
-// 0x51E2FC
-unsigned int _vcr_time = 0;
-
-// 0x51E300
-unsigned int _vcr_counter = 0;
-
-// 0x51E304
-unsigned int gVcrTerminateFlags = 0;
-
-// 0x51E308
-int gVcrPlaybackCompletionReason = VCR_PLAYBACK_COMPLETION_REASON_NONE;
-
-// 0x51E30C
-unsigned int _vcr_start_time = 0;
-
-// 0x51E310
-int _vcr_registered_atexit = 0;
-
-// 0x51E314
-File* gVcrFile = NULL;
-
-// 0x51E318
-int _vcr_buffer_end = 0;
-
-// 0x51E31C
-VcrPlaybackCompletionCallback* gVcrPlaybackCompletionCallback = NULL;
-
-// 0x51E320
-unsigned int gVcrRequestedTerminationFlags = 0;
-
-// 0x51E324
-int gVcrOldKeyboardLayout = 0;
 
 // A map of DIK_* constants normalized for QWERTY keyboard.
 //
@@ -374,9 +332,6 @@ int gKeyboardLayout;
 // 0x6AD93C
 unsigned char gPressedPhysicalKeysCount;
 
-// 0x6AD940
-VcrEntry stru_6AD940;
-
 // 0x4C8A70
 int coreInit(int a1)
 {
@@ -464,7 +419,7 @@ void _process_bk()
 
     tickersExecute();
 
-    if (vcrUpdate() != 3) {
+    if (vcr_update() != 3) {
         _mouse_info();
     }
 
@@ -1406,10 +1361,10 @@ void _GNW95_process_key(KeyboardData* data)
 
     int qwertyKey = gNormalizedQwertyKeys[data->key & 0xFF];
 
-    if (gVcrState == VCR_STATE_PLAYING) {
-        if ((gVcrTerminateFlags & VCR_TERMINATE_ON_KEY_PRESS) != 0) {
-            gVcrPlaybackCompletionReason = VCR_PLAYBACK_COMPLETION_REASON_TERMINATED;
-            vcrStop();
+    if (vcr_state == VCR_STATE_PLAYING) {
+        if ((vcr_terminate_flags & VCR_TERMINATE_ON_KEY_PRESS) != 0) {
+            vcr_terminated_condition = VCR_PLAYBACK_COMPLETION_REASON_TERMINATED;
+            vcr_stop();
         }
     } else {
         if ((key & 0x0100) != 0) {
@@ -1731,11 +1686,11 @@ void _mouse_info()
     x = (int)(x * gMouseSensitivity);
     y = (int)(y * gMouseSensitivity);
 
-    if (gVcrState == VCR_STATE_PLAYING) {
-        if (((gVcrTerminateFlags & VCR_TERMINATE_ON_MOUSE_PRESS) != 0 && buttons != 0)
-            || ((gVcrTerminateFlags & VCR_TERMINATE_ON_MOUSE_MOVE) != 0 && (x != 0 || y != 0))) {
-            gVcrPlaybackCompletionReason = VCR_PLAYBACK_COMPLETION_REASON_TERMINATED;
-            vcrStop();
+    if (vcr_state == VCR_STATE_PLAYING) {
+        if (((vcr_terminate_flags & VCR_TERMINATE_ON_MOUSE_PRESS) != 0 && buttons != 0)
+            || ((vcr_terminate_flags & VCR_TERMINATE_ON_MOUSE_MOVE) != 0 && (x != 0 || y != 0))) {
+            vcr_terminated_condition = VCR_PLAYBACK_COMPLETION_REASON_TERMINATED;
+            vcr_stop();
             return;
         }
         x = 0;
@@ -1754,20 +1709,20 @@ void _mouse_simulate_input(int delta_x, int delta_y, int buttons)
     }
 
     if (delta_x || delta_y || buttons != gMouseButtonsState) {
-        if (gVcrState == 0) {
-            if (_vcr_buffer_index == VCR_BUFFER_CAPACITY - 1) {
-                vcrDump();
+        if (vcr_state == 0) {
+            if (vcr_buffer_index == VCR_BUFFER_CAPACITY - 1) {
+                vcr_dump_buffer();
             }
 
-            VcrEntry* vcrEntry = &(_vcr_buffer[_vcr_buffer_index]);
+            VcrEntry* vcrEntry = &(vcr_buffer[vcr_buffer_index]);
             vcrEntry->type = VCR_ENTRY_TYPE_MOUSE_EVENT;
-            vcrEntry->time = _vcr_time;
-            vcrEntry->counter = _vcr_counter;
+            vcrEntry->time = vcr_time;
+            vcrEntry->counter = vcr_counter;
             vcrEntry->mouseEvent.dx = delta_x;
             vcrEntry->mouseEvent.dy = delta_y;
             vcrEntry->mouseEvent.buttons = buttons;
 
-            _vcr_buffer_index++;
+            vcr_buffer_index++;
         }
     } else {
         if (gMouseButtonsState == 0) {
@@ -2638,15 +2593,15 @@ int keyboardGetLayout()
 // 0x4CBF68
 void _kb_simulate_key(int key)
 {
-    if (gVcrState == 0) {
-        if (_vcr_buffer_index != VCR_BUFFER_CAPACITY - 1) {
-            VcrEntry* vcrEntry = &(_vcr_buffer[_vcr_buffer_index]);
+    if (vcr_state == 0) {
+        if (vcr_buffer_index != VCR_BUFFER_CAPACITY - 1) {
+            VcrEntry* vcrEntry = &(vcr_buffer[vcr_buffer_index]);
             vcrEntry->type = VCR_ENTRY_TYPE_KEYBOARD_EVENT;
             vcrEntry->keyboardEvent.key = key & 0xFFFF;
-            vcrEntry->time = _vcr_time;
-            vcrEntry->counter = _vcr_counter;
+            vcrEntry->time = vcr_time;
+            vcrEntry->counter = vcr_counter;
 
-            _vcr_buffer_index++;
+            vcr_buffer_index++;
         }
     }
 
@@ -4454,379 +4409,4 @@ int keyboardPeekEvent(int index, KeyboardEvent** keyboardEventPtr)
     }
 
     return rc;
-}
-
-// 0x4D2680
-bool vcrRecord(const char* fileName)
-{
-    if (gVcrState != VCR_STATE_TURNED_OFF) {
-        return false;
-    }
-
-    if (fileName == NULL) {
-        return false;
-    }
-
-    // NOTE: Uninline.
-    if (!vcrInitBuffer()) {
-        return false;
-    }
-
-    gVcrFile = fileOpen(fileName, "wb");
-    if (gVcrFile == NULL) {
-        // NOTE: Uninline.
-        vcrFreeBuffer();
-        return false;
-    }
-
-    if (_vcr_registered_atexit == 0) {
-        _vcr_registered_atexit = atexit(vcrStop);
-    }
-
-    VcrEntry* vcrEntry = &(_vcr_buffer[_vcr_buffer_index]);
-    vcrEntry->type = VCR_ENTRY_TYPE_INITIAL_STATE;
-    vcrEntry->time = 0;
-    vcrEntry->counter = 0;
-    vcrEntry->initial.keyboardLayout = keyboardGetLayout();
-
-    while (mouseGetEvent() != 0) {
-        _mouse_info();
-    }
-
-    mouseGetPosition(&(vcrEntry->initial.mouseX), &(vcrEntry->initial.mouseY));
-
-    _vcr_counter = 1;
-    _vcr_buffer_index++;
-    _vcr_start_time = _get_time();
-    keyboardReset();
-    gVcrState = VCR_STATE_RECORDING;
-
-    return true;
-}
-
-// 0x4D27EC
-bool vcrPlay(const char* fileName, unsigned int terminationFlags, VcrPlaybackCompletionCallback* callback)
-{
-    if (gVcrState != VCR_STATE_TURNED_OFF) {
-        return false;
-    }
-
-    if (fileName == NULL) {
-        return false;
-    }
-
-    // NOTE: Uninline.
-    if (!vcrInitBuffer()) {
-        return false;
-    }
-
-    gVcrFile = fileOpen(fileName, "rb");
-    if (gVcrFile == NULL) {
-        // NOTE: Uninline.
-        vcrFreeBuffer();
-        return false;
-    }
-
-    if (!vcrLoad()) {
-        fileClose(gVcrFile);
-        // NOTE: Uninline.
-        vcrFreeBuffer();
-        return false;
-    }
-
-    while (mouseGetEvent() != 0) {
-        _mouse_info();
-    }
-
-    keyboardReset();
-
-    gVcrRequestedTerminationFlags = terminationFlags;
-    gVcrPlaybackCompletionCallback = callback;
-    gVcrPlaybackCompletionReason = VCR_PLAYBACK_COMPLETION_REASON_COMPLETED;
-    gVcrTerminateFlags = 0;
-    _vcr_counter = 0;
-    _vcr_time = 0;
-    _vcr_start_time = _get_time();
-    gVcrState = VCR_STATE_PLAYING;
-    stru_6AD940.time = 0;
-    stru_6AD940.counter = 0;
-
-    return true;
-}
-
-// 0x4D28F4
-int vcrStop(void)
-{
-    if (gVcrState == VCR_STATE_RECORDING || gVcrState == VCR_STATE_PLAYING) {
-        gVcrState |= VCR_STATE_STOP_REQUESTED;
-    }
-
-    keyboardReset();
-
-    return 1;
-}
-
-// 0x4D2918
-int vcrGetState()
-{
-    return gVcrState;
-}
-
-// 0x4D2930
-int vcrUpdate()
-{
-    if ((gVcrState & VCR_STATE_STOP_REQUESTED) != 0) {
-        gVcrState &= ~VCR_STATE_STOP_REQUESTED;
-
-        switch (gVcrState) {
-        case VCR_STATE_RECORDING:
-            vcrDump();
-
-            fileClose(gVcrFile);
-            gVcrFile = NULL;
-
-            // NOTE: Uninline.
-            vcrFreeBuffer();
-
-            break;
-        case VCR_STATE_PLAYING:
-            fileClose(gVcrFile);
-            gVcrFile = NULL;
-
-            // NOTE: Uninline.
-            vcrFreeBuffer();
-
-            keyboardSetLayout(gVcrOldKeyboardLayout);
-
-            if (gVcrPlaybackCompletionCallback != NULL) {
-                gVcrPlaybackCompletionCallback(gVcrPlaybackCompletionReason);
-            }
-            break;
-        }
-
-        gVcrState = VCR_STATE_TURNED_OFF;
-    }
-
-    switch (gVcrState) {
-    case VCR_STATE_RECORDING:
-        _vcr_counter++;
-        _vcr_time = getTicksSince(_vcr_start_time);
-        if (_vcr_buffer_index == VCR_BUFFER_CAPACITY - 1) {
-            vcrDump();
-        }
-        break;
-    case VCR_STATE_PLAYING:
-        if (_vcr_buffer_index < _vcr_buffer_end || vcrLoad()) {
-            VcrEntry* vcrEntry = &(_vcr_buffer[_vcr_buffer_index]);
-            if (stru_6AD940.counter < vcrEntry->counter) {
-                if (vcrEntry->time > stru_6AD940.time) {
-                    unsigned int delay = stru_6AD940.time;
-                    delay += (_vcr_counter - stru_6AD940.counter)
-                        * (vcrEntry->time - stru_6AD940.time)
-                        / (vcrEntry->counter - stru_6AD940.counter);
-
-                    while (getTicksSince(_vcr_start_time) < delay) {
-                    }
-                }
-            }
-
-            _vcr_counter++;
-
-            int rc = 0;
-            while (_vcr_counter >= _vcr_buffer[_vcr_buffer_index].counter) {
-                _vcr_time = getTicksSince(_vcr_start_time);
-                if (_vcr_time > _vcr_buffer[_vcr_buffer_index].time + 5
-                    || _vcr_time < _vcr_buffer[_vcr_buffer_index].time - 5) {
-                    _vcr_start_time += _vcr_time - _vcr_buffer[_vcr_buffer_index].time;
-                }
-
-                switch (_vcr_buffer[_vcr_buffer_index].type) {
-                case VCR_ENTRY_TYPE_INITIAL_STATE:
-                    gVcrState = VCR_STATE_TURNED_OFF;
-                    gVcrOldKeyboardLayout = keyboardGetLayout();
-                    keyboardSetLayout(_vcr_buffer[_vcr_buffer_index].initial.keyboardLayout);
-                    while (mouseGetEvent() != 0) {
-                        _mouse_info();
-                    }
-                    gVcrState = VCR_ENTRY_TYPE_INITIAL_STATE;
-                    mouseHideCursor();
-                    _mouse_set_position(_vcr_buffer[_vcr_buffer_index].initial.mouseX, _vcr_buffer[_vcr_buffer_index].initial.mouseY);
-                    mouseShowCursor();
-                    keyboardReset();
-                    gVcrTerminateFlags = gVcrRequestedTerminationFlags;
-                    _vcr_start_time = _get_time();
-                    _vcr_counter = 0;
-                    break;
-                case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-                    _kb_simulate_key(_vcr_buffer[_vcr_buffer_index].keyboardEvent.key);
-                    break;
-                case VCR_ENTRY_TYPE_MOUSE_EVENT:
-                    rc = 3;
-                    _mouse_simulate_input(_vcr_buffer[_vcr_buffer_index].mouseEvent.dx, _vcr_buffer[_vcr_buffer_index].mouseEvent.dy, _vcr_buffer[_vcr_buffer_index].mouseEvent.buttons);
-                    break;
-                }
-
-                memcpy(&stru_6AD940, &(_vcr_buffer[_vcr_buffer_index]), sizeof(stru_6AD940));
-                _vcr_buffer_index++;
-            }
-
-            return rc;
-        } else {
-            // NOTE: Uninline.
-            vcrStop();
-        }
-        break;
-    }
-
-    return 0;
-}
-
-// NOTE: Inlined.
-//
-// 0x4D2C64
-bool vcrInitBuffer()
-{
-    if (_vcr_buffer == NULL) {
-        _vcr_buffer = (VcrEntry*)internal_malloc(sizeof(*_vcr_buffer) * VCR_BUFFER_CAPACITY);
-        if (_vcr_buffer == NULL) {
-            return false;
-        }
-    }
-
-    // NOTE: Uninline.
-    vcrClear();
-
-    return true;
-}
-
-// NOTE: Inlined.
-//
-// 0x4D2C98
-bool vcrFreeBuffer()
-{
-    if (_vcr_buffer == NULL) {
-        return false;
-    }
-
-    // NOTE: Uninline.
-    vcrClear();
-
-    internal_free(_vcr_buffer);
-    _vcr_buffer = NULL;
-
-    return true;
-}
-
-// 0x4D2CD0
-bool vcrClear()
-{
-    if (_vcr_buffer == NULL) {
-        return false;
-    }
-
-    _vcr_buffer_index = 0;
-
-    return true;
-}
-
-// 0x4D2CF0
-bool vcrDump()
-{
-    if (_vcr_buffer == NULL) {
-        return false;
-    }
-
-    if (gVcrFile == NULL) {
-        return false;
-    }
-
-    for (int index = 0; index < _vcr_buffer_index; index++) {
-        if (!vcrWriteEntry(&(_vcr_buffer[index]), gVcrFile)) {
-            return false;
-        }
-    }
-
-    // NOTE: Uninline.
-    if (!vcrClear()) {
-        return false;
-    }
-
-    return true;
-}
-
-// 0x4D2D74
-bool vcrLoad()
-{
-    if (gVcrFile == NULL) {
-        return false;
-    }
-
-    // NOTE: Uninline.
-    if (!vcrClear()) {
-        return false;
-    }
-
-    for (_vcr_buffer_end = 0; _vcr_buffer_end < VCR_BUFFER_CAPACITY; _vcr_buffer_end++) {
-        if (!vcrReadEntry(&(_vcr_buffer[_vcr_buffer_end]), gVcrFile)) {
-            break;
-        }
-    }
-
-    if (_vcr_buffer_end == 0) {
-        return false;
-    }
-
-    return true;
-}
-
-// 0x4D2E00
-bool vcrWriteEntry(VcrEntry* vcrEntry, File* stream)
-{
-    if (fileWriteUInt32(stream, vcrEntry->type) == -1) return false;
-    if (fileWriteUInt32(stream, vcrEntry->time) == -1) return false;
-    if (fileWriteUInt32(stream, vcrEntry->counter) == -1) return false;
-
-    switch (vcrEntry->type) {
-    case VCR_ENTRY_TYPE_INITIAL_STATE:
-        if (fileWriteInt32(stream, vcrEntry->initial.mouseX) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->initial.mouseY) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->initial.keyboardLayout) == -1) return false;
-        return true;
-    case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-        if (fileWriteInt16(stream, vcrEntry->keyboardEvent.key) == -1) return false;
-        return true;
-    case VCR_ENTRY_TYPE_MOUSE_EVENT:
-        if (fileWriteInt32(stream, vcrEntry->mouseEvent.dx) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->mouseEvent.dy) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->mouseEvent.buttons) == -1) return false;
-        return true;
-    }
-
-    return false;
-}
-
-// 0x4D2EE4
-bool vcrReadEntry(VcrEntry* vcrEntry, File* stream)
-{
-    if (fileReadUInt32(stream, &(vcrEntry->type)) == -1) return false;
-    if (fileReadUInt32(stream, &(vcrEntry->time)) == -1) return false;
-    if (fileReadUInt32(stream, &(vcrEntry->counter)) == -1) return false;
-
-    switch (vcrEntry->type) {
-    case VCR_ENTRY_TYPE_INITIAL_STATE:
-        if (fileReadInt32(stream, &(vcrEntry->initial.mouseX)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->initial.mouseY)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->initial.keyboardLayout)) == -1) return false;
-        return true;
-    case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-        if (fileReadInt16(stream, &(vcrEntry->keyboardEvent.key)) == -1) return false;
-        return true;
-    case VCR_ENTRY_TYPE_MOUSE_EVENT:
-        if (fileReadInt32(stream, &(vcrEntry->mouseEvent.dx)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->mouseEvent.dy)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->mouseEvent.buttons)) == -1) return false;
-        return true;
-    }
-
-    return false;
 }

@@ -220,6 +220,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/trait.h"
     "src/trap.c"
     "src/trap.h"
+    "src/vcr.c"
+    "src/vcr.h"
     "src/version.c"
     "src/version.h"
     "src/widget.c"
