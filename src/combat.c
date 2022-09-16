@@ -2110,39 +2110,39 @@ int combatSave(File* stream)
 }
 
 // 0x4213E8
-bool _combat_safety_invalidate_weapon(Object* a1, Object* a2, int hitMode, Object* a4, int* a5)
+bool _combat_safety_invalidate_weapon(Object* critter, Object* weapon, int hitMode, Object* a4, int* a5)
 {
-    return _combat_safety_invalidate_weapon_func(a1, a2, hitMode, a4, a5, NULL);
+    return _combat_safety_invalidate_weapon_func(critter, weapon, hitMode, a4, a5, NULL);
 }
 
 // 0x4213FC
-bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int hitMode, Object* a4, int* a5, Object* a6)
+bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int hitMode, Object* defender, int* a5, Object* attackerFriend)
 {
     if (a5 != NULL) {
         *a5 = 0;
     }
 
-    if (critter->pid == PROTO_ID_0x10001E0) {
+    if (attacker->pid == PROTO_ID_0x10001E0) {
         return false;
     }
 
-    int intelligence = critterGetStat(critter, STAT_INTELLIGENCE);
-    int team = critter->data.critter.combat.team;
-    int v41 = _item_w_area_damage_radius(weapon, hitMode);
+    int intelligence = critterGetStat(attacker, STAT_INTELLIGENCE);
+    int team = attacker->data.critter.combat.team;
+    int damageRadius = _item_w_area_damage_radius(weapon, hitMode);
     int maxDamage;
     weaponGetDamageMinMax(weapon, NULL, &maxDamage);
-    int damageType = weaponGetDamageType(critter, weapon);
+    int damageType = weaponGetDamageType(attacker, weapon);
 
-    if (v41 > 0) {
+    if (damageRadius > 0) {
         if (intelligence < 5) {
-            v41 -= 5 - intelligence;
-            if (v41 < 0) {
-                v41 = 0;
+            damageRadius -= 5 - intelligence;
+            if (damageRadius < 0) {
+                damageRadius = 0;
             }
         }
 
-        if (a6 != NULL) {
-            if (objectGetDistanceBetween(a4, a6) < v41) {
+        if (attackerFriend != NULL) {
+            if (objectGetDistanceBetween(defender, attackerFriend) < damageRadius) {
                 debugPrint("Friendly was in the way!");
                 return true;
             }
@@ -2151,11 +2151,11 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
         for (int index = 0; index < _list_total; index++) {
             Object* candidate = _combat_list[index];
             if (candidate->data.critter.combat.team == team
-                && candidate != critter
-                && candidate != a4
+                && candidate != attacker
+                && candidate != defender
                 && !critterIsDead(candidate)) {
-                int v14 = objectGetDistanceBetween(a4, candidate);
-                if (v14 < v41 && candidate != candidate->data.critter.combat.whoHitMe) {
+                int v14 = objectGetDistanceBetween(defender, candidate);
+                if (v14 < damageRadius && candidate != candidate->data.critter.combat.whoHitMe) {
                     int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
                     int damageResistance = critterGetStat(candidate, STAT_DAMAGE_RESISTANCE + damageType);
                     if (damageResistance * (maxDamage - damageThreshold) / 100 > 0) {
@@ -2165,11 +2165,11 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
             }
         }
 
-        int v17 = objectGetDistanceBetween(a4, critter);
-        if (v17 <= v41) {
+        int attackerDefenderDistance = objectGetDistanceBetween(defender, attacker);
+        if (attackerDefenderDistance <= damageRadius) {
             if (a5 != NULL) {
-                int v18 = objectGetDistanceBetween(a4, critter);
-                *a5 = v41 - v18 + 1;
+                int v18 = objectGetDistanceBetween(defender, attacker);
+                *a5 = damageRadius - v18 + 1;
                 return false;
             }
 
@@ -2179,22 +2179,22 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
         return false;
     }
 
-    int v19 = weaponGetAnimationForHitMode(weapon, hitMode);
-    if (v19 != ANIM_FIRE_BURST && v19 != ANIM_FIRE_CONTINUOUS) {
+    int weaponAnimation = weaponGetAnimationForHitMode(weapon, hitMode);
+    if (weaponAnimation != ANIM_FIRE_BURST && weaponAnimation != ANIM_FIRE_CONTINUOUS) {
         return false;
     }
 
     Attack attack;
-    attackInit(&attack, critter, a4, hitMode, HIT_LOCATION_TORSO);
+    attackInit(&attack, attacker, defender, hitMode, HIT_LOCATION_TORSO);
 
-    int accuracy = attackDetermineToHit(critter, critter->tile, a4, HIT_LOCATION_TORSO, hitMode, 1);
+    int accuracy = attackDetermineToHit(attacker, attacker->tile, defender, HIT_LOCATION_TORSO, hitMode, 1);
     int v33;
-    int a4a;
-    _compute_spray(&attack, accuracy, &v33, &a4a, v19);
+    int defendera;
+    _compute_spray(&attack, accuracy, &v33, &defendera, weaponAnimation);
 
-    if (a6 != NULL) {
+    if (attackerFriend != NULL) {
         for (int index = 0; index < attack.extrasLength; index++) {
-            if (attack.extras[index] == a6) {
+            if (attack.extras[index] == attackerFriend) {
                 debugPrint("Friendly was in the way!");
                 return true;
             }
@@ -2204,8 +2204,8 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
     for (int index = 0; index < attack.extrasLength; index++) {
         Object* candidate = attack.extras[index];
         if (candidate->data.critter.combat.team == team
-            && candidate != critter
-            && candidate != a4
+            && candidate != attacker
+            && candidate != defender
             && !critterIsDead(candidate)
             && candidate != candidate->data.critter.combat.whoHitMe) {
             int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
@@ -2220,9 +2220,9 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
 }
 
 // 0x4217BC
-bool _combatTestIncidentalHit(Object* a1, Object* a2, Object* a3, Object* a4)
+bool _combatTestIncidentalHit(Object* attacker, Object* defender, Object* attackerFriend, Object* attackerWeapon)
 {
-    return _combat_safety_invalidate_weapon_func(a1, a4, HIT_MODE_RIGHT_WEAPON_PRIMARY, a2, NULL, a3);
+    return _combat_safety_invalidate_weapon_func(attacker, attackerWeapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, defender, NULL, attackerFriend);
 }
 
 // 0x4217D4

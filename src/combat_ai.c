@@ -2317,12 +2317,12 @@ int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int
     int distance = 1;
 
     for (int index = 0; index < aiRetargetData->critterCount; index++) {
-        Object* obj = aiRetargetData->critterList[index];
-        if (_cai_attackWouldIntersect(obj, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
+        Object* critter = aiRetargetData->critterList[index];
+        if (_cai_attackWouldIntersect(critter, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
             debugPrint("In the way!");
 
-            aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tileGetTileInDirection(tile, (obj->rotation + 1) % ROTATION_COUNT, distance);
-            aiRetargetData->tiles[aiRetargetData->currentTileIndex + 1] = tileGetTileInDirection(tile, (obj->rotation + 5) % ROTATION_COUNT, distance);
+            aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tileGetTileInDirection(tile, (critter->rotation + 1) % ROTATION_COUNT, distance);
+            aiRetargetData->tiles[aiRetargetData->currentTileIndex + 1] = tileGetTileInDirection(tile, (critter->rotation + 5) % ROTATION_COUNT, distance);
 
             aiRetargetData->sourceIntelligence -= 2;
             aiRetargetData->currentTileIndex += 2;
@@ -2334,27 +2334,27 @@ int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int
 }
 
 // 0x42A518
-bool _cai_attackWouldIntersect(Object* a1, Object* a2, Object* a3, int tile, int* distance)
+bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attackerFriend, int tile, int* distance)
 {
     int hitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
     bool aiming = false;
-    if (a1 == gDude) {
+    if (attacker == gDude) {
         interfaceGetCurrentHitMode(&hitMode, &aiming);
     }
 
-    Object* v8 = critterGetWeaponForHitMode(a1, hitMode);
-    if (v8 == NULL) {
+    Object* attackerWeapon = critterGetWeaponForHitMode(attacker, hitMode);
+    if (attackerWeapon == NULL) {
         return false;
     }
 
-    if (_item_w_range(a1, hitMode) < 1) {
+    if (_item_w_range(attacker, hitMode) < 1) {
         return false;
     }
 
     Object* object = NULL;
-    _make_straight_path_func(a1, a1->tile, a2->tile, NULL, &object, 32, _obj_shoot_blocking_at);
-    if (object != a3) {
-        if (!_combatTestIncidentalHit(a1, a2, a3, v8)) {
+    _make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, _obj_shoot_blocking_at);
+    if (object != attackerFriend) {
+        if (!_combatTestIncidentalHit(attacker, defender, attackerFriend, attackerWeapon)) {
             return false;
         }
     }
