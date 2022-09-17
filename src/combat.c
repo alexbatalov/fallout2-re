@@ -2116,10 +2116,10 @@ bool _combat_safety_invalidate_weapon(Object* critter, Object* weapon, int hitMo
 }
 
 // 0x4213FC
-bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int hitMode, Object* defender, int* a5, Object* attackerFriend)
+bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int hitMode, Object* defender, int* collateralDamageToAttacker, Object* attackerFriend)
 {
-    if (a5 != NULL) {
-        *a5 = 0;
+    if (collateralDamageToAttacker != NULL) {
+        *collateralDamageToAttacker = 0;
     }
 
     if (attacker->pid == PROTO_ID_0x10001E0) {
@@ -2154,8 +2154,8 @@ bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int
                 && candidate != attacker
                 && candidate != defender
                 && !critterIsDead(candidate)) {
-                int v14 = objectGetDistanceBetween(defender, candidate);
-                if (v14 < damageRadius && candidate != candidate->data.critter.combat.whoHitMe) {
+                int attackerDefenderDistance = objectGetDistanceBetween(defender, candidate);
+                if (attackerDefenderDistance < damageRadius && candidate != candidate->data.critter.combat.whoHitMe) {
                     int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
                     int damageResistance = critterGetStat(candidate, STAT_DAMAGE_RESISTANCE + damageType);
                     if (damageResistance * (maxDamage - damageThreshold) / 100 > 0) {
@@ -2167,9 +2167,11 @@ bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int
 
         int attackerDefenderDistance = objectGetDistanceBetween(defender, attacker);
         if (attackerDefenderDistance <= damageRadius) {
-            if (a5 != NULL) {
-                int v18 = objectGetDistanceBetween(defender, attacker);
-                *a5 = damageRadius - v18 + 1;
+            // FIXME This condition is useless, since collateralDamageToAttacker is checked for NULL at the beginning
+            if (collateralDamageToAttacker != NULL) {
+                // FIXME this call is useless since the same thing is calculated few lines above.
+                int attackerDefenderDistance2 = objectGetDistanceBetween(defender, attacker);
+                *collateralDamageToAttacker = damageRadius - attackerDefenderDistance2 + 1;
                 return false;
             }
 
@@ -2188,9 +2190,13 @@ bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int
     attackInit(&attack, attacker, defender, hitMode, HIT_LOCATION_TORSO);
 
     int accuracy = attackDetermineToHit(attacker, attacker->tile, defender, HIT_LOCATION_TORSO, hitMode, 1);
-    int v33;
-    int defendera;
-    _compute_spray(&attack, accuracy, &v33, &defendera, weaponAnimation);
+    // Those args are passed to _compute_spray but are never used, it is useless
+    // to name them. Also FIXME - _compute_spray seems to not modify attack arg,
+    // which is the only one being used after this call,
+    // and its result is ignored, hence this call is useless.
+    int dummyVar1;
+    int dummyVar2;
+    _compute_spray(&attack, accuracy, &dummyVar1, &dummyVar2, weaponAnimation);
 
     if (attackerFriend != NULL) {
         for (int index = 0; index < attack.extrasLength; index++) {
