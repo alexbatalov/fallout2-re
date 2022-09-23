@@ -156,7 +156,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4);
 int _ai_move_closer(Object* a1, Object* a2, int a3);
 int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr);
 int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile);
-bool _cai_attackWouldIntersect(Object* a1, Object* a2, Object* a3, int tile, int* distance);
+bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attackerFriend, int tile, int* distance);
 int _ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4);
 int _ai_called_shot(Object* a1, Object* a2, int a3);
 int _ai_attack(Object* a1, Object* a2, int a3);

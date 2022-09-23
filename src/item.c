@@ -1918,20 +1918,20 @@ int _item_w_area_damage_radius(Object* weapon, int hitMode)
     int anim = weaponGetAnimationForHitMode(weapon, hitMode);
     int damageType = weaponGetDamageType(NULL, weapon);
 
-    int result = 0;
+    int damageRadius = 0;
     if (attackType == ATTACK_TYPE_RANGED) {
         if (anim == ANIM_FIRE_SINGLE && damageType == DAMAGE_TYPE_EXPLOSION) {
             // NOTE: Uninline.
-            result = _item_w_rocket_dmg_radius(weapon);
+            damageRadius = _item_w_rocket_dmg_radius(weapon);
         }
     } else if (attackType == ATTACK_TYPE_THROW) {
         // NOTE: Uninline.
         if (weaponIsGrenade(weapon)) {
             // NOTE: Uninline.
-            result = _item_w_grenade_dmg_radius(weapon);
+            damageRadius = _item_w_grenade_dmg_radius(weapon);
         }
     }
-    return result;
+    return damageRadius;
 }
 
 // 0x479180
