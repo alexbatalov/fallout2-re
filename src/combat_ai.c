@@ -2342,8 +2342,8 @@ bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attac
         interfaceGetCurrentHitMode(&hitMode, &aiming);
     }
 
-    Object* attackerWeapon = critterGetWeaponForHitMode(attacker, hitMode);
-    if (attackerWeapon == NULL) {
+    Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);
+    if (weapon == NULL) {
         return false;
     }
 
@@ -2354,7 +2354,7 @@ bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attac
     Object* object = NULL;
     _make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, _obj_shoot_blocking_at);
     if (object != attackerFriend) {
-        if (!_combatTestIncidentalHit(attacker, defender, attackerFriend, attackerWeapon)) {
+        if (!_combatTestIncidentalHit(attacker, defender, attackerFriend, weapon)) {
             return false;
         }
     }
