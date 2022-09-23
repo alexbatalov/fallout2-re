@@ -2110,39 +2110,39 @@ int combatSave(File* stream)
 }
 
 // 0x4213E8
-bool _combat_safety_invalidate_weapon(Object* a1, Object* a2, int hitMode, Object* a4, int* a5)
+bool _combat_safety_invalidate_weapon(Object* attacker, Object* weapon, int hitMode, Object* defender, int* safeDistancePtr)
 {
-    return _combat_safety_invalidate_weapon_func(a1, a2, hitMode, a4, a5, NULL);
+    return _combat_safety_invalidate_weapon_func(attacker, weapon, hitMode, defender, safeDistancePtr, NULL);
 }
 
 // 0x4213FC
-bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int hitMode, Object* a4, int* a5, Object* a6)
+bool _combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int hitMode, Object* defender, int* safeDistancePtr, Object* attackerFriend)
 {
-    if (a5 != NULL) {
-        *a5 = 0;
+    if (safeDistancePtr != NULL) {
+        *safeDistancePtr = 0;
     }
 
-    if (critter->pid == PROTO_ID_0x10001E0) {
+    if (attacker->pid == PROTO_ID_0x10001E0) {
         return false;
     }
 
-    int intelligence = critterGetStat(critter, STAT_INTELLIGENCE);
-    int team = critter->data.critter.combat.team;
-    int v41 = _item_w_area_damage_radius(weapon, hitMode);
+    int intelligence = critterGetStat(attacker, STAT_INTELLIGENCE);
+    int team = attacker->data.critter.combat.team;
+    int damageRadius = _item_w_area_damage_radius(weapon, hitMode);
     int maxDamage;
     weaponGetDamageMinMax(weapon, NULL, &maxDamage);
-    int damageType = weaponGetDamageType(critter, weapon);
+    int damageType = weaponGetDamageType(attacker, weapon);
 
-    if (v41 > 0) {
+    if (damageRadius > 0) {
         if (intelligence < 5) {
-            v41 -= 5 - intelligence;
-            if (v41 < 0) {
-                v41 = 0;
+            damageRadius -= 5 - intelligence;
+            if (damageRadius < 0) {
+                damageRadius = 0;
             }
         }
 
-        if (a6 != NULL) {
-            if (objectGetDistanceBetween(a4, a6) < v41) {
+        if (attackerFriend != NULL) {
+            if (objectGetDistanceBetween(defender, attackerFriend) < damageRadius) {
                 debugPrint("Friendly was in the way!");
                 return true;
             }
@@ -2151,11 +2151,11 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
         for (int index = 0; index < _list_total; index++) {
             Object* candidate = _combat_list[index];
             if (candidate->data.critter.combat.team == team
-                && candidate != critter
-                && candidate != a4
+                && candidate != attacker
+                && candidate != defender
                 && !critterIsDead(candidate)) {
-                int v14 = objectGetDistanceBetween(a4, candidate);
-                if (v14 < v41 && candidate != candidate->data.critter.combat.whoHitMe) {
+                int attackerDefenderDistance = objectGetDistanceBetween(defender, candidate);
+                if (attackerDefenderDistance < damageRadius && candidate != candidate->data.critter.combat.whoHitMe) {
                     int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
                     int damageResistance = critterGetStat(candidate, STAT_DAMAGE_RESISTANCE + damageType);
                     if (damageResistance * (maxDamage - damageThreshold) / 100 > 0) {
@@ -2165,11 +2165,9 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
             }
         }
 
-        int v17 = objectGetDistanceBetween(a4, critter);
-        if (v17 <= v41) {
-            if (a5 != NULL) {
-                int v18 = objectGetDistanceBetween(a4, critter);
-                *a5 = v41 - v18 + 1;
+        if (objectGetDistanceBetween(defender, attacker) <= damageRadius) {
+            if (safeDistancePtr != NULL) {
+                *safeDistancePtr = damageRadius - objectGetDistanceBetween(defender, attacker) + 1;
                 return false;
             }
 
@@ -2179,22 +2177,22 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
         return false;
     }
 
-    int v19 = weaponGetAnimationForHitMode(weapon, hitMode);
-    if (v19 != ANIM_FIRE_BURST && v19 != ANIM_FIRE_CONTINUOUS) {
+    int anim = weaponGetAnimationForHitMode(weapon, hitMode);
+    if (anim != ANIM_FIRE_BURST && anim != ANIM_FIRE_CONTINUOUS) {
         return false;
     }
 
     Attack attack;
-    attackInit(&attack, critter, a4, hitMode, HIT_LOCATION_TORSO);
+    attackInit(&attack, attacker, defender, hitMode, HIT_LOCATION_TORSO);
 
-    int accuracy = attackDetermineToHit(critter, critter->tile, a4, HIT_LOCATION_TORSO, hitMode, 1);
-    int v33;
-    int a4a;
-    _compute_spray(&attack, accuracy, &v33, &a4a, v19);
+    int accuracy = attackDetermineToHit(attacker, attacker->tile, defender, HIT_LOCATION_TORSO, hitMode, 1);
+    int roundsHitMainTarget;
+    int roundsSpent;
+    _compute_spray(&attack, accuracy, &roundsHitMainTarget, &roundsSpent, anim);
 
-    if (a6 != NULL) {
+    if (attackerFriend != NULL) {
         for (int index = 0; index < attack.extrasLength; index++) {
-            if (attack.extras[index] == a6) {
+            if (attack.extras[index] == attackerFriend) {
                 debugPrint("Friendly was in the way!");
                 return true;
             }
@@ -2204,8 +2202,8 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
     for (int index = 0; index < attack.extrasLength; index++) {
         Object* candidate = attack.extras[index];
         if (candidate->data.critter.combat.team == team
-            && candidate != critter
-            && candidate != a4
+            && candidate != attacker
+            && candidate != defender
             && !critterIsDead(candidate)
             && candidate != candidate->data.critter.combat.whoHitMe) {
             int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
@@ -2220,9 +2218,9 @@ bool _combat_safety_invalidate_weapon_func(Object* critter, Object* weapon, int 
 }
 
 // 0x4217BC
-bool _combatTestIncidentalHit(Object* a1, Object* a2, Object* a3, Object* a4)
+bool _combatTestIncidentalHit(Object* attacker, Object* defender, Object* attackerFriend, Object* weapon)
 {
-    return _combat_safety_invalidate_weapon_func(a1, a4, HIT_MODE_RIGHT_WEAPON_PRIMARY, a2, NULL, a3);
+    return _combat_safety_invalidate_weapon_func(attacker, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, defender, NULL, attackerFriend);
 }
 
 // 0x4217D4
@@ -3506,39 +3504,39 @@ bool _check_ranged_miss(Attack* attack)
 }
 
 // 0x423284
-int _shoot_along_path(Attack* attack, int a2, int a3, int anim)
+int _shoot_along_path(Attack* attack, int endTile, int rounds, int anim)
 {
-    int v5 = a3;
-    int v17 = 0;
-    int v7 = attack->attacker->tile;
+    int remainingRounds = rounds;
+    int roundsHitMainTarget = 0;
+    int currentTile = attack->attacker->tile;
 
     Object* critter = attack->attacker;
     while (critter != NULL) {
-        if ((v5 <= 0 && anim != ANIM_FIRE_CONTINUOUS) || v7 == a2 || attack->extrasLength >= 6) {
+        if ((remainingRounds <= 0 && anim != ANIM_FIRE_CONTINUOUS) || currentTile == endTile || attack->extrasLength >= 6) {
             break;
         }
 
-        _make_straight_path_func(attack->attacker, v7, a2, NULL, &critter, 32, _obj_shoot_blocking_at);
+        _make_straight_path_func(attack->attacker, currentTile, endTile, NULL, &critter, 32, _obj_shoot_blocking_at);
 
         if (critter != NULL) {
             if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
                 break;
             }
 
-            int v8 = attackDetermineToHit(attack->attacker, attack->attacker->tile, critter, HIT_LOCATION_TORSO, attack->hitMode, 1);
+            int accuracy = attackDetermineToHit(attack->attacker, attack->attacker->tile, critter, HIT_LOCATION_TORSO, attack->hitMode, 1);
             if (anim == ANIM_FIRE_CONTINUOUS) {
-                v5 = 1;
+                remainingRounds = 1;
             }
 
-            int a2a = 0;
-            while (randomBetween(1, 100) <= v8 && v5 > 0) {
-                v5 -= 1;
-                a2a += 1;
+            int roundsHit = 0;
+            while (randomBetween(1, 100) <= accuracy && remainingRounds > 0) {
+                remainingRounds -= 1;
+                roundsHit += 1;
             }
 
-            if (a2a != 0) {
+            if (roundsHit != 0) {
                 if (critter == attack->defender) {
-                    v17 += a2a;
+                    roundsHitMainTarget += roundsHit;
                 } else {
                     int index;
                     for (index = 0; index < attack->extrasLength; index += 1) {
@@ -3551,7 +3549,7 @@ int _shoot_along_path(Attack* attack, int a2, int a3, int anim)
                     attack->extras[index] = critter;
                     attackInit(&_shoot_ctd, attack->attacker, critter, attack->hitMode, HIT_LOCATION_TORSO);
                     _shoot_ctd.attackerFlags |= DAM_HIT;
-                    attackComputeDamage(&_shoot_ctd, a2a, 2);
+                    attackComputeDamage(&_shoot_ctd, roundsHit, 2);
 
                     if (index == attack->extrasLength) {
                         attack->extrasDamage[index] = _shoot_ctd.defenderDamage;
@@ -3568,21 +3566,21 @@ int _shoot_along_path(Attack* attack, int a2, int a3, int anim)
                 }
             }
 
-            v7 = critter->tile;
+            currentTile = critter->tile;
         }
     }
 
     if (anim == ANIM_FIRE_CONTINUOUS) {
-        v17 = 0;
+        roundsHitMainTarget = 0;
     }
 
-    return v17;
+    return roundsHitMainTarget;
 }
 
 // 0x423488
-int _compute_spray(Attack* attack, int accuracy, int* a3, int* a4, int anim)
+int _compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetPtr, int* roundsSpentPtr, int anim)
 {
-    *a3 = 0;
+    *roundsHitMainTargetPtr = 0;
 
     int ammoQuantity = ammoGetQuantity(attack->weapon);
     int burstRounds = weaponGetBurstRounds(attack->weapon);
@@ -3590,7 +3588,7 @@ int _compute_spray(Attack* attack, int accuracy, int* a3, int* a4, int anim)
         ammoQuantity = burstRounds;
     }
 
-    *a4 = ammoQuantity;
+    *roundsSpentPtr = ammoQuantity;
 
     int criticalChance = critterGetStat(attack->attacker, STAT_CRITICAL_CHANCE);
     int roll = randomRoll(accuracy, criticalChance, NULL);
@@ -3603,66 +3601,63 @@ int _compute_spray(Attack* attack, int accuracy, int* a3, int* a4, int anim)
         accuracy += 20;
     }
 
-    int v31;
-    int v14;
-    int v33;
-    int v30;
+    int leftRounds;
+    int mainTargetRounds;
+    int centerRounds;
+    int rightRounds;
     if (anim == ANIM_FIRE_BURST) {
-        v33 = ammoQuantity / 3;
-        if (v33 == 0) {
-            v33 = 1;
+        centerRounds = ammoQuantity / 3;
+        if (centerRounds == 0) {
+            centerRounds = 1;
         }
 
-        v31 = ammoQuantity / 3;
-        v30 = ammoQuantity - v33 - v31;
-        v14 = v33 / 2;
-        if (v14 == 0) {
-            v14 = 1;
-            v33 -= 1;
+        leftRounds = ammoQuantity / 3;
+        rightRounds = ammoQuantity - centerRounds - leftRounds;
+        mainTargetRounds = centerRounds / 2;
+        if (mainTargetRounds == 0) {
+            mainTargetRounds = 1;
+            centerRounds -= 1;
         }
     } else {
-        v31 = 1;
-        v14 = 1;
-        v33 = 1;
-        v30 = 1;
+        leftRounds = 1;
+        mainTargetRounds = 1;
+        centerRounds = 1;
+        rightRounds = 1;
     }
 
-    for (int index = 0; index < v14; index += 1) {
+    for (int index = 0; index < mainTargetRounds; index += 1) {
         if (randomRoll(accuracy, 0, NULL) >= ROLL_SUCCESS) {
-            *a3 += 1;
+            *roundsHitMainTargetPtr += 1;
         }
     }
 
-    if (*a3 == 0 && _check_ranged_miss(attack)) {
-        *a3 = 1;
+    if (*roundsHitMainTargetPtr == 0 && _check_ranged_miss(attack)) {
+        *roundsHitMainTargetPtr = 1;
     }
 
     int range = _item_w_range(attack->attacker, attack->hitMode);
-    int v19 = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
+    int mainTargetEndTile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
+    *roundsHitMainTargetPtr += _shoot_along_path(attack, mainTargetEndTile, centerRounds - *roundsHitMainTargetPtr, anim);
 
-    *a3 += _shoot_along_path(attack, v19, v33 - *a3, anim);
-
-    int v20;
+    int centerTile;
     if (objectGetDistanceBetween(attack->attacker, attack->defender) <= 3) {
-        v20 = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, 3);
+        centerTile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, 3);
     } else {
-        v20 = attack->defender->tile;
+        centerTile = attack->defender->tile;
     }
 
-    int rotation = tileGetRotationTo(v20, attack->attacker->tile);
-    int v23 = tileGetTileInDirection(v20, (rotation + 1) % ROTATION_COUNT, 1);
+    int rotation = tileGetRotationTo(centerTile, attack->attacker->tile);
 
-    int v25 = _tile_num_beyond(attack->attacker->tile, v23, range);
+    int leftTile = tileGetTileInDirection(centerTile, (rotation + 1) % ROTATION_COUNT, 1);
+    int leftEndTile = _tile_num_beyond(attack->attacker->tile, leftTile, range);
+    *roundsHitMainTargetPtr += _shoot_along_path(attack, leftEndTile, leftRounds, anim);
 
-    *a3 += _shoot_along_path(attack, v25, v31, anim);
+    int rightTile = tileGetTileInDirection(centerTile, (rotation + 5) % ROTATION_COUNT, 1);
+    int rightEndTile = _tile_num_beyond(attack->attacker->tile, rightTile, range);
+    *roundsHitMainTargetPtr += _shoot_along_path(attack, rightEndTile, rightRounds, anim);
 
-    int v26 = tileGetTileInDirection(v20, (rotation + 5) % ROTATION_COUNT, 1);
-
-    int v28 = _tile_num_beyond(attack->attacker->tile, v26, range);
-    *a3 += _shoot_along_path(attack, v28, v30, anim);
-
-    if (roll != ROLL_FAILURE || (*a3 <= 0 && attack->extrasLength <= 0)) {
-        if (roll >= ROLL_SUCCESS && *a3 == 0 && attack->extrasLength == 0) {
+    if (roll != ROLL_FAILURE || (*roundsHitMainTargetPtr <= 0 && attack->extrasLength <= 0)) {
+        if (roll >= ROLL_SUCCESS && *roundsHitMainTargetPtr == 0 && attack->extrasLength == 0) {
             roll = ROLL_FAILURE;
         }
     } else {
@@ -3717,14 +3712,14 @@ int attackCompute(Attack* attack)
     }
 
     int attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
-    int ammoQuantity = 1;
+    int roundsHitMainTarget = 1;
     int damageMultiplier = 2;
-    int v26 = 1;
+    int roundsSpent = 1;
 
     int roll;
 
     if (anim == ANIM_FIRE_BURST || anim == ANIM_FIRE_CONTINUOUS) {
-        roll = _compute_spray(attack, accuracy, &ammoQuantity, &v26, anim);
+        roll = _compute_spray(attack, accuracy, &roundsHitMainTarget, &roundsSpent, anim);
     } else {
         int chance = critterGetStat(attack->attacker, STAT_CRITICAL_CHANCE);
         roll = randomRoll(accuracy, chance - _hit_location_penalty[attack->defenderHitLocation], NULL);
@@ -3763,7 +3758,7 @@ int attackCompute(Attack* attack)
     }
 
     if (attackType == ATTACK_TYPE_RANGED) {
-        attack->ammoQuantity = v26;
+        attack->ammoQuantity = roundsSpent;
 
         if (roll == ROLL_SUCCESS && attack->attacker == gDude) {
             if (perkGetRank(gDude, PERK_SNIPER) != 0) {
@@ -3791,7 +3786,7 @@ int attackCompute(Attack* attack)
     case ROLL_SUCCESS:
         attack->attackerFlags |= DAM_HIT;
         attackComputeEnhancedKnockout(attack);
-        attackComputeDamage(attack, ammoQuantity, damageMultiplier);
+        attackComputeDamage(attack, roundsHitMainTarget, damageMultiplier);
         break;
     case ROLL_FAILURE:
         if (attackType == ATTACK_TYPE_RANGED || attackType == ATTACK_TYPE_THROW) {
