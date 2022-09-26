@@ -673,6 +673,12 @@ void colorGamma(double value)
     setSystemPalette(systemCmap);
 }
 
+// 0x4C7F0C
+double colorGetGamma()
+{
+    return currentGamma;
+}
+
 // NOTE: Unused.
 //
 // 0x4C8828

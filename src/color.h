@@ -56,6 +56,7 @@ unsigned char* getColorBlendTable(int ch);
 void freeColorBlendTable(int a1);
 void colorRegisterAlloc(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 void colorGamma(double value);
+double colorGetGamma();
 bool colorPushColorPalette();
 bool colorPopColorPalette();
 bool initColors();
