@@ -537,6 +537,17 @@ void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned 
     cmap[baseIndex + 2] = b;
 }
 
+// 0x4C7B20
+void getColorPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b)
+{
+    int baseIndex;
+
+    baseIndex = entry * 3;
+    *r = cmap[baseIndex];
+    *g = cmap[baseIndex + 1];
+    *b = cmap[baseIndex + 2];
+}
+
 // 0x4C7B44
 static void buildBlendTable(unsigned char* ptr, unsigned char ch)
 {
