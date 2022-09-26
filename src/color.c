@@ -171,6 +171,12 @@ Color colorMixAdd(Color a, Color b)
     return colorMixAddTable[a][b];
 }
 
+// 0x4C7298
+Color colorMixMul(Color a, Color b)
+{
+    return colorMixMulTable[a][b];
+}
+
 // 0x4C72B4
 int calculateColor(int a1, int a2)
 {
