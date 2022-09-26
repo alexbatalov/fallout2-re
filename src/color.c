@@ -679,6 +679,12 @@ double colorGetGamma()
     return currentGamma;
 }
 
+// 0x4C7F14
+int colorMappedColor(ColorIndex i)
+{
+    return mappedColor[i];
+}
+
 // NOTE: Unused.
 //
 // 0x4C8828

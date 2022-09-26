@@ -10,6 +10,7 @@
 
 typedef unsigned char Color;
 typedef long ColorRGB;
+typedef unsigned char ColorIndex;
 
 typedef const char*(ColorNameMangleFunc)(const char*);
 typedef void(fade_bk_func)();
@@ -57,6 +58,7 @@ void freeColorBlendTable(int a1);
 void colorRegisterAlloc(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 void colorGamma(double value);
 double colorGetGamma();
+int colorMappedColor(ColorIndex i);
 bool colorPushColorPalette();
 bool colorPopColorPalette();
 bool initColors();
