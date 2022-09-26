@@ -277,6 +277,18 @@ void setSystemPaletteEntries(unsigned char* palette, int start, int end)
     directDrawSetPaletteInRange(newPalette, start, end - start + 1);
 }
 
+// 0x4C74D0
+void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b)
+{
+    int baseIndex;
+
+    baseIndex = entry * 3;
+    systemCmap[baseIndex] = r;
+    systemCmap[baseIndex + 1] = g;
+    systemCmap[baseIndex + 2] = b;
+    GNW95_SetPaletteEntry(entry, currentGammaTable[r], currentGammaTable[g], currentGammaTable[b]);
+}
+
 // 0x4C7550
 static void setIntensityTableColor(int a1)
 {

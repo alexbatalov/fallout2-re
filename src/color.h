@@ -45,6 +45,7 @@ void setBlackSystemPalette();
 void setSystemPalette(unsigned char* palette);
 unsigned char* getSystemPalette();
 void setSystemPaletteEntries(unsigned char* a1, int a2, int a3);
+void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
 bool loadColorTable(const char* path);
 char* colorError();
 unsigned char* getColorBlendTable(int ch);
