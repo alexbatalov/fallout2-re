@@ -526,6 +526,17 @@ void setColorPalette(unsigned char* pal)
     memset(mappedColor, 1, sizeof(mappedColor));
 }
 
+// 0x4C7AF8
+void setColorPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b)
+{
+    int baseIndex;
+
+    baseIndex = entry * 3;
+    cmap[baseIndex] = r;
+    cmap[baseIndex + 1] = g;
+    cmap[baseIndex + 2] = b;
+}
+
 // 0x4C7B44
 static void buildBlendTable(unsigned char* ptr, unsigned char ch)
 {
