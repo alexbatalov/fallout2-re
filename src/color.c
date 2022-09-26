@@ -80,7 +80,7 @@ Color colorMixAddTable[256][256];
 unsigned char intensityColorTable[65536];
 
 // 0x6938D0
-unsigned char colorMixMulTable[65536];
+Color colorMixMulTable[256][256];
 
 // 0x6A38D0
 unsigned char colorTable[32768];
@@ -301,10 +301,8 @@ static void setIntensityTables()
 static void setMixTableColor(int a1)
 {
     int i;
-    int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
+    int v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
     int v20, v21, v22, v23, v24, v25, v26, v27, v28, v29;
-
-    v1 = a1 << 8;
 
     for (i = 0; i < 256; i++) {
         if (mappedColor[a1] && mappedColor[i]) {
@@ -374,14 +372,14 @@ static void setMixTableColor(int a1)
             v28 = (v22 * v25) >> 5;
 
             v29 = (v26 << 10) | (v27 << 5) | v28;
-            colorMixMulTable[v1 + i] = colorTable[v29];
+            colorMixMulTable[a1][i] = colorTable[v29];
         } else {
             if (mappedColor[i]) {
                 colorMixAddTable[a1][i] = i;
-                colorMixMulTable[v1 + i] = i;
+                colorMixMulTable[a1][i] = i;
             } else {
                 colorMixAddTable[a1][i] = a1;
-                colorMixMulTable[v1 + i] = a1;
+                colorMixMulTable[a1][i] = a1;
             }
         }
     }

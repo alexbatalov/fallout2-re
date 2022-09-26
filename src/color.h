@@ -28,7 +28,7 @@ extern unsigned char cmap[768];
 extern unsigned char mappedColor[256];
 extern Color colorMixAddTable[256][256];
 extern unsigned char intensityColorTable[65536];
-extern unsigned char colorMixMulTable[65536];
+extern Color colorMixMulTable[256][256];
 extern unsigned char colorTable[32768];
 
 void colorInitIO(ColorOpenFunc* openProc, ColorReadFunc* readProc, ColorCloseFunc* closeProc);
