@@ -77,7 +77,7 @@ unsigned char mappedColor[256];
 Color colorMixAddTable[256][256];
 
 // 0x6838D0
-unsigned char intensityColorTable[65536];
+Color intensityColorTable[256][256];
 
 // 0x6938D0
 Color colorMixMulTable[256][256];
@@ -180,8 +180,7 @@ Color colorMixMul(Color a, Color b)
 // 0x4C72B4
 int calculateColor(int a1, int a2)
 {
-    int v1 = (a1 >> 9) + ((a2 & 0xFF) << 8);
-    return intensityColorTable[v1];
+    return intensityColorTable[a2][a1 >> 9];
 }
 
 // 0x4C72E0
@@ -267,10 +266,9 @@ void setSystemPaletteEntries(unsigned char* palette, int start, int end)
 // 0x4C7550
 static void setIntensityTableColor(int a1)
 {
-    int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10;
+    int v1, v2, v3, v4, v5, v6, v7, v8, v9;
 
     v5 = 0;
-    v10 = a1 << 8;
 
     for (int index = 0; index < 128; index++) {
         v1 = (Color2RGB(a1) & 0x7C00) >> 10;
@@ -278,14 +276,14 @@ static void setIntensityTableColor(int a1)
         v3 = (Color2RGB(a1) & 0x1F);
 
         v4 = (((v1 * v5) >> 16) << 10) | (((v2 * v5) >> 16) << 5) | ((v3 * v5) >> 16);
-        intensityColorTable[index + v10] = colorTable[v4];
+        intensityColorTable[a1][index] = colorTable[v4];
 
         v6 = v1 + (((0x1F - v1) * v5) >> 16);
         v7 = v2 + (((0x1F - v2) * v5) >> 16);
         v8 = v3 + (((0x1F - v3) * v5) >> 16);
 
         v9 = (v6 << 10) | (v7 << 5) | v8;
-        intensityColorTable[0x7F + index + 1 + v10] = colorTable[v9];
+        intensityColorTable[a1][0x7F + index + 1] = colorTable[v9];
 
         v5 += 0x200;
     }
@@ -298,7 +296,7 @@ static void setIntensityTables()
         if (mappedColor[index] != 0) {
             setIntensityTableColor(index);
         } else {
-            memset(intensityColorTable + index * 256, 0, 256);
+            memset(intensityColorTable[index], 0, 256);
         }
     }
 }

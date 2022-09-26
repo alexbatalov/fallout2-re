@@ -2758,8 +2758,7 @@ void _dark_trans_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int
             unsigned char b = *sp;
             if (b != 0) {
                 if (b < 0xE5) {
-                    int t = (b << 8) + lightModifier;
-                    b = intensityColorTable[t];
+                    b = intensityColorTable[b][lightModifier];
                 }
 
                 *dp = b;
@@ -2790,9 +2789,7 @@ void _dark_translucent_trans_buf_to_buf(unsigned char* src, int srcWidth, int sr
                 unsigned char destByte = *dest;
                 unsigned int index = a11[srcByte] << 8;
                 index = a10[index + destByte];
-                index <<= 8;
-                index += lightModifier;
-                *dest = intensityColorTable[index];
+                *dest = intensityColorTable[index][lightModifier];
             }
 
             src++;
@@ -2816,18 +2813,12 @@ void _intensity_mask_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight,
         for (int x = 0; x < srcWidth; x++) {
             unsigned char b = *src;
             if (b != 0) {
-                int off = (b << 8) + light;
-                b = intensityColorTable[off];
+                b = intensityColorTable[b][light];
                 unsigned char m = *mask;
                 if (m != 0) {
                     unsigned char d = *dest;
-                    int off = (d << 8) + 128 - m;
-                    int q = intensityColorTable[off];
-
-                    off = (b << 8) + m;
-                    m = intensityColorTable[off];
-
-                    off = (m << 8) + q;
+                    int q = intensityColorTable[d][128 - m];
+                    m = intensityColorTable[b][m];
                     b = colorMixAddTable[m][q];
                 }
                 *dest = b;
