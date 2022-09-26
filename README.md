@@ -53,4 +53,4 @@ The source code in this repository is produced by reverse engineering the origin
 
 ## License
 
-The source code in this repository is for education and research purposes only. No commercial use of any kind. That's all I know.
+The source code is this repository is available under the [Sustainable Use License](LICENSE.md).
