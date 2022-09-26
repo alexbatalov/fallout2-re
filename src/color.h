@@ -47,5 +47,6 @@ bool colorPushColorPalette();
 bool colorPopColorPalette();
 bool initColors();
 void colorsClose();
+unsigned char* getColorPalette();
 
 #endif /* COLOR_H */

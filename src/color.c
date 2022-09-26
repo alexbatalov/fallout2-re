@@ -669,3 +669,9 @@ void colorsClose()
 
     tos = 0;
 }
+
+// 0x4C8A64
+unsigned char* getColorPalette()
+{
+    return cmap;
+}
