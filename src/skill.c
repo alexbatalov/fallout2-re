@@ -642,7 +642,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             scriptsExecMapUpdateProc();
-            paletteFadeTo(_cmap);
+            paletteFadeTo(cmap);
         } else {
             if (obj == gDude) {
                 // 501: You look healty already
@@ -788,7 +788,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(_cmap);
+                paletteFadeTo(cmap);
 
                 giveExp = false;
             } else {
@@ -802,7 +802,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 displayMonitorAddMessage(text);
 
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(_cmap);
+                paletteFadeTo(cmap);
             }
         } else {
             if (obj == gDude) {
@@ -968,7 +968,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(_cmap);
+                paletteFadeTo(cmap);
 
                 giveExp = false;
             } else {
@@ -982,7 +982,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 displayMonitorAddMessage(text);
 
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(_cmap);
+                paletteFadeTo(cmap);
             }
         } else {
             if (obj == gDude) {

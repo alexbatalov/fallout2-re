@@ -165,13 +165,13 @@ static void mouse_colorize()
     for (int index = 0; index < 64; index++) {
         switch (or_mask[index]) {
         case 0:
-            or_mask[index] = _colorTable[0];
+            or_mask[index] = colorTable[0];
             break;
         case 1:
-            or_mask[index] = _colorTable[8456];
+            or_mask[index] = colorTable[8456];
             break;
         case 15:
-            or_mask[index] = _colorTable[32767];
+            or_mask[index] = colorTable[32767];
             break;
         }
     }
@@ -205,7 +205,7 @@ int mouse_set_shape(unsigned char* buf, int width, int length, int full, int hot
 
     if (buf == NULL) {
         // NOTE: Original code looks tail recursion optimization.
-        return mouse_set_shape(or_mask, MOUSE_DEFAULT_CURSOR_WIDTH, MOUSE_DEFAULT_CURSOR_HEIGHT, MOUSE_DEFAULT_CURSOR_WIDTH, 1, 1, _colorTable[0]);
+        return mouse_set_shape(or_mask, MOUSE_DEFAULT_CURSOR_WIDTH, MOUSE_DEFAULT_CURSOR_HEIGHT, MOUSE_DEFAULT_CURSOR_WIDTH, 1, 1, colorTable[0]);
     }
 
     bool cursorWasHidden = mouse_is_hidden;

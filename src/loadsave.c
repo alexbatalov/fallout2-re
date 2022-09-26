@@ -306,7 +306,7 @@ int lsgSaveGame(int mode)
         const char* body[] = {
             _str1,
         };
-        showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
+        showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
         messageListFree(&gLoadSaveMessageList);
 
@@ -342,7 +342,7 @@ int lsgSaveGame(int mode)
             _str1,
             _str2,
         };
-        showDialogBox(_str0, body, 2, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
+        showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
         lsgWindowFree(0);
 
@@ -462,7 +462,7 @@ int lsgSaveGame(int mode)
             if (rc == 1) {
                 // Save game already exists, overwrite?
                 const char* title = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 131);
-                if (showDialogBox(title, NULL, 0, 169, 131, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
+                if (showDialogBox(title, NULL, 0, 169, 131, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
                     rc = -1;
                 }
             } else {
@@ -522,7 +522,7 @@ int lsgSaveGame(int mode)
                 const char* body[1] = {
                     _str1,
                 };
-                showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
+                showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
             } else if (v50 == 0) {
                 gameMouseSetCursor(MOUSE_CURSOR_ARROW);
                 rc = -1;
@@ -541,7 +541,7 @@ int lsgSaveGame(int mode)
                     const char* body[1] = {
                         _str1,
                     };
-                    showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
+                    showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
                     if (_GetSlotList() == -1) {
                         win_draw(gLoadSaveWindow);
@@ -562,7 +562,7 @@ int lsgSaveGame(int mode)
                             _str1,
                             _str2,
                         };
-                        showDialogBox(_str0, body, 2, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE);
+                        showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
                         lsgWindowFree(0);
 
@@ -662,7 +662,7 @@ int lsgLoadGame(int mode)
             WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
         if (window != -1) {
             unsigned char* windowBuffer = windowGetBuffer(window);
-            bufferFill(windowBuffer, LS_WINDOW_WIDTH, LS_WINDOW_HEIGHT, LS_WINDOW_WIDTH, _colorTable[0]);
+            bufferFill(windowBuffer, LS_WINDOW_WIDTH, LS_WINDOW_HEIGHT, LS_WINDOW_WIDTH, colorTable[0]);
             win_draw(window);
         }
 
@@ -697,7 +697,7 @@ int lsgLoadGame(int mode)
         messageListItemText = getmsg(&gLoadSaveMessageList, &messageListItem, 135);
         strcpy(_str1, messageListItemText);
 
-        showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_LARGE);
+        showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
         messageListFree(&gLoadSaveMessageList);
 
@@ -742,7 +742,7 @@ int lsgLoadGame(int mode)
 
             sprintf(_str2, "\"%s\\\"", "SAVEGAME");
 
-            showDialogBox(_str0, body, 2, 169, 116, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_LARGE);
+            showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
             return -1;
         }
@@ -991,7 +991,7 @@ int lsgLoadGame(int mode)
                     text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 135);
                     strcpy(_str2, text);
 
-                    showDialogBox(_str0, body, 2, 169, 116, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_LARGE);
+                    showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
                     rc = -1;
                 } else if (v50 == 2) {
@@ -1005,7 +1005,7 @@ int lsgLoadGame(int mode)
                     text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 136);
                     strcpy(_str1, text);
 
-                    showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_LARGE);
+                    showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
                     rc = -1;
                 } else {
@@ -1021,7 +1021,7 @@ int lsgLoadGame(int mode)
                         text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 135);
                         strcpy(_str1, text);
 
-                        showDialogBox(_str0, body, 1, 169, 116, _colorTable[32328], 0, _colorTable[32328], DIALOG_BOX_LARGE);
+                        showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
                         _map_new_map();
 
@@ -1180,15 +1180,15 @@ int lsgWindowInit(int windowType)
     char* msg;
 
     msg = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, messageId);
-    fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 27 + 48, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 27 + 48, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
     msg = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 104);
-    fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 348 + 410, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 348 + 410, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
 
     // CANCEL
     msg = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 105);
-    fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 348 + 515, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 348 + 515, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
 
     int btn;
 
@@ -1709,7 +1709,7 @@ void _ShowSlotList(int a1)
     int y = 87;
     for (int index = 0; index < 10; index += 1) {
 
-        int color = index == _slot_cursor ? _colorTable[32747] : _colorTable[992];
+        int color = index == _slot_cursor ? colorTable[32747] : colorTable[992];
         const char* text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, a1 != 0 ? 110 : 109);
         sprintf(_str, "[   %s %.2d:   ]", text, index + 1);
         fontDrawText(gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * y + 55, _str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
@@ -1728,13 +1728,13 @@ void _ShowSlotList(int a1)
             // - CORRUPT SAVE FILE -
             text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 112);
             sprintf(_str, "%s", text);
-            color = _colorTable[32328];
+            color = colorTable[32328];
             break;
         case SLOT_STATE_UNSUPPORTED_VERSION:
             // - OLD VERSION -
             text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 113);
             sprintf(_str, " %s", text);
-            color = _colorTable[32328];
+            color = colorTable[32328];
             break;
         }
 
@@ -1750,7 +1750,7 @@ void _DrawInfoBox(int a1)
 
     unsigned char* dest;
     const char* text;
-    int color = _colorTable[992];
+    int color = colorTable[992];
 
     switch (_LSstatus[a1]) {
     case SLOT_STATE_OCCUPIED:
@@ -1797,13 +1797,13 @@ void _DrawInfoBox(int a1)
         // Error!
         text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 115);
         dest = gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 262 + 404;
-        color = _colorTable[32328];
+        color = colorTable[32328];
         break;
     case SLOT_STATE_UNSUPPORTED_VERSION:
         // Old version.
         text = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 116);
         dest = gLoadSaveWindowBuffer + LS_WINDOW_WIDTH * 262 + 400;
-        color = _colorTable[32328];
+        color = colorTable[32328];
         break;
     default:
         assert(false && "Should be unreachable");
@@ -1877,7 +1877,7 @@ int _GetComment(int a1)
         msg,
         gLoadSaveFrmSizes[LOAD_SAVE_FRM_BOX].width,
         gLoadSaveFrmSizes[LOAD_SAVE_FRM_BOX].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     // CANCEL
     msg = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 105);
@@ -1885,7 +1885,7 @@ int _GetComment(int a1)
         msg,
         gLoadSaveFrmSizes[LOAD_SAVE_FRM_BOX].width,
         gLoadSaveFrmSizes[LOAD_SAVE_FRM_BOX].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     // DESCRIPTION
     msg = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 130);
@@ -1898,7 +1898,7 @@ int _GetComment(int a1)
         title,
         gLoadSaveFrmSizes[LOAD_SAVE_FRM_BOX].width,
         gLoadSaveFrmSizes[LOAD_SAVE_FRM_BOX].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     fontSetCurrent(101);
 
@@ -1951,7 +1951,7 @@ int _GetComment(int a1)
 
     int rc;
 
-    if (_get_input_str2(window, 507, 508, description, LOAD_SAVE_DESCRIPTION_LENGTH - 1, 24, 35, _colorTable[992], gLoadSaveFrmData[LOAD_SAVE_FRM_BOX][gLoadSaveFrmSizes[1].width * 35 + 24], 0) == 0) {
+    if (_get_input_str2(window, 507, 508, description, LOAD_SAVE_DESCRIPTION_LENGTH - 1, 24, 35, colorTable[992], gLoadSaveFrmData[LOAD_SAVE_FRM_BOX][gLoadSaveFrmSizes[1].width * 35 + 24], 0) == 0) {
         strncpy(_LSData[a1].description, description, LOAD_SAVE_DESCRIPTION_LENGTH);
         _LSData[a1].description[LOAD_SAVE_DESCRIPTION_LENGTH - 1] = '\0';
         rc = 1;

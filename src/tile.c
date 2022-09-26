@@ -339,28 +339,28 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
     } while (v11 != 64);
 
     bufferFill(_tile_grid, 32, 16, 32, 0);
-    bufferDrawLine(_tile_grid, 32, 16, 0, 31, 4, _colorTable[4228]);
-    bufferDrawLine(_tile_grid, 32, 31, 4, 31, 12, _colorTable[4228]);
-    bufferDrawLine(_tile_grid, 32, 31, 12, 16, 15, _colorTable[4228]);
-    bufferDrawLine(_tile_grid, 32, 0, 12, 16, 15, _colorTable[4228]);
-    bufferDrawLine(_tile_grid, 32, 0, 4, 0, 12, _colorTable[4228]);
-    bufferDrawLine(_tile_grid, 32, 16, 0, 0, 4, _colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 16, 0, 31, 4, colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 31, 4, 31, 12, colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 31, 12, 16, 15, colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 0, 12, 16, 15, colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 0, 4, 0, 12, colorTable[4228]);
+    bufferDrawLine(_tile_grid, 32, 16, 0, 0, 4, colorTable[4228]);
 
     bufferFill(_tile_grid_occupied, 32, 16, 32, 0);
-    bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 31, 4, _colorTable[31]);
-    bufferDrawLine(_tile_grid_occupied, 32, 31, 4, 31, 12, _colorTable[31]);
-    bufferDrawLine(_tile_grid_occupied, 32, 31, 12, 16, 15, _colorTable[31]);
-    bufferDrawLine(_tile_grid_occupied, 32, 0, 12, 16, 15, _colorTable[31]);
-    bufferDrawLine(_tile_grid_occupied, 32, 0, 4, 0, 12, _colorTable[31]);
-    bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 0, 4, _colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 31, 4, colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 31, 4, 31, 12, colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 31, 12, 16, 15, colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 0, 12, 16, 15, colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 0, 4, 0, 12, colorTable[31]);
+    bufferDrawLine(_tile_grid_occupied, 32, 16, 0, 0, 4, colorTable[31]);
 
     bufferFill(_tile_grid_blocked, 32, 16, 32, 0);
-    bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 31, 4, _colorTable[31744]);
-    bufferDrawLine(_tile_grid_blocked, 32, 31, 4, 31, 12, _colorTable[31744]);
-    bufferDrawLine(_tile_grid_blocked, 32, 31, 12, 16, 15, _colorTable[31744]);
-    bufferDrawLine(_tile_grid_blocked, 32, 0, 12, 16, 15, _colorTable[31744]);
-    bufferDrawLine(_tile_grid_blocked, 32, 0, 4, 0, 12, _colorTable[31744]);
-    bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 0, 4, _colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 31, 4, colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 31, 4, 31, 12, colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 31, 12, 16, 15, colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 0, 12, 16, 15, colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 0, 4, 0, 12, colorTable[31744]);
+    bufferDrawLine(_tile_grid_blocked, 32, 16, 0, 0, 4, colorTable[31744]);
 
     for (v20 = 0; v20 < 16; v20++) {
         v21 = v20 * 32;
@@ -383,7 +383,7 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
             } while (v25 < 32 && _tile_grid_blocked[v24] == 0);
         }
 
-        bufferDrawLine(_tile_grid_blocked, 32, v25, v20, v22, v20, _colorTable[31744]);
+        bufferDrawLine(_tile_grid_blocked, 32, v25, v20, v22, v20, colorTable[31744]);
     }
 
     tileSetCenter(hexGridWidth * (hexGridHeight / 2) + hexGridWidth / 2, 2);
@@ -1822,7 +1822,7 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
             for (int kk = 0; kk < v77; kk++) {
                 if (*v67 != 0) {
                     int t = (*v67 << 8) + (*v68 >> 9);
-                    *v66 = _intensityColorTable[t];
+                    *v66 = intensityColorTable[t];
                 }
                 v67++;
                 v68++;

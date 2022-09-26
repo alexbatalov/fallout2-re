@@ -891,7 +891,7 @@ int wmWorldMap_init()
 
     wmGenData.viewportMaxX = WM_TILE_WIDTH * wmNumHorizontalTiles - WM_VIEW_WIDTH;
     wmGenData.viewportMaxY = WM_TILE_HEIGHT * (wmMaxTileNum / wmNumHorizontalTiles) - WM_VIEW_HEIGHT;
-    circleBlendTable = _getColorBlendTable(_colorTable[992]);
+    circleBlendTable = getColorBlendTable(colorTable[992]);
 
     wmMarkSubTileRadiusVisited(wmGenData.worldPosX, wmGenData.worldPosY);
     wmWorldMapSaveTempData();
@@ -1134,7 +1134,7 @@ void wmWorldMap_exit()
     wmMaxMapNum = 0;
 
     if (circleBlendTable != NULL) {
-        _freeColorBlendTable(_colorTable[992]);
+        freeColorBlendTable(colorTable[992]);
         circleBlendTable = NULL;
     }
 
@@ -3552,7 +3552,7 @@ static int wmRndEncounterOccurred()
 
         title = getmsg(&wmMsgFile, &messageListItem, 2999);
         body = getmsg(&wmMsgFile, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
-        if (showDialogBox(title, &body, 1, 169, 116, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
+        if (showDialogBox(title, &body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
             wmGenData.encounterIconIsVisible = 0;
             wmGenData.encounterMapId = -1;
             wmGenData.encounterTableId = -1;
@@ -4517,7 +4517,7 @@ static int wmInterfaceInit()
 
     int worldmapWindowX = 0;
     int worldmapWindowY = 0;
-    wmBkWin = windowCreate(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, _colorTable[0], WINDOW_FLAG_0x04);
+    wmBkWin = windowCreate(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, colorTable[0], WINDOW_FLAG_0x04);
     if (wmBkWin == -1) {
         return -1;
     }
@@ -5632,7 +5632,7 @@ static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* cit
             name,
             width,
             WM_WINDOW_WIDTH,
-            _colorTable[992]);
+            colorTable[992]);
     }
 
     return 0;
@@ -5650,7 +5650,7 @@ static void wmInterfaceDrawSubTileRectFogged(unsigned char* dest, int width, int
         for (int x = 0; x < width; x++) {
             unsigned char byte = *dest;
             unsigned int index = (byte << 8) + 75;
-            *dest++ = _intensityColorTable[index];
+            *dest++ = intensityColorTable[index];
         }
         dest += skipY;
     }
@@ -5692,7 +5692,7 @@ static int wmInterfaceDrawSubTileList(TileInfo* tileInfo, int column, int row, i
         unsigned char* dest = wmBkWinBuf + WM_WINDOW_WIDTH * destY + destX;
         switch (subtileInfo->state) {
         case SUBTILE_STATE_UNKNOWN:
-            bufferFill(dest, width, height, WM_WINDOW_WIDTH, _colorTable[0]);
+            bufferFill(dest, width, height, WM_WINDOW_WIDTH, colorTable[0]);
             break;
         case SUBTILE_STATE_KNOWN:
             wmInterfaceDrawSubTileRectFogged(dest, width, height, WM_WINDOW_WIDTH);
@@ -6146,7 +6146,7 @@ static int wmTownMapRefresh()
         if (messageListGetItem(&wmMsgFile, &messageListItem)) {
             if (messageListItem.text != NULL) {
                 int width = fontGetStringWidth(messageListItem.text);
-                windowDrawText(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, _colorTable[992] | 0x2010000);
+                windowDrawText(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, colorTable[992] | 0x2010000);
             }
         }
     }

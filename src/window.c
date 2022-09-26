@@ -185,13 +185,13 @@ int windowSetTextFlags(int a1)
 // 0x4B6174
 unsigned char windowGetTextColor()
 {
-    return _colorTable[_currentTextColorB | (_currentTextColorG << 5) | (_currentTextColorR << 10)];
+    return colorTable[_currentTextColorB | (_currentTextColorG << 5) | (_currentTextColorR << 10)];
 }
 
 // 0x4B6198
 unsigned char windowGetHighlightColor()
 {
-    return _colorTable[_currentHighlightColorB | (_currentHighlightColorG << 5) | (_currentHighlightColorR << 10)];
+    return colorTable[_currentHighlightColorB | (_currentHighlightColorG << 5) | (_currentHighlightColorR << 10)];
 }
 
 // 0x4B61BC
@@ -572,40 +572,40 @@ void _doRightButtonRelease(int btn, int keyCode)
 void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* pressed, unsigned char* a5)
 {
     if (normal != NULL) {
-        bufferFill(normal, width, height, width, _colorTable[0]);
-        bufferFill(normal + width + 1, width - 2, height - 2, width, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
-        bufferDrawLine(normal, width, 1, 1, width - 2, 1, _colorTable[32767]);
-        bufferDrawLine(normal, width, 2, 2, width - 3, 2, _colorTable[32767]);
-        bufferDrawLine(normal, width, 1, height - 2, width - 2, height - 2, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(normal, width, 2, height - 3, width - 3, height - 3, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(normal, width, width - 2, 1, width - 3, 2, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
-        bufferDrawLine(normal, width, 1, 2, 1, height - 3, _colorTable[32767]);
-        bufferDrawLine(normal, width, 2, 3, 2, height - 4, _colorTable[32767]);
-        bufferDrawLine(normal, width, width - 2, 2, width - 2, height - 3, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(normal, width, width - 3, 3, width - 3, height - 4, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(normal, width, 1, height - 2, 2, height - 3, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
+        bufferFill(normal, width, height, width, colorTable[0]);
+        bufferFill(normal + width + 1, width - 2, height - 2, width, intensityColorTable[(colorTable[32767] << 8) + 89]);
+        bufferDrawLine(normal, width, 1, 1, width - 2, 1, colorTable[32767]);
+        bufferDrawLine(normal, width, 2, 2, width - 3, 2, colorTable[32767]);
+        bufferDrawLine(normal, width, 1, height - 2, width - 2, height - 2, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(normal, width, 2, height - 3, width - 3, height - 3, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(normal, width, width - 2, 1, width - 3, 2, intensityColorTable[(colorTable[32767] << 8) + 89]);
+        bufferDrawLine(normal, width, 1, 2, 1, height - 3, colorTable[32767]);
+        bufferDrawLine(normal, width, 2, 3, 2, height - 4, colorTable[32767]);
+        bufferDrawLine(normal, width, width - 2, 2, width - 2, height - 3, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(normal, width, width - 3, 3, width - 3, height - 4, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(normal, width, 1, height - 2, 2, height - 3, intensityColorTable[(colorTable[32767] << 8) + 89]);
     }
 
     if (pressed != NULL) {
-        bufferFill(pressed, width, height, width, _colorTable[0]);
-        bufferFill(pressed + width + 1, width - 2, height - 2, width, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
-        bufferDrawLine(pressed, width, 1, 1, width - 2, 1, _colorTable[32767] + 44);
-        bufferDrawLine(pressed, width, 1, 1, 1, height - 2, _colorTable[32767] + 44);
+        bufferFill(pressed, width, height, width, colorTable[0]);
+        bufferFill(pressed + width + 1, width - 2, height - 2, width, intensityColorTable[(colorTable[32767] << 8) + 89]);
+        bufferDrawLine(pressed, width, 1, 1, width - 2, 1, colorTable[32767] + 44);
+        bufferDrawLine(pressed, width, 1, 1, 1, height - 2, colorTable[32767] + 44);
     }
 
     if (a5 != NULL) {
-        bufferFill(a5, width, height, width, _colorTable[0]);
-        bufferFill(a5 + width + 1, width - 2, height - 2, width, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
-        bufferDrawLine(a5, width, 1, 1, width - 2, 1, _colorTable[32767]);
-        bufferDrawLine(a5, width, 2, 2, width - 3, 2, _colorTable[32767]);
-        bufferDrawLine(a5, width, 1, height - 2, width - 2, height - 2, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(a5, width, 2, height - 3, width - 3, height - 3, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(a5, width, width - 2, 1, width - 3, 2, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
-        bufferDrawLine(a5, width, 1, 2, 1, height - 3, _colorTable[32767]);
-        bufferDrawLine(a5, width, 2, 3, 2, height - 4, _colorTable[32767]);
-        bufferDrawLine(a5, width, width - 2, 2, width - 2, height - 3, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(a5, width, width - 3, 3, width - 3, height - 4, _intensityColorTable[(_colorTable[32767] << 8) + 44]);
-        bufferDrawLine(a5, width, 1, height - 2, 2, height - 3, _intensityColorTable[(_colorTable[32767] << 8) + 89]);
+        bufferFill(a5, width, height, width, colorTable[0]);
+        bufferFill(a5 + width + 1, width - 2, height - 2, width, intensityColorTable[(colorTable[32767] << 8) + 89]);
+        bufferDrawLine(a5, width, 1, 1, width - 2, 1, colorTable[32767]);
+        bufferDrawLine(a5, width, 2, 2, width - 3, 2, colorTable[32767]);
+        bufferDrawLine(a5, width, 1, height - 2, width - 2, height - 2, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(a5, width, 2, height - 3, width - 3, height - 3, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(a5, width, width - 2, 1, width - 3, 2, intensityColorTable[(colorTable[32767] << 8) + 89]);
+        bufferDrawLine(a5, width, 1, 2, 1, height - 3, colorTable[32767]);
+        bufferDrawLine(a5, width, 2, 3, 2, height - 4, colorTable[32767]);
+        bufferDrawLine(a5, width, width - 2, 2, width - 2, height - 3, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(a5, width, width - 3, 3, width - 3, height - 4, intensityColorTable[(colorTable[32767] << 8) + 44]);
+        bufferDrawLine(a5, width, 1, height - 2, 2, height - 3, intensityColorTable[(colorTable[32767] << 8) + 89]);
     }
 }
 
@@ -2358,7 +2358,7 @@ bool _windowFill(float r, float g, float b)
         0,
         _windowWidth(),
         _windowHeight(),
-        _colorTable[colorIndex]);
+        colorTable[colorIndex]);
 
     return true;
 }
@@ -2386,7 +2386,7 @@ bool _windowFillRect(int x, int y, int width, int height, float r, float g, floa
         y,
         width,
         height,
-        _colorTable[colorIndex]);
+        colorTable[colorIndex]);
 
     return true;
 }
@@ -2978,8 +2978,8 @@ void _alphaBltBuf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch,
                 unsigned char* alphaBufferPtr = alphaBuffer;
                 for (int index = 0; index < rle; index++) {
                     // TODO: Check.
-                    unsigned char* v1 = &(_cmap[*srcPtr * 3]);
-                    unsigned char* v2 = &(_cmap[*alphaWindowBufferPtr * 3]);
+                    unsigned char* v1 = &(cmap[*srcPtr * 3]);
+                    unsigned char* v2 = &(cmap[*alphaWindowBufferPtr * 3]);
                     unsigned char alpha = *alphaBufferPtr;
 
                     // NOTE: Original code is slightly different.
@@ -2988,7 +2988,7 @@ void _alphaBltBuf(unsigned char* src, int srcWidth, int srcHeight, int srcPitch,
                     unsigned int b = _alphaBlendTable[(v1[2] << 8) | alpha] + _alphaBlendTable[(v2[2] << 8) | alpha];
                     unsigned int colorIndex = (r << 10) | (g << 5) | b;
 
-                    *destPtr = _colorTable[colorIndex];
+                    *destPtr = colorTable[colorIndex];
 
                     destPtr++;
                     srcPtr++;

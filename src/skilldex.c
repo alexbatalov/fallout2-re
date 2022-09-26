@@ -226,7 +226,7 @@ int skilldexWindowInit()
         title,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     // Render skill values.
     int valueY = 48;
@@ -281,13 +281,13 @@ int skilldexWindowInit()
             name,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width,
-            _colorTable[18979]);
+            colorTable[18979]);
 
         fontDrawText(gSkilldexButtonsData[index * 2 + 1] + gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width * nameY + nameX,
             name,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
             gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
-            _colorTable[14723]);
+            colorTable[14723]);
 
         int btn = buttonCreate(gSkilldexWindow,
             15,
@@ -315,7 +315,7 @@ int skilldexWindowInit()
         cancel,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
         gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     int cancelBtn = buttonCreate(gSkilldexWindow,
         48,

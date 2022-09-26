@@ -215,7 +215,7 @@ int gameMoviePlay(int movie, int flags)
             subtitlesPaletteFilePath = "art\\cuts\\subtitle.pal";
         }
 
-        colorPaletteLoad(subtitlesPaletteFilePath);
+        loadColorTable(subtitlesPaletteFilePath);
 
         oldTextColor = windowGetTextColor();
         windowSetTextColor(1.0, 1.0, 1.0);
@@ -272,13 +272,13 @@ int gameMoviePlay(int movie, int flags)
     }
 
     if (subtitlesEnabled) {
-        colorPaletteLoad("color.pal");
+        loadColorTable("color.pal");
 
         windowSetFont(oldFont);
 
-        float r = (float)((_Color2RGB_(oldTextColor) & 0x7C00) >> 10) * flt_50352A;
-        float g = (float)((_Color2RGB_(oldTextColor) & 0x3E0) >> 5) * flt_50352A;
-        float b = (float)(_Color2RGB_(oldTextColor) & 0x1F) * flt_50352A;
+        float r = (float)((Color2RGB(oldTextColor) & 0x7C00) >> 10) * flt_50352A;
+        float g = (float)((Color2RGB(oldTextColor) & 0x3E0) >> 5) * flt_50352A;
+        float b = (float)(Color2RGB(oldTextColor) & 0x1F) * flt_50352A;
         windowSetTextColor(r, g, b);
     }
 
@@ -290,10 +290,10 @@ int gameMoviePlay(int movie, int flags)
 
     if ((flags & GAME_MOVIE_FADE_OUT) != 0) {
         if (!subtitlesEnabled) {
-            colorPaletteLoad("color.pal");
+            loadColorTable("color.pal");
         }
 
-        paletteFadeTo(_cmap);
+        paletteFadeTo(cmap);
         gGameMovieFaded = false;
     }
 
@@ -305,7 +305,7 @@ int gameMoviePlay(int movie, int flags)
 void gameMovieFadeOut()
 {
     if (gGameMovieFaded) {
-        paletteFadeTo(_cmap);
+        paletteFadeTo(cmap);
         gGameMovieFaded = false;
     }
 }

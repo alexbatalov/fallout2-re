@@ -1388,7 +1388,7 @@ void _display_inventory_info(Object* item, int quantity, unsigned char* dest, in
     }
 
     if (draw) {
-        fontDrawText(dest, formattedText, 80, pitch, _colorTable[32767]);
+        fontDrawText(dest, formattedText, 80, pitch, colorTable[32767]);
     }
 
     fontSetCurrent(oldFont);
@@ -2286,7 +2286,7 @@ void inventoryRenderSummary()
 
     // Render character name.
     const char* critterName = critterGetName(_stack[0]);
-    fontDrawText(windowBuffer + 499 * 44 + 297, critterName, 80, 499, _colorTable[992]);
+    fontDrawText(windowBuffer + 499 * 44 + 297, critterName, 80, 499, colorTable[992]);
 
     bufferDrawLine(windowBuffer,
         499,
@@ -2294,7 +2294,7 @@ void inventoryRenderSummary()
         3 * fontGetLineHeight() / 2 + 44,
         440,
         3 * fontGetLineHeight() / 2 + 44,
-        _colorTable[992]);
+        colorTable[992]);
 
     MessageListItem messageListItem;
 
@@ -2302,12 +2302,12 @@ void inventoryRenderSummary()
     for (int stat = 0; stat < 7; stat++) {
         messageListItem.num = stat;
         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-            fontDrawText(windowBuffer + offset, messageListItem.text, 80, 499, _colorTable[992]);
+            fontDrawText(windowBuffer + offset, messageListItem.text, 80, 499, colorTable[992]);
         }
 
         int value = critterGetStat(_stack[0], stat);
         sprintf(formattedText, "%d", value);
-        fontDrawText(windowBuffer + offset + 24, formattedText, 80, 499, _colorTable[992]);
+        fontDrawText(windowBuffer + offset + 24, formattedText, 80, 499, colorTable[992]);
 
         offset += 499 * fontGetLineHeight();
     }
@@ -2317,7 +2317,7 @@ void inventoryRenderSummary()
     for (int index = 0; index < 7; index += 1) {
         messageListItem.num = 7 + index;
         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-            fontDrawText(windowBuffer + offset + 40, messageListItem.text, 80, 499, _colorTable[992]);
+            fontDrawText(windowBuffer + offset + 40, messageListItem.text, 80, 499, colorTable[992]);
         }
 
         if (v57[index] == -1) {
@@ -2330,13 +2330,13 @@ void inventoryRenderSummary()
             sprintf(formattedText, format, value1, value2);
         }
 
-        fontDrawText(windowBuffer + offset + 104, formattedText, 80, 499, _colorTable[992]);
+        fontDrawText(windowBuffer + offset + 104, formattedText, 80, 499, colorTable[992]);
 
         offset += 499 * fontGetLineHeight();
     }
 
-    bufferDrawLine(windowBuffer, 499, 297, 18 * fontGetLineHeight() / 2 + 48, 440, 18 * fontGetLineHeight() / 2 + 48, _colorTable[992]);
-    bufferDrawLine(windowBuffer, 499, 297, 26 * fontGetLineHeight() / 2 + 48, 440, 26 * fontGetLineHeight() / 2 + 48, _colorTable[992]);
+    bufferDrawLine(windowBuffer, 499, 297, 18 * fontGetLineHeight() / 2 + 48, 440, 18 * fontGetLineHeight() / 2 + 48, colorTable[992]);
+    bufferDrawLine(windowBuffer, 499, 297, 26 * fontGetLineHeight() / 2 + 48, 440, 26 * fontGetLineHeight() / 2 + 48, colorTable[992]);
 
     Object* itemsInHands[2] = {
         gInventoryLeftHandItem,
@@ -2358,7 +2358,7 @@ void inventoryRenderSummary()
             // No item
             messageListItem.num = 14;
             if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, _colorTable[992]);
+                fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
             }
 
             offset += 499 * fontGetLineHeight();
@@ -2372,14 +2372,14 @@ void inventoryRenderSummary()
                 sprintf(formattedText, "%s 1-%d", messageListItem.text, damage);
             }
 
-            fontDrawText(windowBuffer + offset, formattedText, 120, 499, _colorTable[992]);
+            fontDrawText(windowBuffer + offset, formattedText, 120, 499, colorTable[992]);
 
             offset += 3 * 499 * fontGetLineHeight();
             continue;
         }
 
         const char* itemName = itemGetName(item);
-        fontDrawText(windowBuffer + offset, itemName, 140, 499, _colorTable[992]);
+        fontDrawText(windowBuffer + offset, itemName, 140, 499, colorTable[992]);
 
         offset += 499 * fontGetLineHeight();
 
@@ -2389,7 +2389,7 @@ void inventoryRenderSummary()
                 // (Not worn)
                 messageListItem.num = 18;
                 if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                    fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, _colorTable[992]);
+                    fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
                 }
             }
 
@@ -2426,7 +2426,7 @@ void inventoryRenderSummary()
                 }
             }
 
-            fontDrawText(windowBuffer + offset, formattedText, 140, 499, _colorTable[992]);
+            fontDrawText(windowBuffer + offset, formattedText, 140, 499, colorTable[992]);
         }
 
         offset += 499 * fontGetLineHeight();
@@ -2456,7 +2456,7 @@ void inventoryRenderSummary()
                 sprintf(formattedText, "%s %d/%d", messageListItem.text, quantity, capacity);
             }
 
-            fontDrawText(windowBuffer + offset, formattedText, 140, 499, _colorTable[992]);
+            fontDrawText(windowBuffer + offset, formattedText, 140, 499, colorTable[992]);
         }
 
         offset += 2 * 499 * fontGetLineHeight();
@@ -2470,9 +2470,9 @@ void inventoryRenderSummary()
             int inventoryWeight = objectGetInventoryWeight(_stack[0]);
             sprintf(formattedText, "%s %d/%d", messageListItem.text, inventoryWeight, carryWeight);
 
-            int color = _colorTable[992];
+            int color = colorTable[992];
             if (critterIsEncumbered(_stack[0])) {
-                color = _colorTable[31744];
+                color = colorTable[31744];
             }
 
             fontDrawText(windowBuffer + offset + 15, formattedText, 120, 499, color);
@@ -2480,7 +2480,7 @@ void inventoryRenderSummary()
             int inventoryWeight = objectGetInventoryWeight(_stack[0]);
             sprintf(formattedText, "%s %d", messageListItem.text, inventoryWeight);
 
-            fontDrawText(windowBuffer + offset + 30, formattedText, 80, 499, _colorTable[992]);
+            fontDrawText(windowBuffer + offset + 30, formattedText, 80, 499, colorTable[992]);
         }
     }
 
@@ -2886,7 +2886,7 @@ void inventoryRenderItemDescription(char* string)
                 // This was the last line containing very long word. Text
                 // drawing routine will silently truncate it after reaching
                 // desired length.
-                fontDrawText(windowBuffer + 499 * _inven_display_msg_line * fontGetLineHeight(), c, 152, 499, _colorTable[992]);
+                fontDrawText(windowBuffer + 499 * _inven_display_msg_line * fontGetLineHeight(), c, 152, 499, colorTable[992]);
                 return;
             }
 
@@ -2927,7 +2927,7 @@ void inventoryRenderItemDescription(char* string)
             return;
         }
 
-        fontDrawText(windowBuffer + 499 * _inven_display_msg_line * fontGetLineHeight(), c, 152, 499, _colorTable[992]);
+        fontDrawText(windowBuffer + 499 * _inven_display_msg_line * fontGetLineHeight(), c, 152, 499, colorTable[992]);
 
         if (space != NULL) {
             c = space + 1;
@@ -2981,7 +2981,7 @@ void inventoryExamineItem(Object* critter, Object* item)
         3 * lineHeight / 2 + 49,
         440,
         3 * lineHeight / 2 + 49,
-        _colorTable[992]);
+        colorTable[992]);
 
     // Examine item.
     _obj_examine_func(critter, item, inventoryRenderItemDescription);
@@ -3541,7 +3541,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                     // Sorry, you cannot carry that much.
                     messageListItem.num = 31;
                     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                        showDialogBox(messageListItem.text, NULL, 0, 169, 117, _colorTable[32328], NULL, _colorTable[32328], 0);
+                        showDialogBox(messageListItem.text, NULL, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], 0);
                     }
                 }
             }
@@ -4196,7 +4196,7 @@ void inventoryWindowRenderInnerInventories(int win, Object* a2, Object* a3, int 
             sprintf(formattedText, "$%d", cost);
         }
 
-        fontDrawText(windowBuffer + 480 * (48 * gInventorySlotsCount + 24) + 169, formattedText, 80, 480, _colorTable[32767]);
+        fontDrawText(windowBuffer + 480 * (48 * gInventorySlotsCount + 24) + 169, formattedText, 80, 480, colorTable[32767]);
 
         Rect rect;
         rect.left = 169;
@@ -4234,7 +4234,7 @@ void inventoryWindowRenderInnerInventories(int win, Object* a2, Object* a3, int 
             sprintf(formattedText, "$%d", cost);
         }
 
-        fontDrawText(windowBuffer + 480 * (48 * gInventorySlotsCount + 24) + 254, formattedText, 80, 480, _colorTable[32767]);
+        fontDrawText(windowBuffer + 480 * (48 * gInventorySlotsCount + 24) + 254, formattedText, 80, 480, colorTable[32767]);
 
         Rect rect;
         rect.left = 254;
@@ -4900,14 +4900,14 @@ int inventoryQuantityWindowInit(int inventoryWindowType, Object* item)
         messageListItem.num = 21;
         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
             int length = fontGetStringWidth(messageListItem.text);
-            fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, _colorTable[21091]);
+            fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
         }
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_SET_TIMER) {
         // SET TIMER
         messageListItem.num = 23;
         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
             int length = fontGetStringWidth(messageListItem.text);
-            fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, _colorTable[21091]);
+            fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
         }
 
         // Timer overlay
@@ -5000,8 +5000,8 @@ int inventoryQuantityWindowInit(int inventoryWindowType, Object* item)
                 int length = fontGetStringWidth(messageListItem.text);
 
                 // TODO: Where is y? Is it hardcoded in to 376?
-                fontDrawText(buttonUpData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, _colorTable[21091]);
-                fontDrawText(buttonDownData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, _colorTable[18977]);
+                fontDrawText(buttonUpData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, colorTable[21091]);
+                fontDrawText(buttonDownData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, colorTable[18977]);
 
                 btn = buttonCreate(_mt_wid, 120, 80, 94, 33, -1, -1, -1, 5000, buttonUpData, buttonDownData, NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {

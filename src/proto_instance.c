@@ -769,7 +769,7 @@ int _obj_use_book(Object* book)
 
     scriptsExecMapUpdateProc();
 
-    paletteFadeTo(_cmap);
+    paletteFadeTo(cmap);
 
     // You read the book.
     messageListItem.num = 800;

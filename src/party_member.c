@@ -1494,7 +1494,7 @@ int _partyMemberIncLevels()
                     if (messageListGetItem(&gMiscMessageList, &msg)) {
                         name = critterGetName(obj);
                         sprintf(str, msg.text, name);
-                        textObjectAdd(obj, str, 101, _colorTable[0x7FFF], _colorTable[0], &v19);
+                        textObjectAdd(obj, str, 101, colorTable[0x7FFF], colorTable[0], &v19);
                         tileWindowRefreshRect(&v19, obj->elevation);
                     }
                 }

@@ -352,7 +352,7 @@ int interfaceInit()
     int interfaceBarWindowX = 0;
     int interfaceBarWindowY = 480 - INTERFACE_BAR_HEIGHT - 1;
 
-    gInterfaceBarWindow = windowCreate(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, _colorTable[0], WINDOW_HIDDEN);
+    gInterfaceBarWindow = windowCreate(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, colorTable[0], WINDOW_HIDDEN);
     if (gInterfaceBarWindow == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -2437,7 +2437,7 @@ int indicatorBarInit()
         char text[1024];
         strcpy(text, getmsg(&messageList, &messageListItem, indicator->title));
 
-        int color = indicator->isBad ? _colorTable[31744] : _colorTable[992];
+        int color = indicator->isBad ? colorTable[31744] : colorTable[992];
 
         memcpy(indicator->data, indicatorBoxFrmData, INDICATOR_BOX_WIDTH * INDICATOR_BOX_HEIGHT);
 
@@ -2547,7 +2547,7 @@ int indicatorBarRefresh()
                 INDICATOR_BAR_Y,
                 (INDICATOR_BOX_WIDTH - INDICATOR_BOX_CONNECTOR_WIDTH) * count,
                 INDICATOR_BOX_HEIGHT,
-                _colorTable[0],
+                colorTable[0],
                 0);
             indicatorBarRender(count);
             win_draw(gIndicatorBarWindow);

@@ -25,16 +25,16 @@ void paletteInit()
 {
     memset(gPaletteBlack, 0, 256 * 3);
     memset(gPaletteWhite, 63, 256 * 3);
-    memcpy(gPalette, _cmap, 256 * 3);
+    memcpy(gPalette, cmap, 256 * 3);
 
     unsigned int tick = _get_time();
     if (backgroundSoundIsEnabled() || speechIsEnabled()) {
-        colorPaletteSetTransitionCallback(soundContinueAll);
+        colorSetFadeBkFunc(soundContinueAll);
     }
 
-    colorPaletteFadeBetween(gPalette, gPalette, 60);
+    fadeSystemPalette(gPalette, gPalette, 60);
 
-    colorPaletteSetTransitionCallback(NULL);
+    colorSetFadeBkFunc(NULL);
 
     unsigned int diff = getTicksSince(tick);
 
@@ -78,11 +78,11 @@ void paletteFadeTo(unsigned char* palette)
     colorCycleDisable();
 
     if (backgroundSoundIsEnabled() || speechIsEnabled()) {
-        colorPaletteSetTransitionCallback(soundContinueAll);
+        colorSetFadeBkFunc(soundContinueAll);
     }
 
-    colorPaletteFadeBetween(gPalette, palette, gPaletteFadeSteps);
-    colorPaletteSetTransitionCallback(NULL);
+    fadeSystemPalette(gPalette, palette, gPaletteFadeSteps);
+    colorSetFadeBkFunc(NULL);
 
     memcpy(gPalette, palette, 768);
 
@@ -95,12 +95,12 @@ void paletteFadeTo(unsigned char* palette)
 void paletteSetEntries(unsigned char* palette)
 {
     memcpy(gPalette, palette, sizeof(gPalette));
-    _setSystemPalette(palette);
+    setSystemPalette(palette);
 }
 
 // 0x493B78
 void paletteSetEntriesInRange(unsigned char* palette, int start, int end)
 {
     memcpy(gPalette + 3 * start, palette, 3 * (end - start + 1));
-    _setSystemPaletteEntries(palette, start, end);
+    setSystemPaletteEntries(palette, start, end);
 }

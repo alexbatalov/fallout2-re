@@ -279,10 +279,10 @@ void automapShow(bool isInGame, bool isUsingScanner)
 
     int color;
     if (isInGame) {
-        color = _colorTable[8456];
+        color = colorTable[8456];
         _obj_process_seen();
     } else {
-        color = _colorTable[22025];
+        color = colorTable[22025];
     }
 
     int oldFont = fontGetCurrent();
@@ -387,7 +387,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
                     // 17 - The motion sensor is not installed.
                     // 18 - The motion sensor has no charges remaining.
                     const char* title = getmsg(&gMiscMessageList, &messageListItem, scanner != NULL ? 18 : 17);
-                    showDialogBox(title, NULL, 0, 165, 140, _colorTable[32328], NULL, _colorTable[32328], 0);
+                    showDialogBox(title, NULL, 0, 165, 140, colorTable[32328], NULL, colorTable[32328], 0);
                 }
             }
 
@@ -431,9 +431,9 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
 {
     int color;
     if ((flags & AUTOMAP_IN_GAME) != 0) {
-        color = _colorTable[8456];
+        color = colorTable[8456];
     } else {
-        color = _colorTable[22025];
+        color = colorTable[22025];
     }
 
     windowFill(window, 0, 0, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, color);
@@ -455,24 +455,24 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
                 && (object->flags & OBJECT_HIDDEN) == 0
                 && (flags & AUTOMAP_WITH_SCANNER) != 0
                 && (object->data.critter.combat.results & DAM_DEAD) == 0) {
-                objectColor = _colorTable[31744];
+                objectColor = colorTable[31744];
             } else {
                 if ((object->flags & OBJECT_SEEN) == 0) {
                     continue;
                 }
 
                 if (object->pid == PROTO_ID_0x2000031) {
-                    objectColor = _colorTable[32328];
+                    objectColor = colorTable[32328];
                 } else if (objectType == OBJ_TYPE_WALL) {
-                    objectColor = _colorTable[992];
+                    objectColor = colorTable[992];
                 } else if (objectType == OBJ_TYPE_SCENERY
                     && (flags & AUTOMAP_WTH_HIGH_DETAILS) != 0
                     && object->pid != PROTO_ID_0x2000158) {
-                    objectColor = _colorTable[480];
+                    objectColor = colorTable[480];
                 } else if (object == gDude) {
-                    objectColor = _colorTable[31744];
+                    objectColor = colorTable[31744];
                 } else {
-                    objectColor = _colorTable[0];
+                    objectColor = colorTable[0];
                 }
             }
         }
@@ -481,29 +481,29 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
         if ((flags & AUTOMAP_IN_GAME) == 0) {
             switch (objectType) {
             case OBJ_TYPE_ITEM:
-                objectColor = _colorTable[6513];
+                objectColor = colorTable[6513];
                 break;
             case OBJ_TYPE_CRITTER:
-                objectColor = _colorTable[28672];
+                objectColor = colorTable[28672];
                 break;
             case OBJ_TYPE_SCENERY:
-                objectColor = _colorTable[448];
+                objectColor = colorTable[448];
                 break;
             case OBJ_TYPE_WALL:
-                objectColor = _colorTable[12546];
+                objectColor = colorTable[12546];
                 break;
             case OBJ_TYPE_MISC:
-                objectColor = _colorTable[31650];
+                objectColor = colorTable[31650];
                 break;
             default:
-                objectColor = _colorTable[0];
+                objectColor = colorTable[0];
             }
         }
 
-        if (objectColor != _colorTable[0]) {
+        if (objectColor != colorTable[0]) {
             unsigned char* v12 = windowBuffer + v10;
             if ((flags & AUTOMAP_IN_GAME) != 0) {
-                if (*v12 != _colorTable[992] || objectColor != _colorTable[480]) {
+                if (*v12 != colorTable[992] || objectColor != colorTable[480]) {
                     v12[0] = objectColor;
                     v12[1] = objectColor;
                 }
@@ -529,9 +529,9 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
 
     int textColor;
     if ((flags & AUTOMAP_IN_GAME) != 0) {
-        textColor = _colorTable[992];
+        textColor = colorTable[992];
     } else {
-        textColor = _colorTable[12546];
+        textColor = colorTable[12546];
     }
 
     if (mapGetCurrentMap() != -1) {
@@ -552,8 +552,8 @@ int automapRenderInPipboyWindow(int window, int map, int elevation)
 {
     unsigned char* windowBuffer = windowGetBuffer(window) + 640 * AUTOMAP_PIPBOY_VIEW_Y + AUTOMAP_PIPBOY_VIEW_X;
 
-    unsigned char wallColor = _colorTable[992];
-    unsigned char sceneryColor = _colorTable[480];
+    unsigned char wallColor = colorTable[992];
+    unsigned char sceneryColor = colorTable[480];
 
     gAutomapEntry.data = (unsigned char*)internal_malloc(11024);
     if (gAutomapEntry.data == NULL) {

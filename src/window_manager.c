@@ -145,10 +145,10 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     _buffering = false;
     _doing_refresh_all = 0;
 
-    colorPaletteSetFileIO(paletteOpenFileImpl, paletteReadFileImpl, paletteCloseFileImpl);
-    colorPaletteSetMemoryProcs(internal_malloc, internal_realloc, internal_free);
+    colorInitIO(paletteOpenFileImpl, paletteReadFileImpl, paletteCloseFileImpl);
+    colorRegisterAlloc(internal_malloc, internal_realloc, internal_free);
 
-    if (!_initColors()) {
+    if (!initColors()) {
         unsigned char* palette = (unsigned char*)internal_malloc(768);
         if (palette == NULL) {
             if (gVideoSystemExitProc != NULL) {
@@ -167,7 +167,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         bufferFill(palette, 768, 1, 768, 0);
 
         // TODO: Incomplete.
-        // _colorBuildColorTable(_getSystemPalette(), palette);
+        // _colorBuildColorTable(getSystemPalette(), palette);
 
         internal_free(palette);
     }
@@ -256,7 +256,7 @@ void windowManagerExit(void)
             coreExit();
             _GNW_rect_exit();
             textFontsExit();
-            _colorsClose();
+            colorsClose();
 
             gWindowSystemInitialized = false;
 
@@ -321,11 +321,11 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
 
     if (a4 == 256) {
         if (_GNW_texture == NULL) {
-            a4 = _colorTable[_GNW_wcolor[0]];
+            a4 = colorTable[_GNW_wcolor[0]];
         }
     } else if ((a4 & 0xFF00) != 0) {
         int colorIndex = (a4 & 0xFF) - 1;
-        a4 = (a4 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+        a4 = (a4 & ~0xFFFF) | colorTable[_GNW_wcolor[colorIndex]];
     }
 
     window->buttonListHead = 0;
@@ -454,10 +454,10 @@ void windowDrawBorder(int win)
     _lighten_buf(window->buffer + window->width - 5, 5, window->height, window->width);
     _lighten_buf(window->buffer + window->width * (window->height - 5) + 5, window->width - 10, 5, window->width);
 
-    bufferDrawRect(window->buffer, window->width, 0, 0, window->width - 1, window->height - 1, _colorTable[0]);
+    bufferDrawRect(window->buffer, window->width, 0, 0, window->width - 1, window->height - 1, colorTable[0]);
 
-    bufferDrawRectShadowed(window->buffer, window->width, 1, 1, window->width - 2, window->height - 2, _colorTable[_GNW_wcolor[1]], _colorTable[_GNW_wcolor[2]]);
-    bufferDrawRectShadowed(window->buffer, window->width, 5, 5, window->width - 6, window->height - 6, _colorTable[_GNW_wcolor[2]], _colorTable[_GNW_wcolor[1]]);
+    bufferDrawRectShadowed(window->buffer, window->width, 1, 1, window->width - 2, window->height - 2, colorTable[_GNW_wcolor[1]], colorTable[_GNW_wcolor[2]]);
+    bufferDrawRectShadowed(window->buffer, window->width, 5, 5, window->width - 6, window->height - 6, colorTable[_GNW_wcolor[2]], colorTable[_GNW_wcolor[1]]);
 }
 
 // 0x4D684C
@@ -512,7 +512,7 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
 
     if ((a6 & 0xFF00) != 0) {
         int colorIndex = (a6 & 0xFF) - 1;
-        v27 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+        v27 = (a6 & ~0xFFFF) | colorTable[_GNW_wcolor[colorIndex]];
     } else {
         v27 = a6;
     }
@@ -545,7 +545,7 @@ void windowDrawLine(int win, int left, int top, int right, int bottom, int color
 
     if ((color & 0xFF00) != 0) {
         int colorIndex = (color & 0xFF) - 1;
-        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+        color = (color & ~0xFFFF) | colorTable[_GNW_wcolor[colorIndex]];
     }
 
     bufferDrawLine(window->buffer, window->width, left, top, right, bottom, color);
@@ -566,7 +566,7 @@ void win_box(int win, int left, int top, int right, int bottom, int color)
 
     if ((color & 0xFF00) != 0) {
         int colorIndex = (color & 0xFF) - 1;
-        color = (color & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+        color = (color & ~0xFFFF) | colorTable[_GNW_wcolor[colorIndex]];
     }
 
     if (right < left) {
@@ -601,11 +601,11 @@ void windowFill(int win, int x, int y, int width, int height, int a6)
         if (_GNW_texture != NULL) {
             _buf_texture(window->buffer + window->width * y + x, width, height, window->width, _GNW_texture, x + window->field_24, y + window->field_28);
         } else {
-            a6 = _colorTable[_GNW_wcolor[0]] & 0xFF;
+            a6 = colorTable[_GNW_wcolor[0]] & 0xFF;
         }
     } else if ((a6 & 0xFF00) != 0) {
         int colorIndex = (a6 & 0xFF) - 1;
-        a6 = (a6 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+        a6 = (a6 & ~0xFFFF) | colorTable[_GNW_wcolor[colorIndex]];
     }
 
     if (a6 < 256) {
@@ -1215,8 +1215,8 @@ void _win_text(int win, char** fileNameList, int fileNameListLength, int maxWidt
             windowDrawText(win, fileName, maxWidth, x, y, flags);
         } else {
             if (maxWidth != 0) {
-                bufferDrawLine(ptr, width, 0, v1, v3, v1, _colorTable[_GNW_wcolor[2]]);
-                bufferDrawLine(ptr, width, 0, v2, v3, v2, _colorTable[_GNW_wcolor[1]]);
+                bufferDrawLine(ptr, width, 0, v1, v3, v1, colorTable[_GNW_wcolor[2]]);
+                bufferDrawLine(ptr, width, 0, v2, v3, v2, colorTable[_GNW_wcolor[1]]);
             }
         }
 
@@ -1368,43 +1368,43 @@ int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, in
 
     _lighten_buf(normal, buttonWidth, buttonHeight, buttonWidth);
 
-    fontDrawText(normal + buttonWidth * 3 + 8, title, buttonWidth, buttonWidth, _colorTable[_GNW_wcolor[3]]);
+    fontDrawText(normal + buttonWidth * 3 + 8, title, buttonWidth, buttonWidth, colorTable[_GNW_wcolor[3]]);
     bufferDrawRectShadowed(normal,
         buttonWidth,
         2,
         2,
         buttonWidth - 3,
         buttonHeight - 3,
-        _colorTable[_GNW_wcolor[1]],
-        _colorTable[_GNW_wcolor[2]]);
+        colorTable[_GNW_wcolor[1]],
+        colorTable[_GNW_wcolor[2]]);
     bufferDrawRectShadowed(normal,
         buttonWidth,
         1,
         1,
         buttonWidth - 2,
         buttonHeight - 2,
-        _colorTable[_GNW_wcolor[1]],
-        _colorTable[_GNW_wcolor[2]]);
-    bufferDrawRect(normal, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, _colorTable[0]);
+        colorTable[_GNW_wcolor[1]],
+        colorTable[_GNW_wcolor[2]]);
+    bufferDrawRect(normal, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
 
-    fontDrawText(pressed + buttonWidth * 4 + 9, title, buttonWidth, buttonWidth, _colorTable[_GNW_wcolor[3]]);
+    fontDrawText(pressed + buttonWidth * 4 + 9, title, buttonWidth, buttonWidth, colorTable[_GNW_wcolor[3]]);
     bufferDrawRectShadowed(pressed,
         buttonWidth,
         2,
         2,
         buttonWidth - 3,
         buttonHeight - 3,
-        _colorTable[_GNW_wcolor[2]],
-        _colorTable[_GNW_wcolor[1]]);
+        colorTable[_GNW_wcolor[2]],
+        colorTable[_GNW_wcolor[1]]);
     bufferDrawRectShadowed(pressed,
         buttonWidth,
         1,
         1,
         buttonWidth - 2,
         buttonHeight - 2,
-        _colorTable[_GNW_wcolor[2]],
-        _colorTable[_GNW_wcolor[1]]);
-    bufferDrawRect(pressed, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, _colorTable[0]);
+        colorTable[_GNW_wcolor[2]],
+        colorTable[_GNW_wcolor[1]]);
+    bufferDrawRect(pressed, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
 
     Button* button = buttonCreateInternal(win,
         x,

@@ -547,8 +547,8 @@ int optionsWindowInit()
             textX = 0;
         }
 
-        fontDrawText(_opbtns[index] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, _colorTable[18979]);
-        fontDrawText(_opbtns[index + 1] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, _colorTable[14723]);
+        fontDrawText(_opbtns[index] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[18979]);
+        fontDrawText(_opbtns[index + 1] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[14723]);
 
         int btn = buttonCreate(gOptionsWindow, 13, buttonY, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, _opbtns[index], _opbtns[index + 1], NULL, 32);
         if (btn != -1) {
@@ -690,7 +690,7 @@ int showPause(bool a1)
         messageItemText,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     fontSetCurrent(104);
 
@@ -702,7 +702,7 @@ int showPause(bool a1)
         path,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
-        _colorTable[18979]);
+        colorTable[18979]);
 
     int doneBtn = buttonCreate(window,
         26,
@@ -954,7 +954,7 @@ void _JustUpdate_()
     soundEffectsSetVolume(gPreferencesSoundEffectsVolume1);
     speechSetVolume(gPreferencesSpeechVolume1);
     mouse_set_sensitivity(gPreferencesMouseSensitivity1);
-    colorSetBrightness(gPreferencesBrightness1);
+    colorGamma(gPreferencesBrightness1);
 }
 
 // init_options_menu
@@ -1019,14 +1019,14 @@ void _UpdateThing(int index)
             const char* s;
             if (*p != '\0') {
                 *p = '\0';
-                fontDrawText(gPreferencesWindowBuffer + 640 * y + x, copy, 640, 640, _colorTable[18979]);
+                fontDrawText(gPreferencesWindowBuffer + 640 * y + x, copy, 640, 640, colorTable[18979]);
                 s = p + 1;
                 y += fontGetLineHeight();
             } else {
                 s = copy;
             }
 
-            fontDrawText(gPreferencesWindowBuffer + 640 * y + x, s, 640, 640, _colorTable[18979]);
+            fontDrawText(gPreferencesWindowBuffer + 640 * y + x, s, 640, 640, colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
@@ -1051,7 +1051,7 @@ void _UpdateThing(int index)
                 x = meta->knobX + word_48FC06[value] - fontGetStringWidth(text);
                 meta->minX = x;
             }
-            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 5) + x, text, 640, 640, _colorTable[18979]);
+            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
@@ -1119,7 +1119,7 @@ void _UpdateThing(int index)
                 int x = (int)((gPreferencesBrightness1 - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
                 blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
 
-                colorSetBrightness(gPreferencesBrightness1);
+                colorGamma(gPreferencesBrightness1);
             }
             break;
         case PREF_MOUSE_SENSITIVIY:
@@ -1177,7 +1177,7 @@ void _UpdateThing(int index)
                 x = 624 - fontGetStringWidth(str);
                 break;
             }
-            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, _colorTable[18979]);
+            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
         }
     } else {
         // return false;
@@ -1336,7 +1336,7 @@ void brightnessIncrease()
             gPreferencesBrightness1 = 1.0;
         }
 
-        colorSetBrightness(gPreferencesBrightness1);
+        colorGamma(gPreferencesBrightness1);
 
         configSetDouble(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gPreferencesBrightness1);
 
@@ -1361,7 +1361,7 @@ void brightnessDecrease()
             gPreferencesBrightness1 = 1.0;
         }
 
-        colorSetBrightness(gPreferencesBrightness1);
+        colorGamma(gPreferencesBrightness1);
 
         configSetDouble(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gPreferencesBrightness1);
 
@@ -1420,7 +1420,7 @@ int preferencesWindowInit()
     fontSetCurrent(104);
 
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 100);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 10 + 74, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 10 + 74, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     fontSetCurrent(103);
 
@@ -1428,34 +1428,34 @@ int preferencesWindowInit()
     for (i = 0; i < PRIMARY_PREF_COUNT; i++) {
         messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
         x = 99 - fontGetStringWidth(messageItemText) / 2;
-        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row1Ytab[i] + x, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row1Ytab[i] + x, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     for (i = 0; i < SECONDARY_PREF_COUNT; i++) {
         messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
-        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row2Ytab[i] + 206, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row2Ytab[i] + 206, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     for (i = 0; i < RANGE_PREF_COUNT; i++) {
         messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
-        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row3Ytab[i] + 384, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row3Ytab[i] + 384, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     // DEFAULT
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 120);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 43, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 43, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 4);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 169, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 169, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // CANCEL
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 121);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 283, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 283, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // Affect player speed
     messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 122);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 72 + 405, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 72 + 405, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     for (i = 0; i < PREF_COUNT; i++) {
         _UpdateThing(i);
@@ -1878,7 +1878,7 @@ void _DoThing(int eventCode)
                 break;
             case PREF_BRIGHTNESS:
                 gPreferencesBrightness1 = newValue;
-                colorSetBrightness(newValue);
+                colorGamma(newValue);
                 break;
             case PREF_MOUSE_SENSITIVIY:
                 gPreferencesMouseSensitivity1 = newValue;
@@ -1932,7 +1932,7 @@ void _DoThing(int eventCode)
                         x = 624 - fontGetStringWidth(str);
                         break;
                     }
-                    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + x, str, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, _colorTable[18979]);
+                    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + x, str, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
                 }
             } else {
                 int off = PREFERENCES_WINDOW_WIDTH * meta->knobY + 384;

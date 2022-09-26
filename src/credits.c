@@ -36,18 +36,18 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 {
     int oldFont = fontGetCurrent();
 
-    colorPaletteLoad("color.pal");
+    loadColorTable("color.pal");
 
     if (useReversedStyle) {
-        gCreditsWindowTitleColor = _colorTable[18917];
+        gCreditsWindowTitleColor = colorTable[18917];
         gCreditsWindowNameFont = 103;
         gCreditsWindowTitleFont = 104;
-        gCreditsWindowNameColor = _colorTable[13673];
+        gCreditsWindowNameColor = colorTable[13673];
     } else {
-        gCreditsWindowTitleColor = _colorTable[13673];
+        gCreditsWindowTitleColor = colorTable[13673];
         gCreditsWindowNameFont = 104;
         gCreditsWindowTitleFont = 103;
-        gCreditsWindowNameColor = _colorTable[18917];
+        gCreditsWindowNameColor = colorTable[18917];
     }
 
     soundContinueAll();
@@ -68,7 +68,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
             int creditsWindowX = 0;
             int creditsWindowY = 0;
-            int window = windowCreate(creditsWindowX, creditsWindowY, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_HEIGHT, _colorTable[0], 20);
+            int window = windowCreate(creditsWindowX, creditsWindowY, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_HEIGHT, colorTable[0], 20);
             soundContinueAll();
             if (window != -1) {
                 unsigned char* windowBuffer = windowGetBuffer(window);
@@ -77,7 +77,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                     if (backgroundBuffer) {
                         soundContinueAll();
 
-                        memset(backgroundBuffer, _colorTable[0], CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
+                        memset(backgroundBuffer, colorTable[0], CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
 
                         if (backgroundFid != -1) {
                             CacheEntry* backgroundFrmHandle;
@@ -119,7 +119,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                                 win_draw(window);
 
-                                paletteFadeTo(_cmap);
+                                paletteFadeTo(cmap);
 
                                 unsigned char* v40 = intermediateBuffer + CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH;
                                 char str[260];
@@ -251,7 +251,7 @@ bool creditsFileParseNextLine(char* dest, int* font, int* color)
             pch = string + 1;
         } else if (string[0] == '#') {
             *font = gCreditsWindowNameFont;
-            *color = _colorTable[17969];
+            *color = colorTable[17969];
             pch = string + 1;
         } else {
             *font = gCreditsWindowNameFont;

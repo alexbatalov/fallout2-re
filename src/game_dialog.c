@@ -930,7 +930,7 @@ void gameDialogRenderSupplementaryMessage(char* msg)
         &a4,
         lineHeight,
         379,
-        _colorTable[992] | 0x2000000);
+        colorTable[992] | 0x2000000);
 
     win_show(_gd_replyWin);
     win_draw(gGameDialogReplyWindow);
@@ -1422,7 +1422,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
 
         char name[60];
         sprintf(name, "%s:", objectGetName(gGameDialogSpeaker));
-        windowDrawText(win, name, 180, 88, y, _colorTable[992] | 0x2000000);
+        windowDrawText(win, name, 180, 88, y, colorTable[992] | 0x2000000);
         entriesRect.top += v20;
 
         char* replyText;
@@ -1444,11 +1444,11 @@ void gameDialogReviewWindowUpdate(int win, int origin)
                 NULL,
                 fontGetLineHeight(),
                 640,
-                _colorTable[768] | 0x2000000);
+                colorTable[768] | 0x2000000);
 
         if (dialogReviewEntry->optionMessageListId != -3) {
             sprintf(name, "%s:", objectGetName(gDude));
-            windowDrawText(win, name, 180, 88, y, _colorTable[21140] | 0x2000000);
+            windowDrawText(win, name, 180, 88, y, colorTable[21140] | 0x2000000);
             entriesRect.top += v20;
 
             char* optionText;
@@ -1470,7 +1470,7 @@ void gameDialogReviewWindowUpdate(int win, int origin)
                     NULL,
                     fontGetLineHeight(),
                     640,
-                    _colorTable[15855] | 0x2000000);
+                    colorTable[15855] | 0x2000000);
         }
 
         if (y >= 407) {
@@ -1741,7 +1741,7 @@ void gameDialogRenderCaps()
         width = 60;
     }
 
-    windowDrawText(gGameDialogWindow, text, width, 38 - width / 2, 36, _colorTable[992] | 0x7000000);
+    windowDrawText(gGameDialogWindow, text, width, 38 - width / 2, 36, colorTable[992] | 0x7000000);
 
     fontSetCurrent(oldFont);
 }
@@ -1993,17 +1993,17 @@ void gameDialogOptionOnMouseEnter(int index)
     _optionRect.left = 5;
     _optionRect.right = 388;
 
-    int color = _colorTable[32747] | 0x2000000;
+    int color = colorTable[32747] | 0x2000000;
     if (perkHasRank(gDude, PERK_EMPATHY)) {
-        color = _colorTable[32747] | 0x2000000;
+        color = colorTable[32747] | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
-            color = _colorTable[31775] | 0x2000000;
+            color = colorTable[31775] | 0x2000000;
             break;
         case GAME_DIALOG_REACTION_NEUTRAL:
             break;
         case GAME_DIALOG_REACTION_BAD:
-            color = _colorTable[32074] | 0x2000000;
+            color = colorTable[32074] | 0x2000000;
             break;
         default:
             debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
@@ -2037,18 +2037,18 @@ void gameDialogOptionOnMouseExit(int index)
     _optionRect.bottom = dialogOptionEntry->field_39C;
     _gDialogRefreshOptionsRect(gGameDialogOptionsWindow, &_optionRect);
 
-    int color = _colorTable[992] | 0x2000000;
+    int color = colorTable[992] | 0x2000000;
     if (perkGetRank(gDude, PERK_EMPATHY) != 0) {
-        color = _colorTable[32747] | 0x2000000;
+        color = colorTable[32747] | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
-            color = _colorTable[31] | 0x2000000;
+            color = colorTable[31] | 0x2000000;
             break;
         case GAME_DIALOG_REACTION_NEUTRAL:
-            color = _colorTable[992] | 0x2000000;
+            color = colorTable[992] | 0x2000000;
             break;
         case GAME_DIALOG_REACTION_BAD:
-            color = _colorTable[31744] | 0x2000000;
+            color = colorTable[31744] | 0x2000000;
             break;
         default:
             debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
@@ -2094,7 +2094,7 @@ void gameDialogRenderReply()
         &dword_58F4E0,
         fontGetLineHeight(),
         379,
-        _colorTable[992] | 0x2000000);
+        colorTable[992] | 0x2000000);
     win_draw(gGameDialogReplyWindow);
 }
 
@@ -2127,7 +2127,7 @@ void _gdProcessUpdate()
 
     gameDialogRenderReply();
 
-    int color = _colorTable[992] | 0x2000000;
+    int color = colorTable[992] | 0x2000000;
 
     bool hasEmpathy = perkGetRank(gDude, PERK_EMPATHY) != 0;
 
@@ -2143,13 +2143,13 @@ void _gdProcessUpdate()
         if (hasEmpathy) {
             switch (dialogOptionEntry->reaction) {
             case GAME_DIALOG_REACTION_GOOD:
-                color = _colorTable[31] | 0x2000000;
+                color = colorTable[31] | 0x2000000;
                 break;
             case GAME_DIALOG_REACTION_NEUTRAL:
-                color = _colorTable[992] | 0x2000000;
+                color = colorTable[992] | 0x2000000;
                 break;
             case GAME_DIALOG_REACTION_BAD:
-                color = _colorTable[31744] | 0x2000000;
+                color = colorTable[31744] | 0x2000000;
                 break;
             default:
                 debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
@@ -3418,13 +3418,13 @@ void partyMemberControlWindowUpdate()
     Object* item2 = critterGetItem2(gGameDialogSpeaker);
     text = item2 != NULL ? itemGetName(item2) : getmsg(&gProtoMessageList, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
-    fontDrawText(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render armor.
     Object* armor = critterGetArmor(gGameDialogSpeaker);
     text = armor != NULL ? itemGetName(armor) : getmsg(&gProtoMessageList, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
-    fontDrawText(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render preview.
     CacheEntry* previewHandle;
@@ -3442,24 +3442,24 @@ void partyMemberControlWindowUpdate()
     int maximumHitPoints = critterGetStat(gGameDialogSpeaker, STAT_MAXIMUM_HIT_POINTS);
     int hitPoints = critterGetStat(gGameDialogSpeaker, STAT_CURRENT_HIT_POINTS);
     sprintf(formattedText, "%d/%d", hitPoints, maximumHitPoints);
-    fontDrawText(windowBuffer + windowWidth * 96 + 240, formattedText, 115, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 96 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     // Render best skill.
     int bestSkill = partyMemberGetBestSkill(gGameDialogSpeaker);
     text = skillGetName(bestSkill);
     sprintf(formattedText, "%s", text);
-    fontDrawText(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     // Render weight summary.
     int inventoryWeight = objectGetInventoryWeight(gGameDialogSpeaker);
     int carryWeight = critterGetStat(gGameDialogSpeaker, STAT_CARRY_WEIGHT);
     sprintf(formattedText, "%d/%d ", inventoryWeight, carryWeight);
-    fontDrawText(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsEncumbered(gGameDialogSpeaker) ? _colorTable[31744] : _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsEncumbered(gGameDialogSpeaker) ? colorTable[31744] : colorTable[992]);
 
     // Render melee damage.
     int meleeDamage = critterGetStat(gGameDialogSpeaker, STAT_MELEE_DAMAGE);
     sprintf(formattedText, "%d", meleeDamage);
-    fontDrawText(windowBuffer + windowWidth * 148 + 240, formattedText, 115, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 148 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     int actionPoints;
     if (isInCombat()) {
@@ -3469,7 +3469,7 @@ void partyMemberControlWindowUpdate()
     }
     int maximumActionPoints = critterGetStat(gGameDialogSpeaker, STAT_MAXIMUM_ACTION_POINTS);
     sprintf(formattedText, "%d/%d ", actionPoints, maximumActionPoints);
-    fontDrawText(windowBuffer + windowWidth * 167 + 240, formattedText, 115, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 167 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     fontSetCurrent(oldFont);
     win_draw(gGameDialogWindow);
@@ -3845,27 +3845,27 @@ void partyMemberCustomizationWindowUpdate()
     }
 
     msg = getmsg(&gCustomMessageList, &messageListItem, num);
-    fontDrawText(windowBuffer + windowWidth * 20 + 232, msg, 248, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 20 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // RUN AWAY
     msg = getmsg(&gCustomMessageList, &messageListItem, _custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE][_custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 48 + 232, msg, 248, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 48 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // WEAPON PREF
     msg = getmsg(&gCustomMessageList, &messageListItem, _custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON][_custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 78 + 232, msg, 248, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 78 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // DISTANCE
     msg = getmsg(&gCustomMessageList, &messageListItem, _custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE][_custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 108 + 232, msg, 248, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 108 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // ATTACK WHO
     msg = getmsg(&gCustomMessageList, &messageListItem, _custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO][_custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 137 + 232, msg, 248, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 137 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // CHEM USE
     msg = getmsg(&gCustomMessageList, &messageListItem, _custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE][_custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 166 + 232, msg, 248, windowWidth, _colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 166 + 232, msg, 248, windowWidth, colorTable[992]);
 
     win_draw(gGameDialogWindow);
     fontSetCurrent(oldFont);
@@ -3906,12 +3906,12 @@ void _gdCustomSelectRedraw(unsigned char* dest, int pitch, int type, int selecte
             int color;
             if (enabled) {
                 if (index == selectedIndex) {
-                    color = _colorTable[32747];
+                    color = colorTable[32747];
                 } else {
-                    color = _colorTable[992];
+                    color = colorTable[992];
                 }
             } else {
-                color = _colorTable[15855];
+                color = colorTable[15855];
             }
 
             const char* msg = getmsg(&gCustomMessageList, &messageListItem, ptr->messageId);
@@ -3972,13 +3972,13 @@ int _gdCustomSelect(int a1)
     const char* msg;
 
     msg = getmsg(&gCustomMessageList, &messageListItem, a1);
-    fontDrawText(windowBuffer + backgroundFrmWidth * 15 + 40, msg, backgroundFrmWidth, backgroundFrmWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + backgroundFrmWidth * 15 + 40, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
 
     msg = getmsg(&gCustomMessageList, &messageListItem, 10);
-    fontDrawText(windowBuffer + backgroundFrmWidth * 163 + 88, msg, backgroundFrmWidth, backgroundFrmWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + backgroundFrmWidth * 163 + 88, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
 
     msg = getmsg(&gCustomMessageList, &messageListItem, 11);
-    fontDrawText(windowBuffer + backgroundFrmWidth * 162 + 193, msg, backgroundFrmWidth, backgroundFrmWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + backgroundFrmWidth * 162 + 193, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
 
     int value = _custom_current_selected[a1];
     _gdCustomSelectRedraw(windowBuffer, backgroundFrmWidth, a1, value);
@@ -4503,9 +4503,9 @@ void gameDialogRenderTalkingHead(Art* headFrm, int frame)
 void gameDialogHighlightsInit()
 {
     for (int color = 0; color < 256; color++) {
-        int r = (_Color2RGB_(color) & 0x7C00) >> 10;
-        int g = (_Color2RGB_(color) & 0x3E0) >> 5;
-        int b = _Color2RGB_(color) & 0x1F;
+        int r = (Color2RGB(color) & 0x7C00) >> 10;
+        int g = (Color2RGB(color) & 0x3E0) >> 5;
+        int b = Color2RGB(color) & 0x1F;
         _light_GrayTable[color] = ((r + 2 * g + 2 * b) / 10) >> 2;
         _dark_GrayTable[color] = ((r + g + b) / 10) >> 2;
     }
@@ -4513,8 +4513,8 @@ void gameDialogHighlightsInit()
     _light_GrayTable[0] = 0;
     _dark_GrayTable[0] = 0;
 
-    _light_BlendTable = _getColorBlendTable(_colorTable[17969]);
-    _dark_BlendTable = _getColorBlendTable(_colorTable[22187]);
+    _light_BlendTable = getColorBlendTable(colorTable[17969]);
+    _dark_BlendTable = getColorBlendTable(colorTable[22187]);
 
     // hilight1.frm - dialogue upper hilight
     int upperHighlightFid = buildFid(OBJ_TYPE_INTERFACE, 115, 0, 0, 0);
@@ -4534,8 +4534,8 @@ void gameDialogHighlightsInit()
 // 0x44B1D4
 static void gameDialogHighlightsExit()
 {
-    _freeColorBlendTable(_colorTable[17969]);
-    _freeColorBlendTable(_colorTable[22187]);
+    freeColorBlendTable(colorTable[17969]);
+    freeColorBlendTable(colorTable[22187]);
 
     artUnlock(gGameDialogUpperHighlightFrmHandle);
     artUnlock(gGameDialogLowerHighlightFrmHandle);

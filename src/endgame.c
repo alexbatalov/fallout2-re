@@ -204,8 +204,8 @@ void endgamePlayMovie()
     backgroundSoundSetEndCallback(NULL);
     tickersRemove(_endgame_movie_bk_process);
     backgroundSoundDelete();
-    colorPaletteLoad("color.pal");
-    paletteFadeTo(_cmap);
+    loadColorTable("color.pal");
+    paletteFadeTo(cmap);
     isoEnable();
     endgameEndingHandleContinuePlaying();
 }
@@ -239,7 +239,7 @@ int endgameEndingHandleContinuePlaying()
     MessageListItem messageListItem;
     messageListItem.num = 30;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, NULL, 0, 169, 117, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_YES_NO);
+        rc = showDialogBox(messageListItem.text, NULL, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc == 0) {
             _game_user_wants_to_quit = 2;
         }
@@ -274,11 +274,11 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         int width = artGetWidth(background, 0, 0);
         int height = artGetHeight(background, 0, 0);
         unsigned char* backgroundData = artGetFrameData(background, 0, 0);
-        bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, _colorTable[0]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
         endgameEndingLoadPalette(6, 327);
 
         unsigned char palette[768];
-        memcpy(palette, _cmap, 768);
+        memcpy(palette, cmap, 768);
 
         paletteSetEntries(gPaletteBlack);
         endgameEndingVoiceOverInit(narratorFileName);
@@ -375,7 +375,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         artUnlock(backgroundHandle);
 
         paletteFadeTo(gPaletteBlack);
-        bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, _colorTable[0]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
         win_draw(gEndgameEndingSlideshowWindow);
     }
 
@@ -409,7 +409,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
             delay = 3000;
         }
 
-        paletteFadeTo(_cmap);
+        paletteFadeTo(cmap);
 
         coreDelayProcessingEvents(500);
 
@@ -497,7 +497,7 @@ int endgameEndingSlideshowWindowInit()
         windowEndgameEndingY,
         ENDGAME_ENDING_WINDOW_WIDTH,
         ENDGAME_ENDING_WINDOW_HEIGHT,
-        _colorTable[0],
+        colorTable[0],
         WINDOW_FLAG_0x04);
     if (gEndgameEndingSlideshowWindow == -1) {
         return -1;
@@ -573,8 +573,8 @@ void endgameEndingSlideshowWindowFree()
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
-    colorPaletteLoad("color.pal");
-    paletteFadeTo(_cmap);
+    loadColorTable("color.pal");
+    paletteFadeTo(cmap);
 
     colorCycleEnable();
 
@@ -674,7 +674,7 @@ void endgameEndingLoadPalette(int type, int id)
     if (strlen(fileName) <= 8) {
         char path[MAX_PATH];
         sprintf(path, "%s\\%s.pal", "art\\intrface", fileName);
-        colorPaletteLoad(path);
+        loadColorTable(path);
     }
 }
 
@@ -769,8 +769,8 @@ void endgameEndingRefreshSubtitles()
 
         int width = fontGetStringWidth(beginning);
         int x = (640 - width) / 2;
-        bufferFill(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, width, height, 640, _colorTable[0]);
-        fontDrawText(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, beginning, width, 640, _colorTable[32767]);
+        bufferFill(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, width, height, 640, colorTable[0]);
+        fontDrawText(gEndgameEndingSlideshowWindowBuffer + 640 * y + x, beginning, width, 640, colorTable[32767]);
 
         *ending = c;
 

@@ -561,7 +561,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 char title[128];
                 strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
-                showDialogBox(title, NULL, 0, 192, 116, _colorTable[32328], NULL, _colorTable[32328], 0);
+                showDialogBox(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
                 pipboyOpen(false);
@@ -629,7 +629,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 char title[128];
                 strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
-                showDialogBox(title, NULL, 0, 192, 116, _colorTable[32328], NULL, _colorTable[32328], 0);
+                showDialogBox(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
                 pipboyOpen(true);
@@ -1088,8 +1088,8 @@ void showHelp()
                 blitBufferToBuffer(backgroundData, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, HELP_SCREEN_WIDTH, windowBuffer, HELP_SCREEN_WIDTH);
                 artUnlock(backgroundHandle);
                 win_show(win);
-                colorPaletteLoad("art\\intrface\\helpscrn.pal");
-                paletteSetEntries(_cmap);
+                loadColorTable("art\\intrface\\helpscrn.pal");
+                paletteSetEntries(cmap);
 
                 while (_get_input() == -1 && _game_user_wants_to_quit == 0) {
                 }
@@ -1103,8 +1103,8 @@ void showHelp()
         }
 
         windowDestroy(win);
-        colorPaletteLoad("color.pal");
-        paletteSetEntries(_cmap);
+        loadColorTable("color.pal");
+        paletteSetEntries(cmap);
     }
 
     if (colorCycleWasEnabled) {
@@ -1148,7 +1148,7 @@ int showQuitConfirmationDialog()
     MessageListItem messageListItem;
     messageListItem.num = 0;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, 0, 0, 169, 117, _colorTable[32328], NULL, _colorTable[32328], DIALOG_BOX_YES_NO);
+        rc = showDialogBox(messageListItem.text, 0, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc != 0) {
             _game_user_wants_to_quit = 2;
         }

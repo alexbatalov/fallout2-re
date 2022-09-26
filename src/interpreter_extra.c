@@ -4006,8 +4006,8 @@ void opFloatMessage(Program* program)
     Object* obj = (Object*)data[2];
     int floatingMessageType = data[0];
 
-    int color = _colorTable[32747];
-    int a5 = _colorTable[0];
+    int color = colorTable[32747];
+    int a5 = colorTable[0];
     int font = 101;
 
     if (obj == NULL) {
@@ -4035,43 +4035,43 @@ void opFloatMessage(Program* program)
 
     switch (floatingMessageType) {
     case FLOATING_MESSAGE_TYPE_WARNING:
-        color = _colorTable[31744];
-        a5 = _colorTable[0];
+        color = colorTable[31744];
+        a5 = colorTable[0];
         font = 103;
         tileSetCenter(gDude->tile, TILE_SET_CENTER_FLAG_0x01);
         break;
     case FLOATING_MESSAGE_TYPE_NORMAL:
     case FLOATING_MESSAGE_TYPE_YELLOW:
-        color = _colorTable[32747];
+        color = colorTable[32747];
         break;
     case FLOATING_MESSAGE_TYPE_BLACK:
     case FLOATING_MESSAGE_TYPE_PURPLE:
     case FLOATING_MESSAGE_TYPE_GREY:
-        color = _colorTable[10570];
+        color = colorTable[10570];
         break;
     case FLOATING_MESSAGE_TYPE_RED:
-        color = _colorTable[31744];
+        color = colorTable[31744];
         break;
     case FLOATING_MESSAGE_TYPE_GREEN:
-        color = _colorTable[992];
+        color = colorTable[992];
         break;
     case FLOATING_MESSAGE_TYPE_BLUE:
-        color = _colorTable[31];
+        color = colorTable[31];
         break;
     case FLOATING_MESSAGE_TYPE_NEAR_WHITE:
-        color = _colorTable[21140];
+        color = colorTable[21140];
         break;
     case FLOATING_MESSAGE_TYPE_LIGHT_RED:
-        color = _colorTable[32074];
+        color = colorTable[32074];
         break;
     case FLOATING_MESSAGE_TYPE_WHITE:
-        color = _colorTable[32767];
+        color = colorTable[32767];
         break;
     case FLOATING_MESSAGE_TYPE_DARK_GREY:
-        color = _colorTable[8456];
+        color = colorTable[8456];
         break;
     case FLOATING_MESSAGE_TYPE_LIGHT_GREY:
-        color = _colorTable[15855];
+        color = colorTable[15855];
         break;
     }
 
@@ -5542,7 +5542,7 @@ void opGameFadeIn(Program* program)
     }
 
     if (data != 0) {
-        paletteFadeTo(_cmap);
+        paletteFadeTo(cmap);
     } else {
         scriptPredefinedError(program, "gfade_in", SCRIPT_ERROR_OBJECT_IS_NULL);
     }

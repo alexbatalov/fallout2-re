@@ -2759,7 +2759,7 @@ void _dark_trans_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight, int
             if (b != 0) {
                 if (b < 0xE5) {
                     int t = (b << 8) + lightModifier;
-                    b = _intensityColorTable[t];
+                    b = intensityColorTable[t];
                 }
 
                 *dp = b;
@@ -2792,7 +2792,7 @@ void _dark_translucent_trans_buf_to_buf(unsigned char* src, int srcWidth, int sr
                 index = a10[index + destByte];
                 index <<= 8;
                 index += lightModifier;
-                *dest = _intensityColorTable[index];
+                *dest = intensityColorTable[index];
             }
 
             src++;
@@ -2817,18 +2817,18 @@ void _intensity_mask_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight,
             unsigned char b = *src;
             if (b != 0) {
                 int off = (b << 8) + light;
-                b = _intensityColorTable[off];
+                b = intensityColorTable[off];
                 unsigned char m = *mask;
                 if (m != 0) {
                     unsigned char d = *dest;
                     int off = (d << 8) + 128 - m;
-                    int q = _intensityColorTable[off];
+                    int q = intensityColorTable[off];
 
                     off = (b << 8) + m;
-                    m = _intensityColorTable[off];
+                    m = intensityColorTable[off];
 
                     off = (m << 8) + q;
-                    b = _colorMixAddTable[off];
+                    b = colorMixAddTable[off];
                 }
                 *dest = b;
             }
@@ -3444,9 +3444,9 @@ void _obj_light_table_init()
 void _obj_blend_table_init()
 {
     for (int index = 0; index < 256; index++) {
-        int r = (_Color2RGB_(index) & 0x7C00) >> 10;
-        int g = (_Color2RGB_(index) & 0x3E0) >> 5;
-        int b = _Color2RGB_(index) & 0x1F;
+        int r = (Color2RGB(index) & 0x7C00) >> 10;
+        int g = (Color2RGB(index) & 0x3E0) >> 5;
+        int b = Color2RGB(index) & 0x1F;
         _glassGrayTable[index] = ((r + 5 * g + 4 * b) / 10) >> 2;
         _commonGrayTable[index] = ((b + 3 * r + 6 * g) / 10) >> 2;
     }
@@ -3454,11 +3454,11 @@ void _obj_blend_table_init()
     _glassGrayTable[0] = 0;
     _commonGrayTable[0] = 0;
 
-    _wallBlendTable = _getColorBlendTable(_colorTable[25439]);
-    _glassBlendTable = _getColorBlendTable(_colorTable[10239]);
-    _steamBlendTable = _getColorBlendTable(_colorTable[32767]);
-    _energyBlendTable = _getColorBlendTable(_colorTable[30689]);
-    _redBlendTable = _getColorBlendTable(_colorTable[31744]);
+    _wallBlendTable = getColorBlendTable(colorTable[25439]);
+    _glassBlendTable = getColorBlendTable(colorTable[10239]);
+    _steamBlendTable = getColorBlendTable(colorTable[32767]);
+    _energyBlendTable = getColorBlendTable(colorTable[30689]);
+    _redBlendTable = getColorBlendTable(colorTable[31744]);
 }
 
 // NOTE: Inlined.
@@ -3466,11 +3466,11 @@ void _obj_blend_table_init()
 // 0x48D2E8
 void _obj_blend_table_exit()
 {
-    _freeColorBlendTable(_colorTable[25439]);
-    _freeColorBlendTable(_colorTable[10239]);
-    _freeColorBlendTable(_colorTable[32767]);
-    _freeColorBlendTable(_colorTable[30689]);
-    _freeColorBlendTable(_colorTable[31744]);
+    freeColorBlendTable(colorTable[25439]);
+    freeColorBlendTable(colorTable[10239]);
+    freeColorBlendTable(colorTable[32767]);
+    freeColorBlendTable(colorTable[30689]);
+    freeColorBlendTable(colorTable[31744]);
 }
 
 // 0x48D348
@@ -4705,7 +4705,7 @@ void objectDrawOutline(Object* object, Rect* rect)
             v44 = frameHeight / 5;
             break;
         case OUTLINE_TYPE_2:
-            color = _colorTable[31744];
+            color = colorTable[31744];
             v44 = 0;
             if (v53 != 0) {
                 v47 = _commonGrayTable;
@@ -4713,7 +4713,7 @@ void objectDrawOutline(Object* object, Rect* rect)
             }
             break;
         case OUTLINE_TYPE_4:
-            color = _colorTable[15855];
+            color = colorTable[15855];
             v44 = 0;
             if (v53 != 0) {
                 v47 = _commonGrayTable;
@@ -4728,7 +4728,7 @@ void objectDrawOutline(Object* object, Rect* rect)
             break;
         case OUTLINE_TYPE_ITEM:
             v44 = 0;
-            color = _colorTable[30632];
+            color = colorTable[30632];
             if (v53 != 0) {
                 v47 = _commonGrayTable;
                 v48 = _redBlendTable;
@@ -4741,7 +4741,7 @@ void objectDrawOutline(Object* object, Rect* rect)
             v44 = frameHeight;
             break;
         default:
-            color = _colorTable[31775];
+            color = colorTable[31775];
             v53 = 0;
             v44 = 0;
             break;

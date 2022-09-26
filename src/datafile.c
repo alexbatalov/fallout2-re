@@ -50,7 +50,7 @@ void sub_42EE84(unsigned char* data, unsigned char* palette, int width, int heig
         int g = palette[index * 3 + 1] >> 3;
         int b = palette[index * 3] >> 3;
         int colorTableIndex = (r << 10) | (g << 5) | b;
-        indexedPalette[index] = _colorTable[colorTableIndex];
+        indexedPalette[index] = colorTable[colorTableIndex];
     }
 
     int size = width * height;
@@ -73,7 +73,7 @@ void sub_42EEF8(unsigned char* data, unsigned char* palette, int width, int heig
         int g = palette[index * 3 + 1] >> 1;
         int b = palette[index * 3] >> 1;
         int colorTableIndex = (r << 10) | (g << 5) | b;
-        indexedPalette[index] = _colorTable[colorTableIndex];
+        indexedPalette[index] = colorTable[colorTableIndex];
     }
 
     int size = width * height;

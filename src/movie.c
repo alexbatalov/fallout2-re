@@ -45,7 +45,7 @@ MovieBlitFunc* gMovieBlitFuncs[2][2][2] = {
 };
 
 // 0x5195E0
-MovieSetPaletteEntriesProc* gMovieSetPaletteEntriesProc = _setSystemPaletteEntries;
+MovieSetPaletteEntriesProc* gMovieSetPaletteEntriesProc = setSystemPaletteEntries;
 
 // 0x5195E4
 int gMovieSubtitlesColorR = 31;
@@ -617,7 +617,7 @@ int movieSetFlags(int flags)
 // 0x48725C
 void _movieSetPaletteFunc(MovieSetPaletteEntriesProc* proc)
 {
-    gMovieSetPaletteEntriesProc = proc != NULL ? proc : _setSystemPaletteEntries;
+    gMovieSetPaletteEntriesProc = proc != NULL ? proc : setSystemPaletteEntries;
 }
 
 // 0x487274
@@ -763,7 +763,7 @@ void movieRenderSubtitles()
         }
 
         int colorIndex = (gMovieSubtitlesColorR << 10) | (gMovieSubtitlesColorG << 5) | gMovieSubtitlesColorB;
-        windowWrapLine(gMovieWindow, gMovieSubtitleHead->text, _subtitleW, _subtitleH, 0, v2, _colorTable[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
+        windowWrapLine(gMovieWindow, gMovieSubtitleHead->text, _subtitleW, _subtitleH, 0, v2, colorTable[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
 
         Rect rect;
         rect.right = _subtitleW;

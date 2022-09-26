@@ -1422,7 +1422,7 @@ int actionUseSkill(Object* a1, Object* a2, int skill)
             char* msg = skillsGetGenericResponse(partyMember, v32);
 
             Rect rect;
-            if (textObjectAdd(partyMember, msg, 101, _colorTable[32747], _colorTable[0], &rect) == 0) {
+            if (textObjectAdd(partyMember, msg, 101, colorTable[32747], colorTable[0], &rect) == 0) {
                 tileWindowRefreshRect(&rect, gElevation);
             }
 

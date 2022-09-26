@@ -737,24 +737,24 @@ void gameMouseRefresh()
 
                         if (pointedObjectIsCritter) {
                             if (pointedObject->data.critter.combat.team != 0) {
-                                color = _colorTable[32767];
+                                color = colorTable[32767];
                             } else {
-                                color = _colorTable[32495];
+                                color = colorTable[32495];
                             }
                         } else {
-                            color = _colorTable[17969];
+                            color = colorTable[17969];
                         }
                     } else {
                         sprintf(formattedAccuracy, " %c ", 'X');
 
                         if (pointedObjectIsCritter) {
                             if (pointedObject->data.critter.combat.team != 0) {
-                                color = _colorTable[31744];
+                                color = colorTable[31744];
                             } else {
-                                color = _colorTable[18161];
+                                color = colorTable[18161];
                             }
                         } else {
-                            color = _colorTable[32239];
+                            color = colorTable[32239];
                         }
                     }
 
@@ -789,7 +789,7 @@ void gameMouseRefresh()
         if (v6) {
             if (!isInCombat()) {
                 formattedActionPoints[0] = '\0';
-                color = _colorTable[31744];
+                color = colorTable[31744];
             } else {
                 int v7 = critterGetMovementPointCostAdjustedForCrippledLegs(gDude, v6);
                 int v8;
@@ -801,15 +801,15 @@ void gameMouseRefresh()
 
                 if (v8 <= gDude->data.critter.combat.ap) {
                     sprintf(formattedActionPoints, "%d", v8);
-                    color = _colorTable[32767];
+                    color = colorTable[32767];
                 } else {
                     sprintf(formattedActionPoints, "%c", 'X');
-                    color = _colorTable[31744];
+                    color = colorTable[31744];
                 }
             }
         } else {
             sprintf(formattedActionPoints, "%c", 'X');
-            color = _colorTable[31744];
+            color = colorTable[31744];
         }
 
         if (gameMouseRenderActionPoints(formattedActionPoints, color) == 0) {
@@ -1919,7 +1919,7 @@ int gameMouseRenderAccuracy(const char* string, int color)
         gGameMouseActionHitFrmWidth - crosshairFrmWidth,
         gGameMouseActionHitFrmHeight,
         gGameMouseActionHitFrmWidth,
-        _colorTable[0]);
+        colorTable[0]);
 
     fontSetCurrent(oldFont);
 
@@ -1943,7 +1943,7 @@ int gameMouseRenderActionPoints(const char* string, int color)
     int length = fontGetStringWidth(string);
     fontDrawText(gGameMouseHexCursorFrmData + gGameMouseHexCursorFrmWidth * (gGameMouseHexCursorHeight - fontGetLineHeight()) / 2 + (gGameMouseHexCursorFrmWidth - length) / 2, string, gGameMouseHexCursorFrmWidth, gGameMouseHexCursorFrmWidth, color);
 
-    bufferOutline(gGameMouseHexCursorFrmData, gGameMouseHexCursorFrmWidth, gGameMouseHexCursorHeight, gGameMouseHexCursorFrmWidth, _colorTable[0]);
+    bufferOutline(gGameMouseHexCursorFrmData, gGameMouseHexCursorFrmWidth, gGameMouseHexCursorHeight, gGameMouseHexCursorFrmWidth, colorTable[0]);
 
     fontSetCurrent(oldFont);
 

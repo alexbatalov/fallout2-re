@@ -204,7 +204,7 @@ void opSelectFileList(Program* program)
             NULL,
             320 - fontGetStringWidth(title) / 2,
             200,
-            _colorTable[0x7FFF] | 0x10000);
+            colorTable[0x7FFF] | 0x10000);
 
         if (selectedIndex != -1) {
             programStackPushInt32(program, programPushString(program, fileList[selectedIndex]));
@@ -462,7 +462,7 @@ void _interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* newPalett
                     palette[index] = oldPalette[index] - (oldPalette[index] - newPalette[index]) * step / steps;
                 }
 
-                _setSystemPalette(palette);
+                setSystemPalette(palette);
 
                 previousTime = time;
                 step += delta;
@@ -477,7 +477,7 @@ void _interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* newPalett
         }
     }
 
-    _setSystemPalette(newPalette);
+    setSystemPalette(newPalette);
 }
 
 // NOTE: Unused.
@@ -504,7 +504,7 @@ void interpretFadeOut(float duration)
     cursorWasHidden = mouse_hidden();
     mouse_hide();
 
-    _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, duration, 1);
+    _interpretFadePaletteBK(getSystemPalette(), gIntLibFadePalette, 64, duration, 1);
 
     if (!cursorWasHidden) {
         mouse_show();
@@ -516,7 +516,7 @@ void interpretFadeOut(float duration)
 // 0x462380
 void interpretFadeIn(float duration)
 {
-    _interpretFadePaletteBK(gIntLibFadePalette, _cmap, 64, duration, 1);
+    _interpretFadePaletteBK(gIntLibFadePalette, cmap, 64, duration, 1);
 }
 
 // NOTE: Unused.
@@ -529,7 +529,7 @@ void interpretFadeOutNoBK(float duration)
     cursorWasHidden = mouse_hidden();
     mouse_hide();
 
-    _interpretFadePaletteBK(_getSystemPalette(), gIntLibFadePalette, 64, duration, 0);
+    _interpretFadePaletteBK(getSystemPalette(), gIntLibFadePalette, 64, duration, 0);
 
     if (!cursorWasHidden) {
         mouse_show();
@@ -541,7 +541,7 @@ void interpretFadeOutNoBK(float duration)
 // 0x4623DC
 void interpretFadeInNoBK(float duration)
 {
-    _interpretFadePaletteBK(gIntLibFadePalette, _cmap, 64, duration, 0);
+    _interpretFadePaletteBK(gIntLibFadePalette, cmap, 64, duration, 0);
 }
 
 // fadein
@@ -561,7 +561,7 @@ void opFadeIn(Program* program)
 
     program->flags |= PROGRAM_FLAG_0x20;
 
-    _setSystemPalette(gIntLibFadePalette);
+    setSystemPalette(gIntLibFadePalette);
 
     // NOTE: Uninline.
     interpretFadeIn((float)data);
@@ -958,7 +958,7 @@ void opCreateWin(Program* program)
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int height = (data[0] * _windowGetYres() + 479) / 480;
 
-    if (_createWindow(windowName, x, y, width, height, _colorTable[0], 0) == -1) {
+    if (_createWindow(windowName, x, y, width, height, colorTable[0], 0) == -1) {
         programFatalError("Couldn't create window.");
     }
 }
@@ -1899,8 +1899,8 @@ void opLoadPaletteTable(Program* program)
     }
 
     char* path = programGetString(program, opcode, data);
-    if (!colorPaletteLoad(path)) {
-        programFatalError(_colorError());
+    if (!loadColorTable(path)) {
+        programFatalError(colorError());
     }
 }
 

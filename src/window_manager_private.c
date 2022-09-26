@@ -109,27 +109,27 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         0,
         windowWidth - 1,
         windowHeight - 1,
-        _colorTable[0]);
+        colorTable[0]);
     bufferDrawRectShadowed(windowBuffer,
         windowWidth,
         1,
         1,
         windowWidth - 2,
         windowHeight - 2,
-        _colorTable[_GNW_wcolor[1]],
-        _colorTable[_GNW_wcolor[2]]);
+        colorTable[_GNW_wcolor[1]],
+        colorTable[_GNW_wcolor[2]]);
 
     bufferFill(windowBuffer + windowWidth * 5 + 5,
         windowWidth - 11,
         fontGetLineHeight() + 3,
         windowWidth,
-        _colorTable[_GNW_wcolor[0]]);
+        colorTable[_GNW_wcolor[0]]);
 
     fontDrawText(windowBuffer + windowWidth / 2 + 8 * windowWidth - fontGetStringWidth(title) / 2,
         title,
         windowWidth,
         windowWidth,
-        _colorTable[_GNW_wcolor[3]]);
+        colorTable[_GNW_wcolor[3]]);
 
     bufferDrawRectShadowed(windowBuffer,
         windowWidth,
@@ -137,8 +137,8 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         5,
         windowWidth - 6,
         fontGetLineHeight() + 8,
-        _colorTable[_GNW_wcolor[2]],
-        _colorTable[_GNW_wcolor[1]]);
+        colorTable[_GNW_wcolor[2]],
+        colorTable[_GNW_wcolor[1]]);
 
     int listViewX = 8;
     int listViewY = fontGetLineHeight() + 16;
@@ -149,7 +149,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         listViewWidth + listViewX - 2,
         listViewCapacity * fontGetLineHeight() + 2,
         windowWidth,
-        _colorTable[_GNW_wcolor[0]]);
+        colorTable[_GNW_wcolor[0]]);
 
     int scrollOffset = a8;
     if (a8 < 0 || a8 >= itemsLength) {
@@ -190,8 +190,8 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         listViewY - 3,
         listViewWidth + 10,
         listViewMaxY,
-        _colorTable[_GNW_wcolor[2]],
-        _colorTable[_GNW_wcolor[1]]);
+        colorTable[_GNW_wcolor[2]],
+        colorTable[_GNW_wcolor[1]]);
 
     _win_register_text_button(win,
         windowWidth - 25,
@@ -233,7 +233,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         scrollbarKnobSize + 1,
         scrollbarHeight - fontGetLineHeight() - 8,
         windowWidth,
-        _colorTable[_GNW_wcolor[0]]);
+        colorTable[_GNW_wcolor[0]]);
 
     buttonCreate(win,
         scrollbarX,
@@ -255,16 +255,16 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         scrollbarY - 1,
         scrollbarX + scrollbarKnobSize + 1,
         listViewMaxY - fontGetLineHeight() - 9,
-        _colorTable[_GNW_wcolor[2]],
-        _colorTable[_GNW_wcolor[1]]);
+        colorTable[_GNW_wcolor[2]],
+        colorTable[_GNW_wcolor[1]]);
     bufferDrawRectShadowed(windowBuffer,
         windowWidth,
         scrollbarX,
         scrollbarY,
         scrollbarX + scrollbarKnobSize,
         scrollbarY + scrollbarKnobSize,
-        _colorTable[_GNW_wcolor[1]],
-        _colorTable[_GNW_wcolor[2]]);
+        colorTable[_GNW_wcolor[1]],
+        colorTable[_GNW_wcolor[2]]);
 
     _lighten_buf(scrollbarBuffer, scrollbarKnobSize, scrollbarKnobSize, windowWidth);
 
@@ -423,7 +423,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                 listViewWidth,
                 listViewMaxY - listViewY,
                 windowWidth,
-                _colorTable[_GNW_wcolor[0]]);
+                colorTable[_GNW_wcolor[0]]);
 
             _win_text(win,
                 items + scrollOffset,
@@ -443,7 +443,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                     scrollbarKnobSize + 1,
                     scrollbarKnobSize + 1,
                     windowWidth,
-                    _colorTable[_GNW_wcolor[0]]);
+                    colorTable[_GNW_wcolor[0]]);
 
                 scrollbarY = (scrollOffset * (listViewMaxY - listViewY - 2 * fontGetLineHeight() - 16 - scrollbarKnobSize - 1)) / (itemsLength - listViewCapacity)
                     + listViewY + fontGetLineHeight() + 7;
@@ -454,8 +454,8 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                     scrollbarY,
                     scrollbarX + scrollbarKnobSize,
                     scrollbarY + scrollbarKnobSize,
-                    _colorTable[_GNW_wcolor[1]],
-                    _colorTable[_GNW_wcolor[2]]);
+                    colorTable[_GNW_wcolor[1]],
+                    colorTable[_GNW_wcolor[2]]);
 
                 _lighten_buf(windowBuffer + windowWidth * scrollbarY + scrollbarX,
                     scrollbarKnobSize,
@@ -477,12 +477,12 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                     listViewWidth,
                     fontGetLineHeight(),
                     windowWidth,
-                    _colorTable[_GNW_wcolor[0]]);
+                    colorTable[_GNW_wcolor[0]]);
 
                 int color;
                 if ((a7 & 0xFF00) != 0) {
                     int colorIndex = (a7 & 0xFF) - 1;
-                    color = (a7 & ~0xFFFF) | _colorTable[_GNW_wcolor[colorIndex]];
+                    color = (a7 & ~0xFFFF) | colorTable[_GNW_wcolor[colorIndex]];
                 } else {
                     color = a7;
                 }
@@ -547,8 +547,8 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         windowWidth - 28,
         fontGetLineHeight() + 2,
         windowWidth,
-        _colorTable[_GNW_wcolor[0]]);
-    fontDrawText(windowBuffer + windowWidth * 8 + 8, title, windowWidth, windowWidth, _colorTable[_GNW_wcolor[4]]);
+        colorTable[_GNW_wcolor[0]]);
+    fontDrawText(windowBuffer + windowWidth * 8 + 8, title, windowWidth, windowWidth, colorTable[_GNW_wcolor[4]]);
 
     bufferDrawRectShadowed(windowBuffer,
         windowWidth,
@@ -556,8 +556,8 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         fontGetLineHeight() + 14,
         windowWidth - 14,
         2 * fontGetLineHeight() + 16,
-        _colorTable[_GNW_wcolor[2]],
-        _colorTable[_GNW_wcolor[1]]);
+        colorTable[_GNW_wcolor[2]],
+        colorTable[_GNW_wcolor[1]]);
 
     _win_register_text_button(win,
         windowWidth / 2 - 72,
@@ -586,8 +586,8 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         length,
         16,
         fontGetLineHeight() + 16,
-        _colorTable[_GNW_wcolor[3]],
-        _colorTable[_GNW_wcolor[0]]);
+        colorTable[_GNW_wcolor[3]],
+        colorTable[_GNW_wcolor[0]]);
 
     windowDestroy(win);
 
@@ -623,7 +623,7 @@ int _win_msg(const char* string, int x, int y, int flags)
     int color;
     if ((flags & 0xFF00) != 0) {
         int index = (flags & 0xFF) - 1;
-        color = _colorTable[_GNW_wcolor[index]];
+        color = colorTable[_GNW_wcolor[index]];
         color |= flags & ~0xFFFF;
     } else {
         color = flags;
@@ -659,12 +659,12 @@ int _win_pull_down(char** items, int itemsLength, int x, int y, int a5)
     }
 
     Rect rect;
-    int win = _create_pull_down(items, itemsLength, x, y, a5, _colorTable[_GNW_wcolor[0]], &rect);
+    int win = _create_pull_down(items, itemsLength, x, y, a5, colorTable[_GNW_wcolor[0]], &rect);
     if (win == -1) {
         return -1;
     }
 
-    return sub_4DBD04(win, &rect, items, itemsLength, a5, _colorTable[_GNW_wcolor[0]], NULL, -1);
+    return sub_4DBD04(win, &rect, items, itemsLength, a5, colorTable[_GNW_wcolor[0]], NULL, -1);
 }
 
 // 0x4DBC34
@@ -682,7 +682,7 @@ int _create_pull_down(char** stringList, int stringListLength, int x, int y, int
     }
 
     _win_text(win, stringList, stringListLength, windowWidth - 4, 2, 8, a5);
-    win_box(win, 0, 0, windowWidth - 1, windowHeight - 1, _colorTable[0]);
+    win_box(win, 0, 0, windowWidth - 1, windowHeight - 1, colorTable[0]);
     win_box(win, 1, 1, windowWidth - 2, windowHeight - 2, a5);
     win_draw(win);
     win_get_rect(win, rect);
@@ -725,8 +725,8 @@ int _win_debug(char* string)
             8,
             291,
             lineHeight + 8,
-            _colorTable[_GNW_wcolor[2]],
-            _colorTable[_GNW_wcolor[1]]);
+            colorTable[_GNW_wcolor[2]],
+            colorTable[_GNW_wcolor[1]]);
 
         windowFill(_wd, 9, 26, 282, 135, 0x100 | 1);
 
@@ -736,8 +736,8 @@ int _win_debug(char* string)
             25,
             291,
             lineHeight + 145,
-            _colorTable[_GNW_wcolor[2]],
-            _colorTable[_GNW_wcolor[1]]);
+            colorTable[_GNW_wcolor[2]],
+            colorTable[_GNW_wcolor[1]]);
 
         _currx = 9;
         _curry = 26;

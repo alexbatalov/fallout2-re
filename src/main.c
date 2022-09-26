@@ -190,7 +190,7 @@ int falloutMain(int argc, char** argv)
                 break;
             case MAIN_MENU_LOAD_GAME:
                 if (1) {
-                    int win = windowCreate(0, 0, 640, 480, _colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+                    int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
                     mainMenuWindowHide(true);
                     mainMenuWindowFree();
                     backgroundSoundDelete();
@@ -198,8 +198,8 @@ int falloutMain(int argc, char** argv)
                     // NOTE: Uninline.
                     main_loadgame_new();
 
-                    colorPaletteLoad("color.pal");
-                    paletteFadeTo(_cmap);
+                    loadColorTable("color.pal");
+                    paletteFadeTo(cmap);
                     int loadGameRc = lsgLoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
                     if (loadGameRc == -1) {
                         debugPrint("\n ** Error running LoadGame()! **\n");
@@ -323,11 +323,11 @@ int _main_load_new(char* mapFileName)
     objectShow(gDude, NULL);
     mouse_hide();
 
-    int win = windowCreate(0, 0, 640, 480, _colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     win_draw(win);
 
-    colorPaletteLoad("color.pal");
-    paletteFadeTo(_cmap);
+    loadColorTable("color.pal");
+    paletteFadeTo(cmap);
     _map_init();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
     mouse_show();
@@ -335,8 +335,8 @@ int _main_load_new(char* mapFileName)
     wmMapMusicStart();
     paletteFadeTo(gPaletteWhite);
     windowDestroy(win);
-    colorPaletteLoad("color.pal");
-    paletteFadeTo(_cmap);
+    loadColorTable("color.pal");
+    paletteFadeTo(cmap);
     return 0;
 }
 
@@ -576,7 +576,7 @@ void showDeath()
                         bufferFill(p - 602, 564, fontGetLineHeight() * count + 2, 640, 0);
                         p += 40;
                         for (int index = 0; index < count; index++) {
-                            fontDrawText(p, text + beginnings[index], 560, 640, _colorTable[32767]);
+                            fontDrawText(p, text + beginnings[index], 560, 640, colorTable[32767]);
                             p += 640 * fontGetLineHeight();
                         }
                     }
@@ -585,8 +585,8 @@ void showDeath()
 
             win_draw(win);
 
-            colorPaletteLoad("art\\intrface\\death.pal");
-            paletteFadeTo(_cmap);
+            loadColorTable("art\\intrface\\death.pal");
+            paletteFadeTo(cmap);
 
             _main_death_voiceover_done = false;
             speechSetEndCallback(_main_death_voiceover_callback);
@@ -619,7 +619,7 @@ void showDeath()
             }
 
             paletteFadeTo(gPaletteBlack);
-            colorPaletteLoad("color.pal");
+            loadColorTable("color.pal");
         } while (0);
         windowDestroy(win);
     }
@@ -732,7 +732,7 @@ int mainMenuWindowInit()
         return 0;
     }
 
-    colorPaletteLoad("color.pal");
+    loadColorTable("color.pal");
 
     int mainMenuWindowX = 0;
     int mainMenuWindowY = 0;
@@ -766,14 +766,14 @@ int mainMenuWindowInit()
     // Copyright.
     msg.num = 20;
     if (messageListGetItem(&gMiscMessageList, &msg)) {
-        windowDrawText(gMainMenuWindow, msg.text, 0, 15, 460, _colorTable[21091] | 0x6000000);
+        windowDrawText(gMainMenuWindow, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
     }
 
     // Version.
     char version[VERSION_MAX];
     versionGetVersion(version);
     len = fontGetStringWidth(version);
-    windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, _colorTable[21091] | 0x6000000);
+    windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
 
     // menuup.frm
     fid = buildFid(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
@@ -811,7 +811,7 @@ int mainMenuWindowInit()
         msg.num = 9 + index;
         if (messageListGetItem(&gMiscMessageList, &msg)) {
             len = fontGetStringWidth(msg.text);
-            fontDrawText(gMainMenuWindowBuffer + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, _colorTable[21091]);
+            fontDrawText(gMainMenuWindowBuffer + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
         }
     }
 
@@ -893,8 +893,8 @@ void mainMenuWindowUnhide(bool animate)
     win_show(gMainMenuWindow);
 
     if (animate) {
-        colorPaletteLoad("color.pal");
-        paletteFadeTo(_cmap);
+        loadColorTable("color.pal");
+        paletteFadeTo(cmap);
     }
 
     gMainMenuWindowHidden = false;

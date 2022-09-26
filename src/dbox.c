@@ -261,7 +261,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
         // 101 - YES
         messageListItem.num = (flags & DIALOG_BOX_YES_NO) == 0 ? 100 : 101;
         if (messageListGetItem(&messageList, &messageListItem)) {
-            fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, _colorTable[18979]);
+            fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, colorTable[18979]);
         }
 
         int btn = buttonCreate(win, v27 + 13, _doneY[dialogType] + 4, downButtonWidth, downButtonHeight, -1, -1, -1, 500, upButton, downButton, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -288,7 +288,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
                 backgroundWidth);
 
             fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + _doneX[dialogType] + doneBoxWidth + 59,
-                a8, backgroundWidth, backgroundWidth, _colorTable[18979]);
+                a8, backgroundWidth, backgroundWidth, colorTable[18979]);
 
             int btn = buttonCreate(win,
                 doneBoxWidth + _doneX[dialogType] + 37,
@@ -363,7 +363,7 @@ int showDialogBox(const char* title, const char** body, int bodyLength, int x, i
             fontSetCurrent(103);
 
             fontDrawText(windowBuf + backgroundWidth * (_doneY[dialogType] + 3) + _doneX[dialogType] + 35,
-                a8, backgroundWidth, backgroundWidth, _colorTable[18979]);
+                a8, backgroundWidth, backgroundWidth, colorTable[18979]);
 
             int btn = buttonCreate(win,
                 _doneX[dialogType] + 13,
@@ -564,11 +564,11 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
 
     // DONE
     const char* done = getmsg(&messageList, &messageListItem, 100);
-    fontDrawText(windowBuffer + LOAD_FILE_DIALOG_DONE_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + LOAD_FILE_DIALOG_DONE_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     // CANCEL
     const char* cancel = getmsg(&messageList, &messageListItem, 103);
-    fontDrawText(windowBuffer + LOAD_FILE_DIALOG_CANCEL_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + LOAD_FILE_DIALOG_CANCEL_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         LOAD_FILE_DIALOG_DONE_BUTTON_X,
@@ -654,7 +654,7 @@ int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLen
         0);
 
     if (title != NULL) {
-        fontDrawText(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, _colorTable[18979]);
+        fontDrawText(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, colorTable[18979]);
     }
 
     fontSetCurrent(101);
@@ -941,11 +941,11 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
 
     // DONE
     const char* done = getmsg(&messageList, &messageListItem, 100);
-    fontDrawText(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_DONE_LABEL_Y + SAVE_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_DONE_LABEL_Y + SAVE_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     // CANCEL
     const char* cancel = getmsg(&messageList, &messageListItem, 103);
-    fontDrawText(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_CANCEL_LABEL_Y + SAVE_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, _colorTable[18979]);
+    fontDrawText(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_CANCEL_LABEL_Y + SAVE_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         SAVE_FILE_DIALOG_DONE_BUTTON_X,
@@ -1031,7 +1031,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
         0);
 
     if (title != NULL) {
-        fontDrawText(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, _colorTable[18979]);
+        fontDrawText(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, colorTable[18979]);
     }
 
     fontSetCurrent(101);
@@ -1060,7 +1060,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
     unsigned char* fileNameBufferPtr = windowBuffer + backgroundWidth * 190 + 57;
 
     bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
-    fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
+    fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
 
     win_draw(win);
 
@@ -1089,7 +1089,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
             bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
             fileNameCopy[fileNameCopyLength - 1] = ' ';
             fileNameCopy[fileNameCopyLength] = '\0';
-            fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
+            fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
             fileNameCopyLength--;
             win_draw(win);
         } else if (keyCode < KEY_FIRST_INPUT_CHARACTER || keyCode > KEY_LAST_INPUT_CHARACTER || fileNameCopyLength >= 8) {
@@ -1142,7 +1142,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
                     fileNameCopy[fileNameCopyLength] = ' ';
                     fileNameCopy[fileNameCopyLength + 1] = '\0';
 
-                    fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
+                    fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
                     fileDialogRenderFileList(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
                 }
             } else if (keyCode == 506) {
@@ -1207,7 +1207,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
             fileNameCopy[fileNameCopyLength] = keyCode & 0xFF;
             fileNameCopy[fileNameCopyLength + 1] = ' ';
             fileNameCopy[fileNameCopyLength + 2] = '\0';
-            fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, _colorTable[992]);
+            fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
             fileNameCopyLength++;
 
             win_draw(win);
@@ -1269,7 +1269,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
                 if (blinkingCounter == 0) {
                     blinkingCounter = 3;
 
-                    int color = blink ? 100 : _colorTable[992];
+                    int color = blink ? 100 : colorTable[992];
                     blink = !blink;
 
                     bufferFill(fileNameBufferPtr + fontGetStringWidth(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
@@ -1296,7 +1296,7 @@ int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLen
             if (blinkingCounter == 0) {
                 blinkingCounter = 3;
 
-                int color = blink ? 100 : _colorTable[992];
+                int color = blink ? 100 : colorTable[992];
                 blink = !blink;
 
                 bufferFill(fileNameBufferPtr + fontGetStringWidth(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
@@ -1356,7 +1356,7 @@ void fileDialogRenderFileList(unsigned char* buffer, char** fileList, int pageOf
         }
 
         for (int index = 0; index < fileListLength; index++) {
-            int color = index == selectedIndex ? _colorTable[32747] : _colorTable[992];
+            int color = index == selectedIndex ? colorTable[32747] : colorTable[992];
             fontDrawText(buffer + pitch * y + FILE_DIALOG_FILE_LIST_X, fileList[pageOffset + index], pitch, pitch, color);
             y += lineHeight;
         }

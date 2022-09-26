@@ -442,7 +442,7 @@ int pauseHandlerDefaultImpl()
         "Paused",
         windowWidth,
         windowWidth,
-        _colorTable[31744]);
+        colorTable[31744]);
 
     _win_register_text_button(win,
         (windowWidth - fontGetStringWidth("Done") - 16) / 2,
@@ -496,7 +496,7 @@ void takeScreenshot()
     mouse_blit = v2;
     _scr_blit = v0;
 
-    unsigned char* palette = _getSystemPalette();
+    unsigned char* palette = getSystemPalette();
     gScreenshotHandler(width, height, gScreenshotBuffer, palette);
     internal_free(gScreenshotBuffer);
 }

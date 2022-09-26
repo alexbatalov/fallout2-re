@@ -771,7 +771,7 @@ int mapLoad(File* stream)
 
     int rc = 0;
 
-    windowFill(gIsoWindow, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _colorTable[0]);
+    windowFill(gIsoWindow, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, colorTable[0]);
     win_draw(gIsoWindow);
     animationStop();
     scriptsDisable();
@@ -1358,12 +1358,12 @@ int _map_save_file(File* stream)
 
     if (scriptSaveAll(stream) == -1) {
         sprintf(err, "Error saving scripts in %s", gMapHeader.name);
-        _win_msg(err, 80, 80, _colorTable[31744]);
+        _win_msg(err, 80, 80, colorTable[31744]);
     }
 
     if (objectSaveAll(stream) == -1) {
         sprintf(err, "Error saving objects in %s", gMapHeader.name);
-        _win_msg(err, 80, 80, _colorTable[31744]);
+        _win_msg(err, 80, 80, colorTable[31744]);
     }
 
     scriptsEnable();
