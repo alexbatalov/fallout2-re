@@ -17,6 +17,7 @@ static void setMixTableColor(int a1);
 static void setMixTable();
 static void buildBlendTable(unsigned char* ptr, unsigned char ch);
 static void rebuildColorBlendTables();
+static void maxfill();
 
 // 0x50F930
 static char _aColor_cNoError[] = "color.c: No errors\n";
@@ -683,6 +684,20 @@ double colorGetGamma()
 int colorMappedColor(ColorIndex i)
 {
     return mappedColor[i];
+}
+
+// 0x4C8804
+static void maxfill(unsigned long* buffer, int side)
+{
+    unsigned long maxv;
+    long i;
+    unsigned long* bp;
+
+    bp = buffer;
+    maxv = side * side * side;
+    for (i = maxv; i > 0; i--) {
+        *bp++ = -1;
+    }
 }
 
 // NOTE: Unused.
