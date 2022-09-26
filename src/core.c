@@ -1490,6 +1490,33 @@ void directDrawFree()
     }
 }
 
+// 0x4CB218
+void GNW95_SetPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b)
+{
+    PALETTEENTRY tempEntry;
+
+    r <<= 2;
+    g <<= 2;
+    b <<= 2;
+
+    if (gDirectDrawPalette != NULL) {
+        tempEntry.peRed = r;
+        tempEntry.peGreen = g;
+        tempEntry.peBlue = b;
+        tempEntry.peFlags = PC_NOCOLLAPSE;
+        IDirectDrawPalette_SetEntries(gDirectDrawPalette, 0, entry, 1, &tempEntry);
+    } else {
+        gSixteenBppPalette[entry] = ((gRedShift > 0 ? (r << gRedShift) : (r >> -gRedShift)) & gRedMask)
+            | ((gGreenShift > 0 ? (g << gGreenShift) : (r >> -gGreenShift)) & gGreenMask)
+            | ((gBlueShift > 0 ? (b << gBlueShift) : (r >> -gBlueShift)) & gBlueMask);
+        windowRefreshAll(&_scr_size);
+    }
+
+    if (_update_palette_func != NULL) {
+        _update_palette_func();
+    }
+}
+
 // 0x4CB310
 void directDrawSetPaletteInRange(unsigned char* palette, int start, int count)
 {

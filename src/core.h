@@ -132,6 +132,7 @@ int _GNW95_init_window();
 int getShiftForBitMask(int mask);
 int directDrawInit(int width, int height, int bpp);
 void directDrawFree();
+void GNW95_SetPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned char b);
 void directDrawSetPaletteInRange(unsigned char* a1, int a2, int a3);
 void directDrawSetPalette(unsigned char* palette);
 unsigned char* directDrawGetPalette();
