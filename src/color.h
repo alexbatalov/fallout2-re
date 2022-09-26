@@ -41,6 +41,7 @@ Color RGB2Color(ColorRGB c);
 int Color2RGB(int a1);
 void fadeSystemPalette(unsigned char* oldPalette, unsigned char* newPalette, int steps);
 void colorSetFadeBkFunc(fade_bk_func* callback);
+void setBlackSystemPalette();
 void setSystemPalette(unsigned char* palette);
 unsigned char* getSystemPalette();
 void setSystemPaletteEntries(unsigned char* a1, int a2, int a3);

@@ -231,6 +231,14 @@ void colorSetFadeBkFunc(fade_bk_func* callback)
     colorFadeBkFuncP = callback;
 }
 
+// 0x4C73DC
+void setBlackSystemPalette()
+{
+    // 0x6AB934
+    static unsigned char tmp[768];
+    setSystemPalette(tmp);
+}
+
 // 0x4C73E4
 void setSystemPalette(unsigned char* palette)
 {
