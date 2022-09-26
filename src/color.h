@@ -49,6 +49,7 @@ void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned
 void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b);
 bool loadColorTable(const char* path);
 char* colorError();
+void setColorPalette(unsigned char* pal);
 unsigned char* getColorBlendTable(int ch);
 void freeColorBlendTable(int a1);
 void colorRegisterAlloc(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);

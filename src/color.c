@@ -519,6 +519,13 @@ char* colorError()
     return errorStr;
 }
 
+// 0x4C7ABC
+void setColorPalette(unsigned char* pal)
+{
+    memcpy(cmap, pal, sizeof(cmap));
+    memset(mappedColor, 1, sizeof(mappedColor));
+}
+
 // 0x4C7B44
 static void buildBlendTable(unsigned char* ptr, unsigned char ch)
 {
