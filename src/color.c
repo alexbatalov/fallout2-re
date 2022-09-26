@@ -289,6 +289,17 @@ void setSystemPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned
     GNW95_SetPaletteEntry(entry, currentGammaTable[r], currentGammaTable[g], currentGammaTable[b]);
 }
 
+// 0x4C752C
+void getSystemPaletteEntry(int entry, unsigned char* r, unsigned char* g, unsigned char* b)
+{
+    int baseIndex;
+
+    baseIndex = entry * 3;
+    *r = systemCmap[baseIndex];
+    *g = systemCmap[baseIndex + 1];
+    *b = systemCmap[baseIndex + 2];
+}
+
 // 0x4C7550
 static void setIntensityTableColor(int a1)
 {
