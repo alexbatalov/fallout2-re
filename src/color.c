@@ -165,6 +165,12 @@ void colorSetNameMangler(ColorNameMangleFunc* c)
     colorNameMangler = c;
 }
 
+// 0x4C727C
+Color colorMixAdd(Color a, Color b)
+{
+    return colorMixAddTable[a][b];
+}
+
 // 0x4C72B4
 int calculateColor(int a1, int a2)
 {

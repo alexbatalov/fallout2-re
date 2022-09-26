@@ -33,6 +33,7 @@ extern unsigned char colorTable[32768];
 
 void colorInitIO(ColorOpenFunc* openProc, ColorReadFunc* readProc, ColorCloseFunc* closeProc);
 void colorSetNameMangler(ColorNameMangleFunc* c);
+Color colorMixAdd(Color a, Color b);
 int calculateColor(int a1, int a2);
 int Color2RGB(int a1);
 void fadeSystemPalette(unsigned char* oldPalette, unsigned char* newPalette, int steps);
