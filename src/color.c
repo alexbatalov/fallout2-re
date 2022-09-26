@@ -14,6 +14,7 @@ static void defaultFree(void* ptr);
 static void setIntensityTableColor(int a1);
 static void setIntensityTables();
 static void setMixTableColor(int a1);
+static void setMixTable();
 static void buildBlendTable(unsigned char* ptr, unsigned char ch);
 static void rebuildColorBlendTables();
 
@@ -423,6 +424,16 @@ static void setMixTableColor(int a1)
                 colorMixMulTable[a1][i] = a1;
             }
         }
+    }
+}
+
+// 0x4C78CC
+static void setMixTable()
+{
+    int i;
+
+    for (i = 0; i < 256; i++) {
+        setMixTableColor(i);
     }
 }
 
