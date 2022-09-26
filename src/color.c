@@ -5,41 +5,53 @@
 
 #include "core.h"
 
+static int colorPaletteFileOpen(const char* filePath, int flags);
+static int colorPaletteFileRead(int fd, void* buffer, size_t size);
+static int colorPaletteFileClose(int fd);
+static void* colorPaletteMallocDefaultImpl(size_t size);
+static void* colorPaletteReallocDefaultImpl(void* ptr, size_t size);
+static void colorPaletteFreeDefaultImpl(void* ptr);
+static void _setIntensityTableColor(int a1);
+static void _setIntensityTables();
+static void _setMixTableColor(int a1);
+static void _buildBlendTable(unsigned char* ptr, unsigned char ch);
+static void _rebuildColorBlendTables();
+
 // 0x50F930
-char _aColor_cNoError[] = "color.c: No errors\n";
+static char _aColor_cNoError[] = "color.c: No errors\n";
 
 // 0x50F95C
-char _aColor_cColorTa[] = "color.c: color table not found\n";
+static char _aColor_cColorTa[] = "color.c: color table not found\n";
 
 // 0x50F984
-char _aColor_cColorpa[] = "color.c: colorpalettestack overflow";
+static char _aColor_cColorpa[] = "color.c: colorpalettestack overflow";
 
 // 0x50F9AC
-char aColor_cColor_0[] = "color.c: colorpalettestack underflow";
+static char aColor_cColor_0[] = "color.c: colorpalettestack underflow";
 
 // 0x51DF10
-char* _errorStr = _aColor_cNoError;
+static char* _errorStr = _aColor_cNoError;
 
 // 0x51DF14
-bool _colorsInited = false;
+static bool _colorsInited = false;
 
 // 0x51DF18
-double gBrightness = 1.0;
+static double gBrightness = 1.0;
 
 // 0x51DF20
-ColorTransitionCallback* gColorPaletteTransitionCallback = NULL;
+static ColorTransitionCallback* gColorPaletteTransitionCallback = NULL;
 
 // 0x51DF24
-MallocProc* gColorPaletteMallocProc = colorPaletteMallocDefaultImpl;
+static MallocProc* gColorPaletteMallocProc = colorPaletteMallocDefaultImpl;
 
 // 0x51DF28
-ReallocProc* gColorPaletteReallocProc = colorPaletteReallocDefaultImpl;
+static ReallocProc* gColorPaletteReallocProc = colorPaletteReallocDefaultImpl;
 
 // 0x51DF2C
-FreeProc* gColorPaletteFreeProc = colorPaletteFreeDefaultImpl;
+static FreeProc* gColorPaletteFreeProc = colorPaletteFreeDefaultImpl;
 
 // 0x51DF30
-ColorFileNameManger* gColorFileNameMangler = NULL;
+static ColorFileNameManger* gColorFileNameMangler = NULL;
 
 // 0x51DF34
 unsigned char _cmap[768] = {
@@ -47,16 +59,16 @@ unsigned char _cmap[768] = {
 };
 
 // 0x673050
-ColorPaletteStackEntry* gColorPaletteStack[COLOR_PALETTE_STACK_CAPACITY];
+static ColorPaletteStackEntry* gColorPaletteStack[COLOR_PALETTE_STACK_CAPACITY];
 
 // 0x673090
-unsigned char _systemCmap[256 * 3];
+static unsigned char _systemCmap[256 * 3];
 
 // 0x673390
-unsigned char _currentGammaTable[64];
+static unsigned char _currentGammaTable[64];
 
 // 0x6733D0
-unsigned char* _blendTable[256];
+static unsigned char* _blendTable[256];
 
 // 0x6737D0
 unsigned char _mappedColor[256];
@@ -74,21 +86,21 @@ unsigned char _colorMixMulTable[65536];
 unsigned char _colorTable[32768];
 
 // 0x6AB8D0
-int gColorPaletteStackSize;
+static int gColorPaletteStackSize;
 
 // 0x6AB928
-ColorPaletteFileReadProc* gColorPaletteFileReadProc;
+static ColorPaletteFileReadProc* gColorPaletteFileReadProc;
 
 // 0x6AB92C
-ColorPaletteCloseProc* gColorPaletteFileCloseProc;
+static ColorPaletteCloseProc* gColorPaletteFileCloseProc;
 
 // 0x6AB930
-ColorPaletteFileOpenProc* gColorPaletteFileOpenProc;
+static ColorPaletteFileOpenProc* gColorPaletteFileOpenProc;
 
 // NOTE: Inlined.
 //
 // 0x4C7200
-int colorPaletteFileOpen(const char* filePath, int flags)
+static int colorPaletteFileOpen(const char* filePath, int flags)
 {
     if (gColorPaletteFileOpenProc != NULL) {
         return gColorPaletteFileOpenProc(filePath, flags);
@@ -100,7 +112,7 @@ int colorPaletteFileOpen(const char* filePath, int flags)
 // NOTE: Inlined.
 //
 // 0x4C7218
-int colorPaletteFileRead(int fd, void* buffer, size_t size)
+static int colorPaletteFileRead(int fd, void* buffer, size_t size)
 {
     if (gColorPaletteFileReadProc != NULL) {
         return gColorPaletteFileReadProc(fd, buffer, size);
@@ -112,7 +124,7 @@ int colorPaletteFileRead(int fd, void* buffer, size_t size)
 // NOTE: Inlined.
 //
 // 0x4C7230
-int colorPaletteFileClose(int fd)
+static int colorPaletteFileClose(int fd)
 {
     if (gColorPaletteFileCloseProc != NULL) {
         return gColorPaletteFileCloseProc(fd);
@@ -130,19 +142,19 @@ void colorPaletteSetFileIO(ColorPaletteFileOpenProc* openProc, ColorPaletteFileR
 }
 
 // 0x4C725C
-void* colorPaletteMallocDefaultImpl(size_t size)
+static void* colorPaletteMallocDefaultImpl(size_t size)
 {
     return malloc(size);
 }
 
 // 0x4C7264
-void* colorPaletteReallocDefaultImpl(void* ptr, size_t size)
+static void* colorPaletteReallocDefaultImpl(void* ptr, size_t size)
 {
     return realloc(ptr, size);
 }
 
 // 0x4C726C
-void colorPaletteFreeDefaultImpl(void* ptr)
+static void colorPaletteFreeDefaultImpl(void* ptr)
 {
     free(ptr);
 }
@@ -235,7 +247,7 @@ void _setSystemPaletteEntries(unsigned char* palette, int start, int end)
 }
 
 // 0x4C7550
-void _setIntensityTableColor(int a1)
+static void _setIntensityTableColor(int a1)
 {
     int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10;
 
@@ -262,7 +274,7 @@ void _setIntensityTableColor(int a1)
 }
 
 // 0x4C7658
-void _setIntensityTables()
+static void _setIntensityTables()
 {
     for (int index = 0; index < 256; index++) {
         if (_mappedColor[index] != 0) {
@@ -274,7 +286,7 @@ void _setIntensityTables()
 }
 
 // 0x4C769C
-void _setMixTableColor(int a1)
+static void _setMixTableColor(int a1)
 {
     int i;
     int v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16, v17, v18, v19;
@@ -446,7 +458,7 @@ char* _colorError()
 }
 
 // 0x4C7B44
-void _buildBlendTable(unsigned char* ptr, unsigned char ch)
+static void _buildBlendTable(unsigned char* ptr, unsigned char ch)
 {
     int r, g, b;
     int i, j;
@@ -506,7 +518,7 @@ void _buildBlendTable(unsigned char* ptr, unsigned char ch)
 }
 
 // 0x4C7D90
-void _rebuildColorBlendTables()
+static void _rebuildColorBlendTables()
 {
     int i;
 
@@ -573,7 +585,7 @@ void colorSetBrightness(double value)
 // NOTE: Unused.
 //
 // 0x4C8828
-bool colorPushColorPalette()
+static bool colorPushColorPalette()
 {
     if (gColorPaletteStackSize >= COLOR_PALETTE_STACK_CAPACITY) {
         _errorStr = _aColor_cColorpa;
@@ -595,7 +607,7 @@ bool colorPushColorPalette()
 // NOTE: Unused.
 //
 // 0x4C88E0
-bool colorPopColorPalette()
+static bool colorPopColorPalette()
 {
     if (gColorPaletteStackSize == 0) {
         _errorStr = aColor_cColor_0;
