@@ -74,7 +74,7 @@ static unsigned char* blendTable[256];
 unsigned char mappedColor[256];
 
 // 0x6738D0
-unsigned char colorMixAddTable[65536];
+Color colorMixAddTable[256][256];
 
 // 0x6838D0
 unsigned char intensityColorTable[65536];
@@ -353,7 +353,7 @@ static void setMixTableColor(int a1)
                 v12 = calculateColor(v19, v18);
             }
 
-            colorMixAddTable[v1 + i] = v12;
+            colorMixAddTable[a1][i] = v12;
 
             v20 = (Color2RGB(a1) & 0x7C00) >> 10;
             v21 = (Color2RGB(a1) & 0x3E0) >> 5;
@@ -371,10 +371,10 @@ static void setMixTableColor(int a1)
             colorMixMulTable[v1 + i] = colorTable[v29];
         } else {
             if (mappedColor[i]) {
-                colorMixAddTable[v1 + i] = i;
+                colorMixAddTable[a1][i] = i;
                 colorMixMulTable[v1 + i] = i;
             } else {
-                colorMixAddTable[v1 + i] = a1;
+                colorMixAddTable[a1][i] = a1;
                 colorMixMulTable[v1 + i] = a1;
             }
         }

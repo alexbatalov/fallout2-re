@@ -2828,7 +2828,7 @@ void _intensity_mask_buf_to_buf(unsigned char* src, int srcWidth, int srcHeight,
                     m = intensityColorTable[off];
 
                     off = (m << 8) + q;
-                    b = colorMixAddTable[off];
+                    b = colorMixAddTable[m][q];
                 }
                 *dest = b;
             }

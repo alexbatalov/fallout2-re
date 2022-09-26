@@ -8,6 +8,8 @@
 
 #define COLOR_PALETTE_STACK_CAPACITY 16
 
+typedef unsigned char Color;
+
 typedef const char*(ColorNameMangleFunc)(const char*);
 typedef void(fade_bk_func)();
 
@@ -24,7 +26,7 @@ typedef struct ColorPaletteStackEntry {
 extern unsigned char cmap[768];
 
 extern unsigned char mappedColor[256];
-extern unsigned char colorMixAddTable[65536];
+extern Color colorMixAddTable[256][256];
 extern unsigned char intensityColorTable[65536];
 extern unsigned char colorMixMulTable[65536];
 extern unsigned char colorTable[32768];
