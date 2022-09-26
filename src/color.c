@@ -159,6 +159,12 @@ static void defaultFree(void* ptr)
     free(ptr);
 }
 
+// 0x4C7274
+void colorSetNameMangler(ColorNameMangleFunc* c)
+{
+    colorNameMangler = c;
+}
+
 // 0x4C72B4
 int calculateColor(int a1, int a2)
 {
