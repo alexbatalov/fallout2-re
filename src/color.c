@@ -183,6 +183,12 @@ int calculateColor(int a1, int a2)
     return intensityColorTable[a2][a1 >> 9];
 }
 
+// 0x4C72CC
+Color RGB2Color(ColorRGB c)
+{
+    return colorTable[c];
+}
+
 // 0x4C72E0
 int Color2RGB(int a1)
 {

@@ -9,6 +9,7 @@
 #define COLOR_PALETTE_STACK_CAPACITY 16
 
 typedef unsigned char Color;
+typedef long ColorRGB;
 
 typedef const char*(ColorNameMangleFunc)(const char*);
 typedef void(fade_bk_func)();
@@ -36,6 +37,7 @@ void colorSetNameMangler(ColorNameMangleFunc* c);
 Color colorMixAdd(Color a, Color b);
 Color colorMixMul(Color a, Color b);
 int calculateColor(int a1, int a2);
+Color RGB2Color(ColorRGB c);
 int Color2RGB(int a1);
 void fadeSystemPalette(unsigned char* oldPalette, unsigned char* newPalette, int steps);
 void colorSetFadeBkFunc(fade_bk_func* callback);
