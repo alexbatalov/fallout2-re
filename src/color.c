@@ -703,7 +703,7 @@ static void maxfill(unsigned long* buffer, int side)
 // NOTE: Unused.
 //
 // 0x4C8828
-static bool colorPushColorPalette()
+bool colorPushColorPalette()
 {
     if (tos >= COLOR_PALETTE_STACK_CAPACITY) {
         errorStr = _aColor_cColorpa;
@@ -725,7 +725,7 @@ static bool colorPushColorPalette()
 // NOTE: Unused.
 //
 // 0x4C88E0
-static bool colorPopColorPalette()
+bool colorPopColorPalette()
 {
     if (tos == 0) {
         errorStr = aColor_cColor_0;
