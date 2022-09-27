@@ -147,7 +147,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
         showSplash();
     }
 
-    _trap_init();
+    trap_init();
 
     interfaceFontsInit();
     fontManagerAdd(&gModernFontManager);
@@ -399,7 +399,7 @@ void gameExit()
     partyMembersExit();
     endgameDeathEndingExit();
     interfaceFontsExit();
-    _trap_init();
+    trap_exit();
     _windowClose();
     dbExit();
     gameConfigExit(true);

@@ -33,10 +33,13 @@ static TrapEntry* off_51DC44 = NULL;
 // 0x66BE48
 static DuplicateEntry stru_66BE48[512];
 
-// NOTE: Likely collapsed trapInit/trapExit.
-//
 // 0x4B4190
-void _trap_init()
+void trap_exit()
+{
+}
+
+// 0x4B4190
+void trap_init()
 {
 }
 
