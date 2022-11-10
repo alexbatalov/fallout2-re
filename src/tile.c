@@ -166,7 +166,7 @@ Rect gTileWindowRect;
 unsigned char _tile_grid[32 * 16];
 
 // 0x66BDE4
-int _square_rect;
+int _square_y;
 
 // 0x66BDE8
 int _square_x;
@@ -386,7 +386,7 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
         bufferDrawLine(_tile_grid_blocked, 32, v25, v20, v22, v20, colorTable[31744]);
     }
 
-    tileSetCenter(hexGridWidth * (hexGridHeight / 2) + hexGridWidth / 2, 2);
+    tileSetCenter(hexGridWidth * (hexGridHeight / 2) + hexGridWidth / 2, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
     tileSetBorder(windowWidth, windowHeight, hexGridWidth, hexGridHeight);
 
     char* executable;
@@ -476,29 +476,31 @@ int tileSetCenter(int tile, int flags)
         return -1;
     }
 
-    if ((gTileScrollLimitingEnabled & ((flags & TILE_SET_CENTER_FLAG_0x02) == 0)) != 0) {
-        int tileScreenX;
-        int tileScreenY;
-        tileToScreenXY(tile, &tileScreenX, &tileScreenY, gElevation);
+    if ((flags & TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) == 0) {
+        if (gTileScrollLimitingEnabled) {
+            int tileScreenX;
+            int tileScreenY;
+            tileToScreenXY(tile, &tileScreenX, &tileScreenY, gElevation);
 
-        int dudeScreenX;
-        int dudeScreenY;
-        tileToScreenXY(gDude->tile, &dudeScreenX, &dudeScreenY, gElevation);
+            int dudeScreenX;
+            int dudeScreenY;
+            tileToScreenXY(gDude->tile, &dudeScreenX, &dudeScreenY, gElevation);
 
-        int dx = abs(dudeScreenX - tileScreenX);
-        int dy = abs(dudeScreenY - tileScreenY);
+            int dx = abs(dudeScreenX - tileScreenX);
+            int dy = abs(dudeScreenY - tileScreenY);
 
-        if (dx > abs(dudeScreenX - _tile_offx)
-            || dy > abs(dudeScreenY - _tile_offy)) {
-            if (dx >= 480 || dy >= 400) {
-                return -1;
+            if (dx > abs(dudeScreenX - _tile_offx)
+                || dy > abs(dudeScreenY - _tile_offy)) {
+                if (dx >= 480 || dy >= 400) {
+                    return -1;
+                }
             }
         }
-    }
 
-    if ((gTileScrollBlockingEnabled & ((flags & TILE_SET_CENTER_FLAG_0x02) == 0)) != 0) {
-        if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
-            return -1;
+        if (gTileScrollBlockingEnabled) {
+            if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
+                return -1;
+            }
         }
     }
 
@@ -522,7 +524,7 @@ int tileSetCenter(int tile, int flags)
     }
 
     _square_x = _tile_x / 2;
-    _square_rect = _tile_y / 2;
+    _square_y = _tile_y / 2;
     _square_offx = _tile_offx - 16;
     _square_offy = _tile_offy - 2;
 
@@ -533,7 +535,7 @@ int tileSetCenter(int tile, int flags)
 
     gCenterTile = tile;
 
-    if (flags & TILE_SET_CENTER_FLAG_0x01) {
+    if ((flags & TILE_SET_CENTER_REFRESH_WINDOW) != 0) {
         // NOTE: Uninline.
         tileWindowRefresh();
     }
@@ -1034,7 +1036,7 @@ int squareTileToScreenXY(int squareTile, int* coordX, int* coordY, int elevation
     *coordX += 48 * v8;
     *coordY -= 12 * v8;
 
-    v9 = v6 - _square_rect;
+    v9 = v6 - _square_y;
     *coordX += 32 * v9;
     *coordY += 24 * v9;
 
@@ -1065,7 +1067,7 @@ int squareTileToRoofScreenXY(int squareTile, int* screenX, int* screenY, int ele
     *screenX += 48 * v8;
     *screenY -= 12 * v8;
 
-    v9 = v6 - _square_rect;
+    v9 = v6 - _square_y;
     *screenX += 32 * v9;
     v10 = 24 * v9 + *screenY;
     *screenY = v10;
@@ -1120,12 +1122,10 @@ void squareTileScreenToCoord(int screenX, int screenY, int elevation, int* coord
     *coordX = v6 >= 0 ? (v6 / 192) : ((v6 + 1) / 192 - 1);
 
     v8 = 4 * v5 + v4;
-    *coordY = v8 >= 0
-        ? ((v8 - ((v8 >> 31) << 7)) >> 7)
-        : ((((v8 + 1) - (((v8 + 1) >> 31) << 7)) >> 7) - 1);
+    *coordY = v8 >= 0 ? (v8 / 128) : ((v8 + 1) / 128 - 1);
 
     *coordX += _square_x;
-    *coordY += _square_rect;
+    *coordY += _square_y;
 
     *coordX = gSquareGridWidth - 1 - *coordX;
 }
@@ -1145,12 +1145,10 @@ void squareTileScreenToCoordRoof(int screenX, int screenY, int elevation, int* c
     *coordX = (v6 >= 0) ? (v6 / 192) : ((v6 + 1) / 192 - 1);
 
     v8 = 4 * v5 + v4;
-    *coordY = (v8 >= 0)
-        ? ((v8 - ((v8 >> 31) << 7)) >> 7)
-        : ((((v8 + 1) - (((v8 + 1) >> 31) << 7)) >> 7) - 1);
+    *coordY = v8 >= 0 ? (v8 / 128) : ((v8 + 1) / 128 - 1);
 
     *coordX += _square_x;
-    *coordY += _square_rect;
+    *coordY += _square_y;
 
     *coordX = gSquareGridWidth - 1 - *coordX;
 }

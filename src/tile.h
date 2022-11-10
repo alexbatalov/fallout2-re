@@ -7,8 +7,8 @@
 #include "map.h"
 #include "obj_types.h"
 
-#define TILE_SET_CENTER_FLAG_0x01 0x01
-#define TILE_SET_CENTER_FLAG_0x02 0x02
+#define TILE_SET_CENTER_REFRESH_WINDOW 0x01
+#define TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS 0x02
 
 typedef struct STRUCT_51D99C {
     int field_0;
@@ -71,7 +71,7 @@ extern int gTileBorderMaxX;
 extern int gTileBorderMaxY;
 extern Rect gTileWindowRect;
 extern unsigned char _tile_grid[512];
-extern int _square_rect;
+extern int _square_y;
 extern int _square_x;
 extern int _square_offx;
 extern int _square_offy;

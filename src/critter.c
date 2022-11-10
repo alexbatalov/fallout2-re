@@ -377,7 +377,7 @@ int critterAdjustRadiation(Object* obj, int amount)
     }
 
     if (amount > 0) {
-        proto->critter.data.flags |= CRITTER_FLAG_0x2;
+        proto->critter.data.flags |= CRITTER_BARTER;
     }
 
     if (amount > 0) {
@@ -444,7 +444,7 @@ int _critter_check_rads(Object* obj)
 
     Proto* proto;
     protoGetProto(obj->pid, &proto);
-    if ((proto->critter.data.flags & CRITTER_FLAG_0x2) == 0) {
+    if ((proto->critter.data.flags & CRITTER_BARTER) == 0) {
         return 0;
     }
 
@@ -485,7 +485,7 @@ int _critter_check_rads(Object* obj)
         queueAddEvent(GAME_TIME_TICKS_PER_HOUR * randomBetween(4, 18), obj, radiationEvent, EVENT_TYPE_RADIATION);
     }
 
-    proto->critter.data.flags &= ~(CRITTER_FLAG_0x2);
+    proto->critter.data.flags &= ~(CRITTER_BARTER);
 
     return 0;
 }
@@ -820,7 +820,7 @@ void critterKill(Object* critter, int anim, bool a3)
         rectUnion(&updatedRect, &tempRect, &updatedRect);
     }
 
-    if (!_critter_flag_check(critter->pid, CRITTER_FLAG_0x800)) {
+    if (!_critter_flag_check(critter->pid, CRITTER_FLAT)) {
         critter->flags |= OBJECT_NO_BLOCK;
         _obj_toggle_flat(critter, &tempRect);
     }

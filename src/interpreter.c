@@ -40,7 +40,7 @@ int (*_outputFunc)(char*) = _outputStr;
 int _cpuBurstSize = 10;
 
 // 0x59E230
-OpcodeHandler* gInterpreterOpcodeHandlers[342];
+OpcodeHandler* gInterpreterOpcodeHandlers[OPCODE_MAX_COUNT];
 
 // 0x59E788
 unsigned int _suspendTime;

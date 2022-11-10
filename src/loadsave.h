@@ -41,6 +41,12 @@ typedef enum LoadSaveSlotState {
     SLOT_STATE_UNSUPPORTED_VERSION,
 } LoadSaveSlotState;
 
+typedef enum LoadSaveScrollDirection {
+    LOAD_SAVE_SCROLL_DIRECTION_NONE,
+    LOAD_SAVE_SCROLL_DIRECTION_UP,
+    LOAD_SAVE_SCROLL_DIRECTION_DOWN,
+} LoadSaveScrollDirection;
+
 typedef int LoadGameHandler(File* stream);
 typedef int SaveGameHandler(File* stream);
 

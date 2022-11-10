@@ -313,7 +313,7 @@ void opSetMapStart(Program* program)
     }
 
     int tile = 200 * y + x;
-    if (tileSetCenter(tile, TILE_SET_CENTER_FLAG_0x01 | TILE_SET_CENTER_FLAG_0x02) != 0) {
+    if (tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
         scriptError("\nScript Error: %s: op_set_map_start: tile_set_center failed", program->name);
         return;
     }
@@ -368,7 +368,7 @@ void opOverrideMapStart(Program* program)
             }
         }
 
-        tileSetCenter(tile, TILE_SET_CENTER_FLAG_0x01);
+        tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW);
         tileWindowRefresh();
     }
 
@@ -818,7 +818,7 @@ void opMoveTo(Program* program)
             Rect rect;
             newTile = objectSetLocation(object, tile, elevation, &rect);
             if (newTile != -1) {
-                tileSetCenter(object->tile, TILE_SET_CENTER_FLAG_0x01);
+                tileSetCenter(object->tile, TILE_SET_CENTER_REFRESH_WINDOW);
             }
 
             if (tileLimitingEnabled) {
@@ -2183,7 +2183,7 @@ void opObjectCanSeeObject(Program* program)
 
             critterGetStat(object1, STAT_PERCEPTION);
 
-            if (objectCanHearObject(object1, object2)) {
+            if (isWithinPerception(object1, object2)) {
                 Object* a5;
                 _make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
                 if (a5 == object2) {
@@ -2477,7 +2477,7 @@ void opMetarule3(Program* program)
         }
         break;
     case METARULE3_TILE_SET_CENTER:
-        result = tileSetCenter(data[2], TILE_SET_CENTER_FLAG_0x01);
+        result = tileSetCenter(data[2], TILE_SET_CENTER_REFRESH_WINDOW);
         break;
     case METARULE3_109:
         result = aiGetChemUse((Object*)data[2]);
@@ -3285,7 +3285,7 @@ void opObjectCanHearObject(Program* program)
     if (object2 == NULL || object1 == NULL) {
         if (object2->elevation == object1->elevation) {
             if (object2->tile != -1 && object1->tile != -1) {
-                if (objectCanHearObject(object2, object1)) {
+                if (isWithinPerception(object2, object1)) {
                     canHear = true;
                 }
             }
@@ -4038,7 +4038,7 @@ void opFloatMessage(Program* program)
         color = colorTable[31744];
         a5 = colorTable[0];
         font = 103;
-        tileSetCenter(gDude->tile, TILE_SET_CENTER_FLAG_0x01);
+        tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
         break;
     case FLOATING_MESSAGE_TYPE_NORMAL:
     case FLOATING_MESSAGE_TYPE_YELLOW:
@@ -4221,7 +4221,7 @@ void opMetarule(Program* program)
             if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                 Proto* proto;
                 protoGetProto(object->pid, &proto);
-                if ((proto->critter.data.flags & CRITTER_FLAG_0x2) != 0) {
+                if ((proto->critter.data.flags & CRITTER_BARTER) != 0) {
                     result = 1;
                 }
             }

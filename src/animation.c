@@ -2872,7 +2872,7 @@ int _dude_run(int a1)
     }
 
     if (!perkGetRank(gDude, PERK_SILENT_RUNNING)) {
-        dudeDisableState(0);
+        dudeDisableState(DUDE_STATE_SNEAKING);
     }
 
     reg_anim_begin(ANIMATION_REQUEST_RESERVED);

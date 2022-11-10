@@ -665,7 +665,7 @@ int mapSetEnteringLocation(int elevation, int tile_num, int orientation)
 void _map_new_map()
 {
     mapSetElevation(0);
-    tileSetCenter(20100, TILE_SET_CENTER_FLAG_0x02);
+    tileSetCenter(20100, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
     memset(&gMapTransition, 0, sizeof(gMapTransition));
     gMapHeader.enteringElevation = 0;
     gMapHeader.enteringRotation = 0;
@@ -867,7 +867,7 @@ int mapLoad(File* stream)
     }
 
     error = "Error setting tile center";
-    if (tileSetCenter(gEnteringTile, TILE_SET_CENTER_FLAG_0x02) != 0) {
+    if (tileSetCenter(gEnteringTile, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
         goto err;
     }
 
@@ -1054,7 +1054,7 @@ int _map_age_dead_critters()
             && !objectIsPartyMember(obj)
             && !critterIsDead(obj)) {
             obj->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
-            if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_FLAG_0x200) == 0) {
+            if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_NO_HEAL) == 0) {
                 _critter_heal_hours(obj, hoursSinceLastVisit);
             }
         }
@@ -1079,7 +1079,7 @@ int _map_age_dead_critters()
         int type = PID_TYPE(obj->pid);
         if (type == OBJ_TYPE_CRITTER) {
             if (obj != gDude && critterIsDead(obj)) {
-                if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_FLAG_0x200) == 0) {
+                if (critterGetKillType(obj) != KILL_TYPE_ROBOT && _critter_flag_check(obj->pid, CRITTER_NO_HEAL) == 0) {
                     objects[count++] = obj;
 
                     if (count >= capacity) {
@@ -1110,7 +1110,7 @@ int _map_age_dead_critters()
     for (int index = 0; index < count; index++) {
         Object* obj = objects[index];
         if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
-            if (_critter_flag_check(obj->pid, CRITTER_FLAG_0x40) == 0) {
+            if (_critter_flag_check(obj->pid, CRITTER_NO_DROP) == 0) {
                 _item_drop_all(obj, obj->tile);
             }
 
@@ -1214,7 +1214,7 @@ int mapHandleTransition()
                 objectSetRotation(gDude, gMapTransition.rotation, NULL);
             }
 
-            if (tileSetCenter(gDude->tile, TILE_SET_CENTER_FLAG_0x01) == -1) {
+            if (tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
                 debugPrint("\nError: map: attempt to center out-of-bounds!");
             }
 

@@ -974,7 +974,7 @@ int _selectWindow(const char* windowName)
         }
     }
 
-    if (!_selectWindowID(index)) {
+    if (_selectWindowID(index)) {
         return index;
     }
 
@@ -2107,7 +2107,7 @@ int windowAddButtonBuf(const char* buttonName, unsigned char* normal, unsigned c
 // 0x4BA11C
 bool _windowAddButtonProc(const char* buttonName, Program* program, int mouseEnterProc, int mouseExitProc, int mouseDownProc, int mouseUpProc)
 {
-    if (gCurrentManagedWindowIndex != -1) {
+    if (gCurrentManagedWindowIndex == -1) {
         return false;
     }
 
@@ -2347,7 +2347,7 @@ bool _windowFill(float r, float g, float b)
 {
     int colorIndex;
     int wid;
-    
+
     colorIndex = ((int)(r * 31.0) << 10) | ((int)(g * 31.0) << 5) | (int)(b * 31.0);
 
     // NOTE: Uninline.
@@ -2569,7 +2569,7 @@ int windowAddRegionCfunc(const char* regionName, RegionMouseEventCallback* callb
             return 1;
         }
     }
-    
+
     return 0;
 }
 
@@ -2593,7 +2593,7 @@ int windowAddRegionRightCfunc(const char* regionName, RegionMouseEventCallback* 
             return 1;
         }
     }
-    
+
     return 0;
 }
 

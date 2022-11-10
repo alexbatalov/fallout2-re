@@ -104,7 +104,7 @@ static int mouse_hoty;
 static int mouse_hotx;
 
 // 0x6AC7D4
-unsigned int mouse_idle_start_time;
+static unsigned int mouse_idle_start_time;
 
 // 0x6AC7D8
 ScreenTransBlitFunc* mouse_blit_trans;

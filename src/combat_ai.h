@@ -177,7 +177,7 @@ int _ai_print_msg(Object* critter, int type);
 Object* _combat_ai_random_target(Attack* attack);
 int _combatai_rating(Object* obj);
 int _combatai_check_retaliation(Object* a1, Object* a2);
-bool objectCanHearObject(Object* a1, Object* a2);
+bool isWithinPerception(Object* a1, Object* a2);
 int aiMessageListInit();
 int aiMessageListFree();
 void aiMessageListReloadIfNeeded();

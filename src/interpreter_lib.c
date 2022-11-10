@@ -2140,8 +2140,9 @@ void opSetTextColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
-            || floats[arg] == 0.0) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
+            && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
+            && data[arg] != 0) {
             programFatalError("Invalid type given to settextcolor");
         }
     }
@@ -2174,8 +2175,9 @@ void opSayOptionColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
-            || floats[arg] == 0.0) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
+            && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
+            && data[arg] != 0) {
             programFatalError("Invalid type given to sayoptioncolor");
         }
     }
@@ -2209,8 +2211,9 @@ void opSayReplyColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
-            || floats[arg] == 0.0) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
+            && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
+            && data[arg] != 0) {
             programFatalError("Invalid type given to sayreplycolor");
         }
     }
@@ -2243,8 +2246,9 @@ void opSetHighlightColor(Program* program)
     }
 
     for (int arg = 0; arg < 3; arg++) {
-        if (((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT && (opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT)
-            || floats[arg] == 0.0) {
+        if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
+            && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
+            && data[arg] != 0) {
             programFatalError("Invalid type given to sethighlightcolor");
         }
     }
