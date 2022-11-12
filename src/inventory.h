@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "art.h"
+#include "game/art.h"
 #include "cache.h"
 #include "message.h"
 #include "obj_types.h"

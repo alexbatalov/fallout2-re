@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "art.h"
+#include "game/art.h"
 
 typedef enum MainMenuButton {
     MAIN_MENU_BUTTON_INTRO,

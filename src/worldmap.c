@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "game/anim.h"
-#include "art.h"
+#include "game/art.h"
 #include "color.h"
 #include "combat.h"
 #include "combat_ai.h"

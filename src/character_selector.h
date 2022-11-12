@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "art.h"
+#include "game/art.h"
 
 #define CS_WINDOW_WIDTH (640)
 #define CS_WINDOW_HEIGHT (480)

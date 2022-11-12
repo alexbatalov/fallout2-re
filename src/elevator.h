@@ -1,7 +1,7 @@
 #ifndef ELEVATOR_H
 #define ELEVATOR_H
 
-#include "art.h"
+#include "game/art.h"
 #include "geometry.h"
 
 // The maximum number of elevator levels.

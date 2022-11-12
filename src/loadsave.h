@@ -6,7 +6,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "art.h"
+#include "game/art.h"
 #include "db.h"
 #include "geometry.h"
 #include "message.h"

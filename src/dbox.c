@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "art.h"
+#include "game/art.h"
 #include "character_editor.h"
 #include "color.h"
 #include "core.h"

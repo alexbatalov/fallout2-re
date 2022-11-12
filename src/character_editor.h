@@ -1,7 +1,7 @@
 #ifndef CHARACTER_EDITOR_H
 #define CHARACTER_EDITOR_H
 
-#include "art.h"
+#include "game/art.h"
 #include "db.h"
 #include "geometry.h"
 #include "message.h"

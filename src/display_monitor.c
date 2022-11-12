@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "art.h"
+#include "game/art.h"
 #include "color.h"
 #include "combat.h"
 #include "core.h"

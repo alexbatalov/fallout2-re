@@ -1,4 +1,4 @@
-#include "art.h"
+#include "game/art.h"
 
 #include <stdio.h>
 #include <stdlib.h>
