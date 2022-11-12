@@ -1,7 +1,7 @@
 #ifndef COMBAT_H
 #define COMBAT_H
 
-#include "animation.h"
+#include "game/anim.h"
 #include "combat_defs.h"
 #include "db.h"
 #include "message.h"

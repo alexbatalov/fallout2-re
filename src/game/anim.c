@@ -1,4 +1,4 @@
-#include "animation.h"
+#include "game/anim.h"
 
 #include <stdio.h>
 #include <string.h>

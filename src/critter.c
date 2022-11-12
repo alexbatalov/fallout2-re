@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "animation.h"
+#include "game/anim.h"
 #include "character_editor.h"
 #include "combat.h"
 #include "debug.h"

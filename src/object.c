@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include "animation.h"
+#include "game/anim.h"
 #include "art.h"
 #include "color.h"
 #include "combat.h"

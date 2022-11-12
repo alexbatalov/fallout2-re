@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "animation.h"
+#include "game/anim.h"
 #include "audio.h"
 #include "audio_file.h"
 #include "combat.h"
