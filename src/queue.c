@@ -1,6 +1,6 @@
 #include "queue.h"
 
-#include "actions.h"
+#include "game/actions.h"
 #include "critter.h"
 #include "display_monitor.h"
 #include "game.h"

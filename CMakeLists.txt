@@ -7,8 +7,8 @@ project(${EXECUTABLE_NAME})
 add_executable(${EXECUTABLE_NAME} WIN32
     "src/game/ability.c"
     "src/game/ability.h"
-    "src/actions.c"
-    "src/actions.h"
+    "src/game/actions.c"
+    "src/game/actions.h"
     "src/animation.c"
     "src/animation.h"
     "src/args.c"

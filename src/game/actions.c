@@ -1,4 +1,4 @@
-#include "actions.h"
+#include "game/actions.h"
 
 #include <limits.h>
 #include <string.h>

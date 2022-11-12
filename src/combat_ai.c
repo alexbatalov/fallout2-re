@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "actions.h"
+#include "game/actions.h"
 #include "animation.h"
 #include "combat.h"
 #include "config.h"

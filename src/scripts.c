@@ -5,7 +5,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "actions.h"
+#include "game/actions.h"
 #include "automap.h"
 #include "combat.h"
 #include "core.h"
