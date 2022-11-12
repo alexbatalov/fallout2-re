@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "config.h"
+#include "game/config.h"
 #include "debug.h"
 #include "memory.h"
 #include "movie.h"

@@ -1,4 +1,4 @@
-#include "config.h"
+#include "game/config.h"
 
 #include <ctype.h>
 #include <stdio.h>

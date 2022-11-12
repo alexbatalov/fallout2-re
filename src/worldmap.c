@@ -9,7 +9,7 @@
 #include "color.h"
 #include "game/combat.h"
 #include "game/combatai.h"
-#include "config.h"
+#include "game/config.h"
 #include "core.h"
 #include "critter.h"
 #include "cycle.h"

@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "color.h"
-#include "config.h"
+#include "game/config.h"
 #include "core.h"
 #include "game/bmpdlog.h"
 #include "debug.h"

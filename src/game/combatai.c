@@ -7,7 +7,7 @@
 #include "game/actions.h"
 #include "game/anim.h"
 #include "game/combat.h"
-#include "config.h"
+#include "game/config.h"
 #include "core.h"
 #include "critter.h"
 #include "debug.h"

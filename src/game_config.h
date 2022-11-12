@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "config.h"
+#include "game/config.h"
 
 // The file name of the main config file.
 #define GAME_CONFIG_FILE_NAME "fallout2.cfg"

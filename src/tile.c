@@ -7,7 +7,7 @@
 #include <math.h>
 
 #include "color.h"
-#include "config.h"
+#include "game/config.h"
 #include "core.h"
 #include "debug.h"
 #include "draw.h"
