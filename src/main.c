@@ -4,7 +4,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "autorun.h"
+#include "game/amutex.h"
 #include "character_selector.h"
 #include "color.h"
 #include "core.h"

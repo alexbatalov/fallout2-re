@@ -1,4 +1,4 @@
-#include "autorun.h"
+#include "game/amutex.h"
 
 // 0x530010
 HANDLE gInterplayGenericAutorunMutex;
