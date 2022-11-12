@@ -2,7 +2,6 @@
 #define FALLOUT_GAME_ART_H_
 
 #include "cache.h"
-#include "db.h"
 #include "heap.h"
 #include "obj_types.h"
 #include "proto_types.h"
@@ -172,12 +171,5 @@ int art_data_size(int a1, int* out_size);
 int art_data_load(int a1, int* a2, unsigned char* data);
 void art_data_free(void* ptr);
 int art_id(int objectType, int frmId, int animType, int a4, int rotation);
-int artReadFrameData(unsigned char* data, File* stream, int count);
-int artReadHeader(Art* art, File* stream);
-int _load_frame(const char* path, Art** artPtr);
-int artRead(const char* path, unsigned char* data);
-int artWriteFrameData(unsigned char* data, File* stream, int count);
-int artWriteHeader(Art* art, File* stream);
-int artWrite(const char* path, unsigned char* data);
 
 #endif /* FALLOUT_GAME_ART_H_ */

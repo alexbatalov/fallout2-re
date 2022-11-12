@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "game/anim.h"
+#include "game/artload.h"
 #include "debug.h"
 #include "draw.h"
 #include "game.h"
@@ -994,13 +995,13 @@ int art_data_load(int fid, int* sizePtr, unsigned char* data)
             char localizedPath[MAX_PATH];
             sprintf(localizedPath, "art\\%s\\%s", darn_foreign_sub_path, pch);
 
-            if (artRead(localizedPath, data) == 0) {
+            if (load_frame_into(localizedPath, data) == 0) {
                 loaded = true;
             }
         }
 
         if (!loaded) {
-            if (artRead(artFileName, data) == 0) {
+            if (load_frame_into(artFileName, data) == 0) {
                 loaded = true;
             }
         }
@@ -1064,186 +1065,4 @@ zero:
 out:
 
     return ((v10 << 28) & 0x70000000) | (objectType << 24) | ((animType << 16) & 0xFF0000) | ((a3 << 12) & 0xF000) | (frmId & 0xFFF);
-}
-
-// 0x419D60
-int artReadFrameData(unsigned char* data, File* stream, int count)
-{
-    unsigned char* ptr = data;
-    for (int index = 0; index < count; index++) {
-        ArtFrame* frame = (ArtFrame*)ptr;
-
-        if (fileReadInt16(stream, &(frame->width)) == -1) return -1;
-        if (fileReadInt16(stream, &(frame->height)) == -1) return -1;
-        if (fileReadInt32(stream, &(frame->size)) == -1) return -1;
-        if (fileReadInt16(stream, &(frame->x)) == -1) return -1;
-        if (fileReadInt16(stream, &(frame->y)) == -1) return -1;
-        if (fileRead(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
-
-        ptr += sizeof(ArtFrame) + frame->size;
-    }
-
-    return 0;
-}
-
-// 0x419E1C
-int artReadHeader(Art* art, File* stream)
-{
-    if (fileReadInt32(stream, &(art->field_0)) == -1) return -1;
-    if (fileReadInt16(stream, &(art->framesPerSecond)) == -1) return -1;
-    if (fileReadInt16(stream, &(art->actionFrame)) == -1) return -1;
-    if (fileReadInt16(stream, &(art->frameCount)) == -1) return -1;
-    if (fileReadInt16List(stream, art->xOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileReadInt16List(stream, art->yOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileReadInt32List(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileReadInt32(stream, &(art->field_3A)) == -1) return -1;
-
-    return 0;
-}
-
-// NOTE: Unused.
-//
-// 0x419EC0
-int _load_frame(const char* path, Art** artPtr)
-{
-    int size;
-    File* stream;
-    int index;
-
-    if (dbGetFileSize(path, &size) == -1) {
-        return -2;
-    }
-
-    *artPtr = (Art*)internal_malloc(size);
-    if (*artPtr == NULL) {
-        return -1;
-    }
-
-    stream = fileOpen(path, "rb");
-    if (stream == NULL) {
-        return -2;
-    }
-
-    if (artReadHeader(*artPtr, stream) != 0) {
-        fileClose(stream);
-        internal_free(*artPtr);
-        return -3;
-    }
-
-    for (index = 0; index < ROTATION_COUNT; index++) {
-        if (index == 0 || (*artPtr)->dataOffsets[index - 1] != (*artPtr)->dataOffsets[index]) {
-            if (artReadFrameData((unsigned char*)(*artPtr) + sizeof(Art) + (*artPtr)->dataOffsets[index], stream, (*artPtr)->frameCount) != 0) {
-                break;
-            }
-        }
-    }
-
-    if (index < ROTATION_COUNT) {
-        fileClose(stream);
-        internal_free(*artPtr);
-        return -5;
-    }
-
-    fileClose(stream);
-
-    return 0;
-}
-
-// 0x419FC0
-int artRead(const char* path, unsigned char* data)
-{
-    File* stream = fileOpen(path, "rb");
-    if (stream == NULL) {
-        return -2;
-    }
-
-    Art* art = (Art*)data;
-    if (artReadHeader(art, stream) != 0) {
-        fileClose(stream);
-        return -3;
-    }
-
-    for (int index = 0; index < ROTATION_COUNT; index++) {
-        if (index == 0 || art->dataOffsets[index - 1] != art->dataOffsets[index]) {
-            if (artReadFrameData(data + sizeof(Art) + art->dataOffsets[index], stream, art->frameCount) != 0) {
-                fileClose(stream);
-                return -5;
-            }
-        }
-    }
-
-    fileClose(stream);
-    return 0;
-}
-
-// NOTE: Unused.
-//
-// 0x41A070
-int artWriteFrameData(unsigned char* data, File* stream, int count)
-{
-    unsigned char* ptr = data;
-    for (int index = 0; index < count; index++) {
-        ArtFrame* frame = (ArtFrame*)ptr;
-
-        if (fileWriteInt16(stream, frame->width) == -1) return -1;
-        if (fileWriteInt16(stream, frame->height) == -1) return -1;
-        if (fileWriteInt32(stream, frame->size) == -1) return -1;
-        if (fileWriteInt16(stream, frame->x) == -1) return -1;
-        if (fileWriteInt16(stream, frame->y) == -1) return -1;
-        if (fileWrite(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
-
-        ptr += sizeof(ArtFrame) + frame->size;
-    }
-
-    return 0;
-}
-
-// NOTE: Unused.
-//
-// 0x41A138
-int artWriteHeader(Art* art, File* stream)
-{
-    if (fileWriteInt32(stream, art->field_0) == -1) return -1;
-    if (fileWriteInt16(stream, art->framesPerSecond) == -1) return -1;
-    if (fileWriteInt16(stream, art->actionFrame) == -1) return -1;
-    if (fileWriteInt16(stream, art->frameCount) == -1) return -1;
-    if (fileWriteInt16List(stream, art->xOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileWriteInt16List(stream, art->yOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileWriteInt32List(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileWriteInt32(stream, art->field_3A) == -1) return -1;
-
-    return 0;
-}
-
-// NOTE: Unused.
-//
-// 0x41A1E8
-int artWrite(const char* path, unsigned char* data)
-{
-    if (data == NULL) {
-        return -1;
-    }
-
-    File* stream = fileOpen(path, "wb");
-    if (stream == NULL) {
-        return -1;
-    }
-
-    Art* art = (Art*)data;
-    if (artWriteHeader(art, stream) == -1) {
-        fileClose(stream);
-        return -1;
-    }
-
-    for (int index = 0; index < ROTATION_COUNT; index++) {
-        if (index == 0 || art->dataOffsets[index - 1] != art->dataOffsets[index]) {
-            if (artWriteFrameData(data + sizeof(Art) + art->dataOffsets[index], stream, art->frameCount) != 0) {
-                fileClose(stream);
-                return -1;
-            }
-        }
-    }
-
-    fileClose(stream);
-    return 0;
 }

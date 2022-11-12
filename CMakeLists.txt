@@ -15,6 +15,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/game/anim.h"
     "src/game/art.c"
     "src/game/art.h"
+    "src/game/artload.c"
+    "src/game/artload.h"
     "src/args.c"
     "src/args.h"
     "src/audio_file.c"
