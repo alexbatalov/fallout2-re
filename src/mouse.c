@@ -2,7 +2,7 @@
 
 #include "color.h"
 #include "core.h"
-#include "dinput.h"
+#include "dxinput.h"
 #include "memory.h"
 #include "vcr.h"
 

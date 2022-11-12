@@ -1,7 +1,7 @@
 #include "kb.h"
 
 #include "core.h"
-#include "dinput.h"
+#include "dxinput.h"
 #include "vcr.h"
 
 typedef struct key_ansi_t {
