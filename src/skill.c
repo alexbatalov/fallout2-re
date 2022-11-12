@@ -436,8 +436,8 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
     int skillValue = skillGetValue(critter, skill);
 
     if (critter == gDude && skill == SKILL_STEAL) {
-        if (dudeHasState(DUDE_STATE_SNEAKING)) {
-            if (dudeIsSneaking()) {
+        if (is_pc_flag(DUDE_STATE_SNEAKING)) {
+            if (is_pc_sneak_working()) {
                 skillValue += 30;
             }
         }
@@ -580,7 +580,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             return -1;
         }
 
-        if (critterIsDead(a2)) {
+        if (critter_is_dead(a2)) {
             // 512: You can't heal the dead.
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
@@ -596,7 +596,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             paletteFadeTo(gPaletteBlack);
 
             int roll;
-            if (critterGetBodyType(a2) == BODY_TYPE_ROBOTIC) {
+            if (critter_body_type(a2) == BODY_TYPE_ROBOTIC) {
                 roll = ROLL_FAILURE;
             } else {
                 roll = skillRoll(obj, skill, criticalChance, &hpToHeal);
@@ -604,7 +604,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
                 hpToHeal = randomBetween(minimumHpToHeal + 1, maximumHpToHeal + 5);
-                critterAdjustHitPoints(a2, hpToHeal);
+                critter_adjust_hits(a2, hpToHeal);
 
                 if (obj == gDude) {
                     // You heal %d hit points.
@@ -681,7 +681,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             return -1;
         }
 
-        if (critterIsDead(a2)) {
+        if (critter_is_dead(a2)) {
             // 512: You can't heal the dead.
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
@@ -692,10 +692,10 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             break;
         }
 
-        if (currentHp < maximumHp || critterIsCrippled(a2)) {
+        if (currentHp < maximumHp || critter_is_crippled(a2)) {
             paletteFadeTo(gPaletteBlack);
 
-            if (critterGetBodyType(a2) != BODY_TYPE_ROBOTIC && critterIsCrippled(a2)) {
+            if (critter_body_type(a2) != BODY_TYPE_ROBOTIC && critter_is_crippled(a2)) {
                 int flags[HEALABLE_DAMAGE_FLAGS_LENGTH];
                 static_assert(sizeof(flags) == sizeof(gHealableDamageFlags), "wrong size");
                 memcpy(flags, gHealableDamageFlags, sizeof(gHealableDamageFlags));
@@ -750,7 +750,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             int roll;
-            if (critterGetBodyType(a2) == BODY_TYPE_ROBOTIC) {
+            if (critter_body_type(a2) == BODY_TYPE_ROBOTIC) {
                 roll = ROLL_FAILURE;
             } else {
                 int skillValue = skillGetValue(obj, skill);
@@ -759,7 +759,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
                 hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
-                critterAdjustHitPoints(a2, hpToHeal);
+                critter_adjust_hits(a2, hpToHeal);
 
                 if (obj == gDude) {
                     // You heal %d hit points.
@@ -851,7 +851,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
         return -1;
     case SKILL_REPAIR:
-        if (critterGetBodyType(a2) != BODY_TYPE_ROBOTIC) {
+        if (critter_body_type(a2) != BODY_TYPE_ROBOTIC) {
             // You cannot repair that.
             messageListItem.num = 553;
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
@@ -871,7 +871,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             return -1;
         }
 
-        if (critterIsDead(a2)) {
+        if (critter_is_dead(a2)) {
             // You got it?
             messageListItem.num = 1101;
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
@@ -880,7 +880,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             break;
         }
 
-        if (currentHp < maximumHp || critterIsCrippled(a2)) {
+        if (currentHp < maximumHp || critter_is_crippled(a2)) {
             int flags[REPAIRABLE_DAMAGE_FLAGS_LENGTH];
             static_assert(sizeof(flags) == sizeof(gRepairableDamageFlags), "wrong size");
             memcpy(flags, gRepairableDamageFlags, sizeof(gRepairableDamageFlags));
@@ -939,7 +939,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
                 hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
-                critterAdjustHitPoints(a2, hpToHeal);
+                critter_adjust_hits(a2, hpToHeal);
 
                 if (obj == gDude) {
                     // You heal %d hit points.

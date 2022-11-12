@@ -3454,7 +3454,7 @@ void partyMemberControlWindowUpdate()
     int inventoryWeight = objectGetInventoryWeight(gGameDialogSpeaker);
     int carryWeight = critterGetStat(gGameDialogSpeaker, STAT_CARRY_WEIGHT);
     sprintf(formattedText, "%d/%d ", inventoryWeight, carryWeight);
-    fontDrawText(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsEncumbered(gGameDialogSpeaker) ? colorTable[31744] : colorTable[992]);
+    fontDrawText(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsOverloaded(gGameDialogSpeaker) ? colorTable[31744] : colorTable[992]);
 
     // Render melee damage.
     int meleeDamage = critterGetStat(gGameDialogSpeaker, STAT_MELEE_DAMAGE);

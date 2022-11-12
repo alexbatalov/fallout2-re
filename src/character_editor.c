@@ -681,7 +681,7 @@ int characterEditorShow(bool isCreationMode)
                     continue;
                 }
 
-                if (stricmp(critterGetName(gDude), "None") == 0) {
+                if (stricmp(critter_name(gDude), "None") == 0) {
                     soundPlayFile("iisxxxx1");
 
                     // Warning: You haven't changed your player
@@ -974,8 +974,8 @@ int characterEditorShow(bool isCreationMode)
         characterEditorRestorePlayer();
     }
 
-    if (dudeHasState(DUDE_STATE_LEVEL_UP_AVAILABLE)) {
-        dudeDisableState(DUDE_STATE_LEVEL_UP_AVAILABLE);
+    if (is_pc_flag(DUDE_STATE_LEVEL_UP_AVAILABLE)) {
+        pc_flag_off(DUDE_STATE_LEVEL_UP_AVAILABLE);
     }
 
     interfaceRenderHitPoints(false);
@@ -1613,7 +1613,7 @@ void characterEditorWindowFree()
         skillsSetTagged(gCharacterEditorTempTaggedSkills, 3);
         traitsSetSelected(gCharacterEditorTempTraits[0], gCharacterEditorTempTraits[1]);
         characterEditorSelectedItem = 0;
-        critterAdjustHitPoints(gDude, 1000);
+        critter_adjust_hits(gDude, 1000);
     }
 
     indicatorBarShow();
@@ -1937,10 +1937,10 @@ int characterEditorDrawKillsFolder()
     characterEditorFolderViewClear();
 
     for (i = 0; i < KILL_TYPE_COUNT; i++) {
-        killsCount = killsGetByType(i);
+        killsCount = critter_kill_count(i);
         if (killsCount != 0) {
             KillInfo* killInfo = &(kills[usedKills]);
-            killInfo->name = killTypeGetName(i);
+            killInfo->name = critter_kill_name(i);
             killInfo->killTypeId = i;
             killInfo->kills = killsCount;
             usedKills++;
@@ -1956,7 +1956,7 @@ int characterEditorDrawKillsFolder()
                 gCharacterEditorFolderCardFrmId = 46;
                 gCharacterEditorFolderCardTitle = gCharacterEditorFolderCardString;
                 gCharacterEditorFolderCardSubtitle = NULL;
-                gCharacterEditorFolderCardDescription = killTypeGetDescription(kills[i].killTypeId);
+                gCharacterEditorFolderCardDescription = critter_kill_info(kills[i].killTypeId);
                 sprintf(gCharacterEditorFolderCardString, "%s %s", killInfo->name, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 126));
                 hasContent = true;
             }
@@ -2304,7 +2304,7 @@ void characterEditorDrawName()
 
     fontSetCurrent(103);
 
-    str = critterGetName(gDude);
+    str = critter_name(gDude);
     strcpy(text, str);
 
     if (fontGetStringWidth(text) > 100) {
@@ -2380,7 +2380,7 @@ void characterEditorDrawDerivedStats()
         currHp = maxHp;
     } else {
         maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-        currHp = critterGetHitPoints(gDude);
+        currHp = critter_get_hits(gDude);
     }
 
     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 300);
@@ -2394,9 +2394,9 @@ void characterEditorDrawDerivedStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_POISONED) {
-        color = critterGetPoison(gDude) != 0 ? colorTable[32747] : colorTable[15845];
+        color = critter_get_poison(gDude) != 0 ? colorTable[32747] : colorTable[15845];
     } else {
-        color = critterGetPoison(gDude) != 0 ? colorTable[992] : colorTable[1313];
+        color = critter_get_poison(gDude) != 0 ? colorTable[992] : colorTable[1313];
     }
 
     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 312);
@@ -2407,9 +2407,9 @@ void characterEditorDrawDerivedStats()
     y += fontGetLineHeight() + 3;
 
     if (characterEditorSelectedItem == EDITOR_RADIATED) {
-        color = critterGetRadiation(gDude) != 0 ? colorTable[32747] : colorTable[15845];
+        color = critter_get_rads(gDude) != 0 ? colorTable[32747] : colorTable[15845];
     } else {
-        color = critterGetRadiation(gDude) != 0 ? colorTable[992] : colorTable[1313];
+        color = critter_get_rads(gDude) != 0 ? colorTable[992] : colorTable[1313];
     }
 
     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 313);
@@ -2529,7 +2529,7 @@ void characterEditorDrawDerivedStats()
     fontDrawText(gCharacterEditorWindowBuffer + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(gDude, STAT_CARRY_WEIGHT), t, 10);
-    fontDrawText(gCharacterEditorWindowBuffer + 640 * y + 288, t, 640, 640, critterIsEncumbered(gDude) ? colorTable[31744] : color);
+    fontDrawText(gCharacterEditorWindowBuffer + 640 * y + 288, t, 640, 640, critterIsOverloaded(gDude) ? colorTable[31744] : color);
 
     // Melee Damage
     y += fontGetLineHeight() + 3;
@@ -2983,7 +2983,7 @@ int characterEditorEditName()
     fontSetCurrent(101);
 
     char name[64];
-    strcpy(name, critterGetName(gDude));
+    strcpy(name, critter_name(gDude));
 
     if (strcmp(name, "None") == 0) {
         name[0] = '\0';
@@ -2996,7 +2996,7 @@ int characterEditorEditName()
 
     if (_get_input_str(win, 500, nameCopy, 11, 23, 19, colorTable[992], 100, 0) != -1) {
         if (nameCopy[0] != '\0') {
-            dudeSetName(nameCopy);
+            critter_pc_set_name(nameCopy);
             characterEditorDrawName();
             windowDestroy(win);
             return 0;
@@ -3032,7 +3032,7 @@ void _PrintName(unsigned char* buf, int pitch)
 
     fontSetCurrent(101);
 
-    v4 = critterGetName(gDude);
+    v4 = critter_name(gDude);
 
     // TODO: Check.
     strcpy(str, v4);
@@ -3729,7 +3729,7 @@ int characterEditorShowOptions()
 
                         _ResetPlayer();
 
-                        if (gcdLoad(string4) == 0) {
+                        if (pc_load_data(string4) == 0) {
                             // NOTE: Uninline.
                             CheckValidPlayer();
 
@@ -3745,13 +3745,13 @@ int characterEditorShowOptions()
 
                             critterUpdateDerivedStats(gDude);
 
-                            critterAdjustHitPoints(gDude, 1000);
+                            critter_adjust_hits(gDude, 1000);
 
                             rc = 1;
                         } else {
                             characterEditorRestorePlayer();
                             gCharacterEditorRemainingCharacterPoints = oldRemainingCharacterPoints;
-                            critterAdjustHitPoints(gDude, 1000);
+                            critter_adjust_hits(gDude, 1000);
                             soundPlayFile("iisxxxx1");
 
                             strcpy(string4, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 612));
@@ -3816,7 +3816,7 @@ int characterEditorShowOptions()
                             string4[0] = '\0';
                             strcat(string4, string1);
 
-                            if (gcdSave(string4) != 0) {
+                            if (pc_save_data(string4) != 0) {
                                 soundPlayFile("iisxxxx1");
                                 sprintf(string4, "%s%s!",
                                     strupr(string1),
@@ -4006,7 +4006,7 @@ int characterPrintToFile(const char* fileName)
     sprintf(title1,
         "%s %s",
         getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 642),
-        critterGetName(gDude));
+        critter_name(gDude));
 
     int paddingLength = 27 - strlen(title1);
     if (paddingLength > 0) {
@@ -4070,7 +4070,7 @@ int characterPrintToFile(const char* fileName)
         getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 624),
         critterGetStat(gDude, STAT_STRENGTH),
         getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 625),
-        critterGetHitPoints(gDude),
+        critter_get_hits(gDude),
         critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS),
         getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 626),
         critterGetStat(gDude, STAT_STRENGTH));
@@ -4304,9 +4304,9 @@ int characterPrintToFile(const char* fileName)
         bool hasKillType = false;
 
         for (; killType < KILL_TYPE_COUNT; killType++) {
-            int killsCount = killsGetByType(killType);
+            int killsCount = critter_kill_count(killType);
             if (killsCount > 0) {
-                sprintf(title2, "%s ", killTypeGetName(killType));
+                sprintf(title2, "%s ", critter_kill_name(killType));
 
                 // NOTE: Uninline.
                 _AddDots(title2 + strlen(title2), 16 - strlen(title2));
@@ -4488,11 +4488,11 @@ void characterEditorSavePlayer()
 {
     Proto* proto;
     protoGetProto(gDude->pid, &proto);
-    critterProtoDataCopy(&gCharacterEditorDudeDataBackup, &(proto->critter.data));
+    critter_copy(&gCharacterEditorDudeDataBackup, &(proto->critter.data));
 
-    gCharacterEditorHitPointsBackup = critterGetHitPoints(gDude);
+    gCharacterEditorHitPointsBackup = critter_get_hits(gDude);
 
-    strncpy(gCharacterEditorNameBackup, critterGetName(gDude), 32);
+    strncpy(gCharacterEditorNameBackup, critter_name(gDude), 32);
 
     gCharacterEditorLastLevelBackup = gCharacterEditorLastLevel;
 
@@ -4523,9 +4523,9 @@ void characterEditorRestorePlayer()
     _pop_perks();
 
     protoGetProto(gDude->pid, &proto);
-    critterProtoDataCopy(&(proto->critter.data), &gCharacterEditorDudeDataBackup);
+    critter_copy(&(proto->critter.data), &gCharacterEditorDudeDataBackup);
 
-    dudeSetName(gCharacterEditorNameBackup);
+    critter_pc_set_name(gCharacterEditorNameBackup);
 
     gCharacterEditorLastLevel = gCharacterEditorLastLevelBackup;
     gCharacterEditorHasFreePerk = gCharacterEditorHasFreePerkBackup;
@@ -4548,8 +4548,8 @@ void characterEditorRestorePlayer()
 
     critterUpdateDerivedStats(gDude);
 
-    cur_hp = critterGetHitPoints(gDude);
-    critterAdjustHitPoints(gDude, gCharacterEditorHitPointsBackup - cur_hp);
+    cur_hp = critter_get_hits(gDude);
+    critter_adjust_hits(gDude, gCharacterEditorHitPointsBackup - cur_hp);
 }
 
 // 0x43A9CC
@@ -5622,7 +5622,7 @@ int perkDialogShow()
         } else if (perkGetRank(gDude, PERK_LIFEGIVER) != gCharacterEditorPerksBackup[PERK_LIFEGIVER]) {
             int maxHp = critterGetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS);
             critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
-            critterAdjustHitPoints(gDude, 4);
+            critter_adjust_hits(gDude, 4);
         } else if (perkGetRank(gDude, PERK_EDUCATED) != gCharacterEditorPerksBackup[PERK_EDUCATED]) {
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);

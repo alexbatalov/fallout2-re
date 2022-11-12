@@ -440,7 +440,7 @@ void opUsingSkill(Program* program)
     int result = 0;
 
     if (skill == SKILL_SNEAK && object == gDude) {
-        result = dudeHasState(DUDE_STATE_SNEAKING);
+        result = is_pc_flag(DUDE_STATE_SNEAKING);
     }
 
     programStackPushInt32(program, result);
@@ -1635,7 +1635,7 @@ void opAnimateMoveObjectToTile(Program* program)
         return;
     }
 
-    if (!critterIsActive(object)) {
+    if (!critter_is_active(object)) {
         return;
     }
 
@@ -2178,7 +2178,7 @@ void opObjectCanSeeObject(Program* program)
             // NOTE: Looks like dead code, I guess these checks were incorporated
             // into higher level functions, but this code left intact.
             if (object2 == gDude) {
-                dudeHasState(0);
+                is_pc_flag(0);
             }
 
             critterGetStat(object1, STAT_PERCEPTION);
@@ -2233,13 +2233,13 @@ void opAttackComplex(Program* program)
         return;
     }
 
-    if (!critterIsActive(self) || (self->flags & OBJECT_HIDDEN) != 0) {
+    if (!critter_is_active(self) || (self->flags & OBJECT_HIDDEN) != 0) {
         debugPrint("\n   But is already Inactive (Dead/Stunned/Invisible)");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
 
-    if (!critterIsActive(target) || (target->flags & OBJECT_HIDDEN) != 0) {
+    if (!critter_is_active(target) || (target->flags & OBJECT_HIDDEN) != 0) {
         debugPrint("\n   But target is already dead or invisible");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
@@ -2422,7 +2422,7 @@ void opMetarule3(Program* program)
         result = wmSubTileMarkRadiusVisited(data[2], data[1], data[0]);
         break;
     case METARULE3_GET_KILL_COUNT:
-        result = killsGetByType(data[2]);
+        result = critter_kill_count(data[2]);
         break;
     case METARULE3_MARK_MAP_ENTRANCE:
         result = wmMapMarkMapEntranceState(data[2], data[1], data[0]);
@@ -2775,7 +2775,7 @@ void opCritterHeal(Program* program)
     Object* critter = (Object*)data[1];
     int amount = data[0];
 
-    int rc = critterAdjustHitPoints(critter, amount);
+    int rc = critter_adjust_hits(critter, amount);
 
     if (critter == gDude) {
         interfaceRenderHitPoints(true);
@@ -2902,7 +2902,7 @@ void opKillCritter(Program* program)
 
     register_clear(object);
     combat_delete_critter(object);
-    critterKill(object, deathFrame, 1);
+    critter_kill(object, deathFrame, 1);
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 
@@ -2986,7 +2986,7 @@ void opKillCritterType(Program* program)
             continue;
         }
 
-        if ((obj->flags & OBJECT_HIDDEN) == 0 && obj->pid == pid && !critterIsDead(obj)) {
+        if ((obj->flags & OBJECT_HIDDEN) == 0 && obj->pid == pid && !critter_is_dead(obj)) {
             if (obj == previousObj || count > 200) {
                 scriptPredefinedError(program, "kill_critter_type", SCRIPT_ERROR_FOLLOWS);
                 debugPrint(" Infinite loop destroying critters!");
@@ -3000,13 +3000,13 @@ void opKillCritterType(Program* program)
                 combat_delete_critter(obj);
                 if (deathFrame == 1) {
                     int anim = _correctDeath(obj, _ftList[v3], 1);
-                    critterKill(obj, anim, 1);
+                    critter_kill(obj, anim, 1);
                     v3 += 1;
                     if (v3 >= 11) {
                         v3 = 0;
                     }
                 } else {
-                    critterKill(obj, ANIM_FALL_BACK_SF, 1);
+                    critter_kill(obj, ANIM_FALL_BACK_SF, 1);
                 }
             } else {
                 register_clear(obj);
@@ -3361,7 +3361,7 @@ void opGameDialogSystemEnter(Program* program)
 
     Object* self = scriptGetSelf(program);
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
-        if (!critterIsActive(self)) {
+        if (!critter_is_active(self)) {
             return;
         }
     }
@@ -3415,7 +3415,7 @@ void opGetCritterState(Program* program)
 
     int state = CRITTER_STATE_DEAD;
     if (critter != NULL && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
-        if (critterIsActive(critter)) {
+        if (critter_is_active(critter)) {
             state = CRITTER_STATE_NORMAL;
 
             int anim = FID_ANIM_TYPE(critter->fid);
@@ -3425,7 +3425,7 @@ void opGetCritterState(Program* program)
 
             state |= (critter->data.critter.combat.results & DAM_CRIP);
         } else {
-            if (!critterIsDead(critter)) {
+            if (!critter_is_dead(critter)) {
                 state = CRITTER_STATE_PRONE;
             }
         }
@@ -3492,7 +3492,7 @@ void opRadiationIncrease(Program* program)
         return;
     }
 
-    critterAdjustRadiation(object, amount);
+    critter_adjust_rads(object, amount);
 }
 
 // radiation_dec
@@ -3523,10 +3523,10 @@ void opRadiationDecrease(Program* program)
         return;
     }
 
-    int radiation = critterGetRadiation(object);
+    int radiation = critter_get_rads(object);
     int adjustment = radiation >= 0 ? -amount : 0;
 
-    critterAdjustRadiation(object, adjustment);
+    critter_adjust_rads(object, adjustment);
 }
 
 // critter_attempt_placement
@@ -3636,7 +3636,7 @@ void opCritterAddTrait(Program* program)
             switch (kind) {
             case CRITTER_TRAIT_PERK:
                 if (1) {
-                    char* critterName = critterGetName(object);
+                    char* critterName = critter_name(object);
                     char* perkName = perkGetName(param);
                     debugPrint("\nintextra::critter_add_trait: Adding Perk %s to %s", perkName, critterName);
 
@@ -5095,7 +5095,7 @@ void opPoison(Program* program)
         return;
     }
 
-    if (critterAdjustPoison(obj, amount) != 0) {
+    if (critter_adjust_poison(obj, amount) != 0) {
         debugPrint("\nScript Error: poison: adjust failed!");
     }
 }
@@ -5120,7 +5120,7 @@ void opGetPoison(Program* program)
     int poison = 0;
     if (obj != NULL) {
         if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
-            poison = critterGetPoison(obj);
+            poison = critter_get_poison(obj);
         } else {
             debugPrint("\nScript Error: get_poison: who is not a critter!");
         }
@@ -6009,13 +6009,13 @@ void opAttackSetup(Program* program)
     program->flags |= PROGRAM_FLAG_0x20;
 
     if (attacker != NULL) {
-        if (!critterIsActive(attacker) || (attacker->flags & OBJECT_HIDDEN) != 0) {
+        if (!critter_is_active(attacker) || (attacker->flags & OBJECT_HIDDEN) != 0) {
             debugPrint("\n   But is already dead or invisible");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
         }
 
-        if (!critterIsActive(defender) || (defender->flags & OBJECT_HIDDEN) != 0) {
+        if (!critter_is_active(defender) || (defender->flags & OBJECT_HIDDEN) != 0) {
             debugPrint("\n   But target is already dead or invisible");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;

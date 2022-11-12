@@ -673,7 +673,7 @@ void gameMouseRefresh()
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_TALK;
                                 }
                             } else {
-                                if (_critter_flag_check(pointedObject->pid, CRITTER_NO_STEAL)) {
+                                if (critter_flag_check(pointedObject->pid, CRITTER_NO_STEAL)) {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
                                 } else {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_USE;
@@ -791,7 +791,7 @@ void gameMouseRefresh()
                 formattedActionPoints[0] = '\0';
                 color = colorTable[31744];
             } else {
-                int v7 = critterGetMovementPointCostAdjustedForCrippledLegs(gDude, v6);
+                int v7 = critter_compute_ap_from_distance(gDude, v6);
                 int v8;
                 if (v7 - combat_free_move >= 0) {
                     v8 = v7 - combat_free_move;
@@ -1061,7 +1061,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                             actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_TALK;
                         }
                     } else {
-                        if (!_critter_flag_check(v16->pid, CRITTER_NO_STEAL)) {
+                        if (!critter_flag_check(v16->pid, CRITTER_NO_STEAL)) {
                             actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_USE;
                         }
                     }

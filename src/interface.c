@@ -1029,7 +1029,7 @@ void interfaceRenderHitPoints(bool animate)
         return;
     }
 
-    int hp = critterGetHitPoints(gDude);
+    int hp = critter_get_hits(gDude);
     int maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
 
     int red = (int)((double)maxHp * 0.25);
@@ -2503,31 +2503,31 @@ int indicatorBarRefresh()
 
         int count = 0;
 
-        if (dudeHasState(DUDE_STATE_SNEAKING)) {
+        if (is_pc_flag(DUDE_STATE_SNEAKING)) {
             if (indicatorBarAdd(INDICATOR_SNEAK)) {
                 ++count;
             }
         }
 
-        if (dudeHasState(DUDE_STATE_LEVEL_UP_AVAILABLE)) {
+        if (is_pc_flag(DUDE_STATE_LEVEL_UP_AVAILABLE)) {
             if (indicatorBarAdd(INDICATOR_LEVEL)) {
                 ++count;
             }
         }
 
-        if (dudeHasState(DUDE_STATE_ADDICTED)) {
+        if (is_pc_flag(DUDE_STATE_ADDICTED)) {
             if (indicatorBarAdd(INDICATOR_ADDICT)) {
                 ++count;
             }
         }
 
-        if (critterGetPoison(gDude) > POISON_INDICATOR_THRESHOLD) {
+        if (critter_get_poison(gDude) > POISON_INDICATOR_THRESHOLD) {
             if (indicatorBarAdd(INDICATOR_POISONED)) {
                 ++count;
             }
         }
 
-        if (critterGetRadiation(gDude) > RADATION_INDICATOR_THRESHOLD) {
+        if (critter_get_rads(gDude) > RADATION_INDICATOR_THRESHOLD) {
             if (indicatorBarAdd(INDICATOR_RADIATED)) {
                 ++count;
             }

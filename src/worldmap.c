@@ -3937,7 +3937,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
 
                 if (v10->isEquipped) {
                     if (_inven_wield(object, item, 1) == -1) {
-                        debugPrint("\nERROR: wmSetupCritterObjs: Inven Wield Failed: %d on %s: Critter Fid: %d", item->pid, critterGetName(object), object->fid);
+                        debugPrint("\nERROR: wmSetupCritterObjs: Inven Wield Failed: %d on %s: Critter Fid: %d", item->pid, critter_name(object), object->fid);
                     }
                 }
             }

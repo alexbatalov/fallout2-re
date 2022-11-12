@@ -2047,7 +2047,7 @@ bool _obj_action_can_use(Object* obj)
 // 0x48B278
 bool _obj_action_can_talk_to(Object* obj)
 {
-    return _proto_action_can_talk_to(obj->pid) && (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) && critterIsActive(obj);
+    return _proto_action_can_talk_to(obj->pid) && (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) && critter_is_active(obj);
 }
 
 // 0x48B2A8
@@ -3108,7 +3108,7 @@ char* objectGetName(Object* obj)
     case OBJ_TYPE_ITEM:
         return itemGetName(obj);
     case OBJ_TYPE_CRITTER:
-        return critterGetName(obj);
+        return critter_name(obj);
     default:
         return protoGetName(obj->pid);
     }

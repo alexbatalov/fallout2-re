@@ -110,7 +110,7 @@ void switch_dude()
 // 0x410468
 int action_knockback(Object* obj, int* anim, int maxDistance, int rotation, int delay)
 {
-    if (_critter_flag_check(obj->pid, CRITTER_NO_KNOCKBACK)) {
+    if (critter_flag_check(obj->pid, CRITTER_NO_KNOCKBACK)) {
         return -1;
     }
 
@@ -205,7 +205,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
     int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
     config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
 
-    if (_critter_flag_check(defender->pid, CRITTER_SPECIAL_DEATH)) {
+    if (critter_flag_check(defender->pid, CRITTER_SPECIAL_DEATH)) {
         return check_death(defender, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_NORMAL, isFallingBack);
     }
 
@@ -296,12 +296,12 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
     int fid;
     const char* sfx_name;
 
-    if (_critter_flag_check(a1->pid, CRITTER_NO_KNOCKBACK)) {
+    if (critter_flag_check(a1->pid, CRITTER_NO_KNOCKBACK)) {
         knockbackDistance = 0;
     }
 
     anim = FID_ANIM_TYPE(a1->fid);
-    if (!_critter_is_prone(a1)) {
+    if (!critter_is_prone(a1)) {
         if ((flags & DAM_DEAD) != 0) {
             fid = art_id(OBJ_TYPE_MISC, 10, 0, 0, 0);
             if (fid == a9->fid) {
@@ -448,7 +448,7 @@ static int show_death(Object* obj, int anim)
         }
     }
 
-    if (_critter_flag_check(obj->pid, CRITTER_FLAT) == 0) {
+    if (critter_flag_check(obj->pid, CRITTER_FLAT) == 0) {
         obj->flags |= OBJECT_NO_BLOCK;
         if (_obj_toggle_flat(obj, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
@@ -459,7 +459,7 @@ static int show_death(Object* obj, int anim)
         rectUnion(&v8, &v7, &v8);
     }
 
-    if (anim >= 30 && anim <= 31 && _critter_flag_check(obj->pid, CRITTER_SPECIAL_DEATH) == 0 && _critter_flag_check(obj->pid, CRITTER_NO_DROP) == 0) {
+    if (anim >= 30 && anim <= 31 && critter_flag_check(obj->pid, CRITTER_SPECIAL_DEATH) == 0 && critter_flag_check(obj->pid, CRITTER_NO_DROP) == 0) {
         _item_drop_all(obj, obj->tile);
     }
 
@@ -1112,7 +1112,7 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
 
         int anim;
         int objectType = FID_TYPE(a2->fid);
-        if (objectType == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) {
+        if (objectType == OBJ_TYPE_CRITTER && critter_is_prone(a2)) {
             anim = ANIM_MAGIC_HANDS_GROUND;
         } else if (objectType == OBJ_TYPE_SCENERY && (proto->scenery.extendedFlags & 0x01) != 0) {
             anim = ANIM_MAGIC_HANDS_GROUND;
@@ -1299,7 +1299,7 @@ int action_skill_use(int skill)
 {
     if (skill == SKILL_SNEAK) {
         register_clear(gDude);
-        dudeToggleState(DUDE_STATE_SNEAKING);
+        pc_flag_toggle(DUDE_STATE_SNEAKING);
         return 0;
     }
 
@@ -1398,7 +1398,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
         return -1;
     case SKILL_SNEAK:
-        dudeToggleState(DUDE_STATE_SNEAKING);
+        pc_flag_toggle(DUDE_STATE_SNEAKING);
         return 0;
     default:
         debugPrint("\nskill_use: invalid skill used.");
@@ -1482,7 +1482,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
     register_object_must_call(performer, a2, is_next_to, -1);
 
-    int anim = (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER && _critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
+    int anim = (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER && critter_is_prone(a2)) ? ANIM_MAGIC_HANDS_GROUND : ANIM_MAGIC_HANDS_MIDDLE;
     int fid = art_id(OBJ_TYPE_CRITTER, performer->fid & 0xFFF, anim, 0, performer->rotation + 1);
 
     CacheEntry* artHandle;
@@ -1807,13 +1807,13 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
     } else {
         if (critter != NULL) {
             if ((attack->defenderFlags & DAM_DEAD) != 0) {
-                critterKill(critter, -1, false);
+                critter_kill(critter, -1, false);
             }
         }
 
         for (int index = 0; index < attack->extrasLength; index++) {
             if ((attack->extrasFlags[index] & DAM_DEAD) != 0) {
-                critterKill(attack->extras[index], -1, false);
+                critter_kill(attack->extras[index], -1, false);
             }
         }
 
@@ -1856,10 +1856,10 @@ static int report_explosion(Attack* attack, Object* a2)
         if (attack->defender != NULL && attack->defender != a2) {
             if ((attack->defender->data.critter.combat.results & DAM_DEAD) != 0) {
                 if (a2 == gDude && !mainTargetWasDead) {
-                    xp += critterGetExp(attack->defender);
+                    xp += critter_kill_exps(attack->defender);
                 }
             } else {
-                _critter_set_who_hit_me(attack->defender, a2);
+                critter_set_who_hit_me(attack->defender, a2);
                 anyDefender = attack->defender;
             }
         }
@@ -1869,10 +1869,10 @@ static int report_explosion(Attack* attack, Object* a2)
             if (critter != a2) {
                 if ((critter->data.critter.combat.results & DAM_DEAD) != 0) {
                     if (a2 == gDude && !extrasWasDead[index]) {
-                        xp += critterGetExp(critter);
+                        xp += critter_kill_exps(critter);
                     }
                 } else {
-                    _critter_set_who_hit_me(critter, a2);
+                    critter_set_who_hit_me(critter, a2);
 
                     if (anyDefender == NULL) {
                         anyDefender = critter;
@@ -2051,7 +2051,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
     } else {
         if (defender != NULL) {
             if ((attack->defenderFlags & DAM_DEAD) != 0) {
-                critterKill(defender, -1, 1);
+                critter_kill(defender, -1, 1);
             }
         }
 
@@ -2079,7 +2079,7 @@ static int report_dmg(Attack* attack, Object* a2)
 // 0x413660
 static int compute_dmg_damage(int min, int max, Object* obj, int* a4, int damageType)
 {
-    if (!_critter_flag_check(obj->pid, CRITTER_NO_KNOCKBACK)) {
+    if (!critter_flag_check(obj->pid, CRITTER_NO_KNOCKBACK)) {
         a4 = NULL;
     }
 
@@ -2116,7 +2116,7 @@ bool action_can_be_pushed(Object* a1, Object* a2)
     }
 
     // Cannot push inactive critters.
-    if (!critterIsActive(a2)) {
+    if (!critter_is_active(a2)) {
         return false;
     }
 

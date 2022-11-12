@@ -406,7 +406,7 @@ int pipboyWindowInit(int intent)
     }
 
     if (intent == PIPBOY_OPEN_INTENT_REST) {
-        if (!_critter_can_obj_dude_rest()) {
+        if (!critter_can_obj_dude_rest()) {
             blitBufferToBufferTrans(
                 gPipboyFrmData[PIPBOY_FRM_LOGO],
                 gPipboyFrmSizes[PIPBOY_FRM_LOGO].width,
@@ -1553,7 +1553,7 @@ int pipboyRenderVideoArchive(int a1)
 void pipboyHandleAlarmClock(int a1)
 {
     if (a1 == 1024) {
-        if (_critter_can_obj_dude_rest()) {
+        if (critter_can_obj_dude_rest()) {
             pipboyWindowDestroyButtons();
             pipboyWindowRenderRestOptions(0);
             pipboyWindowCreateButtons(5, gPipboyRestOptionsCount, false);
@@ -1680,7 +1680,7 @@ void pipboyDrawHitPoints()
         PIPBOY_WINDOW_WIDTH);
 
     max_hp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-    cur_hp = critterGetHitPoints(gDude);
+    cur_hp = critter_get_hits(gDude);
     text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 301); // Hit Points
     sprintf(msg, "%s %d/%d", text, cur_hp, max_hp);
     len = fontGetStringWidth(msg);
@@ -1876,7 +1876,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             win_draw(gPipboyWindow);
         }
     } else if (duration == PIPBOY_REST_DURATION_UNTIL_HEALED || duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED) {
-        int currentHp = critterGetHitPoints(gDude);
+        int currentHp = critter_get_hits(gDude);
         int maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
         if (currentHp != maxHp
             || (duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED && partyIsAnyoneCanBeHealedByRest())) {
@@ -1897,7 +1897,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             // Second pass - attempt to heal delayed damage to dude (via poison
             // or radiation), and remaining party members. This process is
             // performed in 3 hour increments.
-            currentHp = critterGetHitPoints(gDude);
+            currentHp = critter_get_hits(gDude);
             maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
             hpToHeal = maxHp - currentHp;
 
@@ -1909,7 +1909,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             }
 
             while (!rc && hpToHeal != 0) {
-                currentHp = critterGetHitPoints(gDude);
+                currentHp = critter_get_hits(gDude);
                 maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
                 hpToHeal = maxHp - currentHp;
 
@@ -1968,7 +1968,7 @@ bool _AddHealth()
 {
     _partyMemberRestingHeal(3);
 
-    int currentHp = critterGetHitPoints(gDude);
+    int currentHp = critter_get_hits(gDude);
     int maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
     return currentHp == maxHp;
 }

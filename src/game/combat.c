@@ -2187,7 +2187,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
             if (candidate->data.critter.combat.team == team
                 && candidate != attacker
                 && candidate != defender
-                && !critterIsDead(candidate)) {
+                && !critter_is_dead(candidate)) {
                 int attackerDefenderDistance = objectGetDistanceBetween(defender, candidate);
                 if (attackerDefenderDistance < damageRadius && candidate != candidate->data.critter.combat.whoHitMe) {
                     int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
@@ -2238,7 +2238,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
         if (candidate->data.critter.combat.team == team
             && candidate != attacker
             && candidate != defender
-            && !critterIsDead(candidate)
+            && !critter_is_dead(candidate)
             && candidate != candidate->data.critter.combat.whoHitMe) {
             int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
             int damageResistance = critterGetStat(candidate, STAT_DAMAGE_RESISTANCE + damageType);
@@ -2382,7 +2382,7 @@ int combatAIInfoSetLastTarget(Object* a1, Object* a2)
         return -1;
     }
 
-    if (critterIsDead(a2)) {
+    if (critter_is_dead(a2)) {
         a2 = NULL;
     }
 
@@ -2516,7 +2516,7 @@ static void combat_begin(Object* a1)
             scriptSetObjects(critter->sid, NULL, NULL);
             scriptSetFixedParam(critter->sid, 0);
             if (critter->pid == 0x1000098) {
-                if (!critterIsDead(critter)) {
+                if (!critter_is_dead(critter)) {
                     v1 = critter;
                 }
             }
@@ -2595,7 +2595,7 @@ void combat_update_critter_outline_for_los(Object* critter, bool a2)
         return;
     }
 
-    if (critterIsDead(critter)) {
+    if (critter_is_dead(critter)) {
         return;
     }
 
@@ -2699,7 +2699,7 @@ static void combat_over()
         scriptSetObjects(critter->sid, NULL, NULL);
         scriptSetFixedParam(critter->sid, 0);
 
-        if (critter->pid == 0x1000098 && !critterIsDead(critter) && !_isLoadingGame()) {
+        if (critter->pid == 0x1000098 && !critter_is_dead(critter) && !_isLoadingGame()) {
             int fid = art_id(FID_TYPE(critter->fid),
                 99,
                 FID_ANIM_TYPE(critter->fid),
@@ -2753,9 +2753,9 @@ static void combat_over()
     gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
     interfaceRenderArmorClass(true);
 
-    if (_critter_is_prone(gDude) && !critterIsDead(gDude) && combat_ending_guy == NULL) {
+    if (critter_is_prone(gDude) && !critter_is_dead(gDude) && combat_ending_guy == NULL) {
         queueRemoveEventsByType(gDude, EVENT_TYPE_KNOCKOUT);
-        knockoutEventProcess(gDude, NULL);
+        critter_wake_up(gDude, NULL);
     }
 }
 
@@ -2782,7 +2782,7 @@ void combat_give_exps(int exp_points)
         return;
     }
 
-    if (critterIsDead(gDude)) {
+    if (critter_is_dead(gDude)) {
         return;
     }
 
@@ -2937,11 +2937,11 @@ static void combat_sequence_init(Object* a1, Object* a2)
     list_noncom -= next;
 
     if (a1 != NULL) {
-        _critter_set_who_hit_me(a1, a2);
+        critter_set_who_hit_me(a1, a2);
     }
 
     if (a2 != NULL) {
-        _critter_set_who_hit_me(a2, a1);
+        critter_set_who_hit_me(a2, a1);
     }
 }
 
@@ -3173,7 +3173,7 @@ static int combat_turn(Object* a1, bool a2)
         }
 
         if (!scriptOverrides) {
-            if (!a2 && _critter_is_prone(a1)) {
+            if (!a2 && critter_is_prone(a1)) {
                 combat_standup(a1);
             }
 
@@ -3462,7 +3462,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 
     if (a1 == gDude) {
         interfaceRenderActionPoints(a1->data.critter.combat.ap, combat_free_move);
-        _critter_set_who_hit_me(a1, a2);
+        critter_set_who_hit_me(a1, a2);
     }
 
     combat_call_display = 1;
@@ -3503,7 +3503,7 @@ static bool check_ranged_miss(Attack* attack)
 
                     if (critter != attack->defender) {
                         int v6 = determine_to_hit_func(attack->attacker, attack->attacker->tile, critter, attack->defenderHitLocation, attack->hitMode, 1) / 3;
-                        if (critterIsDead(critter)) {
+                        if (critter_is_dead(critter)) {
                             v6 = 5;
                         }
 
@@ -3778,7 +3778,7 @@ static int compute_attack(Attack* attack)
 
             if (perkHasRank(gDude, PERK_SILENT_DEATH)
                 && !is_hit_from_front(gDude, attack->defender)
-                && dudeHasState(DUDE_STATE_SNEAKING)
+                && is_pc_flag(DUDE_STATE_SNEAKING)
                 && gDude != attack->defender->data.critter.combat.whoHitMe) {
                 damageMultiplier = 4;
             }
@@ -3988,7 +3988,7 @@ void compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
 static int attack_crit_success(Attack* attack)
 {
     Object* defender = attack->defender;
-    if (defender != NULL && _critter_flag_check(defender->pid, CRITTER_INVULNERABLE)) {
+    if (defender != NULL && critter_flag_check(defender->pid, CRITTER_INVULNERABLE)) {
         return 2;
     }
 
@@ -4062,7 +4062,7 @@ static int attackFindInvalidFlags(Object* critter, Object* item)
 {
     int flags = 0;
 
-    if (critter != NULL && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER && _critter_flag_check(critter->pid, CRITTER_NO_DROP)) {
+    if (critter != NULL && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER && critter_flag_check(critter->pid, CRITTER_NO_DROP)) {
         flags |= DAM_DROP;
     }
 
@@ -4078,7 +4078,7 @@ static int attack_crit_failure(Attack* attack)
 {
     attack->attackerFlags |= DAM_HIT;
 
-    if (attack->attacker != NULL && _critter_flag_check(attack->attacker->pid, CRITTER_INVULNERABLE)) {
+    if (attack->attacker != NULL && critter_flag_check(attack->attacker->pid, CRITTER_INVULNERABLE)) {
         return 0;
     }
 
@@ -4518,7 +4518,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         && (critter->flags & OBJECT_MULTIHEX) == 0
         && (damageType == DAMAGE_TYPE_EXPLOSION || attack->weapon == NULL || weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode) == ATTACK_TYPE_MELEE)
         && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER
-        && _critter_flag_check(critter->pid, CRITTER_NO_KNOCKBACK) == 0) {
+        && critter_flag_check(critter->pid, CRITTER_NO_KNOCKBACK) == 0) {
         bool shouldKnockback = true;
         bool hasStonewall = false;
         if (critter == gDude) {
@@ -4595,7 +4595,7 @@ void apply_damage(Attack* attack, bool animated)
             if (defenderIsCritter) {
                 if ((defender->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
                     if (!v5 || defender != gDude) {
-                        _critter_set_who_hit_me(defender, attack->attacker);
+                        critter_set_who_hit_me(defender, attack->attacker);
                     }
                 } else if (defender == attack->oops || defender->data.critter.combat.team != attack->attacker->data.critter.combat.team) {
                     combatai_check_retaliation(defender, attack->attacker);
@@ -4624,7 +4624,7 @@ void apply_damage(Attack* attack, bool animated)
 
             if (defenderIsCritter) {
                 if ((obj->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
-                    _critter_set_who_hit_me(obj, attack->attacker);
+                    critter_set_who_hit_me(obj, attack->attacker);
                 } else if (obj->data.critter.combat.team != attack->attacker->data.critter.combat.team) {
                     combatai_check_retaliation(obj, attack->attacker);
                 }
@@ -4649,10 +4649,10 @@ void apply_damage(Attack* attack, bool animated)
 // 0x424EE8
 static void check_for_death(Object* object, int damage, int* flags)
 {
-    if (object == NULL || !_critter_flag_check(object->pid, CRITTER_INVULNERABLE)) {
+    if (object == NULL || !critter_flag_check(object->pid, CRITTER_INVULNERABLE)) {
         if (object == NULL || PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
             if (damage > 0) {
-                if (critterGetHitPoints(object) - damage <= 0) {
+                if (critter_get_hits(object) - damage <= 0) {
                     *flags |= DAM_DEAD;
                 }
             }
@@ -4671,7 +4671,7 @@ static void set_new_results(Object* critter, int flags)
         return;
     }
 
-    if (_critter_flag_check(critter->pid, CRITTER_INVULNERABLE)) {
+    if (critter_flag_check(critter->pid, CRITTER_INVULNERABLE)) {
         return;
     }
 
@@ -4709,7 +4709,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
         return;
     }
 
-    if (_critter_flag_check(a1->pid, CRITTER_INVULNERABLE)) {
+    if (critter_flag_check(a1->pid, CRITTER_INVULNERABLE)) {
         return;
     }
 
@@ -4717,7 +4717,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
         return;
     }
 
-    critterAdjustHitPoints(a1, -damage);
+    critter_adjust_hits(a1, -damage);
 
     if (a1 == gDude) {
         interfaceRenderHitPoints(animated);
@@ -4748,8 +4748,8 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
                 }
 
                 if (!scriptOverrides) {
-                    combat_exps += critterGetExp(a1);
-                    killsIncByType(critterGetKillType(a1));
+                    combat_exps += critter_kill_exps(a1);
+                    critter_kill_count_inc(critterGetKillType(a1));
                 }
             }
         }
@@ -5879,6 +5879,6 @@ void combatKillCritterOutsideCombat(Object* critter_obj, char* msg)
     if (critter_obj != gDude) {
         displayMonitorAddMessage(msg);
         scriptExecProc(critter_obj->sid, SCRIPT_PROC_DESTROY);
-        critterKill(critter_obj, -1, 1);
+        critter_kill(critter_obj, -1, 1);
     }
 }

@@ -1089,7 +1089,7 @@ void _exit_inventory(bool shouldEnableIso)
             if (critter != gDude
                 && critter->data.critter.combat.team != gDude->data.critter.combat.team
                 && statRoll(critter, STAT_PERCEPTION, 0, NULL) >= ROLL_SUCCESS) {
-                _critter_set_who_hit_me(critter, gDude);
+                critter_set_who_hit_me(critter, gDude);
 
                 if (v2 == NULL) {
                     v2 = critter;
@@ -2285,7 +2285,7 @@ void inventoryRenderSummary()
     art_ptr_unlock(backgroundHandle);
 
     // Render character name.
-    const char* critterName = critterGetName(_stack[0]);
+    const char* critterName = critter_name(_stack[0]);
     fontDrawText(windowBuffer + 499 * 44 + 297, critterName, 80, 499, colorTable[992]);
 
     bufferDrawLine(windowBuffer,
@@ -2471,7 +2471,7 @@ void inventoryRenderSummary()
             sprintf(formattedText, "%s %d/%d", messageListItem.text, inventoryWeight, carryWeight);
 
             int color = colorTable[992];
-            if (critterIsEncumbered(_stack[0])) {
+            if (critterIsOverloaded(_stack[0])) {
                 color = colorTable[31744];
             }
 
@@ -3349,7 +3349,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
     }
 
     if (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER) {
-        if (_critter_flag_check(a2->pid, CRITTER_NO_STEAL)) {
+        if (critter_flag_check(a2->pid, CRITTER_NO_STEAL)) {
             // You can't find anything to take from that.
             messageListItem.num = 50;
             if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
@@ -3745,7 +3745,7 @@ int inventoryOpenStealing(Object* a1, Object* a2)
         return -1;
     }
 
-    _gIsSteal = PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER && critterIsActive(a2);
+    _gIsSteal = PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER && critter_is_active(a2);
     _gStealCount = 0;
     _gStealSize = 0;
 

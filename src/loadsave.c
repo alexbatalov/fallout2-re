@@ -98,8 +98,8 @@ SaveGameHandler* _master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     _GameMap2Slot,
     scriptsSaveGameGlobalVars,
     _obj_save_dude,
-    critterSave,
-    killsSave,
+    critter_save,
+    critter_kill_count_save,
     skillsSave,
     randomSave,
     perksSave,
@@ -129,8 +129,8 @@ LoadGameHandler* _master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     _SlotMap2Game,
     scriptsSkipGameGlobalVars,
     _obj_load_dude,
-    critterLoad,
-    killsLoad,
+    critter_load,
+    critter_kill_count_load,
     skillsLoad,
     randomLoad,
     perksLoad,
@@ -1563,7 +1563,7 @@ int lsgSaveHeaderInSlot(int slot)
         return -1;
     }
 
-    char* characterName = critterGetName(gDude);
+    char* characterName = critter_name(gDude);
     strncpy(ptr->characterName, characterName, 32);
 
     if (fileWrite(ptr->characterName, 32, 1, _flptr) != 1) {
@@ -2153,7 +2153,7 @@ int _PrepLoad(File* stream)
 int _EndLoad(File* stream)
 {
     wmMapMusicStart();
-    dudeSetName(_LSData[_slot_cursor].characterName);
+    critter_pc_set_name(_LSData[_slot_cursor].characterName);
     interfaceBarRefresh();
     indicatorBarRefresh();
     tileWindowRefresh();

@@ -332,7 +332,7 @@ int partyMemberAdd(Object* object)
     }
 
     if (_partyStatePrepped) {
-        debugPrint("\npartyMemberAdd DENIED: %s\n", critterGetName(object));
+        debugPrint("\npartyMemberAdd DENIED: %s\n", critter_name(object));
         return -1;
     }
 
@@ -392,7 +392,7 @@ int partyMemberRemove(Object* object)
     }
 
     if (_partyStatePrepped) {
-        debugPrint("\npartyMemberRemove DENIED: %s\n", critterGetName(object));
+        debugPrint("\npartyMemberRemove DENIED: %s\n", critter_name(object));
         return -1;
     }
 
@@ -523,7 +523,7 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
     Script* script;
     if (scriptGetScript(obj->sid, &script) == -1) {
         debugPrint("\n  Error!: partyMemberPrepLoadInstance: Can't find script!");
-        debugPrint("\n          partyMemberPrepLoadInstance: script was: (%s)", critterGetName(obj));
+        debugPrint("\n          partyMemberPrepLoadInstance: script was: (%s)", critter_name(obj));
         a1->script = NULL;
         a1->vars = NULL;
         a1->next = NULL;
@@ -586,7 +586,7 @@ int _partyMemberRecoverLoad()
             return -1;
         }
 
-        debugPrint("[Party Member %d]: %s\n", index, critterGetName(gPartyMembers[index].object));
+        debugPrint("[Party Member %d]: %s\n", index, critter_name(gPartyMembers[index].object));
     }
 
     STRUCT_519DA8* v6 = _itemSaveListHead;
@@ -782,7 +782,7 @@ int _partyMemberRestingHeal(int a1)
         STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
         if (PID_TYPE(partyMember->object->pid) == OBJ_TYPE_CRITTER) {
             int healingRate = critterGetStat(partyMember->object, STAT_HEALING_RATE);
-            critterAdjustHitPoints(partyMember->object, v1 * healingRate);
+            critter_adjust_hits(partyMember->object, v1 * healingRate);
         }
     }
 
@@ -850,7 +850,7 @@ int _getPartyMemberCount()
     for (int index = 1; index < gPartyMembersLength; index++) {
         Object* object = gPartyMembers[index].object;
 
-        if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER || critterIsDead(object) || (object->flags & OBJECT_HIDDEN) != 0) {
+        if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER || critter_is_dead(object) || (object->flags & OBJECT_HIDDEN) != 0) {
             count--;
         }
     }
@@ -1165,7 +1165,7 @@ int _partyFixMultipleMembers()
             continue;
         }
 
-        debugPrint("\n   PM: %s", critterGetName(obj));
+        debugPrint("\n   PM: %s", critter_name(obj));
 
         bool v19 = false;
         if (obj->sid == -1) {
@@ -1437,7 +1437,7 @@ int _partyMemberIncLevels()
             continue;
         }
 
-        name = critterGetName(obj);
+        name = critter_name(obj);
         debugPrint("\npartyMemberIncLevels: %s", name);
 
         if (party_member->level_up_every == 0) {
@@ -1481,7 +1481,7 @@ int _partyMemberIncLevels()
                         return -1;
                     }
 
-                    name = critterGetName(obj);
+                    name = critter_name(obj);
                     // %s has gained in some abilities.
                     text = getmsg(&gMiscMessageList, &msg, 9000);
                     sprintf(str, text, name);
@@ -1492,7 +1492,7 @@ int _partyMemberIncLevels()
                     // Individual message
                     msg.num = 9000 + 10 * v0 + ptr_519DBC->field_0 - 1;
                     if (messageListGetItem(&gMiscMessageList, &msg)) {
-                        name = critterGetName(obj);
+                        name = critter_name(obj);
                         sprintf(str, msg.text, name);
                         textObjectAdd(obj, str, 101, colorTable[0x7FFF], colorTable[0], &v19);
                         tileWindowRefreshRect(&v19, obj->elevation);
@@ -1536,7 +1536,7 @@ int _partyMemberCopyLevelInfo(Object* critter, int a2)
     itemRemove(critter, armor, 1);
 
     int maxHp = critterGetStat(critter, STAT_MAXIMUM_HIT_POINTS);
-    critterAdjustHitPoints(critter, maxHp);
+    critter_adjust_hits(critter, maxHp);
 
     for (int stat = 0; stat < SPECIAL_STAT_COUNT; stat++) {
         proto1->critter.data.baseStats[stat] = proto2->critter.data.baseStats[stat];
@@ -1580,11 +1580,11 @@ bool partyIsAnyoneCanBeHealedByRest()
         Object* object = ptr->object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) continue;
-        if (critterIsDead(object)) continue;
+        if (critter_is_dead(object)) continue;
         if ((object->flags & OBJECT_HIDDEN) != 0) continue;
         if (critterGetKillType(object) == KILL_TYPE_ROBOT) continue;
 
-        int currentHp = critterGetHitPoints(object);
+        int currentHp = critter_get_hits(object);
         int maximumHp = critterGetStat(object, STAT_MAXIMUM_HIT_POINTS);
         if (currentHp < maximumHp) {
             return true;
@@ -1607,11 +1607,11 @@ int partyGetMaxWoundToHealByRest()
         Object* object = ptr->object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) continue;
-        if (critterIsDead(object)) continue;
+        if (critter_is_dead(object)) continue;
         if ((object->flags & OBJECT_HIDDEN) != 0) continue;
         if (critterGetKillType(object) == KILL_TYPE_ROBOT) continue;
 
-        int currentHp = critterGetHitPoints(object);
+        int currentHp = critter_get_hits(object);
         int maximumHp = critterGetStat(object, STAT_MAXIMUM_HIT_POINTS);
         int wound = maximumHp - currentHp;
         if (wound > 0) {

@@ -333,7 +333,7 @@ char* protoGetMessage(int pid, int message)
 char* protoGetName(int pid)
 {
     if (pid == 0x1000000) {
-        return critterGetName(gDude);
+        return critter_name(gDude);
     }
 
     return protoGetMessage(pid, PROTOTYPE_MESSAGE_NAME);
@@ -772,7 +772,7 @@ int _proto_dude_init(const char* path)
     gDude->data.critter.combat.team = 0;
     _ResetPlayer();
 
-    if (gcdLoad(path) == -1) {
+    if (pc_load_data(path) == -1) {
         _retval = -1;
     }
 
@@ -794,7 +794,7 @@ int _proto_dude_init(const char* path)
     }
 
     critterUpdateDerivedStats(gDude);
-    critterAdjustHitPoints(gDude, 10000);
+    critter_adjust_hits(gDude, 10000);
 
     if (_retval) {
         debugPrint("\n ** Error in proto_dude_init()! **\n");
@@ -1399,7 +1399,7 @@ int protoRead(Proto* proto, File* stream)
         if (fileReadInt32(stream, &(proto->critter.aiPacket)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->critter.team)) == -1) return -1;
 
-        if (protoCritterDataRead(stream, &(proto->critter.data)) == -1) return -1;
+        if (critter_read_data(stream, &(proto->critter.data)) == -1) return -1;
 
         return 0;
     case OBJ_TYPE_SCENERY:
@@ -1583,7 +1583,7 @@ int protoWrite(Proto* proto, File* stream)
         if (fileWriteInt32(stream, proto->critter.headFid) == -1) return -1;
         if (fileWriteInt32(stream, proto->critter.aiPacket) == -1) return -1;
         if (fileWriteInt32(stream, proto->critter.team) == -1) return -1;
-        if (protoCritterDataWrite(stream, &(proto->critter.data)) == -1) return -1;
+        if (critter_write_data(stream, &(proto->critter.data)) == -1) return -1;
 
         return 0;
     case OBJ_TYPE_SCENERY:
@@ -1846,7 +1846,7 @@ int _ResetPlayer()
 
     pcStatsReset();
     protoCritterDataResetStats(&(proto->critter.data));
-    critterReset();
+    critter_reset();
     characterEditorReset();
     protoCritterDataResetSkills(&(proto->critter.data));
     skillsReset();

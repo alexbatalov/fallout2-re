@@ -149,7 +149,7 @@ int _obj_look_at(Object* a1, Object* a2)
 // 0x49AC4C
 int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
 {
-    if (critterIsDead(a1)) {
+    if (critter_is_dead(a1)) {
         return -1;
     }
 
@@ -179,7 +179,7 @@ int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
     if (!scriptOverrides) {
         MessageListItem messageListItem;
 
-        if (PID_TYPE(a2->pid) == OBJ_TYPE_CRITTER && critterIsDead(a2)) {
+        if (PID_TYPE(a2->pid) == OBJ_TYPE_CRITTER && critter_is_dead(a2)) {
             messageListItem.num = 491 + randomBetween(0, 1);
         } else {
             messageListItem.num = 490;
@@ -213,7 +213,7 @@ int _obj_examine(Object* a1, Object* a2)
 // 0x49AD88
 int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 {
-    if (critterIsDead(critter)) {
+    if (critter_is_dead(critter)) {
         return -1;
     }
 
@@ -248,7 +248,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
             fn(messageListItem.text);
         } else {
-            if (PID_TYPE(target->pid) != OBJ_TYPE_CRITTER || !critterIsDead(target)) {
+            if (PID_TYPE(target->pid) != OBJ_TYPE_CRITTER || !critter_is_dead(target)) {
                 fn(description);
             }
         }
@@ -262,10 +262,10 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
     int type = PID_TYPE(target->pid);
     if (type == OBJ_TYPE_CRITTER) {
-        if (target != gDude && perkGetRank(gDude, PERK_AWARENESS) && !critterIsDead(target)) {
+        if (target != gDude && perkGetRank(gDude, PERK_AWARENESS) && !critter_is_dead(target)) {
             MessageListItem hpMessageListItem;
 
-            if (critterGetBodyType(target) != BODY_TYPE_BIPED) {
+            if (critter_body_type(target) != BODY_TYPE_BIPED) {
                 // It has %d/%d hps
                 hpMessageListItem.num = 537;
             } else {
@@ -330,7 +330,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             } else {
                 MessageListItem endingMessageListItem;
 
-                if (critterIsCrippled(target)) {
+                if (critter_is_crippled(target)) {
                     endingMessageListItem.num = 544; // ,
                 } else {
                     endingMessageListItem.num = 545; // .
@@ -348,7 +348,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
         } else {
             int v12 = 0;
-            if (critterIsCrippled(target)) {
+            if (critter_is_crippled(target)) {
                 v12 -= 2;
             }
 
@@ -356,7 +356,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             const int maxiumHitPoints = critterGetStat(target, STAT_MAXIMUM_HIT_POINTS);
             const int currentHitPoints = critterGetStat(target, STAT_CURRENT_HIT_POINTS);
-            if (currentHitPoints <= 0 || critterIsDead(target)) {
+            if (currentHitPoints <= 0 || critter_is_dead(target)) {
                 v16 = 0;
             } else if (currentHitPoints == maxiumHitPoints) {
                 v16 = 4;
@@ -412,7 +412,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
         }
 
-        if (critterIsCrippled(target)) {
+        if (critter_is_crippled(target)) {
             const int maxiumHitPoints = critterGetStat(target, STAT_MAXIMUM_HIT_POINTS);
             const int currentHitPoints = critterGetStat(target, STAT_CURRENT_HIT_POINTS);
 
@@ -1067,7 +1067,7 @@ int _protinstTestDroppedExplosive(Object* a1)
             if (v5 != gDude
                 && v5->data.critter.combat.team != team
                 && statRoll(v5, STAT_PERCEPTION, 0, NULL) >= 2) {
-                _critter_set_who_hit_me(v5, gDude);
+                critter_set_who_hit_me(v5, gDude);
                 if (v2 == NULL) {
                     v2 = v5;
                 }
@@ -1154,7 +1154,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
             return -1;
         }
 
-        if (critterIsDead(a2)) {
+        if (critter_is_dead(a2)) {
             // 583: To your dismay, you realize that it is already dead.
             // 584: As you reach down, you realize that it is already dead.
             // 585: Alas, you are too late.

@@ -636,7 +636,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
         return 0;
     }
 
-    if (critterIsEncumbered(owner)) {
+    if (critterIsOverloaded(owner)) {
         if (objectIsPartyMember(owner)) {
             char formattedText[92];
             MessageListItem messageListItem;
@@ -648,7 +648,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
                 // %s is overloaded.
                 sprintf(formattedText,
                     getmsg(&gMiscMessageList, &messageListItem, 8001),
-                    critterGetName(owner));
+                    critter_name(owner));
             }
             displayMonitorAddMessage(formattedText);
         }
@@ -661,7 +661,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
     animationDescription->destination = destination;
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
-        || (owner == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
+        || (owner == gDude && is_pc_flag(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
         || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
@@ -729,7 +729,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
         return 0;
     }
 
-    if (critterIsEncumbered(owner)) {
+    if (critterIsOverloaded(owner)) {
         if (objectIsPartyMember(owner)) {
             MessageListItem messageListItem;
             char formattedText[72];
@@ -741,7 +741,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
                 // %s is overloaded.
                 sprintf(formattedText,
                     getmsg(&gMiscMessageList, &messageListItem, 8001),
-                    critterGetName(owner));
+                    critter_name(owner));
             }
 
             displayMonitorAddMessage(formattedText);
@@ -757,7 +757,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
     animationDescription->elevation = elevation;
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
-        || (owner == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
+        || (owner == gDude && is_pc_flag(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
         || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
@@ -1504,7 +1504,7 @@ static int anim_set_check(int animationSequenceIndex)
             rc = anim_animate(animationDescription->owner, animationDescription->anim, animationSequenceIndex, ANIM_SAD_FOREVER);
             break;
         case ANIM_KIND_ROTATE_TO_TILE:
-            if (!_critter_is_prone(animationDescription->owner)) {
+            if (!critter_is_prone(animationDescription->owner)) {
                 int rotation = tileGetRotationTo(animationDescription->owner->tile, animationDescription->tile);
                 dude_stand(animationDescription->owner, rotation, -1);
             }
@@ -1717,7 +1717,7 @@ static int anim_set_end(int animationSequenceIndex)
                                 }
                             }
 
-                            if ((animationSequence->flags & ANIM_SEQ_NO_STAND) == 0 && !_critter_is_prone(owner)) {
+                            if ((animationSequence->flags & ANIM_SEQ_NO_STAND) == 0 && !critter_is_prone(owner)) {
                                 dude_stand(owner, owner->rotation, -1);
                             }
                         }
@@ -1767,7 +1767,7 @@ static bool anim_can_use_door(Object* critter, Object* door)
         return false;
     }
 
-    int bodyType = critterGetBodyType(critter);
+    int bodyType = critter_body_type(critter);
     if (bodyType != BODY_TYPE_BIPED && bodyType != BODY_TYPE_ROBOTIC) {
         return false;
     }
@@ -2692,7 +2692,7 @@ static void object_move(int index)
 
             int v17 = 0;
             if (isInCombat() && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER) {
-                int v18 = critterGetMovementPointCostAdjustedForCrippledLegs(object, 1);
+                int v18 = critter_compute_ap_from_distance(object, 1);
                 if (combat_free_move < v18) {
                     int ap = object->data.critter.combat.ap;
                     int v20 = v18 - combat_free_move;
@@ -3101,7 +3101,7 @@ int dude_run(int a1)
     }
 
     if (!perkGetRank(gDude, PERK_SILENT_RUNNING)) {
-        dudeDisableState(DUDE_STATE_SNEAKING);
+        pc_flag_off(DUDE_STATE_SNEAKING);
     }
 
     register_begin(ANIMATION_REQUEST_RESERVED);
@@ -3153,7 +3153,7 @@ void dude_fidget()
             break;
         }
 
-        if ((object->flags & OBJECT_HIDDEN) == 0 && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER && FID_ANIM_TYPE(object->fid) == ANIM_STAND && !critterIsDead(object)) {
+        if ((object->flags & OBJECT_HIDDEN) == 0 && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER && FID_ANIM_TYPE(object->fid) == ANIM_STAND && !critter_is_dead(object)) {
             Rect rect;
             objectGetRect(object, &rect);
 
@@ -3298,7 +3298,7 @@ void dude_standup(Object* a1)
 // 0x4185EC
 static int anim_turn_towards(Object* obj, int delta, int animationSequenceIndex)
 {
-    if (!_critter_is_prone(obj)) {
+    if (!critter_is_prone(obj)) {
         int rotation = obj->rotation + delta;
         if (rotation >= ROTATION_COUNT) {
             rotation = ROTATION_NE;

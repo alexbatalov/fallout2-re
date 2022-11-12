@@ -1,21 +1,20 @@
-#ifndef CRITTER_H
-#define CRITTER_H
+#ifndef FALLOUT_GAME_CRITTER_H_
+#define FALLOUT_GAME_CRITTER_H_
 
 #include <stdbool.h>
 
 #include "db.h"
-#include "message.h"
 #include "obj_types.h"
 #include "proto_types.h"
 
 // Maximum length of dude's name length.
-#define DUDE_NAME_MAX_LENGTH (32)
+#define DUDE_NAME_MAX_LENGTH 32
 
 // The number of effects caused by radiation.
 //
 // A radiation effect is an identifier and does not have it's own name. It's
-// stat is specified in [gRadiationEffectStats], and it's amount is specified
-// in [gRadiationEffectPenalties] for every [RadiationLevel].
+// stat is specified in [rad_stat], and it's amount is specified
+// in [rad_bonus] for every [RadiationLevel].
 #define RADIATION_EFFECT_COUNT 8
 
 // Radiation levels.
@@ -50,85 +49,68 @@ typedef enum DudeState {
     DUDE_STATE_ADDICTED = 4,
 } DudeState;
 
-extern char _aCorpse[];
-extern char byte_501494[];
+extern int rad_stat[RADIATION_EFFECT_COUNT];
+extern int rad_bonus[RADIATION_LEVEL_COUNT][RADIATION_EFFECT_COUNT];
 
-extern char* _name_critter;
-extern const int gRadiationEnduranceModifiers[RADIATION_LEVEL_COUNT];
-extern const int gRadiationEffectStats[RADIATION_EFFECT_COUNT];
-extern const int gRadiationEffectPenalties[RADIATION_LEVEL_COUNT][RADIATION_EFFECT_COUNT];
-extern Object* _critterClearObj;
-
-extern MessageList gCritterMessageList;
-extern char gDudeName[DUDE_NAME_MAX_LENGTH];
-extern int _sneak_working;
-extern int gKillsByType[KILL_TYPE_COUNT];
-extern int _old_rad_level;
-
-int critterInit();
-void critterReset();
-void critterExit();
-int critterLoad(File* stream);
-int critterSave(File* stream);
-char* critterGetName(Object* obj);
-void critterProtoDataCopy(CritterProtoData* dest, CritterProtoData* src);
-int dudeSetName(const char* name);
-void dudeResetName();
-int critterGetHitPoints(Object* critter);
-int critterAdjustHitPoints(Object* critter, int hp);
-int critterGetPoison(Object* critter);
-int critterAdjustPoison(Object* obj, int amount);
-int poisonEventProcess(Object* obj, void* data);
-int critterGetRadiation(Object* critter);
-int critterAdjustRadiation(Object* obj, int amount);
-int _critter_check_rads(Object* critter);
-int _get_rad_damage_level(Object* obj, void* data);
-int _clear_rad_damage(Object* obj, void* data);
-void _process_rads(Object* obj, int radiationLevel, bool direction);
-int radiationEventProcess(Object* obj, void* data);
-int radiationEventRead(File* stream, void** dataPtr);
-int radiationEventWrite(File* stream, void* data);
-int critterGetDamageType(Object* critter);
-int critter_kill_count_clear();
-int killsIncByType(int killType);
-int killsGetByType(int killType);
-int killsLoad(File* stream);
-int killsSave(File* stream);
+int critter_init();
+void critter_reset();
+void critter_exit();
+int critter_load(File* stream);
+int critter_save(File* stream);
+char* critter_name(Object* obj);
+void critter_copy(CritterProtoData* dest, CritterProtoData* src);
+int critter_pc_set_name(const char* name);
+void critter_pc_reset_name();
+int critter_get_hits(Object* critter);
+int critter_adjust_hits(Object* critter, int hp);
+int critter_get_poison(Object* critter);
+int critter_adjust_poison(Object* obj, int amount);
+int critter_check_poison(Object* obj, void* data);
+int critter_get_rads(Object* critter);
+int critter_adjust_rads(Object* obj, int amount);
+int critter_check_rads(Object* critter);
+int critter_process_rads(Object* obj, void* data);
+int critter_load_rads(File* stream, void** dataPtr);
+int critter_save_rads(File* stream, void* data);
+int critter_get_base_damage_type(Object* critter);
+int critter_kill_count_inc(int killType);
+int critter_kill_count(int killType);
+int critter_kill_count_load(File* stream);
+int critter_kill_count_save(File* stream);
 int critterGetKillType(Object* critter);
-char* killTypeGetName(int killType);
-char* killTypeGetDescription(int killType);
-int _critter_heal_hours(Object* obj, int a2);
-int _critterClearObjDrugs(Object* obj, void* data);
-void critterKill(Object* critter, int anim, bool a3);
-int critterGetExp(Object* critter);
-bool critterIsActive(Object* critter);
-bool critterIsDead(Object* critter);
-bool critterIsCrippled(Object* critter);
-bool _critter_is_prone(Object* critter);
-int critterGetBodyType(Object* critter);
+char* critter_kill_name(int killType);
+char* critter_kill_info(int killType);
+int critter_heal_hours(Object* obj, int a2);
+void critter_kill(Object* critter, int anim, bool a3);
+int critter_kill_exps(Object* critter);
+bool critter_is_active(Object* critter);
+bool critter_is_dead(Object* critter);
+bool critter_is_crippled(Object* critter);
+bool critter_is_prone(Object* critter);
+int critter_body_type(Object* critter);
 int critter_load_data(CritterProtoData* critterData, const char* path);
-int gcdLoad(const char* path);
-int protoCritterDataRead(File* stream, CritterProtoData* critterData);
+int pc_load_data(const char* path);
+int critter_read_data(File* stream, CritterProtoData* critterData);
 int critter_save_data(CritterProtoData* critterData, const char* path);
-int gcdSave(const char* path);
-int protoCritterDataWrite(File* stream, CritterProtoData* critterData);
-void dudeDisableState(int state);
-void dudeEnableState(int state);
-void dudeToggleState(int state);
-bool dudeHasState(int state);
-int sneakEventProcess(Object* obj, void* data);
-int _critter_sneak_clear(Object* obj, void* data);
-bool dudeIsSneaking();
-int knockoutEventProcess(Object* obj, void* data);
-int _critter_wake_clear(Object* obj, void* data);
-int _critter_set_who_hit_me(Object* a1, Object* a2);
-bool _critter_can_obj_dude_rest();
-int critterGetMovementPointCostAdjustedForCrippledLegs(Object* critter, int a2);
-bool critterIsEncumbered(Object* critter);
-bool critterIsFleeing(Object* a1);
-bool _critter_flag_check(int pid, int flag);
+int pc_save_data(const char* path);
+int critter_write_data(File* stream, CritterProtoData* critterData);
+void pc_flag_off(int state);
+void pc_flag_on(int state);
+void pc_flag_toggle(int state);
+bool is_pc_flag(int state);
+int critter_sneak_check(Object* obj, void* data);
+int critter_sneak_clear(Object* obj, void* data);
+bool is_pc_sneak_working();
+int critter_wake_up(Object* obj, void* data);
+int critter_wake_clear(Object* obj, void* data);
+int critter_set_who_hit_me(Object* a1, Object* a2);
+bool critter_can_obj_dude_rest();
+int critter_compute_ap_from_distance(Object* critter, int a2);
+bool critterIsOverloaded(Object* critter);
+bool critter_is_fleeing(Object* a1);
+bool critter_flag_check(int pid, int flag);
 void critter_flag_set(int pid, int flag);
 void critter_flag_unset(int pid, int flag);
 void critter_flag_toggle(int pid, int flag);
 
-#endif /* CRITTER_H */
+#endif /* FALLOUT_GAME_CRITTER_H_ */

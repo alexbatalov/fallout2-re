@@ -196,7 +196,7 @@ int itemAttemptAdd(Object* owner, Object* itemToAdd, int quantity)
             return -1;
         }
     } else if (parentType == OBJ_TYPE_CRITTER) {
-        if (critterGetBodyType(owner) != BODY_TYPE_BIPED) {
+        if (critter_body_type(owner) != BODY_TYPE_BIPED) {
             return -5;
         }
 
@@ -1230,7 +1230,7 @@ int weaponGetDamageType(Object* critter, Object* weapon)
     }
 
     if (critter != NULL) {
-        return critterGetDamageType(critter);
+        return critter_get_base_damage_type(critter);
     }
 
     return 0;
@@ -1552,7 +1552,7 @@ int _item_w_range(Object* critter, int hitMode)
         return range;
     }
 
-    if (_critter_flag_check(critter->pid, CRITTER_LONG_LIMBS)) {
+    if (critter_flag_check(critter->pid, CRITTER_LONG_LIMBS)) {
         return 2;
     }
 
@@ -2329,7 +2329,7 @@ int miscItemTurnOn(Object* item)
             // You pass the Geiger counter over you body. The rem counter reads: %d
             messageListItem.num = 8;
             if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
-                int radiation = critterGetRadiation(critter);
+                int radiation = critter_get_rads(critter);
                 sprintf(text, messageListItem.text, radiation);
                 displayMonitorAddMessage(text);
             }
@@ -2610,7 +2610,7 @@ void _perform_drug_effect(Object* critter, int* stats, int* mods, bool isImmedia
         if (stat == STAT_CURRENT_HIT_POINTS) {
             v12 = critterGetBaseStatWithTraitModifier(critter, STAT_CURRENT_HIT_POINTS);
             if (v11 + v12 <= 0 && critter != gDude) {
-                name = critterGetName(critter);
+                name = critter_name(critter);
                 // %s succumbs to the adverse effects of chems.
                 text = getmsg(&gItemsMessageList, &messageListItem, 600);
                 sprintf(v24, text, name);
@@ -2657,7 +2657,7 @@ void _perform_drug_effect(Object* critter, int* stats, int* mods, bool isImmedia
                 // TODO: Why message is ignored?
             }
         } else {
-            name = critterGetName(critter);
+            name = critter_name(critter);
             // %s succumbs to the adverse effects of chems.
             text = getmsg(&gItemsMessageList, &messageListItem, 600);
             sprintf(v24, text, name);
@@ -2705,11 +2705,11 @@ bool _drug_effect_allowed(Object* critter, int pid)
 // 0x479F60
 int _item_d_take_drug(Object* critter, Object* item)
 {
-    if (critterIsDead(critter)) {
+    if (critter_is_dead(critter)) {
         return -1;
     }
 
-    if (critterGetBodyType(critter) == BODY_TYPE_ROBOTIC) {
+    if (critter_body_type(critter) == BODY_TYPE_ROBOTIC) {
         return -1;
     }
 
@@ -3036,7 +3036,7 @@ void dudeSetAddiction(int drugPid)
         gGameGlobalVars[gvar] = 1;
     }
 
-    dudeEnableState(DUDE_STATE_ADDICTED);
+    pc_flag_on(DUDE_STATE_ADDICTED);
 }
 
 // NOTE: Inlined.
@@ -3050,7 +3050,7 @@ void dudeClearAddiction(int drugPid)
     }
 
     if (!dudeIsAddicted(-1)) {
-        dudeDisableState(DUDE_STATE_ADDICTED);
+        pc_flag_off(DUDE_STATE_ADDICTED);
     }
 }
 

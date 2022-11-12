@@ -771,7 +771,7 @@ int ai_set_run_away_value(Object* obj, int runAwayMode)
     ai->min_hp = maximumHp - maximumHp * runModeValues[runAwayMode] / 100;
 
     int currentHp = critterGetStat(obj, STAT_CURRENT_HIT_POINTS);
-    const char* name = critterGetName(obj);
+    const char* name = critter_name(obj);
 
     debugPrint("\n%s minHp = %d; curHp = %d", name, ai->min_hp, currentHp);
 
@@ -892,7 +892,7 @@ static int ai_magic_hands(Object* critter, Object* item, int num)
 // 0x428480
 static int ai_check_drugs(Object* critter)
 {
-    if (critterGetBodyType(critter) != BODY_TYPE_BIPED) {
+    if (critter_body_type(critter) != BODY_TYPE_BIPED) {
         return 0;
     }
 
@@ -1459,11 +1459,11 @@ Object* ai_danger_source(Object* a1)
 
             if (make_path_func(a1, a1->tile, gDude->data.critter.combat.whoHitMe->tile, NULL, 0, _obj_blocking_at) == 0
                 && combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) != COMBAT_BAD_SHOT_OK) {
-                debugPrint("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critterGetName(a1));
+                debugPrint("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critter_name(a1));
                 break;
             }
 
-            if (v2 && critterIsFleeing(a1)) {
+            if (v2 && critter_is_fleeing(a1)) {
                 break;
             }
 
@@ -1502,7 +1502,7 @@ Object* ai_danger_source(Object* a1)
 
     if (v2) {
         for (int index = 0; index < 4; index++) {
-            if (targets[index] != NULL && critterIsFleeing(targets[index])) {
+            if (targets[index] != NULL && critter_is_fleeing(targets[index])) {
                 targets[index] = NULL;
             }
         }
@@ -1844,7 +1844,7 @@ static bool ai_can_use_weapon(Object* critter, Object* weapon, int hitMode)
 // 0x4299A0
 Object* ai_search_inven_weap(Object* critter, int a2, Object* a3)
 {
-    int bodyType = critterGetBodyType(critter);
+    int bodyType = critter_body_type(critter);
     if (bodyType != BODY_TYPE_BIPED
         && bodyType != BODY_TYPE_ROBOTIC
         && critter->pid != PROTO_ID_0x1000098) {
@@ -1966,7 +1966,7 @@ static bool ai_can_use_drug(Object* critter, Object* item)
         }
     }
 
-    if (critterGetBodyType(critter) != BODY_TYPE_BIPED) {
+    if (critter_body_type(critter) != BODY_TYPE_BIPED) {
         return false;
     }
 
@@ -1998,7 +1998,7 @@ static bool ai_can_use_drug(Object* critter, Object* item)
 // 0x429C18
 static Object* ai_search_environ(Object* critter, int itemType)
 {
-    if (critterGetBodyType(critter) != BODY_TYPE_BIPED) {
+    if (critter_body_type(critter) != BODY_TYPE_BIPED) {
         return NULL;
     }
 
@@ -2499,7 +2499,7 @@ static int ai_attack(Object* a1, Object* a2, int a3)
 // 0x42A7D8
 static int ai_try_attack(Object* a1, Object* a2)
 {
-    _critter_set_who_hit_me(a1, a2);
+    critter_set_who_hit_me(a1, a2);
 
     CritterCombatData* combatData = &(a1->data.critter.combat);
     int v38 = 1;
@@ -2516,7 +2516,7 @@ static int ai_try_attack(Object* a1, Object* a2)
     int v31 = 0;
     int v42 = 0;
     if (weapon != NULL
-        || (critterGetBodyType(a2) == BODY_TYPE_BIPED
+        || (critter_body_type(a2) == BODY_TYPE_BIPED
             && ((a2->fid & 0xF000) >> 12 == 0)
             && art_exists(art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_THROW_PUNCH, 0, a1->rotation + 1)))) {
         if (combat_safety_invalidate_weapon(a1, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a2, &v31)) {
@@ -2604,7 +2604,7 @@ static int ai_try_attack(Object* a1, Object* a2)
             // target out of range
             int accuracy = determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
             if (accuracy < minToHit) {
-                const char* name = critterGetName(a1);
+                const char* name = critter_name(a1);
                 debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
                 ai_run_away(a1, a2);
                 return 0;
@@ -2641,7 +2641,7 @@ static int ai_try_attack(Object* a1, Object* a2)
             if (accuracy < minToHit) {
                 int v22 = determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
                 if (v22 < minToHit) {
-                    const char* name = critterGetName(a1);
+                    const char* name = critter_name(a1);
                     debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
                     ai_run_away(a1, a2);
                     return 0;
@@ -2676,7 +2676,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                 }
 
                 if (ai_move_steps_closer(a1, a2, v42, v38) == -1) {
-                    const char* name = critterGetName(a1);
+                    const char* name = critter_name(a1);
                     debugPrint("%s: FLEEING: Can't possibly get closer to Target!", name);
                     ai_run_away(a1, a2);
                     return 0;
@@ -2854,7 +2854,7 @@ void combat_ai(Object* a1, Object* a2)
         int v7 = critterGetStat(a1, STAT_MAXIMUM_HIT_POINTS) * hpRatio / 100;
         int minimumHitPoints = critterGetStat(a1, STAT_MAXIMUM_HIT_POINTS) - v7;
         int currentHitPoints = critterGetStat(a1, STAT_CURRENT_HIT_POINTS);
-        const char* name = critterGetName(a1);
+        const char* name = critter_name(a1);
         debugPrint("\n%s minHp = %d; curHp = %d", name, minimumHitPoints, currentHitPoints);
     }
 
@@ -2862,14 +2862,14 @@ void combat_ai(Object* a1, Object* a2)
     if ((combatData->maneuver & CRITTER_MANUEVER_FLEEING) != 0
         || (combatData->results & ai->hurt_too_much) != 0
         || critterGetStat(a1, STAT_CURRENT_HIT_POINTS) < ai->min_hp) {
-        const char* name = critterGetName(a1);
+        const char* name = critter_name(a1);
         debugPrint("%s: FLEEING: I'm Hurt!", name);
         ai_run_away(a1, a2);
         return;
     }
 
     if (ai_check_drugs(a1)) {
-        const char* name = critterGetName(a1);
+        const char* name = critter_name(a1);
         debugPrint("%s: FLEEING: I need DRUGS!", name);
         ai_run_away(a1, a2);
     } else {
@@ -2909,7 +2909,7 @@ void combat_ai(Object* a1, Object* a2)
                     ai_move_away(a1, v16, 10);
                     combatAIInfoSetFriendlyDead(a1, NULL);
                 } else {
-                    const char* name = critterGetName(a1);
+                    const char* name = critter_name(a1);
                     debugPrint("%s: FLEEING: Somebody is shooting at me that I can't see!");
                     ai_run_away(a1, NULL);
                 }
@@ -2945,7 +2945,7 @@ void combat_ai(Object* a1, Object* a2)
         ai_move_steps_closer(a1, v20, v23 - v21, 0);
     } else {
         if (a1->data.critter.combat.ap > 0) {
-            debugPrint("\n>>>NOTE: %s had extra AP's to use!<<<", critterGetName(a1));
+            debugPrint("\n>>>NOTE: %s had extra AP's to use!<<<", critter_name(a1));
             cai_perform_distance_prefs(a1, a2);
         }
     }
@@ -3028,7 +3028,7 @@ int combatai_switch_team(Object* obj, int team)
     obj->data.critter.combat.team = team;
 
     if (obj->data.critter.combat.whoHitMeCid == -1) {
-        _critter_set_who_hit_me(obj, NULL);
+        critter_set_who_hit_me(obj, NULL);
         debugPrint("\nError: CombatData found with invalid who_hit_me!");
         return -1;
     }
@@ -3036,7 +3036,7 @@ int combatai_switch_team(Object* obj, int team)
     Object* whoHitMe = obj->data.critter.combat.whoHitMe;
     if (whoHitMe != NULL) {
         if (whoHitMe->data.critter.combat.team == team) {
-            _critter_set_who_hit_me(obj, NULL);
+            critter_set_who_hit_me(obj, NULL);
         }
     }
 
@@ -3158,7 +3158,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
     MessageListItem messageListItem;
     messageListItem.num = randomBetween(start, end);
     if (!messageListGetItem(&ai_message_file, &messageListItem)) {
-        debugPrint("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critterGetName(a1));
+        debugPrint("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critter_name(a1));
         return -1;
     }
 
@@ -3283,7 +3283,7 @@ int combatai_check_retaliation(Object* a1, Object* a2)
             return result;
         }
     }
-    return _critter_set_who_hit_me(a1, a2);
+    return critter_set_who_hit_me(a1, a2);
 }
 
 // 0x42BA04
@@ -3303,12 +3303,12 @@ bool is_within_perception(Object* a1, Object* a2)
         }
 
         if (a2 == gDude) {
-            if (dudeIsSneaking()) {
+            if (is_pc_sneak_working()) {
                 maxDistance /= 4;
                 if (sneak > 120) {
                     maxDistance -= 1;
                 }
-            } else if (dudeHasState(DUDE_STATE_SNEAKING)) {
+            } else if (is_pc_flag(DUDE_STATE_SNEAKING)) {
                 maxDistance = maxDistance * 2 / 3;
             }
         }
@@ -3326,12 +3326,12 @@ bool is_within_perception(Object* a1, Object* a2)
     }
 
     if (a2 == gDude) {
-        if (dudeIsSneaking()) {
+        if (is_pc_sneak_working()) {
             maxDistance /= 4;
             if (sneak > 120) {
                 maxDistance -= 1;
             }
-        } else if (dudeHasState(DUDE_STATE_SNEAKING)) {
+        } else if (is_pc_flag(DUDE_STATE_SNEAKING)) {
             maxDistance = maxDistance * 2 / 3;
         }
     }

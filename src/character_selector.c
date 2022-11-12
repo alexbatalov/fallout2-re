@@ -826,7 +826,7 @@ bool characterSelectorWindowRenderStats()
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-    sprintf(text, " %d/%d", critterGetHitPoints(gDude), value);
+    sprintf(text, " %d/%d", critter_get_hits(gDude), value);
 
     length = fontGetStringWidth(text);
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);

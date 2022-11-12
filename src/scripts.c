@@ -359,7 +359,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         _scriptsCheckGameEvents(&movie_index, -1);
     }
 
-    v4 = _critter_check_rads(gDude);
+    v4 = critter_check_rads(gDude);
 
     _queue_clear_type(4, 0);
 
