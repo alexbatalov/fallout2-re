@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "automap.h"
+#include "game/automap.h"
 #include "color.h"
 #include "combat.h"
 #include "config.h"

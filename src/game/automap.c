@@ -1,4 +1,4 @@
-#include "automap.h"
+#include "game/automap.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -6,7 +6,7 @@
 #include <time.h>
 
 #include "game/actions.h"
-#include "automap.h"
+#include "game/automap.h"
 #include "combat.h"
 #include "core.h"
 #include "critter.h"

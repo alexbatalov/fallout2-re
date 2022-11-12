@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "game/anim.h"
-#include "automap.h"
+#include "game/automap.h"
 #include "combat.h"
 #include "critter.h"
 #include "debug.h"

@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "game/anim.h"
-#include "automap.h"
+#include "game/automap.h"
 #include "character_editor.h"
 #include "color.h"
 #include "combat.h"
