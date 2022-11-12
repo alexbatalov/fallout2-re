@@ -873,7 +873,7 @@ int scriptsHandleRequests()
 
             if (map == gMapHeader.field_34) {
                 if (elevation == gElevation) {
-                    reg_anim_clear(gDude);
+                    register_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
                     _obj_attempt_placement(gDude, tile, elevation, 0);
                 } else {
@@ -888,7 +888,7 @@ int scriptsHandleRequests()
                         elevatorDoors = objectFindNextAtElevation();
                     }
 
-                    reg_anim_clear(gDude);
+                    register_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
                     _obj_attempt_placement(gDude, tile, elevation, 0);
 
@@ -979,7 +979,7 @@ int _scripts_check_state_in_combat()
 
             if (map == gMapHeader.field_34) {
                 if (elevation == gElevation) {
-                    reg_anim_clear(gDude);
+                    register_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
                     _obj_attempt_placement(gDude, tile, elevation, 0);
                 } else {
@@ -994,7 +994,7 @@ int _scripts_check_state_in_combat()
                         elevatorDoors = objectFindNextAtElevation();
                     }
 
-                    reg_anim_clear(gDude);
+                    register_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
                     _obj_attempt_placement(gDude, tile, elevation, 0);
 

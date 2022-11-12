@@ -785,7 +785,7 @@ void gameMouseRefresh()
 
         char formattedActionPoints[8];
         int color;
-        int v6 = _make_path(gDude, gDude->tile, gGameMouseHexCursor->tile, NULL, 1);
+        int v6 = make_path(gDude, gDude->tile, gGameMouseHexCursor->tile, NULL, 1);
         if (v6) {
             if (!isInCombat()) {
                 formattedActionPoints[0] = '\0';
@@ -908,17 +908,17 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
 
             if (keys[DIK_LSHIFT] || keys[DIK_RSHIFT]) {
                 if (running) {
-                    _dude_move(actionPoints);
+                    dude_move(actionPoints);
                     return;
                 }
             } else {
                 if (!running) {
-                    _dude_move(actionPoints);
+                    dude_move(actionPoints);
                     return;
                 }
             }
 
-            _dude_run(actionPoints);
+            dude_run(actionPoints);
             return;
         }
 

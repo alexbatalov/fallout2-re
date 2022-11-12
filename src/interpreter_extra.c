@@ -1003,11 +1003,11 @@ void opDestroyObject(Program* program)
             object->sid = -1;
             object->flags |= (OBJECT_HIDDEN | OBJECT_TEMPORARY);
         } else {
-            reg_anim_clear(object);
+            register_clear(object);
             objectDestroy(object, NULL);
         }
     } else {
-        reg_anim_clear(object);
+        register_clear(object);
 
         Rect rect;
         objectDestroy(object, &rect);
@@ -1552,9 +1552,9 @@ void opAnimateStand(Program* program)
     }
 
     if (!isInCombat()) {
-        reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
-        animationRegisterAnimate(object, ANIM_STAND, 0);
-        reg_anim_end();
+        register_begin(ANIMATION_REQUEST_UNRESERVED);
+        register_object_animate(object, ANIM_STAND, 0);
+        register_end();
     }
 }
 
@@ -1588,9 +1588,9 @@ void opAnimateStandReverse(Program* program)
     }
 
     if (!isInCombat()) {
-        reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
-        animationRegisterAnimateReversed(object, ANIM_STAND, 0);
-        reg_anim_end();
+        register_begin(ANIMATION_REQUEST_UNRESERVED);
+        register_object_animate_reverse(object, ANIM_STAND, 0);
+        register_end();
     }
 }
 
@@ -1644,19 +1644,19 @@ void opAnimateMoveObjectToTile(Program* program)
     }
 
     if ((flags & 0x10) != 0) {
-        reg_anim_clear(object);
+        register_clear(object);
         flags &= ~0x10;
     }
 
-    reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
+    register_begin(ANIMATION_REQUEST_UNRESERVED);
 
     if (flags == 0) {
-        animationRegisterMoveToTile(object, tile, object->elevation, -1, 0);
+        register_object_move_to_tile(object, tile, object->elevation, -1, 0);
     } else {
-        animationRegisterRunToTile(object, tile, object->elevation, -1, 0);
+        register_object_run_to_tile(object, tile, object->elevation, -1, 0);
     }
 
-    reg_anim_end();
+    register_end();
 }
 
 // tile_in_tile_rect
@@ -2185,7 +2185,7 @@ void opObjectCanSeeObject(Program* program)
 
             if (isWithinPerception(object1, object2)) {
                 Object* a5;
-                _make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
+                make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
                 if (a5 == object2) {
                     result = 1;
                 }
@@ -2743,7 +2743,7 @@ void opAnimBusy(Program* program)
 
     int rc = 0;
     if (object != NULL) {
-        rc = animationIsBusy(object);
+        rc = anim_busy(object);
     } else {
         scriptPredefinedError(program, "anim_busy", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -2900,7 +2900,7 @@ void opKillCritter(Program* program)
     Object* self = scriptGetSelf(program);
     bool isSelf = self == object;
 
-    reg_anim_clear(object);
+    register_clear(object);
     _combat_delete_critter(object);
     critterKill(object, deathFrame, 1);
 
@@ -2994,7 +2994,7 @@ void opKillCritterType(Program* program)
                 return;
             }
 
-            reg_anim_clear(obj);
+            register_clear(obj);
 
             if (deathFrame != 0) {
                 _combat_delete_critter(obj);
@@ -3009,7 +3009,7 @@ void opKillCritterType(Program* program)
                     critterKill(obj, ANIM_FALL_BACK_SF, 1);
                 }
             } else {
-                reg_anim_clear(obj);
+                register_clear(obj);
 
                 Rect rect;
                 objectDestroy(obj, &rect);
@@ -4290,14 +4290,14 @@ void opAnim(Program* program)
 
         anim = _correctDeath(obj, anim, true);
 
-        reg_anim_begin(ANIMATION_REQUEST_UNRESERVED);
+        register_begin(ANIMATION_REQUEST_UNRESERVED);
 
         // TODO: Not sure about the purpose, why it handles knock down flag?
         if (frame == 0) {
-            animationRegisterAnimate(obj, anim, 0);
+            register_object_animate(obj, anim, 0);
             if (anim >= ANIM_FALL_BACK && anim <= ANIM_FALL_FRONT_BLOOD) {
                 int fid = buildFid(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 28);
-                animationRegisterSetFid(obj, fid, -1);
+                register_object_change_fid(obj, fid, -1);
             }
 
             if (combatData != NULL) {
@@ -4305,7 +4305,7 @@ void opAnim(Program* program)
             }
         } else {
             int fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
-            animationRegisterAnimateReversed(obj, anim, 0);
+            register_object_animate_reverse(obj, anim, 0);
 
             if (anim == ANIM_PRONE_TO_STANDING) {
                 fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_FRONT_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
@@ -4317,10 +4317,10 @@ void opAnim(Program* program)
                 combatData->results |= DAM_KNOCKED_DOWN;
             }
 
-            animationRegisterSetFid(obj, fid, -1);
+            register_object_change_fid(obj, fid, -1);
         }
 
-        reg_anim_end();
+        register_end();
     } else if (anim == 1000) {
         if (frame < ROTATION_COUNT) {
             Rect rect;
@@ -4396,13 +4396,13 @@ void opRegAnimFunc(Program* program)
     if (!isInCombat()) {
         switch (cmd) {
         case OP_REG_ANIM_FUNC_BEGIN:
-            reg_anim_begin(param);
+            register_begin(param);
             break;
         case OP_REG_ANIM_FUNC_CLEAR:
-            reg_anim_clear((Object*)param);
+            register_clear((Object*)param);
             break;
         case OP_REG_ANIM_FUNC_END:
-            reg_anim_end();
+            register_end();
             break;
         }
     }
@@ -4436,7 +4436,7 @@ void opRegAnimAnimate(Program* program)
         int violenceLevel = VIOLENCE_LEVEL_NONE;
         if (anim != 20 || object == NULL || object->pid != 0x100002F || (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel) && violenceLevel >= 2)) {
             if (object != NULL) {
-                animationRegisterAnimate(object, anim, delay);
+                register_object_animate(object, anim, delay);
             } else {
                 scriptPredefinedError(program, "reg_anim_animate", SCRIPT_ERROR_OBJECT_IS_NULL);
             }
@@ -4470,7 +4470,7 @@ void opRegAnimAnimateReverse(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            animationRegisterAnimateReversed(object, anim, delay);
+            register_object_animate_reverse(object, anim, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_animate_reverse", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
@@ -4503,7 +4503,7 @@ void opRegAnimObjectMoveToObject(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            animationRegisterMoveToObject(object, dest, -1, delay);
+            register_object_move_to_object(object, dest, -1, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_obj_move_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
@@ -4536,7 +4536,7 @@ void opRegAnimObjectRunToObject(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            animationRegisterRunToObject(object, dest, -1, delay);
+            register_object_run_to_object(object, dest, -1, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_obj_run_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
@@ -4569,7 +4569,7 @@ void opRegAnimObjectMoveToTile(Program* prg)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            animationRegisterMoveToTile(object, tile, object->elevation, -1, delay);
+            register_object_move_to_tile(object, tile, object->elevation, -1, delay);
         } else {
             scriptPredefinedError(prg, "reg_anim_obj_move_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
@@ -4602,7 +4602,7 @@ void opRegAnimObjectRunToTile(Program* program)
 
     if (!isInCombat()) {
         if (object != NULL) {
-            animationRegisterRunToTile(object, tile, object->elevation, -1, delay);
+            register_object_run_to_tile(object, tile, object->elevation, -1, delay);
         } else {
             scriptPredefinedError(program, "reg_anim_obj_run_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
@@ -5205,7 +5205,7 @@ void opRegAnimAnimateForever(Program* prg)
 
     if (!isInCombat()) {
         if (obj != NULL) {
-            animationRegisterAnimateForever(obj, anim, -1);
+            register_object_animate_forever(obj, anim, -1);
         } else {
             scriptPredefinedError(prg, "reg_anim_animate_forever", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
@@ -5688,7 +5688,7 @@ void opRegAnimPlaySfx(Program* program)
     }
 
     if (obj != NULL) {
-        animationRegisterPlaySoundEffect(obj, soundEffectName, delay);
+        register_object_play_sfx(obj, soundEffectName, delay);
     } else {
         scriptPredefinedError(program, "reg_anim_play_sfx", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -6114,13 +6114,13 @@ void opDestroyMultipleObjects(Program* program)
             object->sid = -1;
             object->flags |= (OBJECT_HIDDEN | OBJECT_TEMPORARY);
         } else {
-            reg_anim_clear(object);
+            register_clear(object);
             objectDestroy(object, NULL);
         }
 
         result = quantityToDestroy;
     } else {
-        reg_anim_clear(object);
+        register_clear(object);
 
         Rect rect;
         objectDestroy(object, &rect);

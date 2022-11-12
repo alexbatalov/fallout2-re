@@ -489,7 +489,7 @@ void inventoryOpen()
 
     Object* oldArmor = critterGetArmor(_inven_dude);
     bool isoWasEnabled = _setup_inventory(INVENTORY_WINDOW_TYPE_NORMAL);
-    reg_anim_clear(_inven_dude);
+    register_clear(_inven_dude);
     inventoryRenderSummary();
     _display_inventory(_stack_offset[_curr_stack], -1, INVENTORY_WINDOW_TYPE_NORMAL);
     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
@@ -2573,7 +2573,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
 {
     if (a4) {
         if (!isoIsDisabled()) {
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+            register_begin(ANIMATION_REQUEST_RESERVED);
         }
     }
 
@@ -2600,7 +2600,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         if (critter == gDude) {
             if (!isoIsDisabled()) {
                 int fid = buildFid(OBJ_TYPE_CRITTER, baseFrmId, 0, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
-                animationRegisterSetFid(critter, fid, 0);
+                register_object_change_fid(critter, fid, 0);
             }
         } else {
             _adjust_ac(critter, armor, item);
@@ -2680,29 +2680,29 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                 if (a4) {
                     if (!isoIsDisabled()) {
                         const char* soundEffectName = sfxBuildCharName(critter, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
-                        animationRegisterPlaySoundEffect(critter, soundEffectName, 0);
-                        animationRegisterAnimate(critter, ANIM_PUT_AWAY, 0);
+                        register_object_play_sfx(critter, soundEffectName, 0);
+                        register_object_animate(critter, ANIM_PUT_AWAY, 0);
                     }
                 }
             }
 
             if (a4 && !isoIsDisabled()) {
                 if (weaponAnimationCode != 0) {
-                    animationRegisterTakeOutWeapon(critter, weaponAnimationCode, -1);
+                    register_object_take_out(critter, weaponAnimationCode, -1);
                 } else {
                     int fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, 0, 0, critter->rotation + 1);
-                    animationRegisterSetFid(critter, fid, -1);
+                    register_object_change_fid(critter, fid, -1);
                 }
             } else {
                 int fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, 0, weaponAnimationCode, critter->rotation + 1);
-                _dude_stand(critter, critter->rotation, fid);
+                dude_stand(critter, critter->rotation, fid);
             }
         }
     }
 
     if (a4) {
         if (!isoIsDisabled()) {
-            return reg_anim_end();
+            return register_end();
         }
     }
 
@@ -2741,21 +2741,21 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
 
     if (v6 == a2 && ((obj->fid & 0xF000) >> 12) != 0) {
         if (a3 && !isoIsDisabled()) {
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+            register_begin(ANIMATION_REQUEST_RESERVED);
 
             const char* sfx = sfxBuildCharName(obj, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
-            animationRegisterPlaySoundEffect(obj, sfx, 0);
+            register_object_play_sfx(obj, sfx, 0);
 
-            animationRegisterAnimate(obj, ANIM_PUT_AWAY, 0);
+            register_object_animate(obj, ANIM_PUT_AWAY, 0);
 
             fid = buildFid(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, 0, 0, obj->rotation + 1);
-            animationRegisterSetFid(obj, fid, -1);
+            register_object_change_fid(obj, fid, -1);
 
-            return reg_anim_end();
+            return register_end();
         }
 
         fid = buildFid(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, 0, 0, obj->rotation + 1);
-        _dude_stand(obj, obj->rotation, fid);
+        dude_stand(obj, obj->rotation, fid);
     }
 
     return 0;

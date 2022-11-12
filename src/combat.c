@@ -2447,8 +2447,8 @@ int _combatAIInfoSetLastMove(Object* object, int move)
 void _combat_begin(Object* a1)
 {
     _combat_turn_running = 0;
-    animationStop();
-    tickersRemove(_dude_fidget);
+    anim_stop();
+    tickersRemove(dude_fidget);
     _combat_elev = gElevation;
 
     if (!isInCombat()) {
@@ -2506,13 +2506,13 @@ void _combat_begin(Object* a1)
                 (v1->fid & 0xF000) >> 12,
                 (v1->fid & 0x70000000) >> 28);
 
-            reg_anim_clear(v1);
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-            animationRegisterAnimate(v1, ANIM_UP_STAIRS_RIGHT, -1);
-            animationRegisterSetFid(v1, fid, -1);
-            reg_anim_end();
+            register_clear(v1);
+            register_begin(ANIMATION_REQUEST_RESERVED);
+            register_object_animate(v1, ANIM_UP_STAIRS_RIGHT, -1);
+            register_object_change_fid(v1, fid, -1);
+            register_end();
 
-            while (animationIsBusy(v1)) {
+            while (anim_busy(v1)) {
                 _process_bk();
             }
         }
@@ -2648,7 +2648,7 @@ void _combat_over()
         }
     }
 
-    tickersAdd(_dude_fidget);
+    tickersAdd(dude_fidget);
 
     for (int index = 0; index < _list_noncom + _list_com; index++) {
         Object* critter = _combat_list[index];
@@ -2671,13 +2671,13 @@ void _combat_over()
                 FID_ANIM_TYPE(critter->fid),
                 (critter->fid & 0xF000) >> 12,
                 (critter->fid & 0x70000000) >> 28);
-            reg_anim_clear(critter);
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-            animationRegisterAnimate(critter, ANIM_UP_STAIRS_RIGHT, -1);
-            animationRegisterSetFid(critter, fid, -1);
-            reg_anim_end();
+            register_clear(critter);
+            register_begin(ANIMATION_REQUEST_RESERVED);
+            register_object_animate(critter, ANIM_UP_STAIRS_RIGHT, -1);
+            register_object_change_fid(critter, fid, -1);
+            register_end();
 
-            while (animationIsBusy(critter)) {
+            while (anim_busy(critter)) {
                 _process_bk();
             }
         }
@@ -3459,7 +3459,7 @@ bool _check_ranged_miss(Attack* attack)
     if (critter != NULL) {
         int curr = attack->attacker->tile;
         while (curr != to) {
-            _make_straight_path_func(attack->attacker, curr, to, NULL, &critter, 32, _obj_shoot_blocking_at);
+            make_straight_path_func(attack->attacker, curr, to, NULL, &critter, 32, _obj_shoot_blocking_at);
             if (critter != NULL) {
                 if ((critter->flags & OBJECT_SHOOT_THRU) == 0) {
                     if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
@@ -3516,7 +3516,7 @@ int _shoot_along_path(Attack* attack, int endTile, int rounds, int anim)
             break;
         }
 
-        _make_straight_path_func(attack->attacker, currentTile, endTile, NULL, &critter, 32, _obj_shoot_blocking_at);
+        make_straight_path_func(attack->attacker, currentTile, endTile, NULL, &critter, 32, _obj_shoot_blocking_at);
 
         if (critter != NULL) {
             if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
@@ -3816,7 +3816,7 @@ int attackCompute(Attack* attack)
             attack->tile = tile;
 
             Object* v25 = attack->defender;
-            _make_straight_path_func(v25, attack->defender->tile, attack->tile, NULL, &v25, 32, _obj_shoot_blocking_at);
+            make_straight_path_func(v25, attack->defender->tile, attack->tile, NULL, &v25, 32, _obj_shoot_blocking_at);
             if (v25 != NULL && v25 != attack->defender) {
                 attack->tile = v25->tile;
             } else {
@@ -5251,7 +5251,7 @@ void _combat_standup(Object* a1)
         interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
     }
 
-    _dude_standup(a1);
+    dude_standup(a1);
 
     // NOTE: Uninline.
     _combat_turn_run();
@@ -5732,7 +5732,7 @@ bool _combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
     Object* obstacle = a1;
     int current = from;
     while (obstacle != NULL && current != to) {
-        _make_straight_path_func(a1, current, to, 0, &obstacle, 32, _obj_shoot_blocking_at);
+        make_straight_path_func(a1, current, to, 0, &obstacle, 32, _obj_shoot_blocking_at);
         if (obstacle != NULL) {
             if (FID_TYPE(obstacle->fid) != OBJ_TYPE_CRITTER && obstacle != a4) {
                 return true;

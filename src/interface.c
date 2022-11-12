@@ -1998,33 +1998,33 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
 {
     gInterfaceBarSwapHandsInProgress = true;
 
-    reg_anim_clear(gDude);
-    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-    animationRegisterSetLightDistance(gDude, 4, 0);
+    register_clear(gDude);
+    register_begin(ANIMATION_REQUEST_RESERVED);
+    register_object_light(gDude, 4, 0);
 
     if (previousWeaponAnimationCode != 0) {
         const char* sfx = sfxBuildCharName(gDude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
-        animationRegisterPlaySoundEffect(gDude, sfx, 0);
-        animationRegisterAnimate(gDude, ANIM_PUT_AWAY, 0);
+        register_object_play_sfx(gDude, sfx, 0);
+        register_object_animate(gDude, ANIM_PUT_AWAY, 0);
     }
 
-    animationRegisterCallbackForced(NULL, NULL, _intface_redraw_items_callback, -1);
+    register_object_must_call(NULL, NULL, _intface_redraw_items_callback, -1);
 
     Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
     if (item != NULL && item->lightDistance > 4) {
-        animationRegisterSetLightDistance(gDude, item->lightDistance, 0);
+        register_object_light(gDude, item->lightDistance, 0);
     }
 
     if (weaponAnimationCode != 0) {
-        animationRegisterTakeOutWeapon(gDude, weaponAnimationCode, -1);
+        register_object_take_out(gDude, weaponAnimationCode, -1);
     } else {
         int fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, 0, gDude->rotation + 1);
-        animationRegisterSetFid(gDude, fid, -1);
+        register_object_change_fid(gDude, fid, -1);
     }
 
-    animationRegisterCallbackForced(NULL, NULL, _intface_change_fid_callback, -1);
+    register_object_must_call(NULL, NULL, _intface_change_fid_callback, -1);
 
-    if (reg_anim_end() == -1) {
+    if (register_end() == -1) {
         return;
     }
 

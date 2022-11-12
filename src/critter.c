@@ -1239,7 +1239,7 @@ int knockoutEventProcess(Object* obj, void* data)
     if (isInCombat()) {
         obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
     } else {
-        _dude_standup(obj);
+        dude_standup(obj);
     }
 
     return 0;

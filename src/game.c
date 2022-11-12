@@ -220,7 +220,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">proto_init\t");
 
-    animationInit();
+    anim_init();
     debugPrint(">anim_init\t");
 
     if (scriptsInit() != 0) {
@@ -334,7 +334,7 @@ void gameReset()
     traitsReset();
     itemsReset();
     queueExit();
-    animationReset();
+    anim_reset();
     lsgInit();
     critterReset();
     aiReset();
@@ -376,7 +376,7 @@ void gameExit()
     gameFreeGlobalVars();
 
     scriptsExit();
-    animationExit();
+    anim_exit();
     protoExit();
     gameMouseExit();
     isoExit();
@@ -722,16 +722,16 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case KEY_COMMA:
     case KEY_LESS:
-        if (reg_anim_begin(ANIMATION_REQUEST_RESERVED) == 0) {
-            animationRegisterRotateCounterClockwise(gDude);
-            reg_anim_end();
+        if (register_begin(ANIMATION_REQUEST_RESERVED) == 0) {
+            register_object_dec_rotation(gDude);
+            register_end();
         }
         break;
     case KEY_DOT:
     case KEY_GREATER:
-        if (reg_anim_begin(ANIMATION_REQUEST_RESERVED) == 0) {
-            animationRegisterRotateClockwise(gDude);
-            reg_anim_end();
+        if (register_begin(ANIMATION_REQUEST_RESERVED) == 0) {
+            register_object_inc_rotation(gDude);
+            register_end();
         }
         break;
     case KEY_SLASH:

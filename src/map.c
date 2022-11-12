@@ -297,8 +297,8 @@ void isoEnable()
         if (!gameUiIsDisabled()) {
             _gmouse_enable();
         }
-        tickersAdd(_object_animate);
-        tickersAdd(_dude_fidget);
+        tickersAdd(object_animate);
+        tickersAdd(dude_fidget);
         _scr_enable_critters();
         gIsoEnabled = true;
     }
@@ -312,8 +312,8 @@ bool isoDisable()
     }
 
     _scr_disable_critters();
-    tickersRemove(_dude_fidget);
-    tickersRemove(_object_animate);
+    tickersRemove(dude_fidget);
+    tickersRemove(object_animate);
     _gmouse_disable(0);
     textObjectsDisable();
 
@@ -349,8 +349,8 @@ int mapSetElevation(int elevation)
 
     gElevation = elevation;
 
-    reg_anim_clear(gDude);
-    _dude_stand(gDude, gDude->rotation, gDude->fid);
+    register_clear(gDude);
+    dude_stand(gDude, gDude->rotation, gDude->fid);
     _partyMemberSyncPosition();
 
     if (gMapSid != -1) {
@@ -674,7 +674,7 @@ void _map_new_map()
     gMapHeader.name[0] = '\0';
     gMapHeader.enteringTile = 20100;
     _obj_remove_all();
-    animationStop();
+    anim_stop();
 
     if (gMapGlobalVars != NULL) {
         internal_free(gMapGlobalVars);
@@ -773,7 +773,7 @@ int mapLoad(File* stream)
 
     windowFill(gIsoWindow, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, colorTable[0]);
     win_draw(gIsoWindow);
-    animationStop();
+    anim_stop();
     scriptsDisable();
 
     gMapSid = -1;
@@ -1138,7 +1138,7 @@ int _map_age_dead_critters()
             objectSetFrame(blood, frame, NULL);
         }
 
-        reg_anim_clear(obj);
+        register_clear(obj);
         objectDestroy(obj, NULL);
     }
 
@@ -1190,13 +1190,13 @@ int mapHandleTransition()
 
     if (gMapTransition.map == -1) {
         if (!isInCombat()) {
-            animationStop();
+            anim_stop();
             wmTownMap();
             memset(&gMapTransition, 0, sizeof(gMapTransition));
         }
     } else if (gMapTransition.map == -2) {
         if (!isInCombat()) {
-            animationStop();
+            anim_stop();
             wmWorldMap();
             memset(&gMapTransition, 0, sizeof(gMapTransition));
         }
@@ -1378,7 +1378,7 @@ int _map_save_in_game(bool a1)
         return 0;
     }
 
-    animationStop();
+    anim_stop();
     _partyMemberSaveProtos();
 
     if (a1) {
@@ -1531,7 +1531,7 @@ void _map_place_dude_and_mouse()
         objectSetLight(gDude, 4, 0x10000, 0);
         gDude->flags |= OBJECT_TEMPORARY;
 
-        _dude_stand(gDude, gDude->rotation, gDude->fid);
+        dude_stand(gDude, gDude->rotation, gDude->fid);
         _partyMemberSyncPosition();
     }
 

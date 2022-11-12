@@ -826,11 +826,11 @@ int aiSetDisposition(Object* obj, int disposition)
 // 0x428398
 int _ai_magic_hands(Object* critter, Object* item, int num)
 {
-    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+    register_begin(ANIMATION_REQUEST_RESERVED);
 
-    animationRegisterAnimate(critter, ANIM_MAGIC_HANDS_MIDDLE, 0);
+    register_object_animate(critter, ANIM_MAGIC_HANDS_MIDDLE, 0);
 
-    if (reg_anim_end() == 0) {
+    if (register_end() == 0) {
         if (isInCombat()) {
             _combat_turn_run();
         }
@@ -1041,26 +1041,26 @@ void _ai_run_away(Object* a1, Object* a2)
         int actionPoints = combatData->ap;
         for (; actionPoints > 0; actionPoints -= 1) {
             destination = tileGetTileInDirection(a1->tile, rotation, actionPoints);
-            if (_make_path(a1, a1->tile, destination, NULL, 1) > 0) {
+            if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
             destination = tileGetTileInDirection(a1->tile, (rotation + 1) % ROTATION_COUNT, actionPoints);
-            if (_make_path(a1, a1->tile, destination, NULL, 1) > 0) {
+            if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
             destination = tileGetTileInDirection(a1->tile, (rotation + 5) % ROTATION_COUNT, actionPoints);
-            if (_make_path(a1, a1->tile, destination, NULL, 1) > 0) {
+            if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
         }
 
         if (actionPoints > 0) {
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+            register_begin(ANIMATION_REQUEST_RESERVED);
             _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_RUN, 0);
-            animationRegisterRunToTile(a1, destination, a1->elevation, combatData->ap, 0);
-            if (reg_anim_end() == 0) {
+            register_object_run_to_tile(a1, destination, a1->elevation, combatData->ap, 0);
+            if (register_end() == 0) {
                 _combat_turn_run();
             }
         }
@@ -1088,25 +1088,25 @@ int _ai_move_away(Object* a1, Object* a2, int a3)
         int actionPointsLeft = actionPoints;
         for (; actionPointsLeft > 0; actionPointsLeft -= 1) {
             destination = tileGetTileInDirection(a1->tile, rotation, actionPointsLeft);
-            if (_make_path(a1, a1->tile, destination, NULL, 1) > 0) {
+            if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
             destination = tileGetTileInDirection(a1->tile, (rotation + 1) % ROTATION_COUNT, actionPointsLeft);
-            if (_make_path(a1, a1->tile, destination, NULL, 1) > 0) {
+            if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
             destination = tileGetTileInDirection(a1->tile, (rotation + 5) % ROTATION_COUNT, actionPointsLeft);
-            if (_make_path(a1, a1->tile, destination, NULL, 1) > 0) {
+            if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
         }
 
         if (actionPoints > 0) {
-            reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-            animationRegisterMoveToTile(a1, destination, a1->elevation, actionPoints, 0);
-            if (reg_anim_end() == 0) {
+            register_begin(ANIMATION_REQUEST_RESERVED);
+            register_object_move_to_tile(a1, destination, a1->elevation, actionPoints, 0);
+            if (register_end() == 0) {
                 _combat_turn_run();
             }
         }
@@ -1426,7 +1426,7 @@ Object* _ai_danger_source(Object* a1)
                 break;
             }
 
-            if (pathfinderFindPath(a1, a1->tile, gDude->data.critter.combat.whoHitMe->tile, NULL, 0, _obj_blocking_at) == 0
+            if (make_path_func(a1, a1->tile, gDude->data.critter.combat.whoHitMe->tile, NULL, 0, _obj_blocking_at) == 0
                 && _combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) != COMBAT_BAD_SHOT_OK) {
                 debugPrint("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critterGetName(a1));
                 break;
@@ -1495,7 +1495,7 @@ Object* _ai_danger_source(Object* a1)
     for (int index = 0; index < 4; index++) {
         Object* candidate = targets[index];
         if (candidate != NULL && isWithinPerception(a1, candidate)) {
-            if (pathfinderFindPath(a1, a1->tile, candidate->tile, NULL, 0, _obj_blocking_at) != 0
+            if (make_path_func(a1, a1->tile, candidate->tile, NULL, 0, _obj_blocking_at) != 0
                 || _combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == COMBAT_BAD_SHOT_OK) {
                 return candidate;
             }
@@ -2147,7 +2147,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         return -1;
     }
 
-    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
+    register_begin(ANIMATION_REQUEST_RESERVED);
 
     if (a4) {
         _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_MOVE, 0);
@@ -2163,9 +2163,9 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         shouldUnhide = false;
     }
 
-    if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_blocking_at) == 0) {
+    if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, _obj_blocking_at) == 0) {
         _moveBlockObj = NULL;
-        if (pathfinderFindPath(a1, a1->tile, a2->tile, NULL, 0, _obj_ai_blocking_at) == 0
+        if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, _obj_ai_blocking_at) == 0
             && _moveBlockObj != NULL
             && PID_TYPE(_moveBlockObj->pid) == OBJ_TYPE_CRITTER) {
             if (shouldUnhide) {
@@ -2193,19 +2193,19 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
 
     if (actionPoints >= critterGetStat(a1, STAT_MAXIMUM_ACTION_POINTS) / 2 && artCritterFidShouldRun(a1->fid)) {
         if ((a2->flags & OBJECT_MULTIHEX) != 0) {
-            animationRegisterRunToObject(a1, a2, actionPoints, 0);
+            register_object_run_to_object(a1, a2, actionPoints, 0);
         } else {
-            animationRegisterRunToTile(a1, tile, a1->elevation, actionPoints, 0);
+            register_object_run_to_tile(a1, tile, a1->elevation, actionPoints, 0);
         }
     } else {
         if ((a2->flags & OBJECT_MULTIHEX) != 0) {
-            animationRegisterMoveToObject(a1, a2, actionPoints, 0);
+            register_object_move_to_object(a1, a2, actionPoints, 0);
         } else {
-            animationRegisterMoveToTile(a1, tile, a1->elevation, actionPoints, 0);
+            register_object_move_to_tile(a1, tile, a1->elevation, actionPoints, 0);
         }
     }
 
-    if (reg_anim_end() != 0) {
+    if (register_end() != 0) {
         return -1;
     }
 
@@ -2352,7 +2352,7 @@ bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attac
     }
 
     Object* object = NULL;
-    _make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, _obj_shoot_blocking_at);
+    make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, _obj_shoot_blocking_at);
     if (object != attackerFriend) {
         if (!_combatTestIncidentalHit(attacker, defender, attackerFriend, weapon)) {
             return false;
@@ -2450,9 +2450,9 @@ int _ai_attack(Object* a1, Object* a2, int a3)
         return -1;
     }
 
-    reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-    animationRegisterRotateToTile(a1, a2->tile);
-    reg_anim_end();
+    register_begin(ANIMATION_REQUEST_RESERVED);
+    register_object_turn_towards(a1, a2->tile);
+    register_end();
     _combat_turn_run();
 
     v6 = _ai_called_shot(a1, a2, a3);
@@ -2617,7 +2617,7 @@ int _ai_try_attack(Object* a1, Object* a2)
                 }
 
                 if (actionPoints > 0) {
-                    int v24 = pathfinderFindPath(a1, a1->tile, a2->tile, v30, 0, _obj_blocking_at);
+                    int v24 = make_path_func(a1, a1->tile, a2->tile, v30, 0, _obj_blocking_at);
                     if (v24 == 0) {
                         v42 = actionPoints;
                     } else {
@@ -2777,9 +2777,9 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
 
     int tile = a1->tile;
     if (_cai_retargetTileFromFriendlyFire(a1, a2, &tile) == 0 && tile != a1->tile) {
-        reg_anim_begin(ANIMATION_REQUEST_RESERVED);
-        animationRegisterMoveToTile(a1, tile, a1->elevation, a1->data.critter.combat.ap, 0);
-        if (reg_anim_end() != 0) {
+        register_begin(ANIMATION_REQUEST_RESERVED);
+        register_object_move_to_tile(a1, tile, a1->elevation, a1->data.critter.combat.ap, 0);
+        if (register_end() != 0) {
             return -1;
         }
         _combat_turn_run();
@@ -3126,7 +3126,7 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
     strncpy(string, messageListItem.text, 259);
 
     // TODO: Get rid of casts.
-    return animationRegisterCallback(a1, (void*)type, (AnimationCallback*)_ai_print_msg, delay);
+    return register_object_call(a1, (void*)type, (AnimationCallback*)_ai_print_msg, delay);
 }
 
 // 0x42B80C

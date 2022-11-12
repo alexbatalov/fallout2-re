@@ -4134,7 +4134,7 @@ bool wmEvalTileNumForPlacement(int tile)
         return false;
     }
 
-    if (pathfinderFindPath(gDude, gDude->tile, tile, NULL, 0, _obj_shoot_blocking_at) == 0) {
+    if (make_path_func(gDude, gDude->tile, tile, NULL, 0, _obj_shoot_blocking_at) == 0) {
         return false;
     }
 
