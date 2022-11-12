@@ -8,7 +8,7 @@
 #include "game/anim.h"
 #include "game/art.h"
 #include "color.h"
-#include "combat_ai.h"
+#include "game/combatai.h"
 #include "core.h"
 #include "critter.h"
 #include "db.h"

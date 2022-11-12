@@ -1,4 +1,4 @@
-#include "combat_ai.h"
+#include "game/combatai.h"
 
 #include <stdio.h>
 #include <stdlib.h>
