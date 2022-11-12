@@ -408,7 +408,7 @@ int _lips_make_speech()
         return -1;
     }
 
-    if (soundSetFileIO(gLipsData.sound, audioOpen, audioClose, audioRead, NULL, audioSeek, NULL, audioGetSize)) {
+    if (soundSetFileIO(gLipsData.sound, audioOpen, audioCloseFile, audioRead, NULL, audioSeek, NULL, audioFileSize)) {
         debugPrint("Ack!");
         debugPrint("Error!");
     }

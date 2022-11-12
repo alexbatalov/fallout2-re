@@ -193,7 +193,7 @@ int gameSoundInit()
     }
 
     audioFileInit(gameSoundIsCompressed);
-    audioInit(gameSoundIsCompressed);
+    initAudio(gameSoundIsCompressed);
 
     int cacheSize;
     configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_CACHE_SIZE_KEY, &cacheSize);
@@ -356,7 +356,7 @@ int gameSoundExit()
     soundExit();
     soundEffectsCacheExit();
     audioFileExit();
-    audioExit();
+    audioClose();
 
     gGameSoundInitialized = false;
 
@@ -977,7 +977,7 @@ int speechLoad(const char* fname, int a2, int a3, int a4)
         return -1;
     }
 
-    if (soundSetFileIO(gSpeechSound, &audioOpen, &audioClose, &audioRead, NULL, &audioSeek, &gameSoundFileTellNotImplemented, &audioGetSize)) {
+    if (soundSetFileIO(gSpeechSound, &audioOpen, &audioCloseFile, &audioRead, NULL, &audioSeek, &gameSoundFileTellNotImplemented, &audioFileSize)) {
         if (gGameSoundDebugEnabled) {
             debugPrint("failed because file IO could not be set for compression.\n");
         }
@@ -2096,7 +2096,7 @@ Sound* _gsound_get_sound_ready_for_effect()
     if (soundEffectsCacheInitialized()) {
         rc = soundSetFileIO(sound, soundEffectsCacheFileOpen, soundEffectsCacheFileClose, soundEffectsCacheFileRead, soundEffectsCacheFileWrite, soundEffectsCacheFileSeek, soundEffectsCacheFileTell, soundEffectsCacheFileLength);
     } else {
-        rc = soundSetFileIO(sound, audioOpen, audioClose, audioRead, NULL, audioSeek, gameSoundFileTellNotImplemented, audioGetSize);
+        rc = soundSetFileIO(sound, audioOpen, audioCloseFile, audioRead, NULL, audioSeek, gameSoundFileTellNotImplemented, audioFileSize);
     }
 
     if (rc != 0) {
