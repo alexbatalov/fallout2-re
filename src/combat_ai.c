@@ -2026,7 +2026,7 @@ Object* _ai_search_environ(Object* critter, int itemType)
 // 0x429D60
 Object* _ai_retrieve_object(Object* a1, Object* a2)
 {
-    if (actionPickUp(a1, a2) != 0) {
+    if (action_get_an_object(a1, a2) != 0) {
         return NULL;
     }
 
@@ -3177,7 +3177,7 @@ Object* _combat_ai_random_target(Attack* attack)
             Object* obj = _curr_crit_list[index];
             if (obj != attack->attacker
                 && obj != attack->defender
-                && _can_see(attack->attacker, obj)
+                && can_see(attack->attacker, obj)
                 && _combat_check_bad_shot(attack->attacker, obj, attack->hitMode, false) == COMBAT_BAD_SHOT_OK) {
                 critter = obj;
                 break;
@@ -3256,7 +3256,7 @@ bool isWithinPerception(Object* a1, Object* a2)
     int distance = objectGetDistanceBetween(a2, a1);
     int perception = critterGetStat(a1, STAT_PERCEPTION);
     int sneak = skillGetValue(a2, SKILL_SNEAK);
-    if (_can_see(a1, a2)) {
+    if (can_see(a1, a2)) {
         int maxDistance = perception * 5;
         if ((a2->flags & OBJECT_TRANS_GLASS) != 0) {
             maxDistance /= 2;

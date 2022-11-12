@@ -1893,7 +1893,7 @@ void opPickup(Program* program)
         return;
     }
 
-    actionPickUp(script->target, object);
+    action_get_an_object(script->target, object);
 }
 
 // drop_obj
@@ -2142,7 +2142,7 @@ void opUseObject(Program* program)
 
     Object* self = scriptGetSelf(program);
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
-        _action_use_an_object(script->target, object);
+        action_use_an_object(script->target, object);
     } else {
         _obj_use(self, object);
     }
@@ -3075,7 +3075,7 @@ void opCritterDamage(Program* program)
     bool animate = (damageTypeWithFlags & 0x200) == 0;
     bool bypassArmor = (damageTypeWithFlags & 0x100) != 0;
     int damageType = damageTypeWithFlags & ~(0x100 | 0x200);
-    actionDamage(object->tile, object->elevation, amount, amount, damageType, animate, bypassArmor);
+    action_dmg(object->tile, object->elevation, amount, amount, damageType, animate, bypassArmor);
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 
@@ -6180,7 +6180,7 @@ void opUseObjectOnObject(Program* program)
 
     Object* self = scriptGetSelf(program);
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
-        _action_use_an_item_on_object(self, target, item);
+        action_use_an_item_on_object(self, target, item);
     } else {
         _obj_use_item_on(self, target, item);
     }

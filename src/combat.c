@@ -3035,7 +3035,7 @@ int _combat_input()
         }
 
         int keyCode = _get_input();
-        if (_action_explode_running()) {
+        if (action_explode_running()) {
             while (_combat_turn_running > 0) {
                 _process_bk();
             }
@@ -3416,7 +3416,7 @@ int _combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
     int actionPoints = _item_w_mp_cost(a1, _main_ctd.hitMode, aiming);
     debugPrint("sequencing attack...\n");
 
-    if (_action_attack(&_main_ctd) == -1) {
+    if (action_attack(&_main_ctd) == -1) {
         return -1;
     }
 
@@ -3740,7 +3740,7 @@ int attackCompute(Attack* attack)
             }
 
             if (perkHasRank(gDude, PERK_SILENT_DEATH)
-                && !_is_hit_from_front(gDude, attack->defender)
+                && !is_hit_from_front(gDude, attack->defender)
                 && dudeHasState(DUDE_STATE_SNEAKING)
                 && gDude != attack->defender->data.critter.combat.whoHitMe) {
                 damageMultiplier = 4;

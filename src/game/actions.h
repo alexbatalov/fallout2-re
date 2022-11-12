@@ -1,5 +1,5 @@
-#ifndef ACTIONS_H
-#define ACTIONS_H
+#ifndef FALLOUT_GAME_ACTIONS_H_
+#define FALLOUT_GAME_ACTIONS_H_
 
 #include <stdbool.h>
 
@@ -7,55 +7,39 @@
 #include "obj_types.h"
 #include "proto_types.h"
 
-extern int _action_in_explode;
-extern int _obj_fid;
-extern int _obj_pid_old;
-extern const int gNormalDeathAnimations[DAMAGE_TYPE_COUNT];
-extern const int gMaximumBloodDeathAnimations[DAMAGE_TYPE_COUNT];
+extern unsigned int rotation;
+extern int obj_fid;
+extern int obj_pid_old;
 
-void _switch_dude();
-int actionKnockdown(Object* obj, int* anim, int maxDistance, int rotation, int delay);
-int _action_blood(Object* obj, int anim, int delay);
-int _pick_death(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack);
-int _check_death(Object* obj, int anim, int minViolenceLevel, bool isFallingBack);
-int _internal_destroy(Object* a1, Object* a2);
-void _show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10);
-int _show_death(Object* obj, int anim);
-int _show_damage_target(Attack* attack);
-int _show_damage_extras(Attack* attack);
-void _show_damage(Attack* attack, int a2, int a3);
-int _action_attack(Attack* attack);
-int _action_melee(Attack* attack, int a2);
-int _throw_change_fid(Object* object, int fid);
-int _action_ranged(Attack* attack, int a2);
-int _is_next_to(Object* a1, Object* a2);
-int _action_climb_ladder(Object* a1, Object* a2);
-int _action_use_an_item_on_object(Object* a1, Object* a2, Object* a3);
-int _action_use_an_object(Object* a1, Object* a2);
-int _get_an_object(Object* item);
-int actionPickUp(Object* critter, Object* item);
-int _action_loot_container(Object* critter, Object* container);
-int _action_skill_use(int a1);
-int _action_use_skill_in_combat_error(Object* critter);
-int actionUseSkill(Object* a1, Object* a2, int skill);
-Object* _pick_object(int objectType, bool a2);
+void switch_dude();
+int action_knockback(Object* obj, int* anim, int maxDistance, int rotation, int delay);
+int action_blood(Object* obj, int anim, int delay);
+void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bool isFallingBack, int knockbackDistance, int knockbackRotation, int a8, Object* a9, int a10);
+int show_damage_target(Attack* attack);
+int show_damage_extras(Attack* attack);
+void show_damage(Attack* attack, int a2, int a3);
+int action_attack(Attack* attack);
+int throw_change_fid(Object* object, int fid);
+int a_use_obj(Object* a1, Object* a2, Object* a3);
+int action_use_an_item_on_object(Object* a1, Object* a2, Object* a3);
+int action_use_an_object(Object* a1, Object* a2);
+int get_an_object(Object* item);
+int action_get_an_object(Object* critter, Object* item);
+int action_loot_container(Object* critter, Object* container);
+int action_skill_use(int a1);
+int action_use_skill_in_combat_error(Object* critter);
+int action_use_skill_on(Object* a1, Object* a2, int skill);
+Object* pick_object(int objectType, bool a2);
 int pick_hex();
-bool _is_hit_from_front(Object* a1, Object* a2);
-bool _can_see(Object* a1, Object* a2);
-int _pick_fall(Object* obj, int anim);
-bool _action_explode_running();
-int actionExplode(int tile, int elevation, int minDamage, int maxDamage, Object* a5, bool a6);
-int _report_explosion(Attack* attack, Object* a2);
-int _finished_explosion(Object* a1, Object* a2);
-int _compute_explosion_damage(int min, int max, Object* a3, int* a4);
-int actionTalk(Object* a1, Object* a2);
-int _can_talk_to(Object* a1, Object* a2);
-int _talk_to(Object* a1, Object* a2);
-void actionDamage(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor);
-int _report_dmg(Attack* attack, Object* a2);
-int _compute_dmg_damage(int min, int max, Object* obj, int* a4, int damage_type);
-bool actionCheckPush(Object* a1, Object* a2);
-int actionPush(Object* a1, Object* a2);
-int _action_can_talk_to(Object* a1, Object* a2);
+bool is_hit_from_front(Object* a1, Object* a2);
+bool can_see(Object* a1, Object* a2);
+int pick_fall(Object* obj, int anim);
+bool action_explode_running();
+int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object* a5, bool a6);
+int action_talk_to(Object* a1, Object* a2);
+void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor);
+bool action_can_be_pushed(Object* a1, Object* a2);
+int action_push_critter(Object* a1, Object* a2);
+int action_can_talk_to(Object* a1, Object* a2);
 
-#endif /* ACTIONS_H */
+#endif /* FALLOUT_GAME_ACTIONS_H_ */

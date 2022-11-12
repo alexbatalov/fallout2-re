@@ -586,7 +586,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 debugPrint("\n ** Error calling skilldex_select()! ** \n");
                 break;
             case SKILLDEX_RC_SNEAK:
-                _action_skill_use(SKILL_SNEAK);
+                action_skill_use(SKILL_SNEAK);
                 break;
             case SKILLDEX_RC_LOCKPICK:
                 mode = GAME_MOUSE_MODE_USE_LOCKPICK;
@@ -653,7 +653,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
             gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            _action_skill_use(SKILL_SNEAK);
+            action_skill_use(SKILL_SNEAK);
         }
         break;
     case KEY_2:

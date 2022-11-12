@@ -473,7 +473,7 @@ int _queue_do_explosion_(Object* explosive, bool a2)
         }
     }
 
-    if (actionExplode(tile, elevation, minDamage, maxDamage, gDude, a2) == -2) {
+    if (action_explode(tile, elevation, minDamage, maxDamage, gDude, a2) == -2) {
         queueAddEvent(50, explosive, NULL, EVENT_TYPE_EXPLOSION);
     } else {
         _obj_destroy(explosive);

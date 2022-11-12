@@ -2117,7 +2117,7 @@ void inventoryOpenUseItemOn(Object* a1)
                             InventoryItem* inventoryItem = &(_pud->items[inventoryItemIndex]);
                             if (isInCombat()) {
                                 if (gDude->data.critter.combat.ap >= 2) {
-                                    if (_action_use_an_item_on_object(gDude, a1, inventoryItem->item) != -1) {
+                                    if (action_use_an_item_on_object(gDude, a1, inventoryItem->item) != -1) {
                                         int actionPoints = gDude->data.critter.combat.ap;
                                         if (actionPoints < 2) {
                                             gDude->data.critter.combat.ap = 0;
@@ -2128,7 +2128,7 @@ void inventoryOpenUseItemOn(Object* a1)
                                     }
                                 }
                             } else {
-                                _action_use_an_item_on_object(gDude, a1, inventoryItem->item);
+                                action_use_an_item_on_object(gDude, a1, inventoryItem->item);
                             }
                             keyCode = KEY_ESCAPE;
                         } else {

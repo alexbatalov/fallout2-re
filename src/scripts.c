@@ -836,7 +836,7 @@ int scriptsHandleRequests()
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_COMBAT) != 0) {
-        if (!_action_explode_running()) {
+        if (!action_explode_running()) {
             // entering combat
             gScriptsRequests &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
             memcpy(&stru_664980, &stru_664958, sizeof(stru_664980));
@@ -939,7 +939,7 @@ int scriptsHandleRequests()
 
     if ((gScriptsRequests & SCRIPT_REQUEST_EXPLOSION) != 0) {
         gScriptsRequests &= ~SCRIPT_REQUEST_EXPLOSION;
-        actionExplode(gScriptsRequestedExplosionTile, gScriptsRequestedExplosionElevation, gScriptsRequestedExplosionMinDamage, gScriptsRequestedExplosionMaxDamage, NULL, 1);
+        action_explode(gScriptsRequestedExplosionTile, gScriptsRequestedExplosionElevation, gScriptsRequestedExplosionMinDamage, gScriptsRequestedExplosionMaxDamage, NULL, 1);
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_DIALOG) != 0) {

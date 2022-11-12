@@ -579,7 +579,7 @@ void gameDialogEnter(Object* a1, int a2)
     if (PID_TYPE(a1->pid) != OBJ_TYPE_ITEM && SID_TYPE(a1->sid) != SCRIPT_TYPE_SPATIAL) {
         MessageListItem messageListItem;
 
-        int rc = _action_can_talk_to(gDude, a1);
+        int rc = action_can_talk_to(gDude, a1);
         if (rc == -1) {
             // You can't see there.
             messageListItem.num = 660;
