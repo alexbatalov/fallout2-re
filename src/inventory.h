@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/art.h"
-#include "cache.h"
+#include "game/cache.h"
 #include "message.h"
 #include "obj_types.h"
 

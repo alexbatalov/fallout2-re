@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "cache.h"
+#include "game/cache.h"
 
 // The maximum number of sound effects that can be loaded and played
 // simultaneously.

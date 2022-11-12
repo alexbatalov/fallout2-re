@@ -1,7 +1,7 @@
 #ifndef FALLOUT_GAME_ART_H_
 #define FALLOUT_GAME_ART_H_
 
-#include "cache.h"
+#include "game/cache.h"
 #include "heap.h"
 #include "obj_types.h"
 #include "proto_types.h"
