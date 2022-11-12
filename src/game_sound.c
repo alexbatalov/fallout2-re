@@ -192,7 +192,7 @@ int gameSoundInit()
         debugPrint("success.\n");
     }
 
-    audioFileInit(gameSoundIsCompressed);
+    initAudiof(gameSoundIsCompressed);
     initAudio(gameSoundIsCompressed);
 
     int cacheSize;
@@ -355,7 +355,7 @@ int gameSoundExit()
     gameSoundDeleteOldMusicFile();
     soundExit();
     soundEffectsCacheExit();
-    audioFileExit();
+    audiofClose();
     audioClose();
 
     gGameSoundInitialized = false;
@@ -648,7 +648,7 @@ int backgroundSoundLoad(const char* fileName, int a2, int a3, int a4)
         return -1;
     }
 
-    rc = soundSetFileIO(gBackgroundSound, audioFileOpen, audioFileClose, audioFileRead, NULL, audioFileSeek, gameSoundFileTellNotImplemented, audioFileGetSize);
+    rc = soundSetFileIO(gBackgroundSound, audiofOpen, audiofCloseFile, audiofRead, NULL, audiofSeek, gameSoundFileTellNotImplemented, audiofFileSize);
     if (rc != 0) {
         if (gGameSoundDebugEnabled) {
             debugPrint("failed because file IO could not be set for compression.\n");

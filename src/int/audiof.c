@@ -14,17 +14,20 @@
 
 static_assert(sizeof(AudioFile) == 28, "wrong size");
 
+static bool defaultCompressionFunc(char* filePath);
+static int decodeRead(int fileHandle, void* buffer, unsigned int size);
+
 // 0x5108C0
-AudioFileIsCompressedProc* _queryCompressedFunc_2 = _defaultCompressionFunc__;
+static AudioFileIsCompressedProc* queryCompressedFunc = defaultCompressionFunc;
 
 // 0x56CB10
-AudioFile* gAudioFileList;
+static AudioFile* audiof;
 
 // 0x56CB14
-int gAudioFileListLength;
+static int numAudiof;
 
 // 0x41A850
-bool _defaultCompressionFunc__(char* filePath)
+static bool defaultCompressionFunc(char* filePath)
 {
     char* pch = strrchr(filePath, '.');
     if (pch != NULL) {
@@ -35,19 +38,19 @@ bool _defaultCompressionFunc__(char* filePath)
 }
 
 // 0x41A870
-int audioFileSoundDecoderReadHandler(int fileHandle, void* buffer, unsigned int size)
+static int decodeRead(int fileHandle, void* buffer, unsigned int size)
 {
     return fread(buffer, 1, size, (FILE*)fileHandle);
 }
 
 // 0x41A88C
-int audioFileOpen(const char* fname, int flags, ...)
+int audiofOpen(const char* fname, int flags, ...)
 {
     char path[MAX_PATH];
     strcpy(path, fname);
 
     int compression;
-    if (_queryCompressedFunc_2(path)) {
+    if (queryCompressedFunc(path)) {
         compression = 2;
     } else {
         compression = 0;
@@ -80,28 +83,28 @@ int audioFileOpen(const char* fname, int flags, ...)
     }
 
     int index;
-    for (index = 0; index < gAudioFileListLength; index++) {
-        if ((gAudioFileList[index].flags & AUDIO_FILE_IN_USE) == 0) {
+    for (index = 0; index < numAudiof; index++) {
+        if ((audiof[index].flags & AUDIO_FILE_IN_USE) == 0) {
             break;
         }
     }
 
-    if (index == gAudioFileListLength) {
-        if (gAudioFileList != NULL) {
-            gAudioFileList = (AudioFile*)internal_realloc_safe(gAudioFileList, sizeof(*gAudioFileList) * (gAudioFileListLength + 1), __FILE__, __LINE__); // "..\int\audiof.c", 207
+    if (index == numAudiof) {
+        if (audiof != NULL) {
+            audiof = (AudioFile*)internal_realloc_safe(audiof, sizeof(*audiof) * (numAudiof + 1), __FILE__, __LINE__); // "..\int\audiof.c", 207
         } else {
-            gAudioFileList = (AudioFile*)internal_malloc_safe(sizeof(*gAudioFileList), __FILE__, __LINE__); // "..\int\audiof.c", 209
+            audiof = (AudioFile*)internal_malloc_safe(sizeof(*audiof), __FILE__, __LINE__); // "..\int\audiof.c", 209
         }
-        gAudioFileListLength++;
+        numAudiof++;
     }
 
-    AudioFile* audioFile = &(gAudioFileList[index]);
+    AudioFile* audioFile = &(audiof[index]);
     audioFile->flags = AUDIO_FILE_IN_USE;
     audioFile->fileHandle = (int)stream;
 
     if (compression == 2) {
         audioFile->flags |= AUDIO_FILE_COMPRESSED;
-        audioFile->soundDecoder = soundDecoderInit(audioFileSoundDecoderReadHandler, audioFile->fileHandle, &(audioFile->field_14), &(audioFile->field_10), &(audioFile->fileSize));
+        audioFile->soundDecoder = soundDecoderInit(decodeRead, audioFile->fileHandle, &(audioFile->field_14), &(audioFile->field_10), &(audioFile->fileSize));
         audioFile->fileSize *= 2;
     } else {
         audioFile->fileSize = filelength(fileno(stream));
@@ -113,9 +116,9 @@ int audioFileOpen(const char* fname, int flags, ...)
 }
 
 // 0x41AAA0
-int audioFileClose(int fileHandle)
+int audiofCloseFile(int fileHandle)
 {
-    AudioFile* audioFile = &(gAudioFileList[fileHandle - 1]);
+    AudioFile* audioFile = &(audiof[fileHandle - 1]);
     fclose((FILE*)audioFile->fileHandle);
 
     if ((audioFile->flags & AUDIO_FILE_COMPRESSED) != 0) {
@@ -129,10 +132,10 @@ int audioFileClose(int fileHandle)
 }
 
 // 0x41AB08
-int audioFileRead(int fileHandle, void* buffer, unsigned int size)
+int audiofRead(int fileHandle, void* buffer, unsigned int size)
 {
 
-    AudioFile* ptr = &(gAudioFileList[fileHandle - 1]);
+    AudioFile* ptr = &(audiof[fileHandle - 1]);
 
     int bytesRead;
     if ((ptr->flags & AUDIO_FILE_COMPRESSED) != 0) {
@@ -147,13 +150,13 @@ int audioFileRead(int fileHandle, void* buffer, unsigned int size)
 }
 
 // 0x41AB74
-long audioFileSeek(int fileHandle, long offset, int origin)
+long audiofSeek(int fileHandle, long offset, int origin)
 {
     void* buf;
     int remaining;
     int a4;
 
-    AudioFile* audioFile = &(gAudioFileList[fileHandle - 1]);
+    AudioFile* audioFile = &(audiof[fileHandle - 1]);
 
     switch (origin) {
     case SEEK_SET:
@@ -175,18 +178,18 @@ long audioFileSeek(int fileHandle, long offset, int origin)
 
             fseek((FILE*)audioFile->fileHandle, 0, 0);
 
-            audioFile->soundDecoder = soundDecoderInit(audioFileSoundDecoderReadHandler, audioFile->fileHandle, &(audioFile->field_14), &(audioFile->field_10), &(audioFile->fileSize));
+            audioFile->soundDecoder = soundDecoderInit(decodeRead, audioFile->fileHandle, &(audioFile->field_14), &(audioFile->field_10), &(audioFile->fileSize));
             audioFile->fileSize *= 2;
             audioFile->position = 0;
 
             if (a4) {
                 buf = internal_malloc_safe(4096, __FILE__, __LINE__); // "..\int\audiof.c", 364
                 while (a4 > 4096) {
-                    audioFileRead(fileHandle, buf, 4096);
+                    audiofRead(fileHandle, buf, 4096);
                     a4 -= 4096;
                 }
                 if (a4 != 0) {
-                    audioFileRead(fileHandle, buf, a4);
+                    audiofRead(fileHandle, buf, a4);
                 }
                 internal_free_safe(buf, __FILE__, __LINE__); // "..\int\audiof.c", 370
             }
@@ -194,11 +197,11 @@ long audioFileSeek(int fileHandle, long offset, int origin)
             buf = internal_malloc_safe(0x400, __FILE__, __LINE__); // "..\int\audiof.c", 316
             remaining = audioFile->position - a4;
             while (remaining > 1024) {
-                audioFileRead(fileHandle, buf, 1024);
+                audiofRead(fileHandle, buf, 1024);
                 remaining -= 1024;
             }
             if (remaining != 0) {
-                audioFileRead(fileHandle, buf, remaining);
+                audiofRead(fileHandle, buf, remaining);
             }
             // TODO: Obiously leaks memory.
         }
@@ -209,44 +212,43 @@ long audioFileSeek(int fileHandle, long offset, int origin)
 }
 
 // 0x41AD20
-long audioFileGetSize(int fileHandle)
+long audiofFileSize(int fileHandle)
 {
-    AudioFile* audioFile = &(gAudioFileList[fileHandle - 1]);
+    AudioFile* audioFile = &(audiof[fileHandle - 1]);
     return audioFile->fileSize;
 }
 
 // 0x41AD3C
-long audioFileTell(int fileHandle)
+long audiofTell(int fileHandle)
 {
-    AudioFile* audioFile = &(gAudioFileList[fileHandle - 1]);
+    AudioFile* audioFile = &(audiof[fileHandle - 1]);
     return audioFile->position;
 }
 
-// AudiofWrite
 // 0x41AD58
-int audioFileWrite(int fileHandle, const void* buffer, unsigned int size)
+int audiofWrite(int fileHandle, const void* buffer, unsigned int size)
 {
     debugPrint("AudiofWrite shouldn't be ever called\n");
     return 0;
 }
 
 // 0x41AD68
-int audioFileInit(AudioFileIsCompressedProc* isCompressedProc)
+int initAudiof(AudioFileIsCompressedProc* isCompressedProc)
 {
-    _queryCompressedFunc_2 = isCompressedProc;
-    gAudioFileList = NULL;
-    gAudioFileListLength = 0;
+    queryCompressedFunc = isCompressedProc;
+    audiof = NULL;
+    numAudiof = 0;
 
-    return soundSetDefaultFileIO(audioFileOpen, audioFileClose, audioFileRead, audioFileWrite, audioFileSeek, audioFileTell, audioFileGetSize);
+    return soundSetDefaultFileIO(audiofOpen, audiofCloseFile, audiofRead, audiofWrite, audiofSeek, audiofTell, audiofFileSize);
 }
 
 // 0x41ADAC
-void audioFileExit()
+void audiofClose()
 {
-    if (gAudioFileList != NULL) {
-        internal_free_safe(gAudioFileList, __FILE__, __LINE__); // "..\int\audiof.c", 405
+    if (audiof != NULL) {
+        internal_free_safe(audiof, __FILE__, __LINE__); // "..\int\audiof.c", 405
     }
 
-    gAudioFileListLength = 0;
-    gAudioFileList = NULL;
+    numAudiof = 0;
+    audiof = NULL;
 }

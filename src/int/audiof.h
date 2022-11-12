@@ -1,5 +1,5 @@
-#ifndef AUDIO_FILE_H
-#define AUDIO_FILE_H
+#ifndef FALLOUT_INT_AUDIOF_H_
+#define FALLOUT_INT_AUDIOF_H_
 
 #include <stdbool.h>
 
@@ -22,21 +22,14 @@ typedef struct AudioFile {
 
 typedef bool(AudioFileIsCompressedProc)(char* filePath);
 
-extern AudioFileIsCompressedProc* _queryCompressedFunc_2;
+int audiofOpen(const char* fname, int flags, ...);
+int audiofCloseFile(int a1);
+int audiofRead(int a1, void* buf, unsigned int size);
+long audiofSeek(int handle, long offset, int origin);
+long audiofFileSize(int a1);
+long audiofTell(int a1);
+int audiofWrite(int handle, const void* buf, unsigned int size);
+int initAudiof(AudioFileIsCompressedProc* isCompressedProc);
+void audiofClose();
 
-extern AudioFile* gAudioFileList;
-extern int gAudioFileListLength;
-
-bool _defaultCompressionFunc__(char* filePath);
-int audioFileSoundDecoderReadHandler(int fileHandle, void* buffer, unsigned int size);
-int audioFileOpen(const char* fname, int flags, ...);
-int audioFileClose(int a1);
-int audioFileRead(int a1, void* buf, unsigned int size);
-long audioFileSeek(int handle, long offset, int origin);
-long audioFileGetSize(int a1);
-long audioFileTell(int a1);
-int audioFileWrite(int handle, const void* buf, unsigned int size);
-int audioFileInit(AudioFileIsCompressedProc* isCompressedProc);
-void audioFileExit();
-
-#endif /* AUDIO_FILE_H */
+#endif /* FALLOUT_INT_AUDIOF_H_ */
