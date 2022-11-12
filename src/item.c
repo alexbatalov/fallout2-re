@@ -2614,7 +2614,7 @@ void _perform_drug_effect(Object* critter, int* stats, int* mods, bool isImmedia
                 // %s succumbs to the adverse effects of chems.
                 text = getmsg(&gItemsMessageList, &messageListItem, 600);
                 sprintf(v24, text, name);
-                _combatKillCritterOutsideCombat(critter, v24);
+                combatKillCritterOutsideCombat(critter, v24);
             }
         }
 

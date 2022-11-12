@@ -181,7 +181,7 @@ int critterGetStat(Object* critter, int stat)
             break;
         case STAT_ARMOR_CLASS:
             if (isInCombat()) {
-                if (_combat_whose_turn() != critter) {
+                if (combat_whose_turn() != critter) {
                     int actionPointsMultiplier = 1;
                     int hthEvadeBonus = 0;
 

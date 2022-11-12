@@ -732,7 +732,7 @@ void gameMouseRefresh()
                     int color;
                     int accuracy;
                     char formattedAccuracy[8];
-                    if (_combat_to_hit(pointedObject, &accuracy)) {
+                    if (combat_to_hit(pointedObject, &accuracy)) {
                         sprintf(formattedAccuracy, "%d%%", accuracy);
 
                         if (pointedObjectIsCritter) {
@@ -793,8 +793,8 @@ void gameMouseRefresh()
             } else {
                 int v7 = critterGetMovementPointCostAdjustedForCrippledLegs(gDude, v6);
                 int v8;
-                if (v7 - _combat_free_move >= 0) {
-                    v8 = v7 - _combat_free_move;
+                if (v7 - combat_free_move >= 0) {
+                    v8 = v7 - combat_free_move;
                 } else {
                     v8 = 0;
                 }
@@ -898,7 +898,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         if (gGameMouseMode == GAME_MOUSE_MODE_MOVE) {
             int actionPoints;
             if (isInCombat()) {
-                actionPoints = _combat_free_move + gDude->data.critter.combat.ap;
+                actionPoints = combat_free_move + gDude->data.critter.combat.ap;
             } else {
                 actionPoints = -1;
             }
@@ -980,7 +980,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             }
 
             if (v7 != NULL) {
-                _combat_attack_this(v7);
+                combat_attack_this(v7);
                 _gmouse_3d_hover_test = true;
                 gGameMouseLastY = mouseY;
                 gGameMouseLastX = mouseX;
@@ -1008,7 +1008,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                                 } else {
                                     gDude->data.critter.combat.ap -= actionPointsRequired;
                                 }
-                                interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+                                interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
                             }
                         }
                     } else {
@@ -1390,10 +1390,10 @@ void gameMouseSetMode(int mode)
 
     switch (v5) {
     case 1:
-        _combat_outline_on();
+        combat_outline_on();
         break;
     case -1:
-        _combat_outline_off();
+        combat_outline_off();
         break;
     }
 }

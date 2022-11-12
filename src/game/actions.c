@@ -814,7 +814,7 @@ static int action_ranged(Attack* attack, int anim)
 
                 objectSetLight(projectile, 9, projectile->lightIntensity, NULL);
 
-                int projectileOrigin = _combat_bullet_start(attack->attacker, attack->defender);
+                int projectileOrigin = combat_bullet_start(attack->attacker, attack->defender);
                 objectSetLocation(projectile, projectileOrigin, attack->attacker->elevation, NULL);
 
                 int projectileRotation = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
@@ -1737,7 +1737,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
         }
     }
 
-    attackInit(attack, explosion, critter, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+    combat_ctd_init(attack, explosion, critter, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
 
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
@@ -1751,7 +1751,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
         attack->defenderDamage = compute_explosion_damage(minDamage, maxDamage, critter, &(attack->defenderKnockback));
     }
 
-    _compute_explosion_on_extras(attack, 0, 0, 1);
+    compute_explosion_on_extras(attack, 0, 0, 1);
 
     for (int index = 0; index < attack->extrasLength; index++) {
         Object* critter = attack->extras[index];
@@ -1762,7 +1762,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
         attack->extrasDamage[index] = compute_explosion_damage(minDamage, maxDamage, critter, &(attack->extrasKnockback[index]));
     }
 
-    attackComputeDeathFlags(attack);
+    death_checks(attack);
 
     if (a6) {
         action_in_explode = true;
@@ -1779,7 +1779,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
             register_object_animate_and_hide(adjacentExplosions[rotation], ANIM_STAND, 0);
         }
 
-        register_object_must_call(explosion, 0, _combat_explode_scenery, -1);
+        register_object_must_call(explosion, 0, combat_explode_scenery, -1);
         register_object_must_erase(explosion);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
@@ -1819,7 +1819,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
 
         report_explosion(attack, a5);
 
-        _combat_explode_scenery(explosion, NULL);
+        combat_explode_scenery(explosion, NULL);
 
         objectDestroy(explosion, NULL);
 
@@ -1846,9 +1846,9 @@ static int report_explosion(Attack* attack, Object* a2)
         extrasWasDead[index] = (attack->extras[index]->data.critter.combat.results & DAM_DEAD) != 0;
     }
 
-    attackComputeDeathFlags(attack);
-    _combat_display(attack);
-    _apply_damage(attack, false);
+    death_checks(attack);
+    combat_display(attack);
+    apply_damage(attack, false);
 
     Object* anyDefender = NULL;
     int xp = 0;
@@ -1901,7 +1901,7 @@ static int report_explosion(Attack* attack, Object* a2)
     gameUiEnable();
 
     if (a2 == gDude) {
-        _combat_give_exps(xp);
+        combat_give_exps(xp);
     }
 
     return 0;
@@ -1959,7 +1959,7 @@ int action_talk_to(Object* a1, Object* a2)
     } else {
         register_begin(a1 == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
 
-        if (objectGetDistanceBetween(a1, a2) >= 9 || _combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
+        if (objectGetDistanceBetween(a1, a2) >= 9 || combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
             register_object_run_to_object(a1, a2, -1, 0);
         }
     }
@@ -1972,7 +1972,7 @@ int action_talk_to(Object* a1, Object* a2)
 // 0x413420
 static int can_talk_to(Object* a1, Object* a2)
 {
-    if (_combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL) || objectGetDistanceBetween(a1, a2) >= 9) {
+    if (combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL) || objectGetDistanceBetween(a1, a2) >= 9) {
         if (a1 == gDude) {
             // You cannot get there. (used in actions.c)
             MessageListItem messageListItem;
@@ -2016,7 +2016,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
     objectSetLocation(attacker, tile, elevation, NULL);
 
     Object* defender = _obj_blocking_at(NULL, tile, elevation);
-    attackInit(attack, attacker, defender, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+    combat_ctd_init(attack, attacker, defender, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
     gameUiDisable(1);
@@ -2034,7 +2034,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
         attack->defenderDamage = damage;
     }
 
-    attackComputeDeathFlags(attack);
+    death_checks(attack);
 
     if (animated) {
         register_begin(ANIMATION_REQUEST_RESERVED);
@@ -2067,8 +2067,8 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
 // 0x41363C
 static int report_dmg(Attack* attack, Object* a2)
 {
-    _combat_display(attack);
-    _apply_damage(attack, false);
+    combat_display(attack);
+    apply_damage(attack, false);
     internal_free(attack);
     gameUiEnable();
     return 0;

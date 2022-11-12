@@ -832,7 +832,7 @@ int _ai_magic_hands(Object* critter, Object* item, int num)
 
     if (register_end() == 0) {
         if (isInCombat()) {
-            _combat_turn_run();
+            combat_turn_run();
         }
     }
 
@@ -868,7 +868,7 @@ int _ai_check_drugs(Object* critter)
     int v25 = 0;
     int v28 = 0;
     int v29 = 0;
-    Object* v3 = aiInfoGetLastItem(critter);
+    Object* v3 = combatAIInfoGetLastItem(critter);
     if (v3 == NULL) {
         AiPacket* ai = aiGetPacket(critter);
         if (ai == NULL) {
@@ -887,13 +887,13 @@ int _ai_check_drugs(Object* critter)
             v2 = 30;
             break;
         case 4:
-            if ((_combatNumTurns % 3) == 0) {
+            if ((combatNumTurns % 3) == 0) {
                 v26 = 25;
             }
             v2 = 50;
             break;
         case 5:
-            if ((_combatNumTurns % 3) == 0) {
+            if ((combatNumTurns % 3) == 0) {
                 v26 = 75;
             }
             v2 = 50;
@@ -1061,7 +1061,7 @@ void _ai_run_away(Object* a1, Object* a2)
             _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_RUN, 0);
             register_object_run_to_tile(a1, destination, a1->elevation, combatData->ap, 0);
             if (register_end() == 0) {
-                _combat_turn_run();
+                combat_turn_run();
             }
         }
     } else {
@@ -1107,7 +1107,7 @@ int _ai_move_away(Object* a1, Object* a2, int a3)
             register_begin(ANIMATION_REQUEST_RESERVED);
             register_object_move_to_tile(a1, destination, a1->elevation, actionPoints, 0);
             if (register_end() == 0) {
-                _combat_turn_run();
+                combat_turn_run();
             }
         }
     }
@@ -1421,13 +1421,13 @@ Object* _ai_danger_source(Object* a1)
         attackWho = aiGetPacket(a1)->attack_who;
         switch (attackWho) {
         case ATTACK_WHO_WHOMEVER_ATTACKING_ME: {
-            Object* candidate = aiInfoGetLastTarget(gDude);
+            Object* candidate = combatAIInfoGetLastTarget(gDude);
             if (candidate == NULL || a1->data.critter.combat.team == candidate->data.critter.combat.team) {
                 break;
             }
 
             if (make_path_func(a1, a1->tile, gDude->data.critter.combat.whoHitMe->tile, NULL, 0, _obj_blocking_at) == 0
-                && _combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) != COMBAT_BAD_SHOT_OK) {
+                && combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) != COMBAT_BAD_SHOT_OK) {
                 debugPrint("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critterGetName(a1));
                 break;
             }
@@ -1496,7 +1496,7 @@ Object* _ai_danger_source(Object* a1)
         Object* candidate = targets[index];
         if (candidate != NULL && isWithinPerception(a1, candidate)) {
             if (make_path_func(a1, a1->tile, candidate->tile, NULL, 0, _obj_blocking_at) != 0
-                || _combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == COMBAT_BAD_SHOT_OK) {
+                || combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == COMBAT_BAD_SHOT_OK) {
                 return candidate;
             }
             debugPrint("\nai_danger_source: I couldn't get at my target!  Picking alternate!");
@@ -1648,7 +1648,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
     int avgDamage1 = 0;
 
     Attack attack;
-    attackInit(&attack, attacker, defender, HIT_MODE_RIGHT_WEAPON_PRIMARY, HIT_LOCATION_TORSO);
+    combat_ctd_init(&attack, attacker, defender, HIT_MODE_RIGHT_WEAPON_PRIMARY, HIT_LOCATION_TORSO);
 
     int attackType1;
     int distance;
@@ -1672,7 +1672,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
         avgDamage1 = (maxDamage - minDamage) / 2;
         if (_item_w_area_damage_radius(weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
             attack.weapon = weapon1;
-            _compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon1), 1);
+            compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon1), 1);
             avgDamage1 *= attack.extrasLength + 1;
         }
 
@@ -1683,7 +1683,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
         }
 
         if (defender != NULL) {
-            if (_combat_safety_invalidate_weapon(attacker, weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY, defender, NULL)) {
+            if (combat_safety_invalidate_weapon(attacker, weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY, defender, NULL)) {
                 v24 = 1;
             }
         }
@@ -1716,7 +1716,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
         avgDamage2 = (maxDamage - minDamage) / 2;
         if (_item_w_area_damage_radius(weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
             attack.weapon = weapon2;
-            _compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon2), 1);
+            compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon2), 1);
             avgDamage2 *= attack.extrasLength + 1;
         }
 
@@ -1725,7 +1725,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
         }
 
         if (defender != NULL) {
-            if (_combat_safety_invalidate_weapon(attacker, weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY, defender, NULL)) {
+            if (combat_safety_invalidate_weapon(attacker, weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY, defender, NULL)) {
                 v23 = 1;
             }
         }
@@ -2030,7 +2030,7 @@ Object* _ai_retrieve_object(Object* a1, Object* a2)
         return NULL;
     }
 
-    _combat_turn_run();
+    combat_turn_run();
 
     Object* v3 = _inven_find_id(a1, a2->id);
 
@@ -2039,7 +2039,7 @@ Object* _ai_retrieve_object(Object* a1, Object* a2)
         a2 = NULL;
     }
 
-    aiInfoSetLastItem(v3, a2);
+    combatAIInfoSetLastItem(v3, a2);
 
     return v3;
 }
@@ -2079,20 +2079,20 @@ int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
             }
             break;
         case AREA_ATTACK_MODE_BE_SURE:
-            if (_determine_to_hit(a1, a3, HIT_LOCATION_TORSO, HIT_MODE_RIGHT_WEAPON_SECONDARY) >= 85
-                && !_combat_safety_invalidate_weapon(a1, a2, 3, a3, 0)) {
+            if (determine_to_hit(a1, a3, HIT_LOCATION_TORSO, HIT_MODE_RIGHT_WEAPON_SECONDARY) >= 85
+                && !combat_safety_invalidate_weapon(a1, a2, 3, a3, 0)) {
                 useSecondaryMode = true;
             }
             break;
         case AREA_ATTACK_MODE_BE_CAREFUL:
-            if (_determine_to_hit(a1, a3, HIT_LOCATION_TORSO, HIT_MODE_RIGHT_WEAPON_SECONDARY) >= 50
-                && !_combat_safety_invalidate_weapon(a1, a2, 3, a3, 0)) {
+            if (determine_to_hit(a1, a3, HIT_LOCATION_TORSO, HIT_MODE_RIGHT_WEAPON_SECONDARY) >= 50
+                && !combat_safety_invalidate_weapon(a1, a2, 3, a3, 0)) {
                 useSecondaryMode = true;
             }
             break;
         case AREA_ATTACK_MODE_BE_ABSOLUTELY_SURE:
-            if (_determine_to_hit(a1, a3, HIT_LOCATION_TORSO, HIT_MODE_RIGHT_WEAPON_SECONDARY) >= 95
-                && !_combat_safety_invalidate_weapon(a1, a2, 3, a3, 0)) {
+            if (determine_to_hit(a1, a3, HIT_LOCATION_TORSO, HIT_MODE_RIGHT_WEAPON_SECONDARY) >= 95
+                && !combat_safety_invalidate_weapon(a1, a2, 3, a3, 0)) {
                 useSecondaryMode = true;
             }
             break;
@@ -2209,7 +2209,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
         return -1;
     }
 
-    _combat_turn_run();
+    combat_turn_run();
 
     return 0;
 }
@@ -2266,7 +2266,7 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
         Object* obj = _curr_crit_list[index];
         if ((obj->data.critter.combat.results & DAM_DEAD) == 0
             && obj->data.critter.combat.team == aiRetargetData.sourceTeam
-            && aiInfoGetLastTarget(obj) == aiRetargetData.target
+            && combatAIInfoGetLastTarget(obj) == aiRetargetData.target
             && obj != aiRetargetData.source) {
             int rating = _combatai_rating(obj);
             if (rating >= aiRetargetData.sourceRating) {
@@ -2354,7 +2354,7 @@ bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attac
     Object* object = NULL;
     make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, _obj_shoot_blocking_at);
     if (object != attackerFriend) {
-        if (!_combatTestIncidentalHit(attacker, defender, attackerFriend, weapon)) {
+        if (!combatTestIncidentalHit(attacker, defender, attackerFriend, weapon)) {
             return false;
         }
     }
@@ -2391,7 +2391,7 @@ int _ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4)
 
     if (*weapon != NULL) {
         _inven_wield(a1, *weapon, 1);
-        _combat_turn_run();
+        combat_turn_run();
         if (_item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
             return 0;
         }
@@ -2429,7 +2429,7 @@ int _ai_called_shot(Object* a1, Object* a2, int a3)
 
                 if (critterGetStat(a1, STAT_INTELLIGENCE) >= v6) {
                     v5 = randomBetween(0, 8);
-                    v7 = _determine_to_hit(a1, a2, a3, v5);
+                    v7 = determine_to_hit(a1, a2, a3, v5);
                     if (v7 < ai->min_to_hit) {
                         v5 = 3;
                     }
@@ -2453,14 +2453,14 @@ int _ai_attack(Object* a1, Object* a2, int a3)
     register_begin(ANIMATION_REQUEST_RESERVED);
     register_object_turn_towards(a1, a2->tile);
     register_end();
-    _combat_turn_run();
+    combat_turn_run();
 
     v6 = _ai_called_shot(a1, a2, a3);
-    if (_combat_attack(a1, a2, a3, v6)) {
+    if (combat_attack(a1, a2, a3, v6)) {
         return -1;
     }
 
-    _combat_turn_run();
+    combat_turn_run();
 
     return 0;
 }
@@ -2488,7 +2488,7 @@ int _ai_try_attack(Object* a1, Object* a2)
         || (critterGetBodyType(a2) == BODY_TYPE_BIPED
             && ((a2->fid & 0xF000) >> 12 == 0)
             && art_exists(art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_THROW_PUNCH, 0, a1->rotation + 1)))) {
-        if (_combat_safety_invalidate_weapon(a1, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a2, &v31)) {
+        if (combat_safety_invalidate_weapon(a1, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a2, &v31)) {
             _ai_switch_weapons(a1, &hitMode, &weapon, a2);
         }
     } else {
@@ -2503,7 +2503,7 @@ int _ai_try_attack(Object* a1, Object* a2)
             break;
         }
 
-        int reason = _combat_check_bad_shot(a1, a2, hitMode, false);
+        int reason = combat_check_bad_shot(a1, a2, hitMode, false);
         if (reason == COMBAT_BAD_SHOT_NO_AMMO) {
             // out of ammo
             if (_ai_have_ammo(a1, weapon, &ammo)) {
@@ -2556,7 +2556,7 @@ int _ai_try_attack(Object* a1, Object* a2)
                     _ai_magic_hands(a1, weapon, 5001);
 
                     if (_inven_unwield(a1, 1) == 0) {
-                        _combat_turn_run();
+                        combat_turn_run();
                     }
 
                     _ai_switch_weapons(a1, &hitMode, &weapon, a2);
@@ -2571,7 +2571,7 @@ int _ai_try_attack(Object* a1, Object* a2)
             }
         } else if (reason == COMBAT_BAD_SHOT_OUT_OF_RANGE) {
             // target out of range
-            int accuracy = _determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
+            int accuracy = determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
             if (accuracy < minToHit) {
                 const char* name = critterGetName(a1);
                 debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
@@ -2600,7 +2600,7 @@ int _ai_try_attack(Object* a1, Object* a2)
             }
             v38 = 0;
         } else if (reason == COMBAT_BAD_SHOT_OK) {
-            int accuracy = _determine_to_hit(a1, a2, HIT_LOCATION_UNCALLED, hitMode);
+            int accuracy = determine_to_hit(a1, a2, HIT_LOCATION_UNCALLED, hitMode);
             if (v31) {
                 if (_ai_move_away(a1, a2, v31) == -1) {
                     return -1;
@@ -2608,7 +2608,7 @@ int _ai_try_attack(Object* a1, Object* a2)
             }
 
             if (accuracy < minToHit) {
-                int v22 = _determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
+                int v22 = determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
                 if (v22 < minToHit) {
                     const char* name = critterGetName(a1);
                     debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
@@ -2632,7 +2632,7 @@ int _ai_try_attack(Object* a1, Object* a2)
 
                             v42++;
 
-                            int v27 = _determine_to_hit_from_tile(a1, tile, a2, HIT_LOCATION_UNCALLED, hitMode);
+                            int v27 = determine_to_hit_from_tile(a1, tile, a2, HIT_LOCATION_UNCALLED, hitMode);
                             if (v27 >= minToHit) {
                                 break;
                             }
@@ -2782,7 +2782,7 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
         if (register_end() != 0) {
             return -1;
         }
-        _combat_turn_run();
+        combat_turn_run();
     }
 
     return 0;
@@ -2848,10 +2848,10 @@ void _combat_ai(Object* a1, Object* a2)
         && (a1->data.critter.combat.results & DAM_DEAD) == 0
         && a1->data.critter.combat.ap != 0
         && objectGetDistanceBetween(a1, a2) > ai->max_dist) {
-        Object* v13 = aiInfoGetFriendlyDead(a1);
+        Object* v13 = combatAIInfoGetFriendlyDead(a1);
         if (v13 != NULL) {
             _ai_move_away(a1, v13, 10);
-            aiInfoSetFriendlyDead(a1, NULL);
+            combatAIInfoSetFriendlyDead(a1, NULL);
         } else {
             int perception = critterGetStat(a1, STAT_PERCEPTION);
             if (!_ai_find_friend(a1, perception * 2, 5)) {
@@ -2864,10 +2864,10 @@ void _combat_ai(Object* a1, Object* a2)
         Object* whoHitMe = combatData->whoHitMe;
         if (whoHitMe != NULL) {
             if ((whoHitMe->data.critter.combat.results & DAM_DEAD) == 0 && combatData->damageLastTurn > 0) {
-                Object* v16 = aiInfoGetFriendlyDead(a1);
+                Object* v16 = combatAIInfoGetFriendlyDead(a1);
                 if (v16 != NULL) {
                     _ai_move_away(a1, v16, 10);
-                    aiInfoSetFriendlyDead(a1, NULL);
+                    combatAIInfoSetFriendlyDead(a1, NULL);
                 } else {
                     const char* name = critterGetName(a1);
                     debugPrint("%s: FLEEING: Somebody is shooting at me that I can't see!");
@@ -2877,11 +2877,11 @@ void _combat_ai(Object* a1, Object* a2)
         }
     }
 
-    Object* v18 = aiInfoGetFriendlyDead(a1);
+    Object* v18 = combatAIInfoGetFriendlyDead(a1);
     if (v18 != NULL) {
         _ai_move_away(a1, v18, 10);
         if (objectGetDistanceBetween(a1, v18) >= 10) {
-            aiInfoSetFriendlyDead(a1, NULL);
+            combatAIInfoSetFriendlyDead(a1, NULL);
         }
     }
 
@@ -3000,7 +3000,7 @@ int critterSetTeam(Object* obj, int team)
         }
     }
 
-    aiInfoSetLastTarget(obj, NULL);
+    combatAIInfoSetLastTarget(obj, NULL);
 
     if (isInCombat()) {
         bool outlineWasEnabled = obj->outline != 0 && (obj->outline & OUTLINE_DISABLED) == 0;
@@ -3178,7 +3178,7 @@ Object* _combat_ai_random_target(Attack* attack)
             if (obj != attack->attacker
                 && obj != attack->defender
                 && can_see(attack->attacker, obj)
-                && _combat_check_bad_shot(attack->attacker, obj, attack->hitMode, false) == COMBAT_BAD_SHOT_OK) {
+                && combat_check_bad_shot(attack->attacker, obj, attack->hitMode, false) == COMBAT_BAD_SHOT_OK) {
                 critter = obj;
                 break;
             }
@@ -3372,7 +3372,7 @@ void _combatai_notify_onlookers(Object* a1)
                 if ((a1->data.critter.combat.results & DAM_DEAD) != 0) {
                     if (!isWithinPerception(obj, obj->data.critter.combat.whoHitMe)) {
                         debugPrint("\nSomebody Died and I don't know why!  Run!!!");
-                        aiInfoSetFriendlyDead(obj, a1);
+                        combatAIInfoSetFriendlyDead(obj, a1);
                     }
                 }
             }

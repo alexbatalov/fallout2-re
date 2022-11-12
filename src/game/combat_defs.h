@@ -1,5 +1,5 @@
-#ifndef COMBAT_DEFS_H
-#define COMBAT_DEFS_H
+#ifndef FALLOUT_GAME_COMBAT_DEFS_H_
+#define FALLOUT_GAME_COMBAT_DEFS_H_
 
 #include "obj_types.h"
 
@@ -164,4 +164,4 @@ typedef enum CombatBadShot {
     COMBAT_BAD_SHOT_BOTH_ARMS_CRIPPLED = 7,
 } CombatBadShot;
 
-#endif /* COMBAT_DEFS_H */
+#endif /* FALLOUT_GAME_COMBAT_DEFS_H_ */

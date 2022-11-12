@@ -103,7 +103,7 @@ SaveGameHandler* _master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     skillsSave,
     randomSave,
     perksSave,
-    combatSave,
+    combat_save,
     aiSave,
     statsSave,
     itemsSave,
@@ -134,7 +134,7 @@ LoadGameHandler* _master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     skillsLoad,
     randomLoad,
     perksLoad,
-    combatLoad,
+    combat_load,
     aiLoad,
     statsLoad,
     itemsLoad,
@@ -1471,7 +1471,7 @@ int lsgLoadGameInSlot(int slot)
 
     if (isInCombat()) {
         interfaceBarEndButtonsHide(false);
-        _combat_over_from_load();
+        combat_over_from_load();
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
     }
 

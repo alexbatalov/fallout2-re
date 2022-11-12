@@ -450,7 +450,7 @@ int inventoryMessageListFree()
 void inventoryOpen()
 {
     if (isInCombat()) {
-        if (_combat_whose_turn() != _inven_dude) {
+        if (combat_whose_turn() != _inven_dude) {
             return;
         }
     }
@@ -482,7 +482,7 @@ void inventoryOpen()
                 } else {
                     gDude->data.critter.combat.ap -= actionPointsRequired;
                 }
-                interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+                interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
             }
         }
     }
@@ -1078,10 +1078,10 @@ void _exit_inventory(bool shouldEnableIso)
 
     if (_dropped_explosive) {
         Attack v1;
-        attackInit(&v1, gDude, NULL, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+        combat_ctd_init(&v1, gDude, NULL, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
         v1.attackerFlags = DAM_HIT;
         v1.tile = gDude->tile;
-        _compute_explosion_on_extras(&v1, 0, 0, 1);
+        compute_explosion_on_extras(&v1, 0, 0, 1);
 
         Object* v2 = NULL;
         for (int index = 0; index < v1.extrasLength; index++) {
@@ -2124,7 +2124,7 @@ void inventoryOpenUseItemOn(Object* a1)
                                         } else {
                                             gDude->data.critter.combat.ap = actionPoints - 2;
                                         }
-                                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+                                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
                                     }
                                 }
                             } else {

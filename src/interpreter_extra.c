@@ -833,7 +833,7 @@ void opMoveTo(Program* program)
             objectGetRect(object, &before);
 
             if (object->elevation != elevation && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-                _combat_delete_critter(object);
+                combat_delete_critter(object);
             }
 
             Rect after;
@@ -984,7 +984,7 @@ void opDestroyObject(Program* program)
     bool isSelf = object == scriptGetSelf(program);
 
     if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-        _combat_delete_critter(object);
+        combat_delete_critter(object);
     }
 
     Object* owner = objectGetOwner(object);
@@ -2901,7 +2901,7 @@ void opKillCritter(Program* program)
     bool isSelf = self == object;
 
     register_clear(object);
-    _combat_delete_critter(object);
+    combat_delete_critter(object);
     critterKill(object, deathFrame, 1);
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -2997,7 +2997,7 @@ void opKillCritterType(Program* program)
             register_clear(obj);
 
             if (deathFrame != 0) {
-                _combat_delete_critter(obj);
+                combat_delete_critter(obj);
                 if (deathFrame == 1) {
                     int anim = _correctDeath(obj, _ftList[v3], 1);
                     critterKill(obj, anim, 1);
@@ -3559,7 +3559,7 @@ void opCritterAttemptPlacement(Program* program)
     }
 
     if (elevation != critter->elevation && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
-        _combat_delete_critter(critter);
+        combat_delete_critter(critter);
     }
 
     objectSetLocation(critter, 0, elevation, NULL);
@@ -6091,7 +6091,7 @@ void opDestroyMultipleObjects(Program* program)
     int result = 0;
 
     if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-        _combat_delete_critter(object);
+        combat_delete_critter(object);
     }
 
     Object* owner = objectGetOwner(object);
@@ -6531,7 +6531,7 @@ void opTerminateCombat(Program* program)
             if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
                 self->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
                 self->data.critter.combat.whoHitMe = NULL;
-                aiInfoSetLastTarget(self, NULL);
+                combatAIInfoSetLastTarget(self, NULL);
             }
         }
     }
@@ -6584,7 +6584,7 @@ void opCritterStopAttacking(Program* program)
     if (obj != NULL) {
         obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
         obj->data.critter.combat.whoHitMe = NULL;
-        aiInfoSetLastTarget(obj, NULL);
+        combatAIInfoSetLastTarget(obj, NULL);
     } else {
         scriptPredefinedError(program, "critter_stop_attacking", SCRIPT_ERROR_OBJECT_IS_NULL);
     }

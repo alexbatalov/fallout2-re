@@ -466,7 +466,7 @@ int register_end()
     animationSequence->flags &= ~ANIM_SEQ_ACCUMULATING;
     animationSequence->animations[0].delay = 0;
     if (isInCombat()) {
-        _combat_anim_begin();
+        combat_anim_begin();
         animationSequence->flags |= ANIM_SEQ_COMBAT_ANIM_STARTED;
     }
 
@@ -1738,7 +1738,7 @@ static int anim_set_end(int animationSequenceIndex)
     animationSequence->animationIndex = -1;
     animationSequence->field_0 = -1000;
     if ((animationSequence->flags & ANIM_SEQ_COMBAT_ANIM_STARTED) != 0) {
-        _combat_anim_finished();
+        combat_anim_finished();
     }
 
     if (anim_in_bk) {
@@ -2693,24 +2693,24 @@ static void object_move(int index)
             int v17 = 0;
             if (isInCombat() && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER) {
                 int v18 = critterGetMovementPointCostAdjustedForCrippledLegs(object, 1);
-                if (_combat_free_move < v18) {
+                if (combat_free_move < v18) {
                     int ap = object->data.critter.combat.ap;
-                    int v20 = v18 - _combat_free_move;
-                    _combat_free_move = 0;
+                    int v20 = v18 - combat_free_move;
+                    combat_free_move = 0;
                     if (v20 > ap) {
                         object->data.critter.combat.ap = 0;
                     } else {
                         object->data.critter.combat.ap = ap - v20;
                     }
                 } else {
-                    _combat_free_move -= v18;
+                    combat_free_move -= v18;
                 }
 
                 if (object == gDude) {
-                    interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+                    interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
                 }
 
-                v17 = (object->data.critter.combat.ap + _combat_free_move) <= 0;
+                v17 = (object->data.critter.combat.ap + combat_free_move) <= 0;
             }
 
             sad_entry->field_20 += 1;

@@ -1460,7 +1460,7 @@ void _intface_use_item()
                         } else {
                             gDude->data.critter.combat.ap -= actionPointsRequired;
                         }
-                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
                     }
                 }
             } else {
@@ -1470,7 +1470,7 @@ void _intface_use_item()
             gameMouseSetCursor(MOUSE_CURSOR_CROSSHAIR);
             gameMouseSetMode(GAME_MOUSE_MODE_CROSSHAIR);
             if (!isInCombat()) {
-                _combat(NULL);
+                combat(NULL);
             }
         }
     } else if (_proto_action_can_use_on(ptr->item->pid)) {
@@ -1488,7 +1488,7 @@ void _intface_use_item()
                     gDude->data.critter.combat.ap -= actionPointsRequired;
                 }
 
-                interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+                interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
             }
         } else {
             _obj_use_item(gDude, ptr->item);

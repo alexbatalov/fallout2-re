@@ -1055,10 +1055,10 @@ int _protinstTestDroppedExplosive(Object* a1)
 {
     if (a1->pid == PROTO_ID_DYNAMITE_II || a1->pid == PROTO_ID_PLASTIC_EXPLOSIVES_II) {
         Attack attack;
-        attackInit(&attack, gDude, 0, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+        combat_ctd_init(&attack, gDude, 0, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
         attack.attackerFlags = DAM_HIT;
         attack.tile = gDude->tile;
-        _compute_explosion_on_extras(&attack, 0, 0, 1);
+        compute_explosion_on_extras(&attack, 0, 0, 1);
 
         int team = gDude->data.critter.combat.team;
         Object* v2 = NULL;
@@ -1378,7 +1378,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
         obj->data.critter.combat.ap = actionPoints - 3;
 
         if (obj == gDude) {
-            interfaceRenderActionPoints(gDude->data.critter.combat.ap, _combat_free_move);
+            interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
         }
 
         return 0;

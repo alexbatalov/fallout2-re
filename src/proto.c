@@ -696,7 +696,7 @@ int _proto_update_init(Object* obj)
     data->inventory.length = 0;
     data->inventory.capacity = 0;
     data->inventory.items = NULL;
-    _combat_data_init(obj);
+    combat_data_init(obj);
     data->critter.hp = critterGetStat(obj, STAT_MAXIMUM_HIT_POINTS);
     data->critter.combat.ap = critterGetStat(obj, STAT_MAXIMUM_ACTION_POINTS);
     critterUpdateDerivedStats(obj);

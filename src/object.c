@@ -570,7 +570,7 @@ void _obj_fix_combat_cid_for_dude()
     if (gDude->data.critter.combat.whoHitMeCid == -1) {
         gDude->data.critter.combat.whoHitMe = NULL;
     } else {
-        int index = _find_cid(0, gDude->data.critter.combat.whoHitMeCid, critterList, critterListLength);
+        int index = find_cid(0, gDude->data.critter.combat.whoHitMeCid, critterList, critterListLength);
         if (index != critterListLength) {
             gDude->data.critter.combat.whoHitMe = critterList[index];
         } else {
@@ -1399,7 +1399,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
     if (isInCombat()) {
         if (FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
             bool v8 = obj->outline != 0 && (obj->outline & OUTLINE_DISABLED) == 0;
-            _combat_update_critter_outline_for_los(obj, v8);
+            combat_update_critter_outline_for_los(obj, v8);
         }
     }
 
@@ -1486,7 +1486,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         }
     } else {
         if (elevation != _obj_last_elev && PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
-            _combat_delete_critter(obj);
+            combat_delete_critter(obj);
         }
     }
 

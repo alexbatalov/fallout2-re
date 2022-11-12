@@ -843,9 +843,9 @@ int scriptsHandleRequests()
 
             if ((gScriptsRequests & SCRIPT_REQUEST_0x40) != 0) {
                 gScriptsRequests &= ~SCRIPT_REQUEST_0x40;
-                _combat(NULL);
+                combat(NULL);
             } else {
-                _combat(&stru_664980);
+                combat(&stru_664980);
                 memset(&stru_664980, 0, sizeof(stru_664980));
             }
         }
@@ -2746,7 +2746,7 @@ bool _scr_end_combat()
         return false;
     }
 
-    int team = _combat_player_knocked_out_by();
+    int team = combat_player_knocked_out_by();
     if (team == -1) {
         return false;
     }

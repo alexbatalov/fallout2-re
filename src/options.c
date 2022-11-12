@@ -1586,7 +1586,7 @@ int preferencesWindowFree()
     if (_changed) {
         _SavePrefs(1);
         _JustUpdate_();
-        _combat_highlight_change();
+        combat_highlight_change();
     }
 
     windowDestroy(gPreferencesWindow);
