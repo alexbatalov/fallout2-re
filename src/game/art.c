@@ -102,7 +102,7 @@ int art_init()
         cacheSize = 8;
     }
 
-    if (!cacheInit(&art_cache, art_data_size, art_data_load, art_data_free, cacheSize << 20)) {
+    if (!cache_init(&art_cache, art_data_size, art_data_load, art_data_free, cacheSize << 20)) {
         debugPrint("cache_init failed in art_init\n");
         return -1;
     }
@@ -130,7 +130,7 @@ int art_init()
             if (critterDbSelected) {
                 _db_select(oldDb);
             }
-            cacheFree(&art_cache);
+            cache_exit(&art_cache);
             return -1;
         }
 
@@ -144,7 +144,7 @@ int art_init()
     if (anon_alias == NULL) {
         art[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debugPrint("Out of memory for anon_alias in art_init\n");
-        cacheFree(&art_cache);
+        cache_exit(&art_cache);
         return -1;
     }
 
@@ -152,7 +152,7 @@ int art_init()
     if (artCritterFidShouldRunData == NULL) {
         art[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debugPrint("Out of memory for artCritterFidShouldRunData in art_init\n");
-        cacheFree(&art_cache);
+        cache_exit(&art_cache);
         return -1;
     }
 
@@ -165,7 +165,7 @@ int art_init()
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
         debugPrint("Unable to open %s in art_init\n", path);
-        cacheFree(&art_cache);
+        cache_exit(&art_cache);
         return -1;
     }
 
@@ -222,7 +222,7 @@ int art_init()
     if (head_info == NULL) {
         art[OBJ_TYPE_HEAD].fileNamesLength = 0;
         debugPrint("Out of memory for head_info in art_init\n");
-        cacheFree(&art_cache);
+        cache_exit(&art_cache);
         return -1;
     }
 
@@ -231,7 +231,7 @@ int art_init()
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
         debugPrint("Unable to open %s in art_init\n", path);
-        cacheFree(&art_cache);
+        cache_exit(&art_cache);
         return -1;
     }
 
@@ -286,7 +286,7 @@ void art_reset()
 // 0x418EBC
 void art_exit()
 {
-    cacheFree(&art_cache);
+    cache_exit(&art_cache);
 
     internal_free(anon_alias);
     internal_free(artCritterFidShouldRunData);
@@ -364,7 +364,7 @@ void scale_art(int fid, unsigned char* dest, int width, int height, int pitch)
 {
     // NOTE: Original code is different. For unknown reason it directly calls
     // many art functions, for example instead of [art_ptr_lock] it calls lower level
-    // [cacheLock], instead of [art_frame_width] is calls [frame_ptr], then get
+    // [cache_lock], instead of [art_frame_width] is calls [frame_ptr], then get
     // width from frame's struct field. I don't know if this was intentional or
     // not. I've replaced these calls with higher level functions where
     // appropriate.
@@ -421,7 +421,7 @@ Art* art_ptr_lock(int fid, CacheEntry** handlePtr)
     }
 
     Art* art = NULL;
-    cacheLock(&art_cache, fid, (void**)&art, handlePtr);
+    cache_lock(&art_cache, fid, (void**)&art, handlePtr);
     return art;
 }
 
@@ -433,7 +433,7 @@ unsigned char* art_ptr_lock_data(int fid, int frame, int direction, CacheEntry**
 
     art = NULL;
     if (handlePtr) {
-        cacheLock(&art_cache, fid, (void**)&art, handlePtr);
+        cache_lock(&art_cache, fid, (void**)&art, handlePtr);
     }
 
     if (art != NULL) {
@@ -453,7 +453,7 @@ unsigned char* art_lock(int fid, CacheEntry** handlePtr, int* widthPtr, int* hei
     *handlePtr = NULL;
 
     Art* art;
-    cacheLock(&art_cache, fid, (void**)&art, handlePtr);
+    cache_lock(&art_cache, fid, (void**)&art, handlePtr);
 
     if (art == NULL) {
         return NULL;
@@ -478,13 +478,13 @@ unsigned char* art_lock(int fid, CacheEntry** handlePtr, int* widthPtr, int* hei
 // 0x419260
 int art_ptr_unlock(CacheEntry* handle)
 {
-    return cacheUnlock(&art_cache, handle);
+    return cache_unlock(&art_cache, handle);
 }
 
 // 0x41927C
 int art_flush()
 {
-    return cacheFlush(&art_cache);
+    return cache_flush(&art_cache);
 }
 
 // NOTE: Unused.
@@ -492,7 +492,7 @@ int art_flush()
 // 0x419294
 int art_discard(int fid)
 {
-    if (_cache_discard(&art_cache, fid) == 0) {
+    if (cache_discard(&art_cache, fid) == 0) {
         return -1;
     }
 

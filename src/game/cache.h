@@ -1,5 +1,5 @@
-#ifndef CACHE_H
-#define CACHE_H
+#ifndef FALLOUT_GAME_CACHE_H_
+#define FALLOUT_GAME_CACHE_H_
 
 #include <stdbool.h>
 
@@ -8,10 +8,10 @@
 #define INVALID_CACHE_ENTRY ((CacheEntry*)-1)
 
 // The initial number of cache entries in new cache.
-#define CACHE_ENTRIES_INITIAL_CAPACITY (100)
+#define CACHE_ENTRIES_INITIAL_CAPACITY 100
 
 // The number of cache entries added when cache capacity is reached.
-#define CACHE_ENTRIES_GROW_CAPACITY (50)
+#define CACHE_ENTRIES_GROW_CAPACITY 50
 
 typedef enum CacheEntryFlags {
     // Specifies that cache entry has no references as should be evicted during
@@ -73,29 +73,16 @@ typedef struct Cache {
     Heap heap;
 } Cache;
 
-bool cacheInit(Cache* cache, CacheSizeProc* sizeProc, CacheReadProc* readProc, CacheFreeProc* freeProc, int maxSize);
-bool cacheFree(Cache* cache);
-int _cache_query(Cache* cache, int key);
-bool cacheLock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr);
-bool cacheUnlock(Cache* cache, CacheEntry* cacheEntry);
-int _cache_discard(Cache* cache, int key);
-bool cacheFlush(Cache* cache);
-int _cache_size(Cache* cache, int* sizePtr);
-bool cachePrintStats(Cache* cache, char* dest);
+bool cache_init(Cache* cache, CacheSizeProc* sizeProc, CacheReadProc* readProc, CacheFreeProc* freeProc, int maxSize);
+bool cache_exit(Cache* cache);
+int cache_query(Cache* cache, int key);
+bool cache_lock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr);
+bool cache_unlock(Cache* cache, CacheEntry* cacheEntry);
+int cache_discard(Cache* cache, int key);
+bool cache_flush(Cache* cache);
+int cache_size(Cache* cache, int* sizePtr);
+bool cache_stats(Cache* cache, char* dest);
 int cache_create_list(Cache* cache, unsigned int a2, int** tagsPtr, int* tagsLengthPtr);
 int cache_destroy_list(int** tagsPtr);
-bool cacheFetchEntryForKey(Cache* cache, int key, int* indexPtr);
-bool cacheInsertEntryAtIndex(Cache* cache, CacheEntry* cacheEntry, int index);
-int cacheFindIndexForKey(Cache* cache, int key, int* indexPtr);
-int _cache_create_item(CacheEntry** cacheEntryPtr);
-bool cacheEntryInit(CacheEntry* cacheEntry);
-bool cacheEntryFree(Cache* cache, CacheEntry* cacheEntry);
-bool cacheClean(Cache* cache);
-bool cacheResetStatistics(Cache* cache);
-bool cacheEnsureSize(Cache* cache, int size);
-bool cacheSweep(Cache* cache);
-bool cacheSetCapacity(Cache* cache, int newCapacity);
-int cacheEntriesCompareByUsage(const void* a1, const void* a2);
-int cacheEntriesCompareByMostRecentHit(const void* a1, const void* a2);
 
-#endif /* CACHE_H */
+#endif /* FALLOUT_GAME_CACHE_H_ */

@@ -81,7 +81,7 @@ int soundEffectsCacheInit(int cacheSize, const char* effectsPath)
         return -1;
     }
 
-    if (!cacheInit(gSoundEffectsCache, soundEffectsCacheGetFileSizeImpl, soundEffectsCacheReadDataImpl, soundEffectsCacheFreeImpl, cacheSize)) {
+    if (!cache_init(gSoundEffectsCache, soundEffectsCacheGetFileSizeImpl, soundEffectsCacheReadDataImpl, soundEffectsCacheFreeImpl, cacheSize)) {
         internal_free(gSoundEffectsCache);
         soundEffectsCacheFreeHandles();
         soundEffectsListExit();
@@ -98,7 +98,7 @@ int soundEffectsCacheInit(int cacheSize, const char* effectsPath)
 void soundEffectsCacheExit()
 {
     if (gSoundEffectsCacheInitialized) {
-        cacheFree(gSoundEffectsCache);
+        cache_exit(gSoundEffectsCache);
         internal_free(gSoundEffectsCache);
         gSoundEffectsCache = NULL;
 
@@ -122,7 +122,7 @@ int soundEffectsCacheInitialized()
 void soundEffectsCacheFlush()
 {
     if (gSoundEffectsCacheInitialized) {
-        cacheFlush(gSoundEffectsCache);
+        cache_flush(gSoundEffectsCache);
     }
 }
 
@@ -150,13 +150,13 @@ int soundEffectsCacheFileOpen(const char* fname, int mode, ...)
 
     void* data;
     CacheEntry* cacheHandle;
-    if (!cacheLock(gSoundEffectsCache, tag, &data, &cacheHandle)) {
+    if (!cache_lock(gSoundEffectsCache, tag, &data, &cacheHandle)) {
         return -1;
     }
 
     int handle;
     if (soundEffectsCreate(&handle, tag, data, cacheHandle) != 0) {
-        cacheUnlock(gSoundEffectsCache, cacheHandle);
+        cache_unlock(gSoundEffectsCache, cacheHandle);
         return -1;
     }
 
@@ -172,7 +172,7 @@ int soundEffectsCacheFileClose(int handle)
     }
 
     SoundEffect* soundEffect = &(gSoundEffects[handle]);
-    if (!cacheUnlock(gSoundEffectsCache, soundEffect->cacheHandle)) {
+    if (!cache_unlock(gSoundEffectsCache, soundEffect->cacheHandle)) {
         return -1;
     }
 

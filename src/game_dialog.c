@@ -2349,7 +2349,7 @@ void _gdSetupFidget(int headFrmId, int reaction)
             debugPrint("failure!\n");
 
             char stats[200];
-            cachePrintStats(&art_cache, stats);
+            cache_stats(&art_cache, stats);
             debugPrint("%s", stats);
         }
     }
@@ -2402,7 +2402,7 @@ void _gdSetupFidget(int headFrmId, int reaction)
         debugPrint("failure!\n");
 
         char stats[200];
-        cachePrintStats(&art_cache, stats);
+        cache_stats(&art_cache, stats);
         debugPrint("%s", stats);
     }
 
