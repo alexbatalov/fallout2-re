@@ -1,7 +1,7 @@
 #ifndef FALLOUT_INT_AUDIO_H_
 #define FALLOUT_INT_AUDIO_H_
 
-#include "audio_file.h"
+#include "int/audiof.h"
 
 int audioOpen(const char* fname, int mode, ...);
 int audioCloseFile(int fileHandle);

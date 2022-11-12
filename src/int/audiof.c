@@ -1,4 +1,4 @@
-#include "audio_file.h"
+#include "int/audiof.h"
 
 #include <assert.h>
 #include <io.h>
