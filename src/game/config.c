@@ -8,13 +8,18 @@
 #include "db.h"
 #include "memory.h"
 
-// Last section key read from .INI file.
-//
-// 0x518224
-char gConfigLastSectionKey[CONFIG_FILE_MAX_LINE_LENGTH] = "unknown";
+#define CONFIG_FILE_MAX_LINE_LENGTH 256
+
+// The initial number of sections (or key-value) pairs in the config.
+#define CONFIG_INITIAL_CAPACITY 10
+
+static bool config_parse_line(Config* config, char* string);
+static bool config_split_line(char* string, char* key, char* value);
+static bool config_add_section(Config* config, const char* sectionKey);
+static bool config_strip_white_space(char* string);
 
 // 0x42BD90
-bool configInit(Config* config)
+bool config_init(Config* config)
 {
     if (config == NULL) {
         return false;
@@ -28,7 +33,7 @@ bool configInit(Config* config)
 }
 
 // 0x42BDBC
-void configFree(Config* config)
+void config_exit(Config* config)
 {
     if (config == NULL) {
         return;
@@ -61,7 +66,7 @@ void configFree(Config* config)
 // I don't know if this is intentional or it's bug.
 //
 // 0x42BE38
-bool configParseCommandLineArguments(Config* config, int argc, char** argv)
+bool config_cmd_line_parse(Config* config, int argc, char** argv)
 {
     if (config == NULL) {
         return false;
@@ -89,8 +94,8 @@ bool configParseCommandLineArguments(Config* config, int argc, char** argv)
 
         char key[260];
         char value[260];
-        if (configParseKeyValue(pch + 1, key, value)) {
-            if (!configSetString(config, sectionKey, key, value)) {
+        if (config_split_line(pch + 1, key, value)) {
+            if (!config_set_string(config, sectionKey, key, value)) {
                 *pch = ']';
                 return false;
             }
@@ -103,7 +108,7 @@ bool configParseCommandLineArguments(Config* config, int argc, char** argv)
 }
 
 // 0x42BF48
-bool configGetString(Config* config, const char* sectionKey, const char* key, char** valuePtr)
+bool config_get_string(Config* config, const char* sectionKey, const char* key, char** valuePtr)
 {
     if (config == NULL || sectionKey == NULL || key == NULL || valuePtr == NULL) {
         return false;
@@ -129,7 +134,7 @@ bool configGetString(Config* config, const char* sectionKey, const char* key, ch
 }
 
 // 0x42BF90
-bool configSetString(Config* config, const char* sectionKey, const char* key, const char* value)
+bool config_set_string(Config* config, const char* sectionKey, const char* key, const char* value)
 {
     if (config == NULL || sectionKey == NULL || key == NULL || value == NULL) {
         return false;
@@ -139,7 +144,7 @@ bool configSetString(Config* config, const char* sectionKey, const char* key, co
     if (sectionIndex == -1) {
         // FIXME: Looks like a bug, this function never returns -1, which will
         // eventually lead to crash.
-        if (configEnsureSectionExists(config, sectionKey) == -1) {
+        if (config_add_section(config, sectionKey) == -1) {
             return false;
         }
         sectionIndex = dictionaryGetIndexByKey(config, sectionKey);
@@ -173,14 +178,14 @@ bool configSetString(Config* config, const char* sectionKey, const char* key, co
 }
 
 // 0x42C05C
-bool configGetInt(Config* config, const char* sectionKey, const char* key, int* valuePtr)
+bool config_get_value(Config* config, const char* sectionKey, const char* key, int* valuePtr)
 {
     if (valuePtr == NULL) {
         return false;
     }
 
     char* stringValue;
-    if (!configGetString(config, sectionKey, key, &stringValue)) {
+    if (!config_get_string(config, sectionKey, key, &stringValue)) {
         return false;
     }
 
@@ -190,14 +195,14 @@ bool configGetInt(Config* config, const char* sectionKey, const char* key, int* 
 }
 
 // 0x42C090
-bool configGetIntList(Config* config, const char* sectionKey, const char* key, int* arr, int count)
+bool config_get_values(Config* config, const char* sectionKey, const char* key, int* arr, int count)
 {
     if (arr == NULL || count < 2) {
         return false;
     }
 
     char* string;
-    if (!configGetString(config, sectionKey, key, &string)) {
+    if (!config_get_string(config, sectionKey, key, &string)) {
         return false;
     }
 
@@ -229,18 +234,18 @@ bool configGetIntList(Config* config, const char* sectionKey, const char* key, i
 }
 
 // 0x42C160
-bool configSetInt(Config* config, const char* sectionKey, const char* key, int value)
+bool config_set_value(Config* config, const char* sectionKey, const char* key, int value)
 {
     char stringValue[20];
     itoa(value, stringValue, 10);
 
-    return configSetString(config, sectionKey, key, stringValue);
+    return config_set_string(config, sectionKey, key, stringValue);
 }
 
 // Reads .INI file into config.
 //
 // 0x42C280
-bool configRead(Config* config, const char* filePath, bool isDb)
+bool config_load(Config* config, const char* filePath, bool isDb)
 {
     if (config == NULL || filePath == NULL) {
         return false;
@@ -252,7 +257,7 @@ bool configRead(Config* config, const char* filePath, bool isDb)
         File* stream = fileOpen(filePath, "rb");
         if (stream != NULL) {
             while (fileReadString(string, sizeof(string), stream) != NULL) {
-                configParseLine(config, string);
+                config_parse_line(config, string);
             }
             fileClose(stream);
         }
@@ -260,7 +265,7 @@ bool configRead(Config* config, const char* filePath, bool isDb)
         FILE* stream = fopen(filePath, "rt");
         if (stream != NULL) {
             while (fgets(string, sizeof(string), stream) != NULL) {
-                configParseLine(config, string);
+                config_parse_line(config, string);
             }
 
             fclose(stream);
@@ -276,7 +281,7 @@ bool configRead(Config* config, const char* filePath, bool isDb)
 // Writes config into .INI file.
 //
 // 0x42C324
-bool configWrite(Config* config, const char* filePath, bool isDb)
+bool config_save(Config* config, const char* filePath, bool isDb)
 {
     if (config == NULL || filePath == NULL) {
         return false;
@@ -331,18 +336,21 @@ bool configWrite(Config* config, const char* filePath, bool isDb)
 //
 // A line either contains a "[section]" section key or "key=value" pair. In the
 // first case section key is not added to config immediately, instead it is
-// stored in [gConfigLastSectionKey] for later usage. This prevents empty
+// stored in |section| for later usage. This prevents empty
 // sections in the config.
 //
 // In case of key-value pair it pretty straight forward - it adds key-value
-// pair into previously read section key stored in [gConfigLastSectionKey].
+// pair into previously read section key stored in |section|.
 //
 // Returns `true` when a section was parsed or key-value pair was parsed and
 // added to the config, or `false` otherwise.
 //
 // 0x42C4BC
-bool configParseLine(Config* config, char* string)
+static bool config_parse_line(Config* config, char* string)
 {
+    // 0x518224
+    static char section[CONFIG_FILE_MAX_LINE_LENGTH] = "unknown";
+
     char* pch;
 
     // Find comment marker and truncate the string.
@@ -360,18 +368,18 @@ bool configParseLine(Config* config, char* string)
         pch = strchr(sectionKey, ']');
         if (pch != NULL) {
             *pch = '\0';
-            strcpy(gConfigLastSectionKey, sectionKey);
-            return configTrimString(gConfigLastSectionKey);
+            strcpy(section, sectionKey);
+            return config_strip_white_space(section);
         }
     }
 
     char key[260];
     char value[260];
-    if (!configParseKeyValue(string, key, value)) {
+    if (!config_split_line(string, key, value)) {
         return false;
     }
 
-    return configSetString(config, gConfigLastSectionKey, key, value);
+    return config_set_string(config, section, key, value);
 }
 
 // Splits "key=value" pair from [string] and copy appropriate parts into [key]
@@ -380,7 +388,7 @@ bool configParseLine(Config* config, char* string)
 // Both key and value are trimmed.
 //
 // 0x42C594
-bool configParseKeyValue(char* string, char* key, char* value)
+static bool config_split_line(char* string, char* key, char* value)
 {
     if (string == NULL || key == NULL || value == NULL) {
         return false;
@@ -399,8 +407,8 @@ bool configParseKeyValue(char* string, char* key, char* value)
 
     *pch = '=';
 
-    configTrimString(key);
-    configTrimString(value);
+    config_strip_white_space(key);
+    config_strip_white_space(value);
 
     return true;
 }
@@ -411,7 +419,7 @@ bool configParseKeyValue(char* string, char* key, char* value)
 // otherwise.
 //
 // 0x42C638
-bool configEnsureSectionExists(Config* config, const char* sectionKey)
+static bool config_add_section(Config* config, const char* sectionKey)
 {
     if (config == NULL || sectionKey == NULL) {
         return false;
@@ -437,7 +445,7 @@ bool configEnsureSectionExists(Config* config, const char* sectionKey)
 // Removes leading and trailing whitespace from the specified string.
 //
 // 0x42C698
-bool configTrimString(char* string)
+static bool config_strip_white_space(char* string)
 {
     if (string == NULL) {
         return false;
@@ -474,14 +482,14 @@ bool configTrimString(char* string)
 }
 
 // 0x42C718
-bool configGetDouble(Config* config, const char* sectionKey, const char* key, double* valuePtr)
+bool config_get_double(Config* config, const char* sectionKey, const char* key, double* valuePtr)
 {
     if (valuePtr == NULL) {
         return false;
     }
 
     char* stringValue;
-    if (!configGetString(config, sectionKey, key, &stringValue)) {
+    if (!config_get_string(config, sectionKey, key, &stringValue)) {
         return false;
     }
 
@@ -491,15 +499,15 @@ bool configGetDouble(Config* config, const char* sectionKey, const char* key, do
 }
 
 // 0x42C74C
-bool configSetDouble(Config* config, const char* sectionKey, const char* key, double value)
+bool config_set_double(Config* config, const char* sectionKey, const char* key, double value)
 {
     char stringValue[32];
     sprintf(stringValue, "%.6f", value);
 
-    return configSetString(config, sectionKey, key, stringValue);
+    return config_set_string(config, sectionKey, key, stringValue);
 }
 
-// NOTE: Boolean-typed variant of [configGetInt].
+// NOTE: Boolean-typed variant of [config_get_value].
 bool configGetBool(Config* config, const char* sectionKey, const char* key, bool* valuePtr)
 {
     if (valuePtr == NULL) {
@@ -507,7 +515,7 @@ bool configGetBool(Config* config, const char* sectionKey, const char* key, bool
     }
 
     int integerValue;
-    if (!configGetInt(config, sectionKey, key, &integerValue)) {
+    if (!config_get_value(config, sectionKey, key, &integerValue)) {
         return false;
     }
 
@@ -519,5 +527,5 @@ bool configGetBool(Config* config, const char* sectionKey, const char* key, bool
 // NOTE: Boolean-typed variant of [configGetInt].
 bool configSetBool(Config* config, const char* sectionKey, const char* key, bool value)
 {
-    return configSetInt(config, sectionKey, key, value ? 1 : 0);
+    return config_set_value(config, sectionKey, key, value ? 1 : 0);
 }

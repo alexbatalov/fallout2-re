@@ -196,7 +196,7 @@ int gameSoundInit()
     initAudio(gameSoundIsCompressed);
 
     int cacheSize;
-    configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_CACHE_SIZE_KEY, &cacheSize);
+    config_get_value(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_CACHE_SIZE_KEY, &cacheSize);
     if (cacheSize >= 0x40000) {
         debugPrint("\n!!! Config file needs adustment.  Please remove the ");
         debugPrint("cache_size line and run fallout again.  This will reset ");
@@ -283,16 +283,16 @@ int gameSoundInit()
         debugPrint("on.\n");
     }
 
-    configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, &gMasterVolume);
+    config_get_value(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, &gMasterVolume);
     gameSoundSetMasterVolume(gMasterVolume);
 
-    configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, &gMusicVolume);
+    config_get_value(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, &gMusicVolume);
     backgroundSoundSetVolume(gMusicVolume);
 
-    configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, &gSoundEffectsVolume);
+    config_get_value(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, &gSoundEffectsVolume);
     soundEffectsSetVolume(gSoundEffectsVolume);
 
-    configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &gSpeechVolume);
+    config_get_value(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &gSpeechVolume);
     speechSetVolume(gSpeechVolume);
 
     // NOTE: Uninline.
@@ -2034,7 +2034,7 @@ int _gsound_get_music_path(char** out_value, const char* key)
     char* copy;
     char* value;
 
-    configGetString(&gGameConfig, GAME_CONFIG_SOUND_KEY, key, out_value);
+    config_get_string(&gGameConfig, GAME_CONFIG_SOUND_KEY, key, out_value);
 
     value = *out_value;
     len = strlen(value);
@@ -2055,7 +2055,7 @@ int _gsound_get_music_path(char** out_value, const char* key)
     copy[len] = '\\';
     copy[len + 1] = '\0';
 
-    if (configSetString(&gGameConfig, GAME_CONFIG_SOUND_KEY, key, copy) != 1) {
+    if (config_set_string(&gGameConfig, GAME_CONFIG_SOUND_KEY, key, copy) != 1) {
         if (gGameSoundDebugEnabled) {
             debugPrint("config_set_string failed in gsound_music_path.\n");
         }
@@ -2063,7 +2063,7 @@ int _gsound_get_music_path(char** out_value, const char* key)
         return -1;
     }
 
-    if (configGetString(&gGameConfig, GAME_CONFIG_SOUND_KEY, key, out_value)) {
+    if (config_get_string(&gGameConfig, GAME_CONFIG_SOUND_KEY, key, out_value)) {
         internal_free(copy);
         return 0;
     }

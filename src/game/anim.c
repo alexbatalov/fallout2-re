@@ -3400,11 +3400,11 @@ unsigned int compute_tpf(Object* object, int fid)
     if (isInCombat()) {
         if (FID_ANIM_TYPE(fid) == ANIM_WALK) {
             int playerSpeedup = 0;
-            configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
+            config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
 
             if (object != gDude || playerSpeedup == 1) {
                 int combatSpeed = 0;
-                configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combatSpeed);
+                config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combatSpeed);
                 fps += combatSpeed;
             }
         }

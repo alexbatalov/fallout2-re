@@ -443,7 +443,7 @@ int objectLoadAllInternal(File* stream)
         fixMapInventory = false;
     }
 
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &gViolenceLevel)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &gViolenceLevel)) {
         gViolenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
     }
 
@@ -5091,7 +5091,7 @@ void _obj_fix_violence_settings(int* fid)
 
     bool shouldResetViolenceLevel = false;
     if (gViolenceLevel == -1) {
-        if (!configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &gViolenceLevel)) {
+        if (!config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &gViolenceLevel)) {
             gViolenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
         }
         shouldResetViolenceLevel = true;

@@ -56,12 +56,12 @@ int textObjectsInit(unsigned char* windowBuffer, int width, int height)
     tickersAdd(textObjectsTicker);
 
     double textBaseDelay;
-    if (!configGetDouble(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &textBaseDelay)) {
+    if (!config_get_double(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &textBaseDelay)) {
         textBaseDelay = 3.5;
     }
 
     double textLineDelay;
-    if (!configGetDouble(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, &textLineDelay)) {
+    if (!config_get_double(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, &textLineDelay)) {
         textLineDelay = 1.399993896484375;
     }
 

@@ -722,7 +722,7 @@ void gameMouseRefresh()
                     bool pointedObjectIsCritter = FID_TYPE(pointedObject->fid) == OBJ_TYPE_CRITTER;
 
                     int combatLooks = 0;
-                    configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
+                    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
                     if (combatLooks != 0) {
                         if (_obj_examine(gDude, pointedObject) == -1) {
                             _obj_look_at(gDude, pointedObject);
@@ -2268,7 +2268,7 @@ int _gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
             y1 = 13;
 
             char* executable;
-            configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
+            config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
             if (stricmp(executable, "mapper") == 0) {
                 if (tileRoofIsVisible()) {
                     if ((gDude->flags & OBJECT_HIDDEN) == 0) {

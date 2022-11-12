@@ -98,7 +98,7 @@ int art_init()
     char string[200];
 
     int cacheSize;
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_ART_CACHE_SIZE_KEY, &cacheSize)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_ART_CACHE_SIZE_KEY, &cacheSize)) {
         cacheSize = 8;
     }
 
@@ -108,7 +108,7 @@ int art_init()
     }
 
     char* language;
-    if (configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language) && stricmp(language, ENGLISH) != 0) {
+    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language) && stricmp(language, ENGLISH) != 0) {
         strcpy(darn_foreign_sub_path, language);
         darn_foreigners = true;
     }

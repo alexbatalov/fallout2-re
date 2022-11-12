@@ -306,11 +306,11 @@ int combat_ai_init()
     num_caps = 0;
 
     Config config;
-    if (!configInit(&config)) {
+    if (!config_init(&config)) {
         return -1;
     }
 
-    if (!configRead(&config, "data\\ai.txt", true)) {
+    if (!config_load(&config, "data\\ai.txt", true)) {
         return -1;
     }
 
@@ -330,56 +330,56 @@ int combat_ai_init()
 
         ai->name = internal_strdup(sectionEntry->key);
 
-        if (!configGetInt(&config, sectionEntry->key, "packet_num", &(ai->packet_num))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "max_dist", &(ai->max_dist))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "min_to_hit", &(ai->min_to_hit))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "min_hp", &(ai->min_hp))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "aggression", &(ai->aggression))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "packet_num", &(ai->packet_num))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "max_dist", &(ai->max_dist))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "min_to_hit", &(ai->min_to_hit))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "min_hp", &(ai->min_hp))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "aggression", &(ai->aggression))) goto err;
 
-        if (configGetString(&config, sectionEntry->key, "hurt_too_much", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "hurt_too_much", &stringValue)) {
             parse_hurt_str(stringValue, &(ai->hurt_too_much));
         }
 
-        if (!configGetInt(&config, sectionEntry->key, "secondary_freq", &(ai->secondary_freq))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "called_freq", &(ai->called_freq))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "font", &(ai->font))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "color", &(ai->color))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "outline_color", &(ai->outline_color))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "chance", &(ai->chance))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "run_start", &(ai->run.start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "run_end", &(ai->run.end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "move_start", &(ai->move.start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "move_end", &(ai->move.end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "attack_start", &(ai->attack.start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "attack_end", &(ai->attack.end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "miss_start", &(ai->miss.start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "miss_end", &(ai->miss.end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_head_start", &(ai->hit[HIT_LOCATION_HEAD].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_head_end", &(ai->hit[HIT_LOCATION_HEAD].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_left_arm_start", &(ai->hit[HIT_LOCATION_LEFT_ARM].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_left_arm_end", &(ai->hit[HIT_LOCATION_LEFT_ARM].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_right_arm_start", &(ai->hit[HIT_LOCATION_RIGHT_ARM].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_right_arm_end", &(ai->hit[HIT_LOCATION_RIGHT_ARM].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_torso_start", &(ai->hit[HIT_LOCATION_TORSO].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_torso_end", &(ai->hit[HIT_LOCATION_TORSO].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_right_leg_start", &(ai->hit[HIT_LOCATION_RIGHT_LEG].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_right_leg_end", &(ai->hit[HIT_LOCATION_RIGHT_LEG].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_left_leg_start", &(ai->hit[HIT_LOCATION_LEFT_LEG].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_left_leg_end", &(ai->hit[HIT_LOCATION_LEFT_LEG].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_eyes_start", &(ai->hit[HIT_LOCATION_EYES].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_eyes_end", &(ai->hit[HIT_LOCATION_EYES].end))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_groin_start", &(ai->hit[HIT_LOCATION_GROIN].start))) goto err;
-        if (!configGetInt(&config, sectionEntry->key, "hit_groin_end", &(ai->hit[HIT_LOCATION_GROIN].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "secondary_freq", &(ai->secondary_freq))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "called_freq", &(ai->called_freq))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "font", &(ai->font))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "color", &(ai->color))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "outline_color", &(ai->outline_color))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "chance", &(ai->chance))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "run_start", &(ai->run.start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "run_end", &(ai->run.end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "move_start", &(ai->move.start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "move_end", &(ai->move.end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "attack_start", &(ai->attack.start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "attack_end", &(ai->attack.end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "miss_start", &(ai->miss.start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "miss_end", &(ai->miss.end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_head_start", &(ai->hit[HIT_LOCATION_HEAD].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_head_end", &(ai->hit[HIT_LOCATION_HEAD].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_left_arm_start", &(ai->hit[HIT_LOCATION_LEFT_ARM].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_left_arm_end", &(ai->hit[HIT_LOCATION_LEFT_ARM].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_right_arm_start", &(ai->hit[HIT_LOCATION_RIGHT_ARM].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_right_arm_end", &(ai->hit[HIT_LOCATION_RIGHT_ARM].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_torso_start", &(ai->hit[HIT_LOCATION_TORSO].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_torso_end", &(ai->hit[HIT_LOCATION_TORSO].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_right_leg_start", &(ai->hit[HIT_LOCATION_RIGHT_LEG].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_right_leg_end", &(ai->hit[HIT_LOCATION_RIGHT_LEG].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_left_leg_start", &(ai->hit[HIT_LOCATION_LEFT_LEG].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_left_leg_end", &(ai->hit[HIT_LOCATION_LEFT_LEG].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_eyes_start", &(ai->hit[HIT_LOCATION_EYES].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_eyes_end", &(ai->hit[HIT_LOCATION_EYES].end))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_groin_start", &(ai->hit[HIT_LOCATION_GROIN].start))) goto err;
+        if (!config_get_value(&config, sectionEntry->key, "hit_groin_end", &(ai->hit[HIT_LOCATION_GROIN].end))) goto err;
 
         ai->hit[HIT_LOCATION_GROIN].end++;
 
-        if (configGetString(&config, sectionEntry->key, "area_attack_mode", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "area_attack_mode", &stringValue)) {
             cai_match_str_to_list(stringValue, area_attack_mode_strs, AREA_ATTACK_MODE_COUNT, &(ai->area_attack_mode));
         } else {
             ai->run_away_mode = -1;
         }
 
-        if (configGetString(&config, sectionEntry->key, "run_away_mode", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "run_away_mode", &stringValue)) {
             cai_match_str_to_list(stringValue, run_away_mode_strs, RUN_AWAY_MODE_COUNT, &(ai->run_away_mode));
 
             if (ai->run_away_mode >= 0) {
@@ -387,36 +387,36 @@ int combat_ai_init()
             }
         }
 
-        if (configGetString(&config, sectionEntry->key, "best_weapon", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "best_weapon", &stringValue)) {
             cai_match_str_to_list(stringValue, weapon_pref_strs, BEST_WEAPON_COUNT, &(ai->best_weapon));
         }
 
-        if (configGetString(&config, sectionEntry->key, "distance", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "distance", &stringValue)) {
             cai_match_str_to_list(stringValue, distance_pref_strs, DISTANCE_COUNT, &(ai->distance));
         }
 
-        if (configGetString(&config, sectionEntry->key, "attack_who", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "attack_who", &stringValue)) {
             cai_match_str_to_list(stringValue, attack_who_mode_strs, ATTACK_WHO_COUNT, &(ai->attack_who));
         }
 
-        if (configGetString(&config, sectionEntry->key, "chem_use", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "chem_use", &stringValue)) {
             cai_match_str_to_list(stringValue, chem_use_mode_strs, CHEM_USE_COUNT, &(ai->chem_use));
         }
 
-        configGetIntList(&config, sectionEntry->key, "chem_primary_desire", ai->chem_primary_desire, AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT);
+        config_get_values(&config, sectionEntry->key, "chem_primary_desire", ai->chem_primary_desire, AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT);
 
-        if (configGetString(&config, sectionEntry->key, "disposition", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "disposition", &stringValue)) {
             cai_match_str_to_list(stringValue, disposition_strs, DISPOSITION_COUNT, &(ai->disposition));
             ai->disposition--;
         }
 
-        if (configGetString(&config, sectionEntry->key, "body_type", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "body_type", &stringValue)) {
             ai->body_type = internal_strdup(stringValue);
         } else {
             ai->body_type = NULL;
         }
 
-        if (configGetString(&config, sectionEntry->key, "general_type", &stringValue)) {
+        if (config_get_string(&config, sectionEntry->key, "general_type", &stringValue)) {
             ai->general_type = internal_strdup(stringValue);
         } else {
             ai->general_type = NULL;
@@ -429,7 +429,7 @@ int combat_ai_init()
 
     num_caps = config.entriesLength;
 
-    configFree(&config);
+    config_exit(&config);
 
     combatai_is_initialized = true;
 
@@ -452,7 +452,7 @@ err:
 
     debugPrint("Error processing ai.txt");
 
-    configFree(&config);
+    config_exit(&config);
 
     return -1;
 }
@@ -2447,7 +2447,7 @@ static int ai_called_shot(Object* a1, Object* a2, int a3)
             ai = ai_cap(a1);
             if (randomBetween(1, ai->called_freq) == 1) {
                 combat_difficulty = 1;
-                configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
+                config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
                 if (combat_difficulty) {
                     if (combat_difficulty == 2) {
                         v6 = 3;
@@ -3388,7 +3388,7 @@ void combatai_refresh_messages()
     static int old_state = -1;
 
     int languageFilter = 0;
-    configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
+    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
 
     if (languageFilter != old_state) {
         old_state = languageFilter;

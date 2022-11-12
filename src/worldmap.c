@@ -1360,19 +1360,19 @@ static int wmConfigInit()
     }
 
     Config config;
-    if (!configInit(&config)) {
+    if (!config_init(&config)) {
         return -1;
     }
 
-    if (configRead(&config, "data\\worldmap.txt", true)) {
+    if (config_load(&config, "data\\worldmap.txt", true)) {
         for (int index = 0; index < ENCOUNTER_FREQUENCY_TYPE_COUNT; index++) {
-            if (!configGetInt(&config, "data", wmFreqStrs[index], &(wmFreqValues[index]))) {
+            if (!config_get_value(&config, "data", wmFreqStrs[index], &(wmFreqValues[index]))) {
                 break;
             }
         }
 
         char* terrainTypes;
-        configGetString(&config, "data", "terrain_types", &terrainTypes);
+        config_get_string(&config, "data", "terrain_types", &terrainTypes);
         wmParseTerrainTypes(&config, terrainTypes);
 
         for (int index = 0;; index++) {
@@ -1380,7 +1380,7 @@ static int wmConfigInit()
             sprintf(section, "Encounter Table %d", index);
 
             char* lookupName;
-            if (!configGetString(&config, section, "lookup_name", &lookupName)) {
+            if (!config_get_string(&config, section, "lookup_name", &lookupName)) {
                 break;
             }
 
@@ -1389,7 +1389,7 @@ static int wmConfigInit()
             }
         }
 
-        if (!configGetInt(&config, "Tile Data", "num_horizontal_tiles", &wmNumHorizontalTiles)) {
+        if (!config_get_value(&config, "Tile Data", "num_horizontal_tiles", &wmNumHorizontalTiles)) {
             showMesageBox("\nwmConfigInit::Error loading tile data!");
             return -1;
         }
@@ -1399,7 +1399,7 @@ static int wmConfigInit()
             sprintf(section, "Tile %d", tileIndex);
 
             int artIndex;
-            if (!configGetInt(&config, section, "art_idx", &artIndex)) {
+            if (!config_get_value(&config, section, "art_idx", &artIndex)) {
                 break;
             }
 
@@ -1421,12 +1421,12 @@ static int wmConfigInit()
             tile->fid = art_id(OBJ_TYPE_INTERFACE, artIndex, 0, 0, 0);
 
             int encounterDifficulty;
-            if (configGetInt(&config, section, "encounter_difficulty", &encounterDifficulty)) {
+            if (config_get_value(&config, section, "encounter_difficulty", &encounterDifficulty)) {
                 tile->encounterDifficultyModifier = encounterDifficulty;
             }
 
             char* walkMaskName;
-            if (configGetString(&config, section, "walk_mask_name", &walkMaskName)) {
+            if (config_get_string(&config, section, "walk_mask_name", &walkMaskName)) {
                 strncpy(tile->walkMaskName, walkMaskName, TILE_WALK_MASK_NAME_SIZE);
             }
 
@@ -1436,7 +1436,7 @@ static int wmConfigInit()
                     sprintf(key, "%d_%d", row, column);
 
                     char* subtileProps;
-                    if (!configGetString(&config, section, key, &subtileProps)) {
+                    if (!config_get_string(&config, section, key, &subtileProps)) {
                         showMesageBox("\nwmConfigInit::Error loading tiles!");
                         exit(1);
                     }
@@ -1450,7 +1450,7 @@ static int wmConfigInit()
         }
     }
 
-    configFree(&config);
+    config_exit(&config);
 
     return 0;
 }
@@ -1477,7 +1477,7 @@ static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKe
     strncpy(encounterTable->lookupName, lookupName, 40);
 
     char* str;
-    if (configGetString(config, sectionKey, "maps", &str)) {
+    if (config_get_string(config, sectionKey, "maps", &str)) {
         while (*str != '\0') {
             if (encounterTable->mapsLength >= 6) {
                 break;
@@ -1496,7 +1496,7 @@ static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKe
         sprintf(key, "enc_%02d", encounterTable->entriesLength);
 
         char* str;
-        if (!configGetString(config, sectionKey, key, &str)) {
+        if (!config_get_string(config, sectionKey, key, &str)) {
             break;
         }
 
@@ -1709,7 +1709,7 @@ static int wmReadEncBaseType(char* name, int* valuePtr)
     sprintf(key, "type_00");
 
     char* string;
-    if (!configGetString(pConfigCfg, section, key, &string)) {
+    if (!config_get_string(pConfigCfg, section, key, &string)) {
         return -1;
     }
 
@@ -1739,9 +1739,9 @@ static int wmReadEncBaseType(char* name, int* valuePtr)
 
         sprintf(key, "type_%02d", entry->field_34);
 
-        if (!configGetString(pConfigCfg, section, key, &string)) {
+        if (!config_get_string(pConfigCfg, section, key, &string)) {
             int team;
-            configGetInt(pConfigCfg, section, "team_num", &team);
+            config_get_value(pConfigCfg, section, "team_num", &team);
 
             for (int index = 0; index < entry->field_34; index++) {
                 ENC_BASE_TYPE_38* ptr = &(entry->field_38[index]);
@@ -1750,7 +1750,7 @@ static int wmReadEncBaseType(char* name, int* valuePtr)
                 }
             }
 
-            if (configGetString(pConfigCfg, section, "position", &string)) {
+            if (config_get_string(pConfigCfg, section, "position", &string)) {
                 strParseStrFromList(&string, &(entry->position), wmFormationStrs, ENCOUNTER_FORMATION_TYPE_COUNT);
                 strParseIntWithKey(&string, "spacing", &(entry->spacing), ":");
                 strParseIntWithKey(&string, "distance", &(entry->distance), ":");
@@ -2003,7 +2003,7 @@ static int wmParseTerrainRndMaps(Config* config, Terrain* terrain)
         sprintf(key, "map_%02d", terrain->mapsLength);
 
         char* string;
-        if (!configGetString(config, section, key, &string)) {
+        if (!config_get_string(config, section, key, &string)) {
             break;
         }
 
@@ -2492,15 +2492,15 @@ static int wmAreaInit()
         return -1;
     }
 
-    if (!configInit(&cfg)) {
+    if (!config_init(&cfg)) {
         return -1;
     }
 
-    if (configRead(&cfg, "data\\city.txt", true)) {
+    if (config_load(&cfg, "data\\city.txt", true)) {
         area_idx = 0;
         do {
             sprintf(section, "Area %02d", area_idx);
-            if (!configGetInt(&cfg, section, "townmap_art_idx", &num)) {
+            if (!config_get_value(&cfg, section, "townmap_art_idx", &num)) {
                 break;
             }
 
@@ -2527,7 +2527,7 @@ static int wmAreaInit()
 
             city->mapFid = num;
 
-            if (configGetInt(&cfg, section, "townmap_label_art_idx", &num)) {
+            if (config_get_value(&cfg, section, "townmap_label_art_idx", &num)) {
                 if (num != -1) {
                     num = art_id(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
                 }
@@ -2535,14 +2535,14 @@ static int wmAreaInit()
                 city->labelFid = num;
             }
 
-            if (!configGetString(&cfg, section, "area_name", &str)) {
+            if (!config_get_string(&cfg, section, "area_name", &str)) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
             strncpy(city->name, str, 40);
 
-            if (!configGetString(&cfg, section, "world_pos", &str)) {
+            if (!config_get_string(&cfg, section, "world_pos", &str)) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
@@ -2555,7 +2555,7 @@ static int wmAreaInit()
                 return -1;
             }
 
-            if (!configGetString(&cfg, section, "start_state", &str)) {
+            if (!config_get_string(&cfg, section, "start_state", &str)) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
@@ -2564,13 +2564,13 @@ static int wmAreaInit()
                 return -1;
             }
 
-            if (configGetString(&cfg, section, "lock_state", &str)) {
+            if (config_get_string(&cfg, section, "lock_state", &str)) {
                 if (strParseStrFromList(&str, &(city->lockState), wmStateStrs, 2) == -1) {
                     return -1;
                 }
             }
 
-            if (!configGetString(&cfg, section, "size", &str)) {
+            if (!config_get_string(&cfg, section, "size", &str)) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
@@ -2582,7 +2582,7 @@ static int wmAreaInit()
             while (city->entrancesLength < ENTRANCE_LIST_CAPACITY) {
                 sprintf(key, "entrance_%d", city->entrancesLength);
 
-                if (!configGetString(&cfg, section, key, &str)) {
+                if (!config_get_string(&cfg, section, key, &str)) {
                     break;
                 }
 
@@ -2626,7 +2626,7 @@ static int wmAreaInit()
         } while (area_idx < 5000);
     }
 
-    configFree(&cfg);
+    config_exit(&cfg);
 
     if (wmMaxAreaNum != CITY_COUNT) {
         showMesageBox("\nwmAreaInit::Error loading Cities!");
@@ -2696,16 +2696,16 @@ static int wmMapInit()
     MapStartPointInfo* rsp;
 
     Config config;
-    if (!configInit(&config)) {
+    if (!config_init(&config)) {
         return -1;
     }
 
-    if (configRead(&config, "data\\maps.txt", true)) {
+    if (config_load(&config, "data\\maps.txt", true)) {
         for (int mapIdx = 0;; mapIdx++) {
             char section[40];
             sprintf(section, "Map %03d", mapIdx);
 
-            if (!configGetString(&config, section, "lookup_name", &str)) {
+            if (!config_get_string(&config, section, "lookup_name", &str)) {
                 break;
             }
 
@@ -2724,7 +2724,7 @@ static int wmMapInit()
 
             strncpy(map->lookupName, str, 40);
 
-            if (!configGetString(&config, section, "map_name", &str)) {
+            if (!config_get_string(&config, section, "map_name", &str)) {
                 showMesageBox("\nwmConfigInit::Error loading maps!");
                 exit(1);
             }
@@ -2732,11 +2732,11 @@ static int wmMapInit()
             strlwr(str);
             strncpy(map->mapFileName, str, 40);
 
-            if (configGetString(&config, section, "music", &str)) {
+            if (config_get_string(&config, section, "music", &str)) {
                 strncpy(map->music, str, 40);
             }
 
-            if (configGetString(&config, section, "ambient_sfx", &str)) {
+            if (config_get_string(&config, section, "ambient_sfx", &str)) {
                 while (str) {
                     sfx = &(map->ambientSoundEffects[map->ambientSoundEffectsLength]);
                     if (strParseKeyValue(&str, sfx->name, &(sfx->chance), ":") == -1) {
@@ -2758,7 +2758,7 @@ static int wmMapInit()
                 }
             }
 
-            if (configGetString(&config, section, "saved", &str)) {
+            if (config_get_string(&config, section, "saved", &str)) {
                 if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
@@ -2767,7 +2767,7 @@ static int wmMapInit()
                 wmSetFlags(&(map->flags), MAP_SAVED, num);
             }
 
-            if (configGetString(&config, section, "dead_bodies_age", &str)) {
+            if (config_get_string(&config, section, "dead_bodies_age", &str)) {
                 if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
@@ -2776,7 +2776,7 @@ static int wmMapInit()
                 wmSetFlags(&(map->flags), MAP_DEAD_BODIES_AGE, num);
             }
 
-            if (configGetString(&config, section, "can_rest_here", &str)) {
+            if (config_get_string(&config, section, "can_rest_here", &str)) {
                 if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
@@ -2799,7 +2799,7 @@ static int wmMapInit()
                 wmSetFlags(&(map->flags), MAP_CAN_REST_ELEVATION_2, num);
             }
 
-            if (configGetString(&config, section, "pipbody_active", &str)) {
+            if (config_get_string(&config, section, "pipbody_active", &str)) {
                 if (strParseStrFromList(&str, &num, wmYesNoStrs, 2) == -1) {
                     return -1;
                 }
@@ -2808,7 +2808,7 @@ static int wmMapInit()
                 wmSetFlags(&(map->flags), MAP_PIPBOY_ACTIVE, num);
             }
 
-            if (configGetString(&config, section, "random_start_point_0", &str)) {
+            if (config_get_string(&config, section, "random_start_point_0", &str)) {
                 j = 0;
                 while (str != NULL) {
                     while (*str != '\0') {
@@ -2830,7 +2830,7 @@ static int wmMapInit()
                     char key[40];
                     sprintf(key, "random_start_point_%1d", ++j);
 
-                    if (!configGetString(&config, section, key, &str)) {
+                    if (!config_get_string(&config, section, key, &str)) {
                         str = NULL;
                     }
                 }
@@ -2838,7 +2838,7 @@ static int wmMapInit()
         }
     }
 
-    configFree(&config);
+    config_exit(&config);
 
     return 0;
 }
@@ -3428,7 +3428,7 @@ static int wmRndEncounterOccurred()
     int frequency = wmFreqValues[wmGenData.currentSubtile->encounterChance[dayPart]];
     if (frequency > 0 && frequency < 100) {
         int gameDifficulty = GAME_DIFFICULTY_NORMAL;
-        if (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
+        if (config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
             int modifier = frequency / 15;
             switch (gameDifficulty) {
             case GAME_DIFFICULTY_EASY:
@@ -3645,7 +3645,7 @@ static int wmRndEncounterPick()
     }
 
     int gameDifficulty;
-    if (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
+    if (config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
         switch (gameDifficulty) {
         case GAME_DIFFICULTY_EASY:
             v2 += 5;
@@ -3726,7 +3726,7 @@ int wmSetupRandomEncounter()
     case ENCOUNTER_SCENERY_TYPE_NORMAL:
     case ENCOUNTER_SCENERY_TYPE_HEAVY:
         debugPrint("\nwmSetupRandomEncounter: Scenery Type: %s", wmSceneryStrs[encounterTableEntry->scenery]);
-        configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
+        config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
         break;
     default:
         debugPrint("\nERROR: wmSetupRandomEncounter: invalid Scenery Type!");

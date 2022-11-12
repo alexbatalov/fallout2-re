@@ -1127,7 +1127,7 @@ int skillGetGameDifficultyModifier(int skill)
     case SKILL_OUTDOORSMAN:
         if (1) {
             int gameDifficulty = GAME_DIFFICULTY_NORMAL;
-            configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
+            config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
 
             if (gameDifficulty == GAME_DIFFICULTY_HARD) {
                 return -10;

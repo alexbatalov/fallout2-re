@@ -563,7 +563,7 @@ void showDeath()
             const char* deathFileName = endgameDeathEndingGetFileName();
 
             int subtitles = 0;
-            configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
+            config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
             if (subtitles != 0) {
                 char text[512];
                 if (_mainDeathGrabTextFile(deathFileName, text) == 0) {
@@ -650,7 +650,7 @@ int _mainDeathGrabTextFile(const char* fileName, char* dest)
     }
 
     char* language = NULL;
-    if (!configGetString(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (!config_get_string(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         debugPrint("MAIN: Error grabing language for ending. Defaulting to english.\n");
         language = _aEnglish_2;
     }

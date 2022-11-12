@@ -137,7 +137,7 @@ int gameMoviePlay(int movie, int flags)
     debugPrint("\nPlaying movie: %s\n", movieFileName);
 
     char* language;
-    if (!configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         debugPrint("\ngmovie_play() - Error: Unable to determine language!\n");
         gGameMovieIsPlaying = false;
         return -1;
@@ -326,7 +326,7 @@ bool gameMovieIsPlaying()
 char* gameMovieBuildSubtitlesFilePath(char* movieFilePath)
 {
     char* language;
-    configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language);
+    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language);
 
     char* path = movieFilePath;
 

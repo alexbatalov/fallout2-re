@@ -390,7 +390,7 @@ int tileInit(TileData** a1, int squareGridWidth, int squareGridHeight, int hexGr
     tileSetBorder(windowWidth, windowHeight, hexGridWidth, hexGridHeight);
 
     char* executable;
-    configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
+    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
     if (stricmp(executable, "mapper") == 0) {
         gTileWindowRefreshElevationProc = tileRefreshMapper;
     }

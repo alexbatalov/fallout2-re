@@ -131,7 +131,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
     paletteInit();
 
     char* language;
-    if (configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         if (stricmp(language, FRENCH) == 0) {
             kb_set_layout(KEYBOARD_LAYOUT_FRENCH);
         } else if (stricmp(language, GERMAN) == 0) {
@@ -1186,16 +1186,16 @@ int gameDbInit()
     main_file_name = NULL;
     patch_file_name = NULL;
 
-    if (configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_HASHING_KEY, &hashing)) {
+    if (config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_HASHING_KEY, &hashing)) {
         _db_enable_hash_table_();
     }
 
-    configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_DAT_KEY, &main_file_name);
+    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_DAT_KEY, &main_file_name);
     if (*main_file_name == '\0') {
         main_file_name = NULL;
     }
 
-    configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &patch_file_name);
+    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &patch_file_name);
     if (*patch_file_name == '\0') {
         patch_file_name = NULL;
     }
@@ -1206,12 +1206,12 @@ int gameDbInit()
         return -1;
     }
 
-    configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CRITTER_DAT_KEY, &main_file_name);
+    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CRITTER_DAT_KEY, &main_file_name);
     if (*main_file_name == '\0') {
         main_file_name = NULL;
     }
 
-    configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CRITTER_PATCHES_KEY, &patch_file_name);
+    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CRITTER_PATCHES_KEY, &patch_file_name);
     if (*patch_file_name == '\0') {
         patch_file_name = NULL;
     }
@@ -1240,11 +1240,11 @@ int gameDbInit()
 void showSplash()
 {
     int splash;
-    configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_SPLASH_KEY, &splash);
+    config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_SPLASH_KEY, &splash);
 
     char path[64];
     char* language;
-    if (configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language) && stricmp(language, ENGLISH) != 0) {
+    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language) && stricmp(language, ENGLISH) != 0) {
         sprintf(path, "art\\%s\\splash\\", language);
     } else {
         sprintf(path, "art\\splash\\");
@@ -1297,5 +1297,5 @@ void showSplash()
     internal_free(data);
     internal_free(palette);
 
-    configSetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_SPLASH_KEY, splash + 1);
+    config_set_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_SPLASH_KEY, splash + 1);
 }

@@ -72,11 +72,11 @@ int partyMembersInit()
 
     gPartyMemberDescriptionsLength = 0;
 
-    if (!configInit(&config)) {
+    if (!config_init(&config)) {
         return -1;
     }
 
-    if (!configRead(&config, "data\\party.txt", true)) {
+    if (!config_load(&config, "data\\party.txt", true)) {
         goto err;
     }
 
@@ -84,7 +84,7 @@ int partyMembersInit()
     sprintf(section, "Party Member %d", gPartyMemberDescriptionsLength);
 
     int partyMemberPid;
-    while (configGetInt(&config, section, "party_member_pid", &partyMemberPid)) {
+    while (config_get_value(&config, section, "party_member_pid", &partyMemberPid)) {
         gPartyMemberDescriptionsLength++;
         sprintf(section, "Party Member %d", gPartyMemberDescriptionsLength);
     }
@@ -118,7 +118,7 @@ int partyMembersInit()
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         sprintf(section, "Party Member %d", index);
 
-        if (!configGetInt(&config, section, "party_member_pid", &partyMemberPid)) {
+        if (!config_get_value(&config, section, "party_member_pid", &partyMemberPid)) {
             break;
         }
 
@@ -130,7 +130,7 @@ int partyMembersInit()
 
         char* string;
 
-        if (configGetString(&config, section, "area_attack_mode", &string)) {
+        if (config_get_string(&config, section, "area_attack_mode", &string)) {
             while (*string != '\0') {
                 int areaAttackMode;
                 strParseStrFromList(&string, &areaAttackMode, area_attack_mode_strs, AREA_ATTACK_MODE_COUNT);
@@ -138,7 +138,7 @@ int partyMembersInit()
             }
         }
 
-        if (configGetString(&config, section, "attack_who", &string)) {
+        if (config_get_string(&config, section, "attack_who", &string)) {
             while (*string != '\0') {
                 int attachWho;
                 strParseStrFromList(&string, &attachWho, attack_who_mode_strs, ATTACK_WHO_COUNT);
@@ -146,7 +146,7 @@ int partyMembersInit()
             }
         }
 
-        if (configGetString(&config, section, "best_weapon", &string)) {
+        if (config_get_string(&config, section, "best_weapon", &string)) {
             while (*string != '\0') {
                 int bestWeapon;
                 strParseStrFromList(&string, &bestWeapon, weapon_pref_strs, BEST_WEAPON_COUNT);
@@ -154,7 +154,7 @@ int partyMembersInit()
             }
         }
 
-        if (configGetString(&config, section, "chem_use", &string)) {
+        if (config_get_string(&config, section, "chem_use", &string)) {
             while (*string != '\0') {
                 int chemUse;
                 strParseStrFromList(&string, &chemUse, chem_use_mode_strs, CHEM_USE_COUNT);
@@ -162,7 +162,7 @@ int partyMembersInit()
             }
         }
 
-        if (configGetString(&config, section, "distance", &string)) {
+        if (config_get_string(&config, section, "distance", &string)) {
             while (*string != '\0') {
                 int distanceMode;
                 strParseStrFromList(&string, &distanceMode, distance_pref_strs, DISTANCE_COUNT);
@@ -170,7 +170,7 @@ int partyMembersInit()
             }
         }
 
-        if (configGetString(&config, section, "run_away_mode", &string)) {
+        if (config_get_string(&config, section, "run_away_mode", &string)) {
             while (*string != '\0') {
                 int runAwayMode;
                 strParseStrFromList(&string, &runAwayMode, run_away_mode_strs, RUN_AWAY_MODE_COUNT);
@@ -178,7 +178,7 @@ int partyMembersInit()
             }
         }
 
-        if (configGetString(&config, section, "disposition", &string)) {
+        if (config_get_string(&config, section, "disposition", &string)) {
             while (*string != '\0') {
                 int disposition;
                 strParseStrFromList(&string, &disposition, disposition_strs, DISPOSITION_COUNT);
@@ -187,15 +187,15 @@ int partyMembersInit()
         }
 
         int levelUpEvery;
-        if (configGetInt(&config, section, "level_up_every", &levelUpEvery)) {
+        if (config_get_value(&config, section, "level_up_every", &levelUpEvery)) {
             partyMemberDescription->level_up_every = levelUpEvery;
 
             int levelMinimum;
-            if (configGetInt(&config, section, "level_minimum", &levelMinimum)) {
+            if (config_get_value(&config, section, "level_minimum", &levelMinimum)) {
                 partyMemberDescription->level_minimum = levelMinimum;
             }
 
-            if (configGetString(&config, section, "level_pids", &string)) {
+            if (config_get_string(&config, section, "level_pids", &string)) {
                 while (*string != '\0' && partyMemberDescription->level_pids_num < 5) {
                     int levelPid;
                     strParseInt(&string, &levelPid);
@@ -206,13 +206,13 @@ int partyMembersInit()
         }
     }
 
-    configFree(&config);
+    config_exit(&config);
 
     return 0;
 
 err:
 
-    configFree(&config);
+    config_exit(&config);
 
     return -1;
 }

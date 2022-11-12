@@ -9,7 +9,7 @@
 void runElectronicRegistration()
 {
     int timesRun = 0;
-    configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, &timesRun);
+    config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, &timesRun);
     if (timesRun > 0 && timesRun < 5) {
         char path[MAX_PATH];
         if (GetModuleFileNameA(NULL, path, sizeof(path)) != 0) {
@@ -33,10 +33,10 @@ void runElectronicRegistration()
             }
         }
 
-        configSetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, timesRun + 1);
+        config_set_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, timesRun + 1);
     } else {
         if (timesRun == 0) {
-            configSetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, 1);
+            config_set_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, 1);
         }
     }
 }

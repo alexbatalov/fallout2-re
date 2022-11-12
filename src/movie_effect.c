@@ -86,7 +86,7 @@ int movieEffectsLoad(const char* filePath)
     }
 
     Config config;
-    if (!configInit(&config)) {
+    if (!config_init(&config)) {
         return -1;
     }
 
@@ -104,12 +104,12 @@ int movieEffectsLoad(const char* filePath)
 
     int* movieEffectFrameList;
 
-    if (!configRead(&config, path, true)) {
+    if (!config_load(&config, path, true)) {
         goto out;
     }
 
     int movieEffectsLength;
-    if (!configGetInt(&config, "info", "total_effects", &movieEffectsLength)) {
+    if (!config_get_value(&config, "info", "total_effects", &movieEffectsLength)) {
         goto out;
     }
 
@@ -120,9 +120,9 @@ int movieEffectsLoad(const char* filePath)
 
     bool frameListRead;
     if (movieEffectsLength >= 2) {
-        frameListRead = configGetIntList(&config, "info", "effect_frames", movieEffectFrameList, movieEffectsLength);
+        frameListRead = config_get_values(&config, "info", "effect_frames", movieEffectFrameList, movieEffectsLength);
     } else {
-        frameListRead = configGetInt(&config, "info", "effect_frames", &(movieEffectFrameList[0]));
+        frameListRead = config_get_value(&config, "info", "effect_frames", &(movieEffectFrameList[0]));
     }
 
     if (frameListRead) {
@@ -132,7 +132,7 @@ int movieEffectsLoad(const char* filePath)
             itoa(movieEffectFrameList[index], section, 10);
 
             char* fadeTypeString;
-            if (!configGetString(&config, section, "fade_type", &fadeTypeString)) {
+            if (!config_get_string(&config, section, "fade_type", &fadeTypeString)) {
                 continue;
             }
 
@@ -148,12 +148,12 @@ int movieEffectsLoad(const char* filePath)
             }
 
             int fadeColor[3];
-            if (!configGetIntList(&config, section, "fade_color", fadeColor, 3)) {
+            if (!config_get_values(&config, section, "fade_color", fadeColor, 3)) {
                 continue;
             }
 
             int steps;
-            if (!configGetInt(&config, section, "fade_steps", &steps)) {
+            if (!config_get_value(&config, section, "fade_steps", &steps)) {
                 continue;
             }
 
@@ -192,7 +192,7 @@ int movieEffectsLoad(const char* filePath)
 
 out:
 
-    configFree(&config);
+    config_exit(&config);
 
     return rc;
 }

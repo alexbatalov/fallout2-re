@@ -149,7 +149,7 @@ void colorCycleInit()
     gColorCycleEnabled = true;
 
     int cycleSpeedFactor;
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, &cycleSpeedFactor)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, &cycleSpeedFactor)) {
         cycleSpeedFactor = 1;
     }
 
@@ -325,7 +325,7 @@ void colorCycleTicker()
 void change_cycle_speed(int value)
 {
     gColorCycleSpeedFactor = value;
-    configSetInt(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, value);
+    config_set_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, value);
 }
 
 // NOTE: Unused.

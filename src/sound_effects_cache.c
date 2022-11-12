@@ -45,7 +45,7 @@ int _sfxc_files_open = 0;
 // 0x4A8FC0
 int soundEffectsCacheInit(int cacheSize, const char* effectsPath)
 {
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_DEBUG_SFXC_KEY, &gSoundEffectsCacheDebugLevel)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_DEBUG_SFXC_KEY, &gSoundEffectsCacheDebugLevel)) {
         gSoundEffectsCacheDebugLevel = 1;
     }
 

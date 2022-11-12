@@ -519,7 +519,7 @@ int endgameEndingSlideshowWindowInit()
     }
 
     char* language;
-    if (!configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         gEndgameEndingSubtitlesEnabled = false;
         return 0;
     }

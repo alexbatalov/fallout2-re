@@ -2916,7 +2916,7 @@ int _correctDeath(Object* critter, int anim, bool forceBack)
 {
     if (anim >= ANIM_BIG_HOLE_SF && anim <= ANIM_FALL_FRONT_BLOOD_SF) {
         int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
-        configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
+        config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
 
         bool useStandardDeath = false;
         if (violenceLevel < VIOLENCE_LEVEL_MAXIMUM_BLOOD) {
@@ -4191,10 +4191,10 @@ void opMetarule(Program* program)
         }
         break;
     case METARULE_LANGUAGE_FILTER:
-        configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &result);
+        config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &result);
         break;
     case METARULE_VIOLENCE_FILTER:
-        configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &result);
+        config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &result);
         break;
     case METARULE_WEAPON_DAMAGE_TYPE:
         if (1) {
@@ -4434,7 +4434,7 @@ void opRegAnimAnimate(Program* program)
 
     if (!isInCombat()) {
         int violenceLevel = VIOLENCE_LEVEL_NONE;
-        if (anim != 20 || object == NULL || object->pid != 0x100002F || (configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel) && violenceLevel >= 2)) {
+        if (anim != 20 || object == NULL || object->pid != 0x100002F || (config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel) && violenceLevel >= 2)) {
             if (object != NULL) {
                 register_object_animate(object, anim, delay);
             } else {
@@ -5293,7 +5293,7 @@ void _op_gdialog_barter(Program* program)
 void opGetGameDifficulty(Program* program)
 {
     int gameDifficulty;
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
         gameDifficulty = GAME_DIFFICULTY_NORMAL;
     }
 
@@ -5306,7 +5306,7 @@ void opGetGameDifficulty(Program* program)
 void opGetRunningBurningGuy(Program* program)
 {
     int runningBurningGuy;
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_BURNING_GUY_KEY, &runningBurningGuy)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_BURNING_GUY_KEY, &runningBurningGuy)) {
         runningBurningGuy = 1;
     }
 
@@ -6410,7 +6410,7 @@ void opGameDialogSetBarterMod(Program* program)
 void opGetCombatDifficulty(Program* program)
 {
     int combatDifficulty;
-    if (!configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combatDifficulty)) {
+    if (!config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combatDifficulty)) {
         combatDifficulty = 0;
     }
 
