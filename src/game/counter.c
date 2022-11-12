@@ -1,4 +1,4 @@
-#include "counter.h"
+#include "game/counter.h"
 
 #include "core.h"
 #include "debug.h"
