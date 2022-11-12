@@ -133,7 +133,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "area_attack_mode", &string)) {
             while (*string != '\0') {
                 int areaAttackMode;
-                strParseStrFromList(&string, &areaAttackMode, gAreaAttackModeKeys, AREA_ATTACK_MODE_COUNT);
+                strParseStrFromList(&string, &areaAttackMode, area_attack_mode_strs, AREA_ATTACK_MODE_COUNT);
                 partyMemberDescription->areaAttackMode[areaAttackMode] = true;
             }
         }
@@ -141,7 +141,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "attack_who", &string)) {
             while (*string != '\0') {
                 int attachWho;
-                strParseStrFromList(&string, &attachWho, gAttackWhoKeys, ATTACK_WHO_COUNT);
+                strParseStrFromList(&string, &attachWho, attack_who_mode_strs, ATTACK_WHO_COUNT);
                 partyMemberDescription->attackWho[attachWho] = true;
             }
         }
@@ -149,7 +149,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "best_weapon", &string)) {
             while (*string != '\0') {
                 int bestWeapon;
-                strParseStrFromList(&string, &bestWeapon, gBestWeaponKeys, BEST_WEAPON_COUNT);
+                strParseStrFromList(&string, &bestWeapon, weapon_pref_strs, BEST_WEAPON_COUNT);
                 partyMemberDescription->bestWeapon[bestWeapon] = true;
             }
         }
@@ -157,7 +157,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "chem_use", &string)) {
             while (*string != '\0') {
                 int chemUse;
-                strParseStrFromList(&string, &chemUse, gChemUseKeys, CHEM_USE_COUNT);
+                strParseStrFromList(&string, &chemUse, chem_use_mode_strs, CHEM_USE_COUNT);
                 partyMemberDescription->chemUse[chemUse] = true;
             }
         }
@@ -165,7 +165,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "distance", &string)) {
             while (*string != '\0') {
                 int distanceMode;
-                strParseStrFromList(&string, &distanceMode, gDistanceModeKeys, DISTANCE_COUNT);
+                strParseStrFromList(&string, &distanceMode, distance_pref_strs, DISTANCE_COUNT);
                 partyMemberDescription->distanceMode[distanceMode] = true;
             }
         }
@@ -173,7 +173,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "run_away_mode", &string)) {
             while (*string != '\0') {
                 int runAwayMode;
-                strParseStrFromList(&string, &runAwayMode, gRunAwayModeKeys, RUN_AWAY_MODE_COUNT);
+                strParseStrFromList(&string, &runAwayMode, run_away_mode_strs, RUN_AWAY_MODE_COUNT);
                 partyMemberDescription->runAwayMode[runAwayMode] = true;
             }
         }
@@ -181,7 +181,7 @@ int partyMembersInit()
         if (configGetString(&config, section, "disposition", &string)) {
             while (*string != '\0') {
                 int disposition;
-                strParseStrFromList(&string, &disposition, gDispositionKeys, DISPOSITION_COUNT);
+                strParseStrFromList(&string, &disposition, disposition_strs, DISPOSITION_COUNT);
                 partyMemberDescription->disposition[disposition] = true;
             }
         }
@@ -355,7 +355,7 @@ int partyMemberAdd(Object* object)
         script->sid = object->sid;
     }
 
-    critterSetTeam(object, 0);
+    combatai_switch_team(object, 0);
     queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
 
     if (_gdialogActive()) {

@@ -173,7 +173,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
     itemsInit();
     queueInit();
     critterInit();
-    aiInit();
+    combat_ai_init();
     _inven_reset_dude();
 
     if (gameSoundInit() != 0) {
@@ -337,7 +337,7 @@ void gameReset()
     anim_reset();
     lsgInit();
     critterReset();
-    aiReset();
+    combat_ai_reset();
     _inven_reset_dude();
     gameSoundReset();
     _movieStop();
@@ -383,7 +383,7 @@ void gameExit()
     movieEffectsExit();
     movieExit();
     gameSoundExit();
-    aiExit();
+    combat_ai_exit();
     critterExit();
     itemsExit();
     queueExit();

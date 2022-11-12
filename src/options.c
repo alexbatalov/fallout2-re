@@ -947,7 +947,7 @@ void _JustUpdate_()
     textLineDelay = min(max(textLineDelay, 0.0), 2.0);
 
     textObjectsSetLineDelay(textLineDelay);
-    aiMessageListReloadIfNeeded();
+    combatai_refresh_messages();
     _scr_message_free();
     gameSoundSetMasterVolume(gPreferencesMasterVolume1);
     backgroundSoundSetVolume(gPreferencesMusicVolume1);

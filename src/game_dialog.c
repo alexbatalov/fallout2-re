@@ -3152,7 +3152,7 @@ void _gdialog_barter_destroy_win()
     windowDestroy(gGameDialogWindow);
     gGameDialogWindow = -1;
 
-    _cai_attempt_w_reload(gGameDialogSpeaker, 0);
+    cai_attempt_w_reload(gGameDialogSpeaker, 0);
 }
 
 // 0x448660
@@ -3323,7 +3323,7 @@ int partyMemberControlWindowInit()
 
     _win_group_radio_buttons(5, &(_gdialog_buttons[_control_buttons_start]));
 
-    int disposition = aiGetDisposition(gGameDialogSpeaker);
+    int disposition = ai_get_disposition(gGameDialogSpeaker);
     _win_set_button_rest_state(_gdialog_buttons[_control_buttons_start + 4 - disposition], 1, 0);
 
     partyMemberControlWindowUpdate();
@@ -3556,10 +3556,10 @@ void partyMemberControlWindowHandleEvents()
             if (keyCode == KEY_LOWERCASE_W) {
                 _inven_unwield(gGameDialogSpeaker, 1);
 
-                Object* weapon = _ai_search_inven_weap(gGameDialogSpeaker, 0, NULL);
+                Object* weapon = ai_search_inven_weap(gGameDialogSpeaker, 0, NULL);
                 if (weapon != NULL) {
                     _inven_wield(gGameDialogSpeaker, weapon, 1);
-                    _cai_attempt_w_reload(gGameDialogSpeaker, 0);
+                    cai_attempt_w_reload(gGameDialogSpeaker, 0);
 
                     int num = _gdPickAIUpdateMsg(gGameDialogSpeaker);
                     char* msg = getmsg(&gProtoMessageList, &messageListItem, num);
@@ -3567,25 +3567,25 @@ void partyMemberControlWindowHandleEvents()
                     partyMemberControlWindowUpdate();
                 }
             } else if (keyCode == 2098) {
-                aiSetDisposition(gGameDialogSpeaker, 4);
+                ai_set_disposition(gGameDialogSpeaker, 4);
             } else if (keyCode == 2099) {
-                aiSetDisposition(gGameDialogSpeaker, 0);
+                ai_set_disposition(gGameDialogSpeaker, 0);
                 _dialogue_state = 13;
                 _dialogue_switch_mode = 11;
                 done = true;
             } else if (keyCode == 2102) {
-                aiSetDisposition(gGameDialogSpeaker, 2);
+                ai_set_disposition(gGameDialogSpeaker, 2);
             } else if (keyCode == 2103) {
-                aiSetDisposition(gGameDialogSpeaker, 3);
+                ai_set_disposition(gGameDialogSpeaker, 3);
             } else if (keyCode == 2111) {
-                aiSetDisposition(gGameDialogSpeaker, 1);
+                ai_set_disposition(gGameDialogSpeaker, 1);
             } else if (keyCode == KEY_ESCAPE) {
                 _dialogue_switch_mode = 1;
                 _dialogue_state = 1;
                 return;
             } else if (keyCode == KEY_LOWERCASE_A) {
                 if (gGameDialogSpeaker->pid != 0x10000A1) {
-                    Object* armor = _ai_search_inven_armor(gGameDialogSpeaker);
+                    Object* armor = ai_search_inven_armor(gGameDialogSpeaker);
                     if (armor != NULL) {
                         _inven_wield(gGameDialogSpeaker, armor, 0);
                     }
@@ -3603,7 +3603,7 @@ void partyMemberControlWindowHandleEvents()
                 }
             } else if (keyCode == -2) {
                 if (mouse_click_in(441, 451, 540, 470)) {
-                    aiSetDisposition(gGameDialogSpeaker, 0);
+                    ai_set_disposition(gGameDialogSpeaker, 0);
                     _dialogue_state = 13;
                     _dialogue_switch_mode = 11;
                     done = true;
@@ -3721,12 +3721,12 @@ int partyMemberCustomizationWindowInit()
         buttonSetCallbacks(_gdialog_buttons[index], _gsound_med_butt_press, _gsound_med_butt_release);
     }
 
-    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE] = aiGetAreaAttackMode(gGameDialogSpeaker);
-    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE] = aiGetRunAwayMode(gGameDialogSpeaker);
-    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON] = aiGetBestWeapon(gGameDialogSpeaker);
-    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE] = aiGetDistance(gGameDialogSpeaker);
-    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO] = aiGetAttackWho(gGameDialogSpeaker);
-    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE] = aiGetChemUse(gGameDialogSpeaker);
+    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE] = ai_get_burst_value(gGameDialogSpeaker);
+    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE] = ai_get_run_away_value(gGameDialogSpeaker);
+    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON] = ai_get_weapon_pref_value(gGameDialogSpeaker);
+    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE] = ai_get_distance_pref_value(gGameDialogSpeaker);
+    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO] = ai_get_attack_who_value(gGameDialogSpeaker);
+    _custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE] = ai_get_chem_use_value(gGameDialogSpeaker);
 
     _dialogue_state = 13;
 
@@ -4084,22 +4084,22 @@ void _gdCustomUpdateSetting(int option, int value)
 {
     switch (option) {
     case PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE:
-        aiSetAreaAttackMode(gGameDialogSpeaker, value);
+        ai_set_burst_value(gGameDialogSpeaker, value);
         break;
     case PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE:
-        aiSetRunAwayMode(gGameDialogSpeaker, value);
+        ai_set_run_away_value(gGameDialogSpeaker, value);
         break;
     case PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON:
-        aiSetBestWeapon(gGameDialogSpeaker, value);
+        ai_set_weapon_pref_value(gGameDialogSpeaker, value);
         break;
     case PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE:
-        aiSetDistance(gGameDialogSpeaker, value);
+        ai_set_distance_pref_value(gGameDialogSpeaker, value);
         break;
     case PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO:
-        aiSetAttackWho(gGameDialogSpeaker, value);
+        ai_set_attack_who_value(gGameDialogSpeaker, value);
         break;
     case PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE:
-        aiSetChemUse(gGameDialogSpeaker, value);
+        ai_set_chem_use_value(gGameDialogSpeaker, value);
         break;
     }
 }

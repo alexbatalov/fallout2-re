@@ -30,20 +30,63 @@
 #include "text_object.h"
 #include "tile.h"
 
+static void parse_hurt_str(char* str, int* out_value);
+static int cai_match_str_to_list(const char* str, const char** list, int count, int* out_value);
+static void cai_init_cap(AiPacket* ai);
+static int cai_cap_load(File* stream, AiPacket* ai);
+static int cai_cap_save(File* stream, AiPacket* ai);
+static AiPacket* ai_cap(Object* obj);
+static AiPacket* ai_cap_from_packet(int aiPacketNum);
+static int ai_magic_hands(Object* a1, Object* a2, int num);
+static int ai_check_drugs(Object* critter);
+static void ai_run_away(Object* a1, Object* a2);
+static int ai_move_away(Object* a1, Object* a2, int a3);
+static bool ai_find_friend(Object* a1, int a2, int a3);
+static int compare_nearer(const void* a1, const void* a2);
+static void ai_sort_list_distance(Object** critterList, int length, Object* origin);
+static void ai_sort_list_strength(Object** critterList, int length);
+static void ai_sort_list_weakness(Object** critterList, int length);
+static Object* ai_find_nearest_team(Object* a1, Object* a2, int a3);
+static Object* ai_find_nearest_team_in_combat(Object* a1, Object* a2, int a3);
+static int ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4);
+static int ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_ammo_obj);
+static bool caiHasWeapPrefType(AiPacket* ai, int attackType);
+static Object* ai_best_weapon(Object* a1, Object* a2, Object* a3, Object* a4);
+static bool ai_can_use_weapon(Object* critter, Object* weapon, int hitMode);
+static bool ai_can_use_drug(Object* obj, Object* a2);
+static Object* ai_search_environ(Object* critter, int itemType);
+static Object* ai_retrieve_object(Object* a1, Object* a2);
+static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3);
+static int ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4);
+static int ai_move_closer(Object* a1, Object* a2, int a3);
+static int cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr);
+static int cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile);
+static bool cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attackerFriend, int tile, int* distance);
+static int ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4);
+static int ai_called_shot(Object* a1, Object* a2, int a3);
+static int ai_attack(Object* a1, Object* a2, int a3);
+static int ai_try_attack(Object* a1, Object* a2);
+static int cai_perform_distance_prefs(Object* a1, Object* a2);
+static int cai_get_min_hp(AiPacket* ai);
+static int ai_print_msg(Object* critter, int type);
+static int combatai_rating(Object* obj);
+static int combatai_load_messages();
+static int combatai_unload_messages();
+
 // 0x51805C
-Object* _combat_obj = NULL;
+static Object* combat_obj = NULL;
 
 // 0x518060
-int gAiPacketsLength = 0;
+static int num_caps = 0;
 
 // 0x518064
-AiPacket* gAiPackets = NULL;
+static AiPacket* cap = NULL;
 
 // 0x518068
-bool gAiInitialized = false;
+static bool combatai_is_initialized = false;
 
 // 0x51806C
-const char* gAreaAttackModeKeys[AREA_ATTACK_MODE_COUNT] = {
+const char* area_attack_mode_strs[AREA_ATTACK_MODE_COUNT] = {
     "always",
     "sometimes",
     "be_sure",
@@ -52,7 +95,7 @@ const char* gAreaAttackModeKeys[AREA_ATTACK_MODE_COUNT] = {
 };
 
 // 0x5180D0
-const char* gAttackWhoKeys[ATTACK_WHO_COUNT] = {
+const char* attack_who_mode_strs[ATTACK_WHO_COUNT] = {
     "whomever_attacking_me",
     "strongest",
     "weakest",
@@ -61,7 +104,7 @@ const char* gAttackWhoKeys[ATTACK_WHO_COUNT] = {
 };
 
 // 0x51809C
-const char* gBestWeaponKeys[BEST_WEAPON_COUNT] = {
+const char* weapon_pref_strs[BEST_WEAPON_COUNT] = {
     "no_pref",
     "melee",
     "melee_over_ranged",
@@ -73,7 +116,7 @@ const char* gBestWeaponKeys[BEST_WEAPON_COUNT] = {
 };
 
 // 0x5180E4
-const char* gChemUseKeys[CHEM_USE_COUNT] = {
+const char* chem_use_mode_strs[CHEM_USE_COUNT] = {
     "clean",
     "stims_when_hurt_little",
     "stims_when_hurt_lots",
@@ -83,7 +126,7 @@ const char* gChemUseKeys[CHEM_USE_COUNT] = {
 };
 
 // 0x5180BC
-const char* gDistanceModeKeys[DISTANCE_COUNT] = {
+const char* distance_pref_strs[DISTANCE_COUNT] = {
     "stay_close",
     "charge",
     "snipe",
@@ -92,7 +135,7 @@ const char* gDistanceModeKeys[DISTANCE_COUNT] = {
 };
 
 // 0x518080
-const char* gRunAwayModeKeys[RUN_AWAY_MODE_COUNT] = {
+const char* run_away_mode_strs[RUN_AWAY_MODE_COUNT] = {
     "none",
     "coward",
     "finger_hurts",
@@ -103,7 +146,7 @@ const char* gRunAwayModeKeys[RUN_AWAY_MODE_COUNT] = {
 };
 
 // 0x5180FC
-const char* gDispositionKeys[DISPOSITION_COUNT] = {
+const char* disposition_strs[DISPOSITION_COUNT] = {
     "none",
     "custom",
     "coward",
@@ -113,7 +156,7 @@ const char* gDispositionKeys[DISPOSITION_COUNT] = {
 };
 
 // 0x518114
-const char* gHurtTooMuchKeys[HURT_COUNT] = {
+static const char* matchHurtStrs[HURT_COUNT] = {
     "blind",
     "crippled",
     "crippled_legs",
@@ -123,7 +166,7 @@ const char* gHurtTooMuchKeys[HURT_COUNT] = {
 // hurt_too_much
 //
 // 0x518124
-const int _rmatchHurtVals[5] = {
+static int rmatchHurtVals[5] = {
     DAM_BLIND,
     DAM_CRIP_LEG_LEFT | DAM_CRIP_LEG_RIGHT | DAM_CRIP_ARM_LEFT | DAM_CRIP_ARM_RIGHT,
     DAM_CRIP_LEG_LEFT | DAM_CRIP_LEG_RIGHT,
@@ -134,7 +177,7 @@ const int _rmatchHurtVals[5] = {
 // Hit points in percent to choose run away mode.
 //
 // 0x518138
-const int _hp_run_away_value[6] = {
+static int runModeValues[6] = {
     0,
     25,
     40,
@@ -144,13 +187,13 @@ const int _hp_run_away_value[6] = {
 };
 
 // 0x518150
-Object* _attackerTeamObj = NULL;
+static Object* attackerTeamObj = NULL;
 
 // 0x518154
-Object* _targetTeamObj = NULL;
+static Object* targetTeamObj = NULL;
 
 // 0x518158
-const int _weapPrefOrderings[BEST_WEAPON_COUNT + 1][5] = {
+static int weapPrefOrderings[BEST_WEAPON_COUNT + 1][5] = {
     { ATTACK_TYPE_RANGED, ATTACK_TYPE_THROW, ATTACK_TYPE_MELEE, ATTACK_TYPE_UNARMED, 0 },
     { ATTACK_TYPE_RANGED, ATTACK_TYPE_THROW, ATTACK_TYPE_MELEE, ATTACK_TYPE_UNARMED, 0 }, // BEST_WEAPON_NO_PREF
     { ATTACK_TYPE_MELEE, 0, 0, 0, 0 }, // BEST_WEAPON_MELEE
@@ -162,37 +205,25 @@ const int _weapPrefOrderings[BEST_WEAPON_COUNT + 1][5] = {
     { 0, 0, 0, 0, 0 }, // BEST_WEAPON_RANDOM
 };
 
-// 0x51820C
-const int _aiPartyMemberDistances[DISTANCE_COUNT] = {
-    5,
-    7,
-    7,
-    7,
-    50000,
-};
-
-// 0x518220
-int gLanguageFilter = -1;
-
 // ai.msg
 //
 // 0x56D510
-MessageList gCombatAiMessageList;
+static MessageList ai_message_file;
 
 // 0x56D518
-char _target_str[260];
+static char target_str[260];
 
 // 0x56D61C
-int _curr_crit_num;
+static int curr_crit_num;
 
 // 0x56D620
-Object** _curr_crit_list;
+static Object** curr_crit_list;
 
 // 0x56D624
-char _attack_str[268];
+static char attack_str[268];
 
 // parse hurt_too_much
-void _parse_hurt_str(char* str, int* valuePtr)
+static void parse_hurt_str(char* str, int* valuePtr)
 {
     int v5, v10;
     char tmp;
@@ -210,8 +241,8 @@ void _parse_hurt_str(char* str, int* valuePtr)
         str[v10] = '\0';
 
         for (i = 0; i < 4; i++) {
-            if (strcmp(str, gHurtTooMuchKeys[i]) == 0) {
-                *valuePtr |= _rmatchHurtVals[i];
+            if (strcmp(str, matchHurtStrs[i]) == 0) {
+                *valuePtr |= rmatchHurtVals[i];
                 break;
             }
         }
@@ -231,7 +262,7 @@ void _parse_hurt_str(char* str, int* valuePtr)
 }
 
 // parse behaviour entry
-int _cai_match_str_to_list(const char* str, const char** list, int count, int* valuePtr)
+static int cai_match_str_to_list(const char* str, const char** list, int count, int* valuePtr)
 {
     *valuePtr = -1;
     for (int index = 0; index < count; index++) {
@@ -244,7 +275,7 @@ int _cai_match_str_to_list(const char* str, const char** list, int count, int* v
 }
 
 // 0x426FE0
-void aiPacketInit(AiPacket* ai)
+static void cai_init_cap(AiPacket* ai)
 {
     ai->name = NULL;
 
@@ -264,15 +295,15 @@ void aiPacketInit(AiPacket* ai)
 
 // ai_init
 // 0x42703C
-int aiInit()
+int combat_ai_init()
 {
     int index;
 
-    if (aiMessageListInit() == -1) {
+    if (combatai_load_messages() == -1) {
         return -1;
     }
 
-    gAiPacketsLength = 0;
+    num_caps = 0;
 
     Config config;
     if (!configInit(&config)) {
@@ -283,18 +314,18 @@ int aiInit()
         return -1;
     }
 
-    gAiPackets = (AiPacket*)internal_malloc(sizeof(*gAiPackets) * config.entriesLength);
-    if (gAiPackets == NULL) {
+    cap = (AiPacket*)internal_malloc(sizeof(*cap) * config.entriesLength);
+    if (cap == NULL) {
         goto err;
     }
 
     for (index = 0; index < config.entriesLength; index++) {
-        aiPacketInit(&(gAiPackets[index]));
+        cai_init_cap(&(cap[index]));
     }
 
     for (index = 0; index < config.entriesLength; index++) {
         DictionaryEntry* sectionEntry = &(config.entries[index]);
-        AiPacket* ai = &(gAiPackets[index]);
+        AiPacket* ai = &(cap[index]);
         char* stringValue;
 
         ai->name = internal_strdup(sectionEntry->key);
@@ -306,7 +337,7 @@ int aiInit()
         if (!configGetInt(&config, sectionEntry->key, "aggression", &(ai->aggression))) goto err;
 
         if (configGetString(&config, sectionEntry->key, "hurt_too_much", &stringValue)) {
-            _parse_hurt_str(stringValue, &(ai->hurt_too_much));
+            parse_hurt_str(stringValue, &(ai->hurt_too_much));
         }
 
         if (!configGetInt(&config, sectionEntry->key, "secondary_freq", &(ai->secondary_freq))) goto err;
@@ -343,13 +374,13 @@ int aiInit()
         ai->hit[HIT_LOCATION_GROIN].end++;
 
         if (configGetString(&config, sectionEntry->key, "area_attack_mode", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gAreaAttackModeKeys, AREA_ATTACK_MODE_COUNT, &(ai->area_attack_mode));
+            cai_match_str_to_list(stringValue, area_attack_mode_strs, AREA_ATTACK_MODE_COUNT, &(ai->area_attack_mode));
         } else {
             ai->run_away_mode = -1;
         }
 
         if (configGetString(&config, sectionEntry->key, "run_away_mode", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gRunAwayModeKeys, RUN_AWAY_MODE_COUNT, &(ai->run_away_mode));
+            cai_match_str_to_list(stringValue, run_away_mode_strs, RUN_AWAY_MODE_COUNT, &(ai->run_away_mode));
 
             if (ai->run_away_mode >= 0) {
                 ai->run_away_mode--;
@@ -357,25 +388,25 @@ int aiInit()
         }
 
         if (configGetString(&config, sectionEntry->key, "best_weapon", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gBestWeaponKeys, BEST_WEAPON_COUNT, &(ai->best_weapon));
+            cai_match_str_to_list(stringValue, weapon_pref_strs, BEST_WEAPON_COUNT, &(ai->best_weapon));
         }
 
         if (configGetString(&config, sectionEntry->key, "distance", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gDistanceModeKeys, DISTANCE_COUNT, &(ai->distance));
+            cai_match_str_to_list(stringValue, distance_pref_strs, DISTANCE_COUNT, &(ai->distance));
         }
 
         if (configGetString(&config, sectionEntry->key, "attack_who", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gAttackWhoKeys, ATTACK_WHO_COUNT, &(ai->attack_who));
+            cai_match_str_to_list(stringValue, attack_who_mode_strs, ATTACK_WHO_COUNT, &(ai->attack_who));
         }
 
         if (configGetString(&config, sectionEntry->key, "chem_use", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gChemUseKeys, CHEM_USE_COUNT, &(ai->chem_use));
+            cai_match_str_to_list(stringValue, chem_use_mode_strs, CHEM_USE_COUNT, &(ai->chem_use));
         }
 
         configGetIntList(&config, sectionEntry->key, "chem_primary_desire", ai->chem_primary_desire, AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT);
 
         if (configGetString(&config, sectionEntry->key, "disposition", &stringValue)) {
-            _cai_match_str_to_list(stringValue, gDispositionKeys, DISPOSITION_COUNT, &(ai->disposition));
+            cai_match_str_to_list(stringValue, disposition_strs, DISPOSITION_COUNT, &(ai->disposition));
             ai->disposition--;
         }
 
@@ -396,19 +427,19 @@ int aiInit()
         goto err;
     }
 
-    gAiPacketsLength = config.entriesLength;
+    num_caps = config.entriesLength;
 
     configFree(&config);
 
-    gAiInitialized = true;
+    combatai_is_initialized = true;
 
     return 0;
 
 err:
 
-    if (gAiPackets != NULL) {
+    if (cap != NULL) {
         for (index = 0; index < config.entriesLength; index++) {
-            AiPacket* ai = &(gAiPackets[index]);
+            AiPacket* ai = &(cap[index]);
             if (ai->name != NULL) {
                 internal_free(ai->name);
             }
@@ -416,7 +447,7 @@ err:
             // FIXME: leaking ai->body_type and ai->general_type, does not matter
             // because it halts further processing
         }
-        internal_free(gAiPackets);
+        internal_free(cap);
     }
 
     debugPrint("Error processing ai.txt");
@@ -427,15 +458,15 @@ err:
 }
 
 // 0x4279F8
-void aiReset()
+void combat_ai_reset()
 {
 }
 
 // 0x4279FC
-int aiExit()
+int combat_ai_exit()
 {
-    for (int index = 0; index < gAiPacketsLength; index++) {
-        AiPacket* ai = &(gAiPackets[index]);
+    for (int index = 0; index < num_caps; index++) {
+        AiPacket* ai = &(cap[index]);
 
         if (ai->name != NULL) {
             internal_free(ai->name);
@@ -453,13 +484,13 @@ int aiExit()
         }
     }
 
-    internal_free(gAiPackets);
-    gAiPacketsLength = 0;
+    internal_free(cap);
+    num_caps = 0;
 
-    gAiInitialized = false;
+    combatai_is_initialized = false;
 
     // NOTE: Uninline.
-    if (aiMessageListFree() != 0) {
+    if (combatai_unload_messages() != 0) {
         return -1;
     }
 
@@ -467,7 +498,7 @@ int aiExit()
 }
 
 // 0x427AD8
-int aiLoad(File* stream)
+int combat_ai_load(File* stream)
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         int pid = gPartyMemberPids[index];
@@ -477,9 +508,9 @@ int aiLoad(File* stream)
                 return -1;
             }
 
-            AiPacket* ai = aiGetPacketByNum(proto->critter.aiPacket);
+            AiPacket* ai = ai_cap_from_packet(proto->critter.aiPacket);
             if (ai->disposition == 0) {
-                aiPacketRead(stream, ai);
+                cai_cap_load(stream, ai);
             }
         }
     }
@@ -488,7 +519,7 @@ int aiLoad(File* stream)
 }
 
 // 0x427B50
-int aiSave(File* stream)
+int combat_ai_save(File* stream)
 {
     for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
         int pid = gPartyMemberPids[index];
@@ -498,9 +529,9 @@ int aiSave(File* stream)
                 return -1;
             }
 
-            AiPacket* ai = aiGetPacketByNum(proto->critter.aiPacket);
+            AiPacket* ai = ai_cap_from_packet(proto->critter.aiPacket);
             if (ai->disposition == 0) {
-                aiPacketWrite(stream, ai);
+                cai_cap_save(stream, ai);
             }
         }
     }
@@ -509,7 +540,7 @@ int aiSave(File* stream)
 }
 
 // 0x427BC8
-int aiPacketRead(File* stream, AiPacket* ai)
+static int cai_cap_load(File* stream, AiPacket* ai)
 {
     if (fileReadInt32(stream, &(ai->packet_num)) == -1) return -1;
     if (fileReadInt32(stream, &(ai->max_dist)) == -1) return -1;
@@ -553,7 +584,7 @@ int aiPacketRead(File* stream, AiPacket* ai)
 }
 
 // 0x427E1C
-int aiPacketWrite(File* stream, AiPacket* ai)
+static int cai_cap_save(File* stream, AiPacket* ai)
 {
     if (fileWriteInt32(stream, ai->packet_num) == -1) return -1;
     if (fileWriteInt32(stream, ai->max_dist) == -1) return -1;
@@ -601,23 +632,23 @@ int aiPacketWrite(File* stream, AiPacket* ai)
 // NOTE: Unused.
 //
 // 0x428058
-int _combat_ai_num()
+int combat_ai_num()
 {
-    return gAiPacketsLength;
+    return num_caps;
 }
 
 // 0x428060
-char* _combat_ai_name(int packetNum)
+char* combat_ai_name(int packetNum)
 {
     int index;
 
-    if (packetNum < 0 || packetNum >= gAiPacketsLength) {
+    if (packetNum < 0 || packetNum >= num_caps) {
         return NULL;
     }
 
-    for (index = 0; index < gAiPacketsLength; index++) {
-        if (gAiPackets[index].packet_num == packetNum) {
-            return gAiPackets[index].name;
+    for (index = 0; index < num_caps; index++) {
+        if (cap[index].packet_num == packetNum) {
+            return cap[index].name;
         }
     }
 
@@ -627,20 +658,20 @@ char* _combat_ai_name(int packetNum)
 // Get ai from object
 //
 // 0x4280B4
-AiPacket* aiGetPacket(Object* obj)
+static AiPacket* ai_cap(Object* obj)
 {
     // NOTE: Uninline.
-    AiPacket* ai = aiGetPacketByNum(obj->data.critter.combat.aiPacket);
+    AiPacket* ai = ai_cap_from_packet(obj->data.critter.combat.aiPacket);
     return ai;
 }
 
 // get ai packet by num
 //
 // 0x42811C
-AiPacket* aiGetPacketByNum(int aiPacketId)
+static AiPacket* ai_cap_from_packet(int aiPacketId)
 {
-    for (int index = 0; index < gAiPacketsLength; index++) {
-        AiPacket* ai = &(gAiPackets[index]);
+    for (int index = 0; index < num_caps; index++) {
+        AiPacket* ai = &(cap[index]);
         if (aiPacketId == ai->packet_num) {
             return ai;
         }
@@ -648,18 +679,18 @@ AiPacket* aiGetPacketByNum(int aiPacketId)
 
     debugPrint("Missing AI Packet\n");
 
-    return gAiPackets;
+    return cap;
 }
 
 // 0x428184
-int aiGetAreaAttackMode(Object* obj)
+int ai_get_burst_value(Object* obj)
 {
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     return ai->area_attack_mode;
 }
 
 // 0x428190
-int aiGetRunAwayMode(Object* obj)
+int ai_get_run_away_value(Object* obj)
 {
     AiPacket* ai;
     int v3;
@@ -667,7 +698,7 @@ int aiGetRunAwayMode(Object* obj)
     int v6;
     int i;
 
-    ai = aiGetPacket(obj);
+    ai = ai_cap(obj);
     v3 = -1;
 
     if (ai->run_away_mode != -1) {
@@ -678,7 +709,7 @@ int aiGetRunAwayMode(Object* obj)
     v6 = v5 / critterGetStat(obj, STAT_MAXIMUM_HIT_POINTS);
 
     for (i = 0; i < 6; i++) {
-        if (v6 >= _hp_run_away_value[i]) {
+        if (v6 >= runModeValues[i]) {
             v3 = i;
         }
     }
@@ -687,57 +718,57 @@ int aiGetRunAwayMode(Object* obj)
 }
 
 // 0x4281FC
-int aiGetBestWeapon(Object* obj)
+int ai_get_weapon_pref_value(Object* obj)
 {
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     return ai->best_weapon;
 }
 
 // 0x428208
-int aiGetDistance(Object* obj)
+int ai_get_distance_pref_value(Object* obj)
 {
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     return ai->distance;
 }
 
 // 0x428214
-int aiGetAttackWho(Object* obj)
+int ai_get_attack_who_value(Object* obj)
 {
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     return ai->attack_who;
 }
 
 // 0x428220
-int aiGetChemUse(Object* obj)
+int ai_get_chem_use_value(Object* obj)
 {
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     return ai->chem_use;
 }
 
 // 0x42822C
-int aiSetAreaAttackMode(Object* critter, int areaAttackMode)
+int ai_set_burst_value(Object* critter, int areaAttackMode)
 {
     if (areaAttackMode >= AREA_ATTACK_MODE_COUNT) {
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
     ai->area_attack_mode = areaAttackMode;
     return 0;
 }
 
 // 0x428248
-int aiSetRunAwayMode(Object* obj, int runAwayMode)
+int ai_set_run_away_value(Object* obj, int runAwayMode)
 {
     if (runAwayMode >= 6) {
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     ai->run_away_mode = runAwayMode;
 
     int maximumHp = critterGetStat(obj, STAT_MAXIMUM_HIT_POINTS);
-    ai->min_hp = maximumHp - maximumHp * _hp_run_away_value[runAwayMode] / 100;
+    ai->min_hp = maximumHp - maximumHp * runModeValues[runAwayMode] / 100;
 
     int currentHp = critterGetStat(obj, STAT_CURRENT_HIT_POINTS);
     const char* name = critterGetName(obj);
@@ -748,66 +779,66 @@ int aiSetRunAwayMode(Object* obj, int runAwayMode)
 }
 
 // 0x4282D0
-int aiSetBestWeapon(Object* critter, int bestWeapon)
+int ai_set_weapon_pref_value(Object* critter, int bestWeapon)
 {
     if (bestWeapon >= BEST_WEAPON_COUNT) {
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
     ai->best_weapon = bestWeapon;
     return 0;
 }
 
 // 0x4282EC
-int aiSetDistance(Object* critter, int distance)
+int ai_set_distance_pref_value(Object* critter, int distance)
 {
     if (distance >= DISTANCE_COUNT) {
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
     ai->distance = distance;
     return 0;
 }
 
 // 0x428308
-int aiSetAttackWho(Object* critter, int attackWho)
+int ai_set_attack_who_value(Object* critter, int attackWho)
 {
     if (attackWho >= ATTACK_WHO_COUNT) {
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
     ai->attack_who = attackWho;
     return 0;
 }
 
 // 0x428324
-int aiSetChemUse(Object* critter, int chemUse)
+int ai_set_chem_use_value(Object* critter, int chemUse)
 {
     if (chemUse >= CHEM_USE_COUNT) {
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
     ai->chem_use = chemUse;
     return 0;
 }
 
 // 0x428340
-int aiGetDisposition(Object* obj)
+int ai_get_disposition(Object* obj)
 {
     if (obj == NULL) {
         return 0;
     }
 
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     return ai->disposition;
 }
 
 // 0x428354
-int aiSetDisposition(Object* obj, int disposition)
+int ai_set_disposition(Object* obj, int disposition)
 {
     if (obj == NULL) {
         return -1;
@@ -817,14 +848,14 @@ int aiSetDisposition(Object* obj, int disposition)
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(obj);
+    AiPacket* ai = ai_cap(obj);
     obj->data.critter.combat.aiPacket = ai->packet_num - (disposition - ai->disposition);
 
     return 0;
 }
 
 // 0x428398
-int _ai_magic_hands(Object* critter, Object* item, int num)
+static int ai_magic_hands(Object* critter, Object* item, int num)
 {
     register_begin(ANIMATION_REQUEST_RESERVED);
 
@@ -859,7 +890,7 @@ int _ai_magic_hands(Object* critter, Object* item, int num)
 
 // ai using drugs
 // 0x428480
-int _ai_check_drugs(Object* critter)
+static int ai_check_drugs(Object* critter)
 {
     if (critterGetBodyType(critter) != BODY_TYPE_BIPED) {
         return 0;
@@ -870,7 +901,7 @@ int _ai_check_drugs(Object* critter)
     int v29 = 0;
     Object* v3 = combatAIInfoGetLastItem(critter);
     if (v3 == NULL) {
-        AiPacket* ai = aiGetPacket(critter);
+        AiPacket* ai = ai_cap(critter);
         if (ai == NULL) {
             return 0;
         }
@@ -922,7 +953,7 @@ int _ai_check_drugs(Object* critter)
                 if (_item_d_take_drug(critter, drug) == -1) {
                     itemAdd(critter, drug, 1);
                 } else {
-                    _ai_magic_hands(critter, drug, 5000);
+                    ai_magic_hands(critter, drug, 5000);
                     _obj_connect(drug, critter->tile, critter->elevation, NULL);
                     _obj_destroy(drug);
                     v28 = 1;
@@ -961,7 +992,7 @@ int _ai_check_drugs(Object* critter)
                         if (_item_d_take_drug(critter, drug) == -1) {
                             itemAdd(critter, drug, 1);
                         } else {
-                            _ai_magic_hands(critter, drug, 5000);
+                            ai_magic_hands(critter, drug, 5000);
                             _obj_connect(drug, critter->tile, critter->elevation, NULL);
                             _obj_destroy(drug);
                             v28 = 1;
@@ -986,15 +1017,15 @@ int _ai_check_drugs(Object* critter)
     if (v3 != NULL || (!v28 && v25 == 1)) {
         do {
             if (v3 == NULL) {
-                v3 = _ai_search_environ(critter, ITEM_TYPE_DRUG);
+                v3 = ai_search_environ(critter, ITEM_TYPE_DRUG);
             }
 
             if (v3 != NULL) {
-                v3 = _ai_retrieve_object(critter, v3);
+                v3 = ai_retrieve_object(critter, v3);
             } else {
-                Object* v22 = _ai_search_environ(critter, ITEM_TYPE_MISC);
+                Object* v22 = ai_search_environ(critter, ITEM_TYPE_MISC);
                 if (v22 != NULL) {
-                    v3 = _ai_retrieve_object(critter, v22);
+                    v3 = ai_retrieve_object(critter, v22);
                 }
             }
 
@@ -1002,7 +1033,7 @@ int _ai_check_drugs(Object* critter)
                 if (_item_d_take_drug(critter, v3) == -1) {
                     itemAdd(critter, v3, 1);
                 } else {
-                    _ai_magic_hands(critter, v3, 5000);
+                    ai_magic_hands(critter, v3, 5000);
                     _obj_connect(v3, critter->tile, critter->elevation, NULL);
                     _obj_destroy(v3);
                     v3 = NULL;
@@ -1022,7 +1053,7 @@ int _ai_check_drugs(Object* critter)
 }
 
 // 0x428868
-void _ai_run_away(Object* a1, Object* a2)
+static void ai_run_away(Object* a1, Object* a2)
 {
     if (a2 == NULL) {
         a2 = gDude;
@@ -1030,7 +1061,7 @@ void _ai_run_away(Object* a1, Object* a2)
 
     CritterCombatData* combatData = &(a1->data.critter.combat);
 
-    AiPacket* ai = aiGetPacket(a1);
+    AiPacket* ai = ai_cap(a1);
     int distance = objectGetDistanceBetween(a1, a2);
     if (distance < ai->max_dist) {
         combatData->maneuver |= CRITTER_MANUEVER_FLEEING;
@@ -1058,7 +1089,7 @@ void _ai_run_away(Object* a1, Object* a2)
 
         if (actionPoints > 0) {
             register_begin(ANIMATION_REQUEST_RESERVED);
-            _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_RUN, 0);
+            combatai_msg(a1, NULL, AI_MESSAGE_TYPE_RUN, 0);
             register_object_run_to_tile(a1, destination, a1->elevation, combatData->ap, 0);
             if (register_end() == 0) {
                 combat_turn_run();
@@ -1070,9 +1101,9 @@ void _ai_run_away(Object* a1, Object* a2)
 }
 
 // 0x42899C
-int _ai_move_away(Object* a1, Object* a2, int a3)
+static int ai_move_away(Object* a1, Object* a2, int a3)
 {
-    if (aiGetPacket(a1)->distance == DISTANCE_STAY) {
+    if (ai_cap(a1)->distance == DISTANCE_STAY) {
         return -1;
     }
 
@@ -1116,9 +1147,9 @@ int _ai_move_away(Object* a1, Object* a2, int a3)
 }
 
 // 0x428AC4
-bool _ai_find_friend(Object* a1, int a2, int a3)
+static bool ai_find_friend(Object* a1, int a2, int a3)
 {
-    Object* v1 = _ai_find_nearest_team(a1, a1, 1);
+    Object* v1 = ai_find_nearest_team(a1, a1, 1);
     if (v1 == NULL) {
         return false;
     }
@@ -1130,7 +1161,7 @@ bool _ai_find_friend(Object* a1, int a2, int a3)
 
     if (a3 > distance) {
         int v2 = objectGetDistanceBetween(a1, v1) - a3;
-        _ai_move_steps_closer(a1, v1, v2, 0);
+        ai_move_steps_closer(a1, v1, v2, 0);
     }
 
     return true;
@@ -1139,7 +1170,7 @@ bool _ai_find_friend(Object* a1, int a2, int a3)
 // Compare objects by distance to origin.
 //
 // 0x428B1C
-int _compare_nearer(const void* a1, const void* a2)
+static int compare_nearer(const void* a1, const void* a2)
 {
     Object* v1 = *(Object**)a1;
     Object* v2 = *(Object**)a2;
@@ -1155,8 +1186,8 @@ int _compare_nearer(const void* a1, const void* a2)
         }
     }
 
-    int distance1 = objectGetDistanceBetween(v1, _combat_obj);
-    int distance2 = objectGetDistanceBetween(v2, _combat_obj);
+    int distance1 = objectGetDistanceBetween(v1, combat_obj);
+    int distance2 = objectGetDistanceBetween(v2, combat_obj);
 
     if (distance1 < distance2) {
         return -1;
@@ -1170,16 +1201,16 @@ int _compare_nearer(const void* a1, const void* a2)
 // NOTE: Inlined.
 //
 // 0x428B74
-void _ai_sort_list_distance(Object** critterList, int length, Object* origin)
+static void ai_sort_list_distance(Object** critterList, int length, Object* origin)
 {
-    _combat_obj = origin;
-    qsort(critterList, length, sizeof(*critterList), _compare_nearer);
+    combat_obj = origin;
+    qsort(critterList, length, sizeof(*critterList), compare_nearer);
 }
 
 // qsort compare function - melee then ranged.
 //
 // 0x428B8C
-int _compare_strength(const void* p1, const void* p2)
+int compare_strength(const void* p1, const void* p2)
 {
     Object* a1 = *(Object**)p1;
     Object* a2 = *(Object**)p2;
@@ -1196,8 +1227,8 @@ int _compare_strength(const void* p1, const void* p2)
         return -1;
     }
 
-    int v3 = _combatai_rating(a1);
-    int v5 = _combatai_rating(a2);
+    int v3 = combatai_rating(a1);
+    int v5 = combatai_rating(a2);
 
     if (v3 < v5) {
         return -1;
@@ -1213,15 +1244,15 @@ int _compare_strength(const void* p1, const void* p2)
 // NOTE: Inlined.
 //
 // 0x428BD0
-void _ai_sort_list_strength(Object** critterList, int length)
+static void ai_sort_list_strength(Object** critterList, int length)
 {
-    qsort(critterList, length, sizeof(*critterList), _compare_strength);
+    qsort(critterList, length, sizeof(*critterList), compare_strength);
 }
 
 // qsort compare unction - ranged then melee
 //
 // 0x428BE4
-int _compare_weakness(const void* p1, const void* p2)
+int compare_weakness(const void* p1, const void* p2)
 {
     Object* a1 = *(Object**)p1;
     Object* a2 = *(Object**)p2;
@@ -1238,8 +1269,8 @@ int _compare_weakness(const void* p1, const void* p2)
         return -1;
     }
 
-    int v3 = _combatai_rating(a1);
-    int v5 = _combatai_rating(a2);
+    int v3 = combatai_rating(a1);
+    int v5 = combatai_rating(a2);
 
     if (v3 < v5) {
         return 1;
@@ -1255,13 +1286,13 @@ int _compare_weakness(const void* p1, const void* p2)
 // NOTE: Inlined.
 //
 // 0x428C28
-void _ai_sort_list_weakness(Object** critterList, int length)
+static void ai_sort_list_weakness(Object** critterList, int length)
 {
-    qsort(critterList, length, sizeof(*critterList), _compare_weakness);
+    qsort(critterList, length, sizeof(*critterList), compare_weakness);
 }
 
 // 0x428C3C
-Object* _ai_find_nearest_team(Object* a1, Object* a2, int a3)
+static Object* ai_find_nearest_team(Object* a1, Object* a2, int a3)
 {
     int i;
     Object* obj;
@@ -1270,15 +1301,15 @@ Object* _ai_find_nearest_team(Object* a1, Object* a2, int a3)
         return NULL;
     }
 
-    if (_curr_crit_num == 0) {
+    if (curr_crit_num == 0) {
         return NULL;
     }
 
     // NOTE: Uninline.
-    _ai_sort_list_distance(_curr_crit_list, _curr_crit_num, a1);
+    ai_sort_list_distance(curr_crit_list, curr_crit_num, a1);
 
-    for (i = 0; i < _curr_crit_num; i++) {
-        obj = _curr_crit_list[i];
+    for (i = 0; i < curr_crit_num; i++) {
+        obj = curr_crit_list[i];
         if (a1 != obj && !(obj->data.critter.combat.results & 0x80) && (((a3 & 0x02) && a2->data.critter.combat.team != obj->data.critter.combat.team) || ((a3 & 0x01) && a2->data.critter.combat.team == obj->data.critter.combat.team))) {
             return obj;
         }
@@ -1288,23 +1319,23 @@ Object* _ai_find_nearest_team(Object* a1, Object* a2, int a3)
 }
 
 // 0x428CF4
-Object* _ai_find_nearest_team_in_combat(Object* a1, Object* a2, int a3)
+static Object* ai_find_nearest_team_in_combat(Object* a1, Object* a2, int a3)
 {
     if (a2 == NULL) {
         return NULL;
     }
 
-    if (_curr_crit_num == 0) {
+    if (curr_crit_num == 0) {
         return NULL;
     }
 
     int team = a2->data.critter.combat.team;
 
     // NOTE: Uninline.
-    _ai_sort_list_distance(_curr_crit_list, _curr_crit_num, a1);
+    ai_sort_list_distance(curr_crit_list, curr_crit_num, a1);
 
-    for (int index = 0; index < _curr_crit_num; index++) {
-        Object* obj = _curr_crit_list[index];
+    for (int index = 0; index < curr_crit_num; index++) {
+        Object* obj = curr_crit_list[index];
         if (obj != a1
             && (obj->data.critter.combat.results & DAM_DEAD) == 0
             && (((a3 & 0x02) != 0 && team != obj->data.critter.combat.team)
@@ -1319,7 +1350,7 @@ Object* _ai_find_nearest_team_in_combat(Object* a1, Object* a2, int a3)
 }
 
 // 0x428DB0
-int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
+static int ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
 {
     if (a2 != NULL) {
         *a2 = NULL;
@@ -1333,18 +1364,18 @@ int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
         *a4 = NULL;
     }
 
-    if (_curr_crit_num == 0) {
+    if (curr_crit_num == 0) {
         return 0;
     }
 
     // NOTE: Uninline.
-    _ai_sort_list_distance(_curr_crit_list, _curr_crit_num, a1);
+    ai_sort_list_distance(curr_crit_list, curr_crit_num, a1);
 
     int foundTargetCount = 0;
     int team = a1->data.critter.combat.team;
 
-    for (int index = 0; foundTargetCount < 3 && index < _curr_crit_num; index++) {
-        Object* candidate = _curr_crit_list[index];
+    for (int index = 0; foundTargetCount < 3 && index < curr_crit_num; index++) {
+        Object* candidate = curr_crit_list[index];
         if (candidate != a1) {
             if (a2 != NULL && *a2 == NULL) {
                 if ((candidate->data.critter.combat.results & DAM_DEAD) == 0
@@ -1386,7 +1417,7 @@ int _ai_find_attackers(Object* a1, Object** a2, Object** a3, Object** a4)
 
 // ai_danger_source
 // 0x428F4C
-Object* _ai_danger_source(Object* a1)
+Object* ai_danger_source(Object* a1)
 {
     if (a1 == NULL) {
         return NULL;
@@ -1399,7 +1430,7 @@ Object* _ai_danger_source(Object* a1)
     targets[0] = NULL;
 
     if (objectIsPartyMember(a1)) {
-        int disposition = a1 != NULL ? aiGetPacket(a1)->disposition : 0;
+        int disposition = a1 != NULL ? ai_cap(a1)->disposition : 0;
 
         switch (disposition + 1) {
         case 1:
@@ -1414,11 +1445,11 @@ Object* _ai_danger_source(Object* a1)
             break;
         }
 
-        if (v2 && aiGetPacket(a1)->distance == 1) {
+        if (v2 && ai_cap(a1)->distance == 1) {
             v2 = false;
         }
 
-        attackWho = aiGetPacket(a1)->attack_who;
+        attackWho = ai_cap(a1)->attack_who;
         switch (attackWho) {
         case ATTACK_WHO_WHOMEVER_ATTACKING_ME: {
             Object* candidate = combatAIInfoGetLastTarget(gDude);
@@ -1460,14 +1491,14 @@ Object* _ai_danger_source(Object* a1)
             }
         } else {
             if (whoHitMe->data.critter.combat.team != a1->data.critter.combat.team) {
-                targets[0] = _ai_find_nearest_team(a1, whoHitMe, 1);
+                targets[0] = ai_find_nearest_team(a1, whoHitMe, 1);
             } else {
                 targets[0] = NULL;
             }
         }
     }
 
-    _ai_find_attackers(a1, &(targets[1]), &(targets[2]), &(targets[3]));
+    ai_find_attackers(a1, &(targets[1]), &(targets[2]), &(targets[3]));
 
     if (v2) {
         for (int index = 0; index < 4; index++) {
@@ -1480,21 +1511,21 @@ Object* _ai_danger_source(Object* a1)
     switch (attackWho) {
     case ATTACK_WHO_STRONGEST:
         // NOTE: Uninline.
-        _ai_sort_list_strength(targets, 4);
+        ai_sort_list_strength(targets, 4);
         break;
     case ATTACK_WHO_WEAKEST:
         // NOTE: Uninline.
-        _ai_sort_list_weakness(targets, 4);
+        ai_sort_list_weakness(targets, 4);
         break;
     default:
         // NOTE: Uninline.
-        _ai_sort_list_distance(targets, 4, a1);
+        ai_sort_list_distance(targets, 4, a1);
         break;
     }
 
     for (int index = 0; index < 4; index++) {
         Object* candidate = targets[index];
-        if (candidate != NULL && isWithinPerception(a1, candidate)) {
+        if (candidate != NULL && is_within_perception(a1, candidate)) {
             if (make_path_func(a1, a1->tile, candidate->tile, NULL, 0, _obj_blocking_at) != 0
                 || combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == COMBAT_BAD_SHOT_OK) {
                 return candidate;
@@ -1507,7 +1538,7 @@ Object* _ai_danger_source(Object* a1)
 }
 
 // 0x4291C4
-int _caiSetupTeamCombat(Object* a1, Object* a2)
+int caiSetupTeamCombat(Object* a1, Object* a2)
 {
     Object* obj;
 
@@ -1519,14 +1550,14 @@ int _caiSetupTeamCombat(Object* a1, Object* a2)
         obj = objectFindNextAtElevation();
     }
 
-    _attackerTeamObj = a1;
-    _targetTeamObj = a2;
+    attackerTeamObj = a1;
+    targetTeamObj = a2;
 
     return 0;
 }
 
 // 0x_429210
-int _caiTeamCombatInit(Object** a1, int a2)
+int caiTeamCombatInit(Object** a1, int a2)
 {
     int v9;
     int v10;
@@ -1541,40 +1572,40 @@ int _caiTeamCombatInit(Object** a1, int a2)
         return 0;
     }
 
-    if (_attackerTeamObj == NULL) {
+    if (attackerTeamObj == NULL) {
         return 0;
     }
 
-    v9 = _attackerTeamObj->data.critter.combat.team;
-    v10 = _targetTeamObj->data.critter.combat.team;
+    v9 = attackerTeamObj->data.critter.combat.team;
+    v10 = targetTeamObj->data.critter.combat.team;
 
     for (i = 0; i < a2; i++) {
         if (a1[i]->data.critter.combat.team == v9) {
-            v8 = _targetTeamObj;
+            v8 = targetTeamObj;
         } else if (a1[i]->data.critter.combat.team == v10) {
-            v8 = _attackerTeamObj;
+            v8 = attackerTeamObj;
         } else {
             continue;
         }
 
-        a1[i]->data.critter.combat.whoHitMe = _ai_find_nearest_team(a1[i], v8, 1);
+        a1[i]->data.critter.combat.whoHitMe = ai_find_nearest_team(a1[i], v8, 1);
     }
 
-    _attackerTeamObj = NULL;
-    _targetTeamObj = NULL;
+    attackerTeamObj = NULL;
+    targetTeamObj = NULL;
 
     return 0;
 }
 
 // 0x4292C0
-void _caiTeamCombatExit()
+void caiTeamCombatExit()
 {
-    _targetTeamObj = 0;
-    _attackerTeamObj = 0;
+    targetTeamObj = 0;
+    attackerTeamObj = 0;
 }
 
 // 0x4292D4
-int _ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_ammo_obj)
+static int ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_ammo_obj)
 {
     int v9;
     Object* ammo_obj;
@@ -1615,12 +1646,12 @@ int _ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_ammo_obj
 }
 
 // 0x42938C
-bool _caiHasWeapPrefType(AiPacket* ai, int attackType)
+static bool caiHasWeapPrefType(AiPacket* ai, int attackType)
 {
     int bestWeapon = ai->best_weapon + 1;
 
     for (int index = 0; index < 5; index++) {
-        if (attackType == _weapPrefOrderings[bestWeapon][index]) {
+        if (attackType == weapPrefOrderings[bestWeapon][index]) {
             return true;
         }
     }
@@ -1629,13 +1660,13 @@ bool _caiHasWeapPrefType(AiPacket* ai, int attackType)
 }
 
 // 0x4293BC
-Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Object* defender)
+static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Object* defender)
 {
     if (attacker == NULL) {
         return NULL;
     }
 
-    AiPacket* ai = aiGetPacket(attacker);
+    AiPacket* ai = ai_cap(attacker);
     if (ai->best_weapon == BEST_WEAPON_RANDOM) {
         return randomBetween(1, 100) <= 50 ? weapon1 : weapon2;
     }
@@ -1700,7 +1731,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
 
     if (!v24) {
         for (int index = 0; index < ATTACK_TYPE_COUNT; index++) {
-            if (_weapPrefOrderings[ai->best_weapon + 1][index] == attackType1) {
+            if (weapPrefOrderings[ai->best_weapon + 1][index] == attackType1) {
                 v26 = index;
                 break;
             }
@@ -1745,7 +1776,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
 
     if (!v23) {
         for (int index = 0; index < ATTACK_TYPE_COUNT; index++) {
-            if (_weapPrefOrderings[ai->best_weapon + 1][index] == attackType2) {
+            if (weapPrefOrderings[ai->best_weapon + 1][index] == attackType2) {
                 v25 = index;
                 break;
             }
@@ -1781,7 +1812,7 @@ Object* _ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2, Obje
 }
 
 // 0x4298EC
-bool _ai_can_use_weapon(Object* critter, Object* weapon, int hitMode)
+static bool ai_can_use_weapon(Object* critter, Object* weapon, int hitMode)
 {
     int damageFlags = critter->data.critter.combat.results;
     if ((damageFlags & DAM_CRIP_ARM_LEFT) != 0 && (damageFlags & DAM_CRIP_ARM_RIGHT) != 0) {
@@ -1801,17 +1832,17 @@ bool _ai_can_use_weapon(Object* critter, Object* weapon, int hitMode)
     }
 
     int skill = weaponGetSkillForHitMode(weapon, hitMode);
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
     if (skillGetValue(critter, skill) < ai->min_to_hit) {
         return false;
     }
 
     int attackType = weaponGetAttackTypeForHitMode(weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY);
-    return _caiHasWeapPrefType(ai, attackType) != 0;
+    return caiHasWeapPrefType(ai, attackType) != 0;
 }
 
 // 0x4299A0
-Object* _ai_search_inven_weap(Object* critter, int a2, Object* a3)
+Object* ai_search_inven_weap(Object* critter, int a2, Object* a3)
 {
     int bodyType = critterGetBodyType(critter);
     if (bodyType != BODY_TYPE_BIPED
@@ -1839,19 +1870,19 @@ Object* _ai_search_inven_weap(Object* critter, int a2, Object* a3)
             }
         }
 
-        if (!_ai_can_use_weapon(critter, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY)) {
+        if (!ai_can_use_weapon(critter, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY)) {
             continue;
         }
 
         if (weaponGetAttackTypeForHitMode(weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY) == ATTACK_TYPE_RANGED) {
             if (ammoGetQuantity(weapon) == 0) {
-                if (!_ai_have_ammo(critter, weapon, NULL)) {
+                if (!ai_have_ammo(critter, weapon, NULL)) {
                     continue;
                 }
             }
         }
 
-        bestWeapon = _ai_best_weapon(critter, bestWeapon, weapon, a3);
+        bestWeapon = ai_best_weapon(critter, bestWeapon, weapon, a3);
     }
 
     return bestWeapon;
@@ -1860,7 +1891,7 @@ Object* _ai_search_inven_weap(Object* critter, int a2, Object* a3)
 // Finds new best armor (other than what's already equipped) based on the armor score.
 //
 // 0x429A6C
-Object* _ai_search_inven_armor(Object* critter)
+Object* ai_search_inven_armor(Object* critter)
 {
     if (!objectIsPartyMember(critter)) {
         return NULL;
@@ -1914,7 +1945,7 @@ Object* _ai_search_inven_armor(Object* critter)
 // and the iteam is a something healing.
 //
 // 0x429B44
-bool aiCanUseItem(Object* critter, Object* item)
+static bool ai_can_use_drug(Object* critter, Object* item)
 {
     if (critter == NULL) {
         return false;
@@ -1924,7 +1955,7 @@ bool aiCanUseItem(Object* critter, Object* item)
         return false;
     }
 
-    AiPacket* ai = aiGetPacketByNum(critter->data.critter.combat.aiPacket);
+    AiPacket* ai = ai_cap_from_packet(critter->data.critter.combat.aiPacket);
     if (ai == NULL) {
         return false;
     }
@@ -1965,7 +1996,7 @@ bool aiCanUseItem(Object* critter, Object* item)
 // Find best item type to use?
 //
 // 0x429C18
-Object* _ai_search_environ(Object* critter, int itemType)
+static Object* ai_search_environ(Object* critter, int itemType)
 {
     if (critterGetBodyType(critter) != BODY_TYPE_BIPED) {
         return NULL;
@@ -1978,7 +2009,7 @@ Object* _ai_search_environ(Object* critter, int itemType)
     }
 
     // NOTE: Uninline.
-    _ai_sort_list_distance(objects, count, critter);
+    ai_sort_list_distance(objects, count, critter);
 
     int perception = critterGetStat(critter, STAT_PERCEPTION) + 5;
     Object* item2 = critterGetItem2(critter);
@@ -1995,7 +2026,7 @@ Object* _ai_search_environ(Object* critter, int itemType)
         if (itemGetType(item) == itemType) {
             switch (itemType) {
             case ITEM_TYPE_WEAPON:
-                if (_ai_can_use_weapon(critter, item, HIT_MODE_RIGHT_WEAPON_PRIMARY)) {
+                if (ai_can_use_weapon(critter, item, HIT_MODE_RIGHT_WEAPON_PRIMARY)) {
                     foundItem = item;
                 }
                 break;
@@ -2006,7 +2037,7 @@ Object* _ai_search_environ(Object* critter, int itemType)
                 break;
             case ITEM_TYPE_DRUG:
             case ITEM_TYPE_MISC:
-                if (aiCanUseItem(critter, item)) {
+                if (ai_can_use_drug(critter, item)) {
                     foundItem = item;
                 }
                 break;
@@ -2024,7 +2055,7 @@ Object* _ai_search_environ(Object* critter, int itemType)
 }
 
 // 0x429D60
-Object* _ai_retrieve_object(Object* a1, Object* a2)
+static Object* ai_retrieve_object(Object* a1, Object* a2)
 {
     if (action_get_an_object(a1, a2) != 0) {
         return NULL;
@@ -2045,7 +2076,7 @@ Object* _ai_retrieve_object(Object* a1, Object* a2)
 }
 
 // 0x429DB4
-int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
+static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
 {
     if (a2 == NULL) {
         return HIT_MODE_PUNCH;
@@ -2057,13 +2088,13 @@ int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
 
     int attackType = weaponGetAttackTypeForHitMode(a2, HIT_MODE_RIGHT_WEAPON_SECONDARY);
     int intelligence = critterGetStat(a1, STAT_INTELLIGENCE);
-    if (attackType == ATTACK_TYPE_NONE || !_ai_can_use_weapon(a1, a2, HIT_MODE_RIGHT_WEAPON_SECONDARY)) {
+    if (attackType == ATTACK_TYPE_NONE || !ai_can_use_weapon(a1, a2, HIT_MODE_RIGHT_WEAPON_SECONDARY)) {
         return HIT_MODE_RIGHT_WEAPON_PRIMARY;
     }
 
     bool useSecondaryMode = false;
 
-    AiPacket* ai = aiGetPacket(a1);
+    AiPacket* ai = ai_cap(a1);
     if (ai == NULL) {
         return HIT_MODE_PUNCH;
     }
@@ -2106,14 +2137,14 @@ int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
     }
 
     if (useSecondaryMode) {
-        if (!_caiHasWeapPrefType(ai, attackType)) {
+        if (!caiHasWeapPrefType(ai, attackType)) {
             useSecondaryMode = false;
         }
     }
 
     if (useSecondaryMode) {
         if (attackType != ATTACK_TYPE_THROW
-            || _ai_search_inven_weap(a1, 0, a3) != NULL
+            || ai_search_inven_weap(a1, 0, a3) != NULL
             || statRoll(a1, STAT_INTELLIGENCE, 0, NULL) <= 1) {
             return HIT_MODE_RIGHT_WEAPON_SECONDARY;
         }
@@ -2123,13 +2154,13 @@ int _ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
 }
 
 // 0x429FC8
-int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
+static int ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
 {
     if (actionPoints <= 0) {
         return -1;
     }
 
-    int distance = aiGetPacket(a1)->distance;
+    int distance = ai_cap(a1)->distance;
     if (distance == DISTANCE_STAY) {
         return -1;
     }
@@ -2150,7 +2181,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
     register_begin(ANIMATION_REQUEST_RESERVED);
 
     if (a4) {
-        _combatai_msg(a1, NULL, AI_MESSAGE_TYPE_MOVE, 0);
+        combatai_msg(a1, NULL, AI_MESSAGE_TYPE_MOVE, 0);
     }
 
     Object* v18 = a2;
@@ -2188,7 +2219,7 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
 
     int tile = a2->tile;
     if (a2 == v18) {
-        _cai_retargetTileFromFriendlyFire(a1, a2, &tile);
+        cai_retargetTileFromFriendlyFire(a1, a2, &tile);
     }
 
     if (actionPoints >= critterGetStat(a1, STAT_MAXIMUM_ACTION_POINTS) / 2 && artCritterFidShouldRun(a1->fid)) {
@@ -2217,13 +2248,13 @@ int _ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4)
 // NOTE: Inlined.
 //
 // 0x42A1C0
-int _ai_move_closer(Object* a1, Object* a2, int a3)
+static int ai_move_closer(Object* a1, Object* a2, int a3)
 {
-    return _ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, a3);
+    return ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, a3);
 }
 
 // 0x42A1D4
-int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr)
+static int cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tilePtr)
 {
     if (source == NULL) {
         return -1;
@@ -2241,7 +2272,7 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
         return -1;
     }
 
-    if (_curr_crit_num == 0) {
+    if (curr_crit_num == 0) {
         return -1;
     }
 
@@ -2251,7 +2282,7 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
     aiRetargetData.source = source;
     aiRetargetData.target = target;
     aiRetargetData.sourceTeam = source->data.critter.combat.team;
-    aiRetargetData.sourceRating = _combatai_rating(source);
+    aiRetargetData.sourceRating = combatai_rating(source);
     aiRetargetData.critterCount = 0;
     aiRetargetData.tiles = tiles;
     aiRetargetData.notSameTile = *tilePtr != source->tile;
@@ -2262,13 +2293,13 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
         tiles[index] = -1;
     }
 
-    for (int index = 0; index < _curr_crit_num; index++) {
-        Object* obj = _curr_crit_list[index];
+    for (int index = 0; index < curr_crit_num; index++) {
+        Object* obj = curr_crit_list[index];
         if ((obj->data.critter.combat.results & DAM_DEAD) == 0
             && obj->data.critter.combat.team == aiRetargetData.sourceTeam
             && combatAIInfoGetLastTarget(obj) == aiRetargetData.target
             && obj != aiRetargetData.source) {
-            int rating = _combatai_rating(obj);
+            int rating = combatai_rating(obj);
             if (rating >= aiRetargetData.sourceRating) {
                 aiRetargetData.critterList[aiRetargetData.critterCount] = obj;
                 aiRetargetData.ratingList[aiRetargetData.critterCount] = rating;
@@ -2278,9 +2309,9 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
     }
 
     // NOTE: Uninline.
-    _ai_sort_list_distance(aiRetargetData.critterList, aiRetargetData.critterCount, source);
+    ai_sort_list_distance(aiRetargetData.critterList, aiRetargetData.critterCount, source);
 
-    if (_cai_retargetTileFromFriendlyFireSubFunc(&aiRetargetData, *tilePtr) == 0) {
+    if (cai_retargetTileFromFriendlyFireSubFunc(&aiRetargetData, *tilePtr) == 0) {
         int minDistance = 99999;
         int minDistanceIndex = -1;
 
@@ -2308,7 +2339,7 @@ int _cai_retargetTileFromFriendlyFire(Object* source, Object* target, int* tileP
 }
 
 // 0x42A410
-int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile)
+static int cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int tile)
 {
     if (aiRetargetData->sourceIntelligence <= 0) {
         return 0;
@@ -2318,7 +2349,7 @@ int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int
 
     for (int index = 0; index < aiRetargetData->critterCount; index++) {
         Object* critter = aiRetargetData->critterList[index];
-        if (_cai_attackWouldIntersect(critter, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
+        if (cai_attackWouldIntersect(critter, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
             debugPrint("In the way!");
 
             aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tileGetTileInDirection(tile, (critter->rotation + 1) % ROTATION_COUNT, distance);
@@ -2334,7 +2365,7 @@ int _cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetData, int
 }
 
 // 0x42A518
-bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attackerFriend, int tile, int* distance)
+static bool cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attackerFriend, int tile, int* distance)
 {
     int hitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
     bool aiming = false;
@@ -2363,17 +2394,17 @@ bool _cai_attackWouldIntersect(Object* attacker, Object* defender, Object* attac
 }
 
 // 0x42A5B8
-int _ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4)
+static int ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4)
 {
     *weapon = NULL;
     *hitMode = HIT_MODE_PUNCH;
 
-    Object* bestWeapon = _ai_search_inven_weap(a1, 1, a4);
+    Object* bestWeapon = ai_search_inven_weap(a1, 1, a4);
     if (bestWeapon != NULL) {
         *weapon = bestWeapon;
-        *hitMode = _ai_pick_hit_mode(a1, bestWeapon, a4);
+        *hitMode = ai_pick_hit_mode(a1, bestWeapon, a4);
     } else {
-        Object* v8 = _ai_search_environ(a1, ITEM_TYPE_WEAPON);
+        Object* v8 = ai_search_environ(a1, ITEM_TYPE_WEAPON);
         if (v8 == NULL) {
             if (_item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
                 return 0;
@@ -2382,10 +2413,10 @@ int _ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4)
             return -1;
         }
 
-        Object* v9 = _ai_retrieve_object(a1, v8);
+        Object* v9 = ai_retrieve_object(a1, v8);
         if (v9 != NULL) {
             *weapon = v9;
-            *hitMode = _ai_pick_hit_mode(a1, v9, a4);
+            *hitMode = ai_pick_hit_mode(a1, v9, a4);
         }
     }
 
@@ -2401,7 +2432,7 @@ int _ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* a4)
 }
 
 // 0x42A670
-int _ai_called_shot(Object* a1, Object* a2, int a3)
+static int ai_called_shot(Object* a1, Object* a2, int a3)
 {
     AiPacket* ai;
     int v5;
@@ -2413,7 +2444,7 @@ int _ai_called_shot(Object* a1, Object* a2, int a3)
 
     if (_item_w_mp_cost(a1, a3, 1) <= a1->data.critter.combat.ap) {
         if (_item_w_called_shot(a1, a3)) {
-            ai = aiGetPacket(a1);
+            ai = ai_cap(a1);
             if (randomBetween(1, ai->called_freq) == 1) {
                 combat_difficulty = 1;
                 configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
@@ -2442,7 +2473,7 @@ int _ai_called_shot(Object* a1, Object* a2, int a3)
 }
 
 // 0x42A748
-int _ai_attack(Object* a1, Object* a2, int a3)
+static int ai_attack(Object* a1, Object* a2, int a3)
 {
     int v6;
 
@@ -2455,7 +2486,7 @@ int _ai_attack(Object* a1, Object* a2, int a3)
     register_end();
     combat_turn_run();
 
-    v6 = _ai_called_shot(a1, a2, a3);
+    v6 = ai_called_shot(a1, a2, a3);
     if (combat_attack(a1, a2, a3, v6)) {
         return -1;
     }
@@ -2466,7 +2497,7 @@ int _ai_attack(Object* a1, Object* a2, int a3)
 }
 
 // 0x42A7D8
-int _ai_try_attack(Object* a1, Object* a2)
+static int ai_try_attack(Object* a1, Object* a2)
 {
     _critter_set_who_hit_me(a1, a2);
 
@@ -2478,8 +2509,8 @@ int _ai_try_attack(Object* a1, Object* a2)
         weapon = NULL;
     }
 
-    int hitMode = _ai_pick_hit_mode(a1, weapon, a2);
-    int minToHit = aiGetPacket(a1)->min_to_hit;
+    int hitMode = ai_pick_hit_mode(a1, weapon, a2);
+    int minToHit = ai_cap(a1)->min_to_hit;
 
     int actionPoints = a1->data.critter.combat.ap;
     int v31 = 0;
@@ -2489,10 +2520,10 @@ int _ai_try_attack(Object* a1, Object* a2)
             && ((a2->fid & 0xF000) >> 12 == 0)
             && art_exists(art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_THROW_PUNCH, 0, a1->rotation + 1)))) {
         if (combat_safety_invalidate_weapon(a1, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a2, &v31)) {
-            _ai_switch_weapons(a1, &hitMode, &weapon, a2);
+            ai_switch_weapons(a1, &hitMode, &weapon, a2);
         }
     } else {
-        _ai_switch_weapons(a1, &hitMode, &weapon, a2);
+        ai_switch_weapons(a1, &hitMode, &weapon, a2);
     }
 
     unsigned char v30[800];
@@ -2506,7 +2537,7 @@ int _ai_try_attack(Object* a1, Object* a2)
         int reason = combat_check_bad_shot(a1, a2, hitMode, false);
         if (reason == COMBAT_BAD_SHOT_NO_AMMO) {
             // out of ammo
-            if (_ai_have_ammo(a1, weapon, &ammo)) {
+            if (ai_have_ammo(a1, weapon, &ammo)) {
                 int v9 = _item_w_reload(weapon, ammo);
                 if (v9 == 0 && ammo != NULL) {
                     _obj_destroy(ammo);
@@ -2516,7 +2547,7 @@ int _ai_try_attack(Object* a1, Object* a2)
                     int volume = _gsound_compute_relative_volume(a1);
                     const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon, hitMode, NULL);
                     _gsound_play_sfx_file_volume(sfx, volume);
-                    _ai_magic_hands(a1, weapon, 5002);
+                    ai_magic_hands(a1, weapon, 5002);
 
                     int actionPoints = a1->data.critter.combat.ap;
                     if (actionPoints >= 2) {
@@ -2526,9 +2557,9 @@ int _ai_try_attack(Object* a1, Object* a2)
                     }
                 }
             } else {
-                ammo = _ai_search_environ(a1, ITEM_TYPE_AMMO);
+                ammo = ai_search_environ(a1, ITEM_TYPE_AMMO);
                 if (ammo != NULL) {
-                    ammo = _ai_retrieve_object(a1, ammo);
+                    ammo = ai_retrieve_object(a1, ammo);
                     if (ammo != NULL) {
                         int v15 = _item_w_reload(weapon, ammo);
                         if (v15 == 0) {
@@ -2539,7 +2570,7 @@ int _ai_try_attack(Object* a1, Object* a2)
                             int volume = _gsound_compute_relative_volume(a1);
                             const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon, hitMode, NULL);
                             _gsound_play_sfx_file_volume(sfx, volume);
-                            _ai_magic_hands(a1, weapon, 5002);
+                            ai_magic_hands(a1, weapon, 5002);
 
                             int actionPoints = a1->data.critter.combat.ap;
                             if (actionPoints >= 2) {
@@ -2553,20 +2584,20 @@ int _ai_try_attack(Object* a1, Object* a2)
                     int volume = _gsound_compute_relative_volume(a1);
                     const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, weapon, hitMode, NULL);
                     _gsound_play_sfx_file_volume(sfx, volume);
-                    _ai_magic_hands(a1, weapon, 5001);
+                    ai_magic_hands(a1, weapon, 5001);
 
                     if (_inven_unwield(a1, 1) == 0) {
                         combat_turn_run();
                     }
 
-                    _ai_switch_weapons(a1, &hitMode, &weapon, a2);
+                    ai_switch_weapons(a1, &hitMode, &weapon, a2);
                 }
             }
         } else if (reason == COMBAT_BAD_SHOT_NOT_ENOUGH_AP || reason == COMBAT_BAD_SHOT_ARM_CRIPPLED || reason == COMBAT_BAD_SHOT_BOTH_ARMS_CRIPPLED) {
             // 3 - not enough action points
             // 6 - crippled one arm for two-handed weapon
             // 7 - both hands crippled
-            if (_ai_switch_weapons(a1, &hitMode, &weapon, a2) == -1) {
+            if (ai_switch_weapons(a1, &hitMode, &weapon, a2) == -1) {
                 return -1;
             }
         } else if (reason == COMBAT_BAD_SHOT_OUT_OF_RANGE) {
@@ -2575,19 +2606,19 @@ int _ai_try_attack(Object* a1, Object* a2)
             if (accuracy < minToHit) {
                 const char* name = critterGetName(a1);
                 debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
-                _ai_run_away(a1, a2);
+                ai_run_away(a1, a2);
                 return 0;
             }
 
             if (weapon != NULL) {
-                if (_ai_move_steps_closer(a1, a2, actionPoints, v38) == -1) {
+                if (ai_move_steps_closer(a1, a2, actionPoints, v38) == -1) {
                     return -1;
                 }
                 v38 = 0;
             } else {
-                if (_ai_switch_weapons(a1, &hitMode, &weapon, a2) == -1 || weapon == NULL) {
+                if (ai_switch_weapons(a1, &hitMode, &weapon, a2) == -1 || weapon == NULL) {
                     // NOTE: Uninline.
-                    if (_ai_move_closer(a1, a2, v38) == -1) {
+                    if (ai_move_closer(a1, a2, v38) == -1) {
                         return -1;
                     }
                 }
@@ -2595,14 +2626,14 @@ int _ai_try_attack(Object* a1, Object* a2)
             }
         } else if (reason == COMBAT_BAD_SHOT_AIM_BLOCKED) {
             // aim is blocked
-            if (_ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, v38) == -1) {
+            if (ai_move_steps_closer(a1, a2, a1->data.critter.combat.ap, v38) == -1) {
                 return -1;
             }
             v38 = 0;
         } else if (reason == COMBAT_BAD_SHOT_OK) {
             int accuracy = determine_to_hit(a1, a2, HIT_LOCATION_UNCALLED, hitMode);
             if (v31) {
-                if (_ai_move_away(a1, a2, v31) == -1) {
+                if (ai_move_away(a1, a2, v31) == -1) {
                     return -1;
                 }
             }
@@ -2612,7 +2643,7 @@ int _ai_try_attack(Object* a1, Object* a2)
                 if (v22 < minToHit) {
                     const char* name = critterGetName(a1);
                     debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
-                    _ai_run_away(a1, a2);
+                    ai_run_away(a1, a2);
                     return 0;
                 }
 
@@ -2644,19 +2675,19 @@ int _ai_try_attack(Object* a1, Object* a2)
                     }
                 }
 
-                if (_ai_move_steps_closer(a1, a2, v42, v38) == -1) {
+                if (ai_move_steps_closer(a1, a2, v42, v38) == -1) {
                     const char* name = critterGetName(a1);
                     debugPrint("%s: FLEEING: Can't possibly get closer to Target!", name);
-                    _ai_run_away(a1, a2);
+                    ai_run_away(a1, a2);
                     return 0;
                 }
 
                 v38 = 0;
-                if (_ai_attack(a1, a2, hitMode) == -1 || _item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
+                if (ai_attack(a1, a2, hitMode) == -1 || _item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
                     return -1;
                 }
             } else {
-                if (_ai_attack(a1, a2, hitMode) == -1 || _item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
+                if (ai_attack(a1, a2, hitMode) == -1 || _item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
                     return -1;
                 }
             }
@@ -2669,7 +2700,7 @@ int _ai_try_attack(Object* a1, Object* a2)
 // Something with using flare
 //
 // 0x42AE90
-int _cAIPrepWeaponItem(Object* critter, Object* item)
+int cAIPrepWeaponItem(Object* critter, Object* item)
 {
     if (item != NULL && critterGetStat(critter, STAT_INTELLIGENCE) >= 3 && item->pid == PROTO_ID_FLARE && lightGetLightLevel() < 55705) {
         _protinst_use_item(critter, item);
@@ -2678,7 +2709,7 @@ int _cAIPrepWeaponItem(Object* critter, Object* item)
 }
 
 // 0x42AECC
-void _cai_attempt_w_reload(Object* critter_obj, int a2)
+void cai_attempt_w_reload(Object* critter_obj, int a2)
 {
     Object* weapon_obj;
     Object* ammo_obj;
@@ -2693,7 +2724,7 @@ void _cai_attempt_w_reload(Object* critter_obj, int a2)
     }
 
     v5 = ammoGetQuantity(weapon_obj);
-    if (v5 < ammoGetCapacity(weapon_obj) && _ai_have_ammo(critter_obj, weapon_obj, &ammo_obj)) {
+    if (v5 < ammoGetCapacity(weapon_obj) && ai_have_ammo(critter_obj, weapon_obj, &ammo_obj)) {
         v9 = _item_w_reload(weapon_obj, ammo_obj);
         if (v9 == 0) {
             _obj_destroy(ammo_obj);
@@ -2704,45 +2735,45 @@ void _cai_attempt_w_reload(Object* critter_obj, int a2)
             sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon_obj, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
             _gsound_play_sfx_file_volume(sfx, v10);
             if (a2) {
-                _ai_magic_hands(critter_obj, weapon_obj, 5002);
+                ai_magic_hands(critter_obj, weapon_obj, 5002);
             }
         }
     }
 }
 
 // 0x42AF78
-void _combat_ai_begin(int a1, void* a2)
+void combat_ai_begin(int a1, void* a2)
 {
-    _curr_crit_num = a1;
+    curr_crit_num = a1;
 
     if (a1 != 0) {
-        _curr_crit_list = (Object**)internal_malloc(sizeof(Object*) * a1);
-        if (_curr_crit_list) {
-            memcpy(_curr_crit_list, a2, sizeof(Object*) * a1);
+        curr_crit_list = (Object**)internal_malloc(sizeof(Object*) * a1);
+        if (curr_crit_list) {
+            memcpy(curr_crit_list, a2, sizeof(Object*) * a1);
         } else {
-            _curr_crit_num = 0;
+            curr_crit_num = 0;
         }
     }
 }
 
 // 0x42AFBC
-void _combat_ai_over()
+void combat_ai_over()
 {
-    if (_curr_crit_num) {
-        internal_free(_curr_crit_list);
+    if (curr_crit_num) {
+        internal_free(curr_crit_list);
     }
 
-    _curr_crit_num = 0;
+    curr_crit_num = 0;
 }
 
 // 0x42AFDC
-int _cai_perform_distance_prefs(Object* a1, Object* a2)
+static int cai_perform_distance_prefs(Object* a1, Object* a2)
 {
     if (a1->data.critter.combat.ap <= 0) {
         return -1;
     }
 
-    int distance = aiGetPacket(a1)->distance;
+    int distance = ai_cap(a1)->distance;
 
     if (a2 != NULL) {
         if ((a2->data.critter.combat.ap & DAM_DEAD) != 0) {
@@ -2755,28 +2786,28 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
         if (a1->data.critter.combat.whoHitMe != gDude) {
             int distance = objectGetDistanceBetween(a1, gDude);
             if (distance > 5) {
-                _ai_move_steps_closer(a1, gDude, distance - 5, 0);
+                ai_move_steps_closer(a1, gDude, distance - 5, 0);
             }
         }
         break;
     case DISTANCE_CHARGE:
         if (a2 != NULL) {
             // NOTE: Uninline.
-            _ai_move_closer(a1, a2, 1);
+            ai_move_closer(a1, a2, 1);
         }
         break;
     case DISTANCE_SNIPE:
         if (a2 != NULL) {
             if (objectGetDistanceBetween(a1, a2) < 10) {
                 // NOTE: some odd code omitted
-                _ai_move_away(a1, a2, 10);
+                ai_move_away(a1, a2, 10);
             }
         }
         break;
     }
 
     int tile = a1->tile;
-    if (_cai_retargetTileFromFriendlyFire(a1, a2, &tile) == 0 && tile != a1->tile) {
+    if (cai_retargetTileFromFriendlyFire(a1, a2, &tile) == 0 && tile != a1->tile) {
         register_begin(ANIMATION_REQUEST_RESERVED);
         register_object_move_to_tile(a1, tile, a1->elevation, a1->data.critter.combat.ap, 0);
         if (register_end() != 0) {
@@ -2789,7 +2820,7 @@ int _cai_perform_distance_prefs(Object* a1, Object* a2)
 }
 
 // 0x42B100
-int _cai_get_min_hp(AiPacket* ai)
+static int cai_get_min_hp(AiPacket* ai)
 {
     if (ai == NULL) {
         return 0;
@@ -2797,7 +2828,7 @@ int _cai_get_min_hp(AiPacket* ai)
 
     int run_away_mode = ai->run_away_mode;
     if (run_away_mode >= 0 && run_away_mode < RUN_AWAY_MODE_COUNT) {
-        return _hp_run_away_value[run_away_mode];
+        return runModeValues[run_away_mode];
     } else if (run_away_mode == -1) {
         return ai->min_hp;
     }
@@ -2806,10 +2837,19 @@ int _cai_get_min_hp(AiPacket* ai)
 }
 
 // 0x42B130
-void _combat_ai(Object* a1, Object* a2)
+void combat_ai(Object* a1, Object* a2)
 {
-    AiPacket* ai = aiGetPacket(a1);
-    int hpRatio = _cai_get_min_hp(ai);
+    // 0x51820C
+    static int aiPartyMemberDistances[DISTANCE_COUNT] = {
+        5,
+        7,
+        7,
+        7,
+        50000,
+    };
+
+    AiPacket* ai = ai_cap(a1);
+    int hpRatio = cai_get_min_hp(ai);
     if (ai->run_away_mode != -1) {
         int v7 = critterGetStat(a1, STAT_MAXIMUM_HIT_POINTS) * hpRatio / 100;
         int minimumHitPoints = critterGetStat(a1, STAT_MAXIMUM_HIT_POINTS) - v7;
@@ -2824,23 +2864,23 @@ void _combat_ai(Object* a1, Object* a2)
         || critterGetStat(a1, STAT_CURRENT_HIT_POINTS) < ai->min_hp) {
         const char* name = critterGetName(a1);
         debugPrint("%s: FLEEING: I'm Hurt!", name);
-        _ai_run_away(a1, a2);
+        ai_run_away(a1, a2);
         return;
     }
 
-    if (_ai_check_drugs(a1)) {
+    if (ai_check_drugs(a1)) {
         const char* name = critterGetName(a1);
         debugPrint("%s: FLEEING: I need DRUGS!", name);
-        _ai_run_away(a1, a2);
+        ai_run_away(a1, a2);
     } else {
         if (a2 == NULL) {
-            a2 = _ai_danger_source(a1);
+            a2 = ai_danger_source(a1);
         }
 
-        _cai_perform_distance_prefs(a1, a2);
+        cai_perform_distance_prefs(a1, a2);
 
         if (a2 != NULL) {
-            _ai_try_attack(a1, a2);
+            ai_try_attack(a1, a2);
         }
     }
 
@@ -2850,11 +2890,11 @@ void _combat_ai(Object* a1, Object* a2)
         && objectGetDistanceBetween(a1, a2) > ai->max_dist) {
         Object* v13 = combatAIInfoGetFriendlyDead(a1);
         if (v13 != NULL) {
-            _ai_move_away(a1, v13, 10);
+            ai_move_away(a1, v13, 10);
             combatAIInfoSetFriendlyDead(a1, NULL);
         } else {
             int perception = critterGetStat(a1, STAT_PERCEPTION);
-            if (!_ai_find_friend(a1, perception * 2, 5)) {
+            if (!ai_find_friend(a1, perception * 2, 5)) {
                 combatData->maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;
             }
         }
@@ -2866,12 +2906,12 @@ void _combat_ai(Object* a1, Object* a2)
             if ((whoHitMe->data.critter.combat.results & DAM_DEAD) == 0 && combatData->damageLastTurn > 0) {
                 Object* v16 = combatAIInfoGetFriendlyDead(a1);
                 if (v16 != NULL) {
-                    _ai_move_away(a1, v16, 10);
+                    ai_move_away(a1, v16, 10);
                     combatAIInfoSetFriendlyDead(a1, NULL);
                 } else {
                     const char* name = critterGetName(a1);
                     debugPrint("%s: FLEEING: Somebody is shooting at me that I can't see!");
-                    _ai_run_away(a1, NULL);
+                    ai_run_away(a1, NULL);
                 }
             }
         }
@@ -2879,7 +2919,7 @@ void _combat_ai(Object* a1, Object* a2)
 
     Object* v18 = combatAIInfoGetFriendlyDead(a1);
     if (v18 != NULL) {
-        _ai_move_away(a1, v18, 10);
+        ai_move_away(a1, v18, 10);
         if (objectGetDistanceBetween(a1, v18) >= 10) {
             combatAIInfoSetFriendlyDead(a1, NULL);
         }
@@ -2888,31 +2928,31 @@ void _combat_ai(Object* a1, Object* a2)
     Object* v20;
     int v21 = 5; // 0x42B156
     if (a1->data.critter.combat.team != 0) {
-        v20 = _ai_find_nearest_team_in_combat(a1, a1, 1);
+        v20 = ai_find_nearest_team_in_combat(a1, a1, 1);
     } else {
         v20 = gDude;
         if (objectIsPartyMember(a1)) {
             // NOTE: Uninline
-            int distance = aiGetDistance(a1);
+            int distance = ai_get_distance_pref_value(a1);
             if (distance != -1) {
-                v21 = _aiPartyMemberDistances[distance];
+                v21 = aiPartyMemberDistances[distance];
             }
         }
     }
 
     if (a2 == NULL && v20 != NULL && objectGetDistanceBetween(a1, v20) > v21) {
         int v23 = objectGetDistanceBetween(a1, v20);
-        _ai_move_steps_closer(a1, v20, v23 - v21, 0);
+        ai_move_steps_closer(a1, v20, v23 - v21, 0);
     } else {
         if (a1->data.critter.combat.ap > 0) {
             debugPrint("\n>>>NOTE: %s had extra AP's to use!<<<", critterGetName(a1));
-            _cai_perform_distance_prefs(a1, a2);
+            cai_perform_distance_prefs(a1, a2);
         }
     }
 }
 
 // 0x42B3FC
-bool _combatai_want_to_join(Object* a1)
+bool combatai_want_to_join(Object* a1)
 {
     _process_bk();
 
@@ -2950,7 +2990,7 @@ bool _combatai_want_to_join(Object* a1)
         return false;
     }
 
-    if (_ai_danger_source(a1) == NULL) {
+    if (ai_danger_source(a1) == NULL) {
         return false;
     }
 
@@ -2958,7 +2998,7 @@ bool _combatai_want_to_join(Object* a1)
 }
 
 // 0x42B4A8
-bool _combatai_want_to_stop(Object* a1)
+bool combatai_want_to_stop(Object* a1)
 {
     _process_bk();
 
@@ -2974,12 +3014,12 @@ bool _combatai_want_to_stop(Object* a1)
         return true;
     }
 
-    Object* v4 = _ai_danger_source(a1);
-    return v4 == NULL || !isWithinPerception(a1, v4);
+    Object* v4 = ai_danger_source(a1);
+    return v4 == NULL || !is_within_perception(a1, v4);
 }
 
 // 0x42B504
-int critterSetTeam(Object* obj, int team)
+int combatai_switch_team(Object* obj, int team)
 {
     if (PID_TYPE(obj->pid) != OBJ_TYPE_CRITTER) {
         return 0;
@@ -3027,7 +3067,7 @@ int critterSetTeam(Object* obj, int team)
 }
 
 // 0x42B5D4
-int critterSetAiPacket(Object* object, int aiPacket)
+int combat_ai_set_ai_packet(Object* object, int aiPacket)
 {
     if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) {
         return -1;
@@ -3049,7 +3089,7 @@ int critterSetAiPacket(Object* object, int aiPacket)
 
 // combatai_msg
 // 0x42B634
-int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
+int combatai_msg(Object* a1, Attack* attack, int type, int delay)
 {
     if (PID_TYPE(a1->pid) != OBJ_TYPE_CRITTER) {
         return -1;
@@ -3069,7 +3109,7 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
         return -1;
     }
 
-    AiPacket* ai = aiGetPacket(a1);
+    AiPacket* ai = ai_cap(a1);
 
     debugPrint("%s is using %s packet with a %d%% chance to taunt\n", objectGetName(a1), ai->name, ai->chance);
 
@@ -3085,27 +3125,27 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
     case AI_MESSAGE_TYPE_RUN:
         start = ai->run.start;
         end = ai->run.end;
-        string = _attack_str;
+        string = attack_str;
         break;
     case AI_MESSAGE_TYPE_MOVE:
         start = ai->move.start;
         end = ai->move.end;
-        string = _attack_str;
+        string = attack_str;
         break;
     case AI_MESSAGE_TYPE_ATTACK:
         start = ai->attack.start;
         end = ai->attack.end;
-        string = _attack_str;
+        string = attack_str;
         break;
     case AI_MESSAGE_TYPE_MISS:
         start = ai->miss.start;
         end = ai->miss.end;
-        string = _target_str;
+        string = target_str;
         break;
     case AI_MESSAGE_TYPE_HIT:
         start = ai->hit[attack->defenderHitLocation].start;
         end = ai->hit[attack->defenderHitLocation].end;
-        string = _target_str;
+        string = target_str;
         break;
     default:
         return -1;
@@ -3117,7 +3157,7 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
 
     MessageListItem messageListItem;
     messageListItem.num = randomBetween(start, end);
-    if (!messageListGetItem(&gCombatAiMessageList, &messageListItem)) {
+    if (!messageListGetItem(&ai_message_file, &messageListItem)) {
         debugPrint("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critterGetName(a1));
         return -1;
     }
@@ -3126,11 +3166,11 @@ int _combatai_msg(Object* a1, Attack* attack, int type, int delay)
     strncpy(string, messageListItem.text, 259);
 
     // TODO: Get rid of casts.
-    return register_object_call(a1, (void*)type, (AnimationCallback*)_ai_print_msg, delay);
+    return register_object_call(a1, (void*)type, (AnimationCallback*)ai_print_msg, delay);
 }
 
 // 0x42B80C
-int _ai_print_msg(Object* critter, int type)
+static int ai_print_msg(Object* critter, int type)
 {
     if (textObjectsGetCount() > 0) {
         return 0;
@@ -3140,14 +3180,14 @@ int _ai_print_msg(Object* critter, int type)
     switch (type) {
     case AI_MESSAGE_TYPE_HIT:
     case AI_MESSAGE_TYPE_MISS:
-        string = _target_str;
+        string = target_str;
         break;
     default:
-        string = _attack_str;
+        string = attack_str;
         break;
     }
 
-    AiPacket* ai = aiGetPacket(critter);
+    AiPacket* ai = ai_cap(critter);
 
     Rect rect;
     if (textObjectAdd(critter, string, ai->font, ai->color, ai->outline_color, &rect) == 0) {
@@ -3160,7 +3200,7 @@ int _ai_print_msg(Object* critter, int type)
 // Returns random critter for attacking as a result of critical weapon failure.
 //
 // 0x42B868
-Object* _combat_ai_random_target(Attack* attack)
+Object* combat_ai_random_target(Attack* attack)
 {
     // Looks like this function does nothing because it's result is not used. I
     // suppose it was planned to use range as a condition below, but it was
@@ -3169,12 +3209,12 @@ Object* _combat_ai_random_target(Attack* attack)
 
     Object* critter = NULL;
 
-    if (_curr_crit_num != 0) {
+    if (curr_crit_num != 0) {
         // Randomize starting critter.
-        int start = randomBetween(0, _curr_crit_num - 1);
+        int start = randomBetween(0, curr_crit_num - 1);
         int index = start;
         while (true) {
-            Object* obj = _curr_crit_list[index];
+            Object* obj = curr_crit_list[index];
             if (obj != attack->attacker
                 && obj != attack->defender
                 && can_see(attack->attacker, obj)
@@ -3184,7 +3224,7 @@ Object* _combat_ai_random_target(Attack* attack)
             }
 
             index += 1;
-            if (index == _curr_crit_num) {
+            if (index == curr_crit_num) {
                 index = 0;
             }
 
@@ -3198,7 +3238,7 @@ Object* _combat_ai_random_target(Attack* attack)
 }
 
 // 0x42B90C
-int _combatai_rating(Object* obj)
+static int combatai_rating(Object* obj)
 {
     int melee_damage;
     Object* item;
@@ -3233,12 +3273,12 @@ int _combatai_rating(Object* obj)
 }
 
 // 0x42B9D4
-int _combatai_check_retaliation(Object* a1, Object* a2)
+int combatai_check_retaliation(Object* a1, Object* a2)
 {
     Object* whoHitMe = a1->data.critter.combat.whoHitMe;
     if (whoHitMe != NULL) {
-        int v3 = _combatai_rating(a2);
-        int result = _combatai_rating(whoHitMe);
+        int v3 = combatai_rating(a2);
+        int result = combatai_rating(whoHitMe);
         if (v3 <= result) {
             return result;
         }
@@ -3247,7 +3287,7 @@ int _combatai_check_retaliation(Object* a1, Object* a2)
 }
 
 // 0x42BA04
-bool isWithinPerception(Object* a1, Object* a2)
+bool is_within_perception(Object* a1, Object* a2)
 {
     if (a2 == NULL) {
         return false;
@@ -3306,16 +3346,16 @@ bool isWithinPerception(Object* a1, Object* a2)
 // Load combatai.msg and apply language filter.
 //
 // 0x42BB34
-int aiMessageListInit()
+static int combatai_load_messages()
 {
-    if (!messageListInit(&gCombatAiMessageList)) {
+    if (!messageListInit(&ai_message_file)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", asc_5186C8, "combatai.msg");
 
-    if (!messageListLoad(&gCombatAiMessageList, path)) {
+    if (!messageListLoad(&ai_message_file, path)) {
         return -1;
     }
 
@@ -3323,7 +3363,7 @@ int aiMessageListInit()
     configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
 
     if (languageFilter) {
-        messageListFilterBadwords(&gCombatAiMessageList);
+        messageListFilterBadwords(&ai_message_file);
     }
 
     return 0;
@@ -3332,9 +3372,9 @@ int aiMessageListInit()
 // NOTE: Inlined.
 //
 // 0x42BBD8
-int aiMessageListFree()
+static int combatai_unload_messages()
 {
-    if (!messageListFree(&gCombatAiMessageList)) {
+    if (!messageListFree(&ai_message_file)) {
         return -1;
     }
 
@@ -3342,35 +3382,38 @@ int aiMessageListFree()
 }
 
 // 0x42BBF0
-void aiMessageListReloadIfNeeded()
+void combatai_refresh_messages()
 {
+    // 0x518220
+    static int old_state = -1;
+
     int languageFilter = 0;
     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
 
-    if (languageFilter != gLanguageFilter) {
-        gLanguageFilter = languageFilter;
+    if (languageFilter != old_state) {
+        old_state = languageFilter;
 
         if (languageFilter == 1) {
-            messageListFilterBadwords(&gCombatAiMessageList);
+            messageListFilterBadwords(&ai_message_file);
         } else {
             // NOTE: Uninline.
-            aiMessageListFree();
+            combatai_unload_messages();
 
-            aiMessageListInit();
+            combatai_load_messages();
         }
     }
 }
 
 // 0x42BC60
-void _combatai_notify_onlookers(Object* a1)
+void combatai_notify_onlookers(Object* a1)
 {
-    for (int index = 0; index < _curr_crit_num; index++) {
-        Object* obj = _curr_crit_list[index];
+    for (int index = 0; index < curr_crit_num; index++) {
+        Object* obj = curr_crit_list[index];
         if ((obj->data.critter.combat.maneuver & CRITTER_MANEUVER_0x01) == 0) {
-            if (isWithinPerception(obj, a1)) {
+            if (is_within_perception(obj, a1)) {
                 obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
                 if ((a1->data.critter.combat.results & DAM_DEAD) != 0) {
-                    if (!isWithinPerception(obj, obj->data.critter.combat.whoHitMe)) {
+                    if (!is_within_perception(obj, obj->data.critter.combat.whoHitMe)) {
                         debugPrint("\nSomebody Died and I don't know why!  Run!!!");
                         combatAIInfoSetFriendlyDead(obj, a1);
                     }
@@ -3381,14 +3424,14 @@ void _combatai_notify_onlookers(Object* a1)
 }
 
 // 0x42BCD4
-void _combatai_notify_friends(Object* a1)
+void combatai_notify_friends(Object* a1)
 {
     int team = a1->data.critter.combat.team;
 
-    for (int index = 0; index < _curr_crit_num; index++) {
-        Object* obj = _curr_crit_list[index];
+    for (int index = 0; index < curr_crit_num; index++) {
+        Object* obj = curr_crit_list[index];
         if ((obj->data.critter.combat.maneuver & CRITTER_MANEUVER_0x01) == 0 && team == obj->data.critter.combat.team) {
-            if (isWithinPerception(obj, a1)) {
+            if (is_within_perception(obj, a1)) {
                 obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
             }
         }
@@ -3396,14 +3439,14 @@ void _combatai_notify_friends(Object* a1)
 }
 
 // 0x42BD28
-void _combatai_delete_critter(Object* obj)
+void combatai_delete_critter(Object* obj)
 {
     // TODO: Check entire function.
-    for (int i = 0; i < _curr_crit_num; i++) {
-        if (obj == _curr_crit_list[i]) {
-            _curr_crit_num--;
-            _curr_crit_list[i] = _curr_crit_list[_curr_crit_num];
-            _curr_crit_list[_curr_crit_num] = obj;
+    for (int i = 0; i < curr_crit_num; i++) {
+        if (obj == curr_crit_list[i]) {
+            curr_crit_num--;
+            curr_crit_list[i] = curr_crit_list[curr_crit_num];
+            curr_crit_list[curr_crit_num] = obj;
             break;
         }
     }

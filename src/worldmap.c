@@ -3781,7 +3781,7 @@ int wmSetupRandomEncounter()
                                 combat.maxDamage = 500;
                                 combat.field_1C = 0;
 
-                                _caiSetupTeamCombat(v35, v0);
+                                caiSetupTeamCombat(v35, v0);
                                 _scripts_request_combat_locked(&combat);
                             }
                         } else {
@@ -3798,7 +3798,7 @@ int wmSetupRandomEncounter()
                                 combat.maxDamage = 500;
                                 combat.field_1C = 0;
 
-                                _caiSetupTeamCombat(gDude, v0);
+                                caiSetupTeamCombat(gDude, v0);
                                 _scripts_request_combat_locked(&combat);
                             }
                         }

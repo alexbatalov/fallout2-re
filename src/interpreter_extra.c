@@ -2183,7 +2183,7 @@ void opObjectCanSeeObject(Program* program)
 
             critterGetStat(object1, STAT_PERCEPTION);
 
-            if (isWithinPerception(object1, object2)) {
+            if (is_within_perception(object1, object2)) {
                 Object* a5;
                 make_straight_path(object1, object1->tile, object2->tile, NULL, &a5, 16);
                 if (a5 == object2) {
@@ -2480,7 +2480,7 @@ void opMetarule3(Program* program)
         result = tileSetCenter(data[2], TILE_SET_CENTER_REFRESH_WINDOW);
         break;
     case METARULE3_109:
-        result = aiGetChemUse((Object*)data[2]);
+        result = ai_get_chem_use_value((Object*)data[2]);
         break;
     case METARULE3_110:
         result = wmCarIsOutOfGas() ? 1 : 0;
@@ -3285,7 +3285,7 @@ void opObjectCanHearObject(Program* program)
     if (object2 == NULL || object1 == NULL) {
         if (object2->elevation == object1->elevation) {
             if (object2->tile != -1 && object1->tile != -1) {
-                if (isWithinPerception(object2, object1)) {
+                if (is_within_perception(object2, object1)) {
                     canHear = true;
                 }
             }
@@ -3661,7 +3661,7 @@ void opCritterAddTrait(Program* program)
             case CRITTER_TRAIT_OBJECT:
                 switch (param) {
                 case CRITTER_TRAIT_OBJECT_AI_PACKET:
-                    critterSetAiPacket(object, value);
+                    combat_ai_set_ai_packet(object, value);
                     break;
                 case CRITTER_TRAIT_OBJECT_TEAM:
                     if (objectIsPartyMember(object)) {
@@ -3676,7 +3676,7 @@ void opCritterAddTrait(Program* program)
                         break;
                     }
 
-                    critterSetTeam(object, value);
+                    combatai_switch_team(object, value);
                     break;
                 }
                 break;

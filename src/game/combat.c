@@ -2529,7 +2529,7 @@ static void combat_begin(Object* a1)
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
         combat_ending_guy = NULL;
         combat_begin_extra(a1);
-        _caiTeamCombatInit(combat_list, list_total);
+        caiTeamCombatInit(combat_list, list_total);
         interfaceBarEndButtonsShow(true);
         _gmouse_enable_scrolling();
 
@@ -2564,7 +2564,7 @@ static void combat_begin_extra(Object* a1)
 
     combat_turn_obj = a1;
 
-    _combat_ai_begin(list_total, combat_list);
+    combat_ai_begin(list_total, combat_list);
 
     combat_highlight = 2;
     configGetInt(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &combat_highlight);
@@ -2677,7 +2677,7 @@ static void combat_over()
         for (int index = 0; index < list_com; index++) {
             Object* critter = combat_list[index];
             if (critter != gDude) {
-                _cai_attempt_w_reload(critter, 0);
+                cai_attempt_w_reload(critter, 0);
             }
         }
     }
@@ -2748,7 +2748,7 @@ static void combat_over()
 
     list_total = 0;
 
-    _combat_ai_over();
+    combat_ai_over();
     gameUiEnable();
     gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
     interfaceRenderArmorClass(true);
@@ -2812,11 +2812,11 @@ void combat_give_exps(int exp_points)
 // 0x4222A8
 static void combat_add_noncoms()
 {
-    _combatai_notify_friends(gDude);
+    combatai_notify_friends(gDude);
 
     for (int index = list_com; index < list_com + list_noncom; index++) {
         Object* obj = combat_list[index];
-        if (_combatai_want_to_join(obj)) {
+        if (combatai_want_to_join(obj)) {
             obj->data.critter.combat.maneuver = CRITTER_MANEUVER_NONE;
 
             Object** objectPtr1 = &(combat_list[index]);
@@ -3007,7 +3007,7 @@ void combat_end()
                 int critterTeam = critter->data.critter.combat.team;
                 Object* critterWhoHitMe = critter->data.critter.combat.whoHitMe;
                 if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
-                    if (!_combatai_want_to_stop(critter)) {
+                    if (!combatai_want_to_stop(critter)) {
                         messageListItem.num = 103;
                         if (messageListGetItem(&combat_message_file, &messageListItem)) {
                             displayMonitorAddMessage(messageListItem.text);
@@ -3024,7 +3024,7 @@ void combat_end()
                 int critterTeam = critter->data.critter.combat.team;
                 Object* critterWhoHitMe = critter->data.critter.combat.whoHitMe;
                 if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
-                    if (_combatai_want_to_join(critter)) {
+                    if (combatai_want_to_join(critter)) {
                         messageListItem.num = 103;
                         if (messageListGetItem(&combat_message_file, &messageListItem)) {
                             displayMonitorAddMessage(messageListItem.text);
@@ -3037,7 +3037,7 @@ void combat_end()
     }
 
     combat_state |= COMBAT_STATE_0x08;
-    _caiTeamCombatExit();
+    caiTeamCombatExit();
 }
 
 // 0x4227DC
@@ -3215,7 +3215,7 @@ static int combat_turn(Object* a1, bool a2)
                     tileWindowRefreshRect(&rect, a1->elevation);
                 }
 
-                _combat_ai(a1, gcsd != NULL ? gcsd->defender : NULL);
+                combat_ai(a1, gcsd != NULL ? gcsd->defender : NULL);
             }
         }
 
@@ -4145,7 +4145,7 @@ static int attack_crit_failure(Attack* attack)
     }
 
     if ((attack->attackerFlags & DAM_RANDOM_HIT) != 0) {
-        attack->defender = _combat_ai_random_target(attack);
+        attack->defender = combat_ai_random_target(attack);
         if (attack->defender != NULL) {
             attack->attackerFlags |= DAM_HIT;
             attack->defenderHitLocation = HIT_LOCATION_TORSO;
@@ -4569,7 +4569,7 @@ void apply_damage(Attack* attack, bool animated)
 
     Object* v7 = attack->oops;
     if (v7 != NULL && v7 != attack->defender) {
-        _combatai_notify_onlookers(v7);
+        combatai_notify_onlookers(v7);
     }
 
     Object* defender = attack->defender;
@@ -4598,7 +4598,7 @@ void apply_damage(Attack* attack, bool animated)
                         _critter_set_who_hit_me(defender, attack->attacker);
                     }
                 } else if (defender == attack->oops || defender->data.critter.combat.team != attack->attacker->data.critter.combat.team) {
-                    _combatai_check_retaliation(defender, attack->attacker);
+                    combatai_check_retaliation(defender, attack->attacker);
                 }
             }
         }
@@ -4607,7 +4607,7 @@ void apply_damage(Attack* attack, bool animated)
         damage_object(defender, attack->defenderDamage, animated, attack->defender != attack->oops, attacker);
 
         if (defenderIsCritter) {
-            _combatai_notify_onlookers(defender);
+            combatai_notify_onlookers(defender);
         }
 
         if (attack->defenderDamage >= 0 && (attack->attackerFlags & DAM_HIT) != 0) {
@@ -4626,14 +4626,14 @@ void apply_damage(Attack* attack, bool animated)
                 if ((obj->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
                     _critter_set_who_hit_me(obj, attack->attacker);
                 } else if (obj->data.critter.combat.team != attack->attacker->data.critter.combat.team) {
-                    _combatai_check_retaliation(obj, attack->attacker);
+                    combatai_check_retaliation(obj, attack->attacker);
                 }
             }
 
             scriptSetObjects(obj->sid, attack->attacker, attack->weapon);
             // TODO: Not sure about defender == oops.
             damage_object(obj, attack->extrasDamage[index], animated, attack->defender == attack->oops, attack->attacker);
-            _combatai_notify_onlookers(obj);
+            combatai_notify_onlookers(obj);
 
             if (attack->extrasDamage[index] >= 0) {
                 if ((attack->attackerFlags & DAM_HIT) != 0) {
@@ -5870,7 +5870,7 @@ void combat_delete_critter(Object* obj)
     objectClearOutline(obj, NULL);
 
     obj->data.critter.combat.whoHitMe = NULL;
-    _combatai_delete_critter(obj);
+    combatai_delete_critter(obj);
 }
 
 // 0x426EC4

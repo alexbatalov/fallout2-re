@@ -1,5 +1,5 @@
-#ifndef COMBAT_AI_DEFS_H
-#define COMBAT_AI_DEFS_H
+#ifndef FALLOUT_GAME_COMBATAI_DEFS_H_
+#define FALLOUT_GAME_COMBATAI_DEFS_H_
 
 typedef enum AreaAttackMode {
     AREA_ATTACK_MODE_ALWAYS,
@@ -79,4 +79,4 @@ typedef enum HurtTooMuch {
     HURT_COUNT,
 } HurtTooMuch;
 
-#endif /* COMBAT_AI_DEFS_H */
+#endif /* FALLOUT_GAME_COMBATAI_DEFS_H_ */
