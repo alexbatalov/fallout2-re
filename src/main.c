@@ -8,7 +8,7 @@
 #include "character_selector.h"
 #include "color.h"
 #include "core.h"
-#include "credits.h"
+#include "game/credits.h"
 #include "cycle.h"
 #include "db.h"
 #include "debug.h"

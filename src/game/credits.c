@@ -1,4 +1,4 @@
-#include "credits.h"
+#include "game/credits.h"
 
 #include <string.h>
 
