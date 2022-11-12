@@ -1,7 +1,7 @@
 #include "queue.h"
 
 #include "game/actions.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "display_monitor.h"
 #include "game.h"
 #include "game_sound.h"

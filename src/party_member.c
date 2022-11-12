@@ -7,7 +7,7 @@
 #include "color.h"
 #include "game/combatai.h"
 #include "game/config.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "debug.h"
 #include "display_monitor.h"
 #include "game.h"

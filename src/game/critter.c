@@ -1,4 +1,4 @@
-#include "critter.h"
+#include "game/critter.h"
 
 #include <stdio.h>
 #include <string.h>

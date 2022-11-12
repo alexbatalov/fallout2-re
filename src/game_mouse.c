@@ -8,7 +8,7 @@
 #include "color.h"
 #include "game/combat.h"
 #include "core.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "draw.h"
 #include "game.h"
 #include "game_config.h"

@@ -5,7 +5,7 @@
 #include "game/anim.h"
 #include "game/automap.h"
 #include "game/combat.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "debug.h"
 #include "display_monitor.h"
 #include "game.h"

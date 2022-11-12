@@ -4,7 +4,7 @@
 
 #include "game/combat.h"
 #include "core.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "display_monitor.h"
 #include "game.h"
 #include "game_sound.h"

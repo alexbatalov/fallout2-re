@@ -6,7 +6,7 @@
 #include "character_editor.h"
 #include "color.h"
 #include "core.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "db.h"
 #include "debug.h"
 #include "draw.h"

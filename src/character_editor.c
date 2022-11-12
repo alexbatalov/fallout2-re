@@ -8,7 +8,7 @@
 #include "game/art.h"
 #include "color.h"
 #include "core.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "cycle.h"
 #include "db.h"
 #include "game/bmpdlog.h"

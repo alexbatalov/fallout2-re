@@ -11,7 +11,7 @@
 #include "game/combatai.h"
 #include "game/config.h"
 #include "core.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "cycle.h"
 #include "db.h"
 #include "game/bmpdlog.h"

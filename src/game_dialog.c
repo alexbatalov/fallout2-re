@@ -9,7 +9,7 @@
 #include "game/combat.h"
 #include "game/combatai.h"
 #include "core.h"
-#include "critter.h"
+#include "game/critter.h"
 #include "cycle.h"
 #include "debug.h"
 #include "dialog.h"
