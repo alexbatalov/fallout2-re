@@ -1418,7 +1418,7 @@ static int wmConfigInit()
             // NOTE: Uninline.
             wmTileSlotInit(tile);
 
-            tile->fid = buildFid(OBJ_TYPE_INTERFACE, artIndex, 0, 0, 0);
+            tile->fid = art_id(OBJ_TYPE_INTERFACE, artIndex, 0, 0, 0);
 
             int encounterDifficulty;
             if (configGetInt(&config, section, "encounter_difficulty", &encounterDifficulty)) {
@@ -2522,14 +2522,14 @@ static int wmAreaInit()
             city->areaId = area_idx;
 
             if (num != -1) {
-                num = buildFid(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
+                num = art_id(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
             }
 
             city->mapFid = num;
 
             if (configGetInt(&cfg, section, "townmap_label_art_idx", &num)) {
                 if (num != -1) {
-                    num = buildFid(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
+                    num = art_id(OBJ_TYPE_INTERFACE, num, 0, 0, 0);
                 }
 
                 city->labelFid = num;
@@ -3121,7 +3121,7 @@ static int wmWorldMapFunc(int a1)
                 }
 
                 wmGenData.carImageCurrentFrameIndex++;
-                if (wmGenData.carImageCurrentFrameIndex >= artGetFrameCount(wmGenData.carImageFrm)) {
+                if (wmGenData.carImageCurrentFrameIndex >= art_frame_max_frame(wmGenData.carImageFrm)) {
                     wmGenData.carImageCurrentFrameIndex = 0;
                 }
 
@@ -4522,20 +4522,20 @@ static int wmInterfaceInit()
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
-    frm = artLock(fid, &wmBkKey);
+    fid = art_id(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
+    frm = art_ptr_lock(fid, &wmBkKey);
     if (frm == NULL) {
         return -1;
     }
 
-    wmBkWidth = artGetWidth(frm, 0, 0);
-    wmBkHeight = artGetHeight(frm, 0, 0);
+    wmBkWidth = art_frame_width(frm, 0, 0);
+    wmBkHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(wmBkKey);
+    art_ptr_unlock(wmBkKey);
     wmBkKey = INVALID_CACHE_ENTRY;
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
-    wmBkArtBuf = artLockFrameData(fid, 0, 0, &wmBkKey);
+    fid = art_id(OBJ_TYPE_INTERFACE, 136, 0, 0, 0);
+    wmBkArtBuf = art_ptr_lock_data(fid, 0, 0, &wmBkKey);
     if (wmBkArtBuf == NULL) {
         return -1;
     }
@@ -4550,104 +4550,104 @@ static int wmInterfaceInit()
     for (int citySize = 0; citySize < CITY_SIZE_COUNT; citySize++) {
         CitySizeDescription* citySizeDescription = &(wmSphereData[citySize]);
 
-        fid = buildFid(OBJ_TYPE_INTERFACE, 336 + citySize, 0, 0, 0);
+        fid = art_id(OBJ_TYPE_INTERFACE, 336 + citySize, 0, 0, 0);
         citySizeDescription->fid = fid;
 
-        frm = artLock(fid, &(citySizeDescription->handle));
+        frm = art_ptr_lock(fid, &(citySizeDescription->handle));
         if (frm == NULL) {
             return -1;
         }
 
-        citySizeDescription->width = artGetWidth(frm, 0, 0);
-        citySizeDescription->height = artGetHeight(frm, 0, 0);
+        citySizeDescription->width = art_frame_width(frm, 0, 0);
+        citySizeDescription->height = art_frame_length(frm, 0, 0);
 
-        artUnlock(citySizeDescription->handle);
+        art_ptr_unlock(citySizeDescription->handle);
         citySizeDescription->handle = INVALID_CACHE_ENTRY;
 
-        citySizeDescription->data = artLockFrameData(fid, 0, 0, &(citySizeDescription->handle));
+        citySizeDescription->data = art_ptr_lock_data(fid, 0, 0, &(citySizeDescription->handle));
         // FIXME: check is obviously wrong, should be citySizeDescription->data.
         if (frm == NULL) {
             return -1;
         }
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 168, 0, 0, 0);
-    frm = artLock(fid, &(wmGenData.hotspotNormalFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 168, 0, 0, 0);
+    frm = art_ptr_lock(fid, &(wmGenData.hotspotNormalFrmHandle));
     if (frm == NULL) {
         return -1;
     }
 
-    wmGenData.hotspotFrmWidth = artGetWidth(frm, 0, 0);
-    wmGenData.hotspotFrmHeight = artGetHeight(frm, 0, 0);
+    wmGenData.hotspotFrmWidth = art_frame_width(frm, 0, 0);
+    wmGenData.hotspotFrmHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(wmGenData.hotspotNormalFrmHandle);
+    art_ptr_unlock(wmGenData.hotspotNormalFrmHandle);
     wmGenData.hotspotNormalFrmHandle = INVALID_CACHE_ENTRY;
 
     // hotspot1.frm - town map selector shape #1
-    fid = buildFid(OBJ_TYPE_INTERFACE, 168, 0, 0, 0);
-    wmGenData.hotspotNormalFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.hotspotNormalFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 168, 0, 0, 0);
+    wmGenData.hotspotNormalFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.hotspotNormalFrmHandle));
 
     // hotspot2.frm - town map selector shape #2
-    fid = buildFid(OBJ_TYPE_INTERFACE, 223, 0, 0, 0);
-    wmGenData.hotspotPressedFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.hotspotPressedFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 223, 0, 0, 0);
+    wmGenData.hotspotPressedFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.hotspotPressedFrmHandle));
     if (wmGenData.hotspotPressedFrmData == NULL) {
         return -1;
     }
 
     // wmaptarg.frm - world map move target maker #1
-    fid = buildFid(OBJ_TYPE_INTERFACE, 139, 0, 0, 0);
-    frm = artLock(fid, &(wmGenData.destinationMarkerFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 139, 0, 0, 0);
+    frm = art_ptr_lock(fid, &(wmGenData.destinationMarkerFrmHandle));
     if (frm == NULL) {
         return -1;
     }
 
-    wmGenData.destinationMarkerFrmWidth = artGetWidth(frm, 0, 0);
-    wmGenData.destinationMarkerFrmHeight = artGetHeight(frm, 0, 0);
+    wmGenData.destinationMarkerFrmWidth = art_frame_width(frm, 0, 0);
+    wmGenData.destinationMarkerFrmHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(wmGenData.destinationMarkerFrmHandle);
+    art_ptr_unlock(wmGenData.destinationMarkerFrmHandle);
     wmGenData.destinationMarkerFrmHandle = INVALID_CACHE_ENTRY;
 
     // wmaploc.frm - world map location marker
-    fid = buildFid(OBJ_TYPE_INTERFACE, 138, 0, 0, 0);
-    frm = artLock(fid, &(wmGenData.locationMarkerFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 138, 0, 0, 0);
+    frm = art_ptr_lock(fid, &(wmGenData.locationMarkerFrmHandle));
     if (frm == NULL) {
         return -1;
     }
 
-    wmGenData.locationMarkerFrmWidth = artGetWidth(frm, 0, 0);
-    wmGenData.locationMarkerFrmHeight = artGetHeight(frm, 0, 0);
+    wmGenData.locationMarkerFrmWidth = art_frame_width(frm, 0, 0);
+    wmGenData.locationMarkerFrmHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(wmGenData.locationMarkerFrmHandle);
+    art_ptr_unlock(wmGenData.locationMarkerFrmHandle);
     wmGenData.locationMarkerFrmHandle = INVALID_CACHE_ENTRY;
 
     // wmaptarg.frm - world map move target maker #1
-    fid = buildFid(OBJ_TYPE_INTERFACE, 139, 0, 0, 0);
-    wmGenData.destinationMarkerFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.destinationMarkerFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 139, 0, 0, 0);
+    wmGenData.destinationMarkerFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.destinationMarkerFrmHandle));
     if (wmGenData.destinationMarkerFrmData == NULL) {
         return -1;
     }
 
     // wmaploc.frm - world map location marker
-    fid = buildFid(OBJ_TYPE_INTERFACE, 138, 0, 0, 0);
-    wmGenData.locationMarkerFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.locationMarkerFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 138, 0, 0, 0);
+    wmGenData.locationMarkerFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.locationMarkerFrmHandle));
     if (wmGenData.locationMarkerFrmData == NULL) {
         return -1;
     }
 
     for (int index = 0; index < WORLD_MAP_ENCOUNTER_FRM_COUNT; index++) {
-        fid = buildFid(OBJ_TYPE_INTERFACE, wmRndCursorFids[index], 0, 0, 0);
-        frm = artLock(fid, &(wmGenData.encounterCursorFrmHandle[index]));
+        fid = art_id(OBJ_TYPE_INTERFACE, wmRndCursorFids[index], 0, 0, 0);
+        frm = art_ptr_lock(fid, &(wmGenData.encounterCursorFrmHandle[index]));
         if (frm == NULL) {
             return -1;
         }
 
-        wmGenData.encounterCursorFrmWidths[index] = artGetWidth(frm, 0, 0);
-        wmGenData.encounterCursorFrmHeights[index] = artGetHeight(frm, 0, 0);
+        wmGenData.encounterCursorFrmWidths[index] = art_frame_width(frm, 0, 0);
+        wmGenData.encounterCursorFrmHeights[index] = art_frame_length(frm, 0, 0);
 
-        artUnlock(wmGenData.encounterCursorFrmHandle[index]);
+        art_ptr_unlock(wmGenData.encounterCursorFrmHandle[index]);
 
         wmGenData.encounterCursorFrmHandle[index] = INVALID_CACHE_ENTRY;
-        wmGenData.encounterCursorFrmData[index] = artLockFrameData(fid, 0, 0, &(wmGenData.encounterCursorFrmHandle[index]));
+        wmGenData.encounterCursorFrmData[index] = art_ptr_lock_data(fid, 0, 0, &(wmGenData.encounterCursorFrmHandle[index]));
     }
 
     for (int index = 0; index < wmMaxTileNum; index++) {
@@ -4655,101 +4655,101 @@ static int wmInterfaceInit()
     }
 
     // wmtabs.frm - worldmap town tabs underlay
-    fid = buildFid(OBJ_TYPE_INTERFACE, 364, 0, 0, 0);
-    frm = artLock(fid, &frmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 364, 0, 0, 0);
+    frm = art_ptr_lock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
     }
 
-    wmGenData.tabsBackgroundFrmWidth = artGetWidth(frm, 0, 0);
-    wmGenData.tabsBackgroundFrmHeight = artGetHeight(frm, 0, 0);
+    wmGenData.tabsBackgroundFrmWidth = art_frame_width(frm, 0, 0);
+    wmGenData.tabsBackgroundFrmHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(frmHandle);
+    art_ptr_unlock(frmHandle);
 
-    wmGenData.tabsBackgroundFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.tabsBackgroundFrmHandle)) + wmGenData.tabsBackgroundFrmWidth * 27;
+    wmGenData.tabsBackgroundFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.tabsBackgroundFrmHandle)) + wmGenData.tabsBackgroundFrmWidth * 27;
     if (wmGenData.tabsBackgroundFrmData == NULL) {
         return -1;
     }
 
     // wmtbedge.frm - worldmap town tabs edging overlay
-    fid = buildFid(OBJ_TYPE_INTERFACE, 367, 0, 0, 0);
-    wmGenData.tabsBorderFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.tabsBorderFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 367, 0, 0, 0);
+    wmGenData.tabsBorderFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.tabsBorderFrmHandle));
     if (wmGenData.tabsBorderFrmData == NULL) {
         return -1;
     }
 
     // wmdial.frm - worldmap night/day dial
-    fid = buildFid(OBJ_TYPE_INTERFACE, 365, 0, 0, 0);
-    wmGenData.dialFrm = artLock(fid, &(wmGenData.dialFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 365, 0, 0, 0);
+    wmGenData.dialFrm = art_ptr_lock(fid, &(wmGenData.dialFrmHandle));
     if (wmGenData.dialFrm == NULL) {
         return -1;
     }
 
-    wmGenData.dialFrmWidth = artGetWidth(wmGenData.dialFrm, 0, 0);
-    wmGenData.dialFrmHeight = artGetHeight(wmGenData.dialFrm, 0, 0);
+    wmGenData.dialFrmWidth = art_frame_width(wmGenData.dialFrm, 0, 0);
+    wmGenData.dialFrmHeight = art_frame_length(wmGenData.dialFrm, 0, 0);
 
     // wmscreen - worldmap overlay screen
-    fid = buildFid(OBJ_TYPE_INTERFACE, 363, 0, 0, 0);
-    frm = artLock(fid, &frmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 363, 0, 0, 0);
+    frm = art_ptr_lock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
     }
 
-    wmGenData.carImageOverlayFrmWidth = artGetWidth(frm, 0, 0);
-    wmGenData.carImageOverlayFrmHeight = artGetHeight(frm, 0, 0);
+    wmGenData.carImageOverlayFrmWidth = art_frame_width(frm, 0, 0);
+    wmGenData.carImageOverlayFrmHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(frmHandle);
+    art_ptr_unlock(frmHandle);
 
-    wmGenData.carImageOverlayFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.carImageOverlayFrmHandle));
+    wmGenData.carImageOverlayFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.carImageOverlayFrmHandle));
     if (wmGenData.carImageOverlayFrmData == NULL) {
         return -1;
     }
 
     // wmglobe.frm - worldmap globe stamp overlay
-    fid = buildFid(OBJ_TYPE_INTERFACE, 366, 0, 0, 0);
-    frm = artLock(fid, &frmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 366, 0, 0, 0);
+    frm = art_ptr_lock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
     }
 
-    wmGenData.globeOverlayFrmWidth = artGetWidth(frm, 0, 0);
-    wmGenData.globeOverlayFrmHeight = artGetHeight(frm, 0, 0);
+    wmGenData.globeOverlayFrmWidth = art_frame_width(frm, 0, 0);
+    wmGenData.globeOverlayFrmHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(frmHandle);
+    art_ptr_unlock(frmHandle);
 
-    wmGenData.globeOverlayFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.globeOverlayFrmHandle));
+    wmGenData.globeOverlayFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.globeOverlayFrmHandle));
     if (wmGenData.globeOverlayFrmData == NULL) {
         return -1;
     }
 
     // lilredup.frm - little red button up
-    fid = buildFid(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
-    frm = artLock(fid, &frmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
+    frm = art_ptr_lock(fid, &frmHandle);
     if (frm == NULL) {
         return -1;
     }
 
-    int littleRedButtonUpWidth = artGetWidth(frm, 0, 0);
-    int littleRedButtonUpHeight = artGetHeight(frm, 0, 0);
+    int littleRedButtonUpWidth = art_frame_width(frm, 0, 0);
+    int littleRedButtonUpHeight = art_frame_length(frm, 0, 0);
 
-    artUnlock(frmHandle);
+    art_ptr_unlock(frmHandle);
 
-    wmGenData.littleRedButtonNormalFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.littleRedButtonNormalFrmHandle));
+    wmGenData.littleRedButtonNormalFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.littleRedButtonNormalFrmHandle));
 
     // lilreddn.frm - little red button down
-    fid = buildFid(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
-    wmGenData.littleRedButtonPressedFrmData = artLockFrameData(fid, 0, 0, &(wmGenData.littleRedButtonPressedFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
+    wmGenData.littleRedButtonPressedFrmData = art_ptr_lock_data(fid, 0, 0, &(wmGenData.littleRedButtonPressedFrmHandle));
 
     // months.frm - month strings for pip boy
-    fid = buildFid(OBJ_TYPE_INTERFACE, 129, 0, 0, 0);
-    wmGenData.monthsFrm = artLock(fid, &(wmGenData.monthsFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 129, 0, 0, 0);
+    wmGenData.monthsFrm = art_ptr_lock(fid, &(wmGenData.monthsFrmHandle));
     if (wmGenData.monthsFrm == NULL) {
         return -1;
     }
 
     // numbers.frm - numbers for the hit points and fatigue counters
-    fid = buildFid(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
-    wmGenData.numbersFrm = artLock(fid, &(wmGenData.numbersFrmHandle));
+    fid = art_id(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
+    wmGenData.numbersFrm = art_ptr_lock(fid, &(wmGenData.numbersFrmHandle));
     if (wmGenData.numbersFrm == NULL) {
         return -1;
     }
@@ -4788,29 +4788,29 @@ static int wmInterfaceInit()
     for (int index = 0; index < WORLDMAP_ARROW_FRM_COUNT; index++) {
         // 200 - uparwon.frm - character editor
         // 199 - uparwoff.frm - character editor
-        fid = buildFid(OBJ_TYPE_INTERFACE, 200 - index, 0, 0, 0);
-        frm = artLock(fid, &(wmGenData.scrollUpButtonFrmHandle[index]));
+        fid = art_id(OBJ_TYPE_INTERFACE, 200 - index, 0, 0, 0);
+        frm = art_ptr_lock(fid, &(wmGenData.scrollUpButtonFrmHandle[index]));
         if (frm == NULL) {
             return -1;
         }
 
-        wmGenData.scrollUpButtonFrmWidth = artGetWidth(frm, 0, 0);
-        wmGenData.scrollUpButtonFrmHeight = artGetHeight(frm, 0, 0);
-        wmGenData.scrollUpButtonFrmData[index] = artGetFrameData(frm, 0, 0);
+        wmGenData.scrollUpButtonFrmWidth = art_frame_width(frm, 0, 0);
+        wmGenData.scrollUpButtonFrmHeight = art_frame_length(frm, 0, 0);
+        wmGenData.scrollUpButtonFrmData[index] = art_frame_data(frm, 0, 0);
     }
 
     for (int index = 0; index < WORLDMAP_ARROW_FRM_COUNT; index++) {
         // 182 - dnarwon.frm - character editor
         // 181 - dnarwoff.frm - character editor
-        fid = buildFid(OBJ_TYPE_INTERFACE, 182 - index, 0, 0, 0);
-        frm = artLock(fid, &(wmGenData.scrollDownButtonFrmHandle[index]));
+        fid = art_id(OBJ_TYPE_INTERFACE, 182 - index, 0, 0, 0);
+        frm = art_ptr_lock(fid, &(wmGenData.scrollDownButtonFrmHandle[index]));
         if (frm == NULL) {
             return -1;
         }
 
-        wmGenData.scrollDownButtonFrmWidth = artGetWidth(frm, 0, 0);
-        wmGenData.scrollDownButtonFrmHeight = artGetHeight(frm, 0, 0);
-        wmGenData.scrollDownButtonFrmData[index] = artGetFrameData(frm, 0, 0);
+        wmGenData.scrollDownButtonFrmWidth = art_frame_width(frm, 0, 0);
+        wmGenData.scrollDownButtonFrmHeight = art_frame_length(frm, 0, 0);
+        wmGenData.scrollDownButtonFrmData[index] = art_frame_data(frm, 0, 0);
     }
 
     // Scroll up button.
@@ -4845,14 +4845,14 @@ static int wmInterfaceInit()
 
     if (wmGenData.isInCar) {
         // wmcarmve.frm - worldmap car movie
-        fid = buildFid(OBJ_TYPE_INTERFACE, 433, 0, 0, 0);
-        wmGenData.carImageFrm = artLock(fid, &(wmGenData.carImageFrmHandle));
+        fid = art_id(OBJ_TYPE_INTERFACE, 433, 0, 0, 0);
+        wmGenData.carImageFrm = art_ptr_lock(fid, &(wmGenData.carImageFrmHandle));
         if (wmGenData.carImageFrm == NULL) {
             return -1;
         }
 
-        wmGenData.carImageFrmWidth = artGetWidth(wmGenData.carImageFrm, 0, 0);
-        wmGenData.carImageFrmHeight = artGetHeight(wmGenData.carImageFrm, 0, 0);
+        wmGenData.carImageFrmWidth = art_frame_width(wmGenData.carImageFrm, 0, 0);
+        wmGenData.carImageFrmHeight = art_frame_length(wmGenData.carImageFrm, 0, 0);
     }
 
     tickersAdd(wmMouseBkProc);
@@ -4883,7 +4883,7 @@ static int wmInterfaceExit()
     tickersRemove(wmMouseBkProc);
 
     if (wmBkArtBuf != NULL) {
-        artUnlock(wmBkKey);
+        art_ptr_unlock(wmBkKey);
         wmBkArtBuf = NULL;
     }
     wmBkKey = INVALID_CACHE_ENTRY;
@@ -4894,28 +4894,28 @@ static int wmInterfaceExit()
     }
 
     if (wmGenData.hotspotNormalFrmHandle != INVALID_CACHE_ENTRY) {
-        artUnlock(wmGenData.hotspotNormalFrmHandle);
+        art_ptr_unlock(wmGenData.hotspotNormalFrmHandle);
     }
     wmGenData.hotspotNormalFrmData = NULL;
 
     if (wmGenData.hotspotPressedFrmHandle != INVALID_CACHE_ENTRY) {
-        artUnlock(wmGenData.hotspotPressedFrmHandle);
+        art_ptr_unlock(wmGenData.hotspotPressedFrmHandle);
     }
     wmGenData.hotspotPressedFrmData = NULL;
 
     if (wmGenData.destinationMarkerFrmHandle != INVALID_CACHE_ENTRY) {
-        artUnlock(wmGenData.destinationMarkerFrmHandle);
+        art_ptr_unlock(wmGenData.destinationMarkerFrmHandle);
     }
     wmGenData.destinationMarkerFrmData = NULL;
 
     if (wmGenData.locationMarkerFrmHandle != INVALID_CACHE_ENTRY) {
-        artUnlock(wmGenData.locationMarkerFrmHandle);
+        art_ptr_unlock(wmGenData.locationMarkerFrmHandle);
     }
     wmGenData.locationMarkerFrmData = NULL;
 
     for (i = 0; i < 4; i++) {
         if (wmGenData.encounterCursorFrmHandle[i] != INVALID_CACHE_ENTRY) {
-            artUnlock(wmGenData.encounterCursorFrmHandle[i]);
+            art_ptr_unlock(wmGenData.encounterCursorFrmHandle[i]);
         }
         wmGenData.encounterCursorFrmData[i] = NULL;
     }
@@ -4923,7 +4923,7 @@ static int wmInterfaceExit()
     for (i = 0; i < CITY_SIZE_COUNT; i++) {
         CitySizeDescription* citySizeDescription = &(wmSphereData[i]);
         // FIXME: probably unsafe code, no check for -1
-        artUnlock(citySizeDescription->handle);
+        art_ptr_unlock(citySizeDescription->handle);
         citySizeDescription->handle = INVALID_CACHE_ENTRY;
         citySizeDescription->data = NULL;
     }
@@ -4931,7 +4931,7 @@ static int wmInterfaceExit()
     for (i = 0; i < wmMaxTileNum; i++) {
         tile = &(wmTileInfoList[i]);
         if (tile->handle != INVALID_CACHE_ENTRY) {
-            artUnlock(tile->handle);
+            art_ptr_unlock(tile->handle);
             tile->handle = INVALID_CACHE_ENTRY;
             tile->data = NULL;
 
@@ -4943,52 +4943,52 @@ static int wmInterfaceExit()
     }
 
     if (wmGenData.tabsBackgroundFrmData != NULL) {
-        artUnlock(wmGenData.tabsBackgroundFrmHandle);
+        art_ptr_unlock(wmGenData.tabsBackgroundFrmHandle);
         wmGenData.tabsBackgroundFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.tabsBackgroundFrmData = NULL;
     }
 
     if (wmGenData.tabsBorderFrmData != NULL) {
-        artUnlock(wmGenData.tabsBorderFrmHandle);
+        art_ptr_unlock(wmGenData.tabsBorderFrmHandle);
         wmGenData.tabsBorderFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.tabsBorderFrmData = NULL;
     }
 
     if (wmGenData.dialFrm != NULL) {
-        artUnlock(wmGenData.dialFrmHandle);
+        art_ptr_unlock(wmGenData.dialFrmHandle);
         wmGenData.dialFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.dialFrm = NULL;
     }
 
     if (wmGenData.carImageOverlayFrmData != NULL) {
-        artUnlock(wmGenData.carImageOverlayFrmHandle);
+        art_ptr_unlock(wmGenData.carImageOverlayFrmHandle);
         wmGenData.carImageOverlayFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.carImageOverlayFrmData = NULL;
     }
     if (wmGenData.globeOverlayFrmData != NULL) {
-        artUnlock(wmGenData.globeOverlayFrmHandle);
+        art_ptr_unlock(wmGenData.globeOverlayFrmHandle);
         wmGenData.globeOverlayFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.globeOverlayFrmData = NULL;
     }
 
     if (wmGenData.littleRedButtonNormalFrmData != NULL) {
-        artUnlock(wmGenData.littleRedButtonNormalFrmHandle);
+        art_ptr_unlock(wmGenData.littleRedButtonNormalFrmHandle);
         wmGenData.littleRedButtonNormalFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.littleRedButtonNormalFrmData = NULL;
     }
 
     if (wmGenData.littleRedButtonPressedFrmData != NULL) {
-        artUnlock(wmGenData.littleRedButtonPressedFrmHandle);
+        art_ptr_unlock(wmGenData.littleRedButtonPressedFrmHandle);
         wmGenData.littleRedButtonPressedFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.littleRedButtonPressedFrmData = NULL;
     }
 
     for (i = 0; i < 2; i++) {
-        artUnlock(wmGenData.scrollUpButtonFrmHandle[i]);
+        art_ptr_unlock(wmGenData.scrollUpButtonFrmHandle[i]);
         wmGenData.scrollUpButtonFrmHandle[i] = INVALID_CACHE_ENTRY;
         wmGenData.scrollUpButtonFrmData[i] = NULL;
 
-        artUnlock(wmGenData.scrollDownButtonFrmHandle[i]);
+        art_ptr_unlock(wmGenData.scrollDownButtonFrmHandle[i]);
         wmGenData.scrollDownButtonFrmHandle[i] = INVALID_CACHE_ENTRY;
         wmGenData.scrollDownButtonFrmData[i] = NULL;
     }
@@ -4999,19 +4999,19 @@ static int wmInterfaceExit()
     wmGenData.scrollUpButtonFrmWidth = 0;
 
     if (wmGenData.monthsFrm != NULL) {
-        artUnlock(wmGenData.monthsFrmHandle);
+        art_ptr_unlock(wmGenData.monthsFrmHandle);
         wmGenData.monthsFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.monthsFrm = NULL;
     }
 
     if (wmGenData.numbersFrm != NULL) {
-        artUnlock(wmGenData.numbersFrmHandle);
+        art_ptr_unlock(wmGenData.numbersFrmHandle);
         wmGenData.numbersFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.numbersFrm = NULL;
     }
 
     if (wmGenData.carImageFrm != NULL) {
-        artUnlock(wmGenData.carImageFrmHandle);
+        art_ptr_unlock(wmGenData.carImageFrmHandle);
         wmGenData.carImageFrmHandle = INVALID_CACHE_ENTRY;
         wmGenData.carImageFrm = NULL;
 
@@ -5352,7 +5352,7 @@ static int wmTileGrabArt(int tileIdx)
         return 0;
     }
 
-    tile->data = artLockFrameData(tile->fid, 0, 0, &(tile->handle));
+    tile->data = art_ptr_lock_data(tile->fid, 0, 0, &(tile->handle));
     if (tile->data != NULL) {
         return 0;
     }
@@ -5526,16 +5526,16 @@ static void wmInterfaceRefreshDate(bool shouldRefreshWindow)
 
     unsigned char* dest = wmBkWinBuf;
 
-    int numbersFrmWidth = artGetWidth(wmGenData.numbersFrm, 0, 0);
-    int numbersFrmHeight = artGetHeight(wmGenData.numbersFrm, 0, 0);
-    unsigned char* numbersFrmData = artGetFrameData(wmGenData.numbersFrm, 0, 0);
+    int numbersFrmWidth = art_frame_width(wmGenData.numbersFrm, 0, 0);
+    int numbersFrmHeight = art_frame_length(wmGenData.numbersFrm, 0, 0);
+    unsigned char* numbersFrmData = art_frame_data(wmGenData.numbersFrm, 0, 0);
 
     dest += WM_WINDOW_WIDTH * 12 + 487;
     blitBufferToBuffer(numbersFrmData + 9 * (day / 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
     blitBufferToBuffer(numbersFrmData + 9 * (day % 10), 9, numbersFrmHeight, numbersFrmWidth, dest + 9, WM_WINDOW_WIDTH);
 
-    int monthsFrmWidth = artGetWidth(wmGenData.monthsFrm, 0, 0);
-    unsigned char* monthsFrmData = artGetFrameData(wmGenData.monthsFrm, 0, 0);
+    int monthsFrmWidth = art_frame_width(wmGenData.monthsFrm, 0, 0);
+    unsigned char* monthsFrmData = art_frame_data(wmGenData.monthsFrm, 0, 0);
     blitBufferToBuffer(monthsFrmData + monthsFrmWidth * 15 * month, 29, 14, 29, dest + WM_WINDOW_WIDTH + 26, WM_WINDOW_WIDTH);
 
     dest += 98;
@@ -6058,18 +6058,18 @@ static int wmTownMapInit()
 
     CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
 
-    Art* mapFrm = artLock(city->mapFid, &wmTownKey);
+    Art* mapFrm = art_ptr_lock(city->mapFid, &wmTownKey);
     if (mapFrm == NULL) {
         return -1;
     }
 
-    wmTownWidth = artGetWidth(mapFrm, 0, 0);
-    wmTownHeight = artGetHeight(mapFrm, 0, 0);
+    wmTownWidth = art_frame_width(mapFrm, 0, 0);
+    wmTownHeight = art_frame_length(mapFrm, 0, 0);
 
-    artUnlock(wmTownKey);
+    art_ptr_unlock(wmTownKey);
     wmTownKey = INVALID_CACHE_ENTRY;
 
-    wmTownBuffer = artLockFrameData(city->mapFid, 0, 0, &wmTownKey);
+    wmTownBuffer = art_ptr_lock_data(city->mapFid, 0, 0, &wmTownKey);
     if (wmTownBuffer == NULL) {
         return -1;
     }
@@ -6159,7 +6159,7 @@ static int wmTownMapRefresh()
 static int wmTownMapExit()
 {
     if (wmTownKey != INVALID_CACHE_ENTRY) {
-        artUnlock(wmTownKey);
+        art_ptr_unlock(wmTownKey);
         wmTownKey = INVALID_CACHE_ENTRY;
         wmTownBuffer = NULL;
         wmTownWidth = 0;
@@ -6382,7 +6382,7 @@ static int wmRefreshInterfaceOverlay(bool shouldRefreshWindow)
     wmRefreshInterfaceDial(false);
 
     if (wmGenData.isInCar) {
-        unsigned char* data = artGetFrameData(wmGenData.carImageFrm, wmGenData.carImageCurrentFrameIndex, 0);
+        unsigned char* data = art_frame_data(wmGenData.carImageFrm, wmGenData.carImageCurrentFrameIndex, 0);
         if (data == NULL) {
             return -1;
         }
@@ -6473,14 +6473,14 @@ static int wmRefreshTabs()
     if (v31 < wmLabelCount) {
         city = &(wmAreaInfoList[wmLabelList[v31]]);
         if (city->labelFid != -1) {
-            art = artLock(city->labelFid, &cache_entry);
+            art = art_ptr_lock(city->labelFid, &cache_entry);
             if (art == NULL) {
                 return -1;
             }
 
-            width = artGetWidth(art, 0, 0);
-            height = artGetHeight(art, 0, 0);
-            buf = artGetFrameData(art, 0, 0);
+            width = art_frame_width(art, 0, 0);
+            height = art_frame_length(art, 0, 0);
+            buf = art_frame_data(art, 0, 0);
             if (buf == NULL) {
                 return -1;
             }
@@ -6494,7 +6494,7 @@ static int wmRefreshTabs()
             }
 
             blitBufferToBuffer(v11, width, v10, width, v12, WM_WINDOW_WIDTH);
-            artUnlock(cache_entry);
+            art_ptr_unlock(cache_entry);
             cache_entry = INVALID_CACHE_ENTRY;
         }
     }
@@ -6506,20 +6506,20 @@ static int wmRefreshTabs()
         if (v14 < wmLabelCount) {
             city = &(wmAreaInfoList[wmLabelList[v14]]);
             if (city->labelFid != -1) {
-                art = artLock(city->labelFid, &cache_entry);
+                art = art_ptr_lock(city->labelFid, &cache_entry);
                 if (art == NULL) {
                     return -1;
                 }
 
-                width = artGetWidth(art, 0, 0);
-                height = artGetHeight(art, 0, 0);
-                buf = artGetFrameData(art, 0, 0);
+                width = art_frame_width(art, 0, 0);
+                height = art_frame_length(art, 0, 0);
+                buf = art_frame_data(art, 0, 0);
                 if (buf == NULL) {
                     return -1;
                 }
 
                 blitBufferToBuffer(buf, width, height, width, v13, WM_WINDOW_WIDTH);
-                artUnlock(cache_entry);
+                art_ptr_unlock(cache_entry);
 
                 cache_entry = INVALID_CACHE_ENTRY;
             }
@@ -6530,20 +6530,20 @@ static int wmRefreshTabs()
     if (v31 + 6 < wmLabelCount) {
         city = &(wmAreaInfoList[wmLabelList[v31 + 6]]);
         if (city->labelFid != -1) {
-            art = artLock(city->labelFid, &cache_entry);
+            art = art_ptr_lock(city->labelFid, &cache_entry);
             if (art == NULL) {
                 return -1;
             }
 
-            width = artGetWidth(art, 0, 0);
-            height = artGetHeight(art, 0, 0);
-            buf = artGetFrameData(art, 0, 0);
+            width = art_frame_width(art, 0, 0);
+            height = art_frame_length(art, 0, 0);
+            buf = art_frame_data(art, 0, 0);
             if (buf == NULL) {
                 return -1;
             }
 
             blitBufferToBuffer(buf, width, height, width, v13, WM_WINDOW_WIDTH);
-            artUnlock(cache_entry);
+            art_ptr_unlock(cache_entry);
 
             cache_entry = INVALID_CACHE_ENTRY;
         }
@@ -6629,7 +6629,7 @@ static int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestina
 // 0x4C5734
 static void wmRefreshInterfaceDial(bool shouldRefreshWindow)
 {
-    unsigned char* data = artGetFrameData(wmGenData.dialFrm, wmGenData.dialFrmCurrentFrameIndex, 0);
+    unsigned char* data = art_frame_data(wmGenData.dialFrm, wmGenData.dialFrmCurrentFrameIndex, 0);
     blitBufferToBufferTrans(data,
         wmGenData.dialFrmWidth,
         wmGenData.dialFrmHeight,
@@ -6656,7 +6656,7 @@ static void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
     int frame;
 
     gameHour = gameTimeGetHour();
-    frame = (gameHour / 100 + 12) % artGetFrameCount(wmGenData.dialFrm);
+    frame = (gameHour / 100 + 12) % art_frame_max_frame(wmGenData.dialFrm);
     if (frame != wmGenData.dialFrmCurrentFrameIndex) {
         wmGenData.dialFrmCurrentFrameIndex = frame;
         wmRefreshInterfaceDial(shouldRefreshWindow);

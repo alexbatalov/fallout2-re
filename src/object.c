@@ -302,7 +302,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
     gObjectsWindowBufferSize = height * width;
     gObjectsWindowPitch = pitch;
 
-    dudeFid = buildFid(OBJ_TYPE_CRITTER, _art_vault_guy_num, 0, 0, 0);
+    dudeFid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, 0, 0);
     objectCreateWithFidPid(&gDude, dudeFid, 0x1000000);
 
     gDude->flags |= OBJECT_FLAG_0x400;
@@ -316,7 +316,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
         exit(1);
     }
 
-    eggFid = buildFid(OBJ_TYPE_INTERFACE, 2, 0, 0, 0);
+    eggFid = art_id(OBJ_TYPE_INTERFACE, 2, 0, 0, 0);
     objectCreateWithFidPid(&gEgg, eggFid, -1);
     gEgg->flags |= OBJECT_FLAG_0x400;
     gEgg->flags |= OBJECT_TEMPORARY;
@@ -413,7 +413,7 @@ int objectRead(Object* obj, File* stream)
     } else {
         if (obj->data.misc.map <= 0) {
             if ((obj->fid & 0xFFF) < 33) {
-                obj->fid = buildFid(OBJ_TYPE_MISC, (obj->fid & 0xFFF) + 16, FID_ANIM_TYPE(obj->fid), 0, 0);
+                obj->fid = art_id(OBJ_TYPE_MISC, (obj->fid & 0xFFF) + 16, FID_ANIM_TYPE(obj->fid), 0, 0);
             }
         }
     }
@@ -1318,12 +1318,12 @@ int _obj_move(Object* a1, int a2, int a3, int elevation, Rect* a5)
     CacheEntry* cacheHandle;
     int width;
     int height;
-    Art* art = artLock(a1->fid, &cacheHandle);
+    Art* art = art_ptr_lock(a1->fid, &cacheHandle);
     if (art != NULL) {
-        artGetSize(art, a1->frame, a1->rotation, &width, &height);
+        art_frame_width_length(art, a1->frame, a1->rotation, &width, &height);
         a1->sx = a2 - width / 2;
         a1->sy = a3 - (height - 1);
-        artUnlock(cacheHandle);
+        art_ptr_unlock(cacheHandle);
     }
 
     if (v22) {
@@ -1445,9 +1445,9 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         int roofY = tile / 200 / 2;
         if (roofX != _obj_last_roof_x || roofY != _obj_last_roof_y || elevation != _obj_last_elev) {
             int currentSquare = _square[elevation]->field_0[roofX + 100 * roofY];
-            int currentSquareFid = buildFid(OBJ_TYPE_TILE, (currentSquare >> 16) & 0xFFF, 0, 0, 0);
+            int currentSquareFid = art_id(OBJ_TYPE_TILE, (currentSquare >> 16) & 0xFFF, 0, 0, 0);
             int previousSquare = _square[elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y];
-            bool isEmpty = buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0) == currentSquareFid;
+            bool isEmpty = art_id(OBJ_TYPE_TILE, 1, 0, 0, 0) == currentSquareFid;
 
             if (isEmpty != _obj_last_is_empty || (((currentSquare >> 16) & 0xF000) >> 12) != (((previousSquare >> 16) & 0xF000) >> 12)) {
                 if (!_obj_last_is_empty) {
@@ -1496,8 +1496,8 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 // 0x48A9A0
 int _obj_reset_roof()
 {
-    int fid = buildFid(OBJ_TYPE_TILE, (_square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
-    if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
+    int fid = art_id(OBJ_TYPE_TILE, (_square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
+    if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
         _tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, gDude->elevation, 1);
     }
     return 0;
@@ -1542,14 +1542,14 @@ int objectSetFrame(Object* obj, int frame, Rect* rect)
         return -1;
     }
 
-    art = artLock(obj->fid, &cache_entry);
+    art = art_ptr_lock(obj->fid, &cache_entry);
     if (art == NULL) {
         return -1;
     }
 
     framesPerDirection = art->frameCount;
 
-    artUnlock(cache_entry);
+    art_ptr_unlock(cache_entry);
 
     if (frame >= framesPerDirection) {
         return -1;
@@ -1579,14 +1579,14 @@ int objectSetNextFrame(Object* obj, Rect* dirtyRect)
         return -1;
     }
 
-    art = artLock(obj->fid, &cache_entry);
+    art = art_ptr_lock(obj->fid, &cache_entry);
     if (art == NULL) {
         return -1;
     }
 
     framesPerDirection = art->frameCount;
 
-    artUnlock(cache_entry);
+    art_ptr_unlock(cache_entry);
 
     nextFrame = obj->frame + 1;
     if (nextFrame >= framesPerDirection) {
@@ -1623,14 +1623,14 @@ int objectSetPrevFrame(Object* obj, Rect* dirtyRect)
         return -1;
     }
 
-    art = artLock(obj->fid, &cache_entry);
+    art = art_ptr_lock(obj->fid, &cache_entry);
     if (art == NULL) {
         return -1;
     }
 
     framesPerDirection = art->frameCount;
 
-    artUnlock(cache_entry);
+    art_ptr_unlock(cache_entry);
 
     prevFrame = obj->frame - 1;
     if (prevFrame < 0) {
@@ -2154,7 +2154,7 @@ Object* objectFindFirst()
     }
 
     while (objectListNode != NULL) {
-        if (artIsObjectTypeHidden(FID_TYPE(objectListNode->obj->fid)) == 0) {
+        if (art_get_disable(FID_TYPE(objectListNode->obj->fid)) == 0) {
             gObjectFindLastObjectListNode = objectListNode;
             return objectListNode->obj;
         }
@@ -2181,7 +2181,7 @@ Object* objectFindNext()
 
         while (objectListNode != NULL) {
             Object* object = objectListNode->obj;
-            if (!artIsObjectTypeHidden(FID_TYPE(object->fid))) {
+            if (!art_get_disable(FID_TYPE(object->fid))) {
                 gObjectFindLastObjectListNode = objectListNode;
                 return object;
             }
@@ -2204,7 +2204,7 @@ Object* objectFindFirstAtElevation(int elevation)
         while (objectListNode != NULL) {
             Object* object = objectListNode->obj;
             if (object->elevation == elevation) {
-                if (!artIsObjectTypeHidden(FID_TYPE(object->fid))) {
+                if (!art_get_disable(FID_TYPE(object->fid))) {
                     gObjectFindLastObjectListNode = objectListNode;
                     return object;
                 }
@@ -2234,7 +2234,7 @@ Object* objectFindNextAtElevation()
         while (objectListNode != NULL) {
             Object* object = objectListNode->obj;
             if (object->elevation == gObjectFindElevation) {
-                if (!artIsObjectTypeHidden(FID_TYPE(object->fid))) {
+                if (!art_get_disable(FID_TYPE(object->fid))) {
                     gObjectFindLastObjectListNode = objectListNode;
                     return object;
                 }
@@ -2257,7 +2257,7 @@ Object* objectFindFirstAtLocation(int elevation, int tile)
     while (objectListNode != NULL) {
         Object* object = objectListNode->obj;
         if (object->elevation == elevation) {
-            if (!artIsObjectTypeHidden(FID_TYPE(object->fid))) {
+            if (!art_get_disable(FID_TYPE(object->fid))) {
                 gObjectFindLastObjectListNode = objectListNode;
                 return object;
             }
@@ -2281,7 +2281,7 @@ Object* objectFindNextAtLocation()
     while (objectListNode != NULL) {
         Object* object = objectListNode->obj;
         if (object->elevation == gObjectFindElevation) {
-            if (!artIsObjectTypeHidden(FID_TYPE(object->fid))) {
+            if (!art_get_disable(FID_TYPE(object->fid))) {
                 gObjectFindLastObjectListNode = objectListNode;
                 return object;
             }
@@ -2310,7 +2310,7 @@ void objectGetRect(Object* obj, Rect* rect)
     }
 
     CacheEntry* artHandle;
-    Art* art = artLock(obj->fid, &artHandle);
+    Art* art = art_ptr_lock(obj->fid, &artHandle);
     if (art == NULL) {
         rect->left = 0;
         rect->top = 0;
@@ -2321,7 +2321,7 @@ void objectGetRect(Object* obj, Rect* rect)
 
     int width;
     int height;
-    artGetSize(art, obj->frame, obj->rotation, &width, &height);
+    art_frame_width_length(art, obj->frame, obj->rotation, &width, &height);
 
     if (obj->tile == -1) {
         rect->left = obj->sx;
@@ -2354,7 +2354,7 @@ void objectGetRect(Object* obj, Rect* rect)
         }
     }
 
-    artUnlock(artHandle);
+    art_ptr_unlock(artHandle);
 
     if (isOutlined) {
         rect->left--;
@@ -2887,11 +2887,11 @@ int _obj_intersects_with(Object* object, int x, int y)
 
     if (object == gEgg || (object->flags & OBJECT_HIDDEN) == 0) {
         CacheEntry* handle;
-        Art* art = artLock(object->fid, &handle);
+        Art* art = art_ptr_lock(object->fid, &handle);
         if (art != NULL) {
             int width;
             int height;
-            artGetSize(art, object->frame, object->rotation, &width, &height);
+            art_frame_width_length(art, object->frame, object->rotation, &width, &height);
 
             int minX;
             int minY;
@@ -2923,7 +2923,7 @@ int _obj_intersects_with(Object* object, int x, int y)
             }
 
             if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
-                unsigned char* data = artGetFrameData(art, object->frame, object->rotation);
+                unsigned char* data = art_frame_data(art, object->frame, object->rotation);
                 if (data != NULL) {
                     if (data[width * (y - minY) + x - minX] != 0) {
                         flags |= 0x01;
@@ -2964,7 +2964,7 @@ int _obj_intersects_with(Object* object, int x, int y)
                 }
             }
 
-            artUnlock(handle);
+            art_ptr_unlock(handle);
         }
     }
 
@@ -3176,31 +3176,31 @@ void _obj_preload_art_cache(int flags)
     }
 
     CacheEntry* cache_handle;
-    if (artLock(*gObjectFids, &cache_handle) != NULL) {
-        artUnlock(cache_handle);
+    if (art_ptr_lock(*gObjectFids, &cache_handle) != NULL) {
+        art_ptr_unlock(cache_handle);
     }
 
     for (int i = 1; i < v11; i++) {
         if (gObjectFids[i - 1] != gObjectFids[i]) {
-            if (artLock(gObjectFids[i], &cache_handle) != NULL) {
-                artUnlock(cache_handle);
+            if (art_ptr_lock(gObjectFids[i], &cache_handle) != NULL) {
+                art_ptr_unlock(cache_handle);
             }
         }
     }
 
     for (int i = 0; i < 4096; i++) {
         if (arr[i] != 0) {
-            int fid = buildFid(OBJ_TYPE_TILE, i, 0, 0, 0);
-            if (artLock(fid, &cache_handle) != NULL) {
-                artUnlock(cache_handle);
+            int fid = art_id(OBJ_TYPE_TILE, i, 0, 0, 0);
+            if (art_ptr_lock(fid, &cache_handle) != NULL) {
+                art_ptr_unlock(cache_handle);
             }
         }
     }
 
     for (int i = v11; i < gObjectFidsLength; i++) {
         if (gObjectFids[i - 1] != gObjectFids[i]) {
-            if (artLock(gObjectFids[i], &cache_handle) != NULL) {
-                artUnlock(cache_handle);
+            if (art_ptr_lock(gObjectFids[i], &cache_handle) != NULL) {
+                art_ptr_unlock(cache_handle);
             }
         }
     }
@@ -3548,7 +3548,7 @@ int _obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner
 
     _obj_fix_violence_settings(&(obj->fid));
 
-    if (!_art_fid_valid(obj->fid)) {
+    if (!art_fid_valid(obj->fid)) {
         debugPrint("\nError: invalid object art fid: %u\n", obj->fid);
         // NOTE: Uninline.
         objectDeallocate(&obj);
@@ -3849,16 +3849,16 @@ void _obj_insert(ObjectListNode* objectListNode)
                 if ((obj->flags & OBJECT_FLAT) == (objectListNode->obj->flags & OBJECT_FLAT)) {
                     bool v11 = false;
                     CacheEntry* a2;
-                    Art* v12 = artLock(obj->fid, &a2);
+                    Art* v12 = art_ptr_lock(obj->fid, &a2);
                     if (v12 != NULL) {
 
                         if (art == NULL) {
-                            art = artLock(objectListNode->obj->fid, &cacheHandle);
+                            art = art_ptr_lock(objectListNode->obj->fid, &cacheHandle);
                         }
 
                         // TODO: Incomplete.
 
-                        artUnlock(a2);
+                        art_ptr_unlock(a2);
 
                         if (v11) {
                             break;
@@ -3871,7 +3871,7 @@ void _obj_insert(ObjectListNode* objectListNode)
         }
 
         if (art != NULL) {
-            artUnlock(cacheHandle);
+            art_ptr_unlock(cacheHandle);
         }
     }
 
@@ -4621,14 +4621,14 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
 void objectDrawOutline(Object* object, Rect* rect)
 {
     CacheEntry* cacheEntry;
-    Art* art = artLock(object->fid, &cacheEntry);
+    Art* art = art_ptr_lock(object->fid, &cacheEntry);
     if (art == NULL) {
         return;
     }
 
     int frameWidth = 0;
     int frameHeight = 0;
-    artGetSize(art, object->frame, object->rotation, &frameWidth, &frameHeight);
+    art_frame_width_length(art, object->frame, object->rotation, &frameWidth, &frameHeight);
 
     Rect v49;
     v49.left = 0;
@@ -4637,7 +4637,7 @@ void objectDrawOutline(Object* object, Rect* rect)
 
     // FIXME: I'm not sure why it ignores frameHeight and makes separate call
     // to obtain height.
-    int v8 = artGetHeight(art, object->frame, object->rotation);
+    int v8 = art_frame_length(art, object->frame, object->rotation);
     v49.bottom = v8 - 1;
 
     Rect objectRect;
@@ -4684,7 +4684,7 @@ void objectDrawOutline(Object* object, Rect* rect)
         v49.right = v49.left + (objectRect.right - objectRect.left);
         v49.bottom = v49.top + (objectRect.bottom - objectRect.top);
 
-        unsigned char* src = artGetFrameData(art, object->frame, object->rotation);
+        unsigned char* src = art_frame_data(art, object->frame, object->rotation);
 
         unsigned char* dest = gObjectsWindowBuffer + gObjectsWindowPitch * object->sy + object->sx;
         int destStep = gObjectsWindowPitch - frameWidth;
@@ -4866,25 +4866,25 @@ void objectDrawOutline(Object* object, Rect* rect)
         }
     }
 
-    artUnlock(cacheEntry);
+    art_ptr_unlock(cacheEntry);
 }
 
 // 0x48F1B0
 void _obj_render_object(Object* object, Rect* rect, int light)
 {
     int type = FID_TYPE(object->fid);
-    if (artIsObjectTypeHidden(type)) {
+    if (art_get_disable(type)) {
         return;
     }
 
     CacheEntry* cacheEntry;
-    Art* art = artLock(object->fid, &cacheEntry);
+    Art* art = art_ptr_lock(object->fid, &cacheEntry);
     if (art == NULL) {
         return;
     }
 
-    int frameWidth = artGetWidth(art, object->frame, object->rotation);
-    int frameHeight = artGetHeight(art, object->frame, object->rotation);
+    int frameWidth = art_frame_width(art, object->frame, object->rotation);
+    int frameHeight = art_frame_length(art, object->frame, object->rotation);
 
     Rect objectRect;
     if (object->tile == -1) {
@@ -4915,11 +4915,11 @@ void _obj_render_object(Object* object, Rect* rect, int light)
     }
 
     if (rectIntersection(&objectRect, rect, &objectRect) != 0) {
-        artUnlock(cacheEntry);
+        art_ptr_unlock(cacheEntry);
         return;
     }
 
-    unsigned char* src = artGetFrameData(art, object->frame, object->rotation);
+    unsigned char* src = art_frame_data(art, object->frame, object->rotation);
     unsigned char* src2 = src;
     int v50 = objectRect.left - object->sx;
     int v49 = objectRect.top - object->sy;
@@ -4934,7 +4934,7 @@ void _obj_render_object(Object* object, Rect* rect, int light)
             frameWidth,
             gObjectsWindowBuffer + gObjectsWindowPitch * objectRect.top + objectRect.left,
             gObjectsWindowPitch);
-        artUnlock(cacheEntry);
+        art_ptr_unlock(cacheEntry);
         return;
     }
 
@@ -4973,14 +4973,14 @@ void _obj_render_object(Object* object, Rect* rect, int light)
 
             if (v17) {
                 CacheEntry* eggHandle;
-                Art* egg = artLock(gEgg->fid, &eggHandle);
+                Art* egg = art_ptr_lock(gEgg->fid, &eggHandle);
                 if (egg == NULL) {
                     return;
                 }
 
                 int eggWidth;
                 int eggHeight;
-                artGetSize(egg, 0, 0, &eggWidth, &eggHeight);
+                art_frame_width_length(egg, 0, 0, &eggWidth, &eggHeight);
 
                 int eggScreenX;
                 int eggScreenY;
@@ -5035,7 +5035,7 @@ void _obj_render_object(Object* object, Rect* rect, int light)
                         }
                     }
 
-                    unsigned char* mask = artGetFrameData(egg, 0, 0);
+                    unsigned char* mask = art_frame_data(egg, 0, 0);
                     _intensity_mask_buf_to_buf(
                         src + frameWidth * (updatedEggRect.top - objectRect.top) + (updatedEggRect.left - objectRect.left),
                         updatedEggRect.right - updatedEggRect.left + 1,
@@ -5046,12 +5046,12 @@ void _obj_render_object(Object* object, Rect* rect, int light)
                         mask + eggWidth * (updatedEggRect.top - eggRect.top) + (updatedEggRect.left - eggRect.left),
                         eggWidth,
                         light);
-                    artUnlock(eggHandle);
-                    artUnlock(cacheEntry);
+                    art_ptr_unlock(eggHandle);
+                    art_ptr_unlock(cacheEntry);
                     return;
                 }
 
-                artUnlock(eggHandle);
+                art_ptr_unlock(eggHandle);
             }
         }
     }
@@ -5077,7 +5077,7 @@ void _obj_render_object(Object* object, Rect* rect, int light)
         break;
     }
 
-    artUnlock(cacheEntry);
+    art_ptr_unlock(cacheEntry);
 }
 
 // Updates fid according to current violence level.
@@ -5125,7 +5125,7 @@ void _obj_fix_violence_settings(int* fid)
         anim = (anim == ANIM_FALL_BACK_BLOOD_SF)
             ? ANIM_FALL_BACK_SF
             : ANIM_FALL_FRONT_SF;
-        *fid = buildFid(OBJ_TYPE_CRITTER, *fid & 0xFFF, anim, (*fid & 0xF000) >> 12, (*fid & 0x70000000) >> 28);
+        *fid = art_id(OBJ_TYPE_CRITTER, *fid & 0xFFF, anim, (*fid & 0xF000) >> 12, (*fid & 0x70000000) >> 28);
     }
 
     if (shouldResetViolenceLevel) {

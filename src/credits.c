@@ -81,18 +81,18 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                         if (backgroundFid != -1) {
                             CacheEntry* backgroundFrmHandle;
-                            Art* frm = artLock(backgroundFid, &backgroundFrmHandle);
+                            Art* frm = art_ptr_lock(backgroundFid, &backgroundFrmHandle);
                             if (frm != NULL) {
-                                int width = artGetWidth(frm, 0, 0);
-                                int height = artGetHeight(frm, 0, 0);
-                                unsigned char* backgroundFrmData = artGetFrameData(frm, 0, 0);
+                                int width = art_frame_width(frm, 0, 0);
+                                int height = art_frame_length(frm, 0, 0);
+                                unsigned char* backgroundFrmData = art_frame_data(frm, 0, 0);
                                 blitBufferToBuffer(backgroundFrmData,
                                     width,
                                     height,
                                     width,
                                     backgroundBuffer + CREDITS_WINDOW_WIDTH * ((CREDITS_WINDOW_HEIGHT - height) / 2) + (CREDITS_WINDOW_WIDTH - width) / 2,
                                     CREDITS_WINDOW_WIDTH);
-                                artUnlock(backgroundFrmHandle);
+                                art_ptr_unlock(backgroundFrmHandle);
                             }
                         }
 

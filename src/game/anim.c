@@ -487,8 +487,8 @@ static int anim_preload(Object* object, int fid, CacheEntry** cacheEntryPtr)
 {
     *cacheEntryPtr = NULL;
 
-    if (artLock(fid, cacheEntryPtr) != NULL) {
-        artUnlock(*cacheEntryPtr);
+    if (art_ptr_lock(fid, cacheEntryPtr) != NULL) {
+        art_ptr_unlock(*cacheEntryPtr);
         *cacheEntryPtr = NULL;
         return 0;
     }
@@ -511,7 +511,7 @@ static void anim_cleanup()
     for (int index = 0; index < curr_anim_counter; index++) {
         AnimationDescription* animationDescription = &(animationSequence->animations[index]);
         if (animationDescription->artCacheKey != NULL) {
-            artUnlock(animationDescription->artCacheKey);
+            art_ptr_unlock(animationDescription->artCacheKey);
         }
 
         if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == _gsnd_anim_sound) {
@@ -611,7 +611,7 @@ int register_object_move_to_object(Object* owner, Object* destination, int actio
     animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -662,7 +662,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
         || (owner == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
-        || (!artExists(buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
+        || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
         animationDescription->anim = ANIM_RUNNING;
@@ -671,7 +671,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
     animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -704,7 +704,7 @@ int register_object_move_to_tile(Object* owner, int tile, int elevation, int act
     animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -758,7 +758,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
         || (owner == gDude && dudeHasState(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
-        || (!artExists(buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
+        || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
         animationDescription->anim = ANIM_RUNNING;
@@ -767,7 +767,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
     animationDescription->actionPoints = actionPoints;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -802,7 +802,7 @@ int register_object_move_straight_to_tile(Object* object, int tile, int elevatio
     animationDescription->anim = anim;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(object->fid), object->fid & 0xFFF, animationDescription->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
+    int fid = art_id(FID_TYPE(object->fid), object->fid & 0xFFF, animationDescription->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(object, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -836,7 +836,7 @@ int register_object_animate_and_move_straight(Object* owner, int tile, int eleva
     animationDescription->anim = anim;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -889,7 +889,7 @@ int register_object_move_on_stairs(Object* owner, Object* stairs, int delay)
     animationDescription->anim = anim;
     animationDescription->delay = delay;
 
-    fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -923,7 +923,7 @@ int register_object_check_falling(Object* owner, int delay)
     animationDescription->owner = owner;
     animationDescription->delay = delay;
 
-    fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -951,7 +951,7 @@ int register_object_animate(Object* owner, int anim, int delay)
     animationDescription->anim = anim;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -980,7 +980,7 @@ int register_object_animate_reverse(Object* owner, int anim, int delay)
     animationDescription->delay = delay;
     animationDescription->artCacheKey = NULL;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, animationDescription->anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -1009,7 +1009,7 @@ int register_object_animate_and_hide(Object* owner, int anim, int delay)
     animationDescription->delay = delay;
     animationDescription->artCacheKey = NULL;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -1296,7 +1296,7 @@ int register_object_take_out(Object* owner, int weaponAnimationCode, int delay)
     animationDescription->owner = owner;
     animationDescription->weaponAnimationCode = weaponAnimationCode;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -1400,7 +1400,7 @@ int register_object_animate_forever(Object* owner, int anim, int delay)
     animationDescription->anim = anim;
     animationDescription->delay = delay;
 
-    int fid = buildFid(FID_TYPE(owner->fid), owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
+    int fid = art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, anim, (owner->fid & 0xF000) >> 12, owner->rotation + 1);
 
     // NOTE: Uninline.
     if (anim_preload(owner, fid, &(animationDescription->artCacheKey)) == -1) {
@@ -1682,7 +1682,7 @@ static int anim_set_end(int animationSequenceIndex)
     for (i = 0; i < animationSequence->length; i++) {
         animationDescription = &(animationSequence->animations[i]);
         if (animationDescription->artCacheKey) {
-            artUnlock(animationDescription->artCacheKey);
+            art_ptr_unlock(animationDescription->artCacheKey);
         }
 
         if (animationDescription->kind != 11 && animationDescription->kind != 12) {
@@ -2483,7 +2483,7 @@ static int anim_move(Object* obj, int tile, int elev, int a3, int anim, int a5, 
     }
 
     sad_entry->field_20 = -2000;
-    sad_entry->fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+    sad_entry->fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     sad_entry->animationTimestamp = 0;
     sad_entry->ticksPerFrame = compute_tpf(obj, sad_entry->fid);
     sad_entry->field_24 = tile;
@@ -2517,7 +2517,7 @@ static int anim_move_straight_to_tile(Object* obj, int tile, int elevation, int 
         sad_entry->fid = obj->fid;
         sad_entry->flags |= ANIM_SAD_NO_ANIM;
     } else {
-        sad_entry->fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        sad_entry->fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
     sad_entry->field_20 = -2000;
     sad_entry->animationTimestamp = 0;
@@ -2559,7 +2559,7 @@ int anim_move_on_stairs(Object* obj, int tile, int elevation, int anim, int anim
         sad_entry->fid = obj->fid;
         sad_entry->flags |= ANIM_SAD_NO_ANIM;
     } else {
-        sad_entry->fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        sad_entry->fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
     sad_entry->field_20 = -2000;
     sad_entry->animationTimestamp = 0;
@@ -2594,7 +2594,7 @@ int check_for_falling(Object* obj, int anim, int a3)
         sad_entry->fid = obj->fid;
         sad_entry->flags |= ANIM_SAD_NO_ANIM;
     } else {
-        sad_entry->fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        sad_entry->fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
     sad_entry->field_20 = -2000;
     sad_entry->animationTimestamp = 0;
@@ -2629,7 +2629,7 @@ static void object_move(int index)
         objectSetRotation(object, sad_entry->rotations[0], &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        int fid = buildFid(FID_TYPE(object->fid), object->fid & 0xFFF, sad_entry->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
+        int fid = art_id(FID_TYPE(object->fid), object->fid & 0xFFF, sad_entry->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
         objectSetFid(object, fid, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
@@ -2642,10 +2642,10 @@ static void object_move(int index)
     int frameY;
 
     CacheEntry* cacheHandle;
-    Art* art = artLock(object->fid, &cacheHandle);
+    Art* art = art_ptr_lock(object->fid, &cacheHandle);
     if (art != NULL) {
-        artGetFrameOffsets(art, object->frame, object->rotation, &frameX, &frameY);
-        artUnlock(cacheHandle);
+        art_frame_hot(art, object->frame, object->rotation, &frameX, &frameY);
+        art_ptr_unlock(cacheHandle);
     } else {
         frameX = 0;
         frameY = 0;
@@ -2750,10 +2750,10 @@ static void object_straight_move(int index)
     }
 
     CacheEntry* cacheHandle;
-    Art* art = artLock(object->fid, &cacheHandle);
+    Art* art = art_ptr_lock(object->fid, &cacheHandle);
     if (art != NULL) {
-        int lastFrame = artGetFrameCount(art) - 1;
-        artUnlock(cacheHandle);
+        int lastFrame = art_frame_max_frame(art) - 1;
+        art_ptr_unlock(cacheHandle);
 
         if ((sad_entry->flags & ANIM_SAD_NO_ANIM) == 0) {
             if ((sad_entry->flags & ANIM_SAD_WAIT_FOR_COMPLETION) == 0 || object->frame < lastFrame) {
@@ -2800,13 +2800,13 @@ static int anim_animate(Object* obj, int anim, int animationSequenceIndex, int f
     int fid;
     if (anim == ANIM_TAKE_OUT) {
         sad_entry->flags = 0;
-        fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_TAKE_OUT, flags, obj->rotation + 1);
+        fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_TAKE_OUT, flags, obj->rotation + 1);
     } else {
         sad_entry->flags = flags;
-        fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
 
-    if (!artExists(fid)) {
+    if (!art_exists(fid)) {
         return -1;
     }
 
@@ -2883,11 +2883,11 @@ void object_animate()
         if (object->fid == sad_entry->fid) {
             if ((sad_entry->flags & ANIM_SAD_REVERSE) == 0) {
                 CacheEntry* cacheHandle;
-                Art* art = artLock(object->fid, &cacheHandle);
+                Art* art = art_ptr_lock(object->fid, &cacheHandle);
                 if (art != NULL) {
-                    if ((sad_entry->flags & ANIM_SAD_FOREVER) == 0 && object->frame == artGetFrameCount(art) - 1) {
+                    if ((sad_entry->flags & ANIM_SAD_FOREVER) == 0 && object->frame == art_frame_max_frame(art) - 1) {
                         sad_entry->field_20 = -1000;
-                        artUnlock(cacheHandle);
+                        art_ptr_unlock(cacheHandle);
 
                         if ((sad_entry->flags & ANIM_SAD_HIDE_ON_END) != 0) {
                             // NOTE: Uninline.
@@ -2902,12 +2902,12 @@ void object_animate()
 
                         int frameX;
                         int frameY;
-                        artGetFrameOffsets(art, object->frame, object->rotation, &frameX, &frameY);
+                        art_frame_hot(art, object->frame, object->rotation, &frameX, &frameY);
 
                         _obj_offset(object, frameX, frameY, &tempRect);
                         rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
-                        artUnlock(cacheHandle);
+                        art_ptr_unlock(cacheHandle);
                     }
                 }
 
@@ -2921,10 +2921,10 @@ void object_animate()
                 int y;
 
                 CacheEntry* cacheHandle;
-                Art* art = artLock(object->fid, &cacheHandle);
+                Art* art = art_ptr_lock(object->fid, &cacheHandle);
                 if (art != NULL) {
-                    artGetFrameOffsets(art, object->frame, object->rotation, &x, &y);
-                    artUnlock(cacheHandle);
+                    art_frame_hot(art, object->frame, object->rotation, &x, &y);
+                    art_ptr_unlock(cacheHandle);
                 }
 
                 objectSetPrevFrame(object, &tempRect);
@@ -2944,10 +2944,10 @@ void object_animate()
             int y;
 
             CacheEntry* cacheHandle;
-            Art* art = artLock(object->fid, &cacheHandle);
+            Art* art = art_ptr_lock(object->fid, &cacheHandle);
             if (art != NULL) {
-                artGetRotationOffsets(art, object->rotation, &x, &y);
-                artUnlock(cacheHandle);
+                art_frame_offset(art, object->rotation, &x, &y);
+                art_ptr_unlock(cacheHandle);
             } else {
                 x = 0;
                 y = 0;
@@ -2957,11 +2957,11 @@ void object_animate()
             objectSetFid(object, sad_entry->fid, &v29);
             rectUnion(&dirtyRect, &v29, &dirtyRect);
 
-            art = artLock(object->fid, &cacheHandle);
+            art = art_ptr_lock(object->fid, &cacheHandle);
             if (art != NULL) {
                 int frame;
                 if ((sad_entry->flags & ANIM_SAD_REVERSE) != 0) {
-                    frame = artGetFrameCount(art) - 1;
+                    frame = art_frame_max_frame(art) - 1;
                 } else {
                     frame = 0;
                 }
@@ -2971,13 +2971,13 @@ void object_animate()
 
                 int frameX;
                 int frameY;
-                artGetFrameOffsets(art, object->frame, object->rotation, &frameX, &frameY);
+                art_frame_hot(art, object->frame, object->rotation, &frameX, &frameY);
 
                 Rect v19;
                 _obj_offset(object, x + frameX, y + frameY, &v19);
                 rectUnion(&dirtyRect, &v19, &dirtyRect);
 
-                artUnlock(cacheHandle);
+                art_ptr_unlock(cacheHandle);
             } else {
                 objectSetFrame(object, 0, &v29);
                 rectUnion(&dirtyRect, &v29, &dirtyRect);
@@ -3179,7 +3179,7 @@ void dude_fidget()
         } else {
             char v15[16];
             v15[0] = '\0';
-            artCopyFileName(1, object->fid & 0xFFF, v15);
+            art_get_base_name(1, object->fid & 0xFFF, v15);
             if (v15[0] == 'm' || v15[0] == 'M') {
                 if (objectGetDistanceBetween(object, gDude) < critterGetStat(gDude, STAT_PERCEPTION) * 2) {
                     v8 = true;
@@ -3222,31 +3222,31 @@ void dude_stand(Object* obj, int rotation, int fid)
     int weaponAnimationCode = (obj->fid & 0xF000) >> 12;
     if (weaponAnimationCode != 0) {
         if (fid == -1) {
-            int takeOutFid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, obj->rotation + 1);
+            int takeOutFid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_TAKE_OUT, weaponAnimationCode, obj->rotation + 1);
             CacheEntry* takeOutFrmHandle;
-            Art* takeOutFrm = artLock(takeOutFid, &takeOutFrmHandle);
+            Art* takeOutFrm = art_ptr_lock(takeOutFid, &takeOutFrmHandle);
             if (takeOutFrm != NULL) {
-                int frameCount = artGetFrameCount(takeOutFrm);
+                int frameCount = art_frame_max_frame(takeOutFrm);
                 for (int frame = 0; frame < frameCount; frame++) {
                     int offsetX;
                     int offsetY;
-                    artGetFrameOffsets(takeOutFrm, frame, obj->rotation, &offsetX, &offsetY);
+                    art_frame_hot(takeOutFrm, frame, obj->rotation, &offsetX, &offsetY);
                     x += offsetX;
                     y += offsetY;
                 }
-                artUnlock(takeOutFrmHandle);
+                art_ptr_unlock(takeOutFrmHandle);
 
                 CacheEntry* standFrmHandle;
-                int standFid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_STAND, 0, obj->rotation + 1);
-                Art* standFrm = artLock(standFid, &standFrmHandle);
+                int standFid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_STAND, 0, obj->rotation + 1);
+                Art* standFrm = art_ptr_lock(standFid, &standFrmHandle);
                 if (standFrm != NULL) {
                     int offsetX;
                     int offsetY;
-                    if (artGetRotationOffsets(standFrm, obj->rotation, &offsetX, &offsetY) == 0) {
+                    if (art_frame_offset(standFrm, obj->rotation, &offsetX, &offsetY) == 0) {
                         x += offsetX;
                         y += offsetY;
                     }
-                    artUnlock(standFrmHandle);
+                    art_ptr_unlock(standFrmHandle);
                 }
             }
         }
@@ -3259,7 +3259,7 @@ void dude_stand(Object* obj, int rotation, int fid)
         } else {
             anim = ANIM_STAND;
         }
-        fid = buildFid(FID_TYPE(obj->fid), (obj->fid & 0xFFF), anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
+        fid = art_id(FID_TYPE(obj->fid), (obj->fid & 0xFFF), anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
     }
 
     Rect temp;
@@ -3375,8 +3375,8 @@ static int check_gravity(int tile, int elevation)
         tileToScreenXY(tile, &x, &y, elevation);
 
         int squareTile = squareTileFromScreenXY(x + 2, y + 8, elevation);
-        int fid = buildFid(OBJ_TYPE_TILE, _square[elevation]->field_0[squareTile] & 0xFFF, 0, 0, 0);
-        if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
+        int fid = art_id(OBJ_TYPE_TILE, _square[elevation]->field_0[squareTile] & 0xFFF, 0, 0, 0);
+        if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
             break;
         }
     }
@@ -3389,10 +3389,10 @@ unsigned int compute_tpf(Object* object, int fid)
     int fps;
 
     CacheEntry* handle;
-    Art* frm = artLock(fid, &handle);
+    Art* frm = art_ptr_lock(fid, &handle);
     if (frm != NULL) {
-        fps = artGetFramesPerSecond(frm);
-        artUnlock(handle);
+        fps = art_frame_fps(frm);
+        art_ptr_unlock(handle);
     } else {
         fps = 10;
     }

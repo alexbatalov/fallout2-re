@@ -267,11 +267,11 @@ void automapShow(bool isInGame, bool isUsingScanner)
     unsigned char* frmData[AUTOMAP_FRM_COUNT];
     CacheEntry* frmHandle[AUTOMAP_FRM_COUNT];
     for (int index = 0; index < AUTOMAP_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, frmIds[index], 0, 0, 0);
-        frmData[index] = artLockFrameData(fid, 0, 0, &(frmHandle[index]));
+        int fid = art_id(OBJ_TYPE_INTERFACE, frmIds[index], 0, 0, 0);
+        frmData[index] = art_ptr_lock_data(fid, 0, 0, &(frmHandle[index]));
         if (frmData[index] == NULL) {
             while (--index >= 0) {
-                artUnlock(frmHandle[index]);
+                art_ptr_unlock(frmHandle[index]);
             }
             return;
         }
@@ -420,7 +420,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
     fontSetCurrent(oldFont);
 
     for (int index = 0; index < AUTOMAP_FRM_COUNT; index++) {
-        artUnlock(frmHandle[index]);
+        art_ptr_unlock(frmHandle[index]);
     }
 }
 

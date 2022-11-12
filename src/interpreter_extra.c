@@ -201,11 +201,11 @@ int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
         }
 
         if (v8 == 0) {
-            newFid = buildFid(FID_TYPE(fid), fid & 0xFFF, FID_ANIM_TYPE(fid), 0, (fid & 0x70000000) >> 28);
+            newFid = art_id(FID_TYPE(fid), fid & 0xFFF, FID_ANIM_TYPE(fid), 0, (fid & 0x70000000) >> 28);
         }
     } else {
         if (a1 == gDude) {
-            newFid = buildFid(FID_TYPE(fid), _art_vault_guy_num, FID_ANIM_TYPE(fid), v8, (fid & 0x70000000) >> 28);
+            newFid = art_id(FID_TYPE(fid), art_vault_guy_num, FID_ANIM_TYPE(fid), v8, (fid & 0x70000000) >> 28);
         }
 
         _adjust_ac(a1, a2, NULL);
@@ -2332,7 +2332,7 @@ void opStartGameDialog(Program* program)
     }
 
     if (headId != -1) {
-        gGameDialogHeadFid = buildFid(OBJ_TYPE_HEAD, headId, 0, 0, 0);
+        gGameDialogHeadFid = art_id(OBJ_TYPE_HEAD, headId, 0, 0, 0);
     }
 
     gameDialogSetBackground(backgroundId);
@@ -2465,7 +2465,7 @@ void opMetarule3(Program* program)
             Object* obj = (Object*)data[2];
             int frmId = data[1];
 
-            int fid = buildFid(FID_TYPE(obj->fid),
+            int fid = art_id(FID_TYPE(obj->fid),
                 frmId,
                 FID_ANIM_TYPE(obj->fid),
                 (obj->fid & 0xF000) >> 12,
@@ -2922,8 +2922,8 @@ int _correctDeath(Object* critter, int anim, bool forceBack)
         if (violenceLevel < VIOLENCE_LEVEL_MAXIMUM_BLOOD) {
             useStandardDeath = true;
         } else {
-            int fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, anim, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
-            if (!artExists(fid)) {
+            int fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, anim, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
+            if (!art_exists(fid)) {
                 useStandardDeath = true;
             }
         }
@@ -2932,8 +2932,8 @@ int _correctDeath(Object* critter, int anim, bool forceBack)
             if (forceBack) {
                 anim = ANIM_FALL_BACK;
             } else {
-                int fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_FALL_FRONT, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
-                if (artExists(fid)) {
+                int fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_FALL_FRONT, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
+                if (art_exists(fid)) {
                     anim = ANIM_FALL_FRONT;
                 } else {
                     anim = ANIM_FALL_BACK;
@@ -4205,7 +4205,7 @@ void opMetarule(Program* program)
                     break;
                 }
             } else {
-                if (buildFid(OBJ_TYPE_MISC, 10, 0, 0, 0) == object->fid) {
+                if (art_id(OBJ_TYPE_MISC, 10, 0, 0, 0) == object->fid) {
                     result = DAMAGE_TYPE_EXPLOSION;
                     break;
                 }
@@ -4296,7 +4296,7 @@ void opAnim(Program* program)
         if (frame == 0) {
             register_object_animate(obj, anim, 0);
             if (anim >= ANIM_FALL_BACK && anim <= ANIM_FALL_FRONT_BLOOD) {
-                int fid = buildFid(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 28);
+                int fid = art_id(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 28);
                 register_object_change_fid(obj, fid, -1);
             }
 
@@ -4304,13 +4304,13 @@ void opAnim(Program* program)
                 combatData->results &= DAM_KNOCKED_DOWN;
             }
         } else {
-            int fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
+            int fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
             register_object_animate_reverse(obj, anim, 0);
 
             if (anim == ANIM_PRONE_TO_STANDING) {
-                fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_FRONT_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
+                fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_FRONT_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
             } else if (anim == ANIM_BACK_TO_STANDING) {
-                fid = buildFid(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_BACK_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
+                fid = art_id(FID_TYPE(obj->fid), obj->fid & 0xFFF, ANIM_FALL_BACK_SF, (obj->fid & 0xF000) >> 12, (obj->fid & 0x70000000) >> 24);
             }
 
             if (combatData != NULL) {
@@ -5636,12 +5636,12 @@ void _op_anim_action_frame(Program* program)
     int actionFrame = 0;
 
     if (object != NULL) {
-        int fid = buildFid(FID_TYPE(object->fid), object->fid & 0xFFF, anim, 0, object->rotation);
+        int fid = art_id(FID_TYPE(object->fid), object->fid & 0xFFF, anim, 0, object->rotation);
         CacheEntry* frmHandle;
-        Art* frm = artLock(fid, &frmHandle);
+        Art* frm = art_ptr_lock(fid, &frmHandle);
         if (frm != NULL) {
-            actionFrame = artGetActionFrame(frm);
-            artUnlock(frmHandle);
+            actionFrame = art_frame_action_frame(frm);
+            art_ptr_unlock(frmHandle);
         }
     } else {
         scriptPredefinedError(program, "anim_action_frame", SCRIPT_ERROR_OBJECT_IS_NULL);

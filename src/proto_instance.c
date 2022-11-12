@@ -574,7 +574,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
     int v11 = 0;
     if (critterGetItem2(critter) == item) {
         if (critter != gDude || interfaceGetCurrentHand()) {
-            fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
+            fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
             v11 = 2;
         } else {
@@ -582,7 +582,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
         }
     } else if (critterGetItem1(critter) == item) {
         if (critter == gDude && !interfaceGetCurrentHand()) {
-            fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
+            fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
             v11 = 2;
         } else {
@@ -597,7 +597,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
                 v5 = proto->fid;
             }
 
-            fid = buildFid(OBJ_TYPE_CRITTER, v5, FID_ANIM_TYPE(critter->fid), (critter->fid & 0xF000) >> 12, critter->rotation);
+            fid = art_id(OBJ_TYPE_CRITTER, v5, FID_ANIM_TYPE(critter->fid), (critter->fid & 0xF000) >> 12, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
             v11 = 3;
         }
@@ -1603,7 +1603,7 @@ int _check_door_state(Object* a1, Object* a2)
         }
 
         CacheEntry* artHandle;
-        Art* art = artLock(a1->fid, &artHandle);
+        Art* art = art_ptr_lock(a1->fid, &artHandle);
         if (art == NULL) {
             return -1;
         }
@@ -1616,7 +1616,7 @@ int _check_door_state(Object* a1, Object* a2)
         for (int frame = a1->frame - 1; frame >= 0; frame--) {
             int x;
             int y;
-            artGetFrameOffsets(art, frame, a1->rotation, &x, &y);
+            art_frame_hot(art, frame, a1->rotation, &x, &y);
             _obj_offset(a1, -x, -y, &temp);
         }
 
@@ -1625,7 +1625,7 @@ int _check_door_state(Object* a1, Object* a2)
 
         tileWindowRefreshRect(&dirty, gElevation);
 
-        artUnlock(artHandle);
+        art_ptr_unlock(artHandle);
         return 0;
     } else {
         a1->flags |= OBJECT_OPEN_DOOR;
@@ -1634,14 +1634,14 @@ int _check_door_state(Object* a1, Object* a2)
         tileWindowRefresh();
 
         CacheEntry* artHandle;
-        Art* art = artLock(a1->fid, &artHandle);
+        Art* art = art_ptr_lock(a1->fid, &artHandle);
         if (art == NULL) {
             return -1;
         }
 
-        int frameCount = artGetFrameCount(art);
+        int frameCount = art_frame_max_frame(art);
         if (a1->frame == frameCount - 1) {
-            artUnlock(artHandle);
+            art_ptr_unlock(artHandle);
             return 0;
         }
 
@@ -1653,7 +1653,7 @@ int _check_door_state(Object* a1, Object* a2)
         for (int frame = a1->frame + 1; frame < frameCount; frame++) {
             int x;
             int y;
-            artGetFrameOffsets(art, frame, a1->rotation, &x, &y);
+            art_frame_hot(art, frame, a1->rotation, &x, &y);
             _obj_offset(a1, x, y, &temp);
         }
 
@@ -1662,7 +1662,7 @@ int _check_door_state(Object* a1, Object* a2)
 
         tileWindowRefreshRect(&dirty, gElevation);
 
-        artUnlock(artHandle);
+        art_ptr_unlock(artHandle);
         return 0;
     }
 }

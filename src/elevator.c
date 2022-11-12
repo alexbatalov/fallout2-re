@@ -470,8 +470,8 @@ int elevatorWindowInit(int elevator)
 
     int index;
     for (index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gElevatorFrmIds[index], 0, 0, 0);
-        gElevatorFrmData[index] = artLockFrameDataReturningSize(fid, &(gElevatorFrmHandles[index]), &(gElevatorFrmSizes[index].width), &(gElevatorFrmSizes[index].height));
+        int fid = art_id(OBJ_TYPE_INTERFACE, gElevatorFrmIds[index], 0, 0, 0);
+        gElevatorFrmData[index] = art_lock(fid, &(gElevatorFrmHandles[index]), &(gElevatorFrmSizes[index].width), &(gElevatorFrmSizes[index].height));
         if (gElevatorFrmData[index] == NULL) {
             break;
         }
@@ -479,7 +479,7 @@ int elevatorWindowInit(int elevator)
 
     if (index != ELEVATOR_FRM_COUNT) {
         for (int reversedIndex = index - 1; reversedIndex >= 0; reversedIndex--) {
-            artUnlock(gElevatorFrmHandles[reversedIndex]);
+            art_ptr_unlock(gElevatorFrmHandles[reversedIndex]);
         }
 
         if (gElevatorWindowIsoWasEnabled) {
@@ -497,12 +497,12 @@ int elevatorWindowInit(int elevator)
     const ElevatorBackground* elevatorBackground = &(gElevatorBackgrounds[elevator]);
     bool backgroundsLoaded = true;
 
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, elevatorBackground->backgroundFrmId, 0, 0, 0);
-    gElevatorBackgroundFrmData = artLockFrameDataReturningSize(backgroundFid, &gElevatorBackgroundFrmHandle, &gElevatorBackgroundFrmWidth, &gElevatorBackgroundFrmHeight);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, elevatorBackground->backgroundFrmId, 0, 0, 0);
+    gElevatorBackgroundFrmData = art_lock(backgroundFid, &gElevatorBackgroundFrmHandle, &gElevatorBackgroundFrmWidth, &gElevatorBackgroundFrmHeight);
     if (gElevatorBackgroundFrmData != NULL) {
         if (elevatorBackground->panelFrmId != -1) {
-            int panelFid = buildFid(OBJ_TYPE_INTERFACE, elevatorBackground->panelFrmId, 0, 0, 0);
-            gElevatorPanelFrmData = artLockFrameDataReturningSize(panelFid, &gElevatorPanelFrmHandle, &gElevatorPanelFrmWidth, &gElevatorPanelFrmHeight);
+            int panelFid = art_id(OBJ_TYPE_INTERFACE, elevatorBackground->panelFrmId, 0, 0, 0);
+            gElevatorPanelFrmData = art_lock(panelFid, &gElevatorPanelFrmHandle, &gElevatorPanelFrmWidth, &gElevatorPanelFrmHeight);
             if (gElevatorPanelFrmData == NULL) {
                 gElevatorPanelFrmData = ELEVATOR_BACKGROUND_NULL;
                 backgroundsLoaded = false;
@@ -515,15 +515,15 @@ int elevatorWindowInit(int elevator)
 
     if (!backgroundsLoaded) {
         if (gElevatorBackgroundFrmData != ELEVATOR_BACKGROUND_NULL) {
-            artUnlock(gElevatorBackgroundFrmHandle);
+            art_ptr_unlock(gElevatorBackgroundFrmHandle);
         }
 
         if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-            artUnlock(gElevatorPanelFrmHandle);
+            art_ptr_unlock(gElevatorPanelFrmHandle);
         }
 
         for (int index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-            artUnlock(gElevatorFrmHandles[index]);
+            art_ptr_unlock(gElevatorFrmHandles[index]);
         }
 
         if (gElevatorWindowIsoWasEnabled) {
@@ -546,15 +546,15 @@ int elevatorWindowInit(int elevator)
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (gElevatorWindow == -1) {
         if (gElevatorBackgroundFrmData != ELEVATOR_BACKGROUND_NULL) {
-            artUnlock(gElevatorBackgroundFrmHandle);
+            art_ptr_unlock(gElevatorBackgroundFrmHandle);
         }
 
         if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-            artUnlock(gElevatorPanelFrmHandle);
+            art_ptr_unlock(gElevatorPanelFrmHandle);
         }
 
         for (int index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-            artUnlock(gElevatorFrmHandles[index]);
+            art_ptr_unlock(gElevatorFrmHandles[index]);
         }
 
         if (gElevatorWindowIsoWasEnabled) {
@@ -608,15 +608,15 @@ void elevatorWindowFree()
     windowDestroy(gElevatorWindow);
 
     if (gElevatorBackgroundFrmData != ELEVATOR_BACKGROUND_NULL) {
-        artUnlock(gElevatorBackgroundFrmHandle);
+        art_ptr_unlock(gElevatorBackgroundFrmHandle);
     }
 
     if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-        artUnlock(gElevatorPanelFrmHandle);
+        art_ptr_unlock(gElevatorPanelFrmHandle);
     }
 
     for (int index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-        artUnlock(gElevatorFrmHandles[index]);
+        art_ptr_unlock(gElevatorFrmHandles[index]);
     }
 
     scriptsEnable();

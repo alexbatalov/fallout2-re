@@ -2500,7 +2500,7 @@ void _combat_begin(Object* a1)
         _gmouse_enable_scrolling();
 
         if (v1 != NULL && !_isLoadingGame()) {
-            int fid = buildFid(FID_TYPE(v1->fid),
+            int fid = art_id(FID_TYPE(v1->fid),
                 100,
                 FID_ANIM_TYPE(v1->fid),
                 (v1->fid & 0xF000) >> 12,
@@ -2666,7 +2666,7 @@ void _combat_over()
         scriptSetFixedParam(critter->sid, 0);
 
         if (critter->pid == 0x1000098 && !critterIsDead(critter) && !_isLoadingGame()) {
-            int fid = buildFid(FID_TYPE(critter->fid),
+            int fid = art_id(FID_TYPE(critter->fid),
                 99,
                 FID_ANIM_TYPE(critter->fid),
                 (critter->fid & 0xF000) >> 12,
@@ -3370,8 +3370,8 @@ void attackInit(Attack* attack, Object* attacker, Object* defender, int hitMode,
 int _combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 {
     if (a1 != gDude && hitMode == HIT_MODE_PUNCH && randomBetween(1, 4) == 1) {
-        int fid = buildFid(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_KICK_LEG, (a1->fid & 0xF000) >> 12, (a1->fid & 0x70000000) >> 28);
-        if (artExists(fid)) {
+        int fid = art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_KICK_LEG, (a1->fid & 0xF000) >> 12, (a1->fid & 0x70000000) >> 28);
+        if (art_exists(fid)) {
             hitMode = HIT_MODE_KICK;
         }
     }
@@ -5263,8 +5263,8 @@ void _combat_standup(Object* a1)
 void _print_tohit(unsigned char* dest, int destPitch, int accuracy)
 {
     CacheEntry* numbersFrmHandle;
-    int numbersFrmFid = buildFid(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
-    unsigned char* numbersFrmData = artLockFrameData(numbersFrmFid, 0, 0, &numbersFrmHandle);
+    int numbersFrmFid = art_id(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
+    unsigned char* numbersFrmData = art_ptr_lock_data(numbersFrmFid, 0, 0, &numbersFrmHandle);
     if (numbersFrmData == NULL) {
         return;
     }
@@ -5277,14 +5277,14 @@ void _print_tohit(unsigned char* dest, int destPitch, int accuracy)
         blitBufferToBuffer(numbersFrmData + 108, 6, 17, 360, dest, destPitch);
     }
 
-    artUnlock(numbersFrmHandle);
+    art_ptr_unlock(numbersFrmHandle);
 }
 
 // 0x42612C
 char* hitLocationGetName(Object* critter, int hitLocation)
 {
     MessageListItem messageListItem;
-    messageListItem.num = 1000 + 10 * _art_alias_num(critter->fid & 0xFFF) + hitLocation;
+    messageListItem.num = 1000 + 10 * art_alias_num(critter->fid & 0xFFF) + hitLocation;
     if (messageListGetItem(&gCombatMessageList, &messageListItem)) {
         return messageListItem.text;
     }
@@ -5350,38 +5350,38 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
 
     unsigned char* windowBuffer = windowGetBuffer(gCalledShotWindow);
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 118, 0, 0, 0);
-    data = artLockFrameData(fid, 0, 0, &handle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 118, 0, 0, 0);
+    data = art_ptr_lock_data(fid, 0, 0, &handle);
     if (data == NULL) {
         windowDestroy(gCalledShotWindow);
         return -1;
     }
 
     blitBufferToBuffer(data, CALLED_SHOT_WINDOW_WIDTH, CALLED_SHOT_WINDOW_HEIGHT, CALLED_SHOT_WINDOW_WIDTH, windowBuffer, CALLED_SHOT_WINDOW_WIDTH);
-    artUnlock(handle);
+    art_ptr_unlock(handle);
 
-    fid = buildFid(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_CALLED_SHOT_PIC, 0, 0);
-    data = artLockFrameData(fid, 0, 0, &handle);
+    fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_CALLED_SHOT_PIC, 0, 0);
+    data = art_ptr_lock_data(fid, 0, 0, &handle);
     if (data != NULL) {
         blitBufferToBuffer(data, 170, 225, 170, windowBuffer + CALLED_SHOT_WINDOW_WIDTH * 31 + 168, CALLED_SHOT_WINDOW_WIDTH);
-        artUnlock(handle);
+        art_ptr_unlock(handle);
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
+    fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
 
     CacheEntry* upHandle;
-    unsigned char* up = artLockFrameData(fid, 0, 0, &upHandle);
+    unsigned char* up = art_ptr_lock_data(fid, 0, 0, &upHandle);
     if (up == NULL) {
         windowDestroy(gCalledShotWindow);
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
+    fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
 
     CacheEntry* downHandle;
-    unsigned char* down = artLockFrameData(fid, 0, 0, &downHandle);
+    unsigned char* down = art_ptr_lock_data(fid, 0, 0, &downHandle);
     if (down == NULL) {
-        artUnlock(upHandle);
+        art_ptr_unlock(upHandle);
         windowDestroy(gCalledShotWindow);
         return -1;
     }
@@ -5449,8 +5449,8 @@ int calledShotSelectHitLocation(Object* critter, int* hitLocation, int hitMode)
 
     fontSetCurrent(oldFont);
 
-    artUnlock(downHandle);
-    artUnlock(upHandle);
+    art_ptr_unlock(downHandle);
+    art_ptr_unlock(upHandle);
     windowDestroy(gCalledShotWindow);
 
     if (eventCode == KEY_ESCAPE) {

@@ -174,7 +174,7 @@ void endgamePlaySlideshow()
             if (ending->art_num == 327) {
                 endgameEndingRenderPanningScene(ending->direction, ending->voiceOverBaseName);
             } else {
-                int fid = buildFid(OBJ_TYPE_INTERFACE, ending->art_num, 0, 0, 0);
+                int fid = art_id(OBJ_TYPE_INTERFACE, ending->art_num, 0, 0, 0);
                 endgameEndingRenderStaticScene(fid, ending->voiceOverBaseName);
             }
         }
@@ -266,14 +266,14 @@ int endgameEndingHandleContinuePlaying()
 // 0x43FBDC
 void endgameEndingRenderPanningScene(int direction, const char* narratorFileName)
 {
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 327, 0, 0, 0);
+    int fid = art_id(OBJ_TYPE_INTERFACE, 327, 0, 0, 0);
 
     CacheEntry* backgroundHandle;
-    Art* background = artLock(fid, &backgroundHandle);
+    Art* background = art_ptr_lock(fid, &backgroundHandle);
     if (background != NULL) {
-        int width = artGetWidth(background, 0, 0);
-        int height = artGetHeight(background, 0, 0);
-        unsigned char* backgroundData = artGetFrameData(background, 0, 0);
+        int width = art_frame_width(background, 0, 0);
+        int height = art_frame_length(background, 0, 0);
+        unsigned char* backgroundData = art_frame_data(background, 0, 0);
         bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
         endgameEndingLoadPalette(6, 327);
 
@@ -372,7 +372,7 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
         }
 
         tickersEnable();
-        artUnlock(backgroundHandle);
+        art_ptr_unlock(backgroundHandle);
 
         paletteFadeTo(gPaletteBlack);
         bufferFill(gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
@@ -388,12 +388,12 @@ void endgameEndingRenderPanningScene(int direction, const char* narratorFileName
 void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
 {
     CacheEntry* backgroundHandle;
-    Art* background = artLock(fid, &backgroundHandle);
+    Art* background = art_ptr_lock(fid, &backgroundHandle);
     if (background == NULL) {
         return;
     }
 
-    unsigned char* backgroundData = artGetFrameData(background, 0, 0);
+    unsigned char* backgroundData = art_frame_data(background, 0, 0);
     if (backgroundData != NULL) {
         blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, gEndgameEndingSlideshowWindowBuffer, ENDGAME_ENDING_WINDOW_WIDTH);
         win_draw(gEndgameEndingSlideshowWindow);
@@ -462,7 +462,7 @@ void endgameEndingRenderStaticScene(int fid, const char* narratorFileName)
         }
     }
 
-    artUnlock(backgroundHandle);
+    art_ptr_unlock(backgroundHandle);
 }
 
 // 0x43F99C
@@ -661,7 +661,7 @@ void endgameEndingVoiceOverFree()
 void endgameEndingLoadPalette(int type, int id)
 {
     char fileName[13];
-    if (artCopyFileName(type, id, fileName) != 0) {
+    if (art_get_base_name(type, id, fileName) != 0) {
         return;
     }
 

@@ -1397,16 +1397,16 @@ char* sfxBuildCharName(Object* a1, int anim, int extra)
     char v8;
     char v9;
 
-    if (artCopyFileName(FID_TYPE(a1->fid), a1->fid & 0xFFF, v7) == -1) {
+    if (art_get_base_name(FID_TYPE(a1->fid), a1->fid & 0xFFF, v7) == -1) {
         return NULL;
     }
 
     if (anim == ANIM_TAKE_OUT) {
-        if (_art_get_code(anim, extra, &v8, &v9) == -1) {
+        if (art_get_code(anim, extra, &v8, &v9) == -1) {
             return NULL;
         }
     } else {
-        if (_art_get_code(anim, (a1->fid & 0xF000) >> 12, &v8, &v9) == -1) {
+        if (art_get_code(anim, (a1->fid & 0xF000) >> 12, &v8, &v9) == -1) {
             return NULL;
         }
     }

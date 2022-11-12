@@ -162,7 +162,7 @@ int isoInit()
         return -1;
     }
 
-    if (artInit() != 0) {
+    if (art_init() != 0) {
         debugPrint("art_init failed in iso_init\n");
         return -1;
     }
@@ -220,7 +220,7 @@ void isoReset()
         gMapLocalVarsLength = 0;
     }
 
-    artReset();
+    art_reset();
     tileReset();
     objectsReset();
     colorCycleReset();
@@ -237,7 +237,7 @@ void isoExit()
     colorCycleFree();
     objectsExit();
     tileExit();
-    artExit();
+    art_exit();
 
     if (gMapGlobalVars != NULL) {
         internal_free(gMapGlobalVars);
@@ -903,7 +903,7 @@ int mapLoad(File* stream)
         }
 
         Object* object;
-        int fid = buildFid(OBJ_TYPE_MISC, 12, 0, 0, 0);
+        int fid = art_id(OBJ_TYPE_MISC, 12, 0, 0, 0);
         objectCreateWithFidPid(&object, fid, -1);
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_TEMPORARY | OBJECT_HIDDEN);
         objectSetLocation(object, 1, 0, NULL);
@@ -1302,13 +1302,13 @@ int _map_save_file(File* stream)
         for (tile = 0; tile < SQUARE_GRID_SIZE; tile++) {
             int fid;
 
-            fid = buildFid(OBJ_TYPE_TILE, _square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
-            if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
+            fid = art_id(OBJ_TYPE_TILE, _square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
+            if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                 break;
             }
 
-            fid = buildFid(OBJ_TYPE_TILE, (_square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
-            if (fid != buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
+            fid = art_id(OBJ_TYPE_TILE, (_square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
+            if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                 break;
             }
         }
@@ -1520,7 +1520,7 @@ void _map_place_dude_and_mouse()
     if (gDude != NULL) {
         if (FID_ANIM_TYPE(gDude->fid) != ANIM_STAND) {
             objectSetFrame(gDude, 0, 0);
-            gDude->fid = buildFid(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, (gDude->fid & 0xF000) >> 12, gDude->rotation + 1);
+            gDude->fid = art_id(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, (gDude->fid & 0xF000) >> 12, gDude->rotation + 1);
         }
 
         if (gDude->tile == -1) {
@@ -1550,11 +1550,11 @@ void _square_reset()
                 // check subsequent calls.
                 int fid = *p;
                 fid &= ~0xFFFF;
-                *p = (((buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0) & 0xFFF) | (((fid >> 16) & 0xF000) >> 12)) << 16) | (fid & 0xFFFF);
+                *p = (((art_id(OBJ_TYPE_TILE, 1, 0, 0, 0) & 0xFFF) | (((fid >> 16) & 0xF000) >> 12)) << 16) | (fid & 0xFFFF);
 
                 fid = *p;
                 int v3 = (fid & 0xF000) >> 12;
-                int v4 = (buildFid(OBJ_TYPE_TILE, 1, 0, 0, 0) & 0xFFF) | v3;
+                int v4 = (art_id(OBJ_TYPE_TILE, 1, 0, 0, 0) & 0xFFF) | v3;
 
                 fid &= ~0xFFFF;
 

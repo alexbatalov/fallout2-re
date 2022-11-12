@@ -460,12 +460,12 @@ int optionsWindowInit()
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gOptionsWindowFrmIds[index], 0, 0, 0);
-        gOptionsWindowFrmData[index] = artLockFrameDataReturningSize(fid, &(gOptionsWindowFrmHandles[index]), &(gOptionsWindowFrmSizes[index].width), &(gOptionsWindowFrmSizes[index].height));
+        int fid = art_id(OBJ_TYPE_INTERFACE, gOptionsWindowFrmIds[index], 0, 0, 0);
+        gOptionsWindowFrmData[index] = art_lock(fid, &(gOptionsWindowFrmHandles[index]), &(gOptionsWindowFrmSizes[index].width), &(gOptionsWindowFrmSizes[index].height));
 
         if (gOptionsWindowFrmData[index] == NULL) {
             while (--index >= 0) {
-                artUnlock(gOptionsWindowFrmHandles[index]);
+                art_ptr_unlock(gOptionsWindowFrmHandles[index]);
             }
 
             messageListFree(&gOptionsMessageList);
@@ -483,7 +483,7 @@ int optionsWindowInit()
             }
 
             for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-                artUnlock(gOptionsWindowFrmHandles[index]);
+                art_ptr_unlock(gOptionsWindowFrmHandles[index]);
             }
 
             messageListFree(&gOptionsMessageList);
@@ -511,7 +511,7 @@ int optionsWindowInit()
         }
 
         for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-            artUnlock(gOptionsWindowFrmHandles[index]);
+            art_ptr_unlock(gOptionsWindowFrmHandles[index]);
         }
 
         messageListFree(&gOptionsMessageList);
@@ -577,7 +577,7 @@ int optionsWindowFree()
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-        artUnlock(gOptionsWindowFrmHandles[index]);
+        art_ptr_unlock(gOptionsWindowFrmHandles[index]);
     }
 
     if (gOptionsWindowGameMouseObjectsWasVisible) {
@@ -617,11 +617,11 @@ int showPause(bool a1)
     _ShadeScreen(a1);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, graphicIds[index], 0, 0, 0);
-        frmData[index] = artLockFrameDataReturningSize(fid, &(frmHandles[index]), &(frmSizes[index].width), &(frmSizes[index].height));
+        int fid = art_id(OBJ_TYPE_INTERFACE, graphicIds[index], 0, 0, 0);
+        frmData[index] = art_lock(fid, &(frmHandles[index]), &(frmSizes[index].width), &(frmSizes[index].height));
         if (frmData[index] == NULL) {
             while (--index >= 0) {
-                artUnlock(frmHandles[index]);
+                art_ptr_unlock(frmHandles[index]);
             }
 
             debugPrint("\n** Error loading pause window graphics! **\n");
@@ -659,7 +659,7 @@ int showPause(bool a1)
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (window == -1) {
         for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
-            artUnlock(frmHandles[index]);
+            art_ptr_unlock(frmHandles[index]);
         }
 
         messageListFree(&gOptionsMessageList);
@@ -753,7 +753,7 @@ int showPause(bool a1)
     windowDestroy(window);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
-        artUnlock(frmHandles[index]);
+        art_ptr_unlock(frmHandles[index]);
     }
 
     messageListFree(&gOptionsMessageList);
@@ -1385,11 +1385,11 @@ int preferencesWindowInit()
     _SaveSettings();
 
     for (i = 0; i < PREFERENCES_WINDOW_FRM_COUNT; i++) {
-        fid = buildFid(OBJ_TYPE_INTERFACE, gPreferencesWindowFrmIds[i], 0, 0, 0);
-        gPreferencesWindowFrmData[i] = artLockFrameDataReturningSize(fid, &(gPreferencesWindowFrmHandles[i]), &(gPreferencesWindowFrmSizes[i].width), &(gPreferencesWindowFrmSizes[i].height));
+        fid = art_id(OBJ_TYPE_INTERFACE, gPreferencesWindowFrmIds[i], 0, 0, 0);
+        gPreferencesWindowFrmData[i] = art_lock(fid, &(gPreferencesWindowFrmHandles[i]), &(gPreferencesWindowFrmSizes[i].width), &(gPreferencesWindowFrmSizes[i].height));
         if (gPreferencesWindowFrmData[i] == NULL) {
             for (; i != 0; i--) {
-                artUnlock(gPreferencesWindowFrmHandles[i - 1]);
+                art_ptr_unlock(gPreferencesWindowFrmHandles[i - 1]);
             }
             return -1;
         }
@@ -1407,7 +1407,7 @@ int preferencesWindowInit()
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (gPreferencesWindow == -1) {
         for (i = 0; i < PREFERENCES_WINDOW_FRM_COUNT; i++) {
-            artUnlock(gPreferencesWindowFrmHandles[i]);
+            art_ptr_unlock(gPreferencesWindowFrmHandles[i]);
         }
         return -1;
     }
@@ -1592,7 +1592,7 @@ int preferencesWindowFree()
     windowDestroy(gPreferencesWindow);
 
     for (int index = 0; index < PREFERENCES_WINDOW_FRM_COUNT; index++) {
-        artUnlock(gPreferencesWindowFrmHandles[index]);
+        art_ptr_unlock(gPreferencesWindowFrmHandles[index]);
     }
 
     return 0;

@@ -1,8 +1,5 @@
-#ifndef ART_H
-#define ART_H
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#ifndef FALLOUT_GAME_ART_H_
+#define FALLOUT_GAME_ART_H_
 
 #include "cache.h"
 #include "db.h"
@@ -128,59 +125,53 @@ typedef enum DudeNativeLook {
     DUDE_NATIVE_LOOK_COUNT,
 } DudeNativeLook;
 
-extern ArtListDescription gArtListDescriptions[OBJ_TYPE_COUNT];
-extern bool gArtLanguageInitialized;
-extern const char* _head1;
-extern const char* _head2;
-extern int _art_vault_guy_num;
-extern int _art_vault_person_nums[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
-extern int _art_mapper_blank_tile;
+extern int art_vault_guy_num;
+extern int art_vault_person_nums[DUDE_NATIVE_LOOK_COUNT][GENDER_COUNT];
+extern int art_mapper_blank_tile;
 
-extern char gArtLanguage[32];
-extern Cache gArtCache;
-extern char _art_name[MAX_PATH];
-extern HeadDescription* gHeadDescriptions;
-extern int* _anon_alias;
-extern int* gArtCritterFidShoudRunData;
+extern Cache art_cache;
+extern HeadDescription* head_info;
+extern int* anon_alias;
+extern int* artCritterFidShouldRunData;
 
-int artInit();
-void artReset();
-void artExit();
-char* artGetObjectTypeName(int objectType);
-int artIsObjectTypeHidden(int objectType);
+int art_init();
+void art_reset();
+void art_exit();
+char* art_dir(int objectType);
+int art_get_disable(int objectType);
 void art_toggle_disable(int objectType);
 int art_total(int objectType);
-int artGetFidgetCount(int headFid);
-void artRender(int fid, unsigned char* dest, int width, int height, int pitch);
-Art* artLock(int fid, CacheEntry** cache_entry);
-unsigned char* artLockFrameData(int fid, int frame, int direction, CacheEntry** out_cache_entry);
-unsigned char* artLockFrameDataReturningSize(int fid, CacheEntry** out_cache_entry, int* widthPtr, int* heightPtr);
-int artUnlock(CacheEntry* cache_entry);
-int _art_discard(int fid);
-int artCacheFlush();
-int artCopyFileName(int objectType, int a2, char* a3);
-int _art_get_code(int a1, int a2, char* a3, char* a4);
-char* artBuildFilePath(int a1);
-int artReadList(const char* path, char** artListPtr, int* artListSizePtr);
-int artGetFramesPerSecond(Art* art);
-int artGetActionFrame(Art* art);
-int artGetFrameCount(Art* art);
-int artGetWidth(Art* art, int frame, int direction);
-int artGetHeight(Art* art, int frame, int direction);
-int artGetSize(Art* art, int frame, int direction, int* out_width, int* out_height);
-int artGetFrameOffsets(Art* art, int frame, int direction, int* a4, int* a5);
-int artGetRotationOffsets(Art* art, int rotation, int* out_offset_x, int* out_offset_y);
-unsigned char* artGetFrameData(Art* art, int frame, int direction);
-ArtFrame* artGetFrame(Art* art, int frame, int direction);
-bool artExists(int fid);
-bool _art_fid_valid(int fid);
-int _art_alias_num(int a1);
+int art_head_fidgets(int headFid);
+void scale_art(int fid, unsigned char* dest, int width, int height, int pitch);
+Art* art_ptr_lock(int fid, CacheEntry** cache_entry);
+unsigned char* art_ptr_lock_data(int fid, int frame, int direction, CacheEntry** out_cache_entry);
+unsigned char* art_lock(int fid, CacheEntry** out_cache_entry, int* widthPtr, int* heightPtr);
+int art_ptr_unlock(CacheEntry* cache_entry);
+int art_discard(int fid);
+int art_flush();
+int art_get_base_name(int objectType, int a2, char* a3);
+int art_get_code(int a1, int a2, char* a3, char* a4);
+char* art_get_name(int a1);
+int art_read_lst(const char* path, char** artListPtr, int* artListSizePtr);
+int art_frame_fps(Art* art);
+int art_frame_action_frame(Art* art);
+int art_frame_max_frame(Art* art);
+int art_frame_width(Art* art, int frame, int direction);
+int art_frame_length(Art* art, int frame, int direction);
+int art_frame_width_length(Art* art, int frame, int direction, int* out_width, int* out_height);
+int art_frame_hot(Art* art, int frame, int direction, int* a4, int* a5);
+int art_frame_offset(Art* art, int rotation, int* out_offset_x, int* out_offset_y);
+unsigned char* art_frame_data(Art* art, int frame, int direction);
+ArtFrame* frame_ptr(Art* art, int frame, int direction);
+bool art_exists(int fid);
+bool art_fid_valid(int fid);
+int art_alias_num(int a1);
 int artCritterFidShouldRun(int a1);
-int artAliasFid(int fid);
-int artCacheGetFileSizeImpl(int a1, int* out_size);
-int artCacheReadDataImpl(int a1, int* a2, unsigned char* data);
-void artCacheFreeImpl(void* ptr);
-int buildFid(int objectType, int frmId, int animType, int a4, int rotation);
+int art_alias_fid(int fid);
+int art_data_size(int a1, int* out_size);
+int art_data_load(int a1, int* a2, unsigned char* data);
+void art_data_free(void* ptr);
+int art_id(int objectType, int frmId, int animType, int a4, int rotation);
 int artReadFrameData(unsigned char* data, File* stream, int count);
 int artReadHeader(Art* art, File* stream);
 int _load_frame(const char* path, Art** artPtr);
@@ -189,4 +180,4 @@ int artWriteFrameData(unsigned char* data, File* stream, int count);
 int artWriteHeader(Art* art, File* stream);
 int artWrite(const char* path, unsigned char* data);
 
-#endif
+#endif /* FALLOUT_GAME_ART_H_ */

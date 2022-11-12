@@ -131,8 +131,8 @@ int skilldexWindowInit()
 
     int frmIndex;
     for (frmIndex = 0; frmIndex < SKILLDEX_FRM_COUNT; frmIndex++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gSkilldexFrmIds[frmIndex], 0, 0, 0);
-        gSkilldexFrmData[frmIndex] = artLockFrameDataReturningSize(fid, &(gSkilldexFrmHandles[frmIndex]), &(gSkilldexFrmSizes[frmIndex].width), &(gSkilldexFrmSizes[frmIndex].height));
+        int fid = art_id(OBJ_TYPE_INTERFACE, gSkilldexFrmIds[frmIndex], 0, 0, 0);
+        gSkilldexFrmData[frmIndex] = art_lock(fid, &(gSkilldexFrmHandles[frmIndex]), &(gSkilldexFrmSizes[frmIndex].width), &(gSkilldexFrmSizes[frmIndex].height));
         if (gSkilldexFrmData[frmIndex] == NULL) {
             break;
         }
@@ -140,7 +140,7 @@ int skilldexWindowInit()
 
     if (frmIndex < SKILLDEX_FRM_COUNT) {
         while (--frmIndex >= 0) {
-            artUnlock(gSkilldexFrmHandles[frmIndex]);
+            art_ptr_unlock(gSkilldexFrmHandles[frmIndex]);
         }
 
         messageListFree(&gSkilldexMessageList);
@@ -178,7 +178,7 @@ int skilldexWindowInit()
         }
 
         for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
-            artUnlock(gSkilldexFrmHandles[index]);
+            art_ptr_unlock(gSkilldexFrmHandles[index]);
         }
 
         messageListFree(&gSkilldexMessageList);
@@ -200,7 +200,7 @@ int skilldexWindowInit()
         }
 
         for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
-            artUnlock(gSkilldexFrmHandles[index]);
+            art_ptr_unlock(gSkilldexFrmHandles[index]);
         }
 
         messageListFree(&gSkilldexMessageList);
@@ -349,7 +349,7 @@ void skilldexWindowFree()
     }
 
     for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
-        artUnlock(gSkilldexFrmHandles[index]);
+        art_ptr_unlock(gSkilldexFrmHandles[index]);
     }
 
     messageListFree(&gSkilldexMessageList);

@@ -1080,13 +1080,13 @@ void showHelp()
     if (win != -1) {
         unsigned char* windowBuffer = windowGetBuffer(win);
         if (windowBuffer != NULL) {
-            int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 297, 0, 0, 0);
+            int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 297, 0, 0, 0);
             CacheEntry* backgroundHandle;
-            unsigned char* backgroundData = artLockFrameData(backgroundFid, 0, 0, &backgroundHandle);
+            unsigned char* backgroundData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundHandle);
             if (backgroundData != NULL) {
                 paletteSetEntries(gPaletteBlack);
                 blitBufferToBuffer(backgroundData, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, HELP_SCREEN_WIDTH, windowBuffer, HELP_SCREEN_WIDTH);
-                artUnlock(backgroundHandle);
+                art_ptr_unlock(backgroundHandle);
                 win_show(win);
                 loadColorTable("art\\intrface\\helpscrn.pal");
                 paletteSetEntries(cmap);

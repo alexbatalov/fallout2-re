@@ -717,7 +717,7 @@ void gameDialogStartLips(const char* audioFileName)
     }
 
     char name[16];
-    if (artCopyFileName(OBJ_TYPE_HEAD, gGameDialogHeadFid & 0xFFF, name) == -1) {
+    if (art_get_base_name(OBJ_TYPE_HEAD, gGameDialogHeadFid & 0xFFF, name) == -1) {
         return;
     }
 
@@ -840,12 +840,12 @@ int _gdialogExitFromScript()
     fontSetCurrent(_oldFont);
 
     if (gGameDialogFidgetFrm != NULL) {
-        artUnlock(gGameDialogFidgetFrmHandle);
+        art_ptr_unlock(gGameDialogFidgetFrmHandle);
         gGameDialogFidgetFrm = NULL;
     }
 
     if (_lipsKey != NULL) {
-        if (artUnlock(_lipsKey) == -1) {
+        if (art_ptr_unlock(_lipsKey) == -1) {
             debugPrint("Failure unlocking lips frame!\n");
         }
         _lipsKey = NULL;
@@ -1195,8 +1195,8 @@ int gameDialogReviewWindowInit(int* win)
         return -1;
     }
 
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 102, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(fid, 0, 0, &_reviewBackKey);
+    int fid = art_id(OBJ_TYPE_INTERFACE, 102, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &_reviewBackKey);
     if (backgroundFrmData == NULL) {
         windowDestroy(*win);
         *win = -1;
@@ -1211,15 +1211,15 @@ int gameDialogReviewWindowInit(int* win)
         windowBuffer,
         GAME_DIALOG_REVIEW_WINDOW_WIDTH);
 
-    artUnlock(_reviewBackKey);
+    art_ptr_unlock(_reviewBackKey);
     _reviewBackKey = INVALID_CACHE_ENTRY;
 
     unsigned char* buttonFrmData[GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_COUNT];
 
     int index;
     for (index = 0; index < GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gGameDialogReviewWindowButtonFrmIds[index], 0, 0, 0);
-        buttonFrmData[index] = artLockFrameData(fid, 0, 0, &(gGameDialogReviewWindowButtonFrmHandles[index]));
+        int fid = art_id(OBJ_TYPE_INTERFACE, gGameDialogReviewWindowButtonFrmIds[index], 0, 0, 0);
+        buttonFrmData[index] = art_ptr_lock_data(fid, 0, 0, &(gGameDialogReviewWindowButtonFrmHandles[index]));
         if (buttonFrmData[index] == NULL) {
             break;
         }
@@ -1296,8 +1296,8 @@ int gameDialogReviewWindowInit(int* win)
 
     tickersRemove(gameDialogTicker);
 
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 102, 0, 0, 0);
-    gGameDialogReviewWindowBackgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &gGameDialogReviewWindowBackgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 102, 0, 0, 0);
+    gGameDialogReviewWindowBackgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &gGameDialogReviewWindowBackgroundFrmHandle);
     if (gGameDialogReviewWindowBackgroundFrmData == NULL) {
         gameDialogReviewWindowFree(win);
         return -1;
@@ -1313,13 +1313,13 @@ int gameDialogReviewWindowFree(int* win)
 
     for (int index = 0; index < GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_COUNT; index++) {
         if (gGameDialogReviewWindowButtonFrmHandles[index] != INVALID_CACHE_ENTRY) {
-            artUnlock(gGameDialogReviewWindowButtonFrmHandles[index]);
+            art_ptr_unlock(gGameDialogReviewWindowButtonFrmHandles[index]);
             gGameDialogReviewWindowButtonFrmHandles[index] = INVALID_CACHE_ENTRY;
         }
     }
 
     if (gGameDialogReviewWindowBackgroundFrmHandle != INVALID_CACHE_ENTRY) {
-        artUnlock(gGameDialogReviewWindowBackgroundFrmHandle);
+        art_ptr_unlock(gGameDialogReviewWindowBackgroundFrmHandle);
         gGameDialogReviewWindowBackgroundFrmHandle = INVALID_CACHE_ENTRY;
         gGameDialogReviewWindowBackgroundFrmData = NULL;
     }
@@ -1639,15 +1639,15 @@ int _gdProcessInit()
     }
 
     // di_rdbt2.frm - dialog red button down
-    fid = buildFid(OBJ_TYPE_INTERFACE, 96, 0, 0, 0);
-    gGameDialogRedButtonUpFrmData = artLockFrameData(fid, 0, 0, &gGameDialogRedButtonUpFrmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 96, 0, 0, 0);
+    gGameDialogRedButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gGameDialogRedButtonUpFrmHandle);
     if (gGameDialogRedButtonUpFrmData == NULL) {
         goto err_3;
     }
 
     // di_rdbt1.frm - dialog red button up
-    fid = buildFid(OBJ_TYPE_INTERFACE, 95, 0, 0, 0);
-    gGameDialogRedButtonDownFrmData = artLockFrameData(fid, 0, 0, &gGameDialogRedButtonDownFrmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 95, 0, 0, 0);
+    gGameDialogRedButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gGameDialogRedButtonDownFrmHandle);
     if (gGameDialogRedButtonDownFrmData == NULL) {
         goto err_3;
     }
@@ -1659,7 +1659,7 @@ int _gdProcessInit()
 
 err_3:
 
-    artUnlock(gGameDialogRedButtonUpFrmHandle);
+    art_ptr_unlock(gGameDialogRedButtonUpFrmHandle);
     gGameDialogRedButtonUpFrmHandle = NULL;
 
 err_2:
@@ -1699,11 +1699,11 @@ int _gdProcessExit()
 {
     _gdProcessCleanup();
 
-    artUnlock(gGameDialogRedButtonDownFrmHandle);
+    art_ptr_unlock(gGameDialogRedButtonDownFrmHandle);
     gGameDialogRedButtonDownFrmHandle = NULL;
     gGameDialogRedButtonDownFrmData = NULL;
 
-    artUnlock(gGameDialogRedButtonUpFrmHandle);
+    art_ptr_unlock(gGameDialogRedButtonUpFrmHandle);
     gGameDialogRedButtonUpFrmHandle = NULL;
     gGameDialogRedButtonUpFrmData = NULL;
 
@@ -2332,7 +2332,7 @@ void _gdSetupFidget(int headFrmId, int reaction)
 
     if (_lipsFID != 0) {
         if (anim != _phone_anim) {
-            if (artUnlock(_lipsKey) == -1) {
+            if (art_ptr_unlock(_lipsKey) == -1) {
                 debugPrint("failure unlocking lips frame!\n");
             }
             _lipsKey = NULL;
@@ -2343,19 +2343,19 @@ void _gdSetupFidget(int headFrmId, int reaction)
 
     if (_lipsFID == 0) {
         _phone_anim = anim;
-        _lipsFID = buildFid(OBJ_TYPE_HEAD, headFrmId, anim, 0, 0);
-        _lipsFp = artLock(_lipsFID, &_lipsKey);
+        _lipsFID = art_id(OBJ_TYPE_HEAD, headFrmId, anim, 0, 0);
+        _lipsFp = art_ptr_lock(_lipsFID, &_lipsKey);
         if (_lipsFp == NULL) {
             debugPrint("failure!\n");
 
             char stats[200];
-            cachePrintStats(&gArtCache, stats);
+            cachePrintStats(&art_cache, stats);
             debugPrint("%s", stats);
         }
     }
 
-    int fid = buildFid(OBJ_TYPE_HEAD, headFrmId, reaction, 0, 0);
-    int fidgetCount = artGetFidgetCount(fid);
+    int fid = art_id(OBJ_TYPE_HEAD, headFrmId, reaction, 0, 0);
+    int fidgetCount = art_head_fidgets(fid);
     if (fidgetCount == -1) {
         debugPrint("\tError - No available fidgets for given frame id\n");
         return;
@@ -2390,25 +2390,25 @@ void _gdSetupFidget(int headFrmId, int reaction)
     debugPrint("Choosing fidget %d out of %d\n", fidget, fidgetCount);
 
     if (gGameDialogFidgetFrm != NULL) {
-        if (artUnlock(gGameDialogFidgetFrmHandle) == -1) {
+        if (art_ptr_unlock(gGameDialogFidgetFrmHandle) == -1) {
             debugPrint("failure!\n");
         }
     }
 
-    gGameDialogFidgetFid = buildFid(OBJ_TYPE_HEAD, headFrmId, reaction, fidget, 0);
+    gGameDialogFidgetFid = art_id(OBJ_TYPE_HEAD, headFrmId, reaction, fidget, 0);
     gGameDialogFidgetFrmCurrentFrame = 0;
-    gGameDialogFidgetFrm = artLock(gGameDialogFidgetFid, &gGameDialogFidgetFrmHandle);
+    gGameDialogFidgetFrm = art_ptr_lock(gGameDialogFidgetFid, &gGameDialogFidgetFrmHandle);
     if (gGameDialogFidgetFrm == NULL) {
         debugPrint("failure!\n");
 
         char stats[200];
-        cachePrintStats(&gArtCache, stats);
+        cachePrintStats(&art_cache, stats);
         debugPrint("%s", stats);
     }
 
     gGameDialogFidgetLastUpdateTimestamp = 0;
     gGameDialogFidgetReaction = reaction;
-    gGameDialogFidgetUpdateDelay = 1000 / artGetFramesPerSecond(gGameDialogFidgetFrm);
+    gGameDialogFidgetUpdateDelay = 1000 / art_frame_fps(gGameDialogFidgetFrm);
 }
 
 // 0x447598
@@ -2424,7 +2424,7 @@ void gameDialogWaitForFidgetToComplete()
 
     debugPrint("Waiting for fidget to complete...\n");
 
-    while (artGetFrameCount(gGameDialogFidgetFrm) > gGameDialogFidgetFrmCurrentFrame) {
+    while (art_frame_max_frame(gGameDialogFidgetFrm) > gGameDialogFidgetFrmCurrentFrame) {
         if (getTicksSince(gGameDialogFidgetLastUpdateTimestamp) >= gGameDialogFidgetUpdateDelay) {
             gameDialogRenderTalkingHead(gGameDialogFidgetFrm, gGameDialogFidgetFrmCurrentFrame);
             gGameDialogFidgetLastUpdateTimestamp = _get_time();
@@ -2453,24 +2453,24 @@ void _gdPlayTransition(int anim)
     gameDialogWaitForFidgetToComplete();
 
     if (gGameDialogFidgetFrm != NULL) {
-        if (artUnlock(gGameDialogFidgetFrmHandle) == -1) {
+        if (art_ptr_unlock(gGameDialogFidgetFrmHandle) == -1) {
             debugPrint("\tError unlocking fidget in transition func...");
         }
         gGameDialogFidgetFrm = NULL;
     }
 
     CacheEntry* headFrmHandle;
-    int headFid = buildFid(OBJ_TYPE_HEAD, gGameDialogHeadFid, anim, 0, 0);
-    Art* headFrm = artLock(headFid, &headFrmHandle);
+    int headFid = art_id(OBJ_TYPE_HEAD, gGameDialogHeadFid, anim, 0, 0);
+    Art* headFrm = art_ptr_lock(headFid, &headFrmHandle);
     if (headFrm == NULL) {
         debugPrint("\tError locking transition...\n");
     }
 
-    unsigned int delay = 1000 / artGetFramesPerSecond(headFrm);
+    unsigned int delay = 1000 / art_frame_fps(headFrm);
 
     int frame = 0;
     unsigned int time = 0;
-    while (frame < artGetFrameCount(headFrm)) {
+    while (frame < art_frame_max_frame(headFrm)) {
         if (getTicksSince(time) >= delay) {
             gameDialogRenderTalkingHead(headFrm, frame);
             time = _get_time();
@@ -2478,7 +2478,7 @@ void _gdPlayTransition(int anim)
         }
     }
 
-    if (artUnlock(headFrmHandle) == -1) {
+    if (art_ptr_unlock(headFrmHandle) == -1) {
         debugPrint("\tError unlocking transition...\n");
     }
 
@@ -2705,7 +2705,7 @@ void gameDialogTicker()
     }
 
     if (getTicksSince(gGameDialogFidgetLastUpdateTimestamp) >= gGameDialogFidgetUpdateDelay) {
-        if (artGetFrameCount(gGameDialogFidgetFrm) <= gGameDialogFidgetFrmCurrentFrame) {
+        if (art_frame_max_frame(gGameDialogFidgetFrm) <= gGameDialogFidgetFrmCurrentFrame) {
             gameDialogRenderTalkingHead(gGameDialogFidgetFrm, 0);
             _can_start_new_fidget = true;
         } else {
@@ -3032,20 +3032,20 @@ int _gdialog_barter_create_win()
         frmId = 111;
     }
 
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
     CacheEntry* backgroundHandle;
-    Art* backgroundFrm = artLock(backgroundFid, &backgroundHandle);
+    Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundHandle);
     if (backgroundFrm == NULL) {
         return -1;
     }
 
-    unsigned char* backgroundData = artGetFrameData(backgroundFrm, 0, 0);
+    unsigned char* backgroundData = art_frame_data(backgroundFrm, 0, 0);
     if (backgroundData == NULL) {
-        artUnlock(backgroundHandle);
+        art_ptr_unlock(backgroundHandle);
         return -1;
     }
 
-    _dialogue_subwin_len = artGetHeight(backgroundFrm, 0, 0);
+    _dialogue_subwin_len = art_frame_length(backgroundFrm, 0, 0);
 
     int barterWindowX = 0;
     int barterWindowY = GAME_DIALOG_WINDOW_HEIGHT - _dialogue_subwin_len;
@@ -3056,7 +3056,7 @@ int _gdialog_barter_create_win()
         256,
         WINDOW_FLAG_0x02);
     if (gGameDialogWindow == -1) {
-        artUnlock(backgroundHandle);
+        art_ptr_unlock(backgroundHandle);
         return -1;
     }
 
@@ -3068,7 +3068,7 @@ int _gdialog_barter_create_win()
 
     _gdialog_scroll_subwin(gGameDialogWindow, 1, backgroundData, windowBuffer, NULL, _dialogue_subwin_len, 0);
 
-    artUnlock(backgroundHandle);
+    art_ptr_unlock(backgroundHandle);
 
     // TRADE
     _gdialog_buttons[0] = buttonCreate(gGameDialogWindow, 41, 163, 14, 14, -1, -1, -1, KEY_LOWERCASE_M, gGameDialogRedButtonUpFrmData, gGameDialogRedButtonDownFrmData, 0, BUTTON_FLAG_TRANSPARENT);
@@ -3141,12 +3141,12 @@ void _gdialog_barter_destroy_win()
     }
 
     CacheEntry* backgroundFrmHandle;
-    int fid = buildFid(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(fid, 0, 0, &backgroundFrmHandle);
+    int fid = art_id(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
         unsigned char* windowBuffer = windowGetBuffer(gGameDialogWindow);
         _gdialog_scroll_subwin(gGameDialogWindow, 0, backgroundFrmData, windowBuffer, backgroundWindowBuffer, _dialogue_subwin_len, 0);
-        artUnlock(backgroundFrmHandle);
+        art_ptr_unlock(backgroundFrmHandle);
     }
 
     windowDestroy(gGameDialogWindow);
@@ -3192,19 +3192,19 @@ void _gdialog_barter_cleanup_tables()
 int partyMemberControlWindowInit()
 {
     CacheEntry* backgroundFrmHandle;
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
-    Art* backgroundFrm = artLock(backgroundFid, &backgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
+    Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundFrmHandle);
     if (backgroundFrm == NULL) {
         return -1;
     }
 
-    unsigned char* backgroundData = artGetFrameData(backgroundFrm, 0, 0);
+    unsigned char* backgroundData = art_frame_data(backgroundFrm, 0, 0);
     if (backgroundData == NULL) {
         partyMemberControlWindowFree();
         return -1;
     }
 
-    _dialogue_subwin_len = artGetHeight(backgroundFrm, 0, 0);
+    _dialogue_subwin_len = art_frame_length(backgroundFrm, 0, 0);
     int controlWindowX = 0;
     int controlWindowY = GAME_DIALOG_WINDOW_HEIGHT - _dialogue_subwin_len;
     gGameDialogWindow = windowCreate(controlWindowX,
@@ -3222,7 +3222,7 @@ int partyMemberControlWindowInit()
     unsigned char* src = windowGetBuffer(gGameDialogBackgroundWindow);
     blitBufferToBuffer(src + (GAME_DIALOG_WINDOW_WIDTH) * (GAME_DIALOG_WINDOW_HEIGHT - _dialogue_subwin_len), GAME_DIALOG_WINDOW_WIDTH, _dialogue_subwin_len, GAME_DIALOG_WINDOW_WIDTH, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
     _gdialog_scroll_subwin(gGameDialogWindow, 1, backgroundData, windowBuffer, 0, _dialogue_subwin_len, 0);
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     // TALK
     _gdialog_buttons[0] = buttonCreate(gGameDialogWindow, 593, 41, 14, 14, -1, -1, -1, KEY_ESCAPE, gGameDialogRedButtonUpFrmData, gGameDialogRedButtonDownFrmData, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -3264,34 +3264,34 @@ int partyMemberControlWindowInit()
         GameDialogButtonData* buttonData = &(gGameDialogDispositionButtonsData[index]);
         int fid;
 
-        fid = buildFid(OBJ_TYPE_INTERFACE, buttonData->upFrmId, 0, 0, 0);
-        Art* upButtonFrm = artLock(fid, &(buttonData->upFrmHandle));
+        fid = art_id(OBJ_TYPE_INTERFACE, buttonData->upFrmId, 0, 0, 0);
+        Art* upButtonFrm = art_ptr_lock(fid, &(buttonData->upFrmHandle));
         if (upButtonFrm == NULL) {
             partyMemberControlWindowFree();
             return -1;
         }
 
-        int width = artGetWidth(upButtonFrm, 0, 0);
-        int height = artGetHeight(upButtonFrm, 0, 0);
-        unsigned char* upButtonFrmData = artGetFrameData(upButtonFrm, 0, 0);
+        int width = art_frame_width(upButtonFrm, 0, 0);
+        int height = art_frame_length(upButtonFrm, 0, 0);
+        unsigned char* upButtonFrmData = art_frame_data(upButtonFrm, 0, 0);
 
-        fid = buildFid(OBJ_TYPE_INTERFACE, buttonData->downFrmId, 0, 0, 0);
-        Art* downButtonFrm = artLock(fid, &(buttonData->downFrmHandle));
+        fid = art_id(OBJ_TYPE_INTERFACE, buttonData->downFrmId, 0, 0, 0);
+        Art* downButtonFrm = art_ptr_lock(fid, &(buttonData->downFrmHandle));
         if (downButtonFrm == NULL) {
             partyMemberControlWindowFree();
             return -1;
         }
 
-        unsigned char* downButtonFrmData = artGetFrameData(downButtonFrm, 0, 0);
+        unsigned char* downButtonFrmData = art_frame_data(downButtonFrm, 0, 0);
 
-        fid = buildFid(OBJ_TYPE_INTERFACE, buttonData->disabledFrmId, 0, 0, 0);
-        Art* disabledButtonFrm = artLock(fid, &(buttonData->disabledFrmHandle));
+        fid = art_id(OBJ_TYPE_INTERFACE, buttonData->disabledFrmId, 0, 0, 0);
+        Art* disabledButtonFrm = art_ptr_lock(fid, &(buttonData->disabledFrmHandle));
         if (disabledButtonFrm == NULL) {
             partyMemberControlWindowFree();
             return -1;
         }
 
-        unsigned char* disabledButtonFrmData = artGetFrameData(disabledButtonFrm, 0, 0);
+        unsigned char* disabledButtonFrmData = art_frame_data(disabledButtonFrm, 0, 0);
 
         v21++;
 
@@ -3351,28 +3351,28 @@ void partyMemberControlWindowFree()
         GameDialogButtonData* buttonData = &(gGameDialogDispositionButtonsData[index]);
 
         if (buttonData->upFrmHandle) {
-            artUnlock(buttonData->upFrmHandle);
+            art_ptr_unlock(buttonData->upFrmHandle);
             buttonData->upFrmHandle = NULL;
         }
 
         if (buttonData->downFrmHandle) {
-            artUnlock(buttonData->downFrmHandle);
+            art_ptr_unlock(buttonData->downFrmHandle);
             buttonData->downFrmHandle = NULL;
         }
 
         if (buttonData->disabledFrmHandle) {
-            artUnlock(buttonData->disabledFrmHandle);
+            art_ptr_unlock(buttonData->disabledFrmHandle);
             buttonData->disabledFrmHandle = NULL;
         }
     }
 
     // control.frm - party member control interface
     CacheEntry* backgroundFrmHandle;
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &backgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
         _gdialog_scroll_subwin(gGameDialogWindow, 0, backgroundFrmData, windowGetBuffer(gGameDialogWindow), windowGetBuffer(gGameDialogBackgroundWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - _dialogue_subwin_len), _dialogue_subwin_len, 0);
-        artUnlock(backgroundFrmHandle);
+        art_ptr_unlock(backgroundFrmHandle);
     }
 
     windowDestroy(gGameDialogWindow);
@@ -3389,11 +3389,11 @@ void partyMemberControlWindowUpdate()
     int windowWidth = windowGetWidth(gGameDialogWindow);
 
     CacheEntry* backgroundHandle;
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
-    Art* background = artLock(backgroundFid, &backgroundHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
+    Art* background = art_ptr_lock(backgroundFid, &backgroundHandle);
     if (background != NULL) {
-        int width = artGetWidth(background, 0, 0);
-        unsigned char* buffer = artGetFrameData(background, 0, 0);
+        int width = art_frame_width(background, 0, 0);
+        unsigned char* buffer = art_frame_data(background, 0, 0);
 
         // Clear "Weapon Used:".
         blitBufferToBuffer(buffer + width * 20 + 112, 110, fontGetLineHeight(), width, windowBuffer + windowWidth * 20 + 112, windowWidth);
@@ -3407,7 +3407,7 @@ void partyMemberControlWindowUpdate()
         // Clear ?
         blitBufferToBuffer(buffer + width * 80 + 232, 132, 106, width, windowBuffer + windowWidth * 80 + 232, windowWidth);
 
-        artUnlock(backgroundHandle);
+        art_ptr_unlock(backgroundHandle);
     }
 
     MessageListItem messageListItem;
@@ -3428,14 +3428,14 @@ void partyMemberControlWindowUpdate()
 
     // Render preview.
     CacheEntry* previewHandle;
-    int previewFid = buildFid(FID_TYPE(gGameDialogSpeaker->fid), gGameDialogSpeaker->fid & 0xFFF, ANIM_STAND, (gGameDialogSpeaker->fid & 0xF000) >> 12, ROTATION_SW);
-    Art* preview = artLock(previewFid, &previewHandle);
+    int previewFid = art_id(FID_TYPE(gGameDialogSpeaker->fid), gGameDialogSpeaker->fid & 0xFFF, ANIM_STAND, (gGameDialogSpeaker->fid & 0xF000) >> 12, ROTATION_SW);
+    Art* preview = art_ptr_lock(previewFid, &previewHandle);
     if (preview != NULL) {
-        int width = artGetWidth(preview, 0, ROTATION_SW);
-        int height = artGetHeight(preview, 0, ROTATION_SW);
-        unsigned char* buffer = artGetFrameData(preview, 0, ROTATION_SW);
+        int width = art_frame_width(preview, 0, ROTATION_SW);
+        int height = art_frame_length(preview, 0, ROTATION_SW);
+        unsigned char* buffer = art_frame_data(preview, 0, ROTATION_SW);
         blitBufferToBufferTrans(buffer, width, height, width, windowBuffer + windowWidth * (132 - height / 2) + 39 - width / 2, windowWidth);
-        artUnlock(previewHandle);
+        art_ptr_unlock(previewHandle);
     }
 
     // Render hit points.
@@ -3625,20 +3625,20 @@ int partyMemberCustomizationWindowInit()
     }
 
     CacheEntry* backgroundFrmHandle;
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
-    Art* backgroundFrm = artLock(backgroundFid, &backgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
+    Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundFrmHandle);
     if (backgroundFrm == NULL) {
         return -1;
     }
 
-    unsigned char* backgroundFrmData = artGetFrameData(backgroundFrm, 0, 0);
+    unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
     if (backgroundFrmData == NULL) {
         // FIXME: Leaking background.
         partyMemberCustomizationWindowFree();
         return -1;
     }
 
-    _dialogue_subwin_len = artGetHeight(backgroundFrm, 0, 0);
+    _dialogue_subwin_len = art_frame_length(backgroundFrm, 0, 0);
 
     int customizationWindowX = 0;
     int customizationWindowY = GAME_DIALOG_WINDOW_HEIGHT - _dialogue_subwin_len;
@@ -3663,7 +3663,7 @@ int partyMemberCustomizationWindowInit()
         GAME_DIALOG_WINDOW_WIDTH);
 
     _gdialog_scroll_subwin(gGameDialogWindow, 1, backgroundFrmData, windowBuffer, NULL, _dialogue_subwin_len, 0);
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     _gdialog_buttons[0] = buttonCreate(gGameDialogWindow, 593, 101, 14, 14, -1, -1, -1, 13, gGameDialogRedButtonUpFrmData, gGameDialogRedButtonDownFrmData, 0, BUTTON_FLAG_TRANSPARENT);
     if (_gdialog_buttons[0] == -1) {
@@ -3679,25 +3679,25 @@ int partyMemberCustomizationWindowInit()
     for (int index = 0; index < PARTY_MEMBER_CUSTOMIZATION_OPTION_COUNT; index++) {
         GameDialogButtonData* buttonData = &(_custom_button_info[index]);
 
-        int upButtonFid = buildFid(OBJ_TYPE_INTERFACE, buttonData->upFrmId, 0, 0, 0);
-        Art* upButtonFrm = artLock(upButtonFid, &(buttonData->upFrmHandle));
+        int upButtonFid = art_id(OBJ_TYPE_INTERFACE, buttonData->upFrmId, 0, 0, 0);
+        Art* upButtonFrm = art_ptr_lock(upButtonFid, &(buttonData->upFrmHandle));
         if (upButtonFrm == NULL) {
             partyMemberCustomizationWindowFree();
             return -1;
         }
 
-        int width = artGetWidth(upButtonFrm, 0, 0);
-        int height = artGetHeight(upButtonFrm, 0, 0);
-        unsigned char* upButtonFrmData = artGetFrameData(upButtonFrm, 0, 0);
+        int width = art_frame_width(upButtonFrm, 0, 0);
+        int height = art_frame_length(upButtonFrm, 0, 0);
+        unsigned char* upButtonFrmData = art_frame_data(upButtonFrm, 0, 0);
 
-        int downButtonFid = buildFid(OBJ_TYPE_INTERFACE, buttonData->downFrmId, 0, 0, 0);
-        Art* downButtonFrm = artLock(downButtonFid, &(buttonData->downFrmHandle));
+        int downButtonFid = art_id(OBJ_TYPE_INTERFACE, buttonData->downFrmId, 0, 0, 0);
+        Art* downButtonFrm = art_ptr_lock(downButtonFid, &(buttonData->downFrmHandle));
         if (downButtonFrm == NULL) {
             partyMemberCustomizationWindowFree();
             return -1;
         }
 
-        unsigned char* downButtonFrmData = artGetFrameData(downButtonFrm, 0, 0);
+        unsigned char* downButtonFrmData = art_frame_data(downButtonFrm, 0, 0);
 
         optionButton++;
         _gdialog_buttons[optionButton] = buttonCreate(gGameDialogWindow,
@@ -3751,28 +3751,28 @@ void partyMemberCustomizationWindowFree()
         GameDialogButtonData* buttonData = &(_custom_button_info[index]);
 
         if (buttonData->upFrmHandle != NULL) {
-            artUnlock(buttonData->upFrmHandle);
+            art_ptr_unlock(buttonData->upFrmHandle);
             buttonData->upFrmHandle = NULL;
         }
 
         if (buttonData->downFrmHandle != NULL) {
-            artUnlock(buttonData->downFrmHandle);
+            art_ptr_unlock(buttonData->downFrmHandle);
             buttonData->downFrmHandle = NULL;
         }
 
         if (buttonData->disabledFrmHandle != NULL) {
-            artUnlock(buttonData->disabledFrmHandle);
+            art_ptr_unlock(buttonData->disabledFrmHandle);
             buttonData->disabledFrmHandle = NULL;
         }
     }
 
     CacheEntry* backgroundFrmHandle;
     // custom.frm - party member control interface
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(fid, 0, 0, &backgroundFrmHandle);
+    int fid = art_id(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
         _gdialog_scroll_subwin(gGameDialogWindow, 0, backgroundFrmData, windowGetBuffer(gGameDialogWindow), windowGetBuffer(gGameDialogBackgroundWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - _dialogue_subwin_len), _dialogue_subwin_len, 0);
-        artUnlock(backgroundFrmHandle);
+        art_ptr_unlock(backgroundFrmHandle);
     }
 
     windowDestroy(gGameDialogWindow);
@@ -3818,18 +3818,18 @@ void partyMemberCustomizationWindowUpdate()
     int windowWidth = windowGetWidth(gGameDialogWindow);
 
     CacheEntry* backgroundHandle;
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
-    Art* background = artLock(backgroundFid, &backgroundHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
+    Art* background = art_ptr_lock(backgroundFid, &backgroundHandle);
     if (background == NULL) {
         return;
     }
 
-    int backgroundWidth = artGetWidth(background, 0, 0);
-    int backgroundHeight = artGetHeight(background, 0, 0);
-    unsigned char* backgroundData = artGetFrameData(background, 0, 0);
+    int backgroundWidth = art_frame_width(background, 0, 0);
+    int backgroundHeight = art_frame_length(background, 0, 0);
+    unsigned char* backgroundData = art_frame_data(background, 0, 0);
     blitBufferToBuffer(backgroundData, backgroundWidth, backgroundHeight, backgroundWidth, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
 
-    artUnlock(backgroundHandle);
+    art_ptr_unlock(backgroundHandle);
 
     MessageListItem messageListItem;
     int num;
@@ -3926,25 +3926,25 @@ int _gdCustomSelect(int a1)
     int oldFont = fontGetCurrent();
 
     CacheEntry* backgroundFrmHandle;
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 419, 0, 0, 0);
-    Art* backgroundFrm = artLock(backgroundFid, &backgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 419, 0, 0, 0);
+    Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundFrmHandle);
     if (backgroundFrm == NULL) {
         return -1;
     }
 
-    int backgroundFrmWidth = artGetWidth(backgroundFrm, 0, 0);
-    int backgroundFrmHeight = artGetHeight(backgroundFrm, 0, 0);
+    int backgroundFrmWidth = art_frame_width(backgroundFrm, 0, 0);
+    int backgroundFrmHeight = art_frame_length(backgroundFrm, 0, 0);
 
     int selectWindowX = (640 - backgroundFrmWidth) / 2;
     int selectWindowY = (480 - backgroundFrmHeight) / 2;
     int win = windowCreate(selectWindowX, selectWindowY, backgroundFrmWidth, backgroundFrmHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     if (win == -1) {
-        artUnlock(backgroundFrmHandle);
+        art_ptr_unlock(backgroundFrmHandle);
         return -1;
     }
 
     unsigned char* windowBuffer = windowGetBuffer(win);
-    unsigned char* backgroundFrmData = artGetFrameData(backgroundFrm, 0, 0);
+    unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
     blitBufferToBuffer(backgroundFrmData,
         backgroundFrmWidth,
         backgroundFrmHeight,
@@ -3952,7 +3952,7 @@ int _gdCustomSelect(int a1)
         windowBuffer,
         backgroundFrmWidth);
 
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     int btn1 = buttonCreate(win, 70, 164, 14, 14, -1, -1, -1, KEY_RETURN, gGameDialogRedButtonUpFrmData, gGameDialogRedButtonDownFrmData, NULL, BUTTON_FLAG_TRANSPARENT);
     if (btn1 == -1) {
@@ -4163,15 +4163,15 @@ int _gdialog_window_create()
     CacheEntry* backgroundFrmHandle;
     // 389 - di_talkp.frm - dialog screen subwindow (party members)
     // 99 - di_talk.frm - dialog screen subwindow (NPC's)
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, gGameDialogSpeakerIsPartyMember ? 389 : 99, 0, 0, 0);
-    Art* backgroundFrm = artLock(backgroundFid, &backgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, gGameDialogSpeakerIsPartyMember ? 389 : 99, 0, 0, 0);
+    Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundFrmHandle);
     if (backgroundFrm == NULL) {
         return -1;
     }
 
-    unsigned char* backgroundFrmData = artGetFrameData(backgroundFrm, 0, 0);
+    unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
     if (backgroundFrmData != NULL) {
-        _dialogue_subwin_len = artGetHeight(backgroundFrm, 0, 0);
+        _dialogue_subwin_len = art_frame_length(backgroundFrm, 0, 0);
 
         int dialogSubwindowX = 0;
         int dialogSubwindowY = 480 - _dialogue_subwin_len;
@@ -4191,7 +4191,7 @@ int _gdialog_window_create()
                 _gdialog_scroll_subwin(gGameDialogWindow, 1, backgroundFrmData, v10, 0, _dialogue_subwin_len, 0);
             }
 
-            artUnlock(backgroundFrmHandle);
+            art_ptr_unlock(backgroundFrmHandle);
 
             // BARTER/TRADE
             _gdialog_buttons[0] = buttonCreate(gGameDialogWindow, 593, 41, 14, 14, -1, -1, -1, -1, gGameDialogRedButtonUpFrmData, gGameDialogRedButtonDownFrmData, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -4200,12 +4200,12 @@ int _gdialog_window_create()
                 buttonSetCallbacks(_gdialog_buttons[0], _gsound_med_butt_press, _gsound_med_butt_release);
 
                 // di_rest1.frm - dialog rest button up
-                int upFid = buildFid(OBJ_TYPE_INTERFACE, 97, 0, 0, 0);
-                unsigned char* reviewButtonUpData = artLockFrameData(upFid, 0, 0, &gGameDialogReviewButtonUpFrmHandle);
+                int upFid = art_id(OBJ_TYPE_INTERFACE, 97, 0, 0, 0);
+                unsigned char* reviewButtonUpData = art_ptr_lock_data(upFid, 0, 0, &gGameDialogReviewButtonUpFrmHandle);
                 if (reviewButtonUpData != NULL) {
                     // di_rest2.frm - dialog rest button down
-                    int downFid = buildFid(OBJ_TYPE_INTERFACE, 98, 0, 0, 0);
-                    unsigned char* reivewButtonDownData = artLockFrameData(downFid, 0, 0, &gGameDialogReviewButtonDownFrmHandle);
+                    int downFid = art_id(OBJ_TYPE_INTERFACE, 98, 0, 0, 0);
+                    unsigned char* reivewButtonDownData = art_ptr_lock_data(downFid, 0, 0, &gGameDialogReviewButtonDownFrmHandle);
                     if (reivewButtonDownData != NULL) {
                         // REVIEW
                         _gdialog_buttons[1] = buttonCreate(gGameDialogWindow, 13, 154, 51, 29, -1, -1, -1, -1, reviewButtonUpData, reivewButtonDownData, NULL, 0);
@@ -4232,10 +4232,10 @@ int _gdialog_window_create()
                             _gdialog_buttons[1] = -1;
                         }
 
-                        artUnlock(gGameDialogReviewButtonDownFrmHandle);
+                        art_ptr_unlock(gGameDialogReviewButtonDownFrmHandle);
                     }
 
-                    artUnlock(gGameDialogReviewButtonUpFrmHandle);
+                    art_ptr_unlock(gGameDialogReviewButtonUpFrmHandle);
                 }
 
                 buttonDestroy(_gdialog_buttons[0]);
@@ -4247,7 +4247,7 @@ int _gdialog_window_create()
         }
     }
 
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     return -1;
 }
@@ -4264,8 +4264,8 @@ void _gdialog_window_destroy()
         _gdialog_buttons[index] = -1;
     }
 
-    artUnlock(gGameDialogReviewButtonDownFrmHandle);
-    artUnlock(gGameDialogReviewButtonUpFrmHandle);
+    art_ptr_unlock(gGameDialogReviewButtonDownFrmHandle);
+    art_ptr_unlock(gGameDialogReviewButtonUpFrmHandle);
 
     int offset = (GAME_DIALOG_WINDOW_WIDTH) * (480 - _dialogue_subwin_len);
     unsigned char* backgroundWindowBuffer = windowGetBuffer(gGameDialogBackgroundWindow) + offset;
@@ -4280,12 +4280,12 @@ void _gdialog_window_destroy()
     }
 
     CacheEntry* backgroundFrmHandle;
-    int fid = buildFid(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(fid, 0, 0, &backgroundFrmHandle);
+    int fid = art_id(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
         unsigned char* windowBuffer = windowGetBuffer(gGameDialogWindow);
         _gdialog_scroll_subwin(gGameDialogWindow, 0, backgroundFrmData, windowBuffer, backgroundWindowBuffer, _dialogue_subwin_len, 0);
-        artUnlock(backgroundFrmHandle);
+        art_ptr_unlock(backgroundFrmHandle);
         windowDestroy(gGameDialogWindow);
         _gdialog_window_created = 0;
         gGameDialogWindow = -1;
@@ -4316,8 +4316,8 @@ int gameDialogWindowRenderBackground()
 {
     CacheEntry* backgroundFrmHandle;
     // alltlk.frm - dialog screen background
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 103, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(fid, 0, 0, &backgroundFrmHandle);
+    int fid = art_id(OBJ_TYPE_INTERFACE, 103, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData == NULL) {
         return -1;
     }
@@ -4325,7 +4325,7 @@ int gameDialogWindowRenderBackground()
     int windowWidth = GAME_DIALOG_WINDOW_WIDTH;
     unsigned char* windowBuffer = windowGetBuffer(gGameDialogBackgroundWindow);
     blitBufferToBuffer(backgroundFrmData, windowWidth, 480, windowWidth, windowBuffer, windowWidth);
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     if (!_dialogue_just_started) {
         win_draw(gGameDialogBackgroundWindow);
@@ -4347,8 +4347,8 @@ int _talkToRefreshDialogWindowRect(Rect* rect)
     }
 
     CacheEntry* backgroundFrmHandle;
-    int fid = buildFid(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
-    unsigned char* backgroundFrmData = artLockFrameData(fid, 0, 0, &backgroundFrmHandle);
+    int fid = art_id(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
+    unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData == NULL) {
         return -1;
     }
@@ -4363,7 +4363,7 @@ int _talkToRefreshDialogWindowRect(Rect* rect)
         windowBuffer + offset,
         GAME_DIALOG_WINDOW_WIDTH);
 
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     win_draw_rect(gGameDialogWindow, rect);
 
@@ -4405,34 +4405,34 @@ void gameDialogRenderTalkingHead(Art* headFrm, int frame)
             _totalHotx = 0;
         }
 
-        int backgroundFid = buildFid(OBJ_TYPE_BACKGROUND, gGameDialogBackground, 0, 0, 0);
+        int backgroundFid = art_id(OBJ_TYPE_BACKGROUND, gGameDialogBackground, 0, 0, 0);
 
         CacheEntry* backgroundHandle;
-        Art* backgroundFrm = artLock(backgroundFid, &backgroundHandle);
+        Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundHandle);
         if (backgroundFrm == NULL) {
             debugPrint("\tError locking background in display...\n");
         }
 
-        unsigned char* backgroundFrmData = artGetFrameData(backgroundFrm, 0, 0);
+        unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
         if (backgroundFrmData != NULL) {
             blitBufferToBuffer(backgroundFrmData, 388, 200, 388, gGameDialogDisplayBuffer, GAME_DIALOG_WINDOW_WIDTH);
         } else {
             debugPrint("\tError getting background data in display...\n");
         }
 
-        artUnlock(backgroundHandle);
+        art_ptr_unlock(backgroundHandle);
 
-        int width = artGetWidth(headFrm, frame, 0);
-        int height = artGetHeight(headFrm, frame, 0);
-        unsigned char* data = artGetFrameData(headFrm, frame, 0);
+        int width = art_frame_width(headFrm, frame, 0);
+        int height = art_frame_length(headFrm, frame, 0);
+        unsigned char* data = art_frame_data(headFrm, frame, 0);
 
         int a3;
         int v8;
-        artGetRotationOffsets(headFrm, 0, &a3, &v8);
+        art_frame_offset(headFrm, 0, &a3, &v8);
 
         int a4;
         int a5;
-        artGetFrameOffsets(headFrm, frame, 0, &a4, &a5);
+        art_frame_hot(headFrm, frame, 0, &a4, &a5);
 
         _totalHotx += a4;
         a3 += _totalHotx;
@@ -4478,10 +4478,10 @@ void gameDialogRenderTalkingHead(Art* headFrm, int frame)
 
     unsigned char* dest = windowGetBuffer(gGameDialogBackgroundWindow);
 
-    unsigned char* data1 = artGetFrameData(gGameDialogUpperHighlightFrm, 0, 0);
+    unsigned char* data1 = art_frame_data(gGameDialogUpperHighlightFrm, 0, 0);
     gameDialogRenderHighlight(data1, gGameDialogUpperHighlightFrmWidth, gGameDialogUpperHighlightFrmHeight, gGameDialogUpperHighlightFrmWidth, dest, 426, 15, GAME_DIALOG_WINDOW_WIDTH, _light_BlendTable, _light_GrayTable);
 
-    unsigned char* data2 = artGetFrameData(gGameDialogLowerHighlightFrm, 0, 0);
+    unsigned char* data2 = art_frame_data(gGameDialogLowerHighlightFrm, 0, 0);
     gameDialogRenderHighlight(data2, gGameDialogLowerHighlightFrmWidth, gGameDialogLowerHighlightFrmHeight, gGameDialogLowerHighlightFrmWidth, dest, 129, 214 - gGameDialogLowerHighlightFrmHeight - 2, GAME_DIALOG_WINDOW_WIDTH, _dark_BlendTable, _dark_GrayTable);
 
     for (int index = 0; index < 8; ++index) {
@@ -4517,16 +4517,16 @@ void gameDialogHighlightsInit()
     _dark_BlendTable = getColorBlendTable(colorTable[22187]);
 
     // hilight1.frm - dialogue upper hilight
-    int upperHighlightFid = buildFid(OBJ_TYPE_INTERFACE, 115, 0, 0, 0);
-    gGameDialogUpperHighlightFrm = artLock(upperHighlightFid, &gGameDialogUpperHighlightFrmHandle);
-    gGameDialogUpperHighlightFrmWidth = artGetWidth(gGameDialogUpperHighlightFrm, 0, 0);
-    gGameDialogUpperHighlightFrmHeight = artGetHeight(gGameDialogUpperHighlightFrm, 0, 0);
+    int upperHighlightFid = art_id(OBJ_TYPE_INTERFACE, 115, 0, 0, 0);
+    gGameDialogUpperHighlightFrm = art_ptr_lock(upperHighlightFid, &gGameDialogUpperHighlightFrmHandle);
+    gGameDialogUpperHighlightFrmWidth = art_frame_width(gGameDialogUpperHighlightFrm, 0, 0);
+    gGameDialogUpperHighlightFrmHeight = art_frame_length(gGameDialogUpperHighlightFrm, 0, 0);
 
     // hilight2.frm - dialogue lower hilight
-    int lowerHighlightFid = buildFid(OBJ_TYPE_INTERFACE, 116, 0, 0, 0);
-    gGameDialogLowerHighlightFrm = artLock(lowerHighlightFid, &gGameDialogLowerHighlightFrmHandle);
-    gGameDialogLowerHighlightFrmWidth = artGetWidth(gGameDialogLowerHighlightFrm, 0, 0);
-    gGameDialogLowerHighlightFrmHeight = artGetHeight(gGameDialogLowerHighlightFrm, 0, 0);
+    int lowerHighlightFid = art_id(OBJ_TYPE_INTERFACE, 116, 0, 0, 0);
+    gGameDialogLowerHighlightFrm = art_ptr_lock(lowerHighlightFid, &gGameDialogLowerHighlightFrmHandle);
+    gGameDialogLowerHighlightFrmWidth = art_frame_width(gGameDialogLowerHighlightFrm, 0, 0);
+    gGameDialogLowerHighlightFrmHeight = art_frame_length(gGameDialogLowerHighlightFrm, 0, 0);
 }
 
 // NOTE: Inlined.
@@ -4537,6 +4537,6 @@ static void gameDialogHighlightsExit()
     freeColorBlendTable(colorTable[17969]);
     freeColorBlendTable(colorTable[22187]);
 
-    artUnlock(gGameDialogUpperHighlightFrmHandle);
-    artUnlock(gGameDialogLowerHighlightFrmHandle);
+    art_ptr_unlock(gGameDialogUpperHighlightFrmHandle);
+    art_ptr_unlock(gGameDialogLowerHighlightFrmHandle);
 }

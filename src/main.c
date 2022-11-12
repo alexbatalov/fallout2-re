@@ -518,7 +518,7 @@ void _main_selfrun_play()
 // 0x48118C
 void showDeath()
 {
-    artCacheFlush();
+    art_flush();
     colorCycleDisable();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
@@ -544,8 +544,8 @@ void showDeath()
 
             // DEATH.FRM
             CacheEntry* backgroundHandle;
-            int fid = buildFid(OBJ_TYPE_INTERFACE, 309, 0, 0, 0);
-            unsigned char* background = artLockFrameData(fid, 0, 0, &backgroundHandle);
+            int fid = art_id(OBJ_TYPE_INTERFACE, 309, 0, 0, 0);
+            unsigned char* background = art_ptr_lock_data(fid, 0, 0, &backgroundHandle);
             if (background == NULL) {
                 break;
             }
@@ -558,7 +558,7 @@ void showDeath()
             inputEventQueueReset();
 
             blitBufferToBuffer(background, 640, 480, 640, windowBuffer, 640);
-            artUnlock(backgroundHandle);
+            art_ptr_unlock(backgroundHandle);
 
             const char* deathFileName = endgameDeathEndingGetFileName();
 
@@ -750,15 +750,15 @@ int mainMenuWindowInit()
     gMainMenuWindowBuffer = windowGetBuffer(gMainMenuWindow);
 
     // mainmenu.frm
-    int backgroundFid = buildFid(OBJ_TYPE_INTERFACE, 140, 0, 0, 0);
-    gMainMenuBackgroundFrmData = artLockFrameData(backgroundFid, 0, 0, &gMainMenuBackgroundFrmHandle);
+    int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 140, 0, 0, 0);
+    gMainMenuBackgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &gMainMenuBackgroundFrmHandle);
     if (gMainMenuBackgroundFrmData == NULL) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
     }
 
     blitBufferToBuffer(gMainMenuBackgroundFrmData, 640, 480, 640, gMainMenuWindowBuffer, 640);
-    artUnlock(gMainMenuBackgroundFrmHandle);
+    art_ptr_unlock(gMainMenuBackgroundFrmHandle);
 
     int oldFont = fontGetCurrent();
     fontSetCurrent(100);
@@ -776,16 +776,16 @@ int mainMenuWindowInit()
     windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
 
     // menuup.frm
-    fid = buildFid(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
-    gMainMenuButtonUpFrmData = artLockFrameData(fid, 0, 0, &gMainMenuButtonUpFrmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
+    gMainMenuButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gMainMenuButtonUpFrmHandle);
     if (gMainMenuButtonUpFrmData == NULL) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
     }
 
     // menudown.frm
-    fid = buildFid(OBJ_TYPE_INTERFACE, 300, 0, 0, 0);
-    gMainMenuButtonDownFrmData = artLockFrameData(fid, 0, 0, &gMainMenuButtonDownFrmHandle);
+    fid = art_id(OBJ_TYPE_INTERFACE, 300, 0, 0, 0);
+    gMainMenuButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gMainMenuButtonDownFrmHandle);
     if (gMainMenuButtonDownFrmData == NULL) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
@@ -838,13 +838,13 @@ void mainMenuWindowFree()
     }
 
     if (gMainMenuButtonDownFrmData) {
-        artUnlock(gMainMenuButtonDownFrmHandle);
+        art_ptr_unlock(gMainMenuButtonDownFrmHandle);
         gMainMenuButtonDownFrmHandle = NULL;
         gMainMenuButtonDownFrmData = NULL;
     }
 
     if (gMainMenuButtonUpFrmData) {
-        artUnlock(gMainMenuButtonUpFrmHandle);
+        art_ptr_unlock(gMainMenuButtonUpFrmHandle);
         gMainMenuButtonUpFrmHandle = NULL;
         gMainMenuButtonUpFrmData = NULL;
     }

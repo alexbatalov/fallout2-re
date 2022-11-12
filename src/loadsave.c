@@ -1172,15 +1172,15 @@ int lsgWindowInit(int windowType)
     }
 
     for (int index = 0; index < LOAD_SAVE_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gLoadSaveFrmIds[index], 0, 0, 0);
-        gLoadSaveFrmData[index] = artLockFrameDataReturningSize(fid,
+        int fid = art_id(OBJ_TYPE_INTERFACE, gLoadSaveFrmIds[index], 0, 0, 0);
+        gLoadSaveFrmData[index] = art_lock(fid,
             &(gLoadSaveFrmHandles[index]),
             &(gLoadSaveFrmSizes[index].width),
             &(gLoadSaveFrmSizes[index].height));
 
         if (gLoadSaveFrmData[index] == NULL) {
             while (--index >= 0) {
-                artUnlock(gLoadSaveFrmHandles[index]);
+                art_ptr_unlock(gLoadSaveFrmHandles[index]);
             }
             internal_free(_snapshot);
             messageListFree(&gLoadSaveMessageList);
@@ -1346,7 +1346,7 @@ int lsgWindowFree(int windowType)
     messageListFree(&gLoadSaveMessageList);
 
     for (int index = 0; index < LOAD_SAVE_FRM_COUNT; index++) {
-        artUnlock(gLoadSaveFrmHandles[index]);
+        art_ptr_unlock(gLoadSaveFrmHandles[index]);
     }
 
     internal_free(_snapshot);

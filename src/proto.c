@@ -174,7 +174,7 @@ void _proto_make_path(char* path, int pid)
     strcpy(path, _cd_path_base);
     strcat(path, _proto_path_base);
     if (pid != -1) {
-        strcat(path, artGetObjectTypeName(PID_TYPE(pid)));
+        strcat(path, art_dir(PID_TYPE(pid)));
     }
 }
 
@@ -194,7 +194,7 @@ int _proto_list_str(int pid, char* proto_path)
     char path[MAX_PATH];
     _proto_make_path(path, pid);
     strcat(path, "\\");
-    strcat(path, artGetObjectTypeName(PID_TYPE(pid)));
+    strcat(path, art_dir(PID_TYPE(pid)));
     strcat(path, ".lst");
 
     File* stream = fileOpen(path, "rt");
@@ -356,7 +356,7 @@ int _proto_critter_init(Proto* a1, int a2)
 
     a1->pid = -1;
     a1->messageId = 100 * v1;
-    a1->fid = buildFid(OBJ_TYPE_CRITTER, v1 - 1, 0, 0, 0);
+    a1->fid = art_id(OBJ_TYPE_CRITTER, v1 - 1, 0, 0, 0);
     a1->critter.lightDistance = 0;
     a1->critter.lightIntensity = 0;
     a1->critter.flags = 0x20000000;
@@ -366,8 +366,8 @@ int _proto_critter_init(Proto* a1, int a2)
     a1->critter.data.bodyType = 0;
     a1->critter.headFid = -1;
     a1->critter.aiPacket = 1;
-    if (!artExists(a1->fid)) {
-        a1->fid = buildFid(OBJ_TYPE_CRITTER, 0, 0, 0, 0);
+    if (!art_exists(a1->fid)) {
+        a1->fid = art_id(OBJ_TYPE_CRITTER, 0, 0, 0, 0);
     }
 
     CritterProtoData* data = &(a1->critter.data);
@@ -726,12 +726,12 @@ int _proto_dude_update_gender()
 
     int frmId;
     if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
-        frmId = _art_vault_person_nums[nativeLook][GENDER_MALE];
+        frmId = art_vault_person_nums[nativeLook][GENDER_MALE];
     } else {
-        frmId = _art_vault_person_nums[nativeLook][GENDER_FEMALE];
+        frmId = art_vault_person_nums[nativeLook][GENDER_FEMALE];
     }
 
-    _art_vault_guy_num = frmId;
+    art_vault_guy_num = frmId;
 
     if (critterGetArmor(gDude) == NULL) {
         int v1 = 0;
@@ -739,11 +739,11 @@ int _proto_dude_update_gender()
             v1 = (gDude->fid & 0xF000) >> 12;
         }
 
-        int fid = buildFid(OBJ_TYPE_CRITTER, _art_vault_guy_num, 0, v1, 0);
+        int fid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, v1, 0);
         objectSetFid(gDude, fid, NULL);
     }
 
-    proto->fid = buildFid(OBJ_TYPE_CRITTER, _art_vault_guy_num, 0, 0, 0);
+    proto->fid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, 0, 0);
 
     return 0;
 }
@@ -752,7 +752,7 @@ int _proto_dude_update_gender()
 // 0x49FA64
 int _proto_dude_init(const char* path)
 {
-    gDudeProto.fid = buildFid(OBJ_TYPE_CRITTER, _art_vault_guy_num, 0, 0, 0);
+    gDudeProto.fid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, 0, 0);
 
     if (_init_true) {
         _obj_inven_free(&(gDude->data.inventory));
@@ -1066,7 +1066,7 @@ int protoInit()
     _proto_critter_init((Proto*)&gDudeProto, 0x1000000);
 
     gDudeProto.pid = 0x1000000;
-    gDudeProto.fid = buildFid(OBJ_TYPE_CRITTER, 1, 0, 0, 0);
+    gDudeProto.fid = art_id(OBJ_TYPE_CRITTER, 1, 0, 0, 0);
 
     gDude->pid = 0x1000000;
     gDude->sid = 1;
@@ -1089,7 +1089,7 @@ int protoInit()
     }
 
     for (i = 0; i < 6; i++) {
-        sprintf(path, "%spro_%.4s%s", asc_5186C8, artGetObjectTypeName(i), ".msg");
+        sprintf(path, "%spro_%.4s%s", asc_5186C8, art_dir(i), ".msg");
 
         if (!messageListLoad(&(_proto_msg_files[i]), path)) {
             debugPrint("\nError: Loading proto message files!");
@@ -1178,7 +1178,7 @@ void protoReset()
     // TODO: Get rid of cast.
     _proto_critter_init((Proto*)&gDudeProto, 0x1000000);
     gDudeProto.pid = 0x1000000;
-    gDudeProto.fid = buildFid(OBJ_TYPE_CRITTER, 1, 0, 0, 0);
+    gDudeProto.fid = art_id(OBJ_TYPE_CRITTER, 1, 0, 0, 0);
 
     gDude->pid = 0x1000000;
     gDude->sid = -1;
@@ -1225,7 +1225,7 @@ int _proto_header_load()
         char path[MAX_PATH];
         _proto_make_path(path, index << 24);
         strcat(path, "\\");
-        strcat(path, artGetObjectTypeName(index));
+        strcat(path, art_dir(index));
         strcat(path, ".lst");
 
         File* stream = fileOpen(path, "rt");

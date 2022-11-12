@@ -1042,8 +1042,8 @@ int characterEditorWindowInit()
         return -1;
     }
 
-    fid = buildFid(OBJ_TYPE_INTERFACE, (gCharacterEditorIsCreationMode ? 169 : 177), 0, 0, 0);
-    gCharacterEditorWindowBackgroundBuffer = artLockFrameDataReturningSize(fid, &gCharacterEditorWindowBackgroundHandle, &(gCharacterEditorFrmSize[0].width), &(gCharacterEditorFrmSize[0].height));
+    fid = art_id(OBJ_TYPE_INTERFACE, (gCharacterEditorIsCreationMode ? 169 : 177), 0, 0, 0);
+    gCharacterEditorWindowBackgroundBuffer = art_lock(fid, &gCharacterEditorWindowBackgroundHandle, &(gCharacterEditorFrmSize[0].width), &(gCharacterEditorFrmSize[0].height));
     if (gCharacterEditorWindowBackgroundBuffer == NULL) {
         messageListFree(&gCharacterEditorMessageList);
         return -1;
@@ -1060,8 +1060,8 @@ int characterEditorWindowInit()
     soundContinueAll();
 
     for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-        fid = buildFid(OBJ_TYPE_INTERFACE, gCharacterEditorFrmIds[i], 0, 0, 0);
-        gCharacterEditorFrmData[i] = artLockFrameDataReturningSize(fid, &(gCharacterEditorFrmHandle[i]), &(gCharacterEditorFrmSize[i].width), &(gCharacterEditorFrmSize[i].height));
+        fid = art_id(OBJ_TYPE_INTERFACE, gCharacterEditorFrmIds[i], 0, 0, 0);
+        gCharacterEditorFrmData[i] = art_lock(fid, &(gCharacterEditorFrmHandle[i]), &(gCharacterEditorFrmSize[i].width), &(gCharacterEditorFrmSize[i].height));
         if (gCharacterEditorFrmData[i] == NULL) {
             break;
         }
@@ -1069,11 +1069,11 @@ int characterEditorWindowInit()
 
     if (i != EDITOR_GRAPHIC_COUNT) {
         while (--i >= 0) {
-            artUnlock(gCharacterEditorFrmHandle[i]);
+            art_ptr_unlock(gCharacterEditorFrmHandle[i]);
         }
         return -1;
 
-        artUnlock(gCharacterEditorWindowBackgroundHandle);
+        art_ptr_unlock(gCharacterEditorWindowBackgroundHandle);
 
         messageListFree(&gCharacterEditorMessageList);
 
@@ -1105,10 +1105,10 @@ int characterEditorWindowInit()
         }
 
         for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
-            artUnlock(gCharacterEditorFrmHandle[i]);
+            art_ptr_unlock(gCharacterEditorFrmHandle[i]);
         }
 
-        artUnlock(gCharacterEditorWindowBackgroundHandle);
+        art_ptr_unlock(gCharacterEditorWindowBackgroundHandle);
 
         messageListFree(&gCharacterEditorMessageList);
 
@@ -1131,10 +1131,10 @@ int characterEditorWindowInit()
             if (gCharacterEditorFrmShouldCopy[i]) {
                 internal_free(gCharacterEditorFrmCopy[i]);
             }
-            artUnlock(gCharacterEditorFrmHandle[i]);
+            art_ptr_unlock(gCharacterEditorFrmHandle[i]);
         }
 
-        artUnlock(gCharacterEditorWindowBackgroundHandle);
+        art_ptr_unlock(gCharacterEditorWindowBackgroundHandle);
 
         messageListFree(&gCharacterEditorMessageList);
 
@@ -1585,14 +1585,14 @@ void characterEditorWindowFree()
     windowDestroy(gCharacterEditorWindow);
 
     for (int index = 0; index < EDITOR_GRAPHIC_COUNT; index++) {
-        artUnlock(gCharacterEditorFrmHandle[index]);
+        art_ptr_unlock(gCharacterEditorFrmHandle[index]);
 
         if (gCharacterEditorFrmShouldCopy[index]) {
             internal_free(gCharacterEditorFrmCopy[index]);
         }
     }
 
-    artUnlock(gCharacterEditorWindowBackgroundHandle);
+    art_ptr_unlock(gCharacterEditorWindowBackgroundHandle);
 
     // NOTE: Uninline.
     genericReputationFree();
@@ -4602,8 +4602,8 @@ int characterEditorDrawCardWithOptions(int graphicId, const char* name, const ch
     short beginnings[WORD_WRAP_MAX_COUNT];
     short beginningsCount;
 
-    fid = buildFid(OBJ_TYPE_SKILLDEX, graphicId, 0, 0, 0);
-    buf = artLockFrameDataReturningSize(fid, &graphicHandle, &(size.width), &(size.height));
+    fid = art_id(OBJ_TYPE_SKILLDEX, graphicId, 0, 0, 0);
+    buf = art_lock(fid, &graphicHandle, &(size.width), &(size.height));
     if (buf == NULL) {
         return -1;
     }
@@ -4672,7 +4672,7 @@ int characterEditorDrawCardWithOptions(int graphicId, const char* name, const ch
     gCharacterEditorCardFrmId = graphicId;
     gCharacterEditorCardDrawn = true;
 
-    artUnlock(graphicHandle);
+    art_ptr_unlock(graphicHandle);
 
     return 0;
 }
@@ -5461,8 +5461,8 @@ int perkDialogShow()
     CacheEntry* backgroundFrmHandle;
     int backgroundWidth;
     int backgroundHeight;
-    int fid = buildFid(OBJ_TYPE_INTERFACE, 86, 0, 0, 0);
-    gPerkDialogBackgroundBuffer = artLockFrameDataReturningSize(fid, &backgroundFrmHandle, &backgroundWidth, &backgroundHeight);
+    int fid = art_id(OBJ_TYPE_INTERFACE, 86, 0, 0, 0);
+    gPerkDialogBackgroundBuffer = art_lock(fid, &backgroundFrmHandle, &backgroundWidth, &backgroundHeight);
     if (gPerkDialogBackgroundBuffer == NULL) {
         debugPrint("\n *** Error running perks dialog window ***\n");
         return -1;
@@ -5472,7 +5472,7 @@ int perkDialogShow()
     int perkWindowY = PERK_WINDOW_Y;
     gPerkDialogWindow = windowCreate(perkWindowX, perkWindowY, PERK_WINDOW_WIDTH, PERK_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (gPerkDialogWindow == -1) {
-        artUnlock(backgroundFrmHandle);
+        art_ptr_unlock(backgroundFrmHandle);
         debugPrint("\n *** Error running perks dialog window ***\n");
         return -1;
     }
@@ -5637,7 +5637,7 @@ int perkDialogShow()
     characterEditorDrawCard();
     win_draw(gCharacterEditorWindow);
 
-    artUnlock(backgroundFrmHandle);
+    art_ptr_unlock(backgroundFrmHandle);
 
     windowDestroy(gPerkDialogWindow);
 
@@ -6229,12 +6229,12 @@ int perkDialogOptionCompare(const void* a1, const void* a2)
 // 0x43DB54
 int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* description)
 {
-    int fid = buildFid(OBJ_TYPE_SKILLDEX, frmId, 0, 0, 0);
+    int fid = art_id(OBJ_TYPE_SKILLDEX, frmId, 0, 0, 0);
 
     CacheEntry* handle;
     int width;
     int height;
-    unsigned char* data = artLockFrameDataReturningSize(fid, &handle, &width, &height);
+    unsigned char* data = art_lock(fid, &handle, &width, &height);
     if (data == NULL) {
         return -1;
     }
@@ -6315,7 +6315,7 @@ int perkDialogDrawCard(int frmId, const char* name, const char* rank, char* desc
     gPerkDialogCardFrmId = frmId;
     gPerkDialogCardDrawn = true;
 
-    artUnlock(handle);
+    art_ptr_unlock(handle);
 
     return 0;
 }

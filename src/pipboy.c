@@ -327,8 +327,8 @@ int pipboyWindowInit(int intent)
 
     int index;
     for (index = 0; index < PIPBOY_FRM_COUNT; index++) {
-        int fid = buildFid(OBJ_TYPE_INTERFACE, gPipboyFrmIds[index], 0, 0, 0);
-        gPipboyFrmData[index] = artLockFrameDataReturningSize(fid, &(gPipboyFrmHandles[index]), &(gPipboyFrmSizes[index].width), &(gPipboyFrmSizes[index].height));
+        int fid = art_id(OBJ_TYPE_INTERFACE, gPipboyFrmIds[index], 0, 0, 0);
+        gPipboyFrmData[index] = art_lock(fid, &(gPipboyFrmHandles[index]), &(gPipboyFrmSizes[index].width), &(gPipboyFrmSizes[index].height));
         if (gPipboyFrmData[index] == NULL) {
             break;
         }
@@ -338,7 +338,7 @@ int pipboyWindowInit(int intent)
         debugPrint("\n** Error loading pipboy graphics! **\n");
 
         while (--index >= 0) {
-            artUnlock(gPipboyFrmHandles[index]);
+            art_ptr_unlock(gPipboyFrmHandles[index]);
         }
 
         return -1;
@@ -350,7 +350,7 @@ int pipboyWindowInit(int intent)
     if (gPipboyWindow == -1) {
         debugPrint("\n** Error opening pipboy window! **\n");
         for (int index = 0; index < PIPBOY_FRM_COUNT; index++) {
-            artUnlock(gPipboyFrmHandles[index]);
+            art_ptr_unlock(gPipboyFrmHandles[index]);
         }
         return -1;
     }
@@ -520,7 +520,7 @@ void pipboyWindowFree()
     holodiskFree();
 
     for (int index = 0; index < PIPBOY_FRM_COUNT; index++) {
-        artUnlock(gPipboyFrmHandles[index]);
+        art_ptr_unlock(gPipboyFrmHandles[index]);
     }
 
     pipboyWindowDestroyButtons();
