@@ -239,7 +239,7 @@ int endgameEndingHandleContinuePlaying()
     MessageListItem messageListItem;
     messageListItem.num = 30;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, NULL, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
+        rc = dialog_out(messageListItem.text, NULL, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc == 0) {
             _game_user_wants_to_quit = 2;
         }

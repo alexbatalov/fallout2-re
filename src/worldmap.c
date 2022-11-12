@@ -3552,7 +3552,7 @@ static int wmRndEncounterOccurred()
 
         title = getmsg(&wmMsgFile, &messageListItem, 2999);
         body = getmsg(&wmMsgFile, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
-        if (showDialogBox(title, &body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
+        if (dialog_out(title, &body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE | DIALOG_BOX_YES_NO) == 0) {
             wmGenData.encounterIconIsVisible = 0;
             wmGenData.encounterMapId = -1;
             wmGenData.encounterTableId = -1;

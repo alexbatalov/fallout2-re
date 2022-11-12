@@ -214,7 +214,7 @@ int pipboyOpen(int intent)
     if (!wmMapPipboyActive()) {
         // You aren't wearing the pipboy!
         const char* text = getmsg(&gMiscMessageList, &gPipboyMessageListItem, 7000);
-        showDialogBox(text, NULL, 0, 192, 135, colorTable[32328], NULL, colorTable[32328], 1);
+        dialog_out(text, NULL, 0, 192, 135, colorTable[32328], NULL, colorTable[32328], 1);
         return 0;
     }
 
@@ -447,7 +447,7 @@ int pipboyWindowInit(int intent)
             soundPlayFile("iisxxxx1");
 
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
-            showDialogBox(text, NULL, 0, 192, 135, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+            dialog_out(text, NULL, 0, 192, 135, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
             intent = PIPBOY_OPEN_INTENT_UNSPECIFIED;
         }
@@ -1562,7 +1562,7 @@ void pipboyHandleAlarmClock(int a1)
 
             // You cannot rest at this location!
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
-            showDialogBox(text, NULL, 0, 192, 135, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+            dialog_out(text, NULL, 0, 192, 135, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
         }
     } else if (a1 >= 4 && a1 <= 17) {
         soundPlayFile("ib1p1xx1");

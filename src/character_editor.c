@@ -638,7 +638,7 @@ int characterEditorShow(bool isCreationMode)
                     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 119);
                     strcpy(line2, messageListItemText);
 
-                    showDialogBox(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
+                    dialog_out(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
                     win_draw(gCharacterEditorWindow);
 
                     rc = -1;
@@ -656,7 +656,7 @@ int characterEditorShow(bool isCreationMode)
                     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 143);
                     strcpy(line2, messageListItemText);
 
-                    showDialogBox(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
+                    dialog_out(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
                     win_draw(gCharacterEditorWindow);
 
                     rc = -1;
@@ -674,7 +674,7 @@ int characterEditorShow(bool isCreationMode)
                     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 158);
                     strcpy(line2, messageListItemText);
 
-                    showDialogBox(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
+                    dialog_out(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
                     win_draw(gCharacterEditorWindow);
 
                     rc = -1;
@@ -692,7 +692,7 @@ int characterEditorShow(bool isCreationMode)
                     messageListItemText = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 161);
                     strcpy(line2, messageListItemText);
 
-                    if (showDialogBox(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
+                    if (dialog_out(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
                         win_draw(gCharacterEditorWindow);
 
                         rc = -1;
@@ -3616,7 +3616,7 @@ int characterEditorShowOptions()
                 strcpy(string5, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 605));
                 strcpy(string2, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 606));
 
-                if (showDialogBox(NULL, dialogBody, 2, 169, 126, colorTable[992], NULL, colorTable[992], DIALOG_BOX_YES_NO) != 0) {
+                if (dialog_out(NULL, dialogBody, 2, 169, 126, colorTable[992], NULL, colorTable[992], DIALOG_BOX_YES_NO) != 0) {
                     _ResetPlayer();
                     skillsGetTagged(gCharacterEditorTempTaggedSkills, NUM_TAGGED_SKILLS);
 
@@ -3646,7 +3646,7 @@ int characterEditorShowOptions()
                     // PRINT TO FILE
                     strcpy(string4, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 602));
 
-                    if (showSaveFileDialog(string4, fileList, string1, fileListLength, 168, 80, 0) == 0) {
+                    if (save_file_dialog(string4, fileList, string1, fileListLength, 168, 80, 0) == 0) {
                         strcat(string1, ".");
                         strcat(string1, "TXT");
 
@@ -3662,7 +3662,7 @@ int characterEditorShowOptions()
 
                             strcpy(string5, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 610));
 
-                            if (showDialogBox(string4, dialogBody, 1, 169, 126, colorTable[32328], NULL, colorTable[32328], 0x10) != 0) {
+                            if (dialog_out(string4, dialogBody, 1, 169, 126, colorTable[32328], NULL, colorTable[32328], 0x10) != 0) {
                                 rc = 1;
                             } else {
                                 rc = 0;
@@ -3680,7 +3680,7 @@ int characterEditorShowOptions()
                                     "%s%s",
                                     strupr(string1),
                                     getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 607));
-                                showDialogBox(string4, NULL, 0, 169, 126, colorTable[992], NULL, colorTable[992], 0);
+                                dialog_out(string4, NULL, 0, 169, 126, colorTable[992], NULL, colorTable[992], 0);
                             } else {
                                 soundPlayFile("iisxxxx1");
 
@@ -3689,7 +3689,7 @@ int characterEditorShowOptions()
                                     getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 611),
                                     strupr(string1),
                                     "!");
-                                showDialogBox(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[992], 0x01);
+                                dialog_out(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[992], 0x01);
                             }
                         }
                     }
@@ -3699,7 +3699,7 @@ int characterEditorShowOptions()
                     soundPlayFile("iisxxxx1");
 
                     strcpy(string4, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 615));
-                    showDialogBox(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
+                    dialog_out(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
 
                     rc = 0;
                 }
@@ -3714,7 +3714,7 @@ int characterEditorShowOptions()
                 if (fileNameListLength != -1) {
                     // NOTE: This value is not copied as in save dialog.
                     char* title = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 601);
-                    int loadFileDialogRc = showLoadFileDialog(title, fileNameList, string3, fileNameListLength, 168, 80, 0);
+                    int loadFileDialogRc = file_dialog(title, fileNameList, string3, fileNameListLength, 168, 80, 0);
                     if (loadFileDialogRc == -1) {
                         fileNameListFree(&fileNameList, 0);
                         // FIXME: This branch ignores cleanup at the end of the loop.
@@ -3758,7 +3758,7 @@ int characterEditorShowOptions()
                             strcat(string4, string3);
                             strcat(string4, "!");
 
-                            showDialogBox(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
+                            dialog_out(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
                         }
 
                         characterEditorResetScreen();
@@ -3772,7 +3772,7 @@ int characterEditorShowOptions()
                     strcpy(string4, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 615));
                     rc = 0;
 
-                    showDialogBox(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
+                    dialog_out(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
                 }
             } else if (keyCode == 500 || keyCode == KEY_UPPERCASE_S || keyCode == KEY_LOWERCASE_S) {
                 // SAVE
@@ -3786,7 +3786,7 @@ int characterEditorShowOptions()
                     strcpy(string1, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 617));
                     strcpy(string4, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 600));
 
-                    if (showSaveFileDialog(string4, fileNameList, string1, fileNameListLength, 168, 80, 0) == 0) {
+                    if (save_file_dialog(string4, fileNameList, string1, fileNameListLength, 168, 80, 0) == 0) {
                         strcat(string1, ".");
                         strcat(string1, "GCD");
 
@@ -3800,7 +3800,7 @@ int characterEditorShowOptions()
                                 getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 609));
                             strcpy(string5, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 610));
 
-                            if (showDialogBox(string4, dialogBody, 1, 169, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO) != 0) {
+                            if (dialog_out(string4, dialogBody, 1, 169, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO) != 0) {
                                 shouldSave = true;
                             } else {
                                 shouldSave = false;
@@ -3821,13 +3821,13 @@ int characterEditorShowOptions()
                                 sprintf(string4, "%s%s!",
                                     strupr(string1),
                                     getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 611));
-                                showDialogBox(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                                dialog_out(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
                                 rc = 0;
                             } else {
                                 sprintf(string4, "%s%s",
                                     strupr(string1),
                                     getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 607));
-                                showDialogBox(string4, NULL, 0, 169, 126, colorTable[992], NULL, colorTable[992], DIALOG_BOX_LARGE);
+                                dialog_out(string4, NULL, 0, 169, 126, colorTable[992], NULL, colorTable[992], DIALOG_BOX_LARGE);
                                 rc = 1;
                             }
                         }
@@ -3839,7 +3839,7 @@ int characterEditorShowOptions()
 
                     // Error reading file list!
                     char* msg = getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 615);
-                    showDialogBox(msg, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
+                    dialog_out(msg, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
 
                     rc = 0;
                 }
@@ -3871,7 +3871,7 @@ int characterEditorShowOptions()
 
         // Error reading file list!
         strcpy(pattern, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 615));
-        showDialogBox(pattern, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
+        dialog_out(pattern, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
         return 0;
     }
 
@@ -3882,7 +3882,7 @@ int characterEditorShowOptions()
     char title[512];
     strcpy(title, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 602));
 
-    if (showSaveFileDialog(title, fileNames, fileName, filesCount, 168, 80, 0) == 0) {
+    if (save_file_dialog(title, fileNames, fileName, filesCount, 168, 80, 0) == 0) {
         strcat(fileName, ".TXT");
 
         title[0] = '\0';
@@ -3899,7 +3899,7 @@ int characterEditorShowOptions()
             strcpy(line2, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 610));
 
             const char* lines[] = { line2 };
-            v42 = showDialogBox(title, lines, 1, 169, 126, colorTable[32328], NULL, colorTable[32328], 0x10);
+            v42 = dialog_out(title, lines, 1, 169, 126, colorTable[32328], NULL, colorTable[32328], 0x10);
             if (v42) {
                 v42 = 1;
             }
@@ -3919,7 +3919,7 @@ int characterEditorShowOptions()
                     getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 611),
                     strupr(fileName),
                     "!");
-                showDialogBox(title, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 1);
+                dialog_out(title, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 1);
             }
         }
     }
@@ -4885,7 +4885,7 @@ void characterEditorHandleAdjustSkillButtonPressed(int keyCode)
                         strcpy(body1, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 132));
                         // Unable to increment it.
                         strcpy(body2, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 133));
-                        showDialogBox(title, body, 2, 192, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                        dialog_out(title, body, 2, 192, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
                         rc = -1;
                     }
                 } else {
@@ -4893,7 +4893,7 @@ void characterEditorHandleAdjustSkillButtonPressed(int keyCode)
 
                     // Not enough skill points available.
                     strcpy(title, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 136));
-                    showDialogBox(title, NULL, 0, 192, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                    dialog_out(title, NULL, 0, 192, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
                     rc = -1;
                 }
             } else if (keyCode == 523) {
@@ -4913,7 +4913,7 @@ void characterEditorHandleAdjustSkillButtonPressed(int keyCode)
                     strcpy(body1, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 134));
                     // Unable to decrement it.
                     strcpy(body2, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 135));
-                    showDialogBox(title, body, 2, 192, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                    dialog_out(title, body, 2, 192, 126, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
                     rc = -1;
                 }
             }
@@ -5014,7 +5014,7 @@ void characterEditorToggleTaggedSkill(int skill)
             strcpy(line2, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 141));
 
             const char* lines[] = { line2 };
-            showDialogBox(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
+            dialog_out(line1, lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
         }
     }
 
@@ -5148,7 +5148,7 @@ void characterEditorToggleOptionalTrait(int trait)
             strcpy(line2, getmsg(&gCharacterEditorMessageList, &gCharacterEditorMessageListItem, 149));
 
             const char* lines = { line2 };
-            showDialogBox(line1, &lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
+            dialog_out(line1, &lines, 1, 192, 126, colorTable[32328], 0, colorTable[32328], 0);
         } else {
             for (int index = 0; index < 2; index++) {
                 if (gCharacterEditorTempTraits[index] == -1) {

@@ -1,5 +1,5 @@
-#ifndef DBOX_H
-#define DBOX_H
+#ifndef FALLOUT_GAME_BMPDLOG_H_
+#define FALLOUT_GAME_BMPDLOG_H_
 
 typedef enum DialogBoxOptions {
     DIALOG_BOX_LARGE = 0x01,
@@ -33,18 +33,17 @@ typedef enum FileDialogScrollDirection {
     FILE_DIALOG_SCROLL_DIRECTION_DOWN,
 } FileDialogScrollDirection;
 
-extern const int gDialogBoxBackgroundFrmIds[DIALOG_TYPE_COUNT];
-extern const int _ytable[DIALOG_TYPE_COUNT];
-extern const int _xtable[DIALOG_TYPE_COUNT];
-extern const int _doneY[DIALOG_TYPE_COUNT];
-extern const int _doneX[DIALOG_TYPE_COUNT];
-extern const int _dblines[DIALOG_TYPE_COUNT];
-extern int gLoadFileDialogFrmIds[FILE_DIALOG_FRM_COUNT];
-extern int gSaveFileDialogFrmIds[FILE_DIALOG_FRM_COUNT];
+extern int dbox[DIALOG_TYPE_COUNT];
+extern int ytable[DIALOG_TYPE_COUNT];
+extern int xtable[DIALOG_TYPE_COUNT];
+extern int doneY[DIALOG_TYPE_COUNT];
+extern int doneX[DIALOG_TYPE_COUNT];
+extern int dblines[DIALOG_TYPE_COUNT];
+extern int flgids[FILE_DIALOG_FRM_COUNT];
+extern int flgids2[FILE_DIALOG_FRM_COUNT];
 
-int showDialogBox(const char* title, const char** body, int bodyLength, int x, int y, int titleColor, const char* a8, int bodyColor, int flags);
-int showLoadFileDialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags);
-int showSaveFileDialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags);
-void fileDialogRenderFileList(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch);
+int dialog_out(const char* title, const char** body, int bodyLength, int x, int y, int titleColor, const char* a8, int bodyColor, int flags);
+int file_dialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags);
+int save_file_dialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags);
 
-#endif /* DBOX_H */
+#endif /* FALLOUT_GAME_BMPDLOG_H_ */

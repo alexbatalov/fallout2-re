@@ -561,7 +561,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 char title[128];
                 strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
-                showDialogBox(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
+                dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
                 pipboyOpen(false);
@@ -629,7 +629,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 char title[128];
                 strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
-                showDialogBox(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
+                dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
                 pipboyOpen(true);
@@ -1148,7 +1148,7 @@ int showQuitConfirmationDialog()
     MessageListItem messageListItem;
     messageListItem.num = 0;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        rc = showDialogBox(messageListItem.text, 0, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
+        rc = dialog_out(messageListItem.text, 0, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc != 0) {
             _game_user_wants_to_quit = 2;
         }

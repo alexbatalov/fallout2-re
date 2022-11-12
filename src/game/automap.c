@@ -432,7 +432,7 @@ void automap(bool isInGame, bool isUsingScanner)
                     // 17 - The motion sensor is not installed.
                     // 18 - The motion sensor has no charges remaining.
                     const char* title = getmsg(&gMiscMessageList, &messageListItem, scanner != NULL ? 18 : 17);
-                    showDialogBox(title, NULL, 0, 165, 140, colorTable[32328], NULL, colorTable[32328], 0);
+                    dialog_out(title, NULL, 0, 165, 140, colorTable[32328], NULL, colorTable[32328], 0);
                 }
             }
 

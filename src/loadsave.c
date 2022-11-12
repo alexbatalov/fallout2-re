@@ -306,7 +306,7 @@ int lsgSaveGame(int mode)
         const char* body[] = {
             _str1,
         };
-        showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+        dialog_out(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
         messageListFree(&gLoadSaveMessageList);
 
@@ -342,7 +342,7 @@ int lsgSaveGame(int mode)
             _str1,
             _str2,
         };
-        showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+        dialog_out(_str0, body, 2, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
         lsgWindowFree(0);
 
@@ -474,7 +474,7 @@ int lsgSaveGame(int mode)
                 rc = 1;
                 // Save game already exists, overwrite?
                 const char* title = getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 131);
-                if (showDialogBox(title, NULL, 0, 169, 131, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
+                if (dialog_out(title, NULL, 0, 169, 131, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO) == 0) {
                     rc = -1;
                 }
             } else {
@@ -606,7 +606,7 @@ int lsgSaveGame(int mode)
                 const char* body[1] = {
                     _str1,
                 };
-                showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                dialog_out(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
                 rc = -1;
             } else if (v50 == 0) {
                 gameMouseSetCursor(MOUSE_CURSOR_ARROW);
@@ -626,7 +626,7 @@ int lsgSaveGame(int mode)
                     const char* body[1] = {
                         _str1,
                     };
-                    showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                    dialog_out(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
                     if (_GetSlotList() == -1) {
                         win_draw(gLoadSaveWindow);
@@ -647,7 +647,7 @@ int lsgSaveGame(int mode)
                             _str1,
                             _str2,
                         };
-                        showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
+                        dialog_out(_str0, body, 2, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
                         lsgWindowFree(0);
 
@@ -788,7 +788,7 @@ int lsgLoadGame(int mode)
         soundPlayFile("iisxxxx1");
         strcpy(_str0, getmsg(&gLoadSaveMessageList, &messageListItem, 134));
         strcpy(_str1, getmsg(&gLoadSaveMessageList, &messageListItem, 135));
-        showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+        dialog_out(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
         messageListFree(&gLoadSaveMessageList);
         _map_new_map();
@@ -826,7 +826,7 @@ int lsgLoadGame(int mode)
         strcpy(_str0, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 106));
         strcpy(_str1, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 107));
         sprintf(_str2, "\"%s\\\"", "SAVEGAME");
-        showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+        dialog_out(_str0, body, 2, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
         lsgWindowFree(windowType);
         return -1;
     }
@@ -1080,14 +1080,14 @@ int lsgLoadGame(int mode)
                 strcpy(_str0, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 134));
                 strcpy(_str1, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 136));
                 strcpy(_str2, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 135));
-                showDialogBox(_str0, body, 2, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+                dialog_out(_str0, body, 2, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
                 rc = -1;
                 break;
             case SLOT_STATE_ERROR:
                 soundPlayFile("iisxxxx1");
                 strcpy(_str0, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 134));
                 strcpy(_str1, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 136));
-                showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+                dialog_out(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
                 rc = -1;
                 break;
             default:
@@ -1096,7 +1096,7 @@ int lsgLoadGame(int mode)
                     soundPlayFile("iisxxxx1");
                     strcpy(_str0, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 134));
                     strcpy(_str1, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 135));
-                    showDialogBox(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
+                    dialog_out(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
                     _map_new_map();
                     _game_user_wants_to_quit = 2;
                     rc = -1;
