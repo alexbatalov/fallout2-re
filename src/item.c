@@ -2192,7 +2192,7 @@ int _item_m_use_charged_item(Object* critter, Object* miscItem)
     } else if (pid == PROTO_ID_MOTION_SENSOR) {
         // NOTE: Uninline.
         if (miscItemConsumeCharge(miscItem) == 0) {
-            automapShow(true, true);
+            automap(true, true);
         } else {
             MessageListItem messageListItem;
             // %s has no charges left.

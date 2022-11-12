@@ -1419,7 +1419,7 @@ int _map_save_in_game(bool a1)
 
         strcpy(gMapHeader.name, name);
 
-        automapSaveCurrent();
+        automap_pip_save();
 
         if (a1) {
             gMapHeader.name[0] = '\0';

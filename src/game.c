@@ -275,7 +275,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">combat_init\t");
 
-    if (automapInit() != 0) {
+    if (automap_init() != 0) {
         debugPrint("Failed on automap_init\n");
         return -1;
     }
@@ -357,7 +357,7 @@ void gameReset()
     gameDialogReset();
     combatReset();
     _game_user_wants_to_quit = 0;
-    automapReset();
+    automap_reset();
     _init_options_menu();
 }
 
@@ -393,7 +393,7 @@ void gameExit()
     traitsExit();
     randomExit();
     badwordsExit();
-    automapExit();
+    automap_exit();
     paletteExit();
     wmWorldMap_exit();
     partyMembersExit();
@@ -488,7 +488,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             && keys[DIK_LALT] == 0
             && keys[DIK_RALT] == 0) {
             soundPlayFile("ib1p1xx1");
-            automapShow(true, false);
+            automap(true, false);
         }
         break;
     case KEY_CTRL_P:

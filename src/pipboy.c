@@ -1266,7 +1266,7 @@ void pipboyWindowHandleAutomaps(int a1)
         if (a1 >= 1 && a1 <= _actcnt + 3) {
             soundPlayFile("ib1p1xx1");
             _PrintAMelevList(a1);
-            automapRenderInPipboyWindow(gPipboyWindow, _sortlist[a1 - 1].field_6, _sortlist[a1 - 1].field_4);
+            draw_top_down_map_pipboy(gPipboyWindow, _sortlist[a1 - 1].field_6, _sortlist[a1 - 1].field_4);
             win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         }
 
@@ -1281,7 +1281,7 @@ void pipboyWindowHandleAutomaps(int a1)
         _amcty_indx = _sortlist[a1 - 1].field_4;
         _actcnt = _PrintAMelevList(1);
         pipboyWindowCreateButtons(0, _actcnt + 2, 1);
-        automapRenderInPipboyWindow(gPipboyWindow, _sortlist[0].field_6, _sortlist[0].field_4);
+        draw_top_down_map_pipboy(gPipboyWindow, _sortlist[0].field_6, _sortlist[0].field_4);
         win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         _amlst_mode = 1;
     }
@@ -1291,7 +1291,7 @@ void pipboyWindowHandleAutomaps(int a1)
 int _PrintAMelevList(int a1)
 {
     AutomapHeader* automapHeader;
-    if (automapGetHeader(&automapHeader) == -1) {
+    if (ReadAMList(&automapHeader) == -1) {
         return -1;
     }
 
@@ -1373,7 +1373,7 @@ int _PrintAMelevList(int a1)
 int _PrintAMList(int a1)
 {
     AutomapHeader* automapHeader;
-    if (automapGetHeader(&automapHeader) == -1) {
+    if (ReadAMList(&automapHeader) == -1) {
         return -1;
     }
 
@@ -1385,7 +1385,7 @@ int _PrintAMList(int a1)
         int elevation;
         for (elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
             if (automapHeader->offsets[map][elevation] > 0) {
-                if (_automapDisplayMap(map) == 0) {
+                if (automapDisplayMap(map) == 0) {
                     break;
                 }
             }

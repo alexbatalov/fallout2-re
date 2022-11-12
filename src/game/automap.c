@@ -21,15 +21,59 @@
 #include "text_font.h"
 #include "window_manager.h"
 
+#define AUTOMAP_OFFSET_COUNT (AUTOMAP_MAP_COUNT * ELEVATION_COUNT)
+
+#define AUTOMAP_WINDOW_X 75
+#define AUTOMAP_WINDOW_Y 0
+#define AUTOMAP_WINDOW_WIDTH 519
+#define AUTOMAP_WINDOW_HEIGHT 480
+
+#define AUTOMAP_PIPBOY_VIEW_X 238
+#define AUTOMAP_PIPBOY_VIEW_Y 105
+
+// View options for rendering automap for map window. These are stored in
+// [autoflags] and is saved in save game file.
+typedef enum AutomapFlags {
+    // NOTE: This is a special flag to denote the map is activated in the game (as
+    // opposed to the mapper). It's always on. Turning it off produces nice color
+    // coded map with all objects and their types visible, however there is no way
+    // you can do it within the game UI.
+    AUTOMAP_IN_GAME = 0x01,
+
+    // High details is on.
+    AUTOMAP_WTH_HIGH_DETAILS = 0x02,
+
+    // Scanner is active.
+    AUTOMAP_WITH_SCANNER = 0x04,
+} AutomapFlags;
+
+typedef enum AutomapFrm {
+    AUTOMAP_FRM_BACKGROUND,
+    AUTOMAP_FRM_BUTTON_UP,
+    AUTOMAP_FRM_BUTTON_DOWN,
+    AUTOMAP_FRM_SWITCH_UP,
+    AUTOMAP_FRM_SWITCH_DOWN,
+    AUTOMAP_FRM_COUNT,
+} AutomapFrm;
+
+static void draw_top_down_map(int window, int elevation, unsigned char* backgroundData, int flags);
+static int WriteAM_Entry(File* stream);
+static int AM_ReadEntry(int map, int elevation);
+static int WriteAM_Header(File* stream);
+static int AM_ReadMainHeader(File* stream);
+static void decode_map_data(int elevation);
+static int am_pip_init();
+static int copy_file_data(File* stream1, File* stream2, int length);
+
 // 0x41ADE0
-const int _defam[AUTOMAP_MAP_COUNT][ELEVATION_COUNT] = {
+static const int defam[AUTOMAP_MAP_COUNT][ELEVATION_COUNT] = {
     { -1, -1, -1 },
     { -1, -1, -1 },
     { -1, -1, -1 },
 };
 
 // 0x41B560
-const int _displayMapList[AUTOMAP_MAP_COUNT] = {
+static const int displayMapList[AUTOMAP_MAP_COUNT] = {
     -1,
     -1,
     -1,
@@ -190,45 +234,42 @@ const int _displayMapList[AUTOMAP_MAP_COUNT] = {
     -1,
     -1,
     -1,
-};
-
-// 0x41B7E0
-const int gAutomapFrmIds[AUTOMAP_FRM_COUNT] = {
-    171, // automap.frm - automap window
-    8, // lilredup.frm - little red button up
-    9, // lilreddn.frm - little red button down
-    172, // autoup.frm - switch up
-    173, // autodwn.frm - switch down
 };
 
 // 0x5108C4
-int gAutomapFlags = 0;
+static int autoflags = 0;
 
 // 0x56CB18
-AutomapHeader gAutomapHeader;
+static AutomapHeader amdbhead;
 
 // 0x56D2A0
-AutomapEntry gAutomapEntry;
+static AutomapEntry amdbsubhead;
+
+// 0x56D2A8
+static unsigned char* cmpbuf;
+
+// 0x56D2A8
+static unsigned char* ambuf;
 
 // automap_init
 // 0x41B7F4
-int automapInit()
+int automap_init()
 {
-    gAutomapFlags = 0;
-    automapCreate();
+    autoflags = 0;
+    am_pip_init();
     return 0;
 }
 
 // 0x41B808
-int automapReset()
+int automap_reset()
 {
-    gAutomapFlags = 0;
-    automapCreate();
+    autoflags = 0;
+    am_pip_init();
     return 0;
 }
 
 // 0x41B81C
-void automapExit()
+void automap_exit()
 {
     char* masterPatchesPath;
     if (configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
@@ -239,30 +280,34 @@ void automapExit()
 }
 
 // 0x41B87C
-int automapLoad(File* stream)
+int automap_load(File* stream)
 {
-    return fileReadInt32(stream, &gAutomapFlags);
+    return fileReadInt32(stream, &autoflags);
 }
 
 // 0x41B898
-int automapSave(File* stream)
+int automap_save(File* stream)
 {
-    return fileWriteInt32(stream, gAutomapFlags);
+    return fileWriteInt32(stream, autoflags);
 }
 
 // 0x41B8B4
-int _automapDisplayMap(int map)
+int automapDisplayMap(int map)
 {
-    return _displayMapList[map];
+    return displayMapList[map];
 }
 
 // 0x41B8BC
-void automapShow(bool isInGame, bool isUsingScanner)
+void automap(bool isInGame, bool isUsingScanner)
 {
-    int frmIds[AUTOMAP_FRM_COUNT];
-
-    static_assert(sizeof(frmIds) == sizeof(gAutomapFrmIds), "wrong size");
-    memcpy(frmIds, gAutomapFrmIds, sizeof(gAutomapFrmIds));
+    // 0x41B7E0
+    static const int frmIds[AUTOMAP_FRM_COUNT] = {
+        171, // automap.frm - automap window
+        8, // lilredup.frm - little red button up
+        9, // lilreddn.frm - little red button down
+        172, // autoup.frm - switch up
+        173, // autodwn.frm - switch down
+    };
 
     unsigned char* frmData[AUTOMAP_FRM_COUNT];
     CacheEntry* frmHandle[AUTOMAP_FRM_COUNT];
@@ -307,23 +352,23 @@ void automapShow(bool isInGame, bool isUsingScanner)
         buttonSetCallbacks(switchBtn, _gsound_toggle_butt_press_, _gsound_toggle_butt_press_);
     }
 
-    if ((gAutomapFlags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
+    if ((autoflags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
         _win_set_button_rest_state(switchBtn, 1, 0);
     }
 
     int elevation = gElevation;
 
-    gAutomapFlags &= AUTOMAP_WTH_HIGH_DETAILS;
+    autoflags &= AUTOMAP_WTH_HIGH_DETAILS;
 
     if (isInGame) {
-        gAutomapFlags |= AUTOMAP_IN_GAME;
+        autoflags |= AUTOMAP_IN_GAME;
     }
 
     if (isUsingScanner) {
-        gAutomapFlags |= AUTOMAP_WITH_SCANNER;
+        autoflags |= AUTOMAP_WITH_SCANNER;
     }
 
-    automapRenderInMapWindow(window, elevation, frmData[AUTOMAP_FRM_BACKGROUND], gAutomapFlags);
+    draw_top_down_map(window, elevation, frmData[AUTOMAP_FRM_BACKGROUND], autoflags);
 
     bool isoWasEnabled = isoDisable();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
@@ -344,15 +389,15 @@ void automapShow(bool isInGame, bool isUsingScanner)
             break;
         case KEY_UPPERCASE_H:
         case KEY_LOWERCASE_H:
-            if ((gAutomapFlags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
-                gAutomapFlags |= AUTOMAP_WTH_HIGH_DETAILS;
+            if ((autoflags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
+                autoflags |= AUTOMAP_WTH_HIGH_DETAILS;
                 needsRefresh = true;
             }
             break;
         case KEY_UPPERCASE_L:
         case KEY_LOWERCASE_L:
-            if ((gAutomapFlags & AUTOMAP_WTH_HIGH_DETAILS) != 0) {
-                gAutomapFlags &= ~AUTOMAP_WTH_HIGH_DETAILS;
+            if ((autoflags & AUTOMAP_WTH_HIGH_DETAILS) != 0) {
+                autoflags &= ~AUTOMAP_WTH_HIGH_DETAILS;
                 needsRefresh = true;
             }
             break;
@@ -363,7 +408,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
                 needsRefresh = true;
             }
 
-            if ((gAutomapFlags & AUTOMAP_WITH_SCANNER) == 0) {
+            if ((autoflags & AUTOMAP_WITH_SCANNER) == 0) {
                 Object* scanner = NULL;
 
                 Object* item1 = critterGetItem1(gDude);
@@ -378,7 +423,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
 
                 if (scanner != NULL && miscItemGetCharges(scanner) > 0) {
                     needsRefresh = true;
-                    gAutomapFlags |= AUTOMAP_WITH_SCANNER;
+                    autoflags |= AUTOMAP_WITH_SCANNER;
                     miscItemConsumeCharge(scanner);
                 } else {
                     soundPlayFile("iisxxxx1");
@@ -407,7 +452,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
         }
 
         if (needsRefresh) {
-            automapRenderInMapWindow(window, elevation, frmData[AUTOMAP_FRM_BACKGROUND], gAutomapFlags);
+            draw_top_down_map(window, elevation, frmData[AUTOMAP_FRM_BACKGROUND], autoflags);
             needsRefresh = false;
         }
     }
@@ -427,7 +472,7 @@ void automapShow(bool isInGame, bool isUsingScanner)
 // Renders automap in Map window.
 //
 // 0x41BD1C
-void automapRenderInMapWindow(int window, int elevation, unsigned char* backgroundData, int flags)
+static void draw_top_down_map(int window, int elevation, unsigned char* backgroundData, int flags)
 {
     int color;
     if ((flags & AUTOMAP_IN_GAME) != 0) {
@@ -548,27 +593,27 @@ void automapRenderInMapWindow(int window, int elevation, unsigned char* backgrou
 // Renders automap in Pipboy window.
 //
 // 0x41C004
-int automapRenderInPipboyWindow(int window, int map, int elevation)
+int draw_top_down_map_pipboy(int window, int map, int elevation)
 {
     unsigned char* windowBuffer = windowGetBuffer(window) + 640 * AUTOMAP_PIPBOY_VIEW_Y + AUTOMAP_PIPBOY_VIEW_X;
 
     unsigned char wallColor = colorTable[992];
     unsigned char sceneryColor = colorTable[480];
 
-    gAutomapEntry.data = (unsigned char*)internal_malloc(11024);
-    if (gAutomapEntry.data == NULL) {
+    ambuf = (unsigned char*)internal_malloc(11024);
+    if (ambuf == NULL) {
         debugPrint("\nAUTOMAP: Error allocating data buffer!\n");
         return -1;
     }
 
-    if (automapLoadEntry(map, elevation) == -1) {
-        internal_free(gAutomapEntry.data);
+    if (AM_ReadEntry(map, elevation) == -1) {
+        internal_free(ambuf);
         return -1;
     }
 
     int v1 = 0;
     unsigned char v2 = 0;
-    unsigned char* ptr = gAutomapEntry.data;
+    unsigned char* ptr = ambuf;
 
     // FIXME: This loop is implemented incorrectly. Automap requires 400x400 px,
     // but it's top offset is 105, which gives max y 505. It only works because
@@ -603,19 +648,19 @@ int automapRenderInPipboyWindow(int window, int map, int elevation)
         windowBuffer += 640 + 240;
     }
 
-    internal_free(gAutomapEntry.data);
+    internal_free(ambuf);
 
     return 0;
 }
 
 // automap_pip_save
 // 0x41C0F0
-int automapSaveCurrent()
+int automap_pip_save()
 {
     int map = mapGetCurrentMap();
     int elevation = gElevation;
 
-    int entryOffset = gAutomapHeader.offsets[map][elevation];
+    int entryOffset = amdbhead.offsets[map][elevation];
     if (entryOffset < 0) {
         return 0;
     }
@@ -623,16 +668,16 @@ int automapSaveCurrent()
     debugPrint("\nAUTOMAP: Saving AutoMap DB index %d, level %d\n", map, elevation);
 
     bool dataBuffersAllocated = false;
-    gAutomapEntry.data = (unsigned char*)internal_malloc(11024);
-    if (gAutomapEntry.data != NULL) {
-        gAutomapEntry.compressedData = (unsigned char*)internal_malloc(11024);
-        if (gAutomapEntry.compressedData != NULL) {
+    ambuf = (unsigned char*)internal_malloc(11024);
+    if (ambuf != NULL) {
+        cmpbuf = (unsigned char*)internal_malloc(11024);
+        if (cmpbuf != NULL) {
             dataBuffersAllocated = true;
         }
     }
 
     if (!dataBuffersAllocated) {
-        // FIXME: Leaking gAutomapEntry.data.
+        // FIXME: Leaking ambuf.
         debugPrint("\nAUTOMAP: Error allocating data buffers!\n");
         return -1;
     }
@@ -645,28 +690,28 @@ int automapSaveCurrent()
     if (stream1 == NULL) {
         debugPrint("\nAUTOMAP: Error opening automap database file!\n");
         debugPrint("Error continued: automap_pip_save: path: %s", path);
-        internal_free(gAutomapEntry.data);
-        internal_free(gAutomapEntry.compressedData);
+        internal_free(ambuf);
+        internal_free(cmpbuf);
         return -1;
     }
 
-    if (automapLoadHeader(stream1) == -1) {
+    if (AM_ReadMainHeader(stream1) == -1) {
         debugPrint("\nAUTOMAP: Error reading automap database file header!\n");
-        internal_free(gAutomapEntry.data);
-        internal_free(gAutomapEntry.compressedData);
+        internal_free(ambuf);
+        internal_free(cmpbuf);
         fileClose(stream1);
         return -1;
     }
 
-    _decode_map_data(elevation);
+    decode_map_data(elevation);
 
-    int compressedDataSize = graphCompress(gAutomapEntry.data, gAutomapEntry.compressedData, 10000);
+    int compressedDataSize = graphCompress(ambuf, cmpbuf, 10000);
     if (compressedDataSize == -1) {
-        gAutomapEntry.dataSize = 10000;
-        gAutomapEntry.isCompressed = 0;
+        amdbsubhead.dataSize = 10000;
+        amdbsubhead.isCompressed = 0;
     } else {
-        gAutomapEntry.dataSize = compressedDataSize;
-        gAutomapEntry.isCompressed = 1;
+        amdbsubhead.dataSize = compressedDataSize;
+        amdbsubhead.isCompressed = 1;
     }
 
     if (entryOffset != 0) {
@@ -675,27 +720,27 @@ int automapSaveCurrent()
         File* stream2 = fileOpen(path, "wb");
         if (stream2 == NULL) {
             debugPrint("\nAUTOMAP: Error creating temp file!\n");
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             fileClose(stream1);
             return -1;
         }
 
         fileRewind(stream1);
 
-        if (_copy_file_data(stream1, stream2, entryOffset) == -1) {
+        if (copy_file_data(stream1, stream2, entryOffset) == -1) {
             debugPrint("\nAUTOMAP: Error copying file data!\n");
             fileClose(stream1);
             fileClose(stream2);
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
-        if (automapSaveEntry(stream2) == -1) {
+        if (WriteAM_Entry(stream2) == -1) {
             fileClose(stream1);
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
@@ -704,8 +749,8 @@ int automapSaveCurrent()
             debugPrint("\nAUTOMAP: Error reading database #1!\n");
             fileClose(stream1);
             fileClose(stream2);
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
@@ -714,8 +759,8 @@ int automapSaveCurrent()
             debugPrint("\nAUTOMAP: Error reading database #2!\n");
             fileClose(stream1);
             fileClose(stream2);
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
@@ -725,44 +770,44 @@ int automapSaveCurrent()
                 debugPrint("\nAUTOMAP: Error writing temp data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
-                internal_free(gAutomapEntry.data);
-                internal_free(gAutomapEntry.compressedData);
+                internal_free(ambuf);
+                internal_free(cmpbuf);
                 return -1;
             }
 
-            if (_copy_file_data(stream1, stream2, automapDataSize - nextEntryOffset) == -1) {
+            if (copy_file_data(stream1, stream2, automapDataSize - nextEntryOffset) == -1) {
                 debugPrint("\nAUTOMAP: Error copying file data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
-                internal_free(gAutomapEntry.data);
-                internal_free(gAutomapEntry.compressedData);
+                internal_free(ambuf);
+                internal_free(cmpbuf);
                 return -1;
             }
         }
 
-        int diff = gAutomapEntry.dataSize - nextEntryDataSize;
+        int diff = amdbsubhead.dataSize - nextEntryDataSize;
         for (int map = 0; map < AUTOMAP_MAP_COUNT; map++) {
             for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-                if (gAutomapHeader.offsets[map][elevation] > entryOffset) {
-                    gAutomapHeader.offsets[map][elevation] += diff;
+                if (amdbhead.offsets[map][elevation] > entryOffset) {
+                    amdbhead.offsets[map][elevation] += diff;
                 }
             }
         }
 
-        gAutomapHeader.dataSize += diff;
+        amdbhead.dataSize += diff;
 
-        if (automapSaveHeader(stream2) == -1) {
+        if (WriteAM_Header(stream2) == -1) {
             fileClose(stream1);
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
         fileSeek(stream2, 0, SEEK_END);
         fileClose(stream2);
         fileClose(stream1);
-        internal_free(gAutomapEntry.data);
-        internal_free(gAutomapEntry.compressedData);
+        internal_free(ambuf);
+        internal_free(cmpbuf);
 
         char* masterPatchesPath;
         if (!configGetString(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
@@ -788,7 +833,7 @@ int automapSaveCurrent()
     } else {
         bool proceed = true;
         if (fileSeek(stream1, 0, SEEK_END) != -1) {
-            if (fileTell(stream1) != gAutomapHeader.dataSize) {
+            if (fileTell(stream1) != amdbhead.dataSize) {
                 proceed = false;
             }
         } else {
@@ -797,31 +842,31 @@ int automapSaveCurrent()
 
         if (!proceed) {
             debugPrint("\nAUTOMAP: Error reading automap database file header!\n");
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             fileClose(stream1);
             return -1;
         }
 
-        if (automapSaveEntry(stream1) == -1) {
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+        if (WriteAM_Entry(stream1) == -1) {
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
-        gAutomapHeader.offsets[map][elevation] = gAutomapHeader.dataSize;
-        gAutomapHeader.dataSize += gAutomapEntry.dataSize + 5;
+        amdbhead.offsets[map][elevation] = amdbhead.dataSize;
+        amdbhead.dataSize += amdbsubhead.dataSize + 5;
 
-        if (automapSaveHeader(stream1) == -1) {
-            internal_free(gAutomapEntry.data);
-            internal_free(gAutomapEntry.compressedData);
+        if (WriteAM_Header(stream1) == -1) {
+            internal_free(ambuf);
+            internal_free(cmpbuf);
             return -1;
         }
 
         fileSeek(stream1, 0, SEEK_END);
         fileClose(stream1);
-        internal_free(gAutomapEntry.data);
-        internal_free(gAutomapEntry.compressedData);
+        internal_free(ambuf);
+        internal_free(cmpbuf);
     }
 
     return 1;
@@ -830,24 +875,24 @@ int automapSaveCurrent()
 // Saves automap entry into stream.
 //
 // 0x41C844
-int automapSaveEntry(File* stream)
+static int WriteAM_Entry(File* stream)
 {
     unsigned char* buffer;
-    if (gAutomapEntry.isCompressed == 1) {
-        buffer = gAutomapEntry.compressedData;
+    if (amdbsubhead.isCompressed == 1) {
+        buffer = cmpbuf;
     } else {
-        buffer = gAutomapEntry.data;
+        buffer = ambuf;
     }
 
-    if (_db_fwriteLong(stream, gAutomapEntry.dataSize) == -1) {
+    if (_db_fwriteLong(stream, amdbsubhead.dataSize) == -1) {
         goto err;
     }
 
-    if (fileWriteUInt8(stream, gAutomapEntry.isCompressed) == -1) {
+    if (fileWriteUInt8(stream, amdbsubhead.isCompressed) == -1) {
         goto err;
     }
 
-    if (fileWriteUInt8List(stream, buffer, gAutomapEntry.dataSize) == -1) {
+    if (fileWriteUInt8List(stream, buffer, amdbsubhead.dataSize) == -1) {
         goto err;
     }
 
@@ -862,9 +907,9 @@ err:
 }
 
 // 0x41C8CC
-int automapLoadEntry(int map, int elevation)
+static int AM_ReadEntry(int map, int elevation)
 {
-    gAutomapEntry.compressedData = NULL;
+    cmpbuf = NULL;
 
     char path[MAX_PATH];
     sprintf(path, "%s\\%s", "MAPS", AUTOMAP_DB);
@@ -878,52 +923,52 @@ int automapLoadEntry(int map, int elevation)
         return -1;
     }
 
-    if (automapLoadHeader(stream) == -1) {
+    if (AM_ReadMainHeader(stream) == -1) {
         debugPrint("\nAUTOMAP: Error reading automap database header!\n");
         fileClose(stream);
         return -1;
     }
 
-    if (gAutomapHeader.offsets[map][elevation] <= 0) {
+    if (amdbhead.offsets[map][elevation] <= 0) {
         success = false;
         goto out;
     }
 
-    if (fileSeek(stream, gAutomapHeader.offsets[map][elevation], SEEK_SET) == -1) {
+    if (fileSeek(stream, amdbhead.offsets[map][elevation], SEEK_SET) == -1) {
         success = false;
         goto out;
     }
 
-    if (_db_freadInt(stream, &(gAutomapEntry.dataSize)) == -1) {
+    if (_db_freadInt(stream, &(amdbsubhead.dataSize)) == -1) {
         success = false;
         goto out;
     }
 
-    if (fileReadUInt8(stream, &(gAutomapEntry.isCompressed)) == -1) {
+    if (fileReadUInt8(stream, &(amdbsubhead.isCompressed)) == -1) {
         success = false;
         goto out;
     }
 
-    if (gAutomapEntry.isCompressed == 1) {
-        gAutomapEntry.compressedData = (unsigned char*)internal_malloc(11024);
-        if (gAutomapEntry.compressedData == NULL) {
+    if (amdbsubhead.isCompressed == 1) {
+        cmpbuf = (unsigned char*)internal_malloc(11024);
+        if (cmpbuf == NULL) {
             debugPrint("\nAUTOMAP: Error allocating decompression buffer!\n");
             fileClose(stream);
             return -1;
         }
 
-        if (fileReadUInt8List(stream, gAutomapEntry.compressedData, gAutomapEntry.dataSize) == -1) {
+        if (fileReadUInt8List(stream, cmpbuf, amdbsubhead.dataSize) == -1) {
             success = 0;
             goto out;
         }
 
-        if (graphDecompress(gAutomapEntry.compressedData, gAutomapEntry.data, 10000) == -1) {
+        if (graphDecompress(cmpbuf, ambuf, 10000) == -1) {
             debugPrint("\nAUTOMAP: Error decompressing DB entry!\n");
             fileClose(stream);
             return -1;
         }
     } else {
-        if (fileReadUInt8List(stream, gAutomapEntry.data, gAutomapEntry.dataSize) == -1) {
+        if (fileReadUInt8List(stream, ambuf, amdbsubhead.dataSize) == -1) {
             success = false;
             goto out;
         }
@@ -939,8 +984,8 @@ out:
         return -1;
     }
 
-    if (gAutomapEntry.compressedData != NULL) {
-        internal_free(gAutomapEntry.compressedData);
+    if (cmpbuf != NULL) {
+        internal_free(cmpbuf);
     }
 
     return 0;
@@ -949,19 +994,19 @@ out:
 // Saves automap.db header.
 //
 // 0x41CAD8
-int automapSaveHeader(File* stream)
+static int WriteAM_Header(File* stream)
 {
     fileRewind(stream);
 
-    if (fileWriteUInt8(stream, gAutomapHeader.version) == -1) {
+    if (fileWriteUInt8(stream, amdbhead.version) == -1) {
         goto err;
     }
 
-    if (_db_fwriteLong(stream, gAutomapHeader.dataSize) == -1) {
+    if (_db_fwriteLong(stream, amdbhead.dataSize) == -1) {
         goto err;
     }
 
-    if (_db_fwriteLongCount(stream, (int*)gAutomapHeader.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
+    if (_db_fwriteLongCount(stream, (int*)amdbhead.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
         goto err;
     }
 
@@ -979,22 +1024,22 @@ err:
 // Loads automap.db header.
 //
 // 0x41CB50
-int automapLoadHeader(File* stream)
+static int AM_ReadMainHeader(File* stream)
 {
 
-    if (fileReadUInt8(stream, &(gAutomapHeader.version)) == -1) {
+    if (fileReadUInt8(stream, &(amdbhead.version)) == -1) {
         return -1;
     }
 
-    if (_db_freadInt(stream, &(gAutomapHeader.dataSize)) == -1) {
+    if (_db_freadInt(stream, &(amdbhead.dataSize)) == -1) {
         return -1;
     }
 
-    if (_db_freadIntCount(stream, (int*)gAutomapHeader.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
+    if (_db_freadIntCount(stream, (int*)amdbhead.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
         return -1;
     }
 
-    if (gAutomapHeader.version != 1) {
+    if (amdbhead.version != 1) {
         return -1;
     }
 
@@ -1002,9 +1047,9 @@ int automapLoadHeader(File* stream)
 }
 
 // 0x41CBA4
-void _decode_map_data(int elevation)
+static void decode_map_data(int elevation)
 {
-    memset(gAutomapEntry.data, 0, SQUARE_GRID_SIZE);
+    memset(ambuf, 0, SQUARE_GRID_SIZE);
 
     _obj_process_seen();
 
@@ -1026,8 +1071,8 @@ void _decode_map_data(int elevation)
                 int v1 = 200 - object->tile % 200;
                 int v2 = v1 / 4 + 50 * (object->tile / 200);
                 int v3 = 2 * (3 - v1 % 4);
-                gAutomapEntry.data[v2] &= ~(0x03 << v3);
-                gAutomapEntry.data[v2] |= (contentType << v3);
+                ambuf[v2] &= ~(0x03 << v3);
+                ambuf[v2] |= (contentType << v3);
             }
         }
         object = objectFindNextAtElevation();
@@ -1035,11 +1080,11 @@ void _decode_map_data(int elevation)
 }
 
 // 0x41CC98
-int automapCreate()
+static int am_pip_init()
 {
-    gAutomapHeader.version = 1;
-    gAutomapHeader.dataSize = 1925;
-    memcpy(gAutomapHeader.offsets, _defam, sizeof(_defam));
+    amdbhead.version = 1;
+    amdbhead.dataSize = 1925;
+    memcpy(amdbhead.offsets, defam, sizeof(defam));
 
     char path[MAX_PATH];
     sprintf(path, "%s\\%s", "MAPS", AUTOMAP_DB);
@@ -1050,7 +1095,7 @@ int automapCreate()
         return -1;
     }
 
-    if (automapSaveHeader(stream) == -1) {
+    if (WriteAM_Header(stream) == -1) {
         return -1;
     }
 
@@ -1062,10 +1107,10 @@ int automapCreate()
 // NOTE: Unused.
 //
 // 0x41CD34
-int _YesWriteIndex(int mapIndex, int elevation)
+int YesWriteIndex(int mapIndex, int elevation)
 {
     if (mapIndex < AUTOMAP_MAP_COUNT && elevation < ELEVATION_COUNT && mapIndex >= 0 && elevation >= 0) {
-        return _defam[mapIndex][elevation] >= 0;
+        return defam[mapIndex][elevation] >= 0;
     }
 
     return 0;
@@ -1074,7 +1119,7 @@ int _YesWriteIndex(int mapIndex, int elevation)
 // Copy data from stream1 to stream2.
 //
 // 0x41CD6C
-int _copy_file_data(File* stream1, File* stream2, int length)
+static int copy_file_data(File* stream1, File* stream2, int length)
 {
     void* buffer = internal_malloc(0xFFFF);
     if (buffer == NULL) {
@@ -1106,7 +1151,7 @@ int _copy_file_data(File* stream1, File* stream2, int length)
 }
 
 // 0x41CE74
-int automapGetHeader(AutomapHeader** automapHeaderPtr)
+int ReadAMList(AutomapHeader** automapHeaderPtr)
 {
     char path[MAX_PATH];
     sprintf(path, "%s\\%s", "MAPS", AUTOMAP_DB);
@@ -1118,7 +1163,7 @@ int automapGetHeader(AutomapHeader** automapHeaderPtr)
         return -1;
     }
 
-    if (automapLoadHeader(stream) == -1) {
+    if (AM_ReadMainHeader(stream) == -1) {
         debugPrint("\nAUTOMAP: Error reading automap database header pt2!\n");
         fileClose(stream);
         return -1;
@@ -1126,7 +1171,7 @@ int automapGetHeader(AutomapHeader** automapHeaderPtr)
 
     fileClose(stream);
 
-    *automapHeaderPtr = &gAutomapHeader;
+    *automapHeaderPtr = &amdbhead;
 
     return 0;
 }
