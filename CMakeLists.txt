@@ -5,8 +5,8 @@ set(EXECUTABLE_NAME fallout2-re)
 project(${EXECUTABLE_NAME})
 
 add_executable(${EXECUTABLE_NAME} WIN32
-    "src/ability.c"
-    "src/ability.h"
+    "src/game/ability.c"
+    "src/game/ability.h"
     "src/actions.c"
     "src/actions.h"
     "src/animation.c"

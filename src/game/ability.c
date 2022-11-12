@@ -1,4 +1,4 @@
-#include "ability.h"
+#include "game/ability.h"
 
 #include <string.h>
 
