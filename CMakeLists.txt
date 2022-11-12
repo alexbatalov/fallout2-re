@@ -246,6 +246,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/xfile.h"
 )
 
+target_include_directories(${EXECUTABLE_NAME} PUBLIC src)
+
 target_compile_definitions(${EXECUTABLE_NAME} PUBLIC
     _CRT_SECURE_NO_WARNINGS
     _CRT_NONSTDC_NO_WARNINGS
