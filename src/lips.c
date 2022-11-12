@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "audio.h"
+#include "int/audio.h"
 #include "core.h"
 #include "debug.h"
 #include "game_sound.h"

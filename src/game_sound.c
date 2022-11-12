@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "game/anim.h"
-#include "audio.h"
+#include "int/audio.h"
 #include "audio_file.h"
 #include "combat.h"
 #include "core.h"
