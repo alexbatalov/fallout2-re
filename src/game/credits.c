@@ -6,6 +6,7 @@
 #include "color.h"
 #include "core.h"
 #include "cycle.h"
+#include "db.h"
 #include "debug.h"
 #include "draw.h"
 #include "game_mouse.h"
@@ -16,46 +17,52 @@
 #include "text_font.h"
 #include "window_manager.h"
 
+#define CREDITS_WINDOW_WIDTH 640
+#define CREDITS_WINDOW_HEIGHT 480
+#define CREDITS_WINDOW_SCROLLING_DELAY 38
+
+static bool credits_get_next_line(char* dest, int* font, int* color);
+
 // 0x56D740
-File* gCreditsFile;
+static File* credits_file;
 
 // 0x56D744
-int gCreditsWindowNameColor;
+static int name_color;
 
 // 0x56D748
-int gCreditsWindowTitleFont;
+static int title_font;
 
 // 0x56D74C
-int gCreditsWindowNameFont;
+static int name_font;
 
 // 0x56D750
-int gCreditsWindowTitleColor;
+static int title_color;
 
 // 0x42C860
-void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
+void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 {
     int oldFont = fontGetCurrent();
 
     loadColorTable("color.pal");
 
     if (useReversedStyle) {
-        gCreditsWindowTitleColor = colorTable[18917];
-        gCreditsWindowNameFont = 103;
-        gCreditsWindowTitleFont = 104;
-        gCreditsWindowNameColor = colorTable[13673];
+        title_color = colorTable[18917];
+        name_font = 103;
+        title_font = 104;
+        name_color = colorTable[13673];
     } else {
-        gCreditsWindowTitleColor = colorTable[13673];
-        gCreditsWindowNameFont = 104;
-        gCreditsWindowTitleFont = 103;
-        gCreditsWindowNameColor = colorTable[18917];
+        title_color = colorTable[13673];
+        name_font = 104;
+        title_font = 103;
+        name_color = colorTable[18917];
     }
 
     soundContinueAll();
 
     char localizedPath[MAX_PATH];
     if (_message_make_path(localizedPath, filePath)) {
-        gCreditsFile = fileOpen(localizedPath, "rt");
-        if (gCreditsFile != NULL) {
+        credits_file = fileOpen(localizedPath, "rt");
+        if (credits_file != NULL) {
             soundContinueAll();
 
             colorCycleDisable();
@@ -100,10 +107,10 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                         if (intermediateBuffer != NULL) {
                             memset(intermediateBuffer, 0, CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
 
-                            fontSetCurrent(gCreditsWindowTitleFont);
+                            fontSetCurrent(title_font);
                             int titleFontLineHeight = fontGetLineHeight();
 
-                            fontSetCurrent(gCreditsWindowNameFont);
+                            fontSetCurrent(name_font);
                             int nameFontLineHeight = fontGetLineHeight();
 
                             int lineHeight = nameFontLineHeight + (titleFontLineHeight >= nameFontLineHeight ? titleFontLineHeight - nameFontLineHeight : 0);
@@ -127,7 +134,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
                                 int color;
                                 unsigned int tick = 0;
                                 bool stop = false;
-                                while (creditsFileParseNextLine(str, &font, &color)) {
+                                while (credits_get_next_line(str, &font, &color)) {
                                     fontSetCurrent(font);
 
                                     int v19 = fontGetStringWidth(str);
@@ -230,7 +237,7 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 
             gameMouseSetCursor(MOUSE_CURSOR_ARROW);
             colorCycleEnable();
-            fileClose(gCreditsFile);
+            fileClose(credits_file);
         }
     }
 
@@ -238,24 +245,24 @@ void creditsOpen(const char* filePath, int backgroundFid, bool useReversedStyle)
 }
 
 // 0x42CE6C
-bool creditsFileParseNextLine(char* dest, int* font, int* color)
+static bool credits_get_next_line(char* dest, int* font, int* color)
 {
     char string[256];
-    while (fileReadString(string, 256, gCreditsFile)) {
+    while (fileReadString(string, 256, credits_file)) {
         char* pch;
         if (string[0] == ';') {
             continue;
         } else if (string[0] == '@') {
-            *font = gCreditsWindowTitleFont;
-            *color = gCreditsWindowTitleColor;
+            *font = title_font;
+            *color = title_color;
             pch = string + 1;
         } else if (string[0] == '#') {
-            *font = gCreditsWindowNameFont;
+            *font = name_font;
             *color = colorTable[17969];
             pch = string + 1;
         } else {
-            *font = gCreditsWindowNameFont;
-            *color = gCreditsWindowNameColor;
+            *font = name_font;
+            *color = name_color;
             pch = string;
         }
 

@@ -199,7 +199,7 @@ void endgamePlayMovie()
     // vs. female ending, but it was not implemented.
     critterGetStat(gDude, STAT_GENDER);
 
-    creditsOpen("credits.txt", -1, false);
+    credits("credits.txt", -1, false);
     backgroundSoundDelete();
     backgroundSoundSetEndCallback(NULL);
     tickersRemove(_endgame_movie_bk_process);
