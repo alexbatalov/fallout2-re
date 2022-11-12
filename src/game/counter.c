@@ -1,22 +1,23 @@
 #include "game/counter.h"
 
+#include <time.h>
+
 #include "core.h"
 #include "debug.h"
 
+static void counter();
+
 // 0x518324
-int counter_is_on = 0;
+static int counter_is_on = 0;
 
 // 0x518328
-unsigned char count = 0;
+static unsigned char count = 0;
 
 // 0x51832C
-clock_t last_time = 0;
+static clock_t last_time = 0;
 
 // 0x518330
-CounterOutputFunc* counter_output_func;
-
-// 0x56D730
-clock_t this_time;
+static CounterOutputFunc* counter_output_func;
 
 // 0x42C790
 void counter_on(CounterOutputFunc* outputFunc)
@@ -40,8 +41,11 @@ void counter_off()
 }
 
 // 0x42C7F4
-void counter()
+static void counter()
 {
+    // 0x56D730
+    static clock_t this_time;
+
     count++;
     if (count == 0) {
         this_time = clock();
