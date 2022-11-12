@@ -5,9 +5,9 @@
 
 #include "game/art.h"
 #include "color.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "combat_ai.h"
-#include "combat_defs.h"
+#include "game/combat_defs.h"
 #include "core.h"
 #include "critter.h"
 #include "debug.h"

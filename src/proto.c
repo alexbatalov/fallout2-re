@@ -6,7 +6,7 @@
 
 #include "game/art.h"
 #include "character_editor.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "config.h"
 #include "critter.h"
 #include "debug.h"

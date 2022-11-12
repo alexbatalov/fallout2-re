@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "combat_defs.h"
+#include "game/combat_defs.h"
 #include "db.h"
 #include "interpreter.h"
 #include "message.h"

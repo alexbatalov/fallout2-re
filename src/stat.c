@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include "combat.h"
+#include "game/combat.h"
 #include "core.h"
 #include "critter.h"
 #include "display_monitor.h"

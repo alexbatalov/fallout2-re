@@ -2,7 +2,7 @@
 #define COMBAT_H
 
 #include "game/anim.h"
-#include "combat_defs.h"
+#include "game/combat_defs.h"
 #include "db.h"
 #include "message.h"
 #include "obj_types.h"

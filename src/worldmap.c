@@ -7,7 +7,7 @@
 #include "game/anim.h"
 #include "game/art.h"
 #include "color.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "combat_ai.h"
 #include "config.h"
 #include "core.h"

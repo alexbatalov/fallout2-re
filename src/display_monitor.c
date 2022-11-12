@@ -4,7 +4,7 @@
 
 #include "game/art.h"
 #include "color.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "core.h"
 #include "draw.h"
 #include "game_mouse.h"

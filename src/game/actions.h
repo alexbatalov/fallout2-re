@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "combat_defs.h"
+#include "game/combat_defs.h"
 #include "obj_types.h"
 #include "proto_types.h"
 

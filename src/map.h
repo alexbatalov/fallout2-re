@@ -6,7 +6,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "combat_defs.h"
+#include "game/combat_defs.h"
 #include "db.h"
 #include "geometry.h"
 #include "map_defs.h"

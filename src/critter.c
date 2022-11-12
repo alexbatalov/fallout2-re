@@ -5,7 +5,7 @@
 
 #include "game/anim.h"
 #include "character_editor.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "debug.h"
 #include "display_monitor.h"
 #include "endgame.h"

@@ -1,4 +1,4 @@
-#include "combat.h"
+#include "game/combat.h"
 
 #include <limits.h>
 #include <stdio.h>

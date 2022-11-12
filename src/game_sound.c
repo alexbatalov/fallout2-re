@@ -7,7 +7,7 @@
 #include "game/anim.h"
 #include "int/audio.h"
 #include "int/audiof.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "core.h"
 #include "db.h"
 #include "debug.h"

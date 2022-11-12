@@ -8,7 +8,7 @@
 #include "game/automap.h"
 #include "character_editor.h"
 #include "color.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "core.h"
 #include "critter.h"
 #include "cycle.h"

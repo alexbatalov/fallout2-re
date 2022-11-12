@@ -6,7 +6,7 @@
 
 #include "game/automap.h"
 #include "color.h"
-#include "combat.h"
+#include "game/combat.h"
 #include "config.h"
 #include "core.h"
 #include "critter.h"
