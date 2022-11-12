@@ -5,7 +5,7 @@
 #include "memory.h"
 
 // 0x410010
-int _abil_init(Ability* ability, int initialCapacity)
+int abil_init(Ability* ability, int initialCapacity)
 {
     ability->length = 0;
     ability->capacity = 0;
@@ -24,7 +24,7 @@ int _abil_init(Ability* ability, int initialCapacity)
 }
 
 // 0x410058
-int _abil_resize(Ability* ability, int capacity)
+int abil_resize(Ability* ability, int capacity)
 {
     AbilityData* entries;
 
@@ -41,7 +41,7 @@ int _abil_resize(Ability* ability, int capacity)
 }
 
 // 0x410094
-int _abil_free(Ability* ability)
+int abil_free(Ability* ability)
 {
     if (ability->entries != NULL) {
         internal_free(ability->entries);
@@ -50,7 +50,7 @@ int _abil_free(Ability* ability)
 }
 
 // 0x4100A8
-int _abil_find(Ability* ability, int a2, int* indexPtr)
+int abil_find(Ability* ability, int a2, int* indexPtr)
 {
     int right;
     int left;
@@ -99,11 +99,11 @@ int _abil_find(Ability* ability, int a2, int* indexPtr)
 }
 
 // 0x410130
-int _abil_search(Ability* ability, int a2)
+int abil_search(Ability* ability, int a2)
 {
     int index;
 
-    if (_abil_find(ability, a2, &index) == 0) {
+    if (abil_find(ability, a2, &index) == 0) {
         return index;
     }
 
@@ -111,15 +111,15 @@ int _abil_search(Ability* ability, int a2)
 }
 
 // 0x410154
-int _abil_insert(Ability* ability, AbilityData* entry)
+int abil_insert(Ability* ability, AbilityData* entry)
 {
     int index;
 
-    if (_abil_find(ability, entry->field_0, &index) == 0) {
+    if (abil_find(ability, entry->field_0, &index) == 0) {
         return -1;
     }
 
-    if (ability->capacity == ability->length && _abil_resize(ability, ability->capacity * 2) == -1) {
+    if (ability->capacity == ability->length && abil_resize(ability, ability->capacity * 2) == -1) {
         return -1;
     }
 
@@ -138,11 +138,11 @@ int _abil_insert(Ability* ability, AbilityData* entry)
 }
 
 // 0x41021C
-int _abil_delete(Ability* ability, int a2)
+int abil_delete(Ability* ability, int a2)
 {
     int index;
 
-    if (_abil_find(ability, a2, &index) == -1) {
+    if (abil_find(ability, a2, &index) == -1) {
         return -1;
     }
 
@@ -158,16 +158,16 @@ int _abil_delete(Ability* ability, int a2)
 }
 
 // 0x41026C
-int _abil_copy(Ability* dest, Ability* src)
+int abil_copy(Ability* dest, Ability* src)
 {
     int index;
 
-    if (_abil_init(dest, src->capacity) == -1) {
+    if (abil_init(dest, src->capacity) == -1) {
         return -1;
     }
 
     for (index = 0; index < src->length; index++) {
-        if (_abil_insert(dest, &(src->entries[index])) == -1) {
+        if (abil_insert(dest, &(src->entries[index])) == -1) {
             return -1;
         }
     }
@@ -176,16 +176,16 @@ int _abil_copy(Ability* dest, Ability* src)
 }
 
 // 0x4102B0
-int _abil_load(File* stream, Ability* ability)
+int abil_load(File* stream, Ability* ability)
 {
     if (fileReadInt32(stream, &(ability->length)) == -1
         || fileReadInt32(stream, &(ability->capacity)) == -1
-        || _abil_read_ability_data(ability, stream) == -1) return -1;
+        || abil_read_ability_data(ability, stream) == -1) return -1;
     return 0;
 }
 
 // 0x4102EC
-int _abil_read_ability_data(Ability* ability, File* stream)
+int abil_read_ability_data(Ability* ability, File* stream)
 {
     int index;
 
@@ -206,11 +206,11 @@ int _abil_read_ability_data(Ability* ability, File* stream)
 }
 
 // 0x410378
-int _abil_save(File* stream, Ability* ability)
+int abil_save(File* stream, Ability* ability)
 {
     if (fileWriteInt32(stream, ability->length) == -1
         || fileWriteInt32(stream, ability->capacity) == -1
-        || _abil_write_ability_data(ability->length, ability->entries, stream) == -1) {
+        || abil_write_ability_data(ability->length, ability->entries, stream) == -1) {
         return -1;
     }
 
@@ -218,7 +218,7 @@ int _abil_save(File* stream, Ability* ability)
 }
 
 // 0x4103B8
-int _abil_write_ability_data(int length, AbilityData* entries, File* stream)
+int abil_write_ability_data(int length, AbilityData* entries, File* stream)
 {
     int index;
 

@@ -1,5 +1,5 @@
-#ifndef ABILITY_H
-#define ABILITY_H
+#ifndef FALLOUT_GAME_ABILITY_H_
+#define FALLOUT_GAME_ABILITY_H_
 
 #include "db.h"
 
@@ -15,17 +15,17 @@ typedef struct Ability {
     AbilityData* entries;
 } Ability;
 
-int _abil_init(Ability* ability, int initialCapacity);
-int _abil_resize(Ability* ability, int capacity);
-int _abil_free(Ability* ability);
-int _abil_find(Ability* ability, int a2, int* indexPtr);
-int _abil_search(Ability* ability, int a2);
-int _abil_insert(Ability* ability, AbilityData* entry);
-int _abil_delete(Ability* ability, int a2);
-int _abil_copy(Ability* dest, Ability* src);
-int _abil_load(File* stream, Ability* ability);
-int _abil_read_ability_data(Ability* ability, File* stream);
-int _abil_save(File* stream, Ability* ability);
-int _abil_write_ability_data(int length, AbilityData* entries, File* stream);
+int abil_init(Ability* ability, int initialCapacity);
+int abil_resize(Ability* ability, int capacity);
+int abil_free(Ability* ability);
+int abil_find(Ability* ability, int a2, int* indexPtr);
+int abil_search(Ability* ability, int a2);
+int abil_insert(Ability* ability, AbilityData* entry);
+int abil_delete(Ability* ability, int a2);
+int abil_copy(Ability* dest, Ability* src);
+int abil_load(File* stream, Ability* ability);
+int abil_read_ability_data(Ability* ability, File* stream);
+int abil_save(File* stream, Ability* ability);
+int abil_write_ability_data(int length, AbilityData* entries, File* stream);
 
-#endif /* ABILITY_H */
+#endif /* FALLOUT_GAME_ABILITY_H_ */
