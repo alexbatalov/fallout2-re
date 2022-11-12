@@ -1,4 +1,4 @@
-#include "dbox.h"
+#include "game/bmpdlog.h"
 
 #include <stdio.h>
 #include <string.h>

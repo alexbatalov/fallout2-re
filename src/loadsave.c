@@ -14,7 +14,7 @@
 #include "core.h"
 #include "critter.h"
 #include "cycle.h"
-#include "dbox.h"
+#include "game/bmpdlog.h"
 #include "debug.h"
 #include "display_monitor.h"
 #include "draw.h"

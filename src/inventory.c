@@ -12,7 +12,7 @@
 #include "combat_ai.h"
 #include "core.h"
 #include "critter.h"
-#include "dbox.h"
+#include "game/bmpdlog.h"
 #include "debug.h"
 #include "dialog.h"
 #include "display_monitor.h"
