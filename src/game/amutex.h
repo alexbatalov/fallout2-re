@@ -1,14 +1,9 @@
-#ifndef AUTORUN_H
-#define AUTORUN_H
+#ifndef FALLOUT_GAME_AMUTEX_H_
+#define FALLOUT_GAME_AMUTEX_H_
 
 #include <stdbool.h>
 
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+bool autorun_mutex_create();
+void autorun_mutex_destroy();
 
-extern HANDLE gInterplayGenericAutorunMutex;
-
-bool autorunMutexCreate();
-void autorunMutexClose();
-
-#endif /* AUTORUN_H */
+#endif /* FALLOUT_GAME_AMUTEX_H_ */

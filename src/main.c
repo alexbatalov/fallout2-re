@@ -134,7 +134,7 @@ CacheEntry* gMainMenuBackgroundFrmHandle;
 // 0x48099C
 int falloutMain(int argc, char** argv)
 {
-    if (!autorunMutexCreate()) {
+    if (!autorun_mutex_create()) {
         return 1;
     }
 
@@ -268,7 +268,7 @@ int falloutMain(int argc, char** argv)
     // NOTE: Uninline.
     main_exit_system();
 
-    autorunMutexClose();
+    autorun_mutex_destroy();
 
     return 0;
 }

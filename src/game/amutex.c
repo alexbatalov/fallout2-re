@@ -1,14 +1,17 @@
 #include "game/amutex.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 // 0x530010
-HANDLE gInterplayGenericAutorunMutex;
+static HANDLE autorun_mutex;
 
 // 0x4139C0
-bool autorunMutexCreate()
+bool autorun_mutex_create()
 {
-    gInterplayGenericAutorunMutex = CreateMutexA(NULL, FALSE, "InterplayGenericAutorunMutex");
+    autorun_mutex = CreateMutexA(NULL, FALSE, "InterplayGenericAutorunMutex");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
-        CloseHandle(gInterplayGenericAutorunMutex);
+        CloseHandle(autorun_mutex);
         return false;
     }
 
@@ -16,9 +19,9 @@ bool autorunMutexCreate()
 }
 
 // 0x413A00
-void autorunMutexClose()
+void autorun_mutex_destroy()
 {
-    if (gInterplayGenericAutorunMutex != NULL) {
-        CloseHandle(gInterplayGenericAutorunMutex);
+    if (autorun_mutex != NULL) {
+        CloseHandle(autorun_mutex);
     }
 }
