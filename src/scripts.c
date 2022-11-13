@@ -349,7 +349,7 @@ int gameTimeEventProcess(Object* obj, void* data)
 
     debugPrint("\nQUEUE PROCESS: Midnight!");
 
-    if (gameMovieIsPlaying()) {
+    if (gmovieIsPlaying()) {
         return 0;
     }
 
@@ -389,7 +389,7 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
     } else {
         if (day >= 360 || game_get_global_var(GVAR_FALLOUT_2) >= 3) {
             movie = MOVIE_ARTIMER4;
-            if (!gameMovieIsSeen(MOVIE_ARTIMER4)) {
+            if (!gmovie_has_been_played(MOVIE_ARTIMER4)) {
                 adjustRep = true;
                 wmAreaSetVisibleState(CITY_ARROYO, 0, 1);
                 wmAreaSetVisibleState(CITY_DESTROYED_ARROYO, 1, 1);
@@ -408,14 +408,14 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
     }
 
     if (movie != -1) {
-        if (gameMovieIsSeen(movie)) {
+        if (gmovie_has_been_played(movie)) {
             movie = -1;
         } else {
             if (window != -1) {
                 win_hide(window);
             }
 
-            gameMoviePlay(movie, movieFlags);
+            gmovie_play(movie, movieFlags);
 
             if (window != -1) {
                 win_show(window);

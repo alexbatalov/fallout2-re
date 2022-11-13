@@ -142,9 +142,9 @@ int falloutMain(int argc, char** argv)
         return 1;
     }
 
-    gameMoviePlay(MOVIE_IPLOGO, GAME_MOVIE_FADE_IN);
-    gameMoviePlay(MOVIE_INTRO, 0);
-    gameMoviePlay(MOVIE_CREDITS, 0);
+    gmovie_play(MOVIE_IPLOGO, GAME_MOVIE_FADE_IN);
+    gmovie_play(MOVIE_INTRO, 0);
+    gmovie_play(MOVIE_CREDITS, 0);
 
     if (mainMenuWindowInit() == 0) {
         bool done = false;
@@ -160,14 +160,14 @@ int falloutMain(int argc, char** argv)
             switch (mainMenuRc) {
             case MAIN_MENU_INTRO:
                 mainMenuWindowHide(true);
-                gameMoviePlay(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
-                gameMoviePlay(MOVIE_CREDITS, 0);
+                gmovie_play(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
+                gmovie_play(MOVIE_CREDITS, 0);
                 break;
             case MAIN_MENU_NEW_GAME:
                 mainMenuWindowHide(true);
                 mainMenuWindowFree();
                 if (characterSelectorOpen() == 2) {
-                    gameMoviePlay(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
+                    gmovie_play(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
                     randomSeedPrerandom(-1);
                     _main_load_new(_mainMap);
                     mainLoop();
@@ -509,7 +509,7 @@ void _main_selfrun_play()
         }
     } else {
         mainMenuWindowHide(true);
-        gameMoviePlay(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
+        gmovie_play(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
     }
 
     gMainMenuScreensaverCycle = !gMainMenuScreensaverCycle;

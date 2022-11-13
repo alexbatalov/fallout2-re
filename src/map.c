@@ -991,7 +991,7 @@ err:
     gEnteringTile = -1;
     gEnteringRotation = -1;
 
-    gameMovieFadeOut();
+    gmPaletteFinish();
 
     gMapHeader.version = 20;
 

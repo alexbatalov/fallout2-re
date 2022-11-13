@@ -4631,7 +4631,7 @@ void opPlayGameMovie(Program* program)
 
     gdialogDisableBK();
 
-    if (gameMoviePlay(data, word_453F9C[data]) == -1) {
+    if (gmovie_play(data, word_453F9C[data]) == -1) {
         debugPrint("\nError playing movie %d!", data);
     }
 

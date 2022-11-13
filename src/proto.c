@@ -720,7 +720,7 @@ int _proto_dude_update_gender()
     }
 
     int nativeLook = DUDE_NATIVE_LOOK_TRIBAL;
-    if (gameMovieIsSeen(MOVIE_VSUIT)) {
+    if (gmovie_has_been_played(MOVIE_VSUIT)) {
         nativeLook = DUDE_NATIVE_LOOK_JUMPSUIT;
     }
 

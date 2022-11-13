@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #include "color.h"
 #include "core.h"
 #include "game/cycle.h"
@@ -20,11 +23,10 @@
 #define GAME_MOVIE_WINDOW_WIDTH 640
 #define GAME_MOVIE_WINDOW_HEIGHT 480
 
-// 0x50352A
-const float flt_50352A = 0.032258064f;
+static char* gmovie_subtitle_func(char* movieFilePath);
 
 // 0x518DA0
-const char* gMovieFileNames[MOVIE_COUNT] = {
+static const char* movie_list[MOVIE_COUNT] = {
     "iplogo.mve",
     "intro.mve",
     "elder.mve",
@@ -45,7 +47,7 @@ const char* gMovieFileNames[MOVIE_COUNT] = {
 };
 
 // 0x518DE4
-const char* gMoviePaletteFilePaths[MOVIE_COUNT] = {
+static const char* subtitlePalList[MOVIE_COUNT] = {
     NULL,
     "art\\cuts\\introsub.pal",
     "art\\cuts\\eldersub.pal",
@@ -66,20 +68,17 @@ const char* gMoviePaletteFilePaths[MOVIE_COUNT] = {
 };
 
 // 0x518E28
-bool gGameMovieIsPlaying = false;
+static bool gmMovieIsPlaying = false;
 
 // 0x518E2C
-bool gGameMovieFaded = false;
+static bool gmPaletteWasFaded = false;
 
 // 0x596C78
-unsigned char gGameMoviesSeen[MOVIE_COUNT];
-
-// 0x596C89
-char gGameMovieSubtitlesFilePath[MAX_PATH];
+static unsigned char gmovie_played_list[MOVIE_COUNT];
 
 // gmovie_init
 // 0x44E5C0
-int gameMoviesInit()
+int gmovie_init()
 {
     int v1 = 0;
     if (backgroundSoundIsEnabled()) {
@@ -88,29 +87,29 @@ int gameMoviesInit()
 
     movieSetVolume(v1);
 
-    movieSetBuildSubtitleFilePathProc(gameMovieBuildSubtitlesFilePath);
+    movieSetBuildSubtitleFilePathProc(gmovie_subtitle_func);
 
-    memset(gGameMoviesSeen, 0, sizeof(gGameMoviesSeen));
+    memset(gmovie_played_list, 0, sizeof(gmovie_played_list));
 
-    gGameMovieIsPlaying = false;
-    gGameMovieFaded = false;
+    gmMovieIsPlaying = false;
+    gmPaletteWasFaded = false;
 
     return 0;
 }
 
 // 0x44E60C
-void gameMoviesReset()
+void gmovie_reset()
 {
-    memset(gGameMoviesSeen, 0, sizeof(gGameMoviesSeen));
+    memset(gmovie_played_list, 0, sizeof(gmovie_played_list));
 
-    gGameMovieIsPlaying = false;
-    gGameMovieFaded = false;
+    gmMovieIsPlaying = false;
+    gmPaletteWasFaded = false;
 }
 
 // 0x44E638
-int gameMoviesLoad(File* stream)
+int gmovie_load(File* stream)
 {
-    if (fileRead(gGameMoviesSeen, sizeof(*gGameMoviesSeen), MOVIE_COUNT, stream) != MOVIE_COUNT) {
+    if (fileRead(gmovie_played_list, sizeof(*gmovie_played_list), MOVIE_COUNT, stream) != MOVIE_COUNT) {
         return -1;
     }
 
@@ -118,9 +117,9 @@ int gameMoviesLoad(File* stream)
 }
 
 // 0x44E664
-int gameMoviesSave(File* stream)
+int gmovie_save(File* stream)
 {
-    if (fileWrite(gGameMoviesSeen, sizeof(*gGameMoviesSeen), MOVIE_COUNT, stream) != MOVIE_COUNT) {
+    if (fileWrite(gmovie_played_list, sizeof(*gmovie_played_list), MOVIE_COUNT, stream) != MOVIE_COUNT) {
         return -1;
     }
 
@@ -129,17 +128,17 @@ int gameMoviesSave(File* stream)
 
 // gmovie_play
 // 0x44E690
-int gameMoviePlay(int movie, int flags)
+int gmovie_play(int movie, int flags)
 {
-    gGameMovieIsPlaying = true;
+    gmMovieIsPlaying = true;
 
-    const char* movieFileName = gMovieFileNames[movie];
+    const char* movieFileName = movie_list[movie];
     debugPrint("\nPlaying movie: %s\n", movieFileName);
 
     char* language;
     if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         debugPrint("\ngmovie_play() - Error: Unable to determine language!\n");
-        gGameMovieIsPlaying = false;
+        gmMovieIsPlaying = false;
         return -1;
     }
 
@@ -148,24 +147,24 @@ int gameMoviePlay(int movie, int flags)
     bool movieFound = false;
 
     if (stricmp(language, ENGLISH) != 0) {
-        sprintf(movieFilePath, "art\\%s\\cuts\\%s", language, gMovieFileNames[movie]);
+        sprintf(movieFilePath, "art\\%s\\cuts\\%s", language, movie_list[movie]);
         movieFound = dbGetFileSize(movieFilePath, &movieFileSize) == 0;
     }
 
     if (!movieFound) {
-        sprintf(movieFilePath, "art\\cuts\\%s", gMovieFileNames[movie]);
+        sprintf(movieFilePath, "art\\cuts\\%s", movie_list[movie]);
         movieFound = dbGetFileSize(movieFilePath, &movieFileSize) == 0;
     }
 
     if (!movieFound) {
-        debugPrint("\ngmovie_play() - Error: Unable to open %s\n", gMovieFileNames[movie]);
-        gGameMovieIsPlaying = false;
+        debugPrint("\ngmovie_play() - Error: Unable to open %s\n", movie_list[movie]);
+        gmMovieIsPlaying = false;
         return -1;
     }
 
     if ((flags & GAME_MOVIE_FADE_IN) != 0) {
         paletteFadeTo(gPaletteBlack);
-        gGameMovieFaded = true;
+        gmPaletteWasFaded = true;
     }
 
     int gameMovieWindowX = 0;
@@ -177,7 +176,7 @@ int gameMoviePlay(int movie, int flags)
         0,
         WINDOW_FLAG_0x10);
     if (win == -1) {
-        gGameMovieIsPlaying = false;
+        gmMovieIsPlaying = false;
         return -1;
     }
 
@@ -193,7 +192,7 @@ int gameMoviePlay(int movie, int flags)
     int v1 = 4;
     configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitlesEnabled);
     if (subtitlesEnabled) {
-        char* subtitlesFilePath = gameMovieBuildSubtitlesFilePath(movieFilePath);
+        char* subtitlesFilePath = gmovie_subtitle_func(movieFilePath);
 
         int subtitlesFileSize;
         if (dbGetFileSize(subtitlesFilePath, &subtitlesFileSize) == 0) {
@@ -209,8 +208,8 @@ int gameMoviePlay(int movie, int flags)
     int oldFont;
     if (subtitlesEnabled) {
         const char* subtitlesPaletteFilePath;
-        if (gMoviePaletteFilePaths[movie] != NULL) {
-            subtitlesPaletteFilePath = gMoviePaletteFilePaths[movie];
+        if (subtitlePalList[movie] != NULL) {
+            subtitlesPaletteFilePath = subtitlePalList[movie];
         } else {
             subtitlesPaletteFilePath = "art\\cuts\\subtitle.pal";
         }
@@ -261,7 +260,7 @@ int gameMoviePlay(int movie, int flags)
     _movieUpdate();
     paletteSetEntries(gPaletteBlack);
 
-    gGameMoviesSeen[movie] = 1;
+    gmovie_played_list[movie] = 1;
 
     cycle_enable();
 
@@ -276,9 +275,9 @@ int gameMoviePlay(int movie, int flags)
 
         windowSetFont(oldFont);
 
-        float r = (float)((Color2RGB(oldTextColor) & 0x7C00) >> 10) * flt_50352A;
-        float g = (float)((Color2RGB(oldTextColor) & 0x3E0) >> 5) * flt_50352A;
-        float b = (float)(Color2RGB(oldTextColor) & 0x1F) * flt_50352A;
+        float r = (float)((Color2RGB(oldTextColor) & 0x7C00) >> 10) / 31.0f;
+        float g = (float)((Color2RGB(oldTextColor) & 0x3E0) >> 5) / 31.0f;
+        float b = (float)(Color2RGB(oldTextColor) & 0x1F) / 31.0f;
         windowSetTextColor(r, g, b);
     }
 
@@ -294,37 +293,40 @@ int gameMoviePlay(int movie, int flags)
         }
 
         paletteFadeTo(cmap);
-        gGameMovieFaded = false;
+        gmPaletteWasFaded = false;
     }
 
-    gGameMovieIsPlaying = false;
+    gmMovieIsPlaying = false;
     return 0;
 }
 
 // 0x44EAE4
-void gameMovieFadeOut()
+void gmPaletteFinish()
 {
-    if (gGameMovieFaded) {
+    if (gmPaletteWasFaded) {
         paletteFadeTo(cmap);
-        gGameMovieFaded = false;
+        gmPaletteWasFaded = false;
     }
 }
 
 // 0x44EB04
-bool gameMovieIsSeen(int movie)
+bool gmovie_has_been_played(int movie)
 {
-    return gGameMoviesSeen[movie] == 1;
+    return gmovie_played_list[movie] == 1;
 }
 
 // 0x44EB14
-bool gameMovieIsPlaying()
+bool gmovieIsPlaying()
 {
-    return gGameMovieIsPlaying;
+    return gmMovieIsPlaying;
 }
 
 // 0x44EB1C
-char* gameMovieBuildSubtitlesFilePath(char* movieFilePath)
+static char* gmovie_subtitle_func(char* movieFilePath)
 {
+    // 0x596C89
+    static char full_path[MAX_PATH];
+
     char* language;
     config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language);
 
@@ -335,14 +337,14 @@ char* gameMovieBuildSubtitlesFilePath(char* movieFilePath)
         path = separator + 1;
     }
 
-    sprintf(gGameMovieSubtitlesFilePath, "text\\%s\\cuts\\%s", language, path);
+    sprintf(full_path, "text\\%s\\cuts\\%s", language, path);
 
-    char* pch = strrchr(gGameMovieSubtitlesFilePath, '.');
+    char* pch = strrchr(full_path, '.');
     if (*pch != '\0') {
         *pch = '\0';
     }
 
-    strcpy(gGameMovieSubtitlesFilePath + strlen(gGameMovieSubtitlesFilePath), ".SVE");
+    strcpy(full_path + strlen(full_path), ".SVE");
 
-    return gGameMovieSubtitlesFilePath;
+    return full_path;
 }

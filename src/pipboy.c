@@ -1467,7 +1467,7 @@ void pipboyHandleVideoArchive(int a1)
 
         int movie;
         for (movie = 2; movie < 16; movie++) {
-            if (gameMovieIsSeen(movie)) {
+            if (gmovie_has_been_played(movie)) {
                 a1--;
                 if (a1 <= 0) {
                     break;
@@ -1476,7 +1476,7 @@ void pipboyHandleVideoArchive(int a1)
         }
 
         if (movie <= MOVIE_COUNT) {
-            gameMoviePlay(movie, GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC);
+            gmovie_play(movie, GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC);
         } else {
             debugPrint("\n ** Selected movie not found in list! **\n");
         }
@@ -1527,7 +1527,7 @@ int pipboyRenderVideoArchive(int a1)
     msg_num = 502;
 
     for (i = 2; i < 16; i++) {
-        if (gameMovieIsSeen(i)) {
+        if (gmovie_has_been_played(i)) {
             v8 = v5++;
             if (v8 == v12) {
                 v9 = colorTable[32747];

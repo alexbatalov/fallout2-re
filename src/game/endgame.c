@@ -1110,7 +1110,7 @@ void endgameSetupDeathEnding(int reason)
         }
         break;
     case ENDGAME_DEATH_ENDING_REASON_TIMEOUT:
-        gameMoviePlay(MOVIE_TIMEOUT, GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC);
+        gmovie_play(MOVIE_TIMEOUT, GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC);
         break;
     }
 

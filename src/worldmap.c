@@ -2940,7 +2940,7 @@ bool wmMapCanRestHere(int elevation)
 // 0x4BFAFC
 bool wmMapPipboyActive()
 {
-    return gameMovieIsSeen(MOVIE_VSUIT);
+    return gmovie_has_been_played(MOVIE_VSUIT);
 }
 
 // 0x4BFB08

@@ -209,7 +209,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     movieInit();
     debugPrint(">initMovie\t\t");
 
-    if (gameMoviesInit() != 0) {
+    if (gmovie_init() != 0) {
         debugPrint("Failed on gmovie_init\n");
         return -1;
     }
@@ -366,7 +366,7 @@ void game_reset()
     gameSoundReset();
     _movieStop();
     movieEffectsReset();
-    gameMoviesReset();
+    gmovie_reset();
     isoReset();
     gmouse_reset();
     protoReset();

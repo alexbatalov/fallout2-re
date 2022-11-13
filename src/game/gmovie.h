@@ -1,10 +1,7 @@
-#ifndef GAME_MOVIE_H
-#define GAME_MOVIE_H
+#ifndef FALLOUT_GAME_GMOVIE_H_
+#define FALLOUT_GAME_GMOVIE_H_
 
 #include <stdbool.h>
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 #include "db.h"
 
@@ -36,24 +33,13 @@ typedef enum GameMovie {
     MOVIE_COUNT,
 } GameMovie;
 
-extern const float flt_50352A;
+int gmovie_init();
+void gmovie_reset();
+int gmovie_load(File* stream);
+int gmovie_save(File* stream);
+int gmovie_play(int movie, int flags);
+void gmPaletteFinish();
+bool gmovie_has_been_played(int movie);
+bool gmovieIsPlaying();
 
-extern const char* gMovieFileNames[MOVIE_COUNT];
-extern const char* gMoviePaletteFilePaths[MOVIE_COUNT];
-extern bool gGameMovieIsPlaying;
-extern bool gGameMovieFaded;
-
-extern char gGameMovieSubtitlesFilePath[MAX_PATH];
-extern unsigned char gGameMoviesSeen[MOVIE_COUNT];
-
-int gameMoviesInit();
-void gameMoviesReset();
-int gameMoviesLoad(File* stream);
-int gameMoviesSave(File* stream);
-int gameMoviePlay(int movie, int flags);
-void gameMovieFadeOut();
-bool gameMovieIsSeen(int movie);
-bool gameMovieIsPlaying();
-char* gameMovieBuildSubtitlesFilePath(char* movieFilePath);
-
-#endif /* GAME_MOVIE_H */
+#endif /* FALLOUT_GAME_GMOVIE_H_ */
