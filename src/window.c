@@ -1362,7 +1362,7 @@ void _displayFile(char* fileName)
 {
     int width;
     int height;
-    unsigned char* data = datafileRead(fileName, &width, &height);
+    unsigned char* data = loadDataFile(fileName, &width, &height);
     if (data != NULL) {
         _displayInWindow(data, width, height, width);
         internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1294
@@ -1374,7 +1374,7 @@ void _displayFileRaw(char* fileName)
 {
     int width;
     int height;
-    unsigned char* data = datafileReadRaw(fileName, &width, &height);
+    unsigned char* data = loadRawDataFile(fileName, &width, &height);
     if (data != NULL) {
         _displayInWindow(data, width, height, width);
         internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1305
@@ -1390,7 +1390,7 @@ int windowDisplayRaw(char* fileName)
     int imageHeight;
     unsigned char* imageData;
 
-    imageData = datafileRead(fileName, &imageWidth, &imageHeight);
+    imageData = loadDataFile(fileName, &imageWidth, &imageHeight);
     if (imageData == NULL) {
         return 0;
     }
@@ -1407,7 +1407,7 @@ bool _windowDisplay(char* fileName, int x, int y, int width, int height)
 {
     int imageWidth;
     int imageHeight;
-    unsigned char* imageData = datafileRead(fileName, &imageWidth, &imageHeight);
+    unsigned char* imageData = loadDataFile(fileName, &imageWidth, &imageHeight);
     if (imageData == NULL) {
         return false;
     }
@@ -1428,7 +1428,7 @@ int windowDisplayScaled(char* fileName, int x, int y, int width, int height)
     int imageHeight;
     unsigned char* imageData;
 
-    imageData = datafileRead(fileName, &imageWidth, &imageHeight);
+    imageData = loadDataFile(fileName, &imageWidth, &imageHeight);
     if (imageData == NULL) {
         return 0;
     }
@@ -1981,7 +1981,7 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
             int height;
 
             if (pressedFileName != NULL) {
-                unsigned char* pressed = datafileRead(pressedFileName, &width, &height);
+                unsigned char* pressed = loadDataFile(pressedFileName, &width, &height);
                 if (pressed != NULL) {
                     _drawScaledBuf(managedButton->pressed, managedButton->width, managedButton->height, pressed, width, height);
                     internal_free_safe(pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1834
@@ -1989,7 +1989,7 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
             }
 
             if (normalFileName != NULL) {
-                unsigned char* normal = datafileRead(normalFileName, &width, &height);
+                unsigned char* normal = loadDataFile(normalFileName, &width, &height);
                 if (normal != NULL) {
                     _drawScaledBuf(managedButton->normal, managedButton->width, managedButton->height, normal, width, height);
                     internal_free_safe(normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1842
@@ -1997,7 +1997,7 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
             }
 
             if (hoverFileName != NULL) {
-                unsigned char* hover = datafileRead(normalFileName, &width, &height);
+                unsigned char* hover = loadDataFile(normalFileName, &width, &height);
                 if (hover != NULL) {
                     if (managedButton->hover == NULL) {
                         managedButton->hover = (unsigned char*)internal_malloc_safe(managedButton->height * managedButton->width, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1849

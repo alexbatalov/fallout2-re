@@ -713,8 +713,8 @@ void _real_win_add_status_bar(int win, int a2, char* a3, char* a4, int x, int y)
 
     _freeStatusBar();
 
-    _statusBar.field_0 = datafileReadRaw(a4, &imageWidth1, &imageHeight1);
-    _statusBar.field_4 = datafileReadRaw(a3, &imageWidth2, &imageHeight2);
+    _statusBar.field_0 = loadRawDataFile(a4, &imageWidth1, &imageHeight1);
+    _statusBar.field_4 = loadRawDataFile(a3, &imageWidth2, &imageHeight2);
 
     if (imageWidth2 == imageWidth1 && imageHeight2 == imageHeight1) {
         _statusBar.x = x;

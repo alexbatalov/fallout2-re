@@ -243,7 +243,7 @@ void mouseManagerUpdate()
                 gMouseManagerCurrentAnimatedData->field_4[gMouseManagerCurrentAnimatedData->field_26],
                 gMouseManagerCurrentAnimatedData->width * gMouseManagerCurrentAnimatedData->height);
 
-            sub_42EE84(gMouseManagerCurrentAnimatedData->field_0[gMouseManagerCurrentAnimatedData->field_26],
+            datafileConvertData(gMouseManagerCurrentAnimatedData->field_0[gMouseManagerCurrentAnimatedData->field_26],
                 gMouseManagerCurrentPalette,
                 gMouseManagerCurrentAnimatedData->width,
                 gMouseManagerCurrentAnimatedData->height);
@@ -391,10 +391,10 @@ int mouseManagerSetFrame(char* fileName, int a2)
         int v6;
         sscanf(sep + 1, "%d %d", &v5, &v6);
 
-        animatedData->field_4[index] = datafileReadRaw(gMouseManagerNameMangler(string), &width, &height);
+        animatedData->field_4[index] = loadRawDataFile(gMouseManagerNameMangler(string), &width, &height);
         animatedData->field_0[index] = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 390
         memcpy(animatedData->field_0[index], animatedData->field_4[index], width * height);
-        sub_42EE84(animatedData->field_0[index], datafileGetPalette(), width, height);
+        datafileConvertData(animatedData->field_0[index], datafileGetPalette(), width, height);
         animatedData->field_8[index] = v5;
         animatedData->field_C[index] = v6;
     }
@@ -436,7 +436,7 @@ bool mouseManagerSetMouseShape(char* fileName, int a2, int a3)
     if (cacheEntry == NULL) {
         MouseManagerStaticData* staticData;
         staticData = (MouseManagerStaticData*)internal_malloc_safe(sizeof(*staticData), __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 430
-        staticData->data = datafileReadRaw(mangledFileName, &width, &height);
+        staticData->data = loadRawDataFile(mangledFileName, &width, &height);
         staticData->field_4 = a2;
         staticData->field_8 = a3;
         staticData->width = width;
@@ -461,7 +461,7 @@ bool mouseManagerSetMouseShape(char* fileName, int a2, int a3)
 
         gMouseManagerCurrentStaticData = internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 448
         memcpy(gMouseManagerCurrentStaticData, cacheEntry->staticData->data, width * height);
-        sub_42EE84(gMouseManagerCurrentStaticData, palette, width, height);
+        datafileConvertData(gMouseManagerCurrentStaticData, palette, width, height);
         mouse_set_shape(gMouseManagerCurrentStaticData, width, height, width, a2, a3, 0);
         gMouseManagerIsAnimating = false;
         break;
@@ -499,7 +499,7 @@ bool mouseManagerSetMousePointer(char* fileName)
         case MOUSE_MANAGER_MOUSE_TYPE_STATIC:
             gMouseManagerCurrentStaticData = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 492
             memcpy(gMouseManagerCurrentStaticData, cacheEntry->staticData->data, width * height);
-            sub_42EE84(gMouseManagerCurrentStaticData, palette, width, height);
+            datafileConvertData(gMouseManagerCurrentStaticData, palette, width, height);
             mouse_set_shape(gMouseManagerCurrentStaticData, width, height, width, v1, v2, 0);
             gMouseManagerIsAnimating = false;
             break;
@@ -594,7 +594,7 @@ void mouseManagerResetMouse()
 
             gMouseManagerCurrentStaticData = (unsigned char*)internal_malloc_safe(imageWidth * imageHeight, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 574
             memcpy(gMouseManagerCurrentStaticData, entry->staticData->data, imageWidth * imageHeight);
-            sub_42EE84(gMouseManagerCurrentStaticData, entry->palette, imageWidth, imageHeight);
+            datafileConvertData(gMouseManagerCurrentStaticData, entry->palette, imageWidth, imageHeight);
 
             mouse_set_shape(gMouseManagerCurrentStaticData,
                 imageWidth,
@@ -611,7 +611,7 @@ void mouseManagerResetMouse()
         if (gMouseManagerCurrentAnimatedData != NULL) {
             for (int index = 0; index < gMouseManagerCurrentAnimatedData->frameCount; index++) {
                 memcpy(gMouseManagerCurrentAnimatedData->field_0[index], gMouseManagerCurrentAnimatedData->field_4[index], imageWidth * imageHeight);
-                sub_42EE84(gMouseManagerCurrentAnimatedData->field_0[index], entry->palette, imageWidth, imageHeight);
+                datafileConvertData(gMouseManagerCurrentAnimatedData->field_0[index], entry->palette, imageWidth, imageHeight);
             }
 
             mouse_set_shape(gMouseManagerCurrentAnimatedData->field_0[gMouseManagerCurrentAnimatedData->field_26],
