@@ -600,7 +600,7 @@ void opFadeOut(Program* program)
 // 0x462570
 int intLibCheckMovie(Program* program)
 {
-    if (_dialogGetDialogDepth() > 0) {
+    if (dialogGetDialogDepth() > 0) {
         return 1;
     }
 
@@ -1046,7 +1046,7 @@ void opSayStart(Program* program)
     gIntLibSayStartingPosition = 0;
 
     program->flags |= PROGRAM_FLAG_0x20;
-    int rc = _dialogStart(program);
+    int rc = dialogStart(program);
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc != 0) {
@@ -1068,7 +1068,7 @@ void opSayStartPos(Program* program)
     gIntLibSayStartingPosition = data;
 
     program->flags |= PROGRAM_FLAG_0x20;
-    int rc = _dialogStart(program);
+    int rc = dialogStart(program);
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc != 0) {
@@ -1092,7 +1092,7 @@ void opSayReplyTitle(Program* program)
         string = programGetString(program, opcode, data);
     }
 
-    if (dialogSetReplyTitle(string) != 0) {
+    if (dialogTitle(string) != 0) {
         programFatalError("Error setting title.");
     }
 }
@@ -1113,7 +1113,7 @@ void opSayGoToReply(Program* program)
         string = programGetString(program, opcode, data);
     }
 
-    if (_dialogGotoReply(string) != 0) {
+    if (dialogGotoReply(string) != 0) {
         programFatalError("Error during goto, couldn't find reply target %s", string);
     }
 }
@@ -1146,12 +1146,12 @@ void opSayReply(Program* program)
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         const char* v2 = programGetString(program, opcode[0], data[0]);
-        if (_dialogOption(v1, v2) != 0) {
+        if (dialogOption(v1, v2) != 0) {
             program->flags &= ~PROGRAM_FLAG_0x20;
             programFatalError("Error setting option.");
         }
     } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
-        if (_dialogOptionProc(v1, data[0]) != 0) {
+        if (dialogOptionProc(v1, data[0]) != 0) {
             program->flags &= ~PROGRAM_FLAG_0x20;
             programFatalError("Error setting option.");
         }
@@ -1194,7 +1194,7 @@ void opSayOption(Program* program)
         v2 = NULL;
     }
 
-    if (_dialogReply(v1, v2) != 0) {
+    if (dialogReply(v1, v2) != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
         programFatalError("Error setting option.");
     }
@@ -1206,14 +1206,14 @@ void opSayOption(Program* program)
 int intLibCheckDialog(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x40;
-    return _dialogGetDialogDepth() != -1;
+    return dialogGetDialogDepth() != -1;
 }
 
 // 0x4637A4
 void opSayEnd(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
-    int rc = sub_431088(gIntLibSayStartingPosition);
+    int rc = dialogGo(gIntLibSayStartingPosition);
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc == -2) {
@@ -1226,7 +1226,7 @@ void opSayEnd(Program* program)
 // 0x4637EC
 void opSayGetLastPos(Program* program)
 {
-    int value = _dialogGetExitPoint();
+    int value = dialogGetExitPoint();
     programStackPushInt32(program, value);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
@@ -1235,7 +1235,7 @@ void opSayGetLastPos(Program* program)
 // 0x463810
 void opSayQuit(Program* program)
 {
-    if (_dialogQuit() != 0) {
+    if (dialogQuit() != 0) {
         programFatalError("Error quitting option.");
     }
 }
@@ -1308,7 +1308,7 @@ void opSayMessage(Program* program)
         v2 = NULL;
     }
 
-    if (sub_430FD4(v1, v2, _TimeOut) != 0) {
+    if (dialogMessage(v1, v2, _TimeOut) != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
         programFatalError("Error setting option.");
     }
@@ -2310,7 +2310,7 @@ void opSayReplyFlags(Program* program)
         programFatalError("Invalid arg 1 given to sayreplyflags");
     }
 
-    if (!_dialogSetOptionFlags(data)) {
+    if (!dialogSetReplyFlags(data)) {
         programFatalError("Error setting reply flags");
     }
 }
@@ -2330,7 +2330,7 @@ void opSayOptionFlags(Program* program)
         programFatalError("Invalid arg 1 given to sayoptionflags");
     }
 
-    if (!_dialogSetOptionFlags(data)) {
+    if (!dialogSetReplyFlags(data)) {
         programFatalError("Error setting option flags");
     }
 }
@@ -2469,7 +2469,7 @@ void opSayScrollUp(Program* program)
         v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1617
     }
 
-    if (_dialogSetScrollUp(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
+    if (dialogSetScrollUp(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
         programFatalError("Error setting scroll up");
     }
 }
@@ -2549,7 +2549,7 @@ void opSayScrollDown(Program* program)
         v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1658
     }
 
-    if (_dialogSetScrollDown(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
+    if (dialogSetScrollDown(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
         programFatalError("Error setting scroll down");
     }
 }
@@ -2569,7 +2569,7 @@ void opSaySetSpacing(Program* program)
         programFatalError("Invalid arg 1 given to saysetspacing");
     }
 
-    if (dialogSetOptionSpacing(data) != 0) {
+    if (dialogSetSpacing(data) != 0) {
         programFatalError("Error setting option spacing");
     }
 }
@@ -2578,7 +2578,7 @@ void opSaySetSpacing(Program* program)
 // 0x46604C
 void opSayRestart(Program* program)
 {
-    if (_dialogRestart() != 0) {
+    if (dialogRestart() != 0) {
         programFatalError("Error restarting option");
     }
 }
@@ -2959,16 +2959,16 @@ void opSetOneOptPause(Program* program)
     }
 
     if (data) {
-        if ((_dialogGetMediaFlag() & 8) == 0) {
+        if ((dialogGetMediaFlag() & 8) == 0) {
             return;
         }
     } else {
-        if ((_dialogGetMediaFlag() & 8) != 0) {
+        if ((dialogGetMediaFlag() & 8) != 0) {
             return;
         }
     }
 
-    _dialogToggleMediaFlag(8);
+    dialogToggleMediaFlag(8);
 }
 
 // 0x466994
@@ -2981,7 +2981,7 @@ void intLibUpdate()
 // 0x4669A0
 void intLibExit()
 {
-    _dialogClose();
+    dialogClose();
     _intExtraClose_();
 
     for (int index = 0; index < INT_LIB_SOUNDS_CAPACITY; index++) {
@@ -3116,7 +3116,7 @@ void intLibInit()
 
     _nevs_initonce();
     _initIntExtra();
-    dialogInit();
+    initDialog();
 }
 
 // 0x466F6C

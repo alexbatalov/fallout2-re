@@ -778,8 +778,8 @@ int _gdialogInitFromScript(int headFid, int reaction)
     dialogSetReplyColor(0.3f, 0.3f, 0.3f);
     dialogSetOptionWindow(127, 335, 393, 117, NULL);
     dialogSetOptionColor(0.2f, 0.2f, 0.2f);
-    dialogSetReplyTitle(NULL);
-    _dialogRegisterWinDrawCallbacks(_demo_copy_title, _demo_copy_options);
+    dialogTitle(NULL);
+    dialogRegisterWinDrawCallbacks(_demo_copy_title, _demo_copy_options);
     gameDialogHighlightsInit();
     cycle_disable();
     if (_gdDialogTurnMouseOff) {
@@ -3010,8 +3010,8 @@ int gameDialogBarter(int modifier)
 // 0x448268
 void _barter_end_to_talk_to()
 {
-    _dialogQuit();
-    _dialogClose();
+    dialogQuit();
+    dialogClose();
     _updatePrograms();
     _updateWindows();
     _dialogue_state = 1;
