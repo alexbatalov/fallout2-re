@@ -1,4 +1,4 @@
-#include "heap.h"
+#include "game/heap.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -2,7 +2,7 @@
 #define FALLOUT_GAME_ART_H_
 
 #include "game/cache.h"
-#include "heap.h"
+#include "game/heap.h"
 #include "obj_types.h"
 #include "proto_types.h"
 

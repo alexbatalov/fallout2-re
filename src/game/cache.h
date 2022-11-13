@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "heap.h"
+#include "game/heap.h"
 
 #define INVALID_CACHE_ENTRY ((CacheEntry*)-1)
 
