@@ -7,7 +7,7 @@
 #include <time.h>
 
 #include "game/automap.h"
-#include "character_editor.h"
+#include "game/editor.h"
 #include "color.h"
 #include "game/combat.h"
 #include "game/combatai.h"

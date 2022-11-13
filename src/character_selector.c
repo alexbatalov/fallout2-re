@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "character_editor.h"
+#include "game/editor.h"
 #include "color.h"
 #include "core.h"
 #include "game/critter.h"

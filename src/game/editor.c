@@ -1,4 +1,4 @@
-#include "character_editor.h"
+#include "game/editor.h"
 
 #include <assert.h>
 #include <ctype.h>

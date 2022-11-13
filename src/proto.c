@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "game/art.h"
-#include "character_editor.h"
+#include "game/editor.h"
 #include "game/combat.h"
 #include "game/config.h"
 #include "game/critter.h"

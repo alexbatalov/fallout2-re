@@ -7,7 +7,7 @@
 #include "game/actions.h"
 #include "game/anim.h"
 #include "game/automap.h"
-#include "character_editor.h"
+#include "game/editor.h"
 #include "character_selector.h"
 #include "color.h"
 #include "game/combat.h"

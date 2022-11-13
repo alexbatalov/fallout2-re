@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "game/art.h"
-#include "character_editor.h"
+#include "game/editor.h"
 #include "color.h"
 #include "core.h"
 #include "debug.h"
