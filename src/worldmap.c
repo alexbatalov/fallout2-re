@@ -12,7 +12,7 @@
 #include "game/config.h"
 #include "core.h"
 #include "game/critter.h"
-#include "cycle.h"
+#include "game/cycle.h"
 #include "db.h"
 #include "game/bmpdlog.h"
 #include "debug.h"

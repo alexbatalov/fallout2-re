@@ -5,7 +5,7 @@
 
 #include "color.h"
 #include "core.h"
-#include "cycle.h"
+#include "game/cycle.h"
 #include "debug.h"
 #include "game.h"
 #include "game_config.h"

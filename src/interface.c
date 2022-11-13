@@ -9,7 +9,7 @@
 #include "game/config.h"
 #include "core.h"
 #include "game/critter.h"
-#include "cycle.h"
+#include "game/cycle.h"
 #include "debug.h"
 #include "display_monitor.h"
 #include "draw.h"

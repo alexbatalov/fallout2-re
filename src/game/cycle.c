@@ -1,4 +1,4 @@
-#include "cycle.h"
+#include "game/cycle.h"
 
 #include "color.h"
 #include "core.h"
