@@ -20,7 +20,7 @@
 #include "debug.h"
 #include "game/display.h"
 #include "draw.h"
-#include "electronic_registration.h"
+#include "game/ereg.h"
 #include "game/endgame.h"
 #include "font_manager.h"
 #include "game_config.h"
