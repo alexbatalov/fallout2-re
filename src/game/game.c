@@ -26,7 +26,7 @@
 #include "game/gconfig.h"
 #include "game/gdialog.h"
 #include "game/gmemory.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "game_movie.h"
 #include "game_sound.h"
 #include "interface.h"

@@ -16,7 +16,7 @@
 #include "game/endgame.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "game_movie.h"
 #include "game_sound.h"
 #include "loadsave.h"

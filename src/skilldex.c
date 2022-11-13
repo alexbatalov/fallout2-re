@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "game/game.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "game_sound.h"
 #include "interface.h"
 #include "map.h"

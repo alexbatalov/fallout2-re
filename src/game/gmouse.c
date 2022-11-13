@@ -1,4 +1,4 @@
-#include "game_mouse.h"
+#include "game/gmouse.h"
 
 #include <assert.h>
 #include <stdio.h>

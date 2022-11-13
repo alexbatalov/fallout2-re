@@ -9,7 +9,7 @@
 #include "db.h"
 #include "debug.h"
 #include "draw.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "memory.h"
 #include "message.h"
 #include "palette.h"

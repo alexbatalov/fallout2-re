@@ -8,7 +8,7 @@
 #include "game/cycle.h"
 #include "debug.h"
 #include "draw.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "game_sound.h"
 #include "geometry.h"
 #include "interface.h"

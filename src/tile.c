@@ -12,7 +12,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "game/gconfig.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "light.h"
 #include "map.h"
 #include "object.h"

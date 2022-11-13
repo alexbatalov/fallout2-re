@@ -17,7 +17,7 @@
 #include "int/export.h"
 #include "game/game.h"
 #include "game/gdialog.h"
-#include "game_mouse.h"
+#include "game/gmouse.h"
 #include "game_movie.h"
 #include "memory.h"
 #include "object.h"
