@@ -5,73 +5,77 @@
 #include "debug.h"
 #include "memory.h"
 
+static void InitTree();
+static void InsertNode(int a1);
+static void DeleteNode(int a1);
+
 // 0x596E90
-int* _dad_2;
+int* dad;
 
 // 0x596E94
-int _match_length;
+int match_length;
 
 // 0x596E98
-int _textsize;
+int textsize;
 
 // 0x596E9C
-int* _rson;
+int* rson;
 
 // 0x596EA0
-int* _lson;
+int* lson;
 
 // 0x596EA4
-unsigned char* _text_buf;
+unsigned char* text_buf;
 
 // 0x596EA8
-int _codesize;
+int codesize;
 
 // 0x596EAC
-int _match_position;
+int match_position;
 
 // 0x44F250
-int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
+int CompLZS(unsigned char* a1, unsigned char* a2, int a3)
 {
-    _dad_2 = NULL;
-    _rson = NULL;
-    _lson = NULL;
-    _text_buf = NULL;
+    dad = NULL;
+    rson = NULL;
+    lson = NULL;
+    text_buf = NULL;
 
     // NOTE: Original code is slightly different, it uses deep nesting or a
     // bunch of gotos.
-    _lson = (int*)internal_malloc(sizeof(*_lson) * 4104);
-    _rson = (int*)internal_malloc(sizeof(*_rson) * 4376);
-    _dad_2 = (int*)internal_malloc(sizeof(*_dad_2) * 4104);
-    _text_buf = (unsigned char*)internal_malloc(sizeof(*_text_buf) * 4122);
+    lson = (int*)internal_malloc(sizeof(*lson) * 4104);
+    rson = (int*)internal_malloc(sizeof(*rson) * 4376);
+    dad = (int*)internal_malloc(sizeof(*dad) * 4104);
+    text_buf = (unsigned char*)internal_malloc(sizeof(*text_buf) * 4122);
 
-    if (_lson == NULL || _rson == NULL || _dad_2 == NULL || _text_buf == NULL) {
+    if (lson == NULL || rson == NULL || dad == NULL || text_buf == NULL) {
         debugPrint("\nGRAPHLIB: Error allocating compression buffers!\n");
 
-        if (_dad_2 != NULL) {
-            internal_free(_dad_2);
+        if (dad != NULL) {
+            internal_free(dad);
         }
 
-        if (_rson != NULL) {
-            internal_free(_rson);
+        if (rson != NULL) {
+            internal_free(rson);
         }
-        if (_lson != NULL) {
-            internal_free(_lson);
+        if (lson != NULL) {
+            internal_free(lson);
         }
-        if (_text_buf != NULL) {
-            internal_free(_text_buf);
+        if (text_buf != NULL) {
+            internal_free(text_buf);
         }
 
         return -1;
     }
 
-    _InitTree();
+    InitTree();
 
-    memset(_text_buf, ' ', 4078);
+    memset(text_buf, ' ', 4078);
 
     int count = 0;
     int v30 = 0;
     for (int index = 4078; index < 4096; index++) {
-        _text_buf[index] = *a1++;
+        text_buf[index] = *a1++;
         int v8 = v30++;
         if (v8 > a3) {
             break;
@@ -79,13 +83,13 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
         count++;
     }
 
-    _textsize = count;
+    textsize = count;
 
     for (int index = 4077; index > 4059; index--) {
-        _InsertNode(index);
+        InsertNode(index);
     }
 
-    _InsertNode(4078);
+    InsertNode(4078);
 
     unsigned char v29[32];
     v29[1] = 0;
@@ -97,20 +101,20 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
     unsigned char v41 = 1;
     int rc = 0;
     while (count != 0) {
-        if (count < _match_length) {
-            _match_length = count;
+        if (count < match_length) {
+            match_length = count;
         }
 
         int v11 = v36 + 1;
-        if (_match_length > 2) {
-            v29[v36 + 1] = _match_position;
-            v29[v36 + 2] = ((_match_length - 3) | ((_match_position >> 4) & 0xF0));
+        if (match_length > 2) {
+            v29[v36 + 1] = match_position;
+            v29[v36 + 2] = ((match_length - 3) | ((match_position >> 4) & 0xF0));
             v36 = v11 + 1;
         } else {
-            _match_length = 1;
+            match_length = 1;
             v29[1] |= v41;
             int v13 = v36++;
-            v29[v13 + 1] = _text_buf[v3];
+            v29[v13 + 1] = text_buf[v3];
         }
 
         v41 *= 2;
@@ -137,14 +141,14 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
                 }
             }
 
-            _codesize += v36;
+            codesize += v36;
             v29[1] = 0;
             v36 = 1;
             v41 = 1;
         }
 
         int v16;
-        int v38 = _match_length;
+        int v38 = match_length;
         for (v16 = 0; v16 < v38; v16++) {
             unsigned char v34 = *a1++;
             int v17 = v30++;
@@ -152,10 +156,10 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
                 break;
             }
 
-            _DeleteNode(v10);
+            DeleteNode(v10);
 
-            unsigned char* v19 = _text_buf + v10;
-            _text_buf[v10] = v34;
+            unsigned char* v19 = text_buf + v10;
+            text_buf[v10] = v34;
 
             if (v10 < 17) {
                 v19[4096] = v34;
@@ -163,15 +167,15 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
 
             v3 = (v3 + 1) & 0xFFF;
             v10 = (v10 + 1) & 0xFFF;
-            _InsertNode(v3);
+            InsertNode(v3);
         }
 
         for (; v16 < v38; v16++) {
-            _DeleteNode(v10);
+            DeleteNode(v10);
             v3 = (v3 + 1) & 0xFFF;
             v10 = (v10 + 1) & 0xFFF;
             if (--count != 0) {
-                _InsertNode(v3);
+                InsertNode(v3);
             }
         }
     }
@@ -187,13 +191,13 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
             }
         }
 
-        _codesize += v36;
+        codesize += v36;
     }
 
-    internal_free(_lson);
-    internal_free(_rson);
-    internal_free(_dad_2);
-    internal_free(_text_buf);
+    internal_free(lson);
+    internal_free(rson);
+    internal_free(dad);
+    internal_free(text_buf);
 
     if (rc == -1) {
         v4 = -1;
@@ -203,51 +207,51 @@ int graphCompress(unsigned char* a1, unsigned char* a2, int a3)
 }
 
 // 0x44F5F0
-void _InitTree()
+static void InitTree()
 {
     for (int index = 4097; index < 4353; index++) {
-        _rson[index] = 4096;
+        rson[index] = 4096;
     }
 
     for (int index = 0; index < 4096; index++) {
-        _dad_2[index] = 4096;
+        dad[index] = 4096;
     }
 }
 
 // 0x44F63C
-void _InsertNode(int a1)
+static void InsertNode(int a1)
 {
-    _lson[a1] = 4096;
-    _rson[a1] = 4096;
-    _match_length = 0;
+    lson[a1] = 4096;
+    rson[a1] = 4096;
+    match_length = 0;
 
-    unsigned char* v2 = _text_buf + a1;
+    unsigned char* v2 = text_buf + a1;
 
-    int v21 = 4097 + _text_buf[a1];
+    int v21 = 4097 + text_buf[a1];
     int v5 = 1;
     for (;;) {
         int v6 = v21;
         if (v5 < 0) {
-            if (_lson[v6] == 4096) {
-                _lson[v6] = a1;
-                _dad_2[a1] = v21;
+            if (lson[v6] == 4096) {
+                lson[v6] = a1;
+                dad[a1] = v21;
                 return;
             }
-            v21 = _lson[v6];
+            v21 = lson[v6];
         } else {
-            if (_rson[v6] == 4096) {
-                _rson[v6] = a1;
-                _dad_2[a1] = v21;
+            if (rson[v6] == 4096) {
+                rson[v6] = a1;
+                dad[a1] = v21;
                 return;
             }
-            v21 = _rson[v6];
+            v21 = rson[v6];
         }
 
         int v9;
         unsigned char* v10 = v2 + 1;
         int v11 = v21 + 1;
         for (v9 = 1; v9 < 18; v9++) {
-            v5 = *v10 - _text_buf[v11];
+            v5 = *v10 - text_buf[v11];
             if (v5 != 0) {
                 break;
             }
@@ -255,82 +259,82 @@ void _InsertNode(int a1)
             v11++;
         }
 
-        if (v9 > _match_length) {
-            _match_length = v9;
-            _match_position = v21;
+        if (v9 > match_length) {
+            match_length = v9;
+            match_position = v21;
             if (v9 >= 18) {
                 break;
             }
         }
     }
 
-    _dad_2[a1] = _dad_2[v21];
-    _lson[a1] = _lson[v21];
-    _rson[a1] = _rson[v21];
+    dad[a1] = dad[v21];
+    lson[a1] = lson[v21];
+    rson[a1] = rson[v21];
 
-    _dad_2[_lson[v21]] = a1;
-    _dad_2[_rson[v21]] = a1;
+    dad[lson[v21]] = a1;
+    dad[rson[v21]] = a1;
 
-    if (_rson[_dad_2[v21]] == v21) {
-        _rson[_dad_2[v21]] = a1;
+    if (rson[dad[v21]] == v21) {
+        rson[dad[v21]] = a1;
     } else {
-        _lson[_dad_2[v21]] = a1;
+        lson[dad[v21]] = a1;
     }
 
-    _dad_2[v21] = 4096;
+    dad[v21] = 4096;
 }
 
 // 0x44F7EC
-void _DeleteNode(int a1)
+static void DeleteNode(int a1)
 {
-    if (_dad_2[a1] != 4096) {
+    if (dad[a1] != 4096) {
         int v5;
-        if (_rson[a1] == 4096) {
-            v5 = _lson[a1];
+        if (rson[a1] == 4096) {
+            v5 = lson[a1];
         } else {
-            if (_lson[a1] == 4096) {
-                v5 = _rson[a1];
+            if (lson[a1] == 4096) {
+                v5 = rson[a1];
             } else {
-                v5 = _lson[a1];
+                v5 = lson[a1];
 
-                if (_rson[v5] != 4096) {
+                if (rson[v5] != 4096) {
                     do {
-                        v5 = _rson[v5];
-                    } while (_rson[v5] != 4096);
+                        v5 = rson[v5];
+                    } while (rson[v5] != 4096);
 
-                    _rson[_dad_2[v5]] = _lson[v5];
-                    _dad_2[_lson[v5]] = _dad_2[v5];
-                    _lson[v5] = _lson[a1];
-                    _dad_2[_lson[a1]] = v5;
+                    rson[dad[v5]] = lson[v5];
+                    dad[lson[v5]] = dad[v5];
+                    lson[v5] = lson[a1];
+                    dad[lson[a1]] = v5;
                 }
 
-                _rson[v5] = _rson[a1];
-                _dad_2[_rson[a1]] = v5;
+                rson[v5] = rson[a1];
+                dad[rson[a1]] = v5;
             }
         }
 
-        _dad_2[v5] = _dad_2[a1];
+        dad[v5] = dad[a1];
 
-        if (_rson[_dad_2[a1]] == a1) {
-            _rson[_dad_2[a1]] = v5;
+        if (rson[dad[a1]] == a1) {
+            rson[dad[a1]] = v5;
         } else {
-            _lson[_dad_2[a1]] = v5;
+            lson[dad[a1]] = v5;
         }
-        _dad_2[a1] = 4096;
+        dad[a1] = 4096;
     }
 }
 
 // 0x44F92C
-int graphDecompress(unsigned char* src, unsigned char* dest, int length)
+int DecodeLZS(unsigned char* src, unsigned char* dest, int length)
 {
-    _text_buf = (unsigned char*)internal_malloc(sizeof(*_text_buf) * 4122);
-    if (_text_buf == NULL) {
+    text_buf = (unsigned char*)internal_malloc(sizeof(*text_buf) * 4122);
+    if (text_buf == NULL) {
         debugPrint("\nGRAPHLIB: Error allocating decompression buffer!\n");
         return -1;
     }
 
     int v8 = 4078;
-    memset(_text_buf, ' ', v8);
+    memset(text_buf, ' ', v8);
 
     int v21 = 0;
     int index = 0;
@@ -352,8 +356,8 @@ int graphDecompress(unsigned char* src, unsigned char* dest, int length)
             for (int v16 = 0; v16 <= v11; v16++) {
                 int v17 = (v10 + v16) & 0xFFF;
 
-                unsigned char ch = _text_buf[v17];
-                _text_buf[v8] = ch;
+                unsigned char ch = text_buf[v17];
+                text_buf[v8] = ch;
                 *dest++ = ch;
 
                 v8 = (v8 + 1) & 0xFFF;
@@ -365,7 +369,7 @@ int graphDecompress(unsigned char* src, unsigned char* dest, int length)
             }
         } else {
             unsigned char ch = *src++;
-            _text_buf[v8] = ch;
+            text_buf[v8] = ch;
             *dest++ = ch;
 
             v8 = (v8 + 1) & 0xFFF;
@@ -374,7 +378,7 @@ int graphDecompress(unsigned char* src, unsigned char* dest, int length)
         }
     }
 
-    internal_free(_text_buf);
+    internal_free(text_buf);
 
     return 0;
 }

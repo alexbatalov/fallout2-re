@@ -705,7 +705,7 @@ int automap_pip_save()
 
     decode_map_data(elevation);
 
-    int compressedDataSize = graphCompress(ambuf, cmpbuf, 10000);
+    int compressedDataSize = CompLZS(ambuf, cmpbuf, 10000);
     if (compressedDataSize == -1) {
         amdbsubhead.dataSize = 10000;
         amdbsubhead.isCompressed = 0;
@@ -962,7 +962,7 @@ static int AM_ReadEntry(int map, int elevation)
             goto out;
         }
 
-        if (graphDecompress(cmpbuf, ambuf, 10000) == -1) {
+        if (DecodeLZS(cmpbuf, ambuf, 10000) == -1) {
             debugPrint("\nAUTOMAP: Error decompressing DB entry!\n");
             fileClose(stream);
             return -1;
