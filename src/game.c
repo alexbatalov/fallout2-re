@@ -71,6 +71,21 @@ char _aGame_0[] = "game\\";
 // 0x5020B8
 char _aDec11199816543[] = VERSION_BUILD_TIME;
 
+// 0x518688
+static FontManager alias_mgr = {
+    100,
+    110,
+    FMtext_font,
+    FMtext_to_buf,
+    FMtext_height,
+    FMtext_width,
+    FMtext_char_width,
+    FMtext_mono_width,
+    FMtext_spacing,
+    FMtext_size,
+    FMtext_max,
+};
+
 // 0x5186B4
 bool gGameUiDisabled = false;
 
@@ -149,8 +164,8 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     trap_init();
 
-    interfaceFontsInit();
-    fontManagerAdd(&gModernFontManager);
+    FMInit();
+    fontManagerAdd(&alias_mgr);
     fontSetCurrent(font);
 
     screenshotHandlerConfigure(KEY_F12, gameTakeScreenshot);
@@ -398,7 +413,7 @@ void gameExit()
     wmWorldMap_exit();
     partyMembersExit();
     endgameDeathEndingExit();
-    interfaceFontsExit();
+    FMExit();
     trap_exit();
     _windowClose();
     dbExit();

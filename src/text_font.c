@@ -26,7 +26,7 @@ FontManager gTextFontManager = {
 };
 
 // 0x51E3B0
-int gCurrentFont = -1;
+static int curr_font_num = -1;
 
 // 0x51E3B4
 int gFontManagersCount = 0;
@@ -218,7 +218,7 @@ void textFontSetCurrentImpl(int font)
 // 0x4D58D4
 int fontGetCurrent()
 {
-    return gCurrentFont;
+    return curr_font_num;
 }
 
 // 0x4D58DC
@@ -236,7 +236,7 @@ void fontSetCurrent(int font)
         fontGetBufferSize = fontManager->getBufferSizeProc;
         fontGetMonospacedCharacterWidth = fontManager->getMonospacedCharacterWidthProc;
 
-        gCurrentFont = font;
+        curr_font_num = font;
 
         fontManager->setCurrentProc(font);
     }

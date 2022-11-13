@@ -62,7 +62,6 @@ typedef struct TextFontDescriptor {
 #define FONT_MONO (0x40000)
 
 extern FontManager gTextFontManager;
-extern int gCurrentFont;
 extern int gFontManagersCount;
 extern FontManagerDrawTextProc* fontDrawText;
 extern FontManagerGetLineHeightProc* fontGetLineHeight;
