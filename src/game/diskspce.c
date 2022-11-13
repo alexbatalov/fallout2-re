@@ -1,4 +1,4 @@
-#include "diskspce.h"
+#include "game/diskspce.h"
 
 #include <ctype.h>
 #include <direct.h>
