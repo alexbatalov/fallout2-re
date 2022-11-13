@@ -881,7 +881,7 @@ static int ai_magic_hands(Object* critter, Object* item, int num)
                 sprintf(text, "%s %s.", critterName, messageListItem.text);
             }
 
-            displayMonitorAddMessage(text);
+            display_print(text);
         }
     }
 

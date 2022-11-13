@@ -532,7 +532,7 @@ void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int cr
 
             char text[60];
             sprintf(text, messageListItem.text, after - before);
-            displayMonitorAddMessage(text);
+            display_print(text);
         }
     }
 }
@@ -574,7 +574,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
 
             return -1;
@@ -618,7 +618,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     }
 
                     sprintf(text, messageListItem.text, hpToHeal);
-                    displayMonitorAddMessage(text);
+                    display_print(text);
                 }
 
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
@@ -638,7 +638,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 sprintf(text, messageListItem.text, hpToHeal);
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
 
             scriptsExecMapUpdateProc();
@@ -658,7 +658,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     sprintf(text, messageListItem.text, objectGetName(a2));
                 }
 
-                displayMonitorAddMessage(text);
+                display_print(text);
                 giveExp = false;
             }
         }
@@ -675,7 +675,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
 
             return -1;
@@ -687,7 +687,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 514: It's dead, get over it.
             messageListItem.num = 512 + randomBetween(0, 2);
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
             break;
         }
@@ -741,7 +741,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         }
 
                         sprintf(text, prefix.text, messageListItem.text);
-                        displayMonitorAddMessage(text);
+                        display_print(text);
                         _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
 
                         giveExp = false;
@@ -772,7 +772,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         hpToHeal = maximumHp - currentHp;
                     }
                     sprintf(text, messageListItem.text, hpToHeal);
-                    displayMonitorAddMessage(text);
+                    display_print(text);
                 }
 
                 if (!v2) {
@@ -799,7 +799,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 sprintf(text, messageListItem.text, hpToHeal);
-                displayMonitorAddMessage(text);
+                display_print(text);
 
                 scriptsExecMapUpdateProc();
                 paletteFadeTo(cmap);
@@ -819,7 +819,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     sprintf(text, messageListItem.text, objectGetName(a2));
                 }
 
-                displayMonitorAddMessage(text);
+                display_print(text);
 
                 giveExp = false;
             }
@@ -839,14 +839,14 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
     case SKILL_TRAPS:
         messageListItem.num = 551; // You fail to find any traps.
         if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         return -1;
     case SKILL_SCIENCE:
         messageListItem.num = 552; // You fail to learn anything.
         if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         return -1;
@@ -855,7 +855,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // You cannot repair that.
             messageListItem.num = 553;
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
             return -1;
         }
@@ -866,7 +866,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
             return -1;
         }
@@ -875,7 +875,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // You got it?
             messageListItem.num = 1101;
             if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
             break;
         }
@@ -927,7 +927,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     }
 
                     sprintf(text, prefix.text, messageListItem.text);
-                    displayMonitorAddMessage(text);
+                    display_print(text);
 
                     _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                     giveExp = false;
@@ -952,7 +952,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         hpToHeal = maximumHp - currentHp;
                     }
                     sprintf(text, messageListItem.text, hpToHeal);
-                    displayMonitorAddMessage(text);
+                    display_print(text);
                 }
 
                 if (!v2) {
@@ -979,7 +979,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 sprintf(text, messageListItem.text, hpToHeal);
-                displayMonitorAddMessage(text);
+                display_print(text);
 
                 scriptsExecMapUpdateProc();
                 paletteFadeTo(cmap);
@@ -994,7 +994,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 sprintf(text, messageListItem.text, objectGetName(a2));
-                displayMonitorAddMessage(text);
+                display_print(text);
 
                 giveExp = false;
             }
@@ -1091,7 +1091,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         }
 
         sprintf(text, messageListItem.text, objectGetName(item));
-        displayMonitorAddMessage(text);
+        display_print(text);
 
         return 1;
     } else {
@@ -1103,7 +1103,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         }
 
         sprintf(text, messageListItem.text, objectGetName(item));
-        displayMonitorAddMessage(text);
+        display_print(text);
 
         return 0;
     }

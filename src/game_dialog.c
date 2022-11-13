@@ -585,7 +585,7 @@ void gameDialogEnter(Object* a1, int a2)
             messageListItem.num = 660;
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
                 if (a2) {
-                    displayMonitorAddMessage(messageListItem.text);
+                    display_print(messageListItem.text);
                 } else {
                     debugPrint(messageListItem.text);
                 }
@@ -600,7 +600,7 @@ void gameDialogEnter(Object* a1, int a2)
             messageListItem.num = 661;
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
                 if (a2) {
-                    displayMonitorAddMessage(messageListItem.text);
+                    display_print(messageListItem.text);
                 } else {
                     debugPrint(messageListItem.text);
                 }

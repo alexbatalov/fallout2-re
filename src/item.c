@@ -1439,7 +1439,7 @@ bool weaponCanBeReloadedWith(Object* weapon, Object* ammo)
         // There is not enough light to recharge this item.
         MessageListItem messageListItem;
         char* msg = getmsg(&gItemsMessageList, &messageListItem, 500);
-        displayMonitorAddMessage(msg);
+        display_print(msg);
 
         return false;
     }
@@ -2201,7 +2201,7 @@ int _item_m_use_charged_item(Object* critter, Object* miscItem)
                 char text[80];
                 const char* itemName = objectGetName(miscItem);
                 sprintf(text, messageListItem.text, itemName);
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
         }
     }
@@ -2247,7 +2247,7 @@ int miscItemTrickleEventProcess(Object* item, void* data)
                 char text[80];
                 const char* itemName = objectGetName(item);
                 sprintf(text, messageListItem.text, itemName);
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
         }
         miscItemTurnOff(item);
@@ -2283,7 +2283,7 @@ int miscItemTurnOn(Object* item)
         // This item can only be used from the interface bar.
         messageListItem.num = 9;
         if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         return -1;
@@ -2296,7 +2296,7 @@ int miscItemTurnOn(Object* item)
             if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
                 char* name = objectGetName(item);
                 sprintf(text, messageListItem.text, name);
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
         }
 
@@ -2322,7 +2322,7 @@ int miscItemTurnOn(Object* item)
         if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
             char* name = objectGetName(item);
             sprintf(text, messageListItem.text, name);
-            displayMonitorAddMessage(text);
+            display_print(text);
         }
 
         if (item->pid == PROTO_ID_GEIGER_COUNTER_II) {
@@ -2331,7 +2331,7 @@ int miscItemTurnOn(Object* item)
             if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
                 int radiation = critter_get_rads(critter);
                 sprintf(text, messageListItem.text, radiation);
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
         }
     }
@@ -2370,7 +2370,7 @@ int miscItemTurnOff(Object* item)
             const char* name = objectGetName(item);
             char text[80];
             sprintf(text, messageListItem.text, name);
-            displayMonitorAddMessage(text);
+            display_print(text);
         }
     }
 
@@ -2633,7 +2633,7 @@ void _perform_drug_effect(Object* critter, int* stats, int* mods, bool isImmedia
                 if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
                     char* statName = statGetName(stat);
                     sprintf(str, messageListItem.text, after < before ? before - after : after - before, statName);
-                    displayMonitorAddMessage(str);
+                    display_print(str);
                     statsChanged = true;
                 }
             }
@@ -2645,7 +2645,7 @@ void _perform_drug_effect(Object* critter, int* stats, int* mods, bool isImmedia
             // Nothing happens.
             messageListItem.num = 10;
             if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
     } else {
@@ -2744,7 +2744,7 @@ int _item_d_take_drug(Object* critter, Object* item)
             MessageListItem messageListItem;
             // That didn't seem to do that much.
             char* msg = getmsg(&gItemsMessageList, &messageListItem, 50);
-            displayMonitorAddMessage(msg);
+            display_print(msg);
         }
     }
 
@@ -2976,7 +2976,7 @@ void performWithdrawalStart(Object* obj, int perk, int pid)
 
     if (obj == gDude) {
         char* description = perkGetDescription(perk);
-        displayMonitorAddMessage(description);
+        display_print(description);
     }
 
     int duration = 10080;
@@ -3008,7 +3008,7 @@ void performWithdrawalEnd(Object* obj, int perk)
         MessageListItem messageListItem;
         messageListItem.num = 3;
         if (messageListGetItem(&gItemsMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
     }
 }

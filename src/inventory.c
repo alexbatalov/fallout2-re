@@ -467,7 +467,7 @@ void inventoryOpen()
                 MessageListItem messageListItem;
                 messageListItem.num = 19;
                 if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                    displayMonitorAddMessage(messageListItem.text);
+                    display_print(messageListItem.text);
                 }
 
                 // NOTE: Uninline.
@@ -633,7 +633,7 @@ bool _setup_inventory(int inventoryWindowType)
             art_ptr_unlock(backgroundFrmHandle);
         }
 
-        gInventoryPrintItemDescriptionHandler = displayMonitorAddMessage;
+        gInventoryPrintItemDescriptionHandler = display_print;
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_TRADE) {
         if (_barter_back_win == -1) {
             exit(1);
@@ -3353,7 +3353,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
             // You can't find anything to take from that.
             messageListItem.num = 50;
             if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
             return 0;
         }
@@ -3706,7 +3706,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
                     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
                         char formattedText[200];
                         sprintf(formattedText, messageListItem.text, stealingXp);
-                        displayMonitorAddMessage(formattedText);
+                        display_print(formattedText);
                     }
 
                     pcAddExperience(stealingXp);
@@ -3851,7 +3851,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
                         // There is no space left for that item.
                         messageListItem.num = 26;
                         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                            displayMonitorAddMessage(messageListItem.text);
+                            display_print(messageListItem.text);
                         }
                     }
                 }
@@ -3886,7 +3886,7 @@ int _move_inventory(Object* a1, int a2, Object* a3, bool a4)
                         // You cannot pick that up. You are at your maximum weight capacity.
                         messageListItem.num = 25;
                         if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                            displayMonitorAddMessage(messageListItem.text);
+                            display_print(messageListItem.text);
                         }
                     }
                 }
@@ -4051,7 +4051,7 @@ void _barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5
                     // There is no space left for that item.
                     messageListItem.num = 26;
                     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                        displayMonitorAddMessage(messageListItem.text);
+                        display_print(messageListItem.text);
                     }
                 }
             }
@@ -4064,7 +4064,7 @@ void _barter_move_inventory(Object* a1, int quantity, int a3, int a4, Object* a5
                     // You cannot pick that up. You are at your maximum weight capacity.
                     messageListItem.num = 25;
                     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                        displayMonitorAddMessage(messageListItem.text);
+                        display_print(messageListItem.text);
                     }
                 }
             }
@@ -4134,7 +4134,7 @@ void _barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object*
                     // There is no space left for that item.
                     messageListItem.num = 26;
                     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                        displayMonitorAddMessage(messageListItem.text);
+                        display_print(messageListItem.text);
                     }
                 }
             }
@@ -4147,7 +4147,7 @@ void _barter_move_from_table_inventory(Object* a1, int quantity, int a3, Object*
                     // You cannot pick that up. You are at your maximum weight capacity.
                     messageListItem.num = 25;
                     if (messageListGetItem(&gInventoryMessageList, &messageListItem)) {
-                        displayMonitorAddMessage(messageListItem.text);
+                        display_print(messageListItem.text);
                     }
                 }
             }

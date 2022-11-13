@@ -2806,7 +2806,7 @@ void combat_give_exps(int exp_points)
     }
 
     sprintf(text, v7.text, v9.text, exp_points);
-    displayMonitorAddMessage(text);
+    display_print(text);
 }
 
 // 0x4222A8
@@ -3010,7 +3010,7 @@ void combat_end()
                     if (!combatai_want_to_stop(critter)) {
                         messageListItem.num = 103;
                         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-                            displayMonitorAddMessage(messageListItem.text);
+                            display_print(messageListItem.text);
                         }
                         return;
                     }
@@ -3027,7 +3027,7 @@ void combat_end()
                     if (combatai_want_to_join(critter)) {
                         messageListItem.num = 103;
                         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-                            displayMonitorAddMessage(messageListItem.text);
+                            display_print(messageListItem.text);
                         }
                         return;
                     }
@@ -4783,7 +4783,7 @@ void combat_display(Attack* attack)
                 // You are not strong enough to use this weapon properly.
                 messageListItem.num = 107;
                 if (messageListGetItem(&combat_message_file, &messageListItem)) {
-                    displayMonitorAddMessage(messageListItem.text);
+                    display_print(messageListItem.text);
                 }
             }
         }
@@ -4882,7 +4882,7 @@ void combat_display(Attack* attack)
 
         strcat(text, ".");
 
-        displayMonitorAddMessage(text);
+        display_print(text);
     }
 
     if ((attack->attackerFlags & DAM_HIT) != 0) {
@@ -4974,7 +4974,7 @@ void combat_display(Attack* attack)
 
                     if ((attack->defenderFlags & DAM_DEAD) != 0) {
                         strcat(text, ".");
-                        displayMonitorAddMessage(text);
+                        display_print(text);
 
                         if (attack->defender == gDude) {
                             if (critterGetStat(attack->defender, STAT_GENDER) == GENDER_MALE) {
@@ -5004,7 +5004,7 @@ void combat_display(Attack* attack)
 
                 strcat(text, ".");
 
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
         }
     }
@@ -5043,7 +5043,7 @@ void combat_display(Attack* attack)
 
             strcat(text, ".");
 
-            displayMonitorAddMessage(text);
+            display_print(text);
         }
 
         if ((attack->attackerFlags & DAM_HIT) != 0 || (attack->attackerFlags & DAM_CRITICAL) == 0) {
@@ -5051,7 +5051,7 @@ void combat_display(Attack* attack)
                 combat_display_hit(text, attack->attacker, attack->attackerDamage);
                 combat_display_flags(text, attack->attackerFlags, attack->attacker);
                 strcat(text, ".");
-                displayMonitorAddMessage(text);
+                display_print(text);
             }
         }
     }
@@ -5063,7 +5063,7 @@ void combat_display(Attack* attack)
             combat_display_flags(text, attack->extrasFlags[index], critter);
             strcat(text, ".");
 
-            displayMonitorAddMessage(text);
+            display_print(text);
         }
     }
 }
@@ -5605,7 +5605,7 @@ void combat_attack_this(Object* a1)
         item = critterGetWeaponForHitMode(gDude, hitMode);
         messageListItem.num = 101; // Out of ammo.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, item, hitMode, NULL);
@@ -5614,7 +5614,7 @@ void combat_attack_this(Object* a1)
     case COMBAT_BAD_SHOT_OUT_OF_RANGE:
         messageListItem.num = 102; // Target out of range.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
         return;
     case COMBAT_BAD_SHOT_NOT_ENOUGH_AP:
@@ -5623,7 +5623,7 @@ void combat_attack_this(Object* a1)
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
             int actionPointsRequired = _item_w_mp_cost(gDude, hitMode, aiming);
             sprintf(formattedText, messageListItem.text, actionPointsRequired);
-            displayMonitorAddMessage(formattedText);
+            display_print(formattedText);
         }
         return;
     case COMBAT_BAD_SHOT_ALREADY_DEAD:
@@ -5631,19 +5631,19 @@ void combat_attack_this(Object* a1)
     case COMBAT_BAD_SHOT_AIM_BLOCKED:
         messageListItem.num = 104; // Your aim is blocked.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
         return;
     case COMBAT_BAD_SHOT_ARM_CRIPPLED:
         messageListItem.num = 106; // You cannot use two-handed weapons with a crippled arm.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
         return;
     case COMBAT_BAD_SHOT_BOTH_ARMS_CRIPPLED:
         messageListItem.num = 105; // You cannot use weapons with both arms crippled.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
         return;
     }
@@ -5877,7 +5877,7 @@ void combat_delete_critter(Object* obj)
 void combatKillCritterOutsideCombat(Object* critter_obj, char* msg)
 {
     if (critter_obj != gDude) {
-        displayMonitorAddMessage(msg);
+        display_print(msg);
         scriptExecProc(critter_obj->sid, SCRIPT_PROC_DESTROY);
         critter_kill(critter_obj, -1, 1);
     }

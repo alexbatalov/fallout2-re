@@ -1448,7 +1448,7 @@ int lsgPerformSaveGame()
 
     gLoadSaveMessageListItem.num = 140;
     if (messageListGetItem(&gLoadSaveMessageList, &gLoadSaveMessageListItem)) {
-        displayMonitorAddMessage(gLoadSaveMessageListItem.text);
+        display_print(gLoadSaveMessageListItem.text);
     } else {
         debugPrint("\nError: Couldn't find LoadSave Message!");
     }
@@ -1525,7 +1525,7 @@ int lsgLoadGameInSlot(int slot)
     // Game Loaded.
     gLoadSaveMessageListItem.num = 141;
     if (messageListGetItem(&gLoadSaveMessageList, &gLoadSaveMessageListItem) == 1) {
-        displayMonitorAddMessage(gLoadSaveMessageListItem.text);
+        display_print(gLoadSaveMessageListItem.text);
     } else {
         debugPrint("\nError: Couldn't find LoadSave Message!");
     }

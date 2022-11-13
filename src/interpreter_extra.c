@@ -1037,7 +1037,7 @@ void opDisplayMsg(Program* program)
     }
 
     char* string = programGetString(program, opcode, data);
-    displayMonitorAddMessage(string);
+    display_print(string);
 
     bool showScriptMessages = false;
     configGetBool(&gGameConfig, GAME_CONFIG_DEBUG_KEY, GAME_CONFIG_SHOW_SCRIPT_MESSAGES_KEY, &showScriptMessages);

@@ -735,7 +735,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             MessageListItem messageListItem;
             messageListItem.num = 600;
             if (messageListGetItem(&gStatsMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
 
             pc_flag_on(DUDE_STATE_LEVEL_UP_AVAILABLE);

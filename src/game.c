@@ -758,7 +758,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                         char date[128];
                         sprintf(date, "%s: %d/%d %s", messageListItem.text, day, year, time);
 
-                        displayMonitorAddMessage(date);
+                        display_print(date);
                     }
                 }
 
@@ -801,7 +801,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 // Quick save game successfully saved.
                 char* msg = getmsg(&gMiscMessageList, &messageListItem, 5);
-                displayMonitorAddMessage(msg);
+                display_print(msg);
             }
         }
         break;
@@ -816,7 +816,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 MessageListItem messageListItem;
                 // Quick load game successfully loaded.
                 char* msg = getmsg(&gMiscMessageList, &messageListItem, 4);
-                displayMonitorAddMessage(msg);
+                display_print(msg);
             }
         }
         break;
@@ -826,8 +826,8 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
 
             char version[VERSION_MAX];
             versionGetVersion(version);
-            displayMonitorAddMessage(version);
-            displayMonitorAddMessage(_aDec11199816543);
+            display_print(version);
+            display_print(_aDec11199816543);
         }
         break;
     case KEY_ARROW_LEFT:
@@ -1024,7 +1024,7 @@ void game_display_counter(double value)
     char stringBuffer[16];
 
     sprintf(stringBuffer, "%f", value);
-    displayMonitorAddMessage(stringBuffer);
+    display_print(stringBuffer);
 }
 
 // 0x443EF0
@@ -1036,7 +1036,7 @@ int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned ch
         // Error saving screenshot.
         messageListItem.num = 8;
         if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         return -1;
@@ -1045,7 +1045,7 @@ int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned ch
     // Saved screenshot.
     messageListItem.num = 3;
     if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-        displayMonitorAddMessage(messageListItem.text);
+        display_print(messageListItem.text);
     }
 
     return 0;

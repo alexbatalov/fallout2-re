@@ -628,7 +628,7 @@ int interfaceInit()
     // NOTE: Uninline.
     intface_init_items();
 
-    displayMonitorInit();
+    display_init();
 
     gInterfaceBarEnabled = true;
     gInterfaceBarInitialized = false;
@@ -645,7 +645,7 @@ void interfaceReset()
     // NOTE: Uninline.
     intface_hide();
 
-    displayMonitorReset();
+    display_reset();
 
     // NOTE: Uninline a seemingly inlined routine.
     indicatorBarReset();
@@ -657,7 +657,7 @@ void interfaceReset()
 void interfaceFree()
 {
     if (gInterfaceBarWindow != -1) {
-        displayMonitorExit();
+        display_exit();
 
         if (gRedLightFrmData != NULL) {
             art_ptr_unlock(gRedLightFrmHandle);
@@ -975,7 +975,7 @@ void interfaceBarEnable()
 
         buttonEnable(gEndTurnButton);
         buttonEnable(gEndCombatButton);
-        displayMonitorEnable();
+        display_enable();
 
         gInterfaceBarEnabled = true;
     }
@@ -985,7 +985,7 @@ void interfaceBarEnable()
 void interfaceBarDisable()
 {
     if (gInterfaceBarEnabled) {
-        displayMonitorDisable();
+        display_disable();
         buttonDisable(gInventoryButton);
         buttonDisable(gOptionsButton);
         buttonDisable(gSkilldexButton);

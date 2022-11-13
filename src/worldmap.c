@@ -3525,7 +3525,7 @@ static int wmRndEncounterOccurred()
                 if (strlen(text) < 110) {
                     char formattedText[120];
                     sprintf(formattedText, text, xp);
-                    displayMonitorAddMessage(formattedText);
+                    display_print(formattedText);
                 } else {
                     debugPrint("WorldMap: Error: Rnd Encounter string too long!");
                 }
@@ -3714,10 +3714,10 @@ int wmSetupRandomEncounter()
 
     // You encounter:
     msg = getmsg(&wmMsgFile, &messageListItem, 2998);
-    displayMonitorAddMessage(msg);
+    display_print(msg);
 
     msg = getmsg(&wmMsgFile, &messageListItem, 3000 + 50 * wmGenData.encounterTableId + wmGenData.encounterEntryId);
-    displayMonitorAddMessage(msg);
+    display_print(msg);
 
     int gameDifficulty;
     switch (encounterTableEntry->scenery) {
@@ -6254,7 +6254,7 @@ int wmCarGiveToParty()
     if (wmGenData.carFuel <= 0) {
         // The car is out of power.
         char* msg = getmsg(&wmMsgFile, &messageListItem, 1502);
-        displayMonitorAddMessage(msg);
+        display_print(msg);
         return -1;
     }
 

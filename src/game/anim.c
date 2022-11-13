@@ -650,7 +650,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
                     getmsg(&gMiscMessageList, &messageListItem, 8001),
                     critter_name(owner));
             }
-            displayMonitorAddMessage(formattedText);
+            display_print(formattedText);
         }
         return register_object_move_to_object(owner, destination, actionPoints, delay);
     }
@@ -744,7 +744,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
                     critter_name(owner));
             }
 
-            displayMonitorAddMessage(formattedText);
+            display_print(formattedText);
         }
 
         return register_object_move_to_tile(owner, tile, elevation, actionPoints, delay);

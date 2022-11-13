@@ -143,7 +143,7 @@ int _obj_new_sid_inst(Object* obj, int scriptType, int a3)
 // 0x49AC3C
 int _obj_look_at(Object* a1, Object* a2)
 {
-    return _obj_look_at_func(a1, a2, displayMonitorAddMessage);
+    return _obj_look_at_func(a1, a2, display_print);
 }
 
 // 0x49AC4C
@@ -201,7 +201,7 @@ int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
 // 0x49AD78
 int _obj_examine(Object* a1, Object* a2)
 {
-    return _obj_examine_func(a1, a2, displayMonitorAddMessage);
+    return _obj_examine_func(a1, a2, display_print);
 }
 
 // Performs examine (reading description) action and passes resulting text
@@ -558,7 +558,7 @@ int _obj_pickup(Object* critter, Object* item)
             // You cannot pick up that item. You are at your maximum weight capacity.
             messageListItem.num = 905;
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
     }
@@ -743,7 +743,7 @@ int _obj_use_book(Object* book)
         // You cannot do that in combat.
         messageListItem.num = 902;
         if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         return 0;
@@ -774,12 +774,12 @@ int _obj_use_book(Object* book)
     // You read the book.
     messageListItem.num = 800;
     if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-        displayMonitorAddMessage(messageListItem.text);
+        display_print(messageListItem.text);
     }
 
     messageListItem.num = messageId;
     if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-        displayMonitorAddMessage(messageListItem.text);
+        display_print(messageListItem.text);
     }
 
     return 1;
@@ -801,7 +801,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
             // The flare is already lit.
             messageListItem.num = 588;
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
     } else {
@@ -809,7 +809,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
             // You light the flare.
             messageListItem.num = 588;
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
 
@@ -858,7 +858,7 @@ int _obj_use_explosive(Object* explosive)
         // The timer is already ticking.
         messageListItem.num = 590;
         if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
     } else {
         int seconds = _inven_set_timer(explosive);
@@ -866,7 +866,7 @@ int _obj_use_explosive(Object* explosive)
             // You set the timer.
             messageListItem.num = 589;
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
 
             if (pid == PROTO_ID_DYNAMITE_I) {
@@ -954,7 +954,7 @@ int _obj_use_power_on_car(Object* item)
     }
 
     char* text = getmsg(&gProtoMessageList, &messageListItem, messageNum);
-    displayMonitorAddMessage(text);
+    display_print(text);
 
     return 1;
 }
@@ -1041,7 +1041,7 @@ int _protinst_use_item(Object* critter, Object* item)
         // That does nothing
         messageListItem.num = 582;
         if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         rc = -1;
@@ -1148,7 +1148,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
                 // That does nothing
                 messageListItem.num = 582;
                 if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                    displayMonitorAddMessage(messageListItem.text);
+                    display_print(messageListItem.text);
                 }
             }
             return -1;
@@ -1161,7 +1161,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
             // 586: That won't work on the dead.
             messageListItem.num = 583 + randomBetween(0, 3);
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
             return -1;
         }
@@ -1180,7 +1180,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
             }
 
             sprintf(formattedText, messageListItem.text, objectGetName(item), objectGetName(a2));
-            displayMonitorAddMessage(formattedText);
+            display_print(formattedText);
         }
 
         if (a2 == gDude) {
@@ -1206,7 +1206,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
     messageListItem.num = 582;
     if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
         sprintf(formattedText, messageListItem.text);
-        displayMonitorAddMessage(formattedText);
+        display_print(formattedText);
     }
     return -1;
 }
@@ -1299,7 +1299,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
         messageListItem.num = 902;
         if (a1 == gDude) {
             if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
         return -1;
@@ -1317,7 +1317,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
     messageListItem.num = messageId;
     if (a1 == gDude) {
         if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
     }
 
@@ -1390,7 +1390,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
 
     if (obj == gDude) {
         if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
     }
 
@@ -1464,7 +1464,7 @@ int _obj_use(Object* a1, Object* a2)
             char formattedText[260];
             const char* name = objectGetName(a2);
             sprintf(formattedText, messageListItem.text, name);
-            displayMonitorAddMessage(formattedText);
+            display_print(formattedText);
         }
     }
 
@@ -1696,7 +1696,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
             if (_obj_blocking_at(NULL, a2->tile, a2->elevation) != 0) {
                 MessageListItem messageListItem;
                 char* text = getmsg(&gProtoMessageList, &messageListItem, 597);
-                displayMonitorAddMessage(text);
+                display_print(text);
                 return -1;
             }
             start = 1;
@@ -1772,7 +1772,7 @@ int _obj_use_container(Object* critter, Object* item)
                 return -1;
             }
 
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
 
         return -1;
@@ -1821,7 +1821,7 @@ int _obj_use_container(Object* critter, Object* item)
         char formattedText[260];
         const char* objectName = objectGetName(item);
         sprintf(formattedText, messageListItem.text, objectName);
-        displayMonitorAddMessage(formattedText);
+        display_print(formattedText);
     }
 
     return 0;
@@ -1835,7 +1835,7 @@ int _obj_use_skill_on(Object* source, Object* target, int skill)
             MessageListItem messageListItem;
             messageListItem.num = 2001;
             if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
         return -1;

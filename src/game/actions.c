@@ -987,7 +987,7 @@ static int is_next_to(Object* a1, Object* a2)
             // You cannot get there.
             messageListItem.num = 2000;
             if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
         return -1;
@@ -1316,7 +1316,7 @@ int action_use_skill_in_combat_error(Object* critter)
     if (critter == gDude) {
         messageListItem.num = 902;
         if (messageListGetItem(&gProtoMessageList, &messageListItem) == 1) {
-            displayMonitorAddMessage(messageListItem.text);
+            display_print(messageListItem.text);
         }
     }
 
@@ -1978,7 +1978,7 @@ static int can_talk_to(Object* a1, Object* a2)
             MessageListItem messageListItem;
             messageListItem.num = 2000;
             if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
-                displayMonitorAddMessage(messageListItem.text);
+                display_print(messageListItem.text);
             }
         }
 
