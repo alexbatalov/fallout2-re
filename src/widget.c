@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "datafile.h"
+#include "int/datafile.h"
 #include "debug.h"
 #include "draw.h"
 #include "geometry.h"

@@ -6,7 +6,7 @@
 
 #include "color.h"
 #include "core.h"
-#include "datafile.h"
+#include "int/datafile.h"
 #include "draw.h"
 #include "game.h"
 #include "interpreter_lib.h"

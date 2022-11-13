@@ -2,7 +2,7 @@
 
 #include "color.h"
 #include "core.h"
-#include "datafile.h"
+#include "int/datafile.h"
 #include "debug.h"
 #include "dialog.h"
 #include "interpreter_extra.h"

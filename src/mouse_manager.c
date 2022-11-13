@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "core.h"
-#include "datafile.h"
+#include "int/datafile.h"
 #include "db.h"
 #include "debug.h"
 #include "memory_manager.h"
