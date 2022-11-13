@@ -10,7 +10,7 @@
 #include "core.h"
 #include "db.h"
 #include "debug.h"
-#include "export.h"
+#include "int/export.h"
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 

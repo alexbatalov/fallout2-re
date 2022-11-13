@@ -14,7 +14,7 @@
 #include "int/dialog.h"
 #include "game/elevator.h"
 #include "game/endgame.h"
-#include "export.h"
+#include "int/export.h"
 #include "game.h"
 #include "game_dialog.h"
 #include "game_mouse.h"

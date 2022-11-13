@@ -1,4 +1,4 @@
-#include "export.h"
+#include "int/export.h"
 
 #include <ctype.h>
 #include <string.h>
@@ -125,7 +125,7 @@ ExternalVariable* externalVariableFind(const char* identifier)
 int exportGetVariable(const char* identifier, opcode_t* typePtr, int* valuePtr)
 {
     ExternalVariable* variable;
-    
+
     variable = externalVariableFind(identifier);
     if (variable != NULL) {
         *typePtr = variable->type;
