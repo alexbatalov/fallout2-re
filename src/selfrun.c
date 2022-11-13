@@ -212,7 +212,7 @@ int selfrunWriteData(const char* path, SelfrunData* selfrunData)
     }
 
     char* masterPatches;
-    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatches);
+    config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatches);
 
     char selfrunDirectoryPath[MAX_PATH];
     sprintf(selfrunDirectoryPath, "%s\\%s", masterPatches, "selfrun\\");

@@ -18,7 +18,7 @@ int GetFreeDiskSpace(long* diskSpacePtr)
     *diskSpacePtr = 0;
     useGetDrive = 1;
 
-    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_PATCHES_KEY, &path) == 1) {
+    if (config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_PATCHES_KEY, &path) == 1) {
         _splitpath(path, drive, NULL, NULL, NULL);
 
         if (drive[0] != '\0') {

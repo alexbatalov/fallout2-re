@@ -256,7 +256,7 @@ void isoExit()
 void _map_init()
 {
     char* executable;
-    config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, "executable", &executable);
+    config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, "executable", &executable);
     if (stricmp(executable, "mapper") == 0) {
         _map_scroll_refresh = isoWindowRefreshRectMapper;
     }
@@ -1257,7 +1257,7 @@ int _map_save()
     temp[0] = '\0';
 
     char* masterPatchesPath;
-    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
+    if (config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
         strcat(temp, masterPatchesPath);
         mkdir(temp);
 
@@ -1439,7 +1439,7 @@ void mapMakeMapsDirectory()
     char path[FILENAME_MAX];
 
     char* masterPatchesPath;
-    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
+    if (config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
         strcpy(path, masterPatchesPath);
     } else {
         strcpy(path, "DATA");

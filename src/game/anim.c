@@ -3054,7 +3054,7 @@ int check_move(int* a1)
         }
     } else {
         bool interruptWalk;
-        configGetBool(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_INTERRUPT_WALK_KEY, &interruptWalk);
+        configGetBool(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_INTERRUPT_WALK_KEY, &interruptWalk);
         if (interruptWalk) {
             register_clear(gDude);
         }
@@ -3400,11 +3400,11 @@ unsigned int compute_tpf(Object* object, int fid)
     if (isInCombat()) {
         if (FID_ANIM_TYPE(fid) == ANIM_WALK) {
             int playerSpeedup = 0;
-            config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
+            config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
 
             if (object != gDude || playerSpeedup == 1) {
                 int combatSpeed = 0;
-                config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combatSpeed);
+                config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combatSpeed);
                 fps += combatSpeed;
             }
         }

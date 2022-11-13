@@ -2447,7 +2447,7 @@ static int ai_called_shot(Object* a1, Object* a2, int a3)
             ai = ai_cap(a1);
             if (randomBetween(1, ai->called_freq) == 1) {
                 combat_difficulty = 1;
-                config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
+                config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
                 if (combat_difficulty) {
                     if (combat_difficulty == 2) {
                         v6 = 3;
@@ -3096,7 +3096,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
     }
 
     bool combatTaunts = true;
-    configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, &combatTaunts);
+    configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, &combatTaunts);
     if (!combatTaunts) {
         return -1;
     }
@@ -3360,7 +3360,7 @@ static int combatai_load_messages()
     }
 
     bool languageFilter;
-    configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
+    configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
 
     if (languageFilter) {
         messageListFilterBadwords(&ai_message_file);
@@ -3388,7 +3388,7 @@ void combatai_refresh_messages()
     static int old_state = -1;
 
     int languageFilter = 0;
-    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
 
     if (languageFilter != old_state) {
         old_state = languageFilter;

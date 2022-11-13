@@ -1,5 +1,5 @@
-#ifndef GAME_CONFIG_H
-#define GAME_CONFIG_H
+#ifndef FALLOUT_GAME_GCONFIG_H_
+#define FALLOUT_GAME_GCONFIG_H_
 
 #include <stdbool.h>
 
@@ -115,12 +115,10 @@ typedef enum TargetHighlight {
     TARGET_HIGHLIGHT_TARGETING_ONLY,
 } TargetHighlight;
 
-extern bool gGameConfigInitialized;
-extern Config gGameConfig;
-extern char gGameConfigFilePath[];
+extern Config game_config;
 
-bool gameConfigInit(bool isMapper, int argc, char** argv);
-bool gameConfigSave();
-bool gameConfigExit(bool shouldSave);
+bool gconfig_init(bool isMapper, int argc, char** argv);
+bool gconfig_save();
+bool gconfig_exit(bool shouldSave);
 
-#endif /* GAME_CONFIG_H */
+#endif /* FALLOUT_GAME_GCONFIG_H_ */

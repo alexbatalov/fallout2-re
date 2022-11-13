@@ -3428,7 +3428,7 @@ static int wmRndEncounterOccurred()
     int frequency = wmFreqValues[wmGenData.currentSubtile->encounterChance[dayPart]];
     if (frequency > 0 && frequency < 100) {
         int gameDifficulty = GAME_DIFFICULTY_NORMAL;
-        if (config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
+        if (config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
             int modifier = frequency / 15;
             switch (gameDifficulty) {
             case GAME_DIFFICULTY_EASY:
@@ -3645,7 +3645,7 @@ static int wmRndEncounterPick()
     }
 
     int gameDifficulty;
-    if (config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
+    if (config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
         switch (gameDifficulty) {
         case GAME_DIFFICULTY_EASY:
             v2 += 5;
@@ -3726,7 +3726,7 @@ int wmSetupRandomEncounter()
     case ENCOUNTER_SCENERY_TYPE_NORMAL:
     case ENCOUNTER_SCENERY_TYPE_HEAVY:
         debugPrint("\nwmSetupRandomEncounter: Scenery Type: %s", wmSceneryStrs[encounterTableEntry->scenery]);
-        config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
+        config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
         break;
     default:
         debugPrint("\nERROR: wmSetupRandomEncounter: invalid Scenery Type!");

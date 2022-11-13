@@ -722,7 +722,7 @@ void gameMouseRefresh()
                     bool pointedObjectIsCritter = FID_TYPE(pointedObject->fid) == OBJ_TYPE_CRITTER;
 
                     int combatLooks = 0;
-                    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
+                    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
                     if (combatLooks != 0) {
                         if (_obj_examine(gDude, pointedObject) == -1) {
                             _obj_look_at(gDude, pointedObject);
@@ -904,7 +904,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             }
 
             bool running;
-            configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &running);
+            configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &running);
 
             if (keys[DIK_LSHIFT] || keys[DIK_RSHIFT]) {
                 if (running) {
@@ -1957,7 +1957,7 @@ int gameMouseRenderActionPoints(const char* string, int color)
 void gameMouseLoadItemHighlight()
 {
     bool itemHighlight;
-    if (configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, &itemHighlight)) {
+    if (configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, &itemHighlight)) {
         gGameMouseItemHighlightEnabled = itemHighlight;
     }
 }
@@ -2268,7 +2268,7 @@ int _gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
             y1 = 13;
 
             char* executable;
-            config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
+            config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
             if (stricmp(executable, "mapper") == 0) {
                 if (tileRoofIsVisible()) {
                     if ((gDude->flags & OBJECT_HIDDEN) == 0) {

@@ -558,13 +558,13 @@ static int endgame_init()
     speechSetEndCallback(endgame_voiceover_callback);
 
     endgame_do_subtitles = false;
-    configGetBool(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &endgame_do_subtitles);
+    configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &endgame_do_subtitles);
     if (!endgame_do_subtitles) {
         return 0;
     }
 
     char* language;
-    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         endgame_do_subtitles = false;
         return 0;
     }

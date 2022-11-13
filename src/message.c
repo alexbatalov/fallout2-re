@@ -185,7 +185,7 @@ bool messageListLoad(MessageList* messageList, const char* path)
         return false;
     }
 
-    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         return false;
     }
 
@@ -287,7 +287,7 @@ bool _message_make_path(char* dest, const char* path)
         return false;
     }
 
-    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
+    if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
         return false;
     }
 
@@ -512,7 +512,7 @@ bool messageListFilterBadwords(MessageList* messageList)
     }
 
     int languageFilter = 0;
-    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
     if (languageFilter != 1) {
         return true;
     }

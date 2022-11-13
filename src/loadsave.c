@@ -226,7 +226,7 @@ void _InitLoadSave()
     _quick_done = false;
     _slot_cursor = 0;
 
-    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &_patches)) {
+    if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &_patches)) {
         debugPrint("\nLOADSAVE: Error reading patches config variable! Using default.\n");
         _patches = _emgpath;
     }
@@ -252,7 +252,7 @@ int lsgSaveGame(int mode)
 
     _ls_error_code = 0;
 
-    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &_patches)) {
+    if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &_patches)) {
         debugPrint("\nLOADSAVE: Error reading patches config variable! Using default.\n");
         _patches = _emgpath;
     }
@@ -742,7 +742,7 @@ int lsgLoadGame(int mode)
 
     _ls_error_code = 0;
 
-    if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &_patches)) {
+    if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &_patches)) {
         debugPrint("\nLOADSAVE: Error reading patches config variable! Using default.\n");
         _patches = _emgpath;
     }

@@ -504,7 +504,7 @@ int pipboyWindowInit(int intent)
 void pipboyWindowFree()
 {
     bool showScriptMessages = false;
-    configGetBool(&gGameConfig, GAME_CONFIG_DEBUG_KEY, GAME_CONFIG_SHOW_SCRIPT_MESSAGES_KEY, &showScriptMessages);
+    configGetBool(&game_config, GAME_CONFIG_DEBUG_KEY, GAME_CONFIG_SHOW_SCRIPT_MESSAGES_KEY, &showScriptMessages);
 
     if (showScriptMessages) {
         debugPrint("\nScript <Map Update>");

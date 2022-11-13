@@ -153,7 +153,7 @@ int action_blood(Object* obj, int anim, int delay)
 {
 
     int violence_level = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
-    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violence_level);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violence_level);
     if (violence_level == VIOLENCE_LEVEL_NONE) {
         return anim;
     }
@@ -203,7 +203,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
     }
 
     int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
-    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
 
     if (critter_flag_check(defender->pid, CRITTER_SPECIAL_DEATH)) {
         return check_death(defender, ANIM_EXPLODED_TO_NOTHING, VIOLENCE_LEVEL_NORMAL, isFallingBack);
@@ -261,7 +261,7 @@ static int check_death(Object* obj, int anim, int minViolenceLevel, bool isFalli
     int fid;
 
     int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
-    config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violenceLevel);
     if (violenceLevel >= minViolenceLevel) {
         fid = art_id(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, anim, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
         if (art_exists(fid)) {

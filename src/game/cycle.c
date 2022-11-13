@@ -101,7 +101,7 @@ void cycle_init()
     }
 
     bool colorCycling;
-    if (!configGetBool(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_COLOR_CYCLING_KEY, &colorCycling)) {
+    if (!configGetBool(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_COLOR_CYCLING_KEY, &colorCycling)) {
         colorCycling = true;
     }
 
@@ -135,7 +135,7 @@ void cycle_init()
     cycle_enabled = true;
 
     int cycleSpeedFactor;
-    if (!config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, &cycleSpeedFactor)) {
+    if (!config_get_value(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, &cycleSpeedFactor)) {
         cycleSpeedFactor = 1;
     }
 
@@ -332,7 +332,7 @@ static void cycle_colors()
 void change_cycle_speed(int value)
 {
     cycle_speed_factor = value;
-    config_set_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, value);
+    config_set_value(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_CYCLE_SPEED_FACTOR_KEY, value);
 }
 
 // NOTE: Unused.

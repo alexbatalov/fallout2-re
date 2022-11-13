@@ -272,7 +272,7 @@ int automap_reset()
 void automap_exit()
 {
     char* masterPatchesPath;
-    if (config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
+    if (config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
         char path[MAX_PATH];
         sprintf(path, "%s\\%s\\%s", masterPatchesPath, "MAPS", AUTOMAP_DB);
         remove(path);
@@ -810,7 +810,7 @@ int automap_pip_save()
         internal_free(cmpbuf);
 
         char* masterPatchesPath;
-        if (!config_get_string(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
+        if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
             debugPrint("\nAUTOMAP: Error reading config info!\n");
             return -1;
         }
