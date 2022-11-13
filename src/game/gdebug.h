@@ -1,6 +1,6 @@
-#ifndef GDEBUG_H
-#define GDEBUG_H
+#ifndef FALLOUT_GAME_GDEBUG_H_
+#define FALLOUT_GAME_GDEBUG_H_
 
 void fatal_error(const char* format, const char* message, const char* file, int line);
 
-#endif /* GDEBUG_H */
+#endif /* FALLOUT_GAME_GDEBUG_H_ */
