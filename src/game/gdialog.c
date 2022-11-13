@@ -105,6 +105,27 @@ typedef struct GameDialogOptionEntry {
     int field_39C;
 } GameDialogOptionEntry;
 
+typedef struct GameDialogBlock {
+    Program* program;
+    int replyMessageListId;
+    int replyMessageId;
+    int offset;
+
+    // NOTE: The is something odd about next two members. There are 2700 bytes,
+    // which is 3 x 900, but anywhere in the app only 900 characters is used.
+    // The length of text in [DialogOptionEntry] is definitely 900 bytes. There
+    // are two possible explanations:
+    // - it's an array of 3 elements.
+    // - there are three separate elements, two of which are not used, therefore
+    // they are not referenced anywhere, but they take up their space.
+    //
+    // See `gdProcessChoice` for more info how this unreferenced range plays
+    // important role.
+    char replyText[900];
+    char field_394[1800];
+    GameDialogOptionEntry options[DIALOG_OPTION_ENTRIES_CAPACITY];
+} GameDialogBlock;
+
 // Provides button configuration for party member combat control and
 // customization interface.
 typedef struct GameDialogButtonData {
@@ -617,33 +638,7 @@ static unsigned int fidgetLastTime;
 static int fidgetAnim;
 
 // 0x58F4D4
-Program* gDialogReplyProgram;
-
-// 0x58F4D8
-int gDialogReplyMessageListId;
-
-// 0x58F4DC
-int gDialogReplyMessageId;
-
-// 0x58F4E0
-int dword_58F4E0;
-
-// NOTE: The is something odd about this variable. There are 2700 bytes, which
-// is 3 x 900, but anywhere in the app only 900 characters is used. The length
-// of text in [DialogOptionEntry] is definitely 900 bytes. There are two
-// possible explanations:
-// - it's an array of 3 elements
-// - there are three separate elements, two of which are not used, therefore
-// they are not referenced anywhere, but they take up their space.
-//
-// See `gdProcessChoice` for more info how this unreferenced range plays
-// important role.
-//
-// 0x58F4E4
-char gDialogReplyText[900];
-
-// 0x58FF70
-GameDialogOptionEntry gDialogOptionEntries[DIALOG_OPTION_ENTRIES_CAPACITY];
+static GameDialogBlock dialogBlock;
 
 // 0x596C30
 static int talkOldFont;
@@ -1074,7 +1069,7 @@ int gdialogSayMessage()
     gdialogGo();
 
     gdNumOptions = 0;
-    gDialogReplyMessageListId = -1;
+    dialogBlock.replyMessageListId = -1;
 
     return 0;
 }
@@ -1088,7 +1083,7 @@ int gdialogSayMessage()
 // 0x445538
 int gdialogOption(int messageListId, int messageId, const char* proc, int reaction)
 {
-    gDialogOptionEntries[gdNumOptions].proc = 0;
+    dialogBlock.options[gdNumOptions].proc = 0;
 
     return gdAddOption(messageListId, messageId, reaction);
 }
@@ -1102,7 +1097,7 @@ int gdialogOption(int messageListId, int messageId, const char* proc, int reacti
 // 0x445578
 int gdialogOptionStr(int messageListId, const char* text, const char* proc, int reaction)
 {
-    gDialogOptionEntries[gdNumOptions].proc = 0;
+    dialogBlock.options[gdNumOptions].proc = 0;
 
     return gdAddOptionStr(messageListId, text, reaction);
 }
@@ -1110,7 +1105,7 @@ int gdialogOptionStr(int messageListId, const char* text, const char* proc, int 
 // 0x4455B8
 int gdialogOptionProc(int messageListId, int messageId, int proc, int reaction)
 {
-    gDialogOptionEntries[gdNumOptions].proc = proc;
+    dialogBlock.options[gdNumOptions].proc = proc;
 
     return gdAddOption(messageListId, messageId, reaction);
 }
@@ -1118,7 +1113,7 @@ int gdialogOptionProc(int messageListId, int messageId, int proc, int reaction)
 // 0x4455FC
 int gdialogOptionProcStr(int messageListId, const char* text, int proc, int reaction)
 {
-    gDialogOptionEntries[gdNumOptions].proc = proc;
+    dialogBlock.options[gdNumOptions].proc = proc;
 
     return gdAddOptionStr(messageListId, text, reaction);
 }
@@ -1128,11 +1123,11 @@ int gdialogReply(Program* program, int messageListId, int messageId)
 {
     gdAddReviewReply(messageListId, messageId);
 
-    gDialogReplyProgram = program;
-    gDialogReplyMessageListId = messageListId;
-    gDialogReplyMessageId = messageId;
-    dword_58F4E0 = 0;
-    gDialogReplyText[0] = '\0';
+    dialogBlock.program = program;
+    dialogBlock.replyMessageListId = messageListId;
+    dialogBlock.replyMessageId = messageId;
+    dialogBlock.offset = 0;
+    dialogBlock.replyText[0] = '\0';
     gdNumOptions = 0;
 
     return 0;
@@ -1143,12 +1138,12 @@ int gdialogReplyStr(Program* program, int messageListId, const char* text)
 {
     gdAddReviewReplyStr(text);
 
-    gDialogReplyProgram = program;
-    dword_58F4E0 = 0;
-    gDialogReplyMessageListId = -4;
-    gDialogReplyMessageId = -4;
+    dialogBlock.program = program;
+    dialogBlock.offset = 0;
+    dialogBlock.replyMessageListId = -4;
+    dialogBlock.replyMessageId = -4;
 
-    strcpy(gDialogReplyText, text);
+    strcpy(dialogBlock.replyText, text);
 
     gdNumOptions = 0;
 
@@ -1158,14 +1153,14 @@ int gdialogReplyStr(Program* program, int messageListId, const char* text)
 // 0x4456D8
 int gdialogGo()
 {
-    if (gDialogReplyMessageListId == -1) {
+    if (dialogBlock.replyMessageListId == -1) {
         return 0;
     }
 
     int rc = 0;
 
     if (gdNumOptions < 1) {
-        gDialogOptionEntries[gdNumOptions].proc = 0;
+        dialogBlock.options[gdNumOptions].proc = 0;
 
         if (gdAddOption(-1, -1, 50) == -1) {
             programFatalError("Error setting option.");
@@ -1259,7 +1254,7 @@ static int gdAddOption(int messageListId, int messageId, int reaction)
         return -1;
     }
 
-    GameDialogOptionEntry* optionEntry = &(gDialogOptionEntries[gdNumOptions]);
+    GameDialogOptionEntry* optionEntry = &(dialogBlock.options[gdNumOptions]);
     optionEntry->messageListId = messageListId;
     optionEntry->messageId = messageId;
     optionEntry->reaction = reaction;
@@ -1279,7 +1274,7 @@ static int gdAddOptionStr(int messageListId, const char* text, int reaction)
         return -1;
     }
 
-    GameDialogOptionEntry* optionEntry = &(gDialogOptionEntries[gdNumOptions]);
+    GameDialogOptionEntry* optionEntry = &(dialogBlock.options[gdNumOptions]);
     optionEntry->messageListId = -4;
     optionEntry->messageId = -4;
     optionEntry->reaction = reaction;
@@ -1806,7 +1801,7 @@ err:
 static void gdProcessCleanup()
 {
     for (int index = 0; index < gdNumOptions; index++) {
-        GameDialogOptionEntry* optionEntry = &(gDialogOptionEntries[index]);
+        GameDialogOptionEntry* optionEntry = &(dialogBlock.options[index]);
 
         if (optionEntry->btn != -1) {
             buttonDestroy(optionEntry->btn);
@@ -1883,7 +1878,7 @@ static int gdProcess()
     gdProcessUpdate();
 
     int v18 = 0;
-    if (dword_58F4E0 != 0) {
+    if (dialogBlock.offset != 0) {
         v18 = 1;
         gdReplyTooBig = 1;
     }
@@ -1946,10 +1941,10 @@ static int gdProcess()
                 if (getTicksBetween(v6, tick) >= 10000 || keyCode == KEY_SPACE) {
                     pageCount++;
                     pageIndex++;
-                    pageOffsets[pageCount] = dword_58F4E0;
+                    pageOffsets[pageCount] = dialogBlock.offset;
                     gdProcessReply();
                     tick = v6;
-                    if (!dword_58F4E0) {
+                    if (!dialogBlock.offset) {
                         v18 = 0;
                     }
                 }
@@ -1958,22 +1953,22 @@ static int gdProcess()
             if (keyCode == KEY_ARROW_UP) {
                 if (pageIndex > 0) {
                     pageIndex--;
-                    dword_58F4E0 = pageOffsets[pageIndex];
+                    dialogBlock.offset = pageOffsets[pageIndex];
                     v18 = 0;
                     gdProcessReply();
                 }
             } else if (keyCode == KEY_ARROW_DOWN) {
                 if (pageIndex < pageCount) {
                     pageIndex++;
-                    dword_58F4E0 = pageOffsets[pageIndex];
+                    dialogBlock.offset = pageOffsets[pageIndex];
                     v18 = 0;
                     gdProcessReply();
                 } else {
-                    if (dword_58F4E0 != 0) {
+                    if (dialogBlock.offset != 0) {
                         tick = v6;
                         pageIndex++;
                         pageCount++;
-                        pageOffsets[pageCount] = dword_58F4E0;
+                        pageOffsets[pageCount] = dialogBlock.offset;
                         v18 = 0;
                         gdProcessReply();
                     }
@@ -2000,7 +1995,7 @@ static int gdProcess()
 
                     tick = _get_time();
 
-                    if (dword_58F4E0) {
+                    if (dialogBlock.offset) {
                         v18 = 1;
                         gdReplyTooBig = 1;
                     } else {
@@ -2027,18 +2022,20 @@ static int gdProcessChoice(int a1)
 {
     // FIXME: There is a buffer underread bug when `a1` is -1 (pressing 0 on the
     // keyboard, see `gdProcess`). When it happens the game looks into unused
-    // continuation of `gDialogReplyText` (within 0x58F868-0x58FF70 range) which
+    // continuation of `dialogBlock.replyText` (within 0x58F868-0x58FF70 range) which
     // is initialized to 0 according to C spec. I was not able to replicate the
-    // same behaviour by extending gDialogReplyText to 2700 bytes or introduce
+    // same behaviour by extending dialogBlock.replyText to 2700 bytes or introduce
     // new 1800 bytes buffer in between, at least not in debug builds. In order
     // to preserve original behaviour this dummy dialog option entry is used.
+    //
+    // TODO: Recheck behaviour after introducing |GameDialogBlock|.
     GameDialogOptionEntry dummy;
     memset(&dummy, 0, sizeof(dummy));
 
     mouse_hide();
     gdProcessCleanup();
 
-    GameDialogOptionEntry* dialogOptionEntry = a1 != -1 ? &(gDialogOptionEntries[a1]) : &dummy;
+    GameDialogOptionEntry* dialogOptionEntry = a1 != -1 ? &(dialogBlock.options[a1]) : &dummy;
     if (dialogOptionEntry->messageListId == -4) {
         gdAddReviewOptionChosenStr(dialogOptionEntry->text);
     } else {
@@ -2080,7 +2077,7 @@ static int gdProcessChoice(int a1)
 
     if (gdReenterLevel < 2) {
         if (dialogOptionEntry->proc != 0) {
-            _executeProcedure(gDialogReplyProgram, dialogOptionEntry->proc);
+            _executeProcedure(dialogBlock.program, dialogOptionEntry->proc);
         }
     }
 
@@ -2102,7 +2099,7 @@ static void gdProcessHighlight(int index)
     GameDialogOptionEntry dummy;
     memset(&dummy, 0, sizeof(dummy));
 
-    GameDialogOptionEntry* dialogOptionEntry = index != -1 ? &(gDialogOptionEntries[index]) : &dummy;
+    GameDialogOptionEntry* dialogOptionEntry = index != -1 ? &(dialogBlock.options[index]) : &dummy;
     if (dialogOptionEntry->btn == 0) {
         return;
     }
@@ -2152,7 +2149,7 @@ static void gdProcessHighlight(int index)
 // 0x446B5C
 static void gdProcessUnHighlight(int index)
 {
-    GameDialogOptionEntry* dialogOptionEntry = &(gDialogOptionEntries[index]);
+    GameDialogOptionEntry* dialogOptionEntry = &(dialogBlock.options[index]);
 
     optionRect.left = 0;
     optionRect.top = dialogOptionEntry->field_14;
@@ -2213,8 +2210,8 @@ static void gdProcessReply()
     // NOTE: Uninline.
     text_to_rect_wrapped(windowGetBuffer(gReplyWin),
         &replyRect,
-        gDialogReplyText,
-        &dword_58F4E0,
+        dialogBlock.replyText,
+        &(dialogBlock.offset),
         fontGetLineHeight(),
         379,
         colorTable[992] | 0x2000000);
@@ -2237,15 +2234,15 @@ static void gdProcessUpdate()
     demo_copy_title(gReplyWin);
     demo_copy_options(gOptionWin);
 
-    if (gDialogReplyMessageListId > 0) {
-        char* s = _scr_get_msg_str_speech(gDialogReplyMessageListId, gDialogReplyMessageId, 1);
+    if (dialogBlock.replyMessageListId > 0) {
+        char* s = _scr_get_msg_str_speech(dialogBlock.replyMessageListId, dialogBlock.replyMessageId, 1);
         if (s == NULL) {
             showMesageBox("\n'GDialog::Error Grabbing text message!");
             exit(1);
         }
 
-        strncpy(gDialogReplyText, s, sizeof(gDialogReplyText) - 1);
-        *(gDialogReplyText + sizeof(gDialogReplyText) - 1) = '\0';
+        strncpy(dialogBlock.replyText, s, sizeof(dialogBlock.replyText) - 1);
+        *(dialogBlock.replyText + sizeof(dialogBlock.replyText) - 1) = '\0';
     }
 
     gdProcessReply();
@@ -2261,7 +2258,7 @@ static void gdProcessUpdate()
     int v21 = 0;
 
     for (int index = 0; index < gdNumOptions; index++) {
-        GameDialogOptionEntry* dialogOptionEntry = &(gDialogOptionEntries[index]);
+        GameDialogOptionEntry* dialogOptionEntry = &(dialogBlock.options[index]);
 
         if (hasEmpathy) {
             switch (dialogOptionEntry->reaction) {
