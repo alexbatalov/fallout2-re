@@ -1,4 +1,4 @@
-#include "elevator.h"
+#include "game/elevator.h"
 
 #include <ctype.h>
 #include <string.h>
