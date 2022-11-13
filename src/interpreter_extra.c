@@ -6268,7 +6268,7 @@ void opMoveObjectInventoryToObject(Program* program)
 void opEndgameMovie(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
-    endgamePlayMovie();
+    endgame_movie();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 

@@ -560,7 +560,7 @@ void showDeath()
             blitBufferToBuffer(background, 640, 480, 640, windowBuffer, 640);
             art_ptr_unlock(backgroundHandle);
 
-            const char* deathFileName = endgameDeathEndingGetFileName();
+            const char* deathFileName = endgameGetDeathEndingFileName();
 
             int subtitles = 0;
             config_get_value(&gGameConfig, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
