@@ -18,7 +18,7 @@
 #include "game/display.h"
 #include "draw.h"
 #include "game/game.h"
-#include "game_dialog.h"
+#include "game/gdialog.h"
 #include "game_mouse.h"
 #include "game_sound.h"
 #include "interface.h"

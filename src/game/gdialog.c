@@ -1,4 +1,4 @@
-#include "game_dialog.h"
+#include "game/gdialog.h"
 
 #include <assert.h>
 #include <stdio.h>

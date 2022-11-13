@@ -11,7 +11,7 @@
 #include "debug.h"
 #include "game/display.h"
 #include "game/game.h"
-#include "game_dialog.h"
+#include "game/gdialog.h"
 #include "item.h"
 #include "loadsave.h"
 #include "map.h"

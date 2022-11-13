@@ -17,7 +17,7 @@
 #include "game/endgame.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "game_dialog.h"
+#include "game/gdialog.h"
 #include "game_movie.h"
 #include "game_sound.h"
 #include "interface.h"

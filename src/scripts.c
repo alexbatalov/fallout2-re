@@ -16,7 +16,7 @@
 #include "game/endgame.h"
 #include "int/export.h"
 #include "game/game.h"
-#include "game_dialog.h"
+#include "game/gdialog.h"
 #include "game_mouse.h"
 #include "game_movie.h"
 #include "memory.h"
