@@ -2330,7 +2330,7 @@ void opSayOptionFlags(Program* program)
         programFatalError("Invalid arg 1 given to sayoptionflags");
     }
 
-    if (!dialogSetReplyFlags(data)) {
+    if (!dialogSetOptionFlags(data)) {
         programFatalError("Error setting option flags");
     }
 }

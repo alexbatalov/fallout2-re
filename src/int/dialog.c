@@ -42,6 +42,15 @@ typedef struct STRUCT_56DAE0 {
     int field_18;
 } STRUCT_56DAE0;
 
+typedef struct DialogWindowData {
+    short flags;
+    int width;
+    int height;
+    int x;
+    int y;
+    char* backgroundFileName;
+} DialogWindowData;
+
 static STRUCT_56DAE0_FIELD_4* getReply();
 static void replyAddOption(const char* a1, const char* a2, int a3);
 static void replyAddOptionProc(const char* a1, int a2, int a3);
@@ -96,40 +105,11 @@ static int mediaFlag = 2;
 // 0x56DAE0
 static STRUCT_56DAE0 dialog[4];
 
-// Reply flags.
-//
 // 0x56DB60
-short word_56DB60;
+static DialogWindowData defaultOption;
 
-// 0x56DB64
-int dword_56DB64;
-
-// 0x56DB68
-int dword_56DB68;
-
-// 0x56DB6C
-int dword_56DB6C;
-
-// 0x56DB70
-int dword_56DB70;
-
-// 0x56DB74
-char* off_56DB74;
-
-// 0x56DB7C
-int dword_56DB7C;
-
-// 0x56DB80
-int dword_56DB80;
-
-// 0x56DB84
-int dword_56DB84;
-
-// 0x56DB88
-int dword_56DB88;
-
-// 0x56DB8C
-char* off_56DB8C;
+// 0x56DB78
+static DialogWindowData defaultReply;
 
 // 0x56DB90
 static int replyPlaying;
@@ -248,7 +228,7 @@ static void replyAddOption(const char* a1, const char* a2, int a3)
     }
 
     v18->field_C[v17].field_18 = windowGetFont();
-    v18->field_C[v17].field_1A = word_56DB60;
+    v18->field_C[v17].field_1A = defaultOption.flags;
     v18->field_C[v17].field_14 = a3;
 }
 
@@ -275,7 +255,7 @@ static void replyAddOptionProc(const char* a1, int a2, int a3)
     v5->field_C[v13].proc = a2;
 
     v5->field_C[v13].field_18 = windowGetFont();
-    v5->field_C[v13].field_1A = word_56DB60;
+    v5->field_C[v13].field_1A = defaultOption.flags;
     v5->field_C[v13].field_14 = a3;
 }
 
@@ -585,24 +565,25 @@ int dialogQuit()
 }
 
 // 0x4311B8
-int dialogSetOptionWindow(int a1, int a2, int a3, int a4, char* a5)
+int dialogSetOptionWindow(int x, int y, int width, int height, char* backgroundFileName)
 {
-    dword_56DB6C = a1;
-    dword_56DB70 = a2;
-    dword_56DB64 = a3;
-    dword_56DB68 = a4;
-    off_56DB74 = a5;
+    defaultOption.x = x;
+    defaultOption.y = y;
+    defaultOption.width = width;
+    defaultOption.height = height;
+    defaultOption.backgroundFileName = backgroundFileName;
+
     return 0;
 }
 
 // 0x4311E0
-int dialogSetReplyWindow(int a1, int a2, int a3, int a4, char* a5)
+int dialogSetReplyWindow(int x, int y, int width, int height, char* backgroundFileName)
 {
-    dword_56DB84 = a1;
-    dword_56DB88 = a2;
-    dword_56DB7C = a3;
-    dword_56DB80 = a4;
-    off_56DB8C = a5;
+    defaultReply.x = x;
+    defaultReply.y = y;
+    defaultReply.width = width;
+    defaultReply.height = height;
+    defaultReply.backgroundFileName = backgroundFileName;
 
     return 0;
 }
@@ -711,9 +692,18 @@ int dialogSetReplyColor(float a1, float a2, float a3)
 }
 
 // 0x431420
-int dialogSetReplyFlags(int flags)
+int dialogSetOptionFlags(short flags)
 {
-    word_56DB60 = flags & 0xFFFF;
+    defaultOption.flags = flags;
+
+    return 1;
+}
+
+// 0x431420
+int dialogSetReplyFlags(short flags)
+{
+    // FIXME: Obvious error, flags should be set on |defaultReply|.
+    defaultOption.flags = flags;
 
     return 1;
 }
