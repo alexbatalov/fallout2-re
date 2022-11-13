@@ -1,4 +1,4 @@
-#include "game_memory.h"
+#include "game/gmemory.h"
 
 #include "db.h"
 #include "dictionary.h"
