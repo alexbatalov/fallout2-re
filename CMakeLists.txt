@@ -110,8 +110,6 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/game_sound.h"
     "src/geometry.c"
     "src/geometry.h"
-    "src/grayscale.c"
-    "src/grayscale.h"
     "src/heap.c"
     "src/heap.h"
     "src/interface.c"

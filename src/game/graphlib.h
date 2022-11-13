@@ -13,5 +13,7 @@ extern int match_position;
 int HighRGB(int a1);
 int CompLZS(unsigned char* a1, unsigned char* a2, int a3);
 int DecodeLZS(unsigned char* a1, unsigned char* a2, int a3);
+void InitGreyTable(int a1, int a2);
+void grey_buf(unsigned char* surface, int width, int height, int pitch);
 
 #endif /* FALLOUT_GAME_GRAPHLIB_H_ */

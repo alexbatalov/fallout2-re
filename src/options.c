@@ -14,8 +14,8 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gmouse.h"
+#include "game/graphlib.h"
 #include "game_sound.h"
-#include "grayscale.h"
 #include "loadsave.h"
 #include "memory.h"
 #include "scripts.h"
@@ -789,7 +789,7 @@ void _ShadeScreen(bool a1)
         int windowWidth = 640;
         int windowHeight = windowGetHeight(gIsoWindow);
         unsigned char* windowBuffer = windowGetBuffer(gIsoWindow);
-        grayscalePaletteApply(windowBuffer, windowWidth, windowHeight, windowWidth);
+        grey_buf(windowBuffer, windowWidth, windowHeight, windowWidth);
 
         win_draw(gIsoWindow);
     }
@@ -967,7 +967,7 @@ int _init_options_menu()
 
     _SetSystemPrefs();
 
-    grayscalePaletteUpdate(0, 255);
+    InitGreyTable(0, 255);
 
     return 0;
 }
