@@ -1,6 +1,6 @@
-#ifndef DISKSPCE_H
-#define DISKSPCE_H
+#ifndef FALLOUT_GAME_DISKSPCE_H_
+#define FALLOUT_GAME_DISKSPCE_H_
 
 int GetFreeDiskSpace(long* diskSpacePtr);
 
-#endif /* DISKSPCE_H */
+#endif /* FALLOUT_GAME_DISKSPCE_H_ */
