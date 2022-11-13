@@ -226,7 +226,7 @@ int gameMoviePlay(int movie, int flags)
 
     bool cursorWasHidden = mouse_hidden();
     if (cursorWasHidden) {
-        gameMouseSetCursor(MOUSE_CURSOR_NONE);
+        gmouse_set_cursor(MOUSE_CURSOR_NONE);
         mouse_show();
     }
 
@@ -265,7 +265,7 @@ int gameMoviePlay(int movie, int flags)
 
     cycle_enable();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     if (!cursorWasHidden) {
         mouse_show();

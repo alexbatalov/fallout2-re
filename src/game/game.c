@@ -230,7 +230,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">iso_init\t");
 
-    if (gameMouseInit() != 0) {
+    if (gmouse_init() != 0) {
         debugPrint("Failed on gmouse_init\n");
         return -1;
     }
@@ -368,7 +368,7 @@ void game_reset()
     movieEffectsReset();
     gameMoviesReset();
     isoReset();
-    gameMouseReset();
+    gmouse_reset();
     protoReset();
     _scr_reset();
     game_load_info();
@@ -402,7 +402,7 @@ void game_exit()
     scriptsExit();
     anim_exit();
     protoExit();
-    gameMouseExit();
+    gmouse_exit();
     isoExit();
     movieEffectsExit();
     movieExit();
@@ -451,22 +451,22 @@ int game_handle_input(int eventCode, bool isInCombatMode)
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
                 if (mouseX == _scr_size.left || mouseX == _scr_size.right
                     || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
-                    _gmouse_clicked_on_edge = true;
+                    gmouse_clicked_on_edge = true;
                 } else {
-                    _gmouse_clicked_on_edge = false;
+                    gmouse_clicked_on_edge = false;
                 }
             }
         } else {
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
-                _gmouse_clicked_on_edge = false;
+                gmouse_clicked_on_edge = false;
             }
         }
 
-        _gmouse_handle_event(mouseX, mouseY, mouseState);
+        gmouse_handle_event(mouseX, mouseY, mouseState);
         return 0;
     }
 
-    if (_gmouse_is_scrolling()) {
+    if (gmouse_is_scrolling()) {
         return 0;
     }
 
@@ -487,18 +487,18 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                 if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
                     if (mouseX == _scr_size.left || mouseX == _scr_size.right
                         || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
-                        _gmouse_clicked_on_edge = true;
+                        gmouse_clicked_on_edge = true;
                     } else {
-                        _gmouse_clicked_on_edge = false;
+                        gmouse_clicked_on_edge = false;
                     }
                 }
             } else {
                 if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
-                    _gmouse_clicked_on_edge = false;
+                    gmouse_clicked_on_edge = false;
                 }
             }
 
-            _gmouse_handle_event(mouseX, mouseY, mouseEvent);
+            gmouse_handle_event(mouseX, mouseY, mouseEvent);
         }
         break;
     case KEY_CTRL_Q:
@@ -536,7 +536,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_UPPERCASE_M:
     case KEY_LOWERCASE_M:
-        gameMouseCycleMode();
+        gmouse_3d_toggle_mode();
         break;
     case KEY_UPPERCASE_B:
     case KEY_LOWERCASE_B:
@@ -638,8 +638,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
             }
 
             if (mode != -1) {
-                gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-                gameMouseSetMode(mode);
+                gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+                gmouse_3d_set_mode(mode);
             }
         }
         break;
@@ -676,7 +676,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_EXCLAMATION:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             action_skill_use(SKILL_SNEAK);
         }
         break;
@@ -684,56 +684,56 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_AT:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_LOCKPICK);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_LOCKPICK);
         }
         break;
     case KEY_3:
     case KEY_NUMBER_SIGN:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_STEAL);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_STEAL);
         }
         break;
     case KEY_4:
     case KEY_DOLLAR:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_TRAPS);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_TRAPS);
         }
         break;
     case KEY_5:
     case KEY_PERCENT:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_FIRST_AID);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_FIRST_AID);
         }
         break;
     case KEY_6:
     case KEY_CARET:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_DOCTOR);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_DOCTOR);
         }
         break;
     case KEY_7:
     case KEY_AMPERSAND:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_SCIENCE);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_SCIENCE);
         }
         break;
     case KEY_8:
     case KEY_ASTERISK:
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
-            gameMouseSetCursor(MOUSE_CURSOR_USE_CROSSHAIR);
-            gameMouseSetMode(GAME_MOUSE_MODE_USE_REPAIR);
+            gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_REPAIR);
         }
         break;
     case KEY_MINUS:
@@ -876,8 +876,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 void game_ui_disable(int a1)
 {
     if (!game_ui_disabled) {
-        gameMouseObjectsHide();
-        _gmouse_disable(a1);
+        gmouse_3d_off();
+        gmouse_disable(a1);
         kb_disable();
         interfaceBarDisable();
         game_ui_disabled = true;
@@ -892,8 +892,8 @@ void game_ui_enable()
         interfaceBarEnable();
         kb_enable();
         kb_clear();
-        _gmouse_enable();
-        gameMouseObjectsShow();
+        gmouse_enable();
+        gmouse_3d_on();
         game_ui_disabled = false;
     }
 }
@@ -1091,9 +1091,9 @@ static void game_unload_info()
 static void game_help()
 {
     bool isoWasEnabled = isoDisable();
-    gameMouseObjectsHide();
+    gmouse_3d_off();
 
-    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    gmouse_set_cursor(MOUSE_CURSOR_NONE);
 
     bool colorCycleWasEnabled = cycle_is_enabled();
     cycle_disable();
@@ -1135,7 +1135,7 @@ static void game_help()
         cycle_enable();
     }
 
-    gameMouseObjectsShow();
+    gmouse_3d_on();
 
     if (isoWasEnabled) {
         isoEnable();
@@ -1149,13 +1149,13 @@ int game_quit_with_confirm()
 
     bool gameMouseWasVisible;
     if (isoWasEnabled) {
-        gameMouseWasVisible = gameMouseObjectsIsVisible();
+        gameMouseWasVisible = gmouse_3d_is_on();
     } else {
         gameMouseWasVisible = false;
     }
 
     if (gameMouseWasVisible) {
-        gameMouseObjectsHide();
+        gmouse_3d_off();
     }
 
     bool cursorWasHidden = mouse_hidden();
@@ -1163,8 +1163,8 @@ int game_quit_with_confirm()
         mouse_show();
     }
 
-    int oldCursor = gameMouseGetCursor();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    int oldCursor = gmouse_get_cursor();
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     int rc;
 
@@ -1180,14 +1180,14 @@ int game_quit_with_confirm()
         rc = -1;
     }
 
-    gameMouseSetCursor(oldCursor);
+    gmouse_set_cursor(oldCursor);
 
     if (cursorWasHidden) {
         mouse_hide();
     }
 
     if (gameMouseWasVisible) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
     }
 
     if (isoWasEnabled) {

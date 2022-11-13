@@ -236,7 +236,7 @@ int falloutMain(int argc, char** argv)
                 mainMenuWindowHide(false);
                 mouse_show();
                 showOptionsWithInitialKeyCode(112);
-                gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+                gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                 mouse_show();
                 mainMenuWindowUnhide(0);
                 break;
@@ -329,7 +329,7 @@ int _main_load_new(char* mapFileName)
     loadColorTable("color.pal");
     paletteFadeTo(cmap);
     _map_init();
-    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    gmouse_set_cursor(MOUSE_CURSOR_NONE);
     mouse_show();
     mapLoadByName(mapFileName);
     wmMapMusicStart();
@@ -355,7 +355,7 @@ int main_loadgame_new()
 
     _map_init();
 
-    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    gmouse_set_cursor(MOUSE_CURSOR_NONE);
     mouse_show();
 
     return 0;
@@ -520,7 +520,7 @@ void showDeath()
 {
     art_flush();
     cycle_disable();
-    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    gmouse_set_cursor(MOUSE_CURSOR_NONE);
 
     bool oldCursorIsHidden = mouse_hidden();
     if (oldCursorIsHidden) {
@@ -628,7 +628,7 @@ void showDeath()
         mouse_hide();
     }
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     cycle_enable();
 }

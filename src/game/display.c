@@ -355,19 +355,19 @@ void display_scroll_down(int btn, int keyCode)
 // 0x431BC8
 void display_arrow_up(int btn, int keyCode)
 {
-    gameMouseSetCursor(MOUSE_CURSOR_SMALL_ARROW_UP);
+    gmouse_set_cursor(MOUSE_CURSOR_SMALL_ARROW_UP);
 }
 
 // 0x431BD4
 void display_arrow_down(int btn, int keyCode)
 {
-    gameMouseSetCursor(MOUSE_CURSOR_SMALL_ARROW_DOWN);
+    gmouse_set_cursor(MOUSE_CURSOR_SMALL_ARROW_DOWN);
 }
 
 // 0x431BE0
 void display_arrow_restore(int btn, int keyCode)
 {
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 }
 
 // 0x431BEC

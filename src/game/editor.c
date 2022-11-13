@@ -1200,7 +1200,7 @@ static int CharEditStart()
     }
 
     cycle_disable();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     if (!messageListInit(&editor_message_file)) {
         return -1;
@@ -1800,7 +1800,7 @@ static void RstrBckgProc()
 
     cycle_enable();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 }
 
 // CharEditInit

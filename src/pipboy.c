@@ -289,9 +289,9 @@ int pipboyWindowInit(int intent)
     gPipboyWindowIsoWasEnabled = isoDisable();
 
     cycle_disable();
-    gameMouseObjectsHide();
+    gmouse_3d_off();
     indicatorBarHide();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     gPipboyRestOptionsCount = PIPBOY_REST_DURATION_COUNT_WITHOUT_PARTY;
 
@@ -533,7 +533,7 @@ void pipboyWindowFree()
 
     cycle_enable();
     indicatorBarShow();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     interfaceBarRefresh();
 
     // NOTE: Uninline.
@@ -1748,7 +1748,7 @@ void pipboyWindowDestroyButtons()
 // 0x499A24
 bool pipboyRest(int hours, int minutes, int duration)
 {
-    gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
+    gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
 
     bool rc = false;
 
@@ -1924,7 +1924,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             }
         } else {
             // No one needs healing.
-            gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+            gmouse_set_cursor(MOUSE_CURSOR_ARROW);
             return rc;
         }
     }
@@ -1943,7 +1943,7 @@ bool pipboyRest(int hours, int minutes, int duration)
     pipboyDrawDate();
     win_draw(gPipboyWindow);
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     return rc;
 }
@@ -2014,7 +2014,7 @@ int pipboyRenderScreensaver()
         bombs[index].field_10 = 0;
     }
 
-    _gmouse_disable(0);
+    gmouse_disable(0);
 
     unsigned char* buf = (unsigned char*)internal_malloc(412 * 374);
     if (buf == NULL) {
@@ -2167,7 +2167,7 @@ int pipboyRenderScreensaver()
     internal_free(buf);
 
     win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
-    _gmouse_enable();
+    gmouse_enable();
 
     return 0;
 }

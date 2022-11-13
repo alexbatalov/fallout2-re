@@ -273,8 +273,8 @@ void _map_init()
     }
 
     _map_new_map();
-    tickersAdd(gameMouseRefresh);
-    _gmouse_disable(0);
+    tickersAdd(gmouse_bk_process);
+    gmouse_disable(0);
     win_show(gIsoWindow);
 }
 
@@ -282,8 +282,8 @@ void _map_init()
 void _map_exit()
 {
     win_hide(gIsoWindow);
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-    tickersRemove(gameMouseRefresh);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
+    tickersRemove(gmouse_bk_process);
     if (!messageListFree(&gMapMessageList)) {
         debugPrint("\nError exiting map_msg_file!");
     }
@@ -295,7 +295,7 @@ void isoEnable()
     if (!gIsoEnabled) {
         textObjectsEnable();
         if (!game_ui_is_disabled()) {
-            _gmouse_enable();
+            gmouse_enable();
         }
         tickersAdd(object_animate);
         tickersAdd(dude_fidget);
@@ -314,7 +314,7 @@ bool isoDisable()
     _scr_disable_critters();
     tickersRemove(dude_fidget);
     tickersRemove(object_animate);
-    _gmouse_disable(0);
+    gmouse_disable(0);
     textObjectsDisable();
 
     gIsoEnabled = false;
@@ -337,10 +337,10 @@ int mapSetElevation(int elevation)
     }
 
     bool gameMouseWasVisible = false;
-    if (gameMouseGetCursor() != MOUSE_CURSOR_WAIT_PLANET) {
-        gameMouseWasVisible = gameMouseObjectsIsVisible();
-        gameMouseObjectsHide();
-        gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    if (gmouse_get_cursor() != MOUSE_CURSOR_WAIT_PLANET) {
+        gameMouseWasVisible = gmouse_3d_is_on();
+        gmouse_3d_off();
+        gmouse_set_cursor(MOUSE_CURSOR_NONE);
     }
 
     if (elevation != gElevation) {
@@ -358,7 +358,7 @@ int mapSetElevation(int elevation)
     }
 
     if (gameMouseWasVisible) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
     }
 
     return 0;
@@ -556,7 +556,7 @@ int mapScroll(int dx, int dy)
         return -1;
     }
 
-    gameMouseObjectsHide();
+    gmouse_3d_off();
 
     int centerScreenX;
     int centerScreenY;
@@ -762,11 +762,11 @@ int mapLoad(File* stream)
     backgroundSoundLoad("wind2", 12, 13, 16);
     isoDisable();
     _partyMemberPrepLoad();
-    _gmouse_disable_scrolling();
+    gmouse_disable_scrolling();
 
-    int savedMouseCursorId = gameMouseGetCursor();
-    gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
-    fileSetReadProgressHandler(gameMouseRefresh, 32768);
+    int savedMouseCursorId = gmouse_get_cursor();
+    gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
+    fileSetReadProgressHandler(gmouse_bk_process, 32768);
     tileDisable();
 
     int rc = 0;
@@ -947,8 +947,8 @@ err:
     _map_place_dude_and_mouse();
     fileSetReadProgressHandler(NULL, 0);
     isoEnable();
-    _gmouse_disable_scrolling();
-    gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
+    gmouse_disable_scrolling();
+    gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
 
     if (scriptsExecStartProc() == -1) {
         debugPrint("\n   Error: scr_load_all_scripts failed!");
@@ -982,10 +982,10 @@ err:
     fileSetReadProgressHandler(NULL, 0);
 
     if (game_ui_is_disabled() == 0) {
-        _gmouse_enable_scrolling();
+        gmouse_enable_scrolling();
     }
 
-    gameMouseSetCursor(savedMouseCursorId);
+    gmouse_set_cursor(savedMouseCursorId);
 
     gEnteringElevation = -1;
     gEnteringTile = -1;
@@ -1184,9 +1184,9 @@ int mapHandleTransition()
         return 0;
     }
 
-    gameMouseObjectsHide();
+    gmouse_3d_off();
 
-    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    gmouse_set_cursor(MOUSE_CURSOR_NONE);
 
     if (gMapTransition.map == -1) {
         if (!isInCombat()) {
@@ -1535,8 +1535,8 @@ void _map_place_dude_and_mouse()
         _partyMemberSyncPosition();
     }
 
-    gameMouseResetBouncingCursorFid();
-    gameMouseObjectsShow();
+    gmouse_3d_reset_fid();
+    gmouse_3d_on();
 }
 
 // 0x484210

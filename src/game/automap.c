@@ -371,7 +371,7 @@ void automap(bool isInGame, bool isUsingScanner)
     draw_top_down_map(window, elevation, frmData[AUTOMAP_FRM_BACKGROUND], autoflags);
 
     bool isoWasEnabled = isoDisable();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     bool done = false;
     while (!done) {

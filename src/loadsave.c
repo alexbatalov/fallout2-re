@@ -280,7 +280,7 @@ int lsgSaveGame(int mode)
             internal_free(_snapshot);
         }
 
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
         if (v6 != -1) {
             return 1;
@@ -594,7 +594,7 @@ int lsgSaveGame(int mode)
         if (rc == 1) {
             int v50 = _GetComment(_slot_cursor);
             if (v50 == -1) {
-                gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+                gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                 soundPlayFile("iisxxxx1");
                 debugPrint("\nLOADSAVE: ** Error getting save file comment **\n");
 
@@ -609,11 +609,11 @@ int lsgSaveGame(int mode)
                 dialog_out(_str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
                 rc = -1;
             } else if (v50 == 0) {
-                gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+                gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                 rc = -1;
             } else if (v50 == 1) {
                 if (lsgPerformSaveGame() == -1) {
-                    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+                    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                     soundPlayFile("iisxxxx1");
 
                     // Error saving game!
@@ -685,7 +685,7 @@ int lsgSaveGame(int mode)
         }
     }
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     lsgWindowFree(LOAD_SAVE_WINDOW_TYPE_SAVE_GAME);
 
@@ -708,9 +708,9 @@ int _QuickSnapShot()
         return -1;
     }
 
-    bool gameMouseWasVisible = gameMouseObjectsIsVisible();
+    bool gameMouseWasVisible = gmouse_3d_is_on();
     if (gameMouseWasVisible) {
-        gameMouseObjectsHide();
+        gmouse_3d_off();
     }
 
     mouse_hide();
@@ -718,7 +718,7 @@ int _QuickSnapShot()
     mouse_show();
 
     if (gameMouseWasVisible) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
     }
 
     unsigned char* windowBuffer = windowGetBuffer(gIsoWindow);
@@ -766,7 +766,7 @@ int lsgLoadGame(int mode)
             if (window != -1) {
                 windowDestroy(window);
             }
-            gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+            gmouse_set_cursor(MOUSE_CURSOR_ARROW);
             return 1;
         }
 
@@ -784,7 +784,7 @@ int lsgLoadGame(int mode)
             windowDestroy(window);
         }
 
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
         soundPlayFile("iisxxxx1");
         strcpy(_str0, getmsg(&gLoadSaveMessageList, &messageListItem, 134));
         strcpy(_str1, getmsg(&gLoadSaveMessageList, &messageListItem, 135));
@@ -820,7 +820,7 @@ int lsgLoadGame(int mode)
     }
 
     if (_GetSlotList() == -1) {
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
         win_draw(gLoadSaveWindow);
         soundPlayFile("iisxxxx1");
         strcpy(_str0, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 106));
@@ -1092,7 +1092,7 @@ int lsgLoadGame(int mode)
                 break;
             default:
                 if (lsgLoadGameInSlot(_slot_cursor) == -1) {
-                    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+                    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                     soundPlayFile("iisxxxx1");
                     strcpy(_str0, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 134));
                     strcpy(_str1, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 135));
@@ -1151,12 +1151,12 @@ int lsgWindowInit(int windowType)
 
     cycle_disable();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     if (windowType == LOAD_SAVE_WINDOW_TYPE_SAVE_GAME || windowType == LOAD_SAVE_WINDOW_TYPE_PICK_QUICK_SAVE_SLOT) {
-        bool gameMouseWasVisible = gameMouseObjectsIsVisible();
+        bool gameMouseWasVisible = gmouse_3d_is_on();
         if (gameMouseWasVisible) {
-            gameMouseObjectsHide();
+            gmouse_3d_off();
         }
 
         mouse_hide();
@@ -1164,7 +1164,7 @@ int lsgWindowInit(int windowType)
         mouse_show();
 
         if (gameMouseWasVisible) {
-            gameMouseObjectsShow();
+            gmouse_3d_on();
         }
 
         unsigned char* windowBuf = windowGetBuffer(gIsoWindow);
@@ -1193,7 +1193,7 @@ int lsgWindowInit(int windowType)
             }
 
             cycle_enable();
-            gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+            gmouse_set_cursor(MOUSE_CURSOR_ARROW);
             return -1;
         }
     }
@@ -1219,7 +1219,7 @@ int lsgWindowInit(int windowType)
         }
 
         cycle_enable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
 
@@ -1358,7 +1358,7 @@ int lsgWindowFree(int windowType)
     }
 
     cycle_enable();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     return 0;
 }
@@ -1368,7 +1368,7 @@ int lsgPerformSaveGame()
 {
     _ls_error_code = 0;
     _map_backup_count = -1;
-    gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
+    gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
 
     backgroundSoundPause();
 
@@ -1472,7 +1472,7 @@ int lsgLoadGameInSlot(int slot)
     if (isInCombat()) {
         interfaceBarEndButtonsHide(false);
         combat_over_from_load();
-        gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
+        gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
     }
 
     sprintf(_gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
@@ -2143,7 +2143,7 @@ int _DummyFunc(File* stream)
 int _PrepLoad(File* stream)
 {
     game_reset();
-    gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
+    gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
     gMapHeader.name[0] = '\0';
     gameTimeSetTime(_LSData[_slot_cursor].gameTime);
     return 0;

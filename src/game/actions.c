@@ -1513,15 +1513,15 @@ Object* pick_object(int objectType, bool a2)
         _get_input();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
-    gameMouseSetCursor(MOUSE_CURSOR_PLUS);
-    gameMouseObjectsHide();
+    gmouse_set_cursor(MOUSE_CURSOR_PLUS);
+    gmouse_3d_off();
 
     do {
         if (_get_input() == -2) {
             mouseEvent = mouse_get_buttons();
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
                 keyCode = 0;
-                foundObject = gameMouseGetObjectUnderCursor(objectType, a2, gElevation);
+                foundObject = object_under_mouse(objectType, a2, gElevation);
                 break;
             }
 
@@ -1532,8 +1532,8 @@ Object* pick_object(int objectType, bool a2)
         }
     } while (game_user_wants_to_quit == 0);
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-    gameMouseObjectsShow();
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
+    gmouse_3d_on();
 
     if (keyCode == KEY_ESCAPE) {
         return NULL;
@@ -1566,8 +1566,8 @@ int pick_hex()
                 rotation = 0;
             }
 
-            objectSetRotation(gGameMouseBouncingCursor, rotation, &rect);
-            tileWindowRefreshRect(&rect, gGameMouseBouncingCursor->elevation);
+            objectSetRotation(obj_mouse, rotation, &rect);
+            tileWindowRefreshRect(&rect, obj_mouse->elevation);
         }
 
         if (inputEvent == KEY_CTRL_ARROW_LEFT) {
@@ -1576,8 +1576,8 @@ int pick_hex()
                 rotation = 5;
             }
 
-            objectSetRotation(gGameMouseBouncingCursor, rotation, &rect);
-            tileWindowRefreshRect(&rect, gGameMouseBouncingCursor->elevation);
+            objectSetRotation(obj_mouse, rotation, &rect);
+            tileWindowRefreshRect(&rect, obj_mouse->elevation);
         }
 
         if (inputEvent == KEY_PAGE_UP || inputEvent == KEY_PAGE_DOWN) {

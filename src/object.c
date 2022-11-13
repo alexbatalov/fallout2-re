@@ -1974,7 +1974,7 @@ int objectDestroy(Object* object, Rect* rect)
         return -1;
     }
 
-    _gmouse_remove_item_outline(object);
+    gmouse_remove_item_outline(object);
 
     ObjectListNode* node;
     ObjectListNode* previousNode;
@@ -2370,8 +2370,8 @@ bool _obj_occupied(int tile, int elevation)
     ObjectListNode* objectListNode = gObjectListHeadByTile[tile];
     while (objectListNode != NULL) {
         if (objectListNode->obj->elevation == elevation
-            && objectListNode->obj != gGameMouseBouncingCursor
-            && objectListNode->obj != gGameMouseHexCursor) {
+            && objectListNode->obj != obj_mouse
+            && objectListNode->obj != obj_mouse_flat) {
             return true;
         }
         objectListNode = objectListNode->next;

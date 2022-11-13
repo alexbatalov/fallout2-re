@@ -115,8 +115,8 @@ int skilldexWindowInit()
     gSkilldexWindowOldFont = fontGetCurrent();
     gSkilldexWindowIsoWasEnabled = false;
 
-    gameMouseObjectsHide();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_3d_off();
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     if (!messageListInit(&gSkilldexMessageList)) {
         return -1;
@@ -211,7 +211,7 @@ int skilldexWindowInit()
     gSkilldexWindowIsoWasEnabled = isoDisable();
 
     cycle_disable();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     gSkilldexWindowBuffer = windowGetBuffer(gSkilldexWindow);
     memcpy(gSkilldexWindowBuffer,
@@ -362,5 +362,5 @@ void skilldexWindowFree()
 
     cycle_enable();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 }

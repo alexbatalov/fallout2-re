@@ -2526,12 +2526,12 @@ static void combat_begin(Object* a1)
 
         tileWindowRefresh();
         game_ui_disable(0);
-        gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
+        gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
         combat_ending_guy = NULL;
         combat_begin_extra(a1);
         caiTeamCombatInit(combat_list, list_total);
         interfaceBarEndButtonsShow(true);
-        _gmouse_enable_scrolling();
+        gmouse_enable_scrolling();
 
         if (v1 != NULL && !_isLoadingGame()) {
             int fid = art_id(FID_TYPE(v1->fid),
@@ -2750,7 +2750,7 @@ static void combat_over()
 
     combat_ai_over();
     game_ui_enable();
-    gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
+    gmouse_3d_set_mode(GAME_MOUSE_MODE_MOVE);
     interfaceRenderArmorClass(true);
 
     if (critter_is_prone(gDude) && !critter_is_dead(gDude) && combat_ending_guy == NULL) {
@@ -3179,7 +3179,7 @@ static int combat_turn(Object* a1, bool a2)
 
             if (a1 == gDude) {
                 game_ui_enable();
-                _gmouse_3d_refresh();
+                gmouse_3d_refresh();
 
                 if (gcsd != NULL) {
                     combat_attack_this(gcsd->defender);
@@ -3200,7 +3200,7 @@ static int combat_turn(Object* a1, bool a2)
 
                 if (combat_input() == -1) {
                     game_ui_disable(1);
-                    gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
+                    gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
                     a1->data.critter.combat.damageLastTurn = 0;
                     interfaceBarEndButtonsRenderRedLights();
                     combat_outline_off();
@@ -3225,7 +3225,7 @@ static int combat_turn(Object* a1, bool a2)
 
         if (a1 == gDude) {
             game_ui_disable(1);
-            gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
+            gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
             interfaceBarEndButtonsRenderRedLights();
             combat_outline_off();
             interfaceRenderActionPoints(-1, -1);
@@ -3362,11 +3362,11 @@ void combat(STRUCT_664980* attack)
 
         if (combat_end_due_to_load) {
             game_ui_enable();
-            gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
+            gmouse_3d_set_mode(GAME_MOUSE_MODE_MOVE);
         } else {
-            _gmouse_disable_scrolling();
+            gmouse_disable_scrolling();
             interfaceBarEndButtonsHide(true);
-            _gmouse_enable_scrolling();
+            gmouse_enable_scrolling();
             combat_over();
             scriptsExecMapUpdateProc();
         }
@@ -5205,7 +5205,7 @@ void combat_anim_begin()
 {
     if (++combat_turn_running == 1 && gDude == main_ctd.attacker) {
         game_ui_disable(1);
-        gameMouseSetCursor(26);
+        gmouse_set_cursor(26);
         if (combat_highlight == 2) {
             combat_outline_off();
         }
@@ -5461,8 +5461,8 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         game_ui_enable();
     }
 
-    _gmouse_disable(0);
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_disable(0);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     int eventCode;
     while (true) {
@@ -5481,7 +5481,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         }
     }
 
-    _gmouse_enable();
+    gmouse_enable();
 
     if (gameUiWasDisabled) {
         game_ui_disable(0);
@@ -5688,7 +5688,7 @@ void combat_outline_on()
         return;
     }
 
-    if (gameMouseGetMode() != GAME_MOUSE_MODE_CROSSHAIR) {
+    if (gmouse_3d_get_mode() != GAME_MOUSE_MODE_CROSSHAIR) {
         return;
     }
 

@@ -479,10 +479,10 @@ static int elevator_start(int elevator)
     bk_enable = isoDisable();
     cycle_disable();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-    gameMouseObjectsHide();
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
+    gmouse_3d_off();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     scriptsDisable();
 
     int index;
@@ -504,7 +504,7 @@ static int elevator_start(int elevator)
         }
 
         cycle_enable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
 
@@ -548,7 +548,7 @@ static int elevator_start(int elevator)
         }
 
         cycle_enable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
 
@@ -579,7 +579,7 @@ static int elevator_start(int elevator)
         }
 
         cycle_enable();
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
 
@@ -644,7 +644,7 @@ static void elevator_end()
 
     cycle_enable();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 }
 
 // 0x43F73C

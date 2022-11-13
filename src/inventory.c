@@ -1031,7 +1031,7 @@ bool _setup_inventory(int inventoryWindowType)
 
     bool isoWasEnabled = isoDisable();
 
-    _gmouse_disable(0);
+    gmouse_disable(0);
 
     return isoWasEnabled;
 }
@@ -1074,7 +1074,7 @@ void _exit_inventory(bool shouldEnableIso)
 
     windowDestroy(gInventoryWindow);
 
-    _gmouse_enable();
+    gmouse_enable();
 
     if (_dropped_explosive) {
         Attack v1;
@@ -1550,9 +1550,9 @@ int inventoryCommonInit()
         game_ui_enable();
     }
 
-    gameMouseObjectsHide();
+    gmouse_3d_off();
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     int index;
     for (index = 0; index < INVENTORY_WINDOW_CURSOR_COUNT; index++) {
@@ -1633,11 +1633,11 @@ void inventoryItemSlotOnMouseEnter(int btn, int keyCode)
 
         Object* a2a = NULL;
         if (_inven_from_button(keyCode, &a2a, NULL, NULL) != 0) {
-            gameMouseRenderPrimaryAction(x, y, 3, gInventoryWindowMaxX, gInventoryWindowMaxY);
+            gmouse_3d_build_pick_frame(x, y, 3, gInventoryWindowMaxX, gInventoryWindowMaxY);
 
             int v5 = 0;
             int v6 = 0;
-            _gmouse_3d_pick_frame_hot(&v5, &v6);
+            gmouse_3d_pick_frame_hot(&v5, &v6);
 
             InventoryCursorData* cursorData = &(gInventoryCursorData[INVENTORY_WINDOW_CURSOR_PICK]);
             mouse_set_shape(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, v5, v6, 0);
@@ -3096,7 +3096,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
     }
 
     const InventoryWindowDescription* windowDescription = &(gInventoryWindowDescriptions[inventoryWindowType]);
-    gameMouseRenderActionMenuItems(x, y, actionMenuItems, actionMenuItemsLength,
+    gmouse_3d_build_menu_frame(x, y, actionMenuItems, actionMenuItemsLength,
         windowDescription->width + windowDescription->x,
         windowDescription->height + windowDescription->y);
 
@@ -3152,7 +3152,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
             } else {
                 menuItemIndex--;
             }
-            gameMouseHighlightActionMenuItemAtIndex(menuItemIndex);
+            gmouse_3d_highlight_menu_frame(menuItemIndex);
             win_draw_rect(gInventoryWindow, &rect);
             previousMouseY = y;
         }

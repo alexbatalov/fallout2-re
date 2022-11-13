@@ -4513,7 +4513,7 @@ static int wmInterfaceInit()
     indicatorBarHide();
     isoDisable();
     cycle_disable();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     int worldmapWindowX = 0;
     int worldmapWindowY = 0;
@@ -5145,7 +5145,7 @@ static void wmMouseBkProc()
         dy = -1;
     }
 
-    int oldMouseCursor = gameMouseGetCursor();
+    int oldMouseCursor = gmouse_get_cursor();
     int newMouseCursor = oldMouseCursor;
 
     if (dx != 0 || dy != 0) {
@@ -5190,7 +5190,7 @@ static void wmMouseBkProc()
     }
 
     if (oldMouseCursor != newMouseCursor) {
-        gameMouseSetCursor(newMouseCursor);
+        gmouse_set_cursor(newMouseCursor);
     }
 }
 

@@ -521,12 +521,12 @@ int optionsWindowInit()
 
     gOptionsWindowIsoWasEnabled = isoDisable();
 
-    gOptionsWindowGameMouseObjectsWasVisible = gameMouseObjectsIsVisible();
+    gOptionsWindowGameMouseObjectsWasVisible = gmouse_3d_is_on();
     if (gOptionsWindowGameMouseObjectsWasVisible) {
-        gameMouseObjectsHide();
+        gmouse_3d_off();
     }
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     gOptionsWindowBuffer = windowGetBuffer(gOptionsWindow);
     memcpy(gOptionsWindowBuffer, gOptionsWindowFrmData[OPTIONS_WINDOW_FRM_BACKGROUND], gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BACKGROUND].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BACKGROUND].height);
@@ -581,7 +581,7 @@ int optionsWindowFree()
     }
 
     if (gOptionsWindowGameMouseObjectsWasVisible) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
     }
 
     if (gOptionsWindowIsoWasEnabled) {
@@ -607,13 +607,13 @@ int showPause(bool a1)
         gOptionsWindowIsoWasEnabled = isoDisable();
         cycle_disable();
 
-        gameMouseWasVisible = gameMouseObjectsIsVisible();
+        gameMouseWasVisible = gmouse_3d_is_on();
         if (gameMouseWasVisible) {
-            gameMouseObjectsHide();
+            gmouse_3d_off();
         }
     }
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     _ShadeScreen(a1);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
@@ -760,7 +760,7 @@ int showPause(bool a1)
 
     if (!a1) {
         if (gameMouseWasVisible) {
-            gameMouseObjectsShow();
+            gmouse_3d_on();
         }
 
         if (gOptionsWindowIsoWasEnabled) {
@@ -769,7 +769,7 @@ int showPause(bool a1)
 
         cycle_enable();
 
-        gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+        gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     }
 
     fontSetCurrent(gOptionsWindowOldFont);
@@ -941,7 +941,7 @@ void _JustUpdate_()
     gPreferencesMouseSensitivity1 = min(max(gPreferencesMouseSensitivity1, 1.0), 2.5);
 
     textObjectsSetBaseDelay(gPreferencesTextBaseDelay1);
-    gameMouseLoadItemHighlight();
+    gmouse_3d_synch_item_highlight();
 
     double textLineDelay = (gPreferencesTextBaseDelay1 + (-1.0)) * 0.2 * 2.0;
     textLineDelay = min(max(textLineDelay, 0.0), 2.0);

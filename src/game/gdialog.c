@@ -746,7 +746,7 @@ void gdialogEnter(Object* a1, int a2)
 
     Script* script;
     if (scriptGetScript(a1->sid, &script) == -1) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
         isoEnable();
         scriptsExecMapUpdateProc();
         dialog_state_fix = 0;
@@ -901,10 +901,10 @@ int gdialogInitFromScript(int headFid, int reaction)
     gdBlendTableInit();
     cycle_disable();
     if (gdDialogTurnMouseOff) {
-        _gmouse_disable(0);
+        gmouse_disable(0);
     }
-    gameMouseObjectsHide();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_3d_off();
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     textObjectsReset();
 
     if (PID_TYPE(dialog_target->pid) != OBJ_TYPE_ITEM) {
@@ -917,7 +917,7 @@ int gdialogInitFromScript(int headFid, int reaction)
     tickersAdd(gdialog_bk);
     gdSetupFidget(headFid, reaction);
     gdialog_state = 1;
-    _gmouse_disable_scrolling();
+    gmouse_disable_scrolling();
 
     if (headFid == -1) {
         gDialogMusicVol = _gsound_background_volume_get_set(gDialogMusicVol / 2);
@@ -980,7 +980,7 @@ int gdialogExitFromScript()
     cycle_enable();
 
     if (!game_ui_is_disabled()) {
-        _gmouse_enable_scrolling();
+        gmouse_enable_scrolling();
     }
 
     if (gDialogMusicVol == -1) {
@@ -997,14 +997,14 @@ int gdialogExitFromScript()
 
     if (gdDialogTurnMouseOff) {
         if (!game_ui_is_disabled()) {
-            _gmouse_enable();
+            gmouse_enable();
         }
 
         gdDialogTurnMouseOff = 0;
     }
 
     if (!game_ui_is_disabled()) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
     }
 
     gdDialogWentOff = true;
@@ -1900,8 +1900,8 @@ static int gdProcess()
         }
 
         if (keyCode == KEY_CTRL_B && !mouse_click_in(135, 225, 514, 283)) {
-            if (gameMouseGetCursor() != MOUSE_CURSOR_ARROW) {
-                gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+            if (gmouse_get_cursor() != MOUSE_CURSOR_ARROW) {
+                gmouse_set_cursor(MOUSE_CURSOR_ARROW);
             }
         } else {
             if (dialogue_switch_mode == 3) {
@@ -2612,7 +2612,7 @@ static void gdPlayTransition(int anim)
 static void reply_arrow_up(int btn, int keyCode)
 {
     if (gdReplyTooBig) {
-        gameMouseSetCursor(MOUSE_CURSOR_SMALL_ARROW_UP);
+        gmouse_set_cursor(MOUSE_CURSOR_SMALL_ARROW_UP);
     }
 }
 
@@ -2620,14 +2620,14 @@ static void reply_arrow_up(int btn, int keyCode)
 static void reply_arrow_down(int btn, int keyCode)
 {
     if (gdReplyTooBig) {
-        gameMouseSetCursor(MOUSE_CURSOR_SMALL_ARROW_DOWN);
+        gmouse_set_cursor(MOUSE_CURSOR_SMALL_ARROW_DOWN);
     }
 }
 
 // 0x44774C
 static void reply_arrow_restore(int btn, int keyCode)
 {
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 }
 
 // demo_copy_title

@@ -262,13 +262,13 @@ int endgameEndingHandleContinuePlaying()
 
     bool gameMouseWasVisible;
     if (isoWasEnabled) {
-        gameMouseWasVisible = gameMouseObjectsIsVisible();
+        gameMouseWasVisible = gmouse_3d_is_on();
     } else {
         gameMouseWasVisible = false;
     }
 
     if (gameMouseWasVisible) {
-        gameMouseObjectsHide();
+        gmouse_3d_off();
     }
 
     bool oldCursorIsHidden = mouse_hidden();
@@ -276,8 +276,8 @@ int endgameEndingHandleContinuePlaying()
         mouse_show();
     }
 
-    int oldCursor = gameMouseGetCursor();
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    int oldCursor = gmouse_get_cursor();
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     int rc;
 
@@ -292,13 +292,13 @@ int endgameEndingHandleContinuePlaying()
         rc = -1;
     }
 
-    gameMouseSetCursor(oldCursor);
+    gmouse_set_cursor(oldCursor);
     if (oldCursorIsHidden) {
         mouse_hide();
     }
 
     if (gameMouseWasVisible) {
-        gameMouseObjectsShow();
+        gmouse_3d_on();
     }
 
     if (isoWasEnabled) {
@@ -522,7 +522,7 @@ static int endgame_init()
     endgame_map_enabled = isoDisable();
 
     cycle_disable();
-    gameMouseSetCursor(MOUSE_CURSOR_NONE);
+    gmouse_set_cursor(MOUSE_CURSOR_NONE);
 
     bool oldCursorIsHidden = mouse_hidden();
     endgame_mouse_state = oldCursorIsHidden == 0;
@@ -616,7 +616,7 @@ static void endgame_exit()
         mouse_hide();
     }
 
-    gameMouseSetCursor(MOUSE_CURSOR_ARROW);
+    gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     loadColorTable("color.pal");
     paletteFadeTo(cmap);
