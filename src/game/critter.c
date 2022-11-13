@@ -7,7 +7,7 @@
 #include "character_editor.h"
 #include "game/combat.h"
 #include "debug.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "endgame.h"
 #include "game.h"
 #include "geometry.h"

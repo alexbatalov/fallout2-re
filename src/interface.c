@@ -11,7 +11,7 @@
 #include "game/critter.h"
 #include "game/cycle.h"
 #include "debug.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "draw.h"
 #include "endgame.h"
 #include "game.h"

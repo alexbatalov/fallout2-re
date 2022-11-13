@@ -11,7 +11,7 @@
 #include "core.h"
 #include "game/critter.h"
 #include "debug.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "game.h"
 #include "game_config.h"
 #include "game_sound.h"

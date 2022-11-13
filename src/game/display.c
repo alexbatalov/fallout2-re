@@ -1,4 +1,4 @@
-#include "display_monitor.h"
+#include "game/display.h"
 
 #include <string.h>
 

@@ -16,7 +16,7 @@
 #include "game/cycle.h"
 #include "game/bmpdlog.h"
 #include "debug.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "draw.h"
 #include "file_utils.h"
 #include "game.h"

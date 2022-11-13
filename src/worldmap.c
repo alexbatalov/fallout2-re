@@ -16,7 +16,7 @@
 #include "db.h"
 #include "game/bmpdlog.h"
 #include "debug.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "draw.h"
 #include "game.h"
 #include "game_config.h"

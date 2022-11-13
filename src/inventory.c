@@ -15,7 +15,7 @@
 #include "game/bmpdlog.h"
 #include "debug.h"
 #include "int/dialog.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "draw.h"
 #include "game.h"
 #include "game_dialog.h"

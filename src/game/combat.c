@@ -13,7 +13,7 @@
 #include "game/critter.h"
 #include "db.h"
 #include "debug.h"
-#include "display_monitor.h"
+#include "game/display.h"
 #include "draw.h"
 #include "elevator.h"
 #include "game.h"
