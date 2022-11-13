@@ -2301,7 +2301,7 @@ void opCall(Program* program)
     procedureFlags = stackReadInt32(procedurePtr, 4);
     if ((procedureFlags & PROCEDURE_FLAG_IMPORTED) != 0) {
         procedureIdentifier = programGetIdentifier(program, stackReadInt32(procedurePtr, 0));
-        externalProgram = externalProcedureGetProgram(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
+        externalProgram = exportFindProcedure(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
         if (externalProgram == NULL) {
             programFatalError("External procedure %s not found", procedureIdentifier);
         }
@@ -2776,7 +2776,7 @@ void opStoreExternalVariable(Program* program)
 
     const char* identifier = programGetIdentifier(program, data[0]);
 
-    if (externalVariableSetValue(program, identifier, opcode[1], data[1])) {
+    if (exportStoreVariable(program, identifier, opcode[1], data[1])) {
         char err[256];
         sprintf(err, "External variable %s does not exist\n", identifier);
         programFatalError(err);
@@ -2797,7 +2797,7 @@ void opFetchExternalVariable(Program* program)
 
     opcode_t variableOpcode;
     int variableData;
-    if (externalVariableGetValue(program, identifier, &variableOpcode, &variableData) != 0) {
+    if (exportFetchVariable(program, identifier, &variableOpcode, &variableData) != 0) {
         char err[256];
         sprintf(err, "External variable %s does not exist\n", identifier);
         programFatalError(err);
@@ -2839,7 +2839,7 @@ void opExportProcedure(Program* program)
     v9 = (char*)(program->identifiers + stackReadInt32(proc_ptr, 0));
     v10 = stackReadInt32(proc_ptr, 16);
 
-    if (externalProcedureCreate(program, v9, v10, value) != 0) {
+    if (exportExportProcedure(program, v9, v10, value) != 0) {
         sprintf(err, "Error exporting procedure %s", v9);
         programFatalError(err);
     }
@@ -2855,7 +2855,7 @@ void opExportVariable(Program* program)
         _interpretDecStringRef(program, opcode, data);
     }
 
-    if (externalVariableCreate(program, programGetIdentifier(program, data))) {
+    if (exportExportVariable(program, programGetIdentifier(program, data))) {
         char err[256];
         sprintf(err, "External variable %s already exists", programGetIdentifier(program, data));
         programFatalError(err);
@@ -3199,13 +3199,13 @@ void interpreterRegisterOpcodeHandlers()
     interpreterRegisterOpcode(OPCODE_END_CRITICAL, opLeaveCriticalSection);
 
     intLibInit();
-    _initExport();
+    initExport();
 }
 
 // 0x46CC68
 void _interpretClose()
 {
-    externalVariablesClear();
+    exportClose();
     intLibExit();
 }
 
@@ -3417,7 +3417,7 @@ void _executeProc(Program* program, int procedureIndex)
     procedureFlags = stackReadInt32(procedurePtr, 4);
     if ((procedureFlags & PROCEDURE_FLAG_IMPORTED) != 0) {
         procedureIdentifier = programGetIdentifier(program, stackReadInt32(procedurePtr, 0));
-        externalProgram = externalProcedureGetProgram(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
+        externalProgram = exportFindProcedure(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
         if (externalProgram != NULL) {
             if (externalProcedureArgumentCount == 0) {
             } else {
@@ -3493,7 +3493,7 @@ void _executeProcedure(Program* program, int procedureIndex)
 
     if ((procedureFlags & PROCEDURE_FLAG_IMPORTED) != 0) {
         procedureIdentifier = programGetIdentifier(program, stackReadInt32(procedurePtr, 0));
-        externalProgram = externalProcedureGetProgram(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
+        externalProgram = exportFindProcedure(procedureIdentifier, &externalProcedureAddress, &externalProcedureArgumentCount);
         if (externalProgram != NULL) {
             if (externalProcedureArgumentCount == 0) {
                 // NOTE: Uninline.

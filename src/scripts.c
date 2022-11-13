@@ -2311,7 +2311,7 @@ int _scr_remove_all()
     gMapSid = -1;
 
     programListFree();
-    _exportClearAllVariables();
+    exportClearAllVariables();
 
     return 0;
 }
@@ -2341,7 +2341,7 @@ int _scr_remove_all_force()
     gScriptsEnumerationElevation = 0;
     gMapSid = -1;
     programListFree();
-    _exportClearAllVariables();
+    exportClearAllVariables();
 
     return 0;
 }

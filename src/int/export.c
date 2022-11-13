@@ -6,16 +6,40 @@
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 
+typedef struct ExternalVariable {
+    char name[32];
+    char* programName;
+    opcode_t type;
+    union {
+        int value;
+        char* stringValue;
+    };
+} ExternalVariable;
+
+typedef struct ExternalProcedure {
+    char name[32];
+    Program* program;
+    int argumentCount;
+    int address;
+} ExternalProcedure;
+
+static unsigned int hashName(const char* identifier);
+static ExternalProcedure* findProc(const char* identifier);
+static ExternalProcedure* findEmptyProc(const char* identifier);
+static ExternalVariable* findVar(const char* identifier);
+static ExternalVariable* findEmptyVar(const char* identifier);
+static void removeProgramReferences(Program* program);
+
 // 0x570C00
-ExternalProcedure gExternalProcedures[1013];
+static ExternalProcedure procHashTable[1013];
 
 // 0x57BA1C
-ExternalVariable gExternalVariables[1013];
+static ExternalVariable varHashTable[1013];
 
 // NOTE: Inlined.
 //
 // 0x440F10
-unsigned int _hashName(const char* identifier)
+static unsigned int hashName(const char* identifier)
 {
     unsigned int v1 = 0;
     const char* pch = identifier;
@@ -30,13 +54,13 @@ unsigned int _hashName(const char* identifier)
 }
 
 // 0x440F58
-ExternalProcedure* externalProcedureFind(const char* identifier)
+static ExternalProcedure* findProc(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = _hashName(identifier);
+    unsigned int v1 = hashName(identifier);
     unsigned int v2 = v1;
 
-    ExternalProcedure* externalProcedure = &(gExternalProcedures[v1]);
+    ExternalProcedure* externalProcedure = &(procHashTable[v1]);
     if (externalProcedure->program != NULL) {
         if (stricmp(externalProcedure->name, identifier) == 0) {
             return externalProcedure;
@@ -49,7 +73,7 @@ ExternalProcedure* externalProcedureFind(const char* identifier)
             v1 -= 1013;
         }
 
-        externalProcedure = &(gExternalProcedures[v1]);
+        externalProcedure = &(procHashTable[v1]);
         if (externalProcedure->program != NULL) {
             if (stricmp(externalProcedure->name, identifier) == 0) {
                 return externalProcedure;
@@ -61,13 +85,13 @@ ExternalProcedure* externalProcedureFind(const char* identifier)
 }
 
 // 0x441018
-ExternalProcedure* externalProcedureAdd(const char* identifier)
+static ExternalProcedure* findEmptyProc(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = _hashName(identifier);
+    unsigned int v1 = hashName(identifier);
     unsigned int a2 = v1;
 
-    ExternalProcedure* externalProcedure = &(gExternalProcedures[v1]);
+    ExternalProcedure* externalProcedure = &(procHashTable[v1]);
     if (externalProcedure->name[0] == '\0') {
         return externalProcedure;
     }
@@ -78,7 +102,7 @@ ExternalProcedure* externalProcedureAdd(const char* identifier)
             v1 -= 1013;
         }
 
-        externalProcedure = &(gExternalProcedures[v1]);
+        externalProcedure = &(procHashTable[v1]);
         if (externalProcedure->name[0] == '\0') {
             return externalProcedure;
         }
@@ -88,19 +112,19 @@ ExternalProcedure* externalProcedureAdd(const char* identifier)
 }
 
 // 0x4410AC
-ExternalVariable* externalVariableFind(const char* identifier)
+static ExternalVariable* findVar(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = _hashName(identifier);
+    unsigned int v1 = hashName(identifier);
     unsigned int v2 = v1;
 
-    ExternalVariable* exportedVariable = &(gExternalVariables[v1]);
+    ExternalVariable* exportedVariable = &(varHashTable[v1]);
     if (stricmp(exportedVariable->name, identifier) == 0) {
         return exportedVariable;
     }
 
     do {
-        exportedVariable = &(gExternalVariables[v1]);
+        exportedVariable = &(varHashTable[v1]);
         if (exportedVariable->name[0] == '\0') {
             break;
         }
@@ -110,7 +134,7 @@ ExternalVariable* externalVariableFind(const char* identifier)
             v1 -= 1013;
         }
 
-        exportedVariable = &(gExternalVariables[v1]);
+        exportedVariable = &(varHashTable[v1]);
         if (stricmp(exportedVariable->name, identifier) == 0) {
             return exportedVariable;
         }
@@ -126,7 +150,7 @@ int exportGetVariable(const char* identifier, opcode_t* typePtr, int* valuePtr)
 {
     ExternalVariable* variable;
 
-    variable = externalVariableFind(identifier);
+    variable = findVar(identifier);
     if (variable != NULL) {
         *typePtr = variable->type;
         *valuePtr = variable->value;
@@ -140,13 +164,13 @@ int exportGetVariable(const char* identifier, opcode_t* typePtr, int* valuePtr)
 }
 
 // 0x44118C
-ExternalVariable* externalVariableAdd(const char* identifier)
+static ExternalVariable* findEmptyVar(const char* identifier)
 {
     // NOTE: Uninline.
-    unsigned int v1 = _hashName(identifier);
+    unsigned int v1 = hashName(identifier);
     unsigned int v2 = v1;
 
-    ExternalVariable* exportedVariable = &(gExternalVariables[v1]);
+    ExternalVariable* exportedVariable = &(varHashTable[v1]);
     if (exportedVariable->name[0] == '\0') {
         return exportedVariable;
     }
@@ -157,7 +181,7 @@ ExternalVariable* externalVariableAdd(const char* identifier)
             v1 -= 1013;
         }
 
-        exportedVariable = &(gExternalVariables[v1]);
+        exportedVariable = &(varHashTable[v1]);
         if (exportedVariable->name[0] == '\0') {
             return exportedVariable;
         }
@@ -173,7 +197,7 @@ int exportStoreStringVariable(const char* identifier, const char* value)
 {
     ExternalVariable* variable;
 
-    variable = externalVariableFind(identifier);
+    variable = findVar(identifier);
     if (variable != NULL) {
         if ((variable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
             internal_free_safe(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 155
@@ -189,9 +213,9 @@ int exportStoreStringVariable(const char* identifier, const char* value)
 }
 
 // 0x44127C
-int externalVariableSetValue(Program* program, const char* name, opcode_t opcode, int data)
+int exportStoreVariable(Program* program, const char* name, opcode_t opcode, int data)
 {
-    ExternalVariable* exportedVariable = externalVariableFind(name);
+    ExternalVariable* exportedVariable = findVar(name);
     if (exportedVariable == NULL) {
         return 1;
     }
@@ -223,7 +247,7 @@ int exportStoreVariableByTag(const char* identifier, opcode_t type, int value)
 {
     ExternalVariable* variable;
 
-    variable = externalVariableFind(identifier);
+    variable = findVar(identifier);
     if (variable != NULL) {
         if ((variable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
             internal_free_safe(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 191
@@ -245,9 +269,9 @@ int exportStoreVariableByTag(const char* identifier, opcode_t type, int value)
 }
 
 // 0x4413D4
-int externalVariableGetValue(Program* program, const char* name, opcode_t* opcodePtr, int* dataPtr)
+int exportFetchVariable(Program* program, const char* name, opcode_t* opcodePtr, int* dataPtr)
 {
-    ExternalVariable* exportedVariable = externalVariableFind(name);
+    ExternalVariable* exportedVariable = findVar(name);
     if (exportedVariable == NULL) {
         return 1;
     }
@@ -264,10 +288,10 @@ int externalVariableGetValue(Program* program, const char* name, opcode_t* opcod
 }
 
 // 0x4414B8
-int externalVariableCreate(Program* program, const char* identifier)
+int exportExportVariable(Program* program, const char* identifier)
 {
     const char* programName = program->name;
-    ExternalVariable* exportedVariable = externalVariableFind(identifier);
+    ExternalVariable* exportedVariable = findVar(identifier);
 
     if (exportedVariable != NULL) {
         if (stricmp(exportedVariable->programName, programName) != 0) {
@@ -278,7 +302,7 @@ int externalVariableCreate(Program* program, const char* identifier)
             internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 234
         }
     } else {
-        exportedVariable = externalVariableAdd(identifier);
+        exportedVariable = findEmptyVar(identifier);
         if (exportedVariable == NULL) {
             return 1;
         }
@@ -296,10 +320,10 @@ int externalVariableCreate(Program* program, const char* identifier)
 }
 
 // 0x4414FC
-void _removeProgramReferences(Program* program)
+static void removeProgramReferences(Program* program)
 {
     for (int index = 0; index < 1013; index++) {
-        ExternalProcedure* externalProcedure = &(gExternalProcedures[index]);
+        ExternalProcedure* externalProcedure = &(procHashTable[index]);
         if (externalProcedure->program == program) {
             externalProcedure->name[0] = '\0';
             externalProcedure->program = NULL;
@@ -308,16 +332,16 @@ void _removeProgramReferences(Program* program)
 }
 
 // 0x44152C
-void _initExport()
+void initExport()
 {
-    intLibRegisterProgramDeleteCallback(_removeProgramReferences);
+    intLibRegisterProgramDeleteCallback(removeProgramReferences);
 }
 
 // 0x441538
-void externalVariablesClear()
+void exportClose()
 {
     for (int index = 0; index < 1013; index++) {
-        ExternalVariable* exportedVariable = &(gExternalVariables[index]);
+        ExternalVariable* exportedVariable = &(varHashTable[index]);
 
         if (exportedVariable->name[0] != '\0') {
             internal_free_safe(exportedVariable->programName, __FILE__, __LINE__); // ..\\int\\EXPORT.C, 274
@@ -330,9 +354,9 @@ void externalVariablesClear()
 }
 
 // 0x44158C
-Program* externalProcedureGetProgram(const char* identifier, int* addressPtr, int* argumentCountPtr)
+Program* exportFindProcedure(const char* identifier, int* addressPtr, int* argumentCountPtr)
 {
-    ExternalProcedure* externalProcedure = externalProcedureFind(identifier);
+    ExternalProcedure* externalProcedure = findProc(identifier);
     if (externalProcedure == NULL) {
         return NULL;
     }
@@ -348,15 +372,15 @@ Program* externalProcedureGetProgram(const char* identifier, int* addressPtr, in
 }
 
 // 0x4415B0
-int externalProcedureCreate(Program* program, const char* identifier, int address, int argumentCount)
+int exportExportProcedure(Program* program, const char* identifier, int address, int argumentCount)
 {
-    ExternalProcedure* externalProcedure = externalProcedureFind(identifier);
+    ExternalProcedure* externalProcedure = findProc(identifier);
     if (externalProcedure != NULL) {
         if (program != externalProcedure->program) {
             return 1;
         }
     } else {
-        externalProcedure = externalProcedureAdd(identifier);
+        externalProcedure = findEmptyProc(identifier);
         if (externalProcedure == NULL) {
             return 1;
         }
@@ -372,10 +396,10 @@ int externalProcedureCreate(Program* program, const char* identifier, int addres
 }
 
 // 0x441824
-void _exportClearAllVariables()
+void exportClearAllVariables()
 {
     for (int index = 0; index < 1013; index++) {
-        ExternalVariable* exportedVariable = &(gExternalVariables[index]);
+        ExternalVariable* exportedVariable = &(varHashTable[index]);
         if (exportedVariable->name[0] != '\0') {
             if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
                 if (exportedVariable->stringValue != NULL) {
