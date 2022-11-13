@@ -14,7 +14,7 @@
 #include "debug.h"
 #include "int/dialog.h"
 #include "game/display.h"
-#include "endgame.h"
+#include "game/endgame.h"
 #include "game.h"
 #include "game_config.h"
 #include "game_dialog.h"

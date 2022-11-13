@@ -13,7 +13,7 @@
 #include "debug.h"
 #include "int/dialog.h"
 #include "game/elevator.h"
-#include "endgame.h"
+#include "game/endgame.h"
 #include "export.h"
 #include "game.h"
 #include "game_dialog.h"

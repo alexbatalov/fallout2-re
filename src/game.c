@@ -21,7 +21,7 @@
 #include "game/display.h"
 #include "draw.h"
 #include "electronic_registration.h"
-#include "endgame.h"
+#include "game/endgame.h"
 #include "font_manager.h"
 #include "game_config.h"
 #include "game_dialog.h"

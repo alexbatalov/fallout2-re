@@ -13,7 +13,7 @@
 #include "db.h"
 #include "debug.h"
 #include "draw.h"
-#include "endgame.h"
+#include "game/endgame.h"
 #include "game.h"
 #include "game_config.h"
 #include "game_mouse.h"

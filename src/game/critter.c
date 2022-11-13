@@ -8,7 +8,7 @@
 #include "game/combat.h"
 #include "debug.h"
 #include "game/display.h"
-#include "endgame.h"
+#include "game/endgame.h"
 #include "game.h"
 #include "geometry.h"
 #include "interface.h"
