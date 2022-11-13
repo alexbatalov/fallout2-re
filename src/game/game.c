@@ -136,7 +136,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 {
     char path[MAX_PATH];
 
-    if (gameMemoryInit() == -1) {
+    if (gmemory_init() == -1) {
         return -1;
     }
 
