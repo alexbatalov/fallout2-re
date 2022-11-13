@@ -1004,7 +1004,7 @@ int mapLoadSaved(char* fileName)
     debugPrint("\nMAP: Loading SAVED map.");
 
     char mapName[16]; // TODO: Size is probably wrong.
-    _strmfe(mapName, fileName, "SAV");
+    strmfe(mapName, fileName, "SAV");
 
     int rc = mapLoadByName(mapName);
 
@@ -1025,7 +1025,7 @@ int mapLoadSaved(char* fileName)
         char v15[16];
         strcpy(v15, gMapHeader.name);
 
-        _strmfe(gMapHeader.name, v15, "SAV");
+        strmfe(gMapHeader.name, v15, "SAV");
 
         _MapDirEraseFile_("MAPS\\", gMapHeader.name);
 
@@ -1405,14 +1405,14 @@ int _map_save_in_game(bool a1)
         debugPrint("\nNot saving RANDOM encounter map.");
 
         strcpy(name, gMapHeader.name);
-        _strmfe(gMapHeader.name, name, "SAV");
+        strmfe(gMapHeader.name, name, "SAV");
         _MapDirEraseFile_("MAPS\\", gMapHeader.name);
         strcpy(gMapHeader.name, name);
     } else {
         debugPrint("\n Saving \".SAV\" map.");
 
         strcpy(name, gMapHeader.name);
-        _strmfe(gMapHeader.name, name, "SAV");
+        strmfe(gMapHeader.name, name, "SAV");
         if (_map_save() == -1) {
             return -1;
         }

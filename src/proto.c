@@ -1847,7 +1847,7 @@ int _ResetPlayer()
     pcStatsReset();
     protoCritterDataResetStats(&(proto->critter.data));
     critter_reset();
-    characterEditorReset();
+    editor_reset();
     protoCritterDataResetSkills(&(proto->critter.data));
     skillsReset();
     perksReset();

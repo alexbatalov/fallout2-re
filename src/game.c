@@ -251,7 +251,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">wmWorldMap_init\t");
 
-    characterEditorInit();
+    CharEditInit();
     debugPrint(">CharEditInit\t");
 
     pipboyInit();
@@ -351,7 +351,7 @@ void gameReset()
     scriptsReset();
     wmWorldMap_reset();
     partyMembersReset();
-    characterEditorInit();
+    CharEditInit();
     pipboyReset();
     _ResetLoadSave();
     gameDialogReset();
@@ -527,7 +527,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         if (interfaceBarEnabled()) {
             soundPlayFile("ib1p1xx1");
             bool isoWasEnabled = isoDisable();
-            characterEditorShow(false);
+            editor_design(false);
             if (isoWasEnabled) {
                 isoEnable();
             }

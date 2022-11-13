@@ -1018,7 +1018,7 @@ int pc_load_data(const char* path)
         return -1;
     }
 
-    if (fileReadInt32(stream, &gCharacterEditorRemainingCharacterPoints) == -1) {
+    if (fileReadInt32(stream, &character_points) == -1) {
         fileClose(stream);
         return -1;
     }
@@ -1111,7 +1111,7 @@ int pc_save_data(const char* path)
         return -1;
     }
 
-    if (fileWriteInt32(stream, gCharacterEditorRemainingCharacterPoints) == -1) {
+    if (fileWriteInt32(stream, character_points) == -1) {
         fileClose(stream);
         return -1;
     }

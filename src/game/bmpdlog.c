@@ -1203,7 +1203,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     break;
                 }
             }
-        } else if (_isdoschar(keyCode)) {
+        } else if (isdoschar(keyCode)) {
             bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
 
             fileNameCopy[fileNameCopyLength] = keyCode & 0xFF;

@@ -110,7 +110,7 @@ SaveGameHandler* _master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     traitsSave,
     automap_save,
     preferencesSave,
-    characterEditorSave,
+    editor_save,
     wmWorldMap_save,
     pipboySave,
     gameMoviesSave,
@@ -141,7 +141,7 @@ LoadGameHandler* _master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     traitsLoad,
     automap_load,
     preferencesLoad,
-    characterEditorLoad,
+    editor_load,
     wmWorldMap_load,
     pipboyLoad,
     gameMoviesLoad,
@@ -1625,7 +1625,7 @@ int lsgSaveHeaderInSlot(int slot)
     char mapName[128];
     strcpy(mapName, gMapHeader.name);
 
-    char* v1 = _strmfe(_str, mapName, "sav");
+    char* v1 = strmfe(_str, mapName, "sav");
     strncpy(ptr->fileName, v1, 16);
     if (fileWrite(ptr->fileName, 16, 1, _flptr) != 1) {
         return -1;
@@ -2094,7 +2094,7 @@ int _get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* descripti
                 textLength--;
             } else if ((keyCode >= KEY_FIRST_INPUT_CHARACTER && keyCode <= KEY_LAST_INPUT_CHARACTER) && textLength < maxLength) {
                 if ((flags & 0x01) != 0) {
-                    if (!_isdoschar(keyCode)) {
+                    if (!isdoschar(keyCode)) {
                         break;
                     }
                 }
@@ -2219,7 +2219,7 @@ int _GameMap2Slot(File* stream)
     }
 
     sprintf(_gmpath, "%s\\%s\\%s%.2d\\", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1);
-    _strmfe(_str0, "AUTOMAP.DB", "SAV");
+    strmfe(_str0, "AUTOMAP.DB", "SAV");
     strcat(_gmpath, _str0);
     remove(_gmpath);
 
@@ -2240,7 +2240,7 @@ int _GameMap2Slot(File* stream)
 
     fileNameListFree(&fileNameList, 0);
 
-    _strmfe(_str0, "AUTOMAP.DB", "SAV");
+    strmfe(_str0, "AUTOMAP.DB", "SAV");
     sprintf(_str1, "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, _str0);
     sprintf(_str0, "%s\\%s\\%s", _patches, "MAPS", "AUTOMAP.DB");
 
@@ -2346,7 +2346,7 @@ int _SlotMap2Game(File* stream)
         }
     }
 
-    const char* automapFileName = _strmfe(_str1, "AUTOMAP.DB", "SAV");
+    const char* automapFileName = strmfe(_str1, "AUTOMAP.DB", "SAV");
     sprintf(_str0, "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, automapFileName);
     sprintf(_str1, "%s\\%s\\%s", _patches, "MAPS", "AUTOMAP.DB");
     if (fileCopyDecompressed(_str0, _str1) == -1) {
@@ -2518,7 +2518,7 @@ int _SaveBackup()
 
     strcat(_str0, "SAVE.DAT");
 
-    _strmfe(_str1, _str0, "BAK");
+    strmfe(_str1, _str0, "BAK");
 
     File* stream1 = fileOpen(_str0, "rb");
     if (stream1 != NULL) {
@@ -2544,7 +2544,7 @@ int _SaveBackup()
         strcpy(_str0, _gmpath);
         strcat(_str0, fileList[index]);
 
-        _strmfe(_str1, _str0, "BAK");
+        strmfe(_str1, _str0, "BAK");
         if (rename(_str0, _str1) != 0) {
             fileNameListFree(&fileList, 0);
             return -1;
@@ -2557,10 +2557,10 @@ int _SaveBackup()
 
     sprintf(_gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", _slot_cursor + 1);
 
-    char* v1 = _strmfe(_str2, "AUTOMAP.DB", "SAV");
+    char* v1 = strmfe(_str2, "AUTOMAP.DB", "SAV");
     sprintf(_str0, "%s\\%s", _gmpath, v1);
 
-    char* v2 = _strmfe(_str2, "AUTOMAP.DB", "BAK");
+    char* v2 = strmfe(_str2, "AUTOMAP.DB", "BAK");
     sprintf(_str1, "%s\\%s", _gmpath, v2);
 
     _automap_db_flag = 0;
@@ -2589,7 +2589,7 @@ int _RestoreSave()
     sprintf(_gmpath, "%s\\%s\\%s%.2d\\", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1);
     strcpy(_str0, _gmpath);
     strcat(_str0, "SAVE.DAT");
-    _strmfe(_str1, _str0, "BAK");
+    strmfe(_str1, _str0, "BAK");
     remove(_str0);
 
     if (rename(_str1, _str0) != 0) {
@@ -2617,7 +2617,7 @@ int _RestoreSave()
     for (int index = fileListLength - 1; index >= 0; index--) {
         strcpy(_str0, _gmpath);
         strcat(_str0, fileList[index]);
-        _strmfe(_str1, _str0, "SAV");
+        strmfe(_str1, _str0, "SAV");
         remove(_str1);
         if (rename(_str0, _str1) != 0) {
             // FIXME: Probably leaks fileList.
@@ -2633,11 +2633,11 @@ int _RestoreSave()
     }
 
     sprintf(_gmpath, "%s\\%s\\%s%.2d\\", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1);
-    char* v1 = _strmfe(_str2, "AUTOMAP.DB", "BAK");
+    char* v1 = strmfe(_str2, "AUTOMAP.DB", "BAK");
     strcpy(_str0, _gmpath);
     strcat(_str0, v1);
 
-    char* v2 = _strmfe(_str2, "AUTOMAP.DB", "SAV");
+    char* v2 = strmfe(_str2, "AUTOMAP.DB", "SAV");
     strcpy(_str1, _gmpath);
     strcat(_str1, v2);
 
@@ -2699,7 +2699,7 @@ int _EraseSave()
 
     sprintf(_gmpath, "%s\\%s\\%s%.2d\\", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1);
 
-    char* v1 = _strmfe(_str1, "AUTOMAP.DB", "SAV");
+    char* v1 = strmfe(_str1, "AUTOMAP.DB", "SAV");
     strcpy(_str0, _gmpath);
     strcat(_str0, v1);
 

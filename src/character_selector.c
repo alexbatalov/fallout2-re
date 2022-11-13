@@ -178,7 +178,7 @@ int characterSelectorOpen()
         case KEY_UPPERCASE_C:
         case KEY_LOWERCASE_C:
             _ResetPlayer();
-            if (characterEditorShow(1) == 0) {
+            if (editor_design(1) == 0) {
                 rc = 2;
                 done = true;
             } else {
@@ -188,7 +188,7 @@ int characterSelectorOpen()
             break;
         case KEY_UPPERCASE_M:
         case KEY_LOWERCASE_M:
-            if (!characterEditorShow(1)) {
+            if (!editor_design(1)) {
                 rc = 2;
                 done = true;
             } else {
