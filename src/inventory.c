@@ -14,7 +14,7 @@
 #include "game/critter.h"
 #include "game/bmpdlog.h"
 #include "debug.h"
-#include "dialog.h"
+#include "int/dialog.h"
 #include "display_monitor.h"
 #include "draw.h"
 #include "game.h"

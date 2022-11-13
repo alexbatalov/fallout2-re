@@ -11,7 +11,7 @@
 #include "core.h"
 #include "game/critter.h"
 #include "debug.h"
-#include "dialog.h"
+#include "int/dialog.h"
 #include "elevator.h"
 #include "endgame.h"
 #include "export.h"

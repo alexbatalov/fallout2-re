@@ -1,4 +1,4 @@
-#include "dialog.h"
+#include "int/dialog.h"
 
 #include <string.h>
 

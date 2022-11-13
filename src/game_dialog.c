@@ -12,7 +12,7 @@
 #include "game/critter.h"
 #include "game/cycle.h"
 #include "debug.h"
-#include "dialog.h"
+#include "int/dialog.h"
 #include "display_monitor.h"
 #include "draw.h"
 #include "game.h"
