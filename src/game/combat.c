@@ -1927,7 +1927,7 @@ int combat_init()
         return -1;
     }
 
-    sprintf(path, "%s%s", asc_5186C8, "combat.msg");
+    sprintf(path, "%s%s", msg_path, "combat.msg");
 
     if (!messageListLoad(&combat_message_file, path)) {
         return -1;
@@ -2525,7 +2525,7 @@ static void combat_begin(Object* a1)
         combat_state |= COMBAT_STATE_0x01;
 
         tileWindowRefresh();
-        gameUiDisable(0);
+        game_ui_disable(0);
         gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
         combat_ending_guy = NULL;
         combat_begin_extra(a1);
@@ -2673,7 +2673,7 @@ void combat_update_critter_outline_for_los(Object* critter, bool a2)
 // 0x421EFC
 static void combat_over()
 {
-    if (_game_user_wants_to_quit == 0) {
+    if (game_user_wants_to_quit == 0) {
         for (int index = 0; index < list_com; index++) {
             Object* critter = combat_list[index];
             if (critter != gDude) {
@@ -2728,7 +2728,7 @@ static void combat_over()
 
     interfaceRenderActionPoints(0, 0);
 
-    if (_game_user_wants_to_quit == 0) {
+    if (game_user_wants_to_quit == 0) {
         combat_give_exps(combat_exps);
     }
 
@@ -2749,7 +2749,7 @@ static void combat_over()
     list_total = 0;
 
     combat_ai_over();
-    gameUiEnable();
+    game_ui_enable();
     gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
     interfaceRenderArmorClass(true);
 
@@ -3060,7 +3060,7 @@ static int combat_input()
             break;
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -3087,13 +3087,13 @@ static int combat_input()
             combat_end();
         } else {
             _scripts_check_state_in_combat();
-            gameHandleKey(keyCode, true);
+            game_handle_input(keyCode, true);
         }
     }
 
-    int v4 = _game_user_wants_to_quit;
-    if (_game_user_wants_to_quit == 1) {
-        _game_user_wants_to_quit = 0;
+    int v4 = game_user_wants_to_quit;
+    if (game_user_wants_to_quit == 1) {
+        game_user_wants_to_quit = 0;
     }
 
     if ((combat_state & COMBAT_STATE_0x08) != 0) {
@@ -3101,7 +3101,7 @@ static int combat_input()
         return -1;
     }
 
-    if (_game_user_wants_to_quit != 0 || v4 != 0 || combat_end_due_to_load != 0) {
+    if (game_user_wants_to_quit != 0 || v4 != 0 || combat_end_due_to_load != 0) {
         return -1;
     }
 
@@ -3167,7 +3167,7 @@ static int combat_turn(Object* a1, bool a2)
                 scriptOverrides = scr->scriptOverrides;
             }
 
-            if (_game_user_wants_to_quit == 1) {
+            if (game_user_wants_to_quit == 1) {
                 return -1;
             }
         }
@@ -3178,7 +3178,7 @@ static int combat_turn(Object* a1, bool a2)
             }
 
             if (a1 == gDude) {
-                gameUiEnable();
+                game_ui_enable();
                 _gmouse_3d_refresh();
 
                 if (gcsd != NULL) {
@@ -3199,7 +3199,7 @@ static int combat_turn(Object* a1, bool a2)
                 }
 
                 if (combat_input() == -1) {
-                    gameUiDisable(1);
+                    game_ui_disable(1);
                     gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
                     a1->data.critter.combat.damageLastTurn = 0;
                     interfaceBarEndButtonsRenderRedLights();
@@ -3224,7 +3224,7 @@ static int combat_turn(Object* a1, bool a2)
         }
 
         if (a1 == gDude) {
-            gameUiDisable(1);
+            game_ui_disable(1);
             gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
             interfaceBarEndButtonsRenderRedLights();
             combat_outline_off();
@@ -3361,7 +3361,7 @@ void combat(STRUCT_664980* attack)
         } while (!combat_should_end());
 
         if (combat_end_due_to_load) {
-            gameUiEnable();
+            game_ui_enable();
             gameMouseSetMode(GAME_MOUSE_MODE_MOVE);
         } else {
             _gmouse_disable_scrolling();
@@ -3373,8 +3373,8 @@ void combat(STRUCT_664980* attack)
 
         combat_end_due_to_load = 0;
 
-        if (_game_user_wants_to_quit == 1) {
-            _game_user_wants_to_quit = 0;
+        if (game_user_wants_to_quit == 1) {
+            game_user_wants_to_quit = 0;
         }
     }
 }
@@ -5204,7 +5204,7 @@ static void combat_display_flags(char* dest, int flags, Object* critter)
 void combat_anim_begin()
 {
     if (++combat_turn_running == 1 && gDude == main_ctd.attacker) {
-        gameUiDisable(1);
+        game_ui_disable(1);
         gameMouseSetCursor(26);
         if (combat_highlight == 2) {
             combat_outline_off();
@@ -5221,7 +5221,7 @@ void combat_anim_finished()
     }
 
     if (gDude == main_ctd.attacker) {
-        gameUiEnable();
+        game_ui_enable();
     }
 
     if (combat_cleanup_enabled) {
@@ -5456,9 +5456,9 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
 
     win_draw(call_win);
 
-    bool gameUiWasDisabled = gameUiIsDisabled();
+    bool gameUiWasDisabled = game_ui_is_disabled();
     if (gameUiWasDisabled) {
-        gameUiEnable();
+        game_ui_enable();
     }
 
     _gmouse_disable(0);
@@ -5476,7 +5476,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
             break;
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
     }
@@ -5484,7 +5484,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
     _gmouse_enable();
 
     if (gameUiWasDisabled) {
-        gameUiDisable(0);
+        game_ui_disable(0);
     }
 
     fontSetCurrent(oldFont);

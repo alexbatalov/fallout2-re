@@ -879,7 +879,7 @@ int wmWorldMap_init()
         return -1;
     }
 
-    sprintf(path, "%s%s", asc_5186C8, "worldmap.msg");
+    sprintf(path, "%s%s", msg_path, "worldmap.msg");
 
     if (!messageListLoad(&wmMsgFile, path)) {
         return -1;
@@ -3086,13 +3086,13 @@ static int wmWorldMapFunc(int a1)
         int v5 = wmWorldOffsetY + mouseY - WM_VIEW_Y;
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
         // NOTE: Uninline.
         wmCheckGameEvents();
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -3106,15 +3106,15 @@ static int wmWorldMapFunc(int a1)
                 wmPartyWalkingStep();
                 wmPartyWalkingStep();
 
-                if (gameGetGlobalVar(GVAR_CAR_BLOWER)) {
+                if (game_get_global_var(GVAR_CAR_BLOWER)) {
                     wmPartyWalkingStep();
                 }
 
-                if (gameGetGlobalVar(GVAR_NEW_RENO_CAR_UPGRADE)) {
+                if (game_get_global_var(GVAR_NEW_RENO_CAR_UPGRADE)) {
                     wmPartyWalkingStep();
                 }
 
-                if (gameGetGlobalVar(GVAR_NEW_RENO_SUPER_CAR)) {
+                if (game_get_global_var(GVAR_NEW_RENO_SUPER_CAR)) {
                     wmPartyWalkingStep();
                     wmPartyWalkingStep();
                     wmPartyWalkingStep();
@@ -3177,7 +3177,7 @@ static int wmWorldMapFunc(int a1)
             wmInterfaceRefresh();
 
             if (wmGameTimeIncrement(18000)) {
-                if (_game_user_wants_to_quit != 0) {
+                if (game_user_wants_to_quit != 0) {
                     break;
                 }
             }
@@ -3521,7 +3521,7 @@ static int wmRndEncounterOccurred()
             int xp = 100 - outdoorsman;
             if (xp > 0) {
                 MessageListItem messageListItem;
-                char* text = getmsg(&gMiscMessageList, &messageListItem, 8500);
+                char* text = getmsg(&misc_message_file, &messageListItem, 8500);
                 if (strlen(text) < 110) {
                     char formattedText[120];
                     sprintf(formattedText, text, xp);
@@ -4153,7 +4153,7 @@ static bool wmEvalConditional(EncounterCondition* a1, int* a2)
         matches = true;
         switch (ptr->type) {
         case ENCOUNTER_CONDITION_TYPE_GLOBAL:
-            value = gameGetGlobalVar(ptr->param);
+            value = game_get_global_var(ptr->param);
             if (!wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
@@ -5983,10 +5983,10 @@ static int wmTownMapFunc(int* mapIdxPtr)
     for (;;) {
         int keyCode = _get_input();
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
-        if (_game_user_wants_to_quit) {
+        if (game_user_wants_to_quit) {
             break;
         }
 
@@ -6188,15 +6188,15 @@ static int wmTownMapExit()
 // 0x4C4DA4
 int wmCarUseGas(int amount)
 {
-    if (gameGetGlobalVar(GVAR_NEW_RENO_SUPER_CAR) != 0) {
+    if (game_get_global_var(GVAR_NEW_RENO_SUPER_CAR) != 0) {
         amount -= amount * 90 / 100;
     }
 
-    if (gameGetGlobalVar(GVAR_NEW_RENO_CAR_UPGRADE) != 0) {
+    if (game_get_global_var(GVAR_NEW_RENO_CAR_UPGRADE) != 0) {
         amount -= amount * 10 / 100;
     }
 
-    if (gameGetGlobalVar(GVAR_CAR_UPGRADE_FUEL_CELL_REGULATOR) != 0) {
+    if (game_get_global_var(GVAR_CAR_UPGRADE_FUEL_CELL_REGULATOR) != 0) {
         amount /= 2;
     }
 

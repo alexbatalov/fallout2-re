@@ -122,7 +122,7 @@ int art_init()
         if (objectType == OBJ_TYPE_CRITTER) {
             oldDb = _db_current();
             critterDbSelected = true;
-            _db_select(_critter_db_handle);
+            _db_select(critter_db_handle);
         }
 
         if (art_read_lst(path, &(art[objectType].fileNames), &(art[objectType].fileNamesLength)) != 0) {
@@ -837,7 +837,7 @@ bool art_exists(int fid)
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current();
-        _db_select(_critter_db_handle);
+        _db_select(critter_db_handle);
     }
 
     char* filePath = art_get_name(fid);
@@ -865,7 +865,7 @@ bool art_fid_valid(int fid)
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current();
-        _db_select(_critter_db_handle);
+        _db_select(critter_db_handle);
     }
 
     char* filePath = art_get_name(fid);
@@ -931,7 +931,7 @@ int art_data_size(int fid, int* sizePtr)
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current();
-        _db_select(_critter_db_handle);
+        _db_select(critter_db_handle);
     }
 
     char* artFilePath = art_get_name(fid);
@@ -980,7 +980,7 @@ int art_data_load(int fid, int* sizePtr, unsigned char* data)
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
         oldDb = _db_current();
-        _db_select(_critter_db_handle);
+        _db_select(critter_db_handle);
     }
 
     char* artFileName = art_get_name(fid);

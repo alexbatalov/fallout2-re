@@ -437,7 +437,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             MessageListItem carMessageListItem;
             carMessageListItem.num = 549; // The car is running at %d%% power.
 
-            int car = gameGetGlobalVar(GVAR_PLAYER_GOT_CAR);
+            int car = game_get_global_var(GVAR_PLAYER_GOT_CAR);
             if (car == 0) {
                 carMessageListItem.num = 548; // The car doesn't look like it's working right now.
             }
@@ -1834,7 +1834,7 @@ int _obj_use_skill_on(Object* source, Object* target, int skill)
         if (source == gDude) {
             MessageListItem messageListItem;
             messageListItem.num = 2001;
-            if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+            if (messageListGetItem(&misc_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }

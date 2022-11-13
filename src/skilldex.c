@@ -90,7 +90,7 @@ int skilldexOpen()
     while (rc == -1) {
         int keyCode = _get_input();
 
-        if (keyCode == KEY_ESCAPE || keyCode == 500 || _game_user_wants_to_quit != 0) {
+        if (keyCode == KEY_ESCAPE || keyCode == 500 || game_user_wants_to_quit != 0) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
             soundPlayFile("ib1p1xx1");
@@ -123,7 +123,7 @@ int skilldexWindowInit()
     }
 
     char path[FILENAME_MAX];
-    sprintf(path, "%s%s", asc_5186C8, "skilldex.msg");
+    sprintf(path, "%s%s", msg_path, "skilldex.msg");
 
     if (!messageListLoad(&gSkilldexMessageList, path)) {
         return -1;

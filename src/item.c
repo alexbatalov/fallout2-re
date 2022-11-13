@@ -111,7 +111,7 @@ int itemsInit()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "item.msg");
+    sprintf(path, "%s%s", msg_path, "item.msg");
 
     if (!messageListLoad(&gItemsMessageList, path)) {
         return -1;
@@ -3033,7 +3033,7 @@ void dudeSetAddiction(int drugPid)
 {
     int gvar = drugGetAddictionGvarByPid(drugPid);
     if (gvar != -1) {
-        gGameGlobalVars[gvar] = 1;
+        game_global_vars[gvar] = 1;
     }
 
     pc_flag_on(DUDE_STATE_ADDICTED);
@@ -3046,7 +3046,7 @@ void dudeClearAddiction(int drugPid)
 {
     int gvar = drugGetAddictionGvarByPid(drugPid);
     if (gvar != -1) {
-        gGameGlobalVars[gvar] = 0;
+        game_global_vars[gvar] = 0;
     }
 
     if (!dudeIsAddicted(-1)) {
@@ -3063,7 +3063,7 @@ bool dudeIsAddicted(int drugPid)
     for (int index = 0; index < ADDICTION_COUNT; index++) {
         DrugDescription* drugDescription = &(gDrugDescriptions[index]);
         if (drugPid == -1 || drugPid == drugDescription->drugPid) {
-            if (gGameGlobalVars[drugDescription->gvar] != 0) {
+            if (game_global_vars[drugDescription->gvar] != 0) {
                 return true;
             } else {
                 return false;

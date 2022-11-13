@@ -58,16 +58,25 @@
 #include "window_manager.h"
 #include "worldmap.h"
 
-#define HELP_SCREEN_WIDTH (640)
-#define HELP_SCREEN_HEIGHT (480)
+#define HELP_SCREEN_WIDTH 640
+#define HELP_SCREEN_HEIGHT 480
 
-#define SPLASH_WIDTH (640)
-#define SPLASH_HEIGHT (480)
-#define SPLASH_COUNT (10)
+#define SPLASH_WIDTH 640
+#define SPLASH_HEIGHT 480
+#define SPLASH_COUNT 10
 
+static void game_display_counter(double value);
+static int game_screendump(int width, int height, unsigned char* buffer, unsigned char* palette);
+static void game_unload_info();
+static void game_help();
+static int game_init_databases();
+static void game_splash_screen();
+
+// TODO: Remove.
 // 0x501C9C
 char _aGame_0[] = "game\\";
 
+// TODO: Remove.
 // 0x5020B8
 char _aDec11199816543[] = VERSION_BUILD_TIME;
 
@@ -87,43 +96,43 @@ static FontManager alias_mgr = {
 };
 
 // 0x5186B4
-bool gGameUiDisabled = false;
+static bool game_ui_disabled = false;
 
 // 0x5186B8
-int _game_state_cur = GAME_STATE_0;
+static int game_state_cur = GAME_STATE_0;
 
 // 0x5186BC
-bool gIsMapper = false;
+static bool game_in_mapper = false;
 
 // 0x5186C0
-int* gGameGlobalVars = NULL;
+int* game_global_vars = NULL;
 
 // 0x5186C4
-int gGameGlobalVarsLength = 0;
+int num_game_global_vars = 0;
 
 // 0x5186C8
-const char* asc_5186C8 = _aGame_0;
+const char* msg_path = _aGame_0;
 
 // 0x5186CC
-int _game_user_wants_to_quit = 0;
+int game_user_wants_to_quit = 0;
 
 // misc.msg
 //
 // 0x58E940
-MessageList gMiscMessageList;
+MessageList misc_message_file;
 
 // master.dat loading result
 //
 // 0x58E948
-int _master_db_handle;
+int master_db_handle;
 
 // critter.dat loading result
 //
 // 0x58E94C
-int _critter_db_handle;
+int critter_db_handle;
 
 // 0x442580
-int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4, int argc, char** argv)
+int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc, char** argv)
 {
     char path[MAX_PATH];
 
@@ -133,9 +142,9 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     gameConfigInit(isMapper, argc, argv);
 
-    gIsMapper = isMapper;
+    game_in_mapper = isMapper;
 
-    if (gameDbInit() == -1) {
+    if (game_init_databases() == -1) {
         gameConfigExit(false);
         return -1;
     }
@@ -158,8 +167,8 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
         }
     }
 
-    if (!gIsMapper) {
-        showSplash();
+    if (!game_in_mapper) {
+        game_splash_screen();
     }
 
     trap_init();
@@ -168,7 +177,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
     fontManagerAdd(&alias_mgr);
     fontSetCurrent(font);
 
-    screenshotHandlerConfigure(KEY_F12, gameTakeScreenshot);
+    screenshotHandlerConfigure(KEY_F12, game_screendump);
     pauseHandlerConfigure(-1, NULL);
 
     tileDisable();
@@ -245,7 +254,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">scr_init\t");
 
-    if (gameLoadGlobalVars() != 0) {
+    if (game_load_info() != 0) {
         debugPrint("Failed on game_load_info\n");
         return -1;
     }
@@ -297,16 +306,16 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 
     debugPrint(">automap_init\t");
 
-    if (!messageListInit(&gMiscMessageList)) {
+    if (!messageListInit(&misc_message_file)) {
         debugPrint("Failed on message_init\n");
         return -1;
     }
 
     debugPrint(">message_init\t");
 
-    sprintf(path, "%s%s", asc_5186C8, "misc.msg");
+    sprintf(path, "%s%s", msg_path, "misc.msg");
 
-    if (!messageListLoad(&gMiscMessageList, path)) {
+    if (!messageListLoad(&misc_message_file, path)) {
         debugPrint("Failed on message_load\n");
         return -1;
     }
@@ -338,7 +347,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
 }
 
 // 0x442B84
-void gameReset()
+void game_reset()
 {
     tileDisable();
     paletteReset();
@@ -362,7 +371,7 @@ void gameReset()
     gameMouseReset();
     protoReset();
     _scr_reset();
-    gameLoadGlobalVars();
+    game_load_info();
     scriptsReset();
     wmWorldMap_reset();
     partyMembersReset();
@@ -371,24 +380,24 @@ void gameReset()
     _ResetLoadSave();
     gameDialogReset();
     combat_reset();
-    _game_user_wants_to_quit = 0;
+    game_user_wants_to_quit = 0;
     automap_reset();
     _init_options_menu();
 }
 
 // 0x442C34
-void gameExit()
+void game_exit()
 {
     debugPrint("\nGame Exit\n");
 
     tileDisable();
-    messageListFree(&gMiscMessageList);
+    messageListFree(&misc_message_file);
     combat_exit();
     gameDialogExit();
     _scr_game_exit();
 
     // NOTE: Uninline.
-    gameFreeGlobalVars();
+    game_unload_info();
 
     scriptsExit();
     anim_exit();
@@ -421,10 +430,10 @@ void gameExit()
 }
 
 // 0x442D44
-int gameHandleKey(int eventCode, bool isInCombatMode)
+int game_handle_input(int eventCode, bool isInCombatMode)
 {
     // NOTE: Uninline.
-    if (_game_state() == GAME_STATE_5) {
+    if (game_state() == GAME_STATE_5) {
         _gdialogSystemEnter();
     }
 
@@ -496,7 +505,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
     case KEY_CTRL_X:
     case KEY_F10:
         soundPlayFile("ib1p1xx1");
-        showQuitConfirmationDialog();
+        game_quit_with_confirm();
         break;
     case KEY_TAB:
         if (interfaceBarEnabled()
@@ -575,7 +584,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 // Pipboy not available in combat!
                 MessageListItem messageListItem;
                 char title[128];
-                strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
+                strcpy(title, getmsg(&misc_message_file, &messageListItem, 7));
                 dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
@@ -643,7 +652,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
                 // Pipboy not available in combat!
                 MessageListItem messageListItem;
                 char title[128];
-                strcpy(title, getmsg(&gMiscMessageList, &messageListItem, 7));
+                strcpy(title, getmsg(&misc_message_file, &messageListItem, 7));
                 dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 soundPlayFile("ib1p1xx1");
@@ -656,7 +665,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             mapSetElevation(gDude->elevation);
         }
 
-        if (gIsMapper) {
+        if (game_in_mapper) {
             tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
         } else {
             _tile_scroll_to(gDude->tile, 2);
@@ -762,7 +771,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             MessageList messageList;
             if (messageListInit(&messageList)) {
                 char path[FILENAME_MAX];
-                sprintf(path, "%s%s", asc_5186C8, "editor.msg");
+                sprintf(path, "%s%s", msg_path, "editor.msg");
 
                 if (messageListLoad(&messageList, path)) {
                     MessageListItem messageListItem;
@@ -783,7 +792,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
         break;
     case KEY_F1:
         soundPlayFile("ib1p1xx1");
-        showHelp();
+        game_help();
         break;
     case KEY_F2:
         gameSoundSetMasterVolume(gameSoundGetMasterVolume() - 2047);
@@ -815,7 +824,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             } else if (rc == 1) {
                 MessageListItem messageListItem;
                 // Quick save game successfully saved.
-                char* msg = getmsg(&gMiscMessageList, &messageListItem, 5);
+                char* msg = getmsg(&misc_message_file, &messageListItem, 5);
                 display_print(msg);
             }
         }
@@ -830,7 +839,7 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
             } else if (rc == 1) {
                 MessageListItem messageListItem;
                 // Quick load game successfully loaded.
-                char* msg = getmsg(&gMiscMessageList, &messageListItem, 4);
+                char* msg = getmsg(&misc_message_file, &messageListItem, 4);
                 display_print(msg);
             }
         }
@@ -864,71 +873,71 @@ int gameHandleKey(int eventCode, bool isInCombatMode)
 
 // game_ui_disable
 // 0x443BFC
-void gameUiDisable(int a1)
+void game_ui_disable(int a1)
 {
-    if (!gGameUiDisabled) {
+    if (!game_ui_disabled) {
         gameMouseObjectsHide();
         _gmouse_disable(a1);
         kb_disable();
         interfaceBarDisable();
-        gGameUiDisabled = true;
+        game_ui_disabled = true;
     }
 }
 
 // game_ui_enable
 // 0x443C30
-void gameUiEnable()
+void game_ui_enable()
 {
-    if (gGameUiDisabled) {
+    if (game_ui_disabled) {
         interfaceBarEnable();
         kb_enable();
         kb_clear();
         _gmouse_enable();
         gameMouseObjectsShow();
-        gGameUiDisabled = false;
+        game_ui_disabled = false;
     }
 }
 
 // game_ui_is_disabled
 // 0x443C60
-bool gameUiIsDisabled()
+bool game_ui_is_disabled()
 {
-    return gGameUiDisabled;
+    return game_ui_disabled;
 }
 
 // 0x443C68
-int gameGetGlobalVar(int var)
+int game_get_global_var(int var)
 {
-    if (var < 0 || var >= gGameGlobalVarsLength) {
+    if (var < 0 || var >= num_game_global_vars) {
         debugPrint("ERROR: attempt to reference global var out of range: %d", var);
         return 0;
     }
 
-    return gGameGlobalVars[var];
+    return game_global_vars[var];
 }
 
 // 0x443C98
-int gameSetGlobalVar(int var, int value)
+int game_set_global_var(int var, int value)
 {
-    if (var < 0 || var >= gGameGlobalVarsLength) {
+    if (var < 0 || var >= num_game_global_vars) {
         debugPrint("ERROR: attempt to reference global var out of range: %d", var);
         return -1;
     }
 
-    gGameGlobalVars[var] = value;
+    game_global_vars[var] = value;
 
     return 0;
 }
 
 // game_load_info
 // 0x443CC8
-int gameLoadGlobalVars()
+int game_load_info()
 {
-    return globalVarsRead("data\\vault13.gam", "GAME_GLOBAL_VARS:", &gGameGlobalVarsLength, &gGameGlobalVars);
+    return game_load_info_vars("data\\vault13.gam", "GAME_GLOBAL_VARS:", &num_game_global_vars, &game_global_vars);
 }
 
 // 0x443CE8
-int globalVarsRead(const char* path, const char* section, int* variablesListLengthPtr, int** variablesListPtr)
+int game_load_info_vars(const char* path, const char* section, int* variablesListLengthPtr, int** variablesListPtr)
 {
     _inven_reset_dude();
 
@@ -987,13 +996,13 @@ int globalVarsRead(const char* path, const char* section, int* variablesListLeng
 }
 
 // 0x443E2C
-int _game_state()
+int game_state()
 {
-    return _game_state_cur;
+    return game_state_cur;
 }
 
 // 0x443E34
-int _game_state_request(int a1)
+int game_state_request(int a1)
 {
     if (a1 == GAME_STATE_0) {
         a1 = GAME_STATE_1;
@@ -1003,8 +1012,8 @@ int _game_state_request(int a1)
         a1 = GAME_STATE_5;
     }
 
-    if (_game_state_cur != GAME_STATE_4 || a1 != GAME_STATE_5) {
-        _game_state_cur = a1;
+    if (game_state_cur != GAME_STATE_4 || a1 != GAME_STATE_5) {
+        game_state_cur = a1;
         return 0;
     }
 
@@ -1012,12 +1021,12 @@ int _game_state_request(int a1)
 }
 
 // 0x443E90
-void _game_state_update()
+void game_state_update()
 {
     int v0;
 
-    v0 = _game_state_cur;
-    switch (_game_state_cur) {
+    v0 = game_state_cur;
+    switch (game_state_cur) {
     case GAME_STATE_1:
         v0 = GAME_STATE_0;
         break;
@@ -1028,13 +1037,13 @@ void _game_state_update()
         v0 = GAME_STATE_4;
     }
 
-    _game_state_cur = v0;
+    game_state_cur = v0;
 }
 
 // NOTE: Unused.
 //
 // 0x443EC0
-void game_display_counter(double value)
+static void game_display_counter(double value)
 {
     char stringBuffer[16];
 
@@ -1043,14 +1052,14 @@ void game_display_counter(double value)
 }
 
 // 0x443EF0
-int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned char* palette)
+static int game_screendump(int width, int height, unsigned char* buffer, unsigned char* palette)
 {
     MessageListItem messageListItem;
 
     if (screenshotHandlerDefaultImpl(width, height, buffer, palette) != 0) {
         // Error saving screenshot.
         messageListItem.num = 8;
-        if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+        if (messageListGetItem(&misc_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -1059,7 +1068,7 @@ int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned ch
 
     // Saved screenshot.
     messageListItem.num = 3;
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -1069,17 +1078,17 @@ int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned ch
 // NOTE: Inlined.
 //
 // 0x443F50
-void gameFreeGlobalVars()
+static void game_unload_info()
 {
-    gGameGlobalVarsLength = 0;
-    if (gGameGlobalVars != NULL) {
-        internal_free(gGameGlobalVars);
-        gGameGlobalVars = NULL;
+    num_game_global_vars = 0;
+    if (game_global_vars != NULL) {
+        internal_free(game_global_vars);
+        game_global_vars = NULL;
     }
 }
 
 // 0x443F74
-void showHelp()
+static void game_help()
 {
     bool isoWasEnabled = isoDisable();
     gameMouseObjectsHide();
@@ -1106,7 +1115,7 @@ void showHelp()
                 loadColorTable("art\\intrface\\helpscrn.pal");
                 paletteSetEntries(cmap);
 
-                while (_get_input() == -1 && _game_user_wants_to_quit == 0) {
+                while (_get_input() == -1 && game_user_wants_to_quit == 0) {
                 }
 
                 while (mouse_get_buttons() != 0) {
@@ -1134,7 +1143,7 @@ void showHelp()
 }
 
 // 0x4440B8
-int showQuitConfirmationDialog()
+int game_quit_with_confirm()
 {
     bool isoWasEnabled = isoDisable();
 
@@ -1162,10 +1171,10 @@ int showQuitConfirmationDialog()
     // Are you sure you want to quit?
     MessageListItem messageListItem;
     messageListItem.num = 0;
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         rc = dialog_out(messageListItem.text, 0, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc != 0) {
-            _game_user_wants_to_quit = 2;
+            game_user_wants_to_quit = 2;
         }
     } else {
         rc = -1;
@@ -1189,7 +1198,7 @@ int showQuitConfirmationDialog()
 }
 
 // 0x44418C
-int gameDbInit()
+static int game_init_databases()
 {
     int hashing;
     char* main_file_name;
@@ -1215,8 +1224,8 @@ int gameDbInit()
         patch_file_name = NULL;
     }
 
-    _master_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
-    if (_master_db_handle == -1) {
+    master_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
+    if (master_db_handle == -1) {
         showMesageBox("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
@@ -1231,9 +1240,9 @@ int gameDbInit()
         patch_file_name = NULL;
     }
 
-    _critter_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
-    if (_critter_db_handle == -1) {
-        _db_select(_master_db_handle);
+    critter_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
+    if (critter_db_handle == -1) {
+        _db_select(master_db_handle);
         showMesageBox("Could not find the critter datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
@@ -1246,13 +1255,13 @@ int gameDbInit()
         }
     }
 
-    _db_select(_master_db_handle);
+    _db_select(master_db_handle);
 
     return 0;
 }
 
 // 0x444384
-void showSplash()
+static void game_splash_screen()
 {
     int splash;
     config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_SPLASH_KEY, &splash);

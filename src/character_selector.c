@@ -154,7 +154,7 @@ int characterSelectorOpen()
     int rc = 0;
     bool done = false;
     while (!done) {
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -203,7 +203,7 @@ int characterSelectorOpen()
 
             break;
         case KEY_F10:
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
             break;
         case KEY_ARROW_LEFT:
             soundPlayFile("ib2p1xx1");
@@ -818,7 +818,7 @@ bool characterSelectorWindowRenderStats()
 
     messageListItem.num = 16;
     text[0] = '\0';
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         strcpy(text, messageListItem.text);
     }
 
@@ -851,7 +851,7 @@ bool characterSelectorWindowRenderStats()
 
     messageListItem.num = 15;
     text[0] = '\0';
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         strcpy(text, messageListItem.text);
     }
 

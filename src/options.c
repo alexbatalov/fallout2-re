@@ -375,7 +375,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
             rc = 1;
         }
 
-        if (keyCode == KEY_ESCAPE || keyCode == 504 || _game_user_wants_to_quit != 0) {
+        if (keyCode == KEY_ESCAPE || keyCode == 504 || game_user_wants_to_quit != 0) {
             rc = 0;
         } else {
             switch (keyCode) {
@@ -433,7 +433,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
             case KEY_CTRL_X:
             case KEY_F10:
             case 503:
-                showQuitConfirmationDialog();
+                game_quit_with_confirm();
                 break;
             }
         }
@@ -454,7 +454,7 @@ int optionsWindowInit()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "options.msg");
+    sprintf(path, "%s%s", msg_path, "options.msg");
     if (!messageListLoad(&gOptionsMessageList, path)) {
         return -1;
     }
@@ -635,7 +635,7 @@ int showPause(bool a1)
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "options.msg");
+    sprintf(path, "%s%s", msg_path, "options.msg");
     if (!messageListLoad(&gOptionsMessageList, path)) {
         // FIXME: Leaking graphics.
         return -1;
@@ -740,7 +740,7 @@ int showPause(bool a1)
                 done = true;
             }
 
-            if (_game_user_wants_to_quit != 0) {
+            if (game_user_wants_to_quit != 0) {
                 done = true;
             }
         }
@@ -1622,7 +1622,7 @@ int _do_prefscreen()
         case KEY_CTRL_Q:
         case KEY_CTRL_X:
         case KEY_F10:
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
             break;
         case KEY_EQUAL:
         case KEY_PLUS:
@@ -1639,7 +1639,7 @@ int _do_prefscreen()
             preferencesSetDefaults(true);
             break;
         default:
-            if (eventCode == KEY_ESCAPE || eventCode == 528 || _game_user_wants_to_quit != 0) {
+            if (eventCode == KEY_ESCAPE || eventCode == 528 || game_user_wants_to_quit != 0) {
                 _RestoreSettings();
                 rc = 0;
             } else if (eventCode >= 505 && eventCode <= 524) {

@@ -98,7 +98,7 @@ int skillsInit()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "skill.msg");
+    sprintf(path, "%s%s", msg_path, "skill.msg");
 
     if (!messageListLoad(&gSkillsMessageList, path)) {
         return -1;

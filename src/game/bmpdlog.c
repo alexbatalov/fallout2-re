@@ -245,7 +245,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         }
 
         char path[MAX_PATH];
-        sprintf(path, "%s%s", asc_5186C8, "DBOX.MSG");
+        sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
         if (!messageListLoad(&messageList, path)) {
             art_ptr_unlock(upButtonHandle);
@@ -343,7 +343,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             }
 
             char path[MAX_PATH];
-            sprintf(path, "%s%s", asc_5186C8, "DBOX.MSG");
+            sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
             if (!messageListLoad(&messageList, path)) {
                 art_ptr_unlock(upButtonHandle);
@@ -468,7 +468,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             }
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             rc = 1;
         }
     }
@@ -550,7 +550,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "DBOX.MSG");
+    sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
     if (!messageListLoad(&messageList, path)) {
         windowDestroy(win);
@@ -824,7 +824,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
                 while (getTicksSince(scrollTick) < delay) {
                 }
 
-                if (_game_user_wants_to_quit != 0) {
+                if (game_user_wants_to_quit != 0) {
                     rc = 1;
                     break;
                 }
@@ -847,7 +847,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
             }
         }
 
-        if (_game_user_wants_to_quit) {
+        if (game_user_wants_to_quit) {
             rc = 1;
         }
     }
@@ -927,7 +927,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "DBOX.MSG");
+    sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
     if (!messageListLoad(&messageList, path)) {
         windowDestroy(win);
@@ -1283,7 +1283,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 while (getTicksSince(scrollTick) < delay) {
                 }
 
-                if (_game_user_wants_to_quit != 0) {
+                if (game_user_wants_to_quit != 0) {
                     rc = 1;
                     break;
                 }
@@ -1316,7 +1316,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
             }
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             rc = 1;
         }
     }

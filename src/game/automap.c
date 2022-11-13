@@ -431,7 +431,7 @@ void automap(bool isInGame, bool isUsingScanner)
                     MessageListItem messageListItem;
                     // 17 - The motion sensor is not installed.
                     // 18 - The motion sensor has no charges remaining.
-                    const char* title = getmsg(&gMiscMessageList, &messageListItem, scanner != NULL ? 18 : 17);
+                    const char* title = getmsg(&misc_message_file, &messageListItem, scanner != NULL ? 18 : 17);
                     dialog_out(title, NULL, 0, 165, 140, colorTable[32328], NULL, colorTable[32328], 0);
                 }
             }
@@ -440,14 +440,14 @@ void automap(bool isInGame, bool isUsingScanner)
         case KEY_CTRL_Q:
         case KEY_ALT_X:
         case KEY_F10:
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
             break;
         case KEY_F12:
             takeScreenshot();
             break;
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 

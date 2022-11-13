@@ -440,10 +440,10 @@ int _getInput()
 {
     int keyCode = _get_input();
     if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-        showQuitConfirmationDialog();
+        game_quit_with_confirm();
     }
 
-    if (_game_user_wants_to_quit != 0) {
+    if (game_user_wants_to_quit != 0) {
         _said_quit = 1 - _said_quit;
         if (_said_quit) {
             return -1;

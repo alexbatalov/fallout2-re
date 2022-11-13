@@ -1,5 +1,5 @@
-#ifndef GAME_H
-#define GAME_H
+#ifndef FALLOUT_GAME_GAME_H_
+#define FALLOUT_GAME_GAME_H_
 
 #include <stdbool.h>
 
@@ -15,40 +15,29 @@ typedef enum GameState {
     GAME_STATE_5,
 } GameState;
 
-extern char _aGame_0[];
+extern int* game_global_vars;
+extern int num_game_global_vars;
+extern const char* msg_path;
+extern int game_user_wants_to_quit;
 
-extern bool gGameUiDisabled;
-extern int _game_state_cur;
-extern bool gIsMapper;
-extern int* gGameGlobalVars;
-extern int gGameGlobalVarsLength;
-extern const char* asc_5186C8;
-extern int _game_user_wants_to_quit;
+extern MessageList misc_message_file;
+extern int master_db_handle;
+extern int critter_db_handle;
 
-extern MessageList gMiscMessageList;
-extern int _master_db_handle;
-extern int _critter_db_handle;
+int game_init(const char* windowTitle, bool isMapper, int a3, int a4, int argc, char** argv);
+void game_reset();
+void game_exit();
+int game_handle_input(int eventCode, bool isInCombatMode);
+void game_ui_disable(int a1);
+void game_ui_enable();
+bool game_ui_is_disabled();
+int game_get_global_var(int var);
+int game_set_global_var(int var, int value);
+int game_load_info();
+int game_load_info_vars(const char* path, const char* section, int* variablesListLengthPtr, int** variablesListPtr);
+int game_state();
+int game_state_request(int a1);
+void game_state_update();
+int game_quit_with_confirm();
 
-int gameInitWithOptions(const char* windowTitle, bool isMapper, int a3, int a4, int argc, char** argv);
-void gameReset();
-void gameExit();
-int gameHandleKey(int eventCode, bool isInCombatMode);
-void gameUiDisable(int a1);
-void gameUiEnable();
-bool gameUiIsDisabled();
-int gameGetGlobalVar(int var);
-int gameSetGlobalVar(int var, int value);
-int gameLoadGlobalVars();
-int globalVarsRead(const char* path, const char* section, int* variablesListLengthPtr, int** variablesListPtr);
-int _game_state();
-int _game_state_request(int a1);
-void _game_state_update();
-void game_display_counter(double value);
-int gameTakeScreenshot(int width, int height, unsigned char* buffer, unsigned char* palette);
-void gameFreeGlobalVars();
-void showHelp();
-int showQuitConfirmationDialog();
-int gameDbInit();
-void showSplash();
-
-#endif /* GAME_H */
+#endif /* FALLOUT_GAME_GAME_H_ */

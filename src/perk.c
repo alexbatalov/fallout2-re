@@ -165,7 +165,7 @@ int perksInit()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "perk.msg");
+    sprintf(path, "%s%s", msg_path, "perk.msg");
 
     if (!messageListLoad(&gPerksMessageList, path)) {
         return -1;
@@ -291,7 +291,7 @@ bool perkCanAdd(Object* critter, int perk)
         int value1 = perkDescription->value1;
         if (value1 < 0) {
             if (isVariable) {
-                if (gameGetGlobalVar(param1) >= value1) {
+                if (game_get_global_var(param1) >= value1) {
                     v1 = false;
                 }
             } else {
@@ -301,7 +301,7 @@ bool perkCanAdd(Object* critter, int perk)
             }
         } else {
             if (isVariable) {
-                if (gameGetGlobalVar(param1) < value1) {
+                if (game_get_global_var(param1) < value1) {
                     v1 = false;
                 }
             } else {
@@ -337,7 +337,7 @@ bool perkCanAdd(Object* critter, int perk)
         int value2 = perkDescription->value2;
         if (value2 < 0) {
             if (isVariable) {
-                if (gameGetGlobalVar(param2) >= value2) {
+                if (game_get_global_var(param2) >= value2) {
                     return false;
                 }
             } else {
@@ -347,7 +347,7 @@ bool perkCanAdd(Object* critter, int perk)
             }
         } else {
             if (isVariable) {
-                if (gameGetGlobalVar(param2) < value2) {
+                if (game_get_global_var(param2) < value2) {
                     return false;
                 }
             } else {

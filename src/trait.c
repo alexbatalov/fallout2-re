@@ -43,7 +43,7 @@ int traitsInit()
     }
 
     char path[FILENAME_MAX];
-    sprintf(path, "%s%s", asc_5186C8, "trait.msg");
+    sprintf(path, "%s%s", msg_path, "trait.msg");
 
     if (!messageListLoad(&gTraitsMessageList, path)) {
         return -1;

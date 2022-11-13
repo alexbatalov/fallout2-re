@@ -1089,7 +1089,7 @@ int protoInit()
     }
 
     for (i = 0; i < 6; i++) {
-        sprintf(path, "%spro_%.4s%s", asc_5186C8, art_dir(i), ".msg");
+        sprintf(path, "%spro_%.4s%s", msg_path, art_dir(i), ".msg");
 
         if (!messageListLoad(&(_proto_msg_files[i]), path)) {
             debugPrint("\nError: Loading proto message files!");
@@ -1123,7 +1123,7 @@ int protoInit()
         return -1;
     }
 
-    sprintf(path, "%sproto.msg", asc_5186C8);
+    sprintf(path, "%sproto.msg", msg_path);
 
     if (!messageListLoad(&gProtoMessageList, path)) {
         debugPrint("\nError: Loading main proto message file!");

@@ -2036,7 +2036,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_WATCH);
 
     while (gInterfaceBarSwapHandsInProgress) {
-        if (_game_user_wants_to_quit) {
+        if (game_user_wants_to_quit) {
             break;
         }
 
@@ -2387,7 +2387,7 @@ int indicatorBarInit()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "intrface.msg");
+    sprintf(path, "%s%s", msg_path, "intrface.msg");
 
     if (rc != -1) {
         if (!messageListLoad(&messageList, path)) {

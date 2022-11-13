@@ -214,7 +214,7 @@ void endgame_slideshow()
 
     for (int index = 0; index < num_slides; index++) {
         EndgameEnding* ending = &(slides[index]);
-        int value = gameGetGlobalVar(ending->gvar);
+        int value = game_get_global_var(ending->gvar);
         if (value == ending->value) {
             if (ending->art_num == 327) {
                 endgame_pan_desert(ending->direction, ending->voiceOverBaseName);
@@ -283,10 +283,10 @@ int endgameEndingHandleContinuePlaying()
 
     MessageListItem messageListItem;
     messageListItem.num = 30;
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         rc = dialog_out(messageListItem.text, NULL, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc == 0) {
-            _game_user_wants_to_quit = 2;
+            game_user_wants_to_quit = 2;
         }
     } else {
         rc = -1;
@@ -1104,7 +1104,7 @@ void endgameSetupDeathEnding(int reason)
 
     switch (reason) {
     case ENDGAME_DEATH_ENDING_REASON_DEATH:
-        if (gameGetGlobalVar(GVAR_MODOC_SHITTY_DEATH) != 0) {
+        if (game_get_global_var(GVAR_MODOC_SHITTY_DEATH) != 0) {
             selectedEnding = 12;
             specialEndingSelected = true;
         }
@@ -1154,7 +1154,7 @@ static int endgameSetupInit(int* percentage)
         deathEnding->enabled = false;
 
         if (deathEnding->gvar != -1) {
-            if (gameGetGlobalVar(deathEnding->gvar) >= deathEnding->value) {
+            if (game_get_global_var(deathEnding->gvar) >= deathEnding->value) {
                 continue;
             }
         }

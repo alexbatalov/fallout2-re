@@ -306,7 +306,7 @@ void gameTimeAddTicks(int ticks)
     unsigned int year = gGameTime / GAME_TIME_TICKS_PER_YEAR;
     if (year >= 13) {
         endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_TIMEOUT);
-        _game_user_wants_to_quit = 2;
+        game_user_wants_to_quit = 2;
     }
 
     // FIXME: This condition will never be true.
@@ -382,12 +382,12 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
 
     int day = gGameTime / GAME_TIME_TICKS_PER_DAY;
 
-    if (gameGetGlobalVar(GVAR_ENEMY_ARROYO)) {
+    if (game_get_global_var(GVAR_ENEMY_ARROYO)) {
         movie = MOVIE_AFAILED;
         movieFlags = GAME_MOVIE_FADE_IN | GAME_MOVIE_STOP_MUSIC;
         endgame = true;
     } else {
-        if (day >= 360 || gameGetGlobalVar(GVAR_FALLOUT_2) >= 3) {
+        if (day >= 360 || game_get_global_var(GVAR_FALLOUT_2) >= 3) {
             movie = MOVIE_ARTIMER4;
             if (!gameMovieIsSeen(MOVIE_ARTIMER4)) {
                 adjustRep = true;
@@ -395,13 +395,13 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
                 wmAreaSetVisibleState(CITY_DESTROYED_ARROYO, 1, 1);
                 wmAreaMarkVisitedState(CITY_DESTROYED_ARROYO, 2);
             }
-        } else if (day >= 270 && gameGetGlobalVar(GVAR_FALLOUT_2) != 3) {
+        } else if (day >= 270 && game_get_global_var(GVAR_FALLOUT_2) != 3) {
             adjustRep = true;
             movie = MOVIE_ARTIMER3;
-        } else if (day >= 180 && gameGetGlobalVar(GVAR_FALLOUT_2) != 3) {
+        } else if (day >= 180 && game_get_global_var(GVAR_FALLOUT_2) != 3) {
             adjustRep = true;
             movie = MOVIE_ARTIMER2;
-        } else if (day >= 90 && gameGetGlobalVar(GVAR_FALLOUT_2) != 3) {
+        } else if (day >= 90 && game_get_global_var(GVAR_FALLOUT_2) != 3) {
             adjustRep = true;
             movie = MOVIE_ARTIMER1;
         }
@@ -422,14 +422,14 @@ int _scriptsCheckGameEvents(int* moviePtr, int window)
             }
 
             if (adjustRep) {
-                int rep = gameGetGlobalVar(GVAR_TOWN_REP_ARROYO);
-                gameSetGlobalVar(GVAR_TOWN_REP_ARROYO, rep - 15);
+                int rep = game_get_global_var(GVAR_TOWN_REP_ARROYO);
+                game_set_global_var(GVAR_TOWN_REP_ARROYO, rep - 15);
             }
         }
     }
 
     if (endgame) {
-        _game_user_wants_to_quit = 2;
+        game_user_wants_to_quit = 2;
     } else {
         tileWindowRefresh();
     }
@@ -690,7 +690,7 @@ void _script_chk_timed_events()
         v1 = true;
     }
 
-    if (_game_state() != GAME_STATE_4) {
+    if (game_state() != GAME_STATE_4) {
         if (getTicksBetween(v0, _last_light_time) >= 30000) {
             _last_light_time = v0;
             scriptsExecMapUpdateScripts(SCRIPT_PROC_MAP_UPDATE);
@@ -1070,7 +1070,7 @@ void _scripts_request_combat_locked(STRUCT_664980* a1)
 void scriptsRequestWorldMap()
 {
     if (isInCombat()) {
-        _game_user_wants_to_quit = 1;
+        game_user_wants_to_quit = 1;
     }
 
     gScriptsRequests |= SCRIPT_REQUEST_WORLD_MAP;
@@ -1501,7 +1501,7 @@ int _scr_game_init()
         }
     }
 
-    sprintf(path, "%s%s", asc_5186C8, "script.msg");
+    sprintf(path, "%s%s", msg_path, "script.msg");
     if (!messageListLoad(&gScrMessageList, path)) {
         debugPrint("\nError loading script message file!");
         return -1;
@@ -1639,13 +1639,13 @@ void _scr_disable_critters()
 // 0x4A5400
 int scriptsSaveGameGlobalVars(File* stream)
 {
-    return fileWriteInt32List(stream, gGameGlobalVars, gGameGlobalVarsLength);
+    return fileWriteInt32List(stream, game_global_vars, num_game_global_vars);
 }
 
 // 0x4A5424
 int scriptsLoadGameGlobalVars(File* stream)
 {
-    return fileReadInt32List(stream, gGameGlobalVars, gGameGlobalVarsLength);
+    return fileReadInt32List(stream, game_global_vars, num_game_global_vars);
 }
 
 // NOTE: For unknown reason save game files contains two identical sets of game
@@ -1656,12 +1656,12 @@ int scriptsLoadGameGlobalVars(File* stream)
 // 0x4A5448
 int scriptsSkipGameGlobalVars(File* stream)
 {
-    int* vars = (int*)internal_malloc(sizeof(*vars) * gGameGlobalVarsLength);
+    int* vars = (int*)internal_malloc(sizeof(*vars) * num_game_global_vars);
     if (vars == NULL) {
         return -1;
     }
 
-    if (fileReadInt32List(stream, vars, gGameGlobalVarsLength) == -1) {
+    if (fileReadInt32List(stream, vars, num_game_global_vars) == -1) {
         // FIXME: Leaks vars.
         return -1;
     }

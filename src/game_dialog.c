@@ -686,7 +686,7 @@ void gameDialogEnter(Object* a1, int a2)
 // 0x444FE4
 void _gdialogSystemEnter()
 {
-    _game_state_update();
+    game_state_update();
 
     _gdDialogTurnMouseOff = true;
 
@@ -702,9 +702,9 @@ void _gdialogSystemEnter()
         _tile_scroll_to(gGameDialogOldCenterTile, 2);
     }
 
-    _game_state_request(GAME_STATE_2);
+    game_state_request(GAME_STATE_2);
 
-    _game_state_update();
+    game_state_update();
 }
 
 // 0x445050
@@ -861,7 +861,7 @@ int _gdialogExitFromScript()
 
     cycle_enable();
 
-    if (!gameUiIsDisabled()) {
+    if (!game_ui_is_disabled()) {
         _gmouse_enable_scrolling();
     }
 
@@ -878,14 +878,14 @@ int _gdialogExitFromScript()
     _boxesWereDisabled = 0;
 
     if (_gdDialogTurnMouseOff) {
-        if (!gameUiIsDisabled()) {
+        if (!game_ui_is_disabled()) {
             _gmouse_enable();
         }
 
         _gdDialogTurnMouseOff = 0;
     }
 
-    if (!gameUiIsDisabled()) {
+    if (!game_ui_is_disabled()) {
         gameMouseObjectsShow();
     }
 
@@ -1353,10 +1353,10 @@ int gameDialogShowReview()
     while (true) {
         int keyCode = _get_input();
         if (keyCode == 17 || keyCode == 24 || keyCode == 324) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
-        if (_game_user_wants_to_quit != 0 || keyCode == KEY_ESCAPE) {
+        if (game_user_wants_to_quit != 0 || keyCode == KEY_ESCAPE) {
             break;
         }
 
@@ -1774,10 +1774,10 @@ int _gdProcess()
         int keyCode = _get_input();
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -3546,10 +3546,10 @@ void partyMemberControlWindowHandleEvents()
         int keyCode = _get_input();
         if (keyCode != -1) {
             if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-                showQuitConfirmationDialog();
+                game_quit_with_confirm();
             }
 
-            if (_game_user_wants_to_quit != 0) {
+            if (game_user_wants_to_quit != 0) {
                 break;
             }
 
@@ -3789,10 +3789,10 @@ void partyMemberCustomizationWindowHandleEvents()
         unsigned int keyCode = _get_input();
         if (keyCode != -1) {
             if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-                showQuitConfirmationDialog();
+                game_quit_with_confirm();
             }
 
-            if (_game_user_wants_to_quit != 0) {
+            if (game_user_wants_to_quit != 0) {
                 break;
             }
 
@@ -3998,10 +3998,10 @@ int _gdCustomSelect(int a1)
         }
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 

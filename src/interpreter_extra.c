@@ -175,7 +175,7 @@ int tileIsVisible(int tile)
 int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 {
     if (a1 == gDude) {
-        bool animated = !gameUiIsDisabled();
+        bool animated = !game_ui_is_disabled();
         interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
@@ -993,7 +993,7 @@ void opDestroyObject(Program* program)
         itemRemove(owner, object, quantity);
 
         if (owner == gDude) {
-            bool animated = !gameUiIsDisabled();
+            bool animated = !game_ui_is_disabled();
             interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
@@ -1326,8 +1326,8 @@ void opGetGlobalVar(Program* program)
     }
 
     int value = -1;
-    if (gGameGlobalVarsLength != 0) {
-        value = gameGetGlobalVar(data);
+    if (num_game_global_vars != 0) {
+        value = game_get_global_var(data);
     } else {
         scriptError("\nScript Error: %s: op_global_var: no global vars found!", program->name);
     }
@@ -1360,8 +1360,8 @@ void opSetGlobalVar(Program* program)
     int variable = data[1];
     int value = data[0];
 
-    if (gGameGlobalVarsLength != 0) {
-        gameSetGlobalVar(variable, value);
+    if (num_game_global_vars != 0) {
+        game_set_global_var(variable, value);
     } else {
         scriptError("\nScript Error: %s: op_set_global_var: no global vars found!", program->name);
     }
@@ -2099,7 +2099,7 @@ void opWieldItem(Program* program)
             _adjust_ac(critter, oldArmor, newArmor);
         }
 
-        bool animated = !gameUiIsDisabled();
+        bool animated = !game_ui_is_disabled();
         interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
@@ -2638,11 +2638,11 @@ void opLoadMap(Program* program)
     int mapIndex = -1;
 
     if (mapName != NULL) {
-        gGameGlobalVars[GVAR_LOAD_MAP_INDEX] = param;
+        game_global_vars[GVAR_LOAD_MAP_INDEX] = param;
         mapIndex = wmMapMatchNameToIdx(mapName);
     } else {
         if (mapIndexOrName >= 0) {
-            gGameGlobalVars[GVAR_LOAD_MAP_INDEX] = param;
+            game_global_vars[GVAR_LOAD_MAP_INDEX] = param;
             mapIndex = mapIndexOrName;
         }
     }
@@ -3370,7 +3370,7 @@ void opGameDialogSystemEnter(Program* program)
         return;
     }
 
-    if (_game_state_request(GAME_STATE_4) == -1) {
+    if (game_state_request(GAME_STATE_4) == -1) {
         return;
     }
 
@@ -4109,7 +4109,7 @@ void opMetarule(Program* program)
     switch (rule) {
     case METARULE_SIGNAL_END_GAME:
         result = 0;
-        _game_user_wants_to_quit = 2;
+        game_user_wants_to_quit = 2;
         break;
     case METARULE_FIRST_RUN:
         result = (gMapHeader.flags & MAP_SAVED) == 0;
@@ -4169,7 +4169,7 @@ void opMetarule(Program* program)
             result = _invenUnwieldFunc(object, hand, 0);
 
             if (object == gDude) {
-                bool animated = !gameUiIsDisabled();
+                bool animated = !game_ui_is_disabled();
                 interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             } else {
                 Object* item = critterGetItem1(object);
@@ -4723,7 +4723,7 @@ void opRemoveMultipleObjectsFromInventory(Program* program)
             _obj_connect(item, 1, 0, &updatedRect);
             if (itemWasEquipped) {
                 if (owner == gDude) {
-                    bool animated = !gameUiIsDisabled();
+                    bool animated = !game_ui_is_disabled();
                     interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 }
             }
@@ -5486,21 +5486,21 @@ void opObjectClose(Program* program)
 // 0x45B3D0
 void opGameUiDisable(Program* program)
 {
-    gameUiDisable(0);
+    game_ui_disable(0);
 }
 
 // game_ui_enable
 // 0x45B3D8
 void opGameUiEnable(Program* program)
 {
-    gameUiEnable();
+    game_ui_enable();
 }
 
 // game_ui_is_disabled
 // 0x45B3E0
 void opGameUiIsDisabled(Program* program)
 {
-    programStackPushInt32(program, gameUiIsDisabled());
+    programStackPushInt32(program, game_ui_is_disabled());
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
@@ -6104,7 +6104,7 @@ void opDestroyMultipleObjects(Program* program)
         itemRemove(owner, object, quantityToDestroy);
 
         if (owner == gDude) {
-            bool animated = !gameUiIsDisabled();
+            bool animated = !game_ui_is_disabled();
             interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
@@ -6258,7 +6258,7 @@ void opMoveObjectInventoryToObject(Program* program)
 
         _proto_dude_update_gender();
 
-        bool animated = !gameUiIsDisabled();
+        bool animated = !game_ui_is_disabled();
         interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
@@ -6525,7 +6525,7 @@ void opCritterSetFleeState(Program* program)
 void opTerminateCombat(Program* program)
 {
     if (isInCombat()) {
-        _game_user_wants_to_quit = 1;
+        game_user_wants_to_quit = 1;
         Object* self = scriptGetSelf(program);
         if (self != NULL) {
             if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {

@@ -986,7 +986,7 @@ static int is_next_to(Object* a1, Object* a2)
             MessageListItem messageListItem;
             // You cannot get there.
             messageListItem.num = 2000;
-            if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+            if (messageListGetItem(&misc_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -1530,7 +1530,7 @@ Object* pick_object(int objectType, bool a2)
                 break;
             }
         }
-    } while (_game_user_wants_to_quit == 0);
+    } while (game_user_wants_to_quit == 0);
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     gameMouseObjectsShow();
@@ -1593,7 +1593,7 @@ int pick_hex()
             rect.bottom = 88;
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             return -1;
         }
     }
@@ -1742,7 +1742,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
 
-    gameUiDisable(1);
+    game_ui_disable(1);
 
     if (critter != NULL) {
         if (register_clear(critter) == -2) {
@@ -1799,7 +1799,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
 
             internal_free(attack);
 
-            gameUiEnable();
+            game_ui_enable();
             return -1;
         }
 
@@ -1898,7 +1898,7 @@ static int report_explosion(Attack* attack, Object* a2)
     }
 
     internal_free(attack);
-    gameUiEnable();
+    game_ui_enable();
 
     if (a2 == gDude) {
         combat_give_exps(xp);
@@ -1977,7 +1977,7 @@ static int can_talk_to(Object* a1, Object* a2)
             // You cannot get there. (used in actions.c)
             MessageListItem messageListItem;
             messageListItem.num = 2000;
-            if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+            if (messageListGetItem(&misc_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -2019,7 +2019,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
     combat_ctd_init(attack, attacker, defender, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
-    gameUiDisable(1);
+    game_ui_disable(1);
 
     if (defender != NULL) {
         register_clear(defender);
@@ -2061,7 +2061,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
         objectDestroy(attacker, NULL);
     }
 
-    gameUiEnable();
+    game_ui_enable();
 }
 
 // 0x41363C
@@ -2070,7 +2070,7 @@ static int report_dmg(Attack* attack, Object* a2)
     combat_display(attack);
     apply_damage(attack, false);
     internal_free(attack);
-    gameUiEnable();
+    game_ui_enable();
     return 0;
 }
 

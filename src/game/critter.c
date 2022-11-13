@@ -120,7 +120,7 @@ int critter_init()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%sscrname.msg", asc_5186C8);
+    sprintf(path, "%sscrname.msg", msg_path);
 
     if (!messageListLoad(&critter_scrmsg_file, path)) {
         debugPrint("\nError: Loading critter name message file!");
@@ -313,7 +313,7 @@ int critter_adjust_poison(Object* critter, int amount)
         messageListItem.num = 3003;
     }
 
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -339,7 +339,7 @@ int critter_check_poison(Object* obj, void* data)
     MessageListItem messageListItem;
     // You take damage from poison.
     messageListItem.num = 3001;
-    if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+    if (messageListGetItem(&misc_message_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -405,7 +405,7 @@ int critter_adjust_rads(Object* obj, int amount)
                     messageListItem.num = 1008;
                 }
 
-                if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+                if (messageListGetItem(&misc_message_file, &messageListItem)) {
                     display_print(messageListItem.text);
                 }
             }
@@ -416,7 +416,7 @@ int critter_adjust_rads(Object* obj, int amount)
         // You have received a large dose of radiation.
         messageListItem.num = 1007;
 
-        if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+        if (messageListGetItem(&misc_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }
@@ -539,7 +539,7 @@ static void process_rads(Object* obj, int radiationLevel, bool isHealing)
     if (obj == gDude) {
         // Radiation level message, higher is worse.
         messageListItem.num = 1000 + radiationLevelIndex;
-        if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+        if (messageListGetItem(&misc_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }
@@ -567,7 +567,7 @@ static void process_rads(Object* obj, int radiationLevel, bool isHealing)
         if (obj == gDude) {
             // You have died from radiation sickness.
             messageListItem.num = 1006;
-            if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+            if (messageListGetItem(&misc_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -861,7 +861,7 @@ void critter_kill(Object* critter, int anim, bool a3)
 
     if (critter == gDude) {
         endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_DEATH);
-        _game_user_wants_to_quit = 2;
+        game_user_wants_to_quit = 2;
     }
 }
 

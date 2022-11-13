@@ -870,7 +870,7 @@ static int ai_magic_hands(Object* critter, Object* item, int num)
     if (num != -1) {
         MessageListItem messageListItem;
         messageListItem.num = num;
-        if (messageListGetItem(&gMiscMessageList, &messageListItem)) {
+        if (messageListGetItem(&misc_message_file, &messageListItem)) {
             const char* critterName = objectGetName(critter);
 
             char text[200];
@@ -3353,7 +3353,7 @@ static int combatai_load_messages()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "combatai.msg");
+    sprintf(path, "%s%s", msg_path, "combatai.msg");
 
     if (!messageListLoad(&ai_message_file, path)) {
         return -1;

@@ -87,7 +87,7 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
             while (gSelfrunState == SELFRUN_STATE_PLAYING) {
                 int keyCode = _get_input();
                 if (keyCode != selfrunData->stopKeyCode) {
-                    gameHandleKey(keyCode, false);
+                    game_handle_input(keyCode, false);
                 }
             }
 
@@ -154,10 +154,10 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
                 int keyCode = _get_input();
                 if (keyCode == selfrunData->stopKeyCode) {
                     vcr_stop();
-                    _game_user_wants_to_quit = 2;
+                    game_user_wants_to_quit = 2;
                     done = true;
                 } else {
-                    gameHandleKey(keyCode, false);
+                    game_handle_input(keyCode, false);
                 }
             }
         }
@@ -168,7 +168,7 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
 // 0x4A8E74
 void selfrunPlaybackCompleted(int reason)
 {
-    _game_user_wants_to_quit = 2;
+    game_user_wants_to_quit = 2;
     gSelfrunState = SELFRUN_STATE_TURNED_OFF;
 }
 

@@ -93,7 +93,7 @@ int statsInit()
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "stat.msg");
+    sprintf(path, "%s%s", msg_path, "stat.msg");
 
     if (!messageListLoad(&gStatsMessageList, path)) {
         return -1;

@@ -263,7 +263,7 @@ void _map_init()
 
     if (messageListInit(&gMapMessageList)) {
         char path[FILENAME_MAX];
-        sprintf(path, "%smap.msg", asc_5186C8);
+        sprintf(path, "%smap.msg", msg_path);
 
         if (!messageListLoad(&gMapMessageList, path)) {
             debugPrint("\nError loading map_msg_file!");
@@ -294,7 +294,7 @@ void isoEnable()
 {
     if (!gIsoEnabled) {
         textObjectsEnable();
-        if (!gameUiIsDisabled()) {
+        if (!game_ui_is_disabled()) {
             _gmouse_enable();
         }
         tickersAdd(object_animate);
@@ -890,7 +890,7 @@ int mapLoad(File* stream)
         }
 
         strcat(path, ".GAM");
-        globalVarsRead(path, "MAP_GLOBAL_VARS:", &gMapGlobalVarsLength, &gMapGlobalVars);
+        game_load_info_vars(path, "MAP_GLOBAL_VARS:", &gMapGlobalVarsLength, &gMapGlobalVars);
         gMapHeader.globalVariablesCount = gMapGlobalVarsLength;
     }
 
@@ -981,7 +981,7 @@ err:
 
     fileSetReadProgressHandler(NULL, 0);
 
-    if (gameUiIsDisabled() == 0) {
+    if (game_ui_is_disabled() == 0) {
         _gmouse_enable_scrolling();
     }
 
@@ -1171,7 +1171,7 @@ int mapSetTransition(MapTransition* transition)
     }
 
     if (isInCombat()) {
-        _game_user_wants_to_quit = 1;
+        game_user_wants_to_quit = 1;
     }
 
     return 0;

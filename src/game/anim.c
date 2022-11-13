@@ -643,11 +643,11 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
 
             if (owner == gDude) {
                 // You are overloaded.
-                strcpy(formattedText, getmsg(&gMiscMessageList, &messageListItem, 8000));
+                strcpy(formattedText, getmsg(&misc_message_file, &messageListItem, 8000));
             } else {
                 // %s is overloaded.
                 sprintf(formattedText,
-                    getmsg(&gMiscMessageList, &messageListItem, 8001),
+                    getmsg(&misc_message_file, &messageListItem, 8001),
                     critter_name(owner));
             }
             display_print(formattedText);
@@ -736,11 +736,11 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
 
             if (owner == gDude) {
                 // You are overloaded.
-                strcpy(formattedText, getmsg(&gMiscMessageList, &messageListItem, 8000));
+                strcpy(formattedText, getmsg(&misc_message_file, &messageListItem, 8000));
             } else {
                 // %s is overloaded.
                 sprintf(formattedText,
-                    getmsg(&gMiscMessageList, &messageListItem, 8001),
+                    getmsg(&misc_message_file, &messageListItem, 8001),
                     critter_name(owner));
             }
 
@@ -3123,7 +3123,7 @@ void dude_fidget()
     // 0x56C7E0
     static Object* fidget_ptr[100];
 
-    if (_game_user_wants_to_quit != 0) {
+    if (game_user_wants_to_quit != 0) {
         return;
     }
 

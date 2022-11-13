@@ -276,7 +276,7 @@ int falloutMain(int argc, char** argv)
 // 0x480CC0
 bool falloutInit(int argc, char** argv)
 {
-    if (gameInitWithOptions("FALLOUT II", false, 0, 0, argc, argv) == -1) {
+    if (game_init("FALLOUT II", false, 0, 0, argc, argv) == -1) {
         return false;
     }
 
@@ -296,7 +296,7 @@ bool falloutInit(int argc, char** argv)
 // 0x480D0C
 int main_reset_system()
 {
-    gameReset();
+    game_reset();
 
     return 1;
 }
@@ -311,13 +311,13 @@ void main_exit_system()
     // NOTE: Uninline.
     _main_selfrun_exit();
 
-    gameExit();
+    game_exit();
 }
 
 // 0x480D4C
 int _main_load_new(char* mapFileName)
 {
-    _game_user_wants_to_quit = 0;
+    game_user_wants_to_quit = 0;
     _main_show_death_scene = 0;
     gDude->flags &= ~OBJECT_FLAT;
     objectShow(gDude, NULL);
@@ -345,7 +345,7 @@ int _main_load_new(char* mapFileName)
 // 0x480DF8
 int main_loadgame_new()
 {
-    _game_user_wants_to_quit = 0;
+    game_user_wants_to_quit = 0;
     _main_show_death_scene = 0;
 
     gDude->flags &= ~OBJECT_FLAT;
@@ -380,9 +380,9 @@ void mainLoop()
 
     scriptsEnable();
 
-    while (_game_user_wants_to_quit == 0) {
+    while (game_user_wants_to_quit == 0) {
         int keyCode = _get_input();
-        gameHandleKey(keyCode, false);
+        game_handle_input(keyCode, false);
 
         scriptsHandleRequests();
 
@@ -395,7 +395,7 @@ void mainLoop()
         if ((gDude->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
             endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_DEATH);
             _main_show_death_scene = 1;
-            _game_user_wants_to_quit = 2;
+            game_user_wants_to_quit = 2;
         }
     }
 
@@ -765,7 +765,7 @@ int mainMenuWindowInit()
 
     // Copyright.
     msg.num = 20;
-    if (messageListGetItem(&gMiscMessageList, &msg)) {
+    if (messageListGetItem(&misc_message_file, &msg)) {
         windowDrawText(gMainMenuWindow, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
     }
 
@@ -809,7 +809,7 @@ int mainMenuWindowInit()
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         msg.num = 9 + index;
-        if (messageListGetItem(&gMiscMessageList, &msg)) {
+        if (messageListGetItem(&misc_message_file, &msg)) {
             len = fontGetStringWidth(msg.text);
             fontDrawText(gMainMenuWindowBuffer + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
         }
@@ -981,14 +981,14 @@ int mainMenuWindowHandleEvents()
             }
         }
 
-        if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit == 3) {
+        if (keyCode == KEY_ESCAPE || game_user_wants_to_quit == 3) {
             rc = MAIN_MENU_EXIT;
 
             // NOTE: Uninline.
             main_menu_play_sound("nmselec1");
             break;
-        } else if (_game_user_wants_to_quit == 2) {
-            _game_user_wants_to_quit = 0;
+        } else if (game_user_wants_to_quit == 2) {
+            game_user_wants_to_quit = 0;
         } else {
             if (getTicksSince(tick) >= gMainMenuScreensaverDelay) {
                 rc = MAIN_MENU_TIMEOUT;

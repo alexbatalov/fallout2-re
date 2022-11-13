@@ -213,7 +213,7 @@ int pipboyOpen(int intent)
 {
     if (!wmMapPipboyActive()) {
         // You aren't wearing the pipboy!
-        const char* text = getmsg(&gMiscMessageList, &gPipboyMessageListItem, 7000);
+        const char* text = getmsg(&misc_message_file, &gPipboyMessageListItem, 7000);
         dialog_out(text, NULL, 0, 192, 135, colorTable[32328], NULL, colorTable[32328], 1);
         return 0;
     }
@@ -250,11 +250,11 @@ int pipboyOpen(int intent)
         }
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
             break;
         }
 
-        if (keyCode == 503 || keyCode == KEY_ESCAPE || keyCode == KEY_RETURN || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P || _game_user_wants_to_quit != 0) {
+        if (keyCode == 503 || keyCode == KEY_ESCAPE || keyCode == KEY_RETURN || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P || game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -319,7 +319,7 @@ int pipboyWindowInit(int intent)
     }
 
     char path[MAX_PATH];
-    sprintf(path, "%s%s", asc_5186C8, "pipboy.msg");
+    sprintf(path, "%s%s", msg_path, "pipboy.msg");
 
     if (!(messageListLoad(&gPipboyMessageList, path))) {
         return -1;
@@ -681,7 +681,7 @@ void pipboyWindowHandleStatus(int a1)
 
         for (int index = 0; index < gHolodisksCount; index += 1) {
             HolodiskDescription* holodiskDescription = &(gHolodiskDescriptions[index]);
-            if (gGameGlobalVars[holodiskDescription->gvar] != 0) {
+            if (game_global_vars[holodiskDescription->gvar] != 0) {
                 gPipboyWindowHolodisksCount += 1;
                 break;
             }
@@ -724,7 +724,7 @@ void pipboyWindowHandleStatus(int a1)
                 int index = 0;
                 for (; index < gHolodisksCount; index += 1) {
                     HolodiskDescription* holodiskDescription = &(gHolodiskDescriptions[index]);
-                    if (gGameGlobalVars[holodiskDescription->gvar] > 0) {
+                    if (game_global_vars[holodiskDescription->gvar] > 0) {
                         if (a1 - 1 == _holodisk) {
                             break;
                         }
@@ -895,7 +895,7 @@ void pipboyWindowHandleStatus(int a1)
         int index = 0;
         for (; index < gQuestsCount; index++) {
             QuestDescription* questDescription = &(gQuestDescriptions[index]);
-            if (questDescription->displayThreshold <= gGameGlobalVars[questDescription->gvar]) {
+            if (questDescription->displayThreshold <= game_global_vars[questDescription->gvar]) {
                 if (v13 == a1 - 1) {
                     break;
                 }
@@ -947,7 +947,7 @@ void pipboyWindowHandleStatus(int a1)
         int number = 1;
         for (; index < gQuestsCount; index++) {
             QuestDescription* questDescription = &(gQuestDescriptions[index]);
-            if (gGameGlobalVars[questDescription->gvar] >= questDescription->displayThreshold) {
+            if (game_global_vars[questDescription->gvar] >= questDescription->displayThreshold) {
                 const char* text = getmsg(&gQuestsMessageList, &gPipboyMessageListItem, questDescription->description);
                 char formattedText[1024];
                 sprintf(formattedText, "%d. %s", number, text);
@@ -964,7 +964,7 @@ void pipboyWindowHandleStatus(int a1)
 
                         int flags;
                         int color;
-                        if (gGameGlobalVars[questDescription->gvar] < questDescription->completedThreshold) {
+                        if (game_global_vars[questDescription->gvar] < questDescription->completedThreshold) {
                             flags = 0;
                             color = colorTable[992];
                         } else {
@@ -1020,7 +1020,7 @@ void pipboyWindowRenderQuestLocationList(int a1)
 
     for (int index = 0; index < gQuestsCount; index += 1) {
         QuestDescription* quest = &(gQuestDescriptions[index]);
-        if (quest->displayThreshold > gGameGlobalVars[quest->gvar]) {
+        if (quest->displayThreshold > game_global_vars[quest->gvar]) {
             continue;
         }
 
@@ -1192,7 +1192,7 @@ int pipboyWindowRenderHolodiskList(int a1)
     int knownHolodisksCount = 0;
     for (int index = 0; index < gHolodisksCount; index++) {
         HolodiskDescription* holodisk = &(gHolodiskDescriptions[index]);
-        if (gGameGlobalVars[holodisk->gvar] != 0) {
+        if (game_global_vars[holodisk->gvar] != 0) {
             int color;
             if ((gPipboyCurrentLine - 2) / 2 == a1) {
                 color = colorTable[32747];
@@ -1780,14 +1780,14 @@ bool pipboyRest(int hours, int minutes, int duration)
                         break;
                     }
 
-                    if (_game_user_wants_to_quit != 0) {
+                    if (game_user_wants_to_quit != 0) {
                         rc = true;
                     }
                 }
 
                 if (!rc) {
                     gameTimeSetTime(v6);
-                    if (_get_input() == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+                    if (_get_input() == KEY_ESCAPE || game_user_wants_to_quit != 0) {
                         rc = true;
                     }
 
@@ -1826,7 +1826,7 @@ bool pipboyRest(int hours, int minutes, int duration)
 
                 unsigned int start = _get_time();
 
-                if (_get_input() == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+                if (_get_input() == KEY_ESCAPE || game_user_wants_to_quit != 0) {
                     rc = true;
                 }
 
@@ -1842,7 +1842,7 @@ bool pipboyRest(int hours, int minutes, int duration)
                         break;
                     }
 
-                    if (_game_user_wants_to_quit != 0) {
+                    if (game_user_wants_to_quit != 0) {
                         rc = true;
                     }
                 }

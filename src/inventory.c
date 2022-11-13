@@ -431,7 +431,7 @@ int inventoryMessageListInit()
     if (!messageListInit(&gInventoryMessageList))
         return -1;
 
-    sprintf(path, "%s%s", asc_5186C8, "inventry.msg");
+    sprintf(path, "%s%s", msg_path, "inventry.msg");
     if (!messageListLoad(&gInventoryMessageList, path))
         return -1;
 
@@ -501,18 +501,18 @@ void inventoryOpen()
             break;
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
         _display_body(-1, INVENTORY_WINDOW_TYPE_NORMAL);
 
-        if (_game_state() == GAME_STATE_5) {
+        if (game_state() == GAME_STATE_5) {
             break;
         }
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         } else if (keyCode == KEY_HOME) {
             _stack_offset[_curr_stack] = 0;
             _display_inventory(0, -1, INVENTORY_WINDOW_TYPE_NORMAL);
@@ -1544,10 +1544,10 @@ int inventoryCommonInit()
         return -1;
     }
 
-    _inven_ui_was_disabled = gameUiIsDisabled();
+    _inven_ui_was_disabled = game_ui_is_disabled();
 
     if (_inven_ui_was_disabled) {
-        gameUiEnable();
+        game_ui_enable();
     }
 
     gameMouseObjectsHide();
@@ -1577,7 +1577,7 @@ int inventoryCommonInit()
         }
 
         if (_inven_ui_was_disabled) {
-            gameUiDisable(0);
+            game_ui_disable(0);
         }
 
         messageListFree(&gInventoryMessageList);
@@ -1601,7 +1601,7 @@ void inventoryCommonFree()
     }
 
     if (_inven_ui_was_disabled) {
-        gameUiDisable(0);
+        game_ui_disable(0);
     }
 
     // NOTE: Uninline.
@@ -2049,7 +2049,7 @@ void inventoryOpenUseItemOn(Object* a1)
     _display_inventory(_stack_offset[_curr_stack], -1, INVENTORY_WINDOW_TYPE_USE_ITEM_ON);
     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
     for (;;) {
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -3510,7 +3510,7 @@ int inventoryOpenLooting(Object* a1, Object* a2)
     int stealingXp = 0;
     int stealingXpBonus = 10;
     for (;;) {
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -3521,10 +3521,10 @@ int inventoryOpenLooting(Object* a1, Object* a2)
         int keyCode = _get_input();
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 
@@ -4324,16 +4324,16 @@ void inventoryOpenTrade(int win, Object* a2, Object* a3, Object* a4, int a5)
 
     int keyCode = -1;
     for (;;) {
-        if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+        if (keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             break;
         }
 
         keyCode = _get_input();
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
         }
 
-        if (_game_user_wants_to_quit != 0) {
+        if (game_user_wants_to_quit != 0) {
             break;
         }
 

@@ -1483,7 +1483,7 @@ int _partyMemberIncLevels()
 
                     name = critter_name(obj);
                     // %s has gained in some abilities.
-                    text = getmsg(&gMiscMessageList, &msg, 9000);
+                    text = getmsg(&misc_message_file, &msg, 9000);
                     sprintf(str, text, name);
                     display_print(str);
 
@@ -1491,7 +1491,7 @@ int _partyMemberIncLevels()
 
                     // Individual message
                     msg.num = 9000 + 10 * v0 + ptr_519DBC->field_0 - 1;
-                    if (messageListGetItem(&gMiscMessageList, &msg)) {
+                    if (messageListGetItem(&misc_message_file, &msg)) {
                         name = critter_name(obj);
                         sprintf(str, msg.text, name);
                         textObjectAdd(obj, str, 101, colorTable[0x7FFF], colorTable[0], &v19);

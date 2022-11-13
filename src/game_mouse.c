@@ -1108,7 +1108,7 @@ void _gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
                         _get_input();
 
-                        if (_game_user_wants_to_quit != 0) {
+                        if (game_user_wants_to_quit != 0) {
                             actionMenuItems[actionIndex] = 0;
                         }
 

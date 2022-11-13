@@ -291,7 +291,7 @@ int lsgSaveGame(int mode)
         }
 
         char path[MAX_PATH];
-        sprintf(path, "%s%s", asc_5186C8, "LSGAME.MSG");
+        sprintf(path, "%s%s", msg_path, "LSGAME.MSG");
         if (!messageListLoad(&gLoadSaveMessageList, path)) {
             return -1;
         }
@@ -385,7 +385,7 @@ int lsgSaveGame(int mode)
         bool selectionChanged = false;
         int scrollDirection = LOAD_SAVE_SCROLL_DIRECTION_NONE;
 
-        if (keyCode == KEY_ESCAPE || keyCode == 501 || _game_user_wants_to_quit != 0) {
+        if (keyCode == KEY_ESCAPE || keyCode == 501 || game_user_wants_to_quit != 0) {
             rc = 0;
         } else {
             switch (keyCode) {
@@ -449,9 +449,9 @@ int lsgSaveGame(int mode)
             case KEY_CTRL_Q:
             case KEY_CTRL_X:
             case KEY_F10:
-                showQuitConfirmationDialog();
+                game_quit_with_confirm();
 
-                if (_game_user_wants_to_quit != 0) {
+                if (game_user_wants_to_quit != 0) {
                     rc = 0;
                 }
                 break;
@@ -775,7 +775,7 @@ int lsgLoadGame(int mode)
         }
 
         char path[MAX_PATH];
-        sprintf(path, "%s\\%s", asc_5186C8, "LSGAME.MSG");
+        sprintf(path, "%s\\%s", msg_path, "LSGAME.MSG");
         if (!messageListLoad(&gLoadSaveMessageList, path)) {
             return -1;
         }
@@ -792,7 +792,7 @@ int lsgLoadGame(int mode)
 
         messageListFree(&gLoadSaveMessageList);
         _map_new_map();
-        _game_user_wants_to_quit = 2;
+        game_user_wants_to_quit = 2;
 
         return -1;
     }
@@ -866,7 +866,7 @@ int lsgLoadGame(int mode)
         bool selectionChanged = false;
         int scrollDirection = 0;
 
-        if (keyCode == KEY_ESCAPE || keyCode == 501 || _game_user_wants_to_quit != 0) {
+        if (keyCode == KEY_ESCAPE || keyCode == 501 || game_user_wants_to_quit != 0) {
             rc = 0;
         } else {
             switch (keyCode) {
@@ -938,8 +938,8 @@ int lsgLoadGame(int mode)
             case KEY_CTRL_Q:
             case KEY_CTRL_X:
             case KEY_F10:
-                showQuitConfirmationDialog();
-                if (_game_user_wants_to_quit != 0) {
+                game_quit_with_confirm();
+                if (game_user_wants_to_quit != 0) {
                     rc = 0;
                 }
                 break;
@@ -1098,7 +1098,7 @@ int lsgLoadGame(int mode)
                     strcpy(_str1, getmsg(&gLoadSaveMessageList, &gLoadSaveMessageListItem, 135));
                     dialog_out(_str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
                     _map_new_map();
-                    _game_user_wants_to_quit = 2;
+                    game_user_wants_to_quit = 2;
                     rc = -1;
                 }
                 break;
@@ -1130,7 +1130,7 @@ int lsgWindowInit(int windowType)
         return -1;
     }
 
-    sprintf(_str, "%s%s", asc_5186C8, LSGAME_MSG_NAME);
+    sprintf(_str, "%s%s", msg_path, LSGAME_MSG_NAME);
     if (!messageListLoad(&gLoadSaveMessageList, _str)) {
         return -1;
     }
@@ -1492,7 +1492,7 @@ int lsgLoadGameInSlot(int slot)
     if (lsgLoadHeaderInSlot(slot) == -1) {
         debugPrint("\nLOADSAVE: ** Error reading save  game header! **\n");
         fileClose(_flptr);
-        gameReset();
+        game_reset();
         _loadingGame = 0;
         return -1;
     }
@@ -1507,7 +1507,7 @@ int lsgLoadGameInSlot(int slot)
             int v12 = fileTell(_flptr);
             debugPrint("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(_flptr) - pos);
             fileClose(_flptr);
-            gameReset();
+            game_reset();
             _loadingGame = 0;
             return -1;
         }
@@ -2142,7 +2142,7 @@ int _DummyFunc(File* stream)
 // 0x47F490
 int _PrepLoad(File* stream)
 {
-    gameReset();
+    game_reset();
     gameMouseSetCursor(MOUSE_CURSOR_WAIT_PLANET);
     gMapHeader.name[0] = '\0';
     gameTimeSetTime(_LSData[_slot_cursor].gameTime);

@@ -874,9 +874,9 @@ int editor_design(bool isCreationMode)
             win_draw(edit_win);
             rc = 0;
         } else if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
-            showQuitConfirmationDialog();
+            game_quit_with_confirm();
             win_draw(edit_win);
-        } else if (keyCode == 502 || keyCode == KEY_ESCAPE || keyCode == KEY_UPPERCASE_C || keyCode == KEY_LOWERCASE_C || _game_user_wants_to_quit != 0) {
+        } else if (keyCode == 502 || keyCode == KEY_ESCAPE || keyCode == KEY_UPPERCASE_C || keyCode == KEY_LOWERCASE_C || game_user_wants_to_quit != 0) {
             win_draw(edit_win);
             rc = 1;
         } else if (glblmode && (keyCode == 517 || keyCode == KEY_UPPERCASE_N || keyCode == KEY_LOWERCASE_N)) {
@@ -1206,7 +1206,7 @@ static int CharEditStart()
         return -1;
     }
 
-    sprintf(path, "%s%s", asc_5186C8, "editor.msg");
+    sprintf(path, "%s%s", msg_path, "editor.msg");
 
     if (!messageListLoad(&editor_message_file, path)) {
         return -1;
@@ -1862,7 +1862,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
         } else if (keyCode == KEY_RETURN) {
             soundPlayFile("ib1p1xx1");
             rc = 0;
-        } else if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+        } else if (keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             rc = -1;
         } else {
             if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && nameLength >= 1) {
@@ -3332,7 +3332,7 @@ static int AgeWindow()
 
             windowDestroy(win);
             return 0;
-        } else if (keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+        } else if (keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             break;
         } else if (keyCode == 501) {
             age = critterGetStat(gDude, STAT_AGE);
@@ -3432,7 +3432,7 @@ static int AgeWindow()
                 }
 
                 keyCode = _get_input();
-                if (keyCode == 503 || keyCode == 504 || _game_user_wants_to_quit != 0) {
+                if (keyCode == 503 || keyCode == 504 || game_user_wants_to_quit != 0) {
                     break;
                 }
             }
@@ -3557,7 +3557,7 @@ static void SexWindow()
             break;
         }
 
-        if (eventCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+        if (eventCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             critterSetBaseStat(gDude, STAT_GENDER, savedGender);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
             ListDrvdStats();
@@ -3771,7 +3771,7 @@ static int OptionWindow()
         while (rc == 0) {
             int keyCode = _get_input();
 
-            if (_game_user_wants_to_quit != 0) {
+            if (game_user_wants_to_quit != 0) {
                 rc = 2;
             } else if (keyCode == 504) {
                 rc = 2;
@@ -4370,7 +4370,7 @@ static int Save_as_ASCII(const char* fileName)
             int reputation = 0;
             for (; reputation < general_reps_count; reputation++) {
                 GenericReputationEntry* reputationDescription = &(general_reps[reputation]);
-                if (gGameGlobalVars[GVAR_PLAYER_REPUTATION] >= reputationDescription->threshold) {
+                if (game_global_vars[GVAR_PLAYER_REPUTATION] >= reputationDescription->threshold) {
                     break;
                 }
             }
@@ -4380,13 +4380,13 @@ static int Save_as_ASCII(const char* fileName)
                 sprintf(title1,
                     "  %s: %s (%s)",
                     getmsg(&editor_message_file, &mesg, 125),
-                    itoa(gGameGlobalVars[GVAR_PLAYER_REPUTATION], title2, 10),
+                    itoa(game_global_vars[GVAR_PLAYER_REPUTATION], title2, 10),
                     getmsg(&editor_message_file, &mesg, reputationDescription->name));
                 fileWriteString(title1, stream);
                 fileWriteString("\n", stream);
             }
         } else {
-            if (gGameGlobalVars[karmaEntry->gvar] != 0) {
+            if (game_global_vars[karmaEntry->gvar] != 0) {
                 sprintf(title1, "  %s", getmsg(&editor_message_file, &mesg, karmaEntry->name));
                 fileWriteString(title1, stream);
                 fileWriteString("\n", stream);
@@ -4409,7 +4409,7 @@ static int Save_as_ASCII(const char* fileName)
 
             wmGetAreaIdxName(pair->city, title2);
 
-            int townReputation = gGameGlobalVars[pair->gvar];
+            int townReputation = game_global_vars[pair->gvar];
 
             int townReputationMessageId;
 
@@ -4440,7 +4440,7 @@ static int Save_as_ASCII(const char* fileName)
 
     bool hasAddictionsHeading = false;
     for (int index = 0; index < ADDICTION_REPUTATION_COUNT; index++) {
-        if (gGameGlobalVars[addiction_vars[index]] != 0) {
+        if (game_global_vars[addiction_vars[index]] != 0) {
             if (!hasAddictionsHeading) {
                 fileWriteString("\n", stream);
 
@@ -5366,7 +5366,7 @@ static void list_karma()
             int reputation;
             for (reputation = 0; reputation < general_reps_count; reputation++) {
                 GenericReputationEntry* reputationDescription = &(general_reps[reputation]);
-                if (gGameGlobalVars[GVAR_PLAYER_REPUTATION] >= reputationDescription->threshold) {
+                if (game_global_vars[GVAR_PLAYER_REPUTATION] >= reputationDescription->threshold) {
                     break;
                 }
             }
@@ -5375,7 +5375,7 @@ static void list_karma()
                 GenericReputationEntry* reputationDescription = &(general_reps[reputation]);
 
                 char reputationValue[32];
-                itoa(gGameGlobalVars[GVAR_PLAYER_REPUTATION], reputationValue, 10);
+                itoa(game_global_vars[GVAR_PLAYER_REPUTATION], reputationValue, 10);
 
                 sprintf(formattedText,
                     "%s: %s (%s)",
@@ -5392,7 +5392,7 @@ static void list_karma()
                 }
             }
         } else {
-            if (gGameGlobalVars[karmaDescription->gvar] != 0) {
+            if (game_global_vars[karmaDescription->gvar] != 0) {
                 msg = getmsg(&editor_message_file, &mesg, karmaDescription->name);
                 if (folder_print_line(msg)) {
                     folder_card_fid = karmaDescription->art_num;
@@ -5423,7 +5423,7 @@ static void list_karma()
             char cityShortName[40];
             wmGetAreaIdxName(pair->city, cityShortName);
 
-            int townReputation = gGameGlobalVars[pair->gvar];
+            int townReputation = game_global_vars[pair->gvar];
 
             int townReputationGraphicId;
             int townReputationBaseMessageId;
@@ -5469,7 +5469,7 @@ static void list_karma()
 
     bool hasAddictionsHeading = false;
     for (int index = 0; index < ADDICTION_REPUTATION_COUNT; index++) {
-        if (gGameGlobalVars[addiction_vars[index]] != 0) {
+        if (game_global_vars[addiction_vars[index]] != 0) {
             if (!hasAddictionsHeading) {
                 // Addictions
                 msg = getmsg(&editor_message_file, &mesg, 4001);
@@ -5860,7 +5860,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
             }
             oldsline = cline;
             refreshProc();
-        } else if (keyCode == 502 || keyCode == KEY_ESCAPE || _game_user_wants_to_quit != 0) {
+        } else if (keyCode == 502 || keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             rc = 2;
         } else {
             switch (keyCode) {
