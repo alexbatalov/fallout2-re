@@ -51,6 +51,21 @@ typedef struct DialogWindowData {
     char* backgroundFileName;
 } DialogWindowData;
 
+// NOTE: There are |upButton| and |downButton| variables which are definitely
+// instances of some struct. The values are set only via scripting functions,
+// however they are never read back. It's impossible to understand the meaning
+// of the fields and give them names. I've commented my guesses based on
+// intuition.
+typedef struct DialogScrollButtonData {
+    int field_0; // x
+    int field_4; // y
+    int field_8; // flags
+    char* field_C; // normal image file name
+    char* field_10; // pressed image file name
+    char* field_14; // hover image file name
+    char* field_18; // mask or disabled image file name
+} DialogScrollButtonData;
+
 static STRUCT_56DAE0_FIELD_4* getReply();
 static void replyAddOption(const char* a1, const char* a2, int a3);
 static void replyAddOptionProc(const char* a1, int a2, int a3);
@@ -136,49 +151,13 @@ static int optionB;
 static int optionR;
 
 // 0x56DBB4
-static int downButton;
-
-// 0x56DBB8
-int dword_56DBB8;
-
-// 0x56DBBC
-int dword_56DBBC;
-
-// 0x56DBC0
-char* off_56DBC0;
-
-// 0x56DBC4
-char* off_56DBC4;
-
-// 0x56DBC8
-char* off_56DBC8;
-
-// 0x56DBCC
-char* off_56DBCC;
+static DialogScrollButtonData downButton;
 
 // 0x56DBD0
 static char* replyTitleDefault;
 
 // 0x56DBD4
-static int upButton;
-
-// 0x56DBD8
-int dword_56DBD8;
-
-// 0x56DBDC
-int dword_56DBDC;
-
-// 0x56DBE0
-char* off_56DBE0;
-
-// 0x56DBE4
-char* off_56DBE4;
-
-// 0x56DBE8
-char* off_56DBE8;
-
-// 0x56DBEC
-char* off_56DBEC;
+static DialogScrollButtonData upButton;
 
 // 0x42F434
 static STRUCT_56DAE0_FIELD_4* getReply()
@@ -600,30 +579,30 @@ int dialogSetBorder(int a1, int a2)
 // 0x431218
 int dialogSetScrollUp(int a1, int a2, char* a3, char* a4, char* a5, char* a6, int a7)
 {
-    upButton = a1;
-    dword_56DBD8 = a2;
+    upButton.field_0 = a1;
+    upButton.field_4 = a2;
 
-    if (off_56DBE0 != NULL) {
-        internal_free_safe(off_56DBE0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2750
+    if (upButton.field_C != NULL) {
+        internal_free_safe(upButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2750
     }
-    off_56DBE0 = a3;
+    upButton.field_C = a3;
 
-    if (off_56DBE4 != NULL) {
-        internal_free_safe(off_56DBE4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2752
+    if (upButton.field_10 != NULL) {
+        internal_free_safe(upButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2752
     }
-    off_56DBE4 = a4;
+    upButton.field_10 = a4;
 
-    if (off_56DBE8 != NULL) {
-        internal_free_safe(off_56DBE8, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2754
+    if (upButton.field_14 != NULL) {
+        internal_free_safe(upButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2754
     }
-    off_56DBE8 = a5;
+    upButton.field_14 = a5;
 
-    if (off_56DBEC != NULL) {
-        internal_free_safe(off_56DBEC, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2756
+    if (upButton.field_18 != NULL) {
+        internal_free_safe(upButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2756
     }
-    off_56DBEC = a5;
+    upButton.field_18 = a6;
 
-    dword_56DBDC = a7;
+    upButton.field_8 = a7;
 
     return 0;
 }
@@ -631,30 +610,30 @@ int dialogSetScrollUp(int a1, int a2, char* a3, char* a4, char* a5, char* a6, in
 // 0x4312C0
 int dialogSetScrollDown(int a1, int a2, char* a3, char* a4, char* a5, char* a6, int a7)
 {
-    downButton = a1;
-    dword_56DBB8 = a2;
+    downButton.field_0 = a1;
+    downButton.field_4 = a2;
 
-    if (off_56DBC0 != NULL) {
-        internal_free_safe(off_56DBC0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2765
+    if (downButton.field_C != NULL) {
+        internal_free_safe(downButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2765
     }
-    off_56DBC0 = a3;
+    downButton.field_C = a3;
 
-    if (off_56DBC4 != NULL) {
-        internal_free_safe(off_56DBC4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2767
+    if (downButton.field_10 != NULL) {
+        internal_free_safe(downButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2767
     }
-    off_56DBC4 = a4;
+    downButton.field_10 = a4;
 
-    if (off_56DBC8 != NULL) {
-        internal_free_safe(off_56DBC8, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2769
+    if (downButton.field_14 != NULL) {
+        internal_free_safe(downButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2769
     }
-    off_56DBC8 = a5;
+    downButton.field_14 = a5;
 
-    if (off_56DBCC != NULL) {
-        internal_free_safe(off_56DBCC, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2771
+    if (downButton.field_18 != NULL) {
+        internal_free_safe(downButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2771
     }
-    off_56DBCC = a6;
+    downButton.field_18 = a6;
 
-    dword_56DBBC = a7;
+    downButton.field_8 = a7;
 
     return 0;
 }
@@ -716,36 +695,36 @@ void initDialog()
 // 0x431434
 void dialogClose()
 {
-    if (off_56DBE0) {
-        internal_free_safe(off_56DBE0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2818
+    if (upButton.field_C) {
+        internal_free_safe(upButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2818
     }
 
-    if (off_56DBE4) {
-        internal_free_safe(off_56DBE4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2819
+    if (upButton.field_10) {
+        internal_free_safe(upButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2819
     }
 
-    if (off_56DBE8) {
-        internal_free_safe(off_56DBE8, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2820
+    if (upButton.field_14) {
+        internal_free_safe(upButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2820
     }
 
-    if (off_56DBEC) {
-        internal_free_safe(off_56DBEC, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2821
+    if (upButton.field_18) {
+        internal_free_safe(upButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2821
     }
 
-    if (off_56DBC0) {
-        internal_free_safe(off_56DBC0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2823
+    if (downButton.field_C) {
+        internal_free_safe(downButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2823
     }
 
-    if (off_56DBC4) {
-        internal_free_safe(off_56DBC4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2824
+    if (downButton.field_10) {
+        internal_free_safe(downButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2824
     }
 
-    if (off_56DBC8) {
-        internal_free_safe(off_56DBC8, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2825
+    if (downButton.field_14) {
+        internal_free_safe(downButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2825
     }
 
-    if (off_56DBCC) {
-        internal_free_safe(off_56DBCC, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2826
+    if (downButton.field_18) {
+        internal_free_safe(downButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2826
     }
 }
 
