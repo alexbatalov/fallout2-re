@@ -10,8 +10,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+// NOTE: Not present in debug symbols in `mapper2.exe`, but can be seen in OS X
+// binary.
+//
 // 0x452740
-int fileCopyDecompressed(const char* existingFilePath, const char* newFilePath)
+int gzRealUncompressCopyReal_file(const char* existingFilePath, const char* newFilePath)
 {
     FILE* stream = fopen(existingFilePath, "rb");
     if (stream == NULL) {
@@ -58,7 +61,7 @@ int fileCopyDecompressed(const char* existingFilePath, const char* newFilePath)
 }
 
 // 0x452804
-int fileCopyCompressed(const char* existingFilePath, const char* newFilePath)
+int gzcompress_file(const char* existingFilePath, const char* newFilePath)
 {
     FILE* inStream = fopen(existingFilePath, "rb");
     if (inStream == NULL) {
@@ -100,7 +103,9 @@ int fileCopyCompressed(const char* existingFilePath, const char* newFilePath)
 }
 
 // TODO: Check, implementation looks odd.
-int _gzdecompress_file(const char* existingFilePath, const char* newFilePath)
+//
+// 0x4528B8
+int gzdecompress_file(const char* existingFilePath, const char* newFilePath)
 {
     FILE* stream = fopen(existingFilePath, "rb");
     if (stream == NULL) {

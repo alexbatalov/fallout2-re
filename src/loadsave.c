@@ -2188,7 +2188,7 @@ int _GameMap2Slot(File* stream)
         const char* critterItemPath = PID_TYPE(pid) == OBJ_TYPE_CRITTER ? "PROTO\\CRITTERS" : "PROTO\\ITEMS";
         sprintf(_str0, "%s\\%s\\%s", _patches, critterItemPath, path);
         sprintf(_str1, "%s\\%s\\%s%.2d\\%s\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, critterItemPath, path);
-        if (fileCopyCompressed(_str0, _str1) == -1) {
+        if (gzcompress_file(_str0, _str1) == -1) {
             return -1;
         }
     }
@@ -2232,7 +2232,7 @@ int _GameMap2Slot(File* stream)
 
         sprintf(_str0, "%s\\%s\\%s", _patches, "MAPS", string);
         sprintf(_str1, "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, string);
-        if (fileCopyCompressed(_str0, _str1) == -1) {
+        if (gzcompress_file(_str0, _str1) == -1) {
             fileNameListFree(&fileNameList, 0);
             return -1;
         }
@@ -2244,7 +2244,7 @@ int _GameMap2Slot(File* stream)
     sprintf(_str1, "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, _str0);
     sprintf(_str0, "%s\\%s\\%s", _patches, "MAPS", "AUTOMAP.DB");
 
-    if (fileCopyCompressed(_str0, _str1) == -1) {
+    if (gzcompress_file(_str0, _str1) == -1) {
         return -1;
     }
 
@@ -2323,7 +2323,7 @@ int _SlotMap2Game(File* stream)
                 sprintf(_str0, "%s\\%s\\%s", _patches, basePath, protoPath);
                 sprintf(_str1, "%s\\%s\\%s%.2d\\%s\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, basePath, protoPath);
 
-                if (_gzdecompress_file(_str1, _str0) == -1) {
+                if (gzdecompress_file(_str1, _str0) == -1) {
                     debugPrint("LOADSAVE: returning 6\n");
                     return -1;
                 }
@@ -2340,7 +2340,7 @@ int _SlotMap2Game(File* stream)
         sprintf(_str0, "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, fileName);
         sprintf(_str1, "%s\\%s\\%s", _patches, "MAPS", fileName);
 
-        if (_gzdecompress_file(_str0, _str1) == -1) {
+        if (gzdecompress_file(_str0, _str1) == -1) {
             debugPrint("LOADSAVE: returning 7\n");
             return -1;
         }
@@ -2349,7 +2349,7 @@ int _SlotMap2Game(File* stream)
     const char* automapFileName = strmfe(_str1, "AUTOMAP.DB", "SAV");
     sprintf(_str0, "%s\\%s\\%s%.2d\\%s", _patches, "SAVEGAME", "SLOT", _slot_cursor + 1, automapFileName);
     sprintf(_str1, "%s\\%s\\%s", _patches, "MAPS", "AUTOMAP.DB");
-    if (fileCopyDecompressed(_str0, _str1) == -1) {
+    if (gzRealUncompressCopyReal_file(_str0, _str1) == -1) {
         debugPrint("LOADSAVE: returning 8\n");
         return -1;
     }

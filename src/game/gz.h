@@ -1,8 +1,8 @@
-#ifndef FILE_UTILS_H
-#define FILE_UTILS_H
+#ifndef FALLOUT_GAME_GZ_H_
+#define FALLOUT_GAME_GZ_H_
 
-int fileCopyDecompressed(const char* existingFilePath, const char* newFilePath);
-int fileCopyCompressed(const char* existingFilePath, const char* newFilePath);
-int _gzdecompress_file(const char* existingFilePath, const char* newFilePath);
+int gzRealUncompressCopyReal_file(const char* existingFilePath, const char* newFilePath);
+int gzcompress_file(const char* existingFilePath, const char* newFilePath);
+int gzdecompress_file(const char* existingFilePath, const char* newFilePath);
 
-#endif /* FILE_UTILS_H */
+#endif /* FALLOUT_GAME_GZ_H_ */
