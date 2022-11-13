@@ -77,6 +77,7 @@ static_assert(sizeof(Heap) == 48, "wrong size");
 static bool heap_create_lists();
 static void heap_destroy_lists();
 static bool heap_init_handles(Heap* heap);
+static bool heap_exit_handles(Heap* heap);
 static bool heap_acquire_handle(Heap* heap, int* handleIndexPtr);
 static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4);
 static int heap_qsort_compare_free(const void* a1, const void* a2);
@@ -262,11 +263,8 @@ bool heap_exit(Heap* heap)
         }
     }
 
-    if (heap->handles != NULL) {
-        internal_free(heap->handles);
-        heap->handles = NULL;
-        heap->handlesLength = 0;
-    }
+    // NOTE: Uninline.
+    heap_exit_handles(heap);
 
     if (heap->data != NULL) {
         internal_free(heap->data);
@@ -298,6 +296,22 @@ static bool heap_init_handles(Heap* heap)
     }
 
     heap->handlesLength = HEAP_HANDLES_INITIAL_LENGTH;
+
+    return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x453480
+static bool heap_exit_handles(Heap* heap)
+{
+    if (heap->handles == NULL) {
+        return false;
+    }
+
+    internal_free(heap->handles);
+    heap->handles = NULL;
+    heap->handlesLength = 0;
 
     return true;
 }
