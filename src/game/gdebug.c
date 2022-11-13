@@ -1,4 +1,4 @@
-#include "gdebug.h"
+#include "game/gdebug.h"
 
 #include <stdlib.h>
 
