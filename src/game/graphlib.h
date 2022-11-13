@@ -10,6 +10,7 @@ extern unsigned char* text_buf;
 extern int codesize;
 extern int match_position;
 
+int HighRGB(int a1);
 int CompLZS(unsigned char* a1, unsigned char* a2, int a3);
 int DecodeLZS(unsigned char* a1, unsigned char* a2, int a3);
 

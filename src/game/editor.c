@@ -16,7 +16,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gmouse.h"
-#include "game_palette.h"
+#include "game/graphlib.h"
 #include "game_sound.h"
 #include "geometry.h"
 #include "interface.h"
@@ -4791,7 +4791,7 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
     ptr = buf;
     for (y = 0; y < size.height; y++) {
         for (x = 0; x < size.width; x++) {
-            if (_HighRGB_(*ptr) < 2 && v9 >= x) {
+            if (HighRGB(*ptr) < 2 && v9 >= x) {
                 v9 = x;
             }
             ptr++;
@@ -6424,7 +6424,7 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
     for (int y = 0; y < height; y++) {
         unsigned char* stride = data;
         for (int x = 0; x < width; x++) {
-            if (_HighRGB_(*stride) < 2) {
+            if (HighRGB(*stride) < 2) {
                 if (extraDescriptionWidth > x) {
                     extraDescriptionWidth = x;
                 }

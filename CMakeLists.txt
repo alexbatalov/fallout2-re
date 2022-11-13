@@ -106,8 +106,6 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/file_find.h"
     "src/file_utils.c"
     "src/file_utils.h"
-    "src/game_palette.c"
-    "src/game_palette.h"
     "src/game_sound.c"
     "src/game_sound.h"
     "src/geometry.c"

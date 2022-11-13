@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "color.h"
 #include "debug.h"
 #include "memory.h"
 
@@ -32,6 +33,28 @@ int codesize;
 
 // 0x596EAC
 int match_position;
+
+// 0x44EBC0
+int HighRGB(int a1)
+{
+    // TODO: Some strange bit arithmetic.
+    int v1 = Color2RGB(a1);
+    int r = (v1 & 0x7C00) >> 10;
+    int g = (v1 & 0x3E0) >> 5;
+    int b = (v1 & 0x1F);
+
+    int result = g;
+    if (r > result) {
+        result = r;
+    }
+
+    result = result & 0xFF;
+    if (result <= b) {
+        result = b;
+    }
+
+    return result;
+}
 
 // 0x44F250
 int CompLZS(unsigned char* a1, unsigned char* a2, int a3)
