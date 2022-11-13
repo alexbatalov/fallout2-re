@@ -2251,7 +2251,7 @@ void opAttackComplex(Program* program)
         return;
     }
 
-    if (_gdialogActive()) {
+    if (gdialogActive()) {
         // TODO: Might be an error, program flag is not removed.
         return;
     }
@@ -2323,7 +2323,7 @@ void opStartGameDialog(Program* program)
         return;
     }
 
-    gGameDialogHeadFid = -1;
+    dialogue_head = -1;
     if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
         Proto* proto;
         if (protoGetProto(obj->pid, &proto) == -1) {
@@ -2332,14 +2332,14 @@ void opStartGameDialog(Program* program)
     }
 
     if (headId != -1) {
-        gGameDialogHeadFid = art_id(OBJ_TYPE_HEAD, headId, 0, 0, 0);
+        dialogue_head = art_id(OBJ_TYPE_HEAD, headId, 0, 0, 0);
     }
 
-    gameDialogSetBackground(backgroundId);
+    gdialogSetBackground(backgroundId);
     gGameDialogReactionOrFidget = reactionLevel;
 
-    if (gGameDialogHeadFid != -1) {
-        int npcReactionValue = reactionGetValue(gGameDialogSpeaker);
+    if (dialogue_head != -1) {
+        int npcReactionValue = reactionGetValue(dialog_target);
         int npcReactionType = reactionTranslateValue(npcReactionValue);
         switch (npcReactionType) {
         case NPC_REACTION_BAD:
@@ -2354,18 +2354,18 @@ void opStartGameDialog(Program* program)
         }
     }
 
-    gGameDialogSid = scriptGetSid(program);
-    gGameDialogSpeaker = scriptGetSelf(program);
-    _gdialogInitFromScript(gGameDialogHeadFid, gGameDialogReactionOrFidget);
+    dialogue_scr_id = scriptGetSid(program);
+    dialog_target = scriptGetSelf(program);
+    gdialogInitFromScript(dialogue_head, gGameDialogReactionOrFidget);
 }
 
 // end_dialogue
 // 0x456F80
 void opEndGameDialog(Program* program)
 {
-    if (_gdialogExitFromScript() != -1) {
-        gGameDialogSpeaker = NULL;
-        gGameDialogSid = -1;
+    if (gdialogExitFromScript() != -1) {
+        dialog_target = NULL;
+        dialogue_scr_id = -1;
     }
 }
 
@@ -2385,7 +2385,7 @@ void opGameDialogReaction(Program* program)
     }
 
     gGameDialogReactionOrFidget = value;
-    _talk_to_critter_reacts(value);
+    talk_to_critter_reacts(value);
 }
 
 // metarule3
@@ -3374,7 +3374,7 @@ void opGameDialogSystemEnter(Program* program)
         return;
     }
 
-    gGameDialogSpeaker = scriptGetSelf(program);
+    dialog_target = scriptGetSelf(program);
 }
 
 // action_being_used
@@ -4629,13 +4629,13 @@ void opPlayGameMovie(Program* program)
         programFatalError("script error: %s: invalid arg to play_gmovie", program->name);
     }
 
-    gameDialogDisable();
+    gdialogDisableBK();
 
     if (gameMoviePlay(data, word_453F9C[data]) == -1) {
         debugPrint("\nError playing movie %d!", data);
     }
 
-    gameDialogEnable();
+    gdialogEnableBK();
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
@@ -4815,7 +4815,7 @@ void _op_gsay_start(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
-    if (_gdialogStart() != 0) {
+    if (gdialogStart() != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
         programFatalError("Error starting dialog.");
     }
@@ -4828,7 +4828,7 @@ void _op_gsay_start(Program* program)
 void _op_gsay_end(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
-    _gdialogGo();
+    gdialogGo();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
@@ -4867,9 +4867,9 @@ void _op_gsay_reply(Program* program)
     int messageId = data[0];
 
     if (string != NULL) {
-        gameDialogSetTextReply(program, messageListId, string);
+        gdialogReplyStr(program, messageListId, string);
     } else {
-        gameDialogSetMessageReply(program, messageListId, messageId);
+        gdialogReply(program, messageListId, messageId);
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -4917,9 +4917,9 @@ void _op_gsay_option(Program* program)
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         char* procName = programGetString(program, opcode[1], data[1]);
         if (string != NULL) {
-            gameDialogAddTextOptionWithProcIdentifier(data[3], string, procName, reaction);
+            gdialogOptionStr(data[3], string, procName, reaction);
         } else {
-            gameDialogAddMessageOptionWithProcIdentifier(data[3], data[2], procName, reaction);
+            gdialogOption(data[3], data[2], procName, reaction);
         }
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
@@ -4932,10 +4932,10 @@ void _op_gsay_option(Program* program)
     }
 
     if (string != NULL) {
-        gameDialogAddTextOptionWithProc(data[3], string, proc, reaction);
+        gdialogOptionProcStr(data[3], string, proc, reaction);
         program->flags &= ~PROGRAM_FLAG_0x20;
     } else {
-        gameDialogAddMessageOptionWithProc(data[3], data[2], proc, reaction);
+        gdialogOptionProc(data[3], data[2], proc, reaction);
         program->flags &= ~PROGRAM_FLAG_0x20;
     }
 }
@@ -4977,13 +4977,13 @@ void _op_gsay_message(Program* program)
     int reaction = data[0];
 
     if (string != NULL) {
-        gameDialogSetTextReply(program, messageListId, string);
+        gdialogReplyStr(program, messageListId, string);
     } else {
-        gameDialogSetMessageReply(program, messageListId, messageId);
+        gdialogReply(program, messageListId, messageId);
     }
 
-    gameDialogAddMessageOptionWithProcIdentifier(-2, -2, NULL, 50);
-    _gdialogSayMessage();
+    gdialogOption(-2, -2, NULL, 50);
+    gdialogSayMessage();
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
@@ -5044,9 +5044,9 @@ void _op_giq_option(Program* program)
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         char* procName = programGetString(program, opcode[1], data[1]);
         if (string != NULL) {
-            gameDialogAddTextOptionWithProcIdentifier(messageListId, string, procName, reaction);
+            gdialogOptionStr(messageListId, string, procName, reaction);
         } else {
-            gameDialogAddMessageOptionWithProcIdentifier(messageListId, messageId, procName, reaction);
+            gdialogOption(messageListId, messageId, procName, reaction);
         }
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
@@ -5059,10 +5059,10 @@ void _op_giq_option(Program* program)
     }
 
     if (string != NULL) {
-        gameDialogAddTextOptionWithProc(messageListId, string, proc, reaction);
+        gdialogOptionProcStr(messageListId, string, proc, reaction);
         program->flags &= ~PROGRAM_FLAG_0x20;
     } else {
-        gameDialogAddMessageOptionWithProc(messageListId, messageId, proc, reaction);
+        gdialogOptionProc(messageListId, messageId, proc, reaction);
         program->flags &= ~PROGRAM_FLAG_0x20;
     }
 }
@@ -5283,7 +5283,7 @@ void _op_gdialog_barter(Program* program)
         programFatalError("script error: %s: invalid arg to gdialog_barter", program->name);
     }
 
-    if (gameDialogBarter(data) == -1) {
+    if (gdActivateBarter(data) == -1) {
         debugPrint("\nScript Error: gdialog_barter: failed");
     }
 }
@@ -6402,7 +6402,7 @@ void opGameDialogSetBarterMod(Program* program)
         programFatalError("script error: %s: invalid arg to gdialog_set_barter_mod", program->name);
     }
 
-    gameDialogSetBarterModifier(data);
+    gdialogSetBarterMod(data);
 }
 
 // combat_difficulty

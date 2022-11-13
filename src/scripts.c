@@ -355,7 +355,7 @@ int gameTimeEventProcess(Object* obj, void* data)
 
     objectUnjamAll();
 
-    if (!_gdialogActive()) {
+    if (!gdialogActive()) {
         _scriptsCheckGameEvents(&movie_index, -1);
     }
 
@@ -630,7 +630,7 @@ void _doBkProcesses()
     _updateWindows();
 
     if (gScriptsEnabled && _script_engine_run_critters) {
-        if (!_gdialogActive()) {
+        if (!gdialogActive()) {
             _script_chk_critters();
             _script_chk_timed_events();
         }
@@ -640,7 +640,7 @@ void _doBkProcesses()
 // 0x4A3CA0
 void _script_chk_critters()
 {
-    if (!_gdialogActive() && !isInCombat()) {
+    if (!gdialogActive() && !isInCombat()) {
         ScriptList* scriptList;
         ScriptListExtent* scriptListExtent;
 
@@ -944,7 +944,7 @@ int scriptsHandleRequests()
 
     if ((gScriptsRequests & SCRIPT_REQUEST_DIALOG) != 0) {
         gScriptsRequests &= ~SCRIPT_REQUEST_DIALOG;
-        gameDialogEnter(gScriptsRequestedDialogWith, 0);
+        gdialogEnter(gScriptsRequestedDialogWith, 0);
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_ENDGAME) != 0) {
@@ -2645,7 +2645,7 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
         return NULL;
     }
 
-    if (FID_TYPE(gGameDialogHeadFid) != OBJ_TYPE_HEAD) {
+    if (FID_TYPE(dialogue_head) != OBJ_TYPE_HEAD) {
         a3 = 0;
     }
 
@@ -2657,12 +2657,12 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
     }
 
     if (a3) {
-        if (_gdialogActive()) {
+        if (gdialogActive()) {
             if (messageListItem.audio != NULL && messageListItem.audio[0] != '\0') {
                 if (messageListItem.flags & 0x01) {
-                    gameDialogStartLips(NULL);
+                    gdialogSetupSpeech(NULL);
                 } else {
-                    gameDialogStartLips(messageListItem.audio);
+                    gdialogSetupSpeech(messageListItem.audio);
                 }
             } else {
                 debugPrint("Missing speech name: %d\n", messageListItem.num);

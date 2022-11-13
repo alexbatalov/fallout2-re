@@ -358,9 +358,9 @@ int partyMemberAdd(Object* object)
     combatai_switch_team(object, 0);
     queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
 
-    if (_gdialogActive()) {
-        if (object == gGameDialogSpeaker) {
-            _gdialogUpdatePartyStatus();
+    if (gdialogActive()) {
+        if (object == dialog_target) {
+            gdialogUpdatePartyStatus();
         }
     }
 
@@ -411,9 +411,9 @@ int partyMemberRemove(Object* object)
 
     queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
 
-    if (_gdialogActive()) {
-        if (object == gGameDialogSpeaker) {
-            _gdialogUpdatePartyStatus();
+    if (gdialogActive()) {
+        if (object == dialog_target) {
+            gdialogUpdatePartyStatus();
         }
     }
 

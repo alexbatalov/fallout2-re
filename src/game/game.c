@@ -285,7 +285,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     lsgInit();
     debugPrint(">InitLoadSave\t");
 
-    if (gameDialogInit() != 0) {
+    if (gdialogInit() != 0) {
         debugPrint("Failed on gdialog_init\n");
         return -1;
     }
@@ -378,7 +378,7 @@ void game_reset()
     CharEditInit();
     pipboyReset();
     _ResetLoadSave();
-    gameDialogReset();
+    gdialogReset();
     combat_reset();
     game_user_wants_to_quit = 0;
     automap_reset();
@@ -393,7 +393,7 @@ void game_exit()
     tileDisable();
     messageListFree(&misc_message_file);
     combat_exit();
-    gameDialogExit();
+    gdialogExit();
     _scr_game_exit();
 
     // NOTE: Uninline.
@@ -434,7 +434,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 {
     // NOTE: Uninline.
     if (game_state() == GAME_STATE_5) {
-        _gdialogSystemEnter();
+        gdialogSystemEnter();
     }
 
     if (eventCode == -1) {
