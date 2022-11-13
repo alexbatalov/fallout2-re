@@ -1,6 +1,6 @@
-#ifndef ELECTRONIC_REGISTRATION_H
-#define ELECTRONIC_REGISTRATION_H
+#ifndef FALLOUT_GAME_EREG_H_
+#define FALLOUT_GAME_EREG_H_
 
-void runElectronicRegistration();
+void annoy_user();
 
-#endif /* ELECTRONIC_REGISTRATION_H */
+#endif /* FALLOUT_GAME_EREG_H_ */

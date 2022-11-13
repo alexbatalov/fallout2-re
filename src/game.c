@@ -125,7 +125,7 @@ int gameInitWithOptions(const char* windowTitle, bool isMapper, int font, int a4
         return -1;
     }
 
-    runElectronicRegistration();
+    annoy_user();
     programWindowSetTitle(windowTitle);
     _initWindow(1, a4);
     paletteInit();

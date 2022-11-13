@@ -6,7 +6,7 @@
 #include "game_config.h"
 
 // 0x440DD0
-void runElectronicRegistration()
+void annoy_user()
 {
     int timesRun = 0;
     config_get_value(&gGameConfig, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_TIMES_RUN_KEY, &timesRun);
