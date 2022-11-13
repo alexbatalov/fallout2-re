@@ -519,7 +519,7 @@ void _main_selfrun_play()
 void showDeath()
 {
     art_flush();
-    colorCycleDisable();
+    cycle_disable();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
     bool oldCursorIsHidden = mouse_hidden();
@@ -630,7 +630,7 @@ void showDeath()
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
-    colorCycleEnable();
+    cycle_enable();
 }
 
 // 0x4814A8

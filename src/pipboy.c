@@ -288,7 +288,7 @@ int pipboyWindowInit(int intent)
 {
     gPipboyWindowIsoWasEnabled = isoDisable();
 
-    colorCycleDisable();
+    cycle_disable();
     gameMouseObjectsHide();
     indicatorBarHide();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
@@ -531,7 +531,7 @@ void pipboyWindowFree()
         isoEnable();
     }
 
-    colorCycleEnable();
+    cycle_enable();
     indicatorBarShow();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     interfaceBarRefresh();

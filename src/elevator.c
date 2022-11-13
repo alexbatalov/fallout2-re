@@ -460,7 +460,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
 int elevatorWindowInit(int elevator)
 {
     gElevatorWindowIsoWasEnabled = isoDisable();
-    colorCycleDisable();
+    cycle_disable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     gameMouseObjectsHide();
@@ -486,7 +486,7 @@ int elevatorWindowInit(int elevator)
             isoEnable();
         }
 
-        colorCycleEnable();
+        cycle_enable();
         gameMouseSetCursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
@@ -530,7 +530,7 @@ int elevatorWindowInit(int elevator)
             isoEnable();
         }
 
-        colorCycleEnable();
+        cycle_enable();
         gameMouseSetCursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
@@ -561,7 +561,7 @@ int elevatorWindowInit(int elevator)
             isoEnable();
         }
 
-        colorCycleEnable();
+        cycle_enable();
         gameMouseSetCursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
@@ -625,7 +625,7 @@ void elevatorWindowFree()
         isoEnable();
     }
 
-    colorCycleEnable();
+    cycle_enable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 }

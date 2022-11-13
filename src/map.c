@@ -183,7 +183,7 @@ int isoInit()
 
     debugPrint(">obj_init\t\t");
 
-    colorCycleInit();
+    cycle_init();
     debugPrint(">cycle_init\t\t");
 
     tileScrollBlockingEnable();
@@ -223,7 +223,7 @@ void isoReset()
     art_reset();
     tileReset();
     objectsReset();
-    colorCycleReset();
+    cycle_reset();
     interfaceReset();
     gEnteringElevation = -1;
     gEnteringTile = -1;
@@ -234,7 +234,7 @@ void isoReset()
 void isoExit()
 {
     interfaceFree();
-    colorCycleFree();
+    cycle_exit();
     objectsExit();
     tileExit();
     art_exit();

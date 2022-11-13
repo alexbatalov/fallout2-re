@@ -1,35 +1,21 @@
-#ifndef CYCLE_H
-#define CYCLE_H
+#ifndef FALLOUT_GAME_CYCLE_H_
+#define FALLOUT_GAME_CYCLE_H_
 
 #include <stdbool.h>
 
-#define COLOR_CYCLE_PERIOD_1 (200U)
-#define COLOR_CYCLE_PERIOD_2 (142U)
-#define COLOR_CYCLE_PERIOD_3 (100U)
-#define COLOR_CYCLE_PERIOD_4 (33U)
+extern unsigned char slime[12];
+extern unsigned char shoreline[18];
+extern unsigned char fire_slow[15];
+extern unsigned char fire_fast[15];
+extern unsigned char monitors[15];
 
-extern int gColorCycleSpeedFactor;
-extern unsigned char _slime[12];
-extern unsigned char _shoreline[18];
-extern unsigned char _fire_slow[15];
-extern unsigned char _fire_fast[15];
-extern unsigned char _monitors[15];
-extern bool gColorCycleEnabled;
-extern bool gColorCycleInitialized;
-
-extern unsigned int gColorCycleTimestamp3;
-extern unsigned int gColorCycleTimestamp1;
-extern unsigned int gColorCycleTimestamp2;
-extern unsigned int gColorCycleTimestamp4;
-
-void colorCycleInit();
-void colorCycleReset();
-void colorCycleFree();
-void colorCycleDisable();
-void colorCycleEnable();
-bool colorCycleEnabled();
-void colorCycleTicker();
+void cycle_init();
+void cycle_reset();
+void cycle_exit();
+void cycle_disable();
+void cycle_enable();
+bool cycle_is_enabled();
 void change_cycle_speed(int value);
 int get_cycle_speed();
 
-#endif /* CYCLE_H */
+#endif /* FALLOUT_GAME_CYCLE_H_ */

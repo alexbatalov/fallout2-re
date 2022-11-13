@@ -1149,7 +1149,7 @@ int lsgWindowInit(int windowType)
         gLoadSaveWindowIsoWasEnabled = isoDisable();
     }
 
-    colorCycleDisable();
+    cycle_disable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
@@ -1192,7 +1192,7 @@ int lsgWindowInit(int windowType)
                 }
             }
 
-            colorCycleEnable();
+            cycle_enable();
             gameMouseSetCursor(MOUSE_CURSOR_ARROW);
             return -1;
         }
@@ -1218,7 +1218,7 @@ int lsgWindowInit(int windowType)
             }
         }
 
-        colorCycleEnable();
+        cycle_enable();
         gameMouseSetCursor(MOUSE_CURSOR_ARROW);
         return -1;
     }
@@ -1357,7 +1357,7 @@ int lsgWindowFree(int windowType)
         }
     }
 
-    colorCycleEnable();
+    cycle_enable();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
     return 0;

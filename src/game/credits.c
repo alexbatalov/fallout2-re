@@ -65,7 +65,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
         if (credits_file != NULL) {
             soundContinueAll();
 
-            colorCycleDisable();
+            cycle_disable();
             gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
             bool cursorWasHidden = mouse_hidden();
@@ -236,7 +236,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
             }
 
             gameMouseSetCursor(MOUSE_CURSOR_ARROW);
-            colorCycleEnable();
+            cycle_enable();
             fileClose(credits_file);
         }
     }

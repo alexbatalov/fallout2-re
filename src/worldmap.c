@@ -4512,7 +4512,7 @@ static int wmInterfaceInit()
 
     indicatorBarHide();
     isoDisable();
-    colorCycleDisable();
+    cycle_disable();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
     int worldmapWindowX = 0;
@@ -5026,7 +5026,7 @@ static int wmInterfaceExit()
 
     indicatorBarShow();
     isoEnable();
-    colorCycleEnable();
+    cycle_enable();
 
     fontSetCurrent(wmGenData.oldFont);
 

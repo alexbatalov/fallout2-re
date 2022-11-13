@@ -210,7 +210,7 @@ int skilldexWindowInit()
 
     gSkilldexWindowIsoWasEnabled = isoDisable();
 
-    colorCycleDisable();
+    cycle_disable();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
     gSkilldexWindowBuffer = windowGetBuffer(gSkilldexWindow);
@@ -360,7 +360,7 @@ void skilldexWindowFree()
         isoEnable();
     }
 
-    colorCycleEnable();
+    cycle_enable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 }

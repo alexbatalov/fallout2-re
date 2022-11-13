@@ -781,7 +781,7 @@ int _gdialogInitFromScript(int headFid, int reaction)
     dialogSetReplyTitle(NULL);
     _dialogRegisterWinDrawCallbacks(_demo_copy_title, _demo_copy_options);
     gameDialogHighlightsInit();
-    colorCycleDisable();
+    cycle_disable();
     if (_gdDialogTurnMouseOff) {
         _gmouse_disable(0);
     }
@@ -859,7 +859,7 @@ int _gdialogExitFromScript()
     _gdialog_state = 0;
     _dialogue_state = 0;
 
-    colorCycleEnable();
+    cycle_enable();
 
     if (!gameUiIsDisabled()) {
         _gmouse_enable_scrolling();

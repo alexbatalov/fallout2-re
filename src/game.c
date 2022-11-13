@@ -1071,8 +1071,8 @@ void showHelp()
 
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
-    bool colorCycleWasEnabled = colorCycleEnabled();
-    colorCycleDisable();
+    bool colorCycleWasEnabled = cycle_is_enabled();
+    cycle_disable();
 
     int helpWindowX = 0;
     int helpWindowY = 0;
@@ -1108,7 +1108,7 @@ void showHelp()
     }
 
     if (colorCycleWasEnabled) {
-        colorCycleEnable();
+        cycle_enable();
     }
 
     gameMouseObjectsShow();

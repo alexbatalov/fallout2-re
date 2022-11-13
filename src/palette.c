@@ -74,8 +74,8 @@ void paletteExit()
 // 0x493AD4
 void paletteFadeTo(unsigned char* palette)
 {
-    bool colorCycleWasEnabled = colorCycleEnabled();
-    colorCycleDisable();
+    bool colorCycleWasEnabled = cycle_is_enabled();
+    cycle_disable();
 
     if (backgroundSoundIsEnabled() || speechIsEnabled()) {
         colorSetFadeBkFunc(soundContinueAll);
@@ -87,7 +87,7 @@ void paletteFadeTo(unsigned char* palette)
     memcpy(gPalette, palette, 768);
 
     if (colorCycleWasEnabled) {
-        colorCycleEnable();
+        cycle_enable();
     }
 }
 

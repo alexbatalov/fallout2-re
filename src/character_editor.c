@@ -1029,7 +1029,7 @@ int characterEditorWindowInit()
         gCharacterEditorIsoWasEnabled = isoDisable();
     }
 
-    colorCycleDisable();
+    cycle_disable();
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
     if (!messageListInit(&gCharacterEditorMessageList)) {
@@ -1628,7 +1628,7 @@ void RstrBckgProc()
         isoEnable();
     }
 
-    colorCycleEnable();
+    cycle_enable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 }

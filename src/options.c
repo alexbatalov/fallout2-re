@@ -605,7 +605,7 @@ int showPause(bool a1)
     bool gameMouseWasVisible;
     if (!a1) {
         gOptionsWindowIsoWasEnabled = isoDisable();
-        colorCycleDisable();
+        cycle_disable();
 
         gameMouseWasVisible = gameMouseObjectsIsVisible();
         if (gameMouseWasVisible) {
@@ -767,7 +767,7 @@ int showPause(bool a1)
             isoEnable();
         }
 
-        colorCycleEnable();
+        cycle_enable();
 
         gameMouseSetCursor(MOUSE_CURSOR_ARROW);
     }

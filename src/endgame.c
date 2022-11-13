@@ -476,7 +476,7 @@ int endgameEndingSlideshowWindowInit()
 
     _endgame_map_enabled = isoDisable();
 
-    colorCycleDisable();
+    cycle_disable();
     gameMouseSetCursor(MOUSE_CURSOR_NONE);
 
     bool oldCursorIsHidden = mouse_hidden();
@@ -508,7 +508,7 @@ int endgameEndingSlideshowWindowInit()
         return -1;
     }
 
-    colorCycleDisable();
+    cycle_disable();
 
     speechSetEndCallback(_endgame_voiceover_callback);
 
@@ -576,7 +576,7 @@ void endgameEndingSlideshowWindowFree()
     loadColorTable("color.pal");
     paletteFadeTo(cmap);
 
-    colorCycleEnable();
+    cycle_enable();
 
     if (_endgame_map_enabled) {
         isoEnable();

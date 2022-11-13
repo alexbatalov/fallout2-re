@@ -235,7 +235,7 @@ int gameMoviePlay(int movie, int flags)
     }
 
     mouse_hide();
-    colorCycleDisable();
+    cycle_disable();
 
     movieEffectsLoad(movieFilePath);
 
@@ -263,7 +263,7 @@ int gameMoviePlay(int movie, int flags)
 
     gGameMoviesSeen[movie] = 1;
 
-    colorCycleEnable();
+    cycle_enable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
 
