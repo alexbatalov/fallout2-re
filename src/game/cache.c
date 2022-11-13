@@ -33,7 +33,7 @@ static int lock_sound_ticker = 0;
 // 0x41FCC0
 bool cache_init(Cache* cache, CacheSizeProc* sizeProc, CacheReadProc* readProc, CacheFreeProc* freeProc, int maxSize)
 {
-    if (!heapInit(&(cache->heap), maxSize)) {
+    if (!heap_init(&(cache->heap), maxSize)) {
         return false;
     }
 
@@ -66,7 +66,7 @@ bool cache_exit(Cache* cache)
 
     cache_unlock_all(cache);
     cache_flush(cache);
-    heapFree(&(cache->heap));
+    heap_exit(&(cache->heap));
 
     cache->size = 0;
     cache->maxSize = 0;
@@ -139,7 +139,7 @@ bool cache_lock(Cache* cache, int key, void** data, CacheEntry** cacheEntryPtr)
 
     CacheEntry* cacheEntry = cache->entries[index];
     if (cacheEntry->referenceCount == 0) {
-        if (!heapLock(&(cache->heap), cacheEntry->heapHandleIndex, &(cacheEntry->data))) {
+        if (!heap_lock(&(cache->heap), cacheEntry->heapHandleIndex, &(cacheEntry->data))) {
             return false;
         }
     }
@@ -173,7 +173,7 @@ bool cache_unlock(Cache* cache, CacheEntry* cacheEntry)
     cacheEntry->referenceCount--;
 
     if (cacheEntry->referenceCount == 0) {
-        heapUnlock(&(cache->heap), cacheEntry->heapHandleIndex);
+        heap_unlock(&(cache->heap), cacheEntry->heapHandleIndex);
     }
 
     return true;
@@ -394,7 +394,7 @@ static bool cache_add(Cache* cache, int key, int* indexPtr)
         bool allocated = false;
         int cacheEntrySize = size;
         for (int attempt = 0; attempt < 10; attempt++) {
-            if (heapBlockAllocate(&(cache->heap), &(cacheEntry->heapHandleIndex), size, 1)) {
+            if (heap_allocate(&(cache->heap), &(cacheEntry->heapHandleIndex), size, 1)) {
                 allocated = true;
                 break;
             }
@@ -413,8 +413,8 @@ static bool cache_add(Cache* cache, int key, int* indexPtr)
             cache_flush(cache);
 
             allocated = true;
-            if (!heapBlockAllocate(&(cache->heap), &(cacheEntry->heapHandleIndex), size, 1)) {
-                if (!heapBlockAllocate(&(cache->heap), &(cacheEntry->heapHandleIndex), size, 0)) {
+            if (!heap_allocate(&(cache->heap), &(cacheEntry->heapHandleIndex), size, 1)) {
+                if (!heap_allocate(&(cache->heap), &(cacheEntry->heapHandleIndex), size, 0)) {
                     allocated = false;
                 }
             }
@@ -425,7 +425,7 @@ static bool cache_add(Cache* cache, int key, int* indexPtr)
         }
 
         do {
-            if (!heapLock(&(cache->heap), cacheEntry->heapHandleIndex, &(cacheEntry->data))) {
+            if (!heap_lock(&(cache->heap), cacheEntry->heapHandleIndex, &(cacheEntry->data))) {
                 break;
             }
 
@@ -433,7 +433,7 @@ static bool cache_add(Cache* cache, int key, int* indexPtr)
                 break;
             }
 
-            heapUnlock(&(cache->heap), cacheEntry->heapHandleIndex);
+            heap_unlock(&(cache->heap), cacheEntry->heapHandleIndex);
 
             cacheEntry->size = size;
             cacheEntry->key = key;
@@ -460,7 +460,7 @@ static bool cache_add(Cache* cache, int key, int* indexPtr)
             return true;
         } while (0);
 
-        heapUnlock(&(cache->heap), cacheEntry->heapHandleIndex);
+        heap_unlock(&(cache->heap), cacheEntry->heapHandleIndex);
     } while (0);
 
     // NOTE: Uninline.
@@ -568,7 +568,7 @@ static bool cache_init_item(CacheEntry* cacheEntry)
 static bool cache_destroy_item(Cache* cache, CacheEntry* cacheEntry)
 {
     if (cacheEntry->data != NULL) {
-        heapBlockDeallocate(&(cache->heap), &(cacheEntry->heapHandleIndex));
+        heap_deallocate(&(cache->heap), &(cacheEntry->heapHandleIndex));
     }
 
     internal_free(cacheEntry);
@@ -587,7 +587,7 @@ static bool cache_unlock_all(Cache* cache)
         // inner loop to decrement `referenceCount` one by one. Probably using
         // some inlined function.
         if (cacheEntry->referenceCount != 0) {
-            heapUnlock(heap, cacheEntry->heapHandleIndex);
+            heap_unlock(heap, cacheEntry->heapHandleIndex);
             cacheEntry->referenceCount = 0;
         }
     }
