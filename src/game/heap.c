@@ -79,6 +79,7 @@ static void heap_destroy_lists();
 static bool heap_init_handles(Heap* heap);
 static bool heap_exit_handles(Heap* heap);
 static bool heap_acquire_handle(Heap* heap, int* handleIndexPtr);
+static bool heap_release_handle(Heap* heap, int handleIndex);
 static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4);
 static int heap_qsort_compare_free(const void* a1, const void* a2);
 static int heap_qsort_compare_moveable(const void* a1, const void* a2);
@@ -415,8 +416,8 @@ bool heap_allocate(Heap* heap, int* handleIndexPtr, int size, int a4)
         return true;
     }
 
-    handle->state = HEAP_HANDLE_STATE_INVALID;
-    handle->data = NULL;
+    // NOTE: Uninline.
+    heap_release_handle(heap, handleIndex);
 
     debugPrint("Heap Error: Unknown block state during allocation.\n");
 
@@ -478,9 +479,8 @@ bool heap_deallocate(Heap* heap, int* handleIndexPtr)
         heap->freeSize += size;
         heap->moveableSize -= size;
 
-        // Reset handle
-        handle->state = HEAP_HANDLE_STATE_INVALID;
-        handle->data = NULL;
+        // NOTE: Uninline.
+        heap_release_handle(heap, handleIndex);
 
         return true;
     }
@@ -493,9 +493,8 @@ bool heap_deallocate(Heap* heap, int* handleIndexPtr)
         heap->systemBlocks--;
         heap->systemSize -= size;
 
-        // Reset handle
-        handle->state = HEAP_HANDLE_STATE_INVALID;
-        handle->data = NULL;
+        // NOTE: Uninline.
+        heap_release_handle(heap, handleIndex);
 
         return true;
     }
@@ -679,6 +678,17 @@ static bool heap_acquire_handle(Heap* heap, int* handleIndexPtr)
     *handleIndexPtr = heap->handlesLength;
 
     heap->handlesLength += HEAP_HANDLES_INITIAL_LENGTH;
+
+    return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x453538
+static bool heap_release_handle(Heap* heap, int handleIndex)
+{
+    heap->handles[handleIndex].state = HEAP_HANDLE_STATE_INVALID;
+    heap->handles[handleIndex].data = NULL;
 
     return true;
 }
