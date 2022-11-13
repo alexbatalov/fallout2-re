@@ -1,10 +1,7 @@
-#ifndef GAME_SOUND_H
-#define GAME_SOUND_H
+#ifndef FALLOUT_GAME_GSOUND_H_
+#define FALLOUT_GAME_GSOUND_H_
 
 #include <stdbool.h>
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 #include "obj_types.h"
 #include "sound.h"
@@ -42,134 +39,74 @@ typedef enum CharacterSoundEffect {
 
 typedef void(SoundEndCallback)();
 
-extern char _aSoundSfx[];
-extern char _aSoundMusic_0[];
-extern char _aSoundSpeech_0[];
-
-extern bool gGameSoundInitialized;
-extern bool gGameSoundDebugEnabled;
-extern bool gMusicEnabled;
-extern int dword_518E3;
-extern int _gsound_background_fade;
-extern bool gSpeechEnabled;
-extern bool gSoundEffectsEnabled;
-extern int _gsound_active_effect_counter;
-extern Sound* gBackgroundSound;
-extern Sound* gSpeechSound;
-extern SoundEndCallback* gBackgroundSoundEndCallback;
-extern SoundEndCallback* gSpeechEndCallback;
-extern char _snd_lookup_weapon_type[WEAPON_SOUND_EFFECT_COUNT];
-extern char _snd_lookup_scenery_action[SCENERY_SOUND_EFFECT_COUNT];
-extern int _background_storage_requested;
-extern int _background_loop_requested;
-extern char* _sound_sfx_path;
-extern char* _sound_music_path1;
-extern char* _sound_music_path2;
-extern char* _sound_speech_path;
-extern int gMasterVolume;
-extern int gMusicVolume;
-extern int gSpeechVolume;
-extern int gSoundEffectsVolume;
-extern int _detectDevices;
-extern int _lastTime_1;
-
-extern char _background_fname_copied[MAX_PATH];
-extern char _sfx_file_name[13];
-extern char gBackgroundSoundFileName[270];
-
-int gameSoundInit();
-void gameSoundReset();
-int gameSoundExit();
-void soundEffectsEnable();
-void soundEffectsDisable();
-int soundEffectsIsEnabled();
-int gameSoundSetMasterVolume(int value);
-int gameSoundGetMasterVolume();
-int soundEffectsSetVolume(int value);
-int soundEffectsGetVolume();
-void backgroundSoundDisable();
-void backgroundSoundEnable();
-int backgroundSoundIsEnabled();
-void backgroundSoundSetVolume(int value);
-int backgroundSoundGetVolume();
-int _gsound_background_volume_get_set(int a1);
+int gsound_init();
+void gsound_reset();
+int gsound_exit();
+void gsound_sfx_enable();
+void gsound_sfx_disable();
+int gsound_sfx_is_enabled();
+int gsound_set_master_volume(int value);
+int gsound_get_master_volume();
+int gsound_set_sfx_volume(int value);
+int gsound_get_sfx_volume();
+void gsound_background_disable();
+void gsound_background_enable();
+int gsound_background_is_enabled();
+void gsound_background_volume_set(int value);
+int gsound_background_volume_get();
+int gsound_background_volume_get_set(int a1);
 void gsound_background_fade_set(int value);
 int gsound_background_fade_get();
 int gsound_background_fade_get_set(int value);
-void backgroundSoundSetEndCallback(SoundEndCallback* callback);
+void gsound_background_callback_set(SoundEndCallback* callback);
 SoundEndCallback* gsound_background_callback_get();
 SoundEndCallback* gsound_background_callback_get_set(SoundEndCallback* callback);
-int backgroundSoundGetDuration();
-int backgroundSoundLoad(const char* fileName, int a2, int a3, int a4);
-int _gsound_background_play_level_music(const char* a1, int a2);
+int gsound_background_length_get();
+int gsound_background_play(const char* fileName, int a2, int a3, int a4);
+int gsound_background_play_level_music(const char* a1, int a2);
 int gsound_background_play_preloaded();
-void backgroundSoundDelete();
-void backgroundSoundRestart(int value);
-void backgroundSoundPause();
-void backgroundSoundResume();
-void speechDisable();
-void speechEnable();
-int speechIsEnabled();
-void speechSetVolume(int value);
-int speechGetVolume();
-int _gsound_speech_volume_get_set(int volume);
-void speechSetEndCallback(SoundEndCallback* callback);
+void gsound_background_stop();
+void gsound_background_restart_last(int value);
+void gsound_background_pause();
+void gsound_background_unpause();
+void gsound_speech_disable();
+void gsound_speech_enable();
+int gsound_speech_is_enabled();
+void gsound_speech_volume_set(int value);
+int gsound_speech_volume_get();
+int gsound_speech_volume_get_set(int volume);
+void gsound_speech_callback_set(SoundEndCallback* callback);
 SoundEndCallback* gsound_speech_callback_get();
 SoundEndCallback* gsound_speech_callback_get_set(SoundEndCallback* callback);
-int speechGetDuration();
-int speechLoad(const char* fname, int a2, int a3, int a4);
-int _gsound_speech_play_preloaded();
-void speechDelete();
-void speechPause();
-void speechResume();
-int _gsound_play_sfx_file_volume(const char* a1, int a2);
-Sound* soundEffectLoad(const char* name, Object* a2);
-Sound* soundEffectLoadWithVolume(const char* a1, Object* a2, int a3);
-void soundEffectDelete(Sound* a1);
-int _gsnd_anim_sound(Sound* sound, void* a2);
-int soundEffectPlay(Sound* a1);
-int _gsound_compute_relative_volume(Object* obj);
-char* sfxBuildCharName(Object* a1, int anim, int extra);
-char* gameSoundBuildAmbientSoundEffectName(const char* a1);
-char* gameSoundBuildInterfaceName(const char* a1);
-char* sfxBuildWeaponName(int effectType, Object* weapon, int hitMode, Object* target);
-char* sfxBuildSceneryName(int actionType, int action, const char* name);
-char* sfxBuildOpenName(Object* a1, int a2);
-void _gsound_red_butt_press(int btn, int keyCode);
-void _gsound_red_butt_release(int btn, int keyCode);
-void _gsound_toggle_butt_press_(int btn, int keyCode);
-void _gsound_med_butt_press(int btn, int keyCode);
-void _gsound_med_butt_release(int btn, int keyCode);
-void _gsound_lrg_butt_press(int btn, int keyCode);
-void _gsound_lrg_butt_release(int btn, int keyCode);
-int soundPlayFile(const char* name);
-void _gsound_bkg_proc();
-int gameSoundFileOpen(const char* fname, int access, ...);
-long _gsound_write_();
-long gameSoundFileTellNotImplemented(int handle);
-int gameSoundFileWrite(int handle, const void* buf, unsigned int size);
-int gameSoundFileClose(int handle);
-int gameSoundFileRead(int handle, void* buf, unsigned int size);
-long gameSoundFileSeek(int handle, long offset, int origin);
-long gameSoundFileTell(int handle);
-long gameSoundFileGetSize(int handle);
-bool gameSoundIsCompressed(char* filePath);
-void speechCallback(void* userData, int a2);
-void backgroundSoundCallback(void* userData, int a2);
-void soundEffectCallback(void* userData, int a2);
-int _gsound_background_allocate(Sound** out_s, int a2, int a3);
-int gameSoundFindBackgroundSoundPathWithCopy(char* dest, const char* src);
-int gameSoundFindBackgroundSoundPath(char* dest, const char* src);
-int gameSoundFindSpeechSoundPath(char* dest, const char* src);
-void gameSoundDeleteOldMusicFile();
-int backgroundSoundPlay();
-int speechPlay();
-int _gsound_get_music_path(char** out_value, const char* key);
-Sound* _gsound_get_sound_ready_for_effect();
-bool _gsound_file_exists_f(const char* fname);
-int gsound_file_exists_db(const char* path);
-int _gsound_setup_paths();
-int _gsound_sfx_q_start();
-int ambientSoundEffectEventProcess(Object* a1, void* a2);
+int gsound_speech_length_get();
+int gsound_speech_play(const char* fname, int a2, int a3, int a4);
+int gsound_speech_play_preloaded();
+void gsound_speech_stop();
+void gsound_speech_pause();
+void gsound_speech_unpause();
+int gsound_play_sfx_file_volume(const char* a1, int a2);
+Sound* gsound_load_sound(const char* name, Object* a2);
+Sound* gsound_load_sound_volume(const char* a1, Object* a2, int a3);
+void gsound_delete_sfx(Sound* a1);
+int gsnd_anim_sound(Sound* sound, void* a2);
+int gsound_play_sound(Sound* a1);
+int gsound_compute_relative_volume(Object* obj);
+char* gsnd_build_character_sfx_name(Object* a1, int anim, int extra);
+char* gsnd_build_ambient_sfx_name(const char* a1);
+char* gsnd_build_interface_sfx_name(const char* a1);
+char* gsnd_build_weapon_sfx_name(int effectType, Object* weapon, int hitMode, Object* target);
+char* gsnd_build_scenery_sfx_name(int actionType, int action, const char* name);
+char* gsnd_build_open_sfx_name(Object* a1, int a2);
+void gsound_red_butt_press(int btn, int keyCode);
+void gsound_red_butt_release(int btn, int keyCode);
+void gsound_toggle_butt_press(int btn, int keyCode);
+void gsound_toggle_butt_release(int btn, int keyCode);
+void gsound_med_butt_press(int btn, int keyCode);
+void gsound_med_butt_release(int btn, int keyCode);
+void gsound_lrg_butt_press(int btn, int keyCode);
+void gsound_lrg_butt_release(int btn, int keyCode);
+int gsound_play_sfx_file(const char* name);
+int gsound_sfx_q_start();
+int gsound_sfx_q_process(Object* a1, void* a2);
 
-#endif /* GAME_SOUND_H */
+#endif /* FALLOUT_GAME_GSOUND_H_ */

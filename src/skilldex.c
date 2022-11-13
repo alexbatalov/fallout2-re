@@ -93,7 +93,7 @@ int skilldexOpen()
         if (keyCode == KEY_ESCAPE || keyCode == 500 || game_user_wants_to_quit != 0) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             rc = 0;
         } else if (keyCode >= 501 && keyCode <= 509) {
             rc = keyCode - 500;
@@ -303,7 +303,7 @@ int skilldexWindowInit()
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
         buttonY += 36;
@@ -331,7 +331,7 @@ int skilldexWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(gSkilldexWindow);

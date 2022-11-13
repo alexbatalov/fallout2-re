@@ -740,7 +740,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
 
             pc_flag_on(DUDE_STATE_LEVEL_UP_AVAILABLE);
 
-            soundPlayFile("levelup");
+            gsound_play_sfx_file("levelup");
 
             // NOTE: Uninline.
             int endurance = critterGetBaseStatWithTraitModifier(gDude, STAT_ENDURANCE);

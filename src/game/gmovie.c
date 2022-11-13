@@ -81,8 +81,8 @@ static unsigned char gmovie_played_list[MOVIE_COUNT];
 int gmovie_init()
 {
     int v1 = 0;
-    if (backgroundSoundIsEnabled()) {
-        v1 = backgroundSoundGetVolume();
+    if (gsound_background_is_enabled()) {
+        v1 = gsound_background_volume_get();
     }
 
     movieSetVolume(v1);
@@ -181,9 +181,9 @@ int gmovie_play(int movie, int flags)
     }
 
     if ((flags & GAME_MOVIE_STOP_MUSIC) != 0) {
-        backgroundSoundDelete();
+        gsound_background_stop();
     } else if ((flags & GAME_MOVIE_PAUSE_MUSIC) != 0) {
-        backgroundSoundPause();
+        gsound_background_pause();
     }
 
     win_draw(win);
@@ -284,7 +284,7 @@ int gmovie_play(int movie, int flags)
     windowDestroy(win);
 
     if ((flags & GAME_MOVIE_PAUSE_MUSIC) != 0) {
-        backgroundSoundResume();
+        gsound_background_unpause();
     }
 
     if ((flags & GAME_MOVIE_FADE_OUT) != 0) {

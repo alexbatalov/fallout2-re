@@ -830,7 +830,7 @@ void gdialogSetupSpeech(const char* audioFileName)
 {
     if (audioFileName == NULL) {
         debugPrint("\nGDialog: Bleep!");
-        soundPlayFile("censor");
+        gsound_play_sfx_file("censor");
         return;
     }
 
@@ -920,10 +920,10 @@ int gdialogInitFromScript(int headFid, int reaction)
     gmouse_disable_scrolling();
 
     if (headFid == -1) {
-        gDialogMusicVol = _gsound_background_volume_get_set(gDialogMusicVol / 2);
+        gDialogMusicVol = gsound_background_volume_get_set(gDialogMusicVol / 2);
     } else {
         gDialogMusicVol = -1;
-        backgroundSoundDelete();
+        gsound_background_stop();
     }
 
     gdDialogWentOff = true;
@@ -984,9 +984,9 @@ int gdialogExitFromScript()
     }
 
     if (gDialogMusicVol == -1) {
-        backgroundSoundRestart(11);
+        gsound_background_restart_last(11);
     } else {
-        backgroundSoundSetVolume(gDialogMusicVol);
+        gsound_background_volume_set(gDialogMusicVol);
     }
 
     if (boxesWereDisabled) {
@@ -1366,7 +1366,7 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    buttonSetCallbacks(upBtn, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(upBtn, gsound_med_butt_press, gsound_med_butt_release);
 
     int downBtn = buttonCreate(*win,
         475,
@@ -1386,7 +1386,7 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    buttonSetCallbacks(downBtn, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(downBtn, gsound_med_butt_press, gsound_med_butt_release);
 
     int doneBtn = buttonCreate(*win,
         499,
@@ -1406,7 +1406,7 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
 
     fontSetCurrent(101);
 
@@ -1737,7 +1737,7 @@ static int gdProcessInit()
         goto err_1;
     }
 
-    buttonSetCallbacks(upBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(upBtn, gsound_red_butt_press, gsound_red_butt_release);
     buttonSetMouseCallbacks(upBtn, reply_arrow_up, reply_arrow_restore, 0, 0);
 
     // Bottom part of the reply window - scroll down.
@@ -1746,7 +1746,7 @@ static int gdProcessInit()
         goto err_1;
     }
 
-    buttonSetCallbacks(downBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(downBtn, gsound_red_butt_press, gsound_red_butt_release);
     buttonSetMouseCallbacks(downBtn, reply_arrow_down, reply_arrow_restore, 0, 0);
 
     optionsWindowX = GAME_DIALOG_OPTIONS_WINDOW_X;
@@ -2337,7 +2337,7 @@ static void gdProcessUpdate()
 
             dialogOptionEntry->btn = buttonCreate(gOptionWin, 2, y, width, optionRect.top - y - 4, 1200 + index, 1300 + index, -1, 49 + index, NULL, NULL, NULL, 0);
             if (dialogOptionEntry->btn != -1) {
-                buttonSetCallbacks(dialogOptionEntry->btn, _gsound_red_butt_press, _gsound_red_butt_release);
+                buttonSetCallbacks(dialogOptionEntry->btn, gsound_red_butt_press, gsound_red_butt_release);
             } else {
                 debugPrint("\nError: Can't create button!");
             }
@@ -3201,12 +3201,12 @@ static int gdialog_barter_create_win()
     // TRADE
     gdialog_buttons[0] = buttonCreate(dialogueWindow, 41, 163, 14, 14, -1, -1, -1, KEY_LOWERCASE_M, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[0] != -1) {
-        buttonSetCallbacks(gdialog_buttons[0], _gsound_med_butt_press, _gsound_med_butt_release);
+        buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
         // TALK
         gdialog_buttons[1] = buttonCreate(dialogueWindow, 584, 162, 14, 14, -1, -1, -1, KEY_LOWERCASE_T, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
         if (gdialog_buttons[1] != -1) {
-            buttonSetCallbacks(gdialog_buttons[1], _gsound_med_butt_press, _gsound_med_butt_release);
+            buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
             if (objectCreateWithFidPid(&peon_table_obj, -1, -1) != -1) {
                 peon_table_obj->flags |= OBJECT_HIDDEN;
@@ -3358,7 +3358,7 @@ static int gdControlCreateWin()
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[0], _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
     // TRADE
     gdialog_buttons[1] = buttonCreate(dialogueWindow, 593, 97, 14, 14, -1, -1, -1, KEY_LOWERCASE_D, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -3366,7 +3366,7 @@ static int gdControlCreateWin()
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[1], _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
     // USE BEST WEAPON
     gdialog_buttons[2] = buttonCreate(dialogueWindow, 236, 15, 14, 14, -1, -1, -1, KEY_LOWERCASE_W, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -3374,7 +3374,7 @@ static int gdControlCreateWin()
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[1], _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
     // USE BEST ARMOR
     gdialog_buttons[3] = buttonCreate(dialogueWindow, 235, 46, 14, 14, -1, -1, -1, KEY_LOWERCASE_A, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -3382,7 +3382,7 @@ static int gdControlCreateWin()
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[2], _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gdialog_buttons[2], gsound_med_butt_press, gsound_med_butt_release);
 
     control_buttons_start = 4;
 
@@ -3442,7 +3442,7 @@ static int gdControlCreateWin()
         }
 
         _win_register_button_disable(gdialog_buttons[v21], disabledButtonFrmData, disabledButtonFrmData, disabledButtonFrmData);
-        buttonSetCallbacks(gdialog_buttons[v21], _gsound_med_butt_press, _gsound_med_butt_release);
+        buttonSetCallbacks(gdialog_buttons[v21], gsound_med_butt_press, gsound_med_butt_release);
 
         if (!partyMemberSupportsDisposition(dialog_target, buttonData->value)) {
             buttonDisable(gdialog_buttons[v21]);
@@ -3803,7 +3803,7 @@ static int gdCustomCreateWin()
         return -1;
     }
 
-    buttonSetCallbacks(gdialog_buttons[0], _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
     int optionButton = 0;
     custom_buttons_start = 1;
@@ -3850,7 +3850,7 @@ static int gdCustomCreateWin()
             return -1;
         }
 
-        buttonSetCallbacks(gdialog_buttons[index], _gsound_med_butt_press, _gsound_med_butt_release);
+        buttonSetCallbacks(gdialog_buttons[index], gsound_med_butt_press, gsound_med_butt_release);
     }
 
     custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE] = ai_get_burst_value(dialog_target);
@@ -4329,7 +4329,7 @@ static int gdialog_window_create()
             gdialog_buttons[0] = buttonCreate(dialogueWindow, 593, 41, 14, 14, -1, -1, -1, -1, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
             if (gdialog_buttons[0] != -1) {
                 buttonSetMouseCallbacks(gdialog_buttons[0], NULL, NULL, NULL, gdialog_barter_pressed);
-                buttonSetCallbacks(gdialog_buttons[0], _gsound_med_butt_press, _gsound_med_butt_release);
+                buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
                 // di_rest1.frm - dialog rest button up
                 int upFid = art_id(OBJ_TYPE_INTERFACE, 97, 0, 0, 0);
@@ -4343,7 +4343,7 @@ static int gdialog_window_create()
                         gdialog_buttons[1] = buttonCreate(dialogueWindow, 13, 154, 51, 29, -1, -1, -1, -1, reviewButtonUpData, reivewButtonDownData, NULL, 0);
                         if (gdialog_buttons[1] != -1) {
                             buttonSetMouseCallbacks(gdialog_buttons[1], NULL, NULL, NULL, gdReviewPressed);
-                            buttonSetCallbacks(gdialog_buttons[1], _gsound_red_butt_press, _gsound_red_butt_release);
+                            buttonSetCallbacks(gdialog_buttons[1], gsound_red_butt_press, gsound_red_butt_release);
 
                             if (!dialog_target_is_party) {
                                 gdialog_window_created = true;
@@ -4354,7 +4354,7 @@ static int gdialog_window_create()
                             gdialog_buttons[2] = buttonCreate(dialogueWindow, 593, 116, 14, 14, -1, -1, -1, -1, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
                             if (gdialog_buttons[2] != -1) {
                                 buttonSetMouseCallbacks(gdialog_buttons[2], NULL, NULL, NULL, gdControlPressed);
-                                buttonSetCallbacks(gdialog_buttons[2], _gsound_med_butt_press, _gsound_med_butt_release);
+                                buttonSetCallbacks(gdialog_buttons[2], gsound_med_butt_press, gsound_med_butt_release);
 
                                 gdialog_window_created = true;
                                 return 0;

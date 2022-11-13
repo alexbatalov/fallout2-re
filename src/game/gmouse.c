@@ -1851,9 +1851,9 @@ int gmouse_3d_build_menu_frame(int x, int y, const int* menuItems, int menuItems
     gmouse_3d_menu_available_actions = menuItemsLength;
     gmouse_3d_menu_actions_start = v58;
 
-    Sound* sound = soundEffectLoad("iaccuxx1", NULL);
+    Sound* sound = gsound_load_sound("iaccuxx1", NULL);
     if (sound != NULL) {
-        soundEffectPlay(sound);
+        gsound_play_sound(sound);
     }
 
     return 0;

@@ -436,7 +436,7 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
                 numberOfLevelsTravelled = -numberOfLevelsTravelled;
             }
 
-            soundPlayFile(sfxtable[btncnt[elevator] - 2][numberOfLevelsTravelled]);
+            gsound_play_sfx_file(sfxtable[btncnt[elevator] - 2][numberOfLevelsTravelled]);
 
             float v41 = (float)keyCode * v42;
             float v44 = (float)(*elevationPtr) * v42;
@@ -611,7 +611,7 @@ static int elevator_start(int elevator)
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, _gsound_red_butt_press, NULL);
+            buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
         }
         y += 60;
     }

@@ -150,7 +150,7 @@ int falloutMain(int argc, char** argv)
         bool done = false;
         while (!done) {
             kb_clear();
-            _gsound_background_play_level_music("07desert", 11);
+            gsound_background_play_level_music("07desert", 11);
             mainMenuWindowUnhide(1);
 
             mouse_show();
@@ -193,7 +193,7 @@ int falloutMain(int argc, char** argv)
                     int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
                     mainMenuWindowHide(true);
                     mainMenuWindowFree();
-                    backgroundSoundDelete();
+                    gsound_background_stop();
 
                     // NOTE: Uninline.
                     main_loadgame_new();
@@ -256,7 +256,7 @@ int falloutMain(int argc, char** argv)
                 done = true;
                 mainMenuWindowHide(true);
                 mainMenuWindowFree();
-                backgroundSoundDelete();
+                gsound_background_stop();
                 break;
             case MAIN_MENU_SELFRUN:
                 _main_selfrun_record();
@@ -306,7 +306,7 @@ int main_reset_system()
 // 0x480D18
 void main_exit_system()
 {
-    backgroundSoundDelete();
+    gsound_background_stop();
 
     // NOTE: Uninline.
     _main_selfrun_exit();
@@ -446,7 +446,7 @@ void _main_selfrun_record()
     if (ready) {
         mainMenuWindowHide(true);
         mainMenuWindowFree();
-        backgroundSoundDelete();
+        gsound_background_stop();
         randomSeedPrerandom(0xBEEFFEED);
 
         // NOTE: Uninline.
@@ -483,7 +483,7 @@ void _main_selfrun_play()
         if (selfrunPreparePlayback(_main_selfrun_list[_main_selfrun_index], &selfrunData) == 0) {
             mainMenuWindowHide(true);
             mainMenuWindowFree();
-            backgroundSoundDelete();
+            gsound_background_stop();
             randomSeedPrerandom(0xBEEFFEED);
 
             // NOTE: Uninline.
@@ -589,16 +589,16 @@ void showDeath()
             paletteFadeTo(cmap);
 
             _main_death_voiceover_done = false;
-            speechSetEndCallback(_main_death_voiceover_callback);
+            gsound_speech_callback_set(_main_death_voiceover_callback);
 
             unsigned int delay;
-            if (speechLoad(deathFileName, 10, 14, 15) == -1) {
+            if (gsound_speech_play(deathFileName, 10, 14, 15) == -1) {
                 delay = 3000;
             } else {
                 delay = UINT_MAX;
             }
 
-            _gsound_speech_play_preloaded();
+            gsound_speech_play_preloaded();
 
             unsigned int time = _get_time();
             int keyCode;
@@ -606,9 +606,9 @@ void showDeath()
                 keyCode = _get_input();
             } while (keyCode == -1 && !_main_death_voiceover_done && getTicksSince(time) < delay);
 
-            speechSetEndCallback(NULL);
+            gsound_speech_callback_set(NULL);
 
-            speechDelete();
+            gsound_speech_stop();
 
             while (mouse_get_buttons() != 0) {
                 _get_input();
@@ -1020,5 +1020,5 @@ int main_menu_fatal_error()
 // 0x481C94
 void main_menu_play_sound(const char* fileName)
 {
-    soundPlayFile(fileName);
+    gsound_play_sfx_file(fileName);
 }

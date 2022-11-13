@@ -200,7 +200,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     combat_ai_init();
     _inven_reset_dude();
 
-    if (gameSoundInit() != 0) {
+    if (gsound_init() != 0) {
         debugPrint("Sound initialization failed.\n");
     }
 
@@ -363,7 +363,7 @@ void game_reset()
     critter_reset();
     combat_ai_reset();
     _inven_reset_dude();
-    gameSoundReset();
+    gsound_reset();
     _movieStop();
     movieEffectsReset();
     gmovie_reset();
@@ -406,7 +406,7 @@ void game_exit()
     isoExit();
     movieEffectsExit();
     movieExit();
-    gameSoundExit();
+    gsound_exit();
     combat_ai_exit();
     critter_exit();
     itemsExit();
@@ -504,19 +504,19 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_CTRL_Q:
     case KEY_CTRL_X:
     case KEY_F10:
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         game_quit_with_confirm();
         break;
     case KEY_TAB:
         if (interfaceBarEnabled()
             && keys[DIK_LALT] == 0
             && keys[DIK_RALT] == 0) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             automap(true, false);
         }
         break;
     case KEY_CTRL_P:
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         showPause(false);
         break;
     case KEY_UPPERCASE_A:
@@ -530,7 +530,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_UPPERCASE_N:
     case KEY_LOWERCASE_N:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             interfaceCycleItemAction();
         }
         break;
@@ -542,14 +542,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_B:
         // change active hand
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             interfaceBarSwapHands(true);
         }
         break;
     case KEY_UPPERCASE_C:
     case KEY_LOWERCASE_C:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             bool isoWasEnabled = isoDisable();
             editor_design(false);
             if (isoWasEnabled) {
@@ -561,7 +561,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_I:
         // open inventory
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             inventoryOpen();
         }
         break;
@@ -570,7 +570,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_O:
         // options
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             showOptions();
         }
         break;
@@ -579,7 +579,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         // pipboy
         if (interfaceBarEnabled()) {
             if (isInCombatMode) {
-                soundPlayFile("iisxxxx1");
+                gsound_play_sfx_file("iisxxxx1");
 
                 // Pipboy not available in combat!
                 MessageListItem messageListItem;
@@ -587,7 +587,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                 strcpy(title, getmsg(&misc_message_file, &messageListItem, 7));
                 dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 pipboyOpen(false);
             }
         }
@@ -596,7 +596,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_S:
         // skilldex
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
 
             int mode = -1;
 
@@ -647,7 +647,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_Z:
         if (interfaceBarEnabled()) {
             if (isInCombatMode) {
-                soundPlayFile("iisxxxx1");
+                gsound_play_sfx_file("iisxxxx1");
 
                 // Pipboy not available in combat!
                 MessageListItem messageListItem;
@@ -655,7 +655,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                 strcpy(title, getmsg(&misc_message_file, &messageListItem, 7));
                 dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 pipboyOpen(true);
             }
         }
@@ -675,7 +675,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_1:
     case KEY_EXCLAMATION:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             action_skill_use(SKILL_SNEAK);
         }
@@ -683,7 +683,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_2:
     case KEY_AT:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_LOCKPICK);
         }
@@ -691,7 +691,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_3:
     case KEY_NUMBER_SIGN:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_STEAL);
         }
@@ -699,7 +699,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_4:
     case KEY_DOLLAR:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_TRAPS);
         }
@@ -707,7 +707,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_5:
     case KEY_PERCENT:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_FIRST_AID);
         }
@@ -715,7 +715,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_6:
     case KEY_CARET:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_DOCTOR);
         }
@@ -723,7 +723,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_7:
     case KEY_AMPERSAND:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_SCIENCE);
         }
@@ -731,7 +731,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_8:
     case KEY_ASTERISK:
         if (interfaceBarEnabled()) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_REPAIR);
         }
@@ -761,7 +761,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_SLASH:
     case KEY_QUESTION:
         if (1) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
 
             int month;
             int day;
@@ -791,32 +791,32 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         }
         break;
     case KEY_F1:
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         game_help();
         break;
     case KEY_F2:
-        gameSoundSetMasterVolume(gameSoundGetMasterVolume() - 2047);
+        gsound_set_master_volume(gsound_get_master_volume() - 2047);
         break;
     case KEY_F3:
-        gameSoundSetMasterVolume(gameSoundGetMasterVolume() + 2047);
+        gsound_set_master_volume(gsound_get_master_volume() + 2047);
         break;
     case KEY_CTRL_S:
     case KEY_F4:
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         if (lsgSaveGame(1) == -1) {
             debugPrint("\n ** Error calling SaveGame()! **\n");
         }
         break;
     case KEY_CTRL_L:
     case KEY_F5:
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         if (lsgLoadGame(LOAD_SAVE_MODE_NORMAL) == -1) {
             debugPrint("\n ** Error calling LoadGame()! **\n");
         }
         break;
     case KEY_F6:
         if (1) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
 
             int rc = lsgSaveGame(LOAD_SAVE_MODE_QUICK);
             if (rc == -1) {
@@ -831,7 +831,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_F7:
         if (1) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
 
             int rc = lsgLoadGame(LOAD_SAVE_MODE_QUICK);
             if (rc == -1) {
@@ -846,7 +846,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_CTRL_V:
         if (1) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
 
             char version[VERSION_MAX];
             versionGetVersion(version);

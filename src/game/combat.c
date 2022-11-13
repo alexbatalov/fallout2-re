@@ -5429,7 +5429,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
     // Cancel button
     int btn = buttonCreate(call_win, 210, 268, 15, 16, -1, -1, -1, KEY_ESCAPE, up, down, NULL, BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int oldFont = fontGetCurrent();
@@ -5499,7 +5499,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
 
     *hitLocation = eventCode < 4 ? hit_loc_left[eventCode] : hit_loc_right[eventCode - 4];
 
-    soundPlayFile("icsxxxx1");
+    gsound_play_sfx_file("icsxxxx1");
 
     return 0;
 }
@@ -5608,8 +5608,8 @@ void combat_attack_this(Object* a1)
             display_print(messageListItem.text);
         }
 
-        sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, item, hitMode, NULL);
-        soundPlayFile(sfx);
+        sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, item, hitMode, NULL);
+        gsound_play_sfx_file(sfx);
         return;
     case COMBAT_BAD_SHOT_OUT_OF_RANGE:
         messageListItem.num = 102; // Target out of range.

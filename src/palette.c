@@ -28,7 +28,7 @@ void paletteInit()
     memcpy(gPalette, cmap, 256 * 3);
 
     unsigned int tick = _get_time();
-    if (backgroundSoundIsEnabled() || speechIsEnabled()) {
+    if (gsound_background_is_enabled() || gsound_speech_is_enabled()) {
         colorSetFadeBkFunc(soundContinueAll);
     }
 
@@ -77,7 +77,7 @@ void paletteFadeTo(unsigned char* palette)
     bool colorCycleWasEnabled = cycle_is_enabled();
     cycle_disable();
 
-    if (backgroundSoundIsEnabled() || speechIsEnabled()) {
+    if (gsound_background_is_enabled() || gsound_speech_is_enabled()) {
         colorSetFadeBkFunc(soundContinueAll);
     }
 

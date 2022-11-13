@@ -268,7 +268,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 
         int btn = buttonCreate(win, v27 + 13, doneY[dialogType] + 4, downButtonWidth, downButtonHeight, -1, -1, -1, 500, upButton, downButton, NULL, BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+            buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
         }
 
         v86 = true;
@@ -299,7 +299,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 downButtonHeight,
                 -1, -1, -1, 501, upButton, downButton, 0, BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+                buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
             }
         } else {
             int doneBoxFid = art_id(OBJ_TYPE_INTERFACE, 209, 0, 0, 0);
@@ -381,7 +381,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 NULL,
                 BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+                buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
             }
 
             v86 = true;
@@ -454,7 +454,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         if (keyCode == 500) {
             rc = 1;
         } else if (keyCode == KEY_RETURN) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             rc = 1;
         } else if (keyCode == KEY_ESCAPE || keyCode == 501) {
             rc = 0;
@@ -586,7 +586,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int cancelBtn = buttonCreate(win,
@@ -603,7 +603,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int scrollUpBtn = buttonCreate(win,
@@ -620,7 +620,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (scrollUpBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int scrollDownButton = buttonCreate(win,
@@ -637,7 +637,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (scrollUpBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     buttonCreate(
@@ -704,7 +704,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
 
             selectedFileIndex = selectedLine;
             if (selectedFileIndex == doubleClickSelectedFileIndex) {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 strncpy(dest, fileList[selectedFileIndex + pageOffset], 16);
                 rc = 0;
             }
@@ -963,7 +963,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int cancelBtn = buttonCreate(win,
@@ -980,7 +980,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int scrollUpBtn = buttonCreate(win,
@@ -997,7 +997,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (scrollUpBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int scrollDownButton = buttonCreate(win,
@@ -1014,7 +1014,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (scrollUpBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     buttonCreate(
@@ -1083,7 +1083,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         if (keyCode == 500) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             rc = 0;
         } else if (keyCode == 501 || keyCode == KEY_ESCAPE) {
             rc = 1;
@@ -1115,7 +1115,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
 
                 selectedFileIndex = selectedLine;
                 if (selectedFileIndex == doubleClickSelectedFileIndex) {
-                    soundPlayFile("ib1p1xx1");
+                    gsound_play_sfx_file("ib1p1xx1");
                     strncpy(dest, fileList[selectedFileIndex + pageOffset], 16);
 
                     int index;

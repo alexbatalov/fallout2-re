@@ -375,7 +375,7 @@ int pipboyWindowInit(int intent)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (alarmButton != -1) {
-        buttonSetCallbacks(alarmButton, _gsound_med_butt_press, _gsound_med_butt_release);
+        buttonSetCallbacks(alarmButton, gsound_med_butt_press, gsound_med_butt_release);
     }
 
     int y = 341;
@@ -396,7 +396,7 @@ int pipboyWindowInit(int intent)
                 NULL,
                 BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+                buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
             }
 
             eventCode += 1;
@@ -444,7 +444,7 @@ int pipboyWindowInit(int intent)
 
             win_draw(gPipboyWindow);
 
-            soundPlayFile("iisxxxx1");
+            gsound_play_sfx_file("iisxxxx1");
 
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
             dialog_out(text, NULL, 0, 192, 135, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
@@ -494,7 +494,7 @@ int pipboyWindowInit(int intent)
         return -1;
     }
 
-    soundPlayFile("pipon");
+    gsound_play_sfx_file("pipon");
     win_draw(gPipboyWindow);
 
     return intent;
@@ -704,7 +704,7 @@ void pipboyWindowHandleStatus(int a1)
 
     if (_stat_flag == 0 && _holo_flag == 0) {
         if (gPipboyQuestLocationsCount != 0 && gPipboyMouseX < 429) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             blitBufferToBuffer(gPipboyFrmData[PIPBOY_FRM_BACKGROUND] + PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_CONTENT_VIEW_Y + PIPBOY_WINDOW_CONTENT_VIEW_X,
                 PIPBOY_WINDOW_CONTENT_VIEW_WIDTH,
                 PIPBOY_WINDOW_CONTENT_VIEW_HEIGHT,
@@ -718,7 +718,7 @@ void pipboyWindowHandleStatus(int a1)
             _stat_flag = 1;
         } else {
             if (gPipboyWindowHolodisksCount != 0 && gPipboyWindowHolodisksCount >= a1 && gPipboyMouseX > 429) {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 _holodisk = 0;
 
                 int index = 0;
@@ -759,7 +759,7 @@ void pipboyWindowHandleStatus(int a1)
         if ((gPipboyMouseX > 459 && a1 != 1027) || a1 == 1026) {
             if (gPipboyHolodiskLastPage <= _view_page) {
                 if (a1 != 1026) {
-                    soundPlayFile("ib1p1xx1");
+                    gsound_play_sfx_file("ib1p1xx1");
                     blitBufferToBuffer(gPipboyFrmData[PIPBOY_FRM_BACKGROUND] + PIPBOY_WINDOW_WIDTH * 436 + 254, 350, 20, PIPBOY_WINDOW_WIDTH, gPipboyWindowBuffer + PIPBOY_WINDOW_WIDTH * 436 + 254, PIPBOY_WINDOW_WIDTH);
 
                     if (gPipboyLinesCount >= 0) {
@@ -783,7 +783,7 @@ void pipboyWindowHandleStatus(int a1)
                     pipboyWindowHandleStatus(1024);
                 }
             } else {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 blitBufferToBuffer(gPipboyFrmData[PIPBOY_FRM_BACKGROUND] + PIPBOY_WINDOW_WIDTH * 436 + 254, 350, 20, PIPBOY_WINDOW_WIDTH, gPipboyWindowBuffer + PIPBOY_WINDOW_WIDTH * 436 + 254, PIPBOY_WINDOW_WIDTH);
 
                 if (gPipboyLinesCount >= 0) {
@@ -813,7 +813,7 @@ void pipboyWindowHandleStatus(int a1)
         }
 
         if (a1 == 1027) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             blitBufferToBuffer(gPipboyFrmData[PIPBOY_FRM_BACKGROUND] + PIPBOY_WINDOW_WIDTH * 436 + 254, 350, 20, PIPBOY_WINDOW_WIDTH, gPipboyWindowBuffer + PIPBOY_WINDOW_WIDTH * 436 + 254, PIPBOY_WINDOW_WIDTH);
 
             if (gPipboyLinesCount >= 0) {
@@ -846,7 +846,7 @@ void pipboyWindowHandleStatus(int a1)
                 return;
             }
 
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             blitBufferToBuffer(gPipboyFrmData[PIPBOY_FRM_BACKGROUND] + PIPBOY_WINDOW_WIDTH * 436 + 254, 350, 20, PIPBOY_WINDOW_WIDTH, gPipboyWindowBuffer + PIPBOY_WINDOW_WIDTH * 436 + 254, PIPBOY_WINDOW_WIDTH);
 
             if (gPipboyLinesCount >= 0) {
@@ -881,7 +881,7 @@ void pipboyWindowHandleStatus(int a1)
     }
 
     if (a1 == 1025) {
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         pipboyDrawBackButton(colorTable[32747]);
         win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
         coreDelayProcessingEvents(200);
@@ -889,7 +889,7 @@ void pipboyWindowHandleStatus(int a1)
     }
 
     if (a1 <= gPipboyQuestLocationsCount) {
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
 
         int v13 = 0;
         int index = 0;
@@ -1260,11 +1260,11 @@ void pipboyWindowHandleAutomaps(int a1)
     if (_amlst_mode != 0) {
         if (a1 == 1025 || a1 <= -1) {
             pipboyWindowHandleAutomaps(1024);
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
         }
 
         if (a1 >= 1 && a1 <= _actcnt + 3) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             _PrintAMelevList(a1);
             draw_top_down_map_pipboy(gPipboyWindow, _sortlist[a1 - 1].field_6, _sortlist[a1 - 1].field_4);
             win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
@@ -1274,7 +1274,7 @@ void pipboyWindowHandleAutomaps(int a1)
     }
 
     if (a1 > 0 && a1 <= _actcnt) {
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
         pipboyWindowDestroyButtons();
         _PrintAMList(a1);
         win_draw_rect(gPipboyWindow, &gPipboyWindowContentRect);
@@ -1461,7 +1461,7 @@ void pipboyHandleVideoArchive(int a1)
         _view_page = pipboyRenderVideoArchive(-1);
         pipboyWindowCreateButtons(2, _view_page, false);
     } else if (a1 >= 0 && a1 <= _view_page) {
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
 
         pipboyRenderVideoArchive(a1);
 
@@ -1558,14 +1558,14 @@ void pipboyHandleAlarmClock(int a1)
             pipboyWindowRenderRestOptions(0);
             pipboyWindowCreateButtons(5, gPipboyRestOptionsCount, false);
         } else {
-            soundPlayFile("iisxxxx1");
+            gsound_play_sfx_file("iisxxxx1");
 
             // You cannot rest at this location!
             const char* text = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 215);
             dialog_out(text, NULL, 0, 192, 135, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
         }
     } else if (a1 >= 4 && a1 <= 17) {
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
 
         pipboyWindowRenderRestOptions(a1 - 3);
 
@@ -1614,7 +1614,7 @@ void pipboyHandleAlarmClock(int a1)
             break;
         }
 
-        soundPlayFile("ib2lu1x1");
+        gsound_play_sfx_file("ib2lu1x1");
 
         pipboyWindowRenderRestOptions(0);
     }

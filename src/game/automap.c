@@ -339,17 +339,17 @@ void automap(bool isInGame, bool isUsingScanner)
 
     int scannerBtn = buttonCreate(window, 111, 454, 15, 16, -1, -1, -1, KEY_LOWERCASE_S, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
     if (scannerBtn != -1) {
-        buttonSetCallbacks(scannerBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(scannerBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int cancelBtn = buttonCreate(window, 277, 454, 15, 16, -1, -1, -1, KEY_ESCAPE, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int switchBtn = buttonCreate(window, 457, 340, 42, 74, -1, -1, KEY_LOWERCASE_L, KEY_LOWERCASE_H, frmData[AUTOMAP_FRM_SWITCH_UP], frmData[AUTOMAP_FRM_SWITCH_DOWN], NULL, BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01);
     if (switchBtn != -1) {
-        buttonSetCallbacks(switchBtn, _gsound_toggle_butt_press_, _gsound_toggle_butt_press_);
+        buttonSetCallbacks(switchBtn, gsound_toggle_butt_press, gsound_toggle_butt_release);
     }
 
     if ((autoflags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
@@ -426,7 +426,7 @@ void automap(bool isInGame, bool isUsingScanner)
                     autoflags |= AUTOMAP_WITH_SCANNER;
                     miscItemConsumeCharge(scanner);
                 } else {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     MessageListItem messageListItem;
                     // 17 - The motion sensor is not installed.

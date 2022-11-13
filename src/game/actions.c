@@ -131,7 +131,7 @@ int action_knockback(Object* obj, int* anim, int maxDistance, int rotation, int 
         }
     }
 
-    const char* soundEffectName = sfxBuildCharName(obj, *anim, CHARACTER_SOUND_EFFECT_KNOCKDOWN);
+    const char* soundEffectName = gsnd_build_character_sfx_name(obj, *anim, CHARACTER_SOUND_EFFECT_KNOCKDOWN);
     register_object_play_sfx(obj, soundEffectName, delay);
 
     // TODO: Check, probably step back because we've started with 1?
@@ -319,7 +319,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
                     action_knockback(a1, &anim, knockbackDistance, knockbackRotation, a10);
                     anim = action_blood(a1, anim, -1);
                 } else {
-                    sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_DIE);
+                    sfx_name = gsnd_build_character_sfx_name(a1, anim, CHARACTER_SOUND_EFFECT_DIE);
                     register_object_play_sfx(a1, sfx_name, a10);
 
                     anim = pick_fall(a1, anim);
@@ -332,7 +332,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
             } else {
                 fid = art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_FIRE_DANCE, (a1->fid & 0xF000) >> 12, a1->rotation + 1);
                 if (art_exists(fid)) {
-                    sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
+                    sfx_name = gsnd_build_character_sfx_name(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                     register_object_play_sfx(a1, sfx_name, a10);
 
                     register_object_animate(a1, anim, 0);
@@ -354,14 +354,14 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
                 }
 
                 anim = ANIM_BURNED_TO_NOTHING;
-                sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
+                sfx_name = gsnd_build_character_sfx_name(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                 register_object_play_sfx(a1, sfx_name, -1);
                 register_object_animate(a1, anim, 0);
             }
         } else {
             if ((flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN)) != 0) {
                 anim = isFallingBack ? ANIM_FALL_BACK : ANIM_FALL_FRONT;
-                sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
+                sfx_name = gsnd_build_character_sfx_name(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                 register_object_play_sfx(a1, sfx_name, a10);
                 if (knockbackDistance != 0) {
                     action_knockback(a1, &anim, knockbackDistance, knockbackRotation, 0);
@@ -390,7 +390,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
                         anim = ANIM_HIT_FROM_BACK;
                     }
 
-                    sfx_name = sfxBuildCharName(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
+                    sfx_name = gsnd_build_character_sfx_name(a1, anim, CHARACTER_SOUND_EFFECT_UNUSED);
                     register_object_play_sfx(a1, sfx_name, a10);
 
                     register_object_animate(a1, anim, 0);
@@ -412,7 +412,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
             register_object_change_fid(weapon, fid, 0);
             register_object_animate_and_hide(weapon, ANIM_STAND, 0);
 
-            sfx_name = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a1);
+            sfx_name = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_HIT, weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY, a1);
             register_object_play_sfx(weapon, sfx_name, 0);
 
             register_object_must_erase(weapon);
@@ -639,9 +639,9 @@ static int action_melee(Attack* attack, int anim)
     flag = delta != 0 && delta != 1 && delta != 5;
 
     if (anim != ANIM_THROW_PUNCH && anim != ANIM_KICK_LEG) {
-        sfx_name = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_ATTACK, attack->weapon, attack->hitMode, attack->defender);
+        sfx_name = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_ATTACK, attack->weapon, attack->hitMode, attack->defender);
     } else {
-        sfx_name = sfxBuildCharName(attack->attacker, anim, CHARACTER_SOUND_EFFECT_UNUSED);
+        sfx_name = gsnd_build_character_sfx_name(attack->attacker, anim, CHARACTER_SOUND_EFFECT_UNUSED);
     }
 
     strcpy(sfx_name_temp, sfx_name);
@@ -651,9 +651,9 @@ static int action_melee(Attack* attack, int anim)
     if (attack->attackerFlags & 0x0300) {
         register_object_play_sfx(attack->attacker, sfx_name_temp, 0);
         if (anim != ANIM_THROW_PUNCH && anim != ANIM_KICK_LEG) {
-            sfx_name = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, attack->weapon, attack->hitMode, attack->defender);
+            sfx_name = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_HIT, attack->weapon, attack->hitMode, attack->defender);
         } else {
-            sfx_name = sfxBuildCharName(attack->attacker, anim, CHARACTER_SOUND_EFFECT_CONTACT);
+            sfx_name = gsnd_build_character_sfx_name(attack->attacker, anim, CHARACTER_SOUND_EFFECT_CONTACT);
         }
 
         strcpy(sfx_name_temp, sfx_name);
@@ -676,11 +676,11 @@ static int action_melee(Attack* attack, int anim)
                     register_object_play_sfx(attack->attacker, sfx_name_temp, -1);
                     register_object_animate(attack->attacker, anim, 0);
 
-                    sfx_name = sfxBuildCharName(attack->defender, ANIM_DODGE_ANIM, CHARACTER_SOUND_EFFECT_UNUSED);
+                    sfx_name = gsnd_build_character_sfx_name(attack->defender, ANIM_DODGE_ANIM, CHARACTER_SOUND_EFFECT_UNUSED);
                     register_object_play_sfx(attack->defender, sfx_name, v17 - v18);
                     register_object_animate(attack->defender, ANIM_DODGE_ANIM, 0);
                 } else {
-                    sfx_name = sfxBuildCharName(attack->defender, ANIM_DODGE_ANIM, CHARACTER_SOUND_EFFECT_UNUSED);
+                    sfx_name = gsnd_build_character_sfx_name(attack->defender, ANIM_DODGE_ANIM, CHARACTER_SOUND_EFFECT_UNUSED);
                     register_object_play_sfx(attack->defender, sfx_name, -1);
                     register_object_animate(attack->defender, ANIM_DODGE_ANIM, 0);
                     register_object_play_sfx(attack->attacker, sfx_name_temp, v18 - v17);
@@ -765,9 +765,9 @@ static int action_ranged(Attack* attack, int anim)
 
     const char* sfx;
     if (((attack->attacker->fid & 0xF000) >> 12) != 0) {
-        sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_ATTACK, weapon, attack->hitMode, attack->defender);
+        sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_ATTACK, weapon, attack->hitMode, attack->defender);
     } else {
-        sfx = sfxBuildCharName(attack->attacker, anim, CHARACTER_SOUND_EFFECT_UNUSED);
+        sfx = gsnd_build_character_sfx_name(attack->attacker, anim, CHARACTER_SOUND_EFFECT_UNUSED);
     }
     register_object_play_sfx(attack->attacker, sfx, -1);
 
@@ -822,7 +822,7 @@ static int action_ranged(Attack* attack, int anim)
 
                 register_object_funset(projectile, OBJECT_HIDDEN, actionFrame);
 
-                const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_AMMO_FLYING, weapon, attack->hitMode, attack->defender);
+                const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_AMMO_FLYING, weapon, attack->hitMode, attack->defender);
                 register_object_play_sfx(projectile, sfx, 0);
 
                 int v24;
@@ -862,7 +862,7 @@ static int action_ranged(Attack* attack, int anim)
                         int explosionFid = art_id(OBJ_TYPE_MISC, explosionFrmId, 0, 0, 0);
                         register_object_change_fid(projectile, explosionFid, -1);
 
-                        const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, attack->hitMode, attack->defender);
+                        const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_HIT, weapon, attack->hitMode, attack->defender);
                         register_object_play_sfx(projectile, sfx, 0);
 
                         register_object_animate_and_hide(projectile, ANIM_STAND, 0);
@@ -899,7 +899,7 @@ static int action_ranged(Attack* attack, int anim)
                 }
 
                 if (!l56) {
-                    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_HIT, weapon, attack->hitMode, attack->defender);
+                    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_HIT, weapon, attack->hitMode, attack->defender);
                     register_object_play_sfx(weapon, sfx, actionFrame);
                 }
 
@@ -1036,12 +1036,12 @@ static int action_climb_ladder(Object* a1, Object* a2)
 
     int weaponAnimationCode = (a1->fid & 0xF000) >> 12;
     if (weaponAnimationCode != 0) {
-        const char* puttingAwaySfx = sfxBuildCharName(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
+        const char* puttingAwaySfx = gsnd_build_character_sfx_name(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
         register_object_play_sfx(a1, puttingAwaySfx, -1);
         register_object_animate(a1, ANIM_PUT_AWAY, 0);
     }
 
-    const char* climbingSfx = sfxBuildCharName(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
+    const char* climbingSfx = gsnd_build_character_sfx_name(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
     register_object_play_sfx(a1, climbingSfx, -1);
     register_object_animate(a1, ANIM_CLIMB_LADDER, 0);
     register_object_call(a1, a2, _obj_use, -1);
@@ -1105,7 +1105,7 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
 
         int a2a = (a1->fid & 0xF000) >> 12;
         if (a2a != 0) {
-            const char* sfx = sfxBuildCharName(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
+            const char* sfx = gsnd_build_character_sfx_name(a1, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
             register_object_play_sfx(a1, sfx, -1);
             register_object_animate(a1, ANIM_PUT_AWAY, 0);
         }
@@ -1217,7 +1217,7 @@ int action_get_an_object(Object* critter, Object* item)
     } else {
         int weaponAnimationCode = (critter->fid & 0xF000) >> 12;
         if (weaponAnimationCode != 0) {
-            const char* sfx = sfxBuildCharName(critter, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
+            const char* sfx = gsnd_build_character_sfx_name(critter, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
             register_object_play_sfx(critter, sfx, -1);
             register_object_animate(critter, ANIM_PUT_AWAY, -1);
         }

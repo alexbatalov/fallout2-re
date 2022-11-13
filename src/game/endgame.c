@@ -231,13 +231,13 @@ void endgame_slideshow()
 // 0x43F810
 void endgame_movie()
 {
-    backgroundSoundDelete();
+    gsound_background_stop();
     isoDisable();
     paletteFadeTo(gPaletteBlack);
     endgame_maybe_done = 0;
     tickersAdd(endgame_movie_bk_process);
-    backgroundSoundSetEndCallback(endgame_movie_callback);
-    backgroundSoundLoad("akiss", 12, 14, 15);
+    gsound_background_callback_set(endgame_movie_callback);
+    gsound_background_play("akiss", 12, 14, 15);
     coreDelayProcessingEvents(3000);
 
     // NOTE: Result is ignored. I guess there was some kind of switch for male
@@ -245,10 +245,10 @@ void endgame_movie()
     critterGetStat(gDude, STAT_GENDER);
 
     credits("credits.txt", -1, false);
-    backgroundSoundDelete();
-    backgroundSoundSetEndCallback(NULL);
+    gsound_background_stop();
+    gsound_background_callback_set(NULL);
     tickersRemove(endgame_movie_bk_process);
-    backgroundSoundDelete();
+    gsound_background_stop();
     loadColorTable("color.pal");
     paletteFadeTo(cmap);
     isoEnable();
@@ -335,7 +335,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
         unsigned int v9_ = 16 * v8;
 
         if (endgame_voiceover_loaded) {
-            unsigned int v10 = 1000 * speechGetDuration();
+            unsigned int v10 = 1000 * gsound_speech_length_get();
             if (v10 > v9_ / 2) {
                 v9 = (v10 + v9 * (v8 / 2)) / v8;
             }
@@ -490,7 +490,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
         }
 
         tickersEnable();
-        speechDelete();
+        gsound_speech_stop();
         endgame_clear_subtitles();
 
         endgame_voiceover_loaded = false;
@@ -517,7 +517,7 @@ static int endgame_init()
         return -1;
     }
 
-    backgroundSoundDelete();
+    gsound_background_stop();
 
     endgame_map_enabled = isoDisable();
 
@@ -555,7 +555,7 @@ static int endgame_init()
 
     cycle_disable();
 
-    speechSetEndCallback(endgame_voiceover_callback);
+    gsound_speech_callback_set(endgame_voiceover_callback);
 
     endgame_do_subtitles = false;
     configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &endgame_do_subtitles);
@@ -609,7 +609,7 @@ static void endgame_exit()
 
     fontSetCurrent(endgame_old_font);
 
-    speechSetEndCallback(NULL);
+    gsound_speech_callback_set(NULL);
     windowDestroy(endgame_window);
 
     if (!endgame_mouse_state) {
@@ -642,7 +642,7 @@ static void endgame_load_voiceover(const char* fileBaseName)
     // Build speech file path.
     sprintf(path, "%s%s", "narrator\\", fileBaseName);
 
-    if (speechLoad(path, 10, 14, 15) != -1) {
+    if (gsound_speech_play(path, 10, 14, 15) != -1) {
         endgame_voiceover_loaded = true;
     }
 
@@ -656,7 +656,7 @@ static void endgame_load_voiceover(const char* fileBaseName)
 
         double durationPerCharacter;
         if (endgame_voiceover_loaded) {
-            durationPerCharacter = (double)speechGetDuration() / (double)endgame_subtitle_characters;
+            durationPerCharacter = (double)gsound_speech_length_get() / (double)endgame_subtitle_characters;
         } else {
             durationPerCharacter = 0.08;
         }
@@ -683,7 +683,7 @@ static void endgame_play_voiceover()
     endgame_voiceover_done = false;
 
     if (endgame_voiceover_loaded) {
-        _gsound_speech_play_preloaded();
+        gsound_speech_play_preloaded();
     }
 
     if (endgame_subtitle_loaded) {
@@ -696,7 +696,7 @@ static void endgame_play_voiceover()
 // 0x44035C
 static void endgame_stop_voiceover()
 {
-    speechDelete();
+    gsound_speech_stop();
     endgame_clear_subtitles();
     endgame_voiceover_loaded = false;
     endgame_subtitle_loaded = false;
@@ -848,8 +848,8 @@ static void endgame_movie_callback()
 static void endgame_movie_bk_process()
 {
     if (endgame_maybe_done) {
-        backgroundSoundLoad("10labone", 11, 14, 16);
-        backgroundSoundSetEndCallback(NULL);
+        gsound_background_play("10labone", 11, 14, 16);
+        gsound_background_callback_set(NULL);
         tickersRemove(endgame_movie_bk_process);
     }
 }

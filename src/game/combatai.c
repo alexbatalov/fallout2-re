@@ -2544,9 +2544,9 @@ static int ai_try_attack(Object* a1, Object* a2)
                 }
 
                 if (v9 != -1) {
-                    int volume = _gsound_compute_relative_volume(a1);
-                    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon, hitMode, NULL);
-                    _gsound_play_sfx_file_volume(sfx, volume);
+                    int volume = gsound_compute_relative_volume(a1);
+                    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, weapon, hitMode, NULL);
+                    gsound_play_sfx_file_volume(sfx, volume);
                     ai_magic_hands(a1, weapon, 5002);
 
                     int actionPoints = a1->data.critter.combat.ap;
@@ -2567,9 +2567,9 @@ static int ai_try_attack(Object* a1, Object* a2)
                         }
 
                         if (v15 != -1) {
-                            int volume = _gsound_compute_relative_volume(a1);
-                            const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon, hitMode, NULL);
-                            _gsound_play_sfx_file_volume(sfx, volume);
+                            int volume = gsound_compute_relative_volume(a1);
+                            const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, weapon, hitMode, NULL);
+                            gsound_play_sfx_file_volume(sfx, volume);
                             ai_magic_hands(a1, weapon, 5002);
 
                             int actionPoints = a1->data.critter.combat.ap;
@@ -2581,9 +2581,9 @@ static int ai_try_attack(Object* a1, Object* a2)
                         }
                     }
                 } else {
-                    int volume = _gsound_compute_relative_volume(a1);
-                    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, weapon, hitMode, NULL);
-                    _gsound_play_sfx_file_volume(sfx, volume);
+                    int volume = gsound_compute_relative_volume(a1);
+                    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_OUT_OF_AMMO, weapon, hitMode, NULL);
+                    gsound_play_sfx_file_volume(sfx, volume);
                     ai_magic_hands(a1, weapon, 5001);
 
                     if (_inven_unwield(a1, 1) == 0) {
@@ -2731,9 +2731,9 @@ void cai_attempt_w_reload(Object* critter_obj, int a2)
         }
 
         if (v9 != -1 && objectIsPartyMember(critter_obj)) {
-            v10 = _gsound_compute_relative_volume(critter_obj);
-            sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, weapon_obj, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
-            _gsound_play_sfx_file_volume(sfx, v10);
+            v10 = gsound_compute_relative_volume(critter_obj);
+            sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, weapon_obj, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+            gsound_play_sfx_file_volume(sfx, v10);
             if (a2) {
                 ai_magic_hands(critter_obj, weapon_obj, 5002);
             }

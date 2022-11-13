@@ -4508,7 +4508,7 @@ static int wmInterfaceInit()
     _map_save_in_game(true);
 
     const char* backgroundSoundFileName = wmGenData.isInCar ? "20car" : "23world";
-    _gsound_background_play_level_music(backgroundSoundFileName, 12);
+    gsound_background_play_level_music(backgroundSoundFileName, 12);
 
     indicatorBarHide();
     isoDisable();
@@ -6706,7 +6706,7 @@ int wmMapMusicStart()
             break;
         }
 
-        if (_gsound_background_play_level_music(map->music, 12) == -1) {
+        if (gsound_background_play_level_music(map->music, 12) == -1) {
             break;
         }
 
@@ -6737,7 +6737,7 @@ int wmSetMapMusic(int mapIdx, const char* name)
     map->music[39] = '\0';
 
     if (mapGetCurrentMap() == mapIdx) {
-        backgroundSoundDelete();
+        gsound_background_stop();
         wmMapMusicStart();
     }
 

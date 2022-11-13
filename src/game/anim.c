@@ -514,8 +514,8 @@ static void anim_cleanup()
             art_ptr_unlock(animationDescription->artCacheKey);
         }
 
-        if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == _gsnd_anim_sound) {
-            soundEffectDelete(animationDescription->param1);
+        if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == gsnd_anim_sound) {
+            gsound_delete_sfx(animationDescription->param1);
         }
     }
 
@@ -1278,7 +1278,7 @@ int register_object_change_fid(Object* owner, int fid, int delay)
 // 0x415238
 int register_object_take_out(Object* owner, int weaponAnimationCode, int delay)
 {
-    const char* sfx = sfxBuildCharName(owner, ANIM_TAKE_OUT, weaponAnimationCode);
+    const char* sfx = gsnd_build_character_sfx_name(owner, ANIM_TAKE_OUT, weaponAnimationCode);
     if (register_object_play_sfx(owner, sfx, delay) == -1) {
         return -1;
     }
@@ -1366,10 +1366,10 @@ int register_object_play_sfx(Object* owner, const char* soundEffectName, int del
     animationDescription->kind = ANIM_KIND_CALLBACK;
     animationDescription->owner = owner;
     if (soundEffectName != NULL) {
-        int volume = _gsound_compute_relative_volume(owner);
-        animationDescription->param1 = soundEffectLoadWithVolume(soundEffectName, owner, volume);
+        int volume = gsound_compute_relative_volume(owner);
+        animationDescription->param1 = gsound_load_sound_volume(soundEffectName, owner, volume);
         if (animationDescription->param1 != NULL) {
-            animationDescription->callback = _gsnd_anim_sound;
+            animationDescription->callback = gsnd_anim_sound;
         } else {
             animationDescription->kind = ANIM_KIND_NOOP;
         }
@@ -1728,8 +1728,8 @@ static int anim_set_end(int animationSequenceIndex)
             if (animationDescription->extendedFlags & ANIMATION_SEQUENCE_FORCED) {
                 animationDescription->callback(animationDescription->param1, animationDescription->param2);
             } else {
-                if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == _gsnd_anim_sound) {
-                    soundEffectDelete(animationDescription->param1);
+                if (animationDescription->kind == ANIM_KIND_CALLBACK && animationDescription->callback == gsnd_anim_sound) {
+                    gsound_delete_sfx(animationDescription->param1);
                 }
             }
         }
@@ -3188,7 +3188,7 @@ void dude_fidget()
         }
 
         if (v8) {
-            const char* sfx = sfxBuildCharName(object, ANIM_STAND, CHARACTER_SOUND_EFFECT_UNUSED);
+            const char* sfx = gsnd_build_character_sfx_name(object, ANIM_STAND, CHARACTER_SOUND_EFFECT_UNUSED);
             register_object_play_sfx(object, sfx, 0);
         }
 

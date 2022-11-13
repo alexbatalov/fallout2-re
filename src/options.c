@@ -384,7 +384,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
             case KEY_LOWERCASE_O:
             case KEY_UPPERCASE_D:
             case KEY_LOWERCASE_D:
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 rc = 0;
                 break;
             case KEY_UPPERCASE_S:
@@ -403,7 +403,7 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
                 break;
             case KEY_UPPERCASE_P:
             case KEY_LOWERCASE_P:
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 // FALLTHROUGH
             case 502:
                 // PREFERENCES
@@ -552,7 +552,7 @@ int optionsWindowInit()
 
         int btn = buttonCreate(gOptionsWindow, 13, buttonY, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, _opbtns[index], _opbtns[index + 1], NULL, 32);
         if (btn != -1) {
-            buttonSetCallbacks(btn, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
         buttonY += gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 3;
@@ -718,7 +718,7 @@ int showPause(bool a1)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(window);
@@ -949,10 +949,10 @@ void _JustUpdate_()
     textObjectsSetLineDelay(textLineDelay);
     combatai_refresh_messages();
     _scr_message_free();
-    gameSoundSetMasterVolume(gPreferencesMasterVolume1);
-    backgroundSoundSetVolume(gPreferencesMusicVolume1);
-    soundEffectsSetVolume(gPreferencesSoundEffectsVolume1);
-    speechSetVolume(gPreferencesSpeechVolume1);
+    gsound_set_master_volume(gPreferencesMasterVolume1);
+    gsound_background_volume_set(gPreferencesMusicVolume1);
+    gsound_set_sfx_volume(gPreferencesSoundEffectsVolume1);
+    gsound_speech_volume_set(gPreferencesSpeechVolume1);
     mouse_set_sensitivity(gPreferencesMouseSensitivity1);
     colorGamma(gPreferencesBrightness1);
 }
@@ -1098,16 +1098,16 @@ void _UpdateThing(int index)
 
                 switch (index) {
                 case PREF_MASTER_VOLUME:
-                    gameSoundSetMasterVolume(gPreferencesMasterVolume1);
+                    gsound_set_master_volume(gPreferencesMasterVolume1);
                     break;
                 case PREF_MUSIC_VOLUME:
-                    backgroundSoundSetVolume(gPreferencesMusicVolume1);
+                    gsound_background_volume_set(gPreferencesMusicVolume1);
                     break;
                 case PREF_SFX_VOLUME:
-                    soundEffectsSetVolume(gPreferencesSoundEffectsVolume1);
+                    gsound_set_sfx_volume(gPreferencesSoundEffectsVolume1);
                     break;
                 case PREF_SPEECH_VOLUME:
-                    speechSetVolume(gPreferencesSpeechVolume1);
+                    gsound_speech_volume_set(gPreferencesSpeechVolume1);
                     break;
                 }
             }
@@ -1517,7 +1517,7 @@ int preferencesWindowInit()
         _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
     }
 
-    buttonSetCallbacks(_plyrspdbid, _gsound_med_butt_press, _gsound_med_butt_press);
+    buttonSetCallbacks(_plyrspdbid, gsound_med_butt_press, gsound_med_butt_press);
 
     // DEFAULT
     btn = buttonCreate(gPreferencesWindow,
@@ -1534,7 +1534,7 @@ int preferencesWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // DONE
@@ -1552,7 +1552,7 @@ int preferencesWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // CANCEL
@@ -1570,7 +1570,7 @@ int preferencesWindowInit()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     fontSetCurrent(101);
@@ -1614,7 +1614,7 @@ int _do_prefscreen()
         case KEY_RETURN:
         case KEY_UPPERCASE_P:
         case KEY_LOWERCASE_P:
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             // FALLTHROUGH
         case 504:
             rc = 1;
@@ -1731,9 +1731,9 @@ void _DoThing(int eventCode)
         }
 
         if (valueChanged) {
-            soundPlayFile("ib3p1xx1");
+            gsound_play_sfx_file("ib3p1xx1");
             coreDelay(70);
-            soundPlayFile("ib3lu1x1");
+            gsound_play_sfx_file("ib3lu1x1");
             _UpdateThing(preferenceIndex);
             win_draw(gPreferencesWindow);
             _changed = true;
@@ -1765,9 +1765,9 @@ void _DoThing(int eventCode)
         }
 
         if (valueChanged) {
-            soundPlayFile("ib2p1xx1");
+            gsound_play_sfx_file("ib2p1xx1");
             coreDelay(70);
-            soundPlayFile("ib2lu1x1");
+            gsound_play_sfx_file("ib2lu1x1");
             _UpdateThing(preferenceIndex);
             win_draw(gPreferencesWindow);
             _changed = true;
@@ -1777,7 +1777,7 @@ void _DoThing(int eventCode)
         PreferenceDescription* meta = &(gPreferenceDescriptions[preferenceIndex]);
         int* valuePtr = meta->valuePtr;
 
-        soundPlayFile("ib1p1xx1");
+        gsound_play_sfx_file("ib1p1xx1");
 
         double value;
         switch (preferenceIndex) {
@@ -1812,7 +1812,7 @@ void _DoThing(int eventCode)
             mouse_get_position(&x, &y);
 
             if (mouse_get_buttons() & 0x10) {
-                soundPlayFile("ib1lu1x1");
+                gsound_play_sfx_file("ib1lu1x1");
                 _UpdateThing(preferenceIndex);
                 win_draw(gPreferencesWindow);
                 _changed = true;
@@ -1846,20 +1846,20 @@ void _DoThing(int eventCode)
                 break;
             case PREF_MASTER_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                gameSoundSetMasterVolume(gPreferencesMasterVolume1);
+                gsound_set_master_volume(gPreferencesMasterVolume1);
                 v52 = 1;
                 break;
             case PREF_MUSIC_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                backgroundSoundSetVolume(gPreferencesMusicVolume1);
+                gsound_background_volume_set(gPreferencesMusicVolume1);
                 v52 = 1;
                 break;
             case PREF_SFX_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                soundEffectsSetVolume(gPreferencesSoundEffectsVolume1);
+                gsound_set_sfx_volume(gPreferencesSoundEffectsVolume1);
                 v52 = 1;
                 if (sfxVolumeExample == 0) {
-                    soundPlayFile("butin1");
+                    gsound_play_sfx_file("butin1");
                     sfxVolumeExample = 7;
                 } else {
                     sfxVolumeExample--;
@@ -1867,10 +1867,10 @@ void _DoThing(int eventCode)
                 break;
             case PREF_SPEECH_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                speechSetVolume(gPreferencesSpeechVolume1);
+                gsound_speech_volume_set(gPreferencesSpeechVolume1);
                 v52 = 1;
                 if (speechVolumeExample == 0) {
-                    speechLoad("narrator\\options", 12, 13, 15);
+                    gsound_speech_play("narrator\\options", 12, 13, 15);
                     speechVolumeExample = 40;
                 } else {
                     speechVolumeExample--;

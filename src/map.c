@@ -759,7 +759,7 @@ int mapLoadById(int map)
 int mapLoad(File* stream)
 {
     _map_save_in_game(true);
-    backgroundSoundLoad("wind2", 12, 13, 16);
+    gsound_background_play("wind2", 12, 13, 16);
     isoDisable();
     _partyMemberPrepLoad();
     gmouse_disable_scrolling();
@@ -968,7 +968,7 @@ err:
 
     gameTimeScheduleUpdateEvent();
 
-    if (_gsound_sfx_q_start() == -1) {
+    if (gsound_sfx_q_start() == -1) {
         rc = -1;
     }
 

@@ -394,7 +394,7 @@ int interfaceInit()
         return intface_fatal_error(-1);
     }
 
-    buttonSetCallbacks(gInventoryButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gInventoryButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 18, 0, 0, 0);
     gOptionsButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gOptionsButtonUpFrmHandle);
@@ -416,7 +416,7 @@ int interfaceInit()
         return intface_fatal_error(-1);
     }
 
-    buttonSetCallbacks(gOptionsButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gOptionsButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     gSkilldexButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gSkilldexButtonUpFrmHandle);
@@ -446,7 +446,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gSkilldexButton, gSkilldexButtonMaskFrmData);
-    buttonSetCallbacks(gSkilldexButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gSkilldexButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
     gMapButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gMapButtonUpFrmHandle);
@@ -476,7 +476,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gMapButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gMapButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gMapButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 59, 0, 0, 0);
     gPipboyButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gPipboyButtonUpFrmHandle);
@@ -499,7 +499,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gPipboyButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gPipboyButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gPipboyButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 57, 0, 0, 0);
     gCharacterButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterButtonUpFrmHandle);
@@ -522,7 +522,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gCharacterButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gCharacterButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gCharacterButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 32, 0, 0, 0);
     gSingleAttackButtonUpData = art_ptr_lock_data(fid, 0, 0, &gSingleAttackButtonUpHandle);
@@ -555,7 +555,7 @@ int interfaceInit()
     }
 
     buttonSetRightMouseCallbacks(gSingleAttackButton, -1, KEY_LOWERCASE_N, NULL, NULL);
-    buttonSetCallbacks(gSingleAttackButton, _gsound_lrg_butt_press, _gsound_lrg_butt_release);
+    buttonSetCallbacks(gSingleAttackButton, gsound_lrg_butt_press, gsound_lrg_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     gChangeHandsButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gChangeHandsButtonUpFrmHandle);
@@ -586,7 +586,7 @@ int interfaceInit()
     }
 
     buttonSetMask(gChangeHandsButton, gChangeHandsButtonMaskFrmData);
-    buttonSetCallbacks(gChangeHandsButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gChangeHandsButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
     gNumbersFrmData = art_ptr_lock_data(fid, 0, 0, &gNumbersFrmHandle);
@@ -1568,7 +1568,7 @@ void interfaceBarEndButtonsShow(bool animated)
     }
 
     int frameCount = art_frame_max_frame(art);
-    soundPlayFile("iciboxx1");
+    gsound_play_sfx_file("iciboxx1");
 
     if (animated) {
         unsigned int delay = 1000 / art_frame_fps(art);
@@ -1621,7 +1621,7 @@ void interfaceBarEndButtonsHide(bool animated)
 
     endTurnButtonFree();
     endCombatButtonFree();
-    soundPlayFile("icibcxx1");
+    gsound_play_sfx_file("icibcxx1");
 
     if (animated) {
         unsigned int delay = 1000 / art_frame_fps(art);
@@ -1668,7 +1668,7 @@ void interfaceBarEndButtonsRenderGreenLights()
             return;
         }
 
-        soundPlayFile("icombat2");
+        gsound_play_sfx_file("icombat2");
         blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, gInterfaceWindowBuffer + 38 * 640 + 580, 640);
         win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
 
@@ -1691,7 +1691,7 @@ void interfaceBarEndButtonsRenderRedLights()
             return;
         }
 
-        soundPlayFile("icombat1");
+        gsound_play_sfx_file("icombat1");
         blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, gInterfaceWindowBuffer + 38 * 640 + 580, 640);
         win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
 
@@ -2003,7 +2003,7 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     register_object_light(gDude, 4, 0);
 
     if (previousWeaponAnimationCode != 0) {
-        const char* sfx = sfxBuildCharName(gDude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
+        const char* sfx = gsnd_build_character_sfx_name(gDude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
         register_object_play_sfx(gDude, sfx, 0);
         register_object_animate(gDude, ANIM_PUT_AWAY, 0);
     }
@@ -2083,7 +2083,7 @@ int endTurnButtonInit()
     }
 
     _win_register_button_disable(gEndTurnButton, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData);
-    buttonSetCallbacks(gEndTurnButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gEndTurnButton, gsound_med_butt_press, gsound_med_butt_release);
 
     return 0;
 }
@@ -2146,7 +2146,7 @@ int endCombatButtonInit()
     }
 
     _win_register_button_disable(gEndCombatButton, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData);
-    buttonSetCallbacks(gEndCombatButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gEndCombatButton, gsound_med_butt_press, gsound_med_butt_release);
 
     return 0;
 }
@@ -2231,8 +2231,8 @@ int _intface_item_reload()
         return -1;
     }
 
-    const char* sfx = sfxBuildWeaponName(WEAPON_SOUND_EFFECT_READY, gInterfaceItemStates[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
-    soundPlayFile(sfx);
+    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, gInterfaceItemStates[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+    gsound_play_sfx_file(sfx);
 
     return 0;
 }

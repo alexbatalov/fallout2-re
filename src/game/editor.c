@@ -792,13 +792,13 @@ int editor_design(bool isCreationMode)
 
         if (keyCode == KEY_RETURN || keyCode == KEY_UPPERCASE_D || keyCode == KEY_LOWERCASE_D) {
             done = true;
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
         }
 
         if (done) {
             if (glblmode) {
                 if (character_points != 0) {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // You must use all character points
                     messageListItemText = getmsg(&editor_message_file, &mesg, 118);
@@ -816,7 +816,7 @@ int editor_design(bool isCreationMode)
                 }
 
                 if (tagskill_count > 0) {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // You must select all tag skills
                     messageListItemText = getmsg(&editor_message_file, &mesg, 142);
@@ -834,7 +834,7 @@ int editor_design(bool isCreationMode)
                 }
 
                 if (is_supper_bonus()) {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // All stats must be between 1 and 10
                     messageListItemText = getmsg(&editor_message_file, &mesg, 157);
@@ -852,7 +852,7 @@ int editor_design(bool isCreationMode)
                 }
 
                 if (stricmp(critter_name(gDude), "None") == 0) {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // Warning: You haven't changed your player
                     messageListItemText = getmsg(&editor_message_file, &mesg, 160);
@@ -1471,8 +1471,8 @@ static int CharEditStart()
             grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
             0,
             96);
-        buttonSetCallbacks(SliderPlusID, _gsound_red_butt_press, NULL);
-        buttonSetCallbacks(SliderNegID, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(SliderPlusID, gsound_red_butt_press, NULL);
+        buttonSetCallbacks(SliderNegID, gsound_red_butt_press, NULL);
     }
 
     ListSkills(0);
@@ -1500,7 +1500,7 @@ static int CharEditStart()
             32);
         if (btn != -1) {
             buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_NAME_MASK]);
-            buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
         }
 
         x += GInfo[EDITOR_GRAPHIC_NAME_ON].width;
@@ -1520,7 +1520,7 @@ static int CharEditStart()
             32);
         if (btn != -1) {
             buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_AGE_MASK]);
-            buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
         }
 
         x += GInfo[EDITOR_GRAPHIC_AGE_ON].width;
@@ -1540,7 +1540,7 @@ static int CharEditStart()
             32);
         if (btn != -1) {
             buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_SEX_MASK]);
-            buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
+            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
         }
 
         y = TAG_SKILLS_BUTTON_Y;
@@ -1661,7 +1661,7 @@ static int CharEditStart()
                 NULL,
                 32);
             if (stat_bids_plus[i] != -1) {
-                buttonSetCallbacks(stat_bids_plus[i], _gsound_red_butt_press, NULL);
+                buttonSetCallbacks(stat_bids_plus[i], gsound_red_butt_press, NULL);
             }
 
             stat_bids_minus[i] = buttonCreate(edit_win,
@@ -1678,7 +1678,7 @@ static int CharEditStart()
                 NULL,
                 32);
             if (stat_bids_minus[i] != -1) {
-                buttonSetCallbacks(stat_bids_minus[i], _gsound_red_butt_press, NULL);
+                buttonSetCallbacks(stat_bids_minus[i], gsound_red_butt_press, NULL);
             }
         }
     }
@@ -1701,7 +1701,7 @@ static int CharEditStart()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(
@@ -1719,7 +1719,7 @@ static int CharEditStart()
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(
@@ -1737,7 +1737,7 @@ static int CharEditStart()
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(edit_win);
@@ -1860,7 +1860,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
         if (keyCode == cancelKeyCode) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             rc = 0;
         } else if (keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             rc = -1;
@@ -2923,7 +2923,7 @@ static void ListSkills(int a1)
                     grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(SliderPlusID, _gsound_red_butt_press, NULL);
+                buttonSetCallbacks(SliderPlusID, gsound_red_butt_press, NULL);
             }
 
             if (SliderNegID == -1) {
@@ -2941,7 +2941,7 @@ static void ListSkills(int a1)
                     grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(SliderNegID, _gsound_red_butt_press, NULL);
+                buttonSetCallbacks(SliderNegID, gsound_red_butt_press, NULL);
             }
         }
     }
@@ -3145,7 +3145,7 @@ static int NameWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(win);
@@ -3280,7 +3280,7 @@ static int AgeWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     nextBtn = buttonCreate(win,
@@ -3297,7 +3297,7 @@ static int AgeWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (nextBtn != -1) {
-        buttonSetCallbacks(nextBtn, _gsound_med_butt_press, NULL);
+        buttonSetCallbacks(nextBtn, gsound_med_butt_press, NULL);
     }
 
     prevBtn = buttonCreate(win,
@@ -3314,7 +3314,7 @@ static int AgeWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (prevBtn != -1) {
-        buttonSetCallbacks(prevBtn, _gsound_med_butt_press, NULL);
+        buttonSetCallbacks(prevBtn, gsound_med_butt_press, NULL);
     }
 
     while (true) {
@@ -3327,7 +3327,7 @@ static int AgeWindow()
 
         if (keyCode == KEY_RETURN || keyCode == 500) {
             if (keyCode != 500) {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
             }
 
             windowDestroy(win);
@@ -3503,7 +3503,7 @@ static void SexWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int btns[2];
@@ -3521,7 +3521,7 @@ static void SexWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[0] != -1) {
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
     }
 
     btns[1] = buttonCreate(win,
@@ -3539,7 +3539,7 @@ static void SexWindow()
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[1] != -1) {
         _win_group_radio_buttons(2, btns);
-        buttonSetCallbacks(doneBtn, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
     }
 
     int savedGender = critterGetStat(gDude, STAT_GENDER);
@@ -3552,7 +3552,7 @@ static void SexWindow()
 
         if (eventCode == KEY_RETURN || eventCode == 500) {
             if (eventCode == KEY_RETURN) {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
             }
             break;
         }
@@ -3745,7 +3745,7 @@ static int OptionWindow()
 
                 int btn = buttonCreate(win, 13, y, width, height, -1, -1, -1, 500 + index, up[index], down[index], NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {
-                    buttonSetCallbacks(btn, _gsound_lrg_butt_press, NULL);
+                    buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
                 }
             } while (0);
 
@@ -3778,7 +3778,7 @@ static int OptionWindow()
             } else if (keyCode == KEY_RETURN || keyCode == KEY_UPPERCASE_D || keyCode == KEY_LOWERCASE_D) {
                 // DONE
                 rc = 2;
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
             } else if (keyCode == KEY_ESCAPE) {
                 rc = 2;
             } else if (keyCode == 503 || keyCode == KEY_UPPERCASE_E || keyCode == KEY_LOWERCASE_E) {
@@ -3852,7 +3852,7 @@ static int OptionWindow()
                                     getmsg(&editor_message_file, &mesg, 607));
                                 dialog_out(string4, NULL, 0, 169, 126, colorTable[992], NULL, colorTable[992], 0);
                             } else {
-                                soundPlayFile("iisxxxx1");
+                                gsound_play_sfx_file("iisxxxx1");
 
                                 sprintf(string4,
                                     "%s%s%s",
@@ -3866,7 +3866,7 @@ static int OptionWindow()
 
                     fileNameListFree(&fileList, 0);
                 } else {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     strcpy(string4, getmsg(&editor_message_file, &mesg, 615));
                     dialog_out(string4, NULL, 0, 169, 126, colorTable[32328], NULL, colorTable[32328], 0);
@@ -3922,7 +3922,7 @@ static int OptionWindow()
                             RestorePlayer();
                             character_points = oldRemainingCharacterPoints;
                             critter_adjust_hits(gDude, 1000);
-                            soundPlayFile("iisxxxx1");
+                            gsound_play_sfx_file("iisxxxx1");
 
                             strcpy(string4, getmsg(&editor_message_file, &mesg, 612));
                             strcat(string4, string3);
@@ -3936,7 +3936,7 @@ static int OptionWindow()
 
                     fileNameListFree(&fileNameList, 0);
                 } else {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // Error reading file list!
                     strcpy(string4, getmsg(&editor_message_file, &mesg, 615));
@@ -3987,7 +3987,7 @@ static int OptionWindow()
                             strcat(string4, string1);
 
                             if (pc_save_data(string4) != 0) {
-                                soundPlayFile("iisxxxx1");
+                                gsound_play_sfx_file("iisxxxx1");
                                 sprintf(string4, "%s%s!",
                                     strupr(string1),
                                     getmsg(&editor_message_file, &mesg, 611));
@@ -4005,7 +4005,7 @@ static int OptionWindow()
 
                     fileNameListFree(&fileNameList, 0);
                 } else {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // Error reading file list!
                     char* msg = getmsg(&editor_message_file, &mesg, 615);
@@ -4037,7 +4037,7 @@ static int OptionWindow()
     char** fileNames;
     int filesCount = fileNameListInit(pattern, &fileNames, 0, 0);
     if (filesCount == -1) {
-        soundPlayFile("iisxxxx1");
+        gsound_play_sfx_file("iisxxxx1");
 
         // Error reading file list!
         strcpy(pattern, getmsg(&editor_message_file, &mesg, 615));
@@ -4082,7 +4082,7 @@ static int OptionWindow()
             strcpy(title, fileName);
 
             if (Save_as_ASCII(title) != 0) {
-                soundPlayFile("iisxxxx1");
+                gsound_play_sfx_file("iisxxxx1");
 
                 sprintf(title,
                     "%s%s%s",
@@ -4841,7 +4841,7 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
 
     if (graphicId != old_fid1 || strcmp(name, old_str1) != 0) {
         if (frstc_draw1) {
-            soundPlayFile("isdxxxx1");
+            gsound_play_sfx_file("isdxxxx1");
         }
     }
 
@@ -4858,7 +4858,7 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
 static void FldrButton()
 {
     mouse_get_position(&mouse_xpos, &mouse_ypos);
-    soundPlayFile("ib3p1xx1");
+    gsound_play_sfx_file("ib3p1xx1");
 
     if (mouse_xpos >= 208) {
         info_line = 41;
@@ -5055,7 +5055,7 @@ static void SliderBtn(int keyCode)
             if (keyCode == 521) {
                 if (pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
                     if (skillAdd(gDude, skill_cursor) == -3) {
-                        soundPlayFile("iisxxxx1");
+                        gsound_play_sfx_file("iisxxxx1");
 
                         sprintf(title, "%s:", skillGetName(skill_cursor));
                         // At maximum level.
@@ -5066,7 +5066,7 @@ static void SliderBtn(int keyCode)
                         rc = -1;
                     }
                 } else {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     // Not enough skill points available.
                     strcpy(title, getmsg(&editor_message_file, &mesg, 136));
@@ -5083,7 +5083,7 @@ static void SliderBtn(int keyCode)
                 }
 
                 if (rc == 0) {
-                    soundPlayFile("iisxxxx1");
+                    gsound_play_sfx_file("iisxxxx1");
 
                     sprintf(title, "%s:", skillGetName(skill_cursor));
                     // At minimum level.
@@ -5182,7 +5182,7 @@ static void TagSkillSelect(int skill)
             }
             temp_tag_skill[insertionIndex] = skill;
         } else {
-            soundPlayFile("iisxxxx1");
+            gsound_play_sfx_file("iisxxxx1");
 
             char line1[128];
             strcpy(line1, getmsg(&editor_message_file, &mesg, 140));
@@ -5316,7 +5316,7 @@ static void TraitSelect(int trait)
         }
     } else {
         if (trait_count == 0) {
-            soundPlayFile("iisxxxx1");
+            gsound_play_sfx_file("iisxxxx1");
 
             char line1[128];
             strcpy(line1, getmsg(&editor_message_file, &mesg, 148));
@@ -5673,7 +5673,7 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(pwin,
@@ -5690,7 +5690,7 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, _gsound_red_butt_release);
+        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     btn = buttonCreate(pwin,
@@ -5707,7 +5707,7 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
     }
 
     btn = buttonCreate(pwin,
@@ -5724,7 +5724,7 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
     }
 
     buttonCreate(pwin,
@@ -5842,7 +5842,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
         if (keyCode == 500) {
             rc = 1;
         } else if (keyCode == KEY_RETURN) {
-            soundPlayFile("ib1p1xx1");
+            gsound_play_sfx_file("ib1p1xx1");
             rc = 1;
         } else if (keyCode == 501) {
             mouse_get_position(&mouse_xpos, &mouse_ypos);
@@ -5855,7 +5855,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
             }
 
             if (cline == oldsline) {
-                soundPlayFile("ib1p1xx1");
+                gsound_play_sfx_file("ib1p1xx1");
                 rc = 1;
             }
             oldsline = cline;
@@ -6484,7 +6484,7 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
 
     if (frmId != old_fid2 || strcmp(old_str2, name) != 0) {
         if (frstc_draw2) {
-            soundPlayFile("isdxxxx1");
+            gsound_play_sfx_file("isdxxxx1");
         }
     }
 
@@ -6585,7 +6585,7 @@ static int folder_init()
             return -1;
         }
 
-        buttonSetCallbacks(folder_up_button, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(folder_up_button, gsound_red_butt_press, NULL);
     }
 
     if (folder_down_button == -1) {
@@ -6607,7 +6607,7 @@ static int folder_init()
             return -1;
         }
 
-        buttonSetCallbacks(folder_down_button, _gsound_red_butt_press, NULL);
+        buttonSetCallbacks(folder_down_button, gsound_red_butt_press, NULL);
     }
 
     return 0;

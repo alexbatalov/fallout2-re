@@ -206,7 +206,7 @@ int characterSelectorOpen()
             game_quit_with_confirm();
             break;
         case KEY_ARROW_LEFT:
-            soundPlayFile("ib2p1xx1");
+            gsound_play_sfx_file("ib2p1xx1");
             // FALLTHROUGH
         case 500:
             gCurrentPremadeCharacter -= 1;
@@ -217,7 +217,7 @@ int characterSelectorOpen()
             characterSelectorWindowRefresh();
             break;
         case KEY_ARROW_RIGHT:
-            soundPlayFile("ib2p1xx1");
+            gsound_play_sfx_file("ib2p1xx1");
             // FALLTHROUGH
         case 501:
             gCurrentPremadeCharacter += 1;
@@ -321,7 +321,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowPreviousButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowPreviousButton, gsound_med_butt_press, gsound_med_butt_release);
 
     // Setup "Next" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 124, 0, 0, 0);
@@ -353,7 +353,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowNextButton, _gsound_med_butt_press, _gsound_med_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowNextButton, gsound_med_butt_press, gsound_med_butt_release);
 
     // Setup "Take" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -385,7 +385,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowTakeButton, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowTakeButton, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Modify" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -416,7 +416,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowModifyButton, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowModifyButton, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Create" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -448,7 +448,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowCreateButton, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowCreateButton, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Back" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -480,7 +480,7 @@ bool characterSelectorWindowInit()
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowBackButton, _gsound_red_butt_press, _gsound_red_butt_release);
+    buttonSetCallbacks(gCharacterSelectorWindowBackButton, gsound_red_butt_press, gsound_red_butt_release);
 
     gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;
 

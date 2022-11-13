@@ -279,7 +279,7 @@ void opPlaySfx(Program* program)
     }
 
     char* name = programGetString(program, opcode, data);
-    soundPlayFile(name);
+    gsound_play_sfx_file(name);
 }
 
 // set_map_start
@@ -5789,7 +5789,7 @@ void opSfxBuildCharName(Program* program)
 
     if (obj != NULL) {
         char soundEffectName[16];
-        strcpy(soundEffectName, sfxBuildCharName(obj, anim, extra));
+        strcpy(soundEffectName, gsnd_build_character_sfx_name(obj, anim, extra));
         stringOffset = programPushString(program, soundEffectName);
     } else {
         scriptPredefinedError(program, "sfx_build_char_name", SCRIPT_ERROR_OBJECT_IS_NULL);
@@ -5817,7 +5817,7 @@ void opSfxBuildAmbientName(Program* program)
     char* baseName = programGetString(program, opcode, data);
 
     char soundEffectName[16];
-    strcpy(soundEffectName, gameSoundBuildAmbientSoundEffectName(baseName));
+    strcpy(soundEffectName, gsnd_build_ambient_sfx_name(baseName));
 
     int stringOffset = programPushString(program, soundEffectName);
 
@@ -5843,7 +5843,7 @@ void opSfxBuildInterfaceName(Program* program)
     char* baseName = programGetString(program, opcode, data);
 
     char soundEffectName[16];
-    strcpy(soundEffectName, gameSoundBuildInterfaceName(baseName));
+    strcpy(soundEffectName, gsnd_build_interface_sfx_name(baseName));
 
     int stringOffset = programPushString(program, soundEffectName);
 
@@ -5869,7 +5869,7 @@ void opSfxBuildItemName(Program* program)
     const char* baseName = programGetString(program, opcode, data);
 
     char soundEffectName[16];
-    strcpy(soundEffectName, gameSoundBuildInterfaceName(baseName));
+    strcpy(soundEffectName, gsnd_build_interface_sfx_name(baseName));
 
     int stringOffset = programPushString(program, soundEffectName);
 
@@ -5903,7 +5903,7 @@ void opSfxBuildWeaponName(Program* program)
     Object* target = (Object*)data[0];
 
     char soundEffectName[16];
-    strcpy(soundEffectName, sfxBuildWeaponName(weaponSfxType, weapon, hitMode, target));
+    strcpy(soundEffectName, gsnd_build_weapon_sfx_name(weaponSfxType, weapon, hitMode, target));
 
     int stringOffset = programPushString(program, soundEffectName);
 
@@ -5937,7 +5937,7 @@ void opSfxBuildSceneryName(Program* program)
     char* baseName = programGetString(program, opcode[2], data[2]);
 
     char soundEffectName[16];
-    strcpy(soundEffectName, sfxBuildSceneryName(actionType, action, baseName));
+    strcpy(soundEffectName, gsnd_build_scenery_sfx_name(actionType, action, baseName));
 
     int stringOffset = programPushString(program, soundEffectName);
 
@@ -5972,7 +5972,7 @@ void opSfxBuildOpenName(Program* program)
 
     if (object != NULL) {
         char soundEffectName[16];
-        strcpy(soundEffectName, sfxBuildOpenName(object, action));
+        strcpy(soundEffectName, gsnd_build_open_sfx_name(object, action));
 
         stringOffset = programPushString(program, soundEffectName);
     } else {

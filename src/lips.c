@@ -159,7 +159,7 @@ int lipsStart()
         gLipsCurrentPhoneme = gLipsData.phonemes[v2];
     }
 
-    int speechVolume = speechGetVolume();
+    int speechVolume = gsound_speech_volume_get();
     soundSetVolume(gLipsData.sound, (int)(speechVolume * 0.69));
 
     _speechStartTime = _get_time();

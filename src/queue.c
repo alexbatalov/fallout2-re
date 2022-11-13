@@ -39,7 +39,7 @@ EventTypeDescription gEventTypeDescriptions[EVENT_TYPE_COUNT] = {
     { critter_sneak_check, NULL, NULL, NULL, true, critter_sneak_clear },
     { explosionFailureEventProcess, NULL, NULL, NULL, true, _queue_explode_exit },
     { mapUpdateEventProcess, NULL, NULL, NULL, true, NULL },
-    { ambientSoundEffectEventProcess, internal_free, NULL, NULL, true, NULL },
+    { gsound_sfx_q_process, internal_free, NULL, NULL, true, NULL },
 };
 
 // 0x4A2320
