@@ -6,7 +6,7 @@
 #include "core.h"
 #include "game/critter.h"
 #include "game/display.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_sound.h"
 #include "interface.h"
 #include "item.h"

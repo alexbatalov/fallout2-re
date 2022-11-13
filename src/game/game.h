@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "game_vars.h"
+#include "game/game_vars.h"
 #include "message.h"
 
 typedef enum GameState {

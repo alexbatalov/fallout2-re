@@ -8,7 +8,7 @@
 #include "game/critter.h"
 #include "debug.h"
 #include "game/display.h"
-#include "game.h"
+#include "game/game.h"
 #include "interface.h"
 #include "inventory.h"
 #include "light.h"

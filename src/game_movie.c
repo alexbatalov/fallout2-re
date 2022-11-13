@@ -7,7 +7,7 @@
 #include "core.h"
 #include "game/cycle.h"
 #include "debug.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_config.h"
 #include "game_mouse.h"
 #include "game_sound.h"

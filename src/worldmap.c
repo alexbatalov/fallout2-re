@@ -18,7 +18,7 @@
 #include "debug.h"
 #include "game/display.h"
 #include "draw.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_config.h"
 #include "game_mouse.h"
 #include "game_movie.h"

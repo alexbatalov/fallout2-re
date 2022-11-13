@@ -5,7 +5,7 @@
 
 #include "core.h"
 #include "db.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_config.h"
 #include "vcr.h"
 

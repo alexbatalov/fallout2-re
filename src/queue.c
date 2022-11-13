@@ -3,7 +3,7 @@
 #include "game/actions.h"
 #include "game/critter.h"
 #include "game/display.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_sound.h"
 #include "item.h"
 #include "map.h"

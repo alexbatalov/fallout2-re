@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "debug.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_config.h"
 #include "memory.h"
 #include "object.h"

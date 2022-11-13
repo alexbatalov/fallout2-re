@@ -11,7 +11,7 @@
 #include "game/critter.h"
 #include "debug.h"
 #include "draw.h"
-#include "game.h"
+#include "game/game.h"
 #include "game_config.h"
 #include "game_mouse.h"
 #include "item.h"

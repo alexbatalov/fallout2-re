@@ -8,7 +8,7 @@
 #include "core.h"
 #include "int/datafile.h"
 #include "draw.h"
-#include "game.h"
+#include "game/game.h"
 #include "interpreter_lib.h"
 #include "memory_manager.h"
 #include "mouse_manager.h"
