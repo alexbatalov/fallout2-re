@@ -80,6 +80,7 @@ static bool heap_init_handles(Heap* heap);
 static bool heap_exit_handles(Heap* heap);
 static bool heap_acquire_handle(Heap* heap, int* handleIndexPtr);
 static bool heap_release_handle(Heap* heap, int handleIndex);
+static bool heap_clear_handles(Heap* heap, HeapHandle* handles, unsigned int count);
 static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4);
 static int heap_qsort_compare_free(const void* a1, const void* a2);
 static int heap_qsort_compare_moveable(const void* a1, const void* a2);
@@ -285,20 +286,18 @@ bool heap_exit(Heap* heap)
 static bool heap_init_handles(Heap* heap)
 {
     heap->handles = (HeapHandle*)internal_malloc(sizeof(*heap->handles) * HEAP_HANDLES_INITIAL_LENGTH);
-    if (heap->handles == NULL) {
-        debugPrint("Heap Error : Could not initialize handles.\n");
+    if (heap->handles != NULL) {
+        // NOTE: Uninline.
+        if (heap_clear_handles(heap, heap->handles, HEAP_HANDLES_INITIAL_LENGTH) == true) {
+            heap->handlesLength = HEAP_HANDLES_INITIAL_LENGTH;
+            return true;
+        }
+        debugPrint("Heap Error: Could not allocate handles.\n");
         return false;
     }
 
-    for (int index = 0; index < HEAP_HANDLES_INITIAL_LENGTH; index++) {
-        HeapHandle* handle = &(heap->handles[index]);
-        handle->state = HEAP_HANDLE_STATE_INVALID;
-        handle->data = NULL;
-    }
-
-    heap->handlesLength = HEAP_HANDLES_INITIAL_LENGTH;
-
-    return true;
+    debugPrint("Heap Error : Could not initialize handles.\n");
+    return false;
 }
 
 // NOTE: Inlined.
@@ -668,12 +667,8 @@ static bool heap_acquire_handle(Heap* heap, int* handleIndexPtr)
 
     heap->handles = handles;
 
-    // Loop thru new handles and reset them to default state.
-    for (int index = heap->handlesLength; index < heap->handlesLength + HEAP_HANDLES_INITIAL_LENGTH; index++) {
-        HeapHandle* handle = &(heap->handles[index]);
-        handle->state = HEAP_HANDLE_STATE_INVALID;
-        handle->data = NULL;
-    }
+    // NOTE: Uninline.
+    heap_clear_handles(heap, &(heap->handles[heap->handlesLength]), HEAP_HANDLES_INITIAL_LENGTH);
 
     *handleIndexPtr = heap->handlesLength;
 
@@ -689,6 +684,21 @@ static bool heap_release_handle(Heap* heap, int handleIndex)
 {
     heap->handles[handleIndex].state = HEAP_HANDLE_STATE_INVALID;
     heap->handles[handleIndex].data = NULL;
+
+    return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x453558
+static bool heap_clear_handles(Heap* heap, HeapHandle* handles, unsigned int count)
+{
+    unsigned int index;
+
+    for (index = 0; index < count; index++) {
+        handles[index].state = HEAP_HANDLE_STATE_INVALID;
+        handles[index].data = NULL;
+    }
 
     return true;
 }
