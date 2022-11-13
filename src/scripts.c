@@ -18,7 +18,7 @@
 #include "game/game.h"
 #include "game/gdialog.h"
 #include "game/gmouse.h"
-#include "game_movie.h"
+#include "game/gmovie.h"
 #include "memory.h"
 #include "object.h"
 #include "proto.h"

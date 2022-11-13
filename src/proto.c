@@ -13,7 +13,7 @@
 #include "int/dialog.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "game_movie.h"
+#include "game/gmovie.h"
 #include "interface.h"
 #include "map.h"
 #include "memory.h"

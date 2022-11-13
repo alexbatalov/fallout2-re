@@ -27,7 +27,7 @@
 #include "game/gdialog.h"
 #include "game/gmemory.h"
 #include "game/gmouse.h"
-#include "game_movie.h"
+#include "game/gmovie.h"
 #include "game_sound.h"
 #include "interface.h"
 #include "inventory.h"

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "game_movie.h"
+#include "game/gmovie.h"
 #include "geometry.h"
 #include "interpreter.h"
 #include "obj_types.h"

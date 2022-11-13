@@ -1,4 +1,4 @@
-#include "game_movie.h"
+#include "game/gmovie.h"
 
 #include <stdio.h>
 #include <string.h>
