@@ -1,7 +1,7 @@
 // NOTE: For unknown reason functions in this module use __stdcall instead
 // of regular __usercall.
 
-#include "file_utils.h"
+#include "game/gz.h"
 
 #include <stdbool.h>
 #include <stdio.h>
