@@ -1,4 +1,4 @@
-#include "graph_lib.h"
+#include "game/graphlib.h"
 
 #include <string.h>
 

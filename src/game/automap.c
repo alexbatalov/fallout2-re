@@ -13,7 +13,7 @@
 #include "game/gconfig.h"
 #include "game/gmouse.h"
 #include "game_sound.h"
-#include "graph_lib.h"
+#include "game/graphlib.h"
 #include "item.h"
 #include "map.h"
 #include "memory.h"
