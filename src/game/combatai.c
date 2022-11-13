@@ -13,7 +13,7 @@
 #include "debug.h"
 #include "game/display.h"
 #include "game/game.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "game_sound.h"
 #include "interface.h"
 #include "item.h"

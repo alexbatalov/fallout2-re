@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "debug.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "memory.h"
 #include "random.h"
 

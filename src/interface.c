@@ -15,7 +15,7 @@
 #include "draw.h"
 #include "game/endgame.h"
 #include "game/game.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "game_mouse.h"
 #include "game_sound.h"
 #include "item.h"

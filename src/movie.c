@@ -6,7 +6,7 @@
 #include "core.h"
 #include "debug.h"
 #include "draw.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "memory_manager.h"
 #include "movie_effect.h"
 #include "movie_lib.h"

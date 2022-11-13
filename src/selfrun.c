@@ -6,7 +6,7 @@
 #include "core.h"
 #include "db.h"
 #include "game/game.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "vcr.h"
 
 // 0x51C8D8

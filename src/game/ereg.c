@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "game_config.h"
+#include "game/gconfig.h"
 
 // 0x440DD0
 void annoy_user()

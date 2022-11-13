@@ -12,7 +12,7 @@
 #include "debug.h"
 #include "int/dialog.h"
 #include "game/game.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "game_movie.h"
 #include "interface.h"
 #include "map.h"

@@ -4,7 +4,7 @@
 #include <direct.h>
 #include <stdlib.h>
 
-#include "game_config.h"
+#include "game/gconfig.h"
 
 // 0x431560
 int GetFreeDiskSpace(long* diskSpacePtr)

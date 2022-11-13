@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "game/game.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "memory.h"
 #include "object.h"
 #include "proto.h"

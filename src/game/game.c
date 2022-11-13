@@ -23,7 +23,7 @@
 #include "game/ereg.h"
 #include "game/endgame.h"
 #include "game/fontmgr.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "game_dialog.h"
 #include "game_memory.h"
 #include "game_mouse.h"

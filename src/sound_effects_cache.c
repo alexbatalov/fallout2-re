@@ -7,7 +7,7 @@
 #include <string.h>
 
 #include "db.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "memory.h"
 #include "sound_decoder.h"
 #include "sound_effects_list.h"

@@ -11,7 +11,7 @@
 #include "core.h"
 #include "debug.h"
 #include "draw.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "game_mouse.h"
 #include "light.h"
 #include "map.h"

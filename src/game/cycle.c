@@ -2,7 +2,7 @@
 
 #include "color.h"
 #include "core.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "palette.h"
 
 #define COLOR_CYCLE_PERIOD_SLOW 200U

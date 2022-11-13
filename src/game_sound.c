@@ -11,7 +11,7 @@
 #include "core.h"
 #include "db.h"
 #include "debug.h"
-#include "game_config.h"
+#include "game/gconfig.h"
 #include "item.h"
 #include "map.h"
 #include "memory.h"

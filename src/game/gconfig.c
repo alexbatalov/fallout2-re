@@ -1,4 +1,4 @@
-#include "game_config.h"
+#include "game/gconfig.h"
 
 #include <stdio.h>
 #include <string.h>
