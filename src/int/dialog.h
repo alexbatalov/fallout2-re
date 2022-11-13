@@ -1,5 +1,5 @@
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef FALLOUT_INT_DIALOG_H_
+#define FALLOUT_INT_DIALOG_H_
 
 #include "interpreter.h"
 
@@ -37,4 +37,4 @@ void dialogRegisterWinDrawCallbacks(DialogFunc1* a1, DialogFunc2* a2);
 int dialogToggleMediaFlag(int a1);
 int dialogGetMediaFlag();
 
-#endif /* DIALOG_H */
+#endif /* FALLOUT_INT_DIALOG_H_ */
