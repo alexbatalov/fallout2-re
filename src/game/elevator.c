@@ -4,26 +4,67 @@
 #include <string.h>
 
 #include "core.h"
+#include "game/art.h"
 #include "game/cycle.h"
 #include "debug.h"
 #include "draw.h"
 #include "game_mouse.h"
 #include "game_sound.h"
+#include "geometry.h"
 #include "interface.h"
 #include "map.h"
 #include "pipboy.h"
 #include "scripts.h"
 #include "window_manager.h"
 
+// The maximum number of elevator levels.
+#define ELEVATOR_LEVEL_MAX 4
+
+// NOTE: There are two variables which hold background data used in the
+// elevator window - [grphbmp[ELEVATOR_FRM_BACKGROUND]] and [grphbmp[ELEVATOR_FRM_PANEL]].
+// For unknown reason they are using -1 to denote that they are not set
+// (instead of using NULL).
+#define ELEVATOR_BACKGROUND_NULL ((unsigned char*)(-1))
+
+// NOTE: This enum is a little bit unsual. It contains two types of members:
+// static and dynamic. Static part of enum is always accessed with array
+// operations as commonly seen in other UI setup/teardown loops. Background and
+// panel are always accessed separately without using loops, but they are a part
+// of globals holding state (buffers, cache keys, dimensions).
+typedef enum ElevatorFrm {
+    ELEVATOR_FRM_BUTTON_DOWN,
+    ELEVATOR_FRM_BUTTON_UP,
+    ELEVATOR_FRM_GAUGE,
+    ELEVATOR_FRM_BACKGROUND,
+    ELEVATOR_FRM_PANEL,
+    ELEVATOR_FRM_COUNT,
+    ELEVATOR_FRM_STATIC_COUNT = 3,
+} ElevatorFrm;
+
+typedef struct ElevatorBackground {
+    int backgroundFrmId;
+    int panelFrmId;
+} ElevatorBackground;
+
+typedef struct ElevatorDescription {
+    int map;
+    int elevation;
+    int tile;
+} ElevatorDescription;
+
+static int elevator_start(int elevator);
+static void elevator_end();
+static int Check4Keys(int elevator, int keyCode);
+
 // 0x43E950
-const int gElevatorFrmIds[ELEVATOR_FRM_COUNT] = {
+static const int grph_id[ELEVATOR_FRM_STATIC_COUNT] = {
     141, // ebut_in.frm - map elevator screen
     142, // ebut_out.frm - map elevator screen
     149, // gaj000.frm - map elevator screen
 };
 
 // 0x43E95C
-const ElevatorBackground gElevatorBackgrounds[ELEVATOR_COUNT] = {
+static const ElevatorBackground intotal[ELEVATOR_COUNT] = {
     { 143, -1 },
     { 143, 150 },
     { 144, -1 },
@@ -53,7 +94,7 @@ const ElevatorBackground gElevatorBackgrounds[ELEVATOR_COUNT] = {
 // Number of levels for eleveators.
 //
 // 0x43EA1C
-const int gElevatorLevels[ELEVATOR_COUNT] = {
+static const int btncnt[ELEVATOR_COUNT] = {
     4,
     2,
     3,
@@ -81,7 +122,7 @@ const int gElevatorLevels[ELEVATOR_COUNT] = {
 };
 
 // 0x43EA7C
-const ElevatorDescription gElevatorDescriptions[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
+static const ElevatorDescription retvals[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
     {
         { 14, 0, 18940 },
         { 14, 1, 18936 },
@@ -231,7 +272,7 @@ const ElevatorDescription gElevatorDescriptions[ELEVATOR_COUNT][ELEVATOR_LEVEL_M
 // NOTE: These values are also used as key bindings.
 //
 // 0x43EEFC
-const char gElevatorLevelLabels[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
+static const char keytable[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
     { '1', '2', '3', '4' },
     { 'G', '1', '\0', '\0' },
     { '1', '2', '3', '\0' },
@@ -259,7 +300,7 @@ const char gElevatorLevelLabels[ELEVATOR_COUNT][ELEVATOR_LEVEL_MAX] = {
 };
 
 // 0x51862C
-const char* gElevatorSoundEffects[ELEVATOR_LEVEL_MAX - 1][ELEVATOR_LEVEL_MAX] = {
+static const char* sfxtable[ELEVATOR_LEVEL_MAX - 1][ELEVATOR_LEVEL_MAX] = {
     {
         "ELV1_1",
         "ELV1_1",
@@ -281,61 +322,37 @@ const char* gElevatorSoundEffects[ELEVATOR_LEVEL_MAX - 1][ELEVATOR_LEVEL_MAX] = 
 };
 
 // 0x570A2C
-Size gElevatorFrmSizes[ELEVATOR_FRM_COUNT];
-
-// 0x570A44
-int gElevatorBackgroundFrmWidth;
-
-// 0x570A48
-int gElevatorBackgroundFrmHeight;
-
-// 0x570A4C
-int gElevatorPanelFrmWidth;
-
-// 0x570A50
-int gElevatorPanelFrmHeight;
+static Size GInfo[ELEVATOR_FRM_COUNT];
 
 // 0x570A54
-int gElevatorWindow;
+static int elev_win;
 
 // 0x570A58
-CacheEntry* gElevatorFrmHandles[ELEVATOR_FRM_COUNT];
-
-// 0x570A64
-CacheEntry* gElevatorBackgroundFrmHandle;
-
-// 0x570A68
-CacheEntry* gElevatorPanelFrmHandle;
+static CacheEntry* grph_key[ELEVATOR_FRM_COUNT];
 
 // 0x570A6C
-unsigned char* gElevatorWindowBuffer;
+static unsigned char* win_buf;
 
 // 0x570A70
-bool gElevatorWindowIsoWasEnabled;
+static bool bk_enable;
 
 // 0x570A74
-unsigned char* gElevatorFrmData[ELEVATOR_FRM_COUNT];
-
-// 0x570A80
-unsigned char* gElevatorBackgroundFrmData;
-
-// 0x570A84
-unsigned char* gElevatorPanelFrmData;
+static unsigned char* grphbmp[ELEVATOR_FRM_COUNT];
 
 // Presents elevator dialog for player to pick a desired level.
 //
 // 0x43EF5C
-int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
+int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
 {
     if (elevator < 0 || elevator >= ELEVATOR_COUNT) {
         return -1;
     }
 
-    if (elevatorWindowInit(elevator) == -1) {
+    if (elevator_start(elevator) == -1) {
         return -1;
     }
 
-    const ElevatorDescription* elevatorDescription = gElevatorDescriptions[elevator];
+    const ElevatorDescription* elevatorDescription = retvals[elevator];
 
     int index;
     for (index = 0; index < ELEVATOR_LEVEL_MAX; index++) {
@@ -370,16 +387,16 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
 
     debugPrint("\n the start elev level %d\n", *elevationPtr);
 
-    int v18 = (gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width * gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].height) / 13;
-    float v42 = 12.0f / (float)(gElevatorLevels[elevator] - 1);
+    int v18 = (GInfo[ELEVATOR_FRM_GAUGE].width * GInfo[ELEVATOR_FRM_GAUGE].height) / 13;
+    float v42 = 12.0f / (float)(btncnt[elevator] - 1);
     blitBufferToBuffer(
-        gElevatorFrmData[ELEVATOR_FRM_GAUGE] + v18 * (int)((float)(*elevationPtr) * v42),
-        gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width,
-        gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].height / 13,
-        gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width,
-        gElevatorWindowBuffer + gElevatorBackgroundFrmWidth * 41 + 121,
-        gElevatorBackgroundFrmWidth);
-    win_draw(gElevatorWindow);
+        grphbmp[ELEVATOR_FRM_GAUGE] + v18 * (int)((float)(*elevationPtr) * v42),
+        GInfo[ELEVATOR_FRM_GAUGE].width,
+        GInfo[ELEVATOR_FRM_GAUGE].height / 13,
+        GInfo[ELEVATOR_FRM_GAUGE].width,
+        win_buf + GInfo[ELEVATOR_FRM_BACKGROUND].width * 41 + 121,
+        GInfo[ELEVATOR_FRM_BACKGROUND].width);
+    win_draw(elev_win);
 
     bool done = false;
     int keyCode;
@@ -394,7 +411,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
         }
 
         if (keyCode > 0 && keyCode < 500) {
-            int level = elevatorGetLevelFromKeyCode(elevator, keyCode);
+            int level = Check4Keys(elevator, keyCode);
             if (level != 0) {
                 keyCode = 500 + level - 1;
                 done = true;
@@ -406,7 +423,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
         keyCode -= 500;
 
         if (*elevationPtr != keyCode) {
-            float v43 = (float)(gElevatorLevels[elevator] - 1) / 12.0f;
+            float v43 = (float)(btncnt[elevator] - 1) / 12.0f;
 
             unsigned int delay = (unsigned int)(v43 * 276.92307);
 
@@ -419,7 +436,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
                 numberOfLevelsTravelled = -numberOfLevelsTravelled;
             }
 
-            soundPlayFile(gElevatorSoundEffects[gElevatorLevels[elevator] - 2][numberOfLevelsTravelled]);
+            soundPlayFile(sfxtable[btncnt[elevator] - 2][numberOfLevelsTravelled]);
 
             float v41 = (float)keyCode * v42;
             float v44 = (float)(*elevationPtr) * v42;
@@ -427,14 +444,14 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
                 unsigned int tick = _get_time();
                 v44 += v43;
                 blitBufferToBuffer(
-                    gElevatorFrmData[ELEVATOR_FRM_GAUGE] + v18 * (int)v44,
-                    gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width,
-                    gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].height / 13,
-                    gElevatorFrmSizes[ELEVATOR_FRM_GAUGE].width,
-                    gElevatorWindowBuffer + gElevatorBackgroundFrmWidth * 41 + 121,
-                    gElevatorBackgroundFrmWidth);
+                    grphbmp[ELEVATOR_FRM_GAUGE] + v18 * (int)v44,
+                    GInfo[ELEVATOR_FRM_GAUGE].width,
+                    GInfo[ELEVATOR_FRM_GAUGE].height / 13,
+                    GInfo[ELEVATOR_FRM_GAUGE].width,
+                    win_buf + GInfo[ELEVATOR_FRM_BACKGROUND].width * 41 + 121,
+                    GInfo[ELEVATOR_FRM_BACKGROUND].width);
 
-                win_draw(gElevatorWindow);
+                win_draw(elev_win);
 
                 while (getTicksSince(tick) < delay) {
                 }
@@ -444,7 +461,7 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
         }
     }
 
-    elevatorWindowFree();
+    elevator_end();
 
     if (keyCode != KEY_ESCAPE) {
         const ElevatorDescription* description = &(elevatorDescription[keyCode]);
@@ -457,9 +474,9 @@ int elevatorSelectLevel(int elevator, int* mapPtr, int* elevationPtr, int* tileP
 }
 
 // 0x43F324
-int elevatorWindowInit(int elevator)
+static int elevator_start(int elevator)
 {
-    gElevatorWindowIsoWasEnabled = isoDisable();
+    bk_enable = isoDisable();
     cycle_disable();
 
     gameMouseSetCursor(MOUSE_CURSOR_ARROW);
@@ -469,20 +486,20 @@ int elevatorWindowInit(int elevator)
     scriptsDisable();
 
     int index;
-    for (index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-        int fid = art_id(OBJ_TYPE_INTERFACE, gElevatorFrmIds[index], 0, 0, 0);
-        gElevatorFrmData[index] = art_lock(fid, &(gElevatorFrmHandles[index]), &(gElevatorFrmSizes[index].width), &(gElevatorFrmSizes[index].height));
-        if (gElevatorFrmData[index] == NULL) {
+    for (index = 0; index < ELEVATOR_FRM_STATIC_COUNT; index++) {
+        int fid = art_id(OBJ_TYPE_INTERFACE, grph_id[index], 0, 0, 0);
+        grphbmp[index] = art_lock(fid, &(grph_key[index]), &(GInfo[index].width), &(GInfo[index].height));
+        if (grphbmp[index] == NULL) {
             break;
         }
     }
 
-    if (index != ELEVATOR_FRM_COUNT) {
+    if (index != ELEVATOR_FRM_STATIC_COUNT) {
         for (int reversedIndex = index - 1; reversedIndex >= 0; reversedIndex--) {
-            art_ptr_unlock(gElevatorFrmHandles[reversedIndex]);
+            art_ptr_unlock(grph_key[reversedIndex]);
         }
 
-        if (gElevatorWindowIsoWasEnabled) {
+        if (bk_enable) {
             isoEnable();
         }
 
@@ -491,42 +508,42 @@ int elevatorWindowInit(int elevator)
         return -1;
     }
 
-    gElevatorPanelFrmData = ELEVATOR_BACKGROUND_NULL;
-    gElevatorBackgroundFrmData = ELEVATOR_BACKGROUND_NULL;
+    grphbmp[ELEVATOR_FRM_PANEL] = ELEVATOR_BACKGROUND_NULL;
+    grphbmp[ELEVATOR_FRM_BACKGROUND] = ELEVATOR_BACKGROUND_NULL;
 
-    const ElevatorBackground* elevatorBackground = &(gElevatorBackgrounds[elevator]);
+    const ElevatorBackground* elevatorBackground = &(intotal[elevator]);
     bool backgroundsLoaded = true;
 
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, elevatorBackground->backgroundFrmId, 0, 0, 0);
-    gElevatorBackgroundFrmData = art_lock(backgroundFid, &gElevatorBackgroundFrmHandle, &gElevatorBackgroundFrmWidth, &gElevatorBackgroundFrmHeight);
-    if (gElevatorBackgroundFrmData != NULL) {
+    grphbmp[ELEVATOR_FRM_BACKGROUND] = art_lock(backgroundFid, &grph_key[ELEVATOR_FRM_BACKGROUND], &(GInfo[ELEVATOR_FRM_BACKGROUND].width), &(GInfo[ELEVATOR_FRM_BACKGROUND].height));
+    if (grphbmp[ELEVATOR_FRM_BACKGROUND] != NULL) {
         if (elevatorBackground->panelFrmId != -1) {
             int panelFid = art_id(OBJ_TYPE_INTERFACE, elevatorBackground->panelFrmId, 0, 0, 0);
-            gElevatorPanelFrmData = art_lock(panelFid, &gElevatorPanelFrmHandle, &gElevatorPanelFrmWidth, &gElevatorPanelFrmHeight);
-            if (gElevatorPanelFrmData == NULL) {
-                gElevatorPanelFrmData = ELEVATOR_BACKGROUND_NULL;
+            grphbmp[ELEVATOR_FRM_PANEL] = art_lock(panelFid, &grph_key[ELEVATOR_FRM_PANEL], &(GInfo[ELEVATOR_FRM_PANEL].width), &(GInfo[ELEVATOR_FRM_PANEL].height));
+            if (grphbmp[ELEVATOR_FRM_PANEL] == NULL) {
+                grphbmp[ELEVATOR_FRM_PANEL] = ELEVATOR_BACKGROUND_NULL;
                 backgroundsLoaded = false;
             }
         }
     } else {
-        gElevatorBackgroundFrmData = ELEVATOR_BACKGROUND_NULL;
+        grphbmp[ELEVATOR_FRM_BACKGROUND] = ELEVATOR_BACKGROUND_NULL;
         backgroundsLoaded = false;
     }
 
     if (!backgroundsLoaded) {
-        if (gElevatorBackgroundFrmData != ELEVATOR_BACKGROUND_NULL) {
-            art_ptr_unlock(gElevatorBackgroundFrmHandle);
+        if (grphbmp[ELEVATOR_FRM_BACKGROUND] != ELEVATOR_BACKGROUND_NULL) {
+            art_ptr_unlock(grph_key[ELEVATOR_FRM_BACKGROUND]);
         }
 
-        if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-            art_ptr_unlock(gElevatorPanelFrmHandle);
+        if (grphbmp[ELEVATOR_FRM_PANEL] != ELEVATOR_BACKGROUND_NULL) {
+            art_ptr_unlock(grph_key[ELEVATOR_FRM_PANEL]);
         }
 
-        for (int index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-            art_ptr_unlock(gElevatorFrmHandles[index]);
+        for (int index = 0; index < ELEVATOR_FRM_STATIC_COUNT; index++) {
+            art_ptr_unlock(grph_key[index]);
         }
 
-        if (gElevatorWindowIsoWasEnabled) {
+        if (bk_enable) {
             isoEnable();
         }
 
@@ -535,29 +552,29 @@ int elevatorWindowInit(int elevator)
         return -1;
     }
 
-    int elevatorWindowX = (640 - gElevatorBackgroundFrmWidth) / 2;
-    int elevatorWindowY = (480 - INTERFACE_BAR_HEIGHT - 1 - gElevatorBackgroundFrmHeight) / 2;
-    gElevatorWindow = windowCreate(
+    int elevatorWindowX = (640 - GInfo[ELEVATOR_FRM_BACKGROUND].width) / 2;
+    int elevatorWindowY = (480 - INTERFACE_BAR_HEIGHT - 1 - GInfo[ELEVATOR_FRM_BACKGROUND].height) / 2;
+    elev_win = windowCreate(
         elevatorWindowX,
         elevatorWindowY,
-        gElevatorBackgroundFrmWidth,
-        gElevatorBackgroundFrmHeight,
+        GInfo[ELEVATOR_FRM_BACKGROUND].width,
+        GInfo[ELEVATOR_FRM_BACKGROUND].height,
         256,
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
-    if (gElevatorWindow == -1) {
-        if (gElevatorBackgroundFrmData != ELEVATOR_BACKGROUND_NULL) {
-            art_ptr_unlock(gElevatorBackgroundFrmHandle);
+    if (elev_win == -1) {
+        if (grphbmp[ELEVATOR_FRM_BACKGROUND] != ELEVATOR_BACKGROUND_NULL) {
+            art_ptr_unlock(grph_key[ELEVATOR_FRM_BACKGROUND]);
         }
 
-        if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-            art_ptr_unlock(gElevatorPanelFrmHandle);
+        if (grphbmp[ELEVATOR_FRM_PANEL] != ELEVATOR_BACKGROUND_NULL) {
+            art_ptr_unlock(grph_key[ELEVATOR_FRM_PANEL]);
         }
 
-        for (int index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-            art_ptr_unlock(gElevatorFrmHandles[index]);
+        for (int index = 0; index < ELEVATOR_FRM_STATIC_COUNT; index++) {
+            art_ptr_unlock(grph_key[index]);
         }
 
-        if (gElevatorWindowIsoWasEnabled) {
+        if (bk_enable) {
             isoEnable();
         }
 
@@ -566,31 +583,31 @@ int elevatorWindowInit(int elevator)
         return -1;
     }
 
-    gElevatorWindowBuffer = windowGetBuffer(gElevatorWindow);
-    memcpy(gElevatorWindowBuffer, (unsigned char*)gElevatorBackgroundFrmData, gElevatorBackgroundFrmWidth * gElevatorBackgroundFrmHeight);
+    win_buf = windowGetBuffer(elev_win);
+    memcpy(win_buf, (unsigned char*)grphbmp[ELEVATOR_FRM_BACKGROUND], GInfo[ELEVATOR_FRM_BACKGROUND].width * GInfo[ELEVATOR_FRM_BACKGROUND].height);
 
-    if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-        blitBufferToBuffer((unsigned char*)gElevatorPanelFrmData,
-            gElevatorPanelFrmWidth,
-            gElevatorPanelFrmHeight,
-            gElevatorPanelFrmWidth,
-            gElevatorWindowBuffer + gElevatorBackgroundFrmWidth * (gElevatorBackgroundFrmHeight - gElevatorPanelFrmHeight),
-            gElevatorBackgroundFrmWidth);
+    if (grphbmp[ELEVATOR_FRM_PANEL] != ELEVATOR_BACKGROUND_NULL) {
+        blitBufferToBuffer((unsigned char*)grphbmp[ELEVATOR_FRM_PANEL],
+            GInfo[ELEVATOR_FRM_PANEL].width,
+            GInfo[ELEVATOR_FRM_PANEL].height,
+            GInfo[ELEVATOR_FRM_PANEL].width,
+            win_buf + GInfo[ELEVATOR_FRM_BACKGROUND].width * (GInfo[ELEVATOR_FRM_BACKGROUND].height - GInfo[ELEVATOR_FRM_PANEL].height),
+            GInfo[ELEVATOR_FRM_BACKGROUND].width);
     }
 
     int y = 40;
-    for (int level = 0; level < gElevatorLevels[elevator]; level++) {
-        int btn = buttonCreate(gElevatorWindow,
+    for (int level = 0; level < btncnt[elevator]; level++) {
+        int btn = buttonCreate(elev_win,
             13,
             y,
-            gElevatorFrmSizes[ELEVATOR_FRM_BUTTON_DOWN].width,
-            gElevatorFrmSizes[ELEVATOR_FRM_BUTTON_DOWN].height,
+            GInfo[ELEVATOR_FRM_BUTTON_DOWN].width,
+            GInfo[ELEVATOR_FRM_BUTTON_DOWN].height,
             -1,
             -1,
             -1,
             500 + level,
-            gElevatorFrmData[ELEVATOR_FRM_BUTTON_UP],
-            gElevatorFrmData[ELEVATOR_FRM_BUTTON_DOWN],
+            grphbmp[ELEVATOR_FRM_BUTTON_UP],
+            grphbmp[ELEVATOR_FRM_BUTTON_DOWN],
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
@@ -603,25 +620,25 @@ int elevatorWindowInit(int elevator)
 }
 
 // 0x43F6D0
-void elevatorWindowFree()
+static void elevator_end()
 {
-    windowDestroy(gElevatorWindow);
+    windowDestroy(elev_win);
 
-    if (gElevatorBackgroundFrmData != ELEVATOR_BACKGROUND_NULL) {
-        art_ptr_unlock(gElevatorBackgroundFrmHandle);
+    if (grphbmp[ELEVATOR_FRM_BACKGROUND] != ELEVATOR_BACKGROUND_NULL) {
+        art_ptr_unlock(grph_key[ELEVATOR_FRM_BACKGROUND]);
     }
 
-    if (gElevatorPanelFrmData != ELEVATOR_BACKGROUND_NULL) {
-        art_ptr_unlock(gElevatorPanelFrmHandle);
+    if (grphbmp[ELEVATOR_FRM_PANEL] != ELEVATOR_BACKGROUND_NULL) {
+        art_ptr_unlock(grph_key[ELEVATOR_FRM_PANEL]);
     }
 
-    for (int index = 0; index < ELEVATOR_FRM_COUNT; index++) {
-        art_ptr_unlock(gElevatorFrmHandles[index]);
+    for (int index = 0; index < ELEVATOR_FRM_STATIC_COUNT; index++) {
+        art_ptr_unlock(grph_key[index]);
     }
 
     scriptsEnable();
 
-    if (gElevatorWindowIsoWasEnabled) {
+    if (bk_enable) {
         isoEnable();
     }
 
@@ -631,13 +648,13 @@ void elevatorWindowFree()
 }
 
 // 0x43F73C
-int elevatorGetLevelFromKeyCode(int elevator, int keyCode)
+static int Check4Keys(int elevator, int keyCode)
 {
     // TODO: Check if result is really unused?
     toupper(keyCode);
 
     for (int index = 0; index < ELEVATOR_LEVEL_MAX; index++) {
-        char c = gElevatorLevelLabels[elevator][index];
+        char c = keytable[elevator][index];
         if (c == '\0') {
             break;
         }

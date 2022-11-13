@@ -868,7 +868,7 @@ int scriptsHandleRequests()
 
         gScriptsRequests &= ~SCRIPT_REQUEST_ELEVATOR;
 
-        if (elevatorSelectLevel(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
+        if (elevator_select(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
             automap_pip_save();
 
             if (map == gMapHeader.field_34) {
@@ -974,7 +974,7 @@ int _scripts_check_state_in_combat()
         int elevation = gScriptsRequestedElevatorLevel;
         int tile = -1;
 
-        if (elevatorSelectLevel(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
+        if (elevator_select(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
             automap_pip_save();
 
             if (map == gMapHeader.field_34) {
