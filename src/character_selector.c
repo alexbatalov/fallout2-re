@@ -11,7 +11,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "game/game.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "memory.h"
 #include "message.h"
 #include "object.h"

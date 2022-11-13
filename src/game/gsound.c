@@ -1,4 +1,4 @@
-#include "game_sound.h"
+#include "game/gsound.h"
 
 #include <stdbool.h>
 #include <stdio.h>

@@ -10,7 +10,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gmouse.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "interface.h"
 #include "map.h"
 #include "memory.h"

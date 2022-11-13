@@ -10,7 +10,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "game/game.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "message.h"
 #include "text_font.h"
 #include "window_manager.h"

@@ -13,7 +13,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gmouse.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "movie.h"
 #include "movie_effect.h"
 #include "palette.h"

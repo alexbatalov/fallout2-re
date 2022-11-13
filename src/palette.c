@@ -6,7 +6,7 @@
 #include "core.h"
 #include "game/cycle.h"
 #include "debug.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 
 // 0x6639D0
 unsigned char gPalette[256 * 3];

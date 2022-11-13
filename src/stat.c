@@ -7,7 +7,7 @@
 #include "game/critter.h"
 #include "game/display.h"
 #include "game/game.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "interface.h"
 #include "item.h"
 #include "memory.h"

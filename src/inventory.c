@@ -20,7 +20,7 @@
 #include "game/game.h"
 #include "game/gdialog.h"
 #include "game/gmouse.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "interface.h"
 #include "item.h"
 #include "light.h"

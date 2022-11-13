@@ -6,7 +6,7 @@
 #include "int/audio.h"
 #include "core.h"
 #include "debug.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "memory.h"
 #include "sound.h"
 

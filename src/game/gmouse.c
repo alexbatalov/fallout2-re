@@ -13,7 +13,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "geometry.h"
 #include "interface.h"
 #include "item.h"

@@ -17,7 +17,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gmouse.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "item.h"
 #include "memory.h"
 #include "object.h"

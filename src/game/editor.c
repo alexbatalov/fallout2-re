@@ -17,7 +17,7 @@
 #include "game/game.h"
 #include "game/gmouse.h"
 #include "game/graphlib.h"
-#include "game_sound.h"
+#include "game/gsound.h"
 #include "geometry.h"
 #include "interface.h"
 #include "item.h"
