@@ -22,7 +22,7 @@
 #include "draw.h"
 #include "game/ereg.h"
 #include "game/endgame.h"
-#include "font_manager.h"
+#include "game/fontmgr.h"
 #include "game_config.h"
 #include "game_dialog.h"
 #include "game_memory.h"
