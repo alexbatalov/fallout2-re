@@ -88,10 +88,10 @@ static int topDialogLine = 0;
 static int topDialogReply = 0;
 
 // 0x5184E4
-DialogFunc1* replyWinDrawCallback = NULL;
+DialogWinDrawCallback* replyWinDrawCallback = NULL;
 
 // 0x5184E8
-DialogFunc2* optionsWinDrawCallback = NULL;
+DialogWinDrawCallback* optionsWinDrawCallback = NULL;
 
 // 0x5184EC
 static int defaultBorderX = 7;
@@ -735,10 +735,10 @@ int dialogGetDialogDepth()
 }
 
 // 0x431520
-void dialogRegisterWinDrawCallbacks(DialogFunc1* a1, DialogFunc2* a2)
+void dialogRegisterWinDrawCallbacks(DialogWinDrawCallback* reply, DialogWinDrawCallback* options)
 {
-    replyWinDrawCallback = a1;
-    optionsWinDrawCallback = a2;
+    replyWinDrawCallback = reply;
+    optionsWinDrawCallback = options;
 }
 
 // 0x431530

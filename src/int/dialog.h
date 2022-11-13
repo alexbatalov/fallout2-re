@@ -3,11 +3,10 @@
 
 #include "interpreter.h"
 
-typedef void DialogFunc1(int win);
-typedef void DialogFunc2(int win);
+typedef void DialogWinDrawCallback(int win);
 
-extern DialogFunc1* replyWinDrawCallback;
-extern DialogFunc2* optionsWinDrawCallback;
+extern DialogWinDrawCallback* replyWinDrawCallback;
+extern DialogWinDrawCallback* optionsWinDrawCallback;
 
 int dialogStart(Program* a1);
 int dialogRestart();
@@ -33,7 +32,7 @@ int dialogSetReplyFlags(short flags);
 void initDialog();
 void dialogClose();
 int dialogGetDialogDepth();
-void dialogRegisterWinDrawCallbacks(DialogFunc1* a1, DialogFunc2* a2);
+void dialogRegisterWinDrawCallbacks(DialogWinDrawCallback* reply, DialogWinDrawCallback* options);
 int dialogToggleMediaFlag(int a1);
 int dialogGetMediaFlag();
 
