@@ -11,7 +11,7 @@
 #include "game/game.h"
 #include "int/intlib.h"
 #include "int/memdbg.h"
-#include "mouse_manager.h"
+#include "int/mousemgr.h"
 #include "movie.h"
 #include "text_font.h"
 

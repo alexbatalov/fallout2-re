@@ -7,7 +7,7 @@
 #include "int/dialog.h"
 #include "int/support/intextra.h"
 #include "int/memdbg.h"
-#include "mouse_manager.h"
+#include "int/mousemgr.h"
 #include "nevs.h"
 #include "select_file_list.h"
 #include "sound.h"
