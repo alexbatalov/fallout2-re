@@ -44,6 +44,7 @@ static void map_scroll_refresh_mapper(Rect* rect);
 static int map_allocate_global_vars(int count);
 static void map_free_global_vars();
 static int map_load_global_vars(File* stream);
+static int map_allocate_local_vars(int count);
 static void map_free_local_vars();
 static void map_place_dude_and_mouse();
 static void square_reset();
@@ -834,18 +835,13 @@ int map_load_file(File* stream)
         goto err;
     }
 
-    error = "Error loading local vars";
-    map_free_local_vars();
-
-    if (map_data.localVariablesCount != 0) {
-        map_local_vars = (int*)internal_malloc(sizeof(*map_local_vars) * map_data.localVariablesCount);
-        if (map_local_vars == NULL) {
-            goto err;
-        }
-
-        num_map_local_vars = map_data.localVariablesCount;
+    error = "Error allocating local vars";
+    // NOTE: Uninline.
+    if (map_allocate_local_vars(map_data.localVariablesCount) != 0) {
+        goto err;
     }
 
+    error = "Error loading local vars";
     if (fileReadInt32List(stream, map_local_vars, num_map_local_vars) != 0) {
         goto err;
     }
@@ -1535,6 +1531,25 @@ static int map_load_global_vars(File* stream)
     if (fileReadInt32List(stream, map_global_vars, num_map_global_vars) != 0) {
         return -1;
     }
+
+    return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x484080
+static int map_allocate_local_vars(int count)
+{
+    map_free_local_vars();
+
+    if (count != 0) {
+        map_local_vars = (int*)internal_malloc(sizeof(*map_local_vars) * count);
+        if (map_local_vars == NULL) {
+            return -1;
+        }
+    }
+
+    num_map_local_vars = count;
 
     return 0;
 }
