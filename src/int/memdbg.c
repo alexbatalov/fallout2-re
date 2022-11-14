@@ -30,6 +30,14 @@ static void defaultOutput(const char* string)
     printf("%s", string);
 }
 
+// NOTE: Unused.
+//
+// 0x4845C0
+void memoryRegisterDebug(MemoryManagerPrintErrorProc* func)
+{
+    outputFunc = func;
+}
+
 // 0x4845C8
 static int debug_printf(const char* format, ...)
 {

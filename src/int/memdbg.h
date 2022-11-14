@@ -5,6 +5,7 @@
 
 typedef void(MemoryManagerPrintErrorProc)(const char* string);
 
+void memoryRegisterDebug(MemoryManagerPrintErrorProc* func);
 void memoryRegisterAlloc(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 void* mymalloc(size_t size, const char* file, int line);
 void* myrealloc(void* ptr, size_t size, const char* file, int line);
