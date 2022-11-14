@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "game/amutex.h"
+#include "game/art.h"
 #include "character_selector.h"
 #include "color.h"
 #include "core.h"
@@ -41,60 +42,77 @@
 #define DEATH_WINDOW_WIDTH 640
 #define DEATH_WINDOW_HEIGHT 480
 
+typedef enum MainMenuButton {
+    MAIN_MENU_BUTTON_INTRO,
+    MAIN_MENU_BUTTON_NEW_GAME,
+    MAIN_MENU_BUTTON_LOAD_GAME,
+    MAIN_MENU_BUTTON_OPTIONS,
+    MAIN_MENU_BUTTON_CREDITS,
+    MAIN_MENU_BUTTON_EXIT,
+    MAIN_MENU_BUTTON_COUNT,
+} MainMenuButton;
+
+static bool main_init_system(int argc, char** argv);
+static int main_reset_system();
+static void main_exit_system();
+static int main_load_new(char* fname);
+static int main_loadgame_new();
+static void main_unload_new();
+static void main_game_loop();
+static void main_selfrun_exit();
+static void main_selfrun_record();
+static void main_selfrun_play();
+static void main_death_scene();
+static void main_death_voiceover_callback();
+static int mainDeathGrabTextFile(const char* fileName, char* dest);
+static int mainDeathWordWrap(char* text, int width, short* beginnings, short* count);
+static int main_menu_fatal_error();
+static void main_menu_play_sound(const char* fileName);
+
 // 0x5194C8
-char _mainMap[] = "artemple.map";
+static char mainMap[] = "artemple.map";
 
 // 0x5194D8
-int _main_game_paused = 0;
+int main_game_paused = 0;
 
 // 0x5194DC
-char** _main_selfrun_list = NULL;
+static char** main_selfrun_list = NULL;
 
 // 0x5194E0
-int _main_selfrun_count = 0;
+static int main_selfrun_count = 0;
 
 // 0x5194E4
-int _main_selfrun_index = 0;
+static int main_selfrun_index = 0;
 
 // 0x5194E8
-bool _main_show_death_scene = false;
-
-// A switch to pick selfrun vs. intro video for screensaver:
-// - `false` - will play next selfrun recording
-// - `true` - will play intro video
-//
-// This value will alternate on every attempt, even if there are no selfrun
-// recordings.
-//
-// 0x5194EC
-bool gMainMenuScreensaverCycle = false;
+static bool main_show_death_scene = false;
 
 // 0x5194F0
-int gMainMenuWindow = -1;
+static int main_window = -1;
 
 // 0x5194F4
-unsigned char* gMainMenuWindowBuffer = NULL;
+static unsigned char* main_window_buf = NULL;
 
 // 0x5194F8
-unsigned char* gMainMenuBackgroundFrmData = NULL;
+static unsigned char* background_data = NULL;
 
 // 0x5194FC
-unsigned char* gMainMenuButtonUpFrmData = NULL;
+static unsigned char* button_up_data = NULL;
 
 // 0x519500
-unsigned char* gMainMenuButtonDownFrmData = NULL;
+static unsigned char* button_down_data = NULL;
 
 // 0x519504
-bool _in_main_menu = false;
+bool in_main_menu = false;
 
 // 0x519508
-bool gMainMenuWindowInitialized = false;
+static bool main_menu_created = false;
 
 // 0x51950C
-unsigned int gMainMenuScreensaverDelay = 120000;
+static unsigned int main_menu_timeout = 120000;
 
 // 0x519510
-const int gMainMenuButtonKeyBindings[MAIN_MENU_BUTTON_COUNT] = {
+static int button_values[MAIN_MENU_BUTTON_COUNT] = {
     KEY_LOWERCASE_I, // intro
     KEY_LOWERCASE_N, // new game
     KEY_LOWERCASE_L, // load game
@@ -104,7 +122,7 @@ const int gMainMenuButtonKeyBindings[MAIN_MENU_BUTTON_COUNT] = {
 };
 
 // 0x519528
-const int _return_values[MAIN_MENU_BUTTON_COUNT] = {
+static int return_values[MAIN_MENU_BUTTON_COUNT] = {
     MAIN_MENU_INTRO,
     MAIN_MENU_NEW_GAME,
     MAIN_MENU_LOAD_GAME,
@@ -114,22 +132,22 @@ const int _return_values[MAIN_MENU_BUTTON_COUNT] = {
 };
 
 // 0x614838
-bool _main_death_voiceover_done;
+static bool main_death_voiceover_done;
 
 // 0x614840
-int gMainMenuButtons[MAIN_MENU_BUTTON_COUNT];
+static int buttons[MAIN_MENU_BUTTON_COUNT];
 
 // 0x614858
-bool gMainMenuWindowHidden;
+static bool main_menu_is_hidden;
 
 // 0x61485C
-CacheEntry* gMainMenuButtonUpFrmHandle;
+static CacheEntry* button_up_key;
 
 // 0x614860
-CacheEntry* gMainMenuButtonDownFrmHandle;
+static CacheEntry* button_down_key;
 
 // 0x614864
-CacheEntry* gMainMenuBackgroundFrmHandle;
+static CacheEntry* background_key;
 
 // 0x48099C
 int falloutMain(int argc, char** argv)
@@ -138,7 +156,7 @@ int falloutMain(int argc, char** argv)
         return 1;
     }
 
-    if (!falloutInit(argc, argv)) {
+    if (!main_init_system(argc, argv)) {
         return 1;
     }
 
@@ -146,31 +164,31 @@ int falloutMain(int argc, char** argv)
     gmovie_play(MOVIE_INTRO, 0);
     gmovie_play(MOVIE_CREDITS, 0);
 
-    if (mainMenuWindowInit() == 0) {
+    if (main_menu_create() == 0) {
         bool done = false;
         while (!done) {
             kb_clear();
             gsound_background_play_level_music("07desert", 11);
-            mainMenuWindowUnhide(1);
+            main_menu_show(1);
 
             mouse_show();
-            int mainMenuRc = mainMenuWindowHandleEvents();
+            int mainMenuRc = main_menu_loop();
             mouse_hide();
 
             switch (mainMenuRc) {
             case MAIN_MENU_INTRO:
-                mainMenuWindowHide(true);
+                main_menu_hide(true);
                 gmovie_play(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
                 gmovie_play(MOVIE_CREDITS, 0);
                 break;
             case MAIN_MENU_NEW_GAME:
-                mainMenuWindowHide(true);
-                mainMenuWindowFree();
+                main_menu_hide(true);
+                main_menu_destroy();
                 if (characterSelectorOpen() == 2) {
                     gmovie_play(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
                     randomSeedPrerandom(-1);
-                    _main_load_new(_mainMap);
-                    mainLoop();
+                    main_load_new(mainMap);
+                    main_game_loop();
                     paletteFadeTo(gPaletteWhite);
 
                     // NOTE: Uninline.
@@ -179,20 +197,20 @@ int falloutMain(int argc, char** argv)
                     // NOTE: Uninline.
                     main_reset_system();
 
-                    if (_main_show_death_scene != 0) {
-                        showDeath();
-                        _main_show_death_scene = 0;
+                    if (main_show_death_scene != 0) {
+                        main_death_scene();
+                        main_show_death_scene = 0;
                     }
                 }
 
-                mainMenuWindowInit();
+                main_menu_create();
 
                 break;
             case MAIN_MENU_LOAD_GAME:
                 if (1) {
                     int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
-                    mainMenuWindowHide(true);
-                    mainMenuWindowFree();
+                    main_menu_hide(true);
+                    main_menu_destroy();
                     gsound_background_stop();
 
                     // NOTE: Uninline.
@@ -206,7 +224,7 @@ int falloutMain(int argc, char** argv)
                     } else if (loadGameRc != 0) {
                         windowDestroy(win);
                         win = -1;
-                        mainLoop();
+                        main_game_loop();
                     }
                     paletteFadeTo(gPaletteWhite);
                     if (win != -1) {
@@ -219,47 +237,47 @@ int falloutMain(int argc, char** argv)
                     // NOTE: Uninline.
                     main_reset_system();
 
-                    if (_main_show_death_scene != 0) {
-                        showDeath();
-                        _main_show_death_scene = 0;
+                    if (main_show_death_scene != 0) {
+                        main_death_scene();
+                        main_show_death_scene = 0;
                     }
-                    mainMenuWindowInit();
+                    main_menu_create();
                 }
                 break;
             case MAIN_MENU_TIMEOUT:
                 debugPrint("Main menu timed-out\n");
                 // FALLTHROUGH
             case MAIN_MENU_SCREENSAVER:
-                _main_selfrun_play();
+                main_selfrun_play();
                 break;
             case MAIN_MENU_OPTIONS:
-                mainMenuWindowHide(false);
+                main_menu_hide(false);
                 mouse_show();
                 showOptionsWithInitialKeyCode(112);
                 gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                 mouse_show();
-                mainMenuWindowUnhide(0);
+                main_menu_show(0);
                 break;
             case MAIN_MENU_CREDITS:
-                mainMenuWindowHide(true);
+                main_menu_hide(true);
                 credits("credits.txt", -1, false);
                 break;
             case MAIN_MENU_QUOTES:
                 // NOTE: There is a strange cmp at 0x480C50. Both operands are
                 // zero, set before the loop and do not modify afterwards. For
                 // clarity this condition is omitted.
-                mainMenuWindowHide(true);
+                main_menu_hide(true);
                 credits("quotes.txt", -1, true);
                 break;
             case MAIN_MENU_EXIT:
             case -1:
                 done = true;
-                mainMenuWindowHide(true);
-                mainMenuWindowFree();
+                main_menu_hide(true);
+                main_menu_destroy();
                 gsound_background_stop();
                 break;
             case MAIN_MENU_SELFRUN:
-                _main_selfrun_record();
+                main_selfrun_record();
                 break;
             }
         }
@@ -274,18 +292,18 @@ int falloutMain(int argc, char** argv)
 }
 
 // 0x480CC0
-bool falloutInit(int argc, char** argv)
+static bool main_init_system(int argc, char** argv)
 {
     if (game_init("FALLOUT II", false, 0, 0, argc, argv) == -1) {
         return false;
     }
 
-    if (_main_selfrun_list != NULL) {
-        _main_selfrun_exit();
+    if (main_selfrun_list != NULL) {
+        main_selfrun_exit();
     }
 
-    if (selfrunInitFileList(&_main_selfrun_list, &_main_selfrun_count) == 0) {
-        _main_selfrun_index = 0;
+    if (selfrunInitFileList(&main_selfrun_list, &main_selfrun_count) == 0) {
+        main_selfrun_index = 0;
     }
 
     return true;
@@ -294,7 +312,7 @@ bool falloutInit(int argc, char** argv)
 // NOTE: Inlined.
 //
 // 0x480D0C
-int main_reset_system()
+static int main_reset_system()
 {
     game_reset();
 
@@ -304,21 +322,21 @@ int main_reset_system()
 // NOTE: Inlined.
 //
 // 0x480D18
-void main_exit_system()
+static void main_exit_system()
 {
     gsound_background_stop();
 
     // NOTE: Uninline.
-    _main_selfrun_exit();
+    main_selfrun_exit();
 
     game_exit();
 }
 
 // 0x480D4C
-int _main_load_new(char* mapFileName)
+static int main_load_new(char* mapFileName)
 {
     game_user_wants_to_quit = 0;
-    _main_show_death_scene = 0;
+    main_show_death_scene = 0;
     gDude->flags &= ~OBJECT_FLAT;
     objectShow(gDude, NULL);
     mouse_hide();
@@ -343,10 +361,10 @@ int _main_load_new(char* mapFileName)
 // NOTE: Inlined.
 //
 // 0x480DF8
-int main_loadgame_new()
+static int main_loadgame_new()
 {
     game_user_wants_to_quit = 0;
-    _main_show_death_scene = 0;
+    main_show_death_scene = 0;
 
     gDude->flags &= ~OBJECT_FLAT;
 
@@ -362,21 +380,21 @@ int main_loadgame_new()
 }
 
 // 0x480E34
-void main_unload_new()
+static void main_unload_new()
 {
     objectHide(gDude, NULL);
     _map_exit();
 }
 
 // 0x480E48
-void mainLoop()
+static void main_game_loop()
 {
     bool cursorWasHidden = mouse_hidden();
     if (cursorWasHidden) {
         mouse_show();
     }
 
-    _main_game_paused = 0;
+    main_game_paused = 0;
 
     scriptsEnable();
 
@@ -388,13 +406,13 @@ void mainLoop()
 
         mapHandleTransition();
 
-        if (_main_game_paused != 0) {
-            _main_game_paused = 0;
+        if (main_game_paused != 0) {
+            main_game_paused = 0;
         }
 
         if ((gDude->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
             endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_DEATH);
-            _main_show_death_scene = 1;
+            main_show_death_scene = 1;
             game_user_wants_to_quit = 2;
         }
     }
@@ -407,19 +425,19 @@ void mainLoop()
 }
 
 // 0x480F38
-void _main_selfrun_exit()
+static void main_selfrun_exit()
 {
-    if (_main_selfrun_list != NULL) {
-        selfrunFreeFileList(&_main_selfrun_list);
+    if (main_selfrun_list != NULL) {
+        selfrunFreeFileList(&main_selfrun_list);
     }
 
-    _main_selfrun_count = 0;
-    _main_selfrun_index = 0;
-    _main_selfrun_list = NULL;
+    main_selfrun_count = 0;
+    main_selfrun_index = 0;
+    main_selfrun_list = NULL;
 }
 
 // 0x480F64
-void _main_selfrun_record()
+static void main_selfrun_record()
 {
     SelfrunData selfrunData;
     bool ready = false;
@@ -444,8 +462,8 @@ void _main_selfrun_record()
     }
 
     if (ready) {
-        mainMenuWindowHide(true);
-        mainMenuWindowFree();
+        main_menu_hide(true);
+        main_menu_destroy();
         gsound_background_stop();
         randomSeedPrerandom(0xBEEFFEED);
 
@@ -453,7 +471,7 @@ void _main_selfrun_record()
         main_reset_system();
 
         _proto_dude_init("premade\\combat.gcd");
-        _main_load_new(selfrunData.mapFileName);
+        main_load_new(selfrunData.mapFileName);
         selfrunRecordingLoop(&selfrunData);
         paletteFadeTo(gPaletteWhite);
 
@@ -463,26 +481,36 @@ void _main_selfrun_record()
         // NOTE: Uninline.
         main_reset_system();
 
-        mainMenuWindowInit();
+        main_menu_create();
 
-        if (_main_selfrun_list != NULL) {
-            _main_selfrun_exit();
+        if (main_selfrun_list != NULL) {
+            main_selfrun_exit();
         }
 
-        if (selfrunInitFileList(&_main_selfrun_list, &_main_selfrun_count) == 0) {
-            _main_selfrun_index = 0;
+        if (selfrunInitFileList(&main_selfrun_list, &main_selfrun_count) == 0) {
+            main_selfrun_index = 0;
         }
     }
 }
 
 // 0x48109C
-void _main_selfrun_play()
+static void main_selfrun_play()
 {
-    if (!gMainMenuScreensaverCycle && _main_selfrun_count > 0) {
+    // A switch to pick selfrun vs. intro video for screensaver:
+    // - `false` - will play next selfrun recording
+    // - `true` - will play intro video
+    //
+    // This value will alternate on every attempt, even if there are no selfrun
+    // recordings.
+    //
+    // 0x5194EC
+    static bool toggle = false;
+
+    if (!toggle && main_selfrun_count > 0) {
         SelfrunData selfrunData;
-        if (selfrunPreparePlayback(_main_selfrun_list[_main_selfrun_index], &selfrunData) == 0) {
-            mainMenuWindowHide(true);
-            mainMenuWindowFree();
+        if (selfrunPreparePlayback(main_selfrun_list[main_selfrun_index], &selfrunData) == 0) {
+            main_menu_hide(true);
+            main_menu_destroy();
             gsound_background_stop();
             randomSeedPrerandom(0xBEEFFEED);
 
@@ -490,7 +518,7 @@ void _main_selfrun_play()
             main_reset_system();
 
             _proto_dude_init("premade\\combat.gcd");
-            _main_load_new(selfrunData.mapFileName);
+            main_load_new(selfrunData.mapFileName);
             selfrunPlaybackLoop(&selfrunData);
             paletteFadeTo(gPaletteWhite);
 
@@ -500,23 +528,23 @@ void _main_selfrun_play()
             // NOTE: Uninline.
             main_reset_system();
 
-            mainMenuWindowInit();
+            main_menu_create();
         }
 
-        _main_selfrun_index++;
-        if (_main_selfrun_index >= _main_selfrun_count) {
-            _main_selfrun_index = 0;
+        main_selfrun_index++;
+        if (main_selfrun_index >= main_selfrun_count) {
+            main_selfrun_index = 0;
         }
     } else {
-        mainMenuWindowHide(true);
+        main_menu_hide(true);
         gmovie_play(MOVIE_INTRO, GAME_MOVIE_PAUSE_MUSIC);
     }
 
-    gMainMenuScreensaverCycle = !gMainMenuScreensaverCycle;
+    toggle = 1 - toggle;
 }
 
 // 0x48118C
-void showDeath()
+static void main_death_scene()
 {
     art_flush();
     cycle_disable();
@@ -566,12 +594,12 @@ void showDeath()
             config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
             if (subtitles != 0) {
                 char text[512];
-                if (_mainDeathGrabTextFile(deathFileName, text) == 0) {
+                if (mainDeathGrabTextFile(deathFileName, text) == 0) {
                     debugPrint("\n((ShowDeath)): %s\n", text);
 
                     short beginnings[WORD_WRAP_MAX_COUNT];
                     short count;
-                    if (_mainDeathWordWrap(text, 560, beginnings, &count) == 0) {
+                    if (mainDeathWordWrap(text, 560, beginnings, &count) == 0) {
                         unsigned char* p = windowBuffer + 640 * (480 - fontGetLineHeight() * count - 8);
                         bufferFill(p - 602, 564, fontGetLineHeight() * count + 2, 640, 0);
                         p += 40;
@@ -588,8 +616,8 @@ void showDeath()
             loadColorTable("art\\intrface\\death.pal");
             paletteFadeTo(cmap);
 
-            _main_death_voiceover_done = false;
-            gsound_speech_callback_set(_main_death_voiceover_callback);
+            main_death_voiceover_done = false;
+            gsound_speech_callback_set(main_death_voiceover_callback);
 
             unsigned int delay;
             if (gsound_speech_play(deathFileName, 10, 14, 15) == -1) {
@@ -604,7 +632,7 @@ void showDeath()
             int keyCode;
             do {
                 keyCode = _get_input();
-            } while (keyCode == -1 && !_main_death_voiceover_done && getTicksSince(time) < delay);
+            } while (keyCode == -1 && !main_death_voiceover_done && getTicksSince(time) < delay);
 
             gsound_speech_callback_set(NULL);
 
@@ -634,15 +662,15 @@ void showDeath()
 }
 
 // 0x4814A8
-void _main_death_voiceover_callback()
+static void main_death_voiceover_callback()
 {
-    _main_death_voiceover_done = true;
+    main_death_voiceover_done = true;
 }
 
 // Read endgame subtitle.
 //
 // 0x4814B4
-int _mainDeathGrabTextFile(const char* fileName, char* dest)
+static int mainDeathGrabTextFile(const char* fileName, char* dest)
 {
     const char* p = strrchr(fileName, '\\');
     if (p == NULL) {
@@ -684,7 +712,7 @@ int _mainDeathGrabTextFile(const char* fileName, char* dest)
 }
 
 // 0x481598
-int _mainDeathWordWrap(char* text, int width, short* beginnings, short* count)
+static int mainDeathWordWrap(char* text, int width, short* beginnings, short* count)
 {
     while (true) {
         char* sep = strchr(text, ':');
@@ -722,13 +750,13 @@ int _mainDeathWordWrap(char* text, int width, short* beginnings, short* count)
 }
 
 // 0x481650
-int mainMenuWindowInit()
+int main_menu_create()
 {
     int fid;
     MessageListItem msg;
     int len;
 
-    if (gMainMenuWindowInitialized) {
+    if (main_menu_created) {
         return 0;
     }
 
@@ -736,29 +764,29 @@ int mainMenuWindowInit()
 
     int mainMenuWindowX = 0;
     int mainMenuWindowY = 0;
-    gMainMenuWindow = windowCreate(mainMenuWindowX,
+    main_window = windowCreate(mainMenuWindowX,
         mainMenuWindowY,
         MAIN_MENU_WINDOW_WIDTH,
         MAIN_MENU_WINDOW_HEIGHT,
         0,
         WINDOW_HIDDEN | WINDOW_FLAG_0x04);
-    if (gMainMenuWindow == -1) {
+    if (main_window == -1) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
     }
 
-    gMainMenuWindowBuffer = windowGetBuffer(gMainMenuWindow);
+    main_window_buf = windowGetBuffer(main_window);
 
     // mainmenu.frm
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 140, 0, 0, 0);
-    gMainMenuBackgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &gMainMenuBackgroundFrmHandle);
-    if (gMainMenuBackgroundFrmData == NULL) {
+    background_data = art_ptr_lock_data(backgroundFid, 0, 0, &background_key);
+    if (background_data == NULL) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
     }
 
-    blitBufferToBuffer(gMainMenuBackgroundFrmData, 640, 480, 640, gMainMenuWindowBuffer, 640);
-    art_ptr_unlock(gMainMenuBackgroundFrmHandle);
+    blitBufferToBuffer(background_data, 640, 480, 640, main_window_buf, 640);
+    art_ptr_unlock(background_key);
 
     int oldFont = fontGetCurrent();
     fontSetCurrent(100);
@@ -766,43 +794,43 @@ int mainMenuWindowInit()
     // Copyright.
     msg.num = 20;
     if (messageListGetItem(&misc_message_file, &msg)) {
-        windowDrawText(gMainMenuWindow, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
+        windowDrawText(main_window, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
     }
 
     // Version.
     char version[VERSION_MAX];
     versionGetVersion(version);
     len = fontGetStringWidth(version);
-    windowDrawText(gMainMenuWindow, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
+    windowDrawText(main_window, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
 
     // menuup.frm
     fid = art_id(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
-    gMainMenuButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gMainMenuButtonUpFrmHandle);
-    if (gMainMenuButtonUpFrmData == NULL) {
+    button_up_data = art_ptr_lock_data(fid, 0, 0, &button_up_key);
+    if (button_up_data == NULL) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
     }
 
     // menudown.frm
     fid = art_id(OBJ_TYPE_INTERFACE, 300, 0, 0, 0);
-    gMainMenuButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gMainMenuButtonDownFrmHandle);
-    if (gMainMenuButtonDownFrmData == NULL) {
+    button_down_data = art_ptr_lock_data(fid, 0, 0, &button_down_key);
+    if (button_down_data == NULL) {
         // NOTE: Uninline.
         return main_menu_fatal_error();
     }
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
-        gMainMenuButtons[index] = -1;
+        buttons[index] = -1;
     }
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
-        gMainMenuButtons[index] = buttonCreate(gMainMenuWindow, 30, 19 + index * 42 - index, 26, 26, -1, -1, 1111, gMainMenuButtonKeyBindings[index], gMainMenuButtonUpFrmData, gMainMenuButtonDownFrmData, 0, 32);
-        if (gMainMenuButtons[index] == -1) {
+        buttons[index] = buttonCreate(main_window, 30, 19 + index * 42 - index, 26, 26, -1, -1, 1111, button_values[index], button_up_data, button_down_data, 0, 32);
+        if (buttons[index] == -1) {
             // NOTE: Uninline.
             return main_menu_fatal_error();
         }
 
-        buttonSetMask(gMainMenuButtons[index], gMainMenuButtonUpFrmData);
+        buttonSetMask(buttons[index], button_up_data);
     }
 
     fontSetCurrent(104);
@@ -811,59 +839,59 @@ int mainMenuWindowInit()
         msg.num = 9 + index;
         if (messageListGetItem(&misc_message_file, &msg)) {
             len = fontGetStringWidth(msg.text);
-            fontDrawText(gMainMenuWindowBuffer + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
+            fontDrawText(main_window_buf + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
         }
     }
 
     fontSetCurrent(oldFont);
 
-    gMainMenuWindowInitialized = true;
-    gMainMenuWindowHidden = true;
+    main_menu_created = true;
+    main_menu_is_hidden = true;
 
     return 0;
 }
 
 // 0x481968
-void mainMenuWindowFree()
+void main_menu_destroy()
 {
-    if (!gMainMenuWindowInitialized) {
+    if (!main_menu_created) {
         return;
     }
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         // FIXME: Why it tries to free only invalid buttons?
-        if (gMainMenuButtons[index] == -1) {
-            buttonDestroy(gMainMenuButtons[index]);
+        if (buttons[index] == -1) {
+            buttonDestroy(buttons[index]);
         }
     }
 
-    if (gMainMenuButtonDownFrmData) {
-        art_ptr_unlock(gMainMenuButtonDownFrmHandle);
-        gMainMenuButtonDownFrmHandle = NULL;
-        gMainMenuButtonDownFrmData = NULL;
+    if (button_down_data) {
+        art_ptr_unlock(button_down_key);
+        button_down_key = NULL;
+        button_down_data = NULL;
     }
 
-    if (gMainMenuButtonUpFrmData) {
-        art_ptr_unlock(gMainMenuButtonUpFrmHandle);
-        gMainMenuButtonUpFrmHandle = NULL;
-        gMainMenuButtonUpFrmData = NULL;
+    if (button_up_data) {
+        art_ptr_unlock(button_up_key);
+        button_up_key = NULL;
+        button_up_data = NULL;
     }
 
-    if (gMainMenuWindow != -1) {
-        windowDestroy(gMainMenuWindow);
+    if (main_window != -1) {
+        windowDestroy(main_window);
     }
 
-    gMainMenuWindowInitialized = false;
+    main_menu_created = false;
 }
 
 // 0x481A00
-void mainMenuWindowHide(bool animate)
+void main_menu_hide(bool animate)
 {
-    if (!gMainMenuWindowInitialized) {
+    if (!main_menu_created) {
         return;
     }
 
-    if (gMainMenuWindowHidden) {
+    if (main_menu_is_hidden) {
         return;
     }
 
@@ -874,30 +902,30 @@ void mainMenuWindowHide(bool animate)
         soundContinueAll();
     }
 
-    win_hide(gMainMenuWindow);
+    win_hide(main_window);
 
-    gMainMenuWindowHidden = true;
+    main_menu_is_hidden = true;
 }
 
 // 0x481A48
-void mainMenuWindowUnhide(bool animate)
+void main_menu_show(bool animate)
 {
-    if (!gMainMenuWindowInitialized) {
+    if (!main_menu_created) {
         return;
     }
 
-    if (!gMainMenuWindowHidden) {
+    if (!main_menu_is_hidden) {
         return;
     }
 
-    win_show(gMainMenuWindow);
+    win_show(main_window);
 
     if (animate) {
         loadColorTable("color.pal");
         paletteFadeTo(cmap);
     }
 
-    gMainMenuWindowHidden = false;
+    main_menu_is_hidden = false;
 }
 
 // NOTE: Unused.
@@ -905,11 +933,11 @@ void mainMenuWindowUnhide(bool animate)
 // 0x481A8C
 int main_menu_is_shown()
 {
-    return gMainMenuWindowInitialized ? gMainMenuWindowHidden == 0 : 0;
+    return main_menu_created ? main_menu_is_hidden == 0 : 0;
 }
 
 // 0x481AA8
-int _main_menu_is_enabled()
+int main_menu_is_enabled()
 {
     return 1;
 }
@@ -919,7 +947,7 @@ int _main_menu_is_enabled()
 // 0x481AB0
 void main_menu_set_timeout(unsigned int timeout)
 {
-    gMainMenuScreensaverDelay = 60000 * timeout;
+    main_menu_timeout = 60000 * timeout;
 }
 
 // NOTE: Unused.
@@ -927,13 +955,13 @@ void main_menu_set_timeout(unsigned int timeout)
 // 0x481AD0
 unsigned int main_menu_get_timeout()
 {
-    return gMainMenuScreensaverDelay / 1000 / 60;
+    return main_menu_timeout / 1000 / 60;
 }
 
 // 0x481AEC
-int mainMenuWindowHandleEvents()
+int main_menu_loop()
 {
-    _in_main_menu = true;
+    in_main_menu = true;
 
     bool oldCursorIsHidden = mouse_hidden();
     if (oldCursorIsHidden) {
@@ -947,11 +975,11 @@ int mainMenuWindowHandleEvents()
         int keyCode = _get_input();
 
         for (int buttonIndex = 0; buttonIndex < MAIN_MENU_BUTTON_COUNT; buttonIndex++) {
-            if (keyCode == gMainMenuButtonKeyBindings[buttonIndex] || keyCode == toupper(gMainMenuButtonKeyBindings[buttonIndex])) {
+            if (keyCode == button_values[buttonIndex] || keyCode == toupper(button_values[buttonIndex])) {
                 // NOTE: Uninline.
                 main_menu_play_sound("nmselec1");
 
-                rc = _return_values[buttonIndex];
+                rc = return_values[buttonIndex];
 
                 if (buttonIndex == MAIN_MENU_BUTTON_CREDITS && (keys[DIK_RSHIFT] != KEY_STATE_UP || keys[DIK_LSHIFT] != KEY_STATE_UP)) {
                     rc = MAIN_MENU_QUOTES;
@@ -990,7 +1018,7 @@ int mainMenuWindowHandleEvents()
         } else if (game_user_wants_to_quit == 2) {
             game_user_wants_to_quit = 0;
         } else {
-            if (getTicksSince(tick) >= gMainMenuScreensaverDelay) {
+            if (getTicksSince(tick) >= main_menu_timeout) {
                 rc = MAIN_MENU_TIMEOUT;
             }
         }
@@ -1000,7 +1028,7 @@ int mainMenuWindowHandleEvents()
         mouse_hide();
     }
 
-    _in_main_menu = false;
+    in_main_menu = false;
 
     return rc;
 }
@@ -1008,9 +1036,9 @@ int mainMenuWindowHandleEvents()
 // NOTE: Inlined.
 //
 // 0x481C88
-int main_menu_fatal_error()
+static int main_menu_fatal_error()
 {
-    mainMenuWindowFree();
+    main_menu_destroy();
 
     return -1;
 }
@@ -1018,7 +1046,7 @@ int main_menu_fatal_error()
 // NOTE: Inlined.
 //
 // 0x481C94
-void main_menu_play_sound(const char* fileName)
+static void main_menu_play_sound(const char* fileName)
 {
     gsound_play_sfx_file(fileName);
 }
