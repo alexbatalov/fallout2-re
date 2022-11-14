@@ -29,9 +29,9 @@ typedef struct LipsData {
     unsigned char* phonemes;
     int field_1C;
     int field_20;
-    int field_24;
+    int phoneme_count;
     int field_28;
-    int field_2C;
+    int marker_count;
     SpeechMarker* markers;
     int field_34;
     int field_38;

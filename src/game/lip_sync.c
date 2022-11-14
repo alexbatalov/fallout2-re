@@ -90,7 +90,7 @@ void lips_bkg_proc()
             head_phoneme_current = lip_info.phonemes[v0];
             v0++;
 
-            if (v0 >= lip_info.field_2C) {
+            if (v0 >= lip_info.marker_count) {
                 v0 = 0;
                 head_phoneme_current = lip_info.phonemes[0];
 
@@ -106,11 +106,11 @@ void lips_bkg_proc()
             speech_marker = &(lip_info.markers[v0]);
         }
 
-        if (v0 >= lip_info.field_2C - 1) {
+        if (v0 >= lip_info.marker_count - 1) {
             head_marker_current = v0;
 
             v5 = 0;
-            if (lip_info.field_2C <= 5) {
+            if (lip_info.marker_count <= 5) {
                 debugPrint("Error: Too few markers to stop speech!");
             } else {
                 v5 = 3;
@@ -233,9 +233,9 @@ static int lips_read_lipsynch_info(LipsData* lipsData, File* stream)
     if (fileReadInt32(stream, &(phonemes)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_1C)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_20)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_24)) == -1) return -1;
+    if (fileReadInt32(stream, &(lipsData->phoneme_count)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_28)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_2C)) == -1) return -1;
+    if (fileReadInt32(stream, &(lipsData->marker_count)) == -1) return -1;
     if (fileReadInt32(stream, &(markers)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_34)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_38)) == -1) return -1;
@@ -323,9 +323,9 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
             if (fileReadInt32(stream, &(lip_info.flags)) == -1) return -1;
             if (fileReadInt32(stream, &(lip_info.field_10)) == -1) return -1;
             if (fileReadInt32(stream, &(lip_info.field_1C)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.field_24)) == -1) return -1;
+            if (fileReadInt32(stream, &(lip_info.phoneme_count)) == -1) return -1;
             if (fileReadInt32(stream, &(lip_info.field_28)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.field_2C)) == -1) return -1;
+            if (fileReadInt32(stream, &(lip_info.marker_count)) == -1) return -1;
             if (fileReadFixedLengthString(stream, lip_info.field_50, 8) == -1) return -1;
             if (fileReadFixedLengthString(stream, lip_info.field_58, 4) == -1) return -1;
         } else {
@@ -333,21 +333,21 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         }
     }
 
-    lip_info.phonemes = (unsigned char*)internal_malloc(lip_info.field_24);
+    lip_info.phonemes = (unsigned char*)internal_malloc(lip_info.phoneme_count);
     if (lip_info.phonemes == NULL) {
         debugPrint("Out of memory in lips_load_file.'\n");
         return -1;
     }
 
     if (stream != NULL) {
-        for (i = 0; i < lip_info.field_24; i++) {
+        for (i = 0; i < lip_info.phoneme_count; i++) {
             if (lips_read_phoneme_type(&(lip_info.phonemes[i]), stream) != 0) {
                 debugPrint("lips_load_file: Error reading phoneme type.\n");
                 return -1;
             }
         }
 
-        for (i = 0; i < lip_info.field_24; i++) {
+        for (i = 0; i < lip_info.phoneme_count; i++) {
             unsigned char phoneme = lip_info.phonemes[i];
             if (phoneme >= PHONEME_COUNT) {
                 debugPrint("\nLoad error: Speech phoneme %d is invalid (%d)!", i, phoneme);
@@ -355,14 +355,14 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         }
     }
 
-    lip_info.markers = (SpeechMarker*)internal_malloc(sizeof(*speech_marker) * lip_info.field_2C);
+    lip_info.markers = (SpeechMarker*)internal_malloc(sizeof(*speech_marker) * lip_info.marker_count);
     if (lip_info.markers == NULL) {
         debugPrint("Out of memory in lips_load_file.'\n");
         return -1;
     }
 
     if (stream != NULL) {
-        for (i = 0; i < lip_info.field_2C; i++) {
+        for (i = 0; i < lip_info.marker_count; i++) {
             // NOTE: Uninline.
             if (lips_read_marker_type(&(lip_info.markers[i]), stream) != 0) {
                 debugPrint("lips_load_file: Error reading marker type.");
@@ -380,7 +380,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
             debugPrint("Load error: Speech marker 0 has invalid position(%d)!", speech_marker->position);
         }
 
-        for (i = 1; i < lip_info.field_2C; i++) {
+        for (i = 1; i < lip_info.marker_count; i++) {
             speech_marker = &(lip_info.markers[i]);
             prev_speech_marker = &(lip_info.markers[i - 1]);
 
@@ -458,7 +458,7 @@ static int lips_make_speech()
         return -1;
     }
 
-    lip_info.field_34 = 8 * (lip_info.field_1C / lip_info.field_2C);
+    lip_info.field_34 = 8 * (lip_info.field_1C / lip_info.marker_count);
 
     return 0;
 }
