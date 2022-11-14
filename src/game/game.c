@@ -194,7 +194,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     perksInit();
     traitsInit();
-    itemsInit();
+    item_init();
     queueInit();
     critter_init();
     combat_ai_init();
@@ -356,7 +356,7 @@ void game_reset()
     statsReset();
     perksReset();
     traitsReset();
-    itemsReset();
+    item_reset();
     queueExit();
     anim_reset();
     lsgInit();
@@ -409,7 +409,7 @@ void game_exit()
     gsound_exit();
     combat_ai_exit();
     critter_exit();
-    itemsExit();
+    item_exit();
     queueExit();
     perksExit();
     statsExit();

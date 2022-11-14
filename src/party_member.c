@@ -1533,7 +1533,7 @@ int _partyMemberCopyLevelInfo(Object* critter, int a2)
 
     Object* armor = inven_worn(critter);
     adjust_ac(critter, armor, NULL);
-    itemRemove(critter, armor, 1);
+    item_remove_mult(critter, armor, 1);
 
     int maxHp = critterGetStat(critter, STAT_MAXIMUM_HIT_POINTS);
     critter_adjust_hits(critter, maxHp);
@@ -1553,7 +1553,7 @@ int _partyMemberCopyLevelInfo(Object* critter, int a2)
     critter->data.critter.hp = critterGetStat(critter, STAT_MAXIMUM_HIT_POINTS);
 
     if (armor != NULL) {
-        itemAdd(critter, armor, 1);
+        item_add_force(critter, armor, 1);
         inven_wield(critter, armor, 0);
     }
 

@@ -1187,8 +1187,8 @@ static void op_destroy_object(Program* program)
 
     Object* owner = objectGetOwner(object);
     if (owner != NULL) {
-        int quantity = _item_count(owner, object);
-        itemRemove(owner, object, quantity);
+        int quantity = item_count(owner, object);
+        item_remove_mult(owner, object, quantity);
 
         if (owner == gDude) {
             bool animated = !game_ui_is_disabled();
@@ -1613,7 +1613,7 @@ static void op_obj_item_subtype(Program* program)
         if (PID_TYPE(obj->pid) == OBJ_TYPE_ITEM) {
             Proto* proto;
             if (protoGetProto(obj->pid, &proto) != -1) {
-                itemType = itemGetType(obj);
+                itemType = item_get_type(obj);
             }
         }
     }
@@ -2128,7 +2128,7 @@ static void op_add_obj_to_inven(Program* program)
     }
 
     if (item->owner == NULL) {
-        if (itemAdd(owner, item, 1) == 0) {
+        if (item_add_force(owner, item, 1) == 0) {
             Rect rect;
             _obj_disconnect(item, &rect);
             tileWindowRefreshRect(&rect, item->elevation);
@@ -2184,7 +2184,7 @@ static void op_rm_obj_from_inven(Program* program)
         updateFlags = true;
     }
 
-    if (itemRemove(owner, item, 1) == 0) {
+    if (item_remove_mult(owner, item, 1) == 0) {
         Rect rect;
         _obj_connect(item, 1, 0, &rect);
         tileWindowRefreshRect(&rect, item->elevation);
@@ -2243,7 +2243,7 @@ static void op_wield_obj_critter(Program* program)
             hand = HAND_LEFT;
         }
 
-        if (itemGetType(item) == ITEM_TYPE_ARMOR) {
+        if (item_get_type(item) == ITEM_TYPE_ARMOR) {
             oldArmor = inven_worn(gDude);
         }
 
@@ -3400,7 +3400,7 @@ static void op_has_trait(Program* program)
                 result = (object->flags & OBJECT_HIDDEN) == 0;
                 break;
             case CRITTER_TRAIT_OBJECT_GET_INVENTORY_WEIGHT:
-                result = objectGetInventoryWeight(object);
+                result = item_total_weight(object);
                 break;
             }
             break;
@@ -4300,7 +4300,7 @@ static void op_metarule(Program* program)
     case METARULE_DROP_ALL_INVEN:
         if (1) {
             Object* object = (Object*)param;
-            result = _item_drop_all(object, object->tile);
+            result = item_drop_all(object, object->tile);
             if (gDude == object) {
                 intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 intface_update_ac(false);
@@ -4325,7 +4325,7 @@ static void op_metarule(Program* program)
                 intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             } else {
                 Object* item = inven_left_hand(object);
-                if (itemGetType(item) == ITEM_TYPE_WEAPON) {
+                if (item_get_type(item) == ITEM_TYPE_WEAPON) {
                     item->flags &= ~OBJECT_IN_LEFT_HAND;
                 }
             }
@@ -4352,8 +4352,8 @@ static void op_metarule(Program* program)
         if (1) {
             Object* object = (Object*)param;
             if (PID_TYPE(object->pid) == OBJ_TYPE_ITEM) {
-                if (itemGetType(object) == ITEM_TYPE_WEAPON) {
-                    result = weaponGetDamageType(NULL, object);
+                if (item_get_type(object) == ITEM_TYPE_WEAPON) {
+                    result = item_w_damage_type(NULL, object);
                     break;
                 }
             } else {
@@ -4833,7 +4833,7 @@ static void op_add_mult_objs_to_inven(Program* program)
         quantity = 500;
     }
 
-    if (itemAdd(object, item, quantity) == 0) {
+    if (item_add_force(object, item, quantity) == 0) {
         Rect rect;
         _obj_disconnect(item, &rect);
         tileWindowRefreshRect(&rect, item->elevation);
@@ -4870,13 +4870,13 @@ static void op_rm_mult_objs_from_inven(Program* program)
 
     bool itemWasEquipped = (item->flags & OBJECT_EQUIPPED) != 0;
 
-    int quantity = _item_count(owner, item);
+    int quantity = item_count(owner, item);
     if (quantity > quantityToRemove) {
         quantity = quantityToRemove;
     }
 
     if (quantity != 0) {
-        if (itemRemove(owner, item, quantity) == 0) {
+        if (item_remove_mult(owner, item, quantity) == 0) {
             Rect updatedRect;
             _obj_connect(item, 1, 0, &updatedRect);
             if (itemWasEquipped) {
@@ -5693,7 +5693,7 @@ static void op_item_caps_total(Program* program)
 
     int amount = 0;
     if (object != NULL) {
-        amount = itemGetTotalCaps(object);
+        amount = item_caps_total(object);
     } else {
         dbg_error(program, "item_caps_total", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5727,7 +5727,7 @@ static void op_item_caps_adjust(Program* program)
     int rc = -1;
 
     if (object != NULL) {
-        rc = itemCapsAdjust(object, amount);
+        rc = item_caps_adjust(object, amount);
     } else {
         dbg_error(program, "item_caps_adjust", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -6210,12 +6210,12 @@ static void op_destroy_mult_objs(Program* program)
 
     Object* owner = objectGetOwner(object);
     if (owner != NULL) {
-        int quantityToDestroy = _item_count(owner, object);
+        int quantityToDestroy = item_count(owner, object);
         if (quantityToDestroy > quantity) {
             quantityToDestroy = quantity;
         }
 
-        itemRemove(owner, object, quantityToDestroy);
+        item_remove_mult(owner, object, quantityToDestroy);
 
         if (owner == gDude) {
             bool animated = !game_ui_is_disabled();
@@ -6360,7 +6360,7 @@ static void op_move_obj_inven_to_obj(Program* program)
         correctFidForRemovedItem(object1, item2, flags);
     }
 
-    _item_move_all(object1, object2);
+    item_move_all(object1, object2);
 
     if (object1 == gDude) {
         if (oldArmor != NULL) {

@@ -3929,7 +3929,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
                     }
                 }
 
-                if (itemAdd(object, item, quantity) == -1) {
+                if (item_add_force(object, item, quantity) == -1) {
                     return -1;
                 }
 

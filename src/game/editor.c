@@ -4544,7 +4544,7 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %d lbs.",
         getmsg(&editor_message_file, &mesg, 655),
-        objectGetInventoryWeight(gDude));
+        item_total_weight(gDude));
     fileWriteString(title1, stream);
 
     fileWriteString("\n", stream);

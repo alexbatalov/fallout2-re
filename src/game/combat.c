@@ -2162,10 +2162,10 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
 
     int intelligence = critterGetStat(attacker, STAT_INTELLIGENCE);
     int team = attacker->data.critter.combat.team;
-    int damageRadius = _item_w_area_damage_radius(weapon, hitMode);
+    int damageRadius = item_w_area_damage_radius(weapon, hitMode);
     int maxDamage;
-    weaponGetDamageMinMax(weapon, NULL, &maxDamage);
-    int damageType = weaponGetDamageType(attacker, weapon);
+    item_w_damage_min_max(weapon, NULL, &maxDamage);
+    int damageType = item_w_damage_type(attacker, weapon);
 
     if (damageRadius > 0) {
         if (intelligence < 5) {
@@ -2211,7 +2211,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
         return false;
     }
 
-    int anim = weaponGetAnimationForHitMode(weapon, hitMode);
+    int anim = item_w_anim_weap(weapon, hitMode);
     if (anim != ANIM_FIRE_BURST && anim != ANIM_FIRE_CONTINUOUS) {
         return false;
     }
@@ -3384,7 +3384,7 @@ void combat_ctd_init(Attack* attack, Object* attacker, Object* defender, int hit
 {
     attack->attacker = attacker;
     attack->hitMode = hitMode;
-    attack->weapon = critterGetWeaponForHitMode(attacker, hitMode);
+    attack->weapon = item_hit_with(attacker, hitMode);
     attack->attackHitLocation = HIT_LOCATION_TORSO;
     attack->attackerDamage = 0;
     attack->attackerFlags = 0;
@@ -3447,7 +3447,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
         aiming = true;
     }
 
-    int actionPoints = _item_w_mp_cost(a1, main_ctd.hitMode, aiming);
+    int actionPoints = item_w_mp_cost(a1, main_ctd.hitMode, aiming);
     debugPrint("sequencing attack...\n");
 
     if (action_attack(&main_ctd) == -1) {
@@ -3485,7 +3485,7 @@ int combat_bullet_start(const Object* a1, const Object* a2)
 // 0x423128
 static bool check_ranged_miss(Attack* attack)
 {
-    int range = _item_w_range(attack->attacker, attack->hitMode);
+    int range = item_w_range(attack->attacker, attack->hitMode);
     int to = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
 
     int roll = ROLL_FAILURE;
@@ -3619,8 +3619,8 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
 {
     *roundsHitMainTargetPtr = 0;
 
-    int ammoQuantity = ammoGetQuantity(attack->weapon);
-    int burstRounds = weaponGetBurstRounds(attack->weapon);
+    int ammoQuantity = item_w_curr_ammo(attack->weapon);
+    int burstRounds = item_w_rounds(attack->weapon);
     if (burstRounds < ammoQuantity) {
         ammoQuantity = burstRounds;
     }
@@ -3672,7 +3672,7 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
         *roundsHitMainTargetPtr = 1;
     }
 
-    int range = _item_w_range(attack->attacker, attack->hitMode);
+    int range = item_w_range(attack->attacker, attack->hitMode);
     int mainTargetEndTile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
     *roundsHitMainTargetPtr += shoot_along_path(attack, mainTargetEndTile, centerRounds - *roundsHitMainTargetPtr, anim);
 
@@ -3707,13 +3707,13 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
 // 0x423714
 static int correctAttackForPerks(Attack* attack)
 {
-    if (weaponGetPerk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
+    if (item_w_perk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
         int difficulty = critterGetStat(attack->attacker, STAT_STRENGTH) - 8;
         int chance = randomBetween(1, 100);
         if (chance <= difficulty) {
             Object* weapon = NULL;
             if (attack->defender != gDude) {
-                weapon = critterGetWeaponForHitMode(attack->defender, HIT_MODE_RIGHT_WEAPON_PRIMARY);
+                weapon = item_hit_with(attack->defender, HIT_MODE_RIGHT_WEAPON_PRIMARY);
             }
 
             if (!(attackFindInvalidFlags(attack->defender, weapon) & 1)) {
@@ -3728,18 +3728,18 @@ static int correctAttackForPerks(Attack* attack)
 // 0x42378C
 static int compute_attack(Attack* attack)
 {
-    int range = _item_w_range(attack->attacker, attack->hitMode);
+    int range = item_w_range(attack->attacker, attack->hitMode);
     int distance = objectGetDistanceBetween(attack->attacker, attack->defender);
 
     if (range < distance) {
         return -1;
     }
 
-    int anim = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
+    int anim = item_w_anim(attack->attacker, attack->hitMode);
     int accuracy = determine_to_hit_func(attack->attacker, attack->attacker->tile, attack->defender, attack->defenderHitLocation, attack->hitMode, 1);
 
     bool isGrenade = false;
-    int damageType = weaponGetDamageType(attack->attacker, attack->weapon);
+    int damageType = item_w_damage_type(attack->attacker, attack->weapon);
     if (anim == ANIM_THROW_ANIM && (damageType == DAMAGE_TYPE_EXPLOSION || damageType == DAMAGE_TYPE_PLASMA || damageType == DAMAGE_TYPE_EMP)) {
         isGrenade = true;
     }
@@ -3748,7 +3748,7 @@ static int compute_attack(Attack* attack)
         attack->defenderHitLocation = HIT_LOCATION_TORSO;
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
+    int attackType = item_w_subtype(attack->weapon, attack->hitMode);
     int roundsHitMainTarget = 1;
     int damageMultiplier = 2;
     int roundsSpent = 1;
@@ -3807,12 +3807,12 @@ static int compute_attack(Attack* attack)
             }
         }
     } else {
-        if (ammoGetCapacity(attack->weapon) > 0) {
+        if (item_w_max_ammo(attack->weapon) > 0) {
             attack->ammoQuantity = 1;
         }
     }
 
-    if (_item_w_compute_ammo_cost(attack->weapon, &(attack->ammoQuantity)) == -1) {
+    if (item_w_compute_ammo_cost(attack->weapon, &(attack->ammoQuantity)) == -1) {
         return -1;
     }
 
@@ -3929,9 +3929,9 @@ void compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
             }
         } else {
             v22++;
-            if (isGrenade && _item_w_grenade_dmg_radius(attack->weapon) < v22) {
+            if (isGrenade && item_w_grenade_dmg_radius(attack->weapon) < v22) {
                 v5 = -1;
-            } else if (isGrenade || _item_w_rocket_dmg_radius(attack->weapon) >= v22) {
+            } else if (isGrenade || item_w_rocket_dmg_radius(attack->weapon) >= v22) {
                 v5 = tileGetTileInDirection(v19, ROTATION_NE, 1);
             } else {
                 v5 = -1;
@@ -4042,13 +4042,13 @@ static int attack_crit_success(Attack* attack)
         do_random_cripple(&(attack->defenderFlags));
     }
 
-    if (weaponGetPerk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
+    if (item_w_perk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
         attack->defenderFlags |= DAM_KNOCKED_OUT;
     }
 
     Object* weapon = NULL;
     if (defender != gDude) {
-        weapon = critterGetWeaponForHitMode(defender, HIT_MODE_RIGHT_WEAPON_PRIMARY);
+        weapon = item_hit_with(defender, HIT_MODE_RIGHT_WEAPON_PRIMARY);
     }
 
     int flags = attackFindInvalidFlags(defender, weapon);
@@ -4066,7 +4066,7 @@ static int attackFindInvalidFlags(Object* critter, Object* item)
         flags |= DAM_DROP;
     }
 
-    if (item != NULL && weaponIsNatural(item)) {
+    if (item != NULL && item_is_hidden(item)) {
         flags |= DAM_DROP;
     }
 
@@ -4089,8 +4089,8 @@ static int attack_crit_failure(Attack* attack)
         }
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode);
-    int criticalFailureTableIndex = weaponGetCriticalFailureType(attack->weapon);
+    int attackType = item_w_subtype(attack->weapon, attack->hitMode);
+    int criticalFailureTableIndex = item_w_crit_fail(attack->weapon);
     if (criticalFailureTableIndex == -1) {
         criticalFailureTableIndex = 0;
     }
@@ -4133,7 +4133,7 @@ static int attack_crit_failure(Attack* attack)
 
     if ((attack->attackerFlags & DAM_LOSE_AMMO) != 0) {
         if (attackType == ATTACK_TYPE_RANGED) {
-            attack->ammoQuantity = ammoGetQuantity(attack->weapon);
+            attack->ammoQuantity = item_w_curr_ammo(attack->weapon);
         } else {
             attack->attackerFlags &= ~DAM_LOSE_AMMO;
         }
@@ -4208,7 +4208,7 @@ int determine_to_hit_from_tile(Object* a1, int tile, Object* a3, int hitLocation
 // 0x4243A8
 static int determine_to_hit_func(Object* attacker, int tile, Object* defender, int hitLocation, int hitMode, int a6)
 {
-    Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);
+    Object* weapon = item_hit_with(attacker, hitMode);
 
     bool targetIsCritter = defender != NULL
         ? FID_TYPE(defender->fid) == OBJ_TYPE_CRITTER
@@ -4220,18 +4220,18 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
     if (weapon == NULL || hitMode == HIT_MODE_PUNCH || hitMode == HIT_MODE_KICK || (hitMode >= FIRST_ADVANCED_UNARMED_HIT_MODE && hitMode <= LAST_ADVANCED_UNARMED_HIT_MODE)) {
         accuracy = skillGetValue(attacker, SKILL_UNARMED);
     } else {
-        accuracy = _item_w_skill_level(attacker, hitMode);
+        accuracy = item_w_skill_level(attacker, hitMode);
 
         int modifier = 0;
 
-        int attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
+        int attackType = item_w_subtype(weapon, hitMode);
         if (attackType == ATTACK_TYPE_RANGED || attackType == ATTACK_TYPE_THROW) {
             isRangedWeapon = true;
 
             int v29 = 0;
             int v25 = 0;
 
-            int weaponPerk = weaponGetPerk(weapon);
+            int weaponPerk = item_w_perk(weapon);
             switch (weaponPerk) {
             case PERK_WEAPON_LONG_RANGE:
                 v29 = 4;
@@ -4295,14 +4295,14 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
         }
 
         if (attacker == gDude && traitIsSelected(TRAIT_ONE_HANDER)) {
-            if (weaponIsTwoHanded(weapon)) {
+            if (item_w_is_2handed(weapon)) {
                 accuracy -= 40;
             } else {
                 accuracy += 20;
             }
         }
 
-        int minStrength = weaponGetMinStrengthRequired(weapon);
+        int minStrength = item_w_min_st(weapon);
         modifier = minStrength - critterGetStat(attacker, STAT_STRENGTH);
         if (attacker == gDude && perkGetRank(gDude, PERK_WEAPON_HANDLING) != 0) {
             modifier -= 3;
@@ -4312,14 +4312,14 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
             accuracy -= 20 * modifier;
         }
 
-        if (weaponGetPerk(weapon) == PERK_WEAPON_ACCURATE) {
+        if (item_w_perk(weapon) == PERK_WEAPON_ACCURATE) {
             accuracy += 20;
         }
     }
 
     if (targetIsCritter && defender != NULL) {
         int armorClass = critterGetStat(defender, STAT_ARMOR_CLASS);
-        armorClass += weaponGetAmmoArmorClassModifier(weapon);
+        armorClass += item_w_ac_adjust(weapon);
         if (armorClass < 0) {
             armorClass = 0;
         }
@@ -4341,7 +4341,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
         int lightIntensity;
         if (defender != NULL) {
             lightIntensity = objectGetLightIntensity(defender);
-            if (weaponGetPerk(weapon) == PERK_WEAPON_NIGHT_SIGHT) {
+            if (item_w_perk(weapon) == PERK_WEAPON_NIGHT_SIGHT) {
                 lightIntensity = 65536;
             }
         } else {
@@ -4418,7 +4418,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         return;
     }
 
-    int damageType = weaponGetDamageType(attack->attacker, attack->weapon);
+    int damageType = item_w_damage_type(attack->attacker, attack->weapon);
     int damageThreshold = critterGetStat(critter, STAT_DAMAGE_THRESHOLD + damageType);
     int damageResistance = critterGetStat(critter, STAT_DAMAGE_RESISTANCE + damageType);
 
@@ -4426,7 +4426,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         damageThreshold = 20 * damageThreshold / 100;
         damageResistance = 20 * damageResistance / 100;
     } else {
-        if (weaponGetPerk(attack->weapon) == PERK_WEAPON_PENETRATE
+        if (item_w_perk(attack->weapon) == PERK_WEAPON_PENETRATE
             || attack->hitMode == HIT_MODE_PALM_STRIKE
             || attack->hitMode == HIT_MODE_PIERCING_STRIKE
             || attack->hitMode == HIT_MODE_HOOK_KICK
@@ -4440,7 +4440,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
     }
 
     int damageBonus;
-    if (attack->attacker == gDude && weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode) == ATTACK_TYPE_RANGED) {
+    if (attack->attacker == gDude && item_w_subtype(attack->weapon, attack->hitMode) == ATTACK_TYPE_RANGED) {
         damageBonus = 2 * perkGetRank(gDude, PERK_BONUS_RANGED_DAMAGE);
     } else {
         damageBonus = 0;
@@ -4461,18 +4461,18 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         }
     }
 
-    damageResistance += weaponGetAmmoDamageResistanceModifier(attack->weapon);
+    damageResistance += item_w_dr_adjust(attack->weapon);
     if (damageResistance > 100) {
         damageResistance = 100;
     } else if (damageResistance < 0) {
         damageResistance = 0;
     }
 
-    int damageMultiplier = bonusDamageMultiplier * weaponGetAmmoDamageMultiplier(attack->weapon);
-    int damageDivisor = weaponGetAmmoDamageDivisor(attack->weapon);
+    int damageMultiplier = bonusDamageMultiplier * item_w_dam_mult(attack->weapon);
+    int damageDivisor = item_w_dam_div(attack->weapon);
 
     for (int index = 0; index < ammoQuantity; index++) {
-        int damage = weaponGetMeleeDamage(attack->attacker, attack->hitMode);
+        int damage = item_w_damage(attack->attacker, attack->hitMode);
 
         damage += damageBonus;
 
@@ -4508,7 +4508,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         }
 
         if (perkGetRank(attack->attacker, PERK_PYROMANIAC) != 0) {
-            if (weaponGetDamageType(attack->attacker, attack->weapon) == DAMAGE_TYPE_FIRE) {
+            if (item_w_damage_type(attack->attacker, attack->weapon) == DAMAGE_TYPE_FIRE) {
                 *damagePtr += 5;
             }
         }
@@ -4516,7 +4516,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
 
     if (knockbackDistancePtr != NULL
         && (critter->flags & OBJECT_MULTIHEX) == 0
-        && (damageType == DAMAGE_TYPE_EXPLOSION || attack->weapon == NULL || weaponGetAttackTypeForHitMode(attack->weapon, attack->hitMode) == ATTACK_TYPE_MELEE)
+        && (damageType == DAMAGE_TYPE_EXPLOSION || attack->weapon == NULL || item_w_subtype(attack->weapon, attack->hitMode) == ATTACK_TYPE_MELEE)
         && PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER
         && critter_flag_check(critter->pid, CRITTER_NO_KNOCKBACK) == 0) {
         bool shouldKnockback = true;
@@ -4532,7 +4532,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         }
 
         if (shouldKnockback) {
-            int knockbackDistanceDivisor = weaponGetPerk(attack->weapon) == PERK_WEAPON_KNOCKBACK ? 5 : 10;
+            int knockbackDistanceDivisor = item_w_perk(attack->weapon) == PERK_WEAPON_KNOCKBACK ? 5 : 10;
 
             *knockbackDistancePtr = *damagePtr / knockbackDistanceDivisor;
 
@@ -4736,7 +4736,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
     if ((a1->data.critter.combat.results & DAM_DEAD) != 0) {
         scriptSetObjects(a1->sid, a1->data.critter.combat.whoHitMe, NULL);
         scriptExecProc(a1->sid, SCRIPT_PROC_DESTROY);
-        _item_destroy_all_hidden(a1);
+        item_destroy_all_hidden(a1);
 
         if (a1 != gDude) {
             Object* whoHitMe = a1->data.critter.combat.whoHitMe;
@@ -4771,8 +4771,8 @@ void combat_display(Attack* attack)
     MessageListItem messageListItem;
 
     if (attack->attacker == gDude) {
-        Object* weapon = critterGetWeaponForHitMode(attack->attacker, attack->hitMode);
-        int strengthRequired = weaponGetMinStrengthRequired(weapon);
+        Object* weapon = item_hit_with(attack->attacker, attack->hitMode);
+        int strengthRequired = item_w_min_st(weapon);
 
         if (perkGetRank(attack->attacker, PERK_WEAPON_HANDLING) != 0) {
             strengthRequired -= 3;
@@ -5227,11 +5227,11 @@ void combat_anim_finished()
     if (combat_cleanup_enabled) {
         combat_cleanup_enabled = false;
 
-        Object* weapon = critterGetWeaponForHitMode(main_ctd.attacker, main_ctd.hitMode);
+        Object* weapon = item_hit_with(main_ctd.attacker, main_ctd.hitMode);
         if (weapon != NULL) {
-            if (ammoGetCapacity(weapon) > 0) {
-                int ammoQuantity = ammoGetQuantity(weapon);
-                ammoSetQuantity(weapon, ammoQuantity - main_ctd.ammoQuantity);
+            if (item_w_max_ammo(weapon) > 0) {
+                int ammoQuantity = item_w_curr_ammo(weapon);
+                item_w_set_curr_ammo(weapon, ammoQuantity - main_ctd.ammoQuantity);
 
                 if (main_ctd.attacker == gDude) {
                     intface_update_ammo_lights();
@@ -5518,7 +5518,7 @@ int combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool 
         }
     }
 
-    Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);
+    Object* weapon = item_hit_with(attacker, hitMode);
     if (weapon != NULL) {
         if ((attacker->data.critter.combat.results & DAM_CRIP_ARM_LEFT) != 0
             && (attacker->data.critter.combat.results & DAM_CRIP_ARM_RIGHT) != 0) {
@@ -5526,31 +5526,31 @@ int combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool 
         }
 
         if ((attacker->data.critter.combat.results & DAM_CRIP_ARM_ANY) != 0) {
-            if (weaponIsTwoHanded(weapon)) {
+            if (item_w_is_2handed(weapon)) {
                 return COMBAT_BAD_SHOT_ARM_CRIPPLED;
             }
         }
     }
 
-    if (_item_w_mp_cost(attacker, hitMode, aiming) > attacker->data.critter.combat.ap) {
+    if (item_w_mp_cost(attacker, hitMode, aiming) > attacker->data.critter.combat.ap) {
         return COMBAT_BAD_SHOT_NOT_ENOUGH_AP;
     }
 
-    if (_item_w_range(attacker, hitMode) < range) {
+    if (item_w_range(attacker, hitMode) < range) {
         return COMBAT_BAD_SHOT_OUT_OF_RANGE;
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(weapon, hitMode);
+    int attackType = item_w_subtype(weapon, hitMode);
 
-    if (ammoGetCapacity(weapon) > 0) {
-        if (ammoGetQuantity(weapon) == 0) {
+    if (item_w_max_ammo(weapon) > 0) {
+        if (item_w_curr_ammo(weapon) == 0) {
             return COMBAT_BAD_SHOT_NO_AMMO;
         }
     }
 
     if (attackType == ATTACK_TYPE_RANGED
         || attackType == ATTACK_TYPE_THROW
-        || _item_w_range(attacker, hitMode) > 1) {
+        || item_w_range(attacker, hitMode) > 1) {
         if (combat_is_shot_blocked(attacker, attacker->tile, tile, defender, NULL)) {
             return COMBAT_BAD_SHOT_AIM_BLOCKED;
         }
@@ -5602,7 +5602,7 @@ void combat_attack_this(Object* a1)
     int rc = combat_check_bad_shot(gDude, a1, hitMode, aiming);
     switch (rc) {
     case COMBAT_BAD_SHOT_NO_AMMO:
-        item = critterGetWeaponForHitMode(gDude, hitMode);
+        item = item_hit_with(gDude, hitMode);
         messageListItem.num = 101; // Out of ammo.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
@@ -5618,10 +5618,10 @@ void combat_attack_this(Object* a1)
         }
         return;
     case COMBAT_BAD_SHOT_NOT_ENOUGH_AP:
-        item = critterGetWeaponForHitMode(gDude, hitMode);
+        item = item_hit_with(gDude, hitMode);
         messageListItem.num = 100; // You need %d action points.
         if (messageListGetItem(&combat_message_file, &messageListItem)) {
-            int actionPointsRequired = _item_w_mp_cost(gDude, hitMode, aiming);
+            int actionPointsRequired = item_w_mp_cost(gDude, hitMode, aiming);
             sprintf(formattedText, messageListItem.text, actionPointsRequired);
             display_print(formattedText);
         }
@@ -5821,7 +5821,7 @@ int combat_player_knocked_out_by()
 // 0x426DB8
 int combat_explode_scenery(Object* a1, Object* a2)
 {
-    _scr_explode_scenery(a1, a1->tile, _item_w_rocket_dmg_radius(NULL), a1->elevation);
+    _scr_explode_scenery(a1, a1->tile, item_w_rocket_dmg_radius(NULL), a1->elevation);
     return 0;
 }
 

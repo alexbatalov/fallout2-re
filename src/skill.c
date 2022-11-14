@@ -1036,7 +1036,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 
     if (a1 != gDude || !perkHasRank(a1, PERK_PICKPOCKET)) {
         // -4% per item size
-        stealModifier -= 4 * itemGetSize(item);
+        stealModifier -= 4 * item_size(item);
 
         if (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER) {
             // check facing: -25% if face to face

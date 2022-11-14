@@ -421,10 +421,10 @@ void automap(bool isInGame, bool isUsingScanner)
                     }
                 }
 
-                if (scanner != NULL && miscItemGetCharges(scanner) > 0) {
+                if (scanner != NULL && item_m_curr_charges(scanner) > 0) {
                     needsRefresh = true;
                     autoflags |= AUTOMAP_WITH_SCANNER;
-                    miscItemConsumeCharge(scanner);
+                    item_m_dec_charges(scanner);
                 } else {
                     gsound_play_sfx_file("iisxxxx1");
 

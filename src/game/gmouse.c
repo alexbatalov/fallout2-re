@@ -1019,7 +1019,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                             ? HIT_MODE_RIGHT_WEAPON_PRIMARY
                             : HIT_MODE_LEFT_WEAPON_PRIMARY;
 
-                        int actionPointsRequired = _item_mp_cost(gDude, hitMode, false);
+                        int actionPointsRequired = item_mp_cost(gDude, hitMode, false);
                         if (actionPointsRequired <= gDude->data.critter.combat.ap) {
                             if (action_use_an_item_on_object(gDude, object, weapon) != -1) {
                                 int actionPoints = gDude->data.critter.combat.ap;
@@ -1066,7 +1066,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             case OBJ_TYPE_ITEM:
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_USE;
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
-                if (itemGetType(v16) == ITEM_TYPE_CONTAINER) {
+                if (item_get_type(v16) == ITEM_TYPE_CONTAINER) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_INVENTORY;
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_USE_SKILL;
                 }
@@ -1432,7 +1432,7 @@ void gmouse_3d_toggle_mode()
     if (isInCombat()) {
         Object* item;
         if (intface_get_current_item(&item) == 0) {
-            if (item != NULL && itemGetType(item) != ITEM_TYPE_WEAPON && mode == GAME_MOUSE_MODE_CROSSHAIR) {
+            if (item != NULL && item_get_type(item) != ITEM_TYPE_WEAPON && mode == GAME_MOUSE_MODE_CROSSHAIR) {
                 mode = GAME_MOUSE_MODE_MOVE;
             }
         }

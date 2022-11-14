@@ -183,7 +183,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
     int normalViolenceLevelDamageThreshold = 15;
     int maximumBloodViolenceLevelDamageThreshold = 45;
 
-    int damageType = weaponGetDamageType(attacker, weapon);
+    int damageType = item_w_damage_type(attacker, weapon);
 
     if (weapon != NULL && weapon->pid == PROTO_ID_MOLOTOV_COCKTAIL) {
         normalViolenceLevelDamageThreshold = 5;
@@ -197,7 +197,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
         maximumBloodViolenceLevelDamageThreshold = 1;
     }
 
-    if (weapon != NULL && weaponGetPerk(weapon) == PERK_WEAPON_FLAMEBOY) {
+    if (weapon != NULL && item_w_perk(weapon) == PERK_WEAPON_FLAMEBOY) {
         normalViolenceLevelDamageThreshold /= 3;
         maximumBloodViolenceLevelDamageThreshold /= 3;
     }
@@ -460,7 +460,7 @@ static int show_death(Object* obj, int anim)
     }
 
     if (anim >= 30 && anim <= 31 && critter_flag_check(obj->pid, CRITTER_SPECIAL_DEATH) == 0 && critter_flag_check(obj->pid, CRITTER_NO_DROP) == 0) {
-        _item_drop_all(obj, obj->tile);
+        item_drop_all(obj, obj->tile);
     }
 
     tileWindowRefreshRect(&v8, obj->elevation);
@@ -488,7 +488,7 @@ int show_damage_target(Attack* attack)
             frontHit,
             attack->defenderKnockback,
             tileGetRotationTo(attack->attacker->tile, attack->defender->tile),
-            critterGetAnimationForHitMode(attack->attacker, attack->hitMode),
+            item_w_anim(attack->attacker, attack->hitMode),
             attack->attacker,
             0);
         register_end();
@@ -515,7 +515,7 @@ int show_damage_extras(Attack* attack)
             v6 = delta != 0 && delta != 1 && delta != 5;
             register_begin(ANIMATION_REQUEST_RESERVED);
             register_priority(1);
-            v8 = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
+            v8 = item_w_anim(attack->attacker, attack->hitMode);
             v9 = tileGetRotationTo(attack->attacker->tile, obj->tile);
             show_damage_to_object(obj, attack->extrasDamage[index], attack->extrasFlags[index], attack->weapon, v6, attack->extrasKnockback[index], v9, v8, attack->attacker, 0);
             register_end();
@@ -563,13 +563,13 @@ void show_damage(Attack* attack, int a2, int a3)
                     v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
                     show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, a2, attack->attacker, a3);
                 } else {
-                    v17 = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
+                    v17 = item_w_anim(attack->attacker, attack->hitMode);
                     v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
                     show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, v17, attack->attacker, a3);
                 }
             } else {
                 tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
-                critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
+                item_w_anim(attack->attacker, attack->hitMode);
             }
         }
 
@@ -596,7 +596,7 @@ int action_attack(Attack* attack)
         }
     }
 
-    int anim = critterGetAnimationForHitMode(attack->attacker, attack->hitMode);
+    int anim = item_w_anim(attack->attacker, attack->hitMode);
     if (anim < ANIM_FIRE_SINGLE && anim != ANIM_THROW_ANIM) {
         return action_melee(attack, anim);
     } else {
@@ -744,9 +744,9 @@ static int action_ranged(Attack* attack, int anim)
     int actionFrame = (art != NULL) ? art_frame_action_frame(art) : 0;
     art_ptr_unlock(artHandle);
 
-    _item_w_range(attack->attacker, attack->hitMode);
+    item_w_range(attack->attacker, attack->hitMode);
 
-    int damageType = weaponGetDamageType(attack->attacker, attack->weapon);
+    int damageType = item_w_damage_type(attack->attacker, attack->weapon);
 
     tileGetTileInDirection(attack->attacker->tile, attack->attacker->rotation, 1);
 
@@ -777,7 +777,7 @@ static int action_ranged(Attack* attack, int anim)
         if ((attack->attackerFlags & DAM_HIT) != 0 || (attack->attackerFlags & DAM_CRITICAL) == 0) {
             bool l56 = false;
 
-            int projectilePid = weaponGetProjectilePid(weapon);
+            int projectilePid = item_w_proj_pid(weapon);
             Proto* projectileProto;
             if (protoGetProto(projectilePid, &projectileProto) != -1 && projectileProto->fid != -1) {
                 if (anim == ANIM_THROW_ANIM) {
@@ -789,8 +789,8 @@ static int action_ranged(Attack* attack, int anim)
                     int rightItemAction;
                     intface_get_item_states(&leftItemAction, &rightItemAction);
 
-                    itemRemove(attack->attacker, weapon, 1);
-                    v50 = _item_replace(attack->attacker, weapon, weaponFlags & OBJECT_IN_ANY_HAND);
+                    item_remove_mult(attack->attacker, weapon, 1);
+                    v50 = item_replace(attack->attacker, weapon, weaponFlags & OBJECT_IN_ANY_HAND);
                     objectSetFid(projectile, projectileProto->fid, NULL);
                     cAIPrepWeaponItem(attack->attacker, weapon);
 
@@ -942,7 +942,7 @@ static int action_ranged(Attack* attack, int anim)
         if (anim == ANIM_THROW_ANIM) {
             bool l9 = false;
             if (v50 != NULL) {
-                int v38 = weaponGetAnimationCode(v50);
+                int v38 = item_w_anim_code(v50);
                 if (v38 != 0) {
                     register_object_take_out(attack->attacker, v38, -1);
                     l9 = true;

@@ -3045,7 +3045,7 @@ int check_move(int* a1)
                 bool aiming;
                 intface_get_attack(&hitMode, &aiming);
 
-                int v6 = _item_mp_cost(gDude, hitMode, aiming);
+                int v6 = item_mp_cost(gDude, hitMode, aiming);
                 *a1 = *a1 - v6;
                 if (*a1 <= 0) {
                     return -1;

@@ -600,7 +600,7 @@ void _object_fix_weapon_ammo(Object* obj)
     }
 
     int charges;
-    if (itemGetType(obj) == ITEM_TYPE_WEAPON) {
+    if (item_get_type(obj) == ITEM_TYPE_WEAPON) {
         int ammoTypePid = obj->data.item.weapon.ammoTypePid;
         if (ammoTypePid == 0xCCCCCCCC || ammoTypePid == -1) {
             obj->data.item.weapon.ammoTypePid = proto->item.data.weapon.ammoTypePid;
@@ -1052,7 +1052,7 @@ int _obj_copy(Object** a1, Object* a2)
             return -1;
         }
 
-        if (itemAdd(objectListNode->obj, newItem, oldInventoryItem->quantity) == 1) {
+        if (item_add_force(objectListNode->obj, newItem, oldInventoryItem->quantity) == 1) {
             // TODO: Probably leaking object allocated with objectAllocate.
             // NOTE: Uninline.
             objectListNodeDestroy(&objectListNode);
@@ -3106,7 +3106,7 @@ char* objectGetName(Object* obj)
     int objectType = FID_TYPE(obj->fid);
     switch (objectType) {
     case OBJ_TYPE_ITEM:
-        return itemGetName(obj);
+        return item_name(obj);
     case OBJ_TYPE_CRITTER:
         return critter_name(obj);
     default:
@@ -3118,7 +3118,7 @@ char* objectGetName(Object* obj)
 char* objectGetDescription(Object* obj)
 {
     if (FID_TYPE(obj->fid) == OBJ_TYPE_ITEM) {
-        return itemGetDescription(obj);
+        return item_description(obj);
     }
 
     return protoGetDescription(obj->pid);

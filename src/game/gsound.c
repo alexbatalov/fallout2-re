@@ -1485,7 +1485,7 @@ char* gsnd_build_weapon_sfx_name(int effectType, Object* weapon, int hitMode, Ob
     char materialCode;
     Proto* proto;
 
-    weaponSoundCode = weaponGetSoundId(weapon);
+    weaponSoundCode = item_w_sound_id(weapon);
     effectTypeCode = snd_lookup_weapon_type[effectType];
 
     if (effectType != WEAPON_SOUND_EFFECT_READY
@@ -1501,7 +1501,7 @@ char* gsnd_build_weapon_sfx_name(int effectType, Object* weapon, int hitMode, Ob
         v6 = 1;
     }
 
-    if (effectTypeCode != 'H' || target == NULL || weaponIsGrenade(weapon)) {
+    if (effectTypeCode != 'H' || target == NULL || item_w_is_grenade(weapon)) {
         materialCode = 'X';
     } else {
         const int type = FID_TYPE(target->fid);

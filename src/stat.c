@@ -173,7 +173,7 @@ int critterGetStat(Object* critter, int stat)
             break;
         case STAT_MAXIMUM_ACTION_POINTS:
             if (1) {
-                int remainingCarryWeight = critterGetStat(critter, STAT_CARRY_WEIGHT) - objectGetInventoryWeight(critter);
+                int remainingCarryWeight = critterGetStat(critter, STAT_CARRY_WEIGHT) - item_total_weight(critter);
                 if (remainingCarryWeight < 0) {
                     value -= -remainingCarryWeight / 40 + 1;
                 }
@@ -191,8 +191,8 @@ int critterGetStat(Object* critter, int stat)
 
                             Object* item2 = inven_right_hand(gDude);
                             if (item2 != NULL) {
-                                if (itemGetType(item2) == ITEM_TYPE_WEAPON) {
-                                    if (weaponGetAnimationCode(item2) != WEAPON_ANIMATION_NONE) {
+                                if (item_get_type(item2) == ITEM_TYPE_WEAPON) {
+                                    if (item_w_anim_code(item2) != WEAPON_ANIMATION_NONE) {
                                         hasWeapon = true;
                                     }
                                 }
@@ -201,8 +201,8 @@ int critterGetStat(Object* critter, int stat)
                             if (!hasWeapon) {
                                 Object* item1 = inven_left_hand(gDude);
                                 if (item1 != NULL) {
-                                    if (itemGetType(item1) == ITEM_TYPE_WEAPON) {
-                                        if (weaponGetAnimationCode(item1) != WEAPON_ANIMATION_NONE) {
+                                    if (item_get_type(item1) == ITEM_TYPE_WEAPON) {
+                                        if (item_w_anim_code(item1) != WEAPON_ANIMATION_NONE) {
                                             hasWeapon = true;
                                         }
                                     }

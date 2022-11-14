@@ -949,9 +949,9 @@ static int ai_check_drugs(Object* critter)
 
             int drugPid = drug->pid;
             if ((drugPid == PROTO_ID_STIMPACK || drugPid == PROTO_ID_SUPER_STIMPACK || drugPid == PROTO_ID_HEALING_POWDER)
-                && itemRemove(critter, drug, 1) == 0) {
-                if (_item_d_take_drug(critter, drug) == -1) {
-                    itemAdd(critter, drug, 1);
+                && item_remove_mult(critter, drug, 1) == 0) {
+                if (item_d_take_drug(critter, drug) == -1) {
+                    item_add_force(critter, drug, 1);
                 } else {
                     ai_magic_hands(critter, drug, 5000);
                     _obj_connect(drug, critter->tile, critter->elevation, NULL);
@@ -988,9 +988,9 @@ static int ai_check_drugs(Object* critter)
 
                 if (index < AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT) {
                     if (drugPid != PROTO_ID_STIMPACK && drugPid != PROTO_ID_SUPER_STIMPACK && drugPid != 273
-                        && itemRemove(critter, drug, 1) == 0) {
-                        if (_item_d_take_drug(critter, drug) == -1) {
-                            itemAdd(critter, drug, 1);
+                        && item_remove_mult(critter, drug, 1) == 0) {
+                        if (item_d_take_drug(critter, drug) == -1) {
+                            item_add_force(critter, drug, 1);
                         } else {
                             ai_magic_hands(critter, drug, 5000);
                             _obj_connect(drug, critter->tile, critter->elevation, NULL);
@@ -1029,9 +1029,9 @@ static int ai_check_drugs(Object* critter)
                 }
             }
 
-            if (v3 != NULL && itemRemove(critter, v3, 1) == 0) {
-                if (_item_d_take_drug(critter, v3) == -1) {
-                    itemAdd(critter, v3, 1);
+            if (v3 != NULL && item_remove_mult(critter, v3, 1) == 0) {
+                if (item_d_take_drug(critter, v3) == -1) {
+                    item_add_force(critter, v3, 1);
                 } else {
                     ai_magic_hands(critter, v3, 5000);
                     _obj_connect(v3, critter->tile, critter->elevation, NULL);
@@ -1626,15 +1626,15 @@ static int ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_am
             break;
         }
 
-        if (weaponCanBeReloadedWith(weapon_obj, ammo_obj)) {
+        if (item_w_can_reload(weapon_obj, ammo_obj)) {
             if (out_ammo_obj) {
                 *out_ammo_obj = ammo_obj;
             }
             return 1;
         }
 
-        if (weaponGetAnimationCode(weapon_obj)) {
-            if (_item_w_range(critter_obj, 2) < 3) {
+        if (item_w_anim_code(weapon_obj)) {
+            if (item_w_range(critter_obj, 2) < 3) {
                 inven_unwield(critter_obj, 1);
             }
         } else {
@@ -1695,21 +1695,21 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
     attackType2 = -1;
 
     if (weapon1 != NULL) {
-        attackType1 = weaponGetAttackTypeForHitMode(weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY);
-        if (weaponGetDamageMinMax(weapon1, &minDamage, &maxDamage) == -1) {
+        attackType1 = item_w_subtype(weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY);
+        if (item_w_damage_min_max(weapon1, &minDamage, &maxDamage) == -1) {
             return NULL;
         }
 
         avgDamage1 = (maxDamage - minDamage) / 2;
-        if (_item_w_area_damage_radius(weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
+        if (item_w_area_damage_radius(weapon1, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
             attack.weapon = weapon1;
-            compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon1), 1);
+            compute_explosion_on_extras(&attack, 0, item_w_is_grenade(weapon1), 1);
             avgDamage1 *= attack.extrasLength + 1;
         }
 
         // TODO: Probably an error, why it takes [weapon2], should likely use
         // [weapon1].
-        if (weaponGetPerk(weapon2) != -1) {
+        if (item_w_perk(weapon2) != -1) {
             avgDamage1 *= 5;
         }
 
@@ -1719,12 +1719,12 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
             }
         }
 
-        if (weaponIsNatural(weapon1)) {
+        if (item_is_hidden(weapon1)) {
             return weapon1;
         }
     } else {
         distance = objectGetDistanceBetween(attacker, defender);
-        if (_item_w_range(attacker, HIT_MODE_PUNCH) >= distance) {
+        if (item_w_range(attacker, HIT_MODE_PUNCH) >= distance) {
             attackType1 = ATTACK_TYPE_UNARMED;
         }
     }
@@ -1739,19 +1739,19 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
     }
 
     if (weapon2 != NULL) {
-        attackType2 = weaponGetAttackTypeForHitMode(weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY);
-        if (weaponGetDamageMinMax(weapon2, &minDamage, &maxDamage) == -1) {
+        attackType2 = item_w_subtype(weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY);
+        if (item_w_damage_min_max(weapon2, &minDamage, &maxDamage) == -1) {
             return NULL;
         }
 
         avgDamage2 = (maxDamage - minDamage) / 2;
-        if (_item_w_area_damage_radius(weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
+        if (item_w_area_damage_radius(weapon2, HIT_MODE_RIGHT_WEAPON_PRIMARY) > 0 && defender != NULL) {
             attack.weapon = weapon2;
-            compute_explosion_on_extras(&attack, 0, weaponIsGrenade(weapon2), 1);
+            compute_explosion_on_extras(&attack, 0, item_w_is_grenade(weapon2), 1);
             avgDamage2 *= attack.extrasLength + 1;
         }
 
-        if (weaponGetPerk(weapon2) != -1) {
+        if (item_w_perk(weapon2) != -1) {
             avgDamage2 *= 5;
         }
 
@@ -1761,7 +1761,7 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
             }
         }
 
-        if (weaponIsNatural(weapon2)) {
+        if (item_is_hidden(weapon2)) {
             return weapon2;
         }
     } else {
@@ -1769,7 +1769,7 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
             distance = objectGetDistanceBetween(attacker, weapon1);
         }
 
-        if (_item_w_range(attacker, HIT_MODE_PUNCH) >= distance) {
+        if (item_w_range(attacker, HIT_MODE_PUNCH) >= distance) {
             attackType2 = ATTACK_TYPE_UNARMED;
         }
     }
@@ -1789,7 +1789,7 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
         }
 
         if (abs(avgDamage2 - avgDamage1) <= 5) {
-            return itemGetCost(weapon2) > itemGetCost(weapon1) ? weapon2 : weapon1;
+            return item_cost(weapon2) > item_cost(weapon1) ? weapon2 : weapon1;
         }
 
         return avgDamage2 > avgDamage1 ? weapon2 : weapon1;
@@ -1819,25 +1819,25 @@ static bool ai_can_use_weapon(Object* critter, Object* weapon, int hitMode)
         return false;
     }
 
-    if ((damageFlags & DAM_CRIP_ARM_ANY) != 0 && weaponIsTwoHanded(weapon)) {
+    if ((damageFlags & DAM_CRIP_ARM_ANY) != 0 && item_w_is_2handed(weapon)) {
         return false;
     }
 
     int rotation = critter->rotation + 1;
-    int animationCode = weaponGetAnimationCode(weapon);
-    int v9 = weaponGetAnimationForHitMode(weapon, hitMode);
+    int animationCode = item_w_anim_code(weapon);
+    int v9 = item_w_anim_weap(weapon, hitMode);
     int fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, v9, animationCode, rotation);
     if (!art_exists(fid)) {
         return false;
     }
 
-    int skill = weaponGetSkillForHitMode(weapon, hitMode);
+    int skill = item_w_skill(weapon, hitMode);
     AiPacket* ai = ai_cap(critter);
     if (skillGetValue(critter, skill) < ai->min_to_hit) {
         return false;
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY);
+    int attackType = item_w_subtype(weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY);
     return caiHasWeapPrefType(ai, attackType) != 0;
 }
 
@@ -1865,7 +1865,7 @@ Object* ai_search_inven_weap(Object* critter, int a2, Object* a3)
         }
 
         if (a2) {
-            if (weaponGetActionPointCost1(weapon) > critter->data.critter.combat.ap) {
+            if (item_w_primary_mp_cost(weapon) > critter->data.critter.combat.ap) {
                 continue;
             }
         }
@@ -1874,8 +1874,8 @@ Object* ai_search_inven_weap(Object* critter, int a2, Object* a3)
             continue;
         }
 
-        if (weaponGetAttackTypeForHitMode(weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY) == ATTACK_TYPE_RANGED) {
-            if (ammoGetQuantity(weapon) == 0) {
+        if (item_w_subtype(weapon, HIT_MODE_RIGHT_WEAPON_PRIMARY) == ATTACK_TYPE_RANGED) {
+            if (item_w_curr_ammo(weapon) == 0) {
                 if (!ai_have_ammo(critter, weapon, NULL)) {
                     continue;
                 }
@@ -1902,11 +1902,11 @@ Object* ai_search_inven_armor(Object* critter)
     int armorScore = 0;
     Object* armor = inven_worn(critter);
     if (armor != NULL) {
-        armorScore = armorGetArmorClass(armor);
+        armorScore = item_ar_ac(armor);
 
         for (int damageType = 0; damageType < DAMAGE_TYPE_COUNT; damageType++) {
-            armorScore += armorGetDamageResistance(armor, damageType);
-            armorScore += armorGetDamageThreshold(armor, damageType);
+            armorScore += item_ar_dr(armor, damageType);
+            armorScore += item_ar_dt(armor, damageType);
         }
     } else {
         armorScore = 0;
@@ -1922,10 +1922,10 @@ Object* ai_search_inven_armor(Object* critter)
         }
 
         if (armor != candidate) {
-            int candidateScore = armorGetArmorClass(candidate);
+            int candidateScore = item_ar_ac(candidate);
             for (int damageType = 0; damageType < DAMAGE_TYPE_COUNT; damageType++) {
-                candidateScore += armorGetDamageResistance(candidate, damageType);
-                candidateScore += armorGetDamageThreshold(candidate, damageType);
+                candidateScore += item_ar_dr(candidate, damageType);
+                candidateScore += item_ar_dt(candidate, damageType);
             }
 
             if (candidateScore > armorScore) {
@@ -2023,7 +2023,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
             break;
         }
 
-        if (itemGetType(item) == itemType) {
+        if (item_get_type(item) == itemType) {
             switch (itemType) {
             case ITEM_TYPE_WEAPON:
                 if (ai_can_use_weapon(critter, item, HIT_MODE_RIGHT_WEAPON_PRIMARY)) {
@@ -2031,7 +2031,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
                 }
                 break;
             case ITEM_TYPE_AMMO:
-                if (weaponCanBeReloadedWith(item2, item)) {
+                if (item_w_can_reload(item2, item)) {
                     foundItem = item;
                 }
                 break;
@@ -2082,11 +2082,11 @@ static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
         return HIT_MODE_PUNCH;
     }
 
-    if (itemGetType(a2) != ITEM_TYPE_WEAPON) {
+    if (item_get_type(a2) != ITEM_TYPE_WEAPON) {
         return HIT_MODE_PUNCH;
     }
 
-    int attackType = weaponGetAttackTypeForHitMode(a2, HIT_MODE_RIGHT_WEAPON_SECONDARY);
+    int attackType = item_w_subtype(a2, HIT_MODE_RIGHT_WEAPON_SECONDARY);
     int intelligence = critterGetStat(a1, STAT_INTELLIGENCE);
     if (attackType == ATTACK_TYPE_NONE || !ai_can_use_weapon(a1, a2, HIT_MODE_RIGHT_WEAPON_SECONDARY)) {
         return HIT_MODE_RIGHT_WEAPON_PRIMARY;
@@ -2373,12 +2373,12 @@ static bool cai_attackWouldIntersect(Object* attacker, Object* defender, Object*
         intface_get_attack(&hitMode, &aiming);
     }
 
-    Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);
+    Object* weapon = item_hit_with(attacker, hitMode);
     if (weapon == NULL) {
         return false;
     }
 
-    if (_item_w_range(attacker, hitMode) < 1) {
+    if (item_w_range(attacker, hitMode) < 1) {
         return false;
     }
 
@@ -2406,7 +2406,7 @@ static int ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* 
     } else {
         Object* v8 = ai_search_environ(a1, ITEM_TYPE_WEAPON);
         if (v8 == NULL) {
-            if (_item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
+            if (item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
                 return 0;
             }
 
@@ -2423,7 +2423,7 @@ static int ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* 
     if (*weapon != NULL) {
         inven_wield(a1, *weapon, 1);
         combat_turn_run();
-        if (_item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
+        if (item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
             return 0;
         }
     }
@@ -2442,8 +2442,8 @@ static int ai_called_shot(Object* a1, Object* a2, int a3)
 
     v5 = 3;
 
-    if (_item_w_mp_cost(a1, a3, 1) <= a1->data.critter.combat.ap) {
-        if (_item_w_called_shot(a1, a3)) {
+    if (item_w_mp_cost(a1, a3, 1) <= a1->data.critter.combat.ap) {
+        if (item_w_called_shot(a1, a3)) {
             ai = ai_cap(a1);
             if (randomBetween(1, ai->called_freq) == 1) {
                 combat_difficulty = 1;
@@ -2505,7 +2505,7 @@ static int ai_try_attack(Object* a1, Object* a2)
     int v38 = 1;
 
     Object* weapon = inven_right_hand(a1);
-    if (weapon != NULL && itemGetType(weapon) != ITEM_TYPE_WEAPON) {
+    if (weapon != NULL && item_get_type(weapon) != ITEM_TYPE_WEAPON) {
         weapon = NULL;
     }
 
@@ -2538,7 +2538,7 @@ static int ai_try_attack(Object* a1, Object* a2)
         if (reason == COMBAT_BAD_SHOT_NO_AMMO) {
             // out of ammo
             if (ai_have_ammo(a1, weapon, &ammo)) {
-                int v9 = _item_w_reload(weapon, ammo);
+                int v9 = item_w_reload(weapon, ammo);
                 if (v9 == 0 && ammo != NULL) {
                     _obj_destroy(ammo);
                 }
@@ -2561,7 +2561,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                 if (ammo != NULL) {
                     ammo = ai_retrieve_object(a1, ammo);
                     if (ammo != NULL) {
-                        int v15 = _item_w_reload(weapon, ammo);
+                        int v15 = item_w_reload(weapon, ammo);
                         if (v15 == 0) {
                             _obj_destroy(ammo);
                         }
@@ -2683,11 +2683,11 @@ static int ai_try_attack(Object* a1, Object* a2)
                 }
 
                 v38 = 0;
-                if (ai_attack(a1, a2, hitMode) == -1 || _item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
+                if (ai_attack(a1, a2, hitMode) == -1 || item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
                     return -1;
                 }
             } else {
-                if (ai_attack(a1, a2, hitMode) == -1 || _item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
+                if (ai_attack(a1, a2, hitMode) == -1 || item_w_mp_cost(a1, hitMode, 0) > a1->data.critter.combat.ap) {
                     return -1;
                 }
             }
@@ -2723,9 +2723,9 @@ void cai_attempt_w_reload(Object* critter_obj, int a2)
         return;
     }
 
-    v5 = ammoGetQuantity(weapon_obj);
-    if (v5 < ammoGetCapacity(weapon_obj) && ai_have_ammo(critter_obj, weapon_obj, &ammo_obj)) {
-        v9 = _item_w_reload(weapon_obj, ammo_obj);
+    v5 = item_w_curr_ammo(weapon_obj);
+    if (v5 < item_w_max_ammo(weapon_obj) && ai_have_ammo(critter_obj, weapon_obj, &ammo_obj)) {
+        v9 = item_w_reload(weapon_obj, ammo_obj);
         if (v9 == 0) {
             _obj_destroy(ammo_obj);
         }
@@ -3205,7 +3205,7 @@ Object* combat_ai_random_target(Attack* attack)
     // Looks like this function does nothing because it's result is not used. I
     // suppose it was planned to use range as a condition below, but it was
     // later moved into 0x426614, but remained here.
-    _item_w_range(attack->attacker, attack->hitMode);
+    item_w_range(attack->attacker, attack->hitMode);
 
     Object* critter = NULL;
 
@@ -3260,12 +3260,12 @@ static int combatai_rating(Object* obj)
     melee_damage = critterGetStat(obj, STAT_MELEE_DAMAGE);
 
     item = inven_right_hand(obj);
-    if (item != NULL && itemGetType(item) == ITEM_TYPE_WEAPON && weaponGetDamageMinMax(item, &weapon_damage_min, &weapon_damage_max) != -1 && melee_damage < weapon_damage_max) {
+    if (item != NULL && item_get_type(item) == ITEM_TYPE_WEAPON && item_w_damage_min_max(item, &weapon_damage_min, &weapon_damage_max) != -1 && melee_damage < weapon_damage_max) {
         melee_damage = weapon_damage_max;
     }
 
     item = inven_left_hand(obj);
-    if (item != NULL && itemGetType(item) == ITEM_TYPE_WEAPON && weaponGetDamageMinMax(item, &weapon_damage_min, &weapon_damage_max) != -1 && melee_damage < weapon_damage_max) {
+    if (item != NULL && item_get_type(item) == ITEM_TYPE_WEAPON && item_w_damage_min_max(item, &weapon_damage_min, &weapon_damage_max) != -1 && melee_damage < weapon_damage_max) {
         melee_damage = weapon_damage_max;
     }
 

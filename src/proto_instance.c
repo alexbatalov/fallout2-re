@@ -275,7 +275,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
 
             Object* item2 = inven_right_hand(target);
-            if (item2 != NULL && itemGetType(item2) != ITEM_TYPE_WEAPON) {
+            if (item2 != NULL && item_get_type(item2) != ITEM_TYPE_WEAPON) {
                 item2 = NULL;
             }
 
@@ -287,7 +287,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             if (item2 != NULL) {
                 MessageListItem weaponMessageListItem;
 
-                if (ammoGetCaliber(item2) != 0) {
+                if (item_w_caliber(item2) != 0) {
                     weaponMessageListItem.num = 547; // and is wielding a %s with %d/%d shots of %s.
                 } else {
                     weaponMessageListItem.num = 546; // and is wielding a %s.
@@ -301,11 +301,11 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 char format[80];
                 sprintf(format, "%s%s", hpMessageListItem.text, weaponMessageListItem.text);
 
-                if (ammoGetCaliber(item2) != 0) {
-                    const int ammoTypePid = weaponGetAmmoTypePid(item2);
+                if (item_w_caliber(item2) != 0) {
+                    const int ammoTypePid = item_w_ammo_pid(item2);
                     const char* ammoName = protoGetName(ammoTypePid);
-                    const int ammoCapacity = ammoGetCapacity(item2);
-                    const int ammoQuantity = ammoGetQuantity(item2);
+                    const int ammoCapacity = item_w_max_ammo(item2);
+                    const int ammoQuantity = item_w_curr_ammo(item2);
                     const char* weaponName = objectGetName(item2);
                     const int maxiumHitPoints = critterGetStat(target, STAT_MAXIMUM_HIT_POINTS);
                     const int currentHitPoints = critterGetStat(target, STAT_CURRENT_HIT_POINTS);
@@ -456,9 +456,9 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             fn(formattedText);
         }
     } else if (type == OBJ_TYPE_ITEM) {
-        int itemType = itemGetType(target);
+        int itemType = item_get_type(target);
         if (itemType == ITEM_TYPE_WEAPON) {
-            if (ammoGetCaliber(target) != 0) {
+            if (item_w_caliber(target) != 0) {
                 MessageListItem weaponMessageListItem;
                 weaponMessageListItem.num = 526;
 
@@ -467,10 +467,10 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                     exit(1);
                 }
 
-                int ammoTypePid = weaponGetAmmoTypePid(target);
+                int ammoTypePid = item_w_ammo_pid(target);
                 const char* ammoName = protoGetName(ammoTypePid);
-                int ammoCapacity = ammoGetCapacity(target);
-                int ammoQuantity = ammoGetQuantity(target);
+                int ammoCapacity = item_w_max_ammo(target);
+                int ammoQuantity = item_w_curr_ammo(target);
                 sprintf(formattedText, weaponMessageListItem.text, ammoQuantity, ammoCapacity, ammoName);
                 fn(formattedText);
             }
@@ -485,7 +485,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             sprintf(formattedText,
                 ammoMessageListItem.text,
-                ammoGetArmorClassModifier(target));
+                item_a_ac_adjust(target));
             fn(formattedText);
 
             ammoMessageListItem.num++;
@@ -496,7 +496,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             sprintf(formattedText,
                 ammoMessageListItem.text,
-                ammoGetDamageResistanceModifier(target));
+                item_a_dr_adjust(target));
             fn(formattedText);
 
             ammoMessageListItem.num++;
@@ -507,8 +507,8 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             sprintf(formattedText,
                 ammoMessageListItem.text,
-                ammoGetDamageMultiplier(target),
-                ammoGetDamageDivisor(target));
+                item_a_dam_mult(target),
+                item_a_dam_div(target));
             fn(formattedText);
         }
     }
@@ -536,17 +536,17 @@ int _obj_pickup(Object* critter, Object* item)
     if (!overriden) {
         int rc;
         if (item->pid == PROTO_ID_MONEY) {
-            int amount = itemGetMoney(item);
+            int amount = item_caps_get_amount(item);
             if (amount <= 0) {
                 amount = 1;
             }
 
-            rc = itemAttemptAdd(critter, item, amount);
+            rc = item_add_mult(critter, item, amount);
             if (rc == 0) {
-                itemSetMoney(item, 0);
+                item_caps_set_amount(item, 0);
             }
         } else {
-            rc = itemAttemptAdd(critter, item, 1);
+            rc = item_add_mult(critter, item, 1);
         }
 
         if (rc == 0) {
@@ -603,7 +603,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
         }
     }
 
-    int rc = itemRemove(critter, item, 1);
+    int rc = item_remove_mult(critter, item, 1);
 
     if (v11 >= 2) {
         tileWindowRefreshRect(&updatedRect, critter->elevation);
@@ -938,8 +938,8 @@ int _obj_use_power_on_car(Object* item)
     }
 
     if (wmCarGasAmount() < CAR_FUEL_MAX) {
-        int energy = ammoGetQuantity(item) * energyDensity;
-        int capacity = ammoGetCapacity(item);
+        int energy = item_w_curr_ammo(item) * energyDensity;
+        int capacity = item_w_max_ammo(item);
 
         // NOTE: that function will never return -1
         if (wmCarFillGas(energy / capacity) == -1) {
@@ -998,7 +998,7 @@ int _protinst_use_item(Object* critter, Object* item)
     int rc;
     MessageListItem messageListItem;
 
-    switch (itemGetType(item)) {
+    switch (item_get_type(item)) {
     case ITEM_TYPE_DRUG:
         rc = -1;
         break;
@@ -1030,8 +1030,8 @@ int _protinst_use_item(Object* critter, Object* item)
         }
 
         // TODO: Not sure about these two conditions.
-        if (miscItemIsConsumable(item)) {
-            rc = _item_m_use_charged_item(critter, item);
+        if (item_m_uses_charges(item)) {
+            rc = item_m_use_charged_item(critter, item);
             if (rc == 0) {
                 break;
             }
@@ -1097,8 +1097,8 @@ int _obj_use_item(Object* a1, Object* a2)
         Object* root = objectGetOwner(a2);
         if (root != NULL) {
             int flags = a2->flags & OBJECT_IN_ANY_HAND;
-            itemRemove(root, a2, 1);
-            Object* v8 = _item_replace(root, a2, flags);
+            item_remove_mult(root, a2, 1);
+            Object* v8 = item_replace(root, a2, flags);
             if (root == gDude) {
                 int leftItemAction;
                 int rightItemAction;
@@ -1141,7 +1141,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
     MessageListItem messageListItem;
 
     int rc;
-    switch (itemGetType(item)) {
+    switch (item_get_type(item)) {
     case ITEM_TYPE_DRUG:
         if (PID_TYPE(a2->pid) != OBJ_TYPE_CRITTER) {
             if (a1 == gDude) {
@@ -1166,7 +1166,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
             return -1;
         }
 
-        rc = _item_d_take_drug(a2, item);
+        rc = item_d_take_drug(a2, item);
 
         if (a1 == gDude && a2 != gDude) {
             // TODO: Looks like there is bug in this branch, message 580 will never be shown,
@@ -1332,9 +1332,9 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
     if (rc == 1) {
         if (a1 != NULL) {
             int flags = a3->flags & OBJECT_IN_ANY_HAND;
-            itemRemove(a1, a3, 1);
+            item_remove_mult(a1, a3, 1);
 
-            Object* v7 = _item_replace(a1, a3, flags);
+            Object* v7 = item_replace(a1, a3, flags);
 
             int leftItemAction;
             int rightItemAction;

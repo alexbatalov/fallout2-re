@@ -396,7 +396,7 @@ int critter_adjust_rads(Object* obj, int amount)
         }
 
         if (geigerCounter != NULL) {
-            if (miscItemIsOn(geigerCounter)) {
+            if (item_m_on(geigerCounter)) {
                 if (amount > 5) {
                     // The geiger counter is clicking wildly.
                     messageListItem.num = 1009;
@@ -853,7 +853,7 @@ void critter_kill(Object* critter, int anim, bool a3)
     critterClearObj = critter;
     _queue_clear_type(EVENT_TYPE_DRUG, critterClearObjDrugs);
 
-    _item_destroy_all_hidden(critter);
+    item_destroy_all_hidden(critter);
 
     if (a3) {
         tileWindowRefreshRect(&updatedRect, elevation);
@@ -1359,7 +1359,7 @@ int critter_compute_ap_from_distance(Object* critter, int actionPoints)
 bool critterIsOverloaded(Object* critter)
 {
     int maxWeight = critterGetStat(critter, STAT_CARRY_WEIGHT);
-    int currentWeight = objectGetInventoryWeight(critter);
+    int currentWeight = item_total_weight(critter);
     return maxWeight < currentWeight;
 }
 

@@ -1850,7 +1850,7 @@ static void gdUpdateMula()
     int oldFont = fontGetCurrent();
     fontSetCurrent(101);
 
-    int caps = itemGetTotalCaps(gDude);
+    int caps = item_caps_total(gDude);
     char text[20];
     sprintf(text, "$%d", caps);
 
@@ -3293,16 +3293,16 @@ static void gdialog_barter_cleanup_tables()
     length = inventory->length;
     for (int index = 0; index < length; index++) {
         Object* item = inventory->items->item;
-        int quantity = _item_count(peon_table_obj, item);
-        _item_move_force(peon_table_obj, gDude, item, quantity);
+        int quantity = item_count(peon_table_obj, item);
+        item_move_force(peon_table_obj, gDude, item, quantity);
     }
 
     inventory = &(barterer_table_obj->data.inventory);
     length = inventory->length;
     for (int index = 0; index < length; index++) {
         Object* item = inventory->items->item;
-        int quantity = _item_count(barterer_table_obj, item);
-        _item_move_force(barterer_table_obj, dialog_target, item, quantity);
+        int quantity = item_count(barterer_table_obj, item);
+        item_move_force(barterer_table_obj, dialog_target, item, quantity);
     }
 
     if (barterer_temp_obj != NULL) {
@@ -3310,8 +3310,8 @@ static void gdialog_barter_cleanup_tables()
         length = inventory->length;
         for (int index = 0; index < length; index++) {
             Object* item = inventory->items->item;
-            int quantity = _item_count(barterer_temp_obj, item);
-            _item_move_force(barterer_temp_obj, dialog_target, item, quantity);
+            int quantity = item_count(barterer_temp_obj, item);
+            item_move_force(barterer_temp_obj, dialog_target, item, quantity);
         }
     }
 }
@@ -3544,13 +3544,13 @@ static void gdControlUpdateInfo()
 
     // Render item in right hand.
     Object* item2 = inven_right_hand(dialog_target);
-    text = item2 != NULL ? itemGetName(item2) : getmsg(&gProtoMessageList, &messageListItem, 10);
+    text = item2 != NULL ? item_name(item2) : getmsg(&gProtoMessageList, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render armor.
     Object* armor = inven_worn(dialog_target);
-    text = armor != NULL ? itemGetName(armor) : getmsg(&gProtoMessageList, &messageListItem, 10);
+    text = armor != NULL ? item_name(armor) : getmsg(&gProtoMessageList, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
@@ -3579,7 +3579,7 @@ static void gdControlUpdateInfo()
     fontDrawText(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     // Render weight summary.
-    int inventoryWeight = objectGetInventoryWeight(dialog_target);
+    int inventoryWeight = item_total_weight(dialog_target);
     int carryWeight = critterGetStat(dialog_target, STAT_CARRY_WEIGHT);
     sprintf(formattedText, "%d/%d ", inventoryWeight, carryWeight);
     fontDrawText(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsOverloaded(dialog_target) ? colorTable[31744] : colorTable[992]);
