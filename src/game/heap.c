@@ -89,6 +89,7 @@ static bool heap_build_moveable_list(Heap* heap, int* moveableExtentsLengthPtr, 
 static bool heap_sort_moveable_list(Heap* heap, size_t count);
 static int heap_qsort_compare_moveable(const void* a1, const void* a2);
 static bool heap_build_subblock_list(int extentIndex);
+static bool heap_sort_subblock_list(size_t count);
 
 // An array of pointers to free heap blocks.
 //
@@ -911,7 +912,8 @@ static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4)
         }
 
         // Sort moveable blocks by size (smallest -> largest)
-        qsort(heap_subblock_list, extent->moveableBlocksLength, sizeof(*heap_subblock_list), heap_qsort_compare_free);
+        // NOTE: Uninline.
+        heap_sort_subblock_list(extent->moveableBlocksLength);
 
         int reservedBlocksLength = 0;
 
@@ -1305,4 +1307,14 @@ static bool heap_build_subblock_list(int extentIndex)
     }
 
     return moveableBlockIndex == extent->moveableBlocksLength;
+}
+
+// NOTE: Inlined.
+//
+// 0x453F24
+static bool heap_sort_subblock_list(size_t count)
+{
+    qsort(heap_subblock_list, count, sizeof(*heap_subblock_list), heap_qsort_compare_free);
+
+    return true;
 }
