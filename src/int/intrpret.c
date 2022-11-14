@@ -12,7 +12,7 @@
 #include "debug.h"
 #include "int/export.h"
 #include "int/intlib.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 // The maximum number of opcodes.
 #define OPCODE_MAX_COUNT 342

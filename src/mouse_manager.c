@@ -6,7 +6,7 @@
 #include "int/datafile.h"
 #include "db.h"
 #include "debug.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 // 0x5195A8
 MouseManagerNameMangler* gMouseManagerNameMangler = mouseManagerNameManglerDefaultImpl;

@@ -5,7 +5,7 @@
 
 #include "debug.h"
 #include "int/intlib.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 static_assert(sizeof(Nevs) == 60, "wrong size");
 

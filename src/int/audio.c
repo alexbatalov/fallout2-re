@@ -6,7 +6,7 @@
 
 #include "db.h"
 #include "debug.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "sound.h"
 
 static bool defaultCompressionFunc(char* filePath);

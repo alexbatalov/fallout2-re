@@ -6,7 +6,7 @@
 
 #include "color.h"
 #include "db.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "text_font.h"
 
 // The maximum number of interface fonts.

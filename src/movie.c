@@ -7,7 +7,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "game/gconfig.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "movie_effect.h"
 #include "movie_lib.h"
 #include "sound.h"

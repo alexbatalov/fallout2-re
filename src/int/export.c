@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "int/intlib.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 typedef struct ExternalVariable {
     char name[32];

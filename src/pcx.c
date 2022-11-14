@@ -1,6 +1,6 @@
 #include "pcx.h"
 
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 // 0x519DC8
 unsigned char gPcxLastRunLength = 0;

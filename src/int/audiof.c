@@ -9,7 +9,7 @@
 #include <windows.h>
 
 #include "debug.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "sound.h"
 
 static_assert(sizeof(AudioFile) == 28, "wrong size");

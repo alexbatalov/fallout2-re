@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "debug.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 static_assert(sizeof(Region) == 140, "wrong size");
 

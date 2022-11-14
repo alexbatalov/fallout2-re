@@ -10,7 +10,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "int/intlib.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "mouse_manager.h"
 #include "movie.h"
 #include "text_font.h"

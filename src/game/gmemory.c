@@ -3,7 +3,7 @@
 #include "db.h"
 #include "dictionary.h"
 #include "memory.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 
 // NOTE: Unused.
 //

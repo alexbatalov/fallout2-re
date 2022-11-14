@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "core.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "movie.h"
 #include "text_font.h"
 #include "window_manager.h"

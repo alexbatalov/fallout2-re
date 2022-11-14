@@ -6,7 +6,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "geometry.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "sound.h"
 #include "text_font.h"
 #include "window.h"

@@ -6,7 +6,7 @@
 #include "debug.h"
 #include "int/dialog.h"
 #include "int/support/intextra.h"
-#include "memory_manager.h"
+#include "int/memdbg.h"
 #include "mouse_manager.h"
 #include "nevs.h"
 #include "select_file_list.h"
