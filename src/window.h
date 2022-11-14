@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "geometry.h"
-#include "interpreter.h"
+#include "int/intrpret.h"
 #include "region.h"
 #include "widget.h"
 #include "window_manager.h"

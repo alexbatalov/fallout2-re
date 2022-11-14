@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "interpreter.h"
+#include "int/intrpret.h"
 #include "obj_types.h"
 
 typedef enum ScriptError {

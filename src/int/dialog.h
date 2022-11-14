@@ -1,7 +1,7 @@
 #ifndef FALLOUT_INT_DIALOG_H_
 #define FALLOUT_INT_DIALOG_H_
 
-#include "interpreter.h"
+#include "int/intrpret.h"
 
 typedef void DialogWinDrawCallback(int win);
 

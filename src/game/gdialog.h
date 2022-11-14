@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/art.h"
-#include "interpreter.h"
+#include "int/intrpret.h"
 #include "obj_types.h"
 
 extern unsigned char* light_BlendTable;

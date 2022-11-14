@@ -1,7 +1,7 @@
 #ifndef FALLOUT_INT_EXPORT_H_
 #define FALLOUT_INT_EXPORT_H_
 
-#include "interpreter.h"
+#include "int/intrpret.h"
 
 int exportGetVariable(const char* identifier, opcode_t* typePtr, int* valuePtr);
 int exportStoreStringVariable(const char* identifier, const char* value);

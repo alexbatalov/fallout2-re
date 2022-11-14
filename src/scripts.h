@@ -5,7 +5,7 @@
 
 #include "game/combat_defs.h"
 #include "db.h"
-#include "interpreter.h"
+#include "int/intrpret.h"
 #include "message.h"
 #include "obj_types.h"
 
