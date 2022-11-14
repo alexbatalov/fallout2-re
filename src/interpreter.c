@@ -17,10 +17,6 @@
 // 0x50942C
 char _aCouldnTFindPro[] = "<couldn't find proc>";
 
-// sayTimeoutMsg
-// 0x519038
-int _TimeOut = 0;
-
 // 0x51903C
 int _Enabled = 1;
 
@@ -390,7 +386,7 @@ void _detachProgram(Program* program)
 void _purgeProgram(Program* program)
 {
     if (!program->exited) {
-        intLibRemoveProgramReferences(program);
+        removeProgramReferences(program);
         program->exited = true;
     }
 }
@@ -2875,7 +2871,7 @@ void opExit(Program* program)
     }
 
     if (!program->exited) {
-        intLibRemoveProgramReferences(program);
+        removeProgramReferences(program);
         program->exited = true;
     }
 }
@@ -3198,7 +3194,7 @@ void interpreterRegisterOpcodeHandlers()
     interpreterRegisterOpcode(OPCODE_START_CRITICAL, opEnterCriticalSection);
     interpreterRegisterOpcode(OPCODE_END_CRITICAL, opLeaveCriticalSection);
 
-    intLibInit();
+    initIntlib();
     initExport();
 }
 
@@ -3206,7 +3202,7 @@ void interpreterRegisterOpcodeHandlers()
 void _interpretClose()
 {
     exportClose();
-    intLibExit();
+    intlibClose();
 }
 
 // NOTE: Unused.
@@ -3679,7 +3675,7 @@ void _updatePrograms()
         curr = next;
     }
     _doEvents();
-    intLibUpdate();
+    updateIntLib();
 }
 
 // 0x46E238

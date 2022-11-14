@@ -175,7 +175,6 @@ typedef struct ProgramListNode {
     struct ProgramListNode* prev; // prev
 } ProgramListNode;
 
-extern int _TimeOut;
 extern int _Enabled;
 extern InterpretTimerFunc* _timerFunc;
 extern unsigned int _timerTick;

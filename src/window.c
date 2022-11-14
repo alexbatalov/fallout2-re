@@ -1547,7 +1547,7 @@ void _initWindow(int resolution, int a2)
     int rc;
     int i, j;
 
-    intLibRegisterProgramDeleteCallback(_removeProgramReferences_3);
+    interpretRegisterProgramDeleteCallback(_removeProgramReferences_3);
 
     _currentTextColorR = 0;
     _currentTextColorG = 0;
@@ -2393,7 +2393,7 @@ bool _windowFillRect(int x, int y, int width, int height, float r, float g, floa
 
 // TODO: There is a value returned, not sure which one - could be either
 // currentRegionIndex or points array. For now it can be safely ignored since
-// the only caller of this function is opAddRegion, which ignores the returned
+// the only caller of this function is op_addregion, which ignores the returned
 // value.
 //
 // 0x4BA844

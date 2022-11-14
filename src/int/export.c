@@ -334,7 +334,7 @@ static void removeProgramReferences(Program* program)
 // 0x44152C
 void initExport()
 {
-    intLibRegisterProgramDeleteCallback(removeProgramReferences);
+    interpretRegisterProgramDeleteCallback(removeProgramReferences);
 }
 
 // 0x441538
