@@ -86,6 +86,7 @@ static bool heap_build_free_list(Heap* heap);
 static bool heap_sort_free_list(Heap* heap);
 static int heap_qsort_compare_free(const void* a1, const void* a2);
 static bool heap_build_moveable_list(Heap* heap, int* moveableExtentsLengthPtr, int* maxBlocksLengthPtr);
+static bool heap_sort_moveable_list(Heap* heap, size_t count);
 static int heap_qsort_compare_moveable(const void* a1, const void* a2);
 static bool heap_build_subblock_list(int extentIndex);
 
@@ -882,7 +883,8 @@ static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4)
         heap_fake_move_list = indexes;
     }
 
-    qsort(heap_moveable_list, moveableExtentsCount, sizeof(*heap_moveable_list), heap_qsort_compare_moveable);
+    // NOTE: Uninline.
+    heap_sort_moveable_list(heap, moveableExtentsCount);
 
     if (moveableExtentsCount == 0) {
         goto system;
@@ -1254,6 +1256,16 @@ static bool heap_build_moveable_list(Heap* heap, int* moveableExtentsLengthPtr, 
 
     *moveableExtentsLengthPtr = extentIndex;
     *maxBlocksLengthPtr = maxBlocksLength;
+
+    return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x453E54
+static bool heap_sort_moveable_list(Heap* heap, size_t count)
+{
+    qsort(heap_moveable_list, count, sizeof(*heap_moveable_list), heap_qsort_compare_moveable);
 
     return true;
 }
