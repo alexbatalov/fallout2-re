@@ -8,6 +8,7 @@ typedef int(MouseManagerRateProvider)();
 typedef int(MouseManagerTimeProvider)();
 
 void mousemgrSetNameMangler(MouseManagerNameMangler* func);
+void mousemgrSetTimeCallback(MouseManagerRateProvider* rateFunc, MouseManagerTimeProvider* currentTimeFunc);
 void initMousemgr();
 void mousemgrClose();
 void mousemgrUpdate();

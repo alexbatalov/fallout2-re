@@ -114,6 +114,24 @@ void mousemgrSetNameMangler(MouseManagerNameMangler* func)
     mouseNameMangler = func;
 }
 
+// NOTE: Unused.
+//
+// 0x485290
+void mousemgrSetTimeCallback(MouseManagerRateProvider* rateFunc, MouseManagerTimeProvider* currentTimeFunc)
+{
+    if (rateFunc != NULL) {
+        rateCallback = rateFunc;
+    } else {
+        rateCallback = defaultRateCallback;
+    }
+
+    if (currentTimeFunc != NULL) {
+        currentTimeCallback = currentTimeFunc;
+    } else {
+        currentTimeCallback = defaultTimeCallback;
+    }
+}
+
 // 0x4852B8
 static void freeCacheEntry(MouseManagerCacheEntry* entry)
 {
