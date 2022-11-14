@@ -605,7 +605,7 @@ Program* scriptsCreateProgramByName(const char* name)
     strcat(path, name);
     strcat(path, ".int");
 
-    return programCreateByPath(path);
+    return allocateProgram(path);
 }
 
 // 0x4A3C2C
@@ -623,7 +623,7 @@ void _doBkProcesses()
         // NOTE: There is a loop at 0x4A3C64, consisting of one iteration, going
         // downwards from 1.
         for (int index = 0; index < 1; index++) {
-            _updatePrograms();
+            updatePrograms();
         }
     }
 
@@ -1257,12 +1257,12 @@ int scriptExecProc(int sid, int proc)
         script->action = 0;
         // NOTE: Uninline.
         runProgram(program);
-        _interpret(program, -1);
+        interpret(program, -1);
     }
 
     script->action = proc;
 
-    _executeProcedure(program, v9);
+    executeProcedure(program, v9);
 
     script->source = NULL;
 
@@ -1275,7 +1275,7 @@ int scriptExecProc(int sid, int proc)
 int scriptLocateProcs(Script* script)
 {
     for (int proc = 0; proc < SCRIPT_PROC_COUNT; proc++) {
-        int index = programFindProcedure(script->program, gScriptProcNames[proc]);
+        int index = interpretFindProcedure(script->program, gScriptProcNames[proc]);
         if (index == -1) {
             index = SCRIPT_PROC_NO_PROC;
         }
@@ -1454,8 +1454,8 @@ int scriptsInit()
     }
 
     _scr_remove_all();
-    _interpretOutputFunc(_win_debug);
-    interpreterRegisterOpcodeHandlers();
+    interpretOutputFunc(_win_debug);
+    initInterpreter();
     _scr_header_load();
 
     // NOTE: Uninline.
@@ -1548,8 +1548,8 @@ int scriptsExit()
 
     _scr_remove_all();
     _scr_remove_all_force();
-    _interpretClose();
-    programListFree();
+    interpretClose();
+    clearPrograms();
 
     // NOTE: Uninline.
     scriptsClearPendingRequests();
@@ -1590,7 +1590,7 @@ int _scr_game_exit()
     _script_engine_run_critters = 0;
     _scr_message_free();
     _scr_remove_all();
-    programListFree();
+    clearPrograms();
     tickersRemove(_doBkProcesses);
     messageListFree(&gScrMessageList);
     if (scriptsClearDudeScript() == -1) {
@@ -2310,7 +2310,7 @@ int _scr_remove_all()
     gScriptsEnumerationElevation = 0;
     gMapSid = -1;
 
-    programListFree();
+    clearPrograms();
     exportClearAllVariables();
 
     return 0;
@@ -2340,7 +2340,7 @@ int _scr_remove_all_force()
     gScriptsEnumerationScriptListExtent = 0;
     gScriptsEnumerationElevation = 0;
     gMapSid = -1;
-    programListFree();
+    clearPrograms();
     exportClearAllVariables();
 
     return 0;

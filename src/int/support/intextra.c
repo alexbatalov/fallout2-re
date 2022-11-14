@@ -439,15 +439,15 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 // 0x4541C8
 static void op_give_exp_points(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to give_exp_points", program->name);
+        interpretError("script error: %s: invalid arg to give_exp_points", program->name);
     }
 
     if (pcAddExperience(data) != 0) {
@@ -458,15 +458,15 @@ static void op_give_exp_points(Program* program)
 // 0x454238
 static void op_scr_return(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to scr_return", program->name);
+        interpretError("script error: %s: invalid arg to scr_return", program->name);
     }
 
     int sid = scriptGetSid(program);
@@ -480,18 +480,18 @@ static void op_scr_return(Program* program)
 // 0x4542AC
 static void op_play_sfx(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("script error: %s: invalid arg to play_sfx", program->name);
+        interpretError("script error: %s: invalid arg to play_sfx", program->name);
     }
 
-    char* name = programGetString(program, opcode, data);
+    char* name = interpretGetString(program, opcode, data);
     gsound_play_sfx_file(name);
 }
 
@@ -502,15 +502,15 @@ static void op_set_map_start(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_map_start", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_map_start", program->name, arg);
         }
     }
 
@@ -542,15 +542,15 @@ static void op_override_map_start(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to override_map_start", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to override_map_start", program->name, arg);
         }
     }
 
@@ -593,15 +593,15 @@ static void op_has_skill(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to has_skill", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to has_skill", program->name, arg);
         }
     }
 
@@ -617,8 +617,8 @@ static void op_has_skill(Program* program)
         dbg_error(program, "has_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454634
@@ -628,15 +628,15 @@ static void op_using_skill(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to using_skill", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to using_skill", program->name, arg);
         }
     }
 
@@ -652,8 +652,8 @@ static void op_using_skill(Program* program)
         result = is_pc_flag(DUDE_STATE_SNEAKING);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4546E8
@@ -663,15 +663,15 @@ static void op_roll_vs_skill(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to roll_vs_skill", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to roll_vs_skill", program->name, arg);
         }
     }
 
@@ -693,8 +693,8 @@ static void op_roll_vs_skill(Program* program)
         dbg_error(program, "roll_vs_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, roll);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, roll);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4547D4
@@ -704,21 +704,21 @@ static void op_skill_contest(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to skill_contest", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to skill_contest", program->name, arg);
         }
     }
 
     dbg_error(program, "skill_contest", SCRIPT_ERROR_NOT_IMPLEMENTED);
-    programStackPushInt32(program, 0);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, 0);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454890
@@ -728,15 +728,15 @@ static void op_do_check(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to do_check", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to do_check", program->name, arg);
         }
     }
 
@@ -769,23 +769,23 @@ static void op_do_check(Program* program)
         dbg_error(program, "do_check", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, roll);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, roll);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // success
 // 0x4549A8
 static void op_is_success(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to success", program->name);
+        interpretError("script error: %s: invalid arg to success", program->name);
     }
 
     int result = -1;
@@ -801,23 +801,23 @@ static void op_is_success(Program* program)
         break;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // critical
 // 0x454A44
 static void op_is_critical(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to critical", program->name);
+        interpretError("script error: %s: invalid arg to critical", program->name);
     }
 
     int result = -1;
@@ -833,22 +833,22 @@ static void op_is_critical(Program* program)
         break;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454AD0
 static void op_how_much(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to how_much", program->name);
+        interpretError("script error: %s: invalid arg to how_much", program->name);
     }
 
     int result = 0;
@@ -862,8 +862,8 @@ static void op_how_much(Program* program)
         dbg_error(program, "how_much", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454B6C
@@ -873,15 +873,15 @@ static void op_mark_area_known(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to mark_area_known", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to mark_area_known", program->name, arg);
         }
     }
 
@@ -905,21 +905,21 @@ static void op_reaction_influence(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reaction_influence", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reaction_influence", program->name, arg);
         }
     }
 
     int result = _reaction_influence_();
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454CD4
@@ -929,15 +929,15 @@ static void op_random(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to random", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to random", program->name, arg);
         }
     }
 
@@ -948,8 +948,8 @@ static void op_random(Program* program)
         result = (data[0] - data[1]) / 2;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454D88
@@ -959,22 +959,22 @@ static void op_roll_dice(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to roll_dice", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to roll_dice", program->name, arg);
         }
     }
 
     dbg_error(program, "roll_dice", SCRIPT_ERROR_NOT_IMPLEMENTED);
 
-    programStackPushInt32(program, 0);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, 0);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454E28
@@ -984,15 +984,15 @@ static void op_move_to(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to move_to", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to move_to", program->name, arg);
         }
     }
 
@@ -1048,8 +1048,8 @@ static void op_move_to(Program* program)
         newTile = -1;
     }
 
-    programStackPushInt32(program, newTile);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, newTile);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x454FA8
@@ -1059,15 +1059,15 @@ static void op_create_object_sid(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to create_object", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to create_object", program->name, arg);
         }
     }
 
@@ -1143,8 +1143,8 @@ static void op_create_object_sid(Program* program)
 
 out:
 
-    programStackPushInt32(program, (int)object);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)object);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4551E4
@@ -1152,15 +1152,15 @@ static void op_destroy_object(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to destroy_object", program->name);
+        interpretError("script error: %s: invalid arg to destroy_object", program->name);
     }
 
     Object* object = (Object*)data;
@@ -1222,18 +1222,18 @@ static void op_destroy_object(Program* program)
 // 0x455388
 static void op_display_msg(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("script error: %s: invalid arg to display_msg", program->name);
+        interpretError("script error: %s: invalid arg to display_msg", program->name);
     }
 
-    char* string = programGetString(program, opcode, data);
+    char* string = interpretGetString(program, opcode, data);
     display_print(string);
 
     bool showScriptMessages = false;
@@ -1265,15 +1265,15 @@ static void op_obj_is_carrying_obj_pid(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to obj_is_carrying_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to obj_is_carrying_obj", program->name, arg);
         }
     }
 
@@ -1287,8 +1287,8 @@ static void op_obj_is_carrying_obj_pid(Program* program)
         dbg_error(program, "obj_is_carrying_obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455534
@@ -1298,15 +1298,15 @@ static void op_tile_contains_obj_pid(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to tile_contains_obj_pid", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to tile_contains_obj_pid", program->name, arg);
         }
     }
 
@@ -1325,16 +1325,16 @@ static void op_tile_contains_obj_pid(Program* program)
         object = objectFindNextAtLocation();
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455600
 static void op_self_obj(Program* program)
 {
     Object* object = scriptGetSelf(program);
-    programStackPushInt32(program, (int)object);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)object);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455624
@@ -1351,8 +1351,8 @@ static void op_source_obj(Program* program)
         dbg_error(program, "source_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, (int)object);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)object);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455678
@@ -1369,15 +1369,15 @@ static void op_target_obj(Program* program)
         dbg_error(program, "target_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, (int)object);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)object);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4556CC
 static void op_dude_obj(Program* program)
 {
-    programStackPushInt32(program, (int)gDude);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)gDude);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // NOTE: The implementation is the same as in [op_target_obj].
@@ -1396,23 +1396,23 @@ static void op_obj_being_used_with(Program* program)
         dbg_error(program, "obj_being_used_with", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, (int)object);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)object);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455740
 static void op_local_var(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         // FIXME: The error message is wrong.
-        programFatalError("script error: %s: invalid arg to op_global_var", program->name);
+        interpretError("script error: %s: invalid arg to op_global_var", program->name);
     }
 
     int value = -1;
@@ -1420,8 +1420,8 @@ static void op_local_var(Program* program)
     int sid = scriptGetSid(program);
     scriptGetLocalVar(sid, data, &value);
 
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4557C8
@@ -1431,15 +1431,15 @@ static void op_set_local_var(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_local_var", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_local_var", program->name, arg);
         }
     }
 
@@ -1453,21 +1453,21 @@ static void op_set_local_var(Program* program)
 // 0x455858
 static void op_map_var(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to op_map_var", program->name);
+        interpretError("script error: %s: invalid arg to op_map_var", program->name);
     }
 
     int value = mapGetGlobalVar(data);
 
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4558C8
@@ -1477,15 +1477,15 @@ static void op_set_map_var(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_map_var", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_map_var", program->name, arg);
         }
     }
 
@@ -1498,15 +1498,15 @@ static void op_set_map_var(Program* program)
 // 0x455950
 static void op_global_var(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to op_global_var", program->name);
+        interpretError("script error: %s: invalid arg to op_global_var", program->name);
     }
 
     int value = -1;
@@ -1516,8 +1516,8 @@ static void op_global_var(Program* program)
         int_debug("\nScript Error: %s: op_global_var: no global vars found!", program->name);
     }
 
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4559EC
@@ -1527,15 +1527,15 @@ static void op_set_global_var(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_global_var", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_global_var", program->name, arg);
         }
     }
 
@@ -1563,22 +1563,22 @@ static void op_script_action(Program* program)
         dbg_error(program, "script_action", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, action);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, action);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455AE4
 static void op_obj_type(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to op_obj_type", program->name);
+        interpretError("script error: %s: invalid arg to op_obj_type", program->name);
     }
 
     Object* object = (Object*)data;
@@ -1588,22 +1588,22 @@ static void op_obj_type(Program* program)
         objectType = FID_TYPE(object->fid);
     }
 
-    programStackPushInt32(program, objectType);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, objectType);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455B6C
 static void op_obj_item_subtype(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to op_item_subtype", program->name);
+        interpretError("script error: %s: invalid arg to op_item_subtype", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -1618,8 +1618,8 @@ static void op_obj_item_subtype(Program* program)
         }
     }
 
-    programStackPushInt32(program, itemType);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, itemType);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455C10
@@ -1629,15 +1629,15 @@ static void op_get_critter_stat(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to get_critter_stat", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to get_critter_stat", program->name, arg);
         }
     }
 
@@ -1651,8 +1651,8 @@ static void op_get_critter_stat(Program* program)
         dbg_error(program, "get_critter_stat", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // NOTE: Despite it's name it does not actually "set" stat, but "adjust". So
@@ -1665,15 +1665,15 @@ static void op_set_critter_stat(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_critter_stat", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_critter_stat", program->name, arg);
         }
     }
 
@@ -1696,22 +1696,22 @@ static void op_set_critter_stat(Program* program)
         result = -1;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x455DC8
 static void op_animate_stand_obj(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to animate_stand_obj", program->name);
+        interpretError("script error: %s: invalid arg to animate_stand_obj", program->name);
     }
 
     Object* object = (Object*)data;
@@ -1737,16 +1737,16 @@ static void op_animate_stand_obj(Program* program)
 // 0x455E7C
 static void op_animate_stand_reverse_obj(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         // FIXME: typo in message, should be animate_stand_reverse_obj.
-        programFatalError("script error: %s: invalid arg to animate_stand_obj", program->name);
+        interpretError("script error: %s: invalid arg to animate_stand_obj", program->name);
     }
 
     Object* object = (Object*)data;
@@ -1776,15 +1776,15 @@ static void op_animate_move_obj_to_tile(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to animate_move_obj_to_tile", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to animate_move_obj_to_tile", program->name, arg);
         }
     }
 
@@ -1841,15 +1841,15 @@ static void op_tile_in_tile_rect(Program* program)
     Point points[5];
 
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to tile_in_tile_rect", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to tile_in_tile_rect", program->name, arg);
         }
 
         points[arg].x = data[arg] % 200;
@@ -1870,8 +1870,8 @@ static void op_tile_in_tile_rect(Program* program)
         result = 1;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x456170
@@ -1886,15 +1886,15 @@ static void op_tile_distance(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to tile_distance", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to tile_distance", program->name, arg);
         }
     }
 
@@ -1909,8 +1909,8 @@ static void op_tile_distance(Program* program)
         distance = 9999;
     }
 
-    programStackPushInt32(program, distance);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, distance);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x456228
@@ -1920,15 +1920,15 @@ static void op_tile_distance_objs(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to tile_distance_objs", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to tile_distance_objs", program->name, arg);
         }
     }
 
@@ -1949,22 +1949,22 @@ static void op_tile_distance_objs(Program* program)
         }
     }
 
-    programStackPushInt32(program, distance);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, distance);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x456324
 static void op_tile_num(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to tile_num", program->name);
+        interpretError("script error: %s: invalid arg to tile_num", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -1976,8 +1976,8 @@ static void op_tile_num(Program* program)
         dbg_error(program, "tile_num", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, tile);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, tile);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4563B4
@@ -1987,15 +1987,15 @@ static void op_tile_num_in_direction(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to tile_num_in_direction", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to tile_num_in_direction", program->name, arg);
         }
     }
 
@@ -2023,22 +2023,22 @@ static void op_tile_num_in_direction(Program* program)
         debugPrint(" tileNum is -1!");
     }
 
-    programStackPushInt32(program, tile);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, tile);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4564D4
 static void op_pickup_obj(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to pickup_obj", program->name);
+        interpretError("script error: %s: invalid arg to pickup_obj", program->name);
     }
 
     Object* object = (Object*)data;
@@ -2066,15 +2066,15 @@ static void op_pickup_obj(Program* program)
 // 0x456580
 static void op_drop_obj(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to drop_obj", program->name);
+        interpretError("script error: %s: invalid arg to drop_obj", program->name);
     }
 
     Object* object = (Object*)data;
@@ -2108,15 +2108,15 @@ static void op_add_obj_to_inven(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to add_obj_to_inven", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to add_obj_to_inven", program->name, arg);
         }
     }
 
@@ -2146,15 +2146,15 @@ static void op_rm_obj_from_inven(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to rm_obj_from_inven", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to rm_obj_from_inven", program->name, arg);
         }
     }
 
@@ -2202,15 +2202,15 @@ static void op_wield_obj_critter(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to wield_obj_critter", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to wield_obj_critter", program->name, arg);
         }
     }
 
@@ -2270,15 +2270,15 @@ static void op_wield_obj_critter(Program* program)
 // 0x4569D0
 static void op_use_obj(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to use_obj", program->name);
+        interpretError("script error: %s: invalid arg to use_obj", program->name);
     }
 
     Object* object = (Object*)data;
@@ -2317,15 +2317,15 @@ static void op_obj_can_see_obj(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to obj_can_see_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to obj_can_see_obj", program->name, arg);
         }
     }
 
@@ -2356,8 +2356,8 @@ static void op_obj_can_see_obj(Program* program)
         dbg_error(program, "obj_can_see_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x456C00
@@ -2367,15 +2367,15 @@ static void op_attack(Program* program)
     int data[8];
 
     for (int arg = 0; arg < 8; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to attack", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to attack", program->name, arg);
         }
     }
 
@@ -2456,15 +2456,15 @@ static void op_start_gdialog(Program* program)
     int data[5];
 
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to start_gdialog", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to start_gdialog", program->name, arg);
         }
     }
 
@@ -2530,15 +2530,15 @@ static void op_end_dialogue(Program* program)
 // 0x456FA4
 static void op_dialogue_reaction(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int value = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int value = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, value);
+        interpretDecStringRef(program, opcode, value);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to dialogue_reaction", program->name);
+        interpretError("script error: %s: invalid arg to dialogue_reaction", program->name);
     }
 
     dialogue_mood = value;
@@ -2552,15 +2552,15 @@ static void op_metarule3(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to metarule3", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to metarule3", program->name, arg);
         }
     }
 
@@ -2646,8 +2646,8 @@ static void op_metarule3(Program* program)
         break;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45734C
@@ -2657,27 +2657,27 @@ static void op_set_map_music(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         // FIXME: argument is wrong, should be 1.
-        programFatalError("script error: %s: invalid arg %d to set_map_music", program->name, 2);
+        interpretError("script error: %s: invalid arg %d to set_map_music", program->name, 2);
     }
 
     int mapIndex = data[1];
 
     char* string = NULL;
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        string = programGetString(program, opcode[0], data[0]);
+        string = interpretGetString(program, opcode[0], data[0]);
     } else {
         // FIXME: argument is wrong, should be 0.
-        programFatalError("script error: %s: invalid arg %d to set_map_music", program->name, 2);
+        interpretError("script error: %s: invalid arg %d to set_map_music", program->name, 2);
     }
 
     debugPrint("\nset_map_music: %d, %s", mapIndex, string);
@@ -2696,15 +2696,15 @@ static void op_set_obj_visibility(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_obj_visibility", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_obj_visibility", program->name, arg);
         }
     }
 
@@ -2757,22 +2757,22 @@ static void op_load_map(Program* program)
     opcode_t opcode[2];
     int data[2];
 
-    opcode[0] = programStackPopInt16(program);
-    data[0] = programStackPopInt32(program);
+    opcode[0] = interpretPopShort(program);
+    data[0] = interpretPopLong(program);
 
     if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[0], data[0]);
+        interpretDecStringRef(program, opcode[0], data[0]);
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg 0 to load_map", program->name);
+        interpretError("script error: %s: invalid arg 0 to load_map", program->name);
     }
 
-    opcode[1] = programStackPopInt16(program);
-    data[1] = programStackPopInt32(program);
+    opcode[1] = interpretPopShort(program);
+    data[1] = interpretPopLong(program);
 
     if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[1], data[1]);
+        interpretDecStringRef(program, opcode[1], data[1]);
     }
 
     int param = data[0];
@@ -2782,9 +2782,9 @@ static void op_load_map(Program* program)
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-            mapName = programGetString(program, opcode[1], mapIndexOrName);
+            mapName = interpretGetString(program, opcode[1], mapIndexOrName);
         } else {
-            programFatalError("script error: %s: invalid arg 1 to load_map", program->name);
+            interpretError("script error: %s: invalid arg 1 to load_map", program->name);
         }
     }
 
@@ -2817,15 +2817,15 @@ static void op_wm_area_set_pos(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to wm_area_set_pos", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to wm_area_set_pos", program->name, arg);
         }
     }
 
@@ -2846,15 +2846,15 @@ static void op_set_exit_grids(Program* program)
     int data[5];
 
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to set_exit_grids", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to set_exit_grids", program->name, arg);
         }
     }
 
@@ -2878,15 +2878,15 @@ static void op_set_exit_grids(Program* program)
 // 0x4577EC
 static void op_anim_busy(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to anim_busy", program->name);
+        interpretError("script error: %s: invalid arg to anim_busy", program->name);
     }
 
     Object* object = (Object*)data;
@@ -2898,8 +2898,8 @@ static void op_anim_busy(Program* program)
         dbg_error(program, "anim_busy", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, rc);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, rc);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x457880
@@ -2909,15 +2909,15 @@ static void op_critter_heal(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_heal", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_heal", program->name, arg);
         }
     }
 
@@ -2930,8 +2930,8 @@ static void op_critter_heal(Program* program)
         intface_update_hit_points(true);
     }
 
-    programStackPushInt32(program, rc);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, rc);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x457934
@@ -2950,15 +2950,15 @@ static void op_set_light_level(Program* program)
         0x10000,
     };
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to set_light_level", program->name);
+        interpretError("script error: %s: invalid arg to set_light_level", program->name);
     }
 
     int lightLevel = data;
@@ -2982,30 +2982,30 @@ static void op_set_light_level(Program* program)
 static void op_game_time(Program* program)
 {
     int time = gameTimeGetTime();
-    programStackPushInt32(program, time);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, time);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x457A18
 static void op_game_time_in_seconds(Program* program)
 {
     int time = gameTimeGetTime();
-    programStackPushInt32(program, time / 10);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, time / 10);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x457A44
 static void op_elevation(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to elevation", program->name);
+        interpretError("script error: %s: invalid arg to elevation", program->name);
     }
 
     Object* object = (Object*)data;
@@ -3017,8 +3017,8 @@ static void op_elevation(Program* program)
         dbg_error(program, "elevation", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, elevation);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, elevation);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x457AD4
@@ -3028,15 +3028,15 @@ static void op_kill_critter(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to kill_critter", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to kill_critter", program->name, arg);
         }
     }
 
@@ -3124,15 +3124,15 @@ static void op_kill_critter_type(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to kill_critter", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to kill_critter", program->name, arg);
         }
     }
 
@@ -3211,15 +3211,15 @@ static void op_critter_damage(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_damage", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_damage", program->name, arg);
         }
     }
 
@@ -3262,15 +3262,15 @@ static void op_add_timer_event(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to add_timer_event", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to add_timer_event", program->name, arg);
         }
     }
 
@@ -3293,15 +3293,15 @@ static void op_rm_timer_event(Program* program)
 
     elevation = 0;
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to rm_timer_event", program->name);
+        interpretError("script error: %s: invalid arg to rm_timer_event", program->name);
     }
 
     Object* object = (Object*)data;
@@ -3320,15 +3320,15 @@ static void op_rm_timer_event(Program* program)
 // 0x458108
 static void op_game_ticks(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to game_ticks", program->name);
+        interpretError("script error: %s: invalid arg to game_ticks", program->name);
     }
 
     int ticks = data;
@@ -3337,8 +3337,8 @@ static void op_game_ticks(Program* program)
         ticks = 0;
     }
 
-    programStackPushInt32(program, ticks * 10);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, ticks * 10);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // NOTE: The name of this function is misleading. It has (almost) nothing to do
@@ -3354,15 +3354,15 @@ static void op_has_trait(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to has_trait", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to has_trait", program->name, arg);
         }
     }
 
@@ -3419,8 +3419,8 @@ static void op_has_trait(Program* program)
         dbg_error(program, "has_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45835C
@@ -3430,15 +3430,15 @@ static void op_obj_can_hear_obj(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d, to obj_can_hear_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d, to obj_can_hear_obj", program->name, arg);
         }
     }
 
@@ -3459,16 +3459,16 @@ static void op_obj_can_hear_obj(Program* program)
         }
     }
 
-    programStackPushInt32(program, canHear);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, canHear);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x458438
 static void op_game_time_hour(Program* program)
 {
     int value = gameTimeGetHour();
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45845C
@@ -3485,22 +3485,22 @@ static void op_fixed_param(Program* program)
         dbg_error(program, "fixed_param", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, fixedParam);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, fixedParam);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4584B0
 static void op_tile_is_visible(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to tile_is_visible", program->name);
+        interpretError("script error: %s: invalid arg to tile_is_visible", program->name);
     }
 
     int isVisible = 0;
@@ -3508,8 +3508,8 @@ static void op_tile_is_visible(Program* program)
         isVisible = 1;
     }
 
-    programStackPushInt32(program, isVisible);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, isVisible);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x458534
@@ -3554,22 +3554,22 @@ static void op_action_being_used(Program* program)
         dbg_error(program, "action_being_used", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
-    programStackPushInt32(program, action);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, action);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4585E8
 static void op_critter_state(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to critter_state", program->name);
+        interpretError("script error: %s: invalid arg to critter_state", program->name);
     }
 
     Object* critter = (Object*)data;
@@ -3594,22 +3594,22 @@ static void op_critter_state(Program* program)
         dbg_error(program, "critter_state", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, state);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, state);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4586C8
 static void op_game_time_advance(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to game_time_advance", program->name);
+        interpretError("script error: %s: invalid arg to game_time_advance", program->name);
     }
 
     int days = data / GAME_TIME_TICKS_PER_DAY;
@@ -3631,15 +3631,15 @@ static void op_radiation_inc(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to radiation_inc", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to radiation_inc", program->name, arg);
         }
     }
 
@@ -3661,15 +3661,15 @@ static void op_radiation_dec(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to radiation_dec", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to radiation_dec", program->name, arg);
         }
     }
 
@@ -3694,15 +3694,15 @@ static void op_critter_attempt_placement(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_attempt_placement", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_attempt_placement", program->name, arg);
         }
     }
 
@@ -3722,22 +3722,22 @@ static void op_critter_attempt_placement(Program* program)
     objectSetLocation(critter, 0, elevation, NULL);
 
     int rc = _obj_attempt_placement(critter, tile, elevation, 1);
-    programStackPushInt32(program, rc);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, rc);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4589A0
 static void op_obj_pid(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_pid", program->name);
+        interpretError("script error: %s: invalid arg to obj_pid", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -3749,16 +3749,16 @@ static void op_obj_pid(Program* program)
         dbg_error(program, "obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, pid);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, pid);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x458A30
 static void op_cur_map_index(Program* program)
 {
     int mapIndex = mapGetCurrentMap();
-    programStackPushInt32(program, mapIndex);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, mapIndex);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x458A54
@@ -3768,15 +3768,15 @@ static void op_critter_add_trait(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_add_trait", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_add_trait", program->name, arg);
         }
     }
 
@@ -3843,8 +3843,8 @@ static void op_critter_add_trait(Program* program)
         dbg_error(program, "critter_add_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, -1);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, -1);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x458C2C
@@ -3854,15 +3854,15 @@ static void op_critter_rm_trait(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_rm_trait", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_rm_trait", program->name, arg);
         }
     }
 
@@ -3892,8 +3892,8 @@ static void op_critter_rm_trait(Program* program)
         }
     }
 
-    programStackPushInt32(program, -1);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, -1);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x458D38
@@ -3903,15 +3903,15 @@ static void op_proto_data(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to proto_data", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to proto_data", program->name, arg);
         }
     }
 
@@ -3923,16 +3923,16 @@ static void op_proto_data(Program* program)
     int valueType = protoGetDataMember(pid, member, &value);
     switch (valueType) {
     case PROTO_DATA_MEMBER_TYPE_INT:
-        programStackPushInt32(program, value.integerValue);
-        programStackPushInt16(program, VALUE_TYPE_INT);
+        interpretPushLong(program, value.integerValue);
+        interpretPushShort(program, VALUE_TYPE_INT);
         break;
     case PROTO_DATA_MEMBER_TYPE_STRING:
-        programStackPushInt32(program, programPushString(program, value.stringValue));
-        programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+        interpretPushLong(program, interpretAddString(program, value.stringValue));
+        interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
         break;
     default:
-        programStackPushInt32(program, 0);
-        programStackPushInt16(program, VALUE_TYPE_INT);
+        interpretPushLong(program, 0);
+        interpretPushShort(program, VALUE_TYPE_INT);
         break;
     }
 }
@@ -3947,15 +3947,15 @@ static void op_message_str(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to message_str", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to message_str", program->name, arg);
         }
     }
 
@@ -3973,8 +3973,8 @@ static void op_message_str(Program* program)
         string = errStr;
     }
 
-    programStackPushInt32(program, programPushString(program, string));
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, interpretAddString(program, string));
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x458F00
@@ -3984,15 +3984,15 @@ static void op_critter_inven_obj(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_inven_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_inven_obj", program->name, arg);
         }
     }
 
@@ -4036,8 +4036,8 @@ static void op_critter_inven_obj(Program* program)
         debugPrint("  Not a critter!");
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x459088
@@ -4047,15 +4047,15 @@ static void op_obj_set_light_level(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to obj_set_light_level", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to obj_set_light_level", program->name, arg);
         }
     }
 
@@ -4094,15 +4094,15 @@ static void op_inven_cmds(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to inven_cmds", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to inven_cmds", program->name, arg);
         }
     }
 
@@ -4123,8 +4123,8 @@ static void op_inven_cmds(Program* program)
         dbg_error(program, "anim", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, (int)item);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)item);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x459280
@@ -4138,20 +4138,20 @@ static void op_float_msg(Program* program)
 
     char* string = NULL;
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if (arg == 1) {
             if ((opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-                string = programGetString(program, opcode[arg], data[arg]);
+                string = interpretGetString(program, opcode[arg], data[arg]);
             }
         } else {
             if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-                programFatalError("script error: %s: invalid arg %d to float_msg", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to float_msg", program->name, arg);
             }
         }
     }
@@ -4241,15 +4241,15 @@ static void op_metarule(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to metarule", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to metarule", program->name, arg);
         }
     }
 
@@ -4401,8 +4401,8 @@ static void op_metarule(Program* program)
         break;
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x4598BC
@@ -4412,15 +4412,15 @@ static void op_anim(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to anim", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to anim", program->name, arg);
         }
     }
 
@@ -4494,15 +4494,15 @@ static void op_obj_carrying_pid_obj(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to obj_carrying_pid_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to obj_carrying_pid_obj", program->name, arg);
         }
     }
 
@@ -4516,8 +4516,8 @@ static void op_obj_carrying_pid_obj(Program* program)
         dbg_error(program, "obj_carrying_pid_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, (int)result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x459C20
@@ -4527,15 +4527,15 @@ static void op_reg_anim_func(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_func", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_func", program->name, arg);
         }
     }
 
@@ -4564,15 +4564,15 @@ static void op_reg_anim_animate(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_animate", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_animate", program->name, arg);
         }
     }
 
@@ -4599,15 +4599,15 @@ static void op_reg_anim_animate_reverse(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_animate_reverse", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_animate_reverse", program->name, arg);
         }
     }
 
@@ -4631,15 +4631,15 @@ static void op_reg_anim_obj_move_to_obj(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_obj_move_to_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_obj_move_to_obj", program->name, arg);
         }
     }
 
@@ -4663,15 +4663,15 @@ static void op_reg_anim_obj_run_to_obj(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_obj_run_to_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_obj_run_to_obj", program->name, arg);
         }
     }
 
@@ -4695,15 +4695,15 @@ static void op_reg_anim_obj_move_to_tile(Program* prg)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(prg);
-        data[arg] = programStackPopInt32(prg);
+        opcode[arg] = interpretPopShort(prg);
+        data[arg] = interpretPopLong(prg);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(prg, opcode[arg], data[arg]);
+            interpretDecStringRef(prg, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_obj_move_to_tile", prg->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_obj_move_to_tile", prg->name, arg);
         }
     }
 
@@ -4727,15 +4727,15 @@ static void op_reg_anim_obj_run_to_tile(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_obj_run_to_tile", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_obj_run_to_tile", program->name, arg);
         }
     }
 
@@ -4778,15 +4778,15 @@ static void op_play_gmovie(Program* program)
 
     program->flags |= PROGRAM_FLAG_0x20;
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to play_gmovie", program->name);
+        interpretError("script error: %s: invalid arg to play_gmovie", program->name);
     }
 
     gdialogDisableBK();
@@ -4807,15 +4807,15 @@ static void op_add_mult_objs_to_inven(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to add_mult_objs_to_inven", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to add_mult_objs_to_inven", program->name, arg);
         }
     }
 
@@ -4847,15 +4847,15 @@ static void op_rm_mult_objs_from_inven(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to rm_mult_objs_from_inven", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to rm_mult_objs_from_inven", program->name, arg);
         }
     }
 
@@ -4888,8 +4888,8 @@ static void op_rm_mult_objs_from_inven(Program* program)
         }
     }
 
-    programStackPushInt32(program, quantity);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, quantity);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45A40C
@@ -4898,8 +4898,8 @@ static void op_get_month(Program* program)
     int month;
     gameTimeGetDate(&month, NULL, NULL);
 
-    programStackPushInt32(program, month);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, month);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45A43C
@@ -4908,8 +4908,8 @@ static void op_get_day(Program* program)
     int day;
     gameTimeGetDate(NULL, &day, NULL);
 
-    programStackPushInt32(program, day);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, day);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45A46C
@@ -4919,15 +4919,15 @@ static void op_explosion(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to explosion", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to explosion", program->name, arg);
         }
     }
 
@@ -4959,8 +4959,8 @@ static void op_days_since_visited(Program* program)
         days = -1;
     }
 
-    programStackPushInt32(program, days);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, days);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45A56C
@@ -4970,7 +4970,7 @@ static void op_gsay_start(Program* program)
 
     if (gdialogStart() != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
-        programFatalError("Error starting dialog.");
+        interpretError("Error starting dialog.");
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -4994,22 +4994,22 @@ static void op_gsay_reply(Program* program)
 
     char* string = NULL;
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             if (arg == 0) {
                 if ((opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-                    string = programGetString(program, opcode[arg], data[arg]);
+                    string = interpretGetString(program, opcode[arg], data[arg]);
                 } else {
-                    programFatalError("script error: %s: invalid arg %d to gsay_reply", program->name, arg);
+                    interpretError("script error: %s: invalid arg %d to gsay_reply", program->name, arg);
                 }
             } else {
-                programFatalError("script error: %s: invalid arg %d to gsay_reply", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to gsay_reply", program->name, arg);
             }
         }
     }
@@ -5038,22 +5038,22 @@ static void op_gsay_option(Program* program)
     // two args, but uses loop for two last args.
     char* string = NULL;
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             if (arg == 2) {
                 if ((opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-                    string = programGetString(program, opcode[arg], data[arg]);
+                    string = interpretGetString(program, opcode[arg], data[arg]);
                 } else {
-                    programFatalError("script error: %s: invalid arg %d to gsay_option", program->name, arg);
+                    interpretError("script error: %s: invalid arg %d to gsay_option", program->name, arg);
                 }
             } else {
-                programFatalError("script error: %s: invalid arg %d to gsay_option", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to gsay_option", program->name, arg);
             }
         }
     }
@@ -5065,7 +5065,7 @@ static void op_gsay_option(Program* program)
 
     // TODO: Not sure about this, needs testing.
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        char* procName = programGetString(program, opcode[1], data[1]);
+        char* procName = interpretGetString(program, opcode[1], data[1]);
         if (string != NULL) {
             gdialogOptionStr(data[3], string, procName, reaction);
         } else {
@@ -5076,7 +5076,7 @@ static void op_gsay_option(Program* program)
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 3 to sayOption");
+        interpretError("Invalid arg 3 to sayOption");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
@@ -5101,22 +5101,22 @@ static void op_gsay_message(Program* program)
     char* string = NULL;
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             if (arg == 1) {
                 if ((opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-                    string = programGetString(program, opcode[arg], data[arg]);
+                    string = interpretGetString(program, opcode[arg], data[arg]);
                 } else {
-                    programFatalError("script error: %s: invalid arg %d to gsay_message", program->name, arg);
+                    interpretError("script error: %s: invalid arg %d to gsay_message", program->name, arg);
                 }
             } else {
-                programFatalError("script error: %s: invalid arg %d to gsay_message", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to gsay_message", program->name, arg);
             }
         }
     }
@@ -5148,22 +5148,22 @@ static void op_giq_option(Program* program)
     char* string = NULL;
 
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
             if (arg == 2) {
                 if ((opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-                    string = programGetString(program, opcode[arg], data[arg]);
+                    string = interpretGetString(program, opcode[arg], data[arg]);
                 } else {
-                    programFatalError("script error: %s: invalid arg %d to giq_option", program->name, arg);
+                    interpretError("script error: %s: invalid arg %d to giq_option", program->name, arg);
                 }
             } else {
-                programFatalError("script error: %s: invalid arg %d to giq_option", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to giq_option", program->name, arg);
             }
         }
     }
@@ -5190,7 +5190,7 @@ static void op_giq_option(Program* program)
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        char* procName = programGetString(program, opcode[1], data[1]);
+        char* procName = interpretGetString(program, opcode[1], data[1]);
         if (string != NULL) {
             gdialogOptionStr(messageListId, string, procName, reaction);
         } else {
@@ -5201,7 +5201,7 @@ static void op_giq_option(Program* program)
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 4 to sayOption");
+        interpretError("Invalid arg 4 to sayOption");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
@@ -5222,15 +5222,15 @@ static void op_poison(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to poison", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to poison", program->name, arg);
         }
     }
 
@@ -5250,15 +5250,15 @@ static void op_poison(Program* program)
 // 0x45AC44
 static void op_get_poison(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to get_poison", program->name);
+        interpretError("script error: %s: invalid arg to get_poison", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -5274,22 +5274,22 @@ static void op_get_poison(Program* program)
         dbg_error(program, "get_poison", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, poison);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, poison);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45ACF4
 static void op_party_add(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to party_add", program->name);
+        interpretError("script error: %s: invalid arg to party_add", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5304,15 +5304,15 @@ static void op_party_add(Program* program)
 // 0x45AD68
 static void op_party_remove(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to party_remove", program->name);
+        interpretError("script error: %s: invalid arg to party_remove", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5331,15 +5331,15 @@ static void op_reg_anim_animate_forever(Program* prg)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(prg);
-        data[arg] = programStackPopInt32(prg);
+        opcode[arg] = interpretPopShort(prg);
+        data[arg] = interpretPopLong(prg);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(prg, opcode[arg], data[arg]);
+            interpretDecStringRef(prg, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to reg_anim_animate_forever", prg->name, arg);
+            interpretError("script error: %s: invalid arg %d to reg_anim_animate_forever", prg->name, arg);
         }
     }
 
@@ -5362,15 +5362,15 @@ static void op_critter_injure(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_injure", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_injure", program->name, arg);
         }
     }
 
@@ -5405,22 +5405,22 @@ static void op_critter_injure(Program* program)
 // 0x45AF7C
 static void op_combat_is_initialized(Program* program)
 {
-    programStackPushInt32(program, isInCombat());
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, isInCombat());
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45AFA0
 static void op_gdialog_barter(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to gdialog_barter", program->name);
+        interpretError("script error: %s: invalid arg to gdialog_barter", program->name);
     }
 
     if (gdActivateBarter(data) == -1) {
@@ -5436,8 +5436,8 @@ static void op_difficulty_level(Program* program)
         gameDifficulty = GAME_DIFFICULTY_NORMAL;
     }
 
-    programStackPushInt32(program, gameDifficulty);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, gameDifficulty);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B05C
@@ -5448,8 +5448,8 @@ static void op_running_burning_guy(Program* program)
         runningBurningGuy = 1;
     }
 
-    programStackPushInt32(program, runningBurningGuy);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, runningBurningGuy);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B0A8
@@ -5471,15 +5471,15 @@ static void op_inven_unwield(Program* program)
 // 0x45B0D8
 static void op_obj_is_locked(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_is_locked", program->name);
+        interpretError("script error: %s: invalid arg to obj_is_locked", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5491,22 +5491,22 @@ static void op_obj_is_locked(Program* program)
         dbg_error(program, "obj_is_locked", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, locked);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, locked);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B16C
 static void op_obj_lock(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_lock", program->name);
+        interpretError("script error: %s: invalid arg to obj_lock", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5521,15 +5521,15 @@ static void op_obj_lock(Program* program)
 // 0x45B1E0
 static void op_obj_unlock(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_unlock", program->name);
+        interpretError("script error: %s: invalid arg to obj_unlock", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5544,15 +5544,15 @@ static void op_obj_unlock(Program* program)
 // 0x45B254
 static void op_obj_is_open(Program* s)
 {
-    opcode_t opcode = programStackPopInt16(s);
-    int data = programStackPopInt32(s);
+    opcode_t opcode = interpretPopShort(s);
+    int data = interpretPopLong(s);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(s, opcode, data);
+        interpretDecStringRef(s, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_is_open", s->name);
+        interpretError("script error: %s: invalid arg to obj_is_open", s->name);
     }
 
     Object* object = (Object*)data;
@@ -5564,22 +5564,22 @@ static void op_obj_is_open(Program* s)
         dbg_error(s, "obj_is_open", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(s, isOpen);
-    programStackPushInt16(s, VALUE_TYPE_INT);
+    interpretPushLong(s, isOpen);
+    interpretPushShort(s, VALUE_TYPE_INT);
 }
 
 // 0x45B2E8
 static void op_obj_open(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_open", program->name);
+        interpretError("script error: %s: invalid arg to obj_open", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5594,15 +5594,15 @@ static void op_obj_open(Program* program)
 // 0x45B35C
 static void op_obj_close(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_close", program->name);
+        interpretError("script error: %s: invalid arg to obj_close", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5629,22 +5629,22 @@ static void op_game_ui_enable(Program* program)
 // 0x45B3E0
 static void op_game_ui_is_disabled(Program* program)
 {
-    programStackPushInt32(program, game_ui_is_disabled());
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, game_ui_is_disabled());
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B404
 static void op_gfade_out(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to gfade_out", program->name);
+        interpretError("script error: %s: invalid arg to gfade_out", program->name);
     }
 
     if (data != 0) {
@@ -5657,15 +5657,15 @@ static void op_gfade_out(Program* program)
 // 0x45B47C
 static void op_gfade_in(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to gfade_in", program->name);
+        interpretError("script error: %s: invalid arg to gfade_in", program->name);
     }
 
     if (data != 0) {
@@ -5678,15 +5678,15 @@ static void op_gfade_in(Program* program)
 // 0x45B4F4
 static void op_item_caps_total(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to item_caps_total", program->name);
+        interpretError("script error: %s: invalid arg to item_caps_total", program->name);
     }
 
     Object* object = (Object*)data;
@@ -5698,8 +5698,8 @@ static void op_item_caps_total(Program* program)
         dbg_error(program, "item_caps_total", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, amount);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, amount);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B588
@@ -5709,15 +5709,15 @@ static void op_item_caps_adjust(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to item_caps_adjust", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to item_caps_adjust", program->name, arg);
         }
     }
 
@@ -5732,8 +5732,8 @@ static void op_item_caps_adjust(Program* program)
         dbg_error(program, "item_caps_adjust", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, rc);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, rc);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B64C
@@ -5743,15 +5743,15 @@ static void op_anim_action_frame(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to anim_action_frame", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to anim_action_frame", program->name, arg);
         }
     }
 
@@ -5772,8 +5772,8 @@ static void op_anim_action_frame(Program* program)
         dbg_error(program, "anim_action_frame", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, actionFrame);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, actionFrame);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B740
@@ -5783,20 +5783,20 @@ static void op_reg_anim_play_sfx(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if (arg == 1) {
             if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-                programFatalError("script error: %s: invalid arg %d to reg_anim_play_sfx", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to reg_anim_play_sfx", program->name, arg);
             }
         } else {
             if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-                programFatalError("script error: %s: invalid arg %d to reg_anim_play_sfx", program->name, arg);
+                interpretError("script error: %s: invalid arg %d to reg_anim_play_sfx", program->name, arg);
             }
         }
     }
@@ -5805,7 +5805,7 @@ static void op_reg_anim_play_sfx(Program* program)
     int name = data[1];
     int delay = data[0];
 
-    char* soundEffectName = programGetString(program, opcode[1], name);
+    char* soundEffectName = interpretGetString(program, opcode[1], name);
     if (soundEffectName == NULL) {
         dbg_error(program, "reg_anim_play_sfx", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Can't match string!");
@@ -5825,15 +5825,15 @@ static void op_critter_mod_skill(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_mod_skill", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_mod_skill", program->name, arg);
         }
     }
 
@@ -5880,8 +5880,8 @@ static void op_critter_mod_skill(Program* program)
         dbg_error(program, "critter_mod_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, 0);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, 0);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45B9C4
@@ -5891,15 +5891,15 @@ static void op_sfx_build_char_name(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to sfx_build_char_name", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to sfx_build_char_name", program->name, arg);
         }
     }
 
@@ -5912,88 +5912,88 @@ static void op_sfx_build_char_name(Program* program)
     if (obj != NULL) {
         char soundEffectName[16];
         strcpy(soundEffectName, gsnd_build_character_sfx_name(obj, anim, extra));
-        stringOffset = programPushString(program, soundEffectName);
+        stringOffset = interpretAddString(program, soundEffectName);
     } else {
         dbg_error(program, "sfx_build_char_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BAA8
 static void op_sfx_build_ambient_name(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to sfx_build_ambient_name", program->name);
+        interpretError("script error: %s: invalid arg to sfx_build_ambient_name", program->name);
     }
 
-    char* baseName = programGetString(program, opcode, data);
+    char* baseName = interpretGetString(program, opcode, data);
 
     char soundEffectName[16];
     strcpy(soundEffectName, gsnd_build_ambient_sfx_name(baseName));
 
-    int stringOffset = programPushString(program, soundEffectName);
+    int stringOffset = interpretAddString(program, soundEffectName);
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BB54
 static void op_sfx_build_interface_name(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to sfx_build_interface_name", program->name);
+        interpretError("script error: %s: invalid arg to sfx_build_interface_name", program->name);
     }
 
-    char* baseName = programGetString(program, opcode, data);
+    char* baseName = interpretGetString(program, opcode, data);
 
     char soundEffectName[16];
     strcpy(soundEffectName, gsnd_build_interface_sfx_name(baseName));
 
-    int stringOffset = programPushString(program, soundEffectName);
+    int stringOffset = interpretAddString(program, soundEffectName);
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BC00
 static void op_sfx_build_item_name(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to sfx_build_item_name", program->name);
+        interpretError("script error: %s: invalid arg to sfx_build_item_name", program->name);
     }
 
-    const char* baseName = programGetString(program, opcode, data);
+    const char* baseName = interpretGetString(program, opcode, data);
 
     char soundEffectName[16];
     strcpy(soundEffectName, gsnd_build_interface_sfx_name(baseName));
 
-    int stringOffset = programPushString(program, soundEffectName);
+    int stringOffset = interpretAddString(program, soundEffectName);
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BCAC
@@ -6003,15 +6003,15 @@ static void op_sfx_build_weapon_name(Program* program)
     int data[4];
 
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to sfx_build_weapon_name", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to sfx_build_weapon_name", program->name, arg);
         }
     }
 
@@ -6023,10 +6023,10 @@ static void op_sfx_build_weapon_name(Program* program)
     char soundEffectName[16];
     strcpy(soundEffectName, gsnd_build_weapon_sfx_name(weaponSfxType, weapon, hitMode, target));
 
-    int stringOffset = programPushString(program, soundEffectName);
+    int stringOffset = interpretAddString(program, soundEffectName);
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BD7C
@@ -6036,30 +6036,30 @@ static void op_sfx_build_scenery_name(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to sfx_build_scenery_name", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to sfx_build_scenery_name", program->name, arg);
         }
     }
 
     int action = data[1];
     int actionType = data[0];
 
-    char* baseName = programGetString(program, opcode[2], data[2]);
+    char* baseName = interpretGetString(program, opcode[2], data[2]);
 
     char soundEffectName[16];
     strcpy(soundEffectName, gsnd_build_scenery_sfx_name(actionType, action, baseName));
 
-    int stringOffset = programPushString(program, soundEffectName);
+    int stringOffset = interpretAddString(program, soundEffectName);
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BE58
@@ -6069,15 +6069,15 @@ static void op_sfx_build_open_name(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to sfx_build_open_name", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to sfx_build_open_name", program->name, arg);
         }
     }
 
@@ -6090,13 +6090,13 @@ static void op_sfx_build_open_name(Program* program)
         char soundEffectName[16];
         strcpy(soundEffectName, gsnd_build_open_sfx_name(object, action));
 
-        stringOffset = programPushString(program, soundEffectName);
+        stringOffset = interpretAddString(program, soundEffectName);
     } else {
         dbg_error(program, "sfx_build_open_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45BF38
@@ -6106,15 +6106,15 @@ static void op_attack_setup(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcodes[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcodes[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcodes[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcodes[arg], data[arg]);
+            interpretDecStringRef(program, opcodes[arg], data[arg]);
         }
 
         if ((opcodes[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to attack_setup", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to attack_setup", program->name, arg);
         }
     }
 
@@ -6184,15 +6184,15 @@ static void op_destroy_mult_objs(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to destroy_mult_objs", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to destroy_mult_objs", program->name, arg);
         }
     }
 
@@ -6241,8 +6241,8 @@ static void op_destroy_mult_objs(Program* program)
         tileWindowRefreshRect(&rect, gElevation);
     }
 
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 
     program->flags &= ~PROGRAM_FLAG_0x20;
 
@@ -6258,15 +6258,15 @@ static void op_use_obj_on_obj(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to use_obj_on_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to use_obj_on_obj", program->name, arg);
         }
     }
 
@@ -6314,15 +6314,15 @@ static void op_move_obj_inven_to_obj(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to move_obj_inven_to_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to move_obj_inven_to_obj", program->name, arg);
         }
     }
 
@@ -6385,15 +6385,15 @@ static void op_endgame_movie(Program* program)
 // 0x45C56C
 static void op_obj_art_fid(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_art_fid", program->name);
+        interpretError("script error: %s: invalid arg to obj_art_fid", program->name);
     }
 
     Object* object = (Object*)data;
@@ -6405,45 +6405,45 @@ static void op_obj_art_fid(Program* program)
         dbg_error(program, "obj_art_fid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, fid);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, fid);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C5F8
 static void op_art_anim(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to art_anim", program->name);
+        interpretError("script error: %s: invalid arg to art_anim", program->name);
     }
 
-    programStackPushInt32(program, FID_ANIM_TYPE(data));
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, FID_ANIM_TYPE(data));
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C66C
 static void op_party_member_obj(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to party_member_obj", program->name);
+        interpretError("script error: %s: invalid arg to party_member_obj", program->name);
     }
 
     Object* object = partyMemberFindByPid(data);
-    programStackPushInt32(program, (int)object);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)object);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C6DC
@@ -6453,15 +6453,15 @@ static void op_rotation_to_tile(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to rotation_to_tile", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to rotation_to_tile", program->name, arg);
         }
     }
 
@@ -6469,22 +6469,22 @@ static void op_rotation_to_tile(Program* program)
     int tile2 = data[0];
 
     int rotation = tileGetRotationTo(tile1, tile2);
-    programStackPushInt32(program, rotation);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, rotation);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C778
 static void op_jam_lock(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to jam_lock", program->name);
+        interpretError("script error: %s: invalid arg to jam_lock", program->name);
     }
 
     Object* object = (Object*)data;
@@ -6495,15 +6495,15 @@ static void op_jam_lock(Program* program)
 // 0x45C7D4
 static void op_gdialog_set_barter_mod(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to gdialog_set_barter_mod", program->name);
+        interpretError("script error: %s: invalid arg to gdialog_set_barter_mod", program->name);
     }
 
     gdialogSetBarterMod(data);
@@ -6517,8 +6517,8 @@ static void op_combat_difficulty(Program* program)
         combatDifficulty = 0;
     }
 
-    programStackPushInt32(program, combatDifficulty);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, combatDifficulty);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C878
@@ -6527,15 +6527,15 @@ static void op_obj_on_screen(Program* program)
     // 0x453FC0
     static Rect rect = { 0, 0, 640, 480 };
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_on_screen", program->name);
+        interpretError("script error: %s: invalid arg to obj_on_screen", program->name);
     }
 
     Object* object = (Object*)data;
@@ -6556,22 +6556,22 @@ static void op_obj_on_screen(Program* program)
     }
 
     //debugPrint("ObjOnScreen: %d\n", result);
-    programStackPushInt32(program, result);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, result);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C93C
 static void op_critter_is_fleeing(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to critter_is_fleeing", program->name);
+        interpretError("script error: %s: invalid arg to critter_is_fleeing", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -6583,8 +6583,8 @@ static void op_critter_is_fleeing(Program* program)
         dbg_error(program, "critter_is_fleeing", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    programStackPushInt32(program, fleeing);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, fleeing);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45C9DC
@@ -6594,15 +6594,15 @@ static void op_critter_set_flee_state(Program* program)
     int data[2];
 
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to critter_set_flee_state", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to critter_set_flee_state", program->name, arg);
         }
     }
 
@@ -6639,18 +6639,18 @@ static void op_terminate_combat(Program* program)
 // 0x45CAC8
 static void op_debug_msg(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("script error: %s: invalid arg to debug_msg", program->name);
+        interpretError("script error: %s: invalid arg to debug_msg", program->name);
     }
 
-    char* string = programGetString(program, opcode, data);
+    char* string = interpretGetString(program, opcode, data);
 
     if (string != NULL) {
         bool showScriptMessages = false;
@@ -6665,15 +6665,15 @@ static void op_debug_msg(Program* program)
 // 0x45CB70
 static void op_critter_stop_attacking(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to critter_stop_attacking", program->name);
+        interpretError("script error: %s: invalid arg to critter_stop_attacking", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -6694,15 +6694,15 @@ static void op_tile_contains_pid_obj(Program* program)
     int data[3];
 
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
 
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("script error: %s: invalid arg %d to tile_contains_pid_obj", program->name, arg);
+            interpretError("script error: %s: invalid arg %d to tile_contains_pid_obj", program->name, arg);
         }
     }
 
@@ -6722,8 +6722,8 @@ static void op_tile_contains_pid_obj(Program* program)
         }
     }
 
-    programStackPushInt32(program, (int)found);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, (int)found);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45CCC8
@@ -6732,15 +6732,15 @@ static void op_obj_name(Program* program)
     // 0x518F04
     static char* strName = _aCritter;
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to obj_name", program->name);
+        interpretError("script error: %s: invalid arg to obj_name", program->name);
     }
 
     Object* obj = (Object*)data;
@@ -6750,29 +6750,29 @@ static void op_obj_name(Program* program)
         dbg_error(program, "obj_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    int stringOffset = programPushString(program, strName);
+    int stringOffset = interpretAddString(program, strName);
 
-    programStackPushInt32(program, stringOffset);
-    programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+    interpretPushLong(program, stringOffset);
+    interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
 // 0x45CD64
 static void op_get_pc_stat(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("script error: %s: invalid arg to get_pc_stat", program->name);
+        interpretError("script error: %s: invalid arg to get_pc_stat", program->name);
     }
 
     int value = pcGetStat(data);
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x45CDD4
@@ -6783,187 +6783,187 @@ void intExtraClose()
 // 0x45CDD8
 void initIntExtra()
 {
-    interpreterRegisterOpcode(0x80A1, op_give_exp_points);
-    interpreterRegisterOpcode(0x80A2, op_scr_return);
-    interpreterRegisterOpcode(0x80A3, op_play_sfx);
-    interpreterRegisterOpcode(0x80A4, op_obj_name);
-    interpreterRegisterOpcode(0x80A5, op_sfx_build_open_name);
-    interpreterRegisterOpcode(0x80A6, op_get_pc_stat);
-    interpreterRegisterOpcode(0x80A7, op_tile_contains_pid_obj);
-    interpreterRegisterOpcode(0x80A8, op_set_map_start);
-    interpreterRegisterOpcode(0x80A9, op_override_map_start);
-    interpreterRegisterOpcode(0x80AA, op_has_skill);
-    interpreterRegisterOpcode(0x80AB, op_using_skill);
-    interpreterRegisterOpcode(0x80AC, op_roll_vs_skill);
-    interpreterRegisterOpcode(0x80AD, op_skill_contest);
-    interpreterRegisterOpcode(0x80AE, op_do_check);
-    interpreterRegisterOpcode(0x80AF, op_is_success);
-    interpreterRegisterOpcode(0x80B0, op_is_critical);
-    interpreterRegisterOpcode(0x80B1, op_how_much);
-    interpreterRegisterOpcode(0x80B2, op_mark_area_known);
-    interpreterRegisterOpcode(0x80B3, op_reaction_influence);
-    interpreterRegisterOpcode(0x80B4, op_random);
-    interpreterRegisterOpcode(0x80B5, op_roll_dice);
-    interpreterRegisterOpcode(0x80B6, op_move_to);
-    interpreterRegisterOpcode(0x80B7, op_create_object_sid);
-    interpreterRegisterOpcode(0x80B8, op_display_msg);
-    interpreterRegisterOpcode(0x80B9, op_script_overrides);
-    interpreterRegisterOpcode(0x80BA, op_obj_is_carrying_obj_pid);
-    interpreterRegisterOpcode(0x80BB, op_tile_contains_obj_pid);
-    interpreterRegisterOpcode(0x80BC, op_self_obj);
-    interpreterRegisterOpcode(0x80BD, op_source_obj);
-    interpreterRegisterOpcode(0x80BE, op_target_obj);
-    interpreterRegisterOpcode(0x80BF, op_dude_obj);
-    interpreterRegisterOpcode(0x80C0, op_obj_being_used_with);
-    interpreterRegisterOpcode(0x80C1, op_local_var);
-    interpreterRegisterOpcode(0x80C2, op_set_local_var);
-    interpreterRegisterOpcode(0x80C3, op_map_var);
-    interpreterRegisterOpcode(0x80C4, op_set_map_var);
-    interpreterRegisterOpcode(0x80C5, op_global_var);
-    interpreterRegisterOpcode(0x80C6, op_set_global_var);
-    interpreterRegisterOpcode(0x80C7, op_script_action);
-    interpreterRegisterOpcode(0x80C8, op_obj_type);
-    interpreterRegisterOpcode(0x80C9, op_obj_item_subtype);
-    interpreterRegisterOpcode(0x80CA, op_get_critter_stat);
-    interpreterRegisterOpcode(0x80CB, op_set_critter_stat);
-    interpreterRegisterOpcode(0x80CC, op_animate_stand_obj);
-    interpreterRegisterOpcode(0x80CD, op_animate_stand_reverse_obj);
-    interpreterRegisterOpcode(0x80CE, op_animate_move_obj_to_tile);
-    interpreterRegisterOpcode(0x80CF, op_tile_in_tile_rect);
-    interpreterRegisterOpcode(0x80D0, op_attack);
-    interpreterRegisterOpcode(0x80D1, op_make_daytime);
-    interpreterRegisterOpcode(0x80D2, op_tile_distance);
-    interpreterRegisterOpcode(0x80D3, op_tile_distance_objs);
-    interpreterRegisterOpcode(0x80D4, op_tile_num);
-    interpreterRegisterOpcode(0x80D5, op_tile_num_in_direction);
-    interpreterRegisterOpcode(0x80D6, op_pickup_obj);
-    interpreterRegisterOpcode(0x80D7, op_drop_obj);
-    interpreterRegisterOpcode(0x80D8, op_add_obj_to_inven);
-    interpreterRegisterOpcode(0x80D9, op_rm_obj_from_inven);
-    interpreterRegisterOpcode(0x80DA, op_wield_obj_critter);
-    interpreterRegisterOpcode(0x80DB, op_use_obj);
-    interpreterRegisterOpcode(0x80DC, op_obj_can_see_obj);
-    interpreterRegisterOpcode(0x80DD, op_attack);
-    interpreterRegisterOpcode(0x80DE, op_start_gdialog);
-    interpreterRegisterOpcode(0x80DF, op_end_dialogue);
-    interpreterRegisterOpcode(0x80E0, op_dialogue_reaction);
-    interpreterRegisterOpcode(0x80E1, op_metarule3);
-    interpreterRegisterOpcode(0x80E2, op_set_map_music);
-    interpreterRegisterOpcode(0x80E3, op_set_obj_visibility);
-    interpreterRegisterOpcode(0x80E4, op_load_map);
-    interpreterRegisterOpcode(0x80E5, op_wm_area_set_pos);
-    interpreterRegisterOpcode(0x80E6, op_set_exit_grids);
-    interpreterRegisterOpcode(0x80E7, op_anim_busy);
-    interpreterRegisterOpcode(0x80E8, op_critter_heal);
-    interpreterRegisterOpcode(0x80E9, op_set_light_level);
-    interpreterRegisterOpcode(0x80EA, op_game_time);
-    interpreterRegisterOpcode(0x80EB, op_game_time_in_seconds);
-    interpreterRegisterOpcode(0x80EC, op_elevation);
-    interpreterRegisterOpcode(0x80ED, op_kill_critter);
-    interpreterRegisterOpcode(0x80EE, op_kill_critter_type);
-    interpreterRegisterOpcode(0x80EF, op_critter_damage);
-    interpreterRegisterOpcode(0x80F0, op_add_timer_event);
-    interpreterRegisterOpcode(0x80F1, op_rm_timer_event);
-    interpreterRegisterOpcode(0x80F2, op_game_ticks);
-    interpreterRegisterOpcode(0x80F3, op_has_trait);
-    interpreterRegisterOpcode(0x80F4, op_destroy_object);
-    interpreterRegisterOpcode(0x80F5, op_obj_can_hear_obj);
-    interpreterRegisterOpcode(0x80F6, op_game_time_hour);
-    interpreterRegisterOpcode(0x80F7, op_fixed_param);
-    interpreterRegisterOpcode(0x80F8, op_tile_is_visible);
-    interpreterRegisterOpcode(0x80F9, op_dialogue_system_enter);
-    interpreterRegisterOpcode(0x80FA, op_action_being_used);
-    interpreterRegisterOpcode(0x80FB, op_critter_state);
-    interpreterRegisterOpcode(0x80FC, op_game_time_advance);
-    interpreterRegisterOpcode(0x80FD, op_radiation_inc);
-    interpreterRegisterOpcode(0x80FE, op_radiation_dec);
-    interpreterRegisterOpcode(0x80FF, op_critter_attempt_placement);
-    interpreterRegisterOpcode(0x8100, op_obj_pid);
-    interpreterRegisterOpcode(0x8101, op_cur_map_index);
-    interpreterRegisterOpcode(0x8102, op_critter_add_trait);
-    interpreterRegisterOpcode(0x8103, op_critter_rm_trait);
-    interpreterRegisterOpcode(0x8104, op_proto_data);
-    interpreterRegisterOpcode(0x8105, op_message_str);
-    interpreterRegisterOpcode(0x8106, op_critter_inven_obj);
-    interpreterRegisterOpcode(0x8107, op_obj_set_light_level);
-    interpreterRegisterOpcode(0x8108, op_world_map);
-    interpreterRegisterOpcode(0x8109, op_inven_cmds);
-    interpreterRegisterOpcode(0x810A, op_float_msg);
-    interpreterRegisterOpcode(0x810B, op_metarule);
-    interpreterRegisterOpcode(0x810C, op_anim);
-    interpreterRegisterOpcode(0x810D, op_obj_carrying_pid_obj);
-    interpreterRegisterOpcode(0x810E, op_reg_anim_func);
-    interpreterRegisterOpcode(0x810F, op_reg_anim_animate);
-    interpreterRegisterOpcode(0x8110, op_reg_anim_animate_reverse);
-    interpreterRegisterOpcode(0x8111, op_reg_anim_obj_move_to_obj);
-    interpreterRegisterOpcode(0x8112, op_reg_anim_obj_run_to_obj);
-    interpreterRegisterOpcode(0x8113, op_reg_anim_obj_move_to_tile);
-    interpreterRegisterOpcode(0x8114, op_reg_anim_obj_run_to_tile);
-    interpreterRegisterOpcode(0x8115, op_play_gmovie);
-    interpreterRegisterOpcode(0x8116, op_add_mult_objs_to_inven);
-    interpreterRegisterOpcode(0x8117, op_rm_mult_objs_from_inven);
-    interpreterRegisterOpcode(0x8118, op_get_month);
-    interpreterRegisterOpcode(0x8119, op_get_day);
-    interpreterRegisterOpcode(0x811A, op_explosion);
-    interpreterRegisterOpcode(0x811B, op_days_since_visited);
-    interpreterRegisterOpcode(0x811C, op_gsay_start);
-    interpreterRegisterOpcode(0x811D, op_gsay_end);
-    interpreterRegisterOpcode(0x811E, op_gsay_reply);
-    interpreterRegisterOpcode(0x811F, op_gsay_option);
-    interpreterRegisterOpcode(0x8120, op_gsay_message);
-    interpreterRegisterOpcode(0x8121, op_giq_option);
-    interpreterRegisterOpcode(0x8122, op_poison);
-    interpreterRegisterOpcode(0x8123, op_get_poison);
-    interpreterRegisterOpcode(0x8124, op_party_add);
-    interpreterRegisterOpcode(0x8125, op_party_remove);
-    interpreterRegisterOpcode(0x8126, op_reg_anim_animate_forever);
-    interpreterRegisterOpcode(0x8127, op_critter_injure);
-    interpreterRegisterOpcode(0x8128, op_combat_is_initialized);
-    interpreterRegisterOpcode(0x8129, op_gdialog_barter);
-    interpreterRegisterOpcode(0x812A, op_difficulty_level);
-    interpreterRegisterOpcode(0x812B, op_running_burning_guy);
-    interpreterRegisterOpcode(0x812C, op_inven_unwield);
-    interpreterRegisterOpcode(0x812D, op_obj_is_locked);
-    interpreterRegisterOpcode(0x812E, op_obj_lock);
-    interpreterRegisterOpcode(0x812F, op_obj_unlock);
-    interpreterRegisterOpcode(0x8131, op_obj_open);
-    interpreterRegisterOpcode(0x8130, op_obj_is_open);
-    interpreterRegisterOpcode(0x8132, op_obj_close);
-    interpreterRegisterOpcode(0x8133, op_game_ui_disable);
-    interpreterRegisterOpcode(0x8134, op_game_ui_enable);
-    interpreterRegisterOpcode(0x8135, op_game_ui_is_disabled);
-    interpreterRegisterOpcode(0x8136, op_gfade_out);
-    interpreterRegisterOpcode(0x8137, op_gfade_in);
-    interpreterRegisterOpcode(0x8138, op_item_caps_total);
-    interpreterRegisterOpcode(0x8139, op_item_caps_adjust);
-    interpreterRegisterOpcode(0x813A, op_anim_action_frame);
-    interpreterRegisterOpcode(0x813B, op_reg_anim_play_sfx);
-    interpreterRegisterOpcode(0x813C, op_critter_mod_skill);
-    interpreterRegisterOpcode(0x813D, op_sfx_build_char_name);
-    interpreterRegisterOpcode(0x813E, op_sfx_build_ambient_name);
-    interpreterRegisterOpcode(0x813F, op_sfx_build_interface_name);
-    interpreterRegisterOpcode(0x8140, op_sfx_build_item_name);
-    interpreterRegisterOpcode(0x8141, op_sfx_build_weapon_name);
-    interpreterRegisterOpcode(0x8142, op_sfx_build_scenery_name);
-    interpreterRegisterOpcode(0x8143, op_attack_setup);
-    interpreterRegisterOpcode(0x8144, op_destroy_mult_objs);
-    interpreterRegisterOpcode(0x8145, op_use_obj_on_obj);
-    interpreterRegisterOpcode(0x8146, op_endgame_slideshow);
-    interpreterRegisterOpcode(0x8147, op_move_obj_inven_to_obj);
-    interpreterRegisterOpcode(0x8148, op_endgame_movie);
-    interpreterRegisterOpcode(0x8149, op_obj_art_fid);
-    interpreterRegisterOpcode(0x814A, op_art_anim);
-    interpreterRegisterOpcode(0x814B, op_party_member_obj);
-    interpreterRegisterOpcode(0x814C, op_rotation_to_tile);
-    interpreterRegisterOpcode(0x814D, op_jam_lock);
-    interpreterRegisterOpcode(0x814E, op_gdialog_set_barter_mod);
-    interpreterRegisterOpcode(0x814F, op_combat_difficulty);
-    interpreterRegisterOpcode(0x8150, op_obj_on_screen);
-    interpreterRegisterOpcode(0x8151, op_critter_is_fleeing);
-    interpreterRegisterOpcode(0x8152, op_critter_set_flee_state);
-    interpreterRegisterOpcode(0x8153, op_terminate_combat);
-    interpreterRegisterOpcode(0x8154, op_debug_msg);
-    interpreterRegisterOpcode(0x8155, op_critter_stop_attacking);
+    interpretAddFunc(0x80A1, op_give_exp_points);
+    interpretAddFunc(0x80A2, op_scr_return);
+    interpretAddFunc(0x80A3, op_play_sfx);
+    interpretAddFunc(0x80A4, op_obj_name);
+    interpretAddFunc(0x80A5, op_sfx_build_open_name);
+    interpretAddFunc(0x80A6, op_get_pc_stat);
+    interpretAddFunc(0x80A7, op_tile_contains_pid_obj);
+    interpretAddFunc(0x80A8, op_set_map_start);
+    interpretAddFunc(0x80A9, op_override_map_start);
+    interpretAddFunc(0x80AA, op_has_skill);
+    interpretAddFunc(0x80AB, op_using_skill);
+    interpretAddFunc(0x80AC, op_roll_vs_skill);
+    interpretAddFunc(0x80AD, op_skill_contest);
+    interpretAddFunc(0x80AE, op_do_check);
+    interpretAddFunc(0x80AF, op_is_success);
+    interpretAddFunc(0x80B0, op_is_critical);
+    interpretAddFunc(0x80B1, op_how_much);
+    interpretAddFunc(0x80B2, op_mark_area_known);
+    interpretAddFunc(0x80B3, op_reaction_influence);
+    interpretAddFunc(0x80B4, op_random);
+    interpretAddFunc(0x80B5, op_roll_dice);
+    interpretAddFunc(0x80B6, op_move_to);
+    interpretAddFunc(0x80B7, op_create_object_sid);
+    interpretAddFunc(0x80B8, op_display_msg);
+    interpretAddFunc(0x80B9, op_script_overrides);
+    interpretAddFunc(0x80BA, op_obj_is_carrying_obj_pid);
+    interpretAddFunc(0x80BB, op_tile_contains_obj_pid);
+    interpretAddFunc(0x80BC, op_self_obj);
+    interpretAddFunc(0x80BD, op_source_obj);
+    interpretAddFunc(0x80BE, op_target_obj);
+    interpretAddFunc(0x80BF, op_dude_obj);
+    interpretAddFunc(0x80C0, op_obj_being_used_with);
+    interpretAddFunc(0x80C1, op_local_var);
+    interpretAddFunc(0x80C2, op_set_local_var);
+    interpretAddFunc(0x80C3, op_map_var);
+    interpretAddFunc(0x80C4, op_set_map_var);
+    interpretAddFunc(0x80C5, op_global_var);
+    interpretAddFunc(0x80C6, op_set_global_var);
+    interpretAddFunc(0x80C7, op_script_action);
+    interpretAddFunc(0x80C8, op_obj_type);
+    interpretAddFunc(0x80C9, op_obj_item_subtype);
+    interpretAddFunc(0x80CA, op_get_critter_stat);
+    interpretAddFunc(0x80CB, op_set_critter_stat);
+    interpretAddFunc(0x80CC, op_animate_stand_obj);
+    interpretAddFunc(0x80CD, op_animate_stand_reverse_obj);
+    interpretAddFunc(0x80CE, op_animate_move_obj_to_tile);
+    interpretAddFunc(0x80CF, op_tile_in_tile_rect);
+    interpretAddFunc(0x80D0, op_attack);
+    interpretAddFunc(0x80D1, op_make_daytime);
+    interpretAddFunc(0x80D2, op_tile_distance);
+    interpretAddFunc(0x80D3, op_tile_distance_objs);
+    interpretAddFunc(0x80D4, op_tile_num);
+    interpretAddFunc(0x80D5, op_tile_num_in_direction);
+    interpretAddFunc(0x80D6, op_pickup_obj);
+    interpretAddFunc(0x80D7, op_drop_obj);
+    interpretAddFunc(0x80D8, op_add_obj_to_inven);
+    interpretAddFunc(0x80D9, op_rm_obj_from_inven);
+    interpretAddFunc(0x80DA, op_wield_obj_critter);
+    interpretAddFunc(0x80DB, op_use_obj);
+    interpretAddFunc(0x80DC, op_obj_can_see_obj);
+    interpretAddFunc(0x80DD, op_attack);
+    interpretAddFunc(0x80DE, op_start_gdialog);
+    interpretAddFunc(0x80DF, op_end_dialogue);
+    interpretAddFunc(0x80E0, op_dialogue_reaction);
+    interpretAddFunc(0x80E1, op_metarule3);
+    interpretAddFunc(0x80E2, op_set_map_music);
+    interpretAddFunc(0x80E3, op_set_obj_visibility);
+    interpretAddFunc(0x80E4, op_load_map);
+    interpretAddFunc(0x80E5, op_wm_area_set_pos);
+    interpretAddFunc(0x80E6, op_set_exit_grids);
+    interpretAddFunc(0x80E7, op_anim_busy);
+    interpretAddFunc(0x80E8, op_critter_heal);
+    interpretAddFunc(0x80E9, op_set_light_level);
+    interpretAddFunc(0x80EA, op_game_time);
+    interpretAddFunc(0x80EB, op_game_time_in_seconds);
+    interpretAddFunc(0x80EC, op_elevation);
+    interpretAddFunc(0x80ED, op_kill_critter);
+    interpretAddFunc(0x80EE, op_kill_critter_type);
+    interpretAddFunc(0x80EF, op_critter_damage);
+    interpretAddFunc(0x80F0, op_add_timer_event);
+    interpretAddFunc(0x80F1, op_rm_timer_event);
+    interpretAddFunc(0x80F2, op_game_ticks);
+    interpretAddFunc(0x80F3, op_has_trait);
+    interpretAddFunc(0x80F4, op_destroy_object);
+    interpretAddFunc(0x80F5, op_obj_can_hear_obj);
+    interpretAddFunc(0x80F6, op_game_time_hour);
+    interpretAddFunc(0x80F7, op_fixed_param);
+    interpretAddFunc(0x80F8, op_tile_is_visible);
+    interpretAddFunc(0x80F9, op_dialogue_system_enter);
+    interpretAddFunc(0x80FA, op_action_being_used);
+    interpretAddFunc(0x80FB, op_critter_state);
+    interpretAddFunc(0x80FC, op_game_time_advance);
+    interpretAddFunc(0x80FD, op_radiation_inc);
+    interpretAddFunc(0x80FE, op_radiation_dec);
+    interpretAddFunc(0x80FF, op_critter_attempt_placement);
+    interpretAddFunc(0x8100, op_obj_pid);
+    interpretAddFunc(0x8101, op_cur_map_index);
+    interpretAddFunc(0x8102, op_critter_add_trait);
+    interpretAddFunc(0x8103, op_critter_rm_trait);
+    interpretAddFunc(0x8104, op_proto_data);
+    interpretAddFunc(0x8105, op_message_str);
+    interpretAddFunc(0x8106, op_critter_inven_obj);
+    interpretAddFunc(0x8107, op_obj_set_light_level);
+    interpretAddFunc(0x8108, op_world_map);
+    interpretAddFunc(0x8109, op_inven_cmds);
+    interpretAddFunc(0x810A, op_float_msg);
+    interpretAddFunc(0x810B, op_metarule);
+    interpretAddFunc(0x810C, op_anim);
+    interpretAddFunc(0x810D, op_obj_carrying_pid_obj);
+    interpretAddFunc(0x810E, op_reg_anim_func);
+    interpretAddFunc(0x810F, op_reg_anim_animate);
+    interpretAddFunc(0x8110, op_reg_anim_animate_reverse);
+    interpretAddFunc(0x8111, op_reg_anim_obj_move_to_obj);
+    interpretAddFunc(0x8112, op_reg_anim_obj_run_to_obj);
+    interpretAddFunc(0x8113, op_reg_anim_obj_move_to_tile);
+    interpretAddFunc(0x8114, op_reg_anim_obj_run_to_tile);
+    interpretAddFunc(0x8115, op_play_gmovie);
+    interpretAddFunc(0x8116, op_add_mult_objs_to_inven);
+    interpretAddFunc(0x8117, op_rm_mult_objs_from_inven);
+    interpretAddFunc(0x8118, op_get_month);
+    interpretAddFunc(0x8119, op_get_day);
+    interpretAddFunc(0x811A, op_explosion);
+    interpretAddFunc(0x811B, op_days_since_visited);
+    interpretAddFunc(0x811C, op_gsay_start);
+    interpretAddFunc(0x811D, op_gsay_end);
+    interpretAddFunc(0x811E, op_gsay_reply);
+    interpretAddFunc(0x811F, op_gsay_option);
+    interpretAddFunc(0x8120, op_gsay_message);
+    interpretAddFunc(0x8121, op_giq_option);
+    interpretAddFunc(0x8122, op_poison);
+    interpretAddFunc(0x8123, op_get_poison);
+    interpretAddFunc(0x8124, op_party_add);
+    interpretAddFunc(0x8125, op_party_remove);
+    interpretAddFunc(0x8126, op_reg_anim_animate_forever);
+    interpretAddFunc(0x8127, op_critter_injure);
+    interpretAddFunc(0x8128, op_combat_is_initialized);
+    interpretAddFunc(0x8129, op_gdialog_barter);
+    interpretAddFunc(0x812A, op_difficulty_level);
+    interpretAddFunc(0x812B, op_running_burning_guy);
+    interpretAddFunc(0x812C, op_inven_unwield);
+    interpretAddFunc(0x812D, op_obj_is_locked);
+    interpretAddFunc(0x812E, op_obj_lock);
+    interpretAddFunc(0x812F, op_obj_unlock);
+    interpretAddFunc(0x8131, op_obj_open);
+    interpretAddFunc(0x8130, op_obj_is_open);
+    interpretAddFunc(0x8132, op_obj_close);
+    interpretAddFunc(0x8133, op_game_ui_disable);
+    interpretAddFunc(0x8134, op_game_ui_enable);
+    interpretAddFunc(0x8135, op_game_ui_is_disabled);
+    interpretAddFunc(0x8136, op_gfade_out);
+    interpretAddFunc(0x8137, op_gfade_in);
+    interpretAddFunc(0x8138, op_item_caps_total);
+    interpretAddFunc(0x8139, op_item_caps_adjust);
+    interpretAddFunc(0x813A, op_anim_action_frame);
+    interpretAddFunc(0x813B, op_reg_anim_play_sfx);
+    interpretAddFunc(0x813C, op_critter_mod_skill);
+    interpretAddFunc(0x813D, op_sfx_build_char_name);
+    interpretAddFunc(0x813E, op_sfx_build_ambient_name);
+    interpretAddFunc(0x813F, op_sfx_build_interface_name);
+    interpretAddFunc(0x8140, op_sfx_build_item_name);
+    interpretAddFunc(0x8141, op_sfx_build_weapon_name);
+    interpretAddFunc(0x8142, op_sfx_build_scenery_name);
+    interpretAddFunc(0x8143, op_attack_setup);
+    interpretAddFunc(0x8144, op_destroy_mult_objs);
+    interpretAddFunc(0x8145, op_use_obj_on_obj);
+    interpretAddFunc(0x8146, op_endgame_slideshow);
+    interpretAddFunc(0x8147, op_move_obj_inven_to_obj);
+    interpretAddFunc(0x8148, op_endgame_movie);
+    interpretAddFunc(0x8149, op_obj_art_fid);
+    interpretAddFunc(0x814A, op_art_anim);
+    interpretAddFunc(0x814B, op_party_member_obj);
+    interpretAddFunc(0x814C, op_rotation_to_tile);
+    interpretAddFunc(0x814D, op_jam_lock);
+    interpretAddFunc(0x814E, op_gdialog_set_barter_mod);
+    interpretAddFunc(0x814F, op_combat_difficulty);
+    interpretAddFunc(0x8150, op_obj_on_screen);
+    interpretAddFunc(0x8151, op_critter_is_fleeing);
+    interpretAddFunc(0x8152, op_critter_set_flee_state);
+    interpretAddFunc(0x8153, op_terminate_combat);
+    interpretAddFunc(0x8154, op_debug_msg);
+    interpretAddFunc(0x8155, op_critter_stop_attacking);
 }
 
 // NOTE: Uncollapsed 0x45D878.

@@ -226,7 +226,7 @@ int exportStoreVariable(Program* program, const char* name, opcode_t opcode, int
 
     if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         if (program != NULL) {
-            const char* stringValue = programGetString(program, opcode, data);
+            const char* stringValue = interpretGetString(program, opcode, data);
             exportedVariable->type = VALUE_TYPE_DYNAMIC_STRING;
 
             exportedVariable->stringValue = (char*)internal_malloc_safe(strlen(stringValue) + 1, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 175
@@ -279,7 +279,7 @@ int exportFetchVariable(Program* program, const char* name, opcode_t* opcodePtr,
     *opcodePtr = exportedVariable->type;
 
     if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        *dataPtr = programPushString(program, exportedVariable->stringValue);
+        *dataPtr = interpretAddString(program, exportedVariable->stringValue);
     } else {
         *dataPtr = exportedVariable->value;
     }

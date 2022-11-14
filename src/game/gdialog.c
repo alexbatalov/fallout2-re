@@ -1163,7 +1163,7 @@ int gdialogGo()
         dialogBlock.options[gdNumOptions].proc = 0;
 
         if (gdAddOption(-1, -1, 50) == -1) {
-            programFatalError("Error setting option.");
+            interpretError("Error setting option.");
             rc = -1;
         }
     }
@@ -2077,7 +2077,7 @@ static int gdProcessChoice(int a1)
 
     if (gdReenterLevel < 2) {
         if (dialogOptionEntry->proc != 0) {
-            _executeProcedure(dialogBlock.program, dialogOptionEntry->proc);
+            executeProcedure(dialogBlock.program, dialogOptionEntry->proc);
         }
     }
 
@@ -3140,7 +3140,7 @@ void barter_end_to_talk_to()
 {
     dialogQuit();
     dialogClose();
-    _updatePrograms();
+    updatePrograms();
     _updateWindows();
     dialogue_state = 1;
     dialogue_switch_mode = 1;

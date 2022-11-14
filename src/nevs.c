@@ -188,7 +188,7 @@ void _nevs_update()
                 gNevsHits += nevs->hits;
 
                 if (nevs->field_38 == NULL) {
-                    _executeProc(nevs->program, nevs->proc);
+                    executeProc(nevs->program, nevs->proc);
                 } else {
                     nevs->field_38();
                 }

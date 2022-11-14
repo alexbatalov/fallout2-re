@@ -251,7 +251,7 @@ bool _windowCheckRegion(int windowIndex, int mouseX, int mouseY, int mouseEvent)
                 }
 
                 if (region->program != NULL && region->procs[2] != 0) {
-                    _executeProc(region->program, region->procs[2]);
+                    executeProc(region->program, region->procs[2]);
                     if (v1 != managedWindow->field_38) {
                         return true;
                     }
@@ -328,7 +328,7 @@ bool _checkAllRegions()
                         }
 
                         if (region->program != NULL && region->procs[3] != 0) {
-                            _executeProc(region->program, region->procs[3]);
+                            executeProc(region->program, region->procs[3]);
                             if (v1 != managedWindow->field_38) {
                                 return 1;
                             }
@@ -382,7 +382,7 @@ void _doRegionRightFunc(Region* region, int a2)
 
     if (a2 < 4) {
         if (region->program != NULL && region->rightProcs[a2] != 0) {
-            _executeProc(region->program, region->rightProcs[a2]);
+            executeProc(region->program, region->rightProcs[a2]);
         }
     }
 }
@@ -400,7 +400,7 @@ void _doRegionFunc(Region* region, int a2)
 
     if (a2 < 4) {
         if (region->program != NULL && region->rightProcs[a2] != 0) {
-            _executeProc(region->program, region->rightProcs[a2]);
+            executeProc(region->program, region->rightProcs[a2]);
         }
     }
 }
@@ -488,7 +488,7 @@ void sub_4B6F68(int btn, int mouseEvent)
                         _win_set_button_rest_state(managedButton->btn, 0, 0);
                     } else {
                         if (managedButton->program != NULL && managedButton->procs[mouseEvent] != 0) {
-                            _executeProc(managedButton->program, managedButton->procs[mouseEvent]);
+                            executeProc(managedButton->program, managedButton->procs[mouseEvent]);
                         }
 
                         if (managedButton->mouseEventCallback != NULL) {
@@ -547,7 +547,7 @@ void sub_4B704C(int btn, int mouseEvent)
                         _win_set_button_rest_state(managedButton->btn, 0, 0);
                     } else {
                         if (managedButton->program != NULL && managedButton->rightProcs[mouseEvent] != 0) {
-                            _executeProc(managedButton->program, managedButton->rightProcs[mouseEvent]);
+                            executeProc(managedButton->program, managedButton->rightProcs[mouseEvent]);
                         }
 
                         if (managedButton->rightMouseEventCallback != NULL) {
@@ -1633,7 +1633,7 @@ void _initWindow(int resolution, int a2)
 
     mouseManagerInit();
 
-    mouseManagerSetNameMangler(_interpretMangleName);
+    mouseManagerSetNameMangler(interpretMangleName);
 
     for (i = 0; i < 64; i++) {
         for (j = 0; j < 256; j++) {

@@ -147,25 +147,25 @@ static int sayStartingPosition;
 // 0x461780
 static void op_fillwin3x3(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to fillwin3x3");
+        interpretError("Invalid type given to fillwin3x3");
     }
 
-    char* fileName = programGetString(program, opcode, data);
-    char* mangledFileName = _interpretMangleName(fileName);
+    char* fileName = interpretGetString(program, opcode, data);
+    char* mangledFileName = interpretMangleName(fileName);
 
     int imageWidth;
     int imageHeight;
     unsigned char* imageData = loadDataFile(mangledFileName, &imageWidth, &imageHeight);
     if (imageData == NULL) {
-        programFatalError("cannot load 3x3 file '%s'", mangledFileName);
+        interpretError("cannot load 3x3 file '%s'", mangledFileName);
     }
 
     _selectWindowID(program->windowId);
@@ -191,39 +191,39 @@ static void op_format(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 6; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 6 given to format\n");
+        interpretError("Invalid arg 6 given to format\n");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 5 given to format\n");
+        interpretError("Invalid arg 5 given to format\n");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 4 given to format\n");
+        interpretError("Invalid arg 4 given to format\n");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 3 given to format\n");
+        interpretError("Invalid arg 3 given to format\n");
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to format\n");
+        interpretError("Invalid arg 2 given to format\n");
     }
 
     if ((opcode[5] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid arg 1 given to format\n");
+        interpretError("Invalid arg 1 given to format\n");
     }
 
-    char* string = programGetString(program, opcode[5], data[5]);
+    char* string = interpretGetString(program, opcode[5], data[5]);
     int x = data[4];
     int y = data[3];
     int width = data[2];
@@ -231,7 +231,7 @@ static void op_format(Program* program)
     int textAlignment = data[0];
 
     if (!_windowFormatMessage(string, x, y, width, height, textAlignment)) {
-        programFatalError("Error formatting message\n");
+        interpretError("Error formatting message\n");
     }
 }
 
@@ -240,22 +240,22 @@ static void op_print(Program* program)
 {
     _selectWindowID(program->windowId);
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     switch (opcode & VALUE_TYPE_MASK) {
     case VALUE_TYPE_STRING:
-        _interpretOutput("%s", programGetString(program, opcode, data));
+        interpretOutput("%s", interpretGetString(program, opcode, data));
         break;
     case VALUE_TYPE_FLOAT:
-        _interpretOutput("%.5f", *((float*)&data));
+        interpretOutput("%.5f", *((float*)&data));
         break;
     case VALUE_TYPE_INT:
-        _interpretOutput("%d", data);
+        interpretOutput("%d", data);
         break;
     }
 }
@@ -270,27 +270,27 @@ static void op_selectfilelist(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Error, invalid arg 2 given to selectfilelist");
+        interpretError("Error, invalid arg 2 given to selectfilelist");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Error, invalid arg 1 given to selectfilelist");
+        interpretError("Error, invalid arg 1 given to selectfilelist");
     }
 
-    char* pattern = programGetString(program, opcode[0], data[0]);
-    char* title = programGetString(program, opcode[1], data[1]);
+    char* pattern = interpretGetString(program, opcode[0], data[0]);
+    char* title = interpretGetString(program, opcode[1], data[1]);
 
     int fileListLength;
-    char** fileList = _getFileList(_interpretMangleName(pattern), &fileListLength);
+    char** fileList = _getFileList(interpretMangleName(pattern), &fileListLength);
     if (fileList != NULL && fileListLength != 0) {
         int selectedIndex = _win_list_select(title,
             fileList,
@@ -301,17 +301,17 @@ static void op_selectfilelist(Program* program)
             colorTable[0x7FFF] | 0x10000);
 
         if (selectedIndex != -1) {
-            programStackPushInt32(program, programPushString(program, fileList[selectedIndex]));
-            programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+            interpretPushLong(program, interpretAddString(program, fileList[selectedIndex]));
+            interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
         } else {
-            programStackPushInt32(program, 0);
-            programStackPushInt16(program, VALUE_TYPE_INT);
+            interpretPushLong(program, 0);
+            interpretPushShort(program, VALUE_TYPE_INT);
         }
 
         _freeFileList(fileList);
     } else {
-        programStackPushInt32(program, 0);
-        programStackPushInt16(program, VALUE_TYPE_INT);
+        interpretPushLong(program, 0);
+        interpretPushShort(program, VALUE_TYPE_INT);
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -323,47 +323,47 @@ static void op_tokenize(Program* program)
     opcode_t opcode[3];
     int data[3];
 
-    opcode[0] = programStackPopInt16(program);
-    data[0] = programStackPopInt32(program);
+    opcode[0] = interpretPopShort(program);
+    data[0] = interpretPopLong(program);
 
     if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[0], data[0]);
+        interpretDecStringRef(program, opcode[0], data[0]);
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Error, invalid arg 3 to tokenize.");
+        interpretError("Error, invalid arg 3 to tokenize.");
     }
 
-    opcode[1] = programStackPopInt16(program);
-    data[1] = programStackPopInt32(program);
+    opcode[1] = interpretPopShort(program);
+    data[1] = interpretPopLong(program);
 
     if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[1], data[1]);
+        interpretDecStringRef(program, opcode[1], data[1]);
     }
 
     char* prev = NULL;
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
         if (data[1] != 0) {
-            programFatalError("Error, invalid arg 2 to tokenize. (only accept 0 for int value)");
+            interpretError("Error, invalid arg 2 to tokenize. (only accept 0 for int value)");
         }
     } else if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        prev = programGetString(program, opcode[1], data[1]);
+        prev = interpretGetString(program, opcode[1], data[1]);
     } else {
-        programFatalError("Error, invalid arg 2 to tokenize. (string)");
+        interpretError("Error, invalid arg 2 to tokenize. (string)");
     }
 
-    opcode[2] = programStackPopInt16(program);
-    data[2] = programStackPopInt32(program);
+    opcode[2] = interpretPopShort(program);
+    data[2] = interpretPopLong(program);
 
     if (opcode[2] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[2], data[2]);
+        interpretDecStringRef(program, opcode[2], data[2]);
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Error, invalid arg 1 to tokenize.");
+        interpretError("Error, invalid arg 1 to tokenize.");
     }
 
-    char* string = programGetString(program, opcode[2], data[2]);
+    char* string = interpretGetString(program, opcode[2], data[2]);
     char* temp = NULL;
 
     if (prev != NULL) {
@@ -385,11 +385,11 @@ static void op_tokenize(Program* program)
 
             temp = (char*)internal_calloc_safe(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C, 230
             strncpy(temp, start, length);
-            programStackPushInt32(program, programPushString(program, temp));
-            programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+            interpretPushLong(program, interpretAddString(program, temp));
+            interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
         } else {
-            programStackPushInt32(program, 0);
-            programStackPushInt16(program, VALUE_TYPE_INT);
+            interpretPushLong(program, 0);
+            interpretPushShort(program, VALUE_TYPE_INT);
         }
     } else {
         int length = 0;
@@ -402,11 +402,11 @@ static void op_tokenize(Program* program)
         if (string != NULL) {
             temp = (char*)internal_calloc_safe(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 248
             strncpy(temp, string, length);
-            programStackPushInt32(program, programPushString(program, temp));
-            programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
+            interpretPushLong(program, interpretAddString(program, temp));
+            interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
         } else {
-            programStackPushInt32(program, 0);
-            programStackPushInt16(program, VALUE_TYPE_INT);
+            interpretPushLong(program, 0);
+            interpretPushShort(program, VALUE_TYPE_INT);
         }
     }
 
@@ -425,26 +425,26 @@ static void op_printrect(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT || data[0] > 2) {
-        programFatalError("Invalid arg 3 given to printrect, expecting int");
+        interpretError("Invalid arg 3 given to printrect, expecting int");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to printrect, expecting int");
+        interpretError("Invalid arg 2 given to printrect, expecting int");
     }
 
     char string[80];
     switch (opcode[2] & VALUE_TYPE_MASK) {
     case VALUE_TYPE_STRING:
-        sprintf(string, "%s", programGetString(program, opcode[2], data[2]));
+        sprintf(string, "%s", interpretGetString(program, opcode[2], data[2]));
         break;
     case VALUE_TYPE_FLOAT:
         sprintf(string, "%.5f", *((float*)&data[2]));
@@ -455,76 +455,76 @@ static void op_printrect(Program* program)
     }
 
     if (!_windowPrintRect(string, data[1], data[0])) {
-        programFatalError("Error in printrect");
+        interpretError("Error in printrect");
     }
 }
 
 // 0x46209C
 static void op_selectwin(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to select");
+        interpretError("Invalid type given to select");
     }
 
-    const char* windowName = programGetString(program, opcode, data);
+    const char* windowName = interpretGetString(program, opcode, data);
     int win = _pushWindow(windowName);
     if (win == -1) {
-        programFatalError("Error selecing window %s\n", programGetString(program, opcode, data));
+        interpretError("Error selecing window %s\n", interpretGetString(program, opcode, data));
     }
 
     program->windowId = win;
 
-    _interpretOutputFunc(_windowOutput);
+    interpretOutputFunc(_windowOutput);
 }
 
 // 0x46213C
 static void op_display(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to display");
+        interpretError("Invalid type given to display");
     }
 
-    char* fileName = programGetString(program, opcode, data);
+    char* fileName = interpretGetString(program, opcode, data);
 
     _selectWindowID(program->windowId);
 
-    char* mangledFileName = _interpretMangleName(fileName);
+    char* mangledFileName = interpretMangleName(fileName);
     _displayFile(mangledFileName);
 }
 
 // 0x4621B4
 static void op_displayraw(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to displayraw");
+        interpretError("Invalid type given to displayraw");
     }
 
-    char* fileName = programGetString(program, opcode, data);
+    char* fileName = interpretGetString(program, opcode, data);
 
     _selectWindowID(program->windowId);
 
-    char* mangledFileName = _interpretMangleName(fileName);
+    char* mangledFileName = interpretMangleName(fileName);
     _displayFileRaw(mangledFileName);
 }
 
@@ -637,15 +637,15 @@ void interpretFadeInNoBK(float duration)
 // 0x462400
 static void op_fadein(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid type given to fadein\n");
+        interpretError("Invalid type given to fadein\n");
     }
 
     program->flags |= PROGRAM_FLAG_0x20;
@@ -663,16 +663,16 @@ static void op_fadein(Program* program)
 // 0x4624B4
 static void op_fadeout(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         // FIXME: Wrong function name, should be fadeout.
-        programFatalError("Invalid type given to fadein\n");
+        interpretError("Invalid type given to fadein\n");
     }
 
     program->flags |= PROGRAM_FLAG_0x20;
@@ -698,15 +698,15 @@ int checkMovie(Program* program)
 // 0x462584
 static void op_movieflags(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if (!_windowSetMovieFlags(data)) {
-        programFatalError("Error setting movie flags\n");
+        interpretError("Error setting movie flags\n");
     }
 }
 
@@ -716,18 +716,18 @@ static void op_playmovie(Program* program)
     // 0x59E168
     static char name[100];
 
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to playmovie");
+        interpretError("Invalid type given to playmovie");
     }
 
-    strcpy(name, programGetString(program, opcode, data));
+    strcpy(name, interpretGetString(program, opcode, data));
 
     if (strrchr(name, '.') == NULL) {
         strcat(name, ".mve");
@@ -738,9 +738,9 @@ static void op_playmovie(Program* program)
     program->flags |= PROGRAM_IS_WAITING;
     program->checkWaitFunc = checkMovie;
 
-    char* mangledFileName = _interpretMangleName(name);
+    char* mangledFileName = interpretMangleName(name);
     if (!_windowPlayMovie(mangledFileName)) {
-        programFatalError("Error playing movie");
+        interpretError("Error playing movie");
     }
 }
 
@@ -755,20 +755,20 @@ static void op_playmovierect(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
         // FIXME: Wrong function name, should playmovierect.
-        programFatalError("Invalid arg given to playmovie");
+        interpretError("Invalid arg given to playmovie");
     }
 
-    strcpy(name, programGetString(program, opcode[4], data[4]));
+    strcpy(name, interpretGetString(program, opcode[4], data[4]));
 
     if (strrchr(name, '.') == NULL) {
         strcat(name, ".mve");
@@ -779,9 +779,9 @@ static void op_playmovierect(Program* program)
     program->checkWaitFunc = checkMovie;
     program->flags |= PROGRAM_IS_WAITING;
 
-    char* mangledFileName = _interpretMangleName(name);
+    char* mangledFileName = interpretMangleName(name);
     if (!_windowPlayMovieRect(mangledFileName, data[3], data[2], data[1], data[0])) {
-        programFatalError("Error playing movie");
+        interpretError("Error playing movie");
     }
 }
 
@@ -795,22 +795,22 @@ static void op_stopmovie(Program* program)
 // 0x462890
 static void op_deleteregion(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data != -1) {
-            programFatalError("Invalid type given to deleteregion");
+            interpretError("Invalid type given to deleteregion");
         }
     }
 
     _selectWindowID(program->windowId);
 
-    const char* regionName = data != -1 ? programGetString(program, opcode, data) : NULL;
+    const char* regionName = data != -1 ? interpretGetString(program, opcode, data) : NULL;
     _windowDeleteRegion(regionName);
 }
 
@@ -822,37 +822,37 @@ static void op_activateregion(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
-    const char* regionName = programGetString(program, opcode[1], data[1]);
+    const char* regionName = interpretGetString(program, opcode[1], data[1]);
     _windowActivateRegion(regionName, data[0]);
 }
 
 // 0x4629A0
 static void op_checkregion(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid arg 1 given to checkregion();\n");
+        interpretError("Invalid arg 1 given to checkregion();\n");
     }
 
-    const char* regionName = programGetString(program, opcode, data);
+    const char* regionName = interpretGetString(program, opcode, data);
 
     bool regionExists = _windowCheckRegionExists(regionName);
-    programStackPushInt32(program, regionExists);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, regionExists);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x462A1C
@@ -861,21 +861,21 @@ static void op_addregion(Program* program)
     opcode_t opcode;
     int data;
 
-    opcode = programStackPopInt16(program);
-    data = programStackPopInt32(program);
+    opcode = interpretPopShort(program);
+    data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid number of elements given to region");
+        interpretError("Invalid number of elements given to region");
     }
 
     int args = data;
 
     if (args < 2) {
-        programFatalError("addregion call without enough points!");
+        interpretError("addregion call without enough points!");
     }
 
     _selectWindowID(program->windowId);
@@ -883,28 +883,28 @@ static void op_addregion(Program* program)
     _windowStartRegion(args / 2);
 
     while (args >= 2) {
-        opcode = programStackPopInt16(program);
-        data = programStackPopInt32(program);
+        opcode = interpretPopShort(program);
+        data = interpretPopLong(program);
 
         if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode, data);
+            interpretDecStringRef(program, opcode, data);
         }
 
         if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("Invalid y value given to region");
+            interpretError("Invalid y value given to region");
         }
 
         int y = data;
 
-        opcode = programStackPopInt16(program);
-        data = programStackPopInt32(program);
+        opcode = interpretPopShort(program);
+        data = interpretPopLong(program);
 
         if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode, data);
+            interpretDecStringRef(program, opcode, data);
         }
 
         if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("Invalid x value given to region");
+            interpretError("Invalid x value given to region");
         }
 
         int x = data;
@@ -917,23 +917,23 @@ static void op_addregion(Program* program)
     }
 
     if (args == 0) {
-        programFatalError("Unnamed regions not allowed\n");
+        interpretError("Unnamed regions not allowed\n");
         _windowEndRegion();
     } else {
-        opcode = programStackPopInt16(program);
-        data = programStackPopInt32(program);
+        opcode = interpretPopShort(program);
+        data = interpretPopLong(program);
 
         if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode, data);
+            interpretDecStringRef(program, opcode, data);
         }
 
         if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && opcode == VALUE_TYPE_INT) {
             if (data != 0) {
-                programFatalError("Invalid name given to region");
+                interpretError("Invalid name given to region");
             }
         }
 
-        const char* regionName = programGetString(program, opcode, data);
+        const char* regionName = interpretGetString(program, opcode, data);
         _windowAddRegionName(regionName);
         _windowEndRegion();
     }
@@ -947,39 +947,39 @@ static void op_addregionproc(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 4 name given to addregionproc");
+        interpretError("Invalid procedure 4 name given to addregionproc");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 3 name given to addregionproc");
+        interpretError("Invalid procedure 3 name given to addregionproc");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 2 name given to addregionproc");
+        interpretError("Invalid procedure 2 name given to addregionproc");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 1 name given to addregionproc");
+        interpretError("Invalid procedure 1 name given to addregionproc");
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid name given to addregionproc");
+        interpretError("Invalid name given to addregionproc");
     }
 
-    const char* regionName = programGetString(program, opcode[4], data[4]);
+    const char* regionName = interpretGetString(program, opcode[4], data[4]);
     _selectWindowID(program->windowId);
 
     if (!_windowAddRegionProc(regionName, program, data[3], data[2], data[1], data[0])) {
-        programFatalError("Error setting procedures to region %s\n", regionName);
+        interpretError("Error setting procedures to region %s\n", regionName);
     }
 }
 
@@ -991,31 +991,31 @@ static void op_addregionrightproc(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 2 name given to addregionrightproc");
+        interpretError("Invalid procedure 2 name given to addregionrightproc");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 1 name given to addregionrightproc");
+        interpretError("Invalid procedure 1 name given to addregionrightproc");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid name given to addregionrightproc");
+        interpretError("Invalid name given to addregionrightproc");
     }
 
-    const char* regionName = programGetString(program, opcode[2], data[2]);
+    const char* regionName = interpretGetString(program, opcode[2], data[2]);
     _selectWindowID(program->windowId);
 
     if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
-        programFatalError("ErrorError setting right button procedures to region %s\n", regionName);
+        interpretError("ErrorError setting right button procedures to region %s\n", regionName);
     }
 }
 
@@ -1027,22 +1027,22 @@ static void op_createwin(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
-    const char* windowName = programGetString(program, opcode[4], data[4]);
+    const char* windowName = interpretGetString(program, opcode[4], data[4]);
     int x = (data[3] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int height = (data[0] * _windowGetYres() + 479) / 480;
 
     if (_createWindow(windowName, x, y, width, height, colorTable[0], 0) == -1) {
-        programFatalError("Couldn't create window.");
+        interpretError("Couldn't create window.");
     }
 }
 
@@ -1054,22 +1054,22 @@ static void op_resizewin(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
-    const char* windowName = programGetString(program, opcode[4], data[4]);
+    const char* windowName = interpretGetString(program, opcode[4], data[4]);
     int x = (data[3] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int height = (data[0] * _windowGetYres() + 479) / 480;
 
     if (sub_4B7AC4(windowName, x, y, width, height) == -1) {
-        programFatalError("Couldn't resize window.");
+        interpretError("Couldn't resize window.");
     }
 }
 
@@ -1081,39 +1081,39 @@ static void op_scalewin(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
-    const char* windowName = programGetString(program, opcode[4], data[4]);
+    const char* windowName = interpretGetString(program, opcode[4], data[4]);
     int x = (data[3] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int height = (data[0] * _windowGetYres() + 479) / 480;
 
     if (sub_4B7E7C(windowName, x, y, width, height) == -1) {
-        programFatalError("Couldn't scale window.");
+        interpretError("Couldn't scale window.");
     }
 }
 
 // 0x46337C
 static void op_deletewin(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
-    const char* windowName = programGetString(program, opcode, data);
+    const char* windowName = interpretGetString(program, opcode, data);
 
     if (!_deleteWindow(windowName)) {
-        programFatalError("Error deleting window %s\n", windowName);
+        interpretError("Error deleting window %s\n", windowName);
     }
 
     program->windowId = _popWindow();
@@ -1129,18 +1129,18 @@ static void op_saystart(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc != 0) {
-        programFatalError("Error starting dialog.");
+        interpretError("Error starting dialog.");
     }
 }
 
 // 0x463430
 static void op_saystartpos(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     sayStartingPosition = data;
@@ -1150,47 +1150,47 @@ static void op_saystartpos(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 
     if (rc != 0) {
-        programFatalError("Error starting dialog.");
+        interpretError("Error starting dialog.");
     }
 }
 
 // 0x46349C
 static void op_sayreplytitle(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     char* string = NULL;
     if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        string = programGetString(program, opcode, data);
+        string = interpretGetString(program, opcode, data);
     }
 
     if (dialogTitle(string) != 0) {
-        programFatalError("Error setting title.");
+        interpretError("Error setting title.");
     }
 }
 
 // 0x463510
 static void op_saygotoreply(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     char* string = NULL;
     if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        string = programGetString(program, opcode, data);
+        string = interpretGetString(program, opcode, data);
     }
 
     if (dialogGotoReply(string) != 0) {
-        programFatalError("Error during goto, couldn't find reply target %s", string);
+        interpretError("Error during goto, couldn't find reply target %s", string);
     }
 }
 
@@ -1204,34 +1204,34 @@ static void op_sayreply(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     const char* v1;
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[1], data[1]);
+        v1 = interpretGetString(program, opcode[1], data[1]);
     } else {
         v1 = NULL;
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        const char* v2 = programGetString(program, opcode[0], data[0]);
+        const char* v2 = interpretGetString(program, opcode[0], data[0]);
         if (dialogOption(v1, v2) != 0) {
             program->flags &= ~PROGRAM_FLAG_0x20;
-            programFatalError("Error setting option.");
+            interpretError("Error setting option.");
         }
     } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
         if (dialogOptionProc(v1, data[0]) != 0) {
             program->flags &= ~PROGRAM_FLAG_0x20;
-            programFatalError("Error setting option.");
+            interpretError("Error setting option.");
         }
     } else {
-        programFatalError("Invalid arg 2 to sayOption");
+        interpretError("Invalid arg 2 to sayOption");
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -1247,31 +1247,31 @@ static void op_sayoption(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     const char* v1;
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[1], data[1]);
+        v1 = interpretGetString(program, opcode[1], data[1]);
     } else {
         v1 = NULL;
     }
 
     const char* v2;
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v2 = programGetString(program, opcode[0], data[0]);
+        v2 = interpretGetString(program, opcode[0], data[0]);
     } else {
         v2 = NULL;
     }
 
     if (dialogReply(v1, v2) != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
-        programFatalError("Error setting option.");
+        interpretError("Error setting option.");
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -1301,15 +1301,15 @@ static void op_sayend(Program* program)
 static void op_saygetlastpos(Program* program)
 {
     int value = dialogGetExitPoint();
-    programStackPushInt32(program, value);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, value);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x463810
 static void op_sayquit(Program* program)
 {
     if (dialogQuit() != 0) {
-        programFatalError("Error quitting option.");
+        interpretError("Error quitting option.");
     }
 }
 
@@ -1332,16 +1332,16 @@ void setTimeOut(int value)
 // 0x463838
 static void op_saymessagetimeout(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     // TODO: What the hell is this?
     if ((opcode & VALUE_TYPE_MASK) == 0x4000) {
-        programFatalError("sayMsgTimeout:  invalid var type passed.");
+        interpretError("sayMsgTimeout:  invalid var type passed.");
     }
 
     TimeOut = data;
@@ -1357,31 +1357,31 @@ static void op_saymessage(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     const char* v1;
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[1], data[1]);
+        v1 = interpretGetString(program, opcode[1], data[1]);
     } else {
         v1 = NULL;
     }
 
     const char* v2;
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v2 = programGetString(program, opcode[0], data[0]);
+        v2 = interpretGetString(program, opcode[0], data[0]);
     } else {
         v2 = NULL;
     }
 
     if (dialogMessage(v1, v2, TimeOut) != 0) {
         program->flags &= ~PROGRAM_FLAG_0x20;
-        programFatalError("Error setting option.");
+        interpretError("Error setting option.");
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -1395,17 +1395,17 @@ static void op_gotoxy(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT
         || (opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid operand given to gotoxy");
+        interpretError("Invalid operand given to gotoxy");
     }
 
     _selectWindowID(program->windowId);
@@ -1423,27 +1423,27 @@ static void op_addbuttonflag(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to addbuttonflag");
+        interpretError("Invalid arg 2 given to addbuttonflag");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid arg 1 given to addbuttonflag");
+        interpretError("Invalid arg 1 given to addbuttonflag");
     }
 
-    const char* buttonName = programGetString(program, opcode[1], data[1]);
+    const char* buttonName = interpretGetString(program, opcode[1], data[1]);
     if (!_windowSetButtonFlag(buttonName, data[0])) {
-        // NOTE: Original code calls programGetString one more time with the
+        // NOTE: Original code calls interpretGetString one more time with the
         // same params.
-        programFatalError("Error setting flag on button %s", buttonName);
+        interpretError("Error setting flag on button %s", buttonName);
     }
 }
 
@@ -1455,27 +1455,27 @@ static void op_addregionflag(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to addregionflag");
+        interpretError("Invalid arg 2 given to addregionflag");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid arg 1 given to addregionflag");
+        interpretError("Invalid arg 1 given to addregionflag");
     }
 
-    const char* regionName = programGetString(program, opcode[1], data[1]);
+    const char* regionName = interpretGetString(program, opcode[1], data[1]);
     if (!_windowSetRegionFlag(regionName, data[0])) {
-        // NOTE: Original code calls programGetString one more time with the
+        // NOTE: Original code calls interpretGetString one more time with the
         // same params.
-        programFatalError("Error setting flag on region %s", regionName);
+        interpretError("Error setting flag on region %s", regionName);
     }
 }
 
@@ -1485,59 +1485,59 @@ static void op_addbutton(Program* program)
     opcode_t opcode[5];
     int data[5];
 
-    opcode[0] = programStackPopInt16(program);
-    data[0] = programStackPopInt32(program);
+    opcode[0] = interpretPopShort(program);
+    data[0] = interpretPopLong(program);
 
     if (opcode[0] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[0], data[0]);
+        interpretDecStringRef(program, opcode[0], data[0]);
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid height given to addbutton");
+        interpretError("Invalid height given to addbutton");
     }
 
-    opcode[1] = programStackPopInt16(program);
-    data[1] = programStackPopInt32(program);
+    opcode[1] = interpretPopShort(program);
+    data[1] = interpretPopLong(program);
 
     if (opcode[1] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[1], data[1]);
+        interpretDecStringRef(program, opcode[1], data[1]);
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid width given to addbutton");
+        interpretError("Invalid width given to addbutton");
     }
 
-    opcode[2] = programStackPopInt16(program);
-    data[2] = programStackPopInt32(program);
+    opcode[2] = interpretPopShort(program);
+    data[2] = interpretPopLong(program);
 
     if (opcode[2] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[2], data[2]);
+        interpretDecStringRef(program, opcode[2], data[2]);
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid y given to addbutton");
+        interpretError("Invalid y given to addbutton");
     }
 
-    opcode[3] = programStackPopInt16(program);
-    data[3] = programStackPopInt32(program);
+    opcode[3] = interpretPopShort(program);
+    data[3] = interpretPopLong(program);
 
     if (opcode[3] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[3], data[3]);
+        interpretDecStringRef(program, opcode[3], data[3]);
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid x given to addbutton");
+        interpretError("Invalid x given to addbutton");
     }
 
-    opcode[4] = programStackPopInt16(program);
-    data[4] = programStackPopInt32(program);
+    opcode[4] = interpretPopShort(program);
+    data[4] = interpretPopLong(program);
 
     if (opcode[4] == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode[4], data[4]);
+        interpretDecStringRef(program, opcode[4], data[4]);
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid name given to addbutton");
+        interpretError("Invalid name given to addbutton");
     }
 
     _selectWindowID(program->windowId);
@@ -1546,7 +1546,7 @@ static void op_addbutton(Program* program)
     int width = (data[1] * _windowGetXres() + 639) / 640;
     int y = (data[2] * _windowGetYres() + 479) / 480;
     int x = (data[3] * _windowGetXres() + 639) / 640;
-    const char* buttonName = programGetString(program, opcode[4], data[4]);
+    const char* buttonName = interpretGetString(program, opcode[4], data[4]);
 
     _windowAddButton(buttonName, x, y, width, height, 0);
 }
@@ -1559,28 +1559,28 @@ static void op_addbuttontext(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid text string given to addbuttontext");
+        interpretError("Invalid text string given to addbuttontext");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid name string given to addbuttontext");
+        interpretError("Invalid name string given to addbuttontext");
     }
 
-    const char* text = programGetString(program, opcode[0], data[0]);
-    const char* buttonName = programGetString(program, opcode[1], data[1]);
+    const char* text = interpretGetString(program, opcode[0], data[0]);
+    const char* buttonName = interpretGetString(program, opcode[1], data[1]);
 
     if (!_windowAddButtonText(buttonName, text)) {
-        programFatalError("Error setting text to button %s\n",
-            programGetString(program, opcode[1], data[1]));
+        interpretError("Error setting text to button %s\n",
+            interpretGetString(program, opcode[1], data[1]));
     }
 }
 
@@ -1592,11 +1592,11 @@ static void op_addbuttongfx(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 4; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1606,21 +1606,21 @@ static void op_addbuttongfx(Program* program)
 
         if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
             // FIXME: Wrong function name, should be addbuttongfx.
-            programFatalError("Invalid name given to addbuttontext");
+            interpretError("Invalid name given to addbuttontext");
         }
 
-        const char* buttonName = programGetString(program, opcode[3], data[3]);
-        char* pressedFileName = _interpretMangleName(programGetString(program, opcode[2], data[2]));
-        char* normalFileName = _interpretMangleName(programGetString(program, opcode[1], data[1]));
-        char* hoverFileName = _interpretMangleName(programGetString(program, opcode[0], data[0]));
+        const char* buttonName = interpretGetString(program, opcode[3], data[3]);
+        char* pressedFileName = interpretMangleName(interpretGetString(program, opcode[2], data[2]));
+        char* normalFileName = interpretMangleName(interpretGetString(program, opcode[1], data[1]));
+        char* hoverFileName = interpretMangleName(interpretGetString(program, opcode[0], data[0]));
 
         _selectWindowID(program->windowId);
 
         if (!_windowAddButtonGfx(buttonName, pressedFileName, normalFileName, hoverFileName)) {
-            programFatalError("Error setting graphics to button %s\n", buttonName);
+            interpretError("Error setting graphics to button %s\n", buttonName);
         }
     } else {
-        programFatalError("Invalid filename given to addbuttongfx");
+        interpretError("Invalid filename given to addbuttongfx");
     }
 }
 
@@ -1632,39 +1632,39 @@ static void op_addbuttonproc(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 4 name given to addbuttonproc");
+        interpretError("Invalid procedure 4 name given to addbuttonproc");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 3 name given to addbuttonproc");
+        interpretError("Invalid procedure 3 name given to addbuttonproc");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 2 name given to addbuttonproc");
+        interpretError("Invalid procedure 2 name given to addbuttonproc");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 1 name given to addbuttonproc");
+        interpretError("Invalid procedure 1 name given to addbuttonproc");
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid name given to addbuttonproc");
+        interpretError("Invalid name given to addbuttonproc");
     }
 
-    const char* buttonName = programGetString(program, opcode[4], data[4]);
+    const char* buttonName = interpretGetString(program, opcode[4], data[4]);
     _selectWindowID(program->windowId);
 
     if (!_windowAddButtonProc(buttonName, program, data[3], data[2], data[1], data[0])) {
-        programFatalError("Error setting procedures to button %s\n", buttonName);
+        interpretError("Error setting procedures to button %s\n", buttonName);
     }
 }
 
@@ -1676,31 +1676,31 @@ static void op_addbuttonrightproc(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 2 name given to addbuttonrightproc");
+        interpretError("Invalid procedure 2 name given to addbuttonrightproc");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid procedure 1 name given to addbuttonrightproc");
+        interpretError("Invalid procedure 1 name given to addbuttonrightproc");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid name given to addbuttonrightproc");
+        interpretError("Invalid name given to addbuttonrightproc");
     }
 
-    const char* regionName = programGetString(program, opcode[2], data[2]);
+    const char* regionName = interpretGetString(program, opcode[2], data[2]);
     _selectWindowID(program->windowId);
 
     if (!_windowAddRegionRightProc(regionName, program, data[1], data[0])) {
-        programFatalError("Error setting right button procedures to button %s\n", regionName);
+        interpretError("Error setting right button procedures to button %s\n", regionName);
     }
 }
 
@@ -1714,16 +1714,16 @@ static void op_showwin(Program* program)
 // 0x4643E4
 static void op_deletebutton(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data != -1) {
-            programFatalError("Invalid type given to delete button");
+            interpretError("Invalid type given to delete button");
         }
     }
 
@@ -1734,13 +1734,13 @@ static void op_deletebutton(Program* program)
             return;
         }
     } else {
-        const char* buttonName = programGetString(program, opcode, data);
+        const char* buttonName = interpretGetString(program, opcode, data);
         if (_windowDeleteButton(buttonName)) {
             return;
         }
     }
 
-    programFatalError("Error deleting button");
+    interpretError("Error deleting button");
 }
 
 // 0x46449C
@@ -1752,11 +1752,11 @@ static void op_fillwin(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1765,7 +1765,7 @@ static void op_fillwin(Program* program)
             if (data[2] == 1) {
                 floats[2] = 1.0;
             } else if (data[2] != 0) {
-                programFatalError("Invalid red value given to fillwin");
+                interpretError("Invalid red value given to fillwin");
             }
         }
     }
@@ -1775,7 +1775,7 @@ static void op_fillwin(Program* program)
             if (data[1] == 1) {
                 floats[1] = 1.0;
             } else if (data[1] != 0) {
-                programFatalError("Invalid green value given to fillwin");
+                interpretError("Invalid green value given to fillwin");
             }
         }
     }
@@ -1785,7 +1785,7 @@ static void op_fillwin(Program* program)
             if (data[0] == 1) {
                 floats[0] = 1.0;
             } else if (data[0] != 0) {
-                programFatalError("Invalid blue value given to fillwin");
+                interpretError("Invalid blue value given to fillwin");
             }
         }
     }
@@ -1804,11 +1804,11 @@ static void op_fillrect(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 7; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -1817,7 +1817,7 @@ static void op_fillrect(Program* program)
             if (data[2] == 1) {
                 floats[2] = 1.0;
             } else if (data[2] != 0) {
-                programFatalError("Invalid red value given to fillrect");
+                interpretError("Invalid red value given to fillrect");
             }
         }
     }
@@ -1827,7 +1827,7 @@ static void op_fillrect(Program* program)
             if (data[1] == 1) {
                 floats[1] = 1.0;
             } else if (data[1] != 0) {
-                programFatalError("Invalid green value given to fillrect");
+                interpretError("Invalid green value given to fillrect");
             }
         }
     }
@@ -1837,24 +1837,24 @@ static void op_fillrect(Program* program)
             if (data[0] == 1) {
                 floats[0] = 1.0;
             } else if (data[0] != 0) {
-                programFatalError("Invalid blue value given to fillrect");
+                interpretError("Invalid blue value given to fillrect");
             }
         }
     }
 
     if ((opcode[6] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to fillrect");
+        interpretError("Invalid arg 1 given to fillrect");
     }
 
     if ((opcode[5] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to fillrect");
+        interpretError("Invalid arg 2 given to fillrect");
     }
 
     if ((opcode[4] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 3 given to fillrect");
+        interpretError("Invalid arg 3 given to fillrect");
     }
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 4 given to fillrect");
+        interpretError("Invalid arg 4 given to fillrect");
     }
 
     _selectWindowID(program->windowId);
@@ -1882,36 +1882,36 @@ static void op_mouseshape(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 3 given to mouseshape");
+        interpretError("Invalid arg 3 given to mouseshape");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to mouseshape");
+        interpretError("Invalid arg 2 given to mouseshape");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid filename given to mouseshape");
+        interpretError("Invalid filename given to mouseshape");
     }
 
-    char* fileName = programGetString(program, opcode[2], data[2]);
+    char* fileName = interpretGetString(program, opcode[2], data[2]);
     if (!mouseManagerSetMouseShape(fileName, data[1], data[0])) {
-        programFatalError("Error loading mouse shape.");
+        interpretError("Error loading mouse shape.");
     }
 }
 
 // 0x4649C4
 static void op_setglobalmousefunc(Program* Program)
 {
-    programFatalError("setglobalmousefunc not defined");
+    interpretError("setglobalmousefunc not defined");
 }
 
 // 0x4649D4
@@ -1922,38 +1922,38 @@ static void op_displaygfx(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
-    char* fileName = programGetString(program, opcode[4], data[4]);
-    char* mangledFileName = _interpretMangleName(fileName);
+    char* fileName = interpretGetString(program, opcode[4], data[4]);
+    char* mangledFileName = interpretMangleName(fileName);
     _windowDisplay(mangledFileName, data[3], data[2], data[1], data[0]);
 }
 
 // 0x464ADC
 static void op_loadpalettetable(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
         if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data != -1) {
-            programFatalError("Invalid type given to loadpalettetable");
+            interpretError("Invalid type given to loadpalettetable");
         }
     }
 
-    char* path = programGetString(program, opcode, data);
+    char* path = interpretGetString(program, opcode, data);
     if (!loadColorTable(path)) {
-        programFatalError(colorError());
+        interpretError(colorError());
     }
 }
 
@@ -1965,19 +1965,19 @@ static void op_addNamedEvent(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to addnamedevent");
+        interpretError("Invalid type given to addnamedevent");
     }
 
-    const char* v1 = programGetString(program, opcode[1], data[1]);
+    const char* v1 = interpretGetString(program, opcode[1], data[1]);
     _nevs_addevent(v1, program, data[0], NEVS_TYPE_EVENT);
 }
 
@@ -1989,55 +1989,55 @@ static void op_addNamedHandler(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to addnamedhandler");
+        interpretError("Invalid type given to addnamedhandler");
     }
 
-    const char* v1 = programGetString(program, opcode[1], data[1]);
+    const char* v1 = interpretGetString(program, opcode[1], data[1]);
     _nevs_addevent(v1, program, data[0], NEVS_TYPE_HANDLER);
 }
 
 // 0x464C80
 static void op_clearNamed(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to clearnamed");
+        interpretError("Invalid type given to clearnamed");
     }
 
-    char* string = programGetString(program, opcode, data);
+    char* string = interpretGetString(program, opcode, data);
     _nevs_clearevent(string);
 }
 
 // 0x464CE4
 static void op_signalNamed(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid type given to signalnamed");
+        interpretError("Invalid type given to signalnamed");
     }
 
-    char* str = programGetString(program, opcode, data);
+    char* str = interpretGetString(program, opcode, data);
     _nevs_signal(str);
 }
 
@@ -2049,17 +2049,17 @@ static void op_addkey(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     for (int arg = 0; arg < 2; arg++) {
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("Invalid arg %d given to addkey", arg + 1);
+            interpretError("Invalid arg %d given to addkey", arg + 1);
         }
     }
 
@@ -2071,7 +2071,7 @@ static void op_addkey(Program* program)
         anyKeyProg = program;
     } else {
         if (key > INT_LIB_KEY_HANDLERS_CAPACITY - 1) {
-            programFatalError("Key out of range");
+            interpretError("Key out of range");
         }
 
         inputProc[key].program = program;
@@ -2082,15 +2082,15 @@ static void op_addkey(Program* program)
 // 0x464E24
 static void op_deletekey(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to deletekey");
+        interpretError("Invalid arg 1 given to deletekey");
     }
 
     int key = data;
@@ -2100,7 +2100,7 @@ static void op_deletekey(Program* program)
         anyKeyProg = NULL;
     } else {
         if (key > INT_LIB_KEY_HANDLERS_CAPACITY - 1) {
-            programFatalError("Key out of range");
+            interpretError("Key out of range");
         }
 
         inputProc[key].program = NULL;
@@ -2111,57 +2111,57 @@ static void op_deletekey(Program* program)
 // 0x464EB0
 static void op_refreshmouse(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to refreshmouse");
+        interpretError("Invalid arg 1 given to refreshmouse");
     }
 
     if (!_windowRefreshRegions()) {
-        _executeProc(program, data);
+        executeProc(program, data);
     }
 }
 
 // 0x464F18
 static void op_setfont(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to setfont");
+        interpretError("Invalid arg 1 given to setfont");
     }
 
     if (!windowSetFont(data)) {
-        programFatalError("Error setting font");
+        interpretError("Error setting font");
     }
 }
 
 // 0x464F84
 static void op_settextflags(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to setflags");
+        interpretError("Invalid arg 1 given to setflags");
     }
 
     if (!windowSetTextFlags(data)) {
-        programFatalError("Error setting text flags");
+        interpretError("Error setting text flags");
     }
 }
 
@@ -2174,11 +2174,11 @@ static void op_settextcolor(Program* program)
 
     // NOTE: Original code does not use loops.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2186,7 +2186,7 @@ static void op_settextcolor(Program* program)
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
             && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
             && data[arg] != 0) {
-            programFatalError("Invalid type given to settextcolor");
+            interpretError("Invalid type given to settextcolor");
         }
     }
 
@@ -2195,7 +2195,7 @@ static void op_settextcolor(Program* program)
     float b = floats[0];
 
     if (!windowSetTextColor(r, g, b)) {
-        programFatalError("Error setting text color");
+        interpretError("Error setting text color");
     }
 }
 
@@ -2208,11 +2208,11 @@ static void op_sayoptioncolor(Program* program)
 
     // NOTE: Original code does not use loops.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2220,7 +2220,7 @@ static void op_sayoptioncolor(Program* program)
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
             && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
             && data[arg] != 0) {
-            programFatalError("Invalid type given to sayoptioncolor");
+            interpretError("Invalid type given to sayoptioncolor");
         }
     }
 
@@ -2229,7 +2229,7 @@ static void op_sayoptioncolor(Program* program)
     float b = floats[0];
 
     if (dialogSetOptionColor(r, g, b)) {
-        programFatalError("Error setting option color");
+        interpretError("Error setting option color");
     }
 }
 
@@ -2242,12 +2242,12 @@ static void op_sayreplycolor(Program* program)
 
     // NOTE: Original code does not use loops.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
         ;
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2255,7 +2255,7 @@ static void op_sayreplycolor(Program* program)
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
             && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
             && data[arg] != 0) {
-            programFatalError("Invalid type given to sayreplycolor");
+            interpretError("Invalid type given to sayreplycolor");
         }
     }
 
@@ -2264,7 +2264,7 @@ static void op_sayreplycolor(Program* program)
     float b = floats[0];
 
     if (dialogSetReplyColor(r, g, b) != 0) {
-        programFatalError("Error setting reply color");
+        interpretError("Error setting reply color");
     }
 }
 
@@ -2277,11 +2277,11 @@ static void op_sethighlightcolor(Program* program)
 
     // NOTE: Original code does not use loops.
     for (int arg = 0; arg < 3; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2289,7 +2289,7 @@ static void op_sethighlightcolor(Program* program)
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_FLOAT
             && (opcode[arg] & VALUE_TYPE_MASK) == VALUE_TYPE_INT
             && data[arg] != 0) {
-            programFatalError("Invalid type given to sethighlightcolor");
+            interpretError("Invalid type given to sethighlightcolor");
         }
     }
 
@@ -2298,7 +2298,7 @@ static void op_sethighlightcolor(Program* program)
     float b = floats[0];
 
     if (!windowSetHighlightColor(r, g, b)) {
-        programFatalError("Error setting text highlight color");
+        interpretError("Error setting text highlight color");
     }
 }
 
@@ -2310,65 +2310,65 @@ static void op_sayreplywindow(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     char* v1;
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[0], data[0]);
-        v1 = _interpretMangleName(v1);
+        v1 = interpretGetString(program, opcode[0], data[0]);
+        v1 = interpretMangleName(v1);
         v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1510
     } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0) {
         v1 = NULL;
     } else {
-        programFatalError("Invalid arg 5 given to sayreplywindow");
+        interpretError("Invalid arg 5 given to sayreplywindow");
     }
 
     if (dialogSetReplyWindow(data[4], data[3], data[2], data[1], v1) != 0) {
-        programFatalError("Error setting reply window");
+        interpretError("Error setting reply window");
     }
 }
 
 // 0x465688
 static void op_sayreplyflags(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to sayreplyflags");
+        interpretError("Invalid arg 1 given to sayreplyflags");
     }
 
     if (!dialogSetReplyFlags(data)) {
-        programFatalError("Error setting reply flags");
+        interpretError("Error setting reply flags");
     }
 }
 
 // 0x4656F4
 static void op_sayoptionflags(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to sayoptionflags");
+        interpretError("Invalid arg 1 given to sayoptionflags");
     }
 
     if (!dialogSetOptionFlags(data)) {
-        programFatalError("Error setting option flags");
+        interpretError("Error setting option flags");
     }
 }
 
@@ -2380,27 +2380,27 @@ static void op_sayoptionwindow(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 5; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     char* v1;
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[0], data[0]);
-        v1 = _interpretMangleName(v1);
+        v1 = interpretGetString(program, opcode[0], data[0]);
+        v1 = interpretMangleName(v1);
         v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1556
     } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0) {
         v1 = NULL;
     } else {
-        programFatalError("Invalid arg 5 given to sayoptionwindow");
+        interpretError("Invalid arg 5 given to sayoptionwindow");
     }
 
     if (dialogSetOptionWindow(data[4], data[3], data[2], data[1], v1) != 0) {
-        programFatalError("Error setting option window");
+        interpretError("Error setting option window");
     }
 }
 
@@ -2412,22 +2412,22 @@ static void op_sayborder(Program* program)
 
     // NOTE: Original code does not use loops.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     for (int arg = 0; arg < 2; arg++) {
         if ((opcode[arg] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-            programFatalError("Invalid arg %d given to sayborder", arg + 1);
+            interpretError("Invalid arg %d given to sayborder", arg + 1);
         }
     }
 
     if (dialogSetBorder(data[1], data[0]) != 0) {
-        programFatalError("Error setting dialog border");
+        interpretError("Error setting dialog border");
     }
 }
 
@@ -2439,11 +2439,11 @@ static void op_sayscrollup(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 6; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2455,7 +2455,7 @@ static void op_sayscrollup(Program* program)
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
         if (data[0] != -1 && data[0] != 0) {
-            programFatalError("Invalid arg 4 given to sayscrollup");
+            interpretError("Invalid arg 4 given to sayscrollup");
         }
 
         if (data[0] == -1) {
@@ -2463,48 +2463,48 @@ static void op_sayscrollup(Program* program)
         }
     } else {
         if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-            programFatalError("Invalid arg 4 given to sayscrollup");
+            interpretError("Invalid arg 4 given to sayscrollup");
         }
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[1] != 0) {
-        programFatalError("Invalid arg 3 given to sayscrollup");
+        interpretError("Invalid arg 3 given to sayscrollup");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[2] != 0) {
-        programFatalError("Invalid arg 2 given to sayscrollup");
+        interpretError("Invalid arg 2 given to sayscrollup");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[3] != 0) {
-        programFatalError("Invalid arg 1 given to sayscrollup");
+        interpretError("Invalid arg 1 given to sayscrollup");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[3], data[3]);
-        v1 = _interpretMangleName(v1);
+        v1 = interpretGetString(program, opcode[3], data[3]);
+        v1 = interpretMangleName(v1);
         v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1611
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v2 = programGetString(program, opcode[2], data[2]);
-        v2 = _interpretMangleName(v2);
+        v2 = interpretGetString(program, opcode[2], data[2]);
+        v2 = interpretMangleName(v2);
         v2 = strdup_safe(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1613
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v3 = programGetString(program, opcode[1], data[1]);
-        v3 = _interpretMangleName(v3);
+        v3 = interpretGetString(program, opcode[1], data[1]);
+        v3 = interpretMangleName(v3);
         v3 = strdup_safe(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1615
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v4 = programGetString(program, opcode[0], data[0]);
-        v4 = _interpretMangleName(v4);
+        v4 = interpretGetString(program, opcode[0], data[0]);
+        v4 = interpretMangleName(v4);
         v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1617
     }
 
     if (dialogSetScrollUp(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
-        programFatalError("Error setting scroll up");
+        interpretError("Error setting scroll up");
     }
 }
 
@@ -2516,11 +2516,11 @@ static void op_sayscrolldown(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 6; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
@@ -2533,7 +2533,7 @@ static void op_sayscrolldown(Program* program)
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT) {
         if (data[0] != -1 && data[0] != 0) {
             // FIXME: Wrong function name, should be sayscrolldown.
-            programFatalError("Invalid arg 4 given to sayscrollup");
+            interpretError("Invalid arg 4 given to sayscrollup");
         }
 
         if (data[0] == -1) {
@@ -2542,67 +2542,67 @@ static void op_sayscrolldown(Program* program)
     } else {
         if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
             // FIXME: Wrong function name, should be sayscrolldown.
-            programFatalError("Invalid arg 4 given to sayscrollup");
+            interpretError("Invalid arg 4 given to sayscrollup");
         }
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[1] != 0) {
-        programFatalError("Invalid arg 3 given to sayscrolldown");
+        interpretError("Invalid arg 3 given to sayscrolldown");
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[2] != 0) {
-        programFatalError("Invalid arg 2 given to sayscrolldown");
+        interpretError("Invalid arg 2 given to sayscrolldown");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING && (opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[3] != 0) {
-        programFatalError("Invalid arg 1 given to sayscrolldown");
+        interpretError("Invalid arg 1 given to sayscrolldown");
     }
 
     if ((opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v1 = programGetString(program, opcode[3], data[3]);
-        v1 = _interpretMangleName(v1);
+        v1 = interpretGetString(program, opcode[3], data[3]);
+        v1 = interpretMangleName(v1);
         v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1652
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v2 = programGetString(program, opcode[2], data[2]);
-        v2 = _interpretMangleName(v2);
+        v2 = interpretGetString(program, opcode[2], data[2]);
+        v2 = interpretMangleName(v2);
         v2 = strdup_safe(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1654
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v3 = programGetString(program, opcode[1], data[1]);
-        v3 = _interpretMangleName(v3);
+        v3 = interpretGetString(program, opcode[1], data[1]);
+        v3 = interpretMangleName(v3);
         v3 = strdup_safe(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1656
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        v4 = programGetString(program, opcode[0], data[0]);
-        v4 = _interpretMangleName(v4);
+        v4 = interpretGetString(program, opcode[0], data[0]);
+        v4 = interpretMangleName(v4);
         v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1658
     }
 
     if (dialogSetScrollDown(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
-        programFatalError("Error setting scroll down");
+        interpretError("Error setting scroll down");
     }
 }
 
 // 0x465FE0
 static void op_saysetspacing(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to saysetspacing");
+        interpretError("Invalid arg 1 given to saysetspacing");
     }
 
     if (dialogSetSpacing(data) != 0) {
-        programFatalError("Error setting option spacing");
+        interpretError("Error setting option spacing");
     }
 }
 
@@ -2610,7 +2610,7 @@ static void op_saysetspacing(Program* program)
 static void op_sayrestart(Program* program)
 {
     if (dialogRestart() != 0) {
-        programFatalError("Error restarting option");
+        interpretError("Error restarting option");
     }
 }
 
@@ -2873,42 +2873,42 @@ static void op_soundplay(Program* program)
 
     // NOTE: Original code does not use loop.
     for (int arg = 0; arg < 2; arg++) {
-        opcode[arg] = programStackPopInt16(program);
-        data[arg] = programStackPopInt32(program);
+        opcode[arg] = interpretPopShort(program);
+        data[arg] = interpretPopLong(program);
 
         if (opcode[arg] == VALUE_TYPE_DYNAMIC_STRING) {
-            _interpretDecStringRef(program, opcode[arg], data[arg]);
+            interpretDecStringRef(program, opcode[arg], data[arg]);
         }
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 2 given to soundplay");
+        interpretError("Invalid arg 2 given to soundplay");
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) != VALUE_TYPE_STRING) {
-        programFatalError("Invalid arg 1 given to soundplay");
+        interpretError("Invalid arg 1 given to soundplay");
     }
 
-    char* fileName = programGetString(program, opcode[1], data[1]);
-    char* mangledFileName = _interpretMangleName(fileName);
+    char* fileName = interpretGetString(program, opcode[1], data[1]);
+    char* mangledFileName = interpretMangleName(fileName);
     int rc = soundStartInterpret(mangledFileName, data[0]);
 
-    programStackPushInt32(program, rc);
-    programStackPushInt16(program, VALUE_TYPE_INT);
+    interpretPushLong(program, rc);
+    interpretPushShort(program, VALUE_TYPE_INT);
 }
 
 // 0x466768
 static void op_soundpause(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to soundpause");
+        interpretError("Invalid arg 1 given to soundpause");
     }
 
     soundPauseInterpret(data);
@@ -2917,15 +2917,15 @@ static void op_soundpause(Program* program)
 // 0x4667C0
 static void op_soundresume(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to soundresume");
+        interpretError("Invalid arg 1 given to soundresume");
     }
 
     soundUnpauseInterpret(data);
@@ -2934,15 +2934,15 @@ static void op_soundresume(Program* program)
 // 0x466818
 static void op_soundstop(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to soundstop");
+        interpretError("Invalid arg 1 given to soundstop");
     }
 
     soundPauseInterpret(data);
@@ -2951,15 +2951,15 @@ static void op_soundstop(Program* program)
 // 0x466870
 static void op_soundrewind(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to soundrewind");
+        interpretError("Invalid arg 1 given to soundrewind");
     }
 
     soundRewindInterpret(data);
@@ -2968,15 +2968,15 @@ static void op_soundrewind(Program* program)
 // 0x4668C8
 static void op_sounddelete(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (data == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("Invalid arg 1 given to sounddelete");
+        interpretError("Invalid arg 1 given to sounddelete");
     }
 
     soundDeleteInterpret(data);
@@ -2985,15 +2985,15 @@ static void op_sounddelete(Program* program)
 // 0x466920
 static void op_setoneoptpause(Program* program)
 {
-    opcode_t opcode = programStackPopInt16(program);
-    int data = programStackPopInt32(program);
+    opcode_t opcode = interpretPopShort(program);
+    int data = interpretPopLong(program);
 
     if (opcode == VALUE_TYPE_DYNAMIC_STRING) {
-        _interpretDecStringRef(program, opcode, data);
+        interpretDecStringRef(program, opcode, data);
     }
 
     if ((opcode & VALUE_TYPE_MASK) != VALUE_TYPE_INT) {
-        programFatalError("SetOneOptPause: invalid arg passed (non-integer).");
+        interpretError("SetOneOptPause: invalid arg passed (non-integer).");
     }
 
     if (data) {
@@ -3043,7 +3043,7 @@ static bool intLibDoInput(int key)
 
     if (anyKeyProg != NULL) {
         if (anyKeyOffset != 0) {
-            _executeProc(anyKeyProg, anyKeyOffset);
+            executeProc(anyKeyProg, anyKeyOffset);
         }
         return true;
     }
@@ -3054,7 +3054,7 @@ static bool intLibDoInput(int key)
     }
 
     if (entry->proc != 0) {
-        _executeProc(entry->program, entry->proc);
+        executeProc(entry->program, entry->proc);
     }
 
     return true;
@@ -3065,89 +3065,89 @@ void initIntlib()
 {
     _windowAddInputFunc(intLibDoInput);
 
-    interpreterRegisterOpcode(0x806A, op_fillwin3x3);
-    interpreterRegisterOpcode(0x808C, op_deletebutton);
-    interpreterRegisterOpcode(0x8086, op_addbutton);
-    interpreterRegisterOpcode(0x8088, op_addbuttonflag);
-    interpreterRegisterOpcode(0x8087, op_addbuttontext);
-    interpreterRegisterOpcode(0x8089, op_addbuttongfx);
-    interpreterRegisterOpcode(0x808A, op_addbuttonproc);
-    interpreterRegisterOpcode(0x808B, op_addbuttonrightproc);
-    interpreterRegisterOpcode(0x8067, op_showwin);
-    interpreterRegisterOpcode(0x8068, op_fillwin);
-    interpreterRegisterOpcode(0x8069, op_fillrect);
-    interpreterRegisterOpcode(0x8072, op_print);
-    interpreterRegisterOpcode(0x8073, op_format);
-    interpreterRegisterOpcode(0x8074, op_printrect);
-    interpreterRegisterOpcode(0x8075, op_setfont);
-    interpreterRegisterOpcode(0x8076, op_settextflags);
-    interpreterRegisterOpcode(0x8077, op_settextcolor);
-    interpreterRegisterOpcode(0x8078, op_sethighlightcolor);
-    interpreterRegisterOpcode(0x8064, op_selectwin);
-    interpreterRegisterOpcode(0x806B, op_display);
-    interpreterRegisterOpcode(0x806D, op_displayraw);
-    interpreterRegisterOpcode(0x806C, op_displaygfx);
-    interpreterRegisterOpcode(0x806F, op_fadein);
-    interpreterRegisterOpcode(0x8070, op_fadeout);
-    interpreterRegisterOpcode(0x807A, op_playmovie);
-    interpreterRegisterOpcode(0x807B, op_movieflags);
-    interpreterRegisterOpcode(0x807C, op_playmovierect);
-    interpreterRegisterOpcode(0x8079, op_stopmovie);
-    interpreterRegisterOpcode(0x807F, op_addregion);
-    interpreterRegisterOpcode(0x8080, op_addregionflag);
-    interpreterRegisterOpcode(0x8081, op_addregionproc);
-    interpreterRegisterOpcode(0x8082, op_addregionrightproc);
-    interpreterRegisterOpcode(0x8083, op_deleteregion);
-    interpreterRegisterOpcode(0x8084, op_activateregion);
-    interpreterRegisterOpcode(0x8085, op_checkregion);
-    interpreterRegisterOpcode(0x8062, op_createwin);
-    interpreterRegisterOpcode(0x8063, op_deletewin);
-    interpreterRegisterOpcode(0x8065, op_resizewin);
-    interpreterRegisterOpcode(0x8066, op_scalewin);
-    interpreterRegisterOpcode(0x804E, op_saystart);
-    interpreterRegisterOpcode(0x804F, op_saystartpos);
-    interpreterRegisterOpcode(0x8050, op_sayreplytitle);
-    interpreterRegisterOpcode(0x8051, op_saygotoreply);
-    interpreterRegisterOpcode(0x8053, op_sayreply);
-    interpreterRegisterOpcode(0x8052, op_sayoption);
-    interpreterRegisterOpcode(0x804D, op_sayend);
-    interpreterRegisterOpcode(0x804C, op_sayquit);
-    interpreterRegisterOpcode(0x8054, op_saymessage);
-    interpreterRegisterOpcode(0x8055, op_sayreplywindow);
-    interpreterRegisterOpcode(0x8056, op_sayoptionwindow);
-    interpreterRegisterOpcode(0x805F, op_sayreplyflags);
-    interpreterRegisterOpcode(0x8060, op_sayoptionflags);
-    interpreterRegisterOpcode(0x8057, op_sayborder);
-    interpreterRegisterOpcode(0x8058, op_sayscrollup);
-    interpreterRegisterOpcode(0x8059, op_sayscrolldown);
-    interpreterRegisterOpcode(0x805A, op_saysetspacing);
-    interpreterRegisterOpcode(0x805B, op_sayoptioncolor);
-    interpreterRegisterOpcode(0x805C, op_sayreplycolor);
-    interpreterRegisterOpcode(0x805D, op_sayrestart);
-    interpreterRegisterOpcode(0x805E, op_saygetlastpos);
-    interpreterRegisterOpcode(0x8061, op_saymessagetimeout);
-    interpreterRegisterOpcode(0x8071, op_gotoxy);
-    interpreterRegisterOpcode(0x808D, op_hidemouse);
-    interpreterRegisterOpcode(0x808E, op_showmouse);
-    interpreterRegisterOpcode(0x8090, op_refreshmouse);
-    interpreterRegisterOpcode(0x808F, op_mouseshape);
-    interpreterRegisterOpcode(0x8091, op_setglobalmousefunc);
-    interpreterRegisterOpcode(0x806E, op_loadpalettetable);
-    interpreterRegisterOpcode(0x8092, op_addNamedEvent);
-    interpreterRegisterOpcode(0x8093, op_addNamedHandler);
-    interpreterRegisterOpcode(0x8094, op_clearNamed);
-    interpreterRegisterOpcode(0x8095, op_signalNamed);
-    interpreterRegisterOpcode(0x8096, op_addkey);
-    interpreterRegisterOpcode(0x8097, op_deletekey);
-    interpreterRegisterOpcode(0x8098, op_soundplay);
-    interpreterRegisterOpcode(0x8099, op_soundpause);
-    interpreterRegisterOpcode(0x809A, op_soundresume);
-    interpreterRegisterOpcode(0x809B, op_soundstop);
-    interpreterRegisterOpcode(0x809C, op_soundrewind);
-    interpreterRegisterOpcode(0x809D, op_sounddelete);
-    interpreterRegisterOpcode(0x809E, op_setoneoptpause);
-    interpreterRegisterOpcode(0x809F, op_selectfilelist);
-    interpreterRegisterOpcode(0x80A0, op_tokenize);
+    interpretAddFunc(0x806A, op_fillwin3x3);
+    interpretAddFunc(0x808C, op_deletebutton);
+    interpretAddFunc(0x8086, op_addbutton);
+    interpretAddFunc(0x8088, op_addbuttonflag);
+    interpretAddFunc(0x8087, op_addbuttontext);
+    interpretAddFunc(0x8089, op_addbuttongfx);
+    interpretAddFunc(0x808A, op_addbuttonproc);
+    interpretAddFunc(0x808B, op_addbuttonrightproc);
+    interpretAddFunc(0x8067, op_showwin);
+    interpretAddFunc(0x8068, op_fillwin);
+    interpretAddFunc(0x8069, op_fillrect);
+    interpretAddFunc(0x8072, op_print);
+    interpretAddFunc(0x8073, op_format);
+    interpretAddFunc(0x8074, op_printrect);
+    interpretAddFunc(0x8075, op_setfont);
+    interpretAddFunc(0x8076, op_settextflags);
+    interpretAddFunc(0x8077, op_settextcolor);
+    interpretAddFunc(0x8078, op_sethighlightcolor);
+    interpretAddFunc(0x8064, op_selectwin);
+    interpretAddFunc(0x806B, op_display);
+    interpretAddFunc(0x806D, op_displayraw);
+    interpretAddFunc(0x806C, op_displaygfx);
+    interpretAddFunc(0x806F, op_fadein);
+    interpretAddFunc(0x8070, op_fadeout);
+    interpretAddFunc(0x807A, op_playmovie);
+    interpretAddFunc(0x807B, op_movieflags);
+    interpretAddFunc(0x807C, op_playmovierect);
+    interpretAddFunc(0x8079, op_stopmovie);
+    interpretAddFunc(0x807F, op_addregion);
+    interpretAddFunc(0x8080, op_addregionflag);
+    interpretAddFunc(0x8081, op_addregionproc);
+    interpretAddFunc(0x8082, op_addregionrightproc);
+    interpretAddFunc(0x8083, op_deleteregion);
+    interpretAddFunc(0x8084, op_activateregion);
+    interpretAddFunc(0x8085, op_checkregion);
+    interpretAddFunc(0x8062, op_createwin);
+    interpretAddFunc(0x8063, op_deletewin);
+    interpretAddFunc(0x8065, op_resizewin);
+    interpretAddFunc(0x8066, op_scalewin);
+    interpretAddFunc(0x804E, op_saystart);
+    interpretAddFunc(0x804F, op_saystartpos);
+    interpretAddFunc(0x8050, op_sayreplytitle);
+    interpretAddFunc(0x8051, op_saygotoreply);
+    interpretAddFunc(0x8053, op_sayreply);
+    interpretAddFunc(0x8052, op_sayoption);
+    interpretAddFunc(0x804D, op_sayend);
+    interpretAddFunc(0x804C, op_sayquit);
+    interpretAddFunc(0x8054, op_saymessage);
+    interpretAddFunc(0x8055, op_sayreplywindow);
+    interpretAddFunc(0x8056, op_sayoptionwindow);
+    interpretAddFunc(0x805F, op_sayreplyflags);
+    interpretAddFunc(0x8060, op_sayoptionflags);
+    interpretAddFunc(0x8057, op_sayborder);
+    interpretAddFunc(0x8058, op_sayscrollup);
+    interpretAddFunc(0x8059, op_sayscrolldown);
+    interpretAddFunc(0x805A, op_saysetspacing);
+    interpretAddFunc(0x805B, op_sayoptioncolor);
+    interpretAddFunc(0x805C, op_sayreplycolor);
+    interpretAddFunc(0x805D, op_sayrestart);
+    interpretAddFunc(0x805E, op_saygetlastpos);
+    interpretAddFunc(0x8061, op_saymessagetimeout);
+    interpretAddFunc(0x8071, op_gotoxy);
+    interpretAddFunc(0x808D, op_hidemouse);
+    interpretAddFunc(0x808E, op_showmouse);
+    interpretAddFunc(0x8090, op_refreshmouse);
+    interpretAddFunc(0x808F, op_mouseshape);
+    interpretAddFunc(0x8091, op_setglobalmousefunc);
+    interpretAddFunc(0x806E, op_loadpalettetable);
+    interpretAddFunc(0x8092, op_addNamedEvent);
+    interpretAddFunc(0x8093, op_addNamedHandler);
+    interpretAddFunc(0x8094, op_clearNamed);
+    interpretAddFunc(0x8095, op_signalNamed);
+    interpretAddFunc(0x8096, op_addkey);
+    interpretAddFunc(0x8097, op_deletekey);
+    interpretAddFunc(0x8098, op_soundplay);
+    interpretAddFunc(0x8099, op_soundpause);
+    interpretAddFunc(0x809A, op_soundresume);
+    interpretAddFunc(0x809B, op_soundstop);
+    interpretAddFunc(0x809C, op_soundrewind);
+    interpretAddFunc(0x809D, op_sounddelete);
+    interpretAddFunc(0x809E, op_setoneoptpause);
+    interpretAddFunc(0x809F, op_selectfilelist);
+    interpretAddFunc(0x80A0, op_tokenize);
 
     _nevs_initonce();
     initIntExtra();
