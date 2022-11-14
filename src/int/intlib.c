@@ -1,4 +1,4 @@
-#include "interpreter_lib.h"
+#include "int/intlib.h"
 
 #include "color.h"
 #include "core.h"

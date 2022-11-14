@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "interpreter_lib.h"
+#include "int/intlib.h"
 #include "memory_manager.h"
 
 typedef struct ExternalVariable {

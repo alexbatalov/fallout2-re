@@ -11,7 +11,7 @@
 #include "db.h"
 #include "debug.h"
 #include "int/export.h"
-#include "interpreter_lib.h"
+#include "int/intlib.h"
 #include "memory_manager.h"
 
 // 0x50942C

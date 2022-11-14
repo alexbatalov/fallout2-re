@@ -9,7 +9,7 @@
 #include "int/datafile.h"
 #include "draw.h"
 #include "game/game.h"
-#include "interpreter_lib.h"
+#include "int/intlib.h"
 #include "memory_manager.h"
 #include "mouse_manager.h"
 #include "movie.h"
