@@ -54,6 +54,7 @@ static int main_load_new(char* fname);
 static int main_loadgame_new();
 static void main_unload_new();
 static void main_game_loop();
+static bool main_selfrun_init();
 static void main_selfrun_exit();
 static void main_selfrun_record();
 static void main_selfrun_play();
@@ -232,13 +233,8 @@ static bool main_init_system(int argc, char** argv)
         return false;
     }
 
-    if (main_selfrun_list != NULL) {
-        main_selfrun_exit();
-    }
-
-    if (selfrunInitFileList(&main_selfrun_list, &main_selfrun_count) == 0) {
-        main_selfrun_index = 0;
-    }
+    // NOTE: Uninline.
+    main_selfrun_init();
 
     return true;
 }
@@ -358,6 +354,25 @@ static void main_game_loop()
     }
 }
 
+// NOTE: Inlined.
+//
+// 0x480EE4
+static bool main_selfrun_init()
+{
+    if (main_selfrun_list != NULL) {
+        // NOTE: Uninline.
+        main_selfrun_exit();
+    }
+
+    if (selfrunInitFileList(&main_selfrun_list, &main_selfrun_count) != 0) {
+        return false;
+    }
+
+    main_selfrun_index = 0;
+
+    return true;
+}
+
 // 0x480F38
 static void main_selfrun_exit()
 {
@@ -417,13 +432,8 @@ static void main_selfrun_record()
 
         main_menu_create();
 
-        if (main_selfrun_list != NULL) {
-            main_selfrun_exit();
-        }
-
-        if (selfrunInitFileList(&main_selfrun_list, &main_selfrun_count) == 0) {
-            main_selfrun_index = 0;
-        }
+        // NOTE: Uninline.
+        main_selfrun_init();
     }
 }
 
