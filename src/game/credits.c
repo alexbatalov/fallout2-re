@@ -60,7 +60,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
     soundContinueAll();
 
     char localizedPath[MAX_PATH];
-    if (_message_make_path(localizedPath, filePath)) {
+    if (message_make_path(localizedPath, filePath)) {
         credits_file = fileOpen(localizedPath, "rt");
         if (credits_file != NULL) {
             soundContinueAll();

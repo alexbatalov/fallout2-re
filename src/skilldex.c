@@ -118,14 +118,14 @@ int skilldexWindowInit()
     gmouse_3d_off();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    if (!messageListInit(&gSkilldexMessageList)) {
+    if (!message_init(&gSkilldexMessageList)) {
         return -1;
     }
 
     char path[FILENAME_MAX];
     sprintf(path, "%s%s", msg_path, "skilldex.msg");
 
-    if (!messageListLoad(&gSkilldexMessageList, path)) {
+    if (!message_load(&gSkilldexMessageList, path)) {
         return -1;
     }
 
@@ -143,7 +143,7 @@ int skilldexWindowInit()
             art_ptr_unlock(gSkilldexFrmHandles[frmIndex]);
         }
 
-        messageListFree(&gSkilldexMessageList);
+        message_exit(&gSkilldexMessageList);
 
         return -1;
     }
@@ -181,7 +181,7 @@ int skilldexWindowInit()
             art_ptr_unlock(gSkilldexFrmHandles[index]);
         }
 
-        messageListFree(&gSkilldexMessageList);
+        message_exit(&gSkilldexMessageList);
 
         return -1;
     }
@@ -203,7 +203,7 @@ int skilldexWindowInit()
             art_ptr_unlock(gSkilldexFrmHandles[index]);
         }
 
-        messageListFree(&gSkilldexMessageList);
+        message_exit(&gSkilldexMessageList);
 
         return -1;
     }
@@ -352,7 +352,7 @@ void skilldexWindowFree()
         art_ptr_unlock(gSkilldexFrmHandles[index]);
     }
 
-    messageListFree(&gSkilldexMessageList);
+    message_exit(&gSkilldexMessageList);
 
     fontSetCurrent(gSkilldexWindowOldFont);
 

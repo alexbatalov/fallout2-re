@@ -183,7 +183,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     tileDisable();
 
     randomInit();
-    badwordsInit();
+    init_message();
     skillsInit();
     statsInit();
 
@@ -306,7 +306,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">automap_init\t");
 
-    if (!messageListInit(&misc_message_file)) {
+    if (!message_init(&misc_message_file)) {
         debugPrint("Failed on message_init\n");
         return -1;
     }
@@ -315,7 +315,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     sprintf(path, "%s%s", msg_path, "misc.msg");
 
-    if (!messageListLoad(&misc_message_file, path)) {
+    if (!message_load(&misc_message_file, path)) {
         debugPrint("Failed on message_load\n");
         return -1;
     }
@@ -391,7 +391,7 @@ void game_exit()
     debugPrint("\nGame Exit\n");
 
     tileDisable();
-    messageListFree(&misc_message_file);
+    message_exit(&misc_message_file);
     combat_exit();
     gdialogExit();
     _scr_game_exit();
@@ -416,7 +416,7 @@ void game_exit()
     skillsExit();
     traitsExit();
     randomExit();
-    badwordsExit();
+    exit_message();
     automap_exit();
     paletteExit();
     wmWorldMap_exit();
@@ -769,14 +769,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
             gameTimeGetDate(&month, &day, &year);
 
             MessageList messageList;
-            if (messageListInit(&messageList)) {
+            if (message_init(&messageList)) {
                 char path[FILENAME_MAX];
                 sprintf(path, "%s%s", msg_path, "editor.msg");
 
-                if (messageListLoad(&messageList, path)) {
+                if (message_load(&messageList, path)) {
                     MessageListItem messageListItem;
                     messageListItem.num = 500 + month - 1;
-                    if (messageListGetItem(&messageList, &messageListItem)) {
+                    if (message_search(&messageList, &messageListItem)) {
                         char* time = gameTimeGetTimeString();
 
                         char date[128];
@@ -786,7 +786,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                     }
                 }
 
-                messageListFree(&messageList);
+                message_exit(&messageList);
             }
         }
         break;
@@ -1059,7 +1059,7 @@ static int game_screendump(int width, int height, unsigned char* buffer, unsigne
     if (screenshotHandlerDefaultImpl(width, height, buffer, palette) != 0) {
         // Error saving screenshot.
         messageListItem.num = 8;
-        if (messageListGetItem(&misc_message_file, &messageListItem)) {
+        if (message_search(&misc_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -1068,7 +1068,7 @@ static int game_screendump(int width, int height, unsigned char* buffer, unsigne
 
     // Saved screenshot.
     messageListItem.num = 3;
-    if (messageListGetItem(&misc_message_file, &messageListItem)) {
+    if (message_search(&misc_message_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -1171,7 +1171,7 @@ int game_quit_with_confirm()
     // Are you sure you want to quit?
     MessageListItem messageListItem;
     messageListItem.num = 0;
-    if (messageListGetItem(&misc_message_file, &messageListItem)) {
+    if (message_search(&misc_message_file, &messageListItem)) {
         rc = dialog_out(messageListItem.text, 0, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_YES_NO);
         if (rc != 0) {
             game_user_wants_to_quit = 2;

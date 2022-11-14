@@ -1923,13 +1923,13 @@ int combat_init()
 
     combat_cleanup_enabled = 0;
 
-    if (!messageListInit(&combat_message_file)) {
+    if (!message_init(&combat_message_file)) {
         return -1;
     }
 
     sprintf(path, "%s%s", msg_path, "combat.msg");
 
-    if (!messageListLoad(&combat_message_file, path)) {
+    if (!message_load(&combat_message_file, path)) {
         return -1;
     }
 
@@ -1963,7 +1963,7 @@ void combat_reset()
 // 0x420E14
 void combat_exit()
 {
-    messageListFree(&combat_message_file);
+    message_exit(&combat_message_file);
 }
 
 // 0x420E24
@@ -2789,7 +2789,7 @@ void combat_give_exps(int exp_points)
     pcAddExperience(exp_points);
 
     v7.num = 621; // %s you earn %d exp. points.
-    if (!messageListGetItem(&gProtoMessageList, &v7)) {
+    if (!message_search(&gProtoMessageList, &v7)) {
         return;
     }
 
@@ -2801,7 +2801,7 @@ void combat_give_exps(int exp_points)
         v9.num = 626; // Best possible prefix: For destroying your enemies without taking a scratch,
     }
 
-    if (!messageListGetItem(&gProtoMessageList, &v9)) {
+    if (!message_search(&gProtoMessageList, &v9)) {
         return;
     }
 
@@ -3009,7 +3009,7 @@ void combat_end()
                 if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
                     if (!combatai_want_to_stop(critter)) {
                         messageListItem.num = 103;
-                        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                        if (message_search(&combat_message_file, &messageListItem)) {
                             display_print(messageListItem.text);
                         }
                         return;
@@ -3026,7 +3026,7 @@ void combat_end()
                 if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
                     if (combatai_want_to_join(critter)) {
                         messageListItem.num = 103;
-                        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                        if (message_search(&combat_message_file, &messageListItem)) {
                             display_print(messageListItem.text);
                         }
                         return;
@@ -4782,7 +4782,7 @@ void combat_display(Attack* attack)
             if (strengthRequired > critterGetStat(gDude, STAT_STRENGTH)) {
                 // You are not strong enough to use this weapon properly.
                 messageListItem.num = 107;
-                if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                if (message_search(&combat_message_file, &messageListItem)) {
                     display_print(messageListItem.text);
                 }
             }
@@ -4808,7 +4808,7 @@ void combat_display(Attack* attack)
         messageListItem.num = 556;
     }
 
-    if (messageListGetItem(&combat_message_file, &messageListItem)) {
+    if (message_search(&combat_message_file, &messageListItem)) {
         strcpy(you, messageListItem.text);
     }
 
@@ -4839,7 +4839,7 @@ void combat_display(Attack* attack)
                 // 608 (male) - Oops! %s was hit instead of you!
                 // 708 (female) - Oops! %s was hit instead of you!
                 messageListItem.num = baseMessageId + 8;
-                if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                if (message_search(&combat_message_file, &messageListItem)) {
                     sprintf(text, messageListItem.text, mainCritterName);
                 }
             } else {
@@ -4847,7 +4847,7 @@ void combat_display(Attack* attack)
                 // 559 (female) - Oops! %s were hit instead of %s!
                 const char* name = objectGetName(attack->oops);
                 messageListItem.num = baseMessageId + 9;
-                if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                if (message_search(&combat_message_file, &messageListItem)) {
                     sprintf(text, messageListItem.text, mainCritterName, name);
                 }
             }
@@ -4861,7 +4861,7 @@ void combat_display(Attack* attack)
                     messageListItem.num = 565;
                 }
 
-                if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                if (message_search(&combat_message_file, &messageListItem)) {
                     sprintf(text, messageListItem.text, you);
                 }
             } else {
@@ -4874,7 +4874,7 @@ void combat_display(Attack* attack)
                     messageListItem.num = 715;
                 }
 
-                if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                if (message_search(&combat_message_file, &messageListItem)) {
                     sprintf(text, messageListItem.text, name);
                 }
             }
@@ -4908,7 +4908,7 @@ void combat_display(Attack* attack)
                             break;
                         }
 
-                        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                        if (message_search(&combat_message_file, &messageListItem)) {
                             if (attack->defenderDamage <= 1) {
                                 sprintf(text, messageListItem.text, mainCritterName);
                             } else {
@@ -4953,7 +4953,7 @@ void combat_display(Attack* attack)
                             }
                         }
 
-                        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                        if (message_search(&combat_message_file, &messageListItem)) {
                             if (attack->defenderDamage <= 1) {
                                 sprintf(text, messageListItem.text, mainCritterName, hitLocationName);
                             } else {
@@ -4968,7 +4968,7 @@ void combat_display(Attack* attack)
 
                 if (combatMessages == 1 && (attack->attackerFlags & DAM_CRITICAL) != 0 && attack->criticalMessageId != -1) {
                     messageListItem.num = attack->criticalMessageId;
-                    if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                    if (message_search(&combat_message_file, &messageListItem)) {
                         strcat(text, messageListItem.text);
                     }
 
@@ -4994,7 +4994,7 @@ void combat_display(Attack* attack)
                             }
                         }
 
-                        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+                        if (message_search(&combat_message_file, &messageListItem)) {
                             sprintf(text, "%s %s", mainCritterName, messageListItem.text);
                         }
                     }
@@ -5031,7 +5031,7 @@ void combat_display(Attack* attack)
                 messageListItem.num = baseMessageId + 15;
             }
 
-            if (messageListGetItem(&combat_message_file, &messageListItem)) {
+            if (message_search(&combat_message_file, &messageListItem)) {
                 if (attack->attackerDamage <= 1) {
                     sprintf(text, messageListItem.text, mainCritterName);
                 } else {
@@ -5087,7 +5087,7 @@ static void combat_display_hit(char* dest, Object* critter, int damage)
 
         // 506 - You
         messageListItem.num = messageId + 6;
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             strcpy(text, messageListItem.text);
         }
 
@@ -5118,7 +5118,7 @@ static void combat_display_hit(char* dest, Object* critter, int damage)
     }
 
     messageListItem.num = messageId;
-    if (messageListGetItem(&combat_message_file, &messageListItem)) {
+    if (message_search(&combat_message_file, &messageListItem)) {
         if (damage <= 1) {
             sprintf(dest, messageListItem.text, name);
         } else {
@@ -5154,13 +5154,13 @@ static void combat_display_flags(char* dest, int flags, Object* critter)
     if ((flags & DAM_DEAD) != 0) {
         // " and "
         messageListItem.num = 108;
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             strcat(dest, messageListItem.text);
         }
 
         // were killed
         messageListItem.num = num + 7;
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             strcat(dest, messageListItem.text);
         }
 
@@ -5182,19 +5182,19 @@ static void combat_display_flags(char* dest, int flags, Object* critter)
             strcat(dest, ", ");
 
             messageListItem.num = num + flagsList[index];
-            if (messageListGetItem(&combat_message_file, &messageListItem)) {
+            if (message_search(&combat_message_file, &messageListItem)) {
                 strcat(dest, messageListItem.text);
             }
         }
 
         // " and "
         messageListItem.num = 108;
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             strcat(dest, messageListItem.text);
         }
 
         messageListItem.num = flagsList[flagsListLength - 1];
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             strcat(dest, messageListItem.text);
         }
     }
@@ -5325,7 +5325,7 @@ static char* combat_get_loc_name(Object* critter, int hitLocation)
 {
     MessageListItem messageListItem;
     messageListItem.num = 1000 + 10 * art_alias_num(critter->fid & 0xFFF) + hitLocation;
-    if (messageListGetItem(&combat_message_file, &messageListItem)) {
+    if (message_search(&combat_message_file, &messageListItem)) {
         return messageListItem.text;
     }
 
@@ -5604,7 +5604,7 @@ void combat_attack_this(Object* a1)
     case COMBAT_BAD_SHOT_NO_AMMO:
         item = item_hit_with(gDude, hitMode);
         messageListItem.num = 101; // Out of ammo.
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -5613,14 +5613,14 @@ void combat_attack_this(Object* a1)
         return;
     case COMBAT_BAD_SHOT_OUT_OF_RANGE:
         messageListItem.num = 102; // Target out of range.
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
         return;
     case COMBAT_BAD_SHOT_NOT_ENOUGH_AP:
         item = item_hit_with(gDude, hitMode);
         messageListItem.num = 100; // You need %d action points.
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             int actionPointsRequired = item_w_mp_cost(gDude, hitMode, aiming);
             sprintf(formattedText, messageListItem.text, actionPointsRequired);
             display_print(formattedText);
@@ -5630,19 +5630,19 @@ void combat_attack_this(Object* a1)
         return;
     case COMBAT_BAD_SHOT_AIM_BLOCKED:
         messageListItem.num = 104; // Your aim is blocked.
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
         return;
     case COMBAT_BAD_SHOT_ARM_CRIPPLED:
         messageListItem.num = 106; // You cannot use two-handed weapons with a crippled arm.
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
         return;
     case COMBAT_BAD_SHOT_BOTH_ARMS_CRIPPLED:
         messageListItem.num = 105; // You cannot use weapons with both arms crippled.
-        if (messageListGetItem(&combat_message_file, &messageListItem)) {
+        if (message_search(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
         return;

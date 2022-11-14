@@ -160,14 +160,14 @@ int perksInit()
 
     perkResetRanks();
 
-    if (!messageListInit(&gPerksMessageList)) {
+    if (!message_init(&gPerksMessageList)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "perk.msg");
 
-    if (!messageListLoad(&gPerksMessageList, path)) {
+    if (!message_load(&gPerksMessageList, path)) {
         return -1;
     }
 
@@ -175,12 +175,12 @@ int perksInit()
         MessageListItem messageListItem;
 
         messageListItem.num = 101 + perk;
-        if (messageListGetItem(&gPerksMessageList, &messageListItem)) {
+        if (message_search(&gPerksMessageList, &messageListItem)) {
             gPerkDescriptions[perk].name = messageListItem.text;
         }
 
         messageListItem.num = 1101 + perk;
-        if (messageListGetItem(&gPerksMessageList, &messageListItem)) {
+        if (message_search(&gPerksMessageList, &messageListItem)) {
             gPerkDescriptions[perk].description = messageListItem.text;
         }
     }
@@ -197,7 +197,7 @@ void perksReset()
 // 0x4966B8
 void perksExit()
 {
-    messageListFree(&gPerksMessageList);
+    message_exit(&gPerksMessageList);
 
     if (gPartyMemberPerkRanks != NULL) {
         internal_free(gPartyMemberPerkRanks);

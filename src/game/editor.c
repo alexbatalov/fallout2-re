@@ -1202,20 +1202,20 @@ static int CharEditStart()
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    if (!messageListInit(&editor_message_file)) {
+    if (!message_init(&editor_message_file)) {
         return -1;
     }
 
     sprintf(path, "%s%s", msg_path, "editor.msg");
 
-    if (!messageListLoad(&editor_message_file, path)) {
+    if (!message_load(&editor_message_file, path)) {
         return -1;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, (glblmode ? 169 : 177), 0, 0, 0);
     bckgnd = art_lock(fid, &bck_key, &(GInfo[0].width), &(GInfo[0].height));
     if (bckgnd == NULL) {
-        messageListFree(&editor_message_file);
+        message_exit(&editor_message_file);
         return -1;
     }
 
@@ -1245,7 +1245,7 @@ static int CharEditStart()
 
         art_ptr_unlock(bck_key);
 
-        messageListFree(&editor_message_file);
+        message_exit(&editor_message_file);
 
         // NOTE: Uninline.
         RstrBckgProc();
@@ -1280,7 +1280,7 @@ static int CharEditStart()
 
         art_ptr_unlock(bck_key);
 
-        messageListFree(&editor_message_file);
+        message_exit(&editor_message_file);
 
         // NOTE: Uninline.
         RstrBckgProc();
@@ -1306,7 +1306,7 @@ static int CharEditStart()
 
         art_ptr_unlock(bck_key);
 
-        messageListFree(&editor_message_file);
+        message_exit(&editor_message_file);
 
         // NOTE: Uninline.
         RstrBckgProc();
@@ -1770,7 +1770,7 @@ static void CharEditEnd()
     // NOTE: Uninline.
     karma_vars_exit();
 
-    messageListFree(&editor_message_file);
+    message_exit(&editor_message_file);
 
     intface_redraw();
 

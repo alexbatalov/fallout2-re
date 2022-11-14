@@ -449,13 +449,13 @@ int optionsWindowInit()
 {
     gOptionsWindowOldFont = fontGetCurrent();
 
-    if (!messageListInit(&gOptionsMessageList)) {
+    if (!message_init(&gOptionsMessageList)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "options.msg");
-    if (!messageListLoad(&gOptionsMessageList, path)) {
+    if (!message_load(&gOptionsMessageList, path)) {
         return -1;
     }
 
@@ -468,7 +468,7 @@ int optionsWindowInit()
                 art_ptr_unlock(gOptionsWindowFrmHandles[index]);
             }
 
-            messageListFree(&gOptionsMessageList);
+            message_exit(&gOptionsMessageList);
 
             return -1;
         }
@@ -486,7 +486,7 @@ int optionsWindowInit()
                 art_ptr_unlock(gOptionsWindowFrmHandles[index]);
             }
 
-            messageListFree(&gOptionsMessageList);
+            message_exit(&gOptionsMessageList);
 
             return -1;
         }
@@ -514,7 +514,7 @@ int optionsWindowInit()
             art_ptr_unlock(gOptionsWindowFrmHandles[index]);
         }
 
-        messageListFree(&gOptionsMessageList);
+        message_exit(&gOptionsMessageList);
 
         return -1;
     }
@@ -570,7 +570,7 @@ int optionsWindowFree()
 {
     windowDestroy(gOptionsWindow);
     fontSetCurrent(gOptionsWindowOldFont);
-    messageListFree(&gOptionsMessageList);
+    message_exit(&gOptionsMessageList);
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
         internal_free(_opbtns[index]);
@@ -629,14 +629,14 @@ int showPause(bool a1)
         }
     }
 
-    if (!messageListInit(&gOptionsMessageList)) {
+    if (!message_init(&gOptionsMessageList)) {
         // FIXME: Leaking graphics.
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "options.msg");
-    if (!messageListLoad(&gOptionsMessageList, path)) {
+    if (!message_load(&gOptionsMessageList, path)) {
         // FIXME: Leaking graphics.
         return -1;
     }
@@ -662,7 +662,7 @@ int showPause(bool a1)
             art_ptr_unlock(frmHandles[index]);
         }
 
-        messageListFree(&gOptionsMessageList);
+        message_exit(&gOptionsMessageList);
 
         debugPrint("\n** Error opening pause window! **\n");
         return -1;
@@ -756,7 +756,7 @@ int showPause(bool a1)
         art_ptr_unlock(frmHandles[index]);
     }
 
-    messageListFree(&gOptionsMessageList);
+    message_exit(&gOptionsMessageList);
 
     if (!a1) {
         if (gameMouseWasVisible) {

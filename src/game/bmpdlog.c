@@ -234,7 +234,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         int v27 = hasTwoButtons ? doneX[dialogType] : (backgroundWidth - doneBoxWidth) / 2;
         blitBufferToBuffer(doneBox, doneBoxWidth, doneBoxHeight, doneBoxWidth, windowBuf + backgroundWidth * doneY[dialogType] + v27, backgroundWidth);
 
-        if (!messageListInit(&messageList)) {
+        if (!message_init(&messageList)) {
             art_ptr_unlock(upButtonHandle);
             art_ptr_unlock(downButtonHandle);
             art_ptr_unlock(doneBoxHandle);
@@ -247,7 +247,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         char path[MAX_PATH];
         sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
-        if (!messageListLoad(&messageList, path)) {
+        if (!message_load(&messageList, path)) {
             art_ptr_unlock(upButtonHandle);
             art_ptr_unlock(downButtonHandle);
             art_ptr_unlock(doneBoxHandle);
@@ -262,7 +262,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         // 100 - DONE
         // 101 - YES
         messageListItem.num = (flags & DIALOG_BOX_YES_NO) == 0 ? 100 : 101;
-        if (messageListGetItem(&messageList, &messageListItem)) {
+        if (message_search(&messageList, &messageListItem)) {
             fontDrawText(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, colorTable[18979]);
         }
 
@@ -332,7 +332,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 return -1;
             }
 
-            if (!messageListInit(&messageList)) {
+            if (!message_init(&messageList)) {
                 art_ptr_unlock(upButtonHandle);
                 art_ptr_unlock(downButtonHandle);
                 art_ptr_unlock(doneBoxHandle);
@@ -345,7 +345,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             char path[MAX_PATH];
             sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
-            if (!messageListLoad(&messageList, path)) {
+            if (!message_load(&messageList, path)) {
                 art_ptr_unlock(upButtonHandle);
                 art_ptr_unlock(downButtonHandle);
                 art_ptr_unlock(doneBoxHandle);
@@ -481,7 +481,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         art_ptr_unlock(doneBoxHandle);
         art_ptr_unlock(downButtonHandle);
         art_ptr_unlock(upButtonHandle);
-        messageListFree(&messageList);
+        message_exit(&messageList);
     }
 
     return rc;
@@ -539,7 +539,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
     MessageList messageList;
     MessageListItem messageListItem;
 
-    if (!messageListInit(&messageList)) {
+    if (!message_init(&messageList)) {
         windowDestroy(win);
 
         for (int index = 0; index < FILE_DIALOG_FRM_COUNT; index++) {
@@ -552,7 +552,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
-    if (!messageListLoad(&messageList, path)) {
+    if (!message_load(&messageList, path)) {
         windowDestroy(win);
 
         for (int index = 0; index < FILE_DIALOG_FRM_COUNT; index++) {
@@ -858,7 +858,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         art_ptr_unlock(frmHandles[index]);
     }
 
-    messageListFree(&messageList);
+    message_exit(&messageList);
     fontSetCurrent(oldFont);
 
     return rc;
@@ -916,7 +916,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
     MessageList messageList;
     MessageListItem messageListItem;
 
-    if (!messageListInit(&messageList)) {
+    if (!message_init(&messageList)) {
         windowDestroy(win);
 
         for (int index = 0; index < FILE_DIALOG_FRM_COUNT; index++) {
@@ -929,7 +929,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "DBOX.MSG");
 
-    if (!messageListLoad(&messageList, path)) {
+    if (!message_load(&messageList, path)) {
         windowDestroy(win);
 
         for (int index = 0; index < FILE_DIALOG_FRM_COUNT; index++) {
@@ -1340,7 +1340,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         art_ptr_unlock(frmHandles[index]);
     }
 
-    messageListFree(&messageList);
+    message_exit(&messageList);
     fontSetCurrent(oldFont);
 
     return rc;

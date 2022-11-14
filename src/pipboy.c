@@ -314,14 +314,14 @@ int pipboyWindowInit(int intent)
         return -1;
     }
 
-    if (!messageListInit(&gPipboyMessageList)) {
+    if (!message_init(&gPipboyMessageList)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "pipboy.msg");
 
-    if (!(messageListLoad(&gPipboyMessageList, path))) {
+    if (!(message_load(&gPipboyMessageList, path))) {
         return -1;
     }
 
@@ -514,7 +514,7 @@ void pipboyWindowFree()
 
     windowDestroy(gPipboyWindow);
 
-    messageListFree(&gPipboyMessageList);
+    message_exit(&gPipboyMessageList);
 
     // NOTE: Uninline.
     holodiskFree();
@@ -2182,13 +2182,13 @@ int questInit()
 
     gQuestsCount = 0;
 
-    messageListFree(&gQuestsMessageList);
+    message_exit(&gQuestsMessageList);
 
-    if (!messageListInit(&gQuestsMessageList)) {
+    if (!message_init(&gQuestsMessageList)) {
         return -1;
     }
 
-    if (!messageListLoad(&gQuestsMessageList, "game\\quests.msg")) {
+    if (!message_load(&gQuestsMessageList, "game\\quests.msg")) {
         return -1;
     }
 
@@ -2281,7 +2281,7 @@ void questFree()
 
     gQuestsCount = 0;
 
-    messageListFree(&gQuestsMessageList);
+    message_exit(&gQuestsMessageList);
 }
 
 // 0x49A818

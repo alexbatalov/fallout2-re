@@ -88,14 +88,14 @@ int statsInit()
     // NOTE: Uninline.
     pcStatsReset();
 
-    if (!messageListInit(&gStatsMessageList)) {
+    if (!message_init(&gStatsMessageList)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "stat.msg");
 
-    if (!messageListLoad(&gStatsMessageList, path)) {
+    if (!message_load(&gStatsMessageList, path)) {
         return -1;
     }
 
@@ -128,7 +128,7 @@ int statsReset()
 // 0x4AEEE4
 int statsExit()
 {
-    messageListFree(&gStatsMessageList);
+    message_exit(&gStatsMessageList);
 
     return 0;
 }
@@ -734,7 +734,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             // You have gone up a level.
             MessageListItem messageListItem;
             messageListItem.num = 600;
-            if (messageListGetItem(&gStatsMessageList, &messageListItem)) {
+            if (message_search(&gStatsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 

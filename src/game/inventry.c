@@ -380,11 +380,11 @@ static int inventry_msg_load()
 {
     char path[MAX_PATH];
 
-    if (!messageListInit(&inventry_message_file))
+    if (!message_init(&inventry_message_file))
         return -1;
 
     sprintf(path, "%s%s", msg_path, "inventry.msg");
-    if (!messageListLoad(&inventry_message_file, path))
+    if (!message_load(&inventry_message_file, path))
         return -1;
 
     return 0;
@@ -393,7 +393,7 @@ static int inventry_msg_load()
 // 0x46E7A0
 static int inventry_msg_unload()
 {
-    messageListFree(&inventry_message_file);
+    message_exit(&inventry_message_file);
     return 0;
 }
 
@@ -417,7 +417,7 @@ void handle_inventory()
                 // You don't have enough action points to use inventory
                 MessageListItem messageListItem;
                 messageListItem.num = 19;
-                if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                if (message_search(&inventry_message_file, &messageListItem)) {
                     display_print(messageListItem.text);
                 }
 
@@ -1546,7 +1546,7 @@ int inven_init()
             game_ui_disable(0);
         }
 
-        messageListFree(&inventry_message_file);
+        message_exit(&inventry_message_file);
 
         return -1;
     }
@@ -2284,7 +2284,7 @@ void display_stats()
     int offset = 499 * 2 * fontGetLineHeight() + 499 * 44 + 297;
     for (int stat = 0; stat < 7; stat++) {
         messageListItem.num = stat;
-        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+        if (message_search(&inventry_message_file, &messageListItem)) {
             fontDrawText(windowBuffer + offset, messageListItem.text, 80, 499, colorTable[992]);
         }
 
@@ -2299,7 +2299,7 @@ void display_stats()
 
     for (int index = 0; index < 7; index += 1) {
         messageListItem.num = 7 + index;
-        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+        if (message_search(&inventry_message_file, &messageListItem)) {
             fontDrawText(windowBuffer + offset + 40, messageListItem.text, 80, 499, colorTable[992]);
         }
 
@@ -2340,7 +2340,7 @@ void display_stats()
 
             // No item
             messageListItem.num = 14;
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
             }
 
@@ -2348,7 +2348,7 @@ void display_stats()
 
             // Unarmed dmg:
             messageListItem.num = 24;
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 // TODO: Figure out why it uses STAT_MELEE_DAMAGE instead of
                 // STAT_UNARMED_DAMAGE.
                 int damage = critterGetStat(stack[0], STAT_MELEE_DAMAGE) + 2;
@@ -2371,7 +2371,7 @@ void display_stats()
             if (itemType == ITEM_TYPE_ARMOR) {
                 // (Not worn)
                 messageListItem.num = 18;
-                if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                if (message_search(&inventry_message_file, &messageListItem)) {
                     fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
                 }
             }
@@ -2398,13 +2398,13 @@ void display_stats()
         }
 
         messageListItem.num = 15; // Dmg:
-        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+        if (message_search(&inventry_message_file, &messageListItem)) {
             if (attackType != 4 && range <= 1) {
                 sprintf(formattedText, "%s %d-%d", messageListItem.text, damageMin, damageMax + meleeDamage);
             } else {
                 MessageListItem rangeMessageListItem;
                 rangeMessageListItem.num = 16; // Rng:
-                if (messageListGetItem(&inventry_message_file, &rangeMessageListItem)) {
+                if (message_search(&inventry_message_file, &rangeMessageListItem)) {
                     sprintf(formattedText, "%s %d-%d   %s %d", messageListItem.text, damageMin, damageMax + meleeDamage, rangeMessageListItem.text, range);
                 }
             }
@@ -2420,7 +2420,7 @@ void display_stats()
             formattedText[0] = '\0';
 
             messageListItem.num = 17; // Ammo:
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 if (ammoTypePid != -1) {
                     if (item_w_curr_ammo(item) != 0) {
                         const char* ammoName = protoGetName(ammoTypePid);
@@ -2447,7 +2447,7 @@ void display_stats()
 
     // Total wt:
     messageListItem.num = 20;
-    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+    if (message_search(&inventry_message_file, &messageListItem)) {
         if (PID_TYPE(stack[0]->pid) == OBJ_TYPE_CRITTER) {
             int carryWeight = critterGetStat(stack[0], STAT_CARRY_WEIGHT);
             int inventoryWeight = item_total_weight(stack[0]);
@@ -2979,7 +2979,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
             messageListItem.num = 541;
         }
 
-        if (!messageListGetItem(&gProtoMessageList, &messageListItem)) {
+        if (!message_search(&gProtoMessageList, &messageListItem)) {
             debugPrint("\nError: Couldn't find message!");
         }
 
@@ -3382,7 +3382,7 @@ int loot_container(Object* a1, Object* a2)
         if (critter_flag_check(a2->pid, CRITTER_NO_STEAL)) {
             // You can't find anything to take from that.
             messageListItem.num = 50;
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             return 0;
@@ -3570,7 +3570,7 @@ int loot_container(Object* a1, Object* a2)
                 } else {
                     // Sorry, you cannot carry that much.
                     messageListItem.num = 31;
-                    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                    if (message_search(&inventry_message_file, &messageListItem)) {
                         dialog_out(messageListItem.text, NULL, 0, 169, 117, colorTable[32328], NULL, colorTable[32328], 0);
                     }
                 }
@@ -3733,7 +3733,7 @@ int loot_container(Object* a1, Object* a2)
 
                     // You gain %d experience points for successfully using your Steal skill.
                     messageListItem.num = 29;
-                    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                    if (message_search(&inventry_message_file, &messageListItem)) {
                         char formattedText[200];
                         sprintf(formattedText, messageListItem.text, stealingXp);
                         display_print(formattedText);
@@ -3880,7 +3880,7 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
                     } else {
                         // There is no space left for that item.
                         messageListItem.num = 26;
-                        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                        if (message_search(&inventry_message_file, &messageListItem)) {
                             display_print(messageListItem.text);
                         }
                     }
@@ -3915,7 +3915,7 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
                     } else {
                         // You cannot pick that up. You are at your maximum weight capacity.
                         messageListItem.num = 25;
-                        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                        if (message_search(&inventry_message_file, &messageListItem)) {
                             display_print(messageListItem.text);
                         }
                     }
@@ -3971,7 +3971,7 @@ static int barter_attempt_transaction(Object* a1, Object* a2, Object* a3, Object
     if (item_total_weight(a4) > v8) {
         // Sorry, you cannot carry that much.
         messageListItem.num = 31;
-        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+        if (message_search(&inventry_message_file, &messageListItem)) {
             gdialogDisplayMsg(messageListItem.text);
         }
         return -1;
@@ -3982,7 +3982,7 @@ static int barter_attempt_transaction(Object* a1, Object* a2, Object* a3, Object
         if (item_total_weight(a2) > v10) {
             // Sorry, that's too much to carry.
             messageListItem.num = 32;
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 gdialogDisplayMsg(messageListItem.text);
             }
             return -1;
@@ -4009,7 +4009,7 @@ static int barter_attempt_transaction(Object* a1, Object* a2, Object* a3, Object
         if (v11) {
             // No, your offer is not good enough.
             messageListItem.num = 28;
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 gdialogDisplayMsg(messageListItem.text);
             }
             return -1;
@@ -4080,7 +4080,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
                 if (item_move_force(inven_dude, a6, a1, quantityToMove) == -1) {
                     // There is no space left for that item.
                     messageListItem.num = 26;
-                    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                    if (message_search(&inventry_message_file, &messageListItem)) {
                         display_print(messageListItem.text);
                     }
                 }
@@ -4093,7 +4093,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
                 if (item_move_force(a5, a6, a1, quantityToMove) == -1) {
                     // You cannot pick that up. You are at your maximum weight capacity.
                     messageListItem.num = 25;
-                    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                    if (message_search(&inventry_message_file, &messageListItem)) {
                         display_print(messageListItem.text);
                     }
                 }
@@ -4163,7 +4163,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
                 if (item_move_force(a5, inven_dude, a1, quantityToMove) == -1) {
                     // There is no space left for that item.
                     messageListItem.num = 26;
-                    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                    if (message_search(&inventry_message_file, &messageListItem)) {
                         display_print(messageListItem.text);
                     }
                 }
@@ -4176,7 +4176,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
                 if (item_move_force(a5, a4, a1, quantityToMove) == -1) {
                     // You cannot pick that up. You are at your maximum weight capacity.
                     messageListItem.num = 25;
-                    if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                    if (message_search(&inventry_message_file, &messageListItem)) {
                         display_print(messageListItem.text);
                     }
                 }
@@ -4217,7 +4217,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
             MessageListItem messageListItem;
             messageListItem.num = 30;
 
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 int weight = item_total_weight(a2);
                 sprintf(formattedText, "%s %d", messageListItem.text, weight);
             }
@@ -4255,7 +4255,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
             MessageListItem messageListItem;
             messageListItem.num = 30;
 
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 int weight = barter_compute_value(gDude, target_stack[0]);
                 sprintf(formattedText, "%s %d", messageListItem.text, weight);
             }
@@ -4385,7 +4385,7 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
                     MessageListItem messageListItem;
                     messageListItem.num = 27;
                     if (!dialog_target_is_party) {
-                        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+                        if (message_search(&inventry_message_file, &messageListItem)) {
                             gdialogDisplayMsg(messageListItem.text);
                         }
                     }
@@ -4928,14 +4928,14 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
     if (inventoryWindowType == INVENTORY_WINDOW_TYPE_MOVE_ITEMS) {
         // MOVE ITEMS
         messageListItem.num = 21;
-        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+        if (message_search(&inventry_message_file, &messageListItem)) {
             int length = fontGetStringWidth(messageListItem.text);
             fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
         }
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_SET_TIMER) {
         // SET TIMER
         messageListItem.num = 23;
-        if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+        if (message_search(&inventry_message_file, &messageListItem)) {
             int length = fontGetStringWidth(messageListItem.text);
             fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
         }
@@ -5026,7 +5026,7 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
         if (buttonUpData != NULL && buttonDownData != NULL) {
             // ALL
             messageListItem.num = 22;
-            if (messageListGetItem(&inventry_message_file, &messageListItem)) {
+            if (message_search(&inventry_message_file, &messageListItem)) {
                 int length = fontGetStringWidth(messageListItem.text);
 
                 // TODO: Where is y? Is it hardcoded in to 376?

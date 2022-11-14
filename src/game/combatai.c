@@ -870,7 +870,7 @@ static int ai_magic_hands(Object* critter, Object* item, int num)
     if (num != -1) {
         MessageListItem messageListItem;
         messageListItem.num = num;
-        if (messageListGetItem(&misc_message_file, &messageListItem)) {
+        if (message_search(&misc_message_file, &messageListItem)) {
             const char* critterName = objectGetName(critter);
 
             char text[200];
@@ -3157,7 +3157,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
 
     MessageListItem messageListItem;
     messageListItem.num = randomBetween(start, end);
-    if (!messageListGetItem(&ai_message_file, &messageListItem)) {
+    if (!message_search(&ai_message_file, &messageListItem)) {
         debugPrint("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critter_name(a1));
         return -1;
     }
@@ -3348,14 +3348,14 @@ bool is_within_perception(Object* a1, Object* a2)
 // 0x42BB34
 static int combatai_load_messages()
 {
-    if (!messageListInit(&ai_message_file)) {
+    if (!message_init(&ai_message_file)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "combatai.msg");
 
-    if (!messageListLoad(&ai_message_file, path)) {
+    if (!message_load(&ai_message_file, path)) {
         return -1;
     }
 
@@ -3363,7 +3363,7 @@ static int combatai_load_messages()
     configGetBool(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &languageFilter);
 
     if (languageFilter) {
-        messageListFilterBadwords(&ai_message_file);
+        message_filter(&ai_message_file);
     }
 
     return 0;
@@ -3374,7 +3374,7 @@ static int combatai_load_messages()
 // 0x42BBD8
 static int combatai_unload_messages()
 {
-    if (!messageListFree(&ai_message_file)) {
+    if (!message_exit(&ai_message_file)) {
         return -1;
     }
 
@@ -3394,7 +3394,7 @@ void combatai_refresh_messages()
         old_state = languageFilter;
 
         if (languageFilter == 1) {
-            messageListFilterBadwords(&ai_message_file);
+            message_filter(&ai_message_file);
         } else {
             // NOTE: Uninline.
             combatai_unload_messages();

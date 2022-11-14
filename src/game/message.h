@@ -1,14 +1,12 @@
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef FALLOUT_GAME_MESSAGE_H_
+#define FALLOUT_GAME_MESSAGE_H_
 
 #include <stdbool.h>
 
-#include "db.h"
-
-#define BADWORD_LENGTH_MAX 80
-
+// TODO: Convert to enum.
 #define MESSAGE_LIST_ITEM_TEXT_FILTERED 0x01
 
+// TODO: Probably should be private.
 #define MESSAGE_LIST_ITEM_FIELD_MAX_SIZE 1024
 
 typedef struct MessageListItem {
@@ -23,28 +21,14 @@ typedef struct MessageList {
     MessageListItem* entries;
 } MessageList;
 
-extern char _Error_1[];
-extern const char* gBadwordsReplacements;
-
-extern char** gBadwords;
-extern int gBadwordsCount;
-extern int* gBadwordsLengths;
-extern char* _message_error_str;
-
-extern char _bad_copy[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
-
-int badwordsInit();
-void badwordsExit();
-bool messageListInit(MessageList* msg);
-bool messageListFree(MessageList* msg);
-bool messageListLoad(MessageList* msg, const char* path);
-bool messageListGetItem(MessageList* msg, MessageListItem* entry);
-bool _message_make_path(char* dest, const char* path);
-bool _message_find(MessageList* msg, int num, int* out_index);
-bool _message_add(MessageList* msg, MessageListItem* new_entry);
-bool _message_parse_number(int* out_num, const char* str);
-int _message_load_field(File* file, char* str);
+int init_message();
+void exit_message();
+bool message_init(MessageList* msg);
+bool message_exit(MessageList* msg);
+bool message_load(MessageList* msg, const char* path);
+bool message_search(MessageList* msg, MessageListItem* entry);
+bool message_make_path(char* dest, const char* path);
 char* getmsg(MessageList* msg, MessageListItem* entry, int num);
-bool messageListFilterBadwords(MessageList* messageList);
+bool message_filter(MessageList* messageList);
 
-#endif /* MESSAGE_H */
+#endif /* FALLOUT_GAME_MESSAGE_H_ */

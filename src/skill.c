@@ -93,14 +93,14 @@ MessageList gSkillsMessageList;
 // 0x4AA318
 int skillsInit()
 {
-    if (!messageListInit(&gSkillsMessageList)) {
+    if (!message_init(&gSkillsMessageList)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "skill.msg");
 
-    if (!messageListLoad(&gSkillsMessageList, path)) {
+    if (!message_load(&gSkillsMessageList, path)) {
         return -1;
     }
 
@@ -108,17 +108,17 @@ int skillsInit()
         MessageListItem messageListItem;
 
         messageListItem.num = 100 + skill;
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             gSkillDescriptions[skill].name = messageListItem.text;
         }
 
         messageListItem.num = 200 + skill;
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             gSkillDescriptions[skill].description = messageListItem.text;
         }
 
         messageListItem.num = 300 + skill;
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             gSkillDescriptions[skill].attributes = messageListItem.text;
         }
     }
@@ -147,7 +147,7 @@ void skillsReset()
 // 0x4AA478
 void skillsExit()
 {
-    messageListFree(&gSkillsMessageList);
+    message_exit(&gSkillsMessageList);
 }
 
 // 0x4AA488
@@ -527,7 +527,7 @@ void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int cr
     if (pcAddExperience(xpToAdd) == 0 && a4 > 0) {
         MessageListItem messageListItem;
         messageListItem.num = 505; // You earn %d XP for honing your skills
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             int after = pcGetStat(PC_STAT_EXPERIENCE);
 
             char text[60];
@@ -573,7 +573,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 591: You're too tired.
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 
@@ -585,7 +585,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
             messageListItem.num = 512 + randomBetween(0, 2);
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 debugPrint(messageListItem.text);
             }
 
@@ -609,7 +609,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if (obj == gDude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
-                    if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
                         return -1;
                     }
 
@@ -633,7 +633,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             } else {
                 // You fail to do any healing.
                 messageListItem.num = 503;
-                if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
@@ -648,7 +648,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 // 501: You look healty already
                 // 502: %s looks healthy already
                 messageListItem.num = (a2 == gDude ? 501 : 502);
-                if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
@@ -674,7 +674,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 591: You're too tired.
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 
@@ -686,7 +686,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
             messageListItem.num = 512 + randomBetween(0, 2);
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             break;
@@ -712,7 +712,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         // 533: crippled right leg
                         // 534: crippled left leg
                         messageListItem.num = 530 + index;
-                        if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                        if (!message_search(&gSkillsMessageList, &messageListItem)) {
                             return -1;
                         }
 
@@ -736,7 +736,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                             prefix.num = (a2 == gDude ? 525 : 526);
                         }
 
-                        if (!messageListGetItem(&gSkillsMessageList, &prefix)) {
+                        if (!message_search(&gSkillsMessageList, &prefix)) {
                             return -1;
                         }
 
@@ -764,7 +764,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if (obj == gDude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
-                    if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
                         return -1;
                     }
 
@@ -794,7 +794,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             } else {
                 // You fail to do any healing.
                 messageListItem.num = 503;
-                if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
@@ -809,7 +809,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 // 501: You look healty already
                 // 502: %s looks healthy already
                 messageListItem.num = (a2 == gDude ? 501 : 502);
-                if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
@@ -838,14 +838,14 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         break;
     case SKILL_TRAPS:
         messageListItem.num = 551; // You fail to find any traps.
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
         return -1;
     case SKILL_SCIENCE:
         messageListItem.num = 552; // You fail to learn anything.
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -854,7 +854,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         if (critter_body_type(a2) != BODY_TYPE_ROBOTIC) {
             // You cannot repair that.
             messageListItem.num = 553;
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             return -1;
@@ -865,7 +865,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 591: You're too tired.
             // 592: The strain might kill you.
             messageListItem.num = 590 + randomBetween(0, 2);
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             return -1;
@@ -874,7 +874,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         if (critter_is_dead(a2)) {
             // You got it?
             messageListItem.num = 1101;
-            if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             break;
@@ -899,7 +899,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     // 533: crippled right leg
                     // 534: crippled left leg
                     messageListItem.num = 530 + index;
-                    if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
                         return -1;
                     }
 
@@ -922,7 +922,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         prefix.num = (a2 == gDude ? 525 : 526);
                     }
 
-                    if (!messageListGetItem(&gSkillsMessageList, &prefix)) {
+                    if (!message_search(&gSkillsMessageList, &prefix)) {
                         return -1;
                     }
 
@@ -944,7 +944,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if (obj == gDude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
-                    if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
                         return -1;
                     }
 
@@ -974,7 +974,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             } else {
                 // You fail to do any healing.
                 messageListItem.num = 503;
-                if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
@@ -989,7 +989,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 // 501: You look healty already
                 // 502: %s looks healthy already
                 messageListItem.num = (a2 == gDude ? 501 : 502);
-                if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
@@ -1007,7 +1007,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         break;
     default:
         messageListItem.num = 510; // skill_use: invalid skill used.
-        if (messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&gSkillsMessageList, &messageListItem)) {
             debugPrint(messageListItem.text);
         }
 
@@ -1086,7 +1086,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         // 571: You steal the %s.
         // 573: You plant the %s.
         messageListItem.num = isPlanting ? 573 : 571;
-        if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (!message_search(&gSkillsMessageList, &messageListItem)) {
             return -1;
         }
 
@@ -1098,7 +1098,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         // 570: You're caught stealing the %s.
         // 572: You're caught planting the %s.
         messageListItem.num = isPlanting ? 572 : 570;
-        if (!messageListGetItem(&gSkillsMessageList, &messageListItem)) {
+        if (!message_search(&gSkillsMessageList, &messageListItem)) {
             return -1;
         }
 

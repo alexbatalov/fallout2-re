@@ -375,13 +375,13 @@ int SaveGame(int mode)
             return 1;
         }
 
-        if (!messageListInit(&lsgame_msgfl)) {
+        if (!message_init(&lsgame_msgfl)) {
             return -1;
         }
 
         char path[MAX_PATH];
         sprintf(path, "%s%s", msg_path, "LSGAME.MSG");
-        if (!messageListLoad(&lsgame_msgfl, path)) {
+        if (!message_load(&lsgame_msgfl, path)) {
             return -1;
         }
 
@@ -397,7 +397,7 @@ int SaveGame(int mode)
         };
         dialog_out(str0, body, 1, 169, 116, colorTable[32328], NULL, colorTable[32328], DIALOG_BOX_LARGE);
 
-        messageListFree(&lsgame_msgfl);
+        message_exit(&lsgame_msgfl);
 
         return -1;
     }
@@ -859,13 +859,13 @@ int LoadGame(int mode)
             return 1;
         }
 
-        if (!messageListInit(&lsgame_msgfl)) {
+        if (!message_init(&lsgame_msgfl)) {
             return -1;
         }
 
         char path[MAX_PATH];
         sprintf(path, "%s\\%s", msg_path, "LSGAME.MSG");
-        if (!messageListLoad(&lsgame_msgfl, path)) {
+        if (!message_load(&lsgame_msgfl, path)) {
             return -1;
         }
 
@@ -879,7 +879,7 @@ int LoadGame(int mode)
         strcpy(str1, getmsg(&lsgame_msgfl, &messageListItem, 135));
         dialog_out(str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
-        messageListFree(&lsgame_msgfl);
+        message_exit(&lsgame_msgfl);
         map_new_map();
         game_user_wants_to_quit = 2;
 
@@ -1215,18 +1215,18 @@ static int LSGameStart(int windowType)
     fontSetCurrent(103);
 
     bk_enable = false;
-    if (!messageListInit(&lsgame_msgfl)) {
+    if (!message_init(&lsgame_msgfl)) {
         return -1;
     }
 
     sprintf(str, "%s%s", msg_path, LSGAME_MSG_NAME);
-    if (!messageListLoad(&lsgame_msgfl, str)) {
+    if (!message_load(&lsgame_msgfl, str)) {
         return -1;
     }
 
     snapshot = (unsigned char*)internal_malloc(61632);
     if (snapshot == NULL) {
-        messageListFree(&lsgame_msgfl);
+        message_exit(&lsgame_msgfl);
         fontSetCurrent(fontsave);
         return -1;
     }
@@ -1272,7 +1272,7 @@ static int LSGameStart(int windowType)
                 art_ptr_unlock(grphkey[index]);
             }
             internal_free(snapshot);
-            messageListFree(&lsgame_msgfl);
+            message_exit(&lsgame_msgfl);
             fontSetCurrent(fontsave);
 
             if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
@@ -1298,7 +1298,7 @@ static int LSGameStart(int windowType)
     if (lsgwin == -1) {
         // FIXME: Leaking frms.
         internal_free(snapshot);
-        messageListFree(&lsgame_msgfl);
+        message_exit(&lsgame_msgfl);
         fontSetCurrent(fontsave);
 
         if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
@@ -1432,7 +1432,7 @@ static int LSGameEnd(int windowType)
 {
     windowDestroy(lsgwin);
     fontSetCurrent(fontsave);
-    messageListFree(&lsgame_msgfl);
+    message_exit(&lsgame_msgfl);
 
     for (int index = 0; index < LOAD_SAVE_FRM_COUNT; index++) {
         art_ptr_unlock(grphkey[index]);
@@ -1536,7 +1536,7 @@ static int SaveSlot()
     MapDirErase(gmpath, "BAK");
 
     lsgmesg.num = 140;
-    if (messageListGetItem(&lsgame_msgfl, &lsgmesg)) {
+    if (message_search(&lsgame_msgfl, &lsgmesg)) {
         display_print(lsgmesg.text);
     } else {
         debugPrint("\nError: Couldn't find LoadSave Message!");
@@ -1613,7 +1613,7 @@ static int LoadSlot(int slot)
 
     // Game Loaded.
     lsgmesg.num = 141;
-    if (messageListGetItem(&lsgame_msgfl, &lsgmesg) == 1) {
+    if (message_search(&lsgame_msgfl, &lsgmesg) == 1) {
         display_print(lsgmesg.text);
     } else {
         debugPrint("\nError: Couldn't find LoadSave Message!");

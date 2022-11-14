@@ -265,11 +265,11 @@ void map_init()
         map_scroll_refresh = map_scroll_refresh_mapper;
     }
 
-    if (messageListInit(&map_msg_file)) {
+    if (message_init(&map_msg_file)) {
         char path[FILENAME_MAX];
         sprintf(path, "%smap.msg", msg_path);
 
-        if (!messageListLoad(&map_msg_file, path)) {
+        if (!message_load(&map_msg_file, path)) {
             debugPrint("\nError loading map_msg_file!");
         }
     } else {
@@ -297,7 +297,7 @@ void map_exit()
     win_hide(display_win);
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     tickersRemove(gmouse_bk_process);
-    if (!messageListFree(&map_msg_file)) {
+    if (!message_exit(&map_msg_file)) {
         debugPrint("\nError exiting map_msg_file!");
     }
 }

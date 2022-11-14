@@ -38,14 +38,14 @@ TraitDescription gTraitDescriptions[TRAIT_COUNT] = {
 // 0x4B39F0
 int traitsInit()
 {
-    if (!messageListInit(&gTraitsMessageList)) {
+    if (!message_init(&gTraitsMessageList)) {
         return -1;
     }
 
     char path[FILENAME_MAX];
     sprintf(path, "%s%s", msg_path, "trait.msg");
 
-    if (!messageListLoad(&gTraitsMessageList, path)) {
+    if (!message_load(&gTraitsMessageList, path)) {
         return -1;
     }
 
@@ -53,12 +53,12 @@ int traitsInit()
         MessageListItem messageListItem;
 
         messageListItem.num = 100 + trait;
-        if (messageListGetItem(&gTraitsMessageList, &messageListItem)) {
+        if (message_search(&gTraitsMessageList, &messageListItem)) {
             gTraitDescriptions[trait].name = messageListItem.text;
         }
 
         messageListItem.num = 200 + trait;
-        if (messageListGetItem(&gTraitsMessageList, &messageListItem)) {
+        if (message_search(&gTraitsMessageList, &messageListItem)) {
             gTraitDescriptions[trait].description = messageListItem.text;
         }
     }
@@ -80,7 +80,7 @@ void traitsReset()
 // 0x4B3AF8
 void traitsExit()
 {
-    messageListFree(&gTraitsMessageList);
+    message_exit(&gTraitsMessageList);
 }
 
 // Loads trait system state from save game.

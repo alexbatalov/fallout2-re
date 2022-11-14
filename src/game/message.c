@@ -5,38 +5,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "db.h"
 #include "debug.h"
 #include "game/gconfig.h"
 #include "memory.h"
 #include "random.h"
 
-// 0x50B79C
-char _Error_1[] = "Error";
+#define BADWORD_LENGTH_MAX 80
 
-// 0x50B960
-const char* gBadwordsReplacements = "!@#$%&*@#*!&$%#&%#*%!$&%@*$@&";
+static bool message_find(MessageList* msg, int num, int* out_index);
+static bool message_add(MessageList* msg, MessageListItem* new_entry);
+static bool message_parse_number(int* out_num, const char* str);
+static int message_load_field(File* file, char* str);
 
 // 0x519598
-char** gBadwords = NULL;
+static char** bad_word = NULL;
 
 // 0x51959C
-int gBadwordsCount = 0;
+static int bad_total = 0;
 
 // 0x5195A0
-int* gBadwordsLengths = NULL;
-
-// Default text for getmsg when no entry is found.
-//
-// 0x5195A4
-char* _message_error_str = _Error_1;
+static int* bad_len = NULL;
 
 // Temporary message list item text used during filtering badwords.
 //
 // 0x63207C
-char _bad_copy[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
+static char bad_copy[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
 
 // 0x484770
-int badwordsInit()
+int init_message()
 {
     File* stream = fileOpen("data\\badwords.txt", "rt");
     if (stream == NULL) {
@@ -45,20 +42,20 @@ int badwordsInit()
 
     char word[BADWORD_LENGTH_MAX];
 
-    gBadwordsCount = 0;
+    bad_total = 0;
     while (fileReadString(word, BADWORD_LENGTH_MAX - 1, stream)) {
-        gBadwordsCount++;
+        bad_total++;
     }
 
-    gBadwords = (char**)internal_malloc(sizeof(*gBadwords) * gBadwordsCount);
-    if (gBadwords == NULL) {
+    bad_word = (char**)internal_malloc(sizeof(*bad_word) * bad_total);
+    if (bad_word == NULL) {
         fileClose(stream);
         return -1;
     }
 
-    gBadwordsLengths = (int*)internal_malloc(sizeof(*gBadwordsLengths) * gBadwordsCount);
-    if (gBadwordsLengths == NULL) {
-        internal_free(gBadwords);
+    bad_len = (int*)internal_malloc(sizeof(*bad_len) * bad_total);
+    if (bad_len == NULL) {
+        internal_free(bad_word);
         fileClose(stream);
         return -1;
     }
@@ -66,7 +63,7 @@ int badwordsInit()
     fileSeek(stream, 0, SEEK_SET);
 
     int index = 0;
-    for (; index < gBadwordsCount; index++) {
+    for (; index < bad_total; index++) {
         if (!fileReadString(word, BADWORD_LENGTH_MAX - 1, stream)) {
             break;
         }
@@ -77,25 +74,25 @@ int badwordsInit()
             word[len] = '\0';
         }
 
-        gBadwords[index] = internal_strdup(word);
-        if (gBadwords[index] == NULL) {
+        bad_word[index] = internal_strdup(word);
+        if (bad_word[index] == NULL) {
             break;
         }
 
-        strupr(gBadwords[index]);
+        strupr(bad_word[index]);
 
-        gBadwordsLengths[index] = len;
+        bad_len[index] = len;
     }
 
     fileClose(stream);
 
-    if (index != gBadwordsCount) {
+    if (index != bad_total) {
         for (; index > 0; index--) {
-            internal_free(gBadwords[index - 1]);
+            internal_free(bad_word[index - 1]);
         }
 
-        internal_free(gBadwords);
-        internal_free(gBadwordsLengths);
+        internal_free(bad_word);
+        internal_free(bad_len);
 
         return -1;
     }
@@ -104,23 +101,23 @@ int badwordsInit()
 }
 
 // 0x4848F0
-void badwordsExit()
+void exit_message()
 {
-    for (int index = 0; index < gBadwordsCount; index++) {
-        internal_free(gBadwords[index]);
+    for (int index = 0; index < bad_total; index++) {
+        internal_free(bad_word[index]);
     }
 
-    if (gBadwordsCount != 0) {
-        internal_free(gBadwords);
-        internal_free(gBadwordsLengths);
+    if (bad_total != 0) {
+        internal_free(bad_word);
+        internal_free(bad_len);
     }
 
-    gBadwordsCount = 0;
+    bad_total = 0;
 }
 
 // message_init
 // 0x48494C
-bool messageListInit(MessageList* messageList)
+bool message_init(MessageList* messageList)
 {
     if (messageList != NULL) {
         messageList->entries_num = 0;
@@ -130,7 +127,7 @@ bool messageListInit(MessageList* messageList)
 }
 
 // 0x484964
-bool messageListFree(MessageList* messageList)
+bool message_exit(MessageList* messageList)
 {
     int i;
     MessageListItem* entry;
@@ -163,7 +160,7 @@ bool messageListFree(MessageList* messageList)
 
 // message_load
 // 0x484AA4
-bool messageListLoad(MessageList* messageList, const char* path)
+bool message_load(MessageList* messageList, const char* path)
 {
     char* language;
     char localized_path[FILENAME_MAX];
@@ -201,27 +198,27 @@ bool messageListLoad(MessageList* messageList, const char* path)
     entry.text = text;
 
     while (1) {
-        rc = _message_load_field(file_ptr, num);
+        rc = message_load_field(file_ptr, num);
         if (rc != 0) {
             break;
         }
 
-        if (_message_load_field(file_ptr, audio) != 0) {
+        if (message_load_field(file_ptr, audio) != 0) {
             debugPrint("\nError loading audio field.\n", localized_path);
             goto err;
         }
 
-        if (_message_load_field(file_ptr, text) != 0) {
+        if (message_load_field(file_ptr, text) != 0) {
             debugPrint("\nError loading text field.\n", localized_path);
             goto err;
         }
 
-        if (!_message_parse_number(&(entry.num), num)) {
+        if (!message_parse_number(&(entry.num), num)) {
             debugPrint("\nError parsing number.\n", localized_path);
             goto err;
         }
 
-        if (!_message_add(messageList, &entry)) {
+        if (!message_add(messageList, &entry)) {
             debugPrint("\nError adding message.\n", localized_path);
             goto err;
         }
@@ -243,7 +240,7 @@ err:
 }
 
 // 0x484C30
-bool messageListGetItem(MessageList* msg, MessageListItem* entry)
+bool message_search(MessageList* msg, MessageListItem* entry)
 {
     int index;
     MessageListItem* ptr;
@@ -260,7 +257,7 @@ bool messageListGetItem(MessageList* msg, MessageListItem* entry)
         return false;
     }
 
-    if (!_message_find(msg, entry->num, &index)) {
+    if (!message_find(msg, entry->num, &index)) {
         return false;
     }
 
@@ -275,7 +272,7 @@ bool messageListGetItem(MessageList* msg, MessageListItem* entry)
 // Builds language-aware path in "text" subfolder.
 //
 // 0x484CB8
-bool _message_make_path(char* dest, const char* path)
+bool message_make_path(char* dest, const char* path)
 {
     char* language;
 
@@ -297,7 +294,7 @@ bool _message_make_path(char* dest, const char* path)
 }
 
 // 0x484D10
-bool _message_find(MessageList* msg, int num, int* out_index)
+bool message_find(MessageList* msg, int num, int* out_index)
 {
     int r, l, mid;
     int cmp;
@@ -335,13 +332,13 @@ bool _message_find(MessageList* msg, int num, int* out_index)
 }
 
 // 0x484D68
-bool _message_add(MessageList* msg, MessageListItem* new_entry)
+bool message_add(MessageList* msg, MessageListItem* new_entry)
 {
     int index;
     MessageListItem* entries;
     MessageListItem* existing_entry;
 
-    if (_message_find(msg, new_entry->num, &index)) {
+    if (message_find(msg, new_entry->num, &index)) {
         existing_entry = &(msg->entries[index]);
 
         if (existing_entry->audio != NULL) {
@@ -396,7 +393,7 @@ bool _message_add(MessageList* msg, MessageListItem* new_entry)
 }
 
 // 0x484F60
-bool _message_parse_number(int* out_num, const char* str)
+bool message_parse_number(int* out_num, const char* str)
 {
     const char* ch;
     bool success;
@@ -433,7 +430,7 @@ bool _message_parse_number(int* out_num, const char* str)
 // 4 - limit exceeded (> 1024)
 //
 // 0x484FB4
-int _message_load_field(File* file, char* str)
+int message_load_field(File* file, char* str)
 {
     int ch;
     int len;
@@ -486,10 +483,13 @@ int _message_load_field(File* file, char* str)
 // 0x48504C
 char* getmsg(MessageList* msg, MessageListItem* entry, int num)
 {
+    // 0x5195A4
+    static char message_error_str[] = "Error";
+
     entry->num = num;
 
-    if (!messageListGetItem(msg, entry)) {
-        entry->text = _message_error_str;
+    if (!message_search(msg, entry)) {
+        entry->text = message_error_str;
         debugPrint("\n ** String not found @ getmsg(), MESSAGE.C **\n");
     }
 
@@ -497,8 +497,12 @@ char* getmsg(MessageList* msg, MessageListItem* entry, int num)
 }
 
 // 0x485078
-bool messageListFilterBadwords(MessageList* messageList)
+bool message_filter(MessageList* messageList)
 {
+    // TODO: Check.
+    // 0x50B960
+    static const char* replacements = "!@#$%&*@#*!&$%#&%#*%!$&%@*$@&";
+
     if (messageList == NULL) {
         return false;
     }
@@ -507,7 +511,7 @@ bool messageListFilterBadwords(MessageList* messageList)
         return true;
     }
 
-    if (gBadwordsCount == 0) {
+    if (bad_total == 0) {
         return true;
     }
 
@@ -517,30 +521,30 @@ bool messageListFilterBadwords(MessageList* messageList)
         return true;
     }
 
-    int replacementsCount = strlen(gBadwordsReplacements);
+    int replacementsCount = strlen(replacements);
     int replacementsIndex = randomBetween(1, replacementsCount) - 1;
 
     for (int index = 0; index < messageList->entries_num; index++) {
         MessageListItem* item = &(messageList->entries[index]);
-        strcpy(_bad_copy, item->text);
-        strupr(_bad_copy);
+        strcpy(bad_copy, item->text);
+        strupr(bad_copy);
 
-        for (int badwordIndex = 0; badwordIndex < gBadwordsCount; badwordIndex++) {
+        for (int badwordIndex = 0; badwordIndex < bad_total; badwordIndex++) {
             // I don't quite understand the loop below. It has no stop
             // condition besides no matching substring. It also overwrites
             // already masked words on every iteration.
-            for (char* p = _bad_copy;; p++) {
-                const char* substr = strstr(p, gBadwords[badwordIndex]);
+            for (char* p = bad_copy;; p++) {
+                const char* substr = strstr(p, bad_word[badwordIndex]);
                 if (substr == NULL) {
                     break;
                 }
 
-                if (substr == _bad_copy || (!isalpha(substr[-1]) && !isalpha(substr[gBadwordsLengths[badwordIndex]]))) {
+                if (substr == bad_copy || (!isalpha(substr[-1]) && !isalpha(substr[bad_len[badwordIndex]]))) {
                     item->flags |= MESSAGE_LIST_ITEM_TEXT_FILTERED;
-                    char* ptr = item->text + (substr - _bad_copy);
+                    char* ptr = item->text + (substr - bad_copy);
 
-                    for (int j = 0; j < gBadwordsLengths[badwordIndex]; j++) {
-                        *ptr++ = gBadwordsReplacements[replacementsIndex++];
+                    for (int j = 0; j < bad_len[badwordIndex]; j++) {
+                        *ptr++ = replacements[replacementsIndex++];
                         if (replacementsIndex == replacementsCount) {
                             replacementsIndex = 0;
                         }

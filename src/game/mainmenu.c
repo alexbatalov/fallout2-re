@@ -134,7 +134,7 @@ int main_menu_create()
 
     // Copyright.
     msg.num = 20;
-    if (messageListGetItem(&misc_message_file, &msg)) {
+    if (message_search(&misc_message_file, &msg)) {
         windowDrawText(main_window, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
     }
 
@@ -178,7 +178,7 @@ int main_menu_create()
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         msg.num = 9 + index;
-        if (messageListGetItem(&misc_message_file, &msg)) {
+        if (message_search(&misc_message_file, &msg)) {
             len = fontGetStringWidth(msg.text);
             fontDrawText(main_window_buf + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
         }

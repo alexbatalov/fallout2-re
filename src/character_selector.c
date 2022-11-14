@@ -818,7 +818,7 @@ bool characterSelectorWindowRenderStats()
 
     messageListItem.num = 16;
     text[0] = '\0';
-    if (messageListGetItem(&misc_message_file, &messageListItem)) {
+    if (message_search(&misc_message_file, &messageListItem)) {
         strcpy(text, messageListItem.text);
     }
 
@@ -851,7 +851,7 @@ bool characterSelectorWindowRenderStats()
 
     messageListItem.num = 15;
     text[0] = '\0';
-    if (messageListGetItem(&misc_message_file, &messageListItem)) {
+    if (message_search(&misc_message_file, &messageListItem)) {
         strcpy(text, messageListItem.text);
     }
 

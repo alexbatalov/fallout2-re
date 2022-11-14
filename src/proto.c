@@ -320,7 +320,7 @@ char* protoGetMessage(int pid, int message)
 
             MessageListItem messageListItem;
             messageListItem.num = proto->messageId + message;
-            if (messageListGetItem(messageList, &messageListItem)) {
+            if (message_search(messageList, &messageListItem)) {
                 v1 = messageListItem.text;
             }
         }
@@ -1082,7 +1082,7 @@ int protoInit()
     _proto_dude_init("premade\\player.gcd");
 
     for (i = 0; i < 6; i++) {
-        if (!messageListInit(&(_proto_msg_files[i]))) {
+        if (!message_init(&(_proto_msg_files[i]))) {
             debugPrint("\nError: Initing proto message files!");
             return -1;
         }
@@ -1091,7 +1091,7 @@ int protoInit()
     for (i = 0; i < 6; i++) {
         sprintf(path, "%spro_%.4s%s", msg_path, art_dir(i), ".msg");
 
-        if (!messageListLoad(&(_proto_msg_files[i]), path)) {
+        if (!message_load(&(_proto_msg_files[i]), path)) {
             debugPrint("\nError: Loading proto message files!");
             return -1;
         }
@@ -1118,14 +1118,14 @@ int protoInit()
         }
     }
 
-    if (!messageListInit(&gProtoMessageList)) {
+    if (!message_init(&gProtoMessageList)) {
         debugPrint("\nError: Initing main proto message file!");
         return -1;
     }
 
     sprintf(path, "%sproto.msg", msg_path);
 
-    if (!messageListLoad(&gProtoMessageList, path)) {
+    if (!message_load(&gProtoMessageList, path)) {
         debugPrint("\nError: Loading main proto message file!");
         return -1;
     }
@@ -1204,10 +1204,10 @@ void protoExit()
     }
 
     for (i = 0; i < 6; i++) {
-        messageListFree(&(_proto_msg_files[i]));
+        message_exit(&(_proto_msg_files[i]));
     }
 
-    messageListFree(&gProtoMessageList);
+    message_exit(&gProtoMessageList);
 }
 
 // Count .pro lines in .lst files.

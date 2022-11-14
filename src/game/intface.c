@@ -2463,7 +2463,7 @@ static int construct_box_bar_win()
     MessageList messageList;
     MessageListItem messageListItem;
     int rc = 0;
-    if (!messageListInit(&messageList)) {
+    if (!message_init(&messageList)) {
         rc = -1;
     }
 
@@ -2471,7 +2471,7 @@ static int construct_box_bar_win()
     sprintf(path, "%s%s", msg_path, "intrface.msg");
 
     if (rc != -1) {
-        if (!messageListLoad(&messageList, path)) {
+        if (!message_load(&messageList, path)) {
             rc = -1;
         }
     }
@@ -2488,7 +2488,7 @@ static int construct_box_bar_win()
     unsigned char* indicatorBoxFrmData = art_lock(indicatorBoxFid, &indicatorBoxFrmHandle, &width, &height);
     if (indicatorBoxFrmData == NULL) {
         debugPrint("\nINTRFACE: Error initializing indicator box graphics! **\n");
-        messageListFree(&messageList);
+        message_exit(&messageList);
         return -1;
     }
 
@@ -2503,7 +2503,7 @@ static int construct_box_bar_win()
                 internal_free(bbox[index].data);
             }
 
-            messageListFree(&messageList);
+            message_exit(&messageList);
             art_ptr_unlock(indicatorBoxFrmHandle);
 
             return -1;
@@ -2535,7 +2535,7 @@ static int construct_box_bar_win()
     box_status_flag = true;
     refresh_box_bar_win();
 
-    messageListFree(&messageList);
+    message_exit(&messageList);
     art_ptr_unlock(indicatorBoxFrmHandle);
     fontSetCurrent(oldFont);
 

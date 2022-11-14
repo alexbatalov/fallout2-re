@@ -114,7 +114,7 @@ int critter_init()
     // NOTE: Uninline.
     critter_kill_count_clear();
 
-    if (!messageListInit(&critter_scrmsg_file)) {
+    if (!message_init(&critter_scrmsg_file)) {
         debugPrint("\nError: Initing critter name message file!");
         return -1;
     }
@@ -122,7 +122,7 @@ int critter_init()
     char path[MAX_PATH];
     sprintf(path, "%sscrname.msg", msg_path);
 
-    if (!messageListLoad(&critter_scrmsg_file, path)) {
+    if (!message_load(&critter_scrmsg_file, path)) {
         debugPrint("\nError: Loading critter name message file!");
         return -1;
     }
@@ -142,7 +142,7 @@ void critter_reset()
 // 0x42D004
 void critter_exit()
 {
-    messageListFree(&critter_scrmsg_file);
+    message_exit(&critter_scrmsg_file);
 }
 
 // 0x42D01C
@@ -201,7 +201,7 @@ char* critter_name(Object* obj)
     if (obj->field_80 != -1) {
         MessageListItem messageListItem;
         messageListItem.num = 101 + obj->field_80;
-        if (messageListGetItem(&critter_scrmsg_file, &messageListItem)) {
+        if (message_search(&critter_scrmsg_file, &messageListItem)) {
             name = messageListItem.text;
         }
     }
@@ -313,7 +313,7 @@ int critter_adjust_poison(Object* critter, int amount)
         messageListItem.num = 3003;
     }
 
-    if (messageListGetItem(&misc_message_file, &messageListItem)) {
+    if (message_search(&misc_message_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -339,7 +339,7 @@ int critter_check_poison(Object* obj, void* data)
     MessageListItem messageListItem;
     // You take damage from poison.
     messageListItem.num = 3001;
-    if (messageListGetItem(&misc_message_file, &messageListItem)) {
+    if (message_search(&misc_message_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -405,7 +405,7 @@ int critter_adjust_rads(Object* obj, int amount)
                     messageListItem.num = 1008;
                 }
 
-                if (messageListGetItem(&misc_message_file, &messageListItem)) {
+                if (message_search(&misc_message_file, &messageListItem)) {
                     display_print(messageListItem.text);
                 }
             }
@@ -416,7 +416,7 @@ int critter_adjust_rads(Object* obj, int amount)
         // You have received a large dose of radiation.
         messageListItem.num = 1007;
 
-        if (messageListGetItem(&misc_message_file, &messageListItem)) {
+        if (message_search(&misc_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }
@@ -539,7 +539,7 @@ static void process_rads(Object* obj, int radiationLevel, bool isHealing)
     if (obj == gDude) {
         // Radiation level message, higher is worse.
         messageListItem.num = 1000 + radiationLevelIndex;
-        if (messageListGetItem(&misc_message_file, &messageListItem)) {
+        if (message_search(&misc_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }
@@ -567,7 +567,7 @@ static void process_rads(Object* obj, int radiationLevel, bool isHealing)
         if (obj == gDude) {
             // You have died from radiation sickness.
             messageListItem.num = 1006;
-            if (messageListGetItem(&misc_message_file, &messageListItem)) {
+            if (message_search(&misc_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }

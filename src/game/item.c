@@ -119,14 +119,14 @@ static int wd_gvar;
 // 0x4770E0
 int item_init()
 {
-    if (!messageListInit(&item_message_file)) {
+    if (!message_init(&item_message_file)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "item.msg");
 
-    if (!messageListLoad(&item_message_file, path)) {
+    if (!message_load(&item_message_file, path)) {
         return -1;
     }
 
@@ -142,7 +142,7 @@ void item_reset()
 // 0x477148
 void item_exit()
 {
-    messageListFree(&item_message_file);
+    message_exit(&item_message_file);
 }
 
 // NOTE: Uncollapsed 0x477154.
@@ -2205,7 +2205,7 @@ int item_m_use_charged_item(Object* critter, Object* miscItem)
             MessageListItem messageListItem;
             // %s has no charges left.
             messageListItem.num = 5;
-            if (messageListGetItem(&item_message_file, &messageListItem)) {
+            if (message_search(&item_message_file, &messageListItem)) {
                 char text[80];
                 const char* itemName = objectGetName(miscItem);
                 sprintf(text, messageListItem.text, itemName);
@@ -2251,7 +2251,7 @@ int item_m_trickle(Object* item, void* data)
             MessageListItem messageListItem;
             // %s has no charges left.
             messageListItem.num = 5;
-            if (messageListGetItem(&item_message_file, &messageListItem)) {
+            if (message_search(&item_message_file, &messageListItem)) {
                 char text[80];
                 const char* itemName = objectGetName(item);
                 sprintf(text, messageListItem.text, itemName);
@@ -2290,7 +2290,7 @@ int item_m_turn_on(Object* item)
     if (critter == NULL) {
         // This item can only be used from the interface bar.
         messageListItem.num = 9;
-        if (messageListGetItem(&item_message_file, &messageListItem)) {
+        if (message_search(&item_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -2301,7 +2301,7 @@ int item_m_turn_on(Object* item)
     if (item_m_dec_charges(item) != 0) {
         if (critter == gDude) {
             messageListItem.num = 5;
-            if (messageListGetItem(&item_message_file, &messageListItem)) {
+            if (message_search(&item_message_file, &messageListItem)) {
                 char* name = objectGetName(item);
                 sprintf(text, messageListItem.text, name);
                 display_print(text);
@@ -2327,7 +2327,7 @@ int item_m_turn_on(Object* item)
     if (critter == gDude) {
         // %s is on.
         messageListItem.num = 6;
-        if (messageListGetItem(&item_message_file, &messageListItem)) {
+        if (message_search(&item_message_file, &messageListItem)) {
             char* name = objectGetName(item);
             sprintf(text, messageListItem.text, name);
             display_print(text);
@@ -2336,7 +2336,7 @@ int item_m_turn_on(Object* item)
         if (item->pid == PROTO_ID_GEIGER_COUNTER_II) {
             // You pass the Geiger counter over you body. The rem counter reads: %d
             messageListItem.num = 8;
-            if (messageListGetItem(&item_message_file, &messageListItem)) {
+            if (message_search(&item_message_file, &messageListItem)) {
                 int radiation = critter_get_rads(critter);
                 sprintf(text, messageListItem.text, radiation);
                 display_print(text);
@@ -2374,7 +2374,7 @@ int item_m_turn_off(Object* item)
         // %s is off.
         MessageListItem messageListItem;
         messageListItem.num = 7;
-        if (messageListGetItem(&item_message_file, &messageListItem)) {
+        if (message_search(&item_message_file, &messageListItem)) {
             const char* name = objectGetName(item);
             char text[80];
             sprintf(text, messageListItem.text, name);
@@ -2638,7 +2638,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
                 // 1 - You gained %d %s.
                 // 2 - You lost %d %s.
                 messageListItem.num = after < before ? 2 : 1;
-                if (messageListGetItem(&item_message_file, &messageListItem)) {
+                if (message_search(&item_message_file, &messageListItem)) {
                     char* statName = statGetName(stat);
                     sprintf(str, messageListItem.text, after < before ? before - after : after - before, statName);
                     display_print(str);
@@ -2652,7 +2652,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
         if (critter == gDude && !statsChanged && isImmediate) {
             // Nothing happens.
             messageListItem.num = 10;
-            if (messageListGetItem(&item_message_file, &messageListItem)) {
+            if (message_search(&item_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -2660,7 +2660,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
         if (critter == gDude) {
             // You suffer a fatal heart attack from chem overdose.
             messageListItem.num = 4;
-            if (messageListGetItem(&item_message_file, &messageListItem)) {
+            if (message_search(&item_message_file, &messageListItem)) {
                 strcpy(v24, messageListItem.text);
                 // TODO: Why message is ignored?
             }
@@ -3012,7 +3012,7 @@ static void perform_withdrawal_end(Object* obj, int perk)
     if (obj == gDude) {
         MessageListItem messageListItem;
         messageListItem.num = 3;
-        if (messageListGetItem(&item_message_file, &messageListItem)) {
+        if (message_search(&item_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }

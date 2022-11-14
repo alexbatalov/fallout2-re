@@ -1443,12 +1443,12 @@ int scriptsClearDudeScript()
 // 0x4A50A8
 int scriptsInit()
 {
-    if (!messageListInit(&gScrMessageList)) {
+    if (!message_init(&gScrMessageList)) {
         return -1;
     }
 
     for (int index = 0; index < 1450; index++) {
-        if (!messageListInit(&(_script_dialog_msgs[index]))) {
+        if (!message_init(&(_script_dialog_msgs[index]))) {
             return -1;
         }
     }
@@ -1489,20 +1489,20 @@ int _scr_game_init()
     int i;
     char path[MAX_PATH];
 
-    if (!messageListInit(&gScrMessageList)) {
+    if (!message_init(&gScrMessageList)) {
         debugPrint("\nError initing script message file!");
         return -1;
     }
 
     for (i = 0; i < 1450; i++) {
-        if (!messageListInit(&(_script_dialog_msgs[i]))) {
+        if (!message_init(&(_script_dialog_msgs[i]))) {
             debugPrint("\nERROR IN SCRIPT_DIALOG_MSGS!");
             return -1;
         }
     }
 
     sprintf(path, "%s%s", msg_path, "script.msg");
-    if (!messageListLoad(&gScrMessageList, path)) {
+    if (!message_load(&gScrMessageList, path)) {
         debugPrint("\nError loading script message file!");
         return -1;
     }
@@ -1541,7 +1541,7 @@ int scriptsExit()
 {
     gScriptsEnabled = false;
     _script_engine_run_critters = 0;
-    if (!messageListFree(&gScrMessageList)) {
+    if (!message_exit(&gScrMessageList)) {
         debugPrint("\nError exiting script message file!");
         return -1;
     }
@@ -1567,12 +1567,12 @@ int _scr_message_free()
     for (int index = 0; index < 1450; index++) {
         MessageList* messageList = &(_script_dialog_msgs[index]);
         if (messageList->entries_num != 0) {
-            if (!messageListFree(messageList)) {
+            if (!message_exit(messageList)) {
                 debugPrint("\nERROR in scr_message_free!");
                 return -1;
             }
 
-            if (!messageListInit(messageList)) {
+            if (!message_init(messageList)) {
                 debugPrint("\nERROR in scr_message_free!");
                 return -1;
             }
@@ -1592,7 +1592,7 @@ int _scr_game_exit()
     _scr_remove_all();
     clearPrograms();
     tickersRemove(_doBkProcesses);
-    messageListFree(&gScrMessageList);
+    message_exit(&gScrMessageList);
     if (scriptsClearDudeScript() == -1) {
         return -1;
     }
@@ -2600,12 +2600,12 @@ int scriptsGetMessageList(int a1, MessageList** messageListPtr)
         char path[MAX_PATH];
         sprintf(path, "dialog\\%s.msg", scriptName);
 
-        if (!messageListLoad(messageList, path)) {
+        if (!message_load(messageList, path)) {
             debugPrint("\nError loading script dialog message file!");
             return -1;
         }
 
-        if (!messageListFilterBadwords(messageList)) {
+        if (!message_filter(messageList)) {
             debugPrint("\nError filtering script dialog message file!");
             return -1;
         }
@@ -2651,7 +2651,7 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
 
     MessageListItem messageListItem;
     messageListItem.num = messageId;
-    if (!messageListGetItem(messageList, &messageListItem)) {
+    if (!message_search(messageList, &messageListItem)) {
         debugPrint("\nError: can't find message: List: %d, Num: %d!", messageListId, messageId);
         return _err_str;
     }

@@ -875,13 +875,13 @@ int wmWorldMap_init()
         return -1;
     }
 
-    if (!messageListInit(&wmMsgFile)) {
+    if (!message_init(&wmMsgFile)) {
         return -1;
     }
 
     sprintf(path, "%s%s", msg_path, "worldmap.msg");
 
-    if (!messageListLoad(&wmMsgFile, path)) {
+    if (!message_load(&wmMsgFile, path)) {
         return -1;
     }
 
@@ -1138,7 +1138,7 @@ void wmWorldMap_exit()
         circleBlendTable = NULL;
     }
 
-    messageListFree(&wmMsgFile);
+    message_exit(&wmMsgFile);
 }
 
 // 0x4BCEF8
@@ -6142,7 +6142,7 @@ static int wmTownMapRefresh()
 
         MessageListItem messageListItem;
         messageListItem.num = 200 + 10 * wmTownMapCurArea + index;
-        if (messageListGetItem(&wmMsgFile, &messageListItem)) {
+        if (message_search(&wmMsgFile, &messageListItem)) {
             if (messageListItem.text != NULL) {
                 int width = fontGetStringWidth(messageListItem.text);
                 windowDrawText(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, colorTable[992] | 0x2010000);

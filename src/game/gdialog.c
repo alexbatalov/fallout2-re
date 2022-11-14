@@ -701,7 +701,7 @@ void gdialogEnter(Object* a1, int a2)
         if (rc == -1) {
             // You can't see there.
             messageListItem.num = 660;
-            if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&gProtoMessageList, &messageListItem)) {
                 if (a2) {
                     display_print(messageListItem.text);
                 } else {
@@ -716,7 +716,7 @@ void gdialogEnter(Object* a1, int a2)
         if (rc == -2) {
             // Too far away.
             messageListItem.num = 661;
-            if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&gProtoMessageList, &messageListItem)) {
                 if (a2) {
                     display_print(messageListItem.text);
                 } else {
@@ -2291,7 +2291,7 @@ static void gdProcessUpdate()
                 // Go on
                 messageListItem.num = 655;
                 if (critterGetStat(gDude, STAT_INTELLIGENCE) < 4) {
-                    if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
+                    if (message_search(&gProtoMessageList, &messageListItem)) {
                         strcpy(dialogOptionEntry->text, messageListItem.text);
                     } else {
                         debugPrint("\nError...can't find message!");
@@ -2305,7 +2305,7 @@ static void gdProcessUpdate()
         } else if (dialogOptionEntry->messageListId == -2) {
             // [Done]
             messageListItem.num = 650;
-            if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&gProtoMessageList, &messageListItem)) {
                 sprintf(dialogOptionEntry->text, "%c %s", '\x95', messageListItem.text);
             } else {
                 debugPrint("\nError...can't find message!");
@@ -3658,7 +3658,7 @@ static int gdCanBarter()
         messageListItem.num = 913;
     }
 
-    if (!messageListGetItem(&gProtoMessageList, &messageListItem)) {
+    if (!message_search(&gProtoMessageList, &messageListItem)) {
         debugPrint("\nError: gdialog: Can't find message!");
         return 0;
     }
@@ -3748,11 +3748,11 @@ static void gdControl()
 // 0x4496A0
 static int gdCustomCreateWin()
 {
-    if (!messageListInit(&custom_msg_file)) {
+    if (!message_init(&custom_msg_file)) {
         return -1;
     }
 
-    if (!messageListLoad(&custom_msg_file, "game\\custom.msg")) {
+    if (!message_load(&custom_msg_file, "game\\custom.msg")) {
         return -1;
     }
 
@@ -3910,7 +3910,7 @@ static void gdCustomDestroyWin()
     windowDestroy(dialogueWindow);
     dialogueWindow = -1;
 
-    messageListFree(&custom_msg_file);
+    message_exit(&custom_msg_file);
 }
 
 // 0x449B3C
@@ -4271,7 +4271,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
             messageListItem.num = 913;
         }
 
-        if (messageListGetItem(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&gProtoMessageList, &messageListItem)) {
             gdialogDisplayMsg(messageListItem.text);
         } else {
             debugPrint("\nError: gdialog: Can't find message!");
