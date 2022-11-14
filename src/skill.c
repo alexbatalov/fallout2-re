@@ -11,7 +11,7 @@
 #include "game/display.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "object.h"
 #include "palette.h"

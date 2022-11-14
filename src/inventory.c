@@ -21,7 +21,7 @@
 #include "game/gdialog.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "light.h"
 #include "map.h"

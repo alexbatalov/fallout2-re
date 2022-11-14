@@ -11,7 +11,7 @@
 #include "game/endgame.h"
 #include "game/game.h"
 #include "geometry.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "map.h"
 #include "memory.h"

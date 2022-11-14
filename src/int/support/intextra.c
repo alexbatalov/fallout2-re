@@ -21,7 +21,7 @@
 #include "game/gmovie.h"
 #include "game/gsound.h"
 #include "geometry.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "light.h"
 #include "loadsave.h"

@@ -8,7 +8,7 @@
 #include "game/display.h"
 #include "game/game.h"
 #include "game/gsound.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "memory.h"
 #include "object.h"

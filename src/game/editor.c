@@ -19,7 +19,7 @@
 #include "game/graphlib.h"
 #include "game/gsound.h"
 #include "geometry.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "map.h"
 #include "memory.h"

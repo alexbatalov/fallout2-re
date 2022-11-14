@@ -1,4 +1,4 @@
-#include "interface.h"
+#include "game/intface.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -19,7 +19,7 @@
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "geometry.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "lips.h"
 #include "memory.h"

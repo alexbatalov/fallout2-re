@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "game/display.h"
 #include "game/game.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "inventory.h"
 #include "light.h"
 #include "map.h"

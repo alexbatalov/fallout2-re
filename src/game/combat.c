@@ -20,7 +20,7 @@
 #include "game/gconfig.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "loadsave.h"
 #include "map.h"

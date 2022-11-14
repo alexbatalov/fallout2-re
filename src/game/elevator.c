@@ -11,7 +11,7 @@
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "geometry.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "map.h"
 #include "pipboy.h"
 #include "scripts.h"

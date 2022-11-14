@@ -15,7 +15,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gsound.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "item.h"
 #include "light.h"
 #include "map.h"

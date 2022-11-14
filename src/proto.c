@@ -14,7 +14,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gmovie.h"
-#include "interface.h"
+#include "game/intface.h"
 #include "map.h"
 #include "memory.h"
 #include "object.h"
