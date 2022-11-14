@@ -1,4 +1,4 @@
-#include "light.h"
+#include "game/light.h"
 
 #include <math.h>
 

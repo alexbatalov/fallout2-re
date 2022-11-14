@@ -15,7 +15,7 @@
 #include "game/gconfig.h"
 #include "game/gmouse.h"
 #include "game/item.h"
-#include "light.h"
+#include "game/light.h"
 #include "map.h"
 #include "memory.h"
 #include "party_member.h"

@@ -23,7 +23,7 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/item.h"
-#include "light.h"
+#include "game/light.h"
 #include "map.h"
 #include "message.h"
 #include "object.h"

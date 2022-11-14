@@ -11,7 +11,7 @@
 #include "game/game.h"
 #include "game/intface.h"
 #include "game/inventry.h"
-#include "light.h"
+#include "game/light.h"
 #include "map.h"
 #include "memory.h"
 #include "message.h"

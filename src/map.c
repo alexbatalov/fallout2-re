@@ -21,7 +21,7 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/item.h"
-#include "light.h"
+#include "game/light.h"
 #include "loadsave.h"
 #include "memory.h"
 #include "object.h"
