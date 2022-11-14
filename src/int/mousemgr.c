@@ -55,6 +55,7 @@ typedef struct MouseManagerCacheEntry {
 static char* defaultNameMangler(char* a1);
 static int defaultRateCallback();
 static int defaultTimeCallback();
+static void setShape(unsigned char* buf, int width, int length, int full, int hotx, int hoty, char trans);
 static void freeCacheEntry(MouseManagerCacheEntry* entry);
 static int cacheInsert(void** data, int type, unsigned char* palette, const char* fileName);
 static void cacheFlush();
@@ -106,6 +107,14 @@ static int defaultRateCallback()
 static int defaultTimeCallback()
 {
     return _get_time();
+}
+
+// NOTE: Inlined.
+//
+// 0x485264
+static void setShape(unsigned char* buf, int width, int length, int full, int hotx, int hoty, char trans)
+{
+    mouse_set_shape(buf, width, length, full, hotx, hoty, trans);
 }
 
 // 0x485288
@@ -273,7 +282,7 @@ void initMousemgr()
 // 0x48569C
 void mousemgrClose()
 {
-    mouse_set_shape(NULL, 0, 0, 0, 0, 0, 0);
+    setShape(NULL, 0, 0, 0, 0, 0, 0);
 
     if (curMouseBuf != NULL) {
         myfree(curMouseBuf, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 243
@@ -318,7 +327,7 @@ void mousemgrUpdate()
                 curAnim->width,
                 curAnim->height);
 
-            mouse_set_shape(curAnim->field_0[v1],
+            setShape(curAnim->field_0[v1],
                 curAnim->width,
                 curAnim->height,
                 curAnim->width,
@@ -364,7 +373,7 @@ int mouseSetFrame(char* fileName, int a2)
                     cacheEntry->animatedData->field_4[cacheEntry->animatedData->field_26],
                     cacheEntry->animatedData->width * cacheEntry->animatedData->height);
 
-                mouse_set_shape(cacheEntry->animatedData->field_0[cacheEntry->animatedData->field_26],
+                setShape(cacheEntry->animatedData->field_0[cacheEntry->animatedData->field_26],
                     cacheEntry->animatedData->width,
                     cacheEntry->animatedData->height,
                     cacheEntry->animatedData->width,
@@ -481,7 +490,7 @@ int mouseSetFrame(char* fileName, int a2)
     curPal = Cache[lastMouseIndex].palette;
     animating = true;
 
-    mouse_set_shape(animatedData->field_0[0],
+    setShape(animatedData->field_0[0],
         animatedData->width,
         animatedData->height,
         animatedData->width,
@@ -532,7 +541,7 @@ bool mouseSetMouseShape(char* fileName, int a2, int a3)
         curMouseBuf = mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 448
         memcpy(curMouseBuf, cacheEntry->staticData->data, width * height);
         datafileConvertData(curMouseBuf, palette, width, height);
-        mouse_set_shape(curMouseBuf, width, height, width, a2, a3, 0);
+        setShape(curMouseBuf, width, height, width, a2, a3, 0);
         animating = false;
         break;
     case MOUSE_MANAGER_MOUSE_TYPE_ANIMATED:
@@ -570,7 +579,7 @@ bool mouseSetMousePointer(char* fileName)
             curMouseBuf = (unsigned char*)mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 492
             memcpy(curMouseBuf, cacheEntry->staticData->data, width * height);
             datafileConvertData(curMouseBuf, palette, width, height);
-            mouse_set_shape(curMouseBuf, width, height, width, v1, v2, 0);
+            setShape(curMouseBuf, width, height, width, v1, v2, 0);
             animating = false;
             break;
         case MOUSE_MANAGER_MOUSE_TYPE_ANIMATED:
@@ -578,7 +587,7 @@ bool mouseSetMousePointer(char* fileName)
             curPal = palette;
             curAnim->field_26 = 0;
             curAnim->field_24 = 0;
-            mouse_set_shape(curAnim->field_0[0],
+            setShape(curAnim->field_0[0],
                 curAnim->width,
                 curAnim->height,
                 curAnim->width,
@@ -666,7 +675,7 @@ void mousemgrResetMouse()
             memcpy(curMouseBuf, entry->staticData->data, imageWidth * imageHeight);
             datafileConvertData(curMouseBuf, entry->palette, imageWidth, imageHeight);
 
-            mouse_set_shape(curMouseBuf,
+            setShape(curMouseBuf,
                 imageWidth,
                 imageHeight,
                 imageWidth,
@@ -684,7 +693,7 @@ void mousemgrResetMouse()
                 datafileConvertData(curAnim->field_0[index], entry->palette, imageWidth, imageHeight);
             }
 
-            mouse_set_shape(curAnim->field_0[curAnim->field_26],
+            setShape(curAnim->field_0[curAnim->field_26],
                 imageWidth,
                 imageHeight,
                 imageWidth,
