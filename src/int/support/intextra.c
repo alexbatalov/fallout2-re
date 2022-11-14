@@ -20,6 +20,7 @@
 #include "game/gdialog.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
+#include "geometry.h"
 #include "interface.h"
 #include "item.h"
 #include "light.h"
@@ -42,110 +43,325 @@
 #include "vcr.h"
 #include "worldmap.h"
 
-// 0x504B04
-char _Error_0[] = "Error";
+typedef enum Metarule {
+    METARULE_SIGNAL_END_GAME = 13,
+    METARULE_FIRST_RUN = 14,
+    METARULE_ELEVATOR = 15,
+    METARULE_PARTY_COUNT = 16,
+    METARULE_AREA_KNOWN = 17,
+    METARULE_WHO_ON_DRUGS = 18,
+    METARULE_MAP_KNOWN = 19,
+    METARULE_IS_LOADGAME = 22,
+    METARULE_CAR_CURRENT_TOWN = 30,
+    METARULE_GIVE_CAR_TO_PARTY = 31,
+    METARULE_GIVE_CAR_GAS = 32,
+    METARULE_SKILL_CHECK_TAG = 40,
+    METARULE_DROP_ALL_INVEN = 42,
+    METARULE_INVEN_UNWIELD_WHO = 43,
+    METARULE_GET_WORLDMAP_XPOS = 44,
+    METARULE_GET_WORLDMAP_YPOS = 45,
+    METARULE_CURRENT_TOWN = 46,
+    METARULE_LANGUAGE_FILTER = 47,
+    METARULE_VIOLENCE_FILTER = 48,
+    METARULE_WEAPON_DAMAGE_TYPE = 49,
+    METARULE_CRITTER_BARTERS = 50,
+    METARULE_CRITTER_KILL_TYPE = 51,
+    METARULE_SET_CAR_CARRY_AMOUNT = 52,
+    METARULE_GET_CAR_CARRY_AMOUNT = 53,
+} Metarule;
 
+typedef enum Metarule3 {
+    METARULE3_CLR_FIXED_TIMED_EVENTS = 100,
+    METARULE3_MARK_SUBTILE = 101,
+    METARULE3_SET_WM_MUSIC = 102,
+    METARULE3_GET_KILL_COUNT = 103,
+    METARULE3_MARK_MAP_ENTRANCE = 104,
+    METARULE3_WM_SUBTILE_STATE = 105,
+    METARULE3_TILE_GET_NEXT_CRITTER = 106,
+    METARULE3_ART_SET_BASE_FID_NUM = 107,
+    METARULE3_TILE_SET_CENTER = 108,
+    // chem use preference
+    METARULE3_109 = 109,
+    // probably true if car is out of fuel
+    METARULE3_110 = 110,
+    // probably returns city index
+    METARULE3_111 = 111,
+} Metarule3;
+
+typedef enum CritterTrait {
+    CRITTER_TRAIT_PERK = 0,
+    CRITTER_TRAIT_OBJECT = 1,
+    CRITTER_TRAIT_TRAIT = 2,
+} CritterTrait;
+
+typedef enum CritterTraitObject {
+    CRITTER_TRAIT_OBJECT_AI_PACKET = 5,
+    CRITTER_TRAIT_OBJECT_TEAM = 6,
+    CRITTER_TRAIT_OBJECT_ROTATION = 10,
+    CRITTER_TRAIT_OBJECT_IS_INVISIBLE = 666,
+    CRITTER_TRAIT_OBJECT_GET_INVENTORY_WEIGHT = 669,
+} CritterTraitObject;
+
+// See [op_critter_state].
+typedef enum CritterState {
+    CRITTER_STATE_NORMAL = 0x00,
+    CRITTER_STATE_DEAD = 0x01,
+    CRITTER_STATE_PRONE = 0x02,
+} CritterState;
+
+enum {
+    INVEN_TYPE_WORN = 0,
+    INVEN_TYPE_RIGHT_HAND = 1,
+    INVEN_TYPE_LEFT_HAND = 2,
+    INVEN_TYPE_INV_COUNT = -2,
+};
+
+typedef enum FloatingMessageType {
+    FLOATING_MESSAGE_TYPE_WARNING = -2,
+    FLOATING_MESSAGE_TYPE_COLOR_SEQUENCE = -1,
+    FLOATING_MESSAGE_TYPE_NORMAL = 0,
+    FLOATING_MESSAGE_TYPE_BLACK,
+    FLOATING_MESSAGE_TYPE_RED,
+    FLOATING_MESSAGE_TYPE_GREEN,
+    FLOATING_MESSAGE_TYPE_BLUE,
+    FLOATING_MESSAGE_TYPE_PURPLE,
+    FLOATING_MESSAGE_TYPE_NEAR_WHITE,
+    FLOATING_MESSAGE_TYPE_LIGHT_RED,
+    FLOATING_MESSAGE_TYPE_YELLOW,
+    FLOATING_MESSAGE_TYPE_WHITE,
+    FLOATING_MESSAGE_TYPE_GREY,
+    FLOATING_MESSAGE_TYPE_DARK_GREY,
+    FLOATING_MESSAGE_TYPE_LIGHT_GREY,
+    FLOATING_MESSAGE_TYPE_COUNT,
+} FloatingMessageType;
+
+typedef enum OpRegAnimFunc {
+    OP_REG_ANIM_FUNC_BEGIN = 1,
+    OP_REG_ANIM_FUNC_CLEAR = 2,
+    OP_REG_ANIM_FUNC_END = 3,
+} OpRegAnimFunc;
+
+static void int_debug(const char* format, ...);
+static int scripts_tile_is_visible(int tile);
+static int correctFidForRemovedItem(Object* a1, Object* a2, int a3);
+static void op_give_exp_points(Program* program);
+static void op_scr_return(Program* program);
+static void op_play_sfx(Program* program);
+static void op_set_map_start(Program* program);
+static void op_override_map_start(Program* program);
+static void op_has_skill(Program* program);
+static void op_using_skill(Program* program);
+static void op_roll_vs_skill(Program* program);
+static void op_skill_contest(Program* program);
+static void op_do_check(Program* program);
+static void op_is_success(Program* program);
+static void op_is_critical(Program* program);
+static void op_how_much(Program* program);
+static void op_mark_area_known(Program* program);
+static void op_reaction_influence(Program* program);
+static void op_random(Program* program);
+static void op_roll_dice(Program* program);
+static void op_move_to(Program* program);
+static void op_create_object_sid(Program* program);
+static void op_destroy_object(Program* program);
+static void op_display_msg(Program* program);
+static void op_script_overrides(Program* program);
+static void op_obj_is_carrying_obj_pid(Program* program);
+static void op_tile_contains_obj_pid(Program* program);
+static void op_self_obj(Program* program);
+static void op_source_obj(Program* program);
+static void op_target_obj(Program* program);
+static void op_dude_obj(Program* program);
+static void op_obj_being_used_with(Program* program);
+static void op_local_var(Program* program);
+static void op_set_local_var(Program* program);
+static void op_map_var(Program* program);
+static void op_set_map_var(Program* program);
+static void op_global_var(Program* program);
+static void op_set_global_var(Program* program);
+static void op_script_action(Program* program);
+static void op_obj_type(Program* program);
+static void op_obj_item_subtype(Program* program);
+static void op_get_critter_stat(Program* program);
+static void op_set_critter_stat(Program* program);
+static void op_animate_stand_obj(Program* program);
+static void op_animate_stand_reverse_obj(Program* program);
+static void op_animate_move_obj_to_tile(Program* program);
+static void op_tile_in_tile_rect(Program* program);
+static void op_make_daytime(Program* program);
+static void op_tile_distance(Program* program);
+static void op_tile_distance_objs(Program* program);
+static void op_tile_num(Program* program);
+static void op_tile_num_in_direction(Program* program);
+static void op_pickup_obj(Program* program);
+static void op_drop_obj(Program* program);
+static void op_add_obj_to_inven(Program* program);
+static void op_rm_obj_from_inven(Program* program);
+static void op_wield_obj_critter(Program* program);
+static void op_use_obj(Program* program);
+static void op_obj_can_see_obj(Program* program);
+static void op_attack(Program* program);
+static void op_start_gdialog(Program* program);
+static void op_end_dialogue(Program* program);
+static void op_dialogue_reaction(Program* program);
+static void op_metarule3(Program* program);
+static void op_set_map_music(Program* program);
+static void op_set_obj_visibility(Program* program);
+static void op_load_map(Program* program);
+static void op_wm_area_set_pos(Program* program);
+static void op_set_exit_grids(Program* program);
+static void op_anim_busy(Program* program);
+static void op_critter_heal(Program* program);
+static void op_set_light_level(Program* program);
+static void op_game_time(Program* program);
+static void op_game_time_in_seconds(Program* program);
+static void op_elevation(Program* program);
+static void op_kill_critter(Program* program);
+static void op_kill_critter_type(Program* program);
+static void op_critter_damage(Program* program);
+static void op_add_timer_event(Program* program);
+static void op_rm_timer_event(Program* program);
+static void op_game_ticks(Program* program);
+static void op_has_trait(Program* program);
+static void op_obj_can_hear_obj(Program* program);
+static void op_game_time_hour(Program* program);
+static void op_fixed_param(Program* program);
+static void op_tile_is_visible(Program* program);
+static void op_dialogue_system_enter(Program* program);
+static void op_action_being_used(Program* program);
+static void op_critter_state(Program* program);
+static void op_game_time_advance(Program* program);
+static void op_radiation_inc(Program* program);
+static void op_radiation_dec(Program* program);
+static void op_critter_attempt_placement(Program* program);
+static void op_obj_pid(Program* program);
+static void op_cur_map_index(Program* program);
+static void op_critter_add_trait(Program* program);
+static void op_critter_rm_trait(Program* program);
+static void op_proto_data(Program* program);
+static void op_message_str(Program* program);
+static void op_critter_inven_obj(Program* program);
+static void op_obj_set_light_level(Program* program);
+static void op_world_map(Program* program);
+static void op_inven_cmds(Program* program);
+static void op_float_msg(Program* program);
+static void op_metarule(Program* program);
+static void op_anim(Program* program);
+static void op_obj_carrying_pid_obj(Program* program);
+static void op_reg_anim_func(Program* program);
+static void op_reg_anim_animate(Program* program);
+static void op_reg_anim_animate_reverse(Program* program);
+static void op_reg_anim_obj_move_to_obj(Program* program);
+static void op_reg_anim_obj_run_to_obj(Program* program);
+static void op_reg_anim_obj_move_to_tile(Program* program);
+static void op_reg_anim_obj_run_to_tile(Program* program);
+static void op_play_gmovie(Program* program);
+static void op_add_mult_objs_to_inven(Program* program);
+static void op_rm_mult_objs_from_inven(Program* program);
+static void op_get_month(Program* program);
+static void op_get_day(Program* program);
+static void op_explosion(Program* program);
+static void op_days_since_visited(Program* program);
+static void op_gsay_start(Program* program);
+static void op_gsay_end(Program* program);
+static void op_gsay_reply(Program* program);
+static void op_gsay_option(Program* program);
+static void op_gsay_message(Program* program);
+static void op_giq_option(Program* program);
+static void op_poison(Program* program);
+static void op_get_poison(Program* program);
+static void op_party_add(Program* program);
+static void op_party_remove(Program* program);
+static void op_reg_anim_animate_forever(Program* program);
+static void op_critter_injure(Program* program);
+static void op_combat_is_initialized(Program* program);
+static void op_gdialog_barter(Program* program);
+static void op_difficulty_level(Program* program);
+static void op_running_burning_guy(Program* program);
+static void op_inven_unwield(Program* program);
+static void op_obj_is_locked(Program* program);
+static void op_obj_lock(Program* program);
+static void op_obj_unlock(Program* program);
+static void op_obj_is_open(Program* program);
+static void op_obj_open(Program* program);
+static void op_obj_close(Program* program);
+static void op_game_ui_disable(Program* program);
+static void op_game_ui_enable(Program* program);
+static void op_game_ui_is_disabled(Program* program);
+static void op_gfade_out(Program* program);
+static void op_gfade_in(Program* program);
+static void op_item_caps_total(Program* program);
+static void op_item_caps_adjust(Program* program);
+static void op_anim_action_frame(Program* program);
+static void op_reg_anim_play_sfx(Program* program);
+static void op_critter_mod_skill(Program* program);
+static void op_sfx_build_char_name(Program* program);
+static void op_sfx_build_ambient_name(Program* program);
+static void op_sfx_build_interface_name(Program* program);
+static void op_sfx_build_item_name(Program* program);
+static void op_sfx_build_weapon_name(Program* program);
+static void op_sfx_build_scenery_name(Program* program);
+static void op_sfx_build_open_name(Program* program);
+static void op_attack_setup(Program* program);
+static void op_destroy_mult_objs(Program* program);
+static void op_use_obj_on_obj(Program* program);
+static void op_endgame_slideshow(Program* program);
+static void op_move_obj_inven_to_obj(Program* program);
+static void op_endgame_movie(Program* program);
+static void op_obj_art_fid(Program* program);
+static void op_art_anim(Program* program);
+static void op_party_member_obj(Program* program);
+static void op_rotation_to_tile(Program* program);
+static void op_jam_lock(Program* program);
+static void op_gdialog_set_barter_mod(Program* program);
+static void op_combat_difficulty(Program* program);
+static void op_obj_on_screen(Program* program);
+static void op_critter_is_fleeing(Program* program);
+static void op_critter_set_flee_state(Program* program);
+static void op_terminate_combat(Program* program);
+static void op_debug_msg(Program* program);
+static void op_critter_stop_attacking(Program* program);
+static void op_tile_contains_pid_obj(Program* program);
+static void op_obj_name(Program* program);
+static void op_get_pc_stat(Program* program);
+
+// TODO: Remove.
 // 0x504B0C
 char _aCritter[] = "<Critter>";
 
-// Maps light level to light intensity.
-//
-// Middle value is mapped one-to-one which corresponds to 50% light level
-// (cavern lighting). Light levels above (51-100%) and below (0-49) is
-// calculated as percentage from two adjacent light values.
-//
-// See [opSetLightLevel] for math.
-//
-// 0x453F90
-const int dword_453F90[3] = {
-    0x4000,
-    0xA000,
-    0x10000,
-};
-
-// 0x453F9C
-const unsigned short word_453F9C[MOVIE_COUNT] = {
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-    GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
-};
-
-// 0x453FC0
-Rect stru_453FC0 = { 0, 0, 640, 480 };
-
-// 0x518EC0
-const char* _dbg_error_strs[SCRIPT_ERROR_COUNT] = {
-    "unimped",
-    "obj is NULL",
-    "can't match program to sid",
-    "follows",
-};
-
-// 0x518ED0
-const int _ftList[11] = {
-    ANIM_FALL_BACK_BLOOD_SF,
-    ANIM_BIG_HOLE_SF,
-    ANIM_CHARRED_BODY_SF,
-    ANIM_CHUNKS_OF_FLESH_SF,
-    ANIM_FALL_FRONT_BLOOD_SF,
-    ANIM_FALL_BACK_BLOOD_SF,
-    ANIM_DANCING_AUTOFIRE_SF,
-    ANIM_SLICED_IN_HALF_SF,
-    ANIM_EXPLODED_TO_NOTHING_SF,
-    ANIM_FALL_BACK_BLOOD_SF,
-    ANIM_FALL_FRONT_BLOOD_SF,
-};
-
-// 0x518EFC
-char* _errStr = _Error_0;
-
-// Last message type during op_float_msg sequential.
-//
-// 0x518F00
-int _last_color = 1;
-
-// 0x518F04
-char* _strName = _aCritter;
-
 // NOTE: This value is a little bit odd. It's used to handle 2 operations:
-// [opStartGameDialog] and [opGameDialogReaction]. It's not used outside those
+// [op_start_gdialog] and [op_dialogue_reaction]. It's not used outside those
 // functions.
 //
-// When used inside [opStartGameDialog] this value stores [Fidget] constant
+// When used inside [op_start_gdialog] this value stores [Fidget] constant
 // (1 - Good, 4 - Neutral, 7 - Bad).
 //
-// When used inside [opGameDialogReaction] this value contains specified
+// When used inside [op_dialogue_reaction] this value contains specified
 // reaction (-1 - Good, 0 - Neutral, 1 - Bad).
 //
 // 0x5970D0
-int gGameDialogReactionOrFidget;
+static int dialogue_mood;
 
 // 0x453FD0
-void scriptPredefinedError(Program* program, const char* name, int error)
+void dbg_error(Program* program, const char* name, int error)
 {
+    // 0x518EC0
+    static const char* dbg_error_strs[SCRIPT_ERROR_COUNT] = {
+        "unimped",
+        "obj is NULL",
+        "can't match program to sid",
+        "follows",
+    };
+
     char string[260];
 
-    sprintf(string, "Script Error: %s: op_%s: %s", program->name, name, _dbg_error_strs[error]);
+    sprintf(string, "Script Error: %s: op_%s: %s", program->name, name, dbg_error_strs[error]);
 
     debugPrint(string);
 }
 
 // 0x45400C
-void scriptError(const char* format, ...)
+static void int_debug(const char* format, ...)
 {
     char string[260];
 
@@ -158,7 +374,7 @@ void scriptError(const char* format, ...)
 }
 
 // 0x45404C
-int tileIsVisible(int tile)
+static int scripts_tile_is_visible(int tile)
 {
     if (abs(gCenterTile - tile) % 200 < 5) {
         return 1;
@@ -172,7 +388,7 @@ int tileIsVisible(int tile)
 }
 
 // 0x45409C
-int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
+static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 {
     if (a1 == gDude) {
         bool animated = !game_ui_is_disabled();
@@ -220,9 +436,8 @@ int _correctFidForRemovedItem(Object* a1, Object* a2, int flags)
     return 0;
 }
 
-// give_exp_points
 // 0x4541C8
-void opGiveExpPoints(Program* program)
+static void op_give_exp_points(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -236,13 +451,12 @@ void opGiveExpPoints(Program* program)
     }
 
     if (pcAddExperience(data) != 0) {
-        scriptError("\nScript Error: %s: op_give_exp_points: stat_pc_set failed");
+        int_debug("\nScript Error: %s: op_give_exp_points: stat_pc_set failed");
     }
 }
 
-// scr_return
 // 0x454238
-void opScrReturn(Program* program)
+static void op_scr_return(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -263,9 +477,8 @@ void opScrReturn(Program* program)
     }
 }
 
-// play_sfx
 // 0x4542AC
-void opPlaySfx(Program* program)
+static void op_play_sfx(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -282,9 +495,8 @@ void opPlaySfx(Program* program)
     gsound_play_sfx_file(name);
 }
 
-// set_map_start
 // 0x454314
-void opSetMapStart(Program* program)
+static void op_set_map_start(Program* program)
 {
     opcode_t opcode[4];
     int data[4];
@@ -308,22 +520,21 @@ void opSetMapStart(Program* program)
     int rotation = data[0];
 
     if (mapSetElevation(elevation) != 0) {
-        scriptError("\nScript Error: %s: op_set_map_start: map_set_elevation failed", program->name);
+        int_debug("\nScript Error: %s: op_set_map_start: map_set_elevation failed", program->name);
         return;
     }
 
     int tile = 200 * y + x;
     if (tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
-        scriptError("\nScript Error: %s: op_set_map_start: tile_set_center failed", program->name);
+        int_debug("\nScript Error: %s: op_set_map_start: tile_set_center failed", program->name);
         return;
     }
 
     mapSetStart(tile, elevation, rotation);
 }
 
-// override_map_start
 // 0x4543F4
-void opOverrideMapStart(Program* program)
+static void op_override_map_start(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -356,14 +567,14 @@ void opOverrideMapStart(Program* program)
     int previousTile = gCenterTile;
     if (tile != -1) {
         if (objectSetRotation(gDude, rotation, NULL) != 0) {
-            scriptError("\nError: %s: obj_set_rotation failed in override_map_start!", program->name);
+            int_debug("\nError: %s: obj_set_rotation failed in override_map_start!", program->name);
         }
 
         if (objectSetLocation(gDude, tile, elevation, NULL) != 0) {
-            scriptError("\nError: %s: obj_move_to_tile failed in override_map_start!", program->name);
+            int_debug("\nError: %s: obj_move_to_tile failed in override_map_start!", program->name);
 
             if (objectSetLocation(gDude, previousTile, elevation, NULL) != 0) {
-                scriptError("\nError: %s: obj_move_to_tile RECOVERY Also failed!");
+                int_debug("\nError: %s: obj_move_to_tile RECOVERY Also failed!");
                 exit(1);
             }
         }
@@ -375,9 +586,8 @@ void opOverrideMapStart(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// has_skill
 // 0x454568
-void opHasSkill(Program* program)
+static void op_has_skill(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -404,16 +614,15 @@ void opHasSkill(Program* program)
             result = skillGetValue(object, skill);
         }
     } else {
-        scriptPredefinedError(program, "has_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "has_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// using_skill
 // 0x454634
-void opUsingSkill(Program* program)
+static void op_using_skill(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -447,9 +656,8 @@ void opUsingSkill(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// roll_vs_skill
 // 0x4546E8
-void opRollVsSkill(Program* program)
+static void op_roll_vs_skill(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -482,16 +690,15 @@ void opRollVsSkill(Program* program)
             }
         }
     } else {
-        scriptPredefinedError(program, "roll_vs_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "roll_vs_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, roll);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// skill_contest
 // 0x4547D4
-void opSkillContest(Program* program)
+static void op_skill_contest(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -509,14 +716,13 @@ void opSkillContest(Program* program)
         }
     }
 
-    scriptPredefinedError(program, "skill_contest", SCRIPT_ERROR_NOT_IMPLEMENTED);
+    dbg_error(program, "skill_contest", SCRIPT_ERROR_NOT_IMPLEMENTED);
     programStackPushInt32(program, 0);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// do_check
 // 0x454890
-void opDoCheck(Program* program)
+static void op_do_check(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -555,12 +761,12 @@ void opDoCheck(Program* program)
                 roll = statRoll(object, stat, mod, &(script->howMuch));
                 break;
             default:
-                scriptError("\nScript Error: %s: op_do_check: Stat out of range", program->name);
+                int_debug("\nScript Error: %s: op_do_check: Stat out of range", program->name);
                 break;
             }
         }
     } else {
-        scriptPredefinedError(program, "do_check", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "do_check", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, roll);
@@ -569,7 +775,7 @@ void opDoCheck(Program* program)
 
 // success
 // 0x4549A8
-void opSuccess(Program* program)
+static void op_is_success(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -601,7 +807,7 @@ void opSuccess(Program* program)
 
 // critical
 // 0x454A44
-void opCritical(Program* program)
+static void op_is_critical(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -631,9 +837,8 @@ void opCritical(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// how_much
 // 0x454AD0
-void opHowMuch(Program* program)
+static void op_how_much(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -654,16 +859,15 @@ void opHowMuch(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         result = script->howMuch;
     } else {
-        scriptPredefinedError(program, "how_much", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "how_much", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// mark_area_known
 // 0x454B6C
-void opMarkAreaKnown(Program* program)
+static void op_mark_area_known(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -694,9 +898,8 @@ void opMarkAreaKnown(Program* program)
     }
 }
 
-// reaction_influence
 // 0x454C34
-void opReactionInfluence(Program* program)
+static void op_reaction_influence(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -719,9 +922,8 @@ void opReactionInfluence(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// random
 // 0x454CD4
-void opRandom(Program* program)
+static void op_random(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -750,9 +952,8 @@ void opRandom(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// roll_dice
 // 0x454D88
-void opRollDice(Program* program)
+static void op_roll_dice(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -770,15 +971,14 @@ void opRollDice(Program* program)
         }
     }
 
-    scriptPredefinedError(program, "roll_dice", SCRIPT_ERROR_NOT_IMPLEMENTED);
+    dbg_error(program, "roll_dice", SCRIPT_ERROR_NOT_IMPLEMENTED);
 
     programStackPushInt32(program, 0);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// move_to
 // 0x454E28
-void opMoveTo(Program* program)
+static void op_move_to(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -844,7 +1044,7 @@ void opMoveTo(Program* program)
             }
         }
     } else {
-        scriptPredefinedError(program, "move_to", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "move_to", SCRIPT_ERROR_OBJECT_IS_NULL);
         newTile = -1;
     }
 
@@ -852,9 +1052,8 @@ void opMoveTo(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// create_object_sid
 // 0x454FA8
-void opCreateObject(Program* program)
+static void op_create_object_sid(Program* program)
 {
     opcode_t opcode[4];
     int data[4];
@@ -948,9 +1147,8 @@ out:
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// destroy_object
 // 0x4551E4
-void opDestroyObject(Program* program)
+static void op_destroy_object(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -968,7 +1166,7 @@ void opDestroyObject(Program* program)
     Object* object = (Object*)data;
 
     if (object == NULL) {
-        scriptPredefinedError(program, "destroy_object", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "destroy_object", SCRIPT_ERROR_OBJECT_IS_NULL);
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
@@ -1021,9 +1219,8 @@ void opDestroyObject(Program* program)
     }
 }
 
-// display_msg
 // 0x455388
-void opDisplayMsg(Program* program)
+static void op_display_msg(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1048,9 +1245,8 @@ void opDisplayMsg(Program* program)
     }
 }
 
-// script_overrides
 // 0x455430
-void opScriptOverrides(Program* program)
+static void op_script_overrides(Program* program)
 {
     int sid = scriptGetSid(program);
 
@@ -1058,13 +1254,12 @@ void opScriptOverrides(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         script->scriptOverrides = 1;
     } else {
-        scriptPredefinedError(program, "script_overrides", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "script_overrides", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 }
 
-// obj_is_carrying_obj_pid
 // 0x455470
-void opObjectIsCarryingObjectWithPid(Program* program)
+static void op_obj_is_carrying_obj_pid(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1089,16 +1284,15 @@ void opObjectIsCarryingObjectWithPid(Program* program)
     if (obj != NULL) {
         result = objectGetCarriedQuantityByPid(obj, pid);
     } else {
-        scriptPredefinedError(program, "obj_is_carrying_obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_is_carrying_obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// tile_contains_obj_pid
 // 0x455534
-void opTileContainsObjectWithPid(Program* program)
+static void op_tile_contains_obj_pid(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -1135,18 +1329,16 @@ void opTileContainsObjectWithPid(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// self_obj
 // 0x455600
-void opGetSelf(Program* program)
+static void op_self_obj(Program* program)
 {
     Object* object = scriptGetSelf(program);
     programStackPushInt32(program, (int)object);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// source_obj
 // 0x455624
-void opGetSource(Program* program)
+static void op_source_obj(Program* program)
 {
     Object* object = NULL;
 
@@ -1156,16 +1348,15 @@ void opGetSource(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         object = script->source;
     } else {
-        scriptPredefinedError(program, "source_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "source_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, (int)object);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// target_obj
 // 0x455678
-void opGetTarget(Program* program)
+static void op_target_obj(Program* program)
 {
     Object* object = NULL;
 
@@ -1175,26 +1366,24 @@ void opGetTarget(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         object = script->target;
     } else {
-        scriptPredefinedError(program, "target_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "target_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, (int)object);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// dude_obj
 // 0x4556CC
-void opGetDude(Program* program)
+static void op_dude_obj(Program* program)
 {
     programStackPushInt32(program, (int)gDude);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// NOTE: The implementation is the same as in [opGetTarget].
+// NOTE: The implementation is the same as in [op_target_obj].
 //
-// obj_being_used_with
 // 0x4556EC
-void opGetObjectBeingUsed(Program* program)
+static void op_obj_being_used_with(Program* program)
 {
     Object* object = NULL;
 
@@ -1204,16 +1393,15 @@ void opGetObjectBeingUsed(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         object = script->target;
     } else {
-        scriptPredefinedError(program, "obj_being_used_with", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "obj_being_used_with", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, (int)object);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// local_var
 // 0x455740
-void opGetLocalVar(Program* program)
+static void op_local_var(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1236,9 +1424,8 @@ void opGetLocalVar(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// set_local_var
 // 0x4557C8
-void opSetLocalVar(Program* program)
+static void op_set_local_var(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1263,9 +1450,8 @@ void opSetLocalVar(Program* program)
     scriptSetLocalVar(sid, variable, value);
 }
 
-// map_var
 // 0x455858
-void opGetMapVar(Program* program)
+static void op_map_var(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1284,9 +1470,8 @@ void opGetMapVar(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// set_map_var
 // 0x4558C8
-void opSetMapVar(Program* program)
+static void op_set_map_var(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1310,9 +1495,8 @@ void opSetMapVar(Program* program)
     mapSetGlobalVar(variable, value);
 }
 
-// global_var
 // 0x455950
-void opGetGlobalVar(Program* program)
+static void op_global_var(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1329,17 +1513,15 @@ void opGetGlobalVar(Program* program)
     if (num_game_global_vars != 0) {
         value = game_get_global_var(data);
     } else {
-        scriptError("\nScript Error: %s: op_global_var: no global vars found!", program->name);
+        int_debug("\nScript Error: %s: op_global_var: no global vars found!", program->name);
     }
 
     programStackPushInt32(program, value);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// set_global_var
 // 0x4559EC
-// 0x80C6
-void opSetGlobalVar(Program* program)
+static void op_set_global_var(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1363,13 +1545,12 @@ void opSetGlobalVar(Program* program)
     if (num_game_global_vars != 0) {
         game_set_global_var(variable, value);
     } else {
-        scriptError("\nScript Error: %s: op_set_global_var: no global vars found!", program->name);
+        int_debug("\nScript Error: %s: op_set_global_var: no global vars found!", program->name);
     }
 }
 
-// script_action
 // 0x455A90
-void opGetScriptAction(Program* program)
+static void op_script_action(Program* program)
 {
     int action = 0;
 
@@ -1379,16 +1560,15 @@ void opGetScriptAction(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         action = script->action;
     } else {
-        scriptPredefinedError(program, "script_action", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "script_action", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, action);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_type
 // 0x455AE4
-void opGetObjectType(Program* program)
+static void op_obj_type(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1412,9 +1592,8 @@ void opGetObjectType(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_item_subtype
 // 0x455B6C
-void opGetItemType(Program* program)
+static void op_obj_item_subtype(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1443,9 +1622,8 @@ void opGetItemType(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// get_critter_stat
 // 0x455C10
-void opGetCritterStat(Program* program)
+static void op_get_critter_stat(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1470,7 +1648,7 @@ void opGetCritterStat(Program* program)
     if (object != NULL) {
         value = critterGetStat(object, stat);
     } else {
-        scriptPredefinedError(program, "get_critter_stat", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "get_critter_stat", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, value);
@@ -1480,9 +1658,8 @@ void opGetCritterStat(Program* program)
 // NOTE: Despite it's name it does not actually "set" stat, but "adjust". So
 // it's last argument is amount of adjustment, not it's final value.
 //
-// set_critter_stat
 // 0x455CCC
-void opSetCritterStat(Program* program)
+static void op_set_critter_stat(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -1510,12 +1687,12 @@ void opSetCritterStat(Program* program)
             int currentValue = critterGetBaseStatWithTraitModifier(object, stat);
             critterSetBaseStat(object, stat, currentValue + value);
         } else {
-            scriptPredefinedError(program, "set_critter_stat", SCRIPT_ERROR_FOLLOWS);
+            dbg_error(program, "set_critter_stat", SCRIPT_ERROR_FOLLOWS);
             debugPrint(" Can't modify anyone except obj_dude!");
             result = -1;
         }
     } else {
-        scriptPredefinedError(program, "set_critter_stat", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "set_critter_stat", SCRIPT_ERROR_OBJECT_IS_NULL);
         result = -1;
     }
 
@@ -1523,9 +1700,8 @@ void opSetCritterStat(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// animate_stand_obj
 // 0x455DC8
-void opAnimateStand(Program* program)
+static void op_animate_stand_obj(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1544,7 +1720,7 @@ void opAnimateStand(Program* program)
 
         Script* script;
         if (scriptGetScript(sid, &script) == -1) {
-            scriptPredefinedError(program, "animate_stand_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+            dbg_error(program, "animate_stand_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
             return;
         }
 
@@ -1558,9 +1734,8 @@ void opAnimateStand(Program* program)
     }
 }
 
-// animate_stand_reverse_obj
 // 0x455E7C
-void opAnimateStandReverse(Program* program)
+static void op_animate_stand_reverse_obj(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1580,7 +1755,7 @@ void opAnimateStandReverse(Program* program)
 
         Script* script;
         if (scriptGetScript(sid, &script) == -1) {
-            scriptPredefinedError(program, "animate_stand_reverse_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+            dbg_error(program, "animate_stand_reverse_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
             return;
         }
 
@@ -1594,9 +1769,8 @@ void opAnimateStandReverse(Program* program)
     }
 }
 
-// animate_move_obj_to_tile
 // 0x455F30
-void opAnimateMoveObjectToTile(Program* program)
+static void op_animate_move_obj_to_tile(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -1619,7 +1793,7 @@ void opAnimateMoveObjectToTile(Program* program)
     int flags = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "animate_move_obj_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "animate_move_obj_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -1631,7 +1805,7 @@ void opAnimateMoveObjectToTile(Program* program)
 
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
-        scriptPredefinedError(program, "animate_move_obj_to_tile", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "animate_move_obj_to_tile", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
         return;
     }
 
@@ -1659,9 +1833,8 @@ void opAnimateMoveObjectToTile(Program* program)
     register_end();
 }
 
-// tile_in_tile_rect
 // 0x45607C
-void opTileInTileRect(Program* program)
+static void op_tile_in_tile_rect(Program* program)
 {
     opcode_t opcode[5];
     int data[5];
@@ -1701,15 +1874,13 @@ void opTileInTileRect(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// make_daytime
 // 0x456170
-void opMakeDayTime(Program* program)
+static void op_make_daytime(Program* program)
 {
 }
 
-// tile_distance
 // 0x456174
-void opTileDistanceBetween(Program* program)
+static void op_tile_distance(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1742,9 +1913,8 @@ void opTileDistanceBetween(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// tile_distance_objs
 // 0x456228
-void opTileDistanceBetweenObjects(Program* program)
+static void op_tile_distance_objs(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1774,7 +1944,7 @@ void opTileDistanceBetweenObjects(Program* program)
                 }
             }
         } else {
-            scriptPredefinedError(program, "tile_distance_objs", SCRIPT_ERROR_FOLLOWS);
+            dbg_error(program, "tile_distance_objs", SCRIPT_ERROR_FOLLOWS);
             debugPrint(" Passed a tile # instead of an object!!!BADBADBAD!");
         }
     }
@@ -1783,9 +1953,8 @@ void opTileDistanceBetweenObjects(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// tile_num
 // 0x456324
-void opGetObjectTile(Program* program)
+static void op_tile_num(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1804,16 +1973,15 @@ void opGetObjectTile(Program* program)
     if (obj != NULL) {
         tile = obj->tile;
     } else {
-        scriptPredefinedError(program, "tile_num", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "tile_num", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, tile);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// tile_num_in_direction
 // 0x4563B4
-void opGetTileInDirection(Program* program)
+static void op_tile_num_in_direction(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -1847,11 +2015,11 @@ void opGetTileInDirection(Program* program)
                 }
             }
         } else {
-            scriptPredefinedError(program, "tile_num_in_direction", SCRIPT_ERROR_FOLLOWS);
+            dbg_error(program, "tile_num_in_direction", SCRIPT_ERROR_FOLLOWS);
             debugPrint(" rotation out of Range!");
         }
     } else {
-        scriptPredefinedError(program, "tile_num_in_direction", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "tile_num_in_direction", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" tileNum is -1!");
     }
 
@@ -1859,9 +2027,8 @@ void opGetTileInDirection(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// pickup_obj
 // 0x4564D4
-void opPickup(Program* program)
+static void op_pickup_obj(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1884,21 +2051,20 @@ void opPickup(Program* program)
 
     Script* script;
     if (scriptGetScript(sid, &script) == 1) {
-        scriptPredefinedError(program, "pickup_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "pickup_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
         return;
     }
 
     if (script->target == NULL) {
-        scriptPredefinedError(program, "pickup_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "pickup_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     action_get_an_object(script->target, object);
 }
 
-// drop_obj
 // 0x456580
-void opDrop(Program* program)
+static void op_drop_obj(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -1922,22 +2088,21 @@ void opDrop(Program* program)
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
         // FIXME: Should be SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID.
-        scriptPredefinedError(program, "drop_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "drop_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (script->target == NULL) {
         // FIXME: Should be SCRIPT_ERROR_OBJECT_IS_NULL.
-        scriptPredefinedError(program, "drop_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "drop_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
         return;
     }
 
     _obj_drop(script->target, object);
 }
 
-// add_obj_to_inven
 // 0x45662C
-void opAddObjectToInventory(Program* program)
+static void op_add_obj_to_inven(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -1969,14 +2134,13 @@ void opAddObjectToInventory(Program* program)
             tileWindowRefreshRect(&rect, item->elevation);
         }
     } else {
-        scriptPredefinedError(program, "add_obj_to_inven", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "add_obj_to_inven", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Item was already attached to something else!");
     }
 }
 
-// rm_obj_from_inven
 // 0x456708
-void opRemoveObjectFromInventory(Program* program)
+static void op_rm_obj_from_inven(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2026,14 +2190,13 @@ void opRemoveObjectFromInventory(Program* program)
         tileWindowRefreshRect(&rect, item->elevation);
 
         if (updateFlags) {
-            _correctFidForRemovedItem(owner, item, flags);
+            correctFidForRemovedItem(owner, item, flags);
         }
     }
 }
 
-// wield_obj_critter
 // 0x45681C
-void opWieldItem(Program* program)
+static void op_wield_obj_critter(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2055,17 +2218,17 @@ void opWieldItem(Program* program)
     Object* item = (Object*)data[0];
 
     if (critter == NULL) {
-        scriptPredefinedError(program, "wield_obj_critter", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (item == NULL) {
-        scriptPredefinedError(program, "wield_obj_critter", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
-        scriptPredefinedError(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Only works for critters!  ERROR ERROR ERROR!");
         return;
     }
@@ -2089,7 +2252,7 @@ void opWieldItem(Program* program)
     }
 
     if (_inven_wield(critter, item, hand) == -1) {
-        scriptPredefinedError(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" inven_wield failed!  ERROR ERROR ERROR!");
         return;
     }
@@ -2104,9 +2267,8 @@ void opWieldItem(Program* program)
     }
 }
 
-// use_obj
 // 0x4569D0
-void opUseObject(Program* program)
+static void op_use_obj(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -2122,7 +2284,7 @@ void opUseObject(Program* program)
     Object* object = (Object*)data;
 
     if (object == NULL) {
-        scriptPredefinedError(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -2131,12 +2293,12 @@ void opUseObject(Program* program)
     Script* script;
     if (scriptGetScript(sid, &script) == -1) {
         // FIXME: Should be SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID.
-        scriptPredefinedError(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (script->target == NULL) {
-        scriptPredefinedError(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -2148,9 +2310,8 @@ void opUseObject(Program* program)
     }
 }
 
-// obj_can_see_obj
 // 0x456AC4
-void opObjectCanSeeObject(Program* program)
+static void op_obj_can_see_obj(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2192,16 +2353,15 @@ void opObjectCanSeeObject(Program* program)
             }
         }
     } else {
-        scriptPredefinedError(program, "obj_can_see_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_can_see_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// attack_complex
 // 0x456C00
-void opAttackComplex(Program* program)
+static void op_attack(Program* program)
 {
     opcode_t opcode[8];
     int data[8];
@@ -2221,7 +2381,7 @@ void opAttackComplex(Program* program)
 
     Object* target = (Object*)data[7];
     if (target == NULL) {
-        scriptPredefinedError(program, "attack", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "attack", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -2289,9 +2449,8 @@ void opAttackComplex(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// start_gdialog
 // 0x456DF0
-void opStartGameDialog(Program* program)
+static void op_start_gdialog(Program* program)
 {
     opcode_t opcode[5];
     int data[5];
@@ -2319,7 +2478,7 @@ void opStartGameDialog(Program* program)
     }
 
     if (obj == NULL) {
-        scriptPredefinedError(program, "start_gdialog", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "start_gdialog", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -2336,32 +2495,31 @@ void opStartGameDialog(Program* program)
     }
 
     gdialogSetBackground(backgroundId);
-    gGameDialogReactionOrFidget = reactionLevel;
+    dialogue_mood = reactionLevel;
 
     if (dialogue_head != -1) {
         int npcReactionValue = reactionGetValue(dialog_target);
         int npcReactionType = reactionTranslateValue(npcReactionValue);
         switch (npcReactionType) {
         case NPC_REACTION_BAD:
-            gGameDialogReactionOrFidget = FIDGET_BAD;
+            dialogue_mood = FIDGET_BAD;
             break;
         case NPC_REACTION_NEUTRAL:
-            gGameDialogReactionOrFidget = FIDGET_NEUTRAL;
+            dialogue_mood = FIDGET_NEUTRAL;
             break;
         case NPC_REACTION_GOOD:
-            gGameDialogReactionOrFidget = FIDGET_GOOD;
+            dialogue_mood = FIDGET_GOOD;
             break;
         }
     }
 
     dialogue_scr_id = scriptGetSid(program);
     dialog_target = scriptGetSelf(program);
-    gdialogInitFromScript(dialogue_head, gGameDialogReactionOrFidget);
+    gdialogInitFromScript(dialogue_head, dialogue_mood);
 }
 
-// end_dialogue
 // 0x456F80
-void opEndGameDialog(Program* program)
+static void op_end_dialogue(Program* program)
 {
     if (gdialogExitFromScript() != -1) {
         dialog_target = NULL;
@@ -2369,9 +2527,8 @@ void opEndGameDialog(Program* program)
     }
 }
 
-// dialogue_reaction
 // 0x456FA4
-void opGameDialogReaction(Program* program)
+static void op_dialogue_reaction(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int value = programStackPopInt32(program);
@@ -2384,13 +2541,12 @@ void opGameDialogReaction(Program* program)
         programFatalError("script error: %s: invalid arg to dialogue_reaction", program->name);
     }
 
-    gGameDialogReactionOrFidget = value;
+    dialogue_mood = value;
     talk_to_critter_reacts(value);
 }
 
-// metarule3
 // 0x457110
-void opMetarule3(Program* program)
+static void op_metarule3(Program* program)
 {
     opcode_t opcode[4];
     int data[4];
@@ -2494,9 +2650,8 @@ void opMetarule3(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// set_map_music
 // 0x45734C
-void opSetMapMusic(Program* program)
+static void op_set_map_music(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2534,9 +2689,8 @@ void opSetMapMusic(Program* program)
 // again. So a better name for this function is opSetObjectInvisible.
 //
 //
-// set_obj_visibility
 // 0x45741C
-void opSetObjectVisibility(Program* program)
+static void op_set_obj_visibility(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2558,7 +2712,7 @@ void opSetObjectVisibility(Program* program)
     int invisible = data[0];
 
     if (obj == NULL) {
-        scriptPredefinedError(program, "set_obj_visibility", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "set_obj_visibility", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -2597,9 +2751,8 @@ void opSetObjectVisibility(Program* program)
     }
 }
 
-// load_map
 // 0x45755C
-void opLoadMap(Program* program)
+static void op_load_map(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2657,9 +2810,8 @@ void opLoadMap(Program* program)
     }
 }
 
-// wm_area_set_pos
 // 0x457680
-void opWorldmapCitySetPos(Program* program)
+static void op_wm_area_set_pos(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -2682,14 +2834,13 @@ void opWorldmapCitySetPos(Program* program)
     int y = data[0];
 
     if (wmAreaSetWorldPos(city, x, y) == -1) {
-        scriptPredefinedError(program, "wm_area_set_pos", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "wm_area_set_pos", SCRIPT_ERROR_FOLLOWS);
         debugPrint("Invalid Parameter!");
     }
 }
 
-// set_exit_grids
 // 0x457730
-void opSetExitGrids(Program* program)
+static void op_set_exit_grids(Program* program)
 {
     opcode_t opcode[5];
     int data[5];
@@ -2724,9 +2875,8 @@ void opSetExitGrids(Program* program)
     }
 }
 
-// anim_busy
 // 0x4577EC
-void opAnimBusy(Program* program)
+static void op_anim_busy(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -2745,16 +2895,15 @@ void opAnimBusy(Program* program)
     if (object != NULL) {
         rc = anim_busy(object);
     } else {
-        scriptPredefinedError(program, "anim_busy", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "anim_busy", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, rc);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// critter_heal
 // 0x457880
-void opCritterHeal(Program* program)
+static void op_critter_heal(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2785,10 +2934,22 @@ void opCritterHeal(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// set_light_level
 // 0x457934
-void opSetLightLevel(Program* program)
+static void op_set_light_level(Program* program)
 {
+    // Maps light level to light intensity.
+    //
+    // Middle value is mapped one-to-one which corresponds to 50% light level
+    // (cavern lighting). Light levels above (51-100%) and below (0-49) is
+    // calculated as percentage from two adjacent light values.
+    //
+    // 0x453F90
+    static const int dword_453F90[3] = {
+        0x4000,
+        0xA000,
+        0x10000,
+    };
+
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
 
@@ -2817,27 +2978,24 @@ void opSetLightLevel(Program* program)
     lightSetLightLevel(lightIntensity, true);
 }
 
-// game_time
 // 0x4579F4
-void opGetGameTime(Program* program)
+static void op_game_time(Program* program)
 {
     int time = gameTimeGetTime();
     programStackPushInt32(program, time);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// game_time_in_seconds
 // 0x457A18
-void opGetGameTimeInSeconds(Program* program)
+static void op_game_time_in_seconds(Program* program)
 {
     int time = gameTimeGetTime();
     programStackPushInt32(program, time / 10);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// elevation
 // 0x457A44
-void opGetObjectElevation(Program* program)
+static void op_elevation(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -2856,16 +3014,15 @@ void opGetObjectElevation(Program* program)
     if (object != NULL) {
         elevation = object->elevation;
     } else {
-        scriptPredefinedError(program, "elevation", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "elevation", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, elevation);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// kill_critter
 // 0x457AD4
-void opKillCritter(Program* program)
+static void op_kill_critter(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -2887,7 +3044,7 @@ void opKillCritter(Program* program)
     int deathFrame = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "kill_critter", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "kill_critter", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -2912,7 +3069,7 @@ void opKillCritter(Program* program)
 }
 
 // [forceBack] is to force fall back animation, otherwise it's fall front if it's present
-int _correctDeath(Object* critter, int anim, bool forceBack)
+int correctDeath(Object* critter, int anim, bool forceBack)
 {
     if (anim >= ANIM_BIG_HOLE_SF && anim <= ANIM_FALL_FRONT_BLOOD_SF) {
         int violenceLevel = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
@@ -2945,10 +3102,24 @@ int _correctDeath(Object* critter, int anim, bool forceBack)
     return anim;
 }
 
-// kill_critter_type
 // 0x457CB4
-void opKillCritterType(Program* program)
+static void op_kill_critter_type(Program* program)
 {
+    // 0x518ED0
+    static int ftList[11] = {
+        ANIM_FALL_BACK_BLOOD_SF,
+        ANIM_BIG_HOLE_SF,
+        ANIM_CHARRED_BODY_SF,
+        ANIM_CHUNKS_OF_FLESH_SF,
+        ANIM_FALL_FRONT_BLOOD_SF,
+        ANIM_FALL_BACK_BLOOD_SF,
+        ANIM_DANCING_AUTOFIRE_SF,
+        ANIM_SLICED_IN_HALF_SF,
+        ANIM_EXPLODED_TO_NOTHING_SF,
+        ANIM_FALL_BACK_BLOOD_SF,
+        ANIM_FALL_FRONT_BLOOD_SF,
+    };
+
     opcode_t opcode[2];
     int data[2];
 
@@ -2988,7 +3159,7 @@ void opKillCritterType(Program* program)
 
         if ((obj->flags & OBJECT_HIDDEN) == 0 && obj->pid == pid && !critter_is_dead(obj)) {
             if (obj == previousObj || count > 200) {
-                scriptPredefinedError(program, "kill_critter_type", SCRIPT_ERROR_FOLLOWS);
+                dbg_error(program, "kill_critter_type", SCRIPT_ERROR_FOLLOWS);
                 debugPrint(" Infinite loop destroying critters!");
                 program->flags &= ~PROGRAM_FLAG_0x20;
                 return;
@@ -2999,7 +3170,7 @@ void opKillCritterType(Program* program)
             if (deathFrame != 0) {
                 combat_delete_critter(obj);
                 if (deathFrame == 1) {
-                    int anim = _correctDeath(obj, _ftList[v3], 1);
+                    int anim = correctDeath(obj, ftList[v3], 1);
                     critter_kill(obj, anim, 1);
                     v3 += 1;
                     if (v3 >= 11) {
@@ -3032,7 +3203,7 @@ void opKillCritterType(Program* program)
 
 // critter_dmg
 // 0x457EB4
-void opCritterDamage(Program* program)
+static void op_critter_damage(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -3057,12 +3228,12 @@ void opCritterDamage(Program* program)
     int damageTypeWithFlags = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "critter_damage", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_damage", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) {
-        scriptPredefinedError(program, "critter_damage", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "critter_damage", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Can't call on non-critters!");
         return;
     }
@@ -3084,9 +3255,8 @@ void opCritterDamage(Program* program)
     }
 }
 
-// add_timer_event
 // 0x457FF0
-void opAddTimerEvent(Program* program)
+static void op_add_timer_event(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -3109,16 +3279,15 @@ void opAddTimerEvent(Program* program)
     int param = data[0];
 
     if (object == NULL) {
-        scriptError("\nScript Error: %s: op_add_timer_event: pobj is NULL!", program->name);
+        int_debug("\nScript Error: %s: op_add_timer_event: pobj is NULL!", program->name);
         return;
     }
 
     scriptAddTimerEvent(object->sid, delay, param);
 }
 
-// rm_timer_event
 // 0x458094
-void opRemoveTimerEvent(Program* program)
+static void op_rm_timer_event(Program* program)
 {
     int elevation;
 
@@ -3139,7 +3308,7 @@ void opRemoveTimerEvent(Program* program)
 
     if (object == NULL) {
         // FIXME: Should be op_rm_timer_event.
-        scriptError("\nScript Error: %s: op_add_timer_event: pobj is NULL!");
+        int_debug("\nScript Error: %s: op_add_timer_event: pobj is NULL!");
         return;
     }
 
@@ -3148,9 +3317,8 @@ void opRemoveTimerEvent(Program* program)
 
 // Converts seconds into game ticks.
 //
-// game_ticks
 // 0x458108
-void opGameTicks(Program* program)
+static void op_game_ticks(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -3180,7 +3348,7 @@ void opGameTicks(Program* program)
 //
 // 0x458180
 // has_trait
-void opHasTrait(Program* program)
+static void op_has_trait(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -3210,7 +3378,7 @@ void opHasTrait(Program* program)
             if (param < PERK_COUNT) {
                 result = perkGetRank(object, param);
             } else {
-                scriptError("\nScript Error: %s: op_has_trait: Perk out of range", program->name);
+                int_debug("\nScript Error: %s: op_has_trait: Perk out of range", program->name);
             }
             break;
         case CRITTER_TRAIT_OBJECT:
@@ -3240,24 +3408,23 @@ void opHasTrait(Program* program)
             if (param < TRAIT_COUNT) {
                 result = traitIsSelected(param);
             } else {
-                scriptError("\nScript Error: %s: op_has_trait: Trait out of range", program->name);
+                int_debug("\nScript Error: %s: op_has_trait: Trait out of range", program->name);
             }
             break;
         default:
-            scriptError("\nScript Error: %s: op_has_trait: Trait out of range", program->name);
+            int_debug("\nScript Error: %s: op_has_trait: Trait out of range", program->name);
             break;
         }
     } else {
-        scriptPredefinedError(program, "has_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "has_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_can_hear_obj
 // 0x45835C
-void opObjectCanHearObject(Program* program)
+static void op_obj_can_hear_obj(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -3296,18 +3463,16 @@ void opObjectCanHearObject(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// game_time_hour
 // 0x458438
-void opGameTimeHour(Program* program)
+static void op_game_time_hour(Program* program)
 {
     int value = gameTimeGetHour();
     programStackPushInt32(program, value);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// fixed_param
 // 0x45845C
-void opGetFixedParam(Program* program)
+static void op_fixed_param(Program* program)
 {
     int fixedParam = 0;
 
@@ -3317,16 +3482,15 @@ void opGetFixedParam(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         fixedParam = script->fixedParam;
     } else {
-        scriptPredefinedError(program, "fixed_param", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "fixed_param", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, fixedParam);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// tile_is_visible
 // 0x4584B0
-void opTileIsVisible(Program* program)
+static void op_tile_is_visible(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -3340,7 +3504,7 @@ void opTileIsVisible(Program* program)
     }
 
     int isVisible = 0;
-    if (tileIsVisible(data)) {
+    if (scripts_tile_is_visible(data)) {
         isVisible = 1;
     }
 
@@ -3348,9 +3512,8 @@ void opTileIsVisible(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// dialogue_system_enter
 // 0x458534
-void opGameDialogSystemEnter(Program* program)
+static void op_dialogue_system_enter(Program* program)
 {
     int sid = scriptGetSid(program);
 
@@ -3377,9 +3540,8 @@ void opGameDialogSystemEnter(Program* program)
     dialog_target = scriptGetSelf(program);
 }
 
-// action_being_used
 // 0x458594
-void opGetActionBeingUsed(Program* program)
+static void op_action_being_used(Program* program)
 {
     int action = -1;
 
@@ -3389,16 +3551,15 @@ void opGetActionBeingUsed(Program* program)
     if (scriptGetScript(sid, &script) != -1) {
         action = script->actionBeingUsed;
     } else {
-        scriptPredefinedError(program, "action_being_used", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
+        dbg_error(program, "action_being_used", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
     }
 
     programStackPushInt32(program, action);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// critter_state
 // 0x4585E8
-void opGetCritterState(Program* program)
+static void op_critter_state(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -3430,16 +3591,15 @@ void opGetCritterState(Program* program)
             }
         }
     } else {
-        scriptPredefinedError(program, "critter_state", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_state", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, state);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// game_time_advance
 // 0x4586C8
-void opGameTimeAdvance(Program* program)
+static void op_game_time_advance(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -3464,9 +3624,8 @@ void opGameTimeAdvance(Program* program)
     queueProcessEvents();
 }
 
-// radiation_inc
 // 0x458760
-void opRadiationIncrease(Program* program)
+static void op_radiation_inc(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -3488,16 +3647,15 @@ void opRadiationIncrease(Program* program)
     int amount = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "radiation_inc", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "radiation_inc", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     critter_adjust_rads(object, amount);
 }
 
-// radiation_dec
 // 0x458800
-void opRadiationDecrease(Program* program)
+static void op_radiation_dec(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -3519,7 +3677,7 @@ void opRadiationDecrease(Program* program)
     int amount = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "radiation_dec", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "radiation_dec", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -3529,9 +3687,8 @@ void opRadiationDecrease(Program* program)
     critter_adjust_rads(object, adjustment);
 }
 
-// critter_attempt_placement
 // 0x4588B4
-void opCritterAttemptPlacement(Program* program)
+static void op_critter_attempt_placement(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -3554,7 +3711,7 @@ void opCritterAttemptPlacement(Program* program)
     int elevation = data[0];
 
     if (critter == NULL) {
-        scriptPredefinedError(program, "critter_attempt_placement", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_attempt_placement", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -3569,9 +3726,8 @@ void opCritterAttemptPlacement(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_pid
 // 0x4589A0
-void opGetObjectPid(Program* program)
+static void op_obj_pid(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -3590,25 +3746,23 @@ void opGetObjectPid(Program* program)
     if (obj) {
         pid = obj->pid;
     } else {
-        scriptPredefinedError(program, "obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, pid);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// cur_map_index
 // 0x458A30
-void opGetCurrentMap(Program* program)
+static void op_cur_map_index(Program* program)
 {
     int mapIndex = mapGetCurrentMap();
     programStackPushInt32(program, mapIndex);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// critter_add_trait
 // 0x458A54
-void opCritterAddTrait(Program* program)
+static void op_critter_add_trait(Program* program)
 {
     opcode_t opcode[4];
     int data[4];
@@ -3642,13 +3796,13 @@ void opCritterAddTrait(Program* program)
 
                     if (value > 0) {
                         if (perkAddForce(object, param) != 0) {
-                            scriptError("\nScript Error: %s: op_critter_add_trait: perk_add_force failed", program->name);
+                            int_debug("\nScript Error: %s: op_critter_add_trait: perk_add_force failed", program->name);
                             debugPrint("Perk: %d", param);
                         }
                     } else {
                         if (perkRemove(object, param) != 0) {
                             // FIXME: typo in debug message, should be perk_sub
-                            scriptError("\nScript Error: %s: op_critter_add_trait: per_sub failed", program->name);
+                            int_debug("\nScript Error: %s: op_critter_add_trait: per_sub failed", program->name);
                             debugPrint("Perk: %d", param);
                         }
                     }
@@ -3681,21 +3835,20 @@ void opCritterAddTrait(Program* program)
                 }
                 break;
             default:
-                scriptError("\nScript Error: %s: op_critter_add_trait: Trait out of range", program->name);
+                int_debug("\nScript Error: %s: op_critter_add_trait: Trait out of range", program->name);
                 break;
             }
         }
     } else {
-        scriptPredefinedError(program, "critter_add_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_add_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, -1);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// critter_rm_trait
 // 0x458C2C
-void opCritterRemoveTrait(Program* program)
+static void op_critter_rm_trait(Program* program)
 {
     opcode_t opcode[4];
     int data[4];
@@ -3719,7 +3872,7 @@ void opCritterRemoveTrait(Program* program)
     int value = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "critter_rm_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_rm_trait", SCRIPT_ERROR_OBJECT_IS_NULL);
         // FIXME: Ruins stack.
         return;
     }
@@ -3729,12 +3882,12 @@ void opCritterRemoveTrait(Program* program)
         case CRITTER_TRAIT_PERK:
             while (perkGetRank(object, param) > 0) {
                 if (perkRemove(object, param) != 0) {
-                    scriptError("\nScript Error: op_critter_rm_trait: perk_sub failed");
+                    int_debug("\nScript Error: op_critter_rm_trait: perk_sub failed");
                 }
             }
             break;
         default:
-            scriptError("\nScript Error: %s: op_critter_rm_trait: Trait out of range", program->name);
+            int_debug("\nScript Error: %s: op_critter_rm_trait: Trait out of range", program->name);
             break;
         }
     }
@@ -3743,9 +3896,8 @@ void opCritterRemoveTrait(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// proto_data
 // 0x458D38
-void opGetProtoData(Program* program)
+static void op_proto_data(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -3785,10 +3937,12 @@ void opGetProtoData(Program* program)
     }
 }
 
-// message_str
 // 0x458E10
-void opGetMessageString(Program* program)
+static void op_message_str(Program* program)
 {
+    // 0x518EFC
+    static char errStr[] = "Error";
+
     opcode_t opcode[2];
     int data[2];
 
@@ -3813,19 +3967,18 @@ void opGetMessageString(Program* program)
         string = _scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
         if (string == NULL) {
             debugPrint("\nError: No message file EXISTS!: index %d, line %d", messageListIndex, messageIndex);
-            string = _errStr;
+            string = errStr;
         }
     } else {
-        string = _errStr;
+        string = errStr;
     }
 
     programStackPushInt32(program, programPushString(program, string));
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// critter_inven_obj
 // 0x458F00
-void opCritterGetInventoryObject(Program* program)
+static void op_critter_inven_obj(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -3875,11 +4028,11 @@ void opCritterGetInventoryObject(Program* program)
             result = critter->data.inventory.length;
             break;
         default:
-            scriptError("script error: %s: Error in critter_inven_obj -- wrong type!", program->name);
+            int_debug("script error: %s: Error in critter_inven_obj -- wrong type!", program->name);
             break;
         }
     } else {
-        scriptPredefinedError(program, "critter_inven_obj", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "critter_inven_obj", SCRIPT_ERROR_FOLLOWS);
         debugPrint("  Not a critter!");
     }
 
@@ -3887,9 +4040,8 @@ void opCritterGetInventoryObject(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_set_light_level
 // 0x459088
-void opSetObjectLightLevel(Program* program)
+static void op_obj_set_light_level(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -3912,7 +4064,7 @@ void opSetObjectLightLevel(Program* program)
     int lightDistance = data[0];
 
     if (object == NULL) {
-        scriptPredefinedError(program, "obj_set_light_level", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_set_light_level", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -3930,14 +4082,13 @@ void opSetObjectLightLevel(Program* program)
 }
 
 // 0x459170
-void opWorldmap(Program* program)
+static void op_world_map(Program* program)
 {
     scriptsRequestWorldMap();
 }
 
-// inven_cmds
 // 0x459178
-void _op_inven_cmds(Program* program)
+static void op_inven_cmds(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -3969,17 +4120,19 @@ void _op_inven_cmds(Program* program)
         }
     } else {
         // FIXME: Should be inven_cmds.
-        scriptPredefinedError(program, "anim", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "anim", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, (int)item);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// float_msg
 // 0x459280
-void opFloatMessage(Program* program)
+static void op_float_msg(Program* program)
 {
+    // 0x518F00
+    static int last_color = 1;
+
     opcode_t opcode[3];
     int data[3];
 
@@ -4011,7 +4164,7 @@ void opFloatMessage(Program* program)
     int font = 101;
 
     if (obj == NULL) {
-        scriptPredefinedError(program, "float_msg", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "float_msg", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -4026,11 +4179,11 @@ void opFloatMessage(Program* program)
     }
 
     if (floatingMessageType == FLOATING_MESSAGE_TYPE_COLOR_SEQUENCE) {
-        floatingMessageType = _last_color + 1;
+        floatingMessageType = last_color + 1;
         if (floatingMessageType >= FLOATING_MESSAGE_TYPE_COUNT) {
             floatingMessageType = FLOATING_MESSAGE_TYPE_BLACK;
         }
-        _last_color = floatingMessageType;
+        last_color = floatingMessageType;
     }
 
     switch (floatingMessageType) {
@@ -4081,9 +4234,8 @@ void opFloatMessage(Program* program)
     }
 }
 
-// metarule
 // 0x4594A0
-void opMetarule(Program* program)
+static void op_metarule(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -4211,7 +4363,7 @@ void opMetarule(Program* program)
                 }
             }
 
-            scriptPredefinedError(program, "metarule:w_damage_type", SCRIPT_ERROR_FOLLOWS);
+            dbg_error(program, "metarule:w_damage_type", SCRIPT_ERROR_FOLLOWS);
             debugPrint("Not a weapon!");
         }
         break;
@@ -4253,9 +4405,8 @@ void opMetarule(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// anim
 // 0x4598BC
-void opAnim(Program* program)
+static void op_anim(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4278,7 +4429,7 @@ void opAnim(Program* program)
     int frame = data[0];
 
     if (obj == NULL) {
-        scriptPredefinedError(program, "anim", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "anim", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -4288,7 +4439,7 @@ void opAnim(Program* program)
             combatData = &(obj->data.critter.combat);
         }
 
-        anim = _correctDeath(obj, anim, true);
+        anim = correctDeath(obj, anim, true);
 
         register_begin(ANIMATION_REQUEST_UNRESERVED);
 
@@ -4332,13 +4483,12 @@ void opAnim(Program* program)
         objectSetFrame(obj, frame, &rect);
         tileWindowRefreshRect(&rect, gElevation);
     } else {
-        scriptError("\nScript Error: %s: op_anim: anim out of range", program->name);
+        int_debug("\nScript Error: %s: op_anim: anim out of range", program->name);
     }
 }
 
-// obj_carrying_pid_obj
 // 0x459B5C
-void opObjectCarryingObjectByPid(Program* program)
+static void op_obj_carrying_pid_obj(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -4363,16 +4513,15 @@ void opObjectCarryingObjectByPid(Program* program)
     if (object != NULL) {
         result = objectGetCarriedObjectByPid(object, pid);
     } else {
-        scriptPredefinedError(program, "obj_carrying_pid_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_carrying_pid_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, (int)result);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// reg_anim_func
 // 0x459C20
-void opRegAnimFunc(Program* program)
+static void op_reg_anim_func(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -4408,9 +4557,8 @@ void opRegAnimFunc(Program* program)
     }
 }
 
-// reg_anim_animate
 // 0x459CD4
-void opRegAnimAnimate(Program* program)
+static void op_reg_anim_animate(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4438,15 +4586,14 @@ void opRegAnimAnimate(Program* program)
             if (object != NULL) {
                 register_object_animate(object, anim, delay);
             } else {
-                scriptPredefinedError(program, "reg_anim_animate", SCRIPT_ERROR_OBJECT_IS_NULL);
+                dbg_error(program, "reg_anim_animate", SCRIPT_ERROR_OBJECT_IS_NULL);
             }
         }
     }
 }
 
-// reg_anim_animate_reverse
 // 0x459DC4
-void opRegAnimAnimateReverse(Program* program)
+static void op_reg_anim_animate_reverse(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4472,14 +4619,13 @@ void opRegAnimAnimateReverse(Program* program)
         if (object != NULL) {
             register_object_animate_reverse(object, anim, delay);
         } else {
-            scriptPredefinedError(program, "reg_anim_animate_reverse", SCRIPT_ERROR_OBJECT_IS_NULL);
+            dbg_error(program, "reg_anim_animate_reverse", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
     }
 }
 
-// reg_anim_obj_move_to_obj
 // 0x459E74
-void opRegAnimObjectMoveToObject(Program* program)
+static void op_reg_anim_obj_move_to_obj(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4505,14 +4651,13 @@ void opRegAnimObjectMoveToObject(Program* program)
         if (object != NULL) {
             register_object_move_to_object(object, dest, -1, delay);
         } else {
-            scriptPredefinedError(program, "reg_anim_obj_move_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+            dbg_error(program, "reg_anim_obj_move_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
     }
 }
 
-// reg_anim_obj_run_to_obj
 // 0x459F28
-void opRegAnimObjectRunToObject(Program* program)
+static void op_reg_anim_obj_run_to_obj(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4538,14 +4683,13 @@ void opRegAnimObjectRunToObject(Program* program)
         if (object != NULL) {
             register_object_run_to_object(object, dest, -1, delay);
         } else {
-            scriptPredefinedError(program, "reg_anim_obj_run_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+            dbg_error(program, "reg_anim_obj_run_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
     }
 }
 
-// reg_anim_obj_move_to_tile
 // 0x459FDC
-void opRegAnimObjectMoveToTile(Program* prg)
+static void op_reg_anim_obj_move_to_tile(Program* prg)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4571,14 +4715,13 @@ void opRegAnimObjectMoveToTile(Program* prg)
         if (object != NULL) {
             register_object_move_to_tile(object, tile, object->elevation, -1, delay);
         } else {
-            scriptPredefinedError(prg, "reg_anim_obj_move_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
+            dbg_error(prg, "reg_anim_obj_move_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
     }
 }
 
-// reg_anim_obj_run_to_tile
 // 0x45A094
-void opRegAnimObjectRunToTile(Program* program)
+static void op_reg_anim_obj_run_to_tile(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4604,17 +4747,34 @@ void opRegAnimObjectRunToTile(Program* program)
         if (object != NULL) {
             register_object_run_to_tile(object, tile, object->elevation, -1, delay);
         } else {
-            scriptPredefinedError(program, "reg_anim_obj_run_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
+            dbg_error(program, "reg_anim_obj_run_to_tile", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
     }
 }
 
-// play_gmovie
 // 0x45A14C
-void opPlayGameMovie(Program* program)
+static void op_play_gmovie(Program* program)
 {
-    unsigned short flags[MOVIE_COUNT];
-    memcpy(flags, word_453F9C, sizeof(word_453F9C));
+    // 0x453F9C
+    static const unsigned short word_453F9C[MOVIE_COUNT] = {
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+        GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC,
+    };
 
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4640,9 +4800,8 @@ void opPlayGameMovie(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// add_mult_objs_to_inven
 // 0x45A200
-void opAddMultipleObjectsToInventory(Program* program)
+static void op_add_mult_objs_to_inven(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4681,9 +4840,8 @@ void opAddMultipleObjectsToInventory(Program* program)
     }
 }
 
-// rm_mult_objs_from_inven
 // 0x45A2D4
-void opRemoveMultipleObjectsFromInventory(Program* program)
+static void op_rm_mult_objs_from_inven(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4734,9 +4892,8 @@ void opRemoveMultipleObjectsFromInventory(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// get_month
 // 0x45A40C
-void opGetMonth(Program* program)
+static void op_get_month(Program* program)
 {
     int month;
     gameTimeGetDate(&month, NULL, NULL);
@@ -4745,9 +4902,8 @@ void opGetMonth(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// get_day
 // 0x45A43C
-void opGetDay(Program* program)
+static void op_get_day(Program* program)
 {
     int day;
     gameTimeGetDate(NULL, &day, NULL);
@@ -4756,9 +4912,8 @@ void opGetDay(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// explosion
 // 0x45A46C
-void opExplosion(Program* program)
+static void op_explosion(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -4793,9 +4948,8 @@ void opExplosion(Program* program)
     scriptsRequestExplosion(tile, elevation, minDamage, maxDamage);
 }
 
-// days_since_visited
 // 0x45A528
-void opGetDaysSinceLastVisit(Program* program)
+static void op_days_since_visited(Program* program)
 {
     int days;
 
@@ -4809,9 +4963,8 @@ void opGetDaysSinceLastVisit(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// gsay_start
 // 0x45A56C
-void _op_gsay_start(Program* program)
+static void op_gsay_start(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4823,18 +4976,16 @@ void _op_gsay_start(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// gsay_end
 // 0x45A5B0
-void _op_gsay_end(Program* program)
+static void op_gsay_end(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
     gdialogGo();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// gsay_reply
 // 0x45A5D4
-void _op_gsay_reply(Program* program)
+static void op_gsay_reply(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4875,9 +5026,8 @@ void _op_gsay_reply(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// gsay_option
 // 0x45A6C4
-void _op_gsay_option(Program* program)
+static void op_gsay_option(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4940,9 +5090,8 @@ void _op_gsay_option(Program* program)
     }
 }
 
-// gsay_message
 // 0x45A8AC
-void _op_gsay_message(Program* program)
+static void op_gsay_message(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -4988,9 +5137,8 @@ void _op_gsay_message(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// giq_option
 // 0x45A9B4
-void _op_giq_option(Program* program)
+static void op_giq_option(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -5067,9 +5215,8 @@ void _op_giq_option(Program* program)
     }
 }
 
-// poison
 // 0x45AB90
-void opPoison(Program* program)
+static void op_poison(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5091,7 +5238,7 @@ void opPoison(Program* program)
     int amount = data[0];
 
     if (obj == NULL) {
-        scriptPredefinedError(program, "poison", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "poison", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -5100,9 +5247,8 @@ void opPoison(Program* program)
     }
 }
 
-// get_poison
 // 0x45AC44
-void opGetPoison(Program* program)
+static void op_get_poison(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5125,16 +5271,15 @@ void opGetPoison(Program* program)
             debugPrint("\nScript Error: get_poison: who is not a critter!");
         }
     } else {
-        scriptPredefinedError(program, "get_poison", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "get_poison", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, poison);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// party_add
 // 0x45ACF4
-void opPartyAdd(Program* program)
+static void op_party_add(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5149,16 +5294,15 @@ void opPartyAdd(Program* program)
 
     Object* object = (Object*)data;
     if (object == NULL) {
-        scriptPredefinedError(program, "party_add", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "party_add", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     partyMemberAdd(object);
 }
 
-// party_remove
 // 0x45AD68
-void opPartyRemove(Program* program)
+static void op_party_remove(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5173,16 +5317,15 @@ void opPartyRemove(Program* program)
 
     Object* object = (Object*)data;
     if (object == NULL) {
-        scriptPredefinedError(program, "party_remove", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "party_remove", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     partyMemberRemove(object);
 }
 
-// reg_anim_animate_forever
 // 0x45ADDC
-void opRegAnimAnimateForever(Program* prg)
+static void op_reg_anim_animate_forever(Program* prg)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5207,14 +5350,13 @@ void opRegAnimAnimateForever(Program* prg)
         if (obj != NULL) {
             register_object_animate_forever(obj, anim, -1);
         } else {
-            scriptPredefinedError(prg, "reg_anim_animate_forever", SCRIPT_ERROR_OBJECT_IS_NULL);
+            dbg_error(prg, "reg_anim_animate_forever", SCRIPT_ERROR_OBJECT_IS_NULL);
         }
     }
 }
 
-// critter_injure
 // 0x45AE8C
-void opCritterInjure(Program* program)
+static void op_critter_injure(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5236,7 +5378,7 @@ void opCritterInjure(Program* program)
     int flags = data[0];
 
     if (critter == NULL) {
-        scriptPredefinedError(program, "critter_injure", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_injure", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -5260,17 +5402,15 @@ void opCritterInjure(Program* program)
     }
 }
 
-// combat_is_initialized
 // 0x45AF7C
-void opCombatIsInitialized(Program* program)
+static void op_combat_is_initialized(Program* program)
 {
     programStackPushInt32(program, isInCombat());
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// gdialog_barter
 // 0x45AFA0
-void _op_gdialog_barter(Program* program)
+static void op_gdialog_barter(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5288,9 +5428,8 @@ void _op_gdialog_barter(Program* program)
     }
 }
 
-// difficulty_level
 // 0x45B010
-void opGetGameDifficulty(Program* program)
+static void op_difficulty_level(Program* program)
 {
     int gameDifficulty;
     if (!config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty)) {
@@ -5301,9 +5440,8 @@ void opGetGameDifficulty(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// running_burning_guy
 // 0x45B05C
-void opGetRunningBurningGuy(Program* program)
+static void op_running_burning_guy(Program* program)
 {
     int runningBurningGuy;
     if (!config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_BURNING_GUY_KEY, &runningBurningGuy)) {
@@ -5314,8 +5452,8 @@ void opGetRunningBurningGuy(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// inven_unwield
-void _op_inven_unwield(Program* program)
+// 0x45B0A8
+static void op_inven_unwield(Program* program)
 {
     Object* obj;
     int v1;
@@ -5330,9 +5468,8 @@ void _op_inven_unwield(Program* program)
     _inven_unwield(obj, v1);
 }
 
-// obj_is_locked
 // 0x45B0D8
-void opObjectIsLocked(Program* program)
+static void op_obj_is_locked(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5351,16 +5488,15 @@ void opObjectIsLocked(Program* program)
     if (object != NULL) {
         locked = objectIsLocked(object);
     } else {
-        scriptPredefinedError(program, "obj_is_locked", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_is_locked", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, locked);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_lock
 // 0x45B16C
-void opObjectLock(Program* program)
+static void op_obj_lock(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5378,13 +5514,12 @@ void opObjectLock(Program* program)
     if (object != NULL) {
         objectLock(object);
     } else {
-        scriptPredefinedError(program, "obj_lock", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_lock", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// obj_unlock
 // 0x45B1E0
-void opObjectUnlock(Program* program)
+static void op_obj_unlock(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5402,13 +5537,12 @@ void opObjectUnlock(Program* program)
     if (object != NULL) {
         objectUnlock(object);
     } else {
-        scriptPredefinedError(program, "obj_unlock", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_unlock", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// obj_is_open
 // 0x45B254
-void opObjectIsOpen(Program* s)
+static void op_obj_is_open(Program* s)
 {
     opcode_t opcode = programStackPopInt16(s);
     int data = programStackPopInt32(s);
@@ -5427,16 +5561,15 @@ void opObjectIsOpen(Program* s)
     if (object != NULL) {
         isOpen = objectIsOpen(object);
     } else {
-        scriptPredefinedError(s, "obj_is_open", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(s, "obj_is_open", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(s, isOpen);
     programStackPushInt16(s, VALUE_TYPE_INT);
 }
 
-// obj_open
 // 0x45B2E8
-void opObjectOpen(Program* program)
+static void op_obj_open(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5454,13 +5587,12 @@ void opObjectOpen(Program* program)
     if (object != NULL) {
         objectOpen(object);
     } else {
-        scriptPredefinedError(program, "obj_open", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_open", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// obj_close
 // 0x45B35C
-void opObjectClose(Program* program)
+static void op_obj_close(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5478,35 +5610,31 @@ void opObjectClose(Program* program)
     if (object != NULL) {
         objectClose(object);
     } else {
-        scriptPredefinedError(program, "obj_close", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_close", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// game_ui_disable
 // 0x45B3D0
-void opGameUiDisable(Program* program)
+static void op_game_ui_disable(Program* program)
 {
     game_ui_disable(0);
 }
 
-// game_ui_enable
 // 0x45B3D8
-void opGameUiEnable(Program* program)
+static void op_game_ui_enable(Program* program)
 {
     game_ui_enable();
 }
 
-// game_ui_is_disabled
 // 0x45B3E0
-void opGameUiIsDisabled(Program* program)
+static void op_game_ui_is_disabled(Program* program)
 {
     programStackPushInt32(program, game_ui_is_disabled());
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// gfade_out
 // 0x45B404
-void opGameFadeOut(Program* program)
+static void op_gfade_out(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5522,13 +5650,12 @@ void opGameFadeOut(Program* program)
     if (data != 0) {
         paletteFadeTo(gPaletteBlack);
     } else {
-        scriptPredefinedError(program, "gfade_out", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "gfade_out", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// gfade_in
 // 0x45B47C
-void opGameFadeIn(Program* program)
+static void op_gfade_in(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5544,13 +5671,12 @@ void opGameFadeIn(Program* program)
     if (data != 0) {
         paletteFadeTo(cmap);
     } else {
-        scriptPredefinedError(program, "gfade_in", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "gfade_in", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// item_caps_total
 // 0x45B4F4
-void opItemCapsTotal(Program* program)
+static void op_item_caps_total(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5569,16 +5695,15 @@ void opItemCapsTotal(Program* program)
     if (object != NULL) {
         amount = itemGetTotalCaps(object);
     } else {
-        scriptPredefinedError(program, "item_caps_total", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "item_caps_total", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, amount);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// item_caps_adjust
 // 0x45B588
-void opItemCapsAdjust(Program* program)
+static void op_item_caps_adjust(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5604,15 +5729,15 @@ void opItemCapsAdjust(Program* program)
     if (object != NULL) {
         rc = itemCapsAdjust(object, amount);
     } else {
-        scriptPredefinedError(program, "item_caps_adjust", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "item_caps_adjust", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, rc);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// anim_action_frame
-void _op_anim_action_frame(Program* program)
+// 0x45B64C
+static void op_anim_action_frame(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5644,16 +5769,15 @@ void _op_anim_action_frame(Program* program)
             art_ptr_unlock(frmHandle);
         }
     } else {
-        scriptPredefinedError(program, "anim_action_frame", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "anim_action_frame", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, actionFrame);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// reg_anim_play_sfx
 // 0x45B740
-void opRegAnimPlaySfx(Program* program)
+static void op_reg_anim_play_sfx(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -5683,20 +5807,19 @@ void opRegAnimPlaySfx(Program* program)
 
     char* soundEffectName = programGetString(program, opcode[1], name);
     if (soundEffectName == NULL) {
-        scriptPredefinedError(program, "reg_anim_play_sfx", SCRIPT_ERROR_FOLLOWS);
+        dbg_error(program, "reg_anim_play_sfx", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" Can't match string!");
     }
 
     if (obj != NULL) {
         register_object_play_sfx(obj, soundEffectName, delay);
     } else {
-        scriptPredefinedError(program, "reg_anim_play_sfx", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "reg_anim_play_sfx", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// critter_mod_skill
 // 0x45B840
-void opCritterModifySkill(Program* program)
+static void op_critter_mod_skill(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -5749,21 +5872,20 @@ void opCritterModifySkill(Program* program)
                     interfaceUpdateItems(false, leftItemAction, rightItemAction);
                 }
             } else {
-                scriptPredefinedError(program, "critter_mod_skill", SCRIPT_ERROR_FOLLOWS);
+                dbg_error(program, "critter_mod_skill", SCRIPT_ERROR_FOLLOWS);
                 debugPrint(" Can't modify anyone except obj_dude!");
             }
         }
     } else {
-        scriptPredefinedError(program, "critter_mod_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_mod_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, 0);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// sfx_build_char_name
 // 0x45B9C4
-void opSfxBuildCharName(Program* program)
+static void op_sfx_build_char_name(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -5792,16 +5914,15 @@ void opSfxBuildCharName(Program* program)
         strcpy(soundEffectName, gsnd_build_character_sfx_name(obj, anim, extra));
         stringOffset = programPushString(program, soundEffectName);
     } else {
-        scriptPredefinedError(program, "sfx_build_char_name", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "sfx_build_char_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, stringOffset);
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// sfx_build_ambient_name
 // 0x45BAA8
-void opSfxBuildAmbientName(Program* program)
+static void op_sfx_build_ambient_name(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5825,9 +5946,8 @@ void opSfxBuildAmbientName(Program* program)
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// sfx_build_interface_name
 // 0x45BB54
-void opSfxBuildInterfaceName(Program* program)
+static void op_sfx_build_interface_name(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5851,9 +5971,8 @@ void opSfxBuildInterfaceName(Program* program)
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// sfx_build_item_name
 // 0x45BC00
-void opSfxBuildItemName(Program* program)
+static void op_sfx_build_item_name(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -5877,9 +5996,8 @@ void opSfxBuildItemName(Program* program)
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// sfx_build_weapon_name
 // 0x45BCAC
-void opSfxBuildWeaponName(Program* program)
+static void op_sfx_build_weapon_name(Program* program)
 {
     opcode_t opcode[4];
     int data[4];
@@ -5911,9 +6029,8 @@ void opSfxBuildWeaponName(Program* program)
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// sfx_build_scenery_name
 // 0x45BD7C
-void opSfxBuildSceneryName(Program* program)
+static void op_sfx_build_scenery_name(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -5945,9 +6062,8 @@ void opSfxBuildSceneryName(Program* program)
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// sfx_build_open_name
 // 0x45BE58
-void opSfxBuildOpenName(Program* program)
+static void op_sfx_build_open_name(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -5976,16 +6092,15 @@ void opSfxBuildOpenName(Program* program)
 
         stringOffset = programPushString(program, soundEffectName);
     } else {
-        scriptPredefinedError(program, "sfx_build_open_name", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "sfx_build_open_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, stringOffset);
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// attack_setup
 // 0x45BF38
-void opAttackSetup(Program* program)
+static void op_attack_setup(Program* program)
 {
     opcode_t opcodes[2];
     int data[2];
@@ -6060,9 +6175,8 @@ void opAttackSetup(Program* program)
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// destroy_mult_objs
 // 0x45C0E8
-void opDestroyMultipleObjects(Program* program)
+static void op_destroy_mult_objs(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
 
@@ -6137,9 +6251,8 @@ void opDestroyMultipleObjects(Program* program)
     }
 }
 
-// use_obj_on_obj
 // 0x45C290
-void opUseObjectOnObject(Program* program)
+static void op_use_obj_on_obj(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -6161,12 +6274,12 @@ void opUseObjectOnObject(Program* program)
     Object* target = (Object*)data[0];
 
     if (item == NULL) {
-        scriptPredefinedError(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (target == NULL) {
-        scriptPredefinedError(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -6174,7 +6287,7 @@ void opUseObjectOnObject(Program* program)
     int sid = scriptGetSid(program);
     if (scriptGetScript(sid, &script) == -1) {
         // FIXME: Should be SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID.
-        scriptPredefinedError(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -6186,18 +6299,16 @@ void opUseObjectOnObject(Program* program)
     }
 }
 
-// endgame_slideshow
 // 0x45C3B0
-void opEndgameSlideshow(Program* program)
+static void op_endgame_slideshow(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
     scriptsRequestEndgame();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// move_obj_inven_to_obj
 // 0x45C3D0
-void opMoveObjectInventoryToObject(Program* program)
+static void op_move_obj_inven_to_obj(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -6219,12 +6330,12 @@ void opMoveObjectInventoryToObject(Program* program)
     Object* object2 = (Object*)data[0];
 
     if (object1 == NULL) {
-        scriptPredefinedError(program, "move_obj_inven_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "move_obj_inven_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
     if (object2 == NULL) {
-        scriptPredefinedError(program, "move_obj_inven_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "move_obj_inven_to_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
@@ -6246,7 +6357,7 @@ void opMoveObjectInventoryToObject(Program* program)
             flags |= 0x02000000;
         }
 
-        _correctFidForRemovedItem(object1, item2, flags);
+        correctFidForRemovedItem(object1, item2, flags);
     }
 
     _item_move_all(object1, object2);
@@ -6263,18 +6374,16 @@ void opMoveObjectInventoryToObject(Program* program)
     }
 }
 
-// endgame_movie
 // 0x45C54C
-void opEndgameMovie(Program* program)
+static void op_endgame_movie(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
     endgame_movie();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
-// obj_art_fid
 // 0x45C56C
-void opGetObjectFid(Program* program)
+static void op_obj_art_fid(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6293,16 +6402,15 @@ void opGetObjectFid(Program* program)
     if (object != NULL) {
         fid = object->fid;
     } else {
-        scriptPredefinedError(program, "obj_art_fid", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_art_fid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, fid);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// art_anim
 // 0x45C5F8
-void opGetFidAnim(Program* program)
+static void op_art_anim(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6319,9 +6427,8 @@ void opGetFidAnim(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// party_member_obj
 // 0x45C66C
-void opGetPartyMember(Program* program)
+static void op_party_member_obj(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6339,9 +6446,8 @@ void opGetPartyMember(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// rotation_to_tile
 // 0x45C6DC
-void opGetRotationToTile(Program* program)
+static void op_rotation_to_tile(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -6367,9 +6473,8 @@ void opGetRotationToTile(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// jam_lock
 // 0x45C778
-void opJamLock(Program* program)
+static void op_jam_lock(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6387,9 +6492,8 @@ void opJamLock(Program* program)
     objectJamLock(object);
 }
 
-// gdialog_set_barter_mod
 // 0x45C7D4
-void opGameDialogSetBarterMod(Program* program)
+static void op_gdialog_set_barter_mod(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6405,9 +6509,8 @@ void opGameDialogSetBarterMod(Program* program)
     gdialogSetBarterMod(data);
 }
 
-// combat_difficulty
 // 0x45C830
-void opGetCombatDifficulty(Program* program)
+static void op_combat_difficulty(Program* program)
 {
     int combatDifficulty;
     if (!config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combatDifficulty)) {
@@ -6418,12 +6521,11 @@ void opGetCombatDifficulty(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_on_screen
 // 0x45C878
-void opObjectOnScreen(Program* program)
+static void op_obj_on_screen(Program* program)
 {
-    Rect rect;
-    rectCopy(&rect, &stru_453FC0);
+    // 0x453FC0
+    static Rect rect = { 0, 0, 640, 480 };
 
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6450,7 +6552,7 @@ void opObjectOnScreen(Program* program)
             }
         }
     } else {
-        scriptPredefinedError(program, "obj_on_screen", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_on_screen", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     //debugPrint("ObjOnScreen: %d\n", result);
@@ -6458,9 +6560,8 @@ void opObjectOnScreen(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// critter_is_fleeing
 // 0x45C93C
-void opCritterIsFleeing(Program* program)
+static void op_critter_is_fleeing(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6479,16 +6580,15 @@ void opCritterIsFleeing(Program* program)
     if (obj != NULL) {
         fleeing = (obj->data.critter.combat.maneuver & CRITTER_MANUEVER_FLEEING) != 0;
     } else {
-        scriptPredefinedError(program, "critter_is_fleeing", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_is_fleeing", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
     programStackPushInt32(program, fleeing);
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// critter_set_flee_state
 // 0x45C9DC
-void opCritterSetFleeState(Program* program)
+static void op_critter_set_flee_state(Program* program)
 {
     opcode_t opcode[2];
     int data[2];
@@ -6516,13 +6616,12 @@ void opCritterSetFleeState(Program* program)
             object->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
         }
     } else {
-        scriptPredefinedError(program, "critter_set_flee_state", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_set_flee_state", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// terminate_combat
 // 0x45CA84
-void opTerminateCombat(Program* program)
+static void op_terminate_combat(Program* program)
 {
     if (isInCombat()) {
         game_user_wants_to_quit = 1;
@@ -6537,9 +6636,8 @@ void opTerminateCombat(Program* program)
     }
 }
 
-// debug_msg
 // 0x45CAC8
-void opDebugMessage(Program* program)
+static void op_debug_msg(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6564,9 +6662,8 @@ void opDebugMessage(Program* program)
     }
 }
 
-// critter_stop_attacking
 // 0x45CB70
-void opCritterStopAttacking(Program* program)
+static void op_critter_stop_attacking(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6586,13 +6683,12 @@ void opCritterStopAttacking(Program* program)
         obj->data.critter.combat.whoHitMe = NULL;
         combatAIInfoSetLastTarget(obj, NULL);
     } else {
-        scriptPredefinedError(program, "critter_stop_attacking", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "critter_stop_attacking", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 }
 
-// tile_contains_pid_obj
 // 0x45CBF8
-void opTileGetObjectWithPid(Program* program)
+static void op_tile_contains_pid_obj(Program* program)
 {
     opcode_t opcode[3];
     int data[3];
@@ -6630,10 +6726,12 @@ void opTileGetObjectWithPid(Program* program)
     programStackPushInt16(program, VALUE_TYPE_INT);
 }
 
-// obj_name
 // 0x45CCC8
-void opGetObjectName(Program* program)
+static void op_obj_name(Program* program)
 {
+    // 0x518F04
+    static char* strName = _aCritter;
+
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
 
@@ -6647,20 +6745,19 @@ void opGetObjectName(Program* program)
 
     Object* obj = (Object*)data;
     if (obj != NULL) {
-        _strName = objectGetName(obj);
+        strName = objectGetName(obj);
     } else {
-        scriptPredefinedError(program, "obj_name", SCRIPT_ERROR_OBJECT_IS_NULL);
+        dbg_error(program, "obj_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    int stringOffset = programPushString(program, _strName);
+    int stringOffset = programPushString(program, strName);
 
     programStackPushInt32(program, stringOffset);
     programStackPushInt16(program, VALUE_TYPE_DYNAMIC_STRING);
 }
 
-// get_pc_stat
 // 0x45CD64
-void opGetPcStat(Program* program)
+static void op_get_pc_stat(Program* program)
 {
     opcode_t opcode = programStackPopInt16(program);
     int data = programStackPopInt32(program);
@@ -6679,200 +6776,200 @@ void opGetPcStat(Program* program)
 }
 
 // 0x45CDD4
-void _intExtraClose_()
+void intExtraClose()
 {
 }
 
 // 0x45CDD8
-void _initIntExtra()
+void initIntExtra()
 {
-    interpreterRegisterOpcode(0x80A1, opGiveExpPoints); // op_give_exp_points
-    interpreterRegisterOpcode(0x80A2, opScrReturn); // op_scr_return
-    interpreterRegisterOpcode(0x80A3, opPlaySfx); // op_play_sfx
-    interpreterRegisterOpcode(0x80A4, opGetObjectName); // op_obj_name
-    interpreterRegisterOpcode(0x80A5, opSfxBuildOpenName); // op_sfx_build_open_name
-    interpreterRegisterOpcode(0x80A6, opGetPcStat); // op_get_pc_stat
-    interpreterRegisterOpcode(0x80A7, opTileGetObjectWithPid); // op_tile_contains_pid_obj
-    interpreterRegisterOpcode(0x80A8, opSetMapStart); // op_set_map_start
-    interpreterRegisterOpcode(0x80A9, opOverrideMapStart); // op_override_map_start
-    interpreterRegisterOpcode(0x80AA, opHasSkill); // op_has_skill
-    interpreterRegisterOpcode(0x80AB, opUsingSkill); // op_using_skill
-    interpreterRegisterOpcode(0x80AC, opRollVsSkill); // op_roll_vs_skill
-    interpreterRegisterOpcode(0x80AD, opSkillContest); // op_skill_contest
-    interpreterRegisterOpcode(0x80AE, opDoCheck); // op_do_check
-    interpreterRegisterOpcode(0x80AF, opSuccess); // op_success
-    interpreterRegisterOpcode(0x80B0, opCritical); // op_critical
-    interpreterRegisterOpcode(0x80B1, opHowMuch); // op_how_much
-    interpreterRegisterOpcode(0x80B2, opMarkAreaKnown); // op_mark_area_known
-    interpreterRegisterOpcode(0x80B3, opReactionInfluence); // op_reaction_influence
-    interpreterRegisterOpcode(0x80B4, opRandom); // op_random
-    interpreterRegisterOpcode(0x80B5, opRollDice); // op_roll_dice
-    interpreterRegisterOpcode(0x80B6, opMoveTo); // op_move_to
-    interpreterRegisterOpcode(0x80B7, opCreateObject); // op_create_object
-    interpreterRegisterOpcode(0x80B8, opDisplayMsg); // op_display_msg
-    interpreterRegisterOpcode(0x80B9, opScriptOverrides); // op_script_overrides
-    interpreterRegisterOpcode(0x80BA, opObjectIsCarryingObjectWithPid); // op_obj_is_carrying_obj
-    interpreterRegisterOpcode(0x80BB, opTileContainsObjectWithPid); // op_tile_contains_obj_pid
-    interpreterRegisterOpcode(0x80BC, opGetSelf); // op_self_obj
-    interpreterRegisterOpcode(0x80BD, opGetSource); // op_source_obj
-    interpreterRegisterOpcode(0x80BE, opGetTarget); // op_target_obj
-    interpreterRegisterOpcode(0x80BF, opGetDude);
-    interpreterRegisterOpcode(0x80C0, opGetObjectBeingUsed); // op_obj_being_used_with
-    interpreterRegisterOpcode(0x80C1, opGetLocalVar); // op_get_local_var
-    interpreterRegisterOpcode(0x80C2, opSetLocalVar); // op_set_local_var
-    interpreterRegisterOpcode(0x80C3, opGetMapVar); // op_get_map_var
-    interpreterRegisterOpcode(0x80C4, opSetMapVar); // op_set_map_var
-    interpreterRegisterOpcode(0x80C5, opGetGlobalVar); // op_get_global_var
-    interpreterRegisterOpcode(0x80C6, opSetGlobalVar); // op_set_global_var
-    interpreterRegisterOpcode(0x80C7, opGetScriptAction); // op_script_action
-    interpreterRegisterOpcode(0x80C8, opGetObjectType); // op_obj_type
-    interpreterRegisterOpcode(0x80C9, opGetItemType); // op_item_subtype
-    interpreterRegisterOpcode(0x80CA, opGetCritterStat); // op_get_critter_stat
-    interpreterRegisterOpcode(0x80CB, opSetCritterStat); // op_set_critter_stat
-    interpreterRegisterOpcode(0x80CC, opAnimateStand); // op_animate_stand_obj
-    interpreterRegisterOpcode(0x80CD, opAnimateStandReverse); // animate_stand_reverse_obj
-    interpreterRegisterOpcode(0x80CE, opAnimateMoveObjectToTile); // animate_move_obj_to_tile
-    interpreterRegisterOpcode(0x80CF, opTileInTileRect); // tile_in_tile_rect
-    interpreterRegisterOpcode(0x80D0, opAttackComplex); // op_attack
-    interpreterRegisterOpcode(0x80D1, opMakeDayTime); // op_make_daytime
-    interpreterRegisterOpcode(0x80D2, opTileDistanceBetween); // op_tile_distance
-    interpreterRegisterOpcode(0x80D3, opTileDistanceBetweenObjects); // op_tile_distance_objs
-    interpreterRegisterOpcode(0x80D4, opGetObjectTile); // op_tile_num
-    interpreterRegisterOpcode(0x80D5, opGetTileInDirection); // op_tile_num_in_direction
-    interpreterRegisterOpcode(0x80D6, opPickup); // op_pickup_obj
-    interpreterRegisterOpcode(0x80D7, opDrop); // op_drop_obj
-    interpreterRegisterOpcode(0x80D8, opAddObjectToInventory); // op_add_obj_to_inven
-    interpreterRegisterOpcode(0x80D9, opRemoveObjectFromInventory); // op_rm_obj_from_inven
-    interpreterRegisterOpcode(0x80DA, opWieldItem); // op_wield_obj_critter
-    interpreterRegisterOpcode(0x80DB, opUseObject); // op_use_obj
-    interpreterRegisterOpcode(0x80DC, opObjectCanSeeObject); // op_obj_can_see_obj
-    interpreterRegisterOpcode(0x80DD, opAttackComplex); // op_attack
-    interpreterRegisterOpcode(0x80DE, opStartGameDialog); // op_start_gdialog
-    interpreterRegisterOpcode(0x80DF, opEndGameDialog); // op_end_gdialog
-    interpreterRegisterOpcode(0x80E0, opGameDialogReaction); // op_dialogue_reaction
-    interpreterRegisterOpcode(0x80E1, opMetarule3); // op_metarule3
-    interpreterRegisterOpcode(0x80E2, opSetMapMusic); // op_set_map_music
-    interpreterRegisterOpcode(0x80E3, opSetObjectVisibility); // op_set_obj_visibility
-    interpreterRegisterOpcode(0x80E4, opLoadMap); // op_load_map
-    interpreterRegisterOpcode(0x80E5, opWorldmapCitySetPos); // op_wm_area_set_pos
-    interpreterRegisterOpcode(0x80E6, opSetExitGrids); // op_set_exit_grids
-    interpreterRegisterOpcode(0x80E7, opAnimBusy); // op_anim_busy
-    interpreterRegisterOpcode(0x80E8, opCritterHeal); // op_critter_heal
-    interpreterRegisterOpcode(0x80E9, opSetLightLevel); // op_set_light_level
-    interpreterRegisterOpcode(0x80EA, opGetGameTime); // op_game_time
-    interpreterRegisterOpcode(0x80EB, opGetGameTimeInSeconds); // op_game_time / 10
-    interpreterRegisterOpcode(0x80EC, opGetObjectElevation); // op_elevation
-    interpreterRegisterOpcode(0x80ED, opKillCritter); // op_kill_critter
-    interpreterRegisterOpcode(0x80EE, opKillCritterType); // op_kill_critter_type
-    interpreterRegisterOpcode(0x80EF, opCritterDamage); // op_critter_damage
-    interpreterRegisterOpcode(0x80F0, opAddTimerEvent); // op_add_timer_event
-    interpreterRegisterOpcode(0x80F1, opRemoveTimerEvent); // op_rm_timer_event
-    interpreterRegisterOpcode(0x80F2, opGameTicks); // op_game_ticks
-    interpreterRegisterOpcode(0x80F3, opHasTrait); // op_has_trait
-    interpreterRegisterOpcode(0x80F4, opDestroyObject); // op_destroy_object
-    interpreterRegisterOpcode(0x80F5, opObjectCanHearObject); // op_obj_can_hear_obj
-    interpreterRegisterOpcode(0x80F6, opGameTimeHour); // op_game_time_hour
-    interpreterRegisterOpcode(0x80F7, opGetFixedParam); // op_fixed_param
-    interpreterRegisterOpcode(0x80F8, opTileIsVisible); // op_tile_is_visible
-    interpreterRegisterOpcode(0x80F9, opGameDialogSystemEnter); // op_dialogue_system_enter
-    interpreterRegisterOpcode(0x80FA, opGetActionBeingUsed); // op_action_being_used
-    interpreterRegisterOpcode(0x80FB, opGetCritterState); // critter_state
-    interpreterRegisterOpcode(0x80FC, opGameTimeAdvance); // op_game_time_advance
-    interpreterRegisterOpcode(0x80FD, opRadiationIncrease); // op_radiation_inc
-    interpreterRegisterOpcode(0x80FE, opRadiationDecrease); // op_radiation_dec
-    interpreterRegisterOpcode(0x80FF, opCritterAttemptPlacement); // critter_attempt_placement
-    interpreterRegisterOpcode(0x8100, opGetObjectPid); // op_obj_pid
-    interpreterRegisterOpcode(0x8101, opGetCurrentMap); // op_cur_map_index
-    interpreterRegisterOpcode(0x8102, opCritterAddTrait); // op_critter_add_trait
-    interpreterRegisterOpcode(0x8103, opCritterRemoveTrait); // critter_rm_trait
-    interpreterRegisterOpcode(0x8104, opGetProtoData); // op_proto_data
-    interpreterRegisterOpcode(0x8105, opGetMessageString); // op_message_str
-    interpreterRegisterOpcode(0x8106, opCritterGetInventoryObject); // op_critter_inven_obj
-    interpreterRegisterOpcode(0x8107, opSetObjectLightLevel); // op_obj_set_light_level
-    interpreterRegisterOpcode(0x8108, opWorldmap); // op_scripts_request_world_map
-    interpreterRegisterOpcode(0x8109, _op_inven_cmds); // op_inven_cmds
-    interpreterRegisterOpcode(0x810A, opFloatMessage); // op_float_msg
-    interpreterRegisterOpcode(0x810B, opMetarule); // op_metarule
-    interpreterRegisterOpcode(0x810C, opAnim); // op_anim
-    interpreterRegisterOpcode(0x810D, opObjectCarryingObjectByPid); // op_obj_carrying_pid_obj
-    interpreterRegisterOpcode(0x810E, opRegAnimFunc); // op_reg_anim_func
-    interpreterRegisterOpcode(0x810F, opRegAnimAnimate); // op_reg_anim_animate
-    interpreterRegisterOpcode(0x8110, opRegAnimAnimateReverse); // op_reg_anim_animate_reverse
-    interpreterRegisterOpcode(0x8111, opRegAnimObjectMoveToObject); // op_reg_anim_obj_move_to_obj
-    interpreterRegisterOpcode(0x8112, opRegAnimObjectRunToObject); // op_reg_anim_obj_run_to_obj
-    interpreterRegisterOpcode(0x8113, opRegAnimObjectMoveToTile); // op_reg_anim_obj_move_to_tile
-    interpreterRegisterOpcode(0x8114, opRegAnimObjectRunToTile); // op_reg_anim_obj_run_to_tile
-    interpreterRegisterOpcode(0x8115, opPlayGameMovie); // op_play_gmovie
-    interpreterRegisterOpcode(0x8116, opAddMultipleObjectsToInventory); // op_add_mult_objs_to_inven
-    interpreterRegisterOpcode(0x8117, opRemoveMultipleObjectsFromInventory); // rm_mult_objs_from_inven
-    interpreterRegisterOpcode(0x8118, opGetMonth); // op_month
-    interpreterRegisterOpcode(0x8119, opGetDay); // op_day
-    interpreterRegisterOpcode(0x811A, opExplosion); // op_explosion
-    interpreterRegisterOpcode(0x811B, opGetDaysSinceLastVisit); // op_days_since_visited
-    interpreterRegisterOpcode(0x811C, _op_gsay_start);
-    interpreterRegisterOpcode(0x811D, _op_gsay_end);
-    interpreterRegisterOpcode(0x811E, _op_gsay_reply); // op_gsay_reply
-    interpreterRegisterOpcode(0x811F, _op_gsay_option); // op_gsay_option
-    interpreterRegisterOpcode(0x8120, _op_gsay_message); // op_gsay_message
-    interpreterRegisterOpcode(0x8121, _op_giq_option); // op_giq_option
-    interpreterRegisterOpcode(0x8122, opPoison); // op_poison
-    interpreterRegisterOpcode(0x8123, opGetPoison); // op_get_poison
-    interpreterRegisterOpcode(0x8124, opPartyAdd); // op_party_add
-    interpreterRegisterOpcode(0x8125, opPartyRemove); // op_party_remove
-    interpreterRegisterOpcode(0x8126, opRegAnimAnimateForever); // op_reg_anim_animate_forever
-    interpreterRegisterOpcode(0x8127, opCritterInjure); // op_critter_injure
-    interpreterRegisterOpcode(0x8128, opCombatIsInitialized); // op_is_in_combat
-    interpreterRegisterOpcode(0x8129, _op_gdialog_barter); // op_gdialog_barter
-    interpreterRegisterOpcode(0x812A, opGetGameDifficulty); // op_game_difficulty
-    interpreterRegisterOpcode(0x812B, opGetRunningBurningGuy); // op_running_burning_guy
-    interpreterRegisterOpcode(0x812C, _op_inven_unwield); // op_inven_unwield
-    interpreterRegisterOpcode(0x812D, opObjectIsLocked); // op_obj_is_locked
-    interpreterRegisterOpcode(0x812E, opObjectLock); // op_obj_lock
-    interpreterRegisterOpcode(0x812F, opObjectUnlock); // op_obj_unlock
-    interpreterRegisterOpcode(0x8131, opObjectOpen); // op_obj_open
-    interpreterRegisterOpcode(0x8130, opObjectIsOpen); // op_obj_is_open
-    interpreterRegisterOpcode(0x8132, opObjectClose); // op_obj_close
-    interpreterRegisterOpcode(0x8133, opGameUiDisable); // op_game_ui_disable
-    interpreterRegisterOpcode(0x8134, opGameUiEnable); // op_game_ui_enable
-    interpreterRegisterOpcode(0x8135, opGameUiIsDisabled); // op_game_ui_is_disabled
-    interpreterRegisterOpcode(0x8136, opGameFadeOut); // op_gfade_out
-    interpreterRegisterOpcode(0x8137, opGameFadeIn); // op_gfade_in
-    interpreterRegisterOpcode(0x8138, opItemCapsTotal); // op_item_caps_total
-    interpreterRegisterOpcode(0x8139, opItemCapsAdjust); // op_item_caps_adjust
-    interpreterRegisterOpcode(0x813A, _op_anim_action_frame); // op_anim_action_frame
-    interpreterRegisterOpcode(0x813B, opRegAnimPlaySfx); // op_reg_anim_play_sfx
-    interpreterRegisterOpcode(0x813C, opCritterModifySkill); // op_critter_mod_skill
-    interpreterRegisterOpcode(0x813D, opSfxBuildCharName); // op_sfx_build_char_name
-    interpreterRegisterOpcode(0x813E, opSfxBuildAmbientName); // op_sfx_build_ambient_name
-    interpreterRegisterOpcode(0x813F, opSfxBuildInterfaceName); // op_sfx_build_interface_name
-    interpreterRegisterOpcode(0x8140, opSfxBuildItemName); // op_sfx_build_item_name
-    interpreterRegisterOpcode(0x8141, opSfxBuildWeaponName); // op_sfx_build_weapon_name
-    interpreterRegisterOpcode(0x8142, opSfxBuildSceneryName); // op_sfx_build_scenery_name
-    interpreterRegisterOpcode(0x8143, opAttackSetup); // op_attack_setup
-    interpreterRegisterOpcode(0x8144, opDestroyMultipleObjects); // op_destroy_mult_objs
-    interpreterRegisterOpcode(0x8145, opUseObjectOnObject); // op_use_obj_on_obj
-    interpreterRegisterOpcode(0x8146, opEndgameSlideshow); // op_endgame_slideshow
-    interpreterRegisterOpcode(0x8147, opMoveObjectInventoryToObject); // op_move_obj_inven_to_obj
-    interpreterRegisterOpcode(0x8148, opEndgameMovie); // op_endgame_movie
-    interpreterRegisterOpcode(0x8149, opGetObjectFid); // op_obj_art_fid
-    interpreterRegisterOpcode(0x814A, opGetFidAnim); // op_art_anim
-    interpreterRegisterOpcode(0x814B, opGetPartyMember); // op_party_member_obj
-    interpreterRegisterOpcode(0x814C, opGetRotationToTile); // op_rotation_to_tile
-    interpreterRegisterOpcode(0x814D, opJamLock); // op_jam_lock
-    interpreterRegisterOpcode(0x814E, opGameDialogSetBarterMod); // op_gdialog_set_barter_mod
-    interpreterRegisterOpcode(0x814F, opGetCombatDifficulty); // op_combat_difficulty
-    interpreterRegisterOpcode(0x8150, opObjectOnScreen); // op_obj_on_screen
-    interpreterRegisterOpcode(0x8151, opCritterIsFleeing); // op_critter_is_fleeing
-    interpreterRegisterOpcode(0x8152, opCritterSetFleeState); // op_critter_set_flee_state
-    interpreterRegisterOpcode(0x8153, opTerminateCombat); // op_terminate_combat
-    interpreterRegisterOpcode(0x8154, opDebugMessage); // op_debug_msg
-    interpreterRegisterOpcode(0x8155, opCritterStopAttacking); // op_critter_stop_attacking
+    interpreterRegisterOpcode(0x80A1, op_give_exp_points);
+    interpreterRegisterOpcode(0x80A2, op_scr_return);
+    interpreterRegisterOpcode(0x80A3, op_play_sfx);
+    interpreterRegisterOpcode(0x80A4, op_obj_name);
+    interpreterRegisterOpcode(0x80A5, op_sfx_build_open_name);
+    interpreterRegisterOpcode(0x80A6, op_get_pc_stat);
+    interpreterRegisterOpcode(0x80A7, op_tile_contains_pid_obj);
+    interpreterRegisterOpcode(0x80A8, op_set_map_start);
+    interpreterRegisterOpcode(0x80A9, op_override_map_start);
+    interpreterRegisterOpcode(0x80AA, op_has_skill);
+    interpreterRegisterOpcode(0x80AB, op_using_skill);
+    interpreterRegisterOpcode(0x80AC, op_roll_vs_skill);
+    interpreterRegisterOpcode(0x80AD, op_skill_contest);
+    interpreterRegisterOpcode(0x80AE, op_do_check);
+    interpreterRegisterOpcode(0x80AF, op_is_success);
+    interpreterRegisterOpcode(0x80B0, op_is_critical);
+    interpreterRegisterOpcode(0x80B1, op_how_much);
+    interpreterRegisterOpcode(0x80B2, op_mark_area_known);
+    interpreterRegisterOpcode(0x80B3, op_reaction_influence);
+    interpreterRegisterOpcode(0x80B4, op_random);
+    interpreterRegisterOpcode(0x80B5, op_roll_dice);
+    interpreterRegisterOpcode(0x80B6, op_move_to);
+    interpreterRegisterOpcode(0x80B7, op_create_object_sid);
+    interpreterRegisterOpcode(0x80B8, op_display_msg);
+    interpreterRegisterOpcode(0x80B9, op_script_overrides);
+    interpreterRegisterOpcode(0x80BA, op_obj_is_carrying_obj_pid);
+    interpreterRegisterOpcode(0x80BB, op_tile_contains_obj_pid);
+    interpreterRegisterOpcode(0x80BC, op_self_obj);
+    interpreterRegisterOpcode(0x80BD, op_source_obj);
+    interpreterRegisterOpcode(0x80BE, op_target_obj);
+    interpreterRegisterOpcode(0x80BF, op_dude_obj);
+    interpreterRegisterOpcode(0x80C0, op_obj_being_used_with);
+    interpreterRegisterOpcode(0x80C1, op_local_var);
+    interpreterRegisterOpcode(0x80C2, op_set_local_var);
+    interpreterRegisterOpcode(0x80C3, op_map_var);
+    interpreterRegisterOpcode(0x80C4, op_set_map_var);
+    interpreterRegisterOpcode(0x80C5, op_global_var);
+    interpreterRegisterOpcode(0x80C6, op_set_global_var);
+    interpreterRegisterOpcode(0x80C7, op_script_action);
+    interpreterRegisterOpcode(0x80C8, op_obj_type);
+    interpreterRegisterOpcode(0x80C9, op_obj_item_subtype);
+    interpreterRegisterOpcode(0x80CA, op_get_critter_stat);
+    interpreterRegisterOpcode(0x80CB, op_set_critter_stat);
+    interpreterRegisterOpcode(0x80CC, op_animate_stand_obj);
+    interpreterRegisterOpcode(0x80CD, op_animate_stand_reverse_obj);
+    interpreterRegisterOpcode(0x80CE, op_animate_move_obj_to_tile);
+    interpreterRegisterOpcode(0x80CF, op_tile_in_tile_rect);
+    interpreterRegisterOpcode(0x80D0, op_attack);
+    interpreterRegisterOpcode(0x80D1, op_make_daytime);
+    interpreterRegisterOpcode(0x80D2, op_tile_distance);
+    interpreterRegisterOpcode(0x80D3, op_tile_distance_objs);
+    interpreterRegisterOpcode(0x80D4, op_tile_num);
+    interpreterRegisterOpcode(0x80D5, op_tile_num_in_direction);
+    interpreterRegisterOpcode(0x80D6, op_pickup_obj);
+    interpreterRegisterOpcode(0x80D7, op_drop_obj);
+    interpreterRegisterOpcode(0x80D8, op_add_obj_to_inven);
+    interpreterRegisterOpcode(0x80D9, op_rm_obj_from_inven);
+    interpreterRegisterOpcode(0x80DA, op_wield_obj_critter);
+    interpreterRegisterOpcode(0x80DB, op_use_obj);
+    interpreterRegisterOpcode(0x80DC, op_obj_can_see_obj);
+    interpreterRegisterOpcode(0x80DD, op_attack);
+    interpreterRegisterOpcode(0x80DE, op_start_gdialog);
+    interpreterRegisterOpcode(0x80DF, op_end_dialogue);
+    interpreterRegisterOpcode(0x80E0, op_dialogue_reaction);
+    interpreterRegisterOpcode(0x80E1, op_metarule3);
+    interpreterRegisterOpcode(0x80E2, op_set_map_music);
+    interpreterRegisterOpcode(0x80E3, op_set_obj_visibility);
+    interpreterRegisterOpcode(0x80E4, op_load_map);
+    interpreterRegisterOpcode(0x80E5, op_wm_area_set_pos);
+    interpreterRegisterOpcode(0x80E6, op_set_exit_grids);
+    interpreterRegisterOpcode(0x80E7, op_anim_busy);
+    interpreterRegisterOpcode(0x80E8, op_critter_heal);
+    interpreterRegisterOpcode(0x80E9, op_set_light_level);
+    interpreterRegisterOpcode(0x80EA, op_game_time);
+    interpreterRegisterOpcode(0x80EB, op_game_time_in_seconds);
+    interpreterRegisterOpcode(0x80EC, op_elevation);
+    interpreterRegisterOpcode(0x80ED, op_kill_critter);
+    interpreterRegisterOpcode(0x80EE, op_kill_critter_type);
+    interpreterRegisterOpcode(0x80EF, op_critter_damage);
+    interpreterRegisterOpcode(0x80F0, op_add_timer_event);
+    interpreterRegisterOpcode(0x80F1, op_rm_timer_event);
+    interpreterRegisterOpcode(0x80F2, op_game_ticks);
+    interpreterRegisterOpcode(0x80F3, op_has_trait);
+    interpreterRegisterOpcode(0x80F4, op_destroy_object);
+    interpreterRegisterOpcode(0x80F5, op_obj_can_hear_obj);
+    interpreterRegisterOpcode(0x80F6, op_game_time_hour);
+    interpreterRegisterOpcode(0x80F7, op_fixed_param);
+    interpreterRegisterOpcode(0x80F8, op_tile_is_visible);
+    interpreterRegisterOpcode(0x80F9, op_dialogue_system_enter);
+    interpreterRegisterOpcode(0x80FA, op_action_being_used);
+    interpreterRegisterOpcode(0x80FB, op_critter_state);
+    interpreterRegisterOpcode(0x80FC, op_game_time_advance);
+    interpreterRegisterOpcode(0x80FD, op_radiation_inc);
+    interpreterRegisterOpcode(0x80FE, op_radiation_dec);
+    interpreterRegisterOpcode(0x80FF, op_critter_attempt_placement);
+    interpreterRegisterOpcode(0x8100, op_obj_pid);
+    interpreterRegisterOpcode(0x8101, op_cur_map_index);
+    interpreterRegisterOpcode(0x8102, op_critter_add_trait);
+    interpreterRegisterOpcode(0x8103, op_critter_rm_trait);
+    interpreterRegisterOpcode(0x8104, op_proto_data);
+    interpreterRegisterOpcode(0x8105, op_message_str);
+    interpreterRegisterOpcode(0x8106, op_critter_inven_obj);
+    interpreterRegisterOpcode(0x8107, op_obj_set_light_level);
+    interpreterRegisterOpcode(0x8108, op_world_map);
+    interpreterRegisterOpcode(0x8109, op_inven_cmds);
+    interpreterRegisterOpcode(0x810A, op_float_msg);
+    interpreterRegisterOpcode(0x810B, op_metarule);
+    interpreterRegisterOpcode(0x810C, op_anim);
+    interpreterRegisterOpcode(0x810D, op_obj_carrying_pid_obj);
+    interpreterRegisterOpcode(0x810E, op_reg_anim_func);
+    interpreterRegisterOpcode(0x810F, op_reg_anim_animate);
+    interpreterRegisterOpcode(0x8110, op_reg_anim_animate_reverse);
+    interpreterRegisterOpcode(0x8111, op_reg_anim_obj_move_to_obj);
+    interpreterRegisterOpcode(0x8112, op_reg_anim_obj_run_to_obj);
+    interpreterRegisterOpcode(0x8113, op_reg_anim_obj_move_to_tile);
+    interpreterRegisterOpcode(0x8114, op_reg_anim_obj_run_to_tile);
+    interpreterRegisterOpcode(0x8115, op_play_gmovie);
+    interpreterRegisterOpcode(0x8116, op_add_mult_objs_to_inven);
+    interpreterRegisterOpcode(0x8117, op_rm_mult_objs_from_inven);
+    interpreterRegisterOpcode(0x8118, op_get_month);
+    interpreterRegisterOpcode(0x8119, op_get_day);
+    interpreterRegisterOpcode(0x811A, op_explosion);
+    interpreterRegisterOpcode(0x811B, op_days_since_visited);
+    interpreterRegisterOpcode(0x811C, op_gsay_start);
+    interpreterRegisterOpcode(0x811D, op_gsay_end);
+    interpreterRegisterOpcode(0x811E, op_gsay_reply);
+    interpreterRegisterOpcode(0x811F, op_gsay_option);
+    interpreterRegisterOpcode(0x8120, op_gsay_message);
+    interpreterRegisterOpcode(0x8121, op_giq_option);
+    interpreterRegisterOpcode(0x8122, op_poison);
+    interpreterRegisterOpcode(0x8123, op_get_poison);
+    interpreterRegisterOpcode(0x8124, op_party_add);
+    interpreterRegisterOpcode(0x8125, op_party_remove);
+    interpreterRegisterOpcode(0x8126, op_reg_anim_animate_forever);
+    interpreterRegisterOpcode(0x8127, op_critter_injure);
+    interpreterRegisterOpcode(0x8128, op_combat_is_initialized);
+    interpreterRegisterOpcode(0x8129, op_gdialog_barter);
+    interpreterRegisterOpcode(0x812A, op_difficulty_level);
+    interpreterRegisterOpcode(0x812B, op_running_burning_guy);
+    interpreterRegisterOpcode(0x812C, op_inven_unwield);
+    interpreterRegisterOpcode(0x812D, op_obj_is_locked);
+    interpreterRegisterOpcode(0x812E, op_obj_lock);
+    interpreterRegisterOpcode(0x812F, op_obj_unlock);
+    interpreterRegisterOpcode(0x8131, op_obj_open);
+    interpreterRegisterOpcode(0x8130, op_obj_is_open);
+    interpreterRegisterOpcode(0x8132, op_obj_close);
+    interpreterRegisterOpcode(0x8133, op_game_ui_disable);
+    interpreterRegisterOpcode(0x8134, op_game_ui_enable);
+    interpreterRegisterOpcode(0x8135, op_game_ui_is_disabled);
+    interpreterRegisterOpcode(0x8136, op_gfade_out);
+    interpreterRegisterOpcode(0x8137, op_gfade_in);
+    interpreterRegisterOpcode(0x8138, op_item_caps_total);
+    interpreterRegisterOpcode(0x8139, op_item_caps_adjust);
+    interpreterRegisterOpcode(0x813A, op_anim_action_frame);
+    interpreterRegisterOpcode(0x813B, op_reg_anim_play_sfx);
+    interpreterRegisterOpcode(0x813C, op_critter_mod_skill);
+    interpreterRegisterOpcode(0x813D, op_sfx_build_char_name);
+    interpreterRegisterOpcode(0x813E, op_sfx_build_ambient_name);
+    interpreterRegisterOpcode(0x813F, op_sfx_build_interface_name);
+    interpreterRegisterOpcode(0x8140, op_sfx_build_item_name);
+    interpreterRegisterOpcode(0x8141, op_sfx_build_weapon_name);
+    interpreterRegisterOpcode(0x8142, op_sfx_build_scenery_name);
+    interpreterRegisterOpcode(0x8143, op_attack_setup);
+    interpreterRegisterOpcode(0x8144, op_destroy_mult_objs);
+    interpreterRegisterOpcode(0x8145, op_use_obj_on_obj);
+    interpreterRegisterOpcode(0x8146, op_endgame_slideshow);
+    interpreterRegisterOpcode(0x8147, op_move_obj_inven_to_obj);
+    interpreterRegisterOpcode(0x8148, op_endgame_movie);
+    interpreterRegisterOpcode(0x8149, op_obj_art_fid);
+    interpreterRegisterOpcode(0x814A, op_art_anim);
+    interpreterRegisterOpcode(0x814B, op_party_member_obj);
+    interpreterRegisterOpcode(0x814C, op_rotation_to_tile);
+    interpreterRegisterOpcode(0x814D, op_jam_lock);
+    interpreterRegisterOpcode(0x814E, op_gdialog_set_barter_mod);
+    interpreterRegisterOpcode(0x814F, op_combat_difficulty);
+    interpreterRegisterOpcode(0x8150, op_obj_on_screen);
+    interpreterRegisterOpcode(0x8151, op_critter_is_fleeing);
+    interpreterRegisterOpcode(0x8152, op_critter_set_flee_state);
+    interpreterRegisterOpcode(0x8153, op_terminate_combat);
+    interpreterRegisterOpcode(0x8154, op_debug_msg);
+    interpreterRegisterOpcode(0x8155, op_critter_stop_attacking);
 }
 
 // NOTE: Uncollapsed 0x45D878.
 //
 // 0x45D878
-void intExtraUpdate()
+void updateIntExtra()
 {
 }
 

@@ -2975,14 +2975,14 @@ void opSetOneOptPause(Program* program)
 void intLibUpdate()
 {
     _nevs_update();
-    intExtraUpdate();
+    updateIntExtra();
 }
 
 // 0x4669A0
 void intLibExit()
 {
     dialogClose();
-    _intExtraClose_();
+    intExtraClose();
 
     for (int index = 0; index < INT_LIB_SOUNDS_CAPACITY; index++) {
         if (gIntLibSounds[index] != NULL) {
@@ -3115,7 +3115,7 @@ void intLibInit()
     interpreterRegisterOpcode(0x80A0, opTokenize);
 
     _nevs_initonce();
-    _initIntExtra();
+    initIntExtra();
     initDialog();
 }
 

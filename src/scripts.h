@@ -130,7 +130,7 @@ typedef struct Script {
 
     // Currently executed action.
     //
-    // See [opGetScriptAction].
+    // See [op_script_action].
     int action;
     int fixedParam;
     Object* owner;
