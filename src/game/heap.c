@@ -90,6 +90,7 @@ static bool heap_sort_moveable_list(Heap* heap, size_t count);
 static int heap_qsort_compare_moveable(const void* a1, const void* a2);
 static bool heap_build_subblock_list(int extentIndex);
 static bool heap_sort_subblock_list(size_t count);
+static int heap_qsort_compare_subblock(const void* a1, const void* a2);
 
 // An array of pointers to free heap blocks.
 //
@@ -1314,7 +1315,15 @@ static bool heap_build_subblock_list(int extentIndex)
 // 0x453F24
 static bool heap_sort_subblock_list(size_t count)
 {
-    qsort(heap_subblock_list, count, sizeof(*heap_subblock_list), heap_qsort_compare_free);
+    qsort(heap_subblock_list, count, sizeof(*heap_subblock_list), heap_qsort_compare_subblock);
 
     return true;
+}
+
+// NOTE: Uncollapsed 0x453CC4.
+static int heap_qsort_compare_subblock(const void* a1, const void* a2)
+{
+    HeapBlockHeader* header1 = *(HeapBlockHeader**)a1;
+    HeapBlockHeader* header2 = *(HeapBlockHeader**)a2;
+    return header1->size - header2->size;
 }
