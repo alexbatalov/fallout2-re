@@ -5,7 +5,7 @@
 #include <windows.h>
 
 #include "db.h"
-#include "message.h"
+#include "game/message.h"
 #include "obj_types.h"
 #include "perk_defs.h"
 #include "proto_types.h"

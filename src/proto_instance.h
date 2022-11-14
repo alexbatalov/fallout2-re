@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "message.h"
+#include "game/message.h"
 #include "obj_types.h"
 
 extern MessageListItem stru_49A990;

@@ -14,7 +14,7 @@
 #include "game/light.h"
 #include "game/map.h"
 #include "memory.h"
-#include "message.h"
+#include "game/message.h"
 #include "object.h"
 #include "perk.h"
 #include "proto.h"

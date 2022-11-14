@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "db.h"
-#include "message.h"
+#include "game/message.h"
 #include "trait_defs.h"
 
 // Provides metadata about traits.

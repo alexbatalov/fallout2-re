@@ -27,7 +27,7 @@
 #include "game/item.h"
 #include "game/map_defs.h"
 #include "memory.h"
-#include "message.h"
+#include "game/message.h"
 #include "obj_types.h"
 #include "object.h"
 #include "party_member.h"

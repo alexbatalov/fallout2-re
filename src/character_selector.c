@@ -13,7 +13,7 @@
 #include "game/game.h"
 #include "game/gsound.h"
 #include "memory.h"
-#include "message.h"
+#include "game/message.h"
 #include "object.h"
 #include "options.h"
 #include "palette.h"

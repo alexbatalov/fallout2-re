@@ -4,7 +4,7 @@
 #include "game/anim.h"
 #include "game/combat_defs.h"
 #include "db.h"
-#include "message.h"
+#include "game/message.h"
 #include "obj_types.h"
 #include "party_member.h"
 #include "proto_types.h"

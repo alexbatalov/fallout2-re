@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/game_vars.h"
-#include "message.h"
+#include "game/message.h"
 
 typedef enum GameState {
     GAME_STATE_0,

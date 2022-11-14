@@ -1,4 +1,4 @@
-#include "message.h"
+#include "game/message.h"
 
 #include <ctype.h>
 #include <stdio.h>

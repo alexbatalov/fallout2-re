@@ -11,7 +11,7 @@
 #include "draw.h"
 #include "game/gmouse.h"
 #include "memory.h"
-#include "message.h"
+#include "game/message.h"
 #include "palette.h"
 #include "sound.h"
 #include "text_font.h"

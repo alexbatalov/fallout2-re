@@ -6,7 +6,7 @@
 #include "game/art.h"
 #include "db.h"
 #include "geometry.h"
-#include "message.h"
+#include "game/message.h"
 
 #define OPTIONS_WINDOW_BUTTONS_COUNT (10)
 #define PRIMARY_OPTION_VALUE_COUNT (4)

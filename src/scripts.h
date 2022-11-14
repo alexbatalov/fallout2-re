@@ -6,7 +6,7 @@
 #include "game/combat_defs.h"
 #include "db.h"
 #include "int/intrpret.h"
-#include "message.h"
+#include "game/message.h"
 #include "obj_types.h"
 
 #define SCRIPT_LIST_EXTENT_SIZE 16

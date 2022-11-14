@@ -5,7 +5,7 @@
 
 #include "game/art.h"
 #include "geometry.h"
-#include "message.h"
+#include "game/message.h"
 
 #define SKILLDEX_SKILL_BUTTON_BUFFER_COUNT (SKILLDEX_SKILL_COUNT * 2)
 

@@ -11,7 +11,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gsound.h"
-#include "message.h"
+#include "game/message.h"
 #include "text_font.h"
 #include "window_manager.h"
 #include "word_wrap.h"

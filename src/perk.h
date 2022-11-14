@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "db.h"
-#include "message.h"
+#include "game/message.h"
 #include "obj_types.h"
 #include "perk_defs.h"
 #include "stat_defs.h"

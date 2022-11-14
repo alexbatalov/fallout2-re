@@ -10,7 +10,7 @@
 #include "db.h"
 #include "geometry.h"
 #include "game/map_defs.h"
-#include "message.h"
+#include "game/message.h"
 
 // TODO: Probably not needed -> replace with array?
 typedef struct TileData {

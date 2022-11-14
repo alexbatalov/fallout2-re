@@ -9,7 +9,7 @@
 #include "game/art.h"
 #include "db.h"
 #include "geometry.h"
-#include "message.h"
+#include "game/message.h"
 
 typedef enum LoadSaveMode {
     // Special case - loading game from main menu.
