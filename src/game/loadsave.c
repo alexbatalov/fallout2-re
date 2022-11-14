@@ -1930,7 +1930,7 @@ static void DrawInfoBox(int a1)
             int v2 = fontGetLineHeight();
             fontDrawText(lsgbuf + LS_WINDOW_WIDTH * (256 + v2) + 397, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
-            const char* v22 = map_get_name(ptr->map, ptr->elevation);
+            const char* v22 = map_get_elev_idx(ptr->map, ptr->elevation);
             const char* v9 = map_get_short_name(ptr->map);
             sprintf(str, "%s %s", v9, v22);
 

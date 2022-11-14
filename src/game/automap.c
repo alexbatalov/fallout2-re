@@ -583,7 +583,7 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
         char* areaName = map_get_short_name(map_get_index_number());
         windowDrawText(window, areaName, 240, 150, 380, textColor | 0x2000000);
 
-        char* mapName = map_get_name(map_get_index_number(), elevation);
+        char* mapName = map_get_elev_idx(map_get_index_number(), elevation);
         windowDrawText(window, mapName, 240, 150, 396, textColor | 0x2000000);
     }
 

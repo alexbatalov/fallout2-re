@@ -1298,7 +1298,7 @@ int _PrintAMelevList(int a1)
     int v4 = 0;
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         if (automapHeader->offsets[_amcty_indx][elevation] > 0) {
-            _sortlist[v4].name = map_get_name(_amcty_indx, elevation);
+            _sortlist[v4].name = map_get_elev_idx(_amcty_indx, elevation);
             _sortlist[v4].field_4 = elevation;
             _sortlist[v4].field_6 = _amcty_indx;
             v4++;
@@ -1317,7 +1317,7 @@ int _PrintAMelevList(int a1)
 
         for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
             if (automapHeader->offsets[map][elevation] > 0) {
-                _sortlist[v4].name = map_get_name(map, elevation);
+                _sortlist[v4].name = map_get_elev_idx(map, elevation);
                 _sortlist[v4].field_4 = elevation;
                 _sortlist[v4].field_6 = map;
                 v4++;

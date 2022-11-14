@@ -463,7 +463,7 @@ void map_set_entrance_hex(int tile, int elevation, int rotation)
 }
 
 // 0x4824CC
-char* map_get_name(int map, int elevation)
+char* map_get_elev_idx(int map, int elevation)
 {
     if (map < 0 || map >= wmMapMaxCount()) {
         return NULL;
