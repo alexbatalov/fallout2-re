@@ -91,9 +91,9 @@ int audiofOpen(const char* fname, int flags, ...)
 
     if (index == numAudiof) {
         if (audiof != NULL) {
-            audiof = (AudioFile*)internal_realloc_safe(audiof, sizeof(*audiof) * (numAudiof + 1), __FILE__, __LINE__); // "..\int\audiof.c", 207
+            audiof = (AudioFile*)myrealloc(audiof, sizeof(*audiof) * (numAudiof + 1), __FILE__, __LINE__); // "..\int\audiof.c", 207
         } else {
-            audiof = (AudioFile*)internal_malloc_safe(sizeof(*audiof), __FILE__, __LINE__); // "..\int\audiof.c", 209
+            audiof = (AudioFile*)mymalloc(sizeof(*audiof), __FILE__, __LINE__); // "..\int\audiof.c", 209
         }
         numAudiof++;
     }
@@ -183,7 +183,7 @@ long audiofSeek(int fileHandle, long offset, int origin)
             audioFile->position = 0;
 
             if (a4) {
-                buf = internal_malloc_safe(4096, __FILE__, __LINE__); // "..\int\audiof.c", 364
+                buf = mymalloc(4096, __FILE__, __LINE__); // "..\int\audiof.c", 364
                 while (a4 > 4096) {
                     audiofRead(fileHandle, buf, 4096);
                     a4 -= 4096;
@@ -191,10 +191,10 @@ long audiofSeek(int fileHandle, long offset, int origin)
                 if (a4 != 0) {
                     audiofRead(fileHandle, buf, a4);
                 }
-                internal_free_safe(buf, __FILE__, __LINE__); // "..\int\audiof.c", 370
+                myfree(buf, __FILE__, __LINE__); // "..\int\audiof.c", 370
             }
         } else {
-            buf = internal_malloc_safe(0x400, __FILE__, __LINE__); // "..\int\audiof.c", 316
+            buf = mymalloc(0x400, __FILE__, __LINE__); // "..\int\audiof.c", 316
             remaining = audioFile->position - a4;
             while (remaining > 1024) {
                 audiofRead(fileHandle, buf, 1024);
@@ -246,7 +246,7 @@ int initAudiof(AudioFileIsCompressedProc* isCompressedProc)
 void audiofClose()
 {
     if (audiof != NULL) {
-        internal_free_safe(audiof, __FILE__, __LINE__); // "..\int\audiof.c", 405
+        myfree(audiof, __FILE__, __LINE__); // "..\int\audiof.c", 405
     }
 
     numAudiof = 0;

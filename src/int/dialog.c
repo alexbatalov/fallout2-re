@@ -168,10 +168,10 @@ static STRUCT_56DAE0_FIELD_4* getReply()
     v0 = &(dialog[tods].field_4[dialog[tods].field_C]);
     if (v0->field_C == NULL) {
         v0->field_14 = 1;
-        v1 = (STRUCT_56DAE0_FIELD_4_FIELD_C*)internal_malloc_safe(sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C), __FILE__, __LINE__); // "..\\int\\DIALOG.C", 789
+        v1 = (STRUCT_56DAE0_FIELD_4_FIELD_C*)mymalloc(sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C), __FILE__, __LINE__); // "..\\int\\DIALOG.C", 789
     } else {
         v0->field_14++;
-        v1 = (STRUCT_56DAE0_FIELD_4_FIELD_C*)internal_realloc_safe(v0->field_C, sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C) * v0->field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 793
+        v1 = (STRUCT_56DAE0_FIELD_4_FIELD_C*)myrealloc(v0->field_C, sizeof(STRUCT_56DAE0_FIELD_4_FIELD_C) * v0->field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 793
     }
     v0->field_C = v1;
 
@@ -191,7 +191,7 @@ static void replyAddOption(const char* a1, const char* a2, int a3)
     v18->field_C[v17].kind = 2;
 
     if (a1 != NULL) {
-        v14 = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 805
+        v14 = (char*)mymalloc(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 805
         strcpy(v14, a1);
         v18->field_C[v17].field_0 = v14;
     } else {
@@ -199,7 +199,7 @@ static void replyAddOption(const char* a1, const char* a2, int a3)
     }
 
     if (a2 != NULL) {
-        v15 = (char*)internal_malloc_safe(strlen(a2) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 810
+        v15 = (char*)mymalloc(strlen(a2) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 810
         strcpy(v15, a2);
         v18->field_C[v17].string = v15;
     } else {
@@ -224,7 +224,7 @@ static void replyAddOptionProc(const char* a1, int a2, int a3)
     v5->field_C[v13].kind = 1;
 
     if (a1 != NULL) {
-        v11 = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 830
+        v11 = (char*)mymalloc(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 830
         strcpy(v11, a1);
         v5->field_C[v13].field_0 = v11;
     } else {
@@ -242,12 +242,12 @@ static void replyAddOptionProc(const char* a1, int a2, int a3)
 static void optionFree(STRUCT_56DAE0_FIELD_4_FIELD_C* a1)
 {
     if (a1->field_0 != NULL) {
-        internal_free_safe(a1->field_0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 844
+        myfree(a1->field_0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 844
     }
 
     if (a1->kind == 2) {
         if (a1->string != NULL) {
-            internal_free_safe(a1->string, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 846
+            myfree(a1->string, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 846
         }
     }
 }
@@ -269,24 +269,24 @@ static void replyFree()
                 optionFree(&(v6->field_C[j]));
             }
 
-            internal_free_safe(v6->field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 857
+            myfree(v6->field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 857
         }
 
         if (v6->field_8 != NULL) {
-            internal_free_safe(v6->field_8, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 860
+            myfree(v6->field_8, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 860
         }
 
         if (v6->field_4 != NULL) {
-            internal_free_safe(v6->field_4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 862
+            myfree(v6->field_4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 862
         }
 
         if (v6->field_0 != NULL) {
-            internal_free_safe(v6->field_0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 864
+            myfree(v6->field_0, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 864
         }
     }
 
     if (ptr->field_4 != NULL) {
-        internal_free_safe(ptr->field_4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 867
+        myfree(ptr->field_4, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 867
     }
 }
 
@@ -301,7 +301,7 @@ static int endDialog()
     replyFree();
 
     if (replyTitleDefault != NULL) {
-        internal_free_safe(replyTitleDefault, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 986
+        myfree(replyTitleDefault, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 986
         replyTitleDefault = NULL;
     }
 
@@ -466,11 +466,11 @@ int dialogGotoReply(const char* a1)
 int dialogTitle(const char* a1)
 {
     if (replyTitleDefault != NULL) {
-        internal_free_safe(replyTitleDefault, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2561
+        myfree(replyTitleDefault, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2561
     }
 
     if (a1 != NULL) {
-        replyTitleDefault = (char*)internal_malloc_safe(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2564
+        replyTitleDefault = (char*)mymalloc(strlen(a1) + 1, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2564
         strcpy(replyTitleDefault, a1);
     } else {
         replyTitleDefault = NULL;
@@ -583,22 +583,22 @@ int dialogSetScrollUp(int a1, int a2, char* a3, char* a4, char* a5, char* a6, in
     upButton.field_4 = a2;
 
     if (upButton.field_C != NULL) {
-        internal_free_safe(upButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2750
+        myfree(upButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2750
     }
     upButton.field_C = a3;
 
     if (upButton.field_10 != NULL) {
-        internal_free_safe(upButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2752
+        myfree(upButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2752
     }
     upButton.field_10 = a4;
 
     if (upButton.field_14 != NULL) {
-        internal_free_safe(upButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2754
+        myfree(upButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2754
     }
     upButton.field_14 = a5;
 
     if (upButton.field_18 != NULL) {
-        internal_free_safe(upButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2756
+        myfree(upButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2756
     }
     upButton.field_18 = a6;
 
@@ -614,22 +614,22 @@ int dialogSetScrollDown(int a1, int a2, char* a3, char* a4, char* a5, char* a6, 
     downButton.field_4 = a2;
 
     if (downButton.field_C != NULL) {
-        internal_free_safe(downButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2765
+        myfree(downButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2765
     }
     downButton.field_C = a3;
 
     if (downButton.field_10 != NULL) {
-        internal_free_safe(downButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2767
+        myfree(downButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2767
     }
     downButton.field_10 = a4;
 
     if (downButton.field_14 != NULL) {
-        internal_free_safe(downButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2769
+        myfree(downButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2769
     }
     downButton.field_14 = a5;
 
     if (downButton.field_18 != NULL) {
-        internal_free_safe(downButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2771
+        myfree(downButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2771
     }
     downButton.field_18 = a6;
 
@@ -696,35 +696,35 @@ void initDialog()
 void dialogClose()
 {
     if (upButton.field_C) {
-        internal_free_safe(upButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2818
+        myfree(upButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2818
     }
 
     if (upButton.field_10) {
-        internal_free_safe(upButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2819
+        myfree(upButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2819
     }
 
     if (upButton.field_14) {
-        internal_free_safe(upButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2820
+        myfree(upButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2820
     }
 
     if (upButton.field_18) {
-        internal_free_safe(upButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2821
+        myfree(upButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2821
     }
 
     if (downButton.field_C) {
-        internal_free_safe(downButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2823
+        myfree(downButton.field_C, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2823
     }
 
     if (downButton.field_10) {
-        internal_free_safe(downButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2824
+        myfree(downButton.field_10, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2824
     }
 
     if (downButton.field_14) {
-        internal_free_safe(downButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2825
+        myfree(downButton.field_14, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2825
     }
 
     if (downButton.field_18) {
-        internal_free_safe(downButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2826
+        myfree(downButton.field_18, __FILE__, __LINE__); // "..\\int\\DIALOG.C", 2826
     }
 }
 

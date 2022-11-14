@@ -359,9 +359,9 @@ void _windowAddInputFunc(WindowInputHandler* handler)
 
     if (index == gWindowInputHandlersLength) {
         if (gWindowInputHandlers != NULL) {
-            gWindowInputHandlers = (WindowInputHandler**)internal_realloc_safe(gWindowInputHandlers, sizeof(*gWindowInputHandlers) * (gWindowInputHandlersLength + 1), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 521
+            gWindowInputHandlers = (WindowInputHandler**)myrealloc(gWindowInputHandlers, sizeof(*gWindowInputHandlers) * (gWindowInputHandlersLength + 1), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 521
         } else {
-            gWindowInputHandlers = (WindowInputHandler**)internal_malloc_safe(sizeof(*gWindowInputHandlers), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 523
+            gWindowInputHandlers = (WindowInputHandler**)mymalloc(sizeof(*gWindowInputHandlers), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 523
         }
     }
 
@@ -803,23 +803,23 @@ bool _deleteWindow(const char* windowName)
         for (int index = 0; index < managedWindow->buttonsLength; index++) {
             ManagedButton* button = &(managedWindow->buttons[index]);
             if (button->hover != NULL) {
-                internal_free_safe(button->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 802
+                myfree(button->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 802
             }
 
             if (button->field_4C != NULL) {
-                internal_free_safe(button->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 804
+                myfree(button->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 804
             }
 
             if (button->pressed != NULL) {
-                internal_free_safe(button->pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 806
+                myfree(button->pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 806
             }
 
             if (button->normal != NULL) {
-                internal_free_safe(button->normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 808
+                myfree(button->normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 808
             }
         }
 
-        internal_free_safe(managedWindow->buttons, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 810
+        myfree(managedWindow->buttons, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 810
     }
 
     if (managedWindow->regions != NULL) {
@@ -830,7 +830,7 @@ bool _deleteWindow(const char* windowName)
             }
         }
 
-        internal_free_safe(managedWindow->regions, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 818
+        myfree(managedWindow->regions, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 818
         managedWindow->regions = NULL;
     }
 
@@ -1073,14 +1073,14 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
         stringLength = 255;
     }
 
-    char* stringCopy = (char*)internal_malloc_safe(stringLength + 1, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1078
+    char* stringCopy = (char*)mymalloc(stringLength + 1, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1078
     strncpy(stringCopy, string, stringLength);
     stringCopy[stringLength] = '\0';
 
     int stringWidth = fontGetStringWidth(stringCopy);
     int stringHeight = fontGetLineHeight();
     if (stringWidth == 0 || stringHeight == 0) {
-        internal_free_safe(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1085
+        myfree(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1085
         return;
     }
 
@@ -1089,7 +1089,7 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
         stringHeight++;
     }
 
-    unsigned char* backgroundBuffer = (unsigned char*)internal_calloc_safe(stringWidth, stringHeight, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
+    unsigned char* backgroundBuffer = (unsigned char*)mycalloc(stringWidth, stringHeight, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
     unsigned char* backgroundBufferPtr = backgroundBuffer;
     fontDrawText(backgroundBuffer, stringCopy, stringWidth, stringWidth, flags);
 
@@ -1127,8 +1127,8 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
         blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
     }
 
-    internal_free_safe(backgroundBuffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1130
-    internal_free_safe(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1131
+    myfree(backgroundBuffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1130
+    myfree(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1131
 }
 
 // 0x4B8638
@@ -1163,12 +1163,12 @@ char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLe
             }
 
             if (substringList != NULL) {
-                substringList = (char**)internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1166
+                substringList = (char**)myrealloc(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1166
             } else {
-                substringList = (char**)internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1167
+                substringList = (char**)mymalloc(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1167
             }
 
-            char* substring = (char*)internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
+            char* substring = (char*)mymalloc(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
             strncpy(substring, start, pch - start);
             substring[pch - start] = '\0';
 
@@ -1186,12 +1186,12 @@ char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLe
 
     if (start != pch) {
         if (substringList != NULL) {
-            substringList = (char**)internal_realloc_safe(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1184
+            substringList = (char**)myrealloc(substringList, sizeof(*substringList) * (substringListLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 1184
         } else {
-            substringList = (char**)internal_malloc_safe(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1185
+            substringList = (char**)mymalloc(sizeof(*substringList), __FILE__, __LINE__); // "..\int\WINDOW.C", 1185
         }
 
-        char* substring = (char*)internal_malloc_safe(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
+        char* substring = (char*)mymalloc(pch - start + 1, __FILE__, __LINE__); // "..\int\WINDOW.C", 1169
         strncpy(substring, start, pch - start);
         substring[pch - start] = '\0';
 
@@ -1212,10 +1212,10 @@ void _windowFreeWordList(char** substringList, int substringListLength)
     }
 
     for (int index = 0; index < substringListLength; index++) {
-        internal_free_safe(substringList[index], __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1200
+        myfree(substringList[index], __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1200
     }
 
-    internal_free_safe(substringList, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1201
+    myfree(substringList, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1201
 }
 
 // Renders multiline string in the specified bounding box.
@@ -1365,7 +1365,7 @@ void _displayFile(char* fileName)
     unsigned char* data = loadDataFile(fileName, &width, &height);
     if (data != NULL) {
         _displayInWindow(data, width, height, width);
-        internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1294
+        myfree(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1294
     }
 }
 
@@ -1377,7 +1377,7 @@ void _displayFileRaw(char* fileName)
     unsigned char* data = loadRawDataFile(fileName, &width, &height);
     if (data != NULL) {
         _displayInWindow(data, width, height, width);
-        internal_free_safe(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1305
+        myfree(data, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1305
     }
 }
 
@@ -1397,7 +1397,7 @@ int windowDisplayRaw(char* fileName)
 
     _displayInWindow(imageData, imageWidth, imageHeight, imageWidth);
 
-    internal_free_safe(imageData, __FILE__, __LINE__); // "..\int\WINDOW.C", 1363
+    myfree(imageData, __FILE__, __LINE__); // "..\int\WINDOW.C", 1363
 
     return 1;
 }
@@ -1414,7 +1414,7 @@ bool _windowDisplay(char* fileName, int x, int y, int width, int height)
 
     _windowDisplayBuf(imageData, imageWidth, imageHeight, x, y, width, height);
 
-    internal_free_safe(imageData, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1376
+    myfree(imageData, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1376
 
     return true;
 }
@@ -1435,7 +1435,7 @@ int windowDisplayScaled(char* fileName, int x, int y, int width, int height)
 
     windowDisplayBufScaled(imageData, imageWidth, imageHeight, x, y, width, height);
 
-    internal_free_safe(imageData, __FILE__, __LINE__); // "..\int\WINDOW.C", 1389
+    myfree(imageData, __FILE__, __LINE__); // "..\int\WINDOW.C", 1389
 
     return 1;
 }
@@ -1675,7 +1675,7 @@ void _windowClose()
     }
 
     if (gWindowInputHandlers != NULL) {
-        internal_free_safe(gWindowInputHandlers, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1573
+        myfree(gWindowInputHandlers, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1573
     }
 
     mouseManagerExit();
@@ -1703,32 +1703,32 @@ bool _windowDeleteButton(const char* buttonName)
             buttonDestroy(managedButton->btn);
 
             if (managedButton->hover != NULL) {
-                internal_free_safe(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1648
+                myfree(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1648
                 managedButton->hover = NULL;
             }
 
             if (managedButton->field_4C != NULL) {
-                internal_free_safe(managedButton->field_4C, __FILE__, __LINE__); // "..\int\WINDOW.C", 1649
+                myfree(managedButton->field_4C, __FILE__, __LINE__); // "..\int\WINDOW.C", 1649
                 managedButton->field_4C = NULL;
             }
 
             if (managedButton->pressed != NULL) {
-                internal_free_safe(managedButton->pressed, __FILE__, __LINE__); // "..\int\WINDOW.C", 1650
+                myfree(managedButton->pressed, __FILE__, __LINE__); // "..\int\WINDOW.C", 1650
                 managedButton->pressed = NULL;
             }
 
             if (managedButton->normal != NULL) {
-                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1651
+                myfree(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1651
                 managedButton->normal = NULL;
             }
 
             if (managedButton->field_50 != NULL) {
-                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1652
+                myfree(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1652
                 managedButton->field_50 = NULL;
             }
         }
 
-        internal_free_safe(managedWindow->buttons, __FILE__, __LINE__); // "..\int\WINDOW.C", 1654
+        myfree(managedWindow->buttons, __FILE__, __LINE__); // "..\int\WINDOW.C", 1654
         managedWindow->buttons = NULL;
         managedWindow->buttonsLength = 0;
 
@@ -1741,22 +1741,22 @@ bool _windowDeleteButton(const char* buttonName)
             buttonDestroy(managedButton->btn);
 
             if (managedButton->hover != NULL) {
-                internal_free_safe(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1665
+                myfree(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1665
                 managedButton->hover = NULL;
             }
 
             if (managedButton->field_4C != NULL) {
-                internal_free_safe(managedButton->field_4C, __FILE__, __LINE__); // "..\int\WINDOW.C", 1666
+                myfree(managedButton->field_4C, __FILE__, __LINE__); // "..\int\WINDOW.C", 1666
                 managedButton->field_4C = NULL;
             }
 
             if (managedButton->pressed != NULL) {
-                internal_free_safe(managedButton->pressed, __FILE__, __LINE__); // "..\int\WINDOW.C", 1667
+                myfree(managedButton->pressed, __FILE__, __LINE__); // "..\int\WINDOW.C", 1667
                 managedButton->pressed = NULL;
             }
 
             if (managedButton->normal != NULL) {
-                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1668
+                myfree(managedButton->normal, __FILE__, __LINE__); // "..\int\WINDOW.C", 1668
                 managedButton->normal = NULL;
             }
 
@@ -1770,7 +1770,7 @@ bool _windowDeleteButton(const char* buttonName)
 
             managedWindow->buttonsLength--;
             if (managedWindow->buttonsLength == 0) {
-                internal_free_safe(managedWindow->buttons, __FILE__, __LINE__); // "..\int\WINDOW.C", 1672
+                myfree(managedWindow->buttons, __FILE__, __LINE__); // "..\int\WINDOW.C", 1672
                 managedWindow->buttons = NULL;
             }
 
@@ -1871,22 +1871,22 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
             buttonDestroy(managedButton->btn);
 
             if (managedButton->hover != NULL) {
-                internal_free_safe(managedButton->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1748
+                myfree(managedButton->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1748
                 managedButton->hover = NULL;
             }
 
             if (managedButton->field_4C != NULL) {
-                internal_free_safe(managedButton->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1749
+                myfree(managedButton->field_4C, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1749
                 managedButton->field_4C = NULL;
             }
 
             if (managedButton->pressed != NULL) {
-                internal_free_safe(managedButton->pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1750
+                myfree(managedButton->pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1750
                 managedButton->pressed = NULL;
             }
 
             if (managedButton->normal != NULL) {
-                internal_free_safe(managedButton->normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1751
+                myfree(managedButton->normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1751
                 managedButton->normal = NULL;
             }
 
@@ -1896,9 +1896,9 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
 
     if (index == managedWindow->buttonsLength) {
         if (managedWindow->buttons == NULL) {
-            managedWindow->buttons = (ManagedButton*)internal_malloc_safe(sizeof(*managedWindow->buttons), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1758
+            managedWindow->buttons = (ManagedButton*)mymalloc(sizeof(*managedWindow->buttons), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1758
         } else {
-            managedWindow->buttons = (ManagedButton*)internal_realloc_safe(managedWindow->buttons, sizeof(*managedWindow->buttons) * (managedWindow->buttonsLength + 1), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1761
+            managedWindow->buttons = (ManagedButton*)myrealloc(managedWindow->buttons, sizeof(*managedWindow->buttons) * (managedWindow->buttonsLength + 1), __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1761
         }
         managedWindow->buttonsLength += 1;
     }
@@ -1926,8 +1926,8 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
     managedButton->x = x;
     managedButton->y = y;
 
-    unsigned char* normal = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1792
-    unsigned char* pressed = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1793
+    unsigned char* normal = (unsigned char*)mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1792
+    unsigned char* pressed = (unsigned char*)mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1793
 
     if ((flags & BUTTON_FLAG_TRANSPARENT) != 0) {
         memset(normal, 0, width * height);
@@ -1984,7 +1984,7 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
                 unsigned char* pressed = loadDataFile(pressedFileName, &width, &height);
                 if (pressed != NULL) {
                     _drawScaledBuf(managedButton->pressed, managedButton->width, managedButton->height, pressed, width, height);
-                    internal_free_safe(pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1834
+                    myfree(pressed, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1834
                 }
             }
 
@@ -1992,7 +1992,7 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
                 unsigned char* normal = loadDataFile(normalFileName, &width, &height);
                 if (normal != NULL) {
                     _drawScaledBuf(managedButton->normal, managedButton->width, managedButton->height, normal, width, height);
-                    internal_free_safe(normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1842
+                    myfree(normal, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1842
                 }
             }
 
@@ -2000,11 +2000,11 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
                 unsigned char* hover = loadDataFile(normalFileName, &width, &height);
                 if (hover != NULL) {
                     if (managedButton->hover == NULL) {
-                        managedButton->hover = (unsigned char*)internal_malloc_safe(managedButton->height * managedButton->width, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1849
+                        managedButton->hover = (unsigned char*)mymalloc(managedButton->height * managedButton->width, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1849
                     }
 
                     _drawScaledBuf(managedButton->hover, managedButton->width, managedButton->height, hover, width, height);
-                    internal_free_safe(hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1853
+                    myfree(hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1853
                 }
             }
 
@@ -2033,7 +2033,7 @@ int windowAddButtonMask(const char* buttonName, unsigned char* buffer)
     for (index = 0; index < gManagedWindows[gCurrentManagedWindowIndex].buttonsLength; index++) {
         button = &(gManagedWindows[gCurrentManagedWindowIndex].buttons[index]);
         if (stricmp(button->name, buttonName) == 0) {
-            copy = (unsigned char*)internal_malloc_safe(button->width * button->height, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1871
+            copy = (unsigned char*)mymalloc(button->width * button->height, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1871
             memcpy(copy, buffer, button->width * button->height);
             buttonSetMask(button->btn, copy);
             button->field_50 = copy;
@@ -2232,7 +2232,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
         if (stricmp(managedButton->name, buttonName) == 0) {
             int normalImageHeight = fontGetLineHeight() + 1;
             int normalImageWidth = fontGetStringWidth(text) + 1;
-            unsigned char* buffer = (unsigned char*)internal_malloc_safe(normalImageHeight * normalImageWidth, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2010
+            unsigned char* buffer = (unsigned char*)mymalloc(normalImageHeight * normalImageWidth, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2010
 
             int normalImageX = (managedButton->width - normalImageWidth) / 2 + normalImageOffsetX;
             int normalImageY = (managedButton->height - normalImageHeight) / 2 + normalImageOffsetY;
@@ -2327,7 +2327,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 managedButton->pressed + managedButton->width * pressedImageY + pressedImageX,
                 managedButton->width);
 
-            internal_free_safe(buffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2078
+            myfree(buffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2078
 
             if ((managedButton->field_18 & 0x20) != 0) {
                 buttonSetMask(managedButton->btn, managedButton->normal);
@@ -2482,7 +2482,7 @@ bool _windowStartRegion(int initialCapacity)
     int newRegionIndex;
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     if (managedWindow->regions == NULL) {
-        managedWindow->regions = (Region**)internal_malloc_safe(sizeof(&(managedWindow->regions)), __FILE__, __LINE__); // "..\int\WINDOW.C", 2167
+        managedWindow->regions = (Region**)mymalloc(sizeof(&(managedWindow->regions)), __FILE__, __LINE__); // "..\int\WINDOW.C", 2167
         managedWindow->regionsLength = 1;
         newRegionIndex = 0;
     } else {
@@ -2495,7 +2495,7 @@ bool _windowStartRegion(int initialCapacity)
         }
 
         if (newRegionIndex == managedWindow->regionsLength) {
-            managedWindow->regions = (Region**)internal_realloc_safe(managedWindow->regions, sizeof(&(managedWindow->regions)) * (managedWindow->regionsLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 2178
+            managedWindow->regions = (Region**)myrealloc(managedWindow->regions, sizeof(&(managedWindow->regions)) * (managedWindow->regionsLength + 1), __FILE__, __LINE__); // "..\int\WINDOW.C", 2178
             managedWindow->regionsLength++;
         }
     }
@@ -2734,7 +2734,7 @@ bool _windowDeleteRegion(const char* regionName)
             }
         }
 
-        internal_free_safe(managedWindow->regions, __FILE__, __LINE__); // "..\int\WINDOW.C", 2353
+        myfree(managedWindow->regions, __FILE__, __LINE__); // "..\int\WINDOW.C", 2353
 
         managedWindow->regions = NULL;
         managedWindow->regionsLength = 0;

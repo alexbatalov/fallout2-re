@@ -81,9 +81,9 @@ int _win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
 
     if (textInputRegionIndex == _numTextInputRegions) {
         if (_textInputRegions == NULL) {
-            _textInputRegions = (TextInputRegion*)internal_malloc_safe(sizeof(*_textInputRegions), __FILE__, __LINE__);
+            _textInputRegions = (TextInputRegion*)mymalloc(sizeof(*_textInputRegions), __FILE__, __LINE__);
         } else {
-            _textInputRegions = (TextInputRegion*)internal_realloc_safe(_textInputRegions, sizeof(*_textInputRegions) * (_numTextInputRegions + 1), __FILE__, __LINE__);
+            _textInputRegions = (TextInputRegion*)myrealloc(_textInputRegions, sizeof(*_textInputRegions) * (_numTextInputRegions + 1), __FILE__, __LINE__);
         }
         _numTextInputRegions++;
     }
@@ -202,9 +202,9 @@ int _win_add_text_region(int win, int x, int y, int width, int font, int textAli
 
     if (textRegionIndex == _numTextRegions) {
         if (_textRegions == NULL) {
-            _textRegions = (TextRegion*)internal_malloc_safe(sizeof(*_textRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 615
+            _textRegions = (TextRegion*)mymalloc(sizeof(*_textRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 615
         } else {
-            _textRegions = (TextRegion*)internal_realloc_safe(_textRegions, sizeof(*_textRegions) * (_numTextRegions + 1), __FILE__, __LINE__); // "..\int\WIDGET.C", 616
+            _textRegions = (TextRegion*)myrealloc(_textRegions, sizeof(*_textRegions) * (_numTextRegions + 1), __FILE__, __LINE__); // "..\int\WIDGET.C", 616
         }
         _numTextRegions++;
     }
@@ -356,7 +356,7 @@ int _win_delete_all_update_regions(int win)
     for (index = 0; index < WIDGET_UPDATE_REGIONS_CAPACITY; index++) {
         if (_updateRegions[index] != NULL) {
             if (win == _updateRegions[index]->win) {
-                internal_free_safe(_updateRegions[index], __FILE__, __LINE__); // "..\int\WIDGET.C", 722
+                myfree(_updateRegions[index], __FILE__, __LINE__); // "..\int\WIDGET.C", 722
                 _updateRegions[index] = NULL;
             }
         }
@@ -548,7 +548,7 @@ int _win_register_update(int win, int x, int y, UpdateRegionShowFunc* showFunc, 
         return -1;
     }
 
-    _updateRegions[updateRegionIndex] = (UpdateRegion*)internal_malloc_safe(sizeof(*_updateRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 859
+    _updateRegions[updateRegionIndex] = (UpdateRegion*)mymalloc(sizeof(*_updateRegions), __FILE__, __LINE__); // "..\int\WIDGET.C", 859
     _updateRegions[updateRegionIndex]->win = win;
     _updateRegions[updateRegionIndex]->x = x;
     _updateRegions[updateRegionIndex]->y = y;
@@ -566,7 +566,7 @@ int _win_delete_update_region(int updateRegionIndex)
 {
     if (updateRegionIndex >= 0 && updateRegionIndex < WIDGET_UPDATE_REGIONS_CAPACITY) {
         if (_updateRegions[updateRegionIndex] == NULL) {
-            internal_free_safe(_updateRegions[updateRegionIndex], __FILE__, __LINE__); // "..\int\WIDGET.C", 875
+            myfree(_updateRegions[updateRegionIndex], __FILE__, __LINE__); // "..\int\WIDGET.C", 875
             _updateRegions[updateRegionIndex] = NULL;
             return 1;
         }
@@ -589,12 +589,12 @@ void _win_do_updateregions()
 void _freeStatusBar()
 {
     if (_statusBar.field_0 != NULL) {
-        internal_free_safe(_statusBar.field_0, __FILE__, __LINE__); // "..\int\WIDGET.C", 891
+        myfree(_statusBar.field_0, __FILE__, __LINE__); // "..\int\WIDGET.C", 891
         _statusBar.field_0 = NULL;
     }
 
     if (_statusBar.field_4 != NULL) {
-        internal_free_safe(_statusBar.field_4, __FILE__, __LINE__); // "..\int\WIDGET.C", 892
+        myfree(_statusBar.field_4, __FILE__, __LINE__); // "..\int\WIDGET.C", 892
         _statusBar.field_4 = NULL;
     }
 
@@ -625,13 +625,13 @@ void _initWidgets()
 void _widgetsClose()
 {
     if (_textRegions != NULL) {
-        internal_free_safe(_textRegions, __FILE__, __LINE__); // "..\int\WIDGET.C", 908
+        myfree(_textRegions, __FILE__, __LINE__); // "..\int\WIDGET.C", 908
     }
     _textRegions = NULL;
     _numTextRegions = 0;
 
     if (_textInputRegions != NULL) {
-        internal_free_safe(_textInputRegions, __FILE__, __LINE__); // "..\int\WIDGET.C", 912
+        myfree(_textInputRegions, __FILE__, __LINE__); // "..\int\WIDGET.C", 912
     }
     _textInputRegions = NULL;
     _numTextInputRegions = 0;

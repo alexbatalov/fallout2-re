@@ -180,7 +180,7 @@ static void op_fillwin3x3(Program* program)
         windowWidth,
         windowHeight);
 
-    internal_free_safe(imageData, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 94
+    myfree(imageData, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 94
 }
 
 // 0x461850
@@ -383,7 +383,7 @@ static void op_tokenize(Program* program)
                 length++;
             }
 
-            temp = (char*)internal_calloc_safe(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C, 230
+            temp = (char*)mycalloc(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C, 230
             strncpy(temp, start, length);
             interpretPushLong(program, interpretAddString(program, temp));
             interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
@@ -400,7 +400,7 @@ static void op_tokenize(Program* program)
         }
 
         if (string != NULL) {
-            temp = (char*)internal_calloc_safe(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 248
+            temp = (char*)mycalloc(1, length + 1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 248
             strncpy(temp, string, length);
             interpretPushLong(program, interpretAddString(program, temp));
             interpretPushShort(program, VALUE_TYPE_DYNAMIC_STRING);
@@ -411,7 +411,7 @@ static void op_tokenize(Program* program)
     }
 
     if (temp != NULL) {
-        internal_free_safe(temp, __FILE__, __LINE__); // "..\\int\\INTLIB.C" , 260
+        myfree(temp, __FILE__, __LINE__); // "..\\int\\INTLIB.C" , 260
     }
 }
 
@@ -2322,7 +2322,7 @@ static void op_sayreplywindow(Program* program)
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v1 = interpretGetString(program, opcode[0], data[0]);
         v1 = interpretMangleName(v1);
-        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1510
+        v1 = mystrdup(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1510
     } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0) {
         v1 = NULL;
     } else {
@@ -2392,7 +2392,7 @@ static void op_sayoptionwindow(Program* program)
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v1 = interpretGetString(program, opcode[0], data[0]);
         v1 = interpretMangleName(v1);
-        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1556
+        v1 = mystrdup(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1556
     } else if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_INT && data[0] == 0) {
         v1 = NULL;
     } else {
@@ -2482,25 +2482,25 @@ static void op_sayscrollup(Program* program)
     if ((opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v1 = interpretGetString(program, opcode[3], data[3]);
         v1 = interpretMangleName(v1);
-        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1611
+        v1 = mystrdup(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1611
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v2 = interpretGetString(program, opcode[2], data[2]);
         v2 = interpretMangleName(v2);
-        v2 = strdup_safe(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1613
+        v2 = mystrdup(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1613
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v3 = interpretGetString(program, opcode[1], data[1]);
         v3 = interpretMangleName(v3);
-        v3 = strdup_safe(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1615
+        v3 = mystrdup(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1615
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v4 = interpretGetString(program, opcode[0], data[0]);
         v4 = interpretMangleName(v4);
-        v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1617
+        v4 = mystrdup(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1617
     }
 
     if (dialogSetScrollUp(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
@@ -2561,25 +2561,25 @@ static void op_sayscrolldown(Program* program)
     if ((opcode[3] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v1 = interpretGetString(program, opcode[3], data[3]);
         v1 = interpretMangleName(v1);
-        v1 = strdup_safe(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1652
+        v1 = mystrdup(v1, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1652
     }
 
     if ((opcode[2] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v2 = interpretGetString(program, opcode[2], data[2]);
         v2 = interpretMangleName(v2);
-        v2 = strdup_safe(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1654
+        v2 = mystrdup(v2, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1654
     }
 
     if ((opcode[1] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v3 = interpretGetString(program, opcode[1], data[1]);
         v3 = interpretMangleName(v3);
-        v3 = strdup_safe(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1656
+        v3 = mystrdup(v3, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1656
     }
 
     if ((opcode[0] & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
         v4 = interpretGetString(program, opcode[0], data[0]);
         v4 = interpretMangleName(v4);
-        v4 = strdup_safe(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1658
+        v4 = mystrdup(v4, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1658
     }
 
     if (dialogSetScrollDown(data[5], data[4], v1, v2, v3, v4, v5) != 0) {
@@ -3028,7 +3028,7 @@ void intlibClose()
     _nevs_close();
 
     if (callbacks != NULL) {
-        internal_free_safe(callbacks, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
+        myfree(callbacks, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
         callbacks = NULL;
         numCallbacks = 0;
     }
@@ -3166,9 +3166,9 @@ void interpretRegisterProgramDeleteCallback(IntLibProgramDeleteCallback* callbac
 
     if (index == numCallbacks) {
         if (callbacks != NULL) {
-            callbacks = (IntLibProgramDeleteCallback**)internal_realloc_safe(callbacks, sizeof(*callbacks) * (numCallbacks + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
+            callbacks = (IntLibProgramDeleteCallback**)myrealloc(callbacks, sizeof(*callbacks) * (numCallbacks + 1), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2110
         } else {
-            callbacks = (IntLibProgramDeleteCallback**)internal_malloc_safe(sizeof(*callbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
+            callbacks = (IntLibProgramDeleteCallback**)mymalloc(sizeof(*callbacks), __FILE__, __LINE__); // ..\\int\\INTLIB.C, 2112
         }
         numCallbacks++;
     }

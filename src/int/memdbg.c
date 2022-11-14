@@ -5,116 +5,123 @@
 #include <stdlib.h>
 #include <string.h>
 
+static void defaultOutput(const char* string);
+static int debug_printf(const char* format, ...);
+static void error(const char* func, size_t size, const char* file, int line);
+static void* defaultMalloc(size_t size);
+static void* defaultRealloc(void* ptr, size_t size);
+static void defaultFree(void* ptr);
+
 // 0x519588
-MemoryManagerPrintErrorProc* gMemoryManagerPrintErrorProc = memoryManagerDefaultPrintErrorImpl;
+static MemoryManagerPrintErrorProc* outputFunc = defaultOutput;
 
 // 0x51958C
-MallocProc* gMemoryManagerMallocProc = memoryManagerDefaultMallocImpl;
+static MallocProc* mallocPtr = defaultMalloc;
 
 // 0x519590
-ReallocProc* gMemoryManagerReallocProc = memoryManagerDefaultReallocImpl;
+static ReallocProc* reallocPtr = defaultRealloc;
 
 // 0x519594
-FreeProc* gMemoryManagerFreeProc = memoryManagerDefaultFreeImpl;
-
-// 0x631F7C
-char gMemoryManagerLastError[256];
+static FreeProc* freePtr = defaultFree;
 
 // 0x4845B0
-void memoryManagerDefaultPrintErrorImpl(const char* string)
+static void defaultOutput(const char* string)
 {
     printf("%s", string);
 }
 
 // 0x4845C8
-int memoryManagerPrintError(const char* format, ...)
+static int debug_printf(const char* format, ...)
 {
+    // 0x631F7C
+    static char buf[256];
+
     int length = 0;
 
-    if (gMemoryManagerPrintErrorProc != NULL) {
+    if (outputFunc != NULL) {
         va_list args;
         va_start(args, format);
-        length = vsprintf(gMemoryManagerLastError, format, args);
+        length = vsprintf(buf, format, args);
         va_end(args);
 
-        gMemoryManagerPrintErrorProc(gMemoryManagerLastError);
+        outputFunc(buf);
     }
 
     return length;
 }
 
 // 0x484610
-__declspec(noreturn) void memoryManagerFatalAllocationError(const char* func, size_t size, const char* file, int line)
+static void error(const char* func, size_t size, const char* file, int line)
 {
-    memoryManagerPrintError("%s: Error allocating block of size %ld (%x), %s %d\n", func, size, size, file, line);
+    debug_printf("%s: Error allocating block of size %ld (%x), %s %d\n", func, size, size, file, line);
     exit(1);
 }
 
 // 0x48462C
-void* memoryManagerDefaultMallocImpl(size_t size)
+static void* defaultMalloc(size_t size)
 {
     return malloc(size);
 }
 
 // 0x484634
-void* memoryManagerDefaultReallocImpl(void* ptr, size_t size)
+static void* defaultRealloc(void* ptr, size_t size)
 {
     return realloc(ptr, size);
 }
 
 // 0x48463C
-void memoryManagerDefaultFreeImpl(void* ptr)
+static void defaultFree(void* ptr)
 {
     free(ptr);
 }
 
 // 0x484644
-void memoryManagerSetProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc)
+void memoryRegisterAlloc(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc)
 {
-    gMemoryManagerMallocProc = mallocProc;
-    gMemoryManagerReallocProc = reallocProc;
-    gMemoryManagerFreeProc = freeProc;
+    mallocPtr = mallocProc;
+    reallocPtr = reallocProc;
+    freePtr = freeProc;
 }
 
 // 0x484660
-void* internal_malloc_safe(size_t size, const char* file, int line)
+void* mymalloc(size_t size, const char* file, int line)
 {
-    void* ptr = gMemoryManagerMallocProc(size);
+    void* ptr = mallocPtr(size);
     if (ptr == NULL) {
-        memoryManagerFatalAllocationError("malloc", size, file, line);
+        error("malloc", size, file, line);
     }
 
     return ptr;
 }
 
 // 0x4846B4
-void* internal_realloc_safe(void* ptr, size_t size, const char* file, int line)
+void* myrealloc(void* ptr, size_t size, const char* file, int line)
 {
-    ptr = gMemoryManagerReallocProc(ptr, size);
+    ptr = reallocPtr(ptr, size);
     if (ptr == NULL) {
-        memoryManagerFatalAllocationError("realloc", size, file, line);
+        error("realloc", size, file, line);
     }
 
     return ptr;
 }
 
 // 0x484688
-void internal_free_safe(void* ptr, const char* file, int line)
+void myfree(void* ptr, const char* file, int line)
 {
     if (ptr == NULL) {
-        memoryManagerPrintError("free: free of a null ptr, %s %d\n", file, line);
+        debug_printf("free: free of a null ptr, %s %d\n", file, line);
         exit(1);
     }
 
-    gMemoryManagerFreeProc(ptr);
+    freePtr(ptr);
 }
 
 // 0x4846D8
-void* internal_calloc_safe(int count, int size, const char* file, int line)
+void* mycalloc(int count, int size, const char* file, int line)
 {
-    void* ptr = gMemoryManagerMallocProc(count * size);
+    void* ptr = mallocPtr(count * size);
     if (ptr == NULL) {
-        memoryManagerFatalAllocationError("calloc", size, file, line);
+        error("calloc", size, file, line);
     }
 
     memset(ptr, 0, count * size);
@@ -123,12 +130,12 @@ void* internal_calloc_safe(int count, int size, const char* file, int line)
 }
 
 // 0x484710
-char* strdup_safe(const char* string, const char* file, int line)
+char* mystrdup(const char* string, const char* file, int line)
 {
     size_t size = strlen(string) + 1;
-    char* copy = (char*)gMemoryManagerMallocProc(size);
+    char* copy = (char*)mallocPtr(size);
     if (copy == NULL) {
-        memoryManagerFatalAllocationError("strdup", size, file, line);
+        error("strdup", size, file, line);
     }
 
     strcpy(copy, string);

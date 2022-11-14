@@ -201,13 +201,13 @@ void _movieSetFunc(MovieStartFunc* startFunc, MovieEndFunc* endFunc)
 // 0x4865FC
 void* movieMallocImpl(size_t size)
 {
-    return internal_malloc_safe(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 209
+    return mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 209
 }
 
 // 0x486614
 void movieFreeImpl(void* ptr)
 {
-    internal_free_safe(ptr, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 213
+    myfree(ptr, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 213
 }
 
 // 0x48662C
@@ -495,7 +495,7 @@ void _cleanupMovie(int a1)
     debugPrint("Frames %d, dropped %d\n", frame, dropped);
 
     if (_lastMovieBuffer != NULL) {
-        internal_free_safe(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 787
+        myfree(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 787
         _lastMovieBuffer = NULL;
     }
 
@@ -503,7 +503,7 @@ void _cleanupMovie(int a1)
         DDSURFACEDESC ddsd;
         ddsd.dwSize = sizeof(DDSURFACEDESC);
         if (IDirectDrawSurface_Lock(gMovieDirectDrawSurface, 0, &ddsd, 1, NULL) == DD_OK) {
-            _lastMovieBuffer = (unsigned char*)internal_malloc_safe(_lastMovieBH * _lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
+            _lastMovieBuffer = (unsigned char*)mymalloc(_lastMovieBH * _lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
             blitBufferToBuffer((unsigned char*)ddsd.lpSurface + ddsd.lPitch * _lastMovieSX + _lastMovieSY, _lastMovieBW, _lastMovieBH, ddsd.lPitch, _lastMovieBuffer, _lastMovieBW);
             IDirectDrawSurface_Unlock(gMovieDirectDrawSurface, ddsd.lpSurface);
         } else {
@@ -532,19 +532,19 @@ void _cleanupMovie(int a1)
     }
 
     if (_alphaBuf != NULL) {
-        internal_free_safe(_alphaBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 840
+        myfree(_alphaBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 840
         _alphaBuf = NULL;
     }
 
     if (_alphaWindowBuf != NULL) {
-        internal_free_safe(_alphaWindowBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 845
+        myfree(_alphaWindowBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 845
         _alphaWindowBuf = NULL;
     }
 
     while (gMovieSubtitleHead != NULL) {
         MovieSubtitleListNode* next = gMovieSubtitleHead->next;
-        internal_free_safe(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 851
-        internal_free_safe(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 852
+        myfree(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 851
+        myfree(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 852
         gMovieSubtitleHead = next;
     }
 
@@ -562,7 +562,7 @@ void movieExit()
     _cleanupMovie(1);
 
     if (_lastMovieBuffer) {
-        internal_free_safe(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 869
+        myfree(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 869
         _lastMovieBuffer = NULL;
     }
 }
@@ -630,7 +630,7 @@ void movieSetPaletteProc(MovieSetPaletteProc* proc)
 void _cleanupLast()
 {
     if (_lastMovieBuffer != NULL) {
-        internal_free_safe(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 981
+        myfree(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 981
         _lastMovieBuffer = NULL;
     }
 
@@ -685,7 +685,7 @@ void movieLoadSubtitles(char* filePath)
             break;
         }
 
-        MovieSubtitleListNode* subtitle = (MovieSubtitleListNode*)internal_malloc_safe(sizeof(*subtitle), __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1050
+        MovieSubtitleListNode* subtitle = (MovieSubtitleListNode*)mymalloc(sizeof(*subtitle), __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1050
         subtitle->next = NULL;
 
         subtitleCount++;
@@ -706,7 +706,7 @@ void movieLoadSubtitles(char* filePath)
         if (pch != NULL) {
             *pch = '\0';
             subtitle->num = atoi(string);
-            subtitle->text = strdup_safe(pch + 1, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1058
+            subtitle->text = mystrdup(pch + 1, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1058
 
             if (prev != NULL) {
                 prev->next = subtitle;
@@ -772,8 +772,8 @@ void movieRenderSubtitles()
         rect.left = 0;
         win_draw_rect(gMovieWindow, &rect);
 
-        internal_free_safe(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1108
-        internal_free_safe(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1109
+        myfree(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1108
+        myfree(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1109
 
         gMovieSubtitleHead = next;
 
@@ -848,8 +848,8 @@ int _movieStart(int win, char* filePath, int (*a3)())
         fileReadInt16(_alphaHandle, &tmp);
         fileReadInt16(_alphaHandle, &tmp);
 
-        _alphaBuf = (unsigned char*)internal_malloc_safe(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1178
-        _alphaWindowBuf = (unsigned char*)internal_malloc_safe(_movieH * _movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179
+        _alphaBuf = (unsigned char*)mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1178
+        _alphaWindowBuf = (unsigned char*)mymalloc(_movieH * _movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179
 
         unsigned char* windowBuffer = windowGetBuffer(gMovieWindow);
         blitBufferToBuffer(windowBuffer + windowGetWidth(gMovieWindow) * _movieY + _movieX,

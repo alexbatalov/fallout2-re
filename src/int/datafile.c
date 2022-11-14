@@ -121,7 +121,7 @@ unsigned char* load256Palette(char* path)
     int height;
     unsigned char* v3 = loadRawDataFile(path, &width, &height);
     if (v3 != NULL) {
-        internal_free_safe(v3, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 148
+        myfree(v3, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 148
         return pal;
     }
 
@@ -135,7 +135,7 @@ void trimBuffer(unsigned char* data, int* widthPtr, int* heightPtr)
 {
     int width = *widthPtr;
     int height = *heightPtr;
-    unsigned char* temp = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 157
+    unsigned char* temp = (unsigned char*)mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 157
 
     // NOTE: Original code does not initialize `x`.
     int y = 0;
@@ -160,7 +160,7 @@ void trimBuffer(unsigned char* data, int* widthPtr, int* heightPtr)
     }
 
     memcpy(data, temp, x * y);
-    internal_free_safe(temp, __FILE__, __LINE__); // // "..\\int\\DATAFILE.C", 171
+    myfree(temp, __FILE__, __LINE__); // // "..\\int\\DATAFILE.C", 171
 }
 
 // 0x42F0E4
@@ -181,9 +181,9 @@ unsigned char* datafileLoadBlock(char* path, int* sizePtr)
     }
 
     int size = fileGetSize(stream);
-    void* data = internal_malloc_safe(size, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 185
+    void* data = mymalloc(size, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 185
     if (data == NULL) {
-        // NOTE: This code is unreachable, internal_malloc_safe never fails.
+        // NOTE: This code is unreachable, mymalloc never fails.
         // Otherwise it leaks stream.
         *sizePtr = 0;
         return NULL;

@@ -49,7 +49,7 @@ void _nevs_reset(Nevs* nevs)
 void _nevs_close()
 {
     if (gNevs != NULL) {
-        internal_free_safe(gNevs, __FILE__, __LINE__); // "..\\int\\NEVS.C", 97
+        myfree(gNevs, __FILE__, __LINE__); // "..\\int\\NEVS.C", 97
         gNevs = NULL;
     }
 }
@@ -75,7 +75,7 @@ void _nevs_initonce()
     interpretRegisterProgramDeleteCallback(_nevs_removeprogramreferences);
 
     if (gNevs == NULL) {
-        gNevs = (Nevs*)internal_calloc_safe(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
+        gNevs = (Nevs*)mycalloc(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
         if (gNevs == NULL) {
             debugPrint("nevs_initonce(): out of memory");
             exit(99);

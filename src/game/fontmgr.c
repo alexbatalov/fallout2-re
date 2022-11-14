@@ -82,7 +82,7 @@ void FMExit()
 {
     for (int font = 0; font < INTERFACE_FONT_MAX; font++) {
         if (gFontCache[font].data != NULL) {
-            internal_free_safe(gFontCache[font].data, __FILE__, __LINE__); // FONTMGR.C, 124
+            myfree(gFontCache[font].data, __FILE__, __LINE__); // FONTMGR.C, 124
         }
     }
 }
@@ -162,14 +162,14 @@ static int FMLoadFont(int font_index)
 
     int glyphDataSize = fileSize - 2060;
 
-    fontDescriptor->data = (unsigned char*)internal_malloc_safe(glyphDataSize, __FILE__, __LINE__); // FONTMGR.C, 259
+    fontDescriptor->data = (unsigned char*)mymalloc(glyphDataSize, __FILE__, __LINE__); // FONTMGR.C, 259
     if (fontDescriptor->data == NULL) {
         fileClose(stream);
         return -1;
     }
 
     if (fileRead(fontDescriptor->data, glyphDataSize, 1, stream) != 1) {
-        internal_free_safe(fontDescriptor->data, __FILE__, __LINE__); // FONTMGR.C, 268
+        myfree(fontDescriptor->data, __FILE__, __LINE__); // FONTMGR.C, 268
         fileClose(stream);
         return -1;
     }

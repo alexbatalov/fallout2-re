@@ -69,10 +69,10 @@ void mouseManagerFreeCacheEntry(MouseManagerCacheEntry* entry)
     case MOUSE_MANAGER_MOUSE_TYPE_STATIC:
         if (entry->staticData != NULL) {
             if (entry->staticData->data != NULL) {
-                internal_free_safe(entry->staticData->data, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 120
+                myfree(entry->staticData->data, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 120
                 entry->staticData->data = NULL;
             }
-            internal_free_safe(entry->staticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 123
+            myfree(entry->staticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 123
             entry->staticData = NULL;
         }
         break;
@@ -80,15 +80,15 @@ void mouseManagerFreeCacheEntry(MouseManagerCacheEntry* entry)
         if (entry->animatedData != NULL) {
             if (entry->animatedData->field_0 != NULL) {
                 for (int index = 0; index < entry->animatedData->frameCount; index++) {
-                    internal_free_safe(entry->animatedData->field_0[index], __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 134
-                    internal_free_safe(entry->animatedData->field_4[index], __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 135
+                    myfree(entry->animatedData->field_0[index], __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 134
+                    myfree(entry->animatedData->field_4[index], __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 135
                 }
-                internal_free_safe(entry->animatedData->field_0, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 137
-                internal_free_safe(entry->animatedData->field_4, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 138
-                internal_free_safe(entry->animatedData->field_8, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 139
-                internal_free_safe(entry->animatedData->field_C, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 140
+                myfree(entry->animatedData->field_0, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 137
+                myfree(entry->animatedData->field_4, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 138
+                myfree(entry->animatedData->field_8, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 139
+                myfree(entry->animatedData->field_C, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 140
             }
-            internal_free_safe(entry->animatedData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 143
+            myfree(entry->animatedData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 143
             entry->animatedData = NULL;
         }
         break;
@@ -206,7 +206,7 @@ void mouseManagerExit()
     mouse_set_shape(NULL, 0, 0, 0, 0, 0, 0);
 
     if (gMouseManagerCurrentStaticData != NULL) {
-        internal_free_safe(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 243
+        myfree(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 243
         gMouseManagerCurrentStaticData = NULL;
     }
 
@@ -321,7 +321,7 @@ int mouseManagerSetFrame(char* fileName, int a2)
         gMouseManagerCurrentAnimatedData = 0;
     } else {
         if (gMouseManagerCurrentStaticData != NULL) {
-            internal_free_safe(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 337
+            myfree(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 337
             gMouseManagerCurrentStaticData = NULL;
         }
     }
@@ -351,11 +351,11 @@ int mouseManagerSetFrame(char* fileName, int a2)
     float v4;
     sscanf(sep + 1, "%d %f", &v3, &v4);
 
-    MouseManagerAnimatedData* animatedData = (MouseManagerAnimatedData*)internal_malloc_safe(sizeof(*animatedData), __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 359
-    animatedData->field_0 = (unsigned char**)internal_malloc_safe(sizeof(*animatedData->field_0) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 360
-    animatedData->field_4 = (unsigned char**)internal_malloc_safe(sizeof(*animatedData->field_4) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 361
-    animatedData->field_8 = (int*)internal_malloc_safe(sizeof(*animatedData->field_8) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 362
-    animatedData->field_C = (int*)internal_malloc_safe(sizeof(*animatedData->field_8) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 363
+    MouseManagerAnimatedData* animatedData = (MouseManagerAnimatedData*)mymalloc(sizeof(*animatedData), __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 359
+    animatedData->field_0 = (unsigned char**)mymalloc(sizeof(*animatedData->field_0) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 360
+    animatedData->field_4 = (unsigned char**)mymalloc(sizeof(*animatedData->field_4) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 361
+    animatedData->field_8 = (int*)mymalloc(sizeof(*animatedData->field_8) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 362
+    animatedData->field_C = (int*)mymalloc(sizeof(*animatedData->field_8) * v3, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 363
     animatedData->field_18 = v4;
     animatedData->field_1C = gMouseManagerTimeProvider();
     animatedData->field_26 = 0;
@@ -392,7 +392,7 @@ int mouseManagerSetFrame(char* fileName, int a2)
         sscanf(sep + 1, "%d %d", &v5, &v6);
 
         animatedData->field_4[index] = loadRawDataFile(gMouseManagerNameMangler(string), &width, &height);
-        animatedData->field_0[index] = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 390
+        animatedData->field_0[index] = (unsigned char*)mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 390
         memcpy(animatedData->field_0[index], animatedData->field_4[index], width * height);
         datafileConvertData(animatedData->field_0[index], datafileGetPalette(), width, height);
         animatedData->field_8[index] = v5;
@@ -435,7 +435,7 @@ bool mouseManagerSetMouseShape(char* fileName, int a2, int a3)
 
     if (cacheEntry == NULL) {
         MouseManagerStaticData* staticData;
-        staticData = (MouseManagerStaticData*)internal_malloc_safe(sizeof(*staticData), __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 430
+        staticData = (MouseManagerStaticData*)mymalloc(sizeof(*staticData), __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 430
         staticData->data = loadRawDataFile(mangledFileName, &width, &height);
         staticData->field_4 = a2;
         staticData->field_8 = a3;
@@ -456,10 +456,10 @@ bool mouseManagerSetMouseShape(char* fileName, int a2, int a3)
     switch (type) {
     case MOUSE_MANAGER_MOUSE_TYPE_STATIC:
         if (gMouseManagerCurrentStaticData != NULL) {
-            internal_free_safe(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 446
+            myfree(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 446
         }
 
-        gMouseManagerCurrentStaticData = internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 448
+        gMouseManagerCurrentStaticData = mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 448
         memcpy(gMouseManagerCurrentStaticData, cacheEntry->staticData->data, width * height);
         datafileConvertData(gMouseManagerCurrentStaticData, palette, width, height);
         mouse_set_shape(gMouseManagerCurrentStaticData, width, height, width, a2, a3, 0);
@@ -487,7 +487,7 @@ bool mouseManagerSetMousePointer(char* fileName)
     MouseManagerCacheEntry* cacheEntry = mouseManagerFindCacheEntry(fileName, &palette, &v1, &v2, &width, &height, &type);
     if (cacheEntry != NULL) {
         if (gMouseManagerCurrentStaticData != NULL) {
-            internal_free_safe(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 482
+            myfree(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 482
             gMouseManagerCurrentStaticData = NULL;
         }
 
@@ -497,7 +497,7 @@ bool mouseManagerSetMousePointer(char* fileName)
 
         switch (type) {
         case MOUSE_MANAGER_MOUSE_TYPE_STATIC:
-            gMouseManagerCurrentStaticData = (unsigned char*)internal_malloc_safe(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 492
+            gMouseManagerCurrentStaticData = (unsigned char*)mymalloc(width * height, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 492
             memcpy(gMouseManagerCurrentStaticData, cacheEntry->staticData->data, width * height);
             datafileConvertData(gMouseManagerCurrentStaticData, palette, width, height);
             mouse_set_shape(gMouseManagerCurrentStaticData, width, height, width, v1, v2, 0);
@@ -589,10 +589,10 @@ void mouseManagerResetMouse()
     case MOUSE_MANAGER_MOUSE_TYPE_STATIC:
         if (gMouseManagerCurrentStaticData != NULL) {
             if (gMouseManagerCurrentStaticData != NULL) {
-                internal_free_safe(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 572
+                myfree(gMouseManagerCurrentStaticData, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 572
             }
 
-            gMouseManagerCurrentStaticData = (unsigned char*)internal_malloc_safe(imageWidth * imageHeight, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 574
+            gMouseManagerCurrentStaticData = (unsigned char*)mymalloc(imageWidth * imageHeight, __FILE__, __LINE__); // "..\\int\\MOUSEMGR.C", 574
             memcpy(gMouseManagerCurrentStaticData, entry->staticData->data, imageWidth * imageHeight);
             datafileConvertData(gMouseManagerCurrentStaticData, entry->palette, imageWidth, imageHeight);
 

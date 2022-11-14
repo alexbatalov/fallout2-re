@@ -124,11 +124,11 @@ bool regionContainsPoint(Region* region, int x, int y)
 // 0x4A2D78
 Region* regionCreate(int initialCapacity)
 {
-    Region* region = (Region*)internal_malloc_safe(sizeof(*region), __FILE__, __LINE__); // "..\int\REGION.C", 142
+    Region* region = (Region*)mymalloc(sizeof(*region), __FILE__, __LINE__); // "..\int\REGION.C", 142
     memset(region, 0, sizeof(*region));
 
     if (initialCapacity != 0) {
-        region->points = (Point*)internal_malloc_safe(sizeof(*region->points) * (initialCapacity + 1), __FILE__, __LINE__); // "..\int\REGION.C", 147
+        region->points = (Point*)mymalloc(sizeof(*region->points) * (initialCapacity + 1), __FILE__, __LINE__); // "..\int\REGION.C", 147
         region->pointsCapacity = initialCapacity + 1;
     } else {
         region->points = NULL;
@@ -172,13 +172,13 @@ void regionAddPoint(Region* region, int x, int y)
 
     if (region->points != NULL) {
         if (region->pointsCapacity - 1 == region->pointsLength) {
-            region->points = (Point*)internal_realloc_safe(region->points, sizeof(*region->points) * (region->pointsCapacity + 1), __FILE__, __LINE__); // "..\int\REGION.C", 190
+            region->points = (Point*)myrealloc(region->points, sizeof(*region->points) * (region->pointsCapacity + 1), __FILE__, __LINE__); // "..\int\REGION.C", 190
             region->pointsCapacity++;
         }
     } else {
         region->pointsCapacity = 2;
         region->pointsLength = 0;
-        region->points = (Point*)internal_malloc_safe(sizeof(*region->points) * 2, __FILE__, __LINE__); // "..\int\REGION.C", 185
+        region->points = (Point*)mymalloc(sizeof(*region->points) * 2, __FILE__, __LINE__); // "..\int\REGION.C", 185
     }
 
     int pointIndex = region->pointsLength;
@@ -203,10 +203,10 @@ void regionDelete(Region* region)
     }
 
     if (region->points != NULL) {
-        internal_free_safe(region->points, __FILE__, __LINE__); // "..\int\REGION.C", 206
+        myfree(region->points, __FILE__, __LINE__); // "..\int\REGION.C", 206
     }
 
-    internal_free_safe(region, __FILE__, __LINE__); // "..\int\REGION.C", 207
+    myfree(region, __FILE__, __LINE__); // "..\int\REGION.C", 207
 }
 
 // regionAddName

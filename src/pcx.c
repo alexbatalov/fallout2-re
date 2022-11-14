@@ -154,7 +154,7 @@ unsigned char* pcxRead(const char* path, int* widthPtr, int* heightPtr, unsigned
     *heightPtr = height;
 
     int bytesPerLine = pcxHeader.planeCount * pcxHeader.bytesPerLine;
-    unsigned char* data = internal_malloc_safe(bytesPerLine * height, __FILE__, __LINE__); // "..\\int\\PCX.C", 195
+    unsigned char* data = mymalloc(bytesPerLine * height, __FILE__, __LINE__); // "..\\int\\PCX.C", 195
     if (data == NULL) {
         // NOTE: This code is unreachable, internal_malloc_safe never fails.
         fileClose(stream);

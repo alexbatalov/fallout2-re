@@ -200,11 +200,11 @@ int exportStoreStringVariable(const char* identifier, const char* value)
     variable = findVar(identifier);
     if (variable != NULL) {
         if ((variable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-            internal_free_safe(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 155
+            myfree(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 155
         }
 
         variable->type = VALUE_TYPE_DYNAMIC_STRING;
-        variable->stringValue = strdup_safe(value, __FILE__, __LINE__); // "..\int\EXPORT.C", 159
+        variable->stringValue = mystrdup(value, __FILE__, __LINE__); // "..\int\EXPORT.C", 159
 
         return 0;
     }
@@ -221,7 +221,7 @@ int exportStoreVariable(Program* program, const char* name, opcode_t opcode, int
     }
 
     if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-        internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 169
+        myfree(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 169
     }
 
     if ((opcode & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
@@ -229,7 +229,7 @@ int exportStoreVariable(Program* program, const char* name, opcode_t opcode, int
             const char* stringValue = interpretGetString(program, opcode, data);
             exportedVariable->type = VALUE_TYPE_DYNAMIC_STRING;
 
-            exportedVariable->stringValue = (char*)internal_malloc_safe(strlen(stringValue) + 1, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 175
+            exportedVariable->stringValue = (char*)mymalloc(strlen(stringValue) + 1, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 175
             strcpy(exportedVariable->stringValue, stringValue);
         }
     } else {
@@ -250,12 +250,12 @@ int exportStoreVariableByTag(const char* identifier, opcode_t type, int value)
     variable = findVar(identifier);
     if (variable != NULL) {
         if ((variable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-            internal_free_safe(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 191
+            myfree(variable->stringValue, __FILE__, __LINE__); // "..\int\EXPORT.C", 191
         }
 
         if ((type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
             variable->type = VALUE_TYPE_DYNAMIC_STRING;
-            variable->stringValue = (char*)internal_malloc_safe(strlen((char*)value) + 1, __FILE__, __LINE__); // "..\int\EXPORT.C", 196
+            variable->stringValue = (char*)mymalloc(strlen((char*)value) + 1, __FILE__, __LINE__); // "..\int\EXPORT.C", 196
             strcpy(variable->stringValue, (char*)value);
         } else {
             variable->value = value;
@@ -299,7 +299,7 @@ int exportExportVariable(Program* program, const char* identifier)
         }
 
         if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
-            internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 234
+            myfree(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 234
         }
     } else {
         exportedVariable = findEmptyVar(identifier);
@@ -309,7 +309,7 @@ int exportExportVariable(Program* program, const char* identifier)
 
         strncpy(exportedVariable->name, identifier, 31);
 
-        exportedVariable->programName = (char*)internal_malloc_safe(strlen(programName) + 1, __FILE__, __LINE__); // // "..\\int\\EXPORT.C", 243
+        exportedVariable->programName = (char*)mymalloc(strlen(programName) + 1, __FILE__, __LINE__); // // "..\\int\\EXPORT.C", 243
         strcpy(exportedVariable->programName, programName);
     }
 
@@ -344,11 +344,11 @@ void exportClose()
         ExternalVariable* exportedVariable = &(varHashTable[index]);
 
         if (exportedVariable->name[0] != '\0') {
-            internal_free_safe(exportedVariable->programName, __FILE__, __LINE__); // ..\\int\\EXPORT.C, 274
+            myfree(exportedVariable->programName, __FILE__, __LINE__); // ..\\int\\EXPORT.C, 274
         }
 
         if (exportedVariable->type == VALUE_TYPE_DYNAMIC_STRING) {
-            internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // ..\\int\\EXPORT.C, 276
+            myfree(exportedVariable->stringValue, __FILE__, __LINE__); // ..\\int\\EXPORT.C, 276
         }
     }
 }
@@ -403,12 +403,12 @@ void exportClearAllVariables()
         if (exportedVariable->name[0] != '\0') {
             if ((exportedVariable->type & VALUE_TYPE_MASK) == VALUE_TYPE_STRING) {
                 if (exportedVariable->stringValue != NULL) {
-                    internal_free_safe(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 387
+                    myfree(exportedVariable->stringValue, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 387
                 }
             }
 
             if (exportedVariable->programName != NULL) {
-                internal_free_safe(exportedVariable->programName, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 393
+                myfree(exportedVariable->programName, __FILE__, __LINE__); // "..\\int\\EXPORT.C", 393
                 exportedVariable->programName = NULL;
             }
 
