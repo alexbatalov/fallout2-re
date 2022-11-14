@@ -1,5 +1,5 @@
-#ifndef LIPS_H
-#define LIPS_H
+#ifndef FALLOUT_GAME_LIP_SYNC_H_
+#define FALLOUT_GAME_LIP_SYNC_H_
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -47,22 +47,16 @@ typedef struct LipsData {
     char field_64[260];
 } LipsData;
 
-extern unsigned char gLipsCurrentPhoneme;
-extern unsigned char gLipsPreviousPhoneme;
-extern int _head_marker_current;
-extern bool gLipsPhonemeChanged;
-extern LipsData gLipsData;
-extern int _speechStartTime;
+extern unsigned char head_phoneme_current;
+extern unsigned char head_phoneme_drawn;
+extern int head_marker_current;
+extern bool lips_draw_head;
+extern LipsData lip_info;
+extern int speechStartTime;
 
-extern char _lips_subdir_name[14];
-extern char _tmp_str[50];
+void lips_bkg_proc();
+int lips_play_speech();
+int lips_load_file(const char* audioFileName, const char* headFileName);
+int lips_free_speech();
 
-char* _lips_fix_string(const char* fileName, size_t length);
-void lipsTicker();
-int lipsStart();
-int lipsReadV1(LipsData* a1, File* stream);
-int lipsLoad(const char* audioFileName, const char* headFileName);
-int _lips_make_speech();
-int lipsFree();
-
-#endif /* LIPS_H */
+#endif /* FALLOUT_GAME_LIP_SYNC_H_ */

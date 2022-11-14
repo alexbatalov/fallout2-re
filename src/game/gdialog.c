@@ -839,13 +839,13 @@ void gdialogSetupSpeech(const char* audioFileName)
         return;
     }
 
-    if (lipsLoad(audioFileName, name) == -1) {
+    if (lips_load_file(audioFileName, name) == -1) {
         return;
     }
 
     gdialog_speech_playing = true;
 
-    lipsStart();
+    lips_play_speech();
 
     debugPrint("Starting lipsynch speech");
 }
@@ -857,7 +857,7 @@ void gdialogFreeSpeech()
         debugPrint("Ending lipsynch system");
         gdialog_speech_playing = false;
 
-        lipsFree();
+        lips_free_speech();
     }
 }
 
@@ -1290,7 +1290,7 @@ static int gdAddOptionStr(int messageListId, const char* text, int reaction)
 static int gdReviewInit(int* win)
 {
     if (gdialog_speech_playing) {
-        if (soundIsPlaying(gLipsData.sound)) {
+        if (soundIsPlaying(lip_info.sound)) {
             gdialogFreeSpeech();
         }
     }
@@ -2805,14 +2805,14 @@ static void gdialog_bk()
     }
 
     if (gdialog_speech_playing) {
-        lipsTicker();
+        lips_bkg_proc();
 
-        if (gLipsPhonemeChanged) {
-            gdDisplayFrame(lipsFp, head_phoneme_lookup[gLipsCurrentPhoneme]);
-            gLipsPhonemeChanged = false;
+        if (lips_draw_head) {
+            gdDisplayFrame(lipsFp, head_phoneme_lookup[head_phoneme_current]);
+            lips_draw_head = false;
         }
 
-        if (!soundIsPlaying(gLipsData.sound)) {
+        if (!soundIsPlaying(lip_info.sound)) {
             gdialogFreeSpeech();
             gdDisplayFrame(lipsFp, 0);
             can_start_new_fidget = true;
@@ -4252,7 +4252,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
     protoGetProto(dialog_target->pid, &proto);
     if (proto->critter.data.flags & CRITTER_BARTER) {
         if (gdialog_speech_playing) {
-            if (soundIsPlaying(gLipsData.sound)) {
+            if (soundIsPlaying(lip_info.sound)) {
                 gdialogFreeSpeech();
             }
         }
