@@ -189,7 +189,7 @@ int isoInit()
     tileScrollBlockingEnable();
     tileScrollLimitingEnable();
 
-    if (interfaceInit() != 0) {
+    if (intface_init() != 0) {
         debugPrint("intface_init failed in iso_init\n");
         return -1;
     }
@@ -224,7 +224,7 @@ void isoReset()
     tileReset();
     objectsReset();
     cycle_reset();
-    interfaceReset();
+    intface_reset();
     gEnteringElevation = -1;
     gEnteringTile = -1;
     gEnteringRotation = -1;
@@ -233,7 +233,7 @@ void isoReset()
 // 0x481F48
 void isoExit()
 {
-    interfaceFree();
+    intface_exit();
     cycle_exit();
     objectsExit();
     tileExit();
@@ -942,7 +942,7 @@ err:
     }
 
     _partyMemberRecoverLoad();
-    _intface_show();
+    intface_show();
     _proto_dude_update_gender();
     _map_place_dude_and_mouse();
     fileSetReadProgressHandler(NULL, 0);

@@ -573,7 +573,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
     int fid;
     int v11 = 0;
     if (critterGetItem2(critter) == item) {
-        if (critter != gDude || interfaceGetCurrentHand()) {
+        if (critter != gDude || intface_is_item_right_hand()) {
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
             v11 = 2;
@@ -581,7 +581,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
             v11 = 1;
         }
     } else if (critterGetItem1(critter) == item) {
-        if (critter == gDude && !interfaceGetCurrentHand()) {
+        if (critter == gDude && !intface_is_item_right_hand()) {
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
             v11 = 2;
@@ -610,7 +610,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
     }
 
     if (v11 <= 2 && critter == gDude) {
-        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
     return rc;
@@ -1102,7 +1102,7 @@ int _obj_use_item(Object* a1, Object* a2)
             if (root == gDude) {
                 int leftItemAction;
                 int rightItemAction;
-                interfaceGetItemActions(&leftItemAction, &rightItemAction);
+                intface_get_item_states(&leftItemAction, &rightItemAction);
                 if (v8 == NULL) {
                     if ((flags & OBJECT_IN_LEFT_HAND) != 0) {
                         leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
@@ -1113,7 +1113,7 @@ int _obj_use_item(Object* a1, Object* a2)
                         rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                     }
                 }
-                interfaceUpdateItems(false, leftItemAction, rightItemAction);
+                intface_update_items(false, leftItemAction, rightItemAction);
             }
         }
 
@@ -1184,7 +1184,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
         }
 
         if (a2 == gDude) {
-            interfaceRenderHitPoints(true);
+            intface_update_hit_points(true);
         }
 
         return rc;
@@ -1339,7 +1339,7 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
             int leftItemAction;
             int rightItemAction;
             if (a1 == gDude) {
-                interfaceGetItemActions(&leftItemAction, &rightItemAction);
+                intface_get_item_states(&leftItemAction, &rightItemAction);
             }
 
             if (v7 == NULL) {
@@ -1353,7 +1353,7 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
                 }
             }
 
-            interfaceUpdateItems(false, leftItemAction, rightItemAction);
+            intface_update_items(false, leftItemAction, rightItemAction);
         }
 
         _obj_destroy(a3);
@@ -1378,7 +1378,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
         obj->data.critter.combat.ap = actionPoints - 3;
 
         if (obj == gDude) {
-            interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+            intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
         }
 
         return 0;

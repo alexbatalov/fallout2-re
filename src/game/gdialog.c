@@ -888,7 +888,7 @@ int gdialogInitFromScript(int headFid, int reaction)
 
     anim_stop();
 
-    boxesWereDisabled = indicatorBarHide();
+    boxesWereDisabled = disable_box_bar_win();
     dialog_target_is_party = objectIsPartyMember(dialog_target);
     oldFont = fontGetCurrent();
     fontSetCurrent(101);
@@ -990,7 +990,7 @@ int gdialogExitFromScript()
     }
 
     if (boxesWereDisabled) {
-        indicatorBarShow();
+        enable_box_bar_win();
     }
 
     boxesWereDisabled = 0;

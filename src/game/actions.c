@@ -787,7 +787,7 @@ static int action_ranged(Attack* attack, int anim)
 
                     int leftItemAction;
                     int rightItemAction;
-                    interfaceGetItemActions(&leftItemAction, &rightItemAction);
+                    intface_get_item_states(&leftItemAction, &rightItemAction);
 
                     itemRemove(attack->attacker, weapon, 1);
                     v50 = _item_replace(attack->attacker, weapon, weaponFlags & OBJECT_IN_ANY_HAND);
@@ -802,7 +802,7 @@ static int action_ranged(Attack* attack, int anim)
                                 rightItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
                             }
                         }
-                        interfaceUpdateItems(false, leftItemAction, rightItemAction);
+                        intface_update_items(false, leftItemAction, rightItemAction);
                     }
 
                     _obj_connect(weapon, attack->attacker->tile, attack->attacker->elevation, NULL);

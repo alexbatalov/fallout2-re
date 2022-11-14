@@ -3162,7 +3162,7 @@ static int wmWorldMapFunc(int a1)
 
             if (getTicksBetween(tick, v24) > 1000) {
                 if (_partyMemberRestingHeal(3)) {
-                    interfaceRenderHitPoints(false);
+                    intface_update_hit_points(false);
                     v24 = tick;
                 }
             }
@@ -4510,7 +4510,7 @@ static int wmInterfaceInit()
     const char* backgroundSoundFileName = wmGenData.isInCar ? "20car" : "23world";
     gsound_background_play_level_music(backgroundSoundFileName, 12);
 
-    indicatorBarHide();
+    disable_box_bar_win();
     isoDisable();
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
@@ -5024,7 +5024,7 @@ static int wmInterfaceExit()
     wmGenData.encounterTableId = -1;
     wmGenData.encounterEntryId = -1;
 
-    indicatorBarShow();
+    enable_box_bar_win();
     isoEnable();
     cycle_enable();
 

@@ -117,7 +117,7 @@ SaveGameHandler* _master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     skillsUsageSave,
     partyMembersSave,
     queueSave,
-    interfaceSave,
+    intface_save,
     _DummyFunc,
 };
 
@@ -148,7 +148,7 @@ LoadGameHandler* _master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     skillsUsageLoad,
     partyMembersLoad,
     queueLoad,
-    interfaceLoad,
+    intface_load,
     _EndLoad,
 };
 
@@ -1470,7 +1470,7 @@ int lsgLoadGameInSlot(int slot)
     _loadingGame = 1;
 
     if (isInCombat()) {
-        interfaceBarEndButtonsHide(false);
+        intface_end_window_close(false);
         combat_over_from_load();
         gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
     }
@@ -2154,8 +2154,8 @@ int _EndLoad(File* stream)
 {
     wmMapMusicStart();
     critter_pc_set_name(_LSData[_slot_cursor].characterName);
-    interfaceBarRefresh();
-    indicatorBarRefresh();
+    intface_redraw();
+    refresh_box_bar_win();
     tileWindowRefresh();
     if (isInCombat()) {
         scriptsRequestCombat(NULL);

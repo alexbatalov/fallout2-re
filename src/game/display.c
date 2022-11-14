@@ -114,7 +114,7 @@ int display_init()
 
         art_ptr_unlock(backgroundFrmHandle);
 
-        up_bid = buttonCreate(gInterfaceBarWindow,
+        up_bid = buttonCreate(interfaceWindow,
             DISPLAY_MONITOR_X,
             DISPLAY_MONITOR_Y,
             DISPLAY_MONITOR_WIDTH,
@@ -135,7 +135,7 @@ int display_init()
                 NULL);
         }
 
-        dn_bid = buttonCreate(gInterfaceBarWindow,
+        dn_bid = buttonCreate(interfaceWindow,
             DISPLAY_MONITOR_X,
             DISPLAY_MONITOR_Y + DISPLAY_MONITOR_HALF_HEIGHT,
             DISPLAY_MONITOR_WIDTH,
@@ -302,7 +302,7 @@ void display_redraw()
         return;
     }
 
-    unsigned char* buf = windowGetBuffer(gInterfaceBarWindow);
+    unsigned char* buf = windowGetBuffer(interfaceWindow);
     if (buf == NULL) {
         return;
     }
@@ -330,7 +330,7 @@ void display_redraw()
         buf++;
     }
 
-    win_draw_rect(gInterfaceBarWindow, &disp_rect);
+    win_draw_rect(interfaceWindow, &disp_rect);
     fontSetCurrent(oldFont);
 }
 

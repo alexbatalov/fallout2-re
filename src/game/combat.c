@@ -2530,7 +2530,7 @@ static void combat_begin(Object* a1)
         combat_ending_guy = NULL;
         combat_begin_extra(a1);
         caiTeamCombatInit(combat_list, list_total);
-        interfaceBarEndButtonsShow(true);
+        intface_end_window_open(true);
         gmouse_enable_scrolling();
 
         if (v1 != NULL && !_isLoadingGame()) {
@@ -2721,12 +2721,12 @@ static void combat_over()
 
     int leftItemAction;
     int rightItemAction;
-    interfaceGetItemActions(&leftItemAction, &rightItemAction);
-    interfaceUpdateItems(true, leftItemAction, rightItemAction);
+    intface_get_item_states(&leftItemAction, &rightItemAction);
+    intface_update_items(true, leftItemAction, rightItemAction);
 
     gDude->data.critter.combat.ap = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
 
-    interfaceRenderActionPoints(0, 0);
+    intface_update_move_points(0, 0);
 
     if (game_user_wants_to_quit == 0) {
         combat_give_exps(combat_exps);
@@ -2751,7 +2751,7 @@ static void combat_over()
     combat_ai_over();
     game_ui_enable();
     gmouse_3d_set_mode(GAME_MOUSE_MODE_MOVE);
-    interfaceRenderArmorClass(true);
+    intface_update_ac(true);
 
     if (critter_is_prone(gDude) && !critter_is_dead(gDude) && combat_ending_guy == NULL) {
         queueRemoveEventsByType(gDude, EVENT_TYPE_KNOCKOUT);
@@ -3149,9 +3149,9 @@ static int combat_turn(Object* a1, bool a2)
     } else {
         if (a1 == gDude) {
             kb_clear();
-            interfaceRenderArmorClass(true);
+            intface_update_ac(true);
             combat_free_move = 2 * perkGetRank(gDude, PERK_BONUS_MOVE);
-            interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+            intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
         } else {
             soundContinueAll();
         }
@@ -3189,7 +3189,7 @@ static int combat_turn(Object* a1, bool a2)
                     combat_state |= 0x02;
                 }
 
-                interfaceBarEndButtonsRenderGreenLights();
+                intface_end_buttons_enable();
 
                 // NOTE: Uninline.
                 combat_update_critters_in_los(0);
@@ -3202,10 +3202,10 @@ static int combat_turn(Object* a1, bool a2)
                     game_ui_disable(1);
                     gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
                     a1->data.critter.combat.damageLastTurn = 0;
-                    interfaceBarEndButtonsRenderRedLights();
+                    intface_end_buttons_disable();
                     combat_outline_off();
-                    interfaceRenderActionPoints(-1, -1);
-                    interfaceRenderArmorClass(true);
+                    intface_update_move_points(-1, -1);
+                    intface_update_ac(true);
                     combat_free_move = 0;
                     return -1;
                 }
@@ -3226,11 +3226,11 @@ static int combat_turn(Object* a1, bool a2)
         if (a1 == gDude) {
             game_ui_disable(1);
             gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
-            interfaceBarEndButtonsRenderRedLights();
+            intface_end_buttons_disable();
             combat_outline_off();
-            interfaceRenderActionPoints(-1, -1);
+            intface_update_move_points(-1, -1);
             combat_turn_obj = NULL;
-            interfaceRenderArmorClass(true);
+            intface_update_ac(true);
             combat_turn_obj = gDude;
         } else {
             Rect rect;
@@ -3365,7 +3365,7 @@ void combat(STRUCT_664980* attack)
             gmouse_3d_set_mode(GAME_MOUSE_MODE_MOVE);
         } else {
             gmouse_disable_scrolling();
-            interfaceBarEndButtonsHide(true);
+            intface_end_window_close(true);
             gmouse_enable_scrolling();
             combat_over();
             scriptsExecMapUpdateProc();
@@ -3439,7 +3439,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
     bool aiming;
     if (main_ctd.defenderHitLocation == HIT_LOCATION_TORSO || main_ctd.defenderHitLocation == HIT_LOCATION_UNCALLED) {
         if (a1 == gDude) {
-            interfaceGetCurrentHitMode(&hitMode, &aiming);
+            intface_get_attack(&hitMode, &aiming);
         } else {
             aiming = false;
         }
@@ -3461,7 +3461,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
     }
 
     if (a1 == gDude) {
-        interfaceRenderActionPoints(a1->data.critter.combat.ap, combat_free_move);
+        intface_update_move_points(a1->data.critter.combat.ap, combat_free_move);
         critter_set_who_hit_me(a1, a2);
     }
 
@@ -4691,8 +4691,8 @@ static void set_new_results(Object* critter, int flags)
 
         int leftItemAction;
         int rightItemAction;
-        interfaceGetItemActions(&leftItemAction, &rightItemAction);
-        interfaceUpdateItems(true, leftItemAction, rightItemAction);
+        intface_get_item_states(&leftItemAction, &rightItemAction);
+        intface_update_items(true, leftItemAction, rightItemAction);
     } else {
         critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
     }
@@ -4720,7 +4720,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
     critter_adjust_hits(a1, -damage);
 
     if (a1 == gDude) {
-        interfaceRenderHitPoints(animated);
+        intface_update_hit_points(animated);
     }
 
     a1->data.critter.combat.damageLastTurn += damage;
@@ -5234,7 +5234,7 @@ void combat_anim_finished()
                 ammoSetQuantity(weapon, ammoQuantity - main_ctd.ammoQuantity);
 
                 if (main_ctd.attacker == gDude) {
-                    _intface_update_ammo_lights();
+                    intface_update_ammo_lights();
                 }
             }
         }
@@ -5288,7 +5288,7 @@ static void combat_standup(Object* a1)
     }
 
     if (a1 == gDude) {
-        interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+        intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
     }
 
     dude_standup(a1);
@@ -5564,7 +5564,7 @@ bool combat_to_hit(Object* target, int* accuracy)
 {
     int hitMode;
     bool aiming;
-    if (interfaceGetCurrentHitMode(&hitMode, &aiming) == -1) {
+    if (intface_get_attack(&hitMode, &aiming) == -1) {
         return false;
     }
 
@@ -5590,7 +5590,7 @@ void combat_attack_this(Object* a1)
 
     int hitMode;
     bool aiming;
-    if (interfaceGetCurrentHitMode(&hitMode, &aiming) == -1) {
+    if (intface_get_attack(&hitMode, &aiming) == -1) {
         return;
     }
 

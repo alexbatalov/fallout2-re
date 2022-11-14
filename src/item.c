@@ -2359,7 +2359,7 @@ int miscItemTurnOff(Object* item)
     }
 
     if (owner == gDude) {
-        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
     if (owner == gDude) {
@@ -2622,7 +2622,7 @@ void _perform_drug_effect(Object* critter, int* stats, int* mods, bool isImmedia
 
         if (critter == gDude) {
             if (stat == STAT_CURRENT_HIT_POINTS) {
-                interfaceRenderHitPoints(true);
+                intface_update_hit_points(true);
             }
 
             int after = critterGetStat(critter, stat);

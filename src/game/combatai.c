@@ -2370,7 +2370,7 @@ static bool cai_attackWouldIntersect(Object* attacker, Object* defender, Object*
     int hitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
     bool aiming = false;
     if (attacker == gDude) {
-        interfaceGetCurrentHitMode(&hitMode, &aiming);
+        intface_get_attack(&hitMode, &aiming);
     }
 
     Object* weapon = critterGetWeaponForHitMode(attacker, hitMode);

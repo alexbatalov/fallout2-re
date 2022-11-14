@@ -754,7 +754,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             int maxHpAfter = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
             critter_adjust_hits(gDude, maxHpAfter - maxHpBefore);
 
-            interfaceRenderHitPoints(false);
+            intface_update_hit_points(false);
 
             if (a2) {
                 _partyMemberIncLevels();
@@ -794,7 +794,7 @@ int pcSetExperience(int xp)
 
     critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, bonusHp - deltaHp);
 
-    interfaceRenderHitPoints(false);
+    intface_update_hit_points(false);
 
     return 0;
 }

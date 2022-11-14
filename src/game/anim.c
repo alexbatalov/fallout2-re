@@ -2707,7 +2707,7 @@ static void object_move(int index)
                 }
 
                 if (object == gDude) {
-                    interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+                    intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
                 }
 
                 v17 = (object->data.critter.combat.ap + combat_free_move) <= 0;
@@ -3043,7 +3043,7 @@ int check_move(int* a1)
             if (keys[DIK_LCONTROL] || keys[DIK_RCONTROL]) {
                 int hitMode;
                 bool aiming;
-                interfaceGetCurrentHitMode(&hitMode, &aiming);
+                intface_get_attack(&hitMode, &aiming);
 
                 int v6 = _item_mp_cost(gDude, hitMode, aiming);
                 *a1 = *a1 - v6;

@@ -628,7 +628,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
 
                 if (a2 == gDude) {
-                    interfaceRenderHitPoints(true);
+                    intface_update_hit_points(true);
                 }
             } else {
                 // You fail to do any healing.
@@ -782,7 +782,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
 
                 if (a2 == gDude) {
-                    interfaceRenderHitPoints(true);
+                    intface_update_hit_points(true);
                 }
 
                 v1 = 1;
@@ -962,7 +962,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
 
                 if (a2 == gDude) {
-                    interfaceRenderHitPoints(true);
+                    intface_update_hit_points(true);
                 }
 
                 v1 = 1;

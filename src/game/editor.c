@@ -1148,7 +1148,7 @@ int editor_design(bool isCreationMode)
         pc_flag_off(DUDE_STATE_LEVEL_UP_AVAILABLE);
     }
 
-    interfaceRenderHitPoints(false);
+    intface_update_hit_points(false);
 
     return rc;
 }
@@ -1741,7 +1741,7 @@ static int CharEditStart()
     }
 
     win_draw(edit_win);
-    indicatorBarHide();
+    disable_box_bar_win();
 
     return 0;
 }
@@ -1772,7 +1772,7 @@ static void CharEditEnd()
 
     messageListFree(&editor_message_file);
 
-    interfaceBarRefresh();
+    intface_redraw();
 
     // NOTE: Uninline.
     RstrBckgProc();
@@ -1786,7 +1786,7 @@ static void CharEditEnd()
         critter_adjust_hits(gDude, 1000);
     }
 
-    indicatorBarShow();
+    enable_box_bar_win();
 }
 
 // NOTE: Inlined.

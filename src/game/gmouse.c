@@ -1013,9 +1013,9 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             Object* object = object_under_mouse(-1, true, gElevation);
             if (object != NULL) {
                 Object* weapon;
-                if (interfaceGetActiveItem(&weapon) != -1) {
+                if (intface_get_current_item(&weapon) != -1) {
                     if (isInCombat()) {
-                        int hitMode = interfaceGetCurrentHand()
+                        int hitMode = intface_is_item_right_hand()
                             ? HIT_MODE_RIGHT_WEAPON_PRIMARY
                             : HIT_MODE_LEFT_WEAPON_PRIMARY;
 
@@ -1028,7 +1028,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                                 } else {
                                     gDude->data.critter.combat.ap -= actionPointsRequired;
                                 }
-                                interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+                                intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
                             }
                         }
                     } else {
@@ -1431,7 +1431,7 @@ void gmouse_3d_toggle_mode()
 
     if (isInCombat()) {
         Object* item;
-        if (interfaceGetActiveItem(&item) == 0) {
+        if (intface_get_current_item(&item) == 0) {
             if (item != NULL && itemGetType(item) != ITEM_TYPE_WEAPON && mode == GAME_MOUSE_MODE_CROSSHAIR) {
                 mode = GAME_MOUSE_MODE_MOVE;
             }

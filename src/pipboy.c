@@ -290,7 +290,7 @@ int pipboyWindowInit(int intent)
 
     cycle_disable();
     gmouse_3d_off();
-    indicatorBarHide();
+    disable_box_bar_win();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     gPipboyRestOptionsCount = PIPBOY_REST_DURATION_COUNT_WITHOUT_PARTY;
@@ -532,9 +532,9 @@ void pipboyWindowFree()
     }
 
     cycle_enable();
-    indicatorBarShow();
+    enable_box_bar_win();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
-    interfaceBarRefresh();
+    intface_redraw();
 
     // NOTE: Uninline.
     questFree();

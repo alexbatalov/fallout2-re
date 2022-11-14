@@ -318,7 +318,7 @@ int critter_adjust_poison(Object* critter, int amount)
     }
 
     if (critter == gDude) {
-        indicatorBarRefresh();
+        refresh_box_bar_win();
     }
 
     return 0;
@@ -334,7 +334,7 @@ int critter_check_poison(Object* obj, void* data)
     critter_adjust_poison(obj, -2);
     critter_adjust_hits(obj, -1);
 
-    interfaceRenderHitPoints(false);
+    intface_update_hit_points(false);
 
     MessageListItem messageListItem;
     // You take damage from poison.
@@ -427,7 +427,7 @@ int critter_adjust_rads(Object* obj, int amount)
     }
 
     if (obj == gDude) {
-        indicatorBarRefresh();
+        refresh_box_bar_win();
     }
 
     return 0;
@@ -1147,7 +1147,7 @@ void pc_flag_off(int state)
         queueRemoveEventsByType(gDude, EVENT_TYPE_SNEAK);
     }
 
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 }
 
 // 0x42E26C
@@ -1162,7 +1162,7 @@ void pc_flag_on(int state)
         critter_sneak_check(NULL, NULL);
     }
 
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 }
 
 // 0x42E2B0

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "game/art.h"
 #include "game/anim.h"
 #include "color.h"
 #include "game/combat.h"
@@ -18,6 +19,7 @@
 #include "game/gconfig.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
+#include "geometry.h"
 #include "item.h"
 #include "memory.h"
 #include "object.h"
@@ -45,149 +47,229 @@
 // Minimum poison amount to display POISONED indicator.
 #define POISON_INDICATOR_THRESHOLD 0
 
+// The values of it's members are offsets to beginning of numbers in
+// numbers.frm.
+typedef enum InterfaceNumbersColor {
+    INTERFACE_NUMBERS_COLOR_WHITE = 0,
+    INTERFACE_NUMBERS_COLOR_YELLOW = 120,
+    INTERFACE_NUMBERS_COLOR_RED = 240,
+} InterfaceNumbersColor;
+
+#define INDICATOR_BOX_WIDTH 130
+#define INDICATOR_BOX_HEIGHT 21
+
+// The maximum number of indicator boxes the indicator bar can display.
+//
+// For unknown reason this number is 6, even though there are only 5 different
+// indicator types. In addition to that, default screen width 640px cannot hold
+// 6 boxes 130px each.
+#define INDICATOR_SLOTS_COUNT (6)
+
+// Available indicators.
+//
+// Indicator boxes in the bar are displayed according to the order of this enum.
+typedef enum Indicator {
+    INDICATOR_ADDICT,
+    INDICATOR_SNEAK,
+    INDICATOR_LEVEL,
+    INDICATOR_POISONED,
+    INDICATOR_RADIATED,
+    INDICATOR_COUNT,
+} Indicator;
+
+// Provides metadata about indicator boxes.
+typedef struct IndicatorDescription {
+    // An identifier of title in `intrface.msg`.
+    int title;
+
+    // A flag denoting this box represents something harmful to the player. It
+    // affects color of the title.
+    bool isBad;
+
+    // Prerendered indicator data.
+    //
+    // This value is provided at runtime during indicator box initialization.
+    // It includes indicator box background with it's title positioned in the
+    // center and is green colored if indicator is good, or red otherwise, as
+    // denoted by [isBad] property.
+    unsigned char* data;
+} IndicatorDescription;
+
+typedef struct InterfaceItemState {
+    Object* item;
+    unsigned char isDisabled;
+    unsigned char isWeapon;
+    int primaryHitMode;
+    int secondaryHitMode;
+    int action;
+    int itemFid;
+} InterfaceItemState;
+
+static int intface_init_items();
+static int intface_redraw_items();
+static int intface_redraw_items_callback(Object* a1, Object* a2);
+static int intface_change_fid_callback(Object* a1, Object* a2);
+static void intface_change_fid_animate(int previousWeaponAnimationCode, int weaponAnimationCode);
+static int intface_create_end_turn_button();
+static int intface_destroy_end_turn_button();
+static int intface_create_end_combat_button();
+static int intface_destroy_end_combat_button();
+static void intface_draw_ammo_lights(int x, int ratio);
+static int intface_item_reload();
+static void intface_rotate_numbers(int x, int y, int previousValue, int value, int offset, int delay);
+static int intface_fatal_error(int rc);
+static int construct_box_bar_win();
+static void deconstruct_box_bar_win();
+static void reset_box_bar_win();
+static int bbox_comp(const void* a, const void* b);
+static void draw_bboxes(int count);
+static bool add_bar_box(int indicator);
+
 // 0x518F08
-bool gInterfaceBarInitialized = false;
+static bool insideInit = false;
 
 // 0x518F0C
-bool gInterfaceBarSwapHandsInProgress = false;
+static bool intface_fid_is_changing = false;
 
 // 0x518F10
-bool gInterfaceBarEnabled = false;
+static bool intfaceEnabled = false;
 
 // 0x518F14
-bool _intfaceHidden = false;
+static bool intfaceHidden = false;
 
 // 0x518F18
-int gInventoryButton = -1;
+static int inventoryButton = -1;
 
 // 0x518F1C
-CacheEntry* gInventoryButtonUpFrmHandle = NULL;
+static CacheEntry* inventoryButtonUpKey = NULL;
 
 // 0x518F20
-CacheEntry* gInventoryButtonDownFrmHandle = NULL;
+static CacheEntry* inventoryButtonDownKey = NULL;
 
 // 0x518F24
-int gOptionsButton = -1;
+static int optionsButton = -1;
 
 // 0x518F28
-CacheEntry* gOptionsButtonUpFrmHandle = NULL;
+static CacheEntry* optionsButtonUpKey = NULL;
 
 // 0x518F2C
-CacheEntry* gOptionsButtonDownFrmHandle = NULL;
+static CacheEntry* optionsButtonDownKey = NULL;
 
 // 0x518F30
-int gSkilldexButton = -1;
+static int skilldexButton = -1;
 
 // 0x518F34
-CacheEntry* gSkilldexButtonUpFrmHandle = NULL;
+static CacheEntry* skilldexButtonUpKey = NULL;
 
 // 0x518F38
-CacheEntry* gSkilldexButtonDownFrmHandle = NULL;
+static CacheEntry* skilldexButtonDownKey = NULL;
 
 // 0x518F3C
-CacheEntry* gSkilldexButtonMaskFrmHandle = NULL;
+static CacheEntry* skilldexButtonMaskKey = NULL;
 
 // 0x518F40
-int gMapButton = -1;
+static int automapButton = -1;
 
 // 0x518F44
-CacheEntry* gMapButtonUpFrmHandle = NULL;
+static CacheEntry* automapButtonUpKey = NULL;
 
 // 0x518F48
-CacheEntry* gMapButtonDownFrmHandle = NULL;
+static CacheEntry* automapButtonDownKey = NULL;
 
 // 0x518F4C
-CacheEntry* gMapButtonMaskFrmHandle = NULL;
+static CacheEntry* automapButtonMaskKey = NULL;
 
 // 0x518F50
-int gPipboyButton = -1;
+static int pipboyButton = -1;
 
 // 0x518F54
-CacheEntry* gPipboyButtonUpFrmHandle = NULL;
+static CacheEntry* pipboyButtonUpKey = NULL;
 
 // 0x518F58
-CacheEntry* gPipboyButtonDownFrmHandle = NULL;
+static CacheEntry* pipboyButtonDownKey = NULL;
 
 // 0x518F5C
-int gCharacterButton = -1;
+static int characterButton = -1;
+
 // 0x518F60
-CacheEntry* gCharacterButtonUpFrmHandle = NULL;
+static CacheEntry* characterButtonUpKey = NULL;
+
 // 0x518F64
-CacheEntry* gCharacterButtonDownFrmHandle = NULL;
+static CacheEntry* characterButtonDownKey = NULL;
 
 // 0x518F68
-int gSingleAttackButton = -1;
+static int itemButton = -1;
 
 // 0x518F6C
-CacheEntry* gSingleAttackButtonUpHandle = NULL;
+static CacheEntry* itemButtonUpKey = NULL;
 
 // 0x518F70
-CacheEntry* gSingleAttackButtonDownHandle = NULL;
+static CacheEntry* itemButtonDownKey = NULL;
 
-//
-CacheEntry* _itemButtonDisabledKey = NULL;
+// 0x518F74
+static CacheEntry* itemButtonDisabledKey = NULL;
 
 // 0x518F78
-int gInterfaceCurrentHand = HAND_LEFT;
+static int itemCurrentItem = HAND_LEFT;
 
 // 0x518F7C
-const Rect gInterfaceBarMainActionRect = { 267, 26, 455, 93 };
+static Rect itemButtonRect = { 267, 26, 455, 93 };
 
 // 0x518F8C
-int gChangeHandsButton = -1;
+static int toggleButton = -1;
 
 // 0x518F90
-CacheEntry* gChangeHandsButtonUpFrmHandle = NULL;
+static CacheEntry* toggleButtonUpKey = NULL;
 
 // 0x518F94
-CacheEntry* gChangeHandsButtonDownFrmHandle = NULL;
+static CacheEntry* toggleButtonDownKey = NULL;
 
 // 0x518F98
-CacheEntry* gChangeHandsButtonMaskFrmHandle = NULL;
+static CacheEntry* toggleButtonMaskKey = NULL;
 
 // 0x518F9C
-bool gInterfaceBarEndButtonsIsVisible = false;
+static bool endWindowOpen = false;
 
 // Combat mode curtains rect.
 //
 // 0x518FA0
-const Rect gInterfaceBarEndButtonsRect = { 580, 38, 637, 96 };
+static Rect endWindowRect = { 580, 38, 637, 96 };
 
 // 0x518FB0
-int gEndTurnButton = -1;
+static int endTurnButton = -1;
 
 // 0x518FB4
-CacheEntry* gEndTurnButtonUpFrmHandle = NULL;
+static CacheEntry* endTurnButtonUpKey = NULL;
 
 // 0x518FB8
-CacheEntry* gEndTurnButtonDownFrmHandle = NULL;
+static CacheEntry* endTurnButtonDownKey = NULL;
 
 // 0x518FBC
-int gEndCombatButton = -1;
+static int endCombatButton = -1;
 
 // 0x518FC0
-CacheEntry* gEndCombatButtonUpFrmHandle = NULL;
+static CacheEntry* endCombatButtonUpKey = NULL;
 
 // 0x518FC4
-CacheEntry* gEndCombatButtonDownFrmHandle = NULL;
+static CacheEntry* endCombatButtonDownKey = NULL;
 
 // 0x518FC8
-unsigned char* gGreenLightFrmData = NULL;
+static unsigned char* moveLightGreen = NULL;
 
 // 0x518FCC
-unsigned char* gYellowLightFrmData = NULL;
+static unsigned char* moveLightYellow = NULL;
 
 // 0x518FD0
-unsigned char* gRedLightFrmData = NULL;
+static unsigned char* moveLightRed = NULL;
 
 // 0x518FD4
-const Rect gInterfaceBarActionPointsBarRect = { 316, 14, 406, 19 };
+static Rect movePointRect = { 316, 14, 406, 19 };
 
 // 0x518FE4
-unsigned char* gNumbersFrmData = NULL;
+static unsigned char* numbersBuffer = NULL;
 
 // 0x518FE8
-IndicatorDescription gIndicatorDescriptions[INDICATOR_COUNT] = {
+static IndicatorDescription bbox[INDICATOR_COUNT] = {
     { 102, true, NULL }, // ADDICT
     { 100, false, NULL }, // SNEAK
     { 101, false, NULL }, // LEVEL
@@ -196,135 +278,114 @@ IndicatorDescription gIndicatorDescriptions[INDICATOR_COUNT] = {
 };
 
 // 0x519024
-int gInterfaceBarWindow = -1;
+int interfaceWindow = -1;
 
 // 0x519028
-int gIndicatorBarWindow = -1;
-
-// Last hit points rendered in interface.
-//
-// Used to animate changes.
-//
-// 0x51902C
-int gInterfaceLastRenderedHitPoints = 0;
-
-// Last color used to render hit points in interface.
-//
-// Used to animate changes.
-//
-// 0x519030
-int gInterfaceLastRenderedHitPointsColor = INTERFACE_NUMBERS_COLOR_RED;
-
-// Last armor class rendered in interface.
-//
-// Used to animate changes.
-//
-// 0x519034
-int gInterfaceLastRenderedArmorClass = 0;
+int bar_window = -1;
 
 // Each slot contains one of indicators or -1 if slot is empty.
 //
 // 0x5970E0
-int gIndicatorSlots[INDICATOR_SLOTS_COUNT];
+static int bboxslot[INDICATOR_SLOTS_COUNT];
 
 // 0x5970F8
-InterfaceItemState gInterfaceItemStates[HAND_COUNT];
+static InterfaceItemState itemButtonItems[HAND_COUNT];
 
 // 0x597128
-CacheEntry* gYellowLightFrmHandle;
+static CacheEntry* moveLightYellowKey;
 
 // 0x59712C
-CacheEntry* gRedLightFrmHandle;
+static CacheEntry* moveLightRedKey;
 
 // 0x597130
-CacheEntry* gNumbersFrmHandle;
+static CacheEntry* numbersKey;
 
 // 0x597138
-bool gIndicatorBarIsVisible;
+static bool box_status_flag;
 
 // 0x59713C
-unsigned char* gChangeHandsButtonUpFrmData;
+static unsigned char* toggleButtonUp;
 
 // 0x597140
-CacheEntry* gGreenLightFrmHandle;
+static CacheEntry* moveLightGreenKey;
 
 // 0x597144
-unsigned char* gEndCombatButtonUpFrmData;
+static unsigned char* endCombatButtonUp;
 
 // 0x597148
-unsigned char* gEndCombatButtonDownFrmData;
+static unsigned char* endCombatButtonDown;
 
 // 0x59714C
-unsigned char* gChangeHandsButtonDownFrmData;
+static unsigned char* toggleButtonDown;
 
 // 0x597150
-unsigned char* gEndTurnButtonDownFrmData;
+static unsigned char* endTurnButtonDown;
 
 // 0x597154
-unsigned char _itemButtonDown[188 * 67];
+static unsigned char itemButtonDown[188 * 67];
 
 // 0x59A288
-unsigned char* gEndTurnButtonUpFrmData;
+static unsigned char* endTurnButtonUp;
 
 // 0x59A28C
-unsigned char* gChangeHandsButtonMaskFrmData;
+static unsigned char* toggleButtonMask;
 
 // 0x59A290
-unsigned char* gCharacterButtonUpFrmData;
+static unsigned char* characterButtonUp;
 
 // 0x59A294
-unsigned char* gSingleAttackButtonUpData;
+static unsigned char* itemButtonUpBlank;
 
 // 0x59A298
-unsigned char* _itemButtonDisabled;
+static unsigned char* itemButtonDisabled;
 
 // 0x59A29C
-unsigned char* gMapButtonDownFrmData;
+static unsigned char* automapButtonDown;
 
 // 0x59A2A0
-unsigned char* gPipboyButtonUpFrmData;
+static unsigned char* pipboyButtonUp;
 
 // 0x59A2A4
-unsigned char* gCharacterButtonDownFrmData;
+static unsigned char* characterButtonDown;
 
 // 0x59A2A8
-unsigned char* gSingleAttackButtonDownData;
+static unsigned char* itemButtonDownBlank;
 
 // 0x59A2AC
-unsigned char* gPipboyButtonDownFrmData;
+static unsigned char* pipboyButtonDown;
 
 // 0x59A2B0
-unsigned char* gMapButtonMaskFrmData;
+static unsigned char* automapButtonMask;
 
 // 0x59A2B4
-unsigned char _itemButtonUp[188 * 67];
+static unsigned char itemButtonUp[188 * 67];
 
 // 0x59D3E8
-unsigned char* gMapButtonUpFrmData;
+static unsigned char* automapButtonUp;
 
 // 0x59D3EC
-unsigned char* gSkilldexButtonMaskFrmData;
+static unsigned char* skilldexButtonMask;
 
 // 0x59D3F0
-unsigned char* gSkilldexButtonDownFrmData;
+static unsigned char* skilldexButtonDown;
 
 // 0x59D3F4
-unsigned char* gInterfaceWindowBuffer;
+static unsigned char* interfaceBuffer;
 
 // 0x59D3F8
-unsigned char* gInventoryButtonUpFrmData;
+static unsigned char* inventoryButtonUp;
 
 // 0x59D3FC
-unsigned char* gOptionsButtonUpFrmData;
+static unsigned char* optionsButtonUp;
 
 // 0x59D400
-unsigned char* gOptionsButtonDownFrmData;
+static unsigned char* optionsButtonDown;
 
 // 0x59D404
-unsigned char* gSkilldexButtonUpFrmData;
+static unsigned char* skilldexButtonUp;
 
 // 0x59D408
-unsigned char* gInventoryButtonDownFrmData;
+static unsigned char* inventoryButtonDown;
 
 // A slice of main interface background containing 10 shadowed action point
 // dots. In combat mode individual colored dots are rendered on top of this
@@ -333,33 +394,32 @@ unsigned char* gInventoryButtonDownFrmData;
 // This buffer is initialized once and does not change throughout the game.
 //
 // 0x59D40C
-unsigned char gInterfaceActionPointsBarBackground[90 * 5];
+static unsigned char movePointBackground[90 * 5];
 
-// intface_init
 // 0x45D880
-int interfaceInit()
+int intface_init()
 {
     int fid;
     CacheEntry* backgroundFrmHandle;
     unsigned char* backgroundFrmData;
 
-    if (gInterfaceBarWindow != -1) {
+    if (interfaceWindow != -1) {
         return -1;
     }
 
-    gInterfaceBarInitialized = 1;
+    insideInit = 1;
 
     int interfaceBarWindowX = 0;
     int interfaceBarWindowY = 480 - INTERFACE_BAR_HEIGHT - 1;
 
-    gInterfaceBarWindow = windowCreate(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, colorTable[0], WINDOW_HIDDEN);
-    if (gInterfaceBarWindow == -1) {
+    interfaceWindow = windowCreate(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, colorTable[0], WINDOW_HIDDEN);
+    if (interfaceWindow == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gInterfaceWindowBuffer = windowGetBuffer(gInterfaceBarWindow);
-    if (gInterfaceWindowBuffer == NULL) {
+    interfaceBuffer = windowGetBuffer(interfaceWindow);
+    if (interfaceBuffer == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
@@ -371,488 +431,488 @@ int interfaceInit()
         return intface_fatal_error(-1);
     }
 
-    blitBufferToBuffer(backgroundFrmData, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT - 1, INTERFACE_BAR_WIDTH, gInterfaceWindowBuffer, 640);
+    blitBufferToBuffer(backgroundFrmData, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT - 1, INTERFACE_BAR_WIDTH, interfaceBuffer, 640);
     art_ptr_unlock(backgroundFrmHandle);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 47, 0, 0, 0);
-    gInventoryButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gInventoryButtonUpFrmHandle);
-    if (gInventoryButtonUpFrmData == NULL) {
+    inventoryButtonUp = art_ptr_lock_data(fid, 0, 0, &inventoryButtonUpKey);
+    if (inventoryButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 46, 0, 0, 0);
-    gInventoryButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gInventoryButtonDownFrmHandle);
-    if (gInventoryButtonDownFrmData == NULL) {
+    inventoryButtonDown = art_ptr_lock_data(fid, 0, 0, &inventoryButtonDownKey);
+    if (inventoryButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gInventoryButton = buttonCreate(gInterfaceBarWindow, 211, 41, 32, 21, -1, -1, -1, KEY_LOWERCASE_I, gInventoryButtonUpFrmData, gInventoryButtonDownFrmData, NULL, 0);
-    if (gInventoryButton == -1) {
+    inventoryButton = buttonCreate(interfaceWindow, 211, 41, 32, 21, -1, -1, -1, KEY_LOWERCASE_I, inventoryButtonUp, inventoryButtonDown, NULL, 0);
+    if (inventoryButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetCallbacks(gInventoryButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(inventoryButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 18, 0, 0, 0);
-    gOptionsButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gOptionsButtonUpFrmHandle);
-    if (gOptionsButtonUpFrmData == NULL) {
+    optionsButtonUp = art_ptr_lock_data(fid, 0, 0, &optionsButtonUpKey);
+    if (optionsButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 17, 0, 0, 0);
-    gOptionsButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gOptionsButtonDownFrmHandle);
-    if (gOptionsButtonDownFrmData == NULL) {
+    optionsButtonDown = art_ptr_lock_data(fid, 0, 0, &optionsButtonDownKey);
+    if (optionsButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gOptionsButton = buttonCreate(gInterfaceBarWindow, 210, 62, 34, 34, -1, -1, -1, KEY_LOWERCASE_O, gOptionsButtonUpFrmData, gOptionsButtonDownFrmData, NULL, 0);
-    if (gOptionsButton == -1) {
+    optionsButton = buttonCreate(interfaceWindow, 210, 62, 34, 34, -1, -1, -1, KEY_LOWERCASE_O, optionsButtonUp, optionsButtonDown, NULL, 0);
+    if (optionsButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetCallbacks(gOptionsButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(optionsButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
-    gSkilldexButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gSkilldexButtonUpFrmHandle);
-    if (gSkilldexButtonUpFrmData == NULL) {
+    skilldexButtonUp = art_ptr_lock_data(fid, 0, 0, &skilldexButtonUpKey);
+    if (skilldexButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 7, 0, 0, 0);
-    gSkilldexButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gSkilldexButtonDownFrmHandle);
-    if (gSkilldexButtonDownFrmData == NULL) {
+    skilldexButtonDown = art_ptr_lock_data(fid, 0, 0, &skilldexButtonDownKey);
+    if (skilldexButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
-    gSkilldexButtonMaskFrmData = art_ptr_lock_data(fid, 0, 0, &gSkilldexButtonMaskFrmHandle);
-    if (gSkilldexButtonMaskFrmData == NULL) {
+    skilldexButtonMask = art_ptr_lock_data(fid, 0, 0, &skilldexButtonMaskKey);
+    if (skilldexButtonMask == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gSkilldexButton = buttonCreate(gInterfaceBarWindow, 523, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_S, gSkilldexButtonUpFrmData, gSkilldexButtonDownFrmData, NULL, BUTTON_FLAG_TRANSPARENT);
-    if (gSkilldexButton == -1) {
+    skilldexButton = buttonCreate(interfaceWindow, 523, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_S, skilldexButtonUp, skilldexButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    if (skilldexButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(gSkilldexButton, gSkilldexButtonMaskFrmData);
-    buttonSetCallbacks(gSkilldexButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetMask(skilldexButton, skilldexButtonMask);
+    buttonSetCallbacks(skilldexButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
-    gMapButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gMapButtonUpFrmHandle);
-    if (gMapButtonUpFrmData == NULL) {
+    automapButtonUp = art_ptr_lock_data(fid, 0, 0, &automapButtonUpKey);
+    if (automapButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 10, 0, 0, 0);
-    gMapButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gMapButtonDownFrmHandle);
-    if (gMapButtonDownFrmData == NULL) {
+    automapButtonDown = art_ptr_lock_data(fid, 0, 0, &automapButtonDownKey);
+    if (automapButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
-    gMapButtonMaskFrmData = art_ptr_lock_data(fid, 0, 0, &gMapButtonMaskFrmHandle);
-    if (gMapButtonMaskFrmData == NULL) {
+    automapButtonMask = art_ptr_lock_data(fid, 0, 0, &automapButtonMaskKey);
+    if (automapButtonMask == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gMapButton = buttonCreate(gInterfaceBarWindow, 526, 40, 41, 19, -1, -1, -1, KEY_TAB, gMapButtonUpFrmData, gMapButtonDownFrmData, NULL, BUTTON_FLAG_TRANSPARENT);
-    if (gMapButton == -1) {
+    automapButton = buttonCreate(interfaceWindow, 526, 40, 41, 19, -1, -1, -1, KEY_TAB, automapButtonUp, automapButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    if (automapButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(gMapButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gMapButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetMask(automapButton, automapButtonMask);
+    buttonSetCallbacks(automapButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 59, 0, 0, 0);
-    gPipboyButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gPipboyButtonUpFrmHandle);
-    if (gPipboyButtonUpFrmData == NULL) {
+    pipboyButtonUp = art_ptr_lock_data(fid, 0, 0, &pipboyButtonUpKey);
+    if (pipboyButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 58, 0, 0, 0);
-    gPipboyButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gPipboyButtonDownFrmHandle);
-    if (gPipboyButtonDownFrmData == NULL) {
+    pipboyButtonDown = art_ptr_lock_data(fid, 0, 0, &pipboyButtonDownKey);
+    if (pipboyButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gPipboyButton = buttonCreate(gInterfaceBarWindow, 526, 78, 41, 19, -1, -1, -1, KEY_LOWERCASE_P, gPipboyButtonUpFrmData, gPipboyButtonDownFrmData, NULL, 0);
-    if (gPipboyButton == -1) {
+    pipboyButton = buttonCreate(interfaceWindow, 526, 78, 41, 19, -1, -1, -1, KEY_LOWERCASE_P, pipboyButtonUp, pipboyButtonDown, NULL, 0);
+    if (pipboyButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(gPipboyButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gPipboyButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetMask(pipboyButton, automapButtonMask);
+    buttonSetCallbacks(pipboyButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 57, 0, 0, 0);
-    gCharacterButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterButtonUpFrmHandle);
-    if (gCharacterButtonUpFrmData == NULL) {
+    characterButtonUp = art_ptr_lock_data(fid, 0, 0, &characterButtonUpKey);
+    if (characterButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 56, 0, 0, 0);
-    gCharacterButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterButtonDownFrmHandle);
-    if (gCharacterButtonDownFrmData == NULL) {
+    characterButtonDown = art_ptr_lock_data(fid, 0, 0, &characterButtonDownKey);
+    if (characterButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gCharacterButton = buttonCreate(gInterfaceBarWindow, 526, 59, 41, 19, -1, -1, -1, KEY_LOWERCASE_C, gCharacterButtonUpFrmData, gCharacterButtonDownFrmData, NULL, 0);
-    if (gCharacterButton == -1) {
+    characterButton = buttonCreate(interfaceWindow, 526, 59, 41, 19, -1, -1, -1, KEY_LOWERCASE_C, characterButtonUp, characterButtonDown, NULL, 0);
+    if (characterButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(gCharacterButton, gMapButtonMaskFrmData);
-    buttonSetCallbacks(gCharacterButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetMask(characterButton, automapButtonMask);
+    buttonSetCallbacks(characterButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 32, 0, 0, 0);
-    gSingleAttackButtonUpData = art_ptr_lock_data(fid, 0, 0, &gSingleAttackButtonUpHandle);
-    if (gSingleAttackButtonUpData == NULL) {
+    itemButtonUpBlank = art_ptr_lock_data(fid, 0, 0, &itemButtonUpKey);
+    if (itemButtonUpBlank == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 31, 0, 0, 0);
-    gSingleAttackButtonDownData = art_ptr_lock_data(fid, 0, 0, &gSingleAttackButtonDownHandle);
-    if (gSingleAttackButtonDownData == NULL) {
+    itemButtonDownBlank = art_ptr_lock_data(fid, 0, 0, &itemButtonDownKey);
+    if (itemButtonDownBlank == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 73, 0, 0, 0);
-    _itemButtonDisabled = art_ptr_lock_data(fid, 0, 0, &_itemButtonDisabledKey);
-    if (_itemButtonDisabled == NULL) {
+    itemButtonDisabled = art_ptr_lock_data(fid, 0, 0, &itemButtonDisabledKey);
+    if (itemButtonDisabled == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    memcpy(_itemButtonUp, gSingleAttackButtonUpData, sizeof(_itemButtonUp));
-    memcpy(_itemButtonDown, gSingleAttackButtonDownData, sizeof(_itemButtonDown));
+    memcpy(itemButtonUp, itemButtonUpBlank, sizeof(itemButtonUp));
+    memcpy(itemButtonDown, itemButtonDownBlank, sizeof(itemButtonDown));
 
-    gSingleAttackButton = buttonCreate(gInterfaceBarWindow, 267, 26, 188, 67, -1, -1, -1, -20, _itemButtonUp, _itemButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
-    if (gSingleAttackButton == -1) {
+    itemButton = buttonCreate(interfaceWindow, 267, 26, 188, 67, -1, -1, -1, -20, itemButtonUp, itemButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    if (itemButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetRightMouseCallbacks(gSingleAttackButton, -1, KEY_LOWERCASE_N, NULL, NULL);
-    buttonSetCallbacks(gSingleAttackButton, gsound_lrg_butt_press, gsound_lrg_butt_release);
+    buttonSetRightMouseCallbacks(itemButton, -1, KEY_LOWERCASE_N, NULL, NULL);
+    buttonSetCallbacks(itemButton, gsound_lrg_butt_press, gsound_lrg_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
-    gChangeHandsButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gChangeHandsButtonUpFrmHandle);
-    if (gChangeHandsButtonUpFrmData == NULL) {
+    toggleButtonUp = art_ptr_lock_data(fid, 0, 0, &toggleButtonUpKey);
+    if (toggleButtonUp == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 7, 0, 0, 0);
-    gChangeHandsButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gChangeHandsButtonDownFrmHandle);
-    if (gChangeHandsButtonDownFrmData == NULL) {
+    toggleButtonDown = art_ptr_lock_data(fid, 0, 0, &toggleButtonDownKey);
+    if (toggleButtonDown == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
-    gChangeHandsButtonMaskFrmData = art_ptr_lock_data(fid, 0, 0, &gChangeHandsButtonMaskFrmHandle);
-    if (gChangeHandsButtonMaskFrmData == NULL) {
+    toggleButtonMask = art_ptr_lock_data(fid, 0, 0, &toggleButtonMaskKey);
+    if (toggleButtonMask == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     // Swap hands button
-    gChangeHandsButton = buttonCreate(gInterfaceBarWindow, 218, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_B, gChangeHandsButtonUpFrmData, gChangeHandsButtonDownFrmData, NULL, BUTTON_FLAG_TRANSPARENT);
-    if (gChangeHandsButton == -1) {
+    toggleButton = buttonCreate(interfaceWindow, 218, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_B, toggleButtonUp, toggleButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    if (toggleButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(gChangeHandsButton, gChangeHandsButtonMaskFrmData);
-    buttonSetCallbacks(gChangeHandsButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetMask(toggleButton, toggleButtonMask);
+    buttonSetCallbacks(toggleButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
-    gNumbersFrmData = art_ptr_lock_data(fid, 0, 0, &gNumbersFrmHandle);
-    if (gNumbersFrmData == NULL) {
+    numbersBuffer = art_ptr_lock_data(fid, 0, 0, &numbersKey);
+    if (numbersBuffer == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 83, 0, 0, 0);
-    gGreenLightFrmData = art_ptr_lock_data(fid, 0, 0, &gGreenLightFrmHandle);
-    if (gGreenLightFrmData == NULL) {
+    moveLightGreen = art_ptr_lock_data(fid, 0, 0, &moveLightGreenKey);
+    if (moveLightGreen == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 84, 0, 0, 0);
-    gYellowLightFrmData = art_ptr_lock_data(fid, 0, 0, &gYellowLightFrmHandle);
-    if (gYellowLightFrmData == NULL) {
+    moveLightYellow = art_ptr_lock_data(fid, 0, 0, &moveLightYellowKey);
+    if (moveLightYellow == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 85, 0, 0, 0);
-    gRedLightFrmData = art_ptr_lock_data(fid, 0, 0, &gRedLightFrmHandle);
-    if (gRedLightFrmData == NULL) {
+    moveLightRed = art_ptr_lock_data(fid, 0, 0, &moveLightRedKey);
+    if (moveLightRed == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    blitBufferToBuffer(gInterfaceWindowBuffer + 640 * 14 + 316, 90, 5, 640, gInterfaceActionPointsBarBackground, 90);
+    blitBufferToBuffer(interfaceBuffer + 640 * 14 + 316, 90, 5, 640, movePointBackground, 90);
 
-    if (indicatorBarInit() == -1) {
+    if (construct_box_bar_win() == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    gInterfaceCurrentHand = HAND_LEFT;
+    itemCurrentItem = HAND_LEFT;
 
     // NOTE: Uninline.
     intface_init_items();
 
     display_init();
 
-    gInterfaceBarEnabled = true;
-    gInterfaceBarInitialized = false;
-    _intfaceHidden = 1;
+    intfaceEnabled = true;
+    insideInit = false;
+    intfaceHidden = 1;
 
     return 0;
 }
 
 // 0x45E3D0
-void interfaceReset()
+void intface_reset()
 {
-    interfaceBarEnable();
+    intface_enable();
 
     // NOTE: Uninline.
     intface_hide();
 
     display_reset();
 
-    // NOTE: Uninline a seemingly inlined routine.
-    indicatorBarReset();
+    // NOTE: Uninline.
+    reset_box_bar_win();
 
-    gInterfaceCurrentHand = 0;
+    itemCurrentItem = 0;
 }
 
 // 0x45E440
-void interfaceFree()
+void intface_exit()
 {
-    if (gInterfaceBarWindow != -1) {
+    if (interfaceWindow != -1) {
         display_exit();
 
-        if (gRedLightFrmData != NULL) {
-            art_ptr_unlock(gRedLightFrmHandle);
-            gRedLightFrmData = NULL;
+        if (moveLightRed != NULL) {
+            art_ptr_unlock(moveLightRedKey);
+            moveLightRed = NULL;
         }
 
-        if (gYellowLightFrmData != NULL) {
-            art_ptr_unlock(gYellowLightFrmHandle);
-            gYellowLightFrmData = NULL;
+        if (moveLightYellow != NULL) {
+            art_ptr_unlock(moveLightYellowKey);
+            moveLightYellow = NULL;
         }
 
-        if (gGreenLightFrmData != NULL) {
-            art_ptr_unlock(gGreenLightFrmHandle);
-            gGreenLightFrmData = NULL;
+        if (moveLightGreen != NULL) {
+            art_ptr_unlock(moveLightGreenKey);
+            moveLightGreen = NULL;
         }
 
-        if (gNumbersFrmData != NULL) {
-            art_ptr_unlock(gNumbersFrmHandle);
-            gNumbersFrmData = NULL;
+        if (numbersBuffer != NULL) {
+            art_ptr_unlock(numbersKey);
+            numbersBuffer = NULL;
         }
 
-        if (gChangeHandsButton != -1) {
-            buttonDestroy(gChangeHandsButton);
-            gChangeHandsButton = -1;
+        if (toggleButton != -1) {
+            buttonDestroy(toggleButton);
+            toggleButton = -1;
         }
 
-        if (gChangeHandsButtonMaskFrmData != NULL) {
-            art_ptr_unlock(gChangeHandsButtonMaskFrmHandle);
-            gChangeHandsButtonMaskFrmHandle = NULL;
-            gChangeHandsButtonMaskFrmData = NULL;
+        if (toggleButtonMask != NULL) {
+            art_ptr_unlock(toggleButtonMaskKey);
+            toggleButtonMaskKey = NULL;
+            toggleButtonMask = NULL;
         }
 
-        if (gChangeHandsButtonDownFrmData != NULL) {
-            art_ptr_unlock(gChangeHandsButtonDownFrmHandle);
-            gChangeHandsButtonDownFrmHandle = NULL;
-            gChangeHandsButtonDownFrmData = NULL;
+        if (toggleButtonDown != NULL) {
+            art_ptr_unlock(toggleButtonDownKey);
+            toggleButtonDownKey = NULL;
+            toggleButtonDown = NULL;
         }
 
-        if (gChangeHandsButtonUpFrmData != NULL) {
-            art_ptr_unlock(gChangeHandsButtonUpFrmHandle);
-            gChangeHandsButtonUpFrmHandle = NULL;
-            gChangeHandsButtonUpFrmData = NULL;
+        if (toggleButtonUp != NULL) {
+            art_ptr_unlock(toggleButtonUpKey);
+            toggleButtonUpKey = NULL;
+            toggleButtonUp = NULL;
         }
 
-        if (gSingleAttackButton != -1) {
-            buttonDestroy(gSingleAttackButton);
-            gSingleAttackButton = -1;
+        if (itemButton != -1) {
+            buttonDestroy(itemButton);
+            itemButton = -1;
         }
 
-        if (_itemButtonDisabled != NULL) {
-            art_ptr_unlock(_itemButtonDisabledKey);
-            _itemButtonDisabledKey = NULL;
-            _itemButtonDisabled = NULL;
+        if (itemButtonDisabled != NULL) {
+            art_ptr_unlock(itemButtonDisabledKey);
+            itemButtonDisabledKey = NULL;
+            itemButtonDisabled = NULL;
         }
 
-        if (gSingleAttackButtonDownData != NULL) {
-            art_ptr_unlock(gSingleAttackButtonDownHandle);
-            gSingleAttackButtonDownHandle = NULL;
-            gSingleAttackButtonDownData = NULL;
+        if (itemButtonDownBlank != NULL) {
+            art_ptr_unlock(itemButtonDownKey);
+            itemButtonDownKey = NULL;
+            itemButtonDownBlank = NULL;
         }
 
-        if (gSingleAttackButtonUpData != NULL) {
-            art_ptr_unlock(gSingleAttackButtonUpHandle);
-            gSingleAttackButtonUpHandle = NULL;
-            gSingleAttackButtonUpData = NULL;
+        if (itemButtonUpBlank != NULL) {
+            art_ptr_unlock(itemButtonUpKey);
+            itemButtonUpKey = NULL;
+            itemButtonUpBlank = NULL;
         }
 
-        if (gCharacterButton != -1) {
-            buttonDestroy(gCharacterButton);
-            gCharacterButton = -1;
+        if (characterButton != -1) {
+            buttonDestroy(characterButton);
+            characterButton = -1;
         }
 
-        if (gCharacterButtonDownFrmData != NULL) {
-            art_ptr_unlock(gCharacterButtonDownFrmHandle);
-            gCharacterButtonDownFrmHandle = NULL;
-            gCharacterButtonDownFrmData = NULL;
+        if (characterButtonDown != NULL) {
+            art_ptr_unlock(characterButtonDownKey);
+            characterButtonDownKey = NULL;
+            characterButtonDown = NULL;
         }
 
-        if (gCharacterButtonUpFrmData != NULL) {
-            art_ptr_unlock(gCharacterButtonUpFrmHandle);
-            gCharacterButtonUpFrmHandle = NULL;
-            gCharacterButtonUpFrmData = NULL;
+        if (characterButtonUp != NULL) {
+            art_ptr_unlock(characterButtonUpKey);
+            characterButtonUpKey = NULL;
+            characterButtonUp = NULL;
         }
 
-        if (gPipboyButton != -1) {
-            buttonDestroy(gPipboyButton);
-            gPipboyButton = -1;
+        if (pipboyButton != -1) {
+            buttonDestroy(pipboyButton);
+            pipboyButton = -1;
         }
 
-        if (gPipboyButtonDownFrmData != NULL) {
-            art_ptr_unlock(gPipboyButtonDownFrmHandle);
-            gPipboyButtonDownFrmHandle = NULL;
-            gPipboyButtonDownFrmData = NULL;
+        if (pipboyButtonDown != NULL) {
+            art_ptr_unlock(pipboyButtonDownKey);
+            pipboyButtonDownKey = NULL;
+            pipboyButtonDown = NULL;
         }
 
-        if (gPipboyButtonUpFrmData != NULL) {
-            art_ptr_unlock(gPipboyButtonUpFrmHandle);
-            gPipboyButtonUpFrmHandle = NULL;
-            gPipboyButtonUpFrmData = NULL;
+        if (pipboyButtonUp != NULL) {
+            art_ptr_unlock(pipboyButtonUpKey);
+            pipboyButtonUpKey = NULL;
+            pipboyButtonUp = NULL;
         }
 
-        if (gMapButton != -1) {
-            buttonDestroy(gMapButton);
-            gMapButton = -1;
+        if (automapButton != -1) {
+            buttonDestroy(automapButton);
+            automapButton = -1;
         }
 
-        if (gMapButtonMaskFrmData != NULL) {
-            art_ptr_unlock(gMapButtonMaskFrmHandle);
-            gMapButtonMaskFrmHandle = NULL;
-            gMapButtonMaskFrmData = NULL;
+        if (automapButtonMask != NULL) {
+            art_ptr_unlock(automapButtonMaskKey);
+            automapButtonMaskKey = NULL;
+            automapButtonMask = NULL;
         }
 
-        if (gMapButtonDownFrmData != NULL) {
-            art_ptr_unlock(gMapButtonDownFrmHandle);
-            gMapButtonDownFrmHandle = NULL;
-            gMapButtonDownFrmData = NULL;
+        if (automapButtonDown != NULL) {
+            art_ptr_unlock(automapButtonDownKey);
+            automapButtonDownKey = NULL;
+            automapButtonDown = NULL;
         }
 
-        if (gMapButtonUpFrmData != NULL) {
-            art_ptr_unlock(gMapButtonUpFrmHandle);
-            gMapButtonUpFrmHandle = NULL;
-            gMapButtonUpFrmData = NULL;
+        if (automapButtonUp != NULL) {
+            art_ptr_unlock(automapButtonUpKey);
+            automapButtonUpKey = NULL;
+            automapButtonUp = NULL;
         }
 
-        if (gSkilldexButton != -1) {
-            buttonDestroy(gSkilldexButton);
-            gSkilldexButton = -1;
+        if (skilldexButton != -1) {
+            buttonDestroy(skilldexButton);
+            skilldexButton = -1;
         }
 
-        if (gSkilldexButtonMaskFrmData != NULL) {
-            art_ptr_unlock(gSkilldexButtonMaskFrmHandle);
-            gSkilldexButtonMaskFrmHandle = NULL;
-            gSkilldexButtonMaskFrmData = NULL;
+        if (skilldexButtonMask != NULL) {
+            art_ptr_unlock(skilldexButtonMaskKey);
+            skilldexButtonMaskKey = NULL;
+            skilldexButtonMask = NULL;
         }
 
-        if (gSkilldexButtonDownFrmData != NULL) {
-            art_ptr_unlock(gSkilldexButtonDownFrmHandle);
-            gSkilldexButtonDownFrmHandle = NULL;
-            gSkilldexButtonDownFrmData = NULL;
+        if (skilldexButtonDown != NULL) {
+            art_ptr_unlock(skilldexButtonDownKey);
+            skilldexButtonDownKey = NULL;
+            skilldexButtonDown = NULL;
         }
 
-        if (gSkilldexButtonUpFrmData != NULL) {
-            art_ptr_unlock(gSkilldexButtonUpFrmHandle);
-            gSkilldexButtonUpFrmHandle = NULL;
-            gSkilldexButtonUpFrmData = NULL;
+        if (skilldexButtonUp != NULL) {
+            art_ptr_unlock(skilldexButtonUpKey);
+            skilldexButtonUpKey = NULL;
+            skilldexButtonUp = NULL;
         }
 
-        if (gOptionsButton != -1) {
-            buttonDestroy(gOptionsButton);
-            gOptionsButton = -1;
+        if (optionsButton != -1) {
+            buttonDestroy(optionsButton);
+            optionsButton = -1;
         }
 
-        if (gOptionsButtonDownFrmData != NULL) {
-            art_ptr_unlock(gOptionsButtonDownFrmHandle);
-            gOptionsButtonDownFrmHandle = NULL;
-            gOptionsButtonDownFrmData = NULL;
+        if (optionsButtonDown != NULL) {
+            art_ptr_unlock(optionsButtonDownKey);
+            optionsButtonDownKey = NULL;
+            optionsButtonDown = NULL;
         }
 
-        if (gOptionsButtonUpFrmData != NULL) {
-            art_ptr_unlock(gOptionsButtonUpFrmHandle);
-            gOptionsButtonUpFrmHandle = NULL;
-            gOptionsButtonUpFrmData = NULL;
+        if (optionsButtonUp != NULL) {
+            art_ptr_unlock(optionsButtonUpKey);
+            optionsButtonUpKey = NULL;
+            optionsButtonUp = NULL;
         }
 
-        if (gInventoryButton != -1) {
-            buttonDestroy(gInventoryButton);
-            gInventoryButton = -1;
+        if (inventoryButton != -1) {
+            buttonDestroy(inventoryButton);
+            inventoryButton = -1;
         }
 
-        if (gInventoryButtonDownFrmData != NULL) {
-            art_ptr_unlock(gInventoryButtonDownFrmHandle);
-            gInventoryButtonDownFrmHandle = NULL;
-            gInventoryButtonDownFrmData = NULL;
+        if (inventoryButtonDown != NULL) {
+            art_ptr_unlock(inventoryButtonDownKey);
+            inventoryButtonDownKey = NULL;
+            inventoryButtonDown = NULL;
         }
 
-        if (gInventoryButtonUpFrmData != NULL) {
-            art_ptr_unlock(gInventoryButtonUpFrmHandle);
-            gInventoryButtonUpFrmHandle = NULL;
-            gInventoryButtonUpFrmData = NULL;
+        if (inventoryButtonUp != NULL) {
+            art_ptr_unlock(inventoryButtonUpKey);
+            inventoryButtonUpKey = NULL;
+            inventoryButtonUp = NULL;
         }
 
-        if (gInterfaceBarWindow != -1) {
-            windowDestroy(gInterfaceBarWindow);
-            gInterfaceBarWindow = -1;
+        if (interfaceWindow != -1) {
+            windowDestroy(interfaceWindow);
+            interfaceWindow = -1;
         }
     }
 
-    interfaceBarFree();
+    deconstruct_box_bar_win();
 }
 
 // 0x45E860
-int interfaceLoad(File* stream)
+int intface_load(File* stream)
 {
-    if (gInterfaceBarWindow == -1) {
-        if (interfaceInit() == -1) {
+    if (interfaceWindow == -1) {
+        if (intface_init() == -1) {
             return -1;
         }
     }
@@ -869,54 +929,54 @@ int interfaceLoad(File* stream)
     bool interfaceBarEndButtonsIsVisible;
     if (fileReadBool(stream, &interfaceBarEndButtonsIsVisible) == -1) return -1;
 
-    if (!gInterfaceBarEnabled) {
-        interfaceBarEnable();
+    if (!intfaceEnabled) {
+        intface_enable();
     }
 
     if (v2) {
         // NOTE: Uninline.
         intface_hide();
     } else {
-        _intface_show();
+        intface_show();
     }
 
-    interfaceRenderHitPoints(false);
-    interfaceRenderArmorClass(false);
+    intface_update_hit_points(false);
+    intface_update_ac(false);
 
-    gInterfaceCurrentHand = interfaceCurrentHand;
+    itemCurrentItem = interfaceCurrentHand;
 
-    interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+    intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
 
-    if (interfaceBarEndButtonsIsVisible != gInterfaceBarEndButtonsIsVisible) {
+    if (interfaceBarEndButtonsIsVisible != endWindowOpen) {
         if (interfaceBarEndButtonsIsVisible) {
-            interfaceBarEndButtonsShow(false);
+            intface_end_window_open(false);
         } else {
-            interfaceBarEndButtonsHide(false);
+            intface_end_window_close(false);
         }
     }
 
     if (!interfaceBarEnabled) {
-        interfaceBarDisable();
+        intface_disable();
     }
 
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 
-    win_draw(gInterfaceBarWindow);
+    win_draw(interfaceWindow);
 
     return 0;
 }
 
 // 0x45E988
-int interfaceSave(File* stream)
+int intface_save(File* stream)
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    if (fileWriteInt32(stream, gInterfaceBarEnabled) == -1) return -1;
-    if (fileWriteInt32(stream, _intfaceHidden) == -1) return -1;
-    if (fileWriteInt32(stream, gInterfaceCurrentHand) == -1) return -1;
-    if (fileWriteInt32(stream, gInterfaceBarEndButtonsIsVisible) == -1) return -1;
+    if (fileWriteInt32(stream, intfaceEnabled) == -1) return -1;
+    if (fileWriteInt32(stream, intfaceHidden) == -1) return -1;
+    if (fileWriteInt32(stream, itemCurrentItem) == -1) return -1;
+    if (fileWriteInt32(stream, endWindowOpen) == -1) return -1;
 
     return 0;
 }
@@ -926,28 +986,28 @@ int interfaceSave(File* stream)
 // 0x45E9E0
 void intface_hide()
 {
-    if (gInterfaceBarWindow != -1) {
-        if (!_intfaceHidden) {
-            win_hide(gInterfaceBarWindow);
-            _intfaceHidden = 1;
+    if (interfaceWindow != -1) {
+        if (!intfaceHidden) {
+            win_hide(interfaceWindow);
+            intfaceHidden = 1;
         }
     }
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 }
 
 // 0x45EA10
-void _intface_show()
+void intface_show()
 {
-    if (gInterfaceBarWindow != -1) {
-        if (_intfaceHidden) {
-            interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
-            interfaceRenderHitPoints(false);
-            interfaceRenderArmorClass(false);
-            win_show(gInterfaceBarWindow);
-            _intfaceHidden = false;
+    if (interfaceWindow != -1) {
+        if (intfaceHidden) {
+            intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+            intface_update_hit_points(false);
+            intface_update_ac(false);
+            win_show(interfaceWindow);
+            intfaceHidden = false;
         }
     }
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 }
 
 // NOTE: Unused.
@@ -955,77 +1015,91 @@ void _intface_show()
 // 0x45EA5C
 int intface_is_hidden()
 {
-    return _intfaceHidden;
+    return intfaceHidden;
 }
 
 // 0x45EA64
-void interfaceBarEnable()
+void intface_enable()
 {
-    if (!gInterfaceBarEnabled) {
-        buttonEnable(gInventoryButton);
-        buttonEnable(gOptionsButton);
-        buttonEnable(gSkilldexButton);
-        buttonEnable(gMapButton);
-        buttonEnable(gPipboyButton);
-        buttonEnable(gCharacterButton);
+    if (!intfaceEnabled) {
+        buttonEnable(inventoryButton);
+        buttonEnable(optionsButton);
+        buttonEnable(skilldexButton);
+        buttonEnable(automapButton);
+        buttonEnable(pipboyButton);
+        buttonEnable(characterButton);
 
-        if (gInterfaceItemStates[gInterfaceCurrentHand].isDisabled == 0) {
-            buttonEnable(gSingleAttackButton);
+        if (itemButtonItems[itemCurrentItem].isDisabled == 0) {
+            buttonEnable(itemButton);
         }
 
-        buttonEnable(gEndTurnButton);
-        buttonEnable(gEndCombatButton);
+        buttonEnable(endTurnButton);
+        buttonEnable(endCombatButton);
         display_enable();
 
-        gInterfaceBarEnabled = true;
+        intfaceEnabled = true;
     }
 }
 
 // 0x45EAFC
-void interfaceBarDisable()
+void intface_disable()
 {
-    if (gInterfaceBarEnabled) {
+    if (intfaceEnabled) {
         display_disable();
-        buttonDisable(gInventoryButton);
-        buttonDisable(gOptionsButton);
-        buttonDisable(gSkilldexButton);
-        buttonDisable(gMapButton);
-        buttonDisable(gPipboyButton);
-        buttonDisable(gCharacterButton);
-        if (gInterfaceItemStates[gInterfaceCurrentHand].isDisabled == 0) {
-            buttonDisable(gSingleAttackButton);
+        buttonDisable(inventoryButton);
+        buttonDisable(optionsButton);
+        buttonDisable(skilldexButton);
+        buttonDisable(automapButton);
+        buttonDisable(pipboyButton);
+        buttonDisable(characterButton);
+        if (itemButtonItems[itemCurrentItem].isDisabled == 0) {
+            buttonDisable(itemButton);
         }
-        buttonDisable(gEndTurnButton);
-        buttonDisable(gEndCombatButton);
-        gInterfaceBarEnabled = false;
+        buttonDisable(endTurnButton);
+        buttonDisable(endCombatButton);
+        intfaceEnabled = false;
     }
 }
 
 // 0x45EB90
-bool interfaceBarEnabled()
+bool intface_is_enabled()
 {
-    return gInterfaceBarEnabled;
+    return intfaceEnabled;
 }
 
 // 0x45EB98
-void interfaceBarRefresh()
+void intface_redraw()
 {
-    if (gInterfaceBarWindow != -1) {
-        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
-        interfaceRenderHitPoints(false);
-        interfaceRenderArmorClass(false);
-        indicatorBarRefresh();
-        win_draw(gInterfaceBarWindow);
+    if (interfaceWindow != -1) {
+        intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_hit_points(false);
+        intface_update_ac(false);
+        refresh_box_bar_win();
+        win_draw(interfaceWindow);
     }
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 }
 
 // Render hit points.
 //
 // 0x45EBD8
-void interfaceRenderHitPoints(bool animate)
+void intface_update_hit_points(bool animate)
 {
-    if (gInterfaceBarWindow == -1) {
+    // Last hit points rendered in interface.
+    //
+    // Used to animate changes.
+    //
+    // 0x51902C
+    static int last_points = 0;
+
+    // Last color used to render hit points in interface.
+    //
+    // Used to animate changes.
+    //
+    // 0x519030
+    static int last_points_color = INTERFACE_NUMBERS_COLOR_RED;
+
+    if (interfaceWindow == -1) {
         return;
     }
 
@@ -1048,30 +1122,30 @@ void interfaceRenderHitPoints(bool animate)
     int v2[3];
     int count = 1;
 
-    v1[0] = gInterfaceLastRenderedHitPoints;
-    v2[0] = gInterfaceLastRenderedHitPointsColor;
+    v1[0] = last_points;
+    v2[0] = last_points_color;
 
-    if (gInterfaceLastRenderedHitPointsColor != color) {
-        if (hp >= gInterfaceLastRenderedHitPoints) {
-            if (gInterfaceLastRenderedHitPoints < red && hp >= red) {
+    if (last_points_color != color) {
+        if (hp >= last_points) {
+            if (last_points < red && hp >= red) {
                 v1[count] = red;
                 v2[count] = INTERFACE_NUMBERS_COLOR_YELLOW;
                 count += 1;
             }
 
-            if (gInterfaceLastRenderedHitPoints < yellow && hp >= yellow) {
+            if (last_points < yellow && hp >= yellow) {
                 v1[count] = yellow;
                 v2[count] = INTERFACE_NUMBERS_COLOR_WHITE;
                 count += 1;
             }
         } else {
-            if (gInterfaceLastRenderedHitPoints >= yellow && hp < yellow) {
+            if (last_points >= yellow && hp < yellow) {
                 v1[count] = yellow;
                 v2[count] = INTERFACE_NUMBERS_COLOR_YELLOW;
                 count += 1;
             }
 
-            if (gInterfaceLastRenderedHitPoints >= red && hp < red) {
+            if (last_points >= red && hp < red) {
                 v1[count] = red;
                 v2[count] = INTERFACE_NUMBERS_COLOR_RED;
                 count += 1;
@@ -1082,52 +1156,59 @@ void interfaceRenderHitPoints(bool animate)
     v1[count] = hp;
 
     if (animate) {
-        int delay = 250 / (abs(gInterfaceLastRenderedHitPoints - hp) + 1);
+        int delay = 250 / (abs(last_points - hp) + 1);
         for (int index = 0; index < count; index++) {
-            interfaceRenderCounter(473, 40, v1[index], v1[index + 1], v2[index], delay);
+            intface_rotate_numbers(473, 40, v1[index], v1[index + 1], v2[index], delay);
         }
     } else {
-        interfaceRenderCounter(473, 40, gInterfaceLastRenderedHitPoints, hp, color, 0);
+        intface_rotate_numbers(473, 40, last_points, hp, color, 0);
     }
 
-    gInterfaceLastRenderedHitPoints = hp;
-    gInterfaceLastRenderedHitPointsColor = color;
+    last_points = hp;
+    last_points_color = color;
 }
 
 // Render armor class.
 //
 // 0x45EDA8
-void interfaceRenderArmorClass(bool animate)
+void intface_update_ac(bool animate)
 {
+    // Last armor class rendered in interface.
+    //
+    // Used to animate changes.
+    //
+    // 0x519034
+    static int last_ac = 0;
+
     int armorClass = critterGetStat(gDude, STAT_ARMOR_CLASS);
 
     int delay = 0;
     if (animate) {
-        delay = 250 / (abs(gInterfaceLastRenderedArmorClass - armorClass) + 1);
+        delay = 250 / (abs(last_ac - armorClass) + 1);
     }
 
-    interfaceRenderCounter(473, 75, gInterfaceLastRenderedArmorClass, armorClass, 0, delay);
+    intface_rotate_numbers(473, 75, last_ac, armorClass, 0, delay);
 
-    gInterfaceLastRenderedArmorClass = armorClass;
+    last_ac = armorClass;
 }
 
 // 0x45EE0C
-void interfaceRenderActionPoints(int actionPointsLeft, int bonusActionPoints)
+void intface_update_move_points(int actionPointsLeft, int bonusActionPoints)
 {
     unsigned char* frmData;
 
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return;
     }
 
-    blitBufferToBuffer(gInterfaceActionPointsBarBackground, 90, 5, 90, gInterfaceWindowBuffer + 14 * 640 + 316, 640);
+    blitBufferToBuffer(movePointBackground, 90, 5, 90, interfaceBuffer + 14 * 640 + 316, 640);
 
     if (actionPointsLeft == -1) {
-        frmData = gRedLightFrmData;
+        frmData = moveLightRed;
         actionPointsLeft = 10;
         bonusActionPoints = 0;
     } else {
-        frmData = gGreenLightFrmData;
+        frmData = moveLightGreen;
 
         if (actionPointsLeft < 0) {
             actionPointsLeft = 0;
@@ -1148,39 +1229,39 @@ void interfaceRenderActionPoints(int actionPointsLeft, int bonusActionPoints)
 
     int index;
     for (index = 0; index < actionPointsLeft; index++) {
-        blitBufferToBuffer(frmData, 5, 5, 5, gInterfaceWindowBuffer + 14 * 640 + 316 + index * 9, 640);
+        blitBufferToBuffer(frmData, 5, 5, 5, interfaceBuffer + 14 * 640 + 316 + index * 9, 640);
     }
 
     for (; index < (actionPointsLeft + bonusActionPoints); index++) {
-        blitBufferToBuffer(gYellowLightFrmData, 5, 5, 5, gInterfaceWindowBuffer + 14 * 640 + 316 + index * 9, 640);
+        blitBufferToBuffer(moveLightYellow, 5, 5, 5, interfaceBuffer + 14 * 640 + 316 + index * 9, 640);
     }
 
-    if (!gInterfaceBarInitialized) {
-        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarActionPointsBarRect);
+    if (!insideInit) {
+        win_draw_rect(interfaceWindow, &movePointRect);
     }
 }
 
 // 0x45EF6C
-int interfaceGetCurrentHitMode(int* hitMode, bool* aiming)
+int intface_get_attack(int* hitMode, bool* aiming)
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
     *aiming = false;
 
-    switch (gInterfaceItemStates[gInterfaceCurrentHand].action) {
+    switch (itemButtonItems[itemCurrentItem].action) {
     case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
         *aiming = true;
         // FALLTHROUGH
     case INTERFACE_ITEM_ACTION_PRIMARY:
-        *hitMode = gInterfaceItemStates[gInterfaceCurrentHand].primaryHitMode;
+        *hitMode = itemButtonItems[itemCurrentItem].primaryHitMode;
         return 0;
     case INTERFACE_ITEM_ACTION_SECONDARY_AIMING:
         *aiming = true;
         // FALLTHROUGH
     case INTERFACE_ITEM_ACTION_SECONDARY:
-        *hitMode = gInterfaceItemStates[gInterfaceCurrentHand].secondaryHitMode;
+        *hitMode = itemButtonItems[itemCurrentItem].secondaryHitMode;
         return 0;
     }
 
@@ -1188,19 +1269,19 @@ int interfaceGetCurrentHitMode(int* hitMode, bool* aiming)
 }
 
 // 0x45EFEC
-int interfaceUpdateItems(bool animated, int leftItemAction, int rightItemAction)
+int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
 {
     if (isoIsDisabled()) {
         animated = false;
     }
 
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    Object* oldCurrentItem = gInterfaceItemStates[gInterfaceCurrentHand].item;
+    Object* oldCurrentItem = itemButtonItems[itemCurrentItem].item;
 
-    InterfaceItemState* leftItemState = &(gInterfaceItemStates[HAND_LEFT]);
+    InterfaceItemState* leftItemState = &(itemButtonItems[HAND_LEFT]);
     Object* item1 = critterGetItem1(gDude);
     if (item1 == leftItemState->item && leftItemState->item != NULL) {
         if (leftItemState->item != NULL) {
@@ -1259,7 +1340,7 @@ int interfaceUpdateItems(bool animated, int leftItemAction, int rightItemAction)
         }
     }
 
-    InterfaceItemState* rightItemState = &(gInterfaceItemStates[HAND_RIGHT]);
+    InterfaceItemState* rightItemState = &(itemButtonItems[HAND_RIGHT]);
 
     Object* item2 = critterGetItem2(gDude);
     if (item2 == rightItemState->item && rightItemState->item != NULL) {
@@ -1320,7 +1401,7 @@ int interfaceUpdateItems(bool animated, int leftItemAction, int rightItemAction)
     }
 
     if (animated) {
-        Object* newCurrentItem = gInterfaceItemStates[gInterfaceCurrentHand].item;
+        Object* newCurrentItem = itemButtonItems[itemCurrentItem].item;
         if (newCurrentItem != oldCurrentItem) {
             int animationCode = 0;
             if (newCurrentItem != NULL) {
@@ -1329,28 +1410,28 @@ int interfaceUpdateItems(bool animated, int leftItemAction, int rightItemAction)
                 }
             }
 
-            interfaceBarSwapHandsAnimatePutAwayTakeOutSequence((gDude->fid & 0xF000) >> 12, animationCode);
+            intface_change_fid_animate((gDude->fid & 0xF000) >> 12, animationCode);
 
             return 0;
         }
     }
 
-    interfaceBarRefreshMainAction();
+    intface_redraw_items();
 
     return 0;
 }
 
 // 0x45F404
-int interfaceBarSwapHands(bool animated)
+int intface_toggle_items(bool animated)
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    gInterfaceCurrentHand = 1 - gInterfaceCurrentHand;
+    itemCurrentItem = 1 - itemCurrentItem;
 
     if (animated) {
-        Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
+        Object* item = itemButtonItems[itemCurrentItem].item;
         int animationCode = 0;
         if (item != NULL) {
             if (itemGetType(item) == ITEM_TYPE_WEAPON) {
@@ -1358,9 +1439,9 @@ int interfaceBarSwapHands(bool animated)
             }
         }
 
-        interfaceBarSwapHandsAnimatePutAwayTakeOutSequence((gDude->fid & 0xF000) >> 12, animationCode);
+        intface_change_fid_animate((gDude->fid & 0xF000) >> 12, animationCode);
     } else {
-        interfaceBarRefreshMainAction();
+        intface_redraw_items();
     }
 
     int mode = gmouse_3d_get_mode();
@@ -1372,21 +1453,21 @@ int interfaceBarSwapHands(bool animated)
 }
 
 // 0x45F4B4
-int interfaceGetItemActions(int* leftItemAction, int* rightItemAction)
+int intface_get_item_states(int* leftItemAction, int* rightItemAction)
 {
-    *leftItemAction = gInterfaceItemStates[HAND_LEFT].action;
-    *rightItemAction = gInterfaceItemStates[HAND_RIGHT].action;
+    *leftItemAction = itemButtonItems[HAND_LEFT].action;
+    *rightItemAction = itemButtonItems[HAND_RIGHT].action;
     return 0;
 }
 
 // 0x45F4E0
-int interfaceCycleItemAction()
+int intface_toggle_item_state()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    InterfaceItemState* itemState = &(gInterfaceItemStates[gInterfaceCurrentHand]);
+    InterfaceItemState* itemState = &(itemButtonItems[itemCurrentItem]);
 
     int oldAction = itemState->action;
     if (itemState->isWeapon != 0) {
@@ -1430,41 +1511,41 @@ int interfaceCycleItemAction()
     }
 
     if (oldAction != itemState->action) {
-        interfaceBarRefreshMainAction();
+        intface_redraw_items();
     }
 
     return 0;
 }
 
 // 0x45F5EC
-void _intface_use_item()
+void intface_use_item()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return;
     }
 
-    InterfaceItemState* ptr = &(gInterfaceItemStates[gInterfaceCurrentHand]);
+    InterfaceItemState* ptr = &(itemButtonItems[itemCurrentItem]);
 
     if (ptr->isWeapon != 0) {
         if (ptr->action == INTERFACE_ITEM_ACTION_RELOAD) {
             if (isInCombat()) {
-                int hitMode = gInterfaceCurrentHand == HAND_LEFT
+                int hitMode = itemCurrentItem == HAND_LEFT
                     ? HIT_MODE_LEFT_WEAPON_RELOAD
                     : HIT_MODE_RIGHT_WEAPON_RELOAD;
 
                 int actionPointsRequired = _item_mp_cost(gDude, hitMode, false);
                 if (actionPointsRequired <= gDude->data.critter.combat.ap) {
-                    if (_intface_item_reload() == 0) {
+                    if (intface_item_reload() == 0) {
                         if (actionPointsRequired > gDude->data.critter.combat.ap) {
                             gDude->data.critter.combat.ap = 0;
                         } else {
                             gDude->data.critter.combat.ap -= actionPointsRequired;
                         }
-                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+                        intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
                     }
                 }
             } else {
-                _intface_item_reload();
+                intface_item_reload();
             }
         } else {
             gmouse_set_cursor(MOUSE_CURSOR_CROSSHAIR);
@@ -1481,48 +1562,48 @@ void _intface_use_item()
             int actionPointsRequired = _item_mp_cost(gDude, ptr->secondaryHitMode, false);
             if (actionPointsRequired <= gDude->data.critter.combat.ap) {
                 _obj_use_item(gDude, ptr->item);
-                interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+                intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 if (actionPointsRequired > gDude->data.critter.combat.ap) {
                     gDude->data.critter.combat.ap = 0;
                 } else {
                     gDude->data.critter.combat.ap -= actionPointsRequired;
                 }
 
-                interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+                intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
             }
         } else {
             _obj_use_item(gDude, ptr->item);
-            interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+            intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
     }
 }
 
 // 0x45F7FC
-int interfaceGetCurrentHand()
+int intface_is_item_right_hand()
 {
-    return gInterfaceCurrentHand;
+    return itemCurrentItem;
 }
 
 // 0x45F804
-int interfaceGetActiveItem(Object** itemPtr)
+int intface_get_current_item(Object** itemPtr)
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    *itemPtr = gInterfaceItemStates[gInterfaceCurrentHand].item;
+    *itemPtr = itemButtonItems[itemCurrentItem].item;
 
     return 0;
 }
 
 // 0x45F838
-int _intface_update_ammo_lights()
+int intface_update_ammo_lights()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    InterfaceItemState* p = &(gInterfaceItemStates[gInterfaceCurrentHand]);
+    InterfaceItemState* p = &(itemButtonItems[itemCurrentItem]);
 
     int ratio = 0;
 
@@ -1544,19 +1625,19 @@ int _intface_update_ammo_lights()
         }
     }
 
-    interfaceUpdateAmmoBar(463, ratio);
+    intface_draw_ammo_lights(463, ratio);
 
     return 0;
 }
 
 // 0x45F96C
-void interfaceBarEndButtonsShow(bool animated)
+void intface_end_window_open(bool animated)
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return;
     }
 
-    if (gInterfaceBarEndButtonsIsVisible) {
+    if (endWindowOpen) {
         return;
     }
 
@@ -1578,8 +1659,8 @@ void interfaceBarEndButtonsShow(bool animated)
             if (getTicksSince(time) >= delay) {
                 unsigned char* src = art_frame_data(art, frame, 0);
                 if (src != NULL) {
-                    blitBufferToBuffer(src, 57, 58, 57, gInterfaceWindowBuffer + 640 * 38 + 580, 640);
-                    win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+                    blitBufferToBuffer(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
+                    win_draw_rect(interfaceWindow, &endWindowRect);
                 }
 
                 time = _get_time();
@@ -1589,26 +1670,26 @@ void interfaceBarEndButtonsShow(bool animated)
         }
     } else {
         unsigned char* src = art_frame_data(art, frameCount - 1, 0);
-        blitBufferToBuffer(src, 57, 58, 57, gInterfaceWindowBuffer + 640 * 38 + 580, 640);
-        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        blitBufferToBuffer(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
+        win_draw_rect(interfaceWindow, &endWindowRect);
     }
 
     art_ptr_unlock(handle);
 
-    gInterfaceBarEndButtonsIsVisible = true;
-    endTurnButtonInit();
-    endCombatButtonInit();
-    interfaceBarEndButtonsRenderRedLights();
+    endWindowOpen = true;
+    intface_create_end_turn_button();
+    intface_create_end_combat_button();
+    intface_end_buttons_disable();
 }
 
 // 0x45FAC0
-void interfaceBarEndButtonsHide(bool animated)
+void intface_end_window_close(bool animated)
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return;
     }
 
-    if (!gInterfaceBarEndButtonsIsVisible) {
+    if (!endWindowOpen) {
         return;
     }
 
@@ -1619,8 +1700,8 @@ void interfaceBarEndButtonsHide(bool animated)
         return;
     }
 
-    endTurnButtonFree();
-    endCombatButtonFree();
+    intface_destroy_end_turn_button();
+    intface_destroy_end_combat_button();
     gsound_play_sfx_file("icibcxx1");
 
     if (animated) {
@@ -1631,10 +1712,10 @@ void interfaceBarEndButtonsHide(bool animated)
         while (frame != 0) {
             if (getTicksSince(time) >= delay) {
                 unsigned char* src = art_frame_data(art, frame - 1, 0);
-                unsigned char* dest = gInterfaceWindowBuffer + 640 * 38 + 580;
+                unsigned char* dest = interfaceBuffer + 640 * 38 + 580;
                 if (src != NULL) {
                     blitBufferToBuffer(src, 57, 58, 57, dest, 640);
-                    win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+                    win_draw_rect(interfaceWindow, &endWindowRect);
                 }
 
                 time = _get_time();
@@ -1643,22 +1724,22 @@ void interfaceBarEndButtonsHide(bool animated)
             gmouse_bk_process();
         }
     } else {
-        unsigned char* dest = gInterfaceWindowBuffer + 640 * 38 + 580;
+        unsigned char* dest = interfaceBuffer + 640 * 38 + 580;
         unsigned char* src = art_frame_data(art, 0, 0);
         blitBufferToBuffer(src, 57, 58, 57, dest, 640);
-        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        win_draw_rect(interfaceWindow, &endWindowRect);
     }
 
     art_ptr_unlock(handle);
-    gInterfaceBarEndButtonsIsVisible = false;
+    endWindowOpen = false;
 }
 
 // 0x45FC04
-void interfaceBarEndButtonsRenderGreenLights()
+void intface_end_buttons_enable()
 {
-    if (gInterfaceBarEndButtonsIsVisible) {
-        buttonEnable(gEndTurnButton);
-        buttonEnable(gEndCombatButton);
+    if (endWindowOpen) {
+        buttonEnable(endTurnButton);
+        buttonEnable(endCombatButton);
 
         // endltgrn.frm - green lights around end turn/combat window
         int lightsFid = art_id(OBJ_TYPE_INTERFACE, 109, 0, 0, 0);
@@ -1669,19 +1750,19 @@ void interfaceBarEndButtonsRenderGreenLights()
         }
 
         gsound_play_sfx_file("icombat2");
-        blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, gInterfaceWindowBuffer + 38 * 640 + 580, 640);
-        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, interfaceBuffer + 38 * 640 + 580, 640);
+        win_draw_rect(interfaceWindow, &endWindowRect);
 
         art_ptr_unlock(lightsFrmHandle);
     }
 }
 
 // 0x45FC98
-void interfaceBarEndButtonsRenderRedLights()
+void intface_end_buttons_disable()
 {
-    if (gInterfaceBarEndButtonsIsVisible) {
-        buttonDisable(gEndTurnButton);
-        buttonDisable(gEndCombatButton);
+    if (endWindowOpen) {
+        buttonDisable(endTurnButton);
+        buttonDisable(endCombatButton);
 
         CacheEntry* lightsFrmHandle;
         // endltred.frm - red lights around end turn/combat window
@@ -1692,8 +1773,8 @@ void interfaceBarEndButtonsRenderRedLights()
         }
 
         gsound_play_sfx_file("icombat1");
-        blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, gInterfaceWindowBuffer + 38 * 640 + 580, 640);
-        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarEndButtonsRect);
+        blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, interfaceBuffer + 38 * 640 + 580, 640);
+        win_draw_rect(interfaceWindow, &endWindowRect);
 
         art_ptr_unlock(lightsFrmHandle);
     }
@@ -1702,31 +1783,31 @@ void interfaceBarEndButtonsRenderRedLights()
 // NOTE: Inlined.
 //
 // 0x45FD2C
-int intface_init_items()
+static int intface_init_items()
 {
     // FIXME: For unknown reason these values initialized with -1. It's never
     // checked for -1, so I have no explanation for this.
-    gInterfaceItemStates[HAND_LEFT].item = (Object*)-1;
-    gInterfaceItemStates[HAND_RIGHT].item = (Object*)-1;
+    itemButtonItems[HAND_LEFT].item = (Object*)-1;
+    itemButtonItems[HAND_RIGHT].item = (Object*)-1;
 
     return 0;
 }
 
 // 0x45FD88
-int interfaceBarRefreshMainAction()
+static int intface_redraw_items()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    buttonEnable(gSingleAttackButton);
+    buttonEnable(itemButton);
 
-    InterfaceItemState* itemState = &(gInterfaceItemStates[gInterfaceCurrentHand]);
+    InterfaceItemState* itemState = &(itemButtonItems[itemCurrentItem]);
     int actionPoints = -1;
 
     if (itemState->isDisabled == 0) {
-        memcpy(_itemButtonUp, gSingleAttackButtonUpData, sizeof(_itemButtonUp));
-        memcpy(_itemButtonDown, gSingleAttackButtonDownData, sizeof(_itemButtonDown));
+        memcpy(itemButtonUp, itemButtonUpBlank, sizeof(itemButtonUp));
+        memcpy(itemButtonDown, itemButtonDownBlank, sizeof(itemButtonDown));
 
         if (itemState->isWeapon == 0) {
             int fid;
@@ -1747,8 +1828,8 @@ int interfaceBarRefreshMainAction()
                     int width = art_frame_width(useTextFrm, 0, 0);
                     int height = art_frame_length(useTextFrm, 0, 0);
                     unsigned char* data = art_frame_data(useTextFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * 7 + 181 - width, 188);
-                    _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, 5, 188, 59641);
+                    blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
+                    _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     art_ptr_unlock(useTextFrmHandle);
                 }
 
@@ -1775,7 +1856,7 @@ int interfaceBarRefreshMainAction()
                 hitMode = itemState->secondaryHitMode;
                 break;
             case INTERFACE_ITEM_ACTION_RELOAD:
-                actionPoints = _item_mp_cost(gDude, gInterfaceCurrentHand == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
+                actionPoints = _item_mp_cost(gDude, itemCurrentItem == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
                 primaryFid = art_id(OBJ_TYPE_INTERFACE, 291, 0, 0, 0);
                 break;
             }
@@ -1787,7 +1868,7 @@ int interfaceBarRefreshMainAction()
                     int width = art_frame_width(bullseyeFrm, 0, 0);
                     int height = art_frame_length(bullseyeFrm, 0, 0);
                     unsigned char* data = art_frame_data(bullseyeFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * (60 - height) + (181 - width), 188);
+                    blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * (60 - height) + (181 - width), 188);
 
                     int v9 = 60 - height - 2;
                     if (v9 < 0) {
@@ -1795,7 +1876,7 @@ int interfaceBarRefreshMainAction()
                         height -= 2;
                     }
 
-                    _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, v9, 188, 59641);
+                    _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, v9, 188, 59641);
                     art_ptr_unlock(bullseyeFrmHandle);
                 }
             }
@@ -1884,8 +1965,8 @@ int interfaceBarRefreshMainAction()
                     int width = art_frame_width(primaryFrm, 0, 0);
                     int height = art_frame_length(primaryFrm, 0, 0);
                     unsigned char* data = art_frame_data(primaryFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * 7 + 181 - width, 188);
-                    _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 181 - width + 1, 5, 188, 59641);
+                    blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
+                    _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     art_ptr_unlock(primaryFrmHandle);
                 }
             }
@@ -1903,7 +1984,7 @@ int interfaceBarRefreshMainAction()
             int height = art_frame_length(art, 0, 0);
             unsigned char* data = art_frame_data(art, 0, 0);
 
-            blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * (60 - height) + 7, 188);
+            blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * (60 - height) + 7, 188);
 
             int v29 = 60 - height - 2;
             if (v29 < 0) {
@@ -1911,7 +1992,7 @@ int interfaceBarRefreshMainAction()
                 height -= 2;
             }
 
-            _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, 7 + 1, v29, 188, 59641);
+            _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 7 + 1, v29, 188, 59641);
             art_ptr_unlock(handle);
 
             int offset = width + 7;
@@ -1924,21 +2005,21 @@ int interfaceBarRefreshMainAction()
                 height = art_frame_length(art, 0, 0);
                 data = art_frame_data(art, 0, 0);
 
-                blitBufferToBufferTrans(data + actionPoints * 10, 10, height, width, _itemButtonUp + 188 * (60 - height) + 7 + offset, 188);
+                blitBufferToBufferTrans(data + actionPoints * 10, 10, height, width, itemButtonUp + 188 * (60 - height) + 7 + offset, 188);
 
                 int v40 = 60 - height - 2;
                 if (v40 < 0) {
                     v40 = 0;
                     height -= 2;
                 }
-                _dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, _itemButtonDown, offset + 7 + 1, v40, 188, 59641);
+                _dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, itemButtonDown, offset + 7 + 1, v40, 188, 59641);
 
                 art_ptr_unlock(handle);
             }
         }
     } else {
-        memcpy(_itemButtonUp, _itemButtonDisabled, sizeof(_itemButtonUp));
-        memcpy(_itemButtonDown, _itemButtonDisabled, sizeof(_itemButtonDown));
+        memcpy(itemButtonUp, itemButtonDisabled, sizeof(itemButtonUp));
+        memcpy(itemButtonDown, itemButtonDisabled, sizeof(itemButtonDown));
     }
 
     if (itemState->itemFid != -1) {
@@ -1952,27 +2033,27 @@ int interfaceBarRefreshMainAction()
             int v46 = (188 - width) / 2;
             int v47 = (67 - height) / 2 - 2;
 
-            blitBufferToBufferTrans(data, width, height, width, _itemButtonUp + 188 * ((67 - height) / 2) + v46, 188);
+            blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * ((67 - height) / 2) + v46, 188);
 
             if (v47 < 0) {
                 v47 = 0;
                 height -= 2;
             }
 
-            _dark_trans_buf_to_buf(data, width, height, width, _itemButtonDown, v46 + 1, v47, 188, 63571);
+            _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, v46 + 1, v47, 188, 63571);
             art_ptr_unlock(itemFrmHandle);
         }
     }
 
-    if (!gInterfaceBarInitialized) {
-        _intface_update_ammo_lights();
+    if (!insideInit) {
+        intface_update_ammo_lights();
 
-        win_draw_rect(gInterfaceBarWindow, &gInterfaceBarMainActionRect);
+        win_draw_rect(interfaceWindow, &itemButtonRect);
 
         if (itemState->isDisabled != 0) {
-            buttonDisable(gSingleAttackButton);
+            buttonDisable(itemButton);
         } else {
-            buttonEnable(gSingleAttackButton);
+            buttonEnable(itemButton);
         }
     }
 
@@ -1980,23 +2061,23 @@ int interfaceBarRefreshMainAction()
 }
 
 // 0x460658
-int _intface_redraw_items_callback(Object* a1, Object* a2)
+static int intface_redraw_items_callback(Object* a1, Object* a2)
 {
-    interfaceBarRefreshMainAction();
+    intface_redraw_items();
     return 0;
 }
 
 // 0x460660
-int _intface_change_fid_callback(Object* a1, Object* a2)
+static int intface_change_fid_callback(Object* a1, Object* a2)
 {
-    gInterfaceBarSwapHandsInProgress = false;
+    intface_fid_is_changing = false;
     return 0;
 }
 
 // 0x46066C
-void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimationCode, int weaponAnimationCode)
+static void intface_change_fid_animate(int previousWeaponAnimationCode, int weaponAnimationCode)
 {
-    gInterfaceBarSwapHandsInProgress = true;
+    intface_fid_is_changing = true;
 
     register_clear(gDude);
     register_begin(ANIMATION_REQUEST_RESERVED);
@@ -2008,9 +2089,9 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         register_object_animate(gDude, ANIM_PUT_AWAY, 0);
     }
 
-    register_object_must_call(NULL, NULL, _intface_redraw_items_callback, -1);
+    register_object_must_call(NULL, NULL, intface_redraw_items_callback, -1);
 
-    Object* item = gInterfaceItemStates[gInterfaceCurrentHand].item;
+    Object* item = itemButtonItems[itemCurrentItem].item;
     if (item != NULL && item->lightDistance > 4) {
         register_object_light(gDude, item->lightDistance, 0);
     }
@@ -2022,20 +2103,20 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
         register_object_change_fid(gDude, fid, -1);
     }
 
-    register_object_must_call(NULL, NULL, _intface_change_fid_callback, -1);
+    register_object_must_call(NULL, NULL, intface_change_fid_callback, -1);
 
     if (register_end() == -1) {
         return;
     }
 
-    bool interfaceBarWasEnabled = gInterfaceBarEnabled;
+    bool interfaceBarWasEnabled = intfaceEnabled;
 
-    interfaceBarDisable();
+    intface_disable();
     gmouse_disable(0);
 
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
 
-    while (gInterfaceBarSwapHandsInProgress) {
+    while (intface_fid_is_changing) {
         if (game_user_wants_to_quit) {
             break;
         }
@@ -2048,144 +2129,144 @@ void interfaceBarSwapHandsAnimatePutAwayTakeOutSequence(int previousWeaponAnimat
     gmouse_enable();
 
     if (interfaceBarWasEnabled) {
-        interfaceBarEnable();
+        intface_enable();
     }
 }
 
 // 0x4607E0
-int endTurnButtonInit()
+static int intface_create_end_turn_button()
 {
     int fid;
 
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    if (!gInterfaceBarEndButtonsIsVisible) {
+    if (!endWindowOpen) {
         return -1;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 105, 0, 0, 0);
-    gEndTurnButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gEndTurnButtonUpFrmHandle);
-    if (gEndTurnButtonUpFrmData == NULL) {
+    endTurnButtonUp = art_ptr_lock_data(fid, 0, 0, &endTurnButtonUpKey);
+    if (endTurnButtonUp == NULL) {
         return -1;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 106, 0, 0, 0);
-    gEndTurnButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gEndTurnButtonDownFrmHandle);
-    if (gEndTurnButtonDownFrmData == NULL) {
+    endTurnButtonDown = art_ptr_lock_data(fid, 0, 0, &endTurnButtonDownKey);
+    if (endTurnButtonDown == NULL) {
         return -1;
     }
 
-    gEndTurnButton = buttonCreate(gInterfaceBarWindow, 590, 43, 38, 22, -1, -1, -1, 32, gEndTurnButtonUpFrmData, gEndTurnButtonDownFrmData, NULL, 0);
-    if (gEndTurnButton == -1) {
+    endTurnButton = buttonCreate(interfaceWindow, 590, 43, 38, 22, -1, -1, -1, 32, endTurnButtonUp, endTurnButtonDown, NULL, 0);
+    if (endTurnButton == -1) {
         return -1;
     }
 
-    _win_register_button_disable(gEndTurnButton, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData, gEndTurnButtonUpFrmData);
-    buttonSetCallbacks(gEndTurnButton, gsound_med_butt_press, gsound_med_butt_release);
+    _win_register_button_disable(endTurnButton, endTurnButtonUp, endTurnButtonUp, endTurnButtonUp);
+    buttonSetCallbacks(endTurnButton, gsound_med_butt_press, gsound_med_butt_release);
 
     return 0;
 }
 
 // 0x4608C4
-int endTurnButtonFree()
+static int intface_destroy_end_turn_button()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    if (gEndTurnButton != -1) {
-        buttonDestroy(gEndTurnButton);
-        gEndTurnButton = -1;
+    if (endTurnButton != -1) {
+        buttonDestroy(endTurnButton);
+        endTurnButton = -1;
     }
 
-    if (gEndTurnButtonDownFrmData) {
-        art_ptr_unlock(gEndTurnButtonDownFrmHandle);
-        gEndTurnButtonDownFrmHandle = NULL;
-        gEndTurnButtonDownFrmData = NULL;
+    if (endTurnButtonDown) {
+        art_ptr_unlock(endTurnButtonDownKey);
+        endTurnButtonDownKey = NULL;
+        endTurnButtonDown = NULL;
     }
 
-    if (gEndTurnButtonUpFrmData) {
-        art_ptr_unlock(gEndTurnButtonUpFrmHandle);
-        gEndTurnButtonUpFrmHandle = NULL;
-        gEndTurnButtonUpFrmData = NULL;
+    if (endTurnButtonUp) {
+        art_ptr_unlock(endTurnButtonUpKey);
+        endTurnButtonUpKey = NULL;
+        endTurnButtonUp = NULL;
     }
 
     return 0;
 }
 
 // 0x460940
-int endCombatButtonInit()
+static int intface_create_end_combat_button()
 {
     int fid;
 
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    if (!gInterfaceBarEndButtonsIsVisible) {
+    if (!endWindowOpen) {
         return -1;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 107, 0, 0, 0);
-    gEndCombatButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gEndCombatButtonUpFrmHandle);
-    if (gEndCombatButtonUpFrmData == NULL) {
+    endCombatButtonUp = art_ptr_lock_data(fid, 0, 0, &endCombatButtonUpKey);
+    if (endCombatButtonUp == NULL) {
         return -1;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 108, 0, 0, 0);
-    gEndCombatButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gEndCombatButtonDownFrmHandle);
-    if (gEndCombatButtonDownFrmData == NULL) {
+    endCombatButtonDown = art_ptr_lock_data(fid, 0, 0, &endCombatButtonDownKey);
+    if (endCombatButtonDown == NULL) {
         return -1;
     }
 
-    gEndCombatButton = buttonCreate(gInterfaceBarWindow, 590, 65, 38, 22, -1, -1, -1, 13, gEndCombatButtonUpFrmData, gEndCombatButtonDownFrmData, NULL, 0);
-    if (gEndCombatButton == -1) {
+    endCombatButton = buttonCreate(interfaceWindow, 590, 65, 38, 22, -1, -1, -1, 13, endCombatButtonUp, endCombatButtonDown, NULL, 0);
+    if (endCombatButton == -1) {
         return -1;
     }
 
-    _win_register_button_disable(gEndCombatButton, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData, gEndCombatButtonUpFrmData);
-    buttonSetCallbacks(gEndCombatButton, gsound_med_butt_press, gsound_med_butt_release);
+    _win_register_button_disable(endCombatButton, endCombatButtonUp, endCombatButtonUp, endCombatButtonUp);
+    buttonSetCallbacks(endCombatButton, gsound_med_butt_press, gsound_med_butt_release);
 
     return 0;
 }
 
 // 0x460A24
-int endCombatButtonFree()
+static int intface_destroy_end_combat_button()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
-    if (gEndCombatButton != -1) {
-        buttonDestroy(gEndCombatButton);
-        gEndCombatButton = -1;
+    if (endCombatButton != -1) {
+        buttonDestroy(endCombatButton);
+        endCombatButton = -1;
     }
 
-    if (gEndCombatButtonDownFrmData != NULL) {
-        art_ptr_unlock(gEndCombatButtonDownFrmHandle);
-        gEndCombatButtonDownFrmHandle = NULL;
-        gEndCombatButtonDownFrmData = NULL;
+    if (endCombatButtonDown != NULL) {
+        art_ptr_unlock(endCombatButtonDownKey);
+        endCombatButtonDownKey = NULL;
+        endCombatButtonDown = NULL;
     }
 
-    if (gEndCombatButtonUpFrmData != NULL) {
-        art_ptr_unlock(gEndCombatButtonUpFrmHandle);
-        gEndCombatButtonUpFrmHandle = NULL;
-        gEndCombatButtonUpFrmData = NULL;
+    if (endCombatButtonUp != NULL) {
+        art_ptr_unlock(endCombatButtonUpKey);
+        endCombatButtonUpKey = NULL;
+        endCombatButtonUp = NULL;
     }
 
     return 0;
 }
 
 // 0x460AA0
-void interfaceUpdateAmmoBar(int x, int ratio)
+static void intface_draw_ammo_lights(int x, int ratio)
 {
     if ((ratio & 1) != 0) {
         ratio -= 1;
     }
 
-    unsigned char* dest = gInterfaceWindowBuffer + 640 * 26 + x;
+    unsigned char* dest = interfaceBuffer + 640 * 26 + x;
 
     for (int index = 70; index > ratio; index--) {
         *dest = 14;
@@ -2202,36 +2283,36 @@ void interfaceUpdateAmmoBar(int x, int ratio)
         ratio -= 2;
     }
 
-    if (!gInterfaceBarInitialized) {
+    if (!insideInit) {
         Rect rect;
         rect.left = x;
         rect.top = 26;
         rect.right = x + 1;
         rect.bottom = 26 + 70;
-        win_draw_rect(gInterfaceBarWindow, &rect);
+        win_draw_rect(interfaceWindow, &rect);
     }
 }
 
 // 0x460B20
-int _intface_item_reload()
+static int intface_item_reload()
 {
-    if (gInterfaceBarWindow == -1) {
+    if (interfaceWindow == -1) {
         return -1;
     }
 
     bool v0 = false;
-    while (_item_w_try_reload(gDude, gInterfaceItemStates[gInterfaceCurrentHand].item) != -1) {
+    while (_item_w_try_reload(gDude, itemButtonItems[itemCurrentItem].item) != -1) {
         v0 = true;
     }
 
-    interfaceCycleItemAction();
-    interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+    intface_toggle_item_state();
+    intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
 
     if (!v0) {
         return -1;
     }
 
-    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, gInterfaceItemStates[gInterfaceCurrentHand].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
+    const char* sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, itemButtonItems[itemCurrentItem].item, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
     gsound_play_sfx_file(sfx);
 
     return 0;
@@ -2244,7 +2325,7 @@ int _intface_item_reload()
 // [offset] = 0 - grey, 120 - yellow, 240 - red.
 //
 // 0x460BA0
-void interfaceRenderCounter(int x, int y, int previousValue, int value, int offset, int delay)
+static void intface_rotate_numbers(int x, int y, int previousValue, int value, int offset, int delay)
 {
     if (value > 999) {
         value = 999;
@@ -2252,8 +2333,8 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
         value = -999;
     }
 
-    unsigned char* numbers = gNumbersFrmData + offset;
-    unsigned char* dest = gInterfaceWindowBuffer + 640 * y;
+    unsigned char* numbers = numbersBuffer + offset;
+    unsigned char* dest = interfaceBuffer + 640 * y;
 
     unsigned char* downSrc = numbers + 90;
     unsigned char* upSrc = numbers + 99;
@@ -2267,7 +2348,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
 
     int normalizedSign;
     int normalizedValue;
-    if (gInterfaceBarInitialized || delay == 0) {
+    if (insideInit || delay == 0) {
         normalizedSign = value >= 0 ? 1 : -1;
         normalizedValue = abs(value);
     } else {
@@ -2284,9 +2365,9 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
     blitBufferToBuffer(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
     blitBufferToBuffer(normalizedSign >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
 
-    if (!gInterfaceBarInitialized) {
+    if (!insideInit) {
         Rect numbersRect = { x, y, x + 33, y + 17 };
-        win_draw_rect(gInterfaceBarWindow, &numbersRect);
+        win_draw_rect(interfaceWindow, &numbersRect);
         if (delay != 0) {
             int change = value - previousValue >= 0 ? 1 : -1;
             int v14 = previousValue >= 0 ? 1 : -1;
@@ -2300,7 +2381,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 mouse_info();
                 gmouse_bk_process();
                 coreDelay(delay);
-                win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                win_draw_rect(interfaceWindow, &numbersRect);
 
                 ones += v49;
 
@@ -2309,7 +2390,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                     mouse_info();
                     gmouse_bk_process();
                     coreDelay(delay);
-                    win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                    win_draw_rect(interfaceWindow, &numbersRect);
 
                     tens += v49;
                     ones -= 10 * v49;
@@ -2318,7 +2399,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                         mouse_info();
                         gmouse_bk_process();
                         coreDelay(delay);
-                        win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                        win_draw_rect(interfaceWindow, &numbersRect);
 
                         hundreds += v49;
                         tens -= 10 * v49;
@@ -2330,19 +2411,19 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                         mouse_info();
                         gmouse_bk_process();
                         coreDelay(delay);
-                        win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                        win_draw_rect(interfaceWindow, &numbersRect);
                     }
 
                     blitBufferToBuffer(downSrc, 9, 17, 360, tensDest, 640);
                     coreDelay(delay);
-                    win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                    win_draw_rect(interfaceWindow, &numbersRect);
                 }
 
                 blitBufferToBuffer(downSrc, 9, 17, 360, onesDest, 640);
                 mouse_info();
                 gmouse_bk_process();
                 coreDelay(delay);
-                win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                win_draw_rect(interfaceWindow, &numbersRect);
 
                 previousValue += change;
 
@@ -2354,7 +2435,7 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
                 mouse_info();
                 gmouse_bk_process();
                 coreDelay(delay);
-                win_draw_rect(gInterfaceBarWindow, &numbersRect);
+                win_draw_rect(interfaceWindow, &numbersRect);
             }
         }
     }
@@ -2363,19 +2444,19 @@ void interfaceRenderCounter(int x, int y, int previousValue, int value, int offs
 // NOTE: Inlined.
 //
 // 0x461128
-int intface_fatal_error(int rc)
+static int intface_fatal_error(int rc)
 {
-    interfaceFree();
+    intface_exit();
 
     return rc;
 }
 
 // 0x461134
-int indicatorBarInit()
+static int construct_box_bar_win()
 {
     int oldFont = fontGetCurrent();
 
-    if (gIndicatorBarWindow != -1) {
+    if (bar_window != -1) {
         return 0;
     }
 
@@ -2412,14 +2493,14 @@ int indicatorBarInit()
     }
 
     for (int index = 0; index < INDICATOR_COUNT; index++) {
-        IndicatorDescription* indicatorDescription = &(gIndicatorDescriptions[index]);
+        IndicatorDescription* indicatorDescription = &(bbox[index]);
 
         indicatorDescription->data = (unsigned char*)internal_malloc(INDICATOR_BOX_WIDTH * INDICATOR_BOX_HEIGHT);
         if (indicatorDescription->data == NULL) {
             debugPrint("\nINTRFACE: Error initializing indicator box graphics! **");
 
             while (--index >= 0) {
-                internal_free(gIndicatorDescriptions[index].data);
+                internal_free(bbox[index].data);
             }
 
             messageListFree(&messageList);
@@ -2432,7 +2513,7 @@ int indicatorBarInit()
     fontSetCurrent(101);
 
     for (int index = 0; index < INDICATOR_COUNT; index++) {
-        IndicatorDescription* indicator = &(gIndicatorDescriptions[index]);
+        IndicatorDescription* indicator = &(bbox[index]);
 
         char text[1024];
         strcpy(text, getmsg(&messageList, &messageListItem, indicator->title));
@@ -2451,8 +2532,8 @@ int indicatorBarInit()
         fontDrawText(indicator->data + INDICATOR_BOX_WIDTH * y + x, text, INDICATOR_BOX_WIDTH, INDICATOR_BOX_WIDTH, color);
     }
 
-    gIndicatorBarIsVisible = true;
-    indicatorBarRefresh();
+    box_status_flag = true;
+    refresh_box_bar_win();
 
     messageListFree(&messageList);
     art_ptr_unlock(indicatorBoxFrmHandle);
@@ -2462,15 +2543,15 @@ int indicatorBarInit()
 }
 
 // 0x461454
-void interfaceBarFree()
+static void deconstruct_box_bar_win()
 {
-    if (gIndicatorBarWindow != -1) {
-        windowDestroy(gIndicatorBarWindow);
-        gIndicatorBarWindow = -1;
+    if (bar_window != -1) {
+        windowDestroy(bar_window);
+        bar_window = -1;
     }
 
     for (int index = 0; index < INDICATOR_COUNT; index++) {
-        IndicatorDescription* indicatorBoxDescription = &(gIndicatorDescriptions[index]);
+        IndicatorDescription* indicatorBoxDescription = &(bbox[index]);
         if (indicatorBoxDescription->data != NULL) {
             internal_free(indicatorBoxDescription->data);
             indicatorBoxDescription->data = NULL;
@@ -2478,94 +2559,94 @@ void interfaceBarFree()
     }
 }
 
-// NOTE: This function is not referenced in the original code.
+// NOTE: Inlined.
 //
 // 0x4614A0
-void indicatorBarReset()
+static void reset_box_bar_win()
 {
-    if (gIndicatorBarWindow != -1) {
-        windowDestroy(gIndicatorBarWindow);
-        gIndicatorBarWindow = -1;
+    if (bar_window != -1) {
+        windowDestroy(bar_window);
+        bar_window = -1;
     }
 
-    gIndicatorBarIsVisible = true;
+    box_status_flag = true;
 }
 
 // Updates indicator bar.
 //
 // 0x4614CC
-int indicatorBarRefresh()
+int refresh_box_bar_win()
 {
-    if (gInterfaceBarWindow != -1 && gIndicatorBarIsVisible && !_intfaceHidden) {
+    if (interfaceWindow != -1 && box_status_flag && !intfaceHidden) {
         for (int index = 0; index < INDICATOR_SLOTS_COUNT; index++) {
-            gIndicatorSlots[index] = -1;
+            bboxslot[index] = -1;
         }
 
         int count = 0;
 
         if (is_pc_flag(DUDE_STATE_SNEAKING)) {
-            if (indicatorBarAdd(INDICATOR_SNEAK)) {
+            if (add_bar_box(INDICATOR_SNEAK)) {
                 ++count;
             }
         }
 
         if (is_pc_flag(DUDE_STATE_LEVEL_UP_AVAILABLE)) {
-            if (indicatorBarAdd(INDICATOR_LEVEL)) {
+            if (add_bar_box(INDICATOR_LEVEL)) {
                 ++count;
             }
         }
 
         if (is_pc_flag(DUDE_STATE_ADDICTED)) {
-            if (indicatorBarAdd(INDICATOR_ADDICT)) {
+            if (add_bar_box(INDICATOR_ADDICT)) {
                 ++count;
             }
         }
 
         if (critter_get_poison(gDude) > POISON_INDICATOR_THRESHOLD) {
-            if (indicatorBarAdd(INDICATOR_POISONED)) {
+            if (add_bar_box(INDICATOR_POISONED)) {
                 ++count;
             }
         }
 
         if (critter_get_rads(gDude) > RADATION_INDICATOR_THRESHOLD) {
-            if (indicatorBarAdd(INDICATOR_RADIATED)) {
+            if (add_bar_box(INDICATOR_RADIATED)) {
                 ++count;
             }
         }
 
         if (count > 1) {
-            qsort(gIndicatorSlots, count, sizeof(*gIndicatorSlots), indicatorBoxCompareByPosition);
+            qsort(bboxslot, count, sizeof(*bboxslot), bbox_comp);
         }
 
-        if (gIndicatorBarWindow != -1) {
-            windowDestroy(gIndicatorBarWindow);
-            gIndicatorBarWindow = -1;
+        if (bar_window != -1) {
+            windowDestroy(bar_window);
+            bar_window = -1;
         }
 
         if (count != 0) {
-            gIndicatorBarWindow = windowCreate(INDICATOR_BAR_X,
+            bar_window = windowCreate(INDICATOR_BAR_X,
                 INDICATOR_BAR_Y,
                 (INDICATOR_BOX_WIDTH - INDICATOR_BOX_CONNECTOR_WIDTH) * count,
                 INDICATOR_BOX_HEIGHT,
                 colorTable[0],
                 0);
-            indicatorBarRender(count);
-            win_draw(gIndicatorBarWindow);
+            draw_bboxes(count);
+            win_draw(bar_window);
         }
 
         return count;
     }
 
-    if (gIndicatorBarWindow != -1) {
-        windowDestroy(gIndicatorBarWindow);
-        gIndicatorBarWindow = -1;
+    if (bar_window != -1) {
+        windowDestroy(bar_window);
+        bar_window = -1;
     }
 
     return 0;
 }
 
 // 0x461624
-int indicatorBoxCompareByPosition(const void* a, const void* b)
+static int bbox_comp(const void* a, const void* b)
 {
     int indicatorBox1 = *(int*)a;
     int indicatorBox2 = *(int*)b;
@@ -2582,9 +2663,9 @@ int indicatorBoxCompareByPosition(const void* a, const void* b)
 // Renders indicator boxes into the indicator bar window.
 //
 // 0x461648
-void indicatorBarRender(int count)
+static void draw_bboxes(int count)
 {
-    if (gIndicatorBarWindow == -1) {
+    if (bar_window == -1) {
         return;
     }
 
@@ -2592,8 +2673,8 @@ void indicatorBarRender(int count)
         return;
     }
 
-    int windowWidth = windowGetWidth(gIndicatorBarWindow);
-    unsigned char* windowBuffer = windowGetBuffer(gIndicatorBarWindow);
+    int windowWidth = windowGetWidth(bar_window);
+    unsigned char* windowBuffer = windowGetBuffer(bar_window);
 
     // The initial number of connections is 2 - one is first box to the screen
     // boundary, the other is female socket (initially empty). Every displayed
@@ -2612,8 +2693,8 @@ void indicatorBarRender(int count)
     int connectorWidthCompensation = INDICATOR_BOX_CONNECTOR_WIDTH;
 
     for (int index = 0; index < count; index++) {
-        int indicator = gIndicatorSlots[index];
-        IndicatorDescription* indicatorDescription = &(gIndicatorDescriptions[indicator]);
+        int indicator = bboxslot[index];
+        IndicatorDescription* indicatorDescription = &(bbox[indicator]);
 
         blitBufferToBufferTrans(indicatorDescription->data + connectorWidthCompensation,
             INDICATOR_BOX_WIDTH - connectorWidthCompensation,
@@ -2635,11 +2716,11 @@ void indicatorBarRender(int count)
 // space in the indicator bar.
 //
 // 0x4616F0
-bool indicatorBarAdd(int indicator)
+static bool add_bar_box(int indicator)
 {
     for (int index = 0; index < INDICATOR_SLOTS_COUNT; index++) {
-        if (gIndicatorSlots[index] == -1) {
-            gIndicatorSlots[index] = indicator;
+        if (bboxslot[index] == -1) {
+            bboxslot[index] = indicator;
             return true;
         }
     }
@@ -2650,23 +2731,23 @@ bool indicatorBarAdd(int indicator)
 }
 
 // 0x461740
-bool indicatorBarShow()
+bool enable_box_bar_win()
 {
-    bool oldIsVisible = gIndicatorBarIsVisible;
-    gIndicatorBarIsVisible = true;
+    bool oldIsVisible = box_status_flag;
+    box_status_flag = true;
 
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 
     return oldIsVisible;
 }
 
 // 0x461760
-bool indicatorBarHide()
+bool disable_box_bar_win()
 {
-    bool oldIsVisible = gIndicatorBarIsVisible;
-    gIndicatorBarIsVisible = false;
+    bool oldIsVisible = box_status_flag;
+    box_status_flag = false;
 
-    indicatorBarRefresh();
+    refresh_box_bar_win();
 
     return oldIsVisible;
 }

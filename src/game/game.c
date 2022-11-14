@@ -472,8 +472,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
     switch (eventCode) {
     case -20:
-        if (interfaceBarEnabled()) {
-            _intface_use_item();
+        if (intface_is_enabled()) {
+            intface_use_item();
         }
         break;
     case -2:
@@ -508,7 +508,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         game_quit_with_confirm();
         break;
     case KEY_TAB:
-        if (interfaceBarEnabled()
+        if (intface_is_enabled()
             && keys[DIK_LALT] == 0
             && keys[DIK_RALT] == 0) {
             gsound_play_sfx_file("ib1p1xx1");
@@ -521,7 +521,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_UPPERCASE_A:
     case KEY_LOWERCASE_A:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             if (!isInCombatMode) {
                 combat(NULL);
             }
@@ -529,9 +529,9 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_UPPERCASE_N:
     case KEY_LOWERCASE_N:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
-            interfaceCycleItemAction();
+            intface_toggle_item_state();
         }
         break;
     case KEY_UPPERCASE_M:
@@ -541,14 +541,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_UPPERCASE_B:
     case KEY_LOWERCASE_B:
         // change active hand
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
-            interfaceBarSwapHands(true);
+            intface_toggle_items(true);
         }
         break;
     case KEY_UPPERCASE_C:
     case KEY_LOWERCASE_C:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             bool isoWasEnabled = isoDisable();
             editor_design(false);
@@ -560,7 +560,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_UPPERCASE_I:
     case KEY_LOWERCASE_I:
         // open inventory
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             inventoryOpen();
         }
@@ -569,7 +569,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_UPPERCASE_O:
     case KEY_LOWERCASE_O:
         // options
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             showOptions();
         }
@@ -577,7 +577,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_UPPERCASE_P:
     case KEY_LOWERCASE_P:
         // pipboy
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             if (isInCombatMode) {
                 gsound_play_sfx_file("iisxxxx1");
 
@@ -595,7 +595,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_UPPERCASE_S:
     case KEY_LOWERCASE_S:
         // skilldex
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
 
             int mode = -1;
@@ -645,7 +645,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_UPPERCASE_Z:
     case KEY_LOWERCASE_Z:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             if (isInCombatMode) {
                 gsound_play_sfx_file("iisxxxx1");
 
@@ -674,7 +674,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_1:
     case KEY_EXCLAMATION:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             action_skill_use(SKILL_SNEAK);
@@ -682,7 +682,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_2:
     case KEY_AT:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_LOCKPICK);
@@ -690,7 +690,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_3:
     case KEY_NUMBER_SIGN:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_STEAL);
@@ -698,7 +698,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_4:
     case KEY_DOLLAR:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_TRAPS);
@@ -706,7 +706,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_5:
     case KEY_PERCENT:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_FIRST_AID);
@@ -714,7 +714,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_6:
     case KEY_CARET:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_DOCTOR);
@@ -722,7 +722,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_7:
     case KEY_AMPERSAND:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_SCIENCE);
@@ -730,7 +730,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_8:
     case KEY_ASTERISK:
-        if (interfaceBarEnabled()) {
+        if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
             gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
             gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_REPAIR);
@@ -879,7 +879,7 @@ void game_ui_disable(int a1)
         gmouse_3d_off();
         gmouse_disable(a1);
         kb_disable();
-        interfaceBarDisable();
+        intface_disable();
         game_ui_disabled = true;
     }
 }
@@ -889,7 +889,7 @@ void game_ui_disable(int a1)
 void game_ui_enable()
 {
     if (game_ui_disabled) {
-        interfaceBarEnable();
+        intface_enable();
         kb_enable();
         kb_clear();
         gmouse_enable();

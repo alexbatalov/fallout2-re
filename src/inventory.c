@@ -482,7 +482,7 @@ void inventoryOpen()
                 } else {
                     gDude->data.critter.combat.ap -= actionPointsRequired;
                 }
-                interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+                intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
             }
         }
     }
@@ -586,7 +586,7 @@ void inventoryOpen()
     Object* newArmor = critterGetArmor(_inven_dude);
     if (_inven_dude == gDude) {
         if (oldArmor != newArmor) {
-            interfaceRenderArmorClass(true);
+            intface_update_ac(true);
         }
     }
 
@@ -596,7 +596,7 @@ void inventoryOpen()
     inventoryCommonFree();
 
     if (_inven_dude == gDude) {
-        interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
 
@@ -1702,14 +1702,14 @@ void _inven_pickup(int keyCode, int a2)
     case 1006:
         rect.left = 245;
         rect.top = 286;
-        if (_inven_dude == gDude && interfaceGetCurrentHand() != HAND_LEFT) {
+        if (_inven_dude == gDude && intface_is_item_right_hand() != HAND_LEFT) {
             v39 = a1a;
         }
         break;
     case 1007:
         rect.left = 154;
         rect.top = 286;
-        if (_inven_dude == gDude && interfaceGetCurrentHand() == HAND_LEFT) {
+        if (_inven_dude == gDude && intface_is_item_right_hand() == HAND_LEFT) {
             v39 = a1a;
         }
         break;
@@ -1883,7 +1883,7 @@ void _inven_pickup(int keyCode, int a2)
     inventorySetCursor(INVENTORY_WINDOW_CURSOR_HAND);
     if (_inven_dude == gDude) {
         Object* item;
-        if (interfaceGetCurrentHand() == HAND_LEFT) {
+        if (intface_is_item_right_hand() == HAND_LEFT) {
             item = critterGetItem1(_inven_dude);
         } else {
             item = critterGetItem2(_inven_dude);
@@ -2014,7 +2014,7 @@ void _adjust_fid()
         }
 
         int animationCode = 0;
-        if (interfaceGetCurrentHand()) {
+        if (intface_is_item_right_hand()) {
             if (gInventoryRightHandItem != NULL) {
                 protoGetProto(gInventoryRightHandItem->pid, &proto);
                 if (proto->item.type == ITEM_TYPE_WEAPON) {
@@ -2124,7 +2124,7 @@ void inventoryOpenUseItemOn(Object* a1)
                                         } else {
                                             gDude->data.critter.combat.ap = actionPoints - 2;
                                         }
-                                        interfaceRenderActionPoints(gDude->data.critter.combat.ap, combat_free_move);
+                                        intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
                                     }
                                 }
                             } else {
@@ -2608,7 +2608,7 @@ int _invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
     } else {
         int hand;
         if (critter == gDude) {
-            hand = interfaceGetCurrentHand();
+            hand = intface_is_item_right_hand();
         } else {
             hand = HAND_RIGHT;
         }
@@ -2724,7 +2724,7 @@ int _invenUnwieldFunc(Object* obj, int a2, int a3)
     int fid;
 
     if (obj == gDude) {
-        v6 = interfaceGetCurrentHand();
+        v6 = intface_is_item_right_hand();
     } else {
         v6 = 1;
     }
@@ -3261,7 +3261,7 @@ void inventoryWindowOpenContextMenu(int keyCode, int inventoryWindowType)
                 _obj_connect(item, gDude->tile, gDude->elevation, NULL);
                 _obj_destroy(item);
             }
-            interfaceRenderHitPoints(true);
+            intface_update_hit_points(true);
             break;
         case ITEM_TYPE_WEAPON:
         case ITEM_TYPE_MISC:

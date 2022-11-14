@@ -392,7 +392,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 {
     if (a1 == gDude) {
         bool animated = !game_ui_is_disabled();
-        interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
     int fid = a1->fid;
@@ -401,7 +401,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 
     if ((flags & 0x03000000) != 0) {
         if (a1 == gDude) {
-            if (interfaceGetCurrentHand()) {
+            if (intface_is_item_right_hand()) {
                 if ((flags & 0x02000000) != 0) {
                     v8 = 0;
                 }
@@ -1192,7 +1192,7 @@ static void op_destroy_object(Program* program)
 
         if (owner == gDude) {
             bool animated = !game_ui_is_disabled();
-            interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+            intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
         _obj_connect(object, 1, 0, NULL);
@@ -2239,7 +2239,7 @@ static void op_wield_obj_critter(Program* program)
     Object* oldArmor = NULL;
     Object* newArmor = NULL;
     if (critter == gDude) {
-        if (interfaceGetCurrentHand() == HAND_LEFT) {
+        if (intface_is_item_right_hand() == HAND_LEFT) {
             hand = HAND_LEFT;
         }
 
@@ -2263,7 +2263,7 @@ static void op_wield_obj_critter(Program* program)
         }
 
         bool animated = !game_ui_is_disabled();
-        interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
 
@@ -2927,7 +2927,7 @@ static void op_critter_heal(Program* program)
     int rc = critter_adjust_hits(critter, amount);
 
     if (critter == gDude) {
-        interfaceRenderHitPoints(true);
+        intface_update_hit_points(true);
     }
 
     programStackPushInt32(program, rc);
@@ -3808,7 +3808,7 @@ static void op_critter_add_trait(Program* program)
                     }
 
                     if (object == gDude) {
-                        interfaceRenderHitPoints(true);
+                        intface_update_hit_points(true);
                     }
                 }
                 break;
@@ -4008,7 +4008,7 @@ static void op_critter_inven_obj(Program* program)
             break;
         case INVEN_TYPE_RIGHT_HAND:
             if (critter == gDude) {
-                if (interfaceGetCurrentHand() != HAND_LEFT) {
+                if (intface_is_item_right_hand() != HAND_LEFT) {
                     result = (int)critterGetItem2(critter);
                 }
             } else {
@@ -4017,7 +4017,7 @@ static void op_critter_inven_obj(Program* program)
             break;
         case INVEN_TYPE_LEFT_HAND:
             if (critter == gDude) {
-                if (interfaceGetCurrentHand() == HAND_LEFT) {
+                if (intface_is_item_right_hand() == HAND_LEFT) {
                     result = (int)critterGetItem1(critter);
                 }
             } else {
@@ -4302,8 +4302,8 @@ static void op_metarule(Program* program)
             Object* object = (Object*)param;
             result = _item_drop_all(object, object->tile);
             if (gDude == object) {
-                interfaceUpdateItems(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
-                interfaceRenderArmorClass(false);
+                intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+                intface_update_ac(false);
             }
         }
         break;
@@ -4313,7 +4313,7 @@ static void op_metarule(Program* program)
 
             int hand = HAND_RIGHT;
             if (object == gDude) {
-                if (interfaceGetCurrentHand() == HAND_LEFT) {
+                if (intface_is_item_right_hand() == HAND_LEFT) {
                     hand = HAND_LEFT;
                 }
             }
@@ -4322,7 +4322,7 @@ static void op_metarule(Program* program)
 
             if (object == gDude) {
                 bool animated = !game_ui_is_disabled();
-                interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+                intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             } else {
                 Object* item = critterGetItem1(object);
                 if (itemGetType(item) == ITEM_TYPE_WEAPON) {
@@ -4882,7 +4882,7 @@ static void op_rm_mult_objs_from_inven(Program* program)
             if (itemWasEquipped) {
                 if (owner == gDude) {
                     bool animated = !game_ui_is_disabled();
-                    interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+                    intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 }
             }
         }
@@ -5396,8 +5396,8 @@ static void op_critter_injure(Program* program)
         if ((flags & DAM_CRIP_ARM_ANY) != 0) {
             int leftItemAction;
             int rightItemAction;
-            interfaceGetItemActions(&leftItemAction, &rightItemAction);
-            interfaceUpdateItems(true, leftItemAction, rightItemAction);
+            intface_get_item_states(&leftItemAction, &rightItemAction);
+            intface_update_items(true, leftItemAction, rightItemAction);
         }
     }
 }
@@ -5461,7 +5461,7 @@ static void op_inven_unwield(Program* program)
     obj = scriptGetSelf(program);
     v1 = 1;
 
-    if (obj == gDude && !interfaceGetCurrentHand()) {
+    if (obj == gDude && !intface_is_item_right_hand()) {
         v1 = 0;
     }
 
@@ -5868,8 +5868,8 @@ static void op_critter_mod_skill(Program* program)
                 if (critter == gDude) {
                     int leftItemAction;
                     int rightItemAction;
-                    interfaceGetItemActions(&leftItemAction, &rightItemAction);
-                    interfaceUpdateItems(false, leftItemAction, rightItemAction);
+                    intface_get_item_states(&leftItemAction, &rightItemAction);
+                    intface_update_items(false, leftItemAction, rightItemAction);
                 }
             } else {
                 dbg_error(program, "critter_mod_skill", SCRIPT_ERROR_FOLLOWS);
@@ -6219,7 +6219,7 @@ static void op_destroy_mult_objs(Program* program)
 
         if (owner == gDude) {
             bool animated = !game_ui_is_disabled();
-            interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+            intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
         _obj_connect(object, 1, 0, NULL);
@@ -6370,7 +6370,7 @@ static void op_move_obj_inven_to_obj(Program* program)
         _proto_dude_update_gender();
 
         bool animated = !game_ui_is_disabled();
-        interfaceUpdateItems(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
+        intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
 
