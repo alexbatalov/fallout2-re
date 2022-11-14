@@ -276,6 +276,15 @@ void map_init()
         debugPrint("\nError initing map_msg_file!");
     }
 
+    // NOTE: Uninline.
+    map_reset();
+}
+
+// NOTE: Inlined.
+//
+// 0x482064
+void map_reset()
+{
     map_new_map();
     tickersAdd(gmouse_bk_process);
     gmouse_disable(0);

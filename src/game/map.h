@@ -84,6 +84,7 @@ int iso_init();
 void iso_reset();
 void iso_exit();
 void map_init();
+void map_reset();
 void map_exit();
 void map_enable_bk_processes();
 bool map_disable_bk_processes();
