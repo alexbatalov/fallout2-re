@@ -1,4 +1,4 @@
-#include "main.h"
+#include "game/mainmenu.h"
 
 #include <ctype.h>
 #include <limits.h>

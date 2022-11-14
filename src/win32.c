@@ -4,7 +4,7 @@
 
 #include "args.h"
 #include "core.h"
-#include "main.h"
+#include "game/mainmenu.h"
 #include "window_manager.h"
 
 // 0x51E428
