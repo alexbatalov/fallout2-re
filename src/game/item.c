@@ -1440,7 +1440,7 @@ bool item_w_can_reload(Object* weapon, Object* ammo)
 {
     if (weapon->pid == PROTO_ID_SOLAR_SCORCHER) {
         // Check light level to recharge solar scorcher.
-        if (lightGetLightLevel() > 62259) {
+        if (light_get_ambient() > 62259) {
             return true;
         }
 

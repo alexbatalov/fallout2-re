@@ -278,7 +278,7 @@ int objectsInit(unsigned char* buf, int width, int height, int pitch)
         goto err_2;
     }
 
-    if (lightInit() == -1) {
+    if (light_init() == -1) {
         goto err_2;
     }
 
@@ -346,7 +346,7 @@ void objectsReset()
         textObjectsReset();
         _obj_remove_all();
         memset(_obj_seen, 0, 5001);
-        lightResetIntensity();
+        light_reset();
     }
 }
 
@@ -363,7 +363,7 @@ void objectsExit()
         // NOTE: Uninline.
         _obj_blend_table_exit();
 
-        lightResetIntensity();
+        light_exit();
 
         // NOTE: Uninline.
         _obj_render_table_exit();
@@ -758,7 +758,7 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
         return;
     }
 
-    int ambientLight = lightGetLightLevel();
+    int ambientLight = light_get_ambient();
     int minX = updatedRect.left - 320;
     int minY = updatedRect.top - 240;
     int maxX = updatedRect.right + 320;
@@ -781,8 +781,8 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
 
             ObjectListNode* objectListNode = gObjectListHeadByTile[topLeftTile + offsets[offsetIndex]];
             if (objectListNode != NULL) {
-                // NOTE: calls _light_get_tile two times, probably result of min/max macro
-                int tileLight = _light_get_tile(elevation, objectListNode->obj->tile);
+                // NOTE: calls light_get_tile two times, probably result of min/max macro
+                int tileLight = light_get_tile(elevation, objectListNode->obj->tile);
                 if (tileLight >= ambientLight) {
                     light = tileLight;
                 } else {
@@ -825,8 +825,8 @@ void _obj_render_pre_roof(Rect* rect, int elevation)
 
         ObjectListNode* objectListNode = _renderTable[i];
         if (objectListNode != NULL) {
-            // NOTE: calls _light_get_tile two times, probably result of min/max macro
-            int tileLight = _light_get_tile(elevation, objectListNode->obj->tile);
+            // NOTE: calls light_get_tile two times, probably result of min/max macro
+            int tileLight = light_get_tile(elevation, objectListNode->obj->tile);
             if (tileLight >= ambientLight) {
                 light = tileLight;
             } else {
@@ -1699,7 +1699,7 @@ int objectRotateCounterClockwise(Object* obj, Rect* dirtyRect)
 // 0x48AC54
 void _obj_rebuild_all_light()
 {
-    lightResetIntensity();
+    light_reset_tiles();
 
     for (int tile = 0; tile < HEX_GRID_SIZE; tile++) {
         ObjectListNode* objectListNode = gObjectListHeadByTile[tile];
@@ -1746,16 +1746,16 @@ int objectSetLight(Object* obj, int lightDistance, int lightIntensity, Rect* rec
 // 0x48AD04
 int objectGetLightIntensity(Object* obj)
 {
-    int lightLevel = lightGetLightLevel();
-    int lightIntensity = lightGetIntensity(obj->elevation, obj->tile);
+    int lightLevel = light_get_ambient();
+    int lightIntensity = light_get_tile_true(obj->elevation, obj->tile);
 
     if (obj == gDude) {
         lightIntensity -= gDude->lightIntensity;
     }
 
     if (lightIntensity >= lightLevel) {
-        if (lightIntensity > 0x10000) {
-            lightIntensity = 0x10000;
+        if (lightIntensity > LIGHT_LEVEL_MAX) {
+            lightIntensity = LIGHT_LEVEL_MAX;
         }
     } else {
         lightIntensity = lightLevel;
@@ -3974,7 +3974,7 @@ int _obj_adjust_light(Object* obj, int a2, Rect* rect)
         return -1;
     }
 
-    AdjustLightIntensityProc* adjustLightIntensity = a2 ? lightDecreaseIntensity : lightIncreaseIntensity;
+    AdjustLightIntensityProc* adjustLightIntensity = a2 ? light_subtract_from_tile : light_add_to_tile;
     adjustLightIntensity(obj->elevation, obj->tile, obj->lightIntensity);
 
     Rect objectRect;

@@ -2964,7 +2964,7 @@ static void op_set_light_level(Program* program)
     int lightLevel = data;
 
     if (data == 50) {
-        lightSetLightLevel(dword_453F90[1], true);
+        light_set_ambient(dword_453F90[1], true);
         return;
     }
 
@@ -2975,7 +2975,7 @@ static void op_set_light_level(Program* program)
         lightIntensity = dword_453F90[0] + data * (dword_453F90[1] - dword_453F90[0]) / 100;
     }
 
-    lightSetLightLevel(lightIntensity, true);
+    light_set_ambient(lightIntensity, true);
 }
 
 // 0x4579F4

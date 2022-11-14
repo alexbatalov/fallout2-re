@@ -1188,7 +1188,7 @@ void tileRenderRoofsInRect(Rect* rect, int elevation)
         minY = gSquareGridHeight - 1;
     }
 
-    int light = lightGetLightLevel();
+    int light = light_get_ambient();
 
     int baseSquareTile = gSquareGridWidth * minY;
 
@@ -1421,7 +1421,7 @@ void tileRenderFloorsInRect(Rect* rect, int elevation)
         minY = gSquareGridHeight - 1;
     }
 
-    lightGetLightLevel();
+    light_get_ambient();
 
     temp = gSquareGridWidth * minY;
     for (int v15 = minY; v15 <= maxY; v15++) {
@@ -1675,10 +1675,10 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
 
     v15 = tileFromScreenXY(savedX, savedY + 13, gElevation);
     if (v15 != -1) {
-        int v17 = lightGetLightLevel();
+        int v17 = light_get_ambient();
         for (int i = v15 & 1; i < 10; i++) {
-            // NOTE: calling _light_get_tile two times, probably a result of using __min kind macro
-            int v21 = _light_get_tile(elev, v15 + _verticies[i].field_4);
+            // NOTE: calling light_get_tile two times, probably a result of using __min kind macro
+            int v21 = light_get_tile(elev, v15 + _verticies[i].field_4);
             if (v21 <= v17) {
                 v21 = v17;
             }
