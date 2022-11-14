@@ -91,6 +91,7 @@ static int heap_qsort_compare_moveable(const void* a1, const void* a2);
 static bool heap_build_subblock_list(int extentIndex);
 static bool heap_sort_subblock_list(size_t count);
 static int heap_qsort_compare_subblock(const void* a1, const void* a2);
+static bool heap_build_fake_move_list(size_t count);
 
 // An array of pointers to free heap blocks.
 //
@@ -131,7 +132,7 @@ static int heap_subblock_list_size = 0;
 // The length of [heap_fake_move_list] array.
 //
 // 0x518EB8
-static int heap_fake_move_list_size = 0;
+static size_t heap_fake_move_list_size = 0;
 
 // The number of heaps.
 //
@@ -875,14 +876,9 @@ static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4)
 
     // Ensure the length of [heap_fake_move_list] array is big enough
     // to index all blocks for longest moveable extent.
-    if (maxBlocksCount > heap_fake_move_list_size) {
-        int* indexes = (int*)internal_realloc(heap_fake_move_list, sizeof(*heap_fake_move_list) * maxBlocksCount);
-        if (indexes == NULL) {
-            goto system;
-        }
-
-        heap_fake_move_list_size = maxBlocksCount;
-        heap_fake_move_list = indexes;
+    // NOTE: Uninline.
+    if (!heap_build_fake_move_list(maxBlocksCount)) {
+        goto system;
     }
 
     // NOTE: Uninline.
@@ -1326,4 +1322,22 @@ static int heap_qsort_compare_subblock(const void* a1, const void* a2)
     HeapBlockHeader* header1 = *(HeapBlockHeader**)a1;
     HeapBlockHeader* header2 = *(HeapBlockHeader**)a2;
     return header1->size - header2->size;
+}
+
+// NOTE: Inlined.
+//
+// 0x453F4C
+static bool heap_build_fake_move_list(size_t count)
+{
+    if (count > heap_fake_move_list_size) {
+        int* indexes = (int*)internal_realloc(heap_fake_move_list, sizeof(*heap_fake_move_list) * count);
+        if (indexes == NULL) {
+            return false;
+        }
+
+        heap_fake_move_list_size = count;
+        heap_fake_move_list = indexes;
+    }
+
+    return true;
 }
