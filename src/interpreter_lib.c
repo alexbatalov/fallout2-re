@@ -5,7 +5,7 @@
 #include "int/datafile.h"
 #include "debug.h"
 #include "int/dialog.h"
-#include "interpreter_extra.h"
+#include "int/support/intextra.h"
 #include "memory_manager.h"
 #include "mouse_manager.h"
 #include "nevs.h"
