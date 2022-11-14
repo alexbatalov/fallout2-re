@@ -16,10 +16,8 @@ typedef enum MainMenuOption {
     MAIN_MENU_OPTIONS,
 } MainMenuOption;
 
-extern int main_game_paused;
 extern bool in_main_menu;
 
-int falloutMain(int argc, char** argv);
 int main_menu_create();
 void main_menu_destroy();
 void main_menu_hide(bool animate);

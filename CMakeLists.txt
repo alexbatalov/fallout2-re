@@ -88,6 +88,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/game/lip_sync.h"
     "src/game/loadsave.c"
     "src/game/loadsave.h"
+    "src/game/main.c"
+    "src/game/main.h"
     "src/game/mainmenu.c"
     "src/game/mainmenu.h"
     "src/int/audio.c"

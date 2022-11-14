@@ -4,7 +4,7 @@
 
 #include "args.h"
 #include "core.h"
-#include "game/mainmenu.h"
+#include "game/main.h"
 #include "window_manager.h"
 
 // 0x51E428
@@ -63,7 +63,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
                         signal(3, _SignalHandler);
                         signal(5, _SignalHandler);
                         gProgramIsActive = true;
-                        falloutMain(args.argc, args.argv);
+                        RealMain(args.argc, args.argv);
                         argsFree(&args);
                         return 1;
                     }
