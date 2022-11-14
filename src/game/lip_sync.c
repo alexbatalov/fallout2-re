@@ -11,6 +11,7 @@
 #include "sound.h"
 
 static char* lips_fix_string(const char* fileName, size_t length);
+static int lips_stop_speech();
 static int lips_read_lipsynch_info(LipsData* a1, File* stream);
 static int lips_make_speech();
 
@@ -92,10 +93,9 @@ void lips_bkg_proc()
                 head_phoneme_current = lip_info.phonemes[0];
 
                 if ((lip_info.flags & LIPS_FLAG_0x01) == 0) {
-                    head_marker_current = 0;
-                    soundStop(lip_info.sound);
+                    // NOTE: Uninline.
+                    lips_stop_speech();
                     v0 = head_marker_current;
-                    lip_info.flags &= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
                 }
 
                 break;
@@ -120,10 +120,9 @@ void lips_bkg_proc()
                 head_phoneme_current = lip_info.phonemes[0];
 
                 if ((lip_info.flags & LIPS_FLAG_0x01) == 0) {
-                    head_marker_current = 0;
-                    soundStop(lip_info.sound);
+                    // NOTE: Uninline.
+                    lips_stop_speech();
                     v0 = head_marker_current;
-                    lip_info.flags &= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
                 }
             }
         }
@@ -170,12 +169,22 @@ int lips_play_speech()
 
     if (soundPlay(lip_info.sound) != 0) {
         debugPrint("Failed play!\n");
-        head_marker_current = 0;
 
-        soundStop(lip_info.sound);
-        lip_info.flags |= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
+        // NOTE: Uninline.
+        lips_stop_speech();
     }
 
+    return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x47AD2C
+static int lips_stop_speech()
+{
+    head_marker_current = 0;
+    soundStop(lip_info.sound);
+    lip_info.flags &= ~(LIPS_FLAG_0x01 | LIPS_FLAG_0x02);
     return 0;
 }
 
@@ -439,11 +448,8 @@ int lips_free_speech()
     }
 
     if (lip_info.sound != NULL) {
-        head_marker_current = 0;
-
-        soundStop(lip_info.sound);
-
-        lip_info.flags &= ~0x03;
+        // NOTE: Uninline.
+        lips_stop_speech();
 
         soundDelete(lip_info.sound);
 
