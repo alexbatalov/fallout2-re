@@ -519,7 +519,7 @@ int optionsWindowInit()
         return -1;
     }
 
-    gOptionsWindowIsoWasEnabled = isoDisable();
+    gOptionsWindowIsoWasEnabled = map_disable_bk_processes();
 
     gOptionsWindowGameMouseObjectsWasVisible = gmouse_3d_is_on();
     if (gOptionsWindowGameMouseObjectsWasVisible) {
@@ -585,7 +585,7 @@ int optionsWindowFree()
     }
 
     if (gOptionsWindowIsoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     return 0;
@@ -604,7 +604,7 @@ int showPause(bool a1)
 
     bool gameMouseWasVisible;
     if (!a1) {
-        gOptionsWindowIsoWasEnabled = isoDisable();
+        gOptionsWindowIsoWasEnabled = map_disable_bk_processes();
         cycle_disable();
 
         gameMouseWasVisible = gmouse_3d_is_on();
@@ -764,7 +764,7 @@ int showPause(bool a1)
         }
 
         if (gOptionsWindowIsoWasEnabled) {
-            isoEnable();
+            map_enable_bk_processes();
         }
 
         cycle_enable();
@@ -787,11 +787,11 @@ void _ShadeScreen(bool a1)
         tileWindowRefresh();
 
         int windowWidth = 640;
-        int windowHeight = windowGetHeight(gIsoWindow);
-        unsigned char* windowBuffer = windowGetBuffer(gIsoWindow);
+        int windowHeight = windowGetHeight(display_win);
+        unsigned char* windowBuffer = windowGetBuffer(display_win);
         grey_buf(windowBuffer, windowWidth, windowHeight, windowWidth);
 
-        win_draw(gIsoWindow);
+        win_draw(display_win);
     }
 
     mouse_show();

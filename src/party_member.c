@@ -545,8 +545,8 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
             exit(1);
         }
 
-        if (gMapLocalVars != NULL) {
-            memcpy(a1->vars, gMapLocalVars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
+        if (map_local_vars != NULL) {
+            memcpy(a1->vars, map_local_vars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
         } else {
             debugPrint("\nWarning: partyMemberPrepLoadInstance: No map_local_vars found, but script references them!");
             memset(a1->vars, 0, sizeof(int) * script->localVarsCount);
@@ -648,8 +648,8 @@ int _partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
     script->flags |= (SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
 
     if (a1->vars != NULL) {
-        script->localVarsOffset = _map_malloc_local_var(script->localVarsCount);
-        memcpy(gMapLocalVars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
+        script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
+        memcpy(map_local_vars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
     }
 
     return 0;
@@ -994,7 +994,7 @@ int _partyMemberItemSave(Object* object)
                 exit(1);
             }
 
-            memcpy(node->vars, gMapLocalVars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
+            memcpy(node->vars, map_local_vars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
         } else {
             node->vars = NULL;
         }
@@ -1043,8 +1043,8 @@ int _partyMemberItemRecover(STRUCT_519DA8* a1)
     a1->script = NULL;
 
     if (a1->vars != NULL) {
-        script->localVarsOffset = _map_malloc_local_var(script->localVarsCount);
-        memcpy(gMapLocalVars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
+        script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
+        memcpy(map_local_vars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
     }
 
     return 0;

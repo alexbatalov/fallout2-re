@@ -356,7 +356,7 @@ void automap(bool isInGame, bool isUsingScanner)
         _win_set_button_rest_state(switchBtn, 1, 0);
     }
 
-    int elevation = gElevation;
+    int elevation = map_elevation;
 
     autoflags &= AUTOMAP_WTH_HIGH_DETAILS;
 
@@ -370,7 +370,7 @@ void automap(bool isInGame, bool isUsingScanner)
 
     draw_top_down_map(window, elevation, frmData[AUTOMAP_FRM_BACKGROUND], autoflags);
 
-    bool isoWasEnabled = isoDisable();
+    bool isoWasEnabled = map_disable_bk_processes();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     bool done = false;
@@ -403,8 +403,8 @@ void automap(bool isInGame, bool isUsingScanner)
             break;
         case KEY_UPPERCASE_S:
         case KEY_LOWERCASE_S:
-            if (elevation != gElevation) {
-                elevation = gElevation;
+            if (elevation != map_elevation) {
+                elevation = map_elevation;
                 needsRefresh = true;
             }
 
@@ -458,7 +458,7 @@ void automap(bool isInGame, bool isUsingScanner)
     }
 
     if (isoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     windowDestroy(window);
@@ -579,11 +579,11 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
         textColor = colorTable[12546];
     }
 
-    if (mapGetCurrentMap() != -1) {
-        char* areaName = mapGetCityName(mapGetCurrentMap());
+    if (map_get_index_number() != -1) {
+        char* areaName = map_get_short_name(map_get_index_number());
         windowDrawText(window, areaName, 240, 150, 380, textColor | 0x2000000);
 
-        char* mapName = mapGetName(mapGetCurrentMap(), elevation);
+        char* mapName = map_get_name(map_get_index_number(), elevation);
         windowDrawText(window, mapName, 240, 150, 396, textColor | 0x2000000);
     }
 
@@ -657,8 +657,8 @@ int draw_top_down_map_pipboy(int window, int map, int elevation)
 // 0x41C0F0
 int automap_pip_save()
 {
-    int map = mapGetCurrentMap();
-    int elevation = gElevation;
+    int map = map_get_index_number();
+    int elevation = map_elevation;
 
     int entryOffset = amdbhead.offsets[map][elevation];
     if (entryOffset < 0) {

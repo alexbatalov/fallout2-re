@@ -330,7 +330,7 @@ int gameTimeScheduleUpdateEvent()
         return -1;
     }
 
-    if (gMapHeader.name[0] != '\0') {
+    if (map_data.name[0] != '\0') {
         if (queueAddEvent(600, NULL, NULL, EVENT_TYPE_MAP_UPDATE_EVENT) == -1) {
             return -1;
         }
@@ -448,7 +448,7 @@ int mapUpdateEventProcess(Object* obj, void* data)
 
     _queue_clear_type(EVENT_TYPE_MAP_UPDATE_EVENT, NULL);
 
-    if (gMapHeader.name[0] == '\0') {
+    if (map_data.name[0] == '\0') {
         return 0;
     }
 
@@ -862,7 +862,7 @@ int scriptsHandleRequests()
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_ELEVATOR) != 0) {
-        int map = gMapHeader.field_34;
+        int map = map_data.field_34;
         int elevation = gScriptsRequestedElevatorLevel;
         int tile = -1;
 
@@ -871,8 +871,8 @@ int scriptsHandleRequests()
         if (elevator_select(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
             automap_pip_save();
 
-            if (map == gMapHeader.field_34) {
-                if (elevation == gElevation) {
+            if (map == map_data.field_34) {
+                if (elevation == map_elevation) {
                     register_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
                     _obj_attempt_placement(gDude, tile, elevation, 0);
@@ -932,7 +932,7 @@ int scriptsHandleRequests()
                 transition.tile = tile;
                 transition.rotation = ROTATION_SE;
 
-                mapSetTransition(&transition);
+                map_leave_map(&transition);
             }
         }
     }
@@ -970,15 +970,15 @@ int scriptsHandleRequests()
 int _scripts_check_state_in_combat()
 {
     if ((gScriptsRequests & SCRIPT_REQUEST_ELEVATOR) != 0) {
-        int map = gMapHeader.field_34;
+        int map = map_data.field_34;
         int elevation = gScriptsRequestedElevatorLevel;
         int tile = -1;
 
         if (elevator_select(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
             automap_pip_save();
 
-            if (map == gMapHeader.field_34) {
-                if (elevation == gElevation) {
+            if (map == map_data.field_34) {
+                if (elevation == map_elevation) {
                     register_clear(gDude);
                     objectSetRotation(gDude, ROTATION_SE, 0);
                     _obj_attempt_placement(gDude, tile, elevation, 0);
@@ -1017,7 +1017,7 @@ int _scripts_check_state_in_combat()
                 transition.tile = tile;
                 transition.rotation = ROTATION_SE;
 
-                mapSetTransition(&transition);
+                map_leave_map(&transition);
             }
         }
     }
@@ -1081,7 +1081,7 @@ void scriptsRequestWorldMap()
 int scriptsRequestElevator(Object* a1, int a2)
 {
     int elevatorType = a2;
-    int elevatorLevel = gElevation;
+    int elevatorLevel = map_elevation;
 
     int tile = a1->tile;
     if (tile == -1) {
@@ -1904,7 +1904,7 @@ int scriptRead(Script* scr, File* stream)
         scr->procs[index] = 0;
     }
 
-    if (!(gMapHeader.flags & 1)) {
+    if (!(map_data.flags & 1)) {
         scr->localVarsCount = 0;
     }
 
@@ -2138,17 +2138,17 @@ int scriptsRemoveLocalVars(Script* script)
     }
 
     if (script->localVarsCount != 0) {
-        int oldMapLocalVarsCount = gMapLocalVarsLength;
+        int oldMapLocalVarsCount = num_map_local_vars;
         if (oldMapLocalVarsCount > 0 && script->localVarsOffset >= 0) {
-            gMapLocalVarsLength -= script->localVarsCount;
+            num_map_local_vars -= script->localVarsCount;
 
             if (oldMapLocalVarsCount - script->localVarsCount != script->localVarsOffset && script->localVarsOffset != -1) {
-                memmove(gMapLocalVars + script->localVarsOffset,
-                    gMapLocalVars + (script->localVarsOffset + script->localVarsCount),
-                    sizeof(*gMapLocalVars) * (oldMapLocalVarsCount - script->localVarsCount - script->localVarsOffset));
+                memmove(map_local_vars + script->localVarsOffset,
+                    map_local_vars + (script->localVarsOffset + script->localVarsCount),
+                    sizeof(*map_local_vars) * (oldMapLocalVarsCount - script->localVarsCount - script->localVarsOffset));
 
-                gMapLocalVars = (int*)internal_realloc(gMapLocalVars, sizeof(*gMapLocalVars) * gMapLocalVarsLength);
-                if (gMapLocalVars == NULL) {
+                map_local_vars = (int*)internal_realloc(map_local_vars, sizeof(*map_local_vars) * num_map_local_vars);
+                if (map_local_vars == NULL) {
                     debugPrint("\nError in mem_realloc in scr_remove_local_vars!\n");
                 }
 
@@ -2308,7 +2308,7 @@ int _scr_remove_all()
     gScriptsEnumerationScriptIndex = 0;
     gScriptsEnumerationScriptListExtent = NULL;
     gScriptsEnumerationElevation = 0;
-    gMapSid = -1;
+    map_script_id = -1;
 
     clearPrograms();
     exportClearAllVariables();
@@ -2339,7 +2339,7 @@ int _scr_remove_all_force()
     gScriptsEnumerationScriptIndex = 0;
     gScriptsEnumerationScriptListExtent = 0;
     gScriptsEnumerationElevation = 0;
-    gMapSid = -1;
+    map_script_id = -1;
     clearPrograms();
     exportClearAllVariables();
 
@@ -2512,9 +2512,9 @@ void scriptsExecMapUpdateScripts(int proc)
 
     int fixedParam = 0;
     if (proc == SCRIPT_PROC_MAP_ENTER) {
-        fixedParam = (gMapHeader.flags & 1) == 0;
+        fixedParam = (map_data.flags & 1) == 0;
     } else {
-        scriptExecProc(gMapSid, proc);
+        scriptExecProc(map_script_id, proc);
     }
 
     int sidListCapacity = 0;
@@ -2544,7 +2544,7 @@ void scriptsExecMapUpdateScripts(int proc)
         while (scriptListExtent != NULL) {
             for (int scriptIndex = 0; scriptIndex < scriptListExtent->length; scriptIndex++) {
                 Script* script = &(scriptListExtent->scripts[scriptIndex]);
-                if (script->sid != gMapSid && script->procs[proc] > 0) {
+                if (script->sid != map_script_id && script->procs[proc] > 0) {
                     sidList[sidListLength++] = script->sid;
                 }
             }
@@ -2701,10 +2701,10 @@ int scriptGetLocalVar(int sid, int variable, int* value)
 
     if (script->localVarsCount > 0) {
         if (script->localVarsOffset == -1) {
-            script->localVarsOffset = _map_malloc_local_var(script->localVarsCount);
+            script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
         }
 
-        *value = mapGetLocalVar(script->localVarsOffset + variable);
+        *value = map_get_local_var(script->localVarsOffset + variable);
     }
 
     return 0;
@@ -2728,10 +2728,10 @@ int scriptSetLocalVar(int sid, int variable, int value)
     }
 
     if (script->localVarsOffset == -1) {
-        script->localVarsOffset = _map_malloc_local_var(script->localVarsCount);
+        script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
     }
 
-    mapSetLocalVar(script->localVarsOffset + variable, value);
+    map_set_local_var(script->localVarsOffset + variable, value);
 
     return 0;
 }
@@ -2742,7 +2742,7 @@ int scriptSetLocalVar(int sid, int variable, int value)
 // 0x4A6EFC
 bool _scr_end_combat()
 {
-    if (gMapSid == 0 || gMapSid == -1) {
+    if (map_script_id == 0 || map_script_id == -1) {
         return false;
     }
 
@@ -2752,16 +2752,16 @@ bool _scr_end_combat()
     }
 
     Script* before;
-    if (scriptGetScript(gMapSid, &before) != -1) {
+    if (scriptGetScript(map_script_id, &before) != -1) {
         before->fixedParam = team;
     }
 
-    scriptExecProc(gMapSid, SCRIPT_PROC_COMBAT);
+    scriptExecProc(map_script_id, SCRIPT_PROC_COMBAT);
 
     bool success = false;
 
     Script* after;
-    if (scriptGetScript(gMapSid, &after) != -1) {
+    if (scriptGetScript(map_script_id, &after) != -1) {
         if (after->scriptOverrides != 0) {
             success = true;
         }

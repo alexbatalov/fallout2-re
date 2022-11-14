@@ -2003,7 +2003,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
     }
 
     Object** objects;
-    int count = objectListCreate(-1, gElevation, OBJ_TYPE_ITEM, &objects);
+    int count = objectListCreate(-1, map_elevation, OBJ_TYPE_ITEM, &objects);
     if (count == 0) {
         return NULL;
     }

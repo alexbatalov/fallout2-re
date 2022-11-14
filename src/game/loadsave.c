@@ -810,7 +810,7 @@ static int QuickSnapShot()
         gmouse_3d_on();
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(gIsoWindow);
+    unsigned char* windowBuffer = windowGetBuffer(display_win);
     blitBufferToBufferStretch(windowBuffer, 640, 380, 640, snapshot, LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
 
     thumbnail_image[1] = snapshot;
@@ -880,7 +880,7 @@ int LoadGame(int mode)
         dialog_out(str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
 
         messageListFree(&lsgame_msgfl);
-        _map_new_map();
+        map_new_map();
         game_user_wants_to_quit = 2;
 
         return -1;
@@ -1186,7 +1186,7 @@ int LoadGame(int mode)
                     strcpy(str0, getmsg(&lsgame_msgfl, &lsgmesg, 134));
                     strcpy(str1, getmsg(&lsgame_msgfl, &lsgmesg, 135));
                     dialog_out(str0, body, 1, 169, 116, colorTable[32328], 0, colorTable[32328], DIALOG_BOX_LARGE);
-                    _map_new_map();
+                    map_new_map();
                     game_user_wants_to_quit = 2;
                     rc = -1;
                 }
@@ -1235,7 +1235,7 @@ static int LSGameStart(int windowType)
     thumbnail_image[1] = snapshot + LS_PREVIEW_SIZE;
 
     if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
-        bk_enable = isoDisable();
+        bk_enable = map_disable_bk_processes();
     }
 
     cycle_disable();
@@ -1256,7 +1256,7 @@ static int LSGameStart(int windowType)
             gmouse_3d_on();
         }
 
-        unsigned char* windowBuf = windowGetBuffer(gIsoWindow);
+        unsigned char* windowBuf = windowGetBuffer(display_win);
         blitBufferToBufferStretch(windowBuf, 640, 380, 640, thumbnail_image[1], LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
     }
 
@@ -1277,7 +1277,7 @@ static int LSGameStart(int windowType)
 
             if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
                 if (bk_enable) {
-                    isoEnable();
+                    map_enable_bk_processes();
                 }
             }
 
@@ -1303,7 +1303,7 @@ static int LSGameStart(int windowType)
 
         if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
             if (bk_enable) {
-                isoEnable();
+                map_enable_bk_processes();
             }
         }
 
@@ -1442,7 +1442,7 @@ static int LSGameEnd(int windowType)
 
     if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
         if (bk_enable) {
-            isoEnable();
+            map_enable_bk_processes();
         }
     }
 
@@ -1701,18 +1701,18 @@ static int SaveHeader(int slot)
         return -1;
     }
 
-    ptr->elevation = gElevation;
+    ptr->elevation = map_elevation;
     if (fileWriteInt16(flptr, ptr->elevation) == -1) {
         return -1;
     }
 
-    ptr->map = mapGetCurrentMap();
+    ptr->map = map_get_index_number();
     if (fileWriteInt16(flptr, ptr->map) == -1) {
         return -1;
     }
 
     char mapName[128];
-    strcpy(mapName, gMapHeader.name);
+    strcpy(mapName, map_data.name);
 
     char* v1 = strmfe(str, mapName, "sav");
     strncpy(ptr->fileName, v1, 16);
@@ -1930,8 +1930,8 @@ static void DrawInfoBox(int a1)
             int v2 = fontGetLineHeight();
             fontDrawText(lsgbuf + LS_WINDOW_WIDTH * (256 + v2) + 397, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
-            const char* v22 = mapGetName(ptr->map, ptr->elevation);
-            const char* v9 = mapGetCityName(ptr->map);
+            const char* v22 = map_get_name(ptr->map, ptr->elevation);
+            const char* v9 = map_get_short_name(ptr->map);
             sprintf(str, "%s %s", v9, v22);
 
             int y = v2 + 3 + v2 + 256;
@@ -2233,7 +2233,7 @@ static int PrepLoad(File* stream)
 {
     game_reset();
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
-    gMapHeader.name[0] = '\0';
+    map_data.name[0] = '\0';
     gameTimeSetTime(LSData[slot_cursor].gameTime);
     return 0;
 }
@@ -2259,7 +2259,7 @@ static int GameMap2Slot(File* stream)
         return -1;
     }
 
-    if (_map_save_in_game(false) == -1) {
+    if (map_save_in_game(false) == -1) {
         return -1;
     }
 
@@ -2451,7 +2451,7 @@ static int SlotMap2Game(File* stream)
         return -1;
     }
 
-    if (mapLoadSaved(LSData[slot_cursor].fileName) == -1) {
+    if (map_load_in_game(LSData[slot_cursor].fileName) == -1) {
         debugPrint("LOADSAVE: returning 13\n");
         return -1;
     }

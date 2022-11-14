@@ -304,7 +304,7 @@ void textObjectsRenderInRect(Rect* rect)
 
     for (int index = 0; index < gTextObjectsCount; index++) {
         TextObject* textObject = gTextObjects[index];
-        tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), gElevation);
+        tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
         textObject->x += textObject->sx;
         textObject->y += textObject->sy;
 
@@ -345,7 +345,7 @@ void textObjectsTicker()
 
         unsigned int delay = gTextObjectsLineDelay * textObject->linesCount + gTextObjectsBaseDelay;
         if ((textObject->flags & TEXT_OBJECT_MARKED_FOR_REMOVAL) != 0 || (getTicksBetween(_get_bk_time(), textObject->time) > delay)) {
-            tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), gElevation);
+            tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
             textObject->x += textObject->sx;
             textObject->y += textObject->sy;
 
@@ -373,7 +373,7 @@ void textObjectsTicker()
     }
 
     if (textObjectsRemoved) {
-        tileWindowRefreshRect(&dirtyRect, gElevation);
+        tileWindowRefreshRect(&dirtyRect, map_elevation);
     }
 }
 
@@ -384,7 +384,7 @@ void textObjectFindPlacement(TextObject* textObject)
 {
     int tileScreenX;
     int tileScreenY;
-    tileToScreenXY(textObject->tile, &tileScreenX, &tileScreenY, gElevation);
+    tileToScreenXY(textObject->tile, &tileScreenX, &tileScreenY, map_elevation);
     textObject->x = tileScreenX + 16 - textObject->width / 2;
     textObject->y = tileScreenY;
 

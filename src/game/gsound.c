@@ -1398,7 +1398,7 @@ int gsound_compute_relative_volume(Object* obj)
 
             objectGetRect(v7, &v14);
 
-            win_get_rect(gIsoWindow, &iso_win_rect);
+            win_get_rect(display_win, &iso_win_rect);
 
             if (rectIntersection(&v14, &iso_win_rect, &v12) == -1) {
                 distance = objectGetDistanceBetween(v7, gDude);
@@ -2218,7 +2218,7 @@ int gsound_sfx_q_process(Object* a1, void* data)
         return -1;
     }
 
-    if (gMapHeader.name[0] == '\0') {
+    if (map_data.name[0] == '\0') {
         return 0;
     }
 

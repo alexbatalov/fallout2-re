@@ -407,7 +407,7 @@ int objectRead(Object* obj, File* stream)
     }
 
     if (obj->pid < 0x5000010 || obj->pid > 0x5000017) {
-        if (PID_TYPE(obj->pid) == 0 && !(gMapHeader.flags & 0x01)) {
+        if (PID_TYPE(obj->pid) == 0 && !(map_data.flags & 0x01)) {
             _object_fix_weapon_ammo(obj);
         }
     } else {
@@ -565,7 +565,7 @@ int objectLoadAllInternal(File* stream)
 void _obj_fix_combat_cid_for_dude()
 {
     Object** critterList;
-    int critterListLength = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &critterList);
+    int critterListLength = objectListCreate(-1, map_elevation, OBJ_TYPE_CRITTER, &critterList);
 
     if (gDude->data.critter.combat.whoHitMeCid == -1) {
         gDude->data.critter.combat.whoHitMe = NULL;
@@ -1428,7 +1428,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
                         transition.tile = data->misc.tile;
                         transition.elevation = data->misc.elevation;
                         transition.rotation = data->misc.rotation;
-                        mapSetTransition(&transition);
+                        map_leave_map(&transition);
 
                         wmMapMarkMapEntranceState(transition.map, transition.elevation, 1);
                     }
@@ -1444,9 +1444,9 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         int roofX = tile % 200 / 2;
         int roofY = tile / 200 / 2;
         if (roofX != _obj_last_roof_x || roofY != _obj_last_roof_y || elevation != _obj_last_elev) {
-            int currentSquare = _square[elevation]->field_0[roofX + 100 * roofY];
+            int currentSquare = square[elevation]->field_0[roofX + 100 * roofY];
             int currentSquareFid = art_id(OBJ_TYPE_TILE, (currentSquare >> 16) & 0xFFF, 0, 0, 0);
-            int previousSquare = _square[elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y];
+            int previousSquare = square[elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y];
             bool isEmpty = art_id(OBJ_TYPE_TILE, 1, 0, 0, 0) == currentSquareFid;
 
             if (isEmpty != _obj_last_is_empty || (((currentSquare >> 16) & 0xF000) >> 12) != (((previousSquare >> 16) & 0xF000) >> 12)) {
@@ -1478,7 +1478,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
         }
 
         if (elevation != oldElevation) {
-            mapSetElevation(elevation);
+            map_set_elevation(elevation);
             tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
             if (isInCombat()) {
                 game_user_wants_to_quit = 1;
@@ -1496,7 +1496,7 @@ int objectSetLocation(Object* obj, int tile, int elevation, Rect* rect)
 // 0x48A9A0
 int _obj_reset_roof()
 {
-    int fid = art_id(OBJ_TYPE_TILE, (_square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
+    int fid = art_id(OBJ_TYPE_TILE, (square[gDude->elevation]->field_0[_obj_last_roof_x + 100 * _obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
     if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
         _tile_fill_roof(_obj_last_roof_x, _obj_last_roof_y, gDude->elevation, 1);
     }
@@ -3138,7 +3138,7 @@ void _obj_preload_art_cache(int flags)
 
     if ((flags & 0x02) == 0) {
         for (int i = 0; i < SQUARE_GRID_SIZE; i++) {
-            int v3 = _square[0]->field_0[i];
+            int v3 = square[0]->field_0[i];
             arr[v3 & 0xFFF] = 1;
             arr[(v3 >> 16) & 0xFFF] = 1;
         }
@@ -3146,7 +3146,7 @@ void _obj_preload_art_cache(int flags)
 
     if ((flags & 0x04) == 0) {
         for (int i = 0; i < SQUARE_GRID_SIZE; i++) {
-            int v3 = _square[1]->field_0[i];
+            int v3 = square[1]->field_0[i];
             arr[v3 & 0xFFF] = 1;
             arr[(v3 >> 16) & 0xFFF] = 1;
         }
@@ -3154,7 +3154,7 @@ void _obj_preload_art_cache(int flags)
 
     if ((flags & 0x08) == 0) {
         for (int i = 0; i < SQUARE_GRID_SIZE; i++) {
-            int v3 = _square[2]->field_0[i];
+            int v3 = square[2]->field_0[i];
             arr[v3 & 0xFFF] = 1;
             arr[(v3 >> 16) & 0xFFF] = 1;
         }

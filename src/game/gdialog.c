@@ -732,7 +732,7 @@ void gdialogEnter(Object* a1, int a2)
     gdCenterTile = gCenterTile;
     gdBarterMod = 0;
     gdPlayerTile = gDude->tile;
-    isoDisable();
+    map_disable_bk_processes();
 
     dialog_state_fix = 1;
     dialog_target = a1;
@@ -747,7 +747,7 @@ void gdialogEnter(Object* a1, int a2)
     Script* script;
     if (scriptGetScript(a1->sid, &script) == -1) {
         gmouse_3d_on();
-        isoEnable();
+        map_enable_bk_processes();
         scriptsExecMapUpdateProc();
         dialog_state_fix = 0;
         return;
@@ -755,7 +755,7 @@ void gdialogEnter(Object* a1, int a2)
 
     if (script->scriptOverrides || dialogue_state != 4) {
         dialogue_just_started = 0;
-        isoEnable();
+        map_enable_bk_processes();
         scriptsExecMapUpdateProc();
         dialog_state_fix = 0;
         return;
@@ -795,7 +795,7 @@ void gdialogEnter(Object* a1, int a2)
         _tile_scroll_to(gdCenterTile, 2);
     }
 
-    isoEnable();
+    map_enable_bk_processes();
     scriptsExecMapUpdateProc();
 
     dialog_state_fix = 0;
@@ -4595,7 +4595,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
             tileWindowRefresh();
         }
 
-        unsigned char* src = windowGetBuffer(gIsoWindow);
+        unsigned char* src = windowGetBuffer(display_win);
         blitBufferToBuffer(
             src + ((_scr_size.bottom - _scr_size.top + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
             388,

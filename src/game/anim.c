@@ -2016,11 +2016,11 @@ int EST(int tile1, int tile2)
 {
     int x1;
     int y1;
-    tileToScreenXY(tile1, &x1, &y1, gElevation);
+    tileToScreenXY(tile1, &x1, &y1, map_elevation);
 
     int x2;
     int y2;
-    tileToScreenXY(tile2, &x2, &y2, gElevation);
+    tileToScreenXY(tile2, &x2, &y2, map_elevation);
 
     return idist(x1, y1, x2, y2);
 }
@@ -2911,7 +2911,7 @@ void object_animate()
                     }
                 }
 
-                tileWindowRefreshRect(&dirtyRect, gElevation);
+                tileWindowRefreshRect(&dirtyRect, map_elevation);
 
                 continue;
             }
@@ -2933,7 +2933,7 @@ void object_animate()
                 _obj_offset(object, -x, -y, &tempRect);
                 rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
-                tileWindowRefreshRect(&dirtyRect, gElevation);
+                tileWindowRefreshRect(&dirtyRect, map_elevation);
                 continue;
             }
 
@@ -2983,7 +2983,7 @@ void object_animate()
                 rectUnion(&dirtyRect, &v29, &dirtyRect);
             }
 
-            tileWindowRefreshRect(&dirtyRect, gElevation);
+            tileWindowRefreshRect(&dirtyRect, map_elevation);
         }
     }
 
@@ -3033,7 +3033,7 @@ int check_move(int* a1)
     int y;
     mouse_get_position(&x, &y);
 
-    int tile = tileFromScreenXY(x, y, gElevation);
+    int tile = tileFromScreenXY(x, y, map_elevation);
     if (tile == -1) {
         return -1;
     }
@@ -3158,7 +3158,7 @@ void dude_fidget()
             objectGetRect(object, &rect);
 
             Rect intersection;
-            if (rectIntersection(&rect, &_scr_size, &intersection) == 0 && (gMapHeader.field_34 != 97 || object->pid != 0x10000FA)) {
+            if (rectIntersection(&rect, &_scr_size, &intersection) == 0 && (map_data.field_34 != 97 || object->pid != 0x10000FA)) {
                 fidget_ptr[v5++] = object;
             }
         }
@@ -3375,7 +3375,7 @@ static int check_gravity(int tile, int elevation)
         tileToScreenXY(tile, &x, &y, elevation);
 
         int squareTile = squareTileFromScreenXY(x + 2, y + 8, elevation);
-        int fid = art_id(OBJ_TYPE_TILE, _square[elevation]->field_0[squareTile] & 0xFFF, 0, 0, 0);
+        int fid = art_id(OBJ_TYPE_TILE, square[elevation]->field_0[squareTile] & 0xFFF, 0, 0, 0);
         if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
             break;
         }

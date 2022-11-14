@@ -223,7 +223,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">moviefx_init\t");
 
-    if (isoInit() != 0) {
+    if (iso_init() != 0) {
         debugPrint("Failed on iso_init\n");
         return -1;
     }
@@ -367,7 +367,7 @@ void game_reset()
     _movieStop();
     movieEffectsReset();
     gmovie_reset();
-    isoReset();
+    iso_reset();
     gmouse_reset();
     protoReset();
     _scr_reset();
@@ -403,7 +403,7 @@ void game_exit()
     anim_exit();
     protoExit();
     gmouse_exit();
-    isoExit();
+    iso_exit();
     movieEffectsExit();
     movieExit();
     gsound_exit();
@@ -550,10 +550,10 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_LOWERCASE_C:
         if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
-            bool isoWasEnabled = isoDisable();
+            bool isoWasEnabled = map_disable_bk_processes();
             editor_design(false);
             if (isoWasEnabled) {
-                isoEnable();
+                map_enable_bk_processes();
             }
         }
         break;
@@ -661,8 +661,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         }
         break;
     case KEY_HOME:
-        if (gDude->elevation != gElevation) {
-            mapSetElevation(gDude->elevation);
+        if (gDude->elevation != map_elevation) {
+            map_set_elevation(gDude->elevation);
         }
 
         if (game_in_mapper) {
@@ -855,16 +855,16 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         }
         break;
     case KEY_ARROW_LEFT:
-        mapScroll(-1, 0);
+        map_scroll(-1, 0);
         break;
     case KEY_ARROW_RIGHT:
-        mapScroll(1, 0);
+        map_scroll(1, 0);
         break;
     case KEY_ARROW_UP:
-        mapScroll(0, -1);
+        map_scroll(0, -1);
         break;
     case KEY_ARROW_DOWN:
-        mapScroll(0, 1);
+        map_scroll(0, 1);
         break;
     }
 
@@ -1090,7 +1090,7 @@ static void game_unload_info()
 // 0x443F74
 static void game_help()
 {
-    bool isoWasEnabled = isoDisable();
+    bool isoWasEnabled = map_disable_bk_processes();
     gmouse_3d_off();
 
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
@@ -1138,14 +1138,14 @@ static void game_help()
     gmouse_3d_on();
 
     if (isoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 }
 
 // 0x4440B8
 int game_quit_with_confirm()
 {
-    bool isoWasEnabled = isoDisable();
+    bool isoWasEnabled = map_disable_bk_processes();
 
     bool gameMouseWasVisible;
     if (isoWasEnabled) {
@@ -1191,7 +1191,7 @@ int game_quit_with_confirm()
     }
 
     if (isoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     return rc;

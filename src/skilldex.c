@@ -208,7 +208,7 @@ int skilldexWindowInit()
         return -1;
     }
 
-    gSkilldexWindowIsoWasEnabled = isoDisable();
+    gSkilldexWindowIsoWasEnabled = map_disable_bk_processes();
 
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
@@ -357,7 +357,7 @@ void skilldexWindowFree()
     fontSetCurrent(gSkilldexWindowOldFont);
 
     if (gSkilldexWindowIsoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     cycle_enable();

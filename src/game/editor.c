@@ -1196,7 +1196,7 @@ static int CharEditStart()
     trait_count = get_trait_count();
 
     if (!glblmode) {
-        bk_enable = isoDisable();
+        bk_enable = map_disable_bk_processes();
     }
 
     cycle_disable();
@@ -1795,7 +1795,7 @@ static void CharEditEnd()
 static void RstrBckgProc()
 {
     if (bk_enable) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     cycle_enable();

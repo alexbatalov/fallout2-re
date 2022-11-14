@@ -430,7 +430,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
     if (newFid != -1) {
         Rect rect;
         objectSetFid(a1, newFid, &rect);
-        tileWindowRefreshRect(&rect, gElevation);
+        tileWindowRefreshRect(&rect, map_elevation);
     }
 
     return 0;
@@ -519,7 +519,7 @@ static void op_set_map_start(Program* program)
     int elevation = data[1];
     int rotation = data[0];
 
-    if (mapSetElevation(elevation) != 0) {
+    if (map_set_elevation(elevation) != 0) {
         int_debug("\nScript Error: %s: op_set_map_start: map_set_elevation failed", program->name);
         return;
     }
@@ -530,7 +530,7 @@ static void op_set_map_start(Program* program)
         return;
     }
 
-    mapSetStart(tile, elevation, rotation);
+    map_set_entrance_hex(tile, elevation, rotation);
 }
 
 // 0x4543F4
@@ -1040,7 +1040,7 @@ static void op_move_to(Program* program)
             newTile = objectSetLocation(object, tile, elevation, &after);
             if (newTile != -1) {
                 rectUnion(&before, &after, &before);
-                tileWindowRefreshRect(&before, gElevation);
+                tileWindowRefreshRect(&before, map_elevation);
             }
         }
     } else {
@@ -1209,7 +1209,7 @@ static void op_destroy_object(Program* program)
 
         Rect rect;
         objectDestroy(object, &rect);
-        tileWindowRefreshRect(&rect, gElevation);
+        tileWindowRefreshRect(&rect, map_elevation);
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -1464,7 +1464,7 @@ static void op_map_var(Program* program)
         interpretError("script error: %s: invalid arg to op_map_var", program->name);
     }
 
-    int value = mapGetGlobalVar(data);
+    int value = map_get_global_var(data);
 
     interpretPushLong(program, value);
     interpretPushShort(program, VALUE_TYPE_INT);
@@ -1492,7 +1492,7 @@ static void op_set_map_var(Program* program)
     int variable = data[1];
     int value = data[0];
 
-    mapSetGlobalVar(variable, value);
+    map_set_global_var(variable, value);
 }
 
 // 0x455950
@@ -2629,7 +2629,7 @@ static void op_metarule3(Program* program)
 
             Rect updatedRect;
             objectSetFid(obj, fid, &updatedRect);
-            tileWindowRefreshRect(&updatedRect, gElevation);
+            tileWindowRefreshRect(&updatedRect, map_elevation);
         }
         break;
     case METARULE3_TILE_SET_CENTER:
@@ -2642,7 +2642,7 @@ static void op_metarule3(Program* program)
         result = wmCarIsOutOfGas() ? 1 : 0;
         break;
     case METARULE3_111:
-        result = _map_target_load_area();
+        result = map_target_load_area();
         break;
     }
 
@@ -2806,7 +2806,7 @@ static void op_load_map(Program* program)
         transition.elevation = -1;
         transition.tile = -1;
         transition.rotation = -1;
-        mapSetTransition(&transition);
+        map_leave_map(&transition);
     }
 }
 
@@ -3184,7 +3184,7 @@ static void op_kill_critter_type(Program* program)
 
                 Rect rect;
                 objectDestroy(obj, &rect);
-                tileWindowRefreshRect(&rect, gElevation);
+                tileWindowRefreshRect(&rect, map_elevation);
             }
 
             previousObj = obj;
@@ -3192,7 +3192,7 @@ static void op_kill_critter_type(Program* program)
 
             objectFindFirst();
 
-            gMapHeader.lastVisitTime = gameTimeGetTime();
+            map_data.lastVisitTime = gameTimeGetTime();
         }
 
         obj = objectFindNext();
@@ -3756,7 +3756,7 @@ static void op_obj_pid(Program* program)
 // 0x458A30
 static void op_cur_map_index(Program* program)
 {
-    int mapIndex = mapGetCurrentMap();
+    int mapIndex = map_get_index_number();
     interpretPushLong(program, mapIndex);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -4174,7 +4174,7 @@ static void op_float_msg(Program* program)
         return;
     }
 
-    if (obj->elevation != gElevation) {
+    if (obj->elevation != map_elevation) {
         return;
     }
 
@@ -4264,7 +4264,7 @@ static void op_metarule(Program* program)
         game_user_wants_to_quit = 2;
         break;
     case METARULE_FIRST_RUN:
-        result = (gMapHeader.flags & MAP_SAVED) == 0;
+        result = (map_data.flags & MAP_SAVED) == 0;
         break;
     case METARULE_ELEVATOR:
         scriptsRequestElevator(scriptGetSelf(program), param);
@@ -4476,12 +4476,12 @@ static void op_anim(Program* program)
         if (frame < ROTATION_COUNT) {
             Rect rect;
             objectSetRotation(obj, frame, &rect);
-            tileWindowRefreshRect(&rect, gElevation);
+            tileWindowRefreshRect(&rect, map_elevation);
         }
     } else if (anim == 1010) {
         Rect rect;
         objectSetFrame(obj, frame, &rect);
-        tileWindowRefreshRect(&rect, gElevation);
+        tileWindowRefreshRect(&rect, map_elevation);
     } else {
         int_debug("\nScript Error: %s: op_anim: anim out of range", program->name);
     }
@@ -4953,8 +4953,8 @@ static void op_days_since_visited(Program* program)
 {
     int days;
 
-    if (gMapHeader.lastVisitTime != 0) {
-        days = (gameTimeGetTime() - gMapHeader.lastVisitTime) / GAME_TIME_TICKS_PER_DAY;
+    if (map_data.lastVisitTime != 0) {
+        days = (gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_DAY;
     } else {
         days = -1;
     }
@@ -6238,7 +6238,7 @@ static void op_destroy_mult_objs(Program* program)
 
         Rect rect;
         objectDestroy(object, &rect);
-        tileWindowRefreshRect(&rect, gElevation);
+        tileWindowRefreshRect(&rect, map_elevation);
     }
 
     interpretPushLong(program, result);
@@ -6543,7 +6543,7 @@ static void op_obj_on_screen(Program* program)
     int result = 0;
 
     if (object != NULL) {
-        if (gElevation == object->elevation) {
+        if (map_elevation == object->elevation) {
             Rect objectRect;
             objectGetRect(object, &objectRect);
 

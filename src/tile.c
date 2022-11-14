@@ -455,7 +455,7 @@ void tileEnable()
 void tileWindowRefreshRect(Rect* rect, int elevation)
 {
     if (gTileEnabled) {
-        if (elevation == gElevation) {
+        if (elevation == map_elevation) {
             gTileWindowRefreshElevationProc(rect, elevation);
         }
     }
@@ -465,7 +465,7 @@ void tileWindowRefreshRect(Rect* rect, int elevation)
 void tileWindowRefresh()
 {
     if (gTileEnabled) {
-        gTileWindowRefreshElevationProc(&gTileWindowRect, gElevation);
+        gTileWindowRefreshElevationProc(&gTileWindowRect, map_elevation);
     }
 }
 
@@ -480,11 +480,11 @@ int tileSetCenter(int tile, int flags)
         if (gTileScrollLimitingEnabled) {
             int tileScreenX;
             int tileScreenY;
-            tileToScreenXY(tile, &tileScreenX, &tileScreenY, gElevation);
+            tileToScreenXY(tile, &tileScreenX, &tileScreenY, map_elevation);
 
             int dudeScreenX;
             int dudeScreenY;
-            tileToScreenXY(gDude->tile, &dudeScreenX, &dudeScreenY, gElevation);
+            tileToScreenXY(gDude->tile, &dudeScreenX, &dudeScreenY, map_elevation);
 
             int dx = abs(dudeScreenX - tileScreenX);
             int dy = abs(dudeScreenY - tileScreenY);
@@ -498,7 +498,7 @@ int tileSetCenter(int tile, int flags)
         }
 
         if (gTileScrollBlockingEnabled) {
-            if (_obj_scroll_blocking_at(tile, gElevation) == 0) {
+            if (_obj_scroll_blocking_at(tile, map_elevation) == 0) {
                 return -1;
             }
         }
@@ -1608,7 +1608,7 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
         return;
     }
 
-    int elev = gElevation;
+    int elev = map_elevation;
     int left = rect->left;
     int top = rect->top;
     int width = rect->right - rect->left + 1;
@@ -1673,7 +1673,7 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
 
     if (v77 <= 0 || v76 <= 0) goto out;
 
-    v15 = tileFromScreenXY(savedX, savedY + 13, gElevation);
+    v15 = tileFromScreenXY(savedX, savedY + 13, map_elevation);
     if (v15 != -1) {
         int v17 = light_get_ambient();
         for (int i = v15 & 1; i < 10; i++) {
@@ -1847,13 +1847,13 @@ int _tile_make_line(int from, int to, int* tiles, int tilesCapacity)
 
     int fromX;
     int fromY;
-    tileToScreenXY(from, &fromX, &fromY, gElevation);
+    tileToScreenXY(from, &fromX, &fromY, map_elevation);
     fromX += 16;
     fromY += 8;
 
     int toX;
     int toY;
-    tileToScreenXY(to, &toX, &toY, gElevation);
+    tileToScreenXY(to, &toX, &toY, map_elevation);
     toX += 16;
     toY += 8;
 
@@ -1886,7 +1886,7 @@ int _tile_make_line(int from, int to, int* tiles, int tilesCapacity)
     if (v28 <= v27) {
         int middleX = v28 - v27 / 2;
         while (true) {
-            int tile = tileFromScreenXY(tileX, tileY, gElevation);
+            int tile = tileFromScreenXY(tileX, tileY, map_elevation);
             tiles[count] = tile;
 
             if (tile == to) {
@@ -1916,7 +1916,7 @@ int _tile_make_line(int from, int to, int* tiles, int tilesCapacity)
     } else {
         int middleY = v27 - v28 / 2;
         while (true) {
-            int tile = tileFromScreenXY(tileX, tileY, gElevation);
+            int tile = tileFromScreenXY(tileX, tileY, map_elevation);
             tiles[count] = tile;
 
             if (tile == to) {

@@ -1301,14 +1301,14 @@ int critter_set_who_hit_me(Object* a1, Object* a2)
 bool critter_can_obj_dude_rest()
 {
     bool v1 = false;
-    if (!wmMapCanRestHere(gElevation)) {
+    if (!wmMapCanRestHere(map_elevation)) {
         v1 = true;
     }
 
     bool result = true;
 
     Object** critterList;
-    int critterListLength = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &critterList);
+    int critterListLength = objectListCreate(-1, map_elevation, OBJ_TYPE_CRITTER, &critterList);
 
     // TODO: Check conditions in this loop.
     for (int index = 0; index < critterListLength; index++) {

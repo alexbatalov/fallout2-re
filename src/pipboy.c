@@ -286,7 +286,7 @@ int pipboyOpen(int intent)
 // 0x497228
 int pipboyWindowInit(int intent)
 {
-    gPipboyWindowIsoWasEnabled = isoDisable();
+    gPipboyWindowIsoWasEnabled = map_disable_bk_processes();
 
     cycle_disable();
     gmouse_3d_off();
@@ -528,7 +528,7 @@ void pipboyWindowFree()
     fontSetCurrent(gPipboyWindowOldFont);
 
     if (gPipboyWindowIsoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     cycle_enable();
@@ -935,7 +935,7 @@ void pipboyWindowHandleStatus(int a1)
         QuestDescription* questDescription = &(gQuestDescriptions[index]);
 
         const char* text1 = getmsg(&gPipboyMessageList, &gPipboyMessageListItem, 210);
-        const char* text2 = getmsg(&gMapMessageList, &gPipboyMessageListItem, questDescription->location);
+        const char* text2 = getmsg(&map_msg_file, &gPipboyMessageListItem, questDescription->location);
         char formattedText[1024];
         sprintf(formattedText, "%s %s", text2, text1);
         pipboyDrawText(formattedText, PIPBOY_TEXT_STYLE_UNDERLINE, colorTable[992]);
@@ -1027,7 +1027,7 @@ void pipboyWindowRenderQuestLocationList(int a1)
         int color = (gPipboyCurrentLine - 1) / 2 == (a1 - 1) ? colorTable[32747] : colorTable[992];
 
         // Render location.
-        const char* questLocation = getmsg(&gMapMessageList, &gPipboyMessageListItem, quest->location);
+        const char* questLocation = getmsg(&map_msg_file, &gPipboyMessageListItem, quest->location);
         pipboyDrawText(questLocation, 0, color);
 
         gPipboyCurrentLine += 1;
@@ -1298,7 +1298,7 @@ int _PrintAMelevList(int a1)
     int v4 = 0;
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         if (automapHeader->offsets[_amcty_indx][elevation] > 0) {
-            _sortlist[v4].name = mapGetName(_amcty_indx, elevation);
+            _sortlist[v4].name = map_get_name(_amcty_indx, elevation);
             _sortlist[v4].field_4 = elevation;
             _sortlist[v4].field_6 = _amcty_indx;
             v4++;
@@ -1311,13 +1311,13 @@ int _PrintAMelevList(int a1)
             continue;
         }
 
-        if (_get_map_idx_same(_amcty_indx, map) == -1) {
+        if (get_map_idx_same(_amcty_indx, map) == -1) {
             continue;
         }
 
         for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
             if (automapHeader->offsets[map][elevation] > 0) {
-                _sortlist[v4].name = mapGetName(map, elevation);
+                _sortlist[v4].name = map_get_name(map, elevation);
                 _sortlist[v4].field_4 = elevation;
                 _sortlist[v4].field_6 = map;
                 v4++;
@@ -1343,7 +1343,7 @@ int _PrintAMelevList(int a1)
         gPipboyCurrentLine = 2;
     }
 
-    const char* name = _map_get_description_idx_(_amcty_indx);
+    const char* name = map_get_description_idx(_amcty_indx);
     pipboyDrawText(name, PIPBOY_TEXT_ALIGNMENT_CENTER, colorTable[992]);
 
     if (gPipboyLinesCount >= 4) {
@@ -1396,7 +1396,7 @@ int _PrintAMList(int a1)
             if (count != 0) {
                 v7 = 0;
                 for (int index = 0; index < count; index++) {
-                    if (_is_map_idx_same(map, _sortlist[index].field_4)) {
+                    if (is_map_idx_same(map, _sortlist[index].field_4)) {
                         break;
                     }
 
@@ -1407,7 +1407,7 @@ int _PrintAMList(int a1)
             }
 
             if (v7 == count) {
-                _sortlist[count].name = mapGetCityName(map);
+                _sortlist[count].name = map_get_short_name(map);
                 _sortlist[count].field_4 = map;
                 count++;
             }

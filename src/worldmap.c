@@ -2914,13 +2914,13 @@ bool wmMapIdxIsSaveable(int mapIdx)
 // 0x4BFA64
 bool wmMapIsSaveable()
 {
-    return (wmMapInfoList[gMapHeader.field_34].flags & MAP_SAVED) != 0;
+    return (wmMapInfoList[map_data.field_34].flags & MAP_SAVED) != 0;
 }
 
 // 0x4BFA90
 bool wmMapDeadBodiesAge()
 {
-    return (wmMapInfoList[gMapHeader.field_34].flags & MAP_DEAD_BODIES_AGE) != 0;
+    return (wmMapInfoList[map_data.field_34].flags & MAP_DEAD_BODIES_AGE) != 0;
 }
 
 // 0x4BFABC
@@ -2932,7 +2932,7 @@ bool wmMapCanRestHere(int elevation)
     static_assert(sizeof(flags) == sizeof(_can_rest_here), "wrong size");
     memcpy(flags, _can_rest_here, sizeof(flags));
 
-    MapInfo* map = &(wmMapInfoList[gMapHeader.field_34]);
+    MapInfo* map = &(wmMapInfoList[map_data.field_34]);
 
     return (map->flags & flags[elevation]) != 0;
 }
@@ -3188,7 +3188,7 @@ static int wmWorldMapFunc(int a1)
                         if (wmGenData.isInCar) {
                             wmMatchAreaContainingMapIdx(wmGenData.encounterMapId, &(wmGenData.currentCarAreaId));
                         }
-                        mapLoadById(wmGenData.encounterMapId);
+                        map_load_idx(wmGenData.encounterMapId);
                     }
                     break;
                 }
@@ -3240,7 +3240,7 @@ static int wmWorldMapFunc(int a1)
                                 wmGenData.currentCarAreaId = wmGenData.currentAreaId;
                             }
                         }
-                        mapLoadById(map);
+                        map_load_idx(map);
                         break;
                     }
                 }
@@ -3269,7 +3269,7 @@ static int wmWorldMapFunc(int a1)
                             wmMatchAreaContainingMapIdx(map, &(wmGenData.currentCarAreaId));
                         }
 
-                        mapLoadById(map);
+                        map_load_idx(map);
                     }
                 }
             }
@@ -3407,7 +3407,7 @@ static int wmRndEncounterOccurred()
             if (wmGenData.isInCar) {
                 wmMatchAreaContainingMapIdx(MAP_IN_GAME_MOVIE1, &(wmGenData.currentCarAreaId));
             }
-            mapLoadById(MAP_IN_GAME_MOVIE1);
+            map_load_idx(MAP_IN_GAME_MOVIE1);
             return 1;
         }
     }
@@ -3896,7 +3896,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
             }
 
             if (v25->position != ENCOUNTER_FORMATION_TYPE_SURROUNDING) {
-                objectSetLocation(object, tile, gElevation, NULL);
+                objectSetLocation(object, tile, map_elevation, NULL);
             } else {
                 _obj_attempt_placement(object, tile, 0, 0);
             }
@@ -3978,7 +3978,7 @@ static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
     case ENCOUNTER_FORMATION_TYPE_CONE:
     case ENCOUNTER_FORMATION_TYPE_HUDDLE:
         if (1) {
-            MapInfo* map = &(wmMapInfoList[gMapHeader.field_34]);
+            MapInfo* map = &(wmMapInfoList[map_data.field_34]);
             if (map->startPointsLength != 0) {
                 int rspIndex = randomBetween(0, map->startPointsLength - 1);
                 MapStartPointInfo* rsp = &(map->startPoints[rspIndex]);
@@ -4130,7 +4130,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
 // 0x4C1A64
 bool wmEvalTileNumForPlacement(int tile)
 {
-    if (_obj_blocking_at(gDude, tile, gElevation) != NULL) {
+    if (_obj_blocking_at(gDude, tile, map_elevation) != NULL) {
         return false;
     }
 
@@ -4505,13 +4505,13 @@ static int wmInterfaceInit()
     wmGenData.oldFont = fontGetCurrent();
     fontSetCurrent(0);
 
-    _map_save_in_game(true);
+    map_save_in_game(true);
 
     const char* backgroundSoundFileName = wmGenData.isInCar ? "20car" : "23world";
     gsound_background_play_level_music(backgroundSoundFileName, 12);
 
     disable_box_bar_win();
-    isoDisable();
+    map_disable_bk_processes();
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
@@ -5025,7 +5025,7 @@ static int wmInterfaceExit()
     wmGenData.encounterEntryId = -1;
 
     enable_box_bar_win();
-    isoEnable();
+    map_enable_bk_processes();
     cycle_enable();
 
     fontSetCurrent(wmGenData.oldFont);
@@ -5766,7 +5766,7 @@ static int wmGetAreaName(CityInfo* city, char* name)
 {
     MessageListItem messageListItem;
 
-    getmsg(&gMapMessageList, &messageListItem, city->areaId + 1500);
+    getmsg(&map_msg_file, &messageListItem, city->areaId + 1500);
     strncpy(name, messageListItem.text, 40);
 
     return 0;
@@ -5779,7 +5779,7 @@ int wmGetAreaIdxName(int areaIdx, char* name)
 {
     MessageListItem messageListItem;
 
-    getmsg(&gMapMessageList, &messageListItem, 1500 + areaIdx);
+    getmsg(&map_msg_file, &messageListItem, 1500 + areaIdx);
     strncpy(name, messageListItem.text, 40);
 
     return 0;
@@ -6000,7 +6000,7 @@ static int wmTownMapFunc(int* mapIdxPtr)
 
                 *mapIdxPtr = entrance->map;
 
-                mapSetEnteringLocation(entrance->elevation, entrance->tile, entrance->rotation);
+                mapSetEntranceInfo(entrance->elevation, entrance->tile, entrance->rotation);
 
                 break;
             }
@@ -6264,7 +6264,7 @@ int wmCarGiveToParty()
     memset(&transition, 0, sizeof(transition));
 
     transition.map = -2;
-    mapSetTransition(&transition);
+    map_leave_map(&transition);
 
     CityInfo* city = &(wmAreaInfoList[CITY_CAR_OUT_OF_GAS]);
     city->state = CITY_STATE_UNKNOWN;
@@ -6276,7 +6276,7 @@ int wmCarGiveToParty()
 // 0x4C4F28
 int wmSfxMaxCount()
 {
-    int mapIdx = mapGetCurrentMap();
+    int mapIdx = map_get_index_number();
     if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
@@ -6288,7 +6288,7 @@ int wmSfxMaxCount()
 // 0x4C4F5C
 int wmSfxRollNextIdx()
 {
-    int mapIdx = mapGetCurrentMap();
+    int mapIdx = map_get_index_number();
     if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
@@ -6324,7 +6324,7 @@ int wmSfxIdxName(int sfxIdx, char** namePtr)
 
     *namePtr = NULL;
 
-    int mapIdx = mapGetCurrentMap();
+    int mapIdx = map_get_index_number();
     if (mapIdx < 0 || mapIdx >= wmMaxMapNum) {
         return -1;
     }
@@ -6696,7 +6696,7 @@ static int wmAreaFindFirstValidMap(int* mapIdxPtr)
 int wmMapMusicStart()
 {
     do {
-        int mapIdx = mapGetCurrentMap();
+        int mapIdx = map_get_index_number();
         if (mapIdx == -1 || mapIdx >= wmMaxMapNum) {
             break;
         }
@@ -6736,7 +6736,7 @@ int wmSetMapMusic(int mapIdx, const char* name)
     strncpy(map->music, name, 40);
     map->music[39] = '\0';
 
-    if (mapGetCurrentMap() == mapIdx) {
+    if (map_get_index_number() == mapIdx) {
         gsound_background_stop();
         wmMapMusicStart();
     }

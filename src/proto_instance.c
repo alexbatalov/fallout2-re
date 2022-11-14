@@ -1492,7 +1492,7 @@ int useLadderDown(Object* a1, Object* ladder, int a3)
         transition.tile = tile;
         transition.rotation = builtTileGetRotation(builtTile);
 
-        mapSetTransition(&transition);
+        map_leave_map(&transition);
 
         wmMapMarkMapEntranceState(transition.map, elevation, 1);
     } else {
@@ -1501,7 +1501,7 @@ int useLadderDown(Object* a1, Object* ladder, int a3)
             return -1;
         }
 
-        tileWindowRefreshRect(&updatedRect, gElevation);
+        tileWindowRefreshRect(&updatedRect, map_elevation);
     }
 
     return 0;
@@ -1526,7 +1526,7 @@ int useLadderUp(Object* a1, Object* ladder, int a3)
         transition.tile = tile;
         transition.rotation = builtTileGetRotation(builtTile);
 
-        mapSetTransition(&transition);
+        map_leave_map(&transition);
 
         wmMapMarkMapEntranceState(transition.map, elevation, 1);
     } else {
@@ -1535,7 +1535,7 @@ int useLadderUp(Object* a1, Object* ladder, int a3)
             return -1;
         }
 
-        tileWindowRefreshRect(&updatedRect, gElevation);
+        tileWindowRefreshRect(&updatedRect, map_elevation);
     }
 
     return 0;
@@ -1560,7 +1560,7 @@ int useStairs(Object* a1, Object* stairs, int a3)
         transition.tile = tile;
         transition.rotation = builtTileGetRotation(builtTile);
 
-        mapSetTransition(&transition);
+        map_leave_map(&transition);
 
         wmMapMarkMapEntranceState(transition.map, elevation, 1);
     } else {
@@ -1569,7 +1569,7 @@ int useStairs(Object* a1, Object* stairs, int a3)
             return -1;
         }
 
-        tileWindowRefreshRect(&updatedRect, gElevation);
+        tileWindowRefreshRect(&updatedRect, map_elevation);
     }
 
     return 0;
@@ -1623,7 +1623,7 @@ int _check_door_state(Object* a1, Object* a2)
         objectSetFrame(a1, 0, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        tileWindowRefreshRect(&dirty, gElevation);
+        tileWindowRefreshRect(&dirty, map_elevation);
 
         art_ptr_unlock(artHandle);
         return 0;
@@ -1660,7 +1660,7 @@ int _check_door_state(Object* a1, Object* a2)
         objectSetFrame(a1, frameCount - 1, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        tileWindowRefreshRect(&dirty, gElevation);
+        tileWindowRefreshRect(&dirty, map_elevation);
 
         art_ptr_unlock(artHandle);
         return 0;
@@ -2190,7 +2190,7 @@ int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
     if (objectSetLocation(obj, newTile, elevation, &temp) != -1) {
         rectUnion(&updatedRect, &temp, &updatedRect);
 
-        if (elevation == gElevation) {
+        if (elevation == map_elevation) {
             tileWindowRefreshRect(&updatedRect, elevation);
         }
     }

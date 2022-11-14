@@ -1271,7 +1271,7 @@ int intface_get_attack(int* hitMode, bool* aiming)
 // 0x45EFEC
 int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
 {
-    if (isoIsDisabled()) {
+    if (map_bk_processes_are_disabled()) {
         animated = false;
     }
 

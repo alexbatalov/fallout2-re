@@ -276,10 +276,10 @@ static int main_load_new(char* mapFileName)
 
     loadColorTable("color.pal");
     paletteFadeTo(cmap);
-    _map_init();
+    map_init();
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
     mouse_show();
-    mapLoadByName(mapFileName);
+    map_load(mapFileName);
     wmMapMusicStart();
     paletteFadeTo(gPaletteWhite);
     windowDestroy(win);
@@ -301,7 +301,7 @@ static int main_loadgame_new()
     objectShow(gDude, NULL);
     mouse_hide();
 
-    _map_init();
+    map_init();
 
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
     mouse_show();
@@ -313,7 +313,7 @@ static int main_loadgame_new()
 static void main_unload_new()
 {
     objectHide(gDude, NULL);
-    _map_exit();
+    map_exit();
 }
 
 // 0x480E48
@@ -334,7 +334,7 @@ static void main_game_loop()
 
         scriptsHandleRequests();
 
-        mapHandleTransition();
+        map_check_state();
 
         if (main_game_paused != 0) {
             main_game_paused = 0;

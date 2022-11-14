@@ -398,7 +398,7 @@ static int item_move_func(Object* a1, Object* a2, Object* a3, int quantity, bool
             if (owner->tile != -1) {
                 Rect updatedRect;
                 _obj_connect(a3, owner->tile, owner->elevation, &updatedRect);
-                tileWindowRefreshRect(&updatedRect, gElevation);
+                tileWindowRefreshRect(&updatedRect, map_elevation);
             }
         }
         return -1;
@@ -554,7 +554,7 @@ int item_drop_all(Object* critter, int tile)
         int fid = art_id(OBJ_TYPE_CRITTER, frmId, FID_ANIM_TYPE(critter->fid), 0, (critter->fid & 0x70000000) >> 28);
         objectSetFid(critter, fid, &updatedRect);
         if (FID_ANIM_TYPE(critter->fid) == ANIM_STAND) {
-            tileWindowRefreshRect(&updatedRect, gElevation);
+            tileWindowRefreshRect(&updatedRect, map_elevation);
         }
     }
 

@@ -2012,7 +2012,7 @@ int combat_load(File* stream)
     if (fileReadInt32(stream, &list_noncom) == -1) return -1;
     if (fileReadInt32(stream, &list_total) == -1) return -1;
 
-    if (objectListCreate(-1, gElevation, 1, &combat_list) != list_total) {
+    if (objectListCreate(-1, map_elevation, 1, &combat_list) != list_total) {
         objectListFree(combat_list);
         return -1;
     }
@@ -2483,7 +2483,7 @@ static void combat_begin(Object* a1)
     combat_turn_running = 0;
     anim_stop();
     tickersRemove(dude_fidget);
-    combat_elev = gElevation;
+    combat_elev = map_elevation;
 
     if (!isInCombat()) {
         combatNumTurns = 0;
@@ -3295,8 +3295,8 @@ static bool combat_should_end()
 void combat(STRUCT_664980* attack)
 {
     if (attack == NULL
-        || (attack->attacker == NULL || attack->attacker->elevation == gElevation)
-        || (attack->defender == NULL || attack->defender->elevation == gElevation)) {
+        || (attack->attacker == NULL || attack->attacker->elevation == map_elevation)
+        || (attack->defender == NULL || attack->defender->elevation == map_elevation)) {
         int v3 = combat_state & 0x01;
 
         combat_begin(NULL);
@@ -5698,7 +5698,7 @@ void combat_outline_on()
         }
     } else {
         Object** critterList;
-        int critterListLength = objectListCreate(-1, gElevation, OBJ_TYPE_CRITTER, &critterList);
+        int critterListLength = objectListCreate(-1, map_elevation, OBJ_TYPE_CRITTER, &critterList);
         for (int index = 0; index < critterListLength; index++) {
             Object* critter = critterList[index];
             if (critter != gDude && (critter->data.critter.combat.results & DAM_DEAD) == 0) {
@@ -5729,7 +5729,7 @@ void combat_outline_off()
             objectDisableOutline(combat_list[i], NULL);
         }
     } else {
-        v5 = objectListCreate(-1, gElevation, 1, &v9);
+        v5 = objectListCreate(-1, map_elevation, 1, &v9);
         for (i = 0; i < v5; i++) {
             objectDisableOutline(v9[i], NULL);
             objectClearOutline(v9[i], NULL);

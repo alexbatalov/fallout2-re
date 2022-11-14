@@ -980,7 +980,7 @@ bool setup_inventory(int inventoryWindowType)
 
     adjust_fid();
 
-    bool isoWasEnabled = isoDisable();
+    bool isoWasEnabled = map_disable_bk_processes();
 
     gmouse_disable(0);
 
@@ -1020,7 +1020,7 @@ void exit_inventory(bool shouldEnableIso)
     }
 
     if (shouldEnableIso) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     windowDestroy(i_wid);
@@ -1649,7 +1649,7 @@ static void inven_update_lighting(Object* a1)
 
         Rect rect;
         objectSetLight(inven_dude, lightDistance, 0x10000, &rect);
-        tileWindowRefreshRect(&rect, gElevation);
+        tileWindowRefreshRect(&rect, map_elevation);
     }
 }
 
@@ -2555,7 +2555,7 @@ int inven_wield(Object* a1, Object* a2, int a3)
 int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
 {
     if (a4) {
-        if (!isoIsDisabled()) {
+        if (!map_bk_processes_are_disabled()) {
             register_begin(ANIMATION_REQUEST_RESERVED);
         }
     }
@@ -2581,7 +2581,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         }
 
         if (critter == gDude) {
-            if (!isoIsDisabled()) {
+            if (!map_bk_processes_are_disabled()) {
                 int fid = art_id(OBJ_TYPE_CRITTER, baseFrmId, 0, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
                 register_object_change_fid(critter, fid, 0);
             }
@@ -2649,7 +2649,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
             }
 
             objectSetLight(critter, lightDistance, lightIntensity, &rect);
-            tileWindowRefreshRect(&rect, gElevation);
+            tileWindowRefreshRect(&rect, map_elevation);
         }
 
         if (item_get_type(item) == ITEM_TYPE_WEAPON) {
@@ -2661,7 +2661,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         if (hand == a3) {
             if ((critter->fid & 0xF000) >> 12 != 0) {
                 if (a4) {
-                    if (!isoIsDisabled()) {
+                    if (!map_bk_processes_are_disabled()) {
                         const char* soundEffectName = gsnd_build_character_sfx_name(critter, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
                         register_object_play_sfx(critter, soundEffectName, 0);
                         register_object_animate(critter, ANIM_PUT_AWAY, 0);
@@ -2669,7 +2669,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                 }
             }
 
-            if (a4 && !isoIsDisabled()) {
+            if (a4 && !map_bk_processes_are_disabled()) {
                 if (weaponAnimationCode != 0) {
                     register_object_take_out(critter, weaponAnimationCode, -1);
                 } else {
@@ -2684,7 +2684,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
     }
 
     if (a4) {
-        if (!isoIsDisabled()) {
+        if (!map_bk_processes_are_disabled()) {
             return register_end();
         }
     }
@@ -2723,7 +2723,7 @@ int invenUnwieldFunc(Object* obj, int a2, int a3)
     }
 
     if (v6 == a2 && ((obj->fid & 0xF000) >> 12) != 0) {
-        if (a3 && !isoIsDisabled()) {
+        if (a3 && !map_bk_processes_are_disabled()) {
             register_begin(ANIMATION_REQUEST_RESERVED);
 
             const char* sfx = gsnd_build_character_sfx_name(obj, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);

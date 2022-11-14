@@ -232,7 +232,7 @@ void endgame_slideshow()
 void endgame_movie()
 {
     gsound_background_stop();
-    isoDisable();
+    map_disable_bk_processes();
     paletteFadeTo(gPaletteBlack);
     endgame_maybe_done = 0;
     tickersAdd(endgame_movie_bk_process);
@@ -251,14 +251,14 @@ void endgame_movie()
     gsound_background_stop();
     loadColorTable("color.pal");
     paletteFadeTo(cmap);
-    isoEnable();
+    map_enable_bk_processes();
     endgameEndingHandleContinuePlaying();
 }
 
 // 0x43F8C4
 int endgameEndingHandleContinuePlaying()
 {
-    bool isoWasEnabled = isoDisable();
+    bool isoWasEnabled = map_disable_bk_processes();
 
     bool gameMouseWasVisible;
     if (isoWasEnabled) {
@@ -302,7 +302,7 @@ int endgameEndingHandleContinuePlaying()
     }
 
     if (isoWasEnabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 
     return rc;
@@ -519,7 +519,7 @@ static int endgame_init()
 
     gsound_background_stop();
 
-    endgame_map_enabled = isoDisable();
+    endgame_map_enabled = map_disable_bk_processes();
 
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
@@ -624,7 +624,7 @@ static void endgame_exit()
     cycle_enable();
 
     if (endgame_map_enabled) {
-        isoEnable();
+        map_enable_bk_processes();
     }
 }
 

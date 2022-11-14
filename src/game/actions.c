@@ -716,7 +716,7 @@ int throw_change_fid(Object* object, int fid)
 
     debugPrint("\n[throw_change_fid!]: %d", fid);
     objectSetFid(object, fid, &rect);
-    tileWindowRefreshRect(&rect, gElevation);
+    tileWindowRefreshRect(&rect, map_elevation);
 
     return 0;
 }
@@ -1449,7 +1449,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
             Rect rect;
             if (textObjectAdd(partyMember, msg, 101, colorTable[32747], colorTable[0], &rect) == 0) {
-                tileWindowRefreshRect(&rect, gElevation);
+                tileWindowRefreshRect(&rect, map_elevation);
             }
 
             if (v32) {
@@ -1521,7 +1521,7 @@ Object* pick_object(int objectType, bool a2)
             mouseEvent = mouse_get_buttons();
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
                 keyCode = 0;
-                foundObject = object_under_mouse(objectType, a2, gElevation);
+                foundObject = object_under_mouse(objectType, a2, map_elevation);
                 break;
             }
 
@@ -1552,7 +1552,7 @@ int pick_hex()
     int tile;
     Rect rect;
 
-    elevation = gElevation;
+    elevation = map_elevation;
 
     while (1) {
         inputEvent = _get_input();
@@ -1582,9 +1582,9 @@ int pick_hex()
 
         if (inputEvent == KEY_PAGE_UP || inputEvent == KEY_PAGE_DOWN) {
             if (inputEvent == KEY_PAGE_UP) {
-                mapSetElevation(gElevation + 1);
+                map_set_elevation(map_elevation + 1);
             } else {
-                mapSetElevation(gElevation - 1);
+                map_set_elevation(map_elevation - 1);
             }
 
             rect.left = 30;

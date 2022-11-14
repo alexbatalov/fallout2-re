@@ -38,6 +38,17 @@
 #include "window_manager_private.h"
 #include "worldmap.h"
 
+static void map_display_draw(Rect* rect);
+static void map_scroll_refresh_game(Rect* rect);
+static void map_scroll_refresh_mapper(Rect* rect);
+static void map_free_global_vars();
+static void map_free_local_vars();
+static void map_place_dude_and_mouse();
+static void square_reset();
+static int square_load(File* stream, int a2);
+static int map_write_MapData(MapHeader* ptr, File* stream);
+static int map_read_MapData(MapHeader* ptr, File* stream);
+
 // 0x50B058
 char byte_50B058[] = "";
 
@@ -45,119 +56,108 @@ char byte_50B058[] = "";
 char _aErrorF2[] = "ERROR! F2";
 
 // 0x519540
-IsoWindowRefreshProc* _map_scroll_refresh = isoWindowRefreshRectGame;
+static IsoWindowRefreshProc* map_scroll_refresh = map_scroll_refresh_game;
 
 // 0x519544
-const int _map_data_elev_flags[ELEVATION_COUNT] = {
+static int map_data_elev_flags[ELEVATION_COUNT] = {
     2,
     4,
     8,
 };
 
 // 0x519550
-unsigned int gIsoWindowScrollTimestamp = 0;
+static unsigned int map_last_scroll_time = 0;
 
 // 0x519554
-bool gIsoEnabled = false;
+static bool map_bk_enabled = false;
 
 // 0x519558
-int gEnteringElevation = 0;
+static int mapEntranceElevation = 0;
 
 // 0x51955C
-int gEnteringTile = -1;
+static int mapEntranceTileNum = -1;
 
 // 0x519560
-int gEnteringRotation = ROTATION_NE;
+static int mapEntranceRotation = ROTATION_NE;
 
 // 0x519564
-int gMapSid = -1;
+int map_script_id = -1;
 
 // local_vars
 // 0x519568
-int* gMapLocalVars = NULL;
+int* map_local_vars = NULL;
 
 // map_vars
 // 0x51956C
-int* gMapGlobalVars = NULL;
+int* map_global_vars = NULL;
 
 // local_vars_num
 // 0x519570
-int gMapLocalVarsLength = 0;
+int num_map_local_vars = 0;
 
 // map_vars_num
 // 0x519574
-int gMapGlobalVarsLength = 0;
+int num_map_global_vars = 0;
 
 // Current elevation.
 //
 // 0x519578
-int gElevation = 0;
-
-// 0x51957C
-char* _errMapName = byte_50B058;
+int map_elevation = 0;
 
 // 0x519584
-int _wmMapIdx = -1;
+static int wmMapIdx = -1;
 
 // 0x614868
-TileData _square_data[ELEVATION_COUNT];
+TileData square_data[ELEVATION_COUNT];
 
 // 0x631D28
-MapTransition gMapTransition;
+static MapTransition map_state;
 
 // 0x631D38
-Rect gIsoWindowRect;
+static Rect map_display_rect;
 
 // map.msg
 //
 // map_msg_file
 // 0x631D48
-MessageList gMapMessageList;
+MessageList map_msg_file;
 
 // 0x631D50
-unsigned char* gIsoWindowBuffer;
+static unsigned char* display_buf;
 
 // 0x631D54
-MapHeader gMapHeader;
+MapHeader map_data;
 
 // 0x631E40
-TileData* _square[ELEVATION_COUNT];
+TileData* square[ELEVATION_COUNT];
 
 // 0x631E4C
-int gIsoWindow;
-
-// 0x631E50
-char _scratchStr[40];
-
-// Last map file name.
-//
-// 0x631E78
-char _map_path[MAX_PATH];
+int display_win;
 
 // iso_init
 // 0x481CA0
-int isoInit()
+int iso_init()
 {
     tileScrollLimitingDisable();
     tileScrollBlockingDisable();
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        _square[elevation] = &(_square_data[elevation]);
+        square[elevation] = &(square_data[elevation]);
     }
 
-    gIsoWindow = windowCreate(0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, 256, 10);
-    if (gIsoWindow == -1) {
+    display_win = windowCreate(0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, 256, 10);
+    if (display_win == -1) {
         debugPrint("win_add failed in iso_init\n");
         return -1;
     }
 
-    gIsoWindowBuffer = windowGetBuffer(gIsoWindow);
-    if (gIsoWindowBuffer == NULL) {
+    display_buf = windowGetBuffer(display_win);
+    if (display_buf == NULL) {
         debugPrint("win_get_buf failed in iso_init\n");
         return -1;
     }
 
-    if (win_get_rect(gIsoWindow, &gIsoWindowRect) != 0) {
+    if (win_get_rect(display_win, &map_display_rect) != 0) {
         debugPrint("win_get_rect failed in iso_init\n");
         return -1;
     }
@@ -169,14 +169,14 @@ int isoInit()
 
     debugPrint(">art_init\t\t");
 
-    if (tileInit(_square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, gIsoWindowBuffer, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, isoWindowRefreshRect) != 0) {
+    if (tileInit(square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, map_display_draw) != 0) {
         debugPrint("tile_init failed in iso_init\n");
         return -1;
     }
 
     debugPrint(">tile_init\t\t");
 
-    if (objectsInit(gIsoWindowBuffer, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
+    if (objectsInit(display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
         debugPrint("obj_init failed in iso_init\n");
         return -1;
     }
@@ -196,28 +196,28 @@ int isoInit()
 
     debugPrint(">intface_init\t\t");
 
-    mapMakeMapsDirectory();
+    map_setup_paths();
 
-    gEnteringElevation = -1;
-    gEnteringTile = -1;
-    gEnteringRotation = -1;
+    mapEntranceElevation = -1;
+    mapEntranceTileNum = -1;
+    mapEntranceRotation = -1;
 
     return 0;
 }
 
 // 0x481ED4
-void isoReset()
+void iso_reset()
 {
-    if (gMapGlobalVars != NULL) {
-        internal_free(gMapGlobalVars);
-        gMapGlobalVars = NULL;
-        gMapGlobalVarsLength = 0;
+    if (map_global_vars != NULL) {
+        internal_free(map_global_vars);
+        map_global_vars = NULL;
+        num_map_global_vars = 0;
     }
 
-    if (gMapLocalVars != NULL) {
-        internal_free(gMapLocalVars);
-        gMapLocalVars = NULL;
-        gMapLocalVarsLength = 0;
+    if (map_local_vars != NULL) {
+        internal_free(map_local_vars);
+        map_local_vars = NULL;
+        num_map_local_vars = 0;
     }
 
     art_reset();
@@ -225,13 +225,13 @@ void isoReset()
     objectsReset();
     cycle_reset();
     intface_reset();
-    gEnteringElevation = -1;
-    gEnteringTile = -1;
-    gEnteringRotation = -1;
+    mapEntranceElevation = -1;
+    mapEntranceTileNum = -1;
+    mapEntranceRotation = -1;
 }
 
 // 0x481F48
-void isoExit()
+void iso_exit()
 {
     intface_exit();
     cycle_exit();
@@ -239,60 +239,60 @@ void isoExit()
     tileExit();
     art_exit();
 
-    if (gMapGlobalVars != NULL) {
-        internal_free(gMapGlobalVars);
-        gMapGlobalVars = NULL;
-        gMapGlobalVarsLength = 0;
+    if (map_global_vars != NULL) {
+        internal_free(map_global_vars);
+        map_global_vars = NULL;
+        num_map_global_vars = 0;
     }
 
-    if (gMapLocalVars != NULL) {
-        internal_free(gMapLocalVars);
-        gMapLocalVars = NULL;
-        gMapLocalVarsLength = 0;
+    if (map_local_vars != NULL) {
+        internal_free(map_local_vars);
+        map_local_vars = NULL;
+        num_map_local_vars = 0;
     }
 }
 
 // 0x481FB4
-void _map_init()
+void map_init()
 {
     char* executable;
     config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, "executable", &executable);
     if (stricmp(executable, "mapper") == 0) {
-        _map_scroll_refresh = isoWindowRefreshRectMapper;
+        map_scroll_refresh = map_scroll_refresh_mapper;
     }
 
-    if (messageListInit(&gMapMessageList)) {
+    if (messageListInit(&map_msg_file)) {
         char path[FILENAME_MAX];
         sprintf(path, "%smap.msg", msg_path);
 
-        if (!messageListLoad(&gMapMessageList, path)) {
+        if (!messageListLoad(&map_msg_file, path)) {
             debugPrint("\nError loading map_msg_file!");
         }
     } else {
         debugPrint("\nError initing map_msg_file!");
     }
 
-    _map_new_map();
+    map_new_map();
     tickersAdd(gmouse_bk_process);
     gmouse_disable(0);
-    win_show(gIsoWindow);
+    win_show(display_win);
 }
 
 // 0x482084
-void _map_exit()
+void map_exit()
 {
-    win_hide(gIsoWindow);
+    win_hide(display_win);
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     tickersRemove(gmouse_bk_process);
-    if (!messageListFree(&gMapMessageList)) {
+    if (!messageListFree(&map_msg_file)) {
         debugPrint("\nError exiting map_msg_file!");
     }
 }
 
 // 0x4820C0
-void isoEnable()
+void map_enable_bk_processes()
 {
-    if (!gIsoEnabled) {
+    if (!map_bk_enabled) {
         textObjectsEnable();
         if (!game_ui_is_disabled()) {
             gmouse_enable();
@@ -300,14 +300,14 @@ void isoEnable()
         tickersAdd(object_animate);
         tickersAdd(dude_fidget);
         _scr_enable_critters();
-        gIsoEnabled = true;
+        map_bk_enabled = true;
     }
 }
 
 // 0x482104
-bool isoDisable()
+bool map_disable_bk_processes()
 {
-    if (!gIsoEnabled) {
+    if (!map_bk_enabled) {
         return false;
     }
 
@@ -317,20 +317,20 @@ bool isoDisable()
     gmouse_disable(0);
     textObjectsDisable();
 
-    gIsoEnabled = false;
+    map_bk_enabled = false;
 
     return true;
 }
 
 // 0x482148
-bool isoIsDisabled()
+bool map_bk_processes_are_disabled()
 {
-    return gIsoEnabled == false;
+    return map_bk_enabled == false;
 }
 
 // map_set_elevation
 // 0x482158
-int mapSetElevation(int elevation)
+int map_set_elevation(int elevation)
 {
     if (!elevationIsValid(elevation)) {
         return -1;
@@ -343,17 +343,17 @@ int mapSetElevation(int elevation)
         gmouse_set_cursor(MOUSE_CURSOR_NONE);
     }
 
-    if (elevation != gElevation) {
-        wmMapMarkMapEntranceState(gMapHeader.field_34, elevation, 1);
+    if (elevation != map_elevation) {
+        wmMapMarkMapEntranceState(map_data.field_34, elevation, 1);
     }
 
-    gElevation = elevation;
+    map_elevation = elevation;
 
     register_clear(gDude);
     dude_stand(gDude, gDude->rotation, gDude->fid);
     _partyMemberSyncPosition();
 
-    if (gMapSid != -1) {
+    if (map_script_id != -1) {
         scriptsExecMapUpdateProc();
     }
 
@@ -365,82 +365,82 @@ int mapSetElevation(int elevation)
 }
 
 // 0x482220
-int mapSetGlobalVar(int var, int value)
+int map_set_global_var(int var, int value)
 {
-    if (var < 0 || var >= gMapGlobalVarsLength) {
+    if (var < 0 || var >= num_map_global_vars) {
         debugPrint("ERROR: attempt to reference map var out of range: %d", var);
         return -1;
     }
 
-    gMapGlobalVars[var] = value;
+    map_global_vars[var] = value;
 
     return 0;
 }
 
 // 0x482250
-int mapGetGlobalVar(int var)
+int map_get_global_var(int var)
 {
-    if (var < 0 || var >= gMapGlobalVarsLength) {
+    if (var < 0 || var >= num_map_global_vars) {
         debugPrint("ERROR: attempt to reference map var out of range: %d", var);
         return 0;
     }
 
-    return gMapGlobalVars[var];
+    return map_global_vars[var];
 }
 
 // 0x482280
-int mapSetLocalVar(int var, int value)
+int map_set_local_var(int var, int value)
 {
-    if (var < 0 || var >= gMapLocalVarsLength) {
+    if (var < 0 || var >= num_map_local_vars) {
         debugPrint("ERROR: attempt to reference local var out of range: %d", var);
         return -1;
     }
 
-    gMapLocalVars[var] = value;
+    map_local_vars[var] = value;
 
     return 0;
 }
 
 // 0x4822B0
-int mapGetLocalVar(int var)
+int map_get_local_var(int var)
 {
-    if (var < 0 || var >= gMapLocalVarsLength) {
+    if (var < 0 || var >= num_map_local_vars) {
         debugPrint("ERROR: attempt to reference local var out of range: %d", var);
         return 0;
     }
 
-    return gMapLocalVars[var];
+    return map_local_vars[var];
 }
 
 // Make a room to store more local variables.
 //
 // 0x4822E0
-int _map_malloc_local_var(int a1)
+int map_malloc_local_var(int a1)
 {
-    int oldMapLocalVarsLength = gMapLocalVarsLength;
-    gMapLocalVarsLength += a1;
+    int oldMapLocalVarsLength = num_map_local_vars;
+    num_map_local_vars += a1;
 
-    int* vars = (int*)internal_realloc(gMapLocalVars, sizeof(*vars) * gMapLocalVarsLength);
+    int* vars = (int*)internal_realloc(map_local_vars, sizeof(*vars) * num_map_local_vars);
     if (vars == NULL) {
         debugPrint("\nError: Ran out of memory!");
     }
 
-    gMapLocalVars = vars;
+    map_local_vars = vars;
     memset((unsigned char*)vars + sizeof(*vars) * oldMapLocalVarsLength, 0, sizeof(*vars) * a1);
 
     return oldMapLocalVarsLength;
 }
 
 // 0x48234C
-void mapSetStart(int tile, int elevation, int rotation)
+void map_set_entrance_hex(int tile, int elevation, int rotation)
 {
-    gMapHeader.enteringTile = tile;
-    gMapHeader.enteringElevation = elevation;
-    gMapHeader.enteringRotation = rotation;
+    map_data.enteringTile = tile;
+    map_data.enteringElevation = elevation;
+    map_data.enteringRotation = rotation;
 }
 
 // 0x4824CC
-char* mapGetName(int map, int elevation)
+char* map_get_name(int map, int elevation)
 {
     if (map < 0 || map >= wmMapMaxCount()) {
         return NULL;
@@ -451,13 +451,13 @@ char* mapGetName(int map, int elevation)
     }
 
     MessageListItem messageListItem;
-    return getmsg(&gMapMessageList, &messageListItem, map * 3 + elevation + 200);
+    return getmsg(&map_msg_file, &messageListItem, map * 3 + elevation + 200);
 }
 
 // TODO: Check, probably returns true if map1 and map2 represents the same city.
 //
 // 0x482528
-bool _is_map_idx_same(int map1, int map2)
+bool is_map_idx_same(int map1, int map2)
 {
     if (map1 < 0 || map1 >= wmMapMaxCount()) {
         return 0;
@@ -489,7 +489,7 @@ bool _is_map_idx_same(int map1, int map2)
 }
 
 // 0x4825CC
-int _get_map_idx_same(int map1, int map2)
+int get_map_idx_same(int map1, int map2)
 {
     int city1 = -1;
     if (wmMatchAreaContainingMapIdx(map1, &city1) == -1) {
@@ -509,7 +509,7 @@ int _get_map_idx_same(int map1, int map2)
 }
 
 // 0x48261C
-char* mapGetCityName(int map)
+char* map_get_short_name(int map)
 {
     int city;
     if (wmMatchAreaContainingMapIdx(map, &city) == -1) {
@@ -517,37 +517,43 @@ char* mapGetCityName(int map)
     }
 
     MessageListItem messageListItem;
-    char* name = getmsg(&gMapMessageList, &messageListItem, 1500 + city);
+    char* name = getmsg(&map_msg_file, &messageListItem, 1500 + city);
     return name;
 }
 
 // 0x48268C
-char* _map_get_description_idx_(int map)
+char* map_get_description_idx(int map)
 {
+    // 0x631E50
+    static char scratchStr[40];
+
+    // 0x51957C
+    static char* errMapName = byte_50B058;
+
     int city;
     if (wmMatchAreaContainingMapIdx(map, &city) == 0) {
-        wmGetAreaIdxName(city, _scratchStr);
+        wmGetAreaIdxName(city, scratchStr);
     } else {
-        strcpy(_scratchStr, _errMapName);
+        strcpy(scratchStr, errMapName);
     }
 
-    return _scratchStr;
+    return scratchStr;
 }
 
 // 0x4826B8
-int mapGetCurrentMap()
+int map_get_index_number()
 {
-    return gMapHeader.field_34;
+    return map_data.field_34;
 }
 
 // 0x4826C0
-int mapScroll(int dx, int dy)
+int map_scroll(int dx, int dy)
 {
-    if (getTicksSince(gIsoWindowScrollTimestamp) < 33) {
+    if (getTicksSince(map_last_scroll_time) < 33) {
         return -2;
     }
 
-    gIsoWindowScrollTimestamp = _get_time();
+    map_last_scroll_time = _get_time();
 
     int screenDx = dx * 32;
     int screenDy = dy * 24;
@@ -560,11 +566,11 @@ int mapScroll(int dx, int dy)
 
     int centerScreenX;
     int centerScreenY;
-    tileToScreenXY(gCenterTile, &centerScreenX, &centerScreenY, gElevation);
+    tileToScreenXY(gCenterTile, &centerScreenX, &centerScreenY, map_elevation);
     centerScreenX += screenDx + 16;
     centerScreenY += screenDy + 8;
 
-    int newCenterTile = tileFromScreenXY(centerScreenX, centerScreenY, gElevation);
+    int newCenterTile = tileFromScreenXY(centerScreenX, centerScreenY, map_elevation);
     if (newCenterTile == -1) {
         return -1;
     }
@@ -574,7 +580,7 @@ int mapScroll(int dx, int dy)
     }
 
     Rect r1;
-    rectCopy(&r1, &gIsoWindowRect);
+    rectCopy(&r1, &map_display_rect);
 
     Rect r2;
     rectCopy(&r2, &r1);
@@ -602,8 +608,8 @@ int mapScroll(int dx, int dy)
     int step;
     if (screenDy < 0) {
         r1.bottom = r1.top - screenDy;
-        src = gIsoWindowBuffer + pitch * (height - 1);
-        dest = gIsoWindowBuffer + pitch * (_scr_size.bottom - _scr_size.top - 100);
+        src = display_buf + pitch * (height - 1);
+        dest = display_buf + pitch * (_scr_size.bottom - _scr_size.top - 100);
         if (screenDx < 0) {
             dest -= screenDx;
         } else {
@@ -612,8 +618,8 @@ int mapScroll(int dx, int dy)
         step = -pitch;
     } else {
         r1.top = r1.bottom - screenDy;
-        dest = gIsoWindowBuffer;
-        src = gIsoWindowBuffer + pitch * screenDy;
+        dest = display_buf;
+        src = display_buf + pitch * screenDy;
 
         if (screenDx < 0) {
             dest -= screenDx;
@@ -630,71 +636,74 @@ int mapScroll(int dx, int dy)
     }
 
     if (screenDx != 0) {
-        _map_scroll_refresh(&r2);
+        map_scroll_refresh(&r2);
     }
 
     if (screenDy != 0) {
-        _map_scroll_refresh(&r1);
+        map_scroll_refresh(&r1);
     }
 
-    win_draw(gIsoWindow);
+    win_draw(display_win);
 
     return 0;
 }
 
 // 0x482900
-char* mapBuildPath(char* name)
+char* map_file_path(char* name)
 {
+    // 0x631E78
+    static char map_path[MAX_PATH];
+
     if (*name != '\\') {
-        sprintf(_map_path, "maps\\%s", name);
-        return _map_path;
+        sprintf(map_path, "maps\\%s", name);
+        return map_path;
     }
     return name;
 }
 
 // 0x482924
-int mapSetEnteringLocation(int elevation, int tile_num, int orientation)
+int mapSetEntranceInfo(int elevation, int tile_num, int orientation)
 {
-    gEnteringElevation = elevation;
-    gEnteringTile = tile_num;
-    gEnteringRotation = orientation;
+    mapEntranceElevation = elevation;
+    mapEntranceTileNum = tile_num;
+    mapEntranceRotation = orientation;
     return 0;
 }
 
 // 0x482938
-void _map_new_map()
+void map_new_map()
 {
-    mapSetElevation(0);
+    map_set_elevation(0);
     tileSetCenter(20100, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
-    memset(&gMapTransition, 0, sizeof(gMapTransition));
-    gMapHeader.enteringElevation = 0;
-    gMapHeader.enteringRotation = 0;
-    gMapHeader.localVariablesCount = 0;
-    gMapHeader.version = 20;
-    gMapHeader.name[0] = '\0';
-    gMapHeader.enteringTile = 20100;
+    memset(&map_state, 0, sizeof(map_state));
+    map_data.enteringElevation = 0;
+    map_data.enteringRotation = 0;
+    map_data.localVariablesCount = 0;
+    map_data.version = 20;
+    map_data.name[0] = '\0';
+    map_data.enteringTile = 20100;
     _obj_remove_all();
     anim_stop();
 
-    if (gMapGlobalVars != NULL) {
-        internal_free(gMapGlobalVars);
-        gMapGlobalVars = NULL;
-        gMapGlobalVarsLength = 0;
+    if (map_global_vars != NULL) {
+        internal_free(map_global_vars);
+        map_global_vars = NULL;
+        num_map_global_vars = 0;
     }
 
-    if (gMapLocalVars != NULL) {
-        internal_free(gMapLocalVars);
-        gMapLocalVars = NULL;
-        gMapLocalVarsLength = 0;
+    if (map_local_vars != NULL) {
+        internal_free(map_local_vars);
+        map_local_vars = NULL;
+        num_map_local_vars = 0;
     }
 
-    _square_reset();
-    _map_place_dude_and_mouse();
+    square_reset();
+    map_place_dude_and_mouse();
     tileWindowRefresh();
 }
 
 // 0x482A68
-int mapLoadByName(char* fileName)
+int map_load(char* fileName)
 {
     int rc;
 
@@ -706,7 +715,7 @@ int mapLoadByName(char* fileName)
     if (extension != NULL) {
         strcpy(extension, ".SAV");
 
-        const char* filePath = mapBuildPath(fileName);
+        const char* filePath = map_file_path(fileName);
 
         File* stream = fileOpen(filePath, "rb");
 
@@ -714,21 +723,21 @@ int mapLoadByName(char* fileName)
 
         if (stream != NULL) {
             fileClose(stream);
-            rc = mapLoadSaved(fileName);
+            rc = map_load_in_game(fileName);
             wmMapMusicStart();
         }
     }
 
     if (rc == -1) {
-        const char* filePath = mapBuildPath(fileName);
+        const char* filePath = map_file_path(fileName);
         File* stream = fileOpen(filePath, "rb");
         if (stream != NULL) {
-            rc = mapLoad(stream);
+            rc = map_load_file(stream);
             fileClose(stream);
         }
 
         if (rc == 0) {
-            strcpy(gMapHeader.name, fileName);
+            strcpy(map_data.name, fileName);
             gDude->data.critter.combat.whoHitMe = NULL;
         }
     }
@@ -737,18 +746,18 @@ int mapLoadByName(char* fileName)
 }
 
 // 0x482B34
-int mapLoadById(int map)
+int map_load_idx(int map)
 {
-    scriptSetFixedParam(gMapSid, map);
+    scriptSetFixedParam(map_script_id, map);
 
     char name[16];
     if (wmMapIdxToName(map, name) == -1) {
         return -1;
     }
 
-    _wmMapIdx = map;
+    wmMapIdx = map;
 
-    int rc = mapLoadByName(name);
+    int rc = map_load(name);
 
     wmMapMusicStart();
 
@@ -756,11 +765,11 @@ int mapLoadById(int map)
 }
 
 // 0x482B74
-int mapLoad(File* stream)
+int map_load_file(File* stream)
 {
-    _map_save_in_game(true);
+    map_save_in_game(true);
     gsound_background_play("wind2", 12, 13, 16);
-    isoDisable();
+    map_disable_bk_processes();
     _partyMemberPrepLoad();
     gmouse_disable_scrolling();
 
@@ -771,12 +780,12 @@ int mapLoad(File* stream)
 
     int rc = 0;
 
-    windowFill(gIsoWindow, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, colorTable[0]);
-    win_draw(gIsoWindow);
+    windowFill(display_win, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, colorTable[0]);
+    win_draw(display_win);
     anim_stop();
     scriptsDisable();
 
-    gMapSid = -1;
+    map_script_id = -1;
 
     const char* error = NULL;
 
@@ -786,64 +795,64 @@ int mapLoad(File* stream)
     }
 
     error = "Error reading header";
-    if (mapHeaderRead(&gMapHeader, stream) != 0) {
+    if (map_read_MapData(&map_data, stream) != 0) {
         goto err;
     }
 
     error = "Invalid map version";
-    if (gMapHeader.version != 19 && gMapHeader.version != 20) {
+    if (map_data.version != 19 && map_data.version != 20) {
         goto err;
     }
 
-    if (gEnteringElevation == -1) {
-        gEnteringElevation = gMapHeader.enteringElevation;
-        gEnteringTile = gMapHeader.enteringTile;
-        gEnteringRotation = gMapHeader.enteringRotation;
+    if (mapEntranceElevation == -1) {
+        mapEntranceElevation = map_data.enteringElevation;
+        mapEntranceTileNum = map_data.enteringTile;
+        mapEntranceRotation = map_data.enteringRotation;
     }
 
     _obj_remove_all();
 
-    if (gMapHeader.globalVariablesCount < 0) {
-        gMapHeader.globalVariablesCount = 0;
+    if (map_data.globalVariablesCount < 0) {
+        map_data.globalVariablesCount = 0;
     }
 
-    if (gMapHeader.localVariablesCount < 0) {
-        gMapHeader.localVariablesCount = 0;
+    if (map_data.localVariablesCount < 0) {
+        map_data.localVariablesCount = 0;
     }
 
     error = "Error loading global vars";
-    mapGlobalVariablesFree();
+    map_free_global_vars();
 
-    if (gMapHeader.globalVariablesCount != 0) {
-        gMapGlobalVars = (int*)internal_malloc(sizeof(*gMapGlobalVars) * gMapHeader.globalVariablesCount);
-        if (gMapGlobalVars == NULL) {
+    if (map_data.globalVariablesCount != 0) {
+        map_global_vars = (int*)internal_malloc(sizeof(*map_global_vars) * map_data.globalVariablesCount);
+        if (map_global_vars == NULL) {
             goto err;
         }
 
-        gMapGlobalVarsLength = gMapHeader.globalVariablesCount;
+        num_map_global_vars = map_data.globalVariablesCount;
     }
 
-    if (fileReadInt32List(stream, gMapGlobalVars, gMapGlobalVarsLength) != 0) {
+    if (fileReadInt32List(stream, map_global_vars, num_map_global_vars) != 0) {
         goto err;
     }
 
     error = "Error loading local vars";
-    mapLocalVariablesFree();
+    map_free_local_vars();
 
-    if (gMapHeader.localVariablesCount != 0) {
-        gMapLocalVars = (int*)internal_malloc(sizeof(*gMapLocalVars) * gMapHeader.localVariablesCount);
-        if (gMapLocalVars == NULL) {
+    if (map_data.localVariablesCount != 0) {
+        map_local_vars = (int*)internal_malloc(sizeof(*map_local_vars) * map_data.localVariablesCount);
+        if (map_local_vars == NULL) {
             goto err;
         }
 
-        gMapLocalVarsLength = gMapHeader.localVariablesCount;
+        num_map_local_vars = map_data.localVariablesCount;
     }
 
-    if (fileReadInt32List(stream, gMapLocalVars, gMapLocalVarsLength) != 0) {
+    if (fileReadInt32List(stream, map_local_vars, num_map_local_vars) != 0) {
         goto err;
     }
 
-    if (_square_load(stream, gMapHeader.flags) != 0) {
+    if (square_load(stream, map_data.flags) != 0) {
         goto err;
     }
 
@@ -857,28 +866,28 @@ int mapLoad(File* stream)
         goto err;
     }
 
-    if ((gMapHeader.flags & 1) == 0) {
-        _map_fix_critter_combat_data();
+    if ((map_data.flags & 1) == 0) {
+        map_fix_critter_combat_data();
     }
 
     error = "Error setting map elevation";
-    if (mapSetElevation(gEnteringElevation) != 0) {
+    if (map_set_elevation(mapEntranceElevation) != 0) {
         goto err;
     }
 
     error = "Error setting tile center";
-    if (tileSetCenter(gEnteringTile, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
+    if (tileSetCenter(mapEntranceTileNum, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
         goto err;
     }
 
     light_set_ambient(LIGHT_LEVEL_MAX, false);
-    objectSetLocation(gDude, gCenterTile, gElevation, NULL);
-    objectSetRotation(gDude, gEnteringRotation, NULL);
-    gMapHeader.field_34 = wmMapMatchNameToIdx(gMapHeader.name);
+    objectSetLocation(gDude, gCenterTile, map_elevation, NULL);
+    objectSetRotation(gDude, mapEntranceRotation, NULL);
+    map_data.field_34 = wmMapMatchNameToIdx(map_data.name);
 
-    if ((gMapHeader.flags & 1) == 0) {
+    if ((map_data.flags & 1) == 0) {
         char path[MAX_PATH];
-        sprintf(path, "maps\\%s", gMapHeader.name);
+        sprintf(path, "maps\\%s", map_data.name);
 
         char* extension = strstr(path, ".MAP");
         if (extension == NULL) {
@@ -890,15 +899,15 @@ int mapLoad(File* stream)
         }
 
         strcat(path, ".GAM");
-        game_load_info_vars(path, "MAP_GLOBAL_VARS:", &gMapGlobalVarsLength, &gMapGlobalVars);
-        gMapHeader.globalVariablesCount = gMapGlobalVarsLength;
+        game_load_info_vars(path, "MAP_GLOBAL_VARS:", &num_map_global_vars, &map_global_vars);
+        map_data.globalVariablesCount = num_map_global_vars;
     }
 
     scriptsEnable();
 
-    if (gMapHeader.scriptIndex > 0) {
+    if (map_data.scriptIndex > 0) {
         error = "Error creating new map script";
-        if (scriptAdd(&gMapSid, SCRIPT_TYPE_SYSTEM) == -1) {
+        if (scriptAdd(&map_script_id, SCRIPT_TYPE_SYSTEM) == -1) {
             goto err;
         }
 
@@ -907,18 +916,18 @@ int mapLoad(File* stream)
         objectCreateWithFidPid(&object, fid, -1);
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_TEMPORARY | OBJECT_HIDDEN);
         objectSetLocation(object, 1, 0, NULL);
-        object->sid = gMapSid;
-        scriptSetFixedParam(gMapSid, (gMapHeader.flags & 1) == 0);
+        object->sid = map_script_id;
+        scriptSetFixedParam(map_script_id, (map_data.flags & 1) == 0);
 
         Script* script;
-        scriptGetScript(gMapSid, &script);
-        script->field_14 = gMapHeader.scriptIndex - 1;
+        scriptGetScript(map_script_id, &script);
+        script->field_14 = map_data.scriptIndex - 1;
         script->flags |= SCRIPT_FLAG_0x08;
         object->id = scriptsNewObjectId();
         script->field_1C = object->id;
         script->owner = object;
         _scr_spatials_disable();
-        scriptExecProc(gMapSid, SCRIPT_PROC_MAP_ENTER);
+        scriptExecProc(map_script_id, SCRIPT_PROC_MAP_ENTER);
         _scr_spatials_enable();
 
         error = "Error Setting up random encounter";
@@ -935,18 +944,18 @@ err:
         char message[100]; // TODO: Size is probably wrong.
         sprintf(message, "%s while loading map.", error);
         debugPrint(message);
-        _map_new_map();
+        map_new_map();
         rc = -1;
     } else {
-        _obj_preload_art_cache(gMapHeader.flags);
+        _obj_preload_art_cache(map_data.flags);
     }
 
     _partyMemberRecoverLoad();
     intface_show();
     _proto_dude_update_gender();
-    _map_place_dude_and_mouse();
+    map_place_dude_and_mouse();
     fileSetReadProgressHandler(NULL, 0);
-    isoEnable();
+    map_enable_bk_processes();
     gmouse_disable_scrolling();
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
 
@@ -958,9 +967,9 @@ err:
     scriptsExecMapUpdateProc();
     tileEnable();
 
-    if (gMapTransition.map > 0) {
-        if (gMapTransition.rotation >= 0) {
-            objectSetRotation(gDude, gMapTransition.rotation, NULL);
+    if (map_state.map > 0) {
+        if (map_state.rotation >= 0) {
+            objectSetRotation(gDude, map_state.rotation, NULL);
         }
     } else {
         tileWindowRefresh();
@@ -972,8 +981,8 @@ err:
         rc = -1;
     }
 
-    wmMapMarkVisited(gMapHeader.field_34);
-    wmMapMarkMapEntranceState(gMapHeader.field_34, gElevation, 1);
+    wmMapMarkVisited(map_data.field_34);
+    wmMapMarkMapEntranceState(map_data.field_34, map_elevation, 1);
 
     if (wmCheckGameAreaEvents() != 0) {
         rc = -1;
@@ -987,33 +996,33 @@ err:
 
     gmouse_set_cursor(savedMouseCursorId);
 
-    gEnteringElevation = -1;
-    gEnteringTile = -1;
-    gEnteringRotation = -1;
+    mapEntranceElevation = -1;
+    mapEntranceTileNum = -1;
+    mapEntranceRotation = -1;
 
     gmPaletteFinish();
 
-    gMapHeader.version = 20;
+    map_data.version = 20;
 
     return rc;
 }
 
 // 0x483188
-int mapLoadSaved(char* fileName)
+int map_load_in_game(char* fileName)
 {
     debugPrint("\nMAP: Loading SAVED map.");
 
     char mapName[16]; // TODO: Size is probably wrong.
     strmfe(mapName, fileName, "SAV");
 
-    int rc = mapLoadByName(mapName);
+    int rc = map_load(mapName);
 
-    if (gameTimeGetTime() >= gMapHeader.lastVisitTime) {
-        if (((gameTimeGetTime() - gMapHeader.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
+    if (gameTimeGetTime() >= map_data.lastVisitTime) {
+        if (((gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
             objectUnjamAll();
         }
 
-        if (_map_age_dead_critters() == -1) {
+        if (map_age_dead_critters() == -1) {
             debugPrint("\nError: Critter aging failed on map load!");
             return -1;
         }
@@ -1023,26 +1032,26 @@ int mapLoadSaved(char* fileName)
         debugPrint("\nDestroying RANDOM encounter map.");
 
         char v15[16];
-        strcpy(v15, gMapHeader.name);
+        strcpy(v15, map_data.name);
 
-        strmfe(gMapHeader.name, v15, "SAV");
+        strmfe(map_data.name, v15, "SAV");
 
-        MapDirEraseFile("MAPS\\", gMapHeader.name);
+        MapDirEraseFile("MAPS\\", map_data.name);
 
-        strcpy(gMapHeader.name, v15);
+        strcpy(map_data.name, v15);
     }
 
     return rc;
 }
 
 // 0x48328C
-int _map_age_dead_critters()
+int map_age_dead_critters()
 {
     if (!wmMapDeadBodiesAge()) {
         return 0;
     }
 
-    int hoursSinceLastVisit = (gameTimeGetTime() - gMapHeader.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR;
+    int hoursSinceLastVisit = (gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR;
     if (hoursSinceLastVisit == 0) {
         return 0;
     }
@@ -1148,26 +1157,26 @@ int _map_age_dead_critters()
 }
 
 // 0x48358C
-int _map_target_load_area()
+int map_target_load_area()
 {
     int city = -1;
-    if (wmMatchAreaContainingMapIdx(gMapHeader.field_34, &city) == -1) {
+    if (wmMatchAreaContainingMapIdx(map_data.field_34, &city) == -1) {
         city = -1;
     }
     return city;
 }
 
 // 0x4835B4
-int mapSetTransition(MapTransition* transition)
+int map_leave_map(MapTransition* transition)
 {
     if (transition == NULL) {
         return -1;
     }
 
-    memcpy(&gMapTransition, transition, sizeof(gMapTransition));
+    memcpy(&map_state, transition, sizeof(map_state));
 
-    if (gMapTransition.map == 0) {
-        gMapTransition.map = -2;
+    if (map_state.map == 0) {
+        map_state.map = -2;
     }
 
     if (isInCombat()) {
@@ -1178,9 +1187,9 @@ int mapSetTransition(MapTransition* transition)
 }
 
 // 0x4835F8
-int mapHandleTransition()
+int map_check_state()
 {
-    if (gMapTransition.map == 0) {
+    if (map_state.map == 0) {
         return 0;
     }
 
@@ -1188,40 +1197,40 @@ int mapHandleTransition()
 
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
 
-    if (gMapTransition.map == -1) {
+    if (map_state.map == -1) {
         if (!isInCombat()) {
             anim_stop();
             wmTownMap();
-            memset(&gMapTransition, 0, sizeof(gMapTransition));
+            memset(&map_state, 0, sizeof(map_state));
         }
-    } else if (gMapTransition.map == -2) {
+    } else if (map_state.map == -2) {
         if (!isInCombat()) {
             anim_stop();
             wmWorldMap();
-            memset(&gMapTransition, 0, sizeof(gMapTransition));
+            memset(&map_state, 0, sizeof(map_state));
         }
     } else {
         if (!isInCombat()) {
-            if (gMapTransition.map != gMapHeader.field_34 || gElevation == gMapTransition.elevation) {
-                mapLoadById(gMapTransition.map);
+            if (map_state.map != map_data.field_34 || map_elevation == map_state.elevation) {
+                map_load_idx(map_state.map);
             }
 
-            if (gMapTransition.tile != -1 && gMapTransition.tile != 0
-                && gMapHeader.field_34 != MAP_MODOC_BEDNBREAKFAST && gMapHeader.field_34 != MAP_THE_SQUAT_A
-                && elevationIsValid(gMapTransition.elevation)) {
-                objectSetLocation(gDude, gMapTransition.tile, gMapTransition.elevation, NULL);
-                mapSetElevation(gMapTransition.elevation);
-                objectSetRotation(gDude, gMapTransition.rotation, NULL);
+            if (map_state.tile != -1 && map_state.tile != 0
+                && map_data.field_34 != MAP_MODOC_BEDNBREAKFAST && map_data.field_34 != MAP_THE_SQUAT_A
+                && elevationIsValid(map_state.elevation)) {
+                objectSetLocation(gDude, map_state.tile, map_state.elevation, NULL);
+                map_set_elevation(map_state.elevation);
+                objectSetRotation(gDude, map_state.rotation, NULL);
             }
 
             if (tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
                 debugPrint("\nError: map: attempt to center out-of-bounds!");
             }
 
-            memset(&gMapTransition, 0, sizeof(gMapTransition));
+            memset(&map_state, 0, sizeof(map_state));
 
             int city;
-            wmMatchAreaContainingMapIdx(gMapHeader.field_34, &city);
+            wmMatchAreaContainingMapIdx(map_data.field_34, &city);
             if (wmTeleportToArea(city) == -1) {
                 debugPrint("\nError: couldn't make jump on worldmap for map jump!");
             }
@@ -1232,7 +1241,7 @@ int mapHandleTransition()
 }
 
 // 0x483784
-void _map_fix_critter_combat_data()
+void map_fix_critter_combat_data()
 {
     for (Object* object = objectFindFirst(); object != NULL; object = objectFindNext()) {
         if (object->pid == -1) {
@@ -1249,9 +1258,8 @@ void _map_fix_critter_combat_data()
     }
 }
 
-// map_save
 // 0x483850
-int _map_save()
+int map_save()
 {
     char temp[80];
     temp[0] = '\0';
@@ -1266,19 +1274,19 @@ int _map_save()
     }
 
     int rc = -1;
-    if (gMapHeader.name[0] != '\0') {
-        char* mapFileName = mapBuildPath(gMapHeader.name);
+    if (map_data.name[0] != '\0') {
+        char* mapFileName = map_file_path(map_data.name);
         File* stream = fileOpen(mapFileName, "wb");
         if (stream != NULL) {
-            rc = _map_save_file(stream);
+            rc = map_save_file(stream);
             fileClose(stream);
         } else {
-            sprintf(temp, "Unable to open %s to write!", gMapHeader.name);
+            sprintf(temp, "Unable to open %s to write!", map_data.name);
             debugPrint(temp);
         }
 
         if (rc == 0) {
-            sprintf(temp, "%s saved.", gMapHeader.name);
+            sprintf(temp, "%s saved.", map_data.name);
             debugPrint(temp);
         }
     } else {
@@ -1289,7 +1297,7 @@ int _map_save()
 }
 
 // 0x483980
-int _map_save_file(File* stream)
+int map_save_file(File* stream)
 {
     if (stream == NULL) {
         return -1;
@@ -1302,12 +1310,12 @@ int _map_save_file(File* stream)
         for (tile = 0; tile < SQUARE_GRID_SIZE; tile++) {
             int fid;
 
-            fid = art_id(OBJ_TYPE_TILE, _square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
+            fid = art_id(OBJ_TYPE_TILE, square[elevation]->field_0[tile] & 0xFFF, 0, 0, 0);
             if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                 break;
             }
 
-            fid = art_id(OBJ_TYPE_TILE, (_square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
+            fid = art_id(OBJ_TYPE_TILE, (square[elevation]->field_0[tile] >> 16) & 0xFFF, 0, 0, 0);
             if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
                 break;
             }
@@ -1322,47 +1330,47 @@ int _map_save_file(File* stream)
                 }
 
                 if (object != NULL) {
-                    gMapHeader.flags &= ~_map_data_elev_flags[elevation];
+                    map_data.flags &= ~map_data_elev_flags[elevation];
                 } else {
-                    gMapHeader.flags |= _map_data_elev_flags[elevation];
+                    map_data.flags |= map_data_elev_flags[elevation];
                 }
             } else {
-                gMapHeader.flags |= _map_data_elev_flags[elevation];
+                map_data.flags |= map_data_elev_flags[elevation];
             }
         } else {
-            gMapHeader.flags &= ~_map_data_elev_flags[elevation];
+            map_data.flags &= ~map_data_elev_flags[elevation];
         }
     }
 
-    gMapHeader.localVariablesCount = gMapLocalVarsLength;
-    gMapHeader.globalVariablesCount = gMapGlobalVarsLength;
-    gMapHeader.darkness = 1;
+    map_data.localVariablesCount = num_map_local_vars;
+    map_data.globalVariablesCount = num_map_global_vars;
+    map_data.darkness = 1;
 
-    mapHeaderWrite(&gMapHeader, stream);
+    map_write_MapData(&map_data, stream);
 
-    if (gMapHeader.globalVariablesCount != 0) {
-        fileWriteInt32List(stream, gMapGlobalVars, gMapHeader.globalVariablesCount);
+    if (map_data.globalVariablesCount != 0) {
+        fileWriteInt32List(stream, map_global_vars, map_data.globalVariablesCount);
     }
 
-    if (gMapHeader.localVariablesCount != 0) {
-        fileWriteInt32List(stream, gMapLocalVars, gMapHeader.localVariablesCount);
+    if (map_data.localVariablesCount != 0) {
+        fileWriteInt32List(stream, map_local_vars, map_data.localVariablesCount);
     }
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        if ((gMapHeader.flags & _map_data_elev_flags[elevation]) == 0) {
-            _db_fwriteLongCount(stream, _square[elevation]->field_0, SQUARE_GRID_SIZE);
+        if ((map_data.flags & map_data_elev_flags[elevation]) == 0) {
+            _db_fwriteLongCount(stream, square[elevation]->field_0, SQUARE_GRID_SIZE);
         }
     }
 
     char err[80];
 
     if (scriptSaveAll(stream) == -1) {
-        sprintf(err, "Error saving scripts in %s", gMapHeader.name);
+        sprintf(err, "Error saving scripts in %s", map_data.name);
         _win_msg(err, 80, 80, colorTable[31744]);
     }
 
     if (objectSaveAll(stream) == -1) {
-        sprintf(err, "Error saving objects in %s", gMapHeader.name);
+        sprintf(err, "Error saving objects in %s", map_data.name);
         _win_msg(err, 80, 80, colorTable[31744]);
     }
 
@@ -1372,9 +1380,9 @@ int _map_save_file(File* stream)
 }
 
 // 0x483C98
-int _map_save_in_game(bool a1)
+int map_save_in_game(bool a1)
 {
-    if (gMapHeader.name[0] == '\0') {
+    if (map_data.name[0] == '\0') {
         return 0;
     }
 
@@ -1387,45 +1395,45 @@ int _map_save_in_game(bool a1)
         _partyMemberPrepItemSaveAll();
         scriptsExecMapExitProc();
 
-        if (gMapSid != -1) {
+        if (map_script_id != -1) {
             Script* script;
-            scriptGetScript(gMapSid, &script);
+            scriptGetScript(map_script_id, &script);
         }
 
         gameTimeScheduleUpdateEvent();
         _obj_reset_roof();
     }
 
-    gMapHeader.flags |= 0x01;
-    gMapHeader.lastVisitTime = gameTimeGetTime();
+    map_data.flags |= 0x01;
+    map_data.lastVisitTime = gameTimeGetTime();
 
     char name[16];
 
     if (a1 && !wmMapIsSaveable()) {
         debugPrint("\nNot saving RANDOM encounter map.");
 
-        strcpy(name, gMapHeader.name);
-        strmfe(gMapHeader.name, name, "SAV");
-        MapDirEraseFile("MAPS\\", gMapHeader.name);
-        strcpy(gMapHeader.name, name);
+        strcpy(name, map_data.name);
+        strmfe(map_data.name, name, "SAV");
+        MapDirEraseFile("MAPS\\", map_data.name);
+        strcpy(map_data.name, name);
     } else {
         debugPrint("\n Saving \".SAV\" map.");
 
-        strcpy(name, gMapHeader.name);
-        strmfe(gMapHeader.name, name, "SAV");
-        if (_map_save() == -1) {
+        strcpy(name, map_data.name);
+        strmfe(map_data.name, name, "SAV");
+        if (map_save() == -1) {
             return -1;
         }
 
-        strcpy(gMapHeader.name, name);
+        strcpy(map_data.name, name);
 
         automap_pip_save();
 
         if (a1) {
-            gMapHeader.name[0] = '\0';
+            map_data.name[0] = '\0';
             _obj_remove_all();
             _proto_remove_all();
-            _square_reset();
+            square_reset();
             gameTimeScheduleUpdateEvent();
         }
     }
@@ -1434,7 +1442,7 @@ int _map_save_in_game(bool a1)
 }
 
 // 0x483E28
-void mapMakeMapsDirectory()
+void map_setup_paths()
 {
     char path[FILENAME_MAX];
 
@@ -1452,68 +1460,68 @@ void mapMakeMapsDirectory()
 }
 
 // 0x483ED0
-void isoWindowRefreshRect(Rect* rect)
+static void map_display_draw(Rect* rect)
 {
-    win_draw_rect(gIsoWindow, rect);
+    win_draw_rect(display_win, rect);
 }
 
 // 0x483EE4
-void isoWindowRefreshRectGame(Rect* rect)
+static void map_scroll_refresh_game(Rect* rect)
 {
     Rect clampedDirtyRect;
-    if (rectIntersection(rect, &gIsoWindowRect, &clampedDirtyRect) == -1) {
+    if (rectIntersection(rect, &map_display_rect, &clampedDirtyRect) == -1) {
         return;
     }
 
-    tileRenderFloorsInRect(&clampedDirtyRect, gElevation);
-    _grid_render(&clampedDirtyRect, gElevation);
-    _obj_render_pre_roof(&clampedDirtyRect, gElevation);
-    tileRenderRoofsInRect(&clampedDirtyRect, gElevation);
-    _obj_render_post_roof(&clampedDirtyRect, gElevation);
+    tileRenderFloorsInRect(&clampedDirtyRect, map_elevation);
+    _grid_render(&clampedDirtyRect, map_elevation);
+    _obj_render_pre_roof(&clampedDirtyRect, map_elevation);
+    tileRenderRoofsInRect(&clampedDirtyRect, map_elevation);
+    _obj_render_post_roof(&clampedDirtyRect, map_elevation);
 }
 
 // 0x483F44
-void isoWindowRefreshRectMapper(Rect* rect)
+static void map_scroll_refresh_mapper(Rect* rect)
 {
     Rect clampedDirtyRect;
-    if (rectIntersection(rect, &gIsoWindowRect, &clampedDirtyRect) == -1) {
+    if (rectIntersection(rect, &map_display_rect, &clampedDirtyRect) == -1) {
         return;
     }
 
-    bufferFill(gIsoWindowBuffer + clampedDirtyRect.top * (_scr_size.right - _scr_size.left + 1) + clampedDirtyRect.left,
+    bufferFill(display_buf + clampedDirtyRect.top * (_scr_size.right - _scr_size.left + 1) + clampedDirtyRect.left,
         clampedDirtyRect.right - clampedDirtyRect.left + 1,
         clampedDirtyRect.bottom - clampedDirtyRect.top + 1,
         _scr_size.right - _scr_size.left + 1,
         0);
-    tileRenderFloorsInRect(&clampedDirtyRect, gElevation);
-    _grid_render(&clampedDirtyRect, gElevation);
-    _obj_render_pre_roof(&clampedDirtyRect, gElevation);
-    tileRenderRoofsInRect(&clampedDirtyRect, gElevation);
-    _obj_render_post_roof(&clampedDirtyRect, gElevation);
+    tileRenderFloorsInRect(&clampedDirtyRect, map_elevation);
+    _grid_render(&clampedDirtyRect, map_elevation);
+    _obj_render_pre_roof(&clampedDirtyRect, map_elevation);
+    tileRenderRoofsInRect(&clampedDirtyRect, map_elevation);
+    _obj_render_post_roof(&clampedDirtyRect, map_elevation);
 }
 
 // 0x484038
-void mapGlobalVariablesFree()
+static void map_free_global_vars()
 {
-    if (gMapGlobalVars != NULL) {
-        internal_free(gMapGlobalVars);
-        gMapGlobalVars = NULL;
-        gMapGlobalVarsLength = 0;
+    if (map_global_vars != NULL) {
+        internal_free(map_global_vars);
+        map_global_vars = NULL;
+        num_map_global_vars = 0;
     }
 }
 
 // 0x4840D4
-void mapLocalVariablesFree()
+static void map_free_local_vars()
 {
-    if (gMapLocalVars != NULL) {
-        internal_free(gMapLocalVars);
-        gMapLocalVars = NULL;
-        gMapLocalVarsLength = 0;
+    if (map_local_vars != NULL) {
+        internal_free(map_local_vars);
+        map_local_vars = NULL;
+        num_map_local_vars = 0;
     }
 }
 
 // 0x48411C
-void _map_place_dude_and_mouse()
+static void map_place_dude_and_mouse()
 {
     _obj_clear_seen();
 
@@ -1524,8 +1532,8 @@ void _map_place_dude_and_mouse()
         }
 
         if (gDude->tile == -1) {
-            objectSetLocation(gDude, gCenterTile, gElevation, NULL);
-            objectSetRotation(gDude, gMapHeader.enteringRotation, 0);
+            objectSetLocation(gDude, gCenterTile, map_elevation, NULL);
+            objectSetRotation(gDude, map_data.enteringRotation, 0);
         }
 
         objectSetLight(gDude, 4, 0x10000, 0);
@@ -1540,10 +1548,10 @@ void _map_place_dude_and_mouse()
 }
 
 // 0x484210
-void _square_reset()
+static void square_reset()
 {
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        int* p = _square[elevation]->field_0;
+        int* p = square[elevation]->field_0;
         for (int y = 0; y < SQUARE_GRID_HEIGHT; y++) {
             for (int x = 0; x < SQUARE_GRID_WIDTH; x++) {
                 // TODO: Strange math, initially right, but need to figure it out and
@@ -1567,18 +1575,18 @@ void _square_reset()
 }
 
 // 0x48431C
-int _square_load(File* stream, int flags)
+static int square_load(File* stream, int flags)
 {
     int v6;
     int v7;
     int v8;
     int v9;
 
-    _square_reset();
+    square_reset();
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        if ((flags & _map_data_elev_flags[elevation]) == 0) {
-            int* arr = _square[elevation]->field_0;
+        if ((flags & map_data_elev_flags[elevation]) == 0) {
+            int* arr = square[elevation]->field_0;
             if (_db_freadIntCount(stream, arr, SQUARE_GRID_SIZE) != 0) {
                 return -1;
             }
@@ -1602,7 +1610,7 @@ int _square_load(File* stream, int flags)
 }
 
 // 0x4843B8
-int mapHeaderWrite(MapHeader* ptr, File* stream)
+static int map_write_MapData(MapHeader* ptr, File* stream)
 {
     if (fileWriteInt32(stream, ptr->version) == -1) return -1;
     if (fileWriteFixedLengthString(stream, ptr->name, 16) == -1) return -1;
@@ -1622,7 +1630,7 @@ int mapHeaderWrite(MapHeader* ptr, File* stream)
 }
 
 // 0x4844B4
-int mapHeaderRead(MapHeader* ptr, File* stream)
+static int map_read_MapData(MapHeader* ptr, File* stream)
 {
     if (fileReadInt32(stream, &(ptr->version)) == -1) return -1;
     if (fileReadFixedLengthString(stream, ptr->name, 16) == -1) return -1;
