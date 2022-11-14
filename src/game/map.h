@@ -97,6 +97,8 @@ int map_set_local_var(int var, int value);
 int map_get_local_var(int var);
 int map_malloc_local_var(int a1);
 void map_set_entrance_hex(int a1, int a2, int a3);
+void map_set_name(const char* name);
+void map_get_name(char* name);
 char* map_get_elev_idx(int map_num, int elev);
 bool is_map_idx_same(int map_num1, int map_num2);
 int get_map_idx_same(int map_num1, int map_num2);

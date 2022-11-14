@@ -462,6 +462,22 @@ void map_set_entrance_hex(int tile, int elevation, int rotation)
     map_data.enteringRotation = rotation;
 }
 
+// NOTE: Unused.
+//
+// 0x48247C
+void map_set_name(const char* name)
+{
+    strcpy(map_data.name, name);
+}
+
+// NOTE: Unused.
+//
+// 0x4824A4
+void map_get_name(char* name)
+{
+    strcpy(name, map_data.name);
+}
+
 // 0x4824CC
 char* map_get_elev_idx(int map, int elevation)
 {
