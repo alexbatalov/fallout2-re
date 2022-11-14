@@ -90,6 +90,7 @@ void map_enable_bk_processes();
 bool map_disable_bk_processes();
 bool map_bk_processes_are_disabled();
 int map_set_elevation(int elevation);
+bool map_is_elevation_empty(int elevation);
 int map_set_global_var(int var, int value);
 int map_get_global_var(int var);
 int map_set_local_var(int var, int value);

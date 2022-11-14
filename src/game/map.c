@@ -377,6 +377,16 @@ int map_set_elevation(int elevation)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x4821F4
+bool map_is_elevation_empty(int elevation)
+{
+    return elevation < 0
+        || elevation >= ELEVATION_COUNT
+        || (map_data.flags & map_data_elev_flags[elevation]) != 0;
+}
+
 // 0x482220
 int map_set_global_var(int var, int value)
 {
