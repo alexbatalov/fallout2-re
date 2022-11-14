@@ -101,7 +101,7 @@ int queueLoad(File* stream)
         } else {
             obj = objectFindFirst();
             while (obj != NULL) {
-                obj = _inven_find_id(obj, objectId);
+                obj = inven_find_id(obj, objectId);
                 if (obj != NULL) {
                     break;
                 }

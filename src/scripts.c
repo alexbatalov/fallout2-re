@@ -955,12 +955,12 @@ int scriptsHandleRequests()
 
     if ((gScriptsRequests & SCRIPT_REQUEST_LOOTING) != 0) {
         gScriptsRequests &= ~SCRIPT_REQUEST_LOOTING;
-        inventoryOpenLooting(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
+        loot_container(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_STEALING) != 0) {
         gScriptsRequests &= ~SCRIPT_REQUEST_STEALING;
-        inventoryOpenStealing(gScriptsRequestedStealingBy, gScriptsRequestedStealingFrom);
+        inven_steal_container(gScriptsRequestedStealingBy, gScriptsRequestedStealingFrom);
     }
 
     return 0;
@@ -1023,7 +1023,7 @@ int _scripts_check_state_in_combat()
     }
 
     if ((gScriptsRequests & SCRIPT_REQUEST_LOOTING) != 0) {
-        inventoryOpenLooting(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
+        loot_container(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
     }
 
     // NOTE: Uninline.

@@ -941,7 +941,7 @@ static int ai_check_drugs(Object* critter)
                 break;
             }
 
-            Object* drug = _inven_find_type(critter, ITEM_TYPE_DRUG, &token);
+            Object* drug = inven_find_type(critter, ITEM_TYPE_DRUG, &token);
             if (drug == NULL) {
                 v25 = true;
                 break;
@@ -971,7 +971,7 @@ static int ai_check_drugs(Object* critter)
 
         if (!v28 && v26 > 0 && randomBetween(0, 100) < v26) {
             while (critter->data.critter.combat.ap >= 2) {
-                Object* drug = _inven_find_type(critter, ITEM_TYPE_DRUG, &token);
+                Object* drug = inven_find_type(critter, ITEM_TYPE_DRUG, &token);
                 if (drug == NULL) {
                     v25 = 1;
                     break;
@@ -1621,7 +1621,7 @@ static int ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_am
     v9 = -1;
 
     while (1) {
-        ammo_obj = _inven_find_type(critter_obj, 4, &v9);
+        ammo_obj = inven_find_type(critter_obj, 4, &v9);
         if (ammo_obj == NULL) {
             break;
         }
@@ -1635,10 +1635,10 @@ static int ai_have_ammo(Object* critter_obj, Object* weapon_obj, Object** out_am
 
         if (weaponGetAnimationCode(weapon_obj)) {
             if (_item_w_range(critter_obj, 2) < 3) {
-                _inven_unwield(critter_obj, 1);
+                inven_unwield(critter_obj, 1);
             }
         } else {
-            _inven_unwield(critter_obj, 1);
+            inven_unwield(critter_obj, 1);
         }
     }
 
@@ -1853,9 +1853,9 @@ Object* ai_search_inven_weap(Object* critter, int a2, Object* a3)
 
     int token = -1;
     Object* bestWeapon = NULL;
-    Object* rightHandWeapon = critterGetItem2(critter);
+    Object* rightHandWeapon = inven_right_hand(critter);
     while (true) {
-        Object* weapon = _inven_find_type(critter, ITEM_TYPE_WEAPON, &token);
+        Object* weapon = inven_find_type(critter, ITEM_TYPE_WEAPON, &token);
         if (weapon == NULL) {
             break;
         }
@@ -1900,7 +1900,7 @@ Object* ai_search_inven_armor(Object* critter)
     // Calculate armor score - it's a unitless combination of armor class and bonuses across
     // all damage types.
     int armorScore = 0;
-    Object* armor = critterGetArmor(critter);
+    Object* armor = inven_worn(critter);
     if (armor != NULL) {
         armorScore = armorGetArmorClass(armor);
 
@@ -1916,7 +1916,7 @@ Object* ai_search_inven_armor(Object* critter)
 
     int v15 = -1;
     while (true) {
-        Object* candidate = _inven_find_type(critter, ITEM_TYPE_ARMOR, &v15);
+        Object* candidate = inven_find_type(critter, ITEM_TYPE_ARMOR, &v15);
         if (candidate == NULL) {
             break;
         }
@@ -2012,7 +2012,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
     ai_sort_list_distance(objects, count, critter);
 
     int perception = critterGetStat(critter, STAT_PERCEPTION) + 5;
-    Object* item2 = critterGetItem2(critter);
+    Object* item2 = inven_right_hand(critter);
 
     Object* foundItem = NULL;
 
@@ -2063,7 +2063,7 @@ static Object* ai_retrieve_object(Object* a1, Object* a2)
 
     combat_turn_run();
 
-    Object* v3 = _inven_find_id(a1, a2->id);
+    Object* v3 = inven_find_id(a1, a2->id);
 
     // TODO: Not sure about this one.
     if (v3 != NULL || a2->owner != NULL) {
@@ -2421,7 +2421,7 @@ static int ai_switch_weapons(Object* a1, int* hitMode, Object** weapon, Object* 
     }
 
     if (*weapon != NULL) {
-        _inven_wield(a1, *weapon, 1);
+        inven_wield(a1, *weapon, 1);
         combat_turn_run();
         if (_item_w_mp_cost(a1, *hitMode, 0) <= a1->data.critter.combat.ap) {
             return 0;
@@ -2504,7 +2504,7 @@ static int ai_try_attack(Object* a1, Object* a2)
     CritterCombatData* combatData = &(a1->data.critter.combat);
     int v38 = 1;
 
-    Object* weapon = critterGetItem2(a1);
+    Object* weapon = inven_right_hand(a1);
     if (weapon != NULL && itemGetType(weapon) != ITEM_TYPE_WEAPON) {
         weapon = NULL;
     }
@@ -2586,7 +2586,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                     gsound_play_sfx_file_volume(sfx, volume);
                     ai_magic_hands(a1, weapon, 5001);
 
-                    if (_inven_unwield(a1, 1) == 0) {
+                    if (inven_unwield(a1, 1) == 0) {
                         combat_turn_run();
                     }
 
@@ -2718,7 +2718,7 @@ void cai_attempt_w_reload(Object* critter_obj, int a2)
     const char* sfx;
     int v10;
 
-    weapon_obj = critterGetItem2(critter_obj);
+    weapon_obj = inven_right_hand(critter_obj);
     if (weapon_obj == NULL) {
         return;
     }
@@ -3259,12 +3259,12 @@ static int combatai_rating(Object* obj)
 
     melee_damage = critterGetStat(obj, STAT_MELEE_DAMAGE);
 
-    item = critterGetItem2(obj);
+    item = inven_right_hand(obj);
     if (item != NULL && itemGetType(item) == ITEM_TYPE_WEAPON && weaponGetDamageMinMax(item, &weapon_damage_min, &weapon_damage_max) != -1 && melee_damage < weapon_damage_max) {
         melee_damage = weapon_damage_max;
     }
 
-    item = critterGetItem1(obj);
+    item = inven_left_hand(obj);
     if (item != NULL && itemGetType(item) == ITEM_TYPE_WEAPON && weaponGetDamageMinMax(item, &weapon_damage_min, &weapon_damage_max) != -1 && melee_damage < weapon_damage_max) {
         melee_damage = weapon_damage_max;
     }

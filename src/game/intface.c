@@ -1282,7 +1282,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
     Object* oldCurrentItem = itemButtonItems[itemCurrentItem].item;
 
     InterfaceItemState* leftItemState = &(itemButtonItems[HAND_LEFT]);
-    Object* item1 = critterGetItem1(gDude);
+    Object* item1 = inven_left_hand(gDude);
     if (item1 == leftItemState->item && leftItemState->item != NULL) {
         if (leftItemState->item != NULL) {
             leftItemState->isDisabled = _can_use_weapon(item1);
@@ -1342,7 +1342,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
 
     InterfaceItemState* rightItemState = &(itemButtonItems[HAND_RIGHT]);
 
-    Object* item2 = critterGetItem2(gDude);
+    Object* item2 = inven_right_hand(gDude);
     if (item2 == rightItemState->item && rightItemState->item != NULL) {
         if (rightItemState->item != NULL) {
             rightItemState->isDisabled = _can_use_weapon(rightItemState->item);

@@ -274,7 +274,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 hpMessageListItem.num = 535 + critterGetStat(target, STAT_GENDER);
             }
 
-            Object* item2 = critterGetItem2(target);
+            Object* item2 = inven_right_hand(target);
             if (item2 != NULL && itemGetType(item2) != ITEM_TYPE_WEAPON) {
                 item2 = NULL;
             }
@@ -572,7 +572,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
     Rect updatedRect;
     int fid;
     int v11 = 0;
-    if (critterGetItem2(critter) == item) {
+    if (inven_right_hand(critter) == item) {
         if (critter != gDude || intface_is_item_right_hand()) {
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
@@ -580,7 +580,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
         } else {
             v11 = 1;
         }
-    } else if (critterGetItem1(critter) == item) {
+    } else if (inven_left_hand(critter) == item) {
         if (critter == gDude && !intface_is_item_right_hand()) {
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
             objectSetFid(critter, fid, &updatedRect);
@@ -588,7 +588,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
         } else {
             v11 = 1;
         }
-    } else if (critterGetArmor(critter) == item) {
+    } else if (inven_worn(critter) == item) {
         if (critter == gDude) {
             int v5 = 1;
 
@@ -861,7 +861,7 @@ int _obj_use_explosive(Object* explosive)
             display_print(messageListItem.text);
         }
     } else {
-        int seconds = _inven_set_timer(explosive);
+        int seconds = inven_set_timer(explosive);
         if (seconds != -1) {
             // You set the timer.
             messageListItem.num = 589;

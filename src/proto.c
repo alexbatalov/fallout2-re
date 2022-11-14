@@ -733,9 +733,9 @@ int _proto_dude_update_gender()
 
     art_vault_guy_num = frmId;
 
-    if (critterGetArmor(gDude) == NULL) {
+    if (inven_worn(gDude) == NULL) {
         int v1 = 0;
-        if (critterGetItem2(gDude) != NULL || critterGetItem1(gDude) != NULL) {
+        if (inven_right_hand(gDude) != NULL || inven_left_hand(gDude) != NULL) {
             v1 = (gDude->fid & 0xF000) >> 12;
         }
 
@@ -783,7 +783,7 @@ int _proto_dude_init(const char* path)
     proto->critter.data.damageType = 0;
 
     _proto_dude_update_gender();
-    _inven_reset_dude();
+    inven_reset_dude();
 
     if ((gDude->flags & OBJECT_FLAT) != 0) {
         _obj_toggle_flat(gDude, NULL);

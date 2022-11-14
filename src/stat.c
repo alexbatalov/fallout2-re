@@ -189,7 +189,7 @@ int critterGetStat(Object* critter, int stat)
                         if (perkHasRank(gDude, PERK_HTH_EVADE)) {
                             bool hasWeapon = false;
 
-                            Object* item2 = critterGetItem2(gDude);
+                            Object* item2 = inven_right_hand(gDude);
                             if (item2 != NULL) {
                                 if (itemGetType(item2) == ITEM_TYPE_WEAPON) {
                                     if (weaponGetAnimationCode(item2) != WEAPON_ANIMATION_NONE) {
@@ -199,7 +199,7 @@ int critterGetStat(Object* critter, int stat)
                             }
 
                             if (!hasWeapon) {
-                                Object* item1 = critterGetItem1(gDude);
+                                Object* item1 = inven_left_hand(gDude);
                                 if (item1 != NULL) {
                                     if (itemGetType(item1) == ITEM_TYPE_WEAPON) {
                                         if (weaponGetAnimationCode(item1) != WEAPON_ANIMATION_NONE) {
@@ -256,12 +256,12 @@ int critterGetStat(Object* critter, int stat)
 
                     bool hasMirrorShades = false;
 
-                    Object* item2 = critterGetItem2(critter);
+                    Object* item2 = inven_right_hand(critter);
                     if (item2 != NULL && item2->pid == PROTO_ID_MIRRORED_SHADES) {
                         hasMirrorShades = true;
                     }
 
-                    Object* item1 = critterGetItem1(critter);
+                    Object* item1 = inven_left_hand(critter);
                     if (item1 != NULL && item1->pid == PROTO_ID_MIRRORED_SHADES) {
                         hasMirrorShades = true;
                     }

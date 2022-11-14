@@ -3677,7 +3677,7 @@ int _obj_load_dude(File* stream)
         debugPrint("\nError: obj_load_dude: Can't destroy temp object!\n");
     }
 
-    _inven_reset_dude();
+    inven_reset_dude();
 
     int tile;
     if (fileReadInt32(stream, &tile) == -1) {

@@ -424,7 +424,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
             newFid = art_id(FID_TYPE(fid), art_vault_guy_num, FID_ANIM_TYPE(fid), v8, (fid & 0x70000000) >> 28);
         }
 
-        _adjust_ac(a1, a2, NULL);
+        adjust_ac(a1, a2, NULL);
     }
 
     if (newFid != -1) {
@@ -1282,7 +1282,7 @@ static void op_obj_is_carrying_obj_pid(Program* program)
 
     int result = 0;
     if (obj != NULL) {
-        result = objectGetCarriedQuantityByPid(obj, pid);
+        result = inven_pid_quantity_carried(obj, pid);
     } else {
         dbg_error(program, "obj_is_carrying_obj_pid", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -2244,14 +2244,14 @@ static void op_wield_obj_critter(Program* program)
         }
 
         if (itemGetType(item) == ITEM_TYPE_ARMOR) {
-            oldArmor = critterGetArmor(gDude);
+            oldArmor = inven_worn(gDude);
         }
 
         shouldAdjustArmorClass = true;
         newArmor = item;
     }
 
-    if (_inven_wield(critter, item, hand) == -1) {
+    if (inven_wield(critter, item, hand) == -1) {
         dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
         debugPrint(" inven_wield failed!  ERROR ERROR ERROR!");
         return;
@@ -2259,7 +2259,7 @@ static void op_wield_obj_critter(Program* program)
 
     if (critter == gDude) {
         if (shouldAdjustArmorClass) {
-            _adjust_ac(critter, oldArmor, newArmor);
+            adjust_ac(critter, oldArmor, newArmor);
         }
 
         bool animated = !game_ui_is_disabled();
@@ -4004,24 +4004,24 @@ static void op_critter_inven_obj(Program* program)
     if (PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
         switch (type) {
         case INVEN_TYPE_WORN:
-            result = (int)critterGetArmor(critter);
+            result = (int)inven_worn(critter);
             break;
         case INVEN_TYPE_RIGHT_HAND:
             if (critter == gDude) {
                 if (intface_is_item_right_hand() != HAND_LEFT) {
-                    result = (int)critterGetItem2(critter);
+                    result = (int)inven_right_hand(critter);
                 }
             } else {
-                result = (int)critterGetItem2(critter);
+                result = (int)inven_right_hand(critter);
             }
             break;
         case INVEN_TYPE_LEFT_HAND:
             if (critter == gDude) {
                 if (intface_is_item_right_hand() == HAND_LEFT) {
-                    result = (int)critterGetItem1(critter);
+                    result = (int)inven_left_hand(critter);
                 }
             } else {
-                result = (int)critterGetItem1(critter);
+                result = (int)inven_left_hand(critter);
             }
             break;
         case INVEN_TYPE_INV_COUNT:
@@ -4115,7 +4115,7 @@ static void op_inven_cmds(Program* program)
     if (obj != NULL) {
         switch (cmd) {
         case 13:
-            item = _inven_index_ptr(obj, index);
+            item = inven_index_ptr(obj, index);
             break;
         }
     } else {
@@ -4318,13 +4318,13 @@ static void op_metarule(Program* program)
                 }
             }
 
-            result = _invenUnwieldFunc(object, hand, 0);
+            result = invenUnwieldFunc(object, hand, 0);
 
             if (object == gDude) {
                 bool animated = !game_ui_is_disabled();
                 intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             } else {
-                Object* item = critterGetItem1(object);
+                Object* item = inven_left_hand(object);
                 if (itemGetType(item) == ITEM_TYPE_WEAPON) {
                     item->flags &= ~OBJECT_IN_LEFT_HAND;
                 }
@@ -4511,7 +4511,7 @@ static void op_obj_carrying_pid_obj(Program* program)
 
     Object* result = NULL;
     if (object != NULL) {
-        result = objectGetCarriedObjectByPid(object, pid);
+        result = inven_pid_is_carried(object, pid);
     } else {
         dbg_error(program, "obj_carrying_pid_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5465,7 +5465,7 @@ static void op_inven_unwield(Program* program)
         v1 = 0;
     }
 
-    _inven_unwield(obj, v1);
+    inven_unwield(obj, v1);
 }
 
 // 0x45B0D8
@@ -6342,9 +6342,9 @@ static void op_move_obj_inven_to_obj(Program* program)
     Object* oldArmor = NULL;
     Object* item2 = NULL;
     if (object1 == gDude) {
-        oldArmor = critterGetArmor(object1);
+        oldArmor = inven_worn(object1);
     } else {
-        item2 = critterGetItem2(object1);
+        item2 = inven_right_hand(object1);
     }
 
     if (object1 != gDude && item2 != NULL) {
@@ -6364,7 +6364,7 @@ static void op_move_obj_inven_to_obj(Program* program)
 
     if (object1 == gDude) {
         if (oldArmor != NULL) {
-            _adjust_ac(gDude, oldArmor, NULL);
+            adjust_ac(gDude, oldArmor, NULL);
         }
 
         _proto_dude_update_gender();

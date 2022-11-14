@@ -3497,7 +3497,7 @@ static int wmRndEncounterOccurred()
     bool randomEncounterIsDetected = false;
     if (frequency > chance) {
         int outdoorsman = partyGetBestSkillValue(SKILL_OUTDOORSMAN);
-        Object* scanner = objectGetCarriedObjectByPid(gDude, PROTO_ID_MOTION_SENSOR);
+        Object* scanner = inven_pid_is_carried(gDude, PROTO_ID_MOTION_SENSOR);
         if (scanner != NULL) {
             if (gDude == scanner->owner) {
                 outdoorsman += 20;
@@ -3936,7 +3936,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
                 _obj_disconnect(item, NULL);
 
                 if (v10->isEquipped) {
-                    if (_inven_wield(object, item, 1) == -1) {
+                    if (inven_wield(object, item, 1) == -1) {
                         debugPrint("\nERROR: wmSetupCritterObjs: Inven Wield Failed: %d on %s: Critter Fid: %d", item->pid, critter_name(object), object->fid);
                     }
                 }

@@ -198,7 +198,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     queueInit();
     critter_init();
     combat_ai_init();
-    _inven_reset_dude();
+    inven_reset_dude();
 
     if (gsound_init() != 0) {
         debugPrint("Sound initialization failed.\n");
@@ -362,7 +362,7 @@ void game_reset()
     lsgInit();
     critter_reset();
     combat_ai_reset();
-    _inven_reset_dude();
+    inven_reset_dude();
     gsound_reset();
     _movieStop();
     movieEffectsReset();
@@ -562,7 +562,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         // open inventory
         if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
-            inventoryOpen();
+            handle_inventory();
         }
         break;
     case KEY_ESCAPE:
@@ -939,7 +939,7 @@ int game_load_info()
 // 0x443CE8
 int game_load_info_vars(const char* path, const char* section, int* variablesListLengthPtr, int** variablesListPtr)
 {
-    _inven_reset_dude();
+    inven_reset_dude();
 
     File* stream = fileOpen(path, "rt");
     if (stream == NULL) {

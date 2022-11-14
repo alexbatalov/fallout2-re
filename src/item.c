@@ -295,8 +295,8 @@ int itemAdd(Object* owner, Object* itemToAdd, int quantity)
 int itemRemove(Object* owner, Object* itemToRemove, int quantity)
 {
     Inventory* inventory = &(owner->data.inventory);
-    Object* item1 = critterGetItem1(owner);
-    Object* item2 = critterGetItem2(owner);
+    Object* item1 = inven_left_hand(owner);
+    Object* item2 = inven_right_hand(owner);
 
     int index = 0;
     for (; index < inventory->length; index++) {
@@ -525,7 +525,7 @@ int _item_drop_all(Object* critter, int tile)
                     }
 
                     frmId = proto->fid & 0xFFF;
-                    _adjust_ac(critter, item, NULL);
+                    adjust_ac(critter, item, NULL);
                 }
             }
 
@@ -808,17 +808,17 @@ int objectGetCost(Object* obj)
     }
 
     if (FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
-        Object* item2 = critterGetItem2(obj);
+        Object* item2 = inven_right_hand(obj);
         if (item2 != NULL && (item2->flags & OBJECT_IN_RIGHT_HAND) == 0) {
             cost += itemGetCost(item2);
         }
 
-        Object* item1 = critterGetItem1(obj);
+        Object* item1 = inven_left_hand(obj);
         if (item1 != NULL && (item1->flags & OBJECT_IN_LEFT_HAND) == 0) {
             cost += itemGetCost(item1);
         }
 
-        Object* armor = critterGetArmor(obj);
+        Object* armor = inven_worn(obj);
         if (armor != NULL && (armor->flags & OBJECT_WORN) == 0) {
             cost += itemGetCost(armor);
         }
@@ -846,21 +846,21 @@ int objectGetInventoryWeight(Object* obj)
     }
 
     if (FID_TYPE(obj->fid) == OBJ_TYPE_CRITTER) {
-        Object* item2 = critterGetItem2(obj);
+        Object* item2 = inven_right_hand(obj);
         if (item2 != NULL) {
             if ((item2->flags & OBJECT_IN_RIGHT_HAND) == 0) {
                 weight += itemGetWeight(item2);
             }
         }
 
-        Object* item1 = critterGetItem1(obj);
+        Object* item1 = inven_left_hand(obj);
         if (item1 != NULL) {
             if ((item1->flags & OBJECT_IN_LEFT_HAND) == 0) {
                 weight += itemGetWeight(item1);
             }
         }
 
-        Object* armor = critterGetArmor(obj);
+        Object* armor = inven_worn(obj);
         if (armor != NULL) {
             if ((armor->flags & OBJECT_WORN) == 0) {
                 weight += itemGetWeight(armor);
@@ -919,11 +919,11 @@ Object* critterGetWeaponForHitMode(Object* critter, int hitMode)
     case HIT_MODE_LEFT_WEAPON_PRIMARY:
     case HIT_MODE_LEFT_WEAPON_SECONDARY:
     case HIT_MODE_LEFT_WEAPON_RELOAD:
-        return critterGetItem1(critter);
+        return inven_left_hand(critter);
     case HIT_MODE_RIGHT_WEAPON_PRIMARY:
     case HIT_MODE_RIGHT_WEAPON_SECONDARY:
     case HIT_MODE_RIGHT_WEAPON_RELOAD:
-        return critterGetItem2(critter);
+        return inven_right_hand(critter);
     }
 
     return NULL;
@@ -1375,7 +1375,7 @@ int _item_w_try_reload(Object* critter, Object* weapon)
     if (weapon->pid != PROTO_ID_SOLAR_SCORCHER) {
         int inventoryItemIndex = -1;
         for (;;) {
-            Object* ammo = _inven_find_type(critter, ITEM_TYPE_AMMO, &inventoryItemIndex);
+            Object* ammo = inven_find_type(critter, ITEM_TYPE_AMMO, &inventoryItemIndex);
             if (ammo == NULL) {
                 break;
             }
@@ -1398,7 +1398,7 @@ int _item_w_try_reload(Object* critter, Object* weapon)
 
         inventoryItemIndex = -1;
         for (;;) {
-            Object* ammo = _inven_find_type(critter, ITEM_TYPE_AMMO, &inventoryItemIndex);
+            Object* ammo = inven_find_type(critter, ITEM_TYPE_AMMO, &inventoryItemIndex);
             if (ammo == NULL) {
                 break;
             }
@@ -2405,12 +2405,12 @@ int stealthBoyTurnOn(Object* object)
 // 0x479998
 int stealthBoyTurnOff(Object* critter, Object* item)
 {
-    Object* item1 = critterGetItem1(critter);
+    Object* item1 = inven_left_hand(critter);
     if (item1 != NULL && item1 != item && item1->pid == PROTO_ID_STEALTH_BOY_II) {
         return -1;
     }
 
-    Object* item2 = critterGetItem2(critter);
+    Object* item2 = inven_right_hand(critter);
     if (item2 != NULL && item2 != item && item2->pid == PROTO_ID_STEALTH_BOY_II) {
         return -1;
     }

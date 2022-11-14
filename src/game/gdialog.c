@@ -1906,7 +1906,7 @@ static int gdProcess()
         } else {
             if (dialogue_switch_mode == 3) {
                 dialogue_state = 4;
-                inventoryOpenTrade(dialogueWindow, dialog_target, peon_table_obj, barterer_table_obj, gdBarterMod);
+                barter_inventory(dialogueWindow, dialog_target, peon_table_obj, barterer_table_obj, gdBarterMod);
                 gdialog_barter_cleanup_tables();
 
                 int v5 = dialogue_state;
@@ -3543,13 +3543,13 @@ static void gdControlUpdateInfo()
     char formattedText[256];
 
     // Render item in right hand.
-    Object* item2 = critterGetItem2(dialog_target);
+    Object* item2 = inven_right_hand(dialog_target);
     text = item2 != NULL ? itemGetName(item2) : getmsg(&gProtoMessageList, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render armor.
-    Object* armor = critterGetArmor(dialog_target);
+    Object* armor = inven_worn(dialog_target);
     text = armor != NULL ? itemGetName(armor) : getmsg(&gProtoMessageList, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, colorTable[992]);
@@ -3686,11 +3686,11 @@ static void gdControl()
             }
 
             if (keyCode == KEY_LOWERCASE_W) {
-                _inven_unwield(dialog_target, 1);
+                inven_unwield(dialog_target, 1);
 
                 Object* weapon = ai_search_inven_weap(dialog_target, 0, NULL);
                 if (weapon != NULL) {
-                    _inven_wield(dialog_target, weapon, 1);
+                    inven_wield(dialog_target, weapon, 1);
                     cai_attempt_w_reload(dialog_target, 0);
 
                     int num = gdPickAIUpdateMsg(dialog_target);
@@ -3719,7 +3719,7 @@ static void gdControl()
                 if (dialog_target->pid != 0x10000A1) {
                     Object* armor = ai_search_inven_armor(dialog_target);
                     if (armor != NULL) {
-                        _inven_wield(dialog_target, armor, 0);
+                        inven_wield(dialog_target, armor, 0);
                     }
                 }
 

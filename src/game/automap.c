@@ -411,11 +411,11 @@ void automap(bool isInGame, bool isUsingScanner)
             if ((autoflags & AUTOMAP_WITH_SCANNER) == 0) {
                 Object* scanner = NULL;
 
-                Object* item1 = critterGetItem1(gDude);
+                Object* item1 = inven_left_hand(gDude);
                 if (item1 != NULL && item1->pid == PROTO_ID_MOTION_SENSOR) {
                     scanner = item1;
                 } else {
-                    Object* item2 = critterGetItem2(gDude);
+                    Object* item2 = inven_right_hand(gDude);
                     if (item2 != NULL && item2->pid == PROTO_ID_MOTION_SENSOR) {
                         scanner = item2;
                     }
