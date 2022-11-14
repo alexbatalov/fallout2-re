@@ -12,6 +12,7 @@
 
 static char* lips_fix_string(const char* fileName, size_t length);
 static int lips_stop_speech();
+static int lips_read_phoneme_type(unsigned char* phoneme_type, File* stream);
 static int lips_read_lipsynch_info(LipsData* a1, File* stream);
 static int lips_make_speech();
 
@@ -188,6 +189,14 @@ static int lips_stop_speech()
     return 0;
 }
 
+// NOTE: Inlined.
+//
+// 0x47AD4C
+static int lips_read_phoneme_type(unsigned char* phoneme_type, File* stream)
+{
+    return fileReadUInt8(stream, phoneme_type);
+}
+
 // 0x47AD98
 static int lips_read_lipsynch_info(LipsData* lipsData, File* stream)
 {
@@ -313,7 +322,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
 
     if (stream != NULL) {
         for (i = 0; i < lip_info.field_24; i++) {
-            if (fileReadUInt8(stream, &(lip_info.phonemes[i])) == -1) {
+            if (lips_read_phoneme_type(&(lip_info.phonemes[i]), stream) != 0) {
                 debugPrint("lips_load_file: Error reading phoneme type.\n");
                 return -1;
             }
