@@ -16,7 +16,7 @@
 #include "game/gmouse.h"
 #include "game/graphlib.h"
 #include "game/gsound.h"
-#include "loadsave.h"
+#include "game/loadsave.h"
 #include "memory.h"
 #include "scripts.h"
 #include "text_font.h"

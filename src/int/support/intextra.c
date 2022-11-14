@@ -24,7 +24,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/light.h"
-#include "loadsave.h"
+#include "game/loadsave.h"
 #include "map.h"
 #include "object.h"
 #include "palette.h"

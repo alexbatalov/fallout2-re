@@ -19,7 +19,7 @@
 #include "game/gmouse.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
-#include "loadsave.h"
+#include "game/loadsave.h"
 #include "map.h"
 #include "object.h"
 #include "options.h"

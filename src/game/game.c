@@ -32,7 +32,7 @@
 #include "game/intface.h"
 #include "game/inventry.h"
 #include "game/item.h"
-#include "loadsave.h"
+#include "game/loadsave.h"
 #include "map.h"
 #include "memory.h"
 #include "movie.h"
