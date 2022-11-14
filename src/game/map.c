@@ -48,6 +48,7 @@ static int map_allocate_local_vars(int count);
 static void map_free_local_vars();
 static int map_load_local_vars(File* stream);
 static void map_place_dude_and_mouse();
+static void square_init();
 static void square_reset();
 static int square_load(File* stream, int a2);
 static int map_write_MapData(MapHeader* ptr, File* stream);
@@ -145,9 +146,8 @@ int iso_init()
     tileScrollLimitingDisable();
     tileScrollBlockingDisable();
 
-    for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
-        square[elevation] = &(square_data[elevation]);
-    }
+    // NOTE: Uninline.
+    square_init();
 
     display_win = windowCreate(0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, 256, 10);
     if (display_win == -1) {
@@ -1602,6 +1602,18 @@ static void map_place_dude_and_mouse()
 
     gmouse_3d_reset_fid();
     gmouse_3d_on();
+}
+
+// NOTE: Inlined.
+//
+// 0x4841F0
+static void square_init()
+{
+    int elevation;
+
+    for (elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
+        square[elevation] = &(square_data[elevation]);
+    }
 }
 
 // 0x484210
