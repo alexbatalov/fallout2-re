@@ -200,7 +200,7 @@ int falloutMain(int argc, char** argv)
 
                     loadColorTable("color.pal");
                     paletteFadeTo(cmap);
-                    int loadGameRc = lsgLoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
+                    int loadGameRc = LoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
                     if (loadGameRc == -1) {
                         debugPrint("\n ** Error running LoadGame()! **\n");
                     } else if (loadGameRc != 0) {

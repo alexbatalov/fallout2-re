@@ -1078,7 +1078,7 @@ static void op_create_object_sid(Program* program)
 
     Object* object = NULL;
 
-    if (_isLoadingGame() != 0) {
+    if (isLoadingGame() != 0) {
         debugPrint("\nError: attempt to Create critter in load/save-game: %s!", program->name);
         goto out;
     }
@@ -1172,7 +1172,7 @@ static void op_destroy_object(Program* program)
     }
 
     if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-        if (_isLoadingGame()) {
+        if (isLoadingGame()) {
             debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
@@ -2716,7 +2716,7 @@ static void op_set_obj_visibility(Program* program)
         return;
     }
 
-    if (_isLoadingGame()) {
+    if (isLoadingGame()) {
         debugPrint("Error: attempt to set_obj_visibility in load/save-game: %s!", program->name);
         return;
     }
@@ -3048,7 +3048,7 @@ static void op_kill_critter(Program* program)
         return;
     }
 
-    if (_isLoadingGame()) {
+    if (isLoadingGame()) {
         debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
     }
 
@@ -3139,7 +3139,7 @@ static void op_kill_critter_type(Program* program)
     int pid = data[1];
     int deathFrame = data[0];
 
-    if (_isLoadingGame()) {
+    if (isLoadingGame()) {
         debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
         return;
     }
@@ -3826,7 +3826,7 @@ static void op_critter_add_trait(Program* program)
                         break;
                     }
 
-                    if (_isLoadingGame()) {
+                    if (isLoadingGame()) {
                         break;
                     }
 
@@ -4283,7 +4283,7 @@ static void op_metarule(Program* program)
         result = wmMapIsKnown(param);
         break;
     case METARULE_IS_LOADGAME:
-        result = _isLoadingGame();
+        result = isLoadingGame();
         break;
     case METARULE_CAR_CURRENT_TOWN:
         result = wmCarCurrentArea();

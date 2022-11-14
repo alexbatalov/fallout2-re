@@ -281,8 +281,8 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     pipboyInit();
     debugPrint(">pip_init\t\t");
 
-    _InitLoadSave();
-    lsgInit();
+    InitLoadSave();
+    KillOldMaps();
     debugPrint(">InitLoadSave\t");
 
     if (gdialogInit() != 0) {
@@ -359,7 +359,7 @@ void game_reset()
     item_reset();
     queueExit();
     anim_reset();
-    lsgInit();
+    KillOldMaps();
     critter_reset();
     combat_ai_reset();
     inven_reset_dude();
@@ -377,7 +377,7 @@ void game_reset()
     partyMembersReset();
     CharEditInit();
     pipboyReset();
-    _ResetLoadSave();
+    ResetLoadSave();
     gdialogReset();
     combat_reset();
     game_user_wants_to_quit = 0;
@@ -803,14 +803,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_CTRL_S:
     case KEY_F4:
         gsound_play_sfx_file("ib1p1xx1");
-        if (lsgSaveGame(1) == -1) {
+        if (SaveGame(1) == -1) {
             debugPrint("\n ** Error calling SaveGame()! **\n");
         }
         break;
     case KEY_CTRL_L:
     case KEY_F5:
         gsound_play_sfx_file("ib1p1xx1");
-        if (lsgLoadGame(LOAD_SAVE_MODE_NORMAL) == -1) {
+        if (LoadGame(LOAD_SAVE_MODE_NORMAL) == -1) {
             debugPrint("\n ** Error calling LoadGame()! **\n");
         }
         break;
@@ -818,7 +818,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         if (1) {
             gsound_play_sfx_file("ib1p1xx1");
 
-            int rc = lsgSaveGame(LOAD_SAVE_MODE_QUICK);
+            int rc = SaveGame(LOAD_SAVE_MODE_QUICK);
             if (rc == -1) {
                 debugPrint("\n ** Error calling SaveGame()! **\n");
             } else if (rc == 1) {
@@ -833,7 +833,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         if (1) {
             gsound_play_sfx_file("ib1p1xx1");
 
-            int rc = lsgLoadGame(LOAD_SAVE_MODE_QUICK);
+            int rc = LoadGame(LOAD_SAVE_MODE_QUICK);
             if (rc == -1) {
                 debugPrint("\n ** Error calling LoadGame()! **\n");
             } else if (rc == 1) {

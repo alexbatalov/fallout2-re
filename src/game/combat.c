@@ -2533,7 +2533,7 @@ static void combat_begin(Object* a1)
         intface_end_window_open(true);
         gmouse_enable_scrolling();
 
-        if (v1 != NULL && !_isLoadingGame()) {
+        if (v1 != NULL && !isLoadingGame()) {
             int fid = art_id(FID_TYPE(v1->fid),
                 100,
                 FID_ANIM_TYPE(v1->fid),
@@ -2699,7 +2699,7 @@ static void combat_over()
         scriptSetObjects(critter->sid, NULL, NULL);
         scriptSetFixedParam(critter->sid, 0);
 
-        if (critter->pid == 0x1000098 && !critter_is_dead(critter) && !_isLoadingGame()) {
+        if (critter->pid == 0x1000098 && !critter_is_dead(critter) && !isLoadingGame()) {
             int fid = art_id(FID_TYPE(critter->fid),
                 99,
                 FID_ANIM_TYPE(critter->fid),

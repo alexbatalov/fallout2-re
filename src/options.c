@@ -390,14 +390,14 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
             case KEY_UPPERCASE_S:
             case KEY_LOWERCASE_S:
             case 500:
-                if (lsgSaveGame(LOAD_SAVE_MODE_NORMAL) == 1) {
+                if (SaveGame(LOAD_SAVE_MODE_NORMAL) == 1) {
                     rc = 1;
                 }
                 break;
             case KEY_UPPERCASE_L:
             case KEY_LOWERCASE_L:
             case 501:
-                if (lsgLoadGame(LOAD_SAVE_MODE_NORMAL) == 1) {
+                if (LoadGame(LOAD_SAVE_MODE_NORMAL) == 1) {
                     rc = 1;
                 }
                 break;

@@ -1027,7 +1027,7 @@ int mapLoadSaved(char* fileName)
 
         strmfe(gMapHeader.name, v15, "SAV");
 
-        _MapDirEraseFile_("MAPS\\", gMapHeader.name);
+        MapDirEraseFile("MAPS\\", gMapHeader.name);
 
         strcpy(gMapHeader.name, v15);
     }
@@ -1406,7 +1406,7 @@ int _map_save_in_game(bool a1)
 
         strcpy(name, gMapHeader.name);
         strmfe(gMapHeader.name, name, "SAV");
-        _MapDirEraseFile_("MAPS\\", gMapHeader.name);
+        MapDirEraseFile("MAPS\\", gMapHeader.name);
         strcpy(gMapHeader.name, name);
     } else {
         debugPrint("\n Saving \".SAV\" map.");

@@ -601,7 +601,7 @@ int _partyMemberRecoverLoad()
 
     _partyStatePrepped = 0;
 
-    if (!_isLoadingGame()) {
+    if (!isLoadingGame()) {
         _partyFixMultipleMembers();
     }
 
