@@ -12,7 +12,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/intface.h"
-#include "item.h"
+#include "game/item.h"
 #include "object.h"
 #include "palette.h"
 #include "party_member.h"

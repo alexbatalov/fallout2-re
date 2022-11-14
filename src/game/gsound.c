@@ -14,7 +14,7 @@
 #include "db.h"
 #include "debug.h"
 #include "game/gconfig.h"
-#include "item.h"
+#include "game/item.h"
 #include "map.h"
 #include "memory.h"
 #include "movie.h"

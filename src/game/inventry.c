@@ -22,7 +22,7 @@
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "game/intface.h"
-#include "item.h"
+#include "game/item.h"
 #include "light.h"
 #include "map.h"
 #include "message.h"

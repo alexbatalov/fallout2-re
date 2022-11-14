@@ -9,7 +9,7 @@
 #include "game/game.h"
 #include "game/gsound.h"
 #include "game/intface.h"
-#include "item.h"
+#include "game/item.h"
 #include "memory.h"
 #include "object.h"
 #include "perk.h"

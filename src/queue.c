@@ -5,7 +5,7 @@
 #include "game/display.h"
 #include "game/game.h"
 #include "game/gsound.h"
-#include "item.h"
+#include "game/item.h"
 #include "map.h"
 #include "memory.h"
 #include "message.h"

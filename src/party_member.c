@@ -12,7 +12,7 @@
 #include "game/display.h"
 #include "game/game.h"
 #include "game/gdialog.h"
-#include "item.h"
+#include "game/item.h"
 #include "loadsave.h"
 #include "map.h"
 #include "memory.h"

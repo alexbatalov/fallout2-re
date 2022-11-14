@@ -22,7 +22,7 @@
 #include "game/gsound.h"
 #include "geometry.h"
 #include "game/intface.h"
-#include "item.h"
+#include "game/item.h"
 #include "light.h"
 #include "loadsave.h"
 #include "map.h"

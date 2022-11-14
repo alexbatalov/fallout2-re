@@ -31,7 +31,7 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/inventry.h"
-#include "item.h"
+#include "game/item.h"
 #include "loadsave.h"
 #include "map.h"
 #include "memory.h"

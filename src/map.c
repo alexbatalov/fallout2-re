@@ -20,7 +20,7 @@
 #include "game/gmovie.h"
 #include "game/gsound.h"
 #include "game/intface.h"
-#include "item.h"
+#include "game/item.h"
 #include "light.h"
 #include "loadsave.h"
 #include "memory.h"

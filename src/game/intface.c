@@ -20,7 +20,7 @@
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "geometry.h"
-#include "item.h"
+#include "game/item.h"
 #include "memory.h"
 #include "object.h"
 #include "proto.h"
