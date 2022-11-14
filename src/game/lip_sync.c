@@ -1,4 +1,4 @@
-#include "lips.h"
+#include "game/lip_sync.h"
 
 #include <stdio.h>
 #include <string.h>
