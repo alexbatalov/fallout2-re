@@ -1903,7 +1903,7 @@ static void op_mouseshape(Program* program)
     }
 
     char* fileName = interpretGetString(program, opcode[2], data[2]);
-    if (!mouseManagerSetMouseShape(fileName, data[1], data[0])) {
+    if (!mouseSetMouseShape(fileName, data[1], data[0])) {
         interpretError("Error loading mouse shape.");
     }
 }
