@@ -10,7 +10,7 @@
 #include "game/display.h"
 #include "game/game.h"
 #include "game/intface.h"
-#include "inventory.h"
+#include "game/inventry.h"
 #include "light.h"
 #include "map.h"
 #include "memory.h"

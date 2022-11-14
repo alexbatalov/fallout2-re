@@ -1,4 +1,4 @@
-#include "inventory.h"
+#include "game/inventry.h"
 
 #include <assert.h>
 #include <stdio.h>

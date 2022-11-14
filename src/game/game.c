@@ -30,7 +30,7 @@
 #include "game/gmovie.h"
 #include "game/gsound.h"
 #include "game/intface.h"
-#include "inventory.h"
+#include "game/inventry.h"
 #include "item.h"
 #include "loadsave.h"
 #include "map.h"
