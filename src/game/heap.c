@@ -83,6 +83,7 @@ static bool heap_release_handle(Heap* heap, int handleIndex);
 static bool heap_clear_handles(Heap* heap, HeapHandle* handles, unsigned int count);
 static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4);
 static bool heap_build_free_list(Heap* heap);
+static bool heap_sort_free_list(Heap* heap);
 static int heap_qsort_compare_free(const void* a1, const void* a2);
 static bool heap_build_moveable_list(Heap* heap, int* moveableExtentsLengthPtr, int* maxBlocksLengthPtr);
 static int heap_qsort_compare_moveable(const void* a1, const void* a2);
@@ -838,9 +839,8 @@ static bool heap_find_free_block(Heap* heap, int size, void** blockPtr, int a4)
         goto system;
     }
 
-    if (heap->freeBlocks > 1) {
-        qsort(heap_free_list, heap->freeBlocks, sizeof(*heap_free_list), heap_qsort_compare_free);
-    }
+    // NOTE: Uninline.
+    heap_sort_free_list(heap);
 
     // Take last free block (the biggest one).
     biggestFreeBlock = heap_free_list[heap->freeBlocks - 1];
@@ -1149,6 +1149,18 @@ static bool heap_build_free_list(Heap* heap)
         ptr += blockHeader->size + HEAP_BLOCK_OVERHEAD_SIZE;
 
         blocksLength--;
+    }
+
+    return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x453C9C
+static bool heap_sort_free_list(Heap* heap)
+{
+    if (heap->freeBlocks > 1) {
+        qsort(heap_free_list, heap->freeBlocks, sizeof(*heap_free_list), heap_qsort_compare_free);
     }
 
     return true;
