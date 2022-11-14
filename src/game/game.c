@@ -33,7 +33,7 @@
 #include "game/inventry.h"
 #include "game/item.h"
 #include "game/loadsave.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "movie.h"
 #include "movie_effect.h"

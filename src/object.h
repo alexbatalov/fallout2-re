@@ -4,7 +4,7 @@
 #include "db.h"
 #include "geometry.h"
 #include "game/inventry.h"
-#include "map_defs.h"
+#include "game/map_defs.h"
 #include "obj_types.h"
 
 typedef struct ObjectWithFlags {

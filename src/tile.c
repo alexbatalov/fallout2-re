@@ -14,7 +14,7 @@
 #include "game/gconfig.h"
 #include "game/gmouse.h"
 #include "game/light.h"
-#include "map.h"
+#include "game/map.h"
 #include "object.h"
 
 // 0x50E7C7

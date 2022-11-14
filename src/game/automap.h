@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "db.h"
-#include "map_defs.h"
+#include "game/map_defs.h"
 
 #define AUTOMAP_DB "AUTOMAP.DB"
 #define AUTOMAP_TMP "AUTOMAP.TMP"

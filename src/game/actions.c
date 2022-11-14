@@ -19,7 +19,7 @@
 #include "geometry.h"
 #include "game/intface.h"
 #include "game/item.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "object.h"
 #include "perk.h"

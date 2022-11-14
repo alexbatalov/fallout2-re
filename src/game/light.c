@@ -2,7 +2,7 @@
 
 #include <math.h>
 
-#include "map_defs.h"
+#include "game/map_defs.h"
 #include "object.h"
 #include "perk.h"
 #include "tile.h"

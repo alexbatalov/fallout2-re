@@ -16,7 +16,7 @@
 #include "game/gmouse.h"
 #include "game/item.h"
 #include "game/light.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "party_member.h"
 #include "proto.h"

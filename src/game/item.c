@@ -12,7 +12,7 @@
 #include "game/intface.h"
 #include "game/inventry.h"
 #include "game/light.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "message.h"
 #include "object.h"

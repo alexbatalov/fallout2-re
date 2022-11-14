@@ -15,7 +15,7 @@
 #include "game/gsound.h"
 #include "game/graphlib.h"
 #include "game/item.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "object.h"
 #include "text_font.h"

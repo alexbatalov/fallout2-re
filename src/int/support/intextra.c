@@ -25,7 +25,7 @@
 #include "game/item.h"
 #include "game/light.h"
 #include "game/loadsave.h"
-#include "map.h"
+#include "game/map.h"
 #include "object.h"
 #include "palette.h"
 #include "perk.h"

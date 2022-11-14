@@ -15,7 +15,7 @@
 #include "geometry.h"
 #include "game/intface.h"
 #include "game/item.h"
-#include "map.h"
+#include "game/map.h"
 #include "object.h"
 #include "palette.h"
 #include "perk.h"

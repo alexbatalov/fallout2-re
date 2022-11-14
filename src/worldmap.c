@@ -25,7 +25,7 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/item.h"
-#include "map_defs.h"
+#include "game/map_defs.h"
 #include "memory.h"
 #include "message.h"
 #include "obj_types.h"

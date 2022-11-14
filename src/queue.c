@@ -6,7 +6,7 @@
 #include "game/game.h"
 #include "game/gsound.h"
 #include "game/item.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "message.h"
 #include "object.h"

@@ -12,7 +12,7 @@
 #include "game/gsound.h"
 #include "geometry.h"
 #include "game/intface.h"
-#include "map.h"
+#include "game/map.h"
 #include "pipboy.h"
 #include "scripts.h"
 #include "window_manager.h"

@@ -1,4 +1,4 @@
-#include "map.h"
+#include "game/map.h"
 
 #include <direct.h>
 #include <stdio.h>

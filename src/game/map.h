@@ -9,7 +9,7 @@
 #include "game/combat_defs.h"
 #include "db.h"
 #include "geometry.h"
-#include "map_defs.h"
+#include "game/map_defs.h"
 #include "message.h"
 
 // TODO: Probably not needed -> replace with array?

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "geometry.h"
-#include "map.h"
+#include "game/map.h"
 #include "obj_types.h"
 
 #define TILE_SET_CENTER_REFRESH_WINDOW 0x01

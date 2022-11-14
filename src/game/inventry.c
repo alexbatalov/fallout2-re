@@ -24,7 +24,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/light.h"
-#include "map.h"
+#include "game/map.h"
 #include "message.h"
 #include "object.h"
 #include "perk.h"

@@ -23,7 +23,7 @@
 #include "game/gmouse.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
-#include "map.h"
+#include "game/map.h"
 #include "memory.h"
 #include "object.h"
 #include "palette.h"

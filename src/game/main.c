@@ -30,7 +30,7 @@
 #include "game/gsound.h"
 #include "game/loadsave.h"
 #include "game/mainmenu.h"
-#include "map.h"
+#include "game/map.h"
 #include "object.h"
 #include "options.h"
 #include "palette.h"
