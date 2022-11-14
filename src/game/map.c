@@ -544,6 +544,14 @@ char* map_get_short_name(int map)
     return name;
 }
 
+// NOTE: Unused.
+//
+// 0x482684
+char* map_get_description()
+{
+    return map_get_description_idx(map_data.field_34);
+}
+
 // 0x48268C
 char* map_get_description_idx(int map)
 {

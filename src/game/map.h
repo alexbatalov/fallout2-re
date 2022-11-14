@@ -101,6 +101,7 @@ char* map_get_name(int map_num, int elev);
 bool is_map_idx_same(int map_num1, int map_num2);
 int get_map_idx_same(int map_num1, int map_num2);
 char* map_get_short_name(int map_num);
+char* map_get_description();
 char* map_get_description_idx(int map_index);
 int map_get_index_number();
 int map_scroll(int dx, int dy);
