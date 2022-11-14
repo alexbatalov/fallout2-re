@@ -1,5 +1,5 @@
-#ifndef MAP_H
-#define MAP_H
+#ifndef FALLOUT_GAME_MAP_H_
+#define FALLOUT_GAME_MAP_H_
 
 #include <stdbool.h>
 
@@ -124,4 +124,4 @@ int map_save_file(File* stream);
 int map_save_in_game(bool a1);
 void map_setup_paths();
 
-#endif /* MAP_H */
+#endif /* FALLOUT_GAME_MAP_H_ */
