@@ -15,7 +15,7 @@
 #include "memory.h"
 #include "game/message.h"
 #include "game/object.h"
-#include "options.h"
+#include "game/options.h"
 #include "palette.h"
 #include "proto.h"
 #include "skill.h"

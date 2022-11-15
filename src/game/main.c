@@ -32,7 +32,7 @@
 #include "game/mainmenu.h"
 #include "game/map.h"
 #include "game/object.h"
-#include "options.h"
+#include "game/options.h"
 #include "palette.h"
 #include "proto.h"
 #include "random.h"

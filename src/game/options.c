@@ -1,4 +1,4 @@
-#include "options.h"
+#include "game/options.h"
 
 #include <math.h>
 #include <stdio.h>

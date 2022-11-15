@@ -29,7 +29,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "options.h"
+#include "game/options.h"
 #include "perk.h"
 #include "pipboy.h"
 #include "proto.h"

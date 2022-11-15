@@ -10,7 +10,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gsound.h"
-#include "options.h"
+#include "game/options.h"
 #include "palette.h"
 #include "text_font.h"
 #include "version.h"
