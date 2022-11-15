@@ -1,19 +1,45 @@
 #include "int/pcx.h"
 
+#include "db.h"
 #include "int/memdbg.h"
 
+typedef struct PcxHeader {
+    unsigned char identifier;
+    unsigned char version;
+    unsigned char encoding;
+    unsigned char bitsPerPixel;
+    short minX;
+    short minY;
+    short maxX;
+    short maxY;
+    short horizontalResolution;
+    short verticalResolution;
+    unsigned char palette[48];
+    unsigned char reserved1;
+    unsigned char planeCount;
+    short bytesPerLine;
+    short paletteType;
+    short horizontalScreenSize;
+    short verticalScreenSize;
+    unsigned char reserved2[54];
+} PcxHeader;
+
+static void readPcxHeader(PcxHeader* pcxHeader, File* stream);
+static int pcxDecodeScanline(unsigned char* data, int size, File* stream);
+static int readPcxVgaPalette(PcxHeader* pcxHeader, unsigned char* palette, File* stream);
+
 // 0x519DC8
-unsigned char gPcxLastRunLength = 0;
+static unsigned char runcount = 0;
 
 // 0x519DC9
-unsigned char gPcxLastValue = 0;
+static unsigned char runvalue = 0;
 
 // NOTE: The reading method in this function is a little bit odd. It does not
 // use high level reading functions, which can read right into struct. Instead
 // they read everything into temporary variables. There are no error checks.
 //
 // 0x4961D4
-void pcxReadHeader(PcxHeader* pcxHeader, File* stream)
+static void readPcxHeader(PcxHeader* pcxHeader, File* stream)
 {
     pcxHeader->identifier = fileReadChar(stream);
     pcxHeader->version = fileReadChar(stream);
@@ -73,10 +99,10 @@ void pcxReadHeader(PcxHeader* pcxHeader, File* stream)
 }
 
 // 0x49636C
-int pcxReadLine(unsigned char* data, int size, File* stream)
+static int pcxDecodeScanline(unsigned char* data, int size, File* stream)
 {
-    unsigned char runLength = gPcxLastRunLength;
-    unsigned char value = gPcxLastValue;
+    unsigned char runLength = runcount;
+    unsigned char value = runvalue;
 
     int uncompressedSize = 0;
     int index = 0;
@@ -88,8 +114,8 @@ int pcxReadLine(unsigned char* data, int size, File* stream)
             index++;
         }
 
-        gPcxLastRunLength = runLength;
-        gPcxLastValue = value;
+        runcount = runLength;
+        runvalue = value;
 
         if (runLength != 0) {
             uncompressedSize -= runLength;
@@ -98,22 +124,22 @@ int pcxReadLine(unsigned char* data, int size, File* stream)
 
         value = fileReadChar(stream);
         if ((value & 0xC0) == 0xC0) {
-            gPcxLastRunLength = value & 0x3F;
+            runcount = value & 0x3F;
             value = fileReadChar(stream);
-            runLength = gPcxLastRunLength;
+            runLength = runcount;
         } else {
             runLength = 1;
         }
     } while (index < size);
 
-    gPcxLastRunLength = runLength;
-    gPcxLastValue = value;
+    runcount = runLength;
+    runvalue = value;
 
     return uncompressedSize;
 }
 
 // 0x49641C
-int pcxReadPalette(PcxHeader* pcxHeader, unsigned char* palette, File* stream)
+static int readPcxVgaPalette(PcxHeader* pcxHeader, unsigned char* palette, File* stream)
 {
     if (pcxHeader->version != 5) {
         return 0;
@@ -137,7 +163,7 @@ int pcxReadPalette(PcxHeader* pcxHeader, unsigned char* palette, File* stream)
 }
 
 // 0x496494
-unsigned char* pcxRead(const char* path, int* widthPtr, int* heightPtr, unsigned char* palette)
+unsigned char* loadPCX(const char* path, int* widthPtr, int* heightPtr, unsigned char* palette)
 {
     File* stream = fileOpen(path, "rb");
     if (stream == NULL) {
@@ -145,7 +171,7 @@ unsigned char* pcxRead(const char* path, int* widthPtr, int* heightPtr, unsigned
     }
 
     PcxHeader pcxHeader;
-    pcxReadHeader(&pcxHeader, stream);
+    readPcxHeader(&pcxHeader, stream);
 
     int width = pcxHeader.maxX - pcxHeader.minX + 1;
     int height = pcxHeader.maxY - pcxHeader.minY + 1;
@@ -161,16 +187,16 @@ unsigned char* pcxRead(const char* path, int* widthPtr, int* heightPtr, unsigned
         return NULL;
     }
 
-    gPcxLastRunLength = 0;
-    gPcxLastValue = 0;
+    runcount = 0;
+    runvalue = 0;
 
     unsigned char* ptr = data;
     for (int y = 0; y < height; y++) {
-        pcxReadLine(ptr, bytesPerLine, stream);
+        pcxDecodeScanline(ptr, bytesPerLine, stream);
         ptr += width;
     }
 
-    pcxReadPalette(&pcxHeader, palette, stream);
+    readPcxVgaPalette(&pcxHeader, palette, stream);
 
     fileClose(stream);
 

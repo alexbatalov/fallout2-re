@@ -91,7 +91,7 @@ unsigned char* loadRawDataFile(char* path, int* widthPtr, int* heightPtr)
     char* dot = strrchr(mangledPath, '.');
     if (dot != NULL) {
         if (stricmp(dot + 1, "pcx") == 0) {
-            return pcxRead(mangledPath, widthPtr, heightPtr, pal);
+            return loadPCX(mangledPath, widthPtr, heightPtr, pal);
         }
     }
 
