@@ -1,10 +1,10 @@
-#ifndef REGION_H
-#define REGION_H
+#ifndef FALLOUT_INT_REGION_H_
+#define FALLOUT_INT_REGION_H_
 
 #include "geometry.h"
 #include "int/intrpret.h"
 
-#define REGION_NAME_LENGTH (32)
+#define REGION_NAME_LENGTH 32
 
 typedef struct Region Region;
 
@@ -35,17 +35,16 @@ typedef struct Region {
     void* userData;
 } Region;
 
-extern char _aNull[];
-
-void _regionSetBound(Region* region);
-bool regionContainsPoint(Region* region, int x, int y);
-Region* regionCreate(int a1);
+void regionSetBound(Region* region);
+bool pointInRegion(Region* region, int x, int y);
+Region* allocateRegion(int initialCapacity);
 void regionAddPoint(Region* region, int x, int y);
 void regionDelete(Region* region);
-void regionSetName(Region* region, const char* src);
-char* regionGetName(Region* region);
+void regionAddName(Region* region, const char* src);
+const char* regionGetName(Region* region);
 void* regionGetUserData(Region* region);
 void regionSetUserData(Region* region, void* data);
-void regionAddFlag(Region* region, int value);
+void regionSetFlag(Region* region, int value);
+int regionGetFlag(Region* region);
 
-#endif /* REGION_H */
+#endif /* FALLOUT_INT_REGION_H_ */

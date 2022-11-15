@@ -2402,7 +2402,7 @@ void _windowEndRegion()
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     Region* region = managedWindow->regions[managedWindow->currentRegionIndex];
     _windowAddRegionPoint(region->points->x, region->points->y, false);
-    _regionSetBound(region);
+    regionSetBound(region);
 }
 
 // NOTE: Unused.
@@ -2502,7 +2502,7 @@ bool _windowStartRegion(int initialCapacity)
 
     Region* newRegion;
     if (initialCapacity != 0) {
-        newRegion = regionCreate(initialCapacity + 1);
+        newRegion = allocateRegion(initialCapacity + 1);
     } else {
         newRegion = NULL;
     }
@@ -2523,7 +2523,7 @@ bool _windowAddRegionPoint(int x, int y, bool a3)
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     Region* region = managedWindow->regions[managedWindow->currentRegionIndex];
     if (region == NULL) {
-        region = managedWindow->regions[managedWindow->currentRegionIndex] = regionCreate(1);
+        region = managedWindow->regions[managedWindow->currentRegionIndex] = allocateRegion(1);
     }
 
     if (a3) {
@@ -2654,7 +2654,7 @@ bool _windowSetRegionFlag(const char* regionName, int value)
             Region* region = managedWindow->regions[index];
             if (region != NULL) {
                 if (stricmp(region->name, regionName) == 0) {
-                    regionAddFlag(region, value);
+                    regionSetFlag(region, value);
                     return true;
                 }
             }
@@ -2690,7 +2690,7 @@ bool _windowAddRegionName(const char* regionName)
         }
     }
 
-    regionSetName(region, regionName);
+    regionAddName(region, regionName);
 
     return true;
 }
