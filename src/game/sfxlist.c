@@ -1,4 +1,4 @@
-#include "sound_effects_list.h"
+#include "game/sfxlist.h"
 
 #include <limits.h>
 #include <stdio.h>

@@ -12,7 +12,7 @@
 #include "game/gconfig.h"
 #include "memory.h"
 #include "sound_decoder.h"
-#include "sound_effects_list.h"
+#include "game/sfxlist.h"
 
 #define SOUND_EFFECTS_CACHE_MIN_SIZE 0x40000
 
