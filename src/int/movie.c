@@ -655,6 +655,16 @@ void movieSetSubtitleFont(int font)
     subtitleFont = font;
 }
 
+// NOTE: Unused.
+//
+// 0x487214
+void movieSetSubtitleColor(float r, float g, float b)
+{
+    subtitleR = (int)(r * 31.0f);
+    subtitleG = (int)(g * 31.0f);
+    subtitleB = (int)(b * 31.0f);
+}
+
 // 0x48725C
 void movieSetPaletteFunc(MoviePaletteFunc* func)
 {

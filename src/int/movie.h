@@ -38,6 +38,7 @@ void movieClose();
 void movieStop();
 int movieSetFlags(int a1);
 void movieSetSubtitleFont(int font);
+void movieSetSubtitleColor(float r, float g, float b);
 void movieSetPaletteFunc(MoviePaletteFunc* func);
 void movieSetCallback(MovieUpdateCallbackProc* func);
 int movieRun(int win, char* filePath);
