@@ -3,7 +3,7 @@
 #include "scripts.h"
 
 // 0x4A29D0
-int reactionSetValue(Object* critter, int value)
+int reaction_set(Object* critter, int value)
 {
     scriptSetLocalVar(critter->sid, 0, value);
     return 0;
@@ -18,7 +18,7 @@ int level_to_reaction()
 }
 
 // 0x4A29E8
-int reactionTranslateValue(int a1)
+int reaction_lookup_internal(int a1)
 {
     if (a1 > 10) {
         return NPC_REACTION_GOOD;
@@ -33,12 +33,6 @@ int reactionTranslateValue(int a1)
     } else {
         return NPC_REACTION_BAD;
     }
-}
-
-// 0x4A29F0
-int _reaction_influence_()
-{
-    return 0;
 }
 
 // NOTE: Unused.
@@ -70,11 +64,17 @@ int reaction_to_level_internal(int sid, int reaction)
 
     scriptSetLocalVar(sid, 1, level);
 
-    return reactionTranslateValue(reaction);
+    return reaction_lookup_internal(reaction);
+}
+
+// NOTE: From OS X binary.
+int reaction_to_level(int a1)
+{
+    return reaction_lookup_internal(a1);
 }
 
 // 0x4A2B28
-int reactionGetValue(Object* critter)
+int reaction_get(Object* critter)
 {
     int reactionValue;
 
@@ -83,4 +83,18 @@ int reactionGetValue(Object* critter)
     }
 
     return reactionValue;
+}
+
+// NOTE: From OS X binary.
+int reaction_roll()
+{
+    return 0;
+}
+
+// TODO: Accepts 3 parameters, check `op_reaction_influence`.
+//
+// 0x4A29F0
+int reaction_influence()
+{
+    return 0;
 }

@@ -4336,8 +4336,8 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
     inven_set_mouse(INVENTORY_WINDOW_CURSOR_HAND);
 
     int modifier;
-    int npcReactionValue = reactionGetValue(a2);
-    int npcReactionType = reactionTranslateValue(npcReactionValue);
+    int npcReactionValue = reaction_get(a2);
+    int npcReactionType = reaction_to_level(npcReactionValue);
     switch (npcReactionType) {
     case NPC_REACTION_BAD:
         modifier = 25;

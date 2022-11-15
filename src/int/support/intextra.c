@@ -917,7 +917,7 @@ static void op_reaction_influence(Program* program)
         }
     }
 
-    int result = _reaction_influence_();
+    int result = reaction_influence();
     interpretPushLong(program, result);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -2498,8 +2498,8 @@ static void op_start_gdialog(Program* program)
     dialogue_mood = reactionLevel;
 
     if (dialogue_head != -1) {
-        int npcReactionValue = reactionGetValue(dialog_target);
-        int npcReactionType = reactionTranslateValue(npcReactionValue);
+        int npcReactionValue = reaction_get(dialog_target);
+        int npcReactionType = reaction_lookup_internal(npcReactionValue);
         switch (npcReactionType) {
         case NPC_REACTION_BAD:
             dialogue_mood = FIDGET_BAD;
