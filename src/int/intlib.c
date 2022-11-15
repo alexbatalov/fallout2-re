@@ -1978,7 +1978,7 @@ static void op_addNamedEvent(Program* program)
     }
 
     const char* v1 = interpretGetString(program, opcode[1], data[1]);
-    _nevs_addevent(v1, program, data[0], NEVS_TYPE_EVENT);
+    nevs_addevent(v1, program, data[0], NEVS_TYPE_EVENT);
 }
 
 // 0x464BE8
@@ -2002,7 +2002,7 @@ static void op_addNamedHandler(Program* program)
     }
 
     const char* v1 = interpretGetString(program, opcode[1], data[1]);
-    _nevs_addevent(v1, program, data[0], NEVS_TYPE_HANDLER);
+    nevs_addevent(v1, program, data[0], NEVS_TYPE_HANDLER);
 }
 
 // 0x464C80
@@ -2020,7 +2020,7 @@ static void op_clearNamed(Program* program)
     }
 
     char* string = interpretGetString(program, opcode, data);
-    _nevs_clearevent(string);
+    nevs_clearevent(string);
 }
 
 // 0x464CE4
@@ -2038,7 +2038,7 @@ static void op_signalNamed(Program* program)
     }
 
     char* str = interpretGetString(program, opcode, data);
-    _nevs_signal(str);
+    nevs_signal(str);
 }
 
 // 0x464D48
@@ -3012,7 +3012,7 @@ static void op_setoneoptpause(Program* program)
 // 0x466994
 void updateIntLib()
 {
-    _nevs_update();
+    nevs_update();
     updateIntExtra();
 }
 
@@ -3025,7 +3025,7 @@ void intlibClose()
     // NOTE: Uninline.
     soundCloseInterpret();
 
-    _nevs_close();
+    nevs_close();
 
     if (callbacks != NULL) {
         myfree(callbacks, __FILE__, __LINE__); // "..\\int\\INTLIB.C", 1976
@@ -3149,7 +3149,7 @@ void initIntlib()
     interpretAddFunc(0x809F, op_selectfilelist);
     interpretAddFunc(0x80A0, op_tokenize);
 
-    _nevs_initonce();
+    nevs_initonce();
     initIntExtra();
     initDialog();
 }
