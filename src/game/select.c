@@ -74,6 +74,7 @@ static bool select_update_display();
 static bool select_display_portrait();
 static bool select_display_stats();
 static bool select_display_bio();
+static bool select_fatal_error(bool rc);
 
 // 0x51C84C
 static int premade_index = PREMADE_CHARACTER_NARG;
@@ -305,19 +306,19 @@ bool select_init()
     int characterSelectorWindowY = 0;
     select_window_id = windowCreate(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, colorTable[0], 0);
     if (select_window_id == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     select_window_buffer = windowGetBuffer(select_window_id);
     if (select_window_buffer == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     CacheEntry* backgroundFrmHandle;
     backgroundFid = art_id(OBJ_TYPE_INTERFACE, 174, 0, 0, 0);
     backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     blitBufferToBuffer(backgroundFrmData,
@@ -329,7 +330,7 @@ bool select_init()
 
     monitor = (unsigned char*)internal_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
     if (monitor == NULL)
-        goto err;
+        return select_fatal_error(false);
 
     blitBufferToBuffer(backgroundFrmData + CS_WINDOW_WIDTH * CS_WINDOW_BACKGROUND_Y + CS_WINDOW_BACKGROUND_X,
         CS_WINDOW_BACKGROUND_WIDTH,
@@ -346,13 +347,13 @@ bool select_init()
     fid = art_id(OBJ_TYPE_INTERFACE, 122, 0, 0, 0);
     previous_button_up = art_ptr_lock_data(fid, 0, 0, &previous_button_up_key);
     if (previous_button_up == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 123, 0, 0, 0);
     previous_button_down = art_ptr_lock_data(fid, 0, 0, &previous_button_down_key);
     if (previous_button_down == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     previous_button = buttonCreate(select_window_id,
@@ -369,7 +370,7 @@ bool select_init()
         NULL,
         0);
     if (previous_button == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     buttonSetCallbacks(previous_button, gsound_med_butt_press, gsound_med_butt_release);
@@ -378,13 +379,13 @@ bool select_init()
     fid = art_id(OBJ_TYPE_INTERFACE, 124, 0, 0, 0);
     next_button_up = art_ptr_lock_data(fid, 0, 0, &next_button_up_key);
     if (next_button_up == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 125, 0, 0, 0);
     next_button_down = art_ptr_lock_data(fid, 0, 0, &next_button_down_key);
     if (next_button_down == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     next_button = buttonCreate(select_window_id,
@@ -401,7 +402,7 @@ bool select_init()
         NULL,
         0);
     if (next_button == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     buttonSetCallbacks(next_button, gsound_med_butt_press, gsound_med_butt_release);
@@ -410,13 +411,13 @@ bool select_init()
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
     take_button_up = art_ptr_lock_data(fid, 0, 0, &take_button_up_key);
     if (take_button_up == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
     take_button_down = art_ptr_lock_data(fid, 0, 0, &take_button_down_key);
     if (take_button_down == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     take_button = buttonCreate(select_window_id,
@@ -433,7 +434,7 @@ bool select_init()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (take_button == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     buttonSetCallbacks(take_button, gsound_red_butt_press, gsound_red_butt_release);
@@ -442,12 +443,12 @@ bool select_init()
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
     modify_button_up = art_ptr_lock_data(fid, 0, 0, &modify_button_up_key);
     if (modify_button_up == NULL)
-        goto err;
+        return select_fatal_error(false);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
     modify_button_down = art_ptr_lock_data(fid, 0, 0, &modify_button_down_key);
     if (modify_button_down == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     modify_button = buttonCreate(select_window_id,
@@ -464,7 +465,7 @@ bool select_init()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (modify_button == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     buttonSetCallbacks(modify_button, gsound_red_butt_press, gsound_red_butt_release);
@@ -473,13 +474,13 @@ bool select_init()
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
     create_button_up = art_ptr_lock_data(fid, 0, 0, &create_button_up_key);
     if (create_button_up == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
     create_button_down = art_ptr_lock_data(fid, 0, 0, &create_button_down_key);
     if (create_button_down == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     create_button = buttonCreate(select_window_id,
@@ -496,7 +497,7 @@ bool select_init()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (create_button == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     buttonSetCallbacks(create_button, gsound_red_butt_press, gsound_red_butt_release);
@@ -505,13 +506,13 @@ bool select_init()
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
     back_button_up = art_ptr_lock_data(fid, 0, 0, &back_button_up_key);
     if (back_button_up == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
     back_button_down = art_ptr_lock_data(fid, 0, 0, &back_button_down_key);
     if (back_button_down == NULL) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     back_button = buttonCreate(select_window_id,
@@ -528,7 +529,7 @@ bool select_init()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (back_button == -1) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     buttonSetCallbacks(back_button, gsound_red_butt_press, gsound_red_butt_release);
@@ -538,16 +539,10 @@ bool select_init()
     win_draw(select_window_id);
 
     if (!select_update_display()) {
-        goto err;
+        return select_fatal_error(false);
     }
 
     return true;
-
-err:
-
-    select_exit();
-
-    return false;
 }
 
 // 0x4A7AD4
@@ -997,4 +992,13 @@ static bool select_display_bio()
     fontSetCurrent(oldFont);
 
     return true;
+}
+
+// NOTE: Inlined.
+//
+// 0x4A8BD0
+static bool select_fatal_error(bool rc)
+{
+    select_exit();
+    return rc;
 }
