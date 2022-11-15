@@ -17,7 +17,7 @@ typedef struct Nevs {
     int type;
     int hits;
     bool busy;
-    void (*field_38)();
+    NevsCallback* callback;
 } Nevs;
 
 static_assert(sizeof(Nevs) == 60, "wrong size");
@@ -145,7 +145,35 @@ int nevs_addevent(const char* name, Program* program, int proc, int type)
     entry->program = program;
     entry->proc = proc;
     entry->type = type;
-    entry->field_38 = NULL;
+    entry->callback = NULL;
+
+    return 0;
+}
+
+// NOTE: Unused.
+//
+// 0x488528
+int nevs_addCevent(const char* name, NevsCallback* callback, int type)
+{
+    Nevs* entry;
+
+    debugPrint("nevs_addCevent( '%s', %p);\n", name, callback);
+
+    entry = nevs_find(name);
+    if (entry == NULL) {
+        entry = nevs_alloc();
+    }
+
+    if (entry == NULL) {
+        return 1;
+    }
+
+    entry->used = true;
+    strcpy(entry->name, name);
+    entry->program = NULL;
+    entry->proc = 0;
+    entry->type = type;
+    entry->callback = NULL;
 
     return 0;
 }
@@ -182,7 +210,7 @@ int nevs_signal(const char* name)
     debugPrint("nep: %p,  used = %u, prog = %p, proc = %d", entry, entry->used, entry->program, entry->proc);
 
     if (entry->used
-        && ((entry->program != NULL && entry->proc != 0) || entry->field_38 != NULL)
+        && ((entry->program != NULL && entry->proc != 0) || entry->callback != NULL)
         && !entry->busy) {
         entry->hits++;
         anyhits++;
@@ -209,7 +237,7 @@ void nevs_update()
     for (index = 0; index < NEVS_COUNT; index++) {
         entry = &(nevs[index]);
         if (entry->used
-            && ((entry->program != NULL && entry->proc != 0) || entry->field_38 != NULL)
+            && ((entry->program != NULL && entry->proc != 0) || entry->callback != NULL)
             && !entry->busy) {
             if (entry->hits > 0) {
                 entry->busy = true;
@@ -217,10 +245,10 @@ void nevs_update()
                 entry->hits -= 1;
                 anyhits += entry->hits;
 
-                if (entry->field_38 == NULL) {
+                if (entry->callback == NULL) {
                     executeProc(entry->program, entry->proc);
                 } else {
-                    entry->field_38();
+                    entry->callback(entry->name);
                 }
 
                 entry->busy = false;
