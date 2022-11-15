@@ -15,7 +15,7 @@
 #include "game/item.h"
 #include "game/object.h"
 #include "game/palette.h"
-#include "party_member.h"
+#include "game/party.h"
 #include "perk.h"
 #include "pipboy.h"
 #include "proto.h"

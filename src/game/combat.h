@@ -6,7 +6,7 @@
 #include "db.h"
 #include "game/message.h"
 #include "game/object_types.h"
-#include "party_member.h"
+#include "game/party.h"
 #include "proto_types.h"
 
 extern int combatNumTurns;

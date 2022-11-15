@@ -1,4 +1,4 @@
-#include "party_member.h"
+#include "game/party.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -8,7 +8,7 @@
 #include "db.h"
 #include "game/message.h"
 #include "game/object_types.h"
-#include "party_member.h"
+#include "game/party.h"
 
 #define AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT (3)
 

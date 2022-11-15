@@ -18,7 +18,7 @@
 #include "game/light.h"
 #include "game/map.h"
 #include "memory.h"
-#include "party_member.h"
+#include "game/party.h"
 #include "proto.h"
 #include "proto_instance.h"
 #include "scripts.h"
