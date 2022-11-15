@@ -1,4 +1,4 @@
-#include "pcx.h"
+#include "int/pcx.h"
 
 #include "int/memdbg.h"
 

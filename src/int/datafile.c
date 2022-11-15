@@ -5,7 +5,7 @@
 #include "color.h"
 #include "db.h"
 #include "int/memdbg.h"
-#include "pcx.h"
+#include "int/pcx.h"
 
 static char* defaultMangleName(char* path);
 
