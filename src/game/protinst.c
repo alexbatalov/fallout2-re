@@ -1,4 +1,4 @@
-#include "proto_instance.h"
+#include "game/protinst.h"
 
 #include <assert.h>
 #include <stdio.h>

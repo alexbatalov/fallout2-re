@@ -20,7 +20,7 @@
 #include "memory.h"
 #include "game/party.h"
 #include "proto.h"
-#include "proto_instance.h"
+#include "game/protinst.h"
 #include "scripts.h"
 #include "text_object.h"
 #include "tile.h"

@@ -19,7 +19,7 @@
 #include "game/message.h"
 #include "game/object.h"
 #include "proto.h"
-#include "proto_instance.h"
+#include "game/protinst.h"
 #include "queue.h"
 #include "random.h"
 #include "scripts.h"

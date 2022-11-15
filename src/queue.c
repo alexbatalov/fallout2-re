@@ -12,7 +12,7 @@
 #include "game/object.h"
 #include "game/perk.h"
 #include "proto.h"
-#include "proto_instance.h"
+#include "game/protinst.h"
 #include "scripts.h"
 
 // Last queue list node found during [queueFindFirstEvent] and

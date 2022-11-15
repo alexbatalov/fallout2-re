@@ -29,7 +29,7 @@
 #include "game/object.h"
 #include "game/perk.h"
 #include "proto.h"
-#include "proto_instance.h"
+#include "game/protinst.h"
 #include "random.h"
 #include "reaction.h"
 #include "scripts.h"
