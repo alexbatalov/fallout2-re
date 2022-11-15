@@ -36,7 +36,7 @@
 #include "game/palette.h"
 #include "game/proto.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "selfrun.h"
 #include "text_font.h"
 #include "window_manager.h"

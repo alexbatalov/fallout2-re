@@ -32,7 +32,7 @@
 #include "game/protinst.h"
 #include "game/roll.h"
 #include "game/reaction.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "skill.h"
 #include "stat.h"
 #include "text_font.h"

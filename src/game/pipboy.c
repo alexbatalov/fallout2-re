@@ -25,7 +25,7 @@
 #include "game/object.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "stat.h"
 #include "text_font.h"
 #include "window_manager.h"

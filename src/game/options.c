@@ -20,7 +20,7 @@
 #include "game/loadsave.h"
 #include "game/message.h"
 #include "memory.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "text_font.h"
 #include "text_object.h"
 #include "tile.h"

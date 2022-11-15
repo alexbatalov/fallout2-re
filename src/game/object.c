@@ -21,7 +21,7 @@
 #include "game/party.h"
 #include "game/proto.h"
 #include "game/protinst.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "text_object.h"
 #include "tile.h"
 #include "worldmap.h"

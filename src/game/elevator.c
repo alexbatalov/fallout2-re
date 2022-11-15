@@ -14,7 +14,7 @@
 #include "game/intface.h"
 #include "game/map.h"
 #include "game/pipboy.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "window_manager.h"
 
 // The maximum number of elevator levels.

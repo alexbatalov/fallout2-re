@@ -20,7 +20,7 @@
 #include "game/pipboy.h"
 #include "game/proto.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "stat.h"
 #include "trait.h"
 

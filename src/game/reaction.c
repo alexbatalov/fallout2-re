@@ -1,6 +1,6 @@
 #include "game/reaction.h"
 
-#include "scripts.h"
+#include "game/scripts.h"
 
 // 0x4A29D0
 int reaction_set(Object* critter, int value)

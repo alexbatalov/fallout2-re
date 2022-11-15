@@ -31,7 +31,7 @@
 #include "game/protinst.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "text_object.h"
 #include "tile.h"
 #include "window_manager.h"

@@ -13,7 +13,7 @@
 #include "game/perk.h"
 #include "game/proto.h"
 #include "game/protinst.h"
-#include "scripts.h"
+#include "game/scripts.h"
 
 typedef struct QueueListNode {
     // TODO: Make unsigned.

@@ -10,7 +10,7 @@
 // clang-format on
 
 #include "debug.h"
-#include "scripts.h"
+#include "game/scripts.h"
 
 static int ran1(int max);
 static void init_random();

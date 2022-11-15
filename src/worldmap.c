@@ -35,7 +35,7 @@
 #include "game/protinst.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "skill.h"
 #include "stat.h"
 #include "string_parsers.h"

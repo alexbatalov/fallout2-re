@@ -31,7 +31,7 @@
 #include "game/proto.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "skill.h"
 #include "stat.h"
 #include "text_font.h"

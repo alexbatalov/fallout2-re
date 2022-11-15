@@ -46,7 +46,7 @@
 #include "game/proto.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "scripts.h"
+#include "game/scripts.h"
 #include "skill.h"
 #include "skilldex.h"
 #include "stat.h"

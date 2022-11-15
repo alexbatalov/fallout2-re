@@ -1,4 +1,4 @@
-#include "scripts.h"
+#include "game/scripts.h"
 
 #include <stdio.h>
 #include <stdlib.h>
