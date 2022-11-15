@@ -13,6 +13,7 @@
 #include "scripts.h"
 
 static int ran1(int max);
+static void init_random();
 static int random_seed();
 static void seed_generator(int seed);
 static unsigned int timer_read();
@@ -30,11 +31,8 @@ static int idum;
 // 0x4A2FE0
 void roll_init()
 {
-    unsigned int randomSeed = timer_read();
-    srand(randomSeed);
-
-    int pseudorandomSeed = random_seed();
-    seed_generator(pseudorandomSeed);
+    // NOTE: Uninline.
+    init_random();
 
     check_chi_squared();
 }
@@ -149,6 +147,15 @@ static int ran1(int max)
     idum = v1;
 
     return v3 % max;
+}
+
+// NOTE: Inlined.
+//
+// 0x4A3174
+static void init_random()
+{
+    srand(timer_read());
+    seed_generator(random_seed());
 }
 
 // 0x4A31A0
