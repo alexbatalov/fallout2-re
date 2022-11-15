@@ -8,7 +8,7 @@
 #include "int/support/intextra.h"
 #include "int/memdbg.h"
 #include "int/mousemgr.h"
-#include "nevs.h"
+#include "int/nevs.h"
 #include "select_file_list.h"
 #include "sound.h"
 #include "text_font.h"

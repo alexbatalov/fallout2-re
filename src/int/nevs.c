@@ -1,4 +1,4 @@
-#include "nevs.h"
+#include "int/nevs.h"
 
 #include <stdlib.h>
 #include <string.h>
