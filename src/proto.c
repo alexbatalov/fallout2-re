@@ -333,7 +333,7 @@ char* protoGetMessage(int pid, int message)
 char* protoGetName(int pid)
 {
     if (pid == 0x1000000) {
-        return critter_name(gDude);
+        return critter_name(obj_dude);
     }
 
     return protoGetMessage(pid, PROTOTYPE_MESSAGE_NAME);
@@ -725,7 +725,7 @@ int _proto_dude_update_gender()
     }
 
     int frmId;
-    if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
+    if (critterGetStat(obj_dude, STAT_GENDER) == GENDER_MALE) {
         frmId = art_vault_person_nums[nativeLook][GENDER_MALE];
     } else {
         frmId = art_vault_person_nums[nativeLook][GENDER_FEMALE];
@@ -733,14 +733,14 @@ int _proto_dude_update_gender()
 
     art_vault_guy_num = frmId;
 
-    if (inven_worn(gDude) == NULL) {
+    if (inven_worn(obj_dude) == NULL) {
         int v1 = 0;
-        if (inven_right_hand(gDude) != NULL || inven_left_hand(gDude) != NULL) {
-            v1 = (gDude->fid & 0xF000) >> 12;
+        if (inven_right_hand(obj_dude) != NULL || inven_left_hand(obj_dude) != NULL) {
+            v1 = (obj_dude->fid & 0xF000) >> 12;
         }
 
         int fid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, v1, 0);
-        objectSetFid(gDude, fid, NULL);
+        obj_change_fid(obj_dude, fid, NULL);
     }
 
     proto->fid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, 0, 0);
@@ -755,7 +755,7 @@ int _proto_dude_init(const char* path)
     gDudeProto.fid = art_id(OBJ_TYPE_CRITTER, art_vault_guy_num, 0, 0, 0);
 
     if (_init_true) {
-        _obj_inven_free(&(gDude->data.inventory));
+        obj_inven_free(&(obj_dude->data.inventory));
     }
 
     _init_true = 1;
@@ -765,11 +765,11 @@ int _proto_dude_init(const char* path)
         return -1;
     }
 
-    protoGetProto(gDude->pid, &proto);
+    protoGetProto(obj_dude->pid, &proto);
 
-    _proto_update_init(gDude);
-    gDude->data.critter.combat.aiPacket = 0;
-    gDude->data.critter.combat.team = 0;
+    _proto_update_init(obj_dude);
+    obj_dude->data.critter.combat.aiPacket = 0;
+    obj_dude->data.critter.combat.team = 0;
     _ResetPlayer();
 
     if (pc_load_data(path) == -1) {
@@ -785,16 +785,16 @@ int _proto_dude_init(const char* path)
     _proto_dude_update_gender();
     inven_reset_dude();
 
-    if ((gDude->flags & OBJECT_FLAT) != 0) {
-        _obj_toggle_flat(gDude, NULL);
+    if ((obj_dude->flags & OBJECT_FLAT) != 0) {
+        obj_toggle_flat(obj_dude, NULL);
     }
 
-    if ((gDude->flags & OBJECT_NO_BLOCK) != 0) {
-        gDude->flags &= ~OBJECT_NO_BLOCK;
+    if ((obj_dude->flags & OBJECT_NO_BLOCK) != 0) {
+        obj_dude->flags &= ~OBJECT_NO_BLOCK;
     }
 
-    critterUpdateDerivedStats(gDude);
-    critter_adjust_hits(gDude, 10000);
+    critterUpdateDerivedStats(obj_dude);
+    critter_adjust_hits(obj_dude, 10000);
 
     if (_retval) {
         debugPrint("\n ** Error in proto_dude_init()! **\n");
@@ -1068,8 +1068,8 @@ int protoInit()
     gDudeProto.pid = 0x1000000;
     gDudeProto.fid = art_id(OBJ_TYPE_CRITTER, 1, 0, 0, 0);
 
-    gDude->pid = 0x1000000;
-    gDude->sid = 1;
+    obj_dude->pid = 0x1000000;
+    obj_dude->sid = 1;
 
     for (i = 0; i < 6; i++) {
         _proto_remove_list(i);
@@ -1180,9 +1180,9 @@ void protoReset()
     gDudeProto.pid = 0x1000000;
     gDudeProto.fid = art_id(OBJ_TYPE_CRITTER, 1, 0, 0, 0);
 
-    gDude->pid = 0x1000000;
-    gDude->sid = -1;
-    gDude->flags &= ~OBJECT_FLAG_0xFC000;
+    obj_dude->pid = 0x1000000;
+    obj_dude->sid = -1;
+    obj_dude->flags &= ~OBJECT_FLAG_0xFC000;
 
     for (i = 0; i < 6; i++) {
         _proto_remove_list(i);
@@ -1842,7 +1842,7 @@ int _proto_max_id(int a1)
 int _ResetPlayer()
 {
     Proto* proto;
-    protoGetProto(gDude->pid, &proto);
+    protoGetProto(obj_dude->pid, &proto);
 
     pcStatsReset();
     protoCritterDataResetStats(&(proto->critter.data));
@@ -1852,6 +1852,6 @@ int _ResetPlayer()
     skillsReset();
     perksReset();
     traitsReset();
-    critterUpdateDerivedStats(gDude);
+    critterUpdateDerivedStats(obj_dude);
     return 0;
 }

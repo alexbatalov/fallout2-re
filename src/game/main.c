@@ -267,8 +267,8 @@ static int main_load_new(char* mapFileName)
 {
     game_user_wants_to_quit = 0;
     main_show_death_scene = 0;
-    gDude->flags &= ~OBJECT_FLAT;
-    objectShow(gDude, NULL);
+    obj_dude->flags &= ~OBJECT_FLAT;
+    obj_turn_on(obj_dude, NULL);
     mouse_hide();
 
     int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
@@ -296,9 +296,9 @@ static int main_loadgame_new()
     game_user_wants_to_quit = 0;
     main_show_death_scene = 0;
 
-    gDude->flags &= ~OBJECT_FLAT;
+    obj_dude->flags &= ~OBJECT_FLAT;
 
-    objectShow(gDude, NULL);
+    obj_turn_on(obj_dude, NULL);
     mouse_hide();
 
     map_init();
@@ -312,7 +312,7 @@ static int main_loadgame_new()
 // 0x480E34
 static void main_unload_new()
 {
-    objectHide(gDude, NULL);
+    obj_turn_off(obj_dude, NULL);
     map_exit();
 }
 
@@ -340,7 +340,7 @@ static void main_game_loop()
             main_game_paused = 0;
         }
 
-        if ((gDude->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
+        if ((obj_dude->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
             endgameSetupDeathEnding(ENDGAME_DEATH_ENDING_REASON_DEATH);
             main_show_death_scene = 1;
             game_user_wants_to_quit = 2;

@@ -185,11 +185,11 @@ int critterGetStat(Object* critter, int stat)
                     int actionPointsMultiplier = 1;
                     int hthEvadeBonus = 0;
 
-                    if (critter == gDude) {
-                        if (perkHasRank(gDude, PERK_HTH_EVADE)) {
+                    if (critter == obj_dude) {
+                        if (perkHasRank(obj_dude, PERK_HTH_EVADE)) {
                             bool hasWeapon = false;
 
-                            Object* item2 = inven_right_hand(gDude);
+                            Object* item2 = inven_right_hand(obj_dude);
                             if (item2 != NULL) {
                                 if (item_get_type(item2) == ITEM_TYPE_WEAPON) {
                                     if (item_w_anim_code(item2) != WEAPON_ANIMATION_NONE) {
@@ -199,7 +199,7 @@ int critterGetStat(Object* critter, int stat)
                             }
 
                             if (!hasWeapon) {
-                                Object* item1 = inven_left_hand(gDude);
+                                Object* item1 = inven_left_hand(obj_dude);
                                 if (item1 != NULL) {
                                     if (item_get_type(item1) == ITEM_TYPE_WEAPON) {
                                         if (item_w_anim_code(item1) != WEAPON_ANIMATION_NONE) {
@@ -211,7 +211,7 @@ int critterGetStat(Object* critter, int stat)
 
                             if (!hasWeapon) {
                                 actionPointsMultiplier = 2;
-                                hthEvadeBonus = skillGetValue(gDude, SKILL_UNARMED) / 12;
+                                hthEvadeBonus = skillGetValue(obj_dude, SKILL_UNARMED) / 12;
                             }
                         }
                     }
@@ -225,7 +225,7 @@ int critterGetStat(Object* critter, int stat)
             break;
         }
 
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             switch (stat) {
             case STAT_STRENGTH:
                 if (perkGetRank(critter, PERK_GAIN_STRENGTH)) {
@@ -373,7 +373,7 @@ int critterGetBaseStatWithTraitModifier(Object* critter, int stat)
 {
     int value = critterGetBaseStat(critter, stat);
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         value += traitGetStatModifier(stat);
     }
 
@@ -429,7 +429,7 @@ int critterSetBaseStat(Object* critter, int stat, int value)
             return -1;
         }
 
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             value -= traitGetStatModifier(stat);
         }
 
@@ -469,7 +469,7 @@ int critterIncBaseStat(Object* critter, int stat)
 {
     int value = critterGetBaseStat(critter, stat);
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         value += traitGetStatModifier(stat);
     }
 
@@ -481,7 +481,7 @@ int critterDecBaseStat(Object* critter, int stat)
 {
     int value = critterGetBaseStat(critter, stat);
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         value += traitGetStatModifier(stat);
     }
 
@@ -711,7 +711,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
 {
     int newXp = gPcStatValues[PC_STAT_EXPERIENCE];
     newXp += xp;
-    newXp += perkGetRank(gDude, PERK_SWIFT_LEARNER) * 5 * xp / 100;
+    newXp += perkGetRank(obj_dude, PERK_SWIFT_LEARNER) * 5 * xp / 100;
 
     if (newXp < gPcStatDescriptions[PC_STAT_EXPERIENCE].minimumValue) {
         newXp = gPcStatDescriptions[PC_STAT_EXPERIENCE].minimumValue;
@@ -729,7 +729,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
         }
 
         if (pcSetStat(PC_STAT_LEVEL, gPcStatValues[PC_STAT_LEVEL] + 1) == 0) {
-            int maxHpBefore = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
+            int maxHpBefore = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
 
             // You have gone up a level.
             MessageListItem messageListItem;
@@ -743,16 +743,16 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             gsound_play_sfx_file("levelup");
 
             // NOTE: Uninline.
-            int endurance = critterGetBaseStatWithTraitModifier(gDude, STAT_ENDURANCE);
+            int endurance = critterGetBaseStatWithTraitModifier(obj_dude, STAT_ENDURANCE);
 
             int hpPerLevel = endurance / 2 + 2;
-            hpPerLevel += perkGetRank(gDude, PERK_LIFEGIVER) * 4;
+            hpPerLevel += perkGetRank(obj_dude, PERK_LIFEGIVER) * 4;
 
-            int bonusHp = critterGetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-            critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, bonusHp + hpPerLevel);
+            int bonusHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+            critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp + hpPerLevel);
 
-            int maxHpAfter = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-            critter_adjust_hits(gDude, maxHpAfter - maxHpBefore);
+            int maxHpAfter = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+            critter_adjust_hits(obj_dude, maxHpAfter - maxHpBefore);
 
             intface_update_hit_points(false);
 
@@ -782,17 +782,17 @@ int pcSetExperience(int xp)
     pc_flag_off(DUDE_STATE_LEVEL_UP_AVAILABLE);
 
     // NOTE: Uninline.
-    int endurance = critterGetBaseStatWithTraitModifier(gDude, STAT_ENDURANCE);
+    int endurance = critterGetBaseStatWithTraitModifier(obj_dude, STAT_ENDURANCE);
 
     int hpPerLevel = endurance / 2 + 2;
-    hpPerLevel += perkGetRank(gDude, PERK_LIFEGIVER) * 4;
+    hpPerLevel += perkGetRank(obj_dude, PERK_LIFEGIVER) * 4;
 
     int deltaHp = (oldLevel - newLevel) * hpPerLevel;
-    critter_adjust_hits(gDude, -deltaHp);
+    critter_adjust_hits(obj_dude, -deltaHp);
 
-    int bonusHp = critterGetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS);
+    int bonusHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
 
-    critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, bonusHp - deltaHp);
+    critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp - deltaHp);
 
     intface_update_hit_points(false);
 

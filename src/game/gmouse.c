@@ -676,17 +676,17 @@ void gmouse_bk_process()
                         primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_USE;
                         if (gmouse_3d_item_highlight) {
                             Rect tmp;
-                            if (objectSetOutline(pointedObject, OUTLINE_TYPE_ITEM, &tmp) == 0) {
+                            if (obj_outline_object(pointedObject, OUTLINE_TYPE_ITEM, &tmp) == 0) {
                                 tileWindowRefreshRect(&tmp, map_elevation);
                                 outlined_object = pointedObject;
                             }
                         }
                         break;
                     case OBJ_TYPE_CRITTER:
-                        if (pointedObject == gDude) {
+                        if (pointedObject == obj_dude) {
                             primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_ROTATE;
                         } else {
-                            if (_obj_action_can_talk_to(pointedObject)) {
+                            if (obj_action_can_talk_to(pointedObject)) {
                                 if (isInCombat()) {
                                     primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
                                 } else {
@@ -702,7 +702,7 @@ void gmouse_bk_process()
                         }
                         break;
                     case OBJ_TYPE_SCENERY:
-                        if (!_obj_action_can_use(pointedObject)) {
+                        if (!obj_action_can_use(pointedObject)) {
                             primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
                         } else {
                             primaryAction = GAME_MOUSE_ACTION_MENU_ITEM_USE;
@@ -726,7 +726,7 @@ void gmouse_bk_process()
 
                     if (pointedObject != last_object) {
                         last_object = pointedObject;
-                        _obj_look_at(gDude, last_object);
+                        _obj_look_at(obj_dude, last_object);
                     }
                 }
             } else if (gmouse_3d_current_mode == GAME_MOUSE_MODE_CROSSHAIR) {
@@ -744,8 +744,8 @@ void gmouse_bk_process()
                     int combatLooks = 0;
                     config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
                     if (combatLooks != 0) {
-                        if (_obj_examine(gDude, pointedObject) == -1) {
-                            _obj_look_at(gDude, pointedObject);
+                        if (_obj_examine(obj_dude, pointedObject) == -1) {
+                            _obj_look_at(obj_dude, pointedObject);
                         }
                     }
 
@@ -805,13 +805,13 @@ void gmouse_bk_process()
 
         char formattedActionPoints[8];
         int color;
-        int v6 = make_path(gDude, gDude->tile, obj_mouse_flat->tile, NULL, 1);
+        int v6 = make_path(obj_dude, obj_dude->tile, obj_mouse_flat->tile, NULL, 1);
         if (v6) {
             if (!isInCombat()) {
                 formattedActionPoints[0] = '\0';
                 color = colorTable[31744];
             } else {
-                int v7 = critter_compute_ap_from_distance(gDude, v6);
+                int v7 = critter_compute_ap_from_distance(obj_dude, v6);
                 int v8;
                 if (v7 - combat_free_move >= 0) {
                     v8 = v7 - combat_free_move;
@@ -819,7 +819,7 @@ void gmouse_bk_process()
                     v8 = 0;
                 }
 
-                if (v8 <= gDude->data.critter.combat.ap) {
+                if (v8 <= obj_dude->data.critter.combat.ap) {
                     sprintf(formattedActionPoints, "%d", v8);
                     color = colorTable[32767];
                 } else {
@@ -834,7 +834,7 @@ void gmouse_bk_process()
 
         if (gmouse_3d_build_hex_frame(formattedActionPoints, color) == 0) {
             Rect tmp;
-            objectGetRect(obj_mouse_flat, &tmp);
+            obj_bound(obj_mouse_flat, &tmp);
             tileWindowRefreshRect(&tmp, 0);
         }
 
@@ -863,7 +863,7 @@ void gmouse_bk_process()
     }
 
     if (outlined_object != NULL) {
-        if (objectClearOutline(outlined_object, &r26) == 0) {
+        if (obj_remove_outline(outlined_object, &r26) == 0) {
             v34 |= 2;
         }
         outlined_object = NULL;
@@ -918,7 +918,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         if (gmouse_3d_current_mode == GAME_MOUSE_MODE_MOVE) {
             int actionPoints;
             if (isInCombat()) {
-                actionPoints = combat_free_move + gDude->data.critter.combat.ap;
+                actionPoints = combat_free_move + obj_dude->data.critter.combat.ap;
             } else {
                 actionPoints = -1;
             }
@@ -947,42 +947,42 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             if (v5 != NULL) {
                 switch (FID_TYPE(v5->fid)) {
                 case OBJ_TYPE_ITEM:
-                    action_get_an_object(gDude, v5);
+                    action_get_an_object(obj_dude, v5);
                     break;
                 case OBJ_TYPE_CRITTER:
-                    if (v5 == gDude) {
-                        if (FID_ANIM_TYPE(gDude->fid) == ANIM_STAND) {
+                    if (v5 == obj_dude) {
+                        if (FID_ANIM_TYPE(obj_dude->fid) == ANIM_STAND) {
                             Rect a1;
-                            if (objectRotateClockwise(v5, &a1) == 0) {
+                            if (obj_inc_rotation(v5, &a1) == 0) {
                                 tileWindowRefreshRect(&a1, v5->elevation);
                             }
                         }
                     } else {
-                        if (_obj_action_can_talk_to(v5)) {
+                        if (obj_action_can_talk_to(v5)) {
                             if (isInCombat()) {
-                                if (_obj_examine(gDude, v5) == -1) {
-                                    _obj_look_at(gDude, v5);
+                                if (_obj_examine(obj_dude, v5) == -1) {
+                                    _obj_look_at(obj_dude, v5);
                                 }
                             } else {
-                                action_talk_to(gDude, v5);
+                                action_talk_to(obj_dude, v5);
                             }
                         } else {
-                            action_loot_container(gDude, v5);
+                            action_loot_container(obj_dude, v5);
                         }
                     }
                     break;
                 case OBJ_TYPE_SCENERY:
-                    if (_obj_action_can_use(v5)) {
-                        action_use_an_object(gDude, v5);
+                    if (obj_action_can_use(v5)) {
+                        action_use_an_object(obj_dude, v5);
                     } else {
-                        if (_obj_examine(gDude, v5) == -1) {
-                            _obj_look_at(gDude, v5);
+                        if (_obj_examine(obj_dude, v5) == -1) {
+                            _obj_look_at(obj_dude, v5);
                         }
                     }
                     break;
                 case OBJ_TYPE_WALL:
-                    if (_obj_examine(gDude, v5) == -1) {
-                        _obj_look_at(gDude, v5);
+                    if (_obj_examine(obj_dude, v5) == -1) {
+                        _obj_look_at(obj_dude, v5);
                     }
                     break;
                 }
@@ -1019,20 +1019,20 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                             ? HIT_MODE_RIGHT_WEAPON_PRIMARY
                             : HIT_MODE_LEFT_WEAPON_PRIMARY;
 
-                        int actionPointsRequired = item_mp_cost(gDude, hitMode, false);
-                        if (actionPointsRequired <= gDude->data.critter.combat.ap) {
-                            if (action_use_an_item_on_object(gDude, object, weapon) != -1) {
-                                int actionPoints = gDude->data.critter.combat.ap;
+                        int actionPointsRequired = item_mp_cost(obj_dude, hitMode, false);
+                        if (actionPointsRequired <= obj_dude->data.critter.combat.ap) {
+                            if (action_use_an_item_on_object(obj_dude, object, weapon) != -1) {
+                                int actionPoints = obj_dude->data.critter.combat.ap;
                                 if (actionPointsRequired > actionPoints) {
-                                    gDude->data.critter.combat.ap = 0;
+                                    obj_dude->data.critter.combat.ap = 0;
                                 } else {
-                                    gDude->data.critter.combat.ap -= actionPointsRequired;
+                                    obj_dude->data.critter.combat.ap -= actionPointsRequired;
                                 }
-                                intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+                                intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
                             }
                         }
                     } else {
-                        action_use_an_item_on_object(gDude, object, weapon);
+                        action_use_an_item_on_object(obj_dude, object, weapon);
                     }
                 }
             }
@@ -1049,7 +1049,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
             || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_SCIENCE
             || gmouse_3d_current_mode == GAME_MOUSE_MODE_USE_REPAIR) {
             Object* object = object_under_mouse(-1, 1, map_elevation);
-            if (object == NULL || action_use_skill_on(gDude, object, gmouse_skill_table[gmouse_3d_current_mode - FIRST_GAME_MOUSE_MODE_SKILL]) != -1) {
+            if (object == NULL || action_use_skill_on(obj_dude, object, gmouse_skill_table[gmouse_3d_current_mode - FIRST_GAME_MOUSE_MODE_SKILL]) != -1) {
                 gmouse_set_cursor(MOUSE_CURSOR_NONE);
                 gmouse_3d_set_mode(GAME_MOUSE_MODE_MOVE);
             }
@@ -1073,10 +1073,10 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_CANCEL;
                 break;
             case OBJ_TYPE_CRITTER:
-                if (v16 == gDude) {
+                if (v16 == obj_dude) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_ROTATE;
                 } else {
-                    if (_obj_action_can_talk_to(v16)) {
+                    if (obj_action_can_talk_to(v16)) {
                         if (!isInCombat()) {
                             actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_TALK;
                         }
@@ -1086,7 +1086,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                         }
                     }
 
-                    if (action_can_be_pushed(gDude, v16)) {
+                    if (action_can_be_pushed(obj_dude, v16)) {
                         actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_PUSH;
                     }
                 }
@@ -1097,7 +1097,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_CANCEL;
                 break;
             case OBJ_TYPE_SCENERY:
-                if (_obj_action_can_use(v16)) {
+                if (obj_action_can_use(v16)) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_USE;
                 }
 
@@ -1108,7 +1108,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 break;
             case OBJ_TYPE_WALL:
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_LOOK;
-                if (_obj_action_can_use(v16)) {
+                if (obj_action_can_use(v16)) {
                     actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_INVENTORY;
                 }
                 actionMenuItems[actionMenuItemsCount++] = GAME_MOUSE_ACTION_MENU_ITEM_CANCEL;
@@ -1168,28 +1168,28 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                         use_inventory_on(v16);
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_LOOK:
-                        if (_obj_examine(gDude, v16) == -1) {
-                            _obj_look_at(gDude, v16);
+                        if (_obj_examine(obj_dude, v16) == -1) {
+                            _obj_look_at(obj_dude, v16);
                         }
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_ROTATE:
-                        if (objectRotateClockwise(v16, &v43) == 0) {
+                        if (obj_inc_rotation(v16, &v43) == 0) {
                             tileWindowRefreshRect(&v43, v16->elevation);
                         }
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_TALK:
-                        action_talk_to(gDude, v16);
+                        action_talk_to(obj_dude, v16);
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_USE:
                         switch (FID_TYPE(v16->fid)) {
                         case OBJ_TYPE_SCENERY:
-                            action_use_an_object(gDude, v16);
+                            action_use_an_object(obj_dude, v16);
                             break;
                         case OBJ_TYPE_CRITTER:
-                            action_loot_container(gDude, v16);
+                            action_loot_container(obj_dude, v16);
                             break;
                         default:
-                            action_get_an_object(gDude, v16);
+                            action_get_an_object(obj_dude, v16);
                             break;
                         }
                         break;
@@ -1226,12 +1226,12 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                             }
 
                             if (skill != -1) {
-                                action_use_skill_on(gDude, v16, skill);
+                                action_use_skill_on(obj_dude, v16, skill);
                             }
                         }
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_PUSH:
-                        action_push_critter(gDude, v16);
+                        action_push_critter(obj_dude, v16);
                         break;
                     }
                 }
@@ -1392,12 +1392,12 @@ void gmouse_3d_set_mode(int mode)
         }
 
         if (gmouse_3d_current_mode == 0) {
-            if (objectDisableOutline(obj_mouse_flat, &r2) == 0) {
+            if (obj_turn_off_outline(obj_mouse_flat, &r2) == 0) {
                 rectUnion(&rect, &r2, &rect);
             }
         }
     } else {
-        if (objectEnableOutline(obj_mouse_flat, &r2) == 0) {
+        if (obj_turn_on_outline(obj_mouse_flat, &r2) == 0) {
             rectUnion(&rect, &r2, &rect);
         }
     }
@@ -1471,21 +1471,21 @@ int gmouse_3d_set_fid(int fid)
     }
 
     if (!gmouse_mapper_mode) {
-        return objectSetFid(obj_mouse, fid, NULL);
+        return obj_change_fid(obj_mouse, fid, NULL);
     }
 
     int v1 = 0;
 
     Rect oldRect;
     if (obj_mouse->fid != -1) {
-        objectGetRect(obj_mouse, &oldRect);
+        obj_bound(obj_mouse, &oldRect);
         v1 |= 1;
     }
 
     int rc = -1;
 
     Rect rect;
-    if (objectSetFid(obj_mouse, fid, &rect) == 0) {
+    if (obj_change_fid(obj_mouse, fid, &rect) == 0) {
         rc = 0;
         v1 |= 2;
     }
@@ -1533,18 +1533,18 @@ void gmouse_3d_on()
     int v2 = 0;
 
     Rect rect1;
-    if (objectShow(obj_mouse, &rect1) == 0) {
+    if (obj_turn_on(obj_mouse, &rect1) == 0) {
         v2 |= 1;
     }
 
     Rect rect2;
-    if (objectShow(obj_mouse_flat, &rect2) == 0) {
+    if (obj_turn_on(obj_mouse_flat, &rect2) == 0) {
         v2 |= 2;
     }
 
     Rect tmp;
     if (gmouse_3d_current_mode != GAME_MOUSE_MODE_MOVE) {
-        if (objectDisableOutline(obj_mouse_flat, &tmp) == 0) {
+        if (obj_turn_off_outline(obj_mouse_flat, &tmp) == 0) {
             if ((v2 & 2) != 0) {
                 rectUnion(&rect2, &tmp, &rect2);
             } else {
@@ -1597,12 +1597,12 @@ void gmouse_3d_off()
     int v1 = 0;
 
     Rect rect1;
-    if (objectHide(obj_mouse, &rect1) == 0) {
+    if (obj_turn_off(obj_mouse, &rect1) == 0) {
         v1 |= 1;
     }
 
     Rect rect2;
-    if (objectHide(obj_mouse_flat, &rect2) == 0) {
+    if (obj_turn_off(obj_mouse_flat, &rect2) == 0) {
         v1 |= 2;
     }
 
@@ -1632,7 +1632,7 @@ Object* object_under_mouse(int objectType, bool a2, int elevation)
     bool v13 = false;
     if (objectType == -1) {
         if (_square_roof_intersect(mouseX, mouseY, elevation)) {
-            if (_obj_intersects_with(gEgg, mouseX, mouseY) == 0) {
+            if (obj_intersects_with(obj_egg, mouseX, mouseY) == 0) {
                 v13 = true;
             }
         }
@@ -1641,10 +1641,10 @@ Object* object_under_mouse(int objectType, bool a2, int elevation)
     Object* v4 = NULL;
     if (!v13) {
         ObjectWithFlags* entries;
-        int count = _obj_create_intersect_list(mouseX, mouseY, elevation, objectType, &entries);
+        int count = obj_create_intersect_list(mouseX, mouseY, elevation, objectType, &entries);
         for (int index = count - 1; index >= 0; index--) {
             ObjectWithFlags* ptr = &(entries[index]);
-            if (a2 || gDude != ptr->object) {
+            if (a2 || obj_dude != ptr->object) {
                 v4 = ptr->object;
                 if ((ptr->flags & 0x01) != 0) {
                     if ((ptr->flags & 0x04) == 0) {
@@ -1657,7 +1657,7 @@ Object* object_under_mouse(int objectType, bool a2, int elevation)
         }
 
         if (count != 0) {
-            _obj_delete_intersect_list(&entries);
+            obj_delete_intersect_list(&entries);
         }
     }
     return v4;
@@ -1992,16 +1992,16 @@ static int gmouse_3d_init()
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 0, 0, 0, 0);
-    if (objectCreateWithFidPid(&obj_mouse, fid, -1) != 0) {
+    if (obj_new(&obj_mouse, fid, -1) != 0) {
         return -1;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 1, 0, 0, 0);
-    if (objectCreateWithFidPid(&obj_mouse_flat, fid, -1) != 0) {
+    if (obj_new(&obj_mouse_flat, fid, -1) != 0) {
         return -1;
     }
 
-    if (objectSetOutline(obj_mouse_flat, OUTLINE_PALETTED | OUTLINE_TYPE_2, NULL) != 0) {
+    if (obj_outline_object(obj_mouse_flat, OUTLINE_PALETTED | OUTLINE_TYPE_2, NULL) != 0) {
         return -1;
     }
 
@@ -2021,7 +2021,7 @@ static int gmouse_3d_init()
     obj_mouse_flat->flags |= OBJECT_SHOOT_THRU;
     obj_mouse_flat->flags |= OBJECT_NO_BLOCK;
 
-    _obj_toggle_flat(obj_mouse_flat, NULL);
+    obj_toggle_flat(obj_mouse_flat, NULL);
 
     int x;
     int y;
@@ -2075,8 +2075,8 @@ static void gmouse_3d_exit()
         obj_mouse->flags &= ~OBJECT_TEMPORARY;
         obj_mouse_flat->flags &= ~OBJECT_TEMPORARY;
 
-        objectDestroy(obj_mouse, NULL);
-        objectDestroy(obj_mouse_flat, NULL);
+        obj_erase_object(obj_mouse, NULL);
+        obj_erase_object(obj_mouse_flat, NULL);
 
         gmouse_3d_initialized = false;
     }
@@ -2204,7 +2204,7 @@ static void gmouse_3d_unlock_frames()
 // 0x44DF1C
 static int gmouse_3d_set_flat_fid(int fid, Rect* rect)
 {
-    if (objectSetFid(obj_mouse_flat, fid, rect) == 0) {
+    if (obj_change_fid(obj_mouse_flat, fid, rect) == 0) {
         return 0;
     }
 
@@ -2245,7 +2245,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
                 art_ptr_unlock(hexCursorFrmHandle);
             }
 
-            _obj_move(obj_mouse_flat, x + offsetX, y + offsetY, elevation, a4);
+            obj_move(obj_mouse_flat, x + offsetX, y + offsetY, elevation, a4);
         } else {
             int tile = tileFromScreenXY(x, y, 0);
             if (tile != -1) {
@@ -2255,13 +2255,13 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
                 bool v1 = false;
                 Rect rect1;
                 if (tileToScreenXY(tile, &screenX, &screenY, 0) == 0) {
-                    if (_obj_move(obj_mouse, screenX + 16, screenY + 15, 0, &rect1) == 0) {
+                    if (obj_move(obj_mouse, screenX + 16, screenY + 15, 0, &rect1) == 0) {
                         v1 = true;
                     }
                 }
 
                 Rect rect2;
-                if (objectSetLocation(obj_mouse_flat, tile, elevation, &rect2) == 0) {
+                if (obj_move_to_tile(obj_mouse_flat, tile, elevation, &rect2) == 0) {
                     if (v1) {
                         rectUnion(&rect1, &rect2, &rect1);
                     } else {
@@ -2291,7 +2291,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
             config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
             if (stricmp(executable, "mapper") == 0) {
                 if (tileRoofIsVisible()) {
-                    if ((gDude->flags & OBJECT_HIDDEN) == 0) {
+                    if ((obj_dude->flags & OBJECT_HIDDEN) == 0) {
                         y1 = -83;
                     }
                 }
@@ -2309,9 +2309,9 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
         Rect rect1;
         Rect rect2;
 
-        if (objectSetLocation(obj_mouse, tile, elevation, &rect1) == 0) {
+        if (obj_move_to_tile(obj_mouse, tile, elevation, &rect1) == 0) {
             if (x1 != 0 || y1 != 0) {
-                if (_obj_offset(obj_mouse, x1, y1, &rect2) == 0) {
+                if (obj_offset(obj_mouse, x1, y1, &rect2) == 0) {
                     rectUnion(&rect1, &rect2, &rect1);
                 }
             }
@@ -2336,7 +2336,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
                 art_ptr_unlock(hexCursorFrmHandle);
             }
 
-            if (_obj_move(obj_mouse_flat, x + offsetX, y + offsetY, elevation, &rect2) == 0) {
+            if (obj_move(obj_mouse_flat, x + offsetX, y + offsetY, elevation, &rect2) == 0) {
                 if (v1) {
                     rectUnion(&rect1, &rect2, &rect1);
                 } else {
@@ -2345,7 +2345,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
                 }
             }
         } else {
-            if (objectSetLocation(obj_mouse_flat, tile, elevation, &rect2) == 0) {
+            if (obj_move_to_tile(obj_mouse_flat, tile, elevation, &rect2) == 0) {
                 if (v1) {
                     rectUnion(&rect1, &rect2, &rect1);
                 } else {
@@ -2454,7 +2454,7 @@ void gmouse_remove_item_outline(Object* object)
 {
     if (outlined_object != NULL && outlined_object == object) {
         Rect rect;
-        if (objectClearOutline(object, &rect) == 0) {
+        if (obj_remove_outline(object, &rect) == 0) {
             tileWindowRefreshRect(&rect, map_elevation);
         }
         outlined_object = NULL;

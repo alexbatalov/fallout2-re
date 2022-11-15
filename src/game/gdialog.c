@@ -697,7 +697,7 @@ void gdialogEnter(Object* a1, int a2)
     if (PID_TYPE(a1->pid) != OBJ_TYPE_ITEM && SID_TYPE(a1->sid) != SCRIPT_TYPE_SPATIAL) {
         MessageListItem messageListItem;
 
-        int rc = action_can_talk_to(gDude, a1);
+        int rc = action_can_talk_to(obj_dude, a1);
         if (rc == -1) {
             // You can't see there.
             messageListItem.num = 660;
@@ -731,7 +731,7 @@ void gdialogEnter(Object* a1, int a2)
 
     gdCenterTile = gCenterTile;
     gdBarterMod = 0;
-    gdPlayerTile = gDude->tile;
+    gdPlayerTile = obj_dude->tile;
     map_disable_bk_processes();
 
     dialog_state_fix = 1;
@@ -786,7 +786,7 @@ void gdialogEnter(Object* a1, int a2)
     gdialog_state = 0;
     dialogue_state = 0;
 
-    int tile = gDude->tile;
+    int tile = obj_dude->tile;
     if (gdPlayerTile != tile) {
         gdCenterTile = tile;
     }
@@ -812,8 +812,8 @@ void gdialogSystemEnter()
     gdialogEnter(dialog_target, 0);
     soundContinueAll();
 
-    if (gdPlayerTile != gDude->tile) {
-        gdCenterTile = gDude->tile;
+    if (gdPlayerTile != obj_dude->tile) {
+        gdCenterTile = obj_dude->tile;
     }
 
     if (gdDialogWentOff) {
@@ -947,8 +947,8 @@ int gdialogExitFromScript()
     tickersRemove(gdialog_bk);
 
     if (PID_TYPE(dialog_target->pid) != OBJ_TYPE_ITEM) {
-        if (gdPlayerTile != gDude->tile) {
-            gdCenterTile = gDude->tile;
+        if (gdPlayerTile != obj_dude->tile) {
+            gdCenterTile = obj_dude->tile;
         }
         _tile_scroll_to(gdCenterTile, 2);
     }
@@ -1539,7 +1539,7 @@ static void gdReviewDisplay(int win, int origin)
         GameDialogReviewEntry* dialogReviewEntry = &(reviewList[index]);
 
         char name[60];
-        sprintf(name, "%s:", objectGetName(dialog_target));
+        sprintf(name, "%s:", object_name(dialog_target));
         windowDrawText(win, name, 180, 88, y, colorTable[992] | 0x2000000);
         entriesRect.top += v20;
 
@@ -1565,7 +1565,7 @@ static void gdReviewDisplay(int win, int origin)
                 colorTable[768] | 0x2000000);
 
         if (dialogReviewEntry->optionMessageListId != -3) {
-            sprintf(name, "%s:", objectGetName(gDude));
+            sprintf(name, "%s:", object_name(obj_dude));
             windowDrawText(win, name, 180, 88, y, colorTable[21140] | 0x2000000);
             entriesRect.top += v20;
 
@@ -1850,7 +1850,7 @@ static void gdUpdateMula()
     int oldFont = fontGetCurrent();
     fontSetCurrent(101);
 
-    int caps = item_caps_total(gDude);
+    int caps = item_caps_total(obj_dude);
     char text[20];
     sprintf(text, "$%d", caps);
 
@@ -2114,7 +2114,7 @@ static void gdProcessHighlight(int index)
     optionRect.right = 388;
 
     int color = colorTable[32747] | 0x2000000;
-    if (perkHasRank(gDude, PERK_EMPATHY)) {
+    if (perkHasRank(obj_dude, PERK_EMPATHY)) {
         color = colorTable[32747] | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
@@ -2158,7 +2158,7 @@ static void gdProcessUnHighlight(int index)
     gDialogRefreshOptionsRect(gOptionWin, &optionRect);
 
     int color = colorTable[992] | 0x2000000;
-    if (perkGetRank(gDude, PERK_EMPATHY) != 0) {
+    if (perkGetRank(obj_dude, PERK_EMPATHY) != 0) {
         color = colorTable[32747] | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
@@ -2203,7 +2203,7 @@ static void gdProcessReply()
     replyRect.bottom = 58;
 
     // NOTE: There is an unused if condition.
-    perkGetRank(gDude, PERK_EMPATHY);
+    perkGetRank(obj_dude, PERK_EMPATHY);
 
     demo_copy_title(gReplyWin);
 
@@ -2249,7 +2249,7 @@ static void gdProcessUpdate()
 
     int color = colorTable[992] | 0x2000000;
 
-    bool hasEmpathy = perkGetRank(gDude, PERK_EMPATHY) != 0;
+    bool hasEmpathy = perkGetRank(obj_dude, PERK_EMPATHY) != 0;
 
     int width = optionRect.right - optionRect.left - 4;
 
@@ -2290,7 +2290,7 @@ static void gdProcessUpdate()
             if (index == 0) {
                 // Go on
                 messageListItem.num = 655;
-                if (critterGetStat(gDude, STAT_INTELLIGENCE) < 4) {
+                if (critterGetStat(obj_dude, STAT_INTELLIGENCE) < 4) {
                     if (message_search(&gProtoMessageList, &messageListItem)) {
                         strcpy(dialogOptionEntry->text, messageListItem.text);
                     } else {
@@ -3208,22 +3208,22 @@ static int gdialog_barter_create_win()
         if (gdialog_buttons[1] != -1) {
             buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
-            if (objectCreateWithFidPid(&peon_table_obj, -1, -1) != -1) {
+            if (obj_new(&peon_table_obj, -1, -1) != -1) {
                 peon_table_obj->flags |= OBJECT_HIDDEN;
 
-                if (objectCreateWithFidPid(&barterer_table_obj, -1, -1) != -1) {
+                if (obj_new(&barterer_table_obj, -1, -1) != -1) {
                     barterer_table_obj->flags |= OBJECT_HIDDEN;
 
-                    if (objectCreateWithFidPid(&barterer_temp_obj, dialog_target->fid, -1) != -1) {
+                    if (obj_new(&barterer_temp_obj, dialog_target->fid, -1) != -1) {
                         barterer_temp_obj->flags |= OBJECT_HIDDEN | OBJECT_TEMPORARY;
                         barterer_temp_obj->sid = -1;
                         return 0;
                     }
 
-                    objectDestroy(barterer_table_obj, 0);
+                    obj_erase_object(barterer_table_obj, 0);
                 }
 
-                objectDestroy(peon_table_obj, 0);
+                obj_erase_object(peon_table_obj, 0);
             }
 
             buttonDestroy(gdialog_buttons[1]);
@@ -3247,9 +3247,9 @@ static void gdialog_barter_destroy_win()
         return;
     }
 
-    objectDestroy(barterer_temp_obj, 0);
-    objectDestroy(barterer_table_obj, 0);
-    objectDestroy(peon_table_obj, 0);
+    obj_erase_object(barterer_temp_obj, 0);
+    obj_erase_object(barterer_table_obj, 0);
+    obj_erase_object(peon_table_obj, 0);
 
     for (int index = 0; index < 9; index++) {
         buttonDestroy(gdialog_buttons[index]);
@@ -3294,7 +3294,7 @@ static void gdialog_barter_cleanup_tables()
     for (int index = 0; index < length; index++) {
         Object* item = inventory->items->item;
         int quantity = item_count(peon_table_obj, item);
-        item_move_force(peon_table_obj, gDude, item, quantity);
+        item_move_force(peon_table_obj, obj_dude, item, quantity);
     }
 
     inventory = &(barterer_table_obj->data.inventory);

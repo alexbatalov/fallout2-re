@@ -1913,13 +1913,13 @@ int combat_init()
     combat_call_display = 0;
     combat_state = COMBAT_STATE_0x02;
 
-    max_action_points = critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS);
+    max_action_points = critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS);
 
     combat_free_move = 0;
     combat_ending_guy = NULL;
     combat_end_due_to_load = 0;
 
-    gDude->data.critter.combat.ap = max_action_points;
+    obj_dude->data.critter.combat.ap = max_action_points;
 
     combat_cleanup_enabled = 0;
 
@@ -1952,12 +1952,12 @@ void combat_reset()
     combat_call_display = 0;
     combat_state = COMBAT_STATE_0x02;
 
-    max_action_points = critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS);
+    max_action_points = critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS);
 
     combat_free_move = 0;
     combat_ending_guy = NULL;
 
-    gDude->data.critter.combat.ap = max_action_points;
+    obj_dude->data.critter.combat.ap = max_action_points;
 }
 
 // 0x420E14
@@ -1993,14 +1993,14 @@ int combat_load(File* stream)
     if (fileReadUInt32(stream, &combat_state) == -1) return -1;
 
     if (!isInCombat()) {
-        obj = objectFindFirst();
+        obj = obj_find_first();
         while (obj != NULL) {
             if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
                 if (obj->data.critter.combat.whoHitMeCid == -1) {
                     obj->data.critter.combat.whoHitMe = NULL;
                 }
             }
-            obj = objectFindNext();
+            obj = obj_find_next();
         }
         return 0;
     }
@@ -2012,14 +2012,14 @@ int combat_load(File* stream)
     if (fileReadInt32(stream, &list_noncom) == -1) return -1;
     if (fileReadInt32(stream, &list_total) == -1) return -1;
 
-    if (objectListCreate(-1, map_elevation, 1, &combat_list) != list_total) {
-        objectListFree(combat_list);
+    if (obj_create_list(-1, map_elevation, 1, &combat_list) != list_total) {
+        obj_delete_list(combat_list);
         return -1;
     }
 
     if (fileReadInt32(stream, &v24) == -1) return -1;
 
-    gDude->cid = v24;
+    obj_dude->cid = v24;
 
     for (i = 0; i < list_total; i++) {
         if (combat_list[i]->data.critter.combat.whoHitMeCid == -1) {
@@ -2078,7 +2078,7 @@ int combat_load(File* stream)
         if (a2 == -1) {
             aiInfo->friendlyDead = NULL;
         } else {
-            aiInfo->friendlyDead = objectFindById(a2);
+            aiInfo->friendlyDead = objFindObjPtrFromID(a2);
             if (aiInfo->friendlyDead == NULL) return -1;
         }
 
@@ -2087,7 +2087,7 @@ int combat_load(File* stream)
         if (a2 == -1) {
             aiInfo->lastTarget = NULL;
         } else {
-            aiInfo->lastTarget = objectFindById(a2);
+            aiInfo->lastTarget = objFindObjPtrFromID(a2);
             if (aiInfo->lastTarget == NULL) return -1;
         }
 
@@ -2096,14 +2096,14 @@ int combat_load(File* stream)
         if (a2 == -1) {
             aiInfo->lastItem = NULL;
         } else {
-            aiInfo->lastItem = objectFindById(a2);
+            aiInfo->lastItem = objFindObjPtrFromID(a2);
             if (aiInfo->lastItem == NULL) return -1;
         }
 
         if (fileReadInt32(stream, &(aiInfo->lastMove)) == -1) return -1;
     }
 
-    combat_begin_extra(gDude);
+    combat_begin_extra(obj_dude);
 
     return 0;
 }
@@ -2121,7 +2121,7 @@ int combat_save(File* stream)
     if (fileWriteInt32(stream, list_com) == -1) return -1;
     if (fileWriteInt32(stream, list_noncom) == -1) return -1;
     if (fileWriteInt32(stream, list_total) == -1) return -1;
-    if (fileWriteInt32(stream, gDude->cid) == -1) return -1;
+    if (fileWriteInt32(stream, obj_dude->cid) == -1) return -1;
 
     for (int index = 0; index < list_total; index++) {
         if (fileWriteInt32(stream, combat_list[index]->cid) == -1) return -1;
@@ -2176,7 +2176,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
         }
 
         if (attackerFriend != NULL) {
-            if (objectGetDistanceBetween(defender, attackerFriend) < damageRadius) {
+            if (obj_dist(defender, attackerFriend) < damageRadius) {
                 debugPrint("Friendly was in the way!");
                 return true;
             }
@@ -2188,7 +2188,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
                 && candidate != attacker
                 && candidate != defender
                 && !critter_is_dead(candidate)) {
-                int attackerDefenderDistance = objectGetDistanceBetween(defender, candidate);
+                int attackerDefenderDistance = obj_dist(defender, candidate);
                 if (attackerDefenderDistance < damageRadius && candidate != candidate->data.critter.combat.whoHitMe) {
                     int damageThreshold = critterGetStat(candidate, STAT_DAMAGE_THRESHOLD + damageType);
                     int damageResistance = critterGetStat(candidate, STAT_DAMAGE_RESISTANCE + damageType);
@@ -2199,9 +2199,9 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
             }
         }
 
-        if (objectGetDistanceBetween(defender, attacker) <= damageRadius) {
+        if (obj_dist(defender, attacker) <= damageRadius) {
             if (safeDistancePtr != NULL) {
-                *safeDistancePtr = damageRadius - objectGetDistanceBetween(defender, attacker) + 1;
+                *safeDistancePtr = damageRadius - obj_dist(defender, attacker) + 1;
                 return false;
             }
 
@@ -2489,7 +2489,7 @@ static void combat_begin(Object* a1)
         combatNumTurns = 0;
         combat_exps = 0;
         combat_list = NULL;
-        list_total = objectListCreate(-1, combat_elev, OBJ_TYPE_CRITTER, &combat_list);
+        list_total = obj_create_list(-1, combat_elev, OBJ_TYPE_CRITTER, &combat_list);
         list_noncom = list_total;
         list_com = 0;
         aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(*aiInfoList) * list_total);
@@ -2591,7 +2591,7 @@ void combat_update_critter_outline_for_los(Object* critter, bool a2)
         return;
     }
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         return;
     }
 
@@ -2600,38 +2600,38 @@ void combat_update_critter_outline_for_los(Object* critter, bool a2)
     }
 
     bool v5 = false;
-    if (!combat_is_shot_blocked(gDude, gDude->tile, critter->tile, critter, 0)) {
+    if (!combat_is_shot_blocked(obj_dude, obj_dude->tile, critter->tile, critter, 0)) {
         v5 = true;
     }
 
     if (v5) {
         int outlineType = critter->outline & OUTLINE_TYPE_MASK;
         if (outlineType != OUTLINE_TYPE_HOSTILE && outlineType != OUTLINE_TYPE_FRIENDLY) {
-            int newOutlineType = gDude->data.critter.combat.team == critter->data.critter.combat.team
+            int newOutlineType = obj_dude->data.critter.combat.team == critter->data.critter.combat.team
                 ? OUTLINE_TYPE_FRIENDLY
                 : OUTLINE_TYPE_HOSTILE;
-            objectDisableOutline(critter, NULL);
-            objectClearOutline(critter, NULL);
-            objectSetOutline(critter, newOutlineType, NULL);
+            obj_turn_off_outline(critter, NULL);
+            obj_remove_outline(critter, NULL);
+            obj_outline_object(critter, newOutlineType, NULL);
             if (a2) {
-                objectEnableOutline(critter, NULL);
+                obj_turn_on_outline(critter, NULL);
             } else {
-                objectDisableOutline(critter, NULL);
+                obj_turn_off_outline(critter, NULL);
             }
         } else {
             if (critter->outline != 0 && (critter->outline & OUTLINE_DISABLED) == 0) {
                 if (!a2) {
-                    objectDisableOutline(critter, NULL);
+                    obj_turn_off_outline(critter, NULL);
                 }
             } else {
                 if (a2) {
-                    objectEnableOutline(critter, NULL);
+                    obj_turn_on_outline(critter, NULL);
                 }
             }
         }
     } else {
-        int v7 = objectGetDistanceBetween(gDude, critter);
-        int v8 = critterGetStat(gDude, STAT_PERCEPTION) * 5;
+        int v7 = obj_dist(obj_dude, critter);
+        int v8 = critterGetStat(obj_dude, STAT_PERCEPTION) * 5;
         if ((critter->flags & OBJECT_TRANS_GLASS) != 0) {
             v8 /= 2;
         }
@@ -2642,26 +2642,26 @@ void combat_update_critter_outline_for_los(Object* critter, bool a2)
 
         int outlineType = critter->outline & OUTLINE_TYPE_MASK;
         if (outlineType != OUTLINE_TYPE_32) {
-            objectDisableOutline(critter, NULL);
-            objectClearOutline(critter, NULL);
+            obj_turn_off_outline(critter, NULL);
+            obj_remove_outline(critter, NULL);
 
             if (v5) {
-                objectSetOutline(critter, OUTLINE_TYPE_32, NULL);
+                obj_outline_object(critter, OUTLINE_TYPE_32, NULL);
 
                 if (a2) {
-                    objectEnableOutline(critter, NULL);
+                    obj_turn_on_outline(critter, NULL);
                 } else {
-                    objectDisableOutline(critter, NULL);
+                    obj_turn_off_outline(critter, NULL);
                 }
             }
         } else {
             if (critter->outline != 0 && (critter->outline & OUTLINE_DISABLED) == 0) {
                 if (!a2) {
-                    objectDisableOutline(critter, NULL);
+                    obj_turn_off_outline(critter, NULL);
                 }
             } else {
                 if (a2) {
-                    objectEnableOutline(critter, NULL);
+                    obj_turn_on_outline(critter, NULL);
                 }
             }
         }
@@ -2676,7 +2676,7 @@ static void combat_over()
     if (game_user_wants_to_quit == 0) {
         for (int index = 0; index < list_com; index++) {
             Object* critter = combat_list[index];
-            if (critter != gDude) {
+            if (critter != obj_dude) {
                 cai_attempt_w_reload(critter, 0);
             }
         }
@@ -2693,7 +2693,7 @@ static void combat_over()
     for (int index = 0; index < list_total; index++) {
         Object* critter = combat_list[index];
         critter->data.critter.combat.ap = 0;
-        objectClearOutline(critter, NULL);
+        obj_remove_outline(critter, NULL);
         critter->data.critter.combat.whoHitMe = NULL;
 
         scriptSetObjects(critter->sid, NULL, NULL);
@@ -2724,7 +2724,7 @@ static void combat_over()
     intface_get_item_states(&leftItemAction, &rightItemAction);
     intface_update_items(true, leftItemAction, rightItemAction);
 
-    gDude->data.critter.combat.ap = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
+    obj_dude->data.critter.combat.ap = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
 
     intface_update_move_points(0, 0);
 
@@ -2738,7 +2738,7 @@ static void combat_over()
     combat_state |= COMBAT_STATE_0x02;
 
     if (list_total != 0) {
-        objectListFree(combat_list);
+        obj_delete_list(combat_list);
 
         if (aiInfoList != NULL) {
             internal_free(aiInfoList);
@@ -2753,9 +2753,9 @@ static void combat_over()
     gmouse_3d_set_mode(GAME_MOUSE_MODE_MOVE);
     intface_update_ac(true);
 
-    if (critter_is_prone(gDude) && !critter_is_dead(gDude) && combat_ending_guy == NULL) {
-        queueRemoveEventsByType(gDude, EVENT_TYPE_KNOCKOUT);
-        critter_wake_up(gDude, NULL);
+    if (critter_is_prone(obj_dude) && !critter_is_dead(obj_dude) && combat_ending_guy == NULL) {
+        queueRemoveEventsByType(obj_dude, EVENT_TYPE_KNOCKOUT);
+        critter_wake_up(obj_dude, NULL);
     }
 }
 
@@ -2782,7 +2782,7 @@ void combat_give_exps(int exp_points)
         return;
     }
 
-    if (critter_is_dead(gDude)) {
+    if (critter_is_dead(obj_dude)) {
         return;
     }
 
@@ -2795,8 +2795,8 @@ void combat_give_exps(int exp_points)
 
     v9.num = randomBetween(0, 3) + 622; // generate prefix for message
 
-    current_hp = critterGetStat(gDude, STAT_CURRENT_HIT_POINTS);
-    max_hp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
+    current_hp = critterGetStat(obj_dude, STAT_CURRENT_HIT_POINTS);
+    max_hp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
     if (current_hp == max_hp && randomBetween(0, 100) > 65) {
         v9.num = 626; // Best possible prefix: For destroying your enemies without taking a scratch,
     }
@@ -2812,7 +2812,7 @@ void combat_give_exps(int exp_points)
 // 0x4222A8
 static void combat_add_noncoms()
 {
-    combatai_notify_friends(gDude);
+    combatai_notify_friends(obj_dude);
 
     for (int index = list_com; index < list_com + list_noncom; index++) {
         Object* obj = combat_list[index];
@@ -2829,7 +2829,7 @@ static void combat_add_noncoms()
             list_noncom -= 1;
 
             int actionPoints = 0;
-            if (obj != gDude) {
+            if (obj != obj_dude) {
                 actionPoints = critterGetStat(obj, STAT_MAXIMUM_ACTION_POINTS);
             }
 
@@ -2855,7 +2855,7 @@ int combat_in_range(Object* critter)
     perception = critterGetStat(critter, STAT_PERCEPTION);
 
     for (index = 0; index < list_com; index++) {
-        if (objectGetDistanceBetween(combat_list[index], critter) <= perception) {
+        if (obj_dist(combat_list[index], critter) <= perception) {
             return 1;
         }
     }
@@ -2920,10 +2920,10 @@ static void combat_sequence_init(Object* a1, Object* a2)
         }
     }
 
-    if (a1 != gDude && a2 != gDude) {
+    if (a1 != obj_dude && a2 != obj_dude) {
         for (int index = 0; index < list_total; index++) {
             Object* obj = combat_list[index];
-            if (obj == gDude) {
+            if (obj == obj_dude) {
                 Object* temp = combat_list[next];
                 combat_list[index] = temp;
                 combat_list[next] = obj;
@@ -2968,7 +2968,7 @@ static void combat_sequence()
 
     for (int index = 0; index < count; index++) {
         Object* critter = combat_list[index];
-        if (critter != gDude) {
+        if (critter != obj_dude) {
             if ((critter->data.critter.combat.results & DAM_KNOCKED_OUT) != 0
                 || critter->data.critter.combat.maneuver == CRITTER_MANEUVER_STOP_ATTACKING) {
                 critter->data.critter.combat.maneuver &= ~CRITTER_MANEUVER_0x01;
@@ -2997,13 +2997,13 @@ static void combat_sequence()
 // 0x422694
 void combat_end()
 {
-    if (combat_elev == gDude->elevation) {
+    if (combat_elev == obj_dude->elevation) {
         MessageListItem messageListItem;
-        int dudeTeam = gDude->data.critter.combat.team;
+        int dudeTeam = obj_dude->data.critter.combat.team;
 
         for (int index = 0; index < list_com; index++) {
             Object* critter = combat_list[index];
-            if (critter != gDude) {
+            if (critter != obj_dude) {
                 int critterTeam = critter->data.critter.combat.team;
                 Object* critterWhoHitMe = critter->data.critter.combat.whoHitMe;
                 if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
@@ -3020,7 +3020,7 @@ void combat_end()
 
         for (int index = list_com; index < list_com + list_noncom; index++) {
             Object* critter = combat_list[index];
-            if (critter != gDude) {
+            if (critter != obj_dude) {
                 int critterTeam = critter->data.critter.combat.team;
                 Object* critterWhoHitMe = critter->data.critter.combat.whoHitMe;
                 if (critterTeam != dudeTeam || (critterWhoHitMe != NULL && critterWhoHitMe->data.critter.combat.team == critterTeam)) {
@@ -3056,7 +3056,7 @@ static int combat_input()
             break;
         }
 
-        if ((gDude->data.critter.combat.results & (DAM_KNOCKED_OUT | DAM_DEAD | DAM_LOSE_TURN)) != 0) {
+        if ((obj_dude->data.critter.combat.results & (DAM_KNOCKED_OUT | DAM_DEAD | DAM_LOSE_TURN)) != 0) {
             break;
         }
 
@@ -3075,7 +3075,7 @@ static int combat_input()
             }
         }
 
-        if (gDude->data.critter.combat.ap <= 0 && combat_free_move <= 0) {
+        if (obj_dude->data.critter.combat.ap <= 0 && combat_free_move <= 0) {
             break;
         }
 
@@ -3147,11 +3147,11 @@ static int combat_turn(Object* a1, bool a2)
     if ((a1->data.critter.combat.results & (DAM_KNOCKED_OUT | DAM_DEAD | DAM_LOSE_TURN)) != 0) {
         a1->data.critter.combat.results &= ~DAM_LOSE_TURN;
     } else {
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             kb_clear();
             intface_update_ac(true);
-            combat_free_move = 2 * perkGetRank(gDude, PERK_BONUS_MOVE);
-            intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+            combat_free_move = 2 * perkGetRank(obj_dude, PERK_BONUS_MOVE);
+            intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
         } else {
             soundContinueAll();
         }
@@ -3177,7 +3177,7 @@ static int combat_turn(Object* a1, bool a2)
                 combat_standup(a1);
             }
 
-            if (a1 == gDude) {
+            if (a1 == obj_dude) {
                 game_ui_enable();
                 gmouse_3d_refresh();
 
@@ -3211,7 +3211,7 @@ static int combat_turn(Object* a1, bool a2)
                 }
             } else {
                 Rect rect;
-                if (objectEnableOutline(a1, &rect) == 0) {
+                if (obj_turn_on_outline(a1, &rect) == 0) {
                     tileWindowRefreshRect(&rect, a1->elevation);
                 }
 
@@ -3223,7 +3223,7 @@ static int combat_turn(Object* a1, bool a2)
             _process_bk();
         }
 
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             game_ui_disable(1);
             gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
             intface_end_buttons_disable();
@@ -3231,20 +3231,20 @@ static int combat_turn(Object* a1, bool a2)
             intface_update_move_points(-1, -1);
             combat_turn_obj = NULL;
             intface_update_ac(true);
-            combat_turn_obj = gDude;
+            combat_turn_obj = obj_dude;
         } else {
             Rect rect;
-            if (objectDisableOutline(a1, &rect) == 0) {
+            if (obj_turn_off_outline(a1, &rect) == 0) {
                 tileWindowRefreshRect(&rect, a1->elevation);
             }
         }
     }
 
-    if ((gDude->data.critter.combat.results & DAM_DEAD) != 0) {
+    if ((obj_dude->data.critter.combat.results & DAM_DEAD) != 0) {
         return -1;
     }
 
-    if (a1 != gDude || combat_elev == gDude->elevation) {
+    if (a1 != obj_dude || combat_elev == obj_dude->elevation) {
         combat_free_move = 0;
         return 0;
     }
@@ -3261,7 +3261,7 @@ static bool combat_should_end()
 
     int index;
     for (index = 0; index < list_com; index++) {
-        if (combat_list[index] == gDude) {
+        if (combat_list[index] == obj_dude) {
             break;
         }
     }
@@ -3270,7 +3270,7 @@ static bool combat_should_end()
         return true;
     }
 
-    int team = gDude->data.critter.combat.team;
+    int team = obj_dude->data.critter.combat.team;
 
     for (index = 0; index < list_com; index++) {
         Object* critter = combat_list[index];
@@ -3305,12 +3305,12 @@ void combat(STRUCT_664980* attack)
 
         // TODO: Not sure.
         if (v3 != 0) {
-            if (combat_turn(gDude, true) == -1) {
+            if (combat_turn(obj_dude, true) == -1) {
                 v6 = -1;
             } else {
                 int index;
                 for (index = 0; index < list_com; index++) {
-                    if (combat_list[index] == gDude) {
+                    if (combat_list[index] == obj_dude) {
                         break;
                     }
                 }
@@ -3403,7 +3403,7 @@ void combat_ctd_init(Attack* attack, Object* attacker, Object* defender, int hit
 // 0x422F3C
 int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 {
-    if (a1 != gDude && hitMode == HIT_MODE_PUNCH && randomBetween(1, 4) == 1) {
+    if (a1 != obj_dude && hitMode == HIT_MODE_PUNCH && randomBetween(1, 4) == 1) {
         int fid = art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_KICK_LEG, (a1->fid & 0xF000) >> 12, (a1->fid & 0x70000000) >> 28);
         if (art_exists(fid)) {
             hitMode = HIT_MODE_KICK;
@@ -3438,7 +3438,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 
     bool aiming;
     if (main_ctd.defenderHitLocation == HIT_LOCATION_TORSO || main_ctd.defenderHitLocation == HIT_LOCATION_UNCALLED) {
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             intface_get_attack(&hitMode, &aiming);
         } else {
             aiming = false;
@@ -3460,7 +3460,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
         a1->data.critter.combat.ap -= actionPoints;
     }
 
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         intface_update_move_points(a1->data.critter.combat.ap, combat_free_move);
         critter_set_who_hit_me(a1, a2);
     }
@@ -3493,7 +3493,7 @@ static bool check_ranged_miss(Attack* attack)
     if (critter != NULL) {
         int curr = attack->attacker->tile;
         while (curr != to) {
-            make_straight_path_func(attack->attacker, curr, to, NULL, &critter, 32, _obj_shoot_blocking_at);
+            make_straight_path_func(attack->attacker, curr, to, NULL, &critter, 32, obj_shoot_blocking_at);
             if (critter != NULL) {
                 if ((critter->flags & OBJECT_SHOOT_THRU) == 0) {
                     if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
@@ -3553,7 +3553,7 @@ static int shoot_along_path(Attack* attack, int endTile, int rounds, int anim)
             break;
         }
 
-        make_straight_path_func(attack->attacker, currentTile, endTile, NULL, &critter, 32, _obj_shoot_blocking_at);
+        make_straight_path_func(attack->attacker, currentTile, endTile, NULL, &critter, 32, obj_shoot_blocking_at);
 
         if (critter != NULL) {
             if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER) {
@@ -3677,7 +3677,7 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
     *roundsHitMainTargetPtr += shoot_along_path(attack, mainTargetEndTile, centerRounds - *roundsHitMainTargetPtr, anim);
 
     int centerTile;
-    if (objectGetDistanceBetween(attack->attacker, attack->defender) <= 3) {
+    if (obj_dist(attack->attacker, attack->defender) <= 3) {
         centerTile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, 3);
     } else {
         centerTile = attack->defender->tile;
@@ -3712,7 +3712,7 @@ static int correctAttackForPerks(Attack* attack)
         int chance = randomBetween(1, 100);
         if (chance <= difficulty) {
             Object* weapon = NULL;
-            if (attack->defender != gDude) {
+            if (attack->defender != obj_dude) {
                 weapon = item_hit_with(attack->defender, HIT_MODE_RIGHT_WEAPON_PRIMARY);
             }
 
@@ -3729,7 +3729,7 @@ static int correctAttackForPerks(Attack* attack)
 static int compute_attack(Attack* attack)
 {
     int range = item_w_range(attack->attacker, attack->hitMode);
-    int distance = objectGetDistanceBetween(attack->attacker, attack->defender);
+    int distance = obj_dist(attack->attacker, attack->defender);
 
     if (range < distance) {
         return -1;
@@ -3763,7 +3763,7 @@ static int compute_attack(Attack* attack)
     }
 
     if (roll == ROLL_FAILURE) {
-        if (traitIsSelected(TRAIT_JINXED) || perkHasRank(gDude, PERK_JINXED)) {
+        if (traitIsSelected(TRAIT_JINXED) || perkHasRank(obj_dude, PERK_JINXED)) {
             if (randomBetween(0, 1) == 1) {
                 roll = ROLL_CRITICAL_FAILURE;
             }
@@ -3771,15 +3771,15 @@ static int compute_attack(Attack* attack)
     }
 
     if (roll == ROLL_SUCCESS) {
-        if ((attackType == ATTACK_TYPE_MELEE || attackType == ATTACK_TYPE_UNARMED) && attack->attacker == gDude) {
+        if ((attackType == ATTACK_TYPE_MELEE || attackType == ATTACK_TYPE_UNARMED) && attack->attacker == obj_dude) {
             if (perkHasRank(attack->attacker, PERK_SLAYER)) {
                 roll = ROLL_CRITICAL_SUCCESS;
             }
 
-            if (perkHasRank(gDude, PERK_SILENT_DEATH)
-                && !is_hit_from_front(gDude, attack->defender)
+            if (perkHasRank(obj_dude, PERK_SILENT_DEATH)
+                && !is_hit_from_front(obj_dude, attack->defender)
                 && is_pc_flag(DUDE_STATE_SNEAKING)
-                && gDude != attack->defender->data.critter.combat.whoHitMe) {
+                && obj_dude != attack->defender->data.critter.combat.whoHitMe) {
                 damageMultiplier = 4;
             }
 
@@ -3797,10 +3797,10 @@ static int compute_attack(Attack* attack)
     if (attackType == ATTACK_TYPE_RANGED) {
         attack->ammoQuantity = roundsSpent;
 
-        if (roll == ROLL_SUCCESS && attack->attacker == gDude) {
-            if (perkGetRank(gDude, PERK_SNIPER) != 0) {
+        if (roll == ROLL_SUCCESS && attack->attacker == obj_dude) {
+            if (perkGetRank(obj_dude, PERK_SNIPER) != 0) {
                 int d10 = randomBetween(1, 10);
-                int luck = critterGetStat(gDude, STAT_LUCK);
+                int luck = critterGetStat(obj_dude, STAT_LUCK);
                 if (d10 <= luck) {
                     roll = ROLL_CRITICAL_SUCCESS;
                 }
@@ -3853,11 +3853,11 @@ static int compute_attack(Attack* attack)
             attack->tile = tile;
 
             Object* v25 = attack->defender;
-            make_straight_path_func(v25, attack->defender->tile, attack->tile, NULL, &v25, 32, _obj_shoot_blocking_at);
+            make_straight_path_func(v25, attack->defender->tile, attack->tile, NULL, &v25, 32, obj_shoot_blocking_at);
             if (v25 != NULL && v25 != attack->defender) {
                 attack->tile = v25->tile;
             } else {
-                v25 = _obj_blocking_at(NULL, attack->tile, attack->defender->elevation);
+                v25 = obj_blocking_at(NULL, attack->tile, attack->defender->elevation);
             }
 
             if (v25 != NULL && (v25->flags & OBJECT_SHOOT_THRU) == 0) {
@@ -3946,7 +3946,7 @@ void compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
             break;
         }
 
-        Object* obstacle = _obj_blocking_at(attacker, v5, attack->attacker->elevation);
+        Object* obstacle = obj_blocking_at(attacker, v5, attack->attacker->elevation);
         if (obstacle != NULL
             && FID_TYPE(obstacle->fid) == OBJ_TYPE_CRITTER
             && (obstacle->data.critter.combat.results & DAM_DEAD) == 0
@@ -4017,7 +4017,7 @@ static int attack_crit_success(Attack* attack)
         effect = 5;
 
     CriticalHitDescription* criticalHitDescription;
-    if (defender == gDude) {
+    if (defender == obj_dude) {
         criticalHitDescription = &(pc_crit_succ_eff[attack->defenderHitLocation][effect]);
     } else {
         int killType = critterGetKillType(defender);
@@ -4047,7 +4047,7 @@ static int attack_crit_success(Attack* attack)
     }
 
     Object* weapon = NULL;
-    if (defender != gDude) {
+    if (defender != obj_dude) {
         weapon = item_hit_with(defender, HIT_MODE_RIGHT_WEAPON_PRIMARY);
     }
 
@@ -4082,7 +4082,7 @@ static int attack_crit_failure(Attack* attack)
         return 0;
     }
 
-    if (attack->attacker == gDude) {
+    if (attack->attacker == obj_dude) {
         unsigned int gameTime = gameTimeGetTime();
         if (gameTime / GAME_TIME_TICKS_PER_DAY < 6) {
             return 0;
@@ -4248,13 +4248,13 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
             int perception = critterGetStat(attacker, STAT_PERCEPTION);
 
             if (defender != NULL) {
-                modifier = objectGetDistanceBetweenTiles(attacker, tile, defender, defender->tile);
+                modifier = obj_dist_with_tile(attacker, tile, defender, defender->tile);
             } else {
                 modifier = 0;
             }
 
             if (modifier >= v25) {
-                int penalty = attacker == gDude
+                int penalty = attacker == obj_dude
                     ? v29 * (perception - 2)
                     : v29 * perception;
 
@@ -4267,8 +4267,8 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
                 modifier = -2 * perception;
             }
 
-            if (attacker == gDude) {
-                modifier -= 2 * perkGetRank(gDude, PERK_SHARPSHOOTER);
+            if (attacker == obj_dude) {
+                modifier -= 2 * perkGetRank(obj_dude, PERK_SHARPSHOOTER);
             }
 
             if (modifier >= 0) {
@@ -4294,7 +4294,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
             accuracy -= 10 * modifier;
         }
 
-        if (attacker == gDude && traitIsSelected(TRAIT_ONE_HANDER)) {
+        if (attacker == obj_dude && traitIsSelected(TRAIT_ONE_HANDER)) {
             if (item_w_is_2handed(weapon)) {
                 accuracy -= 40;
             } else {
@@ -4304,7 +4304,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
 
         int minStrength = item_w_min_st(weapon);
         modifier = minStrength - critterGetStat(attacker, STAT_STRENGTH);
-        if (attacker == gDude && perkGetRank(gDude, PERK_WEAPON_HANDLING) != 0) {
+        if (attacker == obj_dude && perkGetRank(obj_dude, PERK_WEAPON_HANDLING) != 0) {
             modifier -= 3;
         }
 
@@ -4337,10 +4337,10 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
         accuracy += 15;
     }
 
-    if (attacker == gDude) {
+    if (attacker == obj_dude) {
         int lightIntensity;
         if (defender != NULL) {
-            lightIntensity = objectGetLightIntensity(defender);
+            lightIntensity = obj_get_visible_light(defender);
             if (item_w_perk(weapon) == PERK_WEAPON_NIGHT_SIGHT) {
                 lightIntensity = 65536;
             }
@@ -4368,7 +4368,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
         accuracy += 40;
     }
 
-    if (attacker->data.critter.combat.team != gDude->data.critter.combat.team) {
+    if (attacker->data.critter.combat.team != obj_dude->data.critter.combat.team) {
         int combatDifficuly = 1;
         config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combatDifficuly);
         switch (combatDifficuly) {
@@ -4434,20 +4434,20 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
             damageThreshold = 20 * damageThreshold / 100;
         }
 
-        if (attack->attacker == gDude && traitIsSelected(TRAIT_FINESSE)) {
+        if (attack->attacker == obj_dude && traitIsSelected(TRAIT_FINESSE)) {
             damageResistance += 30;
         }
     }
 
     int damageBonus;
-    if (attack->attacker == gDude && item_w_subtype(attack->weapon, attack->hitMode) == ATTACK_TYPE_RANGED) {
-        damageBonus = 2 * perkGetRank(gDude, PERK_BONUS_RANGED_DAMAGE);
+    if (attack->attacker == obj_dude && item_w_subtype(attack->weapon, attack->hitMode) == ATTACK_TYPE_RANGED) {
+        damageBonus = 2 * perkGetRank(obj_dude, PERK_BONUS_RANGED_DAMAGE);
     } else {
         damageBonus = 0;
     }
 
     int combatDifficultyDamageModifier = 100;
-    if (attack->attacker->data.critter.combat.team != gDude->data.critter.combat.team) {
+    if (attack->attacker->data.critter.combat.team != obj_dude->data.critter.combat.team) {
         int combatDifficulty = COMBAT_DIFFICULTY_NORMAL;
         config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combatDifficulty);
 
@@ -4499,7 +4499,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         }
     }
 
-    if (attack->attacker == gDude) {
+    if (attack->attacker == obj_dude) {
         if (perkGetRank(attack->attacker, PERK_LIVING_ANATOMY) != 0) {
             int kt = critterGetKillType(attack->defender);
             if (kt != KILL_TYPE_ROBOT && kt != KILL_TYPE_ALIEN) {
@@ -4521,7 +4521,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         && critter_flag_check(critter->pid, CRITTER_NO_KNOCKBACK) == 0) {
         bool shouldKnockback = true;
         bool hasStonewall = false;
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             if (perkGetRank(critter, PERK_STONEWALL) != 0) {
                 int chance = randomBetween(0, 100);
                 hasStonewall = true;
@@ -4594,7 +4594,7 @@ void apply_damage(Attack* attack, bool animated)
         if (defenderIsCritter) {
             if (defenderIsCritter) {
                 if ((defender->data.critter.combat.results & (DAM_DEAD | DAM_KNOCKED_OUT)) != 0) {
-                    if (!v5 || defender != gDude) {
+                    if (!v5 || defender != obj_dude) {
                         critter_set_who_hit_me(defender, attack->attacker);
                     }
                 } else if (defender == attack->oops || defender->data.critter.combat.team != attack->attacker->data.critter.combat.team) {
@@ -4686,7 +4686,7 @@ static void set_new_results(Object* critter, int flags)
         queueAddEvent(10 * (35 - 3 * endurance), critter, NULL, EVENT_TYPE_KNOCKOUT);
     }
 
-    if (critter == gDude && (flags & DAM_CRIP_ARM_ANY) != 0) {
+    if (critter == obj_dude && (flags & DAM_CRIP_ARM_ANY) != 0) {
         critter->data.critter.combat.results |= flags & (DAM_KNOCKED_OUT | DAM_KNOCKED_DOWN | DAM_CRIP | DAM_DEAD | DAM_LOSE_TURN);
 
         int leftItemAction;
@@ -4719,7 +4719,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
 
     critter_adjust_hits(a1, -damage);
 
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         intface_update_hit_points(animated);
     }
 
@@ -4738,9 +4738,9 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
         scriptExecProc(a1->sid, SCRIPT_PROC_DESTROY);
         item_destroy_all_hidden(a1);
 
-        if (a1 != gDude) {
+        if (a1 != obj_dude) {
             Object* whoHitMe = a1->data.critter.combat.whoHitMe;
-            if (whoHitMe == gDude || (whoHitMe != NULL && whoHitMe->data.critter.combat.team == gDude->data.critter.combat.team)) {
+            if (whoHitMe == obj_dude || (whoHitMe != NULL && whoHitMe->data.critter.combat.team == obj_dude->data.critter.combat.team)) {
                 bool scriptOverrides = false;
                 Script* scr;
                 if (scriptGetScript(a1->sid, &scr) != -1) {
@@ -4770,7 +4770,7 @@ void combat_display(Attack* attack)
 {
     MessageListItem messageListItem;
 
-    if (attack->attacker == gDude) {
+    if (attack->attacker == obj_dude) {
         Object* weapon = item_hit_with(attack->attacker, attack->hitMode);
         int strengthRequired = item_w_min_st(weapon);
 
@@ -4779,7 +4779,7 @@ void combat_display(Attack* attack)
         }
 
         if (weapon != NULL) {
-            if (strengthRequired > critterGetStat(gDude, STAT_STRENGTH)) {
+            if (strengthRequired > critterGetStat(obj_dude, STAT_STRENGTH)) {
                 // You are not strong enough to use this weapon properly.
                 messageListItem.num = 107;
                 if (message_search(&combat_message_file, &messageListItem)) {
@@ -4800,7 +4800,7 @@ void combat_display(Attack* attack)
 
     char you[20];
     you[0] = '\0';
-    if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
+    if (critterGetStat(obj_dude, STAT_GENDER) == GENDER_MALE) {
         // You (male)
         messageListItem.num = 506;
     } else {
@@ -4813,15 +4813,15 @@ void combat_display(Attack* attack)
     }
 
     int baseMessageId;
-    if (mainCritter == gDude) {
+    if (mainCritter == obj_dude) {
         mainCritterName = you;
-        if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
+        if (critterGetStat(obj_dude, STAT_GENDER) == GENDER_MALE) {
             baseMessageId = 500;
         } else {
             baseMessageId = 550;
         }
     } else if (mainCritter != NULL) {
-        mainCritterName = objectGetName(mainCritter);
+        mainCritterName = object_name(mainCritter);
         if (critterGetStat(mainCritter, STAT_GENDER) == GENDER_MALE) {
             baseMessageId = 600;
         } else {
@@ -4835,7 +4835,7 @@ void combat_display(Attack* attack)
         && attack->defender != attack->oops
         && (attack->attackerFlags & DAM_HIT) != 0) {
         if (FID_TYPE(attack->defender->fid) == OBJ_TYPE_CRITTER) {
-            if (attack->oops == gDude) {
+            if (attack->oops == obj_dude) {
                 // 608 (male) - Oops! %s was hit instead of you!
                 // 708 (female) - Oops! %s was hit instead of you!
                 messageListItem.num = baseMessageId + 8;
@@ -4845,14 +4845,14 @@ void combat_display(Attack* attack)
             } else {
                 // 509 (male) - Oops! %s were hit instead of %s!
                 // 559 (female) - Oops! %s were hit instead of %s!
-                const char* name = objectGetName(attack->oops);
+                const char* name = object_name(attack->oops);
                 messageListItem.num = baseMessageId + 9;
                 if (message_search(&combat_message_file, &messageListItem)) {
                     sprintf(text, messageListItem.text, mainCritterName, name);
                 }
             }
         } else {
-            if (attack->attacker == gDude) {
+            if (attack->attacker == obj_dude) {
                 if (critterGetStat(attack->attacker, STAT_GENDER) == GENDER_MALE) {
                     // (male) %s missed
                     messageListItem.num = 515;
@@ -4865,7 +4865,7 @@ void combat_display(Attack* attack)
                     sprintf(text, messageListItem.text, you);
                 }
             } else {
-                const char* name = objectGetName(attack->attacker);
+                const char* name = object_name(attack->attacker);
                 if (critterGetStat(attack->attacker, STAT_GENDER) == GENDER_MALE) {
                     // (male) %s missed
                     messageListItem.num = 615;
@@ -4976,7 +4976,7 @@ void combat_display(Attack* attack)
                         strcat(text, ".");
                         display_print(text);
 
-                        if (attack->defender == gDude) {
+                        if (attack->defender == obj_dude) {
                             if (critterGetStat(attack->defender, STAT_GENDER) == GENDER_MALE) {
                                 // were killed
                                 messageListItem.num = 207;
@@ -5076,10 +5076,10 @@ static void combat_display_hit(char* dest, Object* critter, int damage)
     char* name;
 
     int messageId;
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         text[0] = '\0';
 
-        if (critterGetStat(gDude, STAT_GENDER) == GENDER_MALE) {
+        if (critterGetStat(obj_dude, STAT_GENDER) == GENDER_MALE) {
             messageId = 500;
         } else {
             messageId = 550;
@@ -5093,7 +5093,7 @@ static void combat_display_hit(char* dest, Object* critter, int damage)
 
         name = text;
     } else {
-        name = objectGetName(critter);
+        name = object_name(critter);
 
         if (critterGetStat(critter, STAT_GENDER) == GENDER_MALE) {
             messageId = 600;
@@ -5133,7 +5133,7 @@ static void combat_display_flags(char* dest, int flags, Object* critter)
     MessageListItem messageListItem;
 
     int num;
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if (critterGetStat(critter, STAT_GENDER) == GENDER_MALE) {
             num = 200;
         } else {
@@ -5203,7 +5203,7 @@ static void combat_display_flags(char* dest, int flags, Object* critter)
 // 0x425E3C
 void combat_anim_begin()
 {
-    if (++combat_turn_running == 1 && gDude == main_ctd.attacker) {
+    if (++combat_turn_running == 1 && obj_dude == main_ctd.attacker) {
         game_ui_disable(1);
         gmouse_set_cursor(26);
         if (combat_highlight == 2) {
@@ -5220,7 +5220,7 @@ void combat_anim_finished()
         return;
     }
 
-    if (gDude == main_ctd.attacker) {
+    if (obj_dude == main_ctd.attacker) {
         game_ui_enable();
     }
 
@@ -5233,7 +5233,7 @@ void combat_anim_finished()
                 int ammoQuantity = item_w_curr_ammo(weapon);
                 item_w_set_curr_ammo(weapon, ammoQuantity - main_ctd.ammoQuantity);
 
-                if (main_ctd.attacker == gDude) {
+                if (main_ctd.attacker == obj_dude) {
                     intface_update_ammo_lights();
                 }
             }
@@ -5247,14 +5247,14 @@ void combat_anim_finished()
         apply_damage(&main_ctd, true);
 
         Object* attacker = main_ctd.attacker;
-        if (attacker == gDude && combat_highlight == 2) {
+        if (attacker == obj_dude && combat_highlight == 2) {
             combat_outline_on();
         }
 
         if (_scr_end_combat()) {
-            if ((gDude->data.critter.combat.results & DAM_KNOCKED_OUT) != 0) {
-                if (attacker->data.critter.combat.team == gDude->data.critter.combat.team) {
-                    combat_ending_guy = gDude->data.critter.combat.whoHitMe;
+            if ((obj_dude->data.critter.combat.results & DAM_KNOCKED_OUT) != 0) {
+                if (attacker->data.critter.combat.team == obj_dude->data.critter.combat.team) {
+                    combat_ending_guy = obj_dude->data.critter.combat.whoHitMe;
                 } else {
                     combat_ending_guy = attacker;
                 }
@@ -5277,7 +5277,7 @@ static void combat_standup(Object* a1)
     int v2;
 
     v2 = 3;
-    if (a1 == gDude && perkGetRank(a1, PERK_QUICK_RECOVERY)) {
+    if (a1 == obj_dude && perkGetRank(a1, PERK_QUICK_RECOVERY)) {
         v2 = 1;
     }
 
@@ -5287,8 +5287,8 @@ static void combat_standup(Object* a1)
         a1->data.critter.combat.ap -= v2;
     }
 
-    if (a1 == gDude) {
-        intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+    if (a1 == obj_dude) {
+        intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
     }
 
     dude_standup(a1);
@@ -5439,14 +5439,14 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         int probability;
         int btn;
 
-        probability = determine_to_hit(gDude, critter, hit_loc_left[index], hitMode);
+        probability = determine_to_hit(obj_dude, critter, hit_loc_left[index], hitMode);
         print_tohit(windowBuffer + CALLED_SHOT_WINDOW_WIDTH * (call_ty[index] - 86) + 33, CALLED_SHOT_WINDOW_WIDTH, probability);
 
         btn = buttonCreate(call_win, 33, call_ty[index] - 90, 128, 20, index, index, -1, index, NULL, NULL, NULL, 0);
         buttonSetMouseCallbacks(btn, draw_loc_on, draw_loc_off, NULL, NULL);
         draw_loc(index, colorTable[992]);
 
-        probability = determine_to_hit(gDude, critter, hit_loc_right[index], hitMode);
+        probability = determine_to_hit(obj_dude, critter, hit_loc_right[index], hitMode);
         print_tohit(windowBuffer + CALLED_SHOT_WINDOW_WIDTH * (call_ty[index] - 86) + 453, CALLED_SHOT_WINDOW_WIDTH, probability);
 
         btn = buttonCreate(call_win, 341, call_ty[index] - 90, 128, 20, index + 4, index + 4, -1, index + 4, NULL, NULL, NULL, 0);
@@ -5512,7 +5512,7 @@ int combat_check_bad_shot(Object* attacker, Object* defender, int hitMode, bool 
     int tile = -1;
     if (defender != NULL) {
         tile = defender->tile;
-        range = objectGetDistanceBetween(attacker, defender);
+        range = obj_dist(attacker, defender);
         if ((defender->data.critter.combat.results & DAM_DEAD) != 0) {
             return COMBAT_BAD_SHOT_ALREADY_DEAD;
         }
@@ -5568,11 +5568,11 @@ bool combat_to_hit(Object* target, int* accuracy)
         return false;
     }
 
-    if (combat_check_bad_shot(gDude, target, hitMode, aiming) != COMBAT_BAD_SHOT_OK) {
+    if (combat_check_bad_shot(obj_dude, target, hitMode, aiming) != COMBAT_BAD_SHOT_OK) {
         return false;
     }
 
-    *accuracy = determine_to_hit_func(gDude, gDude->tile, target, HIT_LOCATION_UNCALLED, hitMode, 1);
+    *accuracy = determine_to_hit_func(obj_dude, obj_dude->tile, target, HIT_LOCATION_UNCALLED, hitMode, 1);
 
     return true;
 }
@@ -5599,10 +5599,10 @@ void combat_attack_this(Object* a1)
     char formattedText[80];
     const char* sfx;
 
-    int rc = combat_check_bad_shot(gDude, a1, hitMode, aiming);
+    int rc = combat_check_bad_shot(obj_dude, a1, hitMode, aiming);
     switch (rc) {
     case COMBAT_BAD_SHOT_NO_AMMO:
-        item = item_hit_with(gDude, hitMode);
+        item = item_hit_with(obj_dude, hitMode);
         messageListItem.num = 101; // Out of ammo.
         if (message_search(&combat_message_file, &messageListItem)) {
             display_print(messageListItem.text);
@@ -5618,10 +5618,10 @@ void combat_attack_this(Object* a1)
         }
         return;
     case COMBAT_BAD_SHOT_NOT_ENOUGH_AP:
-        item = item_hit_with(gDude, hitMode);
+        item = item_hit_with(obj_dude, hitMode);
         messageListItem.num = 100; // You need %d action points.
         if (message_search(&combat_message_file, &messageListItem)) {
-            int actionPointsRequired = item_w_mp_cost(gDude, hitMode, aiming);
+            int actionPointsRequired = item_w_mp_cost(obj_dude, hitMode, aiming);
             sprintf(formattedText, messageListItem.text, actionPointsRequired);
             display_print(formattedText);
         }
@@ -5650,7 +5650,7 @@ void combat_attack_this(Object* a1)
 
     if (!isInCombat()) {
         STRUCT_664980 stru;
-        stru.attacker = gDude;
+        stru.attacker = obj_dude;
         stru.defender = a1;
         stru.actionPointsBonus = 0;
         stru.accuracyBonus = 0;
@@ -5663,7 +5663,7 @@ void combat_attack_this(Object* a1)
     }
 
     if (!aiming) {
-        combat_attack(gDude, a1, hitMode, HIT_LOCATION_UNCALLED);
+        combat_attack(obj_dude, a1, hitMode, HIT_LOCATION_UNCALLED);
         return;
     }
 
@@ -5673,7 +5673,7 @@ void combat_attack_this(Object* a1)
 
     int hitLocation;
     if (get_called_shot_location(a1, &hitLocation, hitMode) != -1) {
-        combat_attack(gDude, a1, hitMode, hitLocation);
+        combat_attack(obj_dude, a1, hitMode, hitLocation);
     }
 }
 
@@ -5698,16 +5698,16 @@ void combat_outline_on()
         }
     } else {
         Object** critterList;
-        int critterListLength = objectListCreate(-1, map_elevation, OBJ_TYPE_CRITTER, &critterList);
+        int critterListLength = obj_create_list(-1, map_elevation, OBJ_TYPE_CRITTER, &critterList);
         for (int index = 0; index < critterListLength; index++) {
             Object* critter = critterList[index];
-            if (critter != gDude && (critter->data.critter.combat.results & DAM_DEAD) == 0) {
+            if (critter != obj_dude && (critter->data.critter.combat.results & DAM_DEAD) == 0) {
                 combat_update_critter_outline_for_los(critter, 1);
             }
         }
 
         if (critterListLength != 0) {
-            objectListFree(critterList);
+            obj_delete_list(critterList);
         }
     }
 
@@ -5726,16 +5726,16 @@ void combat_outline_off()
 
     if (combat_state & 1) {
         for (i = 0; i < list_total; i++) {
-            objectDisableOutline(combat_list[i], NULL);
+            obj_turn_off_outline(combat_list[i], NULL);
         }
     } else {
-        v5 = objectListCreate(-1, map_elevation, 1, &v9);
+        v5 = obj_create_list(-1, map_elevation, 1, &v9);
         for (i = 0; i < v5; i++) {
-            objectDisableOutline(v9[i], NULL);
-            objectClearOutline(v9[i], NULL);
+            obj_turn_off_outline(v9[i], NULL);
+            obj_remove_outline(v9[i], NULL);
         }
         if (v5) {
-            objectListFree(v9);
+            obj_delete_list(v9);
         }
     }
 
@@ -5772,7 +5772,7 @@ bool combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
     Object* obstacle = a1;
     int current = from;
     while (obstacle != NULL && current != to) {
-        make_straight_path_func(a1, current, to, 0, &obstacle, 32, _obj_shoot_blocking_at);
+        make_straight_path_func(a1, current, to, 0, &obstacle, 32, obj_shoot_blocking_at);
         if (obstacle != NULL) {
             if (FID_TYPE(obstacle->fid) != OBJ_TYPE_CRITTER && obstacle != a4) {
                 return true;
@@ -5807,7 +5807,7 @@ bool combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
 // 0x426D94
 int combat_player_knocked_out_by()
 {
-    if ((gDude->data.critter.combat.results & DAM_DEAD) != 0) {
+    if ((obj_dude->data.critter.combat.results & DAM_DEAD) != 0) {
         return -1;
     }
 
@@ -5867,7 +5867,7 @@ void combat_delete_critter(Object* obj)
     }
 
     obj->data.critter.combat.ap = 0;
-    objectClearOutline(obj, NULL);
+    obj_remove_outline(obj, NULL);
 
     obj->data.critter.combat.whoHitMe = NULL;
     combatai_delete_critter(obj);
@@ -5876,7 +5876,7 @@ void combat_delete_critter(Object* obj)
 // 0x426EC4
 void combatKillCritterOutsideCombat(Object* critter_obj, char* msg)
 {
-    if (critter_obj != gDude) {
+    if (critter_obj != obj_dude) {
         display_print(msg);
         scriptExecProc(critter_obj->sid, SCRIPT_PROC_DESTROY);
         critter_kill(critter_obj, -1, 1);

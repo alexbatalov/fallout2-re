@@ -44,7 +44,7 @@ void light_set_ambient(int lightLevel, bool shouldUpdateScreen)
     int normalizedLightLevel;
     int oldLightLevel;
 
-    normalizedLightLevel = lightLevel + perkGetRank(gDude, PERK_NIGHT_VISION) * LIGHT_LEVEL_NIGHT_VISION_BONUS;
+    normalizedLightLevel = lightLevel + perkGetRank(obj_dude, PERK_NIGHT_VISION) * LIGHT_LEVEL_NIGHT_VISION_BONUS;
 
     if (normalizedLightLevel < LIGHT_LEVEL_MIN) {
         normalizedLightLevel = LIGHT_LEVEL_MIN;

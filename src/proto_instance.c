@@ -186,7 +186,7 @@ int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
         }
 
         if (message_search(&gProtoMessageList, &messageListItem)) {
-            const char* objectName = objectGetName(a2);
+            const char* objectName = object_name(a2);
 
             char formattedText[260];
             sprintf(formattedText, messageListItem.text, objectName);
@@ -235,7 +235,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
     }
 
     if (!scriptOverrides) {
-        char* description = objectGetDescription(target);
+        char* description = object_description(target);
         if (description != NULL && strcmp(description, _proto_none_str) == 0) {
             description = NULL;
         }
@@ -254,7 +254,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
         }
     }
 
-    if (critter == NULL || critter != gDude) {
+    if (critter == NULL || critter != obj_dude) {
         return 0;
     }
 
@@ -262,7 +262,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
     int type = PID_TYPE(target->pid);
     if (type == OBJ_TYPE_CRITTER) {
-        if (target != gDude && perkGetRank(gDude, PERK_AWARENESS) && !critter_is_dead(target)) {
+        if (target != obj_dude && perkGetRank(obj_dude, PERK_AWARENESS) && !critter_is_dead(target)) {
             MessageListItem hpMessageListItem;
 
             if (critter_body_type(target) != BODY_TYPE_BIPED) {
@@ -306,7 +306,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                     const char* ammoName = protoGetName(ammoTypePid);
                     const int ammoCapacity = item_w_max_ammo(item2);
                     const int ammoQuantity = item_w_curr_ammo(item2);
-                    const char* weaponName = objectGetName(item2);
+                    const char* weaponName = object_name(item2);
                     const int maxiumHitPoints = critterGetStat(target, STAT_MAXIMUM_HIT_POINTS);
                     const int currentHitPoints = critterGetStat(target, STAT_CURRENT_HIT_POINTS);
                     sprintf(formattedText,
@@ -318,7 +318,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                         ammoCapacity,
                         ammoName);
                 } else {
-                    const char* weaponName = objectGetName(item2);
+                    const char* weaponName = object_name(item2);
                     const int maxiumHitPoints = critterGetStat(target, STAT_MAXIMUM_HIT_POINTS);
                     const int currentHitPoints = critterGetStat(target, STAT_CURRENT_HIT_POINTS);
                     sprintf(formattedText,
@@ -384,7 +384,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
 
             MessageListItem v66;
-            if (target == gDude) {
+            if (target == obj_dude) {
                 // You look %s
                 v66.num = 520 + v12;
                 if (!message_search(&gProtoMessageList, &v66)) {
@@ -419,7 +419,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             MessageListItem v63;
             v63.num = maxiumHitPoints >= currentHitPoints ? 531 : 530;
 
-            if (target == gDude) {
+            if (target == obj_dude) {
                 v63.num += 2;
             }
 
@@ -551,7 +551,7 @@ int _obj_pickup(Object* critter, Object* item)
 
         if (rc == 0) {
             Rect rect;
-            _obj_disconnect(item, &rect);
+            obj_disconnect(item, &rect);
             tileWindowRefreshRect(&rect, item->elevation);
         } else {
             MessageListItem messageListItem;
@@ -573,23 +573,23 @@ int _obj_remove_from_inven(Object* critter, Object* item)
     int fid;
     int v11 = 0;
     if (inven_right_hand(critter) == item) {
-        if (critter != gDude || intface_is_item_right_hand()) {
+        if (critter != obj_dude || intface_is_item_right_hand()) {
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
-            objectSetFid(critter, fid, &updatedRect);
+            obj_change_fid(critter, fid, &updatedRect);
             v11 = 2;
         } else {
             v11 = 1;
         }
     } else if (inven_left_hand(critter) == item) {
-        if (critter == gDude && !intface_is_item_right_hand()) {
+        if (critter == obj_dude && !intface_is_item_right_hand()) {
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, FID_ANIM_TYPE(critter->fid), 0, critter->rotation);
-            objectSetFid(critter, fid, &updatedRect);
+            obj_change_fid(critter, fid, &updatedRect);
             v11 = 2;
         } else {
             v11 = 1;
         }
     } else if (inven_worn(critter) == item) {
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             int v5 = 1;
 
             Proto* proto;
@@ -598,7 +598,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
             }
 
             fid = art_id(OBJ_TYPE_CRITTER, v5, FID_ANIM_TYPE(critter->fid), (critter->fid & 0xF000) >> 12, critter->rotation);
-            objectSetFid(critter, fid, &updatedRect);
+            obj_change_fid(critter, fid, &updatedRect);
             v11 = 3;
         }
     }
@@ -609,7 +609,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
         tileWindowRefreshRect(&updatedRect, critter->elevation);
     }
 
-    if (v11 <= 2 && critter == gDude) {
+    if (v11 <= 2 && critter == obj_dude) {
         intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
@@ -657,13 +657,13 @@ int _obj_drop(Object* a1, Object* a2)
     }
 
     if (_obj_remove_from_inven(a1, a2) == 0) {
-        Object* owner = objectGetOwner(a1);
+        Object* owner = obj_top_environment(a1);
         if (owner == NULL) {
             owner = a1;
         }
 
         Rect updatedRect;
-        _obj_connect(a2, owner->tile, owner->elevation, &updatedRect);
+        obj_connect(a2, owner->tile, owner->elevation, &updatedRect);
         tileWindowRefreshRect(&updatedRect, owner->elevation);
     }
 
@@ -688,7 +688,7 @@ int _obj_destroy(Object* obj)
     queueRemoveEvents(obj);
 
     Rect rect;
-    objectDestroy(obj, &rect);
+    obj_erase_object(obj, &rect);
 
     if (owner == NULL) {
         tileWindowRefreshRect(&rect, elev);
@@ -749,22 +749,22 @@ int _obj_use_book(Object* book)
         return 0;
     }
 
-    int increase = (100 - skillGetValue(gDude, skill)) / 10;
+    int increase = (100 - skillGetValue(obj_dude, skill)) / 10;
     if (increase <= 0) {
         messageId = 801;
     } else {
-        if (perkGetRank(gDude, PERK_COMPREHENSION)) {
+        if (perkGetRank(obj_dude, PERK_COMPREHENSION)) {
             increase = 150 * increase / 100;
         }
 
         for (int i = 0; i < increase; i++) {
-            skillAddForce(gDude, skill);
+            skillAddForce(obj_dude, skill);
         }
     }
 
     paletteFadeTo(gPaletteBlack);
 
-    int intelligence = critterGetStat(gDude, STAT_INTELLIGENCE);
+    int intelligence = critterGetStat(obj_dude, STAT_INTELLIGENCE);
     gameTimeAddSeconds(3600 * (11 - intelligence));
 
     scriptsExecMapUpdateProc();
@@ -797,7 +797,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
     }
 
     if ((flare->flags & OBJECT_USED) != 0) {
-        if (critter_obj == gDude) {
+        if (critter_obj == obj_dude) {
             // The flare is already lit.
             messageListItem.num = 588;
             if (message_search(&gProtoMessageList, &messageListItem)) {
@@ -805,7 +805,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
             }
         }
     } else {
-        if (critter_obj == gDude) {
+        if (critter_obj == obj_dude) {
             // You light the flare.
             messageListItem.num = 588;
             if (message_search(&gProtoMessageList, &messageListItem)) {
@@ -815,7 +815,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
 
         flare->pid = PROTO_ID_LIT_FLARE;
 
-        objectSetLight(flare, 8, 0x10000, NULL);
+        obj_set_light(flare, 8, 0x10000, NULL);
         queueAddEvent(72000, flare, NULL, EVENT_TYPE_FLARE);
     }
 
@@ -831,7 +831,7 @@ int _obj_use_radio(Object* item)
         return -1;
     }
 
-    scriptSetObjects(item->sid, gDude, item);
+    scriptSetObjects(item->sid, obj_dude, item);
     scriptExecProc(item->sid, SCRIPT_PROC_USE);
 
     if (scriptGetScript(item->sid, &scr) == -1) {
@@ -878,10 +878,10 @@ int _obj_use_explosive(Object* explosive)
             int delay = 10 * seconds;
 
             int roll;
-            if (perkHasRank(gDude, PERK_DEMOLITION_EXPERT)) {
+            if (perkHasRank(obj_dude, PERK_DEMOLITION_EXPERT)) {
                 roll = ROLL_SUCCESS;
             } else {
-                roll = skillRoll(gDude, SKILL_TRAPS, 0, NULL);
+                roll = skillRoll(obj_dude, SKILL_TRAPS, 0, NULL);
             }
 
             int eventType;
@@ -978,7 +978,7 @@ int _obj_use_misc_item(Object* item)
             return 1;
         }
 
-        scriptSetObjects(item->sid, gDude, item);
+        scriptSetObjects(item->sid, obj_dude, item);
         scriptExecProc(item->sid, SCRIPT_PROC_USE);
 
         Script* scr;
@@ -1055,19 +1055,19 @@ int _protinstTestDroppedExplosive(Object* a1)
 {
     if (a1->pid == PROTO_ID_DYNAMITE_II || a1->pid == PROTO_ID_PLASTIC_EXPLOSIVES_II) {
         Attack attack;
-        combat_ctd_init(&attack, gDude, 0, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+        combat_ctd_init(&attack, obj_dude, 0, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
         attack.attackerFlags = DAM_HIT;
-        attack.tile = gDude->tile;
+        attack.tile = obj_dude->tile;
         compute_explosion_on_extras(&attack, 0, 0, 1);
 
-        int team = gDude->data.critter.combat.team;
+        int team = obj_dude->data.critter.combat.team;
         Object* v2 = NULL;
         for (int index = 0; index < attack.extrasLength; index++) {
             Object* v5 = attack.extras[index];
-            if (v5 != gDude
+            if (v5 != obj_dude
                 && v5->data.critter.combat.team != team
                 && statRoll(v5, STAT_PERCEPTION, 0, NULL) >= 2) {
-                critter_set_who_hit_me(v5, gDude);
+                critter_set_who_hit_me(v5, obj_dude);
                 if (v2 == NULL) {
                     v2 = v5;
                 }
@@ -1077,7 +1077,7 @@ int _protinstTestDroppedExplosive(Object* a1)
         if (v2 != NULL && !isInCombat()) {
             STRUCT_664980 attack;
             attack.attacker = v2;
-            attack.defender = gDude;
+            attack.defender = obj_dude;
             attack.actionPointsBonus = 0;
             attack.accuracyBonus = 0;
             attack.minDamage = 0;
@@ -1094,12 +1094,12 @@ int _obj_use_item(Object* a1, Object* a2)
 {
     int rc = _protinst_use_item(a1, a2);
     if (rc == 1 || rc == 2) {
-        Object* root = objectGetOwner(a2);
+        Object* root = obj_top_environment(a2);
         if (root != NULL) {
             int flags = a2->flags & OBJECT_IN_ANY_HAND;
             item_remove_mult(root, a2, 1);
             Object* v8 = item_replace(root, a2, flags);
-            if (root == gDude) {
+            if (root == obj_dude) {
                 int leftItemAction;
                 int rightItemAction;
                 intface_get_item_states(&leftItemAction, &rightItemAction);
@@ -1121,7 +1121,7 @@ int _obj_use_item(Object* a1, Object* a2)
             _obj_destroy(a2);
         } else if (rc == 2 && root != NULL) {
             Rect updatedRect;
-            _obj_connect(a2, root->tile, root->elevation, &updatedRect);
+            obj_connect(a2, root->tile, root->elevation, &updatedRect);
             tileWindowRefreshRect(&updatedRect, root->elevation);
             _protinstTestDroppedExplosive(a2);
         }
@@ -1144,7 +1144,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
     switch (item_get_type(item)) {
     case ITEM_TYPE_DRUG:
         if (PID_TYPE(a2->pid) != OBJ_TYPE_CRITTER) {
-            if (a1 == gDude) {
+            if (a1 == obj_dude) {
                 // That does nothing
                 messageListItem.num = 582;
                 if (message_search(&gProtoMessageList, &messageListItem)) {
@@ -1168,22 +1168,22 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
 
         rc = item_d_take_drug(a2, item);
 
-        if (a1 == gDude && a2 != gDude) {
+        if (a1 == obj_dude && a2 != obj_dude) {
             // TODO: Looks like there is bug in this branch, message 580 will never be shown,
             // as we can only be here when target is not dude.
 
             // 580: You use the %s.
             // 581: You use the %s on %s.
-            messageListItem.num = 580 + (a2 != gDude);
+            messageListItem.num = 580 + (a2 != obj_dude);
             if (!message_search(&gProtoMessageList, &messageListItem)) {
                 return -1;
             }
 
-            sprintf(formattedText, messageListItem.text, objectGetName(item), objectGetName(a2));
+            sprintf(formattedText, messageListItem.text, object_name(item), object_name(a2));
             display_print(formattedText);
         }
 
-        if (a2 == gDude) {
+        if (a2 == obj_dude) {
             intface_update_hit_points(true);
         }
 
@@ -1297,7 +1297,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
         MessageListItem messageListItem;
         // You cannot do that in combat.
         messageListItem.num = 902;
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             if (message_search(&gProtoMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
@@ -1315,7 +1315,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
 
     MessageListItem messageListItem;
     messageListItem.num = messageId;
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         if (message_search(&gProtoMessageList, &messageListItem)) {
             display_print(messageListItem.text);
         }
@@ -1338,7 +1338,7 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
 
             int leftItemAction;
             int rightItemAction;
-            if (a1 == gDude) {
+            if (a1 == obj_dude) {
                 intface_get_item_states(&leftItemAction, &rightItemAction);
             }
 
@@ -1377,8 +1377,8 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
     if (actionPoints >= 3) {
         obj->data.critter.combat.ap = actionPoints - 3;
 
-        if (obj == gDude) {
-            intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+        if (obj == obj_dude) {
+            intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
         }
 
         return 0;
@@ -1388,7 +1388,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
     // You don't have enough action points.
     messageListItem.num = 700;
 
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         if (message_search(&gProtoMessageList, &messageListItem)) {
             display_print(messageListItem.text);
         }
@@ -1401,7 +1401,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
 int _obj_use(Object* a1, Object* a2)
 {
     int type = FID_TYPE(a2->fid);
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         if (type != OBJ_TYPE_SCENERY) {
             return -1;
         }
@@ -1453,7 +1453,7 @@ int _obj_use(Object* a1, Object* a2)
     }
 
     if (!scriptOverrides) {
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             // You see: %s
             MessageListItem messageListItem;
             messageListItem.num = 480;
@@ -1462,7 +1462,7 @@ int _obj_use(Object* a1, Object* a2)
             }
 
             char formattedText[260];
-            const char* name = objectGetName(a2);
+            const char* name = object_name(a2);
             sprintf(formattedText, messageListItem.text, name);
             display_print(formattedText);
         }
@@ -1497,7 +1497,7 @@ int useLadderDown(Object* a1, Object* ladder, int a3)
         wmMapMarkMapEntranceState(transition.map, elevation, 1);
     } else {
         Rect updatedRect;
-        if (objectSetLocation(a1, tile, elevation, &updatedRect) == -1) {
+        if (obj_move_to_tile(a1, tile, elevation, &updatedRect) == -1) {
             return -1;
         }
 
@@ -1531,7 +1531,7 @@ int useLadderUp(Object* a1, Object* ladder, int a3)
         wmMapMarkMapEntranceState(transition.map, elevation, 1);
     } else {
         Rect updatedRect;
-        if (objectSetLocation(a1, tile, elevation, &updatedRect) == -1) {
+        if (obj_move_to_tile(a1, tile, elevation, &updatedRect) == -1) {
             return -1;
         }
 
@@ -1565,7 +1565,7 @@ int useStairs(Object* a1, Object* stairs, int a3)
         wmMapMarkMapEntranceState(transition.map, elevation, 1);
     } else {
         Rect updatedRect;
-        if (objectSetLocation(a1, tile, elevation, &updatedRect) == -1) {
+        if (obj_move_to_tile(a1, tile, elevation, &updatedRect) == -1) {
             return -1;
         }
 
@@ -1595,7 +1595,7 @@ int _check_door_state(Object* a1, Object* a2)
     if ((a1->data.scenery.door.openFlags & 0x01) == 0) {
         a1->flags &= ~OBJECT_OPEN_DOOR;
 
-        _obj_rebuild_all_light();
+        obj_rebuild_all_light();
         tileWindowRefresh();
 
         if (a1->frame == 0) {
@@ -1611,16 +1611,16 @@ int _check_door_state(Object* a1, Object* a2)
         Rect dirty;
         Rect temp;
 
-        objectGetRect(a1, &dirty);
+        obj_bound(a1, &dirty);
 
         for (int frame = a1->frame - 1; frame >= 0; frame--) {
             int x;
             int y;
             art_frame_hot(art, frame, a1->rotation, &x, &y);
-            _obj_offset(a1, -x, -y, &temp);
+            obj_offset(a1, -x, -y, &temp);
         }
 
-        objectSetFrame(a1, 0, &temp);
+        obj_set_frame(a1, 0, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
         tileWindowRefreshRect(&dirty, map_elevation);
@@ -1630,7 +1630,7 @@ int _check_door_state(Object* a1, Object* a2)
     } else {
         a1->flags |= OBJECT_OPEN_DOOR;
 
-        _obj_rebuild_all_light();
+        obj_rebuild_all_light();
         tileWindowRefresh();
 
         CacheEntry* artHandle;
@@ -1648,16 +1648,16 @@ int _check_door_state(Object* a1, Object* a2)
         Rect dirty;
         Rect temp;
 
-        objectGetRect(a1, &dirty);
+        obj_bound(a1, &dirty);
 
         for (int frame = a1->frame + 1; frame < frameCount; frame++) {
             int x;
             int y;
             art_frame_hot(art, frame, a1->rotation, &x, &y);
-            _obj_offset(a1, x, y, &temp);
+            obj_offset(a1, x, y, &temp);
         }
 
-        objectSetFrame(a1, frameCount - 1, &temp);
+        obj_set_frame(a1, frameCount - 1, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
         tileWindowRefreshRect(&dirty, map_elevation);
@@ -1693,7 +1693,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
         int end;
         int step;
         if (a2->frame != 0) {
-            if (_obj_blocking_at(NULL, a2->tile, a2->elevation) != 0) {
+            if (obj_blocking_at(NULL, a2->tile, a2->elevation) != 0) {
                 MessageListItem messageListItem;
                 char* text = getmsg(&gProtoMessageList, &messageListItem, 597);
                 display_print(text);
@@ -1764,7 +1764,7 @@ int _obj_use_container(Object* critter, Object* item)
         const char* sfx = gsnd_build_open_sfx_name(item, SCENERY_SOUND_EFFECT_LOCKED);
         gsound_play_sfx_file(sfx);
 
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             MessageListItem messageListItem;
             // It is locked.
             messageListItem.num = 487;
@@ -1809,7 +1809,7 @@ int _obj_use_container(Object* critter, Object* item)
 
     register_end();
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         MessageListItem messageListItem;
         messageListItem.num = item->frame != 0
             ? 486 // You search the %s.
@@ -1819,7 +1819,7 @@ int _obj_use_container(Object* critter, Object* item)
         }
 
         char formattedText[260];
-        const char* objectName = objectGetName(item);
+        const char* objectName = object_name(item);
         sprintf(formattedText, messageListItem.text, objectName);
         display_print(formattedText);
     }
@@ -1831,7 +1831,7 @@ int _obj_use_container(Object* critter, Object* item)
 int _obj_use_skill_on(Object* source, Object* target, int skill)
 {
     if (objectIsJammed(target)) {
-        if (source == gDude) {
+        if (source == obj_dude) {
             MessageListItem messageListItem;
             messageListItem.num = 2001;
             if (message_search(&misc_message_file, &messageListItem)) {
@@ -2131,10 +2131,10 @@ int objectUnjamLock(Object* obj)
 // 0x49D4B8
 int objectUnjamAll()
 {
-    Object* obj = objectFindFirst();
+    Object* obj = obj_find_first();
     while (obj != NULL) {
         objectUnjamLock(obj);
-        obj = objectFindNext();
+        obj = obj_find_next();
     }
 
     return 0;
@@ -2149,7 +2149,7 @@ int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
     }
 
     int newTile = tile;
-    if (_obj_blocking_at(NULL, tile, elevation) != NULL) {
+    if (obj_blocking_at(NULL, tile, elevation) != NULL) {
         int v6 = a4;
         if (a4 < 1) {
             v6 = 1;
@@ -2164,7 +2164,7 @@ int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
 
             for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
                 newTile = tileGetTileInDirection(tile, rotation, v6);
-                if (_obj_blocking_at(NULL, newTile, elevation) == NULL && v6 > 1 && make_path(gDude, gDude->tile, newTile, NULL, 0) != 0) {
+                if (obj_blocking_at(NULL, newTile, elevation) == NULL && v6 > 1 && make_path(obj_dude, obj_dude->tile, newTile, NULL, 0) != 0) {
                     break;
                 }
             }
@@ -2175,7 +2175,7 @@ int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
         if (a4 != 1 && v6 > a4 + 2) {
             for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
                 int candidate = tileGetTileInDirection(tile, rotation, 1);
-                if (_obj_blocking_at(NULL, candidate, elevation) == NULL) {
+                if (obj_blocking_at(NULL, candidate, elevation) == NULL) {
                     newTile = candidate;
                     break;
                 }
@@ -2184,10 +2184,10 @@ int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
     }
 
     Rect updatedRect;
-    objectShow(obj, &updatedRect);
+    obj_turn_on(obj, &updatedRect);
 
     Rect temp;
-    if (objectSetLocation(obj, newTile, elevation, &temp) != -1) {
+    if (obj_move_to_tile(obj, newTile, elevation, &temp) != -1) {
         rectUnion(&updatedRect, &temp, &updatedRect);
 
         if (elevation == map_elevation) {
@@ -2212,7 +2212,7 @@ int _objPMAttemptPlacement(Object* obj, int tile, int elevation)
     int v9 = tile;
     int v7 = 0;
     if (!wmEvalTileNumForPlacement(tile)) {
-        v9 = gDude->tile;
+        v9 = obj_dude->tile;
         for (int v4 = 1; v4 <= 100; v4++) {
             // TODO: Check.
             v7++;
@@ -2221,15 +2221,15 @@ int _objPMAttemptPlacement(Object* obj, int tile, int elevation)
                 break;
             }
 
-            if (tileDistanceBetween(gDude->tile, v9) > 8) {
+            if (tileDistanceBetween(obj_dude->tile, v9) > 8) {
                 v9 = tile;
                 break;
             }
         }
     }
 
-    objectShow(obj, NULL);
-    objectSetLocation(obj, v9, elevation, NULL);
+    obj_turn_on(obj, NULL);
+    obj_move_to_tile(obj, v9, elevation, NULL);
 
     return 0;
 }

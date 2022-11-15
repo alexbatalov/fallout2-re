@@ -242,7 +242,7 @@ void endgame_movie()
 
     // NOTE: Result is ignored. I guess there was some kind of switch for male
     // vs. female ending, but it was not implemented.
-    critterGetStat(gDude, STAT_GENDER);
+    critterGetStat(obj_dude, STAT_GENDER);
 
     credits("credits.txt", -1, false);
     gsound_background_stop();

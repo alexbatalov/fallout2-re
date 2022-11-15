@@ -359,7 +359,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         _scriptsCheckGameEvents(&movie_index, -1);
     }
 
-    v4 = critter_check_rads(gDude);
+    v4 = critter_check_rads(obj_dude);
 
     _queue_clear_type(4, 0);
 
@@ -467,14 +467,14 @@ int scriptsNewObjectId()
 
     do {
         _cur_id++;
-        ptr = objectFindFirst();
+        ptr = obj_find_first();
 
         while (ptr) {
             if (_cur_id == ptr->id) {
                 break;
             }
 
-            ptr = objectFindNext();
+            ptr = obj_find_next();
         }
     } while (ptr);
 
@@ -526,9 +526,9 @@ Object* scriptGetSelf(Program* program)
 
     Object* object;
     int fid = art_id(OBJ_TYPE_INTERFACE, 3, 0, 0, 0);
-    objectCreateWithFidPid(&object, fid, -1);
-    objectHide(object, NULL);
-    _obj_toggle_flat(object, NULL);
+    obj_new(&object, fid, -1);
+    obj_turn_off(object, NULL);
+    obj_toggle_flat(object, NULL);
     object->sid = sid;
 
     // NOTE: Redundant, we've already obtained script earlier. Probably
@@ -548,7 +548,7 @@ Object* scriptGetSelf(Program* program)
         Script* spatialScript = scriptGetFirstSpatialScript(elevation);
         while (spatialScript != NULL) {
             if (spatialScript == script) {
-                objectSetLocation(object, builtTileGetTile(script->sp.built_tile), elevation, NULL);
+                obj_move_to_tile(object, builtTileGetTile(script->sp.built_tile), elevation, NULL);
                 return object;
             }
             spatialScript = scriptGetNextSpatialScript();
@@ -873,53 +873,53 @@ int scriptsHandleRequests()
 
             if (map == map_data.field_34) {
                 if (elevation == map_elevation) {
-                    register_clear(gDude);
-                    objectSetRotation(gDude, ROTATION_SE, 0);
-                    _obj_attempt_placement(gDude, tile, elevation, 0);
+                    register_clear(obj_dude);
+                    obj_set_rotation(obj_dude, ROTATION_SE, 0);
+                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
                 } else {
-                    Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
+                    Object* elevatorDoors = obj_find_first_at(obj_dude->elevation);
                     while (elevatorDoors != NULL) {
                         int pid = elevatorDoors->pid;
                         if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                             && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
-                            && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
+                            && tileDistanceBetween(elevatorDoors->tile, obj_dude->tile) <= 4) {
                             break;
                         }
-                        elevatorDoors = objectFindNextAtElevation();
+                        elevatorDoors = obj_find_next_at();
                     }
 
-                    register_clear(gDude);
-                    objectSetRotation(gDude, ROTATION_SE, 0);
-                    _obj_attempt_placement(gDude, tile, elevation, 0);
+                    register_clear(obj_dude);
+                    obj_set_rotation(obj_dude, ROTATION_SE, 0);
+                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
 
                     if (elevatorDoors != NULL) {
-                        objectSetFrame(elevatorDoors, 0, NULL);
-                        objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
+                        obj_set_frame(elevatorDoors, 0, NULL);
+                        obj_move_to_tile(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
                         elevatorDoors->flags &= ~OBJECT_OPEN_DOOR;
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
-                        _obj_rebuild_all_light();
+                        obj_rebuild_all_light();
                     } else {
                         debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
                     }
                 }
             } else {
-                Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
+                Object* elevatorDoors = obj_find_first_at(obj_dude->elevation);
                 while (elevatorDoors != NULL) {
                     int pid = elevatorDoors->pid;
                     if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                         && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
-                        && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
+                        && tileDistanceBetween(elevatorDoors->tile, obj_dude->tile) <= 4) {
                         break;
                     }
-                    elevatorDoors = objectFindNextAtElevation();
+                    elevatorDoors = obj_find_next_at();
                 }
 
                 if (elevatorDoors != NULL) {
-                    objectSetFrame(elevatorDoors, 0, NULL);
-                    objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
+                    obj_set_frame(elevatorDoors, 0, NULL);
+                    obj_move_to_tile(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
                     elevatorDoors->flags &= ~OBJECT_OPEN_DOOR;
                     elevatorDoors->data.scenery.door.openFlags &= ~0x01;
-                    _obj_rebuild_all_light();
+                    obj_rebuild_all_light();
                 } else {
                     debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
                 }
@@ -979,31 +979,31 @@ int _scripts_check_state_in_combat()
 
             if (map == map_data.field_34) {
                 if (elevation == map_elevation) {
-                    register_clear(gDude);
-                    objectSetRotation(gDude, ROTATION_SE, 0);
-                    _obj_attempt_placement(gDude, tile, elevation, 0);
+                    register_clear(obj_dude);
+                    obj_set_rotation(obj_dude, ROTATION_SE, 0);
+                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
                 } else {
-                    Object* elevatorDoors = objectFindFirstAtElevation(gDude->elevation);
+                    Object* elevatorDoors = obj_find_first_at(obj_dude->elevation);
                     while (elevatorDoors != NULL) {
                         int pid = elevatorDoors->pid;
                         if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                             && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
-                            && tileDistanceBetween(elevatorDoors->tile, gDude->tile) <= 4) {
+                            && tileDistanceBetween(elevatorDoors->tile, obj_dude->tile) <= 4) {
                             break;
                         }
-                        elevatorDoors = objectFindNextAtElevation();
+                        elevatorDoors = obj_find_next_at();
                     }
 
-                    register_clear(gDude);
-                    objectSetRotation(gDude, ROTATION_SE, 0);
-                    _obj_attempt_placement(gDude, tile, elevation, 0);
+                    register_clear(obj_dude);
+                    obj_set_rotation(obj_dude, ROTATION_SE, 0);
+                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
 
                     if (elevatorDoors != NULL) {
-                        objectSetFrame(elevatorDoors, 0, NULL);
-                        objectSetLocation(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
+                        obj_set_frame(elevatorDoors, 0, NULL);
+                        obj_move_to_tile(elevatorDoors, elevatorDoors->tile, elevatorDoors->elevation, NULL);
                         elevatorDoors->flags &= ~OBJECT_OPEN_DOOR;
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
-                        _obj_rebuild_all_light();
+                        obj_rebuild_all_light();
                     } else {
                         debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
                     }
@@ -1095,13 +1095,13 @@ int scriptsRequestElevator(Object* a1, int a2)
     Object* obj;
     for (int y = -5; y < 5; y++) {
         for (int x = -5; x < 5; x++) {
-            obj = objectFindFirstAtElevation(a1->elevation);
+            obj = obj_find_first_at(a1->elevation);
             while (obj != NULL) {
                 if (tile == obj->tile && obj->pid == PROTO_ID_0x200050D) {
                     break;
                 }
 
-                obj = objectFindNextAtElevation();
+                obj = obj_find_next_at();
             }
 
             if (obj != NULL) {
@@ -1390,7 +1390,7 @@ int scriptsSetDudeScript()
         return -1;
     }
 
-    if (gDude == NULL) {
+    if (obj_dude == NULL) {
         debugPrint("Error in scr_set_dude_script: obj_dude uninitialized!");
         return -1;
     }
@@ -1403,10 +1403,10 @@ int scriptsSetDudeScript()
 
     proto->critter.sid = 0x4000000;
 
-    _obj_new_sid(gDude, &(gDude->sid));
+    _obj_new_sid(obj_dude, &(obj_dude->sid));
 
     Script* script;
-    if (scriptGetScript(gDude->sid, &script) == -1) {
+    if (scriptGetScript(obj_dude->sid, &script) == -1) {
         debugPrint("Error in scr_set_dude_script: can't find obj_dude script!");
         return -1;
     }
@@ -1420,20 +1420,20 @@ int scriptsSetDudeScript()
 // 0x4A5044
 int scriptsClearDudeScript()
 {
-    if (gDude == NULL) {
+    if (obj_dude == NULL) {
         debugPrint("\nError in scr_clear_dude_script: obj_dude uninitialized!");
         return -1;
     }
 
-    if (gDude->sid != -1) {
+    if (obj_dude->sid != -1) {
         Script* script;
-        if (scriptGetScript(gDude->sid, &script) != -1) {
+        if (scriptGetScript(obj_dude->sid, &script) != -1) {
             script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
         }
 
-        scriptRemove(gDude->sid);
+        scriptRemove(obj_dude->sid);
 
-        gDude->sid = -1;
+        obj_dude->sid = -1;
     }
 
     return 0;

@@ -98,9 +98,9 @@ void switch_dude()
     critter = pick_object(OBJ_TYPE_CRITTER, false);
     if (critter != NULL) {
         gender = critterGetStat(critter, STAT_GENDER);
-        critterSetBaseStat(gDude, STAT_GENDER, gender);
+        critterSetBaseStat(obj_dude, STAT_GENDER, gender);
 
-        gDude = critter;
+        obj_dude = critter;
         obj_fid = critter->fid;
         obj_pid_old = critter->pid;
         critter->pid = 0x1000000;
@@ -125,7 +125,7 @@ int action_knockback(Object* obj, int* anim, int maxDistance, int rotation, int 
     int tile;
     for (distance = 1; distance <= maxDistance; distance++) {
         tile = tileGetTileInDirection(obj->tile, rotation, distance);
-        if (_obj_blocking_at(obj, tile, obj->elevation) != NULL) {
+        if (obj_blocking_at(obj, tile, obj->elevation) != NULL) {
             distance--;
             break;
         }
@@ -192,7 +192,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
         anim = ANIM_FIRE_SINGLE;
     }
 
-    if (attacker == gDude && perkHasRank(attacker, PERK_PYROMANIAC) && damageType == DAMAGE_TYPE_FIRE) {
+    if (attacker == obj_dude && perkHasRank(attacker, PERK_PYROMANIAC) && damageType == DAMAGE_TYPE_FIRE) {
         normalViolenceLevelDamageThreshold = 1;
         maximumBloodViolenceLevelDamageThreshold = 1;
     }
@@ -210,7 +210,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
     }
 
     bool hasBloodyMess = false;
-    if (attacker == gDude && traitIsSelected(TRAIT_BLOODY_MESS)) {
+    if (attacker == obj_dude && traitIsSelected(TRAIT_BLOODY_MESS)) {
         hasBloodyMess = true;
     }
 
@@ -436,26 +436,26 @@ static int show_death(Object* obj, int anim)
     Rect v8;
     int fid;
 
-    objectGetRect(obj, &v8);
+    obj_bound(obj, &v8);
     if (anim < 48 && anim > 63) {
         fid = art_id(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
-        if (objectSetFid(obj, fid, &v7) == 0) {
+        if (obj_change_fid(obj, fid, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
         }
 
-        if (objectSetFrame(obj, 0, &v7) == 0) {
+        if (obj_set_frame(obj, 0, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
         }
     }
 
     if (critter_flag_check(obj->pid, CRITTER_FLAT) == 0) {
         obj->flags |= OBJECT_NO_BLOCK;
-        if (_obj_toggle_flat(obj, &v7) == 0) {
+        if (obj_toggle_flat(obj, &v7) == 0) {
             rectUnion(&v8, &v7, &v8);
         }
     }
 
-    if (objectDisableOutline(obj, &v7) == 0) {
+    if (obj_turn_off_outline(obj, &v7) == 0) {
         rectUnion(&v8, &v7, &v8);
     }
 
@@ -715,7 +715,7 @@ int throw_change_fid(Object* object, int fid)
     Rect rect;
 
     debugPrint("\n[throw_change_fid!]: %d", fid);
-    objectSetFid(object, fid, &rect);
+    obj_change_fid(object, fid, &rect);
     tileWindowRefreshRect(&rect, map_elevation);
 
     return 0;
@@ -791,10 +791,10 @@ static int action_ranged(Attack* attack, int anim)
 
                     item_remove_mult(attack->attacker, weapon, 1);
                     v50 = item_replace(attack->attacker, weapon, weaponFlags & OBJECT_IN_ANY_HAND);
-                    objectSetFid(projectile, projectileProto->fid, NULL);
+                    obj_change_fid(projectile, projectileProto->fid, NULL);
                     cAIPrepWeaponItem(attack->attacker, weapon);
 
-                    if (attack->attacker == gDude) {
+                    if (attack->attacker == obj_dude) {
                         if (v50 == NULL) {
                             if ((weaponFlags & OBJECT_IN_LEFT_HAND) != 0) {
                                 leftItemAction = INTERFACE_ITEM_ACTION_DEFAULT;
@@ -805,20 +805,20 @@ static int action_ranged(Attack* attack, int anim)
                         intface_update_items(false, leftItemAction, rightItemAction);
                     }
 
-                    _obj_connect(weapon, attack->attacker->tile, attack->attacker->elevation, NULL);
+                    obj_connect(weapon, attack->attacker->tile, attack->attacker->elevation, NULL);
                 } else {
-                    objectCreateWithFidPid(&projectile, projectileProto->fid, -1);
+                    obj_new(&projectile, projectileProto->fid, -1);
                 }
 
-                objectHide(projectile, NULL);
+                obj_turn_off(projectile, NULL);
 
-                objectSetLight(projectile, 9, projectile->lightIntensity, NULL);
+                obj_set_light(projectile, 9, projectile->lightIntensity, NULL);
 
                 int projectileOrigin = combat_bullet_start(attack->attacker, attack->defender);
-                objectSetLocation(projectile, projectileOrigin, attack->attacker->elevation, NULL);
+                obj_move_to_tile(projectile, projectileOrigin, attack->attacker->elevation, NULL);
 
                 int projectileRotation = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
-                objectSetRotation(projectile, projectileRotation, NULL);
+                obj_set_rotation(projectile, projectileRotation, NULL);
 
                 register_object_funset(projectile, OBJECT_HIDDEN, actionFrame);
 
@@ -868,11 +868,11 @@ static int action_ranged(Attack* attack, int anim)
                         register_object_animate_and_hide(projectile, ANIM_STAND, 0);
 
                         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-                            if (objectCreateWithFidPid(&(neighboors[rotation]), explosionFid, -1) != -1) {
-                                objectHide(neighboors[rotation], NULL);
+                            if (obj_new(&(neighboors[rotation]), explosionFid, -1) != -1) {
+                                obj_turn_off(neighboors[rotation], NULL);
 
                                 int v31 = tileGetTileInDirection(v24, rotation, 1);
-                                objectSetLocation(neighboors[rotation], v31, projectile->elevation, NULL);
+                                obj_move_to_tile(neighboors[rotation], v31, projectile->elevation, NULL);
 
                                 int delay;
                                 if (rotation != ROTATION_NE) {
@@ -961,12 +961,12 @@ static int action_ranged(Attack* attack, int anim)
     if (register_end() == -1) {
         debugPrint("Something went wrong with a ranged attack sequence!\n");
         if (projectile != NULL && (isGrenade || damageType == DAMAGE_TYPE_EXPLOSION || anim != ANIM_THROW_ANIM)) {
-            objectDestroy(projectile, NULL);
+            obj_erase_object(projectile, NULL);
         }
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
             if (neighboors[rotation] != NULL) {
-                objectDestroy(neighboors[rotation], NULL);
+                obj_erase_object(neighboors[rotation], NULL);
             }
         }
 
@@ -981,8 +981,8 @@ static int action_ranged(Attack* attack, int anim)
 // 0x411D68
 static int is_next_to(Object* a1, Object* a2)
 {
-    if (objectGetDistanceBetween(a1, a2) > 1) {
-        if (a2 == gDude) {
+    if (obj_dist(a1, a2) > 1) {
+        if (a2 == obj_dude) {
             MessageListItem messageListItem;
             // You cannot get there.
             messageListItem.num = 2000;
@@ -999,10 +999,10 @@ static int is_next_to(Object* a1, Object* a2)
 // 0x411DB4
 static int action_climb_ladder(Object* a1, Object* a2)
 {
-    if (a1 == gDude) {
-        int anim = FID_ANIM_TYPE(gDude->fid);
+    if (a1 == obj_dude) {
+        int anim = FID_ANIM_TYPE(obj_dude->fid);
         if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
-            register_clear(gDude);
+            register_clear(obj_dude);
         }
     }
 
@@ -1016,7 +1016,7 @@ static int action_climb_ladder(Object* a1, Object* a2)
         actionPoints = -1;
     }
 
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         animationRequestOptions = ANIMATION_REQUEST_RESERVED;
     }
 
@@ -1024,7 +1024,7 @@ static int action_climb_ladder(Object* a1, Object* a2)
     register_begin(animationRequestOptions);
 
     int tile = tileGetTileInDirection(a2->tile, ROTATION_SE, 1);
-    if (actionPoints != -1 || objectGetDistanceBetween(a1, a2) < 5) {
+    if (actionPoints != -1 || obj_dist(a1, a2) < 5) {
         register_object_move_to_tile(a1, tile, a2->elevation, actionPoints, 0);
     } else {
         register_object_run_to_tile(a1, tile, a2->elevation, actionPoints, 0);
@@ -1068,10 +1068,10 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
     }
 
     if (sceneryType != SCENERY_TYPE_LADDER_UP || a3 != NULL) {
-        if (a1 == gDude) {
-            int anim = FID_ANIM_TYPE(gDude->fid);
+        if (a1 == obj_dude) {
+            int anim = FID_ANIM_TYPE(obj_dude->fid);
             if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
-                register_clear(gDude);
+                register_clear(obj_dude);
             }
         }
 
@@ -1085,13 +1085,13 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
             actionPoints = -1;
         }
 
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             animationRequestOptions = ANIMATION_REQUEST_RESERVED;
         }
 
         register_begin(animationRequestOptions);
 
-        if (actionPoints != -1 || objectGetDistanceBetween(a1, a2) < 5) {
+        if (actionPoints != -1 || obj_dist(a1, a2) < 5) {
             register_object_move_to_object(a1, a2, actionPoints, 0);
         } else {
             register_object_run_to_object(a1, a2, -1, 0);
@@ -1158,7 +1158,7 @@ int action_use_an_object(Object* a1, Object* a2)
 // 0x412120
 int get_an_object(Object* item)
 {
-    return action_get_an_object(gDude, item);
+    return action_get_an_object(obj_dude, item);
 }
 
 // 0x412134
@@ -1168,10 +1168,10 @@ int action_get_an_object(Object* critter, Object* item)
         return -1;
     }
 
-    if (critter == gDude) {
-        int animationCode = FID_ANIM_TYPE(gDude->fid);
+    if (critter == obj_dude) {
+        int animationCode = FID_ANIM_TYPE(obj_dude->fid);
         if (animationCode == ANIM_WALK || animationCode == ANIM_RUNNING) {
-            register_clear(gDude);
+            register_clear(obj_dude);
         }
     }
 
@@ -1179,8 +1179,8 @@ int action_get_an_object(Object* critter, Object* item)
         register_begin(ANIMATION_REQUEST_RESERVED);
         register_object_move_to_object(critter, item, critter->data.critter.combat.ap, 0);
     } else {
-        register_begin(critter == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
-        if (objectGetDistanceBetween(critter, item) >= 5) {
+        register_begin(critter == obj_dude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
+        if (obj_dist(critter, item) >= 5) {
             register_object_run_to_object(critter, item, -1, 0);
         } else {
             register_object_move_to_object(critter, item, -1, 0);
@@ -1268,10 +1268,10 @@ int action_loot_container(Object* critter, Object* container)
         return -1;
     }
 
-    if (critter == gDude) {
-        int anim = FID_ANIM_TYPE(gDude->fid);
+    if (critter == obj_dude) {
+        int anim = FID_ANIM_TYPE(obj_dude->fid);
         if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
-            register_clear(gDude);
+            register_clear(obj_dude);
         }
     }
 
@@ -1279,9 +1279,9 @@ int action_loot_container(Object* critter, Object* container)
         register_begin(ANIMATION_REQUEST_RESERVED);
         register_object_move_to_object(critter, container, critter->data.critter.combat.ap, 0);
     } else {
-        register_begin(critter == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
+        register_begin(critter == obj_dude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
 
-        if (objectGetDistanceBetween(critter, container) < 5) {
+        if (obj_dist(critter, container) < 5) {
             register_object_move_to_object(critter, container, -1, 0);
         } else {
             register_object_run_to_object(critter, container, -1, 0);
@@ -1298,7 +1298,7 @@ int action_loot_container(Object* critter, Object* container)
 int action_skill_use(int skill)
 {
     if (skill == SKILL_SNEAK) {
-        register_clear(gDude);
+        register_clear(obj_dude);
         pc_flag_toggle(DUDE_STATE_SNEAKING);
         return 0;
     }
@@ -1313,7 +1313,7 @@ int action_use_skill_in_combat_error(Object* critter)
 {
     MessageListItem messageListItem;
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         messageListItem.num = 902;
         if (message_search(&gProtoMessageList, &messageListItem) == 1) {
             display_print(messageListItem.text);
@@ -1406,12 +1406,12 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
     // Performer is either dude, or party member who's best at the specified
     // skill in entire party, and this skill is his/her own best.
-    Object* performer = gDude;
+    Object* performer = obj_dude;
 
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         Object* partyMember = partyMemberGetBestInSkill(skill);
 
-        if (partyMember == gDude) {
+        if (partyMember == obj_dude) {
             partyMember = NULL;
         }
 
@@ -1431,7 +1431,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
             int anim = FID_ANIM_TYPE(partyMember->fid);
             if (anim != ANIM_WALK && anim != ANIM_RUNNING) {
                 if (anim != ANIM_STAND) {
-                    performer = gDude;
+                    performer = obj_dude;
                     partyMember = NULL;
                 }
             } else {
@@ -1441,7 +1441,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
         if (partyMember != NULL) {
             bool v32 = false;
-            if (objectGetDistanceBetween(gDude, a2) <= 1) {
+            if (obj_dist(obj_dude, a2) <= 1) {
                 v32 = true;
             }
 
@@ -1453,7 +1453,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
             }
 
             if (v32) {
-                performer = gDude;
+                performer = obj_dude;
                 partyMember = NULL;
             }
         }
@@ -1470,9 +1470,9 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
         register_begin(ANIMATION_REQUEST_RESERVED);
         register_object_move_to_object(performer, a2, performer->data.critter.combat.ap, 0);
     } else {
-        register_begin(a1 == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
-        if (a2 != gDude) {
-            if (objectGetDistanceBetween(performer, a2) >= 5) {
+        register_begin(a1 == obj_dude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
+        if (a2 != obj_dude) {
+            if (obj_dist(performer, a2) >= 5) {
                 register_object_run_to_object(performer, a2, -1, 0);
             } else {
                 register_object_move_to_object(performer, a2, -1, 0);
@@ -1566,7 +1566,7 @@ int pick_hex()
                 rotation = 0;
             }
 
-            objectSetRotation(obj_mouse, rotation, &rect);
+            obj_set_rotation(obj_mouse, rotation, &rect);
             tileWindowRefreshRect(&rect, obj_mouse->elevation);
         }
 
@@ -1576,7 +1576,7 @@ int pick_hex()
                 rotation = 5;
             }
 
-            objectSetRotation(obj_mouse, rotation, &rect);
+            obj_set_rotation(obj_mouse, rotation, &rect);
             tileWindowRefreshRect(&rect, obj_mouse->elevation);
         }
 
@@ -1653,7 +1653,7 @@ int pick_fall(Object* obj, int anim)
         rotation = obj->rotation;
         for (i = 1; i < 3; i++) {
             tile_num = tileGetTileInDirection(obj->tile, rotation, i);
-            if (_obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
+            if (obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
                 anim = ANIM_FALL_BACK;
                 break;
             }
@@ -1662,7 +1662,7 @@ int pick_fall(Object* obj, int anim)
         rotation = (obj->rotation + 3) % ROTATION_COUNT;
         for (i = 1; i < 3; i++) {
             tile_num = tileGetTileInDirection(obj->tile, rotation, i);
-            if (_obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
+            if (obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
                 anim = ANIM_FALL_FRONT;
                 break;
             }
@@ -1700,37 +1700,37 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
 
     Object* explosion;
     int fid = art_id(OBJ_TYPE_MISC, 10, 0, 0, 0);
-    if (objectCreateWithFidPid(&explosion, fid, -1) == -1) {
+    if (obj_new(&explosion, fid, -1) == -1) {
         internal_free(attack);
         return -1;
     }
 
-    objectHide(explosion, NULL);
+    obj_turn_off(explosion, NULL);
     explosion->flags |= OBJECT_TEMPORARY;
 
-    objectSetLocation(explosion, tile, elevation, NULL);
+    obj_move_to_tile(explosion, tile, elevation, NULL);
 
     Object* adjacentExplosions[ROTATION_COUNT];
     for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
         int fid = art_id(OBJ_TYPE_MISC, 10, 0, 0, 0);
-        if (objectCreateWithFidPid(&(adjacentExplosions[rotation]), fid, -1) == -1) {
+        if (obj_new(&(adjacentExplosions[rotation]), fid, -1) == -1) {
             while (--rotation >= 0) {
-                objectDestroy(adjacentExplosions[rotation], NULL);
+                obj_erase_object(adjacentExplosions[rotation], NULL);
             }
 
-            objectDestroy(explosion, NULL);
+            obj_erase_object(explosion, NULL);
             internal_free(attack);
             return -1;
         }
 
-        objectHide(adjacentExplosions[rotation], NULL);
+        obj_turn_off(adjacentExplosions[rotation], NULL);
         adjacentExplosions[rotation]->flags |= OBJECT_TEMPORARY;
 
         int adjacentTile = tileGetTileInDirection(tile, rotation, 1);
-        objectSetLocation(adjacentExplosions[rotation], adjacentTile, elevation, NULL);
+        obj_move_to_tile(adjacentExplosions[rotation], adjacentTile, elevation, NULL);
     }
 
-    Object* critter = _obj_blocking_at(NULL, tile, elevation);
+    Object* critter = obj_blocking_at(NULL, tile, elevation);
     if (critter != NULL) {
         if (FID_TYPE(critter->fid) != OBJ_TYPE_CRITTER || (critter->data.critter.combat.results & DAM_DEAD) != 0) {
             critter = NULL;
@@ -1791,10 +1791,10 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
         if (register_end() == -1) {
             action_in_explode = false;
 
-            objectDestroy(explosion, NULL);
+            obj_erase_object(explosion, NULL);
 
             for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-                objectDestroy(adjacentExplosions[rotation], NULL);
+                obj_erase_object(adjacentExplosions[rotation], NULL);
             }
 
             internal_free(attack);
@@ -1821,10 +1821,10 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
 
         combat_explode_scenery(explosion, NULL);
 
-        objectDestroy(explosion, NULL);
+        obj_erase_object(explosion, NULL);
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-            objectDestroy(adjacentExplosions[rotation], NULL);
+            obj_erase_object(adjacentExplosions[rotation], NULL);
         }
     }
 
@@ -1855,7 +1855,7 @@ static int report_explosion(Attack* attack, Object* a2)
     if (a2 != NULL) {
         if (attack->defender != NULL && attack->defender != a2) {
             if ((attack->defender->data.critter.combat.results & DAM_DEAD) != 0) {
-                if (a2 == gDude && !mainTargetWasDead) {
+                if (a2 == obj_dude && !mainTargetWasDead) {
                     xp += critter_kill_exps(attack->defender);
                 }
             } else {
@@ -1868,7 +1868,7 @@ static int report_explosion(Attack* attack, Object* a2)
             Object* critter = attack->extras[index];
             if (critter != a2) {
                 if ((critter->data.critter.combat.results & DAM_DEAD) != 0) {
-                    if (a2 == gDude && !extrasWasDead[index]) {
+                    if (a2 == obj_dude && !extrasWasDead[index]) {
                         xp += critter_kill_exps(critter);
                     }
                 } else {
@@ -1900,7 +1900,7 @@ static int report_explosion(Attack* attack, Object* a2)
     internal_free(attack);
     game_ui_enable();
 
-    if (a2 == gDude) {
+    if (a2 == obj_dude) {
         combat_give_exps(xp);
     }
 
@@ -1940,7 +1940,7 @@ static int compute_explosion_damage(int min, int max, Object* a3, int* a4)
 // 0x413330
 int action_talk_to(Object* a1, Object* a2)
 {
-    if (a1 != gDude) {
+    if (a1 != obj_dude) {
         return -1;
     }
 
@@ -1948,18 +1948,18 @@ int action_talk_to(Object* a1, Object* a2)
         return -1;
     }
 
-    int anim = FID_ANIM_TYPE(gDude->fid);
+    int anim = FID_ANIM_TYPE(obj_dude->fid);
     if (anim == ANIM_WALK || anim == ANIM_RUNNING) {
-        register_clear(gDude);
+        register_clear(obj_dude);
     }
 
     if (isInCombat()) {
         register_begin(ANIMATION_REQUEST_RESERVED);
         register_object_move_to_object(a1, a2, a1->data.critter.combat.ap, 0);
     } else {
-        register_begin(a1 == gDude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
+        register_begin(a1 == obj_dude ? ANIMATION_REQUEST_RESERVED : ANIMATION_REQUEST_UNRESERVED);
 
-        if (objectGetDistanceBetween(a1, a2) >= 9 || combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
+        if (obj_dist(a1, a2) >= 9 || combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL)) {
             register_object_run_to_object(a1, a2, -1, 0);
         }
     }
@@ -1972,8 +1972,8 @@ int action_talk_to(Object* a1, Object* a2)
 // 0x413420
 static int can_talk_to(Object* a1, Object* a2)
 {
-    if (combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL) || objectGetDistanceBetween(a1, a2) >= 9) {
-        if (a1 == gDude) {
+    if (combat_is_shot_blocked(a1, a1->tile, a2->tile, a2, NULL) || obj_dist(a1, a2) >= 9) {
+        if (a1 == obj_dude) {
             // You cannot get there. (used in actions.c)
             MessageListItem messageListItem;
             messageListItem.num = 2000;
@@ -2004,18 +2004,18 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
     }
 
     Object* attacker;
-    if (objectCreateWithFidPid(&attacker, FID_0x20001F5, -1) == -1) {
+    if (obj_new(&attacker, FID_0x20001F5, -1) == -1) {
         internal_free(attack);
         return;
     }
 
-    objectHide(attacker, NULL);
+    obj_turn_off(attacker, NULL);
 
     attacker->flags |= OBJECT_TEMPORARY;
 
-    objectSetLocation(attacker, tile, elevation, NULL);
+    obj_move_to_tile(attacker, tile, elevation, NULL);
 
-    Object* defender = _obj_blocking_at(NULL, tile, elevation);
+    Object* defender = obj_blocking_at(NULL, tile, elevation);
     combat_ctd_init(attack, attacker, defender, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
     attack->tile = tile;
     attack->attackerFlags = DAM_HIT;
@@ -2044,7 +2044,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
         register_object_must_erase(attacker);
 
         if (register_end() == -1) {
-            objectDestroy(attacker, NULL);
+            obj_erase_object(attacker, NULL);
             internal_free(attack);
             return;
         }
@@ -2058,7 +2058,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
         // NOTE: Uninline.
         report_dmg(attack, NULL);
 
-        objectDestroy(attacker, NULL);
+        obj_erase_object(attacker, NULL);
     }
 
     game_ui_enable();
@@ -2174,32 +2174,32 @@ int action_push_critter(Object* a1, Object* a2)
     int tile;
     do {
         tile = tileGetTileInDirection(a2->tile, rotation, 1);
-        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
+        if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 1) % ROTATION_COUNT, 1);
-        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
+        if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 5) % ROTATION_COUNT, 1);
-        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
+        if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 2) % ROTATION_COUNT, 1);
-        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
+        if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 4) % ROTATION_COUNT, 1);
-        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
+        if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
         tile = tileGetTileInDirection(a2->tile, (rotation + 3) % ROTATION_COUNT, 1);
-        if (_obj_blocking_at(a2, tile, a2->elevation) == NULL) {
+        if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
@@ -2225,7 +2225,7 @@ int action_push_critter(Object* a1, Object* a2)
 // 0x413970
 int action_can_talk_to(Object* a1, Object* a2)
 {
-    if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, _obj_sight_blocking_at) == 0) {
+    if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, obj_sight_blocking_at) == 0) {
         return -1;
     }
 

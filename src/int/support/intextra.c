@@ -390,7 +390,7 @@ static int scripts_tile_is_visible(int tile)
 // 0x45409C
 static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 {
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         bool animated = !game_ui_is_disabled();
         intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
@@ -400,7 +400,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
     int newFid = -1;
 
     if ((flags & 0x03000000) != 0) {
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             if (intface_is_item_right_hand()) {
                 if ((flags & 0x02000000) != 0) {
                     v8 = 0;
@@ -420,7 +420,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
             newFid = art_id(FID_TYPE(fid), fid & 0xFFF, FID_ANIM_TYPE(fid), 0, (fid & 0x70000000) >> 28);
         }
     } else {
-        if (a1 == gDude) {
+        if (a1 == obj_dude) {
             newFid = art_id(FID_TYPE(fid), art_vault_guy_num, FID_ANIM_TYPE(fid), v8, (fid & 0x70000000) >> 28);
         }
 
@@ -429,7 +429,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
 
     if (newFid != -1) {
         Rect rect;
-        objectSetFid(a1, newFid, &rect);
+        obj_change_fid(a1, newFid, &rect);
         tileWindowRefreshRect(&rect, map_elevation);
     }
 
@@ -566,14 +566,14 @@ static void op_override_map_start(Program* program)
     int tile = 200 * y + x;
     int previousTile = gCenterTile;
     if (tile != -1) {
-        if (objectSetRotation(gDude, rotation, NULL) != 0) {
+        if (obj_set_rotation(obj_dude, rotation, NULL) != 0) {
             int_debug("\nError: %s: obj_set_rotation failed in override_map_start!", program->name);
         }
 
-        if (objectSetLocation(gDude, tile, elevation, NULL) != 0) {
+        if (obj_move_to_tile(obj_dude, tile, elevation, NULL) != 0) {
             int_debug("\nError: %s: obj_move_to_tile failed in override_map_start!", program->name);
 
-            if (objectSetLocation(gDude, previousTile, elevation, NULL) != 0) {
+            if (obj_move_to_tile(obj_dude, previousTile, elevation, NULL) != 0) {
                 int_debug("\nError: %s: obj_move_to_tile RECOVERY Also failed!");
                 exit(1);
             }
@@ -648,7 +648,7 @@ static void op_using_skill(Program* program)
     // SKILL_SNEAK as arguments.
     int result = 0;
 
-    if (skill == SKILL_SNEAK && object == gDude) {
+    if (skill == SKILL_SNEAK && object == obj_dude) {
         result = is_pc_flag(DUDE_STATE_SNEAKING);
     }
 
@@ -1003,7 +1003,7 @@ static void op_move_to(Program* program)
     int newTile;
 
     if (object != NULL) {
-        if (object == gDude) {
+        if (object == obj_dude) {
             bool tileLimitingEnabled = tileScrollLimitingIsEnabled();
             bool tileBlockingEnabled = tileScrollBlockingIsEnabled();
 
@@ -1016,7 +1016,7 @@ static void op_move_to(Program* program)
             }
 
             Rect rect;
-            newTile = objectSetLocation(object, tile, elevation, &rect);
+            newTile = obj_move_to_tile(object, tile, elevation, &rect);
             if (newTile != -1) {
                 tileSetCenter(object->tile, TILE_SET_CENTER_REFRESH_WINDOW);
             }
@@ -1030,14 +1030,14 @@ static void op_move_to(Program* program)
             }
         } else {
             Rect before;
-            objectGetRect(object, &before);
+            obj_bound(object, &before);
 
             if (object->elevation != elevation && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                 combat_delete_critter(object);
             }
 
             Rect after;
-            newTile = objectSetLocation(object, tile, elevation, &after);
+            newTile = obj_move_to_tile(object, tile, elevation, &after);
             if (newTile != -1) {
                 rectUnion(&before, &after, &before);
                 tileWindowRefreshRect(&before, map_elevation);
@@ -1090,13 +1090,13 @@ static void op_create_object_sid(Program* program)
 
     Proto* proto;
     if (protoGetProto(pid, &proto) != -1) {
-        if (objectCreateWithFidPid(&object, proto->fid, pid) != -1) {
+        if (obj_new(&object, proto->fid, pid) != -1) {
             if (tile == -1) {
                 tile = 0;
             }
 
             Rect rect;
-            if (objectSetLocation(object, tile, elevation, &rect) != -1) {
+            if (obj_move_to_tile(object, tile, elevation, &rect) != -1) {
                 tileWindowRefreshRect(&rect, object->elevation);
             }
         }
@@ -1185,30 +1185,30 @@ static void op_destroy_object(Program* program)
         combat_delete_critter(object);
     }
 
-    Object* owner = objectGetOwner(object);
+    Object* owner = obj_top_environment(object);
     if (owner != NULL) {
         int quantity = item_count(owner, object);
         item_remove_mult(owner, object, quantity);
 
-        if (owner == gDude) {
+        if (owner == obj_dude) {
             bool animated = !game_ui_is_disabled();
             intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
-        _obj_connect(object, 1, 0, NULL);
+        obj_connect(object, 1, 0, NULL);
 
         if (isSelf) {
             object->sid = -1;
             object->flags |= (OBJECT_HIDDEN | OBJECT_TEMPORARY);
         } else {
             register_clear(object);
-            objectDestroy(object, NULL);
+            obj_erase_object(object, NULL);
         }
     } else {
         register_clear(object);
 
         Rect rect;
-        objectDestroy(object, &rect);
+        obj_erase_object(object, &rect);
         tileWindowRefreshRect(&rect, map_elevation);
     }
 
@@ -1316,13 +1316,13 @@ static void op_tile_contains_obj_pid(Program* program)
 
     int result = 0;
 
-    Object* object = objectFindFirstAtLocation(elevation, tile);
+    Object* object = obj_find_first_at_tile(elevation, tile);
     while (object) {
         if (object->pid == pid) {
             result = 1;
             break;
         }
-        object = objectFindNextAtLocation();
+        object = obj_find_next_at_tile();
     }
 
     interpretPushLong(program, result);
@@ -1376,7 +1376,7 @@ static void op_target_obj(Program* program)
 // 0x4556CC
 static void op_dude_obj(Program* program)
 {
-    interpretPushLong(program, (int)gDude);
+    interpretPushLong(program, (int)obj_dude);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
 
@@ -1683,7 +1683,7 @@ static void op_set_critter_stat(Program* program)
 
     int result = 0;
     if (object != NULL) {
-        if (object == gDude) {
+        if (object == obj_dude) {
             int currentValue = critterGetBaseStatWithTraitModifier(object, stat);
             critterSetBaseStat(object, stat, currentValue + value);
         } else {
@@ -2130,7 +2130,7 @@ static void op_add_obj_to_inven(Program* program)
     if (item->owner == NULL) {
         if (item_add_force(owner, item, 1) == 0) {
             Rect rect;
-            _obj_disconnect(item, &rect);
+            obj_disconnect(item, &rect);
             tileWindowRefreshRect(&rect, item->elevation);
         }
     } else {
@@ -2186,7 +2186,7 @@ static void op_rm_obj_from_inven(Program* program)
 
     if (item_remove_mult(owner, item, 1) == 0) {
         Rect rect;
-        _obj_connect(item, 1, 0, &rect);
+        obj_connect(item, 1, 0, &rect);
         tileWindowRefreshRect(&rect, item->elevation);
 
         if (updateFlags) {
@@ -2238,13 +2238,13 @@ static void op_wield_obj_critter(Program* program)
     bool shouldAdjustArmorClass = false;
     Object* oldArmor = NULL;
     Object* newArmor = NULL;
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if (intface_is_item_right_hand() == HAND_LEFT) {
             hand = HAND_LEFT;
         }
 
         if (item_get_type(item) == ITEM_TYPE_ARMOR) {
-            oldArmor = inven_worn(gDude);
+            oldArmor = inven_worn(obj_dude);
         }
 
         shouldAdjustArmorClass = true;
@@ -2257,7 +2257,7 @@ static void op_wield_obj_critter(Program* program)
         return;
     }
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if (shouldAdjustArmorClass) {
             adjust_ac(critter, oldArmor, newArmor);
         }
@@ -2338,7 +2338,7 @@ static void op_obj_can_see_obj(Program* program)
         if (object2->tile != -1) {
             // NOTE: Looks like dead code, I guess these checks were incorporated
             // into higher level functions, but this code left intact.
-            if (object2 == gDude) {
+            if (object2 == obj_dude) {
                 is_pc_flag(0);
             }
 
@@ -2599,7 +2599,7 @@ static void op_metarule3(Program* program)
 
             bool critterFound = previousCritter == NULL;
 
-            Object* object = objectFindFirstAtLocation(elevation, tile);
+            Object* object = obj_find_first_at_tile(elevation, tile);
             while (object != NULL) {
                 if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                     if (critterFound) {
@@ -2612,7 +2612,7 @@ static void op_metarule3(Program* program)
                     critterFound = true;
                 }
 
-                object = objectFindNextAtLocation();
+                object = obj_find_next_at_tile();
             }
         }
         break;
@@ -2628,7 +2628,7 @@ static void op_metarule3(Program* program)
                 (obj->fid & 0x70000000) >> 28);
 
             Rect updatedRect;
-            objectSetFid(obj, fid, &updatedRect);
+            obj_change_fid(obj, fid, &updatedRect);
             tileWindowRefreshRect(&updatedRect, map_elevation);
         }
         break;
@@ -2724,12 +2724,12 @@ static void op_set_obj_visibility(Program* program)
     if (invisible != 0) {
         if ((obj->flags & OBJECT_HIDDEN) == 0) {
             if (isInCombat()) {
-                objectDisableOutline(obj, NULL);
-                objectClearOutline(obj, NULL);
+                obj_turn_off_outline(obj, NULL);
+                obj_remove_outline(obj, NULL);
             }
 
             Rect rect;
-            if (objectHide(obj, &rect) != -1) {
+            if (obj_turn_off(obj, &rect) != -1) {
                 if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
                     obj->flags |= OBJECT_NO_BLOCK;
                 }
@@ -2744,7 +2744,7 @@ static void op_set_obj_visibility(Program* program)
             }
 
             Rect rect;
-            if (objectShow(obj, &rect) != -1) {
+            if (obj_turn_on(obj, &rect) != -1) {
                 tileWindowRefreshRect(&rect, obj->elevation);
             }
         }
@@ -2864,14 +2864,14 @@ static void op_set_exit_grids(Program* program)
     int destinationTile = data[1];
     int destinationRotation = data[0];
 
-    Object* object = objectFindFirstAtElevation(elevation);
+    Object* object = obj_find_first_at(elevation);
     while (object != NULL) {
         if (object->pid >= PROTO_ID_0x5000010 && object->pid <= PROTO_ID_0x5000017) {
             object->data.misc.map = destinationMap;
             object->data.misc.tile = destinationTile;
             object->data.misc.elevation = destinationElevation;
         }
-        object = objectFindNextAtElevation();
+        object = obj_find_next_at();
     }
 }
 
@@ -2926,7 +2926,7 @@ static void op_critter_heal(Program* program)
 
     int rc = critter_adjust_hits(critter, amount);
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         intface_update_hit_points(true);
     }
 
@@ -3150,10 +3150,10 @@ static void op_kill_critter_type(Program* program)
     int count = 0;
     int v3 = 0;
 
-    Object* obj = objectFindFirst();
+    Object* obj = obj_find_first();
     while (obj != NULL) {
         if (FID_ANIM_TYPE(obj->fid) >= ANIM_FALL_BACK_SF) {
-            obj = objectFindNext();
+            obj = obj_find_next();
             continue;
         }
 
@@ -3183,19 +3183,19 @@ static void op_kill_critter_type(Program* program)
                 register_clear(obj);
 
                 Rect rect;
-                objectDestroy(obj, &rect);
+                obj_erase_object(obj, &rect);
                 tileWindowRefreshRect(&rect, map_elevation);
             }
 
             previousObj = obj;
             count += 1;
 
-            objectFindFirst();
+            obj_find_first();
 
             map_data.lastVisitTime = gameTimeGetTime();
         }
 
-        obj = objectFindNext();
+        obj = obj_find_next();
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -3719,7 +3719,7 @@ static void op_critter_attempt_placement(Program* program)
         combat_delete_critter(critter);
     }
 
-    objectSetLocation(critter, 0, elevation, NULL);
+    obj_move_to_tile(critter, 0, elevation, NULL);
 
     int rc = _obj_attempt_placement(critter, tile, elevation, 1);
     interpretPushLong(program, rc);
@@ -3807,7 +3807,7 @@ static void op_critter_add_trait(Program* program)
                         }
                     }
 
-                    if (object == gDude) {
+                    if (object == obj_dude) {
                         intface_update_hit_points(true);
                     }
                 }
@@ -4007,7 +4007,7 @@ static void op_critter_inven_obj(Program* program)
             result = (int)inven_worn(critter);
             break;
         case INVEN_TYPE_RIGHT_HAND:
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 if (intface_is_item_right_hand() != HAND_LEFT) {
                     result = (int)inven_right_hand(critter);
                 }
@@ -4016,7 +4016,7 @@ static void op_critter_inven_obj(Program* program)
             }
             break;
         case INVEN_TYPE_LEFT_HAND:
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 if (intface_is_item_right_hand() == HAND_LEFT) {
                     result = (int)inven_left_hand(critter);
                 }
@@ -4070,11 +4070,11 @@ static void op_obj_set_light_level(Program* program)
 
     Rect rect;
     if (lightIntensity != 0) {
-        if (objectSetLight(object, lightDistance, (lightIntensity * 65636) / 100, &rect) == -1) {
+        if (obj_set_light(object, lightDistance, (lightIntensity * 65636) / 100, &rect) == -1) {
             return;
         }
     } else {
-        if (objectSetLight(object, lightDistance, 0, &rect) == -1) {
+        if (obj_set_light(object, lightDistance, 0, &rect) == -1) {
             return;
         }
     }
@@ -4191,7 +4191,7 @@ static void op_float_msg(Program* program)
         color = colorTable[31744];
         a5 = colorTable[0];
         font = 103;
-        tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
+        tileSetCenter(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
         break;
     case FLOATING_MESSAGE_TYPE_NORMAL:
     case FLOATING_MESSAGE_TYPE_YELLOW:
@@ -4301,7 +4301,7 @@ static void op_metarule(Program* program)
         if (1) {
             Object* object = (Object*)param;
             result = item_drop_all(object, object->tile);
-            if (gDude == object) {
+            if (obj_dude == object) {
                 intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 intface_update_ac(false);
             }
@@ -4312,7 +4312,7 @@ static void op_metarule(Program* program)
             Object* object = (Object*)param;
 
             int hand = HAND_RIGHT;
-            if (object == gDude) {
+            if (object == obj_dude) {
                 if (intface_is_item_right_hand() == HAND_LEFT) {
                     hand = HAND_LEFT;
                 }
@@ -4320,7 +4320,7 @@ static void op_metarule(Program* program)
 
             result = invenUnwieldFunc(object, hand, 0);
 
-            if (object == gDude) {
+            if (object == obj_dude) {
                 bool animated = !game_ui_is_disabled();
                 intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
             } else {
@@ -4475,12 +4475,12 @@ static void op_anim(Program* program)
     } else if (anim == 1000) {
         if (frame < ROTATION_COUNT) {
             Rect rect;
-            objectSetRotation(obj, frame, &rect);
+            obj_set_rotation(obj, frame, &rect);
             tileWindowRefreshRect(&rect, map_elevation);
         }
     } else if (anim == 1010) {
         Rect rect;
-        objectSetFrame(obj, frame, &rect);
+        obj_set_frame(obj, frame, &rect);
         tileWindowRefreshRect(&rect, map_elevation);
     } else {
         int_debug("\nScript Error: %s: op_anim: anim out of range", program->name);
@@ -4835,7 +4835,7 @@ static void op_add_mult_objs_to_inven(Program* program)
 
     if (item_add_force(object, item, quantity) == 0) {
         Rect rect;
-        _obj_disconnect(item, &rect);
+        obj_disconnect(item, &rect);
         tileWindowRefreshRect(&rect, item->elevation);
     }
 }
@@ -4878,9 +4878,9 @@ static void op_rm_mult_objs_from_inven(Program* program)
     if (quantity != 0) {
         if (item_remove_mult(owner, item, quantity) == 0) {
             Rect updatedRect;
-            _obj_connect(item, 1, 0, &updatedRect);
+            obj_connect(item, 1, 0, &updatedRect);
             if (itemWasEquipped) {
-                if (owner == gDude) {
+                if (owner == obj_dude) {
                     bool animated = !game_ui_is_disabled();
                     intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 }
@@ -5174,8 +5174,8 @@ static void op_giq_option(Program* program)
     int proc = data[1];
     int reaction = data[0];
 
-    int intelligence = critterGetStat(gDude, STAT_INTELLIGENCE);
-    intelligence += perkGetRank(gDude, PERK_SMOOTH_TALKER);
+    int intelligence = critterGetStat(obj_dude, STAT_INTELLIGENCE);
+    intelligence += perkGetRank(obj_dude, PERK_SMOOTH_TALKER);
 
     if (iq < 0) {
         if (-intelligence < iq) {
@@ -5392,7 +5392,7 @@ static void op_critter_injure(Program* program)
         critter->data.critter.combat.results |= flags;
     }
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if ((flags & DAM_CRIP_ARM_ANY) != 0) {
             int leftItemAction;
             int rightItemAction;
@@ -5461,7 +5461,7 @@ static void op_inven_unwield(Program* program)
     obj = scriptGetSelf(program);
     v1 = 1;
 
-    if (obj == gDude && !intface_is_item_right_hand()) {
+    if (obj == obj_dude && !intface_is_item_right_hand()) {
         v1 = 0;
     }
 
@@ -5843,7 +5843,7 @@ static void op_critter_mod_skill(Program* program)
 
     if (critter != NULL && points != 0) {
         if (PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 int normalizedPoints = abs(points);
                 if (skillIsTagged(skill)) {
                     // Halve number of skill points. Increment/decrement skill
@@ -5854,18 +5854,18 @@ static void op_critter_mod_skill(Program* program)
                 if (points > 0) {
                     // Increment skill points one by one.
                     for (int it = 0; it < normalizedPoints; it++) {
-                        skillAddForce(gDude, skill);
+                        skillAddForce(obj_dude, skill);
                     }
                 } else {
                     // Decrement skill points one by one.
                     for (int it = 0; it < normalizedPoints; it++) {
-                        skillSubForce(gDude, skill);
+                        skillSubForce(obj_dude, skill);
                     }
                 }
 
                 // TODO: Checking for critter is dude twice probably means this
                 // is inlined function.
-                if (critter == gDude) {
+                if (critter == obj_dude) {
                     int leftItemAction;
                     int rightItemAction;
                     intface_get_item_states(&leftItemAction, &rightItemAction);
@@ -6208,7 +6208,7 @@ static void op_destroy_mult_objs(Program* program)
         combat_delete_critter(object);
     }
 
-    Object* owner = objectGetOwner(object);
+    Object* owner = obj_top_environment(object);
     if (owner != NULL) {
         int quantityToDestroy = item_count(owner, object);
         if (quantityToDestroy > quantity) {
@@ -6217,19 +6217,19 @@ static void op_destroy_mult_objs(Program* program)
 
         item_remove_mult(owner, object, quantityToDestroy);
 
-        if (owner == gDude) {
+        if (owner == obj_dude) {
             bool animated = !game_ui_is_disabled();
             intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
 
-        _obj_connect(object, 1, 0, NULL);
+        obj_connect(object, 1, 0, NULL);
 
         if (isSelf) {
             object->sid = -1;
             object->flags |= (OBJECT_HIDDEN | OBJECT_TEMPORARY);
         } else {
             register_clear(object);
-            objectDestroy(object, NULL);
+            obj_erase_object(object, NULL);
         }
 
         result = quantityToDestroy;
@@ -6237,7 +6237,7 @@ static void op_destroy_mult_objs(Program* program)
         register_clear(object);
 
         Rect rect;
-        objectDestroy(object, &rect);
+        obj_erase_object(object, &rect);
         tileWindowRefreshRect(&rect, map_elevation);
     }
 
@@ -6341,13 +6341,13 @@ static void op_move_obj_inven_to_obj(Program* program)
 
     Object* oldArmor = NULL;
     Object* item2 = NULL;
-    if (object1 == gDude) {
+    if (object1 == obj_dude) {
         oldArmor = inven_worn(object1);
     } else {
         item2 = inven_right_hand(object1);
     }
 
-    if (object1 != gDude && item2 != NULL) {
+    if (object1 != obj_dude && item2 != NULL) {
         int flags = 0;
         if ((item2->flags & 0x01000000) != 0) {
             flags |= 0x01000000;
@@ -6362,9 +6362,9 @@ static void op_move_obj_inven_to_obj(Program* program)
 
     item_move_all(object1, object2);
 
-    if (object1 == gDude) {
+    if (object1 == obj_dude) {
         if (oldArmor != NULL) {
-            adjust_ac(gDude, oldArmor, NULL);
+            adjust_ac(obj_dude, oldArmor, NULL);
         }
 
         _proto_dude_update_gender();
@@ -6545,7 +6545,7 @@ static void op_obj_on_screen(Program* program)
     if (object != NULL) {
         if (map_elevation == object->elevation) {
             Rect objectRect;
-            objectGetRect(object, &objectRect);
+            obj_bound(object, &objectRect);
 
             if (rectIntersection(&objectRect, &rect, &objectRect) == 0) {
                 result = 1;
@@ -6712,13 +6712,13 @@ static void op_tile_contains_pid_obj(Program* program)
     Object* found = NULL;
 
     if (tile != -1) {
-        Object* object = objectFindFirstAtLocation(elevation, tile);
+        Object* object = obj_find_first_at_tile(elevation, tile);
         while (object != NULL) {
             if (object->pid == pid) {
                 found = object;
                 break;
             }
-            object = objectFindNextAtLocation();
+            object = obj_find_next_at_tile();
         }
     }
 
@@ -6745,7 +6745,7 @@ static void op_obj_name(Program* program)
 
     Object* obj = (Object*)data;
     if (obj != NULL) {
-        strName = objectGetName(obj);
+        strName = object_name(obj);
     } else {
         dbg_error(program, "obj_name", SCRIPT_ERROR_OBJECT_IS_NULL);
     }

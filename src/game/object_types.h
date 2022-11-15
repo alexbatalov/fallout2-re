@@ -1,5 +1,5 @@
-#ifndef OBJ_TYPES_H
-#define OBJ_TYPES_H
+#ifndef FALLOUT_GAME_OBJECT_TYPES_H_
+#define FALLOUT_GAME_OBJECT_TYPES_H_
 
 // Rotation
 typedef enum Rotation {
@@ -303,4 +303,4 @@ static inline int builtTileCreate(int tile, int elevation)
     return tile | ((elevation << BUILT_TILE_ELEVATION_SHIFT) & BUILT_TILE_ELEVATION_MASK);
 }
 
-#endif /* OBJ_TYPES_H */
+#endif /* FALLOUT_GAME_OBJECT_TYPES_H_ */

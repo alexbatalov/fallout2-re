@@ -686,7 +686,7 @@ bool characterSelectorWindowRenderStats()
     int y = 40;
 
     // NAME
-    str = objectGetName(gDude);
+    str = object_name(obj_dude);
     strcpy(text, str);
 
     length = fontGetStringWidth(text);
@@ -695,7 +695,7 @@ bool characterSelectorWindowRenderStats()
     // STRENGTH
     y += vh + vh + vh;
 
-    value = critterGetStat(gDude, STAT_STRENGTH);
+    value = critterGetStat(obj_dude, STAT_STRENGTH);
     str = statGetName(STAT_STRENGTH);
 
     sprintf(text, "%s %02d", str, value);
@@ -712,7 +712,7 @@ bool characterSelectorWindowRenderStats()
     // PERCEPTION
     y += vh;
 
-    value = critterGetStat(gDude, STAT_PERCEPTION);
+    value = critterGetStat(obj_dude, STAT_PERCEPTION);
     str = statGetName(STAT_PERCEPTION);
 
     sprintf(text, "%s %02d", str, value);
@@ -729,7 +729,7 @@ bool characterSelectorWindowRenderStats()
     // ENDURANCE
     y += vh;
 
-    value = critterGetStat(gDude, STAT_ENDURANCE);
+    value = critterGetStat(obj_dude, STAT_ENDURANCE);
     str = statGetName(STAT_PERCEPTION);
 
     sprintf(text, "%s %02d", str, value);
@@ -746,7 +746,7 @@ bool characterSelectorWindowRenderStats()
     // CHARISMA
     y += vh;
 
-    value = critterGetStat(gDude, STAT_CHARISMA);
+    value = critterGetStat(obj_dude, STAT_CHARISMA);
     str = statGetName(STAT_CHARISMA);
 
     sprintf(text, "%s %02d", str, value);
@@ -763,7 +763,7 @@ bool characterSelectorWindowRenderStats()
     // INTELLIGENCE
     y += vh;
 
-    value = critterGetStat(gDude, STAT_INTELLIGENCE);
+    value = critterGetStat(obj_dude, STAT_INTELLIGENCE);
     str = statGetName(STAT_INTELLIGENCE);
 
     sprintf(text, "%s %02d", str, value);
@@ -780,7 +780,7 @@ bool characterSelectorWindowRenderStats()
     // AGILITY
     y += vh;
 
-    value = critterGetStat(gDude, STAT_AGILITY);
+    value = critterGetStat(obj_dude, STAT_AGILITY);
     str = statGetName(STAT_AGILITY);
 
     sprintf(text, "%s %02d", str, value);
@@ -797,7 +797,7 @@ bool characterSelectorWindowRenderStats()
     // LUCK
     y += vh;
 
-    value = critterGetStat(gDude, STAT_LUCK);
+    value = critterGetStat(obj_dude, STAT_LUCK);
     str = statGetName(STAT_LUCK);
 
     sprintf(text, "%s %02d", str, value);
@@ -825,8 +825,8 @@ bool characterSelectorWindowRenderStats()
     length = fontGetStringWidth(text);
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    value = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-    sprintf(text, " %d/%d", critter_get_hits(gDude), value);
+    value = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+    sprintf(text, " %d/%d", critter_get_hits(obj_dude), value);
 
     length = fontGetStringWidth(text);
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
@@ -840,7 +840,7 @@ bool characterSelectorWindowRenderStats()
     length = fontGetStringWidth(text);
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    value = critterGetStat(gDude, STAT_ARMOR_CLASS);
+    value = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
     sprintf(text, " %d", value);
 
     length = fontGetStringWidth(text);
@@ -858,7 +858,7 @@ bool characterSelectorWindowRenderStats()
     length = fontGetStringWidth(text);
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    value = critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS);
+    value = critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS);
     sprintf(text, " %d", value);
 
     length = fontGetStringWidth(text);
@@ -873,7 +873,7 @@ bool characterSelectorWindowRenderStats()
     length = fontGetStringWidth(text);
     fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    value = critterGetStat(gDude, STAT_ARMOR_CLASS);
+    value = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
     sprintf(text, " %d", value);
 
     length = fontGetStringWidth(text);
@@ -894,7 +894,7 @@ bool characterSelectorWindowRenderStats()
         length = fontGetStringWidth(text);
         fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-        value = skillGetValue(gDude, skills[index]);
+        value = skillGetValue(obj_dude, skills[index]);
         sprintf(text, " %d%%", value);
 
         length = fontGetStringWidth(text);

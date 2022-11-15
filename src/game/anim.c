@@ -641,7 +641,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
             char formattedText[92];
             MessageListItem messageListItem;
 
-            if (owner == gDude) {
+            if (owner == obj_dude) {
                 // You are overloaded.
                 strcpy(formattedText, getmsg(&misc_message_file, &messageListItem, 8000));
             } else {
@@ -661,7 +661,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
     animationDescription->destination = destination;
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
-        || (owner == gDude && is_pc_flag(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
+        || (owner == obj_dude && is_pc_flag(0) && !perkGetRank(obj_dude, PERK_SILENT_RUNNING))
         || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
@@ -734,7 +734,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
             MessageListItem messageListItem;
             char formattedText[72];
 
-            if (owner == gDude) {
+            if (owner == obj_dude) {
                 // You are overloaded.
                 strcpy(formattedText, getmsg(&misc_message_file, &messageListItem, 8000));
             } else {
@@ -757,7 +757,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
     animationDescription->elevation = elevation;
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
-        || (owner == gDude && is_pc_flag(0) && !perkGetRank(gDude, PERK_SILENT_RUNNING))
+        || (owner == obj_dude && is_pc_flag(0) && !perkGetRank(obj_dude, PERK_SILENT_RUNNING))
         || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
@@ -1535,11 +1535,11 @@ static int anim_set_check(int animationSequenceIndex)
             break;
         case ANIM_KIND_SET_FLAG:
             if (animationDescription->objectFlag == OBJECT_LIGHTING) {
-                if (_obj_turn_on_light(animationDescription->owner, &rect) == 0) {
+                if (obj_turn_on_light(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else if (animationDescription->objectFlag == OBJECT_HIDDEN) {
-                if (objectHide(animationDescription->owner, &rect) == 0) {
+                if (obj_turn_off(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else {
@@ -1550,11 +1550,11 @@ static int anim_set_check(int animationSequenceIndex)
             break;
         case ANIM_KIND_UNSET_FLAG:
             if (animationDescription->objectFlag == OBJECT_LIGHTING) {
-                if (_obj_turn_off_light(animationDescription->owner, &rect) == 0) {
+                if (obj_turn_off_light(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else if (animationDescription->objectFlag == OBJECT_HIDDEN) {
-                if (objectShow(animationDescription->owner, &rect) == 0) {
+                if (obj_turn_on(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else {
@@ -1564,7 +1564,7 @@ static int anim_set_check(int animationSequenceIndex)
             rc = anim_set_continue(animationSequenceIndex, 0);
             break;
         case ANIM_KIND_TOGGLE_FLAT:
-            if (_obj_toggle_flat(animationDescription->owner, &rect) == 0) {
+            if (obj_toggle_flat(animationDescription->owner, &rect) == 0) {
                 tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
             }
             rc = anim_set_continue(animationSequenceIndex, 0);
@@ -1576,7 +1576,7 @@ static int anim_set_check(int animationSequenceIndex)
             rc = anim_animate(animationDescription->owner, ANIM_TAKE_OUT, animationSequenceIndex, animationDescription->tile);
             break;
         case ANIM_KIND_SET_LIGHT_DISTANCE:
-            objectSetLight(animationDescription->owner, animationDescription->lightDistance, animationDescription->owner->lightIntensity, &rect);
+            obj_set_light(animationDescription->owner, animationDescription->lightDistance, animationDescription->owner->lightIntensity, &rect);
             tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
             rc = anim_set_continue(animationSequenceIndex, 0);
             break;
@@ -1588,11 +1588,11 @@ static int anim_set_check(int animationSequenceIndex)
             break;
         case ANIM_KIND_TOGGLE_OUTLINE:
             if (animationDescription->outline) {
-                if (objectEnableOutline(animationDescription->owner, &rect) == 0) {
+                if (obj_turn_on_outline(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             } else {
-                if (objectDisableOutline(animationDescription->owner, &rect) == 0) {
+                if (obj_turn_off_outline(animationDescription->owner, &rect) == 0) {
                     tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
                 }
             }
@@ -1674,7 +1674,7 @@ static int anim_set_end(int animationSequenceIndex)
     for (i = 0; i < animationSequence->length; i++) {
         animationDescription = &(animationSequence->animations[i]);
         if (animationDescription->kind == ANIM_KIND_HIDE && ((i < animationSequence->animationIndex) || (animationDescription->extendedFlags & ANIMATION_SEQUENCE_FORCED))) {
-            objectDestroy(animationDescription->owner, &v27);
+            obj_erase_object(animationDescription->owner, &v27);
             tileWindowRefreshRect(&v27, animationDescription->owner->elevation);
         }
     }
@@ -1753,8 +1753,8 @@ static int anim_set_end(int animationSequenceIndex)
 // 0x415E24
 static bool anim_can_use_door(Object* critter, Object* door)
 {
-    if (critter == gDude) {
-        if (!_obj_portal_is_walk_thru(door)) {
+    if (critter == obj_dude) {
+        if (!obj_portal_is_walk_thru(door)) {
             return false;
         }
     }
@@ -1795,7 +1795,7 @@ static bool anim_can_use_door(Object* critter, Object* door)
 // 0x415EE8
 int make_path(Object* object, int from, int to, unsigned char* rotations, int a5)
 {
-    return make_path_func(object, from, to, rotations, a5, _obj_blocking_at);
+    return make_path_func(object, from, to, rotations, a5, obj_blocking_at);
 }
 
 // 0x415EFC
@@ -1926,12 +1926,12 @@ int make_path_func(Object* object, int from, int to, unsigned char* rotations, i
             }
 
             if (isCritter) {
-                Object* o = objectFindFirstAtLocation(object->elevation, v27->tile);
+                Object* o = obj_find_first_at_tile(object->elevation, v27->tile);
                 while (o != NULL) {
                     if (o->pid >= 0x20003D9 && o->pid <= 0x20003DC) {
                         break;
                     }
-                    o = objectFindNextAtLocation();
+                    o = obj_find_next_at_tile();
                 }
 
                 if (o != NULL) {
@@ -2028,7 +2028,7 @@ int EST(int tile1, int tile2)
 // 0x4163AC
 int make_straight_path(Object* a1, int from, int to, StraightPathNode* pathNodes, Object** a5, int a6)
 {
-    return make_straight_path_func(a1, from, to, pathNodes, a5, a6, _obj_blocking_at);
+    return make_straight_path_func(a1, from, to, pathNodes, a5, a6, obj_blocking_at);
 }
 
 // TODO: Rather complex, but understandable, needs testing.
@@ -2355,7 +2355,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
 
             if (tile != prevTile) {
                 if (obstaclePtr != NULL) {
-                    *obstaclePtr = _obj_blocking_at(object, tile, object->elevation);
+                    *obstaclePtr = obj_blocking_at(object, tile, object->elevation);
                     if (*obstaclePtr != NULL) {
                         break;
                     }
@@ -2402,7 +2402,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
 
             if (tile != prevTile) {
                 if (obstaclePtr != NULL) {
-                    *obstaclePtr = _obj_blocking_at(object, tile, object->elevation);
+                    *obstaclePtr = obj_blocking_at(object, tile, object->elevation);
                     if (*obstaclePtr != NULL) {
                         break;
                     }
@@ -2449,7 +2449,7 @@ static int anim_move_to_tile(Object* obj, int tile, int elev, int a4, int anim, 
         return -1;
     }
 
-    if (_obj_blocking_at(obj, tile, elev)) {
+    if (obj_blocking_at(obj, tile, elev)) {
         AnimationSad* sad_entry = &(sad[v1]);
         sad_entry->field_1C--;
         if (sad_entry->field_1C <= 0) {
@@ -2600,7 +2600,7 @@ int check_for_falling(Object* obj, int anim, int a3)
     sad_entry->animationTimestamp = 0;
     sad_entry->ticksPerFrame = compute_tpf(obj, sad_entry->fid);
     sad_entry->animationSequenceIndex = a3;
-    sad_entry->field_1C = make_straight_path_func(obj, obj->tile, obj->tile, sad_entry->field_28, 0, 16, _obj_blocking_at);
+    sad_entry->field_1C = make_straight_path_func(obj, obj->tile, obj->tile, sad_entry->field_28, 0, 16, obj_blocking_at);
     if (sad_entry->field_1C == 0) {
         sad_entry->field_20 = -1000;
         return -1;
@@ -2621,21 +2621,21 @@ static void object_move(int index)
     Rect temp;
 
     if (sad_entry->field_20 == -2000) {
-        objectSetLocation(object, object->tile, object->elevation, &dirty);
+        obj_move_to_tile(object, object->tile, object->elevation, &dirty);
 
-        objectSetFrame(object, 0, &temp);
+        obj_set_frame(object, 0, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        objectSetRotation(object, sad_entry->rotations[0], &temp);
+        obj_set_rotation(object, sad_entry->rotations[0], &temp);
         rectUnion(&dirty, &temp, &dirty);
 
         int fid = art_id(FID_TYPE(object->fid), object->fid & 0xFFF, sad_entry->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
-        objectSetFid(object, fid, &temp);
+        obj_change_fid(object, fid, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
         sad_entry->field_20 = 0;
     } else {
-        objectSetNextFrame(object, &dirty);
+        obj_inc_frame(object, &dirty);
     }
 
     int frameX;
@@ -2651,7 +2651,7 @@ static void object_move(int index)
         frameY = 0;
     }
 
-    _obj_offset(object, frameX, frameY, &temp);
+    obj_offset(object, frameX, frameY, &temp);
     rectUnion(&dirty, &temp, &dirty);
 
     int rotation = sad_entry->rotations[sad_entry->field_20];
@@ -2662,18 +2662,18 @@ static void object_move(int index)
         y = object->y - y;
 
         int v10 = tileGetTileInDirection(object->tile, rotation, 1);
-        Object* v12 = _obj_blocking_at(object, v10, object->elevation);
+        Object* v12 = obj_blocking_at(object, v10, object->elevation);
         if (v12 != NULL) {
             if (!anim_can_use_door(object, v12)) {
                 sad_entry->field_1C = make_path(object, object->tile, sad_entry->field_24, sad_entry->rotations, 1);
                 if (sad_entry->field_1C != 0) {
-                    objectSetLocation(object, object->tile, object->elevation, &temp);
+                    obj_move_to_tile(object, object->tile, object->elevation, &temp);
                     rectUnion(&dirty, &temp, &dirty);
 
-                    objectSetFrame(object, 0, &temp);
+                    obj_set_frame(object, 0, &temp);
                     rectUnion(&dirty, &temp, &dirty);
 
-                    objectSetRotation(object, sad_entry->rotations[0], &temp);
+                    obj_set_rotation(object, sad_entry->rotations[0], &temp);
                     rectUnion(&dirty, &temp, &dirty);
 
                     sad_entry->field_20 = 0;
@@ -2687,7 +2687,7 @@ static void object_move(int index)
         }
 
         if (v10 != -1) {
-            objectSetLocation(object, v10, object->elevation, &temp);
+            obj_move_to_tile(object, v10, object->elevation, &temp);
             rectUnion(&dirty, &temp, &dirty);
 
             int v17 = 0;
@@ -2706,8 +2706,8 @@ static void object_move(int index)
                     combat_free_move -= v18;
                 }
 
-                if (object == gDude) {
-                    intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+                if (object == obj_dude) {
+                    intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
                 }
 
                 v17 = (object->data.critter.combat.ap + combat_free_move) <= 0;
@@ -2718,10 +2718,10 @@ static void object_move(int index)
             if (sad_entry->field_20 == sad_entry->field_1C || v17) {
                 sad_entry->field_20 = -1000;
             } else {
-                objectSetRotation(object, sad_entry->rotations[sad_entry->field_20], &temp);
+                obj_set_rotation(object, sad_entry->rotations[sad_entry->field_20], &temp);
                 rectUnion(&dirty, &temp, &dirty);
 
-                _obj_offset(object, x, y, &temp);
+                obj_offset(object, x, y, &temp);
                 rectUnion(&dirty, &temp, &dirty);
             }
         }
@@ -2743,10 +2743,10 @@ static void object_straight_move(int index)
     Rect temp;
 
     if (sad_entry->field_20 == -2000) {
-        objectSetFid(object, sad_entry->fid, &dirtyRect);
+        obj_change_fid(object, sad_entry->fid, &dirtyRect);
         sad_entry->field_20 = 0;
     } else {
-        objectGetRect(object, &dirtyRect);
+        obj_bound(object, &dirtyRect);
     }
 
     CacheEntry* cacheHandle;
@@ -2757,7 +2757,7 @@ static void object_straight_move(int index)
 
         if ((sad_entry->flags & ANIM_SAD_NO_ANIM) == 0) {
             if ((sad_entry->flags & ANIM_SAD_WAIT_FOR_COMPLETION) == 0 || object->frame < lastFrame) {
-                objectSetNextFrame(object, &temp);
+                obj_inc_frame(object, &temp);
                 rectUnion(&dirtyRect, &temp, &dirtyRect);
             }
         }
@@ -2765,10 +2765,10 @@ static void object_straight_move(int index)
         if (sad_entry->field_20 < sad_entry->field_1C) {
             StraightPathNode* v12 = &(sad_entry->field_28[sad_entry->field_20]);
 
-            objectSetLocation(object, v12->tile, v12->elevation, &temp);
+            obj_move_to_tile(object, v12->tile, v12->elevation, &temp);
             rectUnion(&dirtyRect, &temp, &dirtyRect);
 
-            _obj_offset(object, v12->x, v12->y, &temp);
+            obj_offset(object, v12->x, v12->y, &temp);
             rectUnion(&dirtyRect, &temp, &dirtyRect);
 
             sad_entry->field_20++;
@@ -2878,7 +2878,7 @@ void object_animate()
         Rect dirtyRect;
         Rect tempRect;
 
-        objectGetRect(object, &dirtyRect);
+        obj_bound(object, &dirtyRect);
 
         if (object->fid == sad_entry->fid) {
             if ((sad_entry->flags & ANIM_SAD_REVERSE) == 0) {
@@ -2897,14 +2897,14 @@ void object_animate()
                         anim_set_continue(sad_entry->animationSequenceIndex, 1);
                         continue;
                     } else {
-                        objectSetNextFrame(object, &tempRect);
+                        obj_inc_frame(object, &tempRect);
                         rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
                         int frameX;
                         int frameY;
                         art_frame_hot(art, object->frame, object->rotation, &frameX, &frameY);
 
-                        _obj_offset(object, frameX, frameY, &tempRect);
+                        obj_offset(object, frameX, frameY, &tempRect);
                         rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
                         art_ptr_unlock(cacheHandle);
@@ -2927,10 +2927,10 @@ void object_animate()
                     art_ptr_unlock(cacheHandle);
                 }
 
-                objectSetPrevFrame(object, &tempRect);
+                obj_dec_frame(object, &tempRect);
                 rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
-                _obj_offset(object, -x, -y, &tempRect);
+                obj_offset(object, -x, -y, &tempRect);
                 rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
                 tileWindowRefreshRect(&dirtyRect, map_elevation);
@@ -2954,7 +2954,7 @@ void object_animate()
             }
 
             Rect v29;
-            objectSetFid(object, sad_entry->fid, &v29);
+            obj_change_fid(object, sad_entry->fid, &v29);
             rectUnion(&dirtyRect, &v29, &dirtyRect);
 
             art = art_ptr_lock(object->fid, &cacheHandle);
@@ -2966,7 +2966,7 @@ void object_animate()
                     frame = 0;
                 }
 
-                objectSetFrame(object, frame, &v29);
+                obj_set_frame(object, frame, &v29);
                 rectUnion(&dirtyRect, &v29, &dirtyRect);
 
                 int frameX;
@@ -2974,12 +2974,12 @@ void object_animate()
                 art_frame_hot(art, object->frame, object->rotation, &frameX, &frameY);
 
                 Rect v19;
-                _obj_offset(object, x + frameX, y + frameY, &v19);
+                obj_offset(object, x + frameX, y + frameY, &v19);
                 rectUnion(&dirtyRect, &v19, &dirtyRect);
 
                 art_ptr_unlock(cacheHandle);
             } else {
-                objectSetFrame(object, 0, &v29);
+                obj_set_frame(object, 0, &v29);
                 rectUnion(&dirtyRect, &v29, &dirtyRect);
             }
 
@@ -3045,7 +3045,7 @@ int check_move(int* a1)
                 bool aiming;
                 intface_get_attack(&hitMode, &aiming);
 
-                int v6 = item_mp_cost(gDude, hitMode, aiming);
+                int v6 = item_mp_cost(obj_dude, hitMode, aiming);
                 *a1 = *a1 - v6;
                 if (*a1 <= 0) {
                     return -1;
@@ -3056,7 +3056,7 @@ int check_move(int* a1)
         bool interruptWalk;
         configGetBool(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_INTERRUPT_WALK_KEY, &interruptWalk);
         if (interruptWalk) {
-            register_clear(gDude);
+            register_clear(obj_dude);
         }
     }
 
@@ -3083,7 +3083,7 @@ int dude_move(int a1)
 
     register_begin(ANIMATION_REQUEST_RESERVED);
 
-    register_object_move_to_tile(gDude, tile, gDude->elevation, a1, 0);
+    register_object_move_to_tile(obj_dude, tile, obj_dude->elevation, a1, 0);
 
     return register_end();
 }
@@ -3100,13 +3100,13 @@ int dude_run(int a1)
         return -1;
     }
 
-    if (!perkGetRank(gDude, PERK_SILENT_RUNNING)) {
+    if (!perkGetRank(obj_dude, PERK_SILENT_RUNNING)) {
         pc_flag_off(DUDE_STATE_SNEAKING);
     }
 
     register_begin(ANIMATION_REQUEST_RESERVED);
 
-    register_object_run_to_tile(gDude, tile_num, gDude->elevation, a4, 0);
+    register_object_run_to_tile(obj_dude, tile_num, obj_dude->elevation, a4, 0);
 
     return register_end();
 }
@@ -3135,7 +3135,7 @@ void dude_fidget()
         return;
     }
 
-    if ((gDude->flags & OBJECT_HIDDEN) != 0) {
+    if ((obj_dude->flags & OBJECT_HIDDEN) != 0) {
         return;
     }
 
@@ -3147,7 +3147,7 @@ void dude_fidget()
     last_time = v0;
 
     int v5 = 0;
-    Object* object = objectFindFirstAtElevation(gDude->elevation);
+    Object* object = obj_find_first_at(obj_dude->elevation);
     while (object != NULL) {
         if (v5 >= 100) {
             break;
@@ -3155,7 +3155,7 @@ void dude_fidget()
 
         if ((object->flags & OBJECT_HIDDEN) == 0 && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER && FID_ANIM_TYPE(object->fid) == ANIM_STAND && !critter_is_dead(object)) {
             Rect rect;
-            objectGetRect(object, &rect);
+            obj_bound(object, &rect);
 
             Rect intersection;
             if (rectIntersection(&rect, &_scr_size, &intersection) == 0 && (map_data.field_34 != 97 || object->pid != 0x10000FA)) {
@@ -3163,7 +3163,7 @@ void dude_fidget()
             }
         }
 
-        object = objectFindNextAtElevation();
+        object = obj_find_next_at();
     }
 
     int v13;
@@ -3174,14 +3174,14 @@ void dude_fidget()
         register_begin(ANIMATION_REQUEST_UNRESERVED | ANIMATION_REQUEST_INSIGNIFICANT);
 
         bool v8 = false;
-        if (object == gDude) {
+        if (object == obj_dude) {
             v8 = true;
         } else {
             char v15[16];
             v15[0] = '\0';
             art_get_base_name(1, object->fid & 0xFFF, v15);
             if (v15[0] == 'm' || v15[0] == 'M') {
-                if (objectGetDistanceBetween(object, gDude) < critterGetStat(gDude, STAT_PERCEPTION) * 2) {
+                if (obj_dist(object, obj_dude) < critterGetStat(obj_dude, STAT_PERCEPTION) * 2) {
                     v8 = true;
                 }
             }
@@ -3214,7 +3214,7 @@ void dude_stand(Object* obj, int rotation, int fid)
 {
     Rect rect;
 
-    objectSetRotation(obj, rotation, &rect);
+    obj_set_rotation(obj, rotation, &rect);
 
     int x = 0;
     int y = 0;
@@ -3263,16 +3263,16 @@ void dude_stand(Object* obj, int rotation, int fid)
     }
 
     Rect temp;
-    objectSetFid(obj, fid, &temp);
+    obj_change_fid(obj, fid, &temp);
     rectUnion(&rect, &temp, &rect);
 
-    objectSetLocation(obj, obj->tile, obj->elevation, &temp);
+    obj_move_to_tile(obj, obj->tile, obj->elevation, &temp);
     rectUnion(&rect, &temp, &rect);
 
-    objectSetFrame(obj, 0, &temp);
+    obj_set_frame(obj, 0, &temp);
     rectUnion(&rect, &temp, &rect);
 
-    _obj_offset(obj, x, y, &temp);
+    obj_offset(obj, x, y, &temp);
     rectUnion(&rect, &temp, &rect);
 
     tileWindowRefreshRect(&rect, obj->elevation);
@@ -3321,7 +3321,7 @@ int anim_hide(Object* object, int animationSequenceIndex)
 {
     Rect rect;
 
-    if (objectHide(object, &rect) == 0) {
+    if (obj_turn_off(object, &rect) == 0) {
         tileWindowRefreshRect(&rect, object->elevation);
     }
 
@@ -3339,8 +3339,8 @@ int anim_change_fid(Object* obj, int animationSequenceIndex, int fid)
     Rect v7;
 
     if (FID_ANIM_TYPE(fid)) {
-        objectSetFid(obj, fid, &rect);
-        objectSetFrame(obj, 0, &v7);
+        obj_change_fid(obj, fid, &rect);
+        obj_set_frame(obj, 0, &v7);
         rectUnion(&rect, &v7, &rect);
         tileWindowRefreshRect(&rect, obj->elevation);
     } else {
@@ -3402,7 +3402,7 @@ unsigned int compute_tpf(Object* object, int fid)
             int playerSpeedup = 0;
             config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &playerSpeedup);
 
-            if (object != gDude || playerSpeedup == 1) {
+            if (object != obj_dude || playerSpeedup == 1) {
                 int combatSpeed = 0;
                 config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combatSpeed);
                 fps += combatSpeed;

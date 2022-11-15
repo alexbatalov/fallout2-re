@@ -1391,18 +1391,18 @@ int gsound_compute_relative_volume(Object* obj)
     if (obj) {
         type = FID_TYPE(obj->fid);
         if (type == 0 || type == 1 || type == 2) {
-            v7 = objectGetOwner(obj);
+            v7 = obj_top_environment(obj);
             if (!v7) {
                 v7 = obj;
             }
 
-            objectGetRect(v7, &v14);
+            obj_bound(v7, &v14);
 
             win_get_rect(display_win, &iso_win_rect);
 
             if (rectIntersection(&v14, &iso_win_rect, &v12) == -1) {
-                distance = objectGetDistanceBetween(v7, gDude);
-                perception = critterGetStat(gDude, STAT_PERCEPTION);
+                distance = obj_dist(v7, obj_dude);
+                perception = critterGetStat(obj_dude, STAT_PERCEPTION);
                 if (distance > perception) {
                     if (distance < 2 * perception) {
                         v3 = 0x7FFF - 0x5554 * (distance - perception) / perception;

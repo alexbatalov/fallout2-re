@@ -99,13 +99,13 @@ int queueLoad(File* stream)
         if (objectId == -2) {
             obj = NULL;
         } else {
-            obj = objectFindFirst();
+            obj = obj_find_first();
             while (obj != NULL) {
                 obj = inven_find_id(obj, objectId);
                 if (obj != NULL) {
                     break;
                 }
-                obj = objectFindNext();
+                obj = obj_find_next();
             }
         }
 
@@ -443,7 +443,7 @@ int _queue_do_explosion_(Object* explosive, bool a2)
     int tile;
     int elevation;
 
-    Object* owner = objectGetOwner(explosive);
+    Object* owner = obj_top_environment(explosive);
     if (owner) {
         tile = owner->tile;
         elevation = owner->elevation;
@@ -466,14 +466,14 @@ int _queue_do_explosion_(Object* explosive, bool a2)
 
     // FIXME: I guess this is a little bit wrong, dude can never be null, I
     // guess it needs to check if owner is dude.
-    if (gDude != NULL) {
-        if (perkHasRank(gDude, PERK_DEMOLITION_EXPERT)) {
+    if (obj_dude != NULL) {
+        if (perkHasRank(obj_dude, PERK_DEMOLITION_EXPERT)) {
             maxDamage += 10;
             minDamage += 10;
         }
     }
 
-    if (action_explode(tile, elevation, minDamage, maxDamage, gDude, a2) == -2) {
+    if (action_explode(tile, elevation, minDamage, maxDamage, obj_dude, a2) == -2) {
         queueAddEvent(50, explosive, NULL, EVENT_TYPE_EXPLOSION);
     } else {
         _obj_destroy(explosive);

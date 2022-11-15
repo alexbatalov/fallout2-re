@@ -661,14 +661,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         }
         break;
     case KEY_HOME:
-        if (gDude->elevation != map_elevation) {
-            map_set_elevation(gDude->elevation);
+        if (obj_dude->elevation != map_elevation) {
+            map_set_elevation(obj_dude->elevation);
         }
 
         if (game_in_mapper) {
-            tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
+            tileSetCenter(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
         } else {
-            _tile_scroll_to(gDude->tile, 2);
+            _tile_scroll_to(obj_dude->tile, 2);
         }
 
         break;
@@ -747,14 +747,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_COMMA:
     case KEY_LESS:
         if (register_begin(ANIMATION_REQUEST_RESERVED) == 0) {
-            register_object_dec_rotation(gDude);
+            register_object_dec_rotation(obj_dude);
             register_end();
         }
         break;
     case KEY_DOT:
     case KEY_GREATER:
         if (register_begin(ANIMATION_REQUEST_RESERVED) == 0) {
-            register_object_inc_rotation(gDude);
+            register_object_inc_rotation(obj_dude);
             register_end();
         }
         break;

@@ -180,7 +180,7 @@ int iso_init()
 
     debugPrint(">tile_init\t\t");
 
-    if (objectsInit(display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
+    if (obj_init(display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
         debugPrint("obj_init failed in iso_init\n");
         return -1;
     }
@@ -226,7 +226,7 @@ void iso_reset()
 
     art_reset();
     tileReset();
-    objectsReset();
+    obj_reset();
     cycle_reset();
     intface_reset();
     mapEntranceElevation = -1;
@@ -239,7 +239,7 @@ void iso_exit()
 {
     intface_exit();
     cycle_exit();
-    objectsExit();
+    obj_exit();
     tileExit();
     art_exit();
 
@@ -362,8 +362,8 @@ int map_set_elevation(int elevation)
 
     map_elevation = elevation;
 
-    register_clear(gDude);
-    dude_stand(gDude, gDude->rotation, gDude->fid);
+    register_clear(obj_dude);
+    dude_stand(obj_dude, obj_dude->rotation, obj_dude->fid);
     _partyMemberSyncPosition();
 
     if (map_script_id != -1) {
@@ -729,7 +729,7 @@ void map_new_map()
     map_data.version = 20;
     map_data.name[0] = '\0';
     map_data.enteringTile = 20100;
-    _obj_remove_all();
+    obj_remove_all();
     anim_stop();
 
     if (map_global_vars != NULL) {
@@ -785,7 +785,7 @@ int map_load(char* fileName)
 
         if (rc == 0) {
             strcpy(map_data.name, fileName);
-            gDude->data.critter.combat.whoHitMe = NULL;
+            obj_dude->data.critter.combat.whoHitMe = NULL;
         }
     }
 
@@ -857,7 +857,7 @@ int map_load_file(File* stream)
         mapEntranceRotation = map_data.enteringRotation;
     }
 
-    _obj_remove_all();
+    obj_remove_all();
 
     if (map_data.globalVariablesCount < 0) {
         map_data.globalVariablesCount = 0;
@@ -900,7 +900,7 @@ int map_load_file(File* stream)
     }
 
     error = "Error reading objects";
-    if (objectLoadAll(stream) != 0) {
+    if (obj_load(stream) != 0) {
         goto err;
     }
 
@@ -919,8 +919,8 @@ int map_load_file(File* stream)
     }
 
     light_set_ambient(LIGHT_LEVEL_MAX, false);
-    objectSetLocation(gDude, gCenterTile, map_elevation, NULL);
-    objectSetRotation(gDude, mapEntranceRotation, NULL);
+    obj_move_to_tile(obj_dude, gCenterTile, map_elevation, NULL);
+    obj_set_rotation(obj_dude, mapEntranceRotation, NULL);
     map_data.field_34 = wmMapMatchNameToIdx(map_data.name);
 
     if ((map_data.flags & 1) == 0) {
@@ -951,9 +951,9 @@ int map_load_file(File* stream)
 
         Object* object;
         int fid = art_id(OBJ_TYPE_MISC, 12, 0, 0, 0);
-        objectCreateWithFidPid(&object, fid, -1);
+        obj_new(&object, fid, -1);
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_TEMPORARY | OBJECT_HIDDEN);
-        objectSetLocation(object, 1, 0, NULL);
+        obj_move_to_tile(object, 1, 0, NULL);
         object->sid = map_script_id;
         scriptSetFixedParam(map_script_id, (map_data.flags & 1) == 0);
 
@@ -985,7 +985,7 @@ err:
         map_new_map();
         rc = -1;
     } else {
-        _obj_preload_art_cache(map_data.flags);
+        obj_preload_art_cache(map_data.flags);
     }
 
     _partyMemberRecoverLoad();
@@ -1007,7 +1007,7 @@ err:
 
     if (map_state.map > 0) {
         if (map_state.rotation >= 0) {
-            objectSetRotation(gDude, map_state.rotation, NULL);
+            obj_set_rotation(obj_dude, map_state.rotation, NULL);
         }
     } else {
         tileWindowRefresh();
@@ -1094,10 +1094,10 @@ int map_age_dead_critters()
         return 0;
     }
 
-    Object* obj = objectFindFirst();
+    Object* obj = obj_find_first();
     while (obj != NULL) {
         if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER
-            && obj != gDude
+            && obj != obj_dude
             && !objectIsPartyMember(obj)
             && !critter_is_dead(obj)) {
             obj->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
@@ -1105,7 +1105,7 @@ int map_age_dead_critters()
                 critter_heal_hours(obj, hoursSinceLastVisit);
             }
         }
-        obj = objectFindNext();
+        obj = obj_find_next();
     }
 
     int agingType;
@@ -1121,11 +1121,11 @@ int map_age_dead_critters()
     int count = 0;
     Object** objects = (Object**)internal_malloc(sizeof(*objects) * capacity);
 
-    obj = objectFindFirst();
+    obj = obj_find_first();
     while (obj != NULL) {
         int type = PID_TYPE(obj->pid);
         if (type == OBJ_TYPE_CRITTER) {
-            if (obj != gDude && critter_is_dead(obj)) {
+            if (obj != obj_dude && critter_is_dead(obj)) {
                 if (critterGetKillType(obj) != KILL_TYPE_ROBOT && critter_flag_check(obj->pid, CRITTER_NO_HEAL) == 0) {
                     objects[count++] = obj;
 
@@ -1150,7 +1150,7 @@ int map_age_dead_critters()
                 }
             }
         }
-        obj = objectFindNext();
+        obj = obj_find_next();
     }
 
     int rc = 0;
@@ -1162,12 +1162,12 @@ int map_age_dead_critters()
             }
 
             Object* blood;
-            if (objectCreateWithPid(&blood, 0x5000004) == -1) {
+            if (obj_pid_new(&blood, 0x5000004) == -1) {
                 rc = -1;
                 break;
             }
 
-            objectSetLocation(blood, obj->tile, obj->elevation, NULL);
+            obj_move_to_tile(blood, obj->tile, obj->elevation, NULL);
 
             Proto* proto;
             protoGetProto(obj->pid, &proto);
@@ -1182,11 +1182,11 @@ int map_age_dead_critters()
                 }
             }
 
-            objectSetFrame(blood, frame, NULL);
+            obj_set_frame(blood, frame, NULL);
         }
 
         register_clear(obj);
-        objectDestroy(obj, NULL);
+        obj_erase_object(obj, NULL);
     }
 
     internal_free(objects);
@@ -1256,12 +1256,12 @@ int map_check_state()
             if (map_state.tile != -1 && map_state.tile != 0
                 && map_data.field_34 != MAP_MODOC_BEDNBREAKFAST && map_data.field_34 != MAP_THE_SQUAT_A
                 && elevationIsValid(map_state.elevation)) {
-                objectSetLocation(gDude, map_state.tile, map_state.elevation, NULL);
+                obj_move_to_tile(obj_dude, map_state.tile, map_state.elevation, NULL);
                 map_set_elevation(map_state.elevation);
-                objectSetRotation(gDude, map_state.rotation, NULL);
+                obj_set_rotation(obj_dude, map_state.rotation, NULL);
             }
 
-            if (tileSetCenter(gDude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
+            if (tileSetCenter(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
                 debugPrint("\nError: map: attempt to center out-of-bounds!");
             }
 
@@ -1281,7 +1281,7 @@ int map_check_state()
 // 0x483784
 void map_fix_critter_combat_data()
 {
-    for (Object* object = objectFindFirst(); object != NULL; object = objectFindNext()) {
+    for (Object* object = obj_find_first(); object != NULL; object = obj_find_next()) {
         if (object->pid == -1) {
             continue;
         }
@@ -1360,11 +1360,11 @@ int map_save_file(File* stream)
         }
 
         if (tile == SQUARE_GRID_SIZE) {
-            Object* object = objectFindFirstAtElevation(elevation);
+            Object* object = obj_find_first_at(elevation);
             if (object != NULL) {
                 // TODO: Implementation is slightly different, check in debugger.
                 while (object != NULL && (object->flags & OBJECT_TEMPORARY)) {
-                    object = objectFindNextAtElevation();
+                    object = obj_find_next_at();
                 }
 
                 if (object != NULL) {
@@ -1407,7 +1407,7 @@ int map_save_file(File* stream)
         _win_msg(err, 80, 80, colorTable[31744]);
     }
 
-    if (objectSaveAll(stream) == -1) {
+    if (obj_save(stream) == -1) {
         sprintf(err, "Error saving objects in %s", map_data.name);
         _win_msg(err, 80, 80, colorTable[31744]);
     }
@@ -1439,7 +1439,7 @@ int map_save_in_game(bool a1)
         }
 
         gameTimeScheduleUpdateEvent();
-        _obj_reset_roof();
+        obj_reset_roof();
     }
 
     map_data.flags |= 0x01;
@@ -1469,7 +1469,7 @@ int map_save_in_game(bool a1)
 
         if (a1) {
             map_data.name[0] = '\0';
-            _obj_remove_all();
+            obj_remove_all();
             _proto_remove_all();
             square_reset();
             gameTimeScheduleUpdateEvent();
@@ -1513,9 +1513,9 @@ static void map_scroll_refresh_game(Rect* rect)
 
     tileRenderFloorsInRect(&clampedDirtyRect, map_elevation);
     _grid_render(&clampedDirtyRect, map_elevation);
-    _obj_render_pre_roof(&clampedDirtyRect, map_elevation);
+    obj_render_pre_roof(&clampedDirtyRect, map_elevation);
     tileRenderRoofsInRect(&clampedDirtyRect, map_elevation);
-    _obj_render_post_roof(&clampedDirtyRect, map_elevation);
+    obj_render_post_roof(&clampedDirtyRect, map_elevation);
 }
 
 // 0x483F44
@@ -1533,9 +1533,9 @@ static void map_scroll_refresh_mapper(Rect* rect)
         0);
     tileRenderFloorsInRect(&clampedDirtyRect, map_elevation);
     _grid_render(&clampedDirtyRect, map_elevation);
-    _obj_render_pre_roof(&clampedDirtyRect, map_elevation);
+    obj_render_pre_roof(&clampedDirtyRect, map_elevation);
     tileRenderRoofsInRect(&clampedDirtyRect, map_elevation);
-    _obj_render_post_roof(&clampedDirtyRect, map_elevation);
+    obj_render_post_roof(&clampedDirtyRect, map_elevation);
 }
 
 // NOTE: Inlined.
@@ -1623,23 +1623,23 @@ static int map_load_local_vars(File* stream)
 // 0x48411C
 static void map_place_dude_and_mouse()
 {
-    _obj_clear_seen();
+    obj_clear_seen();
 
-    if (gDude != NULL) {
-        if (FID_ANIM_TYPE(gDude->fid) != ANIM_STAND) {
-            objectSetFrame(gDude, 0, 0);
-            gDude->fid = art_id(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, (gDude->fid & 0xF000) >> 12, gDude->rotation + 1);
+    if (obj_dude != NULL) {
+        if (FID_ANIM_TYPE(obj_dude->fid) != ANIM_STAND) {
+            obj_set_frame(obj_dude, 0, 0);
+            obj_dude->fid = art_id(OBJ_TYPE_CRITTER, obj_dude->fid & 0xFFF, ANIM_STAND, (obj_dude->fid & 0xF000) >> 12, obj_dude->rotation + 1);
         }
 
-        if (gDude->tile == -1) {
-            objectSetLocation(gDude, gCenterTile, map_elevation, NULL);
-            objectSetRotation(gDude, map_data.enteringRotation, 0);
+        if (obj_dude->tile == -1) {
+            obj_move_to_tile(obj_dude, gCenterTile, map_elevation, NULL);
+            obj_set_rotation(obj_dude, map_data.enteringRotation, 0);
         }
 
-        objectSetLight(gDude, 4, 0x10000, 0);
-        gDude->flags |= OBJECT_TEMPORARY;
+        obj_set_light(obj_dude, 4, 0x10000, 0);
+        obj_dude->flags |= OBJECT_TEMPORARY;
 
-        dude_stand(gDude, gDude->rotation, gDude->fid);
+        dude_stand(obj_dude, obj_dude->rotation, obj_dude->fid);
         _partyMemberSyncPosition();
     }
 

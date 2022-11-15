@@ -325,7 +325,7 @@ void automap(bool isInGame, bool isUsingScanner)
     int color;
     if (isInGame) {
         color = colorTable[8456];
-        _obj_process_seen();
+        obj_process_seen();
     } else {
         color = colorTable[22025];
     }
@@ -411,11 +411,11 @@ void automap(bool isInGame, bool isUsingScanner)
             if ((autoflags & AUTOMAP_WITH_SCANNER) == 0) {
                 Object* scanner = NULL;
 
-                Object* item1 = inven_left_hand(gDude);
+                Object* item1 = inven_left_hand(obj_dude);
                 if (item1 != NULL && item1->pid == PROTO_ID_MOTION_SENSOR) {
                     scanner = item1;
                 } else {
-                    Object* item2 = inven_right_hand(gDude);
+                    Object* item2 = inven_right_hand(obj_dude);
                     if (item2 != NULL && item2->pid == PROTO_ID_MOTION_SENSOR) {
                         scanner = item2;
                     }
@@ -487,7 +487,7 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
     unsigned char* windowBuffer = windowGetBuffer(window);
     blitBufferToBuffer(backgroundData, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, AUTOMAP_WINDOW_WIDTH, windowBuffer, AUTOMAP_WINDOW_WIDTH);
 
-    for (Object* object = objectFindFirstAtElevation(elevation); object != NULL; object = objectFindNextAtElevation()) {
+    for (Object* object = obj_find_first_at(elevation); object != NULL; object = obj_find_next_at()) {
         if (object->tile == -1) {
             continue;
         }
@@ -514,7 +514,7 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
                     && (flags & AUTOMAP_WTH_HIGH_DETAILS) != 0
                     && object->pid != PROTO_ID_0x2000158) {
                     objectColor = colorTable[480];
-                } else if (object == gDude) {
+                } else if (object == obj_dude) {
                     objectColor = colorTable[31744];
                 } else {
                     objectColor = colorTable[0];
@@ -553,7 +553,7 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
                     v12[1] = objectColor;
                 }
 
-                if (object == gDude) {
+                if (object == obj_dude) {
                     v12[-1] = objectColor;
                     v12[-AUTOMAP_WINDOW_WIDTH] = objectColor;
                     v12[AUTOMAP_WINDOW_WIDTH] = objectColor;
@@ -1051,9 +1051,9 @@ static void decode_map_data(int elevation)
 {
     memset(ambuf, 0, SQUARE_GRID_SIZE);
 
-    _obj_process_seen();
+    obj_process_seen();
 
-    Object* object = objectFindFirstAtElevation(elevation);
+    Object* object = obj_find_first_at(elevation);
     while (object != NULL) {
         if (object->tile != -1 && (object->flags & OBJECT_SEEN) != 0) {
             int contentType;
@@ -1075,7 +1075,7 @@ static void decode_map_data(int elevation)
                 ambuf[v2] |= (contentType << v3);
             }
         }
-        object = objectFindNextAtElevation();
+        object = obj_find_next_at();
     }
 }
 

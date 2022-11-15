@@ -189,7 +189,7 @@ static SaveGameHandler* master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     scriptsSaveGameGlobalVars,
     GameMap2Slot,
     scriptsSaveGameGlobalVars,
-    _obj_save_dude,
+    obj_save_dude,
     critter_save,
     critter_kill_count_save,
     skillsSave,
@@ -220,7 +220,7 @@ static LoadGameHandler* master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     scriptsLoadGameGlobalVars,
     SlotMap2Game,
     scriptsSkipGameGlobalVars,
-    _obj_load_dude,
+    obj_load_dude,
     critter_load,
     critter_kill_count_load,
     skillsLoad,
@@ -1652,7 +1652,7 @@ static int SaveHeader(int slot)
         return -1;
     }
 
-    char* characterName = critter_name(gDude);
+    char* characterName = critter_name(obj_dude);
     strncpy(ptr->characterName, characterName, 32);
 
     if (fileWrite(ptr->characterName, 32, 1, flptr) != 1) {
@@ -2747,7 +2747,7 @@ static int LoadObjDudeCid(File* stream)
         return -1;
     }
 
-    gDude->cid = value;
+    obj_dude->cid = value;
 
     return 0;
 }
@@ -2755,7 +2755,7 @@ static int LoadObjDudeCid(File* stream)
 // 0x480734
 static int SaveObjDudeCid(File* stream)
 {
-    return fileWriteInt32(stream, gDude->cid);
+    return fileWriteInt32(stream, obj_dude->cid);
 }
 
 // 0x480754

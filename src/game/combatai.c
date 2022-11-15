@@ -871,11 +871,11 @@ static int ai_magic_hands(Object* critter, Object* item, int num)
         MessageListItem messageListItem;
         messageListItem.num = num;
         if (message_search(&misc_message_file, &messageListItem)) {
-            const char* critterName = objectGetName(critter);
+            const char* critterName = object_name(critter);
 
             char text[200];
             if (item != NULL) {
-                const char* itemName = objectGetName(item);
+                const char* itemName = object_name(item);
                 sprintf(text, "%s %s %s.", critterName, messageListItem.text, itemName);
             } else {
                 sprintf(text, "%s %s.", critterName, messageListItem.text);
@@ -954,7 +954,7 @@ static int ai_check_drugs(Object* critter)
                     item_add_force(critter, drug, 1);
                 } else {
                     ai_magic_hands(critter, drug, 5000);
-                    _obj_connect(drug, critter->tile, critter->elevation, NULL);
+                    obj_connect(drug, critter->tile, critter->elevation, NULL);
                     _obj_destroy(drug);
                     v28 = 1;
                 }
@@ -993,7 +993,7 @@ static int ai_check_drugs(Object* critter)
                             item_add_force(critter, drug, 1);
                         } else {
                             ai_magic_hands(critter, drug, 5000);
-                            _obj_connect(drug, critter->tile, critter->elevation, NULL);
+                            obj_connect(drug, critter->tile, critter->elevation, NULL);
                             _obj_destroy(drug);
                             v28 = 1;
                             v29 += 1;
@@ -1034,7 +1034,7 @@ static int ai_check_drugs(Object* critter)
                     item_add_force(critter, v3, 1);
                 } else {
                     ai_magic_hands(critter, v3, 5000);
-                    _obj_connect(v3, critter->tile, critter->elevation, NULL);
+                    obj_connect(v3, critter->tile, critter->elevation, NULL);
                     _obj_destroy(v3);
                     v3 = NULL;
                 }
@@ -1056,13 +1056,13 @@ static int ai_check_drugs(Object* critter)
 static void ai_run_away(Object* a1, Object* a2)
 {
     if (a2 == NULL) {
-        a2 = gDude;
+        a2 = obj_dude;
     }
 
     CritterCombatData* combatData = &(a1->data.critter.combat);
 
     AiPacket* ai = ai_cap(a1);
-    int distance = objectGetDistanceBetween(a1, a2);
+    int distance = obj_dist(a1, a2);
     if (distance < ai->max_dist) {
         combatData->maneuver |= CRITTER_MANUEVER_FLEEING;
 
@@ -1107,7 +1107,7 @@ static int ai_move_away(Object* a1, Object* a2, int a3)
         return -1;
     }
 
-    if (objectGetDistanceBetween(a1, a2) <= a3) {
+    if (obj_dist(a1, a2) <= a3) {
         int actionPoints = a1->data.critter.combat.ap;
         if (a3 < actionPoints) {
             actionPoints = a3;
@@ -1154,13 +1154,13 @@ static bool ai_find_friend(Object* a1, int a2, int a3)
         return false;
     }
 
-    int distance = objectGetDistanceBetween(a1, v1);
+    int distance = obj_dist(a1, v1);
     if (distance > a2) {
         return false;
     }
 
     if (a3 > distance) {
-        int v2 = objectGetDistanceBetween(a1, v1) - a3;
+        int v2 = obj_dist(a1, v1) - a3;
         ai_move_steps_closer(a1, v1, v2, 0);
     }
 
@@ -1186,8 +1186,8 @@ static int compare_nearer(const void* a1, const void* a2)
         }
     }
 
-    int distance1 = objectGetDistanceBetween(v1, combat_obj);
-    int distance2 = objectGetDistanceBetween(v2, combat_obj);
+    int distance1 = obj_dist(v1, combat_obj);
+    int distance2 = obj_dist(v2, combat_obj);
 
     if (distance1 < distance2) {
         return -1;
@@ -1452,12 +1452,12 @@ Object* ai_danger_source(Object* a1)
         attackWho = ai_cap(a1)->attack_who;
         switch (attackWho) {
         case ATTACK_WHO_WHOMEVER_ATTACKING_ME: {
-            Object* candidate = combatAIInfoGetLastTarget(gDude);
+            Object* candidate = combatAIInfoGetLastTarget(obj_dude);
             if (candidate == NULL || a1->data.critter.combat.team == candidate->data.critter.combat.team) {
                 break;
             }
 
-            if (make_path_func(a1, a1->tile, gDude->data.critter.combat.whoHitMe->tile, NULL, 0, _obj_blocking_at) == 0
+            if (make_path_func(a1, a1->tile, obj_dude->data.critter.combat.whoHitMe->tile, NULL, 0, obj_blocking_at) == 0
                 && combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) != COMBAT_BAD_SHOT_OK) {
                 debugPrint("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critter_name(a1));
                 break;
@@ -1526,7 +1526,7 @@ Object* ai_danger_source(Object* a1)
     for (int index = 0; index < 4; index++) {
         Object* candidate = targets[index];
         if (candidate != NULL && is_within_perception(a1, candidate)) {
-            if (make_path_func(a1, a1->tile, candidate->tile, NULL, 0, _obj_blocking_at) != 0
+            if (make_path_func(a1, a1->tile, candidate->tile, NULL, 0, obj_blocking_at) != 0
                 || combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == COMBAT_BAD_SHOT_OK) {
                 return candidate;
             }
@@ -1542,12 +1542,12 @@ int caiSetupTeamCombat(Object* a1, Object* a2)
 {
     Object* obj;
 
-    obj = objectFindFirstAtElevation(a1->elevation);
+    obj = obj_find_first_at(a1->elevation);
     while (obj != NULL) {
-        if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER && obj != gDude) {
+        if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER && obj != obj_dude) {
             obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
         }
-        obj = objectFindNextAtElevation();
+        obj = obj_find_next_at();
     }
 
     attackerTeamObj = a1;
@@ -1723,7 +1723,7 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
             return weapon1;
         }
     } else {
-        distance = objectGetDistanceBetween(attacker, defender);
+        distance = obj_dist(attacker, defender);
         if (item_w_range(attacker, HIT_MODE_PUNCH) >= distance) {
             attackType1 = ATTACK_TYPE_UNARMED;
         }
@@ -1766,7 +1766,7 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
         }
     } else {
         if (distance == 0) {
-            distance = objectGetDistanceBetween(attacker, weapon1);
+            distance = obj_dist(attacker, weapon1);
         }
 
         if (item_w_range(attacker, HIT_MODE_PUNCH) >= distance) {
@@ -2003,7 +2003,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
     }
 
     Object** objects;
-    int count = objectListCreate(-1, map_elevation, OBJ_TYPE_ITEM, &objects);
+    int count = obj_create_list(-1, map_elevation, OBJ_TYPE_ITEM, &objects);
     if (count == 0) {
         return NULL;
     }
@@ -2018,7 +2018,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
 
     for (int index = 0; index < count; index++) {
         Object* item = objects[index];
-        int distance = objectGetDistanceBetween(critter, item);
+        int distance = obj_dist(critter, item);
         if (distance > perception) {
             break;
         }
@@ -2049,7 +2049,7 @@ static Object* ai_search_environ(Object* critter, int itemType)
         }
     }
 
-    objectListFree(objects);
+    obj_delete_list(objects);
 
     return foundItem;
 }
@@ -2129,7 +2129,7 @@ static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
             break;
         }
     } else {
-        if (intelligence < 6 || objectGetDistanceBetween(a1, a3) < 10) {
+        if (intelligence < 6 || obj_dist(a1, a3) < 10) {
             if (randomBetween(1, ai->secondary_freq) == 1) {
                 useSecondaryMode = true;
             }
@@ -2166,15 +2166,15 @@ static int ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4
     }
 
     if (distance == DISTANCE_STAY_CLOSE) {
-        if (a2 != gDude) {
-            int v10 = objectGetDistanceBetween(a1, gDude);
-            if (v10 > 5 && objectGetDistanceBetween(a2, gDude) > 5 && v10 + actionPoints > 5) {
+        if (a2 != obj_dude) {
+            int v10 = obj_dist(a1, obj_dude);
+            if (v10 > 5 && obj_dist(a2, obj_dude) > 5 && v10 + actionPoints > 5) {
                 return -1;
             }
         }
     }
 
-    if (objectGetDistanceBetween(a1, a2) <= 1) {
+    if (obj_dist(a1, a2) <= 1) {
         return -1;
     }
 
@@ -2194,16 +2194,16 @@ static int ai_move_steps_closer(Object* a1, Object* a2, int actionPoints, int a4
         shouldUnhide = false;
     }
 
-    if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, _obj_blocking_at) == 0) {
-        _moveBlockObj = NULL;
-        if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, _obj_ai_blocking_at) == 0
-            && _moveBlockObj != NULL
-            && PID_TYPE(_moveBlockObj->pid) == OBJ_TYPE_CRITTER) {
+    if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, obj_blocking_at) == 0) {
+        moveBlockObj = NULL;
+        if (make_path_func(a1, a1->tile, a2->tile, NULL, 0, obj_ai_blocking_at) == 0
+            && moveBlockObj != NULL
+            && PID_TYPE(moveBlockObj->pid) == OBJ_TYPE_CRITTER) {
             if (shouldUnhide) {
                 a2->flags &= ~OBJECT_HIDDEN;
             }
 
-            a2 = _moveBlockObj;
+            a2 = moveBlockObj;
             if ((a2->flags & 0x800) != 0) {
                 shouldUnhide = true;
                 a2->flags |= OBJECT_HIDDEN;
@@ -2321,7 +2321,7 @@ static int cai_retargetTileFromFriendlyFire(Object* source, Object* target, int*
                 break;
             }
 
-            if (_obj_blocking_at(NULL, tile, source->elevation) == 0) {
+            if (obj_blocking_at(NULL, tile, source->elevation) == 0) {
                 int distance = tileDistanceBetween(*tilePtr, tile);
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -2369,7 +2369,7 @@ static bool cai_attackWouldIntersect(Object* attacker, Object* defender, Object*
 {
     int hitMode = HIT_MODE_RIGHT_WEAPON_PRIMARY;
     bool aiming = false;
-    if (attacker == gDude) {
+    if (attacker == obj_dude) {
         intface_get_attack(&hitMode, &aiming);
     }
 
@@ -2383,7 +2383,7 @@ static bool cai_attackWouldIntersect(Object* attacker, Object* defender, Object*
     }
 
     Object* object = NULL;
-    make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, _obj_shoot_blocking_at);
+    make_straight_path_func(attacker, attacker->tile, defender->tile, NULL, &object, 32, obj_shoot_blocking_at);
     if (object != attackerFriend) {
         if (!combatTestIncidentalHit(attacker, defender, attackerFriend, weapon)) {
             return false;
@@ -2648,7 +2648,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                 }
 
                 if (actionPoints > 0) {
-                    int v24 = make_path_func(a1, a1->tile, a2->tile, v30, 0, _obj_blocking_at);
+                    int v24 = make_path_func(a1, a1->tile, a2->tile, v30, 0, obj_blocking_at);
                     if (v24 == 0) {
                         v42 = actionPoints;
                     } else {
@@ -2783,10 +2783,10 @@ static int cai_perform_distance_prefs(Object* a1, Object* a2)
 
     switch (distance) {
     case DISTANCE_STAY_CLOSE:
-        if (a1->data.critter.combat.whoHitMe != gDude) {
-            int distance = objectGetDistanceBetween(a1, gDude);
+        if (a1->data.critter.combat.whoHitMe != obj_dude) {
+            int distance = obj_dist(a1, obj_dude);
             if (distance > 5) {
-                ai_move_steps_closer(a1, gDude, distance - 5, 0);
+                ai_move_steps_closer(a1, obj_dude, distance - 5, 0);
             }
         }
         break;
@@ -2798,7 +2798,7 @@ static int cai_perform_distance_prefs(Object* a1, Object* a2)
         break;
     case DISTANCE_SNIPE:
         if (a2 != NULL) {
-            if (objectGetDistanceBetween(a1, a2) < 10) {
+            if (obj_dist(a1, a2) < 10) {
                 // NOTE: some odd code omitted
                 ai_move_away(a1, a2, 10);
             }
@@ -2887,7 +2887,7 @@ void combat_ai(Object* a1, Object* a2)
     if (a2 != NULL
         && (a1->data.critter.combat.results & DAM_DEAD) == 0
         && a1->data.critter.combat.ap != 0
-        && objectGetDistanceBetween(a1, a2) > ai->max_dist) {
+        && obj_dist(a1, a2) > ai->max_dist) {
         Object* v13 = combatAIInfoGetFriendlyDead(a1);
         if (v13 != NULL) {
             ai_move_away(a1, v13, 10);
@@ -2920,7 +2920,7 @@ void combat_ai(Object* a1, Object* a2)
     Object* v18 = combatAIInfoGetFriendlyDead(a1);
     if (v18 != NULL) {
         ai_move_away(a1, v18, 10);
-        if (objectGetDistanceBetween(a1, v18) >= 10) {
+        if (obj_dist(a1, v18) >= 10) {
             combatAIInfoSetFriendlyDead(a1, NULL);
         }
     }
@@ -2930,7 +2930,7 @@ void combat_ai(Object* a1, Object* a2)
     if (a1->data.critter.combat.team != 0) {
         v20 = ai_find_nearest_team_in_combat(a1, a1, 1);
     } else {
-        v20 = gDude;
+        v20 = obj_dude;
         if (objectIsPartyMember(a1)) {
             // NOTE: Uninline
             int distance = ai_get_distance_pref_value(a1);
@@ -2940,8 +2940,8 @@ void combat_ai(Object* a1, Object* a2)
         }
     }
 
-    if (a2 == NULL && v20 != NULL && objectGetDistanceBetween(a1, v20) > v21) {
-        int v23 = objectGetDistanceBetween(a1, v20);
+    if (a2 == NULL && v20 != NULL && obj_dist(a1, v20) > v21) {
+        int v23 = obj_dist(a1, v20);
         ai_move_steps_closer(a1, v20, v23 - v21, 0);
     } else {
         if (a1->data.critter.combat.ap > 0) {
@@ -2960,7 +2960,7 @@ bool combatai_want_to_join(Object* a1)
         return false;
     }
 
-    if (a1->elevation != gDude->elevation) {
+    if (a1->elevation != obj_dude->elevation) {
         return false;
     }
 
@@ -3045,20 +3045,20 @@ int combatai_switch_team(Object* obj, int team)
     if (isInCombat()) {
         bool outlineWasEnabled = obj->outline != 0 && (obj->outline & OUTLINE_DISABLED) == 0;
 
-        objectClearOutline(obj, NULL);
+        obj_remove_outline(obj, NULL);
 
         int outlineType;
-        if (obj->data.critter.combat.team == gDude->data.critter.combat.team) {
+        if (obj->data.critter.combat.team == obj_dude->data.critter.combat.team) {
             outlineType = OUTLINE_TYPE_2;
         } else {
             outlineType = OUTLINE_TYPE_HOSTILE;
         }
 
-        objectSetOutline(obj, outlineType, NULL);
+        obj_outline_object(obj, outlineType, NULL);
 
         if (outlineWasEnabled) {
             Rect rect;
-            objectEnableOutline(obj, &rect);
+            obj_turn_on_outline(obj, &rect);
             tileWindowRefreshRect(&rect, obj->elevation);
         }
     }
@@ -3101,7 +3101,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
         return -1;
     }
 
-    if (a1 == gDude) {
+    if (a1 == obj_dude) {
         return -1;
     }
 
@@ -3111,7 +3111,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
 
     AiPacket* ai = ai_cap(a1);
 
-    debugPrint("%s is using %s packet with a %d%% chance to taunt\n", objectGetName(a1), ai->name, ai->chance);
+    debugPrint("%s is using %s packet with a %d%% chance to taunt\n", object_name(a1), ai->name, ai->chance);
 
     if (randomBetween(1, 100) > ai->chance) {
         return -1;
@@ -3162,7 +3162,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
         return -1;
     }
 
-    debugPrint("%s said message %d\n", objectGetName(a1), messageListItem.num);
+    debugPrint("%s said message %d\n", object_name(a1), messageListItem.num);
     strncpy(string, messageListItem.text, 259);
 
     // TODO: Get rid of casts.
@@ -3293,7 +3293,7 @@ bool is_within_perception(Object* a1, Object* a2)
         return false;
     }
 
-    int distance = objectGetDistanceBetween(a2, a1);
+    int distance = obj_dist(a2, a1);
     int perception = critterGetStat(a1, STAT_PERCEPTION);
     int sneak = skillGetValue(a2, SKILL_SNEAK);
     if (can_see(a1, a2)) {
@@ -3302,7 +3302,7 @@ bool is_within_perception(Object* a1, Object* a2)
             maxDistance /= 2;
         }
 
-        if (a2 == gDude) {
+        if (a2 == obj_dude) {
             if (is_pc_sneak_working()) {
                 maxDistance /= 4;
                 if (sneak > 120) {
@@ -3325,7 +3325,7 @@ bool is_within_perception(Object* a1, Object* a2)
         maxDistance = perception;
     }
 
-    if (a2 == gDude) {
+    if (a2 == obj_dude) {
         if (is_pc_sneak_working()) {
             maxDistance /= 4;
             if (sneak > 120) {

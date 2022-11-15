@@ -771,7 +771,7 @@ int editor_design(bool isCreationMode)
 
     if (!glblmode) {
         if (UpdateLevel()) {
-            critterUpdateDerivedStats(gDude);
+            critterUpdateDerivedStats(obj_dude);
             ListTraits();
             ListSkills(0);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
@@ -851,7 +851,7 @@ int editor_design(bool isCreationMode)
                     continue;
                 }
 
-                if (stricmp(critter_name(gDude), "None") == 0) {
+                if (stricmp(critter_name(obj_dude), "None") == 0) {
                     gsound_play_sfx_file("iisxxxx1");
 
                     // Warning: You haven't changed your player
@@ -1783,7 +1783,7 @@ static void CharEditEnd()
         skillsSetTagged(temp_tag_skill, 3);
         traitsSetSelected(temp_trait[0], temp_trait[1]);
         info_line = 0;
-        critter_adjust_hits(gDude, 1000);
+        critter_adjust_hits(obj_dude, 1000);
     }
 
     enable_box_bar_win();
@@ -2045,7 +2045,7 @@ static void list_perks()
     }
 
     for (perk = 0; perk < PERK_COUNT; perk++) {
-        if (perkGetRank(gDude, perk) != 0) {
+        if (perkGetRank(obj_dude, perk) != 0) {
             break;
         }
     }
@@ -2056,7 +2056,7 @@ static void list_perks()
         folder_print_seperator(string);
 
         for (perk = 0; perk < PERK_COUNT; perk++) {
-            perkLevel = perkGetRank(gDude, perk);
+            perkLevel = perkGetRank(obj_dude, perk);
             if (perkLevel != 0) {
                 string = perkGetName(perk);
 
@@ -2365,7 +2365,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
 
     // TODO: The original code is different.
     if (glblmode) {
-        value = critterGetBaseStatWithTraitModifier(gDude, stat) + critterGetBonusStat(gDude, stat);
+        value = critterGetBaseStatWithTraitModifier(obj_dude, stat) + critterGetBonusStat(obj_dude, stat);
 
         flags = 0;
 
@@ -2381,7 +2381,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
 
         blitBufferToBuffer(bckgnd + off, 40, fontGetLineHeight(), 640, win_buf + off, 640);
 
-        messageListItemId = critterGetStat(gDude, stat) + 199;
+        messageListItemId = critterGetStat(obj_dude, stat) + 199;
         if (messageListItemId > 210) {
             messageListItemId = 210;
         }
@@ -2389,11 +2389,11 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
         description = getmsg(&editor_message_file, &mesg, messageListItemId);
         fontDrawText(win_buf + 640 * (StatYpos[stat] + 8) + 103, description, 640, 640, color);
     } else {
-        value = critterGetStat(gDude, stat);
+        value = critterGetStat(obj_dude, stat);
         PrintBigNum(58, StatYpos[stat], 0, value, 0, edit_win);
         blitBufferToBuffer(bckgnd + off, 40, fontGetLineHeight(), 640, win_buf + off, 640);
 
-        value = critterGetStat(gDude, stat);
+        value = critterGetStat(obj_dude, stat);
         if (value > 10) {
             value = 10;
         }
@@ -2413,7 +2413,7 @@ static void PrintGender()
 
     fontSetCurrent(103);
 
-    gender = critterGetStat(gDude, STAT_GENDER);
+    gender = critterGetStat(obj_dude, STAT_GENDER);
     str = getmsg(&editor_message_file, &mesg, 107 + gender);
 
     strcpy(text, str);
@@ -2443,7 +2443,7 @@ static void PrintAgeBig()
 
     fontSetCurrent(103);
 
-    age = critterGetStat(gDude, STAT_AGE);
+    age = critterGetStat(obj_dude, STAT_AGE);
     str = getmsg(&editor_message_file, &mesg, 104);
 
     sprintf(text, "%s %d", str, age);
@@ -2474,7 +2474,7 @@ static void PrintBigname()
 
     fontSetCurrent(103);
 
-    str = critter_name(gDude);
+    str = critter_name(obj_dude);
     strcpy(text, str);
 
     if (fontGetStringWidth(text) > 100) {
@@ -2528,7 +2528,7 @@ static void ListDrvdStats()
     char t[420]; // TODO: Size is wrong.
     int y;
 
-    conditions = gDude->data.critter.combat.results;
+    conditions = obj_dude->data.critter.combat.results;
 
     fontSetCurrent(101);
 
@@ -2546,11 +2546,11 @@ static void ListDrvdStats()
     int currHp;
     int maxHp;
     if (glblmode) {
-        maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
+        maxHp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
         currHp = maxHp;
     } else {
-        maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-        currHp = critter_get_hits(gDude);
+        maxHp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+        currHp = critter_get_hits(obj_dude);
     }
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 300);
@@ -2564,9 +2564,9 @@ static void ListDrvdStats()
     y += fontGetLineHeight() + 3;
 
     if (info_line == EDITOR_POISONED) {
-        color = critter_get_poison(gDude) != 0 ? colorTable[32747] : colorTable[15845];
+        color = critter_get_poison(obj_dude) != 0 ? colorTable[32747] : colorTable[15845];
     } else {
-        color = critter_get_poison(gDude) != 0 ? colorTable[992] : colorTable[1313];
+        color = critter_get_poison(obj_dude) != 0 ? colorTable[992] : colorTable[1313];
     }
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 312);
@@ -2577,9 +2577,9 @@ static void ListDrvdStats()
     y += fontGetLineHeight() + 3;
 
     if (info_line == EDITOR_RADIATED) {
-        color = critter_get_rads(gDude) != 0 ? colorTable[32747] : colorTable[15845];
+        color = critter_get_rads(obj_dude) != 0 ? colorTable[32747] : colorTable[15845];
     } else {
-        color = critter_get_rads(gDude) != 0 ? colorTable[992] : colorTable[1313];
+        color = critter_get_rads(obj_dude) != 0 ? colorTable[992] : colorTable[1313];
     }
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 313);
@@ -2666,7 +2666,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, STAT_ARMOR_CLASS), t, 10);
+    itoa(critterGetStat(obj_dude, STAT_ARMOR_CLASS), t, 10);
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Action Points
@@ -2682,7 +2682,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS), t, 10);
+    itoa(critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS), t, 10);
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Carry Weight
@@ -2698,8 +2698,8 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, STAT_CARRY_WEIGHT), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, critterIsOverloaded(gDude) ? colorTable[31744] : color);
+    itoa(critterGetStat(obj_dude, STAT_CARRY_WEIGHT), t, 10);
+    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, critterIsOverloaded(obj_dude) ? colorTable[31744] : color);
 
     // Melee Damage
     y += fontGetLineHeight() + 3;
@@ -2714,7 +2714,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, STAT_MELEE_DAMAGE), t, 10);
+    itoa(critterGetStat(obj_dude, STAT_MELEE_DAMAGE), t, 10);
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Damage Resistance
@@ -2730,7 +2730,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    sprintf(t, "%d%%", critterGetStat(gDude, STAT_DAMAGE_RESISTANCE));
+    sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_DAMAGE_RESISTANCE));
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Poison Resistance
@@ -2746,7 +2746,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    sprintf(t, "%d%%", critterGetStat(gDude, STAT_POISON_RESISTANCE));
+    sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_POISON_RESISTANCE));
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Radiation Resistance
@@ -2762,7 +2762,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    sprintf(t, "%d%%", critterGetStat(gDude, STAT_RADIATION_RESISTANCE));
+    sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_RADIATION_RESISTANCE));
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Sequence
@@ -2778,7 +2778,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, STAT_SEQUENCE), t, 10);
+    itoa(critterGetStat(obj_dude, STAT_SEQUENCE), t, 10);
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Healing Rate
@@ -2794,7 +2794,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    itoa(critterGetStat(gDude, STAT_HEALING_RATE), t, 10);
+    itoa(critterGetStat(obj_dude, STAT_HEALING_RATE), t, 10);
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Critical Chance
@@ -2810,7 +2810,7 @@ static void ListDrvdStats()
     sprintf(t, "%s", messageListItemText);
     fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
 
-    sprintf(t, "%d%%", critterGetStat(gDude, STAT_CRITICAL_CHANCE));
+    sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_CRITICAL_CHANCE));
     fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
 }
 
@@ -2887,7 +2887,7 @@ static void ListSkills(int a1)
         str = skillGetName(i);
         fontDrawText(win_buf + 640 * y + 380, str, 640, 640, color);
 
-        value = skillGetValue(gDude, i);
+        value = skillGetValue(obj_dude, i);
         sprintf(valueString, "%d%%", value);
 
         fontDrawText(win_buf + 640 * y + 573, valueString, 640, 640, color);
@@ -3153,7 +3153,7 @@ static int NameWindow()
     fontSetCurrent(101);
 
     char name[64];
-    strcpy(name, critter_name(gDude));
+    strcpy(name, critter_name(obj_dude));
 
     if (strcmp(name, "None") == 0) {
         name[0] = '\0';
@@ -3202,7 +3202,7 @@ static void PrintName(unsigned char* buf, int pitch)
 
     fontSetCurrent(101);
 
-    v4 = critter_name(gDude);
+    v4 = critter_name(obj_dude);
 
     // TODO: Check.
     strcpy(str, v4);
@@ -3227,7 +3227,7 @@ static int AgeWindow()
     int change;
     int flags;
 
-    int savedAge = critterGetStat(gDude, STAT_AGE);
+    int savedAge = critterGetStat(obj_dude, STAT_AGE);
 
     windowWidth = GInfo[EDITOR_GRAPHIC_CHARWIN].width;
     windowHeight = GInfo[EDITOR_GRAPHIC_CHARWIN].height;
@@ -3263,7 +3263,7 @@ static int AgeWindow()
     messageListItemText = getmsg(&editor_message_file, &mesg, 100);
     fontDrawText(windowBuf + windowWidth * 44 + 50, messageListItemText, windowWidth, windowWidth, colorTable[18979]);
 
-    age = critterGetStat(gDude, STAT_AGE);
+    age = critterGetStat(obj_dude, STAT_AGE);
     PrintBigNum(55, 10, 0, age, 0, win);
 
     doneBtn = buttonCreate(win,
@@ -3335,33 +3335,33 @@ static int AgeWindow()
         } else if (keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             break;
         } else if (keyCode == 501) {
-            age = critterGetStat(gDude, STAT_AGE);
+            age = critterGetStat(obj_dude, STAT_AGE);
             if (age < 35) {
                 change = 1;
             }
         } else if (keyCode == 502) {
-            age = critterGetStat(gDude, STAT_AGE);
+            age = critterGetStat(obj_dude, STAT_AGE);
             if (age > 16) {
                 change = -1;
             }
         } else if (keyCode == KEY_PLUS || keyCode == KEY_UPPERCASE_N || keyCode == KEY_ARROW_UP) {
-            previousAge = critterGetStat(gDude, STAT_AGE);
+            previousAge = critterGetStat(obj_dude, STAT_AGE);
             if (previousAge < 35) {
                 flags = ANIMATE;
-                if (critterIncBaseStat(gDude, STAT_AGE) != 0) {
+                if (critterIncBaseStat(obj_dude, STAT_AGE) != 0) {
                     flags = 0;
                 }
-                age = critterGetStat(gDude, STAT_AGE);
+                age = critterGetStat(obj_dude, STAT_AGE);
                 PrintBigNum(55, 10, flags, age, previousAge, win);
             }
         } else if (keyCode == KEY_MINUS || keyCode == KEY_UPPERCASE_J || keyCode == KEY_ARROW_DOWN) {
-            previousAge = critterGetStat(gDude, STAT_AGE);
+            previousAge = critterGetStat(obj_dude, STAT_AGE);
             if (previousAge > 16) {
                 flags = ANIMATE;
-                if (critterDecBaseStat(gDude, STAT_AGE) != 0) {
+                if (critterDecBaseStat(obj_dude, STAT_AGE) != 0) {
                     flags = 0;
                 }
-                age = critterGetStat(gDude, STAT_AGE);
+                age = critterGetStat(obj_dude, STAT_AGE);
 
                 PrintBigNum(55, 10, flags, age, previousAge, win);
             }
@@ -3396,23 +3396,23 @@ static int AgeWindow()
                     }
 
                     flags = ANIMATE;
-                    previousAge = critterGetStat(gDude, STAT_AGE);
+                    previousAge = critterGetStat(obj_dude, STAT_AGE);
 
                     if (change == 1) {
                         if (previousAge < 35) {
-                            if (critterIncBaseStat(gDude, STAT_AGE) != 0) {
+                            if (critterIncBaseStat(obj_dude, STAT_AGE) != 0) {
                                 flags = 0;
                             }
                         }
                     } else {
                         if (previousAge >= 16) {
-                            if (critterDecBaseStat(gDude, STAT_AGE) != 0) {
+                            if (critterDecBaseStat(obj_dude, STAT_AGE) != 0) {
                                 flags = 0;
                             }
                         }
                     }
 
-                    age = critterGetStat(gDude, STAT_AGE);
+                    age = critterGetStat(obj_dude, STAT_AGE);
                     PrintBigNum(55, 10, flags, age, previousAge, win);
                     if (flags == ANIMATE) {
                         PrintAgeBig();
@@ -3444,7 +3444,7 @@ static int AgeWindow()
         }
     }
 
-    critterSetBaseStat(gDude, STAT_AGE, savedAge);
+    critterSetBaseStat(obj_dude, STAT_AGE, savedAge);
     PrintAgeBig();
     PrintBasicStat(RENDER_ALL_STATS, 0, 0);
     ListDrvdStats();
@@ -3542,7 +3542,7 @@ static void SexWindow()
         buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
     }
 
-    int savedGender = critterGetStat(gDude, STAT_GENDER);
+    int savedGender = critterGetStat(obj_dude, STAT_GENDER);
     _win_set_button_rest_state(btns[savedGender], 1, 0);
 
     while (true) {
@@ -3558,7 +3558,7 @@ static void SexWindow()
         }
 
         if (eventCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
-            critterSetBaseStat(gDude, STAT_GENDER, savedGender);
+            critterSetBaseStat(obj_dude, STAT_GENDER, savedGender);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
             ListDrvdStats();
             win_draw(edit_win);
@@ -3577,7 +3577,7 @@ static void SexWindow()
         case 501:
         case 502:
             // TODO: Original code is slightly different.
-            critterSetBaseStat(gDude, STAT_GENDER, eventCode - 501);
+            critterSetBaseStat(obj_dude, STAT_GENDER, eventCode - 501);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
             ListDrvdStats();
             break;
@@ -3625,8 +3625,8 @@ static void StatButton(int eventCode)
             }
 
             if (eventCode >= 510) {
-                int previousValue = critterGetStat(gDude, decrementingStat);
-                if (critterDecBaseStat(gDude, decrementingStat) == 0) {
+                int previousValue = critterGetStat(obj_dude, decrementingStat);
+                if (critterDecBaseStat(obj_dude, decrementingStat) == 0) {
                     character_points++;
                 } else {
                     cont = false;
@@ -3634,14 +3634,14 @@ static void StatButton(int eventCode)
 
                 PrintBasicStat(decrementingStat, cont ? ANIMATE : 0, previousValue);
                 PrintBigNum(126, 282, cont ? ANIMATE : 0, character_points, savedRemainingCharacterPoints, edit_win);
-                critterUpdateDerivedStats(gDude);
+                critterUpdateDerivedStats(obj_dude);
                 ListDrvdStats();
                 ListSkills(0);
                 info_line = decrementingStat;
             } else {
-                int previousValue = critterGetBaseStatWithTraitModifier(gDude, incrementingStat);
-                previousValue += critterGetBonusStat(gDude, incrementingStat);
-                if (character_points > 0 && previousValue < 10 && critterIncBaseStat(gDude, incrementingStat) == 0) {
+                int previousValue = critterGetBaseStatWithTraitModifier(obj_dude, incrementingStat);
+                previousValue += critterGetBonusStat(obj_dude, incrementingStat);
+                if (character_points > 0 && previousValue < 10 && critterIncBaseStat(obj_dude, incrementingStat) == 0) {
                     character_points--;
                 } else {
                     cont = false;
@@ -3649,7 +3649,7 @@ static void StatButton(int eventCode)
 
                 PrintBasicStat(incrementingStat, cont ? ANIMATE : 0, previousValue);
                 PrintBigNum(126, 282, cont ? ANIMATE : 0, character_points, savedRemainingCharacterPoints, edit_win);
-                critterUpdateDerivedStats(gDude);
+                critterUpdateDerivedStats(obj_dude);
                 ListDrvdStats();
                 ListSkills(0);
                 info_line = incrementingStat;
@@ -3797,7 +3797,7 @@ static int OptionWindow()
 
                     // NOTE: Uninline.
                     trait_count = get_trait_count();
-                    critterUpdateDerivedStats(gDude);
+                    critterUpdateDerivedStats(obj_dude);
                     ResetScreen();
                 }
             } else if (keyCode == 502 || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P) {
@@ -3913,15 +3913,15 @@ static int OptionWindow()
                             // NOTE: Uninline.
                             trait_count = get_trait_count();
 
-                            critterUpdateDerivedStats(gDude);
+                            critterUpdateDerivedStats(obj_dude);
 
-                            critter_adjust_hits(gDude, 1000);
+                            critter_adjust_hits(obj_dude, 1000);
 
                             rc = 1;
                         } else {
                             RestorePlayer();
                             character_points = oldRemainingCharacterPoints;
-                            critter_adjust_hits(gDude, 1000);
+                            critter_adjust_hits(obj_dude, 1000);
                             gsound_play_sfx_file("iisxxxx1");
 
                             strcpy(string4, getmsg(&editor_message_file, &mesg, 612));
@@ -4176,7 +4176,7 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %s",
         getmsg(&editor_message_file, &mesg, 642),
-        critter_name(gDude));
+        critter_name(obj_dude));
 
     int paddingLength = 27 - strlen(title1);
     if (paddingLength > 0) {
@@ -4192,14 +4192,14 @@ static int Save_as_ASCII(const char* fileName)
         "%s%s %d",
         title1,
         getmsg(&editor_message_file, &mesg, 643),
-        critterGetStat(gDude, STAT_AGE));
+        critterGetStat(obj_dude, STAT_AGE));
 
     // Gender
     sprintf(title3,
         "%s%s %s",
         title2,
         getmsg(&editor_message_file, &mesg, 644),
-        getmsg(&editor_message_file, &mesg, 645 + critterGetStat(gDude, STAT_GENDER)));
+        getmsg(&editor_message_file, &mesg, 645 + critterGetStat(obj_dude, STAT_GENDER)));
 
     fileWriteString(title3, stream);
     fileWriteString("\n", stream);
@@ -4238,12 +4238,12 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.3d/%.3d %s %.2d",
         getmsg(&editor_message_file, &mesg, 624),
-        critterGetStat(gDude, STAT_STRENGTH),
+        critterGetStat(obj_dude, STAT_STRENGTH),
         getmsg(&editor_message_file, &mesg, 625),
-        critter_get_hits(gDude),
-        critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS),
+        critter_get_hits(obj_dude),
+        critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS),
         getmsg(&editor_message_file, &mesg, 626),
-        critterGetStat(gDude, STAT_STRENGTH));
+        critterGetStat(obj_dude, STAT_STRENGTH));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4251,11 +4251,11 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.3d %s %.2d",
         getmsg(&editor_message_file, &mesg, 627),
-        critterGetStat(gDude, STAT_PERCEPTION),
+        critterGetStat(obj_dude, STAT_PERCEPTION),
         getmsg(&editor_message_file, &mesg, 628),
-        critterGetStat(gDude, STAT_ARMOR_CLASS),
+        critterGetStat(obj_dude, STAT_ARMOR_CLASS),
         getmsg(&editor_message_file, &mesg, 629),
-        critterGetStat(gDude, STAT_HEALING_RATE));
+        critterGetStat(obj_dude, STAT_HEALING_RATE));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4263,11 +4263,11 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.2d %s %.3d%%",
         getmsg(&editor_message_file, &mesg, 630),
-        critterGetStat(gDude, STAT_ENDURANCE),
+        critterGetStat(obj_dude, STAT_ENDURANCE),
         getmsg(&editor_message_file, &mesg, 631),
-        critterGetStat(gDude, STAT_MAXIMUM_ACTION_POINTS),
+        critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS),
         getmsg(&editor_message_file, &mesg, 632),
-        critterGetStat(gDude, STAT_CRITICAL_CHANCE));
+        critterGetStat(obj_dude, STAT_CRITICAL_CHANCE));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4275,11 +4275,11 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.2d %s %.3d lbs.",
         getmsg(&editor_message_file, &mesg, 633),
-        critterGetStat(gDude, STAT_CHARISMA),
+        critterGetStat(obj_dude, STAT_CHARISMA),
         getmsg(&editor_message_file, &mesg, 634),
-        critterGetStat(gDude, STAT_MELEE_DAMAGE),
+        critterGetStat(obj_dude, STAT_MELEE_DAMAGE),
         getmsg(&editor_message_file, &mesg, 635),
-        critterGetStat(gDude, STAT_CARRY_WEIGHT));
+        critterGetStat(obj_dude, STAT_CARRY_WEIGHT));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4287,9 +4287,9 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.3d%%",
         getmsg(&editor_message_file, &mesg, 636),
-        critterGetStat(gDude, STAT_INTELLIGENCE),
+        critterGetStat(obj_dude, STAT_INTELLIGENCE),
         getmsg(&editor_message_file, &mesg, 637),
-        critterGetStat(gDude, STAT_DAMAGE_RESISTANCE));
+        critterGetStat(obj_dude, STAT_DAMAGE_RESISTANCE));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4297,9 +4297,9 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.3d%%",
         getmsg(&editor_message_file, &mesg, 638),
-        critterGetStat(gDude, STAT_AGILITY),
+        critterGetStat(obj_dude, STAT_AGILITY),
         getmsg(&editor_message_file, &mesg, 639),
-        critterGetStat(gDude, STAT_RADIATION_RESISTANCE));
+        critterGetStat(obj_dude, STAT_RADIATION_RESISTANCE));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4307,9 +4307,9 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %.3d%%",
         getmsg(&editor_message_file, &mesg, 640),
-        critterGetStat(gDude, STAT_LUCK),
+        critterGetStat(obj_dude, STAT_LUCK),
         getmsg(&editor_message_file, &mesg, 641),
-        critterGetStat(gDude, STAT_POISON_RESISTANCE));
+        critterGetStat(obj_dude, STAT_POISON_RESISTANCE));
     fileWriteString(title1, stream);
     fileWriteString("\n", stream);
 
@@ -4333,7 +4333,7 @@ static int Save_as_ASCII(const char* fileName)
 
     int perk = 0;
     for (; perk < PERK_COUNT; perk++) {
-        if (perkGetRank(gDude, perk) != 0) {
+        if (perkGetRank(obj_dude, perk) != 0) {
             break;
         }
     }
@@ -4344,7 +4344,7 @@ static int Save_as_ASCII(const char* fileName)
         fileWriteString(title1, stream);
 
         for (perk = 0; perk < PERK_COUNT; perk++) {
-            int rank = perkGetRank(gDude, perk);
+            int rank = perkGetRank(obj_dude, perk);
             if (rank != 0) {
                 if (rank == 1) {
                     sprintf(title1, "  %s", perkGetName(perk));
@@ -4484,7 +4484,7 @@ static int Save_as_ASCII(const char* fileName)
                 sprintf(title3,
                     "  %s %.3d%%        %s %.3d\n",
                     title1,
-                    skillGetValue(gDude, skill),
+                    skillGetValue(obj_dude, skill),
                     title2,
                     killsCount);
                 hasKillType = true;
@@ -4496,7 +4496,7 @@ static int Save_as_ASCII(const char* fileName)
             sprintf(title3,
                 "  %s %.3d%%\n",
                 title1,
-                skillGetValue(gDude, skill));
+                skillGetValue(obj_dude, skill));
         }
     }
 
@@ -4507,7 +4507,7 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 654));
     fileWriteString(title1, stream);
 
-    Inventory* inventory = &(gDude->data.inventory);
+    Inventory* inventory = &(obj_dude->data.inventory);
     for (int index = 0; index < inventory->length; index += 3) {
         title1[0] = '\0';
 
@@ -4522,7 +4522,7 @@ static int Save_as_ASCII(const char* fileName)
             sprintf(title2,
                 "  %sx %s",
                 itostndn(inventoryItem->quantity, title3),
-                objectGetName(inventoryItem->item));
+                object_name(inventoryItem->item));
 
             int length = 25 - strlen(title2);
             if (length < 0) {
@@ -4544,7 +4544,7 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %d lbs.",
         getmsg(&editor_message_file, &mesg, 655),
-        item_total_weight(gDude));
+        item_total_weight(obj_dude));
     fileWriteString(title1, stream);
 
     fileWriteString("\n", stream);
@@ -4638,15 +4638,15 @@ static int CheckValidPlayer()
 {
     int stat;
 
-    critterUpdateDerivedStats(gDude);
+    critterUpdateDerivedStats(obj_dude);
     pcStatsReset();
 
     for (stat = 0; stat < SAVEABLE_STAT_COUNT; stat++) {
-        critterSetBonusStat(gDude, stat, 0);
+        critterSetBonusStat(obj_dude, stat, 0);
     }
 
     perkResetRanks();
-    critterUpdateDerivedStats(gDude);
+    critterUpdateDerivedStats(obj_dude);
 
     return 1;
 }
@@ -4657,12 +4657,12 @@ static int CheckValidPlayer()
 static void SavePlayer()
 {
     Proto* proto;
-    protoGetProto(gDude->pid, &proto);
+    protoGetProto(obj_dude->pid, &proto);
     critter_copy(&dude_data, &(proto->critter.data));
 
-    hp_back = critter_get_hits(gDude);
+    hp_back = critter_get_hits(obj_dude);
 
-    strncpy(name_save, critter_name(gDude), 32);
+    strncpy(name_save, critter_name(obj_dude), 32);
 
     last_level_back = last_level;
 
@@ -4678,7 +4678,7 @@ static void SavePlayer()
     traitsGetSelected(&(trait_back[0]), &(trait_back[1]));
 
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
-        skillsav[skill] = skillGetValue(gDude, skill);
+        skillsav[skill] = skillGetValue(obj_dude, skill);
     }
 }
 
@@ -4692,7 +4692,7 @@ static void RestorePlayer()
 
     pop_perks();
 
-    protoGetProto(gDude->pid, &proto);
+    protoGetProto(obj_dude->pid, &proto);
     critter_copy(&(proto->critter.data), &dude_data);
 
     critter_pc_set_name(name_save);
@@ -4716,10 +4716,10 @@ static void RestorePlayer()
     // NOTE: Uninline.
     trait_count = get_trait_count();
 
-    critterUpdateDerivedStats(gDude);
+    critterUpdateDerivedStats(obj_dude);
 
-    cur_hp = critter_get_hits(gDude);
-    critter_adjust_hits(gDude, hp_back - cur_hp);
+    cur_hp = critter_get_hits(obj_dude);
+    critter_adjust_hits(obj_dude, hp_back - cur_hp);
 }
 
 // 0x43A9CC
@@ -5054,7 +5054,7 @@ static void SliderBtn(int keyCode)
             rc = 1;
             if (keyCode == 521) {
                 if (pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
-                    if (skillAdd(gDude, skill_cursor) == -3) {
+                    if (skillAdd(obj_dude, skill_cursor) == -3) {
                         gsound_play_sfx_file("iisxxxx1");
 
                         sprintf(title, "%s:", skillGetName(skill_cursor));
@@ -5074,10 +5074,10 @@ static void SliderBtn(int keyCode)
                     rc = -1;
                 }
             } else if (keyCode == 523) {
-                if (skillGetValue(gDude, skill_cursor) <= skillsav[skill_cursor]) {
+                if (skillGetValue(obj_dude, skill_cursor) <= skillsav[skill_cursor]) {
                     rc = 0;
                 } else {
-                    if (skillSub(gDude, skill_cursor) == -2) {
+                    if (skillSub(obj_dude, skill_cursor) == -2) {
                         rc = 0;
                     }
                 }
@@ -5343,7 +5343,7 @@ static void TraitSelect(int trait)
 
     ListTraits();
     ListSkills(0);
-    critterUpdateDerivedStats(gDude);
+    critterUpdateDerivedStats(obj_dude);
     PrintBigNum(126, 282, 0, character_points, 0, edit_win);
     PrintBasicStat(RENDER_ALL_STATS, false, 0);
     ListDrvdStats();
@@ -5541,8 +5541,8 @@ static int UpdateLevel()
         for (int nextLevel = last_level + 1; nextLevel <= level; nextLevel++) {
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             sp += 5;
-            sp += critterGetBaseStatWithTraitModifier(gDude, STAT_INTELLIGENCE) * 2;
-            sp += perkGetRank(gDude, PERK_EDUCATED) * 2;
+            sp += critterGetBaseStatWithTraitModifier(obj_dude, STAT_INTELLIGENCE) * 2;
+            sp += perkGetRank(obj_dude, PERK_EDUCATED) * 2;
             sp += traitIsSelected(TRAIT_SKILLED) * 5;
             if (traitIsSelected(TRAIT_GIFTED)) {
                 sp -= 5;
@@ -5615,7 +5615,7 @@ static void RedrwDPrks()
     char* perkRank = NULL;
     char perkRankBuffer[32];
 
-    int rank = perkGetRank(gDude, perk);
+    int rank = perkGetRank(obj_dude, perk);
     if (rank != 0) {
         sprintf(perkRankBuffer, "(%d)", rank);
         perkRank = perkRankBuffer;
@@ -5767,7 +5767,7 @@ static int perks_dialog()
     char* perkRank = NULL;
     char perkRankBuffer[32];
 
-    int rank = perkGetRank(gDude, perk);
+    int rank = perkGetRank(obj_dude, perk);
     if (rank != 0) {
         sprintf(perkRankBuffer, "(%d)", rank);
         perkRank = perkRankBuffer;
@@ -5779,7 +5779,7 @@ static int perks_dialog()
     int rc = InputPDLoop(count, RedrwDPrks);
 
     if (rc == 1) {
-        if (perkAdd(gDude, name_sort_list[crow + cline].value) == -1) {
+        if (perkAdd(obj_dude, name_sort_list[crow + cline].value) == -1) {
             debugPrint("\n*** Unable to add perk! ***\n");
             rc = 2;
         }
@@ -5788,19 +5788,19 @@ static int perks_dialog()
     rc &= 1;
 
     if (rc != 0) {
-        if (perkGetRank(gDude, PERK_TAG) != 0 && perk_back[PERK_TAG] == 0) {
+        if (perkGetRank(obj_dude, PERK_TAG) != 0 && perk_back[PERK_TAG] == 0) {
             if (!Add4thTagSkill()) {
-                perkRemove(gDude, PERK_TAG);
+                perkRemove(obj_dude, PERK_TAG);
             }
-        } else if (perkGetRank(gDude, PERK_MUTATE) != 0 && perk_back[PERK_MUTATE] == 0) {
+        } else if (perkGetRank(obj_dude, PERK_MUTATE) != 0 && perk_back[PERK_MUTATE] == 0) {
             if (!GetMutateTrait()) {
-                perkRemove(gDude, PERK_MUTATE);
+                perkRemove(obj_dude, PERK_MUTATE);
             }
-        } else if (perkGetRank(gDude, PERK_LIFEGIVER) != perk_back[PERK_LIFEGIVER]) {
-            int maxHp = critterGetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS);
-            critterSetBonusStat(gDude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
-            critter_adjust_hits(gDude, 4);
-        } else if (perkGetRank(gDude, PERK_EDUCATED) != perk_back[PERK_EDUCATED]) {
+        } else if (perkGetRank(obj_dude, PERK_LIFEGIVER) != perk_back[PERK_LIFEGIVER]) {
+            int maxHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+            critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
+            critter_adjust_hits(obj_dude, 4);
+        } else if (perkGetRank(obj_dude, PERK_EDUCATED) != perk_back[PERK_EDUCATED]) {
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);
         }
@@ -6098,7 +6098,7 @@ static int ListDPerks()
     fontSetCurrent(101);
 
     int perks[PERK_COUNT];
-    int count = perkGetAvailablePerks(gDude, perks);
+    int count = perkGetAvailablePerks(obj_dude, perks);
     if (count == 0) {
         return 0;
     }
@@ -6134,9 +6134,9 @@ static int ListDPerks()
 
         fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
 
-        if (perkGetRank(gDude, name_sort_list[index].value) != 0) {
+        if (perkGetRank(obj_dude, name_sort_list[index].value) != 0) {
             char rankString[256];
-            sprintf(rankString, "(%d)", perkGetRank(gDude, name_sort_list[index].value));
+            sprintf(rankString, "(%d)", perkGetRank(obj_dude, name_sort_list[index].value));
             fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 207, rankString, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
         }
 
@@ -6503,7 +6503,7 @@ static void push_perks()
     int perk;
 
     for (perk = 0; perk < PERK_COUNT; perk++) {
-        perk_back[perk] = perkGetRank(gDude, perk);
+        perk_back[perk] = perkGetRank(obj_dude, perk);
     }
 }
 
@@ -6514,23 +6514,23 @@ static void pop_perks()
 {
     for (int perk = 0; perk < PERK_COUNT; perk++) {
         for (;;) {
-            int rank = perkGetRank(gDude, perk);
+            int rank = perkGetRank(obj_dude, perk);
             if (rank <= perk_back[perk]) {
                 break;
             }
 
-            perkRemove(gDude, perk);
+            perkRemove(obj_dude, perk);
         }
     }
 
     for (int i = 0; i < PERK_COUNT; i++) {
         for (;;) {
-            int rank = perkGetRank(gDude, i);
+            int rank = perkGetRank(obj_dude, i);
             if (rank >= perk_back[i]) {
                 break;
             }
 
-            perkAdd(gDude, i);
+            perkAdd(obj_dude, i);
         }
     }
 }
@@ -6545,7 +6545,7 @@ static int PerkCount()
 
     perkCount = 0;
     for (perk = 0; perk < PERK_COUNT; perk++) {
-        if (perkGetRank(gDude, perk) > 0) {
+        if (perkGetRank(obj_dude, perk) > 0) {
             perkCount++;
             if (perkCount >= 37) {
                 break;
@@ -6562,8 +6562,8 @@ static int PerkCount()
 static int is_supper_bonus()
 {
     for (int stat = 0; stat < 7; stat++) {
-        int v1 = critterGetBaseStatWithTraitModifier(gDude, stat);
-        int v2 = critterGetBonusStat(gDude, stat);
+        int v1 = critterGetBaseStatWithTraitModifier(obj_dude, stat);
+        int v2 = critterGetBonusStat(obj_dude, stat);
         if (v1 + v2 > 10) {
             return 1;
         }

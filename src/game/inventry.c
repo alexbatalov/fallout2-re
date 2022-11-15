@@ -371,7 +371,7 @@ void inven_set_dude(Object* obj, int pid)
 // 0x46E724
 void inven_reset_dude()
 {
-    inven_dude = gDude;
+    inven_dude = obj_dude;
     inven_pid = 0x1000000;
 }
 
@@ -411,9 +411,9 @@ void handle_inventory()
     }
 
     if (isInCombat()) {
-        if (inven_dude == gDude) {
+        if (inven_dude == obj_dude) {
             int actionPointsRequired = 4 - 2 * perkGetRank(inven_dude, PERK_QUICK_POCKETS);
-            if (actionPointsRequired > 0 && actionPointsRequired > gDude->data.critter.combat.ap) {
+            if (actionPointsRequired > 0 && actionPointsRequired > obj_dude->data.critter.combat.ap) {
                 // You don't have enough action points to use inventory
                 MessageListItem messageListItem;
                 messageListItem.num = 19;
@@ -428,12 +428,12 @@ void handle_inventory()
             }
 
             if (actionPointsRequired > 0) {
-                if (actionPointsRequired > gDude->data.critter.combat.ap) {
-                    gDude->data.critter.combat.ap = 0;
+                if (actionPointsRequired > obj_dude->data.critter.combat.ap) {
+                    obj_dude->data.critter.combat.ap = 0;
                 } else {
-                    gDude->data.critter.combat.ap -= actionPointsRequired;
+                    obj_dude->data.critter.combat.ap -= actionPointsRequired;
                 }
-                intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+                intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
             }
         }
     }
@@ -528,14 +528,14 @@ void handle_inventory()
     inven_dude = stack[0];
     adjust_fid();
 
-    if (inven_dude == gDude) {
+    if (inven_dude == obj_dude) {
         Rect rect;
-        objectSetFid(inven_dude, i_fid, &rect);
+        obj_change_fid(inven_dude, i_fid, &rect);
         tileWindowRefreshRect(&rect, inven_dude->elevation);
     }
 
     Object* newArmor = inven_worn(inven_dude);
-    if (inven_dude == gDude) {
+    if (inven_dude == obj_dude) {
         if (oldArmor != newArmor) {
             intface_update_ac(true);
         }
@@ -546,7 +546,7 @@ void handle_inventory()
     // NOTE: Uninline.
     inven_exit();
 
-    if (inven_dude == gDude) {
+    if (inven_dude == obj_dude) {
         intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 }
@@ -1029,18 +1029,18 @@ void exit_inventory(bool shouldEnableIso)
 
     if (dropped_explosive) {
         Attack v1;
-        combat_ctd_init(&v1, gDude, NULL, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
+        combat_ctd_init(&v1, obj_dude, NULL, HIT_MODE_PUNCH, HIT_LOCATION_TORSO);
         v1.attackerFlags = DAM_HIT;
-        v1.tile = gDude->tile;
+        v1.tile = obj_dude->tile;
         compute_explosion_on_extras(&v1, 0, 0, 1);
 
         Object* v2 = NULL;
         for (int index = 0; index < v1.extrasLength; index++) {
             Object* critter = v1.extras[index];
-            if (critter != gDude
-                && critter->data.critter.combat.team != gDude->data.critter.combat.team
+            if (critter != obj_dude
+                && critter->data.critter.combat.team != obj_dude->data.critter.combat.team
                 && statRoll(critter, STAT_PERCEPTION, 0, NULL) >= ROLL_SUCCESS) {
-                critter_set_who_hit_me(critter, gDude);
+                critter_set_who_hit_me(critter, obj_dude);
 
                 if (v2 == NULL) {
                     v2 = critter;
@@ -1052,7 +1052,7 @@ void exit_inventory(bool shouldEnableIso)
             if (!isInCombat()) {
                 STRUCT_664980 v3;
                 v3.attacker = v2;
-                v3.defender = gDude;
+                v3.defender = obj_dude;
                 v3.actionPointsBonus = 0;
                 v3.accuracyBonus = 0;
                 v3.damageBonus = 0;
@@ -1639,7 +1639,7 @@ void inven_hover_off(int btn, int keyCode)
 // 0x470D5C
 static void inven_update_lighting(Object* a1)
 {
-    if (gDude == inven_dude) {
+    if (obj_dude == inven_dude) {
         int lightDistance;
         if (a1 != NULL && a1->lightDistance > 4) {
             lightDistance = a1->lightDistance;
@@ -1648,7 +1648,7 @@ static void inven_update_lighting(Object* a1)
         }
 
         Rect rect;
-        objectSetLight(inven_dude, lightDistance, 0x10000, &rect);
+        obj_set_light(inven_dude, lightDistance, 0x10000, &rect);
         tileWindowRefreshRect(&rect, map_elevation);
     }
 }
@@ -1671,14 +1671,14 @@ void inven_pickup(int keyCode, int a2)
     case 1006:
         rect.left = 245;
         rect.top = 286;
-        if (inven_dude == gDude && intface_is_item_right_hand() != HAND_LEFT) {
+        if (inven_dude == obj_dude && intface_is_item_right_hand() != HAND_LEFT) {
             v39 = a1a;
         }
         break;
     case 1007:
         rect.left = 154;
         rect.top = 286;
-        if (inven_dude == gDude && intface_is_item_right_hand() == HAND_LEFT) {
+        if (inven_dude == obj_dude && intface_is_item_right_hand() == HAND_LEFT) {
             v39 = a1a;
         }
         break;
@@ -1850,7 +1850,7 @@ void inven_pickup(int keyCode, int a2)
     display_stats();
     display_inventory(a2, -1, INVENTORY_WINDOW_TYPE_NORMAL);
     inven_set_mouse(INVENTORY_WINDOW_CURSOR_HAND);
-    if (inven_dude == gDude) {
+    if (inven_dude == obj_dude) {
         Object* item;
         if (intface_is_item_right_hand() == HAND_LEFT) {
             item = inven_left_hand(inven_dude);
@@ -2085,19 +2085,19 @@ void use_inventory_on(Object* a1)
                         if (inventoryItemIndex < pud->length) {
                             InventoryItem* inventoryItem = &(pud->items[inventoryItemIndex]);
                             if (isInCombat()) {
-                                if (gDude->data.critter.combat.ap >= 2) {
-                                    if (action_use_an_item_on_object(gDude, a1, inventoryItem->item) != -1) {
-                                        int actionPoints = gDude->data.critter.combat.ap;
+                                if (obj_dude->data.critter.combat.ap >= 2) {
+                                    if (action_use_an_item_on_object(obj_dude, a1, inventoryItem->item) != -1) {
+                                        int actionPoints = obj_dude->data.critter.combat.ap;
                                         if (actionPoints < 2) {
-                                            gDude->data.critter.combat.ap = 0;
+                                            obj_dude->data.critter.combat.ap = 0;
                                         } else {
-                                            gDude->data.critter.combat.ap = actionPoints - 2;
+                                            obj_dude->data.critter.combat.ap = actionPoints - 2;
                                         }
-                                        intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+                                        intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
                                     }
                                 }
                             } else {
-                                action_use_an_item_on_object(gDude, a1, inventoryItem->item);
+                                action_use_an_item_on_object(obj_dude, a1, inventoryItem->item);
                             }
                             keyCode = KEY_ESCAPE;
                         } else {
@@ -2580,7 +2580,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
             baseFrmId = 1;
         }
 
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             if (!map_bk_processes_are_disabled()) {
                 int fid = art_id(OBJ_TYPE_CRITTER, baseFrmId, 0, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
                 register_object_change_fid(critter, fid, 0);
@@ -2590,7 +2590,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         }
     } else {
         int hand;
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             hand = intface_is_item_right_hand();
         } else {
             hand = HAND_RIGHT;
@@ -2620,7 +2620,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
             if (v17->pid == PROTO_ID_LIT_FLARE) {
                 int lightIntensity;
                 int lightDistance;
-                if (critter == gDude) {
+                if (critter == obj_dude) {
                     lightIntensity = LIGHT_LEVEL_MAX;
                     lightDistance = 4;
                 } else {
@@ -2633,7 +2633,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                     lightIntensity = proto->lightIntensity;
                 }
 
-                objectSetLight(critter, lightDistance, lightIntensity, &rect);
+                obj_set_light(critter, lightDistance, lightIntensity, &rect);
             }
         }
 
@@ -2648,7 +2648,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                 lightIntensity = critter->lightIntensity;
             }
 
-            objectSetLight(critter, lightDistance, lightIntensity, &rect);
+            obj_set_light(critter, lightDistance, lightIntensity, &rect);
             tileWindowRefreshRect(&rect, map_elevation);
         }
 
@@ -2706,7 +2706,7 @@ int invenUnwieldFunc(Object* obj, int a2, int a3)
     Object* item_obj;
     int fid;
 
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         v6 = intface_is_item_right_hand();
     } else {
         v6 = 1;
@@ -2949,7 +2949,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
     inven_display_msg_line = 0;
 
     // Render item's name.
-    char* itemName = objectGetName(item);
+    char* itemName = object_name(item);
     inven_display_msg(itemName);
 
     // Increment line counter to accomodate separator below.
@@ -3079,7 +3079,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
     int actionMenuItemsLength;
     const int* actionMenuItems;
     if (itemType == ITEM_TYPE_WEAPON && item_w_can_unload(item)) {
-        if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL && objectGetOwner(item) != gDude) {
+        if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL && obj_top_environment(item) != obj_dude) {
             actionMenuItemsLength = 3;
             actionMenuItems = act_weap2;
         } else {
@@ -3088,7 +3088,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
         }
     } else {
         if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL) {
-            if (objectGetOwner(item) != gDude) {
+            if (obj_top_environment(item) != obj_dude) {
                 if (itemType == ITEM_TYPE_CONTAINER) {
                     actionMenuItemsLength = 3;
                     actionMenuItems = act_just_use;
@@ -3110,7 +3110,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
                 actionMenuItemsLength = 3;
                 actionMenuItems = act_no_use;
             } else {
-                if (_obj_action_can_use(item) || _proto_action_can_use_on(item->pid)) {
+                if (obj_action_can_use(item) || _proto_action_can_use_on(item->pid)) {
                     actionMenuItemsLength = 4;
                     actionMenuItems = act_use;
                 } else {
@@ -3284,7 +3284,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
                     item_remove_mult(v41, item, 1);
                 }
 
-                _obj_connect(item, gDude->tile, gDude->elevation, NULL);
+                obj_connect(item, obj_dude->tile, obj_dude->elevation, NULL);
                 _obj_destroy(item);
             }
             intface_update_hit_points(true);
@@ -3296,7 +3296,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
             }
 
             int v21;
-            if (_obj_action_can_use(item)) {
+            if (obj_action_can_use(item)) {
                 v21 = _protinst_use_item(stack[0], item);
             } else {
                 v21 = _protinst_use_item_on(stack[0], stack[0], item);
@@ -3307,7 +3307,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
                     *v43 = NULL;
                 }
 
-                _obj_connect(item, gDude->tile, gDude->elevation, NULL);
+                obj_connect(item, obj_dude->tile, obj_dude->elevation, NULL);
                 _obj_destroy(item);
             } else {
                 if (v43 == NULL) {
@@ -3328,7 +3328,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
             }
 
             Rect rect;
-            _obj_disconnect(ammo, &rect);
+            obj_disconnect(ammo, &rect);
             item_add_force(v41, ammo, 1);
         }
 
@@ -3430,7 +3430,7 @@ int loot_container(Object* a1, Object* a2)
     target_stack[0] = a2;
 
     Object* a1a = NULL;
-    if (objectCreateWithFidPid(&a1a, 0, 467) == -1) {
+    if (obj_new(&a1a, 0, 467) == -1) {
         return 0;
     }
 
@@ -3464,7 +3464,7 @@ int loot_container(Object* a1, Object* a2)
     int critterIndex = 0;
     if (!_gIsSteal) {
         if (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER) {
-            critterCount = objectListCreate(a2->tile, a2->elevation, OBJ_TYPE_CRITTER, &critters);
+            critterCount = obj_create_list(a2->tile, a2->elevation, OBJ_TYPE_CRITTER, &critters);
             int endIndex = critterCount - 1;
             for (int index = 0; index < critterCount; index++) {
                 Object* critter = critters[index];
@@ -3480,7 +3480,7 @@ int loot_container(Object* a1, Object* a2)
             }
 
             if (critterCount == 1) {
-                objectListFree(critters);
+                obj_delete_list(critters);
                 critterCount = 0;
             }
 
@@ -3697,7 +3697,7 @@ int loot_container(Object* a1, Object* a2)
     }
 
     if (critterCount != 0) {
-        objectListFree(critters);
+        obj_delete_list(critters);
 
         for (int index = 0; index < INVENTORY_ARROW_FRM_COUNT; index++) {
             art_ptr_unlock(arrowFrmHandles[index]);
@@ -3722,7 +3722,7 @@ int loot_container(Object* a1, Object* a2)
     }
 
     item_move_all(a1a, a2);
-    objectDestroy(a1a, NULL);
+    obj_erase_object(a1a, NULL);
 
     if (_gIsSteal) {
         if (!isCaughtStealing) {
@@ -3941,8 +3941,8 @@ static int barter_compute_value(Object* a1, Object* a2)
     int v14 = cost - caps;
 
     double bonus = 0.0;
-    if (a1 == gDude) {
-        if (perkHasRank(gDude, PERK_MASTER_TRADER)) {
+    if (a1 == obj_dude) {
+        if (perkHasRank(obj_dude, PERK_MASTER_TRADER)) {
             bonus = 25.0;
         }
     }
@@ -4256,11 +4256,11 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
             messageListItem.num = 30;
 
             if (message_search(&inventry_message_file, &messageListItem)) {
-                int weight = barter_compute_value(gDude, target_stack[0]);
+                int weight = barter_compute_value(obj_dude, target_stack[0]);
                 sprintf(formattedText, "%s %d", messageListItem.text, weight);
             }
         } else {
-            int cost = barter_compute_value(gDude, target_stack[0]);
+            int cost = barter_compute_value(obj_dude, target_stack[0]);
             sprintf(formattedText, "$%d", cost);
         }
 
@@ -4305,7 +4305,7 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
     }
 
     Object* a1a = NULL;
-    if (objectCreateWithFidPid(&a1a, 0, 467) == -1) {
+    if (obj_new(&a1a, 0, 467) == -1) {
         return;
     }
 
@@ -4371,7 +4371,7 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
 
         if (keyCode == KEY_LOWERCASE_T || modifier <= -30) {
             item_move_all(a4, a2);
-            item_move_all(a3, gDude);
+            item_move_all(a3, obj_dude);
             barter_end_to_talk_to();
             break;
         } else if (keyCode == KEY_LOWERCASE_M) {
@@ -4515,7 +4515,7 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
     }
 
     item_move_all(a1a, a2);
-    objectDestroy(a1a, NULL);
+    obj_erase_object(a1a, NULL);
 
     if (armor != NULL) {
         armor->flags |= OBJECT_WORN;

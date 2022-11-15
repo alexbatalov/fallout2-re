@@ -3497,9 +3497,9 @@ static int wmRndEncounterOccurred()
     bool randomEncounterIsDetected = false;
     if (frequency > chance) {
         int outdoorsman = partyGetBestSkillValue(SKILL_OUTDOORSMAN);
-        Object* scanner = inven_pid_is_carried(gDude, PROTO_ID_MOTION_SENSOR);
+        Object* scanner = inven_pid_is_carried(obj_dude, PROTO_ID_MOTION_SENSOR);
         if (scanner != NULL) {
-            if (gDude == scanner->owner) {
+            if (obj_dude == scanner->owner) {
                 outdoorsman += 20;
             }
         }
@@ -3629,18 +3629,18 @@ static int wmRndEncounterPick()
         }
     }
 
-    int v1 = critterGetStat(gDude, STAT_LUCK) - 5;
+    int v1 = critterGetStat(obj_dude, STAT_LUCK) - 5;
     int v2 = randomBetween(0, totalChance) + v1;
 
-    if (perkHasRank(gDude, PERK_EXPLORER)) {
+    if (perkHasRank(obj_dude, PERK_EXPLORER)) {
         v2 += 2;
     }
 
-    if (perkHasRank(gDude, PERK_RANGER)) {
+    if (perkHasRank(obj_dude, PERK_RANGER)) {
         v2++;
     }
 
-    if (perkHasRank(gDude, PERK_SCOUT)) {
+    if (perkHasRank(obj_dude, PERK_SCOUT)) {
         v2++;
     }
 
@@ -3786,11 +3786,11 @@ int wmSetupRandomEncounter()
                             }
                         } else {
                             if (!isInCombat()) {
-                                v0->data.critter.combat.whoHitMe = gDude;
+                                v0->data.critter.combat.whoHitMe = obj_dude;
 
                                 STRUCT_664980 combat;
                                 combat.attacker = v0;
-                                combat.defender = gDude;
+                                combat.defender = obj_dude;
                                 combat.actionPointsBonus = 0;
                                 combat.accuracyBonus = 0;
                                 combat.damageBonus = 0;
@@ -3798,7 +3798,7 @@ int wmSetupRandomEncounter()
                                 combat.maxDamage = 500;
                                 combat.field_1C = 0;
 
-                                caiSetupTeamCombat(gDude, v0);
+                                caiSetupTeamCombat(obj_dude, v0);
                                 _scripts_request_combat_locked(&combat);
                             }
                         }
@@ -3870,7 +3870,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
             }
 
             Object* object;
-            if (objectCreateWithPid(&object, v5->pid) == -1) {
+            if (obj_pid_new(&object, v5->pid) == -1) {
                 return -1;
             }
 
@@ -3896,13 +3896,13 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
             }
 
             if (v25->position != ENCOUNTER_FORMATION_TYPE_SURROUNDING) {
-                objectSetLocation(object, tile, map_elevation, NULL);
+                obj_move_to_tile(object, tile, map_elevation, NULL);
             } else {
                 _obj_attempt_placement(object, tile, 0, 0);
             }
 
-            int direction = tileGetRotationTo(tile, gDude->tile);
-            objectSetRotation(object, direction, NULL);
+            int direction = tileGetRotationTo(tile, obj_dude->tile);
+            obj_set_rotation(object, direction, NULL);
 
             for (int itemIndex = 0; itemIndex < v5->itemsLength; itemIndex++) {
                 ENC_BASE_TYPE_38_48* v10 = &(v5->items[itemIndex]);
@@ -3919,12 +3919,12 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
                 }
 
                 Object* item;
-                if (objectCreateWithPid(&item, v10->pid) == -1) {
+                if (obj_pid_new(&item, v10->pid) == -1) {
                     return -1;
                 }
 
                 if (v10->pid == PROTO_ID_MONEY) {
-                    if (perkHasRank(gDude, PERK_FORTUNE_FINDER)) {
+                    if (perkHasRank(obj_dude, PERK_FORTUNE_FINDER)) {
                         quantity *= 2;
                     }
                 }
@@ -3933,7 +3933,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
                     return -1;
                 }
 
-                _obj_disconnect(item, NULL);
+                obj_disconnect(item, NULL);
 
                 if (v10->isEquipped) {
                     if (inven_wield(object, item, 1) == -1) {
@@ -3966,7 +3966,7 @@ static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
 
     switch (a1->position) {
     case ENCOUNTER_FORMATION_TYPE_SURROUNDING:
-        wmRndCenterTiles[0] = gDude->tile;
+        wmRndCenterTiles[0] = obj_dude->tile;
         wmRndTileDirs[0] = randomBetween(0, ROTATION_COUNT - 1);
 
         wmRndOriginalCenterTile = wmRndCenterTiles[0];
@@ -3992,12 +3992,12 @@ static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
                 wmRndCenterRotations[0] = 0;
                 wmRndCenterRotations[1] = 0;
 
-                wmRndCenterTiles[0] = gDude->tile;
-                wmRndCenterTiles[1] = gDude->tile;
+                wmRndCenterTiles[0] = obj_dude->tile;
+                wmRndCenterTiles[1] = obj_dude->tile;
             }
 
-            wmRndTileDirs[0] = tileGetRotationTo(wmRndCenterTiles[0], gDude->tile);
-            wmRndTileDirs[1] = tileGetRotationTo(wmRndCenterTiles[1], gDude->tile);
+            wmRndTileDirs[0] = tileGetRotationTo(wmRndCenterTiles[0], obj_dude->tile);
+            wmRndTileDirs[1] = tileGetRotationTo(wmRndCenterTiles[1], obj_dude->tile);
 
             wmRndOriginalCenterTile = wmRndCenterTiles[0];
 
@@ -4027,9 +4027,9 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
                 } else {
                     distance = randomBetween(-2, 2);
 
-                    distance += critterGetStat(gDude, STAT_PERCEPTION);
+                    distance += critterGetStat(obj_dude, STAT_PERCEPTION);
 
-                    if (perkHasRank(gDude, PERK_CAUTIOUS_NATURE)) {
+                    if (perkHasRank(obj_dude, PERK_CAUTIOUS_NATURE)) {
                         distance += 3;
                     }
                 }
@@ -4040,7 +4040,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
 
                 int origin = a2->tile;
                 if (origin == -1) {
-                    origin = tileGetTileInDirection(gDude->tile, wmRndTileDirs[0], distance);
+                    origin = tileGetTileInDirection(obj_dude->tile, wmRndTileDirs[0], distance);
                 }
 
                 if (++wmRndTileDirs[0] >= ROTATION_COUNT) {
@@ -4130,11 +4130,11 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
 // 0x4C1A64
 bool wmEvalTileNumForPlacement(int tile)
 {
-    if (_obj_blocking_at(gDude, tile, map_elevation) != NULL) {
+    if (obj_blocking_at(obj_dude, tile, map_elevation) != NULL) {
         return false;
     }
 
-    if (make_path_func(gDude, gDude->tile, tile, NULL, 0, _obj_shoot_blocking_at) == 0) {
+    if (make_path_func(obj_dude, obj_dude->tile, tile, NULL, 0, obj_shoot_blocking_at) == 0) {
         return false;
     }
 
@@ -4367,7 +4367,7 @@ static void wmPartyWalkingStep()
     wmPartyFindCurSubTile();
 
     Terrain* terrain = &(wmTerrainTypeList[wmGenData.currentSubtile->terrain]);
-    int v1 = terrain->type - perkGetRank(gDude, PERK_PATHFINDER);
+    int v1 = terrain->type - perkGetRank(obj_dude, PERK_PATHFINDER);
     if (v1 < 1) {
         v1 = 1;
     }
@@ -5273,7 +5273,7 @@ static void wmMarkSubTileRadiusVisited(int x, int y)
 {
     int radius = 1;
 
-    if (perkHasRank(gDude, PERK_SCOUT)) {
+    if (perkHasRank(obj_dude, PERK_SCOUT)) {
         radius = 2;
     }
 
@@ -5605,7 +5605,7 @@ static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* cit
     int maxY;
     int width;
 
-    _dark_translucent_trans_buf_to_buf(citySizeDescription->data,
+    dark_translucent_trans_buf_to_buf(citySizeDescription->data,
         citySizeDescription->width,
         citySizeDescription->height,
         citySizeDescription->width,
@@ -5615,7 +5615,7 @@ static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* cit
         WM_WINDOW_WIDTH,
         0x10000,
         circleBlendTable,
-        _commonGrayTable);
+        commonGrayTable);
 
     nameY = y + citySizeDescription->height + 1;
     maxY = 464 - fontGetLineHeight();

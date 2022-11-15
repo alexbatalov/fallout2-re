@@ -178,7 +178,7 @@ int item_add_mult(Object* owner, Object* itemToAdd, int quantity)
                 return -6;
             }
 
-            Object* containerOwner = objectGetOwner(owner);
+            Object* containerOwner = obj_top_environment(owner);
             if (containerOwner != NULL) {
                 if (FID_TYPE(containerOwner->fid) == OBJ_TYPE_CRITTER) {
                     int weightToAdd = item_weight(itemToAdd);
@@ -289,7 +289,7 @@ int item_add_force(Object* owner, Object* itemToAdd, int quantity)
         inventory->items[index].quantity += quantity;
     }
 
-    objectDestroy(inventory->items[index].item, NULL);
+    obj_erase_object(inventory->items[index].item, NULL);
     inventory->items[index].item = itemToAdd;
     itemToAdd->owner = owner;
 
@@ -331,11 +331,11 @@ int item_remove_mult(Object* owner, Object* itemToRemove, int quantity)
         item_compact(index, inventory);
     } else {
         // TODO: Not sure about this line.
-        if (_obj_copy(&(inventoryItem->item), itemToRemove) == -1) {
+        if (obj_copy(&(inventoryItem->item), itemToRemove) == -1) {
             return -1;
         }
 
-        _obj_disconnect(inventoryItem->item, NULL);
+        obj_disconnect(inventoryItem->item, NULL);
 
         inventoryItem->quantity -= quantity;
 
@@ -347,7 +347,7 @@ int item_remove_mult(Object* owner, Object* itemToRemove, int quantity)
 
     if (itemToRemove->pid == PROTO_ID_STEALTH_BOY_I || itemToRemove->pid == PROTO_ID_STEALTH_BOY_II) {
         if (itemToRemove == item1 || itemToRemove == item2) {
-            Object* owner = objectGetOwner(itemToRemove);
+            Object* owner = obj_top_environment(itemToRemove);
             if (owner != NULL) {
                 item_m_stealth_effect_off(owner, itemToRemove);
             }
@@ -390,14 +390,14 @@ static int item_move_func(Object* a1, Object* a2, Object* a3, int quantity, bool
 
     if (rc != 0) {
         if (item_add_force(a1, a3, quantity) != 0) {
-            Object* owner = objectGetOwner(a1);
+            Object* owner = obj_top_environment(a1);
             if (owner == NULL) {
                 owner = a1;
             }
 
             if (owner->tile != -1) {
                 Rect updatedRect;
-                _obj_connect(a3, owner->tile, owner->elevation, &updatedRect);
+                obj_connect(a3, owner->tile, owner->elevation, &updatedRect);
                 tileWindowRefreshRect(&updatedRect, map_elevation);
             }
         }
@@ -511,7 +511,7 @@ int item_drop_all(Object* critter, int tile)
                 return -1;
             }
 
-            if (_obj_connect(item, tile, critter->elevation, NULL) != 0) {
+            if (obj_connect(item, tile, critter->elevation, NULL) != 0) {
                 if (item_add_force(critter, item, 1) != 0) {
                     _obj_destroy(item);
                 }
@@ -539,7 +539,7 @@ int item_drop_all(Object* critter, int tile)
                     return -1;
                 }
 
-                if (_obj_connect(item, tile, critter->elevation, NULL) != 0) {
+                if (obj_connect(item, tile, critter->elevation, NULL) != 0) {
                     if (item_add_force(critter, item, 1) != 0) {
                         _obj_destroy(item);
                     }
@@ -552,7 +552,7 @@ int item_drop_all(Object* critter, int tile)
     if (hasEquippedItems) {
         Rect updatedRect;
         int fid = art_id(OBJ_TYPE_CRITTER, frmId, FID_ANIM_TYPE(critter->fid), 0, (critter->fid & 0x70000000) >> 28);
-        objectSetFid(critter, fid, &updatedRect);
+        obj_change_fid(critter, fid, &updatedRect);
         if (FID_ANIM_TYPE(critter->fid) == ANIM_STAND) {
             tileWindowRefreshRect(&updatedRect, map_elevation);
         }
@@ -890,7 +890,7 @@ bool item_grey(Object* weapon)
         return false;
     }
 
-    int flags = gDude->data.critter.combat.results;
+    int flags = obj_dude->data.critter.combat.results;
     if ((flags & DAM_CRIP_ARM_LEFT) != 0 && (flags & DAM_CRIP_ARM_RIGHT) != 0) {
         return true;
     }
@@ -1545,7 +1545,7 @@ int item_w_range(Object* critter, int hitMode)
         }
 
         if (item_w_subtype(weapon, hitMode) == ATTACK_TYPE_THROW) {
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 v12 = critterGetStat(critter, STAT_STRENGTH) + 2 * perkGetRank(critter, PERK_HEAVE_HO);
             } else {
                 v12 = critterGetStat(critter, STAT_STRENGTH);
@@ -1622,7 +1622,7 @@ int item_w_mp_cost(Object* critter, int hitMode, bool aiming)
                 actionPoints = item_w_secondary_mp_cost(weapon);
             }
 
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 if (traitIsSelected(TRAIT_FAST_SHOT)) {
                     if (item_w_range(critter, hitMode) > 2) {
                         actionPoints--;
@@ -1635,16 +1635,16 @@ int item_w_mp_cost(Object* critter, int hitMode, bool aiming)
         break;
     }
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         int attackType = item_w_subtype(weapon, hitMode);
 
-        if (perkHasRank(gDude, PERK_BONUS_HTH_ATTACKS)) {
+        if (perkHasRank(obj_dude, PERK_BONUS_HTH_ATTACKS)) {
             if (attackType == ATTACK_TYPE_MELEE || attackType == ATTACK_TYPE_UNARMED) {
                 actionPoints -= 1;
             }
         }
 
-        if (perkHasRank(gDude, PERK_BONUS_RATE_OF_FIRE)) {
+        if (perkHasRank(obj_dude, PERK_BONUS_RATE_OF_FIRE)) {
             if (attackType == ATTACK_TYPE_RANGED) {
                 actionPoints -= 1;
             }
@@ -1770,7 +1770,7 @@ char item_w_sound_id(Object* weapon)
 // 0x478E5C
 int item_w_called_shot(Object* critter, int hitMode)
 {
-    if (critter == gDude && traitIsSelected(TRAIT_FAST_SHOT)) {
+    if (critter == obj_dude && traitIsSelected(TRAIT_FAST_SHOT)) {
         return 0;
     }
 
@@ -1838,11 +1838,11 @@ Object* item_w_unload(Object* weapon)
     }
 
     Object* ammo;
-    if (objectCreateWithPid(&ammo, ammoTypePid) != 0) {
+    if (obj_pid_new(&ammo, ammoTypePid) != 0) {
         return NULL;
     }
 
-    _obj_disconnect(ammo, NULL);
+    obj_disconnect(ammo, NULL);
 
     // NOTE: Uninline.
     int ammoQuantity = item_w_curr_ammo(weapon);
@@ -2207,7 +2207,7 @@ int item_m_use_charged_item(Object* critter, Object* miscItem)
             messageListItem.num = 5;
             if (message_search(&item_message_file, &messageListItem)) {
                 char text[80];
-                const char* itemName = objectGetName(miscItem);
+                const char* itemName = object_name(miscItem);
                 sprintf(text, messageListItem.text, itemName);
                 display_print(text);
             }
@@ -2246,14 +2246,14 @@ int item_m_trickle(Object* item, void* data)
 
         queueAddEvent(delay, item, NULL, EVENT_TYPE_ITEM_TRICKLE);
     } else {
-        Object* critter = objectGetOwner(item);
-        if (critter == gDude) {
+        Object* critter = obj_top_environment(item);
+        if (critter == obj_dude) {
             MessageListItem messageListItem;
             // %s has no charges left.
             messageListItem.num = 5;
             if (message_search(&item_message_file, &messageListItem)) {
                 char text[80];
-                const char* itemName = objectGetName(item);
+                const char* itemName = object_name(item);
                 sprintf(text, messageListItem.text, itemName);
                 display_print(text);
             }
@@ -2286,7 +2286,7 @@ int item_m_turn_on(Object* item)
     MessageListItem messageListItem;
     char text[80];
 
-    Object* critter = objectGetOwner(item);
+    Object* critter = obj_top_environment(item);
     if (critter == NULL) {
         // This item can only be used from the interface bar.
         messageListItem.num = 9;
@@ -2299,10 +2299,10 @@ int item_m_turn_on(Object* item)
 
     // NOTE: Uninline.
     if (item_m_dec_charges(item) != 0) {
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             messageListItem.num = 5;
             if (message_search(&item_message_file, &messageListItem)) {
-                char* name = objectGetName(item);
+                char* name = object_name(item);
                 sprintf(text, messageListItem.text, name);
                 display_print(text);
             }
@@ -2324,11 +2324,11 @@ int item_m_turn_on(Object* item)
         item->pid = PROTO_ID_GEIGER_COUNTER_II;
     }
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         // %s is on.
         messageListItem.num = 6;
         if (message_search(&item_message_file, &messageListItem)) {
-            char* name = objectGetName(item);
+            char* name = object_name(item);
             sprintf(text, messageListItem.text, name);
             display_print(text);
         }
@@ -2352,7 +2352,7 @@ int item_m_turn_on(Object* item)
 // 0x479898
 int item_m_turn_off(Object* item)
 {
-    Object* owner = objectGetOwner(item);
+    Object* owner = obj_top_environment(item);
 
     queueRemoveEventsByType(item, EVENT_TYPE_ITEM_TRICKLE);
 
@@ -2366,16 +2366,16 @@ int item_m_turn_off(Object* item)
         item->pid = PROTO_ID_GEIGER_COUNTER_I;
     }
 
-    if (owner == gDude) {
+    if (owner == obj_dude) {
         intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
     }
 
-    if (owner == gDude) {
+    if (owner == obj_dude) {
         // %s is off.
         MessageListItem messageListItem;
         messageListItem.num = 7;
         if (message_search(&item_message_file, &messageListItem)) {
-            const char* name = objectGetName(item);
+            const char* name = object_name(item);
             char text[80];
             sprintf(text, messageListItem.text, name);
             display_print(text);
@@ -2404,7 +2404,7 @@ static int item_m_stealth_effect_on(Object* object)
     object->flags |= OBJECT_TRANS_GLASS;
 
     Rect rect;
-    objectGetRect(object, &rect);
+    obj_bound(object, &rect);
     tileWindowRefreshRect(&rect, object->elevation);
 
     return 0;
@@ -2430,7 +2430,7 @@ static int item_m_stealth_effect_off(Object* critter, Object* item)
     critter->flags &= ~OBJECT_TRANS_GLASS;
 
     Rect rect;
-    objectGetRect(critter, &rect);
+    obj_bound(critter, &rect);
     tileWindowRefreshRect(&rect, critter->elevation);
 
     return 0;
@@ -2556,7 +2556,7 @@ static int insert_drug_effect(Object* critter, Object* item, int a3, int* stats,
     }
 
     int delay = 600 * a3;
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if (traitIsSelected(TRAIT_CHEM_RESISTANT)) {
             delay /= 2;
         }
@@ -2604,8 +2604,8 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
         v10 = critterGetBonusStat(critter, stat);
 
         int before;
-        if (critter == gDude) {
-            before = critterGetStat(gDude, stat);
+        if (critter == obj_dude) {
+            before = critterGetStat(obj_dude, stat);
         }
 
         if (v32) {
@@ -2617,7 +2617,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
 
         if (stat == STAT_CURRENT_HIT_POINTS) {
             v12 = critterGetBaseStatWithTraitModifier(critter, STAT_CURRENT_HIT_POINTS);
-            if (v11 + v12 <= 0 && critter != gDude) {
+            if (v11 + v12 <= 0 && critter != obj_dude) {
                 name = critter_name(critter);
                 // %s succumbs to the adverse effects of chems.
                 text = getmsg(&item_message_file, &messageListItem, 600);
@@ -2628,7 +2628,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
 
         critterSetBonusStat(critter, stat, v11);
 
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             if (stat == STAT_CURRENT_HIT_POINTS) {
                 intface_update_hit_points(true);
             }
@@ -2649,7 +2649,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
     }
 
     if (critterGetStat(critter, STAT_CURRENT_HIT_POINTS) > 0) {
-        if (critter == gDude && !statsChanged && isImmediate) {
+        if (critter == obj_dude && !statsChanged && isImmediate) {
             // Nothing happens.
             messageListItem.num = 10;
             if (message_search(&item_message_file, &messageListItem)) {
@@ -2657,7 +2657,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
             }
         }
     } else {
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             // You suffer a fatal heart attack from chem overdose.
             messageListItem.num = 4;
             if (message_search(&item_message_file, &messageListItem)) {
@@ -2728,7 +2728,7 @@ int item_d_take_drug(Object* critter, Object* item)
         if (item_d_check_addict(PROTO_ID_JET)) {
             perform_withdrawal_end(critter, PERK_JET_ADDICTION);
 
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 // NOTE: Uninline.
                 item_d_unset_addict(PROTO_ID_JET);
             }
@@ -2748,7 +2748,7 @@ int item_d_take_drug(Object* critter, Object* item)
         insert_drug_effect(critter, item, proto->item.data.drug.duration1, proto->item.data.drug.stat, proto->item.data.drug.amount1);
         insert_drug_effect(critter, item, proto->item.data.drug.duration2, proto->item.data.drug.stat, proto->item.data.drug.amount2);
     } else {
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             MessageListItem messageListItem;
             // That didn't seem to do that much.
             char* msg = getmsg(&item_message_file, &messageListItem, 50);
@@ -2758,7 +2758,7 @@ int item_d_take_drug(Object* critter, Object* item)
 
     if (!item_d_check_addict(item->pid)) {
         int addictionChance = proto->item.data.drug.addictionChance;
-        if (critter == gDude) {
+        if (critter == obj_dude) {
             if (traitIsSelected(TRAIT_CHEM_RELIANT)) {
                 addictionChance *= 2;
             }
@@ -2767,7 +2767,7 @@ int item_d_take_drug(Object* critter, Object* item)
                 addictionChance /= 2;
             }
 
-            if (perkGetRank(gDude, PERK_FLOWER_CHILD)) {
+            if (perkGetRank(obj_dude, PERK_FLOWER_CHILD)) {
                 addictionChance /= 2;
             }
         }
@@ -2775,7 +2775,7 @@ int item_d_take_drug(Object* critter, Object* item)
         if (randomBetween(1, 100) <= addictionChance) {
             insert_withdrawal(critter, 1, proto->item.data.drug.withdrawalOnset, proto->item.data.drug.withdrawalEffect, item->pid);
 
-            if (critter == gDude) {
+            if (critter == obj_dude) {
                 // NOTE: Uninline.
                 item_d_set_addict(item->pid);
             }
@@ -2924,13 +2924,13 @@ int item_wd_process(Object* obj, void* data)
 
         perform_withdrawal_end(obj, withdrawalEvent->perk);
 
-        if (obj == gDude) {
+        if (obj == obj_dude) {
             // NOTE: Uninline.
             item_d_unset_addict(withdrawalEvent->pid);
         }
     }
 
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         return 1;
     }
 
@@ -2980,13 +2980,13 @@ static void perform_withdrawal_start(Object* obj, int perk, int pid)
 
     perkAddEffect(obj, perk);
 
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         char* description = perkGetDescription(perk);
         display_print(description);
     }
 
     int duration = 10080;
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         if (traitIsSelected(TRAIT_CHEM_RELIANT)) {
             duration /= 2;
         }
@@ -3009,7 +3009,7 @@ static void perform_withdrawal_end(Object* obj, int perk)
 
     perkRemoveEffect(obj, perk);
 
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         MessageListItem messageListItem;
         messageListItem.num = 3;
         if (message_search(&item_message_file, &messageListItem)) {
@@ -3120,7 +3120,7 @@ int item_caps_adjust(Object* obj, int amount)
             Object* item = inventoryItem->item;
             if (item->pid == PROTO_ID_MONEY) {
                 if (amount <= 0 && -amount >= inventoryItem->quantity) {
-                    objectDestroy(item, NULL);
+                    obj_erase_object(item, NULL);
 
                     amount += inventoryItem->quantity;
 
@@ -3164,10 +3164,10 @@ int item_caps_adjust(Object* obj, int amount)
     }
 
     Object* item;
-    if (objectCreateWithPid(&item, PROTO_ID_MONEY) == 0) {
-        _obj_disconnect(item, NULL);
+    if (obj_pid_new(&item, PROTO_ID_MONEY) == 0) {
+        obj_disconnect(item, NULL);
         if (item_add_force(obj, item, amount) != 0) {
-            objectDestroy(item, NULL);
+            obj_erase_object(item, NULL);
             return -1;
         }
     }

@@ -1103,8 +1103,8 @@ void intface_update_hit_points(bool animate)
         return;
     }
 
-    int hp = critter_get_hits(gDude);
-    int maxHp = critterGetStat(gDude, STAT_MAXIMUM_HIT_POINTS);
+    int hp = critter_get_hits(obj_dude);
+    int maxHp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
 
     int red = (int)((double)maxHp * 0.25);
     int yellow = (int)((double)maxHp * 0.5);
@@ -1180,7 +1180,7 @@ void intface_update_ac(bool animate)
     // 0x519034
     static int last_ac = 0;
 
-    int armorClass = critterGetStat(gDude, STAT_ARMOR_CLASS);
+    int armorClass = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
 
     int delay = 0;
     if (animate) {
@@ -1282,7 +1282,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
     Object* oldCurrentItem = itemButtonItems[itemCurrentItem].item;
 
     InterfaceItemState* leftItemState = &(itemButtonItems[HAND_LEFT]);
-    Object* item1 = inven_left_hand(gDude);
+    Object* item1 = inven_left_hand(obj_dude);
     if (item1 == leftItemState->item && leftItemState->item != NULL) {
         if (leftItemState->item != NULL) {
             leftItemState->isDisabled = item_grey(item1);
@@ -1313,9 +1313,9 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
             leftItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
             leftItemState->itemFid = -1;
 
-            int unarmed = skillGetValue(gDude, SKILL_UNARMED);
-            int agility = critterGetStat(gDude, STAT_AGILITY);
-            int strength = critterGetStat(gDude, STAT_STRENGTH);
+            int unarmed = skillGetValue(obj_dude, SKILL_UNARMED);
+            int agility = critterGetStat(obj_dude, STAT_AGILITY);
+            int strength = critterGetStat(obj_dude, STAT_STRENGTH);
             int level = pcGetStat(PC_STAT_LEVEL);
 
             if (unarmed > 99 && agility > 6 && strength > 4 && level > 8) {
@@ -1342,7 +1342,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
 
     InterfaceItemState* rightItemState = &(itemButtonItems[HAND_RIGHT]);
 
-    Object* item2 = inven_right_hand(gDude);
+    Object* item2 = inven_right_hand(obj_dude);
     if (item2 == rightItemState->item && rightItemState->item != NULL) {
         if (rightItemState->item != NULL) {
             rightItemState->isDisabled = item_grey(rightItemState->item);
@@ -1373,9 +1373,9 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
             rightItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
             rightItemState->itemFid = -1;
 
-            int unarmed = skillGetValue(gDude, SKILL_UNARMED);
-            int agility = critterGetStat(gDude, STAT_AGILITY);
-            int strength = critterGetStat(gDude, STAT_STRENGTH);
+            int unarmed = skillGetValue(obj_dude, SKILL_UNARMED);
+            int agility = critterGetStat(obj_dude, STAT_AGILITY);
+            int strength = critterGetStat(obj_dude, STAT_STRENGTH);
             int level = pcGetStat(PC_STAT_LEVEL);
 
             if (unarmed > 79 && agility > 5 && strength > 5 && level > 8) {
@@ -1410,7 +1410,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
                 }
             }
 
-            intface_change_fid_animate((gDude->fid & 0xF000) >> 12, animationCode);
+            intface_change_fid_animate((obj_dude->fid & 0xF000) >> 12, animationCode);
 
             return 0;
         }
@@ -1439,7 +1439,7 @@ int intface_toggle_items(bool animated)
             }
         }
 
-        intface_change_fid_animate((gDude->fid & 0xF000) >> 12, animationCode);
+        intface_change_fid_animate((obj_dude->fid & 0xF000) >> 12, animationCode);
     } else {
         intface_redraw_items();
     }
@@ -1479,7 +1479,7 @@ int intface_toggle_item_state()
                 done = true;
                 break;
             case INTERFACE_ITEM_ACTION_PRIMARY_AIMING:
-                if (item_w_called_shot(gDude, itemState->primaryHitMode)) {
+                if (item_w_called_shot(obj_dude, itemState->primaryHitMode)) {
                     done = true;
                 }
                 break;
@@ -1494,7 +1494,7 @@ int intface_toggle_item_state()
                 if (itemState->secondaryHitMode != HIT_MODE_PUNCH
                     && itemState->secondaryHitMode != HIT_MODE_KICK
                     && item_w_subtype(itemState->item, itemState->secondaryHitMode) != ATTACK_TYPE_NONE
-                    && item_w_called_shot(gDude, itemState->secondaryHitMode)) {
+                    && item_w_called_shot(obj_dude, itemState->secondaryHitMode)) {
                     done = true;
                 }
                 break;
@@ -1533,15 +1533,15 @@ void intface_use_item()
                     ? HIT_MODE_LEFT_WEAPON_RELOAD
                     : HIT_MODE_RIGHT_WEAPON_RELOAD;
 
-                int actionPointsRequired = item_mp_cost(gDude, hitMode, false);
-                if (actionPointsRequired <= gDude->data.critter.combat.ap) {
+                int actionPointsRequired = item_mp_cost(obj_dude, hitMode, false);
+                if (actionPointsRequired <= obj_dude->data.critter.combat.ap) {
                     if (intface_item_reload() == 0) {
-                        if (actionPointsRequired > gDude->data.critter.combat.ap) {
-                            gDude->data.critter.combat.ap = 0;
+                        if (actionPointsRequired > obj_dude->data.critter.combat.ap) {
+                            obj_dude->data.critter.combat.ap = 0;
                         } else {
-                            gDude->data.critter.combat.ap -= actionPointsRequired;
+                            obj_dude->data.critter.combat.ap -= actionPointsRequired;
                         }
-                        intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+                        intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
                     }
                 }
             } else {
@@ -1557,22 +1557,22 @@ void intface_use_item()
     } else if (_proto_action_can_use_on(ptr->item->pid)) {
         gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
         gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_CROSSHAIR);
-    } else if (_obj_action_can_use(ptr->item)) {
+    } else if (obj_action_can_use(ptr->item)) {
         if (isInCombat()) {
-            int actionPointsRequired = item_mp_cost(gDude, ptr->secondaryHitMode, false);
-            if (actionPointsRequired <= gDude->data.critter.combat.ap) {
-                _obj_use_item(gDude, ptr->item);
+            int actionPointsRequired = item_mp_cost(obj_dude, ptr->secondaryHitMode, false);
+            if (actionPointsRequired <= obj_dude->data.critter.combat.ap) {
+                _obj_use_item(obj_dude, ptr->item);
                 intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
-                if (actionPointsRequired > gDude->data.critter.combat.ap) {
-                    gDude->data.critter.combat.ap = 0;
+                if (actionPointsRequired > obj_dude->data.critter.combat.ap) {
+                    obj_dude->data.critter.combat.ap = 0;
                 } else {
-                    gDude->data.critter.combat.ap -= actionPointsRequired;
+                    obj_dude->data.critter.combat.ap -= actionPointsRequired;
                 }
 
-                intface_update_move_points(gDude->data.critter.combat.ap, combat_free_move);
+                intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
             }
         } else {
-            _obj_use_item(gDude, ptr->item);
+            _obj_use_item(obj_dude, ptr->item);
             intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
     }
@@ -1814,7 +1814,7 @@ static int intface_redraw_items()
             if (_proto_action_can_use_on(itemState->item->pid)) {
                 // USE ON
                 fid = art_id(OBJ_TYPE_INTERFACE, 294, 0, 0, 0);
-            } else if (_obj_action_can_use(itemState->item)) {
+            } else if (obj_action_can_use(itemState->item)) {
                 // USE
                 fid = art_id(OBJ_TYPE_INTERFACE, 292, 0, 0, 0);
             } else {
@@ -1829,11 +1829,11 @@ static int intface_redraw_items()
                     int height = art_frame_length(useTextFrm, 0, 0);
                     unsigned char* data = art_frame_data(useTextFrm, 0, 0);
                     blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
-                    _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
+                    dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     art_ptr_unlock(useTextFrmHandle);
                 }
 
-                actionPoints = item_mp_cost(gDude, itemState->primaryHitMode, false);
+                actionPoints = item_mp_cost(obj_dude, itemState->primaryHitMode, false);
             }
         } else {
             int primaryFid = -1;
@@ -1856,7 +1856,7 @@ static int intface_redraw_items()
                 hitMode = itemState->secondaryHitMode;
                 break;
             case INTERFACE_ITEM_ACTION_RELOAD:
-                actionPoints = item_mp_cost(gDude, itemCurrentItem == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
+                actionPoints = item_mp_cost(obj_dude, itemCurrentItem == HAND_LEFT ? HIT_MODE_LEFT_WEAPON_RELOAD : HIT_MODE_RIGHT_WEAPON_RELOAD, false);
                 primaryFid = art_id(OBJ_TYPE_INTERFACE, 291, 0, 0, 0);
                 break;
             }
@@ -1876,16 +1876,16 @@ static int intface_redraw_items()
                         height -= 2;
                     }
 
-                    _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, v9, 188, 59641);
+                    dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, v9, 188, 59641);
                     art_ptr_unlock(bullseyeFrmHandle);
                 }
             }
 
             if (hitMode != -1) {
-                actionPoints = item_w_mp_cost(gDude, hitMode, bullseyeFid != -1);
+                actionPoints = item_w_mp_cost(obj_dude, hitMode, bullseyeFid != -1);
 
                 int id;
-                int anim = item_w_anim(gDude, hitMode);
+                int anim = item_w_anim(obj_dude, hitMode);
                 switch (anim) {
                 case ANIM_THROW_PUNCH:
                     switch (hitMode) {
@@ -1966,7 +1966,7 @@ static int intface_redraw_items()
                     int height = art_frame_length(primaryFrm, 0, 0);
                     unsigned char* data = art_frame_data(primaryFrm, 0, 0);
                     blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
-                    _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
+                    dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     art_ptr_unlock(primaryFrmHandle);
                 }
             }
@@ -1992,7 +1992,7 @@ static int intface_redraw_items()
                 height -= 2;
             }
 
-            _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 7 + 1, v29, 188, 59641);
+            dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 7 + 1, v29, 188, 59641);
             art_ptr_unlock(handle);
 
             int offset = width + 7;
@@ -2012,7 +2012,7 @@ static int intface_redraw_items()
                     v40 = 0;
                     height -= 2;
                 }
-                _dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, itemButtonDown, offset + 7 + 1, v40, 188, 59641);
+                dark_trans_buf_to_buf(data + actionPoints * 10, 10, height, width, itemButtonDown, offset + 7 + 1, v40, 188, 59641);
 
                 art_ptr_unlock(handle);
             }
@@ -2040,7 +2040,7 @@ static int intface_redraw_items()
                 height -= 2;
             }
 
-            _dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, v46 + 1, v47, 188, 63571);
+            dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, v46 + 1, v47, 188, 63571);
             art_ptr_unlock(itemFrmHandle);
         }
     }
@@ -2079,28 +2079,28 @@ static void intface_change_fid_animate(int previousWeaponAnimationCode, int weap
 {
     intface_fid_is_changing = true;
 
-    register_clear(gDude);
+    register_clear(obj_dude);
     register_begin(ANIMATION_REQUEST_RESERVED);
-    register_object_light(gDude, 4, 0);
+    register_object_light(obj_dude, 4, 0);
 
     if (previousWeaponAnimationCode != 0) {
-        const char* sfx = gsnd_build_character_sfx_name(gDude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
-        register_object_play_sfx(gDude, sfx, 0);
-        register_object_animate(gDude, ANIM_PUT_AWAY, 0);
+        const char* sfx = gsnd_build_character_sfx_name(obj_dude, ANIM_PUT_AWAY, CHARACTER_SOUND_EFFECT_UNUSED);
+        register_object_play_sfx(obj_dude, sfx, 0);
+        register_object_animate(obj_dude, ANIM_PUT_AWAY, 0);
     }
 
     register_object_must_call(NULL, NULL, intface_redraw_items_callback, -1);
 
     Object* item = itemButtonItems[itemCurrentItem].item;
     if (item != NULL && item->lightDistance > 4) {
-        register_object_light(gDude, item->lightDistance, 0);
+        register_object_light(obj_dude, item->lightDistance, 0);
     }
 
     if (weaponAnimationCode != 0) {
-        register_object_take_out(gDude, weaponAnimationCode, -1);
+        register_object_take_out(obj_dude, weaponAnimationCode, -1);
     } else {
-        int fid = art_id(OBJ_TYPE_CRITTER, gDude->fid & 0xFFF, ANIM_STAND, 0, gDude->rotation + 1);
-        register_object_change_fid(gDude, fid, -1);
+        int fid = art_id(OBJ_TYPE_CRITTER, obj_dude->fid & 0xFFF, ANIM_STAND, 0, obj_dude->rotation + 1);
+        register_object_change_fid(obj_dude, fid, -1);
     }
 
     register_object_must_call(NULL, NULL, intface_change_fid_callback, -1);
@@ -2301,7 +2301,7 @@ static int intface_item_reload()
     }
 
     bool v0 = false;
-    while (item_w_try_reload(gDude, itemButtonItems[itemCurrentItem].item) != -1) {
+    while (item_w_try_reload(obj_dude, itemButtonItems[itemCurrentItem].item) != -1) {
         v0 = true;
     }
 
@@ -2602,13 +2602,13 @@ int refresh_box_bar_win()
             }
         }
 
-        if (critter_get_poison(gDude) > POISON_INDICATOR_THRESHOLD) {
+        if (critter_get_poison(obj_dude) > POISON_INDICATOR_THRESHOLD) {
             if (add_bar_box(INDICATOR_POISONED)) {
                 ++count;
             }
         }
 
-        if (critter_get_rads(gDude) > RADATION_INDICATOR_THRESHOLD) {
+        if (critter_get_rads(obj_dude) > RADATION_INDICATOR_THRESHOLD) {
             if (add_bar_box(INDICATOR_RADIATED)) {
                 ++count;
             }

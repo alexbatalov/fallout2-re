@@ -239,7 +239,7 @@ int perksSave(File* stream)
 // 0x49678C
 PerkRankData* perkGetRankData(Object* critter)
 {
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         return gPartyMemberPerkRanks;
     }
 
@@ -272,7 +272,7 @@ bool perkCanAdd(Object* critter, int perk)
         return false;
     }
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if (pcGetStat(PC_STAT_LEVEL) < perkDescription->minLevel) {
             return false;
         }
@@ -612,7 +612,7 @@ int perkGetSkillModifier(Object* critter, int skill)
         break;
     case SKILL_SNEAK:
         if (perkHasRank(critter, PERK_GHOST)) {
-            int lightIntensity = objectGetLightIntensity(gDude);
+            int lightIntensity = obj_get_visible_light(obj_dude);
             if (lightIntensity > 45875) {
                 modifier += 20;
             }

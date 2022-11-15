@@ -484,7 +484,7 @@ int tileSetCenter(int tile, int flags)
 
             int dudeScreenX;
             int dudeScreenY;
-            tileToScreenXY(gDude->tile, &dudeScreenX, &dudeScreenY, map_elevation);
+            tileToScreenXY(obj_dude->tile, &dudeScreenX, &dudeScreenY, map_elevation);
 
             int dx = abs(dudeScreenX - tileScreenX);
             int dy = abs(dudeScreenY - tileScreenY);
@@ -498,7 +498,7 @@ int tileSetCenter(int tile, int flags)
         }
 
         if (gTileScrollBlockingEnabled) {
-            if (_obj_scroll_blocking_at(tile, map_elevation) == 0) {
+            if (obj_scroll_blocking_at(tile, map_elevation) == 0) {
                 return -1;
             }
         }
@@ -560,9 +560,9 @@ void tileRefreshMapper(Rect* rect, int elevation)
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
     _grid_render(&rectToUpdate, elevation);
-    _obj_render_pre_roof(&rectToUpdate, elevation);
+    obj_render_pre_roof(&rectToUpdate, elevation);
     tileRenderRoofsInRect(&rectToUpdate, elevation);
-    _obj_render_post_roof(&rectToUpdate, elevation);
+    obj_render_post_roof(&rectToUpdate, elevation);
     gTileWindowRefreshProc(&rectToUpdate);
 }
 
@@ -576,9 +576,9 @@ void tileRefreshGame(Rect* rect, int elevation)
     }
 
     tileRenderFloorsInRect(&rectToUpdate, elevation);
-    _obj_render_pre_roof(&rectToUpdate, elevation);
+    obj_render_pre_roof(&rectToUpdate, elevation);
     tileRenderRoofsInRect(&rectToUpdate, elevation);
-    _obj_render_post_roof(&rectToUpdate, elevation);
+    obj_render_post_roof(&rectToUpdate, elevation);
     gTileWindowRefreshProc(&rectToUpdate);
 }
 
@@ -1304,14 +1304,14 @@ void tileRenderRoof(int fid, int x, int y, Rect* rect, int light)
         tileFrmBuffer += tileWidth * (tileRect.top - y) + (tileRect.left - x);
 
         CacheEntry* eggFrmHandle;
-        Art* eggFrm = art_ptr_lock(gEgg->fid, &eggFrmHandle);
+        Art* eggFrm = art_ptr_lock(obj_egg->fid, &eggFrmHandle);
         if (eggFrm != NULL) {
             int eggWidth = art_frame_width(eggFrm, 0, 0);
             int eggHeight = art_frame_length(eggFrm, 0, 0);
 
             int eggScreenX;
             int eggScreenY;
-            tileToScreenXY(gEgg->tile, &eggScreenX, &eggScreenY, gEgg->elevation);
+            tileToScreenXY(obj_egg->tile, &eggScreenX, &eggScreenY, obj_egg->elevation);
 
             eggScreenX += 16;
             eggScreenY += 8;
@@ -1319,8 +1319,8 @@ void tileRenderRoof(int fid, int x, int y, Rect* rect, int light)
             eggScreenX += eggFrm->xOffsets[0];
             eggScreenY += eggFrm->yOffsets[0];
 
-            eggScreenX += gEgg->x;
-            eggScreenY += gEgg->y;
+            eggScreenX += obj_egg->x;
+            eggScreenY += obj_egg->y;
 
             Rect eggRect;
             eggRect.left = eggScreenX - eggWidth / 2;
@@ -1328,8 +1328,8 @@ void tileRenderRoof(int fid, int x, int y, Rect* rect, int light)
             eggRect.right = eggRect.left + eggWidth - 1;
             eggRect.bottom = eggScreenY;
 
-            gEgg->sx = eggRect.left;
-            gEgg->sy = eggRect.top;
+            obj_egg->sx = eggRect.left;
+            obj_egg->sy = eggRect.top;
 
             Rect intersectedRect;
             if (rectIntersection(&eggRect, &tileRect, &intersectedRect) == 0) {
@@ -1358,7 +1358,7 @@ void tileRenderRoof(int fid, int x, int y, Rect* rect, int light)
                 for (int i = 0; i < 4; i++) {
                     Rect* cr = &(rects[i]);
                     if (cr->left <= cr->right && cr->top <= cr->bottom) {
-                        _dark_trans_buf_to_buf(tileFrmBuffer + tileWidth * (cr->top - tileRect.top) + (cr->left - tileRect.left),
+                        dark_trans_buf_to_buf(tileFrmBuffer + tileWidth * (cr->top - tileRect.top) + (cr->left - tileRect.left),
                             cr->right - cr->left + 1,
                             cr->bottom - cr->top + 1,
                             tileWidth,
@@ -1371,7 +1371,7 @@ void tileRenderRoof(int fid, int x, int y, Rect* rect, int light)
                 }
 
                 unsigned char* eggBuf = art_frame_data(eggFrm, 0, 0);
-                _intensity_mask_buf_to_buf(tileFrmBuffer + tileWidth * (intersectedRect.top - tileRect.top) + (intersectedRect.left - tileRect.left),
+                intensity_mask_buf_to_buf(tileFrmBuffer + tileWidth * (intersectedRect.top - tileRect.top) + (intersectedRect.left - tileRect.left),
                     intersectedRect.right - intersectedRect.left + 1,
                     intersectedRect.bottom - intersectedRect.top + 1,
                     tileWidth,
@@ -1381,7 +1381,7 @@ void tileRenderRoof(int fid, int x, int y, Rect* rect, int light)
                     eggWidth,
                     light);
             } else {
-                _dark_trans_buf_to_buf(tileFrmBuffer, tileRect.right - tileRect.left + 1, tileRect.bottom - tileRect.top + 1, tileWidth, gTileWindowBuffer, tileRect.left, tileRect.top, gTileWindowPitch, light);
+                dark_trans_buf_to_buf(tileFrmBuffer, tileRect.right - tileRect.left + 1, tileRect.bottom - tileRect.top + 1, tileWidth, gTileWindowBuffer, tileRect.left, tileRect.top, gTileWindowPitch, light);
             }
 
             art_ptr_unlock(eggFrmHandle);
@@ -1563,7 +1563,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
         return;
     }
 
-    if (_obj_blocking_at(NULL, tile, elevation) != NULL) {
+    if (obj_blocking_at(NULL, tile, elevation) != NULL) {
         blitBufferToBufferTrans(_tile_grid_blocked + 32 * (r.top - y) + (r.left - x),
             r.right - r.left + 1,
             r.bottom - r.top + 1,
@@ -1573,7 +1573,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
         return;
     }
 
-    if (_obj_occupied(tile, elevation)) {
+    if (obj_occupied(tile, elevation)) {
         blitBufferToBufferTrans(_tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
             r.right - r.left + 1,
             r.bottom - r.top + 1,
@@ -1583,7 +1583,7 @@ void _draw_grid(int tile, int elevation, Rect* rect)
         return;
     }
 
-    _translucent_trans_buf_to_buf(_tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
+    translucent_trans_buf_to_buf(_tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
         r.right - r.left + 1,
         r.bottom - r.top + 1,
         32,
@@ -1591,8 +1591,8 @@ void _draw_grid(int tile, int elevation, Rect* rect)
         0,
         0,
         gTileWindowPitch,
-        _wallBlendTable,
-        _commonGrayTable);
+        wallBlendTable,
+        commonGrayTable);
 }
 
 // 0x4B30C4
@@ -1697,7 +1697,7 @@ void tileRenderFloor(int fid, int x, int y, Rect* rect)
 
         if (v23 == 9) {
             unsigned char* buf = art_frame_data(art, 0, 0);
-            _dark_trans_buf_to_buf(buf + frameWidth * v78 + v79, v77, v76, frameWidth, gTileWindowBuffer, x, y, gTileWindowPitch, _verticies[0].field_C);
+            dark_trans_buf_to_buf(buf + frameWidth * v78 + v79, v77, v76, frameWidth, gTileWindowBuffer, x, y, gTileWindowPitch, _verticies[0].field_C);
             goto out;
         }
 

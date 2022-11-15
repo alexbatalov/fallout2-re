@@ -216,7 +216,7 @@ int skillGetValue(Object* critter, int skill)
 
     int value = skillDescription->defaultValue + skillDescription->statModifier * v7 + baseValue * skillDescription->field_20;
 
-    if (critter == gDude) {
+    if (critter == obj_dude) {
         if (skillIsTagged(skill)) {
             value += baseValue * skillDescription->field_20;
 
@@ -259,7 +259,7 @@ int skillGetBaseValue(Object* obj, int skill)
 // 0x4AA6BC
 int skillAdd(Object* obj, int skill)
 {
-    if (obj != gDude) {
+    if (obj != obj_dude) {
         return -5;
     }
 
@@ -298,7 +298,7 @@ int skillAdd(Object* obj, int skill)
 // 0x4AA7F8
 int skillAddForce(Object* obj, int skill)
 {
-    if (obj != gDude) {
+    if (obj != obj_dude) {
         return -5;
     }
 
@@ -344,7 +344,7 @@ int skillsGetCost(int skillValue)
 // 0x4AA8C4
 int skillSub(Object* critter, int skill)
 {
-    if (critter != gDude) {
+    if (critter != obj_dude) {
         return -5;
     }
 
@@ -398,7 +398,7 @@ int skillSubForce(Object* obj, int skill)
 {
     Proto* proto;
 
-    if (obj != gDude) {
+    if (obj != obj_dude) {
         return -5;
     }
 
@@ -424,7 +424,7 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
         return ROLL_FAILURE;
     }
 
-    if (critter == gDude && skill != SKILL_STEAL) {
+    if (critter == obj_dude && skill != SKILL_STEAL) {
         Object* partyMember = partyMemberGetBestInSkill(skill);
         if (partyMember != NULL) {
             if (partyMemberGetBestSkill(partyMember) == skill) {
@@ -435,7 +435,7 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
 
     int skillValue = skillGetValue(critter, skill);
 
-    if (critter == gDude && skill == SKILL_STEAL) {
+    if (critter == obj_dude && skill == SKILL_STEAL) {
         if (is_pc_flag(DUDE_STATE_SNEAKING)) {
             if (is_pc_sneak_working()) {
                 skillValue += 30;
@@ -501,7 +501,7 @@ int skillGetFrmId(int skill)
 // 0x4AAC2C
 void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int criticalChanceModifier)
 {
-    if (obj != gDude) {
+    if (obj != obj_dude) {
         return;
     }
 
@@ -552,7 +552,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
     int maximumHpToHeal = 0;
     int minimumHpToHeal = 0;
 
-    if (obj == gDude) {
+    if (obj == obj_dude) {
         if (skill == SKILL_FIRST_AID || skill == SKILL_DOCTOR) {
             int healerRank = perkGetRank(obj, PERK_HEALER);
             minimumHpToHeal = 4 * healerRank;
@@ -606,7 +606,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 hpToHeal = randomBetween(minimumHpToHeal + 1, maximumHpToHeal + 5);
                 critter_adjust_hits(a2, hpToHeal);
 
-                if (obj == gDude) {
+                if (obj == obj_dude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
                     if (!message_search(&gSkillsMessageList, &messageListItem)) {
@@ -627,7 +627,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                 v1 = 1;
 
-                if (a2 == gDude) {
+                if (a2 == obj_dude) {
                     intface_update_hit_points(true);
                 }
             } else {
@@ -644,18 +644,18 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             scriptsExecMapUpdateProc();
             paletteFadeTo(cmap);
         } else {
-            if (obj == gDude) {
+            if (obj == obj_dude) {
                 // 501: You look healty already
                 // 502: %s looks healthy already
-                messageListItem.num = (a2 == gDude ? 501 : 502);
+                messageListItem.num = (a2 == obj_dude ? 501 : 502);
                 if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
-                if (a2 == gDude) {
+                if (a2 == obj_dude) {
                     strcpy(text, messageListItem.text);
                 } else {
-                    sprintf(text, messageListItem.text, objectGetName(a2));
+                    sprintf(text, messageListItem.text, object_name(a2));
                 }
 
                 display_print(text);
@@ -663,7 +663,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
         }
 
-        if (obj == gDude) {
+        if (obj == obj_dude) {
             gameTimeAddSeconds(1800);
         }
 
@@ -724,7 +724,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                             // 520: You heal your %s.
                             // 521: You heal the %s.
-                            prefix.num = (a2 == gDude ? 520 : 521);
+                            prefix.num = (a2 == obj_dude ? 520 : 521);
 
                             skillUpdateLastUse(SKILL_DOCTOR);
 
@@ -733,7 +733,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         } else {
                             // 525: You fail to heal your %s.
                             // 526: You fail to heal the %s.
-                            prefix.num = (a2 == gDude ? 525 : 526);
+                            prefix.num = (a2 == obj_dude ? 525 : 526);
                         }
 
                         if (!message_search(&gSkillsMessageList, &prefix)) {
@@ -761,7 +761,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
                 critter_adjust_hits(a2, hpToHeal);
 
-                if (obj == gDude) {
+                if (obj == obj_dude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
                     if (!message_search(&gSkillsMessageList, &messageListItem)) {
@@ -781,7 +781,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
 
-                if (a2 == gDude) {
+                if (a2 == obj_dude) {
                     intface_update_hit_points(true);
                 }
 
@@ -805,18 +805,18 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 paletteFadeTo(cmap);
             }
         } else {
-            if (obj == gDude) {
+            if (obj == obj_dude) {
                 // 501: You look healty already
                 // 502: %s looks healthy already
-                messageListItem.num = (a2 == gDude ? 501 : 502);
+                messageListItem.num = (a2 == obj_dude ? 501 : 502);
                 if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
-                if (a2 == gDude) {
+                if (a2 == obj_dude) {
                     strcpy(text, messageListItem.text);
                 } else {
-                    sprintf(text, messageListItem.text, objectGetName(a2));
+                    sprintf(text, messageListItem.text, object_name(a2));
                 }
 
                 display_print(text);
@@ -825,7 +825,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
         }
 
-        if (obj == gDude) {
+        if (obj == obj_dude) {
             gameTimeAddSeconds(3600 * damageHealingAttempts);
         }
 
@@ -911,7 +911,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                         // 520: You heal your %s.
                         // 521: You heal the %s.
-                        prefix.num = (a2 == gDude ? 520 : 521);
+                        prefix.num = (a2 == obj_dude ? 520 : 521);
                         skillUpdateLastUse(SKILL_REPAIR);
 
                         v1 = 1;
@@ -919,7 +919,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     } else {
                         // 525: You fail to heal your %s.
                         // 526: You fail to heal the %s.
-                        prefix.num = (a2 == gDude ? 525 : 526);
+                        prefix.num = (a2 == obj_dude ? 525 : 526);
                     }
 
                     if (!message_search(&gSkillsMessageList, &prefix)) {
@@ -941,7 +941,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
                 critter_adjust_hits(a2, hpToHeal);
 
-                if (obj == gDude) {
+                if (obj == obj_dude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
                     if (!message_search(&gSkillsMessageList, &messageListItem)) {
@@ -961,7 +961,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
 
-                if (a2 == gDude) {
+                if (a2 == obj_dude) {
                     intface_update_hit_points(true);
                 }
 
@@ -985,22 +985,22 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 paletteFadeTo(cmap);
             }
         } else {
-            if (obj == gDude) {
+            if (obj == obj_dude) {
                 // 501: You look healty already
                 // 502: %s looks healthy already
-                messageListItem.num = (a2 == gDude ? 501 : 502);
+                messageListItem.num = (a2 == obj_dude ? 501 : 502);
                 if (!message_search(&gSkillsMessageList, &messageListItem)) {
                     return -1;
                 }
 
-                sprintf(text, messageListItem.text, objectGetName(a2));
+                sprintf(text, messageListItem.text, object_name(a2));
                 display_print(text);
 
                 giveExp = false;
             }
         }
 
-        if (obj == gDude) {
+        if (obj == obj_dude) {
             gameTimeAddSeconds(1800 * damageHealingAttempts);
         }
 
@@ -1034,7 +1034,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
     stealModifier--;
     stealModifier = -stealModifier;
 
-    if (a1 != gDude || !perkHasRank(a1, PERK_PICKPOCKET)) {
+    if (a1 != obj_dude || !perkHasRank(a1, PERK_PICKPOCKET)) {
         // -4% per item size
         stealModifier -= 4 * item_size(item);
 
@@ -1056,7 +1056,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
     }
 
     int stealRoll;
-    if (a1 == gDude && objectIsPartyMember(a2)) {
+    if (a1 == obj_dude && objectIsPartyMember(a2)) {
         stealRoll = ROLL_CRITICAL_SUCCESS;
     } else {
         int criticalChance = critterGetStat(a1, STAT_CRITICAL_CHANCE);
@@ -1090,7 +1090,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
             return -1;
         }
 
-        sprintf(text, messageListItem.text, objectGetName(item));
+        sprintf(text, messageListItem.text, object_name(item));
         display_print(text);
 
         return 1;
@@ -1102,7 +1102,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
             return -1;
         }
 
-        sprintf(text, messageListItem.text, objectGetName(item));
+        sprintf(text, messageListItem.text, object_name(item));
         display_print(text);
 
         return 0;

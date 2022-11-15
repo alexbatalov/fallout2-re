@@ -668,7 +668,7 @@ int partyMembersLoad(File* stream)
     if (fileReadInt32(stream, &gPartyMembersLength) == -1) return -1;
     if (fileReadInt32(stream, &_partyMemberItemCount) == -1) return -1;
 
-    gPartyMembers->object = gDude;
+    gPartyMembers->object = obj_dude;
 
     if (gPartyMembersLength != 0) {
         for (int index = 1; index < gPartyMembersLength; index++) {
@@ -678,12 +678,12 @@ int partyMembersLoad(File* stream)
         for (int index = 1; index < gPartyMembersLength; index++) {
             int objectId = partyMemberObjectIds[index];
 
-            Object* object = objectFindFirst();
+            Object* object = obj_find_first();
             while (object != NULL) {
                 if (object->id == objectId) {
                     break;
                 }
-                object = objectFindNext();
+                object = obj_find_next();
             }
 
             if (object != NULL) {
@@ -741,8 +741,8 @@ void _partyMemberClear()
 // 0x494DD0
 int _partyMemberSyncPosition()
 {
-    int clockwiseRotation = (gDude->rotation + 2) % ROTATION_COUNT;
-    int counterClockwiseRotation = (gDude->rotation + 4) % ROTATION_COUNT;
+    int clockwiseRotation = (obj_dude->rotation + 2) % ROTATION_COUNT;
+    int counterClockwiseRotation = (obj_dude->rotation + 4) % ROTATION_COUNT;
 
     int n = 0;
     int distance = 2;
@@ -757,8 +757,8 @@ int _partyMemberSyncPosition()
                 rotation = counterClockwiseRotation;
             }
 
-            int tile = tileGetTileInDirection(gDude->tile, rotation, distance / 2);
-            _objPMAttemptPlacement(partyMemberObj, tile, gDude->elevation);
+            int tile = tileGetTileInDirection(obj_dude->tile, rotation, distance / 2);
+            _objPMAttemptPlacement(partyMemberObj, tile, obj_dude->elevation);
 
             distance++;
             n++;
@@ -866,7 +866,7 @@ int _partyMemberNewObjID()
     do {
         _curID++;
 
-        object = objectFindFirst();
+        object = obj_find_first();
         while (object != NULL) {
             if (object->id == _curID) {
                 break;
@@ -891,7 +891,7 @@ int _partyMemberNewObjID()
                 break;
             }
 
-            object = objectFindNext();
+            object = obj_find_next();
         }
     } while (object != NULL);
 
@@ -1148,7 +1148,7 @@ int _partyFixMultipleMembers()
     debugPrint("\n\n\n[Party Members]:");
 
     int critterCount = 0;
-    for (Object* obj = objectFindFirst(); obj != NULL; obj = objectFindNext()) {
+    for (Object* obj = obj_find_first(); obj != NULL; obj = obj_find_next()) {
         if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
             critterCount++;
         }
@@ -1215,7 +1215,7 @@ int _partyFixMultipleMembers()
             }
         }
 
-        objectDestroy(obj, NULL);
+        obj_erase_object(obj, NULL);
     }
 
     for (int index = 0; index < gPartyMembersLength; index++) {
