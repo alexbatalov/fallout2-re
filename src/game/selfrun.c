@@ -1,4 +1,4 @@
-#include "selfrun.h"
+#include "game/selfrun.h"
 
 #include <direct.h>
 #include <stdlib.h>
