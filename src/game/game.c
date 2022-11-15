@@ -42,7 +42,7 @@
 #include "game/palette.h"
 #include "game/party.h"
 #include "game/perk.h"
-#include "pipboy.h"
+#include "game/pipboy.h"
 #include "proto.h"
 #include "queue.h"
 #include "random.h"

@@ -31,7 +31,7 @@
 #include "game/object.h"
 #include "game/options.h"
 #include "game/perk.h"
-#include "pipboy.h"
+#include "game/pipboy.h"
 #include "proto.h"
 #include "queue.h"
 #include "random.h"

@@ -26,7 +26,7 @@
 #include "memory.h"
 #include "game/object.h"
 #include "game/palette.h"
-#include "pipboy.h"
+#include "game/pipboy.h"
 #include "proto.h"
 #include "proto_instance.h"
 #include "queue.h"

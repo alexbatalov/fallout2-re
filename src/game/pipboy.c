@@ -1,4 +1,4 @@
-#include "pipboy.h"
+#include "game/pipboy.h"
 
 #include <ctype.h>
 #include <stdio.h>

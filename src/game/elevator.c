@@ -13,7 +13,7 @@
 #include "geometry.h"
 #include "game/intface.h"
 #include "game/map.h"
-#include "pipboy.h"
+#include "game/pipboy.h"
 #include "scripts.h"
 #include "window_manager.h"
 

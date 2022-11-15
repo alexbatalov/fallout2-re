@@ -27,7 +27,7 @@
 #include "memory.h"
 #include "game/object.h"
 #include "game/palette.h"
-#include "pipboy.h"
+#include "game/pipboy.h"
 #include "random.h"
 #include "stat.h"
 #include "text_font.h"
