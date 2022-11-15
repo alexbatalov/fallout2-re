@@ -51,23 +51,25 @@ typedef struct PartyMemberLevelUpInfo {
     int field_8; // early what?
 } PartyMemberLevelUpInfo;
 
-typedef struct STRUCT_519DA8 {
+// TODO: Not sure if the same struct is used in `itemSaveListHead` and
+// `partyMemberList`.
+typedef struct PartyMember {
     Object* object;
     Script* script;
     int* vars;
-    struct STRUCT_519DA8* next;
-} STRUCT_519DA8;
+    struct PartyMember* next;
+} PartyMember;
 
 static int partyMemberGetAIOptions(Object* object, PartyMemberAI** aiOptionsPtr);
 static void partyMemberAISlotInit(PartyMemberAI* aiOptions);
 static int partyMemberSlotInit(int index);
-static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1);
-static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1);
+static int partyMemberPrepLoadInstance(PartyMember* partyMember);
+static int partyMemberRecoverLoadInstance(PartyMember* partyMember);
 static int partyMemberNewObjID();
 static int partyMemberNewObjIDRecurseFind(Object* object, int objectId);
 static int partyMemberPrepItemSave(Object* object);
 static int partyMemberItemSave(Object* object);
-static int partyMemberItemRecover(STRUCT_519DA8* a1);
+static int partyMemberItemRecover(PartyMember* partyMember);
 static int partyMemberClearItemList();
 static int partyFixMultipleMembers();
 static int partyMemberCopyLevelInfo(Object* object, int a2);
@@ -78,13 +80,13 @@ int partyMemberMaxCount = 0;
 // 0x519DA0
 int* partyMemberPidList = NULL;
 
-//
-STRUCT_519DA8* itemSaveListHead = NULL;
+// 0x519DA4
+PartyMember* itemSaveListHead = NULL;
 
 // List of party members, it's length is [partyMemberMaxCount] + 20.
 //
 // 0x519DA8
-static STRUCT_519DA8* partyMemberList = NULL;
+static PartyMember* partyMemberList = NULL;
 
 // Number of critters added to party.
 //
@@ -134,7 +136,7 @@ int partyMember_init()
 
     memset(partyMemberPidList, 0, sizeof(*partyMemberPidList) * partyMemberMaxCount);
 
-    partyMemberList = (STRUCT_519DA8*)internal_malloc(sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
+    partyMemberList = (PartyMember*)internal_malloc(sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
     if (partyMemberList == NULL) {
         goto err;
     }
@@ -375,7 +377,7 @@ int partyMemberAdd(Object* object)
     }
 
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
         if (partyMember->object == object || partyMember->object->pid == object->pid) {
             return 0;
         }
@@ -386,7 +388,7 @@ int partyMemberAdd(Object* object)
         return -1;
     }
 
-    STRUCT_519DA8* partyMember = &(partyMemberList[partyMemberCount]);
+    PartyMember* partyMember = &(partyMemberList[partyMemberCount]);
     partyMember->object = object;
     partyMember->script = NULL;
     partyMember->vars = NULL;
@@ -430,7 +432,7 @@ int partyMemberRemove(Object* object)
 
     int index;
     for (index = 1; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
         if (partyMember->object == object) {
             break;
         }
@@ -475,7 +477,7 @@ int partyMemberPrepSave()
     partyStatePrepped = 1;
 
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* ptr = &(partyMemberList[index]);
+        PartyMember* ptr = &(partyMemberList[index]);
 
         if (index > 0) {
             ptr->object->flags &= ~(OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
@@ -494,7 +496,7 @@ int partyMemberPrepSave()
 int partyMemberUnPrepSave()
 {
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* ptr = &(partyMemberList[index]);
+        PartyMember* ptr = &(partyMemberList[index]);
 
         if (index > 0) {
             ptr->object->flags |= (OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
@@ -518,7 +520,7 @@ int partyMemberSave(File* stream)
     if (fileWriteInt32(stream, partyMemberItemCount) == -1) return -1;
 
     for (int index = 1; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
         if (fileWriteInt32(stream, partyMember->object->id) == -1) return -1;
     }
 
@@ -542,7 +544,7 @@ int partyMemberPrepLoad()
     partyStatePrepped = 1;
 
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* ptr_519DA8 = &(partyMemberList[index]);
+        PartyMember* ptr_519DA8 = &(partyMemberList[index]);
         if (partyMemberPrepLoadInstance(ptr_519DA8) != 0) {
             return -1;
         }
@@ -552,15 +554,15 @@ int partyMemberPrepLoad()
 }
 
 // 0x49480C
-static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
+static int partyMemberPrepLoadInstance(PartyMember* partyMember)
 {
-    Object* obj = a1->object;
+    Object* obj = partyMember->object;
 
     if (obj == NULL) {
         debugPrint("\n  Error!: partyMemberPrepLoadInstance: No Critter Object!");
-        a1->script = NULL;
-        a1->vars = NULL;
-        a1->next = NULL;
+        partyMember->script = NULL;
+        partyMember->vars = NULL;
+        partyMember->next = NULL;
         return 0;
     }
 
@@ -572,32 +574,32 @@ static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
     if (scriptGetScript(obj->sid, &script) == -1) {
         debugPrint("\n  Error!: partyMemberPrepLoadInstance: Can't find script!");
         debugPrint("\n          partyMemberPrepLoadInstance: script was: (%s)", critter_name(obj));
-        a1->script = NULL;
-        a1->vars = NULL;
-        a1->next = NULL;
+        partyMember->script = NULL;
+        partyMember->vars = NULL;
+        partyMember->next = NULL;
         return 0;
     }
 
-    a1->script = (Script*)internal_malloc(sizeof(*script));
-    if (a1->script == NULL) {
+    partyMember->script = (Script*)internal_malloc(sizeof(*script));
+    if (partyMember->script == NULL) {
         showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
         exit(1);
     }
 
-    memcpy(a1->script, script, sizeof(*script));
+    memcpy(partyMember->script, script, sizeof(*script));
 
     if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
-        a1->vars = (int*)internal_malloc(sizeof(*a1->vars) * script->localVarsCount);
-        if (a1->vars == NULL) {
+        partyMember->vars = (int*)internal_malloc(sizeof(*partyMember->vars) * script->localVarsCount);
+        if (partyMember->vars == NULL) {
             showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
             exit(1);
         }
 
         if (map_local_vars != NULL) {
-            memcpy(a1->vars, map_local_vars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
+            memcpy(partyMember->vars, map_local_vars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
         } else {
             debugPrint("\nWarning: partyMemberPrepLoadInstance: No map_local_vars found, but script references them!");
-            memset(a1->vars, 0, sizeof(int) * script->localVarsCount);
+            memset(partyMember->vars, 0, sizeof(int) * script->localVarsCount);
         }
     }
 
@@ -636,14 +638,14 @@ int partyMemberRecoverLoad()
         debugPrint("[Party Member %d]: %s\n", index, critter_name(partyMemberList[index].object));
     }
 
-    STRUCT_519DA8* v6 = itemSaveListHead;
-    while (v6 != NULL) {
-        itemSaveListHead = v6->next;
+    PartyMember* node = itemSaveListHead;
+    while (node != NULL) {
+        itemSaveListHead = node->next;
 
-        partyMemberItemRecover(v6);
-        internal_free(v6);
+        partyMemberItemRecover(node);
+        internal_free(node);
 
-        v6 = itemSaveListHead;
+        node = itemSaveListHead;
     }
 
     partyStatePrepped = 0;
@@ -656,15 +658,15 @@ int partyMemberRecoverLoad()
 }
 
 // 0x494A88
-static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
+static int partyMemberRecoverLoadInstance(PartyMember* partyMember)
 {
-    if (a1->script == NULL) {
+    if (partyMember->script == NULL) {
         showMesageBox("\n  Error!: partyMemberRecoverLoadInstance: No script!");
         return 0;
     }
 
     int scriptType = SCRIPT_TYPE_CRITTER;
-    if (PID_TYPE(a1->object->pid) != OBJ_TYPE_CRITTER) {
+    if (PID_TYPE(partyMember->object->pid) != OBJ_TYPE_CRITTER) {
         scriptType = SCRIPT_TYPE_ITEM;
     }
 
@@ -680,22 +682,22 @@ static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
         exit(1);
     }
 
-    memcpy(script, a1->script, sizeof(*script));
+    memcpy(script, partyMember->script, sizeof(*script));
 
-    int sid = (scriptType << 24) | ((a1->object->pid & 0xFFFFFF) + 18000);
-    a1->object->sid = sid;
+    int sid = (scriptType << 24) | ((partyMember->object->pid & 0xFFFFFF) + 18000);
+    partyMember->object->sid = sid;
     script->sid = sid;
 
     script->flags &= ~(SCRIPT_FLAG_0x01 | SCRIPT_FLAG_0x04);
 
-    internal_free(a1->script);
-    a1->script = NULL;
+    internal_free(partyMember->script);
+    partyMember->script = NULL;
 
     script->flags |= (SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
 
-    if (a1->vars != NULL) {
+    if (partyMember->vars != NULL) {
         script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
-        memcpy(map_local_vars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
+        memcpy(map_local_vars + script->localVarsOffset, partyMember->vars, sizeof(int) * script->localVarsCount);
     }
 
     return 0;
@@ -793,7 +795,7 @@ int partyMemberSyncPosition()
     int n = 0;
     int distance = 2;
     for (int index = 1; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
         Object* partyMemberObj = partyMember->object;
         if ((partyMemberObj->flags & OBJECT_HIDDEN) == 0 && PID_TYPE(partyMemberObj->pid) == OBJ_TYPE_CRITTER) {
             int rotation;
@@ -825,7 +827,7 @@ int partyMemberRestingHeal(int a1)
     }
 
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
         if (PID_TYPE(partyMember->object->pid) == OBJ_TYPE_CRITTER) {
             int healingRate = critterGetStat(partyMember->object, STAT_HEALING_RATE);
             critter_adjust_hits(partyMember->object, v1 * healingRate);
@@ -852,7 +854,7 @@ Object* partyMemberFindObjFromPid(int pid)
 bool isPotentialPartyMember(Object* object)
 {
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
         if (partyMember->object->pid == partyMemberPidList[index]) {
             return true;
         }
@@ -971,7 +973,7 @@ static int partyMemberNewObjIDRecurseFind(Object* obj, int objectId)
 int partyMemberPrepItemSaveAll()
 {
     for (int partyMemberIndex = 0; partyMemberIndex < partyMemberCount; partyMemberIndex++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[partyMemberIndex]);
+        PartyMember* partyMember = &(partyMemberList[partyMemberIndex]);
 
         Inventory* inventory = &(partyMember->object->data.inventory);
         for (int inventoryItemIndex = 0; inventoryItemIndex < inventory->length; inventoryItemIndex++) {
@@ -983,7 +985,7 @@ int partyMemberPrepItemSaveAll()
     return 0;
 }
 
-// partyMemberPrepItemSaveAll
+// 0x495198
 static int partyMemberPrepItemSave(Object* object)
 {
     if (object->sid != -1) {
@@ -1020,7 +1022,7 @@ static int partyMemberItemSave(Object* object)
             object->id = script->field_1C;
         }
 
-        STRUCT_519DA8* node = (STRUCT_519DA8*)internal_malloc(sizeof(*node));
+        PartyMember* node = (PartyMember*)internal_malloc(sizeof(*node));
         if (node == NULL) {
             showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
@@ -1048,7 +1050,7 @@ static int partyMemberItemSave(Object* object)
             node->vars = NULL;
         }
 
-        STRUCT_519DA8* temp = itemSaveListHead;
+        PartyMember* temp = itemSaveListHead;
         itemSaveListHead = node;
         node->next = temp;
     }
@@ -1062,9 +1064,8 @@ static int partyMemberItemSave(Object* object)
     return 0;
 }
 
-// partyMemberItemRecover
 // 0x495388
-static int partyMemberItemRecover(STRUCT_519DA8* a1)
+static int partyMemberItemRecover(PartyMember* partyMember)
 {
     int sid = -1;
     if (scriptAdd(&sid, SCRIPT_TYPE_ITEM) == -1) {
@@ -1078,9 +1079,9 @@ static int partyMemberItemRecover(STRUCT_519DA8* a1)
         exit(1);
     }
 
-    memcpy(script, a1->script, sizeof(*script));
+    memcpy(script, partyMember->script, sizeof(*script));
 
-    a1->object->sid = partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
+    partyMember->object->sid = partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
     script->sid = partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
 
     script->program = NULL;
@@ -1088,12 +1089,12 @@ static int partyMemberItemRecover(STRUCT_519DA8* a1)
 
     partyMemberItemCount++;
 
-    internal_free(a1->script);
-    a1->script = NULL;
+    internal_free(partyMember->script);
+    partyMember->script = NULL;
 
-    if (a1->vars != NULL) {
+    if (partyMember->vars != NULL) {
         script->localVarsOffset = map_malloc_local_var(script->localVarsCount);
-        memcpy(map_local_vars + script->localVarsOffset, a1->vars, sizeof(int) * script->localVarsCount);
+        memcpy(map_local_vars + script->localVarsOffset, partyMember->vars, sizeof(int) * script->localVarsCount);
     }
 
     return 0;
@@ -1103,7 +1104,7 @@ static int partyMemberItemRecover(STRUCT_519DA8* a1)
 static int partyMemberClearItemList()
 {
     while (itemSaveListHead != NULL) {
-        STRUCT_519DA8* node = itemSaveListHead;
+        PartyMember* node = itemSaveListHead;
         itemSaveListHead = itemSaveListHead->next;
 
         if (node->script != NULL) {
@@ -1268,7 +1269,7 @@ static int partyFixMultipleMembers()
     }
 
     for (int index = 0; index < partyMemberCount; index++) {
-        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        PartyMember* partyMember = &(partyMemberList[index]);
 
         Script* script;
         if (scriptGetScript(partyMember->object->sid, &script) != -1) {
@@ -1460,7 +1461,7 @@ bool partyMemberHasAIChemUseValue(Object* object, int chemUse)
 int partyMemberIncLevels()
 {
     int i;
-    STRUCT_519DA8* ptr;
+    PartyMember* partyMember;
     Object* obj;
     PartyMemberAI* aiOptions;
     const char* name;
@@ -1475,8 +1476,8 @@ int partyMemberIncLevels()
 
     v0 = -1;
     for (i = 1; i < partyMemberCount; i++) {
-        ptr = &(partyMemberList[i]);
-        obj = ptr->object;
+        partyMember = &(partyMemberList[i]);
+        obj = partyMember->object;
 
         if (partyMemberGetAIOptions(obj, &aiOptions) == -1) {
             break;
@@ -1625,8 +1626,8 @@ static int partyMemberCopyLevelInfo(Object* critter, int a2)
 bool partyMemberNeedsHealing()
 {
     for (int index = 1; index < partyMemberCount; index++) {
-        STRUCT_519DA8* ptr = &(partyMemberList[index]);
-        Object* object = ptr->object;
+        PartyMember* partyMember = &(partyMemberList[index]);
+        Object* object = partyMember->object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) continue;
         if (critter_is_dead(object)) continue;
@@ -1652,8 +1653,8 @@ int partyMemberMaxHealingNeeded()
     int maxWound = 0;
 
     for (int index = 1; index < partyMemberCount; index++) {
-        STRUCT_519DA8* ptr = &(partyMemberList[index]);
-        Object* object = ptr->object;
+        PartyMember* partyMember = &(partyMemberList[index]);
+        Object* object = partyMember->object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) continue;
         if (critter_is_dead(object)) continue;
