@@ -280,56 +280,12 @@ static CacheEntry* grphkey[OPTIONS_WINDOW_FRM_COUNT];
 // 0x663918
 static unsigned char* opbmp[OPTIONS_WINDOW_FRM_COUNT];
 
+// This array stores backup for only integer-representable prefs. Because
+// `player_speedup` is not a part of prefs enum, it's value is stored in
+// `PREF_TEXT_BASE_DELAY`.
+//
 // 0x663924
-static int gPreferencesGameDifficulty2;
-
-// 0x663928
-static int gPreferencesCombatDifficulty2;
-
-// 0x66392C
-static int gPreferencesViolenceLevel2;
-
-// 0x663930
-static int gPreferencesTargetHighlight2;
-
-// 0x663934
-static int gPreferencesCombatLooks2;
-
-// 0x663938
-static int gPreferencesCombatMessages2;
-
-// 0x66393C
-static int gPreferencesCombatTaunts2;
-
-// 0x663940
-static int gPreferencesLanguageFilter2;
-
-// 0x663944
-static int gPreferencesRunning2;
-
-// 0x663948
-static int gPreferencesSubtitles2;
-
-// 0x66394C
-static int gPreferencesItemHighlight2;
-
-// 0x663950
-static int gPreferencesCombatSpeed2;
-
-// 0x663954
-static int gPreferencesPlayerSpeedup2;
-
-// 0x663958
-static int gPreferencesMasterVolume2;
-
-// 0x66395C
-static int gPreferencesMusicVolume2;
-
-// 0x663960
-static int gPreferencesSoundEffectsVolume2;
-
-// 0x663964
-static int gPreferencesSpeechVolume2;
+static int settings_backup[PREF_COUNT];
 
 // 0x663970
 static int sndfx_volume;
@@ -1850,58 +1806,54 @@ static void SetDefaults(bool a1)
     }
 }
 
-// Copy options (1) to (2).
-//
 // 0x493054
 static void SaveSettings()
 {
-    gPreferencesGameDifficulty2 = game_difficulty;
-    gPreferencesCombatDifficulty2 = combat_difficulty;
-    gPreferencesViolenceLevel2 = violence_level;
-    gPreferencesTargetHighlight2 = target_highlight;
-    gPreferencesCombatLooks2 = combatLookValue;
-    gPreferencesCombatMessages2 = combat_messages;
-    gPreferencesCombatTaunts2 = combat_taunts;
-    gPreferencesLanguageFilter2 = language_filter;
-    gPreferencesRunning2 = prf_running;
-    gPreferencesSubtitles2 = subtitles;
-    gPreferencesItemHighlight2 = item_highlight;
-    gPreferencesCombatSpeed2 = combat_speed;
-    gPreferencesPlayerSpeedup2 = player_speedup;
-    gPreferencesMasterVolume2 = master_volume;
+    settings_backup[PREF_GAME_DIFFICULTY] = game_difficulty;
+    settings_backup[PREF_COMBAT_DIFFICULTY] = combat_difficulty;
+    settings_backup[PREF_VIOLENCE_LEVEL] = violence_level;
+    settings_backup[PREF_TARGET_HIGHLIGHT] = target_highlight;
+    settings_backup[PREF_COMBAT_LOOKS] = combatLookValue;
+    settings_backup[PREF_COMBAT_MESSAGES] = combat_messages;
+    settings_backup[PREF_COMBAT_TAUNTS] = combat_taunts;
+    settings_backup[PREF_LANGUAGE_FILTER] = language_filter;
+    settings_backup[PREF_RUNNING] = prf_running;
+    settings_backup[PREF_SUBTITLES] = subtitles;
+    settings_backup[PREF_ITEM_HIGHLIGHT] = item_highlight;
+    settings_backup[PREF_COMBAT_SPEED] = combat_speed;
+    settings_backup[PREF_TEXT_BASE_DELAY] = player_speedup;
+    settings_backup[PREF_MASTER_VOLUME] = master_volume;
     text_delay_back = text_delay;
-    gPreferencesMusicVolume2 = music_volume;
+    settings_backup[PREF_MUSIC_VOLUME] = music_volume;
     gamma_value_back = gamma_value;
-    gPreferencesSoundEffectsVolume2 = sndfx_volume;
+    settings_backup[PREF_SFX_VOLUME] = sndfx_volume;
     mouse_sens_back = mouse_sens;
-    gPreferencesSpeechVolume2 = speech_volume;
+    settings_backup[PREF_SPEECH_VOLUME] = speech_volume;
 }
 
-// Copy options (2) to (1).
-//
 // 0x493128
 static void RestoreSettings()
 {
-    game_difficulty = gPreferencesGameDifficulty2;
-    combat_difficulty = gPreferencesCombatDifficulty2;
-    violence_level = gPreferencesViolenceLevel2;
-    target_highlight = gPreferencesTargetHighlight2;
-    combatLookValue = gPreferencesCombatLooks2;
-    combat_messages = gPreferencesCombatMessages2;
-    combat_taunts = gPreferencesCombatTaunts2;
-    language_filter = gPreferencesLanguageFilter2;
-    prf_running = gPreferencesRunning2;
-    subtitles = gPreferencesSubtitles2;
-    item_highlight = gPreferencesItemHighlight2;
-    combat_speed = gPreferencesCombatSpeed2;
-    player_speedup = gPreferencesPlayerSpeedup2;
-    master_volume = gPreferencesMasterVolume2;
+    game_difficulty = settings_backup[PREF_GAME_DIFFICULTY];
+    combat_difficulty = settings_backup[PREF_COMBAT_DIFFICULTY];
+    violence_level = settings_backup[PREF_VIOLENCE_LEVEL];
+    target_highlight = settings_backup[PREF_TARGET_HIGHLIGHT];
+    combatLookValue = settings_backup[PREF_COMBAT_LOOKS];
+    combat_messages = settings_backup[PREF_COMBAT_MESSAGES];
+    combat_taunts = settings_backup[PREF_COMBAT_TAUNTS];
+    language_filter = settings_backup[PREF_LANGUAGE_FILTER];
+    prf_running = settings_backup[PREF_RUNNING];
+    subtitles = settings_backup[PREF_SUBTITLES];
+    item_highlight = settings_backup[PREF_ITEM_HIGHLIGHT];
+    combat_speed = settings_backup[PREF_COMBAT_SPEED];
+    player_speedup = settings_backup[PREF_TEXT_BASE_DELAY];
+    master_volume = settings_backup[PREF_MASTER_VOLUME];
     text_delay = text_delay_back;
-    music_volume = gPreferencesMusicVolume2;
+    music_volume = settings_backup[PREF_MUSIC_VOLUME];
     gamma_value = gamma_value_back;
-    sndfx_volume = gPreferencesSoundEffectsVolume2;
+    sndfx_volume = settings_backup[PREF_SFX_VOLUME];
     mouse_sens = mouse_sens_back;
-    speech_volume = gPreferencesSpeechVolume2;
+    speech_volume = settings_backup[PREF_SPEECH_VOLUME];
 
     JustUpdate();
 }
