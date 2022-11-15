@@ -23,7 +23,7 @@
 #include "game/object.h"
 #include "game/proto.h"
 #include "game/protinst.h"
-#include "queue.h"
+#include "game/queue.h"
 #include "tile.h"
 #include "window_manager.h"
 #include "window_manager_private.h"

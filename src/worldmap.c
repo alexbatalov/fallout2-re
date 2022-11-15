@@ -33,7 +33,7 @@
 #include "game/party.h"
 #include "game/perk.h"
 #include "game/protinst.h"
-#include "queue.h"
+#include "game/queue.h"
 #include "random.h"
 #include "scripts.h"
 #include "skill.h"

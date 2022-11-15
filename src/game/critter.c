@@ -19,7 +19,7 @@
 #include "game/object.h"
 #include "game/party.h"
 #include "game/proto.h"
-#include "queue.h"
+#include "game/queue.h"
 #include "random.h"
 #include "reaction.h"
 #include "scripts.h"

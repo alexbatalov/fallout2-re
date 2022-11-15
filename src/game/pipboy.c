@@ -23,7 +23,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "queue.h"
+#include "game/queue.h"
 #include "random.h"
 #include "scripts.h"
 #include "stat.h"

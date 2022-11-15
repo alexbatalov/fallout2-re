@@ -33,7 +33,7 @@
 #include "game/perk.h"
 #include "game/pipboy.h"
 #include "game/proto.h"
-#include "queue.h"
+#include "game/queue.h"
 #include "random.h"
 #include "scripts.h"
 #include "skill.h"

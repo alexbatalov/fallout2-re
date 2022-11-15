@@ -1,4 +1,4 @@
-#include "queue.h"
+#include "game/queue.h"
 
 #include "game/actions.h"
 #include "game/critter.h"

@@ -31,7 +31,7 @@
 #include "game/perk.h"
 #include "game/proto.h"
 #include "game/protinst.h"
-#include "queue.h"
+#include "game/queue.h"
 #include "random.h"
 #include "reaction.h"
 #include "scripts.h"
