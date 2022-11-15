@@ -86,13 +86,13 @@ int sfxc_init(int cacheSize, const char* effectsPath)
         return -1;
     }
 
-    if (soundEffectsListInit(sfxc_effect_path, sfxc_cmpr, sfxc_dlevel) != SFXL_OK) {
+    if (sfxl_init(sfxc_effect_path, sfxc_cmpr, sfxc_dlevel) != SFXL_OK) {
         internal_free(sfxc_effect_path);
         return -1;
     }
 
     if (sfxc_handle_list_create() != 0) {
-        soundEffectsListExit();
+        sfxl_exit();
         internal_free(sfxc_effect_path);
         return -1;
     }
@@ -100,7 +100,7 @@ int sfxc_init(int cacheSize, const char* effectsPath)
     sfxc_pcache = (Cache*)internal_malloc(sizeof(*sfxc_pcache));
     if (sfxc_pcache == NULL) {
         sfxc_handle_list_destroy();
-        soundEffectsListExit();
+        sfxl_exit();
         internal_free(sfxc_effect_path);
         return -1;
     }
@@ -108,7 +108,7 @@ int sfxc_init(int cacheSize, const char* effectsPath)
     if (!cache_init(sfxc_pcache, sfxc_effect_size, sfxc_effect_load, sfxc_effect_free, cacheSize)) {
         internal_free(sfxc_pcache);
         sfxc_handle_list_destroy();
-        soundEffectsListExit();
+        sfxl_exit();
         internal_free(sfxc_effect_path);
         return -1;
     }
@@ -128,7 +128,7 @@ void sfxc_exit()
 
         sfxc_handle_list_destroy();
 
-        soundEffectsListExit();
+        sfxl_exit();
 
         internal_free(sfxc_effect_path);
 
@@ -163,7 +163,7 @@ int sfxc_cached_open(const char* fname, int mode, ...)
     }
 
     int tag;
-    int err = soundEffectsListGetTag(copy, &tag);
+    int err = sfxl_name_to_tag(copy, &tag);
 
     internal_free(copy);
 
@@ -323,7 +323,7 @@ long sfxc_cached_file_size(int handle)
 static int sfxc_effect_size(int tag, int* sizePtr)
 {
     int size;
-    if (soundEffectsListGetFileSize(tag, &size) == -1) {
+    if (sfxl_size_cached(tag, &size) == -1) {
         return -1;
     }
 
@@ -335,15 +335,15 @@ static int sfxc_effect_size(int tag, int* sizePtr)
 // 0x4A945C
 static int sfxc_effect_load(int tag, int* sizePtr, unsigned char* data)
 {
-    if (!soundEffectsListIsValidTag(tag)) {
+    if (!sfxl_tag_is_legal(tag)) {
         return -1;
     }
 
     int size;
-    soundEffectsListGetFileSize(tag, &size);
+    sfxl_size_cached(tag, &size);
 
     char* name;
-    soundEffectsListGetFilePath(tag, &name);
+    sfxl_name(tag, &name);
 
     if (dbGetFileContents(name, data)) {
         internal_free(name);
@@ -420,8 +420,8 @@ static int sfxc_handle_create(int* handlePtr, int tag, void* data, CacheEntry* c
     soundEffect->cacheHandle = cacheHandle;
     soundEffect->tag = tag;
 
-    soundEffectsListGetDataSize(tag, &(soundEffect->dataSize));
-    soundEffectsListGetFileSize(tag, &(soundEffect->fileSize));
+    sfxl_size_full(tag, &(soundEffect->dataSize));
+    sfxl_size_cached(tag, &(soundEffect->fileSize));
 
     soundEffect->position = 0;
     soundEffect->dataPosition = 0;
@@ -463,7 +463,7 @@ static bool sfxc_handle_is_legal(int handle)
         return false;
     }
 
-    return soundEffectsListIsValidTag(soundEffect->tag);
+    return sfxl_tag_is_legal(soundEffect->tag);
 }
 
 // NOTE: Unused.
