@@ -16,7 +16,7 @@
 #include "game/message.h"
 #include "game/object.h"
 #include "game/options.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "proto.h"
 #include "skill.h"
 #include "stat.h"

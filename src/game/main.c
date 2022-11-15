@@ -33,7 +33,7 @@
 #include "game/map.h"
 #include "game/object.h"
 #include "game/options.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "proto.h"
 #include "random.h"
 #include "scripts.h"

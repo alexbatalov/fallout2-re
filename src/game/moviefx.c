@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "memory.h"
 #include "int/movie.h"
-#include "palette.h"
+#include "game/palette.h"
 
 typedef enum MovieEffectType {
     MOVIE_EFFECT_TYPE_NONE = 0,

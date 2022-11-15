@@ -25,7 +25,7 @@
 #include "game/loadsave.h"
 #include "memory.h"
 #include "game/object.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "pipboy.h"
 #include "proto.h"
 #include "proto_instance.h"

@@ -14,7 +14,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/object.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "party_member.h"
 #include "perk.h"
 #include "pipboy.h"

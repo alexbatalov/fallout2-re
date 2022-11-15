@@ -27,7 +27,7 @@
 #include "game/loadsave.h"
 #include "game/map.h"
 #include "game/object.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "perk.h"
 #include "proto.h"
 #include "proto_instance.h"

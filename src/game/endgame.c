@@ -26,7 +26,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "pipboy.h"
 #include "random.h"
 #include "stat.h"

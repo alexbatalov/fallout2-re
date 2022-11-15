@@ -17,7 +17,7 @@
 #include "game/item.h"
 #include "game/map.h"
 #include "game/object.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "perk.h"
 #include "proto.h"
 #include "queue.h"

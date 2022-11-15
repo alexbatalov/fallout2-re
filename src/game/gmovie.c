@@ -16,7 +16,7 @@
 #include "game/gsound.h"
 #include "int/movie.h"
 #include "game/moviefx.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "text_font.h"
 #include "window_manager.h"
 

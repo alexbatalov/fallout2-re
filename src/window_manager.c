@@ -6,7 +6,7 @@
 #include "debug.h"
 #include "draw.h"
 #include "memory.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "text_font.h"
 #include "vcr.h"
 #include "window_manager_private.h"

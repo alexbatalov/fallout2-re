@@ -1,4 +1,4 @@
-#include "palette.h"
+#include "game/palette.h"
 
 #include <string.h>
 

@@ -12,7 +12,7 @@
 #include "game/gmouse.h"
 #include "memory.h"
 #include "game/message.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "sound.h"
 #include "text_font.h"
 #include "window_manager.h"

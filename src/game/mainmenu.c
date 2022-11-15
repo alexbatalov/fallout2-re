@@ -11,7 +11,7 @@
 #include "game/game.h"
 #include "game/gsound.h"
 #include "game/options.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "text_font.h"
 #include "version.h"
 

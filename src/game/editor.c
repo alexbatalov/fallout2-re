@@ -25,7 +25,7 @@
 #include "memory.h"
 #include "game/message.h"
 #include "game/object.h"
-#include "palette.h"
+#include "game/palette.h"
 #include "perk.h"
 #include "proto.h"
 #include "scripts.h"
