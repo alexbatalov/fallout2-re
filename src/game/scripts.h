@@ -1,5 +1,5 @@
-#ifndef SCRIPTS_H
-#define SCRIPTS_H
+#ifndef FALLOUT_GAME_SCRIPTS_H_
+#define FALLOUT_GAME_SCRIPTS_H_
 
 #include <stdbool.h>
 
@@ -244,4 +244,4 @@ int scr_set_local_var(int a1, int a2, int a3);
 bool scr_end_combat();
 int scr_explode_scenery(Object* a1, int tile, int radius, int elevation);
 
-#endif /* SCRIPTS_H */
+#endif /* FALLOUT_GAME_SCRIPTS_H_ */
