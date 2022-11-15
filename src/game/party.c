@@ -59,6 +59,7 @@ typedef struct STRUCT_519DA8 {
 
 static int partyMemberGetAIOptions(Object* object, PartyMemberDescription** partyMemberDescriptionPtr);
 static void partyMemberAISlotInit(PartyMemberDescription* partyMemberDescription);
+static int partyMemberSlotInit(int index);
 static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1);
 static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1);
 static int partyMemberNewObjID();
@@ -257,9 +258,8 @@ err:
 void partyMember_reset()
 {
     for (int index = 0; index < partyMemberMaxCount; index++) {
-        partyMemberLevelUpInfoList[index].field_0 = 0;
-        partyMemberLevelUpInfoList[index].field_4 = 0;
-        partyMemberLevelUpInfoList[index].field_8 = 0;
+        // NOTE: Uninline.
+        partyMemberSlotInit(index);
     }
 }
 
@@ -267,9 +267,8 @@ void partyMember_reset()
 void partyMember_exit()
 {
     for (int index = 0; index < partyMemberMaxCount; index++) {
-        partyMemberLevelUpInfoList[index].field_0 = 0;
-        partyMemberLevelUpInfoList[index].field_4 = 0;
-        partyMemberLevelUpInfoList[index].field_8 = 0;
+        // NOTE: Uninline.
+        partyMemberSlotInit(index);
     }
 
     partyMemberMaxCount = 0;
@@ -346,10 +345,25 @@ static void partyMemberAISlotInit(PartyMemberDescription* partyMemberDescription
     partyMemberDescription->level_pids[0] = -1;
 
     for (int index = 0; index < partyMemberMaxCount; index++) {
-        partyMemberLevelUpInfoList[index].field_0 = 0;
-        partyMemberLevelUpInfoList[index].field_4 = 0;
-        partyMemberLevelUpInfoList[index].field_8 = 0;
+        // NOTE: Uninline.
+        partyMemberSlotInit(index);
     }
+}
+
+// NOTE: Inlined.
+//
+// 0x494340
+static int partyMemberSlotInit(int index)
+{
+    if (index >= partyMemberMaxCount) {
+        return -1;
+    }
+
+    partyMemberLevelUpInfoList[index].field_0 = 0;
+    partyMemberLevelUpInfoList[index].field_4 = 0;
+    partyMemberLevelUpInfoList[index].field_8 = 0;
+
+    return 0;
 }
 
 // 0x494378
