@@ -2858,7 +2858,7 @@ void object_animate()
                 int savedTile = object->tile;
                 object_move(index);
                 if (savedTile != object->tile) {
-                    scriptsExecSpatialProc(object, object->tile, object->elevation);
+                    scr_chk_spatials_in(object, object->tile, object->elevation);
                 }
             }
             continue;

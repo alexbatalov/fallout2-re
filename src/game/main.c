@@ -326,13 +326,13 @@ static void main_game_loop()
 
     main_game_paused = 0;
 
-    scriptsEnable();
+    scr_enable();
 
     while (game_user_wants_to_quit == 0) {
         int keyCode = _get_input();
         game_handle_input(keyCode, false);
 
-        scriptsHandleRequests();
+        scripts_check_state();
 
         map_check_state();
 
@@ -347,7 +347,7 @@ static void main_game_loop()
         }
     }
 
-    scriptsDisable();
+    scr_disable();
 
     if (cursorWasHidden) {
         mouse_hide();

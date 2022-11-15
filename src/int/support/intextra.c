@@ -469,10 +469,10 @@ static void op_scr_return(Program* program)
         interpretError("script error: %s: invalid arg to scr_return", program->name);
     }
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         script->field_28 = data;
     }
 }
@@ -682,10 +682,10 @@ static void op_roll_vs_skill(Program* program)
     int roll = ROLL_CRITICAL_FAILURE;
     if (object != NULL) {
         if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-            int sid = scriptGetSid(program);
+            int sid = scr_find_sid_from_program(program);
 
             Script* script;
-            if (scriptGetScript(sid, &script) != -1) {
+            if (scr_ptr(sid, &script) != -1) {
                 roll = skillRoll(object, skill, modifier, &(script->howMuch));
             }
         }
@@ -746,10 +746,10 @@ static void op_do_check(Program* program)
 
     int roll = 0;
     if (object != NULL) {
-        int sid = scriptGetSid(program);
+        int sid = scr_find_sid_from_program(program);
 
         Script* script;
-        if (scriptGetScript(sid, &script) != -1) {
+        if (scr_ptr(sid, &script) != -1) {
             switch (stat) {
             case STAT_STRENGTH:
             case STAT_PERCEPTION:
@@ -853,10 +853,10 @@ static void op_how_much(Program* program)
 
     int result = 0;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         result = script->howMuch;
     } else {
         dbg_error(program, "how_much", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -1115,16 +1115,16 @@ static void op_create_object_sid(Program* program)
         }
 
         if (object->sid != -1) {
-            scriptRemove(object->sid);
+            scr_remove(object->sid);
             object->sid = -1;
         }
 
-        if (scriptAdd(&(object->sid), scriptType) == -1) {
+        if (scr_new(&(object->sid), scriptType) == -1) {
             goto out;
         }
 
         Script* script;
-        if (scriptGetScript(object->sid, &script) == -1) {
+        if (scr_ptr(object->sid, &script) == -1) {
             goto out;
         }
 
@@ -1135,10 +1135,10 @@ static void op_create_object_sid(Program* program)
             script->sp.radius = 3;
         }
 
-        object->id = scriptsNewObjectId();
+        object->id = new_obj_id();
         script->field_1C = object->id;
         script->owner = object;
-        _scr_find_str_run_info(sid - 1, &(script->field_50), object->sid);
+        scr_find_str_run_info(sid - 1, &(script->field_50), object->sid);
     };
 
 out:
@@ -1179,7 +1179,7 @@ static void op_destroy_object(Program* program)
         }
     }
 
-    bool isSelf = object == scriptGetSelf(program);
+    bool isSelf = object == scr_find_obj_from_program(program);
 
     if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         combat_delete_critter(object);
@@ -1248,10 +1248,10 @@ static void op_display_msg(Program* program)
 // 0x455430
 static void op_script_overrides(Program* program)
 {
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         script->scriptOverrides = 1;
     } else {
         dbg_error(program, "script_overrides", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -1332,7 +1332,7 @@ static void op_tile_contains_obj_pid(Program* program)
 // 0x455600
 static void op_self_obj(Program* program)
 {
-    Object* object = scriptGetSelf(program);
+    Object* object = scr_find_obj_from_program(program);
     interpretPushLong(program, (int)object);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -1342,10 +1342,10 @@ static void op_source_obj(Program* program)
 {
     Object* object = NULL;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         object = script->source;
     } else {
         dbg_error(program, "source_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -1360,10 +1360,10 @@ static void op_target_obj(Program* program)
 {
     Object* object = NULL;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         object = script->target;
     } else {
         dbg_error(program, "target_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -1387,10 +1387,10 @@ static void op_obj_being_used_with(Program* program)
 {
     Object* object = NULL;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         object = script->target;
     } else {
         dbg_error(program, "obj_being_used_with", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -1417,8 +1417,8 @@ static void op_local_var(Program* program)
 
     int value = -1;
 
-    int sid = scriptGetSid(program);
-    scriptGetLocalVar(sid, data, &value);
+    int sid = scr_find_sid_from_program(program);
+    scr_get_local_var(sid, data, &value);
 
     interpretPushLong(program, value);
     interpretPushShort(program, VALUE_TYPE_INT);
@@ -1446,8 +1446,8 @@ static void op_set_local_var(Program* program)
     int variable = data[1];
     int value = data[0];
 
-    int sid = scriptGetSid(program);
-    scriptSetLocalVar(sid, variable, value);
+    int sid = scr_find_sid_from_program(program);
+    scr_set_local_var(sid, variable, value);
 }
 
 // 0x455858
@@ -1554,10 +1554,10 @@ static void op_script_action(Program* program)
 {
     int action = 0;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         action = script->action;
     } else {
         dbg_error(program, "script_action", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -1716,15 +1716,15 @@ static void op_animate_stand_obj(Program* program)
 
     Object* object = (Object*)data;
     if (object == NULL) {
-        int sid = scriptGetSid(program);
+        int sid = scr_find_sid_from_program(program);
 
         Script* script;
-        if (scriptGetScript(sid, &script) == -1) {
+        if (scr_ptr(sid, &script) == -1) {
             dbg_error(program, "animate_stand_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
             return;
         }
 
-        object = scriptGetSelf(program);
+        object = scr_find_obj_from_program(program);
     }
 
     if (!isInCombat()) {
@@ -1751,15 +1751,15 @@ static void op_animate_stand_reverse_obj(Program* program)
 
     Object* object = (Object*)data;
     if (object == NULL) {
-        int sid = scriptGetSid(program);
+        int sid = scr_find_sid_from_program(program);
 
         Script* script;
-        if (scriptGetScript(sid, &script) == -1) {
+        if (scr_ptr(sid, &script) == -1) {
             dbg_error(program, "animate_stand_reverse_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
             return;
         }
 
-        object = scriptGetSelf(program);
+        object = scr_find_obj_from_program(program);
     }
 
     if (!isInCombat()) {
@@ -1801,10 +1801,10 @@ static void op_animate_move_obj_to_tile(Program* program)
         return;
     }
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) == -1) {
+    if (scr_ptr(sid, &script) == -1) {
         dbg_error(program, "animate_move_obj_to_tile", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
         return;
     }
@@ -2047,10 +2047,10 @@ static void op_pickup_obj(Program* program)
         return;
     }
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) == 1) {
+    if (scr_ptr(sid, &script) == 1) {
         dbg_error(program, "pickup_obj", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
         return;
     }
@@ -2083,10 +2083,10 @@ static void op_drop_obj(Program* program)
         return;
     }
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) == -1) {
+    if (scr_ptr(sid, &script) == -1) {
         // FIXME: Should be SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID.
         dbg_error(program, "drop_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
@@ -2288,10 +2288,10 @@ static void op_use_obj(Program* program)
         return;
     }
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) == -1) {
+    if (scr_ptr(sid, &script) == -1) {
         // FIXME: Should be SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID.
         dbg_error(program, "use_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
@@ -2302,7 +2302,7 @@ static void op_use_obj(Program* program)
         return;
     }
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         action_use_an_object(script->target, object);
     } else {
@@ -2387,7 +2387,7 @@ static void op_attack(Program* program)
 
     program->flags |= PROGRAM_FLAG_0x20;
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     if (self == NULL) {
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
@@ -2443,7 +2443,7 @@ static void op_attack(Program* program)
             attack.field_1C = 0;
         }
 
-        scriptsRequestCombat(&attack);
+        scripts_request_combat(&attack);
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -2513,8 +2513,8 @@ static void op_start_gdialog(Program* program)
         }
     }
 
-    dialogue_scr_id = scriptGetSid(program);
-    dialog_target = scriptGetSelf(program);
+    dialogue_scr_id = scr_find_sid_from_program(program);
+    dialog_target = scr_find_obj_from_program(program);
     gdialogInitFromScript(dialogue_head, dialogue_mood);
 }
 
@@ -2570,8 +2570,8 @@ static void op_metarule3(Program* program)
     switch (rule) {
     case METARULE3_CLR_FIXED_TIMED_EVENTS:
         if (1) {
-            _scrSetQueueTestVals((Object*)data[2], data[1]);
-            queue_clear_type(EVENT_TYPE_SCRIPT, _scrQueueRemoveFixed);
+            scrSetQueueTestVals((Object*)data[2], data[1]);
+            queue_clear_type(EVENT_TYPE_SCRIPT, scrQueueRemoveFixed);
         }
         break;
     case METARULE3_MARK_SUBTILE:
@@ -2981,7 +2981,7 @@ static void op_set_light_level(Program* program)
 // 0x4579F4
 static void op_game_time(Program* program)
 {
-    int time = gameTimeGetTime();
+    int time = game_time();
     interpretPushLong(program, time);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -2989,7 +2989,7 @@ static void op_game_time(Program* program)
 // 0x457A18
 static void op_game_time_in_seconds(Program* program)
 {
-    int time = gameTimeGetTime();
+    int time = game_time();
     interpretPushLong(program, time / 10);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -3054,7 +3054,7 @@ static void op_kill_critter(Program* program)
 
     program->flags |= PROGRAM_FLAG_0x20;
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     bool isSelf = self == object;
 
     register_clear(object);
@@ -3192,7 +3192,7 @@ static void op_kill_critter_type(Program* program)
 
             obj_find_first();
 
-            map_data.lastVisitTime = gameTimeGetTime();
+            map_data.lastVisitTime = game_time();
         }
 
         obj = obj_find_next();
@@ -3238,7 +3238,7 @@ static void op_critter_damage(Program* program)
         return;
     }
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     if (object->data.critter.combat.whoHitMeCid == -1) {
         object->data.critter.combat.whoHitMe = NULL;
     }
@@ -3283,7 +3283,7 @@ static void op_add_timer_event(Program* program)
         return;
     }
 
-    scriptAddTimerEvent(object->sid, delay, param);
+    script_q_add(object->sid, delay, param);
 }
 
 // 0x458094
@@ -3466,7 +3466,7 @@ static void op_obj_can_hear_obj(Program* program)
 // 0x458438
 static void op_game_time_hour(Program* program)
 {
-    int value = gameTimeGetHour();
+    int value = game_time_hour();
     interpretPushLong(program, value);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -3476,10 +3476,10 @@ static void op_fixed_param(Program* program)
 {
     int fixedParam = 0;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         fixedParam = script->fixedParam;
     } else {
         dbg_error(program, "fixed_param", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -3515,14 +3515,14 @@ static void op_tile_is_visible(Program* program)
 // 0x458534
 static void op_dialogue_system_enter(Program* program)
 {
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) == -1) {
+    if (scr_ptr(sid, &script) == -1) {
         return;
     }
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         if (!critter_is_active(self)) {
             return;
@@ -3537,7 +3537,7 @@ static void op_dialogue_system_enter(Program* program)
         return;
     }
 
-    dialog_target = scriptGetSelf(program);
+    dialog_target = scr_find_obj_from_program(program);
 }
 
 // 0x458594
@@ -3545,10 +3545,10 @@ static void op_action_being_used(Program* program)
 {
     int action = -1;
 
-    int sid = scriptGetSid(program);
+    int sid = scr_find_sid_from_program(program);
 
     Script* script;
-    if (scriptGetScript(sid, &script) != -1) {
+    if (scr_ptr(sid, &script) != -1) {
         action = script->actionBeingUsed;
     } else {
         dbg_error(program, "action_being_used", SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID);
@@ -3616,11 +3616,11 @@ static void op_game_time_advance(Program* program)
     int remainder = data % GAME_TIME_TICKS_PER_DAY;
 
     for (int day = 0; day < days; day++) {
-        gameTimeAddTicks(GAME_TIME_TICKS_PER_DAY);
+        inc_game_time(GAME_TIME_TICKS_PER_DAY);
         queue_process();
     }
 
-    gameTimeAddTicks(remainder);
+    inc_game_time(remainder);
     queue_process();
 }
 
@@ -3964,7 +3964,7 @@ static void op_message_str(Program* program)
 
     char* string;
     if (messageIndex >= 1) {
-        string = _scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
+        string = scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
         if (string == NULL) {
             debugPrint("\nError: No message file EXISTS!: index %d, line %d", messageListIndex, messageIndex);
             string = errStr;
@@ -4084,7 +4084,7 @@ static void op_obj_set_light_level(Program* program)
 // 0x459170
 static void op_world_map(Program* program)
 {
-    scriptsRequestWorldMap();
+    scripts_request_worldmap();
 }
 
 // 0x459178
@@ -4267,7 +4267,7 @@ static void op_metarule(Program* program)
         result = (map_data.flags & MAP_SAVED) == 0;
         break;
     case METARULE_ELEVATOR:
-        scriptsRequestElevator(scriptGetSelf(program), param);
+        scripts_request_elevator(scr_find_obj_from_program(program), param);
         result = 0;
         break;
     case METARULE_PARTY_COUNT:
@@ -4896,7 +4896,7 @@ static void op_rm_mult_objs_from_inven(Program* program)
 static void op_get_month(Program* program)
 {
     int month;
-    gameTimeGetDate(&month, NULL, NULL);
+    game_time_date(&month, NULL, NULL);
 
     interpretPushLong(program, month);
     interpretPushShort(program, VALUE_TYPE_INT);
@@ -4906,7 +4906,7 @@ static void op_get_month(Program* program)
 static void op_get_day(Program* program)
 {
     int day;
-    gameTimeGetDate(NULL, &day, NULL);
+    game_time_date(NULL, &day, NULL);
 
     interpretPushLong(program, day);
     interpretPushShort(program, VALUE_TYPE_INT);
@@ -4945,7 +4945,7 @@ static void op_explosion(Program* program)
         minDamage = 0;
     }
 
-    scriptsRequestExplosion(tile, elevation, minDamage, maxDamage);
+    scripts_request_explosion(tile, elevation, minDamage, maxDamage);
 }
 
 // 0x45A528
@@ -4954,7 +4954,7 @@ static void op_days_since_visited(Program* program)
     int days;
 
     if (map_data.lastVisitTime != 0) {
-        days = (gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_DAY;
+        days = (game_time() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_DAY;
     } else {
         days = -1;
     }
@@ -5458,7 +5458,7 @@ static void op_inven_unwield(Program* program)
     Object* obj;
     int v1;
 
-    obj = scriptGetSelf(program);
+    obj = scr_find_obj_from_program(program);
     v1 = 1;
 
     if (obj == obj_dude && !intface_is_item_right_hand()) {
@@ -6168,7 +6168,7 @@ static void op_attack_setup(Program* program)
                 attack.field_1C = 0;
             }
 
-            scriptsRequestCombat(&attack);
+            scripts_request_combat(&attack);
         }
     }
 
@@ -6199,7 +6199,7 @@ static void op_destroy_mult_objs(Program* program)
     Object* object = (Object*)data[1];
     int quantity = data[0];
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     bool isSelf = self == object;
 
     int result = 0;
@@ -6284,14 +6284,14 @@ static void op_use_obj_on_obj(Program* program)
     }
 
     Script* script;
-    int sid = scriptGetSid(program);
-    if (scriptGetScript(sid, &script) == -1) {
+    int sid = scr_find_sid_from_program(program);
+    if (scr_ptr(sid, &script) == -1) {
         // FIXME: Should be SCRIPT_ERROR_CANT_MATCH_PROGRAM_TO_SID.
         dbg_error(program, "use_obj_on_obj", SCRIPT_ERROR_OBJECT_IS_NULL);
         return;
     }
 
-    Object* self = scriptGetSelf(program);
+    Object* self = scr_find_obj_from_program(program);
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         action_use_an_item_on_object(self, target, item);
     } else {
@@ -6303,7 +6303,7 @@ static void op_use_obj_on_obj(Program* program)
 static void op_endgame_slideshow(Program* program)
 {
     program->flags |= PROGRAM_FLAG_0x20;
-    scriptsRequestEndgame();
+    scripts_request_endgame_slideshow();
     program->flags &= ~PROGRAM_FLAG_0x20;
 }
 
@@ -6625,7 +6625,7 @@ static void op_terminate_combat(Program* program)
 {
     if (isInCombat()) {
         game_user_wants_to_quit = 1;
-        Object* self = scriptGetSelf(program);
+        Object* self = scr_find_obj_from_program(program);
         if (self != NULL) {
             if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
                 self->data.critter.combat.maneuver |= CRITTER_MANEUVER_STOP_ATTACKING;

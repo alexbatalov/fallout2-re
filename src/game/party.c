@@ -399,7 +399,7 @@ int partyMemberAdd(Object* object)
     partyMemberCount++;
 
     Script* script;
-    if (scriptGetScript(object->sid, &script) != -1) {
+    if (scr_ptr(object->sid, &script) != -1) {
         script->flags |= (SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
         script->field_1C = object->id;
 
@@ -456,7 +456,7 @@ int partyMemberRemove(Object* object)
     partyMemberCount--;
 
     Script* script;
-    if (scriptGetScript(object->sid, &script) != -1) {
+    if (scr_ptr(object->sid, &script) != -1) {
         script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
     }
 
@@ -484,7 +484,7 @@ int partyMemberPrepSave()
         }
 
         Script* script;
-        if (scriptGetScript(ptr->object->sid, &script) != -1) {
+        if (scr_ptr(ptr->object->sid, &script) != -1) {
             script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
         }
     }
@@ -503,7 +503,7 @@ int partyMemberUnPrepSave()
         }
 
         Script* script;
-        if (scriptGetScript(ptr->object->sid, &script) != -1) {
+        if (scr_ptr(ptr->object->sid, &script) != -1) {
             script->flags |= (SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
         }
     }
@@ -571,7 +571,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
     }
 
     Script* script;
-    if (scriptGetScript(obj->sid, &script) == -1) {
+    if (scr_ptr(obj->sid, &script) == -1) {
         debugPrint("\n  Error!: partyMemberPrepLoadInstance: Can't find script!");
         debugPrint("\n          partyMemberPrepLoadInstance: script was: (%s)", critter_name(obj));
         partyMember->script = NULL;
@@ -611,7 +611,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
 
     script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
 
-    scriptRemove(script->sid);
+    scr_remove(script->sid);
 
     if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
         dude_stand(obj, obj->rotation, -1);
@@ -671,13 +671,13 @@ static int partyMemberRecoverLoadInstance(PartyMember* partyMember)
     }
 
     int v1 = -1;
-    if (scriptAdd(&v1, scriptType) == -1) {
+    if (scr_new(&v1, scriptType) == -1) {
         showMesageBox("\n  Error!: partyMemberRecoverLoad: Can't create script!");
         exit(1);
     }
 
     Script* script;
-    if (scriptGetScript(v1, &script) == -1) {
+    if (scr_ptr(v1, &script) == -1) {
         showMesageBox("\n  Error!: partyMemberRecoverLoad: Can't find script!");
         exit(1);
     }
@@ -780,7 +780,7 @@ void partyMemberClear()
 
     partyMemberCount = 1;
 
-    _scr_remove_all();
+    scr_remove_all();
     partyMemberClearItemList();
 
     partyStatePrepped = 0;
@@ -990,7 +990,7 @@ static int partyMemberPrepItemSave(Object* object)
 {
     if (object->sid != -1) {
         Script* script;
-        if (scriptGetScript(object->sid, &script) == -1) {
+        if (scr_ptr(object->sid, &script) == -1) {
             showMesageBox("\n  Error!: partyMemberPrepItemSaveAll: Can't find script!");
             exit(1);
         }
@@ -1012,7 +1012,7 @@ static int partyMemberItemSave(Object* object)
 {
     if (object->sid != -1) {
         Script* script;
-        if (scriptGetScript(object->sid, &script) == -1) {
+        if (scr_ptr(object->sid, &script) == -1) {
             showMesageBox("\n  Error!: partyMemberItemSave: Can't find script!");
             exit(1);
         }
@@ -1068,13 +1068,13 @@ static int partyMemberItemSave(Object* object)
 static int partyMemberItemRecover(PartyMember* partyMember)
 {
     int sid = -1;
-    if (scriptAdd(&sid, SCRIPT_TYPE_ITEM) == -1) {
+    if (scr_new(&sid, SCRIPT_TYPE_ITEM) == -1) {
         showMesageBox("\n  Error!: partyMemberItemRecover: Can't create script!");
         exit(1);
     }
 
     Script* script;
-    if (scriptGetScript(sid, &script) == -1) {
+    if (scr_ptr(sid, &script) == -1) {
         showMesageBox("\n  Error!: partyMemberItemRecover: Can't find script!");
         exit(1);
     }
@@ -1257,7 +1257,7 @@ static int partyFixMultipleMembers()
         debugPrint("\nDestroying evil critter doppleganger!");
 
         if (obj->sid != -1) {
-            scriptRemove(obj->sid);
+            scr_remove(obj->sid);
             obj->sid = -1;
         } else {
             if (queue_remove_this(obj, EVENT_TYPE_SCRIPT) == -1) {
@@ -1272,7 +1272,7 @@ static int partyFixMultipleMembers()
         PartyMember* partyMember = &(partyMemberList[index]);
 
         Script* script;
-        if (scriptGetScript(partyMember->object->sid, &script) != -1) {
+        if (scr_ptr(partyMember->object->sid, &script) != -1) {
             script->owner = partyMember->object;
         } else {
             debugPrint("\nError: Failed to fix party member critter scripts!");

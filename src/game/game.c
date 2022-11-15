@@ -247,7 +247,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     anim_init();
     debugPrint(">anim_init\t");
 
-    if (scriptsInit() != 0) {
+    if (scr_init() != 0) {
         debugPrint("Failed on scr_init\n");
         return -1;
     }
@@ -261,7 +261,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">game_load_info\t");
 
-    if (_scr_game_init() != 0) {
+    if (scr_game_init() != 0) {
         debugPrint("Failed on scr_game_init\n");
         return -1;
     }
@@ -322,7 +322,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">message_load\t");
 
-    if (scriptsDisable() != 0) {
+    if (scr_disable() != 0) {
         debugPrint("Failed on scr_disable\n");
         return -1;
     }
@@ -370,9 +370,9 @@ void game_reset()
     iso_reset();
     gmouse_reset();
     proto_reset();
-    _scr_reset();
+    scr_reset();
     game_load_info();
-    scriptsReset();
+    scr_game_reset();
     wmWorldMap_reset();
     partyMember_reset();
     CharEditInit();
@@ -394,12 +394,12 @@ void game_exit()
     message_exit(&misc_message_file);
     combat_exit();
     gdialogExit();
-    _scr_game_exit();
+    scr_game_exit();
 
     // NOTE: Uninline.
     game_unload_info();
 
-    scriptsExit();
+    scr_exit();
     anim_exit();
     proto_exit();
     gmouse_exit();
@@ -766,7 +766,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
             int month;
             int day;
             int year;
-            gameTimeGetDate(&month, &day, &year);
+            game_time_date(&month, &day, &year);
 
             MessageList messageList;
             if (message_init(&messageList)) {
@@ -777,7 +777,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                     MessageListItem messageListItem;
                     messageListItem.num = 500 + month - 1;
                     if (message_search(&messageList, &messageListItem)) {
-                        char* time = gameTimeGetTimeString();
+                        char* time = game_time_hour_str();
 
                         char date[128];
                         sprintf(date, "%s: %d/%d %s", messageListItem.text, day, year, time);

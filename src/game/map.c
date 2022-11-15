@@ -312,7 +312,7 @@ void map_enable_bk_processes()
         }
         tickersAdd(object_animate);
         tickersAdd(dude_fidget);
-        _scr_enable_critters();
+        scr_enable_critters();
         map_bk_enabled = true;
     }
 }
@@ -324,7 +324,7 @@ bool map_disable_bk_processes()
         return false;
     }
 
-    _scr_disable_critters();
+    scr_disable_critters();
     tickersRemove(dude_fidget);
     tickersRemove(object_animate);
     gmouse_disable(0);
@@ -367,7 +367,7 @@ int map_set_elevation(int elevation)
     partyMemberSyncPosition();
 
     if (map_script_id != -1) {
-        scriptsExecMapUpdateProc();
+        scr_exec_map_update_scripts();
     }
 
     if (gameMouseWasVisible) {
@@ -795,7 +795,7 @@ int map_load(char* fileName)
 // 0x482B34
 int map_load_idx(int map)
 {
-    scriptSetFixedParam(map_script_id, map);
+    scr_set_ext_param(map_script_id, map);
 
     char name[16];
     if (wmMapIdxToName(map, name) == -1) {
@@ -830,7 +830,7 @@ int map_load_file(File* stream)
     windowFill(display_win, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, colorTable[0]);
     win_draw(display_win);
     anim_stop();
-    scriptsDisable();
+    scr_disable();
 
     map_script_id = -1;
 
@@ -895,7 +895,7 @@ int map_load_file(File* stream)
     }
 
     error = "Error reading scripts";
-    if (scriptLoadAll(stream) != 0) {
+    if (scr_load(stream) != 0) {
         goto err;
     }
 
@@ -941,11 +941,11 @@ int map_load_file(File* stream)
         map_data.globalVariablesCount = num_map_global_vars;
     }
 
-    scriptsEnable();
+    scr_enable();
 
     if (map_data.scriptIndex > 0) {
         error = "Error creating new map script";
-        if (scriptAdd(&map_script_id, SCRIPT_TYPE_SYSTEM) == -1) {
+        if (scr_new(&map_script_id, SCRIPT_TYPE_SYSTEM) == -1) {
             goto err;
         }
 
@@ -955,18 +955,18 @@ int map_load_file(File* stream)
         object->flags |= (OBJECT_LIGHT_THRU | OBJECT_TEMPORARY | OBJECT_HIDDEN);
         obj_move_to_tile(object, 1, 0, NULL);
         object->sid = map_script_id;
-        scriptSetFixedParam(map_script_id, (map_data.flags & 1) == 0);
+        scr_set_ext_param(map_script_id, (map_data.flags & 1) == 0);
 
         Script* script;
-        scriptGetScript(map_script_id, &script);
+        scr_ptr(map_script_id, &script);
         script->field_14 = map_data.scriptIndex - 1;
         script->flags |= SCRIPT_FLAG_0x08;
-        object->id = scriptsNewObjectId();
+        object->id = new_obj_id();
         script->field_1C = object->id;
         script->owner = object;
-        _scr_spatials_disable();
-        scriptExecProc(map_script_id, SCRIPT_PROC_MAP_ENTER);
-        _scr_spatials_enable();
+        scr_spatials_disable();
+        exec_script_proc(map_script_id, SCRIPT_PROC_MAP_ENTER);
+        scr_spatials_enable();
 
         error = "Error Setting up random encounter";
         if (wmSetupRandomEncounter() == -1) {
@@ -997,12 +997,12 @@ err:
     gmouse_disable_scrolling();
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
 
-    if (scriptsExecStartProc() == -1) {
+    if (scr_load_all_scripts() == -1) {
         debugPrint("\n   Error: scr_load_all_scripts failed!");
     }
 
-    scriptsExecMapEnterProc();
-    scriptsExecMapUpdateProc();
+    scr_exec_map_enter_scripts();
+    scr_exec_map_update_scripts();
     tileEnable();
 
     if (map_state.map > 0) {
@@ -1013,7 +1013,7 @@ err:
         tileWindowRefresh();
     }
 
-    gameTimeScheduleUpdateEvent();
+    gtime_q_add();
 
     if (gsound_sfx_q_start() == -1) {
         rc = -1;
@@ -1055,8 +1055,8 @@ int map_load_in_game(char* fileName)
 
     int rc = map_load(mapName);
 
-    if (gameTimeGetTime() >= map_data.lastVisitTime) {
-        if (((gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
+    if (game_time() >= map_data.lastVisitTime) {
+        if (((game_time() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
             obj_unjam_all_locks();
         }
 
@@ -1089,7 +1089,7 @@ int map_age_dead_critters()
         return 0;
     }
 
-    int hoursSinceLastVisit = (gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR;
+    int hoursSinceLastVisit = (game_time() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR;
     if (hoursSinceLastVisit == 0) {
         return 0;
     }
@@ -1341,7 +1341,7 @@ int map_save_file(File* stream)
         return -1;
     }
 
-    scriptsDisable();
+    scr_disable();
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         int tile;
@@ -1402,7 +1402,7 @@ int map_save_file(File* stream)
 
     char err[80];
 
-    if (scriptSaveAll(stream) == -1) {
+    if (scr_save(stream) == -1) {
         sprintf(err, "Error saving scripts in %s", map_data.name);
         _win_msg(err, 80, 80, colorTable[31744]);
     }
@@ -1412,7 +1412,7 @@ int map_save_file(File* stream)
         _win_msg(err, 80, 80, colorTable[31744]);
     }
 
-    scriptsEnable();
+    scr_enable();
 
     return 0;
 }
@@ -1431,19 +1431,19 @@ int map_save_in_game(bool a1)
         queue_leaving_map();
         partyMemberPrepLoad();
         partyMemberPrepItemSaveAll();
-        scriptsExecMapExitProc();
+        scr_exec_map_exit_scripts();
 
         if (map_script_id != -1) {
             Script* script;
-            scriptGetScript(map_script_id, &script);
+            scr_ptr(map_script_id, &script);
         }
 
-        gameTimeScheduleUpdateEvent();
+        gtime_q_add();
         obj_reset_roof();
     }
 
     map_data.flags |= 0x01;
-    map_data.lastVisitTime = gameTimeGetTime();
+    map_data.lastVisitTime = game_time();
 
     char name[16];
 
@@ -1472,7 +1472,7 @@ int map_save_in_game(bool a1)
             obj_remove_all();
             proto_remove_all();
             square_reset();
-            gameTimeScheduleUpdateEvent();
+            gtime_q_add();
         }
     }
 

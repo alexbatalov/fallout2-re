@@ -483,7 +483,7 @@ static int elevator_start(int elevator)
     gmouse_3d_off();
 
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
-    scriptsDisable();
+    scr_disable();
 
     int index;
     for (index = 0; index < ELEVATOR_FRM_STATIC_COUNT; index++) {
@@ -636,7 +636,7 @@ static void elevator_end()
         art_ptr_unlock(grph_key[index]);
     }
 
-    scriptsEnable();
+    scr_enable();
 
     if (bk_enable) {
         map_enable_bk_processes();

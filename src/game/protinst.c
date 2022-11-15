@@ -77,12 +77,12 @@ int obj_new_sid(Object* object, int* sidPtr)
     }
 
     int scriptType = SID_TYPE(sid);
-    if (scriptAdd(sidPtr, scriptType) == -1) {
+    if (scr_new(sidPtr, scriptType) == -1) {
         return -1;
     }
 
     Script* script;
-    if (scriptGetScript(*sidPtr, &script) == -1) {
+    if (scr_ptr(*sidPtr, &script) == -1) {
         return -1;
     }
 
@@ -98,13 +98,13 @@ int obj_new_sid(Object* object, int* sidPtr)
     }
 
     if (object->id == -1) {
-        object->id = scriptsNewObjectId();
+        object->id = new_obj_id();
     }
 
     script->field_1C = object->id;
     script->owner = object;
 
-    _scr_find_str_run_info(sid & 0xFFFFFF, &(script->field_50), *sidPtr);
+    scr_find_str_run_info(sid & 0xFFFFFF, &(script->field_50), *sidPtr);
 
     return 0;
 }
@@ -117,12 +117,12 @@ int obj_new_sid_inst(Object* obj, int scriptType, int a3)
     }
 
     int sid;
-    if (scriptAdd(&sid, scriptType) == -1) {
+    if (scr_new(&sid, scriptType) == -1) {
         return -1;
     }
 
     Script* script;
-    if (scriptGetScript(sid, &script) == -1) {
+    if (scr_ptr(sid, &script) == -1) {
         return -1;
     }
 
@@ -134,12 +134,12 @@ int obj_new_sid_inst(Object* obj, int scriptType, int a3)
 
     obj->sid = sid;
 
-    obj->id = scriptsNewObjectId();
+    obj->id = new_obj_id();
     script->field_1C = obj->id;
 
     script->owner = obj;
 
-    _scr_find_str_run_info(a3 & 0xFFFFFF, &(script->field_50), sid);
+    scr_find_str_run_info(a3 & 0xFFFFFF, &(script->field_50), sid);
 
     if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
         obj->field_80 = script->field_14;
@@ -173,11 +173,11 @@ int obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
     bool scriptOverrides = false;
 
     if (a2->sid != -1) {
-        scriptSetObjects(a2->sid, a1, a2);
-        scriptExecProc(a2->sid, SCRIPT_PROC_LOOK_AT);
+        scr_set_objs(a2->sid, a1, a2);
+        exec_script_proc(a2->sid, SCRIPT_PROC_LOOK_AT);
 
         Script* script;
-        if (scriptGetScript(a2->sid, &script) == -1) {
+        if (scr_ptr(a2->sid, &script) == -1) {
             return -1;
         }
 
@@ -231,11 +231,11 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
     bool scriptOverrides = false;
     if (target->sid != -1) {
-        scriptSetObjects(target->sid, critter, target);
-        scriptExecProc(target->sid, SCRIPT_PROC_DESCRIPTION);
+        scr_set_objs(target->sid, critter, target);
+        exec_script_proc(target->sid, SCRIPT_PROC_DESCRIPTION);
 
         Script* script;
-        if (scriptGetScript(target->sid, &script) == -1) {
+        if (scr_ptr(target->sid, &script) == -1) {
             return -1;
         }
 
@@ -530,11 +530,11 @@ int obj_pickup(Object* critter, Object* item)
     bool overriden = false;
 
     if (item->sid != -1) {
-        scriptSetObjects(item->sid, critter, item);
-        scriptExecProc(item->sid, SCRIPT_PROC_PICKUP);
+        scr_set_objs(item->sid, critter, item);
+        exec_script_proc(item->sid, SCRIPT_PROC_PICKUP);
 
         Script* script;
-        if (scriptGetScript(item->sid, &script) == -1) {
+        if (scr_ptr(item->sid, &script) == -1) {
             return -1;
         }
 
@@ -633,11 +633,11 @@ int obj_drop(Object* a1, Object* a2)
 
     bool scriptOverrides = false;
     if (a1->sid != -1) {
-        scriptSetObjects(a1->sid, a2, NULL);
-        scriptExecProc(a1->sid, SCRIPT_PROC_IS_DROPPING);
+        scr_set_objs(a1->sid, a2, NULL);
+        exec_script_proc(a1->sid, SCRIPT_PROC_IS_DROPPING);
 
         Script* scr;
-        if (scriptGetScript(a1->sid, &scr) == -1) {
+        if (scr_ptr(a1->sid, &scr) == -1) {
             return -1;
         }
 
@@ -649,11 +649,11 @@ int obj_drop(Object* a1, Object* a2)
     }
 
     if (a2->sid != -1) {
-        scriptSetObjects(a2->sid, a1, a2);
-        scriptExecProc(a2->sid, SCRIPT_PROC_DROP);
+        scr_set_objs(a2->sid, a1, a2);
+        exec_script_proc(a2->sid, SCRIPT_PROC_DROP);
 
         Script* scr;
-        if (scriptGetScript(a2->sid, &scr) == -1) {
+        if (scr_ptr(a2->sid, &scr) == -1) {
             return -1;
         }
 
@@ -773,9 +773,9 @@ static int obj_use_book(Object* book)
     palette_fade_to(black_palette);
 
     int intelligence = critterGetStat(obj_dude, STAT_INTELLIGENCE);
-    gameTimeAddSeconds(3600 * (11 - intelligence));
+    inc_game_time_in_seconds(3600 * (11 - intelligence));
 
-    scriptsExecMapUpdateProc();
+    scr_exec_map_update_scripts();
 
     palette_fade_to(cmap);
 
@@ -839,10 +839,10 @@ int obj_use_radio(Object* item)
         return -1;
     }
 
-    scriptSetObjects(item->sid, obj_dude, item);
-    scriptExecProc(item->sid, SCRIPT_PROC_USE);
+    scr_set_objs(item->sid, obj_dude, item);
+    exec_script_proc(item->sid, SCRIPT_PROC_USE);
 
-    if (scriptGetScript(item->sid, &scr) == -1) {
+    if (scr_ptr(item->sid, &scr) == -1) {
         return -1;
     }
 
@@ -985,11 +985,11 @@ static int obj_use_misc_item(Object* item)
             return 1;
         }
 
-        scriptSetObjects(item->sid, obj_dude, item);
-        scriptExecProc(item->sid, SCRIPT_PROC_USE);
+        scr_set_objs(item->sid, obj_dude, item);
+        exec_script_proc(item->sid, SCRIPT_PROC_USE);
 
         Script* scr;
-        if (scriptGetScript(item->sid, &scr) == -1) {
+        if (scr_ptr(item->sid, &scr) == -1) {
             return -1;
         }
 
@@ -1090,7 +1090,7 @@ static int protinstTestDroppedExplosive(Object* a1)
             attack.minDamage = 0;
             attack.maxDamage = 99999;
             attack.field_1C = 0;
-            scriptsRequestCombat(&attack);
+            scripts_request_combat(&attack);
         }
     }
     return 0;
@@ -1136,7 +1136,7 @@ int obj_use_item(Object* a1, Object* a2)
         rc = 0;
     }
 
-    scriptsExecMapUpdateProc();
+    scr_exec_map_update_scripts();
 
     return rc;
 }
@@ -1260,10 +1260,10 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
                 return protinst_default_use_item(a1, a2, item);
             }
 
-            scriptSetObjects(a2->sid, a1, item);
-            scriptExecProc(a2->sid, SCRIPT_PROC_USE_OBJ_ON);
+            scr_set_objs(a2->sid, a1, item);
+            exec_script_proc(a2->sid, SCRIPT_PROC_USE_OBJ_ON);
 
-            if (scriptGetScript(a2->sid, &script) == -1) {
+            if (scr_ptr(a2->sid, &script) == -1) {
                 return -1;
             }
 
@@ -1271,10 +1271,10 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
                 return protinst_default_use_item(a1, a2, item);
             }
         } else {
-            scriptSetObjects(item->sid, a1, a2);
-            scriptExecProc(item->sid, SCRIPT_PROC_USE_OBJ_ON);
+            scr_set_objs(item->sid, a1, a2);
+            exec_script_proc(item->sid, SCRIPT_PROC_USE_OBJ_ON);
 
-            if (scriptGetScript(item->sid, &script) == -1) {
+            if (scr_ptr(item->sid, &script) == -1) {
                 return -1;
             }
 
@@ -1283,11 +1283,11 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
                     return protinst_default_use_item(a1, a2, item);
                 }
 
-                scriptSetObjects(a2->sid, a1, item);
-                scriptExecProc(a2->sid, SCRIPT_PROC_USE_OBJ_ON);
+                scr_set_objs(a2->sid, a1, item);
+                exec_script_proc(a2->sid, SCRIPT_PROC_USE_OBJ_ON);
 
                 Script* script;
-                if (scriptGetScript(a2->sid, &script) == -1) {
+                if (scr_ptr(a2->sid, &script) == -1) {
                     return -1;
                 }
 
@@ -1368,7 +1368,7 @@ int obj_use_item_on(Object* a1, Object* a2, Object* a3)
         rc = 0;
     }
 
-    scriptsExecMapUpdateProc();
+    scr_exec_map_update_scripts();
 
     return rc;
 }
@@ -1430,11 +1430,11 @@ int obj_use(Object* a1, Object* a2)
     bool scriptOverrides = false;
 
     if (a2->sid != -1) {
-        scriptSetObjects(a2->sid, a1, a2);
-        scriptExecProc(a2->sid, SCRIPT_PROC_USE);
+        scr_set_objs(a2->sid, a1, a2);
+        exec_script_proc(a2->sid, SCRIPT_PROC_USE);
 
         Script* script;
-        if (scriptGetScript(a2->sid, &script) == -1) {
+        if (scr_ptr(a2->sid, &script) == -1) {
             return -1;
         }
 
@@ -1475,7 +1475,7 @@ int obj_use(Object* a1, Object* a2)
         }
     }
 
-    scriptsExecMapUpdateProc();
+    scr_exec_map_update_scripts();
 
     return 0;
 }
@@ -1684,11 +1684,11 @@ int obj_use_door(Object* a1, Object* a2, int a3)
 
     bool scriptOverrides = false;
     if (a2->sid != -1) {
-        scriptSetObjects(a2->sid, a1, a2);
-        scriptExecProc(a2->sid, SCRIPT_PROC_USE);
+        scr_set_objs(a2->sid, a1, a2);
+        exec_script_proc(a2->sid, SCRIPT_PROC_USE);
 
         Script* script;
-        if (scriptGetScript(a2->sid, &script) == -1) {
+        if (scr_ptr(a2->sid, &script) == -1) {
             return -1;
         }
 
@@ -1787,11 +1787,11 @@ int obj_use_container(Object* critter, Object* item)
 
     bool overriden = false;
     if (item->sid != -1) {
-        scriptSetObjects(item->sid, critter, item);
-        scriptExecProc(item->sid, SCRIPT_PROC_USE);
+        scr_set_objs(item->sid, critter, item);
+        exec_script_proc(item->sid, SCRIPT_PROC_USE);
 
         Script* script;
-        if (scriptGetScript(item->sid, &script) == -1) {
+        if (scr_ptr(item->sid, &script) == -1) {
             return -1;
         }
 
@@ -1855,12 +1855,12 @@ int obj_use_skill_on(Object* source, Object* target, int skill)
 
     bool scriptOverrides = false;
     if (target->sid != -1) {
-        scriptSetObjects(target->sid, source, target);
-        scriptSetActionBeingUsed(target->sid, skill);
-        scriptExecProc(target->sid, SCRIPT_PROC_USE_SKILL_ON);
+        scr_set_objs(target->sid, source, target);
+        scr_set_action_num(target->sid, skill);
+        exec_script_proc(target->sid, SCRIPT_PROC_USE_SKILL_ON);
 
         Script* script;
-        if (scriptGetScript(target->sid, &script) == -1) {
+        if (scr_ptr(target->sid, &script) == -1) {
             return -1;
         }
 

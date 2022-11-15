@@ -2513,8 +2513,8 @@ static void combat_begin(Object* a1)
             // NOTE: Uninline.
             combatAIInfoSetLastMove(critter, 0);
 
-            scriptSetObjects(critter->sid, NULL, NULL);
-            scriptSetFixedParam(critter->sid, 0);
+            scr_set_objs(critter->sid, NULL, NULL);
+            scr_set_ext_param(critter->sid, 0);
             if (critter->pid == 0x1000098) {
                 if (!critter_is_dead(critter)) {
                     v1 = critter;
@@ -2696,8 +2696,8 @@ static void combat_over()
         obj_remove_outline(critter, NULL);
         critter->data.critter.combat.whoHitMe = NULL;
 
-        scriptSetObjects(critter->sid, NULL, NULL);
-        scriptSetFixedParam(critter->sid, 0);
+        scr_set_objs(critter->sid, NULL, NULL);
+        scr_set_ext_param(critter->sid, 0);
 
         if (critter->pid == 0x1000098 && !critter_is_dead(critter) && !isLoadingGame()) {
             int fid = art_id(FID_TYPE(critter->fid),
@@ -2991,7 +2991,7 @@ static void combat_sequence()
 
     list_com = count;
 
-    gameTimeAddSeconds(5);
+    inc_game_time_in_seconds(5);
 }
 
 // 0x422694
@@ -3086,7 +3086,7 @@ static int combat_input()
         if (keyCode == KEY_RETURN) {
             combat_end();
         } else {
-            _scripts_check_state_in_combat();
+            scripts_check_state_in_combat();
             game_handle_input(keyCode, true);
         }
     }
@@ -3105,7 +3105,7 @@ static int combat_input()
         return -1;
     }
 
-    _scripts_check_state_in_combat();
+    scripts_check_state_in_combat();
 
     return 0;
 }
@@ -3158,12 +3158,12 @@ static int combat_turn(Object* a1, bool a2)
 
         bool scriptOverrides = false;
         if (a1->sid != -1) {
-            scriptSetObjects(a1->sid, NULL, NULL);
-            scriptSetFixedParam(a1->sid, 4);
-            scriptExecProc(a1->sid, SCRIPT_PROC_COMBAT);
+            scr_set_objs(a1->sid, NULL, NULL);
+            scr_set_ext_param(a1->sid, 4);
+            exec_script_proc(a1->sid, SCRIPT_PROC_COMBAT);
 
             Script* scr;
-            if (scriptGetScript(a1->sid, &scr) != -1) {
+            if (scr_ptr(a1->sid, &scr) != -1) {
                 scriptOverrides = scr->scriptOverrides;
             }
 
@@ -3368,7 +3368,7 @@ void combat(STRUCT_664980* attack)
             intface_end_window_close(true);
             gmouse_enable_scrolling();
             combat_over();
-            scriptsExecMapUpdateProc();
+            scr_exec_map_update_scripts();
         }
 
         combat_end_due_to_load = 0;
@@ -4083,7 +4083,7 @@ static int attack_crit_failure(Attack* attack)
     }
 
     if (attack->attacker == obj_dude) {
-        unsigned int gameTime = gameTimeGetTime();
+        unsigned int gameTime = game_time();
         if (gameTime / GAME_TIME_TICKS_PER_DAY < 6) {
             return 0;
         }
@@ -4580,9 +4580,9 @@ void apply_damage(Attack* attack, bool animated)
         if (v9) {
             if (defender != NULL) {
                 if (defender->sid != -1) {
-                    scriptSetFixedParam(defender->sid, attack->attackerDamage);
-                    scriptSetObjects(defender->sid, attack->attacker, attack->weapon);
-                    scriptExecProc(defender->sid, SCRIPT_PROC_DAMAGE);
+                    scr_set_ext_param(defender->sid, attack->attackerDamage);
+                    scr_set_objs(defender->sid, attack->attacker, attack->weapon);
+                    exec_script_proc(defender->sid, SCRIPT_PROC_DAMAGE);
                 }
             }
         }
@@ -4603,7 +4603,7 @@ void apply_damage(Attack* attack, bool animated)
             }
         }
 
-        scriptSetObjects(defender->sid, attack->attacker, attack->weapon);
+        scr_set_objs(defender->sid, attack->attacker, attack->weapon);
         damage_object(defender, attack->defenderDamage, animated, attack->defender != attack->oops, attacker);
 
         if (defenderIsCritter) {
@@ -4611,9 +4611,9 @@ void apply_damage(Attack* attack, bool animated)
         }
 
         if (attack->defenderDamage >= 0 && (attack->attackerFlags & DAM_HIT) != 0) {
-            scriptSetObjects(attack->attacker->sid, NULL, attack->defender);
-            scriptSetFixedParam(attack->attacker->sid, 2);
-            scriptExecProc(attack->attacker->sid, SCRIPT_PROC_COMBAT);
+            scr_set_objs(attack->attacker->sid, NULL, attack->defender);
+            scr_set_ext_param(attack->attacker->sid, 2);
+            exec_script_proc(attack->attacker->sid, SCRIPT_PROC_COMBAT);
         }
     }
 
@@ -4630,16 +4630,16 @@ void apply_damage(Attack* attack, bool animated)
                 }
             }
 
-            scriptSetObjects(obj->sid, attack->attacker, attack->weapon);
+            scr_set_objs(obj->sid, attack->attacker, attack->weapon);
             // TODO: Not sure about defender == oops.
             damage_object(obj, attack->extrasDamage[index], animated, attack->defender == attack->oops, attack->attacker);
             combatai_notify_onlookers(obj);
 
             if (attack->extrasDamage[index] >= 0) {
                 if ((attack->attackerFlags & DAM_HIT) != 0) {
-                    scriptSetObjects(attack->attacker->sid, NULL, obj);
-                    scriptSetFixedParam(attack->attacker->sid, 2);
-                    scriptExecProc(attack->attacker->sid, SCRIPT_PROC_COMBAT);
+                    scr_set_objs(attack->attacker->sid, NULL, obj);
+                    scr_set_ext_param(attack->attacker->sid, 2);
+                    exec_script_proc(attack->attacker->sid, SCRIPT_PROC_COMBAT);
                 }
             }
         }
@@ -4728,14 +4728,14 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
     if (!a4) {
         // TODO: Not sure about this one.
         if (!isPartyMember(a1) || !isPartyMember(a5)) {
-            scriptSetFixedParam(a1->sid, damage);
-            scriptExecProc(a1->sid, SCRIPT_PROC_DAMAGE);
+            scr_set_ext_param(a1->sid, damage);
+            exec_script_proc(a1->sid, SCRIPT_PROC_DAMAGE);
         }
     }
 
     if ((a1->data.critter.combat.results & DAM_DEAD) != 0) {
-        scriptSetObjects(a1->sid, a1->data.critter.combat.whoHitMe, NULL);
-        scriptExecProc(a1->sid, SCRIPT_PROC_DESTROY);
+        scr_set_objs(a1->sid, a1->data.critter.combat.whoHitMe, NULL);
+        exec_script_proc(a1->sid, SCRIPT_PROC_DESTROY);
         item_destroy_all_hidden(a1);
 
         if (a1 != obj_dude) {
@@ -4743,7 +4743,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
             if (whoHitMe == obj_dude || (whoHitMe != NULL && whoHitMe->data.critter.combat.team == obj_dude->data.critter.combat.team)) {
                 bool scriptOverrides = false;
                 Script* scr;
-                if (scriptGetScript(a1->sid, &scr) != -1) {
+                if (scr_ptr(a1->sid, &scr) != -1) {
                     scriptOverrides = scr->scriptOverrides;
                 }
 
@@ -4755,7 +4755,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
         }
 
         if (a1->sid != -1) {
-            scriptRemove(a1->sid);
+            scr_remove(a1->sid);
             a1->sid = -1;
         }
 
@@ -5251,7 +5251,7 @@ void combat_anim_finished()
             combat_outline_on();
         }
 
-        if (_scr_end_combat()) {
+        if (scr_end_combat()) {
             if ((obj_dude->data.critter.combat.results & DAM_KNOCKED_OUT) != 0) {
                 if (attacker->data.critter.combat.team == obj_dude->data.critter.combat.team) {
                     combat_ending_guy = obj_dude->data.critter.combat.whoHitMe;
@@ -5821,7 +5821,7 @@ int combat_player_knocked_out_by()
 // 0x426DB8
 int combat_explode_scenery(Object* a1, Object* a2)
 {
-    _scr_explode_scenery(a1, a1->tile, item_w_rocket_dmg_radius(NULL), a1->elevation);
+    scr_explode_scenery(a1, a1->tile, item_w_rocket_dmg_radius(NULL), a1->elevation);
     return 0;
 }
 
@@ -5878,7 +5878,7 @@ void combatKillCritterOutsideCombat(Object* critter_obj, char* msg)
 {
     if (critter_obj != obj_dude) {
         display_print(msg);
-        scriptExecProc(critter_obj->sid, SCRIPT_PROC_DESTROY);
+        exec_script_proc(critter_obj->sid, SCRIPT_PROC_DESTROY);
         critter_kill(critter_obj, -1, 1);
     }
 }

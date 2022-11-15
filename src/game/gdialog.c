@@ -741,14 +741,14 @@ void gdialogEnter(Object* a1, int a2)
     dialogue_just_started = 1;
 
     if (a1->sid != -1) {
-        scriptExecProc(a1->sid, SCRIPT_PROC_TALK);
+        exec_script_proc(a1->sid, SCRIPT_PROC_TALK);
     }
 
     Script* script;
-    if (scriptGetScript(a1->sid, &script) == -1) {
+    if (scr_ptr(a1->sid, &script) == -1) {
         gmouse_3d_on();
         map_enable_bk_processes();
-        scriptsExecMapUpdateProc();
+        scr_exec_map_update_scripts();
         dialog_state_fix = 0;
         return;
     }
@@ -756,7 +756,7 @@ void gdialogEnter(Object* a1, int a2)
     if (script->scriptOverrides || dialogue_state != 4) {
         dialogue_just_started = 0;
         map_enable_bk_processes();
-        scriptsExecMapUpdateProc();
+        scr_exec_map_update_scripts();
         dialog_state_fix = 0;
         return;
     }
@@ -796,7 +796,7 @@ void gdialogEnter(Object* a1, int a2)
     }
 
     map_enable_bk_processes();
-    scriptsExecMapUpdateProc();
+    scr_exec_map_update_scripts();
 
     dialog_state_fix = 0;
 }
@@ -1547,7 +1547,7 @@ static void gdReviewDisplay(int win, int origin)
         if (dialogReviewEntry->replyMessageListId <= -3) {
             replyText = dialogReviewEntry->replyText;
         } else {
-            replyText = _scr_get_msg_str(dialogReviewEntry->replyMessageListId, dialogReviewEntry->replyMessageId);
+            replyText = scr_get_msg_str(dialogReviewEntry->replyMessageListId, dialogReviewEntry->replyMessageId);
         }
 
         if (replyText == NULL) {
@@ -1573,7 +1573,7 @@ static void gdReviewDisplay(int win, int origin)
             if (dialogReviewEntry->optionMessageListId <= -3) {
                 optionText = dialogReviewEntry->optionText;
             } else {
-                optionText = _scr_get_msg_str(dialogReviewEntry->optionMessageListId, dialogReviewEntry->optionMessageId);
+                optionText = scr_get_msg_str(dialogReviewEntry->optionMessageListId, dialogReviewEntry->optionMessageId);
             }
 
             if (optionText == NULL) {
@@ -2235,7 +2235,7 @@ static void gdProcessUpdate()
     demo_copy_options(gOptionWin);
 
     if (dialogBlock.replyMessageListId > 0) {
-        char* s = _scr_get_msg_str_speech(dialogBlock.replyMessageListId, dialogBlock.replyMessageId, 1);
+        char* s = scr_get_msg_str_speech(dialogBlock.replyMessageListId, dialogBlock.replyMessageId, 1);
         if (s == NULL) {
             showMesageBox("\n'GDialog::Error Grabbing text message!");
             exit(1);
@@ -2278,7 +2278,7 @@ static void gdProcessUpdate()
         }
 
         if (dialogOptionEntry->messageListId >= 0) {
-            char* text = _scr_get_msg_str_speech(dialogOptionEntry->messageListId, dialogOptionEntry->messageId, 0);
+            char* text = scr_get_msg_str_speech(dialogOptionEntry->messageListId, dialogOptionEntry->messageId, 0);
             if (text == NULL) {
                 showMesageBox("\nGDialog::Error Grabbing text message!");
                 exit(1);
@@ -4244,7 +4244,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
     }
 
     Script* script;
-    if (scriptGetScript(dialog_target->sid, &script) == -1) {
+    if (scr_ptr(dialog_target->sid, &script) == -1) {
         return;
     }
 

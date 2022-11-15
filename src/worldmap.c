@@ -3372,7 +3372,7 @@ static int wmInterfaceCenterOnParty()
 // 0x4C0624
 static void wmCheckGameEvents()
 {
-    _scriptsCheckGameEvents(NULL, wmBkWin);
+    scriptsCheckGameEvents(NULL, wmBkWin);
 }
 
 // 0x4C0634
@@ -3400,7 +3400,7 @@ static int wmRndEncounterOccurred()
     }
 
     if (!wmGenData.didMeetFrankHorrigan) {
-        unsigned int gameTime = gameTimeGetTime();
+        unsigned int gameTime = game_time();
         if (gameTime / GAME_TIME_TICKS_PER_DAY > 35) {
             wmGenData.encounterMapId = v26;
             wmGenData.didMeetFrankHorrigan = true;
@@ -3416,7 +3416,7 @@ static int wmRndEncounterOccurred()
     wmPartyFindCurSubTile();
 
     int dayPart;
-    int gameTimeHour = gameTimeGetHour();
+    int gameTimeHour = game_time_hour();
     if (gameTimeHour >= 1800 || gameTimeHour < 600) {
         dayPart = DAY_PART_NIGHT;
     } else if (gameTimeHour >= 1200) {
@@ -3759,7 +3759,7 @@ int wmSetupRandomEncounter()
         if (v9 != 0) {
             Object* v35;
             if (wmSetupCritterObjs(v3->field_8, &v35, v9) == -1) {
-                scriptsRequestWorldMap();
+                scripts_request_worldmap();
                 return -1;
             }
 
@@ -3782,7 +3782,7 @@ int wmSetupRandomEncounter()
                                 combat.field_1C = 0;
 
                                 caiSetupTeamCombat(v35, v0);
-                                _scripts_request_combat_locked(&combat);
+                                scripts_request_combat_locked(&combat);
                             }
                         } else {
                             if (!isInCombat()) {
@@ -3799,7 +3799,7 @@ int wmSetupRandomEncounter()
                                 combat.field_1C = 0;
 
                                 caiSetupTeamCombat(obj_dude, v0);
-                                _scripts_request_combat_locked(&combat);
+                                scripts_request_combat_locked(&combat);
                             }
                         }
                     }
@@ -3888,7 +3888,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
 
             if (v5->script != -1) {
                 if (object->sid != -1) {
-                    scriptRemove(object->sid);
+                    scr_remove(object->sid);
                     object->sid = -1;
                 }
 
@@ -4176,13 +4176,13 @@ static bool wmEvalConditional(EncounterCondition* a1, int* a2)
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_DAYS_PLAYED:
-            value = gameTimeGetTime();
+            value = game_time();
             if (!wmEvalSubConditional(value / GAME_TIME_TICKS_PER_DAY, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_TIME_OF_DAY:
-            value = gameTimeGetHour();
+            value = game_time_hour();
             if (!wmEvalSubConditional(value / 100, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }
@@ -4225,12 +4225,12 @@ static bool wmGameTimeIncrement(int a1)
     }
 
     while (a1 != 0) {
-        unsigned int gameTime = gameTimeGetTime();
+        unsigned int gameTime = game_time();
         unsigned int nextEventTime = queue_next_time();
         int v1 = nextEventTime >= gameTime ? a1 : nextEventTime - gameTime;
         a1 -= v1;
 
-        gameTimeAddTicks(v1);
+        inc_game_time(v1);
 
         // NOTE: Uninline.
         wmInterfaceDialSyncTime(true);
@@ -4868,8 +4868,8 @@ static int wmInterfaceInit()
     }
 
     win_draw(wmBkWin);
-    scriptsDisable();
-    _scr_remove_all();
+    scr_disable();
+    scr_remove_all();
 
     return 0;
 }
@@ -5035,7 +5035,7 @@ static int wmInterfaceExit()
 
     wmInterfaceWasInitialized = 0;
 
-    scriptsEnable();
+    scr_enable();
 
     return 0;
 }
@@ -5520,7 +5520,7 @@ static void wmInterfaceRefreshDate(bool shouldRefreshWindow)
     int month;
     int day;
     int year;
-    gameTimeGetDate(&month, &day, &year);
+    game_time_date(&month, &day, &year);
 
     month--;
 
@@ -5545,7 +5545,7 @@ static void wmInterfaceRefreshDate(bool shouldRefreshWindow)
         year /= 10;
     }
 
-    int gameTimeHour = gameTimeGetHour();
+    int gameTimeHour = game_time_hour();
     dest += 72;
     for (int index = 0; index < 4; index++) {
         blitBufferToBuffer(numbersFrmData + 9 * (gameTimeHour % 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
@@ -6347,7 +6347,7 @@ int wmSfxIdxName(int sfxIdx, char** namePtr)
     if (v1 != 0) {
         int dayPart;
 
-        int gameTimeHour = gameTimeGetHour();
+        int gameTimeHour = game_time_hour();
         if (gameTimeHour <= 600 || gameTimeHour >= 1800) {
             dayPart = DAY_PART_NIGHT;
         } else if (gameTimeHour >= 1200) {
@@ -6655,7 +6655,7 @@ static void wmInterfaceDialSyncTime(bool shouldRefreshWindow)
     int gameHour;
     int frame;
 
-    gameHour = gameTimeGetHour();
+    gameHour = game_time_hour();
     frame = (gameHour / 100 + 12) % art_frame_max_frame(wmGenData.dialFrm);
     if (frame != wmGenData.dialFrmCurrentFrameIndex) {
         wmGenData.dialFrmCurrentFrameIndex = frame;

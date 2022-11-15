@@ -1249,7 +1249,7 @@ int action_get_an_object(Object* critter, Object* item)
         }
 
         if (item->frame == 0 || item->frame == 1) {
-            register_object_call(critter, item, scriptsRequestLooting, -1);
+            register_object_call(critter, item, scripts_request_loot_container, -1);
         }
     }
 
@@ -1290,7 +1290,7 @@ int action_loot_container(Object* critter, Object* container)
 
     register_object_must_call(critter, container, is_next_to, -1);
     register_object_call(critter, container, check_scenery_ap_cost, -1);
-    register_object_call(critter, container, scriptsRequestLooting, -1);
+    register_object_call(critter, container, scripts_request_loot_container, -1);
     return register_end();
 }
 
@@ -1892,7 +1892,7 @@ static int report_explosion(Attack* attack, Object* a2)
                 combat.minDamage = 0;
                 combat.maxDamage = INT_MAX;
                 combat.field_1C = 0;
-                scriptsRequestCombat(&combat);
+                scripts_request_combat(&combat);
             }
         }
     }
@@ -1991,7 +1991,7 @@ static int can_talk_to(Object* a1, Object* a2)
 // 0x413488
 static int talk_to(Object* a1, Object* a2)
 {
-    scriptsRequestDialog(a2);
+    scripts_request_dialog(a2);
     return 0;
 }
 
@@ -2155,13 +2155,13 @@ int action_push_critter(Object* a1, Object* a2)
 
     int sid;
     if (obj_sid(a2, &sid) == 0) {
-        scriptSetObjects(sid, a1, a2);
-        scriptExecProc(sid, SCRIPT_PROC_PUSH);
+        scr_set_objs(sid, a1, a2);
+        exec_script_proc(sid, SCRIPT_PROC_PUSH);
 
         bool scriptOverrides = false;
 
         Script* scr;
-        if (scriptGetScript(sid, &scr) != -1) {
+        if (scr_ptr(sid, &scr) != -1) {
             scriptOverrides = scr->scriptOverrides;
         }
 

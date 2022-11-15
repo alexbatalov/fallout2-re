@@ -537,7 +537,7 @@ static int StartPipboy(int intent)
     scrn_buf = windowGetBuffer(pip_win);
     memcpy(scrn_buf, pipbmp[PIPBOY_FRM_BACKGROUND], PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_HEIGHT);
 
-    pip_num(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
+    pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
     pip_date();
 
     int alarmButton = buttonCreate(pip_win,
@@ -597,7 +597,7 @@ static int StartPipboy(int intent)
             int month;
             int day;
             int year;
-            gameTimeGetDate(&month, &day, &year);
+            game_time_date(&month, &day, &year);
 
             int holiday = 0;
             for (; holiday < HOLIDAY_COUNT; holiday += 1) {
@@ -642,7 +642,7 @@ static int StartPipboy(int intent)
         int month;
         int day;
         int year;
-        gameTimeGetDate(&month, &day, &year);
+        game_time_date(&month, &day, &year);
 
         int holiday;
         for (holiday = 0; holiday < HOLIDAY_COUNT; holiday += 1) {
@@ -689,7 +689,7 @@ static void EndPipboy()
         debugPrint("\nScript <Map Update>");
     }
 
-    scriptsExecMapUpdateProc();
+    scr_exec_map_update_scripts();
 
     windowDestroy(pip_win);
 
@@ -743,7 +743,7 @@ static void pip_date()
     int month;
     int year;
 
-    gameTimeGetDate(&month, &day, &year);
+    game_time_date(&month, &day, &year);
     pip_num(day, 2, PIPBOY_WINDOW_DAY_X, PIPBOY_WINDOW_DAY_Y);
 
     blitBufferToBuffer(pipbmp[PIPBOY_FRM_MONTHS] + 435 * (month - 1), 29, 14, 29, scrn_buf + PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_MONTH_Y + PIPBOY_WINDOW_MONTH_X, PIPBOY_WINDOW_WIDTH);
@@ -1923,7 +1923,7 @@ static bool TimedRest(int hours, int minutes, int duration)
         double v2 = v1 * (1.0 / 1440.0) * 3.5 + 0.25;
         double v3 = (double)minutes / v1 * v2;
         if (minutes != 0) {
-            int gameTime = gameTimeGetTime();
+            int gameTime = game_time();
 
             double v4 = v3 * 20.0;
             int v5 = 0;
@@ -1956,7 +1956,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                         rc = true;
                     }
 
-                    pip_num(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
+                    pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
                     pip_date();
                     win_draw(pip_win);
 
@@ -1974,14 +1974,14 @@ static bool TimedRest(int hours, int minutes, int duration)
                 }
             }
 
-            pip_num(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
+            pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
             pip_date();
             DrawAlrmHitPnts();
             win_draw(pip_win);
         }
 
         if (hours != 0 && !rc) {
-            int gameTime = gameTimeGetTime();
+            int gameTime = game_time();
             double v7 = (v2 - v3) * 20.0;
 
             for (int hour = 0; hour < (int)v7; hour++) {
@@ -2021,7 +2021,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                         AddHealth();
                     }
 
-                    pip_num(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
+                    pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
                     pip_date();
                     DrawAlrmHitPnts();
                     win_draw(pip_win);
@@ -2035,7 +2035,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                 gameTimeSetTime(gameTime + GAME_TIME_TICKS_PER_HOUR * hours);
             }
 
-            pip_num(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
+            pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
             pip_date();
             DrawAlrmHitPnts();
             win_draw(pip_win);
@@ -2094,7 +2094,7 @@ static bool TimedRest(int hours, int minutes, int duration)
         }
     }
 
-    int gameTime = gameTimeGetTime();
+    int gameTime = game_time();
     int nextEventGameTime = queue_next_time();
     if (gameTime > nextEventGameTime) {
         if (queue_process()) {
@@ -2104,7 +2104,7 @@ static bool TimedRest(int hours, int minutes, int duration)
         }
     }
 
-    pip_num(gameTimeGetHour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
+    pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
     pip_date();
     win_draw(pip_win);
 
@@ -2145,7 +2145,7 @@ static bool AddHealth()
 // 0x49A03C
 static void ClacTime(int* hours, int* minutes, int wakeUpHour)
 {
-    int gameTimeHour = gameTimeGetHour();
+    int gameTimeHour = game_time_hour();
 
     *hours = gameTimeHour / 100;
     *minutes = gameTimeHour % 100;

@@ -44,8 +44,8 @@ EventTypeDescription q_func[EVENT_TYPE_COUNT] = {
     { item_d_process, internal_free, item_d_load, item_d_save, true, item_d_clear },
     { critter_wake_up, NULL, NULL, NULL, true, critter_wake_clear },
     { item_wd_process, internal_free, item_wd_load, item_wd_save, true, item_wd_clear },
-    { scriptEventProcess, internal_free, scriptEventRead, scriptEventWrite, true, NULL },
-    { gameTimeEventProcess, NULL, NULL, NULL, true, NULL },
+    { script_q_process, internal_free, script_q_load, script_q_save, true, NULL },
+    { gtime_q_process, NULL, NULL, NULL, true, NULL },
     { critter_check_poison, NULL, NULL, NULL, false, NULL },
     { critter_process_rads, internal_free, critter_load_rads, critter_save_rads, false, NULL },
     { queue_destroy, NULL, NULL, NULL, true, queue_destroy },
@@ -53,7 +53,7 @@ EventTypeDescription q_func[EVENT_TYPE_COUNT] = {
     { item_m_trickle, NULL, NULL, NULL, true, item_m_turn_off_from_queue },
     { critter_sneak_check, NULL, NULL, NULL, true, critter_sneak_clear },
     { queue_premature, NULL, NULL, NULL, true, queue_explode_exit },
-    { mapUpdateEventProcess, NULL, NULL, NULL, true, NULL },
+    { scr_map_q_process, NULL, NULL, NULL, true, NULL },
     { gsound_sfx_q_process, internal_free, NULL, NULL, true, NULL },
 };
 
@@ -250,7 +250,7 @@ int queue_add(int delay, Object* obj, void* data, int eventType)
         return -1;
     }
 
-    int v1 = gameTimeGetTime();
+    int v1 = game_time();
     int v2 = v1 + delay;
     newQueueListNode->time = v2;
     newQueueListNode->type = eventType;
@@ -357,7 +357,7 @@ bool queue_find(Object* owner, int eventType)
 // 0x4A26D0
 int queue_process()
 {
-    int time = gameTimeGetTime();
+    int time = game_time();
     int v1 = 0;
 
     while (queue != NULL) {

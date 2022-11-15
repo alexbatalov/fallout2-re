@@ -1890,7 +1890,7 @@ static void JustUpdate()
 
     textObjectsSetLineDelay(textLineDelay);
     combatai_refresh_messages();
-    _scr_message_free();
+    scr_message_free();
     gsound_set_master_volume(master_volume);
     gsound_background_volume_set(music_volume);
     gsound_set_sfx_volume(sndfx_volume);

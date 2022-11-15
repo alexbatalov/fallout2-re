@@ -2973,9 +2973,9 @@ bool combatai_want_to_join(Object* a1)
     }
 
     if (a1->sid != -1) {
-        scriptSetObjects(a1->sid, NULL, NULL);
-        scriptSetFixedParam(a1->sid, 5);
-        scriptExecProc(a1->sid, SCRIPT_PROC_COMBAT);
+        scr_set_objs(a1->sid, NULL, NULL);
+        scr_set_ext_param(a1->sid, 5);
+        exec_script_proc(a1->sid, SCRIPT_PROC_COMBAT);
     }
 
     if ((a1->data.critter.combat.maneuver & CRITTER_MANEUVER_0x01) != 0) {

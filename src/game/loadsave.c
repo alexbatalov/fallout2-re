@@ -186,9 +186,9 @@ static char emgpath[] = "\\FALLOUT\\CD\\DATA\\SAVEGAME";
 static SaveGameHandler* master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     DummyFunc,
     SaveObjDudeCid,
-    scriptsSaveGameGlobalVars,
+    scr_game_save,
     GameMap2Slot,
-    scriptsSaveGameGlobalVars,
+    scr_game_save,
     obj_save_dude,
     critter_save,
     critter_kill_count_save,
@@ -217,9 +217,9 @@ static SaveGameHandler* master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
 static LoadGameHandler* master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     PrepLoad,
     LoadObjDudeCid,
-    scriptsLoadGameGlobalVars,
+    scr_game_load,
     SlotMap2Game,
-    scriptsSkipGameGlobalVars,
+    scr_game_load2,
     obj_load_dude,
     critter_load,
     critter_kill_count_load,
@@ -1686,12 +1686,12 @@ static int SaveHeader(int slot)
     int month;
     int day;
     int year;
-    gameTimeGetDate(&month, &day, &year);
+    game_time_date(&month, &day, &year);
 
     temp[0] = month;
     temp[1] = day;
     temp[2] = year;
-    ptr->gameTime = gameTimeGetTime();
+    ptr->gameTime = game_time();
 
     if (fileWriteInt16List(flptr, temp, 3) == -1) {
         return -1;
@@ -2247,7 +2247,7 @@ static int EndLoad(File* stream)
     refresh_box_bar_win();
     tileWindowRefresh();
     if (isInCombat()) {
-        scriptsRequestCombat(NULL);
+        scripts_request_combat(NULL);
     }
     return 0;
 }

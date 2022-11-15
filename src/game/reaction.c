@@ -5,7 +5,7 @@
 // 0x4A29D0
 int reaction_set(Object* critter, int value)
 {
-    scriptSetLocalVar(critter->sid, 0, value);
+    scr_set_local_var(critter->sid, 0, value);
     return 0;
 }
 
@@ -62,7 +62,7 @@ int reaction_to_level_internal(int sid, int reaction)
         level = 4;
     }
 
-    scriptSetLocalVar(sid, 1, level);
+    scr_set_local_var(sid, 1, level);
 
     return reaction_lookup_internal(reaction);
 }
@@ -78,7 +78,7 @@ int reaction_get(Object* critter)
 {
     int reactionValue;
 
-    if (scriptGetLocalVar(critter->sid, 0, &reactionValue) == -1) {
+    if (scr_get_local_var(critter->sid, 0, &reactionValue) == -1) {
         return -1;
     }
 

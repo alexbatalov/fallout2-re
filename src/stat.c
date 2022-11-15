@@ -221,7 +221,7 @@ int critterGetStat(Object* critter, int stat)
             }
             break;
         case STAT_AGE:
-            value += gameTimeGetTime() / GAME_TIME_TICKS_PER_YEAR;
+            value += game_time() / GAME_TIME_TICKS_PER_YEAR;
             break;
         }
 

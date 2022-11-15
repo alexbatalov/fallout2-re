@@ -4152,13 +4152,13 @@ static int Save_as_ASCII(const char* fileName)
     int month;
     int day;
     int year;
-    gameTimeGetDate(&month, &day, &year);
+    game_time_date(&month, &day, &year);
 
     sprintf(title1, "%.2d %s %d  %.4d %s",
         day,
         getmsg(&editor_message_file, &mesg, 500 + month - 1),
         year,
-        gameTimeGetHour(),
+        game_time_hour(),
         getmsg(&editor_message_file, &mesg, 622));
 
     // NOTE: Uninline.

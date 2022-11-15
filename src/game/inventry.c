@@ -1059,7 +1059,7 @@ void exit_inventory(bool shouldEnableIso)
                 v3.minDamage = 0;
                 v3.maxDamage = INT_MAX;
                 v3.field_1C = 0;
-                scriptsRequestCombat(&v3);
+                scripts_request_combat(&v3);
             }
         }
 
@@ -3408,11 +3408,11 @@ int loot_container(Object* a1, Object* a2)
     int sid = -1;
     if (!_gIsSteal) {
         if (obj_sid(a2, &sid) != -1) {
-            scriptSetObjects(sid, a1, NULL);
-            scriptExecProc(sid, SCRIPT_PROC_PICKUP);
+            scr_set_objs(sid, a1, NULL);
+            exec_script_proc(sid, SCRIPT_PROC_PICKUP);
 
             Script* script;
-            if (scriptGetScript(sid, &script) != -1) {
+            if (scr_ptr(sid, &script) != -1) {
                 if (script->scriptOverrides) {
                     return 0;
                 }
@@ -3754,12 +3754,12 @@ int loot_container(Object* a1, Object* a2)
         if (isCaughtStealing) {
             if (_gStealCount > 0) {
                 if (obj_sid(a2, &sid) != -1) {
-                    scriptSetObjects(sid, a1, NULL);
-                    scriptExecProc(sid, SCRIPT_PROC_PICKUP);
+                    scr_set_objs(sid, a1, NULL);
+                    exec_script_proc(sid, SCRIPT_PROC_PICKUP);
 
                     // TODO: Looks like inlining, script is not used.
                     Script* script;
-                    scriptGetScript(sid, &script);
+                    scr_ptr(sid, &script);
                 }
             }
         }

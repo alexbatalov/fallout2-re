@@ -511,7 +511,7 @@ static int obj_load_func(File* stream)
 
             if (objectListNode->obj->sid != -1) {
                 Script* script;
-                if (scriptGetScript(objectListNode->obj->sid, &script) == -1) {
+                if (scr_ptr(objectListNode->obj->sid, &script) == -1) {
                     objectListNode->obj->sid = -1;
                     debugPrint("\nError connecting object to script!");
                 } else {
@@ -920,7 +920,7 @@ int obj_new(Object** objectPtr, int fid, int pid)
     }
 
     objectListNode->obj->pid = pid;
-    objectListNode->obj->id = scriptsNewObjectId();
+    objectListNode->obj->id = new_obj_id();
 
     if (pid == -1 || PID_TYPE(pid) == OBJ_TYPE_TILE) {
         Inventory* inventory = &(objectListNode->obj->data.inventory);
@@ -1031,7 +1031,7 @@ int obj_copy(Object** a1, Object* a2)
 
     obj_insert(objectListNode);
 
-    objectListNode->obj->id = scriptsNewObjectId();
+    objectListNode->obj->id = new_obj_id();
 
     if (objectListNode->obj->sid != -1) {
         objectListNode->obj->sid = -1;
@@ -2114,7 +2114,7 @@ void obj_remove_all()
     ObjectListNode* prev;
     ObjectListNode* next;
 
-    _scr_remove_all();
+    scr_remove_all();
 
     for (int tile = 0; tile < HEX_GRID_SIZE; tile++) {
         node = objectTable[tile];
@@ -3550,7 +3550,7 @@ int obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner)
 
     if (obj->sid != -1) {
         Script* script;
-        if (scriptGetScript(obj->sid, &script) == -1) {
+        if (scr_ptr(obj->sid, &script) == -1) {
             obj->sid = -1;
         } else {
             script->owner = obj;
@@ -3634,7 +3634,7 @@ int obj_load_dude(File* stream)
     int savedRotation = obj_dude->rotation;
     int savedOid = obj_dude->id;
 
-    scriptsClearDudeScript();
+    scr_clear_dude_script();
 
     Object* temp;
     int rc = obj_load_obj(stream, &temp, -1, NULL);
@@ -3643,11 +3643,11 @@ int obj_load_dude(File* stream)
 
     obj_dude->flags |= OBJECT_TEMPORARY;
 
-    scriptsClearDudeScript();
+    scr_clear_dude_script();
 
     obj_dude->id = savedOid;
 
-    scriptsSetDudeScript();
+    scr_set_dude_script();
 
     int newTile = obj_dude->tile;
     obj_dude->tile = savedTile;
@@ -3658,7 +3658,7 @@ int obj_load_dude(File* stream)
     int newRotation = obj_dude->rotation;
     obj_dude->rotation = newRotation;
 
-    scriptsSetDudeScript();
+    scr_set_dude_script();
 
     if (rc != -1) {
         obj_move_to_tile(obj_dude, newTile, newElevation, NULL);
@@ -3904,8 +3904,8 @@ static int obj_remove(ObjectListNode* a1, ObjectListNode* a2)
     obj_inven_free(&(a1->obj->data.inventory));
 
     if (a1->obj->sid != -1) {
-        scriptExecProc(a1->obj->sid, SCRIPT_PROC_DESTROY);
-        scriptRemove(a1->obj->sid);
+        exec_script_proc(a1->obj->sid, SCRIPT_PROC_DESTROY);
+        scr_remove(a1->obj->sid);
     }
 
     if (a1 != a2) {

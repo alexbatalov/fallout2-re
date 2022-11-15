@@ -641,7 +641,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 display_print(text);
             }
 
-            scriptsExecMapUpdateProc();
+            scr_exec_map_update_scripts();
             palette_fade_to(cmap);
         } else {
             if (obj == obj_dude) {
@@ -664,7 +664,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         }
 
         if (obj == obj_dude) {
-            gameTimeAddSeconds(1800);
+            inc_game_time_in_seconds(1800);
         }
 
         break;
@@ -787,7 +787,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
-                scriptsExecMapUpdateProc();
+                scr_exec_map_update_scripts();
                 palette_fade_to(cmap);
 
                 giveExp = false;
@@ -801,7 +801,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 sprintf(text, messageListItem.text, hpToHeal);
                 display_print(text);
 
-                scriptsExecMapUpdateProc();
+                scr_exec_map_update_scripts();
                 palette_fade_to(cmap);
             }
         } else {
@@ -826,7 +826,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         }
 
         if (obj == obj_dude) {
-            gameTimeAddSeconds(3600 * damageHealingAttempts);
+            inc_game_time_in_seconds(3600 * damageHealingAttempts);
         }
 
         break;
@@ -834,7 +834,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
     case SKILL_LOCKPICK:
         break;
     case SKILL_STEAL:
-        scriptsRequestStealing(obj, a2);
+        scripts_request_steal_container(obj, a2);
         break;
     case SKILL_TRAPS:
         messageListItem.num = 551; // You fail to find any traps.
@@ -967,7 +967,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
-                scriptsExecMapUpdateProc();
+                scr_exec_map_update_scripts();
                 palette_fade_to(cmap);
 
                 giveExp = false;
@@ -981,7 +981,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 sprintf(text, messageListItem.text, hpToHeal);
                 display_print(text);
 
-                scriptsExecMapUpdateProc();
+                scr_exec_map_update_scripts();
                 palette_fade_to(cmap);
             }
         } else {
@@ -1001,7 +1001,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         }
 
         if (obj == obj_dude) {
-            gameTimeAddSeconds(1800 * damageHealingAttempts);
+            inc_game_time_in_seconds(1800 * damageHealingAttempts);
         }
 
         break;
@@ -1019,7 +1019,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
     }
 
     if (skill == SKILL_FIRST_AID || skill == SKILL_DOCTOR) {
-        scriptsExecMapUpdateProc();
+        scr_exec_map_update_scripts();
     }
 
     return 0;
@@ -1150,7 +1150,7 @@ int skillGetFreeUsageSlot(int skill)
         }
     }
 
-    int time = gameTimeGetTime();
+    int time = game_time();
     int hoursSinceLastUsage = (time - _timesSkillUsed[skill][0]) / GAME_TIME_TICKS_PER_HOUR;
     if (hoursSinceLastUsage <= 24) {
         return -1;
@@ -1173,7 +1173,7 @@ int skillUpdateLastUse(int skill)
         }
     }
 
-    _timesSkillUsed[skill][slot] = gameTimeGetTime();
+    _timesSkillUsed[skill][slot] = game_time();
 
     return 0;
 }
