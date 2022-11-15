@@ -278,7 +278,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     CharEditInit();
     debugPrint(">CharEditInit\t");
 
-    pipboyInit();
+    pip_init();
     debugPrint(">pip_init\t\t");
 
     InitLoadSave();
@@ -376,7 +376,7 @@ void game_reset()
     wmWorldMap_reset();
     partyMember_reset();
     CharEditInit();
-    pipboyReset();
+    pip_init();
     ResetLoadSave();
     gdialogReset();
     combat_reset();
@@ -588,7 +588,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                 dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 gsound_play_sfx_file("ib1p1xx1");
-                pipboyOpen(false);
+                pipboy(false);
             }
         }
         break;
@@ -656,7 +656,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
                 dialog_out(title, NULL, 0, 192, 116, colorTable[32328], NULL, colorTable[32328], 0);
             } else {
                 gsound_play_sfx_file("ib1p1xx1");
-                pipboyOpen(true);
+                pipboy(true);
             }
         }
         break;
