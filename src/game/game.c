@@ -37,7 +37,7 @@
 #include "memory.h"
 #include "int/movie.h"
 #include "game/moviefx.h"
-#include "object.h"
+#include "game/object.h"
 #include "options.h"
 #include "palette.h"
 #include "party_member.h"

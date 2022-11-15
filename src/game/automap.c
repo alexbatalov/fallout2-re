@@ -17,7 +17,7 @@
 #include "game/item.h"
 #include "game/map.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "text_font.h"
 #include "window_manager.h"
 

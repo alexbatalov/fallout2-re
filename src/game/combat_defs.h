@@ -1,7 +1,7 @@
 #ifndef FALLOUT_GAME_COMBAT_DEFS_H_
 #define FALLOUT_GAME_COMBAT_DEFS_H_
 
-#include "obj_types.h"
+#include "game/object_types.h"
 
 #define EXPLOSION_TARGET_COUNT (6)
 

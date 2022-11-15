@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/message.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 extern MessageListItem stru_49A990;
 

@@ -16,7 +16,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/message.h"
-#include "object.h"
+#include "game/object.h"
 #include "party_member.h"
 #include "proto.h"
 #include "queue.h"

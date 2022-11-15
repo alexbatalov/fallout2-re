@@ -5,7 +5,7 @@
 
 #include "game/combatai_defs.h"
 #include "db.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 #include "scripts.h"
 
 typedef struct PartyMemberDescription {

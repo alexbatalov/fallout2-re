@@ -20,7 +20,7 @@
 #include "game/gmouse.h"
 #include "game/gmovie.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "proto.h"
 #include "proto_instance.h"
 #include "queue.h"

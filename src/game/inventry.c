@@ -26,7 +26,7 @@
 #include "game/light.h"
 #include "game/map.h"
 #include "game/message.h"
-#include "object.h"
+#include "game/object.h"
 #include "perk.h"
 #include "proto.h"
 #include "proto_instance.h"

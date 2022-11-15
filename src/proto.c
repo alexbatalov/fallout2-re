@@ -17,7 +17,7 @@
 #include "game/intface.h"
 #include "game/map.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "perk.h"
 #include "skill.h"
 #include "stat.h"

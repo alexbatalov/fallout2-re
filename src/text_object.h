@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "geometry.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 // The maximum number of text objects that can exist at the same time.
 #define TEXT_OBJECTS_MAX_COUNT (20)

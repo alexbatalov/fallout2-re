@@ -24,7 +24,7 @@
 #include "game/lip_sync.h"
 #include "memory.h"
 #include "game/message.h"
-#include "object.h"
+#include "game/object.h"
 #include "perk.h"
 #include "proto.h"
 #include "random.h"

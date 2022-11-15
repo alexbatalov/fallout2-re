@@ -5,7 +5,7 @@
 
 #include "game/art.h"
 #include "int/intrpret.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 extern unsigned char* light_BlendTable;
 extern unsigned char* dark_BlendTable;

@@ -25,7 +25,7 @@
 #include "game/loadsave.h"
 #include "game/map.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "perk.h"
 #include "pipboy.h"
 #include "proto.h"

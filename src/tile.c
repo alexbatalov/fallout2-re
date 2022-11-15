@@ -15,7 +15,7 @@
 #include "game/gmouse.h"
 #include "game/light.h"
 #include "game/map.h"
-#include "object.h"
+#include "game/object.h"
 
 // 0x50E7C7
 double const dbl_50E7C7 = -4.0;

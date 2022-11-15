@@ -13,7 +13,7 @@
 #include "game/gconfig.h"
 #include "game/intface.h"
 #include "game/item.h"
-#include "object.h"
+#include "game/object.h"
 #include "palette.h"
 #include "party_member.h"
 #include "perk.h"

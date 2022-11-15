@@ -7,7 +7,7 @@
 #include "draw.h"
 #include "game/gconfig.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "text_font.h"
 #include "tile.h"
 #include "word_wrap.h"

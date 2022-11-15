@@ -22,7 +22,7 @@
 #include "game/intface.h"
 #include "game/map.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "queue.h"
 #include "random.h"
 #include "scripts.h"

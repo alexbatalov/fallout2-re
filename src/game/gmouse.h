@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "obj_types.h"
+#include "game/object_types.h"
 
 typedef enum GameMouseMode {
     GAME_MOUSE_MODE_MOVE,

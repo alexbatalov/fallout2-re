@@ -31,7 +31,7 @@
 #include "game/loadsave.h"
 #include "game/mainmenu.h"
 #include "game/map.h"
-#include "object.h"
+#include "game/object.h"
 #include "options.h"
 #include "palette.h"
 #include "proto.h"

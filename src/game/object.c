@@ -1,4 +1,4 @@
-#include "object.h"
+#include "game/object.h"
 
 #include <assert.h>
 #include <string.h>

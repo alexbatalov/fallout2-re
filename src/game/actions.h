@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/combat_defs.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 #include "proto_types.h"
 
 extern unsigned int rotation;

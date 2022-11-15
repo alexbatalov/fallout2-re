@@ -5,7 +5,7 @@
 #include "geometry.h"
 #include "game/inventry.h"
 #include "game/map_defs.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 typedef struct ObjectWithFlags {
     int flags;

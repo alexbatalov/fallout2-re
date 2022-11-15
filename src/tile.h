@@ -5,7 +5,7 @@
 
 #include "geometry.h"
 #include "game/map.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 #define TILE_SET_CENTER_REFRESH_WINDOW 0x01
 #define TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS 0x02

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "obj_types.h"
+#include "game/object_types.h"
 
 typedef enum AnimationRequestOptions {
     ANIMATION_REQUEST_UNRESERVED = 0x01,

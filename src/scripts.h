@@ -7,7 +7,7 @@
 #include "db.h"
 #include "int/intrpret.h"
 #include "game/message.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 #define SCRIPT_LIST_EXTENT_SIZE 16
 

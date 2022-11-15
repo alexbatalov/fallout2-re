@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "db.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 #define ADDICTION_COUNT 9
 

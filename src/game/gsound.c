@@ -18,7 +18,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "int/movie.h"
-#include "object.h"
+#include "game/object.h"
 #include "proto.h"
 #include "queue.h"
 #include "random.h"

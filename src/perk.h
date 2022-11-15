@@ -5,7 +5,7 @@
 
 #include "db.h"
 #include "game/message.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 #include "perk_defs.h"
 #include "stat_defs.h"
 

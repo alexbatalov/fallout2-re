@@ -1,7 +1,7 @@
 #ifndef REACTION_H
 #define REACTION_H
 
-#include "obj_types.h"
+#include "game/object_types.h"
 
 typedef enum NpcReaction {
     NPC_REACTION_BAD,

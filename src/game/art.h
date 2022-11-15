@@ -3,7 +3,7 @@
 
 #include "game/cache.h"
 #include "game/heap.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 #include "proto_types.h"
 
 typedef enum Head {

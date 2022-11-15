@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "int/intrpret.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 typedef enum ScriptError {
     SCRIPT_ERROR_NOT_IMPLEMENTED,

@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "game/game.h"
-#include "object.h"
+#include "game/object.h"
 #include "skill.h"
 #include "stat.h"
 

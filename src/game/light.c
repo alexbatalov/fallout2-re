@@ -3,7 +3,7 @@
 #include <math.h>
 
 #include "game/map_defs.h"
-#include "object.h"
+#include "game/object.h"
 #include "perk.h"
 #include "tile.h"
 

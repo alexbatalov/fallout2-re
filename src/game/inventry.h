@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/art.h"
-#include "obj_types.h"
+#include "game/object_types.h"
 
 // TODO: Convert to enum.
 #define OFF_59E7BC_COUNT 12

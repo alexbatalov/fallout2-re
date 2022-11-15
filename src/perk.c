@@ -6,7 +6,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "party_member.h"
 #include "skill.h"
 #include "stat.h"

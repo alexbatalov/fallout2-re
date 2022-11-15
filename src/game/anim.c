@@ -20,7 +20,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/map.h"
-#include "object.h"
+#include "game/object.h"
 #include "perk.h"
 #include "proto.h"
 #include "proto_instance.h"

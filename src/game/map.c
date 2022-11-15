@@ -24,7 +24,7 @@
 #include "game/light.h"
 #include "game/loadsave.h"
 #include "memory.h"
-#include "object.h"
+#include "game/object.h"
 #include "palette.h"
 #include "pipboy.h"
 #include "proto.h"
