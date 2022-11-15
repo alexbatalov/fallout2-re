@@ -341,7 +341,7 @@ static int abortReply(int a1)
     int x;
 
     if (replyPlaying == 2) {
-        return _moviePlaying() == 0;
+        return moviePlaying() == 0;
     } else if (replyPlaying == 3) {
         return 1;
     }

@@ -4,6 +4,7 @@
 
 #include "color.h"
 #include "core.h"
+#include "db.h"
 #include "debug.h"
 #include "draw.h"
 #include "game/gconfig.h"
@@ -13,211 +14,243 @@
 #include "sound.h"
 #include "text_font.h"
 #include "window_manager.h"
+#include "win32.h"
+
+typedef void(MovieCallback)();
+typedef int(MovieBlitFunc)(int win, unsigned char* data, int width, int height, int pitch);
+
+typedef struct MovieSubtitleListNode {
+    int num;
+    char* text;
+    struct MovieSubtitleListNode* next;
+} MovieSubtitleListNode;
+
+static void* movieMalloc(size_t size);
+static void movieFree(void* ptr);
+static bool movieRead(int fileHandle, void* buf, int count);
+static void movie_MVE_ShowFrame(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9);
+static void movieShowFrame(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9);
+static int movieScaleSubRect(int win, unsigned char* data, int width, int height, int pitch);
+static int movieScaleWindowAlpha(int win, unsigned char* data, int width, int height, int pitch);
+static int movieScaleSubRectAlpha(int win, unsigned char* data, int width, int height, int pitch);
+static int blitAlpha(int win, unsigned char* data, int width, int height, int pitch);
+static int movieScaleWindow(int win, unsigned char* data, int width, int height, int pitch);
+static int blitNormal(int win, unsigned char* data, int width, int height, int pitch);
+static void movieSetPalette(unsigned char* palette, int start, int end);
+static int noop();
+static void cleanupMovie(int a1);
+static void cleanupLast();
+static File* openFile(char* filePath);
+static void openSubtitle(char* filePath);
+static void doSubtitle();
+static int movieStart(int win, char* filePath, int (*a3)());
+static bool localMovieCallback();
+static int stepMovie();
 
 // 0x5195B8
-int gMovieWindow = -1;
+static int GNWWin = -1;
 
 // 0x5195BC
-int gMovieSubtitlesFont = -1;
+static int subtitleFont = -1;
 
 // 0x5195C0
-MovieBlitFunc* gMovieBlitFuncs[2][2][2] = {
+static MovieBlitFunc* showFrameFuncs[2][2][2] = {
     {
         {
-            _blitNormal,
-            _blitNormal,
+            blitNormal,
+            blitNormal,
         },
         {
-            _movieScaleWindow,
-            _movieScaleSubRect,
+            movieScaleWindow,
+            movieScaleSubRect,
         },
     },
     {
         {
-            _blitAlpha,
-            _blitAlpha,
+            blitAlpha,
+            blitAlpha,
         },
         {
-            _movieScaleWindowAlpha,
-            _movieScaleSubRectAlpha,
+            movieScaleSubRectAlpha,
+            movieScaleWindowAlpha,
         },
     },
 };
 
 // 0x5195E0
-MovieSetPaletteEntriesProc* gMovieSetPaletteEntriesProc = setSystemPaletteEntries;
+static MoviePaletteFunc* paletteFunc = setSystemPaletteEntries;
 
 // 0x5195E4
-int gMovieSubtitlesColorR = 31;
+static int subtitleR = 31;
 
 // 0x5195E8
-int gMovieSubtitlesColorG = 31;
+static int subtitleG = 31;
 
 // 0x5195EC
-int gMovieSubtitlesColorB = 31;
+static int subtitleB = 31;
 
 // 0x638E10
-Rect gMovieWindowRect;
+static Rect winRect;
 
 // 0x638E20
-Rect _movieRect;
+static Rect movieRect;
 
 // 0x638E30
-void (*_movieCallback)();
+static MovieCallback* movieCallback;
 
 // 0x638E34
-MovieEndFunc* _endMovieFunc;
+static MovieEndFunc* endMovieFunc;
 
 // 0x638E38
-MovieSetPaletteProc* gMoviePaletteProc;
+static MovieUpdateCallbackProc* updateCallbackFunc;
 
 // 0x638E3C
-MovieFailedOpenFunc* _failedOpenFunc;
+static MovieFailedOpenFunc* failedOpenFunc;
 
 // 0x638E40
-MovieBuildSubtitleFilePathProc* gMovieBuildSubtitleFilePathProc;
+static MovieSubtitleFunc* subtitleFilenameFunc;
 
 // 0x638E44
-MovieStartFunc* _startMovieFunc;
+static MovieStartFunc* startMovieFunc;
 
 // 0x638E48
-int _subtitleW;
+static int subtitleW;
 
 // 0x638E4C
-int _lastMovieBH;
+static int lastMovieBH;
 
 // 0x638E50
-int _lastMovieBW;
+static int lastMovieBW;
 
 // 0x638E54
-int _lastMovieSX;
+static int lastMovieSX;
 
 // 0x638E58
-int _lastMovieSY;
+static int lastMovieSY;
 
 // 0x638E5C
-int _movieScaleFlag;
+static int movieScaleFlag;
 
 // 0x638E60
-MoviePreDrawFunc* _moviePreDrawFunc;
+static MoviePreDrawFunc* moviePreDrawFunc;
 
 // 0x638E64
-int _lastMovieH;
+static int lastMovieH;
 
 // 0x638E68
-int _lastMovieW;
+static int lastMovieW;
 
 // 0x638E6C
-int _lastMovieX;
+static int lastMovieX;
 
 // 0x638E70
-int _lastMovieY;
+static int lastMovieY;
 
 // 0x638E74
-MovieSubtitleListNode* gMovieSubtitleHead;
+static MovieSubtitleListNode* subtitleList;
 
 // 0x638E78
-unsigned int gMovieFlags;
+static unsigned int movieFlags;
 
 // 0x638E7C
-int _movieAlphaFlag;
+static int movieAlphaFlag;
 
 // 0x638E80
-bool _movieSubRectFlag;
+static bool movieSubRectFlag;
 
 // 0x638E84
-int _movieH;
+static int movieH;
 
 // 0x638E88
-int _movieOffset;
+static int movieOffset;
 
 // 0x638E8C
-MovieCaptureFrameProc* _movieCaptureFrameFunc;
+static MovieCaptureFrameProc* movieCaptureFrameFunc;
 
 // 0x638E90
-unsigned char* _lastMovieBuffer;
+static unsigned char* lastMovieBuffer;
 
 // 0x638E94
-int _movieW;
+static int movieW;
 
 // 0x638E98
-MovieFrameGrabProc* _movieFrameGrabFunc;
+static MovieFrameGrabProc* movieFrameGrabFunc;
 
 // 0x638E9C
-LPDIRECTDRAWSURFACE gMovieDirectDrawSurface;
+static LPDIRECTDRAWSURFACE MVE_lastBuffer;
 
 // 0x638EA0
-int _subtitleH;
+static int subtitleH;
 
 // 0x638EA4
-int _running;
+static int running;
 
 // 0x638EA8
-File* gMovieFileStream;
+static File* handle;
 
 // 0x638EAC
-unsigned char* _alphaWindowBuf;
+static unsigned char* alphaWindowBuf;
 
 // 0x638EB0
-int _movieX;
+static int movieX;
 
 // 0x638EB4
-int _movieY;
+static int movieY;
 
 // 0x638EB8
-bool gMovieDirectSoundInitialized;
+static bool soundEnabled;
 
 // 0x638EBC
-File* _alphaHandle;
+static File* alphaHandle;
 
 // 0x638EC0
-unsigned char* _alphaBuf;
+static unsigned char* alphaBuf;
 
 // NOTE: Unused.
 //
 // 0x4865E0
-void _movieSetPreDrawFunc(MoviePreDrawFunc* preDrawFunc)
+void movieSetPreDrawFunc(MoviePreDrawFunc* func)
 {
-    _moviePreDrawFunc = preDrawFunc;
+    moviePreDrawFunc = func;
 }
 
 // NOTE: Unused.
 //
 // 0x4865E8
-void _movieSetFailedOpenFunc(MovieFailedOpenFunc* failedOpenFunc)
+void movieSetFailedOpenFunc(MovieFailedOpenFunc* func)
 {
-    _failedOpenFunc = failedOpenFunc;
+    failedOpenFunc = func;
 }
 
 // NOTE: Unused.
 //
 // 0x4865F0
-void _movieSetFunc(MovieStartFunc* startFunc, MovieEndFunc* endFunc)
+void movieSetFunc(MovieStartFunc* startFunc, MovieEndFunc* endFunc)
 {
-    _startMovieFunc = startFunc;
-    _endMovieFunc = endFunc;
+    startMovieFunc = startFunc;
+    endMovieFunc = endFunc;
 }
 
 // 0x4865FC
-void* movieMallocImpl(size_t size)
+static void* movieMalloc(size_t size)
 {
     return mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 209
 }
 
 // 0x486614
-void movieFreeImpl(void* ptr)
+static void movieFree(void* ptr)
 {
     myfree(ptr, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 213
 }
 
 // 0x48662C
-bool movieReadImpl(int fileHandle, void* buf, int count)
+static bool movieRead(int fileHandle, void* buf, int count)
 {
     return fileRead(buf, 1, count, (File*)fileHandle) == count;
 }
 
 // 0x486654
-void movieDirectImpl(LPDIRECTDRAWSURFACE surface, int srcWidth, int srcHeight, int srcX, int srcY, int destWidth, int destHeight, int a8, int a9)
+static void movie_MVE_ShowFrame(LPDIRECTDRAWSURFACE surface, int srcWidth, int srcHeight, int srcX, int srcY, int destWidth, int destHeight, int a8, int a9)
 {
     int v14;
     int v15;
@@ -232,50 +265,50 @@ void movieDirectImpl(LPDIRECTDRAWSURFACE surface, int srcWidth, int srcHeight, i
     srcRect.right = srcWidth + srcX;
     srcRect.bottom = srcHeight + srcY;
 
-    v14 = gMovieWindowRect.right - gMovieWindowRect.left;
-    v15 = gMovieWindowRect.right - gMovieWindowRect.left + 1;
+    v14 = winRect.right - winRect.left;
+    v15 = winRect.right - winRect.left + 1;
 
     RECT destRect;
 
-    if (_movieScaleFlag) {
-        if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
-            destRect.top = (gMovieWindowRect.bottom - gMovieWindowRect.top + 1 - destHeight) / 2;
+    if (movieScaleFlag) {
+        if ((movieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
+            destRect.top = (winRect.bottom - winRect.top + 1 - destHeight) / 2;
             destRect.left = (v15 - 4 * srcWidth / 3) / 2;
         } else {
-            destRect.top = _movieY + gMovieWindowRect.top;
-            destRect.left = gMovieWindowRect.left + _movieX;
+            destRect.top = movieY + winRect.top;
+            destRect.left = winRect.left + movieX;
         }
 
         destRect.right = 4 * srcWidth / 3 + destRect.left;
         destRect.bottom = destHeight + destRect.top;
     } else {
-        if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
-            destRect.top = (gMovieWindowRect.bottom - gMovieWindowRect.top + 1 - destHeight) / 2;
+        if ((movieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
+            destRect.top = (winRect.bottom - winRect.top + 1 - destHeight) / 2;
             destRect.left = (v15 - destWidth) / 2;
         } else {
-            destRect.top = _movieY + gMovieWindowRect.top;
-            destRect.left = gMovieWindowRect.left + _movieX;
+            destRect.top = movieY + winRect.top;
+            destRect.left = winRect.left + movieX;
         }
         destRect.right = destWidth + destRect.left;
         destRect.bottom = destHeight + destRect.top;
     }
 
-    _lastMovieSX = srcX;
-    _lastMovieSY = srcY;
-    _lastMovieX = destRect.left;
-    _lastMovieY = destRect.top;
-    _lastMovieBH = srcHeight;
-    _lastMovieW = destRect.right - destRect.left;
-    gMovieDirectDrawSurface = surface;
-    _lastMovieBW = srcWidth;
-    _lastMovieH = destRect.bottom - destRect.top;
+    lastMovieSX = srcX;
+    lastMovieSY = srcY;
+    lastMovieX = destRect.left;
+    lastMovieY = destRect.top;
+    lastMovieBH = srcHeight;
+    lastMovieW = destRect.right - destRect.left;
+    MVE_lastBuffer = surface;
+    lastMovieBW = srcWidth;
+    lastMovieH = destRect.bottom - destRect.top;
 
     HRESULT hr;
     do {
-        if (_movieCaptureFrameFunc != NULL) {
+        if (movieCaptureFrameFunc != NULL) {
             if (IDirectDrawSurface_Lock(surface, NULL, &ddsd, 1, NULL) == DD_OK) {
                 unsigned char* data = (unsigned char*)ddsd.lpSurface + ddsd.lPitch * srcY + srcX;
-                _movieCaptureFrameFunc(data,
+                movieCaptureFrameFunc(data,
                     srcWidth,
                     srcHeight,
                     ddsd.lPitch,
@@ -292,21 +325,21 @@ void movieDirectImpl(LPDIRECTDRAWSURFACE surface, int srcWidth, int srcHeight, i
 }
 
 // 0x486900
-void movieBufferedImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
+static void movieShowFrame(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, int a6, int a7, int a8, int a9)
 {
-    if (gMovieWindow == -1) {
+    if (GNWWin == -1) {
         return;
     }
 
-    _lastMovieBW = a2;
-    gMovieDirectDrawSurface = a1;
-    _lastMovieBH = a2;
-    _lastMovieW = a6;
-    _lastMovieH = a7;
-    _lastMovieX = a4;
-    _lastMovieY = a5;
-    _lastMovieSX = a4;
-    _lastMovieSY = a5;
+    lastMovieBW = a2;
+    MVE_lastBuffer = a1;
+    lastMovieBH = a2;
+    lastMovieW = a6;
+    lastMovieH = a7;
+    lastMovieX = a4;
+    lastMovieY = a5;
+    lastMovieSX = a4;
+    lastMovieSY = a5;
 
     DDSURFACEDESC ddsd;
     ddsd.dwSize = sizeof(DDSURFACEDESC);
@@ -317,21 +350,21 @@ void movieBufferedImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, i
 
     unsigned char* data = (unsigned char*)ddsd.lpSurface + ddsd.lPitch * a5 + a4;
 
-    if (_movieCaptureFrameFunc != NULL) {
-        // FIXME: Looks wrong as it ignores lPitch (as seen in movieDirectImpl).
-        _movieCaptureFrameFunc(data, a2, a3, a2, _movieRect.left, _movieRect.top, a6, a7);
+    if (movieCaptureFrameFunc != NULL) {
+        // FIXME: Looks wrong as it ignores lPitch (as seen in movie_MVE_ShowFrame).
+        movieCaptureFrameFunc(data, a2, a3, a2, movieRect.left, movieRect.top, a6, a7);
     }
 
-    if (_movieFrameGrabFunc != NULL) {
-        _movieFrameGrabFunc(data, a2, a3, ddsd.lPitch);
+    if (movieFrameGrabFunc != NULL) {
+        movieFrameGrabFunc(data, a2, a3, ddsd.lPitch);
     } else {
-        MovieBlitFunc* func = gMovieBlitFuncs[_movieAlphaFlag][_movieScaleFlag][_movieSubRectFlag];
-        if (func(gMovieWindow, data, a2, a3, ddsd.lPitch) != 0) {
-            if (_moviePreDrawFunc != NULL) {
-                _moviePreDrawFunc(gMovieWindow, &_movieRect);
+        MovieBlitFunc* func = showFrameFuncs[movieAlphaFlag][movieScaleFlag][movieSubRectFlag];
+        if (func(GNWWin, data, a2, a3, ddsd.lPitch) != 0) {
+            if (moviePreDrawFunc != NULL) {
+                moviePreDrawFunc(GNWWin, &movieRect);
             }
 
-            win_draw_rect(gMovieWindow, &_movieRect);
+            win_draw_rect(GNWWin, &movieRect);
         }
     }
 
@@ -341,26 +374,26 @@ void movieBufferedImpl(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a5, i
 // NOTE: Unused.
 //
 // 0x486A98
-void _movieSetFrameGrabFunc(MovieFrameGrabProc* proc)
+void movieSetFrameGrabFunc(MovieFrameGrabProc* func)
 {
-    _movieFrameGrabFunc = proc;
+    movieFrameGrabFunc = func;
 }
 
 // NOTE: Unused.
 //
 // 0x486AA0
-void _movieSetCaptureFrameFunc(MovieCaptureFrameProc* func)
+void movieSetCaptureFrameFunc(MovieCaptureFrameProc* func)
 {
-    _movieCaptureFrameFunc = func;
+    movieCaptureFrameFunc = func;
 }
 
 // 0x486B68
-int _movieScaleSubRect(int win, unsigned char* data, int width, int height, int pitch)
+static int movieScaleSubRect(int win, unsigned char* data, int width, int height, int pitch)
 {
     int windowWidth = windowGetWidth(win);
-    unsigned char* windowBuffer = windowGetBuffer(win) + windowWidth * _movieY + _movieX;
-    if (width * 4 / 3 > _movieW) {
-        gMovieFlags |= 0x01;
+    unsigned char* windowBuffer = windowGetBuffer(win) + windowWidth * movieY + movieX;
+    if (width * 4 / 3 > movieW) {
+        movieFlags |= 0x01;
         return 0;
     }
 
@@ -384,41 +417,41 @@ int _movieScaleSubRect(int win, unsigned char* data, int width, int height, int 
         }
 
         data += pitch - width;
-        windowBuffer += windowWidth - _movieW;
+        windowBuffer += windowWidth - movieW;
     }
 
     return 1;
 }
 
 // 0x486C74
-int _movieScaleSubRectAlpha(int win, unsigned char* data, int width, int height, int pitch)
+static int movieScaleWindowAlpha(int win, unsigned char* data, int width, int height, int pitch)
 {
-    gMovieFlags |= 1;
+    movieFlags |= 1;
     return 0;
 }
 
 // NOTE: Uncollapsed 0x486C74.
-int _movieScaleWindowAlpha(int win, unsigned char* data, int width, int height, int pitch)
+static int movieScaleSubRectAlpha(int win, unsigned char* data, int width, int height, int pitch)
 {
-    gMovieFlags |= 1;
+    movieFlags |= 1;
     return 0;
 }
 
 // 0x486C80
-int _blitAlpha(int win, unsigned char* data, int width, int height, int pitch)
+static int blitAlpha(int win, unsigned char* data, int width, int height, int pitch)
 {
     int windowWidth = windowGetWidth(win);
     unsigned char* windowBuffer = windowGetBuffer(win);
-    _alphaBltBuf(data, width, height, pitch, _alphaWindowBuf, _alphaBuf, windowBuffer + windowWidth * _movieY + _movieX, windowWidth);
+    _alphaBltBuf(data, width, height, pitch, alphaWindowBuf, alphaBuf, windowBuffer + windowWidth * movieY + movieX, windowWidth);
     return 1;
 }
 
 // 0x486CD4
-int _movieScaleWindow(int win, unsigned char* data, int width, int height, int pitch)
+static int movieScaleWindow(int win, unsigned char* data, int width, int height, int pitch)
 {
     int windowWidth = windowGetWidth(win);
     if (width != 3 * windowWidth / 4) {
-        gMovieFlags |= 1;
+        movieFlags |= 1;
         return 0;
     }
 
@@ -443,50 +476,50 @@ int _movieScaleWindow(int win, unsigned char* data, int width, int height, int p
 }
 
 // 0x486D84
-int _blitNormal(int win, unsigned char* data, int width, int height, int pitch)
+static int blitNormal(int win, unsigned char* data, int width, int height, int pitch)
 {
     int windowWidth = windowGetWidth(win);
     unsigned char* windowBuffer = windowGetBuffer(win);
-    _drawScaled(windowBuffer + windowWidth * _movieY + _movieX, _movieW, _movieH, windowWidth, data, width, height, pitch);
+    _drawScaled(windowBuffer + windowWidth * movieY + movieX, movieW, movieH, windowWidth, data, width, height, pitch);
     return 1;
 }
 
 // 0x486DDC
-void movieSetPaletteEntriesImpl(unsigned char* palette, int start, int end)
+static void movieSetPalette(unsigned char* palette, int start, int end)
 {
     if (end != 0) {
-        gMovieSetPaletteEntriesProc(palette + start * 3, start, end + start - 1);
+        paletteFunc(palette + start * 3, start, end + start - 1);
     }
 }
 
 // 0x486E08
-int _noop()
+static int noop()
 {
     return 0;
 }
 
 // initMovie
 // 0x486E0C
-void movieInit()
+void initMovie()
 {
-    movieLibSetMemoryProcs(movieMallocImpl, movieFreeImpl);
+    movieLibSetMemoryProcs(movieMalloc, movieFree);
     movieLibSetDirectSound(gDirectSound);
-    gMovieDirectSoundInitialized = (gDirectSound != NULL);
+    soundEnabled = (gDirectSound != NULL);
     movieLibSetDirectDraw(gDirectDraw);
-    movieLibSetPaletteEntriesProc(movieSetPaletteEntriesImpl);
+    movieLibSetPaletteEntriesProc(movieSetPalette);
     _MVE_sfSVGA(640, 480, 480, 0, 0, 0, 0, 0, 0);
-    movieLibSetReadProc(movieReadImpl);
+    movieLibSetReadProc(movieRead);
 }
 
 // 0x486E98
-void _cleanupMovie(int a1)
+static void cleanupMovie(int a1)
 {
-    if (!_running) {
+    if (!running) {
         return;
     }
 
-    if (_endMovieFunc != NULL) {
-        _endMovieFunc(gMovieWindow, _movieX, _movieY, _movieW, _movieH);
+    if (endMovieFunc != NULL) {
+        endMovieFunc(GNWWin, movieX, movieY, movieW, movieH);
     }
 
     int frame;
@@ -494,23 +527,23 @@ void _cleanupMovie(int a1)
     _MVE_rmFrameCounts(&frame, &dropped);
     debugPrint("Frames %d, dropped %d\n", frame, dropped);
 
-    if (_lastMovieBuffer != NULL) {
-        myfree(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 787
-        _lastMovieBuffer = NULL;
+    if (lastMovieBuffer != NULL) {
+        myfree(lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 787
+        lastMovieBuffer = NULL;
     }
 
-    if (gMovieDirectDrawSurface != NULL) {
+    if (MVE_lastBuffer != NULL) {
         DDSURFACEDESC ddsd;
         ddsd.dwSize = sizeof(DDSURFACEDESC);
-        if (IDirectDrawSurface_Lock(gMovieDirectDrawSurface, 0, &ddsd, 1, NULL) == DD_OK) {
-            _lastMovieBuffer = (unsigned char*)mymalloc(_lastMovieBH * _lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
-            blitBufferToBuffer((unsigned char*)ddsd.lpSurface + ddsd.lPitch * _lastMovieSX + _lastMovieSY, _lastMovieBW, _lastMovieBH, ddsd.lPitch, _lastMovieBuffer, _lastMovieBW);
-            IDirectDrawSurface_Unlock(gMovieDirectDrawSurface, ddsd.lpSurface);
+        if (IDirectDrawSurface_Lock(MVE_lastBuffer, 0, &ddsd, 1, NULL) == DD_OK) {
+            lastMovieBuffer = (unsigned char*)mymalloc(lastMovieBH * lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
+            blitBufferToBuffer((unsigned char*)ddsd.lpSurface + ddsd.lPitch * lastMovieSX + lastMovieSY, lastMovieBW, lastMovieBH, ddsd.lPitch, lastMovieBuffer, lastMovieBW);
+            IDirectDrawSurface_Unlock(MVE_lastBuffer, ddsd.lpSurface);
         } else {
             debugPrint("Couldn't lock movie surface\n");
         }
 
-        gMovieDirectDrawSurface = NULL;
+        MVE_lastBuffer = NULL;
     }
 
     if (a1) {
@@ -519,59 +552,59 @@ void _cleanupMovie(int a1)
 
     _MVE_ReleaseMem();
 
-    fileClose(gMovieFileStream);
+    fileClose(handle);
 
-    if (_alphaWindowBuf != NULL) {
-        blitBufferToBuffer(_alphaWindowBuf, _movieW, _movieH, _movieW, windowGetBuffer(gMovieWindow) + _movieY * windowGetWidth(gMovieWindow) + _movieX, windowGetWidth(gMovieWindow));
-        win_draw_rect(gMovieWindow, &_movieRect);
+    if (alphaWindowBuf != NULL) {
+        blitBufferToBuffer(alphaWindowBuf, movieW, movieH, movieW, windowGetBuffer(GNWWin) + movieY * windowGetWidth(GNWWin) + movieX, windowGetWidth(GNWWin));
+        win_draw_rect(GNWWin, &movieRect);
     }
 
-    if (_alphaHandle != NULL) {
-        fileClose(_alphaHandle);
-        _alphaHandle = NULL;
+    if (alphaHandle != NULL) {
+        fileClose(alphaHandle);
+        alphaHandle = NULL;
     }
 
-    if (_alphaBuf != NULL) {
-        myfree(_alphaBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 840
-        _alphaBuf = NULL;
+    if (alphaBuf != NULL) {
+        myfree(alphaBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 840
+        alphaBuf = NULL;
     }
 
-    if (_alphaWindowBuf != NULL) {
-        myfree(_alphaWindowBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 845
-        _alphaWindowBuf = NULL;
+    if (alphaWindowBuf != NULL) {
+        myfree(alphaWindowBuf, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 845
+        alphaWindowBuf = NULL;
     }
 
-    while (gMovieSubtitleHead != NULL) {
-        MovieSubtitleListNode* next = gMovieSubtitleHead->next;
-        myfree(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 851
-        myfree(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 852
-        gMovieSubtitleHead = next;
+    while (subtitleList != NULL) {
+        MovieSubtitleListNode* next = subtitleList->next;
+        myfree(subtitleList->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 851
+        myfree(subtitleList, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 852
+        subtitleList = next;
     }
 
-    _running = 0;
-    _movieSubRectFlag = 0;
-    _movieScaleFlag = 0;
-    _movieAlphaFlag = 0;
-    gMovieFlags = 0;
-    gMovieWindow = -1;
+    running = 0;
+    movieSubRectFlag = 0;
+    movieScaleFlag = 0;
+    movieAlphaFlag = 0;
+    movieFlags = 0;
+    GNWWin = -1;
 }
 
 // 0x48711C
-void movieExit()
+void movieClose()
 {
-    _cleanupMovie(1);
+    cleanupMovie(1);
 
-    if (_lastMovieBuffer) {
-        myfree(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 869
-        _lastMovieBuffer = NULL;
+    if (lastMovieBuffer) {
+        myfree(lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 869
+        lastMovieBuffer = NULL;
     }
 }
 
 // 0x487150
-void _movieStop()
+void movieStop()
 {
-    if (_running) {
-        gMovieFlags |= MOVIE_EXTENDED_FLAG_0x02;
+    if (running) {
+        movieFlags |= MOVIE_EXTENDED_FLAG_0x02;
     }
 }
 
@@ -579,89 +612,89 @@ void _movieStop()
 int movieSetFlags(int flags)
 {
     if ((flags & MOVIE_FLAG_0x04) != 0) {
-        gMovieFlags |= MOVIE_EXTENDED_FLAG_0x04 | MOVIE_EXTENDED_FLAG_0x08;
+        movieFlags |= MOVIE_EXTENDED_FLAG_0x04 | MOVIE_EXTENDED_FLAG_0x08;
     } else {
-        gMovieFlags &= ~MOVIE_EXTENDED_FLAG_0x08;
+        movieFlags &= ~MOVIE_EXTENDED_FLAG_0x08;
         if ((flags & MOVIE_FLAG_0x02) != 0) {
-            gMovieFlags |= MOVIE_EXTENDED_FLAG_0x04;
+            movieFlags |= MOVIE_EXTENDED_FLAG_0x04;
         } else {
-            gMovieFlags &= ~MOVIE_EXTENDED_FLAG_0x04;
+            movieFlags &= ~MOVIE_EXTENDED_FLAG_0x04;
         }
     }
 
     if ((flags & MOVIE_FLAG_0x01) != 0) {
-        _movieScaleFlag = 1;
+        movieScaleFlag = 1;
 
-        if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
+        if ((movieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
             _sub_4F4BB(3);
         }
     } else {
-        _movieScaleFlag = 0;
+        movieScaleFlag = 0;
 
-        if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
+        if ((movieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
             _sub_4F4BB(4);
         } else {
-            gMovieFlags &= ~MOVIE_EXTENDED_FLAG_0x08;
+            movieFlags &= ~MOVIE_EXTENDED_FLAG_0x08;
         }
     }
 
     if ((flags & MOVIE_FLAG_0x08) != 0) {
-        gMovieFlags |= MOVIE_EXTENDED_FLAG_0x10;
+        movieFlags |= MOVIE_EXTENDED_FLAG_0x10;
     } else {
-        gMovieFlags &= ~MOVIE_EXTENDED_FLAG_0x10;
+        movieFlags &= ~MOVIE_EXTENDED_FLAG_0x10;
     }
 
     return 0;
 }
 
 // 0x48725C
-void _movieSetPaletteFunc(MovieSetPaletteEntriesProc* proc)
+void movieSetPaletteFunc(MoviePaletteFunc* func)
 {
-    gMovieSetPaletteEntriesProc = proc != NULL ? proc : setSystemPaletteEntries;
+    paletteFunc = func != NULL ? func : setSystemPaletteEntries;
 }
 
 // 0x487274
-void movieSetPaletteProc(MovieSetPaletteProc* proc)
+void movieSetCallback(MovieUpdateCallbackProc* func)
 {
-    gMoviePaletteProc = proc;
+    updateCallbackFunc = func;
 }
 
 // 0x4872E8
-void _cleanupLast()
+static void cleanupLast()
 {
-    if (_lastMovieBuffer != NULL) {
-        myfree(_lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 981
-        _lastMovieBuffer = NULL;
+    if (lastMovieBuffer != NULL) {
+        myfree(lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 981
+        lastMovieBuffer = NULL;
     }
 
-    gMovieDirectDrawSurface = NULL;
+    MVE_lastBuffer = NULL;
 }
 
 // 0x48731C
-File* movieOpen(char* filePath)
+static File* openFile(char* filePath)
 {
-    gMovieFileStream = fileOpen(filePath, "rb");
-    if (gMovieFileStream == NULL) {
-        if (_failedOpenFunc == NULL) {
+    handle = fileOpen(filePath, "rb");
+    if (handle == NULL) {
+        if (failedOpenFunc == NULL) {
             debugPrint("Couldn't find movie file %s\n", filePath);
             return 0;
         }
 
-        while (gMovieFileStream == NULL && _failedOpenFunc(filePath) != 0) {
-            gMovieFileStream = fileOpen(filePath, "rb");
+        while (handle == NULL && failedOpenFunc(filePath) != 0) {
+            handle = fileOpen(filePath, "rb");
         }
     }
-    return gMovieFileStream;
+    return handle;
 }
 
 // 0x487380
-void movieLoadSubtitles(char* filePath)
+static void openSubtitle(char* filePath)
 {
-    _subtitleW = _windowGetXres();
-    _subtitleH = fontGetLineHeight() + 4;
+    subtitleW = _windowGetXres();
+    subtitleH = fontGetLineHeight() + 4;
 
-    if (gMovieBuildSubtitleFilePathProc != NULL) {
-        filePath = gMovieBuildSubtitleFilePathProc(filePath);
+    if (subtitleFilenameFunc != NULL) {
+        filePath = subtitleFilenameFunc(filePath);
     }
 
     char path[MAX_PATH];
@@ -671,7 +704,7 @@ void movieLoadSubtitles(char* filePath)
     File* stream = fileOpen(path, "r");
     if (stream == NULL) {
         debugPrint("Couldn't open subtitle file %s\n", path);
-        gMovieFlags &= ~MOVIE_EXTENDED_FLAG_0x10;
+        movieFlags &= ~MOVIE_EXTENDED_FLAG_0x10;
         return;
     }
 
@@ -711,7 +744,7 @@ void movieLoadSubtitles(char* filePath)
             if (prev != NULL) {
                 prev->next = subtitle;
             } else {
-                gMovieSubtitleHead = subtitle;
+                subtitleList = subtitle;
             }
 
             prev = subtitle;
@@ -726,259 +759,259 @@ void movieLoadSubtitles(char* filePath)
 }
 
 // 0x48755C
-void movieRenderSubtitles()
+static void doSubtitle()
 {
-    if (gMovieSubtitleHead == NULL) {
+    if (subtitleList == NULL) {
         return;
     }
 
-    if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x10) == 0) {
+    if ((movieFlags & MOVIE_EXTENDED_FLAG_0x10) == 0) {
         return;
     }
 
     int v1 = fontGetLineHeight();
-    int v2 = (480 - _lastMovieH - _lastMovieY - v1) / 2 + _lastMovieH + _lastMovieY;
+    int v2 = (480 - lastMovieH - lastMovieY - v1) / 2 + lastMovieH + lastMovieY;
 
-    if (_subtitleH + v2 > _windowGetYres()) {
-        _subtitleH = _windowGetYres() - v2;
+    if (subtitleH + v2 > _windowGetYres()) {
+        subtitleH = _windowGetYres() - v2;
     }
 
     int frame;
     int dropped;
     _MVE_rmFrameCounts(&frame, &dropped);
 
-    while (gMovieSubtitleHead != NULL) {
-        if (frame < gMovieSubtitleHead->num) {
+    while (subtitleList != NULL) {
+        if (frame < subtitleList->num) {
             break;
         }
 
-        MovieSubtitleListNode* next = gMovieSubtitleHead->next;
+        MovieSubtitleListNode* next = subtitleList->next;
 
-        windowFill(gMovieWindow, 0, v2, _subtitleW, _subtitleH, 0);
+        windowFill(GNWWin, 0, v2, subtitleW, subtitleH, 0);
 
         int oldFont;
-        if (gMovieSubtitlesFont != -1) {
+        if (subtitleFont != -1) {
             oldFont = fontGetCurrent();
-            fontSetCurrent(gMovieSubtitlesFont);
+            fontSetCurrent(subtitleFont);
         }
 
-        int colorIndex = (gMovieSubtitlesColorR << 10) | (gMovieSubtitlesColorG << 5) | gMovieSubtitlesColorB;
-        windowWrapLine(gMovieWindow, gMovieSubtitleHead->text, _subtitleW, _subtitleH, 0, v2, colorTable[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
+        int colorIndex = (subtitleR << 10) | (subtitleG << 5) | subtitleB;
+        windowWrapLine(GNWWin, subtitleList->text, subtitleW, subtitleH, 0, v2, colorTable[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
 
         Rect rect;
-        rect.right = _subtitleW;
+        rect.right = subtitleW;
         rect.top = v2;
-        rect.bottom = v2 + _subtitleH;
+        rect.bottom = v2 + subtitleH;
         rect.left = 0;
-        win_draw_rect(gMovieWindow, &rect);
+        win_draw_rect(GNWWin, &rect);
 
-        myfree(gMovieSubtitleHead->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1108
-        myfree(gMovieSubtitleHead, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1109
+        myfree(subtitleList->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1108
+        myfree(subtitleList, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1109
 
-        gMovieSubtitleHead = next;
+        subtitleList = next;
 
-        if (gMovieSubtitlesFont != -1) {
+        if (subtitleFont != -1) {
             fontSetCurrent(oldFont);
         }
     }
 }
 
 // 0x487710
-int _movieStart(int win, char* filePath, int (*a3)())
+static int movieStart(int win, char* filePath, int (*a3)())
 {
     int v15;
     int v16;
     int v17;
 
-    if (_running) {
+    if (running) {
         return 1;
     }
 
-    _cleanupLast();
+    cleanupLast();
 
-    gMovieFileStream = movieOpen(filePath);
-    if (gMovieFileStream == NULL) {
+    handle = openFile(filePath);
+    if (handle == NULL) {
         return 1;
     }
 
-    gMovieWindow = win;
-    _running = 1;
-    gMovieFlags &= ~MOVIE_EXTENDED_FLAG_0x01;
+    GNWWin = win;
+    running = 1;
+    movieFlags &= ~MOVIE_EXTENDED_FLAG_0x01;
 
-    if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x10) != 0) {
-        movieLoadSubtitles(filePath);
+    if ((movieFlags & MOVIE_EXTENDED_FLAG_0x10) != 0) {
+        openSubtitle(filePath);
     }
 
-    if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
+    if ((movieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
         debugPrint("Direct ");
-        win_get_rect(gMovieWindow, &gMovieWindowRect);
-        debugPrint("Playing at (%d, %d)  ", _movieX + gMovieWindowRect.left, _movieY + gMovieWindowRect.top);
+        win_get_rect(GNWWin, &winRect);
+        debugPrint("Playing at (%d, %d)  ", movieX + winRect.left, movieY + winRect.top);
         _MVE_rmCallbacks(a3);
-        _MVE_sfCallbacks(movieDirectImpl);
+        _MVE_sfCallbacks(movie_MVE_ShowFrame);
 
         v17 = 0;
-        v16 = _movieY + gMovieWindowRect.top;
-        v15 = _movieX + gMovieWindowRect.left;
+        v16 = movieY + winRect.top;
+        v15 = movieX + winRect.left;
     } else {
         debugPrint("Buffered ");
         _MVE_rmCallbacks(a3);
-        _MVE_sfCallbacks(movieBufferedImpl);
+        _MVE_sfCallbacks(movieShowFrame);
         v17 = 0;
         v16 = 0;
         v15 = 0;
     }
 
-    _MVE_rmPrepMovie((int)gMovieFileStream, v15, v16, v17);
+    _MVE_rmPrepMovie((int)handle, v15, v16, v17);
 
-    if (_movieScaleFlag) {
+    if (movieScaleFlag) {
         debugPrint("scaled\n");
     } else {
         debugPrint("not scaled\n");
     }
 
-    if (_startMovieFunc != NULL) {
-        _startMovieFunc(gMovieWindow);
+    if (startMovieFunc != NULL) {
+        startMovieFunc(GNWWin);
     }
 
-    if (_alphaHandle != NULL) {
+    if (alphaHandle != NULL) {
         int size;
-        fileReadInt32(_alphaHandle, &size);
+        fileReadInt32(alphaHandle, &size);
 
         short tmp;
-        fileReadInt16(_alphaHandle, &tmp);
-        fileReadInt16(_alphaHandle, &tmp);
+        fileReadInt16(alphaHandle, &tmp);
+        fileReadInt16(alphaHandle, &tmp);
 
-        _alphaBuf = (unsigned char*)mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1178
-        _alphaWindowBuf = (unsigned char*)mymalloc(_movieH * _movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179
+        alphaBuf = (unsigned char*)mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1178
+        alphaWindowBuf = (unsigned char*)mymalloc(movieH * movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179
 
-        unsigned char* windowBuffer = windowGetBuffer(gMovieWindow);
-        blitBufferToBuffer(windowBuffer + windowGetWidth(gMovieWindow) * _movieY + _movieX,
-            _movieW,
-            _movieH,
-            windowGetWidth(gMovieWindow),
-            _alphaWindowBuf,
-            _movieW);
+        unsigned char* windowBuffer = windowGetBuffer(GNWWin);
+        blitBufferToBuffer(windowBuffer + windowGetWidth(GNWWin) * movieY + movieX,
+            movieW,
+            movieH,
+            windowGetWidth(GNWWin),
+            alphaWindowBuf,
+            movieW);
     }
 
-    _movieRect.left = _movieX;
-    _movieRect.top = _movieY;
-    _movieRect.right = _movieW + _movieX;
-    _movieRect.bottom = _movieH + _movieY;
+    movieRect.left = movieX;
+    movieRect.top = movieY;
+    movieRect.right = movieW + movieX;
+    movieRect.bottom = movieH + movieY;
 
     return 0;
 }
 
 // 0x487964
-bool _localMovieCallback()
+static bool localMovieCallback()
 {
-    movieRenderSubtitles();
+    doSubtitle();
 
-    if (_movieCallback != NULL) {
-        _movieCallback();
+    if (movieCallback != NULL) {
+        movieCallback();
     }
 
     return _get_input() != -1;
 }
 
 // 0x487AC8
-int _movieRun(int win, char* filePath)
+int movieRun(int win, char* filePath)
 {
-    if (_running) {
+    if (running) {
         return 1;
     }
 
-    _movieX = 0;
-    _movieY = 0;
-    _movieOffset = 0;
-    _movieW = windowGetWidth(win);
-    _movieH = windowGetHeight(win);
-    _movieSubRectFlag = 0;
-    return _movieStart(win, filePath, _noop);
+    movieX = 0;
+    movieY = 0;
+    movieOffset = 0;
+    movieW = windowGetWidth(win);
+    movieH = windowGetHeight(win);
+    movieSubRectFlag = 0;
+    return movieStart(win, filePath, noop);
 }
 
 // 0x487B1C
-int _movieRunRect(int win, char* filePath, int a3, int a4, int a5, int a6)
+int movieRunRect(int win, char* filePath, int a3, int a4, int a5, int a6)
 {
-    if (_running) {
+    if (running) {
         return 1;
     }
 
-    _movieX = a3;
-    _movieY = a4;
-    _movieOffset = a3 + a4 * windowGetWidth(win);
-    _movieW = a5;
-    _movieH = a6;
-    _movieSubRectFlag = 1;
+    movieX = a3;
+    movieY = a4;
+    movieOffset = a3 + a4 * windowGetWidth(win);
+    movieW = a5;
+    movieH = a6;
+    movieSubRectFlag = 1;
 
-    return _movieStart(win, filePath, _noop);
+    return movieStart(win, filePath, noop);
 }
 
 // 0x487B7C
-int _stepMovie()
+static int stepMovie()
 {
-    if (_alphaHandle != NULL) {
+    if (alphaHandle != NULL) {
         int size;
-        fileReadInt32(_alphaHandle, &size);
-        fileRead(_alphaBuf, 1, size, _alphaHandle);
+        fileReadInt32(alphaHandle, &size);
+        fileRead(alphaBuf, 1, size, alphaHandle);
     }
 
     int v1 = _MVE_rmStepMovie();
     if (v1 != -1) {
-        movieRenderSubtitles();
+        doSubtitle();
     }
 
     return v1;
 }
 
 // 0x487BC8
-void movieSetBuildSubtitleFilePathProc(MovieBuildSubtitleFilePathProc* proc)
+void movieSetSubtitleFunc(MovieSubtitleFunc* func)
 {
-    gMovieBuildSubtitleFilePathProc = proc;
+    subtitleFilenameFunc = func;
 }
 
 // 0x487BD0
 void movieSetVolume(int volume)
 {
-    if (gMovieDirectSoundInitialized) {
+    if (soundEnabled) {
         int normalizedVolume = _soundVolumeHMItoDirectSound(volume);
         movieLibSetVolume(normalizedVolume);
     }
 }
 
 // 0x487BEC
-void _movieUpdate()
+void movieUpdate()
 {
-    if (!_running) {
+    if (!running) {
         return;
     }
 
-    if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x02) != 0) {
+    if ((movieFlags & MOVIE_EXTENDED_FLAG_0x02) != 0) {
         debugPrint("Movie aborted\n");
-        _cleanupMovie(1);
+        cleanupMovie(1);
         return;
     }
 
-    if ((gMovieFlags & MOVIE_EXTENDED_FLAG_0x01) != 0) {
+    if ((movieFlags & MOVIE_EXTENDED_FLAG_0x01) != 0) {
         debugPrint("Movie error\n");
-        _cleanupMovie(1);
+        cleanupMovie(1);
         return;
     }
 
-    if (_stepMovie() == -1) {
-        _cleanupMovie(1);
+    if (stepMovie() == -1) {
+        cleanupMovie(1);
         return;
     }
 
-    if (gMoviePaletteProc != NULL) {
+    if (updateCallbackFunc != NULL) {
         int frame;
         int dropped;
         _MVE_rmFrameCounts(&frame, &dropped);
-        gMoviePaletteProc(frame);
+        updateCallbackFunc(frame);
     }
 }
 
 // 0x487C88
-int _moviePlaying()
+int moviePlaying()
 {
-    return _running;
+    return running;
 }

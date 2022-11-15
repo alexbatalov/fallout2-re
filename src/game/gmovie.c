@@ -87,7 +87,7 @@ int gmovie_init()
 
     movieSetVolume(v1);
 
-    movieSetBuildSubtitleFilePathProc(gmovie_subtitle_func);
+    movieSetSubtitleFunc(gmovie_subtitle_func);
 
     memset(gmovie_played_list, 0, sizeof(gmovie_played_list));
 
@@ -239,12 +239,12 @@ int gmovie_play(int movie, int flags)
     movieEffectsLoad(movieFilePath);
 
     _zero_vid_mem();
-    _movieRun(win, movieFilePath);
+    movieRun(win, movieFilePath);
 
     int v11 = 0;
     int buttons;
     do {
-        if (!_moviePlaying() || game_user_wants_to_quit || _get_input() != -1) {
+        if (!moviePlaying() || game_user_wants_to_quit || _get_input() != -1) {
             break;
         }
 
@@ -255,9 +255,9 @@ int gmovie_play(int movie, int flags)
         v11 |= buttons;
     } while (((v11 & 1) == 0 && (v11 & 2) == 0) || (buttons & 1) != 0 || (buttons & 2) != 0);
 
-    _movieStop();
+    movieStop();
     _moviefx_stop();
-    _movieUpdate();
+    movieUpdate();
     paletteSetEntries(gPaletteBlack);
 
     gmovie_played_list[movie] = 1;

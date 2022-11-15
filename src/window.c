@@ -2746,7 +2746,7 @@ bool _windowDeleteRegion(const char* regionName)
 // 0x4BB220
 void _updateWindows()
 {
-    _movieUpdate();
+    movieUpdate();
     mousemgrUpdate();
     _checkAllRegions();
     _update_widgets();
@@ -2755,7 +2755,7 @@ void _updateWindows()
 // 0x4BB234
 int _windowMoviePlaying()
 {
-    return _moviePlaying();
+    return moviePlaying();
 }
 
 // 0x4BB23C
@@ -2776,7 +2776,7 @@ bool _windowPlayMovie(char* filePath)
     // NOTE: Uninline.
     wid = windowGetGNWID();
 
-    if (_movieRun(wid, filePath) != 0) {
+    if (movieRun(wid, filePath) != 0) {
         return false;
     }
 
@@ -2791,7 +2791,7 @@ bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5)
     // NOTE: Uninline.
     wid = windowGetGNWID();
 
-    if (_movieRunRect(wid, filePath, a2, a3, a4, a5) != 0) {
+    if (movieRunRect(wid, filePath, a2, a3, a4, a5) != 0) {
         return false;
     }
 
@@ -2801,7 +2801,7 @@ bool _windowPlayMovieRect(char* filePath, int a2, int a3, int a4, int a5)
 // 0x4BB2C4
 void _windowStopMovie()
 {
-    _movieStop();
+    movieStop();
 }
 
 // 0x4BB3A8

@@ -206,7 +206,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">gsound_init\t");
 
-    movieInit();
+    initMovie();
     debugPrint(">initMovie\t\t");
 
     if (gmovie_init() != 0) {
@@ -364,7 +364,7 @@ void game_reset()
     combat_ai_reset();
     inven_reset_dude();
     gsound_reset();
-    _movieStop();
+    movieStop();
     movieEffectsReset();
     gmovie_reset();
     iso_reset();
@@ -405,7 +405,7 @@ void game_exit()
     gmouse_exit();
     iso_exit();
     movieEffectsExit();
-    movieExit();
+    movieClose();
     gsound_exit();
     combat_ai_exit();
     critter_exit();
