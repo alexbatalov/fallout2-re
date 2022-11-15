@@ -1,4 +1,4 @@
-#include "character_selector.h"
+#include "game/select.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -8,7 +8,7 @@
 #include "game/anim.h"
 #include "game/automap.h"
 #include "game/editor.h"
-#include "character_selector.h"
+#include "game/select.h"
 #include "color.h"
 #include "game/combat.h"
 #include "game/combatai.h"

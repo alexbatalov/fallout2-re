@@ -15,7 +15,7 @@
 
 #include "game/amutex.h"
 #include "game/art.h"
-#include "character_selector.h"
+#include "game/select.h"
 #include "color.h"
 #include "core.h"
 #include "game/credits.h"
