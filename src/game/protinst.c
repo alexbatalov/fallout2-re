@@ -693,7 +693,7 @@ int obj_destroy(Object* obj)
         elev = obj->elevation;
     }
 
-    queueRemoveEvents(obj);
+    queue_remove(obj);
 
     Rect rect;
     obj_erase_object(obj, &rect);
@@ -824,7 +824,7 @@ static int obj_use_flare(Object* critter_obj, Object* flare)
         flare->pid = PROTO_ID_LIT_FLARE;
 
         obj_set_light(flare, 8, 0x10000, NULL);
-        queueAddEvent(72000, flare, NULL, EVENT_TYPE_FLARE);
+        queue_add(72000, flare, NULL, EVENT_TYPE_FLARE);
     }
 
     return 0;
@@ -907,7 +907,7 @@ static int obj_use_explosive(Object* explosive)
                 break;
             }
 
-            queueAddEvent(delay, explosive, NULL, eventType);
+            queue_add(delay, explosive, NULL, eventType);
         }
     }
 

@@ -15,17 +15,32 @@
 #include "game/protinst.h"
 #include "scripts.h"
 
-// Last queue list node found during [queueFindFirstEvent] and
-// [queueFindNextEvent] calls.
+typedef struct QueueListNode {
+    // TODO: Make unsigned.
+    int time;
+    int type;
+    Object* owner;
+    void* data;
+    struct QueueListNode* next;
+} QueueListNode;
+
+static int queue_destroy(Object* obj, void* data);
+static int queue_explode(Object* obj, void* data);
+static int queue_explode_exit(Object* obj, void* data);
+static int queue_do_explosion(Object* obj, bool a2);
+static int queue_premature(Object* obj, void* data);
+
+// Last queue list node found during [queue_find_first] and
+// [queue_find_next] calls.
 //
 // 0x51C690
-QueueListNode* gLastFoundQueueListNode = NULL;
+static QueueListNode* tmpQNode = NULL;
 
 // 0x6648C0
-QueueListNode* gQueueListHead;
+static QueueListNode* queue;
 
 // 0x51C540
-EventTypeDescription gEventTypeDescriptions[EVENT_TYPE_COUNT] = {
+EventTypeDescription q_func[EVENT_TYPE_COUNT] = {
     { item_d_process, internal_free, item_d_load, item_d_save, true, item_d_clear },
     { critter_wake_up, NULL, NULL, NULL, true, critter_wake_clear },
     { item_wd_process, internal_free, item_wd_load, item_wd_save, true, item_wd_clear },
@@ -33,40 +48,51 @@ EventTypeDescription gEventTypeDescriptions[EVENT_TYPE_COUNT] = {
     { gameTimeEventProcess, NULL, NULL, NULL, true, NULL },
     { critter_check_poison, NULL, NULL, NULL, false, NULL },
     { critter_process_rads, internal_free, critter_load_rads, critter_save_rads, false, NULL },
-    { flareEventProcess, NULL, NULL, NULL, true, flareEventProcess },
-    { explosionEventProcess, NULL, NULL, NULL, true, _queue_explode_exit },
+    { queue_destroy, NULL, NULL, NULL, true, queue_destroy },
+    { queue_explode, NULL, NULL, NULL, true, queue_explode_exit },
     { item_m_trickle, NULL, NULL, NULL, true, item_m_turn_off_from_queue },
     { critter_sneak_check, NULL, NULL, NULL, true, critter_sneak_clear },
-    { explosionFailureEventProcess, NULL, NULL, NULL, true, _queue_explode_exit },
+    { queue_premature, NULL, NULL, NULL, true, queue_explode_exit },
     { mapUpdateEventProcess, NULL, NULL, NULL, true, NULL },
     { gsound_sfx_q_process, internal_free, NULL, NULL, true, NULL },
 };
 
 // 0x4A2320
-void queueInit()
+void queue_init()
 {
-    gQueueListHead = NULL;
+    queue = NULL;
 }
 
+// NOTE: Uncollapsed 0x4A2330.
+//
 // 0x4A2330
-int queueExit()
+int queue_reset()
 {
-    queueClear();
+    queue_clear();
+    return 0;
+}
+
+// NOTE: Uncollapsed 0x4A2330.
+//
+// 0x4A2330
+int queue_exit()
+{
+    queue_clear();
     return 0;
 }
 
 // 0x4A2338
-int queueLoad(File* stream)
+int queue_load(File* stream)
 {
     int count;
     if (fileReadInt32(stream, &count) == -1) {
         return -1;
     }
 
-    QueueListNode* oldListHead = gQueueListHead;
-    gQueueListHead = NULL;
+    QueueListNode* oldListHead = queue;
+    queue = NULL;
 
-    QueueListNode** nextPtr = &gQueueListHead;
+    QueueListNode** nextPtr = &queue;
 
     int rc = 0;
     for (int index = 0; index < count; index += 1) {
@@ -111,7 +137,7 @@ int queueLoad(File* stream)
 
         queueListNode->owner = obj;
 
-        EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[queueListNode->type]);
+        EventTypeDescription* eventTypeDescription = &(q_func[queueListNode->type]);
         if (eventTypeDescription->readProc != NULL) {
             if (eventTypeDescription->readProc(stream, &(queueListNode->data)) == -1) {
                 internal_free(queueListNode);
@@ -129,22 +155,22 @@ int queueLoad(File* stream)
     }
 
     if (rc == -1) {
-        while (gQueueListHead != NULL) {
-            QueueListNode* next = gQueueListHead->next;
+        while (queue != NULL) {
+            QueueListNode* next = queue->next;
 
-            EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[gQueueListHead->type]);
+            EventTypeDescription* eventTypeDescription = &(q_func[queue->type]);
             if (eventTypeDescription->freeProc != NULL) {
-                eventTypeDescription->freeProc(gQueueListHead->data);
+                eventTypeDescription->freeProc(queue->data);
             }
 
-            internal_free(gQueueListHead);
+            internal_free(queue);
 
-            gQueueListHead = next;
+            queue = next;
         }
     }
 
     if (oldListHead != NULL) {
-        QueueListNode** v13 = &gQueueListHead;
+        QueueListNode** v13 = &queue;
         QueueListNode* v15;
         do {
             while (true) {
@@ -170,13 +196,13 @@ int queueLoad(File* stream)
 }
 
 // 0x4A24E0
-int queueSave(File* stream)
+int queue_save(File* stream)
 {
     QueueListNode* queueListNode;
 
     int count = 0;
 
-    queueListNode = gQueueListHead;
+    queueListNode = queue;
     while (queueListNode != NULL) {
         count += 1;
         queueListNode = queueListNode->next;
@@ -186,7 +212,7 @@ int queueSave(File* stream)
         return -1;
     }
 
-    queueListNode = gQueueListHead;
+    queueListNode = queue;
     while (queueListNode != NULL) {
         Object* object = queueListNode->owner;
         int objectId = object != NULL ? object->id : -2;
@@ -203,7 +229,7 @@ int queueSave(File* stream)
             return -1;
         }
 
-        EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[queueListNode->type]);
+        EventTypeDescription* eventTypeDescription = &(q_func[queueListNode->type]);
         if (eventTypeDescription->writeProc != NULL) {
             if (eventTypeDescription->writeProc(stream, queueListNode->data) == -1) {
                 return -1;
@@ -217,7 +243,7 @@ int queueSave(File* stream)
 }
 
 // 0x4A258C
-int queueAddEvent(int delay, Object* obj, void* data, int eventType)
+int queue_add(int delay, Object* obj, void* data, int eventType)
 {
     QueueListNode* newQueueListNode = (QueueListNode*)internal_malloc(sizeof(QueueListNode));
     if (newQueueListNode == NULL) {
@@ -235,9 +261,9 @@ int queueAddEvent(int delay, Object* obj, void* data, int eventType)
         obj->flags |= OBJECT_USED;
     }
 
-    QueueListNode** v3 = &gQueueListHead;
+    QueueListNode** v3 = &queue;
 
-    if (gQueueListHead != NULL) {
+    if (queue != NULL) {
         QueueListNode* v4;
 
         do {
@@ -256,10 +282,10 @@ int queueAddEvent(int delay, Object* obj, void* data, int eventType)
 }
 
 // 0x4A25F4
-int queueRemoveEvents(Object* owner)
+int queue_remove(Object* owner)
 {
-    QueueListNode* queueListNode = gQueueListHead;
-    QueueListNode** queueListNodePtr = &gQueueListHead;
+    QueueListNode* queueListNode = queue;
+    QueueListNode** queueListNodePtr = &queue;
 
     while (queueListNode) {
         if (queueListNode->owner == owner) {
@@ -268,7 +294,7 @@ int queueRemoveEvents(Object* owner)
             queueListNode = queueListNode->next;
             *queueListNodePtr = queueListNode;
 
-            EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[temp->type]);
+            EventTypeDescription* eventTypeDescription = &(q_func[temp->type]);
             if (eventTypeDescription->freeProc != NULL) {
                 eventTypeDescription->freeProc(temp->data);
             }
@@ -284,10 +310,10 @@ int queueRemoveEvents(Object* owner)
 }
 
 // 0x4A264C
-int queueRemoveEventsByType(Object* owner, int eventType)
+int queue_remove_this(Object* owner, int eventType)
 {
-    QueueListNode* queueListNode = gQueueListHead;
-    QueueListNode** queueListNodePtr = &gQueueListHead;
+    QueueListNode* queueListNode = queue;
+    QueueListNode** queueListNodePtr = &queue;
 
     while (queueListNode) {
         if (queueListNode->owner == owner && queueListNode->type == eventType) {
@@ -296,7 +322,7 @@ int queueRemoveEventsByType(Object* owner, int eventType)
             queueListNode = queueListNode->next;
             *queueListNodePtr = queueListNode;
 
-            EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[temp->type]);
+            EventTypeDescription* eventTypeDescription = &(q_func[temp->type]);
             if (eventTypeDescription->freeProc != NULL) {
                 eventTypeDescription->freeProc(temp->data);
             }
@@ -314,9 +340,9 @@ int queueRemoveEventsByType(Object* owner, int eventType)
 // Returns true if there is at least one event of given type scheduled.
 //
 // 0x4A26A8
-bool queueHasEvent(Object* owner, int eventType)
+bool queue_find(Object* owner, int eventType)
 {
-    QueueListNode* queueListEvent = gQueueListHead;
+    QueueListNode* queueListEvent = queue;
     while (queueListEvent != NULL) {
         if (owner == queueListEvent->owner && eventType == queueListEvent->type) {
             return true;
@@ -329,20 +355,20 @@ bool queueHasEvent(Object* owner, int eventType)
 }
 
 // 0x4A26D0
-int queueProcessEvents()
+int queue_process()
 {
     int time = gameTimeGetTime();
     int v1 = 0;
 
-    while (gQueueListHead != NULL) {
-        QueueListNode* queueListNode = gQueueListHead;
+    while (queue != NULL) {
+        QueueListNode* queueListNode = queue;
         if (time < queueListNode->time || v1 != 0) {
             break;
         }
 
-        gQueueListHead = queueListNode->next;
+        queue = queueListNode->next;
 
-        EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[queueListNode->type]);
+        EventTypeDescription* eventTypeDescription = &(q_func[queueListNode->type]);
         v1 = eventTypeDescription->handlerProc(queueListNode->owner, queueListNode->data);
 
         if (eventTypeDescription->freeProc != NULL) {
@@ -356,13 +382,13 @@ int queueProcessEvents()
 }
 
 // 0x4A2748
-void queueClear()
+void queue_clear()
 {
-    QueueListNode* queueListNode = gQueueListHead;
+    QueueListNode* queueListNode = queue;
     while (queueListNode != NULL) {
         QueueListNode* next = queueListNode->next;
 
-        EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[queueListNode->type]);
+        EventTypeDescription* eventTypeDescription = &(q_func[queueListNode->type]);
         if (eventTypeDescription->freeProc != NULL) {
             eventTypeDescription->freeProc(queueListNode->data);
         }
@@ -372,13 +398,13 @@ void queueClear()
         queueListNode = next;
     }
 
-    gQueueListHead = NULL;
+    queue = NULL;
 }
 
 // 0x4A2790
-void _queue_clear_type(int eventType, QueueEventHandler* fn)
+void queue_clear_type(int eventType, QueueEventHandler* fn)
 {
-    QueueListNode** ptr = &gQueueListHead;
+    QueueListNode** ptr = &queue;
     QueueListNode* curr = *ptr;
 
     while (curr != NULL) {
@@ -392,7 +418,7 @@ void _queue_clear_type(int eventType, QueueEventHandler* fn)
                 *ptr = tmp;
                 ptr = &(tmp->next);
             } else {
-                EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[tmp->type]);
+                EventTypeDescription* eventTypeDescription = &(q_func[tmp->type]);
                 if (eventTypeDescription->freeProc != NULL) {
                     eventTypeDescription->freeProc(tmp->data);
                 }
@@ -409,36 +435,36 @@ void _queue_clear_type(int eventType, QueueEventHandler* fn)
 // TODO: Make unsigned.
 //
 // 0x4A2808
-int queueGetNextEventTime()
+int queue_next_time()
 {
-    if (gQueueListHead == NULL) {
+    if (queue == NULL) {
         return 0;
     }
 
-    return gQueueListHead->time;
+    return queue->time;
 }
 
 // 0x4A281C
-int flareEventProcess(Object* obj, void* data)
+static int queue_destroy(Object* obj, void* data)
 {
     obj_destroy(obj);
     return 1;
 }
 
 // 0x4A2828
-int explosionEventProcess(Object* obj, void* data)
+static int queue_explode(Object* obj, void* data)
 {
-    return _queue_do_explosion_(obj, true);
+    return queue_do_explosion(obj, true);
 }
 
 // 0x4A2830
-int _queue_explode_exit(Object* obj, void* data)
+static int queue_explode_exit(Object* obj, void* data)
 {
-    return _queue_do_explosion_(obj, false);
+    return queue_do_explosion(obj, false);
 }
 
 // 0x4A2834
-int _queue_do_explosion_(Object* explosive, bool a2)
+static int queue_do_explosion(Object* explosive, bool a2)
 {
     int tile;
     int elevation;
@@ -474,7 +500,7 @@ int _queue_do_explosion_(Object* explosive, bool a2)
     }
 
     if (action_explode(tile, elevation, minDamage, maxDamage, obj_dude, a2) == -2) {
-        queueAddEvent(50, explosive, NULL, EVENT_TYPE_EXPLOSION);
+        queue_add(50, explosive, NULL, EVENT_TYPE_EXPLOSION);
     } else {
         obj_destroy(explosive);
     }
@@ -483,7 +509,7 @@ int _queue_do_explosion_(Object* explosive, bool a2)
 }
 
 // 0x4A28E4
-int explosionFailureEventProcess(Object* obj, void* data)
+static int queue_premature(Object* obj, void* data)
 {
     MessageListItem msg;
 
@@ -493,57 +519,57 @@ int explosionFailureEventProcess(Object* obj, void* data)
         display_print(msg.text);
     }
 
-    return _queue_do_explosion_(obj, true);
+    return queue_do_explosion(obj, true);
 }
 
 // 0x4A2920
-void _queue_leaving_map()
+void queue_leaving_map()
 {
     for (int eventType = 0; eventType < EVENT_TYPE_COUNT; eventType++) {
-        EventTypeDescription* eventTypeDescription = &(gEventTypeDescriptions[eventType]);
+        EventTypeDescription* eventTypeDescription = &(q_func[eventType]);
         if (eventTypeDescription->field_10) {
-            _queue_clear_type(eventType, eventTypeDescription->field_14);
+            queue_clear_type(eventType, eventTypeDescription->field_14);
         }
     }
 }
 
 // 0x4A294C
-bool queueIsEmpty()
+bool queue_is_empty()
 {
-    return gQueueListHead == NULL;
+    return queue == NULL;
 }
 
 // 0x4A295C
-void* queueFindFirstEvent(Object* owner, int eventType)
+void* queue_find_first(Object* owner, int eventType)
 {
-    QueueListNode* queueListNode = gQueueListHead;
+    QueueListNode* queueListNode = queue;
     while (queueListNode != NULL) {
         if (owner == queueListNode->owner && eventType == queueListNode->type) {
-            gLastFoundQueueListNode = queueListNode;
+            tmpQNode = queueListNode;
             return queueListNode->data;
         }
         queueListNode = queueListNode->next;
     }
 
-    gLastFoundQueueListNode = NULL;
+    tmpQNode = NULL;
     return NULL;
 }
 
 // 0x4A2994
-void* queueFindNextEvent(Object* owner, int eventType)
+void* queue_find_next(Object* owner, int eventType)
 {
-    if (gLastFoundQueueListNode != NULL) {
-        QueueListNode* queueListNode = gLastFoundQueueListNode->next;
+    if (tmpQNode != NULL) {
+        QueueListNode* queueListNode = tmpQNode->next;
         while (queueListNode != NULL) {
             if (owner == queueListNode->owner && eventType == queueListNode->type) {
-                gLastFoundQueueListNode = queueListNode;
+                tmpQNode = queueListNode;
                 return queueListNode->data;
             }
             queueListNode = queueListNode->next;
         }
     }
 
-    gLastFoundQueueListNode = NULL;
+    tmpQNode = NULL;
 
     return NULL;
 }

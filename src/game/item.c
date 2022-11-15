@@ -2244,7 +2244,7 @@ int item_m_trickle(Object* item, void* data)
             delay = 3000;
         }
 
-        queueAddEvent(delay, item, NULL, EVENT_TYPE_ITEM_TRICKLE);
+        queue_add(delay, item, NULL, EVENT_TYPE_ITEM_TRICKLE);
     } else {
         Object* critter = obj_top_environment(item);
         if (critter == obj_dude) {
@@ -2275,7 +2275,7 @@ bool item_m_on(Object* obj)
         return false;
     }
 
-    return queueHasEvent(obj, EVENT_TYPE_ITEM_TRICKLE);
+    return queue_find(obj, EVENT_TYPE_ITEM_TRICKLE);
 }
 
 // Turns on geiger counter or stealth boy.
@@ -2312,7 +2312,7 @@ int item_m_turn_on(Object* item)
     }
 
     if (item->pid == PROTO_ID_STEALTH_BOY_I || item->pid == PROTO_ID_STEALTH_BOY_II) {
-        queueAddEvent(600, item, 0, EVENT_TYPE_ITEM_TRICKLE);
+        queue_add(600, item, 0, EVENT_TYPE_ITEM_TRICKLE);
         item->pid = PROTO_ID_STEALTH_BOY_II;
 
         if (critter != NULL) {
@@ -2320,7 +2320,7 @@ int item_m_turn_on(Object* item)
             item_m_stealth_effect_on(critter);
         }
     } else {
-        queueAddEvent(3000, item, 0, EVENT_TYPE_ITEM_TRICKLE);
+        queue_add(3000, item, 0, EVENT_TYPE_ITEM_TRICKLE);
         item->pid = PROTO_ID_GEIGER_COUNTER_II;
     }
 
@@ -2354,7 +2354,7 @@ int item_m_turn_off(Object* item)
 {
     Object* owner = obj_top_environment(item);
 
-    queueRemoveEventsByType(item, EVENT_TYPE_ITEM_TRICKLE);
+    queue_remove_this(item, EVENT_TYPE_ITEM_TRICKLE);
 
     if (owner != NULL && item->pid == PROTO_ID_STEALTH_BOY_II) {
         item_m_stealth_effect_off(owner, item);
@@ -2562,7 +2562,7 @@ static int insert_drug_effect(Object* critter, Object* item, int a3, int* stats,
         }
     }
 
-    if (queueAddEvent(delay, critter, drugEffectEvent, EVENT_TYPE_DRUG) == -1) {
+    if (queue_add(delay, critter, drugEffectEvent, EVENT_TYPE_DRUG) == -1) {
         internal_free(drugEffectEvent);
         return -1;
     }
@@ -2696,7 +2696,7 @@ static bool drug_effect_allowed(Object* critter, int pid)
 
     // TODO: Probably right, but let's check it once.
     int count = 0;
-    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)queueFindFirstEvent(critter, EVENT_TYPE_DRUG);
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)queue_find_first(critter, EVENT_TYPE_DRUG);
     while (drugEffectEvent != NULL) {
         if (drugEffectEvent->drugPid == pid) {
             count++;
@@ -2704,7 +2704,7 @@ static bool drug_effect_allowed(Object* critter, int pid)
                 return false;
             }
         }
-        drugEffectEvent = (DrugEffectEvent*)queueFindNextEvent(critter, EVENT_TYPE_DRUG);
+        drugEffectEvent = (DrugEffectEvent*)queue_find_next(critter, EVENT_TYPE_DRUG);
     }
 
     return true;
@@ -2741,7 +2741,7 @@ int item_d_take_drug(Object* critter, Object* item)
     wd_gvar = pid_to_gvar(item->pid);
     wd_onset = proto->item.data.drug.withdrawalOnset;
 
-    _queue_clear_type(EVENT_TYPE_WITHDRAWAL, item_wd_clear_all);
+    queue_clear_type(EVENT_TYPE_WITHDRAWAL, item_wd_clear_all);
 
     if (drug_effect_allowed(critter, item->pid)) {
         perform_drug_effect(critter, proto->item.data.drug.stat, proto->item.data.drug.amount, true);
@@ -2862,7 +2862,7 @@ static int insert_withdrawal(Object* obj, int a2, int duration, int perk, int pi
     withdrawalEvent->pid = pid;
     withdrawalEvent->perk = perk;
 
-    if (queueAddEvent(600 * duration, obj, withdrawalEvent, EVENT_TYPE_WITHDRAWAL) == -1) {
+    if (queue_add(600 * duration, obj, withdrawalEvent, EVENT_TYPE_WITHDRAWAL) == -1) {
         internal_free(withdrawalEvent);
         return -1;
     }

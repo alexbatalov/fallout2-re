@@ -2571,7 +2571,7 @@ static void op_metarule3(Program* program)
     case METARULE3_CLR_FIXED_TIMED_EVENTS:
         if (1) {
             _scrSetQueueTestVals((Object*)data[2], data[1]);
-            _queue_clear_type(EVENT_TYPE_SCRIPT, _scrQueueRemoveFixed);
+            queue_clear_type(EVENT_TYPE_SCRIPT, _scrQueueRemoveFixed);
         }
         break;
     case METARULE3_MARK_SUBTILE:
@@ -3312,7 +3312,7 @@ static void op_rm_timer_event(Program* program)
         return;
     }
 
-    queueRemoveEvents(object);
+    queue_remove(object);
 }
 
 // Converts seconds into game ticks.
@@ -3617,11 +3617,11 @@ static void op_game_time_advance(Program* program)
 
     for (int day = 0; day < days; day++) {
         gameTimeAddTicks(GAME_TIME_TICKS_PER_DAY);
-        queueProcessEvents();
+        queue_process();
     }
 
     gameTimeAddTicks(remainder);
-    queueProcessEvents();
+    queue_process();
 }
 
 // 0x458760
@@ -4277,7 +4277,7 @@ static void op_metarule(Program* program)
         result = wmAreaVisitedState(param);
         break;
     case METARULE_WHO_ON_DRUGS:
-        result = queueHasEvent((Object*)param, EVENT_TYPE_DRUG);
+        result = queue_find((Object*)param, EVENT_TYPE_DRUG);
         break;
     case METARULE_MAP_KNOWN:
         result = wmMapIsKnown(param);

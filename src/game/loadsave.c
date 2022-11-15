@@ -208,7 +208,7 @@ static SaveGameHandler* master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     gmovie_save,
     skillsUsageSave,
     partyMemberSave,
-    queueSave,
+    queue_save,
     intface_save,
     DummyFunc,
 };
@@ -239,7 +239,7 @@ static LoadGameHandler* master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     gmovie_load,
     skillsUsageLoad,
     partyMemberLoad,
-    queueLoad,
+    queue_load,
     intface_load,
     EndLoad,
 };

@@ -4226,7 +4226,7 @@ static bool wmGameTimeIncrement(int a1)
 
     while (a1 != 0) {
         unsigned int gameTime = gameTimeGetTime();
-        unsigned int nextEventTime = queueGetNextEventTime();
+        unsigned int nextEventTime = queue_next_time();
         int v1 = nextEventTime >= gameTime ? a1 : nextEventTime - gameTime;
         a1 -= v1;
 
@@ -4237,7 +4237,7 @@ static bool wmGameTimeIncrement(int a1)
 
         wmInterfaceRefreshDate(true);
 
-        if (queueProcessEvents()) {
+        if (queue_process()) {
             break;
         }
     }

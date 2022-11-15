@@ -1935,10 +1935,10 @@ static bool TimedRest(int hours, int minutes, int duration)
                 unsigned int start = _get_time();
 
                 unsigned int v6 = (unsigned int)((double)v5 / v4 * ((double)minutes * 600.0) + (double)gameTime);
-                unsigned int nextEventTime = queueGetNextEventTime();
+                unsigned int nextEventTime = queue_next_time();
                 if (v6 >= nextEventTime) {
                     gameTimeSetTime(nextEventTime + 1);
-                    if (queueProcessEvents()) {
+                    if (queue_process()) {
                         rc = true;
                         debugPrint("PIPBOY: Returning from Queue trigger...\n");
                         proc_bail_flag = 1;
@@ -1996,11 +1996,11 @@ static bool TimedRest(int hours, int minutes, int duration)
                 }
 
                 unsigned int v8 = (unsigned int)((double)hour / v7 * (hours * GAME_TIME_TICKS_PER_HOUR) + gameTime);
-                unsigned int nextEventTime = queueGetNextEventTime();
+                unsigned int nextEventTime = queue_next_time();
                 if (!rc && v8 >= nextEventTime) {
                     gameTimeSetTime(nextEventTime + 1);
 
-                    if (queueProcessEvents()) {
+                    if (queue_process()) {
                         rc = true;
                         debugPrint("PIPBOY: Returning from Queue trigger...\n");
                         proc_bail_flag = 1;
@@ -2095,9 +2095,9 @@ static bool TimedRest(int hours, int minutes, int duration)
     }
 
     int gameTime = gameTimeGetTime();
-    int nextEventGameTime = queueGetNextEventTime();
+    int nextEventGameTime = queue_next_time();
     if (gameTime > nextEventGameTime) {
-        if (queueProcessEvents()) {
+        if (queue_process()) {
             debugPrint("PIPBOY: Returning from Queue trigger...\n");
             proc_bail_flag = 1;
             rc = true;

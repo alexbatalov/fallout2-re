@@ -326,12 +326,12 @@ void gameTimeAddSeconds(int seconds)
 int gameTimeScheduleUpdateEvent()
 {
     int v1 = 10 * (60 * (60 - (gGameTime / 600) % 60 - 1) + 3600 * (24 - (gGameTime / 600) / 60 % 24 - 1) + 60);
-    if (queueAddEvent(v1, NULL, NULL, EVENT_TYPE_GAME_TIME) == -1) {
+    if (queue_add(v1, NULL, NULL, EVENT_TYPE_GAME_TIME) == -1) {
         return -1;
     }
 
     if (map_data.name[0] != '\0') {
-        if (queueAddEvent(600, NULL, NULL, EVENT_TYPE_MAP_UPDATE_EVENT) == -1) {
+        if (queue_add(600, NULL, NULL, EVENT_TYPE_MAP_UPDATE_EVENT) == -1) {
             return -1;
         }
     }
@@ -361,7 +361,7 @@ int gameTimeEventProcess(Object* obj, void* data)
 
     v4 = critter_check_rads(obj_dude);
 
-    _queue_clear_type(4, 0);
+    queue_clear_type(4, 0);
 
     gameTimeScheduleUpdateEvent();
 
@@ -446,13 +446,13 @@ int mapUpdateEventProcess(Object* obj, void* data)
 {
     scriptsExecMapUpdateScripts(SCRIPT_PROC_MAP_UPDATE);
 
-    _queue_clear_type(EVENT_TYPE_MAP_UPDATE_EVENT, NULL);
+    queue_clear_type(EVENT_TYPE_MAP_UPDATE_EVENT, NULL);
 
     if (map_data.name[0] == '\0') {
         return 0;
     }
 
-    if (queueAddEvent(600, NULL, NULL, EVENT_TYPE_MAP_UPDATE_EVENT) != -1) {
+    if (queue_add(600, NULL, NULL, EVENT_TYPE_MAP_UPDATE_EVENT) != -1) {
         return 0;
     }
 
@@ -708,14 +708,14 @@ void _script_chk_timed_events()
     }
 
     if (v1) {
-        while (!queueIsEmpty()) {
+        while (!queue_is_empty()) {
             int time = gameTimeGetTime();
-            int v2 = queueGetNextEventTime();
+            int v2 = queue_next_time();
             if (time < v2) {
                 break;
             }
 
-            queueProcessEvents();
+            queue_process();
         }
     }
 }
@@ -751,7 +751,7 @@ int scriptAddTimerEvent(int sid, int delay, int param)
         return -1;
     }
 
-    if (queueAddEvent(delay, script->owner, scriptEvent, EVENT_TYPE_SCRIPT) == -1) {
+    if (queue_add(delay, script->owner, scriptEvent, EVENT_TYPE_SCRIPT) == -1) {
         internal_free(scriptEvent);
         return -1;
     }
@@ -2218,7 +2218,7 @@ int scriptRemove(int sid)
             debugPrint("\nERROR Removing local vars on scr_remove!!\n");
         }
 
-        if (queueRemoveEventsByType(script->owner, EVENT_TYPE_SCRIPT) == -1) {
+        if (queue_remove_this(script->owner, EVENT_TYPE_SCRIPT) == -1) {
             debugPrint("\nERROR Removing Timed Events on scr_remove!!\n");
         }
 
@@ -2273,7 +2273,7 @@ int scriptRemove(int sid)
 // 0x4A63E0
 int _scr_remove_all()
 {
-    _queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
+    queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
     _scr_message_free();
 
     for (int scrType = 0; scrType < SCRIPT_TYPE_COUNT; scrType++) {
@@ -2319,7 +2319,7 @@ int _scr_remove_all()
 // 0x4A64A8
 int _scr_remove_all_force()
 {
-    _queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
+    queue_clear_type(EVENT_TYPE_SCRIPT, NULL);
     _scr_message_free();
 
     for (int type = 0; type < SCRIPT_TYPE_COUNT; type++) {

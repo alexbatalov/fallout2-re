@@ -1428,7 +1428,7 @@ int map_save_in_game(bool a1)
     partyMemberSaveProtos();
 
     if (a1) {
-        _queue_leaving_map();
+        queue_leaving_map();
         partyMemberPrepLoad();
         partyMemberPrepItemSaveAll();
         scriptsExecMapExitProc();

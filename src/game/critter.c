@@ -297,8 +297,8 @@ int critter_adjust_poison(Object* critter, int amount)
     if (newPoison > 0) {
         critter->data.critter.poison = newPoison;
 
-        _queue_clear_type(EVENT_TYPE_POISON, NULL);
-        queueAddEvent(10 * (505 - 5 * newPoison), obj_dude, NULL, EVENT_TYPE_POISON);
+        queue_clear_type(EVENT_TYPE_POISON, NULL);
+        queue_add(10 * (505 - 5 * newPoison), obj_dude, NULL, EVENT_TYPE_POISON);
 
         // You have been poisoned!
         messageListItem.num = 3000;
@@ -460,7 +460,7 @@ int critter_check_rads(Object* obj)
 
     old_rad_level = 0;
 
-    _queue_clear_type(EVENT_TYPE_RADIATION, get_rad_damage_level);
+    queue_clear_type(EVENT_TYPE_RADIATION, get_rad_damage_level);
 
     // NOTE: Uninline
     int radiation = critter_get_rads(obj);
@@ -492,7 +492,7 @@ int critter_check_rads(Object* obj)
 
         radiationEvent->radiationLevel = radiationLevel;
         radiationEvent->isHealing = 0;
-        queueAddEvent(GAME_TIME_TICKS_PER_HOUR * randomBetween(4, 18), obj, radiationEvent, EVENT_TYPE_RADIATION);
+        queue_add(GAME_TIME_TICKS_PER_HOUR * randomBetween(4, 18), obj, radiationEvent, EVENT_TYPE_RADIATION);
     }
 
     proto->critter.data.flags &= ~(CRITTER_BARTER);
@@ -582,10 +582,10 @@ int critter_process_rads(Object* obj, void* data)
         // Schedule healing stats event in 7 days.
         RadiationEvent* newRadiationEvent = (RadiationEvent*)internal_malloc(sizeof(*newRadiationEvent));
         if (newRadiationEvent != NULL) {
-            _queue_clear_type(EVENT_TYPE_RADIATION, clear_rad_damage);
+            queue_clear_type(EVENT_TYPE_RADIATION, clear_rad_damage);
             newRadiationEvent->radiationLevel = radiationEvent->radiationLevel;
             newRadiationEvent->isHealing = 1;
-            queueAddEvent(GAME_TIME_TICKS_PER_DAY * 7, obj, newRadiationEvent, EVENT_TYPE_RADIATION);
+            queue_add(GAME_TIME_TICKS_PER_DAY * 7, obj, newRadiationEvent, EVENT_TYPE_RADIATION);
         }
     }
 
@@ -851,7 +851,7 @@ void critter_kill(Object* critter, int anim, bool a3)
     }
 
     critterClearObj = critter;
-    _queue_clear_type(EVENT_TYPE_DRUG, critterClearObjDrugs);
+    queue_clear_type(EVENT_TYPE_DRUG, critterClearObjDrugs);
 
     item_destroy_all_hidden(critter);
 
@@ -1144,7 +1144,7 @@ void pc_flag_off(int state)
     proto->critter.data.flags &= ~(1 << state);
 
     if (state == DUDE_STATE_SNEAKING) {
-        queueRemoveEventsByType(obj_dude, EVENT_TYPE_SNEAK);
+        queue_remove_this(obj_dude, EVENT_TYPE_SNEAK);
     }
 
     refresh_box_bar_win();
@@ -1211,7 +1211,7 @@ int critter_sneak_check(Object* obj, void* data)
         sneak_working = true;
     }
 
-    queueAddEvent(time, obj_dude, NULL, EVENT_TYPE_SNEAK);
+    queue_add(time, obj_dude, NULL, EVENT_TYPE_SNEAK);
 
     return 0;
 }

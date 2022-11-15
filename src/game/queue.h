@@ -1,5 +1,5 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef FALLOUT_GAME_QUEUE_H_
+#define FALLOUT_GAME_QUEUE_H_
 
 #include <stdbool.h>
 
@@ -50,15 +50,6 @@ typedef struct AmbientSoundEffectEvent {
     int ambientSoundEffectIndex;
 } AmbientSoundEffectEvent;
 
-typedef struct QueueListNode {
-    // TODO: Make unsigned.
-    int time;
-    int type;
-    Object* owner;
-    void* data;
-    struct QueueListNode* next;
-} QueueListNode;
-
 typedef int QueueEventHandler(Object* owner, void* data);
 typedef void QueueEventDataFreeProc(void* data);
 typedef int QueueEventDataReadProc(File* stream, void** dataPtr);
@@ -73,30 +64,24 @@ typedef struct EventTypeDescription {
     QueueEventHandler* field_14;
 } EventTypeDescription;
 
-extern QueueListNode* gLastFoundQueueListNode;
-extern QueueListNode* gQueueListHead;
-extern EventTypeDescription gEventTypeDescriptions[EVENT_TYPE_COUNT];
+extern EventTypeDescription q_func[EVENT_TYPE_COUNT];
 
-void queueInit();
-int queueExit();
-int queueLoad(File* stream);
-int queueSave(File* stream);
-int queueAddEvent(int delay, Object* owner, void* data, int eventType);
-int queueRemoveEvents(Object* owner);
-int queueRemoveEventsByType(Object* owner, int eventType);
-bool queueHasEvent(Object* owner, int eventType);
-int queueProcessEvents();
-void queueClear();
-void _queue_clear_type(int eventType, QueueEventHandler* fn);
-int queueGetNextEventTime();
-int flareEventProcess(Object* obj, void* data);
-int explosionEventProcess(Object* obj, void* data);
-int _queue_explode_exit(Object* obj, void* data);
-int _queue_do_explosion_(Object* obj, bool a2);
-int explosionFailureEventProcess(Object* obj, void* data);
-void _queue_leaving_map();
-bool queueIsEmpty();
-void* queueFindFirstEvent(Object* owner, int eventType);
-void* queueFindNextEvent(Object* owner, int eventType);
+void queue_init();
+int queue_reset();
+int queue_exit();
+int queue_load(File* stream);
+int queue_save(File* stream);
+int queue_add(int delay, Object* owner, void* data, int eventType);
+int queue_remove(Object* owner);
+int queue_remove_this(Object* owner, int eventType);
+bool queue_find(Object* owner, int eventType);
+int queue_process();
+void queue_clear();
+void queue_clear_type(int eventType, QueueEventHandler* fn);
+int queue_next_time();
+void queue_leaving_map();
+bool queue_is_empty();
+void* queue_find_first(Object* owner, int eventType);
+void* queue_find_next(Object* owner, int eventType);
 
-#endif /* QUEUE_H */
+#endif /* FALLOUT_GAME_QUEUE_H_ */

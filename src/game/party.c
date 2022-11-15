@@ -408,7 +408,7 @@ int partyMemberAdd(Object* object)
     }
 
     combatai_switch_team(object, 0);
-    queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
+    queue_remove_this(object, EVENT_TYPE_SCRIPT);
 
     if (gdialogActive()) {
         if (object == dialog_target) {
@@ -460,7 +460,7 @@ int partyMemberRemove(Object* object)
         script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
     }
 
-    queueRemoveEventsByType(object, EVENT_TYPE_SCRIPT);
+    queue_remove_this(object, EVENT_TYPE_SCRIPT);
 
     if (gdialogActive()) {
         if (object == dialog_target) {
@@ -1260,7 +1260,7 @@ static int partyFixMultipleMembers()
             scriptRemove(obj->sid);
             obj->sid = -1;
         } else {
-            if (queueRemoveEventsByType(obj, EVENT_TYPE_SCRIPT) == -1) {
+            if (queue_remove_this(obj, EVENT_TYPE_SCRIPT) == -1) {
                 debugPrint("\nERROR Removing Timed Events on FIX remove!!\n");
             }
         }

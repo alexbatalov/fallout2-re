@@ -2754,7 +2754,7 @@ static void combat_over()
     intface_update_ac(true);
 
     if (critter_is_prone(obj_dude) && !critter_is_dead(obj_dude) && combat_ending_guy == NULL) {
-        queueRemoveEventsByType(obj_dude, EVENT_TYPE_KNOCKOUT);
+        queue_remove_this(obj_dude, EVENT_TYPE_KNOCKOUT);
         critter_wake_up(obj_dude, NULL);
     }
 }
@@ -4680,10 +4680,10 @@ static void set_new_results(Object* critter, int flags)
     }
 
     if ((flags & DAM_DEAD) != 0) {
-        queueRemoveEvents(critter);
+        queue_remove(critter);
     } else if ((flags & DAM_KNOCKED_OUT) != 0) {
         int endurance = critterGetStat(critter, STAT_ENDURANCE);
-        queueAddEvent(10 * (35 - 3 * endurance), critter, NULL, EVENT_TYPE_KNOCKOUT);
+        queue_add(10 * (35 - 3 * endurance), critter, NULL, EVENT_TYPE_KNOCKOUT);
     }
 
     if (critter == obj_dude && (flags & DAM_CRIP_ARM_ANY) != 0) {

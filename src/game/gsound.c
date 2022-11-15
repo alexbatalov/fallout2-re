@@ -2201,7 +2201,7 @@ int gsound_sfx_q_process(Object* a1, void* data)
     // 0x518E98
     static int lastTime = 0;
 
-    _queue_clear_type(EVENT_TYPE_GSOUND_SFX_EVENT, NULL);
+    queue_clear_type(EVENT_TYPE_GSOUND_SFX_EVENT, NULL);
 
     AmbientSoundEffectEvent* soundEffectEvent = (AmbientSoundEffectEvent*)data;
     int ambientSoundEffectIndex = -1;
@@ -2225,7 +2225,7 @@ int gsound_sfx_q_process(Object* a1, void* data)
     int delay = 10 * randomBetween(15, 20);
     if (wmSfxMaxCount() > 0) {
         nextSoundEffectEvent->ambientSoundEffectIndex = wmSfxRollNextIdx();
-        if (queueAddEvent(delay, NULL, nextSoundEffectEvent, EVENT_TYPE_GSOUND_SFX_EVENT) == -1) {
+        if (queue_add(delay, NULL, nextSoundEffectEvent, EVENT_TYPE_GSOUND_SFX_EVENT) == -1) {
             return -1;
         }
     }
