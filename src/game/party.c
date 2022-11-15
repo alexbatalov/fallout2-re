@@ -30,19 +30,19 @@
 #include "tile.h"
 #include "window_manager.h"
 
-typedef struct PartyMemberDescription {
-    bool areaAttackMode[AREA_ATTACK_MODE_COUNT];
-    bool runAwayMode[RUN_AWAY_MODE_COUNT];
-    bool bestWeapon[BEST_WEAPON_COUNT];
-    bool distanceMode[DISTANCE_COUNT];
-    bool attackWho[ATTACK_WHO_COUNT];
-    bool chemUse[CHEM_USE_COUNT];
+typedef struct PartyMemberAI {
+    bool area_attack_mode[AREA_ATTACK_MODE_COUNT];
+    bool run_away_mode[RUN_AWAY_MODE_COUNT];
+    bool best_weapon[BEST_WEAPON_COUNT];
+    bool distance_mode[DISTANCE_COUNT];
+    bool attack_who[ATTACK_WHO_COUNT];
+    bool chem_use[CHEM_USE_COUNT];
     bool disposition[DISPOSITION_COUNT];
     int level_minimum;
     int level_up_every;
     int level_pids_num;
     int level_pids[5];
-} PartyMemberDescription;
+} PartyMemberAI;
 
 typedef struct STRU_519DBC {
     int field_0;
@@ -57,8 +57,8 @@ typedef struct STRUCT_519DA8 {
     struct STRUCT_519DA8* next;
 } STRUCT_519DA8;
 
-static int partyMemberGetAIOptions(Object* object, PartyMemberDescription** partyMemberDescriptionPtr);
-static void partyMemberAISlotInit(PartyMemberDescription* partyMemberDescription);
+static int partyMemberGetAIOptions(Object* object, PartyMemberAI** aiOptionsPtr);
+static void partyMemberAISlotInit(PartyMemberAI* aiOptions);
 static int partyMemberSlotInit(int index);
 static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1);
 static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1);
@@ -97,7 +97,7 @@ static int partyMemberItemCount = 20000;
 static int partyStatePrepped = 0;
 
 // 0x519DB8
-static PartyMemberDescription* partyMemberAIOptions = NULL;
+static PartyMemberAI* partyMemberAIOptions = NULL;
 
 // 0x519DBC
 static STRU_519DBC* partyMemberLevelUpInfoList = NULL;
@@ -140,7 +140,7 @@ int partyMember_init()
 
     memset(partyMemberList, 0, sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
 
-    partyMemberAIOptions = (PartyMemberDescription*)internal_malloc(sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
+    partyMemberAIOptions = (PartyMemberAI*)internal_malloc(sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
     if (partyMemberAIOptions == NULL) {
         goto err;
     }
@@ -159,11 +159,11 @@ int partyMember_init()
             break;
         }
 
-        PartyMemberDescription* partyMemberDescription = &(partyMemberAIOptions[index]);
+        PartyMemberAI* aiOptions = &(partyMemberAIOptions[index]);
 
         partyMemberPidList[index] = partyMemberPid;
 
-        partyMemberAISlotInit(partyMemberDescription);
+        partyMemberAISlotInit(aiOptions);
 
         char* string;
 
@@ -171,7 +171,7 @@ int partyMember_init()
             while (*string != '\0') {
                 int areaAttackMode;
                 strParseStrFromList(&string, &areaAttackMode, area_attack_mode_strs, AREA_ATTACK_MODE_COUNT);
-                partyMemberDescription->areaAttackMode[areaAttackMode] = true;
+                aiOptions->area_attack_mode[areaAttackMode] = true;
             }
         }
 
@@ -179,7 +179,7 @@ int partyMember_init()
             while (*string != '\0') {
                 int attachWho;
                 strParseStrFromList(&string, &attachWho, attack_who_mode_strs, ATTACK_WHO_COUNT);
-                partyMemberDescription->attackWho[attachWho] = true;
+                aiOptions->attack_who[attachWho] = true;
             }
         }
 
@@ -187,7 +187,7 @@ int partyMember_init()
             while (*string != '\0') {
                 int bestWeapon;
                 strParseStrFromList(&string, &bestWeapon, weapon_pref_strs, BEST_WEAPON_COUNT);
-                partyMemberDescription->bestWeapon[bestWeapon] = true;
+                aiOptions->best_weapon[bestWeapon] = true;
             }
         }
 
@@ -195,7 +195,7 @@ int partyMember_init()
             while (*string != '\0') {
                 int chemUse;
                 strParseStrFromList(&string, &chemUse, chem_use_mode_strs, CHEM_USE_COUNT);
-                partyMemberDescription->chemUse[chemUse] = true;
+                aiOptions->chem_use[chemUse] = true;
             }
         }
 
@@ -203,7 +203,7 @@ int partyMember_init()
             while (*string != '\0') {
                 int distanceMode;
                 strParseStrFromList(&string, &distanceMode, distance_pref_strs, DISTANCE_COUNT);
-                partyMemberDescription->distanceMode[distanceMode] = true;
+                aiOptions->distance_mode[distanceMode] = true;
             }
         }
 
@@ -211,7 +211,7 @@ int partyMember_init()
             while (*string != '\0') {
                 int runAwayMode;
                 strParseStrFromList(&string, &runAwayMode, run_away_mode_strs, RUN_AWAY_MODE_COUNT);
-                partyMemberDescription->runAwayMode[runAwayMode] = true;
+                aiOptions->run_away_mode[runAwayMode] = true;
             }
         }
 
@@ -219,25 +219,25 @@ int partyMember_init()
             while (*string != '\0') {
                 int disposition;
                 strParseStrFromList(&string, &disposition, disposition_strs, DISPOSITION_COUNT);
-                partyMemberDescription->disposition[disposition] = true;
+                aiOptions->disposition[disposition] = true;
             }
         }
 
         int levelUpEvery;
         if (config_get_value(&config, section, "level_up_every", &levelUpEvery)) {
-            partyMemberDescription->level_up_every = levelUpEvery;
+            aiOptions->level_up_every = levelUpEvery;
 
             int levelMinimum;
             if (config_get_value(&config, section, "level_minimum", &levelMinimum)) {
-                partyMemberDescription->level_minimum = levelMinimum;
+                aiOptions->level_minimum = levelMinimum;
             }
 
             if (config_get_string(&config, section, "level_pids", &string)) {
-                while (*string != '\0' && partyMemberDescription->level_pids_num < 5) {
+                while (*string != '\0' && aiOptions->level_pids_num < 5) {
                     int levelPid;
                     strParseInt(&string, &levelPid);
-                    partyMemberDescription->level_pids[partyMemberDescription->level_pids_num] = levelPid;
-                    partyMemberDescription->level_pids_num++;
+                    aiOptions->level_pids[aiOptions->level_pids_num] = levelPid;
+                    aiOptions->level_pids_num++;
                 }
             }
         }
@@ -295,11 +295,11 @@ void partyMember_exit()
 }
 
 // 0x4941F0
-static int partyMemberGetAIOptions(Object* object, PartyMemberDescription** partyMemberDescriptionPtr)
+static int partyMemberGetAIOptions(Object* object, PartyMemberAI** aiOptionsPtr)
 {
     for (int index = 1; index < partyMemberMaxCount; index++) {
         if (partyMemberPidList[index] == object->pid) {
-            *partyMemberDescriptionPtr = &(partyMemberAIOptions[index]);
+            *aiOptionsPtr = &(partyMemberAIOptions[index]);
             return 0;
         }
     }
@@ -308,41 +308,41 @@ static int partyMemberGetAIOptions(Object* object, PartyMemberDescription** part
 }
 
 // 0x49425C
-static void partyMemberAISlotInit(PartyMemberDescription* partyMemberDescription)
+static void partyMemberAISlotInit(PartyMemberAI* aiOptions)
 {
     for (int index = 0; index < AREA_ATTACK_MODE_COUNT; index++) {
-        partyMemberDescription->areaAttackMode[index] = 0;
+        aiOptions->area_attack_mode[index] = 0;
     }
 
     for (int index = 0; index < RUN_AWAY_MODE_COUNT; index++) {
-        partyMemberDescription->runAwayMode[index] = 0;
+        aiOptions->run_away_mode[index] = 0;
     }
 
     for (int index = 0; index < BEST_WEAPON_COUNT; index++) {
-        partyMemberDescription->bestWeapon[index] = 0;
+        aiOptions->best_weapon[index] = 0;
     }
 
     for (int index = 0; index < DISTANCE_COUNT; index++) {
-        partyMemberDescription->distanceMode[index] = 0;
+        aiOptions->distance_mode[index] = 0;
     }
 
     for (int index = 0; index < ATTACK_WHO_COUNT; index++) {
-        partyMemberDescription->attackWho[index] = 0;
+        aiOptions->attack_who[index] = 0;
     }
 
     for (int index = 0; index < CHEM_USE_COUNT; index++) {
-        partyMemberDescription->chemUse[index] = 0;
+        aiOptions->chem_use[index] = 0;
     }
 
     for (int index = 0; index < DISPOSITION_COUNT; index++) {
-        partyMemberDescription->disposition[index] = 0;
+        aiOptions->disposition[index] = 0;
     }
 
-    partyMemberDescription->level_minimum = 0;
-    partyMemberDescription->level_up_every = 0;
-    partyMemberDescription->level_pids_num = 0;
+    aiOptions->level_minimum = 0;
+    aiOptions->level_up_every = 0;
+    aiOptions->level_pids_num = 0;
 
-    partyMemberDescription->level_pids[0] = -1;
+    aiOptions->level_pids[0] = -1;
 
     for (int index = 0; index < partyMemberMaxCount; index++) {
         // NOTE: Uninline.
@@ -1308,12 +1308,12 @@ bool partyMemberHasAIDisposition(Object* critter, int disposition)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(critter, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(critter, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->disposition[disposition + 1];
+    return aiOptions->disposition[disposition + 1];
 }
 
 // 0x495920
@@ -1331,12 +1331,12 @@ bool partyMemberHasAIBurstValue(Object* object, int areaAttackMode)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(object, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->areaAttackMode[areaAttackMode];
+    return aiOptions->area_attack_mode[areaAttackMode];
 }
 
 // 0x495980
@@ -1354,12 +1354,12 @@ bool partyMemberHasAIRunAwayValue(Object* object, int runAwayMode)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(object, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->runAwayMode[runAwayMode + 1];
+    return aiOptions->run_away_mode[runAwayMode + 1];
 }
 
 // 0x4959E0
@@ -1377,12 +1377,12 @@ bool partyMemberHasAIWeaponPrefValue(Object* object, int bestWeapon)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(object, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->bestWeapon[bestWeapon];
+    return aiOptions->best_weapon[bestWeapon];
 }
 
 // 0x495A40
@@ -1400,12 +1400,12 @@ bool partyMemberHasAIDistancePrefValue(Object* object, int distanceMode)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(object, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->distanceMode[distanceMode];
+    return aiOptions->distance_mode[distanceMode];
 }
 
 // 0x495AA0
@@ -1423,12 +1423,12 @@ bool partyMemberHasAIAttackWhoValue(Object* object, int attackWho)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(object, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->attackWho[attackWho];
+    return aiOptions->attack_who[attackWho];
 }
 
 // 0x495B00
@@ -1446,12 +1446,12 @@ bool partyMemberHasAIChemUseValue(Object* object, int chemUse)
         return false;
     }
 
-    PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
+    PartyMemberAI* aiOptions;
+    if (partyMemberGetAIOptions(object, &aiOptions) == -1) {
         return false;
     }
 
-    return partyMemberDescription->chemUse[chemUse];
+    return aiOptions->chem_use[chemUse];
 }
 
 // partyMemberIncLevels
@@ -1461,7 +1461,7 @@ int partyMemberIncLevels()
     int i;
     STRUCT_519DA8* ptr;
     Object* obj;
-    PartyMemberDescription* party_member;
+    PartyMemberAI* aiOptions;
     const char* name;
     int j;
     int v0;
@@ -1477,7 +1477,7 @@ int partyMemberIncLevels()
         ptr = &(partyMemberList[i]);
         obj = ptr->object;
 
-        if (partyMemberGetAIOptions(obj, &party_member) == -1) {
+        if (partyMemberGetAIOptions(obj, &aiOptions) == -1) {
             break;
         }
 
@@ -1488,7 +1488,7 @@ int partyMemberIncLevels()
         name = critter_name(obj);
         debugPrint("\npartyMemberIncLevels: %s", name);
 
-        if (party_member->level_up_every == 0) {
+        if (aiOptions->level_up_every == 0) {
             continue;
         }
 
@@ -1502,30 +1502,30 @@ int partyMemberIncLevels()
             continue;
         }
 
-        if (pcGetStat(PC_STAT_LEVEL) < party_member->level_minimum) {
+        if (pcGetStat(PC_STAT_LEVEL) < aiOptions->level_minimum) {
             continue;
         }
 
         ptr_519DBC = &(partyMemberLevelUpInfoList[v0]);
 
-        if (ptr_519DBC->field_0 >= party_member->level_pids_num) {
+        if (ptr_519DBC->field_0 >= aiOptions->level_pids_num) {
             continue;
         }
 
         ptr_519DBC->field_4++;
 
-        v24 = ptr_519DBC->field_4 % party_member->level_pids_num;
-        debugPrint("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, ptr_519DBC->field_4, ptr_519DBC->field_8, party_member->level_up_every);
+        v24 = ptr_519DBC->field_4 % aiOptions->level_pids_num;
+        debugPrint("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, ptr_519DBC->field_4, ptr_519DBC->field_8, aiOptions->level_up_every);
 
         if (v24 != 0 || ptr_519DBC->field_8 == 0) {
             if (ptr_519DBC->field_8 == 0) {
-                if (v24 == 0 || randomBetween(0, 100) <= 100 * v24 / party_member->level_up_every) {
+                if (v24 == 0 || randomBetween(0, 100) <= 100 * v24 / aiOptions->level_up_every) {
                     ptr_519DBC->field_0++;
                     if (v24 != 0) {
                         ptr_519DBC->field_8 = 1;
                     }
 
-                    if (partyMemberCopyLevelInfo(obj, party_member->level_pids[ptr_519DBC->field_0]) == -1) {
+                    if (partyMemberCopyLevelInfo(obj, aiOptions->level_pids[ptr_519DBC->field_0]) == -1) {
                         return -1;
                     }
 
