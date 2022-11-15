@@ -421,7 +421,7 @@ int queueGetNextEventTime()
 // 0x4A281C
 int flareEventProcess(Object* obj, void* data)
 {
-    _obj_destroy(obj);
+    obj_destroy(obj);
     return 1;
 }
 
@@ -476,7 +476,7 @@ int _queue_do_explosion_(Object* explosive, bool a2)
     if (action_explode(tile, elevation, minDamage, maxDamage, obj_dude, a2) == -2) {
         queueAddEvent(50, explosive, NULL, EVENT_TYPE_EXPLOSION);
     } else {
-        _obj_destroy(explosive);
+        obj_destroy(explosive);
     }
 
     return 1;

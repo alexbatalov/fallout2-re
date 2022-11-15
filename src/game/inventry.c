@@ -1612,7 +1612,7 @@ void inven_hover_on(int btn, int keyCode)
             mouse_set_shape(cursorData->frmData, cursorData->width, cursorData->height, cursorData->width, v5, v6, 0);
 
             if (a2a != last_target) {
-                _obj_look_at_func(stack[0], a2a, display_msg);
+                obj_look_at_func(stack[0], a2a, display_msg);
             }
         } else {
             InventoryCursorData* cursorData = &(imdata[INVENTORY_WINDOW_CURSOR_ARROW]);
@@ -2967,7 +2967,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
         colorTable[992]);
 
     // Examine item.
-    _obj_examine_func(critter, item, inven_display_msg);
+    obj_examine_func(critter, item, inven_display_msg);
 
     // Add weight if neccessary.
     int weight = item_weight(item);
@@ -3059,7 +3059,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
         mouseState = mouse_get_buttons();
         if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
             if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL) {
-                _obj_look_at_func(stack[0], item, display_msg);
+                obj_look_at_func(stack[0], item, display_msg);
             } else {
                 inven_obj_examine_func(stack[0], item);
             }
@@ -3234,13 +3234,13 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
             if (v56 > 0) {
                 if (v56 == 1) {
                     item_caps_set_amount(item, 1);
-                    _obj_drop(v41, item);
+                    obj_drop(v41, item);
                 } else {
                     if (item_remove_mult(v41, item, v56 - 1) == 0) {
                         Object* a2;
                         if (inven_from_button(keyCode, &a2, &v43, &v41) != 0) {
                             item_caps_set_amount(a2, v56);
-                            _obj_drop(v41, a2);
+                            obj_drop(v41, a2);
                         } else {
                             item_add_force(v41, item, v56 - 1);
                         }
@@ -3249,24 +3249,24 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
             }
         } else if (item->pid == PROTO_ID_DYNAMITE_II || item->pid == PROTO_ID_PLASTIC_EXPLOSIVES_II) {
             dropped_explosive = 1;
-            _obj_drop(v41, item);
+            obj_drop(v41, item);
         } else {
             if (v56 > 1) {
                 v56 = do_move_timer(INVENTORY_WINDOW_TYPE_MOVE_ITEMS, item, v56);
 
                 for (int index = 0; index < v56; index++) {
                     if (inven_from_button(keyCode, &item, &v43, &v41) != 0) {
-                        _obj_drop(v41, item);
+                        obj_drop(v41, item);
                     }
                 }
             } else {
-                _obj_drop(v41, item);
+                obj_drop(v41, item);
             }
         }
         break;
     case GAME_MOUSE_ACTION_MENU_ITEM_LOOK:
         if (inventoryWindowType != INVENTORY_WINDOW_TYPE_NORMAL) {
-            _obj_examine_func(stack[0], item, display_msg);
+            obj_examine_func(stack[0], item, display_msg);
         } else {
             inven_obj_examine_func(stack[0], item);
         }
@@ -3285,7 +3285,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
                 }
 
                 obj_connect(item, obj_dude->tile, obj_dude->elevation, NULL);
-                _obj_destroy(item);
+                obj_destroy(item);
             }
             intface_update_hit_points(true);
             break;
@@ -3297,9 +3297,9 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
 
             int v21;
             if (obj_action_can_use(item)) {
-                v21 = _protinst_use_item(stack[0], item);
+                v21 = protinst_use_item(stack[0], item);
             } else {
-                v21 = _protinst_use_item_on(stack[0], stack[0], item);
+                v21 = protinst_use_item_on(stack[0], stack[0], item);
             }
 
             if (v21 == 1) {
@@ -3308,7 +3308,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
                 }
 
                 obj_connect(item, obj_dude->tile, obj_dude->elevation, NULL);
-                _obj_destroy(item);
+                obj_destroy(item);
             } else {
                 if (v43 == NULL) {
                     item_add_force(v41, item, 1);
@@ -3407,7 +3407,7 @@ int loot_container(Object* a1, Object* a2)
 
     int sid = -1;
     if (!_gIsSteal) {
-        if (_obj_sid(a2, &sid) != -1) {
+        if (obj_sid(a2, &sid) != -1) {
             scriptSetObjects(sid, a1, NULL);
             scriptExecProc(sid, SCRIPT_PROC_PICKUP);
 
@@ -3753,7 +3753,7 @@ int loot_container(Object* a1, Object* a2)
     if (_gIsSteal) {
         if (isCaughtStealing) {
             if (_gStealCount > 0) {
-                if (_obj_sid(a2, &sid) != -1) {
+                if (obj_sid(a2, &sid) != -1) {
                     scriptSetObjects(sid, a1, NULL);
                     scriptExecProc(sid, SCRIPT_PROC_PICKUP);
 
@@ -4676,7 +4676,7 @@ int drop_ammo_into_weapon(Object* weapon, Object* ammo, Object** a3, int quantit
                 *a3 = NULL;
             }
 
-            _obj_destroy(v14);
+            obj_destroy(v14);
 
             v17 = true;
             if (inven_from_button(keyCode, &v14, NULL, NULL) == 0) {

@@ -485,7 +485,7 @@ int item_destroy_all_hidden(Object* a1)
 
             if (!v5) {
                 item_remove_mult(a1, inventoryItem->item, 1);
-                _obj_destroy(inventoryItem->item);
+                obj_destroy(inventoryItem->item);
             } else {
                 i++;
                 j++;
@@ -513,7 +513,7 @@ int item_drop_all(Object* critter, int tile)
 
             if (obj_connect(item, tile, critter->elevation, NULL) != 0) {
                 if (item_add_force(critter, item, 1) != 0) {
-                    _obj_destroy(item);
+                    obj_destroy(item);
                 }
                 return -1;
             }
@@ -541,7 +541,7 @@ int item_drop_all(Object* critter, int tile)
 
                 if (obj_connect(item, tile, critter->elevation, NULL) != 0) {
                     if (item_add_force(critter, item, 1) != 0) {
-                        _obj_destroy(item);
+                        obj_destroy(item);
                     }
                     return -1;
                 }
@@ -1033,7 +1033,7 @@ Object* item_replace(Object* a1, Object* a2, int a3)
 
                 item->flags &= ~a3;
                 if (item_add_force(a1, item, 1) != 0) {
-                    _obj_destroy(item);
+                    obj_destroy(item);
                 }
             }
         }
@@ -1392,7 +1392,7 @@ int item_w_try_reload(Object* critter, Object* weapon)
                 if (item_w_can_reload(weapon, ammo) != 0) {
                     int rc = item_w_reload(weapon, ammo);
                     if (rc == 0) {
-                        _obj_destroy(ammo);
+                        obj_destroy(ammo);
                     }
 
                     if (rc == -1) {
@@ -1414,7 +1414,7 @@ int item_w_try_reload(Object* critter, Object* weapon)
             if (item_w_can_reload(weapon, ammo) != 0) {
                 int rc = item_w_reload(weapon, ammo);
                 if (rc == 0) {
-                    _obj_destroy(ammo);
+                    obj_destroy(ammo);
                 }
 
                 if (rc == -1) {

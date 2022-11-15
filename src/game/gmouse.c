@@ -726,7 +726,7 @@ void gmouse_bk_process()
 
                     if (pointedObject != last_object) {
                         last_object = pointedObject;
-                        _obj_look_at(obj_dude, last_object);
+                        obj_look_at(obj_dude, last_object);
                     }
                 }
             } else if (gmouse_3d_current_mode == GAME_MOUSE_MODE_CROSSHAIR) {
@@ -744,8 +744,8 @@ void gmouse_bk_process()
                     int combatLooks = 0;
                     config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLooks);
                     if (combatLooks != 0) {
-                        if (_obj_examine(obj_dude, pointedObject) == -1) {
-                            _obj_look_at(obj_dude, pointedObject);
+                        if (obj_examine(obj_dude, pointedObject) == -1) {
+                            obj_look_at(obj_dude, pointedObject);
                         }
                     }
 
@@ -960,8 +960,8 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     } else {
                         if (obj_action_can_talk_to(v5)) {
                             if (isInCombat()) {
-                                if (_obj_examine(obj_dude, v5) == -1) {
-                                    _obj_look_at(obj_dude, v5);
+                                if (obj_examine(obj_dude, v5) == -1) {
+                                    obj_look_at(obj_dude, v5);
                                 }
                             } else {
                                 action_talk_to(obj_dude, v5);
@@ -975,14 +975,14 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     if (obj_action_can_use(v5)) {
                         action_use_an_object(obj_dude, v5);
                     } else {
-                        if (_obj_examine(obj_dude, v5) == -1) {
-                            _obj_look_at(obj_dude, v5);
+                        if (obj_examine(obj_dude, v5) == -1) {
+                            obj_look_at(obj_dude, v5);
                         }
                     }
                     break;
                 case OBJ_TYPE_WALL:
-                    if (_obj_examine(obj_dude, v5) == -1) {
-                        _obj_look_at(obj_dude, v5);
+                    if (obj_examine(obj_dude, v5) == -1) {
+                        obj_look_at(obj_dude, v5);
                     }
                     break;
                 }
@@ -1168,8 +1168,8 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                         use_inventory_on(v16);
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_LOOK:
-                        if (_obj_examine(obj_dude, v16) == -1) {
-                            _obj_look_at(obj_dude, v16);
+                        if (obj_examine(obj_dude, v16) == -1) {
+                            obj_look_at(obj_dude, v16);
                         }
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_ROTATE:

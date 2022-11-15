@@ -3892,13 +3892,13 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
                     object->sid = -1;
                 }
 
-                _obj_new_sid_inst(object, SCRIPT_TYPE_CRITTER, v5->script - 1);
+                obj_new_sid_inst(object, SCRIPT_TYPE_CRITTER, v5->script - 1);
             }
 
             if (v25->position != ENCOUNTER_FORMATION_TYPE_SURROUNDING) {
                 obj_move_to_tile(object, tile, map_elevation, NULL);
             } else {
-                _obj_attempt_placement(object, tile, 0, 0);
+                obj_attempt_placement(object, tile, 0, 0);
             }
 
             int direction = tileGetRotationTo(tile, obj_dude->tile);

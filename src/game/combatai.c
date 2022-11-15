@@ -955,7 +955,7 @@ static int ai_check_drugs(Object* critter)
                 } else {
                     ai_magic_hands(critter, drug, 5000);
                     obj_connect(drug, critter->tile, critter->elevation, NULL);
-                    _obj_destroy(drug);
+                    obj_destroy(drug);
                     v28 = 1;
                 }
 
@@ -994,7 +994,7 @@ static int ai_check_drugs(Object* critter)
                         } else {
                             ai_magic_hands(critter, drug, 5000);
                             obj_connect(drug, critter->tile, critter->elevation, NULL);
-                            _obj_destroy(drug);
+                            obj_destroy(drug);
                             v28 = 1;
                             v29 += 1;
                         }
@@ -1035,7 +1035,7 @@ static int ai_check_drugs(Object* critter)
                 } else {
                     ai_magic_hands(critter, v3, 5000);
                     obj_connect(v3, critter->tile, critter->elevation, NULL);
-                    _obj_destroy(v3);
+                    obj_destroy(v3);
                     v3 = NULL;
                 }
 
@@ -2540,7 +2540,7 @@ static int ai_try_attack(Object* a1, Object* a2)
             if (ai_have_ammo(a1, weapon, &ammo)) {
                 int v9 = item_w_reload(weapon, ammo);
                 if (v9 == 0 && ammo != NULL) {
-                    _obj_destroy(ammo);
+                    obj_destroy(ammo);
                 }
 
                 if (v9 != -1) {
@@ -2563,7 +2563,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                     if (ammo != NULL) {
                         int v15 = item_w_reload(weapon, ammo);
                         if (v15 == 0) {
-                            _obj_destroy(ammo);
+                            obj_destroy(ammo);
                         }
 
                         if (v15 != -1) {
@@ -2703,7 +2703,7 @@ static int ai_try_attack(Object* a1, Object* a2)
 int cAIPrepWeaponItem(Object* critter, Object* item)
 {
     if (item != NULL && critterGetStat(critter, STAT_INTELLIGENCE) >= 3 && item->pid == PROTO_ID_FLARE && light_get_ambient() < 55705) {
-        _protinst_use_item(critter, item);
+        protinst_use_item(critter, item);
     }
     return 0;
 }
@@ -2727,7 +2727,7 @@ void cai_attempt_w_reload(Object* critter_obj, int a2)
     if (v5 < item_w_max_ammo(weapon_obj) && ai_have_ammo(critter_obj, weapon_obj, &ammo_obj)) {
         v9 = item_w_reload(weapon_obj, ammo_obj);
         if (v9 == 0) {
-            _obj_destroy(ammo_obj);
+            obj_destroy(ammo_obj);
         }
 
         if (v9 != -1 && isPartyMember(critter_obj)) {

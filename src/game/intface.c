@@ -1561,7 +1561,7 @@ void intface_use_item()
         if (isInCombat()) {
             int actionPointsRequired = item_mp_cost(obj_dude, ptr->secondaryHitMode, false);
             if (actionPointsRequired <= obj_dude->data.critter.combat.ap) {
-                _obj_use_item(obj_dude, ptr->item);
+                obj_use_item(obj_dude, ptr->item);
                 intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
                 if (actionPointsRequired > obj_dude->data.critter.combat.ap) {
                     obj_dude->data.critter.combat.ap = 0;
@@ -1572,7 +1572,7 @@ void intface_use_item()
                 intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
             }
         } else {
-            _obj_use_item(obj_dude, ptr->item);
+            obj_use_item(obj_dude, ptr->item);
             intface_update_items(false, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);
         }
     }

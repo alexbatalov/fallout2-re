@@ -284,7 +284,7 @@ static int check_death(Object* obj, int anim, int minViolenceLevel, bool isFalli
 // 0x4108C8
 static int internal_destroy(Object* a1, Object* a2)
 {
-    return _obj_destroy(a2);
+    return obj_destroy(a2);
 }
 
 // TODO: Check very carefully, lots of conditions and jumps.
@@ -407,7 +407,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
 
     if (weapon != NULL) {
         if ((flags & DAM_EXPLODE) != 0) {
-            register_object_must_call(a1, weapon, _obj_drop, -1);
+            register_object_must_call(a1, weapon, obj_drop, -1);
             fid = art_id(OBJ_TYPE_MISC, 10, 0, 0, 0);
             register_object_change_fid(weapon, fid, 0);
             register_object_animate_and_hide(weapon, ANIM_STAND, 0);
@@ -419,7 +419,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
         } else if ((flags & DAM_DESTROY) != 0) {
             register_object_must_call(a1, weapon, internal_destroy, -1);
         } else if ((flags & DAM_DROP) != 0) {
-            register_object_must_call(a1, weapon, _obj_drop, -1);
+            register_object_must_call(a1, weapon, obj_drop, -1);
         }
     }
 
@@ -1032,7 +1032,7 @@ static int action_climb_ladder(Object* a1, Object* a2)
 
     register_object_must_call(a1, a2, is_next_to, -1);
     register_object_turn_towards(a1, a2->tile);
-    register_object_must_call(a1, a2, _check_scenery_ap_cost, -1);
+    register_object_must_call(a1, a2, check_scenery_ap_cost, -1);
 
     int weaponAnimationCode = (a1->fid & 0xF000) >> 12;
     if (weaponAnimationCode != 0) {
@@ -1044,7 +1044,7 @@ static int action_climb_ladder(Object* a1, Object* a2)
     const char* climbingSfx = gsnd_build_character_sfx_name(a1, ANIM_CLIMB_LADDER, CHARACTER_SOUND_EFFECT_UNUSED);
     register_object_play_sfx(a1, climbingSfx, -1);
     register_object_animate(a1, ANIM_CLIMB_LADDER, 0);
-    register_object_call(a1, a2, _obj_use, -1);
+    register_object_call(a1, a2, obj_use, -1);
 
     if (weaponAnimationCode != 0) {
         register_object_take_out(a1, weaponAnimationCode, -1);
@@ -1100,7 +1100,7 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
         register_object_must_call(a1, a2, is_next_to, -1);
 
         if (a3 == NULL) {
-            register_object_call(a1, a2, _check_scenery_ap_cost, -1);
+            register_object_call(a1, a2, check_scenery_ap_cost, -1);
         }
 
         int a2a = (a1->fid & 0xF000) >> 12;
@@ -1126,9 +1126,9 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
 
         if (a3 != NULL) {
             // TODO: Get rid of cast.
-            register_object_call3(a1, a2, a3, _obj_use_item_on, -1);
+            register_object_call3(a1, a2, a3, obj_use_item_on, -1);
         } else {
-            register_object_call(a1, a2, _obj_use, -1);
+            register_object_call(a1, a2, obj_use, -1);
         }
 
         if (a2a != 0) {
@@ -1188,7 +1188,7 @@ int action_get_an_object(Object* critter, Object* item)
     }
 
     register_object_must_call(critter, item, is_next_to, -1);
-    register_object_call(critter, item, _check_scenery_ap_cost, -1);
+    register_object_call(critter, item, check_scenery_ap_cost, -1);
 
     Proto* itemProto;
     protoGetProto(item->pid, &itemProto);
@@ -1213,7 +1213,7 @@ int action_get_an_object(Object* critter, Object* item)
             register_object_play_sfx(item, sfx, actionFrame);
         }
 
-        register_object_call(critter, item, _obj_pickup, actionFrame);
+        register_object_call(critter, item, obj_pickup, actionFrame);
     } else {
         int weaponAnimationCode = (critter->fid & 0xF000) >> 12;
         if (weaponAnimationCode != 0) {
@@ -1241,7 +1241,7 @@ int action_get_an_object(Object* critter, Object* item)
         }
 
         if (item->frame != 1) {
-            register_object_call(critter, item, _obj_use_container, actionFrame);
+            register_object_call(critter, item, obj_use_container, actionFrame);
         }
 
         if (weaponAnimationCode != 0) {
@@ -1289,7 +1289,7 @@ int action_loot_container(Object* critter, Object* container)
     }
 
     register_object_must_call(critter, container, is_next_to, -1);
-    register_object_call(critter, container, _check_scenery_ap_cost, -1);
+    register_object_call(critter, container, check_scenery_ap_cost, -1);
     register_object_call(critter, container, scriptsRequestLooting, -1);
     return register_end();
 }
@@ -1494,7 +1494,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
     register_object_animate(performer, anim, -1);
     // TODO: Get rid of casts.
-    register_object_call3(performer, a2, (void*)skill, (AnimationCallback3*)_obj_use_skill_on, -1);
+    register_object_call3(performer, a2, (void*)skill, (AnimationCallback3*)obj_use_skill_on, -1);
     return register_end();
 }
 
@@ -2154,7 +2154,7 @@ int action_push_critter(Object* a1, Object* a2)
     }
 
     int sid;
-    if (_obj_sid(a2, &sid) == 0) {
+    if (obj_sid(a2, &sid) == 0) {
         scriptSetObjects(sid, a1, a2);
         scriptExecProc(sid, SCRIPT_PROC_PUSH);
 

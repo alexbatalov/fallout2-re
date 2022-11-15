@@ -16,6 +16,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/map.h"
+#include "game/message.h"
 #include "game/object.h"
 #include "game/palette.h"
 #include "game/perk.h"
@@ -28,11 +29,18 @@
 #include "tile.h"
 #include "worldmap.h"
 
-// 0x49A990
-MessageListItem stru_49A990;
+static int obj_use_book(Object* item_obj);
+static int obj_use_flare(Object* critter_obj, Object* item_obj);
+static int obj_use_explosive(Object* explosive);
+static int obj_use_misc_item(Object* item_obj);
+static int protinstTestDroppedExplosive(Object* a1);
+static int protinst_default_use_item(Object* a1, Object* a2, Object* item);
+static int set_door_state_open(Object* a1, Object* a2);
+static int set_door_state_closed(Object* a1, Object* a2);
+static int check_door_state(Object* a1, Object* a2);
 
 // 0x49A9A0
-int _obj_sid(Object* object, int* sidPtr)
+int obj_sid(Object* object, int* sidPtr)
 {
     *sidPtr = object->sid;
     if (*sidPtr == -1) {
@@ -43,7 +51,7 @@ int _obj_sid(Object* object, int* sidPtr)
 }
 
 // 0x49A9B4
-int _obj_new_sid(Object* object, int* sidPtr)
+int obj_new_sid(Object* object, int* sidPtr)
 {
     *sidPtr = -1;
 
@@ -102,7 +110,7 @@ int _obj_new_sid(Object* object, int* sidPtr)
 }
 
 // 0x49AAC0
-int _obj_new_sid_inst(Object* obj, int scriptType, int a3)
+int obj_new_sid_inst(Object* obj, int scriptType, int a3)
 {
     if (a3 == -1) {
         return -1;
@@ -141,13 +149,13 @@ int _obj_new_sid_inst(Object* obj, int scriptType, int a3)
 }
 
 // 0x49AC3C
-int _obj_look_at(Object* a1, Object* a2)
+int obj_look_at(Object* a1, Object* a2)
 {
-    return _obj_look_at_func(a1, a2, display_print);
+    return obj_look_at_func(a1, a2, display_print);
 }
 
 // 0x49AC4C
-int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
+int obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
 {
     if (critter_is_dead(a1)) {
         return -1;
@@ -199,9 +207,9 @@ int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
 }
 
 // 0x49AD78
-int _obj_examine(Object* a1, Object* a2)
+int obj_examine(Object* a1, Object* a2)
 {
-    return _obj_examine_func(a1, a2, display_print);
+    return obj_examine_func(a1, a2, display_print);
 }
 
 // Performs examine (reading description) action and passes resulting text
@@ -211,7 +219,7 @@ int _obj_examine(Object* a1, Object* a2)
 // [fn] can be called up to three times when [a2] is an ammo.
 //
 // 0x49AD88
-int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
+int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 {
     if (critter_is_dead(critter)) {
         return -1;
@@ -517,7 +525,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 }
 
 // 0x49B650
-int _obj_pickup(Object* critter, Object* item)
+int obj_pickup(Object* critter, Object* item)
 {
     bool overriden = false;
 
@@ -567,7 +575,7 @@ int _obj_pickup(Object* critter, Object* item)
 }
 
 // 0x49B73C
-int _obj_remove_from_inven(Object* critter, Object* item)
+int obj_remove_from_inven(Object* critter, Object* item)
 {
     Rect updatedRect;
     int fid;
@@ -617,7 +625,7 @@ int _obj_remove_from_inven(Object* critter, Object* item)
 }
 
 // 0x49B8B0
-int _obj_drop(Object* a1, Object* a2)
+int obj_drop(Object* a1, Object* a2)
 {
     if (a2 == NULL) {
         return -1;
@@ -656,7 +664,7 @@ int _obj_drop(Object* a1, Object* a2)
         return 0;
     }
 
-    if (_obj_remove_from_inven(a1, a2) == 0) {
+    if (obj_remove_from_inven(a1, a2) == 0) {
         Object* owner = obj_top_environment(a1);
         if (owner == NULL) {
             owner = a1;
@@ -671,7 +679,7 @@ int _obj_drop(Object* a1, Object* a2)
 }
 
 // 0x49B9A0
-int _obj_destroy(Object* obj)
+int obj_destroy(Object* obj)
 {
     if (obj == NULL) {
         return -1;
@@ -680,7 +688,7 @@ int _obj_destroy(Object* obj)
     int elev;
     Object* owner = obj->owner;
     if (owner != NULL) {
-        _obj_remove_from_inven(owner, obj);
+        obj_remove_from_inven(owner, obj);
     } else {
         elev = obj->elevation;
     }
@@ -700,7 +708,7 @@ int _obj_destroy(Object* obj)
 // Read a book.
 //
 // 0x49B9F0
-int _obj_use_book(Object* book)
+static int obj_use_book(Object* book)
 {
     MessageListItem messageListItem;
 
@@ -788,7 +796,7 @@ int _obj_use_book(Object* book)
 // Light a flare.
 //
 // 0x49BBA8
-int _obj_use_flare(Object* critter_obj, Object* flare)
+static int obj_use_flare(Object* critter_obj, Object* flare)
 {
     MessageListItem messageListItem;
 
@@ -823,7 +831,7 @@ int _obj_use_flare(Object* critter_obj, Object* flare)
 }
 
 // 0x49BC60
-int _obj_use_radio(Object* item)
+int obj_use_radio(Object* item)
 {
     Script* scr;
 
@@ -842,7 +850,7 @@ int _obj_use_radio(Object* item)
 }
 
 // 0x49BCB4
-int _obj_use_explosive(Object* explosive)
+static int obj_use_explosive(Object* explosive)
 {
     MessageListItem messageListItem;
 
@@ -911,13 +919,12 @@ int _obj_use_explosive(Object* explosive)
 // Returns 1 when car is recharged.
 //
 // 0x49BDE8
-int _obj_use_power_on_car(Object* item)
+int obj_use_power_on_car(Object* item)
 {
-    MessageListItem messageListItem;
-    int messageNum;
+    // 0x49A990
+    static MessageListItem messageListItem;
 
-    static_assert(sizeof(messageListItem) == sizeof(stru_49A990), "wrong size");
-    memcpy(&messageListItem, &stru_49A990, sizeof(messageListItem));
+    int messageNum;
 
     bool isEnergy = false;
     int energyDensity;
@@ -960,7 +967,7 @@ int _obj_use_power_on_car(Object* item)
 }
 
 // 0x49BE88
-int _obj_use_misc_item(Object* item)
+static int obj_use_misc_item(Object* item)
 {
 
     if (item == NULL) {
@@ -993,7 +1000,7 @@ int _obj_use_misc_item(Object* item)
 }
 
 // 0x49BF38
-int _protinst_use_item(Object* critter, Object* item)
+int protinst_use_item(Object* critter, Object* item)
 {
     int rc;
     MessageListItem messageListItem;
@@ -1004,27 +1011,27 @@ int _protinst_use_item(Object* critter, Object* item)
         break;
     case ITEM_TYPE_WEAPON:
     case ITEM_TYPE_MISC:
-        rc = _obj_use_book(item);
+        rc = obj_use_book(item);
         if (rc != -1) {
             break;
         }
 
-        rc = _obj_use_flare(critter, item);
+        rc = obj_use_flare(critter, item);
         if (rc == 0) {
             break;
         }
 
-        rc = _obj_use_misc_item(item);
+        rc = obj_use_misc_item(item);
         if (rc != -1) {
             break;
         }
 
-        rc = _obj_use_radio(item);
+        rc = obj_use_radio(item);
         if (rc == 0) {
             break;
         }
 
-        rc = _obj_use_explosive(item);
+        rc = obj_use_explosive(item);
         if (rc == 0 || rc == 2) {
             break;
         }
@@ -1051,7 +1058,7 @@ int _protinst_use_item(Object* critter, Object* item)
 }
 
 // 0x49BFE8
-int _protinstTestDroppedExplosive(Object* a1)
+static int protinstTestDroppedExplosive(Object* a1)
 {
     if (a1->pid == PROTO_ID_DYNAMITE_II || a1->pid == PROTO_ID_PLASTIC_EXPLOSIVES_II) {
         Attack attack;
@@ -1090,9 +1097,9 @@ int _protinstTestDroppedExplosive(Object* a1)
 }
 
 // 0x49C124
-int _obj_use_item(Object* a1, Object* a2)
+int obj_use_item(Object* a1, Object* a2)
 {
-    int rc = _protinst_use_item(a1, a2);
+    int rc = protinst_use_item(a1, a2);
     if (rc == 1 || rc == 2) {
         Object* root = obj_top_environment(a2);
         if (root != NULL) {
@@ -1118,12 +1125,12 @@ int _obj_use_item(Object* a1, Object* a2)
         }
 
         if (rc == 1) {
-            _obj_destroy(a2);
+            obj_destroy(a2);
         } else if (rc == 2 && root != NULL) {
             Rect updatedRect;
             obj_connect(a2, root->tile, root->elevation, &updatedRect);
             tileWindowRefreshRect(&updatedRect, root->elevation);
-            _protinstTestDroppedExplosive(a2);
+            protinstTestDroppedExplosive(a2);
         }
 
         rc = 0;
@@ -1135,7 +1142,7 @@ int _obj_use_item(Object* a1, Object* a2)
 }
 
 // 0x49C240
-int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
+static int protinst_default_use_item(Object* a1, Object* a2, Object* item)
 {
     char formattedText[90];
     MessageListItem messageListItem;
@@ -1189,14 +1196,14 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
 
         return rc;
     case ITEM_TYPE_AMMO:
-        rc = _obj_use_power_on_car(item);
+        rc = obj_use_power_on_car(item);
         if (rc == 1) {
             return 1;
         }
         break;
     case ITEM_TYPE_WEAPON:
     case ITEM_TYPE_MISC:
-        rc = _obj_use_flare(a1, item);
+        rc = obj_use_flare(a1, item);
         if (rc == 0) {
             return 0;
         }
@@ -1212,7 +1219,7 @@ int _protinst_default_use_item(Object* a1, Object* a2, Object* item)
 }
 
 // 0x49C3CC
-int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
+int protinst_use_item_on(Object* a1, Object* a2, Object* item)
 {
     int messageId = -1;
     int criticalChanceModifier = 0;
@@ -1250,7 +1257,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
 
         if (item->sid == -1) {
             if (a2->sid == -1) {
-                return _protinst_default_use_item(a1, a2, item);
+                return protinst_default_use_item(a1, a2, item);
             }
 
             scriptSetObjects(a2->sid, a1, item);
@@ -1261,7 +1268,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
             }
 
             if (!script->scriptOverrides) {
-                return _protinst_default_use_item(a1, a2, item);
+                return protinst_default_use_item(a1, a2, item);
             }
         } else {
             scriptSetObjects(item->sid, a1, a2);
@@ -1273,7 +1280,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
 
             if (script->field_28 == 0) {
                 if (a2->sid == -1) {
-                    return _protinst_default_use_item(a1, a2, item);
+                    return protinst_default_use_item(a1, a2, item);
                 }
 
                 scriptSetObjects(a2->sid, a1, item);
@@ -1285,7 +1292,7 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
                 }
 
                 if (!script->scriptOverrides) {
-                    return _protinst_default_use_item(a1, a2, item);
+                    return protinst_default_use_item(a1, a2, item);
                 }
             }
         }
@@ -1325,9 +1332,9 @@ int _protinst_use_item_on(Object* a1, Object* a2, Object* item)
 }
 
 // 0x49C5FC
-int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
+int obj_use_item_on(Object* a1, Object* a2, Object* a3)
 {
-    int rc = _protinst_use_item_on(a1, a2, a3);
+    int rc = protinst_use_item_on(a1, a2, a3);
 
     if (rc == 1) {
         if (a1 != NULL) {
@@ -1356,7 +1363,7 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
             intface_update_items(false, leftItemAction, rightItemAction);
         }
 
-        _obj_destroy(a3);
+        obj_destroy(a3);
 
         rc = 0;
     }
@@ -1367,7 +1374,7 @@ int _obj_use_item_on(Object* a1, Object* a2, Object* a3)
 }
 
 // 0x49C6BC
-int _check_scenery_ap_cost(Object* obj, Object* a2)
+int check_scenery_ap_cost(Object* obj, Object* a2)
 {
     if (!isInCombat()) {
         return 0;
@@ -1398,7 +1405,7 @@ int _check_scenery_ap_cost(Object* obj, Object* a2)
 }
 
 // 0x49C740
-int _obj_use(Object* a1, Object* a2)
+int obj_use(Object* a1, Object* a2)
 {
     int type = FID_TYPE(a2->fid);
     if (a1 == obj_dude) {
@@ -1417,7 +1424,7 @@ int _obj_use(Object* a1, Object* a2)
     }
 
     if (PID_TYPE(a2->pid) == OBJ_TYPE_SCENERY && sceneryProto->scenery.type == SCENERY_TYPE_DOOR) {
-        return _obj_use_door(a1, a2, 0);
+        return obj_use_door(a1, a2, 0);
     }
 
     bool scriptOverrides = false;
@@ -1437,15 +1444,15 @@ int _obj_use(Object* a1, Object* a2)
     if (!scriptOverrides) {
         if (PID_TYPE(a2->pid) == OBJ_TYPE_SCENERY) {
             if (sceneryProto->scenery.type == SCENERY_TYPE_LADDER_DOWN) {
-                if (useLadderDown(a1, a2, 0) == 0) {
+                if (obj_use_ladder_top(a1, a2, 0) == 0) {
                     scriptOverrides = true;
                 }
             } else if (sceneryProto->scenery.type == SCENERY_TYPE_LADDER_UP) {
-                if (useLadderUp(a1, a2, 0) == 0) {
+                if (obj_use_ladder_bottom(a1, a2, 0) == 0) {
                     scriptOverrides = true;
                 }
             } else if (sceneryProto->scenery.type == SCENERY_TYPE_STAIRS) {
-                if (useStairs(a1, a2, 0) == 0) {
+                if (obj_use_stairs(a1, a2, 0) == 0) {
                     scriptOverrides = true;
                 }
             }
@@ -1474,7 +1481,7 @@ int _obj_use(Object* a1, Object* a2)
 }
 
 // 0x49C900
-int useLadderDown(Object* a1, Object* ladder, int a3)
+int obj_use_ladder_top(Object* a1, Object* ladder, int a3)
 {
     int builtTile = ladder->data.scenery.ladder.destinationBuiltTile;
     if (builtTile == -1) {
@@ -1508,7 +1515,7 @@ int useLadderDown(Object* a1, Object* ladder, int a3)
 }
 
 // 0x49C9A4
-int useLadderUp(Object* a1, Object* ladder, int a3)
+int obj_use_ladder_bottom(Object* a1, Object* ladder, int a3)
 {
     int builtTile = ladder->data.scenery.ladder.destinationBuiltTile;
     if (builtTile == -1) {
@@ -1542,7 +1549,7 @@ int useLadderUp(Object* a1, Object* ladder, int a3)
 }
 
 // 0x49CA48
-int useStairs(Object* a1, Object* stairs, int a3)
+int obj_use_stairs(Object* a1, Object* stairs, int a3)
 {
     int builtTile = stairs->data.scenery.stairs.destinationBuiltTile;
     if (builtTile == -1) {
@@ -1576,21 +1583,21 @@ int useStairs(Object* a1, Object* stairs, int a3)
 }
 
 // 0x49CAF4
-int _set_door_state_open(Object* a1, Object* a2)
+static int set_door_state_open(Object* a1, Object* a2)
 {
     a1->data.scenery.door.openFlags |= 0x01;
     return 0;
 }
 
 // 0x49CB04
-int _set_door_state_closed(Object* a1, Object* a2)
+static int set_door_state_closed(Object* a1, Object* a2)
 {
     a1->data.scenery.door.openFlags &= ~0x01;
     return 0;
 }
 
 // 0x49CB14
-int _check_door_state(Object* a1, Object* a2)
+static int check_door_state(Object* a1, Object* a2)
 {
     if ((a1->data.scenery.door.openFlags & 0x01) == 0) {
         a1->flags &= ~OBJECT_OPEN_DOOR;
@@ -1668,9 +1675,9 @@ int _check_door_state(Object* a1, Object* a2)
 }
 
 // 0x49CCB8
-int _obj_use_door(Object* a1, Object* a2, int a3)
+int obj_use_door(Object* a1, Object* a2, int a3)
 {
-    if (objectIsLocked(a2)) {
+    if (obj_is_locked(a2)) {
         const char* sfx = gsnd_build_open_sfx_name(a2, SCENERY_SOUND_EFFECT_LOCKED);
         gsound_play_sfx_file(sfx);
     }
@@ -1717,7 +1724,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
         for (int i = start; i != end; i += step) {
             if (i != 0) {
                 if (a3 == 0) {
-                    register_object_call(a2, a2, _set_door_state_closed, -1);
+                    register_object_call(a2, a2, set_door_state_closed, -1);
                 }
 
                 const char* sfx = gsnd_build_open_sfx_name(a2, SCENERY_SOUND_EFFECT_CLOSED);
@@ -1726,7 +1733,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
                 register_object_animate_reverse(a2, ANIM_STAND, 0);
             } else {
                 if (a3 == 0) {
-                    register_object_call(a2, a2, _set_door_state_open, -1);
+                    register_object_call(a2, a2, set_door_state_open, -1);
                 }
 
                 const char* sfx = gsnd_build_open_sfx_name(a2, SCENERY_SOUND_EFFECT_CLOSED);
@@ -1736,7 +1743,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
             }
         }
 
-        register_object_must_call(a2, a2, _check_door_state, -1);
+        register_object_must_call(a2, a2, check_door_state, -1);
 
         register_end();
     }
@@ -1745,7 +1752,7 @@ int _obj_use_door(Object* a1, Object* a2, int a3)
 }
 
 // 0x49CE7C
-int _obj_use_container(Object* critter, Object* item)
+int obj_use_container(Object* critter, Object* item)
 {
     if (FID_TYPE(item->fid) != OBJ_TYPE_ITEM) {
         return -1;
@@ -1760,7 +1767,7 @@ int _obj_use_container(Object* critter, Object* item)
         return -1;
     }
 
-    if (objectIsLocked(item)) {
+    if (obj_is_locked(item)) {
         const char* sfx = gsnd_build_open_sfx_name(item, SCENERY_SOUND_EFFECT_LOCKED);
         gsound_play_sfx_file(sfx);
 
@@ -1828,9 +1835,9 @@ int _obj_use_container(Object* critter, Object* item)
 }
 
 // 0x49D078
-int _obj_use_skill_on(Object* source, Object* target, int skill)
+int obj_use_skill_on(Object* source, Object* target, int skill)
 {
-    if (objectIsJammed(target)) {
+    if (obj_lock_is_jammed(target)) {
         if (source == obj_dude) {
             MessageListItem messageListItem;
             messageListItem.num = 2001;
@@ -1870,7 +1877,7 @@ int _obj_use_skill_on(Object* source, Object* target, int skill)
 // NOTE: Unused.
 //
 // 0x49D140
-bool _obj_is_portal(Object* obj)
+bool obj_is_a_portal(Object* obj)
 {
     if (obj == NULL) {
         return false;
@@ -1885,7 +1892,7 @@ bool _obj_is_portal(Object* obj)
 }
 
 // 0x49D178
-bool _obj_is_lockable(Object* obj)
+bool obj_is_lockable(Object* obj)
 {
     Proto* proto;
 
@@ -1914,7 +1921,7 @@ bool _obj_is_lockable(Object* obj)
 }
 
 // 0x49D1C8
-bool objectIsLocked(Object* obj)
+bool obj_is_locked(Object* obj)
 {
     if (obj == NULL) {
         return false;
@@ -1932,7 +1939,7 @@ bool objectIsLocked(Object* obj)
 }
 
 // 0x49D20C
-int objectLock(Object* object)
+int obj_lock(Object* object)
 {
     if (object == NULL) {
         return -1;
@@ -1953,7 +1960,7 @@ int objectLock(Object* object)
 }
 
 // 0x49D250
-int objectUnlock(Object* object)
+int obj_unlock(Object* object)
 {
     if (object == NULL) {
         return -1;
@@ -1972,7 +1979,7 @@ int objectUnlock(Object* object)
 }
 
 // 0x49D294
-bool _obj_is_openable(Object* obj)
+bool obj_is_openable(Object* obj)
 {
     Proto* proto;
 
@@ -2001,46 +2008,46 @@ bool _obj_is_openable(Object* obj)
 }
 
 // 0x49D2E4
-int objectIsOpen(Object* object)
+int obj_is_open(Object* object)
 {
     return object->frame != 0;
 }
 
 // 0x49D2F4
-int objectOpenClose(Object* obj)
+int obj_toggle_open(Object* obj)
 {
     if (obj == NULL) {
         return -1;
     }
 
-    if (!_obj_is_openable(obj)) {
+    if (!obj_is_openable(obj)) {
         return -1;
     }
 
-    if (objectIsLocked(obj)) {
+    if (obj_is_locked(obj)) {
         return -1;
     }
 
-    objectUnjamLock(obj);
+    obj_unjam_lock(obj);
 
     register_begin(ANIMATION_REQUEST_RESERVED);
 
     if (obj->frame != 0) {
-        register_object_must_call(obj, obj, _set_door_state_closed, -1);
+        register_object_must_call(obj, obj, set_door_state_closed, -1);
 
         const char* sfx = gsnd_build_open_sfx_name(obj, SCENERY_SOUND_EFFECT_CLOSED);
         register_object_play_sfx(obj, sfx, -1);
 
         register_object_animate_reverse(obj, ANIM_STAND, 0);
     } else {
-        register_object_must_call(obj, obj, _set_door_state_open, -1);
+        register_object_must_call(obj, obj, set_door_state_open, -1);
 
         const char* sfx = gsnd_build_open_sfx_name(obj, SCENERY_SOUND_EFFECT_OPEN);
         register_object_play_sfx(obj, sfx, -1);
         register_object_animate(obj, ANIM_STAND, 0);
     }
 
-    register_object_must_call(obj, obj, _check_door_state, -1);
+    register_object_must_call(obj, obj, check_door_state, -1);
 
     register_end();
 
@@ -2048,29 +2055,29 @@ int objectOpenClose(Object* obj)
 }
 
 // 0x49D3D8
-int objectOpen(Object* obj)
+int obj_open(Object* obj)
 {
     if (obj->frame == 0) {
-        objectOpenClose(obj);
+        obj_toggle_open(obj);
     }
 
     return 0;
 }
 
 // 0x49D3F4
-int objectClose(Object* obj)
+int obj_close(Object* obj)
 {
     if (obj->frame != 0) {
-        objectOpenClose(obj);
+        obj_toggle_open(obj);
     }
 
     return 0;
 }
 
 // 0x49D410
-bool objectIsJammed(Object* obj)
+bool obj_lock_is_jammed(Object* obj)
 {
-    if (!_obj_is_lockable(obj)) {
+    if (!obj_is_lockable(obj)) {
         return false;
     }
 
@@ -2089,9 +2096,9 @@ bool objectIsJammed(Object* obj)
 
 // jam_lock
 // 0x49D448
-int objectJamLock(Object* obj)
+int obj_jam_lock(Object* obj)
 {
-    if (!_obj_is_lockable(obj)) {
+    if (!obj_is_lockable(obj)) {
         return -1;
     }
 
@@ -2109,9 +2116,9 @@ int objectJamLock(Object* obj)
 }
 
 // 0x49D480
-int objectUnjamLock(Object* obj)
+int obj_unjam_lock(Object* obj)
 {
-    if (!_obj_is_lockable(obj)) {
+    if (!obj_is_lockable(obj)) {
         return -1;
     }
 
@@ -2129,11 +2136,11 @@ int objectUnjamLock(Object* obj)
 }
 
 // 0x49D4B8
-int objectUnjamAll()
+int obj_unjam_all_locks()
 {
     Object* obj = obj_find_first();
     while (obj != NULL) {
-        objectUnjamLock(obj);
+        obj_unjam_lock(obj);
         obj = obj_find_next();
     }
 
@@ -2142,7 +2149,7 @@ int objectUnjamAll()
 
 // critter_attempt_placement
 // 0x49D4D4
-int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
+int obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
 {
     if (tile == -1) {
         return -1;
@@ -2199,7 +2206,7 @@ int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
 }
 
 // 0x49D628
-int _objPMAttemptPlacement(Object* obj, int tile, int elevation)
+int objPMAttemptPlacement(Object* obj, int tile, int elevation)
 {
     if (obj == NULL) {
         return -1;

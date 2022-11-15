@@ -3,60 +3,48 @@
 
 #include <stdbool.h>
 
-#include "game/message.h"
 #include "game/object_types.h"
 
-extern MessageListItem stru_49A990;
-
-int _obj_sid(Object* object, int* sidPtr);
-int _obj_new_sid(Object* object, int* sidPtr);
-int _obj_new_sid_inst(Object* obj, int a2, int a3);
-int _obj_look_at(Object* a1, Object* a2);
-int _obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string));
-int _obj_examine(Object* a1, Object* a2);
-int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string));
-int _obj_pickup(Object* critter, Object* item);
-int _obj_remove_from_inven(Object* critter, Object* item);
-int _obj_drop(Object* a1, Object* a2);
-int _obj_destroy(Object* obj);
-int _obj_use_book(Object* item_obj);
-int _obj_use_flare(Object* critter_obj, Object* item_obj);
-int _obj_use_radio(Object* item_obj);
-int _obj_use_explosive(Object* explosive);
-int _obj_use_power_on_car(Object* ammo);
-int _obj_use_misc_item(Object* item_obj);
-int _protinst_use_item(Object* a1, Object* a2);
-int _protinstTestDroppedExplosive(Object* a1);
-int _obj_use_item(Object* a1, Object* a2);
-int _protinst_default_use_item(Object* a1, Object* a2, Object* item);
-int _protinst_use_item_on(Object* a1, Object* a2, Object* item);
-int _obj_use_item_on(Object* a1, Object* a2, Object* a3);
-int _check_scenery_ap_cost(Object* obj, Object* a2);
-int _obj_use(Object* a1, Object* a2);
-int useLadderDown(Object* a1, Object* ladder, int a3);
-int useLadderUp(Object* a1, Object* ladder, int a3);
-int useStairs(Object* a1, Object* stairs, int a3);
-int _set_door_state_open(Object* a1, Object* a2);
-int _set_door_state_closed(Object* a1, Object* a2);
-int _check_door_state(Object* a1, Object* a2);
-int _obj_use_door(Object* a1, Object* a2, int a3);
-int _obj_use_container(Object* critter, Object* item);
-int _obj_use_skill_on(Object* a1, Object* a2, int skill);
-bool _obj_is_portal(Object* obj);
-bool _obj_is_lockable(Object* obj);
-bool objectIsLocked(Object* obj);
-int objectLock(Object* obj);
-int objectUnlock(Object* obj);
-bool _obj_is_openable(Object* obj);
-int objectIsOpen(Object* obj);
-int objectOpenClose(Object* obj);
-int objectOpen(Object* obj);
-int objectClose(Object* obj);
-bool objectIsJammed(Object* obj);
-int objectJamLock(Object* obj);
-int objectUnjamLock(Object* obj);
-int objectUnjamAll();
-int _obj_attempt_placement(Object* obj, int tile, int elevation, int a4);
-int _objPMAttemptPlacement(Object* obj, int tile, int elevation);
+int obj_sid(Object* object, int* sidPtr);
+int obj_new_sid(Object* object, int* sidPtr);
+int obj_new_sid_inst(Object* obj, int a2, int a3);
+int obj_look_at(Object* a1, Object* a2);
+int obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string));
+int obj_examine(Object* a1, Object* a2);
+int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string));
+int obj_pickup(Object* critter, Object* item);
+int obj_remove_from_inven(Object* critter, Object* item);
+int obj_drop(Object* a1, Object* a2);
+int obj_destroy(Object* obj);
+int obj_use_radio(Object* item_obj);
+int obj_use_power_on_car(Object* ammo);
+int protinst_use_item(Object* a1, Object* a2);
+int obj_use_item(Object* a1, Object* a2);
+int protinst_use_item_on(Object* a1, Object* a2, Object* item);
+int obj_use_item_on(Object* a1, Object* a2, Object* a3);
+int check_scenery_ap_cost(Object* obj, Object* a2);
+int obj_use(Object* a1, Object* a2);
+int obj_use_ladder_top(Object* a1, Object* ladder, int a3);
+int obj_use_ladder_bottom(Object* a1, Object* ladder, int a3);
+int obj_use_stairs(Object* a1, Object* stairs, int a3);
+int obj_use_door(Object* a1, Object* a2, int a3);
+int obj_use_container(Object* critter, Object* item);
+int obj_use_skill_on(Object* a1, Object* a2, int skill);
+bool obj_is_a_portal(Object* obj);
+bool obj_is_lockable(Object* obj);
+bool obj_is_locked(Object* obj);
+int obj_lock(Object* obj);
+int obj_unlock(Object* obj);
+bool obj_is_openable(Object* obj);
+int obj_is_open(Object* obj);
+int obj_toggle_open(Object* obj);
+int obj_open(Object* obj);
+int obj_close(Object* obj);
+bool obj_lock_is_jammed(Object* obj);
+int obj_jam_lock(Object* obj);
+int obj_unjam_lock(Object* obj);
+int obj_unjam_all_locks();
+int obj_attempt_placement(Object* obj, int tile, int elevation, int a4);
+int objPMAttemptPlacement(Object* obj, int tile, int elevation);
 
 #endif /* PROTOTYPE_INSTANCES_H */

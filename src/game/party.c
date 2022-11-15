@@ -806,7 +806,7 @@ int partyMemberSyncPosition()
             }
 
             int tile = tileGetTileInDirection(obj_dude->tile, rotation, distance / 2);
-            _objPMAttemptPlacement(partyMemberObj, tile, obj_dude->elevation);
+            objPMAttemptPlacement(partyMemberObj, tile, obj_dude->elevation);
 
             distance++;
             n++;

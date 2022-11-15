@@ -1057,7 +1057,7 @@ int map_load_in_game(char* fileName)
 
     if (gameTimeGetTime() >= map_data.lastVisitTime) {
         if (((gameTimeGetTime() - map_data.lastVisitTime) / GAME_TIME_TICKS_PER_HOUR) >= 24) {
-            objectUnjamAll();
+            obj_unjam_all_locks();
         }
 
         if (map_age_dead_critters() == -1) {

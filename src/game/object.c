@@ -982,7 +982,7 @@ int obj_new(Object** objectPtr, int fid, int pid)
         objectListNode->obj->flags |= OBJECT_NO_HIGHLIGHT;
     }
 
-    _obj_new_sid(objectListNode->obj, &(objectListNode->obj->sid));
+    obj_new_sid(objectListNode->obj, &(objectListNode->obj->sid));
 
     return 0;
 }
@@ -1035,7 +1035,7 @@ int obj_copy(Object** a1, Object* a2)
 
     if (objectListNode->obj->sid != -1) {
         objectListNode->obj->sid = -1;
-        _obj_new_sid(objectListNode->obj, &(objectListNode->obj->sid));
+        obj_new_sid(objectListNode->obj, &(objectListNode->obj->sid));
     }
 
     if (obj_set_rotation(objectListNode->obj, a2->rotation, NULL) == -1) {

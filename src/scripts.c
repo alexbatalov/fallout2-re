@@ -353,7 +353,7 @@ int gameTimeEventProcess(Object* obj, void* data)
         return 0;
     }
 
-    objectUnjamAll();
+    obj_unjam_all_locks();
 
     if (!gdialogActive()) {
         _scriptsCheckGameEvents(&movie_index, -1);
@@ -875,7 +875,7 @@ int scriptsHandleRequests()
                 if (elevation == map_elevation) {
                     register_clear(obj_dude);
                     obj_set_rotation(obj_dude, ROTATION_SE, 0);
-                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
+                    obj_attempt_placement(obj_dude, tile, elevation, 0);
                 } else {
                     Object* elevatorDoors = obj_find_first_at(obj_dude->elevation);
                     while (elevatorDoors != NULL) {
@@ -890,7 +890,7 @@ int scriptsHandleRequests()
 
                     register_clear(obj_dude);
                     obj_set_rotation(obj_dude, ROTATION_SE, 0);
-                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
+                    obj_attempt_placement(obj_dude, tile, elevation, 0);
 
                     if (elevatorDoors != NULL) {
                         obj_set_frame(elevatorDoors, 0, NULL);
@@ -981,7 +981,7 @@ int _scripts_check_state_in_combat()
                 if (elevation == map_elevation) {
                     register_clear(obj_dude);
                     obj_set_rotation(obj_dude, ROTATION_SE, 0);
-                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
+                    obj_attempt_placement(obj_dude, tile, elevation, 0);
                 } else {
                     Object* elevatorDoors = obj_find_first_at(obj_dude->elevation);
                     while (elevatorDoors != NULL) {
@@ -996,7 +996,7 @@ int _scripts_check_state_in_combat()
 
                     register_clear(obj_dude);
                     obj_set_rotation(obj_dude, ROTATION_SE, 0);
-                    _obj_attempt_placement(obj_dude, tile, elevation, 0);
+                    obj_attempt_placement(obj_dude, tile, elevation, 0);
 
                     if (elevatorDoors != NULL) {
                         obj_set_frame(elevatorDoors, 0, NULL);
@@ -1403,7 +1403,7 @@ int scriptsSetDudeScript()
 
     proto->critter.sid = 0x4000000;
 
-    _obj_new_sid(obj_dude, &(obj_dude->sid));
+    obj_new_sid(obj_dude, &(obj_dude->sid));
 
     Script* script;
     if (scriptGetScript(obj_dude->sid, &script) == -1) {

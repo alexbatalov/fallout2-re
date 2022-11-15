@@ -2098,7 +2098,7 @@ static void op_drop_obj(Program* program)
         return;
     }
 
-    _obj_drop(script->target, object);
+    obj_drop(script->target, object);
 }
 
 // 0x45662C
@@ -2306,7 +2306,7 @@ static void op_use_obj(Program* program)
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         action_use_an_object(script->target, object);
     } else {
-        _obj_use(self, object);
+        obj_use(self, object);
     }
 }
 
@@ -3721,7 +3721,7 @@ static void op_critter_attempt_placement(Program* program)
 
     obj_move_to_tile(critter, 0, elevation, NULL);
 
-    int rc = _obj_attempt_placement(critter, tile, elevation, 1);
+    int rc = obj_attempt_placement(critter, tile, elevation, 1);
     interpretPushLong(program, rc);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -5486,7 +5486,7 @@ static void op_obj_is_locked(Program* program)
 
     bool locked = false;
     if (object != NULL) {
-        locked = objectIsLocked(object);
+        locked = obj_is_locked(object);
     } else {
         dbg_error(program, "obj_is_locked", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5512,7 +5512,7 @@ static void op_obj_lock(Program* program)
     Object* object = (Object*)data;
 
     if (object != NULL) {
-        objectLock(object);
+        obj_lock(object);
     } else {
         dbg_error(program, "obj_lock", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5535,7 +5535,7 @@ static void op_obj_unlock(Program* program)
     Object* object = (Object*)data;
 
     if (object != NULL) {
-        objectUnlock(object);
+        obj_unlock(object);
     } else {
         dbg_error(program, "obj_unlock", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5559,7 +5559,7 @@ static void op_obj_is_open(Program* s)
 
     bool isOpen = false;
     if (object != NULL) {
-        isOpen = objectIsOpen(object);
+        isOpen = obj_is_open(object);
     } else {
         dbg_error(s, "obj_is_open", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5585,7 +5585,7 @@ static void op_obj_open(Program* program)
     Object* object = (Object*)data;
 
     if (object != NULL) {
-        objectOpen(object);
+        obj_open(object);
     } else {
         dbg_error(program, "obj_open", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5608,7 +5608,7 @@ static void op_obj_close(Program* program)
     Object* object = (Object*)data;
 
     if (object != NULL) {
-        objectClose(object);
+        obj_close(object);
     } else {
         dbg_error(program, "obj_close", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -6295,7 +6295,7 @@ static void op_use_obj_on_obj(Program* program)
     if (PID_TYPE(self->pid) == OBJ_TYPE_CRITTER) {
         action_use_an_item_on_object(self, target, item);
     } else {
-        _obj_use_item_on(self, target, item);
+        obj_use_item_on(self, target, item);
     }
 }
 
@@ -6489,7 +6489,7 @@ static void op_jam_lock(Program* program)
 
     Object* object = (Object*)data;
 
-    objectJamLock(object);
+    obj_jam_lock(object);
 }
 
 // 0x45C7D4

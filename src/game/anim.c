@@ -1781,7 +1781,7 @@ static bool anim_can_use_door(Object* critter, Object* door)
         return false;
     }
 
-    if (objectIsLocked(door)) {
+    if (obj_is_locked(door)) {
         return false;
     }
 
@@ -2682,7 +2682,7 @@ static void object_move(int index)
                 }
                 v10 = -1;
             } else {
-                _obj_use_door(object, v12, 0);
+                obj_use_door(object, v12, 0);
             }
         }
 
