@@ -35,7 +35,7 @@
 #include "game/loadsave.h"
 #include "game/map.h"
 #include "memory.h"
-#include "movie.h"
+#include "int/movie.h"
 #include "movie_effect.h"
 #include "object.h"
 #include "options.h"

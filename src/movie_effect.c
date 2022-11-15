@@ -7,7 +7,7 @@
 #include "game/config.h"
 #include "debug.h"
 #include "memory.h"
-#include "movie.h"
+#include "int/movie.h"
 #include "palette.h"
 
 // 0x5195F0

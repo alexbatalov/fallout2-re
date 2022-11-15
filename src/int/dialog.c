@@ -4,7 +4,7 @@
 
 #include "core.h"
 #include "int/memdbg.h"
-#include "movie.h"
+#include "int/movie.h"
 #include "text_font.h"
 #include "window_manager.h"
 
