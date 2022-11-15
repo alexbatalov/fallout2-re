@@ -522,7 +522,7 @@ bool message_filter(MessageList* messageList)
     }
 
     int replacementsCount = strlen(replacements);
-    int replacementsIndex = randomBetween(1, replacementsCount) - 1;
+    int replacementsIndex = roll_random(1, replacementsCount) - 1;
 
     for (int index = 0; index < messageList->entries_num; index++) {
         MessageListItem* item = &(messageList->entries[index]);

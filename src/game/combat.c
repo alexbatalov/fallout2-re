@@ -2793,11 +2793,11 @@ void combat_give_exps(int exp_points)
         return;
     }
 
-    v9.num = randomBetween(0, 3) + 622; // generate prefix for message
+    v9.num = roll_random(0, 3) + 622; // generate prefix for message
 
     current_hp = critterGetStat(obj_dude, STAT_CURRENT_HIT_POINTS);
     max_hp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
-    if (current_hp == max_hp && randomBetween(0, 100) > 65) {
+    if (current_hp == max_hp && roll_random(0, 100) > 65) {
         v9.num = 626; // Best possible prefix: For destroying your enemies without taking a scratch,
     }
 
@@ -3403,7 +3403,7 @@ void combat_ctd_init(Attack* attack, Object* attacker, Object* defender, int hit
 // 0x422F3C
 int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 {
-    if (a1 != obj_dude && hitMode == HIT_MODE_PUNCH && randomBetween(1, 4) == 1) {
+    if (a1 != obj_dude && hitMode == HIT_MODE_PUNCH && roll_random(1, 4) == 1) {
         int fid = art_id(OBJ_TYPE_CRITTER, a1->fid & 0xFFF, ANIM_KICK_LEG, (a1->fid & 0xF000) >> 12, (a1->fid & 0x70000000) >> 28);
         if (art_exists(fid)) {
             hitMode = HIT_MODE_KICK;
@@ -3507,7 +3507,7 @@ static bool check_ranged_miss(Attack* attack)
                             v6 = 5;
                         }
 
-                        if (randomBetween(1, 100) <= v6) {
+                        if (roll_random(1, 100) <= v6) {
                             roll = ROLL_SUCCESS;
                             break;
                         }
@@ -3566,7 +3566,7 @@ static int shoot_along_path(Attack* attack, int endTile, int rounds, int anim)
             }
 
             int roundsHit = 0;
-            while (randomBetween(1, 100) <= accuracy && remainingRounds > 0) {
+            while (roll_random(1, 100) <= accuracy && remainingRounds > 0) {
                 remainingRounds -= 1;
                 roundsHit += 1;
             }
@@ -3628,7 +3628,7 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
     *roundsSpentPtr = ammoQuantity;
 
     int criticalChance = critterGetStat(attack->attacker, STAT_CRITICAL_CHANCE);
-    int roll = randomRoll(accuracy, criticalChance, NULL);
+    int roll = roll_check(accuracy, criticalChance, NULL);
 
     if (roll == ROLL_CRITICAL_FAILURE) {
         return roll;
@@ -3663,7 +3663,7 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
     }
 
     for (int index = 0; index < mainTargetRounds; index += 1) {
-        if (randomRoll(accuracy, 0, NULL) >= ROLL_SUCCESS) {
+        if (roll_check(accuracy, 0, NULL) >= ROLL_SUCCESS) {
             *roundsHitMainTargetPtr += 1;
         }
     }
@@ -3709,7 +3709,7 @@ static int correctAttackForPerks(Attack* attack)
 {
     if (item_w_perk(attack->weapon) == PERK_WEAPON_ENHANCED_KNOCKOUT) {
         int difficulty = critterGetStat(attack->attacker, STAT_STRENGTH) - 8;
-        int chance = randomBetween(1, 100);
+        int chance = roll_random(1, 100);
         if (chance <= difficulty) {
             Object* weapon = NULL;
             if (attack->defender != obj_dude) {
@@ -3759,12 +3759,12 @@ static int compute_attack(Attack* attack)
         roll = compute_spray(attack, accuracy, &roundsHitMainTarget, &roundsSpent, anim);
     } else {
         int chance = critterGetStat(attack->attacker, STAT_CRITICAL_CHANCE);
-        roll = randomRoll(accuracy, chance - hit_location_penalty[attack->defenderHitLocation], NULL);
+        roll = roll_check(accuracy, chance - hit_location_penalty[attack->defenderHitLocation], NULL);
     }
 
     if (roll == ROLL_FAILURE) {
         if (traitIsSelected(TRAIT_JINXED) || perkHasRank(obj_dude, PERK_JINXED)) {
-            if (randomBetween(0, 1) == 1) {
+            if (roll_random(0, 1) == 1) {
                 roll = ROLL_CRITICAL_FAILURE;
             }
         }
@@ -3783,12 +3783,12 @@ static int compute_attack(Attack* attack)
                 damageMultiplier = 4;
             }
 
-            if (((attack->hitMode == HIT_MODE_HAMMER_PUNCH || attack->hitMode == HIT_MODE_POWER_KICK) && randomBetween(1, 100) <= 5)
-                || ((attack->hitMode == HIT_MODE_JAB || attack->hitMode == HIT_MODE_HOOK_KICK) && randomBetween(1, 100) <= 10)
-                || (attack->hitMode == HIT_MODE_HAYMAKER && randomBetween(1, 100) <= 15)
-                || (attack->hitMode == HIT_MODE_PALM_STRIKE && randomBetween(1, 100) <= 20)
-                || (attack->hitMode == HIT_MODE_PIERCING_STRIKE && randomBetween(1, 100) <= 40)
-                || (attack->hitMode == HIT_MODE_PIERCING_KICK && randomBetween(1, 100) <= 50)) {
+            if (((attack->hitMode == HIT_MODE_HAMMER_PUNCH || attack->hitMode == HIT_MODE_POWER_KICK) && roll_random(1, 100) <= 5)
+                || ((attack->hitMode == HIT_MODE_JAB || attack->hitMode == HIT_MODE_HOOK_KICK) && roll_random(1, 100) <= 10)
+                || (attack->hitMode == HIT_MODE_HAYMAKER && roll_random(1, 100) <= 15)
+                || (attack->hitMode == HIT_MODE_PALM_STRIKE && roll_random(1, 100) <= 20)
+                || (attack->hitMode == HIT_MODE_PIERCING_STRIKE && roll_random(1, 100) <= 40)
+                || (attack->hitMode == HIT_MODE_PIERCING_KICK && roll_random(1, 100) <= 50)) {
                 roll = ROLL_CRITICAL_SUCCESS;
             }
         }
@@ -3799,7 +3799,7 @@ static int compute_attack(Attack* attack)
 
         if (roll == ROLL_SUCCESS && attack->attacker == obj_dude) {
             if (perk_level(obj_dude, PERK_SNIPER) != 0) {
-                int d10 = randomBetween(1, 10);
+                int d10 = roll_random(1, 10);
                 int luck = critterGetStat(obj_dude, STAT_LUCK);
                 if (d10 <= luck) {
                     roll = ROLL_CRITICAL_SUCCESS;
@@ -3839,12 +3839,12 @@ static int compute_attack(Attack* attack)
         if ((attack->attackerFlags & (DAM_HIT | DAM_CRITICAL)) == 0) {
             int tile;
             if (isGrenade) {
-                int throwDistance = randomBetween(1, distance / 2);
+                int throwDistance = roll_random(1, distance / 2);
                 if (throwDistance == 0) {
                     throwDistance = 1;
                 }
 
-                int rotation = randomBetween(0, 5);
+                int rotation = roll_random(0, 5);
                 tile = tileGetTileInDirection(attack->defender->tile, rotation, throwDistance);
             } else {
                 tile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
@@ -3998,7 +3998,7 @@ static int attack_crit_success(Attack* attack)
 
     attack->attackerFlags |= DAM_CRITICAL;
 
-    int chance = randomBetween(1, 100);
+    int chance = roll_random(1, 100);
 
     chance += critterGetStat(attack->attacker, STAT_BETTER_CRITICALS);
 
@@ -4095,7 +4095,7 @@ static int attack_crit_failure(Attack* attack)
         criticalFailureTableIndex = 0;
     }
 
-    int chance = randomBetween(1, 100) - 5 * (critterGetStat(attack->attacker, STAT_LUCK) - 5);
+    int chance = roll_random(1, 100) - 5 * (critterGetStat(attack->attacker, STAT_LUCK) - 5);
 
     int effect;
     if (chance <= 20)
@@ -4170,7 +4170,7 @@ static void do_random_cripple(int* flagsPtr)
 {
     *flagsPtr &= ~DAM_CRIP_RANDOM;
 
-    switch (randomBetween(0, 3)) {
+    switch (roll_random(0, 3)) {
     case 0:
         *flagsPtr |= DAM_CRIP_LEG_LEFT;
         break;
@@ -4523,7 +4523,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         bool hasStonewall = false;
         if (critter == obj_dude) {
             if (perk_level(critter, PERK_STONEWALL) != 0) {
-                int chance = randomBetween(0, 100);
+                int chance = roll_random(0, 100);
                 hasStonewall = true;
                 if (chance < 50) {
                     shouldKnockback = false;

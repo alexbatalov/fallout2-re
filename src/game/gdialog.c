@@ -2483,7 +2483,7 @@ static void gdSetupFidget(int headFrmId, int reaction)
         return;
     }
 
-    int chance = randomBetween(1, 100) + dialogue_seconds_since_last_input / 2;
+    int chance = roll_random(1, 100) + dialogue_seconds_since_last_input / 2;
 
     int fidget = fidgetCount;
     switch (fidgetCount) {
@@ -2826,7 +2826,7 @@ static void gdialog_bk()
         if (getTicksSince(fidgetLastTime) >= tocksWaiting) {
             can_start_new_fidget = false;
             dialogue_seconds_since_last_input += tocksWaiting / 1000;
-            tocksWaiting = 1000 * (randomBetween(0, 3) + 4);
+            tocksWaiting = 1000 * (roll_random(0, 3) + 4);
             gdSetupFidget(fidgetFID & 0xFFF, (fidgetFID & 0xFF0000) >> 16);
         }
         return;
@@ -3626,11 +3626,11 @@ static int gdPickAIUpdateMsg(Object* critter)
 
     for (int index = 0; index < 3; index++) {
         if (critter->pid == pids[index]) {
-            return 677 + randomBetween(0, 1);
+            return 677 + roll_random(0, 1);
         }
     }
 
-    return 670 + randomBetween(0, 4);
+    return 670 + roll_random(0, 4);
 }
 
 // 0x449330

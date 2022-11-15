@@ -943,7 +943,7 @@ static void op_random(Program* program)
 
     int result;
     if (vcr_status() == VCR_STATE_TURNED_OFF) {
-        result = randomBetween(data[1], data[0]);
+        result = roll_random(data[1], data[0]);
     } else {
         result = (data[0] - data[1]) / 2;
     }

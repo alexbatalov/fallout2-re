@@ -1223,7 +1223,7 @@ int item_w_damage(Object* critter, int hitMode)
         }
     }
 
-    return randomBetween(unarmedDamage + minDamage, unarmedDamage + meleeDamage + maxDamage);
+    return roll_random(unarmedDamage + minDamage, unarmedDamage + meleeDamage + maxDamage);
 }
 
 // 0x478570
@@ -2609,7 +2609,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
         }
 
         if (v32) {
-            v11 = randomBetween(mods[index - 1], mods[index]) + v10;
+            v11 = roll_random(mods[index - 1], mods[index]) + v10;
             v32 = false;
         } else {
             v11 = mods[index] + v10;
@@ -2772,7 +2772,7 @@ int item_d_take_drug(Object* critter, Object* item)
             }
         }
 
-        if (randomBetween(1, 100) <= addictionChance) {
+        if (roll_random(1, 100) <= addictionChance) {
             insert_withdrawal(critter, 1, proto->item.data.drug.withdrawalOnset, proto->item.data.drug.withdrawalEffect, item->pid);
 
             if (critter == obj_dude) {

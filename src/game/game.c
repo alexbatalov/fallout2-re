@@ -182,7 +182,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     tileDisable();
 
-    randomInit();
+    roll_init();
     init_message();
     skillsInit();
     statsInit();
@@ -351,7 +351,7 @@ void game_reset()
 {
     tileDisable();
     palette_reset();
-    randomReset();
+    roll_reset();
     skillsReset();
     statsReset();
     perk_reset();
@@ -415,7 +415,7 @@ void game_exit()
     statsExit();
     skillsExit();
     traitsExit();
-    randomExit();
+    roll_exit();
     exit_message();
     automap_exit();
     palette_exit();

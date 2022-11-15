@@ -2213,7 +2213,7 @@ static int ScreenSaver()
             break;
         }
 
-        double random = randomBetween(0, PIPBOY_RAND_MAX);
+        double random = roll_random(0, PIPBOY_RAND_MAX);
 
         // TODO: Figure out what this constant means. Probably somehow related
         // to PIPBOY_RAND_MAX.
@@ -2228,7 +2228,7 @@ static int ScreenSaver()
             if (index < PIPBOY_BOMB_COUNT) {
                 PipboyBomb* bomb = &(bombs[index]);
                 int v27 = (350 - ginfo[PIPBOY_FRM_BOMB].width / 4) + (406 - ginfo[PIPBOY_FRM_BOMB].height / 4);
-                int v5 = (int)((double)randomBetween(0, PIPBOY_RAND_MAX) / (double)PIPBOY_RAND_MAX * (double)v27);
+                int v5 = (int)((double)roll_random(0, PIPBOY_RAND_MAX) / (double)PIPBOY_RAND_MAX * (double)v27);
                 int v6 = ginfo[PIPBOY_FRM_BOMB].height / 4;
                 if (PIPBOY_WINDOW_CONTENT_VIEW_HEIGHT - v6 >= v5) {
                     bomb->x = 602;
@@ -2239,7 +2239,7 @@ static int ScreenSaver()
                 }
 
                 bomb->field_10 = 1;
-                bomb->field_8 = (float)((double)randomBetween(0, PIPBOY_RAND_MAX) * (2.75 / PIPBOY_RAND_MAX) + 0.15);
+                bomb->field_8 = (float)((double)roll_random(0, PIPBOY_RAND_MAX) * (2.75 / PIPBOY_RAND_MAX) + 0.15);
                 bomb->field_C = 0;
             }
         }

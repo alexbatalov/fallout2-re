@@ -2222,7 +2222,7 @@ int gsound_sfx_q_process(Object* a1, void* data)
         return 0;
     }
 
-    int delay = 10 * randomBetween(15, 20);
+    int delay = 10 * roll_random(15, 20);
     if (wmSfxMaxCount() > 0) {
         nextSoundEffectEvent->ambientSoundEffectIndex = wmSfxRollNextIdx();
         if (queue_add(delay, NULL, nextSoundEffectEvent, EVENT_TYPE_GSOUND_SFX_EVENT) == -1) {

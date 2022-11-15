@@ -1172,7 +1172,7 @@ int map_age_dead_critters()
             Proto* proto;
             proto_ptr(obj->pid, &proto);
 
-            int frame = randomBetween(0, 3);
+            int frame = roll_random(0, 3);
             if ((proto->critter.flags & 0x800)) {
                 frame += 6;
             } else {

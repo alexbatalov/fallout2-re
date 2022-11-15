@@ -3168,7 +3168,7 @@ void dude_fidget()
 
     int v13;
     if (v5 != 0) {
-        int r = randomBetween(0, v5 - 1);
+        int r = roll_random(0, v5 - 1);
         Object* object = fidget_ptr[r];
 
         register_begin(ANIMATION_REQUEST_UNRESERVED | ANIMATION_REQUEST_INSIGNIFICANT);
@@ -3206,7 +3206,7 @@ void dude_fidget()
         v13 = 7;
     }
 
-    next_time = randomBetween(0, 3000) + 1000 * v13;
+    next_time = roll_random(0, 3000) + 1000 * v13;
 }
 
 // 0x418378

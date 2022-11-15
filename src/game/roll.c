@@ -12,72 +12,64 @@
 #include "debug.h"
 #include "scripts.h"
 
-// 0x50D4BA
-const double dbl_50D4BA = 36.42;
-
-// 0x50D4C2
-const double dbl_50D4C2 = 4000;
+static int ran1(int max);
+static int random_seed();
+static void seed_generator(int seed);
+static unsigned int timer_read();
+static void check_chi_squared();
 
 // 0x51C694
-int _iy = 0;
+static int iy = 0;
 
 // 0x6648D0
-int _iv[32];
+static int iv[32];
 
 // 0x664950
-int _idum;
+static int idum;
 
 // 0x4A2FE0
-void randomInit()
+void roll_init()
 {
-    unsigned int randomSeed = randomGetSeed();
+    unsigned int randomSeed = timer_read();
     srand(randomSeed);
 
-    int pseudorandomSeed = randomInt32();
-    randomSeedPrerandomInternal(pseudorandomSeed);
+    int pseudorandomSeed = random_seed();
+    seed_generator(pseudorandomSeed);
 
-    randomValidatePrerandom();
+    check_chi_squared();
 }
 
-// Note: Collapsed.
-//
-// 0x4A2FFC
-int _roll_reset_()
+// NOTE: Uncollapsed 0x4A2FFC.
+int roll_reset()
 {
     return 0;
 }
 
 // NOTE: Uncollapsed 0x4A2FFC.
-void randomReset()
+int roll_exit()
 {
-    _roll_reset_();
+    return 0;
 }
 
 // NOTE: Uncollapsed 0x4A2FFC.
-void randomExit()
+int roll_save(File* stream)
 {
-    _roll_reset_();
+    return 0;
 }
 
 // NOTE: Uncollapsed 0x4A2FFC.
-int randomSave(File* stream)
+int roll_load(File* stream)
 {
-    return _roll_reset_();
-}
-
-// NOTE: Uncollapsed 0x4A2FFC.
-int randomLoad(File* stream)
-{
-    return _roll_reset_();
+    return 0;
 }
 
 // Rolls d% against [difficulty].
 //
 // 0x4A3000
-int randomRoll(int difficulty, int criticalSuccessModifier, int* howMuchPtr)
+int roll_check(int difficulty, int criticalSuccessModifier, int* howMuchPtr)
 {
-    int delta = difficulty - randomBetween(1, 100);
-    int result = randomTranslateRoll(delta, criticalSuccessModifier);
+    int delta = difficulty - roll_random(1, 100);
+    int result = roll_check_critical(delta, criticalSuccessModifier);
 
     if (howMuchPtr != NULL) {
         *howMuchPtr = delta;
@@ -90,7 +82,7 @@ int randomRoll(int difficulty, int criticalSuccessModifier, int* howMuchPtr)
 // criticals (starting from day 2).
 //
 // 0x4A3030
-int randomTranslateRoll(int delta, int criticalSuccessModifier)
+int roll_check_critical(int delta, int criticalSuccessModifier)
 {
     int gameTime = gameTimeGetTime();
 
@@ -100,7 +92,7 @@ int randomTranslateRoll(int delta, int criticalSuccessModifier)
 
         if ((gameTime / GAME_TIME_TICKS_PER_DAY) >= 1) {
             // 10% to become critical failure.
-            if (randomBetween(1, 100) <= -delta / 10) {
+            if (roll_random(1, 100) <= -delta / 10) {
                 roll = ROLL_CRITICAL_FAILURE;
             }
         }
@@ -109,7 +101,7 @@ int randomTranslateRoll(int delta, int criticalSuccessModifier)
 
         if ((gameTime / GAME_TIME_TICKS_PER_DAY) >= 1) {
             // 10% + modifier to become critical success.
-            if (randomBetween(1, 100) <= delta / 10 + criticalSuccessModifier) {
+            if (roll_random(1, 100) <= delta / 10 + criticalSuccessModifier) {
                 roll = ROLL_CRITICAL_SUCCESS;
             }
         }
@@ -119,14 +111,14 @@ int randomTranslateRoll(int delta, int criticalSuccessModifier)
 }
 
 // 0x4A30C0
-int randomBetween(int min, int max)
+int roll_random(int min, int max)
 {
     int result;
 
     if (min <= max) {
-        result = min + getRandom(max - min + 1);
+        result = min + ran1(max - min + 1);
     } else {
-        result = max + getRandom(min - max + 1);
+        result = max + ran1(min - max + 1);
     }
 
     if (result < min || result > max) {
@@ -138,9 +130,9 @@ int randomBetween(int min, int max)
 }
 
 // 0x4A30FC
-int getRandom(int max)
+static int ran1(int max)
 {
-    int v1 = 16807 * (_idum % 127773) - 2836 * (_idum / 127773);
+    int v1 = 16807 * (idum % 127773) - 2836 * (idum / 127773);
 
     if (v1 < 0) {
         v1 += 0x7FFFFFFF;
@@ -150,28 +142,28 @@ int getRandom(int max)
         v1 += 0x7FFFFFFF;
     }
 
-    int v2 = _iy & 0x1F;
-    int v3 = _iv[v2];
-    _iv[v2] = v1;
-    _iy = v3;
-    _idum = v1;
+    int v2 = iy & 0x1F;
+    int v3 = iv[v2];
+    iv[v2] = v1;
+    iy = v3;
+    idum = v1;
 
     return v3 % max;
 }
 
 // 0x4A31A0
-void randomSeedPrerandom(int seed)
+void roll_set_seed(int seed)
 {
     if (seed == -1) {
         // NOTE: Uninline.
-        seed = randomInt32();
+        seed = random_seed();
     }
 
-    randomSeedPrerandomInternal(seed);
+    seed_generator(seed);
 }
 
 // 0x4A31C4
-int randomInt32()
+static int random_seed()
 {
     int high = rand() << 16;
     int low = rand();
@@ -180,7 +172,7 @@ int randomInt32()
 }
 
 // 0x4A31E0
-void randomSeedPrerandomInternal(int seed)
+static void seed_generator(int seed)
 {
     int num = seed;
     if (num < 1) {
@@ -195,24 +187,24 @@ void randomSeedPrerandomInternal(int seed)
         }
 
         if (index < 32) {
-            _iv[index] = num;
+            iv[index] = num;
         }
     }
 
-    _iy = _iv[0];
-    _idum = num;
+    iy = iv[0];
+    idum = num;
 }
 
 // Provides seed for random number generator.
 //
 // 0x4A3258
-unsigned int randomGetSeed()
+static unsigned int timer_read()
 {
     return timeGetTime();
 }
 
 // 0x4A3264
-void randomValidatePrerandom()
+static void check_chi_squared()
 {
     int results[25];
 
@@ -221,7 +213,7 @@ void randomValidatePrerandom()
     }
 
     for (int attempt = 0; attempt < 100000; attempt++) {
-        int value = randomBetween(1, 25);
+        int value = roll_random(1, 25);
         if (value - 1 < 0) {
             debugPrint("I made a negative number %d\n", value - 1);
         }
@@ -232,13 +224,13 @@ void randomValidatePrerandom()
     double v1 = 0.0;
 
     for (int index = 0; index < 25; index++) {
-        double v2 = ((double)results[index] - dbl_50D4C2) * ((double)results[index] - dbl_50D4C2) / dbl_50D4C2;
+        double v2 = ((double)results[index] - 4000.0) * ((double)results[index] - 4000.0) / 4000.0;
         v1 += v2;
     }
 
-    debugPrint("Chi squared is %f, P = %f at 0.05\n", v1, dbl_50D4C2);
+    debugPrint("Chi squared is %f, P = %f at 0.05\n", v1, 4000.0);
 
-    if (v1 < dbl_50D4BA) {
+    if (v1 < 36.42) {
         debugPrint("Sequence is random, 95%% confidence.\n");
     } else {
         debugPrint("Warning! Sequence is not random, 95%% confidence.\n");

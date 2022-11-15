@@ -121,7 +121,7 @@ int RealMain(int argc, char** argv)
                 main_menu_destroy();
                 if (characterSelectorOpen() == 2) {
                     gmovie_play(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
-                    randomSeedPrerandom(-1);
+                    roll_set_seed(-1);
                     main_load_new(mainMap);
                     main_game_loop();
                     palette_fade_to(white_palette);
@@ -414,7 +414,7 @@ static void main_selfrun_record()
         main_menu_hide(true);
         main_menu_destroy();
         gsound_background_stop();
-        randomSeedPrerandom(0xBEEFFEED);
+        roll_set_seed(0xBEEFFEED);
 
         // NOTE: Uninline.
         main_reset_system();
@@ -456,7 +456,7 @@ static void main_selfrun_play()
             main_menu_hide(true);
             main_menu_destroy();
             gsound_background_stop();
-            randomSeedPrerandom(0xBEEFFEED);
+            roll_set_seed(0xBEEFFEED);
 
             // NOTE: Uninline.
             main_reset_system();

@@ -969,7 +969,7 @@ static int ai_check_drugs(Object* critter)
             }
         }
 
-        if (!v28 && v26 > 0 && randomBetween(0, 100) < v26) {
+        if (!v28 && v26 > 0 && roll_random(0, 100) < v26) {
             while (critter->data.critter.combat.ap >= 2) {
                 Object* drug = inven_find_type(critter, ITEM_TYPE_DRUG, &token);
                 if (drug == NULL) {
@@ -1668,7 +1668,7 @@ static Object* ai_best_weapon(Object* attacker, Object* weapon1, Object* weapon2
 
     AiPacket* ai = ai_cap(attacker);
     if (ai->best_weapon == BEST_WEAPON_RANDOM) {
-        return randomBetween(1, 100) <= 50 ? weapon1 : weapon2;
+        return roll_random(1, 100) <= 50 ? weapon1 : weapon2;
     }
     int minDamage;
     int maxDamage;
@@ -2105,7 +2105,7 @@ static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
             useSecondaryMode = true;
             break;
         case AREA_ATTACK_MODE_SOMETIMES:
-            if (randomBetween(1, ai->secondary_freq) == 1) {
+            if (roll_random(1, ai->secondary_freq) == 1) {
                 useSecondaryMode = true;
             }
             break;
@@ -2130,7 +2130,7 @@ static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
         }
     } else {
         if (intelligence < 6 || obj_dist(a1, a3) < 10) {
-            if (randomBetween(1, ai->secondary_freq) == 1) {
+            if (roll_random(1, ai->secondary_freq) == 1) {
                 useSecondaryMode = true;
             }
         }
@@ -2445,7 +2445,7 @@ static int ai_called_shot(Object* a1, Object* a2, int a3)
     if (item_w_mp_cost(a1, a3, 1) <= a1->data.critter.combat.ap) {
         if (item_w_called_shot(a1, a3)) {
             ai = ai_cap(a1);
-            if (randomBetween(1, ai->called_freq) == 1) {
+            if (roll_random(1, ai->called_freq) == 1) {
                 combat_difficulty = 1;
                 config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
                 if (combat_difficulty) {
@@ -2459,7 +2459,7 @@ static int ai_called_shot(Object* a1, Object* a2, int a3)
                 }
 
                 if (critterGetStat(a1, STAT_INTELLIGENCE) >= v6) {
-                    v5 = randomBetween(0, 8);
+                    v5 = roll_random(0, 8);
                     v7 = determine_to_hit(a1, a2, a3, v5);
                     if (v7 < ai->min_to_hit) {
                         v5 = 3;
@@ -3113,7 +3113,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
 
     debugPrint("%s is using %s packet with a %d%% chance to taunt\n", object_name(a1), ai->name, ai->chance);
 
-    if (randomBetween(1, 100) > ai->chance) {
+    if (roll_random(1, 100) > ai->chance) {
         return -1;
     }
 
@@ -3156,7 +3156,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
     }
 
     MessageListItem messageListItem;
-    messageListItem.num = randomBetween(start, end);
+    messageListItem.num = roll_random(start, end);
     if (!message_search(&ai_message_file, &messageListItem)) {
         debugPrint("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critter_name(a1));
         return -1;
@@ -3211,7 +3211,7 @@ Object* combat_ai_random_target(Attack* attack)
 
     if (curr_crit_num != 0) {
         // Randomize starting critter.
-        int start = randomBetween(0, curr_crit_num - 1);
+        int start = roll_random(0, curr_crit_num - 1);
         int index = start;
         while (true) {
             Object* obj = curr_crit_list[index];

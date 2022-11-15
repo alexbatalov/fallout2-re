@@ -1115,7 +1115,7 @@ void endgameSetupDeathEnding(int reason)
     }
 
     if (!specialEndingSelected) {
-        int chance = randomBetween(0, percentage);
+        int chance = roll_random(0, percentage);
 
         int accum = 0;
         for (int index = 0; index < maxEndDeathInfo; index++) {

@@ -337,8 +337,8 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
 
                     register_object_animate(a1, anim, 0);
 
-                    int randomDistance = randomBetween(2, 5);
-                    int randomRotation = randomBetween(0, 5);
+                    int randomDistance = roll_random(2, 5);
+                    int randomRotation = roll_random(0, 5);
 
                     while (randomDistance > 0) {
                         int tile = tileGetTileInDirection(a1->tile, randomRotation, randomDistance);
@@ -1918,7 +1918,7 @@ static int finished_explosion(Object* a1, Object* a2)
 // 0x4132CC
 static int compute_explosion_damage(int min, int max, Object* a3, int* a4)
 {
-    int v5 = randomBetween(min, max);
+    int v5 = roll_random(min, max);
     int v7 = v5 - critterGetStat(a3, STAT_DAMAGE_THRESHOLD_EXPLOSION);
     if (v7 > 0) {
         v7 -= critterGetStat(a3, STAT_DAMAGE_RESISTANCE_EXPLOSION) * v7 / 100;
@@ -2083,7 +2083,7 @@ static int compute_dmg_damage(int min, int max, Object* obj, int* a4, int damage
         a4 = NULL;
     }
 
-    int v8 = randomBetween(min, max);
+    int v8 = roll_random(min, max);
     int v10 = v8 - critterGetStat(obj, STAT_DAMAGE_THRESHOLD + damageType);
     if (v10 > 0) {
         v10 -= critterGetStat(obj, STAT_DAMAGE_RESISTANCE + damageType) * v10 / 100;

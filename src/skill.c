@@ -444,7 +444,7 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
     }
 
     int criticalChance = critterGetStat(critter, STAT_CRITICAL_CHANCE);
-    return randomRoll(skillValue + modifier, criticalChance, howMuch);
+    return roll_check(skillValue + modifier, criticalChance, howMuch);
 }
 
 // NOTE: Unused.
@@ -464,7 +464,7 @@ int skill_contest(Object* attacker, Object* defender, int skill, int attackerMod
             attackerHowMuch -= defenderHowMuch;
         }
 
-        attackerRoll = randomTranslateRoll(attackerHowMuch, 0);
+        attackerRoll = roll_check_critical(attackerHowMuch, 0);
     }
 
     if (howMuch != NULL) {
@@ -572,7 +572,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 590: You've taxed your ability with that skill. Wait a while.
             // 591: You're too tired.
             // 592: The strain might kill you.
-            messageListItem.num = 590 + randomBetween(0, 2);
+            messageListItem.num = 590 + roll_random(0, 2);
             if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
@@ -584,7 +584,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 512: You can't heal the dead.
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
-            messageListItem.num = 512 + randomBetween(0, 2);
+            messageListItem.num = 512 + roll_random(0, 2);
             if (message_search(&gSkillsMessageList, &messageListItem)) {
                 debugPrint(messageListItem.text);
             }
@@ -603,7 +603,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
-                hpToHeal = randomBetween(minimumHpToHeal + 1, maximumHpToHeal + 5);
+                hpToHeal = roll_random(minimumHpToHeal + 1, maximumHpToHeal + 5);
                 critter_adjust_hits(a2, hpToHeal);
 
                 if (obj == obj_dude) {
@@ -673,7 +673,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 590: You've taxed your ability with that skill. Wait a while.
             // 591: You're too tired.
             // 592: The strain might kill you.
-            messageListItem.num = 590 + randomBetween(0, 2);
+            messageListItem.num = 590 + roll_random(0, 2);
             if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
@@ -685,7 +685,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 512: You can't heal the dead.
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
-            messageListItem.num = 512 + randomBetween(0, 2);
+            messageListItem.num = 512 + roll_random(0, 2);
             if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
@@ -754,11 +754,11 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 roll = ROLL_FAILURE;
             } else {
                 int skillValue = skillGetValue(obj, skill);
-                roll = randomRoll(skillValue, criticalChance, &hpToHeal);
+                roll = roll_check(skillValue, criticalChance, &hpToHeal);
             }
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
-                hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
+                hpToHeal = roll_random(minimumHpToHeal + 4, maximumHpToHeal + 10);
                 critter_adjust_hits(a2, hpToHeal);
 
                 if (obj == obj_dude) {
@@ -864,7 +864,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 590: You've taxed your ability with that skill. Wait a while.
             // 591: You're too tired.
             // 592: The strain might kill you.
-            messageListItem.num = 590 + randomBetween(0, 2);
+            messageListItem.num = 590 + roll_random(0, 2);
             if (message_search(&gSkillsMessageList, &messageListItem)) {
                 display_print(messageListItem.text);
             }
@@ -935,10 +935,10 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             int skillValue = skillGetValue(obj, skill);
-            int roll = randomRoll(skillValue, criticalChance, &hpToHeal);
+            int roll = roll_check(skillValue, criticalChance, &hpToHeal);
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
-                hpToHeal = randomBetween(minimumHpToHeal + 4, maximumHpToHeal + 10);
+                hpToHeal = roll_random(minimumHpToHeal + 4, maximumHpToHeal + 10);
                 critter_adjust_hits(a2, hpToHeal);
 
                 if (obj == obj_dude) {
@@ -1060,7 +1060,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         stealRoll = ROLL_CRITICAL_SUCCESS;
     } else {
         int criticalChance = critterGetStat(a1, STAT_CRITICAL_CHANCE);
-        stealRoll = randomRoll(stealChance, criticalChance, &howMuch);
+        stealRoll = roll_check(stealChance, criticalChance, &howMuch);
     }
 
     int catchRoll;
@@ -1076,7 +1076,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
             catchChance = 30 - stealModifier;
         }
 
-        catchRoll = randomRoll(catchChance, 0, &howMuch);
+        catchRoll = roll_check(catchChance, 0, &howMuch);
     }
 
     MessageListItem messageListItem;
@@ -1213,7 +1213,7 @@ char* skillsGetGenericResponse(Object* critter, bool isDude)
         count = 5;
     }
 
-    int messageId = randomBetween(0, count);
+    int messageId = roll_random(0, count);
 
     MessageListItem messageListItem;
     char* msg = getmsg(&gSkillsMessageList, &messageListItem, baseMessageId + messageId);

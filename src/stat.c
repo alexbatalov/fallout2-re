@@ -687,7 +687,7 @@ int statGetFrmId(int stat)
 int statRoll(Object* critter, int stat, int modifier, int* howMuch)
 {
     int value = critterGetStat(critter, stat) + modifier;
-    int chance = randomBetween(PRIMARY_STAT_MIN, PRIMARY_STAT_MAX);
+    int chance = roll_random(PRIMARY_STAT_MIN, PRIMARY_STAT_MAX);
 
     if (howMuch != NULL) {
         *howMuch = value - chance;

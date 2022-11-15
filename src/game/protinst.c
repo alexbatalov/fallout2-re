@@ -188,7 +188,7 @@ int obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
         MessageListItem messageListItem;
 
         if (PID_TYPE(a2->pid) == OBJ_TYPE_CRITTER && critter_is_dead(a2)) {
-            messageListItem.num = 491 + randomBetween(0, 1);
+            messageListItem.num = 491 + roll_random(0, 1);
         } else {
             messageListItem.num = 490;
         }
@@ -1166,7 +1166,7 @@ static int protinst_default_use_item(Object* a1, Object* a2, Object* item)
             // 584: As you reach down, you realize that it is already dead.
             // 585: Alas, you are too late.
             // 586: That won't work on the dead.
-            messageListItem.num = 583 + randomBetween(0, 3);
+            messageListItem.num = 583 + roll_random(0, 3);
             if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
@@ -1316,7 +1316,7 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
         return 0;
     }
 
-    if (randomBetween(1, 10) != 1) {
+    if (roll_random(1, 10) != 1) {
         return 0;
     }
 
