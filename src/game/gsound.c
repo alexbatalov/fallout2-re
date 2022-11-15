@@ -22,7 +22,7 @@
 #include "game/proto.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "sound_effects_cache.h"
+#include "game/sfxcache.h"
 #include "stat.h"
 #include "window_manager.h"
 #include "worldmap.h"

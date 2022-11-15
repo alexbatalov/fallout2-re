@@ -1,4 +1,4 @@
-#include "sound_effects_cache.h"
+#include "game/sfxcache.h"
 
 #include <assert.h>
 #include <limits.h>
