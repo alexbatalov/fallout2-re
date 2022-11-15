@@ -3161,7 +3161,7 @@ static int wmWorldMapFunc(int a1)
             wmInterfaceRefresh();
 
             if (getTicksBetween(tick, v24) > 1000) {
-                if (_partyMemberRestingHeal(3)) {
+                if (partyMemberRestingHeal(3)) {
                     intface_update_hit_points(false);
                     v24 = tick;
                 }
@@ -3496,7 +3496,7 @@ static int wmRndEncounterOccurred()
 
     bool randomEncounterIsDetected = false;
     if (frequency > chance) {
-        int outdoorsman = partyGetBestSkillValue(SKILL_OUTDOORSMAN);
+        int outdoorsman = partyMemberHighestSkillLevel(SKILL_OUTDOORSMAN);
         Object* scanner = inven_pid_is_carried(obj_dude, PROTO_ID_MOTION_SENSOR);
         if (scanner != NULL) {
             if (obj_dude == scanner->owner) {
@@ -3751,7 +3751,7 @@ int wmSetupRandomEncounter()
             break;
         }
 
-        int partyMemberCount = _getPartyMemberCount();
+        int partyMemberCount = getPartyMemberCount();
         if (partyMemberCount > 2) {
             v9 += 2;
         }

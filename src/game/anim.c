@@ -637,7 +637,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
     }
 
     if (critterIsOverloaded(owner)) {
-        if (objectIsPartyMember(owner)) {
+        if (isPartyMember(owner)) {
             char formattedText[92];
             MessageListItem messageListItem;
 
@@ -730,7 +730,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
     }
 
     if (critterIsOverloaded(owner)) {
-        if (objectIsPartyMember(owner)) {
+        if (isPartyMember(owner)) {
             MessageListItem messageListItem;
             char formattedText[72];
 

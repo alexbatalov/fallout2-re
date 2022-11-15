@@ -187,7 +187,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     skillsInit();
     statsInit();
 
-    if (partyMembersInit() != 0) {
+    if (partyMember_init() != 0) {
         debugPrint("Failed on partyMember_init\n");
         return -1;
     }
@@ -374,7 +374,7 @@ void game_reset()
     game_load_info();
     scriptsReset();
     wmWorldMap_reset();
-    partyMembersReset();
+    partyMember_reset();
     CharEditInit();
     pipboyReset();
     ResetLoadSave();
@@ -420,7 +420,7 @@ void game_exit()
     automap_exit();
     palette_exit();
     wmWorldMap_exit();
-    partyMembersExit();
+    partyMember_exit();
     endgameDeathEndingExit();
     FMExit();
     trap_exit();

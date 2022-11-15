@@ -295,7 +295,7 @@ int pipboyWindowInit(int intent)
 
     gPipboyRestOptionsCount = PIPBOY_REST_DURATION_COUNT_WITHOUT_PARTY;
 
-    if (_getPartyMemberCount() > 1 && partyIsAnyoneCanBeHealedByRest()) {
+    if (getPartyMemberCount() > 1 && partyMemberNeedsHealing()) {
         gPipboyRestOptionsCount = PIPBOY_REST_DURATION_COUNT;
     }
 
@@ -1879,7 +1879,7 @@ bool pipboyRest(int hours, int minutes, int duration)
         int currentHp = critter_get_hits(obj_dude);
         int maxHp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
         if (currentHp != maxHp
-            || (duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED && partyIsAnyoneCanBeHealedByRest())) {
+            || (duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED && partyMemberNeedsHealing())) {
             // First pass - healing dude is the top priority.
             int hpToHeal = maxHp - currentHp;
             int healingRate = critterGetStat(obj_dude, STAT_HEALING_RATE);
@@ -1902,7 +1902,7 @@ bool pipboyRest(int hours, int minutes, int duration)
             hpToHeal = maxHp - currentHp;
 
             if (duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED) {
-                int partyHpToHeal = partyGetMaxWoundToHealByRest();
+                int partyHpToHeal = partyMemberMaxHealingNeeded();
                 if (partyHpToHeal > hpToHeal) {
                     hpToHeal = partyHpToHeal;
                 }
@@ -1914,7 +1914,7 @@ bool pipboyRest(int hours, int minutes, int duration)
                 hpToHeal = maxHp - currentHp;
 
                 if (duration == PIPBOY_REST_DURATION_UNTIL_PARTY_HEALED) {
-                    int partyHpToHeal = partyGetMaxWoundToHealByRest();
+                    int partyHpToHeal = partyMemberMaxHealingNeeded();
                     if (partyHpToHeal > hpToHeal) {
                         hpToHeal = partyHpToHeal;
                     }
@@ -1966,7 +1966,7 @@ bool _Check4Health(int a1)
 // NOTE: Inlined.
 bool _AddHealth()
 {
-    _partyMemberRestingHeal(3);
+    partyMemberRestingHeal(3);
 
     int currentHp = critter_get_hits(obj_dude);
     int maxHp = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);

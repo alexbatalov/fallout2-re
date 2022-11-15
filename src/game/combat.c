@@ -4576,7 +4576,7 @@ void apply_damage(Attack* attack, bool animated)
     bool defenderIsCritter = defender != NULL && FID_TYPE(defender->fid) == OBJ_TYPE_CRITTER;
 
     if (!defenderIsCritter && !v5) {
-        bool v9 = objectIsPartyMember(attack->defender) && objectIsPartyMember(attack->attacker) ? false : true;
+        bool v9 = isPartyMember(attack->defender) && isPartyMember(attack->attacker) ? false : true;
         if (v9) {
             if (defender != NULL) {
                 if (defender->sid != -1) {
@@ -4727,7 +4727,7 @@ static void damage_object(Object* a1, int damage, bool animated, int a4, Object*
 
     if (!a4) {
         // TODO: Not sure about this one.
-        if (!objectIsPartyMember(a1) || !objectIsPartyMember(a5)) {
+        if (!isPartyMember(a1) || !isPartyMember(a5)) {
             scriptSetFixedParam(a1->sid, damage);
             scriptExecProc(a1->sid, SCRIPT_PROC_DAMAGE);
         }

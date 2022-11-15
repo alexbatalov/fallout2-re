@@ -207,7 +207,7 @@ static SaveGameHandler* master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     pipboySave,
     gmovie_save,
     skillsUsageSave,
-    partyMembersSave,
+    partyMemberSave,
     queueSave,
     intface_save,
     DummyFunc,
@@ -238,7 +238,7 @@ static LoadGameHandler* master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     pipboyLoad,
     gmovie_load,
     skillsUsageLoad,
-    partyMembersLoad,
+    partyMemberLoad,
     queueLoad,
     intface_load,
     EndLoad,
@@ -1493,7 +1493,7 @@ static int SaveSlot()
         RestoreSave();
         sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
         MapDirErase(gmpath, "BAK");
-        _partyMemberUnPrepSave();
+        partyMemberUnPrepSave();
         gsound_background_unpause();
         return -1;
     }
@@ -1506,7 +1506,7 @@ static int SaveSlot()
         RestoreSave();
         sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
         MapDirErase(gmpath, "BAK");
-        _partyMemberUnPrepSave();
+        partyMemberUnPrepSave();
         gsound_background_unpause();
         return -1;
     }
@@ -1520,7 +1520,7 @@ static int SaveSlot()
             RestoreSave();
             sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
             MapDirErase(gmpath, "BAK");
-            _partyMemberUnPrepSave();
+            partyMemberUnPrepSave();
             gsound_background_unpause();
             return -1;
         }
@@ -2255,7 +2255,7 @@ static int EndLoad(File* stream)
 // 0x47F510
 static int GameMap2Slot(File* stream)
 {
-    if (_partyMemberPrepSave() == -1) {
+    if (partyMemberPrepSave() == -1) {
         return -1;
     }
 
@@ -2263,8 +2263,8 @@ static int GameMap2Slot(File* stream)
         return -1;
     }
 
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index += 1) {
-        int pid = gPartyMemberPids[index];
+    for (int index = 1; index < partyMemberMaxCount; index += 1) {
+        int pid = partyMemberPidList[index];
         if (pid == -2) {
             continue;
         }
@@ -2355,7 +2355,7 @@ static int GameMap2Slot(File* stream)
         return -1;
     }
 
-    if (_partyMemberUnPrepSave() == -1) {
+    if (partyMemberUnPrepSave() == -1) {
         return -1;
     }
 
@@ -2401,8 +2401,8 @@ static int SlotMap2Game(File* stream)
     sprintf(str0, "%s\\%s\\%s", patches, "MAPS", "AUTOMAP.DB");
     remove(str0);
 
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index += 1) {
-        int pid = gPartyMemberPids[index];
+    for (int index = 1; index < partyMemberMaxCount; index += 1) {
+        int pid = partyMemberPidList[index];
         if (pid != -2) {
             char protoPath[MAX_PATH];
             if (_proto_list_str(pid, protoPath) == 0) {

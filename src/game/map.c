@@ -364,7 +364,7 @@ int map_set_elevation(int elevation)
 
     register_clear(obj_dude);
     dude_stand(obj_dude, obj_dude->rotation, obj_dude->fid);
-    _partyMemberSyncPosition();
+    partyMemberSyncPosition();
 
     if (map_script_id != -1) {
         scriptsExecMapUpdateProc();
@@ -817,7 +817,7 @@ int map_load_file(File* stream)
     map_save_in_game(true);
     gsound_background_play("wind2", 12, 13, 16);
     map_disable_bk_processes();
-    _partyMemberPrepLoad();
+    partyMemberPrepLoad();
     gmouse_disable_scrolling();
 
     int savedMouseCursorId = gmouse_get_cursor();
@@ -988,7 +988,7 @@ err:
         obj_preload_art_cache(map_data.flags);
     }
 
-    _partyMemberRecoverLoad();
+    partyMemberRecoverLoad();
     intface_show();
     _proto_dude_update_gender();
     map_place_dude_and_mouse();
@@ -1098,7 +1098,7 @@ int map_age_dead_critters()
     while (obj != NULL) {
         if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER
             && obj != obj_dude
-            && !objectIsPartyMember(obj)
+            && !isPartyMember(obj)
             && !critter_is_dead(obj)) {
             obj->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
             if (critterGetKillType(obj) != KILL_TYPE_ROBOT && critter_flag_check(obj->pid, CRITTER_NO_HEAL) == 0) {
@@ -1425,12 +1425,12 @@ int map_save_in_game(bool a1)
     }
 
     anim_stop();
-    _partyMemberSaveProtos();
+    partyMemberSaveProtos();
 
     if (a1) {
         _queue_leaving_map();
-        _partyMemberPrepLoad();
-        _partyMemberPrepItemSaveAll();
+        partyMemberPrepLoad();
+        partyMemberPrepItemSaveAll();
         scriptsExecMapExitProc();
 
         if (map_script_id != -1) {
@@ -1640,7 +1640,7 @@ static void map_place_dude_and_mouse()
         obj_dude->flags |= OBJECT_TEMPORARY;
 
         dude_stand(obj_dude, obj_dude->rotation, obj_dude->fid);
-        _partyMemberSyncPosition();
+        partyMemberSyncPosition();
     }
 
     gmouse_3d_reset_fid();

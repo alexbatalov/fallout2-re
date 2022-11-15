@@ -1286,7 +1286,7 @@ int critter_set_who_hit_me(Object* a1, Object* a2)
     }
 
     if (PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER) {
-        if (a2 == NULL || a1->data.critter.combat.team != a2->data.critter.combat.team || (statRoll(a1, STAT_INTELLIGENCE, -1, NULL) < 2 && (!objectIsPartyMember(a1) || !objectIsPartyMember(a2)))) {
+        if (a2 == NULL || a1->data.critter.combat.team != a2->data.critter.combat.team || (statRoll(a1, STAT_INTELLIGENCE, -1, NULL) < 2 && (!isPartyMember(a1) || !isPartyMember(a2)))) {
             a1->data.critter.combat.whoHitMe = a2;
             if (a2 == obj_dude) {
                 reactionSetValue(a1, -3);

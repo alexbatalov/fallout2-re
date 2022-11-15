@@ -736,7 +736,7 @@ void gdialogEnter(Object* a1, int a2)
 
     dialog_state_fix = 1;
     dialog_target = a1;
-    dialog_target_is_party = objectIsPartyMember(a1);
+    dialog_target_is_party = isPartyMember(a1);
 
     dialogue_just_started = 1;
 
@@ -889,7 +889,7 @@ int gdialogInitFromScript(int headFid, int reaction)
     anim_stop();
 
     boxesWereDisabled = disable_box_bar_win();
-    dialog_target_is_party = objectIsPartyMember(dialog_target);
+    dialog_target_is_party = isPartyMember(dialog_target);
     oldFont = fontGetCurrent();
     fontSetCurrent(101);
     dialogSetReplyWindow(135, 225, 379, 58, NULL);
@@ -1184,8 +1184,8 @@ void gdialogUpdatePartyStatus()
         return;
     }
 
-    bool isPartyMember = objectIsPartyMember(dialog_target);
-    if (isPartyMember == dialog_target_is_party) {
+    bool is_party = isPartyMember(dialog_target);
+    if (is_party == dialog_target_is_party) {
         return;
     }
 
@@ -1194,7 +1194,7 @@ void gdialogUpdatePartyStatus()
 
     gdialog_window_destroy();
 
-    dialog_target_is_party = isPartyMember;
+    dialog_target_is_party = is_party;
 
     gdialog_window_create();
 
@@ -3444,7 +3444,7 @@ static int gdControlCreateWin()
         _win_register_button_disable(gdialog_buttons[v21], disabledButtonFrmData, disabledButtonFrmData, disabledButtonFrmData);
         buttonSetCallbacks(gdialog_buttons[v21], gsound_med_butt_press, gsound_med_butt_release);
 
-        if (!partyMemberSupportsDisposition(dialog_target, buttonData->value)) {
+        if (!partyMemberHasAIDisposition(dialog_target, buttonData->value)) {
             buttonDisable(gdialog_buttons[v21]);
         }
     }
@@ -3573,7 +3573,7 @@ static void gdControlUpdateInfo()
     fontDrawText(windowBuffer + windowWidth * 96 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     // Render best skill.
-    int bestSkill = partyMemberGetBestSkill(dialog_target);
+    int bestSkill = partyMemberSkill(dialog_target);
     text = skillGetName(bestSkill);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, colorTable[992]);
@@ -4016,22 +4016,22 @@ static void gdCustomSelectRedraw(unsigned char* dest, int pitch, int type, int s
             bool enabled = false;
             switch (type) {
             case PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE:
-                enabled = partyMemberSupportsAreaAttackMode(dialog_target, ptr->value);
+                enabled = partyMemberHasAIBurstValue(dialog_target, ptr->value);
                 break;
             case PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE:
-                enabled = partyMemberSupportsRunAwayMode(dialog_target, ptr->value);
+                enabled = partyMemberHasAIRunAwayValue(dialog_target, ptr->value);
                 break;
             case PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON:
-                enabled = partyMemberSupportsBestWeapon(dialog_target, ptr->value);
+                enabled = partyMemberHasAIWeaponPrefValue(dialog_target, ptr->value);
                 break;
             case PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE:
-                enabled = partyMemberSupportsDistance(dialog_target, ptr->value);
+                enabled = partyMemberHasAIDistancePrefValue(dialog_target, ptr->value);
                 break;
             case PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO:
-                enabled = partyMemberSupportsAttackWho(dialog_target, ptr->value);
+                enabled = partyMemberHasAIAttackWhoValue(dialog_target, ptr->value);
                 break;
             case PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE:
-                enabled = partyMemberSupportsChemUse(dialog_target, ptr->value);
+                enabled = partyMemberHasAIChemUseValue(dialog_target, ptr->value);
                 break;
             }
 
@@ -4176,22 +4176,22 @@ static int gdCustomSelect(int a1)
                     bool enabled = false;
                     switch (a1) {
                     case PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE:
-                        enabled = partyMemberSupportsAreaAttackMode(dialog_target, ptr->value);
+                        enabled = partyMemberHasAIBurstValue(dialog_target, ptr->value);
                         break;
                     case PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE:
-                        enabled = partyMemberSupportsRunAwayMode(dialog_target, ptr->value);
+                        enabled = partyMemberHasAIRunAwayValue(dialog_target, ptr->value);
                         break;
                     case PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON:
-                        enabled = partyMemberSupportsBestWeapon(dialog_target, ptr->value);
+                        enabled = partyMemberHasAIWeaponPrefValue(dialog_target, ptr->value);
                         break;
                     case PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE:
-                        enabled = partyMemberSupportsDistance(dialog_target, ptr->value);
+                        enabled = partyMemberHasAIDistancePrefValue(dialog_target, ptr->value);
                         break;
                     case PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO:
-                        enabled = partyMemberSupportsAttackWho(dialog_target, ptr->value);
+                        enabled = partyMemberHasAIAttackWhoValue(dialog_target, ptr->value);
                         break;
                     case PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE:
-                        enabled = partyMemberSupportsChemUse(dialog_target, ptr->value);
+                        enabled = partyMemberHasAIChemUseValue(dialog_target, ptr->value);
                         break;
                     }
 

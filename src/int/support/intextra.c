@@ -3818,7 +3818,7 @@ static void op_critter_add_trait(Program* program)
                     combat_ai_set_ai_packet(object, value);
                     break;
                 case CRITTER_TRAIT_OBJECT_TEAM:
-                    if (objectIsPartyMember(object)) {
+                    if (isPartyMember(object)) {
                         break;
                     }
 
@@ -4271,7 +4271,7 @@ static void op_metarule(Program* program)
         result = 0;
         break;
     case METARULE_PARTY_COUNT:
-        result = _getPartyMemberCount();
+        result = getPartyMemberCount();
         break;
     case METARULE_AREA_KNOWN:
         result = wmAreaVisitedState(param);
@@ -6441,7 +6441,7 @@ static void op_party_member_obj(Program* program)
         interpretError("script error: %s: invalid arg to party_member_obj", program->name);
     }
 
-    Object* object = partyMemberFindByPid(data);
+    Object* object = partyMemberFindObjFromPid(data);
     interpretPushLong(program, (int)object);
     interpretPushShort(program, VALUE_TYPE_INT);
 }

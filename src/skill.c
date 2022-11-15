@@ -425,9 +425,9 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
     }
 
     if (critter == obj_dude && skill != SKILL_STEAL) {
-        Object* partyMember = partyMemberGetBestInSkill(skill);
+        Object* partyMember = partyMemberWithHighestSkill(skill);
         if (partyMember != NULL) {
-            if (partyMemberGetBestSkill(partyMember) == skill) {
+            if (partyMemberSkill(partyMember) == skill) {
                 critter = partyMember;
             }
         }
@@ -1056,7 +1056,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
     }
 
     int stealRoll;
-    if (a1 == obj_dude && objectIsPartyMember(a2)) {
+    if (a1 == obj_dude && isPartyMember(a2)) {
         stealRoll = ROLL_CRITICAL_SUCCESS;
     } else {
         int criticalChance = critterGetStat(a1, STAT_CRITICAL_CHANCE);

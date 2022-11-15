@@ -1409,7 +1409,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
     Object* performer = obj_dude;
 
     if (a1 == obj_dude) {
-        Object* partyMember = partyMemberGetBestInSkill(skill);
+        Object* partyMember = partyMemberWithHighestSkill(skill);
 
         if (partyMember == obj_dude) {
             partyMember = NULL;
@@ -1421,7 +1421,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
         }
 
         if (partyMember != NULL) {
-            if (partyMemberGetBestSkill(partyMember) != skill) {
+            if (partyMemberSkill(partyMember) != skill) {
                 partyMember = NULL;
             }
         }

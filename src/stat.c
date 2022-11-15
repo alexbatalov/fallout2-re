@@ -757,7 +757,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             intface_update_hit_points(false);
 
             if (a2) {
-                _partyMemberIncLevels();
+                partyMemberIncLevels();
             }
         }
     }

@@ -1461,7 +1461,7 @@ int scriptsInit()
     // NOTE: Uninline.
     scriptsClearPendingRequests();
 
-    _partyMemberClear();
+    partyMemberClear();
 
     if (scriptsLoadScriptsList() == -1) {
         return -1;
@@ -1478,7 +1478,7 @@ int _scr_reset()
     // NOTE: Uninline.
     scriptsClearPendingRequests();
 
-    _partyMemberClear();
+    partyMemberClear();
 
     return 0;
 }
@@ -1531,7 +1531,7 @@ int scriptsReset()
     debugPrint("\nScripts: [Game Reset]");
     _scr_game_exit();
     _scr_game_init();
-    _partyMemberClear();
+    partyMemberClear();
     _scr_remove_all_force();
     return scriptsSetDudeScript();
 }

@@ -30,47 +30,83 @@
 #include "tile.h"
 #include "window_manager.h"
 
+typedef struct PartyMemberDescription {
+    bool areaAttackMode[AREA_ATTACK_MODE_COUNT];
+    bool runAwayMode[RUN_AWAY_MODE_COUNT];
+    bool bestWeapon[BEST_WEAPON_COUNT];
+    bool distanceMode[DISTANCE_COUNT];
+    bool attackWho[ATTACK_WHO_COUNT];
+    bool chemUse[CHEM_USE_COUNT];
+    bool disposition[DISPOSITION_COUNT];
+    int level_minimum;
+    int level_up_every;
+    int level_pids_num;
+    int level_pids[5];
+} PartyMemberDescription;
+
+typedef struct STRU_519DBC {
+    int field_0;
+    int field_4; // party member level
+    int field_8; // early what?
+} STRU_519DBC;
+
+typedef struct STRUCT_519DA8 {
+    Object* object;
+    Script* script;
+    int* vars;
+    struct STRUCT_519DA8* next;
+} STRUCT_519DA8;
+
+static int partyMemberGetAIOptions(Object* object, PartyMemberDescription** partyMemberDescriptionPtr);
+static void partyMemberAISlotInit(PartyMemberDescription* partyMemberDescription);
+static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1);
+static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1);
+static int partyMemberNewObjID();
+static int partyMemberNewObjIDRecurseFind(Object* object, int objectId);
+static int partyMemberPrepItemSave(Object* object);
+static int partyMemberItemSave(Object* object);
+static int partyMemberItemRecover(STRUCT_519DA8* a1);
+static int partyMemberClearItemList();
+static int partyFixMultipleMembers();
+static int partyMemberCopyLevelInfo(Object* object, int a2);
+
 // 0x519D9C
-int gPartyMemberDescriptionsLength = 0;
+int partyMemberMaxCount = 0;
 
 // 0x519DA0
-int* gPartyMemberPids = NULL;
+int* partyMemberPidList = NULL;
 
 //
-STRUCT_519DA8* _itemSaveListHead = NULL;
+STRUCT_519DA8* itemSaveListHead = NULL;
 
-// List of party members, it's length is [gPartyMemberDescriptionsLength] + 20.
+// List of party members, it's length is [partyMemberMaxCount] + 20.
 //
 // 0x519DA8
-STRUCT_519DA8* gPartyMembers = NULL;
+static STRUCT_519DA8* partyMemberList = NULL;
 
 // Number of critters added to party.
 //
 // 0x519DAC
-int gPartyMembersLength = 0;
+static int partyMemberCount = 0;
 
 // 0x519DB0
-int _partyMemberItemCount = 20000;
+static int partyMemberItemCount = 20000;
 
 // 0x519DB4
-int _partyStatePrepped = 0;
+static int partyStatePrepped = 0;
 
 // 0x519DB8
-PartyMemberDescription* gPartyMemberDescriptions = NULL;
+static PartyMemberDescription* partyMemberAIOptions = NULL;
 
 // 0x519DBC
-STRU_519DBC* _partyMemberLevelUpInfoList = NULL;
+static STRU_519DBC* partyMemberLevelUpInfoList = NULL;
 
-// 0x519DC0
-int _curID = 20000;
-
-// partyMember_init
 // 0x493BC0
-int partyMembersInit()
+int partyMember_init()
 {
     Config config;
 
-    gPartyMemberDescriptionsLength = 0;
+    partyMemberMaxCount = 0;
 
     if (!config_init(&config)) {
         return -1;
@@ -81,52 +117,52 @@ int partyMembersInit()
     }
 
     char section[50];
-    sprintf(section, "Party Member %d", gPartyMemberDescriptionsLength);
+    sprintf(section, "Party Member %d", partyMemberMaxCount);
 
     int partyMemberPid;
     while (config_get_value(&config, section, "party_member_pid", &partyMemberPid)) {
-        gPartyMemberDescriptionsLength++;
-        sprintf(section, "Party Member %d", gPartyMemberDescriptionsLength);
+        partyMemberMaxCount++;
+        sprintf(section, "Party Member %d", partyMemberMaxCount);
     }
 
-    gPartyMemberPids = (int*)internal_malloc(sizeof(*gPartyMemberPids) * gPartyMemberDescriptionsLength);
-    if (gPartyMemberPids == NULL) {
+    partyMemberPidList = (int*)internal_malloc(sizeof(*partyMemberPidList) * partyMemberMaxCount);
+    if (partyMemberPidList == NULL) {
         goto err;
     }
 
-    memset(gPartyMemberPids, 0, sizeof(*gPartyMemberPids) * gPartyMemberDescriptionsLength);
+    memset(partyMemberPidList, 0, sizeof(*partyMemberPidList) * partyMemberMaxCount);
 
-    gPartyMembers = (STRUCT_519DA8*)internal_malloc(sizeof(*gPartyMembers) * (gPartyMemberDescriptionsLength + 20));
-    if (gPartyMembers == NULL) {
+    partyMemberList = (STRUCT_519DA8*)internal_malloc(sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
+    if (partyMemberList == NULL) {
         goto err;
     }
 
-    memset(gPartyMembers, 0, sizeof(*gPartyMembers) * (gPartyMemberDescriptionsLength + 20));
+    memset(partyMemberList, 0, sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
 
-    gPartyMemberDescriptions = (PartyMemberDescription*)internal_malloc(sizeof(*gPartyMemberDescriptions) * gPartyMemberDescriptionsLength);
-    if (gPartyMemberDescriptions == NULL) {
+    partyMemberAIOptions = (PartyMemberDescription*)internal_malloc(sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
+    if (partyMemberAIOptions == NULL) {
         goto err;
     }
 
-    memset(gPartyMemberDescriptions, 0, sizeof(*gPartyMemberDescriptions) * gPartyMemberDescriptionsLength);
+    memset(partyMemberAIOptions, 0, sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
 
-    _partyMemberLevelUpInfoList = (STRU_519DBC*)internal_malloc(sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
-    if (_partyMemberLevelUpInfoList == NULL) goto err;
+    partyMemberLevelUpInfoList = (STRU_519DBC*)internal_malloc(sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
+    if (partyMemberLevelUpInfoList == NULL) goto err;
 
-    memset(_partyMemberLevelUpInfoList, 0, sizeof(*_partyMemberLevelUpInfoList) * gPartyMemberDescriptionsLength);
+    memset(partyMemberLevelUpInfoList, 0, sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
 
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
+    for (int index = 0; index < partyMemberMaxCount; index++) {
         sprintf(section, "Party Member %d", index);
 
         if (!config_get_value(&config, section, "party_member_pid", &partyMemberPid)) {
             break;
         }
 
-        PartyMemberDescription* partyMemberDescription = &(gPartyMemberDescriptions[index]);
+        PartyMemberDescription* partyMemberDescription = &(partyMemberAIOptions[index]);
 
-        gPartyMemberPids[index] = partyMemberPid;
+        partyMemberPidList[index] = partyMemberPid;
 
-        partyMemberDescriptionInit(partyMemberDescription);
+        partyMemberAISlotInit(partyMemberDescription);
 
         char* string;
 
@@ -218,53 +254,53 @@ err:
 }
 
 // 0x4940E4
-void partyMembersReset()
+void partyMember_reset()
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        _partyMemberLevelUpInfoList[index].field_0 = 0;
-        _partyMemberLevelUpInfoList[index].field_4 = 0;
-        _partyMemberLevelUpInfoList[index].field_8 = 0;
+    for (int index = 0; index < partyMemberMaxCount; index++) {
+        partyMemberLevelUpInfoList[index].field_0 = 0;
+        partyMemberLevelUpInfoList[index].field_4 = 0;
+        partyMemberLevelUpInfoList[index].field_8 = 0;
     }
 }
 
 // 0x494134
-void partyMembersExit()
+void partyMember_exit()
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        _partyMemberLevelUpInfoList[index].field_0 = 0;
-        _partyMemberLevelUpInfoList[index].field_4 = 0;
-        _partyMemberLevelUpInfoList[index].field_8 = 0;
+    for (int index = 0; index < partyMemberMaxCount; index++) {
+        partyMemberLevelUpInfoList[index].field_0 = 0;
+        partyMemberLevelUpInfoList[index].field_4 = 0;
+        partyMemberLevelUpInfoList[index].field_8 = 0;
     }
 
-    gPartyMemberDescriptionsLength = 0;
+    partyMemberMaxCount = 0;
 
-    if (gPartyMemberPids != NULL) {
-        internal_free(gPartyMemberPids);
-        gPartyMemberPids = NULL;
+    if (partyMemberPidList != NULL) {
+        internal_free(partyMemberPidList);
+        partyMemberPidList = NULL;
     }
 
-    if (gPartyMembers != NULL) {
-        internal_free(gPartyMembers);
-        gPartyMembers = NULL;
+    if (partyMemberList != NULL) {
+        internal_free(partyMemberList);
+        partyMemberList = NULL;
     }
 
-    if (gPartyMemberDescriptions != NULL) {
-        internal_free(gPartyMemberDescriptions);
-        gPartyMemberDescriptions = NULL;
+    if (partyMemberAIOptions != NULL) {
+        internal_free(partyMemberAIOptions);
+        partyMemberAIOptions = NULL;
     }
 
-    if (_partyMemberLevelUpInfoList != NULL) {
-        internal_free(_partyMemberLevelUpInfoList);
-        _partyMemberLevelUpInfoList = NULL;
+    if (partyMemberLevelUpInfoList != NULL) {
+        internal_free(partyMemberLevelUpInfoList);
+        partyMemberLevelUpInfoList = NULL;
     }
 }
 
 // 0x4941F0
-int partyMemberGetDescription(Object* object, PartyMemberDescription** partyMemberDescriptionPtr)
+static int partyMemberGetAIOptions(Object* object, PartyMemberDescription** partyMemberDescriptionPtr)
 {
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        if (gPartyMemberPids[index] == object->pid) {
-            *partyMemberDescriptionPtr = &(gPartyMemberDescriptions[index]);
+    for (int index = 1; index < partyMemberMaxCount; index++) {
+        if (partyMemberPidList[index] == object->pid) {
+            *partyMemberDescriptionPtr = &(partyMemberAIOptions[index]);
             return 0;
         }
     }
@@ -273,7 +309,7 @@ int partyMemberGetDescription(Object* object, PartyMemberDescription** partyMemb
 }
 
 // 0x49425C
-void partyMemberDescriptionInit(PartyMemberDescription* partyMemberDescription)
+static void partyMemberAISlotInit(PartyMemberDescription* partyMemberDescription)
 {
     for (int index = 0; index < AREA_ATTACK_MODE_COUNT; index++) {
         partyMemberDescription->areaAttackMode[index] = 0;
@@ -309,34 +345,33 @@ void partyMemberDescriptionInit(PartyMemberDescription* partyMemberDescription)
 
     partyMemberDescription->level_pids[0] = -1;
 
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        _partyMemberLevelUpInfoList[index].field_0 = 0;
-        _partyMemberLevelUpInfoList[index].field_4 = 0;
-        _partyMemberLevelUpInfoList[index].field_8 = 0;
+    for (int index = 0; index < partyMemberMaxCount; index++) {
+        partyMemberLevelUpInfoList[index].field_0 = 0;
+        partyMemberLevelUpInfoList[index].field_4 = 0;
+        partyMemberLevelUpInfoList[index].field_8 = 0;
     }
 }
 
-// partyMemberAdd
 // 0x494378
 int partyMemberAdd(Object* object)
 {
-    if (gPartyMembersLength >= gPartyMemberDescriptionsLength + 20) {
+    if (partyMemberCount >= partyMemberMaxCount + 20) {
         return -1;
     }
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
         if (partyMember->object == object || partyMember->object->pid == object->pid) {
             return 0;
         }
     }
 
-    if (_partyStatePrepped) {
+    if (partyStatePrepped) {
         debugPrint("\npartyMemberAdd DENIED: %s\n", critter_name(object));
         return -1;
     }
 
-    STRUCT_519DA8* partyMember = &(gPartyMembers[gPartyMembersLength]);
+    STRUCT_519DA8* partyMember = &(partyMemberList[partyMemberCount]);
     partyMember->object = object;
     partyMember->script = NULL;
     partyMember->vars = NULL;
@@ -344,7 +379,7 @@ int partyMemberAdd(Object* object)
     object->id = (object->pid & 0xFFFFFF) + 18000;
     object->flags |= (OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
 
-    gPartyMembersLength++;
+    partyMemberCount++;
 
     Script* script;
     if (scriptGetScript(object->sid, &script) != -1) {
@@ -367,11 +402,10 @@ int partyMemberAdd(Object* object)
     return 0;
 }
 
-// partyMemberRemove
 // 0x4944DC
 int partyMemberRemove(Object* object)
 {
-    if (gPartyMembersLength == 0) {
+    if (partyMemberCount == 0) {
         return -1;
     }
 
@@ -380,29 +414,29 @@ int partyMemberRemove(Object* object)
     }
 
     int index;
-    for (index = 1; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
+    for (index = 1; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
         if (partyMember->object == object) {
             break;
         }
     }
 
-    if (index == gPartyMembersLength) {
+    if (index == partyMemberCount) {
         return -1;
     }
 
-    if (_partyStatePrepped) {
+    if (partyStatePrepped) {
         debugPrint("\npartyMemberRemove DENIED: %s\n", critter_name(object));
         return -1;
     }
 
-    if (index < gPartyMembersLength - 1) {
-        gPartyMembers[index].object = gPartyMembers[gPartyMembersLength - 1].object;
+    if (index < partyMemberCount - 1) {
+        partyMemberList[index].object = partyMemberList[partyMemberCount - 1].object;
     }
 
     object->flags &= ~(OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
 
-    gPartyMembersLength--;
+    partyMemberCount--;
 
     Script* script;
     if (scriptGetScript(object->sid, &script) != -1) {
@@ -421,12 +455,12 @@ int partyMemberRemove(Object* object)
 }
 
 // 0x49460C
-int _partyMemberPrepSave()
+int partyMemberPrepSave()
 {
-    _partyStatePrepped = 1;
+    partyStatePrepped = 1;
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* ptr = &(gPartyMembers[index]);
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* ptr = &(partyMemberList[index]);
 
         if (index > 0) {
             ptr->object->flags &= ~(OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
@@ -442,10 +476,10 @@ int _partyMemberPrepSave()
 }
 
 // 0x49466C
-int _partyMemberUnPrepSave()
+int partyMemberUnPrepSave()
 {
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* ptr = &(gPartyMembers[index]);
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* ptr = &(partyMemberList[index]);
 
         if (index > 0) {
             ptr->object->flags |= (OBJECT_FLAG_0x400 | OBJECT_TEMPORARY);
@@ -457,24 +491,24 @@ int _partyMemberUnPrepSave()
         }
     }
 
-    _partyStatePrepped = 0;
+    partyStatePrepped = 0;
 
     return 0;
 }
 
 // 0x4946CC
-int partyMembersSave(File* stream)
+int partyMemberSave(File* stream)
 {
-    if (fileWriteInt32(stream, gPartyMembersLength) == -1) return -1;
-    if (fileWriteInt32(stream, _partyMemberItemCount) == -1) return -1;
+    if (fileWriteInt32(stream, partyMemberCount) == -1) return -1;
+    if (fileWriteInt32(stream, partyMemberItemCount) == -1) return -1;
 
-    for (int index = 1; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
+    for (int index = 1; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
         if (fileWriteInt32(stream, partyMember->object->id) == -1) return -1;
     }
 
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        STRU_519DBC* ptr = &(_partyMemberLevelUpInfoList[index]);
+    for (int index = 1; index < partyMemberMaxCount; index++) {
+        STRU_519DBC* ptr = &(partyMemberLevelUpInfoList[index]);
         if (fileWriteInt32(stream, ptr->field_0) == -1) return -1;
         if (fileWriteInt32(stream, ptr->field_4) == -1) return -1;
         if (fileWriteInt32(stream, ptr->field_8) == -1) return -1;
@@ -484,17 +518,17 @@ int partyMembersSave(File* stream)
 }
 
 // 0x4947AC
-int _partyMemberPrepLoad()
+int partyMemberPrepLoad()
 {
-    if (_partyStatePrepped) {
+    if (partyStatePrepped) {
         return -1;
     }
 
-    _partyStatePrepped = 1;
+    partyStatePrepped = 1;
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* ptr_519DA8 = &(gPartyMembers[index]);
-        if (_partyMemberPrepLoadInstance(ptr_519DA8) != 0) {
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* ptr_519DA8 = &(partyMemberList[index]);
+        if (partyMemberPrepLoadInstance(ptr_519DA8) != 0) {
             return -1;
         }
     }
@@ -502,9 +536,8 @@ int _partyMemberPrepLoad()
     return 0;
 }
 
-// partyMemberPrepLoadInstance
 // 0x49480C
-int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
+static int partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
 {
     Object* obj = a1->object;
 
@@ -556,7 +589,7 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
     Inventory* inventory = &(obj->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        _partyMemberItemSave(inventoryItem->item);
+        partyMemberItemSave(inventoryItem->item);
     }
 
     script->flags &= ~(SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
@@ -570,47 +603,45 @@ int _partyMemberPrepLoadInstance(STRUCT_519DA8* a1)
     return 0;
 }
 
-// partyMemberRecoverLoad
 // 0x4949C4
-int _partyMemberRecoverLoad()
+int partyMemberRecoverLoad()
 {
-    if (_partyStatePrepped != 1) {
+    if (partyStatePrepped != 1) {
         debugPrint("\npartyMemberRecoverLoad DENIED");
         return -1;
     }
 
     debugPrint("\n");
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        if (_partyMemberRecoverLoadInstance(&(gPartyMembers[index])) != 0) {
+    for (int index = 0; index < partyMemberCount; index++) {
+        if (partyMemberRecoverLoadInstance(&(partyMemberList[index])) != 0) {
             return -1;
         }
 
-        debugPrint("[Party Member %d]: %s\n", index, critter_name(gPartyMembers[index].object));
+        debugPrint("[Party Member %d]: %s\n", index, critter_name(partyMemberList[index].object));
     }
 
-    STRUCT_519DA8* v6 = _itemSaveListHead;
+    STRUCT_519DA8* v6 = itemSaveListHead;
     while (v6 != NULL) {
-        _itemSaveListHead = v6->next;
+        itemSaveListHead = v6->next;
 
-        _partyMemberItemRecover(v6);
+        partyMemberItemRecover(v6);
         internal_free(v6);
 
-        v6 = _itemSaveListHead;
+        v6 = itemSaveListHead;
     }
 
-    _partyStatePrepped = 0;
+    partyStatePrepped = 0;
 
     if (!isLoadingGame()) {
-        _partyFixMultipleMembers();
+        partyFixMultipleMembers();
     }
 
     return 0;
 }
 
-// partyMemberRecoverLoadInstance
 // 0x494A88
-int _partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
+static int partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
 {
     if (a1->script == NULL) {
         showMesageBox("\n  Error!: partyMemberRecoverLoadInstance: No script!");
@@ -656,26 +687,26 @@ int _partyMemberRecoverLoadInstance(STRUCT_519DA8* a1)
 }
 
 // 0x494BBC
-int partyMembersLoad(File* stream)
+int partyMemberLoad(File* stream)
 {
-    int* partyMemberObjectIds = (int*)internal_malloc(sizeof(*partyMemberObjectIds) * (gPartyMemberDescriptionsLength + 20));
+    int* partyMemberObjectIds = (int*)internal_malloc(sizeof(*partyMemberObjectIds) * (partyMemberMaxCount + 20));
     if (partyMemberObjectIds == NULL) {
         return -1;
     }
 
     // FIXME: partyMemberObjectIds is never free'd in this function, obviously memory leak.
 
-    if (fileReadInt32(stream, &gPartyMembersLength) == -1) return -1;
-    if (fileReadInt32(stream, &_partyMemberItemCount) == -1) return -1;
+    if (fileReadInt32(stream, &partyMemberCount) == -1) return -1;
+    if (fileReadInt32(stream, &partyMemberItemCount) == -1) return -1;
 
-    gPartyMembers->object = obj_dude;
+    partyMemberList->object = obj_dude;
 
-    if (gPartyMembersLength != 0) {
-        for (int index = 1; index < gPartyMembersLength; index++) {
+    if (partyMemberCount != 0) {
+        for (int index = 1; index < partyMemberCount; index++) {
             if (fileReadInt32(stream, &(partyMemberObjectIds[index])) == -1) return -1;
         }
 
-        for (int index = 1; index < gPartyMembersLength; index++) {
+        for (int index = 1; index < partyMemberCount; index++) {
             int objectId = partyMemberObjectIds[index];
 
             Object* object = obj_find_first();
@@ -687,29 +718,29 @@ int partyMembersLoad(File* stream)
             }
 
             if (object != NULL) {
-                gPartyMembers[index].object = object;
+                partyMemberList[index].object = object;
             } else {
                 debugPrint("Couldn't find party member on map...trying to load anyway.\n");
-                if (index + 1 >= gPartyMembersLength) {
+                if (index + 1 >= partyMemberCount) {
                     partyMemberObjectIds[index] = 0;
                 } else {
-                    memcpy(&(partyMemberObjectIds[index]), &(partyMemberObjectIds[index + 1]), sizeof(*partyMemberObjectIds) * (gPartyMembersLength - (index + 1)));
+                    memcpy(&(partyMemberObjectIds[index]), &(partyMemberObjectIds[index + 1]), sizeof(*partyMemberObjectIds) * (partyMemberCount - (index + 1)));
                 }
 
                 index--;
-                gPartyMembersLength--;
+                partyMemberCount--;
             }
         }
 
-        if (_partyMemberUnPrepSave() == -1) {
+        if (partyMemberUnPrepSave() == -1) {
             return -1;
         }
     }
 
-    _partyFixMultipleMembers();
+    partyFixMultipleMembers();
 
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        STRU_519DBC* ptr_519DBC = &(_partyMemberLevelUpInfoList[index]);
+    for (int index = 1; index < partyMemberMaxCount; index++) {
+        STRU_519DBC* ptr_519DBC = &(partyMemberLevelUpInfoList[index]);
 
         if (fileReadInt32(stream, &(ptr_519DBC->field_0)) == -1) return -1;
         if (fileReadInt32(stream, &(ptr_519DBC->field_4)) == -1) return -1;
@@ -720,34 +751,34 @@ int partyMembersLoad(File* stream)
 }
 
 // 0x494D7C
-void _partyMemberClear()
+void partyMemberClear()
 {
-    if (_partyStatePrepped) {
-        _partyMemberUnPrepSave();
+    if (partyStatePrepped) {
+        partyMemberUnPrepSave();
     }
 
-    for (int index = gPartyMembersLength; index > 1; index--) {
-        partyMemberRemove(gPartyMembers[1].object);
+    for (int index = partyMemberCount; index > 1; index--) {
+        partyMemberRemove(partyMemberList[1].object);
     }
 
-    gPartyMembersLength = 1;
+    partyMemberCount = 1;
 
     _scr_remove_all();
-    _partyMemberClearItemList();
+    partyMemberClearItemList();
 
-    _partyStatePrepped = 0;
+    partyStatePrepped = 0;
 }
 
 // 0x494DD0
-int _partyMemberSyncPosition()
+int partyMemberSyncPosition()
 {
     int clockwiseRotation = (obj_dude->rotation + 2) % ROTATION_COUNT;
     int counterClockwiseRotation = (obj_dude->rotation + 4) % ROTATION_COUNT;
 
     int n = 0;
     int distance = 2;
-    for (int index = 1; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
+    for (int index = 1; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
         Object* partyMemberObj = partyMember->object;
         if ((partyMemberObj->flags & OBJECT_HIDDEN) == 0 && PID_TYPE(partyMemberObj->pid) == OBJ_TYPE_CRITTER) {
             int rotation;
@@ -771,15 +802,15 @@ int _partyMemberSyncPosition()
 // Heals party members according to their healing rate.
 //
 // 0x494EB8
-int _partyMemberRestingHeal(int a1)
+int partyMemberRestingHeal(int a1)
 {
     int v1 = a1 / 3;
     if (v1 == 0) {
         return 0;
     }
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
         if (PID_TYPE(partyMember->object->pid) == OBJ_TYPE_CRITTER) {
             int healingRate = critterGetStat(partyMember->object, STAT_HEALING_RATE);
             critter_adjust_hits(partyMember->object, v1 * healingRate);
@@ -790,10 +821,10 @@ int _partyMemberRestingHeal(int a1)
 }
 
 // 0x494F24
-Object* partyMemberFindByPid(int pid)
+Object* partyMemberFindObjFromPid(int pid)
 {
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        Object* object = gPartyMembers[index].object;
+    for (int index = 0; index < partyMemberCount; index++) {
+        Object* object = partyMemberList[index].object;
         if (object->pid == pid) {
             return object;
         }
@@ -803,11 +834,11 @@ Object* partyMemberFindByPid(int pid)
 }
 
 // 0x494F64
-bool _isPotentialPartyMember(Object* object)
+bool isPotentialPartyMember(Object* object)
 {
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
-        if (partyMember->object->pid == gPartyMemberPids[index]) {
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
+        if (partyMember->object->pid == partyMemberPidList[index]) {
             return true;
         }
     }
@@ -818,7 +849,7 @@ bool _isPotentialPartyMember(Object* object)
 // Returns `true` if specified object is a party member.
 //
 // 0x494FC4
-bool objectIsPartyMember(Object* object)
+bool isPartyMember(Object* object)
 {
     if (object == NULL) {
         return false;
@@ -830,8 +861,8 @@ bool objectIsPartyMember(Object* object)
 
     bool isPartyMember = false;
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        if (gPartyMembers[index].object == object) {
+    for (int index = 0; index < partyMemberCount; index++) {
+        if (partyMemberList[index].object == object) {
             isPartyMember = true;
             break;
         }
@@ -843,12 +874,12 @@ bool objectIsPartyMember(Object* object)
 // Returns number of active critters in the party.
 //
 // 0x495010
-int _getPartyMemberCount()
+int getPartyMemberCount()
 {
-    int count = gPartyMembersLength;
+    int count = partyMemberCount;
 
-    for (int index = 1; index < gPartyMembersLength; index++) {
-        Object* object = gPartyMembers[index].object;
+    for (int index = 1; index < partyMemberCount; index++) {
+        Object* object = partyMemberList[index].object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER || critter_is_dead(object) || (object->flags & OBJECT_HIDDEN) != 0) {
             count--;
@@ -859,16 +890,19 @@ int _getPartyMemberCount()
 }
 
 // 0x495070
-int _partyMemberNewObjID()
+static int partyMemberNewObjID()
 {
+    // 0x519DC0
+    static int curID = 20000;
+
     Object* object;
 
     do {
-        _curID++;
+        curID++;
 
         object = obj_find_first();
         while (object != NULL) {
-            if (object->id == _curID) {
+            if (object->id == curID) {
                 break;
             }
 
@@ -878,11 +912,11 @@ int _partyMemberNewObjID()
             for (index = 0; index < inventory->length; index++) {
                 InventoryItem* inventoryItem = &(inventory->items[index]);
                 Object* item = inventoryItem->item;
-                if (item->id == _curID) {
+                if (item->id == curID) {
                     break;
                 }
 
-                if (_partyMemberNewObjIDRecurseFind(item, _curID)) {
+                if (partyMemberNewObjIDRecurseFind(item, curID)) {
                     break;
                 }
             }
@@ -895,13 +929,13 @@ int _partyMemberNewObjID()
         }
     } while (object != NULL);
 
-    _curID++;
+    curID++;
 
-    return _curID;
+    return curID;
 }
 
 // 0x4950F4
-int _partyMemberNewObjIDRecurseFind(Object* obj, int objectId)
+static int partyMemberNewObjIDRecurseFind(Object* obj, int objectId)
 {
     Inventory* inventory = &(obj->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
@@ -910,7 +944,7 @@ int _partyMemberNewObjIDRecurseFind(Object* obj, int objectId)
             return 1;
         }
 
-        if (_partyMemberNewObjIDRecurseFind(inventoryItem->item, objectId)) {
+        if (partyMemberNewObjIDRecurseFind(inventoryItem->item, objectId)) {
             return 1;
         }
     }
@@ -919,15 +953,15 @@ int _partyMemberNewObjIDRecurseFind(Object* obj, int objectId)
 }
 
 // 0x495140
-int _partyMemberPrepItemSaveAll()
+int partyMemberPrepItemSaveAll()
 {
-    for (int partyMemberIndex = 0; partyMemberIndex < gPartyMembersLength; partyMemberIndex++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[partyMemberIndex]);
+    for (int partyMemberIndex = 0; partyMemberIndex < partyMemberCount; partyMemberIndex++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[partyMemberIndex]);
 
         Inventory* inventory = &(partyMember->object->data.inventory);
         for (int inventoryItemIndex = 0; inventoryItemIndex < inventory->length; inventoryItemIndex++) {
             InventoryItem* inventoryItem = &(inventory->items[inventoryItemIndex]);
-            _partyMemberPrepItemSave(inventoryItem->item);
+            partyMemberPrepItemSave(inventoryItem->item);
         }
     }
 
@@ -935,7 +969,7 @@ int _partyMemberPrepItemSaveAll()
 }
 
 // partyMemberPrepItemSaveAll
-int _partyMemberPrepItemSave(Object* object)
+static int partyMemberPrepItemSave(Object* object)
 {
     if (object->sid != -1) {
         Script* script;
@@ -950,14 +984,14 @@ int _partyMemberPrepItemSave(Object* object)
     Inventory* inventory = &(object->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        _partyMemberPrepItemSave(inventoryItem->item);
+        partyMemberPrepItemSave(inventoryItem->item);
     }
 
     return 0;
 }
 
 // 0x495234
-int _partyMemberItemSave(Object* object)
+static int partyMemberItemSave(Object* object)
 {
     if (object->sid != -1) {
         Script* script;
@@ -967,7 +1001,7 @@ int _partyMemberItemSave(Object* object)
         }
 
         if (object->id < 20000) {
-            script->field_1C = _partyMemberNewObjID();
+            script->field_1C = partyMemberNewObjID();
             object->id = script->field_1C;
         }
 
@@ -999,15 +1033,15 @@ int _partyMemberItemSave(Object* object)
             node->vars = NULL;
         }
 
-        STRUCT_519DA8* temp = _itemSaveListHead;
-        _itemSaveListHead = node;
+        STRUCT_519DA8* temp = itemSaveListHead;
+        itemSaveListHead = node;
         node->next = temp;
     }
 
     Inventory* inventory = &(object->data.inventory);
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
-        _partyMemberItemSave(inventoryItem->item);
+        partyMemberItemSave(inventoryItem->item);
     }
 
     return 0;
@@ -1015,7 +1049,7 @@ int _partyMemberItemSave(Object* object)
 
 // partyMemberItemRecover
 // 0x495388
-int _partyMemberItemRecover(STRUCT_519DA8* a1)
+static int partyMemberItemRecover(STRUCT_519DA8* a1)
 {
     int sid = -1;
     if (scriptAdd(&sid, SCRIPT_TYPE_ITEM) == -1) {
@@ -1031,13 +1065,13 @@ int _partyMemberItemRecover(STRUCT_519DA8* a1)
 
     memcpy(script, a1->script, sizeof(*script));
 
-    a1->object->sid = _partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
-    script->sid = _partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
+    a1->object->sid = partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
+    script->sid = partyMemberItemCount | (SCRIPT_TYPE_ITEM << 24);
 
     script->program = NULL;
     script->flags &= ~(SCRIPT_FLAG_0x01 | SCRIPT_FLAG_0x04 | SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
 
-    _partyMemberItemCount++;
+    partyMemberItemCount++;
 
     internal_free(a1->script);
     a1->script = NULL;
@@ -1051,11 +1085,11 @@ int _partyMemberItemRecover(STRUCT_519DA8* a1)
 }
 
 // 0x4954C4
-int _partyMemberClearItemList()
+static int partyMemberClearItemList()
 {
-    while (_itemSaveListHead != NULL) {
-        STRUCT_519DA8* node = _itemSaveListHead;
-        _itemSaveListHead = _itemSaveListHead->next;
+    while (itemSaveListHead != NULL) {
+        STRUCT_519DA8* node = itemSaveListHead;
+        itemSaveListHead = itemSaveListHead->next;
 
         if (node->script != NULL) {
             internal_free(node->script);
@@ -1068,7 +1102,7 @@ int _partyMemberClearItemList()
         internal_free(node);
     }
 
-    _partyMemberItemCount = 20000;
+    partyMemberItemCount = 20000;
 
     return 0;
 }
@@ -1076,7 +1110,7 @@ int _partyMemberClearItemList()
 // Returns best skill of the specified party member.
 //
 // 0x495520
-int partyMemberGetBestSkill(Object* object)
+int partyMemberSkill(Object* object)
 {
     int bestSkill = SKILL_SMALL_GUNS;
 
@@ -1103,13 +1137,13 @@ int partyMemberGetBestSkill(Object* object)
 // Returns party member with highest skill level.
 //
 // 0x495560
-Object* partyMemberGetBestInSkill(int skill)
+Object* partyMemberWithHighestSkill(int skill)
 {
     int bestValue = 0;
     Object* bestPartyMember = NULL;
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        Object* object = gPartyMembers[index].object;
+    for (int index = 0; index < partyMemberCount; index++) {
+        Object* object = partyMemberList[index].object;
         if ((object->flags & OBJECT_HIDDEN) == 0 && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
             int value = skillGetValue(object, skill);
             if (value > bestValue) {
@@ -1125,12 +1159,12 @@ Object* partyMemberGetBestInSkill(int skill)
 // Returns highest skill level in party.
 //
 // 0x4955C8
-int partyGetBestSkillValue(int skill)
+int partyMemberHighestSkillLevel(int skill)
 {
     int bestValue = 0;
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        Object* object = gPartyMembers[index].object;
+    for (int index = 0; index < partyMemberCount; index++) {
+        Object* object = partyMemberList[index].object;
         if ((object->flags & OBJECT_HIDDEN) == 0 && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
             int value = skillGetValue(object, skill);
             if (value > bestValue) {
@@ -1143,7 +1177,7 @@ int partyGetBestSkillValue(int skill)
 }
 
 // 0x495620
-int _partyFixMultipleMembers()
+static int partyFixMultipleMembers()
 {
     debugPrint("\n\n\n[Party Members]:");
 
@@ -1154,8 +1188,8 @@ int _partyFixMultipleMembers()
         }
 
         bool isPartyMember = false;
-        for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-            if (obj->pid == gPartyMemberPids[index]) {
+        for (int index = 1; index < partyMemberMaxCount; index++) {
+            if (obj->pid == partyMemberPidList[index]) {
                 isPartyMember = true;
                 break;
             }
@@ -1172,9 +1206,9 @@ int _partyFixMultipleMembers()
             v19 = true;
         } else {
             Object* v7 = NULL;
-            for (int i = 0; i < gPartyMembersLength; i++) {
-                if (obj->pid == gPartyMembers[i].object->pid) {
-                    v7 = gPartyMembers[i].object;
+            for (int i = 0; i < partyMemberCount; i++) {
+                if (obj->pid == partyMemberList[i].object->pid) {
+                    v7 = partyMemberList[i].object;
                     break;
                 }
             }
@@ -1192,9 +1226,9 @@ int _partyFixMultipleMembers()
         }
 
         Object* v10 = NULL;
-        for (int i = 0; i < gPartyMembersLength; i++) {
-            if (obj->pid == gPartyMembers[i].object->pid) {
-                v10 = gPartyMembers[i].object;
+        for (int i = 0; i < partyMemberCount; i++) {
+            if (obj->pid == partyMemberList[i].object->pid) {
+                v10 = partyMemberList[i].object;
             }
         }
 
@@ -1218,8 +1252,8 @@ int _partyFixMultipleMembers()
         obj_erase_object(obj, NULL);
     }
 
-    for (int index = 0; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* partyMember = &(gPartyMembers[index]);
+    for (int index = 0; index < partyMemberCount; index++) {
+        STRUCT_519DA8* partyMember = &(partyMemberList[index]);
 
         Script* script;
         if (scriptGetScript(partyMember->object->sid, &script) != -1) {
@@ -1235,10 +1269,10 @@ int _partyFixMultipleMembers()
 }
 
 // 0x495870
-void _partyMemberSaveProtos()
+void partyMemberSaveProtos()
 {
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        int pid = gPartyMemberPids[index];
+    for (int index = 1; index < partyMemberMaxCount; index++) {
+        int pid = partyMemberPidList[index];
         if (pid != -1) {
             _proto_save_pid(pid);
         }
@@ -1246,7 +1280,7 @@ void _partyMemberSaveProtos()
 }
 
 // 0x4958B0
-bool partyMemberSupportsDisposition(Object* critter, int disposition)
+bool partyMemberHasAIDisposition(Object* critter, int disposition)
 {
     if (critter == NULL) {
         return false;
@@ -1261,7 +1295,7 @@ bool partyMemberSupportsDisposition(Object* critter, int disposition)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(critter, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(critter, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1269,7 +1303,7 @@ bool partyMemberSupportsDisposition(Object* critter, int disposition)
 }
 
 // 0x495920
-bool partyMemberSupportsAreaAttackMode(Object* object, int areaAttackMode)
+bool partyMemberHasAIBurstValue(Object* object, int areaAttackMode)
 {
     if (object == NULL) {
         return false;
@@ -1284,7 +1318,7 @@ bool partyMemberSupportsAreaAttackMode(Object* object, int areaAttackMode)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(object, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1292,7 +1326,7 @@ bool partyMemberSupportsAreaAttackMode(Object* object, int areaAttackMode)
 }
 
 // 0x495980
-bool partyMemberSupportsRunAwayMode(Object* object, int runAwayMode)
+bool partyMemberHasAIRunAwayValue(Object* object, int runAwayMode)
 {
     if (object == NULL) {
         return false;
@@ -1307,7 +1341,7 @@ bool partyMemberSupportsRunAwayMode(Object* object, int runAwayMode)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(object, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1315,7 +1349,7 @@ bool partyMemberSupportsRunAwayMode(Object* object, int runAwayMode)
 }
 
 // 0x4959E0
-bool partyMemberSupportsBestWeapon(Object* object, int bestWeapon)
+bool partyMemberHasAIWeaponPrefValue(Object* object, int bestWeapon)
 {
     if (object == NULL) {
         return false;
@@ -1330,7 +1364,7 @@ bool partyMemberSupportsBestWeapon(Object* object, int bestWeapon)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(object, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1338,7 +1372,7 @@ bool partyMemberSupportsBestWeapon(Object* object, int bestWeapon)
 }
 
 // 0x495A40
-bool partyMemberSupportsDistance(Object* object, int distanceMode)
+bool partyMemberHasAIDistancePrefValue(Object* object, int distanceMode)
 {
     if (object == NULL) {
         return false;
@@ -1353,7 +1387,7 @@ bool partyMemberSupportsDistance(Object* object, int distanceMode)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(object, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1361,7 +1395,7 @@ bool partyMemberSupportsDistance(Object* object, int distanceMode)
 }
 
 // 0x495AA0
-bool partyMemberSupportsAttackWho(Object* object, int attackWho)
+bool partyMemberHasAIAttackWhoValue(Object* object, int attackWho)
 {
     if (object == NULL) {
         return false;
@@ -1376,7 +1410,7 @@ bool partyMemberSupportsAttackWho(Object* object, int attackWho)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(object, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1384,7 +1418,7 @@ bool partyMemberSupportsAttackWho(Object* object, int attackWho)
 }
 
 // 0x495B00
-bool partyMemberSupportsChemUse(Object* object, int chemUse)
+bool partyMemberHasAIChemUseValue(Object* object, int chemUse)
 {
     if (object == NULL) {
         return false;
@@ -1399,7 +1433,7 @@ bool partyMemberSupportsChemUse(Object* object, int chemUse)
     }
 
     PartyMemberDescription* partyMemberDescription;
-    if (partyMemberGetDescription(object, &partyMemberDescription) == -1) {
+    if (partyMemberGetAIOptions(object, &partyMemberDescription) == -1) {
         return false;
     }
 
@@ -1408,7 +1442,7 @@ bool partyMemberSupportsChemUse(Object* object, int chemUse)
 
 // partyMemberIncLevels
 // 0x495B60
-int _partyMemberIncLevels()
+int partyMemberIncLevels()
 {
     int i;
     STRUCT_519DA8* ptr;
@@ -1425,11 +1459,11 @@ int _partyMemberIncLevels()
     Rect v19;
 
     v0 = -1;
-    for (i = 1; i < gPartyMembersLength; i++) {
-        ptr = &(gPartyMembers[i]);
+    for (i = 1; i < partyMemberCount; i++) {
+        ptr = &(partyMemberList[i]);
         obj = ptr->object;
 
-        if (partyMemberGetDescription(obj, &party_member) == -1) {
+        if (partyMemberGetAIOptions(obj, &party_member) == -1) {
             break;
         }
 
@@ -1444,8 +1478,8 @@ int _partyMemberIncLevels()
             continue;
         }
 
-        for (j = 1; j < gPartyMemberDescriptionsLength; j++) {
-            if (gPartyMemberPids[j] == obj->pid) {
+        for (j = 1; j < partyMemberMaxCount; j++) {
+            if (partyMemberPidList[j] == obj->pid) {
                 v0 = j;
             }
         }
@@ -1458,7 +1492,7 @@ int _partyMemberIncLevels()
             continue;
         }
 
-        ptr_519DBC = &(_partyMemberLevelUpInfoList[v0]);
+        ptr_519DBC = &(partyMemberLevelUpInfoList[v0]);
 
         if (ptr_519DBC->field_0 >= party_member->level_pids_num) {
             continue;
@@ -1477,7 +1511,7 @@ int _partyMemberIncLevels()
                         ptr_519DBC->field_8 = 1;
                     }
 
-                    if (_partyMemberCopyLevelInfo(obj, party_member->level_pids[ptr_519DBC->field_0]) == -1) {
+                    if (partyMemberCopyLevelInfo(obj, party_member->level_pids[ptr_519DBC->field_0]) == -1) {
                         return -1;
                     }
 
@@ -1508,7 +1542,7 @@ int _partyMemberIncLevels()
 }
 
 // 0x495EA8
-int _partyMemberCopyLevelInfo(Object* critter, int a2)
+static int partyMemberCopyLevelInfo(Object* critter, int a2)
 {
     if (critter == NULL) {
         return -1;
@@ -1573,10 +1607,10 @@ int _partyMemberCopyLevelInfo(Object* critter, int a2)
 // until healed" option).
 //
 // 0x496058
-bool partyIsAnyoneCanBeHealedByRest()
+bool partyMemberNeedsHealing()
 {
-    for (int index = 1; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* ptr = &(gPartyMembers[index]);
+    for (int index = 1; index < partyMemberCount; index++) {
+        STRUCT_519DA8* ptr = &(partyMemberList[index]);
         Object* object = ptr->object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) continue;
@@ -1598,12 +1632,12 @@ bool partyIsAnyoneCanBeHealedByRest()
 // the rest.
 //
 // 0x4960DC
-int partyGetMaxWoundToHealByRest()
+int partyMemberMaxHealingNeeded()
 {
     int maxWound = 0;
 
-    for (int index = 1; index < gPartyMembersLength; index++) {
-        STRUCT_519DA8* ptr = &(gPartyMembers[index]);
+    for (int index = 1; index < partyMemberCount; index++) {
+        STRUCT_519DA8* ptr = &(partyMemberList[index]);
         Object* object = ptr->object;
 
         if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) continue;

@@ -2788,7 +2788,7 @@ int item_d_take_drug(Object* critter, Object* item)
 // 0x47A178
 int item_d_clear(Object* obj, void* data)
 {
-    if (objectIsPartyMember(obj)) {
+    if (isPartyMember(obj)) {
         return 0;
     }
 
@@ -2875,7 +2875,7 @@ int item_wd_clear(Object* obj, void* data)
 {
     WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)data;
 
-    if (objectIsPartyMember(obj)) {
+    if (isPartyMember(obj)) {
         return 0;
     }
 

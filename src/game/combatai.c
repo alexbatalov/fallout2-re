@@ -500,8 +500,8 @@ int combat_ai_exit()
 // 0x427AD8
 int combat_ai_load(File* stream)
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        int pid = gPartyMemberPids[index];
+    for (int index = 0; index < partyMemberMaxCount; index++) {
+        int pid = partyMemberPidList[index];
         if (pid != -1 && PID_TYPE(pid) == OBJ_TYPE_CRITTER) {
             Proto* proto;
             if (protoGetProto(pid, &proto) == -1) {
@@ -521,8 +521,8 @@ int combat_ai_load(File* stream)
 // 0x427B50
 int combat_ai_save(File* stream)
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
-        int pid = gPartyMemberPids[index];
+    for (int index = 0; index < partyMemberMaxCount; index++) {
+        int pid = partyMemberPidList[index];
         if (pid != -1 && PID_TYPE(pid) == OBJ_TYPE_CRITTER) {
             Proto* proto;
             if (protoGetProto(pid, &proto) == -1) {
@@ -1429,7 +1429,7 @@ Object* ai_danger_source(Object* a1)
     Object* targets[4];
     targets[0] = NULL;
 
-    if (objectIsPartyMember(a1)) {
+    if (isPartyMember(a1)) {
         int disposition = a1 != NULL ? ai_cap(a1)->disposition : 0;
 
         switch (disposition + 1) {
@@ -1893,7 +1893,7 @@ Object* ai_search_inven_weap(Object* critter, int a2, Object* a3)
 // 0x429A6C
 Object* ai_search_inven_armor(Object* critter)
 {
-    if (!objectIsPartyMember(critter)) {
+    if (!isPartyMember(critter)) {
         return NULL;
     }
 
@@ -2730,7 +2730,7 @@ void cai_attempt_w_reload(Object* critter_obj, int a2)
             _obj_destroy(ammo_obj);
         }
 
-        if (v9 != -1 && objectIsPartyMember(critter_obj)) {
+        if (v9 != -1 && isPartyMember(critter_obj)) {
             v10 = gsound_compute_relative_volume(critter_obj);
             sfx = gsnd_build_weapon_sfx_name(WEAPON_SOUND_EFFECT_READY, weapon_obj, HIT_MODE_RIGHT_WEAPON_PRIMARY, NULL);
             gsound_play_sfx_file_volume(sfx, v10);
@@ -2900,7 +2900,7 @@ void combat_ai(Object* a1, Object* a2)
         }
     }
 
-    if (a2 == NULL && !objectIsPartyMember(a1)) {
+    if (a2 == NULL && !isPartyMember(a1)) {
         Object* whoHitMe = combatData->whoHitMe;
         if (whoHitMe != NULL) {
             if ((whoHitMe->data.critter.combat.results & DAM_DEAD) == 0 && combatData->damageLastTurn > 0) {
@@ -2931,7 +2931,7 @@ void combat_ai(Object* a1, Object* a2)
         v20 = ai_find_nearest_team_in_combat(a1, a1, 1);
     } else {
         v20 = obj_dude;
-        if (objectIsPartyMember(a1)) {
+        if (isPartyMember(a1)) {
             // NOTE: Uninline
             int distance = ai_get_distance_pref_value(a1);
             if (distance != -1) {
@@ -3075,7 +3075,7 @@ int combat_ai_set_ai_packet(Object* object, int aiPacket)
 
     object->data.critter.combat.aiPacket = aiPacket;
 
-    if (_isPotentialPartyMember(object)) {
+    if (isPotentialPartyMember(object)) {
         Proto* proto;
         if (protoGetProto(object->pid, &proto) == -1) {
             return -1;

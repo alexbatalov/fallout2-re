@@ -153,7 +153,7 @@ MessageList gPerksMessageList;
 // 0x4965A0
 int perksInit()
 {
-    gPartyMemberPerkRanks = (PerkRankData*)internal_malloc(sizeof(*gPartyMemberPerkRanks) * gPartyMemberDescriptionsLength);
+    gPartyMemberPerkRanks = (PerkRankData*)internal_malloc(sizeof(*gPartyMemberPerkRanks) * partyMemberMaxCount);
     if (gPartyMemberPerkRanks == NULL) {
         return -1;
     }
@@ -208,7 +208,7 @@ void perksExit()
 // 0x4966E4
 int perksLoad(File* stream)
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
+    for (int index = 0; index < partyMemberMaxCount; index++) {
         PerkRankData* ranksData = &(gPartyMemberPerkRanks[index]);
         for (int perk = 0; perk < PERK_COUNT; perk++) {
             if (fileReadInt32(stream, &(ranksData->ranks[perk])) == -1) {
@@ -223,7 +223,7 @@ int perksLoad(File* stream)
 // 0x496738
 int perksSave(File* stream)
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
+    for (int index = 0; index < partyMemberMaxCount; index++) {
         PerkRankData* ranksData = &(gPartyMemberPerkRanks[index]);
         for (int perk = 0; perk < PERK_COUNT; perk++) {
             if (fileWriteInt32(stream, ranksData->ranks[perk]) == -1) {
@@ -243,8 +243,8 @@ PerkRankData* perkGetRankData(Object* critter)
         return gPartyMemberPerkRanks;
     }
 
-    for (int index = 1; index < gPartyMemberDescriptionsLength; index++) {
-        if (critter->pid == gPartyMemberPids[index]) {
+    for (int index = 1; index < partyMemberMaxCount; index++) {
+        if (critter->pid == partyMemberPidList[index]) {
             return gPartyMemberPerkRanks + index;
         }
     }
@@ -378,7 +378,7 @@ bool perkCanAdd(Object* critter, int perk)
 // 0x496A0C
 void perkResetRanks()
 {
-    for (int index = 0; index < gPartyMemberDescriptionsLength; index++) {
+    for (int index = 0; index < partyMemberMaxCount; index++) {
         PerkRankData* ranksData = &(gPartyMemberPerkRanks[index]);
         for (int perk = 0; perk < PERK_COUNT; perk++) {
             ranksData->ranks[perk] = 0;

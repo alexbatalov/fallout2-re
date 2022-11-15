@@ -1943,7 +1943,7 @@ void adjust_ac(Object* critter, Object* oldArmor, Object* newArmor)
         damageThresholdStat += 1;
     }
 
-    if (objectIsPartyMember(critter)) {
+    if (isPartyMember(critter)) {
         if (oldArmor != NULL) {
             int perk = item_ar_perk(oldArmor);
             perkRemoveEffect(critter, perk);
@@ -3727,7 +3727,7 @@ int loot_container(Object* a1, Object* a2)
     if (_gIsSteal) {
         if (!isCaughtStealing) {
             if (stealingXp > 0) {
-                if (!objectIsPartyMember(a2)) {
+                if (!isPartyMember(a2)) {
                     stealingXp = min(300 - skillGetValue(a1, SKILL_STEAL), stealingXp);
                     debugPrint("\n[[[%d]]]", 300 - skillGetValue(a1, SKILL_STEAL));
 
@@ -3947,7 +3947,7 @@ static int barter_compute_value(Object* a1, Object* a2)
         }
     }
 
-    int partyBarter = partyGetBestSkillValue(SKILL_BARTER);
+    int partyBarter = partyMemberHighestSkillLevel(SKILL_BARTER);
     int npcBarter = skillGetValue(a2, SKILL_BARTER);
 
     // TODO: Check in debugger, complex math, probably uses floats, not doubles.
