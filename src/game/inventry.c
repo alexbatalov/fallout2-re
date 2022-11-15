@@ -31,7 +31,7 @@
 #include "game/proto.h"
 #include "game/protinst.h"
 #include "random.h"
-#include "reaction.h"
+#include "game/reaction.h"
 #include "scripts.h"
 #include "skill.h"
 #include "stat.h"
