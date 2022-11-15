@@ -26,7 +26,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "pipboy.h"
 #include "proto.h"
 #include "queue.h"

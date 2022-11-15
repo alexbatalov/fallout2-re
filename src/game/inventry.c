@@ -27,7 +27,7 @@
 #include "game/map.h"
 #include "game/message.h"
 #include "game/object.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "proto.h"
 #include "proto_instance.h"
 #include "random.h"

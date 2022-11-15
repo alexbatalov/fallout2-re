@@ -28,7 +28,7 @@
 #include "game/map.h"
 #include "game/object.h"
 #include "game/palette.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "proto.h"
 #include "proto_instance.h"
 #include "queue.h"

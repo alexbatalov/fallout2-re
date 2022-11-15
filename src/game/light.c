@@ -4,7 +4,7 @@
 
 #include "game/map_defs.h"
 #include "game/object.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "tile.h"
 
 // 0x51923C

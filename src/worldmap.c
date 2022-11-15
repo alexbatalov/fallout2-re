@@ -31,7 +31,7 @@
 #include "game/object_types.h"
 #include "game/object.h"
 #include "game/party.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "proto_instance.h"
 #include "queue.h"
 #include "random.h"

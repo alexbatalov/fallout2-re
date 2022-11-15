@@ -41,7 +41,7 @@
 #include "game/options.h"
 #include "game/palette.h"
 #include "game/party.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "pipboy.h"
 #include "proto.h"
 #include "queue.h"

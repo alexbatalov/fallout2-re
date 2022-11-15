@@ -1,4 +1,4 @@
-#include "perk.h"
+#include "game/perk.h"
 
 #include <stdio.h>
 

@@ -18,7 +18,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "skill.h"
 #include "stat.h"
 #include "trait.h"

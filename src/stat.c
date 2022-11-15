@@ -12,7 +12,7 @@
 #include "game/item.h"
 #include "memory.h"
 #include "game/object.h"
-#include "perk.h"
+#include "game/perk.h"
 #include "proto.h"
 #include "random.h"
 #include "scripts.h"

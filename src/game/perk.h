@@ -6,7 +6,7 @@
 #include "db.h"
 #include "game/message.h"
 #include "game/object_types.h"
-#include "perk_defs.h"
+#include "game/perk_defs.h"
 #include "stat_defs.h"
 
 typedef struct PerkDescription {
