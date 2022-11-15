@@ -44,11 +44,12 @@ typedef struct PartyMemberAI {
     int level_pids[5];
 } PartyMemberAI;
 
-typedef struct STRU_519DBC {
+// TODO: Rename fields.
+typedef struct PartyMemberLevelUpInfo {
     int field_0;
     int field_4; // party member level
     int field_8; // early what?
-} STRU_519DBC;
+} PartyMemberLevelUpInfo;
 
 typedef struct STRUCT_519DA8 {
     Object* object;
@@ -100,7 +101,7 @@ static int partyStatePrepped = 0;
 static PartyMemberAI* partyMemberAIOptions = NULL;
 
 // 0x519DBC
-static STRU_519DBC* partyMemberLevelUpInfoList = NULL;
+static PartyMemberLevelUpInfo* partyMemberLevelUpInfoList = NULL;
 
 // 0x493BC0
 int partyMember_init()
@@ -147,7 +148,7 @@ int partyMember_init()
 
     memset(partyMemberAIOptions, 0, sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
 
-    partyMemberLevelUpInfoList = (STRU_519DBC*)internal_malloc(sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
+    partyMemberLevelUpInfoList = (PartyMemberLevelUpInfo*)internal_malloc(sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
     if (partyMemberLevelUpInfoList == NULL) goto err;
 
     memset(partyMemberLevelUpInfoList, 0, sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
@@ -522,10 +523,10 @@ int partyMemberSave(File* stream)
     }
 
     for (int index = 1; index < partyMemberMaxCount; index++) {
-        STRU_519DBC* ptr = &(partyMemberLevelUpInfoList[index]);
-        if (fileWriteInt32(stream, ptr->field_0) == -1) return -1;
-        if (fileWriteInt32(stream, ptr->field_4) == -1) return -1;
-        if (fileWriteInt32(stream, ptr->field_8) == -1) return -1;
+        PartyMemberLevelUpInfo* levelUpInfo = &(partyMemberLevelUpInfoList[index]);
+        if (fileWriteInt32(stream, levelUpInfo->field_0) == -1) return -1;
+        if (fileWriteInt32(stream, levelUpInfo->field_4) == -1) return -1;
+        if (fileWriteInt32(stream, levelUpInfo->field_8) == -1) return -1;
     }
 
     return 0;
@@ -754,11 +755,11 @@ int partyMemberLoad(File* stream)
     partyFixMultipleMembers();
 
     for (int index = 1; index < partyMemberMaxCount; index++) {
-        STRU_519DBC* ptr_519DBC = &(partyMemberLevelUpInfoList[index]);
+        PartyMemberLevelUpInfo* levelUpInfo = &(partyMemberLevelUpInfoList[index]);
 
-        if (fileReadInt32(stream, &(ptr_519DBC->field_0)) == -1) return -1;
-        if (fileReadInt32(stream, &(ptr_519DBC->field_4)) == -1) return -1;
-        if (fileReadInt32(stream, &(ptr_519DBC->field_8)) == -1) return -1;
+        if (fileReadInt32(stream, &(levelUpInfo->field_0)) == -1) return -1;
+        if (fileReadInt32(stream, &(levelUpInfo->field_4)) == -1) return -1;
+        if (fileReadInt32(stream, &(levelUpInfo->field_8)) == -1) return -1;
     }
 
     return 0;
@@ -1465,7 +1466,7 @@ int partyMemberIncLevels()
     const char* name;
     int j;
     int v0;
-    STRU_519DBC* ptr_519DBC;
+    PartyMemberLevelUpInfo* levelUpInfo;
     int v24;
     char* text;
     MessageListItem msg;
@@ -1506,26 +1507,26 @@ int partyMemberIncLevels()
             continue;
         }
 
-        ptr_519DBC = &(partyMemberLevelUpInfoList[v0]);
+        levelUpInfo = &(partyMemberLevelUpInfoList[v0]);
 
-        if (ptr_519DBC->field_0 >= aiOptions->level_pids_num) {
+        if (levelUpInfo->field_0 >= aiOptions->level_pids_num) {
             continue;
         }
 
-        ptr_519DBC->field_4++;
+        levelUpInfo->field_4++;
 
-        v24 = ptr_519DBC->field_4 % aiOptions->level_pids_num;
-        debugPrint("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, ptr_519DBC->field_4, ptr_519DBC->field_8, aiOptions->level_up_every);
+        v24 = levelUpInfo->field_4 % aiOptions->level_pids_num;
+        debugPrint("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, levelUpInfo->field_4, levelUpInfo->field_8, aiOptions->level_up_every);
 
-        if (v24 != 0 || ptr_519DBC->field_8 == 0) {
-            if (ptr_519DBC->field_8 == 0) {
+        if (v24 != 0 || levelUpInfo->field_8 == 0) {
+            if (levelUpInfo->field_8 == 0) {
                 if (v24 == 0 || randomBetween(0, 100) <= 100 * v24 / aiOptions->level_up_every) {
-                    ptr_519DBC->field_0++;
+                    levelUpInfo->field_0++;
                     if (v24 != 0) {
-                        ptr_519DBC->field_8 = 1;
+                        levelUpInfo->field_8 = 1;
                     }
 
-                    if (partyMemberCopyLevelInfo(obj, aiOptions->level_pids[ptr_519DBC->field_0]) == -1) {
+                    if (partyMemberCopyLevelInfo(obj, aiOptions->level_pids[levelUpInfo->field_0]) == -1) {
                         return -1;
                     }
 
@@ -1538,7 +1539,7 @@ int partyMemberIncLevels()
                     debugPrint(str);
 
                     // Individual message
-                    msg.num = 9000 + 10 * v0 + ptr_519DBC->field_0 - 1;
+                    msg.num = 9000 + 10 * v0 + levelUpInfo->field_0 - 1;
                     if (message_search(&misc_message_file, &msg)) {
                         name = critter_name(obj);
                         sprintf(str, msg.text, name);
@@ -1548,7 +1549,7 @@ int partyMemberIncLevels()
                 }
             }
         } else {
-            ptr_519DBC->field_8 = 0;
+            levelUpInfo->field_8 = 0;
         }
     }
 
