@@ -201,7 +201,7 @@ static SaveGameHandler* master_save_list[LOAD_SAVE_HANDLER_COUNT] = {
     item_save,
     traitsSave,
     automap_save,
-    preferencesSave,
+    save_options,
     editor_save,
     wmWorldMap_save,
     pipboySave,
@@ -232,7 +232,7 @@ static LoadGameHandler* master_load_list[LOAD_SAVE_HANDLER_COUNT] = {
     item_load,
     traitsLoad,
     automap_load,
-    preferencesLoad,
+    load_options,
     editor_load,
     wmWorldMap_load,
     pipboyLoad,
@@ -546,11 +546,11 @@ int SaveGame(int mode)
                 break;
             case KEY_PLUS:
             case KEY_EQUAL:
-                brightnessIncrease();
+                IncGamma();
                 break;
             case KEY_MINUS:
             case KEY_UNDERSCORE:
-                brightnessDecrease();
+                DecGamma();
                 break;
             case KEY_RETURN:
                 keyCode = 500;
@@ -1015,11 +1015,11 @@ int LoadGame(int mode)
                 break;
             case KEY_MINUS:
             case KEY_UNDERSCORE:
-                brightnessDecrease();
+                DecGamma();
                 break;
             case KEY_EQUAL:
             case KEY_PLUS:
-                brightnessIncrease();
+                IncGamma();
                 break;
             case KEY_RETURN:
                 keyCode = 500;

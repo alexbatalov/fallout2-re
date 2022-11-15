@@ -329,7 +329,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">scr_disable\t");
 
-    if (_init_options_menu() != 0) {
+    if (init_options_menu() != 0) {
         debugPrint("Failed on init_options_menu\n");
         return -1;
     }
@@ -382,7 +382,7 @@ void game_reset()
     combat_reset();
     game_user_wants_to_quit = 0;
     automap_reset();
-    _init_options_menu();
+    init_options_menu();
 }
 
 // 0x442C34
@@ -517,7 +517,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_CTRL_P:
         gsound_play_sfx_file("ib1p1xx1");
-        showPause(false);
+        PauseWindow(false);
         break;
     case KEY_UPPERCASE_A:
     case KEY_LOWERCASE_A:
@@ -571,7 +571,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         // options
         if (intface_is_enabled()) {
             gsound_play_sfx_file("ib1p1xx1");
-            showOptions();
+            do_options();
         }
         break;
     case KEY_UPPERCASE_P:
@@ -738,11 +738,11 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         break;
     case KEY_MINUS:
     case KEY_UNDERSCORE:
-        brightnessDecrease();
+        DecGamma();
         break;
     case KEY_EQUAL:
     case KEY_PLUS:
-        brightnessIncrease();
+        IncGamma();
         break;
     case KEY_COMMA:
     case KEY_LESS:

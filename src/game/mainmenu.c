@@ -335,9 +335,9 @@ int main_menu_loop()
                 rc = MAIN_MENU_SELFRUN;
                 continue;
             } else if (keyCode == KEY_PLUS || keyCode == KEY_EQUAL) {
-                brightnessIncrease();
+                IncGamma();
             } else if (keyCode == KEY_MINUS || keyCode == KEY_UNDERSCORE) {
-                brightnessDecrease();
+                DecGamma();
             } else if (keyCode == KEY_UPPERCASE_D || keyCode == KEY_LOWERCASE_D) {
                 rc = MAIN_MENU_SCREENSAVER;
                 continue;

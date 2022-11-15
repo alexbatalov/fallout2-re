@@ -163,11 +163,11 @@ int characterSelectorOpen()
         switch (keyCode) {
         case KEY_MINUS:
         case KEY_UNDERSCORE:
-            brightnessDecrease();
+            DecGamma();
             break;
         case KEY_EQUAL:
         case KEY_PLUS:
-            brightnessIncrease();
+            IncGamma();
             break;
         case KEY_UPPERCASE_B:
         case KEY_LOWERCASE_B:

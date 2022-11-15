@@ -188,7 +188,7 @@ int RealMain(int argc, char** argv)
             case MAIN_MENU_OPTIONS:
                 main_menu_hide(false);
                 mouse_show();
-                showOptionsWithInitialKeyCode(112);
+                do_optionsFunc(112);
                 gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                 mouse_show();
                 main_menu_show(0);

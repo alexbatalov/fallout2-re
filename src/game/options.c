@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "color.h"
+#include "game/art.h"
 #include "game/combat.h"
 #include "game/combatai.h"
 #include "core.h"
@@ -17,6 +18,7 @@
 #include "game/graphlib.h"
 #include "game/gsound.h"
 #include "game/loadsave.h"
+#include "game/message.h"
 #include "memory.h"
 #include "scripts.h"
 #include "text_font.h"
@@ -27,8 +29,122 @@
 #define PREFERENCES_WINDOW_WIDTH 640
 #define PREFERENCES_WINDOW_HEIGHT 480
 
+#define OPTIONS_WINDOW_BUTTONS_COUNT 10
+#define PRIMARY_OPTION_VALUE_COUNT 4
+#define SECONDARY_OPTION_VALUE_COUNT 2
+
+#define GAMMA_MIN 1.0
+#define GAMMA_MAX 1.17999267578125
+#define GAMMA_STEP 0.01124954223632812
+
+typedef enum Preference {
+    PREF_GAME_DIFFICULTY,
+    PREF_COMBAT_DIFFICULTY,
+    PREF_VIOLENCE_LEVEL,
+    PREF_TARGET_HIGHLIGHT,
+    PREF_COMBAT_LOOKS,
+    PREF_COMBAT_MESSAGES,
+    PREF_COMBAT_TAUNTS,
+    PREF_LANGUAGE_FILTER,
+    PREF_RUNNING,
+    PREF_SUBTITLES,
+    PREF_ITEM_HIGHLIGHT,
+    PREF_COMBAT_SPEED,
+    PREF_TEXT_BASE_DELAY,
+    PREF_MASTER_VOLUME,
+    PREF_MUSIC_VOLUME,
+    PREF_SFX_VOLUME,
+    PREF_SPEECH_VOLUME,
+    PREF_BRIGHTNESS,
+    PREF_MOUSE_SENSITIVIY,
+    PREF_COUNT,
+    FIRST_PRIMARY_PREF = PREF_GAME_DIFFICULTY,
+    LAST_PRIMARY_PREF = PREF_COMBAT_LOOKS,
+    PRIMARY_PREF_COUNT = LAST_PRIMARY_PREF - FIRST_PRIMARY_PREF + 1,
+    FIRST_SECONDARY_PREF = PREF_COMBAT_MESSAGES,
+    LAST_SECONDARY_PREF = PREF_ITEM_HIGHLIGHT,
+    SECONDARY_PREF_COUNT = LAST_SECONDARY_PREF - FIRST_SECONDARY_PREF + 1,
+    FIRST_RANGE_PREF = PREF_COMBAT_SPEED,
+    LAST_RANGE_PREF = PREF_MOUSE_SENSITIVIY,
+    RANGE_PREF_COUNT = LAST_RANGE_PREF - FIRST_RANGE_PREF + 1,
+} Preference;
+
+typedef enum PauseWindowFrm {
+    PAUSE_WINDOW_FRM_BACKGROUND,
+    PAUSE_WINDOW_FRM_DONE_BOX,
+    PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP,
+    PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN,
+    PAUSE_WINDOW_FRM_COUNT,
+} PauseWindowFrm;
+
+typedef enum OptionsWindowFrm {
+    OPTIONS_WINDOW_FRM_BACKGROUND,
+    OPTIONS_WINDOW_FRM_BUTTON_ON,
+    OPTIONS_WINDOW_FRM_BUTTON_OFF,
+    OPTIONS_WINDOW_FRM_COUNT,
+} OptionsWindowFrm;
+
+typedef enum PreferencesWindowFrm {
+    PREFERENCES_WINDOW_FRM_BACKGROUND,
+    // Knob (for range preferences)
+    PREFERENCES_WINDOW_FRM_KNOB_OFF,
+    // 4-way switch (for primary preferences)
+    PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH,
+    // 2-way switch (for secondary preferences)
+    PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH,
+    PREFERENCES_WINDOW_FRM_CHECKBOX_ON,
+    PREFERENCES_WINDOW_FRM_CHECKBOX_OFF,
+    PREFERENCES_WINDOW_FRM_6,
+    // Active knob (for range preferences)
+    PREFERENCES_WINDOW_FRM_KNOB_ON,
+    PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP,
+    PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN,
+    PREFERENCES_WINDOW_FRM_COUNT,
+} PreferencesWindowFrm;
+
+#pragma pack(2)
+typedef struct PreferenceDescription {
+    // The number of options.
+    short valuesCount;
+
+    // Direction of rotation:
+    // 0 - clockwise (incrementing value),
+    // 1 - counter-clockwise (decrementing value)
+    short direction;
+    short knobX;
+    short knobY;
+    // Min x coordinate of the preference control bounding box.
+    short minX;
+    // Max x coordinate of the preference control bounding box.
+    short maxX;
+    short labelIds[PRIMARY_OPTION_VALUE_COUNT];
+    int btn;
+    char name[32];
+    double minValue;
+    double maxValue;
+    int* valuePtr;
+} PreferenceDescription;
+#pragma pack()
+
+static_assert(sizeof(PreferenceDescription) == 76, "wrong size");
+
+static int OptnStart();
+static int OptnEnd();
+static void ShadeScreen(bool a1);
+static void SetSystemPrefs();
+static void SaveSettings();
+static void RestoreSettings();
+static void SetDefaults(bool a1);
+static void JustUpdate();
+static void UpdateThing(int index);
+static int SavePrefs(bool save);
+static int PrefStart();
+static int PrefEnd();
+static int do_prefscreen();
+static void DoThing(int eventCode);
+
 // 0x48FBD0
-const int _row1Ytab[PRIMARY_PREF_COUNT] = {
+static const short row1Ytab[PRIMARY_PREF_COUNT] = {
     48,
     125,
     203,
@@ -37,7 +153,7 @@ const int _row1Ytab[PRIMARY_PREF_COUNT] = {
 };
 
 // 0x48FBDA
-const int _row2Ytab[SECONDARY_PREF_COUNT] = {
+static const short row2Ytab[SECONDARY_PREF_COUNT] = {
     49,
     116,
     181,
@@ -47,7 +163,7 @@ const int _row2Ytab[SECONDARY_PREF_COUNT] = {
 };
 
 // 0x48FBE6
-const int _row3Ytab[RANGE_PREF_COUNT] = {
+static const short row3Ytab[RANGE_PREF_COUNT] = {
     19,
     94,
     165,
@@ -60,7 +176,7 @@ const int _row3Ytab[RANGE_PREF_COUNT] = {
 
 // x offsets for primary preferences from the knob position
 // 0x48FBF6
-const short word_48FBF6[PRIMARY_OPTION_VALUE_COUNT] = {
+static const short bglbx[PRIMARY_OPTION_VALUE_COUNT] = {
     2,
     25,
     46,
@@ -69,7 +185,7 @@ const short word_48FBF6[PRIMARY_OPTION_VALUE_COUNT] = {
 
 // y offsets for primary preference option values from the knob position
 // 0x48FBFE
-const short word_48FBFE[PRIMARY_OPTION_VALUE_COUNT] = {
+static const short bglby[PRIMARY_OPTION_VALUE_COUNT] = {
     10,
     -4,
     10,
@@ -78,70 +194,20 @@ const short word_48FBFE[PRIMARY_OPTION_VALUE_COUNT] = {
 
 // x offsets for secondary prefrence option values from the knob position
 // 0x48FC06
-const short word_48FC06[SECONDARY_OPTION_VALUE_COUNT] = {
+static const short smlbx[SECONDARY_OPTION_VALUE_COUNT] = {
     4,
     21,
 };
 
-// 0x48FC0C
-const int gPauseWindowFrmIds[PAUSE_WINDOW_FRM_COUNT] = {
-    208, // charwin.frm - character editor
-    209, // donebox.frm - character editor
-    8, // lilredup.frm - little red button up
-    9, // lilreddn.frm - little red button down
-};
-
-// y offsets for secondary preferences
-// 0x48FC30
-const int dword_48FC30[SECONDARY_PREF_COUNT] = {
-    66, // combat messages
-    133, // combat taunts
-    200, // language filter
-    264, // running
-    331, // subtitles
-    397, // item highlight
-};
-
-// y offsets for primary preferences
-// 0x48FC1C
-const int dword_48FC1C[PRIMARY_PREF_COUNT] = {
-    66, // game difficulty
-    143, // combat difficulty
-    222, // violence level
-    304, // target highlight
-    382, // combat looks
-};
-
-// 0x50C168
-const double dbl_50C168 = 1.17999267578125;
-
-// 0x50C170
-const double dbl_50C170 = 0.01124954223632812;
-
-// 0x50C178
-const double dbl_50C178 = -0.01124954223632812;
-
-// 0x50C180
-const double dbl_50C180 = 1.17999267578125;
-
-// 0x50C2D0
-const double dbl_50C2D0 = -1.0;
-
-// 0x50C2D8
-const double dbl_50C2D8 = 0.2;
-
-// 0x50C2E0
-const double dbl_50C2E0 = 2.0;
-
 // 0x5197C0
-const int gOptionsWindowFrmIds[OPTIONS_WINDOW_FRM_COUNT] = {
+static int opgrphs[OPTIONS_WINDOW_FRM_COUNT] = {
     220, // opbase.frm - character editor
     222, // opbtnon.frm - character editor
     221, // opbtnoff.frm - character editor
 };
 
 // 0x5197CC
-const int gPreferencesWindowFrmIds[PREFERENCES_WINDOW_FRM_COUNT] = {
+static int prfgrphs[PREFERENCES_WINDOW_FRM_COUNT] = {
     240, // prefscrn.frm - options screen
     241, // prfsldof.frm - options screen
     242, // prfbknbs.frm - options screen
@@ -154,213 +220,213 @@ const int gPreferencesWindowFrmIds[PREFERENCES_WINDOW_FRM_COUNT] = {
     9, // lilreddn.frm - little red button down
 };
 
+// 0x6637D0
+static Size ginfo[OPTIONS_WINDOW_FRM_COUNT];
+
+// 0x6637E8
+static MessageList optn_msgfl;
+
+// 0x6637F0
+static Size ginfo2[PREFERENCES_WINDOW_FRM_COUNT];
+
+// 0x663840
+static MessageListItem optnmesg;
+
+// 0x663850
+static unsigned char* prfbmp[PREFERENCES_WINDOW_FRM_COUNT];
+
+// 0x663878
+static unsigned char* opbtns[OPTIONS_WINDOW_BUTTONS_COUNT];
+
+// 0x6638A0
+static CacheEntry* grphkey2[PREFERENCES_WINDOW_FRM_COUNT];
+
+// 0x6638C8
+static double text_delay_back;
+
+// 0x6638D0
+static double gamma_value;
+
+// 0x6638D8
+static double gamma_value_back;
+
+// 0x6638E0
+static double text_delay;
+
+// 0x6638E8
+static double mouse_sens;
+
+// 0x6638F0
+static double mouse_sens_back;
+
+// 0x6638F8
+static unsigned char* prefbuf;
+
+// 0x6638FC
+static bool mouse_3d_was_on;
+
+// 0x663900
+static int optnwin;
+
+// 0x663904
+static int prfwin;
+
+// 0x663908
+static unsigned char* winbuf;
+
+// 0x66390C
+static CacheEntry* grphkey[OPTIONS_WINDOW_FRM_COUNT];
+
+// 0x663918
+static unsigned char* opbmp[OPTIONS_WINDOW_FRM_COUNT];
+
+// 0x663924
+static int gPreferencesGameDifficulty2;
+
+// 0x663928
+static int gPreferencesCombatDifficulty2;
+
+// 0x66392C
+static int gPreferencesViolenceLevel2;
+
+// 0x663930
+static int gPreferencesTargetHighlight2;
+
+// 0x663934
+static int gPreferencesCombatLooks2;
+
+// 0x663938
+static int gPreferencesCombatMessages2;
+
+// 0x66393C
+static int gPreferencesCombatTaunts2;
+
+// 0x663940
+static int gPreferencesLanguageFilter2;
+
+// 0x663944
+static int gPreferencesRunning2;
+
+// 0x663948
+static int gPreferencesSubtitles2;
+
+// 0x66394C
+static int gPreferencesItemHighlight2;
+
+// 0x663950
+static int gPreferencesCombatSpeed2;
+
+// 0x663954
+static int gPreferencesPlayerSpeedup2;
+
+// 0x663958
+static int gPreferencesMasterVolume2;
+
+// 0x66395C
+static int gPreferencesMusicVolume2;
+
+// 0x663960
+static int gPreferencesSoundEffectsVolume2;
+
+// 0x663964
+static int gPreferencesSpeechVolume2;
+
+// 0x663970
+static int sndfx_volume;
+
+// 0x663974
+static int subtitles;
+
+// 0x663978
+static int language_filter;
+
+// 0x66397C
+static int speech_volume;
+
+// 0x663980
+static int master_volume;
+
+// 0x663984
+static int player_speedup;
+
+// 0x663988
+static int combat_taunts;
+
+// 0x66398C
+static int fontsave;
+
+// 0x663990
+static int music_volume;
+
+// 0x663994
+static bool bk_enable;
+
+// 0x663998
+static int prf_running;
+
+// 0x66399C
+static int combat_speed;
+
+// 0x6639A0
+static int plyrspdbid;
+
+// 0x6639A4
+static int item_highlight;
+
+// 0x6639A8
+static bool changed;
+
+// 0x6639AC
+static int combat_messages;
+
+// 0x6639B0
+static int target_highlight;
+
+// 0x6639B4
+static int combat_difficulty;
+
+// 0x6639B8
+static int violence_level;
+
+// 0x6639BC
+static int game_difficulty;
+
+// 0x6639C0
+static int combatLookValue;
+
 // 0x5197F8
-PreferenceDescription gPreferenceDescriptions[PREF_COUNT] = {
-    { 3, 0, 76, 71, 0, 0, { 203, 204, 205, 0 }, 0, GAME_CONFIG_GAME_DIFFICULTY_KEY, 0, 0, &gPreferencesGameDifficulty1 },
-    { 3, 0, 76, 149, 0, 0, { 206, 204, 208, 0 }, 0, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, 0, 0, &gPreferencesCombatDifficulty1 },
-    { 4, 0, 76, 226, 0, 0, { 214, 215, 204, 216 }, 0, GAME_CONFIG_VIOLENCE_LEVEL_KEY, 0, 0, &gPreferencesViolenceLevel1 },
-    { 3, 0, 76, 309, 0, 0, { 202, 201, 213, 0 }, 0, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, 0, 0, &gPreferencesTargetHighlight1 },
-    { 2, 0, 76, 387, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_COMBAT_LOOKS_KEY, 0, 0, &gPreferencesCombatLooks1 },
-    { 2, 0, 299, 74, 0, 0, { 211, 212, 0, 0 }, 0, GAME_CONFIG_COMBAT_MESSAGES_KEY, 0, 0, &gPreferencesCombatMessages1 },
-    { 2, 0, 299, 141, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_COMBAT_TAUNTS_KEY, 0, 0, &gPreferencesCombatTaunts1 },
-    { 2, 0, 299, 207, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_LANGUAGE_FILTER_KEY, 0, 0, &gPreferencesLanguageFilter1 },
-    { 2, 0, 299, 271, 0, 0, { 209, 219, 0, 0 }, 0, GAME_CONFIG_RUNNING_KEY, 0, 0, &gPreferencesRunning1 },
-    { 2, 0, 299, 338, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_SUBTITLES_KEY, 0, 0, &gPreferencesSubtitles1 },
-    { 2, 0, 299, 404, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, 0, 0, &gPreferencesItemHighlight1 },
-    { 2, 0, 374, 50, 0, 0, { 207, 210, 0, 0 }, 0, GAME_CONFIG_COMBAT_SPEED_KEY, 0.0, 50.0, &gPreferencesCombatSpeed1 },
+static PreferenceDescription btndat[PREF_COUNT] = {
+    { 3, 0, 76, 71, 0, 0, { 203, 204, 205, 0 }, 0, GAME_CONFIG_GAME_DIFFICULTY_KEY, 0, 0, &game_difficulty },
+    { 3, 0, 76, 149, 0, 0, { 206, 204, 208, 0 }, 0, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, 0, 0, &combat_difficulty },
+    { 4, 0, 76, 226, 0, 0, { 214, 215, 204, 216 }, 0, GAME_CONFIG_VIOLENCE_LEVEL_KEY, 0, 0, &violence_level },
+    { 3, 0, 76, 309, 0, 0, { 202, 201, 213, 0 }, 0, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, 0, 0, &target_highlight },
+    { 2, 0, 76, 387, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_COMBAT_LOOKS_KEY, 0, 0, &combatLookValue },
+    { 2, 0, 299, 74, 0, 0, { 211, 212, 0, 0 }, 0, GAME_CONFIG_COMBAT_MESSAGES_KEY, 0, 0, &combat_messages },
+    { 2, 0, 299, 141, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_COMBAT_TAUNTS_KEY, 0, 0, &combat_taunts },
+    { 2, 0, 299, 207, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_LANGUAGE_FILTER_KEY, 0, 0, &language_filter },
+    { 2, 0, 299, 271, 0, 0, { 209, 219, 0, 0 }, 0, GAME_CONFIG_RUNNING_KEY, 0, 0, &prf_running },
+    { 2, 0, 299, 338, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_SUBTITLES_KEY, 0, 0, &subtitles },
+    { 2, 0, 299, 404, 0, 0, { 202, 201, 0, 0 }, 0, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, 0, 0, &item_highlight },
+    { 2, 0, 374, 50, 0, 0, { 207, 210, 0, 0 }, 0, GAME_CONFIG_COMBAT_SPEED_KEY, 0.0, 50.0, &combat_speed },
     { 3, 0, 374, 125, 0, 0, { 217, 209, 218, 0 }, 0, GAME_CONFIG_TEXT_BASE_DELAY_KEY, 1.0, 6.0, NULL },
-    { 4, 0, 374, 196, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_MASTER_VOLUME_KEY, 0, 32767.0, &gPreferencesMasterVolume1 },
-    { 4, 0, 374, 247, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_MUSIC_VOLUME_KEY, 0, 32767.0, &gPreferencesMusicVolume1 },
-    { 4, 0, 374, 298, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_SNDFX_VOLUME_KEY, 0, 32767.0, &gPreferencesSoundEffectsVolume1 },
-    { 4, 0, 374, 349, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_SPEECH_VOLUME_KEY, 0, 32767.0, &gPreferencesSpeechVolume1 },
+    { 4, 0, 374, 196, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_MASTER_VOLUME_KEY, 0, 32767.0, &master_volume },
+    { 4, 0, 374, 247, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_MUSIC_VOLUME_KEY, 0, 32767.0, &music_volume },
+    { 4, 0, 374, 298, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_SNDFX_VOLUME_KEY, 0, 32767.0, &sndfx_volume },
+    { 4, 0, 374, 349, 0, 0, { 202, 221, 209, 222 }, 0, GAME_CONFIG_SPEECH_VOLUME_KEY, 0, 32767.0, &speech_volume },
     { 2, 0, 374, 400, 0, 0, { 207, 223, 0, 0 }, 0, GAME_CONFIG_BRIGHTNESS_KEY, 1.0, 1.17999267578125, NULL },
     { 2, 0, 374, 451, 0, 0, { 207, 218, 0, 0 }, 0, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, 1.0, 2.5, NULL },
 };
 
-// 0x6637D0
-Size gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_COUNT];
-
-// 0x6637E8
-MessageList gOptionsMessageList;
-
-// 0x6637F0
-Size gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_COUNT];
-
-// 0x663840
-MessageListItem gOptionsMessageListItem;
-
-// 0x663850
-unsigned char* gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_COUNT];
-
-// 0x663878
-unsigned char* _opbtns[OPTIONS_WINDOW_BUTTONS_COUNT];
-
-// 0x6638A0
-CacheEntry* gPreferencesWindowFrmHandles[PREFERENCES_WINDOW_FRM_COUNT];
-
-// 0x6638C8
-double gPreferencesTextBaseDelay2;
-
-// 0x6638D0
-double gPreferencesBrightness1;
-
-// 0x6638D8
-double gPreferencesBrightness2;
-
-// 0x6638E0
-double gPreferencesTextBaseDelay1;
-
-// 0x6638E8
-double gPreferencesMouseSensitivity1;
-
-// 0x6638F0
-double gPreferencesMouseSensitivity2;
-
-// 0x6638F8
-unsigned char* gPreferencesWindowBuffer;
-
-// 0x6638FC
-bool gOptionsWindowGameMouseObjectsWasVisible;
-
-// 0x663900
-int gOptionsWindow;
-
-// 0x663904
-int gPreferencesWindow;
-
-// 0x663908
-unsigned char* gOptionsWindowBuffer;
-
-// 0x66390C
-CacheEntry* gOptionsWindowFrmHandles[OPTIONS_WINDOW_FRM_COUNT];
-
-// 0x663918
-unsigned char* gOptionsWindowFrmData[OPTIONS_WINDOW_FRM_COUNT];
-
-// 0x663924
-int gPreferencesGameDifficulty2;
-
-// 0x663928
-int gPreferencesCombatDifficulty2;
-
-// 0x66392C
-int gPreferencesViolenceLevel2;
-
-// 0x663930
-int gPreferencesTargetHighlight2;
-
-// 0x663934
-int gPreferencesCombatLooks2;
-
-// 0x663938
-int gPreferencesCombatMessages2;
-
-// 0x66393C
-int gPreferencesCombatTaunts2;
-
-// 0x663940
-int gPreferencesLanguageFilter2;
-
-// 0x663944
-int gPreferencesRunning2;
-
-// 0x663948
-int gPreferencesSubtitles2;
-
-// 0x66394C
-int gPreferencesItemHighlight2;
-
-// 0x663950
-int gPreferencesCombatSpeed2;
-
-// 0x663954
-int gPreferencesPlayerSpeedup2;
-
-// 0x663958
-int gPreferencesMasterVolume2;
-
-// 0x66395C
-int gPreferencesMusicVolume2;
-
-// 0x663960
-int gPreferencesSoundEffectsVolume2;
-
-// 0x663964
-int gPreferencesSpeechVolume2;
-
-// 0x663970
-int gPreferencesSoundEffectsVolume1;
-
-// 0x663974
-int gPreferencesSubtitles1;
-
-// 0x663978
-int gPreferencesLanguageFilter1;
-
-// 0x66397C
-int gPreferencesSpeechVolume1;
-
-// 0x663980
-int gPreferencesMasterVolume1;
-
-// 0x663984
-int gPreferencesPlayerSpeedup1;
-
-// 0x663988
-int gPreferencesCombatTaunts1;
-
-// 0x66398C
-int gOptionsWindowOldFont;
-
-// 0x663990
-int gPreferencesMusicVolume1;
-
-// 0x663994
-bool gOptionsWindowIsoWasEnabled;
-
-// 0x663998
-int gPreferencesRunning1;
-
-// 0x66399C
-int gPreferencesCombatSpeed1;
-
-//
-int _plyrspdbid;
-
-// 0x6639A4
-int gPreferencesItemHighlight1;
-
-// 0x6639A8
-bool _changed;
-
-// 0x6639AC
-int gPreferencesCombatMessages1;
-
-// 0x6639B0
-int gPreferencesTargetHighlight1;
-
-// 0x6639B4
-int gPreferencesCombatDifficulty1;
-
-// 0x6639B8
-int gPreferencesViolenceLevel1;
-
-// 0x6639BC
-int gPreferencesGameDifficulty1;
-
-// 0x6639C0
-int gPreferencesCombatLooks1;
-
 // 0x48FC48
-int showOptions()
+int do_options()
 {
-    return showOptionsWithInitialKeyCode(-1);
+    return do_optionsFunc(-1);
 }
 
 // 0x48FC50
-int showOptionsWithInitialKeyCode(int initialKeyCode)
+int do_optionsFunc(int initialKeyCode)
 {
-    if (optionsWindowInit() == -1) {
+    if (OptnStart() == -1) {
         debugPrint("\nOPTION MENU: Error loading option dialog data!\n");
         return -1;
     }
@@ -411,17 +477,17 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
                 break;
             case KEY_PLUS:
             case KEY_EQUAL:
-                brightnessIncrease();
+                IncGamma();
                 break;
             case KEY_UNDERSCORE:
             case KEY_MINUS:
-                brightnessDecrease();
+                DecGamma();
                 break;
             }
         }
 
         if (showPreferences) {
-            _do_prefscreen();
+            do_prefscreen();
         } else {
             switch (keyCode) {
             case KEY_F12:
@@ -439,36 +505,36 @@ int showOptionsWithInitialKeyCode(int initialKeyCode)
         }
     }
 
-    optionsWindowFree();
+    OptnEnd();
 
     return rc;
 }
 
 // 0x48FE14
-int optionsWindowInit()
+static int OptnStart()
 {
-    gOptionsWindowOldFont = fontGetCurrent();
+    fontsave = fontGetCurrent();
 
-    if (!message_init(&gOptionsMessageList)) {
+    if (!message_init(&optn_msgfl)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "options.msg");
-    if (!message_load(&gOptionsMessageList, path)) {
+    if (!message_load(&optn_msgfl, path)) {
         return -1;
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-        int fid = art_id(OBJ_TYPE_INTERFACE, gOptionsWindowFrmIds[index], 0, 0, 0);
-        gOptionsWindowFrmData[index] = art_lock(fid, &(gOptionsWindowFrmHandles[index]), &(gOptionsWindowFrmSizes[index].width), &(gOptionsWindowFrmSizes[index].height));
+        int fid = art_id(OBJ_TYPE_INTERFACE, opgrphs[index], 0, 0, 0);
+        opbmp[index] = art_lock(fid, &(grphkey[index]), &(ginfo[index].width), &(ginfo[index].height));
 
-        if (gOptionsWindowFrmData[index] == NULL) {
+        if (opbmp[index] == NULL) {
             while (--index >= 0) {
-                art_ptr_unlock(gOptionsWindowFrmHandles[index]);
+                art_ptr_unlock(grphkey[index]);
             }
 
-            message_exit(&gOptionsMessageList);
+            message_exit(&optn_msgfl);
 
             return -1;
         }
@@ -476,115 +542,115 @@ int optionsWindowInit()
 
     int cycle = 0;
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        _opbtns[index] = (unsigned char*)internal_malloc(gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
-        if (_opbtns[index] == NULL) {
+        opbtns[index] = (unsigned char*)internal_malloc(ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
+        if (opbtns[index] == NULL) {
             while (--index >= 0) {
-                internal_free(_opbtns[index]);
+                internal_free(opbtns[index]);
             }
 
             for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-                art_ptr_unlock(gOptionsWindowFrmHandles[index]);
+                art_ptr_unlock(grphkey[index]);
             }
 
-            message_exit(&gOptionsMessageList);
+            message_exit(&optn_msgfl);
 
             return -1;
         }
 
         cycle = cycle ^ 1;
 
-        memcpy(_opbtns[index], gOptionsWindowFrmData[cycle + 1], gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height);
+        memcpy(opbtns[index], opbmp[cycle + 1], ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height);
     }
 
-    int optionsWindowX = (640 - gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BACKGROUND].width) / 2;
-    int optionsWindowY = (480 - gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BACKGROUND].height) / 2 - 60;
-    gOptionsWindow = windowCreate(optionsWindowX,
+    int optionsWindowX = (640 - ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].width) / 2;
+    int optionsWindowY = (480 - ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].height) / 2 - 60;
+    optnwin = windowCreate(optionsWindowX,
         optionsWindowY,
-        gOptionsWindowFrmSizes[0].width,
-        gOptionsWindowFrmSizes[0].height,
+        ginfo[0].width,
+        ginfo[0].height,
         256,
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
 
-    if (gOptionsWindow == -1) {
+    if (optnwin == -1) {
         for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-            internal_free(_opbtns[index]);
+            internal_free(opbtns[index]);
         }
 
         for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-            art_ptr_unlock(gOptionsWindowFrmHandles[index]);
+            art_ptr_unlock(grphkey[index]);
         }
 
-        message_exit(&gOptionsMessageList);
+        message_exit(&optn_msgfl);
 
         return -1;
     }
 
-    gOptionsWindowIsoWasEnabled = map_disable_bk_processes();
+    bk_enable = map_disable_bk_processes();
 
-    gOptionsWindowGameMouseObjectsWasVisible = gmouse_3d_is_on();
-    if (gOptionsWindowGameMouseObjectsWasVisible) {
+    mouse_3d_was_on = gmouse_3d_is_on();
+    if (mouse_3d_was_on) {
         gmouse_3d_off();
     }
 
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    gOptionsWindowBuffer = windowGetBuffer(gOptionsWindow);
-    memcpy(gOptionsWindowBuffer, gOptionsWindowFrmData[OPTIONS_WINDOW_FRM_BACKGROUND], gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BACKGROUND].width * gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BACKGROUND].height);
+    winbuf = windowGetBuffer(optnwin);
+    memcpy(winbuf, opbmp[OPTIONS_WINDOW_FRM_BACKGROUND], ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].width * ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].height);
 
     fontSetCurrent(103);
 
-    int textY = (gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height - fontGetLineHeight()) / 2 + 1;
+    int textY = (ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height - fontGetLineHeight()) / 2 + 1;
     int buttonY = 17;
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index += 2) {
         char text[128];
 
-        const char* msg = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, index / 2);
+        const char* msg = getmsg(&optn_msgfl, &optnmesg, index / 2);
         strcpy(text, msg);
 
-        int textX = (gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width - fontGetStringWidth(text)) / 2;
+        int textX = (ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width - fontGetStringWidth(text)) / 2;
         if (textX < 0) {
             textX = 0;
         }
 
-        fontDrawText(_opbtns[index] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[18979]);
-        fontDrawText(_opbtns[index + 1] + gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[14723]);
+        fontDrawText(opbtns[index] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[18979]);
+        fontDrawText(opbtns[index + 1] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[14723]);
 
-        int btn = buttonCreate(gOptionsWindow, 13, buttonY, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].width, gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, _opbtns[index], _opbtns[index + 1], NULL, 32);
+        int btn = buttonCreate(optnwin, 13, buttonY, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, opbtns[index], opbtns[index + 1], NULL, 32);
         if (btn != -1) {
             buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
-        buttonY += gOptionsWindowFrmSizes[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 3;
+        buttonY += ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 3;
     }
 
     fontSetCurrent(101);
 
-    win_draw(gOptionsWindow);
+    win_draw(optnwin);
 
     return 0;
 }
 
 // 0x490244
-int optionsWindowFree()
+static int OptnEnd()
 {
-    windowDestroy(gOptionsWindow);
-    fontSetCurrent(gOptionsWindowOldFont);
-    message_exit(&gOptionsMessageList);
+    windowDestroy(optnwin);
+    fontSetCurrent(fontsave);
+    message_exit(&optn_msgfl);
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        internal_free(_opbtns[index]);
+        internal_free(opbtns[index]);
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
-        art_ptr_unlock(gOptionsWindowFrmHandles[index]);
+        art_ptr_unlock(grphkey[index]);
     }
 
-    if (gOptionsWindowGameMouseObjectsWasVisible) {
+    if (mouse_3d_was_on) {
         gmouse_3d_on();
     }
 
-    if (gOptionsWindowIsoWasEnabled) {
+    if (bk_enable) {
         map_enable_bk_processes();
     }
 
@@ -592,19 +658,23 @@ int optionsWindowFree()
 }
 
 // 0x4902B0
-int showPause(bool a1)
+int PauseWindow(bool a1)
 {
-    int graphicIds[PAUSE_WINDOW_FRM_COUNT];
+    // 0x48FC0C
+    static const int graphicIds[PAUSE_WINDOW_FRM_COUNT] = {
+        208, // charwin.frm - character editor
+        209, // donebox.frm - character editor
+        8, // lilredup.frm - little red button up
+        9, // lilreddn.frm - little red button down
+    };
+
     unsigned char* frmData[PAUSE_WINDOW_FRM_COUNT];
     CacheEntry* frmHandles[PAUSE_WINDOW_FRM_COUNT];
     Size frmSizes[PAUSE_WINDOW_FRM_COUNT];
 
-    static_assert(sizeof(graphicIds) == sizeof(gPauseWindowFrmIds), "wrong size");
-    memcpy(graphicIds, gPauseWindowFrmIds, sizeof(gPauseWindowFrmIds));
-
     bool gameMouseWasVisible;
     if (!a1) {
-        gOptionsWindowIsoWasEnabled = map_disable_bk_processes();
+        bk_enable = map_disable_bk_processes();
         cycle_disable();
 
         gameMouseWasVisible = gmouse_3d_is_on();
@@ -614,7 +684,7 @@ int showPause(bool a1)
     }
 
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
-    _ShadeScreen(a1);
+    ShadeScreen(a1);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
         int fid = art_id(OBJ_TYPE_INTERFACE, graphicIds[index], 0, 0, 0);
@@ -629,14 +699,14 @@ int showPause(bool a1)
         }
     }
 
-    if (!message_init(&gOptionsMessageList)) {
+    if (!message_init(&optn_msgfl)) {
         // FIXME: Leaking graphics.
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "options.msg");
-    if (!message_load(&gOptionsMessageList, path)) {
+    if (!message_load(&optn_msgfl, path)) {
         // FIXME: Leaking graphics.
         return -1;
     }
@@ -662,7 +732,7 @@ int showPause(bool a1)
             art_ptr_unlock(frmHandles[index]);
         }
 
-        message_exit(&gOptionsMessageList);
+        message_exit(&optn_msgfl);
 
         debugPrint("\n** Error opening pause window! **\n");
         return -1;
@@ -680,12 +750,12 @@ int showPause(bool a1)
         windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 42 + 13,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width);
 
-    gOptionsWindowOldFont = fontGetCurrent();
+    fontsave = fontGetCurrent();
     fontSetCurrent(103);
 
     char* messageItemText;
 
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 300);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 300);
     fontDrawText(windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 45 + 52,
         messageItemText,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
@@ -694,7 +764,7 @@ int showPause(bool a1)
 
     fontSetCurrent(104);
 
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 301);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 301);
     strcpy(path, messageItemText);
 
     int length = fontGetStringWidth(path);
@@ -729,11 +799,11 @@ int showPause(bool a1)
         switch (keyCode) {
         case KEY_PLUS:
         case KEY_EQUAL:
-            brightnessIncrease();
+            IncGamma();
             break;
         case KEY_MINUS:
         case KEY_UNDERSCORE:
-            brightnessDecrease();
+            DecGamma();
             break;
         default:
             if (keyCode != -1 && keyCode != -2) {
@@ -756,14 +826,14 @@ int showPause(bool a1)
         art_ptr_unlock(frmHandles[index]);
     }
 
-    message_exit(&gOptionsMessageList);
+    message_exit(&optn_msgfl);
 
     if (!a1) {
         if (gameMouseWasVisible) {
             gmouse_3d_on();
         }
 
-        if (gOptionsWindowIsoWasEnabled) {
+        if (bk_enable) {
             map_enable_bk_processes();
         }
 
@@ -772,13 +842,13 @@ int showPause(bool a1)
         gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     }
 
-    fontSetCurrent(gOptionsWindowOldFont);
+    fontSetCurrent(fontsave);
 
     return 0;
 }
 
 // 0x490748
-void _ShadeScreen(bool a1)
+static void ShadeScreen(bool a1)
 {
     if (a1) {
         mouse_hide();
@@ -798,174 +868,174 @@ void _ShadeScreen(bool a1)
 }
 
 // 0x492AA8
-void _SetSystemPrefs()
+static void SetSystemPrefs()
 {
-    preferencesSetDefaults(false);
+    SetDefaults(false);
 
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gPreferencesGameDifficulty1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &gPreferencesCombatDifficulty1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &gPreferencesViolenceLevel1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &gPreferencesTargetHighlight1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, &gPreferencesCombatMessages1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &gPreferencesCombatLooks1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, &gPreferencesCombatTaunts1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &gPreferencesLanguageFilter1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &gPreferencesRunning1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &gPreferencesSubtitles1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, &gPreferencesItemHighlight1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &gPreferencesCombatSpeed1);
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &gPreferencesTextBaseDelay1);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &gPreferencesPlayerSpeedup1);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, &gPreferencesMasterVolume1);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, &gPreferencesMusicVolume1);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, &gPreferencesSoundEffectsVolume1);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &gPreferencesSpeechVolume1);
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gPreferencesBrightness1);
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, &gPreferencesMouseSensitivity1);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &game_difficulty);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violence_level);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &target_highlight);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, &combat_messages);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLookValue);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, &combat_taunts);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &language_filter);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &prf_running);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, &item_highlight);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combat_speed);
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &text_delay);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &player_speedup);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, &master_volume);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, &music_volume);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, &sndfx_volume);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &speech_volume);
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, &mouse_sens);
 
-    _JustUpdate_();
+    JustUpdate();
 }
 
 // Copy options (1) to (2).
 //
 // 0x493054
-void _SaveSettings()
+static void SaveSettings()
 {
-    gPreferencesGameDifficulty2 = gPreferencesGameDifficulty1;
-    gPreferencesCombatDifficulty2 = gPreferencesCombatDifficulty1;
-    gPreferencesViolenceLevel2 = gPreferencesViolenceLevel1;
-    gPreferencesTargetHighlight2 = gPreferencesTargetHighlight1;
-    gPreferencesCombatLooks2 = gPreferencesCombatLooks1;
-    gPreferencesCombatMessages2 = gPreferencesCombatMessages1;
-    gPreferencesCombatTaunts2 = gPreferencesCombatTaunts1;
-    gPreferencesLanguageFilter2 = gPreferencesLanguageFilter1;
-    gPreferencesRunning2 = gPreferencesRunning1;
-    gPreferencesSubtitles2 = gPreferencesSubtitles1;
-    gPreferencesItemHighlight2 = gPreferencesItemHighlight1;
-    gPreferencesCombatSpeed2 = gPreferencesCombatSpeed1;
-    gPreferencesPlayerSpeedup2 = gPreferencesPlayerSpeedup1;
-    gPreferencesMasterVolume2 = gPreferencesMasterVolume1;
-    gPreferencesTextBaseDelay2 = gPreferencesTextBaseDelay1;
-    gPreferencesMusicVolume2 = gPreferencesMusicVolume1;
-    gPreferencesBrightness2 = gPreferencesBrightness1;
-    gPreferencesSoundEffectsVolume2 = gPreferencesSoundEffectsVolume1;
-    gPreferencesMouseSensitivity2 = gPreferencesMouseSensitivity1;
-    gPreferencesSpeechVolume2 = gPreferencesSpeechVolume1;
+    gPreferencesGameDifficulty2 = game_difficulty;
+    gPreferencesCombatDifficulty2 = combat_difficulty;
+    gPreferencesViolenceLevel2 = violence_level;
+    gPreferencesTargetHighlight2 = target_highlight;
+    gPreferencesCombatLooks2 = combatLookValue;
+    gPreferencesCombatMessages2 = combat_messages;
+    gPreferencesCombatTaunts2 = combat_taunts;
+    gPreferencesLanguageFilter2 = language_filter;
+    gPreferencesRunning2 = prf_running;
+    gPreferencesSubtitles2 = subtitles;
+    gPreferencesItemHighlight2 = item_highlight;
+    gPreferencesCombatSpeed2 = combat_speed;
+    gPreferencesPlayerSpeedup2 = player_speedup;
+    gPreferencesMasterVolume2 = master_volume;
+    text_delay_back = text_delay;
+    gPreferencesMusicVolume2 = music_volume;
+    gamma_value_back = gamma_value;
+    gPreferencesSoundEffectsVolume2 = sndfx_volume;
+    mouse_sens_back = mouse_sens;
+    gPreferencesSpeechVolume2 = speech_volume;
 }
 
 // Copy options (2) to (1).
 //
 // 0x493128
-void _RestoreSettings()
+static void RestoreSettings()
 {
-    gPreferencesGameDifficulty1 = gPreferencesGameDifficulty2;
-    gPreferencesCombatDifficulty1 = gPreferencesCombatDifficulty2;
-    gPreferencesViolenceLevel1 = gPreferencesViolenceLevel2;
-    gPreferencesTargetHighlight1 = gPreferencesTargetHighlight2;
-    gPreferencesCombatLooks1 = gPreferencesCombatLooks2;
-    gPreferencesCombatMessages1 = gPreferencesCombatMessages2;
-    gPreferencesCombatTaunts1 = gPreferencesCombatTaunts2;
-    gPreferencesLanguageFilter1 = gPreferencesLanguageFilter2;
-    gPreferencesRunning1 = gPreferencesRunning2;
-    gPreferencesSubtitles1 = gPreferencesSubtitles2;
-    gPreferencesItemHighlight1 = gPreferencesItemHighlight2;
-    gPreferencesCombatSpeed1 = gPreferencesCombatSpeed2;
-    gPreferencesPlayerSpeedup1 = gPreferencesPlayerSpeedup2;
-    gPreferencesMasterVolume1 = gPreferencesMasterVolume2;
-    gPreferencesTextBaseDelay1 = gPreferencesTextBaseDelay2;
-    gPreferencesMusicVolume1 = gPreferencesMusicVolume2;
-    gPreferencesBrightness1 = gPreferencesBrightness2;
-    gPreferencesSoundEffectsVolume1 = gPreferencesSoundEffectsVolume2;
-    gPreferencesMouseSensitivity1 = gPreferencesMouseSensitivity2;
-    gPreferencesSpeechVolume1 = gPreferencesSpeechVolume2;
+    game_difficulty = gPreferencesGameDifficulty2;
+    combat_difficulty = gPreferencesCombatDifficulty2;
+    violence_level = gPreferencesViolenceLevel2;
+    target_highlight = gPreferencesTargetHighlight2;
+    combatLookValue = gPreferencesCombatLooks2;
+    combat_messages = gPreferencesCombatMessages2;
+    combat_taunts = gPreferencesCombatTaunts2;
+    language_filter = gPreferencesLanguageFilter2;
+    prf_running = gPreferencesRunning2;
+    subtitles = gPreferencesSubtitles2;
+    item_highlight = gPreferencesItemHighlight2;
+    combat_speed = gPreferencesCombatSpeed2;
+    player_speedup = gPreferencesPlayerSpeedup2;
+    master_volume = gPreferencesMasterVolume2;
+    text_delay = text_delay_back;
+    music_volume = gPreferencesMusicVolume2;
+    gamma_value = gamma_value_back;
+    sndfx_volume = gPreferencesSoundEffectsVolume2;
+    mouse_sens = mouse_sens_back;
+    speech_volume = gPreferencesSpeechVolume2;
 
-    _JustUpdate_();
+    JustUpdate();
 }
 
 // 0x492F60
-void preferencesSetDefaults(bool a1)
+static void SetDefaults(bool a1)
 {
-    gPreferencesCombatDifficulty1 = COMBAT_DIFFICULTY_NORMAL;
-    gPreferencesViolenceLevel1 = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
-    gPreferencesTargetHighlight1 = TARGET_HIGHLIGHT_TARGETING_ONLY;
-    gPreferencesCombatMessages1 = 1;
-    gPreferencesCombatLooks1 = 0;
-    gPreferencesCombatTaunts1 = 1;
-    gPreferencesRunning1 = 0;
-    gPreferencesSubtitles1 = 0;
-    gPreferencesItemHighlight1 = 1;
-    gPreferencesCombatSpeed1 = 0;
-    gPreferencesPlayerSpeedup1 = 0;
-    gPreferencesTextBaseDelay1 = 3.5;
-    gPreferencesBrightness1 = 1.0;
-    gPreferencesMouseSensitivity1 = 1.0;
-    gPreferencesGameDifficulty1 = 1;
-    gPreferencesLanguageFilter1 = 0;
-    gPreferencesMasterVolume1 = 22281;
-    gPreferencesMusicVolume1 = 22281;
-    gPreferencesSoundEffectsVolume1 = 22281;
-    gPreferencesSpeechVolume1 = 22281;
+    combat_difficulty = COMBAT_DIFFICULTY_NORMAL;
+    violence_level = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
+    target_highlight = TARGET_HIGHLIGHT_TARGETING_ONLY;
+    combat_messages = 1;
+    combatLookValue = 0;
+    combat_taunts = 1;
+    prf_running = 0;
+    subtitles = 0;
+    item_highlight = 1;
+    combat_speed = 0;
+    player_speedup = 0;
+    text_delay = 3.5;
+    gamma_value = 1.0;
+    mouse_sens = 1.0;
+    game_difficulty = 1;
+    language_filter = 0;
+    master_volume = 22281;
+    music_volume = 22281;
+    sndfx_volume = 22281;
+    speech_volume = 22281;
 
     if (a1) {
         for (int index = 0; index < PREF_COUNT; index++) {
-            _UpdateThing(index);
+            UpdateThing(index);
         }
-        _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
-        win_draw(gPreferencesWindow);
-        _changed = true;
+        _win_set_button_rest_state(plyrspdbid, player_speedup, 0);
+        win_draw(prfwin);
+        changed = true;
     }
 }
 
 // 0x4931F8
-void _JustUpdate_()
+static void JustUpdate()
 {
-    gPreferencesGameDifficulty1 = min(max(gPreferencesGameDifficulty1, 0), 2);
-    gPreferencesCombatDifficulty1 = min(max(gPreferencesCombatDifficulty1, 0), 2);
-    gPreferencesViolenceLevel1 = min(max(gPreferencesViolenceLevel1, 0), 3);
-    gPreferencesTargetHighlight1 = min(max(gPreferencesTargetHighlight1, 0), 2);
-    gPreferencesCombatMessages1 = min(max(gPreferencesCombatMessages1, 0), 1);
-    gPreferencesCombatLooks1 = min(max(gPreferencesCombatLooks1, 0), 1);
-    gPreferencesCombatTaunts1 = min(max(gPreferencesCombatTaunts1, 0), 1);
-    gPreferencesLanguageFilter1 = min(max(gPreferencesLanguageFilter1, 0), 1);
-    gPreferencesRunning1 = min(max(gPreferencesRunning1, 0), 1);
-    gPreferencesSubtitles1 = min(max(gPreferencesSubtitles1, 0), 1);
-    gPreferencesItemHighlight1 = min(max(gPreferencesItemHighlight1, 0), 1);
-    gPreferencesCombatSpeed1 = min(max(gPreferencesCombatSpeed1, 0), 50);
-    gPreferencesPlayerSpeedup1 = min(max(gPreferencesPlayerSpeedup1, 0), 1);
-    gPreferencesTextBaseDelay1 = min(max(gPreferencesTextBaseDelay1, 1.0), 6.0);
-    gPreferencesMasterVolume1 = min(max(gPreferencesMasterVolume1, 0), VOLUME_MAX);
-    gPreferencesMusicVolume1 = min(max(gPreferencesMusicVolume1, 0), VOLUME_MAX);
-    gPreferencesSoundEffectsVolume1 = min(max(gPreferencesSoundEffectsVolume1, 0), VOLUME_MAX);
-    gPreferencesSpeechVolume1 = min(max(gPreferencesSpeechVolume1, 0), VOLUME_MAX);
-    gPreferencesBrightness1 = min(max(gPreferencesBrightness1, 1.0), 1.17999267578125);
-    gPreferencesMouseSensitivity1 = min(max(gPreferencesMouseSensitivity1, 1.0), 2.5);
+    game_difficulty = min(max(game_difficulty, 0), 2);
+    combat_difficulty = min(max(combat_difficulty, 0), 2);
+    violence_level = min(max(violence_level, 0), 3);
+    target_highlight = min(max(target_highlight, 0), 2);
+    combat_messages = min(max(combat_messages, 0), 1);
+    combatLookValue = min(max(combatLookValue, 0), 1);
+    combat_taunts = min(max(combat_taunts, 0), 1);
+    language_filter = min(max(language_filter, 0), 1);
+    prf_running = min(max(prf_running, 0), 1);
+    subtitles = min(max(subtitles, 0), 1);
+    item_highlight = min(max(item_highlight, 0), 1);
+    combat_speed = min(max(combat_speed, 0), 50);
+    player_speedup = min(max(player_speedup, 0), 1);
+    text_delay = min(max(text_delay, 1.0), 6.0);
+    master_volume = min(max(master_volume, 0), VOLUME_MAX);
+    music_volume = min(max(music_volume, 0), VOLUME_MAX);
+    sndfx_volume = min(max(sndfx_volume, 0), VOLUME_MAX);
+    speech_volume = min(max(speech_volume, 0), VOLUME_MAX);
+    gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
+    mouse_sens = min(max(mouse_sens, 1.0), 2.5);
 
-    textObjectsSetBaseDelay(gPreferencesTextBaseDelay1);
+    textObjectsSetBaseDelay(text_delay);
     gmouse_3d_synch_item_highlight();
 
-    double textLineDelay = (gPreferencesTextBaseDelay1 + (-1.0)) * 0.2 * 2.0;
+    double textLineDelay = (text_delay + (-1.0)) * 0.2 * 2.0;
     textLineDelay = min(max(textLineDelay, 0.0), 2.0);
 
     textObjectsSetLineDelay(textLineDelay);
     combatai_refresh_messages();
     _scr_message_free();
-    gsound_set_master_volume(gPreferencesMasterVolume1);
-    gsound_background_volume_set(gPreferencesMusicVolume1);
-    gsound_set_sfx_volume(gPreferencesSoundEffectsVolume1);
-    gsound_speech_volume_set(gPreferencesSpeechVolume1);
-    mouse_set_sensitivity(gPreferencesMouseSensitivity1);
-    colorGamma(gPreferencesBrightness1);
+    gsound_set_master_volume(master_volume);
+    gsound_background_volume_set(music_volume);
+    gsound_set_sfx_volume(sndfx_volume);
+    gsound_speech_volume_set(speech_volume);
+    mouse_set_sensitivity(mouse_sens);
+    colorGamma(gamma_value);
 }
 
 // init_options_menu
 // 0x4928B8
-int _init_options_menu()
+int init_options_menu()
 {
     for (int index = 0; index < 11; index++) {
-        gPreferenceDescriptions[index].direction = 0;
+        btndat[index].direction = 0;
     }
 
-    _SetSystemPrefs();
+    SetSystemPrefs();
 
     InitGreyTable(0, 255);
 
@@ -973,27 +1043,33 @@ int _init_options_menu()
 }
 
 // 0x491A68
-void _UpdateThing(int index)
+static void UpdateThing(int index)
 {
     fontSetCurrent(101);
 
-    PreferenceDescription* meta = &(gPreferenceDescriptions[index]);
+    PreferenceDescription* meta = &(btndat[index]);
 
     if (index >= FIRST_PRIMARY_PREF && index <= LAST_PRIMARY_PREF) {
+        // 0x48FC1C
+        static const int offsets[PRIMARY_PREF_COUNT] = {
+            66, // game difficulty
+            143, // combat difficulty
+            222, // violence level
+            304, // target highlight
+            382, // combat looks
+        };
+
         int primaryOptionIndex = index - FIRST_PRIMARY_PREF;
 
-        int offsets[PRIMARY_PREF_COUNT];
-        memcpy(offsets, dword_48FC1C, sizeof(dword_48FC1C));
-
-        blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[primaryOptionIndex] + 23, 160, 54, 640, gPreferencesWindowBuffer + 640 * offsets[primaryOptionIndex] + 23, 640);
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[primaryOptionIndex] + 23, 160, 54, 640, prefbuf + 640 * offsets[primaryOptionIndex] + 23, 640);
 
         for (int valueIndex = 0; valueIndex < meta->valuesCount; valueIndex++) {
-            const char* text = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, meta->labelIds[valueIndex]);
+            const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[valueIndex]);
 
             char copy[100]; // TODO: Size is probably wrong.
             strcpy(copy, text);
 
-            int x = meta->knobX + word_48FBF6[valueIndex];
+            int x = meta->knobX + bglbx[valueIndex];
             int len = fontGetStringWidth(copy);
             switch (valueIndex) {
             case 0:
@@ -1015,52 +1091,59 @@ void _UpdateThing(int index)
                 p++;
             }
 
-            int y = meta->knobY + word_48FBFE[valueIndex];
+            int y = meta->knobY + bglby[valueIndex];
             const char* s;
             if (*p != '\0') {
                 *p = '\0';
-                fontDrawText(gPreferencesWindowBuffer + 640 * y + x, copy, 640, 640, colorTable[18979]);
+                fontDrawText(prefbuf + 640 * y + x, copy, 640, 640, colorTable[18979]);
                 s = p + 1;
                 y += fontGetLineHeight();
             } else {
                 s = copy;
             }
 
-            fontDrawText(gPreferencesWindowBuffer + 640 * y + x, s, 640, 640, colorTable[18979]);
+            fontDrawText(prefbuf + 640 * y + x, s, 640, 640, colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
-        blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH] + (46 * 47) * value, 46, 47, 46, gPreferencesWindowBuffer + 640 * meta->knobY + meta->knobX, 640);
+        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH] + (46 * 47) * value, 46, 47, 46, prefbuf + 640 * meta->knobY + meta->knobX, 640);
     } else if (index >= FIRST_SECONDARY_PREF && index <= LAST_SECONDARY_PREF) {
+        // 0x48FC30
+        static const int offsets[SECONDARY_PREF_COUNT] = {
+            66, // combat messages
+            133, // combat taunts
+            200, // language filter
+            264, // running
+            331, // subtitles
+            397, // item highlight
+        };
+
         int secondaryOptionIndex = index - FIRST_SECONDARY_PREF;
 
-        int offsets[SECONDARY_PREF_COUNT];
-        memcpy(offsets, dword_48FC30, sizeof(dword_48FC30));
-
-        blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[secondaryOptionIndex] + 251, 113, 34, 640, gPreferencesWindowBuffer + 640 * offsets[secondaryOptionIndex] + 251, 640);
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[secondaryOptionIndex] + 251, 113, 34, 640, prefbuf + 640 * offsets[secondaryOptionIndex] + 251, 640);
 
         // Secondary options are booleans, so it's index is also it's value.
         for (int value = 0; value < 2; value++) {
-            const char* text = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, meta->labelIds[value]);
+            const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[value]);
 
             int x;
             if (value) {
-                x = meta->knobX + word_48FC06[value];
+                x = meta->knobX + smlbx[value];
                 meta->maxX = x + fontGetStringWidth(text);
             } else {
-                x = meta->knobX + word_48FC06[value] - fontGetStringWidth(text);
+                x = meta->knobX + smlbx[value] - fontGetStringWidth(text);
                 meta->minX = x;
             }
-            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
+            fontDrawText(prefbuf + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
         if (index == PREF_COMBAT_MESSAGES) {
             value ^= 1;
         }
-        blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH] + (22 * 25) * value, 22, 25, 22, gPreferencesWindowBuffer + 640 * meta->knobY + meta->knobX, 640);
+        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH] + (22 * 25) * value, 22, 25, 22, prefbuf + 640 * meta->knobY + meta->knobX, 640);
     } else if (index >= FIRST_RANGE_PREF && index <= LAST_RANGE_PREF) {
-        blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * (meta->knobY - 12) + 384, 240, 24, 640, gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + 384, 640);
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * (meta->knobY - 12) + 384, 240, 24, 640, prefbuf + 640 * (meta->knobY - 12) + 384, 640);
         switch (index) {
         case PREF_COMBAT_SPEED:
             if (1) {
@@ -1068,20 +1151,20 @@ void _UpdateThing(int index)
                 value = min(max(value, 0.0), 50.0);
 
                 int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
-                blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
             }
             break;
         case PREF_TEXT_BASE_DELAY:
             if (1) {
-                gPreferencesTextBaseDelay1 = min(max(gPreferencesTextBaseDelay1, 1.0), 6.0);
+                text_delay = min(max(text_delay, 1.0), 6.0);
 
-                int x = (int)((6.0 - gPreferencesTextBaseDelay1) * 43.8 + 384.0);
-                blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
+                int x = (int)((6.0 - text_delay) * 43.8 + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
-                double value = (gPreferencesTextBaseDelay1 - 1.0) * 0.2 * 2.0;
+                double value = (text_delay - 1.0) * 0.2 * 2.0;
                 value = min(max(value, 0.0), 2.0);
 
-                textObjectsSetBaseDelay(gPreferencesTextBaseDelay1);
+                textObjectsSetBaseDelay(text_delay);
                 textObjectsSetLineDelay(value);
             }
             break;
@@ -1094,48 +1177,48 @@ void _UpdateThing(int index)
                 value = min(max(value, meta->minValue), meta->maxValue);
 
                 int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
-                blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
                 switch (index) {
                 case PREF_MASTER_VOLUME:
-                    gsound_set_master_volume(gPreferencesMasterVolume1);
+                    gsound_set_master_volume(master_volume);
                     break;
                 case PREF_MUSIC_VOLUME:
-                    gsound_background_volume_set(gPreferencesMusicVolume1);
+                    gsound_background_volume_set(music_volume);
                     break;
                 case PREF_SFX_VOLUME:
-                    gsound_set_sfx_volume(gPreferencesSoundEffectsVolume1);
+                    gsound_set_sfx_volume(sndfx_volume);
                     break;
                 case PREF_SPEECH_VOLUME:
-                    gsound_speech_volume_set(gPreferencesSpeechVolume1);
+                    gsound_speech_volume_set(speech_volume);
                     break;
                 }
             }
             break;
         case PREF_BRIGHTNESS:
             if (1) {
-                gPreferencesBrightness1 = min(max(gPreferencesBrightness1, 1.0), 1.17999267578125);
+                gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
 
-                int x = (int)((gPreferencesBrightness1 - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-                blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
+                int x = (int)((gamma_value - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
-                colorGamma(gPreferencesBrightness1);
+                colorGamma(gamma_value);
             }
             break;
         case PREF_MOUSE_SENSITIVIY:
             if (1) {
-                gPreferencesMouseSensitivity1 = min(max(gPreferencesMouseSensitivity1, 1.0), 2.5);
+                mouse_sens = min(max(mouse_sens, 1.0), 2.5);
 
-                int x = (int)((gPreferencesMouseSensitivity1 - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-                blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, gPreferencesWindowBuffer + 640 * meta->knobY + x, 640);
+                int x = (int)((mouse_sens - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
-                mouse_set_sensitivity(gPreferencesMouseSensitivity1);
+                mouse_set_sensitivity(mouse_sens);
             }
             break;
         }
 
         for (int optionIndex = 0; optionIndex < meta->valuesCount; optionIndex++) {
-            const char* str = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, meta->labelIds[optionIndex]);
+            const char* str = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[optionIndex]);
 
             int x;
             switch (optionIndex) {
@@ -1177,7 +1260,7 @@ void _UpdateThing(int index)
                 x = 624 - fontGetStringWidth(str);
                 break;
             }
-            fontDrawText(gPreferencesWindowBuffer + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
+            fontDrawText(prefbuf + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
         }
     } else {
         // return false;
@@ -1189,25 +1272,25 @@ void _UpdateThing(int index)
 }
 
 // 0x492CB0
-int _SavePrefs(bool save)
+static int SavePrefs(bool save)
 {
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, gPreferencesGameDifficulty1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, gPreferencesCombatDifficulty1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, gPreferencesViolenceLevel1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, gPreferencesTargetHighlight1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, gPreferencesCombatMessages1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, gPreferencesCombatLooks1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, gPreferencesCombatTaunts1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, gPreferencesLanguageFilter1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, gPreferencesRunning1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, gPreferencesSubtitles1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, gPreferencesItemHighlight1);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, gPreferencesCombatSpeed1);
-    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, gPreferencesTextBaseDelay1);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, game_difficulty);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, combat_difficulty);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, violence_level);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, target_highlight);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, combat_messages);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, combatLookValue);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, combat_taunts);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, language_filter);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, prf_running);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, subtitles);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, item_highlight);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, combat_speed);
+    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, text_delay);
 
-    double textLineDelay = (gPreferencesTextBaseDelay1 + dbl_50C2D0) * dbl_50C2D8 * dbl_50C2E0;
+    double textLineDelay = (text_delay - 1.0) / 5.0 * 2.0;
     if (textLineDelay >= 0.0) {
-        if (textLineDelay > dbl_50C2E0) {
+        if (textLineDelay > 2.0) {
             textLineDelay = 2.0;
         }
 
@@ -1216,14 +1299,14 @@ int _SavePrefs(bool save)
         config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, 0.0);
     }
 
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, gPreferencesPlayerSpeedup1);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, gPreferencesMasterVolume1);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, gPreferencesMusicVolume1);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, gPreferencesSoundEffectsVolume1);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, gPreferencesSpeechVolume1);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, player_speedup);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, master_volume);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, music_volume);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, sndfx_volume);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, speech_volume);
 
-    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gPreferencesBrightness1);
-    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, gPreferencesMouseSensitivity1);
+    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
+    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, mouse_sens);
 
     if (save) {
         gconfig_save();
@@ -1233,30 +1316,30 @@ int _SavePrefs(bool save)
 }
 
 // 0x493224
-int preferencesSave(File* stream)
+int save_options(File* stream)
 {
-    float textBaseDelay = (float)gPreferencesTextBaseDelay1;
-    float brightness = (float)gPreferencesBrightness1;
-    float mouseSensitivity = (float)gPreferencesMouseSensitivity1;
+    float textBaseDelay = (float)text_delay;
+    float brightness = (float)gamma_value;
+    float mouseSensitivity = (float)mouse_sens;
 
-    if (fileWriteInt32(stream, gPreferencesGameDifficulty1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesCombatDifficulty1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesViolenceLevel1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesTargetHighlight1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesCombatLooks1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesCombatMessages1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesCombatTaunts1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesLanguageFilter1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesRunning1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesSubtitles1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesItemHighlight1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesCombatSpeed1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesPlayerSpeedup1) == -1) goto err;
+    if (fileWriteInt32(stream, game_difficulty) == -1) goto err;
+    if (fileWriteInt32(stream, combat_difficulty) == -1) goto err;
+    if (fileWriteInt32(stream, violence_level) == -1) goto err;
+    if (fileWriteInt32(stream, target_highlight) == -1) goto err;
+    if (fileWriteInt32(stream, combatLookValue) == -1) goto err;
+    if (fileWriteInt32(stream, combat_messages) == -1) goto err;
+    if (fileWriteInt32(stream, combat_taunts) == -1) goto err;
+    if (fileWriteInt32(stream, language_filter) == -1) goto err;
+    if (fileWriteInt32(stream, prf_running) == -1) goto err;
+    if (fileWriteInt32(stream, subtitles) == -1) goto err;
+    if (fileWriteInt32(stream, item_highlight) == -1) goto err;
+    if (fileWriteInt32(stream, combat_speed) == -1) goto err;
+    if (fileWriteInt32(stream, player_speedup) == -1) goto err;
     if (fileWriteFloat(stream, textBaseDelay) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesMasterVolume1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesMusicVolume1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesSoundEffectsVolume1) == -1) goto err;
-    if (fileWriteInt32(stream, gPreferencesSpeechVolume1) == -1) goto err;
+    if (fileWriteInt32(stream, master_volume) == -1) goto err;
+    if (fileWriteInt32(stream, music_volume) == -1) goto err;
+    if (fileWriteInt32(stream, sndfx_volume) == -1) goto err;
+    if (fileWriteInt32(stream, speech_volume) == -1) goto err;
     if (fileWriteFloat(stream, brightness) == -1) goto err;
     if (fileWriteFloat(stream, mouseSensitivity) == -1) goto err;
 
@@ -1270,41 +1353,41 @@ err:
 }
 
 // 0x49340C
-int preferencesLoad(File* stream)
+int load_options(File* stream)
 {
     float textBaseDelay;
     float brightness;
     float mouseSensitivity;
 
-    preferencesSetDefaults(false);
+    SetDefaults(false);
 
-    if (fileReadInt32(stream, &gPreferencesGameDifficulty1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesCombatDifficulty1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesViolenceLevel1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesTargetHighlight1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesCombatLooks1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesCombatMessages1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesCombatTaunts1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesLanguageFilter1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesRunning1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesSubtitles1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesItemHighlight1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesCombatSpeed1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesPlayerSpeedup1) == -1) goto err;
+    if (fileReadInt32(stream, &game_difficulty) == -1) goto err;
+    if (fileReadInt32(stream, &combat_difficulty) == -1) goto err;
+    if (fileReadInt32(stream, &violence_level) == -1) goto err;
+    if (fileReadInt32(stream, &target_highlight) == -1) goto err;
+    if (fileReadInt32(stream, &combatLookValue) == -1) goto err;
+    if (fileReadInt32(stream, &combat_messages) == -1) goto err;
+    if (fileReadInt32(stream, &combat_taunts) == -1) goto err;
+    if (fileReadInt32(stream, &language_filter) == -1) goto err;
+    if (fileReadInt32(stream, &prf_running) == -1) goto err;
+    if (fileReadInt32(stream, &subtitles) == -1) goto err;
+    if (fileReadInt32(stream, &item_highlight) == -1) goto err;
+    if (fileReadInt32(stream, &combat_speed) == -1) goto err;
+    if (fileReadInt32(stream, &player_speedup) == -1) goto err;
     if (fileReadFloat(stream, &textBaseDelay) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesMasterVolume1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesMusicVolume1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesSoundEffectsVolume1) == -1) goto err;
-    if (fileReadInt32(stream, &gPreferencesSpeechVolume1) == -1) goto err;
+    if (fileReadInt32(stream, &master_volume) == -1) goto err;
+    if (fileReadInt32(stream, &music_volume) == -1) goto err;
+    if (fileReadInt32(stream, &sndfx_volume) == -1) goto err;
+    if (fileReadInt32(stream, &speech_volume) == -1) goto err;
     if (fileReadFloat(stream, &brightness) == -1) goto err;
     if (fileReadFloat(stream, &mouseSensitivity) == -1) goto err;
 
-    gPreferencesBrightness1 = brightness;
-    gPreferencesMouseSensitivity1 = mouseSensitivity;
-    gPreferencesTextBaseDelay1 = textBaseDelay;
+    gamma_value = brightness;
+    mouse_sens = mouseSensitivity;
+    text_delay = textBaseDelay;
 
-    _JustUpdate_();
-    _SavePrefs(0);
+    JustUpdate();
+    SavePrefs(0);
 
     return 0;
 
@@ -1312,65 +1395,65 @@ err:
 
     debugPrint("\nOPTION MENU: Error loading option data!, using defaults.\n");
 
-    preferencesSetDefaults(false);
-    _JustUpdate_();
-    _SavePrefs(0);
+    SetDefaults(false);
+    JustUpdate();
+    SavePrefs(0);
 
     return -1;
 }
 
 // 0x4928E4
-void brightnessIncrease()
+void IncGamma()
 {
-    gPreferencesBrightness1 = 1.0;
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gPreferencesBrightness1);
+    gamma_value = GAMMA_MIN;
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
 
-    if (gPreferencesBrightness1 < dbl_50C168) {
-        gPreferencesBrightness1 += dbl_50C170;
+    if (gamma_value < GAMMA_MAX) {
+        gamma_value += GAMMA_STEP;
 
-        if (gPreferencesBrightness1 >= 1.0) {
-            if (gPreferencesBrightness1 > dbl_50C168) {
-                gPreferencesBrightness1 = dbl_50C168;
+        if (gamma_value >= GAMMA_MIN) {
+            if (gamma_value > GAMMA_MAX) {
+                gamma_value = GAMMA_MAX;
             }
         } else {
-            gPreferencesBrightness1 = 1.0;
+            gamma_value = GAMMA_MIN;
         }
 
-        colorGamma(gPreferencesBrightness1);
+        colorGamma(gamma_value);
 
-        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gPreferencesBrightness1);
+        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
 
         gconfig_save();
     }
 }
 
 // 0x4929C8
-void brightnessDecrease()
+void DecGamma()
 {
-    gPreferencesBrightness1 = 1.0;
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gPreferencesBrightness1);
+    gamma_value = GAMMA_MIN;
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
 
-    if (gPreferencesBrightness1 > 1.0) {
-        gPreferencesBrightness1 += dbl_50C178;
+    if (gamma_value > GAMMA_MIN) {
+        gamma_value -= GAMMA_STEP;
 
-        if (gPreferencesBrightness1 >= 1.0) {
-            if (gPreferencesBrightness1 > dbl_50C180) {
-                gPreferencesBrightness1 = dbl_50C180;
+        if (gamma_value >= GAMMA_MIN) {
+            if (gamma_value > GAMMA_MAX) {
+                gamma_value = GAMMA_MAX;
             }
         } else {
-            gPreferencesBrightness1 = 1.0;
+            gamma_value = GAMMA_MIN;
         }
 
-        colorGamma(gPreferencesBrightness1);
+        colorGamma(gamma_value);
 
-        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gPreferencesBrightness1);
+        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
 
         gconfig_save();
     }
 }
 
 // 0x4908A0
-int preferencesWindowInit()
+static int PrefStart()
 {
     int i;
     int fid;
@@ -1382,83 +1465,83 @@ int preferencesWindowInit()
     int messageItemId;
     int btn;
 
-    _SaveSettings();
+    SaveSettings();
 
     for (i = 0; i < PREFERENCES_WINDOW_FRM_COUNT; i++) {
-        fid = art_id(OBJ_TYPE_INTERFACE, gPreferencesWindowFrmIds[i], 0, 0, 0);
-        gPreferencesWindowFrmData[i] = art_lock(fid, &(gPreferencesWindowFrmHandles[i]), &(gPreferencesWindowFrmSizes[i].width), &(gPreferencesWindowFrmSizes[i].height));
-        if (gPreferencesWindowFrmData[i] == NULL) {
+        fid = art_id(OBJ_TYPE_INTERFACE, prfgrphs[i], 0, 0, 0);
+        prfbmp[i] = art_lock(fid, &(grphkey2[i]), &(ginfo2[i].width), &(ginfo2[i].height));
+        if (prfbmp[i] == NULL) {
             for (; i != 0; i--) {
-                art_ptr_unlock(gPreferencesWindowFrmHandles[i - 1]);
+                art_ptr_unlock(grphkey2[i - 1]);
             }
             return -1;
         }
     }
 
-    _changed = false;
+    changed = false;
 
     int preferencesWindowX = 0;
     int preferencesWindowY = 0;
-    gPreferencesWindow = windowCreate(preferencesWindowX,
+    prfwin = windowCreate(preferencesWindowX,
         preferencesWindowY,
         PREFERENCES_WINDOW_WIDTH,
         PREFERENCES_WINDOW_HEIGHT,
         256,
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
-    if (gPreferencesWindow == -1) {
+    if (prfwin == -1) {
         for (i = 0; i < PREFERENCES_WINDOW_FRM_COUNT; i++) {
-            art_ptr_unlock(gPreferencesWindowFrmHandles[i]);
+            art_ptr_unlock(grphkey2[i]);
         }
         return -1;
     }
 
-    gPreferencesWindowBuffer = windowGetBuffer(gPreferencesWindow);
-    memcpy(gPreferencesWindowBuffer,
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND],
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_BACKGROUND].width * gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_BACKGROUND].height);
+    prefbuf = windowGetBuffer(prfwin);
+    memcpy(prefbuf,
+        prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND],
+        ginfo2[PREFERENCES_WINDOW_FRM_BACKGROUND].width * ginfo2[PREFERENCES_WINDOW_FRM_BACKGROUND].height);
 
     fontSetCurrent(104);
 
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 100);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 10 + 74, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 100);
+    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 10 + 74, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     fontSetCurrent(103);
 
     messageItemId = 101;
     for (i = 0; i < PRIMARY_PREF_COUNT; i++) {
-        messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
+        messageItemText = getmsg(&optn_msgfl, &optnmesg, messageItemId++);
         x = 99 - fontGetStringWidth(messageItemText) / 2;
-        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row1Ytab[i] + x, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+        fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * row1Ytab[i] + x, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     for (i = 0; i < SECONDARY_PREF_COUNT; i++) {
-        messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
-        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row2Ytab[i] + 206, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+        messageItemText = getmsg(&optn_msgfl, &optnmesg, messageItemId++);
+        fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * row2Ytab[i] + 206, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     for (i = 0; i < RANGE_PREF_COUNT; i++) {
-        messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, messageItemId++);
-        fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * _row3Ytab[i] + 384, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+        messageItemText = getmsg(&optn_msgfl, &optnmesg, messageItemId++);
+        fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * row3Ytab[i] + 384, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     // DEFAULT
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 120);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 43, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 120);
+    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 43, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 4);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 169, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 4);
+    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 169, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // CANCEL
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 121);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 449 + 283, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 121);
+    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 283, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // Affect player speed
-    messageItemText = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, 122);
-    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * 72 + 405, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    messageItemText = getmsg(&optn_msgfl, &optnmesg, 122);
+    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 72 + 405, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     for (i = 0; i < PREF_COUNT; i++) {
-        _UpdateThing(i);
+        UpdateThing(i);
     }
 
     for (i = 0; i < PREF_COUNT; i++) {
@@ -1469,7 +1552,7 @@ int preferencesWindowInit()
 
         if (i >= FIRST_RANGE_PREF) {
             x = 384;
-            y = gPreferenceDescriptions[i].knobY - 12;
+            y = btndat[i].knobY - 12;
             width = 240;
             height = 23;
             mouseEnterEventCode = 526;
@@ -1478,18 +1561,18 @@ int preferencesWindowInit()
             mouseUpEventCode = 526;
 
         } else if (i >= FIRST_SECONDARY_PREF) {
-            x = gPreferenceDescriptions[i].minX;
-            y = gPreferenceDescriptions[i].knobY - 5;
-            width = gPreferenceDescriptions[i].maxX - x;
+            x = btndat[i].minX;
+            y = btndat[i].knobY - 5;
+            width = btndat[i].maxX - x;
             height = 28;
             mouseEnterEventCode = -1;
             mouseExitEventCode = -1;
             mouseDownEventCode = -1;
             mouseUpEventCode = 505 + i;
         } else {
-            x = gPreferenceDescriptions[i].minX;
-            y = gPreferenceDescriptions[i].knobY - 4;
-            width = gPreferenceDescriptions[i].maxX - x;
+            x = btndat[i].minX;
+            y = btndat[i].knobY - 4;
+            width = btndat[i].maxX - x;
             height = 48;
             mouseEnterEventCode = -1;
             mouseExitEventCode = -1;
@@ -1497,40 +1580,40 @@ int preferencesWindowInit()
             mouseUpEventCode = 505 + i;
         }
 
-        gPreferenceDescriptions[i].btn = buttonCreate(gPreferencesWindow, x, y, width, height, mouseEnterEventCode, mouseExitEventCode, mouseDownEventCode, mouseUpEventCode, NULL, NULL, NULL, 32);
+        btndat[i].btn = buttonCreate(prfwin, x, y, width, height, mouseEnterEventCode, mouseExitEventCode, mouseDownEventCode, mouseUpEventCode, NULL, NULL, NULL, 32);
     }
 
-    _plyrspdbid = buttonCreate(gPreferencesWindow,
+    plyrspdbid = buttonCreate(prfwin,
         383,
         68,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF].width,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_CHECKBOX_ON].height,
+        ginfo2[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF].width,
+        ginfo2[PREFERENCES_WINDOW_FRM_CHECKBOX_ON].height,
         -1,
         -1,
         524,
         524,
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF],
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_CHECKBOX_ON],
+        prfbmp[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF],
+        prfbmp[PREFERENCES_WINDOW_FRM_CHECKBOX_ON],
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01 | BUTTON_FLAG_0x02);
-    if (_plyrspdbid != -1) {
-        _win_set_button_rest_state(_plyrspdbid, gPreferencesPlayerSpeedup1, 0);
+    if (plyrspdbid != -1) {
+        _win_set_button_rest_state(plyrspdbid, player_speedup, 0);
     }
 
-    buttonSetCallbacks(_plyrspdbid, gsound_med_butt_press, gsound_med_butt_press);
+    buttonSetCallbacks(plyrspdbid, gsound_med_butt_press, gsound_med_butt_press);
 
     // DEFAULT
-    btn = buttonCreate(gPreferencesWindow,
+    btn = buttonCreate(prfwin,
         23,
         450,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
+        ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
+        ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
         -1,
         -1,
         -1,
         527,
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
+        prfbmp[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
+        prfbmp[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1538,17 +1621,17 @@ int preferencesWindowInit()
     }
 
     // DONE
-    btn = buttonCreate(gPreferencesWindow,
+    btn = buttonCreate(prfwin,
         148,
         450,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
+        ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
+        ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
         -1,
         -1,
         -1,
         504,
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
+        prfbmp[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
+        prfbmp[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1556,17 +1639,17 @@ int preferencesWindowInit()
     }
 
     // CANCEL
-    btn = buttonCreate(gPreferencesWindow,
+    btn = buttonCreate(prfwin,
         263,
         450,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
-        gPreferencesWindowFrmSizes[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
+        ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
+        ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN].height,
         -1,
         -1,
         -1,
         528,
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
-        gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
+        prfbmp[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP],
+        prfbmp[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
@@ -1575,33 +1658,33 @@ int preferencesWindowInit()
 
     fontSetCurrent(101);
 
-    win_draw(gPreferencesWindow);
+    win_draw(prfwin);
 
     return 0;
 }
 
 // 0x492870
-int preferencesWindowFree()
+static int PrefEnd()
 {
-    if (_changed) {
-        _SavePrefs(1);
-        _JustUpdate_();
+    if (changed) {
+        SavePrefs(1);
+        JustUpdate();
         combat_highlight_change();
     }
 
-    windowDestroy(gPreferencesWindow);
+    windowDestroy(prfwin);
 
     for (int index = 0; index < PREFERENCES_WINDOW_FRM_COUNT; index++) {
-        art_ptr_unlock(gPreferencesWindowFrmHandles[index]);
+        art_ptr_unlock(grphkey2[index]);
     }
 
     return 0;
 }
 
 // 0x490798
-int _do_prefscreen()
+static int do_prefscreen()
 {
-    if (preferencesWindowInit() == -1) {
+    if (PrefStart() == -1) {
         debugPrint("\nPREFERENCE MENU: Error loading preference dialog data!\n");
         return -1;
     }
@@ -1626,36 +1709,36 @@ int _do_prefscreen()
             break;
         case KEY_EQUAL:
         case KEY_PLUS:
-            brightnessIncrease();
+            IncGamma();
             break;
         case KEY_MINUS:
         case KEY_UNDERSCORE:
-            brightnessDecrease();
+            DecGamma();
             break;
         case KEY_F12:
             takeScreenshot();
             break;
         case 527:
-            preferencesSetDefaults(true);
+            SetDefaults(true);
             break;
         default:
             if (eventCode == KEY_ESCAPE || eventCode == 528 || game_user_wants_to_quit != 0) {
-                _RestoreSettings();
+                RestoreSettings();
                 rc = 0;
             } else if (eventCode >= 505 && eventCode <= 524) {
-                _DoThing(eventCode);
+                DoThing(eventCode);
             }
             break;
         }
     }
 
-    preferencesWindowFree();
+    PrefEnd();
 
     return rc;
 }
 
 // 0x490E8C
-void _DoThing(int eventCode)
+static void DoThing(int eventCode)
 {
     int x;
     int y;
@@ -1666,7 +1749,7 @@ void _DoThing(int eventCode)
     int preferenceIndex = eventCode - 505;
 
     if (preferenceIndex >= FIRST_PRIMARY_PREF && preferenceIndex <= LAST_PRIMARY_PREF) {
-        PreferenceDescription* meta = &(gPreferenceDescriptions[preferenceIndex]);
+        PreferenceDescription* meta = &(btndat[preferenceIndex]);
         int* valuePtr = meta->valuePtr;
         int value = *valuePtr;
         bool valueChanged = false;
@@ -1676,14 +1759,14 @@ void _DoThing(int eventCode)
 
         if (sqrt(pow((double)x - (double)v1, 2) + pow((double)y - (double)v2, 2)) > 16.0) {
             if (y > meta->knobY) {
-                int v14 = meta->knobY + word_48FBFE[0];
+                int v14 = meta->knobY + bglby[0];
                 if (y >= v14 && y <= v14 + fontGetLineHeight()) {
                     if (x >= meta->minX && x <= meta->knobX) {
                         *valuePtr = 0;
                         meta->direction = 0;
                         valueChanged = true;
                     } else {
-                        if (meta->valuesCount >= 3 && x >= meta->knobX + word_48FBF6[2] && x <= meta->maxX) {
+                        if (meta->valuesCount >= 3 && x >= meta->knobX + bglbx[2] && x <= meta->maxX) {
                             *valuePtr = 2;
                             meta->direction = 0;
                             valueChanged = true;
@@ -1703,8 +1786,8 @@ void _DoThing(int eventCode)
             }
 
             if (meta->valuesCount == 4) {
-                int v19 = meta->knobY + word_48FBFE[3];
-                if (y >= v19 && y <= v19 + 2 * fontGetLineHeight() && x >= meta->knobX + word_48FBF6[3] && x <= meta->maxX) {
+                int v19 = meta->knobY + bglby[3];
+                if (y >= v19 && y <= v19 + 2 * fontGetLineHeight() && x >= meta->knobX + bglbx[3] && x <= meta->maxX) {
                     *valuePtr = 3;
                     meta->direction = 1;
                     valueChanged = true;
@@ -1734,13 +1817,13 @@ void _DoThing(int eventCode)
             gsound_play_sfx_file("ib3p1xx1");
             coreDelay(70);
             gsound_play_sfx_file("ib3lu1x1");
-            _UpdateThing(preferenceIndex);
-            win_draw(gPreferencesWindow);
-            _changed = true;
+            UpdateThing(preferenceIndex);
+            win_draw(prfwin);
+            changed = true;
             return;
         }
     } else if (preferenceIndex >= FIRST_SECONDARY_PREF && preferenceIndex <= LAST_SECONDARY_PREF) {
-        PreferenceDescription* meta = &(gPreferenceDescriptions[preferenceIndex]);
+        PreferenceDescription* meta = &(btndat[preferenceIndex]);
         int* valuePtr = meta->valuePtr;
         int value = *valuePtr;
         bool valueChanged = false;
@@ -1768,13 +1851,13 @@ void _DoThing(int eventCode)
             gsound_play_sfx_file("ib2p1xx1");
             coreDelay(70);
             gsound_play_sfx_file("ib2lu1x1");
-            _UpdateThing(preferenceIndex);
-            win_draw(gPreferencesWindow);
-            _changed = true;
+            UpdateThing(preferenceIndex);
+            win_draw(prfwin);
+            changed = true;
             return;
         }
     } else if (preferenceIndex >= FIRST_RANGE_PREF && preferenceIndex <= LAST_RANGE_PREF) {
-        PreferenceDescription* meta = &(gPreferenceDescriptions[preferenceIndex]);
+        PreferenceDescription* meta = &(btndat[preferenceIndex]);
         int* valuePtr = meta->valuePtr;
 
         gsound_play_sfx_file("ib1p1xx1");
@@ -1782,13 +1865,13 @@ void _DoThing(int eventCode)
         double value;
         switch (preferenceIndex) {
         case PREF_TEXT_BASE_DELAY:
-            value = 6.0 - gPreferencesTextBaseDelay1 + 1.0;
+            value = 6.0 - text_delay + 1.0;
             break;
         case PREF_BRIGHTNESS:
-            value = gPreferencesBrightness1;
+            value = gamma_value;
             break;
         case PREF_MOUSE_SENSITIVIY:
-            value = gPreferencesMouseSensitivity1;
+            value = mouse_sens;
             break;
         default:
             value = *valuePtr;
@@ -1797,10 +1880,10 @@ void _DoThing(int eventCode)
 
         int knobX = (int)(219.0 / (meta->maxValue - meta->minValue));
         int v31 = (int)((value - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-        blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, 240, 12, PREFERENCES_WINDOW_WIDTH, gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, PREFERENCES_WINDOW_WIDTH);
-        blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, 240, 12, PREFERENCES_WINDOW_WIDTH, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, PREFERENCES_WINDOW_WIDTH);
+        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
 
-        win_draw(gPreferencesWindow);
+        win_draw(prfwin);
 
         int sfxVolumeExample = 0;
         int speechVolumeExample = 0;
@@ -1813,9 +1896,9 @@ void _DoThing(int eventCode)
 
             if (mouse_get_buttons() & 0x10) {
                 gsound_play_sfx_file("ib1lu1x1");
-                _UpdateThing(preferenceIndex);
-                win_draw(gPreferencesWindow);
-                _changed = true;
+                UpdateThing(preferenceIndex);
+                win_draw(prfwin);
+                changed = true;
                 return;
             }
 
@@ -1842,21 +1925,21 @@ void _DoThing(int eventCode)
                 *meta->valuePtr = (int)newValue;
                 break;
             case PREF_TEXT_BASE_DELAY:
-                gPreferencesTextBaseDelay1 = 6.0 - newValue + 1.0;
+                text_delay = 6.0 - newValue + 1.0;
                 break;
             case PREF_MASTER_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                gsound_set_master_volume(gPreferencesMasterVolume1);
+                gsound_set_master_volume(master_volume);
                 v52 = 1;
                 break;
             case PREF_MUSIC_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                gsound_background_volume_set(gPreferencesMusicVolume1);
+                gsound_background_volume_set(music_volume);
                 v52 = 1;
                 break;
             case PREF_SFX_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                gsound_set_sfx_volume(gPreferencesSoundEffectsVolume1);
+                gsound_set_sfx_volume(sndfx_volume);
                 v52 = 1;
                 if (sfxVolumeExample == 0) {
                     gsound_play_sfx_file("butin1");
@@ -1867,7 +1950,7 @@ void _DoThing(int eventCode)
                 break;
             case PREF_SPEECH_VOLUME:
                 *meta->valuePtr = (int)newValue;
-                gsound_speech_volume_set(gPreferencesSpeechVolume1);
+                gsound_speech_volume_set(speech_volume);
                 v52 = 1;
                 if (speechVolumeExample == 0) {
                     gsound_speech_play("narrator\\options", 12, 13, 15);
@@ -1877,20 +1960,20 @@ void _DoThing(int eventCode)
                 }
                 break;
             case PREF_BRIGHTNESS:
-                gPreferencesBrightness1 = newValue;
+                gamma_value = newValue;
                 colorGamma(newValue);
                 break;
             case PREF_MOUSE_SENSITIVIY:
-                gPreferencesMouseSensitivity1 = newValue;
+                mouse_sens = newValue;
                 break;
             }
 
             if (v52) {
                 int off = PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + 384;
-                blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 24, PREFERENCES_WINDOW_WIDTH, gPreferencesWindowBuffer + off, PREFERENCES_WINDOW_WIDTH);
+                blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 24, PREFERENCES_WINDOW_WIDTH, prefbuf + off, PREFERENCES_WINDOW_WIDTH);
 
                 for (int optionIndex = 0; optionIndex < meta->valuesCount; optionIndex++) {
-                    const char* str = getmsg(&gOptionsMessageList, &gOptionsMessageListItem, meta->labelIds[optionIndex]);
+                    const char* str = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[optionIndex]);
 
                     int x;
                     switch (optionIndex) {
@@ -1932,28 +2015,22 @@ void _DoThing(int eventCode)
                         x = 624 - fontGetStringWidth(str);
                         break;
                     }
-                    fontDrawText(gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + x, str, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+                    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + x, str, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
                 }
             } else {
                 int off = PREFERENCES_WINDOW_WIDTH * meta->knobY + 384;
-                blitBufferToBuffer(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 12, PREFERENCES_WINDOW_WIDTH, gPreferencesWindowBuffer + off, PREFERENCES_WINDOW_WIDTH);
+                blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 12, PREFERENCES_WINDOW_WIDTH, prefbuf + off, PREFERENCES_WINDOW_WIDTH);
             }
 
-            blitBufferToBufferTrans(gPreferencesWindowFrmData[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, gPreferencesWindowBuffer + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
-            win_draw(gPreferencesWindow);
+            blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
+            win_draw(prfwin);
 
             while (getTicksSince(tick) < 35)
                 ;
         }
     } else if (preferenceIndex == 19) {
-        gPreferencesPlayerSpeedup1 ^= 1;
+        player_speedup ^= 1;
     }
 
-    _changed = true;
-}
-
-// 0x48FC48
-int _do_options()
-{
-    return showOptionsWithInitialKeyCode(-1);
+    changed = true;
 }
