@@ -119,7 +119,7 @@ int RealMain(int argc, char** argv)
             case MAIN_MENU_NEW_GAME:
                 main_menu_hide(true);
                 main_menu_destroy();
-                if (characterSelectorOpen() == 2) {
+                if (select_character() == 2) {
                     gmovie_play(MOVIE_ELDER, GAME_MOVIE_STOP_MUSIC);
                     roll_set_seed(-1);
                     main_load_new(mainMap);

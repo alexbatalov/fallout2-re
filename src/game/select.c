@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "game/art.h"
 #include "game/editor.h"
 #include "color.h"
 #include "core.h"
@@ -24,122 +25,172 @@
 #include "trait.h"
 #include "window_manager.h"
 
+#define CS_WINDOW_WIDTH 640
+#define CS_WINDOW_HEIGHT 480
+
+#define CS_WINDOW_BACKGROUND_X 40
+#define CS_WINDOW_BACKGROUND_Y 30
+#define CS_WINDOW_BACKGROUND_WIDTH 560
+#define CS_WINDOW_BACKGROUND_HEIGHT 300
+
+#define CS_WINDOW_PREVIOUS_BUTTON_X 292
+#define CS_WINDOW_PREVIOUS_BUTTON_Y 320
+
+#define CS_WINDOW_NEXT_BUTTON_X 318
+#define CS_WINDOW_NEXT_BUTTON_Y 320
+
+#define CS_WINDOW_TAKE_BUTTON_X 81
+#define CS_WINDOW_TAKE_BUTTON_Y 323
+
+#define CS_WINDOW_MODIFY_BUTTON_X 435
+#define CS_WINDOW_MODIFY_BUTTON_Y 320
+
+#define CS_WINDOW_CREATE_BUTTON_X 80
+#define CS_WINDOW_CREATE_BUTTON_Y 425
+
+#define CS_WINDOW_BACK_BUTTON_X 461
+#define CS_WINDOW_BACK_BUTTON_Y 425
+
+#define CS_WINDOW_NAME_MID_X 318
+#define CS_WINDOW_PRIMARY_STAT_MID_X 362
+#define CS_WINDOW_SECONDARY_STAT_MID_X 379
+#define CS_WINDOW_BIO_X 438
+
+typedef enum PremadeCharacter {
+    PREMADE_CHARACTER_NARG,
+    PREMADE_CHARACTER_CHITSA,
+    PREMADE_CHARACTER_MINGUN,
+    PREMADE_CHARACTER_COUNT,
+} PremadeCharacter;
+
+typedef struct PremadeCharacterDescription {
+    char fileName[20];
+    int face;
+    char field_18[20];
+} PremadeCharacterDescription;
+
+static void select_exit();
+static bool select_update_display();
+static bool select_display_portrait();
+static bool select_display_stats();
+static bool select_display_bio();
+
 // 0x51C84C
-int gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;
+static int premade_index = PREMADE_CHARACTER_NARG;
 
 // 0x51C850
-PremadeCharacterDescription gPremadeCharacterDescriptions[PREMADE_CHARACTER_COUNT] = {
+static PremadeCharacterDescription premade_characters[PREMADE_CHARACTER_COUNT] = {
     { "premade\\combat", 201, "VID 208-197-88-125" },
     { "premade\\stealth", 202, "VID 208-206-49-229" },
     { "premade\\diplomat", 203, "VID 208-206-49-227" },
 };
 
 // 0x51C8D4
-const int gPremadeCharacterCount = PREMADE_CHARACTER_COUNT;
+static int premade_total = PREMADE_CHARACTER_COUNT;
 
 // 0x51C7F8
-int gCharacterSelectorWindow = -1;
+int select_window_id = -1;
 
 // 0x51C7FC
-unsigned char* gCharacterSelectorWindowBuffer = NULL;
+static unsigned char* select_window_buffer = NULL;
 
 // 0x51C800
-unsigned char* gCharacterSelectorBackground = NULL;
+static unsigned char* monitor = NULL;
 
 // 0x51C804
-int gCharacterSelectorWindowPreviousButton = -1;
+static int previous_button = -1;
 
 // 0x51C808
-CacheEntry* gCharacterSelectorWindowPreviousButtonUpFrmHandle = NULL;
+static CacheEntry* previous_button_up_key = NULL;
 
 // 0x51C80C
-CacheEntry* gCharacterSelectorWindowPreviousButtonDownFrmHandle = NULL;
+static CacheEntry* previous_button_down_key = NULL;
 
 // 0x51C810
-int gCharacterSelectorWindowNextButton = -1;
+static int next_button = -1;
 
 // 0x51C814
-CacheEntry* gCharacterSelectorWindowNextButtonUpFrmHandle = NULL;
+static CacheEntry* next_button_up_key = NULL;
 
 // 0x51C818
-CacheEntry* gCharacterSelectorWindowNextButtonDownFrmHandle = NULL;
+static CacheEntry* next_button_down_key = NULL;
 
 // 0x51C81C
-int gCharacterSelectorWindowTakeButton = -1;
+static int take_button = -1;
 
 // 0x51C820
-CacheEntry* gCharacterSelectorWindowTakeButtonUpFrmHandle = NULL;
+static CacheEntry* take_button_up_key = NULL;
 
 // 0x51C824
-CacheEntry* gCharacterSelectorWindowTakeButtonDownFrmHandle = NULL;
+static CacheEntry* take_button_down_key = NULL;
 
 // 0x51C828
-int gCharacterSelectorWindowModifyButton = -1;
+static int modify_button = -1;
 
 // 0x51C82C
-CacheEntry* gCharacterSelectorWindowModifyButtonUpFrmHandle = NULL;
+static CacheEntry* modify_button_up_key = NULL;
 
 // 0x51C830
-CacheEntry* gCharacterSelectorWindowModifyButtonDownFrmHandle = NULL;
+static CacheEntry* modify_button_down_key = NULL;
 
 // 0x51C834
-int gCharacterSelectorWindowCreateButton = -1;
+static int create_button = -1;
 
 // 0x51C838
-CacheEntry* gCharacterSelectorWindowCreateButtonUpFrmHandle = NULL;
+static CacheEntry* create_button_up_key = NULL;
 
 // 0x51C83C
-CacheEntry* gCharacterSelectorWindowCreateButtonDownFrmHandle = NULL;
+static CacheEntry* create_button_down_key = NULL;
 
 // 0x51C840
-int gCharacterSelectorWindowBackButton = -1;
+static int back_button = -1;
 
 // 0x51C844
-CacheEntry* gCharacterSelectorWindowBackButtonUpFrmHandle = NULL;
+static CacheEntry* back_button_up_key = NULL;
 
 // 0x51C848
-CacheEntry* gCharacterSelectorWindowBackButtonDownFrmHandle = NULL;
+static CacheEntry* back_button_down_key = NULL;
 
 // 0x667764
-unsigned char* gCharacterSelectorWindowTakeButtonUpFrmData;
+static unsigned char* take_button_up;
 
 // 0x667768
-unsigned char* gCharacterSelectorWindowModifyButtonDownFrmData;
+static unsigned char* modify_button_down;
 
 // 0x66776C
-unsigned char* gCharacterSelectorWindowBackButtonUpFrmData;
+static unsigned char* back_button_up;
 
 // 0x667770
-unsigned char* gCharacterSelectorWindowCreateButtonUpFrmData;
+static unsigned char* create_button_up;
 
 // 0x667774
-unsigned char* gCharacterSelectorWindowModifyButtonUpFrmData;
+static unsigned char* modify_button_up;
 
 // 0x667778
-unsigned char* gCharacterSelectorWindowBackButtonDownFrmData;
+static unsigned char* back_button_down;
 
 // 0x66777C
-unsigned char* gCharacterSelectorWindowCreateButtonDownFrmData;
+static unsigned char* create_button_down;
 
 // 0x667780
-unsigned char* gCharacterSelectorWindowTakeButtonDownFrmData;
+static unsigned char* take_button_down;
 
 // 0x667784
-unsigned char* gCharacterSelectorWindowNextButtonDownFrmData;
+static unsigned char* next_button_down;
 
 // 0x667788
-unsigned char* gCharacterSelectorWindowNextButtonUpFrmData;
+static unsigned char* next_button_up;
 
 // 0x66778C
-unsigned char* gCharacterSelectorWindowPreviousButtonUpFrmData;
+static unsigned char* previous_button_up;
 
 // 0x667790
-unsigned char* gCharacterSelectorWindowPreviousButtonDownFrmData;
+static unsigned char* previous_button_down;
 
 // 0x4A71D0
-int characterSelectorOpen()
+int select_character()
 {
-    if (!characterSelectorWindowInit()) {
+    if (!select_init()) {
         return 0;
     }
 
@@ -182,7 +233,7 @@ int characterSelectorOpen()
                 rc = 2;
                 done = true;
             } else {
-                characterSelectorWindowRefresh();
+                select_update_display();
             }
 
             break;
@@ -192,7 +243,7 @@ int characterSelectorOpen()
                 rc = 2;
                 done = true;
             } else {
-                characterSelectorWindowRefresh();
+                select_update_display();
             }
 
             break;
@@ -209,29 +260,29 @@ int characterSelectorOpen()
             gsound_play_sfx_file("ib2p1xx1");
             // FALLTHROUGH
         case 500:
-            gCurrentPremadeCharacter -= 1;
-            if (gCurrentPremadeCharacter < 0) {
-                gCurrentPremadeCharacter = gPremadeCharacterCount - 1;
+            premade_index -= 1;
+            if (premade_index < 0) {
+                premade_index = premade_total - 1;
             }
 
-            characterSelectorWindowRefresh();
+            select_update_display();
             break;
         case KEY_ARROW_RIGHT:
             gsound_play_sfx_file("ib2p1xx1");
             // FALLTHROUGH
         case 501:
-            gCurrentPremadeCharacter += 1;
-            if (gCurrentPremadeCharacter >= gPremadeCharacterCount) {
-                gCurrentPremadeCharacter = 0;
+            premade_index += 1;
+            if (premade_index >= premade_total) {
+                premade_index = 0;
             }
 
-            characterSelectorWindowRefresh();
+            select_update_display();
             break;
         }
     }
 
     palette_fade_to(black_palette);
-    characterSelectorWindowFree();
+    select_exit();
 
     if (cursorWasHidden) {
         mouse_hide();
@@ -241,24 +292,24 @@ int characterSelectorOpen()
 }
 
 // 0x4A7468
-bool characterSelectorWindowInit()
+bool select_init()
 {
     int backgroundFid;
     unsigned char* backgroundFrmData;
 
-    if (gCharacterSelectorWindow != -1) {
+    if (select_window_id != -1) {
         return false;
     }
 
     int characterSelectorWindowX = 0;
     int characterSelectorWindowY = 0;
-    gCharacterSelectorWindow = windowCreate(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, colorTable[0], 0);
-    if (gCharacterSelectorWindow == -1) {
+    select_window_id = windowCreate(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, colorTable[0], 0);
+    if (select_window_id == -1) {
         goto err;
     }
 
-    gCharacterSelectorWindowBuffer = windowGetBuffer(gCharacterSelectorWindow);
-    if (gCharacterSelectorWindowBuffer == NULL) {
+    select_window_buffer = windowGetBuffer(select_window_id);
+    if (select_window_buffer == NULL) {
         goto err;
     }
 
@@ -273,18 +324,18 @@ bool characterSelectorWindowInit()
         CS_WINDOW_WIDTH,
         CS_WINDOW_HEIGHT,
         CS_WINDOW_WIDTH,
-        gCharacterSelectorWindowBuffer,
+        select_window_buffer,
         CS_WINDOW_WIDTH);
 
-    gCharacterSelectorBackground = (unsigned char*)internal_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
-    if (gCharacterSelectorBackground == NULL)
+    monitor = (unsigned char*)internal_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
+    if (monitor == NULL)
         goto err;
 
     blitBufferToBuffer(backgroundFrmData + CS_WINDOW_WIDTH * CS_WINDOW_BACKGROUND_Y + CS_WINDOW_BACKGROUND_X,
         CS_WINDOW_BACKGROUND_WIDTH,
         CS_WINDOW_BACKGROUND_HEIGHT,
         CS_WINDOW_WIDTH,
-        gCharacterSelectorBackground,
+        monitor,
         CS_WINDOW_BACKGROUND_WIDTH);
 
     art_ptr_unlock(backgroundFrmHandle);
@@ -293,18 +344,18 @@ bool characterSelectorWindowInit()
 
     // Setup "Previous" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 122, 0, 0, 0);
-    gCharacterSelectorWindowPreviousButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowPreviousButtonUpFrmHandle);
-    if (gCharacterSelectorWindowPreviousButtonUpFrmData == NULL) {
+    previous_button_up = art_ptr_lock_data(fid, 0, 0, &previous_button_up_key);
+    if (previous_button_up == NULL) {
         goto err;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 123, 0, 0, 0);
-    gCharacterSelectorWindowPreviousButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowPreviousButtonDownFrmHandle);
-    if (gCharacterSelectorWindowPreviousButtonDownFrmData == NULL) {
+    previous_button_down = art_ptr_lock_data(fid, 0, 0, &previous_button_down_key);
+    if (previous_button_down == NULL) {
         goto err;
     }
 
-    gCharacterSelectorWindowPreviousButton = buttonCreate(gCharacterSelectorWindow,
+    previous_button = buttonCreate(select_window_id,
         CS_WINDOW_PREVIOUS_BUTTON_X,
         CS_WINDOW_PREVIOUS_BUTTON_Y,
         20,
@@ -313,30 +364,30 @@ bool characterSelectorWindowInit()
         -1,
         -1,
         500,
-        gCharacterSelectorWindowPreviousButtonUpFrmData,
-        gCharacterSelectorWindowPreviousButtonDownFrmData,
+        previous_button_up,
+        previous_button_down,
         NULL,
         0);
-    if (gCharacterSelectorWindowPreviousButton == -1) {
+    if (previous_button == -1) {
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowPreviousButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(previous_button, gsound_med_butt_press, gsound_med_butt_release);
 
     // Setup "Next" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 124, 0, 0, 0);
-    gCharacterSelectorWindowNextButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowNextButtonUpFrmHandle);
-    if (gCharacterSelectorWindowNextButtonUpFrmData == NULL) {
+    next_button_up = art_ptr_lock_data(fid, 0, 0, &next_button_up_key);
+    if (next_button_up == NULL) {
         goto err;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 125, 0, 0, 0);
-    gCharacterSelectorWindowNextButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowNextButtonDownFrmHandle);
-    if (gCharacterSelectorWindowNextButtonDownFrmData == NULL) {
+    next_button_down = art_ptr_lock_data(fid, 0, 0, &next_button_down_key);
+    if (next_button_down == NULL) {
         goto err;
     }
 
-    gCharacterSelectorWindowNextButton = buttonCreate(gCharacterSelectorWindow,
+    next_button = buttonCreate(select_window_id,
         CS_WINDOW_NEXT_BUTTON_X,
         CS_WINDOW_NEXT_BUTTON_Y,
         20,
@@ -345,30 +396,30 @@ bool characterSelectorWindowInit()
         -1,
         -1,
         501,
-        gCharacterSelectorWindowNextButtonUpFrmData,
-        gCharacterSelectorWindowNextButtonDownFrmData,
+        next_button_up,
+        next_button_down,
         NULL,
         0);
-    if (gCharacterSelectorWindowNextButton == -1) {
+    if (next_button == -1) {
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowNextButton, gsound_med_butt_press, gsound_med_butt_release);
+    buttonSetCallbacks(next_button, gsound_med_butt_press, gsound_med_butt_release);
 
     // Setup "Take" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
-    gCharacterSelectorWindowTakeButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowTakeButtonUpFrmHandle);
-    if (gCharacterSelectorWindowTakeButtonUpFrmData == NULL) {
+    take_button_up = art_ptr_lock_data(fid, 0, 0, &take_button_up_key);
+    if (take_button_up == NULL) {
         goto err;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
-    gCharacterSelectorWindowTakeButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowTakeButtonDownFrmHandle);
-    if (gCharacterSelectorWindowTakeButtonDownFrmData == NULL) {
+    take_button_down = art_ptr_lock_data(fid, 0, 0, &take_button_down_key);
+    if (take_button_down == NULL) {
         goto err;
     }
 
-    gCharacterSelectorWindowTakeButton = buttonCreate(gCharacterSelectorWindow,
+    take_button = buttonCreate(select_window_id,
         CS_WINDOW_TAKE_BUTTON_X,
         CS_WINDOW_TAKE_BUTTON_Y,
         15,
@@ -377,29 +428,29 @@ bool characterSelectorWindowInit()
         -1,
         -1,
         KEY_LOWERCASE_T,
-        gCharacterSelectorWindowTakeButtonUpFrmData,
-        gCharacterSelectorWindowTakeButtonDownFrmData,
+        take_button_up,
+        take_button_down,
         NULL,
         BUTTON_FLAG_TRANSPARENT);
-    if (gCharacterSelectorWindowTakeButton == -1) {
+    if (take_button == -1) {
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowTakeButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(take_button, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Modify" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
-    gCharacterSelectorWindowModifyButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowModifyButtonUpFrmHandle);
-    if (gCharacterSelectorWindowModifyButtonUpFrmData == NULL)
+    modify_button_up = art_ptr_lock_data(fid, 0, 0, &modify_button_up_key);
+    if (modify_button_up == NULL)
         goto err;
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
-    gCharacterSelectorWindowModifyButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowModifyButtonDownFrmHandle);
-    if (gCharacterSelectorWindowModifyButtonDownFrmData == NULL) {
+    modify_button_down = art_ptr_lock_data(fid, 0, 0, &modify_button_down_key);
+    if (modify_button_down == NULL) {
         goto err;
     }
 
-    gCharacterSelectorWindowModifyButton = buttonCreate(gCharacterSelectorWindow,
+    modify_button = buttonCreate(select_window_id,
         CS_WINDOW_MODIFY_BUTTON_X,
         CS_WINDOW_MODIFY_BUTTON_Y,
         15,
@@ -408,30 +459,30 @@ bool characterSelectorWindowInit()
         -1,
         -1,
         KEY_LOWERCASE_M,
-        gCharacterSelectorWindowModifyButtonUpFrmData,
-        gCharacterSelectorWindowModifyButtonDownFrmData,
+        modify_button_up,
+        modify_button_down,
         NULL,
         BUTTON_FLAG_TRANSPARENT);
-    if (gCharacterSelectorWindowModifyButton == -1) {
+    if (modify_button == -1) {
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowModifyButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(modify_button, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Create" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
-    gCharacterSelectorWindowCreateButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowCreateButtonUpFrmHandle);
-    if (gCharacterSelectorWindowCreateButtonUpFrmData == NULL) {
+    create_button_up = art_ptr_lock_data(fid, 0, 0, &create_button_up_key);
+    if (create_button_up == NULL) {
         goto err;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
-    gCharacterSelectorWindowCreateButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowCreateButtonDownFrmHandle);
-    if (gCharacterSelectorWindowCreateButtonDownFrmData == NULL) {
+    create_button_down = art_ptr_lock_data(fid, 0, 0, &create_button_down_key);
+    if (create_button_down == NULL) {
         goto err;
     }
 
-    gCharacterSelectorWindowCreateButton = buttonCreate(gCharacterSelectorWindow,
+    create_button = buttonCreate(select_window_id,
         CS_WINDOW_CREATE_BUTTON_X,
         CS_WINDOW_CREATE_BUTTON_Y,
         15,
@@ -440,30 +491,30 @@ bool characterSelectorWindowInit()
         -1,
         -1,
         KEY_LOWERCASE_C,
-        gCharacterSelectorWindowCreateButtonUpFrmData,
-        gCharacterSelectorWindowCreateButtonDownFrmData,
+        create_button_up,
+        create_button_down,
         NULL,
         BUTTON_FLAG_TRANSPARENT);
-    if (gCharacterSelectorWindowCreateButton == -1) {
+    if (create_button == -1) {
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowCreateButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(create_button, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Back" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
-    gCharacterSelectorWindowBackButtonUpFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowBackButtonUpFrmHandle);
-    if (gCharacterSelectorWindowBackButtonUpFrmData == NULL) {
+    back_button_up = art_ptr_lock_data(fid, 0, 0, &back_button_up_key);
+    if (back_button_up == NULL) {
         goto err;
     }
 
     fid = art_id(OBJ_TYPE_INTERFACE, 9, 0, 0, 0);
-    gCharacterSelectorWindowBackButtonDownFrmData = art_ptr_lock_data(fid, 0, 0, &gCharacterSelectorWindowBackButtonDownFrmHandle);
-    if (gCharacterSelectorWindowBackButtonDownFrmData == NULL) {
+    back_button_down = art_ptr_lock_data(fid, 0, 0, &back_button_down_key);
+    if (back_button_down == NULL) {
         goto err;
     }
 
-    gCharacterSelectorWindowBackButton = buttonCreate(gCharacterSelectorWindow,
+    back_button = buttonCreate(select_window_id,
         CS_WINDOW_BACK_BUTTON_X,
         CS_WINDOW_BACK_BUTTON_Y,
         15,
@@ -472,21 +523,21 @@ bool characterSelectorWindowInit()
         -1,
         -1,
         KEY_ESCAPE,
-        gCharacterSelectorWindowBackButtonUpFrmData,
-        gCharacterSelectorWindowBackButtonDownFrmData,
+        back_button_up,
+        back_button_down,
         NULL,
         BUTTON_FLAG_TRANSPARENT);
-    if (gCharacterSelectorWindowBackButton == -1) {
+    if (back_button == -1) {
         goto err;
     }
 
-    buttonSetCallbacks(gCharacterSelectorWindowBackButton, gsound_red_butt_press, gsound_red_butt_release);
+    buttonSetCallbacks(back_button, gsound_red_butt_press, gsound_red_butt_release);
 
-    gCurrentPremadeCharacter = PREMADE_CHARACTER_NARG;
+    premade_index = PREMADE_CHARACTER_NARG;
 
-    win_draw(gCharacterSelectorWindow);
+    win_draw(select_window_id);
 
-    if (!characterSelectorWindowRefresh()) {
+    if (!select_update_display()) {
         goto err;
     }
 
@@ -494,172 +545,172 @@ bool characterSelectorWindowInit()
 
 err:
 
-    characterSelectorWindowFree();
+    select_exit();
 
     return false;
 }
 
 // 0x4A7AD4
-void characterSelectorWindowFree()
+static void select_exit()
 {
-    if (gCharacterSelectorWindow == -1) {
+    if (select_window_id == -1) {
         return;
     }
 
-    if (gCharacterSelectorWindowPreviousButton != -1) {
-        buttonDestroy(gCharacterSelectorWindowPreviousButton);
-        gCharacterSelectorWindowPreviousButton = -1;
+    if (previous_button != -1) {
+        buttonDestroy(previous_button);
+        previous_button = -1;
     }
 
-    if (gCharacterSelectorWindowPreviousButtonDownFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowPreviousButtonDownFrmHandle);
-        gCharacterSelectorWindowPreviousButtonDownFrmHandle = NULL;
-        gCharacterSelectorWindowPreviousButtonDownFrmData = NULL;
+    if (previous_button_down != NULL) {
+        art_ptr_unlock(previous_button_down_key);
+        previous_button_down_key = NULL;
+        previous_button_down = NULL;
     }
 
-    if (gCharacterSelectorWindowPreviousButtonUpFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowPreviousButtonUpFrmHandle);
-        gCharacterSelectorWindowPreviousButtonUpFrmHandle = NULL;
-        gCharacterSelectorWindowPreviousButtonUpFrmData = NULL;
+    if (previous_button_up != NULL) {
+        art_ptr_unlock(previous_button_up_key);
+        previous_button_up_key = NULL;
+        previous_button_up = NULL;
     }
 
-    if (gCharacterSelectorWindowNextButton != -1) {
-        buttonDestroy(gCharacterSelectorWindowNextButton);
-        gCharacterSelectorWindowNextButton = -1;
+    if (next_button != -1) {
+        buttonDestroy(next_button);
+        next_button = -1;
     }
 
-    if (gCharacterSelectorWindowNextButtonDownFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowNextButtonDownFrmHandle);
-        gCharacterSelectorWindowNextButtonDownFrmHandle = NULL;
-        gCharacterSelectorWindowNextButtonDownFrmData = NULL;
+    if (next_button_down != NULL) {
+        art_ptr_unlock(next_button_down_key);
+        next_button_down_key = NULL;
+        next_button_down = NULL;
     }
 
-    if (gCharacterSelectorWindowNextButtonUpFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowNextButtonUpFrmHandle);
-        gCharacterSelectorWindowNextButtonUpFrmHandle = NULL;
-        gCharacterSelectorWindowNextButtonUpFrmData = NULL;
+    if (next_button_up != NULL) {
+        art_ptr_unlock(next_button_up_key);
+        next_button_up_key = NULL;
+        next_button_up = NULL;
     }
 
-    if (gCharacterSelectorWindowTakeButton != -1) {
-        buttonDestroy(gCharacterSelectorWindowTakeButton);
-        gCharacterSelectorWindowTakeButton = -1;
+    if (take_button != -1) {
+        buttonDestroy(take_button);
+        take_button = -1;
     }
 
-    if (gCharacterSelectorWindowTakeButtonDownFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowTakeButtonDownFrmHandle);
-        gCharacterSelectorWindowTakeButtonDownFrmHandle = NULL;
-        gCharacterSelectorWindowTakeButtonDownFrmData = NULL;
+    if (take_button_down != NULL) {
+        art_ptr_unlock(take_button_down_key);
+        take_button_down_key = NULL;
+        take_button_down = NULL;
     }
 
-    if (gCharacterSelectorWindowTakeButtonUpFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowTakeButtonUpFrmHandle);
-        gCharacterSelectorWindowTakeButtonUpFrmHandle = NULL;
-        gCharacterSelectorWindowTakeButtonUpFrmData = NULL;
+    if (take_button_up != NULL) {
+        art_ptr_unlock(take_button_up_key);
+        take_button_up_key = NULL;
+        take_button_up = NULL;
     }
 
-    if (gCharacterSelectorWindowModifyButton != -1) {
-        buttonDestroy(gCharacterSelectorWindowModifyButton);
-        gCharacterSelectorWindowModifyButton = -1;
+    if (modify_button != -1) {
+        buttonDestroy(modify_button);
+        modify_button = -1;
     }
 
-    if (gCharacterSelectorWindowModifyButtonDownFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowModifyButtonDownFrmHandle);
-        gCharacterSelectorWindowModifyButtonDownFrmHandle = NULL;
-        gCharacterSelectorWindowModifyButtonDownFrmData = NULL;
+    if (modify_button_down != NULL) {
+        art_ptr_unlock(modify_button_down_key);
+        modify_button_down_key = NULL;
+        modify_button_down = NULL;
     }
 
-    if (gCharacterSelectorWindowModifyButtonUpFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowModifyButtonUpFrmHandle);
-        gCharacterSelectorWindowModifyButtonUpFrmHandle = NULL;
-        gCharacterSelectorWindowModifyButtonUpFrmData = NULL;
+    if (modify_button_up != NULL) {
+        art_ptr_unlock(modify_button_up_key);
+        modify_button_up_key = NULL;
+        modify_button_up = NULL;
     }
 
-    if (gCharacterSelectorWindowCreateButton != -1) {
-        buttonDestroy(gCharacterSelectorWindowCreateButton);
-        gCharacterSelectorWindowCreateButton = -1;
+    if (create_button != -1) {
+        buttonDestroy(create_button);
+        create_button = -1;
     }
 
-    if (gCharacterSelectorWindowCreateButtonDownFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowCreateButtonDownFrmHandle);
-        gCharacterSelectorWindowCreateButtonDownFrmHandle = NULL;
-        gCharacterSelectorWindowCreateButtonDownFrmData = NULL;
+    if (create_button_down != NULL) {
+        art_ptr_unlock(create_button_down_key);
+        create_button_down_key = NULL;
+        create_button_down = NULL;
     }
 
-    if (gCharacterSelectorWindowCreateButtonUpFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowCreateButtonUpFrmHandle);
-        gCharacterSelectorWindowCreateButtonUpFrmHandle = NULL;
-        gCharacterSelectorWindowCreateButtonUpFrmData = NULL;
+    if (create_button_up != NULL) {
+        art_ptr_unlock(create_button_up_key);
+        create_button_up_key = NULL;
+        create_button_up = NULL;
     }
 
-    if (gCharacterSelectorWindowBackButton != -1) {
-        buttonDestroy(gCharacterSelectorWindowBackButton);
-        gCharacterSelectorWindowBackButton = -1;
+    if (back_button != -1) {
+        buttonDestroy(back_button);
+        back_button = -1;
     }
 
-    if (gCharacterSelectorWindowBackButtonDownFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowBackButtonDownFrmHandle);
-        gCharacterSelectorWindowBackButtonDownFrmHandle = NULL;
-        gCharacterSelectorWindowBackButtonDownFrmData = NULL;
+    if (back_button_down != NULL) {
+        art_ptr_unlock(back_button_down_key);
+        back_button_down_key = NULL;
+        back_button_down = NULL;
     }
 
-    if (gCharacterSelectorWindowBackButtonUpFrmData != NULL) {
-        art_ptr_unlock(gCharacterSelectorWindowBackButtonUpFrmHandle);
-        gCharacterSelectorWindowBackButtonUpFrmHandle = NULL;
-        gCharacterSelectorWindowBackButtonUpFrmData = NULL;
+    if (back_button_up != NULL) {
+        art_ptr_unlock(back_button_up_key);
+        back_button_up_key = NULL;
+        back_button_up = NULL;
     }
 
-    if (gCharacterSelectorBackground != NULL) {
-        internal_free(gCharacterSelectorBackground);
-        gCharacterSelectorBackground = NULL;
+    if (monitor != NULL) {
+        internal_free(monitor);
+        monitor = NULL;
     }
 
-    windowDestroy(gCharacterSelectorWindow);
-    gCharacterSelectorWindow = -1;
+    windowDestroy(select_window_id);
+    select_window_id = -1;
 }
 
 // 0x4A7D58
-bool characterSelectorWindowRefresh()
+static bool select_update_display()
 {
     char path[FILENAME_MAX];
-    sprintf(path, "%s.gcd", gPremadeCharacterDescriptions[gCurrentPremadeCharacter].fileName);
+    sprintf(path, "%s.gcd", premade_characters[premade_index].fileName);
     if (proto_dude_init(path) == -1) {
         debugPrint("\n ** Error in dude init! **\n");
         return false;
     }
 
-    blitBufferToBuffer(gCharacterSelectorBackground,
+    blitBufferToBuffer(monitor,
         CS_WINDOW_BACKGROUND_WIDTH,
         CS_WINDOW_BACKGROUND_HEIGHT,
         CS_WINDOW_BACKGROUND_WIDTH,
-        gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * CS_WINDOW_BACKGROUND_Y + CS_WINDOW_BACKGROUND_X,
+        select_window_buffer + CS_WINDOW_WIDTH * CS_WINDOW_BACKGROUND_Y + CS_WINDOW_BACKGROUND_X,
         CS_WINDOW_WIDTH);
 
     bool success = false;
-    if (characterSelectorWindowRenderFace()) {
-        if (characterSelectorWindowRenderStats()) {
-            success = characterSelectorWindowRenderBio();
+    if (select_display_portrait()) {
+        if (select_display_stats()) {
+            success = select_display_bio();
         }
     }
 
-    win_draw(gCharacterSelectorWindow);
+    win_draw(select_window_id);
 
     return success;
 }
 
 // 0x4A7E08
-bool characterSelectorWindowRenderFace()
+static bool select_display_portrait()
 {
     bool success = false;
 
     CacheEntry* faceFrmHandle;
-    int faceFid = art_id(OBJ_TYPE_INTERFACE, gPremadeCharacterDescriptions[gCurrentPremadeCharacter].face, 0, 0, 0);
+    int faceFid = art_id(OBJ_TYPE_INTERFACE, premade_characters[premade_index].face, 0, 0, 0);
     Art* frm = art_ptr_lock(faceFid, &faceFrmHandle);
     if (frm != NULL) {
         unsigned char* data = art_frame_data(frm, 0, 0);
         if (data != NULL) {
             int width = art_frame_width(frm, 0, 0);
             int height = art_frame_length(frm, 0, 0);
-            blitBufferToBufferTrans(data, width, height, width, (gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * 23 + 27), CS_WINDOW_WIDTH);
+            blitBufferToBufferTrans(data, width, height, width, (select_window_buffer + CS_WINDOW_WIDTH * 23 + 27), CS_WINDOW_WIDTH);
             success = true;
         }
         art_ptr_unlock(faceFrmHandle);
@@ -669,7 +720,7 @@ bool characterSelectorWindowRenderFace()
 }
 
 // 0x4A7EA8
-bool characterSelectorWindowRenderStats()
+static bool select_display_stats()
 {
     char* str;
     char text[260];
@@ -690,7 +741,7 @@ bool characterSelectorWindowRenderStats()
     strcpy(text, str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_NAME_MID_X - (length / 2), text, 160, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_NAME_MID_X - (length / 2), text, 160, CS_WINDOW_WIDTH, colorTable[992]);
 
     // STRENGTH
     y += vh + vh + vh;
@@ -701,13 +752,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // PERCEPTION
     y += vh;
@@ -718,13 +769,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // ENDURANCE
     y += vh;
@@ -735,13 +786,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // CHARISMA
     y += vh;
@@ -752,13 +803,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // INTELLIGENCE
     y += vh;
@@ -769,13 +820,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // AGILITY
     y += vh;
@@ -786,13 +837,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // LUCK
     y += vh;
@@ -803,13 +854,13 @@ bool characterSelectorWindowRenderStats()
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = statGetValueDescription(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     y += vh; // blank line
 
@@ -823,13 +874,13 @@ bool characterSelectorWindowRenderStats()
     }
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
     sprintf(text, " %d/%d", critter_get_hits(obj_dude), value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // ARMOR CLASS
     y += vh;
@@ -838,13 +889,13 @@ bool characterSelectorWindowRenderStats()
     strcpy(text, str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
     sprintf(text, " %d", value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // ACTION POINTS
     y += vh;
@@ -856,13 +907,13 @@ bool characterSelectorWindowRenderStats()
     }
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS);
     sprintf(text, " %d", value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // MELEE DAMAGE
     y += vh;
@@ -871,13 +922,13 @@ bool characterSelectorWindowRenderStats()
     strcpy(text, str);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
     sprintf(text, " %d", value);
 
     length = fontGetStringWidth(text);
-    fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     y += vh; // blank line
 
@@ -892,13 +943,13 @@ bool characterSelectorWindowRenderStats()
         strcpy(text, str);
 
         length = fontGetStringWidth(text);
-        fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+        fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
         value = skillGetValue(obj_dude, skills[index]);
         sprintf(text, " %d%%", value);
 
         length = fontGetStringWidth(text);
-        fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+        fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
     }
 
     // TRAITS
@@ -912,7 +963,7 @@ bool characterSelectorWindowRenderStats()
         strcpy(text, str);
 
         length = fontGetStringWidth(text);
-        fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+        fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
     }
 
     fontSetCurrent(oldFont);
@@ -921,13 +972,13 @@ bool characterSelectorWindowRenderStats()
 }
 
 // 0x4A8AE4
-bool characterSelectorWindowRenderBio()
+static bool select_display_bio()
 {
     int oldFont = fontGetCurrent();
     fontSetCurrent(101);
 
     char path[FILENAME_MAX];
-    sprintf(path, "%s.bio", gPremadeCharacterDescriptions[gCurrentPremadeCharacter].fileName);
+    sprintf(path, "%s.bio", premade_characters[premade_index].fileName);
 
     File* stream = fileOpen(path, "rt");
     if (stream != NULL) {
@@ -936,7 +987,7 @@ bool characterSelectorWindowRenderBio()
 
         char string[256];
         while (fileReadString(string, 256, stream) && y < 260) {
-            fontDrawText(gCharacterSelectorWindowBuffer + CS_WINDOW_WIDTH * y + CS_WINDOW_BIO_X, string, CS_WINDOW_WIDTH - CS_WINDOW_BIO_X, CS_WINDOW_WIDTH, colorTable[992]);
+            fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_BIO_X, string, CS_WINDOW_WIDTH - CS_WINDOW_BIO_X, CS_WINDOW_WIDTH, colorTable[992]);
             y += lineHeight;
         }
 
