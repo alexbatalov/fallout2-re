@@ -1,4 +1,4 @@
-#include "random.h"
+#include "game/roll.h"
 
 #include <limits.h>
 #include <stdlib.h>

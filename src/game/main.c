@@ -35,7 +35,7 @@
 #include "game/options.h"
 #include "game/palette.h"
 #include "game/proto.h"
-#include "random.h"
+#include "game/roll.h"
 #include "scripts.h"
 #include "selfrun.h"
 #include "text_font.h"

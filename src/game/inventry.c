@@ -30,7 +30,7 @@
 #include "game/perk.h"
 #include "game/proto.h"
 #include "game/protinst.h"
-#include "random.h"
+#include "game/roll.h"
 #include "game/reaction.h"
 #include "scripts.h"
 #include "skill.h"

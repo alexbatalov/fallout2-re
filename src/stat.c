@@ -14,7 +14,7 @@
 #include "game/object.h"
 #include "game/perk.h"
 #include "game/proto.h"
-#include "random.h"
+#include "game/roll.h"
 #include "scripts.h"
 #include "skill.h"
 #include "tile.h"

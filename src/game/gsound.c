@@ -21,7 +21,7 @@
 #include "game/object.h"
 #include "game/proto.h"
 #include "game/queue.h"
-#include "random.h"
+#include "game/roll.h"
 #include "sound_effects_cache.h"
 #include "stat.h"
 #include "window_manager.h"

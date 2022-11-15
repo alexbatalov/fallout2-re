@@ -9,7 +9,7 @@
 #include "debug.h"
 #include "game/gconfig.h"
 #include "memory.h"
-#include "random.h"
+#include "game/roll.h"
 
 #define BADWORD_LENGTH_MAX 80
 

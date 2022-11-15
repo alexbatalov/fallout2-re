@@ -32,7 +32,7 @@
 #include "game/proto.h"
 #include "game/protinst.h"
 #include "game/queue.h"
-#include "random.h"
+#include "game/roll.h"
 #include "game/reaction.h"
 #include "scripts.h"
 #include "skill.h"

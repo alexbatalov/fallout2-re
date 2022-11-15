@@ -22,7 +22,7 @@
 #include "game/perk.h"
 #include "game/proto.h"
 #include "game/queue.h"
-#include "random.h"
+#include "game/roll.h"
 #include "scripts.h"
 #include "skill.h"
 #include "stat.h"
