@@ -39,6 +39,7 @@ static void sfxc_effect_free(void* ptr);
 static int sfxc_handle_list_create();
 static void sfxc_handle_list_destroy();
 static int sfxc_handle_create(int* handlePtr, int id, void* data, CacheEntry* cacheHandle);
+static void sfxc_handle_destroy(int handle);
 static bool sfxc_handle_is_legal(int a1);
 static int sfxc_decode(int handle, void* buf, unsigned int size);
 static int sfxc_ad_reader(int handle, void* buf, unsigned int size);
@@ -196,13 +197,8 @@ int sfxc_cached_close(int handle)
         return -1;
     }
 
-    // FIXME: This is check is redundant and implemented incorrectly. There is
-    // an overflow when handle == SOUND_EFFECTS_MAX_COUNT, but thanks to
-    // [sfxc_handle_is_legal] handle will always be less than
-    // [SOUND_EFFECTS_MAX_COUNT].
-    if (handle <= SOUND_EFFECTS_MAX_COUNT) {
-        soundEffect->used = false;
-    }
+    // NOTE: Uninline.
+    sfxc_handle_destroy(handle);
 
     return 0;
 }
@@ -434,6 +430,19 @@ static int sfxc_handle_create(int* handlePtr, int tag, void* data, CacheEntry* c
     *handlePtr = index;
 
     return 0;
+}
+
+// NOTE: Inlined.
+//
+// 0x4A9604
+static void sfxc_handle_destroy(int handle)
+{
+    // NOTE: There is an overflow when handle == SOUND_EFFECTS_MAX_COUNT, but
+    // thanks to [sfxc_handle_is_legal] handle will always be less than
+    // [SOUND_EFFECTS_MAX_COUNT].
+    if (handle <= SOUND_EFFECTS_MAX_COUNT) {
+        sfxc_handle_list[handle].used = false;
+    }
 }
 
 // 0x4A961C
