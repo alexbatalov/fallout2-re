@@ -1290,7 +1290,7 @@ void partyMemberSaveProtos()
     for (int index = 1; index < partyMemberMaxCount; index++) {
         int pid = partyMemberPidList[index];
         if (pid != -1) {
-            _proto_save_pid(pid);
+            proto_save_pid(pid);
         }
     }
 }
@@ -1569,12 +1569,12 @@ static int partyMemberCopyLevelInfo(Object* critter, int a2)
     }
 
     Proto* proto1;
-    if (protoGetProto(critter->pid, &proto1) == -1) {
+    if (proto_ptr(critter->pid, &proto1) == -1) {
         return -1;
     }
 
     Proto* proto2;
-    if (protoGetProto(a2, &proto2) == -1) {
+    if (proto_ptr(a2, &proto2) == -1) {
         return -1;
     }
 

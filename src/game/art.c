@@ -116,7 +116,7 @@ int art_init()
     bool critterDbSelected = false;
     for (int objectType = 0; objectType < OBJ_TYPE_COUNT; objectType++) {
         art[objectType].flags = 0;
-        sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", art[objectType].name, art[objectType].name);
+        sprintf(path, "%s%s%s\\%s.lst", cd_path_base, "art\\", art[objectType].name, art[objectType].name);
 
         int oldDb;
         if (objectType == OBJ_TYPE_CRITTER) {
@@ -160,7 +160,7 @@ int art_init()
         artCritterFidShouldRunData[critterIndex] = 0;
     }
 
-    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", art[OBJ_TYPE_CRITTER].name, art[OBJ_TYPE_CRITTER].name);
+    sprintf(path, "%s%s%s\\%s.lst", cd_path_base, "art\\", art[OBJ_TYPE_CRITTER].name, art[OBJ_TYPE_CRITTER].name);
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -226,7 +226,7 @@ int art_init()
         return -1;
     }
 
-    sprintf(path, "%s%s%s\\%s.lst", _cd_path_base, "art\\", art[OBJ_TYPE_HEAD].name, art[OBJ_TYPE_HEAD].name);
+    sprintf(path, "%s%s%s\\%s.lst", cd_path_base, "art\\", art[OBJ_TYPE_HEAD].name, art[OBJ_TYPE_HEAD].name);
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
@@ -627,19 +627,19 @@ char* art_get_name(int fid)
             return NULL;
         }
         if (v10) {
-            sprintf(art_name, "%s%s%s\\%s%c%c.fr%c", _cd_path_base, "art\\", art[1].name, art[1].fileNames + v8, v11, v12, v10 + 47);
+            sprintf(art_name, "%s%s%s\\%s%c%c.fr%c", cd_path_base, "art\\", art[1].name, art[1].fileNames + v8, v11, v12, v10 + 47);
         } else {
-            sprintf(art_name, "%s%s%s\\%s%c%c.frm", _cd_path_base, "art\\", art[1].name, art[1].fileNames + v8, v11, v12);
+            sprintf(art_name, "%s%s%s\\%s%c%c.frm", cd_path_base, "art\\", art[1].name, art[1].fileNames + v8, v11, v12);
         }
     } else if (type == 8) {
         v9 = head2[v4];
         if (v9 == 'f') {
-            sprintf(art_name, "%s%s%s\\%s%c%c%d.frm", _cd_path_base, "art\\", art[8].name, art[8].fileNames + v8, head1[v4], 102, v5);
+            sprintf(art_name, "%s%s%s\\%s%c%c%d.frm", cd_path_base, "art\\", art[8].name, art[8].fileNames + v8, head1[v4], 102, v5);
         } else {
-            sprintf(art_name, "%s%s%s\\%s%c%c.frm", _cd_path_base, "art\\", art[8].name, art[8].fileNames + v8, head1[v4], v9);
+            sprintf(art_name, "%s%s%s\\%s%c%c.frm", cd_path_base, "art\\", art[8].name, art[8].fileNames + v8, head1[v4], v9);
         }
     } else {
-        sprintf(art_name, "%s%s%s\\%s", _cd_path_base, "art\\", art[type].name, art[type].fileNames + v8);
+        sprintf(art_name, "%s%s%s\\%s", cd_path_base, "art\\", art[type].name, art[type].fileNames + v8);
     }
 
     return art_name;

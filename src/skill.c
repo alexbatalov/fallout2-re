@@ -251,7 +251,7 @@ int skillGetBaseValue(Object* obj, int skill)
     }
 
     Proto* proto;
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
 
     return proto->critter.data.skills[skill];
 }
@@ -268,7 +268,7 @@ int skillAdd(Object* obj, int skill)
     }
 
     Proto* proto;
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
 
     int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
     if (unspentSp <= 0) {
@@ -307,7 +307,7 @@ int skillAddForce(Object* obj, int skill)
     }
 
     Proto* proto;
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
 
     if (skillGetValue(obj, skill) >= 300) {
         return -3;
@@ -353,7 +353,7 @@ int skillSub(Object* critter, int skill)
     }
 
     Proto* proto;
-    protoGetProto(critter->pid, &proto);
+    proto_ptr(critter->pid, &proto);
 
     if (proto->critter.data.skills[skill] <= 0) {
         return -2;
@@ -406,7 +406,7 @@ int skillSubForce(Object* obj, int skill)
         return -5;
     }
 
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
 
     if (proto->critter.data.skills[skill] <= 0) {
         return -2;

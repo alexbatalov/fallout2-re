@@ -153,7 +153,7 @@ int critter_load(File* stream)
     }
 
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     return critter_read_data(stream, &(proto->critter.data));
 }
@@ -166,7 +166,7 @@ int critter_save(File* stream)
     }
 
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     return critter_write_data(stream, &(proto->critter.data));
 }
@@ -207,7 +207,7 @@ char* critter_name(Object* obj)
     }
 
     if (name == NULL || *name == '\0') {
-        name = protoGetName(obj->pid);
+        name = proto_name(obj->pid);
     }
 
     _name_critter = name;
@@ -368,7 +368,7 @@ int critter_adjust_rads(Object* obj, int amount)
     }
 
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     if (amount > 0) {
         amount -= critterGetStat(obj, STAT_RADIATION_RESISTANCE) * amount / 100;
@@ -453,7 +453,7 @@ int critter_check_rads(Object* obj)
     }
 
     Proto* proto;
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
     if ((proto->critter.data.flags & CRITTER_BARTER) == 0) {
         return 0;
     }
@@ -633,7 +633,7 @@ int critter_get_base_damage_type(Object* obj)
     }
 
     Proto* proto;
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         return 0;
     }
 
@@ -708,7 +708,7 @@ int critterGetKillType(Object* obj)
     }
 
     Proto* proto;
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
 
     return proto->critter.data.killType;
 }
@@ -719,7 +719,7 @@ char* critter_kill_name(int killType)
     if (killType != -1 && killType < KILL_TYPE_COUNT) {
         if (killType >= 0 && killType < KILL_TYPE_COUNT) {
             MessageListItem messageListItem;
-            return getmsg(&gProtoMessageList, &messageListItem, 1450 + killType);
+            return getmsg(&proto_main_msg_file, &messageListItem, 1450 + killType);
         } else {
             return NULL;
         }
@@ -734,7 +734,7 @@ char* critter_kill_info(int killType)
     if (killType != -1 && killType < KILL_TYPE_COUNT) {
         if (killType >= 0 && killType < KILL_TYPE_COUNT) {
             MessageListItem messageListItem;
-            return getmsg(&gProtoMessageList, &messageListItem, 1469 + killType);
+            return getmsg(&proto_main_msg_file, &messageListItem, 1469 + killType);
         } else {
             return NULL;
         }
@@ -871,7 +871,7 @@ void critter_kill(Object* critter, int anim, bool a3)
 int critter_kill_exps(Object* critter)
 {
     Proto* proto;
-    protoGetProto(critter->pid, &proto);
+    proto_ptr(critter->pid, &proto);
     return proto->critter.data.experience;
 }
 
@@ -965,7 +965,7 @@ int critter_body_type(Object* critter)
     }
 
     Proto* proto;
-    protoGetProto(critter->pid, &proto);
+    proto_ptr(critter->pid, &proto);
     return proto->critter.data.bodyType;
 }
 
@@ -999,7 +999,7 @@ int pc_load_data(const char* path)
     }
 
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     if (critter_read_data(stream, &(proto->critter.data)) == -1) {
         fileClose(stream);
@@ -1092,7 +1092,7 @@ int pc_save_data(const char* path)
     }
 
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     if (critter_write_data(stream, &(proto->critter.data)) == -1) {
         fileClose(stream);
@@ -1139,7 +1139,7 @@ int critter_write_data(File* stream, CritterProtoData* critterData)
 void pc_flag_off(int state)
 {
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     proto->critter.data.flags &= ~(1 << state);
 
@@ -1154,7 +1154,7 @@ void pc_flag_off(int state)
 void pc_flag_on(int state)
 {
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
 
     proto->critter.data.flags |= (1 << state);
 
@@ -1180,7 +1180,7 @@ void pc_flag_toggle(int state)
 bool is_pc_flag(int state)
 {
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
     return (proto->critter.data.flags & (1 << state)) != 0;
 }
 
@@ -1385,7 +1385,7 @@ bool critter_flag_check(int pid, int flag)
     }
 
     Proto* proto;
-    protoGetProto(pid, &proto);
+    proto_ptr(pid, &proto);
     return (proto->critter.data.flags & flag) != 0;
 }
 
@@ -1404,7 +1404,7 @@ void critter_flag_set(int pid, int flag)
         return;
     }
 
-    protoGetProto(pid, &proto);
+    proto_ptr(pid, &proto);
 
     proto->critter.data.flags |= flag;
 }
@@ -1424,7 +1424,7 @@ void critter_flag_unset(int pid, int flag)
         return;
     }
 
-    protoGetProto(pid, &proto);
+    proto_ptr(pid, &proto);
 
     proto->critter.data.flags &= ~flag;
 }
@@ -1444,7 +1444,7 @@ void critter_flag_toggle(int pid, int flag)
         return;
     }
 
-    protoGetProto(pid, &proto);
+    proto_ptr(pid, &proto);
 
     proto->critter.data.flags ^= flag;
 }

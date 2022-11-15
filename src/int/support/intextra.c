@@ -1089,7 +1089,7 @@ static void op_create_object_sid(Program* program)
     }
 
     Proto* proto;
-    if (protoGetProto(pid, &proto) != -1) {
+    if (proto_ptr(pid, &proto) != -1) {
         if (obj_new(&object, proto->fid, pid) != -1) {
             if (tile == -1) {
                 tile = 0;
@@ -1612,7 +1612,7 @@ static void op_obj_item_subtype(Program* program)
     if (obj != NULL) {
         if (PID_TYPE(obj->pid) == OBJ_TYPE_ITEM) {
             Proto* proto;
-            if (protoGetProto(obj->pid, &proto) != -1) {
+            if (proto_ptr(obj->pid, &proto) != -1) {
                 itemType = item_get_type(obj);
             }
         }
@@ -2485,7 +2485,7 @@ static void op_start_gdialog(Program* program)
     dialogue_head = -1;
     if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
         Proto* proto;
-        if (protoGetProto(obj->pid, &proto) == -1) {
+        if (proto_ptr(obj->pid, &proto) == -1) {
             return;
         }
     }
@@ -3920,7 +3920,7 @@ static void op_proto_data(Program* program)
 
     ProtoDataMemberValue value;
     value.integerValue = 0;
-    int valueType = protoGetDataMember(pid, member, &value);
+    int valueType = proto_data_member(pid, member, &value);
     switch (valueType) {
     case PROTO_DATA_MEMBER_TYPE_INT:
         interpretPushLong(program, value.integerValue);
@@ -4372,7 +4372,7 @@ static void op_metarule(Program* program)
             Object* object = (Object*)param;
             if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
                 Proto* proto;
-                protoGetProto(object->pid, &proto);
+                proto_ptr(object->pid, &proto);
                 if ((proto->critter.data.flags & CRITTER_BARTER) != 0) {
                     result = 1;
                 }
@@ -4385,7 +4385,7 @@ static void op_metarule(Program* program)
     case METARULE_SET_CAR_CARRY_AMOUNT:
         if (1) {
             Proto* proto;
-            if (protoGetProto(PROTO_ID_CAR_TRUNK, &proto) != -1) {
+            if (proto_ptr(PROTO_ID_CAR_TRUNK, &proto) != -1) {
                 proto->item.data.container.maxSize = param;
                 result = 1;
             }
@@ -4394,7 +4394,7 @@ static void op_metarule(Program* program)
     case METARULE_GET_CAR_CARRY_AMOUNT:
         if (1) {
             Proto* proto;
-            if (protoGetProto(PROTO_ID_CAR_TRUNK, &proto) != -1) {
+            if (proto_ptr(PROTO_ID_CAR_TRUNK, &proto) != -1) {
                 result = proto->item.data.container.maxSize;
             }
         }
@@ -6367,7 +6367,7 @@ static void op_move_obj_inven_to_obj(Program* program)
             adjust_ac(obj_dude, oldArmor, NULL);
         }
 
-        _proto_dude_update_gender();
+        proto_dude_update_gender();
 
         bool animated = !game_ui_is_disabled();
         intface_update_items(animated, INTERFACE_ITEM_ACTION_DEFAULT, INTERFACE_ITEM_ACTION_DEFAULT);

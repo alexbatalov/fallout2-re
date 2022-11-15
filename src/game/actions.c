@@ -736,7 +736,7 @@ static int action_ranged(Attack* attack, int anim)
 
     Proto* weaponProto;
     Object* weapon = attack->weapon;
-    protoGetProto(weapon->pid, &weaponProto);
+    proto_ptr(weapon->pid, &weaponProto);
 
     int fid = art_id(OBJ_TYPE_CRITTER, attack->attacker->fid & 0xFFF, anim, (attack->attacker->fid & 0xF000) >> 12, attack->attacker->rotation + 1);
     CacheEntry* artHandle;
@@ -779,7 +779,7 @@ static int action_ranged(Attack* attack, int anim)
 
             int projectilePid = item_w_proj_pid(weapon);
             Proto* projectileProto;
-            if (protoGetProto(projectilePid, &projectileProto) != -1 && projectileProto->fid != -1) {
+            if (proto_ptr(projectilePid, &projectileProto) != -1 && projectileProto->fid != -1) {
                 if (anim == ANIM_THROW_ANIM) {
                     projectile = weapon;
                     weaponFid = weapon->fid;
@@ -1060,7 +1060,7 @@ int a_use_obj(Object* a1, Object* a2, Object* a3)
     int type = FID_TYPE(a2->fid);
     int sceneryType = -1;
     if (type == OBJ_TYPE_SCENERY) {
-        if (protoGetProto(a2->pid, &proto) == -1) {
+        if (proto_ptr(a2->pid, &proto) == -1) {
             return -1;
         }
 
@@ -1191,9 +1191,9 @@ int action_get_an_object(Object* critter, Object* item)
     register_object_call(critter, item, check_scenery_ap_cost, -1);
 
     Proto* itemProto;
-    protoGetProto(item->pid, &itemProto);
+    proto_ptr(item->pid, &itemProto);
 
-    if (itemProto->item.type != ITEM_TYPE_CONTAINER || _proto_action_can_pickup(item->pid)) {
+    if (itemProto->item.type != ITEM_TYPE_CONTAINER || proto_action_can_pickup(item->pid)) {
         register_object_animate(critter, ANIM_MAGIC_HANDS_GROUND, 0);
 
         int fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_MAGIC_HANDS_GROUND, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
@@ -1315,7 +1315,7 @@ int action_use_skill_in_combat_error(Object* critter)
 
     if (critter == obj_dude) {
         messageListItem.num = 902;
-        if (message_search(&gProtoMessageList, &messageListItem) == 1) {
+        if (message_search(&proto_main_msg_file, &messageListItem) == 1) {
             display_print(messageListItem.text);
         }
     }

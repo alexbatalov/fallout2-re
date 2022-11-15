@@ -1554,7 +1554,7 @@ void intface_use_item()
                 combat(NULL);
             }
         }
-    } else if (_proto_action_can_use_on(ptr->item->pid)) {
+    } else if (proto_action_can_use_on(ptr->item->pid)) {
         gmouse_set_cursor(MOUSE_CURSOR_USE_CROSSHAIR);
         gmouse_3d_set_mode(GAME_MOUSE_MODE_USE_CROSSHAIR);
     } else if (obj_action_can_use(ptr->item)) {
@@ -1811,7 +1811,7 @@ static int intface_redraw_items()
 
         if (itemState->isWeapon == 0) {
             int fid;
-            if (_proto_action_can_use_on(itemState->item->pid)) {
+            if (proto_action_can_use_on(itemState->item->pid)) {
                 // USE ON
                 fid = art_id(OBJ_TYPE_INTERFACE, 294, 0, 0, 0);
             } else if (obj_action_can_use(itemState->item)) {

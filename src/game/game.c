@@ -237,7 +237,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">gmouse_init\t");
 
-    if (protoInit() != 0) {
+    if (proto_init() != 0) {
         debugPrint("Failed on proto_init\n");
         return -1;
     }
@@ -369,7 +369,7 @@ void game_reset()
     gmovie_reset();
     iso_reset();
     gmouse_reset();
-    protoReset();
+    proto_reset();
     _scr_reset();
     game_load_info();
     scriptsReset();
@@ -401,7 +401,7 @@ void game_exit()
 
     scriptsExit();
     anim_exit();
-    protoExit();
+    proto_exit();
     gmouse_exit();
     iso_exit();
     moviefx_exit();

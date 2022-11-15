@@ -56,7 +56,7 @@ int obj_new_sid(Object* object, int* sidPtr)
     *sidPtr = -1;
 
     Proto* proto;
-    if (protoGetProto(object->pid, &proto) == -1) {
+    if (proto_ptr(object->pid, &proto) == -1) {
         return -1;
     }
 
@@ -166,7 +166,7 @@ int obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
     }
 
     Proto* proto;
-    if (protoGetProto(a2->pid, &proto) == -1) {
+    if (proto_ptr(a2->pid, &proto) == -1) {
         return -1;
     }
 
@@ -193,7 +193,7 @@ int obj_look_at_func(Object* a1, Object* a2, void (*a3)(char* string))
             messageListItem.num = 490;
         }
 
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             const char* objectName = object_name(a2);
 
             char formattedText[260];
@@ -244,14 +244,14 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
     if (!scriptOverrides) {
         char* description = object_description(target);
-        if (description != NULL && strcmp(description, _proto_none_str) == 0) {
+        if (description != NULL && strcmp(description, proto_none_str) == 0) {
             description = NULL;
         }
 
         if (description == NULL || *description == '\0') {
             MessageListItem messageListItem;
             messageListItem.num = 493;
-            if (!message_search(&gProtoMessageList, &messageListItem)) {
+            if (!message_search(&proto_main_msg_file, &messageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
             }
             fn(messageListItem.text);
@@ -287,7 +287,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 item2 = NULL;
             }
 
-            if (!message_search(&gProtoMessageList, &hpMessageListItem)) {
+            if (!message_search(&proto_main_msg_file, &hpMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -301,7 +301,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                     weaponMessageListItem.num = 546; // and is wielding a %s.
                 }
 
-                if (!message_search(&gProtoMessageList, &weaponMessageListItem)) {
+                if (!message_search(&proto_main_msg_file, &weaponMessageListItem)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
@@ -311,7 +311,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
                 if (item_w_caliber(item2) != 0) {
                     const int ammoTypePid = item_w_ammo_pid(item2);
-                    const char* ammoName = protoGetName(ammoTypePid);
+                    const char* ammoName = proto_name(ammoTypePid);
                     const int ammoCapacity = item_w_max_ammo(item2);
                     const int ammoQuantity = item_w_curr_ammo(item2);
                     const char* weaponName = object_name(item2);
@@ -344,7 +344,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                     endingMessageListItem.num = 545; // .
                 }
 
-                if (!message_search(&gProtoMessageList, &endingMessageListItem)) {
+                if (!message_search(&proto_main_msg_file, &endingMessageListItem)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
@@ -374,7 +374,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             MessageListItem hpMessageListItem;
             hpMessageListItem.num = 500 + v16;
-            if (!message_search(&gProtoMessageList, &hpMessageListItem)) {
+            if (!message_search(&proto_main_msg_file, &hpMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -382,7 +382,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             if (v16 > 4) {
                 // Error: lookup_val out of range
                 hpMessageListItem.num = 550;
-                if (!message_search(&gProtoMessageList, &hpMessageListItem)) {
+                if (!message_search(&proto_main_msg_file, &hpMessageListItem)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
@@ -395,7 +395,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             if (target == obj_dude) {
                 // You look %s
                 v66.num = 520 + v12;
-                if (!message_search(&gProtoMessageList, &v66)) {
+                if (!message_search(&proto_main_msg_file, &v66)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
@@ -404,14 +404,14 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             } else {
                 // %s %s
                 v66.num = 521 + v12;
-                if (!message_search(&gProtoMessageList, &v66)) {
+                if (!message_search(&proto_main_msg_file, &v66)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
 
                 MessageListItem v63;
                 v63.num = 522 + critterGetStat(target, STAT_GENDER);
-                if (!message_search(&gProtoMessageList, &v63)) {
+                if (!message_search(&proto_main_msg_file, &v63)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
@@ -431,7 +431,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 v63.num += 2;
             }
 
-            if (!message_search(&gProtoMessageList, &v63)) {
+            if (!message_search(&proto_main_msg_file, &v63)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -450,7 +450,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 carMessageListItem.num = 548; // The car doesn't look like it's working right now.
             }
 
-            if (!message_search(&gProtoMessageList, &carMessageListItem)) {
+            if (!message_search(&proto_main_msg_file, &carMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -470,13 +470,13 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 MessageListItem weaponMessageListItem;
                 weaponMessageListItem.num = 526;
 
-                if (!message_search(&gProtoMessageList, &weaponMessageListItem)) {
+                if (!message_search(&proto_main_msg_file, &weaponMessageListItem)) {
                     debugPrint("\nError: Can't find msg num!");
                     exit(1);
                 }
 
                 int ammoTypePid = item_w_ammo_pid(target);
-                const char* ammoName = protoGetName(ammoTypePid);
+                const char* ammoName = proto_name(ammoTypePid);
                 int ammoCapacity = item_w_max_ammo(target);
                 int ammoQuantity = item_w_curr_ammo(target);
                 sprintf(formattedText, weaponMessageListItem.text, ammoQuantity, ammoCapacity, ammoName);
@@ -486,7 +486,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             MessageListItem ammoMessageListItem;
             ammoMessageListItem.num = 510;
 
-            if (!message_search(&gProtoMessageList, &ammoMessageListItem)) {
+            if (!message_search(&proto_main_msg_file, &ammoMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -497,7 +497,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             fn(formattedText);
 
             ammoMessageListItem.num++;
-            if (!message_search(&gProtoMessageList, &ammoMessageListItem)) {
+            if (!message_search(&proto_main_msg_file, &ammoMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -508,7 +508,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             fn(formattedText);
 
             ammoMessageListItem.num++;
-            if (!message_search(&gProtoMessageList, &ammoMessageListItem)) {
+            if (!message_search(&proto_main_msg_file, &ammoMessageListItem)) {
                 debugPrint("\nError: Can't find msg num!");
                 exit(1);
             }
@@ -565,7 +565,7 @@ int obj_pickup(Object* critter, Object* item)
             MessageListItem messageListItem;
             // You cannot pick up that item. You are at your maximum weight capacity.
             messageListItem.num = 905;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -601,7 +601,7 @@ int obj_remove_from_inven(Object* critter, Object* item)
             int v5 = 1;
 
             Proto* proto;
-            if (protoGetProto(0x1000000, &proto) != -1) {
+            if (proto_ptr(0x1000000, &proto) != -1) {
                 v5 = proto->fid;
             }
 
@@ -750,7 +750,7 @@ static int obj_use_book(Object* book)
     if (isInCombat()) {
         // You cannot do that in combat.
         messageListItem.num = 902;
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -781,12 +781,12 @@ static int obj_use_book(Object* book)
 
     // You read the book.
     messageListItem.num = 800;
-    if (message_search(&gProtoMessageList, &messageListItem)) {
+    if (message_search(&proto_main_msg_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
     messageListItem.num = messageId;
-    if (message_search(&gProtoMessageList, &messageListItem)) {
+    if (message_search(&proto_main_msg_file, &messageListItem)) {
         display_print(messageListItem.text);
     }
 
@@ -808,7 +808,7 @@ static int obj_use_flare(Object* critter_obj, Object* flare)
         if (critter_obj == obj_dude) {
             // The flare is already lit.
             messageListItem.num = 588;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -816,7 +816,7 @@ static int obj_use_flare(Object* critter_obj, Object* flare)
         if (critter_obj == obj_dude) {
             // You light the flare.
             messageListItem.num = 588;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -865,7 +865,7 @@ static int obj_use_explosive(Object* explosive)
     if ((explosive->flags & OBJECT_USED) != 0) {
         // The timer is already ticking.
         messageListItem.num = 590;
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     } else {
@@ -873,7 +873,7 @@ static int obj_use_explosive(Object* explosive)
         if (seconds != -1) {
             // You set the timer.
             messageListItem.num = 589;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 
@@ -960,7 +960,7 @@ int obj_use_power_on_car(Object* item)
         messageNum = 596;
     }
 
-    char* text = getmsg(&gProtoMessageList, &messageListItem, messageNum);
+    char* text = getmsg(&proto_main_msg_file, &messageListItem, messageNum);
     display_print(text);
 
     return 1;
@@ -1047,7 +1047,7 @@ int protinst_use_item(Object* critter, Object* item)
     default:
         // That does nothing
         messageListItem.num = 582;
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -1154,7 +1154,7 @@ static int protinst_default_use_item(Object* a1, Object* a2, Object* item)
             if (a1 == obj_dude) {
                 // That does nothing
                 messageListItem.num = 582;
-                if (message_search(&gProtoMessageList, &messageListItem)) {
+                if (message_search(&proto_main_msg_file, &messageListItem)) {
                     display_print(messageListItem.text);
                 }
             }
@@ -1167,7 +1167,7 @@ static int protinst_default_use_item(Object* a1, Object* a2, Object* item)
             // 585: Alas, you are too late.
             // 586: That won't work on the dead.
             messageListItem.num = 583 + randomBetween(0, 3);
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             return -1;
@@ -1182,7 +1182,7 @@ static int protinst_default_use_item(Object* a1, Object* a2, Object* item)
             // 580: You use the %s.
             // 581: You use the %s on %s.
             messageListItem.num = 580 + (a2 != obj_dude);
-            if (!message_search(&gProtoMessageList, &messageListItem)) {
+            if (!message_search(&proto_main_msg_file, &messageListItem)) {
                 return -1;
             }
 
@@ -1211,7 +1211,7 @@ static int protinst_default_use_item(Object* a1, Object* a2, Object* item)
     }
 
     messageListItem.num = 582;
-    if (message_search(&gProtoMessageList, &messageListItem)) {
+    if (message_search(&proto_main_msg_file, &messageListItem)) {
         sprintf(formattedText, messageListItem.text);
         display_print(formattedText);
     }
@@ -1305,7 +1305,7 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
         // You cannot do that in combat.
         messageListItem.num = 902;
         if (a1 == obj_dude) {
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
         }
@@ -1323,7 +1323,7 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
     MessageListItem messageListItem;
     messageListItem.num = messageId;
     if (a1 == obj_dude) {
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }
@@ -1396,7 +1396,7 @@ int check_scenery_ap_cost(Object* obj, Object* a2)
     messageListItem.num = 700;
 
     if (obj == obj_dude) {
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
     }
@@ -1419,7 +1419,7 @@ int obj_use(Object* a1, Object* a2)
     }
 
     Proto* sceneryProto;
-    if (protoGetProto(a2->pid, &sceneryProto) == -1) {
+    if (proto_ptr(a2->pid, &sceneryProto) == -1) {
         return -1;
     }
 
@@ -1464,7 +1464,7 @@ int obj_use(Object* a1, Object* a2)
             // You see: %s
             MessageListItem messageListItem;
             messageListItem.num = 480;
-            if (!message_search(&gProtoMessageList, &messageListItem)) {
+            if (!message_search(&proto_main_msg_file, &messageListItem)) {
                 return -1;
             }
 
@@ -1702,7 +1702,7 @@ int obj_use_door(Object* a1, Object* a2, int a3)
         if (a2->frame != 0) {
             if (obj_blocking_at(NULL, a2->tile, a2->elevation) != 0) {
                 MessageListItem messageListItem;
-                char* text = getmsg(&gProtoMessageList, &messageListItem, 597);
+                char* text = getmsg(&proto_main_msg_file, &messageListItem, 597);
                 display_print(text);
                 return -1;
             }
@@ -1759,7 +1759,7 @@ int obj_use_container(Object* critter, Object* item)
     }
 
     Proto* itemProto;
-    if (protoGetProto(item->pid, &itemProto) == -1) {
+    if (proto_ptr(item->pid, &itemProto) == -1) {
         return -1;
     }
 
@@ -1775,7 +1775,7 @@ int obj_use_container(Object* critter, Object* item)
             MessageListItem messageListItem;
             // It is locked.
             messageListItem.num = 487;
-            if (!message_search(&gProtoMessageList, &messageListItem)) {
+            if (!message_search(&proto_main_msg_file, &messageListItem)) {
                 return -1;
             }
 
@@ -1821,7 +1821,7 @@ int obj_use_container(Object* critter, Object* item)
         messageListItem.num = item->frame != 0
             ? 486 // You search the %s.
             : 485; // You close the %s.
-        if (!message_search(&gProtoMessageList, &messageListItem)) {
+        if (!message_search(&proto_main_msg_file, &messageListItem)) {
             return -1;
         }
 
@@ -1849,7 +1849,7 @@ int obj_use_skill_on(Object* source, Object* target, int skill)
     }
 
     Proto* proto;
-    if (protoGetProto(target->pid, &proto) == -1) {
+    if (proto_ptr(target->pid, &proto) == -1) {
         return -1;
     }
 
@@ -1884,7 +1884,7 @@ bool obj_is_a_portal(Object* obj)
     }
 
     Proto* proto;
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         return false;
     }
 
@@ -1900,7 +1900,7 @@ bool obj_is_lockable(Object* obj)
         return false;
     }
 
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         return false;
     }
 
@@ -1987,7 +1987,7 @@ bool obj_is_openable(Object* obj)
         return false;
     }
 
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         return false;
     }
 

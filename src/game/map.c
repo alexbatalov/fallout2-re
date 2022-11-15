@@ -990,7 +990,7 @@ err:
 
     partyMemberRecoverLoad();
     intface_show();
-    _proto_dude_update_gender();
+    proto_dude_update_gender();
     map_place_dude_and_mouse();
     fileSetReadProgressHandler(NULL, 0);
     map_enable_bk_processes();
@@ -1170,7 +1170,7 @@ int map_age_dead_critters()
             obj_move_to_tile(blood, obj->tile, obj->elevation, NULL);
 
             Proto* proto;
-            protoGetProto(obj->pid, &proto);
+            proto_ptr(obj->pid, &proto);
 
             int frame = randomBetween(0, 3);
             if ((proto->critter.flags & 0x800)) {
@@ -1470,7 +1470,7 @@ int map_save_in_game(bool a1)
         if (a1) {
             map_data.name[0] = '\0';
             obj_remove_all();
-            _proto_remove_all();
+            proto_remove_all();
             square_reset();
             gameTimeScheduleUpdateEvent();
         }

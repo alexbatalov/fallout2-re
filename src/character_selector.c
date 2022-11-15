@@ -177,7 +177,7 @@ int characterSelectorOpen()
             break;
         case KEY_UPPERCASE_C:
         case KEY_LOWERCASE_C:
-            _ResetPlayer();
+            ResetPlayer();
             if (editor_design(1) == 0) {
                 rc = 2;
                 done = true;
@@ -622,7 +622,7 @@ bool characterSelectorWindowRefresh()
 {
     char path[FILENAME_MAX];
     sprintf(path, "%s.gcd", gPremadeCharacterDescriptions[gCurrentPremadeCharacter].fileName);
-    if (_proto_dude_init(path) == -1) {
+    if (proto_dude_init(path) == -1) {
         debugPrint("\n ** Error in dude init! **\n");
         return false;
     }

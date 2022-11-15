@@ -2473,7 +2473,7 @@ static int gmObjIsValidTarget(Object* object)
     }
 
     Proto* proto;
-    if (protoGetProto(object->pid, &proto) == -1) {
+    if (proto_ptr(object->pid, &proto) == -1) {
         return false;
     }
 

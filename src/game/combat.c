@@ -2789,7 +2789,7 @@ void combat_give_exps(int exp_points)
     pcAddExperience(exp_points);
 
     v7.num = 621; // %s you earn %d exp. points.
-    if (!message_search(&gProtoMessageList, &v7)) {
+    if (!message_search(&proto_main_msg_file, &v7)) {
         return;
     }
 
@@ -2801,7 +2801,7 @@ void combat_give_exps(int exp_points)
         v9.num = 626; // Best possible prefix: For destroying your enemies without taking a scratch,
     }
 
-    if (!message_search(&gProtoMessageList, &v9)) {
+    if (!message_search(&proto_main_msg_file, &v9)) {
         return;
     }
 

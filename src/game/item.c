@@ -442,7 +442,7 @@ int item_move_all_hidden(Object* a1, Object* a2)
             InventoryItem* inventoryItem = &(inventory->items[j]);
             if (PID_TYPE(inventoryItem->item->pid) == OBJ_TYPE_ITEM) {
                 Proto* proto;
-                if (protoGetProto(inventoryItem->item->pid, &proto) != -1) {
+                if (proto_ptr(inventoryItem->item->pid, &proto) != -1) {
                     v5 = (proto->item.extendedFlags & ItemProtoExtendedFlags_NaturalWeapon) == 0;
                 } else {
                     v5 = true;
@@ -474,7 +474,7 @@ int item_destroy_all_hidden(Object* a1)
             InventoryItem* inventoryItem = &(inventory->items[j]);
             if (PID_TYPE(inventoryItem->item->pid) == OBJ_TYPE_ITEM) {
                 Proto* proto;
-                if (protoGetProto(inventoryItem->item->pid, &proto) != -1) {
+                if (proto_ptr(inventoryItem->item->pid, &proto) != -1) {
                     v5 = (proto->item.extendedFlags & ItemProtoExtendedFlags_NaturalWeapon) == 0;
                 } else {
                     v5 = true;
@@ -525,7 +525,7 @@ int item_drop_all(Object* critter, int tile)
 
                 if ((item->flags & OBJECT_WORN) != 0) {
                     Proto* proto;
-                    if (protoGetProto(critter->pid, &proto) == -1) {
+                    if (proto_ptr(critter->pid, &proto) == -1) {
                         return -1;
                     }
 
@@ -581,7 +581,7 @@ static bool item_identical(Object* a1, Object* a2)
     }
 
     Proto* proto;
-    protoGetProto(a1->pid, &proto);
+    proto_ptr(a1->pid, &proto);
     if (proto->item.type == ITEM_TYPE_CONTAINER) {
         return false;
     }
@@ -620,14 +620,14 @@ char* item_name(Object* obj)
     // 0x519238
     static char* name = _aItem_1;
 
-    name = protoGetName(obj->pid);
+    name = proto_name(obj->pid);
     return name;
 }
 
 // 0x477AF4
 char* item_description(Object* obj)
 {
-    return protoGetDescription(obj->pid);
+    return proto_description(obj->pid);
 }
 
 // 0x477AFC
@@ -646,7 +646,7 @@ int item_get_type(Object* item)
     }
 
     Proto* proto;
-    protoGetProto(item->pid, &proto);
+    proto_ptr(item->pid, &proto);
 
     return proto->item.type;
 }
@@ -657,7 +657,7 @@ int item_get_type(Object* item)
 int item_material(Object* item)
 {
     Proto* proto;
-    protoGetProto(item->pid, &proto);
+    proto_ptr(item->pid, &proto);
 
     return proto->item.material;
 }
@@ -670,7 +670,7 @@ int item_size(Object* item)
     }
 
     Proto* proto;
-    protoGetProto(item->pid, &proto);
+    proto_ptr(item->pid, &proto);
 
     return proto->item.size;
 }
@@ -683,7 +683,7 @@ int item_weight(Object* item)
     }
 
     Proto* proto;
-    protoGetProto(item->pid, &proto);
+    proto_ptr(item->pid, &proto);
     int weight = proto->item.weight;
 
     // NOTE: Uninline.
@@ -711,7 +711,7 @@ int item_weight(Object* item)
             int ammoTypePid = item_w_ammo_pid(item);
             if (ammoTypePid != -1) {
                 Proto* ammoProto;
-                if (protoGetProto(ammoTypePid, &ammoProto) != -1) {
+                if (proto_ptr(ammoTypePid, &ammoProto) != -1) {
                     weight += ammoProto->item.weight * ((ammoQuantity - 1) / ammoProto->item.data.ammo.quantity + 1);
                 }
             }
@@ -741,7 +741,7 @@ int item_cost(Object* obj)
     }
 
     Proto* proto;
-    protoGetProto(obj->pid, &proto);
+    proto_ptr(obj->pid, &proto);
 
     int cost = proto->item.cost;
 
@@ -758,7 +758,7 @@ int item_cost(Object* obj)
                 int ammoTypePid = item_w_ammo_pid(obj);
                 if (ammoTypePid != -1) {
                     Proto* ammoProto;
-                    protoGetProto(ammoTypePid, &ammoProto);
+                    proto_ptr(ammoTypePid, &ammoProto);
 
                     cost += ammoQuantity * ammoProto->item.cost / ammoProto->item.data.ammo.quantity;
                 }
@@ -796,7 +796,7 @@ int item_total_cost(Object* obj)
         InventoryItem* inventoryItem = &(inventory->items[index]);
         if (item_get_type(inventoryItem->item) == ITEM_TYPE_AMMO) {
             Proto* proto;
-            protoGetProto(inventoryItem->item->pid, &proto);
+            proto_ptr(inventoryItem->item->pid, &proto);
 
             // Ammo stack in inventory is a bit special. It is counted in clips,
             // `inventoryItem->quantity` is the number of clips. The ammo object
@@ -915,7 +915,7 @@ int item_inv_fid(Object* item)
         return -1;
     }
 
-    protoGetProto(item->pid, &proto);
+    proto_ptr(item->pid, &proto);
 
     return proto->item.inventoryFid;
 }
@@ -1062,7 +1062,7 @@ int item_is_hidden(Object* obj)
         return 0;
     }
 
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         return 0;
     }
 
@@ -1077,7 +1077,7 @@ int item_w_subtype(Object* weapon, int hitMode)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     int index;
     if (hitMode == HIT_MODE_LEFT_WEAPON_PRIMARY || hitMode == HIT_MODE_RIGHT_WEAPON_PRIMARY) {
@@ -1097,7 +1097,7 @@ int item_w_skill(Object* weapon, int hitMode)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     int index;
     if (hitMode == HIT_MODE_LEFT_WEAPON_PRIMARY || hitMode == HIT_MODE_RIGHT_WEAPON_PRIMARY) {
@@ -1152,7 +1152,7 @@ int item_w_damage_min_max(Object* weapon, int* minDamagePtr, int* maxDamagePtr)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     if (minDamagePtr != NULL) {
         *minDamagePtr = proto->item.data.weapon.minDamage;
@@ -1182,7 +1182,7 @@ int item_w_damage(Object* critter, int hitMode)
 
     if (weapon != NULL) {
         Proto* proto;
-        protoGetProto(weapon->pid, &proto);
+        proto_ptr(weapon->pid, &proto);
 
         minDamage = proto->item.data.weapon.minDamage;
         maxDamage = proto->item.data.weapon.maxDamage;
@@ -1232,7 +1232,7 @@ int item_w_damage_type(Object* critter, Object* weapon)
     Proto* proto;
 
     if (weapon != NULL) {
-        protoGetProto(weapon->pid, &proto);
+        proto_ptr(weapon->pid, &proto);
 
         return proto->item.data.weapon.damageType;
     }
@@ -1253,7 +1253,7 @@ int item_w_is_2handed(Object* weapon)
         return 0;
     }
 
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return (proto->item.extendedFlags & WEAPON_TWO_HAND) != 0;
 }
@@ -1278,7 +1278,7 @@ int item_w_anim_weap(Object* weapon, int hitMode)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     int index;
     if (hitMode == HIT_MODE_LEFT_WEAPON_PRIMARY || hitMode == HIT_MODE_RIGHT_WEAPON_PRIMARY) {
@@ -1298,7 +1298,7 @@ int item_w_max_ammo(Object* ammoOrWeapon)
     }
 
     Proto* proto;
-    protoGetProto(ammoOrWeapon->pid, &proto);
+    proto_ptr(ammoOrWeapon->pid, &proto);
 
     if (proto->item.type == ITEM_TYPE_AMMO) {
         return proto->item.data.ammo.quantity;
@@ -1315,7 +1315,7 @@ int item_w_curr_ammo(Object* ammoOrWeapon)
     }
 
     Proto* proto;
-    protoGetProto(ammoOrWeapon->pid, &proto);
+    proto_ptr(ammoOrWeapon->pid, &proto);
 
     // NOTE: Looks like the condition jumps were erased during compilation only
     // because ammo's quantity and weapon's ammo quantity coincidently stored
@@ -1336,10 +1336,10 @@ int item_w_caliber(Object* ammoOrWeapon)
         return 0;
     }
 
-    protoGetProto(ammoOrWeapon->pid, &proto);
+    proto_ptr(ammoOrWeapon->pid, &proto);
 
     if (proto->item.type != ITEM_TYPE_AMMO) {
-        if (protoGetProto(ammoOrWeapon->data.item.weapon.ammoTypePid, &proto) == -1) {
+        if (proto_ptr(ammoOrWeapon->data.item.weapon.ammoTypePid, &proto) == -1) {
             return 0;
         }
     }
@@ -1361,7 +1361,7 @@ void item_w_set_curr_ammo(Object* ammoOrWeapon, int quantity)
     }
 
     Proto* proto;
-    protoGetProto(ammoOrWeapon->pid, &proto);
+    proto_ptr(ammoOrWeapon->pid, &proto);
 
     if (proto->item.type == ITEM_TYPE_AMMO) {
         ammoOrWeapon->data.item.ammo.quantity = quantity;
@@ -1457,10 +1457,10 @@ bool item_w_can_reload(Object* weapon, Object* ammo)
     }
 
     Proto* weaponProto;
-    protoGetProto(weapon->pid, &weaponProto);
+    proto_ptr(weapon->pid, &weaponProto);
 
     Proto* ammoProto;
-    protoGetProto(ammo->pid, &ammoProto);
+    proto_ptr(ammo->pid, &ammoProto);
 
     if (weaponProto->item.type != ITEM_TYPE_WEAPON) {
         return false;
@@ -1537,7 +1537,7 @@ int item_w_range(Object* critter, int hitMode)
 
     if (weapon != NULL && hitMode != 4 && hitMode != 5 && (hitMode < 8 || hitMode > 19)) {
         Proto* proto;
-        protoGetProto(weapon->pid, &proto);
+        proto_ptr(weapon->pid, &proto);
         if (hitMode == HIT_MODE_LEFT_WEAPON_PRIMARY || hitMode == HIT_MODE_RIGHT_WEAPON_PRIMARY) {
             range = proto->item.data.weapon.maxRange1;
         } else {
@@ -1580,7 +1580,7 @@ int item_w_mp_cost(Object* critter, int hitMode, bool aiming)
     if (hitMode == HIT_MODE_LEFT_WEAPON_RELOAD || hitMode == HIT_MODE_RIGHT_WEAPON_RELOAD) {
         if (weapon != NULL) {
             Proto* proto;
-            protoGetProto(weapon->pid, &proto);
+            proto_ptr(weapon->pid, &proto);
             if (proto->item.data.weapon.perk == PERK_WEAPON_FAST_RELOAD) {
                 return 1;
             }
@@ -1670,7 +1670,7 @@ int item_w_min_st(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.minStrength;
 }
@@ -1683,7 +1683,7 @@ int item_w_crit_fail(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.criticalFailureType;
 }
@@ -1696,7 +1696,7 @@ int item_w_perk(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.perk;
 }
@@ -1709,7 +1709,7 @@ int item_w_rounds(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.rounds;
 }
@@ -1722,7 +1722,7 @@ int item_w_anim_code(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.animationCode;
 }
@@ -1735,7 +1735,7 @@ int item_w_proj_pid(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.projectilePid;
 }
@@ -1762,7 +1762,7 @@ char item_w_sound_id(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.soundCode & 0xFF;
 }
@@ -1871,7 +1871,7 @@ int item_w_primary_mp_cost(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.actionPointCost1;
 }
@@ -1886,7 +1886,7 @@ int item_w_secondary_mp_cost(Object* weapon)
     }
 
     Proto* proto;
-    protoGetProto(weapon->pid, &proto);
+    proto_ptr(weapon->pid, &proto);
 
     return proto->item.data.weapon.actionPointCost2;
 }
@@ -1964,7 +1964,7 @@ int item_w_ac_adjust(Object* weapon)
     }
 
     Proto* proto;
-    if (protoGetProto(ammoTypePid, &proto) == -1) {
+    if (proto_ptr(ammoTypePid, &proto) == -1) {
         return 0;
     }
 
@@ -1981,7 +1981,7 @@ int item_w_dr_adjust(Object* weapon)
     }
 
     Proto* proto;
-    if (protoGetProto(ammoTypePid, &proto) == -1) {
+    if (proto_ptr(ammoTypePid, &proto) == -1) {
         return 0;
     }
 
@@ -1998,7 +1998,7 @@ int item_w_dam_mult(Object* weapon)
     }
 
     Proto* proto;
-    if (protoGetProto(ammoTypePid, &proto) == -1) {
+    if (proto_ptr(ammoTypePid, &proto) == -1) {
         return 1;
     }
 
@@ -2015,7 +2015,7 @@ int item_w_dam_div(Object* weapon)
     }
 
     Proto* proto;
-    if (protoGetProto(ammoTypePid, &proto) == -1) {
+    if (proto_ptr(ammoTypePid, &proto) == -1) {
         return 1;
     }
 
@@ -2030,7 +2030,7 @@ int item_ar_ac(Object* armor)
     }
 
     Proto* proto;
-    protoGetProto(armor->pid, &proto);
+    proto_ptr(armor->pid, &proto);
 
     return proto->item.data.armor.armorClass;
 }
@@ -2043,7 +2043,7 @@ int item_ar_dr(Object* armor, int damageType)
     }
 
     Proto* proto;
-    protoGetProto(armor->pid, &proto);
+    proto_ptr(armor->pid, &proto);
 
     return proto->item.data.armor.damageResistance[damageType];
 }
@@ -2056,7 +2056,7 @@ int item_ar_dt(Object* armor, int damageType)
     }
 
     Proto* proto;
-    protoGetProto(armor->pid, &proto);
+    proto_ptr(armor->pid, &proto);
 
     return proto->item.data.armor.damageThreshold[damageType];
 }
@@ -2069,7 +2069,7 @@ int item_ar_perk(Object* armor)
     }
 
     Proto* proto;
-    protoGetProto(armor->pid, &proto);
+    proto_ptr(armor->pid, &proto);
 
     return proto->item.data.armor.perk;
 }
@@ -2082,7 +2082,7 @@ int item_ar_male_fid(Object* armor)
     }
 
     Proto* proto;
-    protoGetProto(armor->pid, &proto);
+    proto_ptr(armor->pid, &proto);
 
     return proto->item.data.armor.maleFid;
 }
@@ -2095,7 +2095,7 @@ int item_ar_female_fid(Object* armor)
     }
 
     Proto* proto;
-    protoGetProto(armor->pid, &proto);
+    proto_ptr(armor->pid, &proto);
 
     return proto->item.data.armor.femaleFid;
 }
@@ -2108,7 +2108,7 @@ int item_m_max_charges(Object* miscItem)
     }
 
     Proto* proto;
-    protoGetProto(miscItem->pid, &proto);
+    proto_ptr(miscItem->pid, &proto);
 
     return proto->item.data.misc.charges;
 }
@@ -2148,7 +2148,7 @@ int item_m_cell(Object* miscItem)
     }
 
     Proto* proto;
-    protoGetProto(miscItem->pid, &proto);
+    proto_ptr(miscItem->pid, &proto);
 
     return proto->item.data.misc.powerType;
 }
@@ -2163,7 +2163,7 @@ int item_m_cell_pid(Object* miscItem)
     }
 
     Proto* proto;
-    protoGetProto(miscItem->pid, &proto);
+    proto_ptr(miscItem->pid, &proto);
 
     return proto->item.data.misc.powerTypePid;
 }
@@ -2176,7 +2176,7 @@ bool item_m_uses_charges(Object* miscItem)
     }
 
     Proto* proto;
-    protoGetProto(miscItem->pid, &proto);
+    proto_ptr(miscItem->pid, &proto);
 
     return proto->item.data.misc.charges != 0;
 }
@@ -2444,7 +2444,7 @@ int item_c_max_size(Object* container)
     }
 
     Proto* proto;
-    protoGetProto(container->pid, &proto);
+    proto_ptr(container->pid, &proto);
 
     return proto->item.data.container.maxSize;
 }
@@ -2477,7 +2477,7 @@ int item_a_ac_adjust(Object* armor)
     }
 
     Proto* proto;
-    if (protoGetProto(armor->pid, &proto) == -1) {
+    if (proto_ptr(armor->pid, &proto) == -1) {
         return 0;
     }
 
@@ -2492,7 +2492,7 @@ int item_a_dr_adjust(Object* armor)
     }
 
     Proto* proto;
-    if (protoGetProto(armor->pid, &proto) == -1) {
+    if (proto_ptr(armor->pid, &proto) == -1) {
         return 0;
     }
 
@@ -2507,7 +2507,7 @@ int item_a_dam_mult(Object* armor)
     }
 
     Proto* proto;
-    if (protoGetProto(armor->pid, &proto) == -1) {
+    if (proto_ptr(armor->pid, &proto) == -1) {
         return 0;
     }
 
@@ -2522,7 +2522,7 @@ int item_a_dam_div(Object* armor)
     }
 
     Proto* proto;
-    if (protoGetProto(armor->pid, &proto) == -1) {
+    if (proto_ptr(armor->pid, &proto) == -1) {
         return 0;
     }
 
@@ -2722,7 +2722,7 @@ int item_d_take_drug(Object* critter, Object* item)
     }
 
     Proto* proto;
-    protoGetProto(item->pid, &proto);
+    proto_ptr(item->pid, &proto);
 
     if (item->pid == PROTO_ID_JET_ANTIDOTE) {
         if (item_d_check_addict(PROTO_ID_JET)) {

@@ -386,7 +386,7 @@ int critterGetBaseStat(Object* critter, int stat)
     Proto* proto;
 
     if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
-        protoGetProto(critter->pid, &proto);
+        proto_ptr(critter->pid, &proto);
         return proto->critter.data.baseStats[stat];
     } else {
         switch (stat) {
@@ -407,7 +407,7 @@ int critterGetBonusStat(Object* critter, int stat)
 {
     if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
         Proto* proto;
-        protoGetProto(critter->pid, &proto);
+        proto_ptr(critter->pid, &proto);
         return proto->critter.data.bonusStats[stat];
     }
 
@@ -441,7 +441,7 @@ int critterSetBaseStat(Object* critter, int stat, int value)
             return -3;
         }
 
-        protoGetProto(critter->pid, &proto);
+        proto_ptr(critter->pid, &proto);
         proto->critter.data.baseStats[stat] = value;
 
         if (stat >= STAT_STRENGTH && stat <= STAT_LUCK) {
@@ -497,7 +497,7 @@ int critterSetBonusStat(Object* critter, int stat, int value)
 
     if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
         Proto* proto;
-        protoGetProto(critter->pid, &proto);
+        proto_ptr(critter->pid, &proto);
         proto->critter.data.bonusStats[stat] = value;
 
         if (stat >= STAT_STRENGTH && stat <= STAT_LUCK) {
@@ -540,7 +540,7 @@ void critterUpdateDerivedStats(Object* critter)
     int luck = critterGetStat(critter, STAT_LUCK);
 
     Proto* proto;
-    protoGetProto(critter->pid, &proto);
+    proto_ptr(critter->pid, &proto);
     CritterProtoData* data = &(proto->critter.data);
 
     data->baseStats[STAT_MAXIMUM_HIT_POINTS] = critterGetBaseStatWithTraitModifier(critter, STAT_STRENGTH) + critterGetBaseStatWithTraitModifier(critter, STAT_ENDURANCE) * 2 + 15;

@@ -701,7 +701,7 @@ void gdialogEnter(Object* a1, int a2)
         if (rc == -1) {
             // You can't see there.
             messageListItem.num = 660;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 if (a2) {
                     display_print(messageListItem.text);
                 } else {
@@ -716,7 +716,7 @@ void gdialogEnter(Object* a1, int a2)
         if (rc == -2) {
             // Too far away.
             messageListItem.num = 661;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 if (a2) {
                     display_print(messageListItem.text);
                 } else {
@@ -2291,7 +2291,7 @@ static void gdProcessUpdate()
                 // Go on
                 messageListItem.num = 655;
                 if (critterGetStat(obj_dude, STAT_INTELLIGENCE) < 4) {
-                    if (message_search(&gProtoMessageList, &messageListItem)) {
+                    if (message_search(&proto_main_msg_file, &messageListItem)) {
                         strcpy(dialogOptionEntry->text, messageListItem.text);
                     } else {
                         debugPrint("\nError...can't find message!");
@@ -2305,7 +2305,7 @@ static void gdProcessUpdate()
         } else if (dialogOptionEntry->messageListId == -2) {
             // [Done]
             messageListItem.num = 650;
-            if (message_search(&gProtoMessageList, &messageListItem)) {
+            if (message_search(&proto_main_msg_file, &messageListItem)) {
                 sprintf(dialogOptionEntry->text, "%c %s", '\x95', messageListItem.text);
             } else {
                 debugPrint("\nError...can't find message!");
@@ -3544,13 +3544,13 @@ static void gdControlUpdateInfo()
 
     // Render item in right hand.
     Object* item2 = inven_right_hand(dialog_target);
-    text = item2 != NULL ? item_name(item2) : getmsg(&gProtoMessageList, &messageListItem, 10);
+    text = item2 != NULL ? item_name(item2) : getmsg(&proto_main_msg_file, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render armor.
     Object* armor = inven_worn(dialog_target);
-    text = armor != NULL ? item_name(armor) : getmsg(&gProtoMessageList, &messageListItem, 10);
+    text = armor != NULL ? item_name(armor) : getmsg(&proto_main_msg_file, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
@@ -3641,7 +3641,7 @@ static int gdCanBarter()
     }
 
     Proto* proto;
-    if (protoGetProto(dialog_target->pid, &proto) == -1) {
+    if (proto_ptr(dialog_target->pid, &proto) == -1) {
         return 1;
     }
 
@@ -3658,7 +3658,7 @@ static int gdCanBarter()
         messageListItem.num = 913;
     }
 
-    if (!message_search(&gProtoMessageList, &messageListItem)) {
+    if (!message_search(&proto_main_msg_file, &messageListItem)) {
         debugPrint("\nError: gdialog: Can't find message!");
         return 0;
     }
@@ -3694,7 +3694,7 @@ static void gdControl()
                     cai_attempt_w_reload(dialog_target, 0);
 
                     int num = gdPickAIUpdateMsg(dialog_target);
-                    char* msg = getmsg(&gProtoMessageList, &messageListItem, num);
+                    char* msg = getmsg(&proto_main_msg_file, &messageListItem, num);
                     gdialogDisplayMsg(msg);
                     gdControlUpdateInfo();
                 }
@@ -3724,7 +3724,7 @@ static void gdControl()
                 }
 
                 int num = gdPickAIUpdateMsg(dialog_target);
-                char* msg = getmsg(&gProtoMessageList, &messageListItem, num);
+                char* msg = getmsg(&proto_main_msg_file, &messageListItem, num);
                 gdialogDisplayMsg(msg);
                 gdControlUpdateInfo();
             } else if (keyCode == KEY_LOWERCASE_D) {
@@ -4249,7 +4249,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
     }
 
     Proto* proto;
-    protoGetProto(dialog_target->pid, &proto);
+    proto_ptr(dialog_target->pid, &proto);
     if (proto->critter.data.flags & CRITTER_BARTER) {
         if (gdialog_speech_playing) {
             if (soundIsPlaying(lip_info.sound)) {
@@ -4271,7 +4271,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
             messageListItem.num = 913;
         }
 
-        if (message_search(&gProtoMessageList, &messageListItem)) {
+        if (message_search(&proto_main_msg_file, &messageListItem)) {
             gdialogDisplayMsg(messageListItem.text);
         } else {
             debugPrint("\nError: gdialog: Can't find message!");

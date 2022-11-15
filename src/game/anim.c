@@ -1773,7 +1773,7 @@ static bool anim_can_use_door(Object* critter, Object* door)
     }
 
     Proto* proto;
-    if (protoGetProto(door->pid, &proto) == -1) {
+    if (proto_ptr(door->pid, &proto) == -1) {
         return false;
     }
 

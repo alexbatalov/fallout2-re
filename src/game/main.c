@@ -419,7 +419,7 @@ static void main_selfrun_record()
         // NOTE: Uninline.
         main_reset_system();
 
-        _proto_dude_init("premade\\combat.gcd");
+        proto_dude_init("premade\\combat.gcd");
         main_load_new(selfrunData.mapFileName);
         selfrunRecordingLoop(&selfrunData);
         palette_fade_to(white_palette);
@@ -461,7 +461,7 @@ static void main_selfrun_play()
             // NOTE: Uninline.
             main_reset_system();
 
-            _proto_dude_init("premade\\combat.gcd");
+            proto_dude_init("premade\\combat.gcd");
             main_load_new(selfrunData.mapFileName);
             selfrunPlaybackLoop(&selfrunData);
             palette_fade_to(white_palette);

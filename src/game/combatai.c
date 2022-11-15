@@ -504,7 +504,7 @@ int combat_ai_load(File* stream)
         int pid = partyMemberPidList[index];
         if (pid != -1 && PID_TYPE(pid) == OBJ_TYPE_CRITTER) {
             Proto* proto;
-            if (protoGetProto(pid, &proto) == -1) {
+            if (proto_ptr(pid, &proto) == -1) {
                 return -1;
             }
 
@@ -525,7 +525,7 @@ int combat_ai_save(File* stream)
         int pid = partyMemberPidList[index];
         if (pid != -1 && PID_TYPE(pid) == OBJ_TYPE_CRITTER) {
             Proto* proto;
-            if (protoGetProto(pid, &proto) == -1) {
+            if (proto_ptr(pid, &proto) == -1) {
                 return -1;
             }
 
@@ -3077,7 +3077,7 @@ int combat_ai_set_ai_packet(Object* object, int aiPacket)
 
     if (isPotentialPartyMember(object)) {
         Proto* proto;
-        if (protoGetProto(object->pid, &proto) == -1) {
+        if (proto_ptr(object->pid, &proto) == -1) {
             return -1;
         }
 

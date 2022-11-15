@@ -1,8 +1,5 @@
-#ifndef PROTO_H
-#define PROTO_H
-
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
+#ifndef FALLOUT_GAME_PROTO_H_
+#define FALLOUT_GAME_PROTO_H_
 
 #include "db.h"
 #include "game/message.h"
@@ -100,75 +97,51 @@ typedef enum PrototypeMessage {
     PROTOTYPE_MESSAGE_DESCRIPTION,
 } PrototypeMesage;
 
-extern char _aProto_0[];
+extern char cd_path_base[];
+extern char proto_path_base[];
 
-extern char _cd_path_base[MAX_PATH];
-extern ProtoList _protoLists[11];
-extern const size_t _proto_sizes[11];
-extern int _protos_been_initialized;
-extern CritterProto gDudeProto;
-extern char* _proto_path_base;
-extern int _init_true;
-extern int _retval;
+extern char* mp_perk_code_strs[1 + PERK_COUNT];
+extern char* mp_critter_stats_list[2 + STAT_COUNT];
+extern MessageList proto_msg_files[6];
+extern char* race_type_strs[2];
+extern char* scenery_pro_type[6];
+extern MessageList proto_main_msg_file;
+extern char* item_pro_material[8];
+extern char* proto_none_str;
+extern char* body_type_strs[3];
+extern char* item_pro_type[7];
+extern char* damage_code_strs[7];
+extern char* cal_type_strs[19];
+extern char** perk_code_strs;
+extern char** critter_stats_list;
 
-extern char* _mp_perk_code_None;
-extern char* _mp_perk_code_strs[PERK_COUNT];
-extern char* _mp_critter_stats_list;
-extern char* _critter_stats_list_None;
-extern char* _critter_stats_list_strs[STAT_COUNT];
-extern MessageList _proto_msg_files[6];
-extern char* gRaceTypeNames[2];
-extern char* gSceneryTypeNames[6];
-extern MessageList gProtoMessageList;
-extern char* gMaterialTypeNames[8];
-extern char* _proto_none_str;
-extern char* gBodyTypeNames[3];
-extern char* gItemTypeNames[7];
-extern char* gDamageTypeNames[7];
-extern char* gCaliberTypeNames[19];
+void proto_make_path(char* path, int pid);
+int proto_list_str(int pid, char* proto_path);
+bool proto_action_can_use(int pid);
+bool proto_action_can_use_on(int pid);
+bool proto_action_can_talk_to(int pid);
+int proto_action_can_pickup(int pid);
+char* proto_name(int pid);
+char* proto_description(int pid);
+int proto_critter_init(Proto* a1, int a2);
+void clear_pupdate_data(Object* obj);
+int proto_read_protoUpdateData(Object* obj, File* stream);
+int proto_write_protoUpdateData(Object* obj, File* stream);
+int proto_update_gen(Object* obj);
+int proto_update_init(Object* obj);
+int proto_dude_update_gender();
+int proto_dude_init(const char* path);
+int proto_data_member(int pid, int member, ProtoDataMemberValue* value);
+int proto_init();
+void proto_reset();
+void proto_exit();
+int proto_header_load();
+int proto_save_pid(int pid);
+int proto_load_pid(int pid, Proto** out_proto);
+int proto_find_free_subnode(int type, Proto** out_ptr);
+void proto_remove_all();
+int proto_ptr(int pid, Proto** out_proto);
+int proto_max_id(int a1);
+int ResetPlayer();
 
-extern char** _perk_code_strs;
-extern char** _critter_stats_list;
-
-void _proto_make_path(char* path, int pid);
-int _proto_list_str(int pid, char* proto_path);
-bool _proto_action_can_use(int pid);
-bool _proto_action_can_use_on(int pid);
-bool _proto_action_can_talk_to(int pid);
-int _proto_action_can_pickup(int pid);
-char* protoGetMessage(int pid, int message);
-char* protoGetName(int pid);
-char* protoGetDescription(int pid);
-int _proto_critter_init(Proto* a1, int a2);
-void objectDataReset(Object* obj);
-int objectCritterCombatDataRead(CritterCombatData* data, File* stream);
-int objectCritterCombatDataWrite(CritterCombatData* data, File* stream);
-int objectDataRead(Object* obj, File* stream);
-int objectDataWrite(Object* obj, File* stream);
-int _proto_update_gen(Object* obj);
-int _proto_update_init(Object* obj);
-int _proto_dude_update_gender();
-int _proto_dude_init(const char* path);
-int protoGetDataMember(int pid, int member, ProtoDataMemberValue* value);
-int protoInit();
-void protoReset();
-void protoExit();
-int _proto_header_load();
-int protoItemDataRead(ItemProtoData* item_data, int type, File* stream);
-int protoSceneryDataRead(SceneryProtoData* scenery_data, int type, File* stream);
-int protoRead(Proto* buf, File* stream);
-int protoItemDataWrite(ItemProtoData* item_data, int type, File* stream);
-int protoSceneryDataWrite(SceneryProtoData* scenery_data, int type, File* stream);
-int protoWrite(Proto* buf, File* stream);
-int _proto_save_pid(int pid);
-int _proto_load_pid(int pid, Proto** out_proto);
-int _proto_find_free_subnode(int type, Proto** out_ptr);
-void _proto_remove_some_list(int type);
-void _proto_remove_list(int type);
-void _proto_remove_all();
-int protoGetProto(int pid, Proto** out_proto);
-int _proto_new_id(int a1);
-int _proto_max_id(int a1);
-int _ResetPlayer();
-
-#endif /* PROTO_H */
+#endif /* FALLOUT_GAME_PROTO_H_ */

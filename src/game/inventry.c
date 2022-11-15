@@ -1965,12 +1965,12 @@ void adjust_fid()
 
         int v0 = art_vault_guy_num;
 
-        if (protoGetProto(inven_pid, &proto) == -1) {
+        if (proto_ptr(inven_pid, &proto) == -1) {
             v0 = proto->fid & 0xFFF;
         }
 
         if (i_worn != NULL) {
-            protoGetProto(i_worn->pid, &proto);
+            proto_ptr(i_worn->pid, &proto);
             if (critterGetStat(inven_dude, STAT_GENDER) == GENDER_FEMALE) {
                 v0 = proto->item.data.armor.femaleFid;
             } else {
@@ -1985,14 +1985,14 @@ void adjust_fid()
         int animationCode = 0;
         if (intface_is_item_right_hand()) {
             if (i_rhand != NULL) {
-                protoGetProto(i_rhand->pid, &proto);
+                proto_ptr(i_rhand->pid, &proto);
                 if (proto->item.type == ITEM_TYPE_WEAPON) {
                     animationCode = proto->item.data.weapon.animationCode;
                 }
             }
         } else {
             if (i_lhand != NULL) {
-                protoGetProto(i_lhand->pid, &proto);
+                proto_ptr(i_lhand->pid, &proto);
                 if (proto->item.type == ITEM_TYPE_WEAPON) {
                     animationCode = proto->item.data.weapon.animationCode;
                 }
@@ -2423,7 +2423,7 @@ void display_stats()
             if (message_search(&inventry_message_file, &messageListItem)) {
                 if (ammoTypePid != -1) {
                     if (item_w_curr_ammo(item) != 0) {
-                        const char* ammoName = protoGetName(ammoTypePid);
+                        const char* ammoName = proto_name(ammoTypePid);
                         int capacity = item_w_max_ammo(item);
                         int quantity = item_w_curr_ammo(item);
                         sprintf(formattedText, "%s %d/%d %s", messageListItem.text, quantity, capacity, ammoName);
@@ -2625,7 +2625,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
                     lightDistance = 4;
                 } else {
                     Proto* proto;
-                    if (protoGetProto(critter->pid, &proto) == -1) {
+                    if (proto_ptr(critter->pid, &proto) == -1) {
                         return -1;
                     }
 
@@ -2979,7 +2979,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
             messageListItem.num = 541;
         }
 
-        if (!message_search(&gProtoMessageList, &messageListItem)) {
+        if (!message_search(&proto_main_msg_file, &messageListItem)) {
             debugPrint("\nError: Couldn't find message!");
         }
 
@@ -3110,7 +3110,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
                 actionMenuItemsLength = 3;
                 actionMenuItems = act_no_use;
             } else {
-                if (obj_action_can_use(item) || _proto_action_can_use_on(item->pid)) {
+                if (obj_action_can_use(item) || proto_action_can_use_on(item->pid)) {
                     actionMenuItemsLength = 4;
                     actionMenuItems = act_use;
                 } else {

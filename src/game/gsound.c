@@ -1508,15 +1508,15 @@ char* gsnd_build_weapon_sfx_name(int effectType, Object* weapon, int hitMode, Ob
         int material;
         switch (type) {
         case OBJ_TYPE_ITEM:
-            protoGetProto(target->pid, &proto);
+            proto_ptr(target->pid, &proto);
             material = proto->item.material;
             break;
         case OBJ_TYPE_SCENERY:
-            protoGetProto(target->pid, &proto);
+            proto_ptr(target->pid, &proto);
             material = proto->scenery.field_2C;
             break;
         case OBJ_TYPE_WALL:
-            protoGetProto(target->pid, &proto);
+            proto_ptr(target->pid, &proto);
             material = proto->wall.material;
             break;
         default:
@@ -1569,7 +1569,7 @@ char* gsnd_build_open_sfx_name(Object* object, int action)
     if (FID_TYPE(object->fid) == OBJ_TYPE_SCENERY) {
         char scenerySoundId;
         Proto* proto;
-        if (protoGetProto(object->pid, &proto) != -1) {
+        if (proto_ptr(object->pid, &proto) != -1) {
             scenerySoundId = proto->scenery.field_34;
         } else {
             scenerySoundId = 'A';
@@ -1577,7 +1577,7 @@ char* gsnd_build_open_sfx_name(Object* object, int action)
         sprintf(sfx_file_name, "S%cDOORS%c", snd_lookup_scenery_action[action], scenerySoundId);
     } else {
         Proto* proto;
-        protoGetProto(object->pid, &proto);
+        proto_ptr(object->pid, &proto);
         sprintf(sfx_file_name, "I%cCNTNR%c", snd_lookup_scenery_action[action], proto->item.field_80);
     }
     strupr(sfx_file_name);

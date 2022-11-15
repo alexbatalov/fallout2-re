@@ -1133,7 +1133,7 @@ int editor_design(bool isCreationMode)
 
     if (rc == 0) {
         if (isCreationMode) {
-            _proto_dude_update_gender();
+            proto_dude_update_gender();
             palette_fade_to(black_palette);
         }
     }
@@ -3787,7 +3787,7 @@ static int OptionWindow()
                 strcpy(string2, getmsg(&editor_message_file, &mesg, 606));
 
                 if (dialog_out(NULL, dialogBody, 2, 169, 126, colorTable[992], NULL, colorTable[992], DIALOG_BOX_YES_NO) != 0) {
-                    _ResetPlayer();
+                    ResetPlayer();
                     skillsGetTagged(temp_tag_skill, NUM_TAGGED_SKILLS);
 
                     // NOTE: Uninline.
@@ -3897,7 +3897,7 @@ static int OptionWindow()
 
                         int oldRemainingCharacterPoints = character_points;
 
-                        _ResetPlayer();
+                        ResetPlayer();
 
                         if (pc_load_data(string4) == 0) {
                             // NOTE: Uninline.
@@ -4657,7 +4657,7 @@ static int CheckValidPlayer()
 static void SavePlayer()
 {
     Proto* proto;
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
     critter_copy(&dude_data, &(proto->critter.data));
 
     hp_back = critter_get_hits(obj_dude);
@@ -4692,7 +4692,7 @@ static void RestorePlayer()
 
     pop_perks();
 
-    protoGetProto(obj_dude->pid, &proto);
+    proto_ptr(obj_dude->pid, &proto);
     critter_copy(&(proto->critter.data), &dude_data);
 
     critter_pc_set_name(name_save);

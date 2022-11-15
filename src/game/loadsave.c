@@ -1609,7 +1609,7 @@ static int LoadSlot(int slot)
 
     sprintf(str, "%s\\", "MAPS");
     MapDirErase(str, "BAK");
-    _proto_dude_update_gender();
+    proto_dude_update_gender();
 
     // Game Loaded.
     lsgmesg.num = 141;
@@ -2270,7 +2270,7 @@ static int GameMap2Slot(File* stream)
         }
 
         char path[MAX_PATH];
-        if (_proto_list_str(pid, path) != 0) {
+        if (proto_list_str(pid, path) != 0) {
             continue;
         }
 
@@ -2405,7 +2405,7 @@ static int SlotMap2Game(File* stream)
         int pid = partyMemberPidList[index];
         if (pid != -2) {
             char protoPath[MAX_PATH];
-            if (_proto_list_str(pid, protoPath) == 0) {
+            if (proto_list_str(pid, protoPath) == 0) {
                 const char* basePath = PID_TYPE(pid) == OBJ_TYPE_CRITTER
                     ? "PROTO\\CRITTERS"
                     : "PROTO\\ITEMS";

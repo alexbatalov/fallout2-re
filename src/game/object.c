@@ -413,7 +413,7 @@ static int obj_read_obj(Object* obj, File* stream)
     obj->outline = 0;
     obj->owner = NULL;
 
-    if (objectDataRead(obj, stream) != 0) {
+    if (proto_read_protoUpdateData(obj, stream) != 0) {
         return -1;
     }
 
@@ -605,7 +605,7 @@ static void object_fix_weapon_ammo(Object* obj)
     }
 
     Proto* proto;
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         debugPrint("\nError: obj_load: proto_ptr failed on pid");
         exit(1);
     }
@@ -629,7 +629,7 @@ static void object_fix_weapon_ammo(Object* obj)
                 charges = proto->item.data.misc.charges;
                 obj->data.item.misc.charges = charges;
                 if (charges == 0xCCCCCCCC) {
-                    debugPrint("\nError: Misc Item Prototype %s: charges incorrect!", protoGetName(obj->pid));
+                    debugPrint("\nError: Misc Item Prototype %s: charges incorrect!", proto_name(obj->pid));
                     obj->data.item.misc.charges = 0;
                 }
             } else {
@@ -662,7 +662,7 @@ static int obj_write_obj(Object* obj, File* stream)
     if (fileWriteInt32(stream, obj->outline) == -1) return -1;
     if (fileWriteInt32(stream, obj->sid) == -1) return -1;
     if (fileWriteInt32(stream, obj->field_80) == -1) return -1;
-    if (objectDataWrite(obj, stream) == -1) return -1;
+    if (proto_write_protoUpdateData(obj, stream) == -1) return -1;
 
     return 0;
 }
@@ -929,10 +929,10 @@ int obj_new(Object** objectPtr, int fid, int pid)
         return 0;
     }
 
-    _proto_update_init(objectListNode->obj);
+    proto_update_init(objectListNode->obj);
 
     Proto* proto = NULL;
-    if (protoGetProto(pid, &proto) == -1) {
+    if (proto_ptr(pid, &proto) == -1) {
         return 0;
     }
 
@@ -994,7 +994,7 @@ int obj_pid_new(Object** objectPtr, int pid)
 
     *objectPtr = NULL;
 
-    if (protoGetProto(pid, &proto) == -1) {
+    if (proto_ptr(pid, &proto) == -1) {
         return -1;
     }
 
@@ -1021,7 +1021,7 @@ int obj_copy(Object** a1, Object* a2)
         return -1;
     }
 
-    objectDataReset(objectListNode->obj);
+    clear_pupdate_data(objectListNode->obj);
 
     memcpy(objectListNode->obj, a2, sizeof(Object));
 
@@ -2049,7 +2049,7 @@ bool obj_action_can_use(Object* obj)
 {
     int pid = obj->pid;
     if (pid != PROTO_ID_LIT_FLARE && pid != PROTO_ID_DYNAMITE_II && pid != PROTO_ID_PLASTIC_EXPLOSIVES_II) {
-        return _proto_action_can_use(pid);
+        return proto_action_can_use(pid);
     } else {
         return false;
     }
@@ -2058,7 +2058,7 @@ bool obj_action_can_use(Object* obj)
 // 0x48B278
 bool obj_action_can_talk_to(Object* obj)
 {
-    return _proto_action_can_talk_to(obj->pid) && (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) && critter_is_active(obj);
+    return proto_action_can_talk_to(obj->pid) && (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) && critter_is_active(obj);
 }
 
 // 0x48B2A8
@@ -2069,7 +2069,7 @@ bool obj_portal_is_walk_thru(Object* obj)
     }
 
     Proto* proto;
-    if (protoGetProto(obj->pid, &proto) == -1) {
+    if (proto_ptr(obj->pid, &proto) == -1) {
         return false;
     }
 
@@ -2948,7 +2948,7 @@ int obj_intersects_with(Object* object, int x, int y)
                             int type = FID_TYPE(object->fid);
                             if (type == OBJ_TYPE_SCENERY || type == OBJ_TYPE_WALL) {
                                 Proto* proto;
-                                protoGetProto(object->pid, &proto);
+                                proto_ptr(object->pid, &proto);
 
                                 bool v20;
                                 int extendedFlags = proto->scenery.extendedFlags;
@@ -3121,7 +3121,7 @@ char* object_name(Object* obj)
     case OBJ_TYPE_CRITTER:
         return critter_name(obj);
     default:
-        return protoGetName(obj->pid);
+        return proto_name(obj->pid);
     }
 }
 
@@ -3132,7 +3132,7 @@ char* object_description(Object* obj)
         return item_description(obj);
     }
 
-    return protoGetDescription(obj->pid);
+    return proto_description(obj->pid);
 }
 
 // Warm objects cache?
@@ -4555,7 +4555,7 @@ static int obj_adjust_light(Object* obj, int a2, Rect* rect)
                                     if (FID_TYPE(objectListNode->obj->fid) == OBJ_TYPE_WALL) {
                                         if ((objectListNode->obj->flags & OBJECT_FLAT) == 0) {
                                             Proto* proto;
-                                            protoGetProto(objectListNode->obj->pid, &proto);
+                                            proto_ptr(objectListNode->obj->pid, &proto);
                                             if ((proto->wall.extendedFlags & 0x8000000) != 0 || (proto->wall.extendedFlags & 0x40000000) != 0) {
                                                 if (rotation != ROTATION_W
                                                     && rotation != ROTATION_NW
@@ -4952,7 +4952,7 @@ static void obj_render_object(Object* object, Rect* rect, int light)
     if (type == 2 || type == 3) {
         if ((obj_dude->flags & OBJECT_HIDDEN) == 0 && (object->flags & OBJECT_FLAG_0xFC000) == 0) {
             Proto* proto;
-            protoGetProto(object->pid, &proto);
+            proto_ptr(object->pid, &proto);
 
             bool v17;
             int extendedFlags = proto->critter.extendedFlags;

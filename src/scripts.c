@@ -600,7 +600,7 @@ Program* scriptsCreateProgramByName(const char* name)
 {
     char path[MAX_PATH];
 
-    strcpy(path, _cd_path_base);
+    strcpy(path, cd_path_base);
     strcat(path, gScriptsBasePath);
     strcat(path, name);
     strcat(path, ".int");
@@ -1179,7 +1179,7 @@ int scriptsRequestStealing(Object* a1, Object* a2)
 // NOTE: Inlined.
 void _script_make_path(char* path)
 {
-    strcpy(path, _cd_path_base);
+    strcpy(path, cd_path_base);
     strcat(path, gScriptsBasePath);
 }
 
@@ -1396,7 +1396,7 @@ int scriptsSetDudeScript()
     }
 
     Proto* proto;
-    if (protoGetProto(0x1000000, &proto) == -1) {
+    if (proto_ptr(0x1000000, &proto) == -1) {
         debugPrint("Error in scr_set_dude_script: can't find obj_dude proto!");
         return -1;
     }
@@ -2636,7 +2636,7 @@ char* _scr_get_msg_str_speech(int messageListId, int messageId, int a3)
 
     if (messageListId == -2 && messageId == -2) {
         MessageListItem messageListItem;
-        return getmsg(&gProtoMessageList, &messageListItem, 650);
+        return getmsg(&proto_main_msg_file, &messageListItem, 650);
     }
 
     MessageList* messageList;
