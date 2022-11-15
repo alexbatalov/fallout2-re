@@ -1,14 +1,8 @@
-#ifndef SELFRUN_H
-#define SELFRUN_H
+#ifndef FALLOUT_GAME_SELFRUN_H_
+#define FALLOUT_GAME_SELFRUN_H_
 
 #define SELFRUN_RECORDING_FILE_NAME_LENGTH 13
 #define SELFRUN_MAP_FILE_NAME_LENGTH 13
-
-typedef enum SelfrunState {
-    SELFRUN_STATE_TURNED_OFF,
-    SELFRUN_STATE_PLAYING,
-    SELFRUN_STATE_RECORDING,
-} SelfrunState;
 
 typedef struct SelfrunData {
     char recordingFileName[SELFRUN_RECORDING_FILE_NAME_LENGTH];
@@ -18,16 +12,11 @@ typedef struct SelfrunData {
 
 static_assert(sizeof(SelfrunData) == 32, "wrong size");
 
-extern int gSelfrunState;
+int selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr);
+int selfrun_free_list(char*** fileListPtr);
+int selfrun_prep_playback(const char* fileName, SelfrunData* selfrunData);
+void selfrun_playback_loop(SelfrunData* selfrunData);
+int selfrun_prep_recording(const char* recordingName, const char* mapFileName, SelfrunData* selfrunData);
+void selfrun_recording_loop(SelfrunData* selfrunData);
 
-int selfrunInitFileList(char*** fileListPtr, int* fileListLengthPtr);
-int selfrunFreeFileList(char*** fileListPtr);
-int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunData);
-void selfrunPlaybackLoop(SelfrunData* selfrunData);
-int selfrunPrepareRecording(const char* recordingName, const char* mapFileName, SelfrunData* selfrunData);
-void selfrunRecordingLoop(SelfrunData* selfrunData);
-void selfrunPlaybackCompleted(int reason);
-int selfrunReadData(const char* path, SelfrunData* selfrunData);
-int selfrunWriteData(const char* path, SelfrunData* selfrunData);
-
-#endif /* SELFRUN_H */
+#endif /* FALLOUT_GAME_SELFRUN_H_ */

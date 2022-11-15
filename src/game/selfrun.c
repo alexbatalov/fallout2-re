@@ -9,11 +9,21 @@
 #include "game/gconfig.h"
 #include "vcr.h"
 
+typedef enum SelfrunState {
+    SELFRUN_STATE_TURNED_OFF,
+    SELFRUN_STATE_PLAYING,
+    SELFRUN_STATE_RECORDING,
+} SelfrunState;
+
+static void selfrun_playback_callback(int reason);
+static int selfrun_load_data(const char* path, SelfrunData* selfrunData);
+static int selfrun_save_data(const char* path, SelfrunData* selfrunData);
+
 // 0x51C8D8
-int gSelfrunState = SELFRUN_STATE_TURNED_OFF;
+static int selfrun_state = SELFRUN_STATE_TURNED_OFF;
 
 // 0x4A8BE0
-int selfrunInitFileList(char*** fileListPtr, int* fileListLengthPtr)
+int selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr)
 {
     if (fileListPtr == NULL) {
         return -1;
@@ -29,7 +39,7 @@ int selfrunInitFileList(char*** fileListPtr, int* fileListLengthPtr)
 }
 
 // 0x4A8C10
-int selfrunFreeFileList(char*** fileListPtr)
+int selfrun_free_list(char*** fileListPtr)
 {
     if (fileListPtr == NULL) {
         return -1;
@@ -41,7 +51,7 @@ int selfrunFreeFileList(char*** fileListPtr)
 }
 
 // 0x4A8C28
-int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunData)
+int selfrun_prep_playback(const char* fileName, SelfrunData* selfrunData)
 {
     if (fileName == NULL) {
         return -1;
@@ -55,36 +65,36 @@ int selfrunPreparePlayback(const char* fileName, SelfrunData* selfrunData)
         return -1;
     }
 
-    if (gSelfrunState != SELFRUN_STATE_TURNED_OFF) {
+    if (selfrun_state != SELFRUN_STATE_TURNED_OFF) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", "selfrun\\", fileName);
 
-    if (selfrunReadData(path, selfrunData) != 0) {
+    if (selfrun_load_data(path, selfrunData) != 0) {
         return -1;
     }
 
-    gSelfrunState = SELFRUN_STATE_PLAYING;
+    selfrun_state = SELFRUN_STATE_PLAYING;
 
     return 0;
 }
 
 // 0x4A8C88
-void selfrunPlaybackLoop(SelfrunData* selfrunData)
+void selfrun_playback_loop(SelfrunData* selfrunData)
 {
-    if (gSelfrunState == SELFRUN_STATE_PLAYING) {
+    if (selfrun_state == SELFRUN_STATE_PLAYING) {
         char path[MAX_PATH];
         sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
 
-        if (vcr_play(path, VCR_TERMINATE_ON_KEY_PRESS | VCR_TERMINATE_ON_MOUSE_PRESS, selfrunPlaybackCompleted)) {
+        if (vcr_play(path, VCR_TERMINATE_ON_KEY_PRESS | VCR_TERMINATE_ON_MOUSE_PRESS, selfrun_playback_callback)) {
             bool cursorWasHidden = mouse_hidden();
             if (cursorWasHidden) {
                 mouse_show();
             }
 
-            while (gSelfrunState == SELFRUN_STATE_PLAYING) {
+            while (selfrun_state == SELFRUN_STATE_PLAYING) {
                 int keyCode = _get_input();
                 if (keyCode != selfrunData->stopKeyCode) {
                     game_handle_input(keyCode, false);
@@ -103,7 +113,7 @@ void selfrunPlaybackLoop(SelfrunData* selfrunData)
 }
 
 // 0x4A8D28
-int selfrunPrepareRecording(const char* recordingName, const char* mapFileName, SelfrunData* selfrunData)
+int selfrun_prep_recording(const char* recordingName, const char* mapFileName, SelfrunData* selfrunData)
 {
     if (recordingName == NULL) {
         return -1;
@@ -117,7 +127,7 @@ int selfrunPrepareRecording(const char* recordingName, const char* mapFileName, 
         return -1;
     }
 
-    if (gSelfrunState != SELFRUN_STATE_TURNED_OFF) {
+    if (selfrun_state != SELFRUN_STATE_TURNED_OFF) {
         return -1;
     }
 
@@ -129,19 +139,19 @@ int selfrunPrepareRecording(const char* recordingName, const char* mapFileName, 
     char path[MAX_PATH];
     sprintf(path, "%s%s%s", "selfrun\\", recordingName, ".sdf");
 
-    if (selfrunWriteData(path, selfrunData) != 0) {
+    if (selfrun_save_data(path, selfrunData) != 0) {
         return -1;
     }
 
-    gSelfrunState = SELFRUN_STATE_RECORDING;
+    selfrun_state = SELFRUN_STATE_RECORDING;
 
     return 0;
 }
 
 // 0x4A8DDC
-void selfrunRecordingLoop(SelfrunData* selfrunData)
+void selfrun_recording_loop(SelfrunData* selfrunData)
 {
-    if (gSelfrunState == SELFRUN_STATE_RECORDING) {
+    if (selfrun_state == SELFRUN_STATE_RECORDING) {
         char path[MAX_PATH];
         sprintf(path, "%s%s", "selfrun\\", selfrunData->recordingFileName);
         if (vcr_record(path)) {
@@ -161,19 +171,19 @@ void selfrunRecordingLoop(SelfrunData* selfrunData)
                 }
             }
         }
-        gSelfrunState = SELFRUN_STATE_TURNED_OFF;
+        selfrun_state = SELFRUN_STATE_TURNED_OFF;
     }
 }
 
 // 0x4A8E74
-void selfrunPlaybackCompleted(int reason)
+static void selfrun_playback_callback(int reason)
 {
     game_user_wants_to_quit = 2;
-    gSelfrunState = SELFRUN_STATE_TURNED_OFF;
+    selfrun_state = SELFRUN_STATE_TURNED_OFF;
 }
 
 // 0x4A8E8C
-int selfrunReadData(const char* path, SelfrunData* selfrunData)
+static int selfrun_load_data(const char* path, SelfrunData* selfrunData)
 {
     if (path == NULL) {
         return -1;
@@ -201,7 +211,7 @@ int selfrunReadData(const char* path, SelfrunData* selfrunData)
 }
 
 // 0x4A8EF4
-int selfrunWriteData(const char* path, SelfrunData* selfrunData)
+static int selfrun_save_data(const char* path, SelfrunData* selfrunData)
 {
     if (path == NULL) {
         return -1;

@@ -364,7 +364,7 @@ static bool main_selfrun_init()
         main_selfrun_exit();
     }
 
-    if (selfrunInitFileList(&main_selfrun_list, &main_selfrun_count) != 0) {
+    if (selfrun_get_list(&main_selfrun_list, &main_selfrun_count) != 0) {
         return false;
     }
 
@@ -377,7 +377,7 @@ static bool main_selfrun_init()
 static void main_selfrun_exit()
 {
     if (main_selfrun_list != NULL) {
-        selfrunFreeFileList(&main_selfrun_list);
+        selfrun_free_list(&main_selfrun_list);
     }
 
     main_selfrun_count = 0;
@@ -402,7 +402,7 @@ static void main_selfrun_record()
             recordingName[0] = '\0';
             if (_win_get_str(recordingName, sizeof(recordingName) - 2, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
                 memset(&selfrunData, 0, sizeof(selfrunData));
-                if (selfrunPrepareRecording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {
+                if (selfrun_prep_recording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {
                     ready = true;
                 }
             }
@@ -421,7 +421,7 @@ static void main_selfrun_record()
 
         proto_dude_init("premade\\combat.gcd");
         main_load_new(selfrunData.mapFileName);
-        selfrunRecordingLoop(&selfrunData);
+        selfrun_recording_loop(&selfrunData);
         palette_fade_to(white_palette);
 
         // NOTE: Uninline.
@@ -452,7 +452,7 @@ static void main_selfrun_play()
 
     if (!toggle && main_selfrun_count > 0) {
         SelfrunData selfrunData;
-        if (selfrunPreparePlayback(main_selfrun_list[main_selfrun_index], &selfrunData) == 0) {
+        if (selfrun_prep_playback(main_selfrun_list[main_selfrun_index], &selfrunData) == 0) {
             main_menu_hide(true);
             main_menu_destroy();
             gsound_background_stop();
@@ -463,7 +463,7 @@ static void main_selfrun_play()
 
             proto_dude_init("premade\\combat.gcd");
             main_load_new(selfrunData.mapFileName);
-            selfrunPlaybackLoop(&selfrunData);
+            selfrun_playback_loop(&selfrunData);
             palette_fade_to(white_palette);
 
             // NOTE: Uninline.
