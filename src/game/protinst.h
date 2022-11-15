@@ -1,5 +1,5 @@
-#ifndef PROTOTYPE_INSTANCES_H
-#define PROTOTYPE_INSTANCES_H
+#ifndef FALLOUT_GAME_PROTINST_H_
+#define FALLOUT_GAME_PROTINST_H_
 
 #include <stdbool.h>
 
@@ -47,4 +47,4 @@ int obj_unjam_all_locks();
 int obj_attempt_placement(Object* obj, int tile, int elevation, int a4);
 int objPMAttemptPlacement(Object* obj, int tile, int elevation);
 
-#endif /* PROTOTYPE_INSTANCES_H */
+#endif /* FALLOUT_GAME_PROTINST_H_ */
