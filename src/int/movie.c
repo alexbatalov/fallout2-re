@@ -647,6 +647,14 @@ int movieSetFlags(int flags)
     return 0;
 }
 
+// NOTE: Unused.
+//
+// 0x48720C
+void movieSetSubtitleFont(int font)
+{
+    subtitleFont = font;
+}
+
 // 0x48725C
 void movieSetPaletteFunc(MoviePaletteFunc* func)
 {
