@@ -131,17 +131,17 @@ static_assert(sizeof(PreferenceDescription) == 76, "wrong size");
 static int OptnStart();
 static int OptnEnd();
 static void ShadeScreen(bool a1);
+static int do_prefscreen();
+static int PrefStart();
+static void DoThing(int eventCode);
+static void UpdateThing(int index);
+static int PrefEnd();
 static void SetSystemPrefs();
+static int SavePrefs(bool save);
+static void SetDefaults(bool a1);
 static void SaveSettings();
 static void RestoreSettings();
-static void SetDefaults(bool a1);
 static void JustUpdate();
-static void UpdateThing(int index);
-static int SavePrefs(bool save);
-static int PrefStart();
-static int PrefEnd();
-static int do_prefscreen();
-static void DoThing(int eventCode);
 
 // 0x48FBD0
 static const short row1Ytab[PRIMARY_PREF_COUNT] = {
@@ -867,589 +867,60 @@ static void ShadeScreen(bool a1)
     mouse_show();
 }
 
-// 0x492AA8
-static void SetSystemPrefs()
+// 0x490798
+static int do_prefscreen()
 {
-    SetDefaults(false);
-
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &game_difficulty);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violence_level);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &target_highlight);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, &combat_messages);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLookValue);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, &combat_taunts);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &language_filter);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &prf_running);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, &item_highlight);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combat_speed);
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &text_delay);
-    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &player_speedup);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, &master_volume);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, &music_volume);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, &sndfx_volume);
-    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &speech_volume);
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, &mouse_sens);
-
-    JustUpdate();
-}
-
-// Copy options (1) to (2).
-//
-// 0x493054
-static void SaveSettings()
-{
-    gPreferencesGameDifficulty2 = game_difficulty;
-    gPreferencesCombatDifficulty2 = combat_difficulty;
-    gPreferencesViolenceLevel2 = violence_level;
-    gPreferencesTargetHighlight2 = target_highlight;
-    gPreferencesCombatLooks2 = combatLookValue;
-    gPreferencesCombatMessages2 = combat_messages;
-    gPreferencesCombatTaunts2 = combat_taunts;
-    gPreferencesLanguageFilter2 = language_filter;
-    gPreferencesRunning2 = prf_running;
-    gPreferencesSubtitles2 = subtitles;
-    gPreferencesItemHighlight2 = item_highlight;
-    gPreferencesCombatSpeed2 = combat_speed;
-    gPreferencesPlayerSpeedup2 = player_speedup;
-    gPreferencesMasterVolume2 = master_volume;
-    text_delay_back = text_delay;
-    gPreferencesMusicVolume2 = music_volume;
-    gamma_value_back = gamma_value;
-    gPreferencesSoundEffectsVolume2 = sndfx_volume;
-    mouse_sens_back = mouse_sens;
-    gPreferencesSpeechVolume2 = speech_volume;
-}
-
-// Copy options (2) to (1).
-//
-// 0x493128
-static void RestoreSettings()
-{
-    game_difficulty = gPreferencesGameDifficulty2;
-    combat_difficulty = gPreferencesCombatDifficulty2;
-    violence_level = gPreferencesViolenceLevel2;
-    target_highlight = gPreferencesTargetHighlight2;
-    combatLookValue = gPreferencesCombatLooks2;
-    combat_messages = gPreferencesCombatMessages2;
-    combat_taunts = gPreferencesCombatTaunts2;
-    language_filter = gPreferencesLanguageFilter2;
-    prf_running = gPreferencesRunning2;
-    subtitles = gPreferencesSubtitles2;
-    item_highlight = gPreferencesItemHighlight2;
-    combat_speed = gPreferencesCombatSpeed2;
-    player_speedup = gPreferencesPlayerSpeedup2;
-    master_volume = gPreferencesMasterVolume2;
-    text_delay = text_delay_back;
-    music_volume = gPreferencesMusicVolume2;
-    gamma_value = gamma_value_back;
-    sndfx_volume = gPreferencesSoundEffectsVolume2;
-    mouse_sens = mouse_sens_back;
-    speech_volume = gPreferencesSpeechVolume2;
-
-    JustUpdate();
-}
-
-// 0x492F60
-static void SetDefaults(bool a1)
-{
-    combat_difficulty = COMBAT_DIFFICULTY_NORMAL;
-    violence_level = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
-    target_highlight = TARGET_HIGHLIGHT_TARGETING_ONLY;
-    combat_messages = 1;
-    combatLookValue = 0;
-    combat_taunts = 1;
-    prf_running = 0;
-    subtitles = 0;
-    item_highlight = 1;
-    combat_speed = 0;
-    player_speedup = 0;
-    text_delay = 3.5;
-    gamma_value = 1.0;
-    mouse_sens = 1.0;
-    game_difficulty = 1;
-    language_filter = 0;
-    master_volume = 22281;
-    music_volume = 22281;
-    sndfx_volume = 22281;
-    speech_volume = 22281;
-
-    if (a1) {
-        for (int index = 0; index < PREF_COUNT; index++) {
-            UpdateThing(index);
-        }
-        _win_set_button_rest_state(plyrspdbid, player_speedup, 0);
-        win_draw(prfwin);
-        changed = true;
-    }
-}
-
-// 0x4931F8
-static void JustUpdate()
-{
-    game_difficulty = min(max(game_difficulty, 0), 2);
-    combat_difficulty = min(max(combat_difficulty, 0), 2);
-    violence_level = min(max(violence_level, 0), 3);
-    target_highlight = min(max(target_highlight, 0), 2);
-    combat_messages = min(max(combat_messages, 0), 1);
-    combatLookValue = min(max(combatLookValue, 0), 1);
-    combat_taunts = min(max(combat_taunts, 0), 1);
-    language_filter = min(max(language_filter, 0), 1);
-    prf_running = min(max(prf_running, 0), 1);
-    subtitles = min(max(subtitles, 0), 1);
-    item_highlight = min(max(item_highlight, 0), 1);
-    combat_speed = min(max(combat_speed, 0), 50);
-    player_speedup = min(max(player_speedup, 0), 1);
-    text_delay = min(max(text_delay, 1.0), 6.0);
-    master_volume = min(max(master_volume, 0), VOLUME_MAX);
-    music_volume = min(max(music_volume, 0), VOLUME_MAX);
-    sndfx_volume = min(max(sndfx_volume, 0), VOLUME_MAX);
-    speech_volume = min(max(speech_volume, 0), VOLUME_MAX);
-    gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
-    mouse_sens = min(max(mouse_sens, 1.0), 2.5);
-
-    textObjectsSetBaseDelay(text_delay);
-    gmouse_3d_synch_item_highlight();
-
-    double textLineDelay = (text_delay + (-1.0)) * 0.2 * 2.0;
-    textLineDelay = min(max(textLineDelay, 0.0), 2.0);
-
-    textObjectsSetLineDelay(textLineDelay);
-    combatai_refresh_messages();
-    _scr_message_free();
-    gsound_set_master_volume(master_volume);
-    gsound_background_volume_set(music_volume);
-    gsound_set_sfx_volume(sndfx_volume);
-    gsound_speech_volume_set(speech_volume);
-    mouse_set_sensitivity(mouse_sens);
-    colorGamma(gamma_value);
-}
-
-// init_options_menu
-// 0x4928B8
-int init_options_menu()
-{
-    for (int index = 0; index < 11; index++) {
-        btndat[index].direction = 0;
+    if (PrefStart() == -1) {
+        debugPrint("\nPREFERENCE MENU: Error loading preference dialog data!\n");
+        return -1;
     }
 
-    SetSystemPrefs();
+    int rc = -1;
+    while (rc == -1) {
+        int eventCode = _get_input();
 
-    InitGreyTable(0, 255);
-
-    return 0;
-}
-
-// 0x491A68
-static void UpdateThing(int index)
-{
-    fontSetCurrent(101);
-
-    PreferenceDescription* meta = &(btndat[index]);
-
-    if (index >= FIRST_PRIMARY_PREF && index <= LAST_PRIMARY_PREF) {
-        // 0x48FC1C
-        static const int offsets[PRIMARY_PREF_COUNT] = {
-            66, // game difficulty
-            143, // combat difficulty
-            222, // violence level
-            304, // target highlight
-            382, // combat looks
-        };
-
-        int primaryOptionIndex = index - FIRST_PRIMARY_PREF;
-
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[primaryOptionIndex] + 23, 160, 54, 640, prefbuf + 640 * offsets[primaryOptionIndex] + 23, 640);
-
-        for (int valueIndex = 0; valueIndex < meta->valuesCount; valueIndex++) {
-            const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[valueIndex]);
-
-            char copy[100]; // TODO: Size is probably wrong.
-            strcpy(copy, text);
-
-            int x = meta->knobX + bglbx[valueIndex];
-            int len = fontGetStringWidth(copy);
-            switch (valueIndex) {
-            case 0:
-                x -= fontGetStringWidth(copy);
-                meta->minX = x;
-                break;
-            case 1:
-                x -= len / 2;
-                meta->maxX = x + len;
-                break;
-            case 2:
-            case 3:
-                meta->maxX = x + len;
-                break;
-            }
-
-            char* p = copy;
-            while (*p != '\0' && *p != ' ') {
-                p++;
-            }
-
-            int y = meta->knobY + bglby[valueIndex];
-            const char* s;
-            if (*p != '\0') {
-                *p = '\0';
-                fontDrawText(prefbuf + 640 * y + x, copy, 640, 640, colorTable[18979]);
-                s = p + 1;
-                y += fontGetLineHeight();
-            } else {
-                s = copy;
-            }
-
-            fontDrawText(prefbuf + 640 * y + x, s, 640, 640, colorTable[18979]);
-        }
-
-        int value = *(meta->valuePtr);
-        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH] + (46 * 47) * value, 46, 47, 46, prefbuf + 640 * meta->knobY + meta->knobX, 640);
-    } else if (index >= FIRST_SECONDARY_PREF && index <= LAST_SECONDARY_PREF) {
-        // 0x48FC30
-        static const int offsets[SECONDARY_PREF_COUNT] = {
-            66, // combat messages
-            133, // combat taunts
-            200, // language filter
-            264, // running
-            331, // subtitles
-            397, // item highlight
-        };
-
-        int secondaryOptionIndex = index - FIRST_SECONDARY_PREF;
-
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[secondaryOptionIndex] + 251, 113, 34, 640, prefbuf + 640 * offsets[secondaryOptionIndex] + 251, 640);
-
-        // Secondary options are booleans, so it's index is also it's value.
-        for (int value = 0; value < 2; value++) {
-            const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[value]);
-
-            int x;
-            if (value) {
-                x = meta->knobX + smlbx[value];
-                meta->maxX = x + fontGetStringWidth(text);
-            } else {
-                x = meta->knobX + smlbx[value] - fontGetStringWidth(text);
-                meta->minX = x;
-            }
-            fontDrawText(prefbuf + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
-        }
-
-        int value = *(meta->valuePtr);
-        if (index == PREF_COMBAT_MESSAGES) {
-            value ^= 1;
-        }
-        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH] + (22 * 25) * value, 22, 25, 22, prefbuf + 640 * meta->knobY + meta->knobX, 640);
-    } else if (index >= FIRST_RANGE_PREF && index <= LAST_RANGE_PREF) {
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * (meta->knobY - 12) + 384, 240, 24, 640, prefbuf + 640 * (meta->knobY - 12) + 384, 640);
-        switch (index) {
-        case PREF_COMBAT_SPEED:
-            if (1) {
-                double value = *meta->valuePtr;
-                value = min(max(value, 0.0), 50.0);
-
-                int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
-            }
+        switch (eventCode) {
+        case KEY_RETURN:
+        case KEY_UPPERCASE_P:
+        case KEY_LOWERCASE_P:
+            gsound_play_sfx_file("ib1p1xx1");
+            // FALLTHROUGH
+        case 504:
+            rc = 1;
             break;
-        case PREF_TEXT_BASE_DELAY:
-            if (1) {
-                text_delay = min(max(text_delay, 1.0), 6.0);
-
-                int x = (int)((6.0 - text_delay) * 43.8 + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
-
-                double value = (text_delay - 1.0) * 0.2 * 2.0;
-                value = min(max(value, 0.0), 2.0);
-
-                textObjectsSetBaseDelay(text_delay);
-                textObjectsSetLineDelay(value);
-            }
+        case KEY_CTRL_Q:
+        case KEY_CTRL_X:
+        case KEY_F10:
+            game_quit_with_confirm();
             break;
-        case PREF_MASTER_VOLUME:
-        case PREF_MUSIC_VOLUME:
-        case PREF_SFX_VOLUME:
-        case PREF_SPEECH_VOLUME:
-            if (1) {
-                double value = *meta->valuePtr;
-                value = min(max(value, meta->minValue), meta->maxValue);
-
-                int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
-
-                switch (index) {
-                case PREF_MASTER_VOLUME:
-                    gsound_set_master_volume(master_volume);
-                    break;
-                case PREF_MUSIC_VOLUME:
-                    gsound_background_volume_set(music_volume);
-                    break;
-                case PREF_SFX_VOLUME:
-                    gsound_set_sfx_volume(sndfx_volume);
-                    break;
-                case PREF_SPEECH_VOLUME:
-                    gsound_speech_volume_set(speech_volume);
-                    break;
-                }
-            }
+        case KEY_EQUAL:
+        case KEY_PLUS:
+            IncGamma();
             break;
-        case PREF_BRIGHTNESS:
-            if (1) {
-                gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
-
-                int x = (int)((gamma_value - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
-
-                colorGamma(gamma_value);
-            }
+        case KEY_MINUS:
+        case KEY_UNDERSCORE:
+            DecGamma();
             break;
-        case PREF_MOUSE_SENSITIVIY:
-            if (1) {
-                mouse_sens = min(max(mouse_sens, 1.0), 2.5);
-
-                int x = (int)((mouse_sens - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
-
-                mouse_set_sensitivity(mouse_sens);
+        case KEY_F12:
+            takeScreenshot();
+            break;
+        case 527:
+            SetDefaults(true);
+            break;
+        default:
+            if (eventCode == KEY_ESCAPE || eventCode == 528 || game_user_wants_to_quit != 0) {
+                RestoreSettings();
+                rc = 0;
+            } else if (eventCode >= 505 && eventCode <= 524) {
+                DoThing(eventCode);
             }
             break;
         }
-
-        for (int optionIndex = 0; optionIndex < meta->valuesCount; optionIndex++) {
-            const char* str = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[optionIndex]);
-
-            int x;
-            switch (optionIndex) {
-            case 0:
-                // 0x4926AA
-                x = 384;
-                // TODO: Incomplete.
-                break;
-            case 1:
-                // 0x4926F3
-                switch (meta->valuesCount) {
-                case 2:
-                    x = 624 - fontGetStringWidth(str);
-                    break;
-                case 3:
-                    // This code path does not use floating-point arithmetic
-                    x = 504 - fontGetStringWidth(str) / 2 - 2;
-                    break;
-                case 4:
-                    // Uses floating-point arithmetic
-                    x = 444 + fontGetStringWidth(str) / 2 - 8;
-                    break;
-                }
-                break;
-            case 2:
-                // 0x492766
-                switch (meta->valuesCount) {
-                case 3:
-                    x = 624 - fontGetStringWidth(str);
-                    break;
-                case 4:
-                    // Uses floating-point arithmetic
-                    x = 564 - fontGetStringWidth(str) - 4;
-                    break;
-                }
-                break;
-            case 3:
-                // 0x49279E
-                x = 624 - fontGetStringWidth(str);
-                break;
-            }
-            fontDrawText(prefbuf + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
-        }
-    } else {
-        // return false;
     }
 
-    // TODO: Incomplete.
+    PrefEnd();
 
-    // return true;
-}
-
-// 0x492CB0
-static int SavePrefs(bool save)
-{
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, game_difficulty);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, combat_difficulty);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, violence_level);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, target_highlight);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, combat_messages);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, combatLookValue);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, combat_taunts);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, language_filter);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, prf_running);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, subtitles);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, item_highlight);
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, combat_speed);
-    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, text_delay);
-
-    double textLineDelay = (text_delay - 1.0) / 5.0 * 2.0;
-    if (textLineDelay >= 0.0) {
-        if (textLineDelay > 2.0) {
-            textLineDelay = 2.0;
-        }
-
-        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, textLineDelay);
-    } else {
-        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, 0.0);
-    }
-
-    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, player_speedup);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, master_volume);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, music_volume);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, sndfx_volume);
-    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, speech_volume);
-
-    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
-    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, mouse_sens);
-
-    if (save) {
-        gconfig_save();
-    }
-
-    return 0;
-}
-
-// 0x493224
-int save_options(File* stream)
-{
-    float textBaseDelay = (float)text_delay;
-    float brightness = (float)gamma_value;
-    float mouseSensitivity = (float)mouse_sens;
-
-    if (fileWriteInt32(stream, game_difficulty) == -1) goto err;
-    if (fileWriteInt32(stream, combat_difficulty) == -1) goto err;
-    if (fileWriteInt32(stream, violence_level) == -1) goto err;
-    if (fileWriteInt32(stream, target_highlight) == -1) goto err;
-    if (fileWriteInt32(stream, combatLookValue) == -1) goto err;
-    if (fileWriteInt32(stream, combat_messages) == -1) goto err;
-    if (fileWriteInt32(stream, combat_taunts) == -1) goto err;
-    if (fileWriteInt32(stream, language_filter) == -1) goto err;
-    if (fileWriteInt32(stream, prf_running) == -1) goto err;
-    if (fileWriteInt32(stream, subtitles) == -1) goto err;
-    if (fileWriteInt32(stream, item_highlight) == -1) goto err;
-    if (fileWriteInt32(stream, combat_speed) == -1) goto err;
-    if (fileWriteInt32(stream, player_speedup) == -1) goto err;
-    if (fileWriteFloat(stream, textBaseDelay) == -1) goto err;
-    if (fileWriteInt32(stream, master_volume) == -1) goto err;
-    if (fileWriteInt32(stream, music_volume) == -1) goto err;
-    if (fileWriteInt32(stream, sndfx_volume) == -1) goto err;
-    if (fileWriteInt32(stream, speech_volume) == -1) goto err;
-    if (fileWriteFloat(stream, brightness) == -1) goto err;
-    if (fileWriteFloat(stream, mouseSensitivity) == -1) goto err;
-
-    return 0;
-
-err:
-
-    debugPrint("\nOPTION MENU: Error save option data!\n");
-
-    return -1;
-}
-
-// 0x49340C
-int load_options(File* stream)
-{
-    float textBaseDelay;
-    float brightness;
-    float mouseSensitivity;
-
-    SetDefaults(false);
-
-    if (fileReadInt32(stream, &game_difficulty) == -1) goto err;
-    if (fileReadInt32(stream, &combat_difficulty) == -1) goto err;
-    if (fileReadInt32(stream, &violence_level) == -1) goto err;
-    if (fileReadInt32(stream, &target_highlight) == -1) goto err;
-    if (fileReadInt32(stream, &combatLookValue) == -1) goto err;
-    if (fileReadInt32(stream, &combat_messages) == -1) goto err;
-    if (fileReadInt32(stream, &combat_taunts) == -1) goto err;
-    if (fileReadInt32(stream, &language_filter) == -1) goto err;
-    if (fileReadInt32(stream, &prf_running) == -1) goto err;
-    if (fileReadInt32(stream, &subtitles) == -1) goto err;
-    if (fileReadInt32(stream, &item_highlight) == -1) goto err;
-    if (fileReadInt32(stream, &combat_speed) == -1) goto err;
-    if (fileReadInt32(stream, &player_speedup) == -1) goto err;
-    if (fileReadFloat(stream, &textBaseDelay) == -1) goto err;
-    if (fileReadInt32(stream, &master_volume) == -1) goto err;
-    if (fileReadInt32(stream, &music_volume) == -1) goto err;
-    if (fileReadInt32(stream, &sndfx_volume) == -1) goto err;
-    if (fileReadInt32(stream, &speech_volume) == -1) goto err;
-    if (fileReadFloat(stream, &brightness) == -1) goto err;
-    if (fileReadFloat(stream, &mouseSensitivity) == -1) goto err;
-
-    gamma_value = brightness;
-    mouse_sens = mouseSensitivity;
-    text_delay = textBaseDelay;
-
-    JustUpdate();
-    SavePrefs(0);
-
-    return 0;
-
-err:
-
-    debugPrint("\nOPTION MENU: Error loading option data!, using defaults.\n");
-
-    SetDefaults(false);
-    JustUpdate();
-    SavePrefs(0);
-
-    return -1;
-}
-
-// 0x4928E4
-void IncGamma()
-{
-    gamma_value = GAMMA_MIN;
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
-
-    if (gamma_value < GAMMA_MAX) {
-        gamma_value += GAMMA_STEP;
-
-        if (gamma_value >= GAMMA_MIN) {
-            if (gamma_value > GAMMA_MAX) {
-                gamma_value = GAMMA_MAX;
-            }
-        } else {
-            gamma_value = GAMMA_MIN;
-        }
-
-        colorGamma(gamma_value);
-
-        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
-
-        gconfig_save();
-    }
-}
-
-// 0x4929C8
-void DecGamma()
-{
-    gamma_value = GAMMA_MIN;
-    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
-
-    if (gamma_value > GAMMA_MIN) {
-        gamma_value -= GAMMA_STEP;
-
-        if (gamma_value >= GAMMA_MIN) {
-            if (gamma_value > GAMMA_MAX) {
-                gamma_value = GAMMA_MAX;
-            }
-        } else {
-            gamma_value = GAMMA_MIN;
-        }
-
-        colorGamma(gamma_value);
-
-        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
-
-        gconfig_save();
-    }
+    return rc;
 }
 
 // 0x4908A0
@@ -1661,80 +1132,6 @@ static int PrefStart()
     win_draw(prfwin);
 
     return 0;
-}
-
-// 0x492870
-static int PrefEnd()
-{
-    if (changed) {
-        SavePrefs(1);
-        JustUpdate();
-        combat_highlight_change();
-    }
-
-    windowDestroy(prfwin);
-
-    for (int index = 0; index < PREFERENCES_WINDOW_FRM_COUNT; index++) {
-        art_ptr_unlock(grphkey2[index]);
-    }
-
-    return 0;
-}
-
-// 0x490798
-static int do_prefscreen()
-{
-    if (PrefStart() == -1) {
-        debugPrint("\nPREFERENCE MENU: Error loading preference dialog data!\n");
-        return -1;
-    }
-
-    int rc = -1;
-    while (rc == -1) {
-        int eventCode = _get_input();
-
-        switch (eventCode) {
-        case KEY_RETURN:
-        case KEY_UPPERCASE_P:
-        case KEY_LOWERCASE_P:
-            gsound_play_sfx_file("ib1p1xx1");
-            // FALLTHROUGH
-        case 504:
-            rc = 1;
-            break;
-        case KEY_CTRL_Q:
-        case KEY_CTRL_X:
-        case KEY_F10:
-            game_quit_with_confirm();
-            break;
-        case KEY_EQUAL:
-        case KEY_PLUS:
-            IncGamma();
-            break;
-        case KEY_MINUS:
-        case KEY_UNDERSCORE:
-            DecGamma();
-            break;
-        case KEY_F12:
-            takeScreenshot();
-            break;
-        case 527:
-            SetDefaults(true);
-            break;
-        default:
-            if (eventCode == KEY_ESCAPE || eventCode == 528 || game_user_wants_to_quit != 0) {
-                RestoreSettings();
-                rc = 0;
-            } else if (eventCode >= 505 && eventCode <= 524) {
-                DoThing(eventCode);
-            }
-            break;
-        }
-    }
-
-    PrefEnd();
-
-    return rc;
 }
 
 // 0x490E8C
@@ -2033,4 +1430,606 @@ static void DoThing(int eventCode)
     }
 
     changed = true;
+}
+
+// 0x491A68
+static void UpdateThing(int index)
+{
+    fontSetCurrent(101);
+
+    PreferenceDescription* meta = &(btndat[index]);
+
+    if (index >= FIRST_PRIMARY_PREF && index <= LAST_PRIMARY_PREF) {
+        // 0x48FC1C
+        static const int offsets[PRIMARY_PREF_COUNT] = {
+            66, // game difficulty
+            143, // combat difficulty
+            222, // violence level
+            304, // target highlight
+            382, // combat looks
+        };
+
+        int primaryOptionIndex = index - FIRST_PRIMARY_PREF;
+
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[primaryOptionIndex] + 23, 160, 54, 640, prefbuf + 640 * offsets[primaryOptionIndex] + 23, 640);
+
+        for (int valueIndex = 0; valueIndex < meta->valuesCount; valueIndex++) {
+            const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[valueIndex]);
+
+            char copy[100]; // TODO: Size is probably wrong.
+            strcpy(copy, text);
+
+            int x = meta->knobX + bglbx[valueIndex];
+            int len = fontGetStringWidth(copy);
+            switch (valueIndex) {
+            case 0:
+                x -= fontGetStringWidth(copy);
+                meta->minX = x;
+                break;
+            case 1:
+                x -= len / 2;
+                meta->maxX = x + len;
+                break;
+            case 2:
+            case 3:
+                meta->maxX = x + len;
+                break;
+            }
+
+            char* p = copy;
+            while (*p != '\0' && *p != ' ') {
+                p++;
+            }
+
+            int y = meta->knobY + bglby[valueIndex];
+            const char* s;
+            if (*p != '\0') {
+                *p = '\0';
+                fontDrawText(prefbuf + 640 * y + x, copy, 640, 640, colorTable[18979]);
+                s = p + 1;
+                y += fontGetLineHeight();
+            } else {
+                s = copy;
+            }
+
+            fontDrawText(prefbuf + 640 * y + x, s, 640, 640, colorTable[18979]);
+        }
+
+        int value = *(meta->valuePtr);
+        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH] + (46 * 47) * value, 46, 47, 46, prefbuf + 640 * meta->knobY + meta->knobX, 640);
+    } else if (index >= FIRST_SECONDARY_PREF && index <= LAST_SECONDARY_PREF) {
+        // 0x48FC30
+        static const int offsets[SECONDARY_PREF_COUNT] = {
+            66, // combat messages
+            133, // combat taunts
+            200, // language filter
+            264, // running
+            331, // subtitles
+            397, // item highlight
+        };
+
+        int secondaryOptionIndex = index - FIRST_SECONDARY_PREF;
+
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[secondaryOptionIndex] + 251, 113, 34, 640, prefbuf + 640 * offsets[secondaryOptionIndex] + 251, 640);
+
+        // Secondary options are booleans, so it's index is also it's value.
+        for (int value = 0; value < 2; value++) {
+            const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[value]);
+
+            int x;
+            if (value) {
+                x = meta->knobX + smlbx[value];
+                meta->maxX = x + fontGetStringWidth(text);
+            } else {
+                x = meta->knobX + smlbx[value] - fontGetStringWidth(text);
+                meta->minX = x;
+            }
+            fontDrawText(prefbuf + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
+        }
+
+        int value = *(meta->valuePtr);
+        if (index == PREF_COMBAT_MESSAGES) {
+            value ^= 1;
+        }
+        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH] + (22 * 25) * value, 22, 25, 22, prefbuf + 640 * meta->knobY + meta->knobX, 640);
+    } else if (index >= FIRST_RANGE_PREF && index <= LAST_RANGE_PREF) {
+        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * (meta->knobY - 12) + 384, 240, 24, 640, prefbuf + 640 * (meta->knobY - 12) + 384, 640);
+        switch (index) {
+        case PREF_COMBAT_SPEED:
+            if (1) {
+                double value = *meta->valuePtr;
+                value = min(max(value, 0.0), 50.0);
+
+                int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+            }
+            break;
+        case PREF_TEXT_BASE_DELAY:
+            if (1) {
+                text_delay = min(max(text_delay, 1.0), 6.0);
+
+                int x = (int)((6.0 - text_delay) * 43.8 + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+
+                double value = (text_delay - 1.0) * 0.2 * 2.0;
+                value = min(max(value, 0.0), 2.0);
+
+                textObjectsSetBaseDelay(text_delay);
+                textObjectsSetLineDelay(value);
+            }
+            break;
+        case PREF_MASTER_VOLUME:
+        case PREF_MUSIC_VOLUME:
+        case PREF_SFX_VOLUME:
+        case PREF_SPEECH_VOLUME:
+            if (1) {
+                double value = *meta->valuePtr;
+                value = min(max(value, meta->minValue), meta->maxValue);
+
+                int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+
+                switch (index) {
+                case PREF_MASTER_VOLUME:
+                    gsound_set_master_volume(master_volume);
+                    break;
+                case PREF_MUSIC_VOLUME:
+                    gsound_background_volume_set(music_volume);
+                    break;
+                case PREF_SFX_VOLUME:
+                    gsound_set_sfx_volume(sndfx_volume);
+                    break;
+                case PREF_SPEECH_VOLUME:
+                    gsound_speech_volume_set(speech_volume);
+                    break;
+                }
+            }
+            break;
+        case PREF_BRIGHTNESS:
+            if (1) {
+                gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
+
+                int x = (int)((gamma_value - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+
+                colorGamma(gamma_value);
+            }
+            break;
+        case PREF_MOUSE_SENSITIVIY:
+            if (1) {
+                mouse_sens = min(max(mouse_sens, 1.0), 2.5);
+
+                int x = (int)((mouse_sens - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
+                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+
+                mouse_set_sensitivity(mouse_sens);
+            }
+            break;
+        }
+
+        for (int optionIndex = 0; optionIndex < meta->valuesCount; optionIndex++) {
+            const char* str = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[optionIndex]);
+
+            int x;
+            switch (optionIndex) {
+            case 0:
+                // 0x4926AA
+                x = 384;
+                // TODO: Incomplete.
+                break;
+            case 1:
+                // 0x4926F3
+                switch (meta->valuesCount) {
+                case 2:
+                    x = 624 - fontGetStringWidth(str);
+                    break;
+                case 3:
+                    // This code path does not use floating-point arithmetic
+                    x = 504 - fontGetStringWidth(str) / 2 - 2;
+                    break;
+                case 4:
+                    // Uses floating-point arithmetic
+                    x = 444 + fontGetStringWidth(str) / 2 - 8;
+                    break;
+                }
+                break;
+            case 2:
+                // 0x492766
+                switch (meta->valuesCount) {
+                case 3:
+                    x = 624 - fontGetStringWidth(str);
+                    break;
+                case 4:
+                    // Uses floating-point arithmetic
+                    x = 564 - fontGetStringWidth(str) - 4;
+                    break;
+                }
+                break;
+            case 3:
+                // 0x49279E
+                x = 624 - fontGetStringWidth(str);
+                break;
+            }
+            fontDrawText(prefbuf + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
+        }
+    } else {
+        // return false;
+    }
+
+    // TODO: Incomplete.
+
+    // return true;
+}
+
+// 0x492870
+static int PrefEnd()
+{
+    if (changed) {
+        SavePrefs(1);
+        JustUpdate();
+        combat_highlight_change();
+    }
+
+    windowDestroy(prfwin);
+
+    for (int index = 0; index < PREFERENCES_WINDOW_FRM_COUNT; index++) {
+        art_ptr_unlock(grphkey2[index]);
+    }
+
+    return 0;
+}
+
+// 0x4928B8
+int init_options_menu()
+{
+    for (int index = 0; index < 11; index++) {
+        btndat[index].direction = 0;
+    }
+
+    SetSystemPrefs();
+
+    InitGreyTable(0, 255);
+
+    return 0;
+}
+
+// 0x4928E4
+void IncGamma()
+{
+    gamma_value = GAMMA_MIN;
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
+
+    if (gamma_value < GAMMA_MAX) {
+        gamma_value += GAMMA_STEP;
+
+        if (gamma_value >= GAMMA_MIN) {
+            if (gamma_value > GAMMA_MAX) {
+                gamma_value = GAMMA_MAX;
+            }
+        } else {
+            gamma_value = GAMMA_MIN;
+        }
+
+        colorGamma(gamma_value);
+
+        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
+
+        gconfig_save();
+    }
+}
+
+// 0x4929C8
+void DecGamma()
+{
+    gamma_value = GAMMA_MIN;
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
+
+    if (gamma_value > GAMMA_MIN) {
+        gamma_value -= GAMMA_STEP;
+
+        if (gamma_value >= GAMMA_MIN) {
+            if (gamma_value > GAMMA_MAX) {
+                gamma_value = GAMMA_MAX;
+            }
+        } else {
+            gamma_value = GAMMA_MIN;
+        }
+
+        colorGamma(gamma_value);
+
+        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
+
+        gconfig_save();
+    }
+}
+
+// 0x492AA8
+static void SetSystemPrefs()
+{
+    SetDefaults(false);
+
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &game_difficulty);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, &combat_difficulty);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, &violence_level);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, &target_highlight);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, &combat_messages);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, &combatLookValue);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, &combat_taunts);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, &language_filter);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, &prf_running);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, &subtitles);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, &item_highlight);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, &combat_speed);
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &text_delay);
+    config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, &player_speedup);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, &master_volume);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, &music_volume);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, &sndfx_volume);
+    config_get_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, &speech_volume);
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, &gamma_value);
+    config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, &mouse_sens);
+
+    JustUpdate();
+}
+
+// 0x492CB0
+static int SavePrefs(bool save)
+{
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, game_difficulty);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_DIFFICULTY_KEY, combat_difficulty);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_VIOLENCE_LEVEL_KEY, violence_level);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TARGET_HIGHLIGHT_KEY, target_highlight);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_MESSAGES_KEY, combat_messages);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_LOOKS_KEY, combatLookValue);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_TAUNTS_KEY, combat_taunts);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_FILTER_KEY, language_filter);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_RUNNING_KEY, prf_running);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_SUBTITLES_KEY, subtitles);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_ITEM_HIGHLIGHT_KEY, item_highlight);
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_COMBAT_SPEED_KEY, combat_speed);
+    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, text_delay);
+
+    double textLineDelay = (text_delay - 1.0) / 5.0 * 2.0;
+    if (textLineDelay >= 0.0) {
+        if (textLineDelay > 2.0) {
+            textLineDelay = 2.0;
+        }
+
+        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, textLineDelay);
+    } else {
+        config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_LINE_DELAY_KEY, 0.0);
+    }
+
+    config_set_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_PLAYER_SPEEDUP_KEY, player_speedup);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MASTER_VOLUME_KEY, master_volume);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_MUSIC_VOLUME_KEY, music_volume);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SNDFX_VOLUME_KEY, sndfx_volume);
+    config_set_value(&game_config, GAME_CONFIG_SOUND_KEY, GAME_CONFIG_SPEECH_VOLUME_KEY, speech_volume);
+
+    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_BRIGHTNESS_KEY, gamma_value);
+    config_set_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_MOUSE_SENSITIVITY_KEY, mouse_sens);
+
+    if (save) {
+        gconfig_save();
+    }
+
+    return 0;
+}
+
+// 0x492F60
+static void SetDefaults(bool a1)
+{
+    combat_difficulty = COMBAT_DIFFICULTY_NORMAL;
+    violence_level = VIOLENCE_LEVEL_MAXIMUM_BLOOD;
+    target_highlight = TARGET_HIGHLIGHT_TARGETING_ONLY;
+    combat_messages = 1;
+    combatLookValue = 0;
+    combat_taunts = 1;
+    prf_running = 0;
+    subtitles = 0;
+    item_highlight = 1;
+    combat_speed = 0;
+    player_speedup = 0;
+    text_delay = 3.5;
+    gamma_value = 1.0;
+    mouse_sens = 1.0;
+    game_difficulty = 1;
+    language_filter = 0;
+    master_volume = 22281;
+    music_volume = 22281;
+    sndfx_volume = 22281;
+    speech_volume = 22281;
+
+    if (a1) {
+        for (int index = 0; index < PREF_COUNT; index++) {
+            UpdateThing(index);
+        }
+        _win_set_button_rest_state(plyrspdbid, player_speedup, 0);
+        win_draw(prfwin);
+        changed = true;
+    }
+}
+
+// Copy options (1) to (2).
+//
+// 0x493054
+static void SaveSettings()
+{
+    gPreferencesGameDifficulty2 = game_difficulty;
+    gPreferencesCombatDifficulty2 = combat_difficulty;
+    gPreferencesViolenceLevel2 = violence_level;
+    gPreferencesTargetHighlight2 = target_highlight;
+    gPreferencesCombatLooks2 = combatLookValue;
+    gPreferencesCombatMessages2 = combat_messages;
+    gPreferencesCombatTaunts2 = combat_taunts;
+    gPreferencesLanguageFilter2 = language_filter;
+    gPreferencesRunning2 = prf_running;
+    gPreferencesSubtitles2 = subtitles;
+    gPreferencesItemHighlight2 = item_highlight;
+    gPreferencesCombatSpeed2 = combat_speed;
+    gPreferencesPlayerSpeedup2 = player_speedup;
+    gPreferencesMasterVolume2 = master_volume;
+    text_delay_back = text_delay;
+    gPreferencesMusicVolume2 = music_volume;
+    gamma_value_back = gamma_value;
+    gPreferencesSoundEffectsVolume2 = sndfx_volume;
+    mouse_sens_back = mouse_sens;
+    gPreferencesSpeechVolume2 = speech_volume;
+}
+
+// Copy options (2) to (1).
+//
+// 0x493128
+static void RestoreSettings()
+{
+    game_difficulty = gPreferencesGameDifficulty2;
+    combat_difficulty = gPreferencesCombatDifficulty2;
+    violence_level = gPreferencesViolenceLevel2;
+    target_highlight = gPreferencesTargetHighlight2;
+    combatLookValue = gPreferencesCombatLooks2;
+    combat_messages = gPreferencesCombatMessages2;
+    combat_taunts = gPreferencesCombatTaunts2;
+    language_filter = gPreferencesLanguageFilter2;
+    prf_running = gPreferencesRunning2;
+    subtitles = gPreferencesSubtitles2;
+    item_highlight = gPreferencesItemHighlight2;
+    combat_speed = gPreferencesCombatSpeed2;
+    player_speedup = gPreferencesPlayerSpeedup2;
+    master_volume = gPreferencesMasterVolume2;
+    text_delay = text_delay_back;
+    music_volume = gPreferencesMusicVolume2;
+    gamma_value = gamma_value_back;
+    sndfx_volume = gPreferencesSoundEffectsVolume2;
+    mouse_sens = mouse_sens_back;
+    speech_volume = gPreferencesSpeechVolume2;
+
+    JustUpdate();
+}
+
+// 0x4931F8
+static void JustUpdate()
+{
+    game_difficulty = min(max(game_difficulty, 0), 2);
+    combat_difficulty = min(max(combat_difficulty, 0), 2);
+    violence_level = min(max(violence_level, 0), 3);
+    target_highlight = min(max(target_highlight, 0), 2);
+    combat_messages = min(max(combat_messages, 0), 1);
+    combatLookValue = min(max(combatLookValue, 0), 1);
+    combat_taunts = min(max(combat_taunts, 0), 1);
+    language_filter = min(max(language_filter, 0), 1);
+    prf_running = min(max(prf_running, 0), 1);
+    subtitles = min(max(subtitles, 0), 1);
+    item_highlight = min(max(item_highlight, 0), 1);
+    combat_speed = min(max(combat_speed, 0), 50);
+    player_speedup = min(max(player_speedup, 0), 1);
+    text_delay = min(max(text_delay, 1.0), 6.0);
+    master_volume = min(max(master_volume, 0), VOLUME_MAX);
+    music_volume = min(max(music_volume, 0), VOLUME_MAX);
+    sndfx_volume = min(max(sndfx_volume, 0), VOLUME_MAX);
+    speech_volume = min(max(speech_volume, 0), VOLUME_MAX);
+    gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
+    mouse_sens = min(max(mouse_sens, 1.0), 2.5);
+
+    textObjectsSetBaseDelay(text_delay);
+    gmouse_3d_synch_item_highlight();
+
+    double textLineDelay = (text_delay + (-1.0)) * 0.2 * 2.0;
+    textLineDelay = min(max(textLineDelay, 0.0), 2.0);
+
+    textObjectsSetLineDelay(textLineDelay);
+    combatai_refresh_messages();
+    _scr_message_free();
+    gsound_set_master_volume(master_volume);
+    gsound_background_volume_set(music_volume);
+    gsound_set_sfx_volume(sndfx_volume);
+    gsound_speech_volume_set(speech_volume);
+    mouse_set_sensitivity(mouse_sens);
+    colorGamma(gamma_value);
+}
+
+// 0x493224
+int save_options(File* stream)
+{
+    float textBaseDelay = (float)text_delay;
+    float brightness = (float)gamma_value;
+    float mouseSensitivity = (float)mouse_sens;
+
+    if (fileWriteInt32(stream, game_difficulty) == -1) goto err;
+    if (fileWriteInt32(stream, combat_difficulty) == -1) goto err;
+    if (fileWriteInt32(stream, violence_level) == -1) goto err;
+    if (fileWriteInt32(stream, target_highlight) == -1) goto err;
+    if (fileWriteInt32(stream, combatLookValue) == -1) goto err;
+    if (fileWriteInt32(stream, combat_messages) == -1) goto err;
+    if (fileWriteInt32(stream, combat_taunts) == -1) goto err;
+    if (fileWriteInt32(stream, language_filter) == -1) goto err;
+    if (fileWriteInt32(stream, prf_running) == -1) goto err;
+    if (fileWriteInt32(stream, subtitles) == -1) goto err;
+    if (fileWriteInt32(stream, item_highlight) == -1) goto err;
+    if (fileWriteInt32(stream, combat_speed) == -1) goto err;
+    if (fileWriteInt32(stream, player_speedup) == -1) goto err;
+    if (fileWriteFloat(stream, textBaseDelay) == -1) goto err;
+    if (fileWriteInt32(stream, master_volume) == -1) goto err;
+    if (fileWriteInt32(stream, music_volume) == -1) goto err;
+    if (fileWriteInt32(stream, sndfx_volume) == -1) goto err;
+    if (fileWriteInt32(stream, speech_volume) == -1) goto err;
+    if (fileWriteFloat(stream, brightness) == -1) goto err;
+    if (fileWriteFloat(stream, mouseSensitivity) == -1) goto err;
+
+    return 0;
+
+err:
+
+    debugPrint("\nOPTION MENU: Error save option data!\n");
+
+    return -1;
+}
+
+// 0x49340C
+int load_options(File* stream)
+{
+    float textBaseDelay;
+    float brightness;
+    float mouseSensitivity;
+
+    SetDefaults(false);
+
+    if (fileReadInt32(stream, &game_difficulty) == -1) goto err;
+    if (fileReadInt32(stream, &combat_difficulty) == -1) goto err;
+    if (fileReadInt32(stream, &violence_level) == -1) goto err;
+    if (fileReadInt32(stream, &target_highlight) == -1) goto err;
+    if (fileReadInt32(stream, &combatLookValue) == -1) goto err;
+    if (fileReadInt32(stream, &combat_messages) == -1) goto err;
+    if (fileReadInt32(stream, &combat_taunts) == -1) goto err;
+    if (fileReadInt32(stream, &language_filter) == -1) goto err;
+    if (fileReadInt32(stream, &prf_running) == -1) goto err;
+    if (fileReadInt32(stream, &subtitles) == -1) goto err;
+    if (fileReadInt32(stream, &item_highlight) == -1) goto err;
+    if (fileReadInt32(stream, &combat_speed) == -1) goto err;
+    if (fileReadInt32(stream, &player_speedup) == -1) goto err;
+    if (fileReadFloat(stream, &textBaseDelay) == -1) goto err;
+    if (fileReadInt32(stream, &master_volume) == -1) goto err;
+    if (fileReadInt32(stream, &music_volume) == -1) goto err;
+    if (fileReadInt32(stream, &sndfx_volume) == -1) goto err;
+    if (fileReadInt32(stream, &speech_volume) == -1) goto err;
+    if (fileReadFloat(stream, &brightness) == -1) goto err;
+    if (fileReadFloat(stream, &mouseSensitivity) == -1) goto err;
+
+    gamma_value = brightness;
+    mouse_sens = mouseSensitivity;
+    text_delay = textBaseDelay;
+
+    JustUpdate();
+    SavePrefs(0);
+
+    return 0;
+
+err:
+
+    debugPrint("\nOPTION MENU: Error loading option data!, using defaults.\n");
+
+    SetDefaults(false);
+    JustUpdate();
+    SavePrefs(0);
+
+    return -1;
 }
