@@ -228,29 +228,29 @@ int critterGetStat(Object* critter, int stat)
         if (critter == obj_dude) {
             switch (stat) {
             case STAT_STRENGTH:
-                if (perkGetRank(critter, PERK_GAIN_STRENGTH)) {
+                if (perk_level(critter, PERK_GAIN_STRENGTH)) {
                     value++;
                 }
 
-                if (perkGetRank(critter, PERK_ADRENALINE_RUSH)) {
+                if (perk_level(critter, PERK_ADRENALINE_RUSH)) {
                     if (critterGetStat(critter, STAT_CURRENT_HIT_POINTS) < (critterGetStat(critter, STAT_MAXIMUM_HIT_POINTS) / 2)) {
                         value++;
                     }
                 }
                 break;
             case STAT_PERCEPTION:
-                if (perkGetRank(critter, PERK_GAIN_PERCEPTION)) {
+                if (perk_level(critter, PERK_GAIN_PERCEPTION)) {
                     value++;
                 }
                 break;
             case STAT_ENDURANCE:
-                if (perkGetRank(critter, PERK_GAIN_ENDURANCE)) {
+                if (perk_level(critter, PERK_GAIN_ENDURANCE)) {
                     value++;
                 }
                 break;
             case STAT_CHARISMA:
                 if (1) {
-                    if (perkGetRank(critter, PERK_GAIN_CHARISMA)) {
+                    if (perk_level(critter, PERK_GAIN_CHARISMA)) {
                         value++;
                     }
 
@@ -272,73 +272,73 @@ int critterGetStat(Object* critter, int stat)
                 }
                 break;
             case STAT_INTELLIGENCE:
-                if (perkGetRank(critter, PERK_GAIN_INTELLIGENCE)) {
+                if (perk_level(critter, PERK_GAIN_INTELLIGENCE)) {
                     value++;
                 }
                 break;
             case STAT_AGILITY:
-                if (perkGetRank(critter, PERK_GAIN_AGILITY)) {
+                if (perk_level(critter, PERK_GAIN_AGILITY)) {
                     value++;
                 }
                 break;
             case STAT_LUCK:
-                if (perkGetRank(critter, PERK_GAIN_LUCK)) {
+                if (perk_level(critter, PERK_GAIN_LUCK)) {
                     value++;
                 }
                 break;
             case STAT_MAXIMUM_HIT_POINTS:
-                if (perkGetRank(critter, PERK_ALCOHOL_RAISED_HIT_POINTS)) {
+                if (perk_level(critter, PERK_ALCOHOL_RAISED_HIT_POINTS)) {
                     value += 2;
                 }
 
-                if (perkGetRank(critter, PERK_ALCOHOL_RAISED_HIT_POINTS_II)) {
+                if (perk_level(critter, PERK_ALCOHOL_RAISED_HIT_POINTS_II)) {
                     value += 4;
                 }
 
-                if (perkGetRank(critter, PERK_ALCOHOL_LOWERED_HIT_POINTS)) {
+                if (perk_level(critter, PERK_ALCOHOL_LOWERED_HIT_POINTS)) {
                     value -= 2;
                 }
 
-                if (perkGetRank(critter, PERK_ALCOHOL_LOWERED_HIT_POINTS_II)) {
+                if (perk_level(critter, PERK_ALCOHOL_LOWERED_HIT_POINTS_II)) {
                     value -= 4;
                 }
 
-                if (perkGetRank(critter, PERK_AUTODOC_RAISED_HIT_POINTS)) {
+                if (perk_level(critter, PERK_AUTODOC_RAISED_HIT_POINTS)) {
                     value += 2;
                 }
 
-                if (perkGetRank(critter, PERK_AUTODOC_RAISED_HIT_POINTS_II)) {
+                if (perk_level(critter, PERK_AUTODOC_RAISED_HIT_POINTS_II)) {
                     value += 4;
                 }
 
-                if (perkGetRank(critter, PERK_AUTODOC_LOWERED_HIT_POINTS)) {
+                if (perk_level(critter, PERK_AUTODOC_LOWERED_HIT_POINTS)) {
                     value -= 2;
                 }
 
-                if (perkGetRank(critter, PERK_AUTODOC_LOWERED_HIT_POINTS_II)) {
+                if (perk_level(critter, PERK_AUTODOC_LOWERED_HIT_POINTS_II)) {
                     value -= 4;
                 }
                 break;
             case STAT_DAMAGE_RESISTANCE:
             case STAT_DAMAGE_RESISTANCE_EXPLOSION:
-                if (perkGetRank(critter, PERK_DERMAL_IMPACT_ARMOR)) {
+                if (perk_level(critter, PERK_DERMAL_IMPACT_ARMOR)) {
                     value += 5;
-                } else if (perkGetRank(critter, PERK_DERMAL_IMPACT_ASSAULT_ENHANCEMENT)) {
+                } else if (perk_level(critter, PERK_DERMAL_IMPACT_ASSAULT_ENHANCEMENT)) {
                     value += 10;
                 }
                 break;
             case STAT_DAMAGE_RESISTANCE_LASER:
             case STAT_DAMAGE_RESISTANCE_FIRE:
             case STAT_DAMAGE_RESISTANCE_PLASMA:
-                if (perkGetRank(critter, PERK_PHOENIX_ARMOR_IMPLANTS)) {
+                if (perk_level(critter, PERK_PHOENIX_ARMOR_IMPLANTS)) {
                     value += 5;
-                } else if (perkGetRank(critter, PERK_PHOENIX_ASSAULT_ENHANCEMENT)) {
+                } else if (perk_level(critter, PERK_PHOENIX_ASSAULT_ENHANCEMENT)) {
                     value += 10;
                 }
                 break;
             case STAT_RADIATION_RESISTANCE:
             case STAT_POISON_RESISTANCE:
-                if (perkGetRank(critter, PERK_VAULT_CITY_INOCULATIONS)) {
+                if (perk_level(critter, PERK_VAULT_CITY_INOCULATIONS)) {
                     value += 10;
                 }
                 break;
@@ -711,7 +711,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
 {
     int newXp = gPcStatValues[PC_STAT_EXPERIENCE];
     newXp += xp;
-    newXp += perkGetRank(obj_dude, PERK_SWIFT_LEARNER) * 5 * xp / 100;
+    newXp += perk_level(obj_dude, PERK_SWIFT_LEARNER) * 5 * xp / 100;
 
     if (newXp < gPcStatDescriptions[PC_STAT_EXPERIENCE].minimumValue) {
         newXp = gPcStatDescriptions[PC_STAT_EXPERIENCE].minimumValue;
@@ -746,7 +746,7 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             int endurance = critterGetBaseStatWithTraitModifier(obj_dude, STAT_ENDURANCE);
 
             int hpPerLevel = endurance / 2 + 2;
-            hpPerLevel += perkGetRank(obj_dude, PERK_LIFEGIVER) * 4;
+            hpPerLevel += perk_level(obj_dude, PERK_LIFEGIVER) * 4;
 
             int bonusHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
             critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp + hpPerLevel);
@@ -785,7 +785,7 @@ int pcSetExperience(int xp)
     int endurance = critterGetBaseStatWithTraitModifier(obj_dude, STAT_ENDURANCE);
 
     int hpPerLevel = endurance / 2 + 2;
-    hpPerLevel += perkGetRank(obj_dude, PERK_LIFEGIVER) * 4;
+    hpPerLevel += perk_level(obj_dude, PERK_LIFEGIVER) * 4;
 
     int deltaHp = (oldLevel - newLevel) * hpPerLevel;
     critter_adjust_hits(obj_dude, -deltaHp);

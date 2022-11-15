@@ -262,7 +262,7 @@ int _obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
     int type = PID_TYPE(target->pid);
     if (type == OBJ_TYPE_CRITTER) {
-        if (target != obj_dude && perkGetRank(obj_dude, PERK_AWARENESS) && !critter_is_dead(target)) {
+        if (target != obj_dude && perk_level(obj_dude, PERK_AWARENESS) && !critter_is_dead(target)) {
             MessageListItem hpMessageListItem;
 
             if (critter_body_type(target) != BODY_TYPE_BIPED) {
@@ -753,7 +753,7 @@ int _obj_use_book(Object* book)
     if (increase <= 0) {
         messageId = 801;
     } else {
-        if (perkGetRank(obj_dude, PERK_COMPREHENSION)) {
+        if (perk_level(obj_dude, PERK_COMPREHENSION)) {
             increase = 150 * increase / 100;
         }
 

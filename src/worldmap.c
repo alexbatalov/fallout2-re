@@ -4367,7 +4367,7 @@ static void wmPartyWalkingStep()
     wmPartyFindCurSubTile();
 
     Terrain* terrain = &(wmTerrainTypeList[wmGenData.currentSubtile->terrain]);
-    int v1 = terrain->type - perkGetRank(obj_dude, PERK_PATHFINDER);
+    int v1 = terrain->type - perk_level(obj_dude, PERK_PATHFINDER);
     if (v1 < 1) {
         v1 = 1;
     }

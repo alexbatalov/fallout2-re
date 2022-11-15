@@ -3150,7 +3150,7 @@ static int combat_turn(Object* a1, bool a2)
         if (a1 == obj_dude) {
             kb_clear();
             intface_update_ac(true);
-            combat_free_move = 2 * perkGetRank(obj_dude, PERK_BONUS_MOVE);
+            combat_free_move = 2 * perk_level(obj_dude, PERK_BONUS_MOVE);
             intface_update_move_points(obj_dude->data.critter.combat.ap, combat_free_move);
         } else {
             soundContinueAll();
@@ -3798,7 +3798,7 @@ static int compute_attack(Attack* attack)
         attack->ammoQuantity = roundsSpent;
 
         if (roll == ROLL_SUCCESS && attack->attacker == obj_dude) {
-            if (perkGetRank(obj_dude, PERK_SNIPER) != 0) {
+            if (perk_level(obj_dude, PERK_SNIPER) != 0) {
                 int d10 = randomBetween(1, 10);
                 int luck = critterGetStat(obj_dude, STAT_LUCK);
                 if (d10 <= luck) {
@@ -4268,7 +4268,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
             }
 
             if (attacker == obj_dude) {
-                modifier -= 2 * perkGetRank(obj_dude, PERK_SHARPSHOOTER);
+                modifier -= 2 * perk_level(obj_dude, PERK_SHARPSHOOTER);
             }
 
             if (modifier >= 0) {
@@ -4304,7 +4304,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
 
         int minStrength = item_w_min_st(weapon);
         modifier = minStrength - critterGetStat(attacker, STAT_STRENGTH);
-        if (attacker == obj_dude && perkGetRank(obj_dude, PERK_WEAPON_HANDLING) != 0) {
+        if (attacker == obj_dude && perk_level(obj_dude, PERK_WEAPON_HANDLING) != 0) {
             modifier -= 3;
         }
 
@@ -4441,7 +4441,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
 
     int damageBonus;
     if (attack->attacker == obj_dude && item_w_subtype(attack->weapon, attack->hitMode) == ATTACK_TYPE_RANGED) {
-        damageBonus = 2 * perkGetRank(obj_dude, PERK_BONUS_RANGED_DAMAGE);
+        damageBonus = 2 * perk_level(obj_dude, PERK_BONUS_RANGED_DAMAGE);
     } else {
         damageBonus = 0;
     }
@@ -4500,14 +4500,14 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
     }
 
     if (attack->attacker == obj_dude) {
-        if (perkGetRank(attack->attacker, PERK_LIVING_ANATOMY) != 0) {
+        if (perk_level(attack->attacker, PERK_LIVING_ANATOMY) != 0) {
             int kt = critterGetKillType(attack->defender);
             if (kt != KILL_TYPE_ROBOT && kt != KILL_TYPE_ALIEN) {
                 *damagePtr += 5;
             }
         }
 
-        if (perkGetRank(attack->attacker, PERK_PYROMANIAC) != 0) {
+        if (perk_level(attack->attacker, PERK_PYROMANIAC) != 0) {
             if (item_w_damage_type(attack->attacker, attack->weapon) == DAMAGE_TYPE_FIRE) {
                 *damagePtr += 5;
             }
@@ -4522,7 +4522,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
         bool shouldKnockback = true;
         bool hasStonewall = false;
         if (critter == obj_dude) {
-            if (perkGetRank(critter, PERK_STONEWALL) != 0) {
+            if (perk_level(critter, PERK_STONEWALL) != 0) {
                 int chance = randomBetween(0, 100);
                 hasStonewall = true;
                 if (chance < 50) {
@@ -4774,7 +4774,7 @@ void combat_display(Attack* attack)
         Object* weapon = item_hit_with(attack->attacker, attack->hitMode);
         int strengthRequired = item_w_min_st(weapon);
 
-        if (perkGetRank(attack->attacker, PERK_WEAPON_HANDLING) != 0) {
+        if (perk_level(attack->attacker, PERK_WEAPON_HANDLING) != 0) {
             strengthRequired -= 3;
         }
 
@@ -5277,7 +5277,7 @@ static void combat_standup(Object* a1)
     int v2;
 
     v2 = 3;
-    if (a1 == obj_dude && perkGetRank(a1, PERK_QUICK_RECOVERY)) {
+    if (a1 == obj_dude && perk_level(a1, PERK_QUICK_RECOVERY)) {
         v2 = 1;
     }
 

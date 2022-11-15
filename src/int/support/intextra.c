@@ -3376,7 +3376,7 @@ static void op_has_trait(Program* program)
         switch (type) {
         case CRITTER_TRAIT_PERK:
             if (param < PERK_COUNT) {
-                result = perkGetRank(object, param);
+                result = perk_level(object, param);
             } else {
                 int_debug("\nScript Error: %s: op_has_trait: Perk out of range", program->name);
             }
@@ -3791,16 +3791,16 @@ static void op_critter_add_trait(Program* program)
             case CRITTER_TRAIT_PERK:
                 if (1) {
                     char* critterName = critter_name(object);
-                    char* perkName = perkGetName(param);
+                    char* perkName = perk_name(param);
                     debugPrint("\nintextra::critter_add_trait: Adding Perk %s to %s", perkName, critterName);
 
                     if (value > 0) {
-                        if (perkAddForce(object, param) != 0) {
+                        if (perk_add_force(object, param) != 0) {
                             int_debug("\nScript Error: %s: op_critter_add_trait: perk_add_force failed", program->name);
                             debugPrint("Perk: %d", param);
                         }
                     } else {
-                        if (perkRemove(object, param) != 0) {
+                        if (perk_sub(object, param) != 0) {
                             // FIXME: typo in debug message, should be perk_sub
                             int_debug("\nScript Error: %s: op_critter_add_trait: per_sub failed", program->name);
                             debugPrint("Perk: %d", param);
@@ -3880,8 +3880,8 @@ static void op_critter_rm_trait(Program* program)
     if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         switch (kind) {
         case CRITTER_TRAIT_PERK:
-            while (perkGetRank(object, param) > 0) {
-                if (perkRemove(object, param) != 0) {
+            while (perk_level(object, param) > 0) {
+                if (perk_sub(object, param) != 0) {
                     int_debug("\nScript Error: op_critter_rm_trait: perk_sub failed");
                 }
             }
@@ -5175,7 +5175,7 @@ static void op_giq_option(Program* program)
     int reaction = data[0];
 
     int intelligence = critterGetStat(obj_dude, STAT_INTELLIGENCE);
-    intelligence += perkGetRank(obj_dude, PERK_SMOOTH_TALKER);
+    intelligence += perk_level(obj_dude, PERK_SMOOTH_TALKER);
 
     if (iq < 0) {
         if (-intelligence < iq) {

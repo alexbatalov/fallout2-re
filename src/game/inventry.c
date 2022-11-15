@@ -412,7 +412,7 @@ void handle_inventory()
 
     if (isInCombat()) {
         if (inven_dude == obj_dude) {
-            int actionPointsRequired = 4 - 2 * perkGetRank(inven_dude, PERK_QUICK_POCKETS);
+            int actionPointsRequired = 4 - 2 * perk_level(inven_dude, PERK_QUICK_POCKETS);
             if (actionPointsRequired > 0 && actionPointsRequired > obj_dude->data.critter.combat.ap) {
                 // You don't have enough action points to use inventory
                 MessageListItem messageListItem;
@@ -1946,12 +1946,12 @@ void adjust_ac(Object* critter, Object* oldArmor, Object* newArmor)
     if (isPartyMember(critter)) {
         if (oldArmor != NULL) {
             int perk = item_ar_perk(oldArmor);
-            perkRemoveEffect(critter, perk);
+            perk_remove_effect(critter, perk);
         }
 
         if (newArmor != NULL) {
             int perk = item_ar_perk(newArmor);
-            perkAddEffect(critter, perk);
+            perk_add_effect(critter, perk);
         }
     }
 }

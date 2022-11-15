@@ -1546,7 +1546,7 @@ int item_w_range(Object* critter, int hitMode)
 
         if (item_w_subtype(weapon, hitMode) == ATTACK_TYPE_THROW) {
             if (critter == obj_dude) {
-                v12 = critterGetStat(critter, STAT_STRENGTH) + 2 * perkGetRank(critter, PERK_HEAVE_HO);
+                v12 = critterGetStat(critter, STAT_STRENGTH) + 2 * perk_level(critter, PERK_HEAVE_HO);
             } else {
                 v12 = critterGetStat(critter, STAT_STRENGTH);
             }
@@ -2767,7 +2767,7 @@ int item_d_take_drug(Object* critter, Object* item)
                 addictionChance /= 2;
             }
 
-            if (perkGetRank(obj_dude, PERK_FLOWER_CHILD)) {
+            if (perk_level(obj_dude, PERK_FLOWER_CHILD)) {
                 addictionChance /= 2;
             }
         }
@@ -2978,10 +2978,10 @@ static void perform_withdrawal_start(Object* obj, int perk, int pid)
         return;
     }
 
-    perkAddEffect(obj, perk);
+    perk_add_effect(obj, perk);
 
     if (obj == obj_dude) {
-        char* description = perkGetDescription(perk);
+        char* description = perk_description(perk);
         display_print(description);
     }
 
@@ -2991,7 +2991,7 @@ static void perform_withdrawal_start(Object* obj, int perk, int pid)
             duration /= 2;
         }
 
-        if (perkGetRank(obj, PERK_FLOWER_CHILD)) {
+        if (perk_level(obj, PERK_FLOWER_CHILD)) {
             duration /= 2;
         }
     }
@@ -3007,7 +3007,7 @@ static void perform_withdrawal_end(Object* obj, int perk)
         return;
     }
 
-    perkRemoveEffect(obj, perk);
+    perk_remove_effect(obj, perk);
 
     if (obj == obj_dude) {
         MessageListItem messageListItem;

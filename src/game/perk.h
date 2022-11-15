@@ -1,59 +1,33 @@
-#ifndef PERK_H
-#define PERK_H
+#ifndef FALLOUT_GAME_PERK_H_
+#define FALLOUT_GAME_PERK_H_
 
 #include <stdbool.h>
 
 #include "db.h"
-#include "game/message.h"
 #include "game/object_types.h"
 #include "game/perk_defs.h"
-#include "stat_defs.h"
-
-typedef struct PerkDescription {
-    char* name;
-    char* description;
-    int frmId;
-    int maxRank;
-    int minLevel;
-    int stat;
-    int statModifier;
-    int param1;
-    int value1;
-    int field_24;
-    int param2;
-    int value2;
-    int stats[PRIMARY_STAT_COUNT];
-} PerkDescription;
 
 typedef struct PerkRankData {
     int ranks[PERK_COUNT];
 } PerkRankData;
 
-extern PerkDescription gPerkDescriptions[PERK_COUNT];
-extern PerkRankData* gPartyMemberPerkRanks;
-extern int gHereAndNowBonusExperience;
-
-extern MessageList gPerksMessageList;
-
-int perksInit();
-void perksReset();
-void perksExit();
-int perksLoad(File* stream);
-int perksSave(File* stream);
-PerkRankData* perkGetRankData(Object* critter);
-bool perkCanAdd(Object* critter, int perk);
-void perkResetRanks();
-int perkAdd(Object* critter, int perk);
-int perkAddForce(Object* critter, int perk);
-int perkRemove(Object* critter, int perk);
-int perkGetAvailablePerks(Object* critter, int* perks);
-int perkGetRank(Object* critter, int perk);
-char* perkGetName(int perk);
-char* perkGetDescription(int perk);
-int perkGetFrmId(int perk);
-void perkAddEffect(Object* critter, int perk);
-void perkRemoveEffect(Object* critter, int perk);
-int perkGetSkillModifier(Object* critter, int skill);
+int perk_init();
+void perk_reset();
+void perk_exit();
+int perk_load(File* stream);
+int perk_save(File* stream);
+PerkRankData* perkGetLevelData(Object* critter);
+int perk_add(Object* critter, int perk);
+int perk_add_force(Object* critter, int perk);
+int perk_sub(Object* critter, int perk);
+int perk_make_list(Object* critter, int* perks);
+int perk_level(Object* critter, int perk);
+char* perk_name(int perk);
+char* perk_description(int perk);
+int perk_skilldex_fid(int perk);
+void perk_add_effect(Object* critter, int perk);
+void perk_remove_effect(Object* critter, int perk);
+int perk_adjust_skill(Object* critter, int skill);
 
 // Returns true if perk is valid.
 static inline bool perkIsValid(int perk)
@@ -67,13 +41,13 @@ static inline bool perkIsValid(int perk)
 // not.
 //
 // On the other hand, there are several places in editor, where they made two
-// consequtive calls to [perkGetRank], first to check for presence, then get
+// consequtive calls to [perk_level], first to check for presence, then get
 // the actual value for displaying. So a macro could exist, or this very
-// function, but due to similarity to [perkGetRank] it could have been
+// function, but due to similarity to [perk_level] it could have been
 // collapsed by compiler.
 static inline bool perkHasRank(Object* critter, int perk)
 {
-    return perkGetRank(critter, perk) != 0;
+    return perk_level(critter, perk) != 0;
 }
 
-#endif /* PERK_H */
+#endif /* FALLOUT_GAME_PERK_H_ */

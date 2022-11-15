@@ -2045,7 +2045,7 @@ static void list_perks()
     }
 
     for (perk = 0; perk < PERK_COUNT; perk++) {
-        if (perkGetRank(obj_dude, perk) != 0) {
+        if (perk_level(obj_dude, perk) != 0) {
             break;
         }
     }
@@ -2056,9 +2056,9 @@ static void list_perks()
         folder_print_seperator(string);
 
         for (perk = 0; perk < PERK_COUNT; perk++) {
-            perkLevel = perkGetRank(obj_dude, perk);
+            perkLevel = perk_level(obj_dude, perk);
             if (perkLevel != 0) {
-                string = perkGetName(perk);
+                string = perk_name(perk);
 
                 if (perkLevel == 1) {
                     strcpy(perkName, string);
@@ -2067,10 +2067,10 @@ static void list_perks()
                 }
 
                 if (folder_print_line(perkName)) {
-                    folder_card_fid = perkGetFrmId(perk);
-                    folder_card_title = perkGetName(perk);
+                    folder_card_fid = perk_skilldex_fid(perk);
+                    folder_card_title = perk_name(perk);
                     folder_card_title2 = NULL;
-                    folder_card_desc = perkGetDescription(perk);
+                    folder_card_desc = perk_description(perk);
                     hasContent = true;
                 }
             }
@@ -4333,7 +4333,7 @@ static int Save_as_ASCII(const char* fileName)
 
     int perk = 0;
     for (; perk < PERK_COUNT; perk++) {
-        if (perkGetRank(obj_dude, perk) != 0) {
+        if (perk_level(obj_dude, perk) != 0) {
             break;
         }
     }
@@ -4344,12 +4344,12 @@ static int Save_as_ASCII(const char* fileName)
         fileWriteString(title1, stream);
 
         for (perk = 0; perk < PERK_COUNT; perk++) {
-            int rank = perkGetRank(obj_dude, perk);
+            int rank = perk_level(obj_dude, perk);
             if (rank != 0) {
                 if (rank == 1) {
-                    sprintf(title1, "  %s", perkGetName(perk));
+                    sprintf(title1, "  %s", perk_name(perk));
                 } else {
-                    sprintf(title1, "  %s (%d)", perkGetName(perk), rank);
+                    sprintf(title1, "  %s (%d)", perk_name(perk), rank);
                 }
 
                 fileWriteString(title1, stream);
@@ -4645,7 +4645,7 @@ static int CheckValidPlayer()
         critterSetBonusStat(obj_dude, stat, 0);
     }
 
-    perkResetRanks();
+    perk_reset();
     critterUpdateDerivedStats(obj_dude);
 
     return 1;
@@ -5542,7 +5542,7 @@ static int UpdateLevel()
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             sp += 5;
             sp += critterGetBaseStatWithTraitModifier(obj_dude, STAT_INTELLIGENCE) * 2;
-            sp += perkGetRank(obj_dude, PERK_EDUCATED) * 2;
+            sp += perk_level(obj_dude, PERK_EDUCATED) * 2;
             sp += traitIsSelected(TRAIT_SKILLED) * 5;
             if (traitIsSelected(TRAIT_GIFTED)) {
                 sp -= 5;
@@ -5609,13 +5609,13 @@ static void RedrwDPrks()
 
     // NOTE: Original code is slightly different, but basically does the same thing.
     int perk = name_sort_list[crow + cline].value;
-    int perkFrmId = perkGetFrmId(perk);
-    char* perkName = perkGetName(perk);
-    char* perkDescription = perkGetDescription(perk);
+    int perkFrmId = perk_skilldex_fid(perk);
+    char* perkName = perk_name(perk);
+    char* perkDescription = perk_description(perk);
     char* perkRank = NULL;
     char perkRankBuffer[32];
 
-    int rank = perkGetRank(obj_dude, perk);
+    int rank = perk_level(obj_dude, perk);
     if (rank != 0) {
         sprintf(perkRankBuffer, "(%d)", rank);
         perkRank = perkRankBuffer;
@@ -5761,13 +5761,13 @@ static int perks_dialog()
 
     // NOTE: Original code is slightly different, but does the same thing.
     int perk = name_sort_list[crow + cline].value;
-    int perkFrmId = perkGetFrmId(perk);
-    char* perkName = perkGetName(perk);
-    char* perkDescription = perkGetDescription(perk);
+    int perkFrmId = perk_skilldex_fid(perk);
+    char* perkName = perk_name(perk);
+    char* perkDescription = perk_description(perk);
     char* perkRank = NULL;
     char perkRankBuffer[32];
 
-    int rank = perkGetRank(obj_dude, perk);
+    int rank = perk_level(obj_dude, perk);
     if (rank != 0) {
         sprintf(perkRankBuffer, "(%d)", rank);
         perkRank = perkRankBuffer;
@@ -5779,7 +5779,7 @@ static int perks_dialog()
     int rc = InputPDLoop(count, RedrwDPrks);
 
     if (rc == 1) {
-        if (perkAdd(obj_dude, name_sort_list[crow + cline].value) == -1) {
+        if (perk_add(obj_dude, name_sort_list[crow + cline].value) == -1) {
             debugPrint("\n*** Unable to add perk! ***\n");
             rc = 2;
         }
@@ -5788,19 +5788,19 @@ static int perks_dialog()
     rc &= 1;
 
     if (rc != 0) {
-        if (perkGetRank(obj_dude, PERK_TAG) != 0 && perk_back[PERK_TAG] == 0) {
+        if (perk_level(obj_dude, PERK_TAG) != 0 && perk_back[PERK_TAG] == 0) {
             if (!Add4thTagSkill()) {
-                perkRemove(obj_dude, PERK_TAG);
+                perk_sub(obj_dude, PERK_TAG);
             }
-        } else if (perkGetRank(obj_dude, PERK_MUTATE) != 0 && perk_back[PERK_MUTATE] == 0) {
+        } else if (perk_level(obj_dude, PERK_MUTATE) != 0 && perk_back[PERK_MUTATE] == 0) {
             if (!GetMutateTrait()) {
-                perkRemove(obj_dude, PERK_MUTATE);
+                perk_sub(obj_dude, PERK_MUTATE);
             }
-        } else if (perkGetRank(obj_dude, PERK_LIFEGIVER) != perk_back[PERK_LIFEGIVER]) {
+        } else if (perk_level(obj_dude, PERK_LIFEGIVER) != perk_back[PERK_LIFEGIVER]) {
             int maxHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
             critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
             critter_adjust_hits(obj_dude, 4);
-        } else if (perkGetRank(obj_dude, PERK_EDUCATED) != perk_back[PERK_EDUCATED]) {
+        } else if (perk_level(obj_dude, PERK_EDUCATED) != perk_back[PERK_EDUCATED]) {
             int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
             pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);
         }
@@ -6098,7 +6098,7 @@ static int ListDPerks()
     fontSetCurrent(101);
 
     int perks[PERK_COUNT];
-    int count = perkGetAvailablePerks(obj_dude, perks);
+    int count = perk_make_list(obj_dude, perks);
     if (count == 0) {
         return 0;
     }
@@ -6110,7 +6110,7 @@ static int ListDPerks()
 
     for (int index = 0; index < count; index++) {
         name_sort_list[index].value = perks[index];
-        name_sort_list[index].name = perkGetName(perks[index]);
+        name_sort_list[index].name = perk_name(perks[index]);
     }
 
     qsort(name_sort_list, count, sizeof(*name_sort_list), name_sort_comp);
@@ -6134,9 +6134,9 @@ static int ListDPerks()
 
         fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
 
-        if (perkGetRank(obj_dude, name_sort_list[index].value) != 0) {
+        if (perk_level(obj_dude, name_sort_list[index].value) != 0) {
             char rankString[256];
-            sprintf(rankString, "(%d)", perkGetRank(obj_dude, name_sort_list[index].value));
+            sprintf(rankString, "(%d)", perk_level(obj_dude, name_sort_list[index].value));
             fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 207, rankString, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
         }
 
@@ -6503,7 +6503,7 @@ static void push_perks()
     int perk;
 
     for (perk = 0; perk < PERK_COUNT; perk++) {
-        perk_back[perk] = perkGetRank(obj_dude, perk);
+        perk_back[perk] = perk_level(obj_dude, perk);
     }
 }
 
@@ -6514,23 +6514,23 @@ static void pop_perks()
 {
     for (int perk = 0; perk < PERK_COUNT; perk++) {
         for (;;) {
-            int rank = perkGetRank(obj_dude, perk);
+            int rank = perk_level(obj_dude, perk);
             if (rank <= perk_back[perk]) {
                 break;
             }
 
-            perkRemove(obj_dude, perk);
+            perk_sub(obj_dude, perk);
         }
     }
 
     for (int i = 0; i < PERK_COUNT; i++) {
         for (;;) {
-            int rank = perkGetRank(obj_dude, i);
+            int rank = perk_level(obj_dude, i);
             if (rank >= perk_back[i]) {
                 break;
             }
 
-            perkAdd(obj_dude, i);
+            perk_add(obj_dude, i);
         }
     }
 }
@@ -6545,7 +6545,7 @@ static int PerkCount()
 
     perkCount = 0;
     for (perk = 0; perk < PERK_COUNT; perk++) {
-        if (perkGetRank(obj_dude, perk) > 0) {
+        if (perk_level(obj_dude, perk) > 0) {
             perkCount++;
             if (perkCount >= 37) {
                 break;

@@ -220,13 +220,13 @@ int skillGetValue(Object* critter, int skill)
         if (skillIsTagged(skill)) {
             value += baseValue * skillDescription->field_20;
 
-            if (!perkGetRank(critter, PERK_TAG) || skill != gTaggedSkills[3]) {
+            if (!perk_level(critter, PERK_TAG) || skill != gTaggedSkills[3]) {
                 value += 20;
             }
         }
 
         value += traitGetSkillModifier(skill);
-        value += perkGetSkillModifier(critter, skill);
+        value += perk_adjust_skill(critter, skill);
         value += skillGetGameDifficultyModifier(skill);
     }
 
@@ -554,7 +554,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
     if (obj == obj_dude) {
         if (skill == SKILL_FIRST_AID || skill == SKILL_DOCTOR) {
-            int healerRank = perkGetRank(obj, PERK_HEALER);
+            int healerRank = perk_level(obj, PERK_HEALER);
             minimumHpToHeal = 4 * healerRank;
             maximumHpToHeal = 10 * healerRank;
         }

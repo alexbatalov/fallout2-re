@@ -2158,7 +2158,7 @@ static void gdProcessUnHighlight(int index)
     gDialogRefreshOptionsRect(gOptionWin, &optionRect);
 
     int color = colorTable[992] | 0x2000000;
-    if (perkGetRank(obj_dude, PERK_EMPATHY) != 0) {
+    if (perk_level(obj_dude, PERK_EMPATHY) != 0) {
         color = colorTable[32747] | 0x2000000;
         switch (dialogOptionEntry->reaction) {
         case GAME_DIALOG_REACTION_GOOD:
@@ -2203,7 +2203,7 @@ static void gdProcessReply()
     replyRect.bottom = 58;
 
     // NOTE: There is an unused if condition.
-    perkGetRank(obj_dude, PERK_EMPATHY);
+    perk_level(obj_dude, PERK_EMPATHY);
 
     demo_copy_title(gReplyWin);
 
@@ -2249,7 +2249,7 @@ static void gdProcessUpdate()
 
     int color = colorTable[992] | 0x2000000;
 
-    bool hasEmpathy = perkGetRank(obj_dude, PERK_EMPATHY) != 0;
+    bool hasEmpathy = perk_level(obj_dude, PERK_EMPATHY) != 0;
 
     int width = optionRect.right - optionRect.left - 4;
 

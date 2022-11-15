@@ -661,7 +661,7 @@ int register_object_run_to_object(Object* owner, Object* destination, int action
     animationDescription->destination = destination;
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
-        || (owner == obj_dude && is_pc_flag(0) && !perkGetRank(obj_dude, PERK_SILENT_RUNNING))
+        || (owner == obj_dude && is_pc_flag(0) && !perk_level(obj_dude, PERK_SILENT_RUNNING))
         || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
@@ -757,7 +757,7 @@ int register_object_run_to_tile(Object* owner, int tile, int elevation, int acti
     animationDescription->elevation = elevation;
 
     if ((FID_TYPE(owner->fid) == OBJ_TYPE_CRITTER && (owner->data.critter.combat.results & DAM_CRIP_LEG_ANY) != 0)
-        || (owner == obj_dude && is_pc_flag(0) && !perkGetRank(obj_dude, PERK_SILENT_RUNNING))
+        || (owner == obj_dude && is_pc_flag(0) && !perk_level(obj_dude, PERK_SILENT_RUNNING))
         || (!art_exists(art_id(FID_TYPE(owner->fid), owner->fid & 0xFFF, ANIM_RUNNING, 0, owner->rotation + 1)))) {
         animationDescription->anim = ANIM_WALK;
     } else {
@@ -3100,7 +3100,7 @@ int dude_run(int a1)
         return -1;
     }
 
-    if (!perkGetRank(obj_dude, PERK_SILENT_RUNNING)) {
+    if (!perk_level(obj_dude, PERK_SILENT_RUNNING)) {
         pc_flag_off(DUDE_STATE_SNEAKING);
     }
 
