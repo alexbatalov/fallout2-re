@@ -50,6 +50,23 @@ typedef struct ScriptList {
 
 static_assert(sizeof(ScriptList) == 0x10, "wrong size");
 
+typedef struct ScriptState {
+    unsigned int requests;
+    STRUCT_664980 combatState1;
+    STRUCT_664980 combatState2;
+    int elevatorType;
+    int elevatorLevel;
+    int explosionTile;
+    int explosionElevation;
+    int explosionMinDamage;
+    int explosionMaxDamage;
+    Object* dialogTarget;
+    Object* lootingBy;
+    Object* lootingFrom;
+    Object* stealingBy;
+    Object* stealingFrom;
+} ScriptState;
+
 static void doBkProcesses();
 static void script_chk_critters();
 static void script_chk_timed_events();
@@ -165,46 +182,7 @@ Object* scrQueueTestObj = NULL;
 int scrQueueTestValue = 0;
 
 // 0x664954
-static unsigned int scriptState;
-
-// 0x664958
-STRUCT_664980 stru_664958;
-
-// 0x664980
-STRUCT_664980 stru_664980;
-
-// 0x6649A8
-int gScriptsRequestedElevatorType;
-
-// 0x6649AC
-int gScriptsRequestedElevatorLevel;
-
-// 0x6649B0
-int gScriptsRequestedExplosionTile;
-
-// 0x6649B4
-int gScriptsRequestedExplosionElevation;
-
-// 0x6649B8
-int gScriptsRequestedExplosionMinDamage;
-
-// 0x6649BC
-int gScriptsRequestedExplosionMaxDamage;
-
-// 0x6649C0
-Object* gScriptsRequestedDialogWith;
-
-// 0x6649C4
-Object* gScriptsRequestedLootingBy;
-
-// 0x6649C8
-Object* gScriptsRequestedLootingFrom;
-
-// 0x6649CC
-Object* gScriptsRequestedStealingBy;
-
-// 0x6649D0
-Object* gScriptsRequestedStealingFrom;
+static ScriptState scriptState;
 
 // 0x6649D4
 MessageList script_dialog_msgs[1450];
@@ -831,7 +809,7 @@ int script_q_process(Object* obj, void* data)
 // 0x4A3F80
 int scripts_clear_state()
 {
-    scriptState = 0;
+    scriptState.requests = 0;
     return 0;
 }
 
@@ -840,8 +818,8 @@ int scripts_clear_state()
 // 0x4A3F90
 int scripts_clear_combat_requests(Script* script)
 {
-    if ((scriptState & SCRIPT_REQUEST_COMBAT) != 0 && stru_664958.attacker == script->owner) {
-        scriptState &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
+    if ((scriptState.requests & SCRIPT_REQUEST_COMBAT) != 0 && scriptState.combatState1.attacker == script->owner) {
+        scriptState.requests &= ~(SCRIPT_REQUEST_LOCKED | SCRIPT_REQUEST_COMBAT);
     }
     return 0;
 }
@@ -849,44 +827,44 @@ int scripts_clear_combat_requests(Script* script)
 // 0x4A3FB4
 int scripts_check_state()
 {
-    if (scriptState == 0) {
+    if (scriptState.requests == 0) {
         return 0;
     }
 
-    if ((scriptState & SCRIPT_REQUEST_COMBAT) != 0) {
+    if ((scriptState.requests & SCRIPT_REQUEST_COMBAT) != 0) {
         if (!action_explode_running()) {
             // entering combat
-            scriptState &= ~(SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
-            memcpy(&stru_664980, &stru_664958, sizeof(stru_664980));
+            scriptState.requests &= ~(SCRIPT_REQUEST_LOCKED | SCRIPT_REQUEST_COMBAT);
+            memcpy(&scriptState.combatState2, &scriptState.combatState1, sizeof(scriptState.combatState2));
 
-            if ((scriptState & SCRIPT_REQUEST_0x40) != 0) {
-                scriptState &= ~SCRIPT_REQUEST_0x40;
+            if ((scriptState.requests & SCRIPT_REQUEST_NO_INITIAL_COMBAT_STATE) != 0) {
+                scriptState.requests &= ~SCRIPT_REQUEST_NO_INITIAL_COMBAT_STATE;
                 combat(NULL);
             } else {
-                combat(&stru_664980);
-                memset(&stru_664980, 0, sizeof(stru_664980));
+                combat(&scriptState.combatState2);
+                memset(&scriptState.combatState2, 0, sizeof(scriptState.combatState2));
             }
         }
     }
 
-    if ((scriptState & SCRIPT_REQUEST_0x02) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_0x02;
+    if ((scriptState.requests & SCRIPT_REQUEST_TOWN_MAP) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_TOWN_MAP;
         wmTownMap();
     }
 
-    if ((scriptState & SCRIPT_REQUEST_WORLD_MAP) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_WORLD_MAP;
+    if ((scriptState.requests & SCRIPT_REQUEST_WORLD_MAP) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_WORLD_MAP;
         wmWorldMap();
     }
 
-    if ((scriptState & SCRIPT_REQUEST_ELEVATOR) != 0) {
+    if ((scriptState.requests & SCRIPT_REQUEST_ELEVATOR) != 0) {
         int map = map_data.field_34;
-        int elevation = gScriptsRequestedElevatorLevel;
+        int elevation = scriptState.elevatorLevel;
         int tile = -1;
 
-        scriptState &= ~SCRIPT_REQUEST_ELEVATOR;
+        scriptState.requests &= ~SCRIPT_REQUEST_ELEVATOR;
 
-        if (elevator_select(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
+        if (elevator_select(scriptState.elevatorType, &map, &elevation, &tile) != -1) {
             automap_pip_save();
 
             if (map == map_data.field_34) {
@@ -955,30 +933,30 @@ int scripts_check_state()
         }
     }
 
-    if ((scriptState & SCRIPT_REQUEST_EXPLOSION) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_EXPLOSION;
-        action_explode(gScriptsRequestedExplosionTile, gScriptsRequestedExplosionElevation, gScriptsRequestedExplosionMinDamage, gScriptsRequestedExplosionMaxDamage, NULL, 1);
+    if ((scriptState.requests & SCRIPT_REQUEST_EXPLOSION) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_EXPLOSION;
+        action_explode(scriptState.explosionTile, scriptState.explosionElevation, scriptState.explosionMinDamage, scriptState.explosionMaxDamage, NULL, 1);
     }
 
-    if ((scriptState & SCRIPT_REQUEST_DIALOG) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_DIALOG;
-        gdialogEnter(gScriptsRequestedDialogWith, 0);
+    if ((scriptState.requests & SCRIPT_REQUEST_DIALOG) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_DIALOG;
+        gdialogEnter(scriptState.dialogTarget, 0);
     }
 
-    if ((scriptState & SCRIPT_REQUEST_ENDGAME) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_ENDGAME;
+    if ((scriptState.requests & SCRIPT_REQUEST_ENDGAME) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_ENDGAME;
         endgame_slideshow();
         endgame_movie();
     }
 
-    if ((scriptState & SCRIPT_REQUEST_LOOTING) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_LOOTING;
-        loot_container(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
+    if ((scriptState.requests & SCRIPT_REQUEST_LOOTING) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_LOOTING;
+        loot_container(scriptState.lootingBy, scriptState.lootingFrom);
     }
 
-    if ((scriptState & SCRIPT_REQUEST_STEALING) != 0) {
-        scriptState &= ~SCRIPT_REQUEST_STEALING;
-        inven_steal_container(gScriptsRequestedStealingBy, gScriptsRequestedStealingFrom);
+    if ((scriptState.requests & SCRIPT_REQUEST_STEALING) != 0) {
+        scriptState.requests &= ~SCRIPT_REQUEST_STEALING;
+        inven_steal_container(scriptState.stealingBy, scriptState.stealingFrom);
     }
 
     return 0;
@@ -987,12 +965,12 @@ int scripts_check_state()
 // 0x4A43A0
 int scripts_check_state_in_combat()
 {
-    if ((scriptState & SCRIPT_REQUEST_ELEVATOR) != 0) {
+    if ((scriptState.requests & SCRIPT_REQUEST_ELEVATOR) != 0) {
         int map = map_data.field_34;
-        int elevation = gScriptsRequestedElevatorLevel;
+        int elevation = scriptState.elevatorLevel;
         int tile = -1;
 
-        if (elevator_select(gScriptsRequestedElevatorType, &map, &elevation, &tile) != -1) {
+        if (elevator_select(scriptState.elevatorType, &map, &elevation, &tile) != -1) {
             automap_pip_save();
 
             if (map == map_data.field_34) {
@@ -1040,8 +1018,8 @@ int scripts_check_state_in_combat()
         }
     }
 
-    if ((scriptState & SCRIPT_REQUEST_LOOTING) != 0) {
-        loot_container(gScriptsRequestedLootingBy, gScriptsRequestedLootingFrom);
+    if ((scriptState.requests & SCRIPT_REQUEST_LOOTING) != 0) {
+        loot_container(scriptState.lootingBy, scriptState.lootingFrom);
     }
 
     // NOTE: Uninline.
@@ -1053,34 +1031,32 @@ int scripts_check_state_in_combat()
 // 0x4A457C
 int scripts_request_combat(STRUCT_664980* a1)
 {
-    if ((scriptState & SCRIPT_REQUEST_0x0400) != 0) {
+    if ((scriptState.requests & SCRIPT_REQUEST_LOCKED) != 0) {
         return -1;
     }
 
     if (a1) {
-        static_assert(sizeof(stru_664958) == sizeof(*a1), "wrong size");
-        memcpy(&stru_664958, a1, sizeof(stru_664958));
+        static_assert(sizeof(scriptState.combatState1) == sizeof(*a1), "wrong size");
+        memcpy(&scriptState.combatState1, a1, sizeof(scriptState.combatState1));
     } else {
-        scriptState |= SCRIPT_REQUEST_0x40;
+        scriptState.requests |= SCRIPT_REQUEST_NO_INITIAL_COMBAT_STATE;
     }
 
-    scriptState |= SCRIPT_REQUEST_COMBAT;
+    scriptState.requests |= SCRIPT_REQUEST_COMBAT;
 
     return 0;
 }
 
-// Likely related to random encounter, ala scriptsRequestRandomEncounter RELEASE
-//
 // 0x4A45D4
 void scripts_request_combat_locked(STRUCT_664980* a1)
 {
     if (a1 != NULL) {
-        memcpy(&stru_664958, a1, sizeof(stru_664958));
+        memcpy(&scriptState.combatState1, a1, sizeof(scriptState.combatState1));
     } else {
-        scriptState |= SCRIPT_REQUEST_0x40;
+        scriptState.requests |= SCRIPT_REQUEST_NO_INITIAL_COMBAT_STATE;
     }
 
-    scriptState |= (SCRIPT_REQUEST_0x0400 | SCRIPT_REQUEST_COMBAT);
+    scriptState.requests |= (SCRIPT_REQUEST_LOCKED | SCRIPT_REQUEST_COMBAT);
 }
 
 // 0x4A4644
@@ -1090,7 +1066,7 @@ void scripts_request_worldmap()
         game_user_wants_to_quit = 1;
     }
 
-    scriptState |= SCRIPT_REQUEST_WORLD_MAP;
+    scriptState.requests |= SCRIPT_REQUEST_WORLD_MAP;
 }
 
 // scripts_request_elevator
@@ -1144,9 +1120,9 @@ int scripts_request_elevator(Object* a1, int a2)
         return -1;
     }
 
-    scriptState |= SCRIPT_REQUEST_ELEVATOR;
-    gScriptsRequestedElevatorType = elevatorType;
-    gScriptsRequestedElevatorLevel = elevatorLevel;
+    scriptState.requests |= SCRIPT_REQUEST_ELEVATOR;
+    scriptState.elevatorType = elevatorType;
+    scriptState.elevatorLevel = elevatorLevel;
 
     return 0;
 }
@@ -1154,42 +1130,42 @@ int scripts_request_elevator(Object* a1, int a2)
 // 0x4A4730
 int scripts_request_explosion(int tile, int elevation, int minDamage, int maxDamage)
 {
-    scriptState |= SCRIPT_REQUEST_EXPLOSION;
-    gScriptsRequestedExplosionTile = tile;
-    gScriptsRequestedExplosionElevation = elevation;
-    gScriptsRequestedExplosionMinDamage = minDamage;
-    gScriptsRequestedExplosionMaxDamage = maxDamage;
+    scriptState.requests |= SCRIPT_REQUEST_EXPLOSION;
+    scriptState.explosionTile = tile;
+    scriptState.explosionElevation = elevation;
+    scriptState.explosionMinDamage = minDamage;
+    scriptState.explosionMaxDamage = maxDamage;
     return 0;
 }
 
 // 0x4A4754
 void scripts_request_dialog(Object* obj)
 {
-    gScriptsRequestedDialogWith = obj;
-    scriptState |= SCRIPT_REQUEST_DIALOG;
+    scriptState.dialogTarget = obj;
+    scriptState.requests |= SCRIPT_REQUEST_DIALOG;
 }
 
 // 0x4A4770
 void scripts_request_endgame_slideshow()
 {
-    scriptState |= SCRIPT_REQUEST_ENDGAME;
+    scriptState.requests |= SCRIPT_REQUEST_ENDGAME;
 }
 
 // 0x4A477C
 int scripts_request_loot_container(Object* a1, Object* a2)
 {
-    gScriptsRequestedLootingBy = a1;
-    gScriptsRequestedLootingFrom = a2;
-    scriptState |= SCRIPT_REQUEST_LOOTING;
+    scriptState.lootingBy = a1;
+    scriptState.lootingFrom = a2;
+    scriptState.requests |= SCRIPT_REQUEST_LOOTING;
     return 0;
 }
 
 // 0x4A479C
 int scripts_request_steal_container(Object* a1, Object* a2)
 {
-    gScriptsRequestedStealingBy = a1;
-    gScriptsRequestedStealingFrom = a2;
-    scriptState |= SCRIPT_REQUEST_STEALING;
+    scriptState.stealingBy = a1;
+    scriptState.stealingFrom = a2;
+    scriptState.requests |= SCRIPT_REQUEST_STEALING;
     return 0;
 }
 
