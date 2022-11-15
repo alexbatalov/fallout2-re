@@ -234,7 +234,7 @@ int gsound_init()
         return -1;
     }
 
-    if (soundEffectsCacheInit(cacheSize << 10, sound_sfx_path) != 0) {
+    if (sfxc_init(cacheSize << 10, sound_sfx_path) != 0) {
         if (gsound_debug) {
             debugPrint("Unable to initialize sound effects cache.\n");
         }
@@ -358,7 +358,7 @@ void gsound_reset()
 
     soundDeleteAll();
 
-    soundEffectsCacheFlush();
+    sfxc_flush();
 
     gsound_active_effect_counter = 0;
 
@@ -384,7 +384,7 @@ int gsound_exit()
     gsound_background_stop();
     gsound_background_remove_last_copy();
     soundExit();
-    soundEffectsCacheExit();
+    sfxc_exit();
     audiofClose();
     audioClose();
 
@@ -2118,8 +2118,8 @@ static Sound* gsound_get_sound_ready_for_effect()
         return NULL;
     }
 
-    if (soundEffectsCacheInitialized()) {
-        rc = soundSetFileIO(sound, soundEffectsCacheFileOpen, soundEffectsCacheFileClose, soundEffectsCacheFileRead, soundEffectsCacheFileWrite, soundEffectsCacheFileSeek, soundEffectsCacheFileTell, soundEffectsCacheFileLength);
+    if (sfxc_is_initialized()) {
+        rc = soundSetFileIO(sound, sfxc_cached_open, sfxc_cached_close, sfxc_cached_read, sfxc_cached_write, sfxc_cached_seek, sfxc_cached_tell, sfxc_cached_file_size);
     } else {
         rc = soundSetFileIO(sound, audioOpen, audioCloseFile, audioRead, NULL, audioSeek, gsound_compressed_tell, audioFileSize);
     }
