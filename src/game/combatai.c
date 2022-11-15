@@ -21,7 +21,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "game/protinst.h"
 #include "random.h"
 #include "scripts.h"

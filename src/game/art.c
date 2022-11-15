@@ -12,7 +12,7 @@
 #include "game/gconfig.h"
 #include "memory.h"
 #include "game/object.h"
-#include "proto.h"
+#include "game/proto.h"
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

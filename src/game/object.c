@@ -19,7 +19,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/party.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "game/protinst.h"
 #include "scripts.h"
 #include "text_object.h"

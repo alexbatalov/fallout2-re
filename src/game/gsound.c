@@ -19,7 +19,7 @@
 #include "memory.h"
 #include "int/movie.h"
 #include "game/object.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "queue.h"
 #include "random.h"
 #include "sound_effects_cache.h"

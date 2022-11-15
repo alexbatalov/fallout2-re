@@ -1,4 +1,4 @@
-#include "proto.h"
+#include "game/proto.h"
 
 #include <direct.h>
 #include <stdio.h>

@@ -7,7 +7,7 @@
 #include "game/message.h"
 #include "game/object_types.h"
 #include "game/party.h"
-#include "proto_types.h"
+#include "game/proto_types.h"
 
 extern int combatNumTurns;
 extern unsigned int combat_state;

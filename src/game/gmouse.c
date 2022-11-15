@@ -19,7 +19,7 @@
 #include "game/item.h"
 #include "game/map.h"
 #include "game/object.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "game/protinst.h"
 #include "skilldex.h"
 #include "text_font.h"

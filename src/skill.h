@@ -6,7 +6,7 @@
 #include "db.h"
 #include "game/message.h"
 #include "game/object_types.h"
-#include "proto_types.h"
+#include "game/proto_types.h"
 #include "skill_defs.h"
 
 #define SKILLS_MAX_USES_PER_DAY (3)

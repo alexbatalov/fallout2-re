@@ -11,7 +11,7 @@
 #include "game/message.h"
 #include "game/object.h"
 #include "game/perk.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "game/protinst.h"
 #include "scripts.h"
 

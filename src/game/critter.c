@@ -18,7 +18,7 @@
 #include "game/message.h"
 #include "game/object.h"
 #include "game/party.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "queue.h"
 #include "random.h"
 #include "reaction.h"

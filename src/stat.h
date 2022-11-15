@@ -6,7 +6,7 @@
 #include "db.h"
 #include "game/message.h"
 #include "game/object_types.h"
-#include "proto_types.h"
+#include "game/proto_types.h"
 #include "stat_defs.h"
 
 #define STAT_ERR_INVALID_STAT (-5)

@@ -28,7 +28,7 @@
 #include "game/object.h"
 #include "game/perk.h"
 #include "game/pipboy.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "queue.h"
 #include "random.h"
 #include "scripts.h"

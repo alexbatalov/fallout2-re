@@ -4,7 +4,7 @@
 #include "game/cache.h"
 #include "game/heap.h"
 #include "game/object_types.h"
-#include "proto_types.h"
+#include "game/proto_types.h"
 
 typedef enum Head {
     HEAD_INVALID,

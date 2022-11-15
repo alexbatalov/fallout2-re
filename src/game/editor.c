@@ -27,7 +27,7 @@
 #include "game/object.h"
 #include "game/palette.h"
 #include "game/perk.h"
-#include "proto.h"
+#include "game/proto.h"
 #include "scripts.h"
 #include "skill.h"
 #include "stat.h"
