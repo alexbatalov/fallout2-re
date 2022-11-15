@@ -24,6 +24,7 @@ typedef struct PcxHeader {
     unsigned char reserved2[54];
 } PcxHeader;
 
+static short getWord(File* stream);
 static void readPcxHeader(PcxHeader* pcxHeader, File* stream);
 static int pcxDecodeScanline(unsigned char* data, int size, File* stream);
 static int readPcxVgaPalette(PcxHeader* pcxHeader, unsigned char* palette, File* stream);
@@ -34,10 +35,16 @@ static unsigned char runcount = 0;
 // 0x519DC9
 static unsigned char runvalue = 0;
 
-// NOTE: The reading method in this function is a little bit odd. It does not
-// use high level reading functions, which can read right into struct. Instead
-// they read everything into temporary variables. There are no error checks.
+// NOTE: Inlined.
 //
+// 0x4961B0
+static short getWord(File* stream)
+{
+    short value;
+    fileRead(&value, sizeof(value), 1, stream);
+    return value;
+}
+
 // 0x4961D4
 static void readPcxHeader(PcxHeader* pcxHeader, File* stream)
 {
@@ -45,30 +52,12 @@ static void readPcxHeader(PcxHeader* pcxHeader, File* stream)
     pcxHeader->version = fileReadChar(stream);
     pcxHeader->encoding = fileReadChar(stream);
     pcxHeader->bitsPerPixel = fileReadChar(stream);
-
-    short minX;
-    fileRead(&minX, 2, 1, stream);
-    pcxHeader->minX = minX;
-
-    short minY;
-    fileRead(&minY, 2, 1, stream);
-    pcxHeader->minY = minY;
-
-    short maxX;
-    fileRead(&maxX, 2, 1, stream);
-    pcxHeader->maxX = maxX;
-
-    short maxY;
-    fileRead(&maxY, 2, 1, stream);
-    pcxHeader->maxY = maxY;
-
-    short horizontalResolution;
-    fileRead(&horizontalResolution, 2, 1, stream);
-    pcxHeader->horizontalResolution = horizontalResolution;
-
-    short verticalResolution;
-    fileRead(&verticalResolution, 2, 1, stream);
-    pcxHeader->verticalResolution = verticalResolution;
+    pcxHeader->minX = getWord(stream);
+    pcxHeader->minY = getWord(stream);
+    pcxHeader->maxX = getWord(stream);
+    pcxHeader->maxY = getWord(stream);
+    pcxHeader->horizontalResolution = getWord(stream);
+    pcxHeader->verticalResolution = getWord(stream);
 
     for (int index = 0; index < 48; index++) {
         pcxHeader->palette[index] = fileReadChar(stream);
@@ -76,22 +65,10 @@ static void readPcxHeader(PcxHeader* pcxHeader, File* stream)
 
     pcxHeader->reserved1 = fileReadChar(stream);
     pcxHeader->planeCount = fileReadChar(stream);
-
-    short bytesPerLine;
-    fileRead(&bytesPerLine, 2, 1, stream);
-    pcxHeader->bytesPerLine = bytesPerLine;
-
-    short paletteType;
-    fileRead(&paletteType, 2, 1, stream);
-    pcxHeader->paletteType = paletteType;
-
-    short horizontalScreenSize;
-    fileRead(&horizontalScreenSize, 2, 1, stream);
-    pcxHeader->horizontalScreenSize = horizontalScreenSize;
-
-    short verticalScreenSize;
-    fileRead(&verticalScreenSize, 2, 1, stream);
-    pcxHeader->verticalScreenSize = verticalScreenSize;
+    pcxHeader->bytesPerLine = getWord(stream);
+    pcxHeader->paletteType = getWord(stream);
+    pcxHeader->horizontalScreenSize = getWord(stream);
+    pcxHeader->verticalScreenSize = getWord(stream);
 
     for (int index = 0; index < 54; index++) {
         pcxHeader->reserved2[index] = fileReadChar(stream);
