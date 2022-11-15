@@ -236,7 +236,7 @@ int gmovie_play(int movie, int flags)
     mouse_hide();
     cycle_disable();
 
-    movieEffectsLoad(movieFilePath);
+    moviefx_start(movieFilePath);
 
     _zero_vid_mem();
     movieRun(win, movieFilePath);
@@ -256,7 +256,7 @@ int gmovie_play(int movie, int flags)
     } while (((v11 & 1) == 0 && (v11 & 2) == 0) || (buttons & 1) != 0 || (buttons & 2) != 0);
 
     movieStop();
-    _moviefx_stop();
+    moviefx_stop();
     movieUpdate();
     paletteSetEntries(gPaletteBlack);
 

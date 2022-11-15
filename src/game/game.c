@@ -216,7 +216,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     debugPrint(">gmovie_init\t");
 
-    if (movieEffectsInit() != 0) {
+    if (moviefx_init() != 0) {
         debugPrint("Failed on moviefx_init\n");
         return -1;
     }
@@ -365,7 +365,7 @@ void game_reset()
     inven_reset_dude();
     gsound_reset();
     movieStop();
-    movieEffectsReset();
+    moviefx_reset();
     gmovie_reset();
     iso_reset();
     gmouse_reset();
@@ -404,7 +404,7 @@ void game_exit()
     protoExit();
     gmouse_exit();
     iso_exit();
-    movieEffectsExit();
+    moviefx_exit();
     movieClose();
     gsound_exit();
     combat_ai_exit();
