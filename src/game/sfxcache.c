@@ -41,6 +41,7 @@ static void sfxc_handle_list_destroy();
 static int sfxc_handle_create(int* handlePtr, int id, void* data, CacheEntry* cacheHandle);
 static void sfxc_handle_destroy(int handle);
 static bool sfxc_handle_is_legal(int a1);
+static bool sfxc_mode_is_legal(int mode);
 static int sfxc_decode(int handle, void* buf, unsigned int size);
 static int sfxc_ad_reader(int handle, void* buf, unsigned int size);
 
@@ -463,6 +464,18 @@ static bool sfxc_handle_is_legal(int handle)
     }
 
     return soundEffectsListIsValidTag(soundEffect->tag);
+}
+
+// NOTE: Unused.
+//
+// 0x4A9660
+static bool sfxc_mode_is_legal(int mode)
+{
+    if ((mode & 0x01) != 0) return false;
+    if ((mode & 0x02) != 0) return false;
+    if ((mode & 0x10) != 0) return false;
+
+    return true;
 }
 
 // 0x4A967C
