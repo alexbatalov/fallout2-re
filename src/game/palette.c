@@ -9,30 +9,30 @@
 #include "game/gsound.h"
 
 // 0x6639D0
-unsigned char gPalette[256 * 3];
+static unsigned char current_palette[256 * 3];
 
 // 0x663CD0
-unsigned char gPaletteWhite[256 * 3];
+unsigned char white_palette[256 * 3];
 
 // 0x663FD0
-unsigned char gPaletteBlack[256 * 3];
+unsigned char black_palette[256 * 3];
 
 // 0x6642D0
-int gPaletteFadeSteps;
+static int fade_steps;
 
 // 0x493A00
-void paletteInit()
+void palette_init()
 {
-    memset(gPaletteBlack, 0, 256 * 3);
-    memset(gPaletteWhite, 63, 256 * 3);
-    memcpy(gPalette, cmap, 256 * 3);
+    memset(black_palette, 0, 256 * 3);
+    memset(white_palette, 63, 256 * 3);
+    memcpy(current_palette, cmap, 256 * 3);
 
     unsigned int tick = _get_time();
     if (gsound_background_is_enabled() || gsound_speech_is_enabled()) {
         colorSetFadeBkFunc(soundContinueAll);
     }
 
-    fadeSystemPalette(gPalette, gPalette, 60);
+    fadeSystemPalette(current_palette, current_palette, 60);
 
     colorSetFadeBkFunc(NULL);
 
@@ -47,32 +47,23 @@ void paletteInit()
         diff = 46;
     }
 
-    gPaletteFadeSteps = (int)(60.0 / (diff * (1.0 / 700.0)));
+    fade_steps = (int)(60.0 / (diff * (1.0 / 700.0)));
 
-    debugPrint("\nFade time is %u\nFade steps are %d\n", diff, gPaletteFadeSteps);
+    debugPrint("\nFade time is %u\nFade steps are %d\n", diff, fade_steps);
 }
 
-// NOTE: Collapsed.
-//
-// 0x493AD0
-void _palette_reset_()
+// NOTE: Uncollapsed 0x493AD0.
+void palette_reset()
 {
 }
 
 // NOTE: Uncollapsed 0x493AD0.
-void paletteReset()
+void palette_exit()
 {
-    _palette_reset_();
-}
-
-// NOTE: Uncollapsed 0x493AD0.
-void paletteExit()
-{
-    _palette_reset_();
 }
 
 // 0x493AD4
-void paletteFadeTo(unsigned char* palette)
+void palette_fade_to(unsigned char* palette)
 {
     bool colorCycleWasEnabled = cycle_is_enabled();
     cycle_disable();
@@ -81,10 +72,10 @@ void paletteFadeTo(unsigned char* palette)
         colorSetFadeBkFunc(soundContinueAll);
     }
 
-    fadeSystemPalette(gPalette, palette, gPaletteFadeSteps);
+    fadeSystemPalette(current_palette, palette, fade_steps);
     colorSetFadeBkFunc(NULL);
 
-    memcpy(gPalette, palette, 768);
+    memcpy(current_palette, palette, 768);
 
     if (colorCycleWasEnabled) {
         cycle_enable();
@@ -92,15 +83,15 @@ void paletteFadeTo(unsigned char* palette)
 }
 
 // 0x493B48
-void paletteSetEntries(unsigned char* palette)
+void palette_set_to(unsigned char* palette)
 {
-    memcpy(gPalette, palette, sizeof(gPalette));
+    memcpy(current_palette, palette, sizeof(current_palette));
     setSystemPalette(palette);
 }
 
 // 0x493B78
-void paletteSetEntriesInRange(unsigned char* palette, int start, int end)
+void palette_set_entries(unsigned char* palette, int start, int end)
 {
-    memcpy(gPalette + 3 * start, palette, 3 * (end - start + 1));
+    memcpy(current_palette + 3 * start, palette, 3 * (end - start + 1));
     setSystemPaletteEntries(palette, start, end);
 }

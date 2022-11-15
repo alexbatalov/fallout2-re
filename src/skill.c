@@ -593,7 +593,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         }
 
         if (currentHp < maximumHp) {
-            paletteFadeTo(gPaletteBlack);
+            palette_fade_to(black_palette);
 
             int roll;
             if (critter_body_type(a2) == BODY_TYPE_ROBOTIC) {
@@ -642,7 +642,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             }
 
             scriptsExecMapUpdateProc();
-            paletteFadeTo(cmap);
+            palette_fade_to(cmap);
         } else {
             if (obj == obj_dude) {
                 // 501: You look healty already
@@ -693,7 +693,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         }
 
         if (currentHp < maximumHp || critter_is_crippled(a2)) {
-            paletteFadeTo(gPaletteBlack);
+            palette_fade_to(black_palette);
 
             if (critter_body_type(a2) != BODY_TYPE_ROBOTIC && critter_is_crippled(a2)) {
                 int flags[HEALABLE_DAMAGE_FLAGS_LENGTH];
@@ -788,7 +788,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(cmap);
+                palette_fade_to(cmap);
 
                 giveExp = false;
             } else {
@@ -802,7 +802,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 display_print(text);
 
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(cmap);
+                palette_fade_to(cmap);
             }
         } else {
             if (obj == obj_dude) {
@@ -885,7 +885,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             static_assert(sizeof(flags) == sizeof(gRepairableDamageFlags), "wrong size");
             memcpy(flags, gRepairableDamageFlags, sizeof(gRepairableDamageFlags));
 
-            paletteFadeTo(gPaletteBlack);
+            palette_fade_to(black_palette);
 
             for (int index = 0; index < REPAIRABLE_DAMAGE_FLAGS_LENGTH; index++) {
                 if ((a2->data.critter.combat.results & flags[index]) != 0) {
@@ -968,7 +968,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 v1 = 1;
                 _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(cmap);
+                palette_fade_to(cmap);
 
                 giveExp = false;
             } else {
@@ -982,7 +982,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 display_print(text);
 
                 scriptsExecMapUpdateProc();
-                paletteFadeTo(cmap);
+                palette_fade_to(cmap);
             }
         } else {
             if (obj == obj_dude) {

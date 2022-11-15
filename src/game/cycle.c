@@ -324,7 +324,7 @@ static void cycle_colors()
     }
 
     if (changed) {
-        paletteSetEntriesInRange(palette + 229 * 3, 229, 255);
+        palette_set_entries(palette + 229 * 3, 229, 255);
     }
 }
 

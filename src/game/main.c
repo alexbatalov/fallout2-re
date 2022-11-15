@@ -124,7 +124,7 @@ int RealMain(int argc, char** argv)
                     randomSeedPrerandom(-1);
                     main_load_new(mainMap);
                     main_game_loop();
-                    paletteFadeTo(gPaletteWhite);
+                    palette_fade_to(white_palette);
 
                     // NOTE: Uninline.
                     main_unload_new();
@@ -152,7 +152,7 @@ int RealMain(int argc, char** argv)
                     main_loadgame_new();
 
                     loadColorTable("color.pal");
-                    paletteFadeTo(cmap);
+                    palette_fade_to(cmap);
                     int loadGameRc = LoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
                     if (loadGameRc == -1) {
                         debugPrint("\n ** Error running LoadGame()! **\n");
@@ -161,7 +161,7 @@ int RealMain(int argc, char** argv)
                         win = -1;
                         main_game_loop();
                     }
-                    paletteFadeTo(gPaletteWhite);
+                    palette_fade_to(white_palette);
                     if (win != -1) {
                         windowDestroy(win);
                     }
@@ -275,16 +275,16 @@ static int main_load_new(char* mapFileName)
     win_draw(win);
 
     loadColorTable("color.pal");
-    paletteFadeTo(cmap);
+    palette_fade_to(cmap);
     map_init();
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
     mouse_show();
     map_load(mapFileName);
     wmMapMusicStart();
-    paletteFadeTo(gPaletteWhite);
+    palette_fade_to(white_palette);
     windowDestroy(win);
     loadColorTable("color.pal");
-    paletteFadeTo(cmap);
+    palette_fade_to(cmap);
     return 0;
 }
 
@@ -422,7 +422,7 @@ static void main_selfrun_record()
         _proto_dude_init("premade\\combat.gcd");
         main_load_new(selfrunData.mapFileName);
         selfrunRecordingLoop(&selfrunData);
-        paletteFadeTo(gPaletteWhite);
+        palette_fade_to(white_palette);
 
         // NOTE: Uninline.
         main_unload_new();
@@ -464,7 +464,7 @@ static void main_selfrun_play()
             _proto_dude_init("premade\\combat.gcd");
             main_load_new(selfrunData.mapFileName);
             selfrunPlaybackLoop(&selfrunData);
-            paletteFadeTo(gPaletteWhite);
+            palette_fade_to(white_palette);
 
             // NOTE: Uninline.
             main_unload_new();
@@ -558,7 +558,7 @@ static void main_death_scene()
             win_draw(win);
 
             loadColorTable("art\\intrface\\death.pal");
-            paletteFadeTo(cmap);
+            palette_fade_to(cmap);
 
             main_death_voiceover_done = false;
             gsound_speech_callback_set(main_death_voiceover_callback);
@@ -590,7 +590,7 @@ static void main_death_scene()
                 coreDelayProcessingEvents(500);
             }
 
-            paletteFadeTo(gPaletteBlack);
+            palette_fade_to(black_palette);
             loadColorTable("color.pal");
         } while (0);
         windowDestroy(win);

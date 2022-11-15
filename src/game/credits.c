@@ -126,7 +126,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                                 win_draw(window);
 
-                                paletteFadeTo(cmap);
+                                palette_fade_to(cmap);
 
                                 unsigned char* v40 = intermediateBuffer + CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH;
                                 char str[260];
@@ -226,7 +226,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                 }
 
                 soundContinueAll();
-                paletteFadeTo(gPaletteBlack);
+                palette_fade_to(black_palette);
                 soundContinueAll();
                 windowDestroy(window);
             }

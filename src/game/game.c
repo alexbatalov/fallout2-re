@@ -152,7 +152,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     annoy_user();
     programWindowSetTitle(windowTitle);
     _initWindow(1, a4);
-    paletteInit();
+    palette_init();
 
     char* language;
     if (config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
@@ -350,7 +350,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 void game_reset()
 {
     tileDisable();
-    paletteReset();
+    palette_reset();
     randomReset();
     skillsReset();
     statsReset();
@@ -418,7 +418,7 @@ void game_exit()
     randomExit();
     exit_message();
     automap_exit();
-    paletteExit();
+    palette_exit();
     wmWorldMap_exit();
     partyMembersExit();
     endgameDeathEndingExit();
@@ -1108,12 +1108,12 @@ static void game_help()
             CacheEntry* backgroundHandle;
             unsigned char* backgroundData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundHandle);
             if (backgroundData != NULL) {
-                paletteSetEntries(gPaletteBlack);
+                palette_set_to(black_palette);
                 blitBufferToBuffer(backgroundData, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, HELP_SCREEN_WIDTH, windowBuffer, HELP_SCREEN_WIDTH);
                 art_ptr_unlock(backgroundHandle);
                 win_show(win);
                 loadColorTable("art\\intrface\\helpscrn.pal");
-                paletteSetEntries(cmap);
+                palette_set_to(cmap);
 
                 while (_get_input() == -1 && game_user_wants_to_quit == 0) {
                 }
@@ -1122,13 +1122,13 @@ static void game_help()
                     _get_input();
                 }
 
-                paletteSetEntries(gPaletteBlack);
+                palette_set_to(black_palette);
             }
         }
 
         windowDestroy(win);
         loadColorTable("color.pal");
-        paletteSetEntries(cmap);
+        palette_set_to(cmap);
     }
 
     if (colorCycleWasEnabled) {
@@ -1307,7 +1307,7 @@ static void game_splash_screen()
         return;
     }
 
-    paletteSetEntries(gPaletteBlack);
+    palette_set_to(black_palette);
     fileSeek(stream, 10, SEEK_SET);
     fileRead(palette, 1, 768, stream);
     fileRead(data, 1, SPLASH_WIDTH * SPLASH_HEIGHT, stream);
@@ -1316,7 +1316,7 @@ static void game_splash_screen()
     int splashWindowX = 0;
     int splashWindowY = 0;
     _scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, splashWindowX, splashWindowY);
-    paletteFadeTo(palette);
+    palette_fade_to(palette);
 
     internal_free(data);
     internal_free(palette);

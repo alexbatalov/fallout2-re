@@ -233,7 +233,7 @@ void endgame_movie()
 {
     gsound_background_stop();
     map_disable_bk_processes();
-    paletteFadeTo(gPaletteBlack);
+    palette_fade_to(black_palette);
     endgame_maybe_done = 0;
     tickersAdd(endgame_movie_bk_process);
     gsound_background_callback_set(endgame_movie_callback);
@@ -250,7 +250,7 @@ void endgame_movie()
     tickersRemove(endgame_movie_bk_process);
     gsound_background_stop();
     loadColorTable("color.pal");
-    paletteFadeTo(cmap);
+    palette_fade_to(cmap);
     map_enable_bk_processes();
     endgameEndingHandleContinuePlaying();
 }
@@ -325,7 +325,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
         unsigned char palette[768];
         memcpy(palette, cmap, 768);
 
-        paletteSetEntries(gPaletteBlack);
+        palette_set_to(black_palette);
         endgame_load_voiceover(narratorFileName);
 
         // TODO: Unclear math.
@@ -391,7 +391,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
                     for (int index = 0; index < 768; index++) {
                         darkenedPalette[index] = (unsigned char)trunc(palette[index] * v31);
                     }
-                    paletteSetEntries(darkenedPalette);
+                    palette_set_to(darkenedPalette);
                 }
 
                 start += direction;
@@ -419,7 +419,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
         tickersEnable();
         art_ptr_unlock(backgroundHandle);
 
-        paletteFadeTo(gPaletteBlack);
+        palette_fade_to(black_palette);
         bufferFill(endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
         win_draw(endgame_window);
     }
@@ -454,7 +454,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
             delay = 3000;
         }
 
-        paletteFadeTo(cmap);
+        palette_fade_to(cmap);
 
         coreDelayProcessingEvents(500);
 
@@ -500,7 +500,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
             coreDelayProcessingEvents(500);
         }
 
-        paletteFadeTo(gPaletteBlack);
+        palette_fade_to(black_palette);
 
         while (mouse_get_buttons() != 0) {
             _get_input();
@@ -534,7 +534,7 @@ static int endgame_init()
     endgame_old_font = fontGetCurrent();
     fontSetCurrent(101);
 
-    paletteFadeTo(gPaletteBlack);
+    palette_fade_to(black_palette);
 
     int windowEndgameEndingX = 0;
     int windowEndgameEndingY = 0;
@@ -619,7 +619,7 @@ static void endgame_exit()
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
     loadColorTable("color.pal");
-    paletteFadeTo(cmap);
+    palette_fade_to(cmap);
 
     cycle_enable();
 

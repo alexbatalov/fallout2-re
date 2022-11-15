@@ -239,7 +239,7 @@ void main_menu_hide(bool animate)
     soundContinueAll();
 
     if (animate) {
-        paletteFadeTo(gPaletteBlack);
+        palette_fade_to(black_palette);
         soundContinueAll();
     }
 
@@ -263,7 +263,7 @@ void main_menu_show(bool animate)
 
     if (animate) {
         loadColorTable("color.pal");
-        paletteFadeTo(cmap);
+        palette_fade_to(cmap);
     }
 
     main_menu_is_hidden = false;

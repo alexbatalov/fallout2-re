@@ -5648,7 +5648,7 @@ static void op_gfade_out(Program* program)
     }
 
     if (data != 0) {
-        paletteFadeTo(gPaletteBlack);
+        palette_fade_to(black_palette);
     } else {
         dbg_error(program, "gfade_out", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
@@ -5669,7 +5669,7 @@ static void op_gfade_in(Program* program)
     }
 
     if (data != 0) {
-        paletteFadeTo(cmap);
+        palette_fade_to(cmap);
     } else {
         dbg_error(program, "gfade_in", SCRIPT_ERROR_OBJECT_IS_NULL);
     }

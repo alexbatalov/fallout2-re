@@ -163,7 +163,7 @@ int gmovie_play(int movie, int flags)
     }
 
     if ((flags & GAME_MOVIE_FADE_IN) != 0) {
-        paletteFadeTo(gPaletteBlack);
+        palette_fade_to(black_palette);
         gmPaletteWasFaded = true;
     }
 
@@ -258,7 +258,7 @@ int gmovie_play(int movie, int flags)
     movieStop();
     moviefx_stop();
     movieUpdate();
-    paletteSetEntries(gPaletteBlack);
+    palette_set_to(black_palette);
 
     gmovie_played_list[movie] = 1;
 
@@ -292,7 +292,7 @@ int gmovie_play(int movie, int flags)
             loadColorTable("color.pal");
         }
 
-        paletteFadeTo(cmap);
+        palette_fade_to(cmap);
         gmPaletteWasFaded = false;
     }
 
@@ -304,7 +304,7 @@ int gmovie_play(int movie, int flags)
 void gmPaletteFinish()
 {
     if (gmPaletteWasFaded) {
-        paletteFadeTo(cmap);
+        palette_fade_to(cmap);
         gmPaletteWasFaded = false;
     }
 }

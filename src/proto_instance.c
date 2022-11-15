@@ -762,14 +762,14 @@ int _obj_use_book(Object* book)
         }
     }
 
-    paletteFadeTo(gPaletteBlack);
+    palette_fade_to(black_palette);
 
     int intelligence = critterGetStat(obj_dude, STAT_INTELLIGENCE);
     gameTimeAddSeconds(3600 * (11 - intelligence));
 
     scriptsExecMapUpdateProc();
 
-    paletteFadeTo(cmap);
+    palette_fade_to(cmap);
 
     // You read the book.
     messageListItem.num = 800;

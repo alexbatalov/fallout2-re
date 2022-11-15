@@ -1,17 +1,15 @@
-#ifndef PALETTE_H
-#define PALETTE_H
+#ifndef FALLOUT_GAME_PALETTE_H_
+#define FALLOUT_GAME_PALETTE_H_
 
-extern unsigned char gPalette[256 * 3];
-extern unsigned char gPaletteWhite[256 * 3];
-extern unsigned char gPaletteBlack[256 * 3];
-extern int gPaletteFadeSteps;
+extern unsigned char white_palette[256 * 3];
+extern unsigned char black_palette[256 * 3];
 
-void paletteInit();
+void palette_init();
 void _palette_reset_();
-void paletteReset();
-void paletteExit();
-void paletteFadeTo(unsigned char* palette);
-void paletteSetEntries(unsigned char* palette);
-void paletteSetEntriesInRange(unsigned char* palette, int start, int end);
+void palette_reset();
+void palette_exit();
+void palette_fade_to(unsigned char* palette);
+void palette_set_to(unsigned char* palette);
+void palette_set_entries(unsigned char* palette, int start, int end);
 
-#endif /* PALETTE_H */
+#endif /* FALLOUT_GAME_PALETTE_H_ */

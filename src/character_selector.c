@@ -149,7 +149,7 @@ int characterSelectorOpen()
     }
 
     loadColorTable("color.pal");
-    paletteFadeTo(cmap);
+    palette_fade_to(cmap);
 
     int rc = 0;
     bool done = false;
@@ -230,7 +230,7 @@ int characterSelectorOpen()
         }
     }
 
-    paletteFadeTo(gPaletteBlack);
+    palette_fade_to(black_palette);
     characterSelectorWindowFree();
 
     if (cursorWasHidden) {

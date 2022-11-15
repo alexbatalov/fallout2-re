@@ -1134,7 +1134,7 @@ int editor_design(bool isCreationMode)
     if (rc == 0) {
         if (isCreationMode) {
             _proto_dude_update_gender();
-            paletteFadeTo(gPaletteBlack);
+            palette_fade_to(black_palette);
         }
     }
 

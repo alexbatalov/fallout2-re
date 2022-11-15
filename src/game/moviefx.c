@@ -268,7 +268,7 @@ static void moviefx_callback_func(int frame)
             }
         }
 
-        paletteSetEntries(palette);
+        palette_set_to(palette);
     }
 
     inside_fade = movieEffect != NULL;
@@ -280,7 +280,7 @@ static void moviefx_palette_func(unsigned char* palette, int start, int end)
     memcpy(source_palette + 3 * start, palette, 3 * (end - start + 1));
 
     if (!inside_fade) {
-        paletteSetEntriesInRange(palette, start, end);
+        palette_set_entries(palette, start, end);
     }
 }
 
