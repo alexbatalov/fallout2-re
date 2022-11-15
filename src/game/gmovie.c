@@ -15,7 +15,7 @@
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "int/movie.h"
-#include "movie_effect.h"
+#include "game/moviefx.h"
 #include "palette.h"
 #include "text_font.h"
 #include "window_manager.h"

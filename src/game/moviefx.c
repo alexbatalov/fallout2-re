@@ -1,4 +1,4 @@
-#include "movie_effect.h"
+#include "game/moviefx.h"
 
 #include <stdio.h>
 #include <stdlib.h>

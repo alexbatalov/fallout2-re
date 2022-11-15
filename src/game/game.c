@@ -36,7 +36,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "int/movie.h"
-#include "movie_effect.h"
+#include "game/moviefx.h"
 #include "object.h"
 #include "options.h"
 #include "palette.h"

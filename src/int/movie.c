@@ -9,7 +9,7 @@
 #include "draw.h"
 #include "game/gconfig.h"
 #include "int/memdbg.h"
-#include "movie_effect.h"
+#include "game/moviefx.h"
 #include "movie_lib.h"
 #include "sound.h"
 #include "text_font.h"
