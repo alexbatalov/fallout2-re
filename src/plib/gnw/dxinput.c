@@ -334,7 +334,7 @@ bool dxinput_init()
         return false;
     }
 
-    HRESULT hr = gDirectInputCreateAProc(gInstance, DIRECTINPUT_VERSION, &lpDirectInput, NULL);
+    HRESULT hr = GNW95_DirectInputCreate(gInstance, DIRECTINPUT_VERSION, &lpDirectInput, NULL);
     if (hr != DI_OK) {
         goto err;
     }

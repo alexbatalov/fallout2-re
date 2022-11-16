@@ -6,23 +6,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#define DIRECTDRAW_VERSION 0x0300
-#include <ddraw.h>
+#include "plib/gnw/gnw95dx.h"
 
-#define DIRECTINPUT_VERSION 0x0300
-#include <dinput.h>
-#include <mmreg.h>
-
-#define DIRECTSOUND_VERSION 0x0300
-#include <dsound.h>
-
-typedef HRESULT(__stdcall DirectDrawCreateProc)(GUID*, LPDIRECTDRAW*, IUnknown*);
-typedef HRESULT(__stdcall DirectInputCreateAProc)(HINSTANCE, DWORD, LPDIRECTINPUTA*, IUnknown*);
-typedef HRESULT(__stdcall DirectSoundCreateProc)(GUID*, LPDIRECTSOUND*, IUnknown*);
-
-extern DirectDrawCreateProc* gDirectDrawCreateProc;
-extern DirectInputCreateAProc* gDirectInputCreateAProc;
-extern DirectSoundCreateProc* gDirectSoundCreateProc;
 extern HWND gProgramWindow;
 extern HINSTANCE gInstance;
 extern LPSTR gCmdLine;

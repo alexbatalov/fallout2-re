@@ -1405,7 +1405,7 @@ int directDrawInit(int width, int height, int bpp)
         return 0;
     }
 
-    if (gDirectDrawCreateProc(NULL, &gDirectDraw, NULL) != DD_OK) {
+    if (GNW95_DirectDrawCreate(NULL, &gDirectDraw, NULL) != DD_OK) {
         return -1;
     }
 

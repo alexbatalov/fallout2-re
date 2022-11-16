@@ -205,6 +205,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/plib/gnw/doscmdln.h"
     "src/plib/gnw/dxinput.c"
     "src/plib/gnw/dxinput.h"
+    "src/plib/gnw/gnw95dx.c"
+    "src/plib/gnw/gnw95dx.h"
     "src/plib/gnw/memory.c"
     "src/plib/gnw/memory.h"
     "src/core.c"

@@ -7,15 +7,6 @@
 #include "game/main.h"
 #include "window_manager.h"
 
-// 0x51E428
-DirectDrawCreateProc* gDirectDrawCreateProc = NULL;
-
-// 0x51E42C
-DirectInputCreateAProc* gDirectInputCreateAProc = NULL;
-
-// 0x51E430
-DirectSoundCreateProc* gDirectSoundCreateProc = NULL;
-
 // 0x51E434
 HWND gProgramWindow = NULL;
 
@@ -127,8 +118,8 @@ bool _LoadDirectX()
         goto err;
     }
 
-    gDirectDrawCreateProc = (DirectDrawCreateProc*)GetProcAddress(gDDrawDLL, "DirectDrawCreate");
-    if (gDirectDrawCreateProc == NULL) {
+    GNW95_DirectDrawCreate = (PFNDDRAWCREATE)GetProcAddress(gDDrawDLL, "DirectDrawCreate");
+    if (GNW95_DirectDrawCreate == NULL) {
         goto err;
     }
 
@@ -137,8 +128,8 @@ bool _LoadDirectX()
         goto err;
     }
 
-    gDirectInputCreateAProc = (DirectInputCreateAProc*)GetProcAddress(gDInputDLL, "DirectInputCreateA");
-    if (gDirectInputCreateAProc == NULL) {
+    GNW95_DirectInputCreate = (PFNDINPUTCREATE)GetProcAddress(gDInputDLL, "DirectInputCreateA");
+    if (GNW95_DirectInputCreate == NULL) {
         goto err;
     }
 
@@ -147,8 +138,8 @@ bool _LoadDirectX()
         goto err;
     }
 
-    gDirectSoundCreateProc = (DirectSoundCreateProc*)GetProcAddress(gDSoundDLL, "DirectSoundCreate");
-    if (gDirectSoundCreateProc == NULL) {
+    GNW95_DirectSoundCreate = (PFNDSOUNDCREATE)GetProcAddress(gDSoundDLL, "DirectSoundCreate");
+    if (GNW95_DirectSoundCreate == NULL) {
         goto err;
     }
 
@@ -170,19 +161,19 @@ void _UnloadDirectX(void)
     if (gDSoundDLL != NULL) {
         FreeLibrary(gDSoundDLL);
         gDSoundDLL = NULL;
-        gDirectDrawCreateProc = NULL;
+        GNW95_DirectDrawCreate = NULL;
     }
 
     if (gDDrawDLL != NULL) {
         FreeLibrary(gDDrawDLL);
         gDDrawDLL = NULL;
-        gDirectSoundCreateProc = NULL;
+        GNW95_DirectSoundCreate = NULL;
     }
 
     if (gDInputDLL != NULL) {
         FreeLibrary(gDInputDLL);
         gDInputDLL = NULL;
-        gDirectInputCreateAProc = NULL;
+        GNW95_DirectInputCreate = NULL;
     }
 }
 

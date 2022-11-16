@@ -428,7 +428,7 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
     HRESULT hr;
     DWORD v24;
 
-    if (gDirectSoundCreateProc(0, &soundDSObject, 0) != DS_OK) {
+    if (GNW95_DirectSoundCreate(0, &soundDSObject, 0) != DS_OK) {
         soundDSObject = NULL;
         soundErrorno = SOUND_SOS_DETECTION_FAILURE;
         return soundErrorno;
