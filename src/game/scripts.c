@@ -1447,7 +1447,7 @@ int scr_init()
     }
 
     scr_remove_all();
-    interpretOutputFunc(_win_debug);
+    interpretOutputFunc(win_debug);
     initInterpreter();
     scr_header_load();
 

@@ -394,13 +394,13 @@ static void main_selfrun_record()
     char** fileList;
     int fileListLength = fileNameListInit("maps\\*.map", &fileList, 0, 0);
     if (fileListLength != 0) {
-        int selectedFileIndex = _win_list_select("Select Map", fileList, fileListLength, 0, 80, 80, 0x10000 | 0x100 | 4);
+        int selectedFileIndex = win_list_select("Select Map", fileList, fileListLength, 0, 80, 80, 0x10000 | 0x100 | 4);
         if (selectedFileIndex != -1) {
             // NOTE: It's size is likely 13 chars (on par with SelfrunData
             // fields), but due to the padding it takes 16 chars on stack.
             char recordingName[SELFRUN_RECORDING_FILE_NAME_LENGTH];
             recordingName[0] = '\0';
-            if (_win_get_str(recordingName, sizeof(recordingName) - 2, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
+            if (win_get_str(recordingName, sizeof(recordingName) - 2, "Enter name for recording (8 characters max, no extension):", 100, 100) == 0) {
                 memset(&selfrunData, 0, sizeof(selfrunData));
                 if (selfrun_prep_recording(recordingName, fileList[selectedFileIndex], &selfrunData) == 0) {
                     ready = true;

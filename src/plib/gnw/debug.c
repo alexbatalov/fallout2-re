@@ -101,13 +101,13 @@ void debug_register_env()
         // NOTE: Uninline.
         debug_register_screen();
     } else if (strcmp(copy, "gnw") == 0) {
-        if (debug_func != _win_debug) {
+        if (debug_func != win_debug) {
             if (fd != NULL) {
                 fclose(fd);
                 fd = NULL;
             }
 
-            debug_func = _win_debug;
+            debug_func = win_debug;
         }
     }
 

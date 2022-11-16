@@ -292,7 +292,7 @@ static void op_selectfilelist(Program* program)
     int fileListLength;
     char** fileList = getFileList(interpretMangleName(pattern), &fileListLength);
     if (fileList != NULL && fileListLength != 0) {
-        int selectedIndex = _win_list_select(title,
+        int selectedIndex = win_list_select(title,
             fileList,
             fileListLength,
             NULL,

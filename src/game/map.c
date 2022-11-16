@@ -1404,12 +1404,12 @@ int map_save_file(File* stream)
 
     if (scr_save(stream) == -1) {
         sprintf(err, "Error saving scripts in %s", map_data.name);
-        _win_msg(err, 80, 80, colorTable[31744]);
+        win_msg(err, 80, 80, colorTable[31744]);
     }
 
     if (obj_save(stream) == -1) {
         sprintf(err, "Error saving objects in %s", map_data.name);
-        _win_msg(err, 80, 80, colorTable[31744]);
+        win_msg(err, 80, 80, colorTable[31744]);
     }
 
     scr_enable();
