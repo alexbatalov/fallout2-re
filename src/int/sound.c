@@ -26,6 +26,13 @@ static_assert(sizeof(Sound) == 156, "wrong size");
 static void* defaultMalloc(size_t size);
 static void* defaultRealloc(void* ptr, size_t size);
 static void defaultFree(void* ptr);
+static long soundFileSize(int fileHandle);
+static long soundTellData(int fileHandle);
+static int soundWriteData(int fileHandle, const void* buf, unsigned int size);
+static int soundReadData(int fileHandle, void* buf, unsigned int size);
+static int soundOpenData(const char* filePath, int flags, ...);
+static int soundSeekData(int fileHandle, long offset, int origin);
+static int soundCloseData(int fileHandle);
 static char* defaultMangler(char* fname);
 static void refreshSoundBuffers(Sound* sound);
 static int preloadBuffers(Sound* sound);
@@ -56,13 +63,13 @@ static FreeProc* freePtr = defaultFree;
 
 // 0x51D494
 static SoundFileIO defaultStream = {
-    open,
-    close,
-    read,
-    write,
-    lseek,
-    tell,
-    filelength,
+    soundOpenData,
+    soundCloseData,
+    soundReadData,
+    soundWriteData,
+    soundSeekData,
+    soundTellData,
+    soundFileSize,
     -1,
 };
 
@@ -165,6 +172,55 @@ void soundRegisterAlloc(MallocProc* mallocProc, ReallocProc* reallocProc, FreePr
     mallocPtr = mallocProc;
     reallocPtr = reallocProc;
     freePtr = freeProc;
+}
+
+// 0x4AC71C
+static long soundFileSize(int fileHandle)
+{
+    long pos;
+    long size;
+
+    pos = tell(fileHandle);
+    size = lseek(fileHandle, 0, SEEK_END);
+    lseek(fileHandle, pos, SEEK_SET);
+
+    return size;
+}
+
+// 0x4AC750
+static long soundTellData(int fileHandle)
+{
+    return tell(fileHandle);
+}
+
+// 0x4AC758
+static int soundWriteData(int fileHandle, const void* buf, unsigned int size)
+{
+    return write(fileHandle, buf, size);
+}
+
+// 0x4AC760
+static int soundReadData(int fileHandle, void* buf, unsigned int size)
+{
+    return read(fileHandle, buf, size);
+}
+
+// 0x4AC768
+static int soundOpenData(const char* filePath, int flags, ...)
+{
+    return open(filePath, flags);
+}
+
+// 0x4AC774
+static int soundSeekData(int fileHandle, long offset, int origin)
+{
+    return lseek(fileHandle, offset, origin);
+}
+
+// 0x4AC77C
+static int soundCloseData(int fileHandle)
+{
+    return close(fileHandle);
 }
 
 // 0x4AC78C
