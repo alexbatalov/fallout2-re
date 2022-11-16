@@ -252,7 +252,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             MessageListItem messageListItem;
             messageListItem.num = 493;
             if (!message_search(&proto_main_msg_file, &messageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
             }
             fn(messageListItem.text);
         } else {
@@ -288,7 +288,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
 
             if (!message_search(&proto_main_msg_file, &hpMessageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 
@@ -302,7 +302,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 }
 
                 if (!message_search(&proto_main_msg_file, &weaponMessageListItem)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
@@ -345,7 +345,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 }
 
                 if (!message_search(&proto_main_msg_file, &endingMessageListItem)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
@@ -375,7 +375,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             MessageListItem hpMessageListItem;
             hpMessageListItem.num = 500 + v16;
             if (!message_search(&proto_main_msg_file, &hpMessageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 
@@ -383,11 +383,11 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 // Error: lookup_val out of range
                 hpMessageListItem.num = 550;
                 if (!message_search(&proto_main_msg_file, &hpMessageListItem)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
-                debugPrint(hpMessageListItem.text);
+                debug_printf(hpMessageListItem.text);
                 return 0;
             }
 
@@ -396,7 +396,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 // You look %s
                 v66.num = 520 + v12;
                 if (!message_search(&proto_main_msg_file, &v66)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
@@ -405,14 +405,14 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 // %s %s
                 v66.num = 521 + v12;
                 if (!message_search(&proto_main_msg_file, &v66)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
                 MessageListItem v63;
                 v63.num = 522 + critterGetStat(target, STAT_GENDER);
                 if (!message_search(&proto_main_msg_file, &v63)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
@@ -432,7 +432,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
 
             if (!message_search(&proto_main_msg_file, &v63)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 
@@ -451,7 +451,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             }
 
             if (!message_search(&proto_main_msg_file, &carMessageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 
@@ -471,7 +471,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
                 weaponMessageListItem.num = 526;
 
                 if (!message_search(&proto_main_msg_file, &weaponMessageListItem)) {
-                    debugPrint("\nError: Can't find msg num!");
+                    debug_printf("\nError: Can't find msg num!");
                     exit(1);
                 }
 
@@ -487,7 +487,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
             ammoMessageListItem.num = 510;
 
             if (!message_search(&proto_main_msg_file, &ammoMessageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 
@@ -498,7 +498,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             ammoMessageListItem.num++;
             if (!message_search(&proto_main_msg_file, &ammoMessageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 
@@ -509,7 +509,7 @@ int obj_examine_func(Object* critter, Object* target, void (*fn)(char* string))
 
             ammoMessageListItem.num++;
             if (!message_search(&proto_main_msg_file, &ammoMessageListItem)) {
-                debugPrint("\nError: Can't find msg num!");
+                debug_printf("\nError: Can't find msg num!");
                 exit(1);
             }
 

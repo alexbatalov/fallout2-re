@@ -248,7 +248,7 @@ static void parse_hurt_str(char* str, int* valuePtr)
         }
 
         if (i == 4) {
-            debugPrint("Unrecognized flag: %s\n", str);
+            debug_printf("Unrecognized flag: %s\n", str);
         }
 
         str[v10] = tmp;
@@ -450,7 +450,7 @@ err:
         internal_free(cap);
     }
 
-    debugPrint("Error processing ai.txt");
+    debug_printf("Error processing ai.txt");
 
     config_exit(&config);
 
@@ -677,7 +677,7 @@ static AiPacket* ai_cap_from_packet(int aiPacketId)
         }
     }
 
-    debugPrint("Missing AI Packet\n");
+    debug_printf("Missing AI Packet\n");
 
     return cap;
 }
@@ -773,7 +773,7 @@ int ai_set_run_away_value(Object* obj, int runAwayMode)
     int currentHp = critterGetStat(obj, STAT_CURRENT_HIT_POINTS);
     const char* name = critter_name(obj);
 
-    debugPrint("\n%s minHp = %d; curHp = %d", name, ai->min_hp, currentHp);
+    debug_printf("\n%s minHp = %d; curHp = %d", name, ai->min_hp, currentHp);
 
     return 0;
 }
@@ -1459,7 +1459,7 @@ Object* ai_danger_source(Object* a1)
 
             if (make_path_func(a1, a1->tile, obj_dude->data.critter.combat.whoHitMe->tile, NULL, 0, obj_blocking_at) == 0
                 && combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) != COMBAT_BAD_SHOT_OK) {
-                debugPrint("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critter_name(a1));
+                debug_printf("\nai_danger_source: %s couldn't attack at target!  Picking alternate!", critter_name(a1));
                 break;
             }
 
@@ -1530,7 +1530,7 @@ Object* ai_danger_source(Object* a1)
                 || combat_check_bad_shot(a1, candidate, HIT_MODE_RIGHT_WEAPON_PRIMARY, false) == COMBAT_BAD_SHOT_OK) {
                 return candidate;
             }
-            debugPrint("\nai_danger_source: I couldn't get at my target!  Picking alternate!");
+            debug_printf("\nai_danger_source: I couldn't get at my target!  Picking alternate!");
         }
     }
 
@@ -2350,7 +2350,7 @@ static int cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetDat
     for (int index = 0; index < aiRetargetData->critterCount; index++) {
         Object* critter = aiRetargetData->critterList[index];
         if (cai_attackWouldIntersect(critter, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
-            debugPrint("In the way!");
+            debug_printf("In the way!");
 
             aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tile_num_in_direction(tile, (critter->rotation + 1) % ROTATION_COUNT, distance);
             aiRetargetData->tiles[aiRetargetData->currentTileIndex + 1] = tile_num_in_direction(tile, (critter->rotation + 5) % ROTATION_COUNT, distance);
@@ -2605,7 +2605,7 @@ static int ai_try_attack(Object* a1, Object* a2)
             int accuracy = determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
             if (accuracy < minToHit) {
                 const char* name = critter_name(a1);
-                debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
+                debug_printf("%s: FLEEING: Can't possibly Hit Target!", name);
                 ai_run_away(a1, a2);
                 return 0;
             }
@@ -2642,7 +2642,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                 int v22 = determine_to_hit_no_range(a1, a2, HIT_LOCATION_UNCALLED, hitMode, v30);
                 if (v22 < minToHit) {
                     const char* name = critter_name(a1);
-                    debugPrint("%s: FLEEING: Can't possibly Hit Target!", name);
+                    debug_printf("%s: FLEEING: Can't possibly Hit Target!", name);
                     ai_run_away(a1, a2);
                     return 0;
                 }
@@ -2677,7 +2677,7 @@ static int ai_try_attack(Object* a1, Object* a2)
 
                 if (ai_move_steps_closer(a1, a2, v42, v38) == -1) {
                     const char* name = critter_name(a1);
-                    debugPrint("%s: FLEEING: Can't possibly get closer to Target!", name);
+                    debug_printf("%s: FLEEING: Can't possibly get closer to Target!", name);
                     ai_run_away(a1, a2);
                     return 0;
                 }
@@ -2855,7 +2855,7 @@ void combat_ai(Object* a1, Object* a2)
         int minimumHitPoints = critterGetStat(a1, STAT_MAXIMUM_HIT_POINTS) - v7;
         int currentHitPoints = critterGetStat(a1, STAT_CURRENT_HIT_POINTS);
         const char* name = critter_name(a1);
-        debugPrint("\n%s minHp = %d; curHp = %d", name, minimumHitPoints, currentHitPoints);
+        debug_printf("\n%s minHp = %d; curHp = %d", name, minimumHitPoints, currentHitPoints);
     }
 
     CritterCombatData* combatData = &(a1->data.critter.combat);
@@ -2863,14 +2863,14 @@ void combat_ai(Object* a1, Object* a2)
         || (combatData->results & ai->hurt_too_much) != 0
         || critterGetStat(a1, STAT_CURRENT_HIT_POINTS) < ai->min_hp) {
         const char* name = critter_name(a1);
-        debugPrint("%s: FLEEING: I'm Hurt!", name);
+        debug_printf("%s: FLEEING: I'm Hurt!", name);
         ai_run_away(a1, a2);
         return;
     }
 
     if (ai_check_drugs(a1)) {
         const char* name = critter_name(a1);
-        debugPrint("%s: FLEEING: I need DRUGS!", name);
+        debug_printf("%s: FLEEING: I need DRUGS!", name);
         ai_run_away(a1, a2);
     } else {
         if (a2 == NULL) {
@@ -2910,7 +2910,7 @@ void combat_ai(Object* a1, Object* a2)
                     combatAIInfoSetFriendlyDead(a1, NULL);
                 } else {
                     const char* name = critter_name(a1);
-                    debugPrint("%s: FLEEING: Somebody is shooting at me that I can't see!");
+                    debug_printf("%s: FLEEING: Somebody is shooting at me that I can't see!");
                     ai_run_away(a1, NULL);
                 }
             }
@@ -2945,7 +2945,7 @@ void combat_ai(Object* a1, Object* a2)
         ai_move_steps_closer(a1, v20, v23 - v21, 0);
     } else {
         if (a1->data.critter.combat.ap > 0) {
-            debugPrint("\n>>>NOTE: %s had extra AP's to use!<<<", critter_name(a1));
+            debug_printf("\n>>>NOTE: %s had extra AP's to use!<<<", critter_name(a1));
             cai_perform_distance_prefs(a1, a2);
         }
     }
@@ -3029,7 +3029,7 @@ int combatai_switch_team(Object* obj, int team)
 
     if (obj->data.critter.combat.whoHitMeCid == -1) {
         critter_set_who_hit_me(obj, NULL);
-        debugPrint("\nError: CombatData found with invalid who_hit_me!");
+        debug_printf("\nError: CombatData found with invalid who_hit_me!");
         return -1;
     }
 
@@ -3111,7 +3111,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
 
     AiPacket* ai = ai_cap(a1);
 
-    debugPrint("%s is using %s packet with a %d%% chance to taunt\n", object_name(a1), ai->name, ai->chance);
+    debug_printf("%s is using %s packet with a %d%% chance to taunt\n", object_name(a1), ai->name, ai->chance);
 
     if (roll_random(1, 100) > ai->chance) {
         return -1;
@@ -3158,11 +3158,11 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
     MessageListItem messageListItem;
     messageListItem.num = roll_random(start, end);
     if (!message_search(&ai_message_file, &messageListItem)) {
-        debugPrint("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critter_name(a1));
+        debug_printf("\nERROR: combatai_msg: Couldn't find message # %d for %s", messageListItem.num, critter_name(a1));
         return -1;
     }
 
-    debugPrint("%s said message %d\n", object_name(a1), messageListItem.num);
+    debug_printf("%s said message %d\n", object_name(a1), messageListItem.num);
     strncpy(string, messageListItem.text, 259);
 
     // TODO: Get rid of casts.
@@ -3414,7 +3414,7 @@ void combatai_notify_onlookers(Object* a1)
                 obj->data.critter.combat.maneuver |= CRITTER_MANEUVER_0x01;
                 if ((a1->data.critter.combat.results & DAM_DEAD) != 0) {
                     if (!is_within_perception(obj, obj->data.critter.combat.whoHitMe)) {
-                        debugPrint("\nSomebody Died and I don't know why!  Run!!!");
+                        debug_printf("\nSomebody Died and I don't know why!  Run!!!");
                         combatAIInfoSetFriendlyDead(obj, a1);
                     }
                 }

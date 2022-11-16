@@ -2600,7 +2600,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
         int hitModeAnimationCode = item_w_anim_weap(item, HIT_MODE_RIGHT_WEAPON_PRIMARY);
         int fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, hitModeAnimationCode, weaponAnimationCode, critter->rotation + 1);
         if (!art_exists(fid)) {
-            debugPrint("\ninven_wield failed!  ERROR ERROR ERROR!");
+            debug_printf("\ninven_wield failed!  ERROR ERROR ERROR!");
             return -1;
         }
 
@@ -2853,7 +2853,7 @@ void inven_display_msg(char* string)
     while (c != NULL && *c != '\0') {
         inven_display_msg_line += 1;
         if (inven_display_msg_line > 17) {
-            debugPrint("\nError: inven_display_msg: out of bounds!");
+            debug_printf("\nError: inven_display_msg: out of bounds!");
             return;
         }
 
@@ -2906,7 +2906,7 @@ void inven_display_msg(char* string)
         }
 
         if (fontGetStringWidth(c) > 152) {
-            debugPrint("\nError: inven_display_msg: word too long!");
+            debug_printf("\nError: inven_display_msg: word too long!");
             return;
         }
 
@@ -2980,7 +2980,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
         }
 
         if (!message_search(&proto_main_msg_file, &messageListItem)) {
-            debugPrint("\nError: Couldn't find message!");
+            debug_printf("\nError: Couldn't find message!");
         }
 
         char formattedText[40];
@@ -3729,7 +3729,7 @@ int loot_container(Object* a1, Object* a2)
             if (stealingXp > 0) {
                 if (!isPartyMember(a2)) {
                     stealingXp = min(300 - skill_level(a1, SKILL_STEAL), stealingXp);
-                    debugPrint("\n[[[%d]]]", 300 - skill_level(a1, SKILL_STEAL));
+                    debug_printf("\n[[[%d]]]", 300 - skill_level(a1, SKILL_STEAL));
 
                     // You gain %d experience points for successfully using your Steal skill.
                     messageListItem.num = 29;

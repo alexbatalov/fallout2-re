@@ -385,7 +385,7 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
         *elevationPtr -= 3;
     }
 
-    debugPrint("\n the start elev level %d\n", *elevationPtr);
+    debug_printf("\n the start elev level %d\n", *elevationPtr);
 
     int v18 = (GInfo[ELEVATOR_FRM_GAUGE].width * GInfo[ELEVATOR_FRM_GAUGE].height) / 13;
     float v42 = 12.0f / (float)(btncnt[elevator] - 1);

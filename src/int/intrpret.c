@@ -219,7 +219,7 @@ int interpretOutput(const char* format, ...)
     int rc = vsprintf(string, format, args);
     va_end(args);
 
-    debugPrint(string);
+    debug_printf(string);
 
     return rc;
 }
@@ -256,12 +256,12 @@ void interpretError(const char* format, ...)
     vsprintf(string, format, argptr);
     va_end(argptr);
 
-    debugPrint("\nError during execution: %s\n", string);
+    debug_printf("\nError during execution: %s\n", string);
 
     if (currentProgram == NULL) {
-        debugPrint("No current script");
+        debug_printf("No current script");
     } else {
-        debugPrint("Current script: %s, procedure %s", currentProgram->name, findCurrentProc(currentProgram));
+        debug_printf("Current script: %s, procedure %s", currentProgram->name, findCurrentProc(currentProgram));
     }
 
     if (currentProgram) {
@@ -389,11 +389,11 @@ void interpretDecStringRef(Program* program, opcode_t opcode, int value)
         if (*refcountPtr != 0) {
             *refcountPtr -= 1;
         } else {
-            debugPrint("Reference count zero for %s!\n", string);
+            debug_printf("Reference count zero for %s!\n", string);
         }
 
         if (*refcountPtr < 0) {
-            debugPrint("String ref went negative, this shouldn\'t ever happen\n");
+            debug_printf("String ref went negative, this shouldn\'t ever happen\n");
         }
     }
 }
@@ -658,7 +658,7 @@ static void checkProgramStrings(Program* program)
                         len += diff;
                         *(short*)ptr += next_len - 4;
                     } else {
-                        debugPrint("merged string would be too long, size %d %d\n", diff, len);
+                        debug_printf("merged string would be too long, size %d %d\n", diff, len);
                     }
                 }
             }
@@ -3953,16 +3953,16 @@ void interpretDumpStringHeap()
             int total = 0;
 
             if (program->dynamicStrings != NULL) {
-                debugPrint("Program %s\n");
+                debug_printf("Program %s\n");
 
                 unsigned char* heap = program->dynamicStrings + sizeof(int);
                 while (*(unsigned short*)heap != 0x8000) {
                     int size = *(short*)heap;
                     if (size >= 0) {
                         int refcount = *(short*)(heap + sizeof(short));
-                        debugPrint("Size: %d, ref: %d, string %s\n", size, refcount, (char*)(heap + sizeof(short) + sizeof(short)));
+                        debug_printf("Size: %d, ref: %d, string %s\n", size, refcount, (char*)(heap + sizeof(short) + sizeof(short)));
                     } else {
-                        debugPrint("Free space, length %d\n", -size);
+                        debug_printf("Free space, length %d\n", -size);
                     }
 
                     // TODO: Not sure about total, probably calculated wrong, check.
@@ -3970,9 +3970,9 @@ void interpretDumpStringHeap()
                     total += sizeof(short) + sizeof(short) + size;
                 }
 
-                debugPrint("Total length of heap %d, stored length %d\n", total, *(int*)(program->dynamicStrings));
+                debug_printf("Total length of heap %d, stored length %d\n", total, *(int*)(program->dynamicStrings));
             } else {
-                debugPrint("No string heap for program %s\n", program->name);
+                debug_printf("No string heap for program %s\n", program->name);
             }
         }
 

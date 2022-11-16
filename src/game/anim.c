@@ -390,7 +390,7 @@ static int anim_free_slot(int requestOptions)
 
     if (v1 == -1) {
         if ((requestOptions & ANIMATION_REQUEST_RESERVED) != 0) {
-            debugPrint("Unable to begin reserved animation!\n");
+            debug_printf("Unable to begin reserved animation!\n");
         }
 
         return -1;

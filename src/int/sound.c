@@ -319,12 +319,12 @@ static void refreshSoundBuffers(Sound* sound)
     }
 
     if (audioBytes1 + audioBytes2 != sound->field_7C * v53) {
-        debugPrint("locked memory region not big enough, wanted %d (%d * %d), got %d (%d + %d)\n", sound->field_7C * v53, v53, sound->field_7C, audioBytes1 + audioBytes2, audioBytes1, audioBytes2);
-        debugPrint("Resetting readBuffers from %d to %d\n", v53, (audioBytes1 + audioBytes2) / sound->field_7C);
+        debug_printf("locked memory region not big enough, wanted %d (%d * %d), got %d (%d + %d)\n", sound->field_7C * v53, v53, sound->field_7C, audioBytes1 + audioBytes2, audioBytes1, audioBytes2);
+        debug_printf("Resetting readBuffers from %d to %d\n", v53, (audioBytes1 + audioBytes2) / sound->field_7C);
 
         v53 = (audioBytes1 + audioBytes2) / sound->field_7C;
         if (v53 < sound->field_5C) {
-            debugPrint("No longer above read buffer size, returning\n");
+            debug_printf("No longer above read buffer size, returning\n");
             return;
         }
     }
@@ -406,7 +406,7 @@ static void refreshSoundBuffers(Sound* sound)
                 audioPtr = (unsigned char*)audioPtr2 + bytesRead - audioBytes;
                 audioBytes = audioBytes2 - bytesRead;
             } else {
-                debugPrint("Hm, no second write pointer, but buffer not big enough, this shouldn't happen\n");
+                debug_printf("Hm, no second write pointer, but buffer not big enough, this shouldn't happen\n");
             }
         } else {
             memcpy(audioPtr, sound->field_20, bytesRead);
@@ -455,25 +455,25 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
     if (hr != DS_OK) {
         switch (hr) {
         case DSERR_ALLOCATED:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_ALLOCATED");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_ALLOCATED");
             break;
         case DSERR_BADFORMAT:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_BADFORMAT");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_BADFORMAT");
             break;
         case DSERR_INVALIDPARAM:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_INVALIDPARAM");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_INVALIDPARAM");
             break;
         case DSERR_NOAGGREGATION:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_NOAGGREGATION");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_NOAGGREGATION");
             break;
         case DSERR_OUTOFMEMORY:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_OUTOFMEMORY");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_OUTOFMEMORY");
             break;
         case DSERR_UNINITIALIZED:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_UNINITIALIZED");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_UNINITIALIZED");
             break;
         case DSERR_UNSUPPORTED:
-            debugPrint("%s:%s\n", "CreateSoundBuffer", "DSERR_UNSUPPORTED");
+            debug_printf("%s:%s\n", "CreateSoundBuffer", "DSERR_UNSUPPORTED");
             break;
         }
 
@@ -489,7 +489,7 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
 
     hr = IDirectSound_GetCaps(soundDSObject, &dscaps);
     if (hr != DS_OK) {
-        debugPrint("soundInit: Error getting primary buffer parameters\n");
+        debug_printf("soundInit: Error getting primary buffer parameters\n");
         goto out;
     }
 
@@ -508,29 +508,29 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
     pcmwf.cbSize = 0;
     pcmwf.nAvgBytesPerSec = pcmwf.nBlockAlign * rate;
 
-    debugPrint("soundInit: Setting primary buffer to: %d bit, %d channels, %d rate\n", pcmwf.wBitsPerSample, pcmwf.nChannels, rate);
+    debug_printf("soundInit: Setting primary buffer to: %d bit, %d channels, %d rate\n", pcmwf.wBitsPerSample, pcmwf.nChannels, rate);
     hr = IDirectSoundBuffer_SetFormat(primaryDSBuffer, &pcmwf);
     if (hr != DS_OK) {
-        debugPrint("soundInit: Couldn't change rate to %d\n", rate);
+        debug_printf("soundInit: Couldn't change rate to %d\n", rate);
 
         switch (hr) {
         case DSERR_BADFORMAT:
-            debugPrint("%s:%s\n", "SetFormat", "DSERR_BADFORMAT");
+            debug_printf("%s:%s\n", "SetFormat", "DSERR_BADFORMAT");
             break;
         case DSERR_INVALIDCALL:
-            debugPrint("%s:%s\n", "SetFormat", "DSERR_INVALIDCALL");
+            debug_printf("%s:%s\n", "SetFormat", "DSERR_INVALIDCALL");
             break;
         case DSERR_INVALIDPARAM:
-            debugPrint("%s:%s\n", "SetFormat", "DSERR_INVALIDPARAM");
+            debug_printf("%s:%s\n", "SetFormat", "DSERR_INVALIDPARAM");
             break;
         case DSERR_OUTOFMEMORY:
-            debugPrint("%s:%s\n", "SetFormat", "DSERR_OUTOFMEMORY");
+            debug_printf("%s:%s\n", "SetFormat", "DSERR_OUTOFMEMORY");
             break;
         case DSERR_PRIOLEVELNEEDED:
-            debugPrint("%s:%s\n", "SetFormat", "DSERR_PRIOLEVELNEEDED");
+            debug_printf("%s:%s\n", "SetFormat", "DSERR_PRIOLEVELNEEDED");
             break;
         case DSERR_UNSUPPORTED:
-            debugPrint("%s:%s\n", "SetFormat", "DSERR_UNSUPPORTED");
+            debug_printf("%s:%s\n", "SetFormat", "DSERR_UNSUPPORTED");
             break;
         }
 
@@ -539,14 +539,14 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
 
     hr = IDirectSoundBuffer_GetFormat(primaryDSBuffer, &pcmwf, sizeof(WAVEFORMATEX), &v24);
     if (hr != DS_OK) {
-        debugPrint("soundInit: Couldn't read new settings\n");
+        debug_printf("soundInit: Couldn't read new settings\n");
         goto out;
     }
 
-    debugPrint("soundInit: Primary buffer settings set to: %d bit, %d channels, %d rate\n", pcmwf.wBitsPerSample, pcmwf.nChannels, pcmwf.nSamplesPerSec);
+    debug_printf("soundInit: Primary buffer settings set to: %d bit, %d channels, %d rate\n", pcmwf.wBitsPerSample, pcmwf.nChannels, pcmwf.nSamplesPerSec);
 
     if (dscaps.dwFlags & DSCAPS_EMULDRIVER) {
-        debugPrint("soundInit: using DirectSound emulated drivers\n");
+        debug_printf("soundInit: using DirectSound emulated drivers\n");
     }
 
 out:
@@ -988,7 +988,7 @@ int soundContinue(Sound* sound)
 
     hr = IDirectSoundBuffer_GetStatus(sound->directSoundBuffer, &status);
     if (hr != DS_OK) {
-        debugPrint("Error in soundContinue, %x\n", hr);
+        debug_printf("Error in soundContinue, %x\n", hr);
 
         soundErrorno = SOUND_UNKNOWN_ERROR;
         return soundErrorno;
@@ -1226,7 +1226,7 @@ int soundGetVolume(Sound* sound)
     v8 = VOLUME_MAX * v13 / masterVol;
     diff = abs(v8 - sound->volume);
     if (diff > 20) {
-        debugPrint("Actual sound volume differs significantly from noted volume actual %x stored %x, diff %d.", v8, sound->volume, diff);
+        debug_printf("Actual sound volume differs significantly from noted volume actual %x stored %x, diff %d.", v8, sound->volume, diff);
     }
 
     return sound->volume;

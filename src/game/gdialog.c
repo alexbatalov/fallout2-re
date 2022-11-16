@@ -680,7 +680,7 @@ bool gdialogActive()
 void gdialogEnter(Object* a1, int a2)
 {
     if (a1 == NULL) {
-        debugPrint("\nError: gdialogEnter: target was NULL!");
+        debug_printf("\nError: gdialogEnter: target was NULL!");
         return;
     }
 
@@ -705,10 +705,10 @@ void gdialogEnter(Object* a1, int a2)
                 if (a2) {
                     display_print(messageListItem.text);
                 } else {
-                    debugPrint(messageListItem.text);
+                    debug_printf(messageListItem.text);
                 }
             } else {
-                debugPrint("\nError: gdialog: Can't find message!");
+                debug_printf("\nError: gdialog: Can't find message!");
             }
             return;
         }
@@ -720,10 +720,10 @@ void gdialogEnter(Object* a1, int a2)
                 if (a2) {
                     display_print(messageListItem.text);
                 } else {
-                    debugPrint(messageListItem.text);
+                    debug_printf(messageListItem.text);
                 }
             } else {
-                debugPrint("\nError: gdialog: Can't find message!");
+                debug_printf("\nError: gdialog: Can't find message!");
             }
             return;
         }
@@ -829,7 +829,7 @@ void gdialogSystemEnter()
 void gdialogSetupSpeech(const char* audioFileName)
 {
     if (audioFileName == NULL) {
-        debugPrint("\nGDialog: Bleep!");
+        debug_printf("\nGDialog: Bleep!");
         gsound_play_sfx_file("censor");
         return;
     }
@@ -847,14 +847,14 @@ void gdialogSetupSpeech(const char* audioFileName)
 
     lips_play_speech();
 
-    debugPrint("Starting lipsynch speech");
+    debug_printf("Starting lipsynch speech");
 }
 
 // 0x4450C4
 void gdialogFreeSpeech()
 {
     if (gdialog_speech_playing) {
-        debugPrint("Ending lipsynch system");
+        debug_printf("Ending lipsynch system");
         gdialog_speech_playing = false;
 
         lips_free_speech();
@@ -964,7 +964,7 @@ int gdialogExitFromScript()
 
     if (lipsKey != NULL) {
         if (art_ptr_unlock(lipsKey) == -1) {
-            debugPrint("Failure unlocking lips frame!\n");
+            debug_printf("Failure unlocking lips frame!\n");
         }
         lipsKey = NULL;
         lipsFp = NULL;
@@ -1026,7 +1026,7 @@ void gdialogSetBackground(int a1)
 void gdialogDisplayMsg(char* msg)
 {
     if (gd_replyWin == -1) {
-        debugPrint("\nError: Reply window doesn't exist!");
+        debug_printf("\nError: Reply window doesn't exist!");
         return;
     }
 
@@ -1250,7 +1250,7 @@ static int gdUnhideReply()
 static int gdAddOption(int messageListId, int messageId, int reaction)
 {
     if (gdNumOptions >= DIALOG_OPTION_ENTRIES_CAPACITY) {
-        debugPrint("\nError: dialog: Ran out of options!");
+        debug_printf("\nError: dialog: Ran out of options!");
         return -1;
     }
 
@@ -1270,7 +1270,7 @@ static int gdAddOption(int messageListId, int messageId, int reaction)
 static int gdAddOptionStr(int messageListId, const char* text, int reaction)
 {
     if (gdNumOptions >= DIALOG_OPTION_ENTRIES_CAPACITY) {
-        debugPrint("\nError: dialog: Ran out of options!");
+        debug_printf("\nError: dialog: Ran out of options!");
         return -1;
     }
 
@@ -1460,7 +1460,7 @@ static int gdReview()
     int win;
 
     if (gdReviewInit(&win) == -1) {
-        debugPrint("\nError initializing review window!");
+        debug_printf("\nError initializing review window!");
         return -1;
     }
 
@@ -1521,7 +1521,7 @@ static void gdReviewDisplay(int win, int origin)
     int v20 = fontGetLineHeight() + 2;
     unsigned char* windowBuffer = windowGetBuffer(win);
     if (windowBuffer == NULL) {
-        debugPrint("\nError: gdialog: review: can't find buffer!");
+        debug_printf("\nError: gdialog: review: can't find buffer!");
         return;
     }
 
@@ -1625,7 +1625,7 @@ static void gdReviewFree()
 static int gdAddReviewReply(int messageListId, int messageId)
 {
     if (curReviewSlot >= DIALOG_REVIEW_ENTRIES_CAPACITY) {
-        debugPrint("\nError: Ran out of review slots!");
+        debug_printf("\nError: Ran out of review slots!");
         return -1;
     }
 
@@ -1649,7 +1649,7 @@ static int gdAddReviewReply(int messageListId, int messageId)
 static int gdAddReviewReplyStr(const char* string)
 {
     if (curReviewSlot >= DIALOG_REVIEW_ENTRIES_CAPACITY) {
-        debugPrint("\nError: Ran out of review slots!");
+        debug_printf("\nError: Ran out of review slots!");
         return -1;
     }
 
@@ -1678,7 +1678,7 @@ static int gdAddReviewReplyStr(const char* string)
 static int gdAddReviewOptionChosen(int messageListId, int messageId)
 {
     if (curReviewSlot >= DIALOG_REVIEW_ENTRIES_CAPACITY) {
-        debugPrint("\nError: Ran out of review slots!");
+        debug_printf("\nError: Ran out of review slots!");
         return -1;
     }
 
@@ -1694,7 +1694,7 @@ static int gdAddReviewOptionChosen(int messageListId, int messageId)
 static int gdAddReviewOptionChosenStr(const char* string)
 {
     if (curReviewSlot >= DIALOG_REVIEW_ENTRIES_CAPACITY) {
-        debugPrint("\nError: Ran out of review slots!");
+        debug_printf("\nError: Ran out of review slots!");
         return -1;
     }
 
@@ -2061,7 +2061,7 @@ static int gdProcessChoice(int a1)
         // See 0x446907 in ecx but this branch should be unreachable. Due to the
         // bug described above, this code is reachable.
         v1 = GAME_DIALOG_REACTION_NEUTRAL;
-        debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
+        debug_printf("\nError: dialog: Empathy Perk: invalid reaction!");
         break;
     }
 
@@ -2126,7 +2126,7 @@ static void gdProcessHighlight(int index)
             color = colorTable[32074] | 0x2000000;
             break;
         default:
-            debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
+            debug_printf("\nError: dialog: Empathy Perk: invalid reaction!");
             break;
         }
     }
@@ -2171,7 +2171,7 @@ static void gdProcessUnHighlight(int index)
             color = colorTable[31744] | 0x2000000;
             break;
         default:
-            debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
+            debug_printf("\nError: dialog: Empathy Perk: invalid reaction!");
             break;
         }
     }
@@ -2272,7 +2272,7 @@ static void gdProcessUpdate()
                 color = colorTable[31744] | 0x2000000;
                 break;
             default:
-                debugPrint("\nError: dialog: Empathy Perk: invalid reaction!");
+                debug_printf("\nError: dialog: Empathy Perk: invalid reaction!");
                 break;
             }
         }
@@ -2294,7 +2294,7 @@ static void gdProcessUpdate()
                     if (message_search(&proto_main_msg_file, &messageListItem)) {
                         strcpy(dialogOptionEntry->text, messageListItem.text);
                     } else {
-                        debugPrint("\nError...can't find message!");
+                        debug_printf("\nError...can't find message!");
                         return;
                     }
                 }
@@ -2308,7 +2308,7 @@ static void gdProcessUpdate()
             if (message_search(&proto_main_msg_file, &messageListItem)) {
                 sprintf(dialogOptionEntry->text, "%c %s", '\x95', messageListItem.text);
             } else {
-                debugPrint("\nError...can't find message!");
+                debug_printf("\nError...can't find message!");
                 return;
             }
         }
@@ -2339,13 +2339,13 @@ static void gdProcessUpdate()
             if (dialogOptionEntry->btn != -1) {
                 buttonSetCallbacks(dialogOptionEntry->btn, gsound_red_butt_press, gsound_red_butt_release);
             } else {
-                debugPrint("\nError: Can't create button!");
+                debug_printf("\nError: Can't create button!");
             }
         } else {
             if (!v21) {
                 v21 = 1;
             } else {
-                debugPrint("Error: couldn't make button because it went below the window.\n");
+                debug_printf("Error: couldn't make button because it went below the window.\n");
             }
         }
     }
@@ -2455,7 +2455,7 @@ static void gdSetupFidget(int headFrmId, int reaction)
     if (lipsFID != 0) {
         if (anim != phone_anim) {
             if (art_ptr_unlock(lipsKey) == -1) {
-                debugPrint("failure unlocking lips frame!\n");
+                debug_printf("failure unlocking lips frame!\n");
             }
             lipsKey = NULL;
             lipsFp = NULL;
@@ -2468,18 +2468,18 @@ static void gdSetupFidget(int headFrmId, int reaction)
         lipsFID = art_id(OBJ_TYPE_HEAD, headFrmId, anim, 0, 0);
         lipsFp = art_ptr_lock(lipsFID, &lipsKey);
         if (lipsFp == NULL) {
-            debugPrint("failure!\n");
+            debug_printf("failure!\n");
 
             char stats[200];
             cache_stats(&art_cache, stats);
-            debugPrint("%s", stats);
+            debug_printf("%s", stats);
         }
     }
 
     int fid = art_id(OBJ_TYPE_HEAD, headFrmId, reaction, 0, 0);
     int fidgetCount = art_head_fidgets(fid);
     if (fidgetCount == -1) {
-        debugPrint("\tError - No available fidgets for given frame id\n");
+        debug_printf("\tError - No available fidgets for given frame id\n");
         return;
     }
 
@@ -2509,11 +2509,11 @@ static void gdSetupFidget(int headFrmId, int reaction)
         break;
     }
 
-    debugPrint("Choosing fidget %d out of %d\n", fidget, fidgetCount);
+    debug_printf("Choosing fidget %d out of %d\n", fidget, fidgetCount);
 
     if (fidgetFp != NULL) {
         if (art_ptr_unlock(fidgetKey) == -1) {
-            debugPrint("failure!\n");
+            debug_printf("failure!\n");
         }
     }
 
@@ -2521,11 +2521,11 @@ static void gdSetupFidget(int headFrmId, int reaction)
     fidgetFrameCounter = 0;
     fidgetFp = art_ptr_lock(fidgetFID, &fidgetKey);
     if (fidgetFp == NULL) {
-        debugPrint("failure!\n");
+        debug_printf("failure!\n");
 
         char stats[200];
         cache_stats(&art_cache, stats);
-        debugPrint("%s", stats);
+        debug_printf("%s", stats);
     }
 
     fidgetLastTime = 0;
@@ -2544,7 +2544,7 @@ static void gdWaitForFidget()
         return;
     }
 
-    debugPrint("Waiting for fidget to complete...\n");
+    debug_printf("Waiting for fidget to complete...\n");
 
     while (art_frame_max_frame(fidgetFp) > fidgetFrameCounter) {
         if (getTicksSince(fidgetLastTime) >= fidgetTocksPerFrame) {
@@ -2570,13 +2570,13 @@ static void gdPlayTransition(int anim)
 
     mouse_hide();
 
-    debugPrint("Starting transition...\n");
+    debug_printf("Starting transition...\n");
 
     gdWaitForFidget();
 
     if (fidgetFp != NULL) {
         if (art_ptr_unlock(fidgetKey) == -1) {
-            debugPrint("\tError unlocking fidget in transition func...");
+            debug_printf("\tError unlocking fidget in transition func...");
         }
         fidgetFp = NULL;
     }
@@ -2585,7 +2585,7 @@ static void gdPlayTransition(int anim)
     int headFid = art_id(OBJ_TYPE_HEAD, dialogue_head, anim, 0, 0);
     Art* headFrm = art_ptr_lock(headFid, &headFrmHandle);
     if (headFrm == NULL) {
-        debugPrint("\tError locking transition...\n");
+        debug_printf("\tError locking transition...\n");
     }
 
     unsigned int delay = 1000 / art_frame_fps(headFrm);
@@ -2601,10 +2601,10 @@ static void gdPlayTransition(int anim)
     }
 
     if (art_ptr_unlock(headFrmHandle) == -1) {
-        debugPrint("\tError unlocking transition...\n");
+        debug_printf("\tError unlocking transition...\n");
     }
 
-    debugPrint("Finished transition...\n");
+    debug_printf("Finished transition...\n");
     mouse_show();
 }
 
@@ -2637,30 +2637,30 @@ static void demo_copy_title(int win)
     gd_replyWin = win;
 
     if (win == -1) {
-        debugPrint("\nError: demo_copy_title: win invalid!");
+        debug_printf("\nError: demo_copy_title: win invalid!");
         return;
     }
 
     int width = windowGetWidth(win);
     if (width < 1) {
-        debugPrint("\nError: demo_copy_title: width invalid!");
+        debug_printf("\nError: demo_copy_title: width invalid!");
         return;
     }
 
     int height = windowGetHeight(win);
     if (height < 1) {
-        debugPrint("\nError: demo_copy_title: length invalid!");
+        debug_printf("\nError: demo_copy_title: length invalid!");
         return;
     }
 
     if (dialogueBackWindow == -1) {
-        debugPrint("\nError: demo_copy_title: dialogueBackWindow wasn't created!");
+        debug_printf("\nError: demo_copy_title: dialogueBackWindow wasn't created!");
         return;
     }
 
     unsigned char* src = windowGetBuffer(dialogueBackWindow);
     if (src == NULL) {
-        debugPrint("\nError: demo_copy_title: couldn't get buffer!");
+        debug_printf("\nError: demo_copy_title: couldn't get buffer!");
         return;
     }
 
@@ -2676,24 +2676,24 @@ static void demo_copy_options(int win)
     gd_optionsWin = win;
 
     if (win == -1) {
-        debugPrint("\nError: demo_copy_options: win invalid!");
+        debug_printf("\nError: demo_copy_options: win invalid!");
         return;
     }
 
     int width = windowGetWidth(win);
     if (width < 1) {
-        debugPrint("\nError: demo_copy_options: width invalid!");
+        debug_printf("\nError: demo_copy_options: width invalid!");
         return;
     }
 
     int height = windowGetHeight(win);
     if (height < 1) {
-        debugPrint("\nError: demo_copy_options: length invalid!");
+        debug_printf("\nError: demo_copy_options: length invalid!");
         return;
     }
 
     if (dialogueBackWindow == -1) {
-        debugPrint("\nError: demo_copy_options: dialogueBackWindow wasn't created!");
+        debug_printf("\nError: demo_copy_options: dialogueBackWindow wasn't created!");
         return;
     }
 
@@ -2702,7 +2702,7 @@ static void demo_copy_options(int win)
 
     unsigned char* src = windowGetBuffer(dialogueWindow);
     if (src == NULL) {
-        debugPrint("\nError: demo_copy_options: couldn't get buffer!");
+        debug_printf("\nError: demo_copy_options: couldn't get buffer!");
         return;
     }
 
@@ -2715,17 +2715,17 @@ static void demo_copy_options(int win)
 static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
 {
     if (drawRect == NULL) {
-        debugPrint("\nError: gDialogRefreshOptionsRect: drawRect NULL!");
+        debug_printf("\nError: gDialogRefreshOptionsRect: drawRect NULL!");
         return;
     }
 
     if (win == -1) {
-        debugPrint("\nError: gDialogRefreshOptionsRect: win invalid!");
+        debug_printf("\nError: gDialogRefreshOptionsRect: win invalid!");
         return;
     }
 
     if (dialogueBackWindow == -1) {
-        debugPrint("\nError: gDialogRefreshOptionsRect: dialogueBackWindow wasn't created!");
+        debug_printf("\nError: gDialogRefreshOptionsRect: dialogueBackWindow wasn't created!");
         return;
     }
 
@@ -2734,17 +2734,17 @@ static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
 
     unsigned char* src = windowGetBuffer(dialogueWindow);
     if (src == NULL) {
-        debugPrint("\nError: gDialogRefreshOptionsRect: couldn't get buffer!");
+        debug_printf("\nError: gDialogRefreshOptionsRect: couldn't get buffer!");
         return;
     }
 
     if (drawRect->top >= drawRect->bottom) {
-        debugPrint("\nError: gDialogRefreshOptionsRect: Invalid Rect (too many options)!");
+        debug_printf("\nError: gDialogRefreshOptionsRect: Invalid Rect (too many options)!");
         return;
     }
 
     if (drawRect->left >= drawRect->right) {
-        debugPrint("\nError: gDialogRefreshOptionsRect: Invalid Rect (too many options)!");
+        debug_printf("\nError: gDialogRefreshOptionsRect: Invalid Rect (too many options)!");
         return;
     }
 
@@ -2853,9 +2853,9 @@ void talk_to_critter_reacts(int a1)
 {
     int v1 = a1 + 1;
 
-    debugPrint("Dialogue Reaction: ");
+    debug_printf("Dialogue Reaction: ");
     if (v1 < 3) {
-        debugPrint("%s\n", react_strs[v1]);
+        debug_printf("%s\n", react_strs[v1]);
     }
 
     int v3 = a1 + 50;
@@ -3068,7 +3068,7 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
         }
 
         if (fontGetStringWidth(start) > maxWidth) {
-            debugPrint("\nError: display_msg: word too long!");
+            debug_printf("\nError: display_msg: word too long!");
             break;
         }
 
@@ -3659,7 +3659,7 @@ static int gdCanBarter()
     }
 
     if (!message_search(&proto_main_msg_file, &messageListItem)) {
-        debugPrint("\nError: gdialog: Can't find message!");
+        debug_printf("\nError: gdialog: Can't find message!");
         return 0;
     }
 
@@ -3972,7 +3972,7 @@ static void gdCustomUpdateInfo()
         // Not Applicable
         num = 99;
     } else {
-        debugPrint("\nburst: %d", custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE]);
+        debug_printf("\nburst: %d", custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE]);
         num = custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE][custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE]].messageId;
     }
 
@@ -4274,7 +4274,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
         if (message_search(&proto_main_msg_file, &messageListItem)) {
             gdialogDisplayMsg(messageListItem.text);
         } else {
-            debugPrint("\nError: gdialog: Can't find message!");
+            debug_printf("\nError: gdialog: Can't find message!");
         }
     }
 }
@@ -4545,14 +4545,14 @@ static void gdDisplayFrame(Art* headFrm, int frame)
         CacheEntry* backgroundHandle;
         Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundHandle);
         if (backgroundFrm == NULL) {
-            debugPrint("\tError locking background in display...\n");
+            debug_printf("\tError locking background in display...\n");
         }
 
         unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
         if (backgroundFrmData != NULL) {
             blitBufferToBuffer(backgroundFrmData, 388, 200, 388, headWindowBuffer, GAME_DIALOG_WINDOW_WIDTH);
         } else {
-            debugPrint("\tError getting background data in display...\n");
+            debug_printf("\tError getting background data in display...\n");
         }
 
         art_ptr_unlock(backgroundHandle);
@@ -4587,7 +4587,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
                 headWindowBuffer + destOffset,
                 destWidth);
         } else {
-            debugPrint("\tError getting head data in display...\n");
+            debug_printf("\tError getting head data in display...\n");
         }
     } else {
         if (talk_need_to_center == 1) {

@@ -211,7 +211,7 @@ static int cacheInsert(void** data, int type, unsigned char* palette, const char
         }
 
         if (v2 == -1) {
-            debugPrint("Mouse cache overflow!!!!\n");
+            debug_printf("Mouse cache overflow!!!!\n");
             exit(1);
         }
 
@@ -304,7 +304,7 @@ void mousemgrUpdate()
     }
 
     if (curAnim == NULL) {
-        debugPrint("Animating == 1 but curAnim == 0\n");
+        debug_printf("Animating == 1 but curAnim == 0\n");
     }
 
     if (currentTimeCallback() >= curAnim->field_1C) {
@@ -407,7 +407,7 @@ int mouseSetFrame(char* fileName, int a2)
 
     File* stream = fileOpen(mangledFileName, "r");
     if (stream == NULL) {
-        debugPrint("mouseSetFrame: couldn't find %s\n", mangledFileName);
+        debug_printf("mouseSetFrame: couldn't find %s\n", mangledFileName);
         return false;
     }
 
@@ -452,14 +452,14 @@ int mouseSetFrame(char* fileName, int a2)
         string[0] = '\0';
         fileReadString(string, sizeof(string), stream);
         if (string[0] == '\0') {
-            debugPrint("Not enough frames in %s, got %d, needed %d", mangledFileName, index, v3);
+            debug_printf("Not enough frames in %s, got %d, needed %d", mangledFileName, index, v3);
             break;
         }
 
         // NOTE: Uninline.
         char* sep = strchr(string, ' ');
         if (sep == NULL) {
-            debugPrint("Bad line %s in %s\n", string, fileName);
+            debug_printf("Bad line %s in %s\n", string, fileName);
             // FIXME: Leaking stream.
             return false;
         }
@@ -608,7 +608,7 @@ bool mouseSetMousePointer(char* fileName)
     char* mangledFileName = mouseNameMangler(fileName);
     File* stream = fileOpen(mangledFileName, "r");
     if (stream == NULL) {
-        debugPrint("Can't find %s\n", mangledFileName);
+        debug_printf("Can't find %s\n", mangledFileName);
         return false;
     }
 
@@ -683,7 +683,7 @@ void mousemgrResetMouse()
                 entry->staticData->field_8,
                 0);
         } else {
-            debugPrint("Hm, current mouse type is M_STATIC, but no current mouse pointer\n");
+            debug_printf("Hm, current mouse type is M_STATIC, but no current mouse pointer\n");
         }
         break;
     case MOUSE_MANAGER_MOUSE_TYPE_ANIMATED:
@@ -701,7 +701,7 @@ void mousemgrResetMouse()
                 curAnim->field_C[curAnim->field_26],
                 0);
         } else {
-            debugPrint("Hm, current mouse type is M_ANIMATED, but no current mouse pointer\n");
+            debug_printf("Hm, current mouse type is M_ANIMATED, but no current mouse pointer\n");
         }
     }
 }

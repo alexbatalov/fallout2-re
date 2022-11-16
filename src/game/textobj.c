@@ -223,7 +223,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
 
     textObject->linesCount = count - 1;
     if (textObject->linesCount < 1) {
-        debugPrint("**Error in text_object_create()\n");
+        debug_printf("**Error in text_object_create()\n");
     }
 
     textObject->width = 0;

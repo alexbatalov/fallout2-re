@@ -49,7 +49,7 @@ void palette_init()
 
     fade_steps = (int)(60.0 / (diff * (1.0 / 700.0)));
 
-    debugPrint("\nFade time is %u\nFade steps are %d\n", diff, fade_steps);
+    debug_printf("\nFade time is %u\nFade steps are %d\n", diff, fade_steps);
 }
 
 // NOTE: Uncollapsed 0x493AD0.

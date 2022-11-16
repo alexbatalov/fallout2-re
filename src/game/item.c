@@ -263,7 +263,7 @@ int item_add_force(Object* owner, Object* itemToAdd, int quantity)
     }
 
     if (itemToAdd == inventory->items[index].item) {
-        debugPrint("Warning! Attempt to add same item twice in item_add()\n");
+        debug_printf("Warning! Attempt to add same item twice in item_add()\n");
         return 0;
     }
 
@@ -2974,7 +2974,7 @@ int item_wd_save(File* stream, void* data)
 static void perform_withdrawal_start(Object* obj, int perk, int pid)
 {
     if (PID_TYPE(obj->pid) != OBJ_TYPE_CRITTER) {
-        debugPrint("\nERROR: perform_withdrawal_start: Was called on non-critter!");
+        debug_printf("\nERROR: perform_withdrawal_start: Was called on non-critter!");
         return;
     }
 
@@ -3003,7 +3003,7 @@ static void perform_withdrawal_start(Object* obj, int perk, int pid)
 static void perform_withdrawal_end(Object* obj, int perk)
 {
     if (PID_TYPE(obj->pid) != OBJ_TYPE_CRITTER) {
-        debugPrint("\nERROR: perform_withdrawal_end: Was called on non-critter!");
+        debug_printf("\nERROR: perform_withdrawal_end: Was called on non-critter!");
         return;
     }
 

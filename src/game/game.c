@@ -188,7 +188,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     stat_init();
 
     if (partyMember_init() != 0) {
-        debugPrint("Failed on partyMember_init\n");
+        debug_printf("Failed on partyMember_init\n");
         return -1;
     }
 
@@ -201,147 +201,147 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     inven_reset_dude();
 
     if (gsound_init() != 0) {
-        debugPrint("Sound initialization failed.\n");
+        debug_printf("Sound initialization failed.\n");
     }
 
-    debugPrint(">gsound_init\t");
+    debug_printf(">gsound_init\t");
 
     initMovie();
-    debugPrint(">initMovie\t\t");
+    debug_printf(">initMovie\t\t");
 
     if (gmovie_init() != 0) {
-        debugPrint("Failed on gmovie_init\n");
+        debug_printf("Failed on gmovie_init\n");
         return -1;
     }
 
-    debugPrint(">gmovie_init\t");
+    debug_printf(">gmovie_init\t");
 
     if (moviefx_init() != 0) {
-        debugPrint("Failed on moviefx_init\n");
+        debug_printf("Failed on moviefx_init\n");
         return -1;
     }
 
-    debugPrint(">moviefx_init\t");
+    debug_printf(">moviefx_init\t");
 
     if (iso_init() != 0) {
-        debugPrint("Failed on iso_init\n");
+        debug_printf("Failed on iso_init\n");
         return -1;
     }
 
-    debugPrint(">iso_init\t");
+    debug_printf(">iso_init\t");
 
     if (gmouse_init() != 0) {
-        debugPrint("Failed on gmouse_init\n");
+        debug_printf("Failed on gmouse_init\n");
         return -1;
     }
 
-    debugPrint(">gmouse_init\t");
+    debug_printf(">gmouse_init\t");
 
     if (proto_init() != 0) {
-        debugPrint("Failed on proto_init\n");
+        debug_printf("Failed on proto_init\n");
         return -1;
     }
 
-    debugPrint(">proto_init\t");
+    debug_printf(">proto_init\t");
 
     anim_init();
-    debugPrint(">anim_init\t");
+    debug_printf(">anim_init\t");
 
     if (scr_init() != 0) {
-        debugPrint("Failed on scr_init\n");
+        debug_printf("Failed on scr_init\n");
         return -1;
     }
 
-    debugPrint(">scr_init\t");
+    debug_printf(">scr_init\t");
 
     if (game_load_info() != 0) {
-        debugPrint("Failed on game_load_info\n");
+        debug_printf("Failed on game_load_info\n");
         return -1;
     }
 
-    debugPrint(">game_load_info\t");
+    debug_printf(">game_load_info\t");
 
     if (scr_game_init() != 0) {
-        debugPrint("Failed on scr_game_init\n");
+        debug_printf("Failed on scr_game_init\n");
         return -1;
     }
 
-    debugPrint(">scr_game_init\t");
+    debug_printf(">scr_game_init\t");
 
     if (wmWorldMap_init() != 0) {
-        debugPrint("Failed on wmWorldMap_init\n");
+        debug_printf("Failed on wmWorldMap_init\n");
         return -1;
     }
 
-    debugPrint(">wmWorldMap_init\t");
+    debug_printf(">wmWorldMap_init\t");
 
     CharEditInit();
-    debugPrint(">CharEditInit\t");
+    debug_printf(">CharEditInit\t");
 
     pip_init();
-    debugPrint(">pip_init\t\t");
+    debug_printf(">pip_init\t\t");
 
     InitLoadSave();
     KillOldMaps();
-    debugPrint(">InitLoadSave\t");
+    debug_printf(">InitLoadSave\t");
 
     if (gdialogInit() != 0) {
-        debugPrint("Failed on gdialog_init\n");
+        debug_printf("Failed on gdialog_init\n");
         return -1;
     }
 
-    debugPrint(">gdialog_init\t");
+    debug_printf(">gdialog_init\t");
 
     if (combat_init() != 0) {
-        debugPrint("Failed on combat_init\n");
+        debug_printf("Failed on combat_init\n");
         return -1;
     }
 
-    debugPrint(">combat_init\t");
+    debug_printf(">combat_init\t");
 
     if (automap_init() != 0) {
-        debugPrint("Failed on automap_init\n");
+        debug_printf("Failed on automap_init\n");
         return -1;
     }
 
-    debugPrint(">automap_init\t");
+    debug_printf(">automap_init\t");
 
     if (!message_init(&misc_message_file)) {
-        debugPrint("Failed on message_init\n");
+        debug_printf("Failed on message_init\n");
         return -1;
     }
 
-    debugPrint(">message_init\t");
+    debug_printf(">message_init\t");
 
     sprintf(path, "%s%s", msg_path, "misc.msg");
 
     if (!message_load(&misc_message_file, path)) {
-        debugPrint("Failed on message_load\n");
+        debug_printf("Failed on message_load\n");
         return -1;
     }
 
-    debugPrint(">message_load\t");
+    debug_printf(">message_load\t");
 
     if (scr_disable() != 0) {
-        debugPrint("Failed on scr_disable\n");
+        debug_printf("Failed on scr_disable\n");
         return -1;
     }
 
-    debugPrint(">scr_disable\t");
+    debug_printf(">scr_disable\t");
 
     if (init_options_menu() != 0) {
-        debugPrint("Failed on init_options_menu\n");
+        debug_printf("Failed on init_options_menu\n");
         return -1;
     }
 
-    debugPrint(">init_options_menu\n");
+    debug_printf(">init_options_menu\n");
 
     if (endgameDeathEndingInit() != 0) {
-        debugPrint("Failed on endgameDeathEndingInit");
+        debug_printf("Failed on endgameDeathEndingInit");
         return -1;
     }
 
-    debugPrint(">endgameDeathEndingInit\n");
+    debug_printf(">endgameDeathEndingInit\n");
 
     return 0;
 }
@@ -388,7 +388,7 @@ void game_reset()
 // 0x442C34
 void game_exit()
 {
-    debugPrint("\nGame Exit\n");
+    debug_printf("\nGame Exit\n");
 
     tile_disable_refresh();
     message_exit(&misc_message_file);
@@ -607,7 +607,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
             // Remap Skilldex result code to action.
             switch (rc) {
             case SKILLDEX_RC_ERROR:
-                debugPrint("\n ** Error calling skilldex_select()! ** \n");
+                debug_printf("\n ** Error calling skilldex_select()! ** \n");
                 break;
             case SKILLDEX_RC_SNEAK:
                 action_skill_use(SKILL_SNEAK);
@@ -804,14 +804,14 @@ int game_handle_input(int eventCode, bool isInCombatMode)
     case KEY_F4:
         gsound_play_sfx_file("ib1p1xx1");
         if (SaveGame(1) == -1) {
-            debugPrint("\n ** Error calling SaveGame()! **\n");
+            debug_printf("\n ** Error calling SaveGame()! **\n");
         }
         break;
     case KEY_CTRL_L:
     case KEY_F5:
         gsound_play_sfx_file("ib1p1xx1");
         if (LoadGame(LOAD_SAVE_MODE_NORMAL) == -1) {
-            debugPrint("\n ** Error calling LoadGame()! **\n");
+            debug_printf("\n ** Error calling LoadGame()! **\n");
         }
         break;
     case KEY_F6:
@@ -820,7 +820,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
             int rc = SaveGame(LOAD_SAVE_MODE_QUICK);
             if (rc == -1) {
-                debugPrint("\n ** Error calling SaveGame()! **\n");
+                debug_printf("\n ** Error calling SaveGame()! **\n");
             } else if (rc == 1) {
                 MessageListItem messageListItem;
                 // Quick save game successfully saved.
@@ -835,7 +835,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
             int rc = LoadGame(LOAD_SAVE_MODE_QUICK);
             if (rc == -1) {
-                debugPrint("\n ** Error calling LoadGame()! **\n");
+                debug_printf("\n ** Error calling LoadGame()! **\n");
             } else if (rc == 1) {
                 MessageListItem messageListItem;
                 // Quick load game successfully loaded.
@@ -909,7 +909,7 @@ bool game_ui_is_disabled()
 int game_get_global_var(int var)
 {
     if (var < 0 || var >= num_game_global_vars) {
-        debugPrint("ERROR: attempt to reference global var out of range: %d", var);
+        debug_printf("ERROR: attempt to reference global var out of range: %d", var);
         return 0;
     }
 
@@ -920,7 +920,7 @@ int game_get_global_var(int var)
 int game_set_global_var(int var, int value)
 {
     if (var < 0 || var >= num_game_global_vars) {
-        debugPrint("ERROR: attempt to reference global var out of range: %d", var);
+        debug_printf("ERROR: attempt to reference global var out of range: %d", var);
         return -1;
     }
 

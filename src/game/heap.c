@@ -320,18 +320,18 @@ bool heap_allocate(Heap* heap, int* handleIndexPtr, int size, int a4)
     // NOTE: Uninline.
     heap_release_handle(heap, handleIndex);
 
-    debugPrint("Heap Error: Unknown block state during allocation.\n");
+    debug_printf("Heap Error: Unknown block state during allocation.\n");
 
 err_no_handle:
 
-    debugPrint("Heap Error: Could not acquire handle for new block.\n");
+    debug_printf("Heap Error: Could not acquire handle for new block.\n");
     if (state == HEAP_BLOCK_STATE_SYSTEM) {
         internal_free(block);
     }
 
 err:
 
-    debugPrint("Heap Warning: Could not allocate block of %d bytes.\n", size);
+    debug_printf("Heap Warning: Could not allocate block of %d bytes.\n", size);
     return false;
 }
 
@@ -339,7 +339,7 @@ err:
 bool heap_deallocate(Heap* heap, int* handleIndexPtr)
 {
     if (heap == NULL || handleIndexPtr == NULL) {
-        debugPrint("Heap Error: Could not deallocate block.\n");
+        debug_printf("Heap Error: Could not deallocate block.\n");
         return false;
     }
 
@@ -349,20 +349,20 @@ bool heap_deallocate(Heap* heap, int* handleIndexPtr)
 
     HeapBlockHeader* blockHeader = (HeapBlockHeader*)handle->data;
     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
-        debugPrint("Heap Error: Bad guard begin detected during deallocate.\n");
+        debug_printf("Heap Error: Bad guard begin detected during deallocate.\n");
     }
 
     HeapBlockFooter* blockFooter = (HeapBlockFooter*)(handle->data + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
-        debugPrint("Heap Error: Bad guard end detected during deallocate.\n");
+        debug_printf("Heap Error: Bad guard end detected during deallocate.\n");
     }
 
     if (handle->state != blockHeader->state) {
-        debugPrint("Heap Error: Mismatched block states detected during deallocate.\n");
+        debug_printf("Heap Error: Mismatched block states detected during deallocate.\n");
     }
 
     if ((handle->state & HEAP_BLOCK_STATE_LOCKED) != 0) {
-        debugPrint("Heap Error: Attempt to deallocate locked block.\n");
+        debug_printf("Heap Error: Attempt to deallocate locked block.\n");
         return false;
     }
 
@@ -400,7 +400,7 @@ bool heap_deallocate(Heap* heap, int* handleIndexPtr)
         return true;
     }
 
-    debugPrint("Heap Error: Unknown block state during deallocation.\n");
+    debug_printf("Heap Error: Unknown block state during deallocation.\n");
     return false;
 }
 
@@ -408,7 +408,7 @@ bool heap_deallocate(Heap* heap, int* handleIndexPtr)
 bool heap_lock(Heap* heap, int handleIndex, unsigned char** bufferPtr)
 {
     if (heap == NULL) {
-        debugPrint("Heap Error: Could not lock block");
+        debug_printf("Heap Error: Could not lock block");
         return false;
     }
 
@@ -416,23 +416,23 @@ bool heap_lock(Heap* heap, int handleIndex, unsigned char** bufferPtr)
 
     HeapBlockHeader* blockHeader = (HeapBlockHeader*)handle->data;
     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
-        debugPrint("Heap Error: Bad guard begin detected during lock.\n");
+        debug_printf("Heap Error: Bad guard begin detected during lock.\n");
         return false;
     }
 
     HeapBlockFooter* blockFooter = (HeapBlockFooter*)(handle->data + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
-        debugPrint("Heap Error: Bad guard end detected during lock.\n");
+        debug_printf("Heap Error: Bad guard end detected during lock.\n");
         return false;
     }
 
     if (handle->state != blockHeader->state) {
-        debugPrint("Heap Error: Mismatched block states detected during lock.\n");
+        debug_printf("Heap Error: Mismatched block states detected during lock.\n");
         return false;
     }
 
     if ((handle->state & HEAP_BLOCK_STATE_LOCKED) != 0) {
-        debugPrint("Heap Error: Attempt to lock a previously locked block.");
+        debug_printf("Heap Error: Attempt to lock a previously locked block.");
         return false;
     }
 
@@ -461,7 +461,7 @@ bool heap_lock(Heap* heap, int handleIndex, unsigned char** bufferPtr)
         return true;
     }
 
-    debugPrint("Heap Error: Unknown block state during lock.\n");
+    debug_printf("Heap Error: Unknown block state during lock.\n");
     return false;
 }
 
@@ -469,7 +469,7 @@ bool heap_lock(Heap* heap, int handleIndex, unsigned char** bufferPtr)
 bool heap_unlock(Heap* heap, int handleIndex)
 {
     if (heap == NULL) {
-        debugPrint("Heap Error: Could not unlock block.\n");
+        debug_printf("Heap Error: Could not unlock block.\n");
         return false;
     }
 
@@ -477,21 +477,21 @@ bool heap_unlock(Heap* heap, int handleIndex)
 
     HeapBlockHeader* blockHeader = (HeapBlockHeader*)handle->data;
     if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
-        debugPrint("Heap Error: Bad guard begin detected during unlock.\n");
+        debug_printf("Heap Error: Bad guard begin detected during unlock.\n");
     }
 
     HeapBlockFooter* blockFooter = (HeapBlockFooter*)(handle->data + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
     if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
-        debugPrint("Heap Error: Bad guard end detected during unlock.\n");
+        debug_printf("Heap Error: Bad guard end detected during unlock.\n");
     }
 
     if (handle->state != blockHeader->state) {
-        debugPrint("Heap Error: Mismatched block states detected during unlock.\n");
+        debug_printf("Heap Error: Mismatched block states detected during unlock.\n");
     }
 
     if ((handle->state & HEAP_BLOCK_STATE_LOCKED) == 0) {
-        debugPrint("Heap Error: Attempt to unlock a previously unlocked block.\n");
-        debugPrint("Heap Error: Could not unlock block.\n");
+        debug_printf("Heap Error: Attempt to unlock a previously unlocked block.\n");
+        debug_printf("Heap Error: Could not unlock block.\n");
         return false;
     }
 
@@ -517,7 +517,7 @@ bool heap_unlock(Heap* heap, int handleIndex)
 // 0x452FC4
 bool heap_validate(Heap* heap)
 {
-    debugPrint("Validating heap...\n");
+    debug_printf("Validating heap...\n");
 
     int blocksCount = heap->freeBlocks + heap->moveableBlocks + heap->lockedBlocks;
     unsigned char* ptr = heap->data;
@@ -532,13 +532,13 @@ bool heap_validate(Heap* heap)
     for (int index = 0; index < blocksCount; index++) {
         HeapBlockHeader* blockHeader = (HeapBlockHeader*)ptr;
         if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
-            debugPrint("Bad guard begin detected during validate.\n");
+            debug_printf("Bad guard begin detected during validate.\n");
             return false;
         }
 
         HeapBlockFooter* blockFooter = (HeapBlockFooter*)(ptr + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
         if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
-            debugPrint("Bad guard end detected during validate.\n");
+            debug_printf("Bad guard end detected during validate.\n");
             return false;
         }
 
@@ -556,43 +556,43 @@ bool heap_validate(Heap* heap)
         if (index != blocksCount - 1) {
             ptr += blockHeader->size + HEAP_BLOCK_OVERHEAD_SIZE;
             if (ptr > (heap->data + heap->size)) {
-                debugPrint("Ran off end of heap during validate!\n");
+                debug_printf("Ran off end of heap during validate!\n");
                 return false;
             }
         }
     }
 
     if (freeBlocks != heap->freeBlocks) {
-        debugPrint("Invalid number of free blocks.\n");
+        debug_printf("Invalid number of free blocks.\n");
         return false;
     }
 
     if (freeSize != heap->freeSize) {
-        debugPrint("Invalid size of free blocks.\n");
+        debug_printf("Invalid size of free blocks.\n");
         return false;
     }
 
     if (moveableBlocks != heap->moveableBlocks) {
-        debugPrint("Invalid number of moveable blocks.\n");
+        debug_printf("Invalid number of moveable blocks.\n");
         return false;
     }
 
     if (moveableSize != heap->moveableSize) {
-        debugPrint("Invalid size of moveable blocks.\n");
+        debug_printf("Invalid size of moveable blocks.\n");
         return false;
     }
 
     if (lockedBlocks != heap->lockedBlocks) {
-        debugPrint("Invalid number of locked blocks.\n");
+        debug_printf("Invalid number of locked blocks.\n");
         return false;
     }
 
     if (lockedSize != heap->lockedSize) {
-        debugPrint("Invalid size of locked blocks.\n");
+        debug_printf("Invalid size of locked blocks.\n");
         return false;
     }
 
-    debugPrint("Heap is O.K.\n");
+    debug_printf("Heap is O.K.\n");
 
     int systemBlocks = 0;
     int systemSize = 0;
@@ -602,13 +602,13 @@ bool heap_validate(Heap* heap)
         if (handle->state != HEAP_HANDLE_STATE_INVALID && (handle->state & HEAP_BLOCK_STATE_SYSTEM) != 0) {
             HeapBlockHeader* blockHeader = (HeapBlockHeader*)handle->data;
             if (blockHeader->guard != HEAP_BLOCK_HEADER_GUARD) {
-                debugPrint("Bad guard begin detected in system block during validate.\n");
+                debug_printf("Bad guard begin detected in system block during validate.\n");
                 return false;
             }
 
             HeapBlockFooter* blockFooter = (HeapBlockFooter*)(handle->data + blockHeader->size + HEAP_BLOCK_HEADER_SIZE);
             if (blockFooter->guard != HEAP_BLOCK_FOOTER_GUARD) {
-                debugPrint("Bad guard end detected in system block during validate.\n");
+                debug_printf("Bad guard end detected in system block during validate.\n");
                 return false;
             }
 
@@ -618,12 +618,12 @@ bool heap_validate(Heap* heap)
     }
 
     if (systemBlocks != heap->systemBlocks) {
-        debugPrint("Invalid number of system blocks.\n");
+        debug_printf("Invalid number of system blocks.\n");
         return false;
     }
 
     if (systemSize != heap->systemSize) {
-        debugPrint("Invalid size of system blocks.\n");
+        debug_printf("Invalid size of system blocks.\n");
         return false;
     }
 
@@ -743,11 +743,11 @@ static bool heap_init_handles(Heap* heap)
             heap->handlesLength = HEAP_HANDLES_INITIAL_LENGTH;
             return true;
         }
-        debugPrint("Heap Error: Could not allocate handles.\n");
+        debug_printf("Heap Error: Could not allocate handles.\n");
         return false;
     }
 
-    debugPrint("Heap Error : Could not initialize handles.\n");
+    debug_printf("Heap Error : Could not initialize handles.\n");
     return false;
 }
 
@@ -1065,14 +1065,14 @@ system:
     if (1) {
         char stats[512];
         if (heap_stats(heap, stats)) {
-            debugPrint("\n%s\n", stats);
+            debug_printf("\n%s\n", stats);
         }
 
         if (a4 == 0) {
-            debugPrint("Allocating block from system memory...\n");
+            debug_printf("Allocating block from system memory...\n");
             unsigned char* block = (unsigned char*)internal_malloc(size + HEAP_BLOCK_OVERHEAD_SIZE);
             if (block == NULL) {
-                debugPrint("fatal error: internal_malloc() failed in heap_find_free_block()!\n");
+                debug_printf("fatal error: internal_malloc() failed in heap_find_free_block()!\n");
                 return false;
             }
 
@@ -1182,7 +1182,7 @@ static bool heap_build_moveable_list(Heap* heap, int* moveableExtentsLengthPtr, 
     // free or moveable block is followed by locked block.
     int maxExtentsCount = heap->moveableBlocks + heap->freeBlocks;
     if (maxExtentsCount <= 2) {
-        debugPrint("<[couldn't build moveable list]>\n");
+        debug_printf("<[couldn't build moveable list]>\n");
         return false;
     }
 

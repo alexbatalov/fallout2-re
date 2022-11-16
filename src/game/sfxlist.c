@@ -109,7 +109,7 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
 
         fileClose(stream);
 
-        debugPrint("Reading SNDLIST.LST Sound FX Count: %d", sfxl_files_total);
+        debug_printf("Reading SNDLIST.LST Sound FX Count: %d", sfxl_files_total);
     } else {
         int err;
 
@@ -152,7 +152,7 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
 
             fileClose(stream);
         } else {
-            debugPrint("SFXLIST: Can't open file for write %s\n", path);
+            debug_printf("SFXLIST: Can't open file for write %s\n", path);
         }
     }
 

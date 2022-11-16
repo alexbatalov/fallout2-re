@@ -514,7 +514,7 @@ static int StartPipboy(int intent)
     }
 
     if (index != PIPBOY_FRM_COUNT) {
-        debugPrint("\n** Error loading pipboy graphics! **\n");
+        debug_printf("\n** Error loading pipboy graphics! **\n");
 
         while (--index >= 0) {
             art_ptr_unlock(grphkey[index]);
@@ -527,7 +527,7 @@ static int StartPipboy(int intent)
     int pipboyWindowY = 0;
     pip_win = windowCreate(pipboyWindowX, pipboyWindowY, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_HEIGHT, colorTable[0], WINDOW_FLAG_0x10);
     if (pip_win == -1) {
-        debugPrint("\n** Error opening pipboy window! **\n");
+        debug_printf("\n** Error opening pipboy window! **\n");
         for (int index = 0; index < PIPBOY_FRM_COUNT; index++) {
             art_ptr_unlock(grphkey[index]);
         }
@@ -686,7 +686,7 @@ static void EndPipboy()
     configGetBool(&game_config, GAME_CONFIG_DEBUG_KEY, GAME_CONFIG_SHOW_SCRIPT_MESSAGES_KEY, &showScriptMessages);
 
     if (showScriptMessages) {
-        debugPrint("\nScript <Map Update>");
+        debug_printf("\nScript <Map Update>");
     }
 
     scr_exec_map_update_scripts();
@@ -1141,7 +1141,7 @@ static void PipStatus(int a1)
                         cursor_line += 1;
                     }
                 } else {
-                    debugPrint("\n ** Word wrap error in pipboy! **\n");
+                    debug_printf("\n ** Word wrap error in pipboy! **\n");
                 }
             }
 
@@ -1246,7 +1246,7 @@ static void ShowHoloDisk()
     }
 
     if (holodiskTextId >= holodisk_entry->description + 500) {
-        debugPrint("\nPIPBOY: #1 Holodisk text end not found!\n");
+        debug_printf("\nPIPBOY: #1 Holodisk text end not found!\n");
     }
 
     holodiskTextId = holodisk_entry->description;
@@ -1257,7 +1257,7 @@ static void ShowHoloDisk()
         for (; holodiskTextId < holodiskTextId + 500; holodiskTextId += 1) {
             const char* line = getmsg(&pipboy_message_file, &pipmesg, holodiskTextId);
             if (strcmp(line, "**END-DISK**") == 0) {
-                debugPrint("\nPIPBOY: Premature page end in holodisk page search!\n");
+                debug_printf("\nPIPBOY: Premature page end in holodisk page search!\n");
                 break;
             }
 
@@ -1275,7 +1275,7 @@ static void ShowHoloDisk()
         holodiskTextId += 1;
 
         if (holodiskTextId >= holodisk_entry->description + 500) {
-            debugPrint("\nPIPBOY: #2 Holodisk text end not found!\n");
+            debug_printf("\nPIPBOY: #2 Holodisk text end not found!\n");
         }
     } else {
         const char* name = getmsg(&pipboy_message_file, &pipmesg, holodisk_entry->name);
@@ -1641,7 +1641,7 @@ static void PipArchives(int a1)
         if (movie <= MOVIE_COUNT) {
             gmovie_play(movie, GAME_MOVIE_FADE_IN | GAME_MOVIE_FADE_OUT | GAME_MOVIE_PAUSE_MUSIC);
         } else {
-            debugPrint("\n ** Selected movie not found in list! **\n");
+            debug_printf("\n ** Selected movie not found in list! **\n");
         }
 
         fontSetCurrent(101);
@@ -1940,7 +1940,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                     gameTimeSetTime(nextEventTime + 1);
                     if (queue_process()) {
                         rc = true;
-                        debugPrint("PIPBOY: Returning from Queue trigger...\n");
+                        debug_printf("PIPBOY: Returning from Queue trigger...\n");
                         proc_bail_flag = 1;
                         break;
                     }
@@ -2002,7 +2002,7 @@ static bool TimedRest(int hours, int minutes, int duration)
 
                     if (queue_process()) {
                         rc = true;
-                        debugPrint("PIPBOY: Returning from Queue trigger...\n");
+                        debug_printf("PIPBOY: Returning from Queue trigger...\n");
                         proc_bail_flag = 1;
                         break;
                     }
@@ -2098,7 +2098,7 @@ static bool TimedRest(int hours, int minutes, int duration)
     int nextEventGameTime = queue_next_time();
     if (gameTime > nextEventGameTime) {
         if (queue_process()) {
-            debugPrint("PIPBOY: Returning from Queue trigger...\n");
+            debug_printf("PIPBOY: Returning from Queue trigger...\n");
             proc_bail_flag = 1;
             rc = true;
         }
@@ -2122,7 +2122,7 @@ static bool Check4Health(int a1)
         return false;
     }
 
-    debugPrint("\n health added!\n");
+    debug_printf("\n health added!\n");
     rest_time = 0;
 
     return true;

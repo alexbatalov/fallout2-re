@@ -111,7 +111,7 @@ void lips_bkg_proc()
 
             v5 = 0;
             if (lip_info.marker_count <= 5) {
-                debugPrint("Error: Too few markers to stop speech!");
+                debug_printf("Error: Too few markers to stop speech!");
             } else {
                 v5 = 3;
             }
@@ -147,7 +147,7 @@ int lips_play_speech()
     head_marker_current = 0;
 
     if (soundSetPosition(lip_info.sound, lip_info.field_20) != 0) {
-        debugPrint("Failed set of start_offset!\n");
+        debug_printf("Failed set of start_offset!\n");
     }
 
     int v2 = head_marker_current;
@@ -170,7 +170,7 @@ int lips_play_speech()
     speechStartTime = _get_time();
 
     if (soundPlay(lip_info.sound) != 0) {
-        debugPrint("Failed play!\n");
+        debug_printf("Failed play!\n");
 
         // NOTE: Uninline.
         lips_stop_speech();
@@ -307,7 +307,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         }
 
         if (lip_info.version == 1) {
-            debugPrint("\nLoading old save-file version (1)");
+            debug_printf("\nLoading old save-file version (1)");
 
             if (fileSeek(stream, 0, SEEK_SET) != 0) {
                 return -1;
@@ -317,7 +317,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
                 return -1;
             }
         } else if (lip_info.version == 2) {
-            debugPrint("\nLoading current save-file version (2)");
+            debug_printf("\nLoading current save-file version (2)");
 
             if (fileReadInt32(stream, &(lip_info.field_4)) == -1) return -1;
             if (fileReadInt32(stream, &(lip_info.flags)) == -1) return -1;
@@ -329,20 +329,20 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
             if (fileReadFixedLengthString(stream, lip_info.field_50, 8) == -1) return -1;
             if (fileReadFixedLengthString(stream, lip_info.field_58, 4) == -1) return -1;
         } else {
-            debugPrint("\nError: Lips file WRONG version: %s!", path);
+            debug_printf("\nError: Lips file WRONG version: %s!", path);
         }
     }
 
     lip_info.phonemes = (unsigned char*)internal_malloc(lip_info.phoneme_count);
     if (lip_info.phonemes == NULL) {
-        debugPrint("Out of memory in lips_load_file.'\n");
+        debug_printf("Out of memory in lips_load_file.'\n");
         return -1;
     }
 
     if (stream != NULL) {
         for (i = 0; i < lip_info.phoneme_count; i++) {
             if (lips_read_phoneme_type(&(lip_info.phonemes[i]), stream) != 0) {
-                debugPrint("lips_load_file: Error reading phoneme type.\n");
+                debug_printf("lips_load_file: Error reading phoneme type.\n");
                 return -1;
             }
         }
@@ -350,14 +350,14 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         for (i = 0; i < lip_info.phoneme_count; i++) {
             unsigned char phoneme = lip_info.phonemes[i];
             if (phoneme >= PHONEME_COUNT) {
-                debugPrint("\nLoad error: Speech phoneme %d is invalid (%d)!", i, phoneme);
+                debug_printf("\nLoad error: Speech phoneme %d is invalid (%d)!", i, phoneme);
             }
         }
     }
 
     lip_info.markers = (SpeechMarker*)internal_malloc(sizeof(*speech_marker) * lip_info.marker_count);
     if (lip_info.markers == NULL) {
-        debugPrint("Out of memory in lips_load_file.'\n");
+        debug_printf("Out of memory in lips_load_file.'\n");
         return -1;
     }
 
@@ -365,7 +365,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         for (i = 0; i < lip_info.marker_count; i++) {
             // NOTE: Uninline.
             if (lips_read_marker_type(&(lip_info.markers[i]), stream) != 0) {
-                debugPrint("lips_load_file: Error reading marker type.");
+                debug_printf("lips_load_file: Error reading marker type.");
                 return -1;
             }
         }
@@ -373,11 +373,11 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         speech_marker = &(lip_info.markers[0]);
 
         if (speech_marker->marker != 1 && speech_marker->marker != 0) {
-            debugPrint("\nLoad error: Speech marker 0 is invalid (%d)!", speech_marker->marker);
+            debug_printf("\nLoad error: Speech marker 0 is invalid (%d)!", speech_marker->marker);
         }
 
         if (speech_marker->position != 0) {
-            debugPrint("Load error: Speech marker 0 has invalid position(%d)!", speech_marker->position);
+            debug_printf("Load error: Speech marker 0 has invalid position(%d)!", speech_marker->position);
         }
 
         for (i = 1; i < lip_info.marker_count; i++) {
@@ -385,11 +385,11 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
             prev_speech_marker = &(lip_info.markers[i - 1]);
 
             if (speech_marker->marker != 1 && speech_marker->marker != 0) {
-                debugPrint("\nLoad error: Speech marker %d is invalid (%d)!", i, speech_marker->marker);
+                debug_printf("\nLoad error: Speech marker %d is invalid (%d)!", i, speech_marker->marker);
             }
 
             if (speech_marker->position < prev_speech_marker->position) {
-                debugPrint("Load error: Speech marker %d has invalid position(%d)!", i, speech_marker->position);
+                debug_printf("Load error: Speech marker %d has invalid position(%d)!", i, speech_marker->position);
             }
         }
     }
@@ -440,21 +440,21 @@ static int lips_make_speech()
 
     lip_info.sound = soundAllocate(1, 8);
     if (lip_info.sound == NULL) {
-        debugPrint("\nsoundAllocate falied in lips_make_speech!");
+        debug_printf("\nsoundAllocate falied in lips_make_speech!");
         return -1;
     }
 
     if (soundSetFileIO(lip_info.sound, audioOpen, audioCloseFile, audioRead, NULL, audioSeek, NULL, audioFileSize)) {
-        debugPrint("Ack!");
-        debugPrint("Error!");
+        debug_printf("Ack!");
+        debug_printf("Error!");
     }
 
     if (soundLoad(lip_info.sound, path)) {
         soundDelete(lip_info.sound);
         lip_info.sound = NULL;
 
-        debugPrint("lips_make_speech: soundLoad failed with path ");
-        debugPrint("%s -- file probably doesn't exist.\n", path);
+        debug_printf("lips_make_speech: soundLoad failed with path ");
+        debug_printf("%s -- file probably doesn't exist.\n", path);
         return -1;
     }
 

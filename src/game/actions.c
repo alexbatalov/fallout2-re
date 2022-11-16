@@ -714,7 +714,7 @@ int throw_change_fid(Object* object, int fid)
 {
     Rect rect;
 
-    debugPrint("\n[throw_change_fid!]: %d", fid);
+    debug_printf("\n[throw_change_fid!]: %d", fid);
     obj_change_fid(object, fid, &rect);
     tile_refresh_rect(&rect, map_elevation);
 
@@ -959,7 +959,7 @@ static int action_ranged(Attack* attack, int anim)
     }
 
     if (register_end() == -1) {
-        debugPrint("Something went wrong with a ranged attack sequence!\n");
+        debug_printf("Something went wrong with a ranged attack sequence!\n");
         if (projectile != NULL && (isGrenade || damageType == DAMAGE_TYPE_EXPLOSION || anim != ANIM_THROW_ANIM)) {
             obj_erase_object(projectile, NULL);
         }
@@ -1401,7 +1401,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
         pc_flag_toggle(DUDE_STATE_SNEAKING);
         return 0;
     default:
-        debugPrint("\nskill_use: invalid skill used.");
+        debug_printf("\nskill_use: invalid skill used.");
     }
 
     // Performer is either dude, or party member who's best at the specified
@@ -1746,7 +1746,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
 
     if (critter != NULL) {
         if (register_clear(critter) == -2) {
-            debugPrint("Cannot clear target's animation for action_explode!\n");
+            debug_printf("Cannot clear target's animation for action_explode!\n");
         }
         attack->defenderDamage = compute_explosion_damage(minDamage, maxDamage, critter, &(attack->defenderKnockback));
     }
@@ -1756,7 +1756,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
     for (int index = 0; index < attack->extrasLength; index++) {
         Object* critter = attack->extras[index];
         if (register_clear(critter) == -2) {
-            debugPrint("Cannot clear extra's animation for action_explode!\n");
+            debug_printf("Cannot clear extra's animation for action_explode!\n");
         }
 
         attack->extrasDamage[index] = compute_explosion_damage(minDamage, maxDamage, critter, &(attack->extrasKnockback[index]));

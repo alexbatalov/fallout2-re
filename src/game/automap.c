@@ -602,7 +602,7 @@ int draw_top_down_map_pipboy(int window, int map, int elevation)
 
     ambuf = (unsigned char*)internal_malloc(11024);
     if (ambuf == NULL) {
-        debugPrint("\nAUTOMAP: Error allocating data buffer!\n");
+        debug_printf("\nAUTOMAP: Error allocating data buffer!\n");
         return -1;
     }
 
@@ -665,7 +665,7 @@ int automap_pip_save()
         return 0;
     }
 
-    debugPrint("\nAUTOMAP: Saving AutoMap DB index %d, level %d\n", map, elevation);
+    debug_printf("\nAUTOMAP: Saving AutoMap DB index %d, level %d\n", map, elevation);
 
     bool dataBuffersAllocated = false;
     ambuf = (unsigned char*)internal_malloc(11024);
@@ -678,7 +678,7 @@ int automap_pip_save()
 
     if (!dataBuffersAllocated) {
         // FIXME: Leaking ambuf.
-        debugPrint("\nAUTOMAP: Error allocating data buffers!\n");
+        debug_printf("\nAUTOMAP: Error allocating data buffers!\n");
         return -1;
     }
 
@@ -688,15 +688,15 @@ int automap_pip_save()
 
     File* stream1 = fileOpen(path, "r+b");
     if (stream1 == NULL) {
-        debugPrint("\nAUTOMAP: Error opening automap database file!\n");
-        debugPrint("Error continued: automap_pip_save: path: %s", path);
+        debug_printf("\nAUTOMAP: Error opening automap database file!\n");
+        debug_printf("Error continued: automap_pip_save: path: %s", path);
         internal_free(ambuf);
         internal_free(cmpbuf);
         return -1;
     }
 
     if (AM_ReadMainHeader(stream1) == -1) {
-        debugPrint("\nAUTOMAP: Error reading automap database file header!\n");
+        debug_printf("\nAUTOMAP: Error reading automap database file header!\n");
         internal_free(ambuf);
         internal_free(cmpbuf);
         fileClose(stream1);
@@ -719,7 +719,7 @@ int automap_pip_save()
 
         File* stream2 = fileOpen(path, "wb");
         if (stream2 == NULL) {
-            debugPrint("\nAUTOMAP: Error creating temp file!\n");
+            debug_printf("\nAUTOMAP: Error creating temp file!\n");
             internal_free(ambuf);
             internal_free(cmpbuf);
             fileClose(stream1);
@@ -729,7 +729,7 @@ int automap_pip_save()
         fileRewind(stream1);
 
         if (copy_file_data(stream1, stream2, entryOffset) == -1) {
-            debugPrint("\nAUTOMAP: Error copying file data!\n");
+            debug_printf("\nAUTOMAP: Error copying file data!\n");
             fileClose(stream1);
             fileClose(stream2);
             internal_free(ambuf);
@@ -746,7 +746,7 @@ int automap_pip_save()
 
         int nextEntryDataSize;
         if (fileReadInt32(stream1, &nextEntryDataSize) == -1) {
-            debugPrint("\nAUTOMAP: Error reading database #1!\n");
+            debug_printf("\nAUTOMAP: Error reading database #1!\n");
             fileClose(stream1);
             fileClose(stream2);
             internal_free(ambuf);
@@ -756,7 +756,7 @@ int automap_pip_save()
 
         int automapDataSize = fileGetSize(stream1);
         if (automapDataSize == -1) {
-            debugPrint("\nAUTOMAP: Error reading database #2!\n");
+            debug_printf("\nAUTOMAP: Error reading database #2!\n");
             fileClose(stream1);
             fileClose(stream2);
             internal_free(ambuf);
@@ -767,7 +767,7 @@ int automap_pip_save()
         int nextEntryOffset = entryOffset + nextEntryDataSize + 5;
         if (automapDataSize != nextEntryOffset) {
             if (fileSeek(stream1, nextEntryOffset, SEEK_SET) == -1) {
-                debugPrint("\nAUTOMAP: Error writing temp data!\n");
+                debug_printf("\nAUTOMAP: Error writing temp data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
                 internal_free(ambuf);
@@ -776,7 +776,7 @@ int automap_pip_save()
             }
 
             if (copy_file_data(stream1, stream2, automapDataSize - nextEntryOffset) == -1) {
-                debugPrint("\nAUTOMAP: Error copying file data!\n");
+                debug_printf("\nAUTOMAP: Error copying file data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
                 internal_free(ambuf);
@@ -811,7 +811,7 @@ int automap_pip_save()
 
         char* masterPatchesPath;
         if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
-            debugPrint("\nAUTOMAP: Error reading config info!\n");
+            debug_printf("\nAUTOMAP: Error reading config info!\n");
             return -1;
         }
 
@@ -819,7 +819,7 @@ int automap_pip_save()
         char automapDbPath[512];
         sprintf(automapDbPath, "%s\\%s\\%s", masterPatchesPath, "MAPS", AUTOMAP_DB);
         if (remove(automapDbPath) != 0) {
-            debugPrint("\nAUTOMAP: Error removing database!\n");
+            debug_printf("\nAUTOMAP: Error removing database!\n");
             return -1;
         }
 
@@ -827,7 +827,7 @@ int automap_pip_save()
         char automapTmpPath[512];
         sprintf(automapTmpPath, "%s\\%s\\%s", masterPatchesPath, "MAPS", AUTOMAP_TMP);
         if (rename(automapTmpPath, automapDbPath) != 0) {
-            debugPrint("\nAUTOMAP: Error renaming database!\n");
+            debug_printf("\nAUTOMAP: Error renaming database!\n");
             return -1;
         }
     } else {
@@ -841,7 +841,7 @@ int automap_pip_save()
         }
 
         if (!proceed) {
-            debugPrint("\nAUTOMAP: Error reading automap database file header!\n");
+            debug_printf("\nAUTOMAP: Error reading automap database file header!\n");
             internal_free(ambuf);
             internal_free(cmpbuf);
             fileClose(stream1);
@@ -900,7 +900,7 @@ static int WriteAM_Entry(File* stream)
 
 err:
 
-    debugPrint("\nAUTOMAP: Error writing automap database entry data!\n");
+    debug_printf("\nAUTOMAP: Error writing automap database entry data!\n");
     fileClose(stream);
 
     return -1;
@@ -918,13 +918,13 @@ static int AM_ReadEntry(int map, int elevation)
 
     File* stream = fileOpen(path, "r+b");
     if (stream == NULL) {
-        debugPrint("\nAUTOMAP: Error opening automap database file!\n");
-        debugPrint("Error continued: AM_ReadEntry: path: %s", path);
+        debug_printf("\nAUTOMAP: Error opening automap database file!\n");
+        debug_printf("Error continued: AM_ReadEntry: path: %s", path);
         return -1;
     }
 
     if (AM_ReadMainHeader(stream) == -1) {
-        debugPrint("\nAUTOMAP: Error reading automap database header!\n");
+        debug_printf("\nAUTOMAP: Error reading automap database header!\n");
         fileClose(stream);
         return -1;
     }
@@ -952,7 +952,7 @@ static int AM_ReadEntry(int map, int elevation)
     if (amdbsubhead.isCompressed == 1) {
         cmpbuf = (unsigned char*)internal_malloc(11024);
         if (cmpbuf == NULL) {
-            debugPrint("\nAUTOMAP: Error allocating decompression buffer!\n");
+            debug_printf("\nAUTOMAP: Error allocating decompression buffer!\n");
             fileClose(stream);
             return -1;
         }
@@ -963,7 +963,7 @@ static int AM_ReadEntry(int map, int elevation)
         }
 
         if (DecodeLZS(cmpbuf, ambuf, 10000) == -1) {
-            debugPrint("\nAUTOMAP: Error decompressing DB entry!\n");
+            debug_printf("\nAUTOMAP: Error decompressing DB entry!\n");
             fileClose(stream);
             return -1;
         }
@@ -979,7 +979,7 @@ out:
     fileClose(stream);
 
     if (!success) {
-        debugPrint("\nAUTOMAP: Error reading automap database entry data!\n");
+        debug_printf("\nAUTOMAP: Error reading automap database entry data!\n");
 
         return -1;
     }
@@ -1014,7 +1014,7 @@ static int WriteAM_Header(File* stream)
 
 err:
 
-    debugPrint("\nAUTOMAP: Error writing automap database header!\n");
+    debug_printf("\nAUTOMAP: Error writing automap database header!\n");
 
     fileClose(stream);
 
@@ -1091,7 +1091,7 @@ static int am_pip_init()
 
     File* stream = fileOpen(path, "wb");
     if (stream == NULL) {
-        debugPrint("\nAUTOMAP: Error creating automap database file!\n");
+        debug_printf("\nAUTOMAP: Error creating automap database file!\n");
         return -1;
     }
 
@@ -1158,13 +1158,13 @@ int ReadAMList(AutomapHeader** automapHeaderPtr)
 
     File* stream = fileOpen(path, "rb");
     if (stream == NULL) {
-        debugPrint("\nAUTOMAP: Error opening database file for reading!\n");
-        debugPrint("Error continued: ReadAMList: path: %s", path);
+        debug_printf("\nAUTOMAP: Error opening database file for reading!\n");
+        debug_printf("Error continued: ReadAMList: path: %s", path);
         return -1;
     }
 
     if (AM_ReadMainHeader(stream) == -1) {
-        debugPrint("\nAUTOMAP: Error reading automap database header pt2!\n");
+        debug_printf("\nAUTOMAP: Error reading automap database header pt2!\n");
         fileClose(stream);
         return -1;
     }

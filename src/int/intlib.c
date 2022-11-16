@@ -2738,43 +2738,43 @@ int soundStartInterpret(char* fileName, int mode)
     // TODO: Maybe wrong.
     switch (rc) {
     case SOUND_NO_DEVICE:
-        debugPrint("soundPlay error: %s\n", "SOUND_NO_DEVICE");
+        debug_printf("soundPlay error: %s\n", "SOUND_NO_DEVICE");
         goto err;
     case SOUND_NOT_INITIALIZED:
-        debugPrint("soundPlay error: %s\n", "SOUND_NOT_INITIALIZED");
+        debug_printf("soundPlay error: %s\n", "SOUND_NOT_INITIALIZED");
         goto err;
     case SOUND_NO_SOUND:
-        debugPrint("soundPlay error: %s\n", "SOUND_NO_SOUND");
+        debug_printf("soundPlay error: %s\n", "SOUND_NO_SOUND");
         goto err;
     case SOUND_FUNCTION_NOT_SUPPORTED:
-        debugPrint("soundPlay error: %s\n", "SOUND_FUNC_NOT_SUPPORTED");
+        debug_printf("soundPlay error: %s\n", "SOUND_FUNC_NOT_SUPPORTED");
         goto err;
     case SOUND_NO_BUFFERS_AVAILABLE:
-        debugPrint("soundPlay error: %s\n", "SOUND_NO_BUFFERS_AVAILABLE");
+        debug_printf("soundPlay error: %s\n", "SOUND_NO_BUFFERS_AVAILABLE");
         goto err;
     case SOUND_FILE_NOT_FOUND:
-        debugPrint("soundPlay error: %s\n", "SOUND_FILE_NOT_FOUND");
+        debug_printf("soundPlay error: %s\n", "SOUND_FILE_NOT_FOUND");
         goto err;
     case SOUND_ALREADY_PLAYING:
-        debugPrint("soundPlay error: %s\n", "SOUND_ALREADY_PLAYING");
+        debug_printf("soundPlay error: %s\n", "SOUND_ALREADY_PLAYING");
         goto err;
     case SOUND_NOT_PLAYING:
-        debugPrint("soundPlay error: %s\n", "SOUND_NOT_PLAYING");
+        debug_printf("soundPlay error: %s\n", "SOUND_NOT_PLAYING");
         goto err;
     case SOUND_ALREADY_PAUSED:
-        debugPrint("soundPlay error: %s\n", "SOUND_ALREADY_PAUSED");
+        debug_printf("soundPlay error: %s\n", "SOUND_ALREADY_PAUSED");
         goto err;
     case SOUND_NOT_PAUSED:
-        debugPrint("soundPlay error: %s\n", "SOUND_NOT_PAUSED");
+        debug_printf("soundPlay error: %s\n", "SOUND_NOT_PAUSED");
         goto err;
     case SOUND_INVALID_HANDLE:
-        debugPrint("soundPlay error: %s\n", "SOUND_INVALID_HANDLE");
+        debug_printf("soundPlay error: %s\n", "SOUND_INVALID_HANDLE");
         goto err;
     case SOUND_NO_MEMORY_AVAILABLE:
-        debugPrint("soundPlay error: %s\n", "SOUND_NO_MEMORY");
+        debug_printf("soundPlay error: %s\n", "SOUND_NO_MEMORY");
         goto err;
     case SOUND_UNKNOWN_ERROR:
-        debugPrint("soundPlay error: %s\n", "SOUND_ERROR");
+        debug_printf("soundPlay error: %s\n", "SOUND_ERROR");
         goto err;
     }
 

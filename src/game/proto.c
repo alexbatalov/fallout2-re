@@ -431,7 +431,7 @@ int proto_read_protoUpdateData(Object* obj, File* stream)
         if (fileReadInt32(stream, &(obj->data.flags)) == -1) return -1;
 
         if (obj->data.flags == 0xCCCCCCCC) {
-            debugPrint("\nNote: Reading pud: updated_flags was un-Set!");
+            debug_printf("\nNote: Reading pud: updated_flags was un-Set!");
             obj->data.flags = 0;
         }
 
@@ -796,7 +796,7 @@ int proto_dude_init(const char* path)
     critter_adjust_hits(obj_dude, 10000);
 
     if (retval) {
-        debugPrint("\n ** Error in proto_dude_init()! **\n");
+        debug_printf("\n ** Error in proto_dude_init()! **\n");
     }
 
     return 0;
@@ -866,7 +866,7 @@ int proto_data_member(int pid, int member, ProtoDataMemberValue* value)
             }
             break;
         default:
-            debugPrint("\n\tError: Unimp'd data member in member in proto_data_member!");
+            debug_printf("\n\tError: Unimp'd data member in member in proto_data_member!");
             break;
         }
         break;
@@ -908,7 +908,7 @@ int proto_data_member(int pid, int member, ProtoDataMemberValue* value)
             value->integerValue = proto->critter.data.bodyType;
             break;
         default:
-            debugPrint("\n\tError: Unimp'd data member in member in proto_data_member!");
+            debug_printf("\n\tError: Unimp'd data member in member in proto_data_member!");
             break;
         }
         break;
@@ -950,7 +950,7 @@ int proto_data_member(int pid, int member, ProtoDataMemberValue* value)
             value->integerValue = proto->scenery.field_2C;
             break;
         default:
-            debugPrint("\n\tError: Unimp'd data member in member in proto_data_member!");
+            debug_printf("\n\tError: Unimp'd data member in member in proto_data_member!");
             break;
         }
         break;
@@ -989,12 +989,12 @@ int proto_data_member(int pid, int member, ProtoDataMemberValue* value)
             value->integerValue = proto->wall.material;
             break;
         default:
-            debugPrint("\n\tError: Unimp'd data member in member in proto_data_member!");
+            debug_printf("\n\tError: Unimp'd data member in member in proto_data_member!");
             break;
         }
         break;
     case OBJ_TYPE_TILE:
-        debugPrint("\n\tError: Unimp'd data member in member in proto_data_member!");
+        debug_printf("\n\tError: Unimp'd data member in member in proto_data_member!");
         break;
     case OBJ_TYPE_MISC:
         switch (member) {
@@ -1026,7 +1026,7 @@ int proto_data_member(int pid, int member, ProtoDataMemberValue* value)
             value->integerValue = proto->misc.extendedFlags;
             break;
         default:
-            debugPrint("\n\tError: Unimp'd data member in member in proto_data_member!");
+            debug_printf("\n\tError: Unimp'd data member in member in proto_data_member!");
             break;
         }
         break;
@@ -1080,7 +1080,7 @@ int proto_init()
 
     for (i = 0; i < 6; i++) {
         if (!message_init(&(proto_msg_files[i]))) {
-            debugPrint("\nError: Initing proto message files!");
+            debug_printf("\nError: Initing proto message files!");
             return -1;
         }
     }
@@ -1089,7 +1089,7 @@ int proto_init()
         sprintf(path, "%spro_%.4s%s", msg_path, art_dir(i), ".msg");
 
         if (!message_load(&(proto_msg_files[i]), path)) {
-            debugPrint("\nError: Loading proto message files!");
+            debug_printf("\nError: Loading proto message files!");
             return -1;
         }
     }
@@ -1100,7 +1100,7 @@ int proto_init()
     for (i = 0; i < STAT_COUNT; i++) {
         critter_stats_list[i] = stat_name(i);
         if (critter_stats_list[i] == NULL) {
-            debugPrint("\nError: Finding stat names!");
+            debug_printf("\nError: Finding stat names!");
             return -1;
         }
     }
@@ -1110,20 +1110,20 @@ int proto_init()
     for (i = 0; i < PERK_COUNT; i++) {
         mp_perk_code_strs[i] = perk_name(i);
         if (mp_perk_code_strs[i] == NULL) {
-            debugPrint("\nError: Finding perk names!");
+            debug_printf("\nError: Finding perk names!");
             return -1;
         }
     }
 
     if (!message_init(&proto_main_msg_file)) {
-        debugPrint("\nError: Initing main proto message file!");
+        debug_printf("\nError: Initing main proto message file!");
         return -1;
     }
 
     sprintf(path, "%sproto.msg", msg_path);
 
     if (!message_load(&proto_main_msg_file, path)) {
-        debugPrint("\nError: Loading main proto message file!");
+        debug_printf("\nError: Loading main proto message file!");
         return -1;
     }
 
@@ -1660,7 +1660,7 @@ int proto_load_pid(int pid, Proto** protoPtr)
 
     File* stream = fileOpen(path, "rb");
     if (stream == NULL) {
-        debugPrint("\nError: Can't fopen proto!\n");
+        debug_printf("\nError: Can't fopen proto!\n");
         *protoPtr = NULL;
         return -1;
     }

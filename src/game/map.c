@@ -151,54 +151,54 @@ int iso_init()
 
     display_win = windowCreate(0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, 256, 10);
     if (display_win == -1) {
-        debugPrint("win_add failed in iso_init\n");
+        debug_printf("win_add failed in iso_init\n");
         return -1;
     }
 
     display_buf = windowGetBuffer(display_win);
     if (display_buf == NULL) {
-        debugPrint("win_get_buf failed in iso_init\n");
+        debug_printf("win_get_buf failed in iso_init\n");
         return -1;
     }
 
     if (win_get_rect(display_win, &map_display_rect) != 0) {
-        debugPrint("win_get_rect failed in iso_init\n");
+        debug_printf("win_get_rect failed in iso_init\n");
         return -1;
     }
 
     if (art_init() != 0) {
-        debugPrint("art_init failed in iso_init\n");
+        debug_printf("art_init failed in iso_init\n");
         return -1;
     }
 
-    debugPrint(">art_init\t\t");
+    debug_printf(">art_init\t\t");
 
     if (tile_init(square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, map_display_draw) != 0) {
-        debugPrint("tile_init failed in iso_init\n");
+        debug_printf("tile_init failed in iso_init\n");
         return -1;
     }
 
-    debugPrint(">tile_init\t\t");
+    debug_printf(">tile_init\t\t");
 
     if (obj_init(display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
-        debugPrint("obj_init failed in iso_init\n");
+        debug_printf("obj_init failed in iso_init\n");
         return -1;
     }
 
-    debugPrint(">obj_init\t\t");
+    debug_printf(">obj_init\t\t");
 
     cycle_init();
-    debugPrint(">cycle_init\t\t");
+    debug_printf(">cycle_init\t\t");
 
     tile_enable_scroll_blocking();
     tile_enable_scroll_limiting();
 
     if (intface_init() != 0) {
-        debugPrint("intface_init failed in iso_init\n");
+        debug_printf("intface_init failed in iso_init\n");
         return -1;
     }
 
-    debugPrint(">intface_init\t\t");
+    debug_printf(">intface_init\t\t");
 
     map_setup_paths();
 
@@ -270,10 +270,10 @@ void map_init()
         sprintf(path, "%smap.msg", msg_path);
 
         if (!message_load(&map_msg_file, path)) {
-            debugPrint("\nError loading map_msg_file!");
+            debug_printf("\nError loading map_msg_file!");
         }
     } else {
-        debugPrint("\nError initing map_msg_file!");
+        debug_printf("\nError initing map_msg_file!");
     }
 
     // NOTE: Uninline.
@@ -298,7 +298,7 @@ void map_exit()
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     tickersRemove(gmouse_bk_process);
     if (!message_exit(&map_msg_file)) {
-        debugPrint("\nError exiting map_msg_file!");
+        debug_printf("\nError exiting map_msg_file!");
     }
 }
 
@@ -391,7 +391,7 @@ bool map_is_elevation_empty(int elevation)
 int map_set_global_var(int var, int value)
 {
     if (var < 0 || var >= num_map_global_vars) {
-        debugPrint("ERROR: attempt to reference map var out of range: %d", var);
+        debug_printf("ERROR: attempt to reference map var out of range: %d", var);
         return -1;
     }
 
@@ -404,7 +404,7 @@ int map_set_global_var(int var, int value)
 int map_get_global_var(int var)
 {
     if (var < 0 || var >= num_map_global_vars) {
-        debugPrint("ERROR: attempt to reference map var out of range: %d", var);
+        debug_printf("ERROR: attempt to reference map var out of range: %d", var);
         return 0;
     }
 
@@ -415,7 +415,7 @@ int map_get_global_var(int var)
 int map_set_local_var(int var, int value)
 {
     if (var < 0 || var >= num_map_local_vars) {
-        debugPrint("ERROR: attempt to reference local var out of range: %d", var);
+        debug_printf("ERROR: attempt to reference local var out of range: %d", var);
         return -1;
     }
 
@@ -428,7 +428,7 @@ int map_set_local_var(int var, int value)
 int map_get_local_var(int var)
 {
     if (var < 0 || var >= num_map_local_vars) {
-        debugPrint("ERROR: attempt to reference local var out of range: %d", var);
+        debug_printf("ERROR: attempt to reference local var out of range: %d", var);
         return 0;
     }
 
@@ -445,7 +445,7 @@ int map_malloc_local_var(int a1)
 
     int* vars = (int*)internal_realloc(map_local_vars, sizeof(*vars) * num_map_local_vars);
     if (vars == NULL) {
-        debugPrint("\nError: Ran out of memory!");
+        debug_printf("\nError: Ran out of memory!");
     }
 
     map_local_vars = vars;
@@ -981,7 +981,7 @@ err:
     if (error != NULL) {
         char message[100]; // TODO: Size is probably wrong.
         sprintf(message, "%s while loading map.", error);
-        debugPrint(message);
+        debug_printf(message);
         map_new_map();
         rc = -1;
     } else {
@@ -998,7 +998,7 @@ err:
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
 
     if (scr_load_all_scripts() == -1) {
-        debugPrint("\n   Error: scr_load_all_scripts failed!");
+        debug_printf("\n   Error: scr_load_all_scripts failed!");
     }
 
     scr_exec_map_enter_scripts();
@@ -1048,7 +1048,7 @@ err:
 // 0x483188
 int map_load_in_game(char* fileName)
 {
-    debugPrint("\nMAP: Loading SAVED map.");
+    debug_printf("\nMAP: Loading SAVED map.");
 
     char mapName[16]; // TODO: Size is probably wrong.
     strmfe(mapName, fileName, "SAV");
@@ -1061,13 +1061,13 @@ int map_load_in_game(char* fileName)
         }
 
         if (map_age_dead_critters() == -1) {
-            debugPrint("\nError: Critter aging failed on map load!");
+            debug_printf("\nError: Critter aging failed on map load!");
             return -1;
         }
     }
 
     if (!wmMapIsSaveable()) {
-        debugPrint("\nDestroying RANDOM encounter map.");
+        debug_printf("\nDestroying RANDOM encounter map.");
 
         char v15[16];
         strcpy(v15, map_data.name);
@@ -1133,7 +1133,7 @@ int map_age_dead_critters()
                         capacity *= 2;
                         objects = (Object**)internal_realloc(objects, sizeof(*objects) * capacity);
                         if (objects == NULL) {
-                            debugPrint("\nError: Out of Memory!");
+                            debug_printf("\nError: Out of Memory!");
                             return -1;
                         }
                     }
@@ -1145,7 +1145,7 @@ int map_age_dead_critters()
                 capacity *= 2;
                 objects = (Object**)internal_realloc(objects, sizeof(*objects) * capacity);
                 if (objects == NULL) {
-                    debugPrint("\nError: Out of Memory!");
+                    debug_printf("\nError: Out of Memory!");
                     return -1;
                 }
             }
@@ -1262,7 +1262,7 @@ int map_check_state()
             }
 
             if (tile_set_center(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
-                debugPrint("\nError: map: attempt to center out-of-bounds!");
+                debug_printf("\nError: map: attempt to center out-of-bounds!");
             }
 
             memset(&map_state, 0, sizeof(map_state));
@@ -1270,7 +1270,7 @@ int map_check_state()
             int city;
             wmMatchAreaContainingMapIdx(map_data.field_34, &city);
             if (wmTeleportToArea(city) == -1) {
-                debugPrint("\nError: couldn't make jump on worldmap for map jump!");
+                debug_printf("\nError: couldn't make jump on worldmap for map jump!");
             }
         }
     }
@@ -1320,15 +1320,15 @@ int map_save()
             fileClose(stream);
         } else {
             sprintf(temp, "Unable to open %s to write!", map_data.name);
-            debugPrint(temp);
+            debug_printf(temp);
         }
 
         if (rc == 0) {
             sprintf(temp, "%s saved.", map_data.name);
-            debugPrint(temp);
+            debug_printf(temp);
         }
     } else {
-        debugPrint("\nError: map_save: map header corrupt!");
+        debug_printf("\nError: map_save: map header corrupt!");
     }
 
     return rc;
@@ -1448,14 +1448,14 @@ int map_save_in_game(bool a1)
     char name[16];
 
     if (a1 && !wmMapIsSaveable()) {
-        debugPrint("\nNot saving RANDOM encounter map.");
+        debug_printf("\nNot saving RANDOM encounter map.");
 
         strcpy(name, map_data.name);
         strmfe(map_data.name, name, "SAV");
         MapDirEraseFile("MAPS\\", map_data.name);
         strcpy(map_data.name, name);
     } else {
-        debugPrint("\n Saving \".SAV\" map.");
+        debug_printf("\n Saving \".SAV\" map.");
 
         strcpy(name, map_data.name);
         strmfe(map_data.name, name, "SAV");

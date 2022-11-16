@@ -2032,7 +2032,7 @@ static int wmParseFindEncounterTypeMatch(char* string, int* valuePtr)
         }
     }
 
-    debugPrint("WorldMap Error: Couldn't find match for Encounter Type!");
+    debug_printf("WorldMap Error: Couldn't find match for Encounter Type!");
 
     *valuePtr = -1;
 
@@ -2050,7 +2050,7 @@ static int wmParseFindTerrainTypeMatch(char* string, int* valuePtr)
         }
     }
 
-    debugPrint("WorldMap Error: Couldn't find match for Terrain Type!");
+    debug_printf("WorldMap Error: Couldn't find match for Terrain Type!");
 
     *valuePtr = -1;
 
@@ -2621,7 +2621,7 @@ static int wmParseFindMapIdxMatch(char* string, int* valuePtr)
         }
     }
 
-    debugPrint("\nWorldMap Error: Couldn't find match for Map Index!");
+    debug_printf("\nWorldMap Error: Couldn't find match for Map Index!");
 
     *valuePtr = -1;
     return -1;
@@ -2725,7 +2725,7 @@ static int wmMapInit()
 
                     if (map->ambientSoundEffectsLength >= MAP_AMBIENT_SOUND_EFFECTS_CAPACITY) {
                         if (str != NULL) {
-                            debugPrint("\nwmMapInit::Error reading ambient sfx.  Too many!  Str: %s, MapIdx: %d", map->lookupName, mapIdx);
+                            debug_printf("\nwmMapInit::Error reading ambient sfx.  Too many!  Str: %s, MapIdx: %d", map->lookupName, mapIdx);
                             str = NULL;
                         }
                     }
@@ -3129,7 +3129,7 @@ static int wmWorldMapFunc(int a1)
                         wmGenData.currentCarAreaId = wmGenData.currentAreaId;
                     }
 
-                    debugPrint("\nRan outta gas!");
+                    debug_printf("\nRan outta gas!");
                 }
             }
 
@@ -3487,7 +3487,7 @@ static int wmRndEncounterOccurred()
         TileInfo* tile;
         // NOTE: Uninline.
         wmFindCurTileFromPos(wmGenData.worldPosX, wmGenData.worldPosY, &tile);
-        debugPrint("\nEncounter Difficulty Mod: %d", tile->encounterDifficultyModifier);
+        debug_printf("\nEncounter Difficulty Mod: %d", tile->encounterDifficultyModifier);
 
         outdoorsman += tile->encounterDifficultyModifier;
 
@@ -3503,10 +3503,10 @@ static int wmRndEncounterOccurred()
                     sprintf(formattedText, text, xp);
                     display_print(formattedText);
                 } else {
-                    debugPrint("WorldMap: Error: Rnd Encounter string too long!");
+                    debug_printf("WorldMap: Error: Rnd Encounter string too long!");
                 }
 
-                debugPrint("WorldMap: Giving Player [%d] Experience For Catching Rnd Encounter!", xp);
+                debug_printf("WorldMap: Giving Player [%d] Experience For Catching Rnd Encounter!", xp);
 
                 if (xp < 100) {
                     stat_pc_add_experience(xp);
@@ -3701,11 +3701,11 @@ int wmSetupRandomEncounter()
     case ENCOUNTER_SCENERY_TYPE_LIGHT:
     case ENCOUNTER_SCENERY_TYPE_NORMAL:
     case ENCOUNTER_SCENERY_TYPE_HEAVY:
-        debugPrint("\nwmSetupRandomEncounter: Scenery Type: %s", wmSceneryStrs[encounterTableEntry->scenery]);
+        debug_printf("\nwmSetupRandomEncounter: Scenery Type: %s", wmSceneryStrs[encounterTableEntry->scenery]);
         config_get_value(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_GAME_DIFFICULTY_KEY, &gameDifficulty);
         break;
     default:
-        debugPrint("\nERROR: wmSetupRandomEncounter: invalid Scenery Type!");
+        debug_printf("\nERROR: wmSetupRandomEncounter: invalid Scenery Type!");
         return -1;
     }
 
@@ -3801,7 +3801,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
 
     ENC_BASE_TYPE* v25 = &(wmEncBaseTypeList[type_idx]);
 
-    debugPrint("\nwmSetupCritterObjs: typeIdx: %d, Formation: %s", type_idx, wmFormationStrs[v25->position]);
+    debug_printf("\nwmSetupCritterObjs: typeIdx: %d, Formation: %s", type_idx, wmFormationStrs[v25->position]);
 
     if (wmSetupRndNextTileNumInit(v25) == -1) {
         return -1;
@@ -3837,7 +3837,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
         for (int j = 0; j < v23; j++) {
             int tile;
             if (wmSetupRndNextTileNum(v25, v5, &tile) == -1) {
-                debugPrint("\nERROR: wmSetupCritterObjs: wmSetupRndNextTileNum:");
+                debug_printf("\nERROR: wmSetupCritterObjs: wmSetupRndNextTileNum:");
                 continue;
             }
 
@@ -3913,7 +3913,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
 
                 if (v10->isEquipped) {
                     if (inven_wield(object, item, 1) == -1) {
-                        debugPrint("\nERROR: wmSetupCritterObjs: Inven Wield Failed: %d on %s: Critter Fid: %d", item->pid, critter_name(object), object->fid);
+                        debug_printf("\nERROR: wmSetupCritterObjs: Inven Wield Failed: %d on %s: Critter Fid: %d", item->pid, critter_name(object), object->fid);
                     }
                 }
             }
@@ -3980,7 +3980,7 @@ static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
             return 0;
         }
     default:
-        debugPrint("\nERROR: wmSetupCritterObjs: invalid Formation Type!");
+        debug_printf("\nERROR: wmSetupCritterObjs: invalid Formation Type!");
 
         return -1;
     }
@@ -4085,7 +4085,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
             break;
         }
 
-        debugPrint("\nWARNING: EVAL-TILE-NUM FAILED!");
+        debug_printf("\nWARNING: EVAL-TILE-NUM FAILED!");
 
         if (tile_dist(wmRndOriginalCenterTile, wmRndCenterTiles[wmRndIndex]) > 25) {
             return -1;
@@ -4096,7 +4096,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
         }
     }
 
-    debugPrint("\nwmSetupRndNextTileNum:TileNum: %d", tile_num);
+    debug_printf("\nwmSetupRndNextTileNum:TileNum: %d", tile_num);
 
     *out_tile_num = tile_num;
 
@@ -6697,7 +6697,7 @@ int wmMapMusicStart()
         return 0;
     } while (0);
 
-    debugPrint("\nWorldMap Error: Couldn't start map Music!");
+    debug_printf("\nWorldMap Error: Couldn't start map Music!");
 
     return -1;
 }
@@ -6713,7 +6713,7 @@ int wmSetMapMusic(int mapIdx, const char* name)
         return -1;
     }
 
-    debugPrint("\nwmSetMapMusic: %d, %s", mapIdx, name);
+    debug_printf("\nwmSetMapMusic: %d, %s", mapIdx, name);
 
     MapInfo* map = &(wmMapInfoList[mapIdx]);
 

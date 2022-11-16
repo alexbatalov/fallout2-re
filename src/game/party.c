@@ -384,7 +384,7 @@ int partyMemberAdd(Object* object)
     }
 
     if (partyStatePrepped) {
-        debugPrint("\npartyMemberAdd DENIED: %s\n", critter_name(object));
+        debug_printf("\npartyMemberAdd DENIED: %s\n", critter_name(object));
         return -1;
     }
 
@@ -443,7 +443,7 @@ int partyMemberRemove(Object* object)
     }
 
     if (partyStatePrepped) {
-        debugPrint("\npartyMemberRemove DENIED: %s\n", critter_name(object));
+        debug_printf("\npartyMemberRemove DENIED: %s\n", critter_name(object));
         return -1;
     }
 
@@ -559,7 +559,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
     Object* obj = partyMember->object;
 
     if (obj == NULL) {
-        debugPrint("\n  Error!: partyMemberPrepLoadInstance: No Critter Object!");
+        debug_printf("\n  Error!: partyMemberPrepLoadInstance: No Critter Object!");
         partyMember->script = NULL;
         partyMember->vars = NULL;
         partyMember->next = NULL;
@@ -572,8 +572,8 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
 
     Script* script;
     if (scr_ptr(obj->sid, &script) == -1) {
-        debugPrint("\n  Error!: partyMemberPrepLoadInstance: Can't find script!");
-        debugPrint("\n          partyMemberPrepLoadInstance: script was: (%s)", critter_name(obj));
+        debug_printf("\n  Error!: partyMemberPrepLoadInstance: Can't find script!");
+        debug_printf("\n          partyMemberPrepLoadInstance: script was: (%s)", critter_name(obj));
         partyMember->script = NULL;
         partyMember->vars = NULL;
         partyMember->next = NULL;
@@ -598,7 +598,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
         if (map_local_vars != NULL) {
             memcpy(partyMember->vars, map_local_vars + script->localVarsOffset, sizeof(int) * script->localVarsCount);
         } else {
-            debugPrint("\nWarning: partyMemberPrepLoadInstance: No map_local_vars found, but script references them!");
+            debug_printf("\nWarning: partyMemberPrepLoadInstance: No map_local_vars found, but script references them!");
             memset(partyMember->vars, 0, sizeof(int) * script->localVarsCount);
         }
     }
@@ -624,18 +624,18 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
 int partyMemberRecoverLoad()
 {
     if (partyStatePrepped != 1) {
-        debugPrint("\npartyMemberRecoverLoad DENIED");
+        debug_printf("\npartyMemberRecoverLoad DENIED");
         return -1;
     }
 
-    debugPrint("\n");
+    debug_printf("\n");
 
     for (int index = 0; index < partyMemberCount; index++) {
         if (partyMemberRecoverLoadInstance(&(partyMemberList[index])) != 0) {
             return -1;
         }
 
-        debugPrint("[Party Member %d]: %s\n", index, critter_name(partyMemberList[index].object));
+        debug_printf("[Party Member %d]: %s\n", index, critter_name(partyMemberList[index].object));
     }
 
     PartyMember* node = itemSaveListHead;
@@ -737,7 +737,7 @@ int partyMemberLoad(File* stream)
             if (object != NULL) {
                 partyMemberList[index].object = object;
             } else {
-                debugPrint("Couldn't find party member on map...trying to load anyway.\n");
+                debug_printf("Couldn't find party member on map...trying to load anyway.\n");
                 if (index + 1 >= partyMemberCount) {
                     partyMemberObjectIds[index] = 0;
                 } else {
@@ -1195,7 +1195,7 @@ int partyMemberHighestSkillLevel(int skill)
 // 0x495620
 static int partyFixMultipleMembers()
 {
-    debugPrint("\n\n\n[Party Members]:");
+    debug_printf("\n\n\n[Party Members]:");
 
     int critterCount = 0;
     for (Object* obj = obj_find_first(); obj != NULL; obj = obj_find_next()) {
@@ -1215,7 +1215,7 @@ static int partyFixMultipleMembers()
             continue;
         }
 
-        debugPrint("\n   PM: %s", critter_name(obj));
+        debug_printf("\n   PM: %s", critter_name(obj));
 
         bool v19 = false;
         if (obj->sid == -1) {
@@ -1250,18 +1250,18 @@ static int partyFixMultipleMembers()
 
         // TODO: Probably wrong.
         if (obj == v10) {
-            debugPrint("\nError: Attempting to destroy evil critter doppleganger FAILED!");
+            debug_printf("\nError: Attempting to destroy evil critter doppleganger FAILED!");
             continue;
         }
 
-        debugPrint("\nDestroying evil critter doppleganger!");
+        debug_printf("\nDestroying evil critter doppleganger!");
 
         if (obj->sid != -1) {
             scr_remove(obj->sid);
             obj->sid = -1;
         } else {
             if (queue_remove_this(obj, EVENT_TYPE_SCRIPT) == -1) {
-                debugPrint("\nERROR Removing Timed Events on FIX remove!!\n");
+                debug_printf("\nERROR Removing Timed Events on FIX remove!!\n");
             }
         }
 
@@ -1275,11 +1275,11 @@ static int partyFixMultipleMembers()
         if (scr_ptr(partyMember->object->sid, &script) != -1) {
             script->owner = partyMember->object;
         } else {
-            debugPrint("\nError: Failed to fix party member critter scripts!");
+            debug_printf("\nError: Failed to fix party member critter scripts!");
         }
     }
 
-    debugPrint("\nTotal Critter Count: %d\n\n", critterCount);
+    debug_printf("\nTotal Critter Count: %d\n\n", critterCount);
 
     return 0;
 }
@@ -1488,7 +1488,7 @@ int partyMemberIncLevels()
         }
 
         name = critter_name(obj);
-        debugPrint("\npartyMemberIncLevels: %s", name);
+        debug_printf("\npartyMemberIncLevels: %s", name);
 
         if (aiOptions->level_up_every == 0) {
             continue;
@@ -1517,7 +1517,7 @@ int partyMemberIncLevels()
         levelUpInfo->field_4++;
 
         v24 = levelUpInfo->field_4 % aiOptions->level_pids_num;
-        debugPrint("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, levelUpInfo->field_4, levelUpInfo->field_8, aiOptions->level_up_every);
+        debug_printf("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, levelUpInfo->field_4, levelUpInfo->field_8, aiOptions->level_up_every);
 
         if (v24 != 0 || levelUpInfo->field_8 == 0) {
             if (levelUpInfo->field_8 == 0) {
@@ -1537,7 +1537,7 @@ int partyMemberIncLevels()
                     sprintf(str, text, name);
                     display_print(str);
 
-                    debugPrint(str);
+                    debug_printf(str);
 
                     // Individual message
                     msg.num = 9000 + 10 * v0 + levelUpInfo->field_0 - 1;

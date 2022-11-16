@@ -75,7 +75,7 @@ int CompLZS(unsigned char* a1, unsigned char* a2, int a3)
     text_buf = (unsigned char*)internal_malloc(sizeof(*text_buf) * 4122);
 
     if (lson == NULL || rson == NULL || dad == NULL || text_buf == NULL) {
-        debugPrint("\nGRAPHLIB: Error allocating compression buffers!\n");
+        debug_printf("\nGRAPHLIB: Error allocating compression buffers!\n");
 
         if (dad != NULL) {
             internal_free(dad);
@@ -355,7 +355,7 @@ int DecodeLZS(unsigned char* src, unsigned char* dest, int length)
 {
     text_buf = (unsigned char*)internal_malloc(sizeof(*text_buf) * 4122);
     if (text_buf == NULL) {
-        debugPrint("\nGRAPHLIB: Error allocating decompression buffer!\n");
+        debug_printf("\nGRAPHLIB: Error allocating decompression buffer!\n");
         return -1;
     }
 

@@ -2177,7 +2177,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
 
         if (attackerFriend != NULL) {
             if (obj_dist(defender, attackerFriend) < damageRadius) {
-                debugPrint("Friendly was in the way!");
+                debug_printf("Friendly was in the way!");
                 return true;
             }
         }
@@ -2227,7 +2227,7 @@ bool combat_safety_invalidate_weapon_func(Object* attacker, Object* weapon, int 
     if (attackerFriend != NULL) {
         for (int index = 0; index < attack.extrasLength; index++) {
             if (attack.extras[index] == attackerFriend) {
-                debugPrint("Friendly was in the way!");
+                debug_printf("Friendly was in the way!");
                 return true;
             }
         }
@@ -3411,7 +3411,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
     }
 
     combat_ctd_init(&main_ctd, a1, a2, hitMode, hitLocation);
-    debugPrint("computing attack...\n");
+    debug_printf("computing attack...\n");
 
     if (compute_attack(&main_ctd) == -1) {
         return -1;
@@ -3448,7 +3448,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
     }
 
     int actionPoints = item_w_mp_cost(a1, main_ctd.hitMode, aiming);
-    debugPrint("sequencing attack...\n");
+    debug_printf("sequencing attack...\n");
 
     if (action_attack(&main_ctd) == -1) {
         return -1;
@@ -3468,7 +3468,7 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
     combat_call_display = 1;
     combat_cleanup_enabled = 1;
     combatAIInfoSetLastTarget(a1, a2);
-    debugPrint("running attack...\n");
+    debug_printf("running attack...\n");
 
     return 0;
 }
@@ -3908,7 +3908,7 @@ void compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
     }
 
     if (tile == -1) {
-        debugPrint("\nError: compute_explosion_on_extras: Called with bad target/tileNum");
+        debug_printf("\nError: compute_explosion_on_extras: Called with bad target/tileNum");
         return;
     }
 
@@ -4386,7 +4386,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
     }
 
     if (accuracy < -100) {
-        debugPrint("Whoa! Bad skill value in determine_to_hit!\n");
+        debug_printf("Whoa! Bad skill value in determine_to_hit!\n");
     }
 
     return accuracy;
@@ -5668,7 +5668,7 @@ void combat_attack_this(Object* a1)
     }
 
     if (aiming != 1) {
-        debugPrint("Bad called shot value %d\n", aiming);
+        debug_printf("Bad called shot value %d\n", aiming);
     }
 
     int hitLocation;

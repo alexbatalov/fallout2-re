@@ -109,8 +109,8 @@ void* memoryBlockReallocImpl(void* ptr, size_t size)
             if (size != 0) {
                 gMemoryBlocksCurrentSize += oldSize;
 
-                debugPrint("%s,%u: ", __FILE__, __LINE__); // "Memory.c", 195
-                debugPrint("Realloc failure.\n");
+                debug_printf("%s,%u: ", __FILE__, __LINE__); // "Memory.c", 195
+                debug_printf("Realloc failure.\n");
             } else {
                 gMemoryBlocksCurrentCount--;
             }
@@ -151,8 +151,8 @@ void memoryBlockFreeImpl(void* ptr)
 void memoryBlockPrintStats()
 {
     if (gMallocProc == memoryBlockMallocImpl) {
-        debugPrint("Current memory allocated: %6d blocks, %9u bytes total\n", gMemoryBlocksCurrentCount, gMemoryBlocksCurrentSize);
-        debugPrint("Max memory allocated:     %6d blocks, %9u bytes total\n", gMemoryBlockMaximumCount, gMemoryBlocksMaximumSize);
+        debug_printf("Current memory allocated: %6d blocks, %9u bytes total\n", gMemoryBlocksCurrentCount, gMemoryBlocksCurrentSize);
+        debug_printf("Max memory allocated:     %6d blocks, %9u bytes total\n", gMemoryBlockMaximumCount, gMemoryBlocksMaximumSize);
     }
 }
 
@@ -195,11 +195,11 @@ void memoryBlockValidate(void* block)
 {
     MemoryBlockHeader* header = (MemoryBlockHeader*)block;
     if (header->guard != MEMORY_BLOCK_HEADER_GUARD) {
-        debugPrint("Memory header stomped.\n");
+        debug_printf("Memory header stomped.\n");
     }
 
     MemoryBlockFooter* footer = (MemoryBlockFooter*)((unsigned char*)block + header->size - sizeof(MemoryBlockFooter));
     if (footer->guard != MEMORY_BLOCK_FOOTER_GUARD) {
-        debugPrint("Memory footer stomped.\n");
+        debug_printf("Memory footer stomped.\n");
     }
 }

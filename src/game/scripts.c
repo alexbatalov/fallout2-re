@@ -326,7 +326,7 @@ int gtime_q_process(Object* obj, void* data)
 
     movie_index = -1;
 
-    debugPrint("\nQUEUE PROCESS: Midnight!");
+    debug_printf("\nQUEUE PROCESS: Midnight!");
 
     if (gmovieIsPlaying()) {
         return 0;
@@ -460,7 +460,7 @@ int new_obj_id()
     } while (ptr);
 
     if (cur_id >= 18000) {
-        debugPrint("\n    ERROR: new_obj_id() !!!! Picked PLAYER ID!!!!");
+        debug_printf("\n    ERROR: new_obj_id() !!!! Picked PLAYER ID!!!!");
     }
 
     cur_id++;
@@ -895,7 +895,7 @@ int scripts_check_state()
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
                         obj_rebuild_all_light();
                     } else {
-                        debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
+                        debug_printf("\nWarning: Elevator: Couldn't find old elevator doors!");
                     }
                 }
             } else {
@@ -917,7 +917,7 @@ int scripts_check_state()
                     elevatorDoors->data.scenery.door.openFlags &= ~0x01;
                     obj_rebuild_all_light();
                 } else {
-                    debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
+                    debug_printf("\nWarning: Elevator: Couldn't find old elevator doors!");
                 }
 
                 MapTransition transition;
@@ -1001,7 +1001,7 @@ int scripts_check_state_in_combat()
                         elevatorDoors->data.scenery.door.openFlags &= ~0x01;
                         obj_rebuild_all_light();
                     } else {
-                        debugPrint("\nWarning: Elevator: Couldn't find old elevator doors!");
+                        debug_printf("\nWarning: Elevator: Couldn't find old elevator doors!");
                     }
                 }
             } else {
@@ -1078,7 +1078,7 @@ int scripts_request_elevator(Object* a1, int a2)
 
     int tile = a1->tile;
     if (tile == -1) {
-        debugPrint("\nError: scripts_request_elevator! Bad tile num");
+        debug_printf("\nError: scripts_request_elevator! Bad tile num");
         return -1;
     }
 
@@ -1207,7 +1207,7 @@ int exec_script_proc(int sid, int proc)
 
         script->program = loadProgram(name);
         if (script->program == NULL) {
-            debugPrint("\nError: exec_script_proc: script load failed!");
+            debug_printf("\nError: exec_script_proc: script load failed!");
             return -1;
         }
 
@@ -1384,13 +1384,13 @@ int scr_set_dude_script()
     }
 
     if (obj_dude == NULL) {
-        debugPrint("Error in scr_set_dude_script: obj_dude uninitialized!");
+        debug_printf("Error in scr_set_dude_script: obj_dude uninitialized!");
         return -1;
     }
 
     Proto* proto;
     if (proto_ptr(0x1000000, &proto) == -1) {
-        debugPrint("Error in scr_set_dude_script: can't find obj_dude proto!");
+        debug_printf("Error in scr_set_dude_script: can't find obj_dude proto!");
         return -1;
     }
 
@@ -1400,7 +1400,7 @@ int scr_set_dude_script()
 
     Script* script;
     if (scr_ptr(obj_dude->sid, &script) == -1) {
-        debugPrint("Error in scr_set_dude_script: can't find obj_dude script!");
+        debug_printf("Error in scr_set_dude_script: can't find obj_dude script!");
         return -1;
     }
 
@@ -1414,7 +1414,7 @@ int scr_set_dude_script()
 int scr_clear_dude_script()
 {
     if (obj_dude == NULL) {
-        debugPrint("\nError in scr_clear_dude_script: obj_dude uninitialized!");
+        debug_printf("\nError in scr_clear_dude_script: obj_dude uninitialized!");
         return -1;
     }
 
@@ -1483,20 +1483,20 @@ int scr_game_init()
     char path[MAX_PATH];
 
     if (!message_init(&script_message_file)) {
-        debugPrint("\nError initing script message file!");
+        debug_printf("\nError initing script message file!");
         return -1;
     }
 
     for (i = 0; i < 1450; i++) {
         if (!message_init(&(script_dialog_msgs[i]))) {
-            debugPrint("\nERROR IN SCRIPT_DIALOG_MSGS!");
+            debug_printf("\nERROR IN SCRIPT_DIALOG_MSGS!");
             return -1;
         }
     }
 
     sprintf(path, "%s%s", msg_path, "script.msg");
     if (!message_load(&script_message_file, path)) {
-        debugPrint("\nError loading script message file!");
+        debug_printf("\nError loading script message file!");
         return -1;
     }
 
@@ -1521,7 +1521,7 @@ int scr_game_init()
 // 0x4A5240
 int scr_game_reset()
 {
-    debugPrint("\nScripts: [Game Reset]");
+    debug_printf("\nScripts: [Game Reset]");
     scr_game_exit();
     scr_game_init();
     partyMemberClear();
@@ -1535,7 +1535,7 @@ int scr_exit()
     script_engine_running = false;
     script_engine_run_critters = 0;
     if (!message_exit(&script_message_file)) {
-        debugPrint("\nError exiting script message file!");
+        debug_printf("\nError exiting script message file!");
         return -1;
     }
 
@@ -1561,12 +1561,12 @@ int scr_message_free()
         MessageList* messageList = &(script_dialog_msgs[index]);
         if (messageList->entries_num != 0) {
             if (!message_exit(messageList)) {
-                debugPrint("\nERROR in scr_message_free!");
+                debug_printf("\nERROR in scr_message_free!");
                 return -1;
             }
 
             if (!message_init(messageList)) {
-                debugPrint("\nERROR in scr_message_free!");
+                debug_printf("\nERROR in scr_message_free!");
                 return -1;
             }
         }
@@ -2014,7 +2014,7 @@ int scr_ptr(int sid, Script** scriptPtr)
     }
 
     if (sid == 0xCCCCCCCC) {
-        debugPrint("\nERROR: scr_ptr called with UN-SET id #!!!!");
+        debug_printf("\nERROR: scr_ptr called with UN-SET id #!!!!");
         return -1;
     }
 
@@ -2142,7 +2142,7 @@ int scr_remove_local_vars(Script* script)
 
                 map_local_vars = (int*)internal_realloc(map_local_vars, sizeof(*map_local_vars) * num_map_local_vars);
                 if (map_local_vars == NULL) {
-                    debugPrint("\nError in mem_realloc in scr_remove_local_vars!\n");
+                    debug_printf("\nError in mem_realloc in scr_remove_local_vars!\n");
                 }
 
                 for (int index = 0; index < SCRIPT_TYPE_COUNT; index++) {
@@ -2208,11 +2208,11 @@ int scr_remove(int sid)
         scripts_clear_combat_requests(script);
 
         if (scr_remove_local_vars(script) == -1) {
-            debugPrint("\nERROR Removing local vars on scr_remove!!\n");
+            debug_printf("\nERROR Removing local vars on scr_remove!!\n");
         }
 
         if (queue_remove_this(script->owner, EVENT_TYPE_SCRIPT) == -1) {
-            debugPrint("\nERROR Removing Timed Events on scr_remove!!\n");
+            debug_printf("\nERROR Removing Timed Events on scr_remove!!\n");
         }
 
         if (scriptListExtent == scriptList->tail && index + 1 == scriptListExtent->length) {
@@ -2524,7 +2524,7 @@ static void scrExecMapProcScripts(int proc)
 
     int* sidList = (int*)internal_malloc(sizeof(*sidList) * sidListCapacity);
     if (sidList == NULL) {
-        debugPrint("\nError: scr_exec_map_update_scripts: Out of memory for sidList!");
+        debug_printf("\nError: scr_exec_map_update_scripts: Out of memory for sidList!");
         return;
     }
 
@@ -2592,12 +2592,12 @@ int scr_get_dialog_msg_file(int a1, MessageList** messageListPtr)
         sprintf(path, "dialog\\%s.msg", scriptName);
 
         if (!message_load(messageList, path)) {
-            debugPrint("\nError loading script dialog message file!");
+            debug_printf("\nError loading script dialog message file!");
             return -1;
         }
 
         if (!message_filter(messageList)) {
-            debugPrint("\nError filtering script dialog message file!");
+            debug_printf("\nError filtering script dialog message file!");
             return -1;
         }
     }
@@ -2637,7 +2637,7 @@ char* scr_get_msg_str_speech(int messageListId, int messageId, int a3)
 
     MessageList* messageList;
     if (scr_get_dialog_msg_file(messageListId, &messageList) == -1) {
-        debugPrint("\nERROR: message_str: can't find message file: List: %d!", messageListId);
+        debug_printf("\nERROR: message_str: can't find message file: List: %d!", messageListId);
         return NULL;
     }
 
@@ -2648,7 +2648,7 @@ char* scr_get_msg_str_speech(int messageListId, int messageId, int a3)
     MessageListItem messageListItem;
     messageListItem.num = messageId;
     if (!message_search(messageList, &messageListItem)) {
-        debugPrint("\nError: can't find message: List: %d, Num: %d!", messageListId, messageId);
+        debug_printf("\nError: can't find message: List: %d, Num: %d!", messageListId, messageId);
         return err_str;
     }
 
@@ -2661,7 +2661,7 @@ char* scr_get_msg_str_speech(int messageListId, int messageId, int a3)
                     gdialogSetupSpeech(messageListItem.audio);
                 }
             } else {
-                debugPrint("Missing speech name: %d\n", messageListItem.num);
+                debug_printf("Missing speech name: %d\n", messageListItem.num);
             }
         }
     }
@@ -2676,12 +2676,12 @@ int scr_get_local_var(int sid, int variable, int* value)
     static char tempStr[20];
 
     if (SID_TYPE(sid) == SCRIPT_TYPE_SYSTEM) {
-        debugPrint("\nError! System scripts/Map scripts not allowed local_vars! ");
+        debug_printf("\nError! System scripts/Map scripts not allowed local_vars! ");
 
         tempStr[0] = '\0';
         scr_index_to_name(sid & 0xFFFFFF, tempStr);
 
-        debugPrint(":%s\n", tempStr);
+        debug_printf(":%s\n", tempStr);
 
         *value = -1;
         return -1;

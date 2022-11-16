@@ -74,7 +74,7 @@ int audioOpen(const char* fname, int flags, ...)
 
     File* stream = fileOpen(path, mode);
     if (stream == NULL) {
-        debugPrint("AudioOpen: Couldn't open %s for read\n", path);
+        debug_printf("AudioOpen: Couldn't open %s for read\n", path);
         return -1;
     }
 
@@ -225,7 +225,7 @@ long audioTell(int fileHandle)
 // 0x41A7C4
 int audioWrite(int handle, const void* buf, unsigned int size)
 {
-    debugPrint("AudioWrite shouldn't be ever called\n");
+    debug_printf("AudioWrite shouldn't be ever called\n");
     return 0;
 }
 

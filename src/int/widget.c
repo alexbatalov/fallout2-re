@@ -1,5 +1,6 @@
 #include "int/widget.h"
 
+#include <stdio.h>
 #include <string.h>
 
 #include "int/datafile.h"
@@ -535,7 +536,7 @@ static void showRegion(UpdateRegion* updateRegion)
     case 0x10:
         break;
     default:
-        debugPrint("Invalid input type given to win_register_update\n");
+        debug_printf("Invalid input type given to win_register_update\n");
         return;
     }
 
@@ -555,7 +556,7 @@ static void showRegion(UpdateRegion* updateRegion)
         }
         return;
     default:
-        debugPrint("Invalid output type given to win_register_update\n");
+        debug_printf("Invalid output type given to win_register_update\n");
         return;
     }
 
@@ -788,7 +789,7 @@ void real_win_add_status_bar(int win, int a2, char* a3, char* a4, int x, int y)
         statusBarActive = 1;
     } else {
         freeStatusBar();
-        debugPrint("status bar dimensions not the same\n");
+        debug_printf("status bar dimensions not the same\n");
     }
 }
 

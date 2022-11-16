@@ -228,7 +228,7 @@ long audiofTell(int fileHandle)
 // 0x41AD58
 int audiofWrite(int fileHandle, const void* buffer, unsigned int size)
 {
-    debugPrint("AudiofWrite shouldn't be ever called\n");
+    debug_printf("AudiofWrite shouldn't be ever called\n");
     return 0;
 }
 

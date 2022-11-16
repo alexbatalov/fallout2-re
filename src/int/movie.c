@@ -525,7 +525,7 @@ static void cleanupMovie(int a1)
     int frame;
     int dropped;
     _MVE_rmFrameCounts(&frame, &dropped);
-    debugPrint("Frames %d, dropped %d\n", frame, dropped);
+    debug_printf("Frames %d, dropped %d\n", frame, dropped);
 
     if (lastMovieBuffer != NULL) {
         myfree(lastMovieBuffer, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 787
@@ -540,7 +540,7 @@ static void cleanupMovie(int a1)
             blitBufferToBuffer((unsigned char*)ddsd.lpSurface + ddsd.lPitch * lastMovieSX + lastMovieSY, lastMovieBW, lastMovieBH, ddsd.lPitch, lastMovieBuffer, lastMovieBW);
             IDirectDrawSurface_Unlock(MVE_lastBuffer, ddsd.lpSurface);
         } else {
-            debugPrint("Couldn't lock movie surface\n");
+            debug_printf("Couldn't lock movie surface\n");
         }
 
         MVE_lastBuffer = NULL;
@@ -694,7 +694,7 @@ static File* openFile(char* filePath)
     handle = fileOpen(filePath, "rb");
     if (handle == NULL) {
         if (failedOpenFunc == NULL) {
-            debugPrint("Couldn't find movie file %s\n", filePath);
+            debug_printf("Couldn't find movie file %s\n", filePath);
             return 0;
         }
 
@@ -718,10 +718,10 @@ static void openSubtitle(char* filePath)
     char path[MAX_PATH];
     strcpy(path, filePath);
 
-    debugPrint("Opening subtitle file %s\n", path);
+    debug_printf("Opening subtitle file %s\n", path);
     File* stream = fileOpen(path, "r");
     if (stream == NULL) {
-        debugPrint("Couldn't open subtitle file %s\n", path);
+        debug_printf("Couldn't open subtitle file %s\n", path);
         movieFlags &= ~MOVIE_EXTENDED_FLAG_0x10;
         return;
     }
@@ -767,13 +767,13 @@ static void openSubtitle(char* filePath)
 
             prev = subtitle;
         } else {
-            debugPrint("subtitle: couldn't parse %s\n", string);
+            debug_printf("subtitle: couldn't parse %s\n", string);
         }
     }
 
     fileClose(stream);
 
-    debugPrint("Read %d subtitles\n", subtitleCount);
+    debug_printf("Read %d subtitles\n", subtitleCount);
 }
 
 // 0x48755C
@@ -861,9 +861,9 @@ static int movieStart(int win, char* filePath, int (*a3)())
     }
 
     if ((movieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
-        debugPrint("Direct ");
+        debug_printf("Direct ");
         win_get_rect(GNWWin, &winRect);
-        debugPrint("Playing at (%d, %d)  ", movieX + winRect.left, movieY + winRect.top);
+        debug_printf("Playing at (%d, %d)  ", movieX + winRect.left, movieY + winRect.top);
         _MVE_rmCallbacks(a3);
         _MVE_sfCallbacks(movie_MVE_ShowFrame);
 
@@ -871,7 +871,7 @@ static int movieStart(int win, char* filePath, int (*a3)())
         v16 = movieY + winRect.top;
         v15 = movieX + winRect.left;
     } else {
-        debugPrint("Buffered ");
+        debug_printf("Buffered ");
         _MVE_rmCallbacks(a3);
         _MVE_sfCallbacks(movieShowFrame);
         v17 = 0;
@@ -882,9 +882,9 @@ static int movieStart(int win, char* filePath, int (*a3)())
     _MVE_rmPrepMovie((int)handle, v15, v16, v17);
 
     if (movieScaleFlag) {
-        debugPrint("scaled\n");
+        debug_printf("scaled\n");
     } else {
-        debugPrint("not scaled\n");
+        debug_printf("not scaled\n");
     }
 
     if (startMovieFunc != NULL) {
@@ -1004,13 +1004,13 @@ void movieUpdate()
     }
 
     if ((movieFlags & MOVIE_EXTENDED_FLAG_0x02) != 0) {
-        debugPrint("Movie aborted\n");
+        debug_printf("Movie aborted\n");
         cleanupMovie(1);
         return;
     }
 
     if ((movieFlags & MOVIE_EXTENDED_FLAG_0x01) != 0) {
-        debugPrint("Movie error\n");
+        debug_printf("Movie error\n");
         cleanupMovie(1);
         return;
     }

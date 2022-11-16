@@ -103,7 +103,7 @@ int art_init()
     }
 
     if (!cache_init(&art_cache, art_data_size, art_data_load, art_data_free, cacheSize << 20)) {
-        debugPrint("cache_init failed in art_init\n");
+        debug_printf("cache_init failed in art_init\n");
         return -1;
     }
 
@@ -126,7 +126,7 @@ int art_init()
         }
 
         if (art_read_lst(path, &(art[objectType].fileNames), &(art[objectType].fileNamesLength)) != 0) {
-            debugPrint("art_read_lst failed in art_init\n");
+            debug_printf("art_read_lst failed in art_init\n");
             if (critterDbSelected) {
                 _db_select(oldDb);
             }
@@ -143,7 +143,7 @@ int art_init()
     anon_alias = (int*)internal_malloc(sizeof(*anon_alias) * art[OBJ_TYPE_CRITTER].fileNamesLength);
     if (anon_alias == NULL) {
         art[OBJ_TYPE_CRITTER].fileNamesLength = 0;
-        debugPrint("Out of memory for anon_alias in art_init\n");
+        debug_printf("Out of memory for anon_alias in art_init\n");
         cache_exit(&art_cache);
         return -1;
     }
@@ -151,7 +151,7 @@ int art_init()
     artCritterFidShouldRunData = (int*)internal_malloc(sizeof(*artCritterFidShouldRunData) * art[1].fileNamesLength);
     if (artCritterFidShouldRunData == NULL) {
         art[OBJ_TYPE_CRITTER].fileNamesLength = 0;
-        debugPrint("Out of memory for artCritterFidShouldRunData in art_init\n");
+        debug_printf("Out of memory for artCritterFidShouldRunData in art_init\n");
         cache_exit(&art_cache);
         return -1;
     }
@@ -164,7 +164,7 @@ int art_init()
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
-        debugPrint("Unable to open %s in art_init\n", path);
+        debug_printf("Unable to open %s in art_init\n", path);
         cache_exit(&art_cache);
         return -1;
     }
@@ -221,7 +221,7 @@ int art_init()
     head_info = (HeadDescription*)internal_malloc(sizeof(*head_info) * art[OBJ_TYPE_HEAD].fileNamesLength);
     if (head_info == NULL) {
         art[OBJ_TYPE_HEAD].fileNamesLength = 0;
-        debugPrint("Out of memory for head_info in art_init\n");
+        debug_printf("Out of memory for head_info in art_init\n");
         cache_exit(&art_cache);
         return -1;
     }
@@ -230,7 +230,7 @@ int art_init()
 
     stream = fileOpen(path, "rt");
     if (stream == NULL) {
-        debugPrint("Unable to open %s in art_init\n", path);
+        debug_printf("Unable to open %s in art_init\n", path);
         cache_exit(&art_cache);
         return -1;
     }

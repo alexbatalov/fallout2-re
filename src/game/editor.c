@@ -765,7 +765,7 @@ int editor_design(bool isCreationMode)
     SavePlayer();
 
     if (CharEditStart() == -1) {
-        debugPrint("\n ** Error loading character editor data! **\n");
+        debug_printf("\n ** Error loading character editor data! **\n");
         return -1;
     }
 
@@ -1992,7 +1992,7 @@ static void DrawFolder()
         kills_count = ListKills();
         break;
     default:
-        debugPrint("\n ** Unknown folder type! **\n");
+        debug_printf("\n ** Unknown folder type! **\n");
         break;
     }
 }
@@ -5579,7 +5579,7 @@ static int UpdateLevel()
 
         int rc = perks_dialog();
         if (rc == -1) {
-            debugPrint("\n *** Error running perks dialog! ***\n");
+            debug_printf("\n *** Error running perks dialog! ***\n");
             return -1;
         } else if (rc == 0) {
             DrawFolder();
@@ -5641,7 +5641,7 @@ static int perks_dialog()
     int fid = art_id(OBJ_TYPE_INTERFACE, 86, 0, 0, 0);
     pbckgnd = art_lock(fid, &backgroundFrmHandle, &backgroundWidth, &backgroundHeight);
     if (pbckgnd == NULL) {
-        debugPrint("\n *** Error running perks dialog window ***\n");
+        debug_printf("\n *** Error running perks dialog window ***\n");
         return -1;
     }
 
@@ -5650,7 +5650,7 @@ static int perks_dialog()
     pwin = windowCreate(perkWindowX, perkWindowY, PERK_WINDOW_WIDTH, PERK_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (pwin == -1) {
         art_ptr_unlock(backgroundFrmHandle);
-        debugPrint("\n *** Error running perks dialog window ***\n");
+        debug_printf("\n *** Error running perks dialog window ***\n");
         return -1;
     }
 
@@ -5780,7 +5780,7 @@ static int perks_dialog()
 
     if (rc == 1) {
         if (perk_add(obj_dude, name_sort_list[crow + cline].value) == -1) {
-            debugPrint("\n*** Unable to add perk! ***\n");
+            debug_printf("\n*** Unable to add perk! ***\n");
             rc = 2;
         }
     }

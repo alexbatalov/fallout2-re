@@ -357,7 +357,7 @@ void dbg_error(Program* program, const char* name, int error)
 
     sprintf(string, "Script Error: %s: op_%s: %s", program->name, name, dbg_error_strs[error]);
 
-    debugPrint(string);
+    debug_printf(string);
 }
 
 // 0x45400C
@@ -370,7 +370,7 @@ static void int_debug(const char* format, ...)
     vsprintf(string, format, argptr);
     va_end(argptr);
 
-    debugPrint(string);
+    debug_printf(string);
 }
 
 // 0x45404C
@@ -561,7 +561,7 @@ static void op_override_map_start(Program* program)
 
     char text[60];
     sprintf(text, "OVERRIDE_MAP_START: x: %d, y: %d", x, y);
-    debugPrint(text);
+    debug_printf(text);
 
     int tile = 200 * y + x;
     int previousTile = tile_center_tile;
@@ -1079,12 +1079,12 @@ static void op_create_object_sid(Program* program)
     Object* object = NULL;
 
     if (isLoadingGame() != 0) {
-        debugPrint("\nError: attempt to Create critter in load/save-game: %s!", program->name);
+        debug_printf("\nError: attempt to Create critter in load/save-game: %s!", program->name);
         goto out;
     }
 
     if (pid == 0) {
-        debugPrint("\nError: attempt to Create critter With PID of 0: %s!", program->name);
+        debug_printf("\nError: attempt to Create critter With PID of 0: %s!", program->name);
         goto out;
     }
 
@@ -1173,7 +1173,7 @@ static void op_destroy_object(Program* program)
 
     if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
         if (isLoadingGame()) {
-            debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
+            debug_printf("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
         }
@@ -1240,8 +1240,8 @@ static void op_display_msg(Program* program)
     configGetBool(&game_config, GAME_CONFIG_DEBUG_KEY, GAME_CONFIG_SHOW_SCRIPT_MESSAGES_KEY, &showScriptMessages);
 
     if (showScriptMessages) {
-        debugPrint("\n");
-        debugPrint(string);
+        debug_printf("\n");
+        debug_printf(string);
     }
 }
 
@@ -1688,7 +1688,7 @@ static void op_set_critter_stat(Program* program)
             stat_set_base(object, stat, currentValue + value);
         } else {
             dbg_error(program, "set_critter_stat", SCRIPT_ERROR_FOLLOWS);
-            debugPrint(" Can't modify anyone except obj_dude!");
+            debug_printf(" Can't modify anyone except obj_dude!");
             result = -1;
         }
     } else {
@@ -1945,7 +1945,7 @@ static void op_tile_distance_objs(Program* program)
             }
         } else {
             dbg_error(program, "tile_distance_objs", SCRIPT_ERROR_FOLLOWS);
-            debugPrint(" Passed a tile # instead of an object!!!BADBADBAD!");
+            debug_printf(" Passed a tile # instead of an object!!!BADBADBAD!");
         }
     }
 
@@ -2010,17 +2010,17 @@ static void op_tile_num_in_direction(Program* program)
             if (distance != 0) {
                 tile = tile_num_in_direction(origin, rotation, distance);
                 if (tile < -1) {
-                    debugPrint("\nError: %s: op_tile_num_in_direction got #: %d", program->name, tile);
+                    debug_printf("\nError: %s: op_tile_num_in_direction got #: %d", program->name, tile);
                     tile = -1;
                 }
             }
         } else {
             dbg_error(program, "tile_num_in_direction", SCRIPT_ERROR_FOLLOWS);
-            debugPrint(" rotation out of Range!");
+            debug_printf(" rotation out of Range!");
         }
     } else {
         dbg_error(program, "tile_num_in_direction", SCRIPT_ERROR_FOLLOWS);
-        debugPrint(" tileNum is -1!");
+        debug_printf(" tileNum is -1!");
     }
 
     interpretPushLong(program, tile);
@@ -2135,7 +2135,7 @@ static void op_add_obj_to_inven(Program* program)
         }
     } else {
         dbg_error(program, "add_obj_to_inven", SCRIPT_ERROR_FOLLOWS);
-        debugPrint(" Item was already attached to something else!");
+        debug_printf(" Item was already attached to something else!");
     }
 }
 
@@ -2229,7 +2229,7 @@ static void op_wield_obj_critter(Program* program)
 
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
         dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
-        debugPrint(" Only works for critters!  ERROR ERROR ERROR!");
+        debug_printf(" Only works for critters!  ERROR ERROR ERROR!");
         return;
     }
 
@@ -2253,7 +2253,7 @@ static void op_wield_obj_critter(Program* program)
 
     if (inven_wield(critter, item, hand) == -1) {
         dbg_error(program, "wield_obj_critter", SCRIPT_ERROR_FOLLOWS);
-        debugPrint(" inven_wield failed!  ERROR ERROR ERROR!");
+        debug_printf(" inven_wield failed!  ERROR ERROR ERROR!");
         return;
     }
 
@@ -2394,19 +2394,19 @@ static void op_attack(Program* program)
     }
 
     if (!critter_is_active(self) || (self->flags & OBJECT_HIDDEN) != 0) {
-        debugPrint("\n   But is already Inactive (Dead/Stunned/Invisible)");
+        debug_printf("\n   But is already Inactive (Dead/Stunned/Invisible)");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
 
     if (!critter_is_active(target) || (target->flags & OBJECT_HIDDEN) != 0) {
-        debugPrint("\n   But target is already dead or invisible");
+        debug_printf("\n   But target is already dead or invisible");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
 
     if ((target->data.critter.combat.maneuver & CRITTER_MANUEVER_FLEEING) != 0) {
-        debugPrint("\n   But target is AFRAID");
+        debug_printf("\n   But target is AFRAID");
         program->flags &= ~PROGRAM_FLAG_0x20;
         return;
     }
@@ -2680,7 +2680,7 @@ static void op_set_map_music(Program* program)
         interpretError("script error: %s: invalid arg %d to set_map_music", program->name, 2);
     }
 
-    debugPrint("\nset_map_music: %d, %s", mapIndex, string);
+    debug_printf("\nset_map_music: %d, %s", mapIndex, string);
     wmSetMapMusic(mapIndex, string);
 }
 
@@ -2717,7 +2717,7 @@ static void op_set_obj_visibility(Program* program)
     }
 
     if (isLoadingGame()) {
-        debugPrint("Error: attempt to set_obj_visibility in load/save-game: %s!", program->name);
+        debug_printf("Error: attempt to set_obj_visibility in load/save-game: %s!", program->name);
         return;
     }
 
@@ -2835,7 +2835,7 @@ static void op_wm_area_set_pos(Program* program)
 
     if (wmAreaSetWorldPos(city, x, y) == -1) {
         dbg_error(program, "wm_area_set_pos", SCRIPT_ERROR_FOLLOWS);
-        debugPrint("Invalid Parameter!");
+        debug_printf("Invalid Parameter!");
     }
 }
 
@@ -3049,7 +3049,7 @@ static void op_kill_critter(Program* program)
     }
 
     if (isLoadingGame()) {
-        debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
+        debug_printf("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
     }
 
     program->flags |= PROGRAM_FLAG_0x20;
@@ -3140,7 +3140,7 @@ static void op_kill_critter_type(Program* program)
     int deathFrame = data[0];
 
     if (isLoadingGame()) {
-        debugPrint("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
+        debug_printf("\nError: attempt to destroy critter in load/save-game: %s!", program->name);
         return;
     }
 
@@ -3160,7 +3160,7 @@ static void op_kill_critter_type(Program* program)
         if ((obj->flags & OBJECT_HIDDEN) == 0 && obj->pid == pid && !critter_is_dead(obj)) {
             if (obj == previousObj || count > 200) {
                 dbg_error(program, "kill_critter_type", SCRIPT_ERROR_FOLLOWS);
-                debugPrint(" Infinite loop destroying critters!");
+                debug_printf(" Infinite loop destroying critters!");
                 program->flags &= ~PROGRAM_FLAG_0x20;
                 return;
             }
@@ -3234,7 +3234,7 @@ static void op_critter_damage(Program* program)
 
     if (PID_TYPE(object->pid) != OBJ_TYPE_CRITTER) {
         dbg_error(program, "critter_damage", SCRIPT_ERROR_FOLLOWS);
-        debugPrint(" Can't call on non-critters!");
+        debug_printf(" Can't call on non-critters!");
         return;
     }
 
@@ -3792,18 +3792,18 @@ static void op_critter_add_trait(Program* program)
                 if (1) {
                     char* critterName = critter_name(object);
                     char* perkName = perk_name(param);
-                    debugPrint("\nintextra::critter_add_trait: Adding Perk %s to %s", perkName, critterName);
+                    debug_printf("\nintextra::critter_add_trait: Adding Perk %s to %s", perkName, critterName);
 
                     if (value > 0) {
                         if (perk_add_force(object, param) != 0) {
                             int_debug("\nScript Error: %s: op_critter_add_trait: perk_add_force failed", program->name);
-                            debugPrint("Perk: %d", param);
+                            debug_printf("Perk: %d", param);
                         }
                     } else {
                         if (perk_sub(object, param) != 0) {
                             // FIXME: typo in debug message, should be perk_sub
                             int_debug("\nScript Error: %s: op_critter_add_trait: per_sub failed", program->name);
-                            debugPrint("Perk: %d", param);
+                            debug_printf("Perk: %d", param);
                         }
                     }
 
@@ -3966,7 +3966,7 @@ static void op_message_str(Program* program)
     if (messageIndex >= 1) {
         string = scr_get_msg_str_speech(messageListIndex, messageIndex, 1);
         if (string == NULL) {
-            debugPrint("\nError: No message file EXISTS!: index %d, line %d", messageListIndex, messageIndex);
+            debug_printf("\nError: No message file EXISTS!: index %d, line %d", messageListIndex, messageIndex);
             string = errStr;
         }
     } else {
@@ -4033,7 +4033,7 @@ static void op_critter_inven_obj(Program* program)
         }
     } else {
         dbg_error(program, "critter_inven_obj", SCRIPT_ERROR_FOLLOWS);
-        debugPrint("  Not a critter!");
+        debug_printf("  Not a critter!");
     }
 
     interpretPushLong(program, result);
@@ -4339,7 +4339,7 @@ static void op_metarule(Program* program)
         break;
     case METARULE_CURRENT_TOWN:
         if (wmGetPartyCurArea(&result) == -1) {
-            debugPrint("\nIntextra: Error: metarule: current_town");
+            debug_printf("\nIntextra: Error: metarule: current_town");
         }
         break;
     case METARULE_LANGUAGE_FILTER:
@@ -4364,7 +4364,7 @@ static void op_metarule(Program* program)
             }
 
             dbg_error(program, "metarule:w_damage_type", SCRIPT_ERROR_FOLLOWS);
-            debugPrint("Not a weapon!");
+            debug_printf("Not a weapon!");
         }
         break;
     case METARULE_CRITTER_BARTERS:
@@ -4792,7 +4792,7 @@ static void op_play_gmovie(Program* program)
     gdialogDisableBK();
 
     if (gmovie_play(data, word_453F9C[data]) == -1) {
-        debugPrint("\nError playing movie %d!", data);
+        debug_printf("\nError playing movie %d!", data);
     }
 
     gdialogEnableBK();
@@ -4936,7 +4936,7 @@ static void op_explosion(Program* program)
     int maxDamage = data[0];
 
     if (tile == -1) {
-        debugPrint("\nError: explosion: bad tile_num!");
+        debug_printf("\nError: explosion: bad tile_num!");
         return;
     }
 
@@ -5243,7 +5243,7 @@ static void op_poison(Program* program)
     }
 
     if (critter_adjust_poison(obj, amount) != 0) {
-        debugPrint("\nScript Error: poison: adjust failed!");
+        debug_printf("\nScript Error: poison: adjust failed!");
     }
 }
 
@@ -5268,7 +5268,7 @@ static void op_get_poison(Program* program)
         if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
             poison = critter_get_poison(obj);
         } else {
-            debugPrint("\nScript Error: get_poison: who is not a critter!");
+            debug_printf("\nScript Error: get_poison: who is not a critter!");
         }
     } else {
         dbg_error(program, "get_poison", SCRIPT_ERROR_OBJECT_IS_NULL);
@@ -5424,7 +5424,7 @@ static void op_gdialog_barter(Program* program)
     }
 
     if (gdActivateBarter(data) == -1) {
-        debugPrint("\nScript Error: gdialog_barter: failed");
+        debug_printf("\nScript Error: gdialog_barter: failed");
     }
 }
 
@@ -5808,7 +5808,7 @@ static void op_reg_anim_play_sfx(Program* program)
     char* soundEffectName = interpretGetString(program, opcode[1], name);
     if (soundEffectName == NULL) {
         dbg_error(program, "reg_anim_play_sfx", SCRIPT_ERROR_FOLLOWS);
-        debugPrint(" Can't match string!");
+        debug_printf(" Can't match string!");
     }
 
     if (obj != NULL) {
@@ -5873,7 +5873,7 @@ static void op_critter_mod_skill(Program* program)
                 }
             } else {
                 dbg_error(program, "critter_mod_skill", SCRIPT_ERROR_FOLLOWS);
-                debugPrint(" Can't modify anyone except obj_dude!");
+                debug_printf(" Can't modify anyone except obj_dude!");
             }
         }
     } else {
@@ -6125,19 +6125,19 @@ static void op_attack_setup(Program* program)
 
     if (attacker != NULL) {
         if (!critter_is_active(attacker) || (attacker->flags & OBJECT_HIDDEN) != 0) {
-            debugPrint("\n   But is already dead or invisible");
+            debug_printf("\n   But is already dead or invisible");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
         }
 
         if (!critter_is_active(defender) || (defender->flags & OBJECT_HIDDEN) != 0) {
-            debugPrint("\n   But target is already dead or invisible");
+            debug_printf("\n   But target is already dead or invisible");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
         }
 
         if ((defender->data.critter.combat.maneuver & CRITTER_MANUEVER_FLEEING) != 0) {
-            debugPrint("\n   But target is AFRAID");
+            debug_printf("\n   But target is AFRAID");
             program->flags &= ~PROGRAM_FLAG_0x20;
             return;
         }
@@ -6555,7 +6555,7 @@ static void op_obj_on_screen(Program* program)
         dbg_error(program, "obj_on_screen", SCRIPT_ERROR_OBJECT_IS_NULL);
     }
 
-    //debugPrint("ObjOnScreen: %d\n", result);
+    //debug_printf("ObjOnScreen: %d\n", result);
     interpretPushLong(program, result);
     interpretPushShort(program, VALUE_TYPE_INT);
 }
@@ -6656,8 +6656,8 @@ static void op_debug_msg(Program* program)
         bool showScriptMessages = false;
         configGetBool(&game_config, GAME_CONFIG_DEBUG_KEY, GAME_CONFIG_SHOW_SCRIPT_MESSAGES_KEY, &showScriptMessages);
         if (showScriptMessages) {
-            debugPrint("\n");
-            debugPrint(string);
+            debug_printf("\n");
+            debug_printf(string);
         }
     }
 }

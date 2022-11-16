@@ -323,7 +323,7 @@ int obj_init(unsigned char* buf, int width, int height, int pitch)
     obj_set_light(obj_dude, 4, 0x10000, NULL);
 
     if (partyMemberAdd(obj_dude) == -1) {
-        debugPrint("\n  Error: Can't add Player into party!");
+        debug_printf("\n  Error: Can't add Player into party!");
         exit(1);
     }
 
@@ -513,7 +513,7 @@ static int obj_load_func(File* stream)
                 Script* script;
                 if (scr_ptr(objectListNode->obj->sid, &script) == -1) {
                     objectListNode->obj->sid = -1;
-                    debugPrint("\nError connecting object to script!");
+                    debug_printf("\nError connecting object to script!");
                 } else {
                     script->owner = objectListNode->obj;
                     objectListNode->obj->field_80 = script->field_14;
@@ -539,19 +539,19 @@ static int obj_load_func(File* stream)
                 for (int inventoryItemIndex = 0; inventoryItemIndex < inventory->length; inventoryItemIndex++) {
                     InventoryItem* inventoryItem = &(inventory->items[inventoryItemIndex]);
                     if (fileReadInt32(stream, &(inventoryItem->quantity)) != 0) {
-                        debugPrint("Error loading inventory\n");
+                        debug_printf("Error loading inventory\n");
                         return -1;
                     }
 
                     if (fixMapInventory) {
                         inventoryItem->item = (Object*)internal_malloc(sizeof(Object));
                         if (inventoryItem->item == NULL) {
-                            debugPrint("Error loading inventory\n");
+                            debug_printf("Error loading inventory\n");
                             return -1;
                         }
 
                         if (obj_read_obj(inventoryItem->item, stream) != 0) {
-                            debugPrint("Error loading inventory\n");
+                            debug_printf("Error loading inventory\n");
                             return -1;
                         }
                     } else {
@@ -606,7 +606,7 @@ static void object_fix_weapon_ammo(Object* obj)
 
     Proto* proto;
     if (proto_ptr(obj->pid, &proto) == -1) {
-        debugPrint("\nError: obj_load: proto_ptr failed on pid");
+        debug_printf("\nError: obj_load: proto_ptr failed on pid");
         exit(1);
     }
 
@@ -629,7 +629,7 @@ static void object_fix_weapon_ammo(Object* obj)
                 charges = proto->item.data.misc.charges;
                 obj->data.item.misc.charges = charges;
                 if (charges == 0xCCCCCCCC) {
-                    debugPrint("\nError: Misc Item Prototype %s: charges incorrect!", proto_name(obj->pid));
+                    debug_printf("\nError: Misc Item Prototype %s: charges incorrect!", proto_name(obj->pid));
                     obj->data.item.misc.charges = 0;
                 }
             } else {
@@ -3560,7 +3560,7 @@ int obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner)
     obj_fix_violence_settings(&(obj->fid));
 
     if (!art_fid_valid(obj->fid)) {
-        debugPrint("\nError: invalid object art fid: %u\n", obj->fid);
+        debug_printf("\nError: invalid object art fid: %u\n", obj->fid);
         // NOTE: Uninline.
         obj_destroy_object(&obj);
         return -2;
@@ -3685,7 +3685,7 @@ int obj_load_dude(File* stream)
     temp->flags &= ~OBJECT_FLAG_0x400;
 
     if (obj_erase_object(temp, NULL) == -1) {
-        debugPrint("\nError: obj_load_dude: Can't destroy temp object!\n");
+        debug_printf("\nError: obj_load_dude: Can't destroy temp object!\n");
     }
 
     inven_reset_dude();

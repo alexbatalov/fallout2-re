@@ -669,7 +669,7 @@ static bool select_update_display()
     char path[FILENAME_MAX];
     sprintf(path, "%s.gcd", premade_characters[premade_index].fileName);
     if (proto_dude_init(path) == -1) {
-        debugPrint("\n ** Error in dude init! **\n");
+        debug_printf("\n ** Error in dude init! **\n");
         return false;
     }
 

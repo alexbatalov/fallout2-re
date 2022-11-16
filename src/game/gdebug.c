@@ -1,6 +1,8 @@
 #include "game/gdebug.h"
 
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "plib/gnw/debug.h"
 #include "window_manager.h"
@@ -10,8 +12,8 @@ void fatal_error(const char* format, const char* message, const char* file, int 
 {
     char stringBuffer[260];
 
-    debugPrint("\n");
-    debugPrint(format, message, file, line);
+    debug_printf("\n");
+    debug_printf(format, message, file, line);
 
     windowManagerExit();
 

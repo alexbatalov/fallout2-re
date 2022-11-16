@@ -115,7 +115,7 @@ int critter_init()
     critter_kill_count_clear();
 
     if (!message_init(&critter_scrmsg_file)) {
-        debugPrint("\nError: Initing critter name message file!");
+        debug_printf("\nError: Initing critter name message file!");
         return -1;
     }
 
@@ -123,7 +123,7 @@ int critter_init()
     sprintf(path, "%sscrname.msg", msg_path);
 
     if (!message_load(&critter_scrmsg_file, path)) {
-        debugPrint("\nError: Loading critter name message file!");
+        debug_printf("\nError: Loading critter name message file!");
         return -1;
     }
 
@@ -804,14 +804,14 @@ void critter_kill(Object* critter, int anim, bool a3)
         }
 
         if (anim > LAST_SF_DEATH_ANIM) {
-            debugPrint("\nError: Critter Kill: death_frame out of range!");
+            debug_printf("\nError: Critter Kill: death_frame out of range!");
             anim = LAST_SF_DEATH_ANIM;
         }
 
         fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, anim, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
         obj_fix_violence_settings(&fid);
         if (!art_exists(fid)) {
-            debugPrint("\nError: Critter Kill: Can't match fid!");
+            debug_printf("\nError: Critter Kill: Can't match fid!");
 
             fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_FALL_BACK_BLOOD_SF, (critter->fid & 0xF000) >> 12, critter->rotation + 1);
             obj_fix_violence_settings(&fid);
@@ -956,7 +956,7 @@ bool critter_is_prone(Object* critter)
 int critter_body_type(Object* critter)
 {
     if (critter == NULL) {
-        debugPrint("\nError: critter_body_type: pobj was NULL!");
+        debug_printf("\nError: critter_body_type: pobj was NULL!");
         return 0;
     }
 

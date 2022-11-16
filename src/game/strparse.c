@@ -94,7 +94,7 @@ int strParseStrFromList(char** stringPtr, int* valuePtr, const char** stringList
     }
 
     if (i == stringListLength) {
-        debugPrint("\nstrParseStrFromList Error: Couldn't find match for string: %s!", str);
+        debug_printf("\nstrParseStrFromList Error: Couldn't find match for string: %s!", str);
         *valuePtr = -1;
         return -1;
     }
@@ -146,7 +146,7 @@ int strParseStrFromFunc(char** stringPtr, int* valuePtr, StringParserCallback* c
     }
 
     if (result != 0) {
-        debugPrint("\nstrParseStrFromFunc Error: Couldn't find match for string: %s!", str);
+        debug_printf("\nstrParseStrFromFunc Error: Couldn't find match for string: %s!", str);
         *valuePtr = -1;
         return -1;
     }

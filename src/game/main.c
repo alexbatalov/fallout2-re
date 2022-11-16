@@ -155,7 +155,7 @@ int RealMain(int argc, char** argv)
                     palette_fade_to(cmap);
                     int loadGameRc = LoadGame(LOAD_SAVE_MODE_FROM_MAIN_MENU);
                     if (loadGameRc == -1) {
-                        debugPrint("\n ** Error running LoadGame()! **\n");
+                        debug_printf("\n ** Error running LoadGame()! **\n");
                     } else if (loadGameRc != 0) {
                         windowDestroy(win);
                         win = -1;
@@ -180,7 +180,7 @@ int RealMain(int argc, char** argv)
                 }
                 break;
             case MAIN_MENU_TIMEOUT:
-                debugPrint("Main menu timed-out\n");
+                debug_printf("Main menu timed-out\n");
                 // FALLTHROUGH
             case MAIN_MENU_SCREENSAVER:
                 main_selfrun_play();
@@ -539,7 +539,7 @@ static void main_death_scene()
             if (subtitles != 0) {
                 char text[512];
                 if (mainDeathGrabTextFile(deathFileName, text) == 0) {
-                    debugPrint("\n((ShowDeath)): %s\n", text);
+                    debug_printf("\n((ShowDeath)): %s\n", text);
 
                     short beginnings[WORD_WRAP_MAX_COUNT];
                     short count;
@@ -623,7 +623,7 @@ static int mainDeathGrabTextFile(const char* fileName, char* dest)
 
     char* language = NULL;
     if (!config_get_string(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
-        debugPrint("MAIN: Error grabing language for ending. Defaulting to english.\n");
+        debug_printf("MAIN: Error grabing language for ending. Defaulting to english.\n");
         language = _aEnglish_2;
     }
 

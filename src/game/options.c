@@ -383,7 +383,7 @@ int do_options()
 int do_optionsFunc(int initialKeyCode)
 {
     if (OptnStart() == -1) {
-        debugPrint("\nOPTION MENU: Error loading option dialog data!\n");
+        debug_printf("\nOPTION MENU: Error loading option dialog data!\n");
         return -1;
     }
 
@@ -650,7 +650,7 @@ int PauseWindow(bool a1)
                 art_ptr_unlock(frmHandles[index]);
             }
 
-            debugPrint("\n** Error loading pause window graphics! **\n");
+            debug_printf("\n** Error loading pause window graphics! **\n");
             return -1;
         }
     }
@@ -690,7 +690,7 @@ int PauseWindow(bool a1)
 
         message_exit(&optn_msgfl);
 
-        debugPrint("\n** Error opening pause window! **\n");
+        debug_printf("\n** Error opening pause window! **\n");
         return -1;
     }
 
@@ -827,7 +827,7 @@ static void ShadeScreen(bool a1)
 static int do_prefscreen()
 {
     if (PrefStart() == -1) {
-        debugPrint("\nPREFERENCE MENU: Error loading preference dialog data!\n");
+        debug_printf("\nPREFERENCE MENU: Error loading preference dialog data!\n");
         return -1;
     }
 
@@ -1931,7 +1931,7 @@ int save_options(File* stream)
 
 err:
 
-    debugPrint("\nOPTION MENU: Error save option data!\n");
+    debug_printf("\nOPTION MENU: Error save option data!\n");
 
     return -1;
 }
@@ -1977,7 +1977,7 @@ int load_options(File* stream)
 
 err:
 
-    debugPrint("\nOPTION MENU: Error loading option data!, using defaults.\n");
+    debug_printf("\nOPTION MENU: Error loading option data!, using defaults.\n");
 
     SetDefaults(false);
     JustUpdate();

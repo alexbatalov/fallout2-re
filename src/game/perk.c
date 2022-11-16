@@ -269,7 +269,7 @@ PerkRankData* perkGetLevelData(Object* critter)
         }
     }
 
-    debugPrint("\nError: perkGetLevelData: Can't find party member match!");
+    debug_printf("\nError: perkGetLevelData: Can't find party member match!");
 
     return perkLevelDataList;
 }
@@ -530,7 +530,7 @@ int perk_skilldex_fid(int perk)
 void perk_add_effect(Object* critter, int perk)
 {
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
-        debugPrint("\nERROR: perk_add_effect: Was called on non-critter!");
+        debug_printf("\nERROR: perk_add_effect: Was called on non-critter!");
         return;
     }
 
@@ -570,7 +570,7 @@ void perk_add_effect(Object* critter, int perk)
 void perk_remove_effect(Object* critter, int perk)
 {
     if (PID_TYPE(critter->pid) != OBJ_TYPE_CRITTER) {
-        debugPrint("\nERROR: perk_remove_effect: Was called on non-critter!");
+        debug_printf("\nERROR: perk_remove_effect: Was called on non-critter!");
         return;
     }
 

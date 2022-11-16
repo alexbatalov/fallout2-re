@@ -2477,7 +2477,7 @@ static int construct_box_bar_win()
     }
 
     if (rc == -1) {
-        debugPrint("\nINTRFACE: Error indicator box messages! **\n");
+        debug_printf("\nINTRFACE: Error indicator box messages! **\n");
         return -1;
     }
 
@@ -2487,7 +2487,7 @@ static int construct_box_bar_win()
     int indicatorBoxFid = art_id(OBJ_TYPE_INTERFACE, 126, 0, 0, 0);
     unsigned char* indicatorBoxFrmData = art_lock(indicatorBoxFid, &indicatorBoxFrmHandle, &width, &height);
     if (indicatorBoxFrmData == NULL) {
-        debugPrint("\nINTRFACE: Error initializing indicator box graphics! **\n");
+        debug_printf("\nINTRFACE: Error initializing indicator box graphics! **\n");
         message_exit(&messageList);
         return -1;
     }
@@ -2497,7 +2497,7 @@ static int construct_box_bar_win()
 
         indicatorDescription->data = (unsigned char*)internal_malloc(INDICATOR_BOX_WIDTH * INDICATOR_BOX_HEIGHT);
         if (indicatorDescription->data == NULL) {
-            debugPrint("\nINTRFACE: Error initializing indicator box graphics! **");
+            debug_printf("\nINTRFACE: Error initializing indicator box graphics! **");
 
             while (--index >= 0) {
                 internal_free(bbox[index].data);
@@ -2725,7 +2725,7 @@ static bool add_bar_box(int indicator)
         }
     }
 
-    debugPrint("\nINTRFACE: no free bar box slots!\n");
+    debug_printf("\nINTRFACE: no free bar box slots!\n");
 
     return false;
 }

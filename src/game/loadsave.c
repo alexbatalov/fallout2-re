@@ -316,7 +316,7 @@ void InitLoadSave()
     slot_cursor = 0;
 
     if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &patches)) {
-        debugPrint("\nLOADSAVE: Error reading patches config variable! Using default.\n");
+        debug_printf("\nLOADSAVE: Error reading patches config variable! Using default.\n");
         patches = emgpath;
     }
 
@@ -342,7 +342,7 @@ int SaveGame(int mode)
     ls_error_code = 0;
 
     if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &patches)) {
-        debugPrint("\nLOADSAVE: Error reading patches config variable! Using default.\n");
+        debug_printf("\nLOADSAVE: Error reading patches config variable! Using default.\n");
         patches = emgpath;
     }
 
@@ -408,7 +408,7 @@ int SaveGame(int mode)
         ? LOAD_SAVE_WINDOW_TYPE_PICK_QUICK_SAVE_SLOT
         : LOAD_SAVE_WINDOW_TYPE_SAVE_GAME;
     if (LSGameStart(windowType) == -1) {
-        debugPrint("\nLOADSAVE: ** Error loading save game screen data! **\n");
+        debug_printf("\nLOADSAVE: ** Error loading save game screen data! **\n");
         return -1;
     }
 
@@ -685,7 +685,7 @@ int SaveGame(int mode)
             if (v50 == -1) {
                 gmouse_set_cursor(MOUSE_CURSOR_ARROW);
                 gsound_play_sfx_file("iisxxxx1");
-                debugPrint("\nLOADSAVE: ** Error getting save file comment **\n");
+                debug_printf("\nLOADSAVE: ** Error getting save file comment **\n");
 
                 // Error saving game!
                 strcpy(str0, getmsg(&lsgame_msgfl, &lsgmesg, 132));
@@ -832,7 +832,7 @@ int LoadGame(int mode)
     ls_error_code = 0;
 
     if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &patches)) {
-        debugPrint("\nLOADSAVE: Error reading patches config variable! Using default.\n");
+        debug_printf("\nLOADSAVE: Error reading patches config variable! Using default.\n");
         patches = emgpath;
     }
 
@@ -904,7 +904,7 @@ int LoadGame(int mode)
     }
 
     if (LSGameStart(windowType) == -1) {
-        debugPrint("\nLOADSAVE: ** Error loading save game screen data! **\n");
+        debug_printf("\nLOADSAVE: ** Error loading save game screen data! **\n");
         return -1;
     }
 
@@ -1479,17 +1479,17 @@ static int SaveSlot()
     mkdir(gmpath);
 
     if (SaveBackup() == -1) {
-        debugPrint("\nLOADSAVE: Warning, can't backup save file!\n");
+        debug_printf("\nLOADSAVE: Warning, can't backup save file!\n");
     }
 
     sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
     strcat(gmpath, "SAVE.DAT");
 
-    debugPrint("\nLOADSAVE: Save name: %s\n", gmpath);
+    debug_printf("\nLOADSAVE: Save name: %s\n", gmpath);
 
     flptr = fileOpen(gmpath, "wb");
     if (flptr == NULL) {
-        debugPrint("\nLOADSAVE: ** Error opening save game for writing! **\n");
+        debug_printf("\nLOADSAVE: ** Error opening save game for writing! **\n");
         RestoreSave();
         sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
         MapDirErase(gmpath, "BAK");
@@ -1500,8 +1500,8 @@ static int SaveSlot()
 
     long pos = fileTell(flptr);
     if (SaveHeader(slot_cursor) == -1) {
-        debugPrint("\nLOADSAVE: ** Error writing save game header! **\n");
-        debugPrint("LOADSAVE: Save file header size written: %d bytes.\n", fileTell(flptr) - pos);
+        debug_printf("\nLOADSAVE: ** Error writing save game header! **\n");
+        debug_printf("LOADSAVE: Save file header size written: %d bytes.\n", fileTell(flptr) - pos);
         fileClose(flptr);
         RestoreSave();
         sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
@@ -1515,7 +1515,7 @@ static int SaveSlot()
         long pos = fileTell(flptr);
         SaveGameHandler* handler = master_save_list[index];
         if (handler(flptr) == -1) {
-            debugPrint("\nLOADSAVE: ** Error writing save function #%d data! **\n", index);
+            debug_printf("\nLOADSAVE: ** Error writing save function #%d data! **\n", index);
             fileClose(flptr);
             RestoreSave();
             sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
@@ -1525,10 +1525,10 @@ static int SaveSlot()
             return -1;
         }
 
-        debugPrint("LOADSAVE: Save function #%d data size written: %d bytes.\n", index, fileTell(flptr) - pos);
+        debug_printf("LOADSAVE: Save function #%d data size written: %d bytes.\n", index, fileTell(flptr) - pos);
     }
 
-    debugPrint("LOADSAVE: Total save data written: %ld bytes.\n", fileTell(flptr));
+    debug_printf("LOADSAVE: Total save data written: %ld bytes.\n", fileTell(flptr));
 
     fileClose(flptr);
 
@@ -1539,7 +1539,7 @@ static int SaveSlot()
     if (message_search(&lsgame_msgfl, &lsgmesg)) {
         display_print(lsgmesg.text);
     } else {
-        debugPrint("\nError: Couldn't find LoadSave Message!");
+        debug_printf("\nError: Couldn't find LoadSave Message!");
     }
 
     gsound_background_unpause();
@@ -1568,43 +1568,43 @@ static int LoadSlot(int slot)
     strcat(gmpath, "SAVE.DAT");
 
     LoadSaveSlotData* ptr = &(LSData[slot]);
-    debugPrint("\nLOADSAVE: Load name: %s\n", ptr->description);
+    debug_printf("\nLOADSAVE: Load name: %s\n", ptr->description);
 
     flptr = fileOpen(gmpath, "rb");
     if (flptr == NULL) {
-        debugPrint("\nLOADSAVE: ** Error opening load game file for reading! **\n");
+        debug_printf("\nLOADSAVE: ** Error opening load game file for reading! **\n");
         loadingGame = 0;
         return -1;
     }
 
     long pos = fileTell(flptr);
     if (LoadHeader(slot) == -1) {
-        debugPrint("\nLOADSAVE: ** Error reading save  game header! **\n");
+        debug_printf("\nLOADSAVE: ** Error reading save  game header! **\n");
         fileClose(flptr);
         game_reset();
         loadingGame = 0;
         return -1;
     }
 
-    debugPrint("LOADSAVE: Load file header size read: %d bytes.\n", fileTell(flptr) - pos);
+    debug_printf("LOADSAVE: Load file header size read: %d bytes.\n", fileTell(flptr) - pos);
 
     for (int index = 0; index < LOAD_SAVE_HANDLER_COUNT; index += 1) {
         long pos = fileTell(flptr);
         LoadGameHandler* handler = master_load_list[index];
         if (handler(flptr) == -1) {
-            debugPrint("\nLOADSAVE: ** Error reading load function #%d data! **\n", index);
+            debug_printf("\nLOADSAVE: ** Error reading load function #%d data! **\n", index);
             int v12 = fileTell(flptr);
-            debugPrint("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(flptr) - pos);
+            debug_printf("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(flptr) - pos);
             fileClose(flptr);
             game_reset();
             loadingGame = 0;
             return -1;
         }
 
-        debugPrint("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(flptr) - pos);
+        debug_printf("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(flptr) - pos);
     }
 
-    debugPrint("LOADSAVE: Total load data read: %ld bytes.\n", fileTell(flptr));
+    debug_printf("LOADSAVE: Total load data read: %ld bytes.\n", fileTell(flptr));
     fileClose(flptr);
 
     sprintf(str, "%s\\", "MAPS");
@@ -1616,7 +1616,7 @@ static int LoadSlot(int slot)
     if (message_search(&lsgame_msgfl, &lsgmesg) == 1) {
         display_print(lsgmesg.text);
     } else {
-        debugPrint("\nError: Couldn't find LoadSave Message!");
+        debug_printf("\nError: Couldn't find LoadSave Message!");
     }
 
     loadingGame = 0;
@@ -1746,7 +1746,7 @@ static int LoadHeader(int slot)
     }
 
     if (strncmp(ptr->signature, LOAD_SAVE_SIGNATURE, 18) != 0) {
-        debugPrint("\nLOADSAVE: ** Invalid save file on load! **\n");
+        debug_printf("\nLOADSAVE: ** Invalid save file on load! **\n");
         ls_error_code = 2;
         return -1;
     }
@@ -1764,7 +1764,7 @@ static int LoadHeader(int slot)
     }
 
     if (ptr->versionMinor != 1 || ptr->versionMajor != 2 || ptr->versionRelease != 'R') {
-        debugPrint("\nLOADSAVE: Load slot #%d Version: %d.%d%c\n", slot, ptr->versionMinor, ptr->versionMajor, ptr->versionRelease);
+        debug_printf("\nLOADSAVE: Load slot #%d Version: %d.%d%c\n", slot, ptr->versionMinor, ptr->versionMajor, ptr->versionRelease);
         ls_error_code = 1;
         return -1;
     }
@@ -1840,16 +1840,16 @@ static int GetSlotList()
             flptr = fileOpen(str, "rb");
 
             if (flptr == NULL) {
-                debugPrint("\nLOADSAVE: ** Error opening save  game for reading! **\n");
+                debug_printf("\nLOADSAVE: ** Error opening save  game for reading! **\n");
                 return -1;
             }
 
             if (LoadHeader(index) == -1) {
                 if (ls_error_code == 1) {
-                    debugPrint("LOADSAVE: ** save file #%d is an older version! **\n", slot_cursor);
+                    debug_printf("LOADSAVE: ** save file #%d is an older version! **\n", slot_cursor);
                     LSstatus[index] = SLOT_STATE_UNSUPPORTED_VERSION;
                 } else {
-                    debugPrint("LOADSAVE: ** Save file #%d corrupt! **", index);
+                    debug_printf("LOADSAVE: ** Save file #%d corrupt! **", index);
                     LSstatus[index] = SLOT_STATE_ERROR;
                 }
             } else {
@@ -1982,22 +1982,22 @@ static int LoadTumbSlot(int a1)
     v2 = LSstatus[slot_cursor];
     if (v2 != 0 && v2 != 2 && v2 != 3) {
         sprintf(str, "%s\\%s%.2d\\%s", "SAVEGAME", "SLOT", slot_cursor + 1, "SAVE.DAT");
-        debugPrint(" Filename %s\n", str);
+        debug_printf(" Filename %s\n", str);
 
         stream = fileOpen(str, "rb");
         if (stream == NULL) {
-            debugPrint("\nLOADSAVE: ** (A) Error reading thumbnail #%d! **\n", a1);
+            debug_printf("\nLOADSAVE: ** (A) Error reading thumbnail #%d! **\n", a1);
             return -1;
         }
 
         if (fileSeek(stream, 131, SEEK_SET) != 0) {
-            debugPrint("\nLOADSAVE: ** (B) Error reading thumbnail #%d! **\n", a1);
+            debug_printf("\nLOADSAVE: ** (B) Error reading thumbnail #%d! **\n", a1);
             fileClose(stream);
             return -1;
         }
 
         if (fileRead(thumbnail_image[0], LS_PREVIEW_SIZE, 1, stream) != 1) {
-            debugPrint("\nLOADSAVE: ** (C) Error reading thumbnail #%d! **\n", a1);
+            debug_printf("\nLOADSAVE: ** (C) Error reading thumbnail #%d! **\n", a1);
             fileClose(stream);
             return -1;
         }
@@ -2366,35 +2366,35 @@ static int GameMap2Slot(File* stream)
 // 0x47F990
 static int SlotMap2Game(File* stream)
 {
-    debugPrint("LOADSAVE: in SlotMap2Game\n");
+    debug_printf("LOADSAVE: in SlotMap2Game\n");
 
     int fileNameListLength;
     if (fileReadInt32(stream, &fileNameListLength) == -1) {
-        debugPrint("LOADSAVE: returning 1\n");
+        debug_printf("LOADSAVE: returning 1\n");
         return -1;
     }
 
     if (fileNameListLength == 0) {
-        debugPrint("LOADSAVE: returning 2\n");
+        debug_printf("LOADSAVE: returning 2\n");
         return -1;
     }
 
     sprintf(str0, "%s\\", "PROTO\\CRITTERS");
 
     if (MapDirErase(str0, "PRO") == -1) {
-        debugPrint("LOADSAVE: returning 3\n");
+        debug_printf("LOADSAVE: returning 3\n");
         return -1;
     }
 
     sprintf(str0, "%s\\", "PROTO\\ITEMS");
     if (MapDirErase(str0, "PRO") == -1) {
-        debugPrint("LOADSAVE: returning 4\n");
+        debug_printf("LOADSAVE: returning 4\n");
         return -1;
     }
 
     sprintf(str0, "%s\\", "MAPS");
     if (MapDirErase(str0, "SAV") == -1) {
-        debugPrint("LOADSAVE: returning 5\n");
+        debug_printf("LOADSAVE: returning 5\n");
         return -1;
     }
 
@@ -2413,7 +2413,7 @@ static int SlotMap2Game(File* stream)
                 sprintf(str1, "%s\\%s\\%s%.2d\\%s\\%s", patches, "SAVEGAME", "SLOT", slot_cursor + 1, basePath, protoPath);
 
                 if (gzdecompress_file(str1, str0) == -1) {
-                    debugPrint("LOADSAVE: returning 6\n");
+                    debug_printf("LOADSAVE: returning 6\n");
                     return -1;
                 }
             }
@@ -2430,7 +2430,7 @@ static int SlotMap2Game(File* stream)
         sprintf(str1, "%s\\%s\\%s", patches, "MAPS", fileName);
 
         if (gzdecompress_file(str0, str1) == -1) {
-            debugPrint("LOADSAVE: returning 7\n");
+            debug_printf("LOADSAVE: returning 7\n");
             return -1;
         }
     }
@@ -2439,7 +2439,7 @@ static int SlotMap2Game(File* stream)
     sprintf(str0, "%s\\%s\\%s%.2d\\%s", patches, "SAVEGAME", "SLOT", slot_cursor + 1, automapFileName);
     sprintf(str1, "%s\\%s\\%s", patches, "MAPS", "AUTOMAP.DB");
     if (gzRealUncompressCopyReal_file(str0, str1) == -1) {
-        debugPrint("LOADSAVE: returning 8\n");
+        debug_printf("LOADSAVE: returning 8\n");
         return -1;
     }
 
@@ -2447,12 +2447,12 @@ static int SlotMap2Game(File* stream)
 
     int v12;
     if (fileReadInt32(stream, &v12) == -1) {
-        debugPrint("LOADSAVE: returning 9\n");
+        debug_printf("LOADSAVE: returning 9\n");
         return -1;
     }
 
     if (map_load_in_game(LSData[slot_cursor].fileName) == -1) {
-        debugPrint("LOADSAVE: returning 13\n");
+        debug_printf("LOADSAVE: returning 13\n");
         return -1;
     }
 
@@ -2600,7 +2600,7 @@ int MapDirEraseFile(const char* a1, const char* a2)
 // 0x480104
 static int SaveBackup()
 {
-    debugPrint("\nLOADSAVE: Backing up save slot files..\n");
+    debug_printf("\nLOADSAVE: Backing up save slot files..\n");
 
     sprintf(gmpath, "%s\\%s\\%s%.2d\\", patches, "SAVEGAME", "SLOT", slot_cursor + 1);
     strcpy(str0, gmpath);
@@ -2642,7 +2642,7 @@ static int SaveBackup()
 
     fileNameListFree(&fileList, 0);
 
-    debugPrint("\nLOADSAVE: %d map files backed up.\n", fileListLength);
+    debug_printf("\nLOADSAVE: %d map files backed up.\n", fileListLength);
 
     sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
 
@@ -2671,7 +2671,7 @@ static int SaveBackup()
 // 0x4803D8
 static int RestoreSave()
 {
-    debugPrint("\nLOADSAVE: Restoring save file backup...\n");
+    debug_printf("\nLOADSAVE: Restoring save file backup...\n");
 
     EraseSave();
 
@@ -2761,7 +2761,7 @@ static int SaveObjDudeCid(File* stream)
 // 0x480754
 static int EraseSave()
 {
-    debugPrint("\nLOADSAVE: Erasing save(bad) slot...\n");
+    debug_printf("\nLOADSAVE: Erasing save(bad) slot...\n");
 
     sprintf(gmpath, "%s\\%s\\%s%.2d\\", patches, "SAVEGAME", "SLOT", slot_cursor + 1);
     strcpy(str0, gmpath);

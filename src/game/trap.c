@@ -49,13 +49,13 @@ static void trap_report(int trap, int address, const char* file, int line)
     TrapEntry* entry;
 
     entry = &(off_51DC44[trap]);
-    debugPrint("TRAPPED A STOMP ERROR:\n");
-    debugPrint("Stomp caught by check on line %d", line);
-    debugPrint(" of module %s.\n", file);
-    debugPrint("Data stomped was in trap %s", entry->name);
-    debugPrint(" at address %p.\n", entry->address);
-    debugPrint("See comment in trap.c for suggestions on better");
-    debugPrint(" isolating the stomp bug.\n");
+    debug_printf("TRAPPED A STOMP ERROR:\n");
+    debug_printf("Stomp caught by check on line %d", line);
+    debug_printf(" of module %s.\n", file);
+    debug_printf("Data stomped was in trap %s", entry->name);
+    debug_printf(" at address %p.\n", entry->address);
+    debug_printf("See comment in trap.c for suggestions on better");
+    debug_printf(" isolating the stomp bug.\n");
     showMesageBox("STOMPED!");
     exit(1);
 }
@@ -66,16 +66,16 @@ static void duplicate_report(int trap, int offset, const char* file, int line)
     DuplicateEntry* entry;
 
     entry = &(stru_66BE48[trap]);
-    debugPrint("TRAPPED A STOMP ERROR:\n");
-    debugPrint("Stomp caught by check on line %d", line);
-    debugPrint(" of module %s.\n", file);
-    debugPrint("Data stomped was in trap %s", entry->name);
-    debugPrint(" at address %p.\n", entry->address + offset);
-    debugPrint("This is duplicate trap number %d", trap);
-    debugPrint(" at an internal offset of %d.\n", offset);
-    debugPrint("Trap size is %d.\n", entry->size);
-    debugPrint("See comment in trap.c for suggestions on better");
-    debugPrint(" isolating the stomp bug.\n");
+    debug_printf("TRAPPED A STOMP ERROR:\n");
+    debug_printf("Stomp caught by check on line %d", line);
+    debug_printf(" of module %s.\n", file);
+    debug_printf("Data stomped was in trap %s", entry->name);
+    debug_printf(" at address %p.\n", entry->address + offset);
+    debug_printf("This is duplicate trap number %d", trap);
+    debug_printf(" at an internal offset of %d.\n", offset);
+    debug_printf("Trap size is %d.\n", entry->size);
+    debug_printf("See comment in trap.c for suggestions on better");
+    debug_printf(" isolating the stomp bug.\n");
     showMesageBox("STOMPED!");
     exit(1);
 }
@@ -83,13 +83,13 @@ static void duplicate_report(int trap, int offset, const char* file, int line)
 // 0x4B44F0
 static void heap_report(int trap, int address, const char* file, int line)
 {
-    debugPrint("TRAPPED A STOMP ERROR:\n");
-    debugPrint("Stomp caught by check on line %d", line);
-    debugPrint(" of module %s.\n", file);
-    debugPrint("Data stomped was in heap trap number %d", trap);
-    debugPrint(" at address %p.\n", address);
-    debugPrint("See comment in trap.c for suggestions on better");
-    debugPrint(" isolating the stomp bug.\n");
+    debug_printf("TRAPPED A STOMP ERROR:\n");
+    debug_printf("Stomp caught by check on line %d", line);
+    debug_printf(" of module %s.\n", file);
+    debug_printf("Data stomped was in heap trap number %d", trap);
+    debug_printf(" at address %p.\n", address);
+    debug_printf("See comment in trap.c for suggestions on better");
+    debug_printf(" isolating the stomp bug.\n");
     showMesageBox("STOMPED!");
     exit(1);
 }

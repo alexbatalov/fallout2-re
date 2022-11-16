@@ -113,7 +113,7 @@ static int fontsave;
 int skilldex_select()
 {
     if (skilldex_start() == -1) {
-        debugPrint("\n ** Error loading skilldex dialog data! **\n");
+        debug_printf("\n ** Error loading skilldex dialog data! **\n");
         return -1;
     }
 

@@ -1,6 +1,7 @@
 #include "plib/gnw/debug.h"
 
 #include <stdarg.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -10,66 +11,73 @@
 #include "memory.h"
 #include "window_manager_private.h"
 
+static int debug_mono(char* string);
+static int debug_log(char* string);
+static int debug_screen(char* string);
+static void debug_putc(int ch);
+static void debug_scroll();
+static void debug_exit(void);
+
 // 0x51DEF8
-FILE* _fd = NULL;
+static FILE* fd = NULL;
 
 // 0x51DEFC
-int _curx = 0;
+static int curx = 0;
 
 // 0x51DF00
-int _cury = 0;
+static int cury = 0;
 
 // 0x51DF04
-DebugPrintProc* gDebugPrintProc = NULL;
+static DebugPrintProc* debug_func = NULL;
 
 // 0x4C6CD0
-void _GNW_debug_init()
+void GNW_debug_init()
 {
-    atexit(_debug_exit);
+    atexit(debug_exit);
 }
 
 // 0x4C6CDC
-void _debug_register_mono()
+void debug_register_mono()
 {
-    if (gDebugPrintProc != _debug_mono) {
-        if (_fd != NULL) {
-            fclose(_fd);
-            _fd = NULL;
+    if (debug_func != debug_mono) {
+        if (fd != NULL) {
+            fclose(fd);
+            fd = NULL;
         }
 
-        gDebugPrintProc = _debug_mono;
-        _debug_clear();
+        debug_func = debug_mono;
+        debug_clear();
     }
 }
 
 // 0x4C6D18
-void _debug_register_log(const char* fileName, const char* mode)
+void debug_register_log(const char* fileName, const char* mode)
 {
     if ((mode[0] == 'w' && mode[1] == 'a') && mode[1] == 't') {
-        if (_fd != NULL) {
-            fclose(_fd);
+        if (fd != NULL) {
+            fclose(fd);
         }
 
-        _fd = fopen(fileName, mode);
-        gDebugPrintProc = _debug_log;
+        fd = fopen(fileName, mode);
+        debug_func = debug_log;
     }
 }
 
 // 0x4C6D5C
-void _debug_register_screen()
+void debug_register_screen()
 {
-    if (gDebugPrintProc != _debug_screen) {
-        if (_fd != NULL) {
-            fclose(_fd);
-            _fd = NULL;
+    if (debug_func != debug_screen) {
+        if (fd != NULL) {
+            fclose(fd);
+            fd = NULL;
         }
 
-        gDebugPrintProc = _debug_screen;
+        debug_func = debug_screen;
     }
 }
 
 // 0x4C6D90
-void _debug_register_env()
+void debug_register_env()
 {
     const char* type = getenv("DEBUGACTIVE");
     if (type == NULL) {
@@ -86,20 +94,20 @@ void _debug_register_env()
 
     if (strcmp(copy, "mono") == 0) {
         // NOTE: Uninline.
-        _debug_register_mono();
+        debug_register_mono();
     } else if (strcmp(copy, "log") == 0) {
-        _debug_register_log("debug.log", "wt");
+        debug_register_log("debug.log", "wt");
     } else if (strcmp(copy, "screen") == 0) {
         // NOTE: Uninline.
-        _debug_register_screen();
+        debug_register_screen();
     } else if (strcmp(copy, "gnw") == 0) {
-        if (gDebugPrintProc != _win_debug) {
-            if (_fd != NULL) {
-                fclose(_fd);
-                _fd = NULL;
+        if (debug_func != _win_debug) {
+            if (fd != NULL) {
+                fclose(fd);
+                fd = NULL;
             }
 
-            gDebugPrintProc = _win_debug;
+            debug_func = _win_debug;
         }
     }
 
@@ -107,31 +115,31 @@ void _debug_register_env()
 }
 
 // 0x4C6F18
-void _debug_register_func(DebugPrintProc* proc)
+void debug_register_func(DebugPrintProc* proc)
 {
-    if (gDebugPrintProc != proc) {
-        if (_fd != NULL) {
-            fclose(_fd);
-            _fd = NULL;
+    if (debug_func != proc) {
+        if (fd != NULL) {
+            fclose(fd);
+            fd = NULL;
         }
 
-        gDebugPrintProc = proc;
+        debug_func = proc;
     }
 }
 
 // 0x4C6F48
-int debugPrint(const char* format, ...)
+int debug_printf(const char* format, ...)
 {
     va_list args;
     va_start(args, format);
 
     int rc;
 
-    if (gDebugPrintProc != NULL) {
+    if (debug_func != NULL) {
         char string[260];
         vsprintf(string, format, args);
 
-        rc = gDebugPrintProc(string);
+        rc = debug_func(string);
     } else {
 #ifdef _DEBUG
         char string[260];
@@ -147,17 +155,17 @@ int debugPrint(const char* format, ...)
 }
 
 // 0x4C6F94
-int _debug_puts(char* string)
+int debug_puts(char* string)
 {
-    if (gDebugPrintProc != NULL) {
-        return gDebugPrintProc(string);
+    if (debug_func != NULL) {
+        return debug_func(string);
     }
 
     return -1;
 }
 
 // 0x4C6FAC
-void _debug_clear()
+void debug_clear()
 {
     char* buffer;
     int x;
@@ -165,9 +173,9 @@ void _debug_clear()
 
     buffer = NULL;
 
-    if (gDebugPrintProc == _debug_mono) {
+    if (debug_func == debug_mono) {
         buffer = (char*)0xB0000;
-    } else if (gDebugPrintProc == _debug_screen) {
+    } else if (debug_func == debug_screen) {
         buffer = (char*)0xB8000;
     }
 
@@ -178,36 +186,36 @@ void _debug_clear()
                 *buffer++ = 7;
             }
         }
-        _cury = 0;
-        _curx = 0;
+        cury = 0;
+        curx = 0;
     }
 }
 
 // 0x4C7004
-int _debug_mono(char* string)
+static int debug_mono(char* string)
 {
-    if (gDebugPrintProc == _debug_mono) {
+    if (debug_func == debug_mono) {
         while (*string != '\0') {
             char ch = *string++;
-            _debug_putc(ch);
+            debug_putc(ch);
         }
     }
     return 0;
 }
 
 // 0x4C7028
-int _debug_log(char* string)
+static int debug_log(char* string)
 {
-    if (gDebugPrintProc == _debug_log) {
-        if (_fd == NULL) {
+    if (debug_func == debug_log) {
+        if (fd == NULL) {
             return -1;
         }
 
-        if (fprintf(_fd, string) < 0) {
+        if (fprintf(fd, string) < 0) {
             return -1;
         }
 
-        if (fflush(_fd) == EOF) {
+        if (fflush(fd) == EOF) {
             return -1;
         }
     }
@@ -216,9 +224,9 @@ int _debug_log(char* string)
 }
 
 // 0x4C7068
-int _debug_screen(char* string)
+static int debug_screen(char* string)
 {
-    if (gDebugPrintProc == _debug_screen) {
+    if (debug_func == debug_screen) {
         printf(string);
     }
 
@@ -226,7 +234,7 @@ int _debug_screen(char* string)
 }
 
 // 0x4C709C
-void _debug_putc(int ch)
+static void debug_putc(int ch)
 {
     char* buffer;
 
@@ -237,43 +245,43 @@ void _debug_putc(int ch)
         printf("\x07");
         return;
     case 8:
-        if (_curx > 0) {
-            _curx--;
-            buffer += 2 * _curx + 2 * 80 * _cury;
+        if (curx > 0) {
+            curx--;
+            buffer += 2 * curx + 2 * 80 * cury;
             *buffer++ = ' ';
             *buffer = 7;
         }
         return;
     case 9:
         do {
-            _debug_putc(' ');
-        } while ((_curx - 1) % 4 != 0);
+            debug_putc(' ');
+        } while ((curx - 1) % 4 != 0);
         return;
     case 13:
-        _curx = 0;
+        curx = 0;
         return;
     default:
-        buffer += 2 * _curx + 2 * 80 * _cury;
+        buffer += 2 * curx + 2 * 80 * cury;
         *buffer++ = ch;
         *buffer = 7;
-        _curx++;
-        if (_curx < 80) {
+        curx++;
+        if (curx < 80) {
             return;
         }
         // FALLTHROUGH
     case 10:
-        _curx = 0;
-        _cury++;
-        if (_cury > 24) {
-            _cury = 24;
-            _debug_scroll();
+        curx = 0;
+        cury++;
+        if (cury > 24) {
+            cury = 24;
+            debug_scroll();
         }
         return;
     }
 }
 
 // 0x4C71AC
-void _debug_scroll()
+static void debug_scroll()
 {
     char* buffer;
     int x;
@@ -295,9 +303,9 @@ void _debug_scroll()
 }
 
 // 0x4C71E8
-void _debug_exit(void)
+static void debug_exit(void)
 {
-    if (_fd != NULL) {
-        fclose(_fd);
+    if (fd != NULL) {
+        fclose(fd);
     }
 }

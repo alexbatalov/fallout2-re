@@ -40,7 +40,7 @@ static Nevs* nevs_alloc()
     Nevs* entry;
 
     if (nevs == NULL) {
-        debugPrint("nevs_alloc(): nevs_initonce() not called!");
+        debug_printf("nevs_alloc(): nevs_initonce() not called!");
         exit(99);
     }
 
@@ -99,7 +99,7 @@ void nevs_initonce()
     if (nevs == NULL) {
         nevs = (Nevs*)mycalloc(sizeof(Nevs), NEVS_COUNT, __FILE__, __LINE__); // "..\\int\\NEVS.C", 131
         if (nevs == NULL) {
-            debugPrint("nevs_initonce(): out of memory");
+            debug_printf("nevs_initonce(): out of memory");
             exit(99);
         }
     }
@@ -112,7 +112,7 @@ static Nevs* nevs_find(const char* name)
     Nevs* entry;
 
     if (nevs == NULL) {
-        debugPrint("nevs_find(): nevs_initonce() not called!");
+        debug_printf("nevs_find(): nevs_initonce() not called!");
         exit(99);
     }
 
@@ -157,7 +157,7 @@ int nevs_addCevent(const char* name, NevsCallback* callback, int type)
 {
     Nevs* entry;
 
-    debugPrint("nevs_addCevent( '%s', %p);\n", name, callback);
+    debug_printf("nevs_addCevent( '%s', %p);\n", name, callback);
 
     entry = nevs_find(name);
     if (entry == NULL) {
@@ -183,7 +183,7 @@ int nevs_clearevent(const char* a1)
 {
     Nevs* entry;
 
-    debugPrint("nevs_clearevent( '%s');\n", a1);
+    debug_printf("nevs_clearevent( '%s');\n", a1);
 
     entry = nevs_find(a1);
     if (entry != NULL) {
@@ -200,14 +200,14 @@ int nevs_signal(const char* name)
 {
     Nevs* entry;
 
-    debugPrint("nevs_signal( '%s');\n", name);
+    debug_printf("nevs_signal( '%s');\n", name);
 
     entry = nevs_find(name);
     if (entry == NULL) {
         return 1;
     }
 
-    debugPrint("nep: %p,  used = %u, prog = %p, proc = %d", entry, entry->used, entry->program, entry->proc);
+    debug_printf("nep: %p,  used = %u, prog = %p, proc = %d", entry, entry->used, entry->program, entry->proc);
 
     if (entry->used
         && ((entry->program != NULL && entry->proc != 0) || entry->callback != NULL)
@@ -230,7 +230,7 @@ void nevs_update()
         return;
     }
 
-    debugPrint("nevs_update(): we have anyhits = %u\n", anyhits);
+    debug_printf("nevs_update(): we have anyhits = %u\n", anyhits);
 
     anyhits = 0;
 

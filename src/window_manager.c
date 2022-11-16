@@ -172,7 +172,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         internal_free(palette);
     }
 
-    _GNW_debug_init();
+    GNW_debug_init();
 
     if (coreInit(a3) == -1) {
         return WINDOW_MANAGER_ERR_INITIALIZING_INPUT;

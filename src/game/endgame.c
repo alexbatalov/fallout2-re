@@ -1089,7 +1089,7 @@ int endgameDeathEndingExit()
 void endgameSetupDeathEnding(int reason)
 {
     if (!maxEndDeathInfo) {
-        debugPrint("\nError: endgameSetupDeathEnding: No endgame death info!");
+        debug_printf("\nError: endgameSetupDeathEnding: No endgame death info!");
         return;
     }
 
@@ -1135,7 +1135,7 @@ void endgameSetupDeathEnding(int reason)
 
     strcat(endDeathSndChoice, deathEnding->voiceOverBaseName);
 
-    debugPrint("\nendgameSetupDeathEnding: Death Filename Picked: %s", endDeathSndChoice);
+    debug_printf("\nendgameSetupDeathEnding: Death Filename Picked: %s", endDeathSndChoice);
 }
 
 // Validates conditions imposed by death endings.
@@ -1191,11 +1191,11 @@ static int endgameSetupInit(int* percentage)
 char* endgameGetDeathEndingFileName()
 {
     if (maxEndDeathInfo == 0) {
-        debugPrint("\nError: endgameSetupDeathEnding: No endgame death info!");
+        debug_printf("\nError: endgameSetupDeathEnding: No endgame death info!");
         strcpy(endDeathSndChoice, "narrator\\nar_4");
     }
 
-    debugPrint("\nendgameSetupDeathEnding: Death Filename: %s", endDeathSndChoice);
+    debug_printf("\nendgameSetupDeathEnding: Death Filename: %s", endDeathSndChoice);
 
     return endDeathSndChoice;
 }

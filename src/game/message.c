@@ -204,22 +204,22 @@ bool message_load(MessageList* messageList, const char* path)
         }
 
         if (message_load_field(file_ptr, audio) != 0) {
-            debugPrint("\nError loading audio field.\n", localized_path);
+            debug_printf("\nError loading audio field.\n", localized_path);
             goto err;
         }
 
         if (message_load_field(file_ptr, text) != 0) {
-            debugPrint("\nError loading text field.\n", localized_path);
+            debug_printf("\nError loading text field.\n", localized_path);
             goto err;
         }
 
         if (!message_parse_number(&(entry.num), num)) {
-            debugPrint("\nError parsing number.\n", localized_path);
+            debug_printf("\nError parsing number.\n", localized_path);
             goto err;
         }
 
         if (!message_add(messageList, &entry)) {
-            debugPrint("\nError adding message.\n", localized_path);
+            debug_printf("\nError adding message.\n", localized_path);
             goto err;
         }
     }
@@ -231,7 +231,7 @@ bool message_load(MessageList* messageList, const char* path)
 err:
 
     if (!success) {
-        debugPrint("Error loading message file %s at offset %x.", localized_path, fileTell(file_ptr));
+        debug_printf("Error loading message file %s at offset %x.", localized_path, fileTell(file_ptr));
     }
 
     fileClose(file_ptr);
@@ -444,7 +444,7 @@ int message_load_field(File* file, char* str)
         }
 
         if (ch == '}') {
-            debugPrint("\nError reading message file - mismatched delimiters.\n");
+            debug_printf("\nError reading message file - mismatched delimiters.\n");
             return 2;
         }
 
@@ -457,7 +457,7 @@ int message_load_field(File* file, char* str)
         ch = fileReadChar(file);
 
         if (ch == -1) {
-            debugPrint("\nError reading message file - EOF reached.\n");
+            debug_printf("\nError reading message file - EOF reached.\n");
             return 3;
         }
 
@@ -471,7 +471,7 @@ int message_load_field(File* file, char* str)
             len++;
 
             if (len > 1024) {
-                debugPrint("\nError reading message file - text exceeds limit.\n");
+                debug_printf("\nError reading message file - text exceeds limit.\n");
                 return 4;
             }
         }
@@ -490,7 +490,7 @@ char* getmsg(MessageList* msg, MessageListItem* entry, int num)
 
     if (!message_search(msg, entry)) {
         entry->text = message_error_str;
-        debugPrint("\n ** String not found @ getmsg(), MESSAGE.C **\n");
+        debug_printf("\n ** String not found @ getmsg(), MESSAGE.C **\n");
     }
 
     return entry->text;

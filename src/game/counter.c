@@ -23,7 +23,7 @@ static CounterOutputFunc* counter_output_func;
 void counter_on(CounterOutputFunc* outputFunc)
 {
     if (!counter_is_on) {
-        debugPrint("Turning on counter...\n");
+        debug_printf("Turning on counter...\n");
         tickersAdd(counter);
         counter_output_func = outputFunc;
         counter_is_on = 1;

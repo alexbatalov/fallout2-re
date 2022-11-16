@@ -133,11 +133,11 @@ int gmovie_play(int movie, int flags)
     gmMovieIsPlaying = true;
 
     const char* movieFileName = movie_list[movie];
-    debugPrint("\nPlaying movie: %s\n", movieFileName);
+    debug_printf("\nPlaying movie: %s\n", movieFileName);
 
     char* language;
     if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_LANGUAGE_KEY, &language)) {
-        debugPrint("\ngmovie_play() - Error: Unable to determine language!\n");
+        debug_printf("\ngmovie_play() - Error: Unable to determine language!\n");
         gmMovieIsPlaying = false;
         return -1;
     }
@@ -157,7 +157,7 @@ int gmovie_play(int movie, int flags)
     }
 
     if (!movieFound) {
-        debugPrint("\ngmovie_play() - Error: Unable to open %s\n", movie_list[movie]);
+        debug_printf("\ngmovie_play() - Error: Unable to open %s\n", movie_list[movie]);
         gmMovieIsPlaying = false;
         return -1;
     }

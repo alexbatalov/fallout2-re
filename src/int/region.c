@@ -161,7 +161,7 @@ Region* allocateRegion(int initialCapacity)
 void regionAddPoint(Region* region, int x, int y)
 {
     if (region == NULL) {
-        debugPrint("regionAddPoint(): null region ptr\n");
+        debug_printf("regionAddPoint(): null region ptr\n");
         return;
     }
 
@@ -192,7 +192,7 @@ void regionAddPoint(Region* region, int x, int y)
 void regionDelete(Region* region)
 {
     if (region == NULL) {
-        debugPrint("regionDelete(): null region ptr\n");
+        debug_printf("regionDelete(): null region ptr\n");
         return;
     }
 
@@ -207,7 +207,7 @@ void regionDelete(Region* region)
 void regionAddName(Region* region, const char* name)
 {
     if (region == NULL) {
-        debugPrint("regionAddName(): null region ptr\n");
+        debug_printf("regionAddName(): null region ptr\n");
         return;
     }
 
@@ -223,7 +223,7 @@ void regionAddName(Region* region, const char* name)
 const char* regionGetName(Region* region)
 {
     if (region == NULL) {
-        debugPrint("regionGetName(): null region ptr\n");
+        debug_printf("regionGetName(): null region ptr\n");
         return "<null>";
     }
 
@@ -234,7 +234,7 @@ const char* regionGetName(Region* region)
 void* regionGetUserData(Region* region)
 {
     if (region == NULL) {
-        debugPrint("regionGetUserData(): null region ptr\n");
+        debug_printf("regionGetUserData(): null region ptr\n");
         return NULL;
     }
 
@@ -245,7 +245,7 @@ void* regionGetUserData(Region* region)
 void regionSetUserData(Region* region, void* data)
 {
     if (region == NULL) {
-        debugPrint("regionSetUserData(): null region ptr\n");
+        debug_printf("regionSetUserData(): null region ptr\n");
         return;
     }
 

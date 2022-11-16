@@ -120,7 +120,7 @@ int roll_random(int min, int max)
     }
 
     if (result < min || result > max) {
-        debugPrint("Random number %d is not in range %d to %d", result, min, max);
+        debug_printf("Random number %d is not in range %d to %d", result, min, max);
         result = min;
     }
 
@@ -222,7 +222,7 @@ static void check_chi_squared()
     for (int attempt = 0; attempt < 100000; attempt++) {
         int value = roll_random(1, 25);
         if (value - 1 < 0) {
-            debugPrint("I made a negative number %d\n", value - 1);
+            debug_printf("I made a negative number %d\n", value - 1);
         }
 
         results[value - 1]++;
@@ -235,11 +235,11 @@ static void check_chi_squared()
         v1 += v2;
     }
 
-    debugPrint("Chi squared is %f, P = %f at 0.05\n", v1, 4000.0);
+    debug_printf("Chi squared is %f, P = %f at 0.05\n", v1, 4000.0);
 
     if (v1 < 36.42) {
-        debugPrint("Sequence is random, 95%% confidence.\n");
+        debug_printf("Sequence is random, 95%% confidence.\n");
     } else {
-        debugPrint("Warning! Sequence is not random, 95%% confidence.\n");
+        debug_printf("Warning! Sequence is not random, 95%% confidence.\n");
     }
 }
