@@ -6,7 +6,7 @@
 #include "geometry.h"
 #include "int/intrpret.h"
 #include "int/region.h"
-#include "widget.h"
+#include "int/widget.h"
 #include "window_manager.h"
 
 #define MANAGED_WINDOW_COUNT (16)
