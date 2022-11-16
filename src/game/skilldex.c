@@ -1,8 +1,10 @@
 #include "game/skilldex.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
+#include "game/art.h"
 #include "color.h"
 #include "core.h"
 #include "game/cycle.h"
@@ -13,20 +15,49 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/map.h"
+#include "game/message.h"
 #include "memory.h"
 #include "game/object.h"
 #include "game/skill.h"
+#include "geometry.h"
 #include "text_font.h"
 #include "window_manager.h"
 
 #define SKILLDEX_WINDOW_RIGHT_MARGIN 4
 #define SKILLDEX_WINDOW_BOTTOM_MARGIN 6
 
+#define SKILLDEX_SKILL_BUTTON_BUFFER_COUNT (SKILLDEX_SKILL_COUNT * 2)
+
+typedef enum SkilldexFrm {
+    SKILLDEX_FRM_BACKGROUND,
+    SKILLDEX_FRM_BUTTON_ON,
+    SKILLDEX_FRM_BUTTON_OFF,
+    SKILLDEX_FRM_LITTLE_RED_BUTTON_UP,
+    SKILLDEX_FRM_LITTLE_RED_BUTTON_DOWN,
+    SKILLDEX_FRM_BIG_NUMBERS,
+    SKILLDEX_FRM_COUNT,
+} SkilldexFrm;
+
+typedef enum SkilldexSkill {
+    SKILLDEX_SKILL_SNEAK,
+    SKILLDEX_SKILL_LOCKPICK,
+    SKILLDEX_SKILL_STEAL,
+    SKILLDEX_SKILL_TRAPS,
+    SKILLDEX_SKILL_FIRST_AID,
+    SKILLDEX_SKILL_DOCTOR,
+    SKILLDEX_SKILL_SCIENCE,
+    SKILLDEX_SKILL_REPAIR,
+    SKILLDEX_SKILL_COUNT,
+} SkilldexSkill;
+
+static int skilldex_start();
+static void skilldex_end();
+
 // 0x51D43C
-bool gSkilldexWindowIsoWasEnabled = false;
+static bool bk_enable = false;
 
 // 0x51D440
-const int gSkilldexFrmIds[SKILLDEX_FRM_COUNT] = {
+static int grphfid[SKILLDEX_FRM_COUNT] = {
     121,
     119,
     120,
@@ -38,7 +69,7 @@ const int gSkilldexFrmIds[SKILLDEX_FRM_COUNT] = {
 // Maps Skilldex options into skills.
 //
 // 0x51D458
-const int gSkilldexSkills[SKILLDEX_SKILL_COUNT] = {
+static int sklxref[SKILLDEX_SKILL_COUNT] = {
     SKILL_SNEAK,
     SKILL_LOCKPICK,
     SKILL_STEAL,
@@ -50,38 +81,38 @@ const int gSkilldexSkills[SKILLDEX_SKILL_COUNT] = {
 };
 
 // 0x668088
-Size gSkilldexFrmSizes[SKILLDEX_FRM_COUNT];
+static Size ginfo[SKILLDEX_FRM_COUNT];
 
 // 0x6680B8
-unsigned char* gSkilldexButtonsData[SKILLDEX_SKILL_BUTTON_BUFFER_COUNT];
+static unsigned char* skldxbtn[SKILLDEX_SKILL_BUTTON_BUFFER_COUNT];
 
 // skilldex.msg
+//
 // 0x6680F8
-MessageList gSkilldexMessageList;
+static MessageList skldxmsg;
 
 // 0x668100
-MessageListItem gSkilldexMessageListItem;
+static MessageListItem mesg;
 
 // 0x668110
-unsigned char* gSkilldexFrmData[SKILLDEX_FRM_COUNT];
+static unsigned char* skldxbmp[SKILLDEX_FRM_COUNT];
 
 // 0x668128
-CacheEntry* gSkilldexFrmHandles[SKILLDEX_FRM_COUNT];
+static CacheEntry* grphkey[SKILLDEX_FRM_COUNT];
 
 // 0x668140
-int gSkilldexWindow;
+static int skldxwin;
 
 // 0x668144
-unsigned char* gSkilldexWindowBuffer;
+static unsigned char* winbuf;
 
 // 0x668148
-int gSkilldexWindowOldFont;
+static int fontsave;
 
-// skilldex_select
 // 0x4ABFD0
-int skilldexOpen()
+int skilldex_select()
 {
-    if (skilldexWindowInit() == -1) {
+    if (skilldex_start() == -1) {
         debugPrint("\n ** Error loading skilldex dialog data! **\n");
         return -1;
     }
@@ -104,46 +135,46 @@ int skilldexOpen()
         coreDelay(1000 / 9);
     }
 
-    skilldexWindowFree();
+    skilldex_end();
 
     return rc;
 }
 
 // 0x4AC054
-int skilldexWindowInit()
+static int skilldex_start()
 {
-    gSkilldexWindowOldFont = fontGetCurrent();
-    gSkilldexWindowIsoWasEnabled = false;
+    fontsave = fontGetCurrent();
+    bk_enable = false;
 
     gmouse_3d_off();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    if (!message_init(&gSkilldexMessageList)) {
+    if (!message_init(&skldxmsg)) {
         return -1;
     }
 
     char path[FILENAME_MAX];
     sprintf(path, "%s%s", msg_path, "skilldex.msg");
 
-    if (!message_load(&gSkilldexMessageList, path)) {
+    if (!message_load(&skldxmsg, path)) {
         return -1;
     }
 
     int frmIndex;
     for (frmIndex = 0; frmIndex < SKILLDEX_FRM_COUNT; frmIndex++) {
-        int fid = art_id(OBJ_TYPE_INTERFACE, gSkilldexFrmIds[frmIndex], 0, 0, 0);
-        gSkilldexFrmData[frmIndex] = art_lock(fid, &(gSkilldexFrmHandles[frmIndex]), &(gSkilldexFrmSizes[frmIndex].width), &(gSkilldexFrmSizes[frmIndex].height));
-        if (gSkilldexFrmData[frmIndex] == NULL) {
+        int fid = art_id(OBJ_TYPE_INTERFACE, grphfid[frmIndex], 0, 0, 0);
+        skldxbmp[frmIndex] = art_lock(fid, &(grphkey[frmIndex]), &(ginfo[frmIndex].width), &(ginfo[frmIndex].height));
+        if (skldxbmp[frmIndex] == NULL) {
             break;
         }
     }
 
     if (frmIndex < SKILLDEX_FRM_COUNT) {
         while (--frmIndex >= 0) {
-            art_ptr_unlock(gSkilldexFrmHandles[frmIndex]);
+            art_ptr_unlock(grphkey[frmIndex]);
         }
 
-        message_exit(&gSkilldexMessageList);
+        message_exit(&skldxmsg);
 
         return -1;
     }
@@ -151,8 +182,8 @@ int skilldexWindowInit()
     bool cycle = false;
     int buttonDataIndex;
     for (buttonDataIndex = 0; buttonDataIndex < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; buttonDataIndex++) {
-        gSkilldexButtonsData[buttonDataIndex] = (unsigned char*)internal_malloc(gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].height * gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width + 512);
-        if (gSkilldexButtonsData[buttonDataIndex] == NULL) {
+        skldxbtn[buttonDataIndex] = (unsigned char*)internal_malloc(ginfo[SKILLDEX_FRM_BUTTON_ON].height * ginfo[SKILLDEX_FRM_BUTTON_ON].width + 512);
+        if (skldxbtn[buttonDataIndex] == NULL) {
             break;
         }
 
@@ -162,103 +193,103 @@ int skilldexWindowInit()
         unsigned char* data;
         int size;
         if (cycle) {
-            size = gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width * gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].height;
-            data = gSkilldexFrmData[SKILLDEX_FRM_BUTTON_OFF];
+            size = ginfo[SKILLDEX_FRM_BUTTON_OFF].width * ginfo[SKILLDEX_FRM_BUTTON_OFF].height;
+            data = skldxbmp[SKILLDEX_FRM_BUTTON_OFF];
         } else {
-            size = gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width * gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].height;
-            data = gSkilldexFrmData[SKILLDEX_FRM_BUTTON_ON];
+            size = ginfo[SKILLDEX_FRM_BUTTON_ON].width * ginfo[SKILLDEX_FRM_BUTTON_ON].height;
+            data = skldxbmp[SKILLDEX_FRM_BUTTON_ON];
         }
 
-        memcpy(gSkilldexButtonsData[buttonDataIndex], data, size);
+        memcpy(skldxbtn[buttonDataIndex], data, size);
     }
 
     if (buttonDataIndex < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT) {
         while (--buttonDataIndex >= 0) {
-            internal_free(gSkilldexButtonsData[buttonDataIndex]);
+            internal_free(skldxbtn[buttonDataIndex]);
         }
 
         for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
-            art_ptr_unlock(gSkilldexFrmHandles[index]);
+            art_ptr_unlock(grphkey[index]);
         }
 
-        message_exit(&gSkilldexMessageList);
+        message_exit(&skldxmsg);
 
         return -1;
     }
 
-    int skilldexWindowX = 640 - gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width - SKILLDEX_WINDOW_RIGHT_MARGIN;
-    int skilldexWindowY = 480 - INTERFACE_BAR_HEIGHT - 1 - gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].height - SKILLDEX_WINDOW_BOTTOM_MARGIN;
-    gSkilldexWindow = windowCreate(skilldexWindowX,
+    int skilldexWindowX = 640 - ginfo[SKILLDEX_FRM_BACKGROUND].width - SKILLDEX_WINDOW_RIGHT_MARGIN;
+    int skilldexWindowY = 480 - INTERFACE_BAR_HEIGHT - 1 - ginfo[SKILLDEX_FRM_BACKGROUND].height - SKILLDEX_WINDOW_BOTTOM_MARGIN;
+    skldxwin = windowCreate(skilldexWindowX,
         skilldexWindowY,
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].height,
+        ginfo[SKILLDEX_FRM_BACKGROUND].width,
+        ginfo[SKILLDEX_FRM_BACKGROUND].height,
         256,
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
-    if (gSkilldexWindow == -1) {
+    if (skldxwin == -1) {
         for (int index = 0; index < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; index++) {
-            internal_free(gSkilldexButtonsData[index]);
+            internal_free(skldxbtn[index]);
         }
 
         for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
-            art_ptr_unlock(gSkilldexFrmHandles[index]);
+            art_ptr_unlock(grphkey[index]);
         }
 
-        message_exit(&gSkilldexMessageList);
+        message_exit(&skldxmsg);
 
         return -1;
     }
 
-    gSkilldexWindowIsoWasEnabled = map_disable_bk_processes();
+    bk_enable = map_disable_bk_processes();
 
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    gSkilldexWindowBuffer = windowGetBuffer(gSkilldexWindow);
-    memcpy(gSkilldexWindowBuffer,
-        gSkilldexFrmData[SKILLDEX_FRM_BACKGROUND],
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width * gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].height);
+    winbuf = windowGetBuffer(skldxwin);
+    memcpy(winbuf,
+        skldxbmp[SKILLDEX_FRM_BACKGROUND],
+        ginfo[SKILLDEX_FRM_BACKGROUND].width * ginfo[SKILLDEX_FRM_BACKGROUND].height);
 
     fontSetCurrent(103);
 
     // Render "SKILLDEX" title.
-    char* title = getmsg(&gSkilldexMessageList, &gSkilldexMessageListItem, 100);
-    fontDrawText(gSkilldexWindowBuffer + 14 * gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width + 55,
+    char* title = getmsg(&skldxmsg, &mesg, 100);
+    fontDrawText(winbuf + 14 * ginfo[SKILLDEX_FRM_BACKGROUND].width + 55,
         title,
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
+        ginfo[SKILLDEX_FRM_BACKGROUND].width,
+        ginfo[SKILLDEX_FRM_BACKGROUND].width,
         colorTable[18979]);
 
     // Render skill values.
     int valueY = 48;
     for (int index = 0; index < SKILLDEX_SKILL_COUNT; index++) {
-        int value = skill_level(obj_dude, gSkilldexSkills[index]);
+        int value = skill_level(obj_dude, sklxref[index]);
         if (value == -1) {
             value = 0;
         }
 
         int hundreds = value / 100;
-        blitBufferToBuffer(gSkilldexFrmData[SKILLDEX_FRM_BIG_NUMBERS] + 14 * hundreds,
+        blitBufferToBuffer(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * hundreds,
             14,
             24,
             336,
-            gSkilldexWindowBuffer + gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width * valueY + 110,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width);
+            winbuf + ginfo[SKILLDEX_FRM_BACKGROUND].width * valueY + 110,
+            ginfo[SKILLDEX_FRM_BACKGROUND].width);
 
         int tens = (value % 100) / 10;
-        blitBufferToBuffer(gSkilldexFrmData[SKILLDEX_FRM_BIG_NUMBERS] + 14 * tens,
+        blitBufferToBuffer(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * tens,
             14,
             24,
             336,
-            gSkilldexWindowBuffer + gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width * valueY + 124,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width);
+            winbuf + ginfo[SKILLDEX_FRM_BACKGROUND].width * valueY + 124,
+            ginfo[SKILLDEX_FRM_BACKGROUND].width);
 
         int ones = (value % 100) % 10;
-        blitBufferToBuffer(gSkilldexFrmData[SKILLDEX_FRM_BIG_NUMBERS] + 14 * ones,
+        blitBufferToBuffer(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * ones,
             14,
             24,
             336,
-            gSkilldexWindowBuffer + gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width * valueY + 138,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width);
+            winbuf + ginfo[SKILLDEX_FRM_BACKGROUND].width * valueY + 138,
+            ginfo[SKILLDEX_FRM_BACKGROUND].width);
 
         valueY += 36;
     }
@@ -267,39 +298,39 @@ int skilldexWindowInit()
     int lineHeight = fontGetLineHeight();
 
     int buttonY = 45;
-    int nameY = ((gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].height - lineHeight) / 2) + 1;
+    int nameY = ((ginfo[SKILLDEX_FRM_BUTTON_OFF].height - lineHeight) / 2) + 1;
     for (int index = 0; index < SKILLDEX_SKILL_COUNT; index++) {
         char name[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
-        strcpy(name, getmsg(&gSkilldexMessageList, &gSkilldexMessageListItem, 102 + index));
+        strcpy(name, getmsg(&skldxmsg, &mesg, 102 + index));
 
-        int nameX = ((gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width - fontGetStringWidth(name)) / 2) + 1;
+        int nameX = ((ginfo[SKILLDEX_FRM_BUTTON_OFF].width - fontGetStringWidth(name)) / 2) + 1;
         if (nameX < 0) {
             nameX = 0;
         }
 
-        fontDrawText(gSkilldexButtonsData[index * 2] + gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width * nameY + nameX,
+        fontDrawText(skldxbtn[index * 2] + ginfo[SKILLDEX_FRM_BUTTON_ON].width * nameY + nameX,
             name,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_ON].width,
+            ginfo[SKILLDEX_FRM_BUTTON_ON].width,
+            ginfo[SKILLDEX_FRM_BUTTON_ON].width,
             colorTable[18979]);
 
-        fontDrawText(gSkilldexButtonsData[index * 2 + 1] + gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width * nameY + nameX,
+        fontDrawText(skldxbtn[index * 2 + 1] + ginfo[SKILLDEX_FRM_BUTTON_OFF].width * nameY + nameX,
             name,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
+            ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
+            ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
             colorTable[14723]);
 
-        int btn = buttonCreate(gSkilldexWindow,
+        int btn = buttonCreate(skldxwin,
             15,
             buttonY,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].width,
-            gSkilldexFrmSizes[SKILLDEX_FRM_BUTTON_OFF].height,
+            ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
+            ginfo[SKILLDEX_FRM_BUTTON_OFF].height,
             -1,
             -1,
             -1,
             501 + index,
-            gSkilldexButtonsData[index * 2],
-            gSkilldexButtonsData[index * 2 + 1],
+            skldxbtn[index * 2],
+            skldxbtn[index * 2 + 1],
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
@@ -310,53 +341,53 @@ int skilldexWindowInit()
     }
 
     // Render "CANCEL" button.
-    char* cancel = getmsg(&gSkilldexMessageList, &gSkilldexMessageListItem, 101);
-    fontDrawText(gSkilldexWindowBuffer + gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width * 337 + 72,
+    char* cancel = getmsg(&skldxmsg, &mesg, 101);
+    fontDrawText(winbuf + ginfo[SKILLDEX_FRM_BACKGROUND].width * 337 + 72,
         cancel,
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
-        gSkilldexFrmSizes[SKILLDEX_FRM_BACKGROUND].width,
+        ginfo[SKILLDEX_FRM_BACKGROUND].width,
+        ginfo[SKILLDEX_FRM_BACKGROUND].width,
         colorTable[18979]);
 
-    int cancelBtn = buttonCreate(gSkilldexWindow,
+    int cancelBtn = buttonCreate(skldxwin,
         48,
         338,
-        gSkilldexFrmSizes[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP].width,
-        gSkilldexFrmSizes[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP].height,
+        ginfo[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP].width,
+        ginfo[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP].height,
         -1,
         -1,
         -1,
         500,
-        gSkilldexFrmData[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP],
-        gSkilldexFrmData[SKILLDEX_FRM_LITTLE_RED_BUTTON_DOWN],
+        skldxbmp[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP],
+        skldxbmp[SKILLDEX_FRM_LITTLE_RED_BUTTON_DOWN],
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
         buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    win_draw(gSkilldexWindow);
+    win_draw(skldxwin);
 
     return 0;
 }
 
 // 0x4AC67C
-void skilldexWindowFree()
+static void skilldex_end()
 {
-    windowDestroy(gSkilldexWindow);
+    windowDestroy(skldxwin);
 
     for (int index = 0; index < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; index++) {
-        internal_free(gSkilldexButtonsData[index]);
+        internal_free(skldxbtn[index]);
     }
 
     for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
-        art_ptr_unlock(gSkilldexFrmHandles[index]);
+        art_ptr_unlock(grphkey[index]);
     }
 
-    message_exit(&gSkilldexMessageList);
+    message_exit(&skldxmsg);
 
-    fontSetCurrent(gSkilldexWindowOldFont);
+    fontSetCurrent(fontsave);
 
-    if (gSkilldexWindowIsoWasEnabled) {
+    if (bk_enable) {
         map_enable_bk_processes();
     }
 

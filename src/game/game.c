@@ -602,7 +602,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
             // NOTE: There is an `inc` for this value to build jump table which
             // is not needed.
-            int rc = skilldexOpen();
+            int rc = skilldex_select();
 
             // Remap Skilldex result code to action.
             switch (rc) {

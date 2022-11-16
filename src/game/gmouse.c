@@ -1197,7 +1197,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                         if (1) {
                             int skill = -1;
 
-                            int rc = skilldexOpen();
+                            int rc = skilldex_select();
                             switch (rc) {
                             case SKILLDEX_RC_SNEAK:
                                 action_skill_use(SKILL_SNEAK);
