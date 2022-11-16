@@ -33,7 +33,7 @@
 #include "game/stat.h"
 #include "text_font.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 
 // NOTE: Rare case - as a compatibility measure with Community Edition, this

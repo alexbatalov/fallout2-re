@@ -29,7 +29,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "text_font.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 
 #define INDICATOR_BAR_X 0

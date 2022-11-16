@@ -5,7 +5,7 @@
 #include "game/map_defs.h"
 #include "game/object.h"
 #include "game/perk.h"
-#include "tile.h"
+#include "game/tile.h"
 
 // 0x51923C
 static int ambient_light = LIGHT_LEVEL_MAX;

@@ -28,7 +28,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 
 static void parse_hurt_str(char* str, int* out_value);
 static int cai_match_str_to_list(const char* str, const char** list, int count, int* out_value);

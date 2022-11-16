@@ -18,7 +18,7 @@
 #include "game/roll.h"
 #include "game/scripts.h"
 #include "game/skill.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "trait.h"
 
 // Provides metadata about stats.

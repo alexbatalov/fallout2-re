@@ -39,7 +39,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "text_font.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "trait.h"
 #include "version.h"
 #include "window_manager.h"

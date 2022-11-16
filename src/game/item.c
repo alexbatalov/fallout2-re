@@ -23,7 +23,7 @@
 #include "game/roll.h"
 #include "game/skill.h"
 #include "game/stat.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "trait.h"
 
 static void item_compact(int inventoryItemIndex, Inventory* inventory);

@@ -33,7 +33,7 @@
 #include "game/roll.h"
 #include "game/scripts.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "worldmap.h"

@@ -24,7 +24,7 @@
 #include "game/proto.h"
 #include "game/protinst.h"
 #include "game/queue.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "worldmap.h"

@@ -38,7 +38,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "trait.h"
 #include "vcr.h"
 #include "worldmap.h"

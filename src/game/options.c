@@ -23,7 +23,7 @@
 #include "game/scripts.h"
 #include "text_font.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 
 #define PREFERENCES_WINDOW_WIDTH 640

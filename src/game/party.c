@@ -27,7 +27,7 @@
 #include "game/stat.h"
 #include "game/strparse.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 
 typedef struct PartyMemberAI {

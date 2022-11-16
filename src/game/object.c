@@ -23,7 +23,7 @@
 #include "game/protinst.h"
 #include "game/scripts.h"
 #include "game/textobj.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "worldmap.h"
 
 static int obj_read_obj(Object* obj, File* stream);

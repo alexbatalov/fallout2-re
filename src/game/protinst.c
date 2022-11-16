@@ -26,7 +26,7 @@
 #include "game/scripts.h"
 #include "game/skill.h"
 #include "game/stat.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "worldmap.h"
 
 static int obj_use_book(Object* item_obj);

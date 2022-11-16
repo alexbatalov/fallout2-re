@@ -23,7 +23,7 @@
 #include "game/protinst.h"
 #include "game/skilldex.h"
 #include "text_font.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 
 typedef enum ScrollableDirections {

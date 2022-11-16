@@ -40,7 +40,7 @@
 #include "game/stat.h"
 #include "game/strparse.h"
 #include "text_font.h"
-#include "tile.h"
+#include "game/tile.h"
 #include "window_manager.h"
 
 #define CITY_NAME_SIZE (40)
