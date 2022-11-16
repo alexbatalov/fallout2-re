@@ -7,15 +7,15 @@
 
 // A representation of .INI file.
 //
-// It's implemented as a [Dictionary] whos keys are section names of .INI file,
+// It's implemented as a [assoc_array] whos keys are section names of .INI file,
 // and it's values are [ConfigSection] structs.
-typedef Dictionary Config;
+typedef assoc_array Config;
 
 // Representation of .INI section.
 //
-// It's implemented as a [Dictionary] whos keys are names of .INI file
+// It's implemented as a [assoc_array] whos keys are names of .INI file
 // key-pair values, and it's values are pointers to strings (char**).
-typedef Dictionary ConfigSection;
+typedef assoc_array ConfigSection;
 
 bool config_init(Config* config);
 void config_exit(Config* config);

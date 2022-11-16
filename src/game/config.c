@@ -39,14 +39,14 @@ void config_exit(Config* config)
         return;
     }
 
-    for (int sectionIndex = 0; sectionIndex < config->entriesLength; sectionIndex++) {
-        DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
+    for (int sectionIndex = 0; sectionIndex < config->size; sectionIndex++) {
+        assoc_pair* sectionEntry = &(config->list[sectionIndex]);
 
-        ConfigSection* section = (ConfigSection*)sectionEntry->value;
-        for (int keyValueIndex = 0; keyValueIndex < section->entriesLength; keyValueIndex++) {
-            DictionaryEntry* keyValueEntry = &(section->entries[keyValueIndex]);
+        ConfigSection* section = (ConfigSection*)sectionEntry->data;
+        for (int keyValueIndex = 0; keyValueIndex < section->size; keyValueIndex++) {
+            assoc_pair* keyValueEntry = &(section->list[keyValueIndex]);
 
-            char** value = (char**)keyValueEntry->value;
+            char** value = (char**)keyValueEntry->data;
             internal_free(*value);
             *value = NULL;
         }
@@ -119,16 +119,16 @@ bool config_get_string(Config* config, const char* sectionKey, const char* key, 
         return false;
     }
 
-    DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
-    ConfigSection* section = (ConfigSection*)sectionEntry->value;
+    assoc_pair* sectionEntry = &(config->list[sectionIndex]);
+    ConfigSection* section = (ConfigSection*)sectionEntry->data;
 
     int index = assoc_search(section, key);
     if (index == -1) {
         return false;
     }
 
-    DictionaryEntry* keyValueEntry = &(section->entries[index]);
-    *valuePtr = *(char**)keyValueEntry->value;
+    assoc_pair* keyValueEntry = &(section->list[index]);
+    *valuePtr = *(char**)keyValueEntry->data;
 
     return true;
 }
@@ -150,14 +150,14 @@ bool config_set_string(Config* config, const char* sectionKey, const char* key, 
         sectionIndex = assoc_search(config, sectionKey);
     }
 
-    DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
-    ConfigSection* section = (ConfigSection*)sectionEntry->value;
+    assoc_pair* sectionEntry = &(config->list[sectionIndex]);
+    ConfigSection* section = (ConfigSection*)sectionEntry->data;
 
     int index = assoc_search(section, key);
     if (index != -1) {
-        DictionaryEntry* keyValueEntry = &(section->entries[index]);
+        assoc_pair* keyValueEntry = &(section->list[index]);
 
-        char** existingValue = (char**)keyValueEntry->value;
+        char** existingValue = (char**)keyValueEntry->data;
         internal_free(*existingValue);
         *existingValue = NULL;
 
@@ -293,14 +293,14 @@ bool config_save(Config* config, const char* filePath, bool isDb)
             return false;
         }
 
-        for (int sectionIndex = 0; sectionIndex < config->entriesLength; sectionIndex++) {
-            DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
-            filePrintFormatted(stream, "[%s]\n", sectionEntry->key);
+        for (int sectionIndex = 0; sectionIndex < config->size; sectionIndex++) {
+            assoc_pair* sectionEntry = &(config->list[sectionIndex]);
+            filePrintFormatted(stream, "[%s]\n", sectionEntry->name);
 
-            ConfigSection* section = (ConfigSection*)sectionEntry->value;
-            for (int index = 0; index < section->entriesLength; index++) {
-                DictionaryEntry* keyValueEntry = &(section->entries[index]);
-                filePrintFormatted(stream, "%s=%s\n", keyValueEntry->key, *(char**)keyValueEntry->value);
+            ConfigSection* section = (ConfigSection*)sectionEntry->data;
+            for (int index = 0; index < section->size; index++) {
+                assoc_pair* keyValueEntry = &(section->list[index]);
+                filePrintFormatted(stream, "%s=%s\n", keyValueEntry->name, *(char**)keyValueEntry->data);
             }
 
             filePrintFormatted(stream, "\n");
@@ -313,14 +313,14 @@ bool config_save(Config* config, const char* filePath, bool isDb)
             return false;
         }
 
-        for (int sectionIndex = 0; sectionIndex < config->entriesLength; sectionIndex++) {
-            DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
-            fprintf(stream, "[%s]\n", sectionEntry->key);
+        for (int sectionIndex = 0; sectionIndex < config->size; sectionIndex++) {
+            assoc_pair* sectionEntry = &(config->list[sectionIndex]);
+            fprintf(stream, "[%s]\n", sectionEntry->name);
 
-            ConfigSection* section = (ConfigSection*)sectionEntry->value;
-            for (int index = 0; index < section->entriesLength; index++) {
-                DictionaryEntry* keyValueEntry = &(section->entries[index]);
-                fprintf(stream, "%s=%s\n", keyValueEntry->key, *(char**)keyValueEntry->value);
+            ConfigSection* section = (ConfigSection*)sectionEntry->data;
+            for (int index = 0; index < section->size; index++) {
+                assoc_pair* keyValueEntry = &(section->list[index]);
+                fprintf(stream, "%s=%s\n", keyValueEntry->name, *(char**)keyValueEntry->data);
             }
 
             fprintf(stream, "\n");

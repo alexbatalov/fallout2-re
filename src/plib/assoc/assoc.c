@@ -10,121 +10,121 @@
 // with a check for this value.
 #define DICTIONARY_MARKER 0xFEBAFEBA
 
-static void* default_malloc(size_t size);
-static void* default_realloc(void* ptr, size_t newSize);
-static void default_free(void* ptr);
-static int assoc_find(Dictionary* dictionary, const char* key, int* index);
-static int assoc_read_long(FILE* stream, int* valuePtr);
-static int assoc_read_assoc_array(FILE* stream, Dictionary* dictionary);
-static int assoc_write_long(FILE* stream, int value);
-static int assoc_write_assoc_array(FILE* stream, Dictionary* dictionary);
+static void* default_malloc(size_t t);
+static void* default_realloc(void* p, size_t t);
+static void default_free(void* p);
+static int assoc_find(assoc_array* a, const char* name, int* position);
+static int assoc_read_long(FILE* fp, long* theLong);
+static int assoc_read_assoc_array(FILE* fp, assoc_array* a);
+static int assoc_write_long(FILE* fp, long theLong);
+static int assoc_write_assoc_array(FILE* fp, assoc_array* a);
 
 // 0x51E408
-static MallocProc* internal_malloc = default_malloc;
+static assoc_malloc_func* internal_malloc = default_malloc;
 
 // 0x51E40C
-static ReallocProc* internal_realloc = default_realloc;
+static assoc_realloc_func* internal_realloc = default_realloc;
 
 // 0x51E410
-static FreeProc* internal_free = default_free;
+static assoc_free_func* internal_free = default_free;
 
 // 0x4D9B90
-static void* default_malloc(size_t size)
+static void* default_malloc(size_t t)
 {
-    return malloc(size);
+    return malloc(t);
 }
 
 // 0x4D9B98
-static void* default_realloc(void* ptr, size_t newSize)
+static void* default_realloc(void* p, size_t t)
 {
-    return realloc(ptr, newSize);
+    return realloc(p, t);
 }
 
 // 0x4D9BA0
-static void default_free(void* ptr)
+static void default_free(void* p)
 {
-    free(ptr);
+    free(p);
 }
 
 // 0x4D9BA8
-int assoc_init(Dictionary* dictionary, int initialCapacity, size_t valueSize, DictionaryIO* io)
+int assoc_init(assoc_array* a, int n, size_t datasize, assoc_func_list* assoc_funcs)
 {
-    dictionary->entriesCapacity = initialCapacity;
-    dictionary->valueSize = valueSize;
-    dictionary->entriesLength = 0;
+    a->max = n;
+    a->datasize = datasize;
+    a->size = 0;
 
-    if (io != NULL) {
-        memcpy(&(dictionary->io), io, sizeof(*io));
+    if (assoc_funcs != NULL) {
+        memcpy(&(a->load_save_funcs), assoc_funcs, sizeof(*assoc_funcs));
     } else {
-        dictionary->io.readProc = NULL;
-        dictionary->io.writeProc = NULL;
-        dictionary->io.field_8 = 0;
-        dictionary->io.field_C = 0;
+        a->load_save_funcs.loadFunc = NULL;
+        a->load_save_funcs.saveFunc = NULL;
+        a->load_save_funcs.loadFuncDB = NULL;
+        a->load_save_funcs.saveFuncDB = NULL;
     }
 
     int rc = 0;
 
-    if (initialCapacity != 0) {
-        dictionary->entries = (DictionaryEntry*)internal_malloc(sizeof(*dictionary->entries) * initialCapacity);
-        if (dictionary->entries == NULL) {
+    if (n != 0) {
+        a->list = (assoc_pair*)internal_malloc(sizeof(*a->list) * n);
+        if (a->list == NULL) {
             rc = -1;
         }
     } else {
-        dictionary->entries = NULL;
+        a->list = NULL;
     }
 
     if (rc != -1) {
-        dictionary->marker = DICTIONARY_MARKER;
+        a->init_flag = DICTIONARY_MARKER;
     }
 
     return rc;
 }
 
 // 0x4D9C0C
-int assoc_resize(Dictionary* dictionary, int newCapacity)
+int assoc_resize(assoc_array* a, int n)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
-    if (newCapacity < dictionary->entriesLength) {
+    if (n < a->size) {
         return -1;
     }
 
-    DictionaryEntry* entries = (DictionaryEntry*)internal_realloc(dictionary->entries, sizeof(*dictionary->entries) * newCapacity);
+    assoc_pair* entries = (assoc_pair*)internal_realloc(a->list, sizeof(*a->list) * n);
     if (entries == NULL) {
         return -1;
     }
 
-    dictionary->entriesCapacity = newCapacity;
-    dictionary->entries = entries;
+    a->max = n;
+    a->list = entries;
 
     return 0;
 }
 
 // 0x4D9C48
-int assoc_free(Dictionary* dictionary)
+int assoc_free(assoc_array* a)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
-    for (int index = 0; index < dictionary->entriesLength; index++) {
-        DictionaryEntry* entry = &(dictionary->entries[index]);
-        if (entry->key != NULL) {
-            internal_free(entry->key);
+    for (int index = 0; index < a->size; index++) {
+        assoc_pair* entry = &(a->list[index]);
+        if (entry->name != NULL) {
+            internal_free(entry->name);
         }
 
-        if (entry->value != NULL) {
-            internal_free(entry->value);
+        if (entry->data != NULL) {
+            internal_free(entry->data);
         }
     }
 
-    if (dictionary->entries != NULL) {
-        internal_free(dictionary->entries);
+    if (a->list != NULL) {
+        internal_free(a->list);
     }
 
-    memset(dictionary, 0, sizeof(*dictionary));
+    memset(a, 0, sizeof(*a));
 
     return 0;
 }
@@ -135,25 +135,25 @@ int assoc_free(Dictionary* dictionary)
 // specifies an insertion point for given key.
 //
 // 0x4D9CC4
-static int assoc_find(Dictionary* dictionary, const char* key, int* indexPtr)
+static int assoc_find(assoc_array* a, const char* name, int* position)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
-    if (dictionary->entriesLength == 0) {
-        *indexPtr = 0;
+    if (a->size == 0) {
+        *position = 0;
         return -1;
     }
 
-    int r = dictionary->entriesLength - 1;
+    int r = a->size - 1;
     int l = 0;
     int mid = 0;
     int cmp = 0;
     while (r >= l) {
         mid = (l + r) / 2;
 
-        cmp = stricmp(key, dictionary->entries[mid].key);
+        cmp = stricmp(name, a->list[mid].name);
         if (cmp == 0) {
             break;
         }
@@ -166,14 +166,14 @@ static int assoc_find(Dictionary* dictionary, const char* key, int* indexPtr)
     }
 
     if (cmp == 0) {
-        *indexPtr = mid;
+        *position = mid;
         return 0;
     }
 
     if (cmp < 0) {
-        *indexPtr = mid;
+        *position = mid;
     } else {
-        *indexPtr = mid + 1;
+        *position = mid + 1;
     }
 
     return -1;
@@ -183,14 +183,14 @@ static int assoc_find(Dictionary* dictionary, const char* key, int* indexPtr)
 // present in the dictionary.
 //
 // 0x4D9D5C
-int assoc_search(Dictionary* dictionary, const char* key)
+int assoc_search(assoc_array* a, const char* name)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
     int index;
-    if (assoc_find(dictionary, key, &index) != 0) {
+    if (assoc_find(a, name, &index) != 0) {
         return -1;
     }
 
@@ -204,60 +204,60 @@ int assoc_search(Dictionary* dictionary, const char* key)
 // error).
 //
 // 0x4D9D88
-int assoc_insert(Dictionary* dictionary, const char* key, const void* value)
+int assoc_insert(assoc_array* a, const char* name, const void* data)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
     int newElementIndex;
-    if (assoc_find(dictionary, key, &newElementIndex) == 0) {
+    if (assoc_find(a, name, &newElementIndex) == 0) {
         // Element for this key is already exists.
         return -1;
     }
 
-    if (dictionary->entriesLength == dictionary->entriesCapacity) {
-        // Dictionary reached it's capacity and needs to be enlarged.
-        if (assoc_resize(dictionary, 2 * (dictionary->entriesCapacity + 1)) == -1) {
+    if (a->size == a->max) {
+        // assoc array reached it's capacity and needs to be enlarged.
+        if (assoc_resize(a, 2 * (a->max + 1)) == -1) {
             return -1;
         }
     }
 
     // Make a copy of the key.
-    char* keyCopy = (char*)internal_malloc(strlen(key) + 1);
+    char* keyCopy = (char*)internal_malloc(strlen(name) + 1);
     if (keyCopy == NULL) {
         return -1;
     }
 
-    strcpy(keyCopy, key);
+    strcpy(keyCopy, name);
 
     // Make a copy of the value.
     void* valueCopy = NULL;
-    if (value != NULL && dictionary->valueSize != 0) {
-        valueCopy = internal_malloc(dictionary->valueSize);
+    if (data != NULL && a->datasize != 0) {
+        valueCopy = internal_malloc(a->datasize);
         if (valueCopy == NULL) {
             internal_free(keyCopy);
             return -1;
         }
     }
 
-    if (valueCopy != NULL && dictionary->valueSize != 0) {
-        memcpy(valueCopy, value, dictionary->valueSize);
+    if (valueCopy != NULL && a->datasize != 0) {
+        memcpy(valueCopy, data, a->datasize);
     }
 
     // Starting at the end of entries array loop backwards and move entries down
     // one by one until we reach insertion point.
-    for (int index = dictionary->entriesLength; index > newElementIndex; index--) {
-        DictionaryEntry* src = &(dictionary->entries[index - 1]);
-        DictionaryEntry* dest = &(dictionary->entries[index]);
-        memcpy(dest, src, sizeof(*dictionary->entries));
+    for (int index = a->size; index > newElementIndex; index--) {
+        assoc_pair* src = &(a->list[index - 1]);
+        assoc_pair* dest = &(a->list[index]);
+        memcpy(dest, src, sizeof(*a->list));
     }
 
-    DictionaryEntry* entry = &(dictionary->entries[newElementIndex]);
-    entry->key = keyCopy;
-    entry->value = valueCopy;
+    assoc_pair* entry = &(a->list[newElementIndex]);
+    entry->name = keyCopy;
+    entry->data = valueCopy;
 
-    dictionary->entriesLength++;
+    a->size++;
 
     return 0;
 }
@@ -268,33 +268,33 @@ int assoc_insert(Dictionary* dictionary, const char* key, const void* value)
 // Returns 0 on success, -1 on any error (including key not present error).
 //
 // 0x4D9EE8
-int assoc_delete(Dictionary* dictionary, const char* key)
+int assoc_delete(assoc_array* a, const char* name)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
     int indexToRemove;
-    if (assoc_find(dictionary, key, &indexToRemove) == -1) {
+    if (assoc_find(a, name, &indexToRemove) == -1) {
         return -1;
     }
 
-    DictionaryEntry* entry = &(dictionary->entries[indexToRemove]);
+    assoc_pair* entry = &(a->list[indexToRemove]);
 
     // Free key and value (which are copies).
-    internal_free(entry->key);
-    if (entry->value != NULL) {
-        internal_free(entry->value);
+    internal_free(entry->name);
+    if (entry->data != NULL) {
+        internal_free(entry->data);
     }
 
-    dictionary->entriesLength--;
+    a->size--;
 
     // Starting from the index of the entry we've just removed, loop thru the
     // remaining of the array and move entries up one by one.
-    for (int index = indexToRemove; index < dictionary->entriesLength; index++) {
-        DictionaryEntry* src = &(dictionary->entries[index + 1]);
-        DictionaryEntry* dest = &(dictionary->entries[index]);
-        memcpy(dest, src, sizeof(*dictionary->entries));
+    for (int index = indexToRemove; index < a->size; index++) {
+        assoc_pair* src = &(a->list[index + 1]);
+        assoc_pair* dest = &(a->list[index]);
+        memcpy(dest, src, sizeof(*a->list));
     }
 
     return 0;
@@ -303,20 +303,20 @@ int assoc_delete(Dictionary* dictionary, const char* key)
 // NOTE: Unused.
 //
 // 0x4D9F84
-int assoc_copy(Dictionary* dest, Dictionary* src)
+int assoc_copy(assoc_array* dst, assoc_array* src)
 {
-    if (src->marker != DICTIONARY_MARKER) {
+    if (src->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
-    if (assoc_init(dest, src->entriesCapacity, src->valueSize, &(src->io)) != 0) {
+    if (assoc_init(dst, src->max, src->datasize, &(src->load_save_funcs)) != 0) {
         // FIXME: Should return -1, as we were unable to initialize dictionary.
         return 0;
     }
 
-    for (int index = 0; index < src->entriesLength; index++) {
-        DictionaryEntry* entry = &(src->entries[index]);
-        if (assoc_insert(dest, entry->key, entry->value) == -1) {
+    for (int index = 0; index < src->size; index++) {
+        assoc_pair* entry = &(src->list[index]);
+        if (assoc_insert(dst, entry->name, entry->data) == -1) {
             return -1;
         }
     }
@@ -327,40 +327,40 @@ int assoc_copy(Dictionary* dest, Dictionary* src)
 // NOTE: Unused.
 //
 // 0x4DA090
-static int assoc_read_long(FILE* stream, int* valuePtr)
+static int assoc_read_long(FILE* fp, long* theLong)
 {
-    int ch;
-    int value;
+    int c;
+    int temp;
 
-    ch = fgetc(stream);
-    if (ch == -1) {
+    c = fgetc(fp);
+    if (c == -1) {
         return -1;
     }
 
-    value = (ch & 0xFF);
+    temp = (c & 0xFF);
 
-    ch = fgetc(stream);
-    if (ch == -1) {
+    c = fgetc(fp);
+    if (c == -1) {
         return -1;
     }
 
-    value = (value << 8) | (ch & 0xFF);
+    temp = (temp << 8) | (c & 0xFF);
 
-    ch = fgetc(stream);
-    if (ch == -1) {
+    c = fgetc(fp);
+    if (c == -1) {
         return -1;
     }
 
-    value = (value << 8) | (ch & 0xFF);
+    temp = (temp << 8) | (c & 0xFF);
 
-    ch = fgetc(stream);
-    if (ch == -1) {
+    c = fgetc(fp);
+    if (c == -1) {
         return -1;
     }
 
-    value = (value << 8) | (ch & 0xFF);
+    temp = (temp << 8) | (c & 0xFF);
 
-    *valuePtr = value;
+    *theLong = temp;
 
     return 0;
 }
@@ -368,22 +368,22 @@ static int assoc_read_long(FILE* stream, int* valuePtr)
 // NOTE: Unused.
 //
 // 0x4DA0F4
-static int assoc_read_assoc_array(FILE* stream, Dictionary* dictionary)
+static int assoc_read_assoc_array(FILE* fp, assoc_array* a)
 {
-    int value;
+    long temp;
 
-    if (assoc_read_long(stream, &value) != 0) return -1;
-    dictionary->entriesLength = value;
+    if (assoc_read_long(fp, &temp) != 0) return -1;
+    a->size = temp;
 
-    if (assoc_read_long(stream, &value) != 0) return -1;
-    dictionary->entriesCapacity = value;
+    if (assoc_read_long(fp, &temp) != 0) return -1;
+    a->max = temp;
 
-    if (assoc_read_long(stream, &value) != 0) return -1;
-    dictionary->valueSize = value;
+    if (assoc_read_long(fp, &temp) != 0) return -1;
+    a->datasize = temp;
 
-    if (assoc_read_long(stream, &value) != 0) return -1;
+    if (assoc_read_long(fp, &temp) != 0) return -1;
     // FIXME: Reading pointer.
-    dictionary->entries = (DictionaryEntry*)value;
+    a->list = (assoc_pair*)temp;
 
     return 0;
 }
@@ -391,80 +391,80 @@ static int assoc_read_assoc_array(FILE* stream, Dictionary* dictionary)
 // NOTE: Unused.
 //
 // 0x4DA158
-int assoc_load(FILE* stream, Dictionary* dictionary, int a3)
+int assoc_load(FILE* fp, assoc_array* a, int flags)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
-    for (int index = 0; index < dictionary->entriesLength; index++) {
-        DictionaryEntry* entry = &(dictionary->entries[index]);
-        if (entry->key != NULL) {
-            internal_free(entry->key);
+    for (int index = 0; index < a->size; index++) {
+        assoc_pair* entry = &(a->list[index]);
+        if (entry->name != NULL) {
+            internal_free(entry->name);
         }
 
-        if (entry->value != NULL) {
-            internal_free(entry->value);
+        if (entry->data != NULL) {
+            internal_free(entry->data);
         }
     }
 
-    if (dictionary->entries != NULL) {
-        internal_free(dictionary->entries);
+    if (a->list != NULL) {
+        internal_free(a->list);
     }
 
-    if (assoc_read_assoc_array(stream, dictionary) != 0) {
+    if (assoc_read_assoc_array(fp, a) != 0) {
         return -1;
     }
 
-    dictionary->entries = NULL;
+    a->list = NULL;
 
-    if (dictionary->entriesCapacity <= 0) {
+    if (a->max <= 0) {
         return 0;
     }
 
-    dictionary->entries = (DictionaryEntry*)internal_malloc(sizeof(*dictionary->entries) * dictionary->entriesCapacity);
-    if (dictionary->entries == NULL) {
+    a->list = (assoc_pair*)internal_malloc(sizeof(*a->list) * a->max);
+    if (a->list == NULL) {
         return -1;
     }
 
-    for (int index = 0; index < dictionary->entriesLength; index++) {
-        DictionaryEntry* entry = &(dictionary->entries[index]);
-        entry->key = NULL;
-        entry->value = NULL;
+    for (int index = 0; index < a->size; index++) {
+        assoc_pair* entry = &(a->list[index]);
+        entry->name = NULL;
+        entry->data = NULL;
     }
 
-    if (dictionary->entriesLength <= 0) {
+    if (a->size <= 0) {
         return 0;
     }
 
-    for (int index = 0; index < dictionary->entriesLength; index++) {
-        DictionaryEntry* entry = &(dictionary->entries[index]);
-        int keyLength = fgetc(stream);
+    for (int index = 0; index < a->size; index++) {
+        assoc_pair* entry = &(a->list[index]);
+        int keyLength = fgetc(fp);
         if (keyLength == -1) {
             return -1;
         }
 
-        entry->key = (char*)internal_malloc(keyLength + 1);
-        if (entry->key == NULL) {
+        entry->name = (char*)internal_malloc(keyLength + 1);
+        if (entry->name == NULL) {
             return -1;
         }
 
-        if (fgets(entry->key, keyLength, stream) == NULL) {
+        if (fgets(entry->name, keyLength, fp) == NULL) {
             return -1;
         }
 
-        if (dictionary->valueSize != 0) {
-            entry->value = internal_malloc(dictionary->valueSize);
-            if (entry->value == NULL) {
+        if (a->datasize != 0) {
+            entry->data = internal_malloc(a->datasize);
+            if (entry->data == NULL) {
                 return -1;
             }
 
-            if (dictionary->io.readProc != NULL) {
-                if (dictionary->io.readProc(stream, entry->value, dictionary->valueSize, a3) != 0) {
+            if (a->load_save_funcs.loadFunc != NULL) {
+                if (a->load_save_funcs.loadFunc(fp, entry->data, a->datasize, flags) != 0) {
                     return -1;
                 }
             } else {
-                if (fread(entry->value, dictionary->valueSize, 1, stream) != 1) {
+                if (fread(entry->data, a->datasize, 1, fp) != 1) {
                     return -1;
                 }
             }
@@ -477,12 +477,12 @@ int assoc_load(FILE* stream, Dictionary* dictionary, int a3)
 // NOTE: Unused.
 //
 // 0x4DA2EC
-static int assoc_write_long(FILE* stream, int value)
+static int assoc_write_long(FILE* fp, long theLong)
 {
-    if (fputc((value >> 24) & 0xFF, stream) == -1) return -1;
-    if (fputc((value >> 16) & 0xFF, stream) == -1) return -1;
-    if (fputc((value >> 8) & 0xFF, stream) == -1) return -1;
-    if (fputc(value & 0xFF, stream) == -1) return -1;
+    if (fputc((theLong >> 24) & 0xFF, fp) == -1) return -1;
+    if (fputc((theLong >> 16) & 0xFF, fp) == -1) return -1;
+    if (fputc((theLong >> 8) & 0xFF, fp) == -1) return -1;
+    if (fputc(theLong & 0xFF, fp) == -1) return -1;
 
     return 0;
 }
@@ -490,13 +490,13 @@ static int assoc_write_long(FILE* stream, int value)
 // NOTE: Unused.
 //
 // 0x4DA360
-static int assoc_write_assoc_array(FILE* stream, Dictionary* dictionary)
+static int assoc_write_assoc_array(FILE* fp, assoc_array* a)
 {
-    if (assoc_write_long(stream, dictionary->entriesLength) != 0) return -1;
-    if (assoc_write_long(stream, dictionary->entriesCapacity) != 0) return -1;
-    if (assoc_write_long(stream, dictionary->valueSize) != 0) return -1;
+    if (assoc_write_long(fp, a->size) != 0) return -1;
+    if (assoc_write_long(fp, a->max) != 0) return -1;
+    if (assoc_write_long(fp, a->datasize) != 0) return -1;
     // FIXME: Writing pointer.
-    if (assoc_write_long(stream, (int)dictionary->entries) != 0) return -1;
+    if (assoc_write_long(fp, (int)a->list) != 0) return -1;
 
     return 0;
 }
@@ -504,36 +504,36 @@ static int assoc_write_assoc_array(FILE* stream, Dictionary* dictionary)
 // NOTE: Unused.
 //
 // 0x4DA3A4
-int assoc_save(FILE* stream, Dictionary* dictionary, int a3)
+int assoc_save(FILE* fp, assoc_array* a, int flags)
 {
-    if (dictionary->marker != DICTIONARY_MARKER) {
+    if (a->init_flag != DICTIONARY_MARKER) {
         return -1;
     }
 
-    if (assoc_write_assoc_array(stream, dictionary) != 0) {
+    if (assoc_write_assoc_array(fp, a) != 0) {
         return -1;
     }
 
-    for (int index = 0; index < dictionary->entriesLength; index++) {
-        DictionaryEntry* entry = &(dictionary->entries[index]);
-        int keyLength = strlen(entry->key);
-        if (fputc(keyLength, stream) == -1) {
+    for (int index = 0; index < a->size; index++) {
+        assoc_pair* entry = &(a->list[index]);
+        int keyLength = strlen(entry->name);
+        if (fputc(keyLength, fp) == -1) {
             return -1;
         }
 
-        if (fputs(entry->key, stream) == -1) {
+        if (fputs(entry->name, fp) == -1) {
             return -1;
         }
 
-        if (dictionary->io.writeProc != NULL) {
-            if (dictionary->valueSize != 0) {
-                if (dictionary->io.writeProc(stream, entry->value, dictionary->valueSize, a3) != 0) {
+        if (a->load_save_funcs.saveFunc != NULL) {
+            if (a->datasize != 0) {
+                if (a->load_save_funcs.saveFunc(fp, entry->data, a->datasize, flags) != 0) {
                     return -1;
                 }
             }
         } else {
-            if (dictionary->valueSize != 0) {
-                if (fwrite(entry->value, dictionary->valueSize, 1, stream) != 1) {
+            if (a->datasize != 0) {
+                if (fwrite(entry->data, a->datasize, 1, fp) != 1) {
                     return -1;
                 }
             }
@@ -544,12 +544,12 @@ int assoc_save(FILE* stream, Dictionary* dictionary, int a3)
 }
 
 // 0x4DA498
-void assoc_register_mem(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc)
+void assoc_register_mem(assoc_malloc_func* malloc_func, assoc_realloc_func* realloc_func, assoc_free_func* free_func)
 {
-    if (mallocProc != NULL && reallocProc != NULL && freeProc != NULL) {
-        internal_malloc = mallocProc;
-        internal_realloc = reallocProc;
-        internal_free = freeProc;
+    if (malloc_func != NULL && realloc_func != NULL && free_func != NULL) {
+        internal_malloc = malloc_func;
+        internal_realloc = realloc_func;
+        internal_free = free_func;
     } else {
         internal_malloc = default_malloc;
         internal_realloc = default_realloc;
