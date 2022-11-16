@@ -32,7 +32,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "text_font.h"
-#include "trait.h"
+#include "game/trait.h"
 #include "window_manager.h"
 #include "word_wrap.h"
 #include "worldmap.h"

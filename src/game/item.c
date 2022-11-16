@@ -24,7 +24,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 
 static void item_compact(int inventoryItemIndex, Inventory* inventory);
 static int item_move_func(Object* a1, Object* a2, Object* a3, int quantity, bool a5);

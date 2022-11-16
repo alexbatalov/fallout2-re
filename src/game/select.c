@@ -22,7 +22,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "text_font.h"
-#include "trait.h"
+#include "game/trait.h"
 #include "window_manager.h"
 
 #define CS_WINDOW_WIDTH 640

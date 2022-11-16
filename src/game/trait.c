@@ -1,4 +1,4 @@
-#include "trait.h"
+#include "game/trait.h"
 
 #include <stdio.h>
 

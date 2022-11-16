@@ -5,7 +5,7 @@
 
 #include "db.h"
 #include "game/message.h"
-#include "trait_defs.h"
+#include "game/trait_defs.h"
 
 // Provides metadata about traits.
 typedef struct TraitDescription {

@@ -26,7 +26,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 #include "worldmap.h"
 
 static int get_rad_damage_level(Object* obj, void* data);

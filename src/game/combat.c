@@ -36,7 +36,7 @@
 #include "game/stat.h"
 #include "text_font.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 #include "window_manager.h"
 
 #define CALLED_SHOT_WINDOW_X 68

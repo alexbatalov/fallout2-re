@@ -29,7 +29,7 @@
 #include "game/stat.h"
 #include "game/textobj.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 #include "vcr.h"
 
 #define ANIMATION_SEQUENCE_LIST_CAPACITY 32

@@ -19,7 +19,7 @@
 #include "game/scripts.h"
 #include "game/skill.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 
 // Provides metadata about stats.
 typedef struct StatDescription {

@@ -31,7 +31,7 @@
 #include "game/stat.h"
 #include "game/textobj.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 
 static int pick_death(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack);
 static int check_death(Object* obj, int anim, int minViolenceLevel, bool isFallingBack);

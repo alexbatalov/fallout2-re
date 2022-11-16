@@ -52,7 +52,7 @@
 #include "game/stat.h"
 #include "text_font.h"
 #include "game/tile.h"
-#include "trait.h"
+#include "game/trait.h"
 #include "trap.h"
 #include "version.h"
 #include "window_manager.h"

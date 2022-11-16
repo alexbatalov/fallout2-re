@@ -23,7 +23,7 @@
 #include "game/roll.h"
 #include "game/scripts.h"
 #include "game/stat.h"
-#include "trait.h"
+#include "game/trait.h"
 
 #define SKILLS_MAX_USES_PER_DAY 3
 

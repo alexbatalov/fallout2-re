@@ -24,7 +24,7 @@
 #include "game/perk.h"
 #include "game/skill.h"
 #include "game/stat.h"
-#include "trait.h"
+#include "game/trait.h"
 
 static char* proto_get_msg_info(int pid, int message);
 static int proto_read_CombatData(CritterCombatData* data, File* stream);
