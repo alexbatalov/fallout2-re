@@ -131,7 +131,7 @@ static int sampleRate;
 static int numSounds;
 
 // 0x668164
-static int _deviceInit;
+static int deviceInit;
 
 // 0x668168
 static int dataSize;
@@ -140,7 +140,7 @@ static int dataSize;
 static int numBuffers;
 
 // 0x668170
-static bool gSoundInitialized;
+static bool driverInit;
 
 // 0x668174
 static Sound* soundMgrList;
@@ -442,8 +442,8 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
     sampleRate = rate;
     dataSize = a4;
     numBuffers = a2;
-    gSoundInitialized = true;
-    _deviceInit = 1;
+    driverInit = true;
+    deviceInit = 1;
 
     DSBUFFERDESC dsbdesc;
     memset(&dsbdesc, 0, sizeof(dsbdesc));
@@ -587,13 +587,13 @@ void soundClose()
     }
 
     soundErrorno = SOUND_NO_ERROR;
-    gSoundInitialized = false;
+    driverInit = false;
 }
 
 // 0x4AD0FC
 Sound* soundAllocate(int a1, int a2)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return NULL;
     }
@@ -738,7 +738,7 @@ static int preloadBuffers(Sound* sound)
 // 0x4AD498
 int soundLoad(Sound* sound, char* filePath)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -762,7 +762,7 @@ int soundRewind(Sound* sound)
 {
     HRESULT hr;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -834,7 +834,7 @@ static int addSoundData(Sound* sound, unsigned char* buf, int size)
 // 0x4AD6C0
 int soundSetData(Sound* sound, unsigned char* buf, int size)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -863,7 +863,7 @@ int soundPlay(Sound* sound)
     DWORD readPos;
     DWORD writePos;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -903,7 +903,7 @@ int soundStop(Sound* sound)
 {
     HRESULT hr;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -934,7 +934,7 @@ int soundStop(Sound* sound)
 // 0x4AD8DC
 int soundDelete(Sound* sample)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -961,7 +961,7 @@ int soundContinue(Sound* sound)
     HRESULT hr;
     DWORD status;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1027,7 +1027,7 @@ int soundContinue(Sound* sound)
 // 0x4ADA84
 bool soundPlaying(Sound* sound)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return false;
     }
@@ -1043,7 +1043,7 @@ bool soundPlaying(Sound* sound)
 // 0x4ADAC4
 bool soundDone(Sound* sound)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return false;
     }
@@ -1059,7 +1059,7 @@ bool soundDone(Sound* sound)
 // 0x4ADB44
 bool soundPaused(Sound* sound)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return false;
     }
@@ -1075,7 +1075,7 @@ bool soundPaused(Sound* sound)
 // 0x4ADBC4
 int soundType(Sound* sound, int a2)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return 0;
     }
@@ -1091,7 +1091,7 @@ int soundType(Sound* sound, int a2)
 // 0x4ADC04
 int soundLength(Sound* sound)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1115,7 +1115,7 @@ int soundLength(Sound* sound)
 // 0x4ADD00
 int soundLoop(Sound* sound, int a2)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1166,7 +1166,7 @@ int soundVolume(Sound* sound, int volume)
     int normalizedVolume;
     HRESULT hr;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1203,7 +1203,7 @@ int soundGetVolume(Sound* sound)
     int v8;
     int diff;
 
-    if (!_deviceInit) {
+    if (!deviceInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1235,7 +1235,7 @@ int soundGetVolume(Sound* sound)
 // 0x4ADFF0
 int soundSetCallback(Sound* sound, SoundCallback* callback, void* userData)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1257,7 +1257,7 @@ int soundSetChannel(Sound* sound, int channels)
 {
     LPWAVEFORMATEX format;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1282,7 +1282,7 @@ int soundSetChannel(Sound* sound, int channels)
 // 0x4AE0B0
 int soundSetReadLimit(Sound* sound, int readLimit)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1307,7 +1307,7 @@ int soundPause(Sound* sound)
     DWORD readPos;
     DWORD writePos;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1351,7 +1351,7 @@ int soundUnpause(Sound* sound)
 {
     HRESULT hr;
 
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1386,7 +1386,7 @@ int soundUnpause(Sound* sound)
 // 0x4AE2FC
 int soundSetFileIO(Sound* sound, SoundOpenProc* openProc, SoundCloseProc* closeProc, SoundReadProc* readProc, SoundWriteProc* writeProc, SoundSeekProc* seekProc, SoundTellProc* tellProc, SoundFileLengthProc* fileLengthProc)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1534,7 +1534,7 @@ static void removeTimedEvent(unsigned int* timerId)
 // 0x4AE634
 int soundGetPosition(Sound* sound)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1562,7 +1562,7 @@ int soundGetPosition(Sound* sound)
 // 0x4AE6CC
 int soundSetPosition(Sound* sound, int a2)
 {
-    if (!gSoundInitialized) {
+    if (!driverInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1695,7 +1695,7 @@ static int internalSoundFade(Sound* sound, int duration, int targetVolume, int a
 {
     FadeSound* ptr;
 
-    if (!_deviceInit) {
+    if (!deviceInit) {
         soundErrorno = SOUND_NOT_INITIALIZED;
         return soundErrorno;
     }
@@ -1752,7 +1752,7 @@ static int internalSoundFade(Sound* sound, int duration, int targetVolume, int a
     sound->field_40 |= SOUND_FLAG_SOUND_IS_FADING;
 
     bool v14;
-    if (gSoundInitialized) {
+    if (driverInit) {
         if (sound->directSoundBuffer != NULL) {
             v14 = (sound->field_40 & SOUND_FLAG_SOUND_IS_PLAYING) == 0;
         } else {
