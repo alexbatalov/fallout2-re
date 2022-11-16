@@ -1526,8 +1526,8 @@ static int wmParseEncounterTableIndex(EncounterEntry* entry, char* string)
     }
 
     while (string != NULL && *string != '\0') {
-        strParseIntWithKey(&string, "chance", &(entry->chance), ":");
-        strParseIntWithKey(&string, "counter", &(entry->counter), ":");
+        strParseStrSepVal(&string, "chance", &(entry->chance), ":");
+        strParseStrSepVal(&string, "counter", &(entry->counter), ":");
 
         if (strstr(string, "special")) {
             entry->flags |= ENCOUNTER_ENTRY_SPECIAL;
@@ -1752,8 +1752,8 @@ static int wmReadEncBaseType(char* name, int* valuePtr)
 
             if (config_get_string(pConfigCfg, section, "position", &string)) {
                 strParseStrFromList(&string, &(entry->position), wmFormationStrs, ENCOUNTER_FORMATION_TYPE_COUNT);
-                strParseIntWithKey(&string, "spacing", &(entry->spacing), ":");
-                strParseIntWithKey(&string, "distance", &(entry->distance), ":");
+                strParseStrSepVal(&string, "spacing", &(entry->spacing), ":");
+                strParseStrSepVal(&string, "distance", &(entry->distance), ":");
             }
 
             *valuePtr = _wmMaxEncBaseTypes - 1;
@@ -1775,7 +1775,7 @@ static int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
         return -1;
     }
 
-    if (strParseIntWithKey(&string, "ratio", &(ptr->ratio), ":") == 0) {
+    if (strParseStrSepVal(&string, "ratio", &(ptr->ratio), ":") == 0) {
         ptr->field_2C = 0;
     }
 
@@ -1784,13 +1784,13 @@ static int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
         string += 5;
     }
 
-    strParseIntWithKey(&string, "pid", &(ptr->pid), ":");
+    strParseStrSepVal(&string, "pid", &(ptr->pid), ":");
     if (ptr->pid == 0) {
         ptr->pid = -1;
     }
 
-    strParseIntWithKey(&string, "distance", &(ptr->distance), ":");
-    strParseIntWithKey(&string, "tilenum", &(ptr->tile), ":");
+    strParseStrSepVal(&string, "distance", &(ptr->distance), ":");
+    strParseStrSepVal(&string, "tilenum", &(ptr->tile), ":");
 
     for (int index = 0; index < 10; index++) {
         if (strstr(string, "item:") == NULL) {
@@ -1800,7 +1800,7 @@ static int wmParseEncBaseSubTypeStr(ENC_BASE_TYPE_38* ptr, char** stringPtr)
         wmParseEncounterItemType(&string, &(ptr->items[ptr->itemsLength]), &(ptr->itemsLength), ":");
     }
 
-    strParseIntWithKey(&string, "script", &(ptr->script), ":");
+    strParseStrSepVal(&string, "script", &(ptr->script), ":");
     wmParseConditional(&string, "if", &(ptr->condition));
 
     return 0;
@@ -2547,11 +2547,11 @@ static int wmAreaInit()
                 exit(1);
             }
 
-            if (strParseInt(&str, &(city->x)) == -1) {
+            if (strParseValue(&str, &(city->x)) == -1) {
                 return -1;
             }
 
-            if (strParseInt(&str, &(city->y)) == -1) {
+            if (strParseValue(&str, &(city->y)) == -1) {
                 return -1;
             }
 
@@ -2595,11 +2595,11 @@ static int wmAreaInit()
                     return -1;
                 }
 
-                if (strParseInt(&str, &(entrance->x)) == -1) {
+                if (strParseValue(&str, &(entrance->x)) == -1) {
                     return -1;
                 }
 
-                if (strParseInt(&str, &(entrance->y)) == -1) {
+                if (strParseValue(&str, &(entrance->y)) == -1) {
                     return -1;
                 }
 
@@ -2607,15 +2607,15 @@ static int wmAreaInit()
                     return -1;
                 }
 
-                if (strParseInt(&str, &(entrance->elevation)) == -1) {
+                if (strParseValue(&str, &(entrance->elevation)) == -1) {
                     return -1;
                 }
 
-                if (strParseInt(&str, &(entrance->tile)) == -1) {
+                if (strParseValue(&str, &(entrance->tile)) == -1) {
                     return -1;
                 }
 
-                if (strParseInt(&str, &(entrance->rotation)) == -1) {
+                if (strParseValue(&str, &(entrance->rotation)) == -1) {
                     return -1;
                 }
 
@@ -2739,7 +2739,7 @@ static int wmMapInit()
             if (config_get_string(&config, section, "ambient_sfx", &str)) {
                 while (str) {
                     sfx = &(map->ambientSoundEffects[map->ambientSoundEffectsLength]);
-                    if (strParseKeyValue(&str, sfx->name, &(sfx->chance), ":") == -1) {
+                    if (strParseStrAndSepVal(&str, sfx->name, &(sfx->chance), ":") == -1) {
                         return -1;
                     }
 
@@ -2821,8 +2821,8 @@ static int wmMapInit()
                         // NOTE: Uninline.
                         wmRStartSlotInit(rsp);
 
-                        strParseIntWithKey(&str, "elev", &(rsp->elevation), ":");
-                        strParseIntWithKey(&str, "tile_num", &(rsp->tile), ":");
+                        strParseStrSepVal(&str, "elev", &(rsp->elevation), ":");
+                        strParseStrSepVal(&str, "tile_num", &(rsp->tile), ":");
 
                         map->startPointsLength++;
                     }

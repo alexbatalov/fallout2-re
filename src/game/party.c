@@ -238,7 +238,7 @@ int partyMember_init()
             if (config_get_string(&config, section, "level_pids", &string)) {
                 while (*string != '\0' && aiOptions->level_pids_num < 5) {
                     int levelPid;
-                    strParseInt(&string, &levelPid);
+                    strParseValue(&string, &levelPid);
                     aiOptions->level_pids[aiOptions->level_pids_num] = levelPid;
                     aiOptions->level_pids_num++;
                 }

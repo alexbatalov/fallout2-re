@@ -5,9 +5,9 @@
 
 #include "debug.h"
 
-// strParseInt
+// strParseValue
 // 0x4AFD10
-int strParseInt(char** stringPtr, int* valuePtr)
+int strParseValue(char** stringPtr, int* valuePtr)
 {
     char *str, *remaining_str;
     int v1, v2, v3;
@@ -155,7 +155,7 @@ int strParseStrFromFunc(char** stringPtr, int* valuePtr, StringParserCallback* c
 }
 
 // 0x4AFF7C
-int strParseIntWithKey(char** stringPtr, const char* key, int* valuePtr, const char* delimeter)
+int strParseStrSepVal(char** stringPtr, const char* key, int* valuePtr, const char* delimeter)
 {
     char* str;
     int v1, v2, v3, v4, v5;
@@ -209,7 +209,7 @@ int strParseIntWithKey(char** stringPtr, const char* key, int* valuePtr, const c
 }
 
 // 0x4B005C
-int strParseKeyValue(char** stringPtr, char* key, int* valuePtr, const char* delimiter)
+int strParseStrAndSepVal(char** stringPtr, char* key, int* valuePtr, const char* delimiter)
 {
     char* str;
     int v1, v2, v3, v4, v5;
