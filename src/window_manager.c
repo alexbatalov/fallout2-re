@@ -82,8 +82,8 @@ RadioGroup gRadioGroups[RADIO_GROUP_LIST_CAPACITY];
 // 0x4D5C30
 int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* videoSystemExitProc, int a3)
 {
-    CloseHandle(_GNW95_mutex);
-    _GNW95_mutex = INVALID_HANDLE_VALUE;
+    CloseHandle(GNW95_mutex);
+    GNW95_mutex = INVALID_HANDLE_VALUE;
 
     if (_GNW95_already_running) {
         return WINDOW_MANAGER_ERR_ALREADY_RUNNING;
@@ -1240,11 +1240,11 @@ void programWindowSetTitle(const char* title)
         }
     }
 
-    strncpy(gProgramWindowTitle, title, 256);
-    gProgramWindowTitle[256 - 1] = '\0';
+    strncpy(GNW95_title, title, 256);
+    GNW95_title[256 - 1] = '\0';
 
-    if (gProgramWindow != NULL) {
-        SetWindowTextA(gProgramWindow, gProgramWindowTitle);
+    if (GNW95_hwnd != NULL) {
+        SetWindowTextA(GNW95_hwnd, GNW95_title);
     }
 }
 
@@ -1297,7 +1297,7 @@ int paletteCloseFileImpl(int fd)
 // 0x4D8200
 bool showMesageBox(const char* text)
 {
-    HCURSOR cursor = LoadCursorA(gInstance, MAKEINTRESOURCEA(IDC_ARROW));
+    HCURSOR cursor = LoadCursorA(GNW95_hInstance, MAKEINTRESOURCEA(IDC_ARROW));
     HCURSOR prev = SetCursor(cursor);
     ShowCursor(TRUE);
     MessageBoxA(NULL, text, NULL, MB_ICONSTOP);

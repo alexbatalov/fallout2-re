@@ -214,7 +214,7 @@ int _get_input()
 
     _GNW95_process_message();
 
-    if (!gProgramIsActive) {
+    if (!GNW95_isActive) {
         _GNW95_lost_focus();
     }
 
@@ -1110,7 +1110,7 @@ next:
 // 0x4C9CF0
 void _GNW95_process_message()
 {
-    if (gProgramIsActive && !kb_is_disabled()) {
+    if (GNW95_isActive && !kb_is_disabled()) {
         dxinput_key_data data;
         while (dxinput_read_keyboard_buffer(&data)) {
             _GNW95_process_key(&data);
@@ -1211,7 +1211,7 @@ void _GNW95_lost_focus()
         _focus_func(0);
     }
 
-    while (!gProgramIsActive) {
+    while (!GNW95_isActive) {
         _GNW95_process_message();
 
         if (_idle_func != NULL) {
@@ -1340,17 +1340,17 @@ int _init_vesa_mode(int width, int height)
 // 0x4CAEDC
 int _GNW95_init_window()
 {
-    if (gProgramWindow == NULL) {
+    if (GNW95_hwnd == NULL) {
         int width = GetSystemMetrics(SM_CXSCREEN);
         int height = GetSystemMetrics(SM_CYSCREEN);
 
-        gProgramWindow = CreateWindowExA(WS_EX_TOPMOST, "GNW95 Class", gProgramWindowTitle, WS_POPUP | WS_VISIBLE | WS_SYSMENU, 0, 0, width, height, NULL, NULL, gInstance, NULL);
-        if (gProgramWindow == NULL) {
+        GNW95_hwnd = CreateWindowExA(WS_EX_TOPMOST, "GNW95 Class", GNW95_title, WS_POPUP | WS_VISIBLE | WS_SYSMENU, 0, 0, width, height, NULL, NULL, GNW95_hInstance, NULL);
+        if (GNW95_hwnd == NULL) {
             return -1;
         }
 
-        UpdateWindow(gProgramWindow);
-        SetFocus(gProgramWindow);
+        UpdateWindow(GNW95_hwnd);
+        SetFocus(GNW95_hwnd);
     }
 
     return 0;
@@ -1409,7 +1409,7 @@ int directDrawInit(int width, int height, int bpp)
         return -1;
     }
 
-    if (IDirectDraw_SetCooperativeLevel(gDirectDraw, gProgramWindow, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN) != DD_OK) {
+    if (IDirectDraw_SetCooperativeLevel(gDirectDraw, GNW95_hwnd, DDSCL_EXCLUSIVE | DDSCL_FULLSCREEN) != DD_OK) {
         return -1;
     }
 
@@ -1646,7 +1646,7 @@ void _GNW95_ShowRect(unsigned char* src, int srcPitch, int a3, int srcX, int src
     DDSURFACEDESC ddsd;
     HRESULT hr;
 
-    if (!gProgramIsActive) {
+    if (!GNW95_isActive) {
         return;
     }
 
@@ -1676,7 +1676,7 @@ void _GNW95_MouseShowRect16(unsigned char* src, int srcPitch, int a3, int srcX, 
     DDSURFACEDESC ddsd;
     HRESULT hr;
 
-    if (!gProgramIsActive) {
+    if (!GNW95_isActive) {
         return;
     }
 
@@ -1727,7 +1727,7 @@ void _GNW95_MouseShowTransRect16(unsigned char* src, int srcPitch, int a3, int s
     DDSURFACEDESC ddsd;
     HRESULT hr;
 
-    if (!gProgramIsActive) {
+    if (!GNW95_isActive) {
         return;
     }
 
@@ -1777,7 +1777,7 @@ void _GNW95_zero_vid_mem()
     HRESULT hr;
     unsigned char* surface;
 
-    if (!gProgramIsActive) {
+    if (!GNW95_isActive) {
         return;
     }
 

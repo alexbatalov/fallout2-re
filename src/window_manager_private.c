@@ -56,9 +56,6 @@ int _curry;
 // 0x6B23C4
 int _currx;
 
-// 0x6B23D0
-char gProgramWindowTitle[256];
-
 // 0x4DA6C0
 int _win_list_select(const char* title, char** fileList, int fileListLength, ListSelectionHandler* callback, int x, int y, int a7)
 {

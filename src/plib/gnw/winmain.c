@@ -7,53 +7,59 @@
 #include "game/main.h"
 #include "window_manager.h"
 
+static BOOL LoadDirectX();
+static void UnloadDirectX(void);
+
 // 0x51E434
-HWND gProgramWindow = NULL;
+HWND GNW95_hwnd = NULL;
 
 // 0x51E438
-HINSTANCE gInstance = NULL;
+HINSTANCE GNW95_hInstance = NULL;
 
 // 0x51E43C
-LPSTR gCmdLine = NULL;
+LPSTR GNW95_lpszCmdLine = NULL;
 
 // 0x51E440
-int gCmdShow = 0;
+int GNW95_nCmdShow = 0;
 
 // 0x51E444
-bool gProgramIsActive = false;
+bool GNW95_isActive = false;
 
 // GNW95MUTEX
-HANDLE _GNW95_mutex = NULL;
+HANDLE GNW95_mutex = NULL;
 
 // 0x51E44C
-HMODULE gDDrawDLL = NULL;
+HMODULE GNW95_hDDrawLib = NULL;
 
 // 0x51E450
-HMODULE gDInputDLL = NULL;
+HMODULE GNW95_hDInputLib = NULL;
 
 // 0x51E454
-HMODULE gDSoundDLL = NULL;
+HMODULE GNW95_hDSoundLib = NULL;
+
+// 0x6B23D0
+char GNW95_title[256];
 
 // 0x4DE700
 int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
     DOSCmdLine args;
 
-    _GNW95_mutex = CreateMutexA(0, TRUE, "GNW95MUTEX");
+    GNW95_mutex = CreateMutexA(0, TRUE, "GNW95MUTEX");
     if (GetLastError() == ERROR_SUCCESS) {
         ShowCursor(0);
-        if (_InitClass(hInst)) {
-            if (_InitInstance()) {
-                if (_LoadDirectX()) {
-                    gInstance = hInst;
-                    gCmdLine = lpCmdLine;
-                    gCmdShow = nCmdShow;
+        if (InitClass(hInst)) {
+            if (InitInstance()) {
+                if (LoadDirectX()) {
+                    GNW95_hInstance = hInst;
+                    GNW95_lpszCmdLine = lpCmdLine;
+                    GNW95_nCmdShow = nCmdShow;
                     DOSCmdLineInit(&args);
                     if (DOSCmdLineCreate(&args, lpCmdLine)) {
-                        signal(1, _SignalHandler);
-                        signal(3, _SignalHandler);
-                        signal(5, _SignalHandler);
-                        gProgramIsActive = true;
+                        signal(1, SignalHandler);
+                        signal(3, SignalHandler);
+                        signal(5, SignalHandler);
+                        GNW95_isActive = true;
                         RealMain(args.numArgs, args.args);
                         DOSCmdLineDestroy(&args);
                         return 1;
@@ -61,17 +67,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
                 }
             }
         }
-        CloseHandle(_GNW95_mutex);
+        CloseHandle(GNW95_mutex);
     }
     return 0;
 }
 
 // 0x4DE7F4
-ATOM _InitClass(HINSTANCE hInstance)
+BOOL InitClass(HINSTANCE hInstance)
 {
     WNDCLASSA wc;
     wc.style = 3;
-    wc.lpfnWndProc = _WindowProc;
+    wc.lpfnWndProc = WindowProc;
     wc.cbClsExtra = 0;
     wc.cbWndExtra = 0;
     wc.hInstance = hInstance;
@@ -85,7 +91,7 @@ ATOM _InitClass(HINSTANCE hInstance)
 }
 
 // 0x4DE864
-bool _InitInstance()
+BOOL InitInstance()
 {
     OSVERSIONINFOA osvi;
     bool result;
@@ -111,80 +117,80 @@ bool _InitInstance()
 }
 
 // 0x4DE8D0
-bool _LoadDirectX()
+static BOOL LoadDirectX()
 {
-    gDDrawDLL = LoadLibraryA("DDRAW.DLL");
-    if (gDDrawDLL == NULL) {
+    GNW95_hDDrawLib = LoadLibraryA("DDRAW.DLL");
+    if (GNW95_hDDrawLib == NULL) {
         goto err;
     }
 
-    GNW95_DirectDrawCreate = (PFNDDRAWCREATE)GetProcAddress(gDDrawDLL, "DirectDrawCreate");
+    GNW95_DirectDrawCreate = (PFNDDRAWCREATE)GetProcAddress(GNW95_hDDrawLib, "DirectDrawCreate");
     if (GNW95_DirectDrawCreate == NULL) {
         goto err;
     }
 
-    gDInputDLL = LoadLibraryA("DINPUT.DLL");
-    if (gDInputDLL == NULL) {
+    GNW95_hDInputLib = LoadLibraryA("DINPUT.DLL");
+    if (GNW95_hDInputLib == NULL) {
         goto err;
     }
 
-    GNW95_DirectInputCreate = (PFNDINPUTCREATE)GetProcAddress(gDInputDLL, "DirectInputCreateA");
+    GNW95_DirectInputCreate = (PFNDINPUTCREATE)GetProcAddress(GNW95_hDInputLib, "DirectInputCreateA");
     if (GNW95_DirectInputCreate == NULL) {
         goto err;
     }
 
-    gDSoundDLL = LoadLibraryA("DSOUND.DLL");
-    if (gDSoundDLL == NULL) {
+    GNW95_hDSoundLib = LoadLibraryA("DSOUND.DLL");
+    if (GNW95_hDSoundLib == NULL) {
         goto err;
     }
 
-    GNW95_DirectSoundCreate = (PFNDSOUNDCREATE)GetProcAddress(gDSoundDLL, "DirectSoundCreate");
+    GNW95_DirectSoundCreate = (PFNDSOUNDCREATE)GetProcAddress(GNW95_hDSoundLib, "DirectSoundCreate");
     if (GNW95_DirectSoundCreate == NULL) {
         goto err;
     }
 
-    atexit(_UnloadDirectX);
+    atexit(UnloadDirectX);
 
-    return true;
+    return TRUE;
 
 err:
-    _UnloadDirectX();
+    UnloadDirectX();
 
     MessageBoxA(NULL, "This program requires Windows 95 with DirectX 3.0a or later or Windows NT version 4.0 with Service Pack 3 or greater.", "Could not load DirectX", MB_ICONSTOP);
 
-    return false;
+    return FALSE;
 }
 
 // 0x4DE988
-void _UnloadDirectX(void)
+static void UnloadDirectX(void)
 {
-    if (gDSoundDLL != NULL) {
-        FreeLibrary(gDSoundDLL);
-        gDSoundDLL = NULL;
+    if (GNW95_hDSoundLib != NULL) {
+        FreeLibrary(GNW95_hDSoundLib);
+        GNW95_hDSoundLib = NULL;
         GNW95_DirectDrawCreate = NULL;
     }
 
-    if (gDDrawDLL != NULL) {
-        FreeLibrary(gDDrawDLL);
-        gDDrawDLL = NULL;
+    if (GNW95_hDDrawLib != NULL) {
+        FreeLibrary(GNW95_hDDrawLib);
+        GNW95_hDDrawLib = NULL;
         GNW95_DirectSoundCreate = NULL;
     }
 
-    if (gDInputDLL != NULL) {
-        FreeLibrary(gDInputDLL);
-        gDInputDLL = NULL;
+    if (GNW95_hDInputLib != NULL) {
+        FreeLibrary(GNW95_hDInputLib);
+        GNW95_hDInputLib = NULL;
         GNW95_DirectInputCreate = NULL;
     }
 }
 
 // 0x4DE9F4
-void _SignalHandler(int sig)
+void SignalHandler(int sig)
 {
     windowManagerExit();
 }
 
 // 0x4DE9FC
-LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     switch (uMsg) {
     case WM_DESTROY:
@@ -205,7 +211,7 @@ LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_ERASEBKGND:
         return 1;
     case WM_SETCURSOR:
-        if ((HWND)wParam == gProgramWindow) {
+        if ((HWND)wParam == GNW95_hwnd) {
             SetCursor(NULL);
             return 1;
         }
@@ -218,7 +224,7 @@ LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_ACTIVATEAPP:
-        gProgramIsActive = wParam;
+        GNW95_isActive = wParam;
         if (wParam) {
             _GNW95_hook_input(1);
             windowRefreshAll(&_scr_size);

@@ -434,7 +434,7 @@ int soundInit(int a1, int a2, int a3, int a4, int rate)
         return soundErrorno;
     }
 
-    if (IDirectSound_SetCooperativeLevel(soundDSObject, gProgramWindow, DSSCL_EXCLUSIVE) != DS_OK) {
+    if (IDirectSound_SetCooperativeLevel(soundDSObject, GNW95_hwnd, DSSCL_EXCLUSIVE) != DS_OK) {
         soundErrorno = SOUND_UNKNOWN_ERROR;
         return soundErrorno;
     }

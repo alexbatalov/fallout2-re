@@ -1,5 +1,5 @@
-#ifndef WIN32_H
-#define WIN32_H
+#ifndef FALLOUT_PLIB_GNW_WINMAIN_H_
+#define FALLOUT_PLIB_GNW_WINMAIN_H_
 
 #include <stdbool.h>
 
@@ -8,21 +8,21 @@
 
 #include "plib/gnw/gnw95dx.h"
 
-extern HWND gProgramWindow;
-extern HINSTANCE gInstance;
-extern LPSTR gCmdLine;
-extern int gCmdShow;
-extern bool gProgramIsActive;
-extern HANDLE _GNW95_mutex;
-extern HMODULE gDDrawDLL;
-extern HMODULE gDInputDLL;
-extern HMODULE gDSoundDLL;
+extern HWND GNW95_hwnd;
+extern HINSTANCE GNW95_hInstance;
+extern LPSTR GNW95_lpszCmdLine;
+extern int GNW95_nCmdShow;
+extern bool GNW95_isActive;
+extern HANDLE GNW95_mutex;
+extern HMODULE GNW95_hDDrawLib;
+extern HMODULE GNW95_hDInputLib;
+extern HMODULE GNW95_hDSoundLib;
 
-ATOM _InitClass(HINSTANCE hInstance);
-bool _InitInstance();
-bool _LoadDirectX();
-void _UnloadDirectX(void);
-void _SignalHandler(int sig);
-LRESULT CALLBACK _WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+extern char GNW95_title[256];
 
-#endif /* WIN32_H */
+BOOL InitClass(HINSTANCE hInstance);
+BOOL InitInstance();
+void SignalHandler(int signalID);
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+#endif /* FALLOUT_PLIB_GNW_WINMAIN_H_ */

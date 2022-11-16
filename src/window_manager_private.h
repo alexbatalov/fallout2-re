@@ -36,7 +36,6 @@ extern int _tm_kill;
 extern int _tm_add;
 extern int _curry;
 extern int _currx;
-extern char gProgramWindowTitle[256];
 
 int _win_list_select(const char* title, char** fileList, int fileListLength, ListSelectionHandler* callback, int x, int y, int a7);
 int _win_list_select_at(const char* title, char** fileList, int fileListLength, ListSelectionHandler* callback, int x, int y, int a7, int a8);

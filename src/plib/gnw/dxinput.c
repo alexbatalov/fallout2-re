@@ -334,7 +334,7 @@ bool dxinput_init()
         return false;
     }
 
-    HRESULT hr = GNW95_DirectInputCreate(gInstance, DIRECTINPUT_VERSION, &lpDirectInput, NULL);
+    HRESULT hr = GNW95_DirectInputCreate(GNW95_hInstance, DIRECTINPUT_VERSION, &lpDirectInput, NULL);
     if (hr != DI_OK) {
         goto err;
     }
@@ -524,7 +524,7 @@ static bool dxinput_mouse_init()
         goto err;
     }
 
-    hr = IDirectInputDevice_SetCooperativeLevel(lpDirectInputMouse, gProgramWindow, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+    hr = IDirectInputDevice_SetCooperativeLevel(lpDirectInputMouse, GNW95_hwnd, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
     if (hr != DI_OK) {
         goto err;
     }
@@ -564,7 +564,7 @@ static bool dxinput_keyboard_init()
         goto err;
     }
 
-    hr = IDirectInputDevice_SetCooperativeLevel(lpDirectInputKeyboard, gProgramWindow, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+    hr = IDirectInputDevice_SetCooperativeLevel(lpDirectInputKeyboard, GNW95_hwnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
     if (hr != DI_OK) {
         goto err;
     }
