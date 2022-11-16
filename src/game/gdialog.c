@@ -1290,7 +1290,7 @@ static int gdAddOptionStr(int messageListId, const char* text, int reaction)
 static int gdReviewInit(int* win)
 {
     if (gdialog_speech_playing) {
-        if (soundIsPlaying(lip_info.sound)) {
+        if (soundPlaying(lip_info.sound)) {
             gdialogFreeSpeech();
         }
     }
@@ -2812,7 +2812,7 @@ static void gdialog_bk()
             lips_draw_head = false;
         }
 
-        if (!soundIsPlaying(lip_info.sound)) {
+        if (!soundPlaying(lip_info.sound)) {
             gdialogFreeSpeech();
             gdDisplayFrame(lipsFp, 0);
             can_start_new_fidget = true;
@@ -4252,7 +4252,7 @@ static void gdialog_barter_pressed(int btn, int keyCode)
     proto_ptr(dialog_target->pid, &proto);
     if (proto->critter.data.flags & CRITTER_BARTER) {
         if (gdialog_speech_playing) {
-            if (soundIsPlaying(lip_info.sound)) {
+            if (soundPlaying(lip_info.sound)) {
                 gdialogFreeSpeech();
             }
         }

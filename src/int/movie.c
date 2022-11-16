@@ -503,8 +503,8 @@ static int noop()
 void initMovie()
 {
     movieLibSetMemoryProcs(movieMalloc, movieFree);
-    movieLibSetDirectSound(gDirectSound);
-    soundEnabled = (gDirectSound != NULL);
+    movieLibSetDirectSound(soundDSObject);
+    soundEnabled = (soundDSObject != NULL);
     movieLibSetDirectDraw(gDirectDraw);
     movieLibSetPaletteEntriesProc(movieSetPalette);
     _MVE_sfSVGA(640, 480, 480, 0, 0, 0, 0, 0, 0);
@@ -991,7 +991,7 @@ void movieSetSubtitleFunc(MovieSubtitleFunc* func)
 void movieSetVolume(int volume)
 {
     if (soundEnabled) {
-        int normalizedVolume = _soundVolumeHMItoDirectSound(volume);
+        int normalizedVolume = soundVolumeHMItoDirectSound(volume);
         movieLibSetVolume(normalizedVolume);
     }
 }

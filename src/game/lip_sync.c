@@ -83,7 +83,7 @@ void lips_bkg_proc()
     v0 = head_marker_current;
 
     if ((lip_info.flags & LIPS_FLAG_0x02) != 0) {
-        int v1 = _soundGetPosition(lip_info.sound);
+        int v1 = soundGetPosition(lip_info.sound);
 
         speech_marker = &(lip_info.markers[v0]);
         while (v1 > speech_marker->position) {
@@ -146,7 +146,7 @@ int lips_play_speech()
     lip_info.flags |= LIPS_FLAG_0x02;
     head_marker_current = 0;
 
-    if (_soundSetPosition(lip_info.sound, lip_info.field_20) != 0) {
+    if (soundSetPosition(lip_info.sound, lip_info.field_20) != 0) {
         debugPrint("Failed set of start_offset!\n");
     }
 
@@ -165,7 +165,7 @@ int lips_play_speech()
     }
 
     int speechVolume = gsound_speech_volume_get();
-    soundSetVolume(lip_info.sound, (int)(speechVolume * 0.69));
+    soundVolume(lip_info.sound, (int)(speechVolume * 0.69));
 
     speechStartTime = _get_time();
 

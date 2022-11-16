@@ -2640,7 +2640,7 @@ static int soundDeleteInterpret(int value)
         return 0;
     }
 
-    if (soundIsPlaying(sound)) {
+    if (soundPlaying(sound)) {
         soundStop(sound);
     }
 
@@ -2715,17 +2715,17 @@ int soundStartInterpret(char* fileName, int mode)
     soundSetCallback(sound, soundCallbackInterpret, &(interpretSounds[index]));
 
     if (mode & 0x01) {
-        soundSetLooping(sound, 0xFFFF);
+        soundLoop(sound, 0xFFFF);
     }
 
     if (mode & 0x1000) {
         // mono
-        soundSetChannels(sound, 2);
+        soundSetChannel(sound, 2);
     }
 
     if (mode & 0x2000) {
         // stereo
-        soundSetChannels(sound, 3);
+        soundSetChannel(sound, 3);
     }
 
     int rc = soundLoad(sound, fileName);
@@ -2805,7 +2805,7 @@ static int soundPauseInterpret(int value)
     }
 
     int rc;
-    if (_soundType(sound, 0x01)) {
+    if (soundType(sound, 0x01)) {
         rc = soundStop(sound);
     } else {
         rc = soundPause(sound);
@@ -2830,7 +2830,7 @@ static int soundRewindInterpret(int value)
         return 0;
     }
 
-    if (!soundIsPlaying(sound)) {
+    if (!soundPlaying(sound)) {
         return 1;
     }
 
@@ -2857,10 +2857,10 @@ static int soundUnpauseInterpret(int value)
     }
 
     int rc;
-    if (_soundType(sound, 0x01)) {
+    if (soundType(sound, 0x01)) {
         rc = soundPlay(sound);
     } else {
-        rc = soundResume(sound);
+        rc = soundUnpause(sound);
     }
     return rc == SOUND_NO_ERROR;
 }

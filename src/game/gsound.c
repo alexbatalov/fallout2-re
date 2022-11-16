@@ -207,7 +207,7 @@ int gsound_init()
         return -1;
     }
 
-    soundSetMemoryProcs(internal_malloc, internal_realloc, internal_free);
+    soundRegisterAlloc(internal_malloc, internal_realloc, internal_free);
 
     // initialize direct sound
     if (soundInit(detectDevices, 24, 0x8000, 0x8000, 22050) != 0) {
@@ -356,7 +356,7 @@ void gsound_reset()
     // NOTE: Uninline.
     gsound_background_fade_set(0);
 
-    soundDeleteAll();
+    soundFlushAllSounds();
 
     sfxc_flush();
 
@@ -383,7 +383,7 @@ int gsound_exit()
 
     gsound_background_stop();
     gsound_background_remove_last_copy();
-    soundExit();
+    soundClose();
     sfxc_exit();
     audiofClose();
     audioClose();
@@ -439,7 +439,7 @@ int gsound_set_master_volume(int volume)
         _gsound_background_df_vol = 0;
     }
 
-    if (_soundSetMasterVolume(volume) != 0) {
+    if (soundSetMasterVolume(volume) != 0) {
         if (gsound_debug) {
             debugPrint("Error setting master sound volume.\n");
         }
@@ -545,7 +545,7 @@ void gsound_background_volume_set(int volume)
 
     if (gsound_background_enabled) {
         if (gsound_background_tag != NULL) {
-            soundSetVolume(gsound_background_tag, (int)(background_volume * 0.94));
+            soundVolume(gsound_background_tag, (int)(background_volume * 0.94));
         }
     }
 
@@ -639,7 +639,7 @@ SoundEndCallback* gsound_background_callback_get_set(SoundEndCallback* callback)
 // 0x450670
 int gsound_background_length_get()
 {
-    return soundGetDuration(gsound_background_tag);
+    return soundLength(gsound_background_tag);
 }
 
 // [fileName] is base file name, without path and extension.
@@ -690,7 +690,7 @@ int gsound_background_play(const char* fileName, int a2, int a3, int a4)
         return -1;
     }
 
-    rc = soundSetChannels(gsound_background_tag, 3);
+    rc = soundSetChannel(gsound_background_tag, 3);
     if (rc != 0) {
         if (gsound_debug) {
             debugPrint("failed because the channel could not be set.\n");
@@ -721,7 +721,7 @@ int gsound_background_play(const char* fileName, int a2, int a3, int a4)
     }
 
     if (a4 == 16) {
-        rc = soundSetLooping(gsound_background_tag, 0xFFFF);
+        rc = soundLoop(gsound_background_tag, 0xFFFF);
         if (rc != SOUND_NO_ERROR) {
             if (gsound_debug) {
                 debugPrint("failed because looping could not be set.\n");
@@ -815,15 +815,15 @@ int gsound_background_play_preloaded()
         return -1;
     }
 
-    if (soundIsPlaying(gsound_background_tag)) {
+    if (soundPlaying(gsound_background_tag)) {
         return -1;
     }
 
-    if (soundIsPaused(gsound_background_tag)) {
+    if (soundPaused(gsound_background_tag)) {
         return -1;
     }
 
-    if (_soundDone(gsound_background_tag)) {
+    if (soundDone(gsound_background_tag)) {
         return -1;
     }
 
@@ -841,7 +841,7 @@ void gsound_background_stop()
 {
     if (gsound_initialized && gsound_background_enabled && gsound_background_tag) {
         if (gsound_background_fade) {
-            if (_soundFade(gsound_background_tag, 2000, 0) == 0) {
+            if (soundFade(gsound_background_tag, 2000, 0) == 0) {
                 gsound_background_tag = NULL;
                 return;
             }
@@ -875,7 +875,7 @@ void gsound_background_pause()
 void gsound_background_unpause()
 {
     if (gsound_background_tag != NULL) {
-        soundResume(gsound_background_tag);
+        soundUnpause(gsound_background_tag);
     }
 }
 
@@ -928,7 +928,7 @@ void gsound_speech_volume_set(int volume)
 
     if (gsound_speech_enabled) {
         if (gsound_speech_tag != NULL) {
-            soundSetVolume(gsound_speech_tag, (int)(volume * 0.69));
+            soundVolume(gsound_speech_tag, (int)(volume * 0.69));
         }
     }
 }
@@ -976,7 +976,7 @@ SoundEndCallback* gsound_speech_callback_get_set(SoundEndCallback* callback)
 // 0x450C94
 int gsound_speech_length_get()
 {
-    return soundGetDuration(gsound_speech_tag);
+    return soundLength(gsound_speech_tag);
 }
 
 // 0x450CA0
@@ -1026,7 +1026,7 @@ int gsound_speech_play(const char* fname, int a2, int a3, int a4)
     }
 
     if (a4 == 16) {
-        if (soundSetLooping(gsound_speech_tag, 0xFFFF)) {
+        if (soundLoop(gsound_speech_tag, 0xFFFF)) {
             if (gsound_debug) {
                 debugPrint("failed because looping could not be set.\n");
             }
@@ -1102,15 +1102,15 @@ int gsound_speech_play_preloaded()
         return -1;
     }
 
-    if (soundIsPlaying(gsound_speech_tag)) {
+    if (soundPlaying(gsound_speech_tag)) {
         return -1;
     }
 
-    if (soundIsPaused(gsound_speech_tag)) {
+    if (soundPaused(gsound_speech_tag)) {
         return -1;
     }
 
-    if (_soundDone(gsound_speech_tag)) {
+    if (soundDone(gsound_speech_tag)) {
         return -1;
     }
 
@@ -1147,7 +1147,7 @@ void gsound_speech_pause()
 void gsound_speech_unpause()
 {
     if (gsound_speech_tag != NULL) {
-        soundResume(gsound_speech_tag);
+        soundUnpause(gsound_speech_tag);
     }
 }
 
@@ -1297,7 +1297,7 @@ Sound* gsound_load_sound_volume(const char* name, Object* object, int volume)
     Sound* sound = gsound_load_sound(name, object);
 
     if (sound != NULL) {
-        soundSetVolume(sound, (volume * sndfx_volume) / VOLUME_MAX);
+        soundVolume(sound, (volume * sndfx_volume) / VOLUME_MAX);
     }
 
     return sound;
@@ -1314,7 +1314,7 @@ void gsound_delete_sfx(Sound* sound)
         return;
     }
 
-    if (soundIsPlaying(sound)) {
+    if (soundPlaying(sound)) {
         if (gsound_debug) {
             debugPrint("Trying to manually delete a sound effect after it has started playing.\n");
         }
@@ -2014,10 +2014,10 @@ static int gsound_background_start()
     }
 
     if (gsound_background_fade) {
-        soundSetVolume(gsound_background_tag, 1);
-        result = _soundFade(gsound_background_tag, 2000, (int)(background_volume * 0.94));
+        soundVolume(gsound_background_tag, 1);
+        result = soundFade(gsound_background_tag, 2000, (int)(background_volume * 0.94));
     } else {
-        soundSetVolume(gsound_background_tag, (int)(background_volume * 0.94));
+        soundVolume(gsound_background_tag, (int)(background_volume * 0.94));
         result = soundPlay(gsound_background_tag);
     }
 
@@ -2039,7 +2039,7 @@ static int gsound_speech_start()
         debugPrint(" playing ");
     }
 
-    soundSetVolume(gsound_speech_tag, (int)(speech_volume * 0.69));
+    soundVolume(gsound_speech_tag, (int)(speech_volume * 0.69));
 
     if (soundPlay(gsound_speech_tag) != 0) {
         if (gsound_debug) {
@@ -2112,7 +2112,7 @@ static Sound* gsound_get_sound_ready_for_effect()
         }
 
         if (gsound_debug) {
-            debugPrint("soundAllocate returned: %d, %s\n", 0, soundGetErrorDescription(0));
+            debugPrint("soundAllocate returned: %d, %s\n", 0, soundError(0));
         }
 
         return NULL;
@@ -2130,7 +2130,7 @@ static Sound* gsound_get_sound_ready_for_effect()
         }
 
         if (gsound_debug) {
-            debugPrint("soundSetFileIO returned: %d, %s\n", rc, soundGetErrorDescription(rc));
+            debugPrint("soundSetFileIO returned: %d, %s\n", rc, soundError(rc));
         }
 
         soundDelete(sound);
@@ -2145,7 +2145,7 @@ static Sound* gsound_get_sound_ready_for_effect()
         }
 
         if (gsound_debug) {
-            debugPrint("soundSetCallback returned: %d, %s\n", rc, soundGetErrorDescription(rc));
+            debugPrint("soundSetCallback returned: %d, %s\n", rc, soundError(rc));
         }
 
         soundDelete(sound);
@@ -2153,7 +2153,7 @@ static Sound* gsound_get_sound_ready_for_effect()
         return NULL;
     }
 
-    soundSetVolume(sound, sndfx_volume);
+    soundVolume(sound, sndfx_volume);
 
     return sound;
 }
