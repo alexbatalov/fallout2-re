@@ -1140,7 +1140,7 @@ int partyMemberSkill(Object* object)
 
     int bestValue = 0;
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
-        int value = skillGetValue(object, skill);
+        int value = skill_level(object, skill);
         if (value > bestValue) {
             bestSkill = skill;
             bestValue = value;
@@ -1161,7 +1161,7 @@ Object* partyMemberWithHighestSkill(int skill)
     for (int index = 0; index < partyMemberCount; index++) {
         Object* object = partyMemberList[index].object;
         if ((object->flags & OBJECT_HIDDEN) == 0 && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-            int value = skillGetValue(object, skill);
+            int value = skill_level(object, skill);
             if (value > bestValue) {
                 bestValue = value;
                 bestPartyMember = object;
@@ -1182,7 +1182,7 @@ int partyMemberHighestSkillLevel(int skill)
     for (int index = 0; index < partyMemberCount; index++) {
         Object* object = partyMemberList[index].object;
         if ((object->flags & OBJECT_HIDDEN) == 0 && PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-            int value = skillGetValue(object, skill);
+            int value = skill_level(object, skill);
             if (value > bestValue) {
                 bestValue = value;
             }

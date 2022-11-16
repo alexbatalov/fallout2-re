@@ -883,7 +883,7 @@ bool setup_inventory(int inventoryWindowType)
 
     if (inventoryWindowType != INVENTORY_WINDOW_TYPE_TRADE) {
         if (inventoryWindowType == INVENTORY_WINDOW_TYPE_LOOT) {
-            if (!_gIsSteal) {
+            if (!gIsSteal) {
                 // Take all button (normal)
                 fid = art_id(OBJ_TYPE_INTERFACE, 436, 0, 0, 0);
                 buttonUpData = art_ptr_lock_data(fid, 0, 0, &(ikey[8]));
@@ -3406,7 +3406,7 @@ int loot_container(Object* a1, Object* a2)
     }
 
     int sid = -1;
-    if (!_gIsSteal) {
+    if (!gIsSteal) {
         if (obj_sid(a2, &sid) != -1) {
             scr_set_objs(sid, a1, NULL);
             exec_script_proc(sid, SCRIPT_PROC_PICKUP);
@@ -3440,7 +3440,7 @@ int loot_container(Object* a1, Object* a2)
     Object* item2 = NULL;
     Object* armor = NULL;
 
-    if (_gIsSteal) {
+    if (gIsSteal) {
         item1 = inven_left_hand(a2);
         if (item1 != NULL) {
             item_remove_mult(a2, item1, 1);
@@ -3462,7 +3462,7 @@ int loot_container(Object* a1, Object* a2)
     Object** critters = NULL;
     int critterCount = 0;
     int critterIndex = 0;
-    if (!_gIsSteal) {
+    if (!gIsSteal) {
         if (FID_TYPE(a2->fid) == OBJ_TYPE_CRITTER) {
             critterCount = obj_create_list(a2->tile, a2->elevation, OBJ_TYPE_CRITTER, &critters);
             int endIndex = critterCount - 1;
@@ -3559,7 +3559,7 @@ int loot_container(Object* a1, Object* a2)
         }
 
         if (keyCode == KEY_UPPERCASE_A) {
-            if (!_gIsSteal) {
+            if (!gIsSteal) {
                 int maxCarryWeight = critterGetStat(a1, STAT_CARRY_WEIGHT);
                 int currentWeight = item_total_weight(a1);
                 int newInventoryWeight = item_total_weight(a2);
@@ -3647,8 +3647,8 @@ int loot_container(Object* a1, Object* a2)
                     } else {
                         int v40 = keyCode - 1000;
                         if (v40 + stack_offset[curr_stack] < pud->length) {
-                            _gStealCount += 1;
-                            _gStealSize += item_size(stack[curr_stack]);
+                            gStealCount += 1;
+                            gStealSize += item_size(stack[curr_stack]);
 
                             InventoryItem* inventoryItem = &(pud->items[pud->length - (v40 + stack_offset[curr_stack] + 1)]);
                             int rc = move_inventory(inventoryItem->item, v40, target_stack[target_curr_stack], true);
@@ -3671,8 +3671,8 @@ int loot_container(Object* a1, Object* a2)
                     } else {
                         int v46 = keyCode - 2000;
                         if (v46 + target_stack_offset[target_curr_stack] < target_pud->length) {
-                            _gStealCount += 1;
-                            _gStealSize += item_size(stack[curr_stack]);
+                            gStealCount += 1;
+                            gStealSize += item_size(stack[curr_stack]);
 
                             InventoryItem* inventoryItem = &(target_pud->items[target_pud->length - (v46 + target_stack_offset[target_curr_stack] + 1)]);
                             int rc = move_inventory(inventoryItem->item, v46, target_stack[target_curr_stack], false);
@@ -3704,7 +3704,7 @@ int loot_container(Object* a1, Object* a2)
         }
     }
 
-    if (_gIsSteal) {
+    if (gIsSteal) {
         if (item1 != NULL) {
             item1->flags |= OBJECT_IN_LEFT_HAND;
             item_add_force(a2, item1, 1);
@@ -3724,12 +3724,12 @@ int loot_container(Object* a1, Object* a2)
     item_move_all(a1a, a2);
     obj_erase_object(a1a, NULL);
 
-    if (_gIsSteal) {
+    if (gIsSteal) {
         if (!isCaughtStealing) {
             if (stealingXp > 0) {
                 if (!isPartyMember(a2)) {
-                    stealingXp = min(300 - skillGetValue(a1, SKILL_STEAL), stealingXp);
-                    debugPrint("\n[[[%d]]]", 300 - skillGetValue(a1, SKILL_STEAL));
+                    stealingXp = min(300 - skill_level(a1, SKILL_STEAL), stealingXp);
+                    debugPrint("\n[[[%d]]]", 300 - skill_level(a1, SKILL_STEAL));
 
                     // You gain %d experience points for successfully using your Steal skill.
                     messageListItem.num = 29;
@@ -3750,9 +3750,9 @@ int loot_container(Object* a1, Object* a2)
     // NOTE: Uninline.
     inven_exit();
 
-    if (_gIsSteal) {
+    if (gIsSteal) {
         if (isCaughtStealing) {
-            if (_gStealCount > 0) {
+            if (gStealCount > 0) {
                 if (obj_sid(a2, &sid) != -1) {
                     scr_set_objs(sid, a1, NULL);
                     exec_script_proc(sid, SCRIPT_PROC_PICKUP);
@@ -3775,15 +3775,15 @@ int inven_steal_container(Object* a1, Object* a2)
         return -1;
     }
 
-    _gIsSteal = PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER && critter_is_active(a2);
-    _gStealCount = 0;
-    _gStealSize = 0;
+    gIsSteal = PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER && critter_is_active(a2);
+    gStealCount = 0;
+    gStealSize = 0;
 
     int rc = loot_container(a1, a2);
 
-    _gIsSteal = 0;
-    _gStealCount = 0;
-    _gStealSize = 0;
+    gIsSteal = 0;
+    gStealCount = 0;
+    gStealSize = 0;
 
     return rc;
 }
@@ -3868,8 +3868,8 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
             }
 
             if (quantityToMove != -1) {
-                if (_gIsSteal) {
-                    if (skillsPerformStealing(inven_dude, a3, a1, true) == 0) {
+                if (gIsSteal) {
+                    if (skill_check_stealing(inven_dude, a3, a1, true) == 0) {
                         rc = 1;
                     }
                 }
@@ -3897,8 +3897,8 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
             }
 
             if (quantityToMove != -1) {
-                if (_gIsSteal) {
-                    if (skillsPerformStealing(inven_dude, a3, a1, false) == 0) {
+                if (gIsSteal) {
+                    if (skill_check_stealing(inven_dude, a3, a1, false) == 0) {
                         rc = 1;
                     }
                 }
@@ -3948,7 +3948,7 @@ static int barter_compute_value(Object* a1, Object* a2)
     }
 
     int partyBarter = partyMemberHighestSkillLevel(SKILL_BARTER);
-    int npcBarter = skillGetValue(a2, SKILL_BARTER);
+    int npcBarter = skill_level(a2, SKILL_BARTER);
 
     // TODO: Check in debugger, complex math, probably uses floats, not doubles.
     double v1 = (barter_mod + 100.0 - bonus) * 0.01;

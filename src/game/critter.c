@@ -1008,7 +1008,7 @@ int pc_load_data(const char* path)
 
     fileRead(pc_name, DUDE_NAME_MAX_LENGTH, 1, stream);
 
-    if (skillsLoad(stream) == -1) {
+    if (skill_load(stream) == -1) {
         fileClose(stream);
         return -1;
     }
@@ -1101,7 +1101,7 @@ int pc_save_data(const char* path)
 
     fileWrite(pc_name, DUDE_NAME_MAX_LENGTH, 1, stream);
 
-    if (skillsSave(stream) == -1) {
+    if (skill_save(stream) == -1) {
         fileClose(stream);
         return -1;
     }
@@ -1189,8 +1189,8 @@ int critter_sneak_check(Object* obj, void* data)
 {
     int time;
 
-    int sneak = skillGetValue(obj_dude, SKILL_SNEAK);
-    if (skillRoll(obj_dude, SKILL_SNEAK, 0, NULL) < ROLL_SUCCESS) {
+    int sneak = skill_level(obj_dude, SKILL_SNEAK);
+    if (skill_result(obj_dude, SKILL_SNEAK, 0, NULL) < ROLL_SUCCESS) {
         time = 600;
         sneak_working = false;
 

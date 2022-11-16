@@ -611,7 +611,7 @@ static void op_has_skill(Program* program)
     int result = 0;
     if (object != NULL) {
         if (PID_TYPE(object->pid) == OBJ_TYPE_CRITTER) {
-            result = skillGetValue(object, skill);
+            result = skill_level(object, skill);
         }
     } else {
         dbg_error(program, "has_skill", SCRIPT_ERROR_OBJECT_IS_NULL);
@@ -686,7 +686,7 @@ static void op_roll_vs_skill(Program* program)
 
             Script* script;
             if (scr_ptr(sid, &script) != -1) {
-                roll = skillRoll(object, skill, modifier, &(script->howMuch));
+                roll = skill_result(object, skill, modifier, &(script->howMuch));
             }
         }
     } else {
@@ -4295,7 +4295,7 @@ static void op_metarule(Program* program)
         result = wmCarFillGas(param);
         break;
     case METARULE_SKILL_CHECK_TAG:
-        result = skillIsTagged(param);
+        result = skill_is_tagged(param);
         break;
     case METARULE_DROP_ALL_INVEN:
         if (1) {
@@ -5845,7 +5845,7 @@ static void op_critter_mod_skill(Program* program)
         if (PID_TYPE(critter->pid) == OBJ_TYPE_CRITTER) {
             if (critter == obj_dude) {
                 int normalizedPoints = abs(points);
-                if (skillIsTagged(skill)) {
+                if (skill_is_tagged(skill)) {
                     // Halve number of skill points. Increment/decrement skill
                     // points routines handle that.
                     normalizedPoints /= 2;
@@ -5854,12 +5854,12 @@ static void op_critter_mod_skill(Program* program)
                 if (points > 0) {
                     // Increment skill points one by one.
                     for (int it = 0; it < normalizedPoints; it++) {
-                        skillAddForce(obj_dude, skill);
+                        skill_inc_point_force(obj_dude, skill);
                     }
                 } else {
                     // Decrement skill points one by one.
                     for (int it = 0; it < normalizedPoints; it++) {
-                        skillSubForce(obj_dude, skill);
+                        skill_dec_point_force(obj_dude, skill);
                     }
                 }
 

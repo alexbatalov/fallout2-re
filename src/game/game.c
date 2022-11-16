@@ -184,7 +184,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     roll_init();
     init_message();
-    skillsInit();
+    skill_init();
     statsInit();
 
     if (partyMember_init() != 0) {
@@ -352,7 +352,7 @@ void game_reset()
     tileDisable();
     palette_reset();
     roll_reset();
-    skillsReset();
+    skill_reset();
     statsReset();
     perk_reset();
     traitsReset();
@@ -413,7 +413,7 @@ void game_exit()
     queue_exit();
     perk_exit();
     statsExit();
-    skillsExit();
+    skill_exit();
     traitsExit();
     roll_exit();
     exit_message();

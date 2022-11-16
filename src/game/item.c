@@ -1141,7 +1141,7 @@ int item_w_skill_level(Object* critter, int hitMode)
         skill = SKILL_UNARMED;
     }
 
-    return skillGetValue(critter, skill);
+    return skill_level(critter, skill);
 }
 
 // 0x4783B8

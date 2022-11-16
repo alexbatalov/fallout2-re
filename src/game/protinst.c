@@ -757,7 +757,7 @@ static int obj_use_book(Object* book)
         return 0;
     }
 
-    int increase = (100 - skillGetValue(obj_dude, skill)) / 10;
+    int increase = (100 - skill_level(obj_dude, skill)) / 10;
     if (increase <= 0) {
         messageId = 801;
     } else {
@@ -766,7 +766,7 @@ static int obj_use_book(Object* book)
         }
 
         for (int i = 0; i < increase; i++) {
-            skillAddForce(obj_dude, skill);
+            skill_inc_point_force(obj_dude, skill);
         }
     }
 
@@ -889,7 +889,7 @@ static int obj_use_explosive(Object* explosive)
             if (perkHasRank(obj_dude, PERK_DEMOLITION_EXPERT)) {
                 roll = ROLL_SUCCESS;
             } else {
-                roll = skillRoll(obj_dude, SKILL_TRAPS, 0, NULL);
+                roll = skill_result(obj_dude, SKILL_TRAPS, 0, NULL);
             }
 
             int eventType;
@@ -1312,7 +1312,7 @@ int protinst_use_item_on(Object* a1, Object* a2, Object* item)
         return -1;
     }
 
-    if (skillUse(a1, a2, skill, criticalChanceModifier) != 0) {
+    if (skill_use(a1, a2, skill, criticalChanceModifier) != 0) {
         return 0;
     }
 
@@ -1868,7 +1868,7 @@ int obj_use_skill_on(Object* source, Object* target, int skill)
     }
 
     if (!scriptOverrides) {
-        skillUse(source, target, skill, 0);
+        skill_use(source, target, skill, 0);
     }
 
     return 0;

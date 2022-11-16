@@ -1184,7 +1184,7 @@ static int CharEditStart()
     slider_y = skill_cursor * (fontGetLineHeight() + 1) + 27;
 
     // skills
-    skillsGetTagged(temp_tag_skill, NUM_TAGGED_SKILLS);
+    skill_get_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
     // NOTE: Uninline.
     tagskill_count = tagskl_free();
@@ -1780,7 +1780,7 @@ static void CharEditEnd()
     fontSetCurrent(fontsave);
 
     if (glblmode == 1) {
-        skillsSetTagged(temp_tag_skill, 3);
+        skill_set_tags(temp_tag_skill, 3);
         traitsSetSelected(temp_trait[0], temp_trait[1]);
         info_line = 0;
         critter_adjust_hits(obj_dude, 1000);
@@ -2864,7 +2864,7 @@ static void ListSkills(int a1)
         }
     }
 
-    skillsSetTagged(temp_tag_skill, NUM_TAGGED_SKILLS);
+    skill_set_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
     fontSetCurrent(101);
 
@@ -2884,10 +2884,10 @@ static void ListSkills(int a1)
             }
         }
 
-        str = skillGetName(i);
+        str = skill_name(i);
         fontDrawText(win_buf + 640 * y + 380, str, 640, 640, color);
 
-        value = skillGetValue(obj_dude, i);
+        value = skill_level(obj_dude, i);
         sprintf(valueString, "%d%%", value);
 
         fontDrawText(win_buf + 640 * y + 573, valueString, 640, 640, color);
@@ -3050,16 +3050,16 @@ static void DrawInfoWin()
         DrawCard(graphicId, title, NULL, description);
     } else if (info_line >= EDITOR_FIRST_SKILL && info_line < 79) {
         int skill = info_line - 61;
-        const char* attributesDescription = skillGetAttributes(skill);
+        const char* attributesDescription = skill_attribute(skill);
 
         char formatted[150]; // TODO: Size is probably wrong.
         const char* base = getmsg(&editor_message_file, &mesg, 137);
-        int defaultValue = skillGetDefaultValue(skill);
+        int defaultValue = skill_base(skill);
         sprintf(formatted, "%s %d%% %s", base, defaultValue, attributesDescription);
 
-        graphicId = skillGetFrmId(skill);
-        title = skillGetName(skill);
-        description = skillGetDescription(skill);
+        graphicId = skill_pic(skill);
+        title = skill_name(skill);
+        description = skill_description(skill);
         DrawCard(graphicId, title, formatted, description);
     } else if (info_line >= 79 && info_line < 82) {
         switch (info_line) {
@@ -3788,7 +3788,7 @@ static int OptionWindow()
 
                 if (dialog_out(NULL, dialogBody, 2, 169, 126, colorTable[992], NULL, colorTable[992], DIALOG_BOX_YES_NO) != 0) {
                     ResetPlayer();
-                    skillsGetTagged(temp_tag_skill, NUM_TAGGED_SKILLS);
+                    skill_get_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
                     // NOTE: Uninline.
                     tagskill_count = tagskl_free();
@@ -3903,7 +3903,7 @@ static int OptionWindow()
                             // NOTE: Uninline.
                             CheckValidPlayer();
 
-                            skillsGetTagged(temp_tag_skill, 4);
+                            skill_get_tags(temp_tag_skill, 4);
 
                             // NOTE: Uninline.
                             tagskill_count = tagskl_free();
@@ -3980,7 +3980,7 @@ static int OptionWindow()
                         }
 
                         if (shouldSave) {
-                            skillsSetTagged(temp_tag_skill, 4);
+                            skill_set_tags(temp_tag_skill, 4);
                             traitsSetSelected(temp_trait[0], temp_trait[1]);
 
                             string4[0] = '\0';
@@ -4466,7 +4466,7 @@ static int Save_as_ASCII(const char* fileName)
 
     int killType = 0;
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
-        sprintf(title1, "%s ", skillGetName(skill));
+        sprintf(title1, "%s ", skill_name(skill));
 
         // NOTE: Uninline.
         AddDots(title1 + strlen(title1), 16 - strlen(title1));
@@ -4484,7 +4484,7 @@ static int Save_as_ASCII(const char* fileName)
                 sprintf(title3,
                     "  %s %.3d%%        %s %.3d\n",
                     title1,
-                    skillGetValue(obj_dude, skill),
+                    skill_level(obj_dude, skill),
                     title2,
                     killsCount);
                 hasKillType = true;
@@ -4496,7 +4496,7 @@ static int Save_as_ASCII(const char* fileName)
             sprintf(title3,
                 "  %s %.3d%%\n",
                 title1,
-                skillGetValue(obj_dude, skill));
+                skill_level(obj_dude, skill));
         }
     }
 
@@ -4673,12 +4673,12 @@ static void SavePlayer()
 
     upsent_points_back = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
 
-    skillsGetTagged(tag_skill_back, NUM_TAGGED_SKILLS);
+    skill_get_tags(tag_skill_back, NUM_TAGGED_SKILLS);
 
     traitsGetSelected(&(trait_back[0]), &(trait_back[1]));
 
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
-        skillsav[skill] = skillGetValue(obj_dude, skill);
+        skillsav[skill] = skill_level(obj_dude, skill);
     }
 }
 
@@ -4702,11 +4702,11 @@ static void RestorePlayer()
 
     pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, upsent_points_back);
 
-    skillsSetTagged(tag_skill_back, NUM_TAGGED_SKILLS);
+    skill_set_tags(tag_skill_back, NUM_TAGGED_SKILLS);
 
     traitsSetSelected(trait_back[0], trait_back[1]);
 
-    skillsGetTagged(temp_tag_skill, NUM_TAGGED_SKILLS);
+    skill_get_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
     // NOTE: Uninline.
     tagskill_count = tagskl_free();
@@ -5054,10 +5054,10 @@ static void SliderBtn(int keyCode)
             rc = 1;
             if (keyCode == 521) {
                 if (pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
-                    if (skillAdd(obj_dude, skill_cursor) == -3) {
+                    if (skill_inc_point(obj_dude, skill_cursor) == -3) {
                         gsound_play_sfx_file("iisxxxx1");
 
-                        sprintf(title, "%s:", skillGetName(skill_cursor));
+                        sprintf(title, "%s:", skill_name(skill_cursor));
                         // At maximum level.
                         strcpy(body1, getmsg(&editor_message_file, &mesg, 132));
                         // Unable to increment it.
@@ -5074,10 +5074,10 @@ static void SliderBtn(int keyCode)
                     rc = -1;
                 }
             } else if (keyCode == 523) {
-                if (skillGetValue(obj_dude, skill_cursor) <= skillsav[skill_cursor]) {
+                if (skill_level(obj_dude, skill_cursor) <= skillsav[skill_cursor]) {
                     rc = 0;
                 } else {
-                    if (skillSub(obj_dude, skill_cursor) == -2) {
+                    if (skill_dec_point(obj_dude, skill_cursor) == -2) {
                         rc = 0;
                     }
                 }
@@ -5085,7 +5085,7 @@ static void SliderBtn(int keyCode)
                 if (rc == 0) {
                     gsound_play_sfx_file("iisxxxx1");
 
-                    sprintf(title, "%s:", skillGetName(skill_cursor));
+                    sprintf(title, "%s:", skill_name(skill_cursor));
                     // At minimum level.
                     strcpy(body1, getmsg(&editor_message_file, &mesg, 134));
                     // Unable to decrement it.
@@ -6263,8 +6263,8 @@ static void RedrwDMTagSkl()
     ListNewTagSkills();
 
     char* name = name_sort_list[crow + cline].name;
-    char* description = skillGetDescription(name_sort_list[crow + cline].value);
-    int frmId = skillGetFrmId(name_sort_list[crow + cline].value);
+    char* description = skill_description(name_sort_list[crow + cline].value);
+    int frmId = skill_pic(name_sort_list[crow + cline].value);
     DrawCard2(frmId, name, NULL, description);
 
     win_draw(pwin);
@@ -6291,12 +6291,12 @@ static bool Add4thTagSkill()
     int rc = InputPDLoop(optrt_count, RedrwDMTagSkl);
     if (rc != 1) {
         memcpy(temp_tag_skill, tag_skill_back, sizeof(temp_tag_skill));
-        skillsSetTagged(tag_skill_back, NUM_TAGGED_SKILLS);
+        skill_set_tags(tag_skill_back, NUM_TAGGED_SKILLS);
         return false;
     }
 
     temp_tag_skill[3] = name_sort_list[crow + cline].value;
-    skillsSetTagged(temp_tag_skill, NUM_TAGGED_SKILLS);
+    skill_set_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
     return true;
 }
@@ -6316,7 +6316,7 @@ static void ListNewTagSkills()
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
         if (skill != temp_tag_skill[0] && skill != temp_tag_skill[1] && skill != temp_tag_skill[2] && skill != temp_tag_skill[3]) {
             name_sort_list[optrt_count].value = skill;
-            name_sort_list[optrt_count].name = skillGetName(skill);
+            name_sort_list[optrt_count].name = skill_name(skill);
             optrt_count++;
         }
     }

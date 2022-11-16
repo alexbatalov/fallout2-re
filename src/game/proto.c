@@ -369,7 +369,7 @@ int proto_critter_init(Proto* a1, int a2)
     data->killType = 0;
     data->damageType = 0;
     protoCritterDataResetStats(data);
-    protoCritterDataResetSkills(data);
+    skill_set_defaults(data);
 
     return 0;
 }
@@ -1844,8 +1844,8 @@ int ResetPlayer()
     protoCritterDataResetStats(&(proto->critter.data));
     critter_reset();
     editor_reset();
-    protoCritterDataResetSkills(&(proto->critter.data));
-    skillsReset();
+    skill_set_defaults(&(proto->critter.data));
+    skill_reset();
     perk_reset();
     traitsReset();
     critterUpdateDerivedStats(obj_dude);

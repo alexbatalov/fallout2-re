@@ -231,7 +231,7 @@ int skilldexWindowInit()
     // Render skill values.
     int valueY = 48;
     for (int index = 0; index < SKILLDEX_SKILL_COUNT; index++) {
-        int value = skillGetValue(obj_dude, gSkilldexSkills[index]);
+        int value = skill_level(obj_dude, gSkilldexSkills[index]);
         if (value == -1) {
             value = 0;
         }

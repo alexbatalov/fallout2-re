@@ -1445,7 +1445,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
                 v32 = true;
             }
 
-            char* msg = skillsGetGenericResponse(partyMember, v32);
+            char* msg = skillGetPartyMemberString(partyMember, v32);
 
             Rect rect;
             if (textObjectAdd(partyMember, msg, 101, colorTable[32747], colorTable[0], &rect) == 0) {

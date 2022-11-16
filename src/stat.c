@@ -211,7 +211,7 @@ int critterGetStat(Object* critter, int stat)
 
                             if (!hasWeapon) {
                                 actionPointsMultiplier = 2;
-                                hthEvadeBonus = skillGetValue(obj_dude, SKILL_UNARMED) / 12;
+                                hthEvadeBonus = skill_level(obj_dude, SKILL_UNARMED) / 12;
                             }
                         }
                     }

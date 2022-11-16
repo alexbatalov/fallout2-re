@@ -929,18 +929,18 @@ static bool select_display_stats()
 
     // SKILLS
     int skills[DEFAULT_TAGGED_SKILLS];
-    skillsGetTagged(skills, DEFAULT_TAGGED_SKILLS);
+    skill_get_tags(skills, DEFAULT_TAGGED_SKILLS);
 
     for (int index = 0; index < DEFAULT_TAGGED_SKILLS; index++) {
         y += vh;
 
-        str = skillGetName(skills[index]);
+        str = skill_name(skills[index]);
         strcpy(text, str);
 
         length = fontGetStringWidth(text);
         fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-        value = skillGetValue(obj_dude, skills[index]);
+        value = skill_level(obj_dude, skills[index]);
         sprintf(text, " %d%%", value);
 
         length = fontGetStringWidth(text);

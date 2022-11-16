@@ -1313,7 +1313,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
             leftItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
             leftItemState->itemFid = -1;
 
-            int unarmed = skillGetValue(obj_dude, SKILL_UNARMED);
+            int unarmed = skill_level(obj_dude, SKILL_UNARMED);
             int agility = critterGetStat(obj_dude, STAT_AGILITY);
             int strength = critterGetStat(obj_dude, STAT_STRENGTH);
             int level = pcGetStat(PC_STAT_LEVEL);
@@ -1373,7 +1373,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
             rightItemState->action = INTERFACE_ITEM_ACTION_PRIMARY;
             rightItemState->itemFid = -1;
 
-            int unarmed = skillGetValue(obj_dude, SKILL_UNARMED);
+            int unarmed = skill_level(obj_dude, SKILL_UNARMED);
             int agility = critterGetStat(obj_dude, STAT_AGILITY);
             int strength = critterGetStat(obj_dude, STAT_STRENGTH);
             int level = pcGetStat(PC_STAT_LEVEL);

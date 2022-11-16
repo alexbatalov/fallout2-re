@@ -4218,7 +4218,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
 
     int accuracy;
     if (weapon == NULL || hitMode == HIT_MODE_PUNCH || hitMode == HIT_MODE_KICK || (hitMode >= FIRST_ADVANCED_UNARMED_HIT_MODE && hitMode <= LAST_ADVANCED_UNARMED_HIT_MODE)) {
-        accuracy = skillGetValue(attacker, SKILL_UNARMED);
+        accuracy = skill_level(attacker, SKILL_UNARMED);
     } else {
         accuracy = item_w_skill_level(attacker, hitMode);
 

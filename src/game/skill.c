@@ -13,6 +13,7 @@
 #include "game/gconfig.h"
 #include "game/intface.h"
 #include "game/item.h"
+#include "game/message.h"
 #include "game/object.h"
 #include "game/palette.h"
 #include "game/party.h"
@@ -24,30 +25,34 @@
 #include "stat.h"
 #include "trait.h"
 
-// Damage flags which can be repaired using "Repair" skill.
-//
-// 0x4AA2F0
-const int gRepairableDamageFlags[REPAIRABLE_DAMAGE_FLAGS_LENGTH] = {
-    DAM_BLIND,
-    DAM_CRIP_ARM_LEFT,
-    DAM_CRIP_ARM_RIGHT,
-    DAM_CRIP_LEG_RIGHT,
-    DAM_CRIP_LEG_LEFT,
-};
+#define SKILLS_MAX_USES_PER_DAY 3
 
-// Damage flags which can be healed using "Doctor" skill.
-//
-// 0x4AA304
-const int gHealableDamageFlags[HEALABLE_DAMAGE_FLAGS_LENGTH] = {
-    DAM_BLIND,
-    DAM_CRIP_ARM_LEFT,
-    DAM_CRIP_ARM_RIGHT,
-    DAM_CRIP_LEG_RIGHT,
-    DAM_CRIP_LEG_LEFT,
-};
+#define REPAIRABLE_DAMAGE_FLAGS_LENGTH 5
+#define HEALABLE_DAMAGE_FLAGS_LENGTH 5
+
+static int skillLevelCost(int a1);
+static void show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int a5);
+static int skill_game_difficulty(int skill);
+static int skill_use_slot_available(int skill);
+static int skill_use_slot_add(int skill);
+static int skill_use_slot_clear();
+
+typedef struct SkillDescription {
+    char* name;
+    char* description;
+    char* attributes;
+    int frmId;
+    int defaultValue;
+    int statModifier;
+    int stat1;
+    int stat2;
+    int field_20;
+    int experience;
+    int field_28;
+} SkillDescription;
 
 // 0x51D118
-SkillDescription gSkillDescriptions[SKILL_COUNT] = {
+static SkillDescription skill_data[SKILL_COUNT] = {
     { NULL, NULL, NULL, 28, 5, 4, STAT_AGILITY, STAT_INVALID, 1, 0, 0 },
     { NULL, NULL, NULL, 29, 0, 2, STAT_AGILITY, STAT_INVALID, 1, 0, 0 },
     { NULL, NULL, NULL, 30, 0, 2, STAT_AGILITY, STAT_INVALID, 1, 0, 0 },
@@ -69,38 +74,36 @@ SkillDescription gSkillDescriptions[SKILL_COUNT] = {
 };
 
 // 0x51D430
-int _gIsSteal = 0;
+int gIsSteal = 0;
 
-// Something about stealing, base value?
-//
 // 0x51D434
-int _gStealCount = 0;
+int gStealCount = 0;
 
 // 0x51D438
-int _gStealSize = 0;
+int gStealSize = 0;
 
 // 0x667F98
-int _timesSkillUsed[SKILL_COUNT][SKILLS_MAX_USES_PER_DAY];
+static int timesSkillUsed[SKILL_COUNT][SKILLS_MAX_USES_PER_DAY];
 
 // 0x668070
-int gTaggedSkills[NUM_TAGGED_SKILLS];
+static int tag_skill[NUM_TAGGED_SKILLS];
 
 // skill.msg
 //
 // 0x668080
-MessageList gSkillsMessageList;
+static MessageList skill_message_file;
 
 // 0x4AA318
-int skillsInit()
+int skill_init()
 {
-    if (!message_init(&gSkillsMessageList)) {
+    if (!message_init(&skill_message_file)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "skill.msg");
 
-    if (!message_load(&gSkillsMessageList, path)) {
+    if (!message_load(&skill_message_file, path)) {
         return -1;
     }
 
@@ -108,23 +111,23 @@ int skillsInit()
         MessageListItem messageListItem;
 
         messageListItem.num = 100 + skill;
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
-            gSkillDescriptions[skill].name = messageListItem.text;
+        if (message_search(&skill_message_file, &messageListItem)) {
+            skill_data[skill].name = messageListItem.text;
         }
 
         messageListItem.num = 200 + skill;
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
-            gSkillDescriptions[skill].description = messageListItem.text;
+        if (message_search(&skill_message_file, &messageListItem)) {
+            skill_data[skill].description = messageListItem.text;
         }
 
         messageListItem.num = 300 + skill;
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
-            gSkillDescriptions[skill].attributes = messageListItem.text;
+        if (message_search(&skill_message_file, &messageListItem)) {
+            skill_data[skill].attributes = messageListItem.text;
         }
     }
 
     for (int index = 0; index < NUM_TAGGED_SKILLS; index++) {
-        gTaggedSkills[index] = -1;
+        tag_skill[index] = -1;
     }
 
     // NOTE: Uninline.
@@ -134,10 +137,10 @@ int skillsInit()
 }
 
 // 0x4AA448
-void skillsReset()
+void skill_reset()
 {
     for (int index = 0; index < NUM_TAGGED_SKILLS; index++) {
-        gTaggedSkills[index] = -1;
+        tag_skill[index] = -1;
     }
 
     // NOTE: Uninline.
@@ -145,25 +148,25 @@ void skillsReset()
 }
 
 // 0x4AA478
-void skillsExit()
+void skill_exit()
 {
-    message_exit(&gSkillsMessageList);
+    message_exit(&skill_message_file);
 }
 
 // 0x4AA488
-int skillsLoad(File* stream)
+int skill_load(File* stream)
 {
-    return fileReadInt32List(stream, gTaggedSkills, NUM_TAGGED_SKILLS);
+    return fileReadInt32List(stream, tag_skill, NUM_TAGGED_SKILLS);
 }
 
 // 0x4AA4A8
-int skillsSave(File* stream)
+int skill_save(File* stream)
 {
-    return fileWriteInt32List(stream, gTaggedSkills, NUM_TAGGED_SKILLS);
+    return fileWriteInt32List(stream, tag_skill, NUM_TAGGED_SKILLS);
 }
 
 // 0x4AA4C8
-void protoCritterDataResetSkills(CritterProtoData* data)
+void skill_set_defaults(CritterProtoData* data)
 {
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
         data->skills[skill] = 0;
@@ -171,43 +174,43 @@ void protoCritterDataResetSkills(CritterProtoData* data)
 }
 
 // 0x4AA4E4
-void skillsSetTagged(int* skills, int count)
+void skill_set_tags(int* skills, int count)
 {
     for (int index = 0; index < count; index++) {
-        gTaggedSkills[index] = skills[index];
+        tag_skill[index] = skills[index];
     }
 }
 
 // 0x4AA508
-void skillsGetTagged(int* skills, int count)
+void skill_get_tags(int* skills, int count)
 {
     for (int index = 0; index < count; index++) {
-        skills[index] = gTaggedSkills[index];
+        skills[index] = tag_skill[index];
     }
 }
 
 // 0x4AA52C
-bool skillIsTagged(int skill)
+bool skill_is_tagged(int skill)
 {
-    return skill == gTaggedSkills[0]
-        || skill == gTaggedSkills[1]
-        || skill == gTaggedSkills[2]
-        || skill == gTaggedSkills[3];
+    return skill == tag_skill[0]
+        || skill == tag_skill[1]
+        || skill == tag_skill[2]
+        || skill == tag_skill[3];
 }
 
 // 0x4AA558
-int skillGetValue(Object* critter, int skill)
+int skill_level(Object* critter, int skill)
 {
     if (!skillIsValid(skill)) {
         return -5;
     }
 
-    int baseValue = skillGetBaseValue(critter, skill);
+    int baseValue = skill_points(critter, skill);
     if (baseValue < 0) {
         return baseValue;
     }
 
-    SkillDescription* skillDescription = &(gSkillDescriptions[skill]);
+    SkillDescription* skillDescription = &(skill_data[skill]);
 
     int v7 = critterGetStat(critter, skillDescription->stat1);
     if (skillDescription->stat2 != -1) {
@@ -217,17 +220,17 @@ int skillGetValue(Object* critter, int skill)
     int value = skillDescription->defaultValue + skillDescription->statModifier * v7 + baseValue * skillDescription->field_20;
 
     if (critter == obj_dude) {
-        if (skillIsTagged(skill)) {
+        if (skill_is_tagged(skill)) {
             value += baseValue * skillDescription->field_20;
 
-            if (!perk_level(critter, PERK_TAG) || skill != gTaggedSkills[3]) {
+            if (!perk_level(critter, PERK_TAG) || skill != tag_skill[3]) {
                 value += 20;
             }
         }
 
         value += traitGetSkillModifier(skill);
         value += perk_adjust_skill(critter, skill);
-        value += skillGetGameDifficultyModifier(skill);
+        value += skill_game_difficulty(skill);
     }
 
     if (value > 300) {
@@ -238,13 +241,13 @@ int skillGetValue(Object* critter, int skill)
 }
 
 // 0x4AA654
-int skillGetDefaultValue(int skill)
+int skill_base(int skill)
 {
-    return skillIsValid(skill) ? gSkillDescriptions[skill].defaultValue : -5;
+    return skillIsValid(skill) ? skill_data[skill].defaultValue : -5;
 }
 
 // 0x4AA680
-int skillGetBaseValue(Object* obj, int skill)
+int skill_points(Object* obj, int skill)
 {
     if (!skillIsValid(skill)) {
         return 0;
@@ -257,7 +260,7 @@ int skillGetBaseValue(Object* obj, int skill)
 }
 
 // 0x4AA6BC
-int skillAdd(Object* obj, int skill)
+int skill_inc_point(Object* obj, int skill)
 {
     if (obj != obj_dude) {
         return -5;
@@ -275,13 +278,13 @@ int skillAdd(Object* obj, int skill)
         return -4;
     }
 
-    int skillValue = skillGetValue(obj, skill);
+    int skillValue = skill_level(obj, skill);
     if (skillValue >= 300) {
         return -3;
     }
 
     // NOTE: Uninline.
-    int requiredSp = skillsGetCost(skillValue);
+    int requiredSp = skillLevelCost(skillValue);
 
     if (unspentSp < requiredSp) {
         return -4;
@@ -296,7 +299,7 @@ int skillAdd(Object* obj, int skill)
 }
 
 // 0x4AA7F8
-int skillAddForce(Object* obj, int skill)
+int skill_inc_point_force(Object* obj, int skill)
 {
     if (obj != obj_dude) {
         return -5;
@@ -309,7 +312,7 @@ int skillAddForce(Object* obj, int skill)
     Proto* proto;
     proto_ptr(obj->pid, &proto);
 
-    if (skillGetValue(obj, skill) >= 300) {
+    if (skill_level(obj, skill) >= 300) {
         return -3;
     }
 
@@ -321,7 +324,7 @@ int skillAddForce(Object* obj, int skill)
 // Returns the cost of raising skill value in skill points.
 //
 // 0x4AA87C
-int skillsGetCost(int skillValue)
+static int skillLevelCost(int skillValue)
 {
     if (skillValue >= 201) {
         return 6;
@@ -342,7 +345,7 @@ int skillsGetCost(int skillValue)
 // unspent skill points.
 //
 // 0x4AA8C4
-int skillSub(Object* critter, int skill)
+int skill_dec_point(Object* critter, int skill)
 {
     if (critter != obj_dude) {
         return -5;
@@ -360,10 +363,10 @@ int skillSub(Object* critter, int skill)
     }
 
     int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
-    int skillValue = skillGetValue(critter, skill) - 1;
+    int skillValue = skill_level(critter, skill) - 1;
 
     // NOTE: Uninline.
-    int requiredSp = skillsGetCost(skillValue);
+    int requiredSp = skillLevelCost(skillValue);
 
     int newUnspentSp = unspentSp + requiredSp;
     int rc = pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp);
@@ -373,9 +376,9 @@ int skillSub(Object* critter, int skill)
 
     proto->critter.data.skills[skill] -= 1;
 
-    if (skillIsTagged(skill)) {
-        int oldSkillCost = skillsGetCost(skillValue);
-        int newSkillCost = skillsGetCost(skillGetValue(critter, skill));
+    if (skill_is_tagged(skill)) {
+        int oldSkillCost = skillLevelCost(skillValue);
+        int newSkillCost = skillLevelCost(skill_level(critter, skill));
         if (oldSkillCost != newSkillCost) {
             rc = pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp - 1);
             if (rc != 0) {
@@ -394,7 +397,7 @@ int skillSub(Object* critter, int skill)
 // Decrements specified skill value by one.
 //
 // 0x4AAA34
-int skillSubForce(Object* obj, int skill)
+int skill_dec_point_force(Object* obj, int skill)
 {
     Proto* proto;
 
@@ -418,7 +421,7 @@ int skillSubForce(Object* obj, int skill)
 }
 
 // 0x4AAAA4
-int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
+int skill_result(Object* critter, int skill, int modifier, int* howMuch)
 {
     if (!skillIsValid(skill)) {
         return ROLL_FAILURE;
@@ -433,7 +436,7 @@ int skillRoll(Object* critter, int skill, int modifier, int* howMuch)
         }
     }
 
-    int skillValue = skillGetValue(critter, skill);
+    int skillValue = skill_level(critter, skill);
 
     if (critter == obj_dude && skill == SKILL_STEAL) {
         if (is_pc_flag(DUDE_STATE_SNEAKING)) {
@@ -457,9 +460,9 @@ int skill_contest(Object* attacker, Object* defender, int skill, int attackerMod
     int defenderRoll;
     int defenderHowMuch;
 
-    attackerRoll = skillRoll(attacker, skill, attackerModifier, &attackerHowMuch);
+    attackerRoll = skill_result(attacker, skill, attackerModifier, &attackerHowMuch);
     if (attackerRoll > ROLL_FAILURE) {
-        defenderRoll = skillRoll(defender, skill, defenderModifier, &defenderHowMuch);
+        defenderRoll = skill_result(defender, skill, defenderModifier, &defenderHowMuch);
         if (defenderRoll > ROLL_FAILURE) {
             attackerHowMuch -= defenderHowMuch;
         }
@@ -475,31 +478,31 @@ int skill_contest(Object* attacker, Object* defender, int skill, int attackerMod
 }
 
 // 0x4AAB9C
-char* skillGetName(int skill)
+char* skill_name(int skill)
 {
-    return skillIsValid(skill) ? gSkillDescriptions[skill].name : NULL;
+    return skillIsValid(skill) ? skill_data[skill].name : NULL;
 }
 
 // 0x4AABC0
-char* skillGetDescription(int skill)
+char* skill_description(int skill)
 {
-    return skillIsValid(skill) ? gSkillDescriptions[skill].description : NULL;
+    return skillIsValid(skill) ? skill_data[skill].description : NULL;
 }
 
 // 0x4AABE4
-char* skillGetAttributes(int skill)
+char* skill_attribute(int skill)
 {
-    return skillIsValid(skill) ? gSkillDescriptions[skill].attributes : NULL;
+    return skillIsValid(skill) ? skill_data[skill].attributes : NULL;
 }
 
 // 0x4AAC08
-int skillGetFrmId(int skill)
+int skill_pic(int skill)
 {
-    return skillIsValid(skill) ? gSkillDescriptions[skill].frmId : 0;
+    return skillIsValid(skill) ? skill_data[skill].frmId : 0;
 }
 
 // 0x4AAC2C
-void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int criticalChanceModifier)
+static void show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int criticalChanceModifier)
 {
     if (obj != obj_dude) {
         return;
@@ -509,7 +512,7 @@ void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int cr
         return;
     }
 
-    SkillDescription* skillDescription = &(gSkillDescriptions[skill]);
+    SkillDescription* skillDescription = &(skill_data[skill]);
 
     int baseExperience = skillDescription->experience;
     if (baseExperience == 0) {
@@ -527,7 +530,7 @@ void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int cr
     if (pcAddExperience(xpToAdd) == 0 && a4 > 0) {
         MessageListItem messageListItem;
         messageListItem.num = 505; // You earn %d XP for honing your skills
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&skill_message_file, &messageListItem)) {
             int after = pcGetStat(PC_STAT_EXPERIENCE);
 
             char text[60];
@@ -539,7 +542,7 @@ void _show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, int cr
 
 // skill_use
 // 0x4AAD08
-int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
+int skill_use(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 {
     MessageListItem messageListItem;
     char text[60];
@@ -568,12 +571,12 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
     switch (skill) {
     case SKILL_FIRST_AID:
-        if (skillGetFreeUsageSlot(SKILL_FIRST_AID) == -1) {
+        if (skill_use_slot_available(SKILL_FIRST_AID) == -1) {
             // 590: You've taxed your ability with that skill. Wait a while.
             // 591: You're too tired.
             // 592: The strain might kill you.
             messageListItem.num = 590 + roll_random(0, 2);
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 
@@ -585,7 +588,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
             messageListItem.num = 512 + roll_random(0, 2);
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 debugPrint(messageListItem.text);
             }
 
@@ -599,7 +602,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             if (critter_body_type(a2) == BODY_TYPE_ROBOTIC) {
                 roll = ROLL_FAILURE;
             } else {
-                roll = skillRoll(obj, skill, criticalChance, &hpToHeal);
+                roll = skill_result(obj, skill, criticalChance, &hpToHeal);
             }
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
@@ -609,7 +612,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if (obj == obj_dude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
-                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&skill_message_file, &messageListItem)) {
                         return -1;
                     }
 
@@ -623,7 +626,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
 
-                skillUpdateLastUse(SKILL_FIRST_AID);
+                skill_use_slot_add(SKILL_FIRST_AID);
 
                 v1 = 1;
 
@@ -633,7 +636,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             } else {
                 // You fail to do any healing.
                 messageListItem.num = 503;
-                if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&skill_message_file, &messageListItem)) {
                     return -1;
                 }
 
@@ -648,7 +651,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 // 501: You look healty already
                 // 502: %s looks healthy already
                 messageListItem.num = (a2 == obj_dude ? 501 : 502);
-                if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&skill_message_file, &messageListItem)) {
                     return -1;
                 }
 
@@ -669,12 +672,12 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 
         break;
     case SKILL_DOCTOR:
-        if (skillGetFreeUsageSlot(SKILL_DOCTOR) == -1) {
+        if (skill_use_slot_available(SKILL_DOCTOR) == -1) {
             // 590: You've taxed your ability with that skill. Wait a while.
             // 591: You're too tired.
             // 592: The strain might kill you.
             messageListItem.num = 590 + roll_random(0, 2);
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 
@@ -686,7 +689,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             // 513: Let the dead rest in peace.
             // 514: It's dead, get over it.
             messageListItem.num = 512 + roll_random(0, 2);
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             break;
@@ -696,15 +699,22 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             palette_fade_to(black_palette);
 
             if (critter_body_type(a2) != BODY_TYPE_ROBOTIC && critter_is_crippled(a2)) {
-                int flags[HEALABLE_DAMAGE_FLAGS_LENGTH];
-                static_assert(sizeof(flags) == sizeof(gHealableDamageFlags), "wrong size");
-                memcpy(flags, gHealableDamageFlags, sizeof(gHealableDamageFlags));
+                // Damage flags which can be healed using "Doctor" skill.
+                //
+                // 0x4AA304
+                static const int flags[HEALABLE_DAMAGE_FLAGS_LENGTH] = {
+                    DAM_BLIND,
+                    DAM_CRIP_ARM_LEFT,
+                    DAM_CRIP_ARM_RIGHT,
+                    DAM_CRIP_LEG_RIGHT,
+                    DAM_CRIP_LEG_LEFT,
+                };
 
                 for (int index = 0; index < HEALABLE_DAMAGE_FLAGS_LENGTH; index++) {
                     if ((a2->data.critter.combat.results & flags[index]) != 0) {
                         damageHealingAttempts++;
 
-                        int roll = skillRoll(obj, skill, criticalChance, &hpToHeal);
+                        int roll = skill_result(obj, skill, criticalChance, &hpToHeal);
 
                         // 530: damaged eye
                         // 531: crippled left arm
@@ -712,7 +722,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         // 533: crippled right leg
                         // 534: crippled left leg
                         messageListItem.num = 530 + index;
-                        if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                        if (!message_search(&skill_message_file, &messageListItem)) {
                             return -1;
                         }
 
@@ -726,7 +736,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                             // 521: You heal the %s.
                             prefix.num = (a2 == obj_dude ? 520 : 521);
 
-                            skillUpdateLastUse(SKILL_DOCTOR);
+                            skill_use_slot_add(SKILL_DOCTOR);
 
                             v1 = 1;
                             v2 = 1;
@@ -736,13 +746,13 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                             prefix.num = (a2 == obj_dude ? 525 : 526);
                         }
 
-                        if (!message_search(&gSkillsMessageList, &prefix)) {
+                        if (!message_search(&skill_message_file, &prefix)) {
                             return -1;
                         }
 
                         sprintf(text, prefix.text, messageListItem.text);
                         display_print(text);
-                        _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                        show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
 
                         giveExp = false;
                     }
@@ -753,7 +763,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             if (critter_body_type(a2) == BODY_TYPE_ROBOTIC) {
                 roll = ROLL_FAILURE;
             } else {
-                int skillValue = skillGetValue(obj, skill);
+                int skillValue = skill_level(obj, skill);
                 roll = roll_check(skillValue, criticalChance, &hpToHeal);
             }
 
@@ -764,7 +774,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if (obj == obj_dude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
-                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&skill_message_file, &messageListItem)) {
                         return -1;
                     }
 
@@ -776,7 +786,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 if (!v2) {
-                    skillUpdateLastUse(SKILL_DOCTOR);
+                    skill_use_slot_add(SKILL_DOCTOR);
                 }
 
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
@@ -786,7 +796,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 v1 = 1;
-                _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scr_exec_map_update_scripts();
                 palette_fade_to(cmap);
 
@@ -794,7 +804,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             } else {
                 // You fail to do any healing.
                 messageListItem.num = 503;
-                if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&skill_message_file, &messageListItem)) {
                     return -1;
                 }
 
@@ -809,7 +819,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 // 501: You look healty already
                 // 502: %s looks healthy already
                 messageListItem.num = (a2 == obj_dude ? 501 : 502);
-                if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&skill_message_file, &messageListItem)) {
                     return -1;
                 }
 
@@ -838,14 +848,14 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         break;
     case SKILL_TRAPS:
         messageListItem.num = 551; // You fail to find any traps.
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&skill_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
         return -1;
     case SKILL_SCIENCE:
         messageListItem.num = 552; // You fail to learn anything.
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&skill_message_file, &messageListItem)) {
             display_print(messageListItem.text);
         }
 
@@ -854,18 +864,18 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         if (critter_body_type(a2) != BODY_TYPE_ROBOTIC) {
             // You cannot repair that.
             messageListItem.num = 553;
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             return -1;
         }
 
-        if (skillGetFreeUsageSlot(SKILL_REPAIR) == -1) {
+        if (skill_use_slot_available(SKILL_REPAIR) == -1) {
             // 590: You've taxed your ability with that skill. Wait a while.
             // 591: You're too tired.
             // 592: The strain might kill you.
             messageListItem.num = 590 + roll_random(0, 2);
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             return -1;
@@ -874,16 +884,23 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         if (critter_is_dead(a2)) {
             // You got it?
             messageListItem.num = 1101;
-            if (message_search(&gSkillsMessageList, &messageListItem)) {
+            if (message_search(&skill_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
             break;
         }
 
         if (currentHp < maximumHp || critter_is_crippled(a2)) {
-            int flags[REPAIRABLE_DAMAGE_FLAGS_LENGTH];
-            static_assert(sizeof(flags) == sizeof(gRepairableDamageFlags), "wrong size");
-            memcpy(flags, gRepairableDamageFlags, sizeof(gRepairableDamageFlags));
+            // Damage flags which can be repaired using "Repair" skill.
+            //
+            // 0x4AA2F0
+            static const int flags[REPAIRABLE_DAMAGE_FLAGS_LENGTH] = {
+                DAM_BLIND,
+                DAM_CRIP_ARM_LEFT,
+                DAM_CRIP_ARM_RIGHT,
+                DAM_CRIP_LEG_RIGHT,
+                DAM_CRIP_LEG_LEFT,
+            };
 
             palette_fade_to(black_palette);
 
@@ -891,7 +908,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if ((a2->data.critter.combat.results & flags[index]) != 0) {
                     damageHealingAttempts++;
 
-                    int roll = skillRoll(obj, skill, criticalChance, &hpToHeal);
+                    int roll = skill_result(obj, skill, criticalChance, &hpToHeal);
 
                     // 530: damaged eye
                     // 531: crippled left arm
@@ -899,7 +916,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                     // 533: crippled right leg
                     // 534: crippled left leg
                     messageListItem.num = 530 + index;
-                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&skill_message_file, &messageListItem)) {
                         return -1;
                     }
 
@@ -912,7 +929,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         // 520: You heal your %s.
                         // 521: You heal the %s.
                         prefix.num = (a2 == obj_dude ? 520 : 521);
-                        skillUpdateLastUse(SKILL_REPAIR);
+                        skill_use_slot_add(SKILL_REPAIR);
 
                         v1 = 1;
                         v2 = 1;
@@ -922,19 +939,19 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                         prefix.num = (a2 == obj_dude ? 525 : 526);
                     }
 
-                    if (!message_search(&gSkillsMessageList, &prefix)) {
+                    if (!message_search(&skill_message_file, &prefix)) {
                         return -1;
                     }
 
                     sprintf(text, prefix.text, messageListItem.text);
                     display_print(text);
 
-                    _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                    show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                     giveExp = false;
                 }
             }
 
-            int skillValue = skillGetValue(obj, skill);
+            int skillValue = skill_level(obj, skill);
             int roll = roll_check(skillValue, criticalChance, &hpToHeal);
 
             if (roll == ROLL_SUCCESS || roll == ROLL_CRITICAL_SUCCESS) {
@@ -944,7 +961,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 if (obj == obj_dude) {
                     // You heal %d hit points.
                     messageListItem.num = 500;
-                    if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                    if (!message_search(&skill_message_file, &messageListItem)) {
                         return -1;
                     }
 
@@ -956,7 +973,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 if (!v2) {
-                    skillUpdateLastUse(SKILL_REPAIR);
+                    skill_use_slot_add(SKILL_REPAIR);
                 }
 
                 a2->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
@@ -966,7 +983,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 }
 
                 v1 = 1;
-                _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+                show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
                 scr_exec_map_update_scripts();
                 palette_fade_to(cmap);
 
@@ -974,7 +991,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
             } else {
                 // You fail to do any healing.
                 messageListItem.num = 503;
-                if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&skill_message_file, &messageListItem)) {
                     return -1;
                 }
 
@@ -989,7 +1006,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
                 // 501: You look healty already
                 // 502: %s looks healthy already
                 messageListItem.num = (a2 == obj_dude ? 501 : 502);
-                if (!message_search(&gSkillsMessageList, &messageListItem)) {
+                if (!message_search(&skill_message_file, &messageListItem)) {
                     return -1;
                 }
 
@@ -1007,7 +1024,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
         break;
     default:
         messageListItem.num = 510; // skill_use: invalid skill used.
-        if (message_search(&gSkillsMessageList, &messageListItem)) {
+        if (message_search(&skill_message_file, &messageListItem)) {
             debugPrint(messageListItem.text);
         }
 
@@ -1015,7 +1032,7 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
     }
 
     if (giveExp) {
-        _show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
+        show_skill_use_messages(obj, skill, a2, v1, criticalChanceModifier);
     }
 
     if (skill == SKILL_FIRST_AID || skill == SKILL_DOCTOR) {
@@ -1026,11 +1043,11 @@ int skillUse(Object* obj, Object* a2, int skill, int criticalChanceModifier)
 }
 
 // 0x4ABBE4
-int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
+int skill_check_stealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 {
     int howMuch;
 
-    int stealModifier = _gStealCount;
+    int stealModifier = gStealCount;
     stealModifier--;
     stealModifier = -stealModifier;
 
@@ -1050,7 +1067,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         stealModifier += 20;
     }
 
-    int stealChance = stealModifier + skillGetValue(a1, SKILL_STEAL);
+    int stealChance = stealModifier + skill_level(a1, SKILL_STEAL);
     if (stealChance > 95) {
         stealChance = 95;
     }
@@ -1071,7 +1088,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
     } else {
         int catchChance;
         if (PID_TYPE(a2->pid) == OBJ_TYPE_CRITTER) {
-            catchChance = skillGetValue(a2, SKILL_STEAL) - stealModifier;
+            catchChance = skill_level(a2, SKILL_STEAL) - stealModifier;
         } else {
             catchChance = 30 - stealModifier;
         }
@@ -1086,7 +1103,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         // 571: You steal the %s.
         // 573: You plant the %s.
         messageListItem.num = isPlanting ? 573 : 571;
-        if (!message_search(&gSkillsMessageList, &messageListItem)) {
+        if (!message_search(&skill_message_file, &messageListItem)) {
             return -1;
         }
 
@@ -1098,7 +1115,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
         // 570: You're caught stealing the %s.
         // 572: You're caught planting the %s.
         messageListItem.num = isPlanting ? 572 : 570;
-        if (!message_search(&gSkillsMessageList, &messageListItem)) {
+        if (!message_search(&skill_message_file, &messageListItem)) {
             return -1;
         }
 
@@ -1110,7 +1127,7 @@ int skillsPerformStealing(Object* a1, Object* a2, Object* item, bool isPlanting)
 }
 
 // 0x4ABDEC
-int skillGetGameDifficultyModifier(int skill)
+static int skill_game_difficulty(int skill)
 {
     switch (skill) {
     case SKILL_FIRST_AID:
@@ -1142,16 +1159,16 @@ int skillGetGameDifficultyModifier(int skill)
 }
 
 // 0x4ABE44
-int skillGetFreeUsageSlot(int skill)
+static int skill_use_slot_available(int skill)
 {
     for (int slot = 0; slot < SKILLS_MAX_USES_PER_DAY; slot++) {
-        if (_timesSkillUsed[skill][slot] == 0) {
+        if (timesSkillUsed[skill][slot] == 0) {
             return slot;
         }
     }
 
     int time = game_time();
-    int hoursSinceLastUsage = (time - _timesSkillUsed[skill][0]) / GAME_TIME_TICKS_PER_HOUR;
+    int hoursSinceLastUsage = (time - timesSkillUsed[skill][0]) / GAME_TIME_TICKS_PER_HOUR;
     if (hoursSinceLastUsage <= 24) {
         return -1;
     }
@@ -1160,20 +1177,20 @@ int skillGetFreeUsageSlot(int skill)
 }
 
 // 0x4ABEB8
-int skillUpdateLastUse(int skill)
+static int skill_use_slot_add(int skill)
 {
-    int slot = skillGetFreeUsageSlot(skill);
+    int slot = skill_use_slot_available(skill);
     if (slot == -1) {
         return -1;
     }
 
-    if (_timesSkillUsed[skill][slot] != 0) {
+    if (timesSkillUsed[skill][slot] != 0) {
         for (int i = 0; i < slot; i++) {
-            _timesSkillUsed[skill][i] = _timesSkillUsed[skill][i + 1];
+            timesSkillUsed[skill][i] = timesSkillUsed[skill][i + 1];
         }
     }
 
-    _timesSkillUsed[skill][slot] = game_time();
+    timesSkillUsed[skill][slot] = game_time();
 
     return 0;
 }
@@ -1181,26 +1198,26 @@ int skillUpdateLastUse(int skill)
 // NOTE: Inlined.
 //
 // 0x4ABF24
-int skill_use_slot_clear()
+static int skill_use_slot_clear()
 {
-    memset(_timesSkillUsed, 0, sizeof(_timesSkillUsed));
+    memset(timesSkillUsed, 0, sizeof(timesSkillUsed));
     return 0;
 }
 
 // 0x4ABF3C
-int skillsUsageSave(File* stream)
+int skill_use_slot_save(File* stream)
 {
-    return fileWriteInt32List(stream, (int*)_timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
+    return fileWriteInt32List(stream, (int*)timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
 }
 
 // 0x4ABF5C
-int skillsUsageLoad(File* stream)
+int skill_use_slot_load(File* stream)
 {
-    return fileReadInt32List(stream, (int*)_timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
+    return fileReadInt32List(stream, (int*)timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
 }
 
 // 0x4ABF7C
-char* skillsGetGenericResponse(Object* critter, bool isDude)
+char* skillGetPartyMemberString(Object* critter, bool isDude)
 {
     int baseMessageId;
     int count;
@@ -1216,6 +1233,6 @@ char* skillsGetGenericResponse(Object* critter, bool isDude)
     int messageId = roll_random(0, count);
 
     MessageListItem messageListItem;
-    char* msg = getmsg(&gSkillsMessageList, &messageListItem, baseMessageId + messageId);
+    char* msg = getmsg(&skill_message_file, &messageListItem, baseMessageId + messageId);
     return msg;
 }

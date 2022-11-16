@@ -3574,7 +3574,7 @@ static void gdControlUpdateInfo()
 
     // Render best skill.
     int bestSkill = partyMemberSkill(dialog_target);
-    text = skillGetName(bestSkill);
+    text = skill_name(bestSkill);
     sprintf(formattedText, "%s", text);
     fontDrawText(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, colorTable[992]);
 

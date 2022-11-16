@@ -315,7 +315,7 @@ static bool perk_can_add(Object* critter, int perk)
                     v1 = false;
                 }
             } else {
-                if (skillGetValue(critter, param1) >= -value1) {
+                if (skill_level(critter, param1) >= -value1) {
                     v1 = false;
                 }
             }
@@ -325,7 +325,7 @@ static bool perk_can_add(Object* critter, int perk)
                     v1 = false;
                 }
             } else {
-                if (skillGetValue(critter, param1) < value1) {
+                if (skill_level(critter, param1) < value1) {
                     v1 = false;
                 }
             }
@@ -361,7 +361,7 @@ static bool perk_can_add(Object* critter, int perk)
                     return false;
                 }
             } else {
-                if (skillGetValue(critter, param2) >= -value2) {
+                if (skill_level(critter, param2) >= -value2) {
                     return false;
                 }
             }
@@ -371,7 +371,7 @@ static bool perk_can_add(Object* critter, int perk)
                     return false;
                 }
             } else {
-                if (skillGetValue(critter, param2) < value2) {
+                if (skill_level(critter, param2) < value2) {
                     return false;
                 }
             }
