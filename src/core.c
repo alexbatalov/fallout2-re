@@ -8,7 +8,7 @@
 #include "plib/gnw/text.h"
 #include "vcr.h"
 #include "window_manager.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 
 // NOT USED.
 void (*_idle_func)() = NULL;

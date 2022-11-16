@@ -1,4 +1,4 @@
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 
 #include <stdio.h>
 #include <string.h>

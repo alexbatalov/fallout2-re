@@ -35,7 +35,7 @@
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "window_manager.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 #include "game/worldmap.h"
 
 static void map_display_draw(Rect* rect);

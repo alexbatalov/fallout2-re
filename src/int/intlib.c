@@ -12,7 +12,7 @@
 #include "int/share1.h"
 #include "int/sound.h"
 #include "plib/gnw/text.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 
 #define INT_LIB_SOUNDS_CAPACITY 32
 #define INT_LIB_KEY_HANDLERS_CAPACITY 256

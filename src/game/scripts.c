@@ -26,7 +26,7 @@
 #include "game/queue.h"
 #include "game/tile.h"
 #include "window_manager.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 #include "game/worldmap.h"
 
 #define SCRIPT_LIST_EXTENT_SIZE 16

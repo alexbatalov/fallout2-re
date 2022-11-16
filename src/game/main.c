@@ -40,7 +40,7 @@
 #include "game/selfrun.h"
 #include "plib/gnw/text.h"
 #include "window_manager.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 #include "game/wordwrap.h"
 #include "game/worldmap.h"
 

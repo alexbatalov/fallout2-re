@@ -9,7 +9,7 @@
 #include "game/palette.h"
 #include "plib/gnw/text.h"
 #include "vcr.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 
 static_assert(sizeof(MenuBar) == 572, "wrong size");
 static_assert(sizeof(Window) == 68, "wrong size");

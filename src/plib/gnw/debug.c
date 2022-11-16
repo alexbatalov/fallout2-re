@@ -9,7 +9,7 @@
 #include <windows.h>
 
 #include "plib/gnw/memory.h"
-#include "window_manager_private.h"
+#include "plib/gnw/intrface.h"
 
 static int debug_mono(char* string);
 static int debug_log(char* string);
