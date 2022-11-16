@@ -450,7 +450,7 @@ int gmouse_is_scrolling()
         int x;
         int y;
         mouse_get_position(&x, &y);
-        if (x == _scr_size.left || x == _scr_size.right || y == _scr_size.top || y == _scr_size.bottom) {
+        if (x == _scr_size.ulx || x == _scr_size.lrx || y == _scr_size.uly || y == _scr_size.lry) {
             switch (gmouse_current_cursor) {
             case MOUSE_CURSOR_SCROLL_NW:
             case MOUSE_CURSOR_SCROLL_N:
@@ -714,7 +714,7 @@ void gmouse_bk_process()
                     }
 
                     if (primaryAction != -1) {
-                        if (gmouse_3d_build_pick_frame(mouseX, mouseY, primaryAction, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99) == 0) {
+                        if (gmouse_3d_build_pick_frame(mouseX, mouseY, primaryAction, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99) == 0) {
                             Rect tmp;
                             int fid = art_id(OBJ_TYPE_INTERFACE, 282, 0, 0, 0);
                             // NOTE: Uninline.
@@ -871,7 +871,7 @@ void gmouse_bk_process()
 
     switch (v34) {
     case 3:
-        rectUnion(&r2, &r26, &r2);
+        rect_min_bound(&r2, &r26, &r2);
         // FALLTHROUGH
     case 1:
         tile_refresh_rect(&r2, map_elevation);
@@ -903,7 +903,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         }
     }
 
-    if (!mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
+    if (!mouse_click_in(0, 0, _scr_size.lrx - _scr_size.ulx, _scr_size.lry - _scr_size.uly - 100)) {
         return;
     }
 
@@ -1115,7 +1115,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 break;
             }
 
-            if (gmouse_3d_build_menu_frame(mouseX, mouseY, actionMenuItems, actionMenuItemsCount, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99) == 0) {
+            if (gmouse_3d_build_menu_frame(mouseX, mouseY, actionMenuItems, actionMenuItemsCount, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99) == 0) {
                 Rect v43;
                 int fid = art_id(OBJ_TYPE_INTERFACE, 283, 0, 0, 0);
                 // NOTE: Uninline.
@@ -1378,7 +1378,7 @@ void gmouse_3d_set_mode(int mode)
 
     Rect r2;
     if (gmouse_3d_move_to(mouseX, mouseY, map_elevation, &r2) == 0) {
-        rectUnion(&rect, &r2, &rect);
+        rect_min_bound(&rect, &r2, &rect);
     }
 
     int v5 = 0;
@@ -1393,12 +1393,12 @@ void gmouse_3d_set_mode(int mode)
 
         if (gmouse_3d_current_mode == 0) {
             if (obj_turn_off_outline(obj_mouse_flat, &r2) == 0) {
-                rectUnion(&rect, &r2, &rect);
+                rect_min_bound(&rect, &r2, &rect);
             }
         }
     } else {
         if (obj_turn_on_outline(obj_mouse_flat, &r2) == 0) {
-            rectUnion(&rect, &r2, &rect);
+            rect_min_bound(&rect, &r2, &rect);
         }
     }
 
@@ -1496,7 +1496,7 @@ int gmouse_3d_set_fid(int fid)
         } else if (v1 == 2) {
             tile_refresh_rect(&rect, map_elevation);
         } else if (v1 == 3) {
-            rectUnion(&oldRect, &rect, &oldRect);
+            rect_min_bound(&oldRect, &rect, &oldRect);
             tile_refresh_rect(&oldRect, map_elevation);
         }
     }
@@ -1546,7 +1546,7 @@ void gmouse_3d_on()
     if (gmouse_3d_current_mode != GAME_MOUSE_MODE_MOVE) {
         if (obj_turn_off_outline(obj_mouse_flat, &tmp) == 0) {
             if ((v2 & 2) != 0) {
-                rectUnion(&rect2, &tmp, &rect2);
+                rect_min_bound(&rect2, &tmp, &rect2);
             } else {
                 memcpy(&rect2, &tmp, sizeof(rect2));
                 v2 |= 2;
@@ -1556,7 +1556,7 @@ void gmouse_3d_on()
 
     if (gmouse_3d_reset_flat_fid(&tmp) == 0) {
         if ((v2 & 2) != 0) {
-            rectUnion(&rect2, &tmp, &rect2);
+            rect_min_bound(&rect2, &tmp, &rect2);
         } else {
             memcpy(&rect2, &tmp, sizeof(rect2));
             v2 |= 2;
@@ -1573,7 +1573,7 @@ void gmouse_3d_on()
             rect = &rect2;
             break;
         case 3:
-            rectUnion(&rect1, &rect2, &rect1);
+            rect_min_bound(&rect1, &rect2, &rect1);
             rect = &rect1;
             break;
         default:
@@ -1611,7 +1611,7 @@ void gmouse_3d_off()
     } else if (v1 == 2) {
         tile_refresh_rect(&rect2, map_elevation);
     } else if (v1 == 3) {
-        rectUnion(&rect1, &rect2, &rect1);
+        rect_min_bound(&rect1, &rect2, &rect1);
         tile_refresh_rect(&rect1, map_elevation);
     }
 }
@@ -2263,7 +2263,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
                 Rect rect2;
                 if (obj_move_to_tile(obj_mouse_flat, tile, elevation, &rect2) == 0) {
                     if (v1) {
-                        rectUnion(&rect1, &rect2, &rect1);
+                        rect_min_bound(&rect1, &rect2, &rect1);
                     } else {
                         rectCopy(&rect1, &rect2);
                     }
@@ -2312,7 +2312,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
         if (obj_move_to_tile(obj_mouse, tile, elevation, &rect1) == 0) {
             if (x1 != 0 || y1 != 0) {
                 if (obj_offset(obj_mouse, x1, y1, &rect2) == 0) {
-                    rectUnion(&rect1, &rect2, &rect1);
+                    rect_min_bound(&rect1, &rect2, &rect1);
                 }
             }
             v1 = true;
@@ -2338,7 +2338,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
 
             if (obj_move(obj_mouse_flat, x + offsetX, y + offsetY, elevation, &rect2) == 0) {
                 if (v1) {
-                    rectUnion(&rect1, &rect2, &rect1);
+                    rect_min_bound(&rect1, &rect2, &rect1);
                 } else {
                     rectCopy(&rect1, &rect2);
                     v1 = true;
@@ -2347,7 +2347,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
         } else {
             if (obj_move_to_tile(obj_mouse_flat, tile, elevation, &rect2) == 0) {
                 if (v1) {
-                    rectUnion(&rect1, &rect2, &rect1);
+                    rect_min_bound(&rect1, &rect2, &rect1);
                 } else {
                     rectCopy(&rect1, &rect2);
                     v1 = true;
@@ -2372,19 +2372,19 @@ static int gmouse_check_scrolling(int x, int y, int cursor)
 
     int flags = 0;
 
-    if (x <= _scr_size.left) {
+    if (x <= _scr_size.ulx) {
         flags |= SCROLLABLE_W;
     }
 
-    if (x >= _scr_size.right) {
+    if (x >= _scr_size.lrx) {
         flags |= SCROLLABLE_E;
     }
 
-    if (y <= _scr_size.top) {
+    if (y <= _scr_size.uly) {
         flags |= SCROLLABLE_N;
     }
 
-    if (y >= _scr_size.bottom) {
+    if (y >= _scr_size.lry) {
         flags |= SCROLLABLE_S;
     }
 

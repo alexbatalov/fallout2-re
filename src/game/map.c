@@ -149,7 +149,7 @@ int iso_init()
     // NOTE: Uninline.
     square_init();
 
-    display_win = windowCreate(0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, 256, 10);
+    display_win = windowCreate(0, 0, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, 256, 10);
     if (display_win == -1) {
         debug_printf("win_add failed in iso_init\n");
         return -1;
@@ -173,14 +173,14 @@ int iso_init()
 
     debug_printf(">art_init\t\t");
 
-    if (tile_init(square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, map_display_draw) != 0) {
+    if (tile_init(square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, display_buf, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, _scr_size.lrx - _scr_size.ulx + 1, map_display_draw) != 0) {
         debug_printf("tile_init failed in iso_init\n");
         return -1;
     }
 
     debug_printf(">tile_init\t\t");
 
-    if (obj_init(display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1) != 0) {
+    if (obj_init(display_buf, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, _scr_size.lrx - _scr_size.ulx + 1) != 0) {
         debug_printf("obj_init failed in iso_init\n");
         return -1;
     }
@@ -632,9 +632,9 @@ int map_scroll(int dx, int dy)
     Rect r2;
     rectCopy(&r2, &r1);
 
-    int width = _scr_size.right - _scr_size.left + 1;
+    int width = _scr_size.lrx - _scr_size.ulx + 1;
     int pitch = width;
-    int height = _scr_size.bottom - _scr_size.top - 99;
+    int height = _scr_size.lry - _scr_size.uly - 99;
 
     if (screenDx != 0) {
         width -= 32;
@@ -645,18 +645,18 @@ int map_scroll(int dx, int dy)
     }
 
     if (screenDx < 0) {
-        r2.right = r2.left - screenDx;
+        r2.lrx = r2.ulx - screenDx;
     } else {
-        r2.left = r2.right - screenDx;
+        r2.ulx = r2.lrx - screenDx;
     }
 
     unsigned char* src;
     unsigned char* dest;
     int step;
     if (screenDy < 0) {
-        r1.bottom = r1.top - screenDy;
+        r1.lry = r1.uly - screenDy;
         src = display_buf + pitch * (height - 1);
-        dest = display_buf + pitch * (_scr_size.bottom - _scr_size.top - 100);
+        dest = display_buf + pitch * (_scr_size.lry - _scr_size.uly - 100);
         if (screenDx < 0) {
             dest -= screenDx;
         } else {
@@ -664,7 +664,7 @@ int map_scroll(int dx, int dy)
         }
         step = -pitch;
     } else {
-        r1.top = r1.bottom - screenDy;
+        r1.uly = r1.lry - screenDy;
         dest = display_buf;
         src = display_buf + pitch * screenDy;
 
@@ -827,7 +827,7 @@ int map_load_file(File* stream)
 
     int rc = 0;
 
-    windowFill(display_win, 0, 0, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, colorTable[0]);
+    windowFill(display_win, 0, 0, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, colorTable[0]);
     win_draw(display_win);
     anim_stop();
     scr_disable();
@@ -1507,7 +1507,7 @@ static void map_display_draw(Rect* rect)
 static void map_scroll_refresh_game(Rect* rect)
 {
     Rect clampedDirtyRect;
-    if (rectIntersection(rect, &map_display_rect, &clampedDirtyRect) == -1) {
+    if (rect_inside_bound(rect, &map_display_rect, &clampedDirtyRect) == -1) {
         return;
     }
 
@@ -1522,14 +1522,14 @@ static void map_scroll_refresh_game(Rect* rect)
 static void map_scroll_refresh_mapper(Rect* rect)
 {
     Rect clampedDirtyRect;
-    if (rectIntersection(rect, &map_display_rect, &clampedDirtyRect) == -1) {
+    if (rect_inside_bound(rect, &map_display_rect, &clampedDirtyRect) == -1) {
         return;
     }
 
-    bufferFill(display_buf + clampedDirtyRect.top * (_scr_size.right - _scr_size.left + 1) + clampedDirtyRect.left,
-        clampedDirtyRect.right - clampedDirtyRect.left + 1,
-        clampedDirtyRect.bottom - clampedDirtyRect.top + 1,
-        _scr_size.right - _scr_size.left + 1,
+    bufferFill(display_buf + clampedDirtyRect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + clampedDirtyRect.ulx,
+        clampedDirtyRect.lrx - clampedDirtyRect.ulx + 1,
+        clampedDirtyRect.lry - clampedDirtyRect.uly + 1,
+        _scr_size.lrx - _scr_size.ulx + 1,
         0);
     square_render_floor(&clampedDirtyRect, map_elevation);
     grid_render(&clampedDirtyRect, map_elevation);

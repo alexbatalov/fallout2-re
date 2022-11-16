@@ -440,23 +440,23 @@ static int show_death(Object* obj, int anim)
     if (anim < 48 && anim > 63) {
         fid = art_id(OBJ_TYPE_CRITTER, obj->fid & 0xFFF, anim + 28, (obj->fid & 0xF000) >> 12, obj->rotation + 1);
         if (obj_change_fid(obj, fid, &v7) == 0) {
-            rectUnion(&v8, &v7, &v8);
+            rect_min_bound(&v8, &v7, &v8);
         }
 
         if (obj_set_frame(obj, 0, &v7) == 0) {
-            rectUnion(&v8, &v7, &v8);
+            rect_min_bound(&v8, &v7, &v8);
         }
     }
 
     if (critter_flag_check(obj->pid, CRITTER_FLAT) == 0) {
         obj->flags |= OBJECT_NO_BLOCK;
         if (obj_toggle_flat(obj, &v7) == 0) {
-            rectUnion(&v8, &v7, &v8);
+            rect_min_bound(&v8, &v7, &v8);
         }
     }
 
     if (obj_turn_off_outline(obj, &v7) == 0) {
-        rectUnion(&v8, &v7, &v8);
+        rect_min_bound(&v8, &v7, &v8);
     }
 
     if (anim >= 30 && anim <= 31 && critter_flag_check(obj->pid, CRITTER_SPECIAL_DEATH) == 0 && critter_flag_check(obj->pid, CRITTER_NO_DROP) == 0) {
@@ -1587,10 +1587,10 @@ int pick_hex()
                 map_set_elevation(map_elevation - 1);
             }
 
-            rect.left = 30;
-            rect.top = 62;
-            rect.right = 50;
-            rect.bottom = 88;
+            rect.ulx = 30;
+            rect.uly = 62;
+            rect.lrx = 50;
+            rect.lry = 88;
         }
 
         if (game_user_wants_to_quit != 0) {
@@ -1602,13 +1602,13 @@ int pick_hex()
         return -1;
     }
 
-    if (!mouse_click_in(0, 0, _scr_size.right - _scr_size.left, _scr_size.bottom - _scr_size.top - 100)) {
+    if (!mouse_click_in(0, 0, _scr_size.lrx - _scr_size.ulx, _scr_size.lry - _scr_size.uly - 100)) {
         return -1;
     }
 
-    mouse_get_position(&(rect.left), &(rect.top));
+    mouse_get_position(&(rect.ulx), &(rect.uly));
 
-    tile = tile_num(rect.left, rect.top, elevation);
+    tile = tile_num(rect.ulx, rect.uly, elevation);
     if (tile == -1) {
         return -1;
     }

@@ -190,7 +190,7 @@ void win_draw(int win);
 void win_draw_rect(int win, const Rect* rect);
 void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3);
 void windowRefreshAll(Rect* rect);
-void _win_clip(Window* window, RectListNode** rect, unsigned char* a3);
+void _win_clip(Window* window, RectPtr* rectListNodePtr, unsigned char* a3);
 void _win_drag(int win);
 void _win_get_mouse_buf(unsigned char* a1);
 void _refresh_all(Rect* rect, unsigned char* a2);

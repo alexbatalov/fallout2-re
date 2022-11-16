@@ -2158,10 +2158,10 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
     windowWidth = windowGetWidth(windowHandle);
     windowBuf = windowGetBuffer(windowHandle);
 
-    rect.left = x;
-    rect.top = y;
-    rect.right = x + BIG_NUM_WIDTH * 2;
-    rect.bottom = y + BIG_NUM_HEIGHT;
+    rect.ulx = x;
+    rect.uly = y;
+    rect.lrx = x + BIG_NUM_WIDTH * 2;
+    rect.lry = y + BIG_NUM_HEIGHT;
 
     numbersGraphicBufferPtr = grphbmp[0];
 

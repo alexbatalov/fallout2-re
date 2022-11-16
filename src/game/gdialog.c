@@ -40,7 +40,7 @@
 // define is actually an expression as original game used. However leaving it
 // in the code produces to too many diffs in this file, which is not good for
 // RE<->CE reconciliation.
-#define GAME_DIALOG_WINDOW_WIDTH (_scr_size.right - _scr_size.left + 1)
+#define GAME_DIALOG_WINDOW_WIDTH (_scr_size.lrx - _scr_size.ulx + 1)
 #define GAME_DIALOG_WINDOW_HEIGHT 480
 
 #define GAME_DIALOG_REPLY_WINDOW_X 135
@@ -54,7 +54,7 @@
 #define GAME_DIALOG_OPTIONS_WINDOW_HEIGHT 117
 
 // NOTE: See `GAME_DIALOG_WINDOW_WIDTH`.
-#define GAME_DIALOG_REVIEW_WINDOW_WIDTH (_scr_size.right - _scr_size.left + 1)
+#define GAME_DIALOG_REVIEW_WINDOW_WIDTH (_scr_size.lrx - _scr_size.ulx + 1)
 #define GAME_DIALOG_REVIEW_WINDOW_HEIGHT 480
 
 #define DIALOG_REVIEW_ENTRIES_CAPACITY 80
@@ -1030,10 +1030,10 @@ void gdialogDisplayMsg(char* msg)
         return;
     }
 
-    replyRect.left = 5;
-    replyRect.top = 10;
-    replyRect.right = 374;
-    replyRect.bottom = 58;
+    replyRect.ulx = 5;
+    replyRect.uly = 10;
+    replyRect.lrx = 374;
+    replyRect.lry = 58;
     demo_copy_title(gReplyWin);
 
     unsigned char* windowBuffer = windowGetBuffer(gReplyWin);
@@ -1513,10 +1513,10 @@ static void gdReviewPressed(int btn, int keyCode)
 static void gdReviewDisplay(int win, int origin)
 {
     Rect entriesRect;
-    entriesRect.left = 113;
-    entriesRect.top = 76;
-    entriesRect.right = 422;
-    entriesRect.bottom = 418;
+    entriesRect.ulx = 113;
+    entriesRect.uly = 76;
+    entriesRect.lrx = 422;
+    entriesRect.lry = 418;
 
     int v20 = text_height() + 2;
     unsigned char* windowBuffer = windowGetBuffer(win);
@@ -1527,11 +1527,11 @@ static void gdReviewDisplay(int win, int origin)
 
     int width = GAME_DIALOG_WINDOW_WIDTH;
     blitBufferToBuffer(
-        reviewDispBuf + width * entriesRect.top + entriesRect.left,
+        reviewDispBuf + width * entriesRect.uly + entriesRect.ulx,
         width,
-        entriesRect.bottom - entriesRect.top + 15,
+        entriesRect.lry - entriesRect.uly + 15,
         width,
-        windowBuffer + width * entriesRect.top + entriesRect.left,
+        windowBuffer + width * entriesRect.uly + entriesRect.ulx,
         width);
 
     int y = 76;
@@ -1541,7 +1541,7 @@ static void gdReviewDisplay(int win, int origin)
         char name[60];
         sprintf(name, "%s:", object_name(dialog_target));
         windowDrawText(win, name, 180, 88, y, colorTable[992] | 0x2000000);
-        entriesRect.top += v20;
+        entriesRect.uly += v20;
 
         char* replyText;
         if (dialogReviewEntry->replyMessageListId <= -3) {
@@ -1567,7 +1567,7 @@ static void gdReviewDisplay(int win, int origin)
         if (dialogReviewEntry->optionMessageListId != -3) {
             sprintf(name, "%s:", object_name(obj_dude));
             windowDrawText(win, name, 180, 88, y, colorTable[21140] | 0x2000000);
-            entriesRect.top += v20;
+            entriesRect.uly += v20;
 
             char* optionText;
             if (dialogReviewEntry->optionMessageListId <= -3) {
@@ -1596,10 +1596,10 @@ static void gdReviewDisplay(int win, int origin)
         }
     }
 
-    entriesRect.left = 88;
-    entriesRect.top = 76;
-    entriesRect.bottom += 14;
-    entriesRect.right = 434;
+    entriesRect.ulx = 88;
+    entriesRect.uly = 76;
+    entriesRect.lry += 14;
+    entriesRect.lrx = 434;
     win_draw_rect(win, &entriesRect);
 }
 
@@ -1840,10 +1840,10 @@ static int gdProcessExit()
 static void gdUpdateMula()
 {
     Rect rect;
-    rect.left = 5;
-    rect.right = 70;
-    rect.top = 36;
-    rect.bottom = text_height() + 36;
+    rect.ulx = 5;
+    rect.lrx = 70;
+    rect.uly = 36;
+    rect.lry = text_height() + 36;
 
     talkToRefreshDialogWindowRect(&rect);
 
@@ -2104,14 +2104,14 @@ static void gdProcessHighlight(int index)
         return;
     }
 
-    optionRect.left = 0;
-    optionRect.top = dialogOptionEntry->field_14;
-    optionRect.right = 391;
-    optionRect.bottom = dialogOptionEntry->field_39C;
+    optionRect.ulx = 0;
+    optionRect.uly = dialogOptionEntry->field_14;
+    optionRect.lrx = 391;
+    optionRect.lry = dialogOptionEntry->field_39C;
     gDialogRefreshOptionsRect(gOptionWin, &optionRect);
 
-    optionRect.left = 5;
-    optionRect.right = 388;
+    optionRect.ulx = 5;
+    optionRect.lrx = 388;
 
     int color = colorTable[32747] | 0x2000000;
     if (perkHasRank(obj_dude, PERK_EMPATHY)) {
@@ -2140,9 +2140,9 @@ static void gdProcessHighlight(int index)
         393,
         color);
 
-    optionRect.left = 0;
-    optionRect.right = 391;
-    optionRect.top = dialogOptionEntry->field_14;
+    optionRect.ulx = 0;
+    optionRect.lrx = 391;
+    optionRect.uly = dialogOptionEntry->field_14;
     win_draw_rect(gOptionWin, &optionRect);
 }
 
@@ -2151,10 +2151,10 @@ static void gdProcessUnHighlight(int index)
 {
     GameDialogOptionEntry* dialogOptionEntry = &(dialogBlock.options[index]);
 
-    optionRect.left = 0;
-    optionRect.top = dialogOptionEntry->field_14;
-    optionRect.right = 391;
-    optionRect.bottom = dialogOptionEntry->field_39C;
+    optionRect.ulx = 0;
+    optionRect.uly = dialogOptionEntry->field_14;
+    optionRect.lrx = 391;
+    optionRect.lry = dialogOptionEntry->field_39C;
     gDialogRefreshOptionsRect(gOptionWin, &optionRect);
 
     int color = colorTable[992] | 0x2000000;
@@ -2176,8 +2176,8 @@ static void gdProcessUnHighlight(int index)
         }
     }
 
-    optionRect.left = 5;
-    optionRect.right = 388;
+    optionRect.ulx = 5;
+    optionRect.lrx = 388;
 
     // NOTE: Uninline.
     text_to_rect_wrapped(windowGetBuffer(gOptionWin),
@@ -2188,19 +2188,19 @@ static void gdProcessUnHighlight(int index)
         393,
         color);
 
-    optionRect.right = 391;
-    optionRect.top = dialogOptionEntry->field_14;
-    optionRect.left = 0;
+    optionRect.lrx = 391;
+    optionRect.uly = dialogOptionEntry->field_14;
+    optionRect.ulx = 0;
     win_draw_rect(gOptionWin, &optionRect);
 }
 
 // 0x446C94
 static void gdProcessReply()
 {
-    replyRect.left = 5;
-    replyRect.top = 10;
-    replyRect.right = 374;
-    replyRect.bottom = 58;
+    replyRect.ulx = 5;
+    replyRect.uly = 10;
+    replyRect.lrx = 374;
+    replyRect.lry = 58;
 
     // NOTE: There is an unused if condition.
     perk_level(obj_dude, PERK_EMPATHY);
@@ -2221,15 +2221,15 @@ static void gdProcessReply()
 // 0x446D30
 static void gdProcessUpdate()
 {
-    replyRect.left = 5;
-    replyRect.top = 10;
-    replyRect.right = 374;
-    replyRect.bottom = 58;
+    replyRect.ulx = 5;
+    replyRect.uly = 10;
+    replyRect.lrx = 374;
+    replyRect.lry = 58;
 
-    optionRect.left = 5;
-    optionRect.top = 5;
-    optionRect.right = 388;
-    optionRect.bottom = 112;
+    optionRect.ulx = 5;
+    optionRect.uly = 5;
+    optionRect.lrx = 388;
+    optionRect.lry = 112;
 
     demo_copy_title(gReplyWin);
     demo_copy_options(gOptionWin);
@@ -2251,7 +2251,7 @@ static void gdProcessUpdate()
 
     bool hasEmpathy = perk_level(obj_dude, PERK_EMPATHY) != 0;
 
-    int width = optionRect.right - optionRect.left - 4;
+    int width = optionRect.lrx - optionRect.ulx - 4;
 
     MessageListItem messageListItem;
 
@@ -2313,9 +2313,9 @@ static void gdProcessUpdate()
             }
         }
 
-        int v11 = text_num_lines(dialogOptionEntry->text, optionRect.right - optionRect.left) * text_height() + optionRect.top + 2;
-        if (v11 < optionRect.bottom) {
-            int y = optionRect.top;
+        int v11 = text_num_lines(dialogOptionEntry->text, optionRect.lrx - optionRect.ulx) * text_height() + optionRect.uly + 2;
+        if (v11 < optionRect.lry) {
+            int y = optionRect.uly;
 
             dialogOptionEntry->field_39C = v11;
             dialogOptionEntry->field_14 = y;
@@ -2333,9 +2333,9 @@ static void gdProcessUpdate()
                 393,
                 color);
 
-            optionRect.top += 2;
+            optionRect.uly += 2;
 
-            dialogOptionEntry->btn = buttonCreate(gOptionWin, 2, y, width, optionRect.top - y - 4, 1200 + index, 1300 + index, -1, 49 + index, NULL, NULL, NULL, 0);
+            dialogOptionEntry->btn = buttonCreate(gOptionWin, 2, y, width, optionRect.uly - y - 4, 1200 + index, 1300 + index, -1, 49 + index, NULL, NULL, NULL, 0);
             if (dialogOptionEntry->btn != -1) {
                 buttonSetCallbacks(dialogOptionEntry->btn, gsound_red_butt_press, gsound_red_butt_release);
             } else {
@@ -2372,15 +2372,15 @@ static int gdCreateHeadWindow()
         soundContinueAll();
 
         Rect* rect = &(backgrndRects[index]);
-        int width = rect->right - rect->left;
-        int height = rect->bottom - rect->top;
+        int width = rect->lrx - rect->ulx;
+        int height = rect->lry - rect->uly;
         backgrndBufs[index] = (unsigned char*)mem_malloc(width * height);
         if (backgrndBufs[index] == NULL) {
             return -1;
         }
 
         unsigned char* src = buf;
-        src += windowWidth * rect->top + rect->left;
+        src += windowWidth * rect->uly + rect->ulx;
 
         blitBufferToBuffer(src, width, height, windowWidth, backgrndBufs[index], width);
     }
@@ -2707,7 +2707,7 @@ static void demo_copy_options(int win)
     }
 
     unsigned char* dest = windowGetBuffer(win);
-    blitBufferToBuffer(src + 640 * (335 - windowRect.top) + 127, width, height, 640, dest, width);
+    blitBufferToBuffer(src + 640 * (335 - windowRect.uly) + 127, width, height, 640, dest, width);
 }
 
 // gDialogRefreshOptionsRect
@@ -2738,12 +2738,12 @@ static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
         return;
     }
 
-    if (drawRect->top >= drawRect->bottom) {
+    if (drawRect->uly >= drawRect->lry) {
         debug_printf("\nError: gDialogRefreshOptionsRect: Invalid Rect (too many options)!");
         return;
     }
 
-    if (drawRect->left >= drawRect->right) {
+    if (drawRect->ulx >= drawRect->lrx) {
         debug_printf("\nError: gDialogRefreshOptionsRect: Invalid Rect (too many options)!");
         return;
     }
@@ -2752,11 +2752,11 @@ static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
     unsigned char* dest = windowGetBuffer(win);
 
     blitBufferToBuffer(
-        src + (640 * (335 - windowRect.top) + 127) + (640 * drawRect->top + drawRect->left),
-        drawRect->right - drawRect->left,
-        drawRect->bottom - drawRect->top,
+        src + (640 * (335 - windowRect.uly) + 127) + (640 * drawRect->uly + drawRect->ulx),
+        drawRect->lrx - drawRect->ulx,
+        drawRect->lry - drawRect->uly,
         640,
-        dest + destWidth * drawRect->top,
+        dest + destWidth * drawRect->uly,
         destWidth);
 }
 
@@ -2911,18 +2911,18 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
     v9 = a4;
 
     if (a2 == 1) {
-        rect.left = 0;
-        rect.right = GAME_DIALOG_WINDOW_WIDTH - 1;
-        rect.bottom = a6 - 1;
+        rect.ulx = 0;
+        rect.lrx = GAME_DIALOG_WINDOW_WIDTH - 1;
+        rect.lry = a6 - 1;
 
         int v18 = a6 / 10;
         if (a7 == -1) {
-            rect.top = 10;
+            rect.uly = 10;
             v18 = 0;
         } else {
-            rect.top = v18 * 10;
+            rect.uly = v18 * 10;
             v7 = a6 % 10;
-            v9 += (GAME_DIALOG_WINDOW_WIDTH) * rect.top;
+            v9 += (GAME_DIALOG_WINDOW_WIDTH) * rect.uly;
         }
 
         for (; v18 >= 0; v18--) {
@@ -2933,7 +2933,7 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
                 GAME_DIALOG_WINDOW_WIDTH,
                 v9,
                 GAME_DIALOG_WINDOW_WIDTH);
-            rect.top -= 10;
+            rect.uly -= 10;
             win_draw_rect(win, &rect);
             v7 += 10;
             v9 -= 10 * (GAME_DIALOG_WINDOW_WIDTH);
@@ -2943,10 +2943,10 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
             }
         }
     } else {
-        rect.right = GAME_DIALOG_WINDOW_WIDTH - 1;
-        rect.bottom = a6 - 1;
-        rect.left = 0;
-        rect.top = 0;
+        rect.lrx = GAME_DIALOG_WINDOW_WIDTH - 1;
+        rect.lry = a6 - 1;
+        rect.ulx = 0;
+        rect.uly = 0;
 
         for (int index = a6 / 10; index > 0; index--) {
             soundContinueAll();
@@ -2971,7 +2971,7 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
 
             win_draw_rect(win, &rect);
 
-            rect.top += 10;
+            rect.uly += 10;
 
             tick = _get_time();
             while (getTicksSince(tick) < 33) {
@@ -3013,7 +3013,7 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
         start = string;
     }
 
-    int maxWidth = rect->right - rect->left;
+    int maxWidth = rect->lrx - rect->ulx;
     char* end = NULL;
     while (start != NULL && *start != '\0') {
         if (text_width(start) > maxWidth) {
@@ -3048,22 +3048,22 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
                     *end = '\0';
                 }
             } else {
-                if (rect->bottom - text_height() < rect->top) {
-                    return rect->top;
+                if (rect->lry - text_height() < rect->uly) {
+                    return rect->uly;
                 }
 
                 if (a7 != 1 || start == string) {
-                    text_to_buf(buffer + pitch * rect->top + 10, start, maxWidth, pitch, color);
+                    text_to_buf(buffer + pitch * rect->uly + 10, start, maxWidth, pitch, color);
                 } else {
-                    text_to_buf(buffer + pitch * rect->top, start, maxWidth, pitch, color);
+                    text_to_buf(buffer + pitch * rect->uly, start, maxWidth, pitch, color);
                 }
 
                 if (a4 != NULL) {
                     *a4 += strlen(start) + 1;
                 }
 
-                rect->top += height;
-                return rect->top;
+                rect->uly += height;
+                return rect->uly;
             }
         }
 
@@ -3073,11 +3073,11 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
         }
 
         if (a7 != 0) {
-            if (rect->bottom - text_height() < rect->top) {
+            if (rect->lry - text_height() < rect->uly) {
                 if (end != NULL && *end == '\0') {
                     *end = ' ';
                 }
-                return rect->top;
+                return rect->uly;
             }
 
             unsigned char* dest;
@@ -3086,14 +3086,14 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
             } else {
                 dest = buffer;
             }
-            text_to_buf(dest + pitch * rect->top, start, maxWidth, pitch, color);
+            text_to_buf(dest + pitch * rect->uly, start, maxWidth, pitch, color);
         }
 
         if (a4 != NULL && end != NULL) {
             *a4 += strlen(start) + 1;
         }
 
-        rect->top += height;
+        rect->uly += height;
 
         if (end != NULL) {
             start = end + 1;
@@ -3110,7 +3110,7 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
         *a4 = 0;
     }
 
-    return rect->top;
+    return rect->uly;
 }
 
 // 0x448214
@@ -4431,7 +4431,7 @@ static int talk_to_create_background_window()
 {
     dialogueBackWindow = windowCreate(0,
         0,
-        _scr_size.right - _scr_size.left + 1,
+        _scr_size.lrx - _scr_size.ulx + 1,
         GAME_DIALOG_WINDOW_HEIGHT,
         256,
         WINDOW_FLAG_0x02);
@@ -4485,12 +4485,12 @@ static int talkToRefreshDialogWindowRect(Rect* rect)
         return -1;
     }
 
-    int offset = 640 * rect->top + rect->left;
+    int offset = 640 * rect->uly + rect->ulx;
 
     unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
     blitBufferToBuffer(backgroundFrmData + offset,
-        rect->right - rect->left,
-        rect->bottom - rect->top,
+        rect->lrx - rect->ulx,
+        rect->lry - rect->uly,
         GAME_DIALOG_WINDOW_WIDTH,
         windowBuffer + offset,
         GAME_DIALOG_WINDOW_WIDTH);
@@ -4597,19 +4597,19 @@ static void gdDisplayFrame(Art* headFrm, int frame)
 
         unsigned char* src = windowGetBuffer(display_win);
         blitBufferToBuffer(
-            src + ((_scr_size.bottom - _scr_size.top + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
+            src + ((_scr_size.lry - _scr_size.uly + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
             388,
             200,
-            _scr_size.right - _scr_size.left + 1,
+            _scr_size.lrx - _scr_size.ulx + 1,
             headWindowBuffer,
             GAME_DIALOG_WINDOW_WIDTH);
     }
 
     Rect v27;
-    v27.left = 126;
-    v27.top = 14;
-    v27.right = 514;
-    v27.bottom = 214;
+    v27.ulx = 126;
+    v27.uly = 14;
+    v27.lrx = 514;
+    v27.lry = 214;
 
     unsigned char* dest = windowGetBuffer(dialogueBackWindow);
 
@@ -4621,13 +4621,13 @@ static void gdDisplayFrame(Art* headFrm, int frame)
 
     for (int index = 0; index < 8; ++index) {
         Rect* rect = &(backgrndRects[index]);
-        int width = rect->right - rect->left;
+        int width = rect->lrx - rect->ulx;
 
         blitBufferToBufferTrans(backgrndBufs[index],
             width,
-            rect->bottom - rect->top,
+            rect->lry - rect->uly,
             width,
-            dest + (GAME_DIALOG_WINDOW_WIDTH) * rect->top + rect->left,
+            dest + (GAME_DIALOG_WINDOW_WIDTH) * rect->uly + rect->ulx,
             GAME_DIALOG_WINDOW_WIDTH);
     }
 

@@ -1039,7 +1039,7 @@ static void op_move_to(Program* program)
             Rect after;
             newTile = obj_move_to_tile(object, tile, elevation, &after);
             if (newTile != -1) {
-                rectUnion(&before, &after, &before);
+                rect_min_bound(&before, &after, &before);
                 tile_refresh_rect(&before, map_elevation);
             }
         }
@@ -6547,7 +6547,7 @@ static void op_obj_on_screen(Program* program)
             Rect objectRect;
             obj_bound(object, &objectRect);
 
-            if (rectIntersection(&objectRect, &rect, &objectRect) == 0) {
+            if (rect_inside_bound(&objectRect, &rect, &objectRect) == 0) {
                 result = 1;
             }
         }

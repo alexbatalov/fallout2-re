@@ -1,61 +1,68 @@
-#ifndef GEOMETRY_H
-#define GEOMETRY_H
+#ifndef FALLOUT_PLIB_GNW_RECT_H_
+#define FALLOUT_PLIB_GNW_RECT_H_
 
+// TODO: Remove.
 typedef struct Point {
     int x;
     int y;
 } Point;
 
+// TODO: Remove.
 typedef struct Size {
     int width;
     int height;
 } Size;
 
 typedef struct Rect {
-    int left;
-    int top;
-    int right;
-    int bottom;
+    int ulx;
+    int uly;
+    int lrx;
+    int lry;
 } Rect;
 
-typedef struct RectListNode {
+// TODO: Check.
+typedef struct rectdata {
     Rect rect;
-    struct RectListNode* next;
-} RectListNode;
+    struct rectdata* next;
+} rectdata;
 
-extern RectListNode* _rectList;
+typedef rectdata* RectPtr;
 
-void _GNW_rect_exit();
-void _rect_clip_list(RectListNode** rectListNodePtr, Rect* rect);
-RectListNode* _rect_malloc();
-void _rect_free(RectListNode* entry);
-void rectUnion(const Rect* s1, const Rect* s2, Rect* r);
-int rectIntersection(const Rect* a1, const Rect* a2, Rect* a3);
+void GNW_rect_exit();
+void rect_clip_list(RectPtr* rectListNodePtr, Rect* rect);
+RectPtr rect_malloc();
+void rect_free(RectPtr ptr);
+void rect_min_bound(const Rect* r1, const Rect* r2, Rect* min_bound);
+int rect_inside_bound(const Rect* r1, const Rect* bound, Rect* r2);
 
+// TODO: Remove.
 static inline void rectCopy(Rect* dest, const Rect* src)
 {
-    dest->left = src->left;
-    dest->top = src->top;
-    dest->right = src->right;
-    dest->bottom = src->bottom;
+    dest->ulx = src->ulx;
+    dest->uly = src->uly;
+    dest->lrx = src->lrx;
+    dest->lry = src->lry;
 }
 
+// TODO: Remove.
 static inline int rectGetWidth(const Rect* rect)
 {
-    return rect->right - rect->left + 1;
+    return rect->lrx - rect->ulx + 1;
 }
 
+// TODO: Remove.
 static inline int rectGetHeight(const Rect* rect)
 {
-    return rect->bottom - rect->top + 1;
+    return rect->lry - rect->uly + 1;
 }
 
+// TODO: Remove.
 static inline void rectOffset(Rect* rect, int dx, int dy)
 {
-    rect->left += dx;
-    rect->top += dy;
-    rect->right += dx;
-    rect->bottom += dy;
+    rect->ulx += dx;
+    rect->uly += dy;
+    rect->lrx += dx;
+    rect->lry += dy;
 }
 
-#endif /* GEOMETRY_H */
+#endif /* FALLOUT_PLIB_GNW_RECT_H_ */

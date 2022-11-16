@@ -390,10 +390,10 @@ static void drawStr(int win, char* str, int font, int width, int height, int lef
 
     printStr(win, str, width, height, left, top, a8, a9, a10);
 
-    rect.left = left;
-    rect.top = top;
-    rect.right = width + left;
-    rect.bottom = height + top;
+    rect.ulx = left;
+    rect.uly = top;
+    rect.lrx = width + left;
+    rect.lry = height + top;
     win_draw_rect(win, &rect);
     windowSetFont(old_font);
 }

@@ -449,8 +449,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
         if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-                if (mouseX == _scr_size.left || mouseX == _scr_size.right
-                    || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
+                if (mouseX == _scr_size.ulx || mouseX == _scr_size.lrx
+                    || mouseY == _scr_size.uly || mouseY == _scr_size.lry) {
                     gmouse_clicked_on_edge = true;
                 } else {
                     gmouse_clicked_on_edge = false;
@@ -485,8 +485,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-                    if (mouseX == _scr_size.left || mouseX == _scr_size.right
-                        || mouseY == _scr_size.top || mouseY == _scr_size.bottom) {
+                    if (mouseX == _scr_size.ulx || mouseX == _scr_size.lrx
+                        || mouseY == _scr_size.uly || mouseY == _scr_size.lry) {
                         gmouse_clicked_on_edge = true;
                     } else {
                         gmouse_clicked_on_edge = false;

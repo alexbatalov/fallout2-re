@@ -296,12 +296,12 @@ int tile_init(TileData** a1, int squareGridWidth, int squareGridHeight, int hexG
     dir_tile2[1][1] = 1;
     buf_full = windowPitch;
     dir_tile2[1][2] = 1;
-    buf_rect.right = windowWidth - 1;
+    buf_rect.lrx = windowWidth - 1;
     square_size = squareGridHeight * squareGridWidth;
-    buf_rect.bottom = windowHeight - 1;
-    buf_rect.left = 0;
+    buf_rect.lry = windowHeight - 1;
+    buf_rect.ulx = 0;
     blit = windowRefreshProc;
-    buf_rect.top = 0;
+    buf_rect.uly = 0;
     dir_tile[0][1] = hexGridWidth - 1;
     dir_tile[0][2] = hexGridWidth;
     show_grid = 0;
@@ -430,17 +430,17 @@ void tile_set_border(int windowWidth, int windowHeight, int hexGridWidth, int he
     int v1 = tile_num(-320, -240, 0);
     int v2 = tile_num(-320, windowHeight + 240, 0);
 
-    tile_border.left = abs(hexGridWidth - 1 - v2 % hexGridWidth - tile_x) + 6;
-    tile_border.top = abs(tile_y - v1 / hexGridWidth) + 7;
-    tile_border.right = hexGridWidth - tile_border.left - 1;
-    tile_border.bottom = hexGridHeight - tile_border.top - 1;
+    tile_border.ulx = abs(hexGridWidth - 1 - v2 % hexGridWidth - tile_x) + 6;
+    tile_border.uly = abs(tile_y - v1 / hexGridWidth) + 7;
+    tile_border.lrx = hexGridWidth - tile_border.ulx - 1;
+    tile_border.lry = hexGridHeight - tile_border.uly - 1;
 
-    if ((tile_border.left & 1) == 0) {
-        tile_border.left++;
+    if ((tile_border.ulx & 1) == 0) {
+        tile_border.ulx++;
     }
 
-    if ((tile_border.right & 1) == 0) {
-        tile_border.left--;
+    if ((tile_border.lrx & 1) == 0) {
+        tile_border.ulx--;
     }
 
     borderInitialized = true;
@@ -525,7 +525,7 @@ int tile_set_center(int tile, int flags)
     int tile_y = tile / grid_width;
 
     if (borderInitialized) {
-        if (tile_x <= tile_border.left || tile_x >= tile_border.right || tile_y <= tile_border.top || tile_y >= tile_border.bottom) {
+        if (tile_x <= tile_border.ulx || tile_x >= tile_border.lrx || tile_y <= tile_border.uly || tile_y >= tile_border.lry) {
             return -1;
         }
     }
@@ -565,13 +565,13 @@ static void refresh_mapper(Rect* rect, int elevation)
 {
     Rect rectToUpdate;
 
-    if (rectIntersection(rect, &buf_rect, &rectToUpdate) == -1) {
+    if (rect_inside_bound(rect, &buf_rect, &rectToUpdate) == -1) {
         return;
     }
 
-    bufferFill(buf + buf_full * rectToUpdate.top + rectToUpdate.left,
-        rectToUpdate.right - rectToUpdate.left + 1,
-        rectToUpdate.bottom - rectToUpdate.top + 1,
+    bufferFill(buf + buf_full * rectToUpdate.uly + rectToUpdate.ulx,
+        rectToUpdate.lrx - rectToUpdate.ulx + 1,
+        rectToUpdate.lry - rectToUpdate.uly + 1,
         buf_full,
         0);
 
@@ -588,7 +588,7 @@ static void refresh_game(Rect* rect, int elevation)
 {
     Rect rectToUpdate;
 
-    if (rectIntersection(rect, &buf_rect, &rectToUpdate) == -1) {
+    if (rect_inside_bound(rect, &buf_rect, &rectToUpdate) == -1) {
         return;
     }
 
@@ -1183,10 +1183,10 @@ void square_render_roof(Rect* rect, int elevation)
     int maxX;
     int maxY;
 
-    square_xy_roof(rect->left, rect->top, elevation, &temp, &minY);
-    square_xy_roof(rect->right, rect->top, elevation, &minX, &temp);
-    square_xy_roof(rect->left, rect->bottom, elevation, &maxX, &temp);
-    square_xy_roof(rect->right, rect->bottom, elevation, &temp, &maxY);
+    square_xy_roof(rect->ulx, rect->uly, elevation, &temp, &minY);
+    square_xy_roof(rect->lrx, rect->uly, elevation, &minX, &temp);
+    square_xy_roof(rect->ulx, rect->lry, elevation, &maxX, &temp);
+    square_xy_roof(rect->lrx, rect->lry, elevation, &temp, &maxY);
 
     if (minX < 0) {
         minX = 0;
@@ -1311,14 +1311,14 @@ static void roof_draw(int fid, int x, int y, Rect* rect, int light)
     int tileHeight = art_frame_length(tileFrm, 0, 0);
 
     Rect tileRect;
-    tileRect.left = x;
-    tileRect.top = y;
-    tileRect.right = x + tileWidth - 1;
-    tileRect.bottom = y + tileHeight - 1;
+    tileRect.ulx = x;
+    tileRect.uly = y;
+    tileRect.lrx = x + tileWidth - 1;
+    tileRect.lry = y + tileHeight - 1;
 
-    if (rectIntersection(&tileRect, rect, &tileRect) == 0) {
+    if (rect_inside_bound(&tileRect, rect, &tileRect) == 0) {
         unsigned char* tileFrmBuffer = art_frame_data(tileFrm, 0, 0);
-        tileFrmBuffer += tileWidth * (tileRect.top - y) + (tileRect.left - x);
+        tileFrmBuffer += tileWidth * (tileRect.uly - y) + (tileRect.ulx - x);
 
         CacheEntry* eggFrmHandle;
         Art* eggFrm = art_ptr_lock(obj_egg->fid, &eggFrmHandle);
@@ -1340,65 +1340,65 @@ static void roof_draw(int fid, int x, int y, Rect* rect, int light)
             eggScreenY += obj_egg->y;
 
             Rect eggRect;
-            eggRect.left = eggScreenX - eggWidth / 2;
-            eggRect.top = eggScreenY - eggHeight + 1;
-            eggRect.right = eggRect.left + eggWidth - 1;
-            eggRect.bottom = eggScreenY;
+            eggRect.ulx = eggScreenX - eggWidth / 2;
+            eggRect.uly = eggScreenY - eggHeight + 1;
+            eggRect.lrx = eggRect.ulx + eggWidth - 1;
+            eggRect.lry = eggScreenY;
 
-            obj_egg->sx = eggRect.left;
-            obj_egg->sy = eggRect.top;
+            obj_egg->sx = eggRect.ulx;
+            obj_egg->sy = eggRect.uly;
 
             Rect intersectedRect;
-            if (rectIntersection(&eggRect, &tileRect, &intersectedRect) == 0) {
+            if (rect_inside_bound(&eggRect, &tileRect, &intersectedRect) == 0) {
                 Rect rects[4];
 
-                rects[0].left = tileRect.left;
-                rects[0].top = tileRect.top;
-                rects[0].right = tileRect.right;
-                rects[0].bottom = intersectedRect.top - 1;
+                rects[0].ulx = tileRect.ulx;
+                rects[0].uly = tileRect.uly;
+                rects[0].lrx = tileRect.lrx;
+                rects[0].lry = intersectedRect.uly - 1;
 
-                rects[1].left = tileRect.left;
-                rects[1].top = intersectedRect.top;
-                rects[1].right = intersectedRect.left - 1;
-                rects[1].bottom = intersectedRect.bottom;
+                rects[1].ulx = tileRect.ulx;
+                rects[1].uly = intersectedRect.uly;
+                rects[1].lrx = intersectedRect.ulx - 1;
+                rects[1].lry = intersectedRect.lry;
 
-                rects[2].left = intersectedRect.right + 1;
-                rects[2].top = intersectedRect.top;
-                rects[2].right = tileRect.right;
-                rects[2].bottom = intersectedRect.bottom;
+                rects[2].ulx = intersectedRect.lrx + 1;
+                rects[2].uly = intersectedRect.uly;
+                rects[2].lrx = tileRect.lrx;
+                rects[2].lry = intersectedRect.lry;
 
-                rects[3].left = tileRect.left;
-                rects[3].top = intersectedRect.bottom + 1;
-                rects[3].right = tileRect.right;
-                rects[3].bottom = tileRect.bottom;
+                rects[3].ulx = tileRect.ulx;
+                rects[3].uly = intersectedRect.lry + 1;
+                rects[3].lrx = tileRect.lrx;
+                rects[3].lry = tileRect.lry;
 
                 for (int i = 0; i < 4; i++) {
                     Rect* cr = &(rects[i]);
-                    if (cr->left <= cr->right && cr->top <= cr->bottom) {
-                        dark_trans_buf_to_buf(tileFrmBuffer + tileWidth * (cr->top - tileRect.top) + (cr->left - tileRect.left),
-                            cr->right - cr->left + 1,
-                            cr->bottom - cr->top + 1,
+                    if (cr->ulx <= cr->lrx && cr->uly <= cr->lry) {
+                        dark_trans_buf_to_buf(tileFrmBuffer + tileWidth * (cr->uly - tileRect.uly) + (cr->ulx - tileRect.ulx),
+                            cr->lrx - cr->ulx + 1,
+                            cr->lry - cr->uly + 1,
                             tileWidth,
                             buf,
-                            cr->left,
-                            cr->top,
+                            cr->ulx,
+                            cr->uly,
                             buf_full,
                             light);
                     }
                 }
 
                 unsigned char* eggBuf = art_frame_data(eggFrm, 0, 0);
-                intensity_mask_buf_to_buf(tileFrmBuffer + tileWidth * (intersectedRect.top - tileRect.top) + (intersectedRect.left - tileRect.left),
-                    intersectedRect.right - intersectedRect.left + 1,
-                    intersectedRect.bottom - intersectedRect.top + 1,
+                intensity_mask_buf_to_buf(tileFrmBuffer + tileWidth * (intersectedRect.uly - tileRect.uly) + (intersectedRect.ulx - tileRect.ulx),
+                    intersectedRect.lrx - intersectedRect.ulx + 1,
+                    intersectedRect.lry - intersectedRect.uly + 1,
                     tileWidth,
-                    buf + buf_full * intersectedRect.top + intersectedRect.left,
+                    buf + buf_full * intersectedRect.uly + intersectedRect.ulx,
                     buf_full,
-                    eggBuf + eggWidth * (intersectedRect.top - eggRect.top) + (intersectedRect.left - eggRect.left),
+                    eggBuf + eggWidth * (intersectedRect.uly - eggRect.uly) + (intersectedRect.ulx - eggRect.ulx),
                     eggWidth,
                     light);
             } else {
-                dark_trans_buf_to_buf(tileFrmBuffer, tileRect.right - tileRect.left + 1, tileRect.bottom - tileRect.top + 1, tileWidth, buf, tileRect.left, tileRect.top, buf_full, light);
+                dark_trans_buf_to_buf(tileFrmBuffer, tileRect.lrx - tileRect.ulx + 1, tileRect.lry - tileRect.uly + 1, tileWidth, buf, tileRect.ulx, tileRect.uly, buf_full, light);
             }
 
             art_ptr_unlock(eggFrmHandle);
@@ -1417,10 +1417,10 @@ void square_render_floor(Rect* rect, int elevation)
     int minX;
     int temp;
 
-    square_xy(rect->left, rect->top, elevation, &temp, &minY);
-    square_xy(rect->right, rect->top, elevation, &minX, &temp);
-    square_xy(rect->left, rect->bottom, elevation, &maxX, &temp);
-    square_xy(rect->right, rect->bottom, elevation, &temp, &maxY);
+    square_xy(rect->ulx, rect->uly, elevation, &temp, &minY);
+    square_xy(rect->lrx, rect->uly, elevation, &minX, &temp);
+    square_xy(rect->ulx, rect->lry, elevation, &maxX, &temp);
+    square_xy(rect->lrx, rect->lry, elevation, &temp, &maxY);
 
     if (minX < 0) {
         minX = 0;
@@ -1536,8 +1536,8 @@ void grid_render(Rect* rect, int elevation)
         return;
     }
 
-    for (int y = rect->top - 12; y < rect->bottom + 12; y += 6) {
-        for (int x = rect->left - 32; x < rect->right + 32; x += 16) {
+    for (int y = rect->uly - 12; y < rect->lry + 12; y += 6) {
+        for (int x = rect->ulx - 32; x < rect->lrx + 32; x += 16) {
             int tile = tile_num(x, y, elevation);
             draw_grid(tile, elevation, rect);
         }
@@ -1549,11 +1549,11 @@ void grid_draw(int tile, int elevation)
 {
     Rect rect;
 
-    tile_coord(tile, &(rect.left), &(rect.top), elevation);
+    tile_coord(tile, &(rect.ulx), &(rect.uly), elevation);
 
-    rect.right = rect.left + 32 - 1;
-    rect.bottom = rect.top + 16 - 1;
-    if (rectIntersection(&rect, &buf_rect, &rect) != -1) {
+    rect.lrx = rect.ulx + 32 - 1;
+    rect.lry = rect.uly + 16 - 1;
+    if (rect_inside_bound(&rect, &buf_rect, &rect) != -1) {
         draw_grid(tile, elevation, &rect);
         blit(&rect);
     }
@@ -1571,40 +1571,40 @@ void draw_grid(int tile, int elevation, Rect* rect)
     tile_coord(tile, &x, &y, elevation);
 
     Rect r;
-    r.left = x;
-    r.top = y;
-    r.right = x + 32 - 1;
-    r.bottom = y + 16 - 1;
+    r.ulx = x;
+    r.uly = y;
+    r.lrx = x + 32 - 1;
+    r.lry = y + 16 - 1;
 
-    if (rectIntersection(&r, rect, &r) == -1) {
+    if (rect_inside_bound(&r, rect, &r) == -1) {
         return;
     }
 
     if (obj_blocking_at(NULL, tile, elevation) != NULL) {
-        blitBufferToBufferTrans(tile_grid_blocked + 32 * (r.top - y) + (r.left - x),
-            r.right - r.left + 1,
-            r.bottom - r.top + 1,
+        blitBufferToBufferTrans(tile_grid_blocked + 32 * (r.uly - y) + (r.ulx - x),
+            r.lrx - r.ulx + 1,
+            r.lry - r.uly + 1,
             32,
-            buf + buf_full * r.top + r.left,
+            buf + buf_full * r.uly + r.ulx,
             buf_full);
         return;
     }
 
     if (obj_occupied(tile, elevation)) {
-        blitBufferToBufferTrans(tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
-            r.right - r.left + 1,
-            r.bottom - r.top + 1,
+        blitBufferToBufferTrans(tile_grid_occupied + 32 * (r.uly - y) + (r.ulx - x),
+            r.lrx - r.ulx + 1,
+            r.lry - r.uly + 1,
             32,
-            buf + buf_full * r.top + r.left,
+            buf + buf_full * r.uly + r.ulx,
             buf_full);
         return;
     }
 
-    translucent_trans_buf_to_buf(tile_grid_occupied + 32 * (r.top - y) + (r.left - x),
-        r.right - r.left + 1,
-        r.bottom - r.top + 1,
+    translucent_trans_buf_to_buf(tile_grid_occupied + 32 * (r.uly - y) + (r.ulx - x),
+        r.lrx - r.ulx + 1,
+        r.lry - r.uly + 1,
         32,
-        buf + buf_full * r.top + r.left,
+        buf + buf_full * r.uly + r.ulx,
         0,
         0,
         buf_full,
@@ -1626,10 +1626,10 @@ void floor_draw(int fid, int x, int y, Rect* rect)
     }
 
     int elev = map_elevation;
-    int left = rect->left;
-    int top = rect->top;
-    int width = rect->right - rect->left + 1;
-    int height = rect->bottom - rect->top + 1;
+    int left = rect->ulx;
+    int top = rect->uly;
+    int width = rect->lrx - rect->ulx + 1;
+    int height = rect->lry - rect->uly + 1;
     int frameWidth;
     int frameHeight;
     int v15;
@@ -1657,7 +1657,7 @@ void floor_draw(int fid, int x, int y, Rect* rect)
         height = buf_length - top;
     }
 
-    if (x >= buf_width || x > rect->right || y >= buf_length || y > rect->bottom) goto out;
+    if (x >= buf_width || x > rect->lrx || y >= buf_length || y > rect->lry) goto out;
 
     frameWidth = art_frame_width(art, 0, 0);
     frameHeight = art_frame_length(art, 0, 0);

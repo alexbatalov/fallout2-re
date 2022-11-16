@@ -5540,10 +5540,10 @@ static void wmInterfaceRefreshDate(bool shouldRefreshWindow)
 
     if (shouldRefreshWindow) {
         Rect rect;
-        rect.left = 487;
-        rect.top = 12;
-        rect.bottom = numbersFrmHeight + 12;
-        rect.right = 630;
+        rect.ulx = 487;
+        rect.uly = 12;
+        rect.lry = numbersFrmHeight + 12;
+        rect.lrx = 630;
         win_draw_rect(wmBkWin, &rect);
     }
 }
@@ -6623,10 +6623,10 @@ static void wmRefreshInterfaceDial(bool shouldRefreshWindow)
 
     if (shouldRefreshWindow) {
         Rect rect;
-        rect.left = WM_WINDOW_DIAL_X;
-        rect.top = WM_WINDOW_DIAL_Y - 1;
-        rect.right = rect.left + wmGenData.dialFrmWidth;
-        rect.bottom = rect.top + wmGenData.dialFrmHeight;
+        rect.ulx = WM_WINDOW_DIAL_X;
+        rect.uly = WM_WINDOW_DIAL_Y - 1;
+        rect.lrx = rect.ulx + wmGenData.dialFrmWidth;
+        rect.lry = rect.uly + wmGenData.dialFrmHeight;
         win_draw_rect(wmBkWin, &rect);
     }
 }

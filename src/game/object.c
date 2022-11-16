@@ -266,13 +266,13 @@ int obj_init(unsigned char* buf, int width, int height, int pitch)
     int eggFid;
 
     memset(obj_seen, 0, 5001);
-    updateAreaPixelBounds.right = width + 320;
-    updateAreaPixelBounds.left = -320;
-    updateAreaPixelBounds.bottom = height + 240;
-    updateAreaPixelBounds.top = -240;
+    updateAreaPixelBounds.lrx = width + 320;
+    updateAreaPixelBounds.ulx = -320;
+    updateAreaPixelBounds.lry = height + 240;
+    updateAreaPixelBounds.uly = -240;
 
-    updateHexWidth = (updateAreaPixelBounds.right + 320 + 1) / 32 + 1;
-    updateHexHeight = (updateAreaPixelBounds.bottom + 240 + 1) / 12 + 1;
+    updateHexWidth = (updateAreaPixelBounds.lrx + 320 + 1) / 32 + 1;
+    updateHexHeight = (updateAreaPixelBounds.lry + 240 + 1) / 12 + 1;
     updateHexArea = updateHexWidth * updateHexHeight;
 
     memset(objectTable, 0, sizeof(objectTable));
@@ -300,15 +300,15 @@ int obj_init(unsigned char* buf, int width, int height, int pitch)
     obj_light_table_init();
     obj_blend_table_init();
 
-    centerToUpperLeft = tile_num(updateAreaPixelBounds.left, updateAreaPixelBounds.top, 0) - tile_center_tile;
+    centerToUpperLeft = tile_num(updateAreaPixelBounds.ulx, updateAreaPixelBounds.uly, 0) - tile_center_tile;
     buf_width = width;
     buf_length = height;
     back_buf = buf;
 
-    buf_rect.left = 0;
-    buf_rect.top = 0;
-    buf_rect.right = width - 1;
-    buf_rect.bottom = height - 1;
+    buf_rect.ulx = 0;
+    buf_rect.uly = 0;
+    buf_rect.lrx = width - 1;
+    buf_rect.lry = height - 1;
 
     buf_size = height * width;
     buf_full = pitch;
@@ -765,15 +765,15 @@ void obj_render_pre_roof(Rect* rect, int elevation)
     }
 
     Rect updatedRect;
-    if (rectIntersection(rect, &buf_rect, &updatedRect) != 0) {
+    if (rect_inside_bound(rect, &buf_rect, &updatedRect) != 0) {
         return;
     }
 
     int ambientLight = light_get_ambient();
-    int minX = updatedRect.left - 320;
-    int minY = updatedRect.top - 240;
-    int maxX = updatedRect.right + 320;
-    int maxY = updatedRect.bottom + 240;
+    int minX = updatedRect.ulx - 320;
+    int minY = updatedRect.uly - 240;
+    int maxX = updatedRect.lrx + 320;
+    int maxY = updatedRect.lry + 240;
     int topLeftTile = tile_num(minX, minY, elevation);
     int updateAreaHexWidth = (maxX - minX + 1) / 32;
     int updateAreaHexHeight = (maxY - minY + 1) / 12;
@@ -876,7 +876,7 @@ void obj_render_post_roof(Rect* rect, int elevation)
     }
 
     Rect updatedRect;
-    if (rectIntersection(rect, &buf_rect, &updatedRect) != 0) {
+    if (rect_inside_bound(rect, &buf_rect, &updatedRect) != 0) {
         return;
     }
 
@@ -1181,7 +1181,7 @@ int obj_offset(Object* obj, int x, int y, Rect* rect)
             rectOffset(&eggRect, x, y);
 
             obj_offset(obj_egg, x, y, NULL);
-            rectUnion(rect, &eggRect, rect);
+            rect_min_bound(rect, &eggRect, rect);
         } else {
             if (previousNode != NULL) {
                 previousNode->next = node->next;
@@ -1232,7 +1232,7 @@ int obj_offset(Object* obj, int x, int y, Rect* rect)
 
             rectOffset(&objectRect, x, y);
 
-            rectUnion(rect, &objectRect, rect);
+            rect_min_bound(rect, &objectRect, rect);
         } else {
             if (previousNode != NULL) {
                 previousNode->next = node->next;
@@ -1344,14 +1344,14 @@ int obj_move(Object* a1, int a2, int a3, int elevation, Rect* a5)
     if (a5 != NULL) {
         Rect rect;
         obj_bound(a1, &rect);
-        rectUnion(a5, &rect, a5);
+        rect_min_bound(a5, &rect, a5);
     }
 
     if (a1 == obj_dude) {
         if (a1 != NULL) {
             Rect rect;
             obj_move(obj_egg, a2, a3, elevation, &rect);
-            rectUnion(a5, &rect, a5);
+            rect_min_bound(a5, &rect, a5);
         } else {
             obj_move(obj_egg, a2, a3, elevation, NULL);
         }
@@ -1415,7 +1415,7 @@ int obj_move_to_tile(Object* obj, int tile, int elevation, Rect* rect)
     }
 
     if (rect != NULL) {
-        rectUnion(rect, &v23, rect);
+        rect_min_bound(rect, &v23, rect);
     }
 
     if (obj == obj_dude) {
@@ -1470,7 +1470,7 @@ int obj_move_to_tile(Object* obj, int tile, int elevation, Rect* rect)
                 }
 
                 if (rect != NULL) {
-                    rectUnion(rect, &_scr_size, rect);
+                    rect_min_bound(rect, &_scr_size, rect);
                 }
             }
 
@@ -1483,7 +1483,7 @@ int obj_move_to_tile(Object* obj, int tile, int elevation, Rect* rect)
         if (rect != NULL) {
             Rect r;
             obj_move_to_tile(obj_egg, tile, elevation, &r);
-            rectUnion(rect, &r, rect);
+            rect_min_bound(rect, &r, rect);
         } else {
             obj_move_to_tile(obj_egg, tile, elevation, 0);
         }
@@ -1531,7 +1531,7 @@ int obj_change_fid(Object* obj, int fid, Rect* dirtyRect)
         obj->fid = fid;
 
         obj_bound(obj, &new_rect);
-        rectUnion(dirtyRect, &new_rect, dirtyRect);
+        rect_min_bound(dirtyRect, &new_rect, dirtyRect);
     } else {
         obj->fid = fid;
     }
@@ -1570,7 +1570,7 @@ int obj_set_frame(Object* obj, int frame, Rect* rect)
         obj_bound(obj, rect);
         obj->frame = frame;
         obj_bound(obj, &new_rect);
-        rectUnion(rect, &new_rect, rect);
+        rect_min_bound(rect, &new_rect, rect);
     } else {
         obj->frame = frame;
     }
@@ -1612,7 +1612,7 @@ int obj_inc_frame(Object* obj, Rect* dirtyRect)
 
         Rect updatedRect;
         obj_bound(obj, &updatedRect);
-        rectUnion(dirtyRect, &updatedRect, dirtyRect);
+        rect_min_bound(dirtyRect, &updatedRect, dirtyRect);
     } else {
         obj->frame = nextFrame;
     }
@@ -1652,7 +1652,7 @@ int obj_dec_frame(Object* obj, Rect* dirtyRect)
         obj_bound(obj, dirtyRect);
         obj->frame = prevFrame;
         obj_bound(obj, &newRect);
-        rectUnion(dirtyRect, &newRect, dirtyRect);
+        rect_min_bound(dirtyRect, &newRect, dirtyRect);
     } else {
         obj->frame = prevFrame;
     }
@@ -1677,7 +1677,7 @@ int obj_set_rotation(Object* obj, int direction, Rect* dirtyRect)
 
         Rect newRect;
         obj_bound(obj, &newRect);
-        rectUnion(dirtyRect, &newRect, dirtyRect);
+        rect_min_bound(dirtyRect, &newRect, dirtyRect);
     } else {
         obj->rotation = direction;
     }
@@ -1742,7 +1742,7 @@ int obj_set_light(Object* obj, int lightDistance, int lightIntensity, Rect* rect
 
         if (rect != NULL) {
             v7 = obj_turn_on_light(obj, &new_rect);
-            rectUnion(rect, &new_rect, rect);
+            rect_min_bound(rect, &new_rect, rect);
         } else {
             v7 = obj_turn_on_light(obj, NULL);
         }
@@ -1849,7 +1849,7 @@ int obj_turn_on(Object* obj, Rect* rect)
         if (rect != NULL) {
             Rect eggRect;
             obj_bound(obj_egg, &eggRect);
-            rectUnion(rect, &eggRect, rect);
+            rect_min_bound(rect, &eggRect, rect);
         }
     }
 
@@ -1883,7 +1883,7 @@ int obj_turn_off(Object* object, Rect* rect)
         if (rect != NULL) {
             Rect eggRect;
             obj_bound(obj_egg, &eggRect);
-            rectUnion(rect, &eggRect, rect);
+            rect_min_bound(rect, &eggRect, rect);
         }
     }
 
@@ -1957,7 +1957,7 @@ int obj_toggle_flat(Object* object, Rect* rect)
 
         obj_insert(node);
         obj_bound(object, &v1);
-        rectUnion(rect, &v1, rect);
+        rect_min_bound(rect, &v1, rect);
     } else {
         if (previousNode != NULL) {
             previousNode->next = node->next;
@@ -2323,10 +2323,10 @@ void obj_bound(Object* obj, Rect* rect)
     CacheEntry* artHandle;
     Art* art = art_ptr_lock(obj->fid, &artHandle);
     if (art == NULL) {
-        rect->left = 0;
-        rect->top = 0;
-        rect->right = 0;
-        rect->bottom = 0;
+        rect->ulx = 0;
+        rect->uly = 0;
+        rect->lrx = 0;
+        rect->lry = 0;
         return;
     }
 
@@ -2335,10 +2335,10 @@ void obj_bound(Object* obj, Rect* rect)
     art_frame_width_length(art, obj->frame, obj->rotation, &width, &height);
 
     if (obj->tile == -1) {
-        rect->left = obj->sx;
-        rect->top = obj->sy;
-        rect->right = obj->sx + width - 1;
-        rect->bottom = obj->sy + height - 1;
+        rect->ulx = obj->sx;
+        rect->uly = obj->sy;
+        rect->lrx = obj->sx + width - 1;
+        rect->lry = obj->sy + height - 1;
     } else {
         int tileScreenY;
         int tileScreenX;
@@ -2352,15 +2352,15 @@ void obj_bound(Object* obj, Rect* rect)
             tileScreenX += obj->x;
             tileScreenY += obj->y;
 
-            rect->left = tileScreenX - width / 2;
-            rect->top = tileScreenY - height + 1;
-            rect->right = width + rect->left - 1;
-            rect->bottom = tileScreenY;
+            rect->ulx = tileScreenX - width / 2;
+            rect->uly = tileScreenY - height + 1;
+            rect->lrx = width + rect->ulx - 1;
+            rect->lry = tileScreenY;
         } else {
-            rect->left = 0;
-            rect->top = 0;
-            rect->right = 0;
-            rect->bottom = 0;
+            rect->ulx = 0;
+            rect->uly = 0;
+            rect->lrx = 0;
+            rect->lry = 0;
             isOutlined = false;
         }
     }
@@ -2368,10 +2368,10 @@ void obj_bound(Object* obj, Rect* rect)
     art_ptr_unlock(artHandle);
 
     if (isOutlined) {
-        rect->left--;
-        rect->top--;
-        rect->right++;
-        rect->bottom++;
+        rect->ulx--;
+        rect->uly--;
+        rect->lrx++;
+        rect->lry++;
     }
 }
 
@@ -3246,7 +3246,7 @@ static int obj_offset_table_init()
     }
 
     for (int parity = 0; parity < 2; parity++) {
-        int originTile = tile_num(updateAreaPixelBounds.left, updateAreaPixelBounds.top, 0);
+        int originTile = tile_num(updateAreaPixelBounds.ulx, updateAreaPixelBounds.uly, 0);
         if (originTile != -1) {
             int* offsets = offsetTable[tile_center_tile & 1];
             int originTileX;
@@ -3256,7 +3256,7 @@ static int obj_offset_table_init()
             int parityShift = 16;
             originTileX += 16;
             originTileY += 8;
-            if (originTileX > updateAreaPixelBounds.left) {
+            if (originTileX > updateAreaPixelBounds.ulx) {
                 parityShift = -parityShift;
             }
 
@@ -4548,7 +4548,7 @@ static int obj_adjust_light(Object* obj, int a2, Rect* rect)
                                 if (objectListNode->obj->elevation == obj->elevation) {
                                     Rect v29;
                                     obj_bound(objectListNode->obj, &v29);
-                                    rectUnion(&objectRect, &v29, &objectRect);
+                                    rect_min_bound(&objectRect, &v29, &objectRect);
 
                                     v14 = (objectListNode->obj->flags & OBJECT_LIGHT_THRU) == 0;
 
@@ -4618,11 +4618,11 @@ static int obj_adjust_light(Object* obj, int a2, Rect* rect)
         x += 16;
         y += 8;
 
-        x -= rect->right / 2;
-        y -= rect->bottom / 2;
+        x -= rect->lrx / 2;
+        y -= rect->lry / 2;
 
         rectOffset(rect, x, y);
-        rectUnion(rect, &objectRect, rect);
+        rect_min_bound(rect, &objectRect, rect);
     }
 
     return 0;
@@ -4642,21 +4642,21 @@ static void obj_render_outline(Object* object, Rect* rect)
     art_frame_width_length(art, object->frame, object->rotation, &frameWidth, &frameHeight);
 
     Rect v49;
-    v49.left = 0;
-    v49.top = 0;
-    v49.right = frameWidth - 1;
+    v49.ulx = 0;
+    v49.uly = 0;
+    v49.lrx = frameWidth - 1;
 
     // FIXME: I'm not sure why it ignores frameHeight and makes separate call
     // to obtain height.
     int v8 = art_frame_length(art, object->frame, object->rotation);
-    v49.bottom = v8 - 1;
+    v49.lry = v8 - 1;
 
     Rect objectRect;
     if (object->tile == -1) {
-        objectRect.left = object->sx;
-        objectRect.top = object->sy;
-        objectRect.right = object->sx + frameWidth - 1;
-        objectRect.bottom = object->sy + frameHeight - 1;
+        objectRect.ulx = object->sx;
+        objectRect.uly = object->sy;
+        objectRect.lrx = object->sx + frameWidth - 1;
+        objectRect.lry = object->sy + frameHeight - 1;
     } else {
         int x;
         int y;
@@ -4670,30 +4670,30 @@ static void obj_render_outline(Object* object, Rect* rect)
         x += object->x;
         y += object->y;
 
-        objectRect.left = x - frameWidth / 2;
-        objectRect.top = y - (frameHeight - 1);
-        objectRect.right = objectRect.left + frameWidth - 1;
-        objectRect.bottom = y;
+        objectRect.ulx = x - frameWidth / 2;
+        objectRect.uly = y - (frameHeight - 1);
+        objectRect.lrx = objectRect.ulx + frameWidth - 1;
+        objectRect.lry = y;
 
-        object->sx = objectRect.left;
-        object->sy = objectRect.top;
+        object->sx = objectRect.ulx;
+        object->sy = objectRect.uly;
     }
 
     Rect v32;
     rectCopy(&v32, rect);
 
-    v32.left--;
-    v32.top--;
-    v32.right++;
-    v32.bottom++;
+    v32.ulx--;
+    v32.uly--;
+    v32.lrx++;
+    v32.lry++;
 
-    rectIntersection(&v32, &buf_rect, &v32);
+    rect_inside_bound(&v32, &buf_rect, &v32);
 
-    if (rectIntersection(&objectRect, &v32, &objectRect) == 0) {
-        v49.left += objectRect.left - object->sx;
-        v49.top += objectRect.top - object->sy;
-        v49.right = v49.left + (objectRect.right - objectRect.left);
-        v49.bottom = v49.top + (objectRect.bottom - objectRect.top);
+    if (rect_inside_bound(&objectRect, &v32, &objectRect) == 0) {
+        v49.ulx += objectRect.ulx - object->sx;
+        v49.uly += objectRect.uly - object->sy;
+        v49.lrx = v49.ulx + (objectRect.lrx - objectRect.ulx);
+        v49.lry = v49.uly + (objectRect.lry - objectRect.uly);
 
         unsigned char* src = art_frame_data(art, object->frame, object->rotation);
 
@@ -4777,7 +4777,7 @@ static void obj_render_outline(Object* object, Rect* rect)
             for (int x = 0; x < frameWidth; x++) {
                 v22 = dest14 - back_buf;
                 if (*src15 != 0 && cycle) {
-                    if (x >= v49.left && x <= v49.right && y >= v49.top && y <= v49.bottom && v22 > 0 && v22 % buf_full != 0) {
+                    if (x >= v49.ulx && x <= v49.lrx && y >= v49.uly && y <= v49.lry && v22 > 0 && v22 % buf_full != 0) {
                         unsigned char v20;
                         if (v53 != 0) {
                             v20 = v48[(v47[v54] << 8) + *(dest14 - 1)];
@@ -4788,7 +4788,7 @@ static void obj_render_outline(Object* object, Rect* rect)
                     }
                     cycle = false;
                 } else if (*src15 == 0 && !cycle) {
-                    if (x >= v49.left && x <= v49.right && y >= v49.top && y <= v49.bottom) {
+                    if (x >= v49.ulx && x <= v49.lrx && y >= v49.uly && y <= v49.lry) {
                         int v21;
                         if (v53 != 0) {
                             v21 = v48[(v47[v54] << 8) + *dest14];
@@ -4806,7 +4806,7 @@ static void obj_render_outline(Object* object, Rect* rect)
             if (*(src15 - 1) != 0) {
                 if (v22 < buf_size) {
                     int v23 = frameWidth - 1;
-                    if (v23 >= v49.left && v23 <= v49.right && y >= v49.top && y <= v49.bottom) {
+                    if (v23 >= v49.ulx && v23 <= v49.lrx && y >= v49.uly && y <= v49.lry) {
                         if (v53 != 0) {
                             *dest14 = v48[(v47[v54] << 8) + *dest14];
                         } else {
@@ -4836,7 +4836,7 @@ static void obj_render_outline(Object* object, Rect* rect)
                 }
 
                 if (*src27 != 0 && cycle) {
-                    if (x >= v49.left && x <= v49.right && y >= v49.top && y <= v49.bottom) {
+                    if (x >= v49.ulx && x <= v49.lrx && y >= v49.uly && y <= v49.lry) {
                         unsigned char* v29 = dest27 - buf_full;
                         if (v29 >= back_buf) {
                             if (v53) {
@@ -4848,7 +4848,7 @@ static void obj_render_outline(Object* object, Rect* rect)
                     }
                     cycle = false;
                 } else if (*src27 == 0 && !cycle) {
-                    if (x >= v49.left && x <= v49.right && y >= v49.top && y <= v49.bottom) {
+                    if (x >= v49.ulx && x <= v49.lrx && y >= v49.uly && y <= v49.lry) {
                         if (v53) {
                             *dest27 = v48[(v47[v28] << 8) + *dest27];
                         } else {
@@ -4865,7 +4865,7 @@ static void obj_render_outline(Object* object, Rect* rect)
             if (src27[-frameWidth] != 0) {
                 if (dest27 - back_buf < buf_size) {
                     int y = frameHeight - 1;
-                    if (x >= v49.left && x <= v49.right && y >= v49.top && y <= v49.bottom) {
+                    if (x >= v49.ulx && x <= v49.lrx && y >= v49.uly && y <= v49.lry) {
                         if (v53) {
                             *dest27 = v48[(v47[v28] << 8) + *dest27];
                         } else {
@@ -4899,10 +4899,10 @@ static void obj_render_object(Object* object, Rect* rect, int light)
 
     Rect objectRect;
     if (object->tile == -1) {
-        objectRect.left = object->sx;
-        objectRect.top = object->sy;
-        objectRect.right = object->sx + frameWidth - 1;
-        objectRect.bottom = object->sy + frameHeight - 1;
+        objectRect.ulx = object->sx;
+        objectRect.uly = object->sy;
+        objectRect.lrx = object->sx + frameWidth - 1;
+        objectRect.lry = object->sy + frameHeight - 1;
     } else {
         int objectScreenX;
         int objectScreenY;
@@ -4916,34 +4916,34 @@ static void obj_render_object(Object* object, Rect* rect, int light)
         objectScreenX += object->x;
         objectScreenY += object->y;
 
-        objectRect.left = objectScreenX - frameWidth / 2;
-        objectRect.top = objectScreenY - (frameHeight - 1);
-        objectRect.right = objectRect.left + frameWidth - 1;
-        objectRect.bottom = objectScreenY;
+        objectRect.ulx = objectScreenX - frameWidth / 2;
+        objectRect.uly = objectScreenY - (frameHeight - 1);
+        objectRect.lrx = objectRect.ulx + frameWidth - 1;
+        objectRect.lry = objectScreenY;
 
-        object->sx = objectRect.left;
-        object->sy = objectRect.top;
+        object->sx = objectRect.ulx;
+        object->sy = objectRect.uly;
     }
 
-    if (rectIntersection(&objectRect, rect, &objectRect) != 0) {
+    if (rect_inside_bound(&objectRect, rect, &objectRect) != 0) {
         art_ptr_unlock(cacheEntry);
         return;
     }
 
     unsigned char* src = art_frame_data(art, object->frame, object->rotation);
     unsigned char* src2 = src;
-    int v50 = objectRect.left - object->sx;
-    int v49 = objectRect.top - object->sy;
+    int v50 = objectRect.ulx - object->sx;
+    int v49 = objectRect.uly - object->sy;
     src += frameWidth * v49 + v50;
-    int objectWidth = objectRect.right - objectRect.left + 1;
-    int objectHeight = objectRect.bottom - objectRect.top + 1;
+    int objectWidth = objectRect.lrx - objectRect.ulx + 1;
+    int objectHeight = objectRect.lry - objectRect.uly + 1;
 
     if (type == 6) {
         blitBufferToBufferTrans(src,
             objectWidth,
             objectHeight,
             frameWidth,
-            back_buf + buf_full * objectRect.top + objectRect.left,
+            back_buf + buf_full * objectRect.uly + objectRect.ulx,
             buf_full);
         art_ptr_unlock(cacheEntry);
         return;
@@ -5006,55 +5006,55 @@ static void obj_render_object(Object* object, Rect* rect, int light)
                 eggScreenY += obj_egg->y;
 
                 Rect eggRect;
-                eggRect.left = eggScreenX - eggWidth / 2;
-                eggRect.top = eggScreenY - (eggHeight - 1);
-                eggRect.right = eggRect.left + eggWidth - 1;
-                eggRect.bottom = eggScreenY;
+                eggRect.ulx = eggScreenX - eggWidth / 2;
+                eggRect.uly = eggScreenY - (eggHeight - 1);
+                eggRect.lrx = eggRect.ulx + eggWidth - 1;
+                eggRect.lry = eggScreenY;
 
-                obj_egg->sx = eggRect.left;
-                obj_egg->sy = eggRect.top;
+                obj_egg->sx = eggRect.ulx;
+                obj_egg->sy = eggRect.uly;
 
                 Rect updatedEggRect;
-                if (rectIntersection(&eggRect, &objectRect, &updatedEggRect) == 0) {
+                if (rect_inside_bound(&eggRect, &objectRect, &updatedEggRect) == 0) {
                     Rect rects[4];
 
-                    rects[0].left = objectRect.left;
-                    rects[0].top = objectRect.top;
-                    rects[0].right = objectRect.right;
-                    rects[0].bottom = updatedEggRect.top - 1;
+                    rects[0].ulx = objectRect.ulx;
+                    rects[0].uly = objectRect.uly;
+                    rects[0].lrx = objectRect.lrx;
+                    rects[0].lry = updatedEggRect.uly - 1;
 
-                    rects[1].left = objectRect.left;
-                    rects[1].top = updatedEggRect.top;
-                    rects[1].right = updatedEggRect.left - 1;
-                    rects[1].bottom = updatedEggRect.bottom;
+                    rects[1].ulx = objectRect.ulx;
+                    rects[1].uly = updatedEggRect.uly;
+                    rects[1].lrx = updatedEggRect.ulx - 1;
+                    rects[1].lry = updatedEggRect.lry;
 
-                    rects[2].left = updatedEggRect.right + 1;
-                    rects[2].top = updatedEggRect.top;
-                    rects[2].right = objectRect.right;
-                    rects[2].bottom = updatedEggRect.bottom;
+                    rects[2].ulx = updatedEggRect.lrx + 1;
+                    rects[2].uly = updatedEggRect.uly;
+                    rects[2].lrx = objectRect.lrx;
+                    rects[2].lry = updatedEggRect.lry;
 
-                    rects[3].left = objectRect.left;
-                    rects[3].top = updatedEggRect.bottom + 1;
-                    rects[3].right = objectRect.right;
-                    rects[3].bottom = objectRect.bottom;
+                    rects[3].ulx = objectRect.ulx;
+                    rects[3].uly = updatedEggRect.lry + 1;
+                    rects[3].lrx = objectRect.lrx;
+                    rects[3].lry = objectRect.lry;
 
                     for (int i = 0; i < 4; i++) {
                         Rect* v21 = &(rects[i]);
-                        if (v21->left <= v21->right && v21->top <= v21->bottom) {
-                            unsigned char* sp = src + frameWidth * (v21->top - objectRect.top) + (v21->left - objectRect.left);
-                            dark_trans_buf_to_buf(sp, v21->right - v21->left + 1, v21->bottom - v21->top + 1, frameWidth, back_buf, v21->left, v21->top, buf_full, light);
+                        if (v21->ulx <= v21->lrx && v21->uly <= v21->lry) {
+                            unsigned char* sp = src + frameWidth * (v21->uly - objectRect.uly) + (v21->ulx - objectRect.ulx);
+                            dark_trans_buf_to_buf(sp, v21->lrx - v21->ulx + 1, v21->lry - v21->uly + 1, frameWidth, back_buf, v21->ulx, v21->uly, buf_full, light);
                         }
                     }
 
                     unsigned char* mask = art_frame_data(egg, 0, 0);
                     intensity_mask_buf_to_buf(
-                        src + frameWidth * (updatedEggRect.top - objectRect.top) + (updatedEggRect.left - objectRect.left),
-                        updatedEggRect.right - updatedEggRect.left + 1,
-                        updatedEggRect.bottom - updatedEggRect.top + 1,
+                        src + frameWidth * (updatedEggRect.uly - objectRect.uly) + (updatedEggRect.ulx - objectRect.ulx),
+                        updatedEggRect.lrx - updatedEggRect.ulx + 1,
+                        updatedEggRect.lry - updatedEggRect.uly + 1,
                         frameWidth,
-                        back_buf + buf_full * updatedEggRect.top + updatedEggRect.left,
+                        back_buf + buf_full * updatedEggRect.uly + updatedEggRect.ulx,
                         buf_full,
-                        mask + eggWidth * (updatedEggRect.top - eggRect.top) + (updatedEggRect.left - eggRect.left),
+                        mask + eggWidth * (updatedEggRect.uly - eggRect.uly) + (updatedEggRect.ulx - eggRect.ulx),
                         eggWidth,
                         light);
                     art_ptr_unlock(eggHandle);
@@ -5069,22 +5069,22 @@ static void obj_render_object(Object* object, Rect* rect, int light)
 
     switch (object->flags & OBJECT_FLAG_0xFC000) {
     case OBJECT_TRANS_RED:
-        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.left, objectRect.top, buf_full, light, redBlendTable, commonGrayTable);
+        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.ulx, objectRect.uly, buf_full, light, redBlendTable, commonGrayTable);
         break;
     case OBJECT_TRANS_WALL:
-        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.left, objectRect.top, buf_full, 0x10000, wallBlendTable, commonGrayTable);
+        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.ulx, objectRect.uly, buf_full, 0x10000, wallBlendTable, commonGrayTable);
         break;
     case OBJECT_TRANS_GLASS:
-        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.left, objectRect.top, buf_full, light, glassBlendTable, glassGrayTable);
+        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.ulx, objectRect.uly, buf_full, light, glassBlendTable, glassGrayTable);
         break;
     case OBJECT_TRANS_STEAM:
-        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.left, objectRect.top, buf_full, light, steamBlendTable, commonGrayTable);
+        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.ulx, objectRect.uly, buf_full, light, steamBlendTable, commonGrayTable);
         break;
     case OBJECT_TRANS_ENERGY:
-        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.left, objectRect.top, buf_full, light, energyBlendTable, commonGrayTable);
+        dark_translucent_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.ulx, objectRect.uly, buf_full, light, energyBlendTable, commonGrayTable);
         break;
     default:
-        dark_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.left, objectRect.top, buf_full, light);
+        dark_trans_buf_to_buf(src, objectWidth, objectHeight, frameWidth, back_buf, objectRect.ulx, objectRect.uly, buf_full, light);
         break;
     }
 

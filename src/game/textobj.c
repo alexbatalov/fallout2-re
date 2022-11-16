@@ -302,10 +302,10 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
     text_object_get_offset(textObject);
 
     if (rect != NULL) {
-        rect->left = textObject->x;
-        rect->top = textObject->y;
-        rect->right = textObject->x + textObject->width - 1;
-        rect->bottom = textObject->y + textObject->height - 1;
+        rect->ulx = textObject->x;
+        rect->uly = textObject->y;
+        rect->lrx = textObject->x + textObject->width - 1;
+        rect->lry = textObject->y + textObject->height - 1;
     }
 
     text_object_remove(object);
@@ -335,16 +335,16 @@ void text_object_render(Rect* rect)
         textObject->y += textObject->sy;
 
         Rect textObjectRect;
-        textObjectRect.left = textObject->x;
-        textObjectRect.top = textObject->y;
-        textObjectRect.right = textObject->width + textObject->x - 1;
-        textObjectRect.bottom = textObject->height + textObject->y - 1;
-        if (rectIntersection(&textObjectRect, rect, &textObjectRect) == 0) {
-            blitBufferToBufferTrans(textObject->data + textObject->width * (textObjectRect.top - textObject->y) + (textObjectRect.left - textObject->x),
-                textObjectRect.right - textObjectRect.left + 1,
-                textObjectRect.bottom - textObjectRect.top + 1,
+        textObjectRect.ulx = textObject->x;
+        textObjectRect.uly = textObject->y;
+        textObjectRect.lrx = textObject->width + textObject->x - 1;
+        textObjectRect.lry = textObject->height + textObject->y - 1;
+        if (rect_inside_bound(&textObjectRect, rect, &textObjectRect) == 0) {
+            blitBufferToBufferTrans(textObject->data + textObject->width * (textObjectRect.uly - textObject->y) + (textObjectRect.ulx - textObject->x),
+                textObjectRect.lrx - textObjectRect.ulx + 1,
+                textObjectRect.lry - textObjectRect.uly + 1,
                 textObject->width,
-                display_buffer + display_width * textObjectRect.top + textObjectRect.left,
+                display_buffer + display_width * textObjectRect.uly + textObjectRect.ulx,
                 display_width);
         }
     }
@@ -376,13 +376,13 @@ static void text_object_bk()
             textObject->y += textObject->sy;
 
             Rect textObjectRect;
-            textObjectRect.left = textObject->x;
-            textObjectRect.top = textObject->y;
-            textObjectRect.right = textObject->width + textObject->x - 1;
-            textObjectRect.bottom = textObject->height + textObject->y - 1;
+            textObjectRect.ulx = textObject->x;
+            textObjectRect.uly = textObject->y;
+            textObjectRect.lrx = textObject->width + textObject->x - 1;
+            textObjectRect.lry = textObject->height + textObject->y - 1;
 
             if (textObjectsRemoved) {
-                rectUnion(&dirtyRect, &textObjectRect, &dirtyRect);
+                rect_min_bound(&dirtyRect, &textObjectRect, &dirtyRect);
             } else {
                 rectCopy(&dirtyRect, &textObjectRect);
                 textObjectsRemoved = true;

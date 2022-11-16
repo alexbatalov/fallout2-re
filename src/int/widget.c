@@ -383,10 +383,10 @@ int win_update_text_region(int textRegionId)
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= numTextRegions) {
         if (textRegions[textRegionIndex].isUsed != 0) {
-            rect.left = textRegions[textRegionIndex].x;
-            rect.top = textRegions[textRegionIndex].y;
-            rect.right = textRegions[textRegionIndex].x + textRegions[textRegionIndex].width;
-            rect.bottom = textRegions[textRegionIndex].y + text_height();
+            rect.ulx = textRegions[textRegionIndex].x;
+            rect.uly = textRegions[textRegionIndex].y;
+            rect.lrx = textRegions[textRegionIndex].x + textRegions[textRegionIndex].width;
+            rect.lry = textRegions[textRegionIndex].y + text_height();
             win_draw_rect(textRegions[textRegionIndex].win, &rect);
             return 1;
         }
@@ -725,10 +725,10 @@ static void drawStatusBar()
             dest,
             windowGetWidth(statusBar.win));
 
-        rect.left = statusBar.x;
-        rect.top = statusBar.y;
-        rect.right = statusBar.x + statusBar.width;
-        rect.bottom = statusBar.y + statusBar.height;
+        rect.ulx = statusBar.x;
+        rect.uly = statusBar.y;
+        rect.lrx = statusBar.x + statusBar.width;
+        rect.lry = statusBar.y + statusBar.height;
         win_draw_rect(statusBar.win, &rect);
     }
 }

@@ -265,29 +265,29 @@ static void movie_MVE_ShowFrame(LPDIRECTDRAWSURFACE surface, int srcWidth, int s
     srcRect.right = srcWidth + srcX;
     srcRect.bottom = srcHeight + srcY;
 
-    v14 = winRect.right - winRect.left;
-    v15 = winRect.right - winRect.left + 1;
+    v14 = winRect.lrx - winRect.ulx;
+    v15 = winRect.lrx - winRect.ulx + 1;
 
     RECT destRect;
 
     if (movieScaleFlag) {
         if ((movieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
-            destRect.top = (winRect.bottom - winRect.top + 1 - destHeight) / 2;
+            destRect.top = (winRect.lry - winRect.uly + 1 - destHeight) / 2;
             destRect.left = (v15 - 4 * srcWidth / 3) / 2;
         } else {
-            destRect.top = movieY + winRect.top;
-            destRect.left = winRect.left + movieX;
+            destRect.top = movieY + winRect.uly;
+            destRect.left = winRect.ulx + movieX;
         }
 
         destRect.right = 4 * srcWidth / 3 + destRect.left;
         destRect.bottom = destHeight + destRect.top;
     } else {
         if ((movieFlags & MOVIE_EXTENDED_FLAG_0x08) != 0) {
-            destRect.top = (winRect.bottom - winRect.top + 1 - destHeight) / 2;
+            destRect.top = (winRect.lry - winRect.uly + 1 - destHeight) / 2;
             destRect.left = (v15 - destWidth) / 2;
         } else {
-            destRect.top = movieY + winRect.top;
-            destRect.left = winRect.left + movieX;
+            destRect.top = movieY + winRect.uly;
+            destRect.left = winRect.ulx + movieX;
         }
         destRect.right = destWidth + destRect.left;
         destRect.bottom = destHeight + destRect.top;
@@ -352,7 +352,7 @@ static void movieShowFrame(LPDIRECTDRAWSURFACE a1, int a2, int a3, int a4, int a
 
     if (movieCaptureFrameFunc != NULL) {
         // FIXME: Looks wrong as it ignores lPitch (as seen in movie_MVE_ShowFrame).
-        movieCaptureFrameFunc(data, a2, a3, a2, movieRect.left, movieRect.top, a6, a7);
+        movieCaptureFrameFunc(data, a2, a3, a2, movieRect.ulx, movieRect.uly, a6, a7);
     }
 
     if (movieFrameGrabFunc != NULL) {
@@ -817,10 +817,10 @@ static void doSubtitle()
         windowWrapLine(GNWWin, subtitleList->text, subtitleW, subtitleH, 0, v2, colorTable[colorIndex] | 0x2000000, TEXT_ALIGNMENT_CENTER);
 
         Rect rect;
-        rect.right = subtitleW;
-        rect.top = v2;
-        rect.bottom = v2 + subtitleH;
-        rect.left = 0;
+        rect.lrx = subtitleW;
+        rect.uly = v2;
+        rect.lry = v2 + subtitleH;
+        rect.ulx = 0;
         win_draw_rect(GNWWin, &rect);
 
         myfree(subtitleList->text, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1108
@@ -863,13 +863,13 @@ static int movieStart(int win, char* filePath, int (*a3)())
     if ((movieFlags & MOVIE_EXTENDED_FLAG_0x04) != 0) {
         debug_printf("Direct ");
         win_get_rect(GNWWin, &winRect);
-        debug_printf("Playing at (%d, %d)  ", movieX + winRect.left, movieY + winRect.top);
+        debug_printf("Playing at (%d, %d)  ", movieX + winRect.ulx, movieY + winRect.uly);
         _MVE_rmCallbacks(a3);
         _MVE_sfCallbacks(movie_MVE_ShowFrame);
 
         v17 = 0;
-        v16 = movieY + winRect.top;
-        v15 = movieX + winRect.left;
+        v16 = movieY + winRect.uly;
+        v15 = movieX + winRect.ulx;
     } else {
         debug_printf("Buffered ");
         _MVE_rmCallbacks(a3);
@@ -911,10 +911,10 @@ static int movieStart(int win, char* filePath, int (*a3)())
             movieW);
     }
 
-    movieRect.left = movieX;
-    movieRect.top = movieY;
-    movieRect.right = movieW + movieX;
-    movieRect.bottom = movieH + movieY;
+    movieRect.ulx = movieX;
+    movieRect.uly = movieY;
+    movieRect.lrx = movieW + movieX;
+    movieRect.lry = movieH + movieY;
 
     return 0;
 }

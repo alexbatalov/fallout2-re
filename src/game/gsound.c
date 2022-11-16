@@ -1400,7 +1400,7 @@ int gsound_compute_relative_volume(Object* obj)
 
             win_get_rect(display_win, &iso_win_rect);
 
-            if (rectIntersection(&v14, &iso_win_rect, &v12) == -1) {
+            if (rect_inside_bound(&v14, &iso_win_rect, &v12) == -1) {
                 distance = obj_dist(v7, obj_dude);
                 perception = critterGetStat(obj_dude, STAT_PERCEPTION);
                 if (distance > perception) {

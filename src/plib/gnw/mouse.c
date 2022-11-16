@@ -134,10 +134,10 @@ int GNW_mouse_init()
     }
 
     have_mouse = true;
-    mouse_x = _scr_size.right / 2;
-    mouse_y = _scr_size.bottom / 2;
-    raw_x = _scr_size.right / 2;
-    raw_y = _scr_size.bottom / 2;
+    mouse_x = _scr_size.lrx / 2;
+    mouse_y = _scr_size.lry / 2;
+    raw_x = _scr_size.lrx / 2;
+    raw_y = _scr_size.lry / 2;
     mouse_idle_start_time = _get_time();
 
     return 0;
@@ -354,30 +354,30 @@ void mouse_show()
             }
         }
 
-        if (mouse_x >= _scr_size.left) {
-            if (mouse_width + mouse_x - 1 <= _scr_size.right) {
+        if (mouse_x >= _scr_size.ulx) {
+            if (mouse_width + mouse_x - 1 <= _scr_size.lrx) {
                 v8 = mouse_width;
                 v7 = 0;
             } else {
                 v7 = 0;
-                v8 = _scr_size.right - mouse_x + 1;
+                v8 = _scr_size.lrx - mouse_x + 1;
             }
         } else {
-            v7 = _scr_size.left - mouse_x;
-            v8 = mouse_width - (_scr_size.left - mouse_x);
+            v7 = _scr_size.ulx - mouse_x;
+            v8 = mouse_width - (_scr_size.ulx - mouse_x);
         }
 
-        if (mouse_y >= _scr_size.top) {
-            if (mouse_length + mouse_y - 1 <= _scr_size.bottom) {
+        if (mouse_y >= _scr_size.uly) {
+            if (mouse_length + mouse_y - 1 <= _scr_size.lry) {
                 v9 = 0;
                 v10 = mouse_length;
             } else {
                 v9 = 0;
-                v10 = _scr_size.bottom - mouse_y + 1;
+                v10 = _scr_size.lry - mouse_y + 1;
             }
         } else {
-            v9 = _scr_size.top - mouse_y;
-            v10 = mouse_length - (_scr_size.top - mouse_y);
+            v9 = _scr_size.uly - mouse_y;
+            v10 = mouse_length - (_scr_size.uly - mouse_y);
         }
 
         mouse_buf = v2;
@@ -400,10 +400,10 @@ void mouse_hide()
 
     if (have_mouse) {
         if (!mouse_is_hidden) {
-            rect.left = mouse_x;
-            rect.top = mouse_y;
-            rect.right = mouse_x + mouse_width - 1;
-            rect.bottom = mouse_y + mouse_length - 1;
+            rect.ulx = mouse_x;
+            rect.uly = mouse_y;
+            rect.lrx = mouse_x + mouse_width - 1;
+            rect.lry = mouse_y + mouse_length - 1;
 
             mouse_is_hidden = true;
             windowRefreshAll(&rect);
@@ -557,10 +557,10 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
 
     if (delta_x != 0 || delta_y != 0) {
         Rect mouseRect;
-        mouseRect.left = mouse_x;
-        mouseRect.top = mouse_y;
-        mouseRect.right = mouse_width + mouse_x - 1;
-        mouseRect.bottom = mouse_length + mouse_y - 1;
+        mouseRect.ulx = mouse_x;
+        mouseRect.uly = mouse_y;
+        mouseRect.lrx = mouse_width + mouse_x - 1;
+        mouseRect.lry = mouse_length + mouse_y - 1;
 
         mouse_x += delta_x;
         mouse_y += delta_y;
@@ -604,10 +604,10 @@ bool mouse_click_in(int left, int top, int right, int bottom)
 // 0x4CA9A0
 void mouse_get_rect(Rect* rect)
 {
-    rect->left = mouse_x;
-    rect->top = mouse_y;
-    rect->right = mouse_width + mouse_x - 1;
-    rect->bottom = mouse_length + mouse_y - 1;
+    rect->ulx = mouse_x;
+    rect->uly = mouse_y;
+    rect->lrx = mouse_width + mouse_x - 1;
+    rect->lry = mouse_length + mouse_y - 1;
 }
 
 // 0x4CA9DC
@@ -630,16 +630,16 @@ void mouse_set_position(int a1, int a2)
 // 0x4CAA38
 static void mouse_clip()
 {
-    if (mouse_hotx + mouse_x < _scr_size.left) {
-        mouse_x = _scr_size.left - mouse_hotx;
-    } else if (mouse_hotx + mouse_x > _scr_size.right) {
-        mouse_x = _scr_size.right - mouse_hotx;
+    if (mouse_hotx + mouse_x < _scr_size.ulx) {
+        mouse_x = _scr_size.ulx - mouse_hotx;
+    } else if (mouse_hotx + mouse_x > _scr_size.lrx) {
+        mouse_x = _scr_size.lrx - mouse_hotx;
     }
 
-    if (mouse_hoty + mouse_y < _scr_size.top) {
-        mouse_y = _scr_size.top - mouse_hoty;
-    } else if (mouse_hoty + mouse_y > _scr_size.bottom) {
-        mouse_y = _scr_size.bottom - mouse_hoty;
+    if (mouse_hoty + mouse_y < _scr_size.uly) {
+        mouse_y = _scr_size.uly - mouse_hoty;
+    } else if (mouse_hoty + mouse_y > _scr_size.lry) {
+        mouse_y = _scr_size.lry - mouse_hoty;
     }
 }
 

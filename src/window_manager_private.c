@@ -320,9 +320,9 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                 absoluteSelectedItemIndex = -1;
             }
         } else if (keyCode == 2048) {
-            if (window->rect.top + scrollbarY > mouseY) {
+            if (window->rect.uly + scrollbarY > mouseY) {
                 keyCode = KEY_PAGE_UP;
-            } else if (window->rect.top + scrollbarKnobSize + scrollbarY < mouseY) {
+            } else if (window->rect.uly + scrollbarKnobSize + scrollbarY < mouseY) {
                 keyCode = KEY_PAGE_DOWN;
             }
         }
@@ -463,12 +463,12 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
             }
         } else if (keyCode == -3) {
             Rect itemRect;
-            itemRect.left = windowRect->left + listViewX;
-            itemRect.right = itemRect.left + listViewWidth;
+            itemRect.ulx = windowRect->ulx + listViewX;
+            itemRect.lrx = itemRect.ulx + listViewWidth;
 
             if (previousSelectedItemIndex != -1) {
-                itemRect.top = windowRect->top + listViewY + previousSelectedItemIndex * text_height();
-                itemRect.bottom = itemRect.top + text_height();
+                itemRect.uly = windowRect->uly + listViewY + previousSelectedItemIndex * text_height();
+                itemRect.lry = itemRect.uly + text_height();
 
                 bufferFill(listViewBuffer + windowWidth * previousSelectedItemIndex * text_height(),
                     listViewWidth,
@@ -494,8 +494,8 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
             }
 
             if (selectedItemIndex != -1) {
-                itemRect.top = windowRect->top + listViewY + selectedItemIndex * text_height();
-                itemRect.bottom = itemRect.top + text_height();
+                itemRect.uly = windowRect->uly + listViewY + selectedItemIndex * text_height();
+                itemRect.lry = itemRect.uly + text_height();
 
                 _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
                     listViewWidth,
@@ -843,10 +843,10 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int bor
     }
 
     menuBar->win = win;
-    menuBar->rect.left = x;
-    menuBar->rect.top = y;
-    menuBar->rect.right = right - 1;
-    menuBar->rect.bottom = bottom - 1;
+    menuBar->rect.ulx = x;
+    menuBar->rect.uly = y;
+    menuBar->rect.lrx = right - 1;
+    menuBar->rect.lry = bottom - 1;
     menuBar->pulldownsLength = 0;
     menuBar->borderColor = borderColor;
     menuBar->backgroundColor = backgroundColor;
@@ -879,8 +879,8 @@ int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int it
         return -1;
     }
 
-    int titleX = menuBar->rect.left + x;
-    int titleY = (menuBar->rect.top + menuBar->rect.bottom - text_height()) / 2;
+    int titleX = menuBar->rect.ulx + x;
+    int titleY = (menuBar->rect.uly + menuBar->rect.lry - text_height()) / 2;
     int btn = buttonCreate(win,
         titleX,
         titleY,
@@ -901,10 +901,10 @@ int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int it
     windowDrawText(win, title, 0, titleX, titleY, window->menuBar->borderColor | 0x2000000);
 
     MenuPulldown* pulldown = &(window->menuBar->pulldowns[window->menuBar->pulldownsLength]);
-    pulldown->rect.left = titleX;
-    pulldown->rect.top = titleY;
-    pulldown->rect.right = text_width(title) + titleX - 1;
-    pulldown->rect.bottom = text_height() + titleY - 1;
+    pulldown->rect.ulx = titleX;
+    pulldown->rect.uly = titleY;
+    pulldown->rect.lrx = text_width(title) + titleX - 1;
+    pulldown->rect.lry = text_height() + titleY - 1;
     pulldown->keyCode = keyCode;
     pulldown->itemsLength = itemsLength;
     pulldown->items = items;
@@ -934,8 +934,8 @@ void _win_delete_menu_bar(int win)
     }
 
     windowFill(win,
-        window->menuBar->rect.left,
-        window->menuBar->rect.top,
+        window->menuBar->rect.ulx,
+        window->menuBar->rect.uly,
         rectGetWidth(&(window->menuBar->rect)),
         rectGetHeight(&(window->menuBar->rect)),
         window->field_20);
@@ -992,10 +992,10 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
     text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
     Rect dirtyRect;
-    dirtyRect.left = window->rect.left + x;
-    dirtyRect.top = window->rect.top + y;
-    dirtyRect.right = dirtyRect.left + stringWidth;
-    dirtyRect.bottom = dirtyRect.top + lineHeight;
+    dirtyRect.ulx = window->rect.ulx + x;
+    dirtyRect.uly = window->rect.uly + y;
+    dirtyRect.lrx = dirtyRect.ulx + stringWidth;
+    dirtyRect.lry = dirtyRect.uly + lineHeight;
     _GNW_win_refresh(window, &dirtyRect, NULL);
 
     // NOTE: This loop is slightly different compared to other input handling
@@ -1017,10 +1017,10 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
                     if (isFirstKey) {
                         bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
 
-                        dirtyRect.left = window->rect.left + x;
-                        dirtyRect.top = window->rect.top + y;
-                        dirtyRect.right = dirtyRect.left + stringWidth;
-                        dirtyRect.bottom = dirtyRect.top + lineHeight;
+                        dirtyRect.ulx = window->rect.ulx + x;
+                        dirtyRect.uly = window->rect.uly + y;
+                        dirtyRect.lrx = dirtyRect.ulx + stringWidth;
+                        dirtyRect.lry = dirtyRect.uly + lineHeight;
                         _GNW_win_refresh(window, &dirtyRect, NULL);
 
                         dest[0] = '_';
@@ -1034,10 +1034,10 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
                     bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
                     text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
-                    dirtyRect.left = window->rect.left + x;
-                    dirtyRect.top = window->rect.top + y;
-                    dirtyRect.right = dirtyRect.left + stringWidth;
-                    dirtyRect.bottom = dirtyRect.top + lineHeight;
+                    dirtyRect.ulx = window->rect.ulx + x;
+                    dirtyRect.uly = window->rect.uly + y;
+                    dirtyRect.lrx = dirtyRect.ulx + stringWidth;
+                    dirtyRect.lry = dirtyRect.uly + lineHeight;
                     _GNW_win_refresh(window, &dirtyRect, NULL);
 
                     dest[cursorPos] = '\0';
@@ -1062,10 +1062,10 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
                         bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
                         text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
-                        dirtyRect.left = window->rect.left + x;
-                        dirtyRect.top = window->rect.top + y;
-                        dirtyRect.right = dirtyRect.left + stringWidth;
-                        dirtyRect.bottom = dirtyRect.top + lineHeight;
+                        dirtyRect.ulx = window->rect.ulx + x;
+                        dirtyRect.uly = window->rect.uly + y;
+                        dirtyRect.lrx = dirtyRect.ulx + stringWidth;
+                        dirtyRect.lry = dirtyRect.uly + lineHeight;
                         _GNW_win_refresh(window, &dirtyRect, NULL);
 
                         isFirstKey = false;
@@ -1106,8 +1106,8 @@ int _GNW_process_menu(MenuBar* menuBar, int pulldownIndex)
         MenuPulldown* pulldown = &(menuBar->pulldowns[pulldownIndex]);
         int win = _create_pull_down(pulldown->items,
             pulldown->itemsLength,
-            pulldown->rect.left,
-            menuBar->rect.bottom + 1,
+            pulldown->rect.ulx,
+            menuBar->rect.lry + 1,
             pulldown->field_1C,
             pulldown->field_20,
             &rect);
@@ -1163,9 +1163,9 @@ void _GNW_intr_init()
     _tm_persistence = 3000;
     _tm_add = 0;
     _tm_kill = -1;
-    _scr_center_x = _scr_size.right / 2;
+    _scr_center_x = _scr_size.lrx / 2;
 
-    if (_scr_size.bottom >= 479) {
+    if (_scr_size.lry >= 479) {
         _tm_text_y = 16;
         _tm_text_x = 16;
     } else {
@@ -1175,8 +1175,8 @@ void _GNW_intr_init()
 
     _tm_h = 2 * _tm_text_y + text_height();
 
-    v1 = _scr_size.bottom >> 3;
-    v2 = _scr_size.bottom >> 2;
+    v1 = _scr_size.lry >> 3;
+    v2 = _scr_size.lry >> 2;
 
     for (i = 0; i < 5; i++) {
         _tm_location[i].field_4 = v1 * i + v2;

@@ -665,10 +665,10 @@ int windowDrawRect(int left, int top, int right, int bottom)
 {
     Rect rect;
 
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
+    rect.ulx = left;
+    rect.uly = top;
+    rect.lrx = right;
+    rect.lry = bottom;
     win_draw_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
 
     return 1;
@@ -681,10 +681,10 @@ int windowDrawRectID(int windowId, int left, int top, int right, int bottom)
 {
     Rect rect;
 
-    rect.left = left;
-    rect.top = top;
-    rect.right = right;
-    rect.bottom = bottom;
+    rect.ulx = left;
+    rect.uly = top;
+    rect.lrx = right;
+    rect.lry = bottom;
     win_draw_rect(gManagedWindows[windowId].window, &rect);
 
     return 1;
@@ -711,7 +711,7 @@ int windowSX()
 
     win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
 
-    return rect.left;
+    return rect.ulx;
 }
 
 // NOTE: Unused.
@@ -723,7 +723,7 @@ int windowSY()
 
     win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
 
-    return rect.top;
+    return rect.uly;
 }
 
 // NOTE: Unused.
@@ -735,7 +735,7 @@ int pointInWindow(int x, int y)
 
     win_get_rect(gManagedWindows[gCurrentManagedWindowIndex].window, &rect);
 
-    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+    return x >= rect.ulx && x <= rect.lrx && y >= rect.uly && y <= rect.lry;
 }
 
 // NOTE: Unused.

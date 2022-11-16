@@ -2285,10 +2285,10 @@ static void intface_draw_ammo_lights(int x, int ratio)
 
     if (!insideInit) {
         Rect rect;
-        rect.left = x;
-        rect.top = 26;
-        rect.right = x + 1;
-        rect.bottom = 26 + 70;
+        rect.ulx = x;
+        rect.uly = 26;
+        rect.lrx = x + 1;
+        rect.lry = 26 + 70;
         win_draw_rect(interfaceWindow, &rect);
     }
 }

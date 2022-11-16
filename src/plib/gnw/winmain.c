@@ -200,10 +200,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
             RECT updateRect;
             if (GetUpdateRect(hWnd, &updateRect, FALSE)) {
                 Rect rect;
-                rect.left = updateRect.left;
-                rect.top = updateRect.top;
-                rect.right = updateRect.right - 1;
-                rect.bottom = updateRect.bottom - 1;
+                rect.ulx = updateRect.left;
+                rect.uly = updateRect.top;
+                rect.lrx = updateRect.right - 1;
+                rect.lry = updateRect.bottom - 1;
                 windowRefreshAll(&rect);
             }
         }

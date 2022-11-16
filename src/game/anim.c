@@ -2624,14 +2624,14 @@ static void object_move(int index)
         obj_move_to_tile(object, object->tile, object->elevation, &dirty);
 
         obj_set_frame(object, 0, &temp);
-        rectUnion(&dirty, &temp, &dirty);
+        rect_min_bound(&dirty, &temp, &dirty);
 
         obj_set_rotation(object, sad_entry->rotations[0], &temp);
-        rectUnion(&dirty, &temp, &dirty);
+        rect_min_bound(&dirty, &temp, &dirty);
 
         int fid = art_id(FID_TYPE(object->fid), object->fid & 0xFFF, sad_entry->anim, (object->fid & 0xF000) >> 12, object->rotation + 1);
         obj_change_fid(object, fid, &temp);
-        rectUnion(&dirty, &temp, &dirty);
+        rect_min_bound(&dirty, &temp, &dirty);
 
         sad_entry->field_20 = 0;
     } else {
@@ -2652,7 +2652,7 @@ static void object_move(int index)
     }
 
     obj_offset(object, frameX, frameY, &temp);
-    rectUnion(&dirty, &temp, &dirty);
+    rect_min_bound(&dirty, &temp, &dirty);
 
     int rotation = sad_entry->rotations[sad_entry->field_20];
     int y = off_tile[1][rotation];
@@ -2668,13 +2668,13 @@ static void object_move(int index)
                 sad_entry->field_1C = make_path(object, object->tile, sad_entry->field_24, sad_entry->rotations, 1);
                 if (sad_entry->field_1C != 0) {
                     obj_move_to_tile(object, object->tile, object->elevation, &temp);
-                    rectUnion(&dirty, &temp, &dirty);
+                    rect_min_bound(&dirty, &temp, &dirty);
 
                     obj_set_frame(object, 0, &temp);
-                    rectUnion(&dirty, &temp, &dirty);
+                    rect_min_bound(&dirty, &temp, &dirty);
 
                     obj_set_rotation(object, sad_entry->rotations[0], &temp);
-                    rectUnion(&dirty, &temp, &dirty);
+                    rect_min_bound(&dirty, &temp, &dirty);
 
                     sad_entry->field_20 = 0;
                 } else {
@@ -2688,7 +2688,7 @@ static void object_move(int index)
 
         if (v10 != -1) {
             obj_move_to_tile(object, v10, object->elevation, &temp);
-            rectUnion(&dirty, &temp, &dirty);
+            rect_min_bound(&dirty, &temp, &dirty);
 
             int v17 = 0;
             if (isInCombat() && FID_TYPE(object->fid) == OBJ_TYPE_CRITTER) {
@@ -2719,10 +2719,10 @@ static void object_move(int index)
                 sad_entry->field_20 = -1000;
             } else {
                 obj_set_rotation(object, sad_entry->rotations[sad_entry->field_20], &temp);
-                rectUnion(&dirty, &temp, &dirty);
+                rect_min_bound(&dirty, &temp, &dirty);
 
                 obj_offset(object, x, y, &temp);
-                rectUnion(&dirty, &temp, &dirty);
+                rect_min_bound(&dirty, &temp, &dirty);
             }
         }
     }
@@ -2758,7 +2758,7 @@ static void object_straight_move(int index)
         if ((sad_entry->flags & ANIM_SAD_NO_ANIM) == 0) {
             if ((sad_entry->flags & ANIM_SAD_WAIT_FOR_COMPLETION) == 0 || object->frame < lastFrame) {
                 obj_inc_frame(object, &temp);
-                rectUnion(&dirtyRect, &temp, &dirtyRect);
+                rect_min_bound(&dirtyRect, &temp, &dirtyRect);
             }
         }
 
@@ -2766,10 +2766,10 @@ static void object_straight_move(int index)
             StraightPathNode* v12 = &(sad_entry->field_28[sad_entry->field_20]);
 
             obj_move_to_tile(object, v12->tile, v12->elevation, &temp);
-            rectUnion(&dirtyRect, &temp, &dirtyRect);
+            rect_min_bound(&dirtyRect, &temp, &dirtyRect);
 
             obj_offset(object, v12->x, v12->y, &temp);
-            rectUnion(&dirtyRect, &temp, &dirtyRect);
+            rect_min_bound(&dirtyRect, &temp, &dirtyRect);
 
             sad_entry->field_20++;
         }
@@ -2898,14 +2898,14 @@ void object_animate()
                         continue;
                     } else {
                         obj_inc_frame(object, &tempRect);
-                        rectUnion(&dirtyRect, &tempRect, &dirtyRect);
+                        rect_min_bound(&dirtyRect, &tempRect, &dirtyRect);
 
                         int frameX;
                         int frameY;
                         art_frame_hot(art, object->frame, object->rotation, &frameX, &frameY);
 
                         obj_offset(object, frameX, frameY, &tempRect);
-                        rectUnion(&dirtyRect, &tempRect, &dirtyRect);
+                        rect_min_bound(&dirtyRect, &tempRect, &dirtyRect);
 
                         art_ptr_unlock(cacheHandle);
                     }
@@ -2928,10 +2928,10 @@ void object_animate()
                 }
 
                 obj_dec_frame(object, &tempRect);
-                rectUnion(&dirtyRect, &tempRect, &dirtyRect);
+                rect_min_bound(&dirtyRect, &tempRect, &dirtyRect);
 
                 obj_offset(object, -x, -y, &tempRect);
-                rectUnion(&dirtyRect, &tempRect, &dirtyRect);
+                rect_min_bound(&dirtyRect, &tempRect, &dirtyRect);
 
                 tile_refresh_rect(&dirtyRect, map_elevation);
                 continue;
@@ -2955,7 +2955,7 @@ void object_animate()
 
             Rect v29;
             obj_change_fid(object, sad_entry->fid, &v29);
-            rectUnion(&dirtyRect, &v29, &dirtyRect);
+            rect_min_bound(&dirtyRect, &v29, &dirtyRect);
 
             art = art_ptr_lock(object->fid, &cacheHandle);
             if (art != NULL) {
@@ -2967,7 +2967,7 @@ void object_animate()
                 }
 
                 obj_set_frame(object, frame, &v29);
-                rectUnion(&dirtyRect, &v29, &dirtyRect);
+                rect_min_bound(&dirtyRect, &v29, &dirtyRect);
 
                 int frameX;
                 int frameY;
@@ -2975,12 +2975,12 @@ void object_animate()
 
                 Rect v19;
                 obj_offset(object, x + frameX, y + frameY, &v19);
-                rectUnion(&dirtyRect, &v19, &dirtyRect);
+                rect_min_bound(&dirtyRect, &v19, &dirtyRect);
 
                 art_ptr_unlock(cacheHandle);
             } else {
                 obj_set_frame(object, 0, &v29);
-                rectUnion(&dirtyRect, &v29, &dirtyRect);
+                rect_min_bound(&dirtyRect, &v29, &dirtyRect);
             }
 
             tile_refresh_rect(&dirtyRect, map_elevation);
@@ -3158,7 +3158,7 @@ void dude_fidget()
             obj_bound(object, &rect);
 
             Rect intersection;
-            if (rectIntersection(&rect, &_scr_size, &intersection) == 0 && (map_data.field_34 != 97 || object->pid != 0x10000FA)) {
+            if (rect_inside_bound(&rect, &_scr_size, &intersection) == 0 && (map_data.field_34 != 97 || object->pid != 0x10000FA)) {
                 fidget_ptr[v5++] = object;
             }
         }
@@ -3264,16 +3264,16 @@ void dude_stand(Object* obj, int rotation, int fid)
 
     Rect temp;
     obj_change_fid(obj, fid, &temp);
-    rectUnion(&rect, &temp, &rect);
+    rect_min_bound(&rect, &temp, &rect);
 
     obj_move_to_tile(obj, obj->tile, obj->elevation, &temp);
-    rectUnion(&rect, &temp, &rect);
+    rect_min_bound(&rect, &temp, &rect);
 
     obj_set_frame(obj, 0, &temp);
-    rectUnion(&rect, &temp, &rect);
+    rect_min_bound(&rect, &temp, &rect);
 
     obj_offset(obj, x, y, &temp);
-    rectUnion(&rect, &temp, &rect);
+    rect_min_bound(&rect, &temp, &rect);
 
     tile_refresh_rect(&rect, obj->elevation);
 }
@@ -3341,7 +3341,7 @@ int anim_change_fid(Object* obj, int animationSequenceIndex, int fid)
     if (FID_ANIM_TYPE(fid)) {
         obj_change_fid(obj, fid, &rect);
         obj_set_frame(obj, 0, &v7);
-        rectUnion(&rect, &v7, &rect);
+        rect_min_bound(&rect, &v7, &rect);
         tile_refresh_rect(&rect, obj->elevation);
     } else {
         dude_stand(obj, obj->rotation, fid);

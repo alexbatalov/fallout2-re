@@ -827,7 +827,7 @@ void critter_kill(Object* critter, int anim, bool a3)
         obj_set_frame(critter, 0, &updatedRect);
 
         obj_change_fid(critter, fid, &tempRect);
-        rectUnion(&updatedRect, &tempRect, &updatedRect);
+        rect_min_bound(&updatedRect, &tempRect, &updatedRect);
     }
 
     if (!critter_flag_check(critter->pid, CRITTER_FLAT)) {
@@ -837,10 +837,10 @@ void critter_kill(Object* critter, int anim, bool a3)
 
     // NOTE: using uninitialized updatedRect/tempRect if fid was not set.
 
-    rectUnion(&updatedRect, &tempRect, &updatedRect);
+    rect_min_bound(&updatedRect, &tempRect, &updatedRect);
 
     obj_turn_off_light(critter, &tempRect);
-    rectUnion(&updatedRect, &tempRect, &updatedRect);
+    rect_min_bound(&updatedRect, &tempRect, &updatedRect);
 
     critter->data.critter.hp = 0;
     critter->data.critter.combat.results |= DAM_DEAD;

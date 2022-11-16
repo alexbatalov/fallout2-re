@@ -474,8 +474,8 @@ void pauseHandlerConfigure(int keyCode, PauseHandler* handler)
 // 0x4C8F4C
 void takeScreenshot()
 {
-    int width = _scr_size.right - _scr_size.left + 1;
-    int height = _scr_size.bottom - _scr_size.top + 1;
+    int width = _scr_size.lrx - _scr_size.ulx + 1;
+    int height = _scr_size.lry - _scr_size.uly + 1;
     gScreenshotBuffer = (unsigned char*)mem_malloc(width * height);
     if (gScreenshotBuffer == NULL) {
         return;
@@ -504,7 +504,7 @@ void takeScreenshot()
 // 0x4C8FF0
 void screenshotBlitter(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int width, int height, int destX, int destY)
 {
-    int destWidth = _scr_size.right - _scr_size.left + 1;
+    int destWidth = _scr_size.lrx - _scr_size.ulx + 1;
     blitBufferToBuffer(src + srcPitch * srcY + srcX, width, height, srcPitch, gScreenshotBuffer + destWidth * destY + destX, destWidth);
 }
 
@@ -1309,10 +1309,10 @@ int _GNW95_init_mode_ex(int width, int height, int bpp)
         return -1;
     }
 
-    _scr_size.left = 0;
-    _scr_size.top = 0;
-    _scr_size.right = width - 1;
-    _scr_size.bottom = height - 1;
+    _scr_size.ulx = 0;
+    _scr_size.uly = 0;
+    _scr_size.lrx = width - 1;
+    _scr_size.lry = height - 1;
 
     mmxSetEnabled(true);
 

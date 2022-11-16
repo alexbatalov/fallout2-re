@@ -1628,7 +1628,7 @@ static int check_door_state(Object* a1, Object* a2)
         }
 
         obj_set_frame(a1, 0, &temp);
-        rectUnion(&dirty, &temp, &dirty);
+        rect_min_bound(&dirty, &temp, &dirty);
 
         tile_refresh_rect(&dirty, map_elevation);
 
@@ -1665,7 +1665,7 @@ static int check_door_state(Object* a1, Object* a2)
         }
 
         obj_set_frame(a1, frameCount - 1, &temp);
-        rectUnion(&dirty, &temp, &dirty);
+        rect_min_bound(&dirty, &temp, &dirty);
 
         tile_refresh_rect(&dirty, map_elevation);
 
@@ -2195,7 +2195,7 @@ int obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
 
     Rect temp;
     if (obj_move_to_tile(obj, newTile, elevation, &temp) != -1) {
-        rectUnion(&updatedRect, &temp, &updatedRect);
+        rect_min_bound(&updatedRect, &temp, &updatedRect);
 
         if (elevation == map_elevation) {
             tile_refresh_rect(&updatedRect, elevation);
