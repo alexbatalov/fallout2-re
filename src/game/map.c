@@ -32,7 +32,7 @@
 #include "game/queue.h"
 #include "game/roll.h"
 #include "game/scripts.h"
-#include "text_object.h"
+#include "game/textobj.h"
 #include "tile.h"
 #include "window_manager.h"
 #include "window_manager_private.h"

@@ -1,4 +1,4 @@
-#include "text_object.h"
+#include "game/textobj.h"
 
 #include <string.h>
 

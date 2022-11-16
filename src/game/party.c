@@ -26,7 +26,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/strparse.h"
-#include "text_object.h"
+#include "game/textobj.h"
 #include "tile.h"
 #include "window_manager.h"
 

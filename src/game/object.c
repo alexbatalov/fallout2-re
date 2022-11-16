@@ -22,7 +22,7 @@
 #include "game/proto.h"
 #include "game/protinst.h"
 #include "game/scripts.h"
-#include "text_object.h"
+#include "game/textobj.h"
 #include "tile.h"
 #include "worldmap.h"
 

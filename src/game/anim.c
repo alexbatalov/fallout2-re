@@ -27,7 +27,7 @@
 #include "game/roll.h"
 #include "game/scripts.h"
 #include "game/stat.h"
-#include "text_object.h"
+#include "game/textobj.h"
 #include "tile.h"
 #include "trait.h"
 #include "vcr.h"
