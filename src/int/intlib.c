@@ -290,7 +290,7 @@ static void op_selectfilelist(Program* program)
     char* title = interpretGetString(program, opcode[1], data[1]);
 
     int fileListLength;
-    char** fileList = _getFileList(interpretMangleName(pattern), &fileListLength);
+    char** fileList = getFileList(interpretMangleName(pattern), &fileListLength);
     if (fileList != NULL && fileListLength != 0) {
         int selectedIndex = _win_list_select(title,
             fileList,
@@ -308,7 +308,7 @@ static void op_selectfilelist(Program* program)
             interpretPushShort(program, VALUE_TYPE_INT);
         }
 
-        _freeFileList(fileList);
+        freeFileList(fileList);
     } else {
         interpretPushLong(program, 0);
         interpretPushShort(program, VALUE_TYPE_INT);

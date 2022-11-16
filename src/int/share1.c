@@ -5,8 +5,10 @@
 
 #include "db.h"
 
+static int compare(const void* a1, const void* a2);
+
 // 0x4AA250
-int _compare(const void* a1, const void* a2)
+static int compare(const void* a1, const void* a2)
 {
     const char* v1 = *(const char**)a1;
     const char* v2 = *(const char**)a2;
@@ -14,7 +16,7 @@ int _compare(const void* a1, const void* a2)
 }
 
 // 0x4AA2A4
-char** _getFileList(const char* pattern, int* fileNameListLengthPtr)
+char** getFileList(const char* pattern, int* fileNameListLengthPtr)
 {
     char** fileNameList;
     int fileNameListLength = fileNameListInit(pattern, &fileNameList, 0, 0);
@@ -23,13 +25,13 @@ char** _getFileList(const char* pattern, int* fileNameListLengthPtr)
         return NULL;
     }
 
-    qsort(fileNameList, fileNameListLength, sizeof(*fileNameList), _compare);
+    qsort(fileNameList, fileNameListLength, sizeof(*fileNameList), compare);
 
     return fileNameList;
 }
 
 // 0x4AA2DC
-void _freeFileList(char** fileList)
+void freeFileList(char** fileList)
 {
     fileNameListFree(&fileList, 0);
 }

@@ -1,8 +1,7 @@
-#ifndef SELECT_FILE_LIST_H
-#define SELECT_FILE_LIST_H
+#ifndef FALLOUT_INT_SHARE1_H_
+#define FALLOUT_INT_SHARE1_H_
 
-int _compare(const void* a1, const void* a2);
-char** _getFileList(const char* pattern, int* fileNameListLengthPtr);
-void _freeFileList(char** fileList);
+char** getFileList(const char* pattern, int* fileNameListLengthPtr);
+void freeFileList(char** fileList);
 
-#endif /* SELECT_FILE_LIST_H */
+#endif /* FALLOUT_INT_SHARE1_H_ */
