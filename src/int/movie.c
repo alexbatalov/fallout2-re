@@ -709,7 +709,7 @@ static File* openFile(char* filePath)
 static void openSubtitle(char* filePath)
 {
     subtitleW = _windowGetXres();
-    subtitleH = fontGetLineHeight() + 4;
+    subtitleH = text_height() + 4;
 
     if (subtitleFilenameFunc != NULL) {
         filePath = subtitleFilenameFunc(filePath);
@@ -787,7 +787,7 @@ static void doSubtitle()
         return;
     }
 
-    int v1 = fontGetLineHeight();
+    int v1 = text_height();
     int v2 = (480 - lastMovieH - lastMovieY - v1) / 2 + lastMovieH + lastMovieY;
 
     if (subtitleH + v2 > _windowGetYres()) {
@@ -809,8 +809,8 @@ static void doSubtitle()
 
         int oldFont;
         if (subtitleFont != -1) {
-            oldFont = fontGetCurrent();
-            fontSetCurrent(subtitleFont);
+            oldFont = text_curr();
+            text_font(subtitleFont);
         }
 
         int colorIndex = (subtitleR << 10) | (subtitleG << 5) | subtitleB;
@@ -829,7 +829,7 @@ static void doSubtitle()
         subtitleList = next;
 
         if (subtitleFont != -1) {
-            fontSetCurrent(oldFont);
+            text_font(oldFont);
         }
     }
 }

@@ -107,7 +107,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         }
     }
 
-    if (textFontsInit() == -1) {
+    if (GNW_text_init() == -1) {
         return WINDOW_MANAGER_ERR_INITIALIZING_TEXT_FONTS;
     }
 
@@ -255,7 +255,7 @@ void windowManagerExit(void)
 
             coreExit();
             _GNW_rect_exit();
-            textFontsExit();
+            GNW_text_exit();
             colorsClose();
 
             gWindowSystemInitialized = false;
@@ -481,9 +481,9 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
 
     if (a3 == 0) {
         if (a6 & 0x040000) {
-            v7 = fontGetMonospacedStringWidth(str);
+            v7 = text_mono_width(str);
         } else {
-            v7 = fontGetStringWidth(str);
+            v7 = text_width(str);
         }
     }
 
@@ -497,16 +497,16 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
 
     buf = window->buffer + x + y * window->width;
 
-    v14 = fontGetLineHeight();
+    v14 = text_height();
     if (v14 + y > window->height) {
         return;
     }
 
     if (!(a6 & 0x02000000)) {
         if (window->field_20 == 256 && _GNW_texture != NULL) {
-            _buf_texture(buf, v7, fontGetLineHeight(), window->width, _GNW_texture, window->field_24 + x, window->field_28 + y);
+            _buf_texture(buf, v7, text_height(), window->width, _GNW_texture, window->field_24 + x, window->field_28 + y);
         } else {
-            bufferFill(buf, v7, fontGetLineHeight(), window->width, window->field_20);
+            bufferFill(buf, v7, text_height(), window->width, window->field_20);
         }
     }
 
@@ -517,7 +517,7 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
         v27 = a6;
     }
 
-    fontDrawText(buf, str, v7, window->width, v27);
+    text_to_buf(buf, str, v7, window->width, v27);
 
     if (a6 & 0x01000000) {
         // TODO: Check.
@@ -525,7 +525,7 @@ void windowDrawText(int win, char* str, int a3, int x, int y, int a6)
         rect.left = window->rect.left + x;
         rect.top = window->rect.top + y;
         rect.right = rect.left + v7;
-        rect.bottom = rect.top + fontGetLineHeight();
+        rect.bottom = rect.top + text_height();
         _GNW_win_refresh(window, &rect, NULL);
     }
 }
@@ -1202,7 +1202,7 @@ void _win_text(int win, char** fileNameList, int fileNameListLength, int maxWidt
 
     int width = window->width;
     unsigned char* ptr = window->buffer + y * width + x;
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
 
     int step = width * lineHeight;
     int v1 = lineHeight / 2;
@@ -1346,8 +1346,8 @@ int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, in
         return -1;
     }
 
-    int buttonWidth = fontGetStringWidth(title) + 16;
-    int buttonHeight = fontGetLineHeight() + 7;
+    int buttonWidth = text_width(title) + 16;
+    int buttonHeight = text_height() + 7;
     unsigned char* normal = (unsigned char*)mem_malloc(buttonWidth * buttonHeight);
     if (normal == NULL) {
         return -1;
@@ -1368,7 +1368,7 @@ int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, in
 
     _lighten_buf(normal, buttonWidth, buttonHeight, buttonWidth);
 
-    fontDrawText(normal + buttonWidth * 3 + 8, title, buttonWidth, buttonWidth, colorTable[_GNW_wcolor[3]]);
+    text_to_buf(normal + buttonWidth * 3 + 8, title, buttonWidth, buttonWidth, colorTable[_GNW_wcolor[3]]);
     bufferDrawRectShadowed(normal,
         buttonWidth,
         2,
@@ -1387,7 +1387,7 @@ int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, in
         colorTable[_GNW_wcolor[2]]);
     bufferDrawRect(normal, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
 
-    fontDrawText(pressed + buttonWidth * 4 + 9, title, buttonWidth, buttonWidth, colorTable[_GNW_wcolor[3]]);
+    text_to_buf(pressed + buttonWidth * 4 + 9, title, buttonWidth, buttonWidth, colorTable[_GNW_wcolor[3]]);
     bufferDrawRectShadowed(pressed,
         buttonWidth,
         2,

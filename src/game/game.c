@@ -81,7 +81,7 @@ char _aGame_0[] = "game\\";
 char _aDec11199816543[] = VERSION_BUILD_TIME;
 
 // 0x518688
-static FontManager alias_mgr = {
+static FontMgr alias_mgr = {
     100,
     110,
     FMtext_font,
@@ -174,8 +174,8 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     trap_init();
 
     FMInit();
-    fontManagerAdd(&alias_mgr);
-    fontSetCurrent(font);
+    text_add_manager(&alias_mgr);
+    text_font(font);
 
     screenshotHandlerConfigure(KEY_F12, game_screendump);
     pauseHandlerConfigure(-1, NULL);

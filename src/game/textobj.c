@@ -211,13 +211,13 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
 
     memset(textObject, 0, sizeof(*textObject));
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(font);
+    int oldFont = text_curr();
+    text_font(font);
 
     short beginnings[WORD_WRAP_MAX_COUNT];
     short count;
     if (word_wrap(string, 200, beginnings, &count) != 0) {
-        fontSetCurrent(oldFont);
+        text_font(oldFont);
         return -1;
     }
 
@@ -238,8 +238,8 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
         char c = *ending;
         *ending = '\0';
 
-        // NOTE: Calls [fontGetStringWidth] twice, probably result of using min/max macro
-        int width = fontGetStringWidth(beginning);
+        // NOTE: Calls [text_width] twice, probably result of using min/max macro
+        int width = text_width(beginning);
         if (width >= textObject->width) {
             textObject->width = width;
         }
@@ -247,7 +247,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
         *ending = c;
     }
 
-    textObject->height = (fontGetLineHeight() + 1) * textObject->linesCount;
+    textObject->height = (text_height() + 1) * textObject->linesCount;
 
     if (a5 != -1) {
         textObject->width += 2;
@@ -257,14 +257,14 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
     int size = textObject->width * textObject->height;
     textObject->data = (unsigned char*)mem_malloc(size);
     if (textObject->data == NULL) {
-        fontSetCurrent(oldFont);
+        text_font(oldFont);
         return -1;
     }
 
     memset(textObject->data, 0, size);
 
     unsigned char* dest = textObject->data;
-    int skip = textObject->width * (fontGetLineHeight() + 1);
+    int skip = textObject->width * (text_height() + 1);
 
     if (a5 != -1) {
         dest += textObject->width;
@@ -280,8 +280,8 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
         char c = *ending;
         *ending = '\0';
 
-        int width = fontGetStringWidth(beginning);
-        fontDrawText(dest + (textObject->width - width) / 2, beginning, textObject->width, textObject->width, color);
+        int width = text_width(beginning);
+        text_to_buf(dest + (textObject->width - width) / 2, beginning, textObject->width, textObject->width, color);
 
         *ending = c;
 
@@ -316,7 +316,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
     text_object_list[text_object_index] = textObject;
     text_object_index++;
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return 0;
 }

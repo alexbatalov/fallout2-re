@@ -531,8 +531,8 @@ static int endgame_init()
         mouse_show();
     }
 
-    endgame_old_font = fontGetCurrent();
-    fontSetCurrent(101);
+    endgame_old_font = text_curr();
+    text_font(101);
 
     palette_fade_to(black_palette);
 
@@ -607,7 +607,7 @@ static void endgame_exit()
     // NOTE: Uninline.
     endgame_unload_slide_info();
 
-    fontSetCurrent(endgame_old_font);
+    text_font(endgame_old_font);
 
     gsound_speech_callback_set(NULL);
     windowDestroy(endgame_window);
@@ -798,7 +798,7 @@ static void endgame_show_subtitles()
         return;
     }
 
-    int height = fontGetLineHeight();
+    int height = text_height();
     int y = 480 - height * count;
 
     for (int index = 0; index < count - 1; index++) {
@@ -812,10 +812,10 @@ static void endgame_show_subtitles()
         char c = *ending;
         *ending = '\0';
 
-        int width = fontGetStringWidth(beginning);
+        int width = text_width(beginning);
         int x = (640 - width) / 2;
         bufferFill(endgame_window_buffer + 640 * y + x, width, height, 640, colorTable[0]);
-        fontDrawText(endgame_window_buffer + 640 * y + x, beginning, width, 640, colorTable[32767]);
+        text_to_buf(endgame_window_buffer + 640 * y + x, beginning, width, 640, colorTable[32767]);
 
         *ending = c;
 

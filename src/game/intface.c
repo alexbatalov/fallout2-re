@@ -2454,7 +2454,7 @@ static int intface_fatal_error(int rc)
 // 0x461134
 static int construct_box_bar_win()
 {
-    int oldFont = fontGetCurrent();
+    int oldFont = text_curr();
 
     if (bar_window != -1) {
         return 0;
@@ -2510,7 +2510,7 @@ static int construct_box_bar_win()
         }
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
     for (int index = 0; index < INDICATOR_COUNT; index++) {
         IndicatorDescription* indicator = &(bbox[index]);
@@ -2527,9 +2527,9 @@ static int construct_box_bar_win()
         // this value was not changed. On the other hand 24 is
         // [INDICATOR_BOX_HEIGHT] + [INDICATOR_BOX_CONNECTOR_WIDTH]. Maybe just
         // a coincidence. I guess we'll never find out.
-        int y = (24 - fontGetLineHeight()) / 2;
-        int x = (INDICATOR_BOX_WIDTH - fontGetStringWidth(text)) / 2;
-        fontDrawText(indicator->data + INDICATOR_BOX_WIDTH * y + x, text, INDICATOR_BOX_WIDTH, INDICATOR_BOX_WIDTH, color);
+        int y = (24 - text_height()) / 2;
+        int x = (INDICATOR_BOX_WIDTH - text_width(text)) / 2;
+        text_to_buf(indicator->data + INDICATOR_BOX_WIDTH * y + x, text, INDICATOR_BOX_WIDTH, INDICATOR_BOX_WIDTH, color);
     }
 
     box_status_flag = true;
@@ -2537,7 +2537,7 @@ static int construct_box_bar_win()
 
     message_exit(&messageList);
     art_ptr_unlock(indicatorBoxFrmHandle);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return 0;
 }

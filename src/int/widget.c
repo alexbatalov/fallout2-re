@@ -161,14 +161,14 @@ int win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
     textInputRegions[textInputRegionIndex].deleteFunc = NULL;
     textInputRegions[textInputRegionIndex].deleteFuncUserData = NULL;
 
-    oldFont = fontGetCurrent();
-    fontSetCurrent(textRegions[textRegionId - 1].font);
+    oldFont = text_curr();
+    text_font(textRegions[textRegionId - 1].font);
 
     btn = buttonCreate(textRegions[textRegionId - 1].win,
         textRegions[textRegionId - 1].x,
         textRegions[textRegionId - 1].y,
         textRegions[textRegionId - 1].width,
-        fontGetLineHeight(),
+        text_height(),
         -1,
         -1,
         -1,
@@ -184,7 +184,7 @@ int win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
 
     textInputRegions[textInputRegionIndex].btn = btn;
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return textInputRegionIndex + 1;
 }
@@ -272,12 +272,12 @@ int win_add_text_region(int win, int x, int y, int width, int font, int textAlig
         numTextRegions++;
     }
 
-    oldFont = fontGetCurrent();
-    fontSetCurrent(font);
+    oldFont = text_curr();
+    text_font(font);
 
-    height = fontGetLineHeight();
+    height = text_height();
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     if ((textFlags & FONT_SHADOW) != 0) {
         width++;
@@ -307,8 +307,8 @@ int win_print_text_region(int textRegionId, char* string)
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= numTextRegions) {
         if (textRegions[textRegionIndex].isUsed != 0) {
-            oldFont = fontGetCurrent();
-            fontSetCurrent(textRegions[textRegionIndex].font);
+            oldFont = text_curr();
+            text_font(textRegions[textRegionIndex].font);
 
             windowFill(textRegions[textRegionIndex].win,
                 textRegions[textRegionIndex].x,
@@ -327,7 +327,7 @@ int win_print_text_region(int textRegionId, char* string)
                 textRegions[textRegionIndex].textFlags | 0x2000000,
                 textRegions[textRegionIndex].textAlignment);
 
-            fontSetCurrent(oldFont);
+            text_font(oldFont);
 
             return 1;
         }
@@ -345,8 +345,8 @@ int win_print_substr_region(int textRegionId, char* string, int stringLength)
     textRegionIndex = textRegionId - 1;
     if (textRegionIndex >= 0 && textRegionIndex <= numTextRegions) {
         if (textRegions[textRegionIndex].isUsed != 0) {
-            oldFont = fontGetCurrent();
-            fontSetCurrent(textRegions[textRegionIndex].font);
+            oldFont = text_curr();
+            text_font(textRegions[textRegionIndex].font);
 
             windowFill(textRegions[textRegionIndex].win,
                 textRegions[textRegionIndex].x,
@@ -365,7 +365,7 @@ int win_print_substr_region(int textRegionId, char* string, int stringLength)
                 textRegions[textRegionIndex].textFlags | 0x2000000,
                 textRegions[textRegionIndex].textAlignment);
 
-            fontSetCurrent(oldFont);
+            text_font(oldFont);
 
             return 1;
         }
@@ -386,7 +386,7 @@ int win_update_text_region(int textRegionId)
             rect.left = textRegions[textRegionIndex].x;
             rect.top = textRegions[textRegionIndex].y;
             rect.right = textRegions[textRegionIndex].x + textRegions[textRegionIndex].width;
-            rect.bottom = textRegions[textRegionIndex].y + fontGetLineHeight();
+            rect.bottom = textRegions[textRegionIndex].y + text_height();
             win_draw_rect(textRegions[textRegionIndex].win, &rect);
             return 1;
         }
@@ -441,12 +441,12 @@ int win_text_region_style(int textRegionId, int font, int textAlignment, int tex
             textRegions[textRegionIndex].font = font;
             textRegions[textRegionIndex].textAlignment = textAlignment;
 
-            oldFont = fontGetCurrent();
-            fontSetCurrent(font);
+            oldFont = text_curr();
+            text_font(font);
 
-            height = fontGetLineHeight();
+            height = text_height();
 
-            fontSetCurrent(oldFont);
+            text_font(oldFont);
 
             if ((textRegions[textRegionIndex].textFlags & FONT_SHADOW) == 0
                 && (textFlags & FONT_SHADOW) != 0) {
@@ -503,7 +503,7 @@ int win_center_str(int win, char* string, int y, int a4)
     int stringWidth;
 
     windowWidth = windowGetWidth(win);
-    stringWidth = fontGetStringWidth(string);
+    stringWidth = text_width(string);
     windowDrawText(win, string, 0, (windowWidth - stringWidth) / 2, y, a4);
 
     return 1;

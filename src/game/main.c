@@ -544,12 +544,12 @@ static void main_death_scene()
                     short beginnings[WORD_WRAP_MAX_COUNT];
                     short count;
                     if (mainDeathWordWrap(text, 560, beginnings, &count) == 0) {
-                        unsigned char* p = windowBuffer + 640 * (480 - fontGetLineHeight() * count - 8);
-                        bufferFill(p - 602, 564, fontGetLineHeight() * count + 2, 640, 0);
+                        unsigned char* p = windowBuffer + 640 * (480 - text_height() * count - 8);
+                        bufferFill(p - 602, 564, text_height() * count + 2, 640, 0);
                         p += 40;
                         for (int index = 0; index < count; index++) {
-                            fontDrawText(p, text + beginnings[index], 560, 640, colorTable[32767]);
-                            p += 640 * fontGetLineHeight();
+                            text_to_buf(p, text + beginnings[index], 560, 640, colorTable[32767]);
+                            p += 640 * text_height();
                         }
                     }
                 }

@@ -4481,8 +4481,8 @@ static int wmInterfaceInit()
     CacheEntry* frmHandle;
 
     wmLastRndTime = _get_time();
-    wmGenData.oldFont = fontGetCurrent();
-    fontSetCurrent(0);
+    wmGenData.oldFont = text_curr();
+    text_font(0);
 
     map_save_in_game(true);
 
@@ -5007,7 +5007,7 @@ static int wmInterfaceExit()
     map_enable_bk_processes();
     cycle_enable();
 
-    fontSetCurrent(wmGenData.oldFont);
+    text_font(wmGenData.oldFont);
 
     // NOTE: Uninline.
     wmFreeTabsLabelList(&wmLabelList, &wmLabelCount);
@@ -5603,7 +5603,7 @@ static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* cit
         commonGrayTable);
 
     nameY = y + citySizeDescription->height + 1;
-    maxY = 464 - fontGetLineHeight();
+    maxY = 464 - text_height();
     if (nameY < maxY) {
         if (wmAreaIsKnown(city->areaId)) {
             // NOTE: Uninline.
@@ -5612,8 +5612,8 @@ static int wmInterfaceDrawCircleOverlay(CityInfo* city, CitySizeDescription* cit
             strncpy(name, getmsg(&wmMsgFile, &messageListItem, 1004), 40);
         }
 
-        width = fontGetStringWidth(name);
-        fontDrawText(dest + WM_WINDOW_WIDTH * nameY + x + citySizeDescription->width / 2 - width / 2,
+        width = text_width(name);
+        text_to_buf(dest + WM_WINDOW_WIDTH * nameY + x + citySizeDescription->width / 2 - width / 2,
             name,
             width,
             WM_WINDOW_WIDTH,
@@ -6129,7 +6129,7 @@ static int wmTownMapRefresh()
         messageListItem.num = 200 + 10 * wmTownMapCurArea + index;
         if (message_search(&wmMsgFile, &messageListItem)) {
             if (messageListItem.text != NULL) {
-                int width = fontGetStringWidth(messageListItem.text);
+                int width = text_width(messageListItem.text);
                 windowDrawText(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, colorTable[992] | 0x2010000);
             }
         }

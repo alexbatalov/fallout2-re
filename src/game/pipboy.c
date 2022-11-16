@@ -478,14 +478,14 @@ static int StartPipboy(int intent)
         currentAlarmTypeCount = PIPBOY_REST_DURATION_COUNT;
     }
 
-    savefont = fontGetCurrent();
-    fontSetCurrent(101);
+    savefont = text_curr();
+    text_font(101);
 
     proc_bail_flag = 0;
     rest_time = 0;
     cursor_line = 0;
     hot_line_count = 0;
-    bottom_line = PIPBOY_WINDOW_CONTENT_VIEW_HEIGHT / fontGetLineHeight() - 1;
+    bottom_line = PIPBOY_WINDOW_CONTENT_VIEW_HEIGHT / text_height() - 1;
     hot_line_start = 0;
     hot_back_line = 0;
 
@@ -613,8 +613,8 @@ static int StartPipboy(int intent)
                 char holidayNameCopy[256];
                 strcpy(holidayNameCopy, holidayName);
 
-                int len = fontGetStringWidth(holidayNameCopy);
-                fontDrawText(scrn_buf + PIPBOY_WINDOW_WIDTH * (ginfo[PIPBOY_FRM_LOGO].height + 174) + 6 + ginfo[PIPBOY_FRM_LOGO].width / 2 + 323 - len / 2,
+                int len = text_width(holidayNameCopy);
+                text_to_buf(scrn_buf + PIPBOY_WINDOW_WIDTH * (ginfo[PIPBOY_FRM_LOGO].height + 174) + 6 + ginfo[PIPBOY_FRM_LOGO].width / 2 + 323 - len / 2,
                     holidayNameCopy,
                     350,
                     PIPBOY_WINDOW_WIDTH,
@@ -658,8 +658,8 @@ static int StartPipboy(int intent)
             char holidayNameCopy[256];
             strcpy(holidayNameCopy, holidayName);
 
-            int length = fontGetStringWidth(holidayNameCopy);
-            fontDrawText(scrn_buf + PIPBOY_WINDOW_WIDTH * (ginfo[PIPBOY_FRM_LOGO].height + 174) + 6 + ginfo[PIPBOY_FRM_LOGO].width / 2 + 323 - length / 2,
+            int length = text_width(holidayNameCopy);
+            text_to_buf(scrn_buf + PIPBOY_WINDOW_WIDTH * (ginfo[PIPBOY_FRM_LOGO].height + 174) + 6 + ginfo[PIPBOY_FRM_LOGO].width / 2 + 323 - length / 2,
                 holidayNameCopy,
                 350,
                 PIPBOY_WINDOW_WIDTH,
@@ -704,7 +704,7 @@ static void EndPipboy()
 
     NixHotLines();
 
-    fontSetCurrent(savefont);
+    text_font(savefont);
 
     if (bk_enable) {
         map_enable_bk_processes();
@@ -763,7 +763,7 @@ static void pip_print(const char* text, int flags, int color)
         left -= 7;
     }
 
-    int length = fontGetStringWidth(text);
+    int length = text_width(text);
 
     if ((flags & PIPBOY_TEXT_ALIGNMENT_CENTER) != 0) {
         left = (350 - length) / 2;
@@ -775,10 +775,10 @@ static void pip_print(const char* text, int flags, int color)
         left += 260 - length;
     }
 
-    fontDrawText(scrn_buf + PIPBOY_WINDOW_WIDTH * (cursor_line * fontGetLineHeight() + PIPBOY_WINDOW_CONTENT_VIEW_Y) + PIPBOY_WINDOW_CONTENT_VIEW_X + left, text, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_WIDTH, color);
+    text_to_buf(scrn_buf + PIPBOY_WINDOW_WIDTH * (cursor_line * text_height() + PIPBOY_WINDOW_CONTENT_VIEW_Y) + PIPBOY_WINDOW_CONTENT_VIEW_X + left, text, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_WIDTH, color);
 
     if ((flags & PIPBOY_TEXT_STYLE_STRIKE_THROUGH) != 0) {
-        int top = cursor_line * fontGetLineHeight() + 49;
+        int top = cursor_line * text_height() + 49;
         bufferDrawLine(scrn_buf, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_CONTENT_VIEW_X + left, top, PIPBOY_WINDOW_CONTENT_VIEW_X + left + length, top, color);
     }
 
@@ -1288,8 +1288,8 @@ static void ShowHoloDisk()
         char formattedText[60]; // TODO: Size is probably wrong.
         sprintf(formattedText, "%d %s %d", view_page + 1, of, holopages + 1);
 
-        int len = fontGetStringWidth(of);
-        fontDrawText(scrn_buf + PIPBOY_WINDOW_WIDTH * 47 + 616 + 604 - len, formattedText, 350, PIPBOY_WINDOW_WIDTH, colorTable[992]);
+        int len = text_width(of);
+        text_to_buf(scrn_buf + PIPBOY_WINDOW_WIDTH * 47 + 616 + 604 - len, formattedText, 350, PIPBOY_WINDOW_WIDTH, colorTable[992]);
     }
 
     if (bottom_line >= 3) {
@@ -1644,7 +1644,7 @@ static void PipArchives(int a1)
             debug_printf("\n ** Selected movie not found in list! **\n");
         }
 
-        fontSetCurrent(101);
+        text_font(101);
 
         wait_time = _get_time();
         ListArchive(-1);
@@ -1846,16 +1846,16 @@ static void DrawAlrmHitPnts()
     cur_hp = critter_get_hits(obj_dude);
     text = getmsg(&pipboy_message_file, &pipmesg, 301); // Hit Points
     sprintf(msg, "%s %d/%d", text, cur_hp, max_hp);
-    len = fontGetStringWidth(msg);
-    fontDrawText(scrn_buf + 66 * PIPBOY_WINDOW_WIDTH + 254 + (350 - len) / 2, msg, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_WIDTH, colorTable[992]);
+    len = text_width(msg);
+    text_to_buf(scrn_buf + 66 * PIPBOY_WINDOW_WIDTH + 254 + (350 - len) / 2, msg, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_WIDTH, colorTable[992]);
 }
 
 // 0x4998C0
 static void AddHotLines(int start, int count, bool add_back_button)
 {
-    fontSetCurrent(101);
+    text_font(101);
 
-    int height = fontGetLineHeight();
+    int height = text_height();
 
     hot_line_start = start;
     hot_line_count = count;

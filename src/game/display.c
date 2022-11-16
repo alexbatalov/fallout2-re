@@ -81,14 +81,14 @@ static int disp_start;
 int display_init()
 {
     if (!disp_init) {
-        int oldFont = fontGetCurrent();
-        fontSetCurrent(DISPLAY_MONITOR_FONT);
+        int oldFont = text_curr();
+        text_font(DISPLAY_MONITOR_FONT);
 
         max_ptr = DISPLAY_MONITOR_LINES_CAPACITY;
-        max_disp_ptr = DISPLAY_MONITOR_HEIGHT / fontGetLineHeight();
+        max_disp_ptr = DISPLAY_MONITOR_HEIGHT / text_height();
         disp_start = 0;
         disp_curr = 0;
-        fontSetCurrent(oldFont);
+        text_font(oldFont);
 
         disp_buf = (unsigned char*)mem_malloc(DISPLAY_MONITOR_WIDTH * DISPLAY_MONITOR_HEIGHT);
         if (disp_buf == NULL) {
@@ -194,15 +194,15 @@ void display_print(char* str)
         return;
     }
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(DISPLAY_MONITOR_FONT);
+    int oldFont = text_curr();
+    text_font(DISPLAY_MONITOR_FONT);
 
     char knob = '\x95';
 
     char knobString[2];
     knobString[0] = knob;
     knobString[1] = '\0';
-    int knobWidth = fontGetStringWidth(knobString);
+    int knobWidth = text_width(knobString);
 
     if (!isInCombat()) {
         unsigned int now = _get_bk_time();
@@ -215,7 +215,7 @@ void display_print(char* str)
     // TODO: Refactor these two loops.
     char* v1 = NULL;
     while (true) {
-        while (fontGetStringWidth(str) < DISPLAY_MONITOR_WIDTH - max_disp_ptr - knobWidth) {
+        while (text_width(str) < DISPLAY_MONITOR_WIDTH - max_disp_ptr - knobWidth) {
             char* temp = disp_str[disp_start];
             int length;
             if (knob != '\0') {
@@ -231,7 +231,7 @@ void display_print(char* str)
             disp_start = (disp_start + 1) % max_ptr;
 
             if (v1 == NULL) {
-                fontSetCurrent(oldFont);
+                text_font(oldFont);
                 disp_curr = disp_start;
                 display_redraw();
                 return;
@@ -272,7 +272,7 @@ void display_print(char* str)
     disp_str[disp_start][DISPLAY_MONITOR_LINE_LENGTH - 1] = '\0';
     disp_start = (disp_start + 1) % max_ptr;
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
     disp_curr = disp_start;
     display_redraw();
 }
@@ -315,12 +315,12 @@ void display_redraw()
         buf,
         intface_full_wid);
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(DISPLAY_MONITOR_FONT);
+    int oldFont = text_curr();
+    text_font(DISPLAY_MONITOR_FONT);
 
     for (int index = 0; index < max_disp_ptr; index++) {
         int stringIndex = (disp_curr + max_ptr + index - max_disp_ptr) % max_ptr;
-        fontDrawText(buf + index * intface_full_wid * fontGetLineHeight(), disp_str[stringIndex], DISPLAY_MONITOR_WIDTH, intface_full_wid, colorTable[992]);
+        text_to_buf(buf + index * intface_full_wid * text_height(), disp_str[stringIndex], DISPLAY_MONITOR_WIDTH, intface_full_wid, colorTable[992]);
 
         // Even though the display monitor is rectangular, it's graphic is not.
         // To give a feel of depth it's covered by some metal canopy and
@@ -331,7 +331,7 @@ void display_redraw()
     }
 
     win_draw_rect(interfaceWindow, &disp_rect);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x431B70

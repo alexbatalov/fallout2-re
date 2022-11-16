@@ -120,7 +120,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 {
     MessageList messageList;
     MessageListItem messageListItem;
-    int savedFont = fontGetCurrent();
+    int savedFont = text_curr();
 
     bool v86 = false;
 
@@ -142,13 +142,13 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 
     int maximumLineWidth = 0;
     if (hasTitle) {
-        maximumLineWidth = fontGetStringWidth(title);
+        maximumLineWidth = text_width(title);
     }
 
     int linesCount = 0;
     for (int index = 0; index < bodyLength; index++) {
-        // NOTE: Calls [fontGetStringWidth] twice because of [max] macro.
-        maximumLineWidth = max(fontGetStringWidth(body[index]), maximumLineWidth);
+        // NOTE: Calls [text_width] twice because of [max] macro.
+        maximumLineWidth = max(text_width(body[index]), maximumLineWidth);
         linesCount++;
     }
 
@@ -173,14 +173,14 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
     int fid = art_id(OBJ_TYPE_INTERFACE, dbox[dialogType], 0, 0, 0);
     unsigned char* background = art_lock(fid, &backgroundHandle, &backgroundWidth, &backgroundHeight);
     if (background == NULL) {
-        fontSetCurrent(savedFont);
+        text_font(savedFont);
         return -1;
     }
 
     int win = windowCreate(x, y, backgroundWidth, backgroundHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     if (win == -1) {
         art_ptr_unlock(backgroundHandle);
-        fontSetCurrent(savedFont);
+        text_font(savedFont);
         return -1;
     }
 
@@ -205,7 +205,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         doneBox = art_lock(doneBoxFid, &doneBoxHandle, &doneBoxWidth, &doneBoxHeight);
         if (doneBox == NULL) {
             art_ptr_unlock(backgroundHandle);
-            fontSetCurrent(savedFont);
+            text_font(savedFont);
             windowDestroy(win);
             return -1;
         }
@@ -215,7 +215,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         if (downButton == NULL) {
             art_ptr_unlock(doneBoxHandle);
             art_ptr_unlock(backgroundHandle);
-            fontSetCurrent(savedFont);
+            text_font(savedFont);
             windowDestroy(win);
             return -1;
         }
@@ -226,7 +226,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             art_ptr_unlock(downButtonHandle);
             art_ptr_unlock(doneBoxHandle);
             art_ptr_unlock(backgroundHandle);
-            fontSetCurrent(savedFont);
+            text_font(savedFont);
             windowDestroy(win);
             return -1;
         }
@@ -239,7 +239,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             art_ptr_unlock(downButtonHandle);
             art_ptr_unlock(doneBoxHandle);
             art_ptr_unlock(backgroundHandle);
-            fontSetCurrent(savedFont);
+            text_font(savedFont);
             windowDestroy(win);
             return -1;
         }
@@ -252,18 +252,18 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             art_ptr_unlock(downButtonHandle);
             art_ptr_unlock(doneBoxHandle);
             art_ptr_unlock(backgroundHandle);
-            fontSetCurrent(savedFont);
+            text_font(savedFont);
             // FIXME: Window is not removed.
             return -1;
         }
 
-        fontSetCurrent(103);
+        text_font(103);
 
         // 100 - DONE
         // 101 - YES
         messageListItem.num = (flags & DIALOG_BOX_YES_NO) == 0 ? 100 : 101;
         if (message_search(&messageList, &messageListItem)) {
-            fontDrawText(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, colorTable[18979]);
+            text_to_buf(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + v27 + 35, messageListItem.text, backgroundWidth, backgroundWidth, colorTable[18979]);
         }
 
         int btn = buttonCreate(win, v27 + 13, doneY[dialogType] + 4, downButtonWidth, downButtonHeight, -1, -1, -1, 500, upButton, downButton, NULL, BUTTON_FLAG_TRANSPARENT);
@@ -280,7 +280,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 a8 = getmsg(&messageList, &messageListItem, 102);
             }
 
-            fontSetCurrent(103);
+            text_font(103);
 
             blitBufferToBufferTrans(doneBox,
                 doneBoxWidth,
@@ -289,7 +289,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 windowBuf + backgroundWidth * doneY[dialogType] + doneX[dialogType] + doneBoxWidth + 24,
                 backgroundWidth);
 
-            fontDrawText(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + doneX[dialogType] + doneBoxWidth + 59,
+            text_to_buf(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + doneX[dialogType] + doneBoxWidth + 59,
                 a8, backgroundWidth, backgroundWidth, colorTable[18979]);
 
             int btn = buttonCreate(win,
@@ -306,7 +306,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             unsigned char* doneBox = art_lock(doneBoxFid, &doneBoxHandle, &doneBoxWidth, &doneBoxHeight);
             if (doneBox == NULL) {
                 art_ptr_unlock(backgroundHandle);
-                fontSetCurrent(savedFont);
+                text_font(savedFont);
                 windowDestroy(win);
                 return -1;
             }
@@ -316,7 +316,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
             if (downButton == NULL) {
                 art_ptr_unlock(doneBoxHandle);
                 art_ptr_unlock(backgroundHandle);
-                fontSetCurrent(savedFont);
+                text_font(savedFont);
                 windowDestroy(win);
                 return -1;
             }
@@ -327,7 +327,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 art_ptr_unlock(downButtonHandle);
                 art_ptr_unlock(doneBoxHandle);
                 art_ptr_unlock(backgroundHandle);
-                fontSetCurrent(savedFont);
+                text_font(savedFont);
                 windowDestroy(win);
                 return -1;
             }
@@ -337,7 +337,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 art_ptr_unlock(downButtonHandle);
                 art_ptr_unlock(doneBoxHandle);
                 art_ptr_unlock(backgroundHandle);
-                fontSetCurrent(savedFont);
+                text_font(savedFont);
                 windowDestroy(win);
                 return -1;
             }
@@ -350,7 +350,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 art_ptr_unlock(downButtonHandle);
                 art_ptr_unlock(doneBoxHandle);
                 art_ptr_unlock(backgroundHandle);
-                fontSetCurrent(savedFont);
+                text_font(savedFont);
                 windowDestroy(win);
                 return -1;
             }
@@ -362,9 +362,9 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 windowBuf + backgroundWidth * doneY[dialogType] + doneX[dialogType],
                 backgroundWidth);
 
-            fontSetCurrent(103);
+            text_font(103);
 
-            fontDrawText(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + doneX[dialogType] + 35,
+            text_to_buf(windowBuf + backgroundWidth * (doneY[dialogType] + 3) + doneX[dialogType] + 35,
                 a8, backgroundWidth, backgroundWidth, colorTable[18979]);
 
             int btn = buttonCreate(win,
@@ -388,35 +388,35 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         }
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
     int v23 = ytable[dialogType];
 
     if ((flags & DIALOG_BOX_NO_VERTICAL_CENTERING) == 0) {
-        int v41 = dblines[dialogType] * fontGetLineHeight() / 2 + v23;
-        v23 = v41 - ((bodyLength + 1) * fontGetLineHeight() / 2);
+        int v41 = dblines[dialogType] * text_height() / 2 + v23;
+        v23 = v41 - ((bodyLength + 1) * text_height() / 2);
     }
 
     if (hasTitle) {
         if ((flags & DIALOG_BOX_NO_HORIZONTAL_CENTERING) != 0) {
-            fontDrawText(windowBuf + backgroundWidth * v23 + xtable[dialogType], title, backgroundWidth, backgroundWidth, titleColor);
+            text_to_buf(windowBuf + backgroundWidth * v23 + xtable[dialogType], title, backgroundWidth, backgroundWidth, titleColor);
         } else {
-            int length = fontGetStringWidth(title);
-            fontDrawText(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, title, backgroundWidth, backgroundWidth, titleColor);
+            int length = text_width(title);
+            text_to_buf(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, title, backgroundWidth, backgroundWidth, titleColor);
         }
-        v23 += fontGetLineHeight();
+        v23 += text_height();
     }
 
     for (int v94 = 0; v94 < bodyLength; v94++) {
-        int len = fontGetStringWidth(body[v94]);
+        int len = text_width(body[v94]);
         if (len <= backgroundWidth - 26) {
             if ((flags & DIALOG_BOX_NO_HORIZONTAL_CENTERING) != 0) {
-                fontDrawText(windowBuf + backgroundWidth * v23 + xtable[dialogType], body[v94], backgroundWidth, backgroundWidth, bodyColor);
+                text_to_buf(windowBuf + backgroundWidth * v23 + xtable[dialogType], body[v94], backgroundWidth, backgroundWidth, bodyColor);
             } else {
-                int length = fontGetStringWidth(body[v94]);
-                fontDrawText(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, body[v94], backgroundWidth, backgroundWidth, bodyColor);
+                int length = text_width(body[v94]);
+                text_to_buf(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, body[v94], backgroundWidth, backgroundWidth, bodyColor);
             }
-            v23 += fontGetLineHeight();
+            v23 += text_height();
         } else {
             short beginnings[WORD_WRAP_MAX_COUNT];
             short count;
@@ -435,12 +435,12 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 string[v51] = '\0';
 
                 if ((flags & DIALOG_BOX_NO_HORIZONTAL_CENTERING) != 0) {
-                    fontDrawText(windowBuf + backgroundWidth * v23 + xtable[dialogType], string, backgroundWidth, backgroundWidth, bodyColor);
+                    text_to_buf(windowBuf + backgroundWidth * v23 + xtable[dialogType], string, backgroundWidth, backgroundWidth, bodyColor);
                 } else {
-                    int length = fontGetStringWidth(string);
-                    fontDrawText(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, string, backgroundWidth, backgroundWidth, bodyColor);
+                    int length = text_width(string);
+                    text_to_buf(windowBuf + backgroundWidth * v23 + (backgroundWidth - length) / 2, string, backgroundWidth, backgroundWidth, bodyColor);
                 }
-                v23 += fontGetLineHeight();
+                v23 += text_height();
             }
         }
     }
@@ -475,7 +475,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 
     windowDestroy(win);
     art_ptr_unlock(backgroundHandle);
-    fontSetCurrent(savedFont);
+    text_font(savedFont);
 
     if (v86) {
         art_ptr_unlock(doneBoxHandle);
@@ -490,7 +490,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 // 0x41DE90
 int file_dialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags)
 {
-    int oldFont = fontGetCurrent();
+    int oldFont = text_curr();
 
     bool isScrollable = false;
     if (fileListLength > FILE_DIALOG_LINE_COUNT) {
@@ -562,15 +562,15 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         return -1;
     }
 
-    fontSetCurrent(103);
+    text_font(103);
 
     // DONE
     const char* done = getmsg(&messageList, &messageListItem, 100);
-    fontDrawText(windowBuffer + LOAD_FILE_DIALOG_DONE_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + LOAD_FILE_DIALOG_DONE_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     // CANCEL
     const char* cancel = getmsg(&messageList, &messageListItem, 103);
-    fontDrawText(windowBuffer + LOAD_FILE_DIALOG_CANCEL_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + LOAD_FILE_DIALOG_CANCEL_LABEL_Y * backgroundWidth + LOAD_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         LOAD_FILE_DIALOG_DONE_BUTTON_X,
@@ -656,10 +656,10 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
         0);
 
     if (title != NULL) {
-        fontDrawText(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, colorTable[18979]);
+        text_to_buf(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, colorTable[18979]);
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
     PrntFlist(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
     win_draw(win);
@@ -689,7 +689,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
             int mouseY;
             mouse_get_position(&mouseX, &mouseY);
 
-            int selectedLine = (mouseY - y - FILE_DIALOG_FILE_LIST_Y) / fontGetLineHeight();
+            int selectedLine = (mouseY - y - FILE_DIALOG_FILE_LIST_Y) / text_height();
             if (selectedLine - 1 < 0) {
                 selectedLine = 0;
             }
@@ -859,7 +859,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
     }
 
     message_exit(&messageList);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return rc;
 }
@@ -867,7 +867,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
 // 0x41EA78
 int save_file_dialog(char* title, char** fileList, char* dest, int fileListLength, int x, int y, int flags)
 {
-    int oldFont = fontGetCurrent();
+    int oldFont = text_curr();
 
     bool isScrollable = false;
     if (fileListLength > FILE_DIALOG_LINE_COUNT) {
@@ -939,15 +939,15 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         return -1;
     }
 
-    fontSetCurrent(103);
+    text_font(103);
 
     // DONE
     const char* done = getmsg(&messageList, &messageListItem, 100);
-    fontDrawText(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_DONE_LABEL_Y + SAVE_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_DONE_LABEL_Y + SAVE_FILE_DIALOG_DONE_LABEL_X, done, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     // CANCEL
     const char* cancel = getmsg(&messageList, &messageListItem, 103);
-    fontDrawText(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_CANCEL_LABEL_Y + SAVE_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + backgroundWidth * SAVE_FILE_DIALOG_CANCEL_LABEL_Y + SAVE_FILE_DIALOG_CANCEL_LABEL_X, cancel, backgroundWidth, backgroundWidth, colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         SAVE_FILE_DIALOG_DONE_BUTTON_X,
@@ -1033,13 +1033,13 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         0);
 
     if (title != NULL) {
-        fontDrawText(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, colorTable[18979]);
+        text_to_buf(windowBuffer + backgroundWidth * FILE_DIALOG_TITLE_Y + FILE_DIALOG_TITLE_X, title, backgroundWidth, backgroundWidth, colorTable[18979]);
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
-    int cursorHeight = fontGetLineHeight();
-    int cursorWidth = fontGetStringWidth("_") - 4;
+    int cursorHeight = text_height();
+    int cursorWidth = text_width("_") - 4;
     PrntFlist(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
 
     int fileNameLength = 0;
@@ -1061,8 +1061,8 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
 
     unsigned char* fileNameBufferPtr = windowBuffer + backgroundWidth * 190 + 57;
 
-    bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
-    fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
+    bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
+    text_to_buf(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
 
     win_draw(win);
 
@@ -1088,10 +1088,10 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         } else if (keyCode == 501 || keyCode == KEY_ESCAPE) {
             rc = 1;
         } else if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && fileNameCopyLength > 0) {
-            bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
+            bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
             fileNameCopy[fileNameCopyLength - 1] = ' ';
             fileNameCopy[fileNameCopyLength] = '\0';
-            fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
+            text_to_buf(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
             fileNameCopyLength--;
             win_draw(win);
         } else if (keyCode < KEY_FIRST_INPUT_CHARACTER || keyCode > KEY_LAST_INPUT_CHARACTER || fileNameCopyLength >= 8) {
@@ -1100,7 +1100,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 int mouseY;
                 mouse_get_position(&mouseX, &mouseY);
 
-                int selectedLine = (mouseY - y - FILE_DIALOG_FILE_LIST_Y) / fontGetLineHeight();
+                int selectedLine = (mouseY - y - FILE_DIALOG_FILE_LIST_Y) / text_height();
                 if (selectedLine - 1 < 0) {
                     selectedLine = 0;
                 }
@@ -1129,7 +1129,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     rc = 2;
                 } else {
                     doubleClickSelectedFileIndex = selectedFileIndex;
-                    bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
+                    bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
                     strncpy(fileNameCopy, fileList[selectedFileIndex + pageOffset], 16);
 
                     int index;
@@ -1144,7 +1144,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     fileNameCopy[fileNameCopyLength] = ' ';
                     fileNameCopy[fileNameCopyLength + 1] = '\0';
 
-                    fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
+                    text_to_buf(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
                     PrntFlist(windowBuffer, fileList, pageOffset, fileListLength, selectedFileIndex, backgroundWidth);
                 }
             } else if (keyCode == 506) {
@@ -1204,12 +1204,12 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 }
             }
         } else if (isdoschar(keyCode)) {
-            bufferFill(fileNameBufferPtr, fontGetStringWidth(fileNameCopy), cursorHeight, backgroundWidth, 100);
+            bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
 
             fileNameCopy[fileNameCopyLength] = keyCode & 0xFF;
             fileNameCopy[fileNameCopyLength + 1] = ' ';
             fileNameCopy[fileNameCopyLength + 2] = '\0';
-            fontDrawText(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
+            text_to_buf(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
             fileNameCopyLength++;
 
             win_draw(win);
@@ -1274,7 +1274,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     int color = blink ? 100 : colorTable[992];
                     blink = !blink;
 
-                    bufferFill(fileNameBufferPtr + fontGetStringWidth(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
+                    bufferFill(fileNameBufferPtr + text_width(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
                 }
 
                 // FIXME: Missing windowRefresh makes blinking useless.
@@ -1301,7 +1301,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 int color = blink ? 100 : colorTable[992];
                 blink = !blink;
 
-                bufferFill(fileNameBufferPtr + fontGetStringWidth(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
+                bufferFill(fileNameBufferPtr + text_width(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
             }
 
             win_draw(win);
@@ -1341,7 +1341,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
     }
 
     message_exit(&messageList);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return rc;
 }
@@ -1349,7 +1349,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
 // 0x41FBDC
 static void PrntFlist(unsigned char* buffer, char** fileList, int pageOffset, int fileListLength, int selectedIndex, int pitch)
 {
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
     int y = FILE_DIALOG_FILE_LIST_Y;
     bufferFill(buffer + y * pitch + FILE_DIALOG_FILE_LIST_X, FILE_DIALOG_FILE_LIST_WIDTH, FILE_DIALOG_FILE_LIST_HEIGHT, pitch, 100);
     if (fileListLength != 0) {
@@ -1359,7 +1359,7 @@ static void PrntFlist(unsigned char* buffer, char** fileList, int pageOffset, in
 
         for (int index = 0; index < fileListLength; index++) {
             int color = index == selectedIndex ? colorTable[32747] : colorTable[992];
-            fontDrawText(buffer + pitch * y + FILE_DIALOG_FILE_LIST_X, fileList[pageOffset + index], pitch, pitch, color);
+            text_to_buf(buffer + pitch * y + FILE_DIALOG_FILE_LIST_X, fileList[pageOffset + index], pitch, pitch, color);
             y += lineHeight;
         }
     }

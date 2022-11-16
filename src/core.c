@@ -422,8 +422,8 @@ void pauseGame()
 // 0x4C8E38
 int pauseHandlerDefaultImpl()
 {
-    int windowWidth = fontGetStringWidth("Paused") + 32;
-    int windowHeight = 3 * fontGetLineHeight() + 16;
+    int windowWidth = text_width("Paused") + 32;
+    int windowHeight = 3 * text_height() + 16;
 
     int win = windowCreate((rectGetWidth(&_scr_size) - windowWidth) / 2,
         (rectGetHeight(&_scr_size) - windowHeight) / 2,
@@ -438,15 +438,15 @@ int pauseHandlerDefaultImpl()
     windowDrawBorder(win);
 
     unsigned char* windowBuffer = windowGetBuffer(win);
-    fontDrawText(windowBuffer + 8 * windowWidth + 16,
+    text_to_buf(windowBuffer + 8 * windowWidth + 16,
         "Paused",
         windowWidth,
         windowWidth,
         colorTable[31744]);
 
     _win_register_text_button(win,
-        (windowWidth - fontGetStringWidth("Done") - 16) / 2,
-        windowHeight - 8 - fontGetLineHeight() - 6,
+        (windowWidth - text_width("Done") - 16) / 2,
+        windowHeight - 8 - text_height() - 6,
         -1,
         -1,
         -1,

@@ -153,7 +153,7 @@ int windowGetFont()
 int windowSetFont(int a1)
 {
     gWidgetFont = a1;
-    fontSetCurrent(a1);
+    text_font(a1);
     return 1;
 }
 
@@ -1065,7 +1065,7 @@ int _popWindow()
 // 0x4B8414
 void _windowPrintBuf(int win, char* string, int stringLength, int width, int maxY, int x, int y, int flags, int textAlignment)
 {
-    if (y + fontGetLineHeight() > maxY) {
+    if (y + text_height() > maxY) {
         return;
     }
 
@@ -1077,8 +1077,8 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
     strncpy(stringCopy, string, stringLength);
     stringCopy[stringLength] = '\0';
 
-    int stringWidth = fontGetStringWidth(stringCopy);
-    int stringHeight = fontGetLineHeight();
+    int stringWidth = text_width(stringCopy);
+    int stringHeight = text_height();
     if (stringWidth == 0 || stringHeight == 0) {
         myfree(stringCopy, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1085
         return;
@@ -1091,7 +1091,7 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
 
     unsigned char* backgroundBuffer = (unsigned char*)mycalloc(stringWidth, stringHeight, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1093
     unsigned char* backgroundBufferPtr = backgroundBuffer;
-    fontDrawText(backgroundBuffer, stringCopy, stringWidth, stringWidth, flags);
+    text_to_buf(backgroundBuffer, stringCopy, stringWidth, stringWidth, flags);
 
     switch (textAlignment) {
     case TEXT_ALIGNMENT_LEFT:
@@ -1146,13 +1146,13 @@ char** _windowWordWrap(char* string, int maxLength, int a3, int* substringListLe
     char* pch = string;
     int v1 = a3;
     while (*pch != '\0') {
-        v1 += fontGetCharacterWidth(*pch & 0xFF);
+        v1 += text_char_width(*pch & 0xFF);
         if (*pch != '\n' && v1 <= maxLength) {
-            v1 += fontGetLetterSpacing();
+            v1 += text_spacing();
             pch++;
         } else {
             while (v1 > maxLength) {
-                v1 -= fontGetCharacterWidth(*pch);
+                v1 -= text_char_width(*pch);
                 pch--;
             }
 
@@ -1231,7 +1231,7 @@ void _windowWrapLineWithSpacing(int win, char* string, int width, int height, in
     char** substringList = _windowWordWrap(string, width, 0, &substringListLength);
 
     for (int index = 0; index < substringListLength; index++) {
-        int v1 = y + index * (a9 + fontGetLineHeight());
+        int v1 = y + index * (a9 + text_height());
         _windowPrintBuf(win, substringList[index], strlen(substringList[index]), width, height + y, x, v1, flags, textAlignment);
     }
 
@@ -1307,12 +1307,12 @@ int windowPrintFont(char* string, int a2, int x, int y, int a5, int font)
 {
     int oldFont;
 
-    oldFont = fontGetCurrent();
-    fontSetCurrent(font);
+    oldFont = text_curr();
+    text_font(font);
 
     _windowPrint(string, a2, x, y, a5);
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return 1;
 }
@@ -1629,7 +1629,7 @@ void _initWindow(int resolution, int a2)
     }
 
     gWidgetFont = 100;
-    fontSetCurrent(100);
+    text_font(100);
 
     initMousemgr();
 
@@ -2230,8 +2230,8 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
     for (int index = 0; index < managedWindow->buttonsLength; index++) {
         ManagedButton* managedButton = &(managedWindow->buttons[index]);
         if (stricmp(managedButton->name, buttonName) == 0) {
-            int normalImageHeight = fontGetLineHeight() + 1;
-            int normalImageWidth = fontGetStringWidth(text) + 1;
+            int normalImageHeight = text_height() + 1;
+            int normalImageWidth = text_width(text) + 1;
             unsigned char* buffer = (unsigned char*)mymalloc(normalImageHeight * normalImageWidth, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2010
 
             int normalImageX = (managedButton->width - normalImageWidth) / 2 + normalImageOffsetX;
@@ -2266,7 +2266,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 memset(buffer, 0, normalImageHeight * normalImageWidth);
             }
 
-            fontDrawText(buffer,
+            text_to_buf(buffer,
                 text,
                 normalImageWidth,
                 normalImageWidth,
@@ -2279,8 +2279,8 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 managedButton->normal + managedButton->width * normalImageY + normalImageX,
                 managedButton->width);
 
-            int pressedImageWidth = fontGetStringWidth(text) + 1;
-            int pressedImageHeight = fontGetLineHeight() + 1;
+            int pressedImageWidth = text_width(text) + 1;
+            int pressedImageHeight = text_height() + 1;
 
             int pressedImageX = (managedButton->width - pressedImageWidth) / 2 + pressedImageOffsetX;
             int pressedImageY = (managedButton->height - pressedImageHeight) / 2 + pressedImageOffsetY;
@@ -2314,7 +2314,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 memset(buffer, 0, pressedImageHeight * pressedImageWidth);
             }
 
-            fontDrawText(buffer,
+            text_to_buf(buffer,
                 text,
                 pressedImageWidth,
                 pressedImageWidth,

@@ -1,5 +1,6 @@
 #include "plib/gnw/text.h"
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -10,117 +11,135 @@
 #include "db.h"
 #include "plib/gnw/memory.h"
 
-// 0x4D5530
-FontManager gTextFontManager = {
-    0,
-    9,
-    textFontSetCurrentImpl,
-    textFontDrawImpl,
-    textFontGetLineHeightImpl,
-    textFontGeStringWidthImpl,
-    textFontGetCharacterWidthImpl,
-    textFontGetMonospacedStringWidthImpl,
-    textFontGetLetterSpacingImpl,
-    textFontGetBufferSizeImpl,
-    textFontGetMonospacedCharacterWidthImpl,
-};
+// The maximum number of text fonts.
+#define TEXT_FONT_MAX 10
+
+// The maximum number of font managers.
+#define FONT_MANAGER_MAX 10
+
+static int load_font(int n);
+static void GNW_text_font(int font_num);
+static bool text_font_exists(int font_num, FontMgrPtr* mgr);
+static void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw, int color);
+static int GNW_text_height();
+static int GNW_text_width(const char* str);
+static int GNW_text_char_width(int c);
+static int GNW_text_mono_width(const char* str);
+static int GNW_text_spacing();
+static int GNW_text_size(const char* str);
+static int GNW_text_max();
 
 // 0x51E3B0
 static int curr_font_num = -1;
 
 // 0x51E3B4
-int gFontManagersCount = 0;
+static int total_managers = 0;
 
 // 0x51E3B8
-FontManagerDrawTextProc* fontDrawText = NULL;
+text_to_buf_func* text_to_buf = NULL;
 
 // 0x51E3BC
-FontManagerGetLineHeightProc* fontGetLineHeight = NULL;
+text_height_func* text_height = NULL;
 
 // 0x51E3C0
-FontManagerGetStringWidthProc* fontGetStringWidth = NULL;
+text_width_func* text_width = NULL;
 
 // 0x51E3C4
-FontManagerGetCharacterWidthProc* fontGetCharacterWidth = NULL;
+text_char_width_func* text_char_width = NULL;
 
 // 0x51E3C8
-FontManagerGetMonospacedStringWidthProc* fontGetMonospacedStringWidth = NULL;
+text_mono_width_func* text_mono_width = NULL;
 
 // 0x51E3CC
-FontManagerGetLetterSpacingProc* fontGetLetterSpacing = NULL;
+text_spacing_func* text_spacing = NULL;
 
 // 0x51E3D0
-FontManagerGetBufferSizeProc* fontGetBufferSize = NULL;
+text_size_func* text_size = NULL;
 
 // 0x51E3D4
-FontManagerGetMonospacedCharacterWidth* fontGetMonospacedCharacterWidth = NULL;
+text_max_func* text_max = NULL;
 
 // 0x6ADB08
-TextFontDescriptor gTextFontDescriptors[TEXT_FONT_MAX];
+static Font font[TEXT_FONT_MAX];
 
 // 0x6ADBD0
-FontManager gFontManagers[FONT_MANAGER_MAX];
+static FontMgr font_managers[FONT_MANAGER_MAX];
 
 // 0x6ADD88
-TextFontDescriptor* gCurrentTextFontDescriptor;
+static Font* curr_font;
 
 // 0x4D555C
-int textFontsInit()
+int GNW_text_init()
 {
-    int currentFont = -1;
+    // 0x4D5530
+    static FontMgr GNW_font_mgr = {
+        0,
+        9,
+        GNW_text_font,
+        GNW_text_to_buf,
+        GNW_text_height,
+        GNW_text_width,
+        GNW_text_char_width,
+        GNW_text_mono_width,
+        GNW_text_spacing,
+        GNW_text_size,
+        GNW_text_max,
+    };
 
-    FontManager fontManager;
-    static_assert(sizeof(fontManager) == sizeof(gTextFontManager), "wrong size");
-    memcpy(&fontManager, &gTextFontManager, sizeof(fontManager));
+    int i;
+    int first_font;
 
-    for (int font = 0; font < TEXT_FONT_MAX; font++) {
-        if (textFontLoad(font) == -1) {
-            gTextFontDescriptors[font].glyphCount = 0;
+    first_font = -1;
+
+    for (i = 0; i < TEXT_FONT_MAX; i++) {
+        if (load_font(i) == -1) {
+            font[i].num = 0;
         } else {
-            if (currentFont == -1) {
-                currentFont = font;
+            if (first_font == -1) {
+                first_font = i;
             }
         }
     }
 
-    if (currentFont == -1) {
+    if (first_font == -1) {
         return -1;
     }
 
-    if (fontManagerAdd(&fontManager) == -1) {
+    if (text_add_manager(&GNW_font_mgr) == -1) {
         return -1;
     }
 
-    fontSetCurrent(currentFont);
+    text_font(first_font);
 
     return 0;
 }
 
 // 0x4D55CC
-void textFontsExit()
+void GNW_text_exit()
 {
-    for (int index = 0; index < TEXT_FONT_MAX; index++) {
-        TextFontDescriptor* textFontDescriptor = &(gTextFontDescriptors[index]);
-        if (textFontDescriptor->glyphCount != 0) {
-            mem_free(textFontDescriptor->glyphs);
-            mem_free(textFontDescriptor->data);
+    int i;
+
+    for (i = 0; i < TEXT_FONT_MAX; i++) {
+        if (font[i].num != 0) {
+            mem_free(font[i].info);
+            mem_free(font[i].data);
         }
     }
 }
 
 // 0x4D55FC
-int textFontLoad(int font)
+static int load_font(int n)
 {
     int rc = -1;
 
     char path[MAX_PATH];
-    sprintf(path, "font%d.fon", font);
+    sprintf(path, "font%d.fon", n);
 
     // NOTE: Original code is slightly different. It uses deep nesting and
     // unwinds everything from the point of failure.
-    TextFontDescriptor* textFontDescriptor = &(gTextFontDescriptors[font]);
+    Font* textFontDescriptor = &(font[n]);
     textFontDescriptor->data = NULL;
-    textFontDescriptor->glyphs = NULL;
+    textFontDescriptor->info = NULL;
 
     File* stream = fileOpen(path, "rb");
     int dataSize;
@@ -128,20 +147,20 @@ int textFontLoad(int font)
         goto out;
     }
 
-    if (fileRead(textFontDescriptor, sizeof(TextFontDescriptor), 1, stream) != 1) {
+    if (fileRead(textFontDescriptor, sizeof(Font), 1, stream) != 1) {
         goto out;
     }
 
-    textFontDescriptor->glyphs = (TextFontGlyph*)mem_malloc(textFontDescriptor->glyphCount * sizeof(TextFontGlyph));
-    if (textFontDescriptor->glyphs == NULL) {
+    textFontDescriptor->info = (FontInfo*)mem_malloc(textFontDescriptor->num * sizeof(FontInfo));
+    if (textFontDescriptor->info == NULL) {
         goto out;
     }
 
-    if (fileRead(textFontDescriptor->glyphs, sizeof(TextFontGlyph), textFontDescriptor->glyphCount, stream) != textFontDescriptor->glyphCount) {
+    if (fileRead(textFontDescriptor->info, sizeof(FontInfo), textFontDescriptor->num, stream) != textFontDescriptor->num) {
         goto out;
     }
 
-    dataSize = textFontDescriptor->lineHeight * ((textFontDescriptor->glyphs[textFontDescriptor->glyphCount - 1].width + 7) >> 3) + textFontDescriptor->glyphs[textFontDescriptor->glyphCount - 1].dataOffset;
+    dataSize = textFontDescriptor->height * ((textFontDescriptor->info[textFontDescriptor->num - 1].width + 7) >> 3) + textFontDescriptor->info[textFontDescriptor->num - 1].offset;
     textFontDescriptor->data = (unsigned char*)mem_malloc(dataSize);
     if (textFontDescriptor->data == NULL) {
         goto out;
@@ -161,9 +180,9 @@ out:
             textFontDescriptor->data = NULL;
         }
 
-        if (textFontDescriptor->glyphs != NULL) {
-            mem_free(textFontDescriptor->glyphs);
-            textFontDescriptor->glyphs = NULL;
+        if (textFontDescriptor->info != NULL) {
+            mem_free(textFontDescriptor->info);
+            textFontDescriptor->info = NULL;
         }
     }
 
@@ -175,80 +194,81 @@ out:
 }
 
 // 0x4D5780
-int fontManagerAdd(FontManager* fontManager)
+int text_add_manager(FontMgrPtr mgr)
 {
-    if (fontManager == NULL) {
+    int k;
+
+    if (mgr == NULL) {
         return -1;
     }
 
-    if (gFontManagersCount >= FONT_MANAGER_MAX) {
+    if (total_managers >= FONT_MANAGER_MAX) {
         return -1;
     }
 
     // Check if a font manager exists for any font in the specified range.
-    for (int index = fontManager->minFont; index < fontManager->maxFont; index++) {
-        FontManager* existingFontManager;
-        if (fontManagerFind(index, &existingFontManager)) {
+    for (k = mgr->low_font_num; k < mgr->high_font_num; k++) {
+        FontMgrPtr mgr;
+        if (text_font_exists(k, &mgr)) {
             return -1;
         }
     }
 
-    static_assert(sizeof(*gFontManagers) == sizeof(*fontManager), "wrong size");
-    memcpy(&(gFontManagers[gFontManagersCount]), fontManager, sizeof(*fontManager));
-    gFontManagersCount++;
+    memcpy(&(font_managers[total_managers]), mgr, sizeof(*mgr));
+    total_managers++;
 
     return 0;
 }
 
 // 0x4D58AC
-void textFontSetCurrentImpl(int font)
+static void GNW_text_font(int font_num)
 {
-    if (font >= TEXT_FONT_MAX) {
+    if (font_num >= TEXT_FONT_MAX) {
         return;
     }
 
-    TextFontDescriptor* textFontDescriptor = &(gTextFontDescriptors[font]);
-    if (textFontDescriptor->glyphCount == 0) {
+    if (font[font_num].num == 0) {
         return;
     }
 
-    gCurrentTextFontDescriptor = textFontDescriptor;
+    curr_font = &(font[font_num]);
 }
 
 // 0x4D58D4
-int fontGetCurrent()
+int text_curr()
 {
     return curr_font_num;
 }
 
 // 0x4D58DC
-void fontSetCurrent(int font)
+void text_font(int font_num)
 {
-    FontManager* fontManager;
+    FontMgrPtr mgr;
 
-    if (fontManagerFind(font, &fontManager)) {
-        fontDrawText = fontManager->drawTextProc;
-        fontGetLineHeight = fontManager->getLineHeightProc;
-        fontGetStringWidth = fontManager->getStringWidthProc;
-        fontGetCharacterWidth = fontManager->getCharacterWidthProc;
-        fontGetMonospacedStringWidth = fontManager->getMonospacedStringWidthProc;
-        fontGetLetterSpacing = fontManager->getLetterSpacingProc;
-        fontGetBufferSize = fontManager->getBufferSizeProc;
-        fontGetMonospacedCharacterWidth = fontManager->getMonospacedCharacterWidthProc;
+    if (text_font_exists(font_num, &mgr)) {
+        text_to_buf = mgr->text_to_buf;
+        text_height = mgr->text_height;
+        text_width = mgr->text_width;
+        text_char_width = mgr->text_char_width;
+        text_mono_width = mgr->text_mono_width;
+        text_spacing = mgr->text_spacing;
+        text_size = mgr->text_size;
+        text_max = mgr->text_max;
 
-        curr_font_num = font;
+        curr_font_num = font_num;
 
-        fontManager->setCurrentProc(font);
+        mgr->text_font(font_num);
     }
 }
 
 // 0x4D595C
-bool fontManagerFind(int font, FontManager** fontManagerPtr)
+static bool text_font_exists(int font_num, FontMgrPtr* mgr)
 {
-    for (int index = 0; index < gFontManagersCount; index++) {
-        FontManager* fontManager = &(gFontManagers[index]);
-        if (font >= fontManager->minFont && font <= fontManager->maxFont) {
-            *fontManagerPtr = fontManager;
+    int k;
+
+    for (k = 0; k < total_managers; k++) {
+        if (font_num >= font_managers[k].low_font_num && font_num <= font_managers[k].high_font_num) {
+            *mgr = &(font_managers[k]);
             return true;
         }
     }
@@ -257,38 +277,38 @@ bool fontManagerFind(int font, FontManager** fontManagerPtr)
 }
 
 // 0x4D59B0
-void textFontDrawImpl(unsigned char* buf, const char* string, int length, int pitch, int color)
+void GNW_text_to_buf(unsigned char* buf, const char* str, int swidth, int fullw, int color)
 {
     if ((color & FONT_SHADOW) != 0) {
         color &= ~FONT_SHADOW;
-        fontDrawText(buf + pitch + 1, string, length, pitch, colorTable[0]);
+        text_to_buf(buf + fullw + 1, str, swidth, fullw, colorTable[0]);
     }
 
     int monospacedCharacterWidth;
     if ((color & FONT_MONO) != 0) {
-        monospacedCharacterWidth = fontGetMonospacedCharacterWidth();
+        monospacedCharacterWidth = text_max();
     }
 
     unsigned char* ptr = buf;
-    while (*string != '\0') {
-        char ch = *string++;
-        if (ch < gCurrentTextFontDescriptor->glyphCount) {
-            TextFontGlyph* glyph = &(gCurrentTextFontDescriptor->glyphs[ch & 0xFF]);
+    while (*str != '\0') {
+        char ch = *str++;
+        if (ch < curr_font->num) {
+            FontInfo* glyph = &(curr_font->info[ch & 0xFF]);
 
             unsigned char* end;
             if ((color & FONT_MONO) != 0) {
                 end = ptr + monospacedCharacterWidth;
-                ptr += (monospacedCharacterWidth - gCurrentTextFontDescriptor->letterSpacing - glyph->width) / 2;
+                ptr += (monospacedCharacterWidth - curr_font->spacing - glyph->width) / 2;
             } else {
-                end = ptr + glyph->width + gCurrentTextFontDescriptor->letterSpacing;
+                end = ptr + glyph->width + curr_font->spacing;
             }
 
-            if (end - buf > length) {
+            if (end - buf > swidth) {
                 break;
             }
 
-            unsigned char* glyphData = gCurrentTextFontDescriptor->data + glyph->dataOffset;
-            for (int y = 0; y < gCurrentTextFontDescriptor->lineHeight; y++) {
+            unsigned char* glyphData = curr_font->data + glyph->offset;
+            for (int y = 0; y < curr_font->height; y++) {
                 int bits = 0x80;
                 for (int x = 0; x < glyph->width; x++) {
                     if (bits == 0) {
@@ -304,7 +324,7 @@ void textFontDrawImpl(unsigned char* buf, const char* string, int length, int pi
                     ptr++;
                 }
                 glyphData++;
-                ptr += pitch - glyph->width;
+                ptr += fullw - glyph->width;
             }
 
             ptr = end;
@@ -314,7 +334,7 @@ void textFontDrawImpl(unsigned char* buf, const char* string, int length, int pi
     if ((color & FONT_UNDERLINE) != 0) {
         // TODO: Probably additional -1 present, check.
         int length = ptr - buf;
-        unsigned char* underlinePtr = buf + pitch * (gCurrentTextFontDescriptor->lineHeight - 1);
+        unsigned char* underlinePtr = buf + fullw * (curr_font->height - 1);
         for (int pix = 0; pix < length; pix++) {
             *underlinePtr++ = color & 0xFF;
         }
@@ -322,62 +342,69 @@ void textFontDrawImpl(unsigned char* buf, const char* string, int length, int pi
 }
 
 // 0x4D5B54
-int textFontGetLineHeightImpl()
+static int GNW_text_height()
 {
-    return gCurrentTextFontDescriptor->lineHeight;
+    return curr_font->height;
 }
 
 // 0x4D5B60
-int textFontGeStringWidthImpl(const char* string)
+static int GNW_text_width(const char* str)
 {
-    int width = 0;
+    int i;
+    int len;
+    FontInfo* fi;
 
-    const char* ch = string;
-    while (*ch != '\0') {
-        if (*ch < gCurrentTextFontDescriptor->glyphCount) {
-            width += gCurrentTextFontDescriptor->letterSpacing + gCurrentTextFontDescriptor->glyphs[*ch & 0xFF].width;
+    len = 0;
+
+    for (i = 0; str[i] != '\0'; i++) {
+        if (str[i] < curr_font->num) {
+            fi = &(curr_font->info[str[i]]);
+            len += curr_font->spacing + fi->width;
         }
-        ch++;
     }
 
-    return width;
+    return len;
 }
 
 // 0x4D5BA4
-int textFontGetCharacterWidthImpl(int ch)
+static int GNW_text_char_width(int c)
 {
-    return gCurrentTextFontDescriptor->glyphs[ch & 0xFF].width;
+    return curr_font->info[c].width;
 }
 
 // 0x4D5BB8
-int textFontGetMonospacedStringWidthImpl(const char* string)
+static int GNW_text_mono_width(const char* str)
 {
-    return fontGetMonospacedCharacterWidth() * strlen(string);
+    return text_max() * strlen(str);
 }
 
 // 0x4D5BD8
-int textFontGetLetterSpacingImpl()
+static int GNW_text_spacing()
 {
-    return gCurrentTextFontDescriptor->letterSpacing;
+    return curr_font->spacing;
 }
 
 // 0x4D5BE4
-int textFontGetBufferSizeImpl(const char* string)
+static int GNW_text_size(const char* str)
 {
-    return fontGetStringWidth(string) * fontGetLineHeight();
+    return text_width(str) * text_height();
 }
 
 // 0x4D5BF8
-int textFontGetMonospacedCharacterWidthImpl()
+static int GNW_text_max()
 {
-    int width = 0;
+    int i;
+    int len;
+    FontInfo* fi;
 
-    for (int index = 0; index < gCurrentTextFontDescriptor->glyphCount; index++) {
-        TextFontGlyph* glyph = &(gCurrentTextFontDescriptor->glyphs[index]);
-        if (width < glyph->width) {
-            width = glyph->width;
+    len = 0;
+
+    for (i = 0; i < curr_font->num; i++) {
+        fi = &(curr_font->info[i]);
+        if (len < fi->width) {
+            len = fi->width;
         }
     }
 
-    return width + gCurrentTextFontDescriptor->letterSpacing;
+    return len + curr_font->spacing;
 }

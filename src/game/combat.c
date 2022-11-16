@@ -5351,7 +5351,7 @@ static void draw_loc(int eventCode, int color)
 
     if (eventCode >= 4) {
         char* name = combat_get_loc_name(call_target, hit_loc_right[eventCode - 4]);
-        int width = fontGetStringWidth(name);
+        int width = text_width(name);
         windowDrawText(call_win, name, 0, 431 - width, call_ty[eventCode - 4] - 86, color);
     } else {
         char* name = combat_get_loc_name(call_target, hit_loc_left[eventCode]);
@@ -5432,8 +5432,8 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     for (int index = 0; index < 4; index++) {
         int probability;
@@ -5487,7 +5487,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         game_ui_disable(0);
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     art_ptr_unlock(downHandle);
     art_ptr_unlock(upHandle);

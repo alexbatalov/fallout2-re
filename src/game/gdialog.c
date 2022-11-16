@@ -890,8 +890,8 @@ int gdialogInitFromScript(int headFid, int reaction)
 
     boxesWereDisabled = disable_box_bar_win();
     dialog_target_is_party = isPartyMember(dialog_target);
-    oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    oldFont = text_curr();
+    text_font(101);
     dialogSetReplyWindow(135, 225, 379, 58, NULL);
     dialogSetReplyColor(0.3f, 0.3f, 0.3f);
     dialogSetOptionWindow(127, 335, 393, 117, NULL);
@@ -955,7 +955,7 @@ int gdialogExitFromScript()
 
     gdDestroyHeadWindow();
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     if (fidgetFp != NULL) {
         art_ptr_unlock(fidgetKey);
@@ -1037,7 +1037,7 @@ void gdialogDisplayMsg(char* msg)
     demo_copy_title(gReplyWin);
 
     unsigned char* windowBuffer = windowGetBuffer(gReplyWin);
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
 
     int a4 = 0;
 
@@ -1295,7 +1295,7 @@ static int gdReviewInit(int* win)
         }
     }
 
-    reviewOldFont = fontGetCurrent();
+    reviewOldFont = text_curr();
 
     if (win == NULL) {
         return -1;
@@ -1408,7 +1408,7 @@ static int gdReviewInit(int* win)
 
     buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     win_draw(*win);
 
@@ -1442,7 +1442,7 @@ static int gdReviewExit(int* win)
         reviewDispBuf = NULL;
     }
 
-    fontSetCurrent(reviewOldFont);
+    text_font(reviewOldFont);
 
     if (win == NULL) {
         return -1;
@@ -1518,7 +1518,7 @@ static void gdReviewDisplay(int win, int origin)
     entriesRect.right = 422;
     entriesRect.bottom = 418;
 
-    int v20 = fontGetLineHeight() + 2;
+    int v20 = text_height() + 2;
     unsigned char* windowBuffer = windowGetBuffer(win);
     if (windowBuffer == NULL) {
         debug_printf("\nError: gdialog: review: can't find buffer!");
@@ -1560,7 +1560,7 @@ static void gdReviewDisplay(int win, int origin)
                 &entriesRect,
                 replyText,
                 NULL,
-                fontGetLineHeight(),
+                text_height(),
                 640,
                 colorTable[768] | 0x2000000);
 
@@ -1586,7 +1586,7 @@ static void gdReviewDisplay(int win, int origin)
                     &entriesRect,
                     optionText,
                     NULL,
-                    fontGetLineHeight(),
+                    text_height(),
                     640,
                     colorTable[15855] | 0x2000000);
         }
@@ -1770,8 +1770,8 @@ static int gdProcessInit()
         goto err_3;
     }
 
-    talkOldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    talkOldFont = text_curr();
+    text_font(101);
 
     return 0;
 
@@ -1831,7 +1831,7 @@ static int gdProcessExit()
     windowDestroy(gOptionWin);
     gOptionWin = -1;
 
-    fontSetCurrent(talkOldFont);
+    text_font(talkOldFont);
 
     return 0;
 }
@@ -1843,25 +1843,25 @@ static void gdUpdateMula()
     rect.left = 5;
     rect.right = 70;
     rect.top = 36;
-    rect.bottom = fontGetLineHeight() + 36;
+    rect.bottom = text_height() + 36;
 
     talkToRefreshDialogWindowRect(&rect);
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     int caps = item_caps_total(obj_dude);
     char text[20];
     sprintf(text, "$%d", caps);
 
-    int width = fontGetStringWidth(text);
+    int width = text_width(text);
     if (width > 60) {
         width = 60;
     }
 
     windowDrawText(dialogueWindow, text, width, 38 - width / 2, 36, colorTable[992] | 0x7000000);
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x4465C0
@@ -2136,7 +2136,7 @@ static void gdProcessHighlight(int index)
         &optionRect,
         dialogOptionEntry->text,
         NULL,
-        fontGetLineHeight(),
+        text_height(),
         393,
         color);
 
@@ -2184,7 +2184,7 @@ static void gdProcessUnHighlight(int index)
         &optionRect,
         dialogOptionEntry->text,
         NULL,
-        fontGetLineHeight(),
+        text_height(),
         393,
         color);
 
@@ -2212,7 +2212,7 @@ static void gdProcessReply()
         &replyRect,
         dialogBlock.replyText,
         &(dialogBlock.offset),
-        fontGetLineHeight(),
+        text_height(),
         379,
         colorTable[992] | 0x2000000);
     win_draw(gReplyWin);
@@ -2313,7 +2313,7 @@ static void gdProcessUpdate()
             }
         }
 
-        int v11 = text_num_lines(dialogOptionEntry->text, optionRect.right - optionRect.left) * fontGetLineHeight() + optionRect.top + 2;
+        int v11 = text_num_lines(dialogOptionEntry->text, optionRect.right - optionRect.left) * text_height() + optionRect.top + 2;
         if (v11 < optionRect.bottom) {
             int y = optionRect.top;
 
@@ -2329,7 +2329,7 @@ static void gdProcessUpdate()
                 &optionRect,
                 dialogOptionEntry->text,
                 NULL,
-                fontGetLineHeight(),
+                text_height(),
                 393,
                 color);
 
@@ -2983,7 +2983,7 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
 // 0x447F64
 static int text_num_lines(const char* a1, int a2)
 {
-    int width = fontGetStringWidth(a1);
+    int width = text_width(a1);
 
     int v1 = 0;
     while (width > 0) {
@@ -3016,7 +3016,7 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
     int maxWidth = rect->right - rect->left;
     char* end = NULL;
     while (start != NULL && *start != '\0') {
-        if (fontGetStringWidth(start) > maxWidth) {
+        if (text_width(start) > maxWidth) {
             end = start + 1;
             while (*end != '\0' && *end != ' ') {
                 end++;
@@ -3033,7 +3033,7 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
                         lookahead = NULL;
                     } else {
                         *lookahead = '\0';
-                        if (fontGetStringWidth(start) >= maxWidth) {
+                        if (text_width(start) >= maxWidth) {
                             *lookahead = ' ';
                             lookahead = NULL;
                         } else {
@@ -3048,14 +3048,14 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
                     *end = '\0';
                 }
             } else {
-                if (rect->bottom - fontGetLineHeight() < rect->top) {
+                if (rect->bottom - text_height() < rect->top) {
                     return rect->top;
                 }
 
                 if (a7 != 1 || start == string) {
-                    fontDrawText(buffer + pitch * rect->top + 10, start, maxWidth, pitch, color);
+                    text_to_buf(buffer + pitch * rect->top + 10, start, maxWidth, pitch, color);
                 } else {
-                    fontDrawText(buffer + pitch * rect->top, start, maxWidth, pitch, color);
+                    text_to_buf(buffer + pitch * rect->top, start, maxWidth, pitch, color);
                 }
 
                 if (a4 != NULL) {
@@ -3067,13 +3067,13 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
             }
         }
 
-        if (fontGetStringWidth(start) > maxWidth) {
+        if (text_width(start) > maxWidth) {
             debug_printf("\nError: display_msg: word too long!");
             break;
         }
 
         if (a7 != 0) {
-            if (rect->bottom - fontGetLineHeight() < rect->top) {
+            if (rect->bottom - text_height() < rect->top) {
                 if (end != NULL && *end == '\0') {
                     *end = ' ';
                 }
@@ -3086,7 +3086,7 @@ static int text_to_rect_func(unsigned char* buffer, Rect* rect, char* string, in
             } else {
                 dest = buffer;
             }
-            fontDrawText(dest + pitch * rect->top, start, maxWidth, pitch, color);
+            text_to_buf(dest + pitch * rect->top, start, maxWidth, pitch, color);
         }
 
         if (a4 != NULL && end != NULL) {
@@ -3510,8 +3510,8 @@ static void gdControlDestroyWin()
 // 0x448D30
 static void gdControlUpdateInfo()
 {
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
     int windowWidth = windowGetWidth(dialogueWindow);
@@ -3524,10 +3524,10 @@ static void gdControlUpdateInfo()
         unsigned char* buffer = art_frame_data(background, 0, 0);
 
         // Clear "Weapon Used:".
-        blitBufferToBuffer(buffer + width * 20 + 112, 110, fontGetLineHeight(), width, windowBuffer + windowWidth * 20 + 112, windowWidth);
+        blitBufferToBuffer(buffer + width * 20 + 112, 110, text_height(), width, windowBuffer + windowWidth * 20 + 112, windowWidth);
 
         // Clear "Armor Used:".
-        blitBufferToBuffer(buffer + width * 49 + 112, 110, fontGetLineHeight(), width, windowBuffer + windowWidth * 49 + 112, windowWidth);
+        blitBufferToBuffer(buffer + width * 49 + 112, 110, text_height(), width, windowBuffer + windowWidth * 49 + 112, windowWidth);
 
         // Clear character preview.
         blitBufferToBuffer(buffer + width * 84 + 8, 70, 98, width, windowBuffer + windowWidth * 84 + 8, windowWidth);
@@ -3546,13 +3546,13 @@ static void gdControlUpdateInfo()
     Object* item2 = inven_right_hand(dialog_target);
     text = item2 != NULL ? item_name(item2) : getmsg(&proto_main_msg_file, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
-    fontDrawText(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 20 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render armor.
     Object* armor = inven_worn(dialog_target);
     text = armor != NULL ? item_name(armor) : getmsg(&proto_main_msg_file, &messageListItem, 10);
     sprintf(formattedText, "%s", text);
-    fontDrawText(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 49 + 112, formattedText, 110, windowWidth, colorTable[992]);
 
     // Render preview.
     CacheEntry* previewHandle;
@@ -3570,24 +3570,24 @@ static void gdControlUpdateInfo()
     int maximumHitPoints = critterGetStat(dialog_target, STAT_MAXIMUM_HIT_POINTS);
     int hitPoints = critterGetStat(dialog_target, STAT_CURRENT_HIT_POINTS);
     sprintf(formattedText, "%d/%d", hitPoints, maximumHitPoints);
-    fontDrawText(windowBuffer + windowWidth * 96 + 240, formattedText, 115, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 96 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     // Render best skill.
     int bestSkill = partyMemberSkill(dialog_target);
     text = skill_name(bestSkill);
     sprintf(formattedText, "%s", text);
-    fontDrawText(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 113 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     // Render weight summary.
     int inventoryWeight = item_total_weight(dialog_target);
     int carryWeight = critterGetStat(dialog_target, STAT_CARRY_WEIGHT);
     sprintf(formattedText, "%d/%d ", inventoryWeight, carryWeight);
-    fontDrawText(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsOverloaded(dialog_target) ? colorTable[31744] : colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 131 + 240, formattedText, 115, windowWidth, critterIsOverloaded(dialog_target) ? colorTable[31744] : colorTable[992]);
 
     // Render melee damage.
     int meleeDamage = critterGetStat(dialog_target, STAT_MELEE_DAMAGE);
     sprintf(formattedText, "%d", meleeDamage);
-    fontDrawText(windowBuffer + windowWidth * 148 + 240, formattedText, 115, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 148 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
     int actionPoints;
     if (isInCombat()) {
@@ -3597,9 +3597,9 @@ static void gdControlUpdateInfo()
     }
     int maximumActionPoints = critterGetStat(dialog_target, STAT_MAXIMUM_ACTION_POINTS);
     sprintf(formattedText, "%d/%d ", actionPoints, maximumActionPoints);
-    fontDrawText(windowBuffer + windowWidth * 167 + 240, formattedText, 115, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 167 + 240, formattedText, 115, windowWidth, colorTable[992]);
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
     win_draw(dialogueWindow);
 }
 
@@ -3943,8 +3943,8 @@ static void gdCustom()
 // 0x449BB4
 static void gdCustomUpdateInfo()
 {
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
     int windowWidth = windowGetWidth(dialogueWindow);
@@ -3977,30 +3977,30 @@ static void gdCustomUpdateInfo()
     }
 
     msg = getmsg(&custom_msg_file, &messageListItem, num);
-    fontDrawText(windowBuffer + windowWidth * 20 + 232, msg, 248, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 20 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // RUN AWAY
     msg = getmsg(&custom_msg_file, &messageListItem, custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE][custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_RUN_AWAY_MODE]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 48 + 232, msg, 248, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 48 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // WEAPON PREF
     msg = getmsg(&custom_msg_file, &messageListItem, custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON][custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_BEST_WEAPON]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 78 + 232, msg, 248, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 78 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // DISTANCE
     msg = getmsg(&custom_msg_file, &messageListItem, custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE][custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_DISTANCE]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 108 + 232, msg, 248, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 108 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // ATTACK WHO
     msg = getmsg(&custom_msg_file, &messageListItem, custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO][custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_ATTACK_WHO]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 137 + 232, msg, 248, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 137 + 232, msg, 248, windowWidth, colorTable[992]);
 
     // CHEM USE
     msg = getmsg(&custom_msg_file, &messageListItem, custom_settings[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE][custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_CHEM_USE]].messageId);
-    fontDrawText(windowBuffer + windowWidth * 166 + 232, msg, 248, windowWidth, colorTable[992]);
+    text_to_buf(windowBuffer + windowWidth * 166 + 232, msg, 248, windowWidth, colorTable[992]);
 
     win_draw(dialogueWindow);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x449E64
@@ -4008,7 +4008,7 @@ static void gdCustomSelectRedraw(unsigned char* dest, int pitch, int type, int s
 {
     MessageListItem messageListItem;
 
-    fontSetCurrent(101);
+    text_font(101);
 
     for (int index = 0; index < 6; index++) {
         STRUCT_5189E4* ptr = &(custom_settings[type][index]);
@@ -4047,7 +4047,7 @@ static void gdCustomSelectRedraw(unsigned char* dest, int pitch, int type, int s
             }
 
             const char* msg = getmsg(&custom_msg_file, &messageListItem, ptr->messageId);
-            fontDrawText(dest + pitch * (fontGetLineHeight() * index + 42) + 42, msg, pitch - 84, pitch, color);
+            text_to_buf(dest + pitch * (text_height() * index + 42) + 42, msg, pitch - 84, pitch, color);
         }
     }
 }
@@ -4055,7 +4055,7 @@ static void gdCustomSelectRedraw(unsigned char* dest, int pitch, int type, int s
 // 0x449FC0
 static int gdCustomSelect(int a1)
 {
-    int oldFont = fontGetCurrent();
+    int oldFont = text_curr();
 
     CacheEntry* backgroundFrmHandle;
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 419, 0, 0, 0);
@@ -4098,19 +4098,19 @@ static int gdCustomSelect(int a1)
         return -1;
     }
 
-    fontSetCurrent(103);
+    text_font(103);
 
     MessageListItem messageListItem;
     const char* msg;
 
     msg = getmsg(&custom_msg_file, &messageListItem, a1);
-    fontDrawText(windowBuffer + backgroundFrmWidth * 15 + 40, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + backgroundFrmWidth * 15 + 40, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
 
     msg = getmsg(&custom_msg_file, &messageListItem, 10);
-    fontDrawText(windowBuffer + backgroundFrmWidth * 163 + 88, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + backgroundFrmWidth * 163 + 88, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
 
     msg = getmsg(&custom_msg_file, &messageListItem, 11);
-    fontDrawText(windowBuffer + backgroundFrmWidth * 162 + 193, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
+    text_to_buf(windowBuffer + backgroundFrmWidth * 162 + 193, msg, backgroundFrmWidth, backgroundFrmWidth, colorTable[18979]);
 
     int value = custom_current_selected[a1];
     gdCustomSelectRedraw(windowBuffer, backgroundFrmWidth, a1, value);
@@ -4157,7 +4157,7 @@ static int gdCustomSelect(int a1)
             int mouseY;
             mouse_get_position(&mouseX, &mouseY);
 
-            int lineHeight = fontGetLineHeight();
+            int lineHeight = text_height();
             int newValue = (mouseY - minY) / lineHeight;
             if (newValue >= 6) {
                 continue;
@@ -4207,7 +4207,7 @@ static int gdCustomSelect(int a1)
     }
 
     windowDestroy(win);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
     return 0;
 }
 

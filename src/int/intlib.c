@@ -296,7 +296,7 @@ static void op_selectfilelist(Program* program)
             fileList,
             fileListLength,
             NULL,
-            320 - fontGetStringWidth(title) / 2,
+            320 - text_width(title) / 2,
             200,
             colorTable[0x7FFF] | 0x10000);
 

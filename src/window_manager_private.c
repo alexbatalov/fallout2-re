@@ -72,7 +72,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
     int listViewWidth = _win_width_needed(items, itemsLength);
     int windowWidth = listViewWidth + 16;
 
-    int titleWidth = fontGetStringWidth(title);
+    int titleWidth = text_width(title);
     if (titleWidth > windowWidth) {
         windowWidth = titleWidth;
         listViewWidth = titleWidth - 16;
@@ -84,7 +84,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
     int windowHeight;
     int listViewCapacity = 10;
     for (int heightMultiplier = 13; heightMultiplier > 8; heightMultiplier--) {
-        windowHeight = heightMultiplier * fontGetLineHeight() + 22;
+        windowHeight = heightMultiplier * text_height() + 22;
         win = windowCreate(x, y, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
         if (win != -1) {
             break;
@@ -118,11 +118,11 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
 
     bufferFill(windowBuffer + windowWidth * 5 + 5,
         windowWidth - 11,
-        fontGetLineHeight() + 3,
+        text_height() + 3,
         windowWidth,
         colorTable[_GNW_wcolor[0]]);
 
-    fontDrawText(windowBuffer + windowWidth / 2 + 8 * windowWidth - fontGetStringWidth(title) / 2,
+    text_to_buf(windowBuffer + windowWidth / 2 + 8 * windowWidth - text_width(title) / 2,
         title,
         windowWidth,
         windowWidth,
@@ -133,18 +133,18 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         5,
         5,
         windowWidth - 6,
-        fontGetLineHeight() + 8,
+        text_height() + 8,
         colorTable[_GNW_wcolor[2]],
         colorTable[_GNW_wcolor[1]]);
 
     int listViewX = 8;
-    int listViewY = fontGetLineHeight() + 16;
+    int listViewY = text_height() + 16;
     unsigned char* listViewBuffer = windowBuffer + windowWidth * listViewY + listViewX;
-    int listViewMaxY = listViewCapacity * fontGetLineHeight() + listViewY;
+    int listViewMaxY = listViewCapacity * text_height() + listViewY;
 
     bufferFill(listViewBuffer + windowWidth * (-2) + (-3),
         listViewWidth + listViewX - 2,
-        listViewCapacity * fontGetLineHeight() + 2,
+        listViewCapacity * text_height() + 2,
         windowWidth,
         colorTable[_GNW_wcolor[0]]);
 
@@ -176,9 +176,9 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         listViewY,
         a7 | 0x2000000);
 
-    _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
+    _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
         listViewWidth,
-        fontGetLineHeight(),
+        text_height(),
         windowWidth);
 
     bufferDrawRectShadowed(windowBuffer,
@@ -202,7 +202,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
 
     _win_register_text_button(win,
         windowWidth - 25,
-        listViewMaxY - fontGetLineHeight() - 5,
+        listViewMaxY - text_height() - 5,
         -1,
         -1,
         KEY_ARROW_DOWN,
@@ -212,7 +212,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
 
     _win_register_text_button(win,
         windowWidth / 2 - 32,
-        windowHeight - 8 - fontGetLineHeight() - 6,
+        windowHeight - 8 - text_height() - 6,
         -1,
         -1,
         -1,
@@ -221,14 +221,14 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         0);
 
     int scrollbarX = windowWidth - 21;
-    int scrollbarY = listViewY + fontGetLineHeight() + 7;
+    int scrollbarY = listViewY + text_height() + 7;
     int scrollbarKnobSize = 14;
     int scrollbarHeight = listViewMaxY - scrollbarY;
     unsigned char* scrollbarBuffer = windowBuffer + windowWidth * scrollbarY + scrollbarX;
 
     bufferFill(scrollbarBuffer,
         scrollbarKnobSize + 1,
-        scrollbarHeight - fontGetLineHeight() - 8,
+        scrollbarHeight - text_height() - 8,
         windowWidth,
         colorTable[_GNW_wcolor[0]]);
 
@@ -236,7 +236,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         scrollbarX,
         scrollbarY,
         scrollbarKnobSize + 1,
-        scrollbarHeight - fontGetLineHeight() - 8,
+        scrollbarHeight - text_height() - 8,
         -1,
         -1,
         2048,
@@ -251,7 +251,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         windowWidth - 22,
         scrollbarY - 1,
         scrollbarX + scrollbarKnobSize + 1,
-        listViewMaxY - fontGetLineHeight() - 9,
+        listViewMaxY - text_height() - 9,
         colorTable[_GNW_wcolor[2]],
         colorTable[_GNW_wcolor[1]]);
     bufferDrawRectShadowed(windowBuffer,
@@ -268,9 +268,9 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
     for (int index = 0; index < listViewCapacity; index++) {
         buttonCreate(win,
             listViewX,
-            listViewY + index * fontGetLineHeight(),
+            listViewY + index * text_height(),
             listViewWidth,
-            fontGetLineHeight(),
+            text_height(),
             512 + index,
             -1,
             1024 + index,
@@ -285,7 +285,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
         0,
         0,
         windowWidth,
-        fontGetLineHeight() + 8,
+        text_height() + 8,
         -1,
         -1,
         -1,
@@ -430,9 +430,9 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                 listViewY,
                 a7 | 0x2000000);
 
-            _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
+            _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
                 listViewWidth,
-                fontGetLineHeight(),
+                text_height(),
                 windowWidth);
 
             if (itemsLength > listViewCapacity) {
@@ -442,8 +442,8 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                     windowWidth,
                     colorTable[_GNW_wcolor[0]]);
 
-                scrollbarY = (scrollOffset * (listViewMaxY - listViewY - 2 * fontGetLineHeight() - 16 - scrollbarKnobSize - 1)) / (itemsLength - listViewCapacity)
-                    + listViewY + fontGetLineHeight() + 7;
+                scrollbarY = (scrollOffset * (listViewMaxY - listViewY - 2 * text_height() - 16 - scrollbarKnobSize - 1)) / (itemsLength - listViewCapacity)
+                    + listViewY + text_height() + 7;
 
                 bufferDrawRectShadowed(windowBuffer,
                     windowWidth,
@@ -467,12 +467,12 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
             itemRect.right = itemRect.left + listViewWidth;
 
             if (previousSelectedItemIndex != -1) {
-                itemRect.top = windowRect->top + listViewY + previousSelectedItemIndex * fontGetLineHeight();
-                itemRect.bottom = itemRect.top + fontGetLineHeight();
+                itemRect.top = windowRect->top + listViewY + previousSelectedItemIndex * text_height();
+                itemRect.bottom = itemRect.top + text_height();
 
-                bufferFill(listViewBuffer + windowWidth * previousSelectedItemIndex * fontGetLineHeight(),
+                bufferFill(listViewBuffer + windowWidth * previousSelectedItemIndex * text_height(),
                     listViewWidth,
-                    fontGetLineHeight(),
+                    text_height(),
                     windowWidth,
                     colorTable[_GNW_wcolor[0]]);
 
@@ -484,7 +484,7 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
                     color = a7;
                 }
 
-                fontDrawText(listViewBuffer + windowWidth * previousSelectedItemIndex * fontGetLineHeight(),
+                text_to_buf(listViewBuffer + windowWidth * previousSelectedItemIndex * text_height(),
                     items[scrollOffset + previousSelectedItemIndex],
                     windowWidth,
                     windowWidth,
@@ -494,12 +494,12 @@ int _win_list_select_at(const char* title, char** items, int itemsLength, ListSe
             }
 
             if (selectedItemIndex != -1) {
-                itemRect.top = windowRect->top + listViewY + selectedItemIndex * fontGetLineHeight();
-                itemRect.bottom = itemRect.top + fontGetLineHeight();
+                itemRect.top = windowRect->top + listViewY + selectedItemIndex * text_height();
+                itemRect.bottom = itemRect.top + text_height();
 
-                _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * fontGetLineHeight(),
+                _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
                     listViewWidth,
-                    fontGetLineHeight(),
+                    text_height(),
                     windowWidth);
 
                 _GNW_win_refresh(window, &itemRect, NULL);
@@ -519,9 +519,9 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         return -1;
     }
 
-    int titleWidth = fontGetStringWidth(title) + 12;
-    if (titleWidth < fontGetMonospacedCharacterWidth() * length) {
-        titleWidth = fontGetMonospacedCharacterWidth() * length;
+    int titleWidth = text_width(title) + 12;
+    if (titleWidth < text_max() * length) {
+        titleWidth = text_max() * length;
     }
 
     int windowWidth = titleWidth + 16;
@@ -529,7 +529,7 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         windowWidth = 160;
     }
 
-    int windowHeight = 5 * fontGetLineHeight() + 16;
+    int windowHeight = 5 * text_height() + 16;
 
     int win = windowCreate(x, y, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     if (win == -1) {
@@ -540,25 +540,25 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
 
     unsigned char* windowBuffer = windowGetBuffer(win);
 
-    bufferFill(windowBuffer + windowWidth * (fontGetLineHeight() + 14) + 14,
+    bufferFill(windowBuffer + windowWidth * (text_height() + 14) + 14,
         windowWidth - 28,
-        fontGetLineHeight() + 2,
+        text_height() + 2,
         windowWidth,
         colorTable[_GNW_wcolor[0]]);
-    fontDrawText(windowBuffer + windowWidth * 8 + 8, title, windowWidth, windowWidth, colorTable[_GNW_wcolor[4]]);
+    text_to_buf(windowBuffer + windowWidth * 8 + 8, title, windowWidth, windowWidth, colorTable[_GNW_wcolor[4]]);
 
     bufferDrawRectShadowed(windowBuffer,
         windowWidth,
         14,
-        fontGetLineHeight() + 14,
+        text_height() + 14,
         windowWidth - 14,
-        2 * fontGetLineHeight() + 16,
+        2 * text_height() + 16,
         colorTable[_GNW_wcolor[2]],
         colorTable[_GNW_wcolor[1]]);
 
     _win_register_text_button(win,
         windowWidth / 2 - 72,
-        windowHeight - 8 - fontGetLineHeight() - 6,
+        windowHeight - 8 - text_height() - 6,
         -1,
         -1,
         -1,
@@ -568,7 +568,7 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
 
     _win_register_text_button(win,
         windowWidth / 2 + 8,
-        windowHeight - 8 - fontGetLineHeight() - 6,
+        windowHeight - 8 - text_height() - 6,
         -1,
         -1,
         -1,
@@ -582,7 +582,7 @@ int _win_get_str(char* dest, int length, const char* title, int x, int y)
         dest,
         length,
         16,
-        fontGetLineHeight() + 16,
+        text_height() + 16,
         colorTable[_GNW_wcolor[3]],
         colorTable[_GNW_wcolor[0]]);
 
@@ -598,9 +598,9 @@ int _win_msg(const char* string, int x, int y, int flags)
         return -1;
     }
 
-    int windowHeight = 3 * fontGetLineHeight() + 16;
+    int windowHeight = 3 * text_height() + 16;
 
-    int windowWidth = fontGetStringWidth(string) + 16;
+    int windowWidth = text_width(string) + 16;
     if (windowWidth < 80) {
         windowWidth = 80;
     }
@@ -626,11 +626,11 @@ int _win_msg(const char* string, int x, int y, int flags)
         color = flags;
     }
 
-    fontDrawText(windowBuffer + windowWidth * 8 + 16, string, windowWidth, windowWidth, color);
+    text_to_buf(windowBuffer + windowWidth * 8 + 16, string, windowWidth, windowWidth, color);
 
     _win_register_text_button(win,
         windowWidth / 2 - 32,
-        windowHeight - 8 - fontGetLineHeight() - 6,
+        windowHeight - 8 - text_height() - 6,
         -1,
         -1,
         -1,
@@ -667,7 +667,7 @@ int _win_pull_down(char** items, int itemsLength, int x, int y, int a5)
 // 0x4DBC34
 int _create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect)
 {
-    int windowHeight = stringListLength * fontGetLineHeight() + 16;
+    int windowHeight = stringListLength * text_height() + 16;
     int windowWidth = _win_width_needed(stringList, stringListLength) + 4;
     if (windowHeight < 2 || windowWidth < 2) {
         return -1;
@@ -694,7 +694,7 @@ int _win_debug(char* string)
         return -1;
     }
 
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
 
     if (_wd == -1) {
         _wd = windowCreate(80, 80, 300, 192, 256, WINDOW_FLAG_0x04);
@@ -712,7 +712,7 @@ int _win_debug(char* string)
         windowDrawText(_wd,
             "Debug",
             0,
-            (300 - fontGetStringWidth("Debug")) / 2,
+            (300 - text_width("Debug")) / 2,
             8,
             0x2000000 | 0x100 | 4);
 
@@ -740,7 +740,7 @@ int _win_debug(char* string)
         _curry = 26;
 
         int btn = _win_register_text_button(_wd,
-            (300 - fontGetStringWidth("Close")) / 2,
+            (300 - text_width("Close")) / 2,
             192 - 8 - lineHeight - 6,
             -1,
             -1,
@@ -770,7 +770,7 @@ int _win_debug(char* string)
 
     char* pch = string;
     while (*pch != '\0') {
-        int characterWidth = fontGetCharacterWidth(*pch);
+        int characterWidth = text_char_width(*pch);
         if (*pch == '\n' || _currx + characterWidth > 291) {
             _currx = 9;
             _curry += lineHeight;
@@ -792,7 +792,7 @@ int _win_debug(char* string)
         if (*pch != '\n') {
             temp[0] = *pch;
             windowDrawText(_wd, temp, 0, _currx, _curry, 0x2000000 | 0x100 | 4);
-            _currx += characterWidth + fontGetLetterSpacing();
+            _currx += characterWidth + text_spacing();
         }
 
         pch++;
@@ -880,12 +880,12 @@ int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int it
     }
 
     int titleX = menuBar->rect.left + x;
-    int titleY = (menuBar->rect.top + menuBar->rect.bottom - fontGetLineHeight()) / 2;
+    int titleY = (menuBar->rect.top + menuBar->rect.bottom - text_height()) / 2;
     int btn = buttonCreate(win,
         titleX,
         titleY,
-        fontGetStringWidth(title),
-        fontGetLineHeight(),
+        text_width(title),
+        text_height(),
         -1,
         -1,
         keyCode,
@@ -903,8 +903,8 @@ int _win_register_menu_pulldown(int win, int x, char* title, int keyCode, int it
     MenuPulldown* pulldown = &(window->menuBar->pulldowns[window->menuBar->pulldownsLength]);
     pulldown->rect.left = titleX;
     pulldown->rect.top = titleY;
-    pulldown->rect.right = fontGetStringWidth(title) + titleX - 1;
-    pulldown->rect.bottom = fontGetLineHeight() + titleY - 1;
+    pulldown->rect.right = text_width(title) + titleX - 1;
+    pulldown->rect.bottom = text_height() + titleY - 1;
     pulldown->keyCode = keyCode;
     pulldown->itemsLength = itemsLength;
     pulldown->items = items;
@@ -967,7 +967,7 @@ int _win_width_needed(char** fileNameList, int fileNameListLength)
     int maxWidth = 0;
 
     for (int index = 0; index < fileNameListLength; index++) {
-        int width = fontGetStringWidth(fileNameList[index]);
+        int width = text_width(fileNameList[index]);
         if (width > maxWidth) {
             maxWidth = width;
         }
@@ -986,10 +986,10 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
     dest[cursorPos] = '_';
     dest[cursorPos + 1] = '\0';
 
-    int lineHeight = fontGetLineHeight();
-    int stringWidth = fontGetStringWidth(dest);
+    int lineHeight = text_height();
+    int stringWidth = text_width(dest);
     bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
-    fontDrawText(buffer, dest, stringWidth, window->width, textColor);
+    text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
     Rect dirtyRect;
     dirtyRect.left = window->rect.left + x;
@@ -1012,7 +1012,7 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
 
             if (keyCode == KEY_BACKSPACE) {
                 if (cursorPos > 0) {
-                    stringWidth = fontGetStringWidth(dest);
+                    stringWidth = text_width(dest);
 
                     if (isFirstKey) {
                         bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
@@ -1032,7 +1032,7 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
                     }
 
                     bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
-                    fontDrawText(buffer, dest, stringWidth, window->width, textColor);
+                    text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
                     dirtyRect.left = window->rect.left + x;
                     dirtyRect.top = window->rect.top + y;
@@ -1058,9 +1058,9 @@ int _win_input_str(int win, char* dest, int maxLength, int x, int y, int textCol
                         dest[cursorPos + 1] = '_';
                         dest[cursorPos + 2] = '\0';
 
-                        int stringWidth = fontGetStringWidth(dest);
+                        int stringWidth = text_width(dest);
                         bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
-                        fontDrawText(buffer, dest, stringWidth, window->width, textColor);
+                        text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
                         dirtyRect.left = window->rect.left + x;
                         dirtyRect.top = window->rect.top + y;
@@ -1173,7 +1173,7 @@ void _GNW_intr_init()
         _tm_text_x = 10;
     }
 
-    _tm_h = 2 * _tm_text_y + fontGetLineHeight();
+    _tm_h = 2 * _tm_text_y + text_height();
 
     v1 = _scr_size.bottom >> 3;
     v2 = _scr_size.bottom >> 2;

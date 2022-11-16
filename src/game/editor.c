@@ -1168,7 +1168,7 @@ static int CharEditStart()
     char karma[32];
     char kills[32];
 
-    fontsave = fontGetCurrent();
+    fontsave = text_curr();
     old_tags = 0;
     bk_enable = 0;
     old_fid2 = -1;
@@ -1179,9 +1179,9 @@ static int CharEditStart()
     old_str2[0] = '\0';
     old_str1[0] = '\0';
 
-    fontSetCurrent(101);
+    text_font(101);
 
-    slider_y = skill_cursor * (fontGetLineHeight() + 1) + 27;
+    slider_y = skill_cursor * (text_height() + 1) + 27;
 
     // skills
     skill_get_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
@@ -1318,28 +1318,28 @@ static int CharEditStart()
     memcpy(win_buf, bckgnd, 640 * 480);
 
     if (glblmode) {
-        fontSetCurrent(103);
+        text_font(103);
 
         // CHAR POINTS
         str = getmsg(&editor_message_file, &mesg, 116);
-        fontDrawText(win_buf + (286 * 640) + 14, str, 640, 640, colorTable[18979]);
+        text_to_buf(win_buf + (286 * 640) + 14, str, 640, 640, colorTable[18979]);
         PrintBigNum(126, 282, 0, character_points, 0, edit_win);
 
         // OPTIONS
         str = getmsg(&editor_message_file, &mesg, 101);
-        fontDrawText(win_buf + (454 * 640) + 363, str, 640, 640, colorTable[18979]);
+        text_to_buf(win_buf + (454 * 640) + 363, str, 640, 640, colorTable[18979]);
 
         // OPTIONAL TRAITS
         str = getmsg(&editor_message_file, &mesg, 139);
-        fontDrawText(win_buf + (326 * 640) + 52, str, 640, 640, colorTable[18979]);
+        text_to_buf(win_buf + (326 * 640) + 52, str, 640, 640, colorTable[18979]);
         PrintBigNum(522, 228, 0, optrt_count, 0, edit_win);
 
         // TAG SKILLS
         str = getmsg(&editor_message_file, &mesg, 138);
-        fontDrawText(win_buf + (233 * 640) + 422, str, 640, 640, colorTable[18979]);
+        text_to_buf(win_buf + (233 * 640) + 422, str, 640, 640, colorTable[18979]);
         PrintBigNum(522, 228, 0, tagskill_count, 0, edit_win);
     } else {
-        fontSetCurrent(103);
+        text_font(103);
 
         str = getmsg(&editor_message_file, &mesg, 109);
         strcpy(perks, str);
@@ -1351,67 +1351,67 @@ static int CharEditStart()
         strcpy(kills, str);
 
         // perks selected
-        len = fontGetStringWidth(perks);
-        fontDrawText(
+        len = text_width(perks);
+        text_to_buf(
             grphcpy[46] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
             perks,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             colorTable[18979]);
 
-        len = fontGetStringWidth(karma);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
+        len = text_width(karma);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
             karma,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             colorTable[14723]);
 
-        len = fontGetStringWidth(kills);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
+        len = text_width(kills);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
             kills,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             colorTable[14723]);
 
         // karma selected
-        len = fontGetStringWidth(perks);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
+        len = text_width(perks);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
             perks,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             colorTable[14723]);
 
-        len = fontGetStringWidth(karma);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
+        len = text_width(karma);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
             karma,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             colorTable[18979]);
 
-        len = fontGetStringWidth(kills);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
+        len = text_width(kills);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
             kills,
             GInfo[46].width,
             GInfo[46].width,
             colorTable[14723]);
 
         // kills selected
-        len = fontGetStringWidth(perks);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
+        len = text_width(perks);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 61 - len / 2,
             perks,
             GInfo[46].width,
             GInfo[46].width,
             colorTable[14723]);
 
-        len = fontGetStringWidth(karma);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
+        len = text_width(karma);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 159 - len / 2,
             karma,
             GInfo[46].width,
             GInfo[46].width,
             colorTable[14723]);
 
-        len = fontGetStringWidth(kills);
-        fontDrawText(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
+        len = text_width(kills);
+        text_to_buf(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED] + 5 * GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width + 257 - len / 2,
             kills,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
@@ -1419,25 +1419,25 @@ static int CharEditStart()
 
         DrawFolder();
 
-        fontSetCurrent(103);
+        text_font(103);
 
         // PRINT
         str = getmsg(&editor_message_file, &mesg, 103);
-        fontDrawText(win_buf + (EDITOR_WINDOW_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, colorTable[18979]);
+        text_to_buf(win_buf + (EDITOR_WINDOW_WIDTH * PRINT_BTN_Y) + PRINT_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, colorTable[18979]);
 
         PrintLevelWin();
         folder_init();
     }
 
-    fontSetCurrent(103);
+    text_font(103);
 
     // CANCEL
     str = getmsg(&editor_message_file, &mesg, 102);
-    fontDrawText(win_buf + (EDITOR_WINDOW_WIDTH * CANCEL_BTN_Y) + CANCEL_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(win_buf + (EDITOR_WINDOW_WIDTH * CANCEL_BTN_Y) + CANCEL_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
     str = getmsg(&editor_message_file, &mesg, 100);
-    fontDrawText(win_buf + (EDITOR_WINDOW_WIDTH * DONE_BTN_Y) + DONE_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(win_buf + (EDITOR_WINDOW_WIDTH * DONE_BTN_Y) + DONE_BTN_X, str, EDITOR_WINDOW_WIDTH, EDITOR_WINDOW_WIDTH, colorTable[18979]);
 
     PrintBasicStat(RENDER_ALL_STATS, 0, 0);
     ListDrvdStats();
@@ -1777,7 +1777,7 @@ static void CharEditEnd()
     // NOTE: Uninline.
     RstrBckgProc();
 
-    fontSetCurrent(fontsave);
+    text_font(fontsave);
 
     if (glblmode == 1) {
         skill_set_tags(temp_tag_skill, 3);
@@ -1827,9 +1827,9 @@ void CharEditInit()
 // handle name input
 int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, int y, int textColor, int backgroundColor, int flags)
 {
-    int cursorWidth = fontGetStringWidth("_") - 4;
+    int cursorWidth = text_width("_") - 4;
     int windowWidth = windowGetWidth(win);
-    int v60 = fontGetLineHeight();
+    int v60 = text_height();
     unsigned char* windowBuffer = windowGetBuffer(win);
     if (maxLength > 255) {
         maxLength = 255;
@@ -1842,10 +1842,10 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
     copy[nameLength] = ' ';
     copy[nameLength + 1] = '\0';
 
-    int nameWidth = fontGetStringWidth(copy);
+    int nameWidth = text_width(copy);
 
-    bufferFill(windowBuffer + windowWidth * y + x, nameWidth, fontGetLineHeight(), windowWidth, backgroundColor);
-    fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
+    bufferFill(windowBuffer + windowWidth * y + x, nameWidth, text_height(), windowWidth, backgroundColor);
+    text_to_buf(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
 
     win_draw(win);
 
@@ -1866,10 +1866,10 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
             rc = -1;
         } else {
             if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && nameLength >= 1) {
-                bufferFill(windowBuffer + windowWidth * y + x, fontGetStringWidth(copy), v60, windowWidth, backgroundColor);
+                bufferFill(windowBuffer + windowWidth * y + x, text_width(copy), v60, windowWidth, backgroundColor);
                 copy[nameLength - 1] = ' ';
                 copy[nameLength] = '\0';
-                fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
+                text_to_buf(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
                 nameLength--;
 
                 win_draw(win);
@@ -1880,12 +1880,12 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
                     }
                 }
 
-                bufferFill(windowBuffer + windowWidth * y + x, fontGetStringWidth(copy), v60, windowWidth, backgroundColor);
+                bufferFill(windowBuffer + windowWidth * y + x, text_width(copy), v60, windowWidth, backgroundColor);
 
                 copy[nameLength] = keyCode & 0xFF;
                 copy[nameLength + 1] = ' ';
                 copy[nameLength + 2] = '\0';
-                fontDrawText(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
+                text_to_buf(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
                 nameLength++;
 
                 win_draw(win);
@@ -1899,7 +1899,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
             int color = blink ? backgroundColor : textColor;
             blink = !blink;
 
-            bufferFill(windowBuffer + windowWidth * y + x + fontGetStringWidth(copy) - cursorWidth, cursorWidth, v60 - 2, windowWidth, color);
+            bufferFill(windowBuffer + windowWidth * y + x + text_width(copy) - cursorWidth, cursorWidth, v60 - 2, windowWidth, color);
         }
 
         win_draw(win);
@@ -1961,7 +1961,7 @@ static void DrawFolder()
 
     blitBufferToBuffer(bckgnd + (360 * 640) + 34, 280, 120, 640, win_buf + (360 * 640) + 34, 640);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     switch (folder) {
     case EDITOR_FOLDER_PERKS:
@@ -2275,7 +2275,7 @@ static void PrintLevelWin()
         return;
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
     blitBufferToBuffer(bckgnd + 640 * 280 + 32, 124, 32, 640, win_buf + 640 * 280 + 32, 640);
 
@@ -2291,10 +2291,10 @@ static void PrintLevelWin()
     sprintf(stringBuffer, "%s %d",
         getmsg(&editor_message_file, &mesg, 113),
         level);
-    fontDrawText(win_buf + 640 * y + 32, stringBuffer, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 32, stringBuffer, 640, 640, color);
 
     // EXPERIENCE
-    y += fontGetLineHeight() + 1;
+    y += text_height() + 1;
     if (info_line != 8) {
         color = colorTable[992];
     } else {
@@ -2305,10 +2305,10 @@ static void PrintLevelWin()
     sprintf(stringBuffer, "%s %s",
         getmsg(&editor_message_file, &mesg, 114),
         itostndn(exp, formattedValueBuffer));
-    fontDrawText(win_buf + 640 * y + 32, stringBuffer, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 32, stringBuffer, 640, 640, color);
 
     // EXP NEEDED TO NEXT LEVEL
-    y += fontGetLineHeight() + 1;
+    y += text_height() + 1;
     if (info_line != 9) {
         color = colorTable[992];
     } else {
@@ -2331,7 +2331,7 @@ static void PrintLevelWin()
     sprintf(stringBuffer, "%s %s",
         getmsg(&editor_message_file, &mesg, expMsgId),
         formattedValue);
-    fontDrawText(win_buf + 640 * y + 32, stringBuffer, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 32, stringBuffer, 640, 640, color);
 }
 
 // 0x434B38
@@ -2344,7 +2344,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
     int flags;
     int messageListItemId;
 
-    fontSetCurrent(101);
+    text_font(101);
 
     if (stat == RENDER_ALL_STATS) {
         // NOTE: Original code is different, looks like tail recursion
@@ -2379,7 +2379,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
 
         PrintBigNum(58, StatYpos[stat], flags, value, previousValue, edit_win);
 
-        blitBufferToBuffer(bckgnd + off, 40, fontGetLineHeight(), 640, win_buf + off, 640);
+        blitBufferToBuffer(bckgnd + off, 40, text_height(), 640, win_buf + off, 640);
 
         messageListItemId = critterGetStat(obj_dude, stat) + 199;
         if (messageListItemId > 210) {
@@ -2387,11 +2387,11 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
         }
 
         description = getmsg(&editor_message_file, &mesg, messageListItemId);
-        fontDrawText(win_buf + 640 * (StatYpos[stat] + 8) + 103, description, 640, 640, color);
+        text_to_buf(win_buf + 640 * (StatYpos[stat] + 8) + 103, description, 640, 640, color);
     } else {
         value = critterGetStat(obj_dude, stat);
         PrintBigNum(58, StatYpos[stat], 0, value, 0, edit_win);
-        blitBufferToBuffer(bckgnd + off, 40, fontGetLineHeight(), 640, win_buf + off, 640);
+        blitBufferToBuffer(bckgnd + off, 40, text_height(), 640, win_buf + off, 640);
 
         value = critterGetStat(obj_dude, stat);
         if (value > 10) {
@@ -2399,7 +2399,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
         }
 
         description = stat_level_description(value);
-        fontDrawText(win_buf + off, description, 640, 640, color);
+        text_to_buf(win_buf + off, description, 640, 640, color);
     }
 }
 
@@ -2411,7 +2411,7 @@ static void PrintGender()
     char text[32];
     int x, width;
 
-    fontSetCurrent(103);
+    text_font(103);
 
     gender = critterGetStat(obj_dude, STAT_GENDER);
     str = getmsg(&editor_message_file, &mesg, 107 + gender);
@@ -2419,7 +2419,7 @@ static void PrintGender()
     strcpy(text, str);
 
     width = GInfo[EDITOR_GRAPHIC_SEX_ON].width;
-    x = (width / 2) - (fontGetStringWidth(text) / 2);
+    x = (width / 2) - (text_width(text) / 2);
 
     memcpy(grphcpy[11],
         grphbmp[EDITOR_GRAPHIC_SEX_ON],
@@ -2429,8 +2429,8 @@ static void PrintGender()
         width * GInfo[EDITOR_GRAPHIC_SEX_OFF].height);
 
     x += 6 * width;
-    fontDrawText(grphcpy[EDITOR_GRAPHIC_SEX_ON] + x, text, width, width, colorTable[14723]);
-    fontDrawText(grphcpy[EDITOR_GRAPHIC_SEX_OFF] + x, text, width, width, colorTable[18979]);
+    text_to_buf(grphcpy[EDITOR_GRAPHIC_SEX_ON] + x, text, width, width, colorTable[14723]);
+    text_to_buf(grphcpy[EDITOR_GRAPHIC_SEX_OFF] + x, text, width, width, colorTable[18979]);
 }
 
 // 0x43501C
@@ -2441,7 +2441,7 @@ static void PrintAgeBig()
     char text[32];
     int x, width;
 
-    fontSetCurrent(103);
+    text_font(103);
 
     age = critterGetStat(obj_dude, STAT_AGE);
     str = getmsg(&editor_message_file, &mesg, 104);
@@ -2449,7 +2449,7 @@ static void PrintAgeBig()
     sprintf(text, "%s %d", str, age);
 
     width = GInfo[EDITOR_GRAPHIC_AGE_ON].width;
-    x = (width / 2) + 1 - (fontGetStringWidth(text) / 2);
+    x = (width / 2) + 1 - (text_width(text) / 2);
 
     memcpy(grphcpy[EDITOR_GRAPHIC_AGE_ON],
         grphbmp[EDITOR_GRAPHIC_AGE_ON],
@@ -2459,8 +2459,8 @@ static void PrintAgeBig()
         width * GInfo[EDITOR_GRAPHIC_AGE_ON].height);
 
     x += 6 * width;
-    fontDrawText(grphcpy[EDITOR_GRAPHIC_AGE_ON] + x, text, width, width, colorTable[14723]);
-    fontDrawText(grphcpy[EDITOR_GRAPHIC_AGE_OFF] + x, text, width, width, colorTable[18979]);
+    text_to_buf(grphcpy[EDITOR_GRAPHIC_AGE_ON] + x, text, width, width, colorTable[14723]);
+    text_to_buf(grphcpy[EDITOR_GRAPHIC_AGE_OFF] + x, text, width, width, colorTable[18979]);
 }
 
 // 0x435118
@@ -2472,12 +2472,12 @@ static void PrintBigname()
     char *pch, tmp;
     bool has_space;
 
-    fontSetCurrent(103);
+    text_font(103);
 
     str = critter_name(obj_dude);
     strcpy(text, str);
 
-    if (fontGetStringWidth(text) > 100) {
+    if (text_width(text) > 100) {
         pch = text;
         has_space = false;
         while (*pch != '\0') {
@@ -2487,7 +2487,7 @@ static void PrintBigname()
                 has_space = true;
             }
 
-            if (fontGetStringWidth(text) > 100) {
+            if (text_width(text) > 100) {
                 break;
             }
 
@@ -2505,7 +2505,7 @@ static void PrintBigname()
     }
 
     width = GInfo[EDITOR_GRAPHIC_NAME_ON].width;
-    x = (width / 2) + 3 - (fontGetStringWidth(text) / 2);
+    x = (width / 2) + 3 - (text_width(text) / 2);
 
     memcpy(grphcpy[EDITOR_GRAPHIC_NAME_ON],
         grphbmp[EDITOR_GRAPHIC_NAME_ON],
@@ -2515,8 +2515,8 @@ static void PrintBigname()
         GInfo[EDITOR_GRAPHIC_NAME_OFF].width * GInfo[EDITOR_GRAPHIC_NAME_OFF].height);
 
     x += 6 * width;
-    fontDrawText(grphcpy[EDITOR_GRAPHIC_NAME_ON] + x, text, width, width, colorTable[14723]);
-    fontDrawText(grphcpy[EDITOR_GRAPHIC_NAME_OFF] + x, text, width, width, colorTable[18979]);
+    text_to_buf(grphcpy[EDITOR_GRAPHIC_NAME_ON] + x, text, width, width, colorTable[14723]);
+    text_to_buf(grphcpy[EDITOR_GRAPHIC_NAME_OFF] + x, text, width, width, colorTable[18979]);
 }
 
 // 0x43527C
@@ -2530,7 +2530,7 @@ static void ListDrvdStats()
 
     conditions = obj_dude->data.critter.combat.results;
 
-    fontSetCurrent(101);
+    text_font(101);
 
     y = 46;
 
@@ -2555,13 +2555,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 300);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     sprintf(t, "%d/%d", currHp, maxHp);
-    fontDrawText(win_buf + 640 * y + 263, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 263, t, 640, 640, color);
 
     // Poisoned
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_POISONED) {
         color = critter_get_poison(obj_dude) != 0 ? colorTable[32747] : colorTable[15845];
@@ -2571,10 +2571,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 312);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     // Radiated
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_RADIATED) {
         color = critter_get_rads(obj_dude) != 0 ? colorTable[32747] : colorTable[15845];
@@ -2584,10 +2584,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 313);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     // Eye Damage
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_EYE_DAMAGE) {
         color = (conditions & DAM_BLIND) ? colorTable[32747] : colorTable[15845];
@@ -2597,10 +2597,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 314);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     // Crippled Right Arm
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_CRIPPLED_RIGHT_ARM) {
         color = (conditions & DAM_CRIP_ARM_RIGHT) ? colorTable[32747] : colorTable[15845];
@@ -2610,10 +2610,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 315);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     // Crippled Left Arm
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_CRIPPLED_LEFT_ARM) {
         color = (conditions & DAM_CRIP_ARM_LEFT) ? colorTable[32747] : colorTable[15845];
@@ -2623,10 +2623,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 316);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     // Crippled Right Leg
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_CRIPPLED_RIGHT_LEG) {
         color = (conditions & DAM_CRIP_LEG_RIGHT) ? colorTable[32747] : colorTable[15845];
@@ -2636,10 +2636,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 317);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     // Crippled Left Leg
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_CRIPPLED_LEFT_LEG) {
         color = (conditions & DAM_CRIP_LEG_LEFT) ? colorTable[32747] : colorTable[15845];
@@ -2649,7 +2649,7 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 318);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     y = 179;
 
@@ -2664,13 +2664,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 302);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(obj_dude, STAT_ARMOR_CLASS), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Action Points
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_ACTION_POINTS) {
         color = colorTable[32747];
@@ -2680,13 +2680,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 301);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Carry Weight
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_CARRY_WEIGHT) {
         color = colorTable[32747];
@@ -2696,13 +2696,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 311);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(obj_dude, STAT_CARRY_WEIGHT), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, critterIsOverloaded(obj_dude) ? colorTable[31744] : color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, critterIsOverloaded(obj_dude) ? colorTable[31744] : color);
 
     // Melee Damage
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_MELEE_DAMAGE) {
         color = colorTable[32747];
@@ -2712,13 +2712,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 304);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(obj_dude, STAT_MELEE_DAMAGE), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Damage Resistance
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_DAMAGE_RESISTANCE) {
         color = colorTable[32747];
@@ -2728,13 +2728,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 305);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_DAMAGE_RESISTANCE));
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Poison Resistance
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_POISON_RESISTANCE) {
         color = colorTable[32747];
@@ -2744,13 +2744,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 306);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_POISON_RESISTANCE));
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Radiation Resistance
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_RADIATION_RESISTANCE) {
         color = colorTable[32747];
@@ -2760,13 +2760,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 307);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_RADIATION_RESISTANCE));
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Sequence
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_SEQUENCE) {
         color = colorTable[32747];
@@ -2776,13 +2776,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 308);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(obj_dude, STAT_SEQUENCE), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Healing Rate
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_HEALING_RATE) {
         color = colorTable[32747];
@@ -2792,13 +2792,13 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 309);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     itoa(critterGetStat(obj_dude, STAT_HEALING_RATE), t, 10);
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 
     // Critical Chance
-    y += fontGetLineHeight() + 3;
+    y += text_height() + 3;
 
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_CRITICAL_CHANCE) {
         color = colorTable[32747];
@@ -2808,10 +2808,10 @@ static void ListDrvdStats()
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 310);
     sprintf(t, "%s", messageListItemText);
-    fontDrawText(win_buf + 640 * y + 194, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 194, t, 640, 640, color);
 
     sprintf(t, "%d%%", critterGetStat(obj_dude, STAT_CRITICAL_CHANCE));
-    fontDrawText(win_buf + 640 * y + 288, t, 640, 640, color);
+    text_to_buf(win_buf + 640 * y + 288, t, 640, 640, color);
 }
 
 // 0x436154
@@ -2838,23 +2838,23 @@ static void ListSkills(int a1)
 
     blitBufferToBuffer(bckgnd + 370, 270, 252, 640, win_buf + 370, 640);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     // SKILLS
     str = getmsg(&editor_message_file, &mesg, 117);
-    fontDrawText(win_buf + 640 * 5 + 380, str, 640, 640, colorTable[18979]);
+    text_to_buf(win_buf + 640 * 5 + 380, str, 640, 640, colorTable[18979]);
 
     if (!glblmode) {
         // SKILL POINTS
         str = getmsg(&editor_message_file, &mesg, 112);
-        fontDrawText(win_buf + 640 * 233 + 400, str, 640, 640, colorTable[18979]);
+        text_to_buf(win_buf + 640 * 233 + 400, str, 640, 640, colorTable[18979]);
 
         value = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
         PrintBigNum(522, 228, 0, value, 0, edit_win);
     } else {
         // TAG SKILLS
         str = getmsg(&editor_message_file, &mesg, 138);
-        fontDrawText(win_buf + 640 * 233 + 422, str, 640, 640, colorTable[18979]);
+        text_to_buf(win_buf + 640 * 233 + 422, str, 640, 640, colorTable[18979]);
 
         if (a1 == 2 && !first_skill_list) {
             PrintBigNum(522, 228, ANIMATE, tagskill_count, old_tags, edit_win);
@@ -2866,7 +2866,7 @@ static void ListSkills(int a1)
 
     skill_set_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     y = 27;
     for (i = 0; i < SKILL_COUNT; i++) {
@@ -2885,18 +2885,18 @@ static void ListSkills(int a1)
         }
 
         str = skill_name(i);
-        fontDrawText(win_buf + 640 * y + 380, str, 640, 640, color);
+        text_to_buf(win_buf + 640 * y + 380, str, 640, 640, color);
 
         value = skill_level(obj_dude, i);
         sprintf(valueString, "%d%%", value);
 
-        fontDrawText(win_buf + 640 * y + 573, valueString, 640, 640, color);
+        text_to_buf(win_buf + 640 * y + 573, valueString, 640, 640, color);
 
-        y += fontGetLineHeight() + 1;
+        y += text_height() + 1;
     }
 
     if (!glblmode) {
-        y = skill_cursor * (fontGetLineHeight() + 1);
+        y = skill_cursor * (text_height() + 1);
         slider_y = y + 27;
 
         blitBufferToBufferTrans(
@@ -3126,10 +3126,10 @@ static int NameWindow()
         windowBuf + windowWidth * 40 + 13,
         windowWidth);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     text = getmsg(&editor_message_file, &mesg, 100);
-    fontDrawText(windowBuf + windowWidth * 44 + 50, text, windowWidth, windowWidth, colorTable[18979]);
+    text_to_buf(windowBuf + windowWidth * 44 + 50, text, windowWidth, windowWidth, colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         26,
@@ -3150,7 +3150,7 @@ static int NameWindow()
 
     win_draw(win);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     char name[64];
     strcpy(name, critter_name(obj_dude));
@@ -3175,7 +3175,7 @@ static int NameWindow()
 
     // NOTE: original code is a bit different, the following chunk of code written two times.
 
-    fontSetCurrent(101);
+    text_font(101);
     blitBufferToBuffer(grphbmp[EDITOR_GRAPHIC_NAME_BOX],
         GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
         GInfo[EDITOR_GRAPHIC_NAME_BOX].height,
@@ -3200,14 +3200,14 @@ static void PrintName(unsigned char* buf, int pitch)
 
     memcpy(str, byte_431D93, 64);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     v4 = critter_name(obj_dude);
 
     // TODO: Check.
     strcpy(str, v4);
 
-    fontDrawText(buf + 19 * pitch + 21, str, pitch, pitch, colorTable[992]);
+    text_to_buf(buf + 19 * pitch + 21, str, pitch, pitch, colorTable[992]);
 }
 
 // 0x436FEC
@@ -3258,10 +3258,10 @@ static int AgeWindow()
         windowBuf + windowWidth * 40 + 13,
         GInfo[EDITOR_GRAPHIC_CHARWIN].width);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     messageListItemText = getmsg(&editor_message_file, &mesg, 100);
-    fontDrawText(windowBuf + windowWidth * 44 + 50, messageListItemText, windowWidth, windowWidth, colorTable[18979]);
+    text_to_buf(windowBuf + windowWidth * 44 + 50, messageListItemText, windowWidth, windowWidth, colorTable[18979]);
 
     age = critterGetStat(obj_dude, STAT_AGE);
     PrintBigNum(55, 10, 0, age, 0, win);
@@ -3484,10 +3484,10 @@ static void SexWindow()
         windowBuf + windowWidth * 44 + 15,
         windowWidth);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     text = getmsg(&editor_message_file, &mesg, 100);
-    fontDrawText(windowBuf + windowWidth * 48 + 52, text, windowWidth, windowWidth, colorTable[18979]);
+    text_to_buf(windowBuf + windowWidth * 48 + 52, text, windowWidth, windowWidth, colorTable[18979]);
 
     int doneBtn = buttonCreate(win,
         28,
@@ -3707,7 +3707,7 @@ static int OptionWindow()
         unsigned char* windowBuffer = windowGetBuffer(win);
         memcpy(windowBuffer, grphbmp[41], GInfo[41].width * GInfo[41].height);
 
-        fontSetCurrent(103);
+        text_font(103);
 
         int err = 0;
         unsigned char* down[5];
@@ -3739,9 +3739,9 @@ static int OptionWindow()
 
                 strcpy(string4, getmsg(&editor_message_file, &mesg, 600 + index));
 
-                int offset = width * 7 + width / 2 - fontGetStringWidth(string4) / 2;
-                fontDrawText(up[index] + offset, string4, width, width, colorTable[18979]);
-                fontDrawText(down[index] + offset, string4, width, width, colorTable[14723]);
+                int offset = width * 7 + width / 2 - text_width(string4) / 2;
+                text_to_buf(up[index] + offset, string4, width, width, colorTable[18979]);
+                text_to_buf(down[index] + offset, string4, width, width, colorTable[14723]);
 
                 int btn = buttonCreate(win, 13, y, width, height, -1, -1, -1, 500 + index, up[index], down[index], NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {
@@ -3765,7 +3765,7 @@ static int OptionWindow()
             return -1;
         }
 
-        fontSetCurrent(101);
+        text_font(101);
 
         int rc = 0;
         while (rc == 0) {
@@ -4803,25 +4803,25 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
         v9 = 0;
     }
 
-    fontSetCurrent(102);
+    text_font(102);
 
-    fontDrawText(win_buf + 640 * 272 + 348, name, 640, 640, colorTable[0]);
-    int nameFontLineHeight = fontGetLineHeight();
+    text_to_buf(win_buf + 640 * 272 + 348, name, 640, 640, colorTable[0]);
+    int nameFontLineHeight = text_height();
     if (attributes != NULL) {
-        int nameWidth = fontGetStringWidth(name);
+        int nameWidth = text_width(name);
 
-        fontSetCurrent(101);
-        int attributesFontLineHeight = fontGetLineHeight();
-        fontDrawText(win_buf + 640 * (268 + nameFontLineHeight - attributesFontLineHeight) + 348 + nameWidth + 8, attributes, 640, 640, colorTable[0]);
+        text_font(101);
+        int attributesFontLineHeight = text_height();
+        text_to_buf(win_buf + 640 * (268 + nameFontLineHeight - attributesFontLineHeight) + 348 + nameWidth + 8, attributes, 640, 640, colorTable[0]);
     }
 
     y = nameFontLineHeight;
     windowDrawLine(edit_win, 348, y + 272, 613, y + 272, colorTable[0]);
     windowDrawLine(edit_win, 348, y + 273, 613, y + 273, colorTable[0]);
 
-    fontSetCurrent(101);
+    text_font(101);
 
-    int descriptionFontLineHeight = fontGetLineHeight();
+    int descriptionFontLineHeight = text_height();
 
     if (word_wrap(description, v9 + 136, beginnings, &beginningsCount) != 0) {
         // TODO: Leaking graphic handle.
@@ -4834,7 +4834,7 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
         short ending = beginnings[i + 1];
         char c = description[ending];
         description[ending] = '\0';
-        fontDrawText(win_buf + 640 * y + 348, description + beginning, 640, 640, colorTable[0]);
+        text_to_buf(win_buf + 640 * y + 348, description + beginning, 640, 640, colorTable[0]);
         description[ending] = c;
         y += descriptionFontLineHeight;
     }
@@ -4910,12 +4910,12 @@ static void InfoButton(int eventCode)
         break;
     case 527:
         if (!glblmode) {
-            fontSetCurrent(101);
+            text_font(101);
             int offset = mouse_ypos - 364;
             if (offset < 0) {
                 offset = 0;
             }
-            info_line = offset / (fontGetLineHeight() + 1) + 10;
+            info_line = offset / (text_height() + 1) + 10;
         }
         break;
     case 528:
@@ -4963,13 +4963,13 @@ static void InfoButton(int eventCode)
         break;
     case 534:
         if (1) {
-            fontSetCurrent(101);
+            text_font(101);
 
             // TODO: Original code is slightly different.
             double mouseY = mouse_ypos;
-            double fontLineHeight = fontGetLineHeight();
+            double fontLineHeight = text_height();
             double y = 353.0;
-            double step = fontGetLineHeight() + 3 + 0.56;
+            double step = text_height() + 3 + 0.56;
             int index;
             for (index = 0; index < 8; index++) {
                 if (mouseY >= y - 4.0 && mouseY <= y + fontLineHeight) {
@@ -5226,11 +5226,11 @@ static void ListTraits()
 
     blitBufferToBuffer(bckgnd + 640 * 353 + 47, 245, 100, 640, win_buf + 640 * 353 + 47, 640);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     trait_set(temp_trait[0], temp_trait[1]);
 
-    step = fontGetLineHeight() + 3 + 0.56;
+    step = text_height() + 3 + 0.56;
     y = 353;
     for (i = 0; i < 8; i++) {
         if (i == v0) {
@@ -5253,7 +5253,7 @@ static void ListTraits()
         }
 
         traitName = trait_name(i);
-        fontDrawText(win_buf + 640 * (int)y + 47, traitName, 640, 640, color);
+        text_to_buf(win_buf + 640 * (int)y + 47, traitName, 640, 640, color);
         y += step;
     }
 
@@ -5279,7 +5279,7 @@ static void ListTraits()
         }
 
         traitName = trait_name(i);
-        fontDrawText(win_buf + 640 * (int)y + 199, traitName, 640, 640, color);
+        text_to_buf(win_buf + 640 * (int)y + 199, traitName, 640, 640, color);
         y += step;
     }
 }
@@ -5741,21 +5741,21 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     const char* msg;
 
     // PICK A NEW PERK
     msg = getmsg(&editor_message_file, &mesg, 152);
-    fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
     msg = getmsg(&editor_message_file, &mesg, 100);
-    fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * 186 + 69, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * 186 + 69, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
 
     // CANCEL
     msg = getmsg(&editor_message_file, &mesg, 102);
-    fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * 186 + 171, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * 186 + 171, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
 
     int count = ListDPerks();
 
@@ -5824,11 +5824,11 @@ static int perks_dialog()
 // 0x43CACC
 static int InputPDLoop(int count, void (*refreshProc)())
 {
-    fontSetCurrent(101);
+    text_font(101);
 
     int v3 = count - 11;
 
-    int height = fontGetLineHeight();
+    int height = text_height();
     oldsline = -2;
     int v16 = height + 2;
 
@@ -6095,7 +6095,7 @@ static int ListDPerks()
         pwin_buf + PERK_WINDOW_WIDTH * 43 + 45,
         PERK_WINDOW_WIDTH);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     int perks[PERK_COUNT];
     int count = perk_make_list(obj_dude, perks);
@@ -6123,7 +6123,7 @@ static int ListDPerks()
     v16 += crow;
 
     int y = 43;
-    int yStep = fontGetLineHeight() + 2;
+    int yStep = text_height() + 2;
     for (int index = crow; index < v16; index++) {
         int color;
         if (index == crow + cline) {
@@ -6132,12 +6132,12 @@ static int ListDPerks()
             color = colorTable[992];
         }
 
-        fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+        text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
 
         if (perk_level(obj_dude, name_sort_list[index].value) != 0) {
             char rankString[256];
             sprintf(rankString, "(%d)", perk_level(obj_dude, name_sort_list[index].value));
-            fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 207, rankString, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+            text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * y + 207, rankString, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
         }
 
         y += yStep;
@@ -6173,13 +6173,13 @@ static bool GetMutateTrait()
 
     bool result = true;
     if (trait_count >= 1) {
-        fontSetCurrent(103);
+        text_font(103);
 
-        blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, fontGetLineHeight() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
+        blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, text_height() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
 
         // LOSE A TRAIT
         char* msg = getmsg(&editor_message_file, &mesg, 154);
-        fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
+        text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
 
         optrt_count = 0;
         cline = 0;
@@ -6214,13 +6214,13 @@ static bool GetMutateTrait()
     }
 
     if (result) {
-        fontSetCurrent(103);
+        text_font(103);
 
-        blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, fontGetLineHeight() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
+        blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, text_height() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
 
         // PICK A NEW TRAIT
         char* msg = getmsg(&editor_message_file, &mesg, 153);
-        fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
+        text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * 16 + 49, msg, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[18979]);
 
         cline = 0;
         crow = 0;
@@ -6273,13 +6273,13 @@ static void RedrwDMTagSkl()
 // 0x43D6F8
 static bool Add4thTagSkill()
 {
-    fontSetCurrent(103);
+    text_font(103);
 
-    blitBufferToBuffer(pbckgnd + 573 * 14 + 49, 206, fontGetLineHeight() + 2, 573, pwin_buf + 573 * 15 + 49, 573);
+    blitBufferToBuffer(pbckgnd + 573 * 14 + 49, 206, text_height() + 2, 573, pwin_buf + 573 * 15 + 49, 573);
 
     // PICK A NEW TAG SKILL
     char* messageListItemText = getmsg(&editor_message_file, &mesg, 155);
-    fontDrawText(pwin_buf + 573 * 16 + 49, messageListItemText, 573, 573, colorTable[18979]);
+    text_to_buf(pwin_buf + 573 * 16 + 49, messageListItemText, 573, 573, colorTable[18979]);
 
     cline = 0;
     crow = 0;
@@ -6306,12 +6306,12 @@ static void ListNewTagSkills()
 {
     blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     optrt_count = 0;
 
     int y = 43;
-    int yStep = fontGetLineHeight() + 2;
+    int yStep = text_height() + 2;
 
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
         if (skill != temp_tag_skill[0] && skill != temp_tag_skill[1] && skill != temp_tag_skill[2] && skill != temp_tag_skill[3]) {
@@ -6331,7 +6331,7 @@ static void ListNewTagSkills()
             color = colorTable[992];
         }
 
-        fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+        text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
         y += yStep;
     }
 }
@@ -6341,10 +6341,10 @@ static int ListMyTraits(int a1)
 {
     blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     int y = 43;
-    int yStep = fontGetLineHeight() + 2;
+    int yStep = text_height() + 2;
 
     if (a1 != 0) {
         int count = 0;
@@ -6366,7 +6366,7 @@ static int ListMyTraits(int a1)
                 color = colorTable[992];
             }
 
-            fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+            text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
             y += yStep;
         }
     } else {
@@ -6388,7 +6388,7 @@ static int ListMyTraits(int a1)
                 color = colorTable[992];
             }
 
-            fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
+            text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * y + 45, name_sort_list[index].name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, color);
             y += yStep;
         }
     }
@@ -6440,25 +6440,25 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
         extraDescriptionWidth = 0;
     }
 
-    fontSetCurrent(102);
-    int nameHeight = fontGetLineHeight();
+    text_font(102);
+    int nameHeight = text_height();
 
-    fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * 27 + 280, name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
+    text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * 27 + 280, name, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
 
     if (rank != NULL) {
-        int rankX = fontGetStringWidth(name) + 280 + 8;
-        fontSetCurrent(101);
+        int rankX = text_width(name) + 280 + 8;
+        text_font(101);
 
-        int rankHeight = fontGetLineHeight();
-        fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * (23 + nameHeight - rankHeight) + rankX, rank, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
+        int rankHeight = text_height();
+        text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * (23 + nameHeight - rankHeight) + rankX, rank, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
     }
 
     windowDrawLine(pwin, 280, 27 + nameHeight, 545, 27 + nameHeight, colorTable[0]);
     windowDrawLine(pwin, 280, 28 + nameHeight, 545, 28 + nameHeight, colorTable[0]);
 
-    fontSetCurrent(101);
+    text_font(101);
 
-    int yStep = fontGetLineHeight() + 1;
+    int yStep = text_height() + 1;
     int y = 70;
 
     short beginnings[WORD_WRAP_MAX_COUNT];
@@ -6475,7 +6475,7 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
         char ch = *ending;
         *ending = '\0';
 
-        fontDrawText(pwin_buf + PERK_WINDOW_WIDTH * y + 280, beginning, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
+        text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * y + 280, beginning, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
 
         *ending = ch;
 
@@ -6687,7 +6687,7 @@ static void folder_clear()
     folder_line = 0;
     folder_ypos = 364;
 
-    v0 = fontGetLineHeight();
+    v0 = text_height();
 
     folder_max_lines = 9;
     folder_yoffset = v0 + 1;
@@ -6726,15 +6726,15 @@ static int folder_print_seperator(const char* string)
             if (folder_line - folder_top_line == folder_highlight_line) {
                 v8 = 1;
             }
-            lineHeight = fontGetLineHeight();
+            lineHeight = text_height();
             x = 280;
             y = folder_ypos + lineHeight / 2;
             if (string != NULL) {
-                gap = fontGetLetterSpacing();
+                gap = text_spacing();
                 // TODO: Not sure about this.
-                lineLen = fontGetStringWidth(string) + gap * 4;
+                lineLen = text_width(string) + gap * 4;
                 x = (x - lineLen) / 2;
-                fontDrawText(win_buf + 640 * folder_ypos + 34 + x + gap * 2, string, 640, 640, colorTable[992]);
+                text_to_buf(win_buf + 640 * folder_ypos + 34 + x + gap * 2, string, 640, 640, colorTable[992]);
                 windowDrawLine(edit_win, 34 + x + lineLen, y, 34 + 280, y, colorTable[992]);
             }
             windowDrawLine(edit_win, 34, y, 34 + x, y, colorTable[992]);
@@ -6762,7 +6762,7 @@ static bool folder_print_line(const char* string)
                 color = colorTable[992];
             }
 
-            fontDrawText(win_buf + 640 * folder_ypos + 34, string, 640, 640, color);
+            text_to_buf(win_buf + 640 * folder_ypos + 34, string, 640, 640, color);
             folder_ypos += folder_yoffset;
         }
 
@@ -6790,18 +6790,18 @@ static bool folder_print_kill(const char* name, int kills)
             }
 
             itoa(kills, killsString, 10);
-            int v6 = fontGetStringWidth(killsString);
+            int v6 = text_width(killsString);
 
             // TODO: Check.
-            gap = fontGetLetterSpacing();
-            int v11 = folder_ypos + fontGetLineHeight() / 2;
+            gap = text_spacing();
+            int v11 = folder_ypos + text_height() / 2;
 
-            fontDrawText(win_buf + 640 * folder_ypos + 34, name, 640, 640, color);
+            text_to_buf(win_buf + 640 * folder_ypos + 34, name, 640, 640, color);
 
-            int v12 = fontGetStringWidth(name);
+            int v12 = text_width(name);
             windowDrawLine(edit_win, 34 + v12 + gap, v11, 314 - v6 - gap, v11, color);
 
-            fontDrawText(win_buf + 640 * folder_ypos + 314 - v6, killsString, 640, 640, color);
+            text_to_buf(win_buf + 640 * folder_ypos + 314 - v6, killsString, 640, 640, color);
             folder_ypos += folder_yoffset;
         }
 

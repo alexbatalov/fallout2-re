@@ -1297,8 +1297,8 @@ void display_target_inventory(int a1, int a2, Inventory* inventory, int inventor
 // 0x4705A0
 static void display_inventory_info(Object* item, int quantity, unsigned char* dest, int pitch, bool a5)
 {
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     char formattedText[12];
 
@@ -1339,10 +1339,10 @@ static void display_inventory_info(Object* item, int quantity, unsigned char* de
     }
 
     if (draw) {
-        fontDrawText(dest, formattedText, 80, pitch, colorTable[32767]);
+        text_to_buf(dest, formattedText, 80, pitch, colorTable[32767]);
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x470650
@@ -2253,8 +2253,8 @@ void display_stats()
 
     char formattedText[80];
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     unsigned char* windowBuffer = windowGetBuffer(i_wid);
 
@@ -2269,38 +2269,38 @@ void display_stats()
 
     // Render character name.
     const char* critterName = critter_name(stack[0]);
-    fontDrawText(windowBuffer + 499 * 44 + 297, critterName, 80, 499, colorTable[992]);
+    text_to_buf(windowBuffer + 499 * 44 + 297, critterName, 80, 499, colorTable[992]);
 
     bufferDrawLine(windowBuffer,
         499,
         297,
-        3 * fontGetLineHeight() / 2 + 44,
+        3 * text_height() / 2 + 44,
         440,
-        3 * fontGetLineHeight() / 2 + 44,
+        3 * text_height() / 2 + 44,
         colorTable[992]);
 
     MessageListItem messageListItem;
 
-    int offset = 499 * 2 * fontGetLineHeight() + 499 * 44 + 297;
+    int offset = 499 * 2 * text_height() + 499 * 44 + 297;
     for (int stat = 0; stat < 7; stat++) {
         messageListItem.num = stat;
         if (message_search(&inventry_message_file, &messageListItem)) {
-            fontDrawText(windowBuffer + offset, messageListItem.text, 80, 499, colorTable[992]);
+            text_to_buf(windowBuffer + offset, messageListItem.text, 80, 499, colorTable[992]);
         }
 
         int value = critterGetStat(stack[0], stat);
         sprintf(formattedText, "%d", value);
-        fontDrawText(windowBuffer + offset + 24, formattedText, 80, 499, colorTable[992]);
+        text_to_buf(windowBuffer + offset + 24, formattedText, 80, 499, colorTable[992]);
 
-        offset += 499 * fontGetLineHeight();
+        offset += 499 * text_height();
     }
 
-    offset -= 499 * 7 * fontGetLineHeight();
+    offset -= 499 * 7 * text_height();
 
     for (int index = 0; index < 7; index += 1) {
         messageListItem.num = 7 + index;
         if (message_search(&inventry_message_file, &messageListItem)) {
-            fontDrawText(windowBuffer + offset + 40, messageListItem.text, 80, 499, colorTable[992]);
+            text_to_buf(windowBuffer + offset + 40, messageListItem.text, 80, 499, colorTable[992]);
         }
 
         if (v57[index] == -1) {
@@ -2313,13 +2313,13 @@ void display_stats()
             sprintf(formattedText, format, value1, value2);
         }
 
-        fontDrawText(windowBuffer + offset + 104, formattedText, 80, 499, colorTable[992]);
+        text_to_buf(windowBuffer + offset + 104, formattedText, 80, 499, colorTable[992]);
 
-        offset += 499 * fontGetLineHeight();
+        offset += 499 * text_height();
     }
 
-    bufferDrawLine(windowBuffer, 499, 297, 18 * fontGetLineHeight() / 2 + 48, 440, 18 * fontGetLineHeight() / 2 + 48, colorTable[992]);
-    bufferDrawLine(windowBuffer, 499, 297, 26 * fontGetLineHeight() / 2 + 48, 440, 26 * fontGetLineHeight() / 2 + 48, colorTable[992]);
+    bufferDrawLine(windowBuffer, 499, 297, 18 * text_height() / 2 + 48, 440, 18 * text_height() / 2 + 48, colorTable[992]);
+    bufferDrawLine(windowBuffer, 499, 297, 26 * text_height() / 2 + 48, 440, 26 * text_height() / 2 + 48, colorTable[992]);
 
     Object* itemsInHands[2] = {
         i_lhand,
@@ -2331,7 +2331,7 @@ void display_stats()
         HIT_MODE_RIGHT_WEAPON_PRIMARY,
     };
 
-    offset += 499 * fontGetLineHeight();
+    offset += 499 * text_height();
 
     for (int index = 0; index < 2; index += 1) {
         Object* item = itemsInHands[index];
@@ -2341,10 +2341,10 @@ void display_stats()
             // No item
             messageListItem.num = 14;
             if (message_search(&inventry_message_file, &messageListItem)) {
-                fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
+                text_to_buf(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
             }
 
-            offset += 499 * fontGetLineHeight();
+            offset += 499 * text_height();
 
             // Unarmed dmg:
             messageListItem.num = 24;
@@ -2355,16 +2355,16 @@ void display_stats()
                 sprintf(formattedText, "%s 1-%d", messageListItem.text, damage);
             }
 
-            fontDrawText(windowBuffer + offset, formattedText, 120, 499, colorTable[992]);
+            text_to_buf(windowBuffer + offset, formattedText, 120, 499, colorTable[992]);
 
-            offset += 3 * 499 * fontGetLineHeight();
+            offset += 3 * 499 * text_height();
             continue;
         }
 
         const char* itemName = item_name(item);
-        fontDrawText(windowBuffer + offset, itemName, 140, 499, colorTable[992]);
+        text_to_buf(windowBuffer + offset, itemName, 140, 499, colorTable[992]);
 
-        offset += 499 * fontGetLineHeight();
+        offset += 499 * text_height();
 
         int itemType = item_get_type(item);
         if (itemType != ITEM_TYPE_WEAPON) {
@@ -2372,11 +2372,11 @@ void display_stats()
                 // (Not worn)
                 messageListItem.num = 18;
                 if (message_search(&inventry_message_file, &messageListItem)) {
-                    fontDrawText(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
+                    text_to_buf(windowBuffer + offset, messageListItem.text, 120, 499, colorTable[992]);
                 }
             }
 
-            offset += 3 * 499 * fontGetLineHeight();
+            offset += 3 * 499 * text_height();
             continue;
         }
 
@@ -2409,10 +2409,10 @@ void display_stats()
                 }
             }
 
-            fontDrawText(windowBuffer + offset, formattedText, 140, 499, colorTable[992]);
+            text_to_buf(windowBuffer + offset, formattedText, 140, 499, colorTable[992]);
         }
 
-        offset += 499 * fontGetLineHeight();
+        offset += 499 * text_height();
 
         if (item_w_max_ammo(item) > 0) {
             int ammoTypePid = item_w_ammo_pid(item);
@@ -2439,10 +2439,10 @@ void display_stats()
                 sprintf(formattedText, "%s %d/%d", messageListItem.text, quantity, capacity);
             }
 
-            fontDrawText(windowBuffer + offset, formattedText, 140, 499, colorTable[992]);
+            text_to_buf(windowBuffer + offset, formattedText, 140, 499, colorTable[992]);
         }
 
-        offset += 2 * 499 * fontGetLineHeight();
+        offset += 2 * 499 * text_height();
     }
 
     // Total wt:
@@ -2458,16 +2458,16 @@ void display_stats()
                 color = colorTable[31744];
             }
 
-            fontDrawText(windowBuffer + offset + 15, formattedText, 120, 499, color);
+            text_to_buf(windowBuffer + offset + 15, formattedText, 120, 499, color);
         } else {
             int inventoryWeight = item_total_weight(stack[0]);
             sprintf(formattedText, "%s %d", messageListItem.text, inventoryWeight);
 
-            fontDrawText(windowBuffer + offset + 30, formattedText, 80, 499, colorTable[992]);
+            text_to_buf(windowBuffer + offset + 30, formattedText, 80, 499, colorTable[992]);
         }
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // Finds next item of given [itemType] (can be -1 which means any type of
@@ -2843,8 +2843,8 @@ int inven_from_button(int keyCode, Object** a2, Object*** a3, Object** a4)
 // 0x472D24
 void inven_display_msg(char* string)
 {
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     unsigned char* windowBuffer = windowGetBuffer(i_wid);
     windowBuffer += 499 * 44 + 297;
@@ -2858,7 +2858,7 @@ void inven_display_msg(char* string)
         }
 
         char* space = NULL;
-        if (fontGetStringWidth(c) > 152) {
+        if (text_width(c) > 152) {
             // Look for next space.
             space = c + 1;
             while (*space != '\0' && *space != ' ') {
@@ -2869,7 +2869,7 @@ void inven_display_msg(char* string)
                 // This was the last line containing very long word. Text
                 // drawing routine will silently truncate it after reaching
                 // desired length.
-                fontDrawText(windowBuffer + 499 * inven_display_msg_line * fontGetLineHeight(), c, 152, 499, colorTable[992]);
+                text_to_buf(windowBuffer + 499 * inven_display_msg_line * text_height(), c, 152, 499, colorTable[992]);
                 return;
             }
 
@@ -2885,7 +2885,7 @@ void inven_display_msg(char* string)
 
                 // Break string and measure it.
                 *nextSpace = '\0';
-                if (fontGetStringWidth(c) >= 152) {
+                if (text_width(c) >= 152) {
                     // Next space is too far to fit in one line. Restore next
                     // space's character and stop.
                     *nextSpace = ' ';
@@ -2905,12 +2905,12 @@ void inven_display_msg(char* string)
             }
         }
 
-        if (fontGetStringWidth(c) > 152) {
+        if (text_width(c) > 152) {
             debug_printf("\nError: inven_display_msg: word too long!");
             return;
         }
 
-        fontDrawText(windowBuffer + 499 * inven_display_msg_line * fontGetLineHeight(), c, 152, 499, colorTable[992]);
+        text_to_buf(windowBuffer + 499 * inven_display_msg_line * text_height(), c, 152, 499, colorTable[992]);
 
         if (space != NULL) {
             c = space + 1;
@@ -2922,7 +2922,7 @@ void inven_display_msg(char* string)
         }
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // Examines inventory item.
@@ -2930,8 +2930,8 @@ void inven_display_msg(char* string)
 // 0x472EB8
 void inven_obj_examine_func(Object* critter, Object* item)
 {
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     unsigned char* windowBuffer = windowGetBuffer(i_wid);
 
@@ -2955,7 +2955,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
     // Increment line counter to accomodate separator below.
     inven_display_msg_line += 1;
 
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
 
     // Draw separator.
     bufferDrawLine(windowBuffer,
@@ -2988,7 +2988,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
         inven_display_msg(formattedText);
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x47304C
@@ -4192,11 +4192,11 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
 {
     unsigned char* windowBuffer = windowGetBuffer(i_wid);
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     char formattedText[80];
-    int v45 = fontGetLineHeight() + 48 * inven_cur_disp;
+    int v45 = text_height() + 48 * inven_cur_disp;
 
     if (a2 != NULL) {
         unsigned char* src = windowGetBuffer(win);
@@ -4226,7 +4226,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
             sprintf(formattedText, "$%d", cost);
         }
 
-        fontDrawText(windowBuffer + 480 * (48 * inven_cur_disp + 24) + 169, formattedText, 80, 480, colorTable[32767]);
+        text_to_buf(windowBuffer + 480 * (48 * inven_cur_disp + 24) + 169, formattedText, 80, 480, colorTable[32767]);
 
         Rect rect;
         rect.left = 169;
@@ -4264,7 +4264,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
             sprintf(formattedText, "$%d", cost);
         }
 
-        fontDrawText(windowBuffer + 480 * (48 * inven_cur_disp + 24) + 254, formattedText, 80, 480, colorTable[32767]);
+        text_to_buf(windowBuffer + 480 * (48 * inven_cur_disp + 24) + 254, formattedText, 80, 480, colorTable[32767]);
 
         Rect rect;
         rect.left = 254;
@@ -4274,7 +4274,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
         win_draw_rect(i_wid, &rect);
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x4757F0
@@ -4902,8 +4902,8 @@ static int do_move_timer(int inventoryWindowType, Object* item, int max)
 // 0x476AB8
 static int setup_move_timer_win(int inventoryWindowType, Object* item)
 {
-    const int oldFont = fontGetCurrent();
-    fontSetCurrent(103);
+    const int oldFont = text_curr();
+    text_font(103);
 
     for (int index = 0; index < 8; index++) {
         mt_key[index] = NULL;
@@ -4929,15 +4929,15 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
         // MOVE ITEMS
         messageListItem.num = 21;
         if (message_search(&inventry_message_file, &messageListItem)) {
-            int length = fontGetStringWidth(messageListItem.text);
-            fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
+            int length = text_width(messageListItem.text);
+            text_to_buf(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
         }
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_SET_TIMER) {
         // SET TIMER
         messageListItem.num = 23;
         if (message_search(&inventry_message_file, &messageListItem)) {
-            int length = fontGetStringWidth(messageListItem.text);
-            fontDrawText(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
+            int length = text_width(messageListItem.text);
+            text_to_buf(windowBuffer + windowDescription->width * 9 + (windowDescription->width - length) / 2, messageListItem.text, 200, windowDescription->width, colorTable[21091]);
         }
 
         // Timer overlay
@@ -5027,11 +5027,11 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
             // ALL
             messageListItem.num = 22;
             if (message_search(&inventry_message_file, &messageListItem)) {
-                int length = fontGetStringWidth(messageListItem.text);
+                int length = text_width(messageListItem.text);
 
                 // TODO: Where is y? Is it hardcoded in to 376?
-                fontDrawText(buttonUpData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, colorTable[21091]);
-                fontDrawText(buttonDownData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, colorTable[18977]);
+                text_to_buf(buttonUpData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, colorTable[21091]);
+                text_to_buf(buttonDownData + (94 - length) / 2 + 376, messageListItem.text, 200, 94, colorTable[18977]);
 
                 btn = buttonCreate(mt_wid, 120, 80, 94, 33, -1, -1, -1, 5000, buttonUpData, buttonDownData, NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {
@@ -5043,7 +5043,7 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
 
     win_draw(mt_wid);
     inven_set_mouse(INVENTORY_WINDOW_CURSOR_ARROW);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return 0;
 }

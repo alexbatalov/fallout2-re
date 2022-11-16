@@ -723,20 +723,20 @@ static bool select_display_stats()
     int value;
     MessageListItem messageListItem;
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
-    fontGetCharacterWidth(0x20);
+    text_char_width(0x20);
 
-    int vh = fontGetLineHeight();
+    int vh = text_height();
     int y = 40;
 
     // NAME
     str = object_name(obj_dude);
     strcpy(text, str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_NAME_MID_X - (length / 2), text, 160, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_NAME_MID_X - (length / 2), text, 160, CS_WINDOW_WIDTH, colorTable[992]);
 
     // STRENGTH
     y += vh + vh + vh;
@@ -746,14 +746,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // PERCEPTION
     y += vh;
@@ -763,14 +763,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // ENDURANCE
     y += vh;
@@ -780,14 +780,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // CHARISMA
     y += vh;
@@ -797,14 +797,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // INTELLIGENCE
     y += vh;
@@ -814,14 +814,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // AGILITY
     y += vh;
@@ -831,14 +831,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // LUCK
     y += vh;
@@ -848,14 +848,14 @@ static bool select_display_stats()
 
     sprintf(text, "%s %02d", str, value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     y += vh; // blank line
 
@@ -868,14 +868,14 @@ static bool select_display_stats()
         strcpy(text, messageListItem.text);
     }
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
     sprintf(text, " %d/%d", critter_get_hits(obj_dude), value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // ARMOR CLASS
     y += vh;
@@ -883,14 +883,14 @@ static bool select_display_stats()
     str = stat_name(STAT_ARMOR_CLASS);
     strcpy(text, str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
     sprintf(text, " %d", value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // ACTION POINTS
     y += vh;
@@ -901,14 +901,14 @@ static bool select_display_stats()
         strcpy(text, messageListItem.text);
     }
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS);
     sprintf(text, " %d", value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     // MELEE DAMAGE
     y += vh;
@@ -916,14 +916,14 @@ static bool select_display_stats()
     str = stat_name(STAT_ARMOR_CLASS);
     strcpy(text, str);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     value = critterGetStat(obj_dude, STAT_ARMOR_CLASS);
     sprintf(text, " %d", value);
 
-    length = fontGetStringWidth(text);
-    fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+    length = text_width(text);
+    text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
     y += vh; // blank line
 
@@ -937,14 +937,14 @@ static bool select_display_stats()
         str = skill_name(skills[index]);
         strcpy(text, str);
 
-        length = fontGetStringWidth(text);
-        fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+        length = text_width(text);
+        text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
         value = skill_level(obj_dude, skills[index]);
         sprintf(text, " %d%%", value);
 
-        length = fontGetStringWidth(text);
-        fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+        length = text_width(text);
+        text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X, text, length, CS_WINDOW_WIDTH, colorTable[992]);
     }
 
     // TRAITS
@@ -957,11 +957,11 @@ static bool select_display_stats()
         str = trait_name(traits[index]);
         strcpy(text, str);
 
-        length = fontGetStringWidth(text);
-        fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
+        length = text_width(text);
+        text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_SECONDARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return true;
 }
@@ -969,8 +969,8 @@ static bool select_display_stats()
 // 0x4A8AE4
 static bool select_display_bio()
 {
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     char path[FILENAME_MAX];
     sprintf(path, "%s.bio", premade_characters[premade_index].fileName);
@@ -978,18 +978,18 @@ static bool select_display_bio()
     File* stream = fileOpen(path, "rt");
     if (stream != NULL) {
         int y = 40;
-        int lineHeight = fontGetLineHeight();
+        int lineHeight = text_height();
 
         char string[256];
         while (fileReadString(string, 256, stream) && y < 260) {
-            fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_BIO_X, string, CS_WINDOW_WIDTH - CS_WINDOW_BIO_X, CS_WINDOW_WIDTH, colorTable[992]);
+            text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_BIO_X, string, CS_WINDOW_WIDTH - CS_WINDOW_BIO_X, CS_WINDOW_WIDTH, colorTable[992]);
             y += lineHeight;
         }
 
         fileClose(stream);
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     return true;
 }

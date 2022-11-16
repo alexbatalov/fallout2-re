@@ -41,7 +41,7 @@ static int title_color;
 // 0x42C860
 void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 {
-    int oldFont = fontGetCurrent();
+    int oldFont = text_curr();
 
     loadColorTable("color.pal");
 
@@ -107,11 +107,11 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                         if (intermediateBuffer != NULL) {
                             memset(intermediateBuffer, 0, CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
 
-                            fontSetCurrent(title_font);
-                            int titleFontLineHeight = fontGetLineHeight();
+                            text_font(title_font);
+                            int titleFontLineHeight = text_height();
 
-                            fontSetCurrent(name_font);
-                            int nameFontLineHeight = fontGetLineHeight();
+                            text_font(name_font);
+                            int nameFontLineHeight = text_height();
 
                             int lineHeight = nameFontLineHeight + (titleFontLineHeight >= nameFontLineHeight ? titleFontLineHeight - nameFontLineHeight : 0);
                             int stringBufferSize = CREDITS_WINDOW_WIDTH * lineHeight;
@@ -135,15 +135,15 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                                 unsigned int tick = 0;
                                 bool stop = false;
                                 while (credits_get_next_line(str, &font, &color)) {
-                                    fontSetCurrent(font);
+                                    text_font(font);
 
-                                    int v19 = fontGetStringWidth(str);
+                                    int v19 = text_width(str);
                                     if (v19 >= CREDITS_WINDOW_WIDTH) {
                                         continue;
                                     }
 
                                     memset(stringBuffer, 0, stringBufferSize);
-                                    fontDrawText(stringBuffer, str, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_WIDTH, color);
+                                    text_to_buf(stringBuffer, str, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_WIDTH, color);
 
                                     unsigned char* dest = intermediateBuffer + CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH + (CREDITS_WINDOW_WIDTH - v19) / 2;
                                     unsigned char* src = stringBuffer;
@@ -241,7 +241,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
         }
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 }
 
 // 0x42CE6C

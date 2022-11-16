@@ -1,96 +1,74 @@
-#ifndef TEXT_FONT_H
-#define TEXT_FONT_H
+#ifndef FALLOUT_PLIB_GNW_TEXT_H_
+#define FALLOUT_PLIB_GNW_TEXT_H_
 
-#include <stdbool.h>
+#define FONT_SHADOW 0x10000
+#define FONT_UNDERLINE 0x20000
+#define FONT_MONO 0x40000
 
-// The maximum number of text fonts.
-#define TEXT_FONT_MAX (10)
+typedef void text_font_func(int font);
+typedef void text_to_buf_func(unsigned char* buf, const char* str, int swidth, int fullw, int color);
+typedef int text_height_func();
+typedef int text_width_func(const char* str);
+// TODO: Convert type to `char`.
+typedef int text_char_width_func(int ch);
+typedef int text_mono_width_func(const char* str);
+typedef int text_spacing_func();
+typedef int text_size_func(const char* str);
+typedef int text_max_func();
 
-// The maximum number of font managers.
-#define FONT_MANAGER_MAX (10)
+typedef struct FontMgr {
+    int low_font_num;
+    int high_font_num;
+    text_font_func* text_font;
+    text_to_buf_func* text_to_buf;
+    text_height_func* text_height;
+    text_width_func* text_width;
+    text_char_width_func* text_char_width;
+    text_mono_width_func* text_mono_width;
+    text_spacing_func* text_spacing;
+    text_size_func* text_size;
+    text_max_func* text_max;
+} FontMgr;
 
-typedef void FontManagerSetCurrentFontProc(int font);
-typedef void FontManagerDrawTextProc(unsigned char* buffer, const char* string, int length, int pitch, int color);
-typedef int FontManagerGetLineHeightProc();
-typedef int FontManagerGetStringWidthProc(const char* string);
-typedef int FontManagerGetCharacterWidthProc(int ch);
-typedef int FontManagerGetMonospacedStringWidthProc(const char* string);
-typedef int FontManagerGetLetterSpacingProc();
-typedef int FontManagerGetBufferSizeProc(const char* string);
-typedef int FontManagerGetMonospacedCharacterWidth();
+static_assert(sizeof(FontMgr) == 44, "wrong size");
 
-typedef struct FontManager {
-    int minFont;
-    int maxFont;
-    FontManagerSetCurrentFontProc* setCurrentProc;
-    FontManagerDrawTextProc* drawTextProc;
-    FontManagerGetLineHeightProc* getLineHeightProc;
-    FontManagerGetStringWidthProc* getStringWidthProc;
-    FontManagerGetCharacterWidthProc* getCharacterWidthProc;
-    FontManagerGetMonospacedStringWidthProc* getMonospacedStringWidthProc;
-    FontManagerGetLetterSpacingProc* getLetterSpacingProc;
-    FontManagerGetBufferSizeProc* getBufferSizeProc;
-    FontManagerGetMonospacedCharacterWidth* getMonospacedCharacterWidthProc;
-} FontManager;
+typedef FontMgr* FontMgrPtr;
 
-static_assert(sizeof(FontManager) == 44, "wrong size");
-
-typedef struct TextFontGlyph {
+typedef struct FontInfo {
     // The width of the glyph in pixels.
     int width;
 
-    // Data offset into [TextFont.data].
-    int dataOffset;
-} TextFontGlyph;
+    // Data offset into [Font.data].
+    int offset;
+} FontInfo;
 
-typedef struct TextFontDescriptor {
+typedef struct Font {
     // The number of glyphs in the font.
-    int glyphCount;
+    int num;
 
     // The height of the font.
-    int lineHeight;
+    int height;
 
     // Horizontal spacing between characters in pixels.
-    int letterSpacing;
+    int spacing;
 
-    TextFontGlyph* glyphs;
+    FontInfo* info;
     unsigned char* data;
-} TextFontDescriptor;
+} Font;
 
-#define FONT_SHADOW (0x10000)
-#define FONT_UNDERLINE (0x20000)
-#define FONT_MONO (0x40000)
+extern text_to_buf_func* text_to_buf;
+extern text_height_func* text_height;
+extern text_width_func* text_width;
+extern text_char_width_func* text_char_width;
+extern text_mono_width_func* text_mono_width;
+extern text_spacing_func* text_spacing;
+extern text_size_func* text_size;
+extern text_max_func* text_max;
 
-extern FontManager gTextFontManager;
-extern int gFontManagersCount;
-extern FontManagerDrawTextProc* fontDrawText;
-extern FontManagerGetLineHeightProc* fontGetLineHeight;
-extern FontManagerGetStringWidthProc* fontGetStringWidth;
-extern FontManagerGetCharacterWidthProc* fontGetCharacterWidth;
-extern FontManagerGetMonospacedStringWidthProc* fontGetMonospacedStringWidth;
-extern FontManagerGetLetterSpacingProc* fontGetLetterSpacing;
-extern FontManagerGetBufferSizeProc* fontGetBufferSize;
-extern FontManagerGetMonospacedCharacterWidth* fontGetMonospacedCharacterWidth;
+int GNW_text_init();
+void GNW_text_exit();
+int text_add_manager(FontMgrPtr mgr);
+int text_curr();
+void text_font(int font);
 
-extern TextFontDescriptor gTextFontDescriptors[TEXT_FONT_MAX];
-extern FontManager gFontManagers[FONT_MANAGER_MAX];
-extern TextFontDescriptor* gCurrentTextFontDescriptor;
-
-int textFontsInit();
-void textFontsExit();
-int textFontLoad(int font);
-int fontManagerAdd(FontManager* fontManager);
-void textFontSetCurrentImpl(int font);
-int fontGetCurrent();
-void fontSetCurrent(int font);
-bool fontManagerFind(int font, FontManager** fontManagerPtr);
-void textFontDrawImpl(unsigned char* buf, const char* string, int length, int pitch, int color);
-int textFontGetLineHeightImpl();
-int textFontGeStringWidthImpl(const char* string);
-int textFontGetCharacterWidthImpl(int ch);
-int textFontGetMonospacedStringWidthImpl(const char* string);
-int textFontGetLetterSpacingImpl();
-int textFontGetBufferSizeImpl(const char* string);
-int textFontGetMonospacedCharacterWidthImpl();
-
-#endif /* TEXT_FONT_H */
+#endif /* FALLOUT_PLIB_GNW_TEXT_H_ */

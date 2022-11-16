@@ -129,8 +129,8 @@ int main_menu_create()
     blitBufferToBuffer(background_data, 640, 480, 640, main_window_buf, 640);
     art_ptr_unlock(background_key);
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(100);
+    int oldFont = text_curr();
+    text_font(100);
 
     // Copyright.
     msg.num = 20;
@@ -141,7 +141,7 @@ int main_menu_create()
     // Version.
     char version[VERSION_MAX];
     getverstr(version);
-    len = fontGetStringWidth(version);
+    len = text_width(version);
     windowDrawText(main_window, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
 
     // menuup.frm
@@ -174,17 +174,17 @@ int main_menu_create()
         buttonSetMask(buttons[index], button_up_data);
     }
 
-    fontSetCurrent(104);
+    text_font(104);
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         msg.num = 9 + index;
         if (message_search(&misc_message_file, &msg)) {
-            len = fontGetStringWidth(msg.text);
-            fontDrawText(main_window_buf + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
+            len = text_width(msg.text);
+            text_to_buf(main_window_buf + 640 * (42 * index - index + 20) + 126 - (len / 2), msg.text, 640 - (126 - (len / 2)) - 1, 640, colorTable[21091]);
         }
     }
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     main_menu_created = true;
     main_menu_is_hidden = true;

@@ -516,7 +516,7 @@ int SaveGame(int mode)
                     int mouseY;
                     mouse_get_position(&mouseX, &mouseY);
 
-                    slot_cursor = (mouseY - 79) / (3 * fontGetLineHeight() + 4);
+                    slot_cursor = (mouseY - 79) / (3 * text_height() + 4);
                     if (slot_cursor < 0) {
                         slot_cursor = 0;
                     }
@@ -995,7 +995,7 @@ int LoadGame(int mode)
                     int mouseY;
                     mouse_get_position(&mouseX, &mouseY);
 
-                    int clickedSlot = (mouseY - 79) / (3 * fontGetLineHeight() + 4);
+                    int clickedSlot = (mouseY - 79) / (3 * text_height() + 4);
                     if (clickedSlot < 0) {
                         clickedSlot = 0;
                     } else if (clickedSlot > 9) {
@@ -1211,8 +1211,8 @@ int LoadGame(int mode)
 // 0x47D2E4
 static int LSGameStart(int windowType)
 {
-    fontsave = fontGetCurrent();
-    fontSetCurrent(103);
+    fontsave = text_curr();
+    text_font(103);
 
     bk_enable = false;
     if (!message_init(&lsgame_msgfl)) {
@@ -1227,7 +1227,7 @@ static int LSGameStart(int windowType)
     snapshot = (unsigned char*)mem_malloc(61632);
     if (snapshot == NULL) {
         message_exit(&lsgame_msgfl);
-        fontSetCurrent(fontsave);
+        text_font(fontsave);
         return -1;
     }
 
@@ -1273,7 +1273,7 @@ static int LSGameStart(int windowType)
             }
             mem_free(snapshot);
             message_exit(&lsgame_msgfl);
-            fontSetCurrent(fontsave);
+            text_font(fontsave);
 
             if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
                 if (bk_enable) {
@@ -1299,7 +1299,7 @@ static int LSGameStart(int windowType)
         // FIXME: Leaking frms.
         mem_free(snapshot);
         message_exit(&lsgame_msgfl);
-        fontSetCurrent(fontsave);
+        text_font(fontsave);
 
         if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
             if (bk_enable) {
@@ -1341,15 +1341,15 @@ static int LSGameStart(int windowType)
     char* msg;
 
     msg = getmsg(&lsgame_msgfl, &lsgmesg, messageId);
-    fontDrawText(lsgbuf + LS_WINDOW_WIDTH * 27 + 48, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(lsgbuf + LS_WINDOW_WIDTH * 27 + 48, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
     msg = getmsg(&lsgame_msgfl, &lsgmesg, 104);
-    fontDrawText(lsgbuf + LS_WINDOW_WIDTH * 348 + 410, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(lsgbuf + LS_WINDOW_WIDTH * 348 + 410, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
 
     // CANCEL
     msg = getmsg(&lsgame_msgfl, &lsgmesg, 105);
-    fontDrawText(lsgbuf + LS_WINDOW_WIDTH * 348 + 515, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(lsgbuf + LS_WINDOW_WIDTH * 348 + 515, msg, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, colorTable[18979]);
 
     int btn;
 
@@ -1422,7 +1422,7 @@ static int LSGameStart(int windowType)
     }
 
     buttonCreate(lsgwin, 55, 87, 230, 353, -1, -1, -1, 502, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
-    fontSetCurrent(101);
+    text_font(101);
 
     return 0;
 }
@@ -1431,7 +1431,7 @@ static int LSGameStart(int windowType)
 static int LSGameEnd(int windowType)
 {
     windowDestroy(lsgwin);
-    fontSetCurrent(fontsave);
+    text_font(fontsave);
     message_exit(&lsgame_msgfl);
 
     for (int index = 0; index < LOAD_SAVE_FRM_COUNT; index++) {
@@ -1873,9 +1873,9 @@ static void ShowSlotList(int a1)
         int color = index == slot_cursor ? colorTable[32747] : colorTable[992];
         const char* text = getmsg(&lsgame_msgfl, &lsgmesg, a1 != 0 ? 110 : 109);
         sprintf(str, "[   %s %.2d:   ]", text, index + 1);
-        fontDrawText(lsgbuf + LS_WINDOW_WIDTH * y + 55, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
+        text_to_buf(lsgbuf + LS_WINDOW_WIDTH * y + 55, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
-        y += fontGetLineHeight();
+        y += text_height();
         switch (LSstatus[index]) {
         case SLOT_STATE_OCCUPIED:
             strcpy(str, LSData[index].description);
@@ -1899,8 +1899,8 @@ static void ShowSlotList(int a1)
             break;
         }
 
-        fontDrawText(lsgbuf + LS_WINDOW_WIDTH * y + 55, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
-        y += 2 * fontGetLineHeight() + 4;
+        text_to_buf(lsgbuf + LS_WINDOW_WIDTH * y + 55, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
+        y += 2 * text_height() + 4;
     }
 }
 
@@ -1917,7 +1917,7 @@ static void DrawInfoBox(int a1)
     case SLOT_STATE_OCCUPIED:
         do {
             LoadSaveSlotData* ptr = &(LSData[a1]);
-            fontDrawText(lsgbuf + LS_WINDOW_WIDTH * 254 + 396, ptr->characterName, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
+            text_to_buf(lsgbuf + LS_WINDOW_WIDTH * 254 + 396, ptr->characterName, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
             int v4 = ptr->gameTime / 600;
             int minutes = v4 % 60;
@@ -1927,8 +1927,8 @@ static void DrawInfoBox(int a1)
             text = getmsg(&lsgame_msgfl, &lsgmesg, 116 + ptr->gameMonth);
             sprintf(str, "%.2d %s %.4d   %.4d", ptr->gameDay, text, ptr->gameYear, time);
 
-            int v2 = fontGetLineHeight();
-            fontDrawText(lsgbuf + LS_WINDOW_WIDTH * (256 + v2) + 397, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
+            int v2 = text_height();
+            text_to_buf(lsgbuf + LS_WINDOW_WIDTH * (256 + v2) + 397, str, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 
             const char* v22 = map_get_elev_idx(ptr->map, ptr->elevation);
             const char* v9 = map_get_short_name(ptr->map);
@@ -1943,7 +1943,7 @@ static void DrawInfoBox(int a1)
                     char* ending = str + beginnings[index + 1];
                     char c = *ending;
                     *ending = '\0';
-                    fontDrawText(lsgbuf + LS_WINDOW_WIDTH * y + 399, beginning, 164, LS_WINDOW_WIDTH, color);
+                    text_to_buf(lsgbuf + LS_WINDOW_WIDTH * y + 399, beginning, 164, LS_WINDOW_WIDTH, color);
                     y += v2 + 2;
                 }
             }
@@ -1970,7 +1970,7 @@ static void DrawInfoBox(int a1)
         assert(false && "Should be unreachable");
     }
 
-    fontDrawText(dest, text, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
+    text_to_buf(dest, text, LS_WINDOW_WIDTH, LS_WINDOW_WIDTH, color);
 }
 
 // 0x47EC48
@@ -2028,13 +2028,13 @@ static int GetComment(int a1)
         lsbmp[LOAD_SAVE_FRM_BOX],
         ginfo[LOAD_SAVE_FRM_BOX].height * ginfo[LOAD_SAVE_FRM_BOX].width);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     const char* msg;
 
     // DONE
     msg = getmsg(&lsgame_msgfl, &lsgmesg, 104);
-    fontDrawText(windowBuffer + ginfo[LOAD_SAVE_FRM_BOX].width * 57 + 56,
+    text_to_buf(windowBuffer + ginfo[LOAD_SAVE_FRM_BOX].width * 57 + 56,
         msg,
         ginfo[LOAD_SAVE_FRM_BOX].width,
         ginfo[LOAD_SAVE_FRM_BOX].width,
@@ -2042,7 +2042,7 @@ static int GetComment(int a1)
 
     // CANCEL
     msg = getmsg(&lsgame_msgfl, &lsgmesg, 105);
-    fontDrawText(windowBuffer + ginfo[LOAD_SAVE_FRM_BOX].width * 57 + 181,
+    text_to_buf(windowBuffer + ginfo[LOAD_SAVE_FRM_BOX].width * 57 + 181,
         msg,
         ginfo[LOAD_SAVE_FRM_BOX].width,
         ginfo[LOAD_SAVE_FRM_BOX].width,
@@ -2054,14 +2054,14 @@ static int GetComment(int a1)
     char title[260];
     strcpy(title, msg);
 
-    int width = fontGetStringWidth(title);
-    fontDrawText(windowBuffer + ginfo[LOAD_SAVE_FRM_BOX].width * 7 + (ginfo[LOAD_SAVE_FRM_BOX].width - width) / 2,
+    int width = text_width(title);
+    text_to_buf(windowBuffer + ginfo[LOAD_SAVE_FRM_BOX].width * 7 + (ginfo[LOAD_SAVE_FRM_BOX].width - width) / 2,
         title,
         ginfo[LOAD_SAVE_FRM_BOX].width,
         ginfo[LOAD_SAVE_FRM_BOX].width,
         colorTable[18979]);
 
-    fontSetCurrent(101);
+    text_font(101);
 
     int btn;
 
@@ -2128,9 +2128,9 @@ static int GetComment(int a1)
 // 0x47F084
 static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* description, int maxLength, int x, int y, int textColor, int backgroundColor, int flags)
 {
-    int cursorWidth = fontGetStringWidth("_") - 4;
+    int cursorWidth = text_width("_") - 4;
     int windowWidth = windowGetWidth(win);
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
     unsigned char* windowBuffer = windowGetBuffer(win);
     if (maxLength > 255) {
         maxLength = 255;
@@ -2143,10 +2143,10 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
     text[textLength] = ' ';
     text[textLength + 1] = '\0';
 
-    int nameWidth = fontGetStringWidth(text);
+    int nameWidth = text_width(text);
 
     bufferFill(windowBuffer + windowWidth * y + x, nameWidth, lineHeight, windowWidth, backgroundColor);
-    fontDrawText(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
+    text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
 
     win_draw(win);
 
@@ -2170,7 +2170,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
             rc = -1;
         } else {
             if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && textLength > 0) {
-                bufferFill(windowBuffer + windowWidth * y + x, fontGetStringWidth(text), lineHeight, windowWidth, backgroundColor);
+                bufferFill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
 
                 // TODO: Probably incorrect, needs testing.
                 if (v1 == 1) {
@@ -2179,7 +2179,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
 
                 text[textLength - 1] = ' ';
                 text[textLength] = '\0';
-                fontDrawText(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
+                text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
                 textLength--;
             } else if ((keyCode >= KEY_FIRST_INPUT_CHARACTER && keyCode <= KEY_LAST_INPUT_CHARACTER) && textLength < maxLength) {
                 if ((flags & 0x01) != 0) {
@@ -2188,12 +2188,12 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
                     }
                 }
 
-                bufferFill(windowBuffer + windowWidth * y + x, fontGetStringWidth(text), lineHeight, windowWidth, backgroundColor);
+                bufferFill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
 
                 text[textLength] = keyCode & 0xFF;
                 text[textLength + 1] = ' ';
                 text[textLength + 2] = '\0';
-                fontDrawText(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
+                text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
                 textLength++;
 
                 win_draw(win);
@@ -2206,7 +2206,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
             blink = !blink;
 
             int color = blink ? backgroundColor : textColor;
-            bufferFill(windowBuffer + windowWidth * y + x + fontGetStringWidth(text) - cursorWidth, cursorWidth, lineHeight - 2, windowWidth, color);
+            bufferFill(windowBuffer + windowWidth * y + x + text_width(text) - cursorWidth, cursorWidth, lineHeight - 2, windowWidth, color);
             win_draw(win);
         }
 

@@ -16,23 +16,23 @@ int word_wrap(const char* string, int width, short* breakpoints, short* breakpoi
         breakpoints[index] = -1;
     }
 
-    if (fontGetMonospacedCharacterWidth() > width) {
+    if (text_max() > width) {
         return -1;
     }
 
-    if (fontGetStringWidth(string) < width) {
+    if (text_width(string) < width) {
         breakpoints[*breakpointsLengthPtr] = (short)strlen(string);
         *breakpointsLengthPtr += 1;
         return 0;
     }
 
-    int gap = fontGetLetterSpacing();
+    int gap = text_spacing();
 
     int accum = 0;
     const char* prevSpaceOrHyphen = NULL;
     const char* pch = string;
     while (*pch != '\0') {
-        accum += gap + fontGetCharacterWidth(*pch & 0xFF);
+        accum += gap + text_char_width(*pch & 0xFF);
         if (accum <= width) {
             // NOTE: quests.txt #807 uses extended ascii.
             if (isspace(*pch & 0xFF) || *pch == '-') {

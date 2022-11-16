@@ -330,8 +330,8 @@ void automap(bool isInGame, bool isUsingScanner)
         color = colorTable[22025];
     }
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
     int automapWindowX = AUTOMAP_WINDOW_X;
     int automapWindowY = AUTOMAP_WINDOW_Y;
@@ -462,7 +462,7 @@ void automap(bool isInGame, bool isUsingScanner)
     }
 
     windowDestroy(window);
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     for (int index = 0; index < AUTOMAP_FRM_COUNT; index++) {
         art_ptr_unlock(frmHandle[index]);

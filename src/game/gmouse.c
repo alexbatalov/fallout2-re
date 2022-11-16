@@ -1926,10 +1926,10 @@ int gmouse_3d_build_to_hit_frame(const char* string, int color)
         gmouse_3d_to_hit_frame_data,
         gmouse_3d_to_hit_frame_width);
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
-    fontDrawText(gmouse_3d_to_hit_frame_data + gmouse_3d_to_hit_frame_width + crosshairFrmWidth + 1,
+    text_to_buf(gmouse_3d_to_hit_frame_data + gmouse_3d_to_hit_frame_width + crosshairFrmWidth + 1,
         string,
         gmouse_3d_to_hit_frame_width - crosshairFrmWidth,
         gmouse_3d_to_hit_frame_width,
@@ -1941,7 +1941,7 @@ int gmouse_3d_build_to_hit_frame(const char* string, int color)
         gmouse_3d_to_hit_frame_width,
         colorTable[0]);
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     art_ptr_unlock(crosshairFrmHandle);
 
@@ -1957,15 +1957,15 @@ int gmouse_3d_build_hex_frame(const char* string, int color)
         return 0;
     }
 
-    int oldFont = fontGetCurrent();
-    fontSetCurrent(101);
+    int oldFont = text_curr();
+    text_font(101);
 
-    int length = fontGetStringWidth(string);
-    fontDrawText(gmouse_3d_hex_frame_data + gmouse_3d_hex_frame_width * (gmouse_3d_hex_frame_height - fontGetLineHeight()) / 2 + (gmouse_3d_hex_frame_width - length) / 2, string, gmouse_3d_hex_frame_width, gmouse_3d_hex_frame_width, color);
+    int length = text_width(string);
+    text_to_buf(gmouse_3d_hex_frame_data + gmouse_3d_hex_frame_width * (gmouse_3d_hex_frame_height - text_height()) / 2 + (gmouse_3d_hex_frame_width - length) / 2, string, gmouse_3d_hex_frame_width, gmouse_3d_hex_frame_width, color);
 
     bufferOutline(gmouse_3d_hex_frame_data, gmouse_3d_hex_frame_width, gmouse_3d_hex_frame_height, gmouse_3d_hex_frame_width, colorTable[0]);
 
-    fontSetCurrent(oldFont);
+    text_font(oldFont);
 
     int fid = art_id(OBJ_TYPE_INTERFACE, 1, 0, 0, 0);
     gmouse_3d_set_fid(fid);

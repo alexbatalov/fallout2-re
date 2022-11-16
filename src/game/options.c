@@ -469,7 +469,7 @@ int do_optionsFunc(int initialKeyCode)
 // 0x48FE14
 static int OptnStart()
 {
-    fontsave = fontGetCurrent();
+    fontsave = text_curr();
 
     if (!message_init(&optn_msgfl)) {
         return -1;
@@ -553,9 +553,9 @@ static int OptnStart()
     winbuf = windowGetBuffer(optnwin);
     memcpy(winbuf, opbmp[OPTIONS_WINDOW_FRM_BACKGROUND], ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].width * ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].height);
 
-    fontSetCurrent(103);
+    text_font(103);
 
-    int textY = (ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height - fontGetLineHeight()) / 2 + 1;
+    int textY = (ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height - text_height()) / 2 + 1;
     int buttonY = 17;
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index += 2) {
@@ -564,13 +564,13 @@ static int OptnStart()
         const char* msg = getmsg(&optn_msgfl, &optnmesg, index / 2);
         strcpy(text, msg);
 
-        int textX = (ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width - fontGetStringWidth(text)) / 2;
+        int textX = (ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width - text_width(text)) / 2;
         if (textX < 0) {
             textX = 0;
         }
 
-        fontDrawText(opbtns[index] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[18979]);
-        fontDrawText(opbtns[index + 1] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[14723]);
+        text_to_buf(opbtns[index] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[18979]);
+        text_to_buf(opbtns[index + 1] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[14723]);
 
         int btn = buttonCreate(optnwin, 13, buttonY, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, opbtns[index], opbtns[index + 1], NULL, 32);
         if (btn != -1) {
@@ -580,7 +580,7 @@ static int OptnStart()
         buttonY += ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 3;
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
     win_draw(optnwin);
 
@@ -591,7 +591,7 @@ static int OptnStart()
 static int OptnEnd()
 {
     windowDestroy(optnwin);
-    fontSetCurrent(fontsave);
+    text_font(fontsave);
     message_exit(&optn_msgfl);
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
@@ -706,25 +706,25 @@ int PauseWindow(bool a1)
         windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 42 + 13,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width);
 
-    fontsave = fontGetCurrent();
-    fontSetCurrent(103);
+    fontsave = text_curr();
+    text_font(103);
 
     char* messageItemText;
 
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 300);
-    fontDrawText(windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 45 + 52,
+    text_to_buf(windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 45 + 52,
         messageItemText,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         colorTable[18979]);
 
-    fontSetCurrent(104);
+    text_font(104);
 
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 301);
     strcpy(path, messageItemText);
 
-    int length = fontGetStringWidth(path);
-    fontDrawText(windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 10 + 2 + (frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width - length) / 2,
+    int length = text_width(path);
+    text_to_buf(windowBuffer + frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * 10 + 2 + (frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width - length) / 2,
         path,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
@@ -798,7 +798,7 @@ int PauseWindow(bool a1)
         gmouse_set_cursor(MOUSE_CURSOR_ARROW);
     }
 
-    fontSetCurrent(fontsave);
+    text_font(fontsave);
 
     return 0;
 }
@@ -927,45 +927,45 @@ static int PrefStart()
         prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND],
         ginfo2[PREFERENCES_WINDOW_FRM_BACKGROUND].width * ginfo2[PREFERENCES_WINDOW_FRM_BACKGROUND].height);
 
-    fontSetCurrent(104);
+    text_font(104);
 
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 100);
-    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 10 + 74, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * 10 + 74, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     messageItemId = 101;
     for (i = 0; i < PRIMARY_PREF_COUNT; i++) {
         messageItemText = getmsg(&optn_msgfl, &optnmesg, messageItemId++);
-        x = 99 - fontGetStringWidth(messageItemText) / 2;
-        fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * row1Ytab[i] + x, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+        x = 99 - text_width(messageItemText) / 2;
+        text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * row1Ytab[i] + x, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     for (i = 0; i < SECONDARY_PREF_COUNT; i++) {
         messageItemText = getmsg(&optn_msgfl, &optnmesg, messageItemId++);
-        fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * row2Ytab[i] + 206, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+        text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * row2Ytab[i] + 206, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     for (i = 0; i < RANGE_PREF_COUNT; i++) {
         messageItemText = getmsg(&optn_msgfl, &optnmesg, messageItemId++);
-        fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * row3Ytab[i] + 384, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+        text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * row3Ytab[i] + 384, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
     }
 
     // DEFAULT
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 120);
-    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 43, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 43, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // DONE
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 4);
-    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 169, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 169, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // CANCEL
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 121);
-    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 283, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * 449 + 283, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     // Affect player speed
     messageItemText = getmsg(&optn_msgfl, &optnmesg, 122);
-    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * 72 + 405, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+    text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * 72 + 405, messageItemText, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
 
     for (i = 0; i < PREF_COUNT; i++) {
         UpdateThing(i);
@@ -1083,7 +1083,7 @@ static int PrefStart()
         buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    fontSetCurrent(101);
+    text_font(101);
 
     win_draw(prfwin);
 
@@ -1113,7 +1113,7 @@ static void DoThing(int eventCode)
         if (sqrt(pow((double)x - (double)v1, 2) + pow((double)y - (double)v2, 2)) > 16.0) {
             if (y > meta->knobY) {
                 int v14 = meta->knobY + bglby[0];
-                if (y >= v14 && y <= v14 + fontGetLineHeight()) {
+                if (y >= v14 && y <= v14 + text_height()) {
                     if (x >= meta->minX && x <= meta->knobX) {
                         *valuePtr = 0;
                         meta->direction = 0;
@@ -1140,7 +1140,7 @@ static void DoThing(int eventCode)
 
             if (meta->valuesCount == 4) {
                 int v19 = meta->knobY + bglby[3];
-                if (y >= v19 && y <= v19 + 2 * fontGetLineHeight() && x >= meta->knobX + bglbx[3] && x <= meta->maxX) {
+                if (y >= v19 && y <= v19 + 2 * text_height() && x >= meta->knobX + bglbx[3] && x <= meta->maxX) {
                     *valuePtr = 3;
                     meta->direction = 1;
                     valueChanged = true;
@@ -1186,7 +1186,7 @@ static void DoThing(int eventCode)
 
         if (sqrt(pow((double)x - (double)v1, 2) + pow((double)y - (double)v2, 2)) > 10.0) {
             int v23 = meta->knobY - 5;
-            if (y >= v23 && y <= v23 + fontGetLineHeight() + 2) {
+            if (y >= v23 && y <= v23 + text_height() + 2) {
                 if (x >= meta->minX && x <= meta->knobX) {
                     *valuePtr = preferenceIndex == PREF_COMBAT_MESSAGES ? 1 : 0;
                     valueChanged = true;
@@ -1339,15 +1339,15 @@ static void DoThing(int eventCode)
                         // 0x4926F3
                         switch (meta->valuesCount) {
                         case 2:
-                            x = 624 - fontGetStringWidth(str);
+                            x = 624 - text_width(str);
                             break;
                         case 3:
                             // This code path does not use floating-point arithmetic
-                            x = 504 - fontGetStringWidth(str) / 2 - 2;
+                            x = 504 - text_width(str) / 2 - 2;
                             break;
                         case 4:
                             // Uses floating-point arithmetic
-                            x = 444 + fontGetStringWidth(str) / 2 - 8;
+                            x = 444 + text_width(str) / 2 - 8;
                             break;
                         }
                         break;
@@ -1355,20 +1355,20 @@ static void DoThing(int eventCode)
                         // 0x492766
                         switch (meta->valuesCount) {
                         case 3:
-                            x = 624 - fontGetStringWidth(str);
+                            x = 624 - text_width(str);
                             break;
                         case 4:
                             // Uses floating-point arithmetic
-                            x = 564 - fontGetStringWidth(str) - 4;
+                            x = 564 - text_width(str) - 4;
                             break;
                         }
                         break;
                     case 3:
                         // 0x49279E
-                        x = 624 - fontGetStringWidth(str);
+                        x = 624 - text_width(str);
                         break;
                     }
-                    fontDrawText(prefbuf + PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + x, str, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
+                    text_to_buf(prefbuf + PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + x, str, PREFERENCES_WINDOW_WIDTH, PREFERENCES_WINDOW_WIDTH, colorTable[18979]);
                 }
             } else {
                 int off = PREFERENCES_WINDOW_WIDTH * meta->knobY + 384;
@@ -1391,7 +1391,7 @@ static void DoThing(int eventCode)
 // 0x491A68
 static void UpdateThing(int index)
 {
-    fontSetCurrent(101);
+    text_font(101);
 
     PreferenceDescription* meta = &(btndat[index]);
 
@@ -1416,10 +1416,10 @@ static void UpdateThing(int index)
             strcpy(copy, text);
 
             int x = meta->knobX + bglbx[valueIndex];
-            int len = fontGetStringWidth(copy);
+            int len = text_width(copy);
             switch (valueIndex) {
             case 0:
-                x -= fontGetStringWidth(copy);
+                x -= text_width(copy);
                 meta->minX = x;
                 break;
             case 1:
@@ -1441,14 +1441,14 @@ static void UpdateThing(int index)
             const char* s;
             if (*p != '\0') {
                 *p = '\0';
-                fontDrawText(prefbuf + 640 * y + x, copy, 640, 640, colorTable[18979]);
+                text_to_buf(prefbuf + 640 * y + x, copy, 640, 640, colorTable[18979]);
                 s = p + 1;
-                y += fontGetLineHeight();
+                y += text_height();
             } else {
                 s = copy;
             }
 
-            fontDrawText(prefbuf + 640 * y + x, s, 640, 640, colorTable[18979]);
+            text_to_buf(prefbuf + 640 * y + x, s, 640, 640, colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
@@ -1475,12 +1475,12 @@ static void UpdateThing(int index)
             int x;
             if (value) {
                 x = meta->knobX + smlbx[value];
-                meta->maxX = x + fontGetStringWidth(text);
+                meta->maxX = x + text_width(text);
             } else {
-                x = meta->knobX + smlbx[value] - fontGetStringWidth(text);
+                x = meta->knobX + smlbx[value] - text_width(text);
                 meta->minX = x;
             }
-            fontDrawText(prefbuf + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
+            text_to_buf(prefbuf + 640 * (meta->knobY - 5) + x, text, 640, 640, colorTable[18979]);
         }
 
         int value = *(meta->valuePtr);
@@ -1577,15 +1577,15 @@ static void UpdateThing(int index)
                 // 0x4926F3
                 switch (meta->valuesCount) {
                 case 2:
-                    x = 624 - fontGetStringWidth(str);
+                    x = 624 - text_width(str);
                     break;
                 case 3:
                     // This code path does not use floating-point arithmetic
-                    x = 504 - fontGetStringWidth(str) / 2 - 2;
+                    x = 504 - text_width(str) / 2 - 2;
                     break;
                 case 4:
                     // Uses floating-point arithmetic
-                    x = 444 + fontGetStringWidth(str) / 2 - 8;
+                    x = 444 + text_width(str) / 2 - 8;
                     break;
                 }
                 break;
@@ -1593,20 +1593,20 @@ static void UpdateThing(int index)
                 // 0x492766
                 switch (meta->valuesCount) {
                 case 3:
-                    x = 624 - fontGetStringWidth(str);
+                    x = 624 - text_width(str);
                     break;
                 case 4:
                     // Uses floating-point arithmetic
-                    x = 564 - fontGetStringWidth(str) - 4;
+                    x = 564 - text_width(str) - 4;
                     break;
                 }
                 break;
             case 3:
                 // 0x49279E
-                x = 624 - fontGetStringWidth(str);
+                x = 624 - text_width(str);
                 break;
             }
-            fontDrawText(prefbuf + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
+            text_to_buf(prefbuf + 640 * (meta->knobY - 12) + x, str, 640, 640, colorTable[18979]);
         }
     } else {
         // return false;

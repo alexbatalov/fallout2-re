@@ -219,7 +219,7 @@ int gmovie_play(int movie, int flags)
         oldTextColor = windowGetTextColor();
         windowSetTextColor(1.0, 1.0, 1.0);
 
-        oldFont = fontGetCurrent();
+        oldFont = text_curr();
         windowSetFont(101);
     }
 

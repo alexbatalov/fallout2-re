@@ -143,7 +143,7 @@ int skilldex_select()
 // 0x4AC054
 static int skilldex_start()
 {
-    fontsave = fontGetCurrent();
+    fontsave = text_curr();
     bk_enable = false;
 
     gmouse_3d_off();
@@ -249,11 +249,11 @@ static int skilldex_start()
         skldxbmp[SKILLDEX_FRM_BACKGROUND],
         ginfo[SKILLDEX_FRM_BACKGROUND].width * ginfo[SKILLDEX_FRM_BACKGROUND].height);
 
-    fontSetCurrent(103);
+    text_font(103);
 
     // Render "SKILLDEX" title.
     char* title = getmsg(&skldxmsg, &mesg, 100);
-    fontDrawText(winbuf + 14 * ginfo[SKILLDEX_FRM_BACKGROUND].width + 55,
+    text_to_buf(winbuf + 14 * ginfo[SKILLDEX_FRM_BACKGROUND].width + 55,
         title,
         ginfo[SKILLDEX_FRM_BACKGROUND].width,
         ginfo[SKILLDEX_FRM_BACKGROUND].width,
@@ -295,7 +295,7 @@ static int skilldex_start()
     }
 
     // Render skill buttons.
-    int lineHeight = fontGetLineHeight();
+    int lineHeight = text_height();
 
     int buttonY = 45;
     int nameY = ((ginfo[SKILLDEX_FRM_BUTTON_OFF].height - lineHeight) / 2) + 1;
@@ -303,18 +303,18 @@ static int skilldex_start()
         char name[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
         strcpy(name, getmsg(&skldxmsg, &mesg, 102 + index));
 
-        int nameX = ((ginfo[SKILLDEX_FRM_BUTTON_OFF].width - fontGetStringWidth(name)) / 2) + 1;
+        int nameX = ((ginfo[SKILLDEX_FRM_BUTTON_OFF].width - text_width(name)) / 2) + 1;
         if (nameX < 0) {
             nameX = 0;
         }
 
-        fontDrawText(skldxbtn[index * 2] + ginfo[SKILLDEX_FRM_BUTTON_ON].width * nameY + nameX,
+        text_to_buf(skldxbtn[index * 2] + ginfo[SKILLDEX_FRM_BUTTON_ON].width * nameY + nameX,
             name,
             ginfo[SKILLDEX_FRM_BUTTON_ON].width,
             ginfo[SKILLDEX_FRM_BUTTON_ON].width,
             colorTable[18979]);
 
-        fontDrawText(skldxbtn[index * 2 + 1] + ginfo[SKILLDEX_FRM_BUTTON_OFF].width * nameY + nameX,
+        text_to_buf(skldxbtn[index * 2 + 1] + ginfo[SKILLDEX_FRM_BUTTON_OFF].width * nameY + nameX,
             name,
             ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
             ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
@@ -342,7 +342,7 @@ static int skilldex_start()
 
     // Render "CANCEL" button.
     char* cancel = getmsg(&skldxmsg, &mesg, 101);
-    fontDrawText(winbuf + ginfo[SKILLDEX_FRM_BACKGROUND].width * 337 + 72,
+    text_to_buf(winbuf + ginfo[SKILLDEX_FRM_BACKGROUND].width * 337 + 72,
         cancel,
         ginfo[SKILLDEX_FRM_BACKGROUND].width,
         ginfo[SKILLDEX_FRM_BACKGROUND].width,
@@ -385,7 +385,7 @@ static void skilldex_end()
 
     message_exit(&skldxmsg);
 
-    fontSetCurrent(fontsave);
+    text_font(fontsave);
 
     if (bk_enable) {
         map_enable_bk_processes();
