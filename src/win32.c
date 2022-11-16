@@ -2,7 +2,7 @@
 
 #include <signal.h>
 
-#include "args.h"
+#include "plib/gnw/doscmdln.h"
 #include "core.h"
 #include "game/main.h"
 #include "window_manager.h"

@@ -1,4 +1,4 @@
-#include "args.h"
+#include "plib/gnw/doscmdln.h"
 
 #include <stdlib.h>
 #include <string.h>
