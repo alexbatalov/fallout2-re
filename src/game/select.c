@@ -5,7 +5,7 @@
 
 #include "game/art.h"
 #include "game/editor.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "game/critter.h"
 #include "db.h"

@@ -1,6 +1,6 @@
 #include "core.h"
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "dxinput.h"
 #include "draw.h"
 #include "memory.h"

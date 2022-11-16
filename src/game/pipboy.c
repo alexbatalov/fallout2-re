@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "game/automap.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/combat.h"
 #include "game/config.h"
 #include "core.h"

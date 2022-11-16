@@ -6,7 +6,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "game/cycle.h"
 #include "debug.h"

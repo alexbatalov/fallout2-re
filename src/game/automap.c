@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/config.h"
 #include "core.h"
 #include "game/bmpdlog.h"

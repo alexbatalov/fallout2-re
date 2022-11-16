@@ -1,4 +1,4 @@
-#include "color.h"
+#include "plib/color/color.h"
 
 #include <math.h>
 #include <string.h>

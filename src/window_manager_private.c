@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "draw.h"
 #include "memory.h"

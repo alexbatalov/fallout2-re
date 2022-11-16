@@ -1,6 +1,6 @@
 #include "game/cycle.h"
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "game/gconfig.h"
 #include "game/palette.h"

@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "game/art.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/combat.h"
 #include "core.h"
 #include "draw.h"

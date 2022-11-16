@@ -1,6 +1,6 @@
 #include "window_manager.h"
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "db.h"
 #include "debug.h"

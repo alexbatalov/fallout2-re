@@ -6,7 +6,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/config.h"
 #include "core.h"
 #include "debug.h"

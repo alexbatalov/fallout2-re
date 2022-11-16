@@ -1,6 +1,6 @@
 #include "mouse.h"
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "dxinput.h"
 #include "memory.h"

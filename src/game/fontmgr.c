@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "db.h"
 #include "int/memdbg.h"
 #include "text_font.h"

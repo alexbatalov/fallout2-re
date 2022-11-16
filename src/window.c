@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "int/datafile.h"
 #include "draw.h"

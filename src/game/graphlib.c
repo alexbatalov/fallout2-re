@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "color.h"
+#include "plib/color/color.h"
 #include "debug.h"
 #include "memory.h"
 

@@ -7,7 +7,7 @@
 #include "game/actions.h"
 #include "game/anim.h"
 #include "game/art.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/combatai.h"
 #include "core.h"
 #include "game/critter.h"

@@ -8,7 +8,7 @@
 
 #include "game/automap.h"
 #include "game/editor.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/combat.h"
 #include "game/combatai.h"
 #include "core.h"

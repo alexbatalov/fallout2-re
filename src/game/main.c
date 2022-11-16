@@ -16,7 +16,7 @@
 #include "game/amutex.h"
 #include "game/art.h"
 #include "game/select.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "core.h"
 #include "game/credits.h"
 #include "game/cycle.h"

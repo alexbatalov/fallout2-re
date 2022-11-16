@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "game/actions.h"
-#include "color.h"
+#include "plib/color/color.h"
 #include "game/combat.h"
 #include "game/critter.h"
 #include "debug.h"
