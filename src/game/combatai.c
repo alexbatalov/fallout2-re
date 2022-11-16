@@ -3172,7 +3172,7 @@ int combatai_msg(Object* a1, Attack* attack, int type, int delay)
 // 0x42B80C
 static int ai_print_msg(Object* critter, int type)
 {
-    if (textObjectsGetCount() > 0) {
+    if (text_object_count() > 0) {
         return 0;
     }
 
@@ -3190,7 +3190,7 @@ static int ai_print_msg(Object* critter, int type)
     AiPacket* ai = ai_cap(critter);
 
     Rect rect;
-    if (textObjectAdd(critter, string, ai->font, ai->color, ai->outline_color, &rect) == 0) {
+    if (text_object_create(critter, string, ai->font, ai->color, ai->outline_color, &rect) == 0) {
         tileWindowRefreshRect(&rect, critter->elevation);
     }
 

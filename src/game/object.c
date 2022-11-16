@@ -293,7 +293,7 @@ int obj_init(unsigned char* buf, int width, int height, int pitch)
         goto err_2;
     }
 
-    if (textObjectsInit(buf, width, height) == -1) {
+    if (text_object_init(buf, width, height) == -1) {
         goto err_2;
     }
 
@@ -354,7 +354,7 @@ err:
 void obj_reset()
 {
     if (objInitialized) {
-        textObjectsReset();
+        text_object_reset();
         obj_remove_all();
         memset(obj_seen, 0, 5001);
         light_reset();
@@ -369,7 +369,7 @@ void obj_exit()
         obj_egg->flags &= ~OBJECT_FLAG_0x400;
 
         obj_remove_all();
-        textObjectsFree();
+        text_object_exit();
 
         // NOTE: Uninline.
         obj_blend_table_exit();
@@ -884,7 +884,7 @@ void obj_render_post_roof(Rect* rect, int elevation)
         obj_render_outline(outlinedObjects[index], &updatedRect);
     }
 
-    textObjectsRenderInRect(&updatedRect);
+    text_object_render(&updatedRect);
 
     ObjectListNode* objectListNode = floatingObjects;
     while (objectListNode != NULL) {

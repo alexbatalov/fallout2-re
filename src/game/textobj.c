@@ -12,48 +12,74 @@
 #include "tile.h"
 #include "word_wrap.h"
 
+// The maximum number of text objects that can exist at the same time.
+#define TEXT_OBJECTS_MAX_COUNT 20
+
+typedef enum TextObjectFlags {
+    TEXT_OBJECT_MARKED_FOR_REMOVAL = 0x01,
+    TEXT_OBJECT_UNBOUNDED = 0x02,
+} TextObjectFlags;
+
+typedef struct TextObject {
+    int flags;
+    Object* owner;
+    unsigned int time;
+    int linesCount;
+    int sx;
+    int sy;
+    int tile;
+    int x;
+    int y;
+    int width;
+    int height;
+    unsigned char* data;
+} TextObject;
+
 static_assert(sizeof(TextObject) == 48, "wrong size");
 
+static void text_object_bk();
+static void text_object_get_offset(TextObject* textObject);
+
 // 0x51D944
-int gTextObjectsCount = 0;
+static int text_object_index = 0;
 
 // 0x51D948
-unsigned int gTextObjectsBaseDelay = 3500;
+static unsigned int text_object_base_delay = 3500;
 
 // 0x51D94C
-unsigned int gTextObjectsLineDelay = 1399;
+static unsigned int text_object_line_delay = 1399;
 
 // 0x6681C0
-TextObject* gTextObjects[TEXT_OBJECTS_MAX_COUNT];
+static TextObject* text_object_list[TEXT_OBJECTS_MAX_COUNT];
 
 // 0x668210
-int gTextObjectsWindowWidth;
+static int display_width;
 
 // 0x668214
-int gTextObjectsWindowHeight;
+static int display_height;
 
 // 0x668218
-unsigned char* gTextObjectsWindowBuffer;
+static unsigned char* display_buffer;
 
 // 0x66821C
-bool gTextObjectsEnabled;
+static bool text_object_enabled;
 
 // 0x668220
-bool gTextObjectsInitialized;
+static bool text_object_initialized;
 
 // 0x4B0130
-int textObjectsInit(unsigned char* windowBuffer, int width, int height)
+int text_object_init(unsigned char* windowBuffer, int width, int height)
 {
-    if (gTextObjectsInitialized) {
+    if (text_object_initialized) {
         return -1;
     }
 
-    gTextObjectsWindowBuffer = windowBuffer;
-    gTextObjectsWindowWidth = width;
-    gTextObjectsWindowHeight = height;
-    gTextObjectsCount = 0;
+    display_buffer = windowBuffer;
+    display_width = width;
+    display_height = height;
+    text_object_index = 0;
 
-    tickersAdd(textObjectsTicker);
+    tickersAdd(text_object_bk);
 
     double textBaseDelay;
     if (!config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &textBaseDelay)) {
@@ -65,53 +91,53 @@ int textObjectsInit(unsigned char* windowBuffer, int width, int height)
         textLineDelay = 1.399993896484375;
     }
 
-    gTextObjectsBaseDelay = (unsigned int)(textBaseDelay * 1000.0);
-    gTextObjectsLineDelay = (unsigned int)(textLineDelay * 1000.0);
+    text_object_base_delay = (unsigned int)(textBaseDelay * 1000.0);
+    text_object_line_delay = (unsigned int)(textLineDelay * 1000.0);
 
-    gTextObjectsEnabled = true;
-    gTextObjectsInitialized = true;
+    text_object_enabled = true;
+    text_object_initialized = true;
 
     return 0;
 }
 
 // 0x4B021C
-int textObjectsReset()
+int text_object_reset()
 {
-    if (!gTextObjectsInitialized) {
+    if (!text_object_initialized) {
         return -1;
     }
 
-    for (int index = 0; index < gTextObjectsCount; index++) {
-        internal_free(gTextObjects[index]->data);
-        internal_free(gTextObjects[index]);
+    for (int index = 0; index < text_object_index; index++) {
+        internal_free(text_object_list[index]->data);
+        internal_free(text_object_list[index]);
     }
 
-    gTextObjectsCount = 0;
-    tickersAdd(textObjectsTicker);
+    text_object_index = 0;
+    tickersAdd(text_object_bk);
 
     return 0;
 }
 
 // 0x4B0280
-void textObjectsFree()
+void text_object_exit()
 {
-    if (gTextObjectsInitialized) {
-        textObjectsReset();
-        tickersRemove(textObjectsTicker);
-        gTextObjectsInitialized = false;
+    if (text_object_initialized) {
+        text_object_reset();
+        tickersRemove(text_object_bk);
+        text_object_initialized = false;
     }
 }
 
 // 0x4B02A4
-void textObjectsDisable()
+void text_object_disable()
 {
-    gTextObjectsEnabled = false;
+    text_object_enabled = false;
 }
 
 // 0x4B02B0
-void textObjectsEnable()
+void text_object_enable()
 {
-    gTextObjectsEnabled = true;
+    text_object_enabled = true;
 }
 
 // NOTE: Unused.
@@ -119,17 +145,17 @@ void textObjectsEnable()
 // 0x4B02BC
 int text_object_is_enabled()
 {
-    return gTextObjectsEnabled;
+    return text_object_enabled;
 }
 
 // 0x4B02C4
-void textObjectsSetBaseDelay(double value)
+void text_object_set_base_delay(double value)
 {
     if (value < 1.0) {
         value = 1.0;
     }
 
-    gTextObjectsBaseDelay = (int)(value * 1000.0);
+    text_object_base_delay = (int)(value * 1000.0);
 }
 
 // NOTE: Unused.
@@ -137,17 +163,17 @@ void textObjectsSetBaseDelay(double value)
 // 0x4B0308
 unsigned int text_object_get_base_delay()
 {
-    return gTextObjectsBaseDelay / 1000;
+    return text_object_base_delay / 1000;
 }
 
 // 0x4B031C
-void textObjectsSetLineDelay(double value)
+void text_object_set_line_delay(double value)
 {
     if (value < 0.0) {
         value = 0.0;
     }
 
-    gTextObjectsLineDelay = (int)(value * 1000.0);
+    text_object_line_delay = (int)(value * 1000.0);
 }
 
 // NOTE: Unused.
@@ -155,18 +181,18 @@ void textObjectsSetLineDelay(double value)
 // 0x4B0358
 unsigned int text_object_get_line_delay()
 {
-    return gTextObjectsLineDelay / 1000;
+    return text_object_line_delay / 1000;
 }
 
 // text_object_create
 // 0x4B036C
-int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rect* rect)
+int text_object_create(Object* object, char* string, int font, int color, int a5, Rect* rect)
 {
-    if (!gTextObjectsInitialized) {
+    if (!text_object_initialized) {
         return -1;
     }
 
-    if (gTextObjectsCount >= TEXT_OBJECTS_MAX_COUNT - 1) {
+    if (text_object_index >= TEXT_OBJECTS_MAX_COUNT - 1) {
         return -1;
     }
 
@@ -273,7 +299,7 @@ int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rec
         textObject->tile = gCenterTile;
     }
 
-    textObjectFindPlacement(textObject);
+    text_object_get_offset(textObject);
 
     if (rect != NULL) {
         rect->left = textObject->x;
@@ -282,13 +308,13 @@ int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rec
         rect->bottom = textObject->y + textObject->height - 1;
     }
 
-    textObjectsRemoveByOwner(object);
+    text_object_remove(object);
 
     textObject->owner = object;
     textObject->time = _get_bk_time();
 
-    gTextObjects[gTextObjectsCount] = textObject;
-    gTextObjectsCount++;
+    text_object_list[text_object_index] = textObject;
+    text_object_index++;
 
     fontSetCurrent(oldFont);
 
@@ -296,14 +322,14 @@ int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rec
 }
 
 // 0x4B06E8
-void textObjectsRenderInRect(Rect* rect)
+void text_object_render(Rect* rect)
 {
-    if (!gTextObjectsInitialized) {
+    if (!text_object_initialized) {
         return;
     }
 
-    for (int index = 0; index < gTextObjectsCount; index++) {
-        TextObject* textObject = gTextObjects[index];
+    for (int index = 0; index < text_object_index; index++) {
+        TextObject* textObject = text_object_list[index];
         tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
         textObject->x += textObject->sx;
         textObject->y += textObject->sy;
@@ -318,32 +344,32 @@ void textObjectsRenderInRect(Rect* rect)
                 textObjectRect.right - textObjectRect.left + 1,
                 textObjectRect.bottom - textObjectRect.top + 1,
                 textObject->width,
-                gTextObjectsWindowBuffer + gTextObjectsWindowWidth * textObjectRect.top + textObjectRect.left,
-                gTextObjectsWindowWidth);
+                display_buffer + display_width * textObjectRect.top + textObjectRect.left,
+                display_width);
         }
     }
 }
 
 // 0x4B07F0
-int textObjectsGetCount()
+int text_object_count()
 {
-    return gTextObjectsCount;
+    return text_object_index;
 }
 
 // 0x4B07F8
-void textObjectsTicker()
+static void text_object_bk()
 {
-    if (!gTextObjectsEnabled) {
+    if (!text_object_enabled) {
         return;
     }
 
     bool textObjectsRemoved = false;
     Rect dirtyRect;
 
-    for (int index = 0; index < gTextObjectsCount; index++) {
-        TextObject* textObject = gTextObjects[index];
+    for (int index = 0; index < text_object_index; index++) {
+        TextObject* textObject = text_object_list[index];
 
-        unsigned int delay = gTextObjectsLineDelay * textObject->linesCount + gTextObjectsBaseDelay;
+        unsigned int delay = text_object_line_delay * textObject->linesCount + text_object_base_delay;
         if ((textObject->flags & TEXT_OBJECT_MARKED_FOR_REMOVAL) != 0 || (getTicksBetween(_get_bk_time(), textObject->time) > delay)) {
             tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
             textObject->x += textObject->sx;
@@ -365,9 +391,9 @@ void textObjectsTicker()
             internal_free(textObject->data);
             internal_free(textObject);
 
-            memmove(&(gTextObjects[index]), &(gTextObjects[index + 1]), sizeof(*gTextObjects) * (gTextObjectsCount - index - 1));
+            memmove(&(text_object_list[index]), &(text_object_list[index + 1]), sizeof(*text_object_list) * (text_object_index - index - 1));
 
-            gTextObjectsCount--;
+            text_object_index--;
             index--;
         }
     }
@@ -380,7 +406,7 @@ void textObjectsTicker()
 // Finds best position for placing text object.
 //
 // 0x4B0954
-void textObjectFindPlacement(TextObject* textObject)
+static void text_object_get_offset(TextObject* textObject)
 {
     int tileScreenX;
     int tileScreenY;
@@ -392,24 +418,24 @@ void textObjectFindPlacement(TextObject* textObject)
         textObject->y -= textObject->height + 60;
     }
 
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
     }
 
     textObject->x -= textObject->width / 2;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
     }
 
     textObject->x += textObject->width;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
@@ -417,16 +443,16 @@ void textObjectFindPlacement(TextObject* textObject)
 
     textObject->x = tileScreenX - 16 - textObject->width;
     textObject->y = tileScreenY - 16 - textObject->height;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
     }
 
     textObject->x += textObject->width + 64;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
@@ -434,24 +460,24 @@ void textObjectFindPlacement(TextObject* textObject)
 
     textObject->x = tileScreenX + 16 - textObject->width / 2;
     textObject->y = tileScreenY;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
     }
 
     textObject->x -= textObject->width / 2;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
     }
 
     textObject->x += textObject->width;
-    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < gTextObjectsWindowWidth)
-        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < gTextObjectsWindowHeight)) {
+    if ((textObject->x >= 0 && textObject->x + textObject->width - 1 < display_width)
+        && (textObject->y >= 0 && textObject->y + textObject->height - 1 < display_height)) {
         textObject->sx = textObject->x - tileScreenX;
         textObject->sy = textObject->y - tileScreenY;
         return;
@@ -466,11 +492,11 @@ void textObjectFindPlacement(TextObject* textObject)
 // Marks text objects attached to [object] for removal.
 //
 // 0x4B0C00
-void textObjectsRemoveByOwner(Object* object)
+void text_object_remove(Object* object)
 {
-    for (int index = 0; index < gTextObjectsCount; index++) {
-        if (gTextObjects[index]->owner == object) {
-            gTextObjects[index]->flags |= TEXT_OBJECT_MARKED_FOR_REMOVAL;
+    for (int index = 0; index < text_object_index; index++) {
+        if (text_object_list[index]->owner == object) {
+            text_object_list[index]->flags |= TEXT_OBJECT_MARKED_FOR_REMOVAL;
         }
     }
 }

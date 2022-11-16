@@ -4169,7 +4169,7 @@ static void op_float_msg(Program* program)
     }
 
     if (string == NULL || *string == '\0') {
-        textObjectsRemoveByOwner(obj);
+        text_object_remove(obj);
         tileWindowRefresh();
         return;
     }
@@ -4229,7 +4229,7 @@ static void op_float_msg(Program* program)
     }
 
     Rect rect;
-    if (textObjectAdd(obj, string, font, color, a5, &rect) != -1) {
+    if (text_object_create(obj, string, font, color, a5, &rect) != -1) {
         tileWindowRefreshRect(&rect, obj->elevation);
     }
 }

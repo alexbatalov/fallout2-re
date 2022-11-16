@@ -905,7 +905,7 @@ int gdialogInitFromScript(int headFid, int reaction)
     }
     gmouse_3d_off();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
-    textObjectsReset();
+    text_object_reset();
 
     if (PID_TYPE(dialog_target->pid) != OBJ_TYPE_ITEM) {
         _tile_scroll_to(dialog_target->tile, 2);

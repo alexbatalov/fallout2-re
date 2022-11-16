@@ -1544,7 +1544,7 @@ int partyMemberIncLevels()
                     if (message_search(&misc_message_file, &msg)) {
                         name = critter_name(obj);
                         sprintf(str, msg.text, name);
-                        textObjectAdd(obj, str, 101, colorTable[0x7FFF], colorTable[0], &v19);
+                        text_object_create(obj, str, 101, colorTable[0x7FFF], colorTable[0], &v19);
                         tileWindowRefreshRect(&v19, obj->elevation);
                     }
                 }

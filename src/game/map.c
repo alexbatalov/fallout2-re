@@ -306,7 +306,7 @@ void map_exit()
 void map_enable_bk_processes()
 {
     if (!map_bk_enabled) {
-        textObjectsEnable();
+        text_object_enable();
         if (!game_ui_is_disabled()) {
             gmouse_enable();
         }
@@ -328,7 +328,7 @@ bool map_disable_bk_processes()
     tickersRemove(dude_fidget);
     tickersRemove(object_animate);
     gmouse_disable(0);
-    textObjectsDisable();
+    text_object_disable();
 
     map_bk_enabled = false;
 

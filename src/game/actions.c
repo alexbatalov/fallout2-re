@@ -1448,7 +1448,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
             char* msg = skillGetPartyMemberString(partyMember, v32);
 
             Rect rect;
-            if (textObjectAdd(partyMember, msg, 101, colorTable[32747], colorTable[0], &rect) == 0) {
+            if (text_object_create(partyMember, msg, 101, colorTable[32747], colorTable[0], &rect) == 0) {
                 tileWindowRefreshRect(&rect, map_elevation);
             }
 

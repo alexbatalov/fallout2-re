@@ -1,60 +1,24 @@
-#ifndef TEXT_OBJECT_H
-#define TEXT_OBJECT_H
+#ifndef FALLOUT_GAME_TEXTOBJ_H_
+#define FALLOUT_GAME_TEXTOBJ_H_
 
 #include <stdbool.h>
 
 #include "geometry.h"
 #include "game/object_types.h"
 
-// The maximum number of text objects that can exist at the same time.
-#define TEXT_OBJECTS_MAX_COUNT (20)
-
-typedef enum TextObjectFlags {
-    TEXT_OBJECT_MARKED_FOR_REMOVAL = 0x01,
-    TEXT_OBJECT_UNBOUNDED = 0x02,
-} TextObjectFlags;
-
-typedef struct TextObject {
-    int flags;
-    Object* owner;
-    unsigned int time;
-    int linesCount;
-    int sx;
-    int sy;
-    int tile;
-    int x;
-    int y;
-    int width;
-    int height;
-    unsigned char* data;
-} TextObject;
-
-extern int gTextObjectsCount;
-extern unsigned int gTextObjectsBaseDelay;
-extern unsigned int gTextObjectsLineDelay;
-
-extern TextObject* gTextObjects[TEXT_OBJECTS_MAX_COUNT];
-extern int gTextObjectsWindowWidth;
-extern int gTextObjectsWindowHeight;
-extern unsigned char* gTextObjectsWindowBuffer;
-extern bool gTextObjectsEnabled;
-extern bool gTextObjectsInitialized;
-
-int textObjectsInit(unsigned char* windowBuffer, int width, int height);
-int textObjectsReset();
-void textObjectsFree();
-void textObjectsDisable();
-void textObjectsEnable();
+int text_object_init(unsigned char* windowBuffer, int width, int height);
+int text_object_reset();
+void text_object_exit();
+void text_object_disable();
+void text_object_enable();
 int text_object_is_enabled();
-void textObjectsSetBaseDelay(double value);
+void text_object_set_base_delay(double value);
 unsigned int text_object_get_base_delay();
-void textObjectsSetLineDelay(double value);
+void text_object_set_line_delay(double value);
 unsigned int text_object_get_line_delay();
-int textObjectAdd(Object* object, char* string, int font, int color, int a5, Rect* rect);
-void textObjectsRenderInRect(Rect* rect);
-int textObjectsGetCount();
-void textObjectsTicker();
-void textObjectFindPlacement(TextObject* textObject);
-void textObjectsRemoveByOwner(Object* object);
+int text_object_create(Object* object, char* string, int font, int color, int a5, Rect* rect);
+void text_object_render(Rect* rect);
+int text_object_count();
+void text_object_remove(Object* object);
 
-#endif /* TEXT_OBJECT_H */
+#endif /* FALLOUT_GAME_TEXTOBJ_H_ */

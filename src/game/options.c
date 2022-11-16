@@ -1510,8 +1510,8 @@ static void UpdateThing(int index)
                 double value = (text_delay - 1.0) * 0.2 * 2.0;
                 value = min(max(value, 0.0), 2.0);
 
-                textObjectsSetBaseDelay(text_delay);
-                textObjectsSetLineDelay(value);
+                text_object_set_base_delay(text_delay);
+                text_object_set_line_delay(value);
             }
             break;
         case PREF_MASTER_VOLUME:
@@ -1882,13 +1882,13 @@ static void JustUpdate()
     gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
     mouse_sens = min(max(mouse_sens, 1.0), 2.5);
 
-    textObjectsSetBaseDelay(text_delay);
+    text_object_set_base_delay(text_delay);
     gmouse_3d_synch_item_highlight();
 
     double textLineDelay = (text_delay + (-1.0)) * 0.2 * 2.0;
     textLineDelay = min(max(textLineDelay, 0.0), 2.0);
 
-    textObjectsSetLineDelay(textLineDelay);
+    text_object_set_line_delay(textLineDelay);
     combatai_refresh_messages();
     scr_message_free();
     gsound_set_master_volume(master_volume);
