@@ -8,7 +8,7 @@
 #include "game/gconfig.h"
 #include "plib/gnw/memory.h"
 #include "game/object.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "game/tile.h"
 #include "game/wordwrap.h"
 

@@ -1,4 +1,4 @@
-#include "text_font.h"
+#include "plib/gnw/text.h"
 
 #include <stdio.h>
 #include <string.h>

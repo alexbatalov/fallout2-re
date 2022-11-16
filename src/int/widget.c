@@ -9,7 +9,7 @@
 #include "geometry.h"
 #include "int/memdbg.h"
 #include "int/sound.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window.h"
 #include "window_manager.h"
 

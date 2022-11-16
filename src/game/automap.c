@@ -18,7 +18,7 @@
 #include "game/map.h"
 #include "plib/gnw/memory.h"
 #include "game/object.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 
 #define AUTOMAP_OFFSET_COUNT (AUTOMAP_MAP_COUNT * ELEVATION_COUNT)

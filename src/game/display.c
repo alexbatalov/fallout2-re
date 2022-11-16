@@ -13,7 +13,7 @@
 #include "geometry.h"
 #include "game/intface.h"
 #include "plib/gnw/memory.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 
 // The maximum number of lines display monitor can hold. Once this value

@@ -12,7 +12,7 @@
 #include "game/gsound.h"
 #include "game/options.h"
 #include "game/palette.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "game/version.h"
 
 #define MAIN_MENU_WINDOW_WIDTH 640

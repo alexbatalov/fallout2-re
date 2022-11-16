@@ -5,7 +5,7 @@
 #include "core.h"
 #include "int/memdbg.h"
 #include "int/movie.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 
 typedef struct STRUCT_56DAE0_FIELD_4_FIELD_C {

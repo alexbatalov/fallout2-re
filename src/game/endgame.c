@@ -30,7 +30,7 @@
 #include "game/pipboy.h"
 #include "game/roll.h"
 #include "game/stat.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 #include "game/wordwrap.h"
 #include "game/worldmap.h"

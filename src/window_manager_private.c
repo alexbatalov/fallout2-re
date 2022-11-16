@@ -7,7 +7,7 @@
 #include "core.h"
 #include "draw.h"
 #include "plib/gnw/memory.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 
 // 0x51E414

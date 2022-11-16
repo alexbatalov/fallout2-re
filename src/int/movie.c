@@ -12,7 +12,7 @@
 #include "game/moviefx.h"
 #include "movie_lib.h"
 #include "int/sound.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 #include "plib/gnw/winmain.h"
 

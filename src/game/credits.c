@@ -14,7 +14,7 @@
 #include "game/message.h"
 #include "game/palette.h"
 #include "int/sound.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 
 #define CREDITS_WINDOW_WIDTH 640

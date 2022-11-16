@@ -22,7 +22,7 @@
 #include "game/proto.h"
 #include "game/protinst.h"
 #include "game/skilldex.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "game/tile.h"
 #include "window_manager.h"
 

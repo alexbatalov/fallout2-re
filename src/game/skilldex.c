@@ -20,7 +20,7 @@
 #include "game/object.h"
 #include "game/skill.h"
 #include "geometry.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 
 #define SKILLDEX_WINDOW_RIGHT_MARGIN 4

@@ -31,7 +31,7 @@
 #include "game/scripts.h"
 #include "game/skill.h"
 #include "game/stat.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "game/trait.h"
 #include "window_manager.h"
 #include "game/wordwrap.h"

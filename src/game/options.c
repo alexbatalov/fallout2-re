@@ -21,7 +21,7 @@
 #include "game/message.h"
 #include "plib/gnw/memory.h"
 #include "game/scripts.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "window_manager.h"

@@ -38,7 +38,7 @@
 #include "game/roll.h"
 #include "game/scripts.h"
 #include "game/selfrun.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "game/wordwrap.h"

@@ -11,7 +11,7 @@
 #include "int/nevs.h"
 #include "int/share1.h"
 #include "int/sound.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager_private.h"
 
 #define INT_LIB_SOUNDS_CAPACITY 32

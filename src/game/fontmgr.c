@@ -7,7 +7,7 @@
 #include "plib/color/color.h"
 #include "db.h"
 #include "int/memdbg.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 
 // The maximum number of interface fonts.
 #define INTERFACE_FONT_MAX 16

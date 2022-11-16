@@ -12,7 +12,7 @@
 #include "game/game.h"
 #include "game/gsound.h"
 #include "game/message.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 #include "window_manager.h"
 #include "game/wordwrap.h"
 

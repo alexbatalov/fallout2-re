@@ -13,7 +13,7 @@
 #include "int/memdbg.h"
 #include "int/mousemgr.h"
 #include "int/movie.h"
-#include "text_font.h"
+#include "plib/gnw/text.h"
 
 // 0x51DCAC
 int _holdTime = 250;

@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "text_font.h"
+#include "plib/gnw/text.h"
 
 // 0x4BC6F0
 int word_wrap(const char* string, int width, short* breakpoints, short* breakpointsLengthPtr)
