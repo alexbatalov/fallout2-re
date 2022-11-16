@@ -1,5 +1,5 @@
-#ifndef KB_H
-#define KB_H
+#ifndef FALLOUT_PLIB_GNW_KB_H_
+#define FALLOUT_PLIB_GNW_KB_H_
 
 #include <stdbool.h>
 
@@ -359,4 +359,4 @@ unsigned int kb_elapsed_time();
 void kb_reset_elapsed_time();
 void kb_simulate_key(int scan_code);
 
-#endif /* KB_H */
+#endif /* FALLOUT_PLIB_GNW_KB_H_ */
