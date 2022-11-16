@@ -849,7 +849,7 @@ int game_handle_input(int eventCode, bool isInCombatMode)
             gsound_play_sfx_file("ib1p1xx1");
 
             char version[VERSION_MAX];
-            versionGetVersion(version);
+            getverstr(version);
             display_print(version);
             display_print(_aDec11199816543);
         }

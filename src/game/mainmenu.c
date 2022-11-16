@@ -140,7 +140,7 @@ int main_menu_create()
 
     // Version.
     char version[VERSION_MAX];
-    versionGetVersion(version);
+    getverstr(version);
     len = fontGetStringWidth(version);
     windowDrawText(main_window, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
 
