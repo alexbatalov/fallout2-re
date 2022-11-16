@@ -54,7 +54,7 @@
 #include "game/tile.h"
 #include "game/trait.h"
 #include "game/trap.h"
-#include "version.h"
+#include "game/version.h"
 #include "window_manager.h"
 #include "worldmap.h"
 

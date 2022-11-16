@@ -1,4 +1,4 @@
-#include "version.h"
+#include "game/version.h"
 
 #include <stdio.h>
 

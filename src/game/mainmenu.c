@@ -13,7 +13,7 @@
 #include "game/options.h"
 #include "game/palette.h"
 #include "text_font.h"
-#include "version.h"
+#include "game/version.h"
 
 #define MAIN_MENU_WINDOW_WIDTH 640
 #define MAIN_MENU_WINDOW_HEIGHT 480
