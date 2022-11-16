@@ -7,7 +7,7 @@
 #include "plib/gnw/dxinput.h"
 #include "geometry.h"
 #include "kb.h"
-#include "mouse.h"
+#include "plib/gnw/mouse.h"
 #include "window.h"
 
 typedef struct STRUCT_6ABF50 {

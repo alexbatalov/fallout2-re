@@ -1,4 +1,4 @@
-#include "mouse.h"
+#include "plib/gnw/mouse.h"
 
 #include "plib/color/color.h"
 #include "core.h"
