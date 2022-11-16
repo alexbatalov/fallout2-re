@@ -293,7 +293,7 @@ static bool perk_can_add(Object* critter, int perk)
     }
 
     if (critter == obj_dude) {
-        if (pcGetStat(PC_STAT_LEVEL) < perkDescription->minLevel) {
+        if (stat_pc_get(PC_STAT_LEVEL) < perkDescription->minLevel) {
             return false;
         }
     }
@@ -541,26 +541,26 @@ void perk_add_effect(Object* critter, int perk)
     PerkDescription* perkDescription = &(perk_data[perk]);
 
     if (perkDescription->stat != -1) {
-        int value = critterGetBonusStat(critter, perkDescription->stat);
-        critterSetBonusStat(critter, perkDescription->stat, value + perkDescription->statModifier);
+        int value = stat_get_bonus(critter, perkDescription->stat);
+        stat_set_bonus(critter, perkDescription->stat, value + perkDescription->statModifier);
     }
 
     if (perk == PERK_HERE_AND_NOW) {
         PerkRankData* ranksData = perkGetLevelData(critter);
         ranksData->ranks[PERK_HERE_AND_NOW] -= 1;
 
-        int level = pcGetStat(PC_STAT_LEVEL);
+        int level = stat_pc_get(PC_STAT_LEVEL);
 
-        hereAndNowExps = pcGetExperienceForLevel(level + 1) - pcGetStat(PC_STAT_EXPERIENCE);
-        pcAddExperienceWithOptions(hereAndNowExps, false);
+        hereAndNowExps = statPcMinExpForLevel(level + 1) - stat_pc_get(PC_STAT_EXPERIENCE);
+        statPCAddExperienceCheckPMs(hereAndNowExps, false);
 
         ranksData->ranks[PERK_HERE_AND_NOW] += 1;
     }
 
     if (perkDescription->maxRank == -1) {
         for (int stat = 0; stat < PRIMARY_STAT_COUNT; stat++) {
-            int value = critterGetBonusStat(critter, stat);
-            critterSetBonusStat(critter, stat, value + perkDescription->stats[stat]);
+            int value = stat_get_bonus(critter, stat);
+            stat_set_bonus(critter, stat, value + perkDescription->stats[stat]);
         }
     }
 }
@@ -581,19 +581,19 @@ void perk_remove_effect(Object* critter, int perk)
     PerkDescription* perkDescription = &(perk_data[perk]);
 
     if (perkDescription->stat != -1) {
-        int value = critterGetBonusStat(critter, perkDescription->stat);
-        critterSetBonusStat(critter, perkDescription->stat, value - perkDescription->statModifier);
+        int value = stat_get_bonus(critter, perkDescription->stat);
+        stat_set_bonus(critter, perkDescription->stat, value - perkDescription->statModifier);
     }
 
     if (perk == PERK_HERE_AND_NOW) {
-        int xp = pcGetStat(PC_STAT_EXPERIENCE);
-        pcSetStat(PC_STAT_EXPERIENCE, xp - hereAndNowExps);
+        int xp = stat_pc_get(PC_STAT_EXPERIENCE);
+        stat_pc_set(PC_STAT_EXPERIENCE, xp - hereAndNowExps);
     }
 
     if (perkDescription->maxRank == -1) {
         for (int stat = 0; stat < PRIMARY_STAT_COUNT; stat++) {
-            int value = critterGetBonusStat(critter, stat);
-            critterSetBonusStat(critter, stat, value - perkDescription->stats[stat]);
+            int value = stat_get_bonus(critter, stat);
+            stat_set_bonus(critter, stat, value - perkDescription->stats[stat]);
         }
     }
 }

@@ -1039,7 +1039,7 @@ void exit_inventory(bool shouldEnableIso)
             Object* critter = v1.extras[index];
             if (critter != obj_dude
                 && critter->data.critter.combat.team != obj_dude->data.critter.combat.team
-                && statRoll(critter, STAT_PERCEPTION, 0, NULL) >= ROLL_SUCCESS) {
+                && stat_result(critter, STAT_PERCEPTION, 0, NULL) >= ROLL_SUCCESS) {
                 critter_set_who_hit_me(critter, obj_dude);
 
                 if (v2 == NULL) {
@@ -1921,23 +1921,23 @@ void switch_hand(Object* a1, Object** a2, Object** a3, int a4)
 // 0x4715F8
 void adjust_ac(Object* critter, Object* oldArmor, Object* newArmor)
 {
-    int armorClassBonus = critterGetBonusStat(critter, STAT_ARMOR_CLASS);
+    int armorClassBonus = stat_get_bonus(critter, STAT_ARMOR_CLASS);
     int oldArmorClass = item_ar_ac(oldArmor);
     int newArmorClass = item_ar_ac(newArmor);
-    critterSetBonusStat(critter, STAT_ARMOR_CLASS, armorClassBonus - oldArmorClass + newArmorClass);
+    stat_set_bonus(critter, STAT_ARMOR_CLASS, armorClassBonus - oldArmorClass + newArmorClass);
 
     int damageResistanceStat = STAT_DAMAGE_RESISTANCE;
     int damageThresholdStat = STAT_DAMAGE_THRESHOLD;
     for (int damageType = 0; damageType < DAMAGE_TYPE_COUNT; damageType += 1) {
-        int damageResistanceBonus = critterGetBonusStat(critter, damageResistanceStat);
+        int damageResistanceBonus = stat_get_bonus(critter, damageResistanceStat);
         int oldArmorDamageResistance = item_ar_dr(oldArmor, damageType);
         int newArmorDamageResistance = item_ar_dr(newArmor, damageType);
-        critterSetBonusStat(critter, damageResistanceStat, damageResistanceBonus - oldArmorDamageResistance + newArmorDamageResistance);
+        stat_set_bonus(critter, damageResistanceStat, damageResistanceBonus - oldArmorDamageResistance + newArmorDamageResistance);
 
-        int damageThresholdBonus = critterGetBonusStat(critter, damageThresholdStat);
+        int damageThresholdBonus = stat_get_bonus(critter, damageThresholdStat);
         int oldArmorDamageThreshold = item_ar_dt(oldArmor, damageType);
         int newArmorDamageThreshold = item_ar_dt(newArmor, damageType);
-        critterSetBonusStat(critter, damageThresholdStat, damageThresholdBonus - oldArmorDamageThreshold + newArmorDamageThreshold);
+        stat_set_bonus(critter, damageThresholdStat, damageThresholdBonus - oldArmorDamageThreshold + newArmorDamageThreshold);
 
         damageResistanceStat += 1;
         damageThresholdStat += 1;
@@ -3739,7 +3739,7 @@ int loot_container(Object* a1, Object* a2)
                         display_print(formattedText);
                     }
 
-                    pcAddExperience(stealingXp);
+                    stat_pc_add_experience(stealingXp);
                 }
             }
         }

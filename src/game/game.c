@@ -185,7 +185,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     roll_init();
     init_message();
     skill_init();
-    statsInit();
+    stat_init();
 
     if (partyMember_init() != 0) {
         debugPrint("Failed on partyMember_init\n");
@@ -353,7 +353,7 @@ void game_reset()
     palette_reset();
     roll_reset();
     skill_reset();
-    statsReset();
+    stat_reset();
     perk_reset();
     traitsReset();
     item_reset();
@@ -412,7 +412,7 @@ void game_exit()
     item_exit();
     queue_exit();
     perk_exit();
-    statsExit();
+    stat_exit();
     skill_exit();
     traitsExit();
     roll_exit();

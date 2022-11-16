@@ -2601,7 +2601,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
             critter->data.critter.combat.maneuver &= ~CRITTER_MANUEVER_FLEEING;
         }
 
-        v10 = critterGetBonusStat(critter, stat);
+        v10 = stat_get_bonus(critter, stat);
 
         int before;
         if (critter == obj_dude) {
@@ -2616,7 +2616,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
         }
 
         if (stat == STAT_CURRENT_HIT_POINTS) {
-            v12 = critterGetBaseStatWithTraitModifier(critter, STAT_CURRENT_HIT_POINTS);
+            v12 = stat_get_base(critter, STAT_CURRENT_HIT_POINTS);
             if (v11 + v12 <= 0 && critter != obj_dude) {
                 name = critter_name(critter);
                 // %s succumbs to the adverse effects of chems.
@@ -2626,7 +2626,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
             }
         }
 
-        critterSetBonusStat(critter, stat, v11);
+        stat_set_bonus(critter, stat, v11);
 
         if (critter == obj_dude) {
             if (stat == STAT_CURRENT_HIT_POINTS) {
@@ -2639,7 +2639,7 @@ static void perform_drug_effect(Object* critter, int* stats, int* mods, bool isI
                 // 2 - You lost %d %s.
                 messageListItem.num = after < before ? 2 : 1;
                 if (message_search(&item_message_file, &messageListItem)) {
-                    char* statName = statGetName(stat);
+                    char* statName = stat_name(stat);
                     sprintf(str, messageListItem.text, after < before ? before - after : after - before, statName);
                     display_print(str);
                     statsChanged = true;

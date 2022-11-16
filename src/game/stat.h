@@ -1,63 +1,45 @@
-#ifndef STAT_H
-#define STAT_H
+#ifndef FALLOUT_GAME_STAT_H_
+#define FALLOUT_GAME_STAT_H_
 
 #include <stdbool.h>
 
 #include "db.h"
-#include "game/message.h"
 #include "game/object_types.h"
 #include "game/proto_types.h"
 #include "game/stat_defs.h"
 
-#define STAT_ERR_INVALID_STAT (-5)
+#define STAT_ERR_INVALID_STAT -5
 
-// Provides metadata about stats.
-typedef struct StatDescription {
-    char* name;
-    char* description;
-    int frmId;
-    int minimumValue;
-    int maximumValue;
-    int defaultValue;
-} StatDescription;
-
-extern StatDescription gStatDescriptions[STAT_COUNT];
-extern StatDescription gPcStatDescriptions[PC_STAT_COUNT];
-
-extern MessageList gStatsMessageList;
-extern char* gStatValueDescriptions[PRIMARY_STAT_RANGE];
-extern int gPcStatValues[PC_STAT_COUNT];
-
-int statsInit();
-int statsReset();
-int statsExit();
-int statsLoad(File* stream);
-int statsSave(File* stream);
+int stat_init();
+int stat_reset();
+int stat_exit();
+int stat_load(File* stream);
+int stat_save(File* stream);
 int critterGetStat(Object* critter, int stat);
-int critterGetBaseStatWithTraitModifier(Object* critter, int stat);
-int critterGetBaseStat(Object* critter, int stat);
-int critterGetBonusStat(Object* critter, int stat);
-int critterSetBaseStat(Object* critter, int stat, int value);
-int critterIncBaseStat(Object* critter, int stat);
-int critterDecBaseStat(Object* critter, int stat);
-int critterSetBonusStat(Object* critter, int stat, int value);
-void protoCritterDataResetStats(CritterProtoData* data);
-void critterUpdateDerivedStats(Object* critter);
-char* statGetName(int stat);
-char* statGetDescription(int stat);
-char* statGetValueDescription(int value);
-int pcGetStat(int pcStat);
-int pcSetStat(int pcStat, int value);
-void pcStatsReset();
-int pcGetExperienceForNextLevel();
-int pcGetExperienceForLevel(int level);
-char* pcStatGetName(int pcStat);
-char* pcStatGetDescription(int pcStat);
-int statGetFrmId(int stat);
-int statRoll(Object* critter, int stat, int modifier, int* howMuch);
-int pcAddExperience(int xp);
-int pcAddExperienceWithOptions(int xp, bool a2);
-int pcSetExperience(int a1);
+int stat_get_base(Object* critter, int stat);
+int stat_get_base_direct(Object* critter, int stat);
+int stat_get_bonus(Object* critter, int stat);
+int stat_set_base(Object* critter, int stat, int value);
+int inc_stat(Object* critter, int stat);
+int dec_stat(Object* critter, int stat);
+int stat_set_bonus(Object* critter, int stat, int value);
+void stat_set_defaults(CritterProtoData* data);
+void stat_recalc_derived(Object* critter);
+char* stat_name(int stat);
+char* stat_description(int stat);
+char* stat_level_description(int value);
+int stat_pc_get(int pcStat);
+int stat_pc_set(int pcStat, int value);
+void stat_pc_set_defaults();
+int stat_pc_min_exp();
+int statPcMinExpForLevel(int level);
+char* stat_pc_name(int pcStat);
+char* stat_pc_description(int pcStat);
+int stat_picture(int stat);
+int stat_result(Object* critter, int stat, int modifier, int* howMuch);
+int stat_pc_add_experience(int xp);
+int statPCAddExperienceCheckPMs(int xp, bool a2);
+int statPcResetExperience(int a1);
 
 static inline bool statIsValid(int stat)
 {
@@ -69,4 +51,4 @@ static inline bool pcStatIsValid(int pcStat)
     return pcStat >= 0 && pcStat < PC_STAT_COUNT;
 }
 
-#endif /* STAT_H */
+#endif /* FALLOUT_GAME_STAT_H_ */

@@ -98,7 +98,7 @@ void switch_dude()
     critter = pick_object(OBJ_TYPE_CRITTER, false);
     if (critter != NULL) {
         gender = critterGetStat(critter, STAT_GENDER);
-        critterSetBaseStat(obj_dude, STAT_GENDER, gender);
+        stat_set_base(obj_dude, STAT_GENDER, gender);
 
         obj_dude = critter;
         obj_fid = critter->fid;

@@ -771,7 +771,7 @@ int editor_design(bool isCreationMode)
 
     if (!glblmode) {
         if (UpdateLevel()) {
-            critterUpdateDerivedStats(obj_dude);
+            stat_recalc_derived(obj_dude);
             ListTraits();
             ListSkills(0);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
@@ -2287,7 +2287,7 @@ static void PrintLevelWin()
         color = colorTable[32747];
     }
 
-    int level = pcGetStat(PC_STAT_LEVEL);
+    int level = stat_pc_get(PC_STAT_LEVEL);
     sprintf(stringBuffer, "%s %d",
         getmsg(&editor_message_file, &mesg, 113),
         level);
@@ -2301,7 +2301,7 @@ static void PrintLevelWin()
         color = colorTable[32747];
     }
 
-    int exp = pcGetStat(PC_STAT_EXPERIENCE);
+    int exp = stat_pc_get(PC_STAT_EXPERIENCE);
     sprintf(stringBuffer, "%s %s",
         getmsg(&editor_message_file, &mesg, 114),
         itostndn(exp, formattedValueBuffer));
@@ -2315,7 +2315,7 @@ static void PrintLevelWin()
         color = colorTable[32747];
     }
 
-    int expToNextLevel = pcGetExperienceForNextLevel();
+    int expToNextLevel = stat_pc_min_exp();
     int expMsgId;
     if (expToNextLevel == -1) {
         expMsgId = 115;
@@ -2365,7 +2365,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
 
     // TODO: The original code is different.
     if (glblmode) {
-        value = critterGetBaseStatWithTraitModifier(obj_dude, stat) + critterGetBonusStat(obj_dude, stat);
+        value = stat_get_base(obj_dude, stat) + stat_get_bonus(obj_dude, stat);
 
         flags = 0;
 
@@ -2398,7 +2398,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
             value = 10;
         }
 
-        description = statGetValueDescription(value);
+        description = stat_level_description(value);
         fontDrawText(win_buf + off, description, 640, 640, color);
     }
 }
@@ -2849,7 +2849,7 @@ static void ListSkills(int a1)
         str = getmsg(&editor_message_file, &mesg, 112);
         fontDrawText(win_buf + 640 * 233 + 400, str, 640, 640, colorTable[18979]);
 
-        value = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+        value = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
         PrintBigNum(522, 228, 0, value, 0, edit_win);
     } else {
         // TAG SKILLS
@@ -2961,9 +2961,9 @@ static void DrawInfoWin()
     blitBufferToBuffer(bckgnd + (640 * 267) + 345, 277, 170, 640, win_buf + (267 * 640) + 345, 640);
 
     if (info_line >= 0 && info_line < 7) {
-        description = statGetDescription(info_line);
-        title = statGetName(info_line);
-        graphicId = statGetFrmId(info_line);
+        description = stat_description(info_line);
+        title = stat_name(info_line);
+        graphicId = stat_picture(info_line);
         DrawCard(graphicId, title, NULL, description);
     } else if (info_line >= 7 && info_line < 10) {
         if (glblmode) {
@@ -2978,13 +2978,13 @@ static void DrawInfoWin()
         } else {
             switch (info_line) {
             case 7:
-                description = pcStatGetDescription(PC_STAT_LEVEL);
-                title = pcStatGetName(PC_STAT_LEVEL);
+                description = stat_pc_description(PC_STAT_LEVEL);
+                title = stat_pc_name(PC_STAT_LEVEL);
                 DrawCard(7, title, NULL, description);
                 break;
             case 8:
-                description = pcStatGetDescription(PC_STAT_EXPERIENCE);
-                title = pcStatGetName(PC_STAT_EXPERIENCE);
+                description = stat_pc_description(PC_STAT_EXPERIENCE);
+                title = stat_pc_name(PC_STAT_EXPERIENCE);
                 DrawCard(8, title, NULL, description);
                 break;
             case 9:
@@ -3000,9 +3000,9 @@ static void DrawInfoWin()
     } else if (info_line >= 43 && info_line < 51) {
         switch (info_line) {
         case EDITOR_HIT_POINTS:
-            description = statGetDescription(STAT_MAXIMUM_HIT_POINTS);
+            description = stat_description(STAT_MAXIMUM_HIT_POINTS);
             title = getmsg(&editor_message_file, &mesg, 300);
-            graphicId = statGetFrmId(STAT_MAXIMUM_HIT_POINTS);
+            graphicId = stat_picture(STAT_MAXIMUM_HIT_POINTS);
             DrawCard(graphicId, title, NULL, description);
             break;
         case EDITOR_POISONED:
@@ -3044,8 +3044,8 @@ static void DrawInfoWin()
     } else if (info_line >= EDITOR_FIRST_DERIVED_STAT && info_line < 61) {
         int derivedStatIndex = info_line - 51;
         int stat = ndinfoxlt[derivedStatIndex];
-        description = statGetDescription(stat);
-        title = statGetName(stat);
+        description = stat_description(stat);
+        title = stat_name(stat);
         graphicId = ndrvd[derivedStatIndex];
         DrawCard(graphicId, title, NULL, description);
     } else if (info_line >= EDITOR_FIRST_SKILL && info_line < 79) {
@@ -3348,7 +3348,7 @@ static int AgeWindow()
             previousAge = critterGetStat(obj_dude, STAT_AGE);
             if (previousAge < 35) {
                 flags = ANIMATE;
-                if (critterIncBaseStat(obj_dude, STAT_AGE) != 0) {
+                if (inc_stat(obj_dude, STAT_AGE) != 0) {
                     flags = 0;
                 }
                 age = critterGetStat(obj_dude, STAT_AGE);
@@ -3358,7 +3358,7 @@ static int AgeWindow()
             previousAge = critterGetStat(obj_dude, STAT_AGE);
             if (previousAge > 16) {
                 flags = ANIMATE;
-                if (critterDecBaseStat(obj_dude, STAT_AGE) != 0) {
+                if (dec_stat(obj_dude, STAT_AGE) != 0) {
                     flags = 0;
                 }
                 age = critterGetStat(obj_dude, STAT_AGE);
@@ -3400,13 +3400,13 @@ static int AgeWindow()
 
                     if (change == 1) {
                         if (previousAge < 35) {
-                            if (critterIncBaseStat(obj_dude, STAT_AGE) != 0) {
+                            if (inc_stat(obj_dude, STAT_AGE) != 0) {
                                 flags = 0;
                             }
                         }
                     } else {
                         if (previousAge >= 16) {
-                            if (critterDecBaseStat(obj_dude, STAT_AGE) != 0) {
+                            if (dec_stat(obj_dude, STAT_AGE) != 0) {
                                 flags = 0;
                             }
                         }
@@ -3444,7 +3444,7 @@ static int AgeWindow()
         }
     }
 
-    critterSetBaseStat(obj_dude, STAT_AGE, savedAge);
+    stat_set_base(obj_dude, STAT_AGE, savedAge);
     PrintAgeBig();
     PrintBasicStat(RENDER_ALL_STATS, 0, 0);
     ListDrvdStats();
@@ -3558,7 +3558,7 @@ static void SexWindow()
         }
 
         if (eventCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
-            critterSetBaseStat(obj_dude, STAT_GENDER, savedGender);
+            stat_set_base(obj_dude, STAT_GENDER, savedGender);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
             ListDrvdStats();
             win_draw(edit_win);
@@ -3577,7 +3577,7 @@ static void SexWindow()
         case 501:
         case 502:
             // TODO: Original code is slightly different.
-            critterSetBaseStat(obj_dude, STAT_GENDER, eventCode - 501);
+            stat_set_base(obj_dude, STAT_GENDER, eventCode - 501);
             PrintBasicStat(RENDER_ALL_STATS, 0, 0);
             ListDrvdStats();
             break;
@@ -3626,7 +3626,7 @@ static void StatButton(int eventCode)
 
             if (eventCode >= 510) {
                 int previousValue = critterGetStat(obj_dude, decrementingStat);
-                if (critterDecBaseStat(obj_dude, decrementingStat) == 0) {
+                if (dec_stat(obj_dude, decrementingStat) == 0) {
                     character_points++;
                 } else {
                     cont = false;
@@ -3634,14 +3634,14 @@ static void StatButton(int eventCode)
 
                 PrintBasicStat(decrementingStat, cont ? ANIMATE : 0, previousValue);
                 PrintBigNum(126, 282, cont ? ANIMATE : 0, character_points, savedRemainingCharacterPoints, edit_win);
-                critterUpdateDerivedStats(obj_dude);
+                stat_recalc_derived(obj_dude);
                 ListDrvdStats();
                 ListSkills(0);
                 info_line = decrementingStat;
             } else {
-                int previousValue = critterGetBaseStatWithTraitModifier(obj_dude, incrementingStat);
-                previousValue += critterGetBonusStat(obj_dude, incrementingStat);
-                if (character_points > 0 && previousValue < 10 && critterIncBaseStat(obj_dude, incrementingStat) == 0) {
+                int previousValue = stat_get_base(obj_dude, incrementingStat);
+                previousValue += stat_get_bonus(obj_dude, incrementingStat);
+                if (character_points > 0 && previousValue < 10 && inc_stat(obj_dude, incrementingStat) == 0) {
                     character_points--;
                 } else {
                     cont = false;
@@ -3649,7 +3649,7 @@ static void StatButton(int eventCode)
 
                 PrintBasicStat(incrementingStat, cont ? ANIMATE : 0, previousValue);
                 PrintBigNum(126, 282, cont ? ANIMATE : 0, character_points, savedRemainingCharacterPoints, edit_win);
-                critterUpdateDerivedStats(obj_dude);
+                stat_recalc_derived(obj_dude);
                 ListDrvdStats();
                 ListSkills(0);
                 info_line = incrementingStat;
@@ -3797,7 +3797,7 @@ static int OptionWindow()
 
                     // NOTE: Uninline.
                     trait_count = get_trait_count();
-                    critterUpdateDerivedStats(obj_dude);
+                    stat_recalc_derived(obj_dude);
                     ResetScreen();
                 }
             } else if (keyCode == 502 || keyCode == KEY_UPPERCASE_P || keyCode == KEY_LOWERCASE_P) {
@@ -3913,7 +3913,7 @@ static int OptionWindow()
                             // NOTE: Uninline.
                             trait_count = get_trait_count();
 
-                            critterUpdateDerivedStats(obj_dude);
+                            stat_recalc_derived(obj_dude);
 
                             critter_adjust_hits(obj_dude, 1000);
 
@@ -4207,9 +4207,9 @@ static int Save_as_ASCII(const char* fileName)
     sprintf(title1,
         "%s %.2d %s %s ",
         getmsg(&editor_message_file, &mesg, 647),
-        pcGetStat(PC_STAT_LEVEL),
+        stat_pc_get(PC_STAT_LEVEL),
         getmsg(&editor_message_file, &mesg, 648),
-        itostndn(pcGetStat(PC_STAT_EXPERIENCE), title3));
+        itostndn(stat_pc_get(PC_STAT_EXPERIENCE), title3));
 
     paddingLength = 12 - strlen(title3);
     if (paddingLength > 0) {
@@ -4224,7 +4224,7 @@ static int Save_as_ASCII(const char* fileName)
         "%s%s %s",
         title1,
         getmsg(&editor_message_file, &mesg, 649),
-        itostndn(pcGetExperienceForNextLevel(), title3));
+        itostndn(stat_pc_min_exp(), title3));
     fileWriteString(title2, stream);
     fileWriteString("\n", stream);
     fileWriteString("\n", stream);
@@ -4638,15 +4638,15 @@ static int CheckValidPlayer()
 {
     int stat;
 
-    critterUpdateDerivedStats(obj_dude);
-    pcStatsReset();
+    stat_recalc_derived(obj_dude);
+    stat_pc_set_defaults();
 
     for (stat = 0; stat < SAVEABLE_STAT_COUNT; stat++) {
-        critterSetBonusStat(obj_dude, stat, 0);
+        stat_set_bonus(obj_dude, stat, 0);
     }
 
     perk_reset();
-    critterUpdateDerivedStats(obj_dude);
+    stat_recalc_derived(obj_dude);
 
     return 1;
 }
@@ -4671,7 +4671,7 @@ static void SavePlayer()
 
     free_perk_back = free_perk;
 
-    upsent_points_back = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+    upsent_points_back = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
 
     skill_get_tags(tag_skill_back, NUM_TAGGED_SKILLS);
 
@@ -4700,7 +4700,7 @@ static void RestorePlayer()
     last_level = last_level_back;
     free_perk = free_perk_back;
 
-    pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, upsent_points_back);
+    stat_pc_set(PC_STAT_UNSPENT_SKILL_POINTS, upsent_points_back);
 
     skill_set_tags(tag_skill_back, NUM_TAGGED_SKILLS);
 
@@ -4716,7 +4716,7 @@ static void RestorePlayer()
     // NOTE: Uninline.
     trait_count = get_trait_count();
 
-    critterUpdateDerivedStats(obj_dude);
+    stat_recalc_derived(obj_dude);
 
     cur_hp = critter_get_hits(obj_dude);
     critter_adjust_hits(obj_dude, hp_back - cur_hp);
@@ -5006,7 +5006,7 @@ static void SliderBtn(int keyCode)
         return;
     }
 
-    int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+    int unspentSp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
     _repFtime = 4;
 
     bool isUsingKeyboard = false;
@@ -5053,7 +5053,7 @@ static void SliderBtn(int keyCode)
 
             rc = 1;
             if (keyCode == 521) {
-                if (pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
+                if (stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS) > 0) {
                     if (skill_inc_point(obj_dude, skill_cursor) == -3) {
                         gsound_play_sfx_file("iisxxxx1");
 
@@ -5106,13 +5106,13 @@ static void SliderBtn(int keyCode)
                 flags = 0;
             }
 
-            PrintBigNum(522, 228, flags, pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS), unspentSp, edit_win);
+            PrintBigNum(522, 228, flags, stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS), unspentSp, edit_win);
 
             win_draw(edit_win);
         }
 
         if (!isUsingKeyboard) {
-            unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+            unspentSp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
             if (repeatDelay >= 19.2) {
                 while (getTicksSince(_frame_time) < 1000 / _repFtime) {
                 }
@@ -5343,7 +5343,7 @@ static void TraitSelect(int trait)
 
     ListTraits();
     ListSkills(0);
-    critterUpdateDerivedStats(obj_dude);
+    stat_recalc_derived(obj_dude);
     PrintBigNum(126, 282, 0, character_points, 0, edit_win);
     PrintBasicStat(RENDER_ALL_STATS, false, 0);
     ListDrvdStats();
@@ -5536,12 +5536,12 @@ void editor_reset()
 // 0x43C228
 static int UpdateLevel()
 {
-    int level = pcGetStat(PC_STAT_LEVEL);
+    int level = stat_pc_get(PC_STAT_LEVEL);
     if (level != last_level && level <= PC_LEVEL_MAX) {
         for (int nextLevel = last_level + 1; nextLevel <= level; nextLevel++) {
-            int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+            int sp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
             sp += 5;
-            sp += critterGetBaseStatWithTraitModifier(obj_dude, STAT_INTELLIGENCE) * 2;
+            sp += stat_get_base(obj_dude, STAT_INTELLIGENCE) * 2;
             sp += perk_level(obj_dude, PERK_EDUCATED) * 2;
             sp += traitIsSelected(TRAIT_SKILLED) * 5;
             if (traitIsSelected(TRAIT_GIFTED)) {
@@ -5554,7 +5554,7 @@ static int UpdateLevel()
                 sp = 99;
             }
 
-            pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp);
+            stat_pc_set(PC_STAT_UNSPENT_SKILL_POINTS, sp);
 
             // NOTE: Uninline.
             int selectedPerksCount = PerkCount();
@@ -5797,12 +5797,12 @@ static int perks_dialog()
                 perk_sub(obj_dude, PERK_MUTATE);
             }
         } else if (perk_level(obj_dude, PERK_LIFEGIVER) != perk_back[PERK_LIFEGIVER]) {
-            int maxHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
-            critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
+            int maxHp = stat_get_bonus(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+            stat_set_bonus(obj_dude, STAT_MAXIMUM_HIT_POINTS, maxHp + 4);
             critter_adjust_hits(obj_dude, 4);
         } else if (perk_level(obj_dude, PERK_EDUCATED) != perk_back[PERK_EDUCATED]) {
-            int sp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
-            pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);
+            int sp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
+            stat_pc_set(PC_STAT_UNSPENT_SKILL_POINTS, sp + 2);
         }
     }
 
@@ -6562,8 +6562,8 @@ static int PerkCount()
 static int is_supper_bonus()
 {
     for (int stat = 0; stat < 7; stat++) {
-        int v1 = critterGetBaseStatWithTraitModifier(obj_dude, stat);
-        int v2 = critterGetBonusStat(obj_dude, stat);
+        int v1 = stat_get_base(obj_dude, stat);
+        int v2 = stat_get_bonus(obj_dude, stat);
         if (v1 + v2 > 10) {
             return 1;
         }

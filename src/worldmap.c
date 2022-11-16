@@ -3533,7 +3533,7 @@ static int wmRndEncounterOccurred()
                 debugPrint("WorldMap: Giving Player [%d] Experience For Catching Rnd Encounter!", xp);
 
                 if (xp < 100) {
-                    pcAddExperience(xp);
+                    stat_pc_add_experience(xp);
                 }
             }
         }
@@ -4170,7 +4170,7 @@ static bool wmEvalConditional(EncounterCondition* a1, int* a2)
             }
             break;
         case ENCOUNTER_CONDITION_TYPE_PLAYER:
-            value = pcGetStat(PC_STAT_LEVEL);
+            value = stat_pc_get(PC_STAT_LEVEL);
             if (!wmEvalSubConditional(value, ptr->conditionalOperator, ptr->value)) {
                 matches = false;
             }

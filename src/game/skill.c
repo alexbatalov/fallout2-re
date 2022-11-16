@@ -273,7 +273,7 @@ int skill_inc_point(Object* obj, int skill)
     Proto* proto;
     proto_ptr(obj->pid, &proto);
 
-    int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+    int unspentSp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
     if (unspentSp <= 0) {
         return -4;
     }
@@ -290,7 +290,7 @@ int skill_inc_point(Object* obj, int skill)
         return -4;
     }
 
-    int rc = pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, unspentSp - requiredSp);
+    int rc = stat_pc_set(PC_STAT_UNSPENT_SKILL_POINTS, unspentSp - requiredSp);
     if (rc == 0) {
         proto->critter.data.skills[skill] += 1;
     }
@@ -362,14 +362,14 @@ int skill_dec_point(Object* critter, int skill)
         return -2;
     }
 
-    int unspentSp = pcGetStat(PC_STAT_UNSPENT_SKILL_POINTS);
+    int unspentSp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
     int skillValue = skill_level(critter, skill) - 1;
 
     // NOTE: Uninline.
     int requiredSp = skillLevelCost(skillValue);
 
     int newUnspentSp = unspentSp + requiredSp;
-    int rc = pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp);
+    int rc = stat_pc_set(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp);
     if (rc != 0) {
         return rc;
     }
@@ -380,7 +380,7 @@ int skill_dec_point(Object* critter, int skill)
         int oldSkillCost = skillLevelCost(skillValue);
         int newSkillCost = skillLevelCost(skill_level(critter, skill));
         if (oldSkillCost != newSkillCost) {
-            rc = pcSetStat(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp - 1);
+            rc = stat_pc_set(PC_STAT_UNSPENT_SKILL_POINTS, newUnspentSp - 1);
             if (rc != 0) {
                 return rc;
             }
@@ -525,13 +525,13 @@ static void show_skill_use_messages(Object* obj, int skill, Object* a3, int a4, 
 
     int xpToAdd = a4 * baseExperience;
 
-    int before = pcGetStat(PC_STAT_EXPERIENCE);
+    int before = stat_pc_get(PC_STAT_EXPERIENCE);
 
-    if (pcAddExperience(xpToAdd) == 0 && a4 > 0) {
+    if (stat_pc_add_experience(xpToAdd) == 0 && a4 > 0) {
         MessageListItem messageListItem;
         messageListItem.num = 505; // You earn %d XP for honing your skills
         if (message_search(&skill_message_file, &messageListItem)) {
-            int after = pcGetStat(PC_STAT_EXPERIENCE);
+            int after = stat_pc_get(PC_STAT_EXPERIENCE);
 
             char text[60];
             sprintf(text, messageListItem.text, after - before);

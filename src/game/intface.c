@@ -1316,7 +1316,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
             int unarmed = skill_level(obj_dude, SKILL_UNARMED);
             int agility = critterGetStat(obj_dude, STAT_AGILITY);
             int strength = critterGetStat(obj_dude, STAT_STRENGTH);
-            int level = pcGetStat(PC_STAT_LEVEL);
+            int level = stat_pc_get(PC_STAT_LEVEL);
 
             if (unarmed > 99 && agility > 6 && strength > 4 && level > 8) {
                 leftItemState->primaryHitMode = HIT_MODE_HAYMAKER;
@@ -1376,7 +1376,7 @@ int intface_update_items(bool animated, int leftItemAction, int rightItemAction)
             int unarmed = skill_level(obj_dude, SKILL_UNARMED);
             int agility = critterGetStat(obj_dude, STAT_AGILITY);
             int strength = critterGetStat(obj_dude, STAT_STRENGTH);
-            int level = pcGetStat(PC_STAT_LEVEL);
+            int level = stat_pc_get(PC_STAT_LEVEL);
 
             if (unarmed > 79 && agility > 5 && strength > 5 && level > 8) {
                 rightItemState->primaryHitMode = HIT_MODE_POWER_KICK;

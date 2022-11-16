@@ -1171,7 +1171,7 @@ static int endgameSetupInit(int* percentage)
             }
         }
 
-        if (pcGetStat(PC_STAT_LEVEL) < deathEnding->min_level) {
+        if (stat_pc_get(PC_STAT_LEVEL) < deathEnding->min_level) {
             continue;
         }
 

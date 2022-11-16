@@ -479,7 +479,7 @@ int critter_check_rads(Object* obj)
     else
         radiationLevel = RADIATION_LEVEL_NONE;
 
-    if (statRoll(obj, STAT_ENDURANCE, bonus[radiationLevel], NULL) <= ROLL_FAILURE) {
+    if (stat_result(obj, STAT_ENDURANCE, bonus[radiationLevel], NULL) <= ROLL_FAILURE) {
         radiationLevel++;
     }
 
@@ -545,17 +545,17 @@ static void process_rads(Object* obj, int radiationLevel, bool isHealing)
     }
 
     for (int effect = 0; effect < RADIATION_EFFECT_COUNT; effect++) {
-        int value = critterGetBonusStat(obj, rad_stat[effect]);
+        int value = stat_get_bonus(obj, rad_stat[effect]);
         value += modifier * rad_bonus[radiationLevelIndex][effect];
-        critterSetBonusStat(obj, rad_stat[effect], value);
+        stat_set_bonus(obj, rad_stat[effect], value);
     }
 
     if ((obj->data.critter.combat.results & DAM_DEAD) == 0) {
         // Loop thru effects affecting primary stats. If any of the primary stat
         // dropped below minimal value, kill it.
         for (int effect = 0; effect < RADIATION_EFFECT_PRIMARY_STAT_COUNT; effect++) {
-            int base = critterGetBaseStatWithTraitModifier(obj, rad_stat[effect]);
-            int bonus = critterGetBonusStat(obj, rad_stat[effect]);
+            int base = stat_get_base(obj, rad_stat[effect]);
+            int bonus = stat_get_bonus(obj, rad_stat[effect]);
             if (base + bonus < PRIMARY_STAT_MIN) {
                 critter_kill(obj, -1, 1);
                 break;
@@ -1286,7 +1286,7 @@ int critter_set_who_hit_me(Object* a1, Object* a2)
     }
 
     if (PID_TYPE(a1->pid) == OBJ_TYPE_CRITTER) {
-        if (a2 == NULL || a1->data.critter.combat.team != a2->data.critter.combat.team || (statRoll(a1, STAT_INTELLIGENCE, -1, NULL) < 2 && (!isPartyMember(a1) || !isPartyMember(a2)))) {
+        if (a2 == NULL || a1->data.critter.combat.team != a2->data.critter.combat.team || (stat_result(a1, STAT_INTELLIGENCE, -1, NULL) < 2 && (!isPartyMember(a1) || !isPartyMember(a2)))) {
             a1->data.critter.combat.whoHitMe = a2;
             if (a2 == obj_dude) {
                 reaction_set(a1, -3);

@@ -1073,7 +1073,7 @@ static int protinstTestDroppedExplosive(Object* a1)
             Object* v5 = attack.extras[index];
             if (v5 != obj_dude
                 && v5->data.critter.combat.team != team
-                && statRoll(v5, STAT_PERCEPTION, 0, NULL) >= 2) {
+                && stat_result(v5, STAT_PERCEPTION, 0, NULL) >= 2) {
                 critter_set_who_hit_me(v5, obj_dude);
                 if (v2 == NULL) {
                     v2 = v5;

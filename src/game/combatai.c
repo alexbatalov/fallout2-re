@@ -2145,7 +2145,7 @@ static int ai_pick_hit_mode(Object* a1, Object* a2, Object* a3)
     if (useSecondaryMode) {
         if (attackType != ATTACK_TYPE_THROW
             || ai_search_inven_weap(a1, 0, a3) != NULL
-            || statRoll(a1, STAT_INTELLIGENCE, 0, NULL) <= 1) {
+            || stat_result(a1, STAT_INTELLIGENCE, 0, NULL) <= 1) {
             return HIT_MODE_RIGHT_WEAPON_SECONDARY;
         }
     }

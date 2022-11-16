@@ -2786,7 +2786,7 @@ void combat_give_exps(int exp_points)
         return;
     }
 
-    pcAddExperience(exp_points);
+    stat_pc_add_experience(exp_points);
 
     v7.num = 621; // %s you earn %d exp. points.
     if (!message_search(&proto_main_msg_file, &v7)) {
@@ -4031,7 +4031,7 @@ static int attack_crit_success(Attack* attack)
     attack->criticalMessageId = criticalHitDescription->messageId;
 
     if (criticalHitDescription->massiveCriticalStat != -1) {
-        if (statRoll(defender, criticalHitDescription->massiveCriticalStat, criticalHitDescription->massiveCriticalStatModifier, NULL) <= ROLL_FAILURE) {
+        if (stat_result(defender, criticalHitDescription->massiveCriticalStat, criticalHitDescription->massiveCriticalStatModifier, NULL) <= ROLL_FAILURE) {
             attack->defenderFlags |= criticalHitDescription->massiveCriticalFlags;
             attack->criticalMessageId = criticalHitDescription->massiveCriticalMessageId;
         }

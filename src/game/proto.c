@@ -368,7 +368,7 @@ int proto_critter_init(Proto* a1, int a2)
     data->experience = 60;
     data->killType = 0;
     data->damageType = 0;
-    protoCritterDataResetStats(data);
+    stat_set_defaults(data);
     skill_set_defaults(data);
 
     return 0;
@@ -693,7 +693,7 @@ int proto_update_init(Object* obj)
     combat_data_init(obj);
     data->critter.hp = critterGetStat(obj, STAT_MAXIMUM_HIT_POINTS);
     data->critter.combat.ap = critterGetStat(obj, STAT_MAXIMUM_ACTION_POINTS);
-    critterUpdateDerivedStats(obj);
+    stat_recalc_derived(obj);
     obj->data.critter.combat.whoHitMe = NULL;
 
     Proto* proto;
@@ -792,7 +792,7 @@ int proto_dude_init(const char* path)
         obj_dude->flags &= ~OBJECT_NO_BLOCK;
     }
 
-    critterUpdateDerivedStats(obj_dude);
+    stat_recalc_derived(obj_dude);
     critter_adjust_hits(obj_dude, 10000);
 
     if (retval) {
@@ -1098,7 +1098,7 @@ int proto_init()
     mp_critter_stats_list[1] = "None";
     critter_stats_list = &(mp_critter_stats_list[2]);
     for (i = 0; i < STAT_COUNT; i++) {
-        critter_stats_list[i] = statGetName(i);
+        critter_stats_list[i] = stat_name(i);
         if (critter_stats_list[i] == NULL) {
             debugPrint("\nError: Finding stat names!");
             return -1;
@@ -1840,14 +1840,14 @@ int ResetPlayer()
     Proto* proto;
     proto_ptr(obj_dude->pid, &proto);
 
-    pcStatsReset();
-    protoCritterDataResetStats(&(proto->critter.data));
+    stat_pc_set_defaults();
+    stat_set_defaults(&(proto->critter.data));
     critter_reset();
     editor_reset();
     skill_set_defaults(&(proto->critter.data));
     skill_reset();
     perk_reset();
     traitsReset();
-    critterUpdateDerivedStats(obj_dude);
+    stat_recalc_derived(obj_dude);
     return 0;
 }

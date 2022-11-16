@@ -1504,7 +1504,7 @@ int partyMemberIncLevels()
             continue;
         }
 
-        if (pcGetStat(PC_STAT_LEVEL) < aiOptions->level_minimum) {
+        if (stat_pc_get(PC_STAT_LEVEL) < aiOptions->level_minimum) {
             continue;
         }
 

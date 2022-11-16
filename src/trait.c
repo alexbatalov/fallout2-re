@@ -208,7 +208,7 @@ int traitGetStatModifier(int stat)
         break;
     case STAT_ARMOR_CLASS:
         if (traitIsSelected(TRAIT_KAMIKAZE)) {
-            modifier -= critterGetBaseStat(obj_dude, STAT_ARMOR_CLASS);
+            modifier -= stat_get_base_direct(obj_dude, STAT_ARMOR_CLASS);
         }
         break;
     case STAT_MELEE_DAMAGE:
@@ -218,7 +218,7 @@ int traitGetStatModifier(int stat)
         break;
     case STAT_CARRY_WEIGHT:
         if (traitIsSelected(TRAIT_SMALL_FRAME)) {
-            modifier -= 10 * critterGetBaseStat(obj_dude, STAT_STRENGTH);
+            modifier -= 10 * stat_get_base_direct(obj_dude, STAT_STRENGTH);
         }
         break;
     case STAT_SEQUENCE:
@@ -243,12 +243,12 @@ int traitGetStatModifier(int stat)
         break;
     case STAT_RADIATION_RESISTANCE:
         if (traitIsSelected(TRAIT_FAST_METABOLISM)) {
-            modifier -= -critterGetBaseStat(obj_dude, STAT_RADIATION_RESISTANCE);
+            modifier -= -stat_get_base_direct(obj_dude, STAT_RADIATION_RESISTANCE);
         }
         break;
     case STAT_POISON_RESISTANCE:
         if (traitIsSelected(TRAIT_FAST_METABOLISM)) {
-            modifier -= -critterGetBaseStat(obj_dude, STAT_POISON_RESISTANCE);
+            modifier -= -stat_get_base_direct(obj_dude, STAT_POISON_RESISTANCE);
         }
         break;
     }

@@ -450,7 +450,7 @@ static void op_give_exp_points(Program* program)
         interpretError("script error: %s: invalid arg to give_exp_points", program->name);
     }
 
-    if (pcAddExperience(data) != 0) {
+    if (stat_pc_add_experience(data) != 0) {
         int_debug("\nScript Error: %s: op_give_exp_points: stat_pc_set failed");
     }
 }
@@ -758,7 +758,7 @@ static void op_do_check(Program* program)
             case STAT_INTELLIGENCE:
             case STAT_AGILITY:
             case STAT_LUCK:
-                roll = statRoll(object, stat, mod, &(script->howMuch));
+                roll = stat_result(object, stat, mod, &(script->howMuch));
                 break;
             default:
                 int_debug("\nScript Error: %s: op_do_check: Stat out of range", program->name);
@@ -1684,8 +1684,8 @@ static void op_set_critter_stat(Program* program)
     int result = 0;
     if (object != NULL) {
         if (object == obj_dude) {
-            int currentValue = critterGetBaseStatWithTraitModifier(object, stat);
-            critterSetBaseStat(object, stat, currentValue + value);
+            int currentValue = stat_get_base(object, stat);
+            stat_set_base(object, stat, currentValue + value);
         } else {
             dbg_error(program, "set_critter_stat", SCRIPT_ERROR_FOLLOWS);
             debugPrint(" Can't modify anyone except obj_dude!");
@@ -6770,7 +6770,7 @@ static void op_get_pc_stat(Program* program)
         interpretError("script error: %s: invalid arg to get_pc_stat", program->name);
     }
 
-    int value = pcGetStat(data);
+    int value = stat_pc_get(data);
     interpretPushLong(program, value);
     interpretPushShort(program, VALUE_TYPE_INT);
 }

@@ -742,14 +742,14 @@ static bool select_display_stats()
     y += vh + vh + vh;
 
     value = critterGetStat(obj_dude, STAT_STRENGTH);
-    str = statGetName(STAT_STRENGTH);
+    str = stat_name(STAT_STRENGTH);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -759,14 +759,14 @@ static bool select_display_stats()
     y += vh;
 
     value = critterGetStat(obj_dude, STAT_PERCEPTION);
-    str = statGetName(STAT_PERCEPTION);
+    str = stat_name(STAT_PERCEPTION);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -776,14 +776,14 @@ static bool select_display_stats()
     y += vh;
 
     value = critterGetStat(obj_dude, STAT_ENDURANCE);
-    str = statGetName(STAT_PERCEPTION);
+    str = stat_name(STAT_PERCEPTION);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -793,14 +793,14 @@ static bool select_display_stats()
     y += vh;
 
     value = critterGetStat(obj_dude, STAT_CHARISMA);
-    str = statGetName(STAT_CHARISMA);
+    str = stat_name(STAT_CHARISMA);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -810,14 +810,14 @@ static bool select_display_stats()
     y += vh;
 
     value = critterGetStat(obj_dude, STAT_INTELLIGENCE);
-    str = statGetName(STAT_INTELLIGENCE);
+    str = stat_name(STAT_INTELLIGENCE);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -827,14 +827,14 @@ static bool select_display_stats()
     y += vh;
 
     value = critterGetStat(obj_dude, STAT_AGILITY);
-    str = statGetName(STAT_AGILITY);
+    str = stat_name(STAT_AGILITY);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -844,14 +844,14 @@ static bool select_display_stats()
     y += vh;
 
     value = critterGetStat(obj_dude, STAT_LUCK);
-    str = statGetName(STAT_LUCK);
+    str = stat_name(STAT_LUCK);
 
     sprintf(text, "%s %02d", str, value);
 
     length = fontGetStringWidth(text);
     fontDrawText(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_PRIMARY_STAT_MID_X - length, text, length, CS_WINDOW_WIDTH, colorTable[992]);
 
-    str = statGetValueDescription(value);
+    str = stat_level_description(value);
     sprintf(text, "  %s", str);
 
     length = fontGetStringWidth(text);
@@ -880,7 +880,7 @@ static bool select_display_stats()
     // ARMOR CLASS
     y += vh;
 
-    str = statGetName(STAT_ARMOR_CLASS);
+    str = stat_name(STAT_ARMOR_CLASS);
     strcpy(text, str);
 
     length = fontGetStringWidth(text);
@@ -913,7 +913,7 @@ static bool select_display_stats()
     // MELEE DAMAGE
     y += vh;
 
-    str = statGetName(STAT_ARMOR_CLASS);
+    str = stat_name(STAT_ARMOR_CLASS);
     strcpy(text, str);
 
     length = fontGetStringWidth(text);

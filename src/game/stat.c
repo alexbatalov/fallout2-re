@@ -10,6 +10,7 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/item.h"
+#include "game/message.h"
 #include "memory.h"
 #include "game/object.h"
 #include "game/perk.h"
@@ -20,8 +21,18 @@
 #include "tile.h"
 #include "trait.h"
 
+// Provides metadata about stats.
+typedef struct StatDescription {
+    char* name;
+    char* description;
+    int frmId;
+    int minimumValue;
+    int maximumValue;
+    int defaultValue;
+} StatDescription;
+
 // 0x51D53C
-StatDescription gStatDescriptions[STAT_COUNT] = {
+static StatDescription stat_data[STAT_COUNT] = {
     { NULL, NULL, 0, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
     { NULL, NULL, 1, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
     { NULL, NULL, 2, PRIMARY_STAT_MIN, PRIMARY_STAT_MAX, 5 },
@@ -63,7 +74,7 @@ StatDescription gStatDescriptions[STAT_COUNT] = {
 };
 
 // 0x51D8CC
-StatDescription gPcStatDescriptions[PC_STAT_COUNT] = {
+static StatDescription pc_stat_data[PC_STAT_COUNT] = {
     { NULL, NULL, 0, 0, INT_MAX, 0 },
     { NULL, NULL, 0, 1, PC_LEVEL_MAX, 1 },
     { NULL, NULL, 0, 0, INT_MAX, 0 },
@@ -72,72 +83,72 @@ StatDescription gPcStatDescriptions[PC_STAT_COUNT] = {
 };
 
 // 0x66817C
-MessageList gStatsMessageList;
+static MessageList stat_message_file;
 
 // 0x668184
-char* gStatValueDescriptions[PRIMARY_STAT_RANGE];
+static char* level_description[PRIMARY_STAT_RANGE];
 
 // 0x6681AC
-int gPcStatValues[PC_STAT_COUNT];
+static int curr_pc_stat[PC_STAT_COUNT];
 
 // 0x4AED70
-int statsInit()
+int stat_init()
 {
     MessageListItem messageListItem;
 
     // NOTE: Uninline.
-    pcStatsReset();
+    stat_pc_set_defaults();
 
-    if (!message_init(&gStatsMessageList)) {
+    if (!message_init(&stat_message_file)) {
         return -1;
     }
 
     char path[MAX_PATH];
     sprintf(path, "%s%s", msg_path, "stat.msg");
 
-    if (!message_load(&gStatsMessageList, path)) {
+    if (!message_load(&stat_message_file, path)) {
         return -1;
     }
 
     for (int stat = 0; stat < STAT_COUNT; stat++) {
-        gStatDescriptions[stat].name = getmsg(&gStatsMessageList, &messageListItem, 100 + stat);
-        gStatDescriptions[stat].description = getmsg(&gStatsMessageList, &messageListItem, 200 + stat);
+        stat_data[stat].name = getmsg(&stat_message_file, &messageListItem, 100 + stat);
+        stat_data[stat].description = getmsg(&stat_message_file, &messageListItem, 200 + stat);
     }
 
     for (int pcStat = 0; pcStat < PC_STAT_COUNT; pcStat++) {
-        gPcStatDescriptions[pcStat].name = getmsg(&gStatsMessageList, &messageListItem, 400 + pcStat);
-        gPcStatDescriptions[pcStat].description = getmsg(&gStatsMessageList, &messageListItem, 500 + pcStat);
+        pc_stat_data[pcStat].name = getmsg(&stat_message_file, &messageListItem, 400 + pcStat);
+        pc_stat_data[pcStat].description = getmsg(&stat_message_file, &messageListItem, 500 + pcStat);
     }
 
     for (int index = 0; index < PRIMARY_STAT_RANGE; index++) {
-        gStatValueDescriptions[index] = getmsg(&gStatsMessageList, &messageListItem, 301 + index);
+        level_description[index] = getmsg(&stat_message_file, &messageListItem, 301 + index);
     }
 
     return 0;
 }
 
 // 0x4AEEC0
-int statsReset()
+int stat_reset()
 {
     // NOTE: Uninline.
-    pcStatsReset();
+    stat_pc_set_defaults();
 
     return 0;
 }
 
 // 0x4AEEE4
-int statsExit()
+int stat_exit()
 {
-    message_exit(&gStatsMessageList);
+    message_exit(&stat_message_file);
 
     return 0;
 }
 
 // 0x4AEEF4
-int statsLoad(File* stream)
+int stat_load(File* stream)
 {
     for (int index = 0; index < PC_STAT_COUNT; index++) {
-        if (fileReadInt32(stream, &(gPcStatValues[index])) == -1) {
+        if (fileReadInt32(stream, &(curr_pc_stat[index])) == -1) {
             return -1;
         }
     }
@@ -146,10 +157,10 @@ int statsLoad(File* stream)
 }
 
 // 0x4AEF20
-int statsSave(File* stream)
+int stat_save(File* stream)
 {
     for (int index = 0; index < PC_STAT_COUNT; index++) {
-        if (fileWriteInt32(stream, gPcStatValues[index]) == -1) {
+        if (fileWriteInt32(stream, curr_pc_stat[index]) == -1) {
             return -1;
         }
     }
@@ -162,8 +173,8 @@ int critterGetStat(Object* critter, int stat)
 {
     int value;
     if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
-        value = critterGetBaseStatWithTraitModifier(critter, stat);
-        value += critterGetBonusStat(critter, stat);
+        value = stat_get_base(critter, stat);
+        value += stat_get_bonus(critter, stat);
 
         switch (stat) {
         case STAT_PERCEPTION:
@@ -345,7 +356,7 @@ int critterGetStat(Object* critter, int stat)
             }
         }
 
-        value = min(max(value, gStatDescriptions[stat].minimumValue), gStatDescriptions[stat].maximumValue);
+        value = min(max(value, stat_data[stat].minimumValue), stat_data[stat].maximumValue);
     } else {
         switch (stat) {
         case STAT_CURRENT_HIT_POINTS:
@@ -369,9 +380,9 @@ int critterGetStat(Object* critter, int stat)
 // Returns base stat value (accounting for traits if critter is dude).
 //
 // 0x4AF3E0
-int critterGetBaseStatWithTraitModifier(Object* critter, int stat)
+int stat_get_base(Object* critter, int stat)
 {
-    int value = critterGetBaseStat(critter, stat);
+    int value = stat_get_base_direct(critter, stat);
 
     if (critter == obj_dude) {
         value += traitGetStatModifier(stat);
@@ -381,7 +392,7 @@ int critterGetBaseStatWithTraitModifier(Object* critter, int stat)
 }
 
 // 0x4AF408
-int critterGetBaseStat(Object* critter, int stat)
+int stat_get_base_direct(Object* critter, int stat)
 {
     Proto* proto;
 
@@ -403,7 +414,7 @@ int critterGetBaseStat(Object* critter, int stat)
 }
 
 // 0x4AF474
-int critterGetBonusStat(Object* critter, int stat)
+int stat_get_bonus(Object* critter, int stat)
 {
     if (stat >= 0 && stat < SAVEABLE_STAT_COUNT) {
         Proto* proto;
@@ -415,7 +426,7 @@ int critterGetBonusStat(Object* critter, int stat)
 }
 
 // 0x4AF4BC
-int critterSetBaseStat(Object* critter, int stat, int value)
+int stat_set_base(Object* critter, int stat, int value)
 {
     Proto* proto;
 
@@ -433,11 +444,11 @@ int critterSetBaseStat(Object* critter, int stat, int value)
             value -= traitGetStatModifier(stat);
         }
 
-        if (value < gStatDescriptions[stat].minimumValue) {
+        if (value < stat_data[stat].minimumValue) {
             return -2;
         }
 
-        if (value > gStatDescriptions[stat].maximumValue) {
+        if (value > stat_data[stat].maximumValue) {
             return -3;
         }
 
@@ -445,7 +456,7 @@ int critterSetBaseStat(Object* critter, int stat, int value)
         proto->critter.data.baseStats[stat] = value;
 
         if (stat >= STAT_STRENGTH && stat <= STAT_LUCK) {
-            critterUpdateDerivedStats(critter);
+            stat_recalc_derived(critter);
         }
 
         return 0;
@@ -465,31 +476,31 @@ int critterSetBaseStat(Object* critter, int stat, int value)
 }
 
 // 0x4AF5D4
-int critterIncBaseStat(Object* critter, int stat)
+int inc_stat(Object* critter, int stat)
 {
-    int value = critterGetBaseStat(critter, stat);
+    int value = stat_get_base_direct(critter, stat);
 
     if (critter == obj_dude) {
         value += traitGetStatModifier(stat);
     }
 
-    return critterSetBaseStat(critter, stat, value + 1);
+    return stat_set_base(critter, stat, value + 1);
 }
 
 // 0x4AF608
-int critterDecBaseStat(Object* critter, int stat)
+int dec_stat(Object* critter, int stat)
 {
-    int value = critterGetBaseStat(critter, stat);
+    int value = stat_get_base_direct(critter, stat);
 
     if (critter == obj_dude) {
         value += traitGetStatModifier(stat);
     }
 
-    return critterSetBaseStat(critter, stat, value - 1);
+    return stat_set_base(critter, stat, value - 1);
 }
 
 // 0x4AF63C
-int critterSetBonusStat(Object* critter, int stat, int value)
+int stat_set_bonus(Object* critter, int stat, int value)
 {
     if (!statIsValid(stat)) {
         return -5;
@@ -501,7 +512,7 @@ int critterSetBonusStat(Object* critter, int stat, int value)
         proto->critter.data.bonusStats[stat] = value;
 
         if (stat >= STAT_STRENGTH && stat <= STAT_LUCK) {
-            critterUpdateDerivedStats(critter);
+            stat_recalc_derived(critter);
         }
 
         return 0;
@@ -521,16 +532,16 @@ int critterSetBonusStat(Object* critter, int stat, int value)
 }
 
 // 0x4AF6CC
-void protoCritterDataResetStats(CritterProtoData* data)
+void stat_set_defaults(CritterProtoData* data)
 {
     for (int stat = 0; stat < SAVEABLE_STAT_COUNT; stat++) {
-        data->baseStats[stat] = gStatDescriptions[stat].defaultValue;
+        data->baseStats[stat] = stat_data[stat].defaultValue;
         data->bonusStats[stat] = 0;
     }
 }
 
 // 0x4AF6FC
-void critterUpdateDerivedStats(Object* critter)
+void stat_recalc_derived(Object* critter)
 {
     int strength = critterGetStat(critter, STAT_STRENGTH);
     int perception = critterGetStat(critter, STAT_PERCEPTION);
@@ -543,7 +554,7 @@ void critterUpdateDerivedStats(Object* critter)
     proto_ptr(critter->pid, &proto);
     CritterProtoData* data = &(proto->critter.data);
 
-    data->baseStats[STAT_MAXIMUM_HIT_POINTS] = critterGetBaseStatWithTraitModifier(critter, STAT_STRENGTH) + critterGetBaseStatWithTraitModifier(critter, STAT_ENDURANCE) * 2 + 15;
+    data->baseStats[STAT_MAXIMUM_HIT_POINTS] = stat_get_base(critter, STAT_STRENGTH) + stat_get_base(critter, STAT_ENDURANCE) * 2 + 15;
     data->baseStats[STAT_MAXIMUM_ACTION_POINTS] = agility / 2 + 5;
     data->baseStats[STAT_ARMOR_CLASS] = agility;
     data->baseStats[STAT_MELEE_DAMAGE] = max(strength - 5, 1);
@@ -557,19 +568,19 @@ void critterUpdateDerivedStats(Object* critter)
 }
 
 // 0x4AF854
-char* statGetName(int stat)
+char* stat_name(int stat)
 {
-    return statIsValid(stat) ? gStatDescriptions[stat].name : NULL;
+    return statIsValid(stat) ? stat_data[stat].name : NULL;
 }
 
 // 0x4AF898
-char* statGetDescription(int stat)
+char* stat_description(int stat)
 {
-    return statIsValid(stat) ? gStatDescriptions[stat].description : NULL;
+    return statIsValid(stat) ? stat_data[stat].description : NULL;
 }
 
 // 0x4AF8DC
-char* statGetValueDescription(int value)
+char* stat_level_description(int value)
 {
     if (value < PRIMARY_STAT_MIN) {
         value = PRIMARY_STAT_MIN;
@@ -577,17 +588,17 @@ char* statGetValueDescription(int value)
         value = PRIMARY_STAT_MAX;
     }
 
-    return gStatValueDescriptions[value - PRIMARY_STAT_MIN];
+    return level_description[value - PRIMARY_STAT_MIN];
 }
 
 // 0x4AF8FC
-int pcGetStat(int pcStat)
+int stat_pc_get(int pcStat)
 {
-    return pcStatIsValid(pcStat) ? gPcStatValues[pcStat] : 0;
+    return pcStatIsValid(pcStat) ? curr_pc_stat[pcStat] : 0;
 }
 
 // 0x4AF910
-int pcSetStat(int pcStat, int value)
+int stat_pc_set(int pcStat, int value)
 {
     int result;
 
@@ -595,23 +606,23 @@ int pcSetStat(int pcStat, int value)
         return -5;
     }
 
-    if (value < gPcStatDescriptions[pcStat].minimumValue) {
+    if (value < pc_stat_data[pcStat].minimumValue) {
         return -2;
     }
 
-    if (value > gPcStatDescriptions[pcStat].maximumValue) {
+    if (value > pc_stat_data[pcStat].maximumValue) {
         return -3;
     }
 
-    if (pcStat != PC_STAT_EXPERIENCE || value >= gPcStatValues[PC_STAT_EXPERIENCE]) {
-        gPcStatValues[pcStat] = value;
+    if (pcStat != PC_STAT_EXPERIENCE || value >= curr_pc_stat[PC_STAT_EXPERIENCE]) {
+        curr_pc_stat[pcStat] = value;
         if (pcStat == PC_STAT_EXPERIENCE) {
-            result = pcAddExperienceWithOptions(0, true);
+            result = statPCAddExperienceCheckPMs(0, true);
         } else {
             result = 0;
         }
     } else {
-        result = pcSetExperience(value);
+        result = statPcResetExperience(value);
     }
 
     return result;
@@ -620,25 +631,25 @@ int pcSetStat(int pcStat, int value)
 // Reset stats.
 //
 // 0x4AF980
-void pcStatsReset()
+void stat_pc_set_defaults()
 {
     for (int pcStat = 0; pcStat < PC_STAT_COUNT; pcStat++) {
-        gPcStatValues[pcStat] = gPcStatDescriptions[pcStat].defaultValue;
+        curr_pc_stat[pcStat] = pc_stat_data[pcStat].defaultValue;
     }
 }
 
 // Returns experience to reach next level.
 //
 // 0x4AF9A0
-int pcGetExperienceForNextLevel()
+int stat_pc_min_exp()
 {
-    return pcGetExperienceForLevel(gPcStatValues[PC_STAT_LEVEL] + 1);
+    return statPcMinExpForLevel(curr_pc_stat[PC_STAT_LEVEL] + 1);
 }
 
 // Returns exp to reach given level.
 //
 // 0x4AF9A8
-int pcGetExperienceForLevel(int level)
+int statPcMinExpForLevel(int level)
 {
     if (level >= PC_LEVEL_MAX) {
         return -1;
@@ -653,21 +664,21 @@ int pcGetExperienceForLevel(int level)
 }
 
 // 0x4AF9F4
-char* pcStatGetName(int pcStat)
+char* stat_pc_name(int pcStat)
 {
-    return pcStat >= 0 && pcStat < PC_STAT_COUNT ? gPcStatDescriptions[pcStat].name : NULL;
+    return pcStat >= 0 && pcStat < PC_STAT_COUNT ? pc_stat_data[pcStat].name : NULL;
 }
 
 // 0x4AFA14
-char* pcStatGetDescription(int pcStat)
+char* stat_pc_description(int pcStat)
 {
-    return pcStat >= 0 && pcStat < PC_STAT_COUNT ? gPcStatDescriptions[pcStat].description : NULL;
+    return pcStat >= 0 && pcStat < PC_STAT_COUNT ? pc_stat_data[pcStat].description : NULL;
 }
 
 // 0x4AFA34
-int statGetFrmId(int stat)
+int stat_picture(int stat)
 {
-    return statIsValid(stat) ? gStatDescriptions[stat].frmId : 0;
+    return statIsValid(stat) ? stat_data[stat].frmId : 0;
 }
 
 // Roll D10 against specified stat.
@@ -684,7 +695,7 @@ int statGetFrmId(int stat)
 // `NULL` if you're not interested in this value.
 //
 // 0x4AFA78
-int statRoll(Object* critter, int stat, int modifier, int* howMuch)
+int stat_result(Object* critter, int stat, int modifier, int* howMuch)
 {
     int value = critterGetStat(critter, stat) + modifier;
     int chance = roll_random(PRIMARY_STAT_MIN, PRIMARY_STAT_MAX);
@@ -701,40 +712,40 @@ int statRoll(Object* critter, int stat, int modifier, int* howMuch)
 }
 
 // 0x4AFAA8
-int pcAddExperience(int xp)
+int stat_pc_add_experience(int xp)
 {
-    return pcAddExperienceWithOptions(xp, true);
+    return statPCAddExperienceCheckPMs(xp, true);
 }
 
 // 0x4AFAB8
-int pcAddExperienceWithOptions(int xp, bool a2)
+int statPCAddExperienceCheckPMs(int xp, bool a2)
 {
-    int newXp = gPcStatValues[PC_STAT_EXPERIENCE];
+    int newXp = curr_pc_stat[PC_STAT_EXPERIENCE];
     newXp += xp;
     newXp += perk_level(obj_dude, PERK_SWIFT_LEARNER) * 5 * xp / 100;
 
-    if (newXp < gPcStatDescriptions[PC_STAT_EXPERIENCE].minimumValue) {
-        newXp = gPcStatDescriptions[PC_STAT_EXPERIENCE].minimumValue;
+    if (newXp < pc_stat_data[PC_STAT_EXPERIENCE].minimumValue) {
+        newXp = pc_stat_data[PC_STAT_EXPERIENCE].minimumValue;
     }
 
-    if (newXp > gPcStatDescriptions[PC_STAT_EXPERIENCE].maximumValue) {
-        newXp = gPcStatDescriptions[PC_STAT_EXPERIENCE].maximumValue;
+    if (newXp > pc_stat_data[PC_STAT_EXPERIENCE].maximumValue) {
+        newXp = pc_stat_data[PC_STAT_EXPERIENCE].maximumValue;
     }
 
-    gPcStatValues[PC_STAT_EXPERIENCE] = newXp;
+    curr_pc_stat[PC_STAT_EXPERIENCE] = newXp;
 
-    while (gPcStatValues[PC_STAT_LEVEL] < PC_LEVEL_MAX) {
-        if (newXp < pcGetExperienceForNextLevel()) {
+    while (curr_pc_stat[PC_STAT_LEVEL] < PC_LEVEL_MAX) {
+        if (newXp < stat_pc_min_exp()) {
             break;
         }
 
-        if (pcSetStat(PC_STAT_LEVEL, gPcStatValues[PC_STAT_LEVEL] + 1) == 0) {
+        if (stat_pc_set(PC_STAT_LEVEL, curr_pc_stat[PC_STAT_LEVEL] + 1) == 0) {
             int maxHpBefore = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
 
             // You have gone up a level.
             MessageListItem messageListItem;
             messageListItem.num = 600;
-            if (message_search(&gStatsMessageList, &messageListItem)) {
+            if (message_search(&stat_message_file, &messageListItem)) {
                 display_print(messageListItem.text);
             }
 
@@ -743,13 +754,13 @@ int pcAddExperienceWithOptions(int xp, bool a2)
             gsound_play_sfx_file("levelup");
 
             // NOTE: Uninline.
-            int endurance = critterGetBaseStatWithTraitModifier(obj_dude, STAT_ENDURANCE);
+            int endurance = stat_get_base(obj_dude, STAT_ENDURANCE);
 
             int hpPerLevel = endurance / 2 + 2;
             hpPerLevel += perk_level(obj_dude, PERK_LIFEGIVER) * 4;
 
-            int bonusHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
-            critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp + hpPerLevel);
+            int bonusHp = stat_get_bonus(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+            stat_set_bonus(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp + hpPerLevel);
 
             int maxHpAfter = critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
             critter_adjust_hits(obj_dude, maxHpAfter - maxHpBefore);
@@ -766,23 +777,23 @@ int pcAddExperienceWithOptions(int xp, bool a2)
 }
 
 // 0x4AFC38
-int pcSetExperience(int xp)
+int statPcResetExperience(int xp)
 {
-    int oldLevel = gPcStatValues[PC_STAT_LEVEL];
-    gPcStatValues[PC_STAT_EXPERIENCE] = xp;
+    int oldLevel = curr_pc_stat[PC_STAT_LEVEL];
+    curr_pc_stat[PC_STAT_EXPERIENCE] = xp;
 
     int level = 1;
     do {
         level += 1;
-    } while (xp >= pcGetExperienceForLevel(level) && level < PC_LEVEL_MAX);
+    } while (xp >= statPcMinExpForLevel(level) && level < PC_LEVEL_MAX);
 
     int newLevel = level - 1;
 
-    pcSetStat(PC_STAT_LEVEL, newLevel);
+    stat_pc_set(PC_STAT_LEVEL, newLevel);
     pc_flag_off(DUDE_STATE_LEVEL_UP_AVAILABLE);
 
     // NOTE: Uninline.
-    int endurance = critterGetBaseStatWithTraitModifier(obj_dude, STAT_ENDURANCE);
+    int endurance = stat_get_base(obj_dude, STAT_ENDURANCE);
 
     int hpPerLevel = endurance / 2 + 2;
     hpPerLevel += perk_level(obj_dude, PERK_LIFEGIVER) * 4;
@@ -790,9 +801,9 @@ int pcSetExperience(int xp)
     int deltaHp = (oldLevel - newLevel) * hpPerLevel;
     critter_adjust_hits(obj_dude, -deltaHp);
 
-    int bonusHp = critterGetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS);
+    int bonusHp = stat_get_bonus(obj_dude, STAT_MAXIMUM_HIT_POINTS);
 
-    critterSetBonusStat(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp - deltaHp);
+    stat_set_bonus(obj_dude, STAT_MAXIMUM_HIT_POINTS, bonusHp - deltaHp);
 
     intface_update_hit_points(false);
 
