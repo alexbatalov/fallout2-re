@@ -810,7 +810,7 @@ static int QuickSnapShot()
         gmouse_3d_on();
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(display_win);
+    unsigned char* windowBuffer = win_get_buf(display_win);
     blitBufferToBufferStretch(windowBuffer, 640, 380, 640, snapshot, LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
 
     thumbnail_image[1] = snapshot;
@@ -839,21 +839,21 @@ int LoadGame(int mode)
     if (mode == LOAD_SAVE_MODE_QUICK && quick_done) {
         int quickSaveWindowX = 0;
         int quickSaveWindowY = 0;
-        int window = windowCreate(quickSaveWindowX,
+        int window = win_add(quickSaveWindowX,
             quickSaveWindowY,
             LS_WINDOW_WIDTH,
             LS_WINDOW_HEIGHT,
             256,
             WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
         if (window != -1) {
-            unsigned char* windowBuffer = windowGetBuffer(window);
+            unsigned char* windowBuffer = win_get_buf(window);
             bufferFill(windowBuffer, LS_WINDOW_WIDTH, LS_WINDOW_HEIGHT, LS_WINDOW_WIDTH, colorTable[0]);
             win_draw(window);
         }
 
         if (LoadSlot(slot_cursor) != -1) {
             if (window != -1) {
-                windowDestroy(window);
+                win_delete(window);
             }
             gmouse_set_cursor(MOUSE_CURSOR_ARROW);
             return 1;
@@ -870,7 +870,7 @@ int LoadGame(int mode)
         }
 
         if (window != -1) {
-            windowDestroy(window);
+            win_delete(window);
         }
 
         gmouse_set_cursor(MOUSE_CURSOR_ARROW);
@@ -1256,7 +1256,7 @@ static int LSGameStart(int windowType)
             gmouse_3d_on();
         }
 
-        unsigned char* windowBuf = windowGetBuffer(display_win);
+        unsigned char* windowBuf = win_get_buf(display_win);
         blitBufferToBufferStretch(windowBuf, 640, 380, 640, thumbnail_image[1], LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
     }
 
@@ -1289,7 +1289,7 @@ static int LSGameStart(int windowType)
 
     int lsWindowX = 0;
     int lsWindowY = 0;
-    lsgwin = windowCreate(lsWindowX,
+    lsgwin = win_add(lsWindowX,
         lsWindowY,
         LS_WINDOW_WIDTH,
         LS_WINDOW_HEIGHT,
@@ -1312,7 +1312,7 @@ static int LSGameStart(int windowType)
         return -1;
     }
 
-    lsgbuf = windowGetBuffer(lsgwin);
+    lsgbuf = win_get_buf(lsgwin);
     memcpy(lsgbuf, lsbmp[LOAD_SAVE_FRM_BACKGROUND], LS_WINDOW_WIDTH * LS_WINDOW_HEIGHT);
 
     int messageId;
@@ -1353,7 +1353,7 @@ static int LSGameStart(int windowType)
 
     int btn;
 
-    btn = buttonCreate(lsgwin,
+    btn = win_register_button(lsgwin,
         391,
         349,
         ginfo[LOAD_SAVE_FRM_RED_BUTTON_PRESSED].width,
@@ -1367,10 +1367,10 @@ static int LSGameStart(int windowType)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(lsgwin,
+    btn = win_register_button(lsgwin,
         495,
         349,
         ginfo[LOAD_SAVE_FRM_RED_BUTTON_PRESSED].width,
@@ -1384,10 +1384,10 @@ static int LSGameStart(int windowType)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(lsgwin,
+    btn = win_register_button(lsgwin,
         35,
         58,
         ginfo[LOAD_SAVE_FRM_ARROW_UP_PRESSED].width,
@@ -1401,10 +1401,10 @@ static int LSGameStart(int windowType)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(lsgwin,
+    btn = win_register_button(lsgwin,
         35,
         ginfo[LOAD_SAVE_FRM_ARROW_UP_PRESSED].height + 58,
         ginfo[LOAD_SAVE_FRM_ARROW_DOWN_PRESSED].width,
@@ -1418,10 +1418,10 @@ static int LSGameStart(int windowType)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    buttonCreate(lsgwin, 55, 87, 230, 353, -1, -1, -1, 502, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+    win_register_button(lsgwin, 55, 87, 230, 353, -1, -1, -1, 502, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
     text_font(101);
 
     return 0;
@@ -1430,7 +1430,7 @@ static int LSGameStart(int windowType)
 // 0x47D824
 static int LSGameEnd(int windowType)
 {
-    windowDestroy(lsgwin);
+    win_delete(lsgwin);
     text_font(fontsave);
     message_exit(&lsgame_msgfl);
 
@@ -2013,7 +2013,7 @@ static int GetComment(int a1)
 {
     int commentWindowX = LS_COMMENT_WINDOW_X;
     int commentWindowY = LS_COMMENT_WINDOW_Y;
-    int window = windowCreate(commentWindowX,
+    int window = win_add(commentWindowX,
         commentWindowY,
         ginfo[LOAD_SAVE_FRM_BOX].width,
         ginfo[LOAD_SAVE_FRM_BOX].height,
@@ -2023,7 +2023,7 @@ static int GetComment(int a1)
         return -1;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(window);
+    unsigned char* windowBuffer = win_get_buf(window);
     memcpy(windowBuffer,
         lsbmp[LOAD_SAVE_FRM_BOX],
         ginfo[LOAD_SAVE_FRM_BOX].height * ginfo[LOAD_SAVE_FRM_BOX].width);
@@ -2066,7 +2066,7 @@ static int GetComment(int a1)
     int btn;
 
     // DONE
-    btn = buttonCreate(window,
+    btn = win_register_button(window,
         34,
         58,
         ginfo[LOAD_SAVE_FRM_RED_BUTTON_PRESSED].width,
@@ -2080,11 +2080,11 @@ static int GetComment(int a1)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn == -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // CANCEL
-    btn = buttonCreate(window,
+    btn = win_register_button(window,
         160,
         58,
         ginfo[LOAD_SAVE_FRM_RED_BUTTON_PRESSED].width,
@@ -2098,7 +2098,7 @@ static int GetComment(int a1)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn == -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(window);
@@ -2120,7 +2120,7 @@ static int GetComment(int a1)
         rc = 0;
     }
 
-    windowDestroy(window);
+    win_delete(window);
 
     return rc;
 }
@@ -2129,9 +2129,9 @@ static int GetComment(int a1)
 static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* description, int maxLength, int x, int y, int textColor, int backgroundColor, int flags)
 {
     int cursorWidth = text_width("_") - 4;
-    int windowWidth = windowGetWidth(win);
+    int windowWidth = win_width(win);
     int lineHeight = text_height();
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     if (maxLength > 255) {
         maxLength = 255;
     }

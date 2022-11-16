@@ -354,7 +354,7 @@ static int abortReply(int a1)
             } else {
                 mouse_get_position(&x, &y);
 
-                if (windowGetAtPoint(x, y) != replyWin) {
+                if (win_get_top_win(x, y) != replyWin) {
                     result = 0;
                 }
             }
@@ -369,11 +369,11 @@ static void endReply()
     if (replyPlaying != 2) {
         if (replyPlaying == 1) {
             if (!(mediaFlag & 2) && replyWin != -1) {
-                windowDestroy(replyWin);
+                win_delete(replyWin);
                 replyWin = -1;
             }
         } else if (replyPlaying != 3 && replyWin != -1) {
-            windowDestroy(replyWin);
+            win_delete(replyWin);
             replyWin = -1;
         }
     }

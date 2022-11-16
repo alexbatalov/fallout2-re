@@ -169,7 +169,7 @@ int gmovie_play(int movie, int flags)
 
     int gameMovieWindowX = 0;
     int gameMovieWindowY = 0;
-    int win = windowCreate(gameMovieWindowX,
+    int win = win_add(gameMovieWindowX,
         gameMovieWindowY,
         GAME_MOVIE_WINDOW_WIDTH,
         GAME_MOVIE_WINDOW_HEIGHT,
@@ -281,7 +281,7 @@ int gmovie_play(int movie, int flags)
         windowSetTextColor(r, g, b);
     }
 
-    windowDestroy(win);
+    win_delete(win);
 
     if ((flags & GAME_MOVIE_PAUSE_MUSIC) != 0) {
         gsound_background_unpause();

@@ -219,7 +219,7 @@ static int skilldex_start()
 
     int skilldexWindowX = 640 - ginfo[SKILLDEX_FRM_BACKGROUND].width - SKILLDEX_WINDOW_RIGHT_MARGIN;
     int skilldexWindowY = 480 - INTERFACE_BAR_HEIGHT - 1 - ginfo[SKILLDEX_FRM_BACKGROUND].height - SKILLDEX_WINDOW_BOTTOM_MARGIN;
-    skldxwin = windowCreate(skilldexWindowX,
+    skldxwin = win_add(skilldexWindowX,
         skilldexWindowY,
         ginfo[SKILLDEX_FRM_BACKGROUND].width,
         ginfo[SKILLDEX_FRM_BACKGROUND].height,
@@ -244,7 +244,7 @@ static int skilldex_start()
     cycle_disable();
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    winbuf = windowGetBuffer(skldxwin);
+    winbuf = win_get_buf(skldxwin);
     memcpy(winbuf,
         skldxbmp[SKILLDEX_FRM_BACKGROUND],
         ginfo[SKILLDEX_FRM_BACKGROUND].width * ginfo[SKILLDEX_FRM_BACKGROUND].height);
@@ -320,7 +320,7 @@ static int skilldex_start()
             ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
             colorTable[14723]);
 
-        int btn = buttonCreate(skldxwin,
+        int btn = win_register_button(skldxwin,
             15,
             buttonY,
             ginfo[SKILLDEX_FRM_BUTTON_OFF].width,
@@ -334,7 +334,7 @@ static int skilldex_start()
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
+            win_register_button_sound_func(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
         buttonY += 36;
@@ -348,7 +348,7 @@ static int skilldex_start()
         ginfo[SKILLDEX_FRM_BACKGROUND].width,
         colorTable[18979]);
 
-    int cancelBtn = buttonCreate(skldxwin,
+    int cancelBtn = win_register_button(skldxwin,
         48,
         338,
         ginfo[SKILLDEX_FRM_LITTLE_RED_BUTTON_UP].width,
@@ -362,7 +362,7 @@ static int skilldex_start()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(skldxwin);
@@ -373,7 +373,7 @@ static int skilldex_start()
 // 0x4AC67C
 static void skilldex_end()
 {
-    windowDestroy(skldxwin);
+    win_delete(skldxwin);
 
     for (int index = 0; index < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; index++) {
         mem_free(skldxbtn[index]);

@@ -525,7 +525,7 @@ static int StartPipboy(int intent)
 
     int pipboyWindowX = 0;
     int pipboyWindowY = 0;
-    pip_win = windowCreate(pipboyWindowX, pipboyWindowY, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_HEIGHT, colorTable[0], WINDOW_FLAG_0x10);
+    pip_win = win_add(pipboyWindowX, pipboyWindowY, PIPBOY_WINDOW_WIDTH, PIPBOY_WINDOW_HEIGHT, colorTable[0], WINDOW_FLAG_0x10);
     if (pip_win == -1) {
         debug_printf("\n** Error opening pipboy window! **\n");
         for (int index = 0; index < PIPBOY_FRM_COUNT; index++) {
@@ -534,13 +534,13 @@ static int StartPipboy(int intent)
         return -1;
     }
 
-    scrn_buf = windowGetBuffer(pip_win);
+    scrn_buf = win_get_buf(pip_win);
     memcpy(scrn_buf, pipbmp[PIPBOY_FRM_BACKGROUND], PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_HEIGHT);
 
     pip_num(game_time_hour(), 4, PIPBOY_WINDOW_TIME_X, PIPBOY_WINDOW_TIME_Y);
     pip_date();
 
-    int alarmButton = buttonCreate(pip_win,
+    int alarmButton = win_register_button(pip_win,
         124,
         13,
         ginfo[PIPBOY_FRM_ALARM_UP].width,
@@ -554,14 +554,14 @@ static int StartPipboy(int intent)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (alarmButton != -1) {
-        buttonSetCallbacks(alarmButton, gsound_med_butt_press, gsound_med_butt_release);
+        win_register_button_sound_func(alarmButton, gsound_med_butt_press, gsound_med_butt_release);
     }
 
     int y = 341;
     int eventCode = 500;
     for (int index = 0; index < 5; index += 1) {
         if (index != 1) {
-            int btn = buttonCreate(pip_win,
+            int btn = win_register_button(pip_win,
                 53,
                 y,
                 ginfo[PIPBOY_FRM_LITTLE_RED_BUTTON_UP].width,
@@ -575,7 +575,7 @@ static int StartPipboy(int intent)
                 NULL,
                 BUTTON_FLAG_TRANSPARENT);
             if (btn != -1) {
-                buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+                win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
             }
 
             eventCode += 1;
@@ -691,7 +691,7 @@ static void EndPipboy()
 
     scr_exec_map_update_scripts();
 
-    windowDestroy(pip_win);
+    win_delete(pip_win);
 
     message_exit(&pipboy_message_file);
 
@@ -1868,14 +1868,14 @@ static void AddHotLines(int start, int count, bool add_back_button)
                 break;
             }
 
-            HotLines[index] = buttonCreate(pip_win, 254, y, 350, height, -1, -1, -1, eventCode, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+            HotLines[index] = win_register_button(pip_win, 254, y, 350, height, -1, -1, -1, eventCode, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
             y += height * 2;
             eventCode += 1;
         }
     }
 
     if (add_back_button) {
-        HotLines[BACK_BUTTON_INDEX] = buttonCreate(pip_win, 254, height * bottom_line + PIPBOY_WINDOW_CONTENT_VIEW_Y, 350, height, -1, -1, -1, 528, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
+        HotLines[BACK_BUTTON_INDEX] = win_register_button(pip_win, 254, height * bottom_line + PIPBOY_WINDOW_CONTENT_VIEW_Y, 350, height, -1, -1, -1, 528, NULL, NULL, NULL, BUTTON_FLAG_TRANSPARENT);
     }
 }
 
@@ -1898,12 +1898,12 @@ static void NixHotLines()
         }
 
         for (int index = hot_line_start; index < end; index++) {
-            buttonDestroy(HotLines[index]);
+            win_delete_button(HotLines[index]);
         }
     }
 
     if (hot_back_line) {
-        buttonDestroy(HotLines[BACK_BUTTON_INDEX]);
+        win_delete_button(HotLines[BACK_BUTTON_INDEX]);
     }
 
     hot_line_count = 0;

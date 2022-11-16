@@ -188,7 +188,7 @@ void mem_check()
 // 0x4C5CA8
 void mem_register_func(MallocProc* mallocFunc, ReallocProc* reallocFunc, FreeProc* freeFunc)
 {
-    if (!gWindowSystemInitialized) {
+    if (!GNW_win_init_flag) {
         p_malloc = mallocFunc;
         p_realloc = reallocFunc;
         p_free = freeFunc;

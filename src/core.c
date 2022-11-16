@@ -225,7 +225,7 @@ int _get_input()
         mouse_get_position(&_input_mx, &_input_my);
         return -2;
     } else {
-        return _GNW_check_menu_bars(v3);
+        return GNW_check_menu_bars(v3);
     }
 
     return -1;
@@ -242,7 +242,7 @@ void _process_bk()
         mouse_info();
     }
 
-    v1 = _win_check_all_buttons();
+    v1 = win_check_all_buttons();
     if (v1 != -1) {
         enqueueInputEvent(v1);
         return;
@@ -415,7 +415,7 @@ void pauseGame()
         }
 
         gPaused = false;
-        windowDestroy(win);
+        win_delete(win);
     }
 }
 
@@ -425,7 +425,7 @@ int pauseHandlerDefaultImpl()
     int windowWidth = text_width("Paused") + 32;
     int windowHeight = 3 * text_height() + 16;
 
-    int win = windowCreate((rectGetWidth(&_scr_size) - windowWidth) / 2,
+    int win = win_add((rectGetWidth(&_scr_size) - windowWidth) / 2,
         (rectGetHeight(&_scr_size) - windowHeight) / 2,
         windowWidth,
         windowHeight,
@@ -435,16 +435,16 @@ int pauseHandlerDefaultImpl()
         return -1;
     }
 
-    windowDrawBorder(win);
+    win_border(win);
 
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     text_to_buf(windowBuffer + 8 * windowWidth + 16,
         "Paused",
         windowWidth,
         windowWidth,
         colorTable[31744]);
 
-    _win_register_text_button(win,
+    win_register_text_button(win,
         (windowWidth - text_width("Done") - 16) / 2,
         windowHeight - 8 - text_height() - 6,
         -1,
@@ -490,7 +490,7 @@ void takeScreenshot()
     ScreenTransBlitFunc* v1 = mouse_blit_trans;
     mouse_blit_trans = NULL;
 
-    windowRefreshAll(&_scr_size);
+    win_refresh_all(&_scr_size);
 
     mouse_blit_trans = v1;
     mouse_blit = v2;
@@ -1509,7 +1509,7 @@ void GNW95_SetPaletteEntry(int entry, unsigned char r, unsigned char g, unsigned
         gSixteenBppPalette[entry] = ((gRedShift > 0 ? (r << gRedShift) : (r >> -gRedShift)) & gRedMask)
             | ((gGreenShift > 0 ? (g << gGreenShift) : (r >> -gGreenShift)) & gGreenMask)
             | ((gBlueShift > 0 ? (b << gBlueShift) : (r >> -gBlueShift)) & gBlueMask);
-        windowRefreshAll(&_scr_size);
+        win_refresh_all(&_scr_size);
     }
 
     if (_update_palette_func != NULL) {
@@ -1553,7 +1553,7 @@ void directDrawSetPaletteInRange(unsigned char* palette, int start, int count)
             gSixteenBppPalette[index] = rgb;
         }
 
-        windowRefreshAll(&_scr_size);
+        win_refresh_all(&_scr_size);
     }
 
     if (_update_palette_func != NULL) {
@@ -1594,7 +1594,7 @@ void directDrawSetPalette(unsigned char* palette)
             gSixteenBppPalette[index] = rgb;
         }
 
-        windowRefreshAll(&_scr_size);
+        win_refresh_all(&_scr_size);
     }
 
     if (_update_palette_func != NULL) {

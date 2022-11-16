@@ -149,13 +149,13 @@ int iso_init()
     // NOTE: Uninline.
     square_init();
 
-    display_win = windowCreate(0, 0, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, 256, 10);
+    display_win = win_add(0, 0, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, 256, 10);
     if (display_win == -1) {
         debug_printf("win_add failed in iso_init\n");
         return -1;
     }
 
-    display_buf = windowGetBuffer(display_win);
+    display_buf = win_get_buf(display_win);
     if (display_buf == NULL) {
         debug_printf("win_get_buf failed in iso_init\n");
         return -1;
@@ -827,7 +827,7 @@ int map_load_file(File* stream)
 
     int rc = 0;
 
-    windowFill(display_win, 0, 0, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, colorTable[0]);
+    win_fill(display_win, 0, 0, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99, colorTable[0]);
     win_draw(display_win);
     anim_stop();
     scr_disable();

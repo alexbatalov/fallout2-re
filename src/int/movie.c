@@ -390,8 +390,8 @@ void movieSetCaptureFrameFunc(MovieCaptureFrameProc* func)
 // 0x486B68
 static int movieScaleSubRect(int win, unsigned char* data, int width, int height, int pitch)
 {
-    int windowWidth = windowGetWidth(win);
-    unsigned char* windowBuffer = windowGetBuffer(win) + windowWidth * movieY + movieX;
+    int windowWidth = win_width(win);
+    unsigned char* windowBuffer = win_get_buf(win) + windowWidth * movieY + movieX;
     if (width * 4 / 3 > movieW) {
         movieFlags |= 0x01;
         return 0;
@@ -440,8 +440,8 @@ static int movieScaleSubRectAlpha(int win, unsigned char* data, int width, int h
 // 0x486C80
 static int blitAlpha(int win, unsigned char* data, int width, int height, int pitch)
 {
-    int windowWidth = windowGetWidth(win);
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    int windowWidth = win_width(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     _alphaBltBuf(data, width, height, pitch, alphaWindowBuf, alphaBuf, windowBuffer + windowWidth * movieY + movieX, windowWidth);
     return 1;
 }
@@ -449,13 +449,13 @@ static int blitAlpha(int win, unsigned char* data, int width, int height, int pi
 // 0x486CD4
 static int movieScaleWindow(int win, unsigned char* data, int width, int height, int pitch)
 {
-    int windowWidth = windowGetWidth(win);
+    int windowWidth = win_width(win);
     if (width != 3 * windowWidth / 4) {
         movieFlags |= 1;
         return 0;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     for (int y = 0; y < height; y++) {
         int scaledWidth = width / 3;
         for (int x = 0; x < scaledWidth; x++) {
@@ -478,8 +478,8 @@ static int movieScaleWindow(int win, unsigned char* data, int width, int height,
 // 0x486D84
 static int blitNormal(int win, unsigned char* data, int width, int height, int pitch)
 {
-    int windowWidth = windowGetWidth(win);
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    int windowWidth = win_width(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     _drawScaled(windowBuffer + windowWidth * movieY + movieX, movieW, movieH, windowWidth, data, width, height, pitch);
     return 1;
 }
@@ -555,7 +555,7 @@ static void cleanupMovie(int a1)
     fileClose(handle);
 
     if (alphaWindowBuf != NULL) {
-        blitBufferToBuffer(alphaWindowBuf, movieW, movieH, movieW, windowGetBuffer(GNWWin) + movieY * windowGetWidth(GNWWin) + movieX, windowGetWidth(GNWWin));
+        blitBufferToBuffer(alphaWindowBuf, movieW, movieH, movieW, win_get_buf(GNWWin) + movieY * win_width(GNWWin) + movieX, win_width(GNWWin));
         win_draw_rect(GNWWin, &movieRect);
     }
 
@@ -805,7 +805,7 @@ static void doSubtitle()
 
         MovieSubtitleListNode* next = subtitleList->next;
 
-        windowFill(GNWWin, 0, v2, subtitleW, subtitleH, 0);
+        win_fill(GNWWin, 0, v2, subtitleW, subtitleH, 0);
 
         int oldFont;
         if (subtitleFont != -1) {
@@ -902,11 +902,11 @@ static int movieStart(int win, char* filePath, int (*a3)())
         alphaBuf = (unsigned char*)mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1178
         alphaWindowBuf = (unsigned char*)mymalloc(movieH * movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179
 
-        unsigned char* windowBuffer = windowGetBuffer(GNWWin);
-        blitBufferToBuffer(windowBuffer + windowGetWidth(GNWWin) * movieY + movieX,
+        unsigned char* windowBuffer = win_get_buf(GNWWin);
+        blitBufferToBuffer(windowBuffer + win_width(GNWWin) * movieY + movieX,
             movieW,
             movieH,
-            windowGetWidth(GNWWin),
+            win_width(GNWWin),
             alphaWindowBuf,
             movieW);
     }
@@ -941,8 +941,8 @@ int movieRun(int win, char* filePath)
     movieX = 0;
     movieY = 0;
     movieOffset = 0;
-    movieW = windowGetWidth(win);
-    movieH = windowGetHeight(win);
+    movieW = win_width(win);
+    movieH = win_height(win);
     movieSubRectFlag = 0;
     return movieStart(win, filePath, noop);
 }
@@ -956,7 +956,7 @@ int movieRunRect(int win, char* filePath, int a3, int a4, int a5, int a6)
 
     movieX = a3;
     movieY = a4;
-    movieOffset = a3 + a4 * windowGetWidth(win);
+    movieOffset = a3 + a4 * win_width(win);
     movieW = a5;
     movieH = a6;
     movieSubRectFlag = 1;

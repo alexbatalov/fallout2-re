@@ -304,12 +304,12 @@ bool select_init()
 
     int characterSelectorWindowX = 0;
     int characterSelectorWindowY = 0;
-    select_window_id = windowCreate(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, colorTable[0], 0);
+    select_window_id = win_add(characterSelectorWindowX, characterSelectorWindowY, CS_WINDOW_WIDTH, CS_WINDOW_HEIGHT, colorTable[0], 0);
     if (select_window_id == -1) {
         return select_fatal_error(false);
     }
 
-    select_window_buffer = windowGetBuffer(select_window_id);
+    select_window_buffer = win_get_buf(select_window_id);
     if (select_window_buffer == NULL) {
         return select_fatal_error(false);
     }
@@ -356,7 +356,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    previous_button = buttonCreate(select_window_id,
+    previous_button = win_register_button(select_window_id,
         CS_WINDOW_PREVIOUS_BUTTON_X,
         CS_WINDOW_PREVIOUS_BUTTON_Y,
         20,
@@ -373,7 +373,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    buttonSetCallbacks(previous_button, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(previous_button, gsound_med_butt_press, gsound_med_butt_release);
 
     // Setup "Next" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 124, 0, 0, 0);
@@ -388,7 +388,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    next_button = buttonCreate(select_window_id,
+    next_button = win_register_button(select_window_id,
         CS_WINDOW_NEXT_BUTTON_X,
         CS_WINDOW_NEXT_BUTTON_Y,
         20,
@@ -405,7 +405,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    buttonSetCallbacks(next_button, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(next_button, gsound_med_butt_press, gsound_med_butt_release);
 
     // Setup "Take" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -420,7 +420,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    take_button = buttonCreate(select_window_id,
+    take_button = win_register_button(select_window_id,
         CS_WINDOW_TAKE_BUTTON_X,
         CS_WINDOW_TAKE_BUTTON_Y,
         15,
@@ -437,7 +437,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    buttonSetCallbacks(take_button, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_sound_func(take_button, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Modify" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -451,7 +451,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    modify_button = buttonCreate(select_window_id,
+    modify_button = win_register_button(select_window_id,
         CS_WINDOW_MODIFY_BUTTON_X,
         CS_WINDOW_MODIFY_BUTTON_Y,
         15,
@@ -468,7 +468,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    buttonSetCallbacks(modify_button, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_sound_func(modify_button, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Create" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -483,7 +483,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    create_button = buttonCreate(select_window_id,
+    create_button = win_register_button(select_window_id,
         CS_WINDOW_CREATE_BUTTON_X,
         CS_WINDOW_CREATE_BUTTON_Y,
         15,
@@ -500,7 +500,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    buttonSetCallbacks(create_button, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_sound_func(create_button, gsound_red_butt_press, gsound_red_butt_release);
 
     // Setup "Back" button.
     fid = art_id(OBJ_TYPE_INTERFACE, 8, 0, 0, 0);
@@ -515,7 +515,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    back_button = buttonCreate(select_window_id,
+    back_button = win_register_button(select_window_id,
         CS_WINDOW_BACK_BUTTON_X,
         CS_WINDOW_BACK_BUTTON_Y,
         15,
@@ -532,7 +532,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    buttonSetCallbacks(back_button, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_sound_func(back_button, gsound_red_butt_press, gsound_red_butt_release);
 
     premade_index = PREMADE_CHARACTER_NARG;
 
@@ -553,7 +553,7 @@ static void select_exit()
     }
 
     if (previous_button != -1) {
-        buttonDestroy(previous_button);
+        win_delete_button(previous_button);
         previous_button = -1;
     }
 
@@ -570,7 +570,7 @@ static void select_exit()
     }
 
     if (next_button != -1) {
-        buttonDestroy(next_button);
+        win_delete_button(next_button);
         next_button = -1;
     }
 
@@ -587,7 +587,7 @@ static void select_exit()
     }
 
     if (take_button != -1) {
-        buttonDestroy(take_button);
+        win_delete_button(take_button);
         take_button = -1;
     }
 
@@ -604,7 +604,7 @@ static void select_exit()
     }
 
     if (modify_button != -1) {
-        buttonDestroy(modify_button);
+        win_delete_button(modify_button);
         modify_button = -1;
     }
 
@@ -621,7 +621,7 @@ static void select_exit()
     }
 
     if (create_button != -1) {
-        buttonDestroy(create_button);
+        win_delete_button(create_button);
         create_button = -1;
     }
 
@@ -638,7 +638,7 @@ static void select_exit()
     }
 
     if (back_button != -1) {
-        buttonDestroy(back_button);
+        win_delete_button(back_button);
         back_button = -1;
     }
 
@@ -659,7 +659,7 @@ static void select_exit()
         monitor = NULL;
     }
 
-    windowDestroy(select_window_id);
+    win_delete(select_window_id);
     select_window_id = -1;
 }
 

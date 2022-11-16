@@ -5352,10 +5352,10 @@ static void draw_loc(int eventCode, int color)
     if (eventCode >= 4) {
         char* name = combat_get_loc_name(call_target, hit_loc_right[eventCode - 4]);
         int width = text_width(name);
-        windowDrawText(call_win, name, 0, 431 - width, call_ty[eventCode - 4] - 86, color);
+        win_print(call_win, name, 0, 431 - width, call_ty[eventCode - 4] - 86, color);
     } else {
         char* name = combat_get_loc_name(call_target, hit_loc_left[eventCode]);
-        windowDrawText(call_win, name, 0, 74, call_ty[eventCode] - 86, color);
+        win_print(call_win, name, 0, 74, call_ty[eventCode] - 86, color);
     }
 }
 
@@ -5374,7 +5374,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
 
     int calledShotWindowX = CALLED_SHOT_WINDOW_X;
     int calledShotWindowY = CALLED_SHOT_WINDOW_Y;
-    call_win = windowCreate(calledShotWindowX,
+    call_win = win_add(calledShotWindowX,
         calledShotWindowY,
         CALLED_SHOT_WINDOW_WIDTH,
         CALLED_SHOT_WINDOW_HEIGHT,
@@ -5388,12 +5388,12 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
     CacheEntry* handle;
     unsigned char* data;
 
-    unsigned char* windowBuffer = windowGetBuffer(call_win);
+    unsigned char* windowBuffer = win_get_buf(call_win);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 118, 0, 0, 0);
     data = art_ptr_lock_data(fid, 0, 0, &handle);
     if (data == NULL) {
-        windowDestroy(call_win);
+        win_delete(call_win);
         return -1;
     }
 
@@ -5412,7 +5412,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
     CacheEntry* upHandle;
     unsigned char* up = art_ptr_lock_data(fid, 0, 0, &upHandle);
     if (up == NULL) {
-        windowDestroy(call_win);
+        win_delete(call_win);
         return -1;
     }
 
@@ -5422,14 +5422,14 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
     unsigned char* down = art_ptr_lock_data(fid, 0, 0, &downHandle);
     if (down == NULL) {
         art_ptr_unlock(upHandle);
-        windowDestroy(call_win);
+        win_delete(call_win);
         return -1;
     }
 
     // Cancel button
-    int btn = buttonCreate(call_win, 210, 268, 15, 16, -1, -1, -1, KEY_ESCAPE, up, down, NULL, BUTTON_FLAG_TRANSPARENT);
+    int btn = win_register_button(call_win, 210, 268, 15, 16, -1, -1, -1, KEY_ESCAPE, up, down, NULL, BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int oldFont = text_curr();
@@ -5442,15 +5442,15 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         probability = determine_to_hit(obj_dude, critter, hit_loc_left[index], hitMode);
         print_tohit(windowBuffer + CALLED_SHOT_WINDOW_WIDTH * (call_ty[index] - 86) + 33, CALLED_SHOT_WINDOW_WIDTH, probability);
 
-        btn = buttonCreate(call_win, 33, call_ty[index] - 90, 128, 20, index, index, -1, index, NULL, NULL, NULL, 0);
-        buttonSetMouseCallbacks(btn, draw_loc_on, draw_loc_off, NULL, NULL);
+        btn = win_register_button(call_win, 33, call_ty[index] - 90, 128, 20, index, index, -1, index, NULL, NULL, NULL, 0);
+        win_register_button_func(btn, draw_loc_on, draw_loc_off, NULL, NULL);
         draw_loc(index, colorTable[992]);
 
         probability = determine_to_hit(obj_dude, critter, hit_loc_right[index], hitMode);
         print_tohit(windowBuffer + CALLED_SHOT_WINDOW_WIDTH * (call_ty[index] - 86) + 453, CALLED_SHOT_WINDOW_WIDTH, probability);
 
-        btn = buttonCreate(call_win, 341, call_ty[index] - 90, 128, 20, index + 4, index + 4, -1, index + 4, NULL, NULL, NULL, 0);
-        buttonSetMouseCallbacks(btn, draw_loc_on, draw_loc_off, NULL, NULL);
+        btn = win_register_button(call_win, 341, call_ty[index] - 90, 128, 20, index + 4, index + 4, -1, index + 4, NULL, NULL, NULL, 0);
+        win_register_button_func(btn, draw_loc_on, draw_loc_off, NULL, NULL);
         draw_loc(index + 4, colorTable[992]);
     }
 
@@ -5491,7 +5491,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
 
     art_ptr_unlock(downHandle);
     art_ptr_unlock(upHandle);
-    windowDestroy(call_win);
+    win_delete(call_win);
 
     if (eventCode == KEY_ESCAPE) {
         return -1;

@@ -56,7 +56,7 @@ static void trap_report(int trap, int address, const char* file, int line)
     debug_printf(" at address %p.\n", entry->address);
     debug_printf("See comment in trap.c for suggestions on better");
     debug_printf(" isolating the stomp bug.\n");
-    showMesageBox("STOMPED!");
+    GNWSystemError("STOMPED!");
     exit(1);
 }
 
@@ -76,7 +76,7 @@ static void duplicate_report(int trap, int offset, const char* file, int line)
     debug_printf("Trap size is %d.\n", entry->size);
     debug_printf("See comment in trap.c for suggestions on better");
     debug_printf(" isolating the stomp bug.\n");
-    showMesageBox("STOMPED!");
+    GNWSystemError("STOMPED!");
     exit(1);
 }
 
@@ -90,6 +90,6 @@ static void heap_report(int trap, int address, const char* file, int line)
     debug_printf(" at address %p.\n", address);
     debug_printf("See comment in trap.c for suggestions on better");
     debug_printf(" isolating the stomp bug.\n");
-    showMesageBox("STOMPED!");
+    GNWSystemError("STOMPED!");
     exit(1);
 }

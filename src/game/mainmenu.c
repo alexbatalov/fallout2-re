@@ -105,7 +105,7 @@ int main_menu_create()
 
     int mainMenuWindowX = 0;
     int mainMenuWindowY = 0;
-    main_window = windowCreate(mainMenuWindowX,
+    main_window = win_add(mainMenuWindowX,
         mainMenuWindowY,
         MAIN_MENU_WINDOW_WIDTH,
         MAIN_MENU_WINDOW_HEIGHT,
@@ -116,7 +116,7 @@ int main_menu_create()
         return main_menu_fatal_error();
     }
 
-    main_window_buf = windowGetBuffer(main_window);
+    main_window_buf = win_get_buf(main_window);
 
     // mainmenu.frm
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 140, 0, 0, 0);
@@ -135,14 +135,14 @@ int main_menu_create()
     // Copyright.
     msg.num = 20;
     if (message_search(&misc_message_file, &msg)) {
-        windowDrawText(main_window, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
+        win_print(main_window, msg.text, 0, 15, 460, colorTable[21091] | 0x6000000);
     }
 
     // Version.
     char version[VERSION_MAX];
     getverstr(version);
     len = text_width(version);
-    windowDrawText(main_window, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
+    win_print(main_window, version, 0, 615 - len, 460, colorTable[21091] | 0x6000000);
 
     // menuup.frm
     fid = art_id(OBJ_TYPE_INTERFACE, 299, 0, 0, 0);
@@ -165,13 +165,13 @@ int main_menu_create()
     }
 
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
-        buttons[index] = buttonCreate(main_window, 30, 19 + index * 42 - index, 26, 26, -1, -1, 1111, button_values[index], button_up_data, button_down_data, 0, 32);
+        buttons[index] = win_register_button(main_window, 30, 19 + index * 42 - index, 26, 26, -1, -1, 1111, button_values[index], button_up_data, button_down_data, 0, 32);
         if (buttons[index] == -1) {
             // NOTE: Uninline.
             return main_menu_fatal_error();
         }
 
-        buttonSetMask(buttons[index], button_up_data);
+        win_register_button_mask(buttons[index], button_up_data);
     }
 
     text_font(104);
@@ -202,7 +202,7 @@ void main_menu_destroy()
     for (int index = 0; index < MAIN_MENU_BUTTON_COUNT; index++) {
         // FIXME: Why it tries to free only invalid buttons?
         if (buttons[index] == -1) {
-            buttonDestroy(buttons[index]);
+            win_delete_button(buttons[index]);
         }
     }
 
@@ -219,7 +219,7 @@ void main_menu_destroy()
     }
 
     if (main_window != -1) {
-        windowDestroy(main_window);
+        win_delete(main_window);
     }
 
     main_menu_created = false;

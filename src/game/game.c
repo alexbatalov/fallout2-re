@@ -150,7 +150,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     }
 
     annoy_user();
-    programWindowSetTitle(windowTitle);
+    win_set_minimized_title(windowTitle);
     _initWindow(1, a4);
     palette_init();
 
@@ -1100,9 +1100,9 @@ static void game_help()
 
     int helpWindowX = 0;
     int helpWindowY = 0;
-    int win = windowCreate(helpWindowX, helpWindowY, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, 0, WINDOW_HIDDEN | WINDOW_FLAG_0x04);
+    int win = win_add(helpWindowX, helpWindowY, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, 0, WINDOW_HIDDEN | WINDOW_FLAG_0x04);
     if (win != -1) {
-        unsigned char* windowBuffer = windowGetBuffer(win);
+        unsigned char* windowBuffer = win_get_buf(win);
         if (windowBuffer != NULL) {
             int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 297, 0, 0, 0);
             CacheEntry* backgroundHandle;
@@ -1126,7 +1126,7 @@ static void game_help()
             }
         }
 
-        windowDestroy(win);
+        win_delete(win);
         loadColorTable("color.pal");
         palette_set_to(cmap);
     }
@@ -1226,7 +1226,7 @@ static int game_init_databases()
 
     master_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
     if (master_db_handle == -1) {
-        showMesageBox("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
+        GNWSystemError("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
 
@@ -1243,7 +1243,7 @@ static int game_init_databases()
     critter_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
     if (critter_db_handle == -1) {
         _db_select(master_db_handle);
-        showMesageBox("Could not find the critter datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
+        GNWSystemError("Could not find the critter datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
 

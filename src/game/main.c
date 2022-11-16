@@ -143,7 +143,7 @@ int RealMain(int argc, char** argv)
                 break;
             case MAIN_MENU_LOAD_GAME:
                 if (1) {
-                    int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+                    int win = win_add(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
                     main_menu_hide(true);
                     main_menu_destroy();
                     gsound_background_stop();
@@ -157,13 +157,13 @@ int RealMain(int argc, char** argv)
                     if (loadGameRc == -1) {
                         debug_printf("\n ** Error running LoadGame()! **\n");
                     } else if (loadGameRc != 0) {
-                        windowDestroy(win);
+                        win_delete(win);
                         win = -1;
                         main_game_loop();
                     }
                     palette_fade_to(white_palette);
                     if (win != -1) {
-                        windowDestroy(win);
+                        win_delete(win);
                     }
 
                     // NOTE: Uninline.
@@ -271,7 +271,7 @@ static int main_load_new(char* mapFileName)
     obj_turn_on(obj_dude, NULL);
     mouse_hide();
 
-    int win = windowCreate(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    int win = win_add(0, 0, 640, 480, colorTable[0], WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     win_draw(win);
 
     loadColorTable("color.pal");
@@ -282,7 +282,7 @@ static int main_load_new(char* mapFileName)
     map_load(mapFileName);
     wmMapMusicStart();
     palette_fade_to(white_palette);
-    windowDestroy(win);
+    win_delete(win);
     loadColorTable("color.pal");
     palette_fade_to(cmap);
     return 0;
@@ -501,7 +501,7 @@ static void main_death_scene()
 
     int deathWindowX = 0;
     int deathWindowY = 0;
-    int win = windowCreate(deathWindowX,
+    int win = win_add(deathWindowX,
         deathWindowY,
         DEATH_WINDOW_WIDTH,
         DEATH_WINDOW_HEIGHT,
@@ -509,7 +509,7 @@ static void main_death_scene()
         WINDOW_FLAG_0x04);
     if (win != -1) {
         do {
-            unsigned char* windowBuffer = windowGetBuffer(win);
+            unsigned char* windowBuffer = win_get_buf(win);
             if (windowBuffer == NULL) {
                 break;
             }
@@ -593,7 +593,7 @@ static void main_death_scene()
             palette_fade_to(black_palette);
             loadColorTable("color.pal");
         } while (0);
-        windowDestroy(win);
+        win_delete(win);
     }
 
     if (oldCursorIsHidden) {

@@ -270,7 +270,7 @@ bool _windowRefreshRegions()
     int mouseY;
     mouse_get_position(&mouseX, &mouseY);
 
-    int win = windowGetAtPoint(mouseX, mouseY);
+    int win = win_get_top_win(mouseX, mouseY);
 
     for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {
         ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
@@ -300,7 +300,7 @@ bool _checkAllRegions()
     mouse_get_position(&mouseX, &mouseY);
 
     int mouseEvent = mouse_get_buttons();
-    int win = windowGetAtPoint(mouseX, mouseY);
+    int win = win_get_top_win(mouseX, mouseY);
 
     for (int windowIndex = 0; windowIndex < MANAGED_WINDOW_COUNT; windowIndex++) {
         ManagedWindow* managedWindow = &(gManagedWindows[windowIndex]);
@@ -473,7 +473,7 @@ void _doButtonOn(int btn, int keyCode)
 // 0x4B6F68
 void sub_4B6F68(int btn, int mouseEvent)
 {
-    int win = _win_last_button_winID();
+    int win = win_last_button_winID();
     if (win == -1) {
         return;
     }
@@ -485,7 +485,7 @@ void sub_4B6F68(int btn, int mouseEvent)
                 ManagedButton* managedButton = &(managedWindow->buttons[buttonIndex]);
                 if (managedButton->btn == btn) {
                     if ((managedButton->flags & 0x02) != 0) {
-                        _win_set_button_rest_state(managedButton->btn, 0, 0);
+                        win_set_button_rest_state(managedButton->btn, 0, 0);
                     } else {
                         if (managedButton->program != NULL && managedButton->procs[mouseEvent] != 0) {
                             executeProc(managedButton->program, managedButton->procs[mouseEvent]);
@@ -532,7 +532,7 @@ void _doRightButtonPress(int btn, int keyCode)
 // 0x4B704C
 void sub_4B704C(int btn, int mouseEvent)
 {
-    int win = _win_last_button_winID();
+    int win = win_last_button_winID();
     if (win == -1) {
         return;
     }
@@ -544,7 +544,7 @@ void sub_4B704C(int btn, int mouseEvent)
                 ManagedButton* managedButton = &(managedWindow->buttons[buttonIndex]);
                 if (managedButton->btn == btn) {
                     if ((managedButton->flags & 0x02) != 0) {
-                        _win_set_button_rest_state(managedButton->btn, 0, 0);
+                        win_set_button_rest_state(managedButton->btn, 0, 0);
                     } else {
                         if (managedButton->program != NULL && managedButton->rightProcs[mouseEvent] != 0) {
                             executeProc(managedButton->program, managedButton->rightProcs[mouseEvent]);
@@ -614,7 +614,7 @@ void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* 
 // 0x4B75F4
 void redrawButton(ManagedButton* button)
 {
-    _win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
+    win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
 }
 
 // NOTE: Unused.
@@ -795,7 +795,7 @@ bool _deleteWindow(const char* windowName)
 
     ManagedWindow* managedWindow = &(gManagedWindows[index]);
     win_delete_widgets(managedWindow->window);
-    windowDestroy(managedWindow->window);
+    win_delete(managedWindow->window);
     managedWindow->window = -1;
     managedWindow->name[0] = '\0';
 
@@ -892,7 +892,7 @@ int _createWindow(const char* windowName, int x, int y, int width, int height, i
         off_672D74(windowIndex, managedWindow->name, &flags);
     }
 
-    managedWindow->window = windowCreate(x, y, width, height, a6, flags);
+    managedWindow->window = win_add(x, y, width, height, a6, flags);
     managedWindow->field_48 = 0;
     managedWindow->field_44 = 0;
     managedWindow->field_4C = a6;
@@ -914,7 +914,7 @@ int _windowOutput(char* string)
     int y = (int)(managedWindow->field_48 * managedWindow->field_58);
     // NOTE: Uses `add` at 0x4B810E, not bitwise `or`.
     int flags = windowGetTextColor() + windowGetTextFlags();
-    windowDrawText(managedWindow->window, string, 0, x, y, flags);
+    win_print(managedWindow->window, string, 0, x, y, flags);
 
     return 1;
 }
@@ -1002,7 +1002,7 @@ unsigned char* _windowGetBuffer()
 {
     if (gCurrentManagedWindowIndex != -1) {
         ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-        return windowGetBuffer(managedWindow->window);
+        return win_get_buf(managedWindow->window);
     }
 
     return NULL;
@@ -1117,14 +1117,14 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
         break;
     }
 
-    if (stringHeight + y > windowGetHeight(win)) {
-        stringHeight = windowGetHeight(win) - y;
+    if (stringHeight + y > win_height(win)) {
+        stringHeight = win_height(win) - y;
     }
 
     if ((flags & 0x2000000) != 0) {
-        blitBufferToBufferTrans(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
+        blitBufferToBufferTrans(backgroundBufferPtr, width, stringHeight, stringWidth, win_get_buf(win) + win_width(win) * y + x, win_width(win));
     } else {
-        blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, windowGetBuffer(win) + windowGetWidth(win) * y + x, windowGetWidth(win));
+        blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, win_get_buf(win) + win_width(win) * y + x, win_width(win));
     }
 
     myfree(backgroundBuffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1130
@@ -1255,7 +1255,7 @@ bool _windowPrintRect(char* string, int a2, int textAlignment)
 
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     int width = (int)(a2 * managedWindow->field_54);
-    int height = windowGetHeight(managedWindow->window);
+    int height = win_height(managedWindow->window);
     int x = managedWindow->field_44;
     int y = managedWindow->field_48;
     int flags = windowGetTextColor() | 0x2000000;
@@ -1295,7 +1295,7 @@ bool _windowPrint(char* string, int a2, int x, int y, int a5)
     x = (int)(x * managedWindow->field_54);
     y = (int)(y * managedWindow->field_58);
 
-    windowDrawText(managedWindow->window, string, a2, x, y, a5);
+    win_print(managedWindow->window, string, a2, x, y, a5);
 
     return true;
 }
@@ -1444,7 +1444,7 @@ int windowDisplayScaled(char* fileName, int x, int y, int width, int height)
 bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int destX, int destY, int destWidth, int destHeight)
 {
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
-    unsigned char* windowBuffer = windowGetBuffer(managedWindow->window);
+    unsigned char* windowBuffer = win_get_buf(managedWindow->window);
 
     blitBufferToBuffer(src,
         destWidth,
@@ -1463,7 +1463,7 @@ int windowDisplayTransBuf(unsigned char* src, int srcWidth, int srcHeight, int d
 {
     unsigned char* windowBuffer;
 
-    windowBuffer = windowGetBuffer(gManagedWindows[gCurrentManagedWindowIndex].window);
+    windowBuffer = win_get_buf(gManagedWindows[gCurrentManagedWindowIndex].window);
 
     blitBufferToBufferTrans(src,
         destWidth,
@@ -1482,7 +1482,7 @@ int windowDisplayBufScaled(unsigned char* src, int srcWidth, int srcHeight, int 
 {
     unsigned char* windowBuffer;
 
-    windowBuffer = windowGetBuffer(gManagedWindows[gCurrentManagedWindowIndex].window);
+    windowBuffer = win_get_buf(gManagedWindows[gCurrentManagedWindowIndex].window);
     _drawScaled(windowBuffer + destY * gManagedWindows[gCurrentManagedWindowIndex].width + destX,
         destWidth,
         destHeight,
@@ -1564,42 +1564,42 @@ void _initWindow(int resolution, int a2)
         gManagedWindows[i].window = -1;
     }
 
-    rc = windowManagerInit(_gfx_init[resolution], directDrawFree, a2);
+    rc = win_init(_gfx_init[resolution], directDrawFree, a2);
     if (rc != WINDOW_MANAGER_OK) {
         switch (rc) {
         case WINDOW_MANAGER_ERR_INITIALIZING_VIDEO_MODE:
             sprintf(err, "Error initializing video mode %dx%d\n", _xres, _yres);
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_NO_MEMORY:
             sprintf(err, "Not enough memory to initialize video mode\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_INITIALIZING_TEXT_FONTS:
             sprintf(err, "Couldn't find/load text fonts\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_WINDOW_SYSTEM_ALREADY_INITIALIZED:
             sprintf(err, "Attempt to initialize window system twice\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_WINDOW_SYSTEM_NOT_INITIALIZED:
             sprintf(err, "Window system not initialized\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_CURRENT_WINDOWS_TOO_BIG:
             sprintf(err, "Current windows are too big for new resolution\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_INITIALIZING_DEFAULT_DATABASE:
             sprintf(err, "Error initializing default database.\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_8:
@@ -1607,22 +1607,22 @@ void _initWindow(int resolution, int a2)
             break;
         case WINDOW_MANAGER_ERR_ALREADY_RUNNING:
             sprintf(err, "Program already running.\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_TITLE_NOT_SET:
             sprintf(err, "Program title not set.\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         case WINDOW_MANAGER_ERR_INITIALIZING_INPUT:
             sprintf(err, "Failure initializing input devices.\n");
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         default:
             sprintf(err, "Unknown error code %d\n", rc);
-            showMesageBox(err);
+            GNWSystemError(err);
             exit(1);
             break;
         }
@@ -1680,7 +1680,7 @@ void _windowClose()
 
     mousemgrClose();
     dbExit();
-    windowManagerExit();
+    win_exit();
 }
 
 // Deletes button with the specified name or all buttons if it's NULL.
@@ -1700,7 +1700,7 @@ bool _windowDeleteButton(const char* buttonName)
     if (buttonName == NULL) {
         for (int index = 0; index < managedWindow->buttonsLength; index++) {
             ManagedButton* managedButton = &(managedWindow->buttons[index]);
-            buttonDestroy(managedButton->btn);
+            win_delete_button(managedButton->btn);
 
             if (managedButton->hover != NULL) {
                 myfree(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1648
@@ -1738,7 +1738,7 @@ bool _windowDeleteButton(const char* buttonName)
     for (int index = 0; index < managedWindow->buttonsLength; index++) {
         ManagedButton* managedButton = &(managedWindow->buttons[index]);
         if (stricmp(managedButton->name, buttonName) == 0) {
-            buttonDestroy(managedButton->btn);
+            win_delete_button(managedButton->btn);
 
             if (managedButton->hover != NULL) {
                 myfree(managedButton->hover, __FILE__, __LINE__); // "..\int\WINDOW.C", 1665
@@ -1792,13 +1792,13 @@ void windowEnableButton(const char* buttonName, int enabled)
         if (stricmp(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].name, buttonName) == 0) {
             if (enabled) {
                 if (_soundPressFunc != NULL || _soundReleaseFunc != NULL) {
-                    buttonSetCallbacks(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn, _soundPressFunc, _soundReleaseFunc);
+                    win_register_button_sound_func(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn, _soundPressFunc, _soundReleaseFunc);
                 }
 
                 gManagedWindows[gCurrentManagedWindowIndex].buttons[index].flags &= ~0x02;
             } else {
                 if (_soundDisableFunc != NULL) {
-                    buttonSetCallbacks(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn, _soundDisableFunc, NULL);
+                    win_register_button_sound_func(gManagedWindows[gCurrentManagedWindowIndex].buttons[index].btn, _soundDisableFunc, NULL);
                 }
 
                 gManagedWindows[gCurrentManagedWindowIndex].buttons[index].flags |= 0x02;
@@ -1868,7 +1868,7 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
     for (index = 0; index < managedWindow->buttonsLength; index++) {
         ManagedButton* managedButton = &(managedWindow->buttons[index]);
         if (stricmp(managedButton->name, buttonName) == 0) {
-            buttonDestroy(managedButton->btn);
+            win_delete_button(managedButton->btn);
 
             if (managedButton->hover != NULL) {
                 myfree(managedButton->hover, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1748
@@ -1936,7 +1936,7 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
         _setButtonGFX(width, height, normal, pressed, NULL);
     }
 
-    managedButton->btn = buttonCreate(
+    managedButton->btn = win_register_button(
         managedWindow->window,
         x,
         y,
@@ -1952,7 +1952,7 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
         flags);
 
     if (_soundPressFunc != NULL || _soundReleaseFunc != NULL) {
-        buttonSetCallbacks(managedButton->btn, _soundPressFunc, _soundReleaseFunc);
+        win_register_button_sound_func(managedButton->btn, _soundPressFunc, _soundReleaseFunc);
     }
 
     managedButton->hover = NULL;
@@ -1960,11 +1960,11 @@ bool _windowAddButton(const char* buttonName, int x, int y, int width, int heigh
     managedButton->normal = normal;
     managedButton->field_18 = flags;
     managedButton->field_4C = NULL;
-    buttonSetMouseCallbacks(managedButton->btn, _doButtonOn, _doButtonOff, _doButtonPress, _doButtonRelease);
+    win_register_button_func(managedButton->btn, _doButtonOn, _doButtonOff, _doButtonPress, _doButtonRelease);
     _windowSetButtonFlag(buttonName, 1);
 
     if ((flags & BUTTON_FLAG_TRANSPARENT) != 0) {
-        buttonSetMask(managedButton->btn, normal);
+        win_register_button_mask(managedButton->btn, normal);
     }
 
     return true;
@@ -2009,10 +2009,10 @@ bool _windowAddButtonGfx(const char* buttonName, char* pressedFileName, char* no
             }
 
             if ((managedButton->field_18 & 0x20) != 0) {
-                buttonSetMask(managedButton->btn, managedButton->normal);
+                win_register_button_mask(managedButton->btn, managedButton->normal);
             }
 
-            _win_register_button_image(managedButton->btn, managedButton->normal, managedButton->pressed, managedButton->hover, 0);
+            win_register_button_image(managedButton->btn, managedButton->normal, managedButton->pressed, managedButton->hover, 0);
 
             return true;
         }
@@ -2035,7 +2035,7 @@ int windowAddButtonMask(const char* buttonName, unsigned char* buffer)
         if (stricmp(button->name, buttonName) == 0) {
             copy = (unsigned char*)mymalloc(button->width * button->height, __FILE__, __LINE__); // "..\\int\\WINDOW.C, 1871
             memcpy(copy, buffer, button->width * button->height);
-            buttonSetMask(button->btn, copy);
+            win_register_button_mask(button->btn, copy);
             button->field_50 = copy;
             return 1;
         }
@@ -2092,10 +2092,10 @@ int windowAddButtonBuf(const char* buttonName, unsigned char* normal, unsigned c
             }
 
             if ((button->field_18 & 0x20) != 0) {
-                buttonSetMask(button->btn, button->normal);
+                win_register_button_mask(button->btn, button->normal);
             }
 
-            _win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
+            win_register_button_image(button->btn, button->normal, button->pressed, button->hover, 0);
 
             return 1;
         }
@@ -2201,7 +2201,7 @@ bool _windowAddButtonRightCfunc(const char* buttonName, ManagedButtonMouseEventC
         if (stricmp(managedButton->name, buttonName) == 0) {
             managedButton->rightMouseEventCallback = callback;
             managedButton->rightMouseEventCallbackUserData = userData;
-            buttonSetRightMouseCallbacks(managedButton->btn, -1, -1, _doRightButtonPress, _doRightButtonRelease);
+            win_register_right_button(managedButton->btn, -1, -1, _doRightButtonPress, _doRightButtonRelease);
             return true;
         }
     }
@@ -2330,10 +2330,10 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
             myfree(buffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 2078
 
             if ((managedButton->field_18 & 0x20) != 0) {
-                buttonSetMask(managedButton->btn, managedButton->normal);
+                win_register_button_mask(managedButton->btn, managedButton->normal);
             }
 
-            _win_register_button_image(managedButton->btn, managedButton->normal, managedButton->pressed, managedButton->hover, 0);
+            win_register_button_image(managedButton->btn, managedButton->normal, managedButton->pressed, managedButton->hover, 0);
 
             return true;
         }
@@ -2353,7 +2353,7 @@ bool _windowFill(float r, float g, float b)
     // NOTE: Uninline.
     wid = windowGetGNWID();
 
-    windowFill(wid,
+    win_fill(wid,
         0,
         0,
         _windowWidth(),
@@ -2381,7 +2381,7 @@ bool _windowFillRect(int x, int y, int width, int height, float r, float g, floa
     // NOTE: Uninline.
     wid = windowGetGNWID();
 
-    windowFill(wid,
+    win_fill(wid,
         x,
         y,
         width,

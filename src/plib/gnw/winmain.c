@@ -186,7 +186,7 @@ static void UnloadDirectX(void)
 // 0x4DE9F4
 void SignalHandler(int sig)
 {
-    windowManagerExit();
+    win_exit();
 }
 
 // 0x4DE9FC
@@ -204,7 +204,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
                 rect.uly = updateRect.top;
                 rect.lrx = updateRect.right - 1;
                 rect.lry = updateRect.bottom - 1;
-                windowRefreshAll(&rect);
+                win_refresh_all(&rect);
             }
         }
         break;
@@ -227,7 +227,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         GNW95_isActive = wParam;
         if (wParam) {
             _GNW95_hook_input(1);
-            windowRefreshAll(&_scr_size);
+            win_refresh_all(&_scr_size);
         } else {
             _GNW95_hook_input(0);
         }

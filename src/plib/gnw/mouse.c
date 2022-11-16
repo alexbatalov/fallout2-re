@@ -212,7 +212,7 @@ int mouse_set_shape(unsigned char* buf, int width, int length, int full, int hot
     if (!mouse_is_hidden && have_mouse) {
         mouse_is_hidden = true;
         mouse_get_rect(&rect);
-        windowRefreshAll(&rect);
+        win_refresh_all(&rect);
     }
 
     if (width != mouse_width || length != mouse_length) {
@@ -339,7 +339,7 @@ void mouse_show()
     v2 = mouse_buf;
     if (have_mouse) {
         if (!mouse_blit_trans || !mouse_is_hidden) {
-            _win_get_mouse_buf(mouse_buf);
+            win_get_mouse_buf(mouse_buf);
             v2 = mouse_buf;
             v3 = 0;
 
@@ -406,7 +406,7 @@ void mouse_hide()
             rect.lry = mouse_y + mouse_length - 1;
 
             mouse_is_hidden = true;
-            windowRefreshAll(&rect);
+            win_refresh_all(&rect);
         }
     }
 }
@@ -566,7 +566,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
         mouse_y += delta_y;
         mouse_clip();
 
-        windowRefreshAll(&mouseRect);
+        win_refresh_all(&mouseRect);
 
         mouse_show();
 

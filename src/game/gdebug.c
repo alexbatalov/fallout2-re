@@ -15,14 +15,14 @@ void fatal_error(const char* format, const char* message, const char* file, int 
     debug_printf("\n");
     debug_printf(format, message, file, line);
 
-    windowManagerExit();
+    win_exit();
 
     printf("\n\n\n\n\n   ");
     printf(format, message, file, line);
     printf("\n\n\n\n\n");
 
     sprintf(stringBuffer, format, message, file, line);
-    showMesageBox(stringBuffer);
+    GNWSystemError(stringBuffer);
 
     exit(1);
 }

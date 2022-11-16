@@ -520,7 +520,7 @@ static int OptnStart()
 
     int optionsWindowX = (640 - ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].width) / 2;
     int optionsWindowY = (480 - ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].height) / 2 - 60;
-    optnwin = windowCreate(optionsWindowX,
+    optnwin = win_add(optionsWindowX,
         optionsWindowY,
         ginfo[0].width,
         ginfo[0].height,
@@ -550,7 +550,7 @@ static int OptnStart()
 
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
 
-    winbuf = windowGetBuffer(optnwin);
+    winbuf = win_get_buf(optnwin);
     memcpy(winbuf, opbmp[OPTIONS_WINDOW_FRM_BACKGROUND], ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].width * ginfo[OPTIONS_WINDOW_FRM_BACKGROUND].height);
 
     text_font(103);
@@ -572,9 +572,9 @@ static int OptnStart()
         text_to_buf(opbtns[index] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[18979]);
         text_to_buf(opbtns[index + 1] + ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * textY + textX, text, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, colorTable[14723]);
 
-        int btn = buttonCreate(optnwin, 13, buttonY, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, opbtns[index], opbtns[index + 1], NULL, 32);
+        int btn = win_register_button(optnwin, 13, buttonY, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width, ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height, -1, -1, -1, index / 2 + 500, opbtns[index], opbtns[index + 1], NULL, 32);
         if (btn != -1) {
-            buttonSetCallbacks(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
+            win_register_button_sound_func(btn, gsound_lrg_butt_press, gsound_lrg_butt_release);
         }
 
         buttonY += ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 3;
@@ -590,7 +590,7 @@ static int OptnStart()
 // 0x490244
 static int OptnEnd()
 {
-    windowDestroy(optnwin);
+    win_delete(optnwin);
     text_font(fontsave);
     message_exit(&optn_msgfl);
 
@@ -677,7 +677,7 @@ int PauseWindow(bool a1)
         pauseWindowY -= 54;
     }
 
-    int window = windowCreate(pauseWindowX,
+    int window = win_add(pauseWindowX,
         pauseWindowY,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].height,
@@ -694,7 +694,7 @@ int PauseWindow(bool a1)
         return -1;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(window);
+    unsigned char* windowBuffer = win_get_buf(window);
     memcpy(windowBuffer,
         frmData[PAUSE_WINDOW_FRM_BACKGROUND],
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].height);
@@ -730,7 +730,7 @@ int PauseWindow(bool a1)
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width,
         colorTable[18979]);
 
-    int doneBtn = buttonCreate(window,
+    int doneBtn = win_register_button(window,
         26,
         46,
         frmSizes[PAUSE_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
@@ -744,7 +744,7 @@ int PauseWindow(bool a1)
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(window);
@@ -776,7 +776,7 @@ int PauseWindow(bool a1)
         tile_refresh_display();
     }
 
-    windowDestroy(window);
+    win_delete(window);
 
     for (int index = 0; index < PAUSE_WINDOW_FRM_COUNT; index++) {
         art_ptr_unlock(frmHandles[index]);
@@ -813,8 +813,8 @@ static void ShadeScreen(bool a1)
         tile_refresh_display();
 
         int windowWidth = 640;
-        int windowHeight = windowGetHeight(display_win);
-        unsigned char* windowBuffer = windowGetBuffer(display_win);
+        int windowHeight = win_height(display_win);
+        unsigned char* windowBuffer = win_get_buf(display_win);
         grey_buf(windowBuffer, windowWidth, windowHeight, windowWidth);
 
         win_draw(display_win);
@@ -909,7 +909,7 @@ static int PrefStart()
 
     int preferencesWindowX = 0;
     int preferencesWindowY = 0;
-    prfwin = windowCreate(preferencesWindowX,
+    prfwin = win_add(preferencesWindowX,
         preferencesWindowY,
         PREFERENCES_WINDOW_WIDTH,
         PREFERENCES_WINDOW_HEIGHT,
@@ -922,7 +922,7 @@ static int PrefStart()
         return -1;
     }
 
-    prefbuf = windowGetBuffer(prfwin);
+    prefbuf = win_get_buf(prfwin);
     memcpy(prefbuf,
         prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND],
         ginfo2[PREFERENCES_WINDOW_FRM_BACKGROUND].width * ginfo2[PREFERENCES_WINDOW_FRM_BACKGROUND].height);
@@ -1007,10 +1007,10 @@ static int PrefStart()
             mouseUpEventCode = 505 + i;
         }
 
-        btndat[i].btn = buttonCreate(prfwin, x, y, width, height, mouseEnterEventCode, mouseExitEventCode, mouseDownEventCode, mouseUpEventCode, NULL, NULL, NULL, 32);
+        btndat[i].btn = win_register_button(prfwin, x, y, width, height, mouseEnterEventCode, mouseExitEventCode, mouseDownEventCode, mouseUpEventCode, NULL, NULL, NULL, 32);
     }
 
-    plyrspdbid = buttonCreate(prfwin,
+    plyrspdbid = win_register_button(prfwin,
         383,
         68,
         ginfo2[PREFERENCES_WINDOW_FRM_CHECKBOX_OFF].width,
@@ -1024,13 +1024,13 @@ static int PrefStart()
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01 | BUTTON_FLAG_0x02);
     if (plyrspdbid != -1) {
-        _win_set_button_rest_state(plyrspdbid, player_speedup, 0);
+        win_set_button_rest_state(plyrspdbid, player_speedup, 0);
     }
 
-    buttonSetCallbacks(plyrspdbid, gsound_med_butt_press, gsound_med_butt_press);
+    win_register_button_sound_func(plyrspdbid, gsound_med_butt_press, gsound_med_butt_press);
 
     // DEFAULT
-    btn = buttonCreate(prfwin,
+    btn = win_register_button(prfwin,
         23,
         450,
         ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
@@ -1044,11 +1044,11 @@ static int PrefStart()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // DONE
-    btn = buttonCreate(prfwin,
+    btn = win_register_button(prfwin,
         148,
         450,
         ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
@@ -1062,11 +1062,11 @@ static int PrefStart()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     // CANCEL
-    btn = buttonCreate(prfwin,
+    btn = win_register_button(prfwin,
         263,
         450,
         ginfo2[PREFERENCES_WINDOW_FRM_LITTLE_RED_BUTTON_UP].width,
@@ -1080,7 +1080,7 @@ static int PrefStart()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     text_font(101);
@@ -1626,7 +1626,7 @@ static int PrefEnd()
         combat_highlight_change();
     }
 
-    windowDestroy(prfwin);
+    win_delete(prfwin);
 
     for (int index = 0; index < PREFERENCES_WINDOW_FRM_COUNT; index++) {
         art_ptr_unlock(grphkey2[index]);
@@ -1800,7 +1800,7 @@ static void SetDefaults(bool a1)
         for (int index = 0; index < PREF_COUNT; index++) {
             UpdateThing(index);
         }
-        _win_set_button_rest_state(plyrspdbid, player_speedup, 0);
+        win_set_button_rest_state(plyrspdbid, player_speedup, 0);
         win_draw(prfwin);
         changed = true;
     }

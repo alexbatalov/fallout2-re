@@ -616,7 +616,7 @@ void gmouse_bk_process()
         gmouse_bk_last_cursor = -1;
     }
 
-    if (windowGetAtPoint(mouseX, mouseY) != display_win) {
+    if (win_get_top_win(mouseX, mouseY) != display_win) {
         if (gmouse_current_cursor == MOUSE_CURSOR_NONE) {
             gmouse_3d_off();
             gmouse_set_cursor(MOUSE_CURSOR_ARROW);

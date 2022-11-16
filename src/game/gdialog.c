@@ -1036,7 +1036,7 @@ void gdialogDisplayMsg(char* msg)
     replyRect.lry = 58;
     demo_copy_title(gReplyWin);
 
-    unsigned char* windowBuffer = windowGetBuffer(gReplyWin);
+    unsigned char* windowBuffer = win_get_buf(gReplyWin);
     int lineHeight = text_height();
 
     int a4 = 0;
@@ -1303,7 +1303,7 @@ static int gdReviewInit(int* win)
 
     int reviewWindowX = 0;
     int reviewWindowY = 0;
-    *win = windowCreate(reviewWindowX,
+    *win = win_add(reviewWindowX,
         reviewWindowY,
         GAME_DIALOG_REVIEW_WINDOW_WIDTH,
         GAME_DIALOG_REVIEW_WINDOW_HEIGHT,
@@ -1316,12 +1316,12 @@ static int gdReviewInit(int* win)
     int fid = art_id(OBJ_TYPE_INTERFACE, 102, 0, 0, 0);
     unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &reviewBackKey);
     if (backgroundFrmData == NULL) {
-        windowDestroy(*win);
+        win_delete(*win);
         *win = -1;
         return -1;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(*win);
+    unsigned char* windowBuffer = win_get_buf(*win);
     blitBufferToBuffer(backgroundFrmData,
         GAME_DIALOG_REVIEW_WINDOW_WIDTH,
         GAME_DIALOG_REVIEW_WINDOW_HEIGHT,
@@ -1348,7 +1348,7 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    int upBtn = buttonCreate(*win,
+    int upBtn = win_register_button(*win,
         475,
         152,
         reviewFidWids[GAME_DIALOG_REVIEW_WINDOW_BUTTON_SCROLL_UP],
@@ -1366,9 +1366,9 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    buttonSetCallbacks(upBtn, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(upBtn, gsound_med_butt_press, gsound_med_butt_release);
 
-    int downBtn = buttonCreate(*win,
+    int downBtn = win_register_button(*win,
         475,
         191,
         reviewFidWids[GAME_DIALOG_REVIEW_WINDOW_BUTTON_SCROLL_DOWN],
@@ -1386,9 +1386,9 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    buttonSetCallbacks(downBtn, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(downBtn, gsound_med_butt_press, gsound_med_butt_release);
 
-    int doneBtn = buttonCreate(*win,
+    int doneBtn = win_register_button(*win,
         499,
         398,
         reviewFidWids[GAME_DIALOG_REVIEW_WINDOW_BUTTON_DONE],
@@ -1406,7 +1406,7 @@ static int gdReviewInit(int* win)
         return -1;
     }
 
-    buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_sound_func(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
 
     text_font(101);
 
@@ -1448,7 +1448,7 @@ static int gdReviewExit(int* win)
         return -1;
     }
 
-    windowDestroy(*win);
+    win_delete(*win);
     *win = -1;
 
     return 0;
@@ -1519,7 +1519,7 @@ static void gdReviewDisplay(int win, int origin)
     entriesRect.lry = 418;
 
     int v20 = text_height() + 2;
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     if (windowBuffer == NULL) {
         debug_printf("\nError: gdialog: review: can't find buffer!");
         return;
@@ -1540,7 +1540,7 @@ static void gdReviewDisplay(int win, int origin)
 
         char name[60];
         sprintf(name, "%s:", object_name(dialog_target));
-        windowDrawText(win, name, 180, 88, y, colorTable[992] | 0x2000000);
+        win_print(win, name, 180, 88, y, colorTable[992] | 0x2000000);
         entriesRect.uly += v20;
 
         char* replyText;
@@ -1551,7 +1551,7 @@ static void gdReviewDisplay(int win, int origin)
         }
 
         if (replyText == NULL) {
-            showMesageBox("\nGDialog::Error Grabbing text message!");
+            GNWSystemError("\nGDialog::Error Grabbing text message!");
             exit(1);
         }
 
@@ -1566,7 +1566,7 @@ static void gdReviewDisplay(int win, int origin)
 
         if (dialogReviewEntry->optionMessageListId != -3) {
             sprintf(name, "%s:", object_name(obj_dude));
-            windowDrawText(win, name, 180, 88, y, colorTable[21140] | 0x2000000);
+            win_print(win, name, 180, 88, y, colorTable[21140] | 0x2000000);
             entriesRect.uly += v20;
 
             char* optionText;
@@ -1577,7 +1577,7 @@ static void gdReviewDisplay(int win, int origin)
             }
 
             if (optionText == NULL) {
-                showMesageBox("\nGDialog::Error Grabbing text message!");
+                GNWSystemError("\nGDialog::Error Grabbing text message!");
                 exit(1);
             }
 
@@ -1721,7 +1721,7 @@ static int gdProcessInit()
 
     int replyWindowX = GAME_DIALOG_REPLY_WINDOW_X;
     int replyWindowY = GAME_DIALOG_REPLY_WINDOW_Y;
-    gReplyWin = windowCreate(replyWindowX,
+    gReplyWin = win_add(replyWindowX,
         replyWindowY,
         GAME_DIALOG_REPLY_WINDOW_WIDTH,
         GAME_DIALOG_REPLY_WINDOW_HEIGHT,
@@ -1732,26 +1732,26 @@ static int gdProcessInit()
     }
 
     // Top part of the reply window - scroll up.
-    upBtn = buttonCreate(gReplyWin, 1, 1, 377, 28, -1, -1, KEY_ARROW_UP, -1, NULL, NULL, NULL, 32);
+    upBtn = win_register_button(gReplyWin, 1, 1, 377, 28, -1, -1, KEY_ARROW_UP, -1, NULL, NULL, NULL, 32);
     if (upBtn == -1) {
         goto err_1;
     }
 
-    buttonSetCallbacks(upBtn, gsound_red_butt_press, gsound_red_butt_release);
-    buttonSetMouseCallbacks(upBtn, reply_arrow_up, reply_arrow_restore, 0, 0);
+    win_register_button_sound_func(upBtn, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_func(upBtn, reply_arrow_up, reply_arrow_restore, 0, 0);
 
     // Bottom part of the reply window - scroll down.
-    downBtn = buttonCreate(gReplyWin, 1, 29, 377, 28, -1, -1, KEY_ARROW_DOWN, -1, NULL, NULL, NULL, 32);
+    downBtn = win_register_button(gReplyWin, 1, 29, 377, 28, -1, -1, KEY_ARROW_DOWN, -1, NULL, NULL, NULL, 32);
     if (downBtn == -1) {
         goto err_1;
     }
 
-    buttonSetCallbacks(downBtn, gsound_red_butt_press, gsound_red_butt_release);
-    buttonSetMouseCallbacks(downBtn, reply_arrow_down, reply_arrow_restore, 0, 0);
+    win_register_button_sound_func(downBtn, gsound_red_butt_press, gsound_red_butt_release);
+    win_register_button_func(downBtn, reply_arrow_down, reply_arrow_restore, 0, 0);
 
     optionsWindowX = GAME_DIALOG_OPTIONS_WINDOW_X;
     optionsWindowY = GAME_DIALOG_OPTIONS_WINDOW_Y;
-    gOptionWin = windowCreate(optionsWindowX, optionsWindowY, GAME_DIALOG_OPTIONS_WINDOW_WIDTH, GAME_DIALOG_OPTIONS_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x04);
+    gOptionWin = win_add(optionsWindowX, optionsWindowY, GAME_DIALOG_OPTIONS_WINDOW_WIDTH, GAME_DIALOG_OPTIONS_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x04);
     if (gOptionWin == -1) {
         goto err_2;
     }
@@ -1782,12 +1782,12 @@ err_3:
 
 err_2:
 
-    windowDestroy(gOptionWin);
+    win_delete(gOptionWin);
     gOptionWin = -1;
 
 err_1:
 
-    windowDestroy(gReplyWin);
+    win_delete(gReplyWin);
     gReplyWin = -1;
 
 err:
@@ -1804,7 +1804,7 @@ static void gdProcessCleanup()
         GameDialogOptionEntry* optionEntry = &(dialogBlock.options[index]);
 
         if (optionEntry->btn != -1) {
-            buttonDestroy(optionEntry->btn);
+            win_delete_button(optionEntry->btn);
             optionEntry->btn = -1;
         }
     }
@@ -1825,10 +1825,10 @@ static int gdProcessExit()
     dialog_red_button_up_key = NULL;
     dialog_red_button_up_buf = NULL;
 
-    windowDestroy(gReplyWin);
+    win_delete(gReplyWin);
     gReplyWin = -1;
 
-    windowDestroy(gOptionWin);
+    win_delete(gOptionWin);
     gOptionWin = -1;
 
     text_font(talkOldFont);
@@ -1859,7 +1859,7 @@ static void gdUpdateMula()
         width = 60;
     }
 
-    windowDrawText(dialogueWindow, text, width, 38 - width / 2, 36, colorTable[992] | 0x7000000);
+    win_print(dialogueWindow, text, width, 38 - width / 2, 36, colorTable[992] | 0x7000000);
 
     text_font(oldFont);
 }
@@ -2132,7 +2132,7 @@ static void gdProcessHighlight(int index)
     }
 
     // NOTE: Uninline.
-    text_to_rect_wrapped(windowGetBuffer(gOptionWin),
+    text_to_rect_wrapped(win_get_buf(gOptionWin),
         &optionRect,
         dialogOptionEntry->text,
         NULL,
@@ -2180,7 +2180,7 @@ static void gdProcessUnHighlight(int index)
     optionRect.lrx = 388;
 
     // NOTE: Uninline.
-    text_to_rect_wrapped(windowGetBuffer(gOptionWin),
+    text_to_rect_wrapped(win_get_buf(gOptionWin),
         &optionRect,
         dialogOptionEntry->text,
         NULL,
@@ -2208,7 +2208,7 @@ static void gdProcessReply()
     demo_copy_title(gReplyWin);
 
     // NOTE: Uninline.
-    text_to_rect_wrapped(windowGetBuffer(gReplyWin),
+    text_to_rect_wrapped(win_get_buf(gReplyWin),
         &replyRect,
         dialogBlock.replyText,
         &(dialogBlock.offset),
@@ -2237,7 +2237,7 @@ static void gdProcessUpdate()
     if (dialogBlock.replyMessageListId > 0) {
         char* s = scr_get_msg_str_speech(dialogBlock.replyMessageListId, dialogBlock.replyMessageId, 1);
         if (s == NULL) {
-            showMesageBox("\n'GDialog::Error Grabbing text message!");
+            GNWSystemError("\n'GDialog::Error Grabbing text message!");
             exit(1);
         }
 
@@ -2280,7 +2280,7 @@ static void gdProcessUpdate()
         if (dialogOptionEntry->messageListId >= 0) {
             char* text = scr_get_msg_str_speech(dialogOptionEntry->messageListId, dialogOptionEntry->messageId, 0);
             if (text == NULL) {
-                showMesageBox("\nGDialog::Error Grabbing text message!");
+                GNWSystemError("\nGDialog::Error Grabbing text message!");
                 exit(1);
             }
 
@@ -2325,7 +2325,7 @@ static void gdProcessUpdate()
             }
 
             // NOTE: Uninline.
-            text_to_rect_wrapped(windowGetBuffer(gOptionWin),
+            text_to_rect_wrapped(win_get_buf(gOptionWin),
                 &optionRect,
                 dialogOptionEntry->text,
                 NULL,
@@ -2335,9 +2335,9 @@ static void gdProcessUpdate()
 
             optionRect.uly += 2;
 
-            dialogOptionEntry->btn = buttonCreate(gOptionWin, 2, y, width, optionRect.uly - y - 4, 1200 + index, 1300 + index, -1, 49 + index, NULL, NULL, NULL, 0);
+            dialogOptionEntry->btn = win_register_button(gOptionWin, 2, y, width, optionRect.uly - y - 4, 1200 + index, 1300 + index, -1, 49 + index, NULL, NULL, NULL, 0);
             if (dialogOptionEntry->btn != -1) {
-                buttonSetCallbacks(dialogOptionEntry->btn, gsound_red_butt_press, gsound_red_butt_release);
+                win_register_button_sound_func(dialogOptionEntry->btn, gsound_red_butt_press, gsound_red_butt_release);
             } else {
                 debug_printf("\nError: Can't create button!");
             }
@@ -2366,7 +2366,7 @@ static int gdCreateHeadWindow()
     talk_to_create_background_window();
     talk_to_refresh_background_window();
 
-    unsigned char* buf = windowGetBuffer(dialogueBackWindow);
+    unsigned char* buf = win_get_buf(dialogueBackWindow);
 
     for (int index = 0; index < 8; index++) {
         soundContinueAll();
@@ -2387,7 +2387,7 @@ static int gdCreateHeadWindow()
 
     gdialog_window_create();
 
-    headWindowBuffer = windowGetBuffer(dialogueBackWindow) + windowWidth * 14 + 126;
+    headWindowBuffer = win_get_buf(dialogueBackWindow) + windowWidth * 14 + 126;
 
     if (headWindowBuffer == NULL) {
         gdDestroyHeadWindow();
@@ -2411,7 +2411,7 @@ static void gdDestroyHeadWindow()
     }
 
     if (dialogueBackWindow != -1) {
-        windowDestroy(dialogueBackWindow);
+        win_delete(dialogueBackWindow);
         dialogueBackWindow = -1;
     }
 
@@ -2641,13 +2641,13 @@ static void demo_copy_title(int win)
         return;
     }
 
-    int width = windowGetWidth(win);
+    int width = win_width(win);
     if (width < 1) {
         debug_printf("\nError: demo_copy_title: width invalid!");
         return;
     }
 
-    int height = windowGetHeight(win);
+    int height = win_height(win);
     if (height < 1) {
         debug_printf("\nError: demo_copy_title: length invalid!");
         return;
@@ -2658,13 +2658,13 @@ static void demo_copy_title(int win)
         return;
     }
 
-    unsigned char* src = windowGetBuffer(dialogueBackWindow);
+    unsigned char* src = win_get_buf(dialogueBackWindow);
     if (src == NULL) {
         debug_printf("\nError: demo_copy_title: couldn't get buffer!");
         return;
     }
 
-    unsigned char* dest = windowGetBuffer(win);
+    unsigned char* dest = win_get_buf(win);
 
     blitBufferToBuffer(src + 640 * 225 + 135, width, height, 640, dest, width);
 }
@@ -2680,13 +2680,13 @@ static void demo_copy_options(int win)
         return;
     }
 
-    int width = windowGetWidth(win);
+    int width = win_width(win);
     if (width < 1) {
         debug_printf("\nError: demo_copy_options: width invalid!");
         return;
     }
 
-    int height = windowGetHeight(win);
+    int height = win_height(win);
     if (height < 1) {
         debug_printf("\nError: demo_copy_options: length invalid!");
         return;
@@ -2700,13 +2700,13 @@ static void demo_copy_options(int win)
     Rect windowRect;
     win_get_rect(dialogueWindow, &windowRect);
 
-    unsigned char* src = windowGetBuffer(dialogueWindow);
+    unsigned char* src = win_get_buf(dialogueWindow);
     if (src == NULL) {
         debug_printf("\nError: demo_copy_options: couldn't get buffer!");
         return;
     }
 
-    unsigned char* dest = windowGetBuffer(win);
+    unsigned char* dest = win_get_buf(win);
     blitBufferToBuffer(src + 640 * (335 - windowRect.uly) + 127, width, height, 640, dest, width);
 }
 
@@ -2732,7 +2732,7 @@ static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
     Rect windowRect;
     win_get_rect(dialogueWindow, &windowRect);
 
-    unsigned char* src = windowGetBuffer(dialogueWindow);
+    unsigned char* src = win_get_buf(dialogueWindow);
     if (src == NULL) {
         debug_printf("\nError: gDialogRefreshOptionsRect: couldn't get buffer!");
         return;
@@ -2748,8 +2748,8 @@ static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
         return;
     }
 
-    int destWidth = windowGetWidth(win);
-    unsigned char* dest = windowGetBuffer(win);
+    int destWidth = win_width(win);
+    unsigned char* dest = win_get_buf(win);
 
     blitBufferToBuffer(
         src + (640 * (335 - windowRect.uly) + 127) + (640 * drawRect->uly + drawRect->ulx),
@@ -3177,7 +3177,7 @@ static int gdialog_barter_create_win()
 
     int barterWindowX = 0;
     int barterWindowY = GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len;
-    dialogueWindow = windowCreate(barterWindowX,
+    dialogueWindow = win_add(barterWindowX,
         barterWindowY,
         GAME_DIALOG_WINDOW_WIDTH,
         dialogue_subwin_len,
@@ -3190,8 +3190,8 @@ static int gdialog_barter_create_win()
 
     int width = GAME_DIALOG_WINDOW_WIDTH;
 
-    unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
-    unsigned char* backgroundWindowBuffer = windowGetBuffer(dialogueBackWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueWindow);
+    unsigned char* backgroundWindowBuffer = win_get_buf(dialogueBackWindow);
     blitBufferToBuffer(backgroundWindowBuffer + width * (480 - dialogue_subwin_len), width, dialogue_subwin_len, width, windowBuffer, width);
 
     gdialog_scroll_subwin(dialogueWindow, 1, backgroundData, windowBuffer, NULL, dialogue_subwin_len, 0);
@@ -3199,14 +3199,14 @@ static int gdialog_barter_create_win()
     art_ptr_unlock(backgroundHandle);
 
     // TRADE
-    gdialog_buttons[0] = buttonCreate(dialogueWindow, 41, 163, 14, 14, -1, -1, -1, KEY_LOWERCASE_M, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
+    gdialog_buttons[0] = win_register_button(dialogueWindow, 41, 163, 14, 14, -1, -1, -1, KEY_LOWERCASE_M, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[0] != -1) {
-        buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
+        win_register_button_sound_func(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
         // TALK
-        gdialog_buttons[1] = buttonCreate(dialogueWindow, 584, 162, 14, 14, -1, -1, -1, KEY_LOWERCASE_T, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
+        gdialog_buttons[1] = win_register_button(dialogueWindow, 584, 162, 14, 14, -1, -1, -1, KEY_LOWERCASE_T, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
         if (gdialog_buttons[1] != -1) {
-            buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
+            win_register_button_sound_func(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
             if (obj_new(&peon_table_obj, -1, -1) != -1) {
                 peon_table_obj->flags |= OBJECT_HIDDEN;
@@ -3226,15 +3226,15 @@ static int gdialog_barter_create_win()
                 obj_erase_object(peon_table_obj, 0);
             }
 
-            buttonDestroy(gdialog_buttons[1]);
+            win_delete_button(gdialog_buttons[1]);
             gdialog_buttons[1] = -1;
         }
 
-        buttonDestroy(gdialog_buttons[0]);
+        win_delete_button(gdialog_buttons[0]);
         gdialog_buttons[0] = -1;
     }
 
-    windowDestroy(dialogueWindow);
+    win_delete(dialogueWindow);
     dialogueWindow = -1;
 
     return -1;
@@ -3252,11 +3252,11 @@ static void gdialog_barter_destroy_win()
     obj_erase_object(peon_table_obj, 0);
 
     for (int index = 0; index < 9; index++) {
-        buttonDestroy(gdialog_buttons[index]);
+        win_delete_button(gdialog_buttons[index]);
         gdialog_buttons[index] = -1;
     }
 
-    unsigned char* backgroundWindowBuffer = windowGetBuffer(dialogueBackWindow);
+    unsigned char* backgroundWindowBuffer = win_get_buf(dialogueBackWindow);
     backgroundWindowBuffer += (GAME_DIALOG_WINDOW_WIDTH) * (480 - dialogue_subwin_len);
 
     int frmId;
@@ -3272,12 +3272,12 @@ static void gdialog_barter_destroy_win()
     int fid = art_id(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
     unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
-        unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
+        unsigned char* windowBuffer = win_get_buf(dialogueWindow);
         gdialog_scroll_subwin(dialogueWindow, 0, backgroundFrmData, windowBuffer, backgroundWindowBuffer, dialogue_subwin_len, 0);
         art_ptr_unlock(backgroundFrmHandle);
     }
 
-    windowDestroy(dialogueWindow);
+    win_delete(dialogueWindow);
     dialogueWindow = -1;
 
     cai_attempt_w_reload(dialog_target, 0);
@@ -3335,7 +3335,7 @@ static int gdControlCreateWin()
     dialogue_subwin_len = art_frame_length(backgroundFrm, 0, 0);
     int controlWindowX = 0;
     int controlWindowY = GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len;
-    dialogueWindow = windowCreate(controlWindowX,
+    dialogueWindow = win_add(controlWindowX,
         controlWindowY,
         GAME_DIALOG_WINDOW_WIDTH,
         dialogue_subwin_len,
@@ -3346,43 +3346,43 @@ static int gdControlCreateWin()
         return -1;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
-    unsigned char* src = windowGetBuffer(dialogueBackWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueWindow);
+    unsigned char* src = win_get_buf(dialogueBackWindow);
     blitBufferToBuffer(src + (GAME_DIALOG_WINDOW_WIDTH) * (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len), GAME_DIALOG_WINDOW_WIDTH, dialogue_subwin_len, GAME_DIALOG_WINDOW_WIDTH, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
     gdialog_scroll_subwin(dialogueWindow, 1, backgroundData, windowBuffer, 0, dialogue_subwin_len, 0);
     art_ptr_unlock(backgroundFrmHandle);
 
     // TALK
-    gdialog_buttons[0] = buttonCreate(dialogueWindow, 593, 41, 14, 14, -1, -1, -1, KEY_ESCAPE, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+    gdialog_buttons[0] = win_register_button(dialogueWindow, 593, 41, 14, 14, -1, -1, -1, KEY_ESCAPE, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[0] == -1) {
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
     // TRADE
-    gdialog_buttons[1] = buttonCreate(dialogueWindow, 593, 97, 14, 14, -1, -1, -1, KEY_LOWERCASE_D, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+    gdialog_buttons[1] = win_register_button(dialogueWindow, 593, 97, 14, 14, -1, -1, -1, KEY_LOWERCASE_D, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[1] == -1) {
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
     // USE BEST WEAPON
-    gdialog_buttons[2] = buttonCreate(dialogueWindow, 236, 15, 14, 14, -1, -1, -1, KEY_LOWERCASE_W, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+    gdialog_buttons[2] = win_register_button(dialogueWindow, 236, 15, 14, 14, -1, -1, -1, KEY_LOWERCASE_W, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[2] == -1) {
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(gdialog_buttons[1], gsound_med_butt_press, gsound_med_butt_release);
 
     // USE BEST ARMOR
-    gdialog_buttons[3] = buttonCreate(dialogueWindow, 235, 46, 14, 14, -1, -1, -1, KEY_LOWERCASE_A, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+    gdialog_buttons[3] = win_register_button(dialogueWindow, 235, 46, 14, 14, -1, -1, -1, KEY_LOWERCASE_A, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[3] == -1) {
         gdControlDestroyWin();
         return -1;
     }
-    buttonSetCallbacks(gdialog_buttons[2], gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(gdialog_buttons[2], gsound_med_butt_press, gsound_med_butt_release);
 
     control_buttons_start = 4;
 
@@ -3423,7 +3423,7 @@ static int gdControlCreateWin()
 
         v21++;
 
-        gdialog_buttons[v21] = buttonCreate(dialogueWindow,
+        gdialog_buttons[v21] = win_register_button(dialogueWindow,
             buttonData->x,
             buttonData->y,
             width,
@@ -3441,18 +3441,18 @@ static int gdControlCreateWin()
             return -1;
         }
 
-        _win_register_button_disable(gdialog_buttons[v21], disabledButtonFrmData, disabledButtonFrmData, disabledButtonFrmData);
-        buttonSetCallbacks(gdialog_buttons[v21], gsound_med_butt_press, gsound_med_butt_release);
+        win_register_button_disable(gdialog_buttons[v21], disabledButtonFrmData, disabledButtonFrmData, disabledButtonFrmData);
+        win_register_button_sound_func(gdialog_buttons[v21], gsound_med_butt_press, gsound_med_butt_release);
 
         if (!partyMemberHasAIDisposition(dialog_target, buttonData->value)) {
-            buttonDisable(gdialog_buttons[v21]);
+            win_disable_button(gdialog_buttons[v21]);
         }
     }
 
-    _win_group_radio_buttons(5, &(gdialog_buttons[control_buttons_start]));
+    win_group_radio_buttons(5, &(gdialog_buttons[control_buttons_start]));
 
     int disposition = ai_get_disposition(dialog_target);
-    _win_set_button_rest_state(gdialog_buttons[control_buttons_start + 4 - disposition], 1, 0);
+    win_set_button_rest_state(gdialog_buttons[control_buttons_start + 4 - disposition], 1, 0);
 
     gdControlUpdateInfo();
 
@@ -3471,7 +3471,7 @@ static void gdControlDestroyWin()
     }
 
     for (int index = 0; index < 9; index++) {
-        buttonDestroy(gdialog_buttons[index]);
+        win_delete_button(gdialog_buttons[index]);
         gdialog_buttons[index] = -1;
     }
 
@@ -3499,11 +3499,11 @@ static void gdControlDestroyWin()
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
     unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
-        gdialog_scroll_subwin(dialogueWindow, 0, backgroundFrmData, windowGetBuffer(dialogueWindow), windowGetBuffer(dialogueBackWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - dialogue_subwin_len), dialogue_subwin_len, 0);
+        gdialog_scroll_subwin(dialogueWindow, 0, backgroundFrmData, win_get_buf(dialogueWindow), win_get_buf(dialogueBackWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - dialogue_subwin_len), dialogue_subwin_len, 0);
         art_ptr_unlock(backgroundFrmHandle);
     }
 
-    windowDestroy(dialogueWindow);
+    win_delete(dialogueWindow);
     dialogueWindow = -1;
 }
 
@@ -3513,8 +3513,8 @@ static void gdControlUpdateInfo()
     int oldFont = text_curr();
     text_font(101);
 
-    unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
-    int windowWidth = windowGetWidth(dialogueWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueWindow);
+    int windowWidth = win_width(dialogueWindow);
 
     CacheEntry* backgroundHandle;
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 390, 0, 0, 0);
@@ -3774,7 +3774,7 @@ static int gdCustomCreateWin()
 
     int customizationWindowX = 0;
     int customizationWindowY = GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len;
-    dialogueWindow = windowCreate(customizationWindowX,
+    dialogueWindow = win_add(customizationWindowX,
         customizationWindowY,
         GAME_DIALOG_WINDOW_WIDTH,
         dialogue_subwin_len,
@@ -3785,8 +3785,8 @@ static int gdCustomCreateWin()
         return -1;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
-    unsigned char* parentWindowBuffer = windowGetBuffer(dialogueBackWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueWindow);
+    unsigned char* parentWindowBuffer = win_get_buf(dialogueBackWindow);
     blitBufferToBuffer(parentWindowBuffer + (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len) * GAME_DIALOG_WINDOW_WIDTH,
         GAME_DIALOG_WINDOW_WIDTH,
         dialogue_subwin_len,
@@ -3797,13 +3797,13 @@ static int gdCustomCreateWin()
     gdialog_scroll_subwin(dialogueWindow, 1, backgroundFrmData, windowBuffer, NULL, dialogue_subwin_len, 0);
     art_ptr_unlock(backgroundFrmHandle);
 
-    gdialog_buttons[0] = buttonCreate(dialogueWindow, 593, 101, 14, 14, -1, -1, -1, 13, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
+    gdialog_buttons[0] = win_register_button(dialogueWindow, 593, 101, 14, 14, -1, -1, -1, 13, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
     if (gdialog_buttons[0] == -1) {
         gdCustomDestroyWin();
         return -1;
     }
 
-    buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
     int optionButton = 0;
     custom_buttons_start = 1;
@@ -3832,7 +3832,7 @@ static int gdCustomCreateWin()
         unsigned char* downButtonFrmData = art_frame_data(downButtonFrm, 0, 0);
 
         optionButton++;
-        gdialog_buttons[optionButton] = buttonCreate(dialogueWindow,
+        gdialog_buttons[optionButton] = win_register_button(dialogueWindow,
             buttonData->x,
             buttonData->y,
             width,
@@ -3850,7 +3850,7 @@ static int gdCustomCreateWin()
             return -1;
         }
 
-        buttonSetCallbacks(gdialog_buttons[index], gsound_med_butt_press, gsound_med_butt_release);
+        win_register_button_sound_func(gdialog_buttons[index], gsound_med_butt_press, gsound_med_butt_release);
     }
 
     custom_current_selected[PARTY_MEMBER_CUSTOMIZATION_OPTION_AREA_ATTACK_MODE] = ai_get_burst_value(dialog_target);
@@ -3875,7 +3875,7 @@ static void gdCustomDestroyWin()
     }
 
     for (int index = 0; index < 9; index++) {
-        buttonDestroy(gdialog_buttons[index]);
+        win_delete_button(gdialog_buttons[index]);
         gdialog_buttons[index] = -1;
     }
 
@@ -3903,11 +3903,11 @@ static void gdCustomDestroyWin()
     int fid = art_id(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
     unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
-        gdialog_scroll_subwin(dialogueWindow, 0, backgroundFrmData, windowGetBuffer(dialogueWindow), windowGetBuffer(dialogueBackWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - dialogue_subwin_len), dialogue_subwin_len, 0);
+        gdialog_scroll_subwin(dialogueWindow, 0, backgroundFrmData, win_get_buf(dialogueWindow), win_get_buf(dialogueBackWindow) + (GAME_DIALOG_WINDOW_WIDTH) * (480 - dialogue_subwin_len), dialogue_subwin_len, 0);
         art_ptr_unlock(backgroundFrmHandle);
     }
 
-    windowDestroy(dialogueWindow);
+    win_delete(dialogueWindow);
     dialogueWindow = -1;
 
     message_exit(&custom_msg_file);
@@ -3946,8 +3946,8 @@ static void gdCustomUpdateInfo()
     int oldFont = text_curr();
     text_font(101);
 
-    unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
-    int windowWidth = windowGetWidth(dialogueWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueWindow);
+    int windowWidth = win_width(dialogueWindow);
 
     CacheEntry* backgroundHandle;
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 391, 0, 0, 0);
@@ -4069,13 +4069,13 @@ static int gdCustomSelect(int a1)
 
     int selectWindowX = (640 - backgroundFrmWidth) / 2;
     int selectWindowY = (480 - backgroundFrmHeight) / 2;
-    int win = windowCreate(selectWindowX, selectWindowY, backgroundFrmWidth, backgroundFrmHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    int win = win_add(selectWindowX, selectWindowY, backgroundFrmWidth, backgroundFrmHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     if (win == -1) {
         art_ptr_unlock(backgroundFrmHandle);
         return -1;
     }
 
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
     blitBufferToBuffer(backgroundFrmData,
         backgroundFrmWidth,
@@ -4086,15 +4086,15 @@ static int gdCustomSelect(int a1)
 
     art_ptr_unlock(backgroundFrmHandle);
 
-    int btn1 = buttonCreate(win, 70, 164, 14, 14, -1, -1, -1, KEY_RETURN, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+    int btn1 = win_register_button(win, 70, 164, 14, 14, -1, -1, -1, KEY_RETURN, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
     if (btn1 == -1) {
-        windowDestroy(win);
+        win_delete(win);
         return -1;
     }
 
-    int btn2 = buttonCreate(win, 176, 163, 14, 14, -1, -1, -1, KEY_ESCAPE, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+    int btn2 = win_register_button(win, 176, 163, 14, 14, -1, -1, -1, KEY_ESCAPE, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
     if (btn2 == -1) {
-        windowDestroy(win);
+        win_delete(win);
         return -1;
     }
 
@@ -4206,7 +4206,7 @@ static int gdCustomSelect(int a1)
         }
     }
 
-    windowDestroy(win);
+    win_delete(win);
     text_font(oldFont);
     return 0;
 }
@@ -4307,11 +4307,11 @@ static int gdialog_window_create()
 
         int dialogSubwindowX = 0;
         int dialogSubwindowY = 480 - dialogue_subwin_len;
-        dialogueWindow = windowCreate(dialogSubwindowX, dialogSubwindowY, screenWidth, dialogue_subwin_len, 256, WINDOW_FLAG_0x02);
+        dialogueWindow = win_add(dialogSubwindowX, dialogSubwindowY, screenWidth, dialogue_subwin_len, 256, WINDOW_FLAG_0x02);
         if (dialogueWindow != -1) {
 
-            unsigned char* v10 = windowGetBuffer(dialogueWindow);
-            unsigned char* v14 = windowGetBuffer(dialogueBackWindow);
+            unsigned char* v10 = win_get_buf(dialogueWindow);
+            unsigned char* v14 = win_get_buf(dialogueBackWindow);
             // TODO: Not sure about offsets.
             blitBufferToBuffer(v14 + screenWidth * (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len), screenWidth, dialogue_subwin_len, screenWidth, v10, screenWidth);
 
@@ -4326,10 +4326,10 @@ static int gdialog_window_create()
             art_ptr_unlock(backgroundFrmHandle);
 
             // BARTER/TRADE
-            gdialog_buttons[0] = buttonCreate(dialogueWindow, 593, 41, 14, 14, -1, -1, -1, -1, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
+            gdialog_buttons[0] = win_register_button(dialogueWindow, 593, 41, 14, 14, -1, -1, -1, -1, dialog_red_button_up_buf, dialog_red_button_down_buf, NULL, BUTTON_FLAG_TRANSPARENT);
             if (gdialog_buttons[0] != -1) {
-                buttonSetMouseCallbacks(gdialog_buttons[0], NULL, NULL, NULL, gdialog_barter_pressed);
-                buttonSetCallbacks(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
+                win_register_button_func(gdialog_buttons[0], NULL, NULL, NULL, gdialog_barter_pressed);
+                win_register_button_sound_func(gdialog_buttons[0], gsound_med_butt_press, gsound_med_butt_release);
 
                 // di_rest1.frm - dialog rest button up
                 int upFid = art_id(OBJ_TYPE_INTERFACE, 97, 0, 0, 0);
@@ -4340,10 +4340,10 @@ static int gdialog_window_create()
                     unsigned char* reivewButtonDownData = art_ptr_lock_data(downFid, 0, 0, &gdialog_review_down_key);
                     if (reivewButtonDownData != NULL) {
                         // REVIEW
-                        gdialog_buttons[1] = buttonCreate(dialogueWindow, 13, 154, 51, 29, -1, -1, -1, -1, reviewButtonUpData, reivewButtonDownData, NULL, 0);
+                        gdialog_buttons[1] = win_register_button(dialogueWindow, 13, 154, 51, 29, -1, -1, -1, -1, reviewButtonUpData, reivewButtonDownData, NULL, 0);
                         if (gdialog_buttons[1] != -1) {
-                            buttonSetMouseCallbacks(gdialog_buttons[1], NULL, NULL, NULL, gdReviewPressed);
-                            buttonSetCallbacks(gdialog_buttons[1], gsound_red_butt_press, gsound_red_butt_release);
+                            win_register_button_func(gdialog_buttons[1], NULL, NULL, NULL, gdReviewPressed);
+                            win_register_button_sound_func(gdialog_buttons[1], gsound_red_butt_press, gsound_red_butt_release);
 
                             if (!dialog_target_is_party) {
                                 gdialog_window_created = true;
@@ -4351,16 +4351,16 @@ static int gdialog_window_create()
                             }
 
                             // COMBAT CONTROL
-                            gdialog_buttons[2] = buttonCreate(dialogueWindow, 593, 116, 14, 14, -1, -1, -1, -1, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
+                            gdialog_buttons[2] = win_register_button(dialogueWindow, 593, 116, 14, 14, -1, -1, -1, -1, dialog_red_button_up_buf, dialog_red_button_down_buf, 0, BUTTON_FLAG_TRANSPARENT);
                             if (gdialog_buttons[2] != -1) {
-                                buttonSetMouseCallbacks(gdialog_buttons[2], NULL, NULL, NULL, gdControlPressed);
-                                buttonSetCallbacks(gdialog_buttons[2], gsound_med_butt_press, gsound_med_butt_release);
+                                win_register_button_func(gdialog_buttons[2], NULL, NULL, NULL, gdControlPressed);
+                                win_register_button_sound_func(gdialog_buttons[2], gsound_med_butt_press, gsound_med_butt_release);
 
                                 gdialog_window_created = true;
                                 return 0;
                             }
 
-                            buttonDestroy(gdialog_buttons[1]);
+                            win_delete_button(gdialog_buttons[1]);
                             gdialog_buttons[1] = -1;
                         }
 
@@ -4370,11 +4370,11 @@ static int gdialog_window_create()
                     art_ptr_unlock(gdialog_review_up_key);
                 }
 
-                buttonDestroy(gdialog_buttons[0]);
+                win_delete_button(gdialog_buttons[0]);
                 gdialog_buttons[0] = -1;
             }
 
-            windowDestroy(dialogueWindow);
+            win_delete(dialogueWindow);
             dialogueWindow = -1;
         }
     }
@@ -4392,7 +4392,7 @@ static void gdialog_window_destroy()
     }
 
     for (int index = 0; index < 9; index++) {
-        buttonDestroy(gdialog_buttons[index]);
+        win_delete_button(gdialog_buttons[index]);
         gdialog_buttons[index] = -1;
     }
 
@@ -4400,7 +4400,7 @@ static void gdialog_window_destroy()
     art_ptr_unlock(gdialog_review_up_key);
 
     int offset = (GAME_DIALOG_WINDOW_WIDTH) * (480 - dialogue_subwin_len);
-    unsigned char* backgroundWindowBuffer = windowGetBuffer(dialogueBackWindow) + offset;
+    unsigned char* backgroundWindowBuffer = win_get_buf(dialogueBackWindow) + offset;
 
     int frmId;
     if (dialog_target_is_party) {
@@ -4415,10 +4415,10 @@ static void gdialog_window_destroy()
     int fid = art_id(OBJ_TYPE_INTERFACE, frmId, 0, 0, 0);
     unsigned char* backgroundFrmData = art_ptr_lock_data(fid, 0, 0, &backgroundFrmHandle);
     if (backgroundFrmData != NULL) {
-        unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
+        unsigned char* windowBuffer = win_get_buf(dialogueWindow);
         gdialog_scroll_subwin(dialogueWindow, 0, backgroundFrmData, windowBuffer, backgroundWindowBuffer, dialogue_subwin_len, 0);
         art_ptr_unlock(backgroundFrmHandle);
-        windowDestroy(dialogueWindow);
+        win_delete(dialogueWindow);
         gdialog_window_created = 0;
         dialogueWindow = -1;
     }
@@ -4429,7 +4429,7 @@ static void gdialog_window_destroy()
 // 0x44AAD8
 static int talk_to_create_background_window()
 {
-    dialogueBackWindow = windowCreate(0,
+    dialogueBackWindow = win_add(0,
         0,
         _scr_size.lrx - _scr_size.ulx + 1,
         GAME_DIALOG_WINDOW_HEIGHT,
@@ -4455,7 +4455,7 @@ static int talk_to_refresh_background_window()
     }
 
     int windowWidth = GAME_DIALOG_WINDOW_WIDTH;
-    unsigned char* windowBuffer = windowGetBuffer(dialogueBackWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueBackWindow);
     blitBufferToBuffer(backgroundFrmData, windowWidth, 480, windowWidth, windowBuffer, windowWidth);
     art_ptr_unlock(backgroundFrmHandle);
 
@@ -4487,7 +4487,7 @@ static int talkToRefreshDialogWindowRect(Rect* rect)
 
     int offset = 640 * rect->uly + rect->ulx;
 
-    unsigned char* windowBuffer = windowGetBuffer(dialogueWindow);
+    unsigned char* windowBuffer = win_get_buf(dialogueWindow);
     blitBufferToBuffer(backgroundFrmData + offset,
         rect->lrx - rect->ulx,
         rect->lry - rect->uly,
@@ -4595,7 +4595,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
             tile_refresh_display();
         }
 
-        unsigned char* src = windowGetBuffer(display_win);
+        unsigned char* src = win_get_buf(display_win);
         blitBufferToBuffer(
             src + ((_scr_size.lry - _scr_size.uly + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
             388,
@@ -4611,7 +4611,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
     v27.lrx = 514;
     v27.lry = 214;
 
-    unsigned char* dest = windowGetBuffer(dialogueBackWindow);
+    unsigned char* dest = win_get_buf(dialogueBackWindow);
 
     unsigned char* data1 = art_frame_data(upper_hi_fp, 0, 0);
     talk_to_translucent_trans_buf_to_buf(data1, upper_hi_wid, upper_hi_len, upper_hi_wid, dest, 426, 15, GAME_DIALOG_WINDOW_WIDTH, light_BlendTable, light_GrayTable);

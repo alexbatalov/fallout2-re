@@ -582,7 +582,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
 
     partyMember->script = (Script*)mem_malloc(sizeof(*script));
     if (partyMember->script == NULL) {
-        showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
+        GNWSystemError("\n  Error!: partyMemberPrepLoad: Out of memory!");
         exit(1);
     }
 
@@ -591,7 +591,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
     if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
         partyMember->vars = (int*)mem_malloc(sizeof(*partyMember->vars) * script->localVarsCount);
         if (partyMember->vars == NULL) {
-            showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
+            GNWSystemError("\n  Error!: partyMemberPrepLoad: Out of memory!");
             exit(1);
         }
 
@@ -661,7 +661,7 @@ int partyMemberRecoverLoad()
 static int partyMemberRecoverLoadInstance(PartyMember* partyMember)
 {
     if (partyMember->script == NULL) {
-        showMesageBox("\n  Error!: partyMemberRecoverLoadInstance: No script!");
+        GNWSystemError("\n  Error!: partyMemberRecoverLoadInstance: No script!");
         return 0;
     }
 
@@ -672,13 +672,13 @@ static int partyMemberRecoverLoadInstance(PartyMember* partyMember)
 
     int v1 = -1;
     if (scr_new(&v1, scriptType) == -1) {
-        showMesageBox("\n  Error!: partyMemberRecoverLoad: Can't create script!");
+        GNWSystemError("\n  Error!: partyMemberRecoverLoad: Can't create script!");
         exit(1);
     }
 
     Script* script;
     if (scr_ptr(v1, &script) == -1) {
-        showMesageBox("\n  Error!: partyMemberRecoverLoad: Can't find script!");
+        GNWSystemError("\n  Error!: partyMemberRecoverLoad: Can't find script!");
         exit(1);
     }
 
@@ -991,7 +991,7 @@ static int partyMemberPrepItemSave(Object* object)
     if (object->sid != -1) {
         Script* script;
         if (scr_ptr(object->sid, &script) == -1) {
-            showMesageBox("\n  Error!: partyMemberPrepItemSaveAll: Can't find script!");
+            GNWSystemError("\n  Error!: partyMemberPrepItemSaveAll: Can't find script!");
             exit(1);
         }
 
@@ -1013,7 +1013,7 @@ static int partyMemberItemSave(Object* object)
     if (object->sid != -1) {
         Script* script;
         if (scr_ptr(object->sid, &script) == -1) {
-            showMesageBox("\n  Error!: partyMemberItemSave: Can't find script!");
+            GNWSystemError("\n  Error!: partyMemberItemSave: Can't find script!");
             exit(1);
         }
 
@@ -1024,7 +1024,7 @@ static int partyMemberItemSave(Object* object)
 
         PartyMember* node = (PartyMember*)mem_malloc(sizeof(*node));
         if (node == NULL) {
-            showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
+            GNWSystemError("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
         }
 
@@ -1032,7 +1032,7 @@ static int partyMemberItemSave(Object* object)
 
         node->script = (Script*)mem_malloc(sizeof(*script));
         if (node->script == NULL) {
-            showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
+            GNWSystemError("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
         }
 
@@ -1041,7 +1041,7 @@ static int partyMemberItemSave(Object* object)
         if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
             node->vars = (int*)mem_malloc(sizeof(*node->vars) * script->localVarsCount);
             if (node->vars == NULL) {
-                showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
+                GNWSystemError("\n  Error!: partyMemberItemSave: Out of memory!");
                 exit(1);
             }
 
@@ -1069,13 +1069,13 @@ static int partyMemberItemRecover(PartyMember* partyMember)
 {
     int sid = -1;
     if (scr_new(&sid, SCRIPT_TYPE_ITEM) == -1) {
-        showMesageBox("\n  Error!: partyMemberItemRecover: Can't create script!");
+        GNWSystemError("\n  Error!: partyMemberItemRecover: Can't create script!");
         exit(1);
     }
 
     Script* script;
     if (scr_ptr(sid, &script) == -1) {
-        showMesageBox("\n  Error!: partyMemberItemRecover: Can't find script!");
+        GNWSystemError("\n  Error!: partyMemberItemRecover: Can't find script!");
         exit(1);
     }
 

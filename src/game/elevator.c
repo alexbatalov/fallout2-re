@@ -554,7 +554,7 @@ static int elevator_start(int elevator)
 
     int elevatorWindowX = (640 - GInfo[ELEVATOR_FRM_BACKGROUND].width) / 2;
     int elevatorWindowY = (480 - INTERFACE_BAR_HEIGHT - 1 - GInfo[ELEVATOR_FRM_BACKGROUND].height) / 2;
-    elev_win = windowCreate(
+    elev_win = win_add(
         elevatorWindowX,
         elevatorWindowY,
         GInfo[ELEVATOR_FRM_BACKGROUND].width,
@@ -583,7 +583,7 @@ static int elevator_start(int elevator)
         return -1;
     }
 
-    win_buf = windowGetBuffer(elev_win);
+    win_buf = win_get_buf(elev_win);
     memcpy(win_buf, (unsigned char*)grphbmp[ELEVATOR_FRM_BACKGROUND], GInfo[ELEVATOR_FRM_BACKGROUND].width * GInfo[ELEVATOR_FRM_BACKGROUND].height);
 
     if (grphbmp[ELEVATOR_FRM_PANEL] != ELEVATOR_BACKGROUND_NULL) {
@@ -597,7 +597,7 @@ static int elevator_start(int elevator)
 
     int y = 40;
     for (int level = 0; level < btncnt[elevator]; level++) {
-        int btn = buttonCreate(elev_win,
+        int btn = win_register_button(elev_win,
             13,
             y,
             GInfo[ELEVATOR_FRM_BUTTON_DOWN].width,
@@ -611,7 +611,7 @@ static int elevator_start(int elevator)
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
+            win_register_button_sound_func(btn, gsound_red_butt_press, NULL);
         }
         y += 60;
     }
@@ -622,7 +622,7 @@ static int elevator_start(int elevator)
 // 0x43F6D0
 static void elevator_end()
 {
-    windowDestroy(elev_win);
+    win_delete(elev_win);
 
     if (grphbmp[ELEVATOR_FRM_BACKGROUND] != ELEVATOR_BACKGROUND_NULL) {
         art_ptr_unlock(grph_key[ELEVATOR_FRM_BACKGROUND]);

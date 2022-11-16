@@ -114,7 +114,7 @@ int display_init()
 
         art_ptr_unlock(backgroundFrmHandle);
 
-        up_bid = buttonCreate(interfaceWindow,
+        up_bid = win_register_button(interfaceWindow,
             DISPLAY_MONITOR_X,
             DISPLAY_MONITOR_Y,
             DISPLAY_MONITOR_WIDTH,
@@ -128,14 +128,14 @@ int display_init()
             NULL,
             0);
         if (up_bid != -1) {
-            buttonSetMouseCallbacks(up_bid,
+            win_register_button_func(up_bid,
                 display_arrow_up,
                 display_arrow_restore,
                 display_scroll_up,
                 NULL);
         }
 
-        dn_bid = buttonCreate(interfaceWindow,
+        dn_bid = win_register_button(interfaceWindow,
             DISPLAY_MONITOR_X,
             DISPLAY_MONITOR_Y + DISPLAY_MONITOR_HALF_HEIGHT,
             DISPLAY_MONITOR_WIDTH,
@@ -149,7 +149,7 @@ int display_init()
             NULL,
             0);
         if (dn_bid != -1) {
-            buttonSetMouseCallbacks(dn_bid,
+            win_register_button_func(dn_bid,
                 display_arrow_down,
                 display_arrow_restore,
                 display_scroll_down,
@@ -302,7 +302,7 @@ void display_redraw()
         return;
     }
 
-    unsigned char* buf = windowGetBuffer(interfaceWindow);
+    unsigned char* buf = win_get_buf(interfaceWindow);
     if (buf == NULL) {
         return;
     }
@@ -374,8 +374,8 @@ void display_arrow_restore(int btn, int keyCode)
 void display_disable()
 {
     if (display_enabled) {
-        buttonDisable(dn_bid);
-        buttonDisable(up_bid);
+        win_disable_button(dn_bid);
+        win_disable_button(up_bid);
         display_enabled = false;
     }
 }
@@ -384,8 +384,8 @@ void display_disable()
 void display_enable()
 {
     if (!display_enabled) {
-        buttonEnable(dn_bid);
-        buttonEnable(up_bid);
+        win_enable_button(dn_bid);
+        win_enable_button(up_bid);
         display_enabled = true;
     }
 }

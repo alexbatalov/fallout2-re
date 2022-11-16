@@ -335,25 +335,25 @@ void automap(bool isInGame, bool isUsingScanner)
 
     int automapWindowX = AUTOMAP_WINDOW_X;
     int automapWindowY = AUTOMAP_WINDOW_Y;
-    int window = windowCreate(automapWindowX, automapWindowY, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, color, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
+    int window = win_add(automapWindowX, automapWindowY, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, color, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
 
-    int scannerBtn = buttonCreate(window, 111, 454, 15, 16, -1, -1, -1, KEY_LOWERCASE_S, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
+    int scannerBtn = win_register_button(window, 111, 454, 15, 16, -1, -1, -1, KEY_LOWERCASE_S, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
     if (scannerBtn != -1) {
-        buttonSetCallbacks(scannerBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(scannerBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    int cancelBtn = buttonCreate(window, 277, 454, 15, 16, -1, -1, -1, KEY_ESCAPE, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
+    int cancelBtn = win_register_button(window, 277, 454, 15, 16, -1, -1, -1, KEY_ESCAPE, frmData[AUTOMAP_FRM_BUTTON_UP], frmData[AUTOMAP_FRM_BUTTON_DOWN], NULL, BUTTON_FLAG_TRANSPARENT);
     if (cancelBtn != -1) {
-        buttonSetCallbacks(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(cancelBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    int switchBtn = buttonCreate(window, 457, 340, 42, 74, -1, -1, KEY_LOWERCASE_L, KEY_LOWERCASE_H, frmData[AUTOMAP_FRM_SWITCH_UP], frmData[AUTOMAP_FRM_SWITCH_DOWN], NULL, BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01);
+    int switchBtn = win_register_button(window, 457, 340, 42, 74, -1, -1, KEY_LOWERCASE_L, KEY_LOWERCASE_H, frmData[AUTOMAP_FRM_SWITCH_UP], frmData[AUTOMAP_FRM_SWITCH_DOWN], NULL, BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x01);
     if (switchBtn != -1) {
-        buttonSetCallbacks(switchBtn, gsound_toggle_butt_press, gsound_toggle_butt_release);
+        win_register_button_sound_func(switchBtn, gsound_toggle_butt_press, gsound_toggle_butt_release);
     }
 
     if ((autoflags & AUTOMAP_WTH_HIGH_DETAILS) == 0) {
-        _win_set_button_rest_state(switchBtn, 1, 0);
+        win_set_button_rest_state(switchBtn, 1, 0);
     }
 
     int elevation = map_elevation;
@@ -461,7 +461,7 @@ void automap(bool isInGame, bool isUsingScanner)
         map_enable_bk_processes();
     }
 
-    windowDestroy(window);
+    win_delete(window);
     text_font(oldFont);
 
     for (int index = 0; index < AUTOMAP_FRM_COUNT; index++) {
@@ -481,10 +481,10 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
         color = colorTable[22025];
     }
 
-    windowFill(window, 0, 0, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, color);
-    windowDrawBorder(window);
+    win_fill(window, 0, 0, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, color);
+    win_border(window);
 
-    unsigned char* windowBuffer = windowGetBuffer(window);
+    unsigned char* windowBuffer = win_get_buf(window);
     blitBufferToBuffer(backgroundData, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, AUTOMAP_WINDOW_WIDTH, windowBuffer, AUTOMAP_WINDOW_WIDTH);
 
     for (Object* object = obj_find_first_at(elevation); object != NULL; object = obj_find_next_at()) {
@@ -581,10 +581,10 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
 
     if (map_get_index_number() != -1) {
         char* areaName = map_get_short_name(map_get_index_number());
-        windowDrawText(window, areaName, 240, 150, 380, textColor | 0x2000000);
+        win_print(window, areaName, 240, 150, 380, textColor | 0x2000000);
 
         char* mapName = map_get_elev_idx(map_get_index_number(), elevation);
-        windowDrawText(window, mapName, 240, 150, 396, textColor | 0x2000000);
+        win_print(window, mapName, 240, 150, 396, textColor | 0x2000000);
     }
 
     win_draw(window);
@@ -595,7 +595,7 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
 // 0x41C004
 int draw_top_down_map_pipboy(int window, int map, int elevation)
 {
-    unsigned char* windowBuffer = windowGetBuffer(window) + 640 * AUTOMAP_PIPBOY_VIEW_Y + AUTOMAP_PIPBOY_VIEW_X;
+    unsigned char* windowBuffer = win_get_buf(window) + 640 * AUTOMAP_PIPBOY_VIEW_Y + AUTOMAP_PIPBOY_VIEW_X;
 
     unsigned char wallColor = colorTable[992];
     unsigned char sceneryColor = colorTable[480];

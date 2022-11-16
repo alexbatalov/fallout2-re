@@ -947,12 +947,12 @@ int editor_design(bool isCreationMode)
             case KEY_UPPERCASE_J:
                 if (info_line >= 0 && info_line < 7) {
                     if (glblmode) {
-                        _win_button_press_and_release(stat_bids_minus[info_line]);
+                        win_button_press_and_release(stat_bids_minus[info_line]);
                         win_draw(edit_win);
                     }
                 } else if (info_line >= 61 && info_line < 79) {
                     if (glblmode) {
-                        _win_button_press_and_release(tag_bids[glblmode - 61]);
+                        win_button_press_and_release(tag_bids[glblmode - 61]);
                         win_draw(edit_win);
                     } else {
                         SliderBtn(keyCode);
@@ -960,7 +960,7 @@ int editor_design(bool isCreationMode)
                     }
                 } else if (info_line >= 82 && info_line < 98) {
                     if (glblmode) {
-                        _win_button_press_and_release(trait_bids[glblmode - 82]);
+                        win_button_press_and_release(trait_bids[glblmode - 82]);
                         win_draw(edit_win);
                     }
                 }
@@ -970,12 +970,12 @@ int editor_design(bool isCreationMode)
             case KEY_UPPERCASE_N:
                 if (info_line >= 0 && info_line < 7) {
                     if (glblmode) {
-                        _win_button_press_and_release(stat_bids_plus[info_line]);
+                        win_button_press_and_release(stat_bids_plus[info_line]);
                         win_draw(edit_win);
                     }
                 } else if (info_line >= 61 && info_line < 79) {
                     if (glblmode) {
-                        _win_button_press_and_release(tag_bids[glblmode - 61]);
+                        win_button_press_and_release(tag_bids[glblmode - 61]);
                         win_draw(edit_win);
                     } else {
                         SliderBtn(keyCode);
@@ -983,7 +983,7 @@ int editor_design(bool isCreationMode)
                     }
                 } else if (info_line >= 82 && info_line < 98) {
                     if (glblmode) {
-                        _win_button_press_and_release(trait_bids[glblmode - 82]);
+                        win_button_press_and_release(trait_bids[glblmode - 82]);
                         win_draw(edit_win);
                     }
                 }
@@ -1290,7 +1290,7 @@ static int CharEditStart()
 
     int editorWindowX = EDITOR_WINDOW_X;
     int editorWindowY = EDITOR_WINDOW_Y;
-    edit_win = windowCreate(editorWindowX,
+    edit_win = win_add(editorWindowX,
         editorWindowY,
         EDITOR_WINDOW_WIDTH,
         EDITOR_WINDOW_HEIGHT,
@@ -1314,7 +1314,7 @@ static int CharEditStart()
         return -1;
     }
 
-    win_buf = windowGetBuffer(edit_win);
+    win_buf = win_get_buf(edit_win);
     memcpy(win_buf, bckgnd, 640 * 480);
 
     if (glblmode) {
@@ -1443,7 +1443,7 @@ static int CharEditStart()
     ListDrvdStats();
 
     if (!glblmode) {
-        SliderPlusID = buttonCreate(
+        SliderPlusID = win_register_button(
             edit_win,
             614,
             20,
@@ -1457,7 +1457,7 @@ static int CharEditStart()
             grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
             0,
             96);
-        SliderNegID = buttonCreate(
+        SliderNegID = win_register_button(
             edit_win,
             614,
             20 + GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height - 1,
@@ -1471,8 +1471,8 @@ static int CharEditStart()
             grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
             0,
             96);
-        buttonSetCallbacks(SliderPlusID, gsound_red_butt_press, NULL);
-        buttonSetCallbacks(SliderNegID, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(SliderPlusID, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(SliderNegID, gsound_red_butt_press, NULL);
     }
 
     ListSkills(0);
@@ -1484,7 +1484,7 @@ static int CharEditStart()
 
     if (glblmode) {
         x = NAME_BUTTON_X;
-        btn = buttonCreate(
+        btn = win_register_button(
             edit_win,
             x,
             NAME_BUTTON_Y,
@@ -1499,12 +1499,12 @@ static int CharEditStart()
             0,
             32);
         if (btn != -1) {
-            buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_NAME_MASK]);
-            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
+            win_register_button_mask(btn, grphbmp[EDITOR_GRAPHIC_NAME_MASK]);
+            win_register_button_sound_func(btn, gsound_lrg_butt_press, NULL);
         }
 
         x += GInfo[EDITOR_GRAPHIC_NAME_ON].width;
-        btn = buttonCreate(
+        btn = win_register_button(
             edit_win,
             x,
             NAME_BUTTON_Y,
@@ -1519,12 +1519,12 @@ static int CharEditStart()
             0,
             32);
         if (btn != -1) {
-            buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_AGE_MASK]);
-            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
+            win_register_button_mask(btn, grphbmp[EDITOR_GRAPHIC_AGE_MASK]);
+            win_register_button_sound_func(btn, gsound_lrg_butt_press, NULL);
         }
 
         x += GInfo[EDITOR_GRAPHIC_AGE_ON].width;
-        btn = buttonCreate(
+        btn = win_register_button(
             edit_win,
             x,
             NAME_BUTTON_Y,
@@ -1539,13 +1539,13 @@ static int CharEditStart()
             0,
             32);
         if (btn != -1) {
-            buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_SEX_MASK]);
-            buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
+            win_register_button_mask(btn, grphbmp[EDITOR_GRAPHIC_SEX_MASK]);
+            win_register_button_sound_func(btn, gsound_lrg_butt_press, NULL);
         }
 
         y = TAG_SKILLS_BUTTON_Y;
         for (i = 0; i < SKILL_COUNT; i++) {
-            tag_bids[i] = buttonCreate(
+            tag_bids[i] = win_register_button(
                 edit_win,
                 TAG_SKILLS_BUTTON_X,
                 y,
@@ -1564,7 +1564,7 @@ static int CharEditStart()
 
         y = OPTIONAL_TRAITS_BTN_Y;
         for (i = 0; i < TRAIT_COUNT / 2; i++) {
-            trait_bids[i] = buttonCreate(
+            trait_bids[i] = win_register_button(
                 edit_win,
                 OPTIONAL_TRAITS_LEFT_BTN_X,
                 y,
@@ -1583,7 +1583,7 @@ static int CharEditStart()
 
         y = OPTIONAL_TRAITS_BTN_Y;
         for (i = TRAIT_COUNT / 2; i < TRAIT_COUNT; i++) {
-            trait_bids[i] = buttonCreate(
+            trait_bids[i] = win_register_button(
                 edit_win,
                 OPTIONAL_TRAITS_RIGHT_BTN_X,
                 y,
@@ -1626,7 +1626,7 @@ static int CharEditStart()
             win_buf + (EDITOR_WINDOW_WIDTH * NAME_BUTTON_Y) + x,
             EDITOR_WINDOW_WIDTH);
 
-        btn = buttonCreate(edit_win,
+        btn = win_register_button(edit_win,
             11,
             327,
             GInfo[EDITOR_GRAPHIC_FOLDER_MASK].width,
@@ -1640,14 +1640,14 @@ static int CharEditStart()
             NULL,
             BUTTON_FLAG_TRANSPARENT);
         if (btn != -1) {
-            buttonSetMask(btn, grphbmp[EDITOR_GRAPHIC_FOLDER_MASK]);
+            win_register_button_mask(btn, grphbmp[EDITOR_GRAPHIC_FOLDER_MASK]);
         }
     }
 
     if (glblmode) {
         // +/- buttons for stats
         for (i = 0; i < 7; i++) {
-            stat_bids_plus[i] = buttonCreate(edit_win,
+            stat_bids_plus[i] = win_register_button(edit_win,
                 SPECIAL_STATS_BTN_X,
                 StatYpos[i],
                 GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].width,
@@ -1661,10 +1661,10 @@ static int CharEditStart()
                 NULL,
                 32);
             if (stat_bids_plus[i] != -1) {
-                buttonSetCallbacks(stat_bids_plus[i], gsound_red_butt_press, NULL);
+                win_register_button_sound_func(stat_bids_plus[i], gsound_red_butt_press, NULL);
             }
 
-            stat_bids_minus[i] = buttonCreate(edit_win,
+            stat_bids_minus[i] = win_register_button(edit_win,
                 SPECIAL_STATS_BTN_X,
                 StatYpos[i] + GInfo[EDITOR_GRAPHIC_SLIDER_PLUS_ON].height - 1,
                 GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].width,
@@ -1678,7 +1678,7 @@ static int CharEditStart()
                 NULL,
                 32);
             if (stat_bids_minus[i] != -1) {
-                buttonSetCallbacks(stat_bids_minus[i], gsound_red_butt_press, NULL);
+                win_register_button_sound_func(stat_bids_minus[i], gsound_red_butt_press, NULL);
             }
         }
     }
@@ -1686,7 +1686,7 @@ static int CharEditStart()
     RegInfoAreas();
     soundContinueAll();
 
-    btn = buttonCreate(
+    btn = win_register_button(
         edit_win,
         343,
         454,
@@ -1701,10 +1701,10 @@ static int CharEditStart()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(
+    btn = win_register_button(
         edit_win,
         552,
         454,
@@ -1719,10 +1719,10 @@ static int CharEditStart()
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(
+    btn = win_register_button(
         edit_win,
         455,
         454,
@@ -1737,7 +1737,7 @@ static int CharEditStart()
         0,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(edit_win);
@@ -1752,7 +1752,7 @@ static void CharEditEnd()
     // NOTE: Uninline.
     folder_exit();
 
-    windowDestroy(edit_win);
+    win_delete(edit_win);
 
     for (int index = 0; index < EDITOR_GRAPHIC_COUNT; index++) {
         art_ptr_unlock(grph_key[index]);
@@ -1828,9 +1828,9 @@ void CharEditInit()
 int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, int y, int textColor, int backgroundColor, int flags)
 {
     int cursorWidth = text_width("_") - 4;
-    int windowWidth = windowGetWidth(win);
+    int windowWidth = win_width(win);
     int v60 = text_height();
-    unsigned char* windowBuffer = windowGetBuffer(win);
+    unsigned char* windowBuffer = win_get_buf(win);
     if (maxLength > 255) {
         maxLength = 255;
     }
@@ -2155,8 +2155,8 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
     unsigned char* onesBufferPtr;
     unsigned char* numbersGraphicBufferPtr;
 
-    windowWidth = windowGetWidth(windowHandle);
-    windowBuf = windowGetBuffer(windowHandle);
+    windowWidth = win_width(windowHandle);
+    windowBuf = win_get_buf(windowHandle);
 
     rect.ulx = x;
     rect.uly = y;
@@ -2830,8 +2830,8 @@ static void ListSkills(int a1)
     }
 
     if (glblmode == 0 && a1 == 0) {
-        buttonDestroy(SliderPlusID);
-        buttonDestroy(SliderNegID);
+        win_delete_button(SliderPlusID);
+        win_delete_button(SliderNegID);
         SliderNegID = -1;
         SliderPlusID = -1;
     }
@@ -2909,7 +2909,7 @@ static void ListSkills(int a1)
 
         if (a1 == 0) {
             if (SliderPlusID == -1) {
-                SliderPlusID = buttonCreate(
+                SliderPlusID = win_register_button(
                     edit_win,
                     614,
                     slider_y - 7,
@@ -2923,11 +2923,11 @@ static void ListSkills(int a1)
                     grphbmp[EDITOR_GRAPHIC_SLIDER_PLUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(SliderPlusID, gsound_red_butt_press, NULL);
+                win_register_button_sound_func(SliderPlusID, gsound_red_butt_press, NULL);
             }
 
             if (SliderNegID == -1) {
-                SliderNegID = buttonCreate(
+                SliderNegID = win_register_button(
                     edit_win,
                     614,
                     slider_y + 4 - 12 + GInfo[EDITOR_GRAPHIC_SLIDER_MINUS_ON].height,
@@ -2941,7 +2941,7 @@ static void ListSkills(int a1)
                     grphbmp[EDITOR_GRAPHIC_SLIDER_MINUS_ON],
                     NULL,
                     96);
-                buttonSetCallbacks(SliderNegID, gsound_red_butt_press, NULL);
+                win_register_button_sound_func(SliderNegID, gsound_red_butt_press, NULL);
             }
         }
     }
@@ -3102,12 +3102,12 @@ static int NameWindow()
 
     int nameWindowX = 17;
     int nameWindowY = 0;
-    int win = windowCreate(nameWindowX, nameWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    int win = win_add(nameWindowX, nameWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (win == -1) {
         return -1;
     }
 
-    unsigned char* windowBuf = windowGetBuffer(win);
+    unsigned char* windowBuf = win_get_buf(win);
 
     // Copy background
     memcpy(windowBuf, grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
@@ -3131,7 +3131,7 @@ static int NameWindow()
     text = getmsg(&editor_message_file, &mesg, 100);
     text_to_buf(windowBuf + windowWidth * 44 + 50, text, windowWidth, windowWidth, colorTable[18979]);
 
-    int doneBtn = buttonCreate(win,
+    int doneBtn = win_register_button(win,
         26,
         44,
         GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
@@ -3145,7 +3145,7 @@ static int NameWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     win_draw(win);
@@ -3168,7 +3168,7 @@ static int NameWindow()
         if (nameCopy[0] != '\0') {
             critter_pc_set_name(nameCopy);
             PrintBigname();
-            windowDestroy(win);
+            win_delete(win);
             return 0;
         }
     }
@@ -3187,7 +3187,7 @@ static int NameWindow()
 
     strcpy(nameCopy, name);
 
-    windowDestroy(win);
+    win_delete(win);
 
     return 0;
 }
@@ -3234,12 +3234,12 @@ static int AgeWindow()
 
     int ageWindowX = GInfo[EDITOR_GRAPHIC_NAME_ON].width + 9;
     int ageWindowY = 0;
-    win = windowCreate(ageWindowX, ageWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    win = win_add(ageWindowX, ageWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (win == -1) {
         return -1;
     }
 
-    windowBuf = windowGetBuffer(win);
+    windowBuf = win_get_buf(win);
 
     memcpy(windowBuf, grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
@@ -3266,7 +3266,7 @@ static int AgeWindow()
     age = critterGetStat(obj_dude, STAT_AGE);
     PrintBigNum(55, 10, 0, age, 0, win);
 
-    doneBtn = buttonCreate(win,
+    doneBtn = win_register_button(win,
         26,
         44,
         GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
@@ -3280,10 +3280,10 @@ static int AgeWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    nextBtn = buttonCreate(win,
+    nextBtn = win_register_button(win,
         105,
         13,
         GInfo[EDITOR_GRAPHIC_LEFT_ARROW_DOWN].width,
@@ -3297,10 +3297,10 @@ static int AgeWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (nextBtn != -1) {
-        buttonSetCallbacks(nextBtn, gsound_med_butt_press, NULL);
+        win_register_button_sound_func(nextBtn, gsound_med_butt_press, NULL);
     }
 
-    prevBtn = buttonCreate(win,
+    prevBtn = win_register_button(win,
         19,
         13,
         GInfo[EDITOR_GRAPHIC_RIGHT_ARROW_DOWN].width,
@@ -3314,7 +3314,7 @@ static int AgeWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (prevBtn != -1) {
-        buttonSetCallbacks(prevBtn, gsound_med_butt_press, NULL);
+        win_register_button_sound_func(prevBtn, gsound_med_butt_press, NULL);
     }
 
     while (true) {
@@ -3330,7 +3330,7 @@ static int AgeWindow()
                 gsound_play_sfx_file("ib1p1xx1");
             }
 
-            windowDestroy(win);
+            win_delete(win);
             return 0;
         } else if (keyCode == KEY_ESCAPE || game_user_wants_to_quit != 0) {
             break;
@@ -3450,7 +3450,7 @@ static int AgeWindow()
     ListDrvdStats();
     win_draw(edit_win);
     win_draw(win);
-    windowDestroy(win);
+    win_delete(win);
     return 0;
 }
 
@@ -3466,13 +3466,13 @@ static void SexWindow()
         + GInfo[EDITOR_GRAPHIC_NAME_ON].width
         + GInfo[EDITOR_GRAPHIC_AGE_ON].width;
     int genderWindowY = 0;
-    int win = windowCreate(genderWindowX, genderWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    int win = win_add(genderWindowX, genderWindowY, windowWidth, windowHeight, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
 
     if (win == -1) {
         return;
     }
 
-    unsigned char* windowBuf = windowGetBuffer(win);
+    unsigned char* windowBuf = win_get_buf(win);
 
     // Copy background
     memcpy(windowBuf, grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
@@ -3489,7 +3489,7 @@ static void SexWindow()
     text = getmsg(&editor_message_file, &mesg, 100);
     text_to_buf(windowBuf + windowWidth * 48 + 52, text, windowWidth, windowWidth, colorTable[18979]);
 
-    int doneBtn = buttonCreate(win,
+    int doneBtn = win_register_button(win,
         28,
         48,
         GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
@@ -3503,11 +3503,11 @@ static void SexWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (doneBtn != -1) {
-        buttonSetCallbacks(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(doneBtn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
     int btns[2];
-    btns[0] = buttonCreate(win,
+    btns[0] = win_register_button(win,
         22,
         2,
         GInfo[EDITOR_GRAPHIC_MALE_ON].width,
@@ -3521,10 +3521,10 @@ static void SexWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[0] != -1) {
-        buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(doneBtn, gsound_red_butt_press, NULL);
     }
 
-    btns[1] = buttonCreate(win,
+    btns[1] = win_register_button(win,
         71,
         3,
         GInfo[EDITOR_GRAPHIC_FEMALE_ON].width,
@@ -3538,12 +3538,12 @@ static void SexWindow()
         NULL,
         BUTTON_FLAG_TRANSPARENT | BUTTON_FLAG_0x04 | BUTTON_FLAG_0x02 | BUTTON_FLAG_0x01);
     if (btns[1] != -1) {
-        _win_group_radio_buttons(2, btns);
-        buttonSetCallbacks(doneBtn, gsound_red_butt_press, NULL);
+        win_group_radio_buttons(2, btns);
+        win_register_button_sound_func(doneBtn, gsound_red_butt_press, NULL);
     }
 
     int savedGender = critterGetStat(obj_dude, STAT_GENDER);
-    _win_set_button_rest_state(btns[savedGender], 1, 0);
+    win_set_button_rest_state(btns[savedGender], 1, 0);
 
     while (true) {
         _frame_time = _get_time();
@@ -3569,9 +3569,9 @@ static void SexWindow()
         case KEY_ARROW_LEFT:
         case KEY_ARROW_RIGHT:
             if (1) {
-                bool wasMale = _win_button_down(btns[0]);
-                _win_set_button_rest_state(btns[0], !wasMale, 1);
-                _win_set_button_rest_state(btns[1], wasMale, 1);
+                bool wasMale = win_button_down(btns[0]);
+                win_set_button_rest_state(btns[0], !wasMale, 1);
+                win_set_button_rest_state(btns[1], wasMale, 1);
             }
             break;
         case 501:
@@ -3590,7 +3590,7 @@ static void SexWindow()
     }
 
     PrintGender();
-    windowDestroy(win);
+    win_delete(win);
 }
 
 // 0x4379BC
@@ -3699,12 +3699,12 @@ static int OptionWindow()
     if (glblmode) {
         int optionsWindowX = 238;
         int optionsWindowY = 90;
-        int win = windowCreate(optionsWindowX, optionsWindowY, GInfo[41].width, GInfo[41].height, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+        int win = win_add(optionsWindowX, optionsWindowY, GInfo[41].width, GInfo[41].height, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
         if (win == -1) {
             return -1;
         }
 
-        unsigned char* windowBuffer = windowGetBuffer(win);
+        unsigned char* windowBuffer = win_get_buf(win);
         memcpy(windowBuffer, grphbmp[41], GInfo[41].width * GInfo[41].height);
 
         text_font(103);
@@ -3743,9 +3743,9 @@ static int OptionWindow()
                 text_to_buf(up[index] + offset, string4, width, width, colorTable[18979]);
                 text_to_buf(down[index] + offset, string4, width, width, colorTable[14723]);
 
-                int btn = buttonCreate(win, 13, y, width, height, -1, -1, -1, 500 + index, up[index], down[index], NULL, BUTTON_FLAG_TRANSPARENT);
+                int btn = win_register_button(win, 13, y, width, height, -1, -1, -1, 500 + index, up[index], down[index], NULL, BUTTON_FLAG_TRANSPARENT);
                 if (btn != -1) {
-                    buttonSetCallbacks(btn, gsound_lrg_butt_press, NULL);
+                    win_register_button_sound_func(btn, gsound_lrg_butt_press, NULL);
                 }
             } while (0);
 
@@ -4018,7 +4018,7 @@ static int OptionWindow()
             win_draw(win);
         }
 
-        windowDestroy(win);
+        win_delete(win);
 
         for (index = 0; index < 5; index++) {
             mem_free(up[index]);
@@ -4614,21 +4614,21 @@ static void ResetScreen()
 // 0x43A5BC
 static void RegInfoAreas()
 {
-    buttonCreate(edit_win, 19, 38, 125, 227, -1, -1, 525, -1, NULL, NULL, NULL, 0);
-    buttonCreate(edit_win, 28, 280, 124, 32, -1, -1, 526, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 19, 38, 125, 227, -1, -1, 525, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 28, 280, 124, 32, -1, -1, 526, -1, NULL, NULL, NULL, 0);
 
     if (glblmode) {
-        buttonCreate(edit_win, 52, 324, 169, 20, -1, -1, 533, -1, NULL, NULL, NULL, 0);
-        buttonCreate(edit_win, 47, 353, 245, 100, -1, -1, 534, -1, NULL, NULL, NULL, 0);
+        win_register_button(edit_win, 52, 324, 169, 20, -1, -1, 533, -1, NULL, NULL, NULL, 0);
+        win_register_button(edit_win, 47, 353, 245, 100, -1, -1, 534, -1, NULL, NULL, NULL, 0);
     } else {
-        buttonCreate(edit_win, 28, 363, 283, 105, -1, -1, 527, -1, NULL, NULL, NULL, 0);
+        win_register_button(edit_win, 28, 363, 283, 105, -1, -1, 527, -1, NULL, NULL, NULL, 0);
     }
 
-    buttonCreate(edit_win, 191, 41, 122, 110, -1, -1, 528, -1, NULL, NULL, NULL, 0);
-    buttonCreate(edit_win, 191, 175, 122, 135, -1, -1, 529, -1, NULL, NULL, NULL, 0);
-    buttonCreate(edit_win, 376, 5, 223, 20, -1, -1, 530, -1, NULL, NULL, NULL, 0);
-    buttonCreate(edit_win, 370, 27, 223, 195, -1, -1, 531, -1, NULL, NULL, NULL, 0);
-    buttonCreate(edit_win, 396, 228, 171, 25, -1, -1, 532, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 191, 41, 122, 110, -1, -1, 528, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 191, 175, 122, 135, -1, -1, 529, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 376, 5, 223, 20, -1, -1, 530, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 370, 27, 223, 195, -1, -1, 531, -1, NULL, NULL, NULL, 0);
+    win_register_button(edit_win, 396, 228, 171, 25, -1, -1, 532, -1, NULL, NULL, NULL, 0);
 }
 
 // NOTE: Inlined.
@@ -4816,8 +4816,8 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
     }
 
     y = nameFontLineHeight;
-    windowDrawLine(edit_win, 348, y + 272, 613, y + 272, colorTable[0]);
-    windowDrawLine(edit_win, 348, y + 273, 613, y + 273, colorTable[0]);
+    win_line(edit_win, 348, y + 272, 613, y + 272, colorTable[0]);
+    win_line(edit_win, 348, y + 273, 613, y + 273, colorTable[0]);
 
     text_font(101);
 
@@ -5647,19 +5647,19 @@ static int perks_dialog()
 
     int perkWindowX = PERK_WINDOW_X;
     int perkWindowY = PERK_WINDOW_Y;
-    pwin = windowCreate(perkWindowX, perkWindowY, PERK_WINDOW_WIDTH, PERK_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
+    pwin = win_add(perkWindowX, perkWindowY, PERK_WINDOW_WIDTH, PERK_WINDOW_HEIGHT, 256, WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (pwin == -1) {
         art_ptr_unlock(backgroundFrmHandle);
         debug_printf("\n *** Error running perks dialog window ***\n");
         return -1;
     }
 
-    pwin_buf = windowGetBuffer(pwin);
+    pwin_buf = win_get_buf(pwin);
     memcpy(pwin_buf, pbckgnd, PERK_WINDOW_WIDTH * PERK_WINDOW_HEIGHT);
 
     int btn;
 
-    btn = buttonCreate(pwin,
+    btn = win_register_button(pwin,
         48,
         186,
         GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
@@ -5673,10 +5673,10 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(pwin,
+    btn = win_register_button(pwin,
         153,
         186,
         GInfo[EDITOR_GRAPHIC_LITTLE_RED_BUTTON_UP].width,
@@ -5690,10 +5690,10 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, gsound_red_butt_release);
+        win_register_button_sound_func(btn, gsound_red_butt_press, gsound_red_butt_release);
     }
 
-    btn = buttonCreate(pwin,
+    btn = win_register_button(pwin,
         25,
         46,
         GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].width,
@@ -5707,10 +5707,10 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(btn, gsound_red_butt_press, NULL);
     }
 
-    btn = buttonCreate(pwin,
+    btn = win_register_button(pwin,
         25,
         47 + GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].height,
         GInfo[EDITOR_GRAPHIC_UP_ARROW_ON].width,
@@ -5724,10 +5724,10 @@ static int perks_dialog()
         NULL,
         BUTTON_FLAG_TRANSPARENT);
     if (btn != -1) {
-        buttonSetCallbacks(btn, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(btn, gsound_red_butt_press, NULL);
     }
 
-    buttonCreate(pwin,
+    win_register_button(pwin,
         PERK_WINDOW_LIST_X,
         PERK_WINDOW_LIST_Y,
         PERK_WINDOW_LIST_WIDTH,
@@ -5816,7 +5816,7 @@ static int perks_dialog()
 
     art_ptr_unlock(backgroundFrmHandle);
 
-    windowDestroy(pwin);
+    win_delete(pwin);
 
     return rc;
 }
@@ -6453,8 +6453,8 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
         text_to_buf(pwin_buf + PERK_WINDOW_WIDTH * (23 + nameHeight - rankHeight) + rankX, rank, PERK_WINDOW_WIDTH, PERK_WINDOW_WIDTH, colorTable[0]);
     }
 
-    windowDrawLine(pwin, 280, 27 + nameHeight, 545, 27 + nameHeight, colorTable[0]);
-    windowDrawLine(pwin, 280, 28 + nameHeight, 545, 28 + nameHeight, colorTable[0]);
+    win_line(pwin, 280, 27 + nameHeight, 545, 27 + nameHeight, colorTable[0]);
+    win_line(pwin, 280, 28 + nameHeight, 545, 28 + nameHeight, colorTable[0]);
 
     text_font(101);
 
@@ -6580,16 +6580,16 @@ static int folder_init()
     folder_kills_top_line = 0;
 
     if (folder_up_button == -1) {
-        folder_up_button = buttonCreate(edit_win, 317, 364, GInfo[22].width, GInfo[22].height, -1, -1, -1, 17000, grphbmp[21], grphbmp[22], NULL, 32);
+        folder_up_button = win_register_button(edit_win, 317, 364, GInfo[22].width, GInfo[22].height, -1, -1, -1, 17000, grphbmp[21], grphbmp[22], NULL, 32);
         if (folder_up_button == -1) {
             return -1;
         }
 
-        buttonSetCallbacks(folder_up_button, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(folder_up_button, gsound_red_butt_press, NULL);
     }
 
     if (folder_down_button == -1) {
-        folder_down_button = buttonCreate(edit_win,
+        folder_down_button = win_register_button(edit_win,
             317,
             365 + GInfo[22].height,
             GInfo[4].width,
@@ -6603,11 +6603,11 @@ static int folder_init()
             0,
             32);
         if (folder_down_button == -1) {
-            buttonDestroy(folder_up_button);
+            win_delete_button(folder_up_button);
             return -1;
         }
 
-        buttonSetCallbacks(folder_down_button, gsound_red_butt_press, NULL);
+        win_register_button_sound_func(folder_down_button, gsound_red_butt_press, NULL);
     }
 
     return 0;
@@ -6619,12 +6619,12 @@ static int folder_init()
 static void folder_exit()
 {
     if (folder_down_button != -1) {
-        buttonDestroy(folder_down_button);
+        win_delete_button(folder_down_button);
         folder_down_button = -1;
     }
 
     if (folder_up_button != -1) {
-        buttonDestroy(folder_up_button);
+        win_delete_button(folder_up_button);
         folder_up_button = -1;
     }
 }
@@ -6735,9 +6735,9 @@ static int folder_print_seperator(const char* string)
                 lineLen = text_width(string) + gap * 4;
                 x = (x - lineLen) / 2;
                 text_to_buf(win_buf + 640 * folder_ypos + 34 + x + gap * 2, string, 640, 640, colorTable[992]);
-                windowDrawLine(edit_win, 34 + x + lineLen, y, 34 + 280, y, colorTable[992]);
+                win_line(edit_win, 34 + x + lineLen, y, 34 + 280, y, colorTable[992]);
             }
-            windowDrawLine(edit_win, 34, y, 34 + x, y, colorTable[992]);
+            win_line(edit_win, 34, y, 34 + x, y, colorTable[992]);
             folder_ypos += folder_yoffset;
         }
         folder_line++;
@@ -6799,7 +6799,7 @@ static bool folder_print_kill(const char* name, int kills)
             text_to_buf(win_buf + 640 * folder_ypos + 34, name, 640, 640, color);
 
             int v12 = text_width(name);
-            windowDrawLine(edit_win, 34 + v12 + gap, v11, 314 - v6 - gap, v11, color);
+            win_line(edit_win, 34 + v12 + gap, v11, 314 - v6 - gap, v11, color);
 
             text_to_buf(win_buf + 640 * folder_ypos + 314 - v6, killsString, 640, 640, color);
             folder_ypos += folder_yoffset;

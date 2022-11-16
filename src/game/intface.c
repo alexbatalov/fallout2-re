@@ -412,13 +412,13 @@ int intface_init()
     int interfaceBarWindowX = 0;
     int interfaceBarWindowY = 480 - INTERFACE_BAR_HEIGHT - 1;
 
-    interfaceWindow = windowCreate(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, colorTable[0], WINDOW_HIDDEN);
+    interfaceWindow = win_add(interfaceBarWindowX, interfaceBarWindowY, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT, colorTable[0], WINDOW_HIDDEN);
     if (interfaceWindow == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    interfaceBuffer = windowGetBuffer(interfaceWindow);
+    interfaceBuffer = win_get_buf(interfaceWindow);
     if (interfaceBuffer == NULL) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
@@ -448,13 +448,13 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    inventoryButton = buttonCreate(interfaceWindow, 211, 41, 32, 21, -1, -1, -1, KEY_LOWERCASE_I, inventoryButtonUp, inventoryButtonDown, NULL, 0);
+    inventoryButton = win_register_button(interfaceWindow, 211, 41, 32, 21, -1, -1, -1, KEY_LOWERCASE_I, inventoryButtonUp, inventoryButtonDown, NULL, 0);
     if (inventoryButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetCallbacks(inventoryButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(inventoryButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 18, 0, 0, 0);
     optionsButtonUp = art_ptr_lock_data(fid, 0, 0, &optionsButtonUpKey);
@@ -470,13 +470,13 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    optionsButton = buttonCreate(interfaceWindow, 210, 62, 34, 34, -1, -1, -1, KEY_LOWERCASE_O, optionsButtonUp, optionsButtonDown, NULL, 0);
+    optionsButton = win_register_button(interfaceWindow, 210, 62, 34, 34, -1, -1, -1, KEY_LOWERCASE_O, optionsButtonUp, optionsButtonDown, NULL, 0);
     if (optionsButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetCallbacks(optionsButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_sound_func(optionsButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     skilldexButtonUp = art_ptr_lock_data(fid, 0, 0, &skilldexButtonUpKey);
@@ -499,14 +499,14 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    skilldexButton = buttonCreate(interfaceWindow, 523, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_S, skilldexButtonUp, skilldexButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    skilldexButton = win_register_button(interfaceWindow, 523, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_S, skilldexButtonUp, skilldexButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
     if (skilldexButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(skilldexButton, skilldexButtonMask);
-    buttonSetCallbacks(skilldexButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_mask(skilldexButton, skilldexButtonMask);
+    win_register_button_sound_func(skilldexButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 13, 0, 0, 0);
     automapButtonUp = art_ptr_lock_data(fid, 0, 0, &automapButtonUpKey);
@@ -529,14 +529,14 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    automapButton = buttonCreate(interfaceWindow, 526, 40, 41, 19, -1, -1, -1, KEY_TAB, automapButtonUp, automapButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    automapButton = win_register_button(interfaceWindow, 526, 40, 41, 19, -1, -1, -1, KEY_TAB, automapButtonUp, automapButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
     if (automapButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(automapButton, automapButtonMask);
-    buttonSetCallbacks(automapButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_mask(automapButton, automapButtonMask);
+    win_register_button_sound_func(automapButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 59, 0, 0, 0);
     pipboyButtonUp = art_ptr_lock_data(fid, 0, 0, &pipboyButtonUpKey);
@@ -552,14 +552,14 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    pipboyButton = buttonCreate(interfaceWindow, 526, 78, 41, 19, -1, -1, -1, KEY_LOWERCASE_P, pipboyButtonUp, pipboyButtonDown, NULL, 0);
+    pipboyButton = win_register_button(interfaceWindow, 526, 78, 41, 19, -1, -1, -1, KEY_LOWERCASE_P, pipboyButtonUp, pipboyButtonDown, NULL, 0);
     if (pipboyButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(pipboyButton, automapButtonMask);
-    buttonSetCallbacks(pipboyButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_mask(pipboyButton, automapButtonMask);
+    win_register_button_sound_func(pipboyButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 57, 0, 0, 0);
     characterButtonUp = art_ptr_lock_data(fid, 0, 0, &characterButtonUpKey);
@@ -575,14 +575,14 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    characterButton = buttonCreate(interfaceWindow, 526, 59, 41, 19, -1, -1, -1, KEY_LOWERCASE_C, characterButtonUp, characterButtonDown, NULL, 0);
+    characterButton = win_register_button(interfaceWindow, 526, 59, 41, 19, -1, -1, -1, KEY_LOWERCASE_C, characterButtonUp, characterButtonDown, NULL, 0);
     if (characterButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(characterButton, automapButtonMask);
-    buttonSetCallbacks(characterButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_mask(characterButton, automapButtonMask);
+    win_register_button_sound_func(characterButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 32, 0, 0, 0);
     itemButtonUpBlank = art_ptr_lock_data(fid, 0, 0, &itemButtonUpKey);
@@ -608,14 +608,14 @@ int intface_init()
     memcpy(itemButtonUp, itemButtonUpBlank, sizeof(itemButtonUp));
     memcpy(itemButtonDown, itemButtonDownBlank, sizeof(itemButtonDown));
 
-    itemButton = buttonCreate(interfaceWindow, 267, 26, 188, 67, -1, -1, -1, -20, itemButtonUp, itemButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    itemButton = win_register_button(interfaceWindow, 267, 26, 188, 67, -1, -1, -1, -20, itemButtonUp, itemButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
     if (itemButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetRightMouseCallbacks(itemButton, -1, KEY_LOWERCASE_N, NULL, NULL);
-    buttonSetCallbacks(itemButton, gsound_lrg_butt_press, gsound_lrg_butt_release);
+    win_register_right_button(itemButton, -1, KEY_LOWERCASE_N, NULL, NULL);
+    win_register_button_sound_func(itemButton, gsound_lrg_butt_press, gsound_lrg_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 6, 0, 0, 0);
     toggleButtonUp = art_ptr_lock_data(fid, 0, 0, &toggleButtonUpKey);
@@ -639,14 +639,14 @@ int intface_init()
     }
 
     // Swap hands button
-    toggleButton = buttonCreate(interfaceWindow, 218, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_B, toggleButtonUp, toggleButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
+    toggleButton = win_register_button(interfaceWindow, 218, 6, 22, 21, -1, -1, -1, KEY_LOWERCASE_B, toggleButtonUp, toggleButtonDown, NULL, BUTTON_FLAG_TRANSPARENT);
     if (toggleButton == -1) {
         // NOTE: Uninline.
         return intface_fatal_error(-1);
     }
 
-    buttonSetMask(toggleButton, toggleButtonMask);
-    buttonSetCallbacks(toggleButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_mask(toggleButton, toggleButtonMask);
+    win_register_button_sound_func(toggleButton, gsound_med_butt_press, gsound_med_butt_release);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 82, 0, 0, 0);
     numbersBuffer = art_ptr_lock_data(fid, 0, 0, &numbersKey);
@@ -740,7 +740,7 @@ void intface_exit()
         }
 
         if (toggleButton != -1) {
-            buttonDestroy(toggleButton);
+            win_delete_button(toggleButton);
             toggleButton = -1;
         }
 
@@ -763,7 +763,7 @@ void intface_exit()
         }
 
         if (itemButton != -1) {
-            buttonDestroy(itemButton);
+            win_delete_button(itemButton);
             itemButton = -1;
         }
 
@@ -786,7 +786,7 @@ void intface_exit()
         }
 
         if (characterButton != -1) {
-            buttonDestroy(characterButton);
+            win_delete_button(characterButton);
             characterButton = -1;
         }
 
@@ -803,7 +803,7 @@ void intface_exit()
         }
 
         if (pipboyButton != -1) {
-            buttonDestroy(pipboyButton);
+            win_delete_button(pipboyButton);
             pipboyButton = -1;
         }
 
@@ -820,7 +820,7 @@ void intface_exit()
         }
 
         if (automapButton != -1) {
-            buttonDestroy(automapButton);
+            win_delete_button(automapButton);
             automapButton = -1;
         }
 
@@ -843,7 +843,7 @@ void intface_exit()
         }
 
         if (skilldexButton != -1) {
-            buttonDestroy(skilldexButton);
+            win_delete_button(skilldexButton);
             skilldexButton = -1;
         }
 
@@ -866,7 +866,7 @@ void intface_exit()
         }
 
         if (optionsButton != -1) {
-            buttonDestroy(optionsButton);
+            win_delete_button(optionsButton);
             optionsButton = -1;
         }
 
@@ -883,7 +883,7 @@ void intface_exit()
         }
 
         if (inventoryButton != -1) {
-            buttonDestroy(inventoryButton);
+            win_delete_button(inventoryButton);
             inventoryButton = -1;
         }
 
@@ -900,7 +900,7 @@ void intface_exit()
         }
 
         if (interfaceWindow != -1) {
-            windowDestroy(interfaceWindow);
+            win_delete(interfaceWindow);
             interfaceWindow = -1;
         }
     }
@@ -1022,19 +1022,19 @@ int intface_is_hidden()
 void intface_enable()
 {
     if (!intfaceEnabled) {
-        buttonEnable(inventoryButton);
-        buttonEnable(optionsButton);
-        buttonEnable(skilldexButton);
-        buttonEnable(automapButton);
-        buttonEnable(pipboyButton);
-        buttonEnable(characterButton);
+        win_enable_button(inventoryButton);
+        win_enable_button(optionsButton);
+        win_enable_button(skilldexButton);
+        win_enable_button(automapButton);
+        win_enable_button(pipboyButton);
+        win_enable_button(characterButton);
 
         if (itemButtonItems[itemCurrentItem].isDisabled == 0) {
-            buttonEnable(itemButton);
+            win_enable_button(itemButton);
         }
 
-        buttonEnable(endTurnButton);
-        buttonEnable(endCombatButton);
+        win_enable_button(endTurnButton);
+        win_enable_button(endCombatButton);
         display_enable();
 
         intfaceEnabled = true;
@@ -1046,17 +1046,17 @@ void intface_disable()
 {
     if (intfaceEnabled) {
         display_disable();
-        buttonDisable(inventoryButton);
-        buttonDisable(optionsButton);
-        buttonDisable(skilldexButton);
-        buttonDisable(automapButton);
-        buttonDisable(pipboyButton);
-        buttonDisable(characterButton);
+        win_disable_button(inventoryButton);
+        win_disable_button(optionsButton);
+        win_disable_button(skilldexButton);
+        win_disable_button(automapButton);
+        win_disable_button(pipboyButton);
+        win_disable_button(characterButton);
         if (itemButtonItems[itemCurrentItem].isDisabled == 0) {
-            buttonDisable(itemButton);
+            win_disable_button(itemButton);
         }
-        buttonDisable(endTurnButton);
-        buttonDisable(endCombatButton);
+        win_disable_button(endTurnButton);
+        win_disable_button(endCombatButton);
         intfaceEnabled = false;
     }
 }
@@ -1738,8 +1738,8 @@ void intface_end_window_close(bool animated)
 void intface_end_buttons_enable()
 {
     if (endWindowOpen) {
-        buttonEnable(endTurnButton);
-        buttonEnable(endCombatButton);
+        win_enable_button(endTurnButton);
+        win_enable_button(endCombatButton);
 
         // endltgrn.frm - green lights around end turn/combat window
         int lightsFid = art_id(OBJ_TYPE_INTERFACE, 109, 0, 0, 0);
@@ -1761,8 +1761,8 @@ void intface_end_buttons_enable()
 void intface_end_buttons_disable()
 {
     if (endWindowOpen) {
-        buttonDisable(endTurnButton);
-        buttonDisable(endCombatButton);
+        win_disable_button(endTurnButton);
+        win_disable_button(endCombatButton);
 
         CacheEntry* lightsFrmHandle;
         // endltred.frm - red lights around end turn/combat window
@@ -1800,7 +1800,7 @@ static int intface_redraw_items()
         return -1;
     }
 
-    buttonEnable(itemButton);
+    win_enable_button(itemButton);
 
     InterfaceItemState* itemState = &(itemButtonItems[itemCurrentItem]);
     int actionPoints = -1;
@@ -2051,9 +2051,9 @@ static int intface_redraw_items()
         win_draw_rect(interfaceWindow, &itemButtonRect);
 
         if (itemState->isDisabled != 0) {
-            buttonDisable(itemButton);
+            win_disable_button(itemButton);
         } else {
-            buttonEnable(itemButton);
+            win_enable_button(itemButton);
         }
     }
 
@@ -2158,13 +2158,13 @@ static int intface_create_end_turn_button()
         return -1;
     }
 
-    endTurnButton = buttonCreate(interfaceWindow, 590, 43, 38, 22, -1, -1, -1, 32, endTurnButtonUp, endTurnButtonDown, NULL, 0);
+    endTurnButton = win_register_button(interfaceWindow, 590, 43, 38, 22, -1, -1, -1, 32, endTurnButtonUp, endTurnButtonDown, NULL, 0);
     if (endTurnButton == -1) {
         return -1;
     }
 
-    _win_register_button_disable(endTurnButton, endTurnButtonUp, endTurnButtonUp, endTurnButtonUp);
-    buttonSetCallbacks(endTurnButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_disable(endTurnButton, endTurnButtonUp, endTurnButtonUp, endTurnButtonUp);
+    win_register_button_sound_func(endTurnButton, gsound_med_butt_press, gsound_med_butt_release);
 
     return 0;
 }
@@ -2177,7 +2177,7 @@ static int intface_destroy_end_turn_button()
     }
 
     if (endTurnButton != -1) {
-        buttonDestroy(endTurnButton);
+        win_delete_button(endTurnButton);
         endTurnButton = -1;
     }
 
@@ -2221,13 +2221,13 @@ static int intface_create_end_combat_button()
         return -1;
     }
 
-    endCombatButton = buttonCreate(interfaceWindow, 590, 65, 38, 22, -1, -1, -1, 13, endCombatButtonUp, endCombatButtonDown, NULL, 0);
+    endCombatButton = win_register_button(interfaceWindow, 590, 65, 38, 22, -1, -1, -1, 13, endCombatButtonUp, endCombatButtonDown, NULL, 0);
     if (endCombatButton == -1) {
         return -1;
     }
 
-    _win_register_button_disable(endCombatButton, endCombatButtonUp, endCombatButtonUp, endCombatButtonUp);
-    buttonSetCallbacks(endCombatButton, gsound_med_butt_press, gsound_med_butt_release);
+    win_register_button_disable(endCombatButton, endCombatButtonUp, endCombatButtonUp, endCombatButtonUp);
+    win_register_button_sound_func(endCombatButton, gsound_med_butt_press, gsound_med_butt_release);
 
     return 0;
 }
@@ -2240,7 +2240,7 @@ static int intface_destroy_end_combat_button()
     }
 
     if (endCombatButton != -1) {
-        buttonDestroy(endCombatButton);
+        win_delete_button(endCombatButton);
         endCombatButton = -1;
     }
 
@@ -2546,7 +2546,7 @@ static int construct_box_bar_win()
 static void deconstruct_box_bar_win()
 {
     if (bar_window != -1) {
-        windowDestroy(bar_window);
+        win_delete(bar_window);
         bar_window = -1;
     }
 
@@ -2565,7 +2565,7 @@ static void deconstruct_box_bar_win()
 static void reset_box_bar_win()
 {
     if (bar_window != -1) {
-        windowDestroy(bar_window);
+        win_delete(bar_window);
         bar_window = -1;
     }
 
@@ -2619,12 +2619,12 @@ int refresh_box_bar_win()
         }
 
         if (bar_window != -1) {
-            windowDestroy(bar_window);
+            win_delete(bar_window);
             bar_window = -1;
         }
 
         if (count != 0) {
-            bar_window = windowCreate(INDICATOR_BAR_X,
+            bar_window = win_add(INDICATOR_BAR_X,
                 INDICATOR_BAR_Y,
                 (INDICATOR_BOX_WIDTH - INDICATOR_BOX_CONNECTOR_WIDTH) * count,
                 INDICATOR_BOX_HEIGHT,
@@ -2638,7 +2638,7 @@ int refresh_box_bar_win()
     }
 
     if (bar_window != -1) {
-        windowDestroy(bar_window);
+        win_delete(bar_window);
         bar_window = -1;
     }
 
@@ -2673,8 +2673,8 @@ static void draw_bboxes(int count)
         return;
     }
 
-    int windowWidth = windowGetWidth(bar_window);
-    unsigned char* windowBuffer = windowGetBuffer(bar_window);
+    int windowWidth = win_width(bar_window);
+    unsigned char* windowBuffer = win_get_buf(bar_window);
 
     // The initial number of connections is 2 - one is first box to the screen
     // boundary, the other is female socket (initially empty). Every displayed

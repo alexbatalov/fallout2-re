@@ -164,7 +164,7 @@ int win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
     oldFont = text_curr();
     text_font(textRegions[textRegionId - 1].font);
 
-    btn = buttonCreate(textRegions[textRegionId - 1].win,
+    btn = win_register_button(textRegions[textRegionId - 1].win,
         textRegions[textRegionId - 1].x,
         textRegions[textRegionId - 1].y,
         textRegions[textRegionId - 1].width,
@@ -177,7 +177,7 @@ int win_add_text_input_region(int textRegionId, char* text, int a3, int a4)
         NULL,
         NULL,
         0);
-    buttonSetMouseCallbacks(btn, NULL, NULL, NULL, textInputRegionDispatch);
+    win_register_button_func(btn, NULL, NULL, NULL, textInputRegionDispatch);
 
     // NOTE: Uninline.
     win_print_text_region(textRegionId, text);
@@ -310,7 +310,7 @@ int win_print_text_region(int textRegionId, char* string)
             oldFont = text_curr();
             text_font(textRegions[textRegionIndex].font);
 
-            windowFill(textRegions[textRegionIndex].win,
+            win_fill(textRegions[textRegionIndex].win,
                 textRegions[textRegionIndex].x,
                 textRegions[textRegionIndex].y,
                 textRegions[textRegionIndex].width,
@@ -321,7 +321,7 @@ int win_print_text_region(int textRegionId, char* string)
                 string,
                 strlen(string),
                 textRegions[textRegionIndex].width,
-                windowGetHeight(textRegions[textRegionIndex].win),
+                win_height(textRegions[textRegionIndex].win),
                 textRegions[textRegionIndex].x,
                 textRegions[textRegionIndex].y,
                 textRegions[textRegionIndex].textFlags | 0x2000000,
@@ -348,7 +348,7 @@ int win_print_substr_region(int textRegionId, char* string, int stringLength)
             oldFont = text_curr();
             text_font(textRegions[textRegionIndex].font);
 
-            windowFill(textRegions[textRegionIndex].win,
+            win_fill(textRegions[textRegionIndex].win,
                 textRegions[textRegionIndex].x,
                 textRegions[textRegionIndex].y,
                 textRegions[textRegionIndex].width,
@@ -359,7 +359,7 @@ int win_print_substr_region(int textRegionId, char* string, int stringLength)
                 string,
                 stringLength,
                 textRegions[textRegionIndex].width,
-                windowGetHeight(textRegions[textRegionIndex].win),
+                win_height(textRegions[textRegionIndex].win),
                 textRegions[textRegionIndex].x,
                 textRegions[textRegionIndex].y,
                 textRegions[textRegionIndex].textFlags | 0x2000000,
@@ -502,9 +502,9 @@ int win_center_str(int win, char* string, int y, int a4)
     int windowWidth;
     int stringWidth;
 
-    windowWidth = windowGetWidth(win);
+    windowWidth = win_width(win);
     stringWidth = text_width(string);
-    windowDrawText(win, string, 0, (windowWidth - stringWidth) / 2, y, a4);
+    win_print(win, string, 0, (windowWidth - stringWidth) / 2, y, a4);
 
     return 1;
 }
@@ -526,7 +526,7 @@ static void showRegion(UpdateRegion* updateRegion)
         value = *(float*)updateRegion->value / 65636.0f;
         break;
     case 8:
-        windowDrawText(updateRegion->win,
+        win_print(updateRegion->win,
             (char*)updateRegion->value,
             0,
             updateRegion->x,
@@ -560,7 +560,7 @@ static void showRegion(UpdateRegion* updateRegion)
         return;
     }
 
-    windowDrawText(updateRegion->win,
+    win_print(updateRegion->win,
         stringBuffer,
         0,
         updateRegion->x,
@@ -709,21 +709,21 @@ static void drawStatusBar()
     unsigned char* dest;
 
     if (statusBarActive) {
-        dest = windowGetBuffer(statusBar.win) + statusBar.y * windowGetWidth(statusBar.win) + statusBar.x;
+        dest = win_get_buf(statusBar.win) + statusBar.y * win_width(statusBar.win) + statusBar.x;
 
         blitBufferToBuffer(statusBar.field_0,
             statusBar.width,
             statusBar.height,
             statusBar.width,
             dest,
-            windowGetWidth(statusBar.win));
+            win_width(statusBar.win));
 
         blitBufferToBuffer(statusBar.field_4,
             statusBar.field_1C,
             statusBar.height,
             statusBar.width,
             dest,
-            windowGetWidth(statusBar.win));
+            win_width(statusBar.win));
 
         rect.ulx = statusBar.x;
         rect.uly = statusBar.y;

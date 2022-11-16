@@ -538,7 +538,7 @@ static int endgame_init()
 
     int windowEndgameEndingX = 0;
     int windowEndgameEndingY = 0;
-    endgame_window = windowCreate(windowEndgameEndingX,
+    endgame_window = win_add(windowEndgameEndingX,
         windowEndgameEndingY,
         ENDGAME_ENDING_WINDOW_WIDTH,
         ENDGAME_ENDING_WINDOW_HEIGHT,
@@ -548,7 +548,7 @@ static int endgame_init()
         return -1;
     }
 
-    endgame_window_buffer = windowGetBuffer(endgame_window);
+    endgame_window_buffer = win_get_buf(endgame_window);
     if (endgame_window_buffer == NULL) {
         return -1;
     }
@@ -610,7 +610,7 @@ static void endgame_exit()
     text_font(endgame_old_font);
 
     gsound_speech_callback_set(NULL);
-    windowDestroy(endgame_window);
+    win_delete(endgame_window);
 
     if (!endgame_mouse_state) {
         mouse_hide();

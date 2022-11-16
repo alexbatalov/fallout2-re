@@ -1364,7 +1364,7 @@ static int wmConfigInit()
         }
 
         if (!config_get_value(&config, "Tile Data", "num_horizontal_tiles", &wmNumHorizontalTiles)) {
-            showMesageBox("\nwmConfigInit::Error loading tile data!");
+            GNWSystemError("\nwmConfigInit::Error loading tile data!");
             return -1;
         }
 
@@ -1381,7 +1381,7 @@ static int wmConfigInit()
 
             TileInfo* worldmapTiles = (TileInfo*)mem_realloc(wmTileInfoList, sizeof(*wmTileInfoList) * wmMaxTileNum);
             if (worldmapTiles == NULL) {
-                showMesageBox("\nwmConfigInit::Error loading tiles!");
+                GNWSystemError("\nwmConfigInit::Error loading tiles!");
                 exit(1);
             }
 
@@ -1411,12 +1411,12 @@ static int wmConfigInit()
 
                     char* subtileProps;
                     if (!config_get_string(&config, section, key, &subtileProps)) {
-                        showMesageBox("\nwmConfigInit::Error loading tiles!");
+                        GNWSystemError("\nwmConfigInit::Error loading tiles!");
                         exit(1);
                     }
 
                     if (wmParseSubTileInfo(tile, row, column, subtileProps) == -1) {
-                        showMesageBox("\nwmConfigInit::Error loading tiles!");
+                        GNWSystemError("\nwmConfigInit::Error loading tiles!");
                         exit(1);
                     }
                 }
@@ -1436,7 +1436,7 @@ static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKe
 
     EncounterTable* encounterTables = (EncounterTable*)mem_realloc(wmEncounterTableList, sizeof(EncounterTable) * wmMaxEncounterInfoTables);
     if (encounterTables == NULL) {
-        showMesageBox("\nwmConfigInit::Error loading Encounter Table!");
+        GNWSystemError("\nwmConfigInit::Error loading Encounter Table!");
         exit(1);
     }
 
@@ -1475,7 +1475,7 @@ static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKe
         }
 
         if (encounterTable->entriesLength >= 40) {
-            showMesageBox("\nwmConfigInit::Error: Encounter Table: Too many table indexes!!");
+            GNWSystemError("\nwmConfigInit::Error: Encounter Table: Too many table indexes!!");
             exit(1);
         }
 
@@ -1691,7 +1691,7 @@ static int wmReadEncBaseType(char* name, int* valuePtr)
 
     ENC_BASE_TYPE* arr = (ENC_BASE_TYPE*)mem_realloc(wmEncBaseTypeList, sizeof(*wmEncBaseTypeList) * _wmMaxEncBaseTypes);
     if (arr == NULL) {
-        showMesageBox("\nwmConfigInit::Error Reading EncBaseType!");
+        GNWSystemError("\nwmConfigInit::Error Reading EncBaseType!");
         exit(1);
     }
 
@@ -2482,7 +2482,7 @@ static int wmAreaInit()
 
             cities = (CityInfo*)mem_realloc(wmAreaInfoList, sizeof(CityInfo) * wmMaxAreaNum);
             if (cities == NULL) {
-                showMesageBox("\nwmConfigInit::Error loading areas!");
+                GNWSystemError("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
@@ -2510,14 +2510,14 @@ static int wmAreaInit()
             }
 
             if (!config_get_string(&cfg, section, "area_name", &str)) {
-                showMesageBox("\nwmConfigInit::Error loading areas!");
+                GNWSystemError("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
             strncpy(city->name, str, 40);
 
             if (!config_get_string(&cfg, section, "world_pos", &str)) {
-                showMesageBox("\nwmConfigInit::Error loading areas!");
+                GNWSystemError("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
@@ -2530,7 +2530,7 @@ static int wmAreaInit()
             }
 
             if (!config_get_string(&cfg, section, "start_state", &str)) {
-                showMesageBox("\nwmConfigInit::Error loading areas!");
+                GNWSystemError("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
@@ -2545,7 +2545,7 @@ static int wmAreaInit()
             }
 
             if (!config_get_string(&cfg, section, "size", &str)) {
-                showMesageBox("\nwmConfigInit::Error loading areas!");
+                GNWSystemError("\nwmConfigInit::Error loading areas!");
                 exit(1);
             }
 
@@ -2603,7 +2603,7 @@ static int wmAreaInit()
     config_exit(&cfg);
 
     if (wmMaxAreaNum != CITY_COUNT) {
-        showMesageBox("\nwmAreaInit::Error loading Cities!");
+        GNWSystemError("\nwmAreaInit::Error loading Cities!");
         exit(1);
     }
 
@@ -2687,7 +2687,7 @@ static int wmMapInit()
 
             maps = (MapInfo*)mem_realloc(wmMapInfoList, sizeof(*wmMapInfoList) * wmMaxMapNum);
             if (maps == NULL) {
-                showMesageBox("\nwmConfigInit::Error loading maps!");
+                GNWSystemError("\nwmConfigInit::Error loading maps!");
                 exit(1);
             }
 
@@ -2699,7 +2699,7 @@ static int wmMapInit()
             strncpy(map->lookupName, str, 40);
 
             if (!config_get_string(&config, section, "map_name", &str)) {
-                showMesageBox("\nwmConfigInit::Error loading maps!");
+                GNWSystemError("\nwmConfigInit::Error loading maps!");
                 exit(1);
             }
 
@@ -4404,7 +4404,7 @@ static void wmInterfaceScrollTabsStart(int delta)
     int v3;
 
     for (i = 0; i < 7; i++) {
-        buttonDisable(wmTownMapSubButtonIds[i]);
+        win_disable_button(wmTownMapSubButtonIds[i]);
     }
 
     wmGenData.oldTabsOffsetY = wmGenData.tabsOffsetY;
@@ -4446,7 +4446,7 @@ static void wmInterfaceScrollTabsStop()
     wmGenData.tabsScrollingDelta = 0;
 
     for (i = 0; i < 7; i++) {
-        buttonEnable(wmTownMapSubButtonIds[i]);
+        win_enable_button(wmTownMapSubButtonIds[i]);
     }
 }
 
@@ -4496,7 +4496,7 @@ static int wmInterfaceInit()
 
     int worldmapWindowX = 0;
     int worldmapWindowY = 0;
-    wmBkWin = windowCreate(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, colorTable[0], WINDOW_FLAG_0x04);
+    wmBkWin = win_add(worldmapWindowX, worldmapWindowY, WM_WINDOW_WIDTH, WM_WINDOW_HEIGHT, colorTable[0], WINDOW_FLAG_0x04);
     if (wmBkWin == -1) {
         return -1;
     }
@@ -4519,7 +4519,7 @@ static int wmInterfaceInit()
         return -1;
     }
 
-    wmBkWinBuf = windowGetBuffer(wmBkWin);
+    wmBkWinBuf = win_get_buf(wmBkWin);
     if (wmBkWinBuf == NULL) {
         return -1;
     }
@@ -4734,7 +4734,7 @@ static int wmInterfaceInit()
     }
 
     // create town/world switch button
-    buttonCreate(wmBkWin,
+    win_register_button(wmBkWin,
         WM_TOWN_WORLD_SWITCH_X,
         WM_TOWN_WORLD_SWITCH_Y,
         littleRedButtonUpWidth,
@@ -4749,7 +4749,7 @@ static int wmInterfaceInit()
         BUTTON_FLAG_TRANSPARENT);
 
     for (int index = 0; index < 7; index++) {
-        wmTownMapSubButtonIds[index] = buttonCreate(wmBkWin,
+        wmTownMapSubButtonIds[index] = win_register_button(wmBkWin,
             508,
             138 + 27 * index,
             littleRedButtonUpWidth,
@@ -4793,7 +4793,7 @@ static int wmInterfaceInit()
     }
 
     // Scroll up button.
-    buttonCreate(wmBkWin,
+    win_register_button(wmBkWin,
         WM_TOWN_LIST_SCROLL_UP_X,
         WM_TOWN_LIST_SCROLL_UP_Y,
         wmGenData.scrollUpButtonFrmWidth,
@@ -4808,7 +4808,7 @@ static int wmInterfaceInit()
         BUTTON_FLAG_TRANSPARENT);
 
     // Scroll down button.
-    buttonCreate(wmBkWin,
+    win_register_button(wmBkWin,
         WM_TOWN_LIST_SCROLL_DOWN_X,
         WM_TOWN_LIST_SCROLL_DOWN_Y,
         wmGenData.scrollDownButtonFrmWidth,
@@ -4868,7 +4868,7 @@ static int wmInterfaceExit()
     wmBkKey = INVALID_CACHE_ENTRY;
 
     if (wmBkWin != -1) {
-        windowDestroy(wmBkWin);
+        win_delete(wmBkWin);
         wmBkWin = -1;
     }
 
@@ -6073,7 +6073,7 @@ static int wmTownMapInit()
             continue;
         }
 
-        wmTownMapButtonId[index] = buttonCreate(wmBkWin,
+        wmTownMapButtonId[index] = win_register_button(wmBkWin,
             entrance->x,
             entrance->y,
             wmGenData.hotspotFrmWidth,
@@ -6130,7 +6130,7 @@ static int wmTownMapRefresh()
         if (message_search(&wmMsgFile, &messageListItem)) {
             if (messageListItem.text != NULL) {
                 int width = text_width(messageListItem.text);
-                windowDrawText(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, colorTable[992] | 0x2010000);
+                win_print(wmBkWin, messageListItem.text, width, wmGenData.hotspotFrmWidth / 2 + entrance->x - width / 2, wmGenData.hotspotFrmHeight + entrance->y + 2, colorTable[992] | 0x2010000);
             }
         }
     }
@@ -6155,7 +6155,7 @@ static int wmTownMapExit()
         CityInfo* city = &(wmAreaInfoList[wmTownMapCurArea]);
         for (int index = 0; index < city->entrancesLength; index++) {
             if (wmTownMapButtonId[index] != -1) {
-                buttonDestroy(wmTownMapButtonId[index]);
+                win_delete_button(wmTownMapButtonId[index]);
                 wmTownMapButtonId[index] = -1;
             }
         }

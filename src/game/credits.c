@@ -75,10 +75,10 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 
             int creditsWindowX = 0;
             int creditsWindowY = 0;
-            int window = windowCreate(creditsWindowX, creditsWindowY, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_HEIGHT, colorTable[0], 20);
+            int window = win_add(creditsWindowX, creditsWindowY, CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_HEIGHT, colorTable[0], 20);
             soundContinueAll();
             if (window != -1) {
-                unsigned char* windowBuffer = windowGetBuffer(window);
+                unsigned char* windowBuffer = win_get_buf(window);
                 if (windowBuffer != NULL) {
                     unsigned char* backgroundBuffer = (unsigned char*)mem_malloc(CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
                     if (backgroundBuffer) {
@@ -228,7 +228,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                 soundContinueAll();
                 palette_fade_to(black_palette);
                 soundContinueAll();
-                windowDestroy(window);
+                win_delete(window);
             }
 
             if (cursorWasHidden) {
