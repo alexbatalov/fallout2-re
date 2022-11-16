@@ -41,20 +41,20 @@ static QueueListNode* queue;
 
 // 0x51C540
 EventTypeDescription q_func[EVENT_TYPE_COUNT] = {
-    { item_d_process, internal_free, item_d_load, item_d_save, true, item_d_clear },
+    { item_d_process, mem_free, item_d_load, item_d_save, true, item_d_clear },
     { critter_wake_up, NULL, NULL, NULL, true, critter_wake_clear },
-    { item_wd_process, internal_free, item_wd_load, item_wd_save, true, item_wd_clear },
-    { script_q_process, internal_free, script_q_load, script_q_save, true, NULL },
+    { item_wd_process, mem_free, item_wd_load, item_wd_save, true, item_wd_clear },
+    { script_q_process, mem_free, script_q_load, script_q_save, true, NULL },
     { gtime_q_process, NULL, NULL, NULL, true, NULL },
     { critter_check_poison, NULL, NULL, NULL, false, NULL },
-    { critter_process_rads, internal_free, critter_load_rads, critter_save_rads, false, NULL },
+    { critter_process_rads, mem_free, critter_load_rads, critter_save_rads, false, NULL },
     { queue_destroy, NULL, NULL, NULL, true, queue_destroy },
     { queue_explode, NULL, NULL, NULL, true, queue_explode_exit },
     { item_m_trickle, NULL, NULL, NULL, true, item_m_turn_off_from_queue },
     { critter_sneak_check, NULL, NULL, NULL, true, critter_sneak_clear },
     { queue_premature, NULL, NULL, NULL, true, queue_explode_exit },
     { scr_map_q_process, NULL, NULL, NULL, true, NULL },
-    { gsound_sfx_q_process, internal_free, NULL, NULL, true, NULL },
+    { gsound_sfx_q_process, mem_free, NULL, NULL, true, NULL },
 };
 
 // 0x4A2320
@@ -96,27 +96,27 @@ int queue_load(File* stream)
 
     int rc = 0;
     for (int index = 0; index < count; index += 1) {
-        QueueListNode* queueListNode = (QueueListNode*)internal_malloc(sizeof(*queueListNode));
+        QueueListNode* queueListNode = (QueueListNode*)mem_malloc(sizeof(*queueListNode));
         if (queueListNode == NULL) {
             rc = -1;
             break;
         }
 
         if (fileReadInt32(stream, &(queueListNode->time)) == -1) {
-            internal_free(queueListNode);
+            mem_free(queueListNode);
             rc = -1;
             break;
         }
 
         if (fileReadInt32(stream, &(queueListNode->type)) == -1) {
-            internal_free(queueListNode);
+            mem_free(queueListNode);
             rc = -1;
             break;
         }
 
         int objectId;
         if (fileReadInt32(stream, &objectId) == -1) {
-            internal_free(queueListNode);
+            mem_free(queueListNode);
             rc = -1;
             break;
         }
@@ -140,7 +140,7 @@ int queue_load(File* stream)
         EventTypeDescription* eventTypeDescription = &(q_func[queueListNode->type]);
         if (eventTypeDescription->readProc != NULL) {
             if (eventTypeDescription->readProc(stream, &(queueListNode->data)) == -1) {
-                internal_free(queueListNode);
+                mem_free(queueListNode);
                 rc = -1;
                 break;
             }
@@ -163,7 +163,7 @@ int queue_load(File* stream)
                 eventTypeDescription->freeProc(queue->data);
             }
 
-            internal_free(queue);
+            mem_free(queue);
 
             queue = next;
         }
@@ -245,7 +245,7 @@ int queue_save(File* stream)
 // 0x4A258C
 int queue_add(int delay, Object* obj, void* data, int eventType)
 {
-    QueueListNode* newQueueListNode = (QueueListNode*)internal_malloc(sizeof(QueueListNode));
+    QueueListNode* newQueueListNode = (QueueListNode*)mem_malloc(sizeof(QueueListNode));
     if (newQueueListNode == NULL) {
         return -1;
     }
@@ -299,7 +299,7 @@ int queue_remove(Object* owner)
                 eventTypeDescription->freeProc(temp->data);
             }
 
-            internal_free(temp);
+            mem_free(temp);
         } else {
             queueListNodePtr = &(queueListNode->next);
             queueListNode = queueListNode->next;
@@ -327,7 +327,7 @@ int queue_remove_this(Object* owner, int eventType)
                 eventTypeDescription->freeProc(temp->data);
             }
 
-            internal_free(temp);
+            mem_free(temp);
         } else {
             queueListNodePtr = &(queueListNode->next);
             queueListNode = queueListNode->next;
@@ -375,7 +375,7 @@ int queue_process()
             eventTypeDescription->freeProc(queueListNode->data);
         }
 
-        internal_free(queueListNode);
+        mem_free(queueListNode);
     }
 
     return v1;
@@ -393,7 +393,7 @@ void queue_clear()
             eventTypeDescription->freeProc(queueListNode->data);
         }
 
-        internal_free(queueListNode);
+        mem_free(queueListNode);
 
         queueListNode = next;
     }
@@ -423,7 +423,7 @@ void queue_clear_type(int eventType, QueueEventHandler* fn)
                     eventTypeDescription->freeProc(tmp->data);
                 }
 
-                internal_free(tmp);
+                mem_free(tmp);
             }
         } else {
             ptr = &(curr->next);

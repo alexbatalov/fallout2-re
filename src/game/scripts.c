@@ -733,7 +733,7 @@ int scrQueueRemoveFixed(Object* obj, void* data)
 // 0x4A3E60
 int script_q_add(int sid, int delay, int param)
 {
-    ScriptEvent* scriptEvent = (ScriptEvent*)internal_malloc(sizeof(*scriptEvent));
+    ScriptEvent* scriptEvent = (ScriptEvent*)mem_malloc(sizeof(*scriptEvent));
     if (scriptEvent == NULL) {
         return -1;
     }
@@ -743,12 +743,12 @@ int script_q_add(int sid, int delay, int param)
 
     Script* script;
     if (scr_ptr(sid, &script) == -1) {
-        internal_free(scriptEvent);
+        mem_free(scriptEvent);
         return -1;
     }
 
     if (queue_add(delay, script->owner, scriptEvent, EVENT_TYPE_SCRIPT) == -1) {
-        internal_free(scriptEvent);
+        mem_free(scriptEvent);
         return -1;
     }
 
@@ -769,7 +769,7 @@ int script_q_save(File* stream, void* data)
 // 0x4A3F04
 int script_q_load(File* stream, void** dataPtr)
 {
-    ScriptEvent* scriptEvent = (ScriptEvent*)internal_malloc(sizeof(*scriptEvent));
+    ScriptEvent* scriptEvent = (ScriptEvent*)mem_malloc(sizeof(*scriptEvent));
     if (scriptEvent == NULL) {
         return -1;
     }
@@ -784,7 +784,7 @@ int script_q_load(File* stream, void** dataPtr)
 err:
 
     // there is a memory leak in original code, free is not called
-    internal_free(scriptEvent);
+    mem_free(scriptEvent);
 
     return -1;
 }
@@ -1306,7 +1306,7 @@ static int scrInitListInfo()
     while (fileReadString(string, 260, stream)) {
         maxScriptNum++;
 
-        ScriptsListEntry* entries = (ScriptsListEntry*)internal_realloc(scriptListInfo, sizeof(*entries) * maxScriptNum);
+        ScriptsListEntry* entries = (ScriptsListEntry*)mem_realloc(scriptListInfo, sizeof(*entries) * maxScriptNum);
         if (entries == NULL) {
             return -1;
         }
@@ -1346,7 +1346,7 @@ static int scrInitListInfo()
 static int scrExitListInfo()
 {
     if (scriptListInfo != NULL) {
-        internal_free(scriptListInfo);
+        mem_free(scriptListInfo);
         scriptListInfo = NULL;
     }
 
@@ -1649,7 +1649,7 @@ int scr_game_load(File* stream)
 // 0x4A5448
 int scr_game_load2(File* stream)
 {
-    int* vars = (int*)internal_malloc(sizeof(*vars) * num_game_global_vars);
+    int* vars = (int*)mem_malloc(sizeof(*vars) * num_game_global_vars);
     if (vars == NULL) {
         return -1;
     }
@@ -1659,7 +1659,7 @@ int scr_game_load2(File* stream)
         return -1;
     }
 
-    internal_free(vars);
+    mem_free(vars);
 
     return 0;
 }
@@ -1944,7 +1944,7 @@ int scr_load(File* stream)
                 scriptList->length++;
             }
 
-            ScriptListExtent* extent = (ScriptListExtent*)internal_malloc(sizeof(*extent));
+            ScriptListExtent* extent = (ScriptListExtent*)mem_malloc(sizeof(*extent));
             scriptList->head = extent;
             scriptList->tail = extent;
             if (extent == NULL) {
@@ -1968,7 +1968,7 @@ int scr_load(File* stream)
 
             ScriptListExtent* prevExtent = extent;
             for (int extentIndex = 1; extentIndex < scriptList->length; extentIndex++) {
-                ScriptListExtent* extent = (ScriptListExtent*)internal_malloc(sizeof(*extent));
+                ScriptListExtent* extent = (ScriptListExtent*)mem_malloc(sizeof(*extent));
                 if (extent == NULL) {
                     return -1;
                 }
@@ -2060,7 +2060,7 @@ int scr_new(int* sidPtr, int scriptType)
     if (scriptList->head != NULL) {
         // There is at least one extent available, which means tail is also set.
         if (scriptListExtent->length == SCRIPT_LIST_EXTENT_SIZE) {
-            ScriptListExtent* newExtent = scriptListExtent->next = (ScriptListExtent*)internal_malloc(sizeof(*newExtent));
+            ScriptListExtent* newExtent = scriptListExtent->next = (ScriptListExtent*)mem_malloc(sizeof(*newExtent));
             if (newExtent == NULL) {
                 return -1;
             }
@@ -2075,7 +2075,7 @@ int scr_new(int* sidPtr, int scriptType)
         }
     } else {
         // Script head
-        scriptListExtent = (ScriptListExtent*)internal_malloc(sizeof(ScriptListExtent));
+        scriptListExtent = (ScriptListExtent*)mem_malloc(sizeof(ScriptListExtent));
         if (scriptListExtent == NULL) {
             return -1;
         }
@@ -2140,7 +2140,7 @@ int scr_remove_local_vars(Script* script)
                     map_local_vars + (script->localVarsOffset + script->localVarsCount),
                     sizeof(*map_local_vars) * (oldMapLocalVarsCount - script->localVarsCount - script->localVarsOffset));
 
-                map_local_vars = (int*)internal_realloc(map_local_vars, sizeof(*map_local_vars) * num_map_local_vars);
+                map_local_vars = (int*)mem_realloc(map_local_vars, sizeof(*map_local_vars) * num_map_local_vars);
                 if (map_local_vars == NULL) {
                     debug_printf("\nError in mem_realloc in scr_remove_local_vars!\n");
                 }
@@ -2221,7 +2221,7 @@ int scr_remove(int sid)
 
             if (scriptListExtent->length == 0) {
                 scriptList->length--;
-                internal_free(scriptListExtent);
+                mem_free(scriptListExtent);
 
                 if (scriptList->length != 0) {
                     ScriptListExtent* v13 = scriptList->head;
@@ -2254,7 +2254,7 @@ int scr_remove(int sid)
                 }
                 prev->next = NULL;
 
-                internal_free(scriptList->tail);
+                mem_free(scriptList->tail);
                 scriptList->tail = prev;
             }
         }
@@ -2320,7 +2320,7 @@ int scr_remove_all_force()
         ScriptListExtent* extent = scriptList->head;
         while (extent != NULL) {
             ScriptListExtent* next = extent->next;
-            internal_free(extent);
+            mem_free(extent);
             extent = next;
         }
 
@@ -2522,7 +2522,7 @@ static void scrExecMapProcScripts(int proc)
         return;
     }
 
-    int* sidList = (int*)internal_malloc(sizeof(*sidList) * sidListCapacity);
+    int* sidList = (int*)mem_malloc(sizeof(*sidList) * sidListCapacity);
     if (sidList == NULL) {
         debug_printf("\nError: scr_exec_map_update_scripts: Out of memory for sidList!");
         return;
@@ -2558,7 +2558,7 @@ static void scrExecMapProcScripts(int proc)
         }
     }
 
-    internal_free(sidList);
+    mem_free(sidList);
 
     scrSpatialsEnabled = true;
 }
@@ -2777,7 +2777,7 @@ int scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
         return 0;
     }
 
-    int* scriptIds = (int*)internal_malloc(sizeof(*scriptIds) * scriptExtentsCount * SCRIPT_LIST_EXTENT_SIZE);
+    int* scriptIds = (int*)mem_malloc(sizeof(*scriptIds) * scriptExtentsCount * SCRIPT_LIST_EXTENT_SIZE);
     if (scriptIds == NULL) {
         return -1;
     }
@@ -2845,7 +2845,7 @@ int scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
 
     // TODO: Redundant, we already know `scriptIds` is not NULL.
     if (scriptIds != NULL) {
-        internal_free(scriptIds);
+        mem_free(scriptIds);
     }
 
     scrSpatialsEnabled = true;

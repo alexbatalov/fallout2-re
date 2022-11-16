@@ -1693,7 +1693,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
         return -2;
     }
 
-    Attack* attack = (Attack*)internal_malloc(sizeof(*attack));
+    Attack* attack = (Attack*)mem_malloc(sizeof(*attack));
     if (attack == NULL) {
         return -1;
     }
@@ -1701,7 +1701,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
     Object* explosion;
     int fid = art_id(OBJ_TYPE_MISC, 10, 0, 0, 0);
     if (obj_new(&explosion, fid, -1) == -1) {
-        internal_free(attack);
+        mem_free(attack);
         return -1;
     }
 
@@ -1719,7 +1719,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
             }
 
             obj_erase_object(explosion, NULL);
-            internal_free(attack);
+            mem_free(attack);
             return -1;
         }
 
@@ -1797,7 +1797,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
                 obj_erase_object(adjacentExplosions[rotation], NULL);
             }
 
-            internal_free(attack);
+            mem_free(attack);
 
             game_ui_enable();
             return -1;
@@ -1897,7 +1897,7 @@ static int report_explosion(Attack* attack, Object* a2)
         }
     }
 
-    internal_free(attack);
+    mem_free(attack);
     game_ui_enable();
 
     if (a2 == obj_dude) {
@@ -1998,14 +1998,14 @@ static int talk_to(Object* a1, Object* a2)
 // 0x413494
 void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damageType, bool animated, bool bypassArmor)
 {
-    Attack* attack = (Attack*)internal_malloc(sizeof(*attack));
+    Attack* attack = (Attack*)mem_malloc(sizeof(*attack));
     if (attack == NULL) {
         return;
     }
 
     Object* attacker;
     if (obj_new(&attacker, FID_0x20001F5, -1) == -1) {
-        internal_free(attack);
+        mem_free(attack);
         return;
     }
 
@@ -2045,7 +2045,7 @@ void action_dmg(int tile, int elevation, int minDamage, int maxDamage, int damag
 
         if (register_end() == -1) {
             obj_erase_object(attacker, NULL);
-            internal_free(attack);
+            mem_free(attack);
             return;
         }
     } else {
@@ -2069,7 +2069,7 @@ static int report_dmg(Attack* attack, Object* a2)
 {
     combat_display(attack);
     apply_damage(attack, false);
-    internal_free(attack);
+    mem_free(attack);
     game_ui_enable();
     return 0;
 }

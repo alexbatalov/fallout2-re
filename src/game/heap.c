@@ -159,7 +159,7 @@ bool heap_init(Heap* heap, int a2)
 
     if (heap_init_handles(heap)) {
         int size = (a2 >> 10) + a2;
-        heap->data = (unsigned char*)internal_malloc(size);
+        heap->data = (unsigned char*)mem_malloc(size);
         if (heap->data != NULL) {
             heap->size = size;
             heap->freeBlocks = 1;
@@ -197,7 +197,7 @@ bool heap_exit(Heap* heap)
     for (int index = 0; index < heap->handlesLength; index++) {
         HeapHandle* handle = &(heap->handles[index]);
         if (handle->state == 4 && handle->data != NULL) {
-            internal_free(handle->data);
+            mem_free(handle->data);
         }
     }
 
@@ -205,7 +205,7 @@ bool heap_exit(Heap* heap)
     heap_exit_handles(heap);
 
     if (heap->data != NULL) {
-        internal_free(heap->data);
+        mem_free(heap->data);
     }
 
     memset(heap, 0, sizeof(*heap));
@@ -326,7 +326,7 @@ err_no_handle:
 
     debug_printf("Heap Error: Could not acquire handle for new block.\n");
     if (state == HEAP_BLOCK_STATE_SYSTEM) {
-        internal_free(block);
+        mem_free(block);
     }
 
 err:
@@ -388,7 +388,7 @@ bool heap_deallocate(Heap* heap, int* handleIndexPtr)
 
     if (handle->state == HEAP_BLOCK_STATE_SYSTEM) {
         // Release system memory
-        internal_free(handle->data);
+        mem_free(handle->data);
 
         // Update heap stats
         heap->systemBlocks--;
@@ -671,26 +671,26 @@ static bool heap_create_lists()
     // bunch of goto's to free alloc'ed buffers one by one starting from where
     // it has failed.
     do {
-        heap_free_list = (unsigned char**)internal_malloc(sizeof(*heap_free_list) * HEAP_FREE_BLOCKS_INITIAL_LENGTH);
+        heap_free_list = (unsigned char**)mem_malloc(sizeof(*heap_free_list) * HEAP_FREE_BLOCKS_INITIAL_LENGTH);
         if (heap_free_list == NULL) {
             break;
         }
 
         heap_free_list_size = HEAP_FREE_BLOCKS_INITIAL_LENGTH;
 
-        heap_moveable_list = (HeapMoveableExtent*)internal_malloc(sizeof(*heap_moveable_list) * HEAP_MOVEABLE_EXTENTS_INITIAL_LENGTH);
+        heap_moveable_list = (HeapMoveableExtent*)mem_malloc(sizeof(*heap_moveable_list) * HEAP_MOVEABLE_EXTENTS_INITIAL_LENGTH);
         if (heap_moveable_list == NULL) {
             break;
         }
         heap_moveable_list_size = HEAP_MOVEABLE_EXTENTS_INITIAL_LENGTH;
 
-        heap_subblock_list = (unsigned char**)internal_malloc(sizeof(*heap_subblock_list) * HEAP_MOVEABLE_BLOCKS_INITIAL_LENGTH);
+        heap_subblock_list = (unsigned char**)mem_malloc(sizeof(*heap_subblock_list) * HEAP_MOVEABLE_BLOCKS_INITIAL_LENGTH);
         if (heap_subblock_list == NULL) {
             break;
         }
         heap_subblock_list_size = HEAP_MOVEABLE_BLOCKS_INITIAL_LENGTH;
 
-        heap_fake_move_list = (int*)internal_malloc(sizeof(*heap_fake_move_list) * HEAP_RESERVED_FREE_BLOCK_INDEXES_INITIAL_LENGTH);
+        heap_fake_move_list = (int*)mem_malloc(sizeof(*heap_fake_move_list) * HEAP_RESERVED_FREE_BLOCK_INDEXES_INITIAL_LENGTH);
         if (heap_fake_move_list == NULL) {
             break;
         }
@@ -709,25 +709,25 @@ static bool heap_create_lists()
 static void heap_destroy_lists()
 {
     if (heap_fake_move_list != NULL) {
-        internal_free(heap_fake_move_list);
+        mem_free(heap_fake_move_list);
         heap_fake_move_list = NULL;
     }
     heap_fake_move_list_size = 0;
 
     if (heap_subblock_list != NULL) {
-        internal_free(heap_subblock_list);
+        mem_free(heap_subblock_list);
         heap_subblock_list = NULL;
     }
     heap_subblock_list_size = 0;
 
     if (heap_moveable_list != NULL) {
-        internal_free(heap_moveable_list);
+        mem_free(heap_moveable_list);
         heap_moveable_list = NULL;
     }
     heap_moveable_list_size = 0;
 
     if (heap_free_list != NULL) {
-        internal_free(heap_free_list);
+        mem_free(heap_free_list);
         heap_free_list = NULL;
     }
     heap_free_list_size = 0;
@@ -736,7 +736,7 @@ static void heap_destroy_lists()
 // 0x453430
 static bool heap_init_handles(Heap* heap)
 {
-    heap->handles = (HeapHandle*)internal_malloc(sizeof(*heap->handles) * HEAP_HANDLES_INITIAL_LENGTH);
+    heap->handles = (HeapHandle*)mem_malloc(sizeof(*heap->handles) * HEAP_HANDLES_INITIAL_LENGTH);
     if (heap->handles != NULL) {
         // NOTE: Uninline.
         if (heap_clear_handles(heap, heap->handles, HEAP_HANDLES_INITIAL_LENGTH) == true) {
@@ -760,7 +760,7 @@ static bool heap_exit_handles(Heap* heap)
         return false;
     }
 
-    internal_free(heap->handles);
+    mem_free(heap->handles);
     heap->handles = NULL;
     heap->handlesLength = 0;
 
@@ -781,7 +781,7 @@ static bool heap_acquire_handle(Heap* heap, int* handleIndexPtr)
     }
 
     // If we're here the search above failed, we have to allocate more handles.
-    HeapHandle* handles = (HeapHandle*)internal_realloc(heap->handles, sizeof(*handles) * (heap->handlesLength + HEAP_HANDLES_INITIAL_LENGTH));
+    HeapHandle* handles = (HeapHandle*)mem_realloc(heap->handles, sizeof(*handles) * (heap->handlesLength + HEAP_HANDLES_INITIAL_LENGTH));
     if (handles == NULL) {
         return false;
     }
@@ -1070,7 +1070,7 @@ system:
 
         if (a4 == 0) {
             debug_printf("Allocating block from system memory...\n");
-            unsigned char* block = (unsigned char*)internal_malloc(size + HEAP_BLOCK_OVERHEAD_SIZE);
+            unsigned char* block = (unsigned char*)mem_malloc(size + HEAP_BLOCK_OVERHEAD_SIZE);
             if (block == NULL) {
                 debug_printf("fatal error: internal_malloc() failed in heap_find_free_block()!\n");
                 return false;
@@ -1102,7 +1102,7 @@ static bool heap_build_free_list(Heap* heap)
     }
 
     if (heap->freeBlocks > heap_free_list_size) {
-        unsigned char** freeBlocks = (unsigned char**)internal_realloc(heap_free_list, sizeof(*freeBlocks) * heap->freeBlocks);
+        unsigned char** freeBlocks = (unsigned char**)mem_realloc(heap_free_list, sizeof(*freeBlocks) * heap->freeBlocks);
         if (freeBlocks == NULL) {
             return false;
         }
@@ -1187,7 +1187,7 @@ static bool heap_build_moveable_list(Heap* heap, int* moveableExtentsLengthPtr, 
     }
 
     if (maxExtentsCount > heap_moveable_list_size) {
-        HeapMoveableExtent* moveableExtents = (HeapMoveableExtent*)internal_realloc(heap_moveable_list, sizeof(*heap_moveable_list) * maxExtentsCount);
+        HeapMoveableExtent* moveableExtents = (HeapMoveableExtent*)mem_realloc(heap_moveable_list, sizeof(*heap_moveable_list) * maxExtentsCount);
         if (moveableExtents == NULL) {
             return false;
         }
@@ -1284,7 +1284,7 @@ static bool heap_build_subblock_list(int extentIndex)
 {
     HeapMoveableExtent* extent = &(heap_moveable_list[extentIndex]);
     if (extent->moveableBlocksLength > heap_subblock_list_size) {
-        unsigned char** moveableBlocks = (unsigned char**)internal_realloc(heap_subblock_list, sizeof(*heap_subblock_list) * extent->moveableBlocksLength);
+        unsigned char** moveableBlocks = (unsigned char**)mem_realloc(heap_subblock_list, sizeof(*heap_subblock_list) * extent->moveableBlocksLength);
         if (moveableBlocks == NULL) {
             return false;
         }
@@ -1330,7 +1330,7 @@ static int heap_qsort_compare_subblock(const void* a1, const void* a2)
 static bool heap_build_fake_move_list(size_t count)
 {
     if (count > heap_fake_move_list_size) {
-        int* indexes = (int*)internal_realloc(heap_fake_move_list, sizeof(*heap_fake_move_list) * count);
+        int* indexes = (int*)mem_realloc(heap_fake_move_list, sizeof(*heap_fake_move_list) * count);
         if (indexes == NULL) {
             return false;
         }

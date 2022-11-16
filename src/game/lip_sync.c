@@ -333,7 +333,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         }
     }
 
-    lip_info.phonemes = (unsigned char*)internal_malloc(lip_info.phoneme_count);
+    lip_info.phonemes = (unsigned char*)mem_malloc(lip_info.phoneme_count);
     if (lip_info.phonemes == NULL) {
         debug_printf("Out of memory in lips_load_file.'\n");
         return -1;
@@ -355,7 +355,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         }
     }
 
-    lip_info.markers = (SpeechMarker*)internal_malloc(sizeof(*speech_marker) * lip_info.marker_count);
+    lip_info.markers = (SpeechMarker*)mem_malloc(sizeof(*speech_marker) * lip_info.marker_count);
     if (lip_info.markers == NULL) {
         debug_printf("Out of memory in lips_load_file.'\n");
         return -1;
@@ -425,7 +425,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
 static int lips_make_speech()
 {
     if (lip_info.field_14 != NULL) {
-        internal_free(lip_info.field_14);
+        mem_free(lip_info.field_14);
         lip_info.field_14 = NULL;
     }
 
@@ -467,7 +467,7 @@ static int lips_make_speech()
 int lips_free_speech()
 {
     if (lip_info.field_14 != NULL) {
-        internal_free(lip_info.field_14);
+        mem_free(lip_info.field_14);
         lip_info.field_14 = NULL;
     }
 
@@ -481,12 +481,12 @@ int lips_free_speech()
     }
 
     if (lip_info.phonemes != NULL) {
-        internal_free(lip_info.phonemes);
+        mem_free(lip_info.phonemes);
         lip_info.phonemes = NULL;
     }
 
     if (lip_info.markers != NULL) {
-        internal_free(lip_info.markers);
+        mem_free(lip_info.markers);
         lip_info.markers = NULL;
     }
 

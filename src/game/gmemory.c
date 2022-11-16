@@ -40,8 +40,8 @@ char* localmystrdup(const char* string)
 // 0x44B250
 int gmemory_init()
 {
-    assoc_register_mem(internal_malloc, internal_realloc, internal_free);
-    _db_register_mem(internal_malloc, internal_strdup, internal_free);
+    assoc_register_mem(mem_malloc, mem_realloc, mem_free);
+    _db_register_mem(mem_malloc, mem_strdup, mem_free);
     memoryRegisterAlloc(gmalloc, grealloc, gfree);
 
     return 0;
@@ -50,17 +50,17 @@ int gmemory_init()
 // 0x44B294
 void* gmalloc(size_t size)
 {
-    return internal_malloc(size);
+    return mem_malloc(size);
 }
 
 // 0x44B29C
 void* grealloc(void* ptr, size_t newSize)
 {
-    return internal_realloc(ptr, newSize);
+    return mem_realloc(ptr, newSize);
 }
 
 // 0x44B2A4
 void gfree(void* ptr)
 {
-    internal_free(ptr);
+    mem_free(ptr);
 }

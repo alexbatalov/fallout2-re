@@ -840,7 +840,7 @@ int _win_register_menu_bar(int win, int x, int y, int width, int height, int bor
         return -1;
     }
 
-    MenuBar* menuBar = window->menuBar = (MenuBar*)internal_malloc(sizeof(MenuBar));
+    MenuBar* menuBar = window->menuBar = (MenuBar*)mem_malloc(sizeof(MenuBar));
     if (menuBar == NULL) {
         return -1;
     }
@@ -943,7 +943,7 @@ void _win_delete_menu_bar(int win)
         rectGetHeight(&(window->menuBar->rect)),
         window->field_20);
 
-    internal_free(window->menuBar);
+    mem_free(window->menuBar);
     window->menuBar = NULL;
 }
 
@@ -1141,7 +1141,7 @@ int _GNW_process_menu(MenuBar* menuBar, int pulldownIndex)
 // 0x4DD03C
 int _calc_max_field_chars_wcursor(int a1, int a2)
 {
-    char* str = (char*)internal_malloc(17);
+    char* str = (char*)mem_malloc(17);
     if (str == NULL) {
         return -1;
     }
@@ -1152,7 +1152,7 @@ int _calc_max_field_chars_wcursor(int a1, int a2)
     sprintf(str, "%d", a2);
     int len2 = strlen(str);
 
-    internal_free(str);
+    mem_free(str);
 
     return max(len1, len2) + 1;
 }

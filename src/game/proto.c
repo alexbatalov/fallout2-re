@@ -1684,7 +1684,7 @@ int proto_find_free_subnode(int type, Proto** protoPtr)
 {
     size_t size = (type >= 0 && type < 11) ? proto_sizes[type] : 0;
 
-    Proto* proto = (Proto*)internal_malloc(size);
+    Proto* proto = (Proto*)mem_malloc(size);
     *protoPtr = proto;
     if (proto == NULL) {
         return -1;
@@ -1695,9 +1695,9 @@ int proto_find_free_subnode(int type, Proto** protoPtr)
 
     if (protoList->head != NULL) {
         if (protoListExtent->length == PROTO_LIST_EXTENT_SIZE) {
-            ProtoListExtent* newExtent = protoListExtent->next = (ProtoListExtent*)internal_malloc(sizeof(ProtoListExtent));
+            ProtoListExtent* newExtent = protoListExtent->next = (ProtoListExtent*)mem_malloc(sizeof(ProtoListExtent));
             if (protoListExtent == NULL) {
-                internal_free(proto);
+                mem_free(proto);
                 *protoPtr = NULL;
                 return -1;
             }
@@ -1711,9 +1711,9 @@ int proto_find_free_subnode(int type, Proto** protoPtr)
             protoListExtent = newExtent;
         }
     } else {
-        protoListExtent = (ProtoListExtent*)internal_malloc(sizeof(ProtoListExtent));
+        protoListExtent = (ProtoListExtent*)mem_malloc(sizeof(ProtoListExtent));
         if (protoListExtent == NULL) {
-            internal_free(proto);
+            mem_free(proto);
             *protoPtr = NULL;
             return -1;
         }
@@ -1744,10 +1744,10 @@ static void proto_remove_some_list(int type)
         protoList->head = protoListExtent->next;
 
         for (int index = 0; index < protoListExtent->length; index++) {
-            internal_free(protoListExtent->proto[index]);
+            mem_free(protoListExtent->proto[index]);
         }
 
-        internal_free(protoListExtent);
+        mem_free(protoListExtent);
     }
 }
 
@@ -1762,9 +1762,9 @@ static void proto_remove_list(int type)
     while (curr != NULL) {
         ProtoListExtent* next = curr->next;
         for (int index = 0; index < curr->length; index++) {
-            internal_free(curr->proto[index]);
+            mem_free(curr->proto[index]);
         }
-        internal_free(curr);
+        mem_free(curr);
         curr = next;
     }
 

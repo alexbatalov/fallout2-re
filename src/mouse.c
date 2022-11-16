@@ -149,7 +149,7 @@ void GNW_mouse_exit()
     mouseDeviceUnacquire();
 
     if (mouse_buf != NULL) {
-        internal_free(mouse_buf);
+        mem_free(mouse_buf);
         mouse_buf = NULL;
     }
 
@@ -216,7 +216,7 @@ int mouse_set_shape(unsigned char* buf, int width, int length, int full, int hot
     }
 
     if (width != mouse_width || length != mouse_length) {
-        unsigned char* buf = (unsigned char*)internal_malloc(width * length);
+        unsigned char* buf = (unsigned char*)mem_malloc(width * length);
         if (buf == NULL) {
             if (!cursorWasHidden) {
                 mouse_show();
@@ -225,7 +225,7 @@ int mouse_set_shape(unsigned char* buf, int width, int length, int full, int hot
         }
 
         if (mouse_buf != NULL) {
-            internal_free(mouse_buf);
+            mem_free(mouse_buf);
         }
 
         mouse_buf = buf;

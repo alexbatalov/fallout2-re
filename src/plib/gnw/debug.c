@@ -84,7 +84,7 @@ void debug_register_env()
         return;
     }
 
-    char* copy = (char*)internal_malloc(strlen(type) + 1);
+    char* copy = (char*)mem_malloc(strlen(type) + 1);
     if (copy == NULL) {
         return;
     }
@@ -111,7 +111,7 @@ void debug_register_env()
         }
     }
 
-    internal_free(copy);
+    mem_free(copy);
 }
 
 // 0x4C6F18

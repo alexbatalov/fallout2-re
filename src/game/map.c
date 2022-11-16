@@ -213,13 +213,13 @@ int iso_init()
 void iso_reset()
 {
     if (map_global_vars != NULL) {
-        internal_free(map_global_vars);
+        mem_free(map_global_vars);
         map_global_vars = NULL;
         num_map_global_vars = 0;
     }
 
     if (map_local_vars != NULL) {
-        internal_free(map_local_vars);
+        mem_free(map_local_vars);
         map_local_vars = NULL;
         num_map_local_vars = 0;
     }
@@ -244,13 +244,13 @@ void iso_exit()
     art_exit();
 
     if (map_global_vars != NULL) {
-        internal_free(map_global_vars);
+        mem_free(map_global_vars);
         map_global_vars = NULL;
         num_map_global_vars = 0;
     }
 
     if (map_local_vars != NULL) {
-        internal_free(map_local_vars);
+        mem_free(map_local_vars);
         map_local_vars = NULL;
         num_map_local_vars = 0;
     }
@@ -443,7 +443,7 @@ int map_malloc_local_var(int a1)
     int oldMapLocalVarsLength = num_map_local_vars;
     num_map_local_vars += a1;
 
-    int* vars = (int*)internal_realloc(map_local_vars, sizeof(*vars) * num_map_local_vars);
+    int* vars = (int*)mem_realloc(map_local_vars, sizeof(*vars) * num_map_local_vars);
     if (vars == NULL) {
         debug_printf("\nError: Ran out of memory!");
     }
@@ -733,13 +733,13 @@ void map_new_map()
     anim_stop();
 
     if (map_global_vars != NULL) {
-        internal_free(map_global_vars);
+        mem_free(map_global_vars);
         map_global_vars = NULL;
         num_map_global_vars = 0;
     }
 
     if (map_local_vars != NULL) {
-        internal_free(map_local_vars);
+        mem_free(map_local_vars);
         map_local_vars = NULL;
         num_map_local_vars = 0;
     }
@@ -1119,7 +1119,7 @@ int map_age_dead_critters()
 
     int capacity = 100;
     int count = 0;
-    Object** objects = (Object**)internal_malloc(sizeof(*objects) * capacity);
+    Object** objects = (Object**)mem_malloc(sizeof(*objects) * capacity);
 
     obj = obj_find_first();
     while (obj != NULL) {
@@ -1131,7 +1131,7 @@ int map_age_dead_critters()
 
                     if (count >= capacity) {
                         capacity *= 2;
-                        objects = (Object**)internal_realloc(objects, sizeof(*objects) * capacity);
+                        objects = (Object**)mem_realloc(objects, sizeof(*objects) * capacity);
                         if (objects == NULL) {
                             debug_printf("\nError: Out of Memory!");
                             return -1;
@@ -1143,7 +1143,7 @@ int map_age_dead_critters()
             objects[count++] = obj;
             if (count >= capacity) {
                 capacity *= 2;
-                objects = (Object**)internal_realloc(objects, sizeof(*objects) * capacity);
+                objects = (Object**)mem_realloc(objects, sizeof(*objects) * capacity);
                 if (objects == NULL) {
                     debug_printf("\nError: Out of Memory!");
                     return -1;
@@ -1189,7 +1189,7 @@ int map_age_dead_critters()
         obj_erase_object(obj, NULL);
     }
 
-    internal_free(objects);
+    mem_free(objects);
 
     return rc;
 }
@@ -1546,7 +1546,7 @@ static int map_allocate_global_vars(int count)
     map_free_global_vars();
 
     if (count != 0) {
-        map_global_vars = (int*)internal_malloc(sizeof(*map_global_vars) * count);
+        map_global_vars = (int*)mem_malloc(sizeof(*map_global_vars) * count);
         if (map_global_vars == NULL) {
             return -1;
         }
@@ -1561,7 +1561,7 @@ static int map_allocate_global_vars(int count)
 static void map_free_global_vars()
 {
     if (map_global_vars != NULL) {
-        internal_free(map_global_vars);
+        mem_free(map_global_vars);
         map_global_vars = NULL;
         num_map_global_vars = 0;
     }
@@ -1587,7 +1587,7 @@ static int map_allocate_local_vars(int count)
     map_free_local_vars();
 
     if (count != 0) {
-        map_local_vars = (int*)internal_malloc(sizeof(*map_local_vars) * count);
+        map_local_vars = (int*)mem_malloc(sizeof(*map_local_vars) * count);
         if (map_local_vars == NULL) {
             return -1;
         }
@@ -1602,7 +1602,7 @@ static int map_allocate_local_vars(int count)
 static void map_free_local_vars()
 {
     if (map_local_vars != NULL) {
-        internal_free(map_local_vars);
+        mem_free(map_local_vars);
         map_local_vars = NULL;
         num_map_local_vars = 0;
     }

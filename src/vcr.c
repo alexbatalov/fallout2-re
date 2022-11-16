@@ -287,7 +287,7 @@ int vcr_update()
 static bool vcr_create_buffer()
 {
     if (vcr_buffer == NULL) {
-        vcr_buffer = (VcrEntry*)internal_malloc(sizeof(*vcr_buffer) * VCR_BUFFER_CAPACITY);
+        vcr_buffer = (VcrEntry*)mem_malloc(sizeof(*vcr_buffer) * VCR_BUFFER_CAPACITY);
         if (vcr_buffer == NULL) {
             return false;
         }
@@ -311,7 +311,7 @@ static bool vcr_destroy_buffer()
     // NOTE: Uninline.
     vcr_clear_buffer();
 
-    internal_free(vcr_buffer);
+    mem_free(vcr_buffer);
     vcr_buffer = NULL;
 
     return true;

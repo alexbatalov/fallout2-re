@@ -237,7 +237,7 @@ int item_add_force(Object* owner, Object* itemToAdd, int quantity)
 
     if (index == inventory->length) {
         if (inventory->length == inventory->capacity || inventory->items == NULL) {
-            InventoryItem* inventoryItems = (InventoryItem*)internal_realloc(inventory->items, sizeof(InventoryItem) * (inventory->capacity + 10));
+            InventoryItem* inventoryItems = (InventoryItem*)mem_realloc(inventory->items, sizeof(InventoryItem) * (inventory->capacity + 10));
             if (inventoryItems == NULL) {
                 return -1;
             }
@@ -2543,7 +2543,7 @@ static int insert_drug_effect(Object* critter, Object* item, int a3, int* stats,
         return -1;
     }
 
-    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)internal_malloc(sizeof(*drugEffectEvent));
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)mem_malloc(sizeof(*drugEffectEvent));
     if (drugEffectEvent == NULL) {
         return -1;
     }
@@ -2563,7 +2563,7 @@ static int insert_drug_effect(Object* critter, Object* item, int a3, int* stats,
     }
 
     if (queue_add(delay, critter, drugEffectEvent, EVENT_TYPE_DRUG) == -1) {
-        internal_free(drugEffectEvent);
+        mem_free(drugEffectEvent);
         return -1;
     }
 
@@ -2822,7 +2822,7 @@ int item_d_process(Object* obj, void* data)
 // 0x47A1D0
 int item_d_load(File* stream, void** dataPtr)
 {
-    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)internal_malloc(sizeof(*drugEffectEvent));
+    DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)mem_malloc(sizeof(*drugEffectEvent));
     if (drugEffectEvent == NULL) {
         return -1;
     }
@@ -2835,7 +2835,7 @@ int item_d_load(File* stream, void** dataPtr)
 
 err:
 
-    internal_free(drugEffectEvent);
+    mem_free(drugEffectEvent);
     return -1;
 }
 
@@ -2853,7 +2853,7 @@ int item_d_save(File* stream, void* data)
 // 0x47A290
 static int insert_withdrawal(Object* obj, int a2, int duration, int perk, int pid)
 {
-    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)internal_malloc(sizeof(*withdrawalEvent));
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)mem_malloc(sizeof(*withdrawalEvent));
     if (withdrawalEvent == NULL) {
         return -1;
     }
@@ -2863,7 +2863,7 @@ static int insert_withdrawal(Object* obj, int a2, int duration, int perk, int pi
     withdrawalEvent->perk = perk;
 
     if (queue_add(600 * duration, obj, withdrawalEvent, EVENT_TYPE_WITHDRAWAL) == -1) {
-        internal_free(withdrawalEvent);
+        mem_free(withdrawalEvent);
         return -1;
     }
 
@@ -2940,7 +2940,7 @@ int item_wd_process(Object* obj, void* data)
 // 0x47A404
 int item_wd_load(File* stream, void** dataPtr)
 {
-    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)internal_malloc(sizeof(*withdrawalEvent));
+    WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)mem_malloc(sizeof(*withdrawalEvent));
     if (withdrawalEvent == NULL) {
         return -1;
     }
@@ -2954,7 +2954,7 @@ int item_wd_load(File* stream, void** dataPtr)
 
 err:
 
-    internal_free(withdrawalEvent);
+    mem_free(withdrawalEvent);
     return -1;
 }
 

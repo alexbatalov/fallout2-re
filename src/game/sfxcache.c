@@ -81,35 +81,35 @@ int sfxc_init(int cacheSize, const char* effectsPath)
         effectsPath = "";
     }
 
-    sfxc_effect_path = internal_strdup(effectsPath);
+    sfxc_effect_path = mem_strdup(effectsPath);
     if (sfxc_effect_path == NULL) {
         return -1;
     }
 
     if (sfxl_init(sfxc_effect_path, sfxc_cmpr, sfxc_dlevel) != SFXL_OK) {
-        internal_free(sfxc_effect_path);
+        mem_free(sfxc_effect_path);
         return -1;
     }
 
     if (sfxc_handle_list_create() != 0) {
         sfxl_exit();
-        internal_free(sfxc_effect_path);
+        mem_free(sfxc_effect_path);
         return -1;
     }
 
-    sfxc_pcache = (Cache*)internal_malloc(sizeof(*sfxc_pcache));
+    sfxc_pcache = (Cache*)mem_malloc(sizeof(*sfxc_pcache));
     if (sfxc_pcache == NULL) {
         sfxc_handle_list_destroy();
         sfxl_exit();
-        internal_free(sfxc_effect_path);
+        mem_free(sfxc_effect_path);
         return -1;
     }
 
     if (!cache_init(sfxc_pcache, sfxc_effect_size, sfxc_effect_load, sfxc_effect_free, cacheSize)) {
-        internal_free(sfxc_pcache);
+        mem_free(sfxc_pcache);
         sfxc_handle_list_destroy();
         sfxl_exit();
-        internal_free(sfxc_effect_path);
+        mem_free(sfxc_effect_path);
         return -1;
     }
 
@@ -123,14 +123,14 @@ void sfxc_exit()
 {
     if (sfxc_initialized) {
         cache_exit(sfxc_pcache);
-        internal_free(sfxc_pcache);
+        mem_free(sfxc_pcache);
         sfxc_pcache = NULL;
 
         sfxc_handle_list_destroy();
 
         sfxl_exit();
 
-        internal_free(sfxc_effect_path);
+        mem_free(sfxc_effect_path);
 
         sfxc_initialized = false;
     }
@@ -157,7 +157,7 @@ int sfxc_cached_open(const char* fname, int mode, ...)
         return -1;
     }
 
-    char* copy = internal_strdup(fname);
+    char* copy = mem_strdup(fname);
     if (copy == NULL) {
         return -1;
     }
@@ -165,7 +165,7 @@ int sfxc_cached_open(const char* fname, int mode, ...)
     int tag;
     int err = sfxl_name_to_tag(copy, &tag);
 
-    internal_free(copy);
+    mem_free(copy);
 
     if (err != SFXL_OK) {
         return -1;
@@ -346,11 +346,11 @@ static int sfxc_effect_load(int tag, int* sizePtr, unsigned char* data)
     sfxl_name(tag, &name);
 
     if (dbGetFileContents(name, data)) {
-        internal_free(name);
+        mem_free(name);
         return -1;
     }
 
-    internal_free(name);
+    mem_free(name);
 
     *sizePtr = size;
 
@@ -360,13 +360,13 @@ static int sfxc_effect_load(int tag, int* sizePtr, unsigned char* data)
 // 0x4A94CC
 static void sfxc_effect_free(void* ptr)
 {
-    internal_free(ptr);
+    mem_free(ptr);
 }
 
 // 0x4A94D4
 static int sfxc_handle_list_create()
 {
-    sfxc_handle_list = (SoundEffect*)internal_malloc(sizeof(*sfxc_handle_list) * SOUND_EFFECTS_MAX_COUNT);
+    sfxc_handle_list = (SoundEffect*)mem_malloc(sizeof(*sfxc_handle_list) * SOUND_EFFECTS_MAX_COUNT);
     if (sfxc_handle_list == NULL) {
         return -1;
     }
@@ -393,7 +393,7 @@ static void sfxc_handle_list_destroy()
         }
     }
 
-    internal_free(sfxc_handle_list);
+    mem_free(sfxc_handle_list);
 }
 
 // 0x4A9550
@@ -494,14 +494,14 @@ static int sfxc_decode(int handle, void* buf, unsigned int size)
     SoundDecoder* soundDecoder = soundDecoderInit(sfxc_ad_reader, handle, &v1, &v2, &v3);
 
     if (soundEffect->position != 0) {
-        void* temp = internal_malloc(soundEffect->position);
+        void* temp = mem_malloc(soundEffect->position);
         if (temp == NULL) {
             soundDecoderFree(soundDecoder);
             return -1;
         }
 
         size_t bytesRead = soundDecoderDecode(soundDecoder, temp, soundEffect->position);
-        internal_free(temp);
+        mem_free(temp);
 
         if (bytesRead != soundEffect->position) {
             soundDecoderFree(soundDecoder);

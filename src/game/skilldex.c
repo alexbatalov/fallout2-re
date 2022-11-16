@@ -182,7 +182,7 @@ static int skilldex_start()
     bool cycle = false;
     int buttonDataIndex;
     for (buttonDataIndex = 0; buttonDataIndex < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; buttonDataIndex++) {
-        skldxbtn[buttonDataIndex] = (unsigned char*)internal_malloc(ginfo[SKILLDEX_FRM_BUTTON_ON].height * ginfo[SKILLDEX_FRM_BUTTON_ON].width + 512);
+        skldxbtn[buttonDataIndex] = (unsigned char*)mem_malloc(ginfo[SKILLDEX_FRM_BUTTON_ON].height * ginfo[SKILLDEX_FRM_BUTTON_ON].width + 512);
         if (skldxbtn[buttonDataIndex] == NULL) {
             break;
         }
@@ -205,7 +205,7 @@ static int skilldex_start()
 
     if (buttonDataIndex < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT) {
         while (--buttonDataIndex >= 0) {
-            internal_free(skldxbtn[buttonDataIndex]);
+            mem_free(skldxbtn[buttonDataIndex]);
         }
 
         for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
@@ -227,7 +227,7 @@ static int skilldex_start()
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
     if (skldxwin == -1) {
         for (int index = 0; index < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; index++) {
-            internal_free(skldxbtn[index]);
+            mem_free(skldxbtn[index]);
         }
 
         for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {
@@ -376,7 +376,7 @@ static void skilldex_end()
     windowDestroy(skldxwin);
 
     for (int index = 0; index < SKILLDEX_SKILL_BUTTON_BUFFER_COUNT; index++) {
-        internal_free(skldxbtn[index]);
+        mem_free(skldxbtn[index]);
     }
 
     for (int index = 0; index < SKILLDEX_FRM_COUNT; index++) {

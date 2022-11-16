@@ -69,26 +69,26 @@ int CompLZS(unsigned char* a1, unsigned char* a2, int a3)
 
     // NOTE: Original code is slightly different, it uses deep nesting or a
     // bunch of gotos.
-    lson = (int*)internal_malloc(sizeof(*lson) * 4104);
-    rson = (int*)internal_malloc(sizeof(*rson) * 4376);
-    dad = (int*)internal_malloc(sizeof(*dad) * 4104);
-    text_buf = (unsigned char*)internal_malloc(sizeof(*text_buf) * 4122);
+    lson = (int*)mem_malloc(sizeof(*lson) * 4104);
+    rson = (int*)mem_malloc(sizeof(*rson) * 4376);
+    dad = (int*)mem_malloc(sizeof(*dad) * 4104);
+    text_buf = (unsigned char*)mem_malloc(sizeof(*text_buf) * 4122);
 
     if (lson == NULL || rson == NULL || dad == NULL || text_buf == NULL) {
         debug_printf("\nGRAPHLIB: Error allocating compression buffers!\n");
 
         if (dad != NULL) {
-            internal_free(dad);
+            mem_free(dad);
         }
 
         if (rson != NULL) {
-            internal_free(rson);
+            mem_free(rson);
         }
         if (lson != NULL) {
-            internal_free(lson);
+            mem_free(lson);
         }
         if (text_buf != NULL) {
-            internal_free(text_buf);
+            mem_free(text_buf);
         }
 
         return -1;
@@ -220,10 +220,10 @@ int CompLZS(unsigned char* a1, unsigned char* a2, int a3)
         codesize += v36;
     }
 
-    internal_free(lson);
-    internal_free(rson);
-    internal_free(dad);
-    internal_free(text_buf);
+    mem_free(lson);
+    mem_free(rson);
+    mem_free(dad);
+    mem_free(text_buf);
 
     if (rc == -1) {
         v4 = -1;
@@ -353,7 +353,7 @@ static void DeleteNode(int a1)
 // 0x44F92C
 int DecodeLZS(unsigned char* src, unsigned char* dest, int length)
 {
-    text_buf = (unsigned char*)internal_malloc(sizeof(*text_buf) * 4122);
+    text_buf = (unsigned char*)mem_malloc(sizeof(*text_buf) * 4122);
     if (text_buf == NULL) {
         debug_printf("\nGRAPHLIB: Error allocating decompression buffer!\n");
         return -1;
@@ -404,7 +404,7 @@ int DecodeLZS(unsigned char* src, unsigned char* dest, int length)
         }
     }
 
-    internal_free(text_buf);
+    mem_free(text_buf);
 
     return 0;
 }

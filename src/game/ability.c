@@ -12,7 +12,7 @@ int abil_init(Ability* ability, int initialCapacity)
     ability->entries = NULL;
 
     if (initialCapacity != 0) {
-        ability->entries = (AbilityData*)internal_malloc(sizeof(*ability->entries) * initialCapacity);
+        ability->entries = (AbilityData*)mem_malloc(sizeof(*ability->entries) * initialCapacity);
         if (ability->entries != NULL) {
             ability->length = 0;
             ability->capacity = initialCapacity;
@@ -29,7 +29,7 @@ int abil_resize(Ability* ability, int capacity)
     AbilityData* entries;
 
     if (capacity >= ability->length) {
-        entries = (AbilityData*)internal_realloc(ability->entries, sizeof(*ability->entries) * capacity);
+        entries = (AbilityData*)mem_realloc(ability->entries, sizeof(*ability->entries) * capacity);
         if (entries != NULL) {
             ability->entries = entries;
             ability->capacity = capacity;
@@ -44,7 +44,7 @@ int abil_resize(Ability* ability, int capacity)
 int abil_free(Ability* ability)
 {
     if (ability->entries != NULL) {
-        internal_free(ability->entries);
+        mem_free(ability->entries);
     }
     return 0;
 }
@@ -189,7 +189,7 @@ int abil_read_ability_data(Ability* ability, File* stream)
 {
     int index;
 
-    ability->entries = (AbilityData*)internal_malloc(sizeof(*ability->entries) * ability->capacity);
+    ability->entries = (AbilityData*)mem_malloc(sizeof(*ability->entries) * ability->capacity);
     if (ability->entries == NULL) {
         return -1;
     }

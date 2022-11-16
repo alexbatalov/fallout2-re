@@ -314,7 +314,7 @@ int combat_ai_init()
         return -1;
     }
 
-    cap = (AiPacket*)internal_malloc(sizeof(*cap) * config.size);
+    cap = (AiPacket*)mem_malloc(sizeof(*cap) * config.size);
     if (cap == NULL) {
         goto err;
     }
@@ -328,7 +328,7 @@ int combat_ai_init()
         AiPacket* ai = &(cap[index]);
         char* stringValue;
 
-        ai->name = internal_strdup(sectionEntry->name);
+        ai->name = mem_strdup(sectionEntry->name);
 
         if (!config_get_value(&config, sectionEntry->name, "packet_num", &(ai->packet_num))) goto err;
         if (!config_get_value(&config, sectionEntry->name, "max_dist", &(ai->max_dist))) goto err;
@@ -411,13 +411,13 @@ int combat_ai_init()
         }
 
         if (config_get_string(&config, sectionEntry->name, "body_type", &stringValue)) {
-            ai->body_type = internal_strdup(stringValue);
+            ai->body_type = mem_strdup(stringValue);
         } else {
             ai->body_type = NULL;
         }
 
         if (config_get_string(&config, sectionEntry->name, "general_type", &stringValue)) {
-            ai->general_type = internal_strdup(stringValue);
+            ai->general_type = mem_strdup(stringValue);
         } else {
             ai->general_type = NULL;
         }
@@ -441,13 +441,13 @@ err:
         for (index = 0; index < config.size; index++) {
             AiPacket* ai = &(cap[index]);
             if (ai->name != NULL) {
-                internal_free(ai->name);
+                mem_free(ai->name);
             }
 
             // FIXME: leaking ai->body_type and ai->general_type, does not matter
             // because it halts further processing
         }
-        internal_free(cap);
+        mem_free(cap);
     }
 
     debug_printf("Error processing ai.txt");
@@ -469,22 +469,22 @@ int combat_ai_exit()
         AiPacket* ai = &(cap[index]);
 
         if (ai->name != NULL) {
-            internal_free(ai->name);
+            mem_free(ai->name);
             ai->name = NULL;
         }
 
         if (ai->general_type != NULL) {
-            internal_free(ai->general_type);
+            mem_free(ai->general_type);
             ai->general_type = NULL;
         }
 
         if (ai->body_type != NULL) {
-            internal_free(ai->body_type);
+            mem_free(ai->body_type);
             ai->body_type = NULL;
         }
     }
 
-    internal_free(cap);
+    mem_free(cap);
     num_caps = 0;
 
     combatai_is_initialized = false;
@@ -2747,7 +2747,7 @@ void combat_ai_begin(int a1, void* a2)
     curr_crit_num = a1;
 
     if (a1 != 0) {
-        curr_crit_list = (Object**)internal_malloc(sizeof(Object*) * a1);
+        curr_crit_list = (Object**)mem_malloc(sizeof(Object*) * a1);
         if (curr_crit_list) {
             memcpy(curr_crit_list, a2, sizeof(Object*) * a1);
         } else {
@@ -2760,7 +2760,7 @@ void combat_ai_begin(int a1, void* a2)
 void combat_ai_over()
 {
     if (curr_crit_num) {
-        internal_free(curr_crit_list);
+        mem_free(curr_crit_list);
     }
 
     curr_crit_num = 0;

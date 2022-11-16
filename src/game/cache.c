@@ -42,7 +42,7 @@ bool cache_init(Cache* cache, CacheSizeProc* sizeProc, CacheReadProc* readProc, 
     cache->entriesLength = 0;
     cache->entriesCapacity = CACHE_ENTRIES_INITIAL_CAPACITY;
     cache->hits = 0;
-    cache->entries = (CacheEntry**)internal_malloc(sizeof(*cache->entries) * cache->entriesCapacity);
+    cache->entries = (CacheEntry**)mem_malloc(sizeof(*cache->entries) * cache->entriesCapacity);
     cache->sizeProc = sizeProc;
     cache->readProc = readProc;
     cache->freeProc = freeProc;
@@ -75,7 +75,7 @@ bool cache_exit(Cache* cache)
     cache->hits = 0;
 
     if (cache->entries != NULL) {
-        internal_free(cache->entries);
+        mem_free(cache->entries);
         cache->entries = NULL;
     }
 
@@ -289,7 +289,7 @@ int cache_create_list(Cache* cache, unsigned int a2, int** tagsPtr, int* tagsLen
 
     switch (a2) {
     case CACHE_LIST_REQUEST_TYPE_ALL_ITEMS:
-        *tagsPtr = (int*)internal_malloc(sizeof(*tagsPtr) * cache->entriesLength);
+        *tagsPtr = (int*)mem_malloc(sizeof(*tagsPtr) * cache->entriesLength);
         if (*tagsPtr == NULL) {
             return 0;
         }
@@ -308,7 +308,7 @@ int cache_create_list(Cache* cache, unsigned int a2, int** tagsPtr, int* tagsLen
             }
         }
 
-        *tagsPtr = (int*)internal_malloc(sizeof(*tagsPtr) * (*tagsLengthPtr));
+        *tagsPtr = (int*)mem_malloc(sizeof(*tagsPtr) * (*tagsLengthPtr));
         if (*tagsPtr == NULL) {
             return 0;
         }
@@ -330,7 +330,7 @@ int cache_create_list(Cache* cache, unsigned int a2, int** tagsPtr, int* tagsLen
             }
         }
 
-        *tagsPtr = (int*)internal_malloc(sizeof(*tagsPtr) * (*tagsLengthPtr));
+        *tagsPtr = (int*)mem_malloc(sizeof(*tagsPtr) * (*tagsLengthPtr));
         if (*tagsPtr == NULL) {
             return 0;
         }
@@ -363,7 +363,7 @@ int cache_destroy_list(int** tagsPtr)
         return 0;
     }
 
-    internal_free(*tagsPtr);
+    mem_free(*tagsPtr);
     *tagsPtr = NULL;
 
     return 1;
@@ -538,7 +538,7 @@ static int cache_find(Cache* cache, int key, int* indexPtr)
 // 0x4206C0
 static int cache_create_item(CacheEntry** cacheEntryPtr)
 {
-    *cacheEntryPtr = (CacheEntry*)internal_malloc(sizeof(**cacheEntryPtr));
+    *cacheEntryPtr = (CacheEntry*)mem_malloc(sizeof(**cacheEntryPtr));
 
     // FIXME: Wrong check, should be *cacheEntryPtr != NULL.
     if (cacheEntryPtr != NULL) {
@@ -571,7 +571,7 @@ static bool cache_destroy_item(Cache* cache, CacheEntry* cacheEntry)
         heap_deallocate(&(cache->heap), &(cacheEntry->heapHandleIndex));
     }
 
-    internal_free(cacheEntry);
+    mem_free(cacheEntry);
 
     return true;
 }
@@ -602,7 +602,7 @@ static bool cache_reset_counter(Cache* cache)
         return false;
     }
 
-    CacheEntry** entries = (CacheEntry**)internal_malloc(sizeof(*entries) * cache->entriesLength);
+    CacheEntry** entries = (CacheEntry**)mem_malloc(sizeof(*entries) * cache->entriesLength);
     if (entries == NULL) {
         return false;
     }
@@ -639,7 +639,7 @@ static bool cache_make_room(Cache* cache, int size)
         return true;
     }
 
-    CacheEntry** entries = (CacheEntry**)internal_malloc(sizeof(*entries) * cache->entriesLength);
+    CacheEntry** entries = (CacheEntry**)mem_malloc(sizeof(*entries) * cache->entriesLength);
     if (entries != NULL) {
         memcpy(entries, cache->entries, sizeof(*entries) * cache->entriesLength);
         qsort(entries, cache->entriesLength, sizeof(*entries), cache_compare_make_room);
@@ -689,7 +689,7 @@ static bool cache_make_room(Cache* cache, int size)
             }
         }
 
-        internal_free(entries);
+        mem_free(entries);
     }
 
     cache_purge(cache);
@@ -739,7 +739,7 @@ static bool cache_resize_array(Cache* cache, int newCapacity)
         return false;
     }
 
-    CacheEntry** entries = (CacheEntry**)internal_realloc(cache->entries, sizeof(*cache->entries) * newCapacity);
+    CacheEntry** entries = (CacheEntry**)mem_realloc(cache->entries, sizeof(*cache->entries) * newCapacity);
     if (entries == NULL) {
         return false;
     }

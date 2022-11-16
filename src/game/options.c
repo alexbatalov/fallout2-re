@@ -498,10 +498,10 @@ static int OptnStart()
 
     int cycle = 0;
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        opbtns[index] = (unsigned char*)internal_malloc(ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
+        opbtns[index] = (unsigned char*)mem_malloc(ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].width * ginfo[OPTIONS_WINDOW_FRM_BUTTON_ON].height + 1024);
         if (opbtns[index] == NULL) {
             while (--index >= 0) {
-                internal_free(opbtns[index]);
+                mem_free(opbtns[index]);
             }
 
             for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
@@ -529,7 +529,7 @@ static int OptnStart()
 
     if (optnwin == -1) {
         for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-            internal_free(opbtns[index]);
+            mem_free(opbtns[index]);
         }
 
         for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {
@@ -595,7 +595,7 @@ static int OptnEnd()
     message_exit(&optn_msgfl);
 
     for (int index = 0; index < OPTIONS_WINDOW_BUTTONS_COUNT; index++) {
-        internal_free(opbtns[index]);
+        mem_free(opbtns[index]);
     }
 
     for (int index = 0; index < OPTIONS_WINDOW_FRM_COUNT; index++) {

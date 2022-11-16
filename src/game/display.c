@@ -90,7 +90,7 @@ int display_init()
         disp_curr = 0;
         fontSetCurrent(oldFont);
 
-        disp_buf = (unsigned char*)internal_malloc(DISPLAY_MONITOR_WIDTH * DISPLAY_MONITOR_HEIGHT);
+        disp_buf = (unsigned char*)mem_malloc(DISPLAY_MONITOR_WIDTH * DISPLAY_MONITOR_HEIGHT);
         if (disp_buf == NULL) {
             return -1;
         }
@@ -99,7 +99,7 @@ int display_init()
         int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 16, 0, 0, 0);
         Art* backgroundFrm = art_ptr_lock(backgroundFid, &backgroundFrmHandle);
         if (backgroundFrm == NULL) {
-            internal_free(disp_buf);
+            mem_free(disp_buf);
             return -1;
         }
 
@@ -179,7 +179,7 @@ int display_reset()
 void display_exit()
 {
     if (disp_init) {
-        internal_free(disp_buf);
+        mem_free(disp_buf);
         disp_init = false;
     }
 }

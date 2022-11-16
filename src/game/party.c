@@ -129,28 +129,28 @@ int partyMember_init()
         sprintf(section, "Party Member %d", partyMemberMaxCount);
     }
 
-    partyMemberPidList = (int*)internal_malloc(sizeof(*partyMemberPidList) * partyMemberMaxCount);
+    partyMemberPidList = (int*)mem_malloc(sizeof(*partyMemberPidList) * partyMemberMaxCount);
     if (partyMemberPidList == NULL) {
         goto err;
     }
 
     memset(partyMemberPidList, 0, sizeof(*partyMemberPidList) * partyMemberMaxCount);
 
-    partyMemberList = (PartyMember*)internal_malloc(sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
+    partyMemberList = (PartyMember*)mem_malloc(sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
     if (partyMemberList == NULL) {
         goto err;
     }
 
     memset(partyMemberList, 0, sizeof(*partyMemberList) * (partyMemberMaxCount + 20));
 
-    partyMemberAIOptions = (PartyMemberAI*)internal_malloc(sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
+    partyMemberAIOptions = (PartyMemberAI*)mem_malloc(sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
     if (partyMemberAIOptions == NULL) {
         goto err;
     }
 
     memset(partyMemberAIOptions, 0, sizeof(*partyMemberAIOptions) * partyMemberMaxCount);
 
-    partyMemberLevelUpInfoList = (PartyMemberLevelUpInfo*)internal_malloc(sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
+    partyMemberLevelUpInfoList = (PartyMemberLevelUpInfo*)mem_malloc(sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
     if (partyMemberLevelUpInfoList == NULL) goto err;
 
     memset(partyMemberLevelUpInfoList, 0, sizeof(*partyMemberLevelUpInfoList) * partyMemberMaxCount);
@@ -277,22 +277,22 @@ void partyMember_exit()
     partyMemberMaxCount = 0;
 
     if (partyMemberPidList != NULL) {
-        internal_free(partyMemberPidList);
+        mem_free(partyMemberPidList);
         partyMemberPidList = NULL;
     }
 
     if (partyMemberList != NULL) {
-        internal_free(partyMemberList);
+        mem_free(partyMemberList);
         partyMemberList = NULL;
     }
 
     if (partyMemberAIOptions != NULL) {
-        internal_free(partyMemberAIOptions);
+        mem_free(partyMemberAIOptions);
         partyMemberAIOptions = NULL;
     }
 
     if (partyMemberLevelUpInfoList != NULL) {
-        internal_free(partyMemberLevelUpInfoList);
+        mem_free(partyMemberLevelUpInfoList);
         partyMemberLevelUpInfoList = NULL;
     }
 }
@@ -580,7 +580,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
         return 0;
     }
 
-    partyMember->script = (Script*)internal_malloc(sizeof(*script));
+    partyMember->script = (Script*)mem_malloc(sizeof(*script));
     if (partyMember->script == NULL) {
         showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
         exit(1);
@@ -589,7 +589,7 @@ static int partyMemberPrepLoadInstance(PartyMember* partyMember)
     memcpy(partyMember->script, script, sizeof(*script));
 
     if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
-        partyMember->vars = (int*)internal_malloc(sizeof(*partyMember->vars) * script->localVarsCount);
+        partyMember->vars = (int*)mem_malloc(sizeof(*partyMember->vars) * script->localVarsCount);
         if (partyMember->vars == NULL) {
             showMesageBox("\n  Error!: partyMemberPrepLoad: Out of memory!");
             exit(1);
@@ -643,7 +643,7 @@ int partyMemberRecoverLoad()
         itemSaveListHead = node->next;
 
         partyMemberItemRecover(node);
-        internal_free(node);
+        mem_free(node);
 
         node = itemSaveListHead;
     }
@@ -690,7 +690,7 @@ static int partyMemberRecoverLoadInstance(PartyMember* partyMember)
 
     script->flags &= ~(SCRIPT_FLAG_0x01 | SCRIPT_FLAG_0x04);
 
-    internal_free(partyMember->script);
+    mem_free(partyMember->script);
     partyMember->script = NULL;
 
     script->flags |= (SCRIPT_FLAG_0x08 | SCRIPT_FLAG_0x10);
@@ -706,7 +706,7 @@ static int partyMemberRecoverLoadInstance(PartyMember* partyMember)
 // 0x494BBC
 int partyMemberLoad(File* stream)
 {
-    int* partyMemberObjectIds = (int*)internal_malloc(sizeof(*partyMemberObjectIds) * (partyMemberMaxCount + 20));
+    int* partyMemberObjectIds = (int*)mem_malloc(sizeof(*partyMemberObjectIds) * (partyMemberMaxCount + 20));
     if (partyMemberObjectIds == NULL) {
         return -1;
     }
@@ -1022,7 +1022,7 @@ static int partyMemberItemSave(Object* object)
             object->id = script->field_1C;
         }
 
-        PartyMember* node = (PartyMember*)internal_malloc(sizeof(*node));
+        PartyMember* node = (PartyMember*)mem_malloc(sizeof(*node));
         if (node == NULL) {
             showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
@@ -1030,7 +1030,7 @@ static int partyMemberItemSave(Object* object)
 
         node->object = object;
 
-        node->script = (Script*)internal_malloc(sizeof(*script));
+        node->script = (Script*)mem_malloc(sizeof(*script));
         if (node->script == NULL) {
             showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
             exit(1);
@@ -1039,7 +1039,7 @@ static int partyMemberItemSave(Object* object)
         memcpy(node->script, script, sizeof(*script));
 
         if (script->localVarsCount != 0 && script->localVarsOffset != -1) {
-            node->vars = (int*)internal_malloc(sizeof(*node->vars) * script->localVarsCount);
+            node->vars = (int*)mem_malloc(sizeof(*node->vars) * script->localVarsCount);
             if (node->vars == NULL) {
                 showMesageBox("\n  Error!: partyMemberItemSave: Out of memory!");
                 exit(1);
@@ -1089,7 +1089,7 @@ static int partyMemberItemRecover(PartyMember* partyMember)
 
     partyMemberItemCount++;
 
-    internal_free(partyMember->script);
+    mem_free(partyMember->script);
     partyMember->script = NULL;
 
     if (partyMember->vars != NULL) {
@@ -1108,14 +1108,14 @@ static int partyMemberClearItemList()
         itemSaveListHead = itemSaveListHead->next;
 
         if (node->script != NULL) {
-            internal_free(node->script);
+            mem_free(node->script);
         }
 
         if (node->vars != NULL) {
-            internal_free(node->vars);
+            mem_free(node->vars);
         }
 
-        internal_free(node);
+        mem_free(node);
     }
 
     partyMemberItemCount = 20000;

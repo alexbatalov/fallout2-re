@@ -485,7 +485,7 @@ int critter_check_rads(Object* obj)
 
     if (radiationLevel > old_rad_level) {
         // Create timer event for applying radiation damage.
-        RadiationEvent* radiationEvent = (RadiationEvent*)internal_malloc(sizeof(*radiationEvent));
+        RadiationEvent* radiationEvent = (RadiationEvent*)mem_malloc(sizeof(*radiationEvent));
         if (radiationEvent == NULL) {
             return 0;
         }
@@ -580,7 +580,7 @@ int critter_process_rads(Object* obj, void* data)
     RadiationEvent* radiationEvent = (RadiationEvent*)data;
     if (!radiationEvent->isHealing) {
         // Schedule healing stats event in 7 days.
-        RadiationEvent* newRadiationEvent = (RadiationEvent*)internal_malloc(sizeof(*newRadiationEvent));
+        RadiationEvent* newRadiationEvent = (RadiationEvent*)mem_malloc(sizeof(*newRadiationEvent));
         if (newRadiationEvent != NULL) {
             queue_clear_type(EVENT_TYPE_RADIATION, clear_rad_damage);
             newRadiationEvent->radiationLevel = radiationEvent->radiationLevel;
@@ -597,7 +597,7 @@ int critter_process_rads(Object* obj, void* data)
 // 0x42D7A0
 int critter_load_rads(File* stream, void** dataPtr)
 {
-    RadiationEvent* radiationEvent = (RadiationEvent*)internal_malloc(sizeof(*radiationEvent));
+    RadiationEvent* radiationEvent = (RadiationEvent*)mem_malloc(sizeof(*radiationEvent));
     if (radiationEvent == NULL) {
         return -1;
     }
@@ -610,7 +610,7 @@ int critter_load_rads(File* stream, void** dataPtr)
 
 err:
 
-    internal_free(radiationEvent);
+    mem_free(radiationEvent);
     return -1;
 }
 

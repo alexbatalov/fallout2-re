@@ -947,7 +947,7 @@ int game_load_info_vars(const char* path, const char* section, int* variablesLis
     }
 
     if (*variablesListLengthPtr != 0) {
-        internal_free(*variablesListPtr);
+        mem_free(*variablesListPtr);
         *variablesListPtr = NULL;
         *variablesListLengthPtr = 0;
     }
@@ -976,7 +976,7 @@ int game_load_info_vars(const char* path, const char* section, int* variablesLis
         }
 
         *variablesListLengthPtr = *variablesListLengthPtr + 1;
-        *variablesListPtr = (int*)internal_realloc(*variablesListPtr, sizeof(int) * *variablesListLengthPtr);
+        *variablesListPtr = (int*)mem_realloc(*variablesListPtr, sizeof(int) * *variablesListLengthPtr);
 
         if (*variablesListPtr == NULL) {
             exit(1);
@@ -1082,7 +1082,7 @@ static void game_unload_info()
 {
     num_game_global_vars = 0;
     if (game_global_vars != NULL) {
-        internal_free(game_global_vars);
+        mem_free(game_global_vars);
         game_global_vars = NULL;
     }
 }
@@ -1294,15 +1294,15 @@ static void game_splash_screen()
         return;
     }
 
-    unsigned char* palette = (unsigned char*)internal_malloc(768);
+    unsigned char* palette = (unsigned char*)mem_malloc(768);
     if (palette == NULL) {
         fileClose(stream);
         return;
     }
 
-    unsigned char* data = (unsigned char*)internal_malloc(SPLASH_WIDTH * SPLASH_HEIGHT);
+    unsigned char* data = (unsigned char*)mem_malloc(SPLASH_WIDTH * SPLASH_HEIGHT);
     if (data == NULL) {
-        internal_free(palette);
+        mem_free(palette);
         fileClose(stream);
         return;
     }
@@ -1318,8 +1318,8 @@ static void game_splash_screen()
     _scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, splashWindowX, splashWindowY);
     palette_fade_to(palette);
 
-    internal_free(data);
-    internal_free(palette);
+    mem_free(data);
+    mem_free(palette);
 
     config_set_value(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_SPLASH_KEY, splash + 1);
 }

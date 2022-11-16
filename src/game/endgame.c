@@ -571,7 +571,7 @@ static int endgame_init()
 
     sprintf(endgame_subtitle_path, "text\\%s\\cuts\\", language);
 
-    endgame_subtitle_text = (char**)internal_malloc(sizeof(*endgame_subtitle_text) * ENDGAME_ENDING_MAX_SUBTITLES);
+    endgame_subtitle_text = (char**)mem_malloc(sizeof(*endgame_subtitle_text) * ENDGAME_ENDING_MAX_SUBTITLES);
     if (endgame_subtitle_text == NULL) {
         endgame_do_subtitles = false;
         return 0;
@@ -581,9 +581,9 @@ static int endgame_init()
         endgame_subtitle_text[index] = NULL;
     }
 
-    endgame_subtitle_times = (unsigned int*)internal_malloc(sizeof(*endgame_subtitle_times) * ENDGAME_ENDING_MAX_SUBTITLES);
+    endgame_subtitle_times = (unsigned int*)mem_malloc(sizeof(*endgame_subtitle_times) * ENDGAME_ENDING_MAX_SUBTITLES);
     if (endgame_subtitle_times == NULL) {
-        internal_free(endgame_subtitle_text);
+        mem_free(endgame_subtitle_text);
         endgame_do_subtitles = false;
         return 0;
     }
@@ -597,8 +597,8 @@ static void endgame_exit()
     if (endgame_do_subtitles) {
         endgame_clear_subtitles();
 
-        internal_free(endgame_subtitle_times);
-        internal_free(endgame_subtitle_text);
+        mem_free(endgame_subtitle_times);
+        mem_free(endgame_subtitle_text);
 
         endgame_subtitle_text = NULL;
         endgame_do_subtitles = false;
@@ -758,7 +758,7 @@ static int endgame_load_subtitles(const char* filePath)
         pch = strchr(string, ':');
         if (pch != NULL) {
             if (endgame_subtitle_count < ENDGAME_ENDING_MAX_SUBTITLES) {
-                endgame_subtitle_text[endgame_subtitle_count] = internal_strdup(pch + 1);
+                endgame_subtitle_text[endgame_subtitle_count] = mem_strdup(pch + 1);
                 endgame_subtitle_count++;
                 endgame_subtitle_characters += strlen(pch + 1);
             }
@@ -828,7 +828,7 @@ static void endgame_clear_subtitles()
 {
     for (int index = 0; index < endgame_subtitle_count; index++) {
         if (endgame_subtitle_text[index] != NULL) {
-            internal_free(endgame_subtitle_text[index]);
+            mem_free(endgame_subtitle_text[index]);
             endgame_subtitle_text[index] = NULL;
         }
     }
@@ -866,7 +866,7 @@ static int endgame_load_slide_info()
     int narrator_file_len;
 
     if (slides != NULL) {
-        internal_free(slides);
+        mem_free(slides);
         slides = NULL;
     }
 
@@ -927,7 +927,7 @@ static int endgame_load_slide_info()
             entry.direction = 1;
         }
 
-        entries = (EndgameEnding*)internal_realloc(slides, sizeof(*entries) * (num_slides + 1));
+        entries = (EndgameEnding*)mem_realloc(slides, sizeof(*entries) * (num_slides + 1));
         if (entries == NULL) {
             goto err;
         }
@@ -955,7 +955,7 @@ err:
 static void endgame_unload_slide_info()
 {
     if (slides != NULL) {
-        internal_free(slides);
+        mem_free(slides);
         slides = NULL;
     }
 
@@ -1049,7 +1049,7 @@ int endgameDeathEndingInit()
             entry.voiceOverBaseName[narrator_file_len - 1] = '\0';
         }
 
-        entries = (EndgameDeathEnding*)internal_realloc(endDeathInfoList, sizeof(*entries) * (maxEndDeathInfo + 1));
+        entries = (EndgameDeathEnding*)mem_realloc(endDeathInfoList, sizeof(*entries) * (maxEndDeathInfo + 1));
         if (entries == NULL) {
             goto err;
         }
@@ -1075,7 +1075,7 @@ err:
 int endgameDeathEndingExit()
 {
     if (endDeathInfoList != NULL) {
-        internal_free(endDeathInfoList);
+        mem_free(endDeathInfoList);
         endDeathInfoList = NULL;
 
         maxEndDeathInfo = 0;

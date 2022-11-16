@@ -2062,10 +2062,10 @@ int combat_load(File* stream)
     }
 
     if (aiInfoList) {
-        internal_free(aiInfoList);
+        mem_free(aiInfoList);
     }
 
-    aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(*aiInfoList) * list_total);
+    aiInfoList = (CombatAiInfo*)mem_malloc(sizeof(*aiInfoList) * list_total);
     if (aiInfoList == NULL) {
         return -1;
     }
@@ -2492,7 +2492,7 @@ static void combat_begin(Object* a1)
         list_total = obj_create_list(-1, combat_elev, OBJ_TYPE_CRITTER, &combat_list);
         list_noncom = list_total;
         list_com = 0;
-        aiInfoList = (CombatAiInfo*)internal_malloc(sizeof(*aiInfoList) * list_total);
+        aiInfoList = (CombatAiInfo*)mem_malloc(sizeof(*aiInfoList) * list_total);
         if (aiInfoList == NULL) {
             return;
         }
@@ -2741,7 +2741,7 @@ static void combat_over()
         obj_delete_list(combat_list);
 
         if (aiInfoList != NULL) {
-            internal_free(aiInfoList);
+            mem_free(aiInfoList);
         }
         aiInfoList = NULL;
     }

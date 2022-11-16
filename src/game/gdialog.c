@@ -1612,7 +1612,7 @@ static void gdReviewFree()
         entry->replyMessageId = 0;
 
         if (entry->replyText != NULL) {
-            internal_free(entry->replyText);
+            mem_free(entry->replyText);
             entry->replyText = NULL;
         }
 
@@ -1658,11 +1658,11 @@ static int gdAddReviewReplyStr(const char* string)
     entry->replyMessageId = -4;
 
     if (entry->replyText != NULL) {
-        internal_free(entry->replyText);
+        mem_free(entry->replyText);
         entry->replyText = NULL;
     }
 
-    entry->replyText = (char*)internal_malloc(strlen(string) + 1);
+    entry->replyText = (char*)mem_malloc(strlen(string) + 1);
     strcpy(entry->replyText, string);
 
     entry->optionMessageListId = -3;
@@ -1702,7 +1702,7 @@ static int gdAddReviewOptionChosenStr(const char* string)
     entry->optionMessageListId = -4;
     entry->optionMessageId = -4;
 
-    entry->optionText = (char*)internal_malloc(strlen(string) + 1);
+    entry->optionText = (char*)mem_malloc(strlen(string) + 1);
     strcpy(entry->optionText, string);
 
     return 0;
@@ -2374,7 +2374,7 @@ static int gdCreateHeadWindow()
         Rect* rect = &(backgrndRects[index]);
         int width = rect->right - rect->left;
         int height = rect->bottom - rect->top;
-        backgrndBufs[index] = (unsigned char*)internal_malloc(width * height);
+        backgrndBufs[index] = (unsigned char*)mem_malloc(width * height);
         if (backgrndBufs[index] == NULL) {
             return -1;
         }
@@ -2416,7 +2416,7 @@ static void gdDestroyHeadWindow()
     }
 
     for (int index = 0; index < 8; index++) {
-        internal_free(backgrndBufs[index]);
+        mem_free(backgrndBufs[index]);
     }
 }
 

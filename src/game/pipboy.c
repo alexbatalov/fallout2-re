@@ -2185,7 +2185,7 @@ static int ScreenSaver()
 
     gmouse_disable(0);
 
-    unsigned char* buf = (unsigned char*)internal_malloc(412 * 374);
+    unsigned char* buf = (unsigned char*)mem_malloc(412 * 374);
     if (buf == NULL) {
         return -1;
     }
@@ -2333,7 +2333,7 @@ static int ScreenSaver()
         scrn_buf + PIPBOY_WINDOW_WIDTH * PIPBOY_WINDOW_CONTENT_VIEW_Y + PIPBOY_WINDOW_CONTENT_VIEW_X,
         PIPBOY_WINDOW_WIDTH);
 
-    internal_free(buf);
+    mem_free(buf);
 
     win_draw_rect(pip_win, &pip_rect);
     gmouse_enable();
@@ -2410,7 +2410,7 @@ static int quest_init()
 
         entry.completedThreshold = atoi(tok);
 
-        QuestDescription* entries = (QuestDescription*)internal_realloc(quests, sizeof(*quests) * (quest_count + 1));
+        QuestDescription* entries = (QuestDescription*)mem_realloc(quests, sizeof(*quests) * (quest_count + 1));
         if (entries == NULL) {
             goto err;
         }
@@ -2438,7 +2438,7 @@ err:
 static void quest_exit()
 {
     if (quests != NULL) {
-        internal_free(quests);
+        mem_free(quests);
         quests = NULL;
     }
 
@@ -2502,7 +2502,7 @@ static int holodisks_init()
 
         entry.description = atoi(tok);
 
-        HolodiskDescription* entries = (HolodiskDescription*)internal_realloc(holodisks, sizeof(*holodisks) * (holodisks_count + 1));
+        HolodiskDescription* entries = (HolodiskDescription*)mem_realloc(holodisks, sizeof(*holodisks) * (holodisks_count + 1));
         if (entries == NULL) {
             goto err;
         }
@@ -2528,7 +2528,7 @@ err:
 static void holodisks_exit()
 {
     if (holodisks != NULL) {
-        internal_free(holodisks);
+        mem_free(holodisks);
         holodisks = NULL;
     }
 

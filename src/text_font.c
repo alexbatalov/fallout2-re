@@ -102,8 +102,8 @@ void textFontsExit()
     for (int index = 0; index < TEXT_FONT_MAX; index++) {
         TextFontDescriptor* textFontDescriptor = &(gTextFontDescriptors[index]);
         if (textFontDescriptor->glyphCount != 0) {
-            internal_free(textFontDescriptor->glyphs);
-            internal_free(textFontDescriptor->data);
+            mem_free(textFontDescriptor->glyphs);
+            mem_free(textFontDescriptor->data);
         }
     }
 }
@@ -132,7 +132,7 @@ int textFontLoad(int font)
         goto out;
     }
 
-    textFontDescriptor->glyphs = (TextFontGlyph*)internal_malloc(textFontDescriptor->glyphCount * sizeof(TextFontGlyph));
+    textFontDescriptor->glyphs = (TextFontGlyph*)mem_malloc(textFontDescriptor->glyphCount * sizeof(TextFontGlyph));
     if (textFontDescriptor->glyphs == NULL) {
         goto out;
     }
@@ -142,7 +142,7 @@ int textFontLoad(int font)
     }
 
     dataSize = textFontDescriptor->lineHeight * ((textFontDescriptor->glyphs[textFontDescriptor->glyphCount - 1].width + 7) >> 3) + textFontDescriptor->glyphs[textFontDescriptor->glyphCount - 1].dataOffset;
-    textFontDescriptor->data = (unsigned char*)internal_malloc(dataSize);
+    textFontDescriptor->data = (unsigned char*)mem_malloc(dataSize);
     if (textFontDescriptor->data == NULL) {
         goto out;
     }
@@ -157,12 +157,12 @@ out:
 
     if (rc != 0) {
         if (textFontDescriptor->data != NULL) {
-            internal_free(textFontDescriptor->data);
+            mem_free(textFontDescriptor->data);
             textFontDescriptor->data = NULL;
         }
 
         if (textFontDescriptor->glyphs != NULL) {
-            internal_free(textFontDescriptor->glyphs);
+            mem_free(textFontDescriptor->glyphs);
             textFontDescriptor->glyphs = NULL;
         }
     }

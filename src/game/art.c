@@ -140,7 +140,7 @@ int art_init()
         }
     }
 
-    anon_alias = (int*)internal_malloc(sizeof(*anon_alias) * art[OBJ_TYPE_CRITTER].fileNamesLength);
+    anon_alias = (int*)mem_malloc(sizeof(*anon_alias) * art[OBJ_TYPE_CRITTER].fileNamesLength);
     if (anon_alias == NULL) {
         art[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debug_printf("Out of memory for anon_alias in art_init\n");
@@ -148,7 +148,7 @@ int art_init()
         return -1;
     }
 
-    artCritterFidShouldRunData = (int*)internal_malloc(sizeof(*artCritterFidShouldRunData) * art[1].fileNamesLength);
+    artCritterFidShouldRunData = (int*)mem_malloc(sizeof(*artCritterFidShouldRunData) * art[1].fileNamesLength);
     if (artCritterFidShouldRunData == NULL) {
         art[OBJ_TYPE_CRITTER].fileNamesLength = 0;
         debug_printf("Out of memory for artCritterFidShouldRunData in art_init\n");
@@ -218,7 +218,7 @@ int art_init()
         tileFileNames += 13;
     }
 
-    head_info = (HeadDescription*)internal_malloc(sizeof(*head_info) * art[OBJ_TYPE_HEAD].fileNamesLength);
+    head_info = (HeadDescription*)mem_malloc(sizeof(*head_info) * art[OBJ_TYPE_HEAD].fileNamesLength);
     if (head_info == NULL) {
         art[OBJ_TYPE_HEAD].fileNamesLength = 0;
         debug_printf("Out of memory for head_info in art_init\n");
@@ -288,18 +288,18 @@ void art_exit()
 {
     cache_exit(&art_cache);
 
-    internal_free(anon_alias);
-    internal_free(artCritterFidShouldRunData);
+    mem_free(anon_alias);
+    mem_free(artCritterFidShouldRunData);
 
     for (int index = 0; index < OBJ_TYPE_COUNT; index++) {
-        internal_free(art[index].fileNames);
+        mem_free(art[index].fileNames);
         art[index].fileNames = NULL;
 
-        internal_free(art[index].field_18);
+        mem_free(art[index].field_18);
         art[index].field_18 = NULL;
     }
 
-    internal_free(head_info);
+    mem_free(head_info);
 }
 
 // 0x418F1C
@@ -664,7 +664,7 @@ int art_read_lst(const char* path, char** artListPtr, int* artListSizePtr)
 
     *artListSizePtr = count;
 
-    char* artList = (char*)internal_malloc(13 * count);
+    char* artList = (char*)mem_malloc(13 * count);
     *artListPtr = artList;
     if (artList == NULL) {
         fileClose(stream);
@@ -1023,7 +1023,7 @@ int art_data_load(int fid, int* sizePtr, unsigned char* data)
 // 0x419C80
 void art_data_free(void* ptr)
 {
-    internal_free(ptr);
+    mem_free(ptr);
 }
 
 // 0x419C88

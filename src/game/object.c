@@ -464,11 +464,11 @@ static int obj_load_func(File* stream)
     }
 
     if (preload_list != NULL) {
-        internal_free(preload_list);
+        mem_free(preload_list);
     }
 
     if (objectCount != 0) {
-        preload_list = (int*)internal_malloc(sizeof(*preload_list) * objectCount);
+        preload_list = (int*)mem_malloc(sizeof(*preload_list) * objectCount);
         memset(preload_list, 0, sizeof(*preload_list) * objectCount);
         if (preload_list == NULL) {
             return -1;
@@ -531,7 +531,7 @@ static int obj_load_func(File* stream)
 
             Inventory* inventory = &(objectListNode->obj->data.inventory);
             if (inventory->length != 0) {
-                inventory->items = (InventoryItem*)internal_malloc(sizeof(InventoryItem) * inventory->capacity);
+                inventory->items = (InventoryItem*)mem_malloc(sizeof(InventoryItem) * inventory->capacity);
                 if (inventory->items == NULL) {
                     return -1;
                 }
@@ -544,7 +544,7 @@ static int obj_load_func(File* stream)
                     }
 
                     if (fixMapInventory) {
-                        inventoryItem->item = (Object*)internal_malloc(sizeof(Object));
+                        inventoryItem->item = (Object*)mem_malloc(sizeof(Object));
                         if (inventoryItem->item == NULL) {
                             debug_printf("Error loading inventory\n");
                             return -1;
@@ -1132,7 +1132,7 @@ int obj_disconnect(Object* obj, Rect* rect)
     }
 
     if (node != NULL) {
-        internal_free(node);
+        mem_free(node);
     }
 
     obj->tile = -1;
@@ -2035,7 +2035,7 @@ int obj_inven_free(Inventory* inventory)
     }
 
     if (inventory->items != NULL) {
-        internal_free(inventory->items);
+        mem_free(inventory->items);
         inventory->items = NULL;
         inventory->capacity = 0;
         inventory->length = 0;
@@ -2687,7 +2687,7 @@ int obj_create_list(int tile, int elevation, int objectType, Object*** objectLis
         return 0;
     }
 
-    Object** objects = *objectListPtr = (Object**)internal_malloc(sizeof(*objects) * count);
+    Object** objects = *objectListPtr = (Object**)mem_malloc(sizeof(*objects) * count);
     if (objects == NULL) {
         return -1;
     }
@@ -2725,7 +2725,7 @@ int obj_create_list(int tile, int elevation, int objectType, Object*** objectLis
 void obj_delete_list(Object** objectList)
 {
     if (objectList != NULL) {
-        internal_free(objectList);
+        mem_free(objectList);
     }
 }
 
@@ -3010,7 +3010,7 @@ int obj_create_intersect_list(int x, int y, int elevation, int objectType, Objec
                     && object != obj_egg) {
                     int flags = obj_intersects_with(object, x, y);
                     if (flags != 0) {
-                        ObjectWithFlags* entries = (ObjectWithFlags*)internal_realloc(*entriesPtr, sizeof(*entries) * (count + 1));
+                        ObjectWithFlags* entries = (ObjectWithFlags*)mem_realloc(*entriesPtr, sizeof(*entries) * (count + 1));
                         if (entries != NULL) {
                             *entriesPtr = entries;
                             entries[count].object = object;
@@ -3032,7 +3032,7 @@ int obj_create_intersect_list(int x, int y, int elevation, int objectType, Objec
 void obj_delete_intersect_list(ObjectWithFlags** entriesPtr)
 {
     if (entriesPtr != NULL && *entriesPtr != NULL) {
-        internal_free(*entriesPtr);
+        mem_free(*entriesPtr);
         *entriesPtr = NULL;
     }
 }
@@ -3216,7 +3216,7 @@ void obj_preload_art_cache(int flags)
         }
     }
 
-    internal_free(preload_list);
+    mem_free(preload_list);
     preload_list = NULL;
 
     preload_list_index = 0;
@@ -3235,12 +3235,12 @@ static int obj_offset_table_init()
         return -1;
     }
 
-    offsetTable[0] = (int*)internal_malloc(sizeof(int) * updateHexArea);
+    offsetTable[0] = (int*)mem_malloc(sizeof(int) * updateHexArea);
     if (offsetTable[0] == NULL) {
         goto err;
     }
 
-    offsetTable[1] = (int*)internal_malloc(sizeof(int) * updateHexArea);
+    offsetTable[1] = (int*)mem_malloc(sizeof(int) * updateHexArea);
     if (offsetTable[1] == NULL) {
         goto err;
     }
@@ -3283,7 +3283,7 @@ static int obj_offset_table_init()
         }
     }
 
-    offsetDivTable = (int*)internal_malloc(sizeof(int) * updateHexArea);
+    offsetDivTable = (int*)mem_malloc(sizeof(int) * updateHexArea);
     if (offsetDivTable == NULL) {
         goto err;
     }
@@ -3292,7 +3292,7 @@ static int obj_offset_table_init()
         offsetDivTable[i] = i / updateHexWidth;
     }
 
-    offsetModTable = (int*)internal_malloc(sizeof(int) * updateHexArea);
+    offsetModTable = (int*)mem_malloc(sizeof(int) * updateHexArea);
     if (offsetModTable == NULL) {
         goto err;
     }
@@ -3313,22 +3313,22 @@ err:
 static void obj_offset_table_exit()
 {
     if (offsetModTable != NULL) {
-        internal_free(offsetModTable);
+        mem_free(offsetModTable);
         offsetModTable = NULL;
     }
 
     if (offsetDivTable != NULL) {
-        internal_free(offsetDivTable);
+        mem_free(offsetDivTable);
         offsetDivTable = NULL;
     }
 
     if (offsetTable[1] != NULL) {
-        internal_free(offsetTable[1]);
+        mem_free(offsetTable[1]);
         offsetTable[1] = NULL;
     }
 
     if (offsetTable[0] != NULL) {
-        internal_free(offsetTable[0]);
+        mem_free(offsetTable[0]);
         offsetTable[0] = NULL;
     }
 }
@@ -3340,12 +3340,12 @@ static int obj_order_table_init()
         return -1;
     }
 
-    orderTable[0] = (int*)internal_malloc(sizeof(int) * updateHexArea);
+    orderTable[0] = (int*)mem_malloc(sizeof(int) * updateHexArea);
     if (orderTable[0] == NULL) {
         goto err;
     }
 
-    orderTable[1] = (int*)internal_malloc(sizeof(int) * updateHexArea);
+    orderTable[1] = (int*)mem_malloc(sizeof(int) * updateHexArea);
     if (orderTable[1] == NULL) {
         goto err;
     }
@@ -3390,12 +3390,12 @@ static int obj_order_comp_func_odd(const void* a1, const void* a2)
 static void obj_order_table_exit()
 {
     if (orderTable[1] != NULL) {
-        internal_free(orderTable[1]);
+        mem_free(orderTable[1]);
         orderTable[1] = NULL;
     }
 
     if (orderTable[0] != NULL) {
-        internal_free(orderTable[0]);
+        mem_free(orderTable[0]);
         orderTable[0] = NULL;
     }
 }
@@ -3407,7 +3407,7 @@ static int obj_render_table_init()
         return -1;
     }
 
-    renderTable = (ObjectListNode**)internal_malloc(sizeof(*renderTable) * updateHexArea);
+    renderTable = (ObjectListNode**)mem_malloc(sizeof(*renderTable) * updateHexArea);
     if (renderTable == NULL) {
         return -1;
     }
@@ -3425,7 +3425,7 @@ static int obj_render_table_init()
 static void obj_render_table_exit()
 {
     if (renderTable != NULL) {
-        internal_free(renderTable);
+        mem_free(renderTable);
         renderTable = NULL;
     }
 }
@@ -3582,7 +3582,7 @@ int obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner)
         return 0;
     }
 
-    InventoryItem* inventoryItems = inventory->items = (InventoryItem*)internal_malloc(sizeof(*inventoryItems) * inventory->capacity);
+    InventoryItem* inventoryItems = inventory->items = (InventoryItem*)mem_malloc(sizeof(*inventoryItems) * inventory->capacity);
     if (inventoryItems == NULL) {
         return -1;
     }
@@ -3708,7 +3708,7 @@ static int obj_create_object(Object** objectPtr)
         return -1;
     }
 
-    Object* object = *objectPtr = (Object*)internal_malloc(sizeof(Object));
+    Object* object = *objectPtr = (Object*)mem_malloc(sizeof(Object));
     if (object == NULL) {
         return -1;
     }
@@ -3740,7 +3740,7 @@ static void obj_destroy_object(Object** objectPtr)
         return;
     }
 
-    internal_free(*objectPtr);
+    mem_free(*objectPtr);
 
     *objectPtr = NULL;
 }
@@ -3754,7 +3754,7 @@ static int obj_create_object_node(ObjectListNode** nodePtr)
         return -1;
     }
 
-    ObjectListNode* node = *nodePtr = (ObjectListNode*)internal_malloc(sizeof(*node));
+    ObjectListNode* node = *nodePtr = (ObjectListNode*)mem_malloc(sizeof(*node));
     if (node == NULL) {
         return -1;
     }
@@ -3778,7 +3778,7 @@ static void obj_destroy_object_node(ObjectListNode** nodePtr)
         return;
     }
 
-    internal_free(*nodePtr);
+    mem_free(*nodePtr);
 
     *nodePtr = NULL;
 }

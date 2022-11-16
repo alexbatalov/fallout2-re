@@ -80,7 +80,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
             if (window != -1) {
                 unsigned char* windowBuffer = windowGetBuffer(window);
                 if (windowBuffer != NULL) {
-                    unsigned char* backgroundBuffer = (unsigned char*)internal_malloc(CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
+                    unsigned char* backgroundBuffer = (unsigned char*)mem_malloc(CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
                     if (backgroundBuffer) {
                         soundContinueAll();
 
@@ -103,7 +103,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                             }
                         }
 
-                        unsigned char* intermediateBuffer = (unsigned char*)internal_malloc(CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
+                        unsigned char* intermediateBuffer = (unsigned char*)mem_malloc(CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
                         if (intermediateBuffer != NULL) {
                             memset(intermediateBuffer, 0, CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT);
 
@@ -115,7 +115,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 
                             int lineHeight = nameFontLineHeight + (titleFontLineHeight >= nameFontLineHeight ? titleFontLineHeight - nameFontLineHeight : 0);
                             int stringBufferSize = CREDITS_WINDOW_WIDTH * lineHeight;
-                            unsigned char* stringBuffer = (unsigned char*)internal_malloc(stringBufferSize);
+                            unsigned char* stringBuffer = (unsigned char*)mem_malloc(stringBufferSize);
                             if (stringBuffer != NULL) {
                                 blitBufferToBuffer(backgroundBuffer,
                                     CREDITS_WINDOW_WIDTH,
@@ -217,11 +217,11 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                                     }
                                 }
 
-                                internal_free(stringBuffer);
+                                mem_free(stringBuffer);
                             }
-                            internal_free(intermediateBuffer);
+                            mem_free(intermediateBuffer);
                         }
-                        internal_free(backgroundBuffer);
+                        mem_free(backgroundBuffer);
                     }
                 }
 

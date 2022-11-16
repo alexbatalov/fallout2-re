@@ -207,7 +207,7 @@ int gsound_init()
         return -1;
     }
 
-    soundRegisterAlloc(internal_malloc, internal_realloc, internal_free);
+    soundRegisterAlloc(mem_malloc, mem_realloc, mem_free);
 
     // initialize direct sound
     if (soundInit(detectDevices, 24, 0x8000, 0x8000, 22050) != 0) {
@@ -1861,7 +1861,7 @@ static int gsound_background_find_with_copy(char* dest, const char* src)
         return -1;
     }
 
-    void* buffer = internal_malloc(0x2000);
+    void* buffer = mem_malloc(0x2000);
     if (buffer == NULL) {
         if (gsound_debug) {
             debug_printf("Out of memory in gsound_background_find_with_copy.\n", src);
@@ -1886,7 +1886,7 @@ static int gsound_background_find_with_copy(char* dest, const char* src)
         }
     }
 
-    internal_free(buffer);
+    mem_free(buffer);
     fclose(outStream);
     fclose(inStream);
 
@@ -2068,7 +2068,7 @@ static int gsound_get_music_path(char** out_value, const char* key)
         return 0;
     }
 
-    copy = (char*)internal_malloc(len + 2);
+    copy = (char*)mem_malloc(len + 2);
     if (copy == NULL) {
         if (gsound_debug) {
             debug_printf("Out of memory in gsound_get_music_path.\n");
@@ -2089,7 +2089,7 @@ static int gsound_get_music_path(char** out_value, const char* key)
     }
 
     if (config_get_string(&game_config, GAME_CONFIG_SOUND_KEY, key, out_value)) {
-        internal_free(copy);
+        mem_free(copy);
         return 0;
     }
 
@@ -2213,7 +2213,7 @@ int gsound_sfx_q_process(Object* a1, void* data)
         }
     }
 
-    AmbientSoundEffectEvent* nextSoundEffectEvent = (AmbientSoundEffectEvent*)internal_malloc(sizeof(*nextSoundEffectEvent));
+    AmbientSoundEffectEvent* nextSoundEffectEvent = (AmbientSoundEffectEvent*)mem_malloc(sizeof(*nextSoundEffectEvent));
     if (nextSoundEffectEvent == NULL) {
         return -1;
     }

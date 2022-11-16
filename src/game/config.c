@@ -47,7 +47,7 @@ void config_exit(Config* config)
             assoc_pair* keyValueEntry = &(section->list[keyValueIndex]);
 
             char** value = (char**)keyValueEntry->data;
-            internal_free(*value);
+            mem_free(*value);
             *value = NULL;
         }
 
@@ -158,19 +158,19 @@ bool config_set_string(Config* config, const char* sectionKey, const char* key, 
         assoc_pair* keyValueEntry = &(section->list[index]);
 
         char** existingValue = (char**)keyValueEntry->data;
-        internal_free(*existingValue);
+        mem_free(*existingValue);
         *existingValue = NULL;
 
         assoc_delete(section, key);
     }
 
-    char* valueCopy = internal_strdup(value);
+    char* valueCopy = mem_strdup(value);
     if (valueCopy == NULL) {
         return false;
     }
 
     if (assoc_insert(section, key, &valueCopy) == -1) {
-        internal_free(valueCopy);
+        mem_free(valueCopy);
         return false;
     }
 

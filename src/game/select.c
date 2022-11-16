@@ -328,7 +328,7 @@ bool select_init()
         select_window_buffer,
         CS_WINDOW_WIDTH);
 
-    monitor = (unsigned char*)internal_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
+    monitor = (unsigned char*)mem_malloc(CS_WINDOW_BACKGROUND_WIDTH * CS_WINDOW_BACKGROUND_HEIGHT);
     if (monitor == NULL)
         return select_fatal_error(false);
 
@@ -655,7 +655,7 @@ static void select_exit()
     }
 
     if (monitor != NULL) {
-        internal_free(monitor);
+        mem_free(monitor);
         monitor = NULL;
     }
 

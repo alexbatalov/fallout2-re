@@ -53,7 +53,7 @@ int load_frame(const char* path, Art** artPtr)
         return -2;
     }
 
-    *artPtr = (Art*)internal_malloc(size);
+    *artPtr = (Art*)mem_malloc(size);
     if (*artPtr == NULL) {
         return -1;
     }
@@ -65,7 +65,7 @@ int load_frame(const char* path, Art** artPtr)
 
     if (art_readFrameData(*artPtr, stream) != 0) {
         fileClose(stream);
-        internal_free(*artPtr);
+        mem_free(*artPtr);
         return -3;
     }
 
@@ -79,7 +79,7 @@ int load_frame(const char* path, Art** artPtr)
 
     if (index < ROTATION_COUNT) {
         fileClose(stream);
-        internal_free(*artPtr);
+        mem_free(*artPtr);
         return -5;
     }
 

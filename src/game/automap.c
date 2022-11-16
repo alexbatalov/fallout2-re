@@ -600,14 +600,14 @@ int draw_top_down_map_pipboy(int window, int map, int elevation)
     unsigned char wallColor = colorTable[992];
     unsigned char sceneryColor = colorTable[480];
 
-    ambuf = (unsigned char*)internal_malloc(11024);
+    ambuf = (unsigned char*)mem_malloc(11024);
     if (ambuf == NULL) {
         debug_printf("\nAUTOMAP: Error allocating data buffer!\n");
         return -1;
     }
 
     if (AM_ReadEntry(map, elevation) == -1) {
-        internal_free(ambuf);
+        mem_free(ambuf);
         return -1;
     }
 
@@ -648,7 +648,7 @@ int draw_top_down_map_pipboy(int window, int map, int elevation)
         windowBuffer += 640 + 240;
     }
 
-    internal_free(ambuf);
+    mem_free(ambuf);
 
     return 0;
 }
@@ -668,9 +668,9 @@ int automap_pip_save()
     debug_printf("\nAUTOMAP: Saving AutoMap DB index %d, level %d\n", map, elevation);
 
     bool dataBuffersAllocated = false;
-    ambuf = (unsigned char*)internal_malloc(11024);
+    ambuf = (unsigned char*)mem_malloc(11024);
     if (ambuf != NULL) {
-        cmpbuf = (unsigned char*)internal_malloc(11024);
+        cmpbuf = (unsigned char*)mem_malloc(11024);
         if (cmpbuf != NULL) {
             dataBuffersAllocated = true;
         }
@@ -690,15 +690,15 @@ int automap_pip_save()
     if (stream1 == NULL) {
         debug_printf("\nAUTOMAP: Error opening automap database file!\n");
         debug_printf("Error continued: automap_pip_save: path: %s", path);
-        internal_free(ambuf);
-        internal_free(cmpbuf);
+        mem_free(ambuf);
+        mem_free(cmpbuf);
         return -1;
     }
 
     if (AM_ReadMainHeader(stream1) == -1) {
         debug_printf("\nAUTOMAP: Error reading automap database file header!\n");
-        internal_free(ambuf);
-        internal_free(cmpbuf);
+        mem_free(ambuf);
+        mem_free(cmpbuf);
         fileClose(stream1);
         return -1;
     }
@@ -720,8 +720,8 @@ int automap_pip_save()
         File* stream2 = fileOpen(path, "wb");
         if (stream2 == NULL) {
             debug_printf("\nAUTOMAP: Error creating temp file!\n");
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             fileClose(stream1);
             return -1;
         }
@@ -732,15 +732,15 @@ int automap_pip_save()
             debug_printf("\nAUTOMAP: Error copying file data!\n");
             fileClose(stream1);
             fileClose(stream2);
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
         if (WriteAM_Entry(stream2) == -1) {
             fileClose(stream1);
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
@@ -749,8 +749,8 @@ int automap_pip_save()
             debug_printf("\nAUTOMAP: Error reading database #1!\n");
             fileClose(stream1);
             fileClose(stream2);
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
@@ -759,8 +759,8 @@ int automap_pip_save()
             debug_printf("\nAUTOMAP: Error reading database #2!\n");
             fileClose(stream1);
             fileClose(stream2);
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
@@ -770,8 +770,8 @@ int automap_pip_save()
                 debug_printf("\nAUTOMAP: Error writing temp data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
-                internal_free(ambuf);
-                internal_free(cmpbuf);
+                mem_free(ambuf);
+                mem_free(cmpbuf);
                 return -1;
             }
 
@@ -779,8 +779,8 @@ int automap_pip_save()
                 debug_printf("\nAUTOMAP: Error copying file data!\n");
                 fileClose(stream1);
                 fileClose(stream2);
-                internal_free(ambuf);
-                internal_free(cmpbuf);
+                mem_free(ambuf);
+                mem_free(cmpbuf);
                 return -1;
             }
         }
@@ -798,16 +798,16 @@ int automap_pip_save()
 
         if (WriteAM_Header(stream2) == -1) {
             fileClose(stream1);
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
         fileSeek(stream2, 0, SEEK_END);
         fileClose(stream2);
         fileClose(stream1);
-        internal_free(ambuf);
-        internal_free(cmpbuf);
+        mem_free(ambuf);
+        mem_free(cmpbuf);
 
         char* masterPatchesPath;
         if (!config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_PATCHES_KEY, &masterPatchesPath)) {
@@ -842,15 +842,15 @@ int automap_pip_save()
 
         if (!proceed) {
             debug_printf("\nAUTOMAP: Error reading automap database file header!\n");
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             fileClose(stream1);
             return -1;
         }
 
         if (WriteAM_Entry(stream1) == -1) {
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
@@ -858,15 +858,15 @@ int automap_pip_save()
         amdbhead.dataSize += amdbsubhead.dataSize + 5;
 
         if (WriteAM_Header(stream1) == -1) {
-            internal_free(ambuf);
-            internal_free(cmpbuf);
+            mem_free(ambuf);
+            mem_free(cmpbuf);
             return -1;
         }
 
         fileSeek(stream1, 0, SEEK_END);
         fileClose(stream1);
-        internal_free(ambuf);
-        internal_free(cmpbuf);
+        mem_free(ambuf);
+        mem_free(cmpbuf);
     }
 
     return 1;
@@ -950,7 +950,7 @@ static int AM_ReadEntry(int map, int elevation)
     }
 
     if (amdbsubhead.isCompressed == 1) {
-        cmpbuf = (unsigned char*)internal_malloc(11024);
+        cmpbuf = (unsigned char*)mem_malloc(11024);
         if (cmpbuf == NULL) {
             debug_printf("\nAUTOMAP: Error allocating decompression buffer!\n");
             fileClose(stream);
@@ -985,7 +985,7 @@ out:
     }
 
     if (cmpbuf != NULL) {
-        internal_free(cmpbuf);
+        mem_free(cmpbuf);
     }
 
     return 0;
@@ -1121,7 +1121,7 @@ int YesWriteIndex(int mapIndex, int elevation)
 // 0x41CD6C
 static int copy_file_data(File* stream1, File* stream2, int length)
 {
-    void* buffer = internal_malloc(0xFFFF);
+    void* buffer = mem_malloc(0xFFFF);
     if (buffer == NULL) {
         return -1;
     }
@@ -1141,7 +1141,7 @@ static int copy_file_data(File* stream1, File* stream2, int length)
         length -= chunkLength;
     }
 
-    internal_free(buffer);
+    mem_free(buffer);
 
     if (length != 0) {
         return -1;

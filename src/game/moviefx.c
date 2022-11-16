@@ -139,7 +139,7 @@ int moviefx_start(const char* filePath)
         goto out;
     }
 
-    movieEffectFrameList = (int*)internal_malloc(sizeof(*movieEffectFrameList) * movieEffectsLength);
+    movieEffectFrameList = (int*)mem_malloc(sizeof(*movieEffectFrameList) * movieEffectsLength);
     if (movieEffectFrameList == NULL) {
         goto out;
     }
@@ -183,7 +183,7 @@ int moviefx_start(const char* filePath)
                 continue;
             }
 
-            MovieEffect* movieEffect = (MovieEffect*)internal_malloc(sizeof(*movieEffect));
+            MovieEffect* movieEffect = (MovieEffect*)mem_malloc(sizeof(*movieEffect));
             if (movieEffect == NULL) {
                 continue;
             }
@@ -214,7 +214,7 @@ int moviefx_start(const char* filePath)
         }
     }
 
-    internal_free(movieEffectFrameList);
+    mem_free(movieEffectFrameList);
 
 out:
 
@@ -299,7 +299,7 @@ static void moviefx_remove_all()
     MovieEffect* movieEffect = moviefx_effects_list;
     while (movieEffect != NULL) {
         MovieEffect* next = movieEffect->next;
-        internal_free(movieEffect);
+        mem_free(movieEffect);
         movieEffect = next;
     }
 

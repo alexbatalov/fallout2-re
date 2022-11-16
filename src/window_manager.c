@@ -130,7 +130,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     }
 
     if (a3 & 1) {
-        _screen_buffer = (unsigned char*)internal_malloc((_scr_size.bottom - _scr_size.top + 1) * (_scr_size.right - _scr_size.left + 1));
+        _screen_buffer = (unsigned char*)mem_malloc((_scr_size.bottom - _scr_size.top + 1) * (_scr_size.right - _scr_size.left + 1));
         if (_screen_buffer == NULL) {
             if (gVideoSystemExitProc != NULL) {
                 gVideoSystemExitProc();
@@ -146,10 +146,10 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     _doing_refresh_all = 0;
 
     colorInitIO(paletteOpenFileImpl, paletteReadFileImpl, paletteCloseFileImpl);
-    colorRegisterAlloc(internal_malloc, internal_realloc, internal_free);
+    colorRegisterAlloc(mem_malloc, mem_realloc, mem_free);
 
     if (!initColors()) {
-        unsigned char* palette = (unsigned char*)internal_malloc(768);
+        unsigned char* palette = (unsigned char*)mem_malloc(768);
         if (palette == NULL) {
             if (gVideoSystemExitProc != NULL) {
                 gVideoSystemExitProc();
@@ -158,7 +158,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
             }
 
             if (_screen_buffer != NULL) {
-                internal_free(_screen_buffer);
+                mem_free(_screen_buffer);
             }
 
             return WINDOW_MANAGER_ERR_NO_MEMORY;
@@ -169,7 +169,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         // TODO: Incomplete.
         // _colorBuildColorTable(getSystemPalette(), palette);
 
-        internal_free(palette);
+        mem_free(palette);
     }
 
     GNW_debug_init();
@@ -180,7 +180,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
 
     _GNW_intr_init();
 
-    Window* window = gWindows[0] = (Window*)internal_malloc(sizeof(*window));
+    Window* window = gWindows[0] = (Window*)mem_malloc(sizeof(*window));
     if (window == NULL) {
         if (gVideoSystemExitProc != NULL) {
             gVideoSystemExitProc();
@@ -189,7 +189,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
         }
 
         if (_screen_buffer != NULL) {
-            internal_free(_screen_buffer);
+            mem_free(_screen_buffer);
         }
 
         return WINDOW_MANAGER_ERR_NO_MEMORY;
@@ -242,11 +242,11 @@ void windowManagerExit(void)
             }
 
             if (_GNW_texture != NULL) {
-                internal_free(_GNW_texture);
+                mem_free(_GNW_texture);
             }
 
             if (_screen_buffer != NULL) {
-                internal_free(_screen_buffer);
+                mem_free(_screen_buffer);
             }
 
             if (gVideoSystemExitProc != NULL) {
@@ -291,14 +291,14 @@ int windowCreate(int x, int y, int width, int height, int a4, int flags)
         return -1;
     }
 
-    Window* window = gWindows[gWindowsLength] = (Window*)internal_malloc(sizeof(*window));
+    Window* window = gWindows[gWindowsLength] = (Window*)mem_malloc(sizeof(*window));
     if (window == NULL) {
         return -1;
     }
 
-    window->buffer = (unsigned char*)internal_malloc(width * height);
+    window->buffer = (unsigned char*)mem_malloc(width * height);
     if (window->buffer == NULL) {
-        internal_free(window);
+        mem_free(window);
         return -1;
     }
 
@@ -412,11 +412,11 @@ void windowFree(int win)
     }
 
     if (window->buffer != NULL) {
-        internal_free(window->buffer);
+        mem_free(window->buffer);
     }
 
     if (window->menuBar != NULL) {
-        internal_free(window->menuBar);
+        mem_free(window->menuBar);
     }
 
     Button* curr = window->buttonListHead;
@@ -426,7 +426,7 @@ void windowFree(int win)
         curr = next;
     }
 
-    internal_free(window);
+    mem_free(window);
 }
 
 // 0x4D6558
@@ -858,7 +858,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                 while (v16 != NULL) {
                     int width = v16->rect.right - v16->rect.left + 1;
                     int height = v16->rect.bottom - v16->rect.top + 1;
-                    unsigned char* buf = (unsigned char*)internal_malloc(width * height);
+                    unsigned char* buf = (unsigned char*)mem_malloc(width * height);
                     if (buf != NULL) {
                         bufferFill(buf, width, height, width, _bk_color);
                         if (dest_pitch != 0) {
@@ -882,7 +882,7 @@ void _GNW_win_refresh(Window* window, Rect* rect, unsigned char* a3)
                             }
                         }
 
-                        internal_free(buf);
+                        mem_free(buf);
                     }
                     v16 = v16->next;
                 }
@@ -1348,14 +1348,14 @@ int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, in
 
     int buttonWidth = fontGetStringWidth(title) + 16;
     int buttonHeight = fontGetLineHeight() + 7;
-    unsigned char* normal = (unsigned char*)internal_malloc(buttonWidth * buttonHeight);
+    unsigned char* normal = (unsigned char*)mem_malloc(buttonWidth * buttonHeight);
     if (normal == NULL) {
         return -1;
     }
 
-    unsigned char* pressed = (unsigned char*)internal_malloc(buttonWidth * buttonHeight);
+    unsigned char* pressed = (unsigned char*)mem_malloc(buttonWidth * buttonHeight);
     if (pressed == NULL) {
-        internal_free(normal);
+        mem_free(normal);
         return -1;
     }
 
@@ -1420,8 +1420,8 @@ int _win_register_text_button(int win, int x, int y, int mouseEnterEventCode, in
         pressed,
         NULL);
     if (button == NULL) {
-        internal_free(normal);
-        internal_free(pressed);
+        mem_free(normal);
+        mem_free(pressed);
         return -1;
     }
 
@@ -1588,7 +1588,7 @@ Button* buttonCreateInternal(int win, int x, int y, int width, int height, int m
         return NULL;
     }
 
-    Button* button = (Button*)internal_malloc(sizeof(*button));
+    Button* button = (Button*)mem_malloc(sizeof(*button));
     if (button == NULL) {
         return NULL;
     }
@@ -2100,27 +2100,27 @@ void buttonFree(Button* button)
 {
     if ((button->flags & BUTTON_FLAG_0x010000) == 0) {
         if (button->mouseUpImage != NULL) {
-            internal_free(button->mouseUpImage);
+            mem_free(button->mouseUpImage);
         }
 
         if (button->mouseDownImage != NULL) {
-            internal_free(button->mouseDownImage);
+            mem_free(button->mouseDownImage);
         }
 
         if (button->mouseHoverImage != NULL) {
-            internal_free(button->mouseHoverImage);
+            mem_free(button->mouseHoverImage);
         }
 
         if (button->field_3C != NULL) {
-            internal_free(button->field_3C);
+            mem_free(button->field_3C);
         }
 
         if (button->field_40 != NULL) {
-            internal_free(button->field_40);
+            mem_free(button->field_40);
         }
 
         if (button->field_44 != NULL) {
-            internal_free(button->field_44);
+            mem_free(button->field_44);
         }
     }
 
@@ -2139,7 +2139,7 @@ void buttonFree(Button* button)
         }
     }
 
-    internal_free(button);
+    mem_free(button);
 }
 
 // NOTE: Unused.

@@ -2495,12 +2495,12 @@ static int construct_box_bar_win()
     for (int index = 0; index < INDICATOR_COUNT; index++) {
         IndicatorDescription* indicatorDescription = &(bbox[index]);
 
-        indicatorDescription->data = (unsigned char*)internal_malloc(INDICATOR_BOX_WIDTH * INDICATOR_BOX_HEIGHT);
+        indicatorDescription->data = (unsigned char*)mem_malloc(INDICATOR_BOX_WIDTH * INDICATOR_BOX_HEIGHT);
         if (indicatorDescription->data == NULL) {
             debug_printf("\nINTRFACE: Error initializing indicator box graphics! **");
 
             while (--index >= 0) {
-                internal_free(bbox[index].data);
+                mem_free(bbox[index].data);
             }
 
             message_exit(&messageList);
@@ -2553,7 +2553,7 @@ static void deconstruct_box_bar_win()
     for (int index = 0; index < INDICATOR_COUNT; index++) {
         IndicatorDescription* indicatorBoxDescription = &(bbox[index]);
         if (indicatorBoxDescription->data != NULL) {
-            internal_free(indicatorBoxDescription->data);
+            mem_free(indicatorBoxDescription->data);
             indicatorBoxDescription->data = NULL;
         }
     }

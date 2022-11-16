@@ -1257,7 +1257,7 @@ static int CharEditStart()
 
     for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
         if (copyflag[i]) {
-            grphcpy[i] = (unsigned char*)internal_malloc(GInfo[i].width * GInfo[i].height);
+            grphcpy[i] = (unsigned char*)mem_malloc(GInfo[i].width * GInfo[i].height);
             if (grphcpy[i] == NULL) {
                 break;
             }
@@ -1270,7 +1270,7 @@ static int CharEditStart()
     if (i != EDITOR_GRAPHIC_COUNT) {
         while (--i >= 0) {
             if (copyflag[i]) {
-                internal_free(grphcpy[i]);
+                mem_free(grphcpy[i]);
             }
         }
 
@@ -1299,7 +1299,7 @@ static int CharEditStart()
     if (edit_win == -1) {
         for (i = 0; i < EDITOR_GRAPHIC_COUNT; i++) {
             if (copyflag[i]) {
-                internal_free(grphcpy[i]);
+                mem_free(grphcpy[i]);
             }
             art_ptr_unlock(grph_key[i]);
         }
@@ -1758,7 +1758,7 @@ static void CharEditEnd()
         art_ptr_unlock(grph_key[index]);
 
         if (copyflag[index]) {
-            internal_free(grphcpy[index]);
+            mem_free(grphcpy[index]);
         }
     }
 
@@ -3722,13 +3722,13 @@ static int OptionWindow()
             }
 
             do {
-                down[index] = (unsigned char*)internal_malloc(size);
+                down[index] = (unsigned char*)mem_malloc(size);
                 if (down[index] == NULL) {
                     err = 1;
                     break;
                 }
 
-                up[index] = (unsigned char*)internal_malloc(size);
+                up[index] = (unsigned char*)mem_malloc(size);
                 if (up[index] == NULL) {
                     err = 2;
                     break;
@@ -3754,12 +3754,12 @@ static int OptionWindow()
 
         if (err != 0) {
             if (err == 2) {
-                internal_free(down[index]);
+                mem_free(down[index]);
             }
 
             while (--index >= 0) {
-                internal_free(up[index]);
-                internal_free(down[index]);
+                mem_free(up[index]);
+                mem_free(down[index]);
             }
 
             return -1;
@@ -4021,8 +4021,8 @@ static int OptionWindow()
         windowDestroy(win);
 
         for (index = 0; index < 5; index++) {
-            internal_free(up[index]);
-            internal_free(down[index]);
+            mem_free(up[index]);
+            mem_free(down[index]);
         }
 
         return 0;
@@ -6817,7 +6817,7 @@ static int karma_vars_init()
     const char* delim = " \t,";
 
     if (karma_vars != NULL) {
-        internal_free(karma_vars);
+        mem_free(karma_vars);
         karma_vars = NULL;
     }
 
@@ -6869,7 +6869,7 @@ static int karma_vars_init()
 
         entry.description = atoi(tok);
 
-        KarmaEntry* entries = (KarmaEntry*)internal_realloc(karma_vars, sizeof(*entries) * (karma_vars_count + 1));
+        KarmaEntry* entries = (KarmaEntry*)mem_realloc(karma_vars, sizeof(*entries) * (karma_vars_count + 1));
         if (entries == NULL) {
             fileClose(stream);
 
@@ -6895,7 +6895,7 @@ static int karma_vars_init()
 static void karma_vars_exit()
 {
     if (karma_vars != NULL) {
-        internal_free(karma_vars);
+        mem_free(karma_vars);
         karma_vars = NULL;
     }
 
@@ -6916,7 +6916,7 @@ static int general_reps_init()
     const char* delim = " \t,";
 
     if (general_reps != NULL) {
-        internal_free(general_reps);
+        mem_free(general_reps);
         general_reps = NULL;
     }
 
@@ -6954,7 +6954,7 @@ static int general_reps_init()
 
         entry.name = atoi(tok);
 
-        GenericReputationEntry* entries = (GenericReputationEntry*)internal_realloc(general_reps, sizeof(*entries) * (general_reps_count + 1));
+        GenericReputationEntry* entries = (GenericReputationEntry*)mem_realloc(general_reps, sizeof(*entries) * (general_reps_count + 1));
         if (entries == NULL) {
             fileClose(stream);
 
@@ -6980,7 +6980,7 @@ static int general_reps_init()
 static void general_reps_exit()
 {
     if (general_reps != NULL) {
-        internal_free(general_reps);
+        mem_free(general_reps);
         general_reps = NULL;
     }
 

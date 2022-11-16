@@ -108,8 +108,8 @@ int text_object_reset()
     }
 
     for (int index = 0; index < text_object_index; index++) {
-        internal_free(text_object_list[index]->data);
-        internal_free(text_object_list[index]);
+        mem_free(text_object_list[index]->data);
+        mem_free(text_object_list[index]);
     }
 
     text_object_index = 0;
@@ -204,7 +204,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
         return -1;
     }
 
-    TextObject* textObject = (TextObject*)internal_malloc(sizeof(*textObject));
+    TextObject* textObject = (TextObject*)mem_malloc(sizeof(*textObject));
     if (textObject == NULL) {
         return -1;
     }
@@ -255,7 +255,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
     }
 
     int size = textObject->width * textObject->height;
-    textObject->data = (unsigned char*)internal_malloc(size);
+    textObject->data = (unsigned char*)mem_malloc(size);
     if (textObject->data == NULL) {
         fontSetCurrent(oldFont);
         return -1;
@@ -388,8 +388,8 @@ static void text_object_bk()
                 textObjectsRemoved = true;
             }
 
-            internal_free(textObject->data);
-            internal_free(textObject);
+            mem_free(textObject->data);
+            mem_free(textObject);
 
             memmove(&(text_object_list[index]), &(text_object_list[index + 1]), sizeof(*text_object_list) * (text_object_index - index - 1));
 

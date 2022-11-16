@@ -173,7 +173,7 @@ static MessageList perk_message_file;
 // 0x4965A0
 int perk_init()
 {
-    perkLevelDataList = (PerkRankData*)internal_malloc(sizeof(*perkLevelDataList) * partyMemberMaxCount);
+    perkLevelDataList = (PerkRankData*)mem_malloc(sizeof(*perkLevelDataList) * partyMemberMaxCount);
     if (perkLevelDataList == NULL) {
         return -1;
     }
@@ -220,7 +220,7 @@ void perk_exit()
     message_exit(&perk_message_file);
 
     if (perkLevelDataList != NULL) {
-        internal_free(perkLevelDataList);
+        mem_free(perkLevelDataList);
         perkLevelDataList = NULL;
     }
 }

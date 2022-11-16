@@ -1068,12 +1068,12 @@ static int wmGenDataReset()
 void wmWorldMap_exit()
 {
     if (wmTerrainTypeList != NULL) {
-        internal_free(wmTerrainTypeList);
+        mem_free(wmTerrainTypeList);
         wmTerrainTypeList = NULL;
     }
 
     if (wmTileInfoList) {
-        internal_free(wmTileInfoList);
+        mem_free(wmTileInfoList);
         wmTileInfoList = NULL;
     }
 
@@ -1081,28 +1081,28 @@ void wmWorldMap_exit()
     wmMaxTileNum = 0;
 
     if (wmEncounterTableList != NULL) {
-        internal_free(wmEncounterTableList);
+        mem_free(wmEncounterTableList);
         wmEncounterTableList = NULL;
     }
 
     wmMaxEncounterInfoTables = 0;
 
     if (wmEncBaseTypeList != NULL) {
-        internal_free(wmEncBaseTypeList);
+        mem_free(wmEncBaseTypeList);
         wmEncBaseTypeList = NULL;
     }
 
     _wmMaxEncBaseTypes = 0;
 
     if (wmAreaInfoList != NULL) {
-        internal_free(wmAreaInfoList);
+        mem_free(wmAreaInfoList);
         wmAreaInfoList = NULL;
     }
 
     wmMaxAreaNum = 0;
 
     if (wmMapInfoList != NULL) {
-        internal_free(wmMapInfoList);
+        mem_free(wmMapInfoList);
     }
 
     wmMaxMapNum = 0;
@@ -1379,7 +1379,7 @@ static int wmConfigInit()
 
             wmMaxTileNum++;
 
-            TileInfo* worldmapTiles = (TileInfo*)internal_realloc(wmTileInfoList, sizeof(*wmTileInfoList) * wmMaxTileNum);
+            TileInfo* worldmapTiles = (TileInfo*)mem_realloc(wmTileInfoList, sizeof(*wmTileInfoList) * wmMaxTileNum);
             if (worldmapTiles == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading tiles!");
                 exit(1);
@@ -1434,7 +1434,7 @@ static int wmReadEncounterType(Config* config, char* lookupName, char* sectionKe
 {
     wmMaxEncounterInfoTables++;
 
-    EncounterTable* encounterTables = (EncounterTable*)internal_realloc(wmEncounterTableList, sizeof(EncounterTable) * wmMaxEncounterInfoTables);
+    EncounterTable* encounterTables = (EncounterTable*)mem_realloc(wmEncounterTableList, sizeof(EncounterTable) * wmMaxEncounterInfoTables);
     if (encounterTables == NULL) {
         showMesageBox("\nwmConfigInit::Error loading Encounter Table!");
         exit(1);
@@ -1689,7 +1689,7 @@ static int wmReadEncBaseType(char* name, int* valuePtr)
 
     _wmMaxEncBaseTypes++;
 
-    ENC_BASE_TYPE* arr = (ENC_BASE_TYPE*)internal_realloc(wmEncBaseTypeList, sizeof(*wmEncBaseTypeList) * _wmMaxEncBaseTypes);
+    ENC_BASE_TYPE* arr = (ENC_BASE_TYPE*)mem_realloc(wmEncBaseTypeList, sizeof(*wmEncBaseTypeList) * _wmMaxEncBaseTypes);
     if (arr == NULL) {
         showMesageBox("\nwmConfigInit::Error Reading EncBaseType!");
         exit(1);
@@ -1920,7 +1920,7 @@ static int wmParseTerrainTypes(Config* config, char* string)
 
     wmMaxTerrainTypes = terrainCount;
 
-    wmTerrainTypeList = (Terrain*)internal_malloc(sizeof(*wmTerrainTypeList) * terrainCount);
+    wmTerrainTypeList = (Terrain*)mem_malloc(sizeof(*wmTerrainTypeList) * terrainCount);
     if (wmTerrainTypeList == NULL) {
         return -1;
     }
@@ -2480,7 +2480,7 @@ static int wmAreaInit()
 
             wmMaxAreaNum++;
 
-            cities = (CityInfo*)internal_realloc(wmAreaInfoList, sizeof(CityInfo) * wmMaxAreaNum);
+            cities = (CityInfo*)mem_realloc(wmAreaInfoList, sizeof(CityInfo) * wmMaxAreaNum);
             if (cities == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading areas!");
                 exit(1);
@@ -2685,7 +2685,7 @@ static int wmMapInit()
 
             wmMaxMapNum++;
 
-            maps = (MapInfo*)internal_realloc(wmMapInfoList, sizeof(*wmMapInfoList) * wmMaxMapNum);
+            maps = (MapInfo*)mem_realloc(wmMapInfoList, sizeof(*wmMapInfoList) * wmMaxMapNum);
             if (maps == NULL) {
                 showMesageBox("\nwmConfigInit::Error loading maps!");
                 exit(1);
@@ -4235,7 +4235,7 @@ static int wmGrabTileWalkMask(int tileIdx)
         return 0;
     }
 
-    tileInfo->walkMaskData = (unsigned char*)internal_malloc(13200);
+    tileInfo->walkMaskData = (unsigned char*)mem_malloc(13200);
     if (tileInfo->walkMaskData == NULL) {
         return -1;
     }
@@ -4915,7 +4915,7 @@ static int wmInterfaceExit()
             tile->data = NULL;
 
             if (tile->walkMaskData != NULL) {
-                internal_free(tile->walkMaskData);
+                mem_free(tile->walkMaskData);
                 tile->walkMaskData = NULL;
             }
         }
@@ -6550,7 +6550,7 @@ static int wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestination
 
     int capacity = 10;
 
-    quickDestinations = (int*)internal_malloc(sizeof(*quickDestinations) * capacity);
+    quickDestinations = (int*)mem_malloc(sizeof(*quickDestinations) * capacity);
     *quickDestinationsPtr = quickDestinations;
 
     if (quickDestinations == NULL) {
@@ -6566,7 +6566,7 @@ static int wmMakeTabsLabelList(int** quickDestinationsPtr, int* quickDestination
             if (capacity <= quickDestinationsLength) {
                 capacity += 10;
 
-                quickDestinations = (int*)internal_realloc(quickDestinations, sizeof(*quickDestinations) * capacity);
+                quickDestinations = (int*)mem_realloc(quickDestinations, sizeof(*quickDestinations) * capacity);
                 if (quickDestinations == NULL) {
                     return -1;
                 }
@@ -6601,7 +6601,7 @@ static int wmTabsCompareNames(const void* a1, const void* a2)
 static int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestinationsLengthPtr)
 {
     if (*quickDestinationsListPtr != NULL) {
-        internal_free(*quickDestinationsListPtr);
+        mem_free(*quickDestinationsListPtr);
         *quickDestinationsListPtr = NULL;
     }
 

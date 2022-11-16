@@ -202,7 +202,7 @@ void coreExit()
     TickerListNode* curr = gTickerListHead;
     while (curr != NULL) {
         TickerListNode* next = curr->next;
-        internal_free(curr);
+        mem_free(curr);
         curr = next;
     }
 }
@@ -348,7 +348,7 @@ void tickersExecute()
         if (curr->flags & 1) {
             *currPtr = next;
 
-            internal_free(curr);
+            mem_free(curr);
         } else {
             curr->proc();
             currPtr = &(curr->next);
@@ -371,7 +371,7 @@ void tickersAdd(TickerProc* proc)
         curr = curr->next;
     }
 
-    curr = (TickerListNode*)internal_malloc(sizeof(*curr));
+    curr = (TickerListNode*)mem_malloc(sizeof(*curr));
     curr->flags = 0;
     curr->proc = proc;
     curr->next = gTickerListHead;
@@ -476,7 +476,7 @@ void takeScreenshot()
 {
     int width = _scr_size.right - _scr_size.left + 1;
     int height = _scr_size.bottom - _scr_size.top + 1;
-    gScreenshotBuffer = (unsigned char*)internal_malloc(width * height);
+    gScreenshotBuffer = (unsigned char*)mem_malloc(width * height);
     if (gScreenshotBuffer == NULL) {
         return;
     }
@@ -498,7 +498,7 @@ void takeScreenshot()
 
     unsigned char* palette = getSystemPalette();
     gScreenshotHandler(width, height, gScreenshotBuffer, palette);
-    internal_free(gScreenshotBuffer);
+    mem_free(gScreenshotBuffer);
 }
 
 // 0x4C8FF0

@@ -366,7 +366,7 @@ int SaveGame(int mode)
         }
 
         if (thumbnail_image[1] != NULL) {
-            internal_free(snapshot);
+            mem_free(snapshot);
         }
 
         gmouse_set_cursor(MOUSE_CURSOR_ARROW);
@@ -792,7 +792,7 @@ int SaveGame(int mode)
 // 0x47C5B4
 static int QuickSnapShot()
 {
-    snapshot = (unsigned char*)internal_malloc(LS_PREVIEW_SIZE);
+    snapshot = (unsigned char*)mem_malloc(LS_PREVIEW_SIZE);
     if (snapshot == NULL) {
         return -1;
     }
@@ -1224,7 +1224,7 @@ static int LSGameStart(int windowType)
         return -1;
     }
 
-    snapshot = (unsigned char*)internal_malloc(61632);
+    snapshot = (unsigned char*)mem_malloc(61632);
     if (snapshot == NULL) {
         message_exit(&lsgame_msgfl);
         fontSetCurrent(fontsave);
@@ -1271,7 +1271,7 @@ static int LSGameStart(int windowType)
             while (--index >= 0) {
                 art_ptr_unlock(grphkey[index]);
             }
-            internal_free(snapshot);
+            mem_free(snapshot);
             message_exit(&lsgame_msgfl);
             fontSetCurrent(fontsave);
 
@@ -1297,7 +1297,7 @@ static int LSGameStart(int windowType)
         WINDOW_FLAG_0x10 | WINDOW_FLAG_0x04);
     if (lsgwin == -1) {
         // FIXME: Leaking frms.
-        internal_free(snapshot);
+        mem_free(snapshot);
         message_exit(&lsgame_msgfl);
         fontSetCurrent(fontsave);
 
@@ -1438,7 +1438,7 @@ static int LSGameEnd(int windowType)
         art_ptr_unlock(grphkey[index]);
     }
 
-    internal_free(snapshot);
+    mem_free(snapshot);
 
     if (windowType != LOAD_SAVE_WINDOW_TYPE_LOAD_GAME_FROM_MAIN_MENU) {
         if (bk_enable) {
@@ -2516,7 +2516,7 @@ static int copy_file(const char* a1, const char* a2)
         goto out;
     }
 
-    buf = internal_malloc(0xFFFF);
+    buf = mem_malloc(0xFFFF);
     if (buf == NULL) {
         goto out;
     }
@@ -2552,7 +2552,7 @@ out:
     }
 
     if (buf != NULL) {
-        internal_free(buf);
+        mem_free(buf);
     }
 
     return result;

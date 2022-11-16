@@ -47,15 +47,15 @@ int init_message()
         bad_total++;
     }
 
-    bad_word = (char**)internal_malloc(sizeof(*bad_word) * bad_total);
+    bad_word = (char**)mem_malloc(sizeof(*bad_word) * bad_total);
     if (bad_word == NULL) {
         fileClose(stream);
         return -1;
     }
 
-    bad_len = (int*)internal_malloc(sizeof(*bad_len) * bad_total);
+    bad_len = (int*)mem_malloc(sizeof(*bad_len) * bad_total);
     if (bad_len == NULL) {
-        internal_free(bad_word);
+        mem_free(bad_word);
         fileClose(stream);
         return -1;
     }
@@ -74,7 +74,7 @@ int init_message()
             word[len] = '\0';
         }
 
-        bad_word[index] = internal_strdup(word);
+        bad_word[index] = mem_strdup(word);
         if (bad_word[index] == NULL) {
             break;
         }
@@ -88,11 +88,11 @@ int init_message()
 
     if (index != bad_total) {
         for (; index > 0; index--) {
-            internal_free(bad_word[index - 1]);
+            mem_free(bad_word[index - 1]);
         }
 
-        internal_free(bad_word);
-        internal_free(bad_len);
+        mem_free(bad_word);
+        mem_free(bad_len);
 
         return -1;
     }
@@ -104,12 +104,12 @@ int init_message()
 void exit_message()
 {
     for (int index = 0; index < bad_total; index++) {
-        internal_free(bad_word[index]);
+        mem_free(bad_word[index]);
     }
 
     if (bad_total != 0) {
-        internal_free(bad_word);
-        internal_free(bad_len);
+        mem_free(bad_word);
+        mem_free(bad_len);
     }
 
     bad_total = 0;
@@ -140,18 +140,18 @@ bool message_exit(MessageList* messageList)
         entry = &(messageList->entries[i]);
 
         if (entry->audio != NULL) {
-            internal_free(entry->audio);
+            mem_free(entry->audio);
         }
 
         if (entry->text != NULL) {
-            internal_free(entry->text);
+            mem_free(entry->text);
         }
     }
 
     messageList->entries_num = 0;
 
     if (messageList->entries != NULL) {
-        internal_free(messageList->entries);
+        mem_free(messageList->entries);
         messageList->entries = NULL;
     }
 
@@ -342,15 +342,15 @@ bool message_add(MessageList* msg, MessageListItem* new_entry)
         existing_entry = &(msg->entries[index]);
 
         if (existing_entry->audio != NULL) {
-            internal_free(existing_entry->audio);
+            mem_free(existing_entry->audio);
         }
 
         if (existing_entry->text != NULL) {
-            internal_free(existing_entry->text);
+            mem_free(existing_entry->text);
         }
     } else {
         if (msg->entries != NULL) {
-            entries = (MessageListItem*)internal_realloc(msg->entries, sizeof(MessageListItem) * (msg->entries_num + 1));
+            entries = (MessageListItem*)mem_realloc(msg->entries, sizeof(MessageListItem) * (msg->entries_num + 1));
             if (entries == NULL) {
                 return false;
             }
@@ -362,7 +362,7 @@ bool message_add(MessageList* msg, MessageListItem* new_entry)
                 memmove(&(msg->entries[index + 1]), &(msg->entries[index]), sizeof(MessageListItem) * (msg->entries_num - index));
             }
         } else {
-            msg->entries = (MessageListItem*)internal_malloc(sizeof(MessageListItem));
+            msg->entries = (MessageListItem*)mem_malloc(sizeof(MessageListItem));
             if (msg->entries == NULL) {
                 return false;
             }
@@ -377,12 +377,12 @@ bool message_add(MessageList* msg, MessageListItem* new_entry)
         msg->entries_num++;
     }
 
-    existing_entry->audio = internal_strdup(new_entry->audio);
+    existing_entry->audio = mem_strdup(new_entry->audio);
     if (existing_entry->audio == NULL) {
         return false;
     }
 
-    existing_entry->text = internal_strdup(new_entry->text);
+    existing_entry->text = mem_strdup(new_entry->text);
     if (existing_entry->text == NULL) {
         return false;
     }

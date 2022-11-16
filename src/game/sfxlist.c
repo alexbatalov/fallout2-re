@@ -69,7 +69,7 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
     sfxl_compression = a2;
     sfxl_files_total = 0;
 
-    sfxl_effect_path = internal_strdup(soundEffectsPath);
+    sfxl_effect_path = mem_strdup(soundEffectsPath);
     if (sfxl_effect_path == NULL) {
         return SFXL_ERR;
     }
@@ -87,7 +87,7 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
         fileReadString(path, 255, stream);
         sfxl_files_total = atoi(path);
 
-        sfxl_list = (SoundEffectsListEntry*)internal_malloc(sizeof(*sfxl_list) * sfxl_files_total);
+        sfxl_list = (SoundEffectsListEntry*)mem_malloc(sizeof(*sfxl_list) * sfxl_files_total);
         for (int index = 0; index < sfxl_files_total; index++) {
             SoundEffectsListEntry* entry = &(sfxl_list[index]);
 
@@ -95,7 +95,7 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
 
             // Remove trailing newline.
             *(path + strlen(path) - 1) = '\0';
-            entry->name = internal_strdup(path);
+            entry->name = mem_strdup(path);
 
             fileReadString(path, 255, stream);
             entry->dataSize = atoi(path);
@@ -115,14 +115,14 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
 
         err = sfxl_get_names();
         if (err != SFXL_OK) {
-            internal_free(sfxl_effect_path);
+            mem_free(sfxl_effect_path);
             return err;
         }
 
         err = sfxl_get_sizes();
         if (err != SFXL_OK) {
             sfxl_destroy();
-            internal_free(sfxl_effect_path);
+            mem_free(sfxl_effect_path);
             return err;
         }
 
@@ -166,7 +166,7 @@ void sfxl_exit()
 {
     if (sfxl_initialized) {
         sfxl_destroy();
-        internal_free(sfxl_effect_path);
+        mem_free(sfxl_effect_path);
         sfxl_initialized = false;
     }
 }
@@ -207,7 +207,7 @@ int sfxl_name(int tag, char** pathPtr)
 
     char* name = sfxl_list[index].name;
 
-    char* path = (char*)internal_malloc(strlen(sfxl_effect_path) + strlen(name) + 1);
+    char* path = (char*)mem_malloc(strlen(sfxl_effect_path) + strlen(name) + 1);
     if (path == NULL) {
         return SFXL_ERR;
     }
@@ -287,11 +287,11 @@ static void sfxl_destroy()
     for (int index = 0; index < sfxl_files_total; index++) {
         SoundEffectsListEntry* entry = &(sfxl_list[index]);
         if (entry->name != NULL) {
-            internal_free(entry->name);
+            mem_free(entry->name);
         }
     }
 
-    internal_free(sfxl_list);
+    mem_free(sfxl_list);
     sfxl_list = NULL;
 
     sfxl_files_total = 0;
@@ -312,7 +312,7 @@ static int sfxl_get_names()
         return SFXL_ERR;
     }
 
-    char* pattern = (char*)internal_malloc(strlen(sfxl_effect_path) + strlen(extension) + 1);
+    char* pattern = (char*)mem_malloc(strlen(sfxl_effect_path) + strlen(extension) + 1);
     if (pattern == NULL) {
         return SFXL_ERR;
     }
@@ -322,7 +322,7 @@ static int sfxl_get_names()
 
     char** fileNameList;
     sfxl_files_total = fileNameListInit(pattern, &fileNameList, 0, 0);
-    internal_free(pattern);
+    mem_free(pattern);
 
     if (sfxl_files_total > 10000) {
         fileNameListFree(&fileNameList, 0);
@@ -333,7 +333,7 @@ static int sfxl_get_names()
         return SFXL_ERR;
     }
 
-    sfxl_list = (SoundEffectsListEntry*)internal_malloc(sizeof(*sfxl_list) * sfxl_files_total);
+    sfxl_list = (SoundEffectsListEntry*)mem_malloc(sizeof(*sfxl_list) * sfxl_files_total);
     if (sfxl_list == NULL) {
         fileNameListFree(&fileNameList, 0);
         return SFXL_ERR;
@@ -358,7 +358,7 @@ static int sfxl_copy_names(char** fileNameList)
 {
     for (int index = 0; index < sfxl_files_total; index++) {
         SoundEffectsListEntry* entry = &(sfxl_list[index]);
-        entry->name = internal_strdup(*fileNameList++);
+        entry->name = mem_strdup(*fileNameList++);
         if (entry->name == NULL) {
             sfxl_destroy();
             return SFXL_ERR;
@@ -372,7 +372,7 @@ static int sfxl_copy_names(char** fileNameList)
 static int sfxl_get_sizes()
 {
 
-    char* path = (char*)internal_malloc(sfxl_effect_path_len + 13);
+    char* path = (char*)mem_malloc(sfxl_effect_path_len + 13);
     if (path == NULL) {
         return SFXL_ERR;
     }
@@ -387,12 +387,12 @@ static int sfxl_get_sizes()
 
         int fileSize;
         if (dbGetFileSize(path, &fileSize) != 0) {
-            internal_free(path);
+            mem_free(path);
             return SFXL_ERR;
         }
 
         if (fileSize <= 0) {
-            internal_free(path);
+            mem_free(path);
             return SFXL_ERR;
         }
 
@@ -406,7 +406,7 @@ static int sfxl_get_sizes()
             if (1) {
                 File* stream = fileOpen(path, "rb");
                 if (stream == NULL) {
-                    internal_free(path);
+                    mem_free(path);
                     return 1;
                 }
 
@@ -420,12 +420,12 @@ static int sfxl_get_sizes()
             }
             break;
         default:
-            internal_free(path);
+            mem_free(path);
             return SFXL_ERR;
         }
     }
 
-    internal_free(path);
+    mem_free(path);
 
     return SFXL_OK;
 }
