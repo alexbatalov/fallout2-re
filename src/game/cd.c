@@ -1,5 +1,13 @@
 #include "game/cd.h"
 
+// NOTE: Actual file name is unknown. Functions in this module do not present
+// in debug symbols from `mapper2.exe`, and does not appear in OS X binary. The
+// functions implement some sort of CD check, and they appear between `cache.c`
+// and `combat.c`, so based in it's intent and order `cd.c` is a nice candidate.
+//
+// Since there are no visibility hints in Windows binary, all functions are
+// public.
+
 #include <stdlib.h>
 
 #define WIN32_LEAN_AND_MEAN
