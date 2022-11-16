@@ -22,7 +22,7 @@
 #include "memory.h"
 #include "game/object.h"
 #include "game/perk.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "trait.h"
 

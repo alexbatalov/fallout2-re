@@ -33,7 +33,7 @@
 #include "game/roll.h"
 #include "game/reaction.h"
 #include "game/scripts.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "text_font.h"
 #include "tile.h"

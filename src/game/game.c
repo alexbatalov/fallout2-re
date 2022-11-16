@@ -47,7 +47,7 @@
 #include "game/queue.h"
 #include "game/roll.h"
 #include "game/scripts.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "skilldex.h"
 #include "stat.h"
 #include "text_font.h"

@@ -23,7 +23,7 @@
 #include "game/queue.h"
 #include "game/roll.h"
 #include "game/scripts.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "string_parsers.h"
 #include "text_object.h"

@@ -9,7 +9,7 @@
 #include "memory.h"
 #include "game/object.h"
 #include "game/party.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 
 typedef struct PerkDescription {

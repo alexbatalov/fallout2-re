@@ -25,7 +25,7 @@
 #include "game/protinst.h"
 #include "game/roll.h"
 #include "game/scripts.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "text_object.h"
 #include "tile.h"

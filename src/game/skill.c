@@ -1,4 +1,4 @@
-#include "skill.h"
+#include "game/skill.h"
 
 #include <stdio.h>
 #include <string.h>

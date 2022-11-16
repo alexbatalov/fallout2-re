@@ -21,7 +21,7 @@
 #include "game/protinst.h"
 #include "game/queue.h"
 #include "game/roll.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "tile.h"
 #include "trait.h"

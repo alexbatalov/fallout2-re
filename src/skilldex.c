@@ -15,7 +15,7 @@
 #include "game/map.h"
 #include "memory.h"
 #include "game/object.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "text_font.h"
 #include "window_manager.h"
 

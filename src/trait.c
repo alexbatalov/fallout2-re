@@ -4,7 +4,7 @@
 
 #include "game/game.h"
 #include "game/object.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 
 // 0x66BE38

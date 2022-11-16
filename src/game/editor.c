@@ -29,7 +29,7 @@
 #include "game/perk.h"
 #include "game/proto.h"
 #include "game/scripts.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "text_font.h"
 #include "trait.h"

@@ -19,7 +19,7 @@
 #include "game/options.h"
 #include "game/palette.h"
 #include "game/proto.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "stat.h"
 #include "text_font.h"
 #include "trait.h"

@@ -16,7 +16,7 @@
 #include "game/proto.h"
 #include "game/roll.h"
 #include "game/scripts.h"
-#include "skill.h"
+#include "game/skill.h"
 #include "tile.h"
 #include "trait.h"
 
