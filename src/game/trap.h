@@ -1,7 +1,7 @@
-#ifndef TRAP_H
-#define TRAP_H
+#ifndef FALLOUT_GAME_TRAP_H_
+#define FALLOUT_GAME_TRAP_H_
 
 void trap_exit();
 void trap_init();
 
-#endif /* TRAP_H */
+#endif /* FALLOUT_GAME_TRAP_H_ */
