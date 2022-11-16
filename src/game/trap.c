@@ -1,4 +1,4 @@
-#include "trap.h"
+#include "game/trap.h"
 
 #include <stdlib.h>
 

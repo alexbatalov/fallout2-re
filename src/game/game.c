@@ -53,7 +53,7 @@
 #include "text_font.h"
 #include "game/tile.h"
 #include "game/trait.h"
-#include "trap.h"
+#include "game/trap.h"
 #include "version.h"
 #include "window_manager.h"
 #include "worldmap.h"
