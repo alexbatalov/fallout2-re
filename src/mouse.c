@@ -2,7 +2,7 @@
 
 #include "plib/color/color.h"
 #include "core.h"
-#include "dxinput.h"
+#include "plib/gnw/dxinput.h"
 #include "plib/gnw/memory.h"
 #include "vcr.h"
 

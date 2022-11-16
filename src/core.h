@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "db.h"
-#include "dxinput.h"
+#include "plib/gnw/dxinput.h"
 #include "geometry.h"
 #include "kb.h"
 #include "mouse.h"

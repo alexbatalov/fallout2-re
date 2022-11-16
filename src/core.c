@@ -1,7 +1,7 @@
 #include "core.h"
 
 #include "plib/color/color.h"
-#include "dxinput.h"
+#include "plib/gnw/dxinput.h"
 #include "draw.h"
 #include "plib/gnw/memory.h"
 #include "mmx.h"

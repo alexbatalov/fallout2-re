@@ -1,6 +1,6 @@
 #include <initguid.h>
 
-#include "dxinput.h"
+#include "plib/gnw/dxinput.h"
 
 // NOTE: There is no such define in DirectX SDK. I've taken it from Wine at
 // https://github.com/wine-mirror/wine/blob/master/dlls/dinput/data_formats.c.
