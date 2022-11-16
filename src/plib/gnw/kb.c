@@ -1,4 +1,4 @@
-#include "kb.h"
+#include "plib/gnw/kb.h"
 
 #include "core.h"
 #include "plib/gnw/dxinput.h"

@@ -6,7 +6,7 @@
 #include "db.h"
 #include "plib/gnw/dxinput.h"
 #include "geometry.h"
-#include "kb.h"
+#include "plib/gnw/kb.h"
 #include "plib/gnw/mouse.h"
 #include "window.h"
 
