@@ -14,7 +14,7 @@
 #include "game/message.h"
 #include "text_font.h"
 #include "window_manager.h"
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 
 #define FILE_DIALOG_LINE_COUNT 12
 

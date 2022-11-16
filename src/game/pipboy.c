@@ -29,7 +29,7 @@
 #include "game/stat.h"
 #include "text_font.h"
 #include "window_manager.h"
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 #include "worldmap.h"
 
 #define PIPBOY_RAND_MAX 32767

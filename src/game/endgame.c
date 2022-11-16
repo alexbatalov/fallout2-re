@@ -32,7 +32,7 @@
 #include "game/stat.h"
 #include "text_font.h"
 #include "window_manager.h"
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 #include "worldmap.h"
 
 // The maximum number of subtitle lines per slide.

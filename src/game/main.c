@@ -41,7 +41,7 @@
 #include "text_font.h"
 #include "window_manager.h"
 #include "window_manager_private.h"
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 #include "worldmap.h"
 
 #define DEATH_WINDOW_WIDTH 640

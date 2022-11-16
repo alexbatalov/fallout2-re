@@ -1,4 +1,4 @@
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 
 #include <ctype.h>
 #include <stddef.h>

@@ -10,7 +10,7 @@
 #include "game/object.h"
 #include "text_font.h"
 #include "game/tile.h"
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 
 // The maximum number of text objects that can exist at the same time.
 #define TEXT_OBJECTS_MAX_COUNT 20

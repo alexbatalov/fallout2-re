@@ -43,7 +43,7 @@
 #include "game/trait.h"
 #include "game/version.h"
 #include "window_manager.h"
-#include "word_wrap.h"
+#include "game/wordwrap.h"
 #include "worldmap.h"
 
 #define LOAD_SAVE_SIGNATURE "FALLOUT SAVE FILE"
