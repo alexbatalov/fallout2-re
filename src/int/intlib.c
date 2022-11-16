@@ -9,7 +9,7 @@
 #include "int/memdbg.h"
 #include "int/mousemgr.h"
 #include "int/nevs.h"
-#include "select_file_list.h"
+#include "int/share1.h"
 #include "sound.h"
 #include "text_font.h"
 #include "window_manager_private.h"
