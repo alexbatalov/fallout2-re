@@ -4823,7 +4823,7 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
 
     int descriptionFontLineHeight = fontGetLineHeight();
 
-    if (wordWrap(description, v9 + 136, beginnings, &beginningsCount) != 0) {
+    if (word_wrap(description, v9 + 136, beginnings, &beginningsCount) != 0) {
         // TODO: Leaking graphic handle.
         return -1;
     }
@@ -6463,7 +6463,7 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
 
     short beginnings[WORD_WRAP_MAX_COUNT];
     short count;
-    if (wordWrap(description, 133 + extraDescriptionWidth, beginnings, &count) != 0) {
+    if (word_wrap(description, 133 + extraDescriptionWidth, beginnings, &count) != 0) {
         // FIXME: Leaks handle.
         return -1;
     }

@@ -794,7 +794,7 @@ static void endgame_show_subtitles()
 
     short beginnings[WORD_WRAP_MAX_COUNT];
     short count;
-    if (wordWrap(text, 540, beginnings, &count) != 0) {
+    if (word_wrap(text, 540, beginnings, &count) != 0) {
         return;
     }
 

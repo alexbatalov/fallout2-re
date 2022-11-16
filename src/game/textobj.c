@@ -216,7 +216,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
 
     short beginnings[WORD_WRAP_MAX_COUNT];
     short count;
-    if (wordWrap(string, 200, beginnings, &count) != 0) {
+    if (word_wrap(string, 200, beginnings, &count) != 0) {
         fontSetCurrent(oldFont);
         return -1;
     }

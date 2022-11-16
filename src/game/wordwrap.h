@@ -1,8 +1,8 @@
-#ifndef WORD_WRAP_H
-#define WORD_WRAP_H
+#ifndef FALLOUT_GAME_WORDWRAP_H_
+#define FALLOUT_GAME_WORDWRAP_H_
 
-#define WORD_WRAP_MAX_COUNT (64)
+#define WORD_WRAP_MAX_COUNT 64
 
-int wordWrap(const char* string, int width, short* breakpoints, short* breakpointsLengthPtr);
+int word_wrap(const char* string, int width, short* breakpoints, short* breakpointsLengthPtr);
 
-#endif /* WORD_WRAP_H */
+#endif /* FALLOUT_GAME_WORDWRAP_H_ */

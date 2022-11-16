@@ -420,7 +420,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         } else {
             short beginnings[WORD_WRAP_MAX_COUNT];
             short count;
-            if (wordWrap(body[v94], backgroundWidth - 26, beginnings, &count) != 0) {
+            if (word_wrap(body[v94], backgroundWidth - 26, beginnings, &count) != 0) {
                 debugPrint("\nError: dialog_out");
             }
 

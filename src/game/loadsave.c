@@ -1937,7 +1937,7 @@ static void DrawInfoBox(int a1)
             int y = v2 + 3 + v2 + 256;
             short beginnings[WORD_WRAP_MAX_COUNT];
             short count;
-            if (wordWrap(str, 164, beginnings, &count) == 0) {
+            if (word_wrap(str, 164, beginnings, &count) == 0) {
                 for (int index = 0; index < count - 1; index += 1) {
                     char* beginning = str + beginnings[index];
                     char* ending = str + beginnings[index + 1];

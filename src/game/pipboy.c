@@ -1118,7 +1118,7 @@ static void PipStatus(int a1)
 
                 short beginnings[WORD_WRAP_MAX_COUNT];
                 short count;
-                if (wordWrap(formattedText, 350, beginnings, &count) == 0) {
+                if (word_wrap(formattedText, 350, beginnings, &count) == 0) {
                     for (int line = 0; line < count - 1; line += 1) {
                         char* beginning = formattedText + beginnings[line];
                         char* ending = formattedText + beginnings[line + 1];

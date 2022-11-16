@@ -7,7 +7,7 @@
 #include "text_font.h"
 
 // 0x4BC6F0
-int wordWrap(const char* string, int width, short* breakpoints, short* breakpointsLengthPtr)
+int word_wrap(const char* string, int width, short* breakpoints, short* breakpointsLengthPtr)
 {
     breakpoints[0] = 0;
     *breakpointsLengthPtr = 1;

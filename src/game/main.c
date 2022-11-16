@@ -671,7 +671,7 @@ static int mainDeathWordWrap(char* text, int width, short* beginnings, short* co
         sep[-1] = ' ';
     }
 
-    if (wordWrap(text, width, beginnings, count) == -1) {
+    if (word_wrap(text, width, beginnings, count) == -1) {
         return -1;
     }
 
