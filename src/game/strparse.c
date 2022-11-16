@@ -1,4 +1,4 @@
-#include "string_parsers.h"
+#include "game/strparse.h"
 
 #include <stdlib.h>
 #include <string.h>
