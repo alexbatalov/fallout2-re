@@ -1,4 +1,4 @@
-#include "cd.h"
+#include "game/cd.h"
 
 #include <stdlib.h>
 
