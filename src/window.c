@@ -794,7 +794,7 @@ bool _deleteWindow(const char* windowName)
     }
 
     ManagedWindow* managedWindow = &(gManagedWindows[index]);
-    _win_delete_widgets(managedWindow->window);
+    win_delete_widgets(managedWindow->window);
     windowDestroy(managedWindow->window);
     managedWindow->window = -1;
     managedWindow->name[0] = '\0';
@@ -2749,7 +2749,7 @@ void _updateWindows()
     movieUpdate();
     mousemgrUpdate();
     _checkAllRegions();
-    _update_widgets();
+    update_widgets();
 }
 
 // 0x4BB234
@@ -3192,7 +3192,7 @@ int windowAddTextRegion(int x, int y, int width, int font, int textAlignment, in
         return -1;
     }
 
-    return _win_add_text_region(gManagedWindows[gCurrentManagedWindowIndex].window,
+    return win_add_text_region(gManagedWindows[gCurrentManagedWindowIndex].window,
         x,
         y,
         width,
@@ -3207,7 +3207,7 @@ int windowAddTextRegion(int x, int y, int width, int font, int textAlignment, in
 // 0x4BC668
 int windowPrintTextRegion(int textRegionId, char* string)
 {
-    return _win_print_text_region(textRegionId, string);
+    return win_print_text_region(textRegionId, string);
 }
 
 // NOTE: Unused.
@@ -3215,7 +3215,7 @@ int windowPrintTextRegion(int textRegionId, char* string)
 // 0x4BC670
 int windowUpdateTextRegion(int textRegionId)
 {
-    return _win_update_text_region(textRegionId);
+    return win_update_text_region(textRegionId);
 }
 
 // NOTE: Unused.
@@ -3223,7 +3223,7 @@ int windowUpdateTextRegion(int textRegionId)
 // 0x4BC678
 int windowDeleteTextRegion(int textRegionId)
 {
-    return _win_delete_text_region(textRegionId);
+    return win_delete_text_region(textRegionId);
 }
 
 // NOTE: Unused.
@@ -3231,7 +3231,7 @@ int windowDeleteTextRegion(int textRegionId)
 // 0x4BC680
 int windowTextRegionStyle(int textRegionId, int font, int textAlignment, int textFlags, int backgroundColor)
 {
-    return _win_text_region_style(textRegionId, font, textAlignment, textFlags, backgroundColor);
+    return win_text_region_style(textRegionId, font, textAlignment, textFlags, backgroundColor);
 }
 
 // NOTE: Unused.
@@ -3239,7 +3239,7 @@ int windowTextRegionStyle(int textRegionId, int font, int textAlignment, int tex
 // 0x4BC698
 int windowAddTextInputRegion(int textRegionId, char* text, int a3, int a4)
 {
-    return _win_add_text_input_region(textRegionId, text, a3, a4);
+    return win_add_text_input_region(textRegionId, text, a3, a4);
 }
 
 // NOTE: Unused.
@@ -3248,7 +3248,7 @@ int windowAddTextInputRegion(int textRegionId, char* text, int a3, int a4)
 int windowDeleteTextInputRegion(int textInputRegionId)
 {
     if (textInputRegionId != -1) {
-        return _win_delete_text_input_region(textInputRegionId);
+        return win_delete_text_input_region(textInputRegionId);
     }
 
     if (gCurrentManagedWindowIndex == -1) {
@@ -3259,7 +3259,7 @@ int windowDeleteTextInputRegion(int textInputRegionId)
         return 0;
     }
 
-    return _win_delete_all_text_input_regions(gManagedWindows[gCurrentManagedWindowIndex].window);
+    return win_delete_all_text_input_regions(gManagedWindows[gCurrentManagedWindowIndex].window);
 }
 
 // NOTE: Unused.
@@ -3267,5 +3267,5 @@ int windowDeleteTextInputRegion(int textInputRegionId)
 // 0x4BC6E4
 int windowSetTextInputDeleteFunc(int textInputRegionId, TextInputRegionDeleteFunc* deleteFunc, void* userData)
 {
-    return _win_set_text_input_delete_func(textInputRegionId, deleteFunc, userData);
+    return win_set_text_input_delete_func(textInputRegionId, deleteFunc, userData);
 }
