@@ -1,5 +1,5 @@
-#ifndef COLOR_H
-#define COLOR_H
+#ifndef FALLOUT_PLIB_COLOR_COLOR_H_
+#define FALLOUT_PLIB_COLOR_COLOR_H_
 
 #include <stdbool.h>
 #include <stdlib.h>
@@ -65,4 +65,4 @@ bool initColors();
 void colorsClose();
 unsigned char* getColorPalette();
 
-#endif /* COLOR_H */
+#endif /* FALLOUT_PLIB_COLOR_COLOR_H_ */
