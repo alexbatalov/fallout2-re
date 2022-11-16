@@ -1,5 +1,5 @@
-#ifndef MOUSE_H
-#define MOUSE_H
+#ifndef FALLOUT_PLIB_GNW_MOUSE_H_
+#define FALLOUT_PLIB_GNW_MOUSE_H_
 
 #include <stdbool.h>
 
@@ -59,4 +59,4 @@ double mouse_get_sensitivity();
 unsigned int mouse_elapsed_time();
 void mouse_reset_elapsed_time();
 
-#endif /* MOUSE_H */
+#endif /* FALLOUT_PLIB_GNW_MOUSE_H_ */
