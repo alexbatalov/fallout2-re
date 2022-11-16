@@ -36,7 +36,7 @@
 #include "game/tile.h"
 #include "window_manager.h"
 #include "window_manager_private.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 static void map_display_draw(Rect* rect);
 static void map_scroll_refresh_game(Rect* rect);

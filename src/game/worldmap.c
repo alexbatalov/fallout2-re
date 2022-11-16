@@ -1,4 +1,4 @@
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 #include <assert.h>
 #include <stdio.h>

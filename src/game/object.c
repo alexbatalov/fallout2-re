@@ -24,7 +24,7 @@
 #include "game/scripts.h"
 #include "game/textobj.h"
 #include "game/tile.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 static int obj_read_obj(Object* obj, File* stream);
 static int obj_load_func(File* stream);

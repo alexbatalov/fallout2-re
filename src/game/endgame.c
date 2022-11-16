@@ -33,7 +33,7 @@
 #include "text_font.h"
 #include "window_manager.h"
 #include "game/wordwrap.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 // The maximum number of subtitle lines per slide.
 #define ENDGAME_ENDING_MAX_SUBTITLES 50

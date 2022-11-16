@@ -41,7 +41,7 @@
 #include "game/tile.h"
 #include "game/trait.h"
 #include "vcr.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 typedef enum Metarule {
     METARULE_SIGNAL_END_GAME = 13,

@@ -157,6 +157,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/game/version.h"
     "src/game/wordwrap.c"
     "src/game/wordwrap.h"
+    "src/game/worldmap.c"
+    "src/game/worldmap.h"
     "src/int/audio.c"
     "src/int/audio.h"
     "src/int/audiof.c"
@@ -240,8 +242,6 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/window_manager.h"
     "src/window.c"
     "src/window.h"
-    "src/worldmap.c"
-    "src/worldmap.h"
     "src/xfile.c"
     "src/xfile.h"
 )

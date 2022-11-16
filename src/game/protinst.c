@@ -27,7 +27,7 @@
 #include "game/skill.h"
 #include "game/stat.h"
 #include "game/tile.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 static int obj_use_book(Object* item_obj);
 static int obj_use_flare(Object* critter_obj, Object* item_obj);

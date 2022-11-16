@@ -42,7 +42,7 @@
 #include "window_manager.h"
 #include "window_manager_private.h"
 #include "game/wordwrap.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 #define DEATH_WINDOW_WIDTH 640
 #define DEATH_WINDOW_HEIGHT 480

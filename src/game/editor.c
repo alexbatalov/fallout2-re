@@ -35,7 +35,7 @@
 #include "game/trait.h"
 #include "window_manager.h"
 #include "game/wordwrap.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 #define RENDER_ALL_STATS 7
 

@@ -27,7 +27,7 @@
 #include "game/stat.h"
 #include "game/tile.h"
 #include "game/trait.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 static int get_rad_damage_level(Object* obj, void* data);
 static int clear_rad_damage(Object* obj, void* data);

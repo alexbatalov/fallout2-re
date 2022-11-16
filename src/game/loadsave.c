@@ -44,7 +44,7 @@
 #include "game/version.h"
 #include "window_manager.h"
 #include "game/wordwrap.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 #define LOAD_SAVE_SIGNATURE "FALLOUT SAVE FILE"
 #define LOAD_SAVE_DESCRIPTION_LENGTH 30

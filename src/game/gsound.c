@@ -25,7 +25,7 @@
 #include "game/sfxcache.h"
 #include "game/stat.h"
 #include "window_manager.h"
-#include "worldmap.h"
+#include "game/worldmap.h"
 
 static void gsound_bkg_proc();
 static int gsound_open(const char* fname, int access, ...);
