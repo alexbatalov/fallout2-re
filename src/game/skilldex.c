@@ -21,7 +21,7 @@
 #include "game/skill.h"
 #include "plib/gnw/rect.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define SKILLDEX_WINDOW_RIGHT_MARGIN 4
 #define SKILLDEX_WINDOW_BOTTOM_MARGIN 6

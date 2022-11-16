@@ -37,7 +37,7 @@
 #include "game/stat.h"
 #include "plib/gnw/text.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define INVENTORY_WINDOW_X 80
 #define INVENTORY_WINDOW_Y 0

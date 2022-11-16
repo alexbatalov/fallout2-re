@@ -33,7 +33,7 @@
 #include "game/stat.h"
 #include "plib/gnw/text.h"
 #include "game/trait.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "game/wordwrap.h"
 #include "game/worldmap.h"
 

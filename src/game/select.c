@@ -23,7 +23,7 @@
 #include "game/stat.h"
 #include "plib/gnw/text.h"
 #include "game/trait.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define CS_WINDOW_WIDTH 640
 #define CS_WINDOW_HEIGHT 480

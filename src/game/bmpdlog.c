@@ -13,7 +13,7 @@
 #include "game/gsound.h"
 #include "game/message.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "game/wordwrap.h"
 
 #define FILE_DIALOG_LINE_COUNT 12

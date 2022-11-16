@@ -5,7 +5,7 @@
 #include "plib/gnw/doscmdln.h"
 #include "core.h"
 #include "game/main.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 static BOOL LoadDirectX();
 static void UnloadDirectX(void);

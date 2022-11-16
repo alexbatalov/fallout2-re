@@ -30,7 +30,7 @@
 #include "game/stat.h"
 #include "plib/gnw/text.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define INDICATOR_BAR_X 0
 #define INDICATOR_BAR_Y 358

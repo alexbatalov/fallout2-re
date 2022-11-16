@@ -1,4 +1,4 @@
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #include "plib/color/color.h"
 #include "core.h"

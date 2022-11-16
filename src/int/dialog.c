@@ -6,7 +6,7 @@
 #include "int/memdbg.h"
 #include "int/movie.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 typedef struct STRUCT_56DAE0_FIELD_4_FIELD_C {
     char* field_0;

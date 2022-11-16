@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "plib/gnw/debug.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 typedef struct TrapEntry {
     int address;

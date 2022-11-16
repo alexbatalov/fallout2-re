@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "plib/gnw/debug.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 // A special value that denotes a beginning of a memory block data.
 #define MEMORY_BLOCK_HEADER_GUARD 0xFEEDFACE

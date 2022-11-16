@@ -15,7 +15,7 @@
 #include "game/map.h"
 #include "game/pipboy.h"
 #include "game/scripts.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 // The maximum number of elevator levels.
 #define ELEVATOR_LEVEL_MAX 4

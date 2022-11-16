@@ -55,7 +55,7 @@
 #include "game/trait.h"
 #include "game/trap.h"
 #include "game/version.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "game/worldmap.h"
 
 #define HELP_SCREEN_WIDTH 640

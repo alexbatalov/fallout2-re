@@ -24,7 +24,7 @@
 #include "game/skilldex.h"
 #include "plib/gnw/text.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 typedef enum ScrollableDirections {
     SCROLLABLE_W = 0x01,

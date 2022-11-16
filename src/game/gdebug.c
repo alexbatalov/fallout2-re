@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "plib/gnw/debug.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 // 0x444C90
 void fatal_error(const char* format, const char* message, const char* file, int line)

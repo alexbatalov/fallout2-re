@@ -42,7 +42,7 @@
 #include "game/tile.h"
 #include "game/trait.h"
 #include "game/version.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "game/wordwrap.h"
 #include "game/worldmap.h"
 

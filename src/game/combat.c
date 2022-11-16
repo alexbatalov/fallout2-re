@@ -37,7 +37,7 @@
 #include "plib/gnw/text.h"
 #include "game/tile.h"
 #include "game/trait.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define CALLED_SHOT_WINDOW_X 68
 #define CALLED_SHOT_WINDOW_Y 20

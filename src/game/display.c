@@ -14,7 +14,7 @@
 #include "game/intface.h"
 #include "plib/gnw/memory.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 // The maximum number of lines display monitor can hold. Once this value
 // is reached earlier messages are thrown away.

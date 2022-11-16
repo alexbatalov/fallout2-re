@@ -28,7 +28,7 @@
 #include "game/strparse.h"
 #include "game/textobj.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 typedef struct PartyMemberAI {
     bool area_attack_mode[AREA_ATTACK_MODE_COUNT];

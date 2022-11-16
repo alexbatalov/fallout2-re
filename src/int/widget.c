@@ -11,7 +11,7 @@
 #include "int/sound.h"
 #include "plib/gnw/text.h"
 #include "window.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define WIDGET_UPDATE_REGIONS_CAPACITY 32
 

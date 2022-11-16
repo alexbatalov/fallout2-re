@@ -34,7 +34,7 @@
 #include "plib/gnw/text.h"
 #include "game/textobj.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 // NOTE: Rare case - as a compatibility measure with Community Edition, this
 // define is actually an expression as original game used. However leaving it

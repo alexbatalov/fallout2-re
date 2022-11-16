@@ -18,7 +18,7 @@
 #include "game/moviefx.h"
 #include "game/palette.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define GAME_MOVIE_WINDOW_WIDTH 640
 #define GAME_MOVIE_WINDOW_HEIGHT 480

@@ -7,7 +7,7 @@
 #include "mmx.h"
 #include "plib/gnw/text.h"
 #include "plib/gnw/vcr.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "plib/gnw/intrface.h"
 
 // NOT USED.

@@ -34,7 +34,7 @@
 #include "game/scripts.h"
 #include "game/textobj.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "plib/gnw/intrface.h"
 #include "game/worldmap.h"
 

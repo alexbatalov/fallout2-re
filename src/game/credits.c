@@ -15,7 +15,7 @@
 #include "game/palette.h"
 #include "int/sound.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define CREDITS_WINDOW_WIDTH 640
 #define CREDITS_WINDOW_HEIGHT 480

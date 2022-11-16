@@ -41,7 +41,7 @@
 #include "game/strparse.h"
 #include "plib/gnw/text.h"
 #include "game/tile.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define CITY_NAME_SIZE (40)
 #define TILE_WALK_MASK_NAME_SIZE (40)

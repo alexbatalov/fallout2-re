@@ -8,7 +8,7 @@
 #include "draw.h"
 #include "plib/gnw/memory.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 static int create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect);
 static void win_debug_delete(int btn, int keyCode);

@@ -7,7 +7,7 @@
 #include "int/intrpret.h"
 #include "int/region.h"
 #include "int/widget.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 
 #define MANAGED_WINDOW_COUNT (16)
 

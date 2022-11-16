@@ -13,7 +13,7 @@
 #include "movie_lib.h"
 #include "int/sound.h"
 #include "plib/gnw/text.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "plib/gnw/winmain.h"
 
 typedef void(MovieCallback)();

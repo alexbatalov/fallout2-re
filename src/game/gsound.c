@@ -24,7 +24,7 @@
 #include "game/roll.h"
 #include "game/sfxcache.h"
 #include "game/stat.h"
-#include "window_manager.h"
+#include "plib/gnw/gnw.h"
 #include "game/worldmap.h"
 
 static void gsound_bkg_proc();
