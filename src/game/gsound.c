@@ -16,7 +16,7 @@
 #include "game/gconfig.h"
 #include "game/item.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "int/movie.h"
 #include "game/object.h"
 #include "game/proto.h"

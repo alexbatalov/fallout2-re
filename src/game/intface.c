@@ -21,7 +21,7 @@
 #include "game/gsound.h"
 #include "geometry.h"
 #include "game/item.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/proto.h"
 #include "game/protinst.h"

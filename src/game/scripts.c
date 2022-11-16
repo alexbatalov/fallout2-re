@@ -19,7 +19,7 @@
 #include "game/gdialog.h"
 #include "game/gmouse.h"
 #include "game/gmovie.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/proto.h"
 #include "game/protinst.h"

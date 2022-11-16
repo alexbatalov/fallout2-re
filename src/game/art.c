@@ -10,7 +10,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/proto.h"
 

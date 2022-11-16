@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 // 0x410010
 int abil_init(Ability* ability, int initialCapacity)

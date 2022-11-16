@@ -10,7 +10,7 @@
 #include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/gmouse.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/message.h"
 #include "game/palette.h"
 #include "int/sound.h"

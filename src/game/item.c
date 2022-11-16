@@ -13,7 +13,7 @@
 #include "game/inventry.h"
 #include "game/light.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/message.h"
 #include "game/object.h"
 #include "game/perk.h"

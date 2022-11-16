@@ -2,7 +2,7 @@
 
 #include "db.h"
 #include "plib/assoc/assoc.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "int/memdbg.h"
 
 // NOTE: Unused.

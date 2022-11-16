@@ -10,7 +10,7 @@
 #include "db.h"
 #include "game/cache.h"
 #include "game/gconfig.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "sound_decoder.h"
 #include "game/sfxlist.h"
 

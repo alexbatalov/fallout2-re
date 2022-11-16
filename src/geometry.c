@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 // 0x51DEF4
 RectListNode* _rectList = NULL;

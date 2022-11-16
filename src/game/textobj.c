@@ -6,7 +6,7 @@
 #include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/gconfig.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "text_font.h"
 #include "game/tile.h"

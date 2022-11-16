@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "plib/gnw/debug.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 typedef struct FadeSound {
     Sound* sound;

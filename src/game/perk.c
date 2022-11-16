@@ -6,7 +6,7 @@
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/message.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/party.h"
 #include "game/skill.h"

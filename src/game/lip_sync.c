@@ -7,7 +7,7 @@
 #include "core.h"
 #include "plib/gnw/debug.h"
 #include "game/gsound.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "int/sound.h"
 
 static char* lips_fix_string(const char* fileName, size_t length);

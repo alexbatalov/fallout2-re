@@ -16,7 +16,7 @@
 #include "game/graphlib.h"
 #include "game/item.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "text_font.h"
 #include "window_manager.h"

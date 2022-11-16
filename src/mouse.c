@@ -3,7 +3,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "dxinput.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "vcr.h"
 
 static void mouse_colorize();

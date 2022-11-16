@@ -5,7 +5,7 @@
 #include <string.h>
 
 #include "plib/gnw/debug.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 #define HEAP_BLOCK_HEADER_GUARD (0xDEADC0DE)
 #define HEAP_BLOCK_FOOTER_GUARD (0xACDCACDC)

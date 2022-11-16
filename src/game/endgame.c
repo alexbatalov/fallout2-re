@@ -24,7 +24,7 @@
 #include "game/gmovie.h"
 #include "game/gsound.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/palette.h"
 #include "game/pipboy.h"

@@ -8,7 +8,7 @@
 #include "db.h"
 #include "plib/gnw/debug.h"
 #include "game/gconfig.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/roll.h"
 
 #define BADWORD_LENGTH_MAX 80

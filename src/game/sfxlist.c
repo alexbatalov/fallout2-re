@@ -7,7 +7,7 @@
 
 #include "db.h"
 #include "plib/gnw/debug.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "sound_decoder.h"
 
 typedef struct SoundEffectsListEntry {

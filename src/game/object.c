@@ -17,7 +17,7 @@
 #include "game/item.h"
 #include "game/light.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/party.h"
 #include "game/proto.h"
 #include "game/protinst.h"

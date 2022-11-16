@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "plib/gnw/debug.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "int/sound.h"
 
 static_assert(sizeof(CacheEntry) == 32, "wrong size");

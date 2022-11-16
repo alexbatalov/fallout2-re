@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 #include "core.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 static bool vcr_create_buffer();
 static bool vcr_destroy_buffer();

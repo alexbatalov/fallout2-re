@@ -7,7 +7,7 @@
 #include "game/gsound.h"
 #include "game/item.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/message.h"
 #include "game/object.h"
 #include "game/perk.h"

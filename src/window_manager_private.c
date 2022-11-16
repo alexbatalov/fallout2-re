@@ -6,7 +6,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "draw.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "text_font.h"
 #include "window_manager.h"
 

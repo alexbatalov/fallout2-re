@@ -3,7 +3,7 @@
 #include "plib/color/color.h"
 #include "dxinput.h"
 #include "draw.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "mmx.h"
 #include "text_font.h"
 #include "vcr.h"

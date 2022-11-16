@@ -1,6 +1,6 @@
 #include "game/artload.h"
 
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 static int art_readSubFrameData(unsigned char* data, File* stream, int count);
 static int art_readFrameData(Art* art, File* stream);

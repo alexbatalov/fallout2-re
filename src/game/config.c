@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "db.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 #define CONFIG_FILE_MAX_LINE_LENGTH 256
 

@@ -19,7 +19,7 @@
 #include "game/gsound.h"
 #include "game/loadsave.h"
 #include "game/message.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/scripts.h"
 #include "text_font.h"
 #include "game/textobj.h"

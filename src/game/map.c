@@ -23,7 +23,7 @@
 #include "game/item.h"
 #include "game/light.h"
 #include "game/loadsave.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/palette.h"
 #include "game/pipboy.h"

@@ -26,7 +26,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/map_defs.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/message.h"
 #include "game/object_types.h"
 #include "game/object.h"

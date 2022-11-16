@@ -11,7 +11,7 @@
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/message.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/perk.h"
 #include "game/proto.h"

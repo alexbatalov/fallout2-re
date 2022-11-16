@@ -13,7 +13,7 @@
 #include "draw.h"
 #include "game/game.h"
 #include "game/gsound.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/message.h"
 #include "game/object.h"
 #include "game/options.h"

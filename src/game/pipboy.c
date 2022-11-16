@@ -21,7 +21,7 @@
 #include "game/gsound.h"
 #include "game/intface.h"
 #include "game/map.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/queue.h"
 #include "game/roll.h"

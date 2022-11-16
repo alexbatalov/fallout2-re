@@ -8,7 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "memory.h"
+#include "plib/gnw/memory.h"
 #include "window_manager_private.h"
 
 static int debug_mono(char* string);

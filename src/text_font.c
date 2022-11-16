@@ -8,7 +8,7 @@
 
 #include "plib/color/color.h"
 #include "db.h"
-#include "memory.h"
+#include "plib/gnw/memory.h"
 
 // 0x4D5530
 FontManager gTextFontManager = {
