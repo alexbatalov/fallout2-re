@@ -1,4 +1,4 @@
-#include "skilldex.h"
+#include "game/skilldex.h"
 
 #include <stdio.h>
 #include <string.h>

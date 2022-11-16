@@ -21,7 +21,7 @@
 #include "game/object.h"
 #include "game/proto.h"
 #include "game/protinst.h"
-#include "skilldex.h"
+#include "game/skilldex.h"
 #include "text_font.h"
 #include "tile.h"
 #include "window_manager.h"
