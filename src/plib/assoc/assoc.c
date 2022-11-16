@@ -5,35 +5,49 @@
 #include <stdlib.h>
 #include <string.h>
 
+// NOTE: I guess this marker is used as a type discriminator for implementing
+// nested dictionaries. That's why every dictionary-related function starts
+// with a check for this value.
+#define DICTIONARY_MARKER 0xFEBAFEBA
+
+static void* default_malloc(size_t size);
+static void* default_realloc(void* ptr, size_t newSize);
+static void default_free(void* ptr);
+static int assoc_find(Dictionary* dictionary, const char* key, int* index);
+static int assoc_read_long(FILE* stream, int* valuePtr);
+static int assoc_read_assoc_array(FILE* stream, Dictionary* dictionary);
+static int assoc_write_long(FILE* stream, int value);
+static int assoc_write_assoc_array(FILE* stream, Dictionary* dictionary);
+
 // 0x51E408
-MallocProc* gDictionaryMallocProc = dictionaryMallocDefaultImpl;
+static MallocProc* internal_malloc = default_malloc;
 
 // 0x51E40C
-ReallocProc* gDictionaryReallocProc = dictionaryReallocDefaultImpl;
+static ReallocProc* internal_realloc = default_realloc;
 
 // 0x51E410
-FreeProc* gDictionaryFreeProc = dictionaryFreeDefaultImpl;
+static FreeProc* internal_free = default_free;
 
 // 0x4D9B90
-void* dictionaryMallocDefaultImpl(size_t size)
+static void* default_malloc(size_t size)
 {
     return malloc(size);
 }
 
 // 0x4D9B98
-void* dictionaryReallocDefaultImpl(void* ptr, size_t newSize)
+static void* default_realloc(void* ptr, size_t newSize)
 {
     return realloc(ptr, newSize);
 }
 
 // 0x4D9BA0
-void dictionaryFreeDefaultImpl(void* ptr)
+static void default_free(void* ptr)
 {
     free(ptr);
 }
 
 // 0x4D9BA8
-int dictionaryInit(Dictionary* dictionary, int initialCapacity, size_t valueSize, DictionaryIO* io)
+int assoc_init(Dictionary* dictionary, int initialCapacity, size_t valueSize, DictionaryIO* io)
 {
     dictionary->entriesCapacity = initialCapacity;
     dictionary->valueSize = valueSize;
@@ -51,7 +65,7 @@ int dictionaryInit(Dictionary* dictionary, int initialCapacity, size_t valueSize
     int rc = 0;
 
     if (initialCapacity != 0) {
-        dictionary->entries = (DictionaryEntry*)gDictionaryMallocProc(sizeof(*dictionary->entries) * initialCapacity);
+        dictionary->entries = (DictionaryEntry*)internal_malloc(sizeof(*dictionary->entries) * initialCapacity);
         if (dictionary->entries == NULL) {
             rc = -1;
         }
@@ -67,7 +81,7 @@ int dictionaryInit(Dictionary* dictionary, int initialCapacity, size_t valueSize
 }
 
 // 0x4D9C0C
-int dictionarySetCapacity(Dictionary* dictionary, int newCapacity)
+int assoc_resize(Dictionary* dictionary, int newCapacity)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
@@ -77,7 +91,7 @@ int dictionarySetCapacity(Dictionary* dictionary, int newCapacity)
         return -1;
     }
 
-    DictionaryEntry* entries = (DictionaryEntry*)gDictionaryReallocProc(dictionary->entries, sizeof(*dictionary->entries) * newCapacity);
+    DictionaryEntry* entries = (DictionaryEntry*)internal_realloc(dictionary->entries, sizeof(*dictionary->entries) * newCapacity);
     if (entries == NULL) {
         return -1;
     }
@@ -89,7 +103,7 @@ int dictionarySetCapacity(Dictionary* dictionary, int newCapacity)
 }
 
 // 0x4D9C48
-int dictionaryFree(Dictionary* dictionary)
+int assoc_free(Dictionary* dictionary)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
@@ -98,16 +112,16 @@ int dictionaryFree(Dictionary* dictionary)
     for (int index = 0; index < dictionary->entriesLength; index++) {
         DictionaryEntry* entry = &(dictionary->entries[index]);
         if (entry->key != NULL) {
-            gDictionaryFreeProc(entry->key);
+            internal_free(entry->key);
         }
 
         if (entry->value != NULL) {
-            gDictionaryFreeProc(entry->value);
+            internal_free(entry->value);
         }
     }
 
     if (dictionary->entries != NULL) {
-        gDictionaryFreeProc(dictionary->entries);
+        internal_free(dictionary->entries);
     }
 
     memset(dictionary, 0, sizeof(*dictionary));
@@ -121,7 +135,7 @@ int dictionaryFree(Dictionary* dictionary)
 // specifies an insertion point for given key.
 //
 // 0x4D9CC4
-int dictionaryFindIndexForKey(Dictionary* dictionary, const char* key, int* indexPtr)
+static int assoc_find(Dictionary* dictionary, const char* key, int* indexPtr)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
@@ -169,14 +183,14 @@ int dictionaryFindIndexForKey(Dictionary* dictionary, const char* key, int* inde
 // present in the dictionary.
 //
 // 0x4D9D5C
-int dictionaryGetIndexByKey(Dictionary* dictionary, const char* key)
+int assoc_search(Dictionary* dictionary, const char* key)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
     }
 
     int index;
-    if (dictionaryFindIndexForKey(dictionary, key, &index) != 0) {
+    if (assoc_find(dictionary, key, &index) != 0) {
         return -1;
     }
 
@@ -190,27 +204,27 @@ int dictionaryGetIndexByKey(Dictionary* dictionary, const char* key)
 // error).
 //
 // 0x4D9D88
-int dictionaryAddValue(Dictionary* dictionary, const char* key, const void* value)
+int assoc_insert(Dictionary* dictionary, const char* key, const void* value)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
     }
 
     int newElementIndex;
-    if (dictionaryFindIndexForKey(dictionary, key, &newElementIndex) == 0) {
+    if (assoc_find(dictionary, key, &newElementIndex) == 0) {
         // Element for this key is already exists.
         return -1;
     }
 
     if (dictionary->entriesLength == dictionary->entriesCapacity) {
         // Dictionary reached it's capacity and needs to be enlarged.
-        if (dictionarySetCapacity(dictionary, 2 * (dictionary->entriesCapacity + 1)) == -1) {
+        if (assoc_resize(dictionary, 2 * (dictionary->entriesCapacity + 1)) == -1) {
             return -1;
         }
     }
 
     // Make a copy of the key.
-    char* keyCopy = (char*)gDictionaryMallocProc(strlen(key) + 1);
+    char* keyCopy = (char*)internal_malloc(strlen(key) + 1);
     if (keyCopy == NULL) {
         return -1;
     }
@@ -220,9 +234,9 @@ int dictionaryAddValue(Dictionary* dictionary, const char* key, const void* valu
     // Make a copy of the value.
     void* valueCopy = NULL;
     if (value != NULL && dictionary->valueSize != 0) {
-        valueCopy = gDictionaryMallocProc(dictionary->valueSize);
+        valueCopy = internal_malloc(dictionary->valueSize);
         if (valueCopy == NULL) {
-            gDictionaryFreeProc(keyCopy);
+            internal_free(keyCopy);
             return -1;
         }
     }
@@ -254,23 +268,23 @@ int dictionaryAddValue(Dictionary* dictionary, const char* key, const void* valu
 // Returns 0 on success, -1 on any error (including key not present error).
 //
 // 0x4D9EE8
-int dictionaryRemoveValue(Dictionary* dictionary, const char* key)
+int assoc_delete(Dictionary* dictionary, const char* key)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
     }
 
     int indexToRemove;
-    if (dictionaryFindIndexForKey(dictionary, key, &indexToRemove) == -1) {
+    if (assoc_find(dictionary, key, &indexToRemove) == -1) {
         return -1;
     }
 
     DictionaryEntry* entry = &(dictionary->entries[indexToRemove]);
 
     // Free key and value (which are copies).
-    gDictionaryFreeProc(entry->key);
+    internal_free(entry->key);
     if (entry->value != NULL) {
-        gDictionaryFreeProc(entry->value);
+        internal_free(entry->value);
     }
 
     dictionary->entriesLength--;
@@ -289,20 +303,20 @@ int dictionaryRemoveValue(Dictionary* dictionary, const char* key)
 // NOTE: Unused.
 //
 // 0x4D9F84
-int dictionaryCopy(Dictionary* dest, Dictionary* src)
+int assoc_copy(Dictionary* dest, Dictionary* src)
 {
     if (src->marker != DICTIONARY_MARKER) {
         return -1;
     }
 
-    if (dictionaryInit(dest, src->entriesCapacity, src->valueSize, &(src->io)) != 0) {
+    if (assoc_init(dest, src->entriesCapacity, src->valueSize, &(src->io)) != 0) {
         // FIXME: Should return -1, as we were unable to initialize dictionary.
         return 0;
     }
 
     for (int index = 0; index < src->entriesLength; index++) {
         DictionaryEntry* entry = &(src->entries[index]);
-        if (dictionaryAddValue(dest, entry->key, entry->value) == -1) {
+        if (assoc_insert(dest, entry->key, entry->value) == -1) {
             return -1;
         }
     }
@@ -313,7 +327,7 @@ int dictionaryCopy(Dictionary* dest, Dictionary* src)
 // NOTE: Unused.
 //
 // 0x4DA090
-int dictionaryReadInt(FILE* stream, int* valuePtr)
+static int assoc_read_long(FILE* stream, int* valuePtr)
 {
     int ch;
     int value;
@@ -354,20 +368,20 @@ int dictionaryReadInt(FILE* stream, int* valuePtr)
 // NOTE: Unused.
 //
 // 0x4DA0F4
-int dictionaryReadHeader(FILE* stream, Dictionary* dictionary)
+static int assoc_read_assoc_array(FILE* stream, Dictionary* dictionary)
 {
     int value;
 
-    if (dictionaryReadInt(stream, &value) != 0) return -1;
+    if (assoc_read_long(stream, &value) != 0) return -1;
     dictionary->entriesLength = value;
 
-    if (dictionaryReadInt(stream, &value) != 0) return -1;
+    if (assoc_read_long(stream, &value) != 0) return -1;
     dictionary->entriesCapacity = value;
 
-    if (dictionaryReadInt(stream, &value) != 0) return -1;
+    if (assoc_read_long(stream, &value) != 0) return -1;
     dictionary->valueSize = value;
 
-    if (dictionaryReadInt(stream, &value) != 0) return -1;
+    if (assoc_read_long(stream, &value) != 0) return -1;
     // FIXME: Reading pointer.
     dictionary->entries = (DictionaryEntry*)value;
 
@@ -377,7 +391,7 @@ int dictionaryReadHeader(FILE* stream, Dictionary* dictionary)
 // NOTE: Unused.
 //
 // 0x4DA158
-int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3)
+int assoc_load(FILE* stream, Dictionary* dictionary, int a3)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
@@ -386,19 +400,19 @@ int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3)
     for (int index = 0; index < dictionary->entriesLength; index++) {
         DictionaryEntry* entry = &(dictionary->entries[index]);
         if (entry->key != NULL) {
-            gDictionaryFreeProc(entry->key);
+            internal_free(entry->key);
         }
 
         if (entry->value != NULL) {
-            gDictionaryFreeProc(entry->value);
+            internal_free(entry->value);
         }
     }
 
     if (dictionary->entries != NULL) {
-        gDictionaryFreeProc(dictionary->entries);
+        internal_free(dictionary->entries);
     }
 
-    if (dictionaryReadHeader(stream, dictionary) != 0) {
+    if (assoc_read_assoc_array(stream, dictionary) != 0) {
         return -1;
     }
 
@@ -408,7 +422,7 @@ int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3)
         return 0;
     }
 
-    dictionary->entries = (DictionaryEntry*)gDictionaryMallocProc(sizeof(*dictionary->entries) * dictionary->entriesCapacity);
+    dictionary->entries = (DictionaryEntry*)internal_malloc(sizeof(*dictionary->entries) * dictionary->entriesCapacity);
     if (dictionary->entries == NULL) {
         return -1;
     }
@@ -430,7 +444,7 @@ int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3)
             return -1;
         }
 
-        entry->key = (char*)gDictionaryMallocProc(keyLength + 1);
+        entry->key = (char*)internal_malloc(keyLength + 1);
         if (entry->key == NULL) {
             return -1;
         }
@@ -440,7 +454,7 @@ int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3)
         }
 
         if (dictionary->valueSize != 0) {
-            entry->value = gDictionaryMallocProc(dictionary->valueSize);
+            entry->value = internal_malloc(dictionary->valueSize);
             if (entry->value == NULL) {
                 return -1;
             }
@@ -463,7 +477,7 @@ int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3)
 // NOTE: Unused.
 //
 // 0x4DA2EC
-int dictionaryWriteInt(FILE* stream, int value)
+static int assoc_write_long(FILE* stream, int value)
 {
     if (fputc((value >> 24) & 0xFF, stream) == -1) return -1;
     if (fputc((value >> 16) & 0xFF, stream) == -1) return -1;
@@ -476,13 +490,13 @@ int dictionaryWriteInt(FILE* stream, int value)
 // NOTE: Unused.
 //
 // 0x4DA360
-int dictionaryWriteHeader(FILE* stream, Dictionary* dictionary)
+static int assoc_write_assoc_array(FILE* stream, Dictionary* dictionary)
 {
-    if (dictionaryWriteInt(stream, dictionary->entriesLength) != 0) return -1;
-    if (dictionaryWriteInt(stream, dictionary->entriesCapacity) != 0) return -1;
-    if (dictionaryWriteInt(stream, dictionary->valueSize) != 0) return -1;
+    if (assoc_write_long(stream, dictionary->entriesLength) != 0) return -1;
+    if (assoc_write_long(stream, dictionary->entriesCapacity) != 0) return -1;
+    if (assoc_write_long(stream, dictionary->valueSize) != 0) return -1;
     // FIXME: Writing pointer.
-    if (dictionaryWriteInt(stream, (int)dictionary->entries) != 0) return -1;
+    if (assoc_write_long(stream, (int)dictionary->entries) != 0) return -1;
 
     return 0;
 }
@@ -490,13 +504,13 @@ int dictionaryWriteHeader(FILE* stream, Dictionary* dictionary)
 // NOTE: Unused.
 //
 // 0x4DA3A4
-int dictionaryWrite(FILE* stream, Dictionary* dictionary, int a3)
+int assoc_save(FILE* stream, Dictionary* dictionary, int a3)
 {
     if (dictionary->marker != DICTIONARY_MARKER) {
         return -1;
     }
 
-    if (dictionaryWriteHeader(stream, dictionary) != 0) {
+    if (assoc_write_assoc_array(stream, dictionary) != 0) {
         return -1;
     }
 
@@ -530,15 +544,15 @@ int dictionaryWrite(FILE* stream, Dictionary* dictionary, int a3)
 }
 
 // 0x4DA498
-void dictionarySetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc)
+void assoc_register_mem(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc)
 {
     if (mallocProc != NULL && reallocProc != NULL && freeProc != NULL) {
-        gDictionaryMallocProc = mallocProc;
-        gDictionaryReallocProc = reallocProc;
-        gDictionaryFreeProc = freeProc;
+        internal_malloc = mallocProc;
+        internal_realloc = reallocProc;
+        internal_free = freeProc;
     } else {
-        gDictionaryMallocProc = dictionaryMallocDefaultImpl;
-        gDictionaryReallocProc = dictionaryReallocDefaultImpl;
-        gDictionaryFreeProc = dictionaryFreeDefaultImpl;
+        internal_malloc = default_malloc;
+        internal_realloc = default_realloc;
+        internal_free = default_free;
     }
 }

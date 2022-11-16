@@ -25,7 +25,7 @@ bool config_init(Config* config)
         return false;
     }
 
-    if (dictionaryInit(config, CONFIG_INITIAL_CAPACITY, sizeof(ConfigSection), NULL) != 0) {
+    if (assoc_init(config, CONFIG_INITIAL_CAPACITY, sizeof(ConfigSection), NULL) != 0) {
         return false;
     }
 
@@ -51,10 +51,10 @@ void config_exit(Config* config)
             *value = NULL;
         }
 
-        dictionaryFree(section);
+        assoc_free(section);
     }
 
-    dictionaryFree(config);
+    assoc_free(config);
 }
 
 // Parses command line argments and adds them into the config.
@@ -114,7 +114,7 @@ bool config_get_string(Config* config, const char* sectionKey, const char* key, 
         return false;
     }
 
-    int sectionIndex = dictionaryGetIndexByKey(config, sectionKey);
+    int sectionIndex = assoc_search(config, sectionKey);
     if (sectionIndex == -1) {
         return false;
     }
@@ -122,7 +122,7 @@ bool config_get_string(Config* config, const char* sectionKey, const char* key, 
     DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
     ConfigSection* section = (ConfigSection*)sectionEntry->value;
 
-    int index = dictionaryGetIndexByKey(section, key);
+    int index = assoc_search(section, key);
     if (index == -1) {
         return false;
     }
@@ -140,20 +140,20 @@ bool config_set_string(Config* config, const char* sectionKey, const char* key, 
         return false;
     }
 
-    int sectionIndex = dictionaryGetIndexByKey(config, sectionKey);
+    int sectionIndex = assoc_search(config, sectionKey);
     if (sectionIndex == -1) {
         // FIXME: Looks like a bug, this function never returns -1, which will
         // eventually lead to crash.
         if (config_add_section(config, sectionKey) == -1) {
             return false;
         }
-        sectionIndex = dictionaryGetIndexByKey(config, sectionKey);
+        sectionIndex = assoc_search(config, sectionKey);
     }
 
     DictionaryEntry* sectionEntry = &(config->entries[sectionIndex]);
     ConfigSection* section = (ConfigSection*)sectionEntry->value;
 
-    int index = dictionaryGetIndexByKey(section, key);
+    int index = assoc_search(section, key);
     if (index != -1) {
         DictionaryEntry* keyValueEntry = &(section->entries[index]);
 
@@ -161,7 +161,7 @@ bool config_set_string(Config* config, const char* sectionKey, const char* key, 
         internal_free(*existingValue);
         *existingValue = NULL;
 
-        dictionaryRemoveValue(section, key);
+        assoc_delete(section, key);
     }
 
     char* valueCopy = internal_strdup(value);
@@ -169,7 +169,7 @@ bool config_set_string(Config* config, const char* sectionKey, const char* key, 
         return false;
     }
 
-    if (dictionaryAddValue(section, key, &valueCopy) == -1) {
+    if (assoc_insert(section, key, &valueCopy) == -1) {
         internal_free(valueCopy);
         return false;
     }
@@ -425,17 +425,17 @@ static bool config_add_section(Config* config, const char* sectionKey)
         return false;
     }
 
-    if (dictionaryGetIndexByKey(config, sectionKey) != -1) {
+    if (assoc_search(config, sectionKey) != -1) {
         // Section already exists, no need to do anything.
         return true;
     }
 
     ConfigSection section;
-    if (dictionaryInit(&section, CONFIG_INITIAL_CAPACITY, sizeof(char**), NULL) == -1) {
+    if (assoc_init(&section, CONFIG_INITIAL_CAPACITY, sizeof(char**), NULL) == -1) {
         return false;
     }
 
-    if (dictionaryAddValue(config, sectionKey, &section) == -1) {
+    if (assoc_insert(config, sectionKey, &section) == -1) {
         return false;
     }
 

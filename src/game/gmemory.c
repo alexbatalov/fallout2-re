@@ -40,7 +40,7 @@ char* localmystrdup(const char* string)
 // 0x44B250
 int gmemory_init()
 {
-    dictionarySetMemoryProcs(internal_malloc, internal_realloc, internal_free);
+    assoc_register_mem(internal_malloc, internal_realloc, internal_free);
     _db_register_mem(internal_malloc, internal_strdup, internal_free);
     memoryRegisterAlloc(gmalloc, grealloc, gfree);
 

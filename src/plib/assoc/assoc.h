@@ -1,14 +1,9 @@
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
+#ifndef FALLOUT_PLIB_ASSOC_ASSOC_H_
+#define FALLOUT_PLIB_ASSOC_ASSOC_H_
 
 #include <stdio.h>
 
 #include "memory_defs.h"
-
-// NOTE: I guess this marker is used as a type discriminator for implementing
-// nested dictionaries. That's why every dictionary-related function starts
-// with a check for this value.
-#define DICTIONARY_MARKER 0xFEBAFEBA
 
 typedef int(DictionaryReadProc)(FILE* stream, void* buffer, unsigned int size, int a4);
 typedef int(DictionaryWriteProc)(FILE* stream, void* buffer, unsigned int size, int a4);
@@ -53,27 +48,15 @@ typedef struct Dictionary {
     DictionaryEntry* entries;
 } Dictionary;
 
-extern MallocProc* gDictionaryMallocProc;
-extern ReallocProc* gDictionaryReallocProc;
-extern FreeProc* gDictionaryFreeProc;
+int assoc_init(Dictionary* dictionary, int initialCapacity, size_t valueSize, DictionaryIO* io);
+int assoc_resize(Dictionary* dictionary, int newCapacity);
+int assoc_free(Dictionary* dictionary);
+int assoc_search(Dictionary* dictionary, const char* key);
+int assoc_insert(Dictionary* dictionary, const char* key, const void* value);
+int assoc_delete(Dictionary* dictionary, const char* key);
+int assoc_copy(Dictionary* dest, Dictionary* src);
+int assoc_load(FILE* stream, Dictionary* dictionary, int a3);
+int assoc_save(FILE* stream, Dictionary* dictionary, int a3);
+void assoc_register_mem(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
 
-void* dictionaryMallocDefaultImpl(size_t size);
-void* dictionaryReallocDefaultImpl(void* ptr, size_t newSize);
-void dictionaryFreeDefaultImpl(void* ptr);
-int dictionaryInit(Dictionary* dictionary, int initialCapacity, size_t valueSize, DictionaryIO* io);
-int dictionarySetCapacity(Dictionary* dictionary, int newCapacity);
-int dictionaryFree(Dictionary* dictionary);
-int dictionaryFindIndexForKey(Dictionary* dictionary, const char* key, int* index);
-int dictionaryGetIndexByKey(Dictionary* dictionary, const char* key);
-int dictionaryAddValue(Dictionary* dictionary, const char* key, const void* value);
-int dictionaryRemoveValue(Dictionary* dictionary, const char* key);
-int dictionaryCopy(Dictionary* dest, Dictionary* src);
-int dictionaryReadInt(FILE* stream, int* valuePtr);
-int dictionaryReadHeader(FILE* stream, Dictionary* dictionary);
-int dictionaryLoad(FILE* stream, Dictionary* dictionary, int a3);
-int dictionaryWriteInt(FILE* stream, int value);
-int dictionaryWriteHeader(FILE* stream, Dictionary* dictionary);
-int dictionaryWrite(FILE* stream, Dictionary* dictionary, int a3);
-void dictionarySetMemoryProcs(MallocProc* mallocProc, ReallocProc* reallocProc, FreeProc* freeProc);
-
-#endif /* DICTIONARY_H */
+#endif /* FALLOUT_PLIB_ASSOC_ASSOC_H_ */
