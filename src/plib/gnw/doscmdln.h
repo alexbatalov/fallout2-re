@@ -1,15 +1,15 @@
-#ifndef ARGS_H
-#define ARGS_H
+#ifndef FALLOUT_PLIB_GNW_DOSCMDLN_H_
+#define FALLOUT_PLIB_GNW_DOSCMDLN_H_
 
 #include <stdbool.h>
 
-typedef struct CommandLineArguments {
-    int argc;
-    char** argv;
-} CommandLineArguments;
+typedef struct tagDOSCmdLine {
+    int numArgs;
+    char** args;
+} DOSCmdLine;
 
-void argsInit(CommandLineArguments* commandLineArguments);
-bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine);
-void argsFree(CommandLineArguments* commandLineArguments);
+void DOSCmdLineInit(DOSCmdLine* d);
+bool DOSCmdLineCreate(DOSCmdLine* d, char* windowsCmdLine);
+void DOSCmdLineDestroy(DOSCmdLine* d);
 
-#endif /* ARGS_H */
+#endif /* FALLOUT_PLIB_GNW_DOSCMDLN_H_ */

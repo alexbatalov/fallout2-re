@@ -7,16 +7,16 @@
 #include <windows.h>
 
 // 0x4E3B90
-void argsInit(CommandLineArguments* commandLineArguments)
+void DOSCmdLineInit(DOSCmdLine* d)
 {
-    if (commandLineArguments != NULL) {
-        commandLineArguments->argc = 0;
-        commandLineArguments->argv = NULL;
+    if (d != NULL) {
+        d->numArgs = 0;
+        d->args = NULL;
     }
 }
 
 // 0x4E3BA4
-bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
+bool DOSCmdLineCreate(DOSCmdLine* d, char* commandLine)
 {
     const char* delim = " \t";
 
@@ -26,7 +26,7 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
     if (*commandLine != '\0') {
         char* copy = strdup(commandLine);
         if (copy == NULL) {
-            argsFree(commandLineArguments);
+            DOSCmdLineDestroy(d);
             return false;
         }
 
@@ -42,22 +42,22 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
     // Make a room for argv[0] - program name.
     argc++;
 
-    commandLineArguments->argc = argc;
-    commandLineArguments->argv = (char**)malloc(sizeof(*commandLineArguments->argv) * argc);
-    if (commandLineArguments->argv == NULL) {
-        argsFree(commandLineArguments);
+    d->numArgs = argc;
+    d->args = (char**)malloc(sizeof(*d->args) * argc);
+    if (d->args == NULL) {
+        DOSCmdLineDestroy(d);
         return false;
     }
 
     for (int arg = 0; arg < argc; arg++) {
-        commandLineArguments->argv[arg] = NULL;
+        d->args[arg] = NULL;
     }
 
     // Copy program name into argv[0].
     char moduleFileName[MAX_PATH];
     int moduleFileNameLength = GetModuleFileNameA(NULL, moduleFileName, MAX_PATH);
     if (moduleFileNameLength == 0) {
-        argsFree(commandLineArguments);
+        DOSCmdLineDestroy(d);
         return false;
     }
 
@@ -67,9 +67,9 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
 
     moduleFileName[moduleFileNameLength] = '\0';
 
-    commandLineArguments->argv[0] = strdup(moduleFileName);
-    if (commandLineArguments->argv[0] == NULL) {
-        argsFree(commandLineArguments);
+    d->args[0] = strdup(moduleFileName);
+    if (d->args[0] == NULL) {
+        DOSCmdLineDestroy(d);
         return false;
     }
 
@@ -77,7 +77,7 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
     if (*commandLine != '\0') {
         char* copy = strdup(commandLine);
         if (copy == NULL) {
-            argsFree(commandLineArguments);
+            DOSCmdLineDestroy(d);
             return false;
         }
 
@@ -85,7 +85,7 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
 
         char* tok = strtok(copy, delim);
         while (tok != NULL) {
-            commandLineArguments->argv[arg] = strdup(tok);
+            d->args[arg] = strdup(tok);
             tok = strtok(NULL, delim);
             arg++;
         }
@@ -97,18 +97,18 @@ bool argsParse(CommandLineArguments* commandLineArguments, char* commandLine)
 }
 
 // 0x4E3D3C
-void argsFree(CommandLineArguments* commandLineArguments)
+void DOSCmdLineDestroy(DOSCmdLine* d)
 {
-    if (commandLineArguments->argv != NULL) {
+    if (d->args != NULL) {
         // NOTE: Compiled code is slightly different - it decrements argc.
-        for (int index = 0; index < commandLineArguments->argc; index++) {
-            if (commandLineArguments->argv[index] != NULL) {
-                free(commandLineArguments->argv[index]);
+        for (int index = 0; index < d->numArgs; index++) {
+            if (d->args[index] != NULL) {
+                free(d->args[index]);
             }
         }
-        free(commandLineArguments->argv);
+        free(d->args);
     }
 
-    commandLineArguments->argc = 0;
-    commandLineArguments->argv = NULL;
+    d->numArgs = 0;
+    d->args = NULL;
 }

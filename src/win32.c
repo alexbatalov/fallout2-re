@@ -46,7 +46,7 @@ HMODULE gDSoundDLL = NULL;
 // 0x4DE700
 int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
-    CommandLineArguments args;
+    DOSCmdLine args;
 
     _GNW95_mutex = CreateMutexA(0, TRUE, "GNW95MUTEX");
     if (GetLastError() == ERROR_SUCCESS) {
@@ -57,14 +57,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInst, _In_opt_ HINSTANCE hPrevInst, _In_ LPST
                     gInstance = hInst;
                     gCmdLine = lpCmdLine;
                     gCmdShow = nCmdShow;
-                    argsInit(&args);
-                    if (argsParse(&args, lpCmdLine)) {
+                    DOSCmdLineInit(&args);
+                    if (DOSCmdLineCreate(&args, lpCmdLine)) {
                         signal(1, _SignalHandler);
                         signal(3, _SignalHandler);
                         signal(5, _SignalHandler);
                         gProgramIsActive = true;
-                        RealMain(args.argc, args.argv);
-                        argsFree(&args);
+                        RealMain(args.numArgs, args.args);
+                        DOSCmdLineDestroy(&args);
                         return 1;
                     }
                 }
