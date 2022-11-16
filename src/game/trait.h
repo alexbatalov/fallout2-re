@@ -1,43 +1,23 @@
-#ifndef TRAIT_H
-#define TRAIT_H
+#ifndef FALLOUT_GAME_TRAIT_H_
+#define FALLOUT_GAME_TRAIT_H_
 
 #include <stdbool.h>
 
 #include "db.h"
-#include "game/message.h"
 #include "game/trait_defs.h"
 
-// Provides metadata about traits.
-typedef struct TraitDescription {
-    // The name of trait.
-    char* name;
+int trait_init();
+void trait_reset();
+void trait_exit();
+int trait_load(File* stream);
+int trait_save(File* stream);
+void trait_set(int trait1, int trait2);
+void trait_get(int* trait1, int* trait2);
+char* trait_name(int trait);
+char* trait_description(int trait);
+int trait_pic(int trait);
+bool trait_level(int trait);
+int trait_adjust_stat(int stat);
+int trait_adjust_skill(int skill);
 
-    // The description of trait.
-    //
-    // The description is only used in character editor to inform player about
-    // effects of this trait.
-    char* description;
-
-    // Identifier of art in [intrface.lst].
-    int frmId;
-} TraitDescription;
-
-extern MessageList gTraitsMessageList;
-extern int gSelectedTraits[TRAITS_MAX_SELECTED_COUNT];
-extern TraitDescription gTraitDescriptions[TRAIT_COUNT];
-
-int traitsInit();
-void traitsReset();
-void traitsExit();
-int traitsLoad(File* stream);
-int traitsSave(File* stream);
-void traitsSetSelected(int trait1, int trait2);
-void traitsGetSelected(int* trait1, int* trait2);
-char* traitGetName(int trait);
-char* traitGetDescription(int trait);
-int traitGetFrmId(int trait);
-bool traitIsSelected(int trait);
-int traitGetStatModifier(int stat);
-int traitGetSkillModifier(int skill);
-
-#endif /* TRAIT_H */
+#endif /* FALLOUT_GAME_TRAIT_H_ */

@@ -1013,7 +1013,7 @@ int pc_load_data(const char* path)
         return -1;
     }
 
-    if (traitsLoad(stream) == -1) {
+    if (trait_load(stream) == -1) {
         fileClose(stream);
         return -1;
     }
@@ -1106,7 +1106,7 @@ int pc_save_data(const char* path)
         return -1;
     }
 
-    if (traitsSave(stream) == -1) {
+    if (trait_save(stream) == -1) {
         fileClose(stream);
         return -1;
     }

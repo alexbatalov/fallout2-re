@@ -1847,7 +1847,7 @@ int ResetPlayer()
     skill_set_defaults(&(proto->critter.data));
     skill_reset();
     perk_reset();
-    traitsReset();
+    trait_reset();
     stat_recalc_derived(obj_dude);
     return 0;
 }

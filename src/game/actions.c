@@ -210,7 +210,7 @@ static int pick_death(Object* attacker, Object* defender, Object* weapon, int da
     }
 
     bool hasBloodyMess = false;
-    if (attacker == obj_dude && traitIsSelected(TRAIT_BLOODY_MESS)) {
+    if (attacker == obj_dude && trait_level(TRAIT_BLOODY_MESS)) {
         hasBloodyMess = true;
     }
 

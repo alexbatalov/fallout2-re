@@ -193,7 +193,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     }
 
     perk_init();
-    traitsInit();
+    trait_init();
     item_init();
     queue_init();
     critter_init();
@@ -355,7 +355,7 @@ void game_reset()
     skill_reset();
     stat_reset();
     perk_reset();
-    traitsReset();
+    trait_reset();
     item_reset();
     queue_reset();
     anim_reset();
@@ -414,7 +414,7 @@ void game_exit()
     perk_exit();
     stat_exit();
     skill_exit();
-    traitsExit();
+    trait_exit();
     roll_exit();
     exit_message();
     automap_exit();

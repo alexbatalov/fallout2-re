@@ -385,7 +385,7 @@ int stat_get_base(Object* critter, int stat)
     int value = stat_get_base_direct(critter, stat);
 
     if (critter == obj_dude) {
-        value += traitGetStatModifier(stat);
+        value += trait_adjust_stat(stat);
     }
 
     return value;
@@ -441,7 +441,7 @@ int stat_set_base(Object* critter, int stat, int value)
         }
 
         if (critter == obj_dude) {
-            value -= traitGetStatModifier(stat);
+            value -= trait_adjust_stat(stat);
         }
 
         if (value < stat_data[stat].minimumValue) {
@@ -481,7 +481,7 @@ int inc_stat(Object* critter, int stat)
     int value = stat_get_base_direct(critter, stat);
 
     if (critter == obj_dude) {
-        value += traitGetStatModifier(stat);
+        value += trait_adjust_stat(stat);
     }
 
     return stat_set_base(critter, stat, value + 1);
@@ -493,7 +493,7 @@ int dec_stat(Object* critter, int stat)
     int value = stat_get_base_direct(critter, stat);
 
     if (critter == obj_dude) {
-        value += traitGetStatModifier(stat);
+        value += trait_adjust_stat(stat);
     }
 
     return stat_set_base(critter, stat, value - 1);

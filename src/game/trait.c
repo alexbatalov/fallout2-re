@@ -3,20 +3,36 @@
 #include <stdio.h>
 
 #include "game/game.h"
+#include "game/message.h"
 #include "game/object.h"
 #include "game/skill.h"
 #include "game/stat.h"
 
+// Provides metadata about traits.
+typedef struct TraitDescription {
+    // The name of trait.
+    char* name;
+
+    // The description of trait.
+    //
+    // The description is only used in character editor to inform player about
+    // effects of this trait.
+    char* description;
+
+    // Identifier of art in [intrface.lst].
+    int frmId;
+} TraitDescription;
+
 // 0x66BE38
-MessageList gTraitsMessageList;
+static MessageList trait_message_file;
 
 // List of selected traits.
 //
 // 0x66BE40
-int gSelectedTraits[TRAITS_MAX_SELECTED_COUNT];
+static int pc_trait[TRAITS_MAX_SELECTED_COUNT];
 
 // 0x51DB84
-TraitDescription gTraitDescriptions[TRAIT_COUNT] = {
+static TraitDescription trait_data[TRAIT_COUNT] = {
     { NULL, NULL, 55 },
     { NULL, NULL, 56 },
     { NULL, NULL, 57 },
@@ -36,16 +52,16 @@ TraitDescription gTraitDescriptions[TRAIT_COUNT] = {
 };
 
 // 0x4B39F0
-int traitsInit()
+int trait_init()
 {
-    if (!message_init(&gTraitsMessageList)) {
+    if (!message_init(&trait_message_file)) {
         return -1;
     }
 
     char path[FILENAME_MAX];
     sprintf(path, "%s%s", msg_path, "trait.msg");
 
-    if (!message_load(&gTraitsMessageList, path)) {
+    if (!message_load(&trait_message_file, path)) {
         return -1;
     }
 
@@ -53,201 +69,201 @@ int traitsInit()
         MessageListItem messageListItem;
 
         messageListItem.num = 100 + trait;
-        if (message_search(&gTraitsMessageList, &messageListItem)) {
-            gTraitDescriptions[trait].name = messageListItem.text;
+        if (message_search(&trait_message_file, &messageListItem)) {
+            trait_data[trait].name = messageListItem.text;
         }
 
         messageListItem.num = 200 + trait;
-        if (message_search(&gTraitsMessageList, &messageListItem)) {
-            gTraitDescriptions[trait].description = messageListItem.text;
+        if (message_search(&trait_message_file, &messageListItem)) {
+            trait_data[trait].description = messageListItem.text;
         }
     }
 
     // NOTE: Uninline.
-    traitsReset();
+    trait_reset();
 
     return true;
 }
 
 // 0x4B3ADC
-void traitsReset()
+void trait_reset()
 {
     for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
-        gSelectedTraits[index] = -1;
+        pc_trait[index] = -1;
     }
 }
 
 // 0x4B3AF8
-void traitsExit()
+void trait_exit()
 {
-    message_exit(&gTraitsMessageList);
+    message_exit(&trait_message_file);
 }
 
 // Loads trait system state from save game.
 //
 // 0x4B3B08
-int traitsLoad(File* stream)
+int trait_load(File* stream)
 {
-    return fileReadInt32List(stream, gSelectedTraits, TRAITS_MAX_SELECTED_COUNT);
+    return fileReadInt32List(stream, pc_trait, TRAITS_MAX_SELECTED_COUNT);
 }
 
 // Saves trait system state to save game.
 //
 // 0x4B3B28
-int traitsSave(File* stream)
+int trait_save(File* stream)
 {
-    return fileWriteInt32List(stream, gSelectedTraits, TRAITS_MAX_SELECTED_COUNT);
+    return fileWriteInt32List(stream, pc_trait, TRAITS_MAX_SELECTED_COUNT);
 }
 
 // Sets selected traits.
 //
 // 0x4B3B48
-void traitsSetSelected(int trait1, int trait2)
+void trait_set(int trait1, int trait2)
 {
-    gSelectedTraits[0] = trait1;
-    gSelectedTraits[1] = trait2;
+    pc_trait[0] = trait1;
+    pc_trait[1] = trait2;
 }
 
 // Returns selected traits.
 //
 // 0x4B3B54
-void traitsGetSelected(int* trait1, int* trait2)
+void trait_get(int* trait1, int* trait2)
 {
-    *trait1 = gSelectedTraits[0];
-    *trait2 = gSelectedTraits[1];
+    *trait1 = pc_trait[0];
+    *trait2 = pc_trait[1];
 }
 
 // Returns a name of the specified trait, or `NULL` if the specified trait is
 // out of range.
 //
 // 0x4B3B68
-char* traitGetName(int trait)
+char* trait_name(int trait)
 {
-    return trait >= 0 && trait < TRAIT_COUNT ? gTraitDescriptions[trait].name : NULL;
+    return trait >= 0 && trait < TRAIT_COUNT ? trait_data[trait].name : NULL;
 }
 
 // Returns a description of the specified trait, or `NULL` if the specified
 // trait is out of range.
 //
 // 0x4B3B88
-char* traitGetDescription(int trait)
+char* trait_description(int trait)
 {
-    return trait >= 0 && trait < TRAIT_COUNT ? gTraitDescriptions[trait].description : NULL;
+    return trait >= 0 && trait < TRAIT_COUNT ? trait_data[trait].description : NULL;
 }
 
 // Return an art ID of the specified trait, or `0` if the specified trait is
 // out of range.
 //
 // 0x4B3BA8
-int traitGetFrmId(int trait)
+int trait_pic(int trait)
 {
-    return trait >= 0 && trait < TRAIT_COUNT ? gTraitDescriptions[trait].frmId : 0;
+    return trait >= 0 && trait < TRAIT_COUNT ? trait_data[trait].frmId : 0;
 }
 
 // Returns `true` if the specified trait is selected.
 //
 // 0x4B3BC8
-bool traitIsSelected(int trait)
+bool trait_level(int trait)
 {
-    return gSelectedTraits[0] == trait || gSelectedTraits[1] == trait;
+    return pc_trait[0] == trait || pc_trait[1] == trait;
 }
 
 // Returns stat modifier depending on selected traits.
 //
 // 0x4B3C7C
-int traitGetStatModifier(int stat)
+int trait_adjust_stat(int stat)
 {
     int modifier = 0;
 
     switch (stat) {
     case STAT_STRENGTH:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
-        if (traitIsSelected(TRAIT_BRUISER)) {
+        if (trait_level(TRAIT_BRUISER)) {
             modifier += 2;
         }
         break;
     case STAT_PERCEPTION:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
         break;
     case STAT_ENDURANCE:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
         break;
     case STAT_CHARISMA:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
         break;
     case STAT_INTELLIGENCE:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
         break;
     case STAT_AGILITY:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
-        if (traitIsSelected(TRAIT_SMALL_FRAME)) {
+        if (trait_level(TRAIT_SMALL_FRAME)) {
             modifier += 1;
         }
         break;
     case STAT_LUCK:
-        if (traitIsSelected(TRAIT_GIFTED)) {
+        if (trait_level(TRAIT_GIFTED)) {
             modifier += 1;
         }
         break;
     case STAT_MAXIMUM_ACTION_POINTS:
-        if (traitIsSelected(TRAIT_BRUISER)) {
+        if (trait_level(TRAIT_BRUISER)) {
             modifier -= 2;
         }
         break;
     case STAT_ARMOR_CLASS:
-        if (traitIsSelected(TRAIT_KAMIKAZE)) {
+        if (trait_level(TRAIT_KAMIKAZE)) {
             modifier -= stat_get_base_direct(obj_dude, STAT_ARMOR_CLASS);
         }
         break;
     case STAT_MELEE_DAMAGE:
-        if (traitIsSelected(TRAIT_HEAVY_HANDED)) {
+        if (trait_level(TRAIT_HEAVY_HANDED)) {
             modifier += 4;
         }
         break;
     case STAT_CARRY_WEIGHT:
-        if (traitIsSelected(TRAIT_SMALL_FRAME)) {
+        if (trait_level(TRAIT_SMALL_FRAME)) {
             modifier -= 10 * stat_get_base_direct(obj_dude, STAT_STRENGTH);
         }
         break;
     case STAT_SEQUENCE:
-        if (traitIsSelected(TRAIT_KAMIKAZE)) {
+        if (trait_level(TRAIT_KAMIKAZE)) {
             modifier += 5;
         }
         break;
     case STAT_HEALING_RATE:
-        if (traitIsSelected(TRAIT_FAST_METABOLISM)) {
+        if (trait_level(TRAIT_FAST_METABOLISM)) {
             modifier += 2;
         }
         break;
     case STAT_CRITICAL_CHANCE:
-        if (traitIsSelected(TRAIT_FINESSE)) {
+        if (trait_level(TRAIT_FINESSE)) {
             modifier += 10;
         }
         break;
     case STAT_BETTER_CRITICALS:
-        if (traitIsSelected(TRAIT_HEAVY_HANDED)) {
+        if (trait_level(TRAIT_HEAVY_HANDED)) {
             modifier -= 30;
         }
         break;
     case STAT_RADIATION_RESISTANCE:
-        if (traitIsSelected(TRAIT_FAST_METABOLISM)) {
+        if (trait_level(TRAIT_FAST_METABOLISM)) {
             modifier -= -stat_get_base_direct(obj_dude, STAT_RADIATION_RESISTANCE);
         }
         break;
     case STAT_POISON_RESISTANCE:
-        if (traitIsSelected(TRAIT_FAST_METABOLISM)) {
+        if (trait_level(TRAIT_FAST_METABOLISM)) {
             modifier -= -stat_get_base_direct(obj_dude, STAT_POISON_RESISTANCE);
         }
         break;
@@ -259,15 +275,15 @@ int traitGetStatModifier(int stat)
 // Returns skill modifier depending on selected traits.
 //
 // 0x4B40FC
-int traitGetSkillModifier(int skill)
+int trait_adjust_skill(int skill)
 {
     int modifier = 0;
 
-    if (traitIsSelected(TRAIT_GIFTED)) {
+    if (trait_level(TRAIT_GIFTED)) {
         modifier -= 10;
     }
 
-    if (traitIsSelected(TRAIT_GOOD_NATURED)) {
+    if (trait_level(TRAIT_GOOD_NATURED)) {
         switch (skill) {
         case SKILL_SMALL_GUNS:
         case SKILL_BIG_GUNS:

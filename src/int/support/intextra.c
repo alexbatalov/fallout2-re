@@ -3406,7 +3406,7 @@ static void op_has_trait(Program* program)
             break;
         case CRITTER_TRAIT_TRAIT:
             if (param < TRAIT_COUNT) {
-                result = traitIsSelected(param);
+                result = trait_level(param);
             } else {
                 int_debug("\nScript Error: %s: op_has_trait: Trait out of range", program->name);
             }

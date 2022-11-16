@@ -3763,7 +3763,7 @@ static int compute_attack(Attack* attack)
     }
 
     if (roll == ROLL_FAILURE) {
-        if (traitIsSelected(TRAIT_JINXED) || perkHasRank(obj_dude, PERK_JINXED)) {
+        if (trait_level(TRAIT_JINXED) || perkHasRank(obj_dude, PERK_JINXED)) {
             if (roll_random(0, 1) == 1) {
                 roll = ROLL_CRITICAL_FAILURE;
             }
@@ -4294,7 +4294,7 @@ static int determine_to_hit_func(Object* attacker, int tile, Object* defender, i
             accuracy -= 10 * modifier;
         }
 
-        if (attacker == obj_dude && traitIsSelected(TRAIT_ONE_HANDER)) {
+        if (attacker == obj_dude && trait_level(TRAIT_ONE_HANDER)) {
             if (item_w_is_2handed(weapon)) {
                 accuracy -= 40;
             } else {
@@ -4434,7 +4434,7 @@ static void compute_damage(Attack* attack, int ammoQuantity, int bonusDamageMult
             damageThreshold = 20 * damageThreshold / 100;
         }
 
-        if (attack->attacker == obj_dude && traitIsSelected(TRAIT_FINESSE)) {
+        if (attack->attacker == obj_dude && trait_level(TRAIT_FINESSE)) {
             damageResistance += 30;
         }
     }

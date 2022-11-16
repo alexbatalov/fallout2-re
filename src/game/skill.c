@@ -228,7 +228,7 @@ int skill_level(Object* critter, int skill)
             }
         }
 
-        value += traitGetSkillModifier(skill);
+        value += trait_adjust_skill(skill);
         value += perk_adjust_skill(critter, skill);
         value += skill_game_difficulty(skill);
     }

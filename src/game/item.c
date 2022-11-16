@@ -1623,7 +1623,7 @@ int item_w_mp_cost(Object* critter, int hitMode, bool aiming)
             }
 
             if (critter == obj_dude) {
-                if (traitIsSelected(TRAIT_FAST_SHOT)) {
+                if (trait_level(TRAIT_FAST_SHOT)) {
                     if (item_w_range(critter, hitMode) > 2) {
                         actionPoints--;
                     }
@@ -1770,7 +1770,7 @@ char item_w_sound_id(Object* weapon)
 // 0x478E5C
 int item_w_called_shot(Object* critter, int hitMode)
 {
-    if (critter == obj_dude && traitIsSelected(TRAIT_FAST_SHOT)) {
+    if (critter == obj_dude && trait_level(TRAIT_FAST_SHOT)) {
         return 0;
     }
 
@@ -2557,7 +2557,7 @@ static int insert_drug_effect(Object* critter, Object* item, int a3, int* stats,
 
     int delay = 600 * a3;
     if (critter == obj_dude) {
-        if (traitIsSelected(TRAIT_CHEM_RESISTANT)) {
+        if (trait_level(TRAIT_CHEM_RESISTANT)) {
             delay /= 2;
         }
     }
@@ -2759,11 +2759,11 @@ int item_d_take_drug(Object* critter, Object* item)
     if (!item_d_check_addict(item->pid)) {
         int addictionChance = proto->item.data.drug.addictionChance;
         if (critter == obj_dude) {
-            if (traitIsSelected(TRAIT_CHEM_RELIANT)) {
+            if (trait_level(TRAIT_CHEM_RELIANT)) {
                 addictionChance *= 2;
             }
 
-            if (traitIsSelected(TRAIT_CHEM_RESISTANT)) {
+            if (trait_level(TRAIT_CHEM_RESISTANT)) {
                 addictionChance /= 2;
             }
 
@@ -2987,7 +2987,7 @@ static void perform_withdrawal_start(Object* obj, int perk, int pid)
 
     int duration = 10080;
     if (obj == obj_dude) {
-        if (traitIsSelected(TRAIT_CHEM_RELIANT)) {
+        if (trait_level(TRAIT_CHEM_RELIANT)) {
             duration /= 2;
         }
 

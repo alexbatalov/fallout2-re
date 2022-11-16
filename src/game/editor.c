@@ -1190,7 +1190,7 @@ static int CharEditStart()
     tagskill_count = tagskl_free();
 
     // traits
-    traitsGetSelected(&(temp_trait[0]), &(temp_trait[1]));
+    trait_get(&(temp_trait[0]), &(temp_trait[1]));
 
     // NOTE: Uninline.
     trait_count = get_trait_count();
@@ -1781,7 +1781,7 @@ static void CharEditEnd()
 
     if (glblmode == 1) {
         skill_set_tags(temp_tag_skill, 3);
-        traitsSetSelected(temp_trait[0], temp_trait[1]);
+        trait_set(temp_trait[0], temp_trait[1]);
         info_line = 0;
         critter_adjust_hits(obj_dude, 1000);
     }
@@ -2022,23 +2022,23 @@ static void list_perks()
         }
 
         if (temp_trait[0] != -1) {
-            string = traitGetName(temp_trait[0]);
+            string = trait_name(temp_trait[0]);
             if (folder_print_line(string)) {
-                folder_card_fid = traitGetFrmId(temp_trait[0]);
-                folder_card_title = traitGetName(temp_trait[0]);
+                folder_card_fid = trait_pic(temp_trait[0]);
+                folder_card_title = trait_name(temp_trait[0]);
                 folder_card_title2 = NULL;
-                folder_card_desc = traitGetDescription(temp_trait[0]);
+                folder_card_desc = trait_description(temp_trait[0]);
                 hasContent = true;
             }
         }
 
         if (temp_trait[1] != -1) {
-            string = traitGetName(temp_trait[1]);
+            string = trait_name(temp_trait[1]);
             if (folder_print_line(string)) {
-                folder_card_fid = traitGetFrmId(temp_trait[1]);
-                folder_card_title = traitGetName(temp_trait[1]);
+                folder_card_fid = trait_pic(temp_trait[1]);
+                folder_card_title = trait_name(temp_trait[1]);
                 folder_card_title2 = NULL;
-                folder_card_desc = traitGetDescription(temp_trait[1]);
+                folder_card_desc = trait_description(temp_trait[1]);
                 hasContent = true;
             }
         }
@@ -3793,7 +3793,7 @@ static int OptionWindow()
                     // NOTE: Uninline.
                     tagskill_count = tagskl_free();
 
-                    traitsGetSelected(&temp_trait[0], &temp_trait[1]);
+                    trait_get(&temp_trait[0], &temp_trait[1]);
 
                     // NOTE: Uninline.
                     trait_count = get_trait_count();
@@ -3908,7 +3908,7 @@ static int OptionWindow()
                             // NOTE: Uninline.
                             tagskill_count = tagskl_free();
 
-                            traitsGetSelected(&(temp_trait[0]), &(temp_trait[1]));
+                            trait_get(&(temp_trait[0]), &(temp_trait[1]));
 
                             // NOTE: Uninline.
                             trait_count = get_trait_count();
@@ -3981,7 +3981,7 @@ static int OptionWindow()
 
                         if (shouldSave) {
                             skill_set_tags(temp_tag_skill, 4);
-                            traitsSetSelected(temp_trait[0], temp_trait[1]);
+                            trait_set(temp_trait[0], temp_trait[1]);
 
                             string4[0] = '\0';
                             strcat(string4, string1);
@@ -4324,7 +4324,7 @@ static int Save_as_ASCII(const char* fileName)
         // NOTE: The original code does not use loop, or it was optimized away.
         for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
             if (temp_trait[index] != -1) {
-                sprintf(title1, "  %s", traitGetName(temp_trait[index]));
+                sprintf(title1, "  %s", trait_name(temp_trait[index]));
                 fileWriteString(title1, stream);
                 fileWriteString("\n", stream);
             }
@@ -4675,7 +4675,7 @@ static void SavePlayer()
 
     skill_get_tags(tag_skill_back, NUM_TAGGED_SKILLS);
 
-    traitsGetSelected(&(trait_back[0]), &(trait_back[1]));
+    trait_get(&(trait_back[0]), &(trait_back[1]));
 
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
         skillsav[skill] = skill_level(obj_dude, skill);
@@ -4704,14 +4704,14 @@ static void RestorePlayer()
 
     skill_set_tags(tag_skill_back, NUM_TAGGED_SKILLS);
 
-    traitsSetSelected(trait_back[0], trait_back[1]);
+    trait_set(trait_back[0], trait_back[1]);
 
     skill_get_tags(temp_tag_skill, NUM_TAGGED_SKILLS);
 
     // NOTE: Uninline.
     tagskill_count = tagskl_free();
 
-    traitsGetSelected(&(temp_trait[0]), &(temp_trait[1]));
+    trait_get(&(temp_trait[0]), &(temp_trait[1]));
 
     // NOTE: Uninline.
     trait_count = get_trait_count();
@@ -5228,7 +5228,7 @@ static void ListTraits()
 
     fontSetCurrent(101);
 
-    traitsSetSelected(temp_trait[0], temp_trait[1]);
+    trait_set(temp_trait[0], temp_trait[1]);
 
     step = fontGetLineHeight() + 3 + 0.56;
     y = 353;
@@ -5240,10 +5240,10 @@ static void ListTraits()
                 color = colorTable[32767];
             }
 
-            folder_card_fid = traitGetFrmId(i);
-            folder_card_title = traitGetName(i);
+            folder_card_fid = trait_pic(i);
+            folder_card_title = trait_name(i);
             folder_card_title2 = NULL;
-            folder_card_desc = traitGetDescription(i);
+            folder_card_desc = trait_description(i);
         } else {
             if (i != temp_trait[0] && i != temp_trait[1]) {
                 color = colorTable[992];
@@ -5252,7 +5252,7 @@ static void ListTraits()
             }
         }
 
-        traitName = traitGetName(i);
+        traitName = trait_name(i);
         fontDrawText(win_buf + 640 * (int)y + 47, traitName, 640, 640, color);
         y += step;
     }
@@ -5266,10 +5266,10 @@ static void ListTraits()
                 color = colorTable[32767];
             }
 
-            folder_card_fid = traitGetFrmId(i);
-            folder_card_title = traitGetName(i);
+            folder_card_fid = trait_pic(i);
+            folder_card_title = trait_name(i);
             folder_card_title2 = NULL;
-            folder_card_desc = traitGetDescription(i);
+            folder_card_desc = trait_description(i);
         } else {
             if (i != temp_trait[0] && i != temp_trait[1]) {
                 color = colorTable[992];
@@ -5278,7 +5278,7 @@ static void ListTraits()
             }
         }
 
-        traitName = traitGetName(i);
+        traitName = trait_name(i);
         fontDrawText(win_buf + 640 * (int)y + 199, traitName, 640, 640, color);
         y += step;
     }
@@ -5543,8 +5543,8 @@ static int UpdateLevel()
             sp += 5;
             sp += stat_get_base(obj_dude, STAT_INTELLIGENCE) * 2;
             sp += perk_level(obj_dude, PERK_EDUCATED) * 2;
-            sp += traitIsSelected(TRAIT_SKILLED) * 5;
-            if (traitIsSelected(TRAIT_GIFTED)) {
+            sp += trait_level(TRAIT_SKILLED) * 5;
+            if (trait_level(TRAIT_GIFTED)) {
                 sp -= 5;
                 if (sp < 0) {
                     sp = 0;
@@ -5561,7 +5561,7 @@ static int UpdateLevel()
 
             if (selectedPerksCount < 37) {
                 int progression = 3;
-                if (traitIsSelected(TRAIT_SKILLED)) {
+                if (trait_level(TRAIT_SKILLED)) {
                     progression += 1;
                 }
 
@@ -6154,8 +6154,8 @@ void RedrwDMPrk()
     ListMyTraits(optrt_count);
 
     char* traitName = name_sort_list[crow + cline].name;
-    char* tratDescription = traitGetDescription(name_sort_list[crow + cline].value);
-    int frmId = traitGetFrmId(name_sort_list[crow + cline].value);
+    char* tratDescription = trait_description(name_sort_list[crow + cline].value);
+    int frmId = trait_pic(name_sort_list[crow + cline].value);
     DrawCard2(frmId, traitName, NULL, tratDescription);
 
     win_draw(pwin);
@@ -6242,7 +6242,7 @@ static bool GetMutateTrait()
                 temp_trait[1] = -1;
             }
 
-            traitsSetSelected(temp_trait[0], temp_trait[1]);
+            trait_set(temp_trait[0], temp_trait[1]);
         } else {
             result = false;
         }
@@ -6351,7 +6351,7 @@ static int ListMyTraits(int a1)
         for (int trait = 0; trait < TRAIT_COUNT; trait++) {
             if (trait != trait_back[0] && trait != trait_back[1]) {
                 name_sort_list[count].value = trait;
-                name_sort_list[count].name = traitGetName(trait);
+                name_sort_list[count].name = trait_name(trait);
                 count++;
             }
         }
@@ -6373,7 +6373,7 @@ static int ListMyTraits(int a1)
         // NOTE: Original code does not use loop.
         for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
             name_sort_list[index].value = temp_trait[index];
-            name_sort_list[index].name = traitGetName(temp_trait[index]);
+            name_sort_list[index].name = trait_name(temp_trait[index]);
         }
 
         if (trait_count > 1) {

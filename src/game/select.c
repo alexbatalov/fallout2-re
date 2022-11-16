@@ -949,12 +949,12 @@ static bool select_display_stats()
 
     // TRAITS
     int traits[TRAITS_MAX_SELECTED_COUNT];
-    traitsGetSelected(&(traits[0]), &(traits[1]));
+    trait_get(&(traits[0]), &(traits[1]));
 
     for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
         y += vh;
 
-        str = traitGetName(traits[index]);
+        str = trait_name(traits[index]);
         strcpy(text, str);
 
         length = fontGetStringWidth(text);
