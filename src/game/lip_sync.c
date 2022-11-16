@@ -8,7 +8,7 @@
 #include "debug.h"
 #include "game/gsound.h"
 #include "memory.h"
-#include "sound.h"
+#include "int/sound.h"
 
 static char* lips_fix_string(const char* fileName, size_t length);
 static int lips_stop_speech();

@@ -7,7 +7,7 @@
 #include "db.h"
 #include "debug.h"
 #include "int/memdbg.h"
-#include "sound.h"
+#include "int/sound.h"
 
 static bool defaultCompressionFunc(char* filePath);
 static int decodeRead(int fileHandle, void* buf, unsigned int size);

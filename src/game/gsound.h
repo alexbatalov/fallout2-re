@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/object_types.h"
-#include "sound.h"
+#include "int/sound.h"
 
 typedef enum WeaponSoundEffect {
     WEAPON_SOUND_EFFECT_READY,

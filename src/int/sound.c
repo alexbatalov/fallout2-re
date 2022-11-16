@@ -1,4 +1,4 @@
-#include "sound.h"
+#include "int/sound.h"
 
 #include <io.h>
 #include <limits.h>

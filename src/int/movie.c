@@ -11,7 +11,7 @@
 #include "int/memdbg.h"
 #include "game/moviefx.h"
 #include "movie_lib.h"
-#include "sound.h"
+#include "int/sound.h"
 #include "text_font.h"
 #include "window_manager.h"
 #include "win32.h"

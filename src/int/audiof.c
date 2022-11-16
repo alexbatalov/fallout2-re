@@ -10,7 +10,7 @@
 
 #include "debug.h"
 #include "int/memdbg.h"
-#include "sound.h"
+#include "int/sound.h"
 
 static_assert(sizeof(AudioFile) == 28, "wrong size");
 

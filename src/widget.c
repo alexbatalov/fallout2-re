@@ -7,7 +7,7 @@
 #include "draw.h"
 #include "geometry.h"
 #include "int/memdbg.h"
-#include "sound.h"
+#include "int/sound.h"
 #include "text_font.h"
 #include "window.h"
 #include "window_manager.h"
