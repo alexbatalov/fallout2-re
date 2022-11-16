@@ -27,7 +27,7 @@
 #include "game/protinst.h"
 #include "game/proto_types.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "text_font.h"
 #include "tile.h"
 #include "window_manager.h"

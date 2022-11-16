@@ -36,7 +36,7 @@
 #include "game/reaction.h"
 #include "game/scripts.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "text_object.h"
 #include "tile.h"
 #include "trait.h"

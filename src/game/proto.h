@@ -7,7 +7,7 @@
 #include "game/perk_defs.h"
 #include "game/proto_types.h"
 #include "game/skill_defs.h"
-#include "stat_defs.h"
+#include "game/stat_defs.h"
 
 typedef enum ItemDataMember {
     ITEM_DATA_MEMBER_PID = 0,

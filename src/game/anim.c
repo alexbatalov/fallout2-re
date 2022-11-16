@@ -26,7 +26,7 @@
 #include "game/protinst.h"
 #include "game/roll.h"
 #include "game/scripts.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "text_object.h"
 #include "tile.h"
 #include "trait.h"

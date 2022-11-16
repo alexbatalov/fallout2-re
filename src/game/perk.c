@@ -10,7 +10,7 @@
 #include "game/object.h"
 #include "game/party.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 
 typedef struct PerkDescription {
     char* name;

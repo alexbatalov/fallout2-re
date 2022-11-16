@@ -20,7 +20,7 @@
 #include "game/palette.h"
 #include "game/proto.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "text_font.h"
 #include "trait.h"
 #include "window_manager.h"

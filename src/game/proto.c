@@ -23,7 +23,7 @@
 #include "game/object.h"
 #include "game/perk.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "trait.h"
 
 static char* proto_get_msg_info(int pid, int message);

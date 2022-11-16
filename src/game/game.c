@@ -49,7 +49,7 @@
 #include "game/scripts.h"
 #include "game/skill.h"
 #include "game/skilldex.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "text_font.h"
 #include "tile.h"
 #include "trait.h"

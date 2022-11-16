@@ -25,7 +25,7 @@
 #include "game/roll.h"
 #include "game/scripts.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "tile.h"
 #include "worldmap.h"
 

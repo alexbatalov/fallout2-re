@@ -5,7 +5,7 @@
 #include "game/game.h"
 #include "game/object.h"
 #include "game/skill.h"
-#include "stat.h"
+#include "game/stat.h"
 
 // 0x66BE38
 MessageList gTraitsMessageList;

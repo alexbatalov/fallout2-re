@@ -23,7 +23,7 @@
 #include "game/queue.h"
 #include "game/roll.h"
 #include "game/sfxcache.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "window_manager.h"
 #include "worldmap.h"
 

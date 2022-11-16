@@ -1,4 +1,4 @@
-#include "stat.h"
+#include "game/stat.h"
 
 #include <stdio.h>
 

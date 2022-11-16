@@ -29,7 +29,7 @@
 #include "game/palette.h"
 #include "game/pipboy.h"
 #include "game/roll.h"
-#include "stat.h"
+#include "game/stat.h"
 #include "text_font.h"
 #include "window_manager.h"
 #include "word_wrap.h"
