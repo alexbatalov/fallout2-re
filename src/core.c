@@ -154,7 +154,7 @@ unsigned char gLastVideoModePalette[268];
 // 0x4C8A70
 int coreInit(int a1)
 {
-    if (!directInputInit()) {
+    if (!dxinput_init()) {
         return -1;
     }
 
@@ -197,7 +197,7 @@ void coreExit()
     _GNW95_input_init();
     GNW_mouse_exit();
     GNW_kb_restore();
-    directInputFree();
+    dxinput_exit();
 
     TickerListNode* curr = gTickerListHead;
     while (curr != NULL) {
@@ -1039,9 +1039,9 @@ void _GNW95_hook_input(int a1)
     _GNW95_hook_keyboard(a1);
 
     if (a1) {
-        mouseDeviceAcquire();
+        dxinput_acquire_mouse();
     } else {
-        mouseDeviceUnacquire();
+        dxinput_unacquire_mouse();
     }
 }
 
@@ -1059,7 +1059,7 @@ int _GNW95_hook_keyboard(int a1)
     }
 
     if (!a1) {
-        keyboardDeviceUnacquire();
+        dxinput_unacquire_keyboard();
 
         UnhookWindowsHookEx(_GNW95_keyboardHandle);
 
@@ -1070,7 +1070,7 @@ int _GNW95_hook_keyboard(int a1)
         return 0;
     }
 
-    if (keyboardDeviceAcquire()) {
+    if (dxinput_acquire_keyboard()) {
         _GNW95_keyboardHandle = SetWindowsHookExA(WH_KEYBOARD, _GNW95_keyboard_hook, 0, GetCurrentThreadId());
         kb_clear();
         _keyboard_hooked = a1;
@@ -1111,8 +1111,8 @@ next:
 void _GNW95_process_message()
 {
     if (gProgramIsActive && !kb_is_disabled()) {
-        KeyboardData data;
-        while (keyboardDeviceGetData(&data)) {
+        dxinput_key_data data;
+        while (dxinput_read_keyboard_buffer(&data)) {
             _GNW95_process_key(&data);
         }
 
@@ -1125,8 +1125,8 @@ void _GNW95_process_message()
                 int elapsedTime = ptr->tick > tick ? INT_MAX : tick - ptr->tick;
                 int delay = ptr->repeatCount == 0 ? gKeyboardKeyRepeatDelay : gKeyboardKeyRepeatRate;
                 if (elapsedTime > delay) {
-                    data.key = key;
-                    data.down = 1;
+                    data.code = key;
+                    data.state = 1;
                     _GNW95_process_key(&data);
 
                     ptr->tick = tick;
@@ -1155,9 +1155,9 @@ void _GNW95_clear_time_stamps()
 }
 
 // 0x4C9E14
-void _GNW95_process_key(KeyboardData* data)
+void _GNW95_process_key(dxinput_key_data* data)
 {
-    short key = data->key & 0xFF;
+    short key = data->code & 0xFF;
 
     switch (key) {
     case DIK_NUMPADENTER:
@@ -1178,7 +1178,7 @@ void _GNW95_process_key(KeyboardData* data)
         break;
     }
 
-    int qwertyKey = gNormalizedQwertyKeys[data->key & 0xFF];
+    int qwertyKey = gNormalizedQwertyKeys[data->code & 0xFF];
 
     if (vcr_state == VCR_STATE_PLAYING) {
         if ((vcr_terminate_flags & VCR_TERMINATE_ON_KEY_PRESS) != 0) {
@@ -1191,8 +1191,8 @@ void _GNW95_process_key(KeyboardData* data)
             qwertyKey -= 0x80;
         }
 
-        STRUCT_6ABF50* ptr = &(_GNW95_key_time_stamps[data->key & 0xFF]);
-        if (data->down == 1) {
+        STRUCT_6ABF50* ptr = &(_GNW95_key_time_stamps[data->code & 0xFF]);
+        if (data->state == 1) {
             ptr->tick = _get_time();
             ptr->repeatCount = 0;
         } else {

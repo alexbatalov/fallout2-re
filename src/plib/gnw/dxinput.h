@@ -1,40 +1,28 @@
-#ifndef DINPUT_H
-#define DINPUT_H
+#ifndef FALLOUT_PLIB_GNW_DXINPUT_H_
+#define FALLOUT_PLIB_GNW_DXINPUT_H_
 
 #include "win32.h"
 
-#define KEYBOARD_DEVICE_DATA_CAPACITY (32)
+typedef struct dxinput_mouse_state {
+    int delta_x;
+    int delta_y;
+    unsigned char left_button;
+    unsigned char right_button;
+} dxinput_mouse_state;
 
-typedef struct MouseData {
-    int x;
-    int y;
-    unsigned char buttons[2];
-} MouseData;
+typedef struct dxinput_key_data {
+    unsigned char code;
+    unsigned char state;
+} dxinput_key_data;
 
-typedef struct KeyboardData {
-    char key;
-    char down;
-} KeyboardData;
+bool dxinput_init();
+void dxinput_exit();
+bool dxinput_acquire_mouse();
+bool dxinput_unacquire_mouse();
+bool dxinput_get_mouse_state(dxinput_mouse_state* mouse_state);
+bool dxinput_acquire_keyboard();
+bool dxinput_unacquire_keyboard();
+bool dxinput_flush_keyboard_buffer();
+bool dxinput_read_keyboard_buffer(dxinput_key_data* key_data);
 
-extern LPDIRECTINPUTA gDirectInput;
-extern LPDIRECTINPUTDEVICEA gMouseDevice;
-extern LPDIRECTINPUTDEVICEA gKeyboardDevice;
-extern int gKeyboardDeviceDataIndex;
-extern int gKeyboardDeviceDataLength;
-extern DIDEVICEOBJECTDATA gKeyboardDeviceData[KEYBOARD_DEVICE_DATA_CAPACITY];
-
-bool directInputInit();
-void directInputFree();
-bool mouseDeviceAcquire();
-bool mouseDeviceUnacquire();
-bool mouseDeviceGetData(MouseData* mouseData);
-bool keyboardDeviceAcquire();
-bool keyboardDeviceUnacquire();
-bool keyboardDeviceReset();
-bool keyboardDeviceGetData(KeyboardData* keyboardData);
-bool mouseDeviceInit();
-void mouseDeviceFree();
-bool keyboardDeviceInit();
-void keyboardDeviceFree();
-
-#endif /* DINPUT_H */
+#endif /* FALLOUT_PLIB_GNW_DXINPUT_H_ */

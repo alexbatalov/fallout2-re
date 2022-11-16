@@ -2,6 +2,8 @@
 
 #include "plib/gnw/dxinput.h"
 
+#define KEYBOARD_DEVICE_DATA_CAPACITY 32
+
 // NOTE: There is no such define in DirectX SDK. I've taken it from Wine at
 // https://github.com/wine-mirror/wine/blob/master/dlls/dinput/data_formats.c.
 #define DIDFT_OPTIONAL 0x80000000
@@ -10,6 +12,11 @@
 // at https://github.com/masonmc/dxsdk3/blob/master/sdk/inc/dinput.h.
 #undef DIDFT_ANYINSTANCE
 #define DIDFT_ANYINSTANCE 0x0000FF00
+
+static bool dxinput_mouse_init();
+static void dxinput_mouse_exit();
+static bool dxinput_keyboard_init();
+static void dxinput_keyboard_exit();
 
 // 0x4FCE90
 static const DIOBJECTDATAFORMAT dfDIMouse[] = {
@@ -23,7 +30,7 @@ static const DIOBJECTDATAFORMAT dfDIMouse[] = {
 };
 
 // 0x4FCF00
-const DIDATAFORMAT c_dfDIMouse = {
+static const DIDATAFORMAT c_dfDIMouse = {
     sizeof(DIDATAFORMAT),
     sizeof(DIOBJECTDATAFORMAT),
     DIDF_RELAXIS,
@@ -303,40 +310,40 @@ static const DIDATAFORMAT c_dfDIKeyboard = {
 };
 
 // 0x51E458
-LPDIRECTINPUTA gDirectInput = NULL;
+static LPDIRECTINPUTA lpDirectInput = NULL;
 
 // 0x51E45C
-LPDIRECTINPUTDEVICEA gMouseDevice = NULL;
+static LPDIRECTINPUTDEVICEA lpDirectInputMouse = NULL;
 
 // 0x51E460
-LPDIRECTINPUTDEVICEA gKeyboardDevice = NULL;
+static LPDIRECTINPUTDEVICEA lpDirectInputKeyboard = NULL;
 
 // 0x51E464
-int gKeyboardDeviceDataIndex = 0;
+static int nDirectInputKeyboardBufferIndex = 0;
 
 // 0x51E468
-int gKeyboardDeviceDataLength = 0;
+static int nDirectInputKeyboardBufferCount = 0;
 
 // 0x6B2560
-DIDEVICEOBJECTDATA gKeyboardDeviceData[KEYBOARD_DEVICE_DATA_CAPACITY];
+static DIDEVICEOBJECTDATA DirectInputKeyboardBuffer[KEYBOARD_DEVICE_DATA_CAPACITY];
 
 // 0x4E0400
-bool directInputInit()
+bool dxinput_init()
 {
-    if (gDirectInput != NULL) {
+    if (lpDirectInput != NULL) {
         return false;
     }
 
-    HRESULT hr = gDirectInputCreateAProc(gInstance, DIRECTINPUT_VERSION, &gDirectInput, NULL);
+    HRESULT hr = gDirectInputCreateAProc(gInstance, DIRECTINPUT_VERSION, &lpDirectInput, NULL);
     if (hr != DI_OK) {
         goto err;
     }
 
-    if (!mouseDeviceInit()) {
+    if (!dxinput_mouse_init()) {
         goto err;
     }
 
-    if (!keyboardDeviceInit()) {
+    if (!dxinput_keyboard_init()) {
         goto err;
     }
 
@@ -344,40 +351,40 @@ bool directInputInit()
 
 err:
 
-    keyboardDeviceFree();
-    mouseDeviceFree();
+    dxinput_keyboard_exit();
+    dxinput_mouse_exit();
 
-    if (gDirectInput != NULL) {
-        IDirectInput_Release(gDirectInput);
-        gDirectInput = NULL;
+    if (lpDirectInput != NULL) {
+        IDirectInput_Release(lpDirectInput);
+        lpDirectInput = NULL;
     }
 
     return false;
 }
 
 // 0x4E0478
-void directInputFree()
+void dxinput_exit()
 {
     // NOTE: Uninline.
-    keyboardDeviceFree();
+    dxinput_keyboard_exit();
 
     // NOTE: Uninline.
-    mouseDeviceFree();
+    dxinput_mouse_exit();
 
-    if (gDirectInput != NULL) {
-        IDirectInput_Release(gDirectInput);
-        gDirectInput = NULL;
+    if (lpDirectInput != NULL) {
+        IDirectInput_Release(lpDirectInput);
+        lpDirectInput = NULL;
     }
 }
 
 // 0x4E04E8
-bool mouseDeviceAcquire()
+bool dxinput_acquire_mouse()
 {
-    if (gMouseDevice == NULL) {
+    if (lpDirectInputMouse == NULL) {
         return false;
     }
 
-    HRESULT hr = IDirectInputDevice_Acquire(gMouseDevice);
+    HRESULT hr = IDirectInputDevice_Acquire(lpDirectInputMouse);
     if (hr != DI_OK && hr != S_FALSE) {
         return false;
     }
@@ -386,13 +393,13 @@ bool mouseDeviceAcquire()
 }
 
 // 0x4E0514
-bool mouseDeviceUnacquire()
+bool dxinput_unacquire_mouse()
 {
-    if (gMouseDevice == NULL) {
+    if (lpDirectInputMouse == NULL) {
         return false;
     }
 
-    HRESULT hr = IDirectInputDevice_Unacquire(gMouseDevice);
+    HRESULT hr = IDirectInputDevice_Unacquire(lpDirectInputMouse);
     if (hr != DI_OK) {
         return false;
     }
@@ -401,38 +408,38 @@ bool mouseDeviceUnacquire()
 }
 
 // 0x4E053C
-bool mouseDeviceGetData(MouseData* mouseState)
+bool dxinput_get_mouse_state(dxinput_mouse_state* mouse_state)
 {
-    if (gMouseDevice == NULL) {
+    if (lpDirectInputMouse == NULL) {
         return false;
     }
 
-    if (!mouseDeviceAcquire()) {
+    if (!dxinput_acquire_mouse()) {
         return false;
     }
 
     DIMOUSESTATE dims;
-    HRESULT hr = IDirectInputDevice_GetDeviceState(gMouseDevice, sizeof(dims), &dims);
+    HRESULT hr = IDirectInputDevice_GetDeviceState(lpDirectInputMouse, sizeof(dims), &dims);
     if (hr != DI_OK) {
         return false;
     }
 
-    mouseState->x = dims.lX;
-    mouseState->y = dims.lY;
-    mouseState->buttons[0] = (dims.rgbButtons[0] & 0x80) != 0;
-    mouseState->buttons[1] = (dims.rgbButtons[1] & 0x80) != 0;
+    mouse_state->delta_x = dims.lX;
+    mouse_state->delta_y = dims.lY;
+    mouse_state->left_button = (dims.rgbButtons[0] & 0x80) != 0;
+    mouse_state->right_button = (dims.rgbButtons[1] & 0x80) != 0;
 
     return true;
 }
 
 // 0x4E05A8
-bool keyboardDeviceAcquire()
+bool dxinput_acquire_keyboard()
 {
-    if (gKeyboardDevice == NULL) {
+    if (lpDirectInputKeyboard == NULL) {
         return false;
     }
 
-    HRESULT hr = IDirectInputDevice_Acquire(gKeyboardDevice);
+    HRESULT hr = IDirectInputDevice_Acquire(lpDirectInputKeyboard);
     if (hr != DI_OK && hr != S_FALSE) {
         return false;
     }
@@ -441,13 +448,13 @@ bool keyboardDeviceAcquire()
 }
 
 // 0x4E05D4
-bool keyboardDeviceUnacquire()
+bool dxinput_unacquire_keyboard()
 {
-    if (gKeyboardDevice == NULL) {
+    if (lpDirectInputKeyboard == NULL) {
         return false;
     }
 
-    HRESULT hr = IDirectInputDevice_Unacquire(gKeyboardDevice);
+    HRESULT hr = IDirectInputDevice_Unacquire(lpDirectInputKeyboard);
     if (hr != DI_OK) {
         return false;
     }
@@ -456,18 +463,18 @@ bool keyboardDeviceUnacquire()
 }
 
 // 0x4E05FC
-bool keyboardDeviceReset()
+bool dxinput_flush_keyboard_buffer()
 {
-    if (gKeyboardDevice == NULL) {
+    if (lpDirectInputKeyboard == NULL) {
         return false;
     }
 
-    if (!keyboardDeviceAcquire()) {
+    if (!dxinput_acquire_keyboard()) {
         return false;
     }
 
     DWORD items = -1;
-    HRESULT hr = IDirectInputDevice_GetDeviceData(gKeyboardDevice, sizeof(DIDEVICEOBJECTDATA), NULL, &items, 0);
+    HRESULT hr = IDirectInputDevice_GetDeviceData(lpDirectInputKeyboard, sizeof(DIDEVICEOBJECTDATA), NULL, &items, 0);
     if (hr != DI_OK && hr != DI_BUFFEROVERFLOW) {
         return false;
     }
@@ -476,30 +483,30 @@ bool keyboardDeviceReset()
 }
 
 // 0x4E0650
-bool keyboardDeviceGetData(KeyboardData* keyboardData)
+bool dxinput_read_keyboard_buffer(dxinput_key_data* key_data)
 {
-    if (gKeyboardDevice == NULL) {
+    if (lpDirectInputKeyboard == NULL) {
         return false;
     }
 
-    if (!keyboardDeviceAcquire()) {
+    if (!dxinput_acquire_keyboard()) {
         return false;
     }
 
-    if (gKeyboardDeviceDataIndex >= gKeyboardDeviceDataLength) {
+    if (nDirectInputKeyboardBufferIndex >= nDirectInputKeyboardBufferCount) {
         DWORD items = KEYBOARD_DEVICE_DATA_CAPACITY;
-        HRESULT hr = IDirectInputDevice_GetDeviceData(gKeyboardDevice, sizeof(DIDEVICEOBJECTDATA), gKeyboardDeviceData, &items, 0);
+        HRESULT hr = IDirectInputDevice_GetDeviceData(lpDirectInputKeyboard, sizeof(DIDEVICEOBJECTDATA), DirectInputKeyboardBuffer, &items, 0);
         if (hr == DI_OK || hr == DI_BUFFEROVERFLOW) {
-            gKeyboardDeviceDataLength = items;
-            gKeyboardDeviceDataIndex = 0;
+            nDirectInputKeyboardBufferCount = items;
+            nDirectInputKeyboardBufferIndex = 0;
         }
     }
 
-    if (gKeyboardDeviceDataIndex < gKeyboardDeviceDataLength) {
-        DIDEVICEOBJECTDATA* entry = &(gKeyboardDeviceData[gKeyboardDeviceDataIndex]);
-        keyboardData->key = entry->dwOfs & 0xFF;
-        keyboardData->down = (entry->dwData & 0x80) != 0;
-        gKeyboardDeviceDataIndex++;
+    if (nDirectInputKeyboardBufferIndex < nDirectInputKeyboardBufferCount) {
+        DIDEVICEOBJECTDATA* entry = &(DirectInputKeyboardBuffer[nDirectInputKeyboardBufferIndex]);
+        key_data->code = entry->dwOfs & 0xFF;
+        key_data->state = (entry->dwData & 0x80) != 0;
+        nDirectInputKeyboardBufferIndex++;
 
         return true;
     }
@@ -508,21 +515,21 @@ bool keyboardDeviceGetData(KeyboardData* keyboardData)
 }
 
 // 0x4E070C
-bool mouseDeviceInit()
+static bool dxinput_mouse_init()
 {
     HRESULT hr;
 
-    hr = IDirectInput_CreateDevice(gDirectInput, &GUID_SysMouse, &gMouseDevice, NULL);
+    hr = IDirectInput_CreateDevice(lpDirectInput, &GUID_SysMouse, &lpDirectInputMouse, NULL);
     if (hr != DI_OK) {
         goto err;
     }
 
-    hr = IDirectInputDevice_SetCooperativeLevel(gMouseDevice, gProgramWindow, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
+    hr = IDirectInputDevice_SetCooperativeLevel(lpDirectInputMouse, gProgramWindow, DISCL_EXCLUSIVE | DISCL_FOREGROUND);
     if (hr != DI_OK) {
         goto err;
     }
 
-    hr = IDirectInputDevice_SetDataFormat(gMouseDevice, &c_dfDIMouse);
+    hr = IDirectInputDevice_SetDataFormat(lpDirectInputMouse, &c_dfDIMouse);
     if (hr != DI_OK) {
         goto err;
     }
@@ -532,37 +539,37 @@ bool mouseDeviceInit()
 err:
 
     // NOTE: Uninline.
-    mouseDeviceFree();
+    dxinput_mouse_exit();
 
     return false;
 }
 
 // 0x4E078C
-void mouseDeviceFree()
+static void dxinput_mouse_exit()
 {
-    if (gMouseDevice != NULL) {
-        IDirectInputDevice_Unacquire(gMouseDevice);
-        IDirectInputDevice_Release(gMouseDevice);
-        gMouseDevice = NULL;
+    if (lpDirectInputMouse != NULL) {
+        IDirectInputDevice_Unacquire(lpDirectInputMouse);
+        IDirectInputDevice_Release(lpDirectInputMouse);
+        lpDirectInputMouse = NULL;
     }
 }
 
 // 0x4E07B8
-bool keyboardDeviceInit()
+static bool dxinput_keyboard_init()
 {
     HRESULT hr;
 
-    hr = IDirectInput_CreateDevice(gDirectInput, &GUID_SysKeyboard, &gKeyboardDevice, NULL);
+    hr = IDirectInput_CreateDevice(lpDirectInput, &GUID_SysKeyboard, &lpDirectInputKeyboard, NULL);
     if (hr != DI_OK) {
         goto err;
     }
 
-    hr = IDirectInputDevice_SetCooperativeLevel(gKeyboardDevice, gProgramWindow, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+    hr = IDirectInputDevice_SetCooperativeLevel(lpDirectInputKeyboard, gProgramWindow, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
     if (hr != DI_OK) {
         goto err;
     }
 
-    hr = IDirectInputDevice_SetDataFormat(gKeyboardDevice, &c_dfDIKeyboard);
+    hr = IDirectInputDevice_SetDataFormat(lpDirectInputKeyboard, &c_dfDIKeyboard);
     if (hr != DI_OK) {
         goto err;
     }
@@ -574,7 +581,7 @@ bool keyboardDeviceInit()
     dipdw.diph.dwHow = DIPH_DEVICE;
     dipdw.dwData = KEYBOARD_DEVICE_DATA_CAPACITY;
 
-    hr = IDirectInputDevice_SetProperty(gKeyboardDevice, DIPROP_BUFFERSIZE, &(dipdw.diph));
+    hr = IDirectInputDevice_SetProperty(lpDirectInputKeyboard, DIPROP_BUFFERSIZE, &(dipdw.diph));
     if (hr != DI_OK) {
         goto err;
     }
@@ -584,17 +591,17 @@ bool keyboardDeviceInit()
 err:
 
     // NOTE: Uninline.
-    keyboardDeviceFree();
+    dxinput_keyboard_exit();
 
     return false;
 }
 
 // 0x4E0874
-void keyboardDeviceFree()
+static void dxinput_keyboard_exit()
 {
-    if (gKeyboardDevice != NULL) {
-        IDirectInputDevice_Unacquire(gKeyboardDevice);
-        IDirectInputDevice_Release(gKeyboardDevice);
-        gKeyboardDevice = NULL;
+    if (lpDirectInputKeyboard != NULL) {
+        IDirectInputDevice_Unacquire(lpDirectInputKeyboard);
+        IDirectInputDevice_Release(lpDirectInputKeyboard);
+        lpDirectInputKeyboard = NULL;
     }
 }

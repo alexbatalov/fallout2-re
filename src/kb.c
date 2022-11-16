@@ -154,7 +154,7 @@ void kb_clear()
         kb_get = 0;
     }
 
-    keyboardDeviceReset();
+    dxinput_flush_keyboard_buffer();
     _GNW95_clear_time_stamps();
 }
 

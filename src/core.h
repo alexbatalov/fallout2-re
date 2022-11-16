@@ -113,7 +113,7 @@ int _GNW95_hook_keyboard(int a1);
 LRESULT CALLBACK _GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam);
 void _GNW95_process_message();
 void _GNW95_clear_time_stamps();
-void _GNW95_process_key(KeyboardData* data);
+void _GNW95_process_key(dxinput_key_data* data);
 void _GNW95_lost_focus();
 void mmxSetEnabled(bool a1);
 int _init_mode_320_200();

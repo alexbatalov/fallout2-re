@@ -129,7 +129,7 @@ int GNW_mouse_init()
         return -1;
     }
 
-    if (!mouseDeviceAcquire()) {
+    if (!dxinput_acquire_mouse()) {
         return -1;
     }
 
@@ -146,7 +146,7 @@ int GNW_mouse_init()
 // 0x4C9FD8
 void GNW_mouse_exit()
 {
-    mouseDeviceUnacquire();
+    dxinput_unacquire_mouse();
 
     if (mouse_buf != NULL) {
         mem_free(mouse_buf);
@@ -430,16 +430,16 @@ void mouse_info()
     int y;
     int buttons = 0;
 
-    MouseData mouseData;
-    if (mouseDeviceGetData(&mouseData)) {
-        x = mouseData.x;
-        y = mouseData.y;
+    dxinput_mouse_state mouseData;
+    if (dxinput_get_mouse_state(&mouseData)) {
+        x = mouseData.delta_x;
+        y = mouseData.delta_y;
 
-        if (mouseData.buttons[0] == 1) {
+        if (mouseData.left_button == 1) {
             buttons |= MOUSE_STATE_LEFT_BUTTON_DOWN;
         }
 
-        if (mouseData.buttons[1] == 1) {
+        if (mouseData.right_button == 1) {
             buttons |= MOUSE_STATE_RIGHT_BUTTON_DOWN;
         }
     } else {
@@ -697,23 +697,23 @@ bool mouse_query_exist()
 // 0x4CAB5C
 void mouse_get_raw_state(int* out_x, int* out_y, int* out_buttons)
 {
-    MouseData mouseData;
-    if (!mouseDeviceGetData(&mouseData)) {
-        mouseData.x = 0;
-        mouseData.y = 0;
-        mouseData.buttons[0] = (mouse_buttons & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0;
-        mouseData.buttons[1] = (mouse_buttons & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0;
+    dxinput_mouse_state mouseData;
+    if (!dxinput_get_mouse_state(&mouseData)) {
+        mouseData.delta_x = 0;
+        mouseData.delta_y = 0;
+        mouseData.left_button = (mouse_buttons & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0;
+        mouseData.right_button = (mouse_buttons & MOUSE_EVENT_RIGHT_BUTTON_DOWN) != 0;
     }
 
     raw_buttons = 0;
-    raw_x += mouseData.x;
-    raw_y += mouseData.y;
+    raw_x += mouseData.delta_x;
+    raw_y += mouseData.delta_y;
 
-    if (mouseData.buttons[0] != 0) {
+    if (mouseData.left_button != 0) {
         raw_buttons |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
     }
 
-    if (mouseData.buttons[1] != 0) {
+    if (mouseData.right_button != 0) {
         raw_buttons |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
     }
 

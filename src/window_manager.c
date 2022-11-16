@@ -114,7 +114,7 @@ int windowManagerInit(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitP
     _get_start_mode_();
 
     gVideoSystemInitProc = videoSystemInitProc;
-    gVideoSystemExitProc = directInputFree;
+    gVideoSystemExitProc = dxinput_exit;
 
     int rc = videoSystemInitProc();
     if (rc == -1) {
