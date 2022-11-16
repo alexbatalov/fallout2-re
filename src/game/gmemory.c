@@ -1,7 +1,7 @@
 #include "game/gmemory.h"
 
 #include "db.h"
-#include "dictionary.h"
+#include "plib/assoc/assoc.h"
 #include "memory.h"
 #include "int/memdbg.h"
 

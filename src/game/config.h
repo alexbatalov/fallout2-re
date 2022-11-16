@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "dictionary.h"
+#include "plib/assoc/assoc.h"
 
 // A representation of .INI file.
 //
