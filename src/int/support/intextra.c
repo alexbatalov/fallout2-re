@@ -20,7 +20,7 @@
 #include "game/gdialog.h"
 #include "game/gmovie.h"
 #include "game/gsound.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/light.h"

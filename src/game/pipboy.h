@@ -5,7 +5,7 @@
 
 #include "game/art.h"
 #include "db.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/message.h"
 
 typedef enum PipboyOpenIntent {

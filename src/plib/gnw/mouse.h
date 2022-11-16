@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "window.h"
 
 #define MOUSE_DEFAULT_CURSOR_WIDTH 8

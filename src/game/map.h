@@ -8,7 +8,7 @@
 
 #include "game/combat_defs.h"
 #include "db.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/map_defs.h"
 #include "game/message.h"
 

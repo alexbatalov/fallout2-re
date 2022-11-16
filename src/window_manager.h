@@ -7,7 +7,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 
 #define MAX_WINDOW_COUNT (50)
 

@@ -1,7 +1,7 @@
 #ifndef FALLOUT_INT_REGION_H_
 #define FALLOUT_INT_REGION_H_
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "int/intrpret.h"
 
 #define REGION_NAME_LENGTH 32

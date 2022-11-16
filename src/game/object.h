@@ -2,7 +2,7 @@
 #define FALLOUT_GAME_OBJECT_H_
 
 #include "db.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/inventry.h"
 #include "game/map_defs.h"
 #include "game/object_types.h"

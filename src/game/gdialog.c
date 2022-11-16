@@ -18,7 +18,7 @@
 #include "game/game.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/lip_sync.h"

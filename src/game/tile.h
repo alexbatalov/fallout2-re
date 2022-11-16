@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/map.h"
 #include "game/object_types.h"
 

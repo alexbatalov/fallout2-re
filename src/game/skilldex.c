@@ -19,7 +19,7 @@
 #include "plib/gnw/memory.h"
 #include "game/object.h"
 #include "game/skill.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "plib/gnw/text.h"
 #include "window_manager.h"
 

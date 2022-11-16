@@ -10,7 +10,7 @@
 #include "draw.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/intface.h"
 #include "plib/gnw/memory.h"
 #include "plib/gnw/text.h"

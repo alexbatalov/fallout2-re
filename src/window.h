@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "int/intrpret.h"
 #include "int/region.h"
 #include "int/widget.h"

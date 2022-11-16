@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/object_types.h"
 
 int text_object_init(unsigned char* windowBuffer, int width, int height);

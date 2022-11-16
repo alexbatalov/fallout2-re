@@ -10,7 +10,7 @@
 #include "game/display.h"
 #include "game/endgame.h"
 #include "game/game.h"
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 #include "game/intface.h"
 #include "game/item.h"
 #include "game/map.h"

@@ -1,7 +1,7 @@
 #ifndef FALLOUT_INT_MOVIE_H_
 #define FALLOUT_INT_MOVIE_H_
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 
 typedef enum MovieFlags {
     MOVIE_FLAG_0x01 = 0x01,

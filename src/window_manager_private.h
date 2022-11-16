@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "geometry.h"
+#include "plib/gnw/rect.h"
 
 typedef struct MenuBar MenuBar;
 
