@@ -1,5 +1,5 @@
-#ifndef VCR_H
-#define VCR_H
+#ifndef FALLOUT_PLIB_GNW_VCR_H_
+#define FALLOUT_PLIB_GNW_VCR_H_
 
 #include <stdbool.h>
 
@@ -85,4 +85,4 @@ bool vcr_dump_buffer();
 bool vcr_save_record(VcrEntry* ptr, File* stream);
 bool vcr_load_record(VcrEntry* ptr, File* stream);
 
-#endif /* VCR_H */
+#endif /* FALLOUT_PLIB_GNW_VCR_H_ */
