@@ -11,5 +11,6 @@ typedef struct tagDOSCmdLine {
 void DOSCmdLineInit(DOSCmdLine* d);
 bool DOSCmdLineCreate(DOSCmdLine* d, char* windowsCmdLine);
 void DOSCmdLineDestroy(DOSCmdLine* d);
+bool DOSCmdLineFatalError(DOSCmdLine* d);
 
 #endif /* FALLOUT_PLIB_GNW_DOSCMDLN_H_ */

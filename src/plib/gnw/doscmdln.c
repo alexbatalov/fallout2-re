@@ -45,8 +45,8 @@ bool DOSCmdLineCreate(DOSCmdLine* d, char* commandLine)
     d->numArgs = argc;
     d->args = (char**)malloc(sizeof(*d->args) * argc);
     if (d->args == NULL) {
-        DOSCmdLineDestroy(d);
-        return false;
+        // NOTE: Uninline.
+        return DOSCmdLineFatalError(d);
     }
 
     for (int arg = 0; arg < argc; arg++) {
@@ -57,8 +57,8 @@ bool DOSCmdLineCreate(DOSCmdLine* d, char* commandLine)
     char moduleFileName[MAX_PATH];
     int moduleFileNameLength = GetModuleFileNameA(NULL, moduleFileName, MAX_PATH);
     if (moduleFileNameLength == 0) {
-        DOSCmdLineDestroy(d);
-        return false;
+        // NOTE: Uninline.
+        return DOSCmdLineFatalError(d);
     }
 
     if (moduleFileNameLength >= MAX_PATH) {
@@ -69,8 +69,8 @@ bool DOSCmdLineCreate(DOSCmdLine* d, char* commandLine)
 
     d->args[0] = strdup(moduleFileName);
     if (d->args[0] == NULL) {
-        DOSCmdLineDestroy(d);
-        return false;
+        // NOTE: Uninline.
+        return DOSCmdLineFatalError(d);
     }
 
     // Copy arguments from command line into argv.
@@ -111,4 +111,13 @@ void DOSCmdLineDestroy(DOSCmdLine* d)
 
     d->numArgs = 0;
     d->args = NULL;
+}
+
+// NOTE: Inlined.
+//
+// 0x4E3D88
+bool DOSCmdLineFatalError(DOSCmdLine* d)
+{
+    DOSCmdLineDestroy(d);
+    return false;
 }
