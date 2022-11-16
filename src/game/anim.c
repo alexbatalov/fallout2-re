@@ -1505,7 +1505,7 @@ static int anim_set_check(int animationSequenceIndex)
             break;
         case ANIM_KIND_ROTATE_TO_TILE:
             if (!critter_is_prone(animationDescription->owner)) {
-                int rotation = tileGetRotationTo(animationDescription->owner->tile, animationDescription->tile);
+                int rotation = tile_dir(animationDescription->owner->tile, animationDescription->tile);
                 dude_stand(animationDescription->owner, rotation, -1);
             }
             anim_set_continue(animationSequenceIndex, 0);
@@ -1536,11 +1536,11 @@ static int anim_set_check(int animationSequenceIndex)
         case ANIM_KIND_SET_FLAG:
             if (animationDescription->objectFlag == OBJECT_LIGHTING) {
                 if (obj_turn_on_light(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                    tile_refresh_rect(&rect, animationDescription->owner->elevation);
                 }
             } else if (animationDescription->objectFlag == OBJECT_HIDDEN) {
                 if (obj_turn_off(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                    tile_refresh_rect(&rect, animationDescription->owner->elevation);
                 }
             } else {
                 animationDescription->owner->flags |= animationDescription->objectFlag;
@@ -1551,11 +1551,11 @@ static int anim_set_check(int animationSequenceIndex)
         case ANIM_KIND_UNSET_FLAG:
             if (animationDescription->objectFlag == OBJECT_LIGHTING) {
                 if (obj_turn_off_light(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                    tile_refresh_rect(&rect, animationDescription->owner->elevation);
                 }
             } else if (animationDescription->objectFlag == OBJECT_HIDDEN) {
                 if (obj_turn_on(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                    tile_refresh_rect(&rect, animationDescription->owner->elevation);
                 }
             } else {
                 animationDescription->owner->flags &= ~animationDescription->objectFlag;
@@ -1565,7 +1565,7 @@ static int anim_set_check(int animationSequenceIndex)
             break;
         case ANIM_KIND_TOGGLE_FLAT:
             if (obj_toggle_flat(animationDescription->owner, &rect) == 0) {
-                tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                tile_refresh_rect(&rect, animationDescription->owner->elevation);
             }
             rc = anim_set_continue(animationSequenceIndex, 0);
             break;
@@ -1577,7 +1577,7 @@ static int anim_set_check(int animationSequenceIndex)
             break;
         case ANIM_KIND_SET_LIGHT_DISTANCE:
             obj_set_light(animationDescription->owner, animationDescription->lightDistance, animationDescription->owner->lightIntensity, &rect);
-            tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+            tile_refresh_rect(&rect, animationDescription->owner->elevation);
             rc = anim_set_continue(animationSequenceIndex, 0);
             break;
         case ANIM_KIND_MOVE_ON_STAIRS:
@@ -1589,11 +1589,11 @@ static int anim_set_check(int animationSequenceIndex)
         case ANIM_KIND_TOGGLE_OUTLINE:
             if (animationDescription->outline) {
                 if (obj_turn_on_outline(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                    tile_refresh_rect(&rect, animationDescription->owner->elevation);
                 }
             } else {
                 if (obj_turn_off_outline(animationDescription->owner, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, animationDescription->owner->elevation);
+                    tile_refresh_rect(&rect, animationDescription->owner->elevation);
                 }
             }
             rc = anim_set_continue(animationSequenceIndex, 0);
@@ -1675,7 +1675,7 @@ static int anim_set_end(int animationSequenceIndex)
         animationDescription = &(animationSequence->animations[i]);
         if (animationDescription->kind == ANIM_KIND_HIDE && ((i < animationSequence->animationIndex) || (animationDescription->extendedFlags & ANIMATION_SEQUENCE_FORCED))) {
             obj_erase_object(animationDescription->owner, &v27);
-            tileWindowRefreshRect(&v27, animationDescription->owner->elevation);
+            tile_refresh_rect(&v27, animationDescription->owner->elevation);
         }
     }
 
@@ -1832,7 +1832,7 @@ int make_path_func(Object* object, int from, int to, unsigned char* rotations, i
 
     int toScreenX;
     int toScreenY;
-    tileToScreenXY(to, &toScreenX, &toScreenY, object->elevation);
+    tile_coord(to, &toScreenX, &toScreenY, object->elevation);
 
     int closedPathNodeListLength = 0;
     int openPathNodeListLength = 1;
@@ -1879,7 +1879,7 @@ int make_path_func(Object* object, int from, int to, unsigned char* rotations, i
         }
 
         for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-            int tile = tileGetTileInDirection(temp.tile, rotation, 1);
+            int tile = tile_num_in_direction(temp.tile, rotation, 1);
             int bit = 1 << (tile & 7);
             if ((seen[tile / 8] & bit) != 0) {
                 continue;
@@ -1916,7 +1916,7 @@ int make_path_func(Object* object, int from, int to, unsigned char* rotations, i
 
             int newX;
             int newY;
-            tileToScreenXY(tile, &newX, &newY, object->elevation);
+            tile_coord(tile, &newX, &newY, object->elevation);
 
             v27->field_C = idist(newX, newY, toScreenX, toScreenY);
             v27->field_10 = temp.field_10 + 50;
@@ -2016,11 +2016,11 @@ int EST(int tile1, int tile2)
 {
     int x1;
     int y1;
-    tileToScreenXY(tile1, &x1, &y1, map_elevation);
+    tile_coord(tile1, &x1, &y1, map_elevation);
 
     int x2;
     int y2;
-    tileToScreenXY(tile2, &x2, &y2, map_elevation);
+    tile_coord(tile2, &x2, &y2, map_elevation);
 
     return idist(x1, y1, x2, y2);
 }
@@ -2048,13 +2048,13 @@ int make_straight_path_func(Object* a1, int from, int to, StraightPathNode* path
 
     int fromX;
     int fromY;
-    tileToScreenXY(from, &fromX, &fromY, a1->elevation);
+    tile_coord(from, &fromX, &fromY, a1->elevation);
     fromX += 16;
     fromY += 8;
 
     int toX;
     int toY;
-    tileToScreenXY(to, &toX, &toY, a1->elevation);
+    tile_coord(to, &toX, &toY, a1->elevation);
     toX += 16;
     toY += 8;
 
@@ -2090,7 +2090,7 @@ int make_straight_path_func(Object* a1, int from, int to, StraightPathNode* path
     if (v48 <= v47) {
         int middle = v48 - v47 / 2;
         while (true) {
-            tile = tileFromScreenXY(tileX, tileY, a1->elevation);
+            tile = tile_num(tileX, tileY, a1->elevation);
 
             v22 += 1;
             if (v22 == a6) {
@@ -2103,7 +2103,7 @@ int make_straight_path_func(Object* a1, int from, int to, StraightPathNode* path
                     pathNode->tile = tile;
                     pathNode->elevation = a1->elevation;
 
-                    tileToScreenXY(tile, &fromX, &fromY, a1->elevation);
+                    tile_coord(tile, &fromX, &fromY, a1->elevation);
                     pathNode->x = tileX - fromX - 16;
                     pathNode->y = tileY - fromY - 8;
                 }
@@ -2143,7 +2143,7 @@ int make_straight_path_func(Object* a1, int from, int to, StraightPathNode* path
     } else {
         int middle = v47 - v48 / 2;
         while (true) {
-            tile = tileFromScreenXY(tileX, tileY, a1->elevation);
+            tile = tile_num(tileX, tileY, a1->elevation);
 
             v22 += 1;
             if (v22 == a6) {
@@ -2156,7 +2156,7 @@ int make_straight_path_func(Object* a1, int from, int to, StraightPathNode* path
                     pathNode->tile = tile;
                     pathNode->elevation = a1->elevation;
 
-                    tileToScreenXY(tile, &fromX, &fromY, a1->elevation);
+                    tile_coord(tile, &fromX, &fromY, a1->elevation);
                     pathNode->x = tileX - fromX - 16;
                     pathNode->y = tileY - fromY - 8;
                 }
@@ -2205,7 +2205,7 @@ int make_straight_path_func(Object* a1, int from, int to, StraightPathNode* path
             pathNode->tile = tile;
             pathNode->elevation = a1->elevation;
 
-            tileToScreenXY(tile, &fromX, &fromY, a1->elevation);
+            tile_coord(tile, &fromX, &fromY, a1->elevation);
             pathNode->x = tileX - fromX - 16;
             pathNode->y = tileY - fromY - 8;
         }
@@ -2247,10 +2247,10 @@ static int anim_move_to_object(Object* from, Object* to, int a3, int anim, int a
         anim_set_continue(animationSequenceIndex, 0);
     }
 
-    sad_entry->field_24 = tileGetTileInDirection(to->tile, sad_entry->rotations[isMultihex ? sad_entry->field_1C + 1 : sad_entry->field_1C], 1);
+    sad_entry->field_24 = tile_num_in_direction(to->tile, sad_entry->rotations[isMultihex ? sad_entry->field_1C + 1 : sad_entry->field_1C], 1);
 
     if (isMultihex) {
-        sad_entry->field_24 = tileGetTileInDirection(sad_entry->field_24, sad_entry->rotations[sad_entry->field_1C], 1);
+        sad_entry->field_24 = tile_num_in_direction(sad_entry->field_24, sad_entry->rotations[sad_entry->field_1C], 1);
     }
 
     if (a3 != -1 && a3 < sad_entry->field_1C) {
@@ -2270,13 +2270,13 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
 
     int fromX;
     int fromY;
-    tileToScreenXY(from, &fromX, &fromY, fromElevation);
+    tile_coord(from, &fromX, &fromY, fromElevation);
     fromX += 16;
     fromY += 8;
 
     int toX;
     int toY;
-    tileToScreenXY(to, &toX, &toY, toElevation);
+    tile_coord(to, &toX, &toY, toElevation);
     toX += 16;
     toY += 8;
 
@@ -2319,7 +2319,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
     if (ddx > ddy) {
         int middle = ddy - ddx / 2;
         while (true) {
-            tile = tileFromScreenXY(tileX, tileY, elevation);
+            tile = tile_num(tileX, tileY, elevation);
 
             iteration += 1;
             if (iteration == 16) {
@@ -2332,7 +2332,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
                     pathNode->tile = tile;
                     pathNode->elevation = elevation;
 
-                    tileToScreenXY(tile, &fromX, &fromY, elevation);
+                    tile_coord(tile, &fromX, &fromY, elevation);
                     pathNode->x = tileX - fromX - 16;
                     pathNode->y = tileY - fromY - 8;
                 }
@@ -2366,7 +2366,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
     } else {
         int middle = ddx - ddy / 2;
         while (true) {
-            tile = tileFromScreenXY(tileX, tileY, elevation);
+            tile = tile_num(tileX, tileY, elevation);
 
             iteration += 1;
             if (iteration == 16) {
@@ -2379,7 +2379,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
                     pathNode->tile = tile;
                     pathNode->elevation = elevation;
 
-                    tileToScreenXY(tile, &fromX, &fromY, elevation);
+                    tile_coord(tile, &fromX, &fromY, elevation);
                     pathNode->x = tileX - fromX - 16;
                     pathNode->y = tileY - fromY - 8;
                 }
@@ -2422,7 +2422,7 @@ static int make_stair_path(Object* object, int from, int fromElevation, int to, 
             pathNode->tile = tile;
             pathNode->elevation = elevation;
 
-            tileToScreenXY(tile, &fromX, &fromY, elevation);
+            tile_coord(tile, &fromX, &fromY, elevation);
             pathNode->x = tileX - fromX - 16;
             pathNode->y = tileY - fromY - 8;
         }
@@ -2457,7 +2457,7 @@ static int anim_move_to_tile(Object* obj, int tile, int elev, int a4, int anim, 
             anim_set_continue(animationSequenceIndex, 0);
         }
 
-        sad_entry->field_24 = tileGetTileInDirection(tile, sad_entry->rotations[sad_entry->field_1C], 1);
+        sad_entry->field_24 = tile_num_in_direction(tile, sad_entry->rotations[sad_entry->field_1C], 1);
         if (a4 != -1 && a4 < sad_entry->field_1C) {
             sad_entry->field_1C = a4;
         }
@@ -2655,13 +2655,13 @@ static void object_move(int index)
     rectUnion(&dirty, &temp, &dirty);
 
     int rotation = sad_entry->rotations[sad_entry->field_20];
-    int y = dword_51D984[rotation];
-    int x = _off_tile[rotation];
+    int y = off_tile[1][rotation];
+    int x = off_tile[0][rotation];
     if ((x > 0 && x <= object->x) || (x < 0 && x >= object->x) || (y > 0 && y <= object->y) || (y < 0 && y >= object->y)) {
         x = object->x - x;
         y = object->y - y;
 
-        int v10 = tileGetTileInDirection(object->tile, rotation, 1);
+        int v10 = tile_num_in_direction(object->tile, rotation, 1);
         Object* v12 = obj_blocking_at(object, v10, object->elevation);
         if (v12 != NULL) {
             if (!anim_can_use_door(object, v12)) {
@@ -2727,7 +2727,7 @@ static void object_move(int index)
         }
     }
 
-    tileWindowRefreshRect(&dirty, object->elevation);
+    tile_refresh_rect(&dirty, object->elevation);
     if (sad_entry->field_20 == -1000) {
         anim_set_continue(sad_entry->animationSequenceIndex, 1);
     }
@@ -2780,7 +2780,7 @@ static void object_straight_move(int index)
             }
         }
 
-        tileWindowRefreshRect(&dirtyRect, sad_entry->obj->elevation);
+        tile_refresh_rect(&dirtyRect, sad_entry->obj->elevation);
 
         if (sad_entry->field_20 == -1000) {
             anim_set_continue(sad_entry->animationSequenceIndex, 1);
@@ -2911,7 +2911,7 @@ void object_animate()
                     }
                 }
 
-                tileWindowRefreshRect(&dirtyRect, map_elevation);
+                tile_refresh_rect(&dirtyRect, map_elevation);
 
                 continue;
             }
@@ -2933,7 +2933,7 @@ void object_animate()
                 obj_offset(object, -x, -y, &tempRect);
                 rectUnion(&dirtyRect, &tempRect, &dirtyRect);
 
-                tileWindowRefreshRect(&dirtyRect, map_elevation);
+                tile_refresh_rect(&dirtyRect, map_elevation);
                 continue;
             }
 
@@ -2983,7 +2983,7 @@ void object_animate()
                 rectUnion(&dirtyRect, &v29, &dirtyRect);
             }
 
-            tileWindowRefreshRect(&dirtyRect, map_elevation);
+            tile_refresh_rect(&dirtyRect, map_elevation);
         }
     }
 
@@ -3033,7 +3033,7 @@ int check_move(int* a1)
     int y;
     mouse_get_position(&x, &y);
 
-    int tile = tileFromScreenXY(x, y, map_elevation);
+    int tile = tile_num(x, y, map_elevation);
     if (tile == -1) {
         return -1;
     }
@@ -3275,7 +3275,7 @@ void dude_stand(Object* obj, int rotation, int fid)
     obj_offset(obj, x, y, &temp);
     rectUnion(&rect, &temp, &rect);
 
-    tileWindowRefreshRect(&rect, obj->elevation);
+    tile_refresh_rect(&rect, obj->elevation);
 }
 
 // 0x418574
@@ -3322,7 +3322,7 @@ int anim_hide(Object* object, int animationSequenceIndex)
     Rect rect;
 
     if (obj_turn_off(object, &rect) == 0) {
-        tileWindowRefreshRect(&rect, object->elevation);
+        tile_refresh_rect(&rect, object->elevation);
     }
 
     if (animationSequenceIndex != -1) {
@@ -3342,7 +3342,7 @@ int anim_change_fid(Object* obj, int animationSequenceIndex, int fid)
         obj_change_fid(obj, fid, &rect);
         obj_set_frame(obj, 0, &v7);
         rectUnion(&rect, &v7, &rect);
-        tileWindowRefreshRect(&rect, obj->elevation);
+        tile_refresh_rect(&rect, obj->elevation);
     } else {
         dude_stand(obj, obj->rotation, fid);
     }
@@ -3372,9 +3372,9 @@ static int check_gravity(int tile, int elevation)
     for (; elevation > 0; elevation--) {
         int x;
         int y;
-        tileToScreenXY(tile, &x, &y, elevation);
+        tile_coord(tile, &x, &y, elevation);
 
-        int squareTile = squareTileFromScreenXY(x + 2, y + 8, elevation);
+        int squareTile = square_num(x + 2, y + 8, elevation);
         int fid = art_id(OBJ_TYPE_TILE, square[elevation]->field_0[squareTile] & 0xFFF, 0, 0, 0);
         if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
             break;

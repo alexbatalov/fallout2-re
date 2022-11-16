@@ -856,7 +856,7 @@ void critter_kill(Object* critter, int anim, bool a3)
     item_destroy_all_hidden(critter);
 
     if (a3) {
-        tileWindowRefreshRect(&updatedRect, elevation);
+        tile_refresh_rect(&updatedRect, elevation);
     }
 
     if (critter == obj_dude) {

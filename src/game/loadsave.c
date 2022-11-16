@@ -778,7 +778,7 @@ int SaveGame(int mode)
 
     LSGameEnd(LOAD_SAVE_WINDOW_TYPE_SAVE_GAME);
 
-    tileWindowRefresh();
+    tile_refresh_display();
 
     if (mode == LOAD_SAVE_MODE_QUICK) {
         if (rc == 1) {
@@ -803,7 +803,7 @@ static int QuickSnapShot()
     }
 
     mouse_hide();
-    tileWindowRefresh();
+    tile_refresh_display();
     mouse_show();
 
     if (gameMouseWasVisible) {
@@ -1249,7 +1249,7 @@ static int LSGameStart(int windowType)
         }
 
         mouse_hide();
-        tileWindowRefresh();
+        tile_refresh_display();
         mouse_show();
 
         if (gameMouseWasVisible) {
@@ -2245,7 +2245,7 @@ static int EndLoad(File* stream)
     critter_pc_set_name(LSData[slot_cursor].characterName);
     intface_redraw();
     refresh_box_bar_win();
-    tileWindowRefresh();
+    tile_refresh_display();
     if (isInCombat()) {
         scripts_request_combat(NULL);
     }

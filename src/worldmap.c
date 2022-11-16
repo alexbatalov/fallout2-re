@@ -3901,7 +3901,7 @@ static int wmSetupCritterObjs(int type_idx, Object** critterPtr, int critterCoun
                 obj_attempt_placement(object, tile, 0, 0);
             }
 
-            int direction = tileGetRotationTo(tile, obj_dude->tile);
+            int direction = tile_dir(tile, obj_dude->tile);
             obj_set_rotation(object, direction, NULL);
 
             for (int itemIndex = 0; itemIndex < v5->itemsLength; itemIndex++) {
@@ -3996,8 +3996,8 @@ static int wmSetupRndNextTileNumInit(ENC_BASE_TYPE* a1)
                 wmRndCenterTiles[1] = obj_dude->tile;
             }
 
-            wmRndTileDirs[0] = tileGetRotationTo(wmRndCenterTiles[0], obj_dude->tile);
-            wmRndTileDirs[1] = tileGetRotationTo(wmRndCenterTiles[1], obj_dude->tile);
+            wmRndTileDirs[0] = tile_dir(wmRndCenterTiles[0], obj_dude->tile);
+            wmRndTileDirs[1] = tile_dir(wmRndCenterTiles[1], obj_dude->tile);
 
             wmRndOriginalCenterTile = wmRndCenterTiles[0];
 
@@ -4040,7 +4040,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
 
                 int origin = a2->tile;
                 if (origin == -1) {
-                    origin = tileGetTileInDirection(obj_dude->tile, wmRndTileDirs[0], distance);
+                    origin = tile_num_in_direction(obj_dude->tile, wmRndTileDirs[0], distance);
                 }
 
                 if (++wmRndTileDirs[0] >= ROTATION_COUNT) {
@@ -4049,15 +4049,15 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
 
                 int randomizedDistance = roll_random(0, distance / 2);
                 int randomizedRotation = roll_random(0, ROTATION_COUNT - 1);
-                tile_num = tileGetTileInDirection(origin, (randomizedRotation + wmRndTileDirs[0]) % ROTATION_COUNT, randomizedDistance);
+                tile_num = tile_num_in_direction(origin, (randomizedRotation + wmRndTileDirs[0]) % ROTATION_COUNT, randomizedDistance);
             }
             break;
         case ENCOUNTER_FORMATION_TYPE_STRAIGHT_LINE:
             tile_num = wmRndCenterTiles[wmRndIndex];
             if (wmRndCallCount != 0) {
                 int rotation = (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT;
-                int origin = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], rotation, a1->spacing);
-                int v13 = tileGetTileInDirection(origin, (rotation + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                int origin = tile_num_in_direction(wmRndCenterTiles[wmRndIndex], rotation, a1->spacing);
+                int v13 = tile_num_in_direction(origin, (rotation + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
                 wmRndCenterTiles[wmRndIndex] = v13;
                 wmRndIndex = 1 - wmRndIndex;
                 tile_num = v13;
@@ -4067,8 +4067,8 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
             tile_num = wmRndCenterTiles[wmRndIndex];
             if (wmRndCallCount != 0) {
                 int rotation = (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT;
-                int origin = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], rotation, a1->spacing);
-                int v17 = tileGetTileInDirection(origin, (rotation + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                int origin = tile_num_in_direction(wmRndCenterTiles[wmRndIndex], rotation, a1->spacing);
+                int v17 = tile_num_in_direction(origin, (rotation + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
                 wmRndCenterTiles[wmRndIndex] = v17;
                 wmRndIndex = 1 - wmRndIndex;
                 tile_num = v17;
@@ -4077,7 +4077,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
         case ENCOUNTER_FORMATION_TYPE_WEDGE:
             tile_num = wmRndCenterTiles[wmRndIndex];
             if (wmRndCallCount != 0) {
-                tile_num = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                tile_num = tile_num_in_direction(wmRndCenterTiles[wmRndIndex], (wmRndRotOffsets[wmRndIndex] + wmRndTileDirs[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
                 wmRndCenterTiles[wmRndIndex] = tile_num;
                 wmRndIndex = 1 - wmRndIndex;
             }
@@ -4085,7 +4085,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
         case ENCOUNTER_FORMATION_TYPE_CONE:
             tile_num = wmRndCenterTiles[wmRndIndex];
             if (wmRndCallCount != 0) {
-                tile_num = tileGetTileInDirection(wmRndCenterTiles[wmRndIndex], (wmRndTileDirs[wmRndIndex] + 3 + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
+                tile_num = tile_num_in_direction(wmRndCenterTiles[wmRndIndex], (wmRndTileDirs[wmRndIndex] + 3 + wmRndRotOffsets[wmRndIndex]) % ROTATION_COUNT, a1->spacing);
                 wmRndCenterTiles[wmRndIndex] = tile_num;
                 wmRndIndex = 1 - wmRndIndex;
             }
@@ -4094,7 +4094,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
             tile_num = wmRndCenterTiles[0];
             if (wmRndCallCount != 0) {
                 wmRndTileDirs[0] = (wmRndTileDirs[0] + 1) % ROTATION_COUNT;
-                tile_num = tileGetTileInDirection(wmRndCenterTiles[0], wmRndTileDirs[0], a1->spacing);
+                tile_num = tile_num_in_direction(wmRndCenterTiles[0], wmRndTileDirs[0], a1->spacing);
                 wmRndCenterTiles[0] = tile_num;
             }
             break;
@@ -4111,7 +4111,7 @@ static int wmSetupRndNextTileNum(ENC_BASE_TYPE* a1, ENC_BASE_TYPE_38* a2, int* o
 
         debugPrint("\nWARNING: EVAL-TILE-NUM FAILED!");
 
-        if (tileDistanceBetween(wmRndOriginalCenterTile, wmRndCenterTiles[wmRndIndex]) > 25) {
+        if (tile_dist(wmRndOriginalCenterTile, wmRndCenterTiles[wmRndIndex]) > 25) {
             return -1;
         }
 

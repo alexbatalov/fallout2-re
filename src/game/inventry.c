@@ -531,7 +531,7 @@ void handle_inventory()
     if (inven_dude == obj_dude) {
         Rect rect;
         obj_change_fid(inven_dude, i_fid, &rect);
-        tileWindowRefreshRect(&rect, inven_dude->elevation);
+        tile_refresh_rect(&rect, inven_dude->elevation);
     }
 
     Object* newArmor = inven_worn(inven_dude);
@@ -1649,7 +1649,7 @@ static void inven_update_lighting(Object* a1)
 
         Rect rect;
         obj_set_light(inven_dude, lightDistance, 0x10000, &rect);
-        tileWindowRefreshRect(&rect, map_elevation);
+        tile_refresh_rect(&rect, map_elevation);
     }
 }
 
@@ -2649,7 +2649,7 @@ int invenWieldFunc(Object* critter, Object* item, int a3, bool a4)
             }
 
             obj_set_light(critter, lightDistance, lightIntensity, &rect);
-            tileWindowRefreshRect(&rect, map_elevation);
+            tile_refresh_rect(&rect, map_elevation);
         }
 
         if (item_get_type(item) == ITEM_TYPE_WEAPON) {

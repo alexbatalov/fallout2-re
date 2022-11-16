@@ -376,11 +376,11 @@ static void int_debug(const char* format, ...)
 // 0x45404C
 static int scripts_tile_is_visible(int tile)
 {
-    if (abs(gCenterTile - tile) % 200 < 5) {
+    if (abs(tile_center_tile - tile) % 200 < 5) {
         return 1;
     }
 
-    if (abs(gCenterTile - tile) / 200 < 5) {
+    if (abs(tile_center_tile - tile) / 200 < 5) {
         return 1;
     }
 
@@ -430,7 +430,7 @@ static int correctFidForRemovedItem(Object* a1, Object* a2, int flags)
     if (newFid != -1) {
         Rect rect;
         obj_change_fid(a1, newFid, &rect);
-        tileWindowRefreshRect(&rect, map_elevation);
+        tile_refresh_rect(&rect, map_elevation);
     }
 
     return 0;
@@ -525,7 +525,7 @@ static void op_set_map_start(Program* program)
     }
 
     int tile = 200 * y + x;
-    if (tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
+    if (tile_set_center(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
         int_debug("\nScript Error: %s: op_set_map_start: tile_set_center failed", program->name);
         return;
     }
@@ -564,7 +564,7 @@ static void op_override_map_start(Program* program)
     debugPrint(text);
 
     int tile = 200 * y + x;
-    int previousTile = gCenterTile;
+    int previousTile = tile_center_tile;
     if (tile != -1) {
         if (obj_set_rotation(obj_dude, rotation, NULL) != 0) {
             int_debug("\nError: %s: obj_set_rotation failed in override_map_start!", program->name);
@@ -579,8 +579,8 @@ static void op_override_map_start(Program* program)
             }
         }
 
-        tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW);
-        tileWindowRefresh();
+        tile_set_center(tile, TILE_SET_CENTER_REFRESH_WINDOW);
+        tile_refresh_display();
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -1004,29 +1004,29 @@ static void op_move_to(Program* program)
 
     if (object != NULL) {
         if (object == obj_dude) {
-            bool tileLimitingEnabled = tileScrollLimitingIsEnabled();
-            bool tileBlockingEnabled = tileScrollBlockingIsEnabled();
+            bool tileLimitingEnabled = tile_get_scroll_limiting();
+            bool tileBlockingEnabled = tile_get_scroll_blocking();
 
             if (tileLimitingEnabled) {
-                tileScrollLimitingDisable();
+                tile_disable_scroll_limiting();
             }
 
             if (tileBlockingEnabled) {
-                tileScrollBlockingDisable();
+                tile_disable_scroll_blocking();
             }
 
             Rect rect;
             newTile = obj_move_to_tile(object, tile, elevation, &rect);
             if (newTile != -1) {
-                tileSetCenter(object->tile, TILE_SET_CENTER_REFRESH_WINDOW);
+                tile_set_center(object->tile, TILE_SET_CENTER_REFRESH_WINDOW);
             }
 
             if (tileLimitingEnabled) {
-                tileScrollLimitingEnable();
+                tile_enable_scroll_limiting();
             }
 
             if (tileBlockingEnabled) {
-                tileScrollBlockingEnable();
+                tile_enable_scroll_blocking();
             }
         } else {
             Rect before;
@@ -1040,7 +1040,7 @@ static void op_move_to(Program* program)
             newTile = obj_move_to_tile(object, tile, elevation, &after);
             if (newTile != -1) {
                 rectUnion(&before, &after, &before);
-                tileWindowRefreshRect(&before, map_elevation);
+                tile_refresh_rect(&before, map_elevation);
             }
         }
     } else {
@@ -1097,7 +1097,7 @@ static void op_create_object_sid(Program* program)
 
             Rect rect;
             if (obj_move_to_tile(object, tile, elevation, &rect) != -1) {
-                tileWindowRefreshRect(&rect, object->elevation);
+                tile_refresh_rect(&rect, object->elevation);
             }
         }
     }
@@ -1209,7 +1209,7 @@ static void op_destroy_object(Program* program)
 
         Rect rect;
         obj_erase_object(object, &rect);
-        tileWindowRefreshRect(&rect, map_elevation);
+        tile_refresh_rect(&rect, map_elevation);
     }
 
     program->flags &= ~PROGRAM_FLAG_0x20;
@@ -1904,7 +1904,7 @@ static void op_tile_distance(Program* program)
     int distance;
 
     if (tile1 != -1 && tile2 != -1) {
-        distance = tileDistanceBetween(tile1, tile2);
+        distance = tile_dist(tile1, tile2);
     } else {
         distance = 9999;
     }
@@ -1940,7 +1940,7 @@ static void op_tile_distance_objs(Program* program)
         if ((unsigned int)data[1] >= HEX_GRID_SIZE && (unsigned int)data[0] >= HEX_GRID_SIZE) {
             if (object1->elevation == object2->elevation) {
                 if (object1->tile != -1 && object2->tile != -1) {
-                    distance = tileDistanceBetween(object1->tile, object2->tile);
+                    distance = tile_dist(object1->tile, object2->tile);
                 }
             }
         } else {
@@ -2008,7 +2008,7 @@ static void op_tile_num_in_direction(Program* program)
     if (origin != -1) {
         if (rotation < ROTATION_COUNT) {
             if (distance != 0) {
-                tile = tileGetTileInDirection(origin, rotation, distance);
+                tile = tile_num_in_direction(origin, rotation, distance);
                 if (tile < -1) {
                     debugPrint("\nError: %s: op_tile_num_in_direction got #: %d", program->name, tile);
                     tile = -1;
@@ -2131,7 +2131,7 @@ static void op_add_obj_to_inven(Program* program)
         if (item_add_force(owner, item, 1) == 0) {
             Rect rect;
             obj_disconnect(item, &rect);
-            tileWindowRefreshRect(&rect, item->elevation);
+            tile_refresh_rect(&rect, item->elevation);
         }
     } else {
         dbg_error(program, "add_obj_to_inven", SCRIPT_ERROR_FOLLOWS);
@@ -2187,7 +2187,7 @@ static void op_rm_obj_from_inven(Program* program)
     if (item_remove_mult(owner, item, 1) == 0) {
         Rect rect;
         obj_connect(item, 1, 0, &rect);
-        tileWindowRefreshRect(&rect, item->elevation);
+        tile_refresh_rect(&rect, item->elevation);
 
         if (updateFlags) {
             correctFidForRemovedItem(owner, item, flags);
@@ -2629,11 +2629,11 @@ static void op_metarule3(Program* program)
 
             Rect updatedRect;
             obj_change_fid(obj, fid, &updatedRect);
-            tileWindowRefreshRect(&updatedRect, map_elevation);
+            tile_refresh_rect(&updatedRect, map_elevation);
         }
         break;
     case METARULE3_TILE_SET_CENTER:
-        result = tileSetCenter(data[2], TILE_SET_CENTER_REFRESH_WINDOW);
+        result = tile_set_center(data[2], TILE_SET_CENTER_REFRESH_WINDOW);
         break;
     case METARULE3_109:
         result = ai_get_chem_use_value((Object*)data[2]);
@@ -2734,7 +2734,7 @@ static void op_set_obj_visibility(Program* program)
                     obj->flags |= OBJECT_NO_BLOCK;
                 }
 
-                tileWindowRefreshRect(&rect, obj->elevation);
+                tile_refresh_rect(&rect, obj->elevation);
             }
         }
     } else {
@@ -2745,7 +2745,7 @@ static void op_set_obj_visibility(Program* program)
 
             Rect rect;
             if (obj_turn_on(obj, &rect) != -1) {
-                tileWindowRefreshRect(&rect, obj->elevation);
+                tile_refresh_rect(&rect, obj->elevation);
             }
         }
     }
@@ -3184,7 +3184,7 @@ static void op_kill_critter_type(Program* program)
 
                 Rect rect;
                 obj_erase_object(obj, &rect);
-                tileWindowRefreshRect(&rect, map_elevation);
+                tile_refresh_rect(&rect, map_elevation);
             }
 
             previousObj = obj;
@@ -4078,7 +4078,7 @@ static void op_obj_set_light_level(Program* program)
             return;
         }
     }
-    tileWindowRefreshRect(&rect, object->elevation);
+    tile_refresh_rect(&rect, object->elevation);
 }
 
 // 0x459170
@@ -4170,7 +4170,7 @@ static void op_float_msg(Program* program)
 
     if (string == NULL || *string == '\0') {
         text_object_remove(obj);
-        tileWindowRefresh();
+        tile_refresh_display();
         return;
     }
 
@@ -4191,7 +4191,7 @@ static void op_float_msg(Program* program)
         color = colorTable[31744];
         a5 = colorTable[0];
         font = 103;
-        tileSetCenter(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
+        tile_set_center(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
         break;
     case FLOATING_MESSAGE_TYPE_NORMAL:
     case FLOATING_MESSAGE_TYPE_YELLOW:
@@ -4230,7 +4230,7 @@ static void op_float_msg(Program* program)
 
     Rect rect;
     if (text_object_create(obj, string, font, color, a5, &rect) != -1) {
-        tileWindowRefreshRect(&rect, obj->elevation);
+        tile_refresh_rect(&rect, obj->elevation);
     }
 }
 
@@ -4476,12 +4476,12 @@ static void op_anim(Program* program)
         if (frame < ROTATION_COUNT) {
             Rect rect;
             obj_set_rotation(obj, frame, &rect);
-            tileWindowRefreshRect(&rect, map_elevation);
+            tile_refresh_rect(&rect, map_elevation);
         }
     } else if (anim == 1010) {
         Rect rect;
         obj_set_frame(obj, frame, &rect);
-        tileWindowRefreshRect(&rect, map_elevation);
+        tile_refresh_rect(&rect, map_elevation);
     } else {
         int_debug("\nScript Error: %s: op_anim: anim out of range", program->name);
     }
@@ -4836,7 +4836,7 @@ static void op_add_mult_objs_to_inven(Program* program)
     if (item_add_force(object, item, quantity) == 0) {
         Rect rect;
         obj_disconnect(item, &rect);
-        tileWindowRefreshRect(&rect, item->elevation);
+        tile_refresh_rect(&rect, item->elevation);
     }
 }
 
@@ -6238,7 +6238,7 @@ static void op_destroy_mult_objs(Program* program)
 
         Rect rect;
         obj_erase_object(object, &rect);
-        tileWindowRefreshRect(&rect, map_elevation);
+        tile_refresh_rect(&rect, map_elevation);
     }
 
     interpretPushLong(program, result);
@@ -6468,7 +6468,7 @@ static void op_rotation_to_tile(Program* program)
     int tile1 = data[1];
     int tile2 = data[0];
 
-    int rotation = tileGetRotationTo(tile1, tile2);
+    int rotation = tile_dir(tile1, tile2);
     interpretPushLong(program, rotation);
     interpretPushShort(program, VALUE_TYPE_INT);
 }

@@ -1066,22 +1066,22 @@ static void ai_run_away(Object* a1, Object* a2)
     if (distance < ai->max_dist) {
         combatData->maneuver |= CRITTER_MANUEVER_FLEEING;
 
-        int rotation = tileGetRotationTo(a2->tile, a1->tile);
+        int rotation = tile_dir(a2->tile, a1->tile);
 
         int destination;
         int actionPoints = combatData->ap;
         for (; actionPoints > 0; actionPoints -= 1) {
-            destination = tileGetTileInDirection(a1->tile, rotation, actionPoints);
+            destination = tile_num_in_direction(a1->tile, rotation, actionPoints);
             if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
-            destination = tileGetTileInDirection(a1->tile, (rotation + 1) % ROTATION_COUNT, actionPoints);
+            destination = tile_num_in_direction(a1->tile, (rotation + 1) % ROTATION_COUNT, actionPoints);
             if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
-            destination = tileGetTileInDirection(a1->tile, (rotation + 5) % ROTATION_COUNT, actionPoints);
+            destination = tile_num_in_direction(a1->tile, (rotation + 5) % ROTATION_COUNT, actionPoints);
             if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
@@ -1113,22 +1113,22 @@ static int ai_move_away(Object* a1, Object* a2, int a3)
             actionPoints = a3;
         }
 
-        int rotation = tileGetRotationTo(a2->tile, a1->tile);
+        int rotation = tile_dir(a2->tile, a1->tile);
 
         int destination;
         int actionPointsLeft = actionPoints;
         for (; actionPointsLeft > 0; actionPointsLeft -= 1) {
-            destination = tileGetTileInDirection(a1->tile, rotation, actionPointsLeft);
+            destination = tile_num_in_direction(a1->tile, rotation, actionPointsLeft);
             if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
-            destination = tileGetTileInDirection(a1->tile, (rotation + 1) % ROTATION_COUNT, actionPointsLeft);
+            destination = tile_num_in_direction(a1->tile, (rotation + 1) % ROTATION_COUNT, actionPointsLeft);
             if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
 
-            destination = tileGetTileInDirection(a1->tile, (rotation + 5) % ROTATION_COUNT, actionPointsLeft);
+            destination = tile_num_in_direction(a1->tile, (rotation + 5) % ROTATION_COUNT, actionPointsLeft);
             if (make_path(a1, a1->tile, destination, NULL, 1) > 0) {
                 break;
             }
@@ -2322,7 +2322,7 @@ static int cai_retargetTileFromFriendlyFire(Object* source, Object* target, int*
             }
 
             if (obj_blocking_at(NULL, tile, source->elevation) == 0) {
-                int distance = tileDistanceBetween(*tilePtr, tile);
+                int distance = tile_dist(*tilePtr, tile);
                 if (distance < minDistance) {
                     minDistance = distance;
                     minDistanceIndex = index;
@@ -2352,8 +2352,8 @@ static int cai_retargetTileFromFriendlyFireSubFunc(AiRetargetData* aiRetargetDat
         if (cai_attackWouldIntersect(critter, aiRetargetData->target, aiRetargetData->source, tile, &distance)) {
             debugPrint("In the way!");
 
-            aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tileGetTileInDirection(tile, (critter->rotation + 1) % ROTATION_COUNT, distance);
-            aiRetargetData->tiles[aiRetargetData->currentTileIndex + 1] = tileGetTileInDirection(tile, (critter->rotation + 5) % ROTATION_COUNT, distance);
+            aiRetargetData->tiles[aiRetargetData->currentTileIndex] = tile_num_in_direction(tile, (critter->rotation + 1) % ROTATION_COUNT, distance);
+            aiRetargetData->tiles[aiRetargetData->currentTileIndex + 1] = tile_num_in_direction(tile, (critter->rotation + 5) % ROTATION_COUNT, distance);
 
             aiRetargetData->sourceIntelligence -= 2;
             aiRetargetData->currentTileIndex += 2;
@@ -2659,7 +2659,7 @@ static int ai_try_attack(Object* a1, Object* a2)
                         int tile = a1->tile;
                         int index;
                         for (index = 0; index < actionPoints; index++) {
-                            tile = tileGetTileInDirection(tile, v30[index], 1);
+                            tile = tile_num_in_direction(tile, v30[index], 1);
 
                             v42++;
 
@@ -3059,7 +3059,7 @@ int combatai_switch_team(Object* obj, int team)
         if (outlineWasEnabled) {
             Rect rect;
             obj_turn_on_outline(obj, &rect);
-            tileWindowRefreshRect(&rect, obj->elevation);
+            tile_refresh_rect(&rect, obj->elevation);
         }
     }
 
@@ -3191,7 +3191,7 @@ static int ai_print_msg(Object* critter, int type)
 
     Rect rect;
     if (text_object_create(critter, string, ai->font, ai->color, ai->outline_color, &rect) == 0) {
-        tileWindowRefreshRect(&rect, critter->elevation);
+        tile_refresh_rect(&rect, critter->elevation);
     }
 
     return 0;

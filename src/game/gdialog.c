@@ -729,7 +729,7 @@ void gdialogEnter(Object* a1, int a2)
         }
     }
 
-    gdCenterTile = gCenterTile;
+    gdCenterTile = tile_center_tile;
     gdBarterMod = 0;
     gdPlayerTile = obj_dude->tile;
     map_disable_bk_processes();
@@ -792,7 +792,7 @@ void gdialogEnter(Object* a1, int a2)
     }
 
     if (gdDialogWentOff) {
-        _tile_scroll_to(gdCenterTile, 2);
+        tile_scroll_to(gdCenterTile, 2);
     }
 
     map_enable_bk_processes();
@@ -817,7 +817,7 @@ void gdialogSystemEnter()
     }
 
     if (gdDialogWentOff) {
-        _tile_scroll_to(gdCenterTile, 2);
+        tile_scroll_to(gdCenterTile, 2);
     }
 
     game_state_request(GAME_STATE_2);
@@ -908,7 +908,7 @@ int gdialogInitFromScript(int headFid, int reaction)
     text_object_reset();
 
     if (PID_TYPE(dialog_target->pid) != OBJ_TYPE_ITEM) {
-        _tile_scroll_to(dialog_target->tile, 2);
+        tile_scroll_to(dialog_target->tile, 2);
     }
 
     talk_need_to_center = 1;
@@ -950,7 +950,7 @@ int gdialogExitFromScript()
         if (gdPlayerTile != obj_dude->tile) {
             gdCenterTile = obj_dude->tile;
         }
-        _tile_scroll_to(gdCenterTile, 2);
+        tile_scroll_to(gdCenterTile, 2);
     }
 
     gdDestroyHeadWindow();
@@ -4592,7 +4592,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
     } else {
         if (talk_need_to_center == 1) {
             talk_need_to_center = 0;
-            tileWindowRefresh();
+            tile_refresh_display();
         }
 
         unsigned char* src = windowGetBuffer(display_win);

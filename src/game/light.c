@@ -59,7 +59,7 @@ void light_set_ambient(int lightLevel, bool shouldUpdateScreen)
 
     if (shouldUpdateScreen) {
         if (oldLightLevel != normalizedLightLevel) {
-            tileWindowRefresh();
+            tile_refresh_display();
         }
     }
 }

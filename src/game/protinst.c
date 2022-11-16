@@ -560,7 +560,7 @@ int obj_pickup(Object* critter, Object* item)
         if (rc == 0) {
             Rect rect;
             obj_disconnect(item, &rect);
-            tileWindowRefreshRect(&rect, item->elevation);
+            tile_refresh_rect(&rect, item->elevation);
         } else {
             MessageListItem messageListItem;
             // You cannot pick up that item. You are at your maximum weight capacity.
@@ -614,7 +614,7 @@ int obj_remove_from_inven(Object* critter, Object* item)
     int rc = item_remove_mult(critter, item, 1);
 
     if (v11 >= 2) {
-        tileWindowRefreshRect(&updatedRect, critter->elevation);
+        tile_refresh_rect(&updatedRect, critter->elevation);
     }
 
     if (v11 <= 2 && critter == obj_dude) {
@@ -672,7 +672,7 @@ int obj_drop(Object* a1, Object* a2)
 
         Rect updatedRect;
         obj_connect(a2, owner->tile, owner->elevation, &updatedRect);
-        tileWindowRefreshRect(&updatedRect, owner->elevation);
+        tile_refresh_rect(&updatedRect, owner->elevation);
     }
 
     return 0;
@@ -699,7 +699,7 @@ int obj_destroy(Object* obj)
     obj_erase_object(obj, &rect);
 
     if (owner == NULL) {
-        tileWindowRefreshRect(&rect, elev);
+        tile_refresh_rect(&rect, elev);
     }
 
     return 0;
@@ -1129,7 +1129,7 @@ int obj_use_item(Object* a1, Object* a2)
         } else if (rc == 2 && root != NULL) {
             Rect updatedRect;
             obj_connect(a2, root->tile, root->elevation, &updatedRect);
-            tileWindowRefreshRect(&updatedRect, root->elevation);
+            tile_refresh_rect(&updatedRect, root->elevation);
             protinstTestDroppedExplosive(a2);
         }
 
@@ -1508,7 +1508,7 @@ int obj_use_ladder_top(Object* a1, Object* ladder, int a3)
             return -1;
         }
 
-        tileWindowRefreshRect(&updatedRect, map_elevation);
+        tile_refresh_rect(&updatedRect, map_elevation);
     }
 
     return 0;
@@ -1542,7 +1542,7 @@ int obj_use_ladder_bottom(Object* a1, Object* ladder, int a3)
             return -1;
         }
 
-        tileWindowRefreshRect(&updatedRect, map_elevation);
+        tile_refresh_rect(&updatedRect, map_elevation);
     }
 
     return 0;
@@ -1576,7 +1576,7 @@ int obj_use_stairs(Object* a1, Object* stairs, int a3)
             return -1;
         }
 
-        tileWindowRefreshRect(&updatedRect, map_elevation);
+        tile_refresh_rect(&updatedRect, map_elevation);
     }
 
     return 0;
@@ -1603,7 +1603,7 @@ static int check_door_state(Object* a1, Object* a2)
         a1->flags &= ~OBJECT_OPEN_DOOR;
 
         obj_rebuild_all_light();
-        tileWindowRefresh();
+        tile_refresh_display();
 
         if (a1->frame == 0) {
             return 0;
@@ -1630,7 +1630,7 @@ static int check_door_state(Object* a1, Object* a2)
         obj_set_frame(a1, 0, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        tileWindowRefreshRect(&dirty, map_elevation);
+        tile_refresh_rect(&dirty, map_elevation);
 
         art_ptr_unlock(artHandle);
         return 0;
@@ -1638,7 +1638,7 @@ static int check_door_state(Object* a1, Object* a2)
         a1->flags |= OBJECT_OPEN_DOOR;
 
         obj_rebuild_all_light();
-        tileWindowRefresh();
+        tile_refresh_display();
 
         CacheEntry* artHandle;
         Art* art = art_ptr_lock(a1->fid, &artHandle);
@@ -1667,7 +1667,7 @@ static int check_door_state(Object* a1, Object* a2)
         obj_set_frame(a1, frameCount - 1, &temp);
         rectUnion(&dirty, &temp, &dirty);
 
-        tileWindowRefreshRect(&dirty, map_elevation);
+        tile_refresh_rect(&dirty, map_elevation);
 
         art_ptr_unlock(artHandle);
         return 0;
@@ -2170,7 +2170,7 @@ int obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
             }
 
             for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-                newTile = tileGetTileInDirection(tile, rotation, v6);
+                newTile = tile_num_in_direction(tile, rotation, v6);
                 if (obj_blocking_at(NULL, newTile, elevation) == NULL && v6 > 1 && make_path(obj_dude, obj_dude->tile, newTile, NULL, 0) != 0) {
                     break;
                 }
@@ -2181,7 +2181,7 @@ int obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
 
         if (a4 != 1 && v6 > a4 + 2) {
             for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-                int candidate = tileGetTileInDirection(tile, rotation, 1);
+                int candidate = tile_num_in_direction(tile, rotation, 1);
                 if (obj_blocking_at(NULL, candidate, elevation) == NULL) {
                     newTile = candidate;
                     break;
@@ -2198,7 +2198,7 @@ int obj_attempt_placement(Object* obj, int tile, int elevation, int a4)
         rectUnion(&updatedRect, &temp, &updatedRect);
 
         if (elevation == map_elevation) {
-            tileWindowRefreshRect(&updatedRect, elevation);
+            tile_refresh_rect(&updatedRect, elevation);
         }
     }
 
@@ -2223,12 +2223,12 @@ int objPMAttemptPlacement(Object* obj, int tile, int elevation)
         for (int v4 = 1; v4 <= 100; v4++) {
             // TODO: Check.
             v7++;
-            v9 = tileGetTileInDirection(v9, v7 % ROTATION_COUNT, 1);
+            v9 = tile_num_in_direction(v9, v7 % ROTATION_COUNT, 1);
             if (wmEvalTileNumForPlacement(v9) != 0) {
                 break;
             }
 
-            if (tileDistanceBetween(obj_dude->tile, v9) > 8) {
+            if (tile_dist(obj_dude->tile, v9) > 8) {
                 v9 = tile;
                 break;
             }

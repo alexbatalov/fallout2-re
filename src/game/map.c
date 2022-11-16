@@ -143,8 +143,8 @@ int display_win;
 // 0x481CA0
 int iso_init()
 {
-    tileScrollLimitingDisable();
-    tileScrollBlockingDisable();
+    tile_disable_scroll_limiting();
+    tile_disable_scroll_blocking();
 
     // NOTE: Uninline.
     square_init();
@@ -173,7 +173,7 @@ int iso_init()
 
     debugPrint(">art_init\t\t");
 
-    if (tileInit(square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, map_display_draw) != 0) {
+    if (tile_init(square, SQUARE_GRID_WIDTH, SQUARE_GRID_HEIGHT, HEX_GRID_WIDTH, HEX_GRID_HEIGHT, display_buf, _scr_size.right - _scr_size.left + 1, _scr_size.bottom - _scr_size.top - 99, _scr_size.right - _scr_size.left + 1, map_display_draw) != 0) {
         debugPrint("tile_init failed in iso_init\n");
         return -1;
     }
@@ -190,8 +190,8 @@ int iso_init()
     cycle_init();
     debugPrint(">cycle_init\t\t");
 
-    tileScrollBlockingEnable();
-    tileScrollLimitingEnable();
+    tile_enable_scroll_blocking();
+    tile_enable_scroll_limiting();
 
     if (intface_init() != 0) {
         debugPrint("intface_init failed in iso_init\n");
@@ -225,7 +225,7 @@ void iso_reset()
     }
 
     art_reset();
-    tileReset();
+    tile_reset();
     obj_reset();
     cycle_reset();
     intface_reset();
@@ -240,7 +240,7 @@ void iso_exit()
     intface_exit();
     cycle_exit();
     obj_exit();
-    tileExit();
+    tile_exit();
     art_exit();
 
     if (map_global_vars != NULL) {
@@ -613,16 +613,16 @@ int map_scroll(int dx, int dy)
 
     int centerScreenX;
     int centerScreenY;
-    tileToScreenXY(gCenterTile, &centerScreenX, &centerScreenY, map_elevation);
+    tile_coord(tile_center_tile, &centerScreenX, &centerScreenY, map_elevation);
     centerScreenX += screenDx + 16;
     centerScreenY += screenDy + 8;
 
-    int newCenterTile = tileFromScreenXY(centerScreenX, centerScreenY, map_elevation);
+    int newCenterTile = tile_num(centerScreenX, centerScreenY, map_elevation);
     if (newCenterTile == -1) {
         return -1;
     }
 
-    if (tileSetCenter(newCenterTile, 0) == -1) {
+    if (tile_set_center(newCenterTile, 0) == -1) {
         return -1;
     }
 
@@ -721,7 +721,7 @@ int mapSetEntranceInfo(int elevation, int tile_num, int orientation)
 void map_new_map()
 {
     map_set_elevation(0);
-    tileSetCenter(20100, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
+    tile_set_center(20100, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
     memset(&map_state, 0, sizeof(map_state));
     map_data.enteringElevation = 0;
     map_data.enteringRotation = 0;
@@ -746,7 +746,7 @@ void map_new_map()
 
     square_reset();
     map_place_dude_and_mouse();
-    tileWindowRefresh();
+    tile_refresh_display();
 }
 
 // 0x482A68
@@ -823,7 +823,7 @@ int map_load_file(File* stream)
     int savedMouseCursorId = gmouse_get_cursor();
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
     fileSetReadProgressHandler(gmouse_bk_process, 32768);
-    tileDisable();
+    tile_disable_refresh();
 
     int rc = 0;
 
@@ -914,12 +914,12 @@ int map_load_file(File* stream)
     }
 
     error = "Error setting tile center";
-    if (tileSetCenter(mapEntranceTileNum, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
+    if (tile_set_center(mapEntranceTileNum, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) != 0) {
         goto err;
     }
 
     light_set_ambient(LIGHT_LEVEL_MAX, false);
-    obj_move_to_tile(obj_dude, gCenterTile, map_elevation, NULL);
+    obj_move_to_tile(obj_dude, tile_center_tile, map_elevation, NULL);
     obj_set_rotation(obj_dude, mapEntranceRotation, NULL);
     map_data.field_34 = wmMapMatchNameToIdx(map_data.name);
 
@@ -1003,14 +1003,14 @@ err:
 
     scr_exec_map_enter_scripts();
     scr_exec_map_update_scripts();
-    tileEnable();
+    tile_enable_refresh();
 
     if (map_state.map > 0) {
         if (map_state.rotation >= 0) {
             obj_set_rotation(obj_dude, map_state.rotation, NULL);
         }
     } else {
-        tileWindowRefresh();
+        tile_refresh_display();
     }
 
     gtime_q_add();
@@ -1261,7 +1261,7 @@ int map_check_state()
                 obj_set_rotation(obj_dude, map_state.rotation, NULL);
             }
 
-            if (tileSetCenter(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
+            if (tile_set_center(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW) == -1) {
                 debugPrint("\nError: map: attempt to center out-of-bounds!");
             }
 
@@ -1511,10 +1511,10 @@ static void map_scroll_refresh_game(Rect* rect)
         return;
     }
 
-    tileRenderFloorsInRect(&clampedDirtyRect, map_elevation);
-    _grid_render(&clampedDirtyRect, map_elevation);
+    square_render_floor(&clampedDirtyRect, map_elevation);
+    grid_render(&clampedDirtyRect, map_elevation);
     obj_render_pre_roof(&clampedDirtyRect, map_elevation);
-    tileRenderRoofsInRect(&clampedDirtyRect, map_elevation);
+    square_render_roof(&clampedDirtyRect, map_elevation);
     obj_render_post_roof(&clampedDirtyRect, map_elevation);
 }
 
@@ -1531,10 +1531,10 @@ static void map_scroll_refresh_mapper(Rect* rect)
         clampedDirtyRect.bottom - clampedDirtyRect.top + 1,
         _scr_size.right - _scr_size.left + 1,
         0);
-    tileRenderFloorsInRect(&clampedDirtyRect, map_elevation);
-    _grid_render(&clampedDirtyRect, map_elevation);
+    square_render_floor(&clampedDirtyRect, map_elevation);
+    grid_render(&clampedDirtyRect, map_elevation);
     obj_render_pre_roof(&clampedDirtyRect, map_elevation);
-    tileRenderRoofsInRect(&clampedDirtyRect, map_elevation);
+    square_render_roof(&clampedDirtyRect, map_elevation);
     obj_render_post_roof(&clampedDirtyRect, map_elevation);
 }
 
@@ -1632,7 +1632,7 @@ static void map_place_dude_and_mouse()
         }
 
         if (obj_dude->tile == -1) {
-            obj_move_to_tile(obj_dude, gCenterTile, map_elevation, NULL);
+            obj_move_to_tile(obj_dude, tile_center_tile, map_elevation, NULL);
             obj_set_rotation(obj_dude, map_data.enteringRotation, 0);
         }
 

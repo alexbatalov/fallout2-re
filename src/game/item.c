@@ -398,7 +398,7 @@ static int item_move_func(Object* a1, Object* a2, Object* a3, int quantity, bool
             if (owner->tile != -1) {
                 Rect updatedRect;
                 obj_connect(a3, owner->tile, owner->elevation, &updatedRect);
-                tileWindowRefreshRect(&updatedRect, map_elevation);
+                tile_refresh_rect(&updatedRect, map_elevation);
             }
         }
         return -1;
@@ -554,7 +554,7 @@ int item_drop_all(Object* critter, int tile)
         int fid = art_id(OBJ_TYPE_CRITTER, frmId, FID_ANIM_TYPE(critter->fid), 0, (critter->fid & 0x70000000) >> 28);
         obj_change_fid(critter, fid, &updatedRect);
         if (FID_ANIM_TYPE(critter->fid) == ANIM_STAND) {
-            tileWindowRefreshRect(&updatedRect, map_elevation);
+            tile_refresh_rect(&updatedRect, map_elevation);
         }
     }
 
@@ -2405,7 +2405,7 @@ static int item_m_stealth_effect_on(Object* object)
 
     Rect rect;
     obj_bound(object, &rect);
-    tileWindowRefreshRect(&rect, object->elevation);
+    tile_refresh_rect(&rect, object->elevation);
 
     return 0;
 }
@@ -2431,7 +2431,7 @@ static int item_m_stealth_effect_off(Object* critter, Object* item)
 
     Rect rect;
     obj_bound(critter, &rect);
-    tileWindowRefreshRect(&rect, critter->elevation);
+    tile_refresh_rect(&rect, critter->elevation);
 
     return 0;
 }

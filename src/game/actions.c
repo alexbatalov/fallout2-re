@@ -124,7 +124,7 @@ int action_knockback(Object* obj, int* anim, int maxDistance, int rotation, int 
     int distance;
     int tile;
     for (distance = 1; distance <= maxDistance; distance++) {
-        tile = tileGetTileInDirection(obj->tile, rotation, distance);
+        tile = tile_num_in_direction(obj->tile, rotation, distance);
         if (obj_blocking_at(obj, tile, obj->elevation) != NULL) {
             distance--;
             break;
@@ -141,7 +141,7 @@ int action_knockback(Object* obj, int* anim, int maxDistance, int rotation, int 
         tile = obj->tile;
         register_object_animate(obj, *anim, 0);
     } else {
-        tile = tileGetTileInDirection(obj->tile, rotation, distance);
+        tile = tile_num_in_direction(obj->tile, rotation, distance);
         register_object_animate_and_move_straight(obj, tile, obj->elevation, *anim, 0);
     }
 
@@ -341,7 +341,7 @@ void show_damage_to_object(Object* a1, int damage, int flags, Object* weapon, bo
                     int randomRotation = roll_random(0, 5);
 
                     while (randomDistance > 0) {
-                        int tile = tileGetTileInDirection(a1->tile, randomRotation, randomDistance);
+                        int tile = tile_num_in_direction(a1->tile, randomRotation, randomDistance);
                         Object* v35 = NULL;
                         make_straight_path(a1, a1->tile, tile, NULL, &v35, 4);
                         if (v35 == NULL) {
@@ -463,7 +463,7 @@ static int show_death(Object* obj, int anim)
         item_drop_all(obj, obj->tile);
     }
 
-    tileWindowRefreshRect(&v8, obj->elevation);
+    tile_refresh_rect(&v8, obj->elevation);
 
     return 0;
 }
@@ -487,7 +487,7 @@ int show_damage_target(Attack* attack)
             attack->weapon,
             frontHit,
             attack->defenderKnockback,
-            tileGetRotationTo(attack->attacker->tile, attack->defender->tile),
+            tile_dir(attack->attacker->tile, attack->defender->tile),
             item_w_anim(attack->attacker, attack->hitMode),
             attack->attacker,
             0);
@@ -516,7 +516,7 @@ int show_damage_extras(Attack* attack)
             register_begin(ANIMATION_REQUEST_RESERVED);
             register_priority(1);
             v8 = item_w_anim(attack->attacker, attack->hitMode);
-            v9 = tileGetRotationTo(attack->attacker->tile, obj->tile);
+            v9 = tile_dir(attack->attacker->tile, obj->tile);
             show_damage_to_object(obj, attack->extrasDamage[index], attack->extrasFlags[index], attack->weapon, v6, attack->extrasKnockback[index], v9, v8, attack->attacker, 0);
             register_end();
         }
@@ -560,15 +560,15 @@ void show_damage(Attack* attack, int a2, int a3)
 
             if (FID_TYPE(attack->defender->fid) == OBJ_TYPE_CRITTER) {
                 if (attack->attacker->fid == 33554933) {
-                    v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
+                    v14 = tile_dir(attack->attacker->tile, attack->defender->tile);
                     show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, a2, attack->attacker, a3);
                 } else {
                     v17 = item_w_anim(attack->attacker, attack->hitMode);
-                    v14 = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
+                    v14 = tile_dir(attack->attacker->tile, attack->defender->tile);
                     show_damage_to_object(attack->defender, attack->defenderDamage, attack->defenderFlags, attack->weapon, v15, attack->defenderKnockback, v14, v17, attack->attacker, a3);
                 }
             } else {
-                tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
+                tile_dir(attack->attacker->tile, attack->defender->tile);
                 item_w_anim(attack->attacker, attack->hitMode);
             }
         }
@@ -629,7 +629,7 @@ static int action_melee(Attack* attack, int anim)
     }
     art_ptr_unlock(cache_entry);
 
-    tileGetTileInDirection(attack->attacker->tile, attack->attacker->rotation, 1);
+    tile_num_in_direction(attack->attacker->tile, attack->attacker->rotation, 1);
     register_object_turn_towards(attack->attacker, attack->defender->tile);
 
     delta = attack->attacker->rotation - attack->defender->rotation;
@@ -716,7 +716,7 @@ int throw_change_fid(Object* object, int fid)
 
     debugPrint("\n[throw_change_fid!]: %d", fid);
     obj_change_fid(object, fid, &rect);
-    tileWindowRefreshRect(&rect, map_elevation);
+    tile_refresh_rect(&rect, map_elevation);
 
     return 0;
 }
@@ -748,7 +748,7 @@ static int action_ranged(Attack* attack, int anim)
 
     int damageType = item_w_damage_type(attack->attacker, attack->weapon);
 
-    tileGetTileInDirection(attack->attacker->tile, attack->attacker->rotation, 1);
+    tile_num_in_direction(attack->attacker->tile, attack->attacker->rotation, 1);
 
     register_object_turn_towards(attack->attacker, attack->defender->tile);
 
@@ -817,7 +817,7 @@ static int action_ranged(Attack* attack, int anim)
                 int projectileOrigin = combat_bullet_start(attack->attacker, attack->defender);
                 obj_move_to_tile(projectile, projectileOrigin, attack->attacker->elevation, NULL);
 
-                int projectileRotation = tileGetRotationTo(attack->attacker->tile, attack->defender->tile);
+                int projectileRotation = tile_dir(attack->attacker->tile, attack->defender->tile);
                 obj_set_rotation(projectile, projectileRotation, NULL);
 
                 register_object_funset(projectile, OBJECT_HIDDEN, actionFrame);
@@ -871,7 +871,7 @@ static int action_ranged(Attack* attack, int anim)
                             if (obj_new(&(neighboors[rotation]), explosionFid, -1) != -1) {
                                 obj_turn_off(neighboors[rotation], NULL);
 
-                                int v31 = tileGetTileInDirection(v24, rotation, 1);
+                                int v31 = tile_num_in_direction(v24, rotation, 1);
                                 obj_move_to_tile(neighboors[rotation], v31, projectile->elevation, NULL);
 
                                 int delay;
@@ -1023,7 +1023,7 @@ static int action_climb_ladder(Object* a1, Object* a2)
     animationRequestOptions |= ANIMATION_REQUEST_NO_STAND;
     register_begin(animationRequestOptions);
 
-    int tile = tileGetTileInDirection(a2->tile, ROTATION_SE, 1);
+    int tile = tile_num_in_direction(a2->tile, ROTATION_SE, 1);
     if (actionPoints != -1 || obj_dist(a1, a2) < 5) {
         register_object_move_to_tile(a1, tile, a2->elevation, actionPoints, 0);
     } else {
@@ -1449,7 +1449,7 @@ int action_use_skill_on(Object* a1, Object* a2, int skill)
 
             Rect rect;
             if (text_object_create(partyMember, msg, 101, colorTable[32747], colorTable[0], &rect) == 0) {
-                tileWindowRefreshRect(&rect, map_elevation);
+                tile_refresh_rect(&rect, map_elevation);
             }
 
             if (v32) {
@@ -1567,7 +1567,7 @@ int pick_hex()
             }
 
             obj_set_rotation(obj_mouse, rotation, &rect);
-            tileWindowRefreshRect(&rect, obj_mouse->elevation);
+            tile_refresh_rect(&rect, obj_mouse->elevation);
         }
 
         if (inputEvent == KEY_CTRL_ARROW_LEFT) {
@@ -1577,7 +1577,7 @@ int pick_hex()
             }
 
             obj_set_rotation(obj_mouse, rotation, &rect);
-            tileWindowRefreshRect(&rect, obj_mouse->elevation);
+            tile_refresh_rect(&rect, obj_mouse->elevation);
         }
 
         if (inputEvent == KEY_PAGE_UP || inputEvent == KEY_PAGE_DOWN) {
@@ -1608,7 +1608,7 @@ int pick_hex()
 
     mouse_get_position(&(rect.left), &(rect.top));
 
-    tile = tileFromScreenXY(rect.left, rect.top, elevation);
+    tile = tile_num(rect.left, rect.top, elevation);
     if (tile == -1) {
         return -1;
     }
@@ -1632,7 +1632,7 @@ bool can_see(Object* a1, Object* a2)
 {
     int diff;
 
-    diff = a1->rotation - tileGetRotationTo(a1->tile, a2->tile);
+    diff = a1->rotation - tile_dir(a1->tile, a2->tile);
     if (diff < 0) {
         diff = -diff;
     }
@@ -1652,7 +1652,7 @@ int pick_fall(Object* obj, int anim)
     if (anim == ANIM_FALL_FRONT) {
         rotation = obj->rotation;
         for (i = 1; i < 3; i++) {
-            tile_num = tileGetTileInDirection(obj->tile, rotation, i);
+            tile_num = tile_num_in_direction(obj->tile, rotation, i);
             if (obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
                 anim = ANIM_FALL_BACK;
                 break;
@@ -1661,7 +1661,7 @@ int pick_fall(Object* obj, int anim)
     } else if (anim == ANIM_FALL_BACK) {
         rotation = (obj->rotation + 3) % ROTATION_COUNT;
         for (i = 1; i < 3; i++) {
-            tile_num = tileGetTileInDirection(obj->tile, rotation, i);
+            tile_num = tile_num_in_direction(obj->tile, rotation, i);
             if (obj_blocking_at(obj, tile_num, obj->elevation) != NULL) {
                 anim = ANIM_FALL_FRONT;
                 break;
@@ -1726,7 +1726,7 @@ int action_explode(int tile, int elevation, int minDamage, int maxDamage, Object
         obj_turn_off(adjacentExplosions[rotation], NULL);
         adjacentExplosions[rotation]->flags |= OBJECT_TEMPORARY;
 
-        int adjacentTile = tileGetTileInDirection(tile, rotation, 1);
+        int adjacentTile = tile_num_in_direction(tile, rotation, 1);
         obj_move_to_tile(adjacentExplosions[rotation], adjacentTile, elevation, NULL);
     }
 
@@ -2170,35 +2170,35 @@ int action_push_critter(Object* a1, Object* a2)
         }
     }
 
-    int rotation = tileGetRotationTo(a1->tile, a2->tile);
+    int rotation = tile_dir(a1->tile, a2->tile);
     int tile;
     do {
-        tile = tileGetTileInDirection(a2->tile, rotation, 1);
+        tile = tile_num_in_direction(a2->tile, rotation, 1);
         if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
-        tile = tileGetTileInDirection(a2->tile, (rotation + 1) % ROTATION_COUNT, 1);
+        tile = tile_num_in_direction(a2->tile, (rotation + 1) % ROTATION_COUNT, 1);
         if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
-        tile = tileGetTileInDirection(a2->tile, (rotation + 5) % ROTATION_COUNT, 1);
+        tile = tile_num_in_direction(a2->tile, (rotation + 5) % ROTATION_COUNT, 1);
         if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
-        tile = tileGetTileInDirection(a2->tile, (rotation + 2) % ROTATION_COUNT, 1);
+        tile = tile_num_in_direction(a2->tile, (rotation + 2) % ROTATION_COUNT, 1);
         if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
-        tile = tileGetTileInDirection(a2->tile, (rotation + 4) % ROTATION_COUNT, 1);
+        tile = tile_num_in_direction(a2->tile, (rotation + 4) % ROTATION_COUNT, 1);
         if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
 
-        tile = tileGetTileInDirection(a2->tile, (rotation + 3) % ROTATION_COUNT, 1);
+        tile = tile_num_in_direction(a2->tile, (rotation + 3) % ROTATION_COUNT, 1);
         if (obj_blocking_at(a2, tile, a2->elevation) == NULL) {
             break;
         }
@@ -2229,7 +2229,7 @@ int action_can_talk_to(Object* a1, Object* a2)
         return -1;
     }
 
-    if (tileDistanceBetween(a1->tile, a2->tile) > 12) {
+    if (tile_dist(a1->tile, a2->tile) > 12) {
         return -2;
     }
 

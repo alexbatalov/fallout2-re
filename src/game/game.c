@@ -180,7 +180,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     screenshotHandlerConfigure(KEY_F12, game_screendump);
     pauseHandlerConfigure(-1, NULL);
 
-    tileDisable();
+    tile_disable_refresh();
 
     roll_init();
     init_message();
@@ -349,7 +349,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 // 0x442B84
 void game_reset()
 {
-    tileDisable();
+    tile_disable_refresh();
     palette_reset();
     roll_reset();
     skill_reset();
@@ -390,7 +390,7 @@ void game_exit()
 {
     debugPrint("\nGame Exit\n");
 
-    tileDisable();
+    tile_disable_refresh();
     message_exit(&misc_message_file);
     combat_exit();
     gdialogExit();
@@ -666,9 +666,9 @@ int game_handle_input(int eventCode, bool isInCombatMode)
         }
 
         if (game_in_mapper) {
-            tileSetCenter(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
+            tile_set_center(obj_dude->tile, TILE_SET_CENTER_REFRESH_WINDOW);
         } else {
-            _tile_scroll_to(obj_dude->tile, 2);
+            tile_scroll_to(obj_dude->tile, 2);
         }
 
         break;

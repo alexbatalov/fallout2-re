@@ -773,7 +773,7 @@ int PauseWindow(bool a1)
     }
 
     if (!a1) {
-        tileWindowRefresh();
+        tile_refresh_display();
     }
 
     windowDestroy(window);
@@ -810,7 +810,7 @@ static void ShadeScreen(bool a1)
         mouse_hide();
     } else {
         mouse_hide();
-        tileWindowRefresh();
+        tile_refresh_display();
 
         int windowWidth = 640;
         int windowHeight = windowGetHeight(display_win);

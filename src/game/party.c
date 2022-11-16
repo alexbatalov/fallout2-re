@@ -805,7 +805,7 @@ int partyMemberSyncPosition()
                 rotation = counterClockwiseRotation;
             }
 
-            int tile = tileGetTileInDirection(obj_dude->tile, rotation, distance / 2);
+            int tile = tile_num_in_direction(obj_dude->tile, rotation, distance / 2);
             objPMAttemptPlacement(partyMemberObj, tile, obj_dude->elevation);
 
             distance++;
@@ -1545,7 +1545,7 @@ int partyMemberIncLevels()
                         name = critter_name(obj);
                         sprintf(str, msg.text, name);
                         text_object_create(obj, str, 101, colorTable[0x7FFF], colorTable[0], &v19);
-                        tileWindowRefreshRect(&v19, obj->elevation);
+                        tile_refresh_rect(&v19, obj->elevation);
                     }
                 }
             }

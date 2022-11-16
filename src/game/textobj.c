@@ -296,7 +296,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
         textObject->tile = object->tile;
     } else {
         textObject->flags |= TEXT_OBJECT_UNBOUNDED;
-        textObject->tile = gCenterTile;
+        textObject->tile = tile_center_tile;
     }
 
     text_object_get_offset(textObject);
@@ -330,7 +330,7 @@ void text_object_render(Rect* rect)
 
     for (int index = 0; index < text_object_index; index++) {
         TextObject* textObject = text_object_list[index];
-        tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
+        tile_coord(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
         textObject->x += textObject->sx;
         textObject->y += textObject->sy;
 
@@ -371,7 +371,7 @@ static void text_object_bk()
 
         unsigned int delay = text_object_line_delay * textObject->linesCount + text_object_base_delay;
         if ((textObject->flags & TEXT_OBJECT_MARKED_FOR_REMOVAL) != 0 || (getTicksBetween(_get_bk_time(), textObject->time) > delay)) {
-            tileToScreenXY(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
+            tile_coord(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
             textObject->x += textObject->sx;
             textObject->y += textObject->sy;
 
@@ -399,7 +399,7 @@ static void text_object_bk()
     }
 
     if (textObjectsRemoved) {
-        tileWindowRefreshRect(&dirtyRect, map_elevation);
+        tile_refresh_rect(&dirtyRect, map_elevation);
     }
 }
 
@@ -410,7 +410,7 @@ static void text_object_get_offset(TextObject* textObject)
 {
     int tileScreenX;
     int tileScreenY;
-    tileToScreenXY(textObject->tile, &tileScreenX, &tileScreenY, map_elevation);
+    tile_coord(textObject->tile, &tileScreenX, &tileScreenY, map_elevation);
     textObject->x = tileScreenX + 16 - textObject->width / 2;
     textObject->y = tileScreenY;
 

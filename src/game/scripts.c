@@ -410,7 +410,7 @@ int scriptsCheckGameEvents(int* moviePtr, int window)
     if (endgame) {
         game_user_wants_to_quit = 2;
     } else {
-        tileWindowRefresh();
+        tile_refresh_display();
     }
 
     if (moviePtr != NULL) {
@@ -878,7 +878,7 @@ int scripts_check_state()
                         int pid = elevatorDoors->pid;
                         if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                             && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
-                            && tileDistanceBetween(elevatorDoors->tile, obj_dude->tile) <= 4) {
+                            && tile_dist(elevatorDoors->tile, obj_dude->tile) <= 4) {
                             break;
                         }
                         elevatorDoors = obj_find_next_at();
@@ -904,7 +904,7 @@ int scripts_check_state()
                     int pid = elevatorDoors->pid;
                     if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                         && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
-                        && tileDistanceBetween(elevatorDoors->tile, obj_dude->tile) <= 4) {
+                        && tile_dist(elevatorDoors->tile, obj_dude->tile) <= 4) {
                         break;
                     }
                     elevatorDoors = obj_find_next_at();
@@ -984,7 +984,7 @@ int scripts_check_state_in_combat()
                         int pid = elevatorDoors->pid;
                         if (PID_TYPE(pid) == OBJ_TYPE_SCENERY
                             && (pid == PROTO_ID_0x2000099 || pid == PROTO_ID_0x20001A5 || pid == PROTO_ID_0x20001D6)
-                            && tileDistanceBetween(elevatorDoors->tile, obj_dude->tile) <= 4) {
+                            && tile_dist(elevatorDoors->tile, obj_dude->tile) <= 4) {
                             break;
                         }
                         elevatorDoors = obj_find_next_at();
@@ -2449,7 +2449,7 @@ bool scr_chk_spatials_in(Object* object, int tile, int elevation)
                 continue;
             }
 
-            int distance = tileDistanceBetween(builtTileGetTile(script->sp.built_tile), tile);
+            int distance = tile_dist(builtTileGetTile(script->sp.built_tile), tile);
             if (distance > script->sp.radius) {
                 continue;
             }
@@ -2798,7 +2798,7 @@ int scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
             if (script->procs[SCRIPT_PROC_DAMAGE] > 0) {
                 Object* self = script->owner;
                 if (self != NULL) {
-                    if (self->elevation == elevation && tileDistanceBetween(self->tile, tile) <= radius) {
+                    if (self->elevation == elevation && tile_dist(self->tile, tile) <= radius) {
                         scriptIds[scriptsCount] = script->sid;
                         scriptsCount += 1;
                     }
@@ -2818,7 +2818,7 @@ int scr_explode_scenery(Object* a1, int tile, int radius, int elevation)
 
             if (script->procs[SCRIPT_PROC_DAMAGE] > 0
                 && builtTileGetElevation(script->sp.built_tile) == elevation
-                && tileDistanceBetween(builtTileGetTile(script->sp.built_tile), tile) <= radius) {
+                && tile_dist(builtTileGetTile(script->sp.built_tile), tile) <= radius) {
                 scriptIds[scriptsCount] = script->sid;
                 scriptsCount += 1;
             }

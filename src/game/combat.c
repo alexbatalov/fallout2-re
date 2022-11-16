@@ -2524,7 +2524,7 @@ static void combat_begin(Object* a1)
 
         combat_state |= COMBAT_STATE_0x01;
 
-        tileWindowRefresh();
+        tile_refresh_display();
         game_ui_disable(0);
         gmouse_set_cursor(MOUSE_CURSOR_WAIT_WATCH);
         combat_ending_guy = NULL;
@@ -2717,7 +2717,7 @@ static void combat_over()
         }
     }
 
-    tileWindowRefresh();
+    tile_refresh_display();
 
     int leftItemAction;
     int rightItemAction;
@@ -3212,7 +3212,7 @@ static int combat_turn(Object* a1, bool a2)
             } else {
                 Rect rect;
                 if (obj_turn_on_outline(a1, &rect) == 0) {
-                    tileWindowRefreshRect(&rect, a1->elevation);
+                    tile_refresh_rect(&rect, a1->elevation);
                 }
 
                 combat_ai(a1, gcsd != NULL ? gcsd->defender : NULL);
@@ -3235,7 +3235,7 @@ static int combat_turn(Object* a1, bool a2)
         } else {
             Rect rect;
             if (obj_turn_off_outline(a1, &rect) == 0) {
-                tileWindowRefreshRect(&rect, a1->elevation);
+                tile_refresh_rect(&rect, a1->elevation);
             }
         }
     }
@@ -3478,15 +3478,15 @@ int combat_attack(Object* a1, Object* a2, int hitMode, int hitLocation)
 // 0x423104
 int combat_bullet_start(const Object* a1, const Object* a2)
 {
-    int rotation = tileGetRotationTo(a1->tile, a2->tile);
-    return tileGetTileInDirection(a1->tile, rotation, 1);
+    int rotation = tile_dir(a1->tile, a2->tile);
+    return tile_num_in_direction(a1->tile, rotation, 1);
 }
 
 // 0x423128
 static bool check_ranged_miss(Attack* attack)
 {
     int range = item_w_range(attack->attacker, attack->hitMode);
-    int to = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
+    int to = tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
 
     int roll = ROLL_FAILURE;
     Object* critter = attack->attacker;
@@ -3673,24 +3673,24 @@ static int compute_spray(Attack* attack, int accuracy, int* roundsHitMainTargetP
     }
 
     int range = item_w_range(attack->attacker, attack->hitMode);
-    int mainTargetEndTile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
+    int mainTargetEndTile = tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
     *roundsHitMainTargetPtr += shoot_along_path(attack, mainTargetEndTile, centerRounds - *roundsHitMainTargetPtr, anim);
 
     int centerTile;
     if (obj_dist(attack->attacker, attack->defender) <= 3) {
-        centerTile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, 3);
+        centerTile = tile_num_beyond(attack->attacker->tile, attack->defender->tile, 3);
     } else {
         centerTile = attack->defender->tile;
     }
 
-    int rotation = tileGetRotationTo(centerTile, attack->attacker->tile);
+    int rotation = tile_dir(centerTile, attack->attacker->tile);
 
-    int leftTile = tileGetTileInDirection(centerTile, (rotation + 1) % ROTATION_COUNT, 1);
-    int leftEndTile = _tile_num_beyond(attack->attacker->tile, leftTile, range);
+    int leftTile = tile_num_in_direction(centerTile, (rotation + 1) % ROTATION_COUNT, 1);
+    int leftEndTile = tile_num_beyond(attack->attacker->tile, leftTile, range);
     *roundsHitMainTargetPtr += shoot_along_path(attack, leftEndTile, leftRounds, anim);
 
-    int rightTile = tileGetTileInDirection(centerTile, (rotation + 5) % ROTATION_COUNT, 1);
-    int rightEndTile = _tile_num_beyond(attack->attacker->tile, rightTile, range);
+    int rightTile = tile_num_in_direction(centerTile, (rotation + 5) % ROTATION_COUNT, 1);
+    int rightEndTile = tile_num_beyond(attack->attacker->tile, rightTile, range);
     *roundsHitMainTargetPtr += shoot_along_path(attack, rightEndTile, rightRounds, anim);
 
     if (roll != ROLL_FAILURE || (*roundsHitMainTargetPtr <= 0 && attack->extrasLength <= 0)) {
@@ -3845,9 +3845,9 @@ static int compute_attack(Attack* attack)
                 }
 
                 int rotation = roll_random(0, 5);
-                tile = tileGetTileInDirection(attack->defender->tile, rotation, throwDistance);
+                tile = tile_num_in_direction(attack->defender->tile, rotation, throwDistance);
             } else {
-                tile = _tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
+                tile = tile_num_beyond(attack->attacker->tile, attack->defender->tile, range);
             }
 
             attack->tile = tile;
@@ -3919,7 +3919,7 @@ void compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
     int v5 = -1;
     int v19 = tile;
     while (attack->extrasLength < 6) {
-        if (v22 != 0 && (v5 == -1 || (v5 = tileGetTileInDirection(v5, rotation, 1)) != v19)) {
+        if (v22 != 0 && (v5 == -1 || (v5 = tile_num_in_direction(v5, rotation, 1)) != v19)) {
             v20++;
             if (v20 % v22 == 0) {
                 rotation += 1;
@@ -3932,7 +3932,7 @@ void compute_explosion_on_extras(Attack* attack, int a2, bool isGrenade, int a4)
             if (isGrenade && item_w_grenade_dmg_radius(attack->weapon) < v22) {
                 v5 = -1;
             } else if (isGrenade || item_w_rocket_dmg_radius(attack->weapon) >= v22) {
-                v5 = tileGetTileInDirection(v19, ROTATION_NE, 1);
+                v5 = tile_num_in_direction(v19, ROTATION_NE, 1);
             } else {
                 v5 = -1;
             }
@@ -5714,7 +5714,7 @@ void combat_outline_on()
     // NOTE: Uninline.
     combat_update_critters_in_los(1);
 
-    tileWindowRefresh();
+    tile_refresh_display();
 }
 
 // 0x426BC0
@@ -5739,7 +5739,7 @@ void combat_outline_off()
         }
     }
 
-    tileWindowRefresh();
+    tile_refresh_display();
 }
 
 // 0x426C64
@@ -5793,8 +5793,8 @@ bool combat_is_shot_blocked(Object* a1, int from, int to, Object* a4, int* a5)
             }
 
             if ((obstacle->flags & OBJECT_MULTIHEX) != 0) {
-                int rotation = tileGetRotationTo(current, to);
-                current = tileGetTileInDirection(current, rotation, 1);
+                int rotation = tile_dir(current, to);
+                current = tile_num_in_direction(current, rotation, 1);
             } else {
                 current = obstacle->tile;
             }

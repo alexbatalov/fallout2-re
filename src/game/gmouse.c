@@ -649,7 +649,7 @@ void gmouse_bk_process()
 
     Rect r1;
     if (gmouse_3d_move_to(mouseX, mouseY, map_elevation, &r1) == 0) {
-        tileWindowRefreshRect(&r1, map_elevation);
+        tile_refresh_rect(&r1, map_elevation);
     }
 
     if ((obj_mouse_flat->flags & OBJECT_HIDDEN) != 0 || gmouse_mapper_mode != 0) {
@@ -677,7 +677,7 @@ void gmouse_bk_process()
                         if (gmouse_3d_item_highlight) {
                             Rect tmp;
                             if (obj_outline_object(pointedObject, OUTLINE_TYPE_ITEM, &tmp) == 0) {
-                                tileWindowRefreshRect(&tmp, map_elevation);
+                                tile_refresh_rect(&tmp, map_elevation);
                                 outlined_object = pointedObject;
                             }
                         }
@@ -719,7 +719,7 @@ void gmouse_bk_process()
                             int fid = art_id(OBJ_TYPE_INTERFACE, 282, 0, 0, 0);
                             // NOTE: Uninline.
                             if (gmouse_3d_set_flat_fid(fid, &tmp) == 0) {
-                                tileWindowRefreshRect(&tmp, map_elevation);
+                                tile_refresh_rect(&tmp, map_elevation);
                             }
                         }
                     }
@@ -783,7 +783,7 @@ void gmouse_bk_process()
                         int fid = art_id(OBJ_TYPE_INTERFACE, 284, 0, 0, 0);
                         // NOTE: Uninline.
                         if (gmouse_3d_set_flat_fid(fid, &tmp) == 0) {
-                            tileWindowRefreshRect(&tmp, map_elevation);
+                            tile_refresh_rect(&tmp, map_elevation);
                         }
                     }
 
@@ -793,7 +793,7 @@ void gmouse_bk_process()
                 } else {
                     Rect tmp;
                     if (gmouse_3d_reset_flat_fid(&tmp) == 0) {
-                        tileWindowRefreshRect(&tmp, map_elevation);
+                        tile_refresh_rect(&tmp, map_elevation);
                     }
                 }
 
@@ -835,7 +835,7 @@ void gmouse_bk_process()
         if (gmouse_3d_build_hex_frame(formattedActionPoints, color) == 0) {
             Rect tmp;
             obj_bound(obj_mouse_flat, &tmp);
-            tileWindowRefreshRect(&tmp, 0);
+            tile_refresh_rect(&tmp, 0);
         }
 
         gmouse_3d_last_move_time = v3;
@@ -874,10 +874,10 @@ void gmouse_bk_process()
         rectUnion(&r2, &r26, &r2);
         // FALLTHROUGH
     case 1:
-        tileWindowRefreshRect(&r2, map_elevation);
+        tile_refresh_rect(&r2, map_elevation);
         break;
     case 2:
-        tileWindowRefreshRect(&r26, map_elevation);
+        tile_refresh_rect(&r26, map_elevation);
         break;
     }
 }
@@ -954,7 +954,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                         if (FID_ANIM_TYPE(obj_dude->fid) == ANIM_STAND) {
                             Rect a1;
                             if (obj_inc_rotation(v5, &a1) == 0) {
-                                tileWindowRefreshRect(&a1, v5->elevation);
+                                tile_refresh_rect(&a1, v5->elevation);
                             }
                         }
                     } else {
@@ -1120,7 +1120,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 int fid = art_id(OBJ_TYPE_INTERFACE, 283, 0, 0, 0);
                 // NOTE: Uninline.
                 if (gmouse_3d_set_flat_fid(fid, &v43) == 0 && gmouse_3d_move_to(mouseX, mouseY, map_elevation, &v43) == 0) {
-                    tileWindowRefreshRect(&v43, map_elevation);
+                    tile_refresh_rect(&v43, map_elevation);
                     map_disable_bk_processes();
 
                     int v33 = mouseY;
@@ -1144,7 +1144,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                             }
 
                             if (gmouse_3d_highlight_menu_frame(actionIndex) == 0) {
-                                tileWindowRefreshRect(&v43, map_elevation);
+                                tile_refresh_rect(&v43, map_elevation);
                             }
                             v33 = v47;
                         }
@@ -1160,7 +1160,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     mouse_set_position(mouseX, v33);
 
                     if (gmouse_3d_reset_flat_fid(&v43) == 0) {
-                        tileWindowRefreshRect(&v43, map_elevation);
+                        tile_refresh_rect(&v43, map_elevation);
                     }
 
                     switch (actionMenuItems[actionIndex]) {
@@ -1174,7 +1174,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_ROTATE:
                         if (obj_inc_rotation(v16, &v43) == 0) {
-                            tileWindowRefreshRect(&v43, v16->elevation);
+                            tile_refresh_rect(&v43, v16->elevation);
                         }
                         break;
                     case GAME_MOUSE_ACTION_MENU_ITEM_TALK:
@@ -1406,7 +1406,7 @@ void gmouse_3d_set_mode(int mode)
     gmouse_3d_hover_test = false;
     gmouse_3d_last_move_time = _get_time();
 
-    tileWindowRefreshRect(&rect, map_elevation);
+    tile_refresh_rect(&rect, map_elevation);
 
     switch (v5) {
     case 1:
@@ -1492,12 +1492,12 @@ int gmouse_3d_set_fid(int fid)
 
     if ((obj_mouse_flat->flags & OBJECT_HIDDEN) == 0) {
         if (v1 == 1) {
-            tileWindowRefreshRect(&oldRect, map_elevation);
+            tile_refresh_rect(&oldRect, map_elevation);
         } else if (v1 == 2) {
-            tileWindowRefreshRect(&rect, map_elevation);
+            tile_refresh_rect(&rect, map_elevation);
         } else if (v1 == 3) {
             rectUnion(&oldRect, &rect, &oldRect);
-            tileWindowRefreshRect(&oldRect, map_elevation);
+            tile_refresh_rect(&oldRect, map_elevation);
         }
     }
 
@@ -1580,7 +1580,7 @@ void gmouse_3d_on()
             assert(false && "Should be unreachable");
         }
 
-        tileWindowRefreshRect(rect, map_elevation);
+        tile_refresh_rect(rect, map_elevation);
     }
 
     gmouse_3d_hover_test = false;
@@ -1607,12 +1607,12 @@ void gmouse_3d_off()
     }
 
     if (v1 == 1) {
-        tileWindowRefreshRect(&rect1, map_elevation);
+        tile_refresh_rect(&rect1, map_elevation);
     } else if (v1 == 2) {
-        tileWindowRefreshRect(&rect2, map_elevation);
+        tile_refresh_rect(&rect2, map_elevation);
     } else if (v1 == 3) {
         rectUnion(&rect1, &rect2, &rect1);
-        tileWindowRefreshRect(&rect1, map_elevation);
+        tile_refresh_rect(&rect1, map_elevation);
     }
 }
 
@@ -1631,7 +1631,7 @@ Object* object_under_mouse(int objectType, bool a2, int elevation)
 
     bool v13 = false;
     if (objectType == -1) {
-        if (_square_roof_intersect(mouseX, mouseY, elevation)) {
+        if (square_roof_intersect(mouseX, mouseY, elevation)) {
             if (obj_intersects_with(obj_egg, mouseX, mouseY) == 0) {
                 v13 = true;
             }
@@ -2247,14 +2247,14 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
 
             obj_move(obj_mouse_flat, x + offsetX, y + offsetY, elevation, a4);
         } else {
-            int tile = tileFromScreenXY(x, y, 0);
+            int tile = tile_num(x, y, 0);
             if (tile != -1) {
                 int screenX;
                 int screenY;
 
                 bool v1 = false;
                 Rect rect1;
-                if (tileToScreenXY(tile, &screenX, &screenY, 0) == 0) {
+                if (tile_coord(tile, &screenX, &screenY, 0) == 0) {
                     if (obj_move(obj_mouse, screenX + 16, screenY + 15, 0, &rect1) == 0) {
                         v1 = true;
                     }
@@ -2281,7 +2281,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
 
     int fid = obj_mouse->fid;
     if (FID_TYPE(fid) == OBJ_TYPE_TILE) {
-        int squareTile = squareTileFromScreenXY(x, y, elevation);
+        int squareTile = square_num(x, y, elevation);
         if (squareTile == -1) {
             tile = HEX_GRID_WIDTH * (2 * (squareTile / SQUARE_GRID_WIDTH) + 1) + 2 * (squareTile % SQUARE_GRID_WIDTH) + 1;
             x1 = -8;
@@ -2290,7 +2290,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
             char* executable;
             config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_EXECUTABLE_KEY, &executable);
             if (stricmp(executable, "mapper") == 0) {
-                if (tileRoofIsVisible()) {
+                if (tile_roof_visible()) {
                     if ((obj_dude->flags & OBJECT_HIDDEN) == 0) {
                         y1 = -83;
                     }
@@ -2300,7 +2300,7 @@ static int gmouse_3d_move_to(int x, int y, int elevation, Rect* a4)
             tile = -1;
         }
     } else {
-        tile = tileFromScreenXY(x, y, elevation);
+        tile = tile_num(x, y, elevation);
     }
 
     if (tile != -1) {
@@ -2455,7 +2455,7 @@ void gmouse_remove_item_outline(Object* object)
     if (outlined_object != NULL && outlined_object == object) {
         Rect rect;
         if (obj_remove_outline(object, &rect) == 0) {
-            tileWindowRefreshRect(&rect, map_elevation);
+            tile_refresh_rect(&rect, map_elevation);
         }
         outlined_object = NULL;
     }

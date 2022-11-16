@@ -300,7 +300,7 @@ int obj_init(unsigned char* buf, int width, int height, int pitch)
     obj_light_table_init();
     obj_blend_table_init();
 
-    centerToUpperLeft = tileFromScreenXY(updateAreaPixelBounds.left, updateAreaPixelBounds.top, 0) - gCenterTile;
+    centerToUpperLeft = tile_num(updateAreaPixelBounds.left, updateAreaPixelBounds.top, 0) - tile_center_tile;
     buf_width = width;
     buf_length = height;
     back_buf = buf;
@@ -774,11 +774,11 @@ void obj_render_pre_roof(Rect* rect, int elevation)
     int minY = updatedRect.top - 240;
     int maxX = updatedRect.right + 320;
     int maxY = updatedRect.bottom + 240;
-    int topLeftTile = tileFromScreenXY(minX, minY, elevation);
+    int topLeftTile = tile_num(minX, minY, elevation);
     int updateAreaHexWidth = (maxX - minX + 1) / 32;
     int updateAreaHexHeight = (maxY - minY + 1) / 12;
 
-    int parity = gCenterTile & 1;
+    int parity = tile_center_tile & 1;
     int* orders = orderTable[parity];
     int* offsets = offsetTable[parity];
 
@@ -1462,11 +1462,11 @@ int obj_move_to_tile(Object* obj, int tile, int elevation, Rect* rect)
 
             if (isEmpty != obj_last_is_empty || (((currentSquare >> 16) & 0xF000) >> 12) != (((previousSquare >> 16) & 0xF000) >> 12)) {
                 if (!obj_last_is_empty) {
-                    _tile_fill_roof(obj_last_roof_x, obj_last_roof_y, elevation, 1);
+                    tile_fill_roof(obj_last_roof_x, obj_last_roof_y, elevation, 1);
                 }
 
                 if (!isEmpty) {
-                    _tile_fill_roof(roofX, roofY, elevation, 0);
+                    tile_fill_roof(roofX, roofY, elevation, 0);
                 }
 
                 if (rect != NULL) {
@@ -1490,7 +1490,7 @@ int obj_move_to_tile(Object* obj, int tile, int elevation, Rect* rect)
 
         if (elevation != oldElevation) {
             map_set_elevation(elevation);
-            tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
+            tile_set_center(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
             if (isInCombat()) {
                 game_user_wants_to_quit = 1;
             }
@@ -1509,7 +1509,7 @@ int obj_reset_roof()
 {
     int fid = art_id(OBJ_TYPE_TILE, (square[obj_dude->elevation]->field_0[obj_last_roof_x + 100 * obj_last_roof_y] >> 16) & 0xFFF, 0, 0, 0);
     if (fid != art_id(OBJ_TYPE_TILE, 1, 0, 0, 0)) {
-        _tile_fill_roof(obj_last_roof_x, obj_last_roof_y, obj_dude->elevation, 1);
+        tile_fill_roof(obj_last_roof_x, obj_last_roof_y, obj_dude->elevation, 1);
     }
     return 0;
 }
@@ -2342,7 +2342,7 @@ void obj_bound(Object* obj, Rect* rect)
     } else {
         int tileScreenY;
         int tileScreenX;
-        if (tileToScreenXY(obj->tile, &tileScreenX, &tileScreenY, obj->elevation) == 0) {
+        if (tile_coord(obj->tile, &tileScreenX, &tileScreenY, obj->elevation) == 0) {
             tileScreenX += 16;
             tileScreenY += 8;
 
@@ -2419,7 +2419,7 @@ Object* obj_blocking_at(Object* a1, int tile, int elev)
     }
 
     for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-        int neighboor = tileGetTileInDirection(tile, rotation, 1);
+        int neighboor = tile_num_in_direction(tile, rotation, 1);
         if (hexGridTileIsValid(neighboor)) {
             objectListNode = objectTable[neighboor];
             while (objectListNode != NULL) {
@@ -2467,7 +2467,7 @@ Object* obj_shoot_blocking_at(Object* obj, int tile, int elev)
     }
 
     for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-        int adjacentTile = tileGetTileInDirection(tile, rotation, 1);
+        int adjacentTile = tile_num_in_direction(tile, rotation, 1);
         if (!hexGridTileIsValid(adjacentTile)) {
             continue;
         }
@@ -2523,7 +2523,7 @@ Object* obj_ai_blocking_at(Object* a1, int tile, int elevation)
     }
 
     for (int rotation = 0; rotation < ROTATION_COUNT; rotation++) {
-        int candidate = tileGetTileInDirection(tile, rotation, 1);
+        int candidate = tile_num_in_direction(tile, rotation, 1);
         if (!hexGridTileIsValid(candidate)) {
             continue;
         }
@@ -2608,7 +2608,7 @@ int obj_dist(Object* object1, Object* object2)
         return 0;
     }
 
-    int distance = tileDistanceBetween(object1->tile, object2->tile);
+    int distance = tile_dist(object1->tile, object2->tile);
 
     if ((object1->flags & OBJECT_MULTIHEX) != 0) {
         distance -= 1;
@@ -2632,7 +2632,7 @@ int obj_dist_with_tile(Object* object1, int tile1, Object* object2, int tile2)
         return 0;
     }
 
-    int distance = tileDistanceBetween(tile1, tile2);
+    int distance = tile_dist(tile1, tile2);
 
     if ((object1->flags & OBJECT_MULTIHEX) != 0) {
         distance -= 1;
@@ -2916,7 +2916,7 @@ int obj_intersects_with(Object* object, int x, int y)
             } else {
                 int tileScreenX;
                 int tileScreenY;
-                tileToScreenXY(object->tile, &tileScreenX, &tileScreenY, object->elevation);
+                tile_coord(object->tile, &tileScreenX, &tileScreenY, object->elevation);
                 tileScreenX += 16;
                 tileScreenY += 8;
 
@@ -2953,15 +2953,15 @@ int obj_intersects_with(Object* object, int x, int y)
                                 bool v20;
                                 int extendedFlags = proto->scenery.extendedFlags;
                                 if ((extendedFlags & 0x8000000) != 0 || (extendedFlags & 0x80000000) != 0) {
-                                    v20 = tileIsInFrontOf(object->tile, obj_dude->tile);
+                                    v20 = tile_in_front_of(object->tile, obj_dude->tile);
                                 } else if ((extendedFlags & 0x10000000) != 0) {
                                     // NOTE: Original code uses bitwise or, but given the fact that these functions return
                                     // bools, logical or is more suitable.
-                                    v20 = tileIsInFrontOf(object->tile, obj_dude->tile) || tileIsToRightOf(obj_dude->tile, object->tile);
+                                    v20 = tile_in_front_of(object->tile, obj_dude->tile) || tile_to_right_of(obj_dude->tile, object->tile);
                                 } else if ((extendedFlags & 0x20000000) != 0) {
-                                    v20 = tileIsInFrontOf(object->tile, obj_dude->tile) && tileIsToRightOf(obj_dude->tile, object->tile);
+                                    v20 = tile_in_front_of(object->tile, obj_dude->tile) && tile_to_right_of(obj_dude->tile, object->tile);
                                 } else {
-                                    v20 = tileIsToRightOf(obj_dude->tile, object->tile);
+                                    v20 = tile_to_right_of(obj_dude->tile, object->tile);
                                 }
 
                                 if (v20) {
@@ -2985,7 +2985,7 @@ int obj_intersects_with(Object* object, int x, int y)
 // 0x48C5C4
 int obj_create_intersect_list(int x, int y, int elevation, int objectType, ObjectWithFlags** entriesPtr)
 {
-    int v5 = tileFromScreenXY(x - 320, y - 240, elevation);
+    int v5 = tile_num(x - 320, y - 240, elevation);
     *entriesPtr = NULL;
 
     if (updateHexArea <= 0) {
@@ -2994,7 +2994,7 @@ int obj_create_intersect_list(int x, int y, int elevation, int objectType, Objec
 
     int count = 0;
 
-    int parity = gCenterTile & 1;
+    int parity = tile_center_tile & 1;
     for (int index = 0; index < updateHexArea; index++) {
         int v7 = orderTable[parity][index];
         if (offsetDivTable[v7] < 30 && offsetModTable[v7] < 20) {
@@ -3246,12 +3246,12 @@ static int obj_offset_table_init()
     }
 
     for (int parity = 0; parity < 2; parity++) {
-        int originTile = tileFromScreenXY(updateAreaPixelBounds.left, updateAreaPixelBounds.top, 0);
+        int originTile = tile_num(updateAreaPixelBounds.left, updateAreaPixelBounds.top, 0);
         if (originTile != -1) {
-            int* offsets = offsetTable[gCenterTile & 1];
+            int* offsets = offsetTable[tile_center_tile & 1];
             int originTileX;
             int originTileY;
-            tileToScreenXY(originTile, &originTileX, &originTileY, 0);
+            tile_coord(originTile, &originTileX, &originTileY, 0);
 
             int parityShift = 16;
             originTileX += 16;
@@ -3263,7 +3263,7 @@ static int obj_offset_table_init()
             int tileX = originTileX;
             for (int y = 0; y < updateHexHeight; y++) {
                 for (int x = 0; x < updateHexWidth; x++) {
-                    int tile = tileFromScreenXY(tileX, originTileY, 0);
+                    int tile = tile_num(tileX, originTileY, 0);
                     if (tile == -1) {
                         goto err;
                     }
@@ -3278,7 +3278,7 @@ static int obj_offset_table_init()
             }
         }
 
-        if (tileSetCenter(gCenterTile + 1, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) == -1) {
+        if (tile_set_center(tile_center_tile + 1, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS) == -1) {
             goto err;
         }
     }
@@ -3434,15 +3434,15 @@ static void obj_render_table_exit()
 static void obj_light_table_init()
 {
     for (int s = 0; s < 2; s++) {
-        int v4 = gCenterTile + s;
+        int v4 = tile_center_tile + s;
         for (int i = 0; i < ROTATION_COUNT; i++) {
             int v15 = 8;
             int* p = light_offsets[v4 & 1][i];
             for (int j = 0; j < 8; j++) {
-                int tile = tileGetTileInDirection(v4, (i + 1) % ROTATION_COUNT, j);
+                int tile = tile_num_in_direction(v4, (i + 1) % ROTATION_COUNT, j);
 
                 for (int m = 0; m < v15; m++) {
-                    *p++ = tileGetTileInDirection(tile, i, m + 1) - v4;
+                    *p++ = tile_num_in_direction(tile, i, m + 1) - v4;
                 }
 
                 v15--;
@@ -3617,7 +3617,7 @@ int obj_save_dude(File* stream)
     obj_dude->sid = field_78;
     obj_dude->flags |= OBJECT_TEMPORARY;
 
-    if (fileWriteInt32(stream, gCenterTile) == -1) {
+    if (fileWriteInt32(stream, tile_center_tile) == -1) {
         fileClose(stream);
         return -1;
     }
@@ -3696,7 +3696,7 @@ int obj_load_dude(File* stream)
         return -1;
     }
 
-    tileSetCenter(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
+    tile_set_center(tile, TILE_SET_CENTER_REFRESH_WINDOW | TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
 
     return rc;
 }
@@ -4614,7 +4614,7 @@ static int obj_adjust_light(Object* obj, int a2, Rect* rect)
 
         int x;
         int y;
-        tileToScreenXY(obj->tile, &x, &y, obj->elevation);
+        tile_coord(obj->tile, &x, &y, obj->elevation);
         x += 16;
         y += 8;
 
@@ -4660,7 +4660,7 @@ static void obj_render_outline(Object* object, Rect* rect)
     } else {
         int x;
         int y;
-        tileToScreenXY(object->tile, &x, &y, object->elevation);
+        tile_coord(object->tile, &x, &y, object->elevation);
         x += 16;
         y += 8;
 
@@ -4906,7 +4906,7 @@ static void obj_render_object(Object* object, Rect* rect, int light)
     } else {
         int objectScreenX;
         int objectScreenY;
-        tileToScreenXY(object->tile, &objectScreenX, &objectScreenY, object->elevation);
+        tile_coord(object->tile, &objectScreenX, &objectScreenY, object->elevation);
         objectScreenX += 16;
         objectScreenY += 8;
 
@@ -4958,9 +4958,9 @@ static void obj_render_object(Object* object, Rect* rect, int light)
             int extendedFlags = proto->critter.extendedFlags;
             if ((extendedFlags & 0x8000000) != 0 || (extendedFlags & 0x80000000) != 0) {
                 // TODO: Probably wrong.
-                v17 = tileIsInFrontOf(object->tile, obj_dude->tile);
+                v17 = tile_in_front_of(object->tile, obj_dude->tile);
                 if (!v17
-                    || !tileIsToRightOf(object->tile, obj_dude->tile)
+                    || !tile_to_right_of(object->tile, obj_dude->tile)
                     || (object->flags & OBJECT_WALL_TRANS_END) == 0) {
                     // nothing
                 } else {
@@ -4968,15 +4968,15 @@ static void obj_render_object(Object* object, Rect* rect, int light)
                 }
             } else if ((extendedFlags & 0x10000000) != 0) {
                 // NOTE: Uses bitwise OR, so both functions are evaluated.
-                v17 = tileIsInFrontOf(object->tile, obj_dude->tile)
-                    || tileIsToRightOf(obj_dude->tile, object->tile);
+                v17 = tile_in_front_of(object->tile, obj_dude->tile)
+                    || tile_to_right_of(obj_dude->tile, object->tile);
             } else if ((extendedFlags & 0x20000000) != 0) {
-                v17 = tileIsInFrontOf(object->tile, obj_dude->tile)
-                    && tileIsToRightOf(obj_dude->tile, object->tile);
+                v17 = tile_in_front_of(object->tile, obj_dude->tile)
+                    && tile_to_right_of(obj_dude->tile, object->tile);
             } else {
-                v17 = tileIsToRightOf(obj_dude->tile, object->tile);
+                v17 = tile_to_right_of(obj_dude->tile, object->tile);
                 if (v17
-                    && tileIsInFrontOf(obj_dude->tile, object->tile)
+                    && tile_in_front_of(obj_dude->tile, object->tile)
                     && (object->flags & OBJECT_WALL_TRANS_END) != 0) {
                     v17 = 0;
                 }
@@ -4995,7 +4995,7 @@ static void obj_render_object(Object* object, Rect* rect, int light)
 
                 int eggScreenX;
                 int eggScreenY;
-                tileToScreenXY(obj_egg->tile, &eggScreenX, &eggScreenY, obj_egg->elevation);
+                tile_coord(obj_egg->tile, &eggScreenX, &eggScreenY, obj_egg->elevation);
                 eggScreenX += 16;
                 eggScreenY += 8;
 
