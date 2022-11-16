@@ -1,4 +1,4 @@
-#include "win32.h"
+#include "plib/gnw/winmain.h"
 
 #include <signal.h>
 

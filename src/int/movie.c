@@ -14,7 +14,7 @@
 #include "int/sound.h"
 #include "text_font.h"
 #include "window_manager.h"
-#include "win32.h"
+#include "plib/gnw/winmain.h"
 
 typedef void(MovieCallback)();
 typedef int(MovieBlitFunc)(int win, unsigned char* data, int width, int height, int pitch);

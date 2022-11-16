@@ -2,7 +2,7 @@
 #define FALLOUT_INT_SOUND_H_
 
 #include "memory_defs.h"
-#include "win32.h"
+#include "plib/gnw/winmain.h"
 
 #define SOUND_FLAG_SOUND_IS_DONE 0x01
 #define SOUND_FLAG_SOUND_IS_PLAYING 0x02
