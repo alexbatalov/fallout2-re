@@ -30,7 +30,7 @@
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "game/trait.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 
 #define ANIMATION_SEQUENCE_LIST_CAPACITY 32
 #define ANIMATION_DESCRIPTION_LIST_CAPACITY 55

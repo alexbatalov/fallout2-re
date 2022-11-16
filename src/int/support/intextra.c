@@ -40,7 +40,7 @@
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "game/trait.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 #include "game/worldmap.h"
 
 typedef enum Metarule {

@@ -4,7 +4,7 @@
 #include "core.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/memory.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 
 static void mouse_colorize();
 static void mouse_anim();

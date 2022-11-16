@@ -8,7 +8,7 @@
 #include "plib/gnw/memory.h"
 #include "game/palette.h"
 #include "plib/gnw/text.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 #include "plib/gnw/intrface.h"
 
 static_assert(sizeof(MenuBar) == 572, "wrong size");

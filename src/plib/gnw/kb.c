@@ -2,7 +2,7 @@
 
 #include "core.h"
 #include "plib/gnw/dxinput.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 
 typedef struct key_ansi_t {
     short keys;

@@ -7,7 +7,7 @@
 #include "db.h"
 #include "game/game.h"
 #include "game/gconfig.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 
 typedef enum SelfrunState {
     SELFRUN_STATE_TURNED_OFF,

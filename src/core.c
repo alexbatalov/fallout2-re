@@ -6,7 +6,7 @@
 #include "plib/gnw/memory.h"
 #include "mmx.h"
 #include "plib/gnw/text.h"
-#include "vcr.h"
+#include "plib/gnw/vcr.h"
 #include "window_manager.h"
 #include "plib/gnw/intrface.h"
 
