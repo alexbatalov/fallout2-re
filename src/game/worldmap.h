@@ -1,5 +1,5 @@
-#ifndef WORLD_MAP_H
-#define WORLD_MAP_H
+#ifndef FALLOUT_GAME_WORLDMAP_H_
+#define FALLOUT_GAME_WORLDMAP_H_
 
 #include <stdbool.h>
 
@@ -277,4 +277,4 @@ int wmSetMapMusic(int mapIdx, const char* name);
 int wmMatchAreaContainingMapIdx(int mapIdx, int* areaIdxPtr);
 int wmTeleportToArea(int areaIdx);
 
-#endif /* WORLD_MAP_H */
+#endif /* FALLOUT_GAME_WORLDMAP_H_ */

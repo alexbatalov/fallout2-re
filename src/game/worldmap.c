@@ -568,28 +568,11 @@ static int wmAreaFindFirstValidMap(int* mapIdxPtr);
 
 static bool cityIsValid(int areaIdx);
 
-// 0x4BC860
-static const int _can_rest_here[ELEVATION_COUNT] = {
-    MAP_CAN_REST_ELEVATION_0,
-    MAP_CAN_REST_ELEVATION_1,
-    MAP_CAN_REST_ELEVATION_2,
-};
-
-// 0x4BC86C
-static const int gDayPartEncounterFrequencyModifiers[DAY_PART_COUNT] = {
-    40,
-    30,
-    0,
-};
-
 // 0x4BC878
 static const char* gWorldmapEncDefaultMsg[2] = {
     "You detect something up ahead.",
     "Do you wish to encounter it?",
 };
-
-// 0x4BC880
-static MessageListItem gWorldmapMessageListItem;
 
 // 0x50EE44
 static char _aCricket[] = "cricket";
@@ -768,15 +751,6 @@ static int wmRndIndex = 0;
 
 // 0x51DEA8
 static int wmRndCallCount = 0;
-
-// 0x51DEAC
-static int _terrainCounter = 1;
-
-// 0x51DEB0
-static unsigned int _lastTime_2 = 0;
-
-// 0x51DEB4
-static bool _couldScroll = true;
 
 // 0x51DEB8
 static unsigned char* wmTownBuffer = NULL;
@@ -2926,11 +2900,12 @@ bool wmMapDeadBodiesAge()
 // 0x4BFABC
 bool wmMapCanRestHere(int elevation)
 {
-    int flags[3];
-
-    // NOTE: I'm not sure why they're copied.
-    static_assert(sizeof(flags) == sizeof(_can_rest_here), "wrong size");
-    memcpy(flags, _can_rest_here, sizeof(flags));
+    // 0x4BC860
+    static const int flags[ELEVATION_COUNT] = {
+        MAP_CAN_REST_ELEVATION_0,
+        MAP_CAN_REST_ELEVATION_1,
+        MAP_CAN_REST_ELEVATION_2,
+    };
 
     MapInfo* map = &(wmMapInfoList[map_data.field_34]);
 
@@ -3485,11 +3460,12 @@ static int wmRndEncounterOccurred()
     }
 
     if (wmGenData.isInCar) {
-        int modifiers[DAY_PART_COUNT];
-
-        // NOTE: I'm not sure why they're copied.
-        static_assert(sizeof(modifiers) == sizeof(gDayPartEncounterFrequencyModifiers), "wrong size");
-        memcpy(modifiers, gDayPartEncounterFrequencyModifiers, sizeof(gDayPartEncounterFrequencyModifiers));
+        // 0x4BC86C
+        static const int modifiers[DAY_PART_COUNT] = {
+            40,
+            30,
+            0,
+        };
 
         frequency -= modifiers[dayPart];
     }
@@ -4354,13 +4330,16 @@ static void wmPartyInitWalking(int x, int y)
 // 0x4C1F90
 static void wmPartyWalkingStep()
 {
+    // 0x51DEAC
+    static int terrainCounter = 1;
+
     if (wmGenData.walkDistance <= 0) {
         return;
     }
 
-    _terrainCounter++;
-    if (_terrainCounter > 4) {
-        _terrainCounter = 1;
+    terrainCounter++;
+    if (terrainCounter > 4) {
+        terrainCounter = 1;
     }
 
     // NOTE: Uninline.
@@ -4372,7 +4351,7 @@ static void wmPartyWalkingStep()
         v1 = 1;
     }
 
-    if (_terrainCounter / v1 >= 1) {
+    if (terrainCounter / v1 >= 1) {
         int v3;
         int v4;
         if (wmGenData.walkLineDelta >= 0) {
@@ -5127,6 +5106,12 @@ static int wmInterfaceScrollPixel(int stepX, int stepY, int dx, int dy, bool* su
 // 0x4C32EC
 static void wmMouseBkProc()
 {
+    // 0x51DEB0
+    static unsigned int lastTime = 0;
+
+    // 0x51DEB4
+    static bool couldScroll = true;
+
     int x;
     int y;
     mouse_get_position(&x, &y);
@@ -5174,13 +5159,13 @@ static void wmMouseBkProc()
         }
 
         unsigned int tick = _get_bk_time();
-        if (getTicksBetween(tick, _lastTime_2) > 50) {
-            _lastTime_2 = _get_bk_time();
+        if (getTicksBetween(tick, lastTime) > 50) {
+            lastTime = _get_bk_time();
             // NOTE: Uninline.
-            wmInterfaceScroll(dx, dy, &_couldScroll);
+            wmInterfaceScroll(dx, dy, &couldScroll);
         }
 
-        if (!_couldScroll) {
+        if (!couldScroll) {
             newMouseCursor += 8;
         }
     } else {
@@ -6247,9 +6232,8 @@ int wmCarCurrentArea()
 // 0x4C4E94
 int wmCarGiveToParty()
 {
-    MessageListItem messageListItem;
-    static_assert(sizeof(messageListItem) == sizeof(gWorldmapMessageListItem), "wrong size");
-    memcpy(&messageListItem, &gWorldmapMessageListItem, sizeof(MessageListItem));
+    // 0x4BC880
+    static MessageListItem messageListItem;
 
     if (wmGenData.carFuel <= 0) {
         // The car is out of power.
