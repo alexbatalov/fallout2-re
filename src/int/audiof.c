@@ -8,7 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/memdbg.h"
 #include "int/sound.h"
 

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "memory.h"
 
 typedef struct FadeSound {

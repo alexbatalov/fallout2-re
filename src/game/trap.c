@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "window_manager.h"
 
 typedef struct TrapEntry {

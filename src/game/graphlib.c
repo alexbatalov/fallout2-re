@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "plib/color/color.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "memory.h"
 
 static void InitTree();

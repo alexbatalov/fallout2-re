@@ -5,7 +5,7 @@
 
 #include "int/audio.h"
 #include "core.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/gsound.h"
 #include "memory.h"
 #include "int/sound.h"

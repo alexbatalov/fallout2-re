@@ -9,7 +9,7 @@
 
 #include "core.h"
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/export.h"
 #include "int/intlib.h"
 #include "int/memdbg.h"

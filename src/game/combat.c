@@ -12,7 +12,7 @@
 #include "core.h"
 #include "game/critter.h"
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/display.h"
 #include "draw.h"
 #include "game/elevator.h"

@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "memory.h"
 #include "sound_decoder.h"
 

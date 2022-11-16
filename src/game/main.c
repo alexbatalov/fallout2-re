@@ -20,7 +20,7 @@
 #include "core.h"
 #include "game/credits.h"
 #include "game/cycle.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/endgame.h"
 #include "game/game.h"

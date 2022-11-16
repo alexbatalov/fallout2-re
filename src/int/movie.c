@@ -5,7 +5,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/gconfig.h"
 #include "int/memdbg.h"

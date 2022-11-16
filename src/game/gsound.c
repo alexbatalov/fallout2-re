@@ -12,7 +12,7 @@
 #include "game/combat.h"
 #include "core.h"
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/gconfig.h"
 #include "game/item.h"
 #include "game/map.h"

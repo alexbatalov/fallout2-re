@@ -5,7 +5,7 @@
 #include "core.h"
 #include "int/datafile.h"
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/memdbg.h"
 
 #define MOUSE_MGR_CACHE_CAPACITY 32

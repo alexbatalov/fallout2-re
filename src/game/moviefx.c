@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include "game/config.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "memory.h"
 #include "int/movie.h"
 #include "game/palette.h"

@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "window_manager.h"
 
 // 0x51DED0

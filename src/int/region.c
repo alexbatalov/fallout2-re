@@ -3,7 +3,7 @@
 #include <limits.h>
 #include <string.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/memdbg.h"
 
 static_assert(sizeof(Region) == 140, "wrong size");

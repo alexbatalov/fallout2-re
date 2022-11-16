@@ -6,7 +6,7 @@
 #include "core.h"
 #include "game/art.h"
 #include "game/cycle.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"

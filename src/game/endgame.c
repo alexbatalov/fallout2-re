@@ -16,7 +16,7 @@
 #include "game/cycle.h"
 #include "db.h"
 #include "game/bmpdlog.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/game.h"
 #include "game/gconfig.h"

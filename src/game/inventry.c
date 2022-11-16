@@ -13,7 +13,7 @@
 #include "core.h"
 #include "game/critter.h"
 #include "game/bmpdlog.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/dialog.h"
 #include "game/display.h"
 #include "draw.h"

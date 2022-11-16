@@ -9,7 +9,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "game/cycle.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gmouse.h"

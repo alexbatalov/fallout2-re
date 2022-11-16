@@ -9,7 +9,7 @@
 #include <timeapi.h>
 // clang-format on
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/scripts.h"
 
 static int ran1(int max);

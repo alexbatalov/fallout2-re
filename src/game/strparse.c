@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 
 // strParseValue
 // 0x4AFD10

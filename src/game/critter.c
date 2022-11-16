@@ -6,7 +6,7 @@
 #include "game/anim.h"
 #include "game/editor.h"
 #include "game/combat.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/display.h"
 #include "game/endgame.h"
 #include "game/game.h"

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/intlib.h"
 #include "int/memdbg.h"
 

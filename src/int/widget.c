@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "int/datafile.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "geometry.h"
 #include "int/memdbg.h"

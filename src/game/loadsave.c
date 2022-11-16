@@ -15,7 +15,7 @@
 #include "game/critter.h"
 #include "game/cycle.h"
 #include "game/bmpdlog.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/display.h"
 #include "draw.h"
 #include "game/gz.h"

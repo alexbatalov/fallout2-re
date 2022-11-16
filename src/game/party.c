@@ -8,7 +8,7 @@
 #include "game/combatai.h"
 #include "game/config.h"
 #include "game/critter.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/display.h"
 #include "game/game.h"
 #include "game/gdialog.h"

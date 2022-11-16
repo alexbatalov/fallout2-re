@@ -3,7 +3,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "db.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "memory.h"
 #include "game/palette.h"

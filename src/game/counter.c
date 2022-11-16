@@ -3,7 +3,7 @@
 #include <time.h>
 
 #include "core.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 
 static void counter();
 

@@ -3,7 +3,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "int/datafile.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/dialog.h"
 #include "int/support/intextra.h"
 #include "int/memdbg.h"

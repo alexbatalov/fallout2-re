@@ -6,7 +6,7 @@
 #include "game/automap.h"
 #include "game/combat.h"
 #include "game/critter.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "game/display.h"
 #include "game/game.h"
 #include "game/intface.h"

@@ -10,7 +10,7 @@
 #include "game/combat.h"
 #include "core.h"
 #include "game/critter.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/dialog.h"
 #include "game/elevator.h"
 #include "game/endgame.h"

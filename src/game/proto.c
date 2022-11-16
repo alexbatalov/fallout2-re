@@ -12,7 +12,7 @@
 #include "game/combat.h"
 #include "game/config.h"
 #include "game/critter.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "int/dialog.h"
 #include "game/game.h"
 #include "game/gconfig.h"

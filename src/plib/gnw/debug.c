@@ -1,4 +1,4 @@
-#include "debug.h"
+#include "plib/gnw/debug.h"
 
 #include <stdarg.h>
 #include <stdlib.h>

@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "core.h"
-#include "debug.h"
+#include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/gconfig.h"
 #include "memory.h"
