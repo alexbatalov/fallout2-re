@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "window.h"
+#include "int/window.h"
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "db.h"

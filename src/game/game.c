@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "window.h"
+#include "int/window.h"
 #include "game/actions.h"
 #include "game/anim.h"
 #include "game/automap.h"

@@ -195,6 +195,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/int/support/intextra.h"
     "src/int/widget.c"
     "src/int/widget.h"
+    "src/int/window.c"
+    "src/int/window.h"
     "src/plib/assoc/assoc.c"
     "src/plib/assoc/assoc.h"
     "src/plib/color/color.c"
@@ -248,8 +250,6 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/movie_lib.h"
     "src/sound_decoder.c"
     "src/sound_decoder.h"
-    "src/window.c"
-    "src/window.h"
     "src/xfile.c"
     "src/xfile.h"
 )

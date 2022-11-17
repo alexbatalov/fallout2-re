@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "window.h"
+#include "int/window.h"
 #include "game/actions.h"
 #include "plib/color/color.h"
 #include "game/combat.h"
