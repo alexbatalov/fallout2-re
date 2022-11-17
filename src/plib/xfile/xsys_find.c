@@ -1,4 +1,4 @@
-#include "file_find.h"
+#include "plib/xfile/xsys_find.h"
 
 // 0x4E6380
 bool fileFindFirst(const char* path, DirectoryFileFindData* findData)

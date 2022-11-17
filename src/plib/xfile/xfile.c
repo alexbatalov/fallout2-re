@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "file_find.h"
+#include "plib/xfile/xsys_find.h"
 
 static void xclearpath();
 static void xpathexit(void);
