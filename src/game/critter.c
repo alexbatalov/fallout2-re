@@ -161,7 +161,7 @@ int critter_load(File* stream)
 // 0x42D058
 int critter_save(File* stream)
 {
-    if (fileWriteInt32(stream, sneak_working) == -1) {
+    if (db_fwriteInt(stream, sneak_working) == -1) {
         return -1;
     }
 
@@ -619,8 +619,8 @@ int critter_save_rads(File* stream, void* data)
 {
     RadiationEvent* radiationEvent = (RadiationEvent*)data;
 
-    if (fileWriteInt32(stream, radiationEvent->radiationLevel) == -1) return -1;
-    if (fileWriteInt32(stream, radiationEvent->isHealing) == -1) return -1;
+    if (db_fwriteInt(stream, radiationEvent->radiationLevel) == -1) return -1;
+    if (db_fwriteInt(stream, radiationEvent->isHealing) == -1) return -1;
 
     return 0;
 }
@@ -1111,7 +1111,7 @@ int pc_save_data(const char* path)
         return -1;
     }
 
-    if (fileWriteInt32(stream, character_points) == -1) {
+    if (db_fwriteInt(stream, character_points) == -1) {
         db_fclose(stream);
         return -1;
     }
@@ -1123,14 +1123,14 @@ int pc_save_data(const char* path)
 // 0x42E174
 int critter_write_data(File* stream, CritterProtoData* critterData)
 {
-    if (fileWriteInt32(stream, critterData->flags) == -1) return -1;
+    if (db_fwriteInt(stream, critterData->flags) == -1) return -1;
     if (fileWriteInt32List(stream, critterData->baseStats, SAVEABLE_STAT_COUNT) == -1) return -1;
     if (fileWriteInt32List(stream, critterData->bonusStats, SAVEABLE_STAT_COUNT) == -1) return -1;
     if (fileWriteInt32List(stream, critterData->skills, SKILL_COUNT) == -1) return -1;
-    if (fileWriteInt32(stream, critterData->bodyType) == -1) return -1;
-    if (fileWriteInt32(stream, critterData->experience) == -1) return -1;
-    if (fileWriteInt32(stream, critterData->killType) == -1) return -1;
-    if (fileWriteInt32(stream, critterData->damageType) == -1) return -1;
+    if (db_fwriteInt(stream, critterData->bodyType) == -1) return -1;
+    if (db_fwriteInt(stream, critterData->experience) == -1) return -1;
+    if (db_fwriteInt(stream, critterData->killType) == -1) return -1;
+    if (db_fwriteInt(stream, critterData->damageType) == -1) return -1;
 
     return 0;
 }

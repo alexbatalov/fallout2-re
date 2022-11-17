@@ -208,8 +208,8 @@ int abil_read_ability_data(Ability* ability, File* stream)
 // 0x410378
 int abil_save(File* stream, Ability* ability)
 {
-    if (fileWriteInt32(stream, ability->length) == -1
-        || fileWriteInt32(stream, ability->capacity) == -1
+    if (db_fwriteInt(stream, ability->length) == -1
+        || db_fwriteInt(stream, ability->capacity) == -1
         || abil_write_ability_data(ability->length, ability->entries, stream) == -1) {
         return -1;
     }
@@ -223,9 +223,9 @@ int abil_write_ability_data(int length, AbilityData* entries, File* stream)
     int index;
 
     for (index = 0; index < length; index++) {
-        if (fileWriteInt32(stream, entries[index].field_0) == -1
-            || fileWriteInt32(stream, entries[index].field_4) == -1
-            || fileWriteInt32(stream, entries[index].field_8) == -1) {
+        if (db_fwriteInt(stream, entries[index].field_0) == -1
+            || db_fwriteInt(stream, entries[index].field_4) == -1
+            || db_fwriteInt(stream, entries[index].field_8) == -1) {
             return -1;
         }
     }

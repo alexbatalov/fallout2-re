@@ -2963,9 +2963,9 @@ int item_wd_save(File* stream, void* data)
 {
     WithdrawalEvent* withdrawalEvent = (WithdrawalEvent*)data;
 
-    if (fileWriteInt32(stream, withdrawalEvent->field_0) == -1) return -1;
-    if (fileWriteInt32(stream, withdrawalEvent->pid) == -1) return -1;
-    if (fileWriteInt32(stream, withdrawalEvent->perk) == -1) return -1;
+    if (db_fwriteInt(stream, withdrawalEvent->field_0) == -1) return -1;
+    if (db_fwriteInt(stream, withdrawalEvent->pid) == -1) return -1;
+    if (db_fwriteInt(stream, withdrawalEvent->perk) == -1) return -1;
 
     return 0;
 }

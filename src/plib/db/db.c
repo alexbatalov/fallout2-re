@@ -383,7 +383,7 @@ int db_fwriteShort(File* stream, unsigned short value)
 }
 
 // 0x4C6214
-int fileWriteInt32(File* stream, int value)
+int db_fwriteInt(File* stream, int value)
 {
     // NOTE: Uninline.
     return db_fwriteLong(stream, value);

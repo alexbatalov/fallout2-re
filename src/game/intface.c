@@ -974,10 +974,10 @@ int intface_save(File* stream)
         return -1;
     }
 
-    if (fileWriteInt32(stream, intfaceEnabled) == -1) return -1;
-    if (fileWriteInt32(stream, intfaceHidden) == -1) return -1;
-    if (fileWriteInt32(stream, itemCurrentItem) == -1) return -1;
-    if (fileWriteInt32(stream, endWindowOpen) == -1) return -1;
+    if (db_fwriteInt(stream, intfaceEnabled) == -1) return -1;
+    if (db_fwriteInt(stream, intfaceHidden) == -1) return -1;
+    if (db_fwriteInt(stream, itemCurrentItem) == -1) return -1;
+    if (db_fwriteInt(stream, endWindowOpen) == -1) return -1;
 
     return 0;
 }

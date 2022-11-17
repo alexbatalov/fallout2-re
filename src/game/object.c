@@ -645,24 +645,24 @@ static void object_fix_weapon_ammo(Object* obj)
 // 0x489200
 static int obj_write_obj(Object* obj, File* stream)
 {
-    if (fileWriteInt32(stream, obj->id) == -1) return -1;
-    if (fileWriteInt32(stream, obj->tile) == -1) return -1;
-    if (fileWriteInt32(stream, obj->x) == -1) return -1;
-    if (fileWriteInt32(stream, obj->y) == -1) return -1;
-    if (fileWriteInt32(stream, obj->sx) == -1) return -1;
-    if (fileWriteInt32(stream, obj->sy) == -1) return -1;
-    if (fileWriteInt32(stream, obj->frame) == -1) return -1;
-    if (fileWriteInt32(stream, obj->rotation) == -1) return -1;
-    if (fileWriteInt32(stream, obj->fid) == -1) return -1;
-    if (fileWriteInt32(stream, obj->flags) == -1) return -1;
-    if (fileWriteInt32(stream, obj->elevation) == -1) return -1;
-    if (fileWriteInt32(stream, obj->pid) == -1) return -1;
-    if (fileWriteInt32(stream, obj->cid) == -1) return -1;
-    if (fileWriteInt32(stream, obj->lightDistance) == -1) return -1;
-    if (fileWriteInt32(stream, obj->lightIntensity) == -1) return -1;
-    if (fileWriteInt32(stream, obj->outline) == -1) return -1;
-    if (fileWriteInt32(stream, obj->sid) == -1) return -1;
-    if (fileWriteInt32(stream, obj->field_80) == -1) return -1;
+    if (db_fwriteInt(stream, obj->id) == -1) return -1;
+    if (db_fwriteInt(stream, obj->tile) == -1) return -1;
+    if (db_fwriteInt(stream, obj->x) == -1) return -1;
+    if (db_fwriteInt(stream, obj->y) == -1) return -1;
+    if (db_fwriteInt(stream, obj->sx) == -1) return -1;
+    if (db_fwriteInt(stream, obj->sy) == -1) return -1;
+    if (db_fwriteInt(stream, obj->frame) == -1) return -1;
+    if (db_fwriteInt(stream, obj->rotation) == -1) return -1;
+    if (db_fwriteInt(stream, obj->fid) == -1) return -1;
+    if (db_fwriteInt(stream, obj->flags) == -1) return -1;
+    if (db_fwriteInt(stream, obj->elevation) == -1) return -1;
+    if (db_fwriteInt(stream, obj->pid) == -1) return -1;
+    if (db_fwriteInt(stream, obj->cid) == -1) return -1;
+    if (db_fwriteInt(stream, obj->lightDistance) == -1) return -1;
+    if (db_fwriteInt(stream, obj->lightIntensity) == -1) return -1;
+    if (db_fwriteInt(stream, obj->outline) == -1) return -1;
+    if (db_fwriteInt(stream, obj->sid) == -1) return -1;
+    if (db_fwriteInt(stream, obj->field_80) == -1) return -1;
     if (proto_write_protoUpdateData(obj, stream) == -1) return -1;
 
     return 0;
@@ -680,7 +680,7 @@ int obj_save(File* stream)
     int objectCount = 0;
 
     long objectCountPos = db_ftell(stream);
-    if (fileWriteInt32(stream, objectCount) == -1) {
+    if (db_fwriteInt(stream, objectCount) == -1) {
         return -1;
     }
 
@@ -688,7 +688,7 @@ int obj_save(File* stream)
         int objectCountAtElevation = 0;
 
         long objectCountAtElevationPos = db_ftell(stream);
-        if (fileWriteInt32(stream, objectCountAtElevation) == -1) {
+        if (db_fwriteInt(stream, objectCountAtElevation) == -1) {
             return -1;
         }
 
@@ -729,7 +729,7 @@ int obj_save(File* stream)
                 for (int index = 0; index < inventory->length; index++) {
                     InventoryItem* inventoryItem = &(inventory->items[index]);
 
-                    if (fileWriteInt32(stream, inventoryItem->quantity) == -1) {
+                    if (db_fwriteInt(stream, inventoryItem->quantity) == -1) {
                         return -1;
                     }
 
@@ -744,7 +744,7 @@ int obj_save(File* stream)
 
         long pos = db_ftell(stream);
         db_fseek(stream, objectCountAtElevationPos, SEEK_SET);
-        fileWriteInt32(stream, objectCountAtElevation);
+        db_fwriteInt(stream, objectCountAtElevation);
         db_fseek(stream, pos, SEEK_SET);
 
         objectCount += objectCountAtElevation;
@@ -752,7 +752,7 @@ int obj_save(File* stream)
 
     long pos = db_ftell(stream);
     db_fseek(stream, objectCountPos, SEEK_SET);
-    fileWriteInt32(stream, objectCount);
+    db_fwriteInt(stream, objectCount);
     db_fseek(stream, pos, SEEK_SET);
 
     return 0;
@@ -3518,7 +3518,7 @@ int obj_save_obj(File* stream, Object* object)
     for (int index = 0; index < inventory->length; index++) {
         InventoryItem* inventoryItem = &(inventory->items[index]);
 
-        if (fileWriteInt32(stream, inventoryItem->quantity) == -1) {
+        if (db_fwriteInt(stream, inventoryItem->quantity) == -1) {
             return -1;
         }
 
@@ -3618,7 +3618,7 @@ int obj_save_dude(File* stream)
     obj_dude->sid = field_78;
     obj_dude->flags |= OBJECT_TEMPORARY;
 
-    if (fileWriteInt32(stream, tile_center_tile) == -1) {
+    if (db_fwriteInt(stream, tile_center_tile) == -1) {
         db_fclose(stream);
         return -1;
     }

@@ -237,7 +237,7 @@ static int selfrun_save_data(const char* path, SelfrunData* selfrunData)
     int rc = -1;
     if (db_fwriteByteCount(stream, selfrunData->recordingFileName, SELFRUN_RECORDING_FILE_NAME_LENGTH) == 0
         && db_fwriteByteCount(stream, selfrunData->mapFileName, SELFRUN_MAP_FILE_NAME_LENGTH) == 0
-        && fileWriteInt32(stream, selfrunData->stopKeyCode) == 0) {
+        && db_fwriteInt(stream, selfrunData->stopKeyCode) == 0) {
         rc = 0;
     }
 

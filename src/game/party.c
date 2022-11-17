@@ -516,19 +516,19 @@ int partyMemberUnPrepSave()
 // 0x4946CC
 int partyMemberSave(File* stream)
 {
-    if (fileWriteInt32(stream, partyMemberCount) == -1) return -1;
-    if (fileWriteInt32(stream, partyMemberItemCount) == -1) return -1;
+    if (db_fwriteInt(stream, partyMemberCount) == -1) return -1;
+    if (db_fwriteInt(stream, partyMemberItemCount) == -1) return -1;
 
     for (int index = 1; index < partyMemberCount; index++) {
         PartyMember* partyMember = &(partyMemberList[index]);
-        if (fileWriteInt32(stream, partyMember->object->id) == -1) return -1;
+        if (db_fwriteInt(stream, partyMember->object->id) == -1) return -1;
     }
 
     for (int index = 1; index < partyMemberMaxCount; index++) {
         PartyMemberLevelUpInfo* levelUpInfo = &(partyMemberLevelUpInfoList[index]);
-        if (fileWriteInt32(stream, levelUpInfo->field_0) == -1) return -1;
-        if (fileWriteInt32(stream, levelUpInfo->field_4) == -1) return -1;
-        if (fileWriteInt32(stream, levelUpInfo->field_8) == -1) return -1;
+        if (db_fwriteInt(stream, levelUpInfo->field_0) == -1) return -1;
+        if (db_fwriteInt(stream, levelUpInfo->field_4) == -1) return -1;
+        if (db_fwriteInt(stream, levelUpInfo->field_8) == -1) return -1;
     }
 
     return 0;

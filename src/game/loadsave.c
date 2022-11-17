@@ -2291,7 +2291,7 @@ static int GameMap2Slot(File* stream)
         return -1;
     }
 
-    if (fileWriteInt32(stream, fileNameListLength) == -1) {
+    if (db_fwriteInt(stream, fileNameListLength) == -1) {
         db_free_file_list(&fileNameList, 0);
         return -1;
     }
@@ -2352,7 +2352,7 @@ static int GameMap2Slot(File* stream)
 
     db_fclose(inStream);
 
-    if (fileWriteInt32(stream, fileSize) == -1) {
+    if (db_fwriteInt(stream, fileSize) == -1) {
         return -1;
     }
 
@@ -2756,7 +2756,7 @@ static int LoadObjDudeCid(File* stream)
 // 0x480734
 static int SaveObjDudeCid(File* stream)
 {
-    return fileWriteInt32(stream, obj_dude->cid);
+    return db_fwriteInt(stream, obj_dude->cid);
 }
 
 // 0x480754

@@ -246,7 +246,7 @@ int perk_save(File* stream)
     for (int index = 0; index < partyMemberMaxCount; index++) {
         PerkRankData* ranksData = &(perkLevelDataList[index]);
         for (int perk = 0; perk < PERK_COUNT; perk++) {
-            if (fileWriteInt32(stream, ranksData->ranks[perk]) == -1) {
+            if (db_fwriteInt(stream, ranksData->ranks[perk]) == -1) {
                 return -1;
             }
         }

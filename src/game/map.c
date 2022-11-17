@@ -1725,18 +1725,18 @@ static int square_load(File* stream, int flags)
 // 0x4843B8
 static int map_write_MapData(MapHeader* ptr, File* stream)
 {
-    if (fileWriteInt32(stream, ptr->version) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->version) == -1) return -1;
     if (db_fwriteByteCount(stream, ptr->name, 16) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->enteringTile) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->enteringElevation) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->enteringRotation) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->localVariablesCount) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->scriptIndex) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->flags) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->darkness) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->globalVariablesCount) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->field_34) == -1) return -1;
-    if (fileWriteInt32(stream, ptr->lastVisitTime) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->enteringTile) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->enteringElevation) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->enteringRotation) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->localVariablesCount) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->scriptIndex) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->flags) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->darkness) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->globalVariablesCount) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->field_34) == -1) return -1;
+    if (db_fwriteInt(stream, ptr->lastVisitTime) == -1) return -1;
     if (fileWriteInt32List(stream, ptr->field_3C, 44) == -1) return -1;
 
     return 0;

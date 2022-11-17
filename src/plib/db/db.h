@@ -44,7 +44,7 @@ int db_freadFloat(File* stream, float* valuePtr);
 int fileReadBool(File* stream, bool* valuePtr);
 int db_fwriteByte(File* stream, unsigned char value);
 int db_fwriteShort(File* stream, unsigned short value);
-int fileWriteInt32(File* stream, int value);
+int db_fwriteInt(File* stream, int value);
 int db_fwriteLong(File* stream, unsigned long value);
 int db_fwriteFloat(File* stream, float value);
 int fileWriteBool(File* stream, bool value);

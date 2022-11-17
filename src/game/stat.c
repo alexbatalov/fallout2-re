@@ -160,7 +160,7 @@ int stat_load(File* stream)
 int stat_save(File* stream)
 {
     for (int index = 0; index < PC_STAT_COUNT; index++) {
-        if (fileWriteInt32(stream, curr_pc_stat[index]) == -1) {
+        if (db_fwriteInt(stream, curr_pc_stat[index]) == -1) {
             return -1;
         }
     }

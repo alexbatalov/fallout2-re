@@ -5506,7 +5506,7 @@ static void list_karma()
 // 0x43C1B0
 int editor_save(File* stream)
 {
-    if (fileWriteInt32(stream, last_level) == -1)
+    if (db_fwriteInt(stream, last_level) == -1)
         return -1;
     if (db_fwriteByte(stream, free_perk) == -1)
         return -1;

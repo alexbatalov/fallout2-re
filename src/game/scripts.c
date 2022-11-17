@@ -761,8 +761,8 @@ int script_q_save(File* stream, void* data)
 {
     ScriptEvent* scriptEvent = (ScriptEvent*)data;
 
-    if (fileWriteInt32(stream, scriptEvent->sid) == -1) return -1;
-    if (fileWriteInt32(stream, scriptEvent->fixedParam) == -1) return -1;
+    if (db_fwriteInt(stream, scriptEvent->sid) == -1) return -1;
+    if (db_fwriteInt(stream, scriptEvent->fixedParam) == -1) return -1;
 
     return 0;
 }
@@ -1708,33 +1708,33 @@ static int scr_header_load()
 // 0x4A5590
 static int scr_write_ScriptSubNode(Script* scr, File* stream)
 {
-    if (fileWriteInt32(stream, scr->sid) == -1) return -1;
-    if (fileWriteInt32(stream, scr->field_4) == -1) return -1;
+    if (db_fwriteInt(stream, scr->sid) == -1) return -1;
+    if (db_fwriteInt(stream, scr->field_4) == -1) return -1;
 
     switch (SID_TYPE(scr->sid)) {
     case SCRIPT_TYPE_SPATIAL:
-        if (fileWriteInt32(stream, scr->sp.built_tile) == -1) return -1;
-        if (fileWriteInt32(stream, scr->sp.radius) == -1) return -1;
+        if (db_fwriteInt(stream, scr->sp.built_tile) == -1) return -1;
+        if (db_fwriteInt(stream, scr->sp.radius) == -1) return -1;
         break;
     case SCRIPT_TYPE_TIMED:
-        if (fileWriteInt32(stream, scr->tm.time) == -1) return -1;
+        if (db_fwriteInt(stream, scr->tm.time) == -1) return -1;
         break;
     }
 
-    if (fileWriteInt32(stream, scr->flags) == -1) return -1;
-    if (fileWriteInt32(stream, scr->field_14) == -1) return -1;
-    if (fileWriteInt32(stream, (int)scr->program) == -1) return -1; // FIXME: writing pointer to file
-    if (fileWriteInt32(stream, scr->field_1C) == -1) return -1;
-    if (fileWriteInt32(stream, scr->localVarsOffset) == -1) return -1;
-    if (fileWriteInt32(stream, scr->localVarsCount) == -1) return -1;
-    if (fileWriteInt32(stream, scr->field_28) == -1) return -1;
-    if (fileWriteInt32(stream, scr->action) == -1) return -1;
-    if (fileWriteInt32(stream, scr->fixedParam) == -1) return -1;
-    if (fileWriteInt32(stream, scr->actionBeingUsed) == -1) return -1;
-    if (fileWriteInt32(stream, scr->scriptOverrides) == -1) return -1;
-    if (fileWriteInt32(stream, scr->field_48) == -1) return -1;
-    if (fileWriteInt32(stream, scr->howMuch) == -1) return -1;
-    if (fileWriteInt32(stream, scr->field_50) == -1) return -1;
+    if (db_fwriteInt(stream, scr->flags) == -1) return -1;
+    if (db_fwriteInt(stream, scr->field_14) == -1) return -1;
+    if (db_fwriteInt(stream, (int)scr->program) == -1) return -1; // FIXME: writing pointer to file
+    if (db_fwriteInt(stream, scr->field_1C) == -1) return -1;
+    if (db_fwriteInt(stream, scr->localVarsOffset) == -1) return -1;
+    if (db_fwriteInt(stream, scr->localVarsCount) == -1) return -1;
+    if (db_fwriteInt(stream, scr->field_28) == -1) return -1;
+    if (db_fwriteInt(stream, scr->action) == -1) return -1;
+    if (db_fwriteInt(stream, scr->fixedParam) == -1) return -1;
+    if (db_fwriteInt(stream, scr->actionBeingUsed) == -1) return -1;
+    if (db_fwriteInt(stream, scr->scriptOverrides) == -1) return -1;
+    if (db_fwriteInt(stream, scr->field_48) == -1) return -1;
+    if (db_fwriteInt(stream, scr->howMuch) == -1) return -1;
+    if (db_fwriteInt(stream, scr->field_50) == -1) return -1;
 
     return 0;
 }
@@ -1749,11 +1749,11 @@ static int scr_write_ScriptNode(ScriptListExtent* a1, File* stream)
         }
     }
 
-    if (fileWriteInt32(stream, a1->length) != 0) {
+    if (db_fwriteInt(stream, a1->length) != 0) {
         return -1;
     }
 
-    if (fileWriteInt32(stream, (int)a1->next) != 0) {
+    if (db_fwriteInt(stream, (int)a1->next) != 0) {
         // FIXME: writing pointer to file
         return -1;
     }
@@ -1819,7 +1819,7 @@ int scr_save(File* stream)
             scriptExtent = scriptExtent->next;
         }
 
-        if (fileWriteInt32(stream, scriptCount) == -1) {
+        if (db_fwriteInt(stream, scriptCount) == -1) {
             return -1;
         }
 

@@ -208,7 +208,7 @@ int queue_save(File* stream)
         queueListNode = queueListNode->next;
     }
 
-    if (fileWriteInt32(stream, count) == -1) {
+    if (db_fwriteInt(stream, count) == -1) {
         return -1;
     }
 
@@ -217,15 +217,15 @@ int queue_save(File* stream)
         Object* object = queueListNode->owner;
         int objectId = object != NULL ? object->id : -2;
 
-        if (fileWriteInt32(stream, queueListNode->time) == -1) {
+        if (db_fwriteInt(stream, queueListNode->time) == -1) {
             return -1;
         }
 
-        if (fileWriteInt32(stream, queueListNode->type) == -1) {
+        if (db_fwriteInt(stream, queueListNode->type) == -1) {
             return -1;
         }
 
-        if (fileWriteInt32(stream, objectId) == -1) {
+        if (db_fwriteInt(stream, objectId) == -1) {
             return -1;
         }
 

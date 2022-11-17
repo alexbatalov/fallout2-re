@@ -289,7 +289,7 @@ int automap_load(File* stream)
 // 0x41B898
 int automap_save(File* stream)
 {
-    return fileWriteInt32(stream, autoflags);
+    return db_fwriteInt(stream, autoflags);
 }
 
 // 0x41B8B4

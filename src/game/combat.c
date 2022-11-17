@@ -2112,20 +2112,20 @@ int combat_load(File* stream)
 // 0x421244
 int combat_save(File* stream)
 {
-    if (fileWriteInt32(stream, combat_state) == -1) return -1;
+    if (db_fwriteInt(stream, combat_state) == -1) return -1;
 
     if (!isInCombat()) return 0;
 
-    if (fileWriteInt32(stream, combat_turn_running) == -1) return -1;
-    if (fileWriteInt32(stream, combat_free_move) == -1) return -1;
-    if (fileWriteInt32(stream, combat_exps) == -1) return -1;
-    if (fileWriteInt32(stream, list_com) == -1) return -1;
-    if (fileWriteInt32(stream, list_noncom) == -1) return -1;
-    if (fileWriteInt32(stream, list_total) == -1) return -1;
-    if (fileWriteInt32(stream, obj_dude->cid) == -1) return -1;
+    if (db_fwriteInt(stream, combat_turn_running) == -1) return -1;
+    if (db_fwriteInt(stream, combat_free_move) == -1) return -1;
+    if (db_fwriteInt(stream, combat_exps) == -1) return -1;
+    if (db_fwriteInt(stream, list_com) == -1) return -1;
+    if (db_fwriteInt(stream, list_noncom) == -1) return -1;
+    if (db_fwriteInt(stream, list_total) == -1) return -1;
+    if (db_fwriteInt(stream, obj_dude->cid) == -1) return -1;
 
     for (int index = 0; index < list_total; index++) {
-        if (fileWriteInt32(stream, combat_list[index]->cid) == -1) return -1;
+        if (db_fwriteInt(stream, combat_list[index]->cid) == -1) return -1;
     }
 
     if (aiInfoList == NULL) {
@@ -2135,10 +2135,10 @@ int combat_save(File* stream)
     for (int index = 0; index < list_total; index++) {
         CombatAiInfo* aiInfo = &(aiInfoList[index]);
 
-        if (fileWriteInt32(stream, aiInfo->friendlyDead != NULL ? aiInfo->friendlyDead->id : -1) == -1) return -1;
-        if (fileWriteInt32(stream, aiInfo->lastTarget != NULL ? aiInfo->lastTarget->id : -1) == -1) return -1;
-        if (fileWriteInt32(stream, aiInfo->lastItem != NULL ? aiInfo->lastItem->id : -1) == -1) return -1;
-        if (fileWriteInt32(stream, aiInfo->lastMove) == -1) return -1;
+        if (db_fwriteInt(stream, aiInfo->friendlyDead != NULL ? aiInfo->friendlyDead->id : -1) == -1) return -1;
+        if (db_fwriteInt(stream, aiInfo->lastTarget != NULL ? aiInfo->lastTarget->id : -1) == -1) return -1;
+        if (db_fwriteInt(stream, aiInfo->lastItem != NULL ? aiInfo->lastItem->id : -1) == -1) return -1;
+        if (db_fwriteInt(stream, aiInfo->lastMove) == -1) return -1;
     }
 
     return 0;

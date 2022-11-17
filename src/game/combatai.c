@@ -586,44 +586,44 @@ static int cai_cap_load(File* stream, AiPacket* ai)
 // 0x427E1C
 static int cai_cap_save(File* stream, AiPacket* ai)
 {
-    if (fileWriteInt32(stream, ai->packet_num) == -1) return -1;
-    if (fileWriteInt32(stream, ai->max_dist) == -1) return -1;
-    if (fileWriteInt32(stream, ai->min_to_hit) == -1) return -1;
-    if (fileWriteInt32(stream, ai->min_hp) == -1) return -1;
-    if (fileWriteInt32(stream, ai->aggression) == -1) return -1;
-    if (fileWriteInt32(stream, ai->hurt_too_much) == -1) return -1;
-    if (fileWriteInt32(stream, ai->secondary_freq) == -1) return -1;
-    if (fileWriteInt32(stream, ai->called_freq) == -1) return -1;
-    if (fileWriteInt32(stream, ai->font) == -1) return -1;
-    if (fileWriteInt32(stream, ai->color) == -1) return -1;
-    if (fileWriteInt32(stream, ai->outline_color) == -1) return -1;
-    if (fileWriteInt32(stream, ai->chance) == -1) return -1;
-    if (fileWriteInt32(stream, ai->run.start) == -1) return -1;
-    if (fileWriteInt32(stream, ai->run.end) == -1) return -1;
-    if (fileWriteInt32(stream, ai->move.start) == -1) return -1;
-    if (fileWriteInt32(stream, ai->move.end) == -1) return -1;
-    if (fileWriteInt32(stream, ai->attack.start) == -1) return -1;
-    if (fileWriteInt32(stream, ai->attack.end) == -1) return -1;
-    if (fileWriteInt32(stream, ai->miss.start) == -1) return -1;
-    if (fileWriteInt32(stream, ai->miss.end) == -1) return -1;
+    if (db_fwriteInt(stream, ai->packet_num) == -1) return -1;
+    if (db_fwriteInt(stream, ai->max_dist) == -1) return -1;
+    if (db_fwriteInt(stream, ai->min_to_hit) == -1) return -1;
+    if (db_fwriteInt(stream, ai->min_hp) == -1) return -1;
+    if (db_fwriteInt(stream, ai->aggression) == -1) return -1;
+    if (db_fwriteInt(stream, ai->hurt_too_much) == -1) return -1;
+    if (db_fwriteInt(stream, ai->secondary_freq) == -1) return -1;
+    if (db_fwriteInt(stream, ai->called_freq) == -1) return -1;
+    if (db_fwriteInt(stream, ai->font) == -1) return -1;
+    if (db_fwriteInt(stream, ai->color) == -1) return -1;
+    if (db_fwriteInt(stream, ai->outline_color) == -1) return -1;
+    if (db_fwriteInt(stream, ai->chance) == -1) return -1;
+    if (db_fwriteInt(stream, ai->run.start) == -1) return -1;
+    if (db_fwriteInt(stream, ai->run.end) == -1) return -1;
+    if (db_fwriteInt(stream, ai->move.start) == -1) return -1;
+    if (db_fwriteInt(stream, ai->move.end) == -1) return -1;
+    if (db_fwriteInt(stream, ai->attack.start) == -1) return -1;
+    if (db_fwriteInt(stream, ai->attack.end) == -1) return -1;
+    if (db_fwriteInt(stream, ai->miss.start) == -1) return -1;
+    if (db_fwriteInt(stream, ai->miss.end) == -1) return -1;
 
     for (int index = 0; index < HIT_LOCATION_SPECIFIC_COUNT; index++) {
         AiMessageRange* range = &(ai->hit[index]);
-        if (fileWriteInt32(stream, range->start) == -1) return -1;
-        if (fileWriteInt32(stream, range->end) == -1) return -1;
+        if (db_fwriteInt(stream, range->start) == -1) return -1;
+        if (db_fwriteInt(stream, range->end) == -1) return -1;
     }
 
-    if (fileWriteInt32(stream, ai->area_attack_mode) == -1) return -1;
-    if (fileWriteInt32(stream, ai->best_weapon) == -1) return -1;
-    if (fileWriteInt32(stream, ai->distance) == -1) return -1;
-    if (fileWriteInt32(stream, ai->attack_who) == -1) return -1;
-    if (fileWriteInt32(stream, ai->chem_use) == -1) return -1;
-    if (fileWriteInt32(stream, ai->run_away_mode) == -1) return -1;
+    if (db_fwriteInt(stream, ai->area_attack_mode) == -1) return -1;
+    if (db_fwriteInt(stream, ai->best_weapon) == -1) return -1;
+    if (db_fwriteInt(stream, ai->distance) == -1) return -1;
+    if (db_fwriteInt(stream, ai->attack_who) == -1) return -1;
+    if (db_fwriteInt(stream, ai->chem_use) == -1) return -1;
+    if (db_fwriteInt(stream, ai->run_away_mode) == -1) return -1;
 
     for (int index = 0; index < AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT; index++) {
         // TODO: Check, probably writes chem_primary_desire[0] three times,
         // might be a bug in original source code.
-        if (fileWriteInt32(stream, ai->chem_primary_desire[index]) == -1) return -1;
+        if (db_fwriteInt(stream, ai->chem_primary_desire[index]) == -1) return -1;
     }
 
     return 0;

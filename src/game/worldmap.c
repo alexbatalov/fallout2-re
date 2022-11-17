@@ -1138,34 +1138,34 @@ int wmWorldMap_save(File* stream)
     EncounterEntry* encounter_entry;
 
     if (fileWriteBool(stream, wmGenData.didMeetFrankHorrigan) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.currentAreaId) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.worldPosX) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.worldPosY) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.encounterIconIsVisible) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.encounterMapId) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.encounterTableId) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.encounterEntryId) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.currentAreaId) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.worldPosX) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.worldPosY) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.encounterIconIsVisible) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.encounterMapId) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.encounterTableId) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.encounterEntryId) == -1) return -1;
     if (fileWriteBool(stream, wmGenData.isInCar) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.currentCarAreaId) == -1) return -1;
-    if (fileWriteInt32(stream, wmGenData.carFuel) == -1) return -1;
-    if (fileWriteInt32(stream, wmMaxAreaNum) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.currentCarAreaId) == -1) return -1;
+    if (db_fwriteInt(stream, wmGenData.carFuel) == -1) return -1;
+    if (db_fwriteInt(stream, wmMaxAreaNum) == -1) return -1;
 
     for (int cityIdx = 0; cityIdx < wmMaxAreaNum; cityIdx++) {
         CityInfo* cityInfo = &(wmAreaInfoList[cityIdx]);
-        if (fileWriteInt32(stream, cityInfo->x) == -1) return -1;
-        if (fileWriteInt32(stream, cityInfo->y) == -1) return -1;
-        if (fileWriteInt32(stream, cityInfo->state) == -1) return -1;
-        if (fileWriteInt32(stream, cityInfo->visitedState) == -1) return -1;
-        if (fileWriteInt32(stream, cityInfo->entrancesLength) == -1) return -1;
+        if (db_fwriteInt(stream, cityInfo->x) == -1) return -1;
+        if (db_fwriteInt(stream, cityInfo->y) == -1) return -1;
+        if (db_fwriteInt(stream, cityInfo->state) == -1) return -1;
+        if (db_fwriteInt(stream, cityInfo->visitedState) == -1) return -1;
+        if (db_fwriteInt(stream, cityInfo->entrancesLength) == -1) return -1;
 
         for (int entranceIdx = 0; entranceIdx < cityInfo->entrancesLength; entranceIdx++) {
             EntranceInfo* entrance = &(cityInfo->entrances[entranceIdx]);
-            if (fileWriteInt32(stream, entrance->state) == -1) return -1;
+            if (db_fwriteInt(stream, entrance->state) == -1) return -1;
         }
     }
 
-    if (fileWriteInt32(stream, wmMaxTileNum) == -1) return -1;
-    if (fileWriteInt32(stream, wmNumHorizontalTiles) == -1) return -1;
+    if (db_fwriteInt(stream, wmMaxTileNum) == -1) return -1;
+    if (db_fwriteInt(stream, wmNumHorizontalTiles) == -1) return -1;
 
     for (int tileIndex = 0; tileIndex < wmMaxTileNum; tileIndex++) {
         TileInfo* tileInfo = &(wmTileInfoList[tileIndex]);
@@ -1174,7 +1174,7 @@ int wmWorldMap_save(File* stream)
             for (int row = 0; row < SUBTILE_GRID_WIDTH; row++) {
                 SubtileInfo* subtile = &(tileInfo->subtiles[column][row]);
 
-                if (fileWriteInt32(stream, subtile->state) == -1) return -1;
+                if (db_fwriteInt(stream, subtile->state) == -1) return -1;
             }
         }
     }
@@ -1192,7 +1192,7 @@ int wmWorldMap_save(File* stream)
         }
     }
 
-    if (fileWriteInt32(stream, k) == -1) return -1;
+    if (db_fwriteInt(stream, k) == -1) return -1;
 
     for (i = 0; i < wmMaxEncounterInfoTables; i++) {
         encounter_table = &(wmEncounterTableList[i]);
@@ -1201,9 +1201,9 @@ int wmWorldMap_save(File* stream)
             encounter_entry = &(encounter_table->entries[j]);
 
             if (encounter_entry->counter != -1) {
-                if (fileWriteInt32(stream, i) == -1) return -1;
-                if (fileWriteInt32(stream, j) == -1) return -1;
-                if (fileWriteInt32(stream, encounter_entry->counter) == -1) return -1;
+                if (db_fwriteInt(stream, i) == -1) return -1;
+                if (db_fwriteInt(stream, j) == -1) return -1;
+                if (db_fwriteInt(stream, encounter_entry->counter) == -1) return -1;
             }
         }
     }
