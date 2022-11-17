@@ -1726,7 +1726,7 @@ static int square_load(File* stream, int flags)
 static int map_write_MapData(MapHeader* ptr, File* stream)
 {
     if (fileWriteInt32(stream, ptr->version) == -1) return -1;
-    if (fileWriteFixedLengthString(stream, ptr->name, 16) == -1) return -1;
+    if (db_fwriteByteCount(stream, ptr->name, 16) == -1) return -1;
     if (fileWriteInt32(stream, ptr->enteringTile) == -1) return -1;
     if (fileWriteInt32(stream, ptr->enteringElevation) == -1) return -1;
     if (fileWriteInt32(stream, ptr->enteringRotation) == -1) return -1;

@@ -893,7 +893,7 @@ static int WriteAM_Entry(File* stream)
         goto err;
     }
 
-    if (fileWriteUInt8List(stream, buffer, amdbsubhead.dataSize) == -1) {
+    if (db_fwriteByteCount(stream, buffer, amdbsubhead.dataSize) == -1) {
         goto err;
     }
 

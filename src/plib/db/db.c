@@ -492,7 +492,7 @@ int fileReadUInt32List(File* stream, unsigned int* arr, int count)
 }
 
 // 0x4C6464
-int fileWriteUInt8List(File* stream, unsigned char* arr, int count)
+int db_fwriteByteCount(File* stream, unsigned char* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
@@ -502,12 +502,6 @@ int fileWriteUInt8List(File* stream, unsigned char* arr, int count)
     }
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C6464. See [db_freadByteCount].
-int fileWriteFixedLengthString(File* stream, char* string, int length)
-{
-    return fileWriteUInt8List(stream, (unsigned char*)string, length);
 }
 
 // 0x4C6490
