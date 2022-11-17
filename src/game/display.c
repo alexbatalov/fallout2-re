@@ -7,7 +7,7 @@
 #include "plib/color/color.h"
 #include "game/combat.h"
 #include "core.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "plib/gnw/rect.h"

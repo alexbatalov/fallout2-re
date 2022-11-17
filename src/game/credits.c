@@ -8,7 +8,7 @@
 #include "game/cycle.h"
 #include "db.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gmouse.h"
 #include "plib/gnw/memory.h"
 #include "game/message.h"

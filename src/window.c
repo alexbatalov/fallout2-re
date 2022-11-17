@@ -7,7 +7,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "int/datafile.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/game.h"
 #include "int/intlib.h"
 #include "int/memdbg.h"

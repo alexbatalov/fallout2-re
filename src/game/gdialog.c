@@ -14,7 +14,7 @@
 #include "plib/gnw/debug.h"
 #include "int/dialog.h"
 #include "game/display.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/game.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"

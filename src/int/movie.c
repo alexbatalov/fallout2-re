@@ -6,7 +6,7 @@
 #include "core.h"
 #include "db.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gconfig.h"
 #include "int/memdbg.h"
 #include "game/moviefx.h"

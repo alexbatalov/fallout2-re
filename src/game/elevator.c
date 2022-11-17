@@ -7,7 +7,7 @@
 #include "game/art.h"
 #include "game/cycle.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gmouse.h"
 #include "game/gsound.h"
 #include "plib/gnw/rect.h"

@@ -13,7 +13,7 @@
 #include "game/cycle.h"
 #include "plib/gnw/debug.h"
 #include "game/display.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/endgame.h"
 #include "game/game.h"
 #include "game/gconfig.h"

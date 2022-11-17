@@ -7,7 +7,7 @@
 #include "game/art.h"
 #include "plib/color/color.h"
 #include "core.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/game.h"
 #include "game/gsound.h"
 #include "game/options.h"

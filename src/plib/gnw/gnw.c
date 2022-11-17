@@ -5,7 +5,7 @@
 #include "db.h"
 #include "plib/gnw/button.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "plib/gnw/memory.h"
 #include "game/palette.h"
 #include "plib/gnw/text.h"

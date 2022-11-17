@@ -1,4 +1,4 @@
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 
 #include <string.h>
 

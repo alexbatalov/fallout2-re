@@ -18,7 +18,7 @@
 #include "plib/gnw/button.h"
 #include "plib/gnw/debug.h"
 #include "game/display.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gz.h"
 #include "game/game.h"
 #include "game/gconfig.h"

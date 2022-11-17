@@ -6,7 +6,7 @@
 #include "int/datafile.h"
 #include "plib/gnw/button.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "plib/gnw/rect.h"
 #include "int/memdbg.h"
 #include "int/sound.h"

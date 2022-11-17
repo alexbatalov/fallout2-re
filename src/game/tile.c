@@ -10,7 +10,7 @@
 #include "game/config.h"
 #include "core.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gconfig.h"
 #include "game/gmouse.h"
 #include "game/light.h"

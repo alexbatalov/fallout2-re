@@ -4,7 +4,7 @@
 
 #include "core.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/gconfig.h"
 #include "plib/gnw/memory.h"
 #include "game/object.h"

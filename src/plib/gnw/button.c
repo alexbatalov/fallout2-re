@@ -1,7 +1,7 @@
 #include "plib/gnw/button.h"
 
 #include "core.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "plib/color/color.h"
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/memory.h"

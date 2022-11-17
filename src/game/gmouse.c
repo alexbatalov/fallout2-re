@@ -10,7 +10,7 @@
 #include "game/combat.h"
 #include "core.h"
 #include "game/critter.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gsound.h"

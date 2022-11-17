@@ -11,7 +11,7 @@
 #include "core.h"
 #include "game/cycle.h"
 #include "plib/gnw/debug.h"
-#include "draw.h"
+#include "plib/gnw/grbuf.h"
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "game/gmouse.h"
