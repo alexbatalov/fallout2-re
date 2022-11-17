@@ -24,6 +24,7 @@
 #include "plib/gnw/text.h"
 #include "game/textobj.h"
 #include "game/tile.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
 
 #define PREFERENCES_WINDOW_WIDTH 640

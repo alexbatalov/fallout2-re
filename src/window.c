@@ -13,6 +13,7 @@
 #include "int/memdbg.h"
 #include "int/mousemgr.h"
 #include "int/movie.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/text.h"
 
 // 0x51DCAC

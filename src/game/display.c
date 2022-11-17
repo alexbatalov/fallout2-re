@@ -14,6 +14,7 @@
 #include "game/intface.h"
 #include "plib/gnw/memory.h"
 #include "plib/gnw/text.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
 
 // The maximum number of lines display monitor can hold. Once this value

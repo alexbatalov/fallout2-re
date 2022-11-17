@@ -13,6 +13,7 @@
 #include "game/gsound.h"
 #include "game/message.h"
 #include "plib/gnw/text.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
 #include "game/wordwrap.h"
 

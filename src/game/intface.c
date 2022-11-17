@@ -30,6 +30,7 @@
 #include "game/stat.h"
 #include "plib/gnw/text.h"
 #include "game/tile.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
 
 #define INDICATOR_BAR_X 0

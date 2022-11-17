@@ -12,6 +12,7 @@
 #include "game/gsound.h"
 #include "game/options.h"
 #include "game/palette.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/text.h"
 #include "game/version.h"
 

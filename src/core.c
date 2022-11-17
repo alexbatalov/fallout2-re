@@ -1,6 +1,7 @@
 #include "core.h"
 
 #include "plib/color/color.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/dxinput.h"
 #include "draw.h"
 #include "plib/gnw/memory.h"

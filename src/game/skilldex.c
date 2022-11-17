@@ -8,6 +8,7 @@
 #include "plib/color/color.h"
 #include "core.h"
 #include "game/cycle.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/debug.h"
 #include "draw.h"
 #include "game/game.h"
@@ -21,6 +22,7 @@
 #include "game/skill.h"
 #include "plib/gnw/rect.h"
 #include "plib/gnw/text.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
 
 #define SKILLDEX_WINDOW_RIGHT_MARGIN 4

@@ -34,6 +34,7 @@
 #include "plib/gnw/text.h"
 #include "game/textobj.h"
 #include "game/tile.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
 
 // NOTE: Rare case - as a compatibility measure with Community Edition, this

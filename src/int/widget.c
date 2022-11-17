@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "int/datafile.h"
+#include "plib/gnw/button.h"
 #include "plib/gnw/debug.h"
 #include "draw.h"
 #include "plib/gnw/rect.h"

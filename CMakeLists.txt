@@ -199,6 +199,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/plib/assoc/assoc.h"
     "src/plib/color/color.c"
     "src/plib/color/color.h"
+    "src/plib/gnw/button.c"
+    "src/plib/gnw/button.h"
     "src/plib/gnw/debug.c"
     "src/plib/gnw/debug.h"
     "src/plib/gnw/doscmdln.c"
