@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "int/datafile.h"
 #include "db.h"
 #include "plib/gnw/debug.h"

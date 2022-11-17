@@ -4,7 +4,7 @@
 #include <string.h>
 
 #include "int/audio.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/debug.h"
 #include "game/gsound.h"
 #include "plib/gnw/memory.h"

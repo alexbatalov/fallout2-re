@@ -6,7 +6,7 @@
 #include "game/art.h"
 #include "game/editor.h"
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/debug.h"
 #include "plib/gnw/grbuf.h"
 #include "game/game.h"

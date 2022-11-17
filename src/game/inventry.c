@@ -10,7 +10,7 @@
 #include "plib/color/color.h"
 #include "game/combat.h"
 #include "game/combatai.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "game/bmpdlog.h"
 #include "plib/gnw/button.h"

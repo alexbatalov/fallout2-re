@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/memory.h"
 
 static bool vcr_create_buffer();

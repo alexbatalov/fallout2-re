@@ -8,7 +8,7 @@
 #include "game/actions.h"
 #include "plib/color/color.h"
 #include "game/combat.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "plib/gnw/grbuf.h"
 #include "game/game.h"

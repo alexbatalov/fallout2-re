@@ -11,7 +11,7 @@
 #include <windows.h>
 
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/credits.h"
 #include "game/cycle.h"
 #include "db.h"

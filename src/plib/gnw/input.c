@@ -1,4 +1,4 @@
-#include "core.h"
+#include "plib/gnw/input.h"
 
 #include "plib/color/color.h"
 #include "plib/gnw/button.h"

@@ -8,7 +8,7 @@
 #include "game/actions.h"
 #include "game/automap.h"
 #include "game/combat.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "plib/gnw/debug.h"
 #include "int/dialog.h"

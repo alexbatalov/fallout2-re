@@ -9,7 +9,7 @@
 #include "game/art.h"
 #include "plib/color/color.h"
 #include "game/combatai.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "db.h"
 #include "plib/gnw/debug.h"

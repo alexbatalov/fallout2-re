@@ -8,7 +8,7 @@
 #include "game/combat.h"
 #include "game/combatai.h"
 #include "game/combat_defs.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "plib/gnw/debug.h"
 #include "game/display.h"

@@ -10,7 +10,7 @@
 #include "game/combat.h"
 #include "game/combatai.h"
 #include "game/config.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "game/cycle.h"
 #include "db.h"

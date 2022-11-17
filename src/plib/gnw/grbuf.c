@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "mmx.h"
 
 // 0x4D2FC0

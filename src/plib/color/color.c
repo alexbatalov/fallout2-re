@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/svga.h"
 
 static int colorOpen(const char* filePath, int flags);

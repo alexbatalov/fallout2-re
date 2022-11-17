@@ -3,7 +3,7 @@
 #include <direct.h>
 #include <stdlib.h>
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "db.h"
 #include "game/game.h"
 #include "game/gconfig.h"

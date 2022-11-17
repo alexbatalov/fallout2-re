@@ -3,7 +3,7 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/art.h"
 #include "game/cycle.h"
 #include "plib/gnw/debug.h"

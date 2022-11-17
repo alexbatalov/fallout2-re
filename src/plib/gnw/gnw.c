@@ -1,7 +1,7 @@
 #include "plib/gnw/gnw.h"
 
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "db.h"
 #include "plib/gnw/button.h"
 #include "plib/gnw/debug.h"

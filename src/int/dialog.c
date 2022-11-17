@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "int/memdbg.h"
 #include "int/movie.h"
 #include "plib/gnw/text.h"

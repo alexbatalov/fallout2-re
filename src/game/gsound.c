@@ -10,7 +10,7 @@
 #include "int/audio.h"
 #include "int/audiof.h"
 #include "game/combat.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "db.h"
 #include "plib/gnw/debug.h"
 #include "game/gconfig.h"

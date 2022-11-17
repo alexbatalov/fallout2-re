@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 #include "game/combat.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "game/display.h"
 #include "game/game.h"

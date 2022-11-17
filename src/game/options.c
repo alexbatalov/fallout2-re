@@ -8,7 +8,7 @@
 #include "game/art.h"
 #include "game/combat.h"
 #include "game/combatai.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/cycle.h"
 #include "plib/gnw/debug.h"
 #include "plib/gnw/grbuf.h"

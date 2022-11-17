@@ -1,7 +1,7 @@
 #include "plib/gnw/mouse.h"
 
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/memory.h"
 #include "plib/gnw/svga.h"

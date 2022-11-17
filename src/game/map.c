@@ -9,7 +9,7 @@
 #include "game/editor.h"
 #include "plib/color/color.h"
 #include "game/combat.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "game/cycle.h"
 #include "plib/gnw/debug.h"

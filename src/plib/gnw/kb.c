@@ -1,6 +1,6 @@
 #include "plib/gnw/kb.h"
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/vcr.h"
 

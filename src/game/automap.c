@@ -5,7 +5,7 @@
 
 #include "plib/color/color.h"
 #include "game/config.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/bmpdlog.h"
 #include "plib/gnw/debug.h"
 #include "plib/gnw/grbuf.h"

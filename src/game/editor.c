@@ -7,7 +7,7 @@
 
 #include "game/art.h"
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "game/cycle.h"
 #include "db.h"

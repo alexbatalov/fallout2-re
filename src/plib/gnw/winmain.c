@@ -3,7 +3,7 @@
 #include <signal.h>
 
 #include "plib/gnw/doscmdln.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/main.h"
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/svga.h"

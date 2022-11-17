@@ -6,7 +6,7 @@
 #include "game/art.h"
 #include "game/editor.h"
 #include "plib/color/color.h"
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "db.h"
 #include "plib/gnw/button.h"

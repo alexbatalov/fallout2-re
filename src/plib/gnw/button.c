@@ -1,6 +1,6 @@
 #include "plib/gnw/button.h"
 
-#include "core.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/grbuf.h"
 #include "plib/color/color.h"
 #include "plib/gnw/gnw.h"
