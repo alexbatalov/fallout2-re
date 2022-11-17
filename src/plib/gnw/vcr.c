@@ -419,7 +419,7 @@ bool vcr_load_record(VcrEntry* vcrEntry, File* stream)
         if (fileReadInt32(stream, &(vcrEntry->initial.keyboardLayout)) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-        if (fileReadInt16(stream, &(vcrEntry->keyboardEvent.key)) == -1) return false;
+        if (db_freadShort(stream, &(vcrEntry->keyboardEvent.key)) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_MOUSE_EVENT:
         if (fileReadInt32(stream, &(vcrEntry->mouseEvent.dx)) == -1) return false;

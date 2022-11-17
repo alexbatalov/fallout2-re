@@ -293,7 +293,7 @@ int db_freadByte(File* stream, unsigned char* valuePtr)
 // NOTE: Not sure about signness.
 //
 // 0x4C60F4
-int fileReadInt16(File* stream, short* valuePtr)
+int db_freadShort(File* stream, unsigned short* valuePtr)
 {
     unsigned char high;
     // NOTE: Uninline.
@@ -310,15 +310,6 @@ int fileReadInt16(File* stream, short* valuePtr)
     *valuePtr = (high << 8) | low;
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C60F4. There are only couple of places where
-// the game reads/writes 16-bit integers. I'm not sure there are unsigned
-// shorts used, but there are definitely signed (art offsets can be both
-// positive and negative). Provided just in case.
-int fileReadUInt16(File* stream, unsigned short* valuePtr)
-{
-    return fileReadInt16(stream, (short*)valuePtr);
 }
 
 // 0x4C614C
@@ -472,7 +463,7 @@ int fileReadInt16List(File* stream, short* arr, int count)
     for (int index = 0; index < count; index++) {
         short value;
         // NOTE: Uninline.
-        if (fileReadInt16(stream, &value) == -1) {
+        if (db_freadShort(stream, &value) == -1) {
             return -1;
         }
 

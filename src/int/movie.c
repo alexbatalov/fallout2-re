@@ -899,8 +899,8 @@ static int movieStart(int win, char* filePath, int (*a3)())
         fileReadInt32(alphaHandle, &size);
 
         short tmp;
-        fileReadInt16(alphaHandle, &tmp);
-        fileReadInt16(alphaHandle, &tmp);
+        db_freadShort(alphaHandle, &tmp);
+        db_freadShort(alphaHandle, &tmp);
 
         alphaBuf = (unsigned char*)mymalloc(size, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1178
         alphaWindowBuf = (unsigned char*)mymalloc(movieH * movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179

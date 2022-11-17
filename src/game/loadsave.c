@@ -1802,11 +1802,11 @@ static int LoadHeader(int slot)
         return -1;
     }
 
-    if (fileReadInt16(flptr, &(ptr->elevation)) == -1) {
+    if (db_freadShort(flptr, &(ptr->elevation)) == -1) {
         return -1;
     }
 
-    if (fileReadInt16(flptr, &(ptr->map)) == -1) {
+    if (db_freadShort(flptr, &(ptr->map)) == -1) {
         return -1;
     }
 
