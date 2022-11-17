@@ -340,7 +340,7 @@ int fileReadUInt32(File* stream, unsigned int* valuePtr)
     return _db_freadInt(stream, (int*)valuePtr);
 }
 
-// NOTE: Uncollapsed 0x4C614C. The opposite of [fileWriteFloat].
+// NOTE: Uncollapsed 0x4C614C. The opposite of [db_fwriteFloat].
 int db_freadFloat(File* stream, float* valuePtr)
 {
     return fileReadInt32(stream, (int*)valuePtr);
@@ -415,7 +415,7 @@ int fileWriteUInt32(File* stream, unsigned int value)
 }
 
 // 0x4C62C4
-int fileWriteFloat(File* stream, float value)
+int db_fwriteFloat(File* stream, float value)
 {
     // NOTE: Uninline.
     return _db_fwriteLong(stream, *(int*)&value);

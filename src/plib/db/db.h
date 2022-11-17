@@ -47,7 +47,7 @@ int db_fwriteShort(File* stream, unsigned short value);
 int fileWriteInt32(File* stream, int value);
 int _db_fwriteLong(File* stream, int value);
 int fileWriteUInt32(File* stream, unsigned int value);
-int fileWriteFloat(File* stream, float value);
+int db_fwriteFloat(File* stream, float value);
 int fileWriteBool(File* stream, bool value);
 int db_freadByteCount(File* stream, unsigned char* arr, int count);
 int db_freadShortCount(File* stream, unsigned short* arr, int count);

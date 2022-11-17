@@ -1920,13 +1920,13 @@ int save_options(File* stream)
     if (fileWriteInt32(stream, item_highlight) == -1) goto err;
     if (fileWriteInt32(stream, combat_speed) == -1) goto err;
     if (fileWriteInt32(stream, player_speedup) == -1) goto err;
-    if (fileWriteFloat(stream, textBaseDelay) == -1) goto err;
+    if (db_fwriteFloat(stream, textBaseDelay) == -1) goto err;
     if (fileWriteInt32(stream, master_volume) == -1) goto err;
     if (fileWriteInt32(stream, music_volume) == -1) goto err;
     if (fileWriteInt32(stream, sndfx_volume) == -1) goto err;
     if (fileWriteInt32(stream, speech_volume) == -1) goto err;
-    if (fileWriteFloat(stream, brightness) == -1) goto err;
-    if (fileWriteFloat(stream, mouseSensitivity) == -1) goto err;
+    if (db_fwriteFloat(stream, brightness) == -1) goto err;
+    if (db_fwriteFloat(stream, mouseSensitivity) == -1) goto err;
 
     return 0;
 
