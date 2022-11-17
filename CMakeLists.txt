@@ -237,6 +237,8 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/plib/gnw/vcr.h"
     "src/plib/gnw/winmain.c"
     "src/plib/gnw/winmain.h"
+    "src/plib/xfile/xfile.c"
+    "src/plib/xfile/xfile.h"
     "src/db.c"
     "src/db.h"
     "src/dfile.c"
@@ -250,8 +252,6 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/movie_lib.h"
     "src/sound_decoder.c"
     "src/sound_decoder.h"
-    "src/xfile.c"
-    "src/xfile.h"
 )
 
 target_include_directories(${EXECUTABLE_NAME} PUBLIC src)

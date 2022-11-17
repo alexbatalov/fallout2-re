@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #include "memory_defs.h"
-#include "xfile.h"
+#include "plib/xfile/xfile.h"
 
 typedef XFile File;
 typedef void FileReadProgressHandler();

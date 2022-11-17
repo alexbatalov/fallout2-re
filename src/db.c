@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "xfile.h"
+#include "plib/xfile/xfile.h"
 
 // Generic file progress report handler.
 //
