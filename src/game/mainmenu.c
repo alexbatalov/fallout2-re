@@ -13,6 +13,7 @@
 #include "game/options.h"
 #include "game/palette.h"
 #include "plib/gnw/button.h"
+#include "plib/gnw/gnw.h"
 #include "plib/gnw/text.h"
 #include "game/version.h"
 
@@ -310,11 +311,11 @@ int main_menu_loop()
         mouse_show();
     }
 
-    unsigned int tick = _get_time();
+    unsigned int tick = get_time();
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         for (int buttonIndex = 0; buttonIndex < MAIN_MENU_BUTTON_COUNT; buttonIndex++) {
             if (keyCode == button_values[buttonIndex] || keyCode == toupper(button_values[buttonIndex])) {
@@ -360,7 +361,7 @@ int main_menu_loop()
         } else if (game_user_wants_to_quit == 2) {
             game_user_wants_to_quit = 0;
         } else {
-            if (getTicksSince(tick) >= main_menu_timeout) {
+            if (elapsed_time(tick) >= main_menu_timeout) {
                 rc = MAIN_MENU_TIMEOUT;
             }
         }

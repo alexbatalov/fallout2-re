@@ -12,6 +12,7 @@
 #include "plib/gnw/vcr.h"
 #include "plib/gnw/intrface.h"
 #include "plib/gnw/svga.h"
+#include "plib/gnw/winmain.h"
 
 static void win_free(int win);
 static void win_clip(Window* window, RectPtr* rectListNodePtr, unsigned char* a3);
@@ -167,7 +168,7 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
 
     GNW_debug_init();
 
-    if (coreInit(a3) == -1) {
+    if (GNW_input_init(a3) == -1) {
         return WINDOW_MANAGER_ERR_INITIALIZING_INPUT;
     }
 
@@ -249,7 +250,7 @@ void win_exit(void)
                 video_reset();
             }
 
-            coreExit();
+            GNW_input_exit();
             GNW_rect_exit();
             GNW_text_exit();
             colorsClose();
@@ -1013,7 +1014,7 @@ void win_drag(int win)
     Rect rect;
     rectCopy(&rect, &(w->rect));
 
-    tickersExecute();
+    GNW_do_bk_process();
 
     if (vcr_update() != 3) {
         mouse_info();

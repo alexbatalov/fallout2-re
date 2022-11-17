@@ -866,7 +866,7 @@ void win_delete_button_win(int btn, int inputEvent)
     button = GNW_find_button(btn, &w);
     if (button != NULL) {
         win_delete(w->id);
-        enqueueInputEvent(inputEvent);
+        GNW_add_input_buffer(inputEvent);
     }
 }
 
@@ -926,7 +926,7 @@ int win_disable_button(int btn)
 
         if (button == w->field_34) {
             if (w->field_34->mouseExitEventCode != -1) {
-                enqueueInputEvent(w->field_34->mouseExitEventCode);
+                GNW_add_input_buffer(w->field_34->mouseExitEventCode);
                 w->field_34 = NULL;
             }
         }
@@ -983,7 +983,7 @@ int win_set_button_rest_state(int btn, bool a2, int a3)
 
         if (keyCode != -1) {
             if ((a3 & 0x01) != 0) {
-                enqueueInputEvent(keyCode);
+                GNW_add_input_buffer(keyCode);
             }
         }
     }
@@ -1221,11 +1221,11 @@ int win_button_press_and_release(int btn)
         button->leftMouseDownProc(btn, button->lefMouseDownEventCode);
 
         if ((button->flags & BUTTON_FLAG_0x40) != 0) {
-            enqueueInputEvent(button->lefMouseDownEventCode);
+            GNW_add_input_buffer(button->lefMouseDownEventCode);
         }
     } else {
         if (button->lefMouseDownEventCode != -1) {
-            enqueueInputEvent(button->lefMouseDownEventCode);
+            GNW_add_input_buffer(button->lefMouseDownEventCode);
         }
     }
 
@@ -1235,11 +1235,11 @@ int win_button_press_and_release(int btn)
         button->leftMouseUpProc(btn, button->leftMouseUpEventCode);
 
         if ((button->flags & BUTTON_FLAG_0x40) != 0) {
-            enqueueInputEvent(button->leftMouseUpEventCode);
+            GNW_add_input_buffer(button->leftMouseUpEventCode);
         }
     } else {
         if (button->leftMouseUpEventCode != -1) {
-            enqueueInputEvent(button->leftMouseUpEventCode);
+            GNW_add_input_buffer(button->leftMouseUpEventCode);
         }
     }
 

@@ -1,5 +1,6 @@
 #include "int/mousemgr.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "plib/gnw/input.h"
@@ -106,7 +107,7 @@ static int defaultRateCallback()
 // 0x48525C
 static int defaultTimeCallback()
 {
-    return _get_time();
+    return get_time();
 }
 
 // NOTE: Inlined.

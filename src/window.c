@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "db.h"
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "int/datafile.h"
@@ -440,7 +441,7 @@ bool _windowActivateRegion(const char* regionName, int a2)
 // 0x4B6ED0
 int _getInput()
 {
-    int keyCode = _get_input();
+    int keyCode = get_input();
     if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
         game_quit_with_confirm();
     }

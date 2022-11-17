@@ -1,5 +1,8 @@
 #include "int/intlib.h"
 
+#include <stdio.h>
+
+#include "window.h"
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "int/datafile.h"
@@ -539,7 +542,7 @@ static void interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* new
     int index;
     unsigned char palette[256 * 3];
 
-    time = _get_time();
+    time = get_time();
     previousTime = time;
     steps = (int)duration;
     step = 0;
@@ -559,10 +562,10 @@ static void interpretFadePaletteBK(unsigned char* oldPalette, unsigned char* new
             }
 
             if (shouldProcessBk) {
-                _process_bk();
+                process_bk();
             }
 
-            time = _get_time();
+            time = get_time();
             delta = time - previousTime;
         }
     }

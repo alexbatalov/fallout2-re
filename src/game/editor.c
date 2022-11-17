@@ -783,8 +783,8 @@ int editor_design(bool isCreationMode)
 
     int rc = -1;
     while (rc == -1) {
-        _frame_time = _get_time();
-        int keyCode = _get_input();
+        _frame_time = get_time();
+        int keyCode = get_input();
 
         bool done = false;
         if (keyCode == 500) {
@@ -1123,7 +1123,7 @@ int editor_design(bool isCreationMode)
                     win_draw(edit_win);
                 } else {
                     if (keyCode == 390) {
-                        takeScreenshot();
+                        dump_screen();
                     }
 
                     win_draw(edit_win);
@@ -1855,9 +1855,9 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
 
     int rc = 1;
     while (rc == 1) {
-        _frame_time = _get_time();
+        _frame_time = get_time();
 
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode == cancelKeyCode) {
             rc = 0;
         } else if (keyCode == KEY_RETURN) {
@@ -1905,7 +1905,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
 
         win_draw(win);
 
-        while (getTicksSince(_frame_time) < 1000 / 24) { }
+        while (elapsed_time(_frame_time) < 1000 / 24) { }
     }
 
     if (rc == 0 || nameLength > 0) {
@@ -2181,7 +2181,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
 
         if (flags & ANIMATE) {
             if (previousValue % 10 != ones) {
-                _frame_time = _get_time();
+                _frame_time = get_time();
                 buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
@@ -2189,7 +2189,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
                     onesBufferPtr,
                     windowWidth);
                 win_draw_rect(windowHandle, &rect);
-                while (getTicksSince(_frame_time) < BIG_NUM_ANIMATION_DELAY)
+                while (elapsed_time(_frame_time) < BIG_NUM_ANIMATION_DELAY)
                     ;
             }
 
@@ -2202,7 +2202,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
             win_draw_rect(windowHandle, &rect);
 
             if (previousValue / 10 != tens) {
-                _frame_time = _get_time();
+                _frame_time = get_time();
                 buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
@@ -2210,7 +2210,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
                     tensBufferPtr,
                     windowWidth);
                 win_draw_rect(windowHandle, &rect);
-                while (getTicksSince(_frame_time) < BIG_NUM_ANIMATION_DELAY)
+                while (elapsed_time(_frame_time) < BIG_NUM_ANIMATION_DELAY)
                     ;
             }
 
@@ -3319,12 +3319,12 @@ static int AgeWindow()
     }
 
     while (true) {
-        _frame_time = _get_time();
+        _frame_time = get_time();
         change = 0;
         flags = 0;
         int v32 = 0;
 
-        keyCode = _get_input();
+        keyCode = get_input();
 
         if (keyCode == KEY_RETURN || keyCode == 500) {
             if (keyCode != 500) {
@@ -3382,7 +3382,7 @@ static int AgeWindow()
             _repFtime = 4;
 
             while (true) {
-                _frame_time = _get_time();
+                _frame_time = get_time();
 
                 v33++;
 
@@ -3425,14 +3425,14 @@ static int AgeWindow()
                 }
 
                 if (v33 > 14.4) {
-                    while (getTicksSince(_frame_time) < 1000 / _repFtime)
+                    while (elapsed_time(_frame_time) < 1000 / _repFtime)
                         ;
                 } else {
-                    while (getTicksSince(_frame_time) < 1000 / 24)
+                    while (elapsed_time(_frame_time) < 1000 / 24)
                         ;
                 }
 
-                keyCode = _get_input();
+                keyCode = get_input();
                 if (keyCode == 503 || keyCode == 504 || game_user_wants_to_quit != 0) {
                     break;
                 }
@@ -3440,7 +3440,7 @@ static int AgeWindow()
         } else {
             win_draw(win);
 
-            while (getTicksSince(_frame_time) < 1000 / 24)
+            while (elapsed_time(_frame_time) < 1000 / 24)
                 ;
         }
     }
@@ -3547,9 +3547,9 @@ static void SexWindow()
     win_set_button_rest_state(btns[savedGender], 1, 0);
 
     while (true) {
-        _frame_time = _get_time();
+        _frame_time = get_time();
 
-        int eventCode = _get_input();
+        int eventCode = get_input();
 
         if (eventCode == KEY_RETURN || eventCode == 500) {
             if (eventCode == KEY_RETURN) {
@@ -3586,7 +3586,7 @@ static void SexWindow()
 
         win_draw(win);
 
-        while (getTicksSince(_frame_time) < 41)
+        while (elapsed_time(_frame_time) < 41)
             ;
     }
 
@@ -3612,7 +3612,7 @@ static void StatButton(int eventCode)
 
     bool cont = true;
     do {
-        _frame_time = _get_time();
+        _frame_time = get_time();
         if (v11 <= 19.2) {
             v11++;
         }
@@ -3661,13 +3661,13 @@ static void StatButton(int eventCode)
 
         if (v11 >= 19.2) {
             unsigned int delay = 1000 / _repFtime;
-            while (getTicksSince(_frame_time) < delay) {
+            while (elapsed_time(_frame_time) < delay) {
             }
         } else {
-            while (getTicksSince(_frame_time) < 1000 / 24) {
+            while (elapsed_time(_frame_time) < 1000 / 24) {
             }
         }
-    } while (_get_input() != 518 && cont);
+    } while (get_input() != 518 && cont);
 
     DrawInfoWin();
 }
@@ -3770,7 +3770,7 @@ static int OptionWindow()
 
         int rc = 0;
         while (rc == 0) {
-            int keyCode = _get_input();
+            int keyCode = get_input();
 
             if (game_user_wants_to_quit != 0) {
                 rc = 2;
@@ -5039,7 +5039,7 @@ static void SliderBtn(int keyCode)
 
     int repeatDelay = 0;
     for (;;) {
-        _frame_time = _get_time();
+        _frame_time = get_time();
         if (repeatDelay <= 19.2) {
             repeatDelay++;
         }
@@ -5115,14 +5115,14 @@ static void SliderBtn(int keyCode)
         if (!isUsingKeyboard) {
             unspentSp = stat_pc_get(PC_STAT_UNSPENT_SKILL_POINTS);
             if (repeatDelay >= 19.2) {
-                while (getTicksSince(_frame_time) < 1000 / _repFtime) {
+                while (elapsed_time(_frame_time) < 1000 / _repFtime) {
                 }
             } else {
-                while (getTicksSince(_frame_time) < 1000 / 24) {
+                while (elapsed_time(_frame_time) < 1000 / 24) {
                 }
             }
 
-            int keyCode = _get_input();
+            int keyCode = get_input();
             if (keyCode != 522 && keyCode != 524 && rc != -1) {
                 continue;
             }
@@ -5837,7 +5837,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
 
     int rc = 0;
     while (rc == 0) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         int v19 = 0;
 
         if (keyCode == 500) {
@@ -5948,7 +5948,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
                 oldsline = -2;
 
                 do {
-                    _frame_time = _get_time();
+                    _frame_time = get_time();
                     if (v19 <= 14.4) {
                         v19++;
                     }
@@ -5974,13 +5974,13 @@ static int InputPDLoop(int count, void (*refreshProc)())
                     }
 
                     if (v19 < 14.4) {
-                        while (getTicksSince(_frame_time) < 1000 / 24) {
+                        while (elapsed_time(_frame_time) < 1000 / 24) {
                         }
                     } else {
-                        while (getTicksSince(_frame_time) < 1000 / _repFtime) {
+                        while (elapsed_time(_frame_time) < 1000 / _repFtime) {
                         }
                     }
-                } while (_get_input() != 574);
+                } while (get_input() != 574);
 
                 break;
             case 573:
@@ -5989,7 +5989,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
 
                 if (count > 11) {
                     do {
-                        _frame_time = _get_time();
+                        _frame_time = get_time();
                         if (v19 <= 14.4) {
                             v19++;
                         }
@@ -6016,16 +6016,16 @@ static int InputPDLoop(int count, void (*refreshProc)())
                         }
 
                         if (v19 < 14.4) {
-                            while (getTicksSince(_frame_time) < 1000 / 24) {
+                            while (elapsed_time(_frame_time) < 1000 / 24) {
                             }
                         } else {
-                            while (getTicksSince(_frame_time) < 1000 / _repFtime) {
+                            while (elapsed_time(_frame_time) < 1000 / _repFtime) {
                             }
                         }
-                    } while (_get_input() != 575);
+                    } while (get_input() != 575);
                 } else {
                     do {
-                        _frame_time = _get_time();
+                        _frame_time = get_time();
                         if (v19 <= 14.4) {
                             v19++;
                         }
@@ -6047,13 +6047,13 @@ static int InputPDLoop(int count, void (*refreshProc)())
                         }
 
                         if (v19 < 14.4) {
-                            while (getTicksSince(_frame_time) < 1000 / 24) {
+                            while (elapsed_time(_frame_time) < 1000 / 24) {
                             }
                         } else {
-                            while (getTicksSince(_frame_time) < 1000 / _repFtime) {
+                            while (elapsed_time(_frame_time) < 1000 / _repFtime) {
                             }
                         }
-                    } while (_get_input() != 575);
+                    } while (get_input() != 575);
                 }
                 break;
             case KEY_HOME:
@@ -6073,8 +6073,8 @@ static int InputPDLoop(int count, void (*refreshProc)())
                 refreshProc();
                 break;
             default:
-                if (getTicksSince(_frame_time) > 700) {
-                    _frame_time = _get_time();
+                if (elapsed_time(_frame_time) > 700) {
+                    _frame_time = get_time();
                     oldsline = -2;
                 }
                 break;

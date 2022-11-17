@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "window.h"
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "db.h"
@@ -16,6 +17,7 @@
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/svga.h"
 #include "plib/gnw/winmain.h"
+
 
 typedef void(MovieCallback)();
 typedef int(MovieBlitFunc)(int win, unsigned char* data, int width, int height, int pitch);
@@ -929,7 +931,7 @@ static bool localMovieCallback()
         movieCallback();
     }
 
-    return _get_input() != -1;
+    return get_input() != -1;
 }
 
 // 0x487AC8

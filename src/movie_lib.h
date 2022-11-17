@@ -1,8 +1,12 @@
 #ifndef MOVIE_LIB_H
 #define MOVIE_LIB_H
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
 #define DIRECTDRAW_VERSION 0x0300
 #include <ddraw.h>
+#include <mmreg.h>
 
 #define DIRECTSOUND_VERSION 0x0300
 #include <dsound.h>

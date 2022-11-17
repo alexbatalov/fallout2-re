@@ -402,7 +402,7 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
     bool done = false;
     int keyCode;
     while (!done) {
-        keyCode = _get_input();
+        keyCode = get_input();
         if (keyCode == KEY_ESCAPE) {
             done = true;
         }
@@ -442,7 +442,7 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
             float v41 = (float)keyCode * v42;
             float v44 = (float)(*elevationPtr) * v42;
             do {
-                unsigned int tick = _get_time();
+                unsigned int tick = get_time();
                 v44 += v43;
                 buf_to_buf(
                     grphbmp[ELEVATOR_FRM_GAUGE] + v18 * (int)v44,
@@ -454,11 +454,11 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
 
                 win_draw(elev_win);
 
-                while (getTicksSince(tick) < delay) {
+                while (elapsed_time(tick) < delay) {
                 }
             } while ((v43 <= 0.0 || v44 < v41) && (v43 > 0.0 || v44 > v41));
 
-            coreDelayProcessingEvents(200);
+            pause_for_tocks(200);
         }
     }
 

@@ -163,7 +163,7 @@ static int suspendEvents;
 // 0x4670A0
 static unsigned int defaultTimerFunc()
 {
-    return _get_time();
+    return get_time();
 }
 
 // NOTE: Unused.

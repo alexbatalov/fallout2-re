@@ -211,7 +211,7 @@ int select_character()
             break;
         }
 
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         switch (keyCode) {
         case KEY_MINUS:

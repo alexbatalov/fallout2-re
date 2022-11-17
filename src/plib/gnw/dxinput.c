@@ -1,6 +1,8 @@
 #include <initguid.h>
 
 #include "plib/gnw/dxinput.h"
+#include "plib/gnw/gnw95dx.h"
+#include "plib/gnw/winmain.h"
 
 #define KEYBOARD_DEVICE_DATA_CAPACITY 32
 

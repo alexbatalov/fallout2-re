@@ -329,7 +329,7 @@ static void main_game_loop()
     scr_enable();
 
     while (game_user_wants_to_quit == 0) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         game_handle_input(keyCode, false);
 
         scripts_check_state();
@@ -523,11 +523,11 @@ static void main_death_scene()
             }
 
             while (mouse_get_buttons() != 0) {
-                _get_input();
+                get_input();
             }
 
             kb_clear();
-            inputEventQueueReset();
+            flush_input_buffer();
 
             buf_to_buf(background, 640, 480, 640, windowBuffer, 640);
             art_ptr_unlock(backgroundHandle);
@@ -572,22 +572,22 @@ static void main_death_scene()
 
             gsound_speech_play_preloaded();
 
-            unsigned int time = _get_time();
+            unsigned int time = get_time();
             int keyCode;
             do {
-                keyCode = _get_input();
-            } while (keyCode == -1 && !main_death_voiceover_done && getTicksSince(time) < delay);
+                keyCode = get_input();
+            } while (keyCode == -1 && !main_death_voiceover_done && elapsed_time(time) < delay);
 
             gsound_speech_callback_set(NULL);
 
             gsound_speech_stop();
 
             while (mouse_get_buttons() != 0) {
-                _get_input();
+                get_input();
             }
 
             if (keyCode == -1) {
-                coreDelayProcessingEvents(500);
+                pause_for_tocks(500);
             }
 
             palette_fade_to(black_palette);

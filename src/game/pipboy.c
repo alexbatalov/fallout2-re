@@ -404,10 +404,10 @@ int pipboy(int intent)
     }
 
     mouse_get_position(&old_mouse_x, &old_mouse_y);
-    wait_time = _get_time();
+    wait_time = get_time();
 
     while (true) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         if (intent == PIPBOY_OPEN_INTENT_REST) {
             keyCode = 504;
@@ -417,14 +417,14 @@ int pipboy(int intent)
         mouse_get_position(&mouse_x, &mouse_y);
 
         if (keyCode != -1 || mouse_x != old_mouse_x || mouse_y != old_mouse_y) {
-            wait_time = _get_time();
+            wait_time = get_time();
             old_mouse_x = mouse_x;
             old_mouse_y = mouse_y;
         } else {
-            if (_get_time() - wait_time > PIPBOY_IDLE_TIMEOUT) {
+            if (get_time() - wait_time > PIPBOY_IDLE_TIMEOUT) {
                 ScreenSaver();
 
-                wait_time = _get_time();
+                wait_time = get_time();
                 mouse_get_position(&old_mouse_x, &old_mouse_y);
             }
         }
@@ -439,7 +439,7 @@ int pipboy(int intent)
         }
 
         if (keyCode == KEY_F12) {
-            takeScreenshot();
+            dump_screen();
         } else if (keyCode >= 500 && keyCode <= 504) {
             crnt_func = keyCode - 500;
             PipFnctn[crnt_func](1024);
@@ -878,7 +878,7 @@ static void PipStatus(int a1)
             ListStatLines(a1);
             ListHoloDiskTitles(-1);
             win_draw_rect(pip_win, &pip_rect);
-            coreDelayProcessingEvents(200);
+            pause_for_tocks(200);
             stat_flag = 1;
         } else {
             if (holocount != 0 && holocount >= a1 && mouse_x > 429) {
@@ -906,7 +906,7 @@ static void PipStatus(int a1)
                 ListHoloDiskTitles(holodisk);
                 ListStatLines(-1);
                 win_draw_rect(pip_win, &pip_rect);
-                coreDelayProcessingEvents(200);
+                pause_for_tocks(200);
                 NixHotLines();
                 ShowHoloDisk();
                 AddHotLines(0, 0, true);
@@ -943,7 +943,7 @@ static void PipStatus(int a1)
                     pip_print(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, colorTable[992]);
 
                     win_draw_rect(pip_win, &pip_rect);
-                    coreDelayProcessingEvents(200);
+                    pause_for_tocks(200);
                     PipStatus(1024);
                 }
             } else {
@@ -967,7 +967,7 @@ static void PipStatus(int a1)
                 pip_print(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, colorTable[992]);
 
                 win_draw_rect(pip_win, &pip_rect);
-                coreDelayProcessingEvents(200);
+                pause_for_tocks(200);
 
                 view_page += 1;
 
@@ -997,7 +997,7 @@ static void PipStatus(int a1)
             pip_print(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, colorTable[992]);
 
             win_draw_rect(pip_win, &pip_rect);
-            coreDelayProcessingEvents(200);
+            pause_for_tocks(200);
 
             view_page -= 1;
 
@@ -1030,7 +1030,7 @@ static void PipStatus(int a1)
             pip_print(text2, PIPBOY_TEXT_ALIGNMENT_RIGHT_COLUMN_CENTER, colorTable[992]);
 
             win_draw_rect(pip_win, &pip_rect);
-            coreDelayProcessingEvents(200);
+            pause_for_tocks(200);
 
             if (view_page <= 0) {
                 PipStatus(1024);
@@ -1048,7 +1048,7 @@ static void PipStatus(int a1)
         gsound_play_sfx_file("ib1p1xx1");
         pip_back(colorTable[32747]);
         win_draw_rect(pip_win, &pip_rect);
-        coreDelayProcessingEvents(200);
+        pause_for_tocks(200);
         PipStatus(1024);
     }
 
@@ -1647,7 +1647,7 @@ static void PipArchives(int a1)
 
         text_font(101);
 
-        wait_time = _get_time();
+        wait_time = get_time();
         ListArchive(-1);
     }
 }
@@ -1933,7 +1933,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                     break;
                 }
 
-                unsigned int start = _get_time();
+                unsigned int start = get_time();
 
                 unsigned int v6 = (unsigned int)((double)v5 / v4 * ((double)minutes * 600.0) + (double)gameTime);
                 unsigned int nextEventTime = queue_next_time();
@@ -1953,7 +1953,7 @@ static bool TimedRest(int hours, int minutes, int duration)
 
                 if (!rc) {
                     gameTimeSetTime(v6);
-                    if (_get_input() == KEY_ESCAPE || game_user_wants_to_quit != 0) {
+                    if (get_input() == KEY_ESCAPE || game_user_wants_to_quit != 0) {
                         rc = true;
                     }
 
@@ -1961,7 +1961,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                     pip_date();
                     win_draw(pip_win);
 
-                    while (getTicksSince(start) < 50) {
+                    while (elapsed_time(start) < 50) {
                     }
                 }
             }
@@ -1990,9 +1990,9 @@ static bool TimedRest(int hours, int minutes, int duration)
                     break;
                 }
 
-                unsigned int start = _get_time();
+                unsigned int start = get_time();
 
-                if (_get_input() == KEY_ESCAPE || game_user_wants_to_quit != 0) {
+                if (get_input() == KEY_ESCAPE || game_user_wants_to_quit != 0) {
                     rc = true;
                 }
 
@@ -2027,7 +2027,7 @@ static bool TimedRest(int hours, int minutes, int duration)
                     DrawAlrmHitPnts();
                     win_draw(pip_win);
 
-                    while (getTicksSince(start) < 50) {
+                    while (elapsed_time(start) < 50) {
                     }
                 }
             }
@@ -2207,10 +2207,10 @@ static int ScreenSaver()
 
     int v31 = 50;
     while (true) {
-        unsigned int time = _get_time();
+        unsigned int time = get_time();
 
         mouse_get_position(&mouse_x, &mouse_y);
-        if (_get_input() != -1 || old_mouse_x != mouse_x || old_mouse_y != mouse_y) {
+        if (get_input() != -1 || old_mouse_x != mouse_x || old_mouse_y != mouse_y) {
             break;
         }
 
@@ -2322,7 +2322,7 @@ static int ScreenSaver()
             v31 -= 1;
         } else {
             win_draw_rect(pip_win, &pip_rect);
-            while (getTicksSince(time) < 50) {
+            while (elapsed_time(time) < 50) {
             }
         }
     }

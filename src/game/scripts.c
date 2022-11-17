@@ -5,6 +5,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "window.h"
 #include "game/actions.h"
 #include "game/automap.h"
 #include "game/combat.h"
@@ -599,11 +600,11 @@ static void doBkProcesses()
     static int lasttime;
 
     if (!set) {
-        lasttime = _get_bk_time();
+        lasttime = get_bk_time();
         set = 1;
     }
 
-    int v0 = _get_bk_time();
+    int v0 = get_bk_time();
     if (script_engine_running) {
         lasttime = v0;
 
@@ -679,7 +680,7 @@ static void script_chk_timed_events()
     // 0x51C7E4
     static int last_light_time = 0;
 
-    int v0 = _get_bk_time();
+    int v0 = get_bk_time();
 
     int v1 = false;
     if (!isInCombat()) {
@@ -687,7 +688,7 @@ static void script_chk_timed_events()
     }
 
     if (game_state() != GAME_STATE_4) {
-        if (getTicksBetween(v0, last_light_time) >= 30000) {
+        if (elapsed_tocks(v0, last_light_time) >= 30000) {
             last_light_time = v0;
             scrExecMapProcScripts(SCRIPT_PROC_MAP_UPDATE);
         }
@@ -695,7 +696,7 @@ static void script_chk_timed_events()
         v1 = false;
     }
 
-    if (getTicksBetween(v0, last_time) >= 100) {
+    if (elapsed_tocks(v0, last_time) >= 100) {
         last_time = v0;
         if (!isInCombat()) {
             fallout_game_time += 1;
@@ -1504,7 +1505,7 @@ int scr_game_init()
     script_engine_game_mode = 1;
     fallout_game_time = 1;
     gameTimeSetTime(302400);
-    tickersAdd(doBkProcesses);
+    add_bk_process(doBkProcesses);
 
     if (scr_set_dude_script() == -1) {
         return -1;
@@ -1584,7 +1585,7 @@ int scr_game_exit()
     scr_message_free();
     scr_remove_all();
     clearPrograms();
-    tickersRemove(doBkProcesses);
+    remove_bk_process(doBkProcesses);
     message_exit(&script_message_file);
     if (scr_clear_dude_script() == -1) {
         return -1;

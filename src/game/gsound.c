@@ -247,7 +247,7 @@ int gsound_init()
         return -1;
     }
 
-    tickersAdd(gsound_bkg_proc);
+    add_bk_process(gsound_bkg_proc);
     gsound_initialized = true;
 
     // SOUNDS
@@ -376,7 +376,7 @@ int gsound_exit()
         return -1;
     }
 
-    tickersRemove(gsound_bkg_proc);
+    remove_bk_process(gsound_bkg_proc);
 
     // NOTE: Uninline.
     gsound_speech_stop();
@@ -2237,8 +2237,8 @@ int gsound_sfx_q_process(Object* a1, void* data)
     if (ambientSoundEffectIndex != -1) {
         char* fileName;
         if (wmSfxIdxName(ambientSoundEffectIndex, &fileName) == 0) {
-            int v7 = _get_bk_time();
-            if (getTicksBetween(v7, lastTime) >= 5000) {
+            int v7 = get_bk_time();
+            if (elapsed_tocks(v7, lastTime) >= 5000) {
                 if (gsound_play_sfx_file(fileName) == -1) {
                     debug_printf("\nGsound: playing ambient map sfx: %s.  FAILED", fileName);
                 } else {

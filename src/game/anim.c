@@ -2841,8 +2841,8 @@ void object_animate()
 
         Object* object = sad_entry->obj;
 
-        unsigned int time = _get_time();
-        if (getTicksBetween(time, sad_entry->animationTimestamp) < sad_entry->ticksPerFrame) {
+        unsigned int time = get_time();
+        if (elapsed_tocks(time, sad_entry->animationTimestamp) < sad_entry->ticksPerFrame) {
             continue;
         }
 
@@ -3140,8 +3140,8 @@ void dude_fidget()
         return;
     }
 
-    unsigned int v0 = _get_bk_time();
-    if (getTicksBetween(v0, last_time) <= next_time) {
+    unsigned int v0 = get_bk_time();
+    if (elapsed_tocks(v0, last_time) <= next_time) {
         return;
     }
 

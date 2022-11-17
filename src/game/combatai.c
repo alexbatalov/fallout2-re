@@ -2954,7 +2954,7 @@ void combat_ai(Object* a1, Object* a2)
 // 0x42B3FC
 bool combatai_want_to_join(Object* a1)
 {
-    _process_bk();
+    process_bk();
 
     if ((a1->flags & OBJECT_HIDDEN) != 0) {
         return false;
@@ -3000,7 +3000,7 @@ bool combatai_want_to_join(Object* a1)
 // 0x42B4A8
 bool combatai_want_to_stop(Object* a1)
 {
-    _process_bk();
+    process_bk();
 
     if ((a1->data.critter.combat.maneuver & CRITTER_MANEUVER_STOP_ATTACKING) != 0) {
         return true;

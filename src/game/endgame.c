@@ -235,10 +235,10 @@ void endgame_movie()
     map_disable_bk_processes();
     palette_fade_to(black_palette);
     endgame_maybe_done = 0;
-    tickersAdd(endgame_movie_bk_process);
+    add_bk_process(endgame_movie_bk_process);
     gsound_background_callback_set(endgame_movie_callback);
     gsound_background_play("akiss", 12, 14, 15);
-    coreDelayProcessingEvents(3000);
+    pause_for_tocks(3000);
 
     // NOTE: Result is ignored. I guess there was some kind of switch for male
     // vs. female ending, but it was not implemented.
@@ -247,7 +247,7 @@ void endgame_movie()
     credits("credits.txt", -1, false);
     gsound_background_stop();
     gsound_background_callback_set(NULL);
-    tickersRemove(endgame_movie_bk_process);
+    remove_bk_process(endgame_movie_bk_process);
     gsound_background_stop();
     loadColorTable("color.pal");
     palette_fade_to(cmap);
@@ -351,7 +351,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
             end = width - 640;
         }
 
-        tickersDisable();
+        disable_bk();
 
         bool subtitlesLoaded = false;
 
@@ -360,7 +360,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
             int v12 = 640 - v32;
 
             // TODO: Complex math, setup scene in debugger.
-            if (getTicksSince(since) >= v9) {
+            if (elapsed_time(since) >= v9) {
                 buf_to_buf(backgroundData + start, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, width, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
 
                 if (subtitlesLoaded) {
@@ -369,7 +369,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
 
                 win_draw(endgame_window);
 
-                since = _get_time();
+                since = get_time();
 
                 bool v14;
                 double v31;
@@ -409,14 +409,14 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
 
             soundContinueAll();
 
-            if (_get_input() != -1) {
+            if (get_input() != -1) {
                 // NOTE: Uninline.
                 endgame_stop_voiceover();
                 break;
             }
         }
 
-        tickersEnable();
+        enable_bk();
         art_ptr_unlock(backgroundHandle);
 
         palette_fade_to(black_palette);
@@ -425,7 +425,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
     }
 
     while (mouse_get_buttons() != 0) {
-        _get_input();
+        get_input();
     }
 }
 
@@ -456,17 +456,17 @@ static void endgame_display_image(int fid, const char* narratorFileName)
 
         palette_fade_to(cmap);
 
-        coreDelayProcessingEvents(500);
+        pause_for_tocks(500);
 
         // NOTE: Uninline.
         endgame_play_voiceover();
 
-        unsigned int referenceTime = _get_time();
-        tickersDisable();
+        unsigned int referenceTime = get_time();
+        disable_bk();
 
         int keyCode;
         while (true) {
-            keyCode = _get_input();
+            keyCode = get_input();
             if (keyCode != -1) {
                 break;
             }
@@ -479,7 +479,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
                 break;
             }
 
-            if (getTicksSince(referenceTime) > delay) {
+            if (elapsed_time(referenceTime) > delay) {
                 break;
             }
 
@@ -489,7 +489,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
             soundContinueAll();
         }
 
-        tickersEnable();
+        enable_bk();
         gsound_speech_stop();
         endgame_clear_subtitles();
 
@@ -497,13 +497,13 @@ static void endgame_display_image(int fid, const char* narratorFileName)
         endgame_subtitle_loaded = false;
 
         if (keyCode == -1) {
-            coreDelayProcessingEvents(500);
+            pause_for_tocks(500);
         }
 
         palette_fade_to(black_palette);
 
         while (mouse_get_buttons() != 0) {
-            _get_input();
+            get_input();
         }
     }
 
@@ -687,7 +687,7 @@ static void endgame_play_voiceover()
     }
 
     if (endgame_subtitle_loaded) {
-        endgame_subtitle_start_time = _get_time();
+        endgame_subtitle_start_time = get_time();
     }
 }
 
@@ -782,7 +782,7 @@ static void endgame_show_subtitles()
         return;
     }
 
-    if (getTicksSince(endgame_subtitle_start_time) > endgame_subtitle_times[endgame_current_subtitle]) {
+    if (elapsed_time(endgame_subtitle_start_time) > endgame_subtitle_times[endgame_current_subtitle]) {
         endgame_current_subtitle++;
         return;
     }
@@ -850,7 +850,7 @@ static void endgame_movie_bk_process()
     if (endgame_maybe_done) {
         gsound_background_play("10labone", 11, 14, 16);
         gsound_background_callback_set(NULL);
-        tickersRemove(endgame_movie_bk_process);
+        remove_bk_process(endgame_movie_bk_process);
     }
 }
 

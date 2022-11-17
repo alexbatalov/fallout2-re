@@ -1657,14 +1657,14 @@ void intface_end_window_open(bool animated)
         int time = 0;
         int frame = 0;
         while (frame < frameCount) {
-            if (getTicksSince(time) >= delay) {
+            if (elapsed_time(time) >= delay) {
                 unsigned char* src = art_frame_data(art, frame, 0);
                 if (src != NULL) {
                     buf_to_buf(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
                     win_draw_rect(interfaceWindow, &endWindowRect);
                 }
 
-                time = _get_time();
+                time = get_time();
                 frame++;
             }
             gmouse_bk_process();
@@ -1711,7 +1711,7 @@ void intface_end_window_close(bool animated)
         int frame = art_frame_max_frame(art);
 
         while (frame != 0) {
-            if (getTicksSince(time) >= delay) {
+            if (elapsed_time(time) >= delay) {
                 unsigned char* src = art_frame_data(art, frame - 1, 0);
                 unsigned char* dest = interfaceBuffer + 640 * 38 + 580;
                 if (src != NULL) {
@@ -1719,7 +1719,7 @@ void intface_end_window_close(bool animated)
                     win_draw_rect(interfaceWindow, &endWindowRect);
                 }
 
-                time = _get_time();
+                time = get_time();
                 frame--;
             }
             gmouse_bk_process();
@@ -2122,7 +2122,7 @@ static void intface_change_fid_animate(int previousWeaponAnimationCode, int weap
             break;
         }
 
-        _get_input();
+        get_input();
     }
 
     gmouse_set_cursor(MOUSE_CURSOR_NONE);
@@ -2381,7 +2381,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                 buf_to_buf(upSrc, 9, 17, 360, onesDest, 640);
                 mouse_info();
                 gmouse_bk_process();
-                coreDelay(delay);
+                block_for_tocks(delay);
                 win_draw_rect(interfaceWindow, &numbersRect);
 
                 ones += v49;
@@ -2390,7 +2390,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                     buf_to_buf(upSrc, 9, 17, 360, tensDest, 640);
                     mouse_info();
                     gmouse_bk_process();
-                    coreDelay(delay);
+                    block_for_tocks(delay);
                     win_draw_rect(interfaceWindow, &numbersRect);
 
                     tens += v49;
@@ -2399,7 +2399,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                         buf_to_buf(upSrc, 9, 17, 360, hundredsDest, 640);
                         mouse_info();
                         gmouse_bk_process();
-                        coreDelay(delay);
+                        block_for_tocks(delay);
                         win_draw_rect(interfaceWindow, &numbersRect);
 
                         hundreds += v49;
@@ -2411,19 +2411,19 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                         buf_to_buf(downSrc, 9, 17, 360, hundredsDest, 640);
                         mouse_info();
                         gmouse_bk_process();
-                        coreDelay(delay);
+                        block_for_tocks(delay);
                         win_draw_rect(interfaceWindow, &numbersRect);
                     }
 
                     buf_to_buf(downSrc, 9, 17, 360, tensDest, 640);
-                    coreDelay(delay);
+                    block_for_tocks(delay);
                     win_draw_rect(interfaceWindow, &numbersRect);
                 }
 
                 buf_to_buf(downSrc, 9, 17, 360, onesDest, 640);
                 mouse_info();
                 gmouse_bk_process();
-                coreDelay(delay);
+                block_for_tocks(delay);
                 win_draw_rect(interfaceWindow, &numbersRect);
 
                 previousValue += change;
@@ -2435,7 +2435,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                 buf_to_buf(previousValue >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
                 mouse_info();
                 gmouse_bk_process();
-                coreDelay(delay);
+                block_for_tocks(delay);
                 win_draw_rect(interfaceWindow, &numbersRect);
             }
         }

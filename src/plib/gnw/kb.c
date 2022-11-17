@@ -2,6 +2,7 @@
 
 #include "plib/gnw/input.h"
 #include "plib/gnw/dxinput.h"
+#include "plib/gnw/gnw95dx.h"
 #include "plib/gnw/vcr.h"
 
 typedef struct key_ansi_t {
@@ -107,7 +108,7 @@ int GNW_kb_set()
     kb_init_lock_status();
     kb_set_layout(KEYBOARD_LAYOUT_QWERTY);
 
-    kb_idle_start_time = _get_time();
+    kb_idle_start_time = get_time();
 
     return 0;
 }
@@ -130,7 +131,7 @@ void kb_wait()
         kb_clear();
 
         do {
-            _GNW95_process_message();
+            GNW95_process_message();
         } while (keynumpress == 0);
 
         // NOTE: Uninline.
@@ -155,7 +156,7 @@ void kb_clear()
     }
 
     dxinput_flush_keyboard_buffer();
-    _GNW95_clear_time_stamps();
+    GNW95_clear_time_stamps();
 }
 
 // 0x4CBDE8
@@ -300,7 +301,7 @@ int kb_ascii_to_scan(int ascii)
 // 0x4CBF50
 unsigned int kb_elapsed_time()
 {
-    return getTicksSince(kb_idle_start_time);
+    return elapsed_time(kb_idle_start_time);
 }
 
 // NOTE: Unused.
@@ -308,7 +309,7 @@ unsigned int kb_elapsed_time()
 // 0x4CBF5C
 void kb_reset_elapsed_time()
 {
-    kb_idle_start_time = _get_time();
+    kb_idle_start_time = get_time();
 }
 
 // TODO: Key type is likely short.
@@ -328,7 +329,7 @@ void kb_simulate_key(int scan_code)
         }
     }
 
-    kb_idle_start_time = _get_bk_time();
+    kb_idle_start_time = get_bk_time();
 
     if (scan_code == 224) {
         extended_code = 0x80;

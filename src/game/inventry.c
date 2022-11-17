@@ -448,7 +448,7 @@ void handle_inventory()
     inven_set_mouse(INVENTORY_WINDOW_CURSOR_HAND);
 
     for (;;) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         if (keyCode == KEY_ESCAPE) {
             break;
@@ -1356,7 +1356,7 @@ void display_body(int fid, int inventoryWindowType)
     // 0x5190F8
     static int curr_rot = 0;
 
-    if (getTicksSince(ticker) < INVENTORY_NORMAL_WINDOW_PC_ROTATION_DELAY) {
+    if (elapsed_time(ticker) < INVENTORY_NORMAL_WINDOW_PC_ROTATION_DELAY) {
         return;
     }
 
@@ -1493,7 +1493,7 @@ void display_body(int fid, int inventoryWindowType)
         art_ptr_unlock(handle);
     }
 
-    ticker = _get_time();
+    ticker = get_time();
 }
 
 // 0x470A2C
@@ -1755,7 +1755,7 @@ void inven_pickup(int keyCode, int a2)
     }
 
     do {
-        _get_input();
+        get_input();
         display_body(-1, INVENTORY_WINDOW_TYPE_NORMAL);
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
@@ -2026,7 +2026,7 @@ void use_inventory_on(Object* a1)
 
         display_body(-1, INVENTORY_WINDOW_TYPE_USE_ITEM_ON);
 
-        int keyCode = _get_input();
+        int keyCode = get_input();
         switch (keyCode) {
         case KEY_HOME:
             stack_offset[curr_stack] = 0;
@@ -3052,7 +3052,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
 
     int mouseState;
     do {
-        _get_input();
+        get_input();
 
         if (inventoryWindowType == INVENTORY_WINDOW_TYPE_NORMAL) {
             display_body(-1, INVENTORY_WINDOW_TYPE_NORMAL);
@@ -3163,7 +3163,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
     int menuItemIndex = 0;
     int previousMouseY = y;
     while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
-        _get_input();
+        get_input();
 
         if (inventoryWindowType == INVENTORY_WINDOW_TYPE_NORMAL) {
             display_body(-1, INVENTORY_WINDOW_TYPE_NORMAL);
@@ -3550,7 +3550,7 @@ int loot_container(Object* a1, Object* a2)
             break;
         }
 
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             game_quit_with_confirm();
@@ -3849,7 +3849,7 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
     }
 
     do {
-        _get_input();
+        get_input();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (inventoryFrm != NULL) {
@@ -4065,7 +4065,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
     }
 
     do {
-        _get_input();
+        get_input();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (inventoryFrm != NULL) {
@@ -4148,7 +4148,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
     }
 
     do {
-        _get_input();
+        get_input();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     if (inventoryFrm != NULL) {
@@ -4360,7 +4360,7 @@ void barter_inventory(int win, Object* a2, Object* a3, Object* a4, int a5)
             break;
         }
 
-        keyCode = _get_input();
+        keyCode = get_input();
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             game_quit_with_confirm();
         }
@@ -4781,7 +4781,7 @@ static int do_move_timer(int inventoryWindowType, Object* item, int max)
 
     bool v5 = false;
     for (;;) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode == KEY_ESCAPE) {
             exit_move_timer_win(inventoryWindowType);
             return -1;
@@ -4805,7 +4805,7 @@ static int do_move_timer(int inventoryWindowType, Object* item, int max)
             if (value < max) {
                 if (inventoryWindowType == INVENTORY_WINDOW_TYPE_MOVE_ITEMS) {
                     if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
-                        _get_time();
+                        get_time();
 
                         unsigned int delay = 100;
                         while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
@@ -4814,11 +4814,11 @@ static int do_move_timer(int inventoryWindowType, Object* item, int max)
                             }
 
                             draw_amount(value, inventoryWindowType);
-                            _get_input();
+                            get_input();
 
                             if (delay > 1) {
                                 delay--;
-                                coreDelayProcessingEvents(delay);
+                                pause_for_tocks(delay);
                             }
                         }
                     } else {
@@ -4838,7 +4838,7 @@ static int do_move_timer(int inventoryWindowType, Object* item, int max)
             if (value > min) {
                 if (inventoryWindowType == INVENTORY_WINDOW_TYPE_MOVE_ITEMS) {
                     if ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
-                        _get_time();
+                        get_time();
 
                         unsigned int delay = 100;
                         while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0) {
@@ -4847,11 +4847,11 @@ static int do_move_timer(int inventoryWindowType, Object* item, int max)
                             }
 
                             draw_amount(value, inventoryWindowType);
-                            _get_input();
+                            get_input();
 
                             if (delay > 1) {
                                 delay--;
-                                coreDelayProcessingEvents(delay);
+                                pause_for_tocks(delay);
                             }
                         }
                     } else {

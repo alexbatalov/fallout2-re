@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "window.h"
 #include "game/actions.h"
 #include "game/anim.h"
 #include "game/automap.h"
@@ -178,8 +179,8 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
     text_add_manager(&alias_mgr);
     text_font(font);
 
-    screenshotHandlerConfigure(KEY_F12, game_screendump);
-    pauseHandlerConfigure(-1, NULL);
+    register_screendump(KEY_F12, game_screendump);
+    register_pause(-1, NULL);
 
     tile_disable_refresh();
 
@@ -1057,7 +1058,7 @@ static int game_screendump(int width, int height, unsigned char* buffer, unsigne
 {
     MessageListItem messageListItem;
 
-    if (screenshotHandlerDefaultImpl(width, height, buffer, palette) != 0) {
+    if (default_screendump(width, height, buffer, palette) != 0) {
         // Error saving screenshot.
         messageListItem.num = 8;
         if (message_search(&misc_message_file, &messageListItem)) {
@@ -1116,11 +1117,11 @@ static void game_help()
                 loadColorTable("art\\intrface\\helpscrn.pal");
                 palette_set_to(cmap);
 
-                while (_get_input() == -1 && game_user_wants_to_quit == 0) {
+                while (get_input() == -1 && game_user_wants_to_quit == 0) {
                 }
 
                 while (mouse_get_buttons() != 0) {
-                    _get_input();
+                    get_input();
                 }
 
                 palette_set_to(black_palette);

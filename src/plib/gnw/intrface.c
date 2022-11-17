@@ -315,7 +315,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
     // Relative to `scrollOffset`.
     int previousSelectedItemIndex = -1;
     while (1) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         int mouseX;
         int mouseY;
         mouse_get_position(&mouseX, &mouseY);
@@ -653,7 +653,7 @@ int win_msg(const char* string, int x, int y, int flags)
 
     win_draw(win);
 
-    while (_get_input() != KEY_ESCAPE) {
+    while (get_input() != KEY_ESCAPE) {
     }
 
     win_delete(win);
@@ -1016,7 +1016,7 @@ int win_input_str(int win, char* dest, int maxLength, int x, int y, int textColo
     // decremented in the loop body when key is not handled.
     bool isFirstKey = true;
     for (; cursorPos <= maxLength; cursorPos++) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode != -1) {
             if (keyCode == KEY_ESCAPE) {
                 dest[cursorPos] = '\0';
@@ -1139,8 +1139,8 @@ int GNW_process_menu(MenuBar* menuBar, int pulldownIndex)
     } while (keyCode < -1);
 
     if (keyCode != -1) {
-        inputEventQueueReset();
-        enqueueInputEvent(keyCode);
+        flush_input_buffer();
+        GNW_add_input_buffer(keyCode);
         keyCode = menuBar->pulldowns[pulldownIndex].keyCode;
     }
 
@@ -1203,7 +1203,7 @@ void GNW_intr_init()
 // 0x4DD4A4
 void GNW_intr_exit()
 {
-    tickersRemove(tm_watch_msgs);
+    remove_bk_process(tm_watch_msgs);
     while (tm_kill != -1) {
         tm_kill_msg();
     }
@@ -1218,7 +1218,7 @@ static void tm_watch_msgs()
 
     tm_watch_active = 1;
     while (tm_kill != -1) {
-        if (getTicksSince(tm_queue[tm_kill].created) < tm_persistence) {
+        if (elapsed_time(tm_queue[tm_kill].created) < tm_persistence) {
             break;
         }
 
@@ -1244,7 +1244,7 @@ static void tm_kill_msg()
         if (v0 == tm_add) {
             tm_add = 0;
             tm_kill = -1;
-            tickersRemove(tm_watch_msgs);
+            remove_bk_process(tm_watch_msgs);
             v0 = tm_kill;
         }
     }
@@ -1290,7 +1290,7 @@ static void tm_kill_out_of_order(int a1)
     if (tm_add == tm_kill) {
         tm_add = 0;
         tm_kill = -1;
-        tickersRemove(tm_watch_msgs);
+        remove_bk_process(tm_watch_msgs);
     }
 }
 

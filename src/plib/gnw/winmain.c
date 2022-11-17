@@ -227,10 +227,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_ACTIVATEAPP:
         GNW95_isActive = wParam;
         if (wParam) {
-            _GNW95_hook_input(1);
+            GNW95_hook_input(1);
             win_refresh_all(&scr_size);
         } else {
-            _GNW95_hook_input(0);
+            GNW95_hook_input(0);
         }
 
         return 0;

@@ -121,7 +121,7 @@ int skilldex_select()
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         if (keyCode == KEY_ESCAPE || keyCode == 500 || game_user_wants_to_quit != 0) {
             rc = 0;
@@ -134,7 +134,7 @@ int skilldex_select()
     }
 
     if (rc != 0) {
-        coreDelay(1000 / 9);
+        block_for_tocks(1000 / 9);
     }
 
     skilldex_end();

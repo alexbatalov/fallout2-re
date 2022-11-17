@@ -129,7 +129,7 @@ void cycle_init()
         monitors[index] >>= 2;
     }
 
-    tickersAdd(cycle_colors);
+    add_bk_process(cycle_colors);
 
     cycle_initialized = true;
     cycle_enabled = true;
@@ -150,7 +150,7 @@ void cycle_reset()
         last_cycle_medium = 0;
         last_cycle_fast = 0;
         last_cycle_very_fast = 0;
-        tickersAdd(cycle_colors);
+        add_bk_process(cycle_colors);
         cycle_enabled = true;
     }
 }
@@ -159,7 +159,7 @@ void cycle_reset()
 void cycle_exit()
 {
     if (cycle_initialized) {
-        tickersRemove(cycle_colors);
+        remove_bk_process(cycle_colors);
         cycle_initialized = false;
         cycle_enabled = false;
     }
@@ -214,9 +214,9 @@ static void cycle_colors()
     bool changed = false;
 
     unsigned char* palette = getSystemPalette();
-    unsigned int time = _get_time();
+    unsigned int time = get_time();
 
-    if (getTicksBetween(time, last_cycle_slow) >= COLOR_CYCLE_PERIOD_SLOW * cycle_speed_factor) {
+    if (elapsed_tocks(time, last_cycle_slow) >= COLOR_CYCLE_PERIOD_SLOW * cycle_speed_factor) {
         changed = true;
         last_cycle_slow = time;
 
@@ -266,7 +266,7 @@ static void cycle_colors()
         }
     }
 
-    if (getTicksBetween(time, last_cycle_medium) >= COLOR_CYCLE_PERIOD_MEDIUM * cycle_speed_factor) {
+    if (elapsed_tocks(time, last_cycle_medium) >= COLOR_CYCLE_PERIOD_MEDIUM * cycle_speed_factor) {
         changed = true;
         last_cycle_medium = time;
 
@@ -286,7 +286,7 @@ static void cycle_colors()
         }
     }
 
-    if (getTicksBetween(time, last_cycle_fast) >= COLOR_CYCLE_PERIOD_FAST * cycle_speed_factor) {
+    if (elapsed_tocks(time, last_cycle_fast) >= COLOR_CYCLE_PERIOD_FAST * cycle_speed_factor) {
         changed = true;
         last_cycle_fast = time;
 
@@ -307,7 +307,7 @@ static void cycle_colors()
         }
     }
 
-    if (getTicksBetween(time, last_cycle_very_fast) >= COLOR_CYCLE_PERIOD_VERY_FAST * cycle_speed_factor) {
+    if (elapsed_tocks(time, last_cycle_very_fast) >= COLOR_CYCLE_PERIOD_VERY_FAST * cycle_speed_factor) {
         changed = true;
         last_cycle_very_fast = time;
 

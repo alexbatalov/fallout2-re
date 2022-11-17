@@ -287,7 +287,7 @@ void map_init()
 void map_reset()
 {
     map_new_map();
-    tickersAdd(gmouse_bk_process);
+    add_bk_process(gmouse_bk_process);
     gmouse_disable(0);
     win_show(display_win);
 }
@@ -297,7 +297,7 @@ void map_exit()
 {
     win_hide(display_win);
     gmouse_set_cursor(MOUSE_CURSOR_ARROW);
-    tickersRemove(gmouse_bk_process);
+    remove_bk_process(gmouse_bk_process);
     if (!message_exit(&map_msg_file)) {
         debug_printf("\nError exiting map_msg_file!");
     }
@@ -311,8 +311,8 @@ void map_enable_bk_processes()
         if (!game_ui_is_disabled()) {
             gmouse_enable();
         }
-        tickersAdd(object_animate);
-        tickersAdd(dude_fidget);
+        add_bk_process(object_animate);
+        add_bk_process(dude_fidget);
         scr_enable_critters();
         map_bk_enabled = true;
     }
@@ -326,8 +326,8 @@ bool map_disable_bk_processes()
     }
 
     scr_disable_critters();
-    tickersRemove(dude_fidget);
-    tickersRemove(object_animate);
+    remove_bk_process(dude_fidget);
+    remove_bk_process(object_animate);
     gmouse_disable(0);
     text_object_disable();
 
@@ -597,11 +597,11 @@ int map_get_index_number()
 // 0x4826C0
 int map_scroll(int dx, int dy)
 {
-    if (getTicksSince(map_last_scroll_time) < 33) {
+    if (elapsed_time(map_last_scroll_time) < 33) {
         return -2;
     }
 
-    map_last_scroll_time = _get_time();
+    map_last_scroll_time = get_time();
 
     int screenDx = dx * 32;
     int screenDy = dy * 24;

@@ -1,8 +1,9 @@
 #include "plib/gnw/mouse.h"
 
 #include "plib/color/color.h"
-#include "plib/gnw/input.h"
 #include "plib/gnw/dxinput.h"
+#include "plib/gnw/gnw.h"
+#include "plib/gnw/input.h"
 #include "plib/gnw/memory.h"
 #include "plib/gnw/svga.h"
 #include "plib/gnw/vcr.h"
@@ -139,7 +140,7 @@ int GNW_mouse_init()
     mouse_y = scr_size.lry / 2;
     raw_x = scr_size.lrx / 2;
     raw_y = scr_size.lry / 2;
-    mouse_idle_start_time = _get_time();
+    mouse_idle_start_time = get_time();
 
     return 0;
 }
@@ -155,7 +156,7 @@ void GNW_mouse_exit()
     }
 
     if (mouse_fptr != NULL) {
-        tickersRemove(mouse_anim);
+        remove_bk_process(mouse_anim);
         mouse_fptr = NULL;
     }
 }
@@ -239,7 +240,7 @@ int mouse_set_shape(unsigned char* buf, int width, int length, int full, int hot
     mouse_trans = trans;
 
     if (mouse_fptr) {
-        tickersRemove(mouse_anim);
+        remove_bk_process(mouse_anim);
         mouse_fptr = NULL;
     }
 
@@ -300,7 +301,7 @@ int mouse_set_anim_frames(unsigned char* frames, int num_frames, int start_frame
     mouse_curr_frame = start_frame;
     mouse_speed = speed;
 
-    tickersAdd(mouse_anim);
+    add_bk_process(mouse_anim);
 
     return 0;
 }
@@ -311,8 +312,8 @@ static void mouse_anim()
     // 0x51E2A8
     static unsigned int ticker = 0;
 
-    if (getTicksSince(ticker) >= mouse_speed) {
-        ticker = _get_time();
+    if (elapsed_time(ticker) >= mouse_speed) {
+        ticker = get_time();
 
         if (++mouse_curr_frame == mouse_num_frames) {
             mouse_curr_frame = 0;
@@ -502,7 +503,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     } else {
         if (last_buttons == 0) {
             if (!mouse_idling) {
-                mouse_idle_start_time = _get_time();
+                mouse_idle_start_time = get_time();
                 mouse_idling = 1;
             }
 
@@ -523,9 +524,9 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
         if ((buttons & 0x01) != 0) {
             mouse_buttons |= MOUSE_EVENT_LEFT_BUTTON_REPEAT;
 
-            if (getTicksSince(left_time) > BUTTON_REPEAT_TIME) {
+            if (elapsed_time(left_time) > BUTTON_REPEAT_TIME) {
                 mouse_buttons |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-                left_time = _get_time();
+                left_time = get_time();
             }
         } else {
             mouse_buttons |= MOUSE_EVENT_LEFT_BUTTON_UP;
@@ -533,16 +534,16 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     } else {
         if ((buttons & 0x01) != 0) {
             mouse_buttons |= MOUSE_EVENT_LEFT_BUTTON_DOWN;
-            left_time = _get_time();
+            left_time = get_time();
         }
     }
 
     if ((old & MOUSE_EVENT_RIGHT_BUTTON_DOWN_REPEAT) != 0) {
         if ((buttons & 0x02) != 0) {
             mouse_buttons |= MOUSE_EVENT_RIGHT_BUTTON_REPEAT;
-            if (getTicksSince(right_time) > BUTTON_REPEAT_TIME) {
+            if (elapsed_time(right_time) > BUTTON_REPEAT_TIME) {
                 mouse_buttons |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-                right_time = _get_time();
+                right_time = get_time();
             }
         } else {
             mouse_buttons |= MOUSE_EVENT_RIGHT_BUTTON_UP;
@@ -550,7 +551,7 @@ void mouse_simulate_input(int delta_x, int delta_y, int buttons)
     } else {
         if (buttons & 0x02) {
             mouse_buttons |= MOUSE_EVENT_RIGHT_BUTTON_DOWN;
-            right_time = _get_time();
+            right_time = get_time();
         }
     }
 
@@ -770,7 +771,7 @@ unsigned int mouse_elapsed_time()
 {
     if (mouse_idling) {
         if (have_mouse && !mouse_is_hidden && !mouse_disabled) {
-            return getTicksSince(mouse_idle_start_time);
+            return elapsed_time(mouse_idle_start_time);
         }
         mouse_idling = false;
     }

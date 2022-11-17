@@ -470,8 +470,8 @@ int SaveGame(int mode)
     int rc = -1;
     int doubleClickSlot = -1;
     while (rc == -1) {
-        unsigned int tick = _get_time();
-        int keyCode = _get_input();
+        unsigned int tick = get_time();
+        int keyCode = get_input();
         bool selectionChanged = false;
         int scrollDirection = LOAD_SAVE_SCROLL_DIRECTION_NONE;
 
@@ -580,7 +580,7 @@ int SaveGame(int mode)
             bool isScrolling = false;
             int scrollCounter = 0;
             do {
-                unsigned int start = _get_time();
+                unsigned int start = get_time();
                 scrollCounter += 1;
 
                 if ((!isScrolling && scrollCounter == 1) || (isScrolling && scrollCounter > 14.4)) {
@@ -634,12 +634,12 @@ int SaveGame(int mode)
                 }
 
                 if (scrollCounter > 14.4) {
-                    while (getTicksSince(start) < 1000 / scrollVelocity) { }
+                    while (elapsed_time(start) < 1000 / scrollVelocity) { }
                 } else {
-                    while (getTicksSince(start) < 1000 / 24) { }
+                    while (elapsed_time(start) < 1000 / 24) { }
                 }
 
-                keyCode = _get_input();
+                keyCode = get_input();
             } while (keyCode != 505 && keyCode != 503);
         } else {
             if (selectionChanged) {
@@ -677,7 +677,7 @@ int SaveGame(int mode)
                 doubleClickSlot = -1;
             }
 
-            while (getTicksSince(tick) < 1000 / 24) {
+            while (elapsed_time(tick) < 1000 / 24) {
             }
         }
 
@@ -951,8 +951,8 @@ int LoadGame(int mode)
     int rc = -1;
     int doubleClickSlot = -1;
     while (rc == -1) {
-        unsigned int time = _get_time();
-        int keyCode = _get_input();
+        unsigned int time = get_time();
+        int keyCode = get_input();
         bool selectionChanged = false;
         int scrollDirection = 0;
 
@@ -1052,7 +1052,7 @@ int LoadGame(int mode)
             bool isScrolling = false;
             int scrollCounter = 0;
             do {
-                unsigned int start = _get_time();
+                unsigned int start = get_time();
                 scrollCounter += 1;
 
                 if ((!isScrolling && scrollCounter == 1) || (isScrolling && scrollCounter > 14.4)) {
@@ -1111,12 +1111,12 @@ int LoadGame(int mode)
                 }
 
                 if (scrollCounter > 14.4) {
-                    while (getTicksSince(start) < 1000 / scrollVelocity) { }
+                    while (elapsed_time(start) < 1000 / scrollVelocity) { }
                 } else {
-                    while (getTicksSince(start) < 1000 / 24) { }
+                    while (elapsed_time(start) < 1000 / 24) { }
                 }
 
-                keyCode = _get_input();
+                keyCode = get_input();
             } while (keyCode != 505 && keyCode != 503);
         } else {
             if (selectionChanged) {
@@ -1160,7 +1160,7 @@ int LoadGame(int mode)
                 doubleClickSlot = -1;
             }
 
-            while (getTicksSince(time) < 1000 / 24) { }
+            while (elapsed_time(time) < 1000 / 24) { }
         }
 
         if (rc == 1) {
@@ -2158,9 +2158,9 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
 
     int rc = 1;
     while (rc == 1) {
-        int tick = _get_time();
+        int tick = get_time();
 
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if ((keyCode & 0x80000000) == 0) {
             v1++;
         }
@@ -2211,7 +2211,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
             win_draw(win);
         }
 
-        while (getTicksSince(tick) < 1000 / 24) {
+        while (elapsed_time(tick) < 1000 / 24) {
         }
     }
 

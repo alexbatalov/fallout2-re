@@ -1,6 +1,6 @@
 #include "plib/gnw/vcr.h"
 
-#include <stddef.h>
+#include <stdlib.h>
 
 #include "plib/gnw/input.h"
 #include "plib/gnw/memory.h"
@@ -97,7 +97,7 @@ bool vcr_record(const char* fileName)
 
     vcr_counter = 1;
     vcr_buffer_index++;
-    vcr_start_time = _get_time();
+    vcr_start_time = get_time();
     kb_clear();
     vcr_state = VCR_STATE_RECORDING;
 
@@ -146,7 +146,7 @@ bool vcr_play(const char* fileName, unsigned int terminationFlags, VcrPlaybackCo
     vcr_terminate_flags = 0;
     vcr_counter = 0;
     vcr_time = 0;
-    vcr_start_time = _get_time();
+    vcr_start_time = get_time();
     vcr_state = VCR_STATE_PLAYING;
     vcr_last_play_event.time = 0;
     vcr_last_play_event.counter = 0;
@@ -210,7 +210,7 @@ int vcr_update()
     switch (vcr_state) {
     case VCR_STATE_RECORDING:
         vcr_counter++;
-        vcr_time = getTicksSince(vcr_start_time);
+        vcr_time = elapsed_time(vcr_start_time);
         if (vcr_buffer_index == VCR_BUFFER_CAPACITY - 1) {
             vcr_dump_buffer();
         }
@@ -225,7 +225,7 @@ int vcr_update()
                         * (vcrEntry->time - vcr_last_play_event.time)
                         / (vcrEntry->counter - vcr_last_play_event.counter);
 
-                    while (getTicksSince(vcr_start_time) < delay) {
+                    while (elapsed_time(vcr_start_time) < delay) {
                     }
                 }
             }
@@ -234,7 +234,7 @@ int vcr_update()
 
             int rc = 0;
             while (vcr_counter >= vcr_buffer[vcr_buffer_index].counter) {
-                vcr_time = getTicksSince(vcr_start_time);
+                vcr_time = elapsed_time(vcr_start_time);
                 if (vcr_time > vcr_buffer[vcr_buffer_index].time + 5
                     || vcr_time < vcr_buffer[vcr_buffer_index].time - 5) {
                     vcr_start_time += vcr_time - vcr_buffer[vcr_buffer_index].time;
@@ -254,7 +254,7 @@ int vcr_update()
                     mouse_show();
                     kb_clear();
                     vcr_terminate_flags = vcr_temp_terminate_flags;
-                    vcr_start_time = _get_time();
+                    vcr_start_time = get_time();
                     vcr_counter = 0;
                     break;
                 case VCR_ENTRY_TYPE_KEYBOARD_EVENT:

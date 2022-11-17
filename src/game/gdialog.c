@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "window.h"
 #include "game/actions.h"
 #include "plib/color/color.h"
 #include "game/combat.h"
@@ -866,14 +867,14 @@ void gdialogFreeSpeech()
 // 0x4450EC
 int gdialogEnableBK()
 {
-    tickersAdd(gdialog_bk);
+    add_bk_process(gdialog_bk);
     return 0;
 }
 
 // 0x4450FC
 int gdialogDisableBK()
 {
-    tickersRemove(gdialog_bk);
+    remove_bk_process(gdialog_bk);
     return 0;
 }
 
@@ -916,7 +917,7 @@ int gdialogInitFromScript(int headFid, int reaction)
     talk_need_to_center = 1;
 
     gdCreateHeadWindow();
-    tickersAdd(gdialog_bk);
+    add_bk_process(gdialog_bk);
     gdSetupFidget(headFid, reaction);
     gdialog_state = 1;
     gmouse_disable_scrolling();
@@ -946,7 +947,7 @@ int gdialogExitFromScript()
 
     gdialogFreeSpeech();
     gdReviewFree();
-    tickersRemove(gdialog_bk);
+    remove_bk_process(gdialog_bk);
 
     if (PID_TYPE(dialog_target->pid) != OBJ_TYPE_ITEM) {
         if (gdPlayerTile != obj_dude->tile) {
@@ -1414,7 +1415,7 @@ static int gdReviewInit(int* win)
 
     win_draw(*win);
 
-    tickersRemove(gdialog_bk);
+    remove_bk_process(gdialog_bk);
 
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 102, 0, 0, 0);
     reviewDispBuf = art_ptr_lock_data(backgroundFid, 0, 0, &reviewDispBackKey);
@@ -1429,7 +1430,7 @@ static int gdReviewInit(int* win)
 // 0x445C18
 static int gdReviewExit(int* win)
 {
-    tickersAdd(gdialog_bk);
+    add_bk_process(gdialog_bk);
 
     for (int index = 0; index < GAME_DIALOG_REVIEW_WINDOW_BUTTON_FRM_COUNT; index++) {
         if (reviewKeys[index] != INVALID_CACHE_ENTRY) {
@@ -1471,7 +1472,7 @@ static int gdReview()
     gdReviewDisplay(win, v1);
 
     while (true) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode == 17 || keyCode == 24 || keyCode == 324) {
             game_quit_with_confirm();
         }
@@ -1885,13 +1886,13 @@ static int gdProcess()
         gdReplyTooBig = 1;
     }
 
-    unsigned int tick = _get_time();
+    unsigned int tick = get_time();
     int pageCount = 0;
     int pageIndex = 0;
     int pageOffsets[10];
     pageOffsets[0] = 0;
     for (;;) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             game_quit_with_confirm();
@@ -1938,9 +1939,9 @@ static int gdProcess()
         }
 
         if (gdReplyTooBig) {
-            unsigned int v6 = _get_bk_time();
+            unsigned int v6 = get_bk_time();
             if (v18) {
-                if (getTicksBetween(v6, tick) >= 10000 || keyCode == KEY_SPACE) {
+                if (elapsed_tocks(v6, tick) >= 10000 || keyCode == KEY_SPACE) {
                     pageCount++;
                     pageIndex++;
                     pageOffsets[pageCount] = dialogBlock.offset;
@@ -1995,7 +1996,7 @@ static int gdProcess()
                         break;
                     }
 
-                    tick = _get_time();
+                    tick = get_time();
 
                     if (dialogBlock.offset) {
                         v18 = 1;
@@ -2549,9 +2550,9 @@ static void gdWaitForFidget()
     debug_printf("Waiting for fidget to complete...\n");
 
     while (art_frame_max_frame(fidgetFp) > fidgetFrameCounter) {
-        if (getTicksSince(fidgetLastTime) >= fidgetTocksPerFrame) {
+        if (elapsed_time(fidgetLastTime) >= fidgetTocksPerFrame) {
             gdDisplayFrame(fidgetFp, fidgetFrameCounter);
-            fidgetLastTime = _get_time();
+            fidgetLastTime = get_time();
             fidgetFrameCounter++;
         }
     }
@@ -2595,9 +2596,9 @@ static void gdPlayTransition(int anim)
     int frame = 0;
     unsigned int time = 0;
     while (frame < art_frame_max_frame(headFrm)) {
-        if (getTicksSince(time) >= delay) {
+        if (elapsed_time(time) >= delay) {
             gdDisplayFrame(headFrm, frame);
-            time = _get_time();
+            time = get_time();
             frame++;
         }
     }
@@ -2825,7 +2826,7 @@ static void gdialog_bk()
     }
 
     if (can_start_new_fidget) {
-        if (getTicksSince(fidgetLastTime) >= tocksWaiting) {
+        if (elapsed_time(fidgetLastTime) >= tocksWaiting) {
             can_start_new_fidget = false;
             dialogue_seconds_since_last_input += tocksWaiting / 1000;
             tocksWaiting = 1000 * (roll_random(0, 3) + 4);
@@ -2834,13 +2835,13 @@ static void gdialog_bk()
         return;
     }
 
-    if (getTicksSince(fidgetLastTime) >= fidgetTocksPerFrame) {
+    if (elapsed_time(fidgetLastTime) >= fidgetTocksPerFrame) {
         if (art_frame_max_frame(fidgetFp) <= fidgetFrameCounter) {
             gdDisplayFrame(fidgetFp, 0);
             can_start_new_fidget = true;
         } else {
             gdDisplayFrame(fidgetFp, fidgetFrameCounter);
-            fidgetLastTime = _get_time();
+            fidgetLastTime = get_time();
             fidgetFrameCounter += 1;
         }
     }
@@ -2940,8 +2941,8 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
             v7 += 10;
             v9 -= 10 * (GAME_DIALOG_WINDOW_WIDTH);
 
-            tick = _get_time();
-            while (getTicksSince(tick) < 33) {
+            tick = get_time();
+            while (elapsed_time(tick) < 33) {
             }
         }
     } else {
@@ -2975,8 +2976,8 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
 
             rect.uly += 10;
 
-            tick = _get_time();
-            while (getTicksSince(tick) < 33) {
+            tick = get_time();
+            while (elapsed_time(tick) < 33) {
             }
         }
     }
@@ -3677,7 +3678,7 @@ static void gdControl()
 
     bool done = false;
     while (!done) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode != -1) {
             if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
                 game_quit_with_confirm();
@@ -3920,7 +3921,7 @@ static void gdCustom()
 {
     bool done = false;
     while (!done) {
-        unsigned int keyCode = _get_input();
+        unsigned int keyCode = get_input();
         if (keyCode != -1) {
             if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
                 game_quit_with_confirm();
@@ -4126,7 +4127,7 @@ static int gdCustomSelect(int a1)
     bool done = false;
     unsigned int v53 = 0;
     while (!done) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode == -1) {
             continue;
         }
@@ -4165,9 +4166,9 @@ static int gdCustomSelect(int a1)
                 continue;
             }
 
-            unsigned int timestamp = _get_time();
+            unsigned int timestamp = get_time();
             if (newValue == value) {
-                if (getTicksBetween(timestamp, v53) < 250) {
+                if (elapsed_tocks(timestamp, v53) < 250) {
                     custom_current_selected[a1] = newValue;
                     gdCustomUpdateSetting(a1, newValue);
                     done = true;

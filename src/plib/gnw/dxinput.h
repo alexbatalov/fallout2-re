@@ -1,7 +1,7 @@
 #ifndef FALLOUT_PLIB_GNW_DXINPUT_H_
 #define FALLOUT_PLIB_GNW_DXINPUT_H_
 
-#include "plib/gnw/winmain.h"
+#include <stdbool.h>
 
 typedef struct dxinput_mouse_state {
     int delta_x;

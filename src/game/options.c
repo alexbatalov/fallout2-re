@@ -390,7 +390,7 @@ int do_optionsFunc(int initialKeyCode)
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         bool showPreferences = false;
 
         if (initialKeyCode != -1) {
@@ -448,7 +448,7 @@ int do_optionsFunc(int initialKeyCode)
         } else {
             switch (keyCode) {
             case KEY_F12:
-                takeScreenshot();
+                dump_screen();
                 break;
             case KEY_UPPERCASE_E:
             case KEY_LOWERCASE_E:
@@ -752,7 +752,7 @@ int PauseWindow(bool a1)
 
     bool done = false;
     while (!done) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         switch (keyCode) {
         case KEY_PLUS:
         case KEY_EQUAL:
@@ -834,7 +834,7 @@ static int do_prefscreen()
 
     int rc = -1;
     while (rc == -1) {
-        int eventCode = _get_input();
+        int eventCode = get_input();
 
         switch (eventCode) {
         case KEY_RETURN:
@@ -859,7 +859,7 @@ static int do_prefscreen()
             DecGamma();
             break;
         case KEY_F12:
-            takeScreenshot();
+            dump_screen();
             break;
         case 527:
             SetDefaults(true);
@@ -1169,7 +1169,7 @@ static void DoThing(int eventCode)
 
         if (valueChanged) {
             gsound_play_sfx_file("ib3p1xx1");
-            coreDelay(70);
+            block_for_tocks(70);
             gsound_play_sfx_file("ib3lu1x1");
             UpdateThing(preferenceIndex);
             win_draw(prfwin);
@@ -1203,7 +1203,7 @@ static void DoThing(int eventCode)
 
         if (valueChanged) {
             gsound_play_sfx_file("ib2p1xx1");
-            coreDelay(70);
+            block_for_tocks(70);
             gsound_play_sfx_file("ib2lu1x1");
             UpdateThing(preferenceIndex);
             win_draw(prfwin);
@@ -1242,9 +1242,9 @@ static void DoThing(int eventCode)
         int sfxVolumeExample = 0;
         int speechVolumeExample = 0;
         while (true) {
-            _get_input();
+            get_input();
 
-            int tick = _get_time();
+            int tick = get_time();
 
             mouse_get_position(&x, &y);
 
@@ -1379,7 +1379,7 @@ static void DoThing(int eventCode)
             trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
             win_draw(prfwin);
 
-            while (getTicksSince(tick) < 35)
+            while (elapsed_time(tick) < 35)
                 ;
         }
     } else if (preferenceIndex == 19) {

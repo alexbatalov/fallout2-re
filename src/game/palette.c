@@ -27,7 +27,7 @@ void palette_init()
     memset(white_palette, 63, 256 * 3);
     memcpy(current_palette, cmap, 256 * 3);
 
-    unsigned int tick = _get_time();
+    unsigned int tick = get_time();
     if (gsound_background_is_enabled() || gsound_speech_is_enabled()) {
         colorSetFadeBkFunc(soundContinueAll);
     }
@@ -36,7 +36,7 @@ void palette_init()
 
     colorSetFadeBkFunc(NULL);
 
-    unsigned int diff = getTicksSince(tick);
+    unsigned int diff = elapsed_time(tick);
 
     // NOTE: Modern CPUs are super fast, so it's possible that less than 10ms
     // (the resolution of underlying GetTicks) is needed to fade between two

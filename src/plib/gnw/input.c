@@ -11,26 +11,55 @@
 #include "plib/gnw/gnw.h"
 #include "plib/gnw/intrface.h"
 #include "plib/gnw/svga.h"
+#include "plib/gnw/winmain.h"
+
+typedef struct GNW95RepeatStruct {
+    // Time when appropriate key was pressed down or -1 if it's up.
+    TOCKS time;
+    unsigned short count;
+} GNW95RepeatStruct;
+
+typedef struct inputdata {
+    // This is either logical key or input event id, which can be either
+    // character code pressed or some other numbers used throughout the
+    // game interface.
+    int input;
+    int mx;
+    int my;
+} inputdata;
+
+typedef struct funcdata {
+    unsigned int flags;
+    BackgroundProcess* f;
+    struct funcdata* next;
+} funcdata;
+
+typedef funcdata* FuncPtr;
+
+static int get_input_buffer();
+static void pause_game();
+static int default_pause_window();
+static void buf_blit(unsigned char* src, int src_pitch, int a3, int x, int y, int width, int height, int dest_x, int dest_y);
+static void GNW95_build_key_map();
+static int GNW95_hook_keyboard(int hook);
+static void GNW95_process_key(dxinput_key_data* data);
 
 // NOT USED.
-void (*_idle_func)() = NULL;
+static IdleFunc* idle_func = NULL;
 
 // NOT USED.
-void (*_focus_func)(int) = NULL;
+static FocusFunc* focus_func = NULL;
 
 // 0x51E23C
-int gKeyboardKeyRepeatRate = 80;
+static int GNW95_repeat_rate = 80;
 
 // 0x51E240
-int gKeyboardKeyRepeatDelay = 500;
-
-// 0x51E244
-bool _keyboard_hooked = false;
+static int GNW95_repeat_delay = 500;
 
 // A map of DIK_* constants normalized for QWERTY keyboard.
 //
 // 0x6ABC70
-unsigned char gNormalizedQwertyKeys[256];
+unsigned char GNW95_key_map[256];
 
 // Ring buffer of input events.
 //
@@ -38,58 +67,58 @@ unsigned char gNormalizedQwertyKeys[256];
 // buffer is full it will not overwrite values until they are dequeued.
 //
 // 0x6ABD70
-InputEvent gInputEventQueue[40];
+static inputdata input_buffer[40];
 
 // 0x6ABF50
-STRUCT_6ABF50 _GNW95_key_time_stamps[256];
+GNW95RepeatStruct GNW95_key_time_stamps[256];
 
 // 0x6AC750
-int _input_mx;
+static int input_mx;
 
 // 0x6AC754
-int _input_my;
+static int input_my;
 
 // 0x6AC758
-HHOOK _GNW95_keyboardHandle;
+static HHOOK GNW95_keyboardHandle;
 
 // 0x6AC75C
-bool gPaused;
+static bool game_paused;
 
 // 0x6AC760
-int gScreenshotKeyCode;
+static int screendump_key;
 
 // 0x6AC764
-int _using_msec_timer;
+static int using_msec_timer;
 
 // 0x6AC768
-int gPauseKeyCode;
+static int pause_key;
 
 // 0x6AC76C
-ScreenshotHandler* gScreenshotHandler;
+static ScreenDumpFunc* screendump_func;
 
 // 0x6AC770
-int gInputEventQueueReadIndex;
+static int input_get;
 
 // 0x6AC774
-unsigned char* gScreenshotBuffer;
+static unsigned char* screendump_buf;
 
 // 0x6AC778
-PauseHandler* gPauseHandler;
+static PauseWinFunc* pause_win_func;
 
 // 0x6AC77C
-int gInputEventQueueWriteIndex;
+static int input_put;
 
 // 0x6AC780
-bool gRunLoopDisabled;
+static bool bk_disabled;
 
 // 0x6AC784
-TickerListNode* gTickerListHead;
+static FuncPtr bk_list;
 
 // 0x6AC788
-unsigned int gTickerLastTimestamp;
+static unsigned int bk_process_time;
 
 // 0x4C8A70
-int coreInit(int a1)
+int GNW_input_init(int use_msec_timer)
 {
     if (!dxinput_init()) {
         return -1;
@@ -103,63 +132,63 @@ int coreInit(int a1)
         return -1;
     }
 
-    if (_GNW95_input_init() == -1) {
+    if (GNW95_input_init() == -1) {
         return -1;
     }
 
-    _GNW95_hook_input(1);
-    buildNormalizedQwertyKeys();
-    _GNW95_clear_time_stamps();
+    GNW95_hook_input(1);
+    GNW95_build_key_map();
+    GNW95_clear_time_stamps();
 
-    _using_msec_timer = a1;
-    gInputEventQueueWriteIndex = 0;
-    gInputEventQueueReadIndex = -1;
-    _input_mx = -1;
-    _input_my = -1;
-    gRunLoopDisabled = 0;
-    gPaused = false;
-    gPauseKeyCode = KEY_ALT_P;
-    gPauseHandler = pauseHandlerDefaultImpl;
-    gScreenshotHandler = screenshotHandlerDefaultImpl;
-    gTickerListHead = NULL;
-    gScreenshotKeyCode = KEY_ALT_C;
+    using_msec_timer = use_msec_timer;
+    input_put = 0;
+    input_get = -1;
+    input_mx = -1;
+    input_my = -1;
+    bk_disabled = 0;
+    game_paused = false;
+    pause_key = KEY_ALT_P;
+    pause_win_func = default_pause_window;
+    screendump_func = default_screendump;
+    bk_list = NULL;
+    screendump_key = KEY_ALT_C;
 
     return 0;
 }
 
 // 0x4C8B40
-void coreExit()
+void GNW_input_exit()
 {
-    _GNW95_hook_keyboard(0);
-    _GNW95_input_init();
+    // NOTE: Uninline.
+    GNW95_input_exit();
     GNW_mouse_exit();
     GNW_kb_restore();
     dxinput_exit();
 
-    TickerListNode* curr = gTickerListHead;
+    FuncPtr curr = bk_list;
     while (curr != NULL) {
-        TickerListNode* next = curr->next;
+        FuncPtr next = curr->next;
         mem_free(curr);
         curr = next;
     }
 }
 
 // 0x4C8B78
-int _get_input()
+int get_input()
 {
     int v3;
 
-    _GNW95_process_message();
+    GNW95_process_message();
 
     if (!GNW95_isActive) {
-        _GNW95_lost_focus();
+        GNW95_lost_focus();
     }
 
-    _process_bk();
+    process_bk();
 
-    v3 = dequeueInputEvent();
+    v3 = get_input_buffer();
     if (v3 == -1 && mouse_get_buttons() & 0x33) {
-        mouse_get_position(&_input_mx, &_input_my);
+        mouse_get_position(&input_mx, &input_my);
         return -2;
     } else {
         return GNW_check_menu_bars(v3);
@@ -169,11 +198,11 @@ int _get_input()
 }
 
 // 0x4C8BDC
-void _process_bk()
+void process_bk()
 {
     int v1;
 
-    tickersExecute();
+    GNW_do_bk_process();
 
     if (vcr_update() != 3) {
         mouse_info();
@@ -181,113 +210,112 @@ void _process_bk()
 
     v1 = win_check_all_buttons();
     if (v1 != -1) {
-        enqueueInputEvent(v1);
+        GNW_add_input_buffer(v1);
         return;
     }
 
     v1 = kb_getch();
     if (v1 != -1) {
-        enqueueInputEvent(v1);
+        GNW_add_input_buffer(v1);
         return;
     }
 }
 
 // 0x4C8C04
-void enqueueInputEvent(int a1)
+void GNW_add_input_buffer(int a1)
 {
     if (a1 == -1) {
         return;
     }
 
-    if (a1 == gPauseKeyCode) {
-        pauseGame();
+    if (a1 == pause_key) {
+        pause_game();
         return;
     }
 
-    if (a1 == gScreenshotKeyCode) {
-        takeScreenshot();
+    if (a1 == screendump_key) {
+        dump_screen();
         return;
     }
 
-    if (gInputEventQueueWriteIndex == gInputEventQueueReadIndex) {
+    if (input_put == input_get) {
         return;
     }
 
-    InputEvent* inputEvent = &(gInputEventQueue[gInputEventQueueWriteIndex]);
-    inputEvent->logicalKey = a1;
+    inputdata* inputEvent = &(input_buffer[input_put]);
+    inputEvent->input = a1;
 
-    mouse_get_position(&(inputEvent->mouseX), &(inputEvent->mouseY));
+    mouse_get_position(&(inputEvent->mx), &(inputEvent->my));
 
-    gInputEventQueueWriteIndex++;
+    input_put++;
 
-    if (gInputEventQueueWriteIndex == 40) {
-        gInputEventQueueWriteIndex = 0;
+    if (input_put == 40) {
+        input_put = 0;
         return;
     }
 
-    if (gInputEventQueueReadIndex == -1) {
-        gInputEventQueueReadIndex = 0;
+    if (input_get == -1) {
+        input_get = 0;
     }
 }
 
 // 0x4C8C9C
-int dequeueInputEvent()
+static int get_input_buffer()
 {
-    if (gInputEventQueueReadIndex == -1) {
+    if (input_get == -1) {
         return -1;
     }
 
-    InputEvent* inputEvent = &(gInputEventQueue[gInputEventQueueReadIndex]);
-    int eventCode = inputEvent->logicalKey;
-    _input_mx = inputEvent->mouseX;
-    _input_my = inputEvent->mouseY;
+    inputdata* inputEvent = &(input_buffer[input_get]);
+    int eventCode = inputEvent->input;
+    input_mx = inputEvent->mx;
+    input_my = inputEvent->my;
 
-    gInputEventQueueReadIndex++;
+    input_get++;
 
-    if (gInputEventQueueReadIndex == 40) {
-        gInputEventQueueReadIndex = 0;
+    if (input_get == 40) {
+        input_get = 0;
     }
 
-    if (gInputEventQueueReadIndex == gInputEventQueueWriteIndex) {
-        gInputEventQueueReadIndex = -1;
-        gInputEventQueueWriteIndex = 0;
+    if (input_get == input_put) {
+        input_get = -1;
+        input_put = 0;
     }
 
     return eventCode;
 }
 
 // 0x4C8D04
-void inputEventQueueReset()
+void flush_input_buffer()
 {
-    gInputEventQueueReadIndex = -1;
-    gInputEventQueueWriteIndex = 0;
+    input_get = -1;
+    input_put = 0;
 }
 
 // 0x4C8D1C
-void tickersExecute()
+void GNW_do_bk_process()
 {
-    if (gPaused) {
+    if (game_paused) {
         return;
     }
 
-    if (gRunLoopDisabled) {
+    if (bk_disabled) {
         return;
     }
 
-#pragma warning(suppress : 28159)
-    gTickerLastTimestamp = GetTickCount();
+    bk_process_time = get_time();
 
-    TickerListNode* curr = gTickerListHead;
-    TickerListNode** currPtr = &(gTickerListHead);
+    FuncPtr curr = bk_list;
+    FuncPtr* currPtr = &(bk_list);
 
     while (curr != NULL) {
-        TickerListNode* next = curr->next;
+        FuncPtr next = curr->next;
         if (curr->flags & 1) {
             *currPtr = next;
 
             mem_free(curr);
         } else {
-            curr->proc();
+            curr->f();
             currPtr = &(curr->next);
         }
         curr = next;
@@ -295,69 +323,73 @@ void tickersExecute()
 }
 
 // 0x4C8D74
-void tickersAdd(TickerProc* proc)
+void add_bk_process(BackgroundProcess* f)
 {
-    TickerListNode* curr = gTickerListHead;
-    while (curr != NULL) {
-        if (curr->proc == proc) {
-            if ((curr->flags & 0x01) != 0) {
-                curr->flags &= ~0x01;
+    FuncPtr fp;
+
+    fp = bk_list;
+    while (fp != NULL) {
+        if (fp->f == f) {
+            if ((fp->flags & 0x01) != 0) {
+                fp->flags &= ~0x01;
                 return;
             }
         }
-        curr = curr->next;
+        fp = fp->next;
     }
 
-    curr = (TickerListNode*)mem_malloc(sizeof(*curr));
-    curr->flags = 0;
-    curr->proc = proc;
-    curr->next = gTickerListHead;
-    gTickerListHead = curr;
+    fp = (FuncPtr)mem_malloc(sizeof(*fp));
+    fp->flags = 0;
+    fp->f = f;
+    fp->next = bk_list;
+    bk_list = fp;
 }
 
 // 0x4C8DC4
-void tickersRemove(TickerProc* proc)
+void remove_bk_process(BackgroundProcess* f)
 {
-    TickerListNode* curr = gTickerListHead;
-    while (curr != NULL) {
-        if (curr->proc == proc) {
-            curr->flags |= 0x01;
+    FuncPtr fp;
+
+    fp = bk_list;
+    while (fp != NULL) {
+        if (fp->f == f) {
+            fp->flags |= 0x01;
             return;
         }
-        curr = curr->next;
+        fp = fp->next;
     }
 }
 
 // 0x4C8DE4
-void tickersEnable()
+void enable_bk()
 {
-    gRunLoopDisabled = false;
+    bk_disabled = false;
 }
 
 // 0x4C8DF0
-void tickersDisable()
+void disable_bk()
 {
-    gRunLoopDisabled = true;
+    bk_disabled = true;
 }
 
 // 0x4C8DFC
-void pauseGame()
+static void pause_game()
 {
-    if (!gPaused) {
-        gPaused = true;
+    if (!game_paused) {
+        game_paused = true;
 
-        int win = gPauseHandler();
+        int win = pause_win_func();
 
-        while (_get_input() != KEY_ESCAPE) {
+        while (get_input() != KEY_ESCAPE) {
         }
 
-        gPaused = false;
+        game_paused = false;
         win_delete(win);
     }
 }
 
 // 0x4C8E38
-int pauseHandlerDefaultImpl()
+static int default_pause_window()
 {
     int windowWidth = text_width("Paused") + 32;
     int windowHeight = 3 * text_height() + 16;
@@ -397,32 +429,32 @@ int pauseHandlerDefaultImpl()
 }
 
 // 0x4C8F34
-void pauseHandlerConfigure(int keyCode, PauseHandler* handler)
+void register_pause(int new_pause_key, PauseWinFunc* new_pause_win_func)
 {
-    gPauseKeyCode = keyCode;
+    pause_key = new_pause_key;
 
-    if (handler == NULL) {
-        handler = pauseHandlerDefaultImpl;
+    if (new_pause_win_func == NULL) {
+        new_pause_win_func = default_pause_window;
     }
 
-    gPauseHandler = handler;
+    pause_win_func = new_pause_win_func;
 }
 
 // 0x4C8F4C
-void takeScreenshot()
+void dump_screen()
 {
     int width = scr_size.lrx - scr_size.ulx + 1;
     int height = scr_size.lry - scr_size.uly + 1;
-    gScreenshotBuffer = (unsigned char*)mem_malloc(width * height);
-    if (gScreenshotBuffer == NULL) {
+    screendump_buf = (unsigned char*)mem_malloc(width * height);
+    if (screendump_buf == NULL) {
         return;
     }
 
     ScreenBlitFunc* v0 = scr_blit;
-    scr_blit = screenshotBlitter;
+    scr_blit = buf_blit;
 
     ScreenBlitFunc* v2 = mouse_blit;
-    mouse_blit = screenshotBlitter;
+    mouse_blit = buf_blit;
 
     ScreenTransBlitFunc* v1 = mouse_blit_trans;
     mouse_blit_trans = NULL;
@@ -434,19 +466,19 @@ void takeScreenshot()
     scr_blit = v0;
 
     unsigned char* palette = getSystemPalette();
-    gScreenshotHandler(width, height, gScreenshotBuffer, palette);
-    mem_free(gScreenshotBuffer);
+    screendump_func(width, height, screendump_buf, palette);
+    mem_free(screendump_buf);
 }
 
 // 0x4C8FF0
-void screenshotBlitter(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int width, int height, int destX, int destY)
+static void buf_blit(unsigned char* src, int srcPitch, int a3, int srcX, int srcY, int width, int height, int destX, int destY)
 {
     int destWidth = scr_size.lrx - scr_size.ulx + 1;
-    buf_to_buf(src + srcPitch * srcY + srcX, width, height, srcPitch, gScreenshotBuffer + destWidth * destY + destX, destWidth);
+    buf_to_buf(src + srcPitch * srcY + srcX, width, height, srcPitch, screendump_buf + destWidth * destY + destX, destWidth);
 }
 
 // 0x4C9048
-int screenshotHandlerDefaultImpl(int width, int height, unsigned char* data, unsigned char* palette)
+int default_screendump(int width, int height, unsigned char* data, unsigned char* palette)
 {
     char fileName[16];
     FILE* stream;
@@ -565,67 +597,67 @@ int screenshotHandlerDefaultImpl(int width, int height, unsigned char* data, uns
 }
 
 // 0x4C9358
-void screenshotHandlerConfigure(int keyCode, ScreenshotHandler* handler)
+void register_screendump(int new_screendump_key, ScreenDumpFunc* new_screendump_func)
 {
-    gScreenshotKeyCode = keyCode;
+    screendump_key = new_screendump_key;
 
-    if (handler == NULL) {
-        handler = screenshotHandlerDefaultImpl;
+    if (new_screendump_func == NULL) {
+        new_screendump_func = default_screendump;
     }
 
-    gScreenshotHandler = handler;
+    screendump_func = new_screendump_func;
 }
 
 // 0x4C9370
-unsigned int _get_time()
+TOCKS get_time()
 {
 #pragma warning(suppress : 28159)
     return GetTickCount();
 }
 
 // 0x4C937C
-void coreDelayProcessingEvents(unsigned int delay)
+void pause_for_tocks(unsigned int delay)
 {
     // NOTE: Uninline.
-    unsigned int start = _get_time();
-    unsigned int end = _get_time();
+    unsigned int start = get_time();
+    unsigned int end = get_time();
 
     // NOTE: Uninline.
-    unsigned int diff = getTicksBetween(end, start);
+    unsigned int diff = elapsed_tocks(end, start);
     while (diff < delay) {
-        _process_bk();
+        process_bk();
 
-        end = _get_time();
+        end = get_time();
 
         // NOTE: Uninline.
-        diff = getTicksBetween(end, start);
+        diff = elapsed_tocks(end, start);
     }
 }
 
 // 0x4C93B8
-void coreDelay(unsigned int ms)
+void block_for_tocks(unsigned int ms)
 {
 #pragma warning(suppress : 28159)
     unsigned int start = GetTickCount();
     unsigned int diff;
     do {
         // NOTE: Uninline
-        diff = getTicksSince(start);
+        diff = elapsed_time(start);
     } while (diff < ms);
 }
 
 // 0x4C93E0
-unsigned int getTicksSince(unsigned int start)
+unsigned int elapsed_time(unsigned int start)
 {
 #pragma warning(suppress : 28159)
     unsigned int end = GetTickCount();
 
     // NOTE: Uninline.
-    return getTicksBetween(end, start);
+    return elapsed_tocks(end, start);
 }
 
 // 0x4C9400
-unsigned int getTicksBetween(unsigned int end, unsigned int start)
+unsigned int elapsed_tocks(unsigned int end, unsigned int start)
 {
     if (start > end) {
         return INT_MAX;
@@ -635,15 +667,15 @@ unsigned int getTicksBetween(unsigned int end, unsigned int start)
 }
 
 // 0x4C9410
-unsigned int _get_bk_time()
+unsigned int get_bk_time()
 {
-    return gTickerLastTimestamp;
+    return bk_process_time;
 }
 
 // 0x4C9490
-void buildNormalizedQwertyKeys()
+static void GNW95_build_key_map()
 {
-    unsigned char* keys = gNormalizedQwertyKeys;
+    unsigned char* keys = GNW95_key_map;
     int k;
 
     keys[DIK_ESCAPE] = DIK_ESCAPE;
@@ -971,11 +1003,11 @@ void buildNormalizedQwertyKeys()
 }
 
 // 0x4C9BB4
-void _GNW95_hook_input(int a1)
+void GNW95_hook_input(int hook)
 {
-    _GNW95_hook_keyboard(a1);
+    GNW95_hook_keyboard(hook);
 
-    if (a1) {
+    if (hook) {
         dxinput_acquire_mouse();
     } else {
         dxinput_unacquire_mouse();
@@ -983,34 +1015,45 @@ void _GNW95_hook_input(int a1)
 }
 
 // 0x4C9C20
-int _GNW95_input_init()
+int GNW95_input_init()
 {
     return 0;
 }
 
-// 0x4C9C28
-int _GNW95_hook_keyboard(int a1)
+// NOTE: Inlined.
+//
+// 0x4C9C24
+void GNW95_input_exit()
 {
-    if (a1 == _keyboard_hooked) {
+    GNW95_hook_keyboard(0);
+}
+
+// 0x4C9C28
+static int GNW95_hook_keyboard(int hook)
+{
+    // 0x51E244
+    static bool hooked = false;
+
+    if (hook == hooked) {
         return 0;
     }
 
-    if (!a1) {
+    if (!hook) {
         dxinput_unacquire_keyboard();
 
-        UnhookWindowsHookEx(_GNW95_keyboardHandle);
+        UnhookWindowsHookEx(GNW95_keyboardHandle);
 
         kb_clear();
 
-        _keyboard_hooked = a1;
+        hooked = hook;
 
         return 0;
     }
 
     if (dxinput_acquire_keyboard()) {
-        _GNW95_keyboardHandle = SetWindowsHookExA(WH_KEYBOARD, _GNW95_keyboard_hook, 0, GetCurrentThreadId());
+        GNW95_keyboardHandle = SetWindowsHookExA(WH_KEYBOARD, GNW95_keyboard_hook, 0, GetCurrentThreadId());
         kb_clear();
-        _keyboard_hooked = a1;
+        hooked = hook;
 
         return 0;
     }
@@ -1019,7 +1062,7 @@ int _GNW95_hook_keyboard(int a1)
 }
 
 // 0x4C9C4C
-LRESULT CALLBACK _GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam)
 {
     if (nCode >= 0) {
         if (wParam == VK_DELETE && lParam & 0x20000000 && GetAsyncKeyState(VK_CONTROL) & 0x80000000)
@@ -1041,33 +1084,33 @@ LRESULT CALLBACK _GNW95_keyboard_hook(int nCode, WPARAM wParam, LPARAM lParam)
 
 next:
 
-    return CallNextHookEx(_GNW95_keyboardHandle, nCode, wParam, lParam);
+    return CallNextHookEx(GNW95_keyboardHandle, nCode, wParam, lParam);
 }
 
 // 0x4C9CF0
-void _GNW95_process_message()
+void GNW95_process_message()
 {
     if (GNW95_isActive && !kb_is_disabled()) {
         dxinput_key_data data;
         while (dxinput_read_keyboard_buffer(&data)) {
-            _GNW95_process_key(&data);
+            GNW95_process_key(&data);
         }
 
         // NOTE: Uninline
-        int tick = _get_time();
+        TOCKS now = get_time();
 
         for (int key = 0; key < 256; key++) {
-            STRUCT_6ABF50* ptr = &(_GNW95_key_time_stamps[key]);
-            if (ptr->tick != -1) {
-                int elapsedTime = ptr->tick > tick ? INT_MAX : tick - ptr->tick;
-                int delay = ptr->repeatCount == 0 ? gKeyboardKeyRepeatDelay : gKeyboardKeyRepeatRate;
+            GNW95RepeatStruct* ptr = &(GNW95_key_time_stamps[key]);
+            if (ptr->time != -1) {
+                int elapsedTime = ptr->time > now ? INT_MAX : now - ptr->time;
+                int delay = ptr->count == 0 ? GNW95_repeat_delay : GNW95_repeat_rate;
                 if (elapsedTime > delay) {
                     data.code = key;
                     data.state = 1;
-                    _GNW95_process_key(&data);
+                    GNW95_process_key(&data);
 
-                    ptr->tick = tick;
-                    ptr->repeatCount++;
+                    ptr->time = now;
+                    ptr->count++;
                 }
             }
         }
@@ -1083,16 +1126,16 @@ void _GNW95_process_message()
 }
 
 // 0x4C9DF0
-void _GNW95_clear_time_stamps()
+void GNW95_clear_time_stamps()
 {
     for (int index = 0; index < 256; index++) {
-        _GNW95_key_time_stamps[index].tick = -1;
-        _GNW95_key_time_stamps[index].repeatCount = 0;
+        GNW95_key_time_stamps[index].time = -1;
+        GNW95_key_time_stamps[index].count = 0;
     }
 }
 
 // 0x4C9E14
-void _GNW95_process_key(dxinput_key_data* data)
+static void GNW95_process_key(dxinput_key_data* data)
 {
     short key = data->code & 0xFF;
 
@@ -1115,7 +1158,7 @@ void _GNW95_process_key(dxinput_key_data* data)
         break;
     }
 
-    int qwertyKey = gNormalizedQwertyKeys[data->code & 0xFF];
+    int qwertyKey = GNW95_key_map[data->code & 0xFF];
 
     if (vcr_state == VCR_STATE_PLAYING) {
         if ((vcr_terminate_flags & VCR_TERMINATE_ON_KEY_PRESS) != 0) {
@@ -1128,13 +1171,13 @@ void _GNW95_process_key(dxinput_key_data* data)
             qwertyKey -= 0x80;
         }
 
-        STRUCT_6ABF50* ptr = &(_GNW95_key_time_stamps[data->code & 0xFF]);
+        GNW95RepeatStruct* ptr = &(GNW95_key_time_stamps[data->code & 0xFF]);
         if (data->state == 1) {
-            ptr->tick = _get_time();
-            ptr->repeatCount = 0;
+            ptr->time = get_time();
+            ptr->count = 0;
         } else {
             qwertyKey |= 0x80;
-            ptr->tick = -1;
+            ptr->time = -1;
         }
 
         kb_simulate_key(qwertyKey);
@@ -1142,21 +1185,21 @@ void _GNW95_process_key(dxinput_key_data* data)
 }
 
 // 0x4C9EEC
-void _GNW95_lost_focus()
+void GNW95_lost_focus()
 {
-    if (_focus_func != NULL) {
-        _focus_func(0);
+    if (focus_func != NULL) {
+        focus_func(0);
     }
 
     while (!GNW95_isActive) {
-        _GNW95_process_message();
+        GNW95_process_message();
 
-        if (_idle_func != NULL) {
-            _idle_func();
+        if (idle_func != NULL) {
+            idle_func();
         }
     }
 
-    if (_focus_func != NULL) {
-        _focus_func(1);
+    if (focus_func != NULL) {
+        focus_func(1);
     }
 }

@@ -450,7 +450,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 
     int rc = -1;
     while (rc == -1) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
 
         if (keyCode == 500) {
             rc = 1;
@@ -670,8 +670,8 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
 
     int rc = -1;
     while (rc == -1) {
-        unsigned int tick = _get_time();
-        int keyCode = _get_input();
+        unsigned int tick = get_time();
+        int keyCode = get_input();
         int scrollDirection = FILE_DIALOG_SCROLL_DIRECTION_NONE;
         int scrollCounter = 0;
         bool isScrolling = false;
@@ -778,7 +778,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
             unsigned int scrollDelay = 4;
             doubleClickSelectedFileIndex = -2;
             while (1) {
-                unsigned int scrollTick = _get_time();
+                unsigned int scrollTick = get_time();
                 scrollCounter += 1;
                 if ((!isScrolling && scrollCounter == 1) || (isScrolling && scrollCounter > 14.4)) {
                     isScrolling = true;
@@ -822,7 +822,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
                 }
 
                 unsigned int delay = (scrollCounter > 14.4) ? 1000 / scrollDelay : 1000 / 24;
-                while (getTicksSince(scrollTick) < delay) {
+                while (elapsed_time(scrollTick) < delay) {
                 }
 
                 if (game_user_wants_to_quit != 0) {
@@ -830,7 +830,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
                     break;
                 }
 
-                int keyCode = _get_input();
+                int keyCode = get_input();
                 if (keyCode == 505 || keyCode == 503) {
                     break;
                 }
@@ -844,7 +844,7 @@ int file_dialog(char* title, char** fileList, char* dest, int fileListLength, in
                 doubleClickSelectedFileIndex = -2;
             }
 
-            while (getTicksSince(tick) < (1000 / 24)) {
+            while (elapsed_time(tick) < (1000 / 24)) {
             }
         }
 
@@ -1075,8 +1075,8 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
 
     int rc = -1;
     while (rc == -1) {
-        unsigned int tick = _get_time();
-        int keyCode = _get_input();
+        unsigned int tick = get_time();
+        int keyCode = get_input();
         int scrollDirection = FILE_DIALOG_SCROLL_DIRECTION_NONE;
         int scrollCounter = 0;
         bool isScrolling = false;
@@ -1220,7 +1220,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
             unsigned int scrollDelay = 4;
             doubleClickSelectedFileIndex = -2;
             while (1) {
-                unsigned int scrollTick = _get_time();
+                unsigned int scrollTick = get_time();
                 scrollCounter += 1;
                 if ((!isScrolling && scrollCounter == 1) || (isScrolling && scrollCounter > 14.4)) {
                     isScrolling = true;
@@ -1281,7 +1281,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 // FIXME: Missing windowRefresh makes blinking useless.
 
                 unsigned int delay = (scrollCounter > 14.4) ? 1000 / scrollDelay : 1000 / 24;
-                while (getTicksSince(scrollTick) < delay) {
+                while (elapsed_time(scrollTick) < delay) {
                 }
 
                 if (game_user_wants_to_quit != 0) {
@@ -1289,7 +1289,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     break;
                 }
 
-                int key = _get_input();
+                int key = get_input();
                 if (key == 505 || key == 503) {
                     break;
                 }
@@ -1313,7 +1313,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 doubleClickSelectedFileIndex = -2;
             }
 
-            while (getTicksSince(tick) < (1000 / 24)) {
+            while (elapsed_time(tick) < (1000 / 24)) {
             }
         }
 

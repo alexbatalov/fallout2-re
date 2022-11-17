@@ -6,6 +6,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include "window.h"
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "game/cycle.h"
@@ -245,7 +246,7 @@ int gmovie_play(int movie, int flags)
     int v11 = 0;
     int buttons;
     do {
-        if (!moviePlaying() || game_user_wants_to_quit || _get_input() != -1) {
+        if (!moviePlaying() || game_user_wants_to_quit || get_input() != -1) {
             break;
         }
 

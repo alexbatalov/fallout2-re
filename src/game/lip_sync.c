@@ -167,7 +167,7 @@ int lips_play_speech()
     int speechVolume = gsound_speech_volume_get();
     soundVolume(lip_info.sound, (int)(speechVolume * 0.69));
 
-    speechStartTime = _get_time();
+    speechStartTime = get_time();
 
     if (soundPlay(lip_info.sound) != 0) {
         debug_printf("Failed play!\n");

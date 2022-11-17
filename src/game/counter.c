@@ -24,7 +24,7 @@ void counter_on(CounterOutputFunc* outputFunc)
 {
     if (!counter_is_on) {
         debug_printf("Turning on counter...\n");
-        tickersAdd(counter);
+        add_bk_process(counter);
         counter_output_func = outputFunc;
         counter_is_on = 1;
         last_time = clock();
@@ -35,7 +35,7 @@ void counter_on(CounterOutputFunc* outputFunc)
 void counter_off()
 {
     if (counter_is_on) {
-        tickersRemove(counter);
+        remove_bk_process(counter);
         counter_is_on = 0;
     }
 }

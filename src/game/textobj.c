@@ -79,7 +79,7 @@ int text_object_init(unsigned char* windowBuffer, int width, int height)
     display_height = height;
     text_object_index = 0;
 
-    tickersAdd(text_object_bk);
+    add_bk_process(text_object_bk);
 
     double textBaseDelay;
     if (!config_get_double(&game_config, GAME_CONFIG_PREFERENCES_KEY, GAME_CONFIG_TEXT_BASE_DELAY_KEY, &textBaseDelay)) {
@@ -113,7 +113,7 @@ int text_object_reset()
     }
 
     text_object_index = 0;
-    tickersAdd(text_object_bk);
+    add_bk_process(text_object_bk);
 
     return 0;
 }
@@ -123,7 +123,7 @@ void text_object_exit()
 {
     if (text_object_initialized) {
         text_object_reset();
-        tickersRemove(text_object_bk);
+        remove_bk_process(text_object_bk);
         text_object_initialized = false;
     }
 }
@@ -311,7 +311,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
     text_object_remove(object);
 
     textObject->owner = object;
-    textObject->time = _get_bk_time();
+    textObject->time = get_bk_time();
 
     text_object_list[text_object_index] = textObject;
     text_object_index++;
@@ -370,7 +370,7 @@ static void text_object_bk()
         TextObject* textObject = text_object_list[index];
 
         unsigned int delay = text_object_line_delay * textObject->linesCount + text_object_base_delay;
-        if ((textObject->flags & TEXT_OBJECT_MARKED_FOR_REMOVAL) != 0 || (getTicksBetween(_get_bk_time(), textObject->time) > delay)) {
+        if ((textObject->flags & TEXT_OBJECT_MARKED_FOR_REMOVAL) != 0 || (elapsed_tocks(get_bk_time(), textObject->time) > delay)) {
             tile_coord(textObject->tile, &(textObject->x), &(textObject->y), map_elevation);
             textObject->x += textObject->sx;
             textObject->y += textObject->sy;

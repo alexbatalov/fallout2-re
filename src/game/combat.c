@@ -2483,7 +2483,7 @@ static void combat_begin(Object* a1)
 {
     combat_turn_running = 0;
     anim_stop();
-    tickersRemove(dude_fidget);
+    remove_bk_process(dude_fidget);
     combat_elev = map_elevation;
 
     if (!isInCombat()) {
@@ -2548,7 +2548,7 @@ static void combat_begin(Object* a1)
             register_end();
 
             while (anim_busy(v1)) {
-                _process_bk();
+                process_bk();
             }
         }
     }
@@ -2683,7 +2683,7 @@ static void combat_over()
         }
     }
 
-    tickersAdd(dude_fidget);
+    add_bk_process(dude_fidget);
 
     for (int index = 0; index < list_noncom + list_com; index++) {
         Object* critter = combat_list[index];
@@ -2713,7 +2713,7 @@ static void combat_over()
             register_end();
 
             while (anim_busy(critter)) {
-                _process_bk();
+                process_bk();
             }
         }
     }
@@ -3045,7 +3045,7 @@ void combat_end()
 void combat_turn_run()
 {
     while (combat_turn_running > 0) {
-        _process_bk();
+        process_bk();
     }
 }
 
@@ -3069,10 +3069,10 @@ static int combat_input()
             break;
         }
 
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (action_explode_running()) {
             while (combat_turn_running > 0) {
-                _process_bk();
+                process_bk();
             }
         }
 
@@ -3221,7 +3221,7 @@ static int combat_turn(Object* a1, bool a2)
         }
 
         while (combat_turn_running > 0) {
-            _process_bk();
+            process_bk();
         }
 
         if (a1 == obj_dude) {
@@ -5467,7 +5467,7 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
 
     int eventCode;
     while (true) {
-        eventCode = _get_input();
+        eventCode = get_input();
 
         if (eventCode == KEY_ESCAPE) {
             break;

@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <timeapi.h>
+
 // 0x51EBD8
 int dword_51EBD8 = 0;
 

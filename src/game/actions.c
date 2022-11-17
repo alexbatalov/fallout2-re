@@ -1511,14 +1511,14 @@ Object* pick_object(int objectType, bool a2)
     foundObject = NULL;
 
     do {
-        _get_input();
+        get_input();
     } while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_REPEAT) != 0);
 
     gmouse_set_cursor(MOUSE_CURSOR_PLUS);
     gmouse_3d_off();
 
     do {
-        if (_get_input() == -2) {
+        if (get_input() == -2) {
             mouseEvent = mouse_get_buttons();
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_UP) != 0) {
                 keyCode = 0;
@@ -1556,7 +1556,7 @@ int pick_hex()
     elevation = map_elevation;
 
     while (1) {
-        inputEvent = _get_input();
+        inputEvent = get_input();
         if (inputEvent == -2) {
             break;
         }

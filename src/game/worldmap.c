@@ -3051,8 +3051,8 @@ static int wmWorldMapFunc(int a1)
 
     int rc = 0;
     for (;;) {
-        int keyCode = _get_input();
-        unsigned int tick = _get_time();
+        int keyCode = get_input();
+        unsigned int tick = get_time();
 
         int mouseX;
         int mouseY;
@@ -3136,7 +3136,7 @@ static int wmWorldMapFunc(int a1)
 
             wmInterfaceRefresh();
 
-            if (getTicksBetween(tick, v24) > 1000) {
+            if (elapsed_tocks(tick, v24) > 1000) {
                 if (partyMemberRestingHeal(3)) {
                     intface_update_hit_points(false);
                     v24 = tick;
@@ -3354,8 +3354,8 @@ static void wmCheckGameEvents()
 // 0x4C0634
 static int wmRndEncounterOccurred()
 {
-    unsigned int v0 = _get_time();
-    if (getTicksBetween(v0, wmLastRndTime) < 1500) {
+    unsigned int v0 = get_time();
+    if (elapsed_tocks(v0, wmLastRndTime) < 1500) {
         return 0;
     }
 
@@ -3457,7 +3457,7 @@ static int wmRndEncounterOccurred()
             return -1;
         }
 
-        coreDelay(200);
+        block_for_tocks(200);
     }
 
     if (wmGenData.isInCar) {
@@ -4481,7 +4481,7 @@ static int wmInterfaceInit()
     Art* frm;
     CacheEntry* frmHandle;
 
-    wmLastRndTime = _get_time();
+    wmLastRndTime = get_time();
     wmGenData.oldFont = text_curr();
     text_font(0);
 
@@ -4835,7 +4835,7 @@ static int wmInterfaceInit()
         wmGenData.carImageFrmHeight = art_frame_length(wmGenData.carImageFrm, 0, 0);
     }
 
-    tickersAdd(wmMouseBkProc);
+    add_bk_process(wmMouseBkProc);
 
     if (wmMakeTabsLabelList(&wmLabelList, &wmLabelCount) == -1) {
         return -1;
@@ -4860,7 +4860,7 @@ static int wmInterfaceExit()
     int i;
     TileInfo* tile;
 
-    tickersRemove(wmMouseBkProc);
+    remove_bk_process(wmMouseBkProc);
 
     if (wmBkArtBuf != NULL) {
         art_ptr_unlock(wmBkKey);
@@ -5159,9 +5159,9 @@ static void wmMouseBkProc()
             }
         }
 
-        unsigned int tick = _get_bk_time();
-        if (getTicksBetween(tick, lastTime) > 50) {
-            lastTime = _get_bk_time();
+        unsigned int tick = get_bk_time();
+        if (elapsed_tocks(tick, lastTime) > 50) {
+            lastTime = get_bk_time();
             // NOTE: Uninline.
             wmInterfaceScroll(dx, dy, &couldScroll);
         }
@@ -5967,7 +5967,7 @@ static int wmTownMapFunc(int* mapIdxPtr)
     CityInfo* city = &(wmAreaInfoList[wmGenData.currentAreaId]);
 
     for (;;) {
-        int keyCode = _get_input();
+        int keyCode = get_input();
         if (keyCode == KEY_CTRL_Q || keyCode == KEY_CTRL_X || keyCode == KEY_F10) {
             game_quit_with_confirm();
         }
@@ -6093,7 +6093,7 @@ static int wmTownMapInit()
         }
     }
 
-    tickersRemove(wmMouseBkProc);
+    remove_bk_process(wmMouseBkProc);
 
     if (wmTownMapRefresh() == -1) {
         return -1;
@@ -6166,7 +6166,7 @@ static int wmTownMapExit()
         return -1;
     }
 
-    tickersAdd(wmMouseBkProc);
+    add_bk_process(wmMouseBkProc);
 
     return 0;
 }

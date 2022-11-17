@@ -206,8 +206,8 @@ void display_print(char* str)
     int knobWidth = text_width(knobString);
 
     if (!isInCombat()) {
-        unsigned int now = _get_bk_time();
-        if (getTicksBetween(now, last_time) >= DISPLAY_MONITOR_BEEP_DELAY) {
+        unsigned int now = get_bk_time();
+        if (elapsed_tocks(now, last_time) >= DISPLAY_MONITOR_BEEP_DELAY) {
             last_time = now;
             gsound_play_sfx_file("monitor");
         }

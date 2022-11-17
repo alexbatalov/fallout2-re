@@ -657,9 +657,9 @@ void gmouse_bk_process()
         return;
     }
 
-    unsigned int v3 = _get_bk_time();
+    unsigned int v3 = get_bk_time();
     if (mouseX == gmouse_3d_last_mouse_x && mouseY == gmouse_3d_last_mouse_y) {
-        if (gmouse_3d_hover_test || getTicksBetween(v3, gmouse_3d_last_move_time) < 250) {
+        if (gmouse_3d_hover_test || elapsed_tocks(v3, gmouse_3d_last_move_time) < 250) {
             return;
         }
 
@@ -1005,7 +1005,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 gmouse_3d_hover_test = true;
                 gmouse_3d_last_mouse_y = mouseY;
                 gmouse_3d_last_mouse_x = mouseX;
-                gmouse_3d_last_move_time = _get_time() - 250;
+                gmouse_3d_last_move_time = get_time() - 250;
             }
             return;
         }
@@ -1127,7 +1127,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     int v33 = mouseY;
                     int actionIndex = 0;
                     while ((mouse_get_buttons() & MOUSE_EVENT_LEFT_BUTTON_UP) == 0) {
-                        _get_input();
+                        get_input();
 
                         if (game_user_wants_to_quit != 0) {
                             actionMenuItems[actionIndex] = 0;
@@ -1156,7 +1156,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                     gmouse_3d_hover_test = false;
                     gmouse_3d_last_mouse_x = mouseX;
                     gmouse_3d_last_mouse_y = mouseY;
-                    gmouse_3d_last_move_time = _get_time();
+                    gmouse_3d_last_move_time = get_time();
 
                     mouse_set_position(mouseX, v33);
 
@@ -1262,14 +1262,14 @@ int gmouse_set_cursor(int cursor)
     bool shouldUpdate = true;
     int frame = 0;
     if (cursor >= FIRST_GAME_MOUSE_ANIMATED_CURSOR) {
-        unsigned int tick = _get_time();
+        unsigned int tick = get_time();
 
         if ((obj_mouse_flat->flags & OBJECT_HIDDEN) == 0) {
             gmouse_3d_off();
         }
 
         unsigned int delay = 1000 / art_frame_fps(mouseCursorFrm);
-        if (getTicksBetween(tick, gmouse_wait_cursor_time) < delay) {
+        if (elapsed_tocks(tick, gmouse_wait_cursor_time) < delay) {
             shouldUpdate = false;
         } else {
             if (art_frame_max_frame(mouseCursorFrm) <= gmouse_wait_cursor_frame) {
@@ -1405,7 +1405,7 @@ void gmouse_3d_set_mode(int mode)
 
     gmouse_3d_current_mode = mode;
     gmouse_3d_hover_test = false;
-    gmouse_3d_last_move_time = _get_time();
+    gmouse_3d_last_move_time = get_time();
 
     tile_refresh_rect(&rect, map_elevation);
 
@@ -1585,7 +1585,7 @@ void gmouse_3d_on()
     }
 
     gmouse_3d_hover_test = false;
-    gmouse_3d_last_move_time = _get_time() - 250;
+    gmouse_3d_last_move_time = get_time() - 250;
 }
 
 // 0x44CE34
@@ -2059,7 +2059,7 @@ static int gmouse_3d_reset()
     gmouse_3d_last_mouse_x = -1;
     gmouse_3d_last_mouse_y = -1;
     gmouse_3d_hover_test = false;
-    gmouse_3d_last_move_time = _get_time();
+    gmouse_3d_last_move_time = get_time();
     gmouse_3d_synch_item_highlight();
 
     return 0;

@@ -6,8 +6,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "plib/gnw/gnw95dx.h"
-
 extern HWND GNW95_hwnd;
 extern HINSTANCE GNW95_hInstance;
 extern LPSTR GNW95_lpszCmdLine;
