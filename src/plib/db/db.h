@@ -51,7 +51,7 @@ int fileWriteBool(File* stream, bool value);
 int db_freadByteCount(File* stream, unsigned char* arr, int count);
 int db_freadShortCount(File* stream, unsigned short* arr, int count);
 int fileReadInt32List(File* stream, int* arr, int count);
-int _db_freadIntCount(File* stream, int* arr, int count);
+int db_freadLongCount(File* stream, unsigned long* arr, int count);
 int fileReadUInt32List(File* stream, unsigned int* arr, int count);
 int db_fwriteByteCount(File* stream, unsigned char* arr, int count);
 int db_fwriteShortCount(File* stream, unsigned short* arr, int count);

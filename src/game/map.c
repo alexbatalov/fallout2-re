@@ -1700,7 +1700,7 @@ static int square_load(File* stream, int flags)
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         if ((flags & map_data_elev_flags[elevation]) == 0) {
             int* arr = square[elevation]->field_0;
-            if (_db_freadIntCount(stream, arr, SQUARE_GRID_SIZE) != 0) {
+            if (db_freadLongCount(stream, arr, SQUARE_GRID_SIZE) != 0) {
                 return -1;
             }
 

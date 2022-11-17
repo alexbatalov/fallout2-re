@@ -468,8 +468,8 @@ int fileReadInt32List(File* stream, int* arr, int count)
     return 0;
 }
 
-// NOTE: Uncollapsed 0x4C63BC. The opposite of [_db_fwriteLongCount].
-int _db_freadIntCount(File* stream, int* arr, int count)
+// NOTE: Uncollapsed 0x4C63BC.
+int db_freadLongCount(File* stream, unsigned long* arr, int count)
 {
     return fileReadInt32List(stream, arr, count);
 }

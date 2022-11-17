@@ -1036,7 +1036,7 @@ static int AM_ReadMainHeader(File* stream)
         return -1;
     }
 
-    if (_db_freadIntCount(stream, (int*)amdbhead.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
+    if (db_freadLongCount(stream, (int*)amdbhead.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
         return -1;
     }
 
