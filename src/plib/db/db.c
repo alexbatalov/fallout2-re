@@ -341,7 +341,7 @@ int fileReadUInt32(File* stream, unsigned int* valuePtr)
 }
 
 // NOTE: Uncollapsed 0x4C614C. The opposite of [fileWriteFloat].
-int fileReadFloat(File* stream, float* valuePtr)
+int db_freadFloat(File* stream, float* valuePtr)
 {
     return fileReadInt32(stream, (int*)valuePtr);
 }

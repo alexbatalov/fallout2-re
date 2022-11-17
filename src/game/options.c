@@ -1959,13 +1959,13 @@ int load_options(File* stream)
     if (fileReadInt32(stream, &item_highlight) == -1) goto err;
     if (fileReadInt32(stream, &combat_speed) == -1) goto err;
     if (fileReadInt32(stream, &player_speedup) == -1) goto err;
-    if (fileReadFloat(stream, &textBaseDelay) == -1) goto err;
+    if (db_freadFloat(stream, &textBaseDelay) == -1) goto err;
     if (fileReadInt32(stream, &master_volume) == -1) goto err;
     if (fileReadInt32(stream, &music_volume) == -1) goto err;
     if (fileReadInt32(stream, &sndfx_volume) == -1) goto err;
     if (fileReadInt32(stream, &speech_volume) == -1) goto err;
-    if (fileReadFloat(stream, &brightness) == -1) goto err;
-    if (fileReadFloat(stream, &mouseSensitivity) == -1) goto err;
+    if (db_freadFloat(stream, &brightness) == -1) goto err;
+    if (db_freadFloat(stream, &mouseSensitivity) == -1) goto err;
 
     gamma_value = brightness;
     mouse_sens = mouseSensitivity;
