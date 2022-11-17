@@ -2827,8 +2827,8 @@ int item_d_load(File* stream, void** dataPtr)
         return -1;
     }
 
-    if (fileReadInt32List(stream, drugEffectEvent->stats, 3) == -1) goto err;
-    if (fileReadInt32List(stream, drugEffectEvent->modifiers, 3) == -1) goto err;
+    if (db_freadIntCount(stream, drugEffectEvent->stats, 3) == -1) goto err;
+    if (db_freadIntCount(stream, drugEffectEvent->modifiers, 3) == -1) goto err;
 
     *dataPtr = drugEffectEvent;
     return 0;

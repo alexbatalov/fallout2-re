@@ -104,7 +104,7 @@ void trait_exit()
 // 0x4B3B08
 int trait_load(File* stream)
 {
-    return fileReadInt32List(stream, pc_trait, TRAITS_MAX_SELECTED_COUNT);
+    return db_freadIntCount(stream, pc_trait, TRAITS_MAX_SELECTED_COUNT);
 }
 
 // Saves trait system state to save game.

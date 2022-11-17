@@ -1639,7 +1639,7 @@ int scr_game_save(File* stream)
 // 0x4A5424
 int scr_game_load(File* stream)
 {
-    return fileReadInt32List(stream, game_global_vars, num_game_global_vars);
+    return db_freadIntCount(stream, game_global_vars, num_game_global_vars);
 }
 
 // NOTE: For unknown reason save game files contains two identical sets of game
@@ -1655,7 +1655,7 @@ int scr_game_load2(File* stream)
         return -1;
     }
 
-    if (fileReadInt32List(stream, vars, num_game_global_vars) == -1) {
+    if (db_freadIntCount(stream, vars, num_game_global_vars) == -1) {
         // FIXME: Leaks vars.
         return -1;
     }

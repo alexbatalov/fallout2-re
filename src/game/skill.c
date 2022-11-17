@@ -156,7 +156,7 @@ void skill_exit()
 // 0x4AA488
 int skill_load(File* stream)
 {
-    return fileReadInt32List(stream, tag_skill, NUM_TAGGED_SKILLS);
+    return db_freadIntCount(stream, tag_skill, NUM_TAGGED_SKILLS);
 }
 
 // 0x4AA4A8
@@ -1213,7 +1213,7 @@ int skill_use_slot_save(File* stream)
 // 0x4ABF5C
 int skill_use_slot_load(File* stream)
 {
-    return fileReadInt32List(stream, (int*)timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
+    return db_freadIntCount(stream, (int*)timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
 }
 
 // 0x4ABF7C

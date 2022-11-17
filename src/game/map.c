@@ -1573,7 +1573,7 @@ static void map_free_global_vars()
 // 0x48405C
 static int map_load_global_vars(File* stream)
 {
-    if (fileReadInt32List(stream, map_global_vars, num_map_global_vars) != 0) {
+    if (db_freadIntCount(stream, map_global_vars, num_map_global_vars) != 0) {
         return -1;
     }
 
@@ -1614,7 +1614,7 @@ static void map_free_local_vars()
 // 0x4840F8
 static int map_load_local_vars(File* stream)
 {
-    if (fileReadInt32List(stream, map_local_vars, num_map_local_vars) != 0) {
+    if (db_freadIntCount(stream, map_local_vars, num_map_local_vars) != 0) {
         return -1;
     }
 
@@ -1757,7 +1757,7 @@ static int map_read_MapData(MapHeader* ptr, File* stream)
     if (db_freadInt(stream, &(ptr->globalVariablesCount)) == -1) return -1;
     if (db_freadInt(stream, &(ptr->field_34)) == -1) return -1;
     if (db_freadInt(stream, &(ptr->lastVisitTime)) == -1) return -1;
-    if (fileReadInt32List(stream, ptr->field_3C, 44) == -1) return -1;
+    if (db_freadIntCount(stream, ptr->field_3C, 44) == -1) return -1;
 
     return 0;
 }

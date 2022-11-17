@@ -439,10 +439,8 @@ int db_freadShortCount(File* stream, unsigned short* arr, int count)
     return 0;
 }
 
-// NOTE: Not sure about signed/unsigned int/long.
-//
 // 0x4C63BC
-int fileReadInt32List(File* stream, int* arr, int count)
+int db_freadIntCount(File* stream, int* arr, int count)
 {
     if (count == 0) {
         return 0;
@@ -463,13 +461,7 @@ int fileReadInt32List(File* stream, int* arr, int count)
 // NOTE: Uncollapsed 0x4C63BC.
 int db_freadLongCount(File* stream, unsigned long* arr, int count)
 {
-    return fileReadInt32List(stream, arr, count);
-}
-
-// NOTE: Probably uncollapsed 0x4C63BC.
-int fileReadUInt32List(File* stream, unsigned int* arr, int count)
-{
-    return fileReadInt32List(stream, (int*)arr, count);
+    return db_freadIntCount(stream, arr, count);
 }
 
 // 0x4C6464

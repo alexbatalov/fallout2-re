@@ -673,7 +673,7 @@ int critter_kill_count(int killType)
 // 0x42D8C0
 int critter_kill_count_load(File* stream)
 {
-    if (fileReadInt32List(stream, pc_kill_counts, KILL_TYPE_COUNT) == -1) {
+    if (db_freadIntCount(stream, pc_kill_counts, KILL_TYPE_COUNT) == -1) {
         db_fclose(stream);
         return -1;
     }
@@ -1036,9 +1036,9 @@ int pc_load_data(const char* path)
 int critter_read_data(File* stream, CritterProtoData* critterData)
 {
     if (db_freadInt(stream, &(critterData->flags)) == -1) return -1;
-    if (fileReadInt32List(stream, critterData->baseStats, SAVEABLE_STAT_COUNT) == -1) return -1;
-    if (fileReadInt32List(stream, critterData->bonusStats, SAVEABLE_STAT_COUNT) == -1) return -1;
-    if (fileReadInt32List(stream, critterData->skills, SKILL_COUNT) == -1) return -1;
+    if (db_freadIntCount(stream, critterData->baseStats, SAVEABLE_STAT_COUNT) == -1) return -1;
+    if (db_freadIntCount(stream, critterData->bonusStats, SAVEABLE_STAT_COUNT) == -1) return -1;
+    if (db_freadIntCount(stream, critterData->skills, SKILL_COUNT) == -1) return -1;
     if (db_freadInt(stream, &(critterData->bodyType)) == -1) return -1;
     if (db_freadInt(stream, &(critterData->experience)) == -1) return -1;
     if (db_freadInt(stream, &(critterData->killType)) == -1) return -1;

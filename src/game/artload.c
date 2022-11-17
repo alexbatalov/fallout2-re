@@ -34,7 +34,7 @@ static int art_readFrameData(Art* art, File* stream)
     if (db_freadShort(stream, &(art->frameCount)) == -1) return -1;
     if (db_freadShortCount(stream, art->xOffsets, ROTATION_COUNT) == -1) return -1;
     if (db_freadShortCount(stream, art->yOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileReadInt32List(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
+    if (db_freadIntCount(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
     if (db_freadInt(stream, &(art->field_3A)) == -1) return -1;
 
     return 0;
