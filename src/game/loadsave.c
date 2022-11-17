@@ -1703,12 +1703,12 @@ static int SaveHeader(int slot)
     }
 
     ptr->elevation = map_elevation;
-    if (fileWriteInt16(flptr, ptr->elevation) == -1) {
+    if (db_fwriteShort(flptr, ptr->elevation) == -1) {
         return -1;
     }
 
     ptr->map = map_get_index_number();
-    if (fileWriteInt16(flptr, ptr->map) == -1) {
+    if (db_fwriteShort(flptr, ptr->map) == -1) {
         return -1;
     }
 

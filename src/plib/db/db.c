@@ -367,7 +367,7 @@ int db_fwriteByte(File* stream, unsigned char value)
 };
 
 // 0x4C61C8
-int fileWriteInt16(File* stream, short value)
+int db_fwriteShort(File* stream, unsigned short value)
 {
     // NOTE: Uninline.
     if (db_fwriteByte(stream, (value >> 8) & 0xFF) == -1) {
@@ -380,12 +380,6 @@ int fileWriteInt16(File* stream, short value)
     }
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C61C8.
-int fileWriteUInt16(File* stream, unsigned short value)
-{
-    return fileWriteInt16(stream, (short)value);
 }
 
 // NOTE: Not sure about signness and int vs. long.
@@ -403,11 +397,11 @@ int fileWriteInt32(File* stream, int value)
 // 0x4C6244
 int _db_fwriteLong(File* stream, int value)
 {
-    if (fileWriteInt16(stream, (value >> 16) & 0xFFFF) == -1) {
+    if (db_fwriteShort(stream, (value >> 16) & 0xFFFF) == -1) {
         return -1;
     }
 
-    if (fileWriteInt16(stream, value & 0xFFFF) == -1) {
+    if (db_fwriteShort(stream, value & 0xFFFF) == -1) {
         return -1;
     }
 
@@ -536,7 +530,7 @@ int fileWriteInt16List(File* stream, short* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
-        if (fileWriteInt16(stream, arr[index]) == -1) {
+        if (db_fwriteShort(stream, arr[index]) == -1) {
             return -1;
         }
     }
@@ -574,12 +568,12 @@ int _db_fwriteLongCount(File* stream, int* arr, int count)
         int value = arr[index];
 
         // NOTE: Uninline.
-        if (fileWriteInt16(stream, (value >> 16) & 0xFFFF) == -1) {
+        if (db_fwriteShort(stream, (value >> 16) & 0xFFFF) == -1) {
             return -1;
         }
 
         // NOTE: Uninline.
-        if (fileWriteInt16(stream, value & 0xFFFF) == -1) {
+        if (db_fwriteShort(stream, value & 0xFFFF) == -1) {
             return -1;
         }
     }

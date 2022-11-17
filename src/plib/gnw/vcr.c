@@ -393,7 +393,7 @@ bool vcr_save_record(VcrEntry* vcrEntry, File* stream)
         if (fileWriteInt32(stream, vcrEntry->initial.keyboardLayout) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
-        if (fileWriteInt16(stream, vcrEntry->keyboardEvent.key) == -1) return false;
+        if (db_fwriteShort(stream, vcrEntry->keyboardEvent.key) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_MOUSE_EVENT:
         if (fileWriteInt32(stream, vcrEntry->mouseEvent.dx) == -1) return false;
