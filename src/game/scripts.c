@@ -615,7 +615,7 @@ static void doBkProcesses()
         }
     }
 
-    _updateWindows();
+    updateWindows();
 
     if (script_engine_running && script_engine_run_critters) {
         if (!gdialogActive()) {

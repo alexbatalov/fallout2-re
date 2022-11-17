@@ -319,7 +319,7 @@ static void printLine(int win, char** strings, int strings_num, int a4, int a5, 
 
     for (i = 0; i < strings_num; i++) {
         v11 = a7 + i * text_height();
-        _windowPrintBuf(win, strings[i], strlen(strings[i]), a4, a5 + a7, a6, v11, a8, a9);
+        windowPrintBuf(win, strings[i], strlen(strings[i]), a4, a5 + a7, a6, v11, a8, a9);
     }
 }
 
@@ -329,9 +329,9 @@ static void printStr(int win, char* a2, int a3, int a4, int a5, int a6, int a7, 
     char** strings;
     int strings_num;
 
-    strings = _windowWordWrap(a2, a3, 0, &strings_num);
+    strings = windowWordWrap(a2, a3, 0, &strings_num);
     printLine(win, strings, strings_num, a3, a4, a5, a6, a7, a8);
-    _windowFreeWordList(strings, strings_num);
+    windowFreeWordList(strings, strings_num);
 }
 
 // 0x430104

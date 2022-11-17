@@ -445,7 +445,7 @@ static int blitAlpha(int win, unsigned char* data, int width, int height, int pi
 {
     int windowWidth = win_width(win);
     unsigned char* windowBuffer = win_get_buf(win);
-    _alphaBltBuf(data, width, height, pitch, alphaWindowBuf, alphaBuf, windowBuffer + windowWidth * movieY + movieX, windowWidth);
+    alphaBltBuf(data, width, height, pitch, alphaWindowBuf, alphaBuf, windowBuffer + windowWidth * movieY + movieX, windowWidth);
     return 1;
 }
 
@@ -483,7 +483,7 @@ static int blitNormal(int win, unsigned char* data, int width, int height, int p
 {
     int windowWidth = win_width(win);
     unsigned char* windowBuffer = win_get_buf(win);
-    _drawScaled(windowBuffer + windowWidth * movieY + movieX, movieW, movieH, windowWidth, data, width, height, pitch);
+    drawScaled(windowBuffer + windowWidth * movieY + movieX, movieW, movieH, windowWidth, data, width, height, pitch);
     return 1;
 }
 
@@ -711,7 +711,7 @@ static File* openFile(char* filePath)
 // 0x487380
 static void openSubtitle(char* filePath)
 {
-    subtitleW = _windowGetXres();
+    subtitleW = windowGetXres();
     subtitleH = text_height() + 4;
 
     if (subtitleFilenameFunc != NULL) {
@@ -793,8 +793,8 @@ static void doSubtitle()
     int v1 = text_height();
     int v2 = (480 - lastMovieH - lastMovieY - v1) / 2 + lastMovieH + lastMovieY;
 
-    if (subtitleH + v2 > _windowGetYres()) {
-        subtitleH = _windowGetYres() - v2;
+    if (subtitleH + v2 > windowGetYres()) {
+        subtitleH = windowGetYres() - v2;
     }
 
     int frame;

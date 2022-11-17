@@ -318,7 +318,7 @@ int win_print_text_region(int textRegionId, char* string)
                 textRegions[textRegionIndex].height,
                 textRegions[textRegionIndex].backgroundColor);
 
-            _windowPrintBuf(textRegions[textRegionIndex].win,
+            windowPrintBuf(textRegions[textRegionIndex].win,
                 string,
                 strlen(string),
                 textRegions[textRegionIndex].width,
@@ -356,7 +356,7 @@ int win_print_substr_region(int textRegionId, char* string, int stringLength)
                 textRegions[textRegionIndex].height,
                 textRegions[textRegionIndex].backgroundColor);
 
-            _windowPrintBuf(textRegions[textRegionIndex].win,
+            windowPrintBuf(textRegions[textRegionIndex].win,
                 string,
                 stringLength,
                 textRegions[textRegionIndex].width,

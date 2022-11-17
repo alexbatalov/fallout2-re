@@ -153,7 +153,7 @@ int game_init(const char* windowTitle, bool isMapper, int font, int a4, int argc
 
     annoy_user();
     win_set_minimized_title(windowTitle);
-    _initWindow(1, a4);
+    initWindow(1, a4);
     palette_init();
 
     char* language;
@@ -426,7 +426,7 @@ void game_exit()
     endgameDeathEndingExit();
     FMExit();
     trap_exit();
-    _windowClose();
+    windowClose();
     dbExit();
     gconfig_exit(true);
 }

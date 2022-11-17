@@ -3144,7 +3144,7 @@ void barter_end_to_talk_to()
     dialogQuit();
     dialogClose();
     updatePrograms();
-    _updateWindows();
+    updateWindows();
     dialogue_state = 1;
     dialogue_switch_mode = 1;
 }
