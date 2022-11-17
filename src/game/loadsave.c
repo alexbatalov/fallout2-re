@@ -1680,7 +1680,7 @@ static int SaveHeader(int slot)
         return -1;
     }
 
-    if (_db_fwriteLong(flptr, ptr->fileTime) == -1) {
+    if (db_fwriteLong(flptr, ptr->fileTime) == -1) {
         return -1;
     }
 
@@ -1698,7 +1698,7 @@ static int SaveHeader(int slot)
         return -1;
     }
 
-    if (_db_fwriteLong(flptr, ptr->gameTime) == -1) {
+    if (db_fwriteLong(flptr, ptr->gameTime) == -1) {
         return -1;
     }
 

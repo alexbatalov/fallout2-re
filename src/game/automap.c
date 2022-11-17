@@ -885,7 +885,7 @@ static int WriteAM_Entry(File* stream)
         buffer = ambuf;
     }
 
-    if (_db_fwriteLong(stream, amdbsubhead.dataSize) == -1) {
+    if (db_fwriteLong(stream, amdbsubhead.dataSize) == -1) {
         goto err;
     }
 
@@ -1003,7 +1003,7 @@ static int WriteAM_Header(File* stream)
         goto err;
     }
 
-    if (_db_fwriteLong(stream, amdbhead.dataSize) == -1) {
+    if (db_fwriteLong(stream, amdbhead.dataSize) == -1) {
         goto err;
     }
 

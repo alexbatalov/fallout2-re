@@ -326,9 +326,9 @@ int fileReadInt32(File* stream, int* valuePtr)
     return 0;
 }
 
-// NOTE: Uncollapsed 0x4C614C. The opposite of [_db_fwriteLong]. It can be either
+// NOTE: Uncollapsed 0x4C614C. The opposite of [db_fwriteLong]. It can be either
 // signed vs. unsigned variant, as well as int vs. long. It's provided here to
-// identify places where data was written with [_db_fwriteLong].
+// identify places where data was written with [db_fwriteLong].
 int _db_freadInt(File* stream, int* valuePtr)
 {
     return fileReadInt32(stream, valuePtr);
@@ -382,20 +382,15 @@ int db_fwriteShort(File* stream, unsigned short value)
     return 0;
 }
 
-// NOTE: Not sure about signness and int vs. long.
-//
 // 0x4C6214
 int fileWriteInt32(File* stream, int value)
 {
     // NOTE: Uninline.
-    return _db_fwriteLong(stream, value);
+    return db_fwriteLong(stream, value);
 }
 
-// NOTE: Can either be signed vs. unsigned variant of [fileWriteInt32],
-// or int vs. long.
-//
 // 0x4C6244
-int _db_fwriteLong(File* stream, int value)
+int db_fwriteLong(File* stream, unsigned long value)
 {
     if (db_fwriteShort(stream, (value >> 16) & 0xFFFF) == -1) {
         return -1;
@@ -408,22 +403,16 @@ int _db_fwriteLong(File* stream, int value)
     return 0;
 }
 
-// NOTE: Probably uncollapsed 0x4C6214 or 0x4C6244.
-int fileWriteUInt32(File* stream, unsigned int value)
-{
-    return _db_fwriteLong(stream, (int)value);
-}
-
 // 0x4C62C4
 int db_fwriteFloat(File* stream, float value)
 {
     // NOTE: Uninline.
-    return _db_fwriteLong(stream, *(int*)&value);
+    return db_fwriteLong(stream, *(unsigned long*)&value);
 }
 
 int fileWriteBool(File* stream, bool value)
 {
-    return _db_fwriteLong(stream, value ? 1 : 0);
+    return db_fwriteLong(stream, value ? 1 : 0);
 }
 
 // 0x4C62FC
@@ -524,7 +513,7 @@ int fileWriteInt32List(File* stream, int* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
-        if (_db_fwriteLong(stream, arr[index]) == -1) {
+        if (db_fwriteLong(stream, arr[index]) == -1) {
             return -1;
         }
     }

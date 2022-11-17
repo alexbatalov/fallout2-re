@@ -382,23 +382,23 @@ static bool vcr_load_buffer()
 // 0x4D2E00
 bool vcr_save_record(VcrEntry* vcrEntry, File* stream)
 {
-    if (fileWriteUInt32(stream, vcrEntry->type) == -1) return false;
-    if (fileWriteUInt32(stream, vcrEntry->time) == -1) return false;
-    if (fileWriteUInt32(stream, vcrEntry->counter) == -1) return false;
+    if (db_fwriteLong(stream, vcrEntry->type) == -1) return false;
+    if (db_fwriteLong(stream, vcrEntry->time) == -1) return false;
+    if (db_fwriteLong(stream, vcrEntry->counter) == -1) return false;
 
     switch (vcrEntry->type) {
     case VCR_ENTRY_TYPE_INITIAL_STATE:
-        if (fileWriteInt32(stream, vcrEntry->initial.mouseX) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->initial.mouseY) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->initial.keyboardLayout) == -1) return false;
+        if (db_fwriteLong(stream, vcrEntry->initial.mouseX) == -1) return false;
+        if (db_fwriteLong(stream, vcrEntry->initial.mouseY) == -1) return false;
+        if (db_fwriteLong(stream, vcrEntry->initial.keyboardLayout) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
         if (db_fwriteShort(stream, vcrEntry->keyboardEvent.key) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_MOUSE_EVENT:
-        if (fileWriteInt32(stream, vcrEntry->mouseEvent.dx) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->mouseEvent.dy) == -1) return false;
-        if (fileWriteInt32(stream, vcrEntry->mouseEvent.buttons) == -1) return false;
+        if (db_fwriteLong(stream, vcrEntry->mouseEvent.dx) == -1) return false;
+        if (db_fwriteLong(stream, vcrEntry->mouseEvent.dy) == -1) return false;
+        if (db_fwriteLong(stream, vcrEntry->mouseEvent.buttons) == -1) return false;
         return true;
     }
 
