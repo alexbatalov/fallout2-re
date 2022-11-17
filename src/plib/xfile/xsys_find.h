@@ -1,5 +1,5 @@
-#ifndef FILE_FIND_H
-#define FILE_FIND_H
+#ifndef FALLOUT_PLIB_XFILE_XSYS_FIND_H_
+#define FALLOUT_PLIB_XFILE_XSYS_FIND_H_
 
 #include <stdbool.h>
 
@@ -40,9 +40,9 @@ typedef struct DirectoryFileFindData {
 #endif
 } DirectoryFileFindData;
 
-bool fileFindFirst(const char* path, DirectoryFileFindData* findData);
-bool fileFindNext(DirectoryFileFindData* findData);
-bool findFindClose(DirectoryFileFindData* findData);
+bool xsys_findfirst(const char* path, DirectoryFileFindData* findData);
+bool xsys_findnext(DirectoryFileFindData* findData);
+bool xsys_findclose(DirectoryFileFindData* findData);
 
 static inline bool fileFindIsDirectory(DirectoryFileFindData* findData)
 {
@@ -64,4 +64,4 @@ static inline char* fileFindGetName(DirectoryFileFindData* findData)
 #endif
 }
 
-#endif /* FILE_FIND_H */
+#endif /* FALLOUT_PLIB_XFILE_XSYS_FIND_H_ */

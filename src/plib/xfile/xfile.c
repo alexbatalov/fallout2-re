@@ -551,7 +551,7 @@ bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xli
     char extension[_MAX_EXT];
     _splitpath(pattern, drive, dir, fileName, extension);
     if (drive[0] != '\0' || dir[0] == '\\' || dir[0] == '/' || dir[0] == '.') {
-        if (fileFindFirst(pattern, &directoryFileFindData)) {
+        if (xsys_findfirst(pattern, &directoryFileFindData)) {
             do {
                 bool isDirectory = fileFindIsDirectory(&directoryFileFindData);
                 char* entryName = fileFindGetName(&directoryFileFindData);
@@ -571,9 +571,9 @@ bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xli
                 if (!handler(&context)) {
                     break;
                 }
-            } while (fileFindNext(&directoryFileFindData));
+            } while (xsys_findnext(&directoryFileFindData));
         }
-        return findFindClose(&directoryFileFindData);
+        return xsys_findclose(&directoryFileFindData);
     }
 
     XBase* xbase = paths;
@@ -596,7 +596,7 @@ bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xli
             char path[FILENAME_MAX];
             sprintf(path, "%s\\%s", xbase->path, pattern);
 
-            if (fileFindFirst(path, &directoryFileFindData)) {
+            if (xsys_findfirst(path, &directoryFileFindData)) {
                 do {
                     bool isDirectory = fileFindIsDirectory(&directoryFileFindData);
                     char* entryName = fileFindGetName(&directoryFileFindData);
@@ -616,15 +616,15 @@ bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xli
                     if (!handler(&context)) {
                         break;
                     }
-                } while (fileFindNext(&directoryFileFindData));
+                } while (xsys_findnext(&directoryFileFindData));
             }
-            findFindClose(&directoryFileFindData);
+            xsys_findclose(&directoryFileFindData);
         }
         xbase = xbase->next;
     }
 
     _splitpath(pattern, drive, dir, fileName, extension);
-    if (fileFindFirst(pattern, &directoryFileFindData)) {
+    if (xsys_findfirst(pattern, &directoryFileFindData)) {
         do {
             bool isDirectory = fileFindIsDirectory(&directoryFileFindData);
             char* entryName = fileFindGetName(&directoryFileFindData);
@@ -644,9 +644,9 @@ bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xli
             if (!handler(&context)) {
                 break;
             }
-        } while (fileFindNext(&directoryFileFindData));
+        } while (xsys_findnext(&directoryFileFindData));
     }
-    return findFindClose(&directoryFileFindData);
+    return xsys_findclose(&directoryFileFindData);
 }
 
 // 0x4DFF28

@@ -1,7 +1,7 @@
 #include "plib/xfile/xsys_find.h"
 
 // 0x4E6380
-bool fileFindFirst(const char* path, DirectoryFileFindData* findData)
+bool xsys_findfirst(const char* path, DirectoryFileFindData* findData)
 {
 #if defined(_MSC_VER)
     findData->hFind = FindFirstFileA(path, &(findData->ffd));
@@ -27,7 +27,7 @@ bool fileFindFirst(const char* path, DirectoryFileFindData* findData)
 }
 
 // 0x4E63A8
-bool fileFindNext(DirectoryFileFindData* findData)
+bool xsys_findnext(DirectoryFileFindData* findData)
 {
 #if defined(_MSC_VER)
     if (!FindNextFileA(findData->hFind, &(findData->ffd))) {
@@ -47,7 +47,7 @@ bool fileFindNext(DirectoryFileFindData* findData)
 }
 
 // 0x4E63CC
-bool findFindClose(DirectoryFileFindData* findData)
+bool xsys_findclose(DirectoryFileFindData* findData)
 {
 #if defined(_MSC_VER)
     FindClose(findData->hFind);
