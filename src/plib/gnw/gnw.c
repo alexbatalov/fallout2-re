@@ -11,10 +11,6 @@
 #include "plib/gnw/vcr.h"
 #include "plib/gnw/intrface.h"
 
-static_assert(sizeof(MenuBar) == 572, "wrong size");
-static_assert(sizeof(Window) == 68, "wrong size");
-static_assert(sizeof(Button) == 124, "wrong size");
-
 static void win_free(int win);
 static void win_clip(Window* window, RectPtr* rectListNodePtr, unsigned char* a3);
 static void refresh_all(Rect* rect, unsigned char* a2);

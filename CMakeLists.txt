@@ -207,6 +207,7 @@ add_executable(${EXECUTABLE_NAME} WIN32
     "src/plib/gnw/dxinput.h"
     "src/plib/gnw/gnw95dx.c"
     "src/plib/gnw/gnw95dx.h"
+    "src/plib/gnw/gnw_types.h"
     "src/plib/gnw/gnw.c"
     "src/plib/gnw/gnw.h"
     "src/plib/gnw/intrface.c"
