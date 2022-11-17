@@ -9,14 +9,15 @@
 
 #include "file_find.h"
 
-// 0x6B24D0
-XBase* gXbaseHead;
+static void xclearpath();
+static void xpathexit(void);
+static bool xlistenumfunc(XListEnumerationContext* context);
 
-// 0x6B24D4
-bool gXbaseExitHandlerRegistered;
+// 0x6B24D0
+static XBase* paths;
 
 // 0x4DED6C
-int xfileClose(XFile* stream)
+int xfclose(XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 112
 
@@ -42,7 +43,7 @@ int xfileClose(XFile* stream)
 }
 
 // 0x4DEE2C
-XFile* xfileOpen(const char* filePath, const char* mode)
+XFile* xfopen(const char* filePath, const char* mode)
 {
     assert(filePath); // "filename", "xfile.c", 162
     assert(mode); // "mode", "xfile.c", 163
@@ -73,7 +74,7 @@ XFile* xfileOpen(const char* filePath, const char* mode)
     } else {
         // [filePath] is a relative path. Loop thru open xbases and attempt to
         // open [filePath] from appropriate xbase.
-        XBase* curr = gXbaseHead;
+        XBase* curr = paths;
         while (curr != NULL) {
             if (curr->isDbase) {
                 // Attempt to open dfile stream from dbase.
@@ -133,14 +134,14 @@ XFile* xfileOpen(const char* filePath, const char* mode)
 }
 
 // 0x4DF11C
-int xfilePrintFormatted(XFile* stream, const char* format, ...)
+int xfprintf(XFile* stream, const char* format, ...)
 {
     assert(format); // "format", "xfile.c", 305
 
     va_list args;
     va_start(args, format);
 
-    int rc = xfilePrintFormattedArgs(stream, format, args);
+    int rc = xvfprintf(stream, format, args);
 
     va_end(args);
 
@@ -150,7 +151,7 @@ int xfilePrintFormatted(XFile* stream, const char* format, ...)
 // [vfprintf].
 //
 // 0x4DF1AC
-int xfilePrintFormattedArgs(XFile* stream, const char* format, va_list args)
+int xvfprintf(XFile* stream, const char* format, va_list args)
 {
     assert(stream); // "stream", "xfile.c", 332
     assert(format); // "format", "xfile.c", 333
@@ -173,7 +174,7 @@ int xfilePrintFormattedArgs(XFile* stream, const char* format, va_list args)
 }
 
 // 0x4DF22C
-int xfileReadChar(XFile* stream)
+int xfgetc(XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 354
 
@@ -195,7 +196,7 @@ int xfileReadChar(XFile* stream)
 }
 
 // 0x4DF280
-char* xfileReadString(char* string, int size, XFile* stream)
+char* xfgets(char* string, int size, XFile* stream)
 {
     assert(string); // "s", "xfile.c", 375
     assert(size); // "n", "xfile.c", 376
@@ -219,7 +220,7 @@ char* xfileReadString(char* string, int size, XFile* stream)
 }
 
 // 0x4DF320
-int xfileWriteChar(int ch, XFile* stream)
+int xfputc(int ch, XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 399
 
@@ -241,7 +242,7 @@ int xfileWriteChar(int ch, XFile* stream)
 }
 
 // 0x4DF380
-int xfileWriteString(const char* string, XFile* stream)
+int xfputs(const char* string, XFile* stream)
 {
     assert(string); // "s", "xfile.c", 421
     assert(stream); // "stream", "xfile.c", 422
@@ -264,7 +265,7 @@ int xfileWriteString(const char* string, XFile* stream)
 }
 
 // 0x4DF44C
-size_t xfileRead(void* ptr, size_t size, size_t count, XFile* stream)
+size_t xfread(void* ptr, size_t size, size_t count, XFile* stream)
 {
     assert(ptr); // "ptr", "xfile.c", 421
     assert(stream); // "stream", "xfile.c", 422
@@ -292,7 +293,7 @@ size_t xfileRead(void* ptr, size_t size, size_t count, XFile* stream)
 }
 
 // 0x4DF4E8
-size_t xfileWrite(const void* ptr, size_t size, size_t count, XFile* stream)
+size_t xfwrite(const void* ptr, size_t size, size_t count, XFile* stream)
 {
     assert(ptr); // "ptr", "xfile.c", 504
     assert(stream); // "stream", "xfile.c", 505
@@ -320,7 +321,7 @@ size_t xfileWrite(const void* ptr, size_t size, size_t count, XFile* stream)
 }
 
 // 0x4DF5D8
-int xfileSeek(XFile* stream, long offset, int origin)
+int xfseek(XFile* stream, long offset, int origin)
 {
     assert(stream); // "stream", "xfile.c", 547
 
@@ -342,7 +343,7 @@ int xfileSeek(XFile* stream, long offset, int origin)
 }
 
 // 0x4DF690
-long xfileTell(XFile* stream)
+long xftell(XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 588
 
@@ -364,7 +365,7 @@ long xfileTell(XFile* stream)
 }
 
 // 0x4DF6E4
-void xfileRewind(XFile* stream)
+void xrewind(XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 608
 
@@ -382,7 +383,7 @@ void xfileRewind(XFile* stream)
 }
 
 // 0x4DF780
-int xfileEof(XFile* stream)
+int xfeof(XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 648
 
@@ -404,7 +405,7 @@ int xfileEof(XFile* stream)
 }
 
 // 0x4DF828
-long xfileGetSize(XFile* stream)
+long xfilelength(XFile* stream)
 {
     assert(stream); // "stream", "xfile.c", 690
 
@@ -431,15 +432,15 @@ long xfileGetSize(XFile* stream)
 // all open xbases are simply closed.
 //
 // 0x4DF878
-bool xbaseReopenAll(char* paths)
+bool xsetpath(char* paths)
 {
     // NOTE: Uninline.
-    xbaseCloseAll();
+    xclearpath();
 
     if (paths != NULL) {
         char* tok = strtok(paths, ";");
         while (tok != NULL) {
-            if (!xbaseOpen(tok)) {
+            if (!xaddpath(tok)) {
                 return false;
             }
             tok = strtok(NULL, ";");
@@ -450,18 +451,21 @@ bool xbaseReopenAll(char* paths)
 }
 
 // 0x4DF938
-bool xbaseOpen(const char* path)
+bool xaddpath(const char* path)
 {
+    // 0x6B24D4
+    static bool init;
+
     assert(path); // "path", "xfile.c", 747
 
     // Register atexit handler so that underlying dbase (if any) can be
     // gracefully closed.
-    if (!gXbaseExitHandlerRegistered) {
-        atexit(xbaseExitHandler);
-        gXbaseExitHandlerRegistered = true;
+    if (!init) {
+        atexit(xpathexit);
+        init = true;
     }
 
-    XBase* curr = gXbaseHead;
+    XBase* curr = paths;
     XBase* prev = NULL;
     while (curr != NULL) {
         if (stricmp(path, curr->path) == 0) {
@@ -476,8 +480,8 @@ bool xbaseOpen(const char* path)
         if (prev != NULL) {
             // Move found xbase to the top.
             prev->next = curr->next;
-            curr->next = gXbaseHead;
-            gXbaseHead = curr;
+            curr->next = paths;
+            paths = curr;
         }
         return true;
     }
@@ -499,8 +503,8 @@ bool xbaseOpen(const char* path)
     if (dbase != NULL) {
         xbase->isDbase = true;
         xbase->dbase = dbase;
-        xbase->next = gXbaseHead;
-        gXbaseHead = xbase;
+        xbase->next = paths;
+        paths = xbase;
         return true;
     }
 
@@ -512,26 +516,26 @@ bool xbaseOpen(const char* path)
 
     if (chdir(path) == 0) {
         chdir(workingDirectory);
-        xbase->next = gXbaseHead;
-        gXbaseHead = xbase;
+        xbase->next = paths;
+        paths = xbase;
         return true;
     }
 
-    if (xbaseMakeDirectory(path) != 0) {
+    if (xmkdir(path) != 0) {
         // FIXME: Leaking xbase and path.
         return false;
     }
 
     chdir(workingDirectory);
 
-    xbase->next = gXbaseHead;
-    gXbaseHead = xbase;
+    xbase->next = paths;
+    paths = xbase;
 
     return true;
 }
 
 // 0x4DFB3C
-bool xlistEnumerate(const char* pattern, XListEnumerationHandler* handler, XList* xlist)
+bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xlist)
 {
     assert(pattern); // "filespec", "xfile.c", 845
     assert(handler); // "enumfunc", "xfile.c", 846
@@ -572,7 +576,7 @@ bool xlistEnumerate(const char* pattern, XListEnumerationHandler* handler, XList
         return findFindClose(&directoryFileFindData);
     }
 
-    XBase* xbase = gXbaseHead;
+    XBase* xbase = paths;
     while (xbase != NULL) {
         if (xbase->isDbase) {
             DFileFindData dbaseFindData;
@@ -646,14 +650,14 @@ bool xlistEnumerate(const char* pattern, XListEnumerationHandler* handler, XList
 }
 
 // 0x4DFF28
-bool xlistInit(const char* pattern, XList* xlist)
+bool xbuild_filelist(const char* pattern, XList* xlist)
 {
-    xlistEnumerate(pattern, xlistEnumerateHandler, xlist);
+    xenumpath(pattern, xlistenumfunc, xlist);
     return xlist->fileNamesLength != -1;
 }
 
 // 0x4DFF48
-void xlistFree(XList* xlist)
+void xfree_filelist(XList* xlist)
 {
     assert(xlist); // "list", "xfile.c", 949
 
@@ -671,7 +675,7 @@ void xlistFree(XList* xlist)
 // Recursively creates specified file path.
 //
 // 0x4DFFAC
-int xbaseMakeDirectory(const char* filePath)
+int xmkdir(const char* filePath)
 {
     char workingDirectory[FILENAME_MAX];
     if (getcwd(workingDirectory, FILENAME_MAX) == NULL) {
@@ -688,7 +692,7 @@ int xbaseMakeDirectory(const char* filePath)
         strcpy(path, filePath);
     } else {
         // Find first directory-based xbase.
-        XBase* curr = gXbaseHead;
+        XBase* curr = paths;
         while (curr != NULL) {
             if (!curr->isDbase) {
                 sprintf(path, "%s\\%s", curr->path, filePath);
@@ -742,10 +746,10 @@ int xbaseMakeDirectory(const char* filePath)
 // NOTE: Inlined.
 //
 // 0x4E01F8
-void xbaseCloseAll()
+static void xclearpath()
 {
-    XBase* curr = gXbaseHead;
-    gXbaseHead = NULL;
+    XBase* curr = paths;
+    paths = NULL;
 
     while (curr != NULL) {
         XBase* next = curr->next;
@@ -762,14 +766,14 @@ void xbaseCloseAll()
 }
 
 // xbase atexit
-void xbaseExitHandler(void)
+static void xpathexit(void)
 {
     // NOTE: Uninline.
-    xbaseCloseAll();
+    xclearpath();
 }
 
 // 0x4E0278
-bool xlistEnumerateHandler(XListEnumerationContext* context)
+static bool xlistenumfunc(XListEnumerationContext* context)
 {
     if (context->type == XFILE_ENUMERATION_ENTRY_TYPE_DIRECTORY) {
         return true;
@@ -779,7 +783,7 @@ bool xlistEnumerateHandler(XListEnumerationContext* context)
 
     char** fileNames = (char**)realloc(xlist->fileNames, sizeof(*fileNames) * (xlist->fileNamesLength + 1));
     if (fileNames == NULL) {
-        xlistFree(xlist);
+        xfree_filelist(xlist);
         xlist->fileNamesLength = -1;
         return false;
     }
@@ -788,7 +792,7 @@ bool xlistEnumerateHandler(XListEnumerationContext* context)
 
     fileNames[xlist->fileNamesLength] = strdup(context->name);
     if (fileNames[xlist->fileNamesLength] == NULL) {
-        xlistFree(xlist);
+        xfree_filelist(xlist);
         xlist->fileNamesLength = -1;
         return false;
     }

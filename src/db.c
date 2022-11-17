@@ -41,13 +41,13 @@ FileList* gFileListHead;
 int dbOpen(const char* filePath1, int a2, const char* filePath2, int a4)
 {
     if (filePath1 != NULL) {
-        if (!xbaseOpen(filePath1)) {
+        if (!xaddpath(filePath1)) {
             return -1;
         }
     }
 
     if (filePath2 != NULL) {
-        xbaseOpen(filePath2);
+        xaddpath(filePath2);
     }
 
     return 0;
@@ -74,7 +74,7 @@ int _db_total()
 // 0x4C5D60
 void dbExit()
 {
-    xbaseReopenAll(NULL);
+    xsetpath(NULL);
 }
 
 // TODO: sizePtr should be long*.
@@ -85,14 +85,14 @@ int dbGetFileSize(const char* filePath, int* sizePtr)
     assert(filePath); // "filename", "db.c", 108
     assert(sizePtr); // "de", "db.c", 109
 
-    File* stream = xfileOpen(filePath, "rb");
+    File* stream = xfopen(filePath, "rb");
     if (stream == NULL) {
         return -1;
     }
 
-    *sizePtr = xfileGetSize(stream);
+    *sizePtr = xfilelength(stream);
 
-    xfileClose(stream);
+    xfclose(stream);
 
     return 0;
 }
@@ -103,12 +103,12 @@ int dbGetFileContents(const char* filePath, void* ptr)
     assert(filePath); // "filename", "db.c", 141
     assert(ptr); // "buf", "db.c", 142
 
-    File* stream = xfileOpen(filePath, "rb");
+    File* stream = xfopen(filePath, "rb");
     if (stream == NULL) {
         return -1;
     }
 
-    long size = xfileGetSize(stream);
+    long size = xfilelength(stream);
     if (gFileReadProgressHandler != NULL) {
         unsigned char* byteBuffer = (unsigned char*)ptr;
 
@@ -116,7 +116,7 @@ int dbGetFileContents(const char* filePath, void* ptr)
         long chunkSize = gFileReadProgressChunkSize - gFileReadProgressBytesRead;
 
         while (remainingSize >= chunkSize) {
-            size_t bytesRead = xfileRead(byteBuffer, sizeof(*byteBuffer), chunkSize, stream);
+            size_t bytesRead = xfread(byteBuffer, sizeof(*byteBuffer), chunkSize, stream);
             byteBuffer += bytesRead;
             remainingSize -= bytesRead;
 
@@ -127,13 +127,13 @@ int dbGetFileContents(const char* filePath, void* ptr)
         }
 
         if (remainingSize != 0) {
-            gFileReadProgressBytesRead += xfileRead(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
+            gFileReadProgressBytesRead += xfread(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
         }
     } else {
-        xfileRead(ptr, 1, size, stream);
+        xfread(ptr, 1, size, stream);
     }
 
-    xfileClose(stream);
+    xfclose(stream);
 
     return 0;
 }
@@ -141,13 +141,13 @@ int dbGetFileContents(const char* filePath, void* ptr)
 // 0x4C5EB4
 int fileClose(File* stream)
 {
-    return xfileClose(stream);
+    return xfclose(stream);
 }
 
 // 0x4C5EC8
 File* fileOpen(const char* filename, const char* mode)
 {
-    return xfileOpen(filename, mode);
+    return xfopen(filename, mode);
 }
 
 // 0x4C5ED0
@@ -158,7 +158,7 @@ int filePrintFormatted(File* stream, const char* format, ...)
     va_list args;
     va_start(args, format);
 
-    int rc = xfilePrintFormattedArgs(stream, format, args);
+    int rc = xvfprintf(stream, format, args);
 
     va_end(args);
 
@@ -169,7 +169,7 @@ int filePrintFormatted(File* stream, const char* format, ...)
 int fileReadChar(File* stream)
 {
     if (gFileReadProgressHandler != NULL) {
-        int ch = xfileReadChar(stream);
+        int ch = xfgetc(stream);
 
         gFileReadProgressBytesRead++;
         if (gFileReadProgressBytesRead >= gFileReadProgressChunkSize) {
@@ -180,14 +180,14 @@ int fileReadChar(File* stream)
         return ch;
     }
 
-    return xfileReadChar(stream);
+    return xfgetc(stream);
 }
 
 // 0x4C5F70
 char* fileReadString(char* string, size_t size, File* stream)
 {
     if (gFileReadProgressHandler != NULL) {
-        if (xfileReadString(string, size, stream) == NULL) {
+        if (xfgets(string, size, stream) == NULL) {
             return NULL;
         }
 
@@ -200,13 +200,13 @@ char* fileReadString(char* string, size_t size, File* stream)
         return string;
     }
 
-    return xfileReadString(string, size, stream);
+    return xfgets(string, size, stream);
 }
 
 // 0x4C5FEC
 int fileWriteString(const char* string, File* stream)
 {
-    return xfileWriteString(string, stream);
+    return xfputs(string, stream);
 }
 
 // 0x4C5FFC
@@ -220,7 +220,7 @@ size_t fileRead(void* ptr, size_t size, size_t count, File* stream)
         long chunkSize = gFileReadProgressChunkSize - gFileReadProgressBytesRead;
 
         while (remainingSize >= chunkSize) {
-            size_t bytesRead = xfileRead(byteBuffer, sizeof(*byteBuffer), chunkSize, stream);
+            size_t bytesRead = xfread(byteBuffer, sizeof(*byteBuffer), chunkSize, stream);
             byteBuffer += bytesRead;
             totalBytesRead += bytesRead;
             remainingSize -= bytesRead;
@@ -232,7 +232,7 @@ size_t fileRead(void* ptr, size_t size, size_t count, File* stream)
         }
 
         if (remainingSize != 0) {
-            size_t bytesRead = xfileRead(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
+            size_t bytesRead = xfread(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
             gFileReadProgressBytesRead += bytesRead;
             totalBytesRead += bytesRead;
         }
@@ -240,37 +240,37 @@ size_t fileRead(void* ptr, size_t size, size_t count, File* stream)
         return totalBytesRead / size;
     }
 
-    return xfileRead(ptr, size, count, stream);
+    return xfread(ptr, size, count, stream);
 }
 
 // 0x4C60B8
 size_t fileWrite(const void* buf, size_t size, size_t count, File* stream)
 {
-    return xfileWrite(buf, size, count, stream);
+    return xfwrite(buf, size, count, stream);
 }
 
 // 0x4C60C0
 int fileSeek(File* stream, long offset, int origin)
 {
-    return xfileSeek(stream, offset, origin);
+    return xfseek(stream, offset, origin);
 }
 
 // 0x4C60C8
 long fileTell(File* stream)
 {
-    return xfileTell(stream);
+    return xftell(stream);
 }
 
 // 0x4C60D0
 void fileRewind(File* stream)
 {
-    xfileRewind(stream);
+    xrewind(stream);
 }
 
 // 0x4C60D8
 int fileEof(File* stream)
 {
-    return xfileEof(stream);
+    return xfeof(stream);
 }
 
 // NOTE: Not sure about signness.
@@ -324,7 +324,7 @@ int fileReadInt32(File* stream, int* valuePtr)
 {
     int value;
 
-    if (xfileRead(&value, 4, 1, stream) == -1) {
+    if (xfread(&value, 4, 1, stream) == -1) {
         return -1;
     }
 
@@ -370,7 +370,7 @@ int fileReadBool(File* stream, bool* valuePtr)
 // 0x4C61AC
 int fileWriteUInt8(File* stream, unsigned char value)
 {
-    return xfileWriteChar(value, stream);
+    return xfputc(value, stream);
 };
 
 // 0x4C61C8
@@ -611,7 +611,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
     memset(fileList, 0, sizeof(*fileList));
 
     XList* xlist = &(fileList->xlist);
-    if (!xlistInit(pattern, xlist)) {
+    if (!xbuild_filelist(pattern, xlist)) {
         free(fileList);
         return 0;
     }
@@ -644,7 +644,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
             if (!isWildcard || *dir == '\0' || strchr(dir, '\\') == NULL) {
                 // FIXME: There is a buffer overlow bug in this implementation.
                 // `fileNames` entries are dynamically allocated strings
-                // themselves produced by `strdup` in `xlistEnumerateHandler`.
+                // themselves produced by `strdup` in `xlistenumfunc`.
                 // In some circumstances we can end up placing long file name
                 // in a short buffer (if that shorter buffer is alphabetically
                 // preceding current file name).
@@ -691,7 +691,7 @@ void fileNameListFree(char*** fileNameListPtr, int a2)
         previousFileList->next = currentFileList->next;
     }
 
-    xlistFree(&(currentFileList->xlist));
+    xfree_filelist(&(currentFileList->xlist));
 
     free(currentFileList);
 }
@@ -709,7 +709,7 @@ void _db_register_mem(MallocProc* mallocProc, StrdupProc* strdupProc, FreeProc* 
 // 0x4C68BC
 int fileGetSize(File* stream)
 {
-    return xfileGetSize(stream);
+    return xfilelength(stream);
 }
 
 // 0x4C68C4
