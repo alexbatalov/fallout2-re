@@ -452,7 +452,7 @@ int fileReadFixedLengthString(File* stream, char* string, int length)
 }
 
 // 0x4C6330
-int fileReadInt16List(File* stream, short* arr, int count)
+int db_freadShortCount(File* stream, unsigned short* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         short value;
@@ -465,12 +465,6 @@ int fileReadInt16List(File* stream, short* arr, int count)
     }
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C6330.
-int fileReadUInt16List(File* stream, unsigned short* arr, int count)
-{
-    return fileReadInt16List(stream, (short*)arr, count);
 }
 
 // NOTE: Not sure about signed/unsigned int/long.

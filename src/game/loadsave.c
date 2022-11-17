@@ -1753,7 +1753,7 @@ static int LoadHeader(int slot)
     }
 
     short v8[3];
-    if (fileReadInt16List(flptr, v8, 2) == -1) {
+    if (db_freadShortCount(flptr, v8, 2) == -1) {
         return -1;
     }
 
@@ -1778,7 +1778,7 @@ static int LoadHeader(int slot)
         return -1;
     }
 
-    if (fileReadInt16List(flptr, v8, 3) == -1) {
+    if (db_freadShortCount(flptr, v8, 3) == -1) {
         return -1;
     }
 
@@ -1790,7 +1790,7 @@ static int LoadHeader(int slot)
         return -1;
     }
 
-    if (fileReadInt16List(flptr, v8, 3) == -1) {
+    if (db_freadShortCount(flptr, v8, 3) == -1) {
         return -1;
     }
 
