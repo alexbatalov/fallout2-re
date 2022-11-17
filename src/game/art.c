@@ -383,7 +383,7 @@ void scale_art(int fid, unsigned char* dest, int width, int height, int pitch)
     int remainingHeight = height - frameHeight;
     if (remainingWidth < 0 || remainingHeight < 0) {
         if (height * frameWidth >= width * frameHeight) {
-            blitBufferToBufferStretchTrans(frameData,
+            trans_cscale(frameData,
                 frameWidth,
                 frameHeight,
                 frameWidth,
@@ -392,7 +392,7 @@ void scale_art(int fid, unsigned char* dest, int width, int height, int pitch)
                 width * frameHeight / frameWidth,
                 pitch);
         } else {
-            blitBufferToBufferStretchTrans(frameData,
+            trans_cscale(frameData,
                 frameWidth,
                 frameHeight,
                 frameWidth,
@@ -402,7 +402,7 @@ void scale_art(int fid, unsigned char* dest, int width, int height, int pitch)
                 pitch);
         }
     } else {
-        blitBufferToBufferTrans(frameData,
+        trans_buf_to_buf(frameData,
             frameWidth,
             frameHeight,
             frameWidth,

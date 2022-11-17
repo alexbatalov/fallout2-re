@@ -7,7 +7,7 @@
 #include "mmx.h"
 
 // 0x4D2FC0
-void bufferDrawLine(unsigned char* buf, int pitch, int x1, int y1, int x2, int y2, int color)
+void draw_line(unsigned char* buf, int pitch, int x1, int y1, int x2, int y2, int color)
 {
     int temp;
     int dx;
@@ -130,25 +130,25 @@ void bufferDrawLine(unsigned char* buf, int pitch, int x1, int y1, int x2, int y
 }
 
 // 0x4D31A4
-void bufferDrawRect(unsigned char* buf, int pitch, int left, int top, int right, int bottom, int color)
+void draw_box(unsigned char* buf, int pitch, int left, int top, int right, int bottom, int color)
 {
-    bufferDrawLine(buf, pitch, left, top, right, top, color);
-    bufferDrawLine(buf, pitch, left, bottom, right, bottom, color);
-    bufferDrawLine(buf, pitch, left, top, left, bottom, color);
-    bufferDrawLine(buf, pitch, right, top, right, bottom, color);
+    draw_line(buf, pitch, left, top, right, top, color);
+    draw_line(buf, pitch, left, bottom, right, bottom, color);
+    draw_line(buf, pitch, left, top, left, bottom, color);
+    draw_line(buf, pitch, right, top, right, bottom, color);
 }
 
 // 0x4D322C
-void bufferDrawRectShadowed(unsigned char* buf, int pitch, int left, int top, int right, int bottom, int ltColor, int rbColor)
+void draw_shaded_box(unsigned char* buf, int pitch, int left, int top, int right, int bottom, int ltColor, int rbColor)
 {
-    bufferDrawLine(buf, pitch, left, top, right, top, ltColor);
-    bufferDrawLine(buf, pitch, left, bottom, right, bottom, rbColor);
-    bufferDrawLine(buf, pitch, left, top, left, bottom, ltColor);
-    bufferDrawLine(buf, pitch, right, top, right, bottom, rbColor);
+    draw_line(buf, pitch, left, top, right, top, ltColor);
+    draw_line(buf, pitch, left, bottom, right, bottom, rbColor);
+    draw_line(buf, pitch, left, top, left, bottom, ltColor);
+    draw_line(buf, pitch, right, top, right, bottom, rbColor);
 }
 
 // 0x4D33F0
-void blitBufferToBufferStretch(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destWidth, int destHeight, int destPitch)
+void cscale(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destWidth, int destHeight, int destPitch)
 {
     int heightRatio = (destHeight << 16) / srcHeight;
     int widthRatio = (destWidth << 16) / srcWidth;
@@ -184,7 +184,7 @@ void blitBufferToBufferStretch(unsigned char* src, int srcWidth, int srcHeight, 
 }
 
 // 0x4D3560
-void blitBufferToBufferStretchTrans(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destWidth, int destHeight, int destPitch)
+void trans_cscale(unsigned char* src, int srcWidth, int srcHeight, int srcPitch, unsigned char* dest, int destWidth, int destHeight, int destPitch)
 {
     int heightRatio = (destHeight << 16) / srcHeight;
     int widthRatio = (destWidth << 16) / srcWidth;
@@ -222,19 +222,19 @@ void blitBufferToBufferStretchTrans(unsigned char* src, int srcWidth, int srcHei
 }
 
 // 0x4D36D4
-void blitBufferToBuffer(unsigned char* src, int width, int height, int srcPitch, unsigned char* dest, int destPitch)
+void buf_to_buf(unsigned char* src, int width, int height, int srcPitch, unsigned char* dest, int destPitch)
 {
     mmxBlit(dest, destPitch, src, srcPitch, width, height);
 }
 
 // 0x4D3704
-void blitBufferToBufferTrans(unsigned char* src, int width, int height, int srcPitch, unsigned char* dest, int destPitch)
+void trans_buf_to_buf(unsigned char* src, int width, int height, int srcPitch, unsigned char* dest, int destPitch)
 {
     mmxBlitTrans(dest, destPitch, src, srcPitch, width, height);
 }
 
 // 0x4D387C
-void bufferFill(unsigned char* buf, int width, int height, int pitch, int a5)
+void buf_fill(unsigned char* buf, int width, int height, int pitch, int a5)
 {
     int y;
 
@@ -245,13 +245,13 @@ void bufferFill(unsigned char* buf, int width, int height, int pitch, int a5)
 }
 
 // 0x4D38E0
-void _buf_texture(unsigned char* buf, int width, int height, int pitch, void* a5, int a6, int a7)
+void buf_texture(unsigned char* buf, int width, int height, int pitch, void* a5, int a6, int a7)
 {
     // TODO: Incomplete.
 }
 
 // 0x4D3A48
-void _lighten_buf(unsigned char* buf, int width, int height, int pitch)
+void lighten_buf(unsigned char* buf, int width, int height, int pitch)
 {
     int skip = pitch - width;
 
@@ -267,7 +267,7 @@ void _lighten_buf(unsigned char* buf, int width, int height, int pitch)
 // Swaps two colors in the buffer.
 //
 // 0x4D3A8C
-void _swap_color_buf(unsigned char* buf, int width, int height, int pitch, int color1, int color2)
+void swap_color_buf(unsigned char* buf, int width, int height, int pitch, int color1, int color2)
 {
     int step = pitch - width;
     for (int y = 0; y < height; y++) {
@@ -285,7 +285,7 @@ void _swap_color_buf(unsigned char* buf, int width, int height, int pitch, int c
 }
 
 // 0x4D3AE0
-void bufferOutline(unsigned char* buf, int width, int height, int pitch, int color)
+void buf_outline(unsigned char* buf, int width, int height, int pitch, int color)
 {
     unsigned char* ptr = buf + pitch;
 

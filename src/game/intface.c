@@ -432,7 +432,7 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    blitBufferToBuffer(backgroundFrmData, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT - 1, INTERFACE_BAR_WIDTH, interfaceBuffer, 640);
+    buf_to_buf(backgroundFrmData, INTERFACE_BAR_WIDTH, INTERFACE_BAR_HEIGHT - 1, INTERFACE_BAR_WIDTH, interfaceBuffer, 640);
     art_ptr_unlock(backgroundFrmHandle);
 
     fid = art_id(OBJ_TYPE_INTERFACE, 47, 0, 0, 0);
@@ -677,7 +677,7 @@ int intface_init()
         return intface_fatal_error(-1);
     }
 
-    blitBufferToBuffer(interfaceBuffer + 640 * 14 + 316, 90, 5, 640, movePointBackground, 90);
+    buf_to_buf(interfaceBuffer + 640 * 14 + 316, 90, 5, 640, movePointBackground, 90);
 
     if (construct_box_bar_win() == -1) {
         // NOTE: Uninline.
@@ -1202,7 +1202,7 @@ void intface_update_move_points(int actionPointsLeft, int bonusActionPoints)
         return;
     }
 
-    blitBufferToBuffer(movePointBackground, 90, 5, 90, interfaceBuffer + 14 * 640 + 316, 640);
+    buf_to_buf(movePointBackground, 90, 5, 90, interfaceBuffer + 14 * 640 + 316, 640);
 
     if (actionPointsLeft == -1) {
         frmData = moveLightRed;
@@ -1230,11 +1230,11 @@ void intface_update_move_points(int actionPointsLeft, int bonusActionPoints)
 
     int index;
     for (index = 0; index < actionPointsLeft; index++) {
-        blitBufferToBuffer(frmData, 5, 5, 5, interfaceBuffer + 14 * 640 + 316 + index * 9, 640);
+        buf_to_buf(frmData, 5, 5, 5, interfaceBuffer + 14 * 640 + 316 + index * 9, 640);
     }
 
     for (; index < (actionPointsLeft + bonusActionPoints); index++) {
-        blitBufferToBuffer(moveLightYellow, 5, 5, 5, interfaceBuffer + 14 * 640 + 316 + index * 9, 640);
+        buf_to_buf(moveLightYellow, 5, 5, 5, interfaceBuffer + 14 * 640 + 316 + index * 9, 640);
     }
 
     if (!insideInit) {
@@ -1660,7 +1660,7 @@ void intface_end_window_open(bool animated)
             if (getTicksSince(time) >= delay) {
                 unsigned char* src = art_frame_data(art, frame, 0);
                 if (src != NULL) {
-                    blitBufferToBuffer(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
+                    buf_to_buf(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
                     win_draw_rect(interfaceWindow, &endWindowRect);
                 }
 
@@ -1671,7 +1671,7 @@ void intface_end_window_open(bool animated)
         }
     } else {
         unsigned char* src = art_frame_data(art, frameCount - 1, 0);
-        blitBufferToBuffer(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
+        buf_to_buf(src, 57, 58, 57, interfaceBuffer + 640 * 38 + 580, 640);
         win_draw_rect(interfaceWindow, &endWindowRect);
     }
 
@@ -1715,7 +1715,7 @@ void intface_end_window_close(bool animated)
                 unsigned char* src = art_frame_data(art, frame - 1, 0);
                 unsigned char* dest = interfaceBuffer + 640 * 38 + 580;
                 if (src != NULL) {
-                    blitBufferToBuffer(src, 57, 58, 57, dest, 640);
+                    buf_to_buf(src, 57, 58, 57, dest, 640);
                     win_draw_rect(interfaceWindow, &endWindowRect);
                 }
 
@@ -1727,7 +1727,7 @@ void intface_end_window_close(bool animated)
     } else {
         unsigned char* dest = interfaceBuffer + 640 * 38 + 580;
         unsigned char* src = art_frame_data(art, 0, 0);
-        blitBufferToBuffer(src, 57, 58, 57, dest, 640);
+        buf_to_buf(src, 57, 58, 57, dest, 640);
         win_draw_rect(interfaceWindow, &endWindowRect);
     }
 
@@ -1751,7 +1751,7 @@ void intface_end_buttons_enable()
         }
 
         gsound_play_sfx_file("icombat2");
-        blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, interfaceBuffer + 38 * 640 + 580, 640);
+        trans_buf_to_buf(lightsFrmData, 57, 58, 57, interfaceBuffer + 38 * 640 + 580, 640);
         win_draw_rect(interfaceWindow, &endWindowRect);
 
         art_ptr_unlock(lightsFrmHandle);
@@ -1774,7 +1774,7 @@ void intface_end_buttons_disable()
         }
 
         gsound_play_sfx_file("icombat1");
-        blitBufferToBufferTrans(lightsFrmData, 57, 58, 57, interfaceBuffer + 38 * 640 + 580, 640);
+        trans_buf_to_buf(lightsFrmData, 57, 58, 57, interfaceBuffer + 38 * 640 + 580, 640);
         win_draw_rect(interfaceWindow, &endWindowRect);
 
         art_ptr_unlock(lightsFrmHandle);
@@ -1829,7 +1829,7 @@ static int intface_redraw_items()
                     int width = art_frame_width(useTextFrm, 0, 0);
                     int height = art_frame_length(useTextFrm, 0, 0);
                     unsigned char* data = art_frame_data(useTextFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
+                    trans_buf_to_buf(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
                     dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     art_ptr_unlock(useTextFrmHandle);
                 }
@@ -1869,7 +1869,7 @@ static int intface_redraw_items()
                     int width = art_frame_width(bullseyeFrm, 0, 0);
                     int height = art_frame_length(bullseyeFrm, 0, 0);
                     unsigned char* data = art_frame_data(bullseyeFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * (60 - height) + (181 - width), 188);
+                    trans_buf_to_buf(data, width, height, width, itemButtonUp + 188 * (60 - height) + (181 - width), 188);
 
                     int v9 = 60 - height - 2;
                     if (v9 < 0) {
@@ -1966,7 +1966,7 @@ static int intface_redraw_items()
                     int width = art_frame_width(primaryFrm, 0, 0);
                     int height = art_frame_length(primaryFrm, 0, 0);
                     unsigned char* data = art_frame_data(primaryFrm, 0, 0);
-                    blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
+                    trans_buf_to_buf(data, width, height, width, itemButtonUp + 188 * 7 + 181 - width, 188);
                     dark_trans_buf_to_buf(data, width, height, width, itemButtonDown, 181 - width + 1, 5, 188, 59641);
                     art_ptr_unlock(primaryFrmHandle);
                 }
@@ -1985,7 +1985,7 @@ static int intface_redraw_items()
             int height = art_frame_length(art, 0, 0);
             unsigned char* data = art_frame_data(art, 0, 0);
 
-            blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * (60 - height) + 7, 188);
+            trans_buf_to_buf(data, width, height, width, itemButtonUp + 188 * (60 - height) + 7, 188);
 
             int v29 = 60 - height - 2;
             if (v29 < 0) {
@@ -2006,7 +2006,7 @@ static int intface_redraw_items()
                 height = art_frame_length(art, 0, 0);
                 data = art_frame_data(art, 0, 0);
 
-                blitBufferToBufferTrans(data + actionPoints * 10, 10, height, width, itemButtonUp + 188 * (60 - height) + 7 + offset, 188);
+                trans_buf_to_buf(data + actionPoints * 10, 10, height, width, itemButtonUp + 188 * (60 - height) + 7 + offset, 188);
 
                 int v40 = 60 - height - 2;
                 if (v40 < 0) {
@@ -2034,7 +2034,7 @@ static int intface_redraw_items()
             int v46 = (188 - width) / 2;
             int v47 = (67 - height) / 2 - 2;
 
-            blitBufferToBufferTrans(data, width, height, width, itemButtonUp + 188 * ((67 - height) / 2) + v46, 188);
+            trans_buf_to_buf(data, width, height, width, itemButtonUp + 188 * ((67 - height) / 2) + v46, 188);
 
             if (v47 < 0) {
                 v47 = 0;
@@ -2361,10 +2361,10 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
     int tens = (normalizedValue / 10) % 10;
     int hundreds = normalizedValue / 100;
 
-    blitBufferToBuffer(numbers + 9 * hundreds, 9, 17, 360, hundredsDest, 640);
-    blitBufferToBuffer(numbers + 9 * tens, 9, 17, 360, tensDest, 640);
-    blitBufferToBuffer(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
-    blitBufferToBuffer(normalizedSign >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
+    buf_to_buf(numbers + 9 * hundreds, 9, 17, 360, hundredsDest, 640);
+    buf_to_buf(numbers + 9 * tens, 9, 17, 360, tensDest, 640);
+    buf_to_buf(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
+    buf_to_buf(normalizedSign >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
 
     if (!insideInit) {
         Rect numbersRect = { x, y, x + 33, y + 17 };
@@ -2378,7 +2378,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                     v49 = 1;
                 }
 
-                blitBufferToBuffer(upSrc, 9, 17, 360, onesDest, 640);
+                buf_to_buf(upSrc, 9, 17, 360, onesDest, 640);
                 mouse_info();
                 gmouse_bk_process();
                 coreDelay(delay);
@@ -2387,7 +2387,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                 ones += v49;
 
                 if (ones > 9 || ones < 0) {
-                    blitBufferToBuffer(upSrc, 9, 17, 360, tensDest, 640);
+                    buf_to_buf(upSrc, 9, 17, 360, tensDest, 640);
                     mouse_info();
                     gmouse_bk_process();
                     coreDelay(delay);
@@ -2396,7 +2396,7 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                     tens += v49;
                     ones -= 10 * v49;
                     if (tens == 10 || tens == -1) {
-                        blitBufferToBuffer(upSrc, 9, 17, 360, hundredsDest, 640);
+                        buf_to_buf(upSrc, 9, 17, 360, hundredsDest, 640);
                         mouse_info();
                         gmouse_bk_process();
                         coreDelay(delay);
@@ -2408,19 +2408,19 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
                             hundreds -= 10 * v49;
                         }
 
-                        blitBufferToBuffer(downSrc, 9, 17, 360, hundredsDest, 640);
+                        buf_to_buf(downSrc, 9, 17, 360, hundredsDest, 640);
                         mouse_info();
                         gmouse_bk_process();
                         coreDelay(delay);
                         win_draw_rect(interfaceWindow, &numbersRect);
                     }
 
-                    blitBufferToBuffer(downSrc, 9, 17, 360, tensDest, 640);
+                    buf_to_buf(downSrc, 9, 17, 360, tensDest, 640);
                     coreDelay(delay);
                     win_draw_rect(interfaceWindow, &numbersRect);
                 }
 
-                blitBufferToBuffer(downSrc, 9, 17, 360, onesDest, 640);
+                buf_to_buf(downSrc, 9, 17, 360, onesDest, 640);
                 mouse_info();
                 gmouse_bk_process();
                 coreDelay(delay);
@@ -2428,11 +2428,11 @@ static void intface_rotate_numbers(int x, int y, int previousValue, int value, i
 
                 previousValue += change;
 
-                blitBufferToBuffer(numbers + 9 * hundreds, 9, 17, 360, hundredsDest, 640);
-                blitBufferToBuffer(numbers + 9 * tens, 9, 17, 360, tensDest, 640);
-                blitBufferToBuffer(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
+                buf_to_buf(numbers + 9 * hundreds, 9, 17, 360, hundredsDest, 640);
+                buf_to_buf(numbers + 9 * tens, 9, 17, 360, tensDest, 640);
+                buf_to_buf(numbers + 9 * ones, 9, 17, 360, onesDest, 640);
 
-                blitBufferToBuffer(previousValue >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
+                buf_to_buf(previousValue >= 0 ? plusSrc : minusSrc, 6, 17, 360, signDest, 640);
                 mouse_info();
                 gmouse_bk_process();
                 coreDelay(delay);
@@ -2697,7 +2697,7 @@ static void draw_bboxes(int count)
         int indicator = bboxslot[index];
         IndicatorDescription* indicatorDescription = &(bbox[indicator]);
 
-        blitBufferToBufferTrans(indicatorDescription->data + connectorWidthCompensation,
+        trans_buf_to_buf(indicatorDescription->data + connectorWidthCompensation,
             INDICATOR_BOX_WIDTH - connectorWidthCompensation,
             INDICATOR_BOX_HEIGHT,
             INDICATOR_BOX_WIDTH,

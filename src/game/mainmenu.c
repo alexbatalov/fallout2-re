@@ -127,7 +127,7 @@ int main_menu_create()
         return main_menu_fatal_error();
     }
 
-    blitBufferToBuffer(background_data, 640, 480, 640, main_window_buf, 640);
+    buf_to_buf(background_data, 640, 480, 640, main_window_buf, 640);
     art_ptr_unlock(background_key);
 
     int oldFont = text_curr();

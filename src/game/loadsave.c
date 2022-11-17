@@ -443,7 +443,7 @@ int SaveGame(int mode)
     case SLOT_STATE_EMPTY:
     case SLOT_STATE_ERROR:
     case SLOT_STATE_UNSUPPORTED_VERSION:
-        blitBufferToBuffer(thumbnail_image[1],
+        buf_to_buf(thumbnail_image[1],
             LS_PREVIEW_WIDTH - 1,
             LS_PREVIEW_HEIGHT - 1,
             LS_PREVIEW_WIDTH,
@@ -452,7 +452,7 @@ int SaveGame(int mode)
         break;
     default:
         LoadTumbSlot(slot_cursor);
-        blitBufferToBuffer(thumbnail_image[0],
+        buf_to_buf(thumbnail_image[0],
             LS_PREVIEW_WIDTH - 1,
             LS_PREVIEW_HEIGHT - 1,
             LS_PREVIEW_WIDTH,
@@ -610,7 +610,7 @@ int SaveGame(int mode)
                     switch (LSstatus[slot_cursor]) {
                     case SLOT_STATE_EMPTY:
                     case SLOT_STATE_ERROR:
-                        blitBufferToBuffer(thumbnail_image[1],
+                        buf_to_buf(thumbnail_image[1],
                             LS_PREVIEW_WIDTH - 1,
                             LS_PREVIEW_HEIGHT - 1,
                             LS_PREVIEW_WIDTH,
@@ -619,7 +619,7 @@ int SaveGame(int mode)
                         break;
                     default:
                         LoadTumbSlot(slot_cursor);
-                        blitBufferToBuffer(thumbnail_image[0],
+                        buf_to_buf(thumbnail_image[0],
                             LS_PREVIEW_WIDTH - 1,
                             LS_PREVIEW_HEIGHT - 1,
                             LS_PREVIEW_WIDTH,
@@ -647,7 +647,7 @@ int SaveGame(int mode)
                 case SLOT_STATE_EMPTY:
                 case SLOT_STATE_ERROR:
                 case SLOT_STATE_UNSUPPORTED_VERSION:
-                    blitBufferToBuffer(thumbnail_image[1],
+                    buf_to_buf(thumbnail_image[1],
                         LS_PREVIEW_WIDTH - 1,
                         LS_PREVIEW_HEIGHT - 1,
                         LS_PREVIEW_WIDTH,
@@ -656,7 +656,7 @@ int SaveGame(int mode)
                     break;
                 default:
                     LoadTumbSlot(slot_cursor);
-                    blitBufferToBuffer(thumbnail_image[0],
+                    buf_to_buf(thumbnail_image[0],
                         LS_PREVIEW_WIDTH - 1,
                         LS_PREVIEW_HEIGHT - 1,
                         LS_PREVIEW_WIDTH,
@@ -748,7 +748,7 @@ int SaveGame(int mode)
                     case SLOT_STATE_EMPTY:
                     case SLOT_STATE_ERROR:
                     case SLOT_STATE_UNSUPPORTED_VERSION:
-                        blitBufferToBuffer(thumbnail_image[1],
+                        buf_to_buf(thumbnail_image[1],
                             LS_PREVIEW_WIDTH - 1,
                             LS_PREVIEW_HEIGHT - 1,
                             LS_PREVIEW_WIDTH,
@@ -757,7 +757,7 @@ int SaveGame(int mode)
                         break;
                     default:
                         LoadTumbSlot(slot_cursor);
-                        blitBufferToBuffer(thumbnail_image[0],
+                        buf_to_buf(thumbnail_image[0],
                             LS_PREVIEW_WIDTH - 1,
                             LS_PREVIEW_HEIGHT - 1,
                             LS_PREVIEW_WIDTH,
@@ -812,7 +812,7 @@ static int QuickSnapShot()
     }
 
     unsigned char* windowBuffer = win_get_buf(display_win);
-    blitBufferToBufferStretch(windowBuffer, 640, 380, 640, snapshot, LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
+    cscale(windowBuffer, 640, 380, 640, snapshot, LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
 
     thumbnail_image[1] = snapshot;
 
@@ -848,7 +848,7 @@ int LoadGame(int mode)
             WINDOW_FLAG_0x10 | WINDOW_FLAG_0x02);
         if (window != -1) {
             unsigned char* windowBuffer = win_get_buf(window);
-            bufferFill(windowBuffer, LS_WINDOW_WIDTH, LS_WINDOW_HEIGHT, LS_WINDOW_WIDTH, colorTable[0]);
+            buf_fill(windowBuffer, LS_WINDOW_WIDTH, LS_WINDOW_HEIGHT, LS_WINDOW_WIDTH, colorTable[0]);
             win_draw(window);
         }
 
@@ -925,7 +925,7 @@ int LoadGame(int mode)
     case SLOT_STATE_EMPTY:
     case SLOT_STATE_ERROR:
     case SLOT_STATE_UNSUPPORTED_VERSION:
-        blitBufferToBuffer(lsbmp[LOAD_SAVE_FRM_PREVIEW_COVER],
+        buf_to_buf(lsbmp[LOAD_SAVE_FRM_PREVIEW_COVER],
             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].height,
             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
@@ -934,7 +934,7 @@ int LoadGame(int mode)
         break;
     default:
         LoadTumbSlot(slot_cursor);
-        blitBufferToBuffer(thumbnail_image[0],
+        buf_to_buf(thumbnail_image[0],
             LS_PREVIEW_WIDTH - 1,
             LS_PREVIEW_HEIGHT - 1,
             LS_PREVIEW_WIDTH,
@@ -1081,7 +1081,7 @@ int LoadGame(int mode)
                     case SLOT_STATE_EMPTY:
                     case SLOT_STATE_ERROR:
                     case SLOT_STATE_UNSUPPORTED_VERSION:
-                        blitBufferToBuffer(lsbmp[LOAD_SAVE_FRM_PREVIEW_COVER],
+                        buf_to_buf(lsbmp[LOAD_SAVE_FRM_PREVIEW_COVER],
                             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
                             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].height,
                             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
@@ -1090,13 +1090,13 @@ int LoadGame(int mode)
                         break;
                     default:
                         LoadTumbSlot(slot_cursor);
-                        blitBufferToBuffer(lsbmp[LOAD_SAVE_FRM_BACKGROUND] + LS_WINDOW_WIDTH * 39 + 340,
+                        buf_to_buf(lsbmp[LOAD_SAVE_FRM_BACKGROUND] + LS_WINDOW_WIDTH * 39 + 340,
                             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
                             ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].height,
                             LS_WINDOW_WIDTH,
                             lsgbuf + LS_WINDOW_WIDTH * 39 + 340,
                             LS_WINDOW_WIDTH);
-                        blitBufferToBuffer(thumbnail_image[0],
+                        buf_to_buf(thumbnail_image[0],
                             LS_PREVIEW_WIDTH - 1,
                             LS_PREVIEW_HEIGHT - 1,
                             LS_PREVIEW_WIDTH,
@@ -1124,7 +1124,7 @@ int LoadGame(int mode)
                 case SLOT_STATE_EMPTY:
                 case SLOT_STATE_ERROR:
                 case SLOT_STATE_UNSUPPORTED_VERSION:
-                    blitBufferToBuffer(lsbmp[LOAD_SAVE_FRM_PREVIEW_COVER],
+                    buf_to_buf(lsbmp[LOAD_SAVE_FRM_PREVIEW_COVER],
                         ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
                         ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].height,
                         ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
@@ -1133,13 +1133,13 @@ int LoadGame(int mode)
                     break;
                 default:
                     LoadTumbSlot(slot_cursor);
-                    blitBufferToBuffer(lsbmp[LOAD_SAVE_FRM_BACKGROUND] + LS_WINDOW_WIDTH * 39 + 340,
+                    buf_to_buf(lsbmp[LOAD_SAVE_FRM_BACKGROUND] + LS_WINDOW_WIDTH * 39 + 340,
                         ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].width,
                         ginfo[LOAD_SAVE_FRM_PREVIEW_COVER].height,
                         LS_WINDOW_WIDTH,
                         lsgbuf + LS_WINDOW_WIDTH * 39 + 340,
                         LS_WINDOW_WIDTH);
-                    blitBufferToBuffer(thumbnail_image[0],
+                    buf_to_buf(thumbnail_image[0],
                         LS_PREVIEW_WIDTH - 1,
                         LS_PREVIEW_HEIGHT - 1,
                         LS_PREVIEW_WIDTH,
@@ -1258,7 +1258,7 @@ static int LSGameStart(int windowType)
         }
 
         unsigned char* windowBuf = win_get_buf(display_win);
-        blitBufferToBufferStretch(windowBuf, 640, 380, 640, thumbnail_image[1], LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
+        cscale(windowBuf, 640, 380, 640, thumbnail_image[1], LS_PREVIEW_WIDTH, LS_PREVIEW_HEIGHT, LS_PREVIEW_WIDTH);
     }
 
     for (int index = 0; index < LOAD_SAVE_FRM_COUNT; index++) {
@@ -1866,7 +1866,7 @@ static int GetSlotList()
 // 0x47E6D8
 static void ShowSlotList(int a1)
 {
-    bufferFill(lsgbuf + LS_WINDOW_WIDTH * 87 + 55, 230, 353, LS_WINDOW_WIDTH, lsgbuf[LS_WINDOW_WIDTH * 86 + 55] & 0xFF);
+    buf_fill(lsgbuf + LS_WINDOW_WIDTH * 87 + 55, 230, 353, LS_WINDOW_WIDTH, lsgbuf[LS_WINDOW_WIDTH * 86 + 55] & 0xFF);
 
     int y = 87;
     for (int index = 0; index < 10; index += 1) {
@@ -1908,7 +1908,7 @@ static void ShowSlotList(int a1)
 // 0x47E8E0
 static void DrawInfoBox(int a1)
 {
-    blitBufferToBuffer(lsbmp[LOAD_SAVE_FRM_BACKGROUND] + LS_WINDOW_WIDTH * 254 + 396, 164, 60, LS_WINDOW_WIDTH, lsgbuf + LS_WINDOW_WIDTH * 254 + 396, 640);
+    buf_to_buf(lsbmp[LOAD_SAVE_FRM_BACKGROUND] + LS_WINDOW_WIDTH * 254 + 396, 164, 60, LS_WINDOW_WIDTH, lsgbuf + LS_WINDOW_WIDTH * 254 + 396, 640);
 
     unsigned char* dest;
     const char* text;
@@ -2146,7 +2146,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
 
     int nameWidth = text_width(text);
 
-    bufferFill(windowBuffer + windowWidth * y + x, nameWidth, lineHeight, windowWidth, backgroundColor);
+    buf_fill(windowBuffer + windowWidth * y + x, nameWidth, lineHeight, windowWidth, backgroundColor);
     text_to_buf(windowBuffer + windowWidth * y + x, text, windowWidth, windowWidth, textColor);
 
     win_draw(win);
@@ -2171,7 +2171,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
             rc = -1;
         } else {
             if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && textLength > 0) {
-                bufferFill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
+                buf_fill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
 
                 // TODO: Probably incorrect, needs testing.
                 if (v1 == 1) {
@@ -2189,7 +2189,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
                     }
                 }
 
-                bufferFill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
+                buf_fill(windowBuffer + windowWidth * y + x, text_width(text), lineHeight, windowWidth, backgroundColor);
 
                 text[textLength] = keyCode & 0xFF;
                 text[textLength + 1] = ' ';
@@ -2207,7 +2207,7 @@ static int get_input_str2(int win, int doneKeyCode, int cancelKeyCode, char* des
             blink = !blink;
 
             int color = blink ? backgroundColor : textColor;
-            bufferFill(windowBuffer + windowWidth * y + x + text_width(text) - cursorWidth, cursorWidth, lineHeight - 2, windowWidth, color);
+            buf_fill(windowBuffer + windowWidth * y + x + text_width(text) - cursorWidth, cursorWidth, lineHeight - 2, windowWidth, color);
             win_draw(win);
         }
 

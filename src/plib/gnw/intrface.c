@@ -112,14 +112,14 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
     Rect* windowRect = &(window->rect);
     unsigned char* windowBuffer = window->buffer;
 
-    bufferDrawRect(windowBuffer,
+    draw_box(windowBuffer,
         windowWidth,
         0,
         0,
         windowWidth - 1,
         windowHeight - 1,
         colorTable[0]);
-    bufferDrawRectShadowed(windowBuffer,
+    draw_shaded_box(windowBuffer,
         windowWidth,
         1,
         1,
@@ -128,7 +128,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         colorTable[GNW_wcolor[1]],
         colorTable[GNW_wcolor[2]]);
 
-    bufferFill(windowBuffer + windowWidth * 5 + 5,
+    buf_fill(windowBuffer + windowWidth * 5 + 5,
         windowWidth - 11,
         text_height() + 3,
         windowWidth,
@@ -140,7 +140,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         windowWidth,
         colorTable[GNW_wcolor[3]]);
 
-    bufferDrawRectShadowed(windowBuffer,
+    draw_shaded_box(windowBuffer,
         windowWidth,
         5,
         5,
@@ -154,7 +154,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
     unsigned char* listViewBuffer = windowBuffer + windowWidth * listViewY + listViewX;
     int listViewMaxY = listViewCapacity * text_height() + listViewY;
 
-    bufferFill(listViewBuffer + windowWidth * (-2) + (-3),
+    buf_fill(listViewBuffer + windowWidth * (-2) + (-3),
         listViewWidth + listViewX - 2,
         listViewCapacity * text_height() + 2,
         windowWidth,
@@ -188,12 +188,12 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         listViewY,
         a7 | 0x2000000);
 
-    _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
+    lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
         listViewWidth,
         text_height(),
         windowWidth);
 
-    bufferDrawRectShadowed(windowBuffer,
+    draw_shaded_box(windowBuffer,
         windowWidth,
         5,
         listViewY - 3,
@@ -238,7 +238,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
     int scrollbarHeight = listViewMaxY - scrollbarY;
     unsigned char* scrollbarBuffer = windowBuffer + windowWidth * scrollbarY + scrollbarX;
 
-    bufferFill(scrollbarBuffer,
+    buf_fill(scrollbarBuffer,
         scrollbarKnobSize + 1,
         scrollbarHeight - text_height() - 8,
         windowWidth,
@@ -258,7 +258,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         NULL,
         0);
 
-    bufferDrawRectShadowed(windowBuffer,
+    draw_shaded_box(windowBuffer,
         windowWidth,
         windowWidth - 22,
         scrollbarY - 1,
@@ -266,7 +266,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         listViewMaxY - text_height() - 9,
         colorTable[GNW_wcolor[2]],
         colorTable[GNW_wcolor[1]]);
-    bufferDrawRectShadowed(windowBuffer,
+    draw_shaded_box(windowBuffer,
         windowWidth,
         scrollbarX,
         scrollbarY,
@@ -275,7 +275,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         colorTable[GNW_wcolor[1]],
         colorTable[GNW_wcolor[2]]);
 
-    _lighten_buf(scrollbarBuffer, scrollbarKnobSize, scrollbarKnobSize, windowWidth);
+    lighten_buf(scrollbarBuffer, scrollbarKnobSize, scrollbarKnobSize, windowWidth);
 
     for (int index = 0; index < listViewCapacity; index++) {
         win_register_button(win,
@@ -428,7 +428,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
         }
 
         if (keyCode == -4) {
-            bufferFill(listViewBuffer,
+            buf_fill(listViewBuffer,
                 listViewWidth,
                 listViewMaxY - listViewY,
                 windowWidth,
@@ -442,13 +442,13 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
                 listViewY,
                 a7 | 0x2000000);
 
-            _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
+            lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
                 listViewWidth,
                 text_height(),
                 windowWidth);
 
             if (itemsLength > listViewCapacity) {
-                bufferFill(windowBuffer + windowWidth * scrollbarY + scrollbarX,
+                buf_fill(windowBuffer + windowWidth * scrollbarY + scrollbarX,
                     scrollbarKnobSize + 1,
                     scrollbarKnobSize + 1,
                     windowWidth,
@@ -457,7 +457,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
                 scrollbarY = (scrollOffset * (listViewMaxY - listViewY - 2 * text_height() - 16 - scrollbarKnobSize - 1)) / (itemsLength - listViewCapacity)
                     + listViewY + text_height() + 7;
 
-                bufferDrawRectShadowed(windowBuffer,
+                draw_shaded_box(windowBuffer,
                     windowWidth,
                     scrollbarX,
                     scrollbarY,
@@ -466,7 +466,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
                     colorTable[GNW_wcolor[1]],
                     colorTable[GNW_wcolor[2]]);
 
-                _lighten_buf(windowBuffer + windowWidth * scrollbarY + scrollbarX,
+                lighten_buf(windowBuffer + windowWidth * scrollbarY + scrollbarX,
                     scrollbarKnobSize,
                     scrollbarKnobSize,
                     windowWidth);
@@ -482,7 +482,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
                 itemRect.uly = windowRect->uly + listViewY + previousSelectedItemIndex * text_height();
                 itemRect.lry = itemRect.uly + text_height();
 
-                bufferFill(listViewBuffer + windowWidth * previousSelectedItemIndex * text_height(),
+                buf_fill(listViewBuffer + windowWidth * previousSelectedItemIndex * text_height(),
                     listViewWidth,
                     text_height(),
                     windowWidth,
@@ -509,7 +509,7 @@ int win_list_select_at(const char* title, char** items, int itemsLength, SelectF
                 itemRect.uly = windowRect->uly + listViewY + selectedItemIndex * text_height();
                 itemRect.lry = itemRect.uly + text_height();
 
-                _lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
+                lighten_buf(listViewBuffer + windowWidth * selectedItemIndex * text_height(),
                     listViewWidth,
                     text_height(),
                     windowWidth);
@@ -552,14 +552,14 @@ int win_get_str(char* dest, int length, const char* title, int x, int y)
 
     unsigned char* windowBuffer = win_get_buf(win);
 
-    bufferFill(windowBuffer + windowWidth * (text_height() + 14) + 14,
+    buf_fill(windowBuffer + windowWidth * (text_height() + 14) + 14,
         windowWidth - 28,
         text_height() + 2,
         windowWidth,
         colorTable[GNW_wcolor[0]]);
     text_to_buf(windowBuffer + windowWidth * 8 + 8, title, windowWidth, windowWidth, colorTable[GNW_wcolor[4]]);
 
-    bufferDrawRectShadowed(windowBuffer,
+    draw_shaded_box(windowBuffer,
         windowWidth,
         14,
         text_height() + 14,
@@ -728,7 +728,7 @@ int win_debug(char* string)
             8,
             0x2000000 | 0x100 | 4);
 
-        bufferDrawRectShadowed(windowBuffer,
+        draw_shaded_box(windowBuffer,
             300,
             8,
             8,
@@ -739,7 +739,7 @@ int win_debug(char* string)
 
         win_fill(wd, 9, 26, 282, 135, 0x100 | 1);
 
-        bufferDrawRectShadowed(windowBuffer,
+        draw_shaded_box(windowBuffer,
             300,
             8,
             25,
@@ -791,7 +791,7 @@ int win_debug(char* string)
         while (160 - curry < lineHeight) {
             Window* window = GNW_find(wd);
             unsigned char* windowBuffer = window->buffer;
-            blitBufferToBuffer(windowBuffer + lineHeight * 300 + 300 * 26 + 9,
+            buf_to_buf(windowBuffer + lineHeight * 300 + 300 * 26 + 9,
                 282,
                 134 - lineHeight - 1,
                 300,
@@ -1000,7 +1000,7 @@ int win_input_str(int win, char* dest, int maxLength, int x, int y, int textColo
 
     int lineHeight = text_height();
     int stringWidth = text_width(dest);
-    bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+    buf_fill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
     text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
     Rect dirtyRect;
@@ -1027,7 +1027,7 @@ int win_input_str(int win, char* dest, int maxLength, int x, int y, int textColo
                     stringWidth = text_width(dest);
 
                     if (isFirstKey) {
-                        bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+                        buf_fill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
 
                         dirtyRect.ulx = window->rect.ulx + x;
                         dirtyRect.uly = window->rect.uly + y;
@@ -1043,7 +1043,7 @@ int win_input_str(int win, char* dest, int maxLength, int x, int y, int textColo
                         dest[cursorPos - 1] = '_';
                     }
 
-                    bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+                    buf_fill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
                     text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
                     dirtyRect.ulx = window->rect.ulx + x;
@@ -1071,7 +1071,7 @@ int win_input_str(int win, char* dest, int maxLength, int x, int y, int textColo
                         dest[cursorPos + 2] = '\0';
 
                         int stringWidth = text_width(dest);
-                        bufferFill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
+                        buf_fill(buffer, stringWidth, lineHeight, window->width, backgroundColor);
                         text_to_buf(buffer, dest, stringWidth, window->width, textColor);
 
                         dirtyRect.ulx = window->rect.ulx + x;

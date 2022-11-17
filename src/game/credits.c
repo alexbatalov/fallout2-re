@@ -93,7 +93,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                                 int width = art_frame_width(frm, 0, 0);
                                 int height = art_frame_length(frm, 0, 0);
                                 unsigned char* backgroundFrmData = art_frame_data(frm, 0, 0);
-                                blitBufferToBuffer(backgroundFrmData,
+                                buf_to_buf(backgroundFrmData,
                                     width,
                                     height,
                                     width,
@@ -117,7 +117,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                             int stringBufferSize = CREDITS_WINDOW_WIDTH * lineHeight;
                             unsigned char* stringBuffer = (unsigned char*)mem_malloc(stringBufferSize);
                             if (stringBuffer != NULL) {
-                                blitBufferToBuffer(backgroundBuffer,
+                                buf_to_buf(backgroundBuffer,
                                     CREDITS_WINDOW_WIDTH,
                                     CREDITS_WINDOW_HEIGHT,
                                     CREDITS_WINDOW_WIDTH,
@@ -156,14 +156,14 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                                         memmove(intermediateBuffer, intermediateBuffer + CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH);
                                         memcpy(dest, src, v19);
 
-                                        blitBufferToBuffer(backgroundBuffer,
+                                        buf_to_buf(backgroundBuffer,
                                             CREDITS_WINDOW_WIDTH,
                                             CREDITS_WINDOW_HEIGHT,
                                             CREDITS_WINDOW_WIDTH,
                                             windowBuffer,
                                             CREDITS_WINDOW_WIDTH);
 
-                                        blitBufferToBufferTrans(intermediateBuffer,
+                                        trans_buf_to_buf(intermediateBuffer,
                                             CREDITS_WINDOW_WIDTH,
                                             CREDITS_WINDOW_HEIGHT,
                                             CREDITS_WINDOW_WIDTH,
@@ -194,14 +194,14 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
                                         memmove(intermediateBuffer, intermediateBuffer + CREDITS_WINDOW_WIDTH, CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH);
                                         memset(intermediateBuffer + CREDITS_WINDOW_WIDTH * CREDITS_WINDOW_HEIGHT - CREDITS_WINDOW_WIDTH, 0, CREDITS_WINDOW_WIDTH);
 
-                                        blitBufferToBuffer(backgroundBuffer,
+                                        buf_to_buf(backgroundBuffer,
                                             CREDITS_WINDOW_WIDTH,
                                             CREDITS_WINDOW_HEIGHT,
                                             CREDITS_WINDOW_WIDTH,
                                             windowBuffer,
                                             CREDITS_WINDOW_WIDTH);
 
-                                        blitBufferToBufferTrans(intermediateBuffer,
+                                        trans_buf_to_buf(intermediateBuffer,
                                             CREDITS_WINDOW_WIDTH,
                                             CREDITS_WINDOW_HEIGHT,
                                             CREDITS_WINDOW_WIDTH,

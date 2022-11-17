@@ -270,7 +270,7 @@ static int skilldex_start()
         }
 
         int hundreds = value / 100;
-        blitBufferToBuffer(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * hundreds,
+        buf_to_buf(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * hundreds,
             14,
             24,
             336,
@@ -278,7 +278,7 @@ static int skilldex_start()
             ginfo[SKILLDEX_FRM_BACKGROUND].width);
 
         int tens = (value % 100) / 10;
-        blitBufferToBuffer(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * tens,
+        buf_to_buf(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * tens,
             14,
             24,
             336,
@@ -286,7 +286,7 @@ static int skilldex_start()
             ginfo[SKILLDEX_FRM_BACKGROUND].width);
 
         int ones = (value % 100) % 10;
-        blitBufferToBuffer(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * ones,
+        buf_to_buf(skldxbmp[SKILLDEX_FRM_BIG_NUMBERS] + 14 * ones,
             14,
             24,
             336,

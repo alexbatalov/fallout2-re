@@ -106,7 +106,7 @@ int display_init()
 
         unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
         intface_full_wid = art_frame_width(backgroundFrm, 0, 0);
-        blitBufferToBuffer(backgroundFrmData + intface_full_wid * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X,
+        buf_to_buf(backgroundFrmData + intface_full_wid * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X,
             DISPLAY_MONITOR_WIDTH,
             DISPLAY_MONITOR_HEIGHT,
             intface_full_wid,
@@ -309,7 +309,7 @@ void display_redraw()
     }
 
     buf += intface_full_wid * DISPLAY_MONITOR_Y + DISPLAY_MONITOR_X;
-    blitBufferToBuffer(disp_buf,
+    buf_to_buf(disp_buf,
         DISPLAY_MONITOR_WIDTH,
         DISPLAY_MONITOR_HEIGHT,
         DISPLAY_MONITOR_WIDTH,

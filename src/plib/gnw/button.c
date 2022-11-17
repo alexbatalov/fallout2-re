@@ -75,14 +75,14 @@ int win_register_text_button(int win, int x, int y, int mouseEnterEventCode, int
     if (w->field_20 == 256 && GNW_texture != NULL) {
         // TODO: Incomplete.
     } else {
-        bufferFill(normal, buttonWidth, buttonHeight, buttonWidth, w->field_20);
-        bufferFill(pressed, buttonWidth, buttonHeight, buttonWidth, w->field_20);
+        buf_fill(normal, buttonWidth, buttonHeight, buttonWidth, w->field_20);
+        buf_fill(pressed, buttonWidth, buttonHeight, buttonWidth, w->field_20);
     }
 
-    _lighten_buf(normal, buttonWidth, buttonHeight, buttonWidth);
+    lighten_buf(normal, buttonWidth, buttonHeight, buttonWidth);
 
     text_to_buf(normal + buttonWidth * 3 + 8, title, buttonWidth, buttonWidth, colorTable[GNW_wcolor[3]]);
-    bufferDrawRectShadowed(normal,
+    draw_shaded_box(normal,
         buttonWidth,
         2,
         2,
@@ -90,7 +90,7 @@ int win_register_text_button(int win, int x, int y, int mouseEnterEventCode, int
         buttonHeight - 3,
         colorTable[GNW_wcolor[1]],
         colorTable[GNW_wcolor[2]]);
-    bufferDrawRectShadowed(normal,
+    draw_shaded_box(normal,
         buttonWidth,
         1,
         1,
@@ -98,10 +98,10 @@ int win_register_text_button(int win, int x, int y, int mouseEnterEventCode, int
         buttonHeight - 2,
         colorTable[GNW_wcolor[1]],
         colorTable[GNW_wcolor[2]]);
-    bufferDrawRect(normal, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
+    draw_box(normal, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
 
     text_to_buf(pressed + buttonWidth * 4 + 9, title, buttonWidth, buttonWidth, colorTable[GNW_wcolor[3]]);
-    bufferDrawRectShadowed(pressed,
+    draw_shaded_box(pressed,
         buttonWidth,
         2,
         2,
@@ -109,7 +109,7 @@ int win_register_text_button(int win, int x, int y, int mouseEnterEventCode, int
         buttonHeight - 3,
         colorTable[GNW_wcolor[2]],
         colorTable[GNW_wcolor[1]]);
-    bufferDrawRectShadowed(pressed,
+    draw_shaded_box(pressed,
         buttonWidth,
         1,
         1,
@@ -117,7 +117,7 @@ int win_register_text_button(int win, int x, int y, int mouseEnterEventCode, int
         buttonHeight - 2,
         colorTable[GNW_wcolor[2]],
         colorTable[GNW_wcolor[1]]);
-    bufferDrawRect(pressed, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
+    draw_box(pressed, buttonWidth, 0, 0, buttonWidth - 1, buttonHeight - 1, colorTable[0]);
 
     Button* button = button_create(win,
         x,
@@ -1148,7 +1148,7 @@ static void button_draw(Button* button, Window* w, unsigned char* data, int a4, 
             if (a4 == 0) {
                 int width = button->rect.lrx - button->rect.ulx + 1;
                 if ((button->flags & BUTTON_FLAG_TRANSPARENT) != 0) {
-                    blitBufferToBufferTrans(
+                    trans_buf_to_buf(
                         data + (v3.uly - button->rect.uly) * width + v3.ulx - button->rect.ulx,
                         v3.lrx - v3.ulx + 1,
                         v3.lry - v3.uly + 1,
@@ -1156,7 +1156,7 @@ static void button_draw(Button* button, Window* w, unsigned char* data, int a4, 
                         w->buffer + w->width * v3.uly + v3.ulx,
                         w->width);
                 } else {
-                    blitBufferToBuffer(
+                    buf_to_buf(
                         data + (v3.uly - button->rect.uly) * width + v3.ulx - button->rect.ulx,
                         v3.lrx - v3.ulx + 1,
                         v3.lry - v3.uly + 1,

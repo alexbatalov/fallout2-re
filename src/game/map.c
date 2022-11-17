@@ -1526,7 +1526,7 @@ static void map_scroll_refresh_mapper(Rect* rect)
         return;
     }
 
-    bufferFill(display_buf + clampedDirtyRect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + clampedDirtyRect.ulx,
+    buf_fill(display_buf + clampedDirtyRect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + clampedDirtyRect.ulx,
         clampedDirtyRect.lrx - clampedDirtyRect.ulx + 1,
         clampedDirtyRect.lry - clampedDirtyRect.uly + 1,
         _scr_size.lrx - _scr_size.ulx + 1,

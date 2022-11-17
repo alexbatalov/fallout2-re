@@ -4939,7 +4939,7 @@ static void obj_render_object(Object* object, Rect* rect, int light)
     int objectHeight = objectRect.lry - objectRect.uly + 1;
 
     if (type == 6) {
-        blitBufferToBufferTrans(src,
+        trans_buf_to_buf(src,
             objectWidth,
             objectHeight,
             frameWidth,

@@ -1604,7 +1604,7 @@ static int CharEditStart()
         ListTraits();
     } else {
         x = NAME_BUTTON_X;
-        blitBufferToBufferTrans(grphcpy[EDITOR_GRAPHIC_NAME_OFF],
+        trans_buf_to_buf(grphcpy[EDITOR_GRAPHIC_NAME_OFF],
             GInfo[EDITOR_GRAPHIC_NAME_ON].width,
             GInfo[EDITOR_GRAPHIC_NAME_ON].height,
             GInfo[EDITOR_GRAPHIC_NAME_ON].width,
@@ -1612,7 +1612,7 @@ static int CharEditStart()
             EDITOR_WINDOW_WIDTH);
 
         x += GInfo[EDITOR_GRAPHIC_NAME_ON].width;
-        blitBufferToBufferTrans(grphcpy[EDITOR_GRAPHIC_AGE_OFF],
+        trans_buf_to_buf(grphcpy[EDITOR_GRAPHIC_AGE_OFF],
             GInfo[EDITOR_GRAPHIC_AGE_ON].width,
             GInfo[EDITOR_GRAPHIC_AGE_ON].height,
             GInfo[EDITOR_GRAPHIC_AGE_ON].width,
@@ -1620,7 +1620,7 @@ static int CharEditStart()
             EDITOR_WINDOW_WIDTH);
 
         x += GInfo[EDITOR_GRAPHIC_AGE_ON].width;
-        blitBufferToBufferTrans(grphcpy[EDITOR_GRAPHIC_SEX_OFF],
+        trans_buf_to_buf(grphcpy[EDITOR_GRAPHIC_SEX_OFF],
             GInfo[EDITOR_GRAPHIC_SEX_ON].width,
             GInfo[EDITOR_GRAPHIC_SEX_ON].height,
             GInfo[EDITOR_GRAPHIC_SEX_ON].width,
@@ -1845,7 +1845,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
 
     int nameWidth = text_width(copy);
 
-    bufferFill(windowBuffer + windowWidth * y + x, nameWidth, text_height(), windowWidth, backgroundColor);
+    buf_fill(windowBuffer + windowWidth * y + x, nameWidth, text_height(), windowWidth, backgroundColor);
     text_to_buf(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
 
     win_draw(win);
@@ -1867,7 +1867,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
             rc = -1;
         } else {
             if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && nameLength >= 1) {
-                bufferFill(windowBuffer + windowWidth * y + x, text_width(copy), v60, windowWidth, backgroundColor);
+                buf_fill(windowBuffer + windowWidth * y + x, text_width(copy), v60, windowWidth, backgroundColor);
                 copy[nameLength - 1] = ' ';
                 copy[nameLength] = '\0';
                 text_to_buf(windowBuffer + windowWidth * y + x, copy, windowWidth, windowWidth, textColor);
@@ -1881,7 +1881,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
                     }
                 }
 
-                bufferFill(windowBuffer + windowWidth * y + x, text_width(copy), v60, windowWidth, backgroundColor);
+                buf_fill(windowBuffer + windowWidth * y + x, text_width(copy), v60, windowWidth, backgroundColor);
 
                 copy[nameLength] = keyCode & 0xFF;
                 copy[nameLength + 1] = ' ';
@@ -1900,7 +1900,7 @@ int get_input_str(int win, int cancelKeyCode, char* text, int maxLength, int x, 
             int color = blink ? backgroundColor : textColor;
             blink = !blink;
 
-            bufferFill(windowBuffer + windowWidth * y + x + text_width(copy) - cursorWidth, cursorWidth, v60 - 2, windowWidth, color);
+            buf_fill(windowBuffer + windowWidth * y + x + text_width(copy) - cursorWidth, cursorWidth, v60 - 2, windowWidth, color);
         }
 
         win_draw(win);
@@ -1960,13 +1960,13 @@ static void DrawFolder()
         return;
     }
 
-    blitBufferToBuffer(bckgnd + (360 * 640) + 34, 280, 120, 640, win_buf + (360 * 640) + 34, 640);
+    buf_to_buf(bckgnd + (360 * 640) + 34, 280, 120, 640, win_buf + (360 * 640) + 34, 640);
 
     text_font(101);
 
     switch (folder) {
     case EDITOR_FOLDER_PERKS:
-        blitBufferToBuffer(grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED],
+        buf_to_buf(grphcpy[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED],
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
@@ -1975,7 +1975,7 @@ static void DrawFolder()
         list_perks();
         break;
     case EDITOR_FOLDER_KARMA:
-        blitBufferToBuffer(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED],
+        buf_to_buf(grphcpy[EDITOR_GRAPHIC_KARMA_FOLDER_SELECTED],
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
@@ -1984,7 +1984,7 @@ static void DrawFolder()
         list_karma();
         break;
     case EDITOR_FOLDER_KILLS:
-        blitBufferToBuffer(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED],
+        buf_to_buf(grphcpy[EDITOR_GRAPHIC_KILLS_FOLDER_SELECTED],
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].height,
             GInfo[EDITOR_GRAPHIC_PERKS_FOLDER_SELECTED].width,
@@ -2182,7 +2182,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
         if (flags & ANIMATE) {
             if (previousValue % 10 != ones) {
                 _frame_time = _get_time();
-                blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
+                buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
                     GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
@@ -2193,7 +2193,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
                     ;
             }
 
-            blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * ones,
+            buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * ones,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
                 GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
@@ -2203,7 +2203,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
 
             if (previousValue / 10 != tens) {
                 _frame_time = _get_time();
-                blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
+                buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 11,
                     BIG_NUM_WIDTH,
                     BIG_NUM_HEIGHT,
                     GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
@@ -2214,7 +2214,7 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
                     ;
             }
 
-            blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
+            buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
                 GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
@@ -2222,13 +2222,13 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
                 windowWidth);
             win_draw_rect(windowHandle, &rect);
         } else {
-            blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
+            buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * tens,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
                 GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
                 tensBufferPtr,
                 windowWidth);
-            blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * ones,
+            buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * ones,
                 BIG_NUM_WIDTH,
                 BIG_NUM_HEIGHT,
                 GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
@@ -2237,13 +2237,13 @@ static void PrintBigNum(int x, int y, int flags, int value, int previousValue, i
         }
     } else {
 
-        blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 9,
+        buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 9,
             BIG_NUM_WIDTH,
             BIG_NUM_HEIGHT,
             GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
             tensBufferPtr,
             windowWidth);
-        blitBufferToBuffer(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 9,
+        buf_to_buf(numbersGraphicBufferPtr + BIG_NUM_WIDTH * 9,
             BIG_NUM_WIDTH,
             BIG_NUM_HEIGHT,
             GInfo[EDITOR_GRAPHIC_BIG_NUMBERS].width,
@@ -2278,7 +2278,7 @@ static void PrintLevelWin()
 
     text_font(101);
 
-    blitBufferToBuffer(bckgnd + 640 * 280 + 32, 124, 32, 640, win_buf + 640 * 280 + 32, 640);
+    buf_to_buf(bckgnd + 640 * 280 + 32, 124, 32, 640, win_buf + 640 * 280 + 32, 640);
 
     // LEVEL
     y = 280;
@@ -2380,7 +2380,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
 
         PrintBigNum(58, StatYpos[stat], flags, value, previousValue, edit_win);
 
-        blitBufferToBuffer(bckgnd + off, 40, text_height(), 640, win_buf + off, 640);
+        buf_to_buf(bckgnd + off, 40, text_height(), 640, win_buf + off, 640);
 
         messageListItemId = critterGetStat(obj_dude, stat) + 199;
         if (messageListItemId > 210) {
@@ -2392,7 +2392,7 @@ static void PrintBasicStat(int stat, bool animate, int previousValue)
     } else {
         value = critterGetStat(obj_dude, stat);
         PrintBigNum(58, StatYpos[stat], 0, value, 0, edit_win);
-        blitBufferToBuffer(bckgnd + off, 40, text_height(), 640, win_buf + off, 640);
+        buf_to_buf(bckgnd + off, 40, text_height(), 640, win_buf + off, 640);
 
         value = critterGetStat(obj_dude, stat);
         if (value > 10) {
@@ -2535,7 +2535,7 @@ static void ListDrvdStats()
 
     y = 46;
 
-    blitBufferToBuffer(bckgnd + 640 * y + 194, 118, 108, 640, win_buf + 640 * y + 194, 640);
+    buf_to_buf(bckgnd + 640 * y + 194, 118, 108, 640, win_buf + 640 * y + 194, 640);
 
     // Hit Points
     if (info_line == EDITOR_HIT_POINTS) {
@@ -2654,7 +2654,7 @@ static void ListDrvdStats()
 
     y = 179;
 
-    blitBufferToBuffer(bckgnd + 640 * y + 194, 116, 130, 640, win_buf + 640 * y + 194, 640);
+    buf_to_buf(bckgnd + 640 * y + 194, 116, 130, 640, win_buf + 640 * y + 194, 640);
 
     // Armor Class
     if (info_line == EDITOR_FIRST_DERIVED_STAT + EDITOR_DERIVED_STAT_ARMOR_CLASS) {
@@ -2837,7 +2837,7 @@ static void ListSkills(int a1)
         SliderPlusID = -1;
     }
 
-    blitBufferToBuffer(bckgnd + 370, 270, 252, 640, win_buf + 370, 640);
+    buf_to_buf(bckgnd + 370, 270, 252, 640, win_buf + 370, 640);
 
     text_font(103);
 
@@ -2900,7 +2900,7 @@ static void ListSkills(int a1)
         y = skill_cursor * (text_height() + 1);
         slider_y = y + 27;
 
-        blitBufferToBufferTrans(
+        trans_buf_to_buf(
             grphbmp[EDITOR_GRAPHIC_SLIDER],
             GInfo[EDITOR_GRAPHIC_SLIDER].width,
             GInfo[EDITOR_GRAPHIC_SLIDER].height,
@@ -2959,7 +2959,7 @@ static void DrawInfoWin()
         return;
     }
 
-    blitBufferToBuffer(bckgnd + (640 * 267) + 345, 277, 170, 640, win_buf + (267 * 640) + 345, 640);
+    buf_to_buf(bckgnd + (640 * 267) + 345, 277, 170, 640, win_buf + (267 * 640) + 345, 640);
 
     if (info_line >= 0 && info_line < 7) {
         description = stat_description(info_line);
@@ -3113,14 +3113,14 @@ static int NameWindow()
     // Copy background
     memcpy(windowBuf, grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
-    blitBufferToBufferTrans(
+    trans_buf_to_buf(
         grphbmp[EDITOR_GRAPHIC_NAME_BOX],
         GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
         GInfo[EDITOR_GRAPHIC_NAME_BOX].height,
         GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
         windowBuf + windowWidth * 13 + 13,
         windowWidth);
-    blitBufferToBufferTrans(grphbmp[EDITOR_GRAPHIC_DONE_BOX],
+    trans_buf_to_buf(grphbmp[EDITOR_GRAPHIC_DONE_BOX],
         GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
         GInfo[EDITOR_GRAPHIC_DONE_BOX].height,
         GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
@@ -3177,7 +3177,7 @@ static int NameWindow()
     // NOTE: original code is a bit different, the following chunk of code written two times.
 
     text_font(101);
-    blitBufferToBuffer(grphbmp[EDITOR_GRAPHIC_NAME_BOX],
+    buf_to_buf(grphbmp[EDITOR_GRAPHIC_NAME_BOX],
         GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
         GInfo[EDITOR_GRAPHIC_NAME_BOX].height,
         GInfo[EDITOR_GRAPHIC_NAME_BOX].width,
@@ -3244,14 +3244,14 @@ static int AgeWindow()
 
     memcpy(windowBuf, grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
-    blitBufferToBufferTrans(
+    trans_buf_to_buf(
         grphbmp[EDITOR_GRAPHIC_AGE_BOX],
         GInfo[EDITOR_GRAPHIC_AGE_BOX].width,
         GInfo[EDITOR_GRAPHIC_AGE_BOX].height,
         GInfo[EDITOR_GRAPHIC_AGE_BOX].width,
         windowBuf + windowWidth * 7 + 8,
         windowWidth);
-    blitBufferToBufferTrans(
+    trans_buf_to_buf(
         grphbmp[EDITOR_GRAPHIC_DONE_BOX],
         GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
         GInfo[EDITOR_GRAPHIC_DONE_BOX].height,
@@ -3478,7 +3478,7 @@ static void SexWindow()
     // Copy background
     memcpy(windowBuf, grphbmp[EDITOR_GRAPHIC_CHARWIN], windowWidth * windowHeight);
 
-    blitBufferToBufferTrans(grphbmp[EDITOR_GRAPHIC_DONE_BOX],
+    trans_buf_to_buf(grphbmp[EDITOR_GRAPHIC_DONE_BOX],
         GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
         GInfo[EDITOR_GRAPHIC_DONE_BOX].height,
         GInfo[EDITOR_GRAPHIC_DONE_BOX].width,
@@ -4786,7 +4786,7 @@ static int DrawCard(int graphicId, const char* name, const char* attributes, cha
         return -1;
     }
 
-    blitBufferToBuffer(buf, size.width, size.height, size.width, win_buf + 640 * 309 + 484, 640);
+    buf_to_buf(buf, size.width, size.height, size.width, win_buf + 640 * 309 + 484, 640);
 
     v9 = 150;
     ptr = buf;
@@ -5225,7 +5225,7 @@ static void ListTraits()
         v0 = info_line - 82;
     }
 
-    blitBufferToBuffer(bckgnd + 640 * 353 + 47, 245, 100, 640, win_buf + 640 * 353 + 47, 640);
+    buf_to_buf(bckgnd + 640 * 353 + 47, 245, 100, 640, win_buf + 640 * 353 + 47, 640);
 
     text_font(101);
 
@@ -5598,7 +5598,7 @@ static int UpdateLevel()
 // 0x43C398
 static void RedrwDPrks()
 {
-    blitBufferToBuffer(
+    buf_to_buf(
         pbckgnd + 280,
         293,
         PERK_WINDOW_HEIGHT,
@@ -6088,7 +6088,7 @@ static int InputPDLoop(int count, void (*refreshProc)())
 // 0x43D0BC
 static int ListDPerks()
 {
-    blitBufferToBuffer(
+    buf_to_buf(
         pbckgnd + PERK_WINDOW_WIDTH * 43 + 45,
         192,
         129,
@@ -6150,7 +6150,7 @@ static int ListDPerks()
 // 0x43D2F8
 void RedrwDMPrk()
 {
-    blitBufferToBuffer(pbckgnd + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, pwin_buf + 280, PERK_WINDOW_WIDTH);
+    buf_to_buf(pbckgnd + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, pwin_buf + 280, PERK_WINDOW_WIDTH);
 
     ListMyTraits(optrt_count);
 
@@ -6176,7 +6176,7 @@ static bool GetMutateTrait()
     if (trait_count >= 1) {
         text_font(103);
 
-        blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, text_height() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
+        buf_to_buf(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, text_height() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
 
         // LOSE A TRAIT
         char* msg = getmsg(&editor_message_file, &mesg, 154);
@@ -6217,7 +6217,7 @@ static bool GetMutateTrait()
     if (result) {
         text_font(103);
 
-        blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, text_height() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
+        buf_to_buf(pbckgnd + PERK_WINDOW_WIDTH * 14 + 49, 206, text_height() + 2, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 15 + 49, PERK_WINDOW_WIDTH);
 
         // PICK A NEW TRAIT
         char* msg = getmsg(&editor_message_file, &mesg, 153);
@@ -6259,7 +6259,7 @@ static bool GetMutateTrait()
 // 0x43D668
 static void RedrwDMTagSkl()
 {
-    blitBufferToBuffer(pbckgnd + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, pwin_buf + 280, PERK_WINDOW_WIDTH);
+    buf_to_buf(pbckgnd + 280, 293, PERK_WINDOW_HEIGHT, PERK_WINDOW_WIDTH, pwin_buf + 280, PERK_WINDOW_WIDTH);
 
     ListNewTagSkills();
 
@@ -6276,7 +6276,7 @@ static bool Add4thTagSkill()
 {
     text_font(103);
 
-    blitBufferToBuffer(pbckgnd + 573 * 14 + 49, 206, text_height() + 2, 573, pwin_buf + 573 * 15 + 49, 573);
+    buf_to_buf(pbckgnd + 573 * 14 + 49, 206, text_height() + 2, 573, pwin_buf + 573 * 15 + 49, 573);
 
     // PICK A NEW TAG SKILL
     char* messageListItemText = getmsg(&editor_message_file, &mesg, 155);
@@ -6305,7 +6305,7 @@ static bool Add4thTagSkill()
 // 0x43D81C
 static void ListNewTagSkills()
 {
-    blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
+    buf_to_buf(pbckgnd + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
 
     text_font(101);
 
@@ -6340,7 +6340,7 @@ static void ListNewTagSkills()
 // 0x43D960
 static int ListMyTraits(int a1)
 {
-    blitBufferToBuffer(pbckgnd + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
+    buf_to_buf(pbckgnd + PERK_WINDOW_WIDTH * 43 + 45, 192, 129, PERK_WINDOW_WIDTH, pwin_buf + PERK_WINDOW_WIDTH * 43 + 45, PERK_WINDOW_WIDTH);
 
     text_font(101);
 
@@ -6417,7 +6417,7 @@ static int DrawCard2(int frmId, const char* name, const char* rank, char* descri
         return -1;
     }
 
-    blitBufferToBuffer(data, width, height, width, pwin_buf + PERK_WINDOW_WIDTH * 64 + 413, PERK_WINDOW_WIDTH);
+    buf_to_buf(data, width, height, width, pwin_buf + PERK_WINDOW_WIDTH * 64 + 413, PERK_WINDOW_WIDTH);
 
     // Calculate width of transparent pixels on the left side of the image. This
     // space will be occupied by description (in addition to fixed width).
@@ -6669,7 +6669,7 @@ static void folder_scroll(int direction)
     DrawFolder();
 
     if (info_line >= 10 && info_line < 43) {
-        blitBufferToBuffer(
+        buf_to_buf(
             bckgnd + 640 * 267 + 345,
             277,
             170,

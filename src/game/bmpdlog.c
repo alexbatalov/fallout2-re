@@ -233,7 +233,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
         }
 
         int v27 = hasTwoButtons ? doneX[dialogType] : (backgroundWidth - doneBoxWidth) / 2;
-        blitBufferToBuffer(doneBox, doneBoxWidth, doneBoxHeight, doneBoxWidth, windowBuf + backgroundWidth * doneY[dialogType] + v27, backgroundWidth);
+        buf_to_buf(doneBox, doneBoxWidth, doneBoxHeight, doneBoxWidth, windowBuf + backgroundWidth * doneY[dialogType] + v27, backgroundWidth);
 
         if (!message_init(&messageList)) {
             art_ptr_unlock(upButtonHandle);
@@ -283,7 +283,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
 
             text_font(103);
 
-            blitBufferToBufferTrans(doneBox,
+            trans_buf_to_buf(doneBox,
                 doneBoxWidth,
                 doneBoxHeight,
                 doneBoxWidth,
@@ -356,7 +356,7 @@ int dialog_out(const char* title, const char** body, int bodyLength, int x, int 
                 return -1;
             }
 
-            blitBufferToBufferTrans(doneBox,
+            trans_buf_to_buf(doneBox,
                 doneBoxWidth,
                 doneBoxHeight,
                 doneBoxWidth,
@@ -1062,7 +1062,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
 
     unsigned char* fileNameBufferPtr = windowBuffer + backgroundWidth * 190 + 57;
 
-    bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
+    buf_fill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
     text_to_buf(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
 
     win_draw(win);
@@ -1089,7 +1089,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
         } else if (keyCode == 501 || keyCode == KEY_ESCAPE) {
             rc = 1;
         } else if ((keyCode == KEY_DELETE || keyCode == KEY_BACKSPACE) && fileNameCopyLength > 0) {
-            bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
+            buf_fill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
             fileNameCopy[fileNameCopyLength - 1] = ' ';
             fileNameCopy[fileNameCopyLength] = '\0';
             text_to_buf(fileNameBufferPtr, fileNameCopy, backgroundWidth, backgroundWidth, colorTable[992]);
@@ -1130,7 +1130,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     rc = 2;
                 } else {
                     doubleClickSelectedFileIndex = selectedFileIndex;
-                    bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
+                    buf_fill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
                     strncpy(fileNameCopy, fileList[selectedFileIndex + pageOffset], 16);
 
                     int index;
@@ -1205,7 +1205,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 }
             }
         } else if (isdoschar(keyCode)) {
-            bufferFill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
+            buf_fill(fileNameBufferPtr, text_width(fileNameCopy), cursorHeight, backgroundWidth, 100);
 
             fileNameCopy[fileNameCopyLength] = keyCode & 0xFF;
             fileNameCopy[fileNameCopyLength + 1] = ' ';
@@ -1275,7 +1275,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                     int color = blink ? 100 : colorTable[992];
                     blink = !blink;
 
-                    bufferFill(fileNameBufferPtr + text_width(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
+                    buf_fill(fileNameBufferPtr + text_width(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
                 }
 
                 // FIXME: Missing windowRefresh makes blinking useless.
@@ -1302,7 +1302,7 @@ int save_file_dialog(char* title, char** fileList, char* dest, int fileListLengt
                 int color = blink ? 100 : colorTable[992];
                 blink = !blink;
 
-                bufferFill(fileNameBufferPtr + text_width(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
+                buf_fill(fileNameBufferPtr + text_width(fileNameCopy) - cursorWidth, cursorWidth, cursorHeight - 2, backgroundWidth, color);
             }
 
             win_draw(win);
@@ -1352,7 +1352,7 @@ static void PrntFlist(unsigned char* buffer, char** fileList, int pageOffset, in
 {
     int lineHeight = text_height();
     int y = FILE_DIALOG_FILE_LIST_Y;
-    bufferFill(buffer + y * pitch + FILE_DIALOG_FILE_LIST_X, FILE_DIALOG_FILE_LIST_WIDTH, FILE_DIALOG_FILE_LIST_HEIGHT, pitch, 100);
+    buf_fill(buffer + y * pitch + FILE_DIALOG_FILE_LIST_X, FILE_DIALOG_FILE_LIST_WIDTH, FILE_DIALOG_FILE_LIST_HEIGHT, pitch, 100);
     if (fileListLength != 0) {
         if (fileListLength - pageOffset > FILE_DIALOG_LINE_COUNT) {
             fileListLength = FILE_DIALOG_LINE_COUNT;

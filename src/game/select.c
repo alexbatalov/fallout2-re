@@ -322,7 +322,7 @@ bool select_init()
         return select_fatal_error(false);
     }
 
-    blitBufferToBuffer(backgroundFrmData,
+    buf_to_buf(backgroundFrmData,
         CS_WINDOW_WIDTH,
         CS_WINDOW_HEIGHT,
         CS_WINDOW_WIDTH,
@@ -333,7 +333,7 @@ bool select_init()
     if (monitor == NULL)
         return select_fatal_error(false);
 
-    blitBufferToBuffer(backgroundFrmData + CS_WINDOW_WIDTH * CS_WINDOW_BACKGROUND_Y + CS_WINDOW_BACKGROUND_X,
+    buf_to_buf(backgroundFrmData + CS_WINDOW_WIDTH * CS_WINDOW_BACKGROUND_Y + CS_WINDOW_BACKGROUND_X,
         CS_WINDOW_BACKGROUND_WIDTH,
         CS_WINDOW_BACKGROUND_HEIGHT,
         CS_WINDOW_WIDTH,
@@ -674,7 +674,7 @@ static bool select_update_display()
         return false;
     }
 
-    blitBufferToBuffer(monitor,
+    buf_to_buf(monitor,
         CS_WINDOW_BACKGROUND_WIDTH,
         CS_WINDOW_BACKGROUND_HEIGHT,
         CS_WINDOW_BACKGROUND_WIDTH,
@@ -706,7 +706,7 @@ static bool select_display_portrait()
         if (data != NULL) {
             int width = art_frame_width(frm, 0, 0);
             int height = art_frame_length(frm, 0, 0);
-            blitBufferToBufferTrans(data, width, height, width, (select_window_buffer + CS_WINDOW_WIDTH * 23 + 27), CS_WINDOW_WIDTH);
+            trans_buf_to_buf(data, width, height, width, (select_window_buffer + CS_WINDOW_WIDTH * 23 + 27), CS_WINDOW_WIDTH);
             success = true;
         }
         art_ptr_unlock(faceFrmHandle);

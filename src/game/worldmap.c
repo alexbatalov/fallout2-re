@@ -4525,7 +4525,7 @@ static int wmInterfaceInit()
         return -1;
     }
 
-    blitBufferToBuffer(wmBkArtBuf, wmBkWidth, wmBkHeight, wmBkWidth, wmBkWinBuf, WM_WINDOW_WIDTH);
+    buf_to_buf(wmBkArtBuf, wmBkWidth, wmBkHeight, wmBkWidth, wmBkWinBuf, WM_WINDOW_WIDTH);
 
     for (int citySize = 0; citySize < CITY_SIZE_COUNT; citySize++) {
         CitySizeDescription* citySizeDescription = &(wmSphereData[citySize]);
@@ -5397,7 +5397,7 @@ static int wmInterfaceRefresh()
             }
 
             TileInfo* tileInfo = &(wmTileInfoList[v0]);
-            blitBufferToBuffer(tileInfo->data + srcX,
+            buf_to_buf(tileInfo->data + srcX,
                 width,
                 height,
                 WM_TILE_WIDTH,
@@ -5517,24 +5517,24 @@ static void wmInterfaceRefreshDate(bool shouldRefreshWindow)
     unsigned char* numbersFrmData = art_frame_data(wmGenData.numbersFrm, 0, 0);
 
     dest += WM_WINDOW_WIDTH * 12 + 487;
-    blitBufferToBuffer(numbersFrmData + 9 * (day / 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
-    blitBufferToBuffer(numbersFrmData + 9 * (day % 10), 9, numbersFrmHeight, numbersFrmWidth, dest + 9, WM_WINDOW_WIDTH);
+    buf_to_buf(numbersFrmData + 9 * (day / 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
+    buf_to_buf(numbersFrmData + 9 * (day % 10), 9, numbersFrmHeight, numbersFrmWidth, dest + 9, WM_WINDOW_WIDTH);
 
     int monthsFrmWidth = art_frame_width(wmGenData.monthsFrm, 0, 0);
     unsigned char* monthsFrmData = art_frame_data(wmGenData.monthsFrm, 0, 0);
-    blitBufferToBuffer(monthsFrmData + monthsFrmWidth * 15 * month, 29, 14, 29, dest + WM_WINDOW_WIDTH + 26, WM_WINDOW_WIDTH);
+    buf_to_buf(monthsFrmData + monthsFrmWidth * 15 * month, 29, 14, 29, dest + WM_WINDOW_WIDTH + 26, WM_WINDOW_WIDTH);
 
     dest += 98;
     for (int index = 0; index < 4; index++) {
         dest -= 9;
-        blitBufferToBuffer(numbersFrmData + 9 * (year % 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
+        buf_to_buf(numbersFrmData + 9 * (year % 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
         year /= 10;
     }
 
     int gameTimeHour = game_time_hour();
     dest += 72;
     for (int index = 0; index < 4; index++) {
-        blitBufferToBuffer(numbersFrmData + 9 * (gameTimeHour % 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
+        buf_to_buf(numbersFrmData + 9 * (gameTimeHour % 10), 9, numbersFrmHeight, numbersFrmWidth, dest, WM_WINDOW_WIDTH);
         dest -= 9;
         gameTimeHour /= 10;
     }
@@ -5677,7 +5677,7 @@ static int wmInterfaceDrawSubTileList(TileInfo* tileInfo, int column, int row, i
         unsigned char* dest = wmBkWinBuf + WM_WINDOW_WIDTH * destY + destX;
         switch (subtileInfo->state) {
         case SUBTILE_STATE_UNKNOWN:
-            bufferFill(dest, width, height, WM_WINDOW_WIDTH, colorTable[0]);
+            buf_fill(dest, width, height, WM_WINDOW_WIDTH, colorTable[0]);
             break;
         case SUBTILE_STATE_KNOWN:
             wmInterfaceDrawSubTileRectFogged(dest, width, height, WM_WINDOW_WIDTH);
@@ -5709,12 +5709,12 @@ static int wmDrawCursorStopped()
 
         if (wmGenData.worldPosX >= wmWorldOffsetX && wmGenData.worldPosX < wmWorldOffsetX + WM_VIEW_WIDTH
             && wmGenData.worldPosY >= wmWorldOffsetY && wmGenData.worldPosY < wmWorldOffsetY + WM_VIEW_HEIGHT) {
-            blitBufferToBufferTrans(src, width, height, width, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
+            trans_buf_to_buf(src, width, height, width, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
         }
 
         if (wmGenData.walkDestinationX >= wmWorldOffsetX && wmGenData.walkDestinationX < wmWorldOffsetX + WM_VIEW_WIDTH
             && wmGenData.walkDestinationY >= wmWorldOffsetY && wmGenData.walkDestinationY < wmWorldOffsetY + WM_VIEW_HEIGHT) {
-            blitBufferToBufferTrans(wmGenData.destinationMarkerFrmData, wmGenData.destinationMarkerFrmWidth, wmGenData.destinationMarkerFrmHeight, wmGenData.destinationMarkerFrmWidth, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.walkDestinationY - wmGenData.destinationMarkerFrmHeight / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.walkDestinationX - wmGenData.destinationMarkerFrmWidth / 2, WM_WINDOW_WIDTH);
+            trans_buf_to_buf(wmGenData.destinationMarkerFrmData, wmGenData.destinationMarkerFrmWidth, wmGenData.destinationMarkerFrmHeight, wmGenData.destinationMarkerFrmWidth, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.walkDestinationY - wmGenData.destinationMarkerFrmHeight / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.walkDestinationX - wmGenData.destinationMarkerFrmWidth / 2, WM_WINDOW_WIDTH);
         }
     } else {
         if (wmGenData.encounterIconIsVisible == 1) {
@@ -5729,7 +5729,7 @@ static int wmDrawCursorStopped()
 
         if (wmGenData.worldPosX >= wmWorldOffsetX && wmGenData.worldPosX < wmWorldOffsetX + WM_VIEW_WIDTH
             && wmGenData.worldPosY >= wmWorldOffsetY && wmGenData.worldPosY < wmWorldOffsetY + WM_VIEW_HEIGHT) {
-            blitBufferToBufferTrans(src, width, height, width, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
+            trans_buf_to_buf(src, width, height, width, wmBkWinBuf + WM_WINDOW_WIDTH * (WM_VIEW_Y - wmWorldOffsetY + wmGenData.worldPosY - height / 2) + WM_VIEW_X - wmWorldOffsetX + wmGenData.worldPosX - width / 2, WM_WINDOW_WIDTH);
         }
     }
 
@@ -6105,7 +6105,7 @@ static int wmTownMapInit()
 // 0x4C4BD0
 static int wmTownMapRefresh()
 {
-    blitBufferToBuffer(wmTownBuffer,
+    buf_to_buf(wmTownBuffer,
         wmTownWidth,
         wmTownHeight,
         wmTownWidth,
@@ -6352,7 +6352,7 @@ int wmSfxIdxName(int sfxIdx, char** namePtr)
 // 0x4C50F4
 static int wmRefreshInterfaceOverlay(bool shouldRefreshWindow)
 {
-    blitBufferToBufferTrans(wmBkArtBuf,
+    trans_buf_to_buf(wmBkArtBuf,
         wmBkWidth,
         wmBkHeight,
         wmBkWidth,
@@ -6372,14 +6372,14 @@ static int wmRefreshInterfaceOverlay(bool shouldRefreshWindow)
             return -1;
         }
 
-        blitBufferToBuffer(data,
+        buf_to_buf(data,
             wmGenData.carImageFrmWidth,
             wmGenData.carImageFrmHeight,
             wmGenData.carImageFrmWidth,
             wmBkWinBuf + WM_WINDOW_WIDTH * WM_WINDOW_CAR_Y + WM_WINDOW_CAR_X,
             WM_WINDOW_WIDTH);
 
-        blitBufferToBufferTrans(wmGenData.carImageOverlayFrmData,
+        trans_buf_to_buf(wmGenData.carImageOverlayFrmData,
             wmGenData.carImageOverlayFrmWidth,
             wmGenData.carImageOverlayFrmHeight,
             wmGenData.carImageOverlayFrmWidth,
@@ -6388,7 +6388,7 @@ static int wmRefreshInterfaceOverlay(bool shouldRefreshWindow)
 
         wmInterfaceRefreshCarFuel();
     } else {
-        blitBufferToBufferTrans(wmGenData.globeOverlayFrmData,
+        trans_buf_to_buf(wmGenData.globeOverlayFrmData,
             wmGenData.globeOverlayFrmWidth,
             wmGenData.globeOverlayFrmHeight,
             wmGenData.globeOverlayFrmWidth,
@@ -6449,7 +6449,7 @@ static int wmRefreshTabs()
     int v32;
     unsigned char* v13;
 
-    blitBufferToBufferTrans(wmGenData.tabsBackgroundFrmData + wmGenData.tabsBackgroundFrmWidth * wmGenData.tabsOffsetY + 9, 119, 178, wmGenData.tabsBackgroundFrmWidth, wmBkWinBuf + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
+    trans_buf_to_buf(wmGenData.tabsBackgroundFrmData + wmGenData.tabsBackgroundFrmWidth * wmGenData.tabsOffsetY + 9, 119, 178, wmGenData.tabsBackgroundFrmWidth, wmBkWinBuf + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
 
     v30 = wmBkWinBuf + WM_WINDOW_WIDTH * 138 + 530;
     v0 = wmBkWinBuf + WM_WINDOW_WIDTH * 138 + 530 - WM_WINDOW_WIDTH * (wmGenData.tabsOffsetY % 27);
@@ -6478,7 +6478,7 @@ static int wmRefreshTabs()
                 v12 = v30 - WM_WINDOW_WIDTH;
             }
 
-            blitBufferToBuffer(v11, width, v10, width, v12, WM_WINDOW_WIDTH);
+            buf_to_buf(v11, width, v10, width, v12, WM_WINDOW_WIDTH);
             art_ptr_unlock(cache_entry);
             cache_entry = INVALID_CACHE_ENTRY;
         }
@@ -6503,7 +6503,7 @@ static int wmRefreshTabs()
                     return -1;
                 }
 
-                blitBufferToBuffer(buf, width, height, width, v13, WM_WINDOW_WIDTH);
+                buf_to_buf(buf, width, height, width, v13, WM_WINDOW_WIDTH);
                 art_ptr_unlock(cache_entry);
 
                 cache_entry = INVALID_CACHE_ENTRY;
@@ -6527,14 +6527,14 @@ static int wmRefreshTabs()
                 return -1;
             }
 
-            blitBufferToBuffer(buf, width, height, width, v13, WM_WINDOW_WIDTH);
+            buf_to_buf(buf, width, height, width, v13, WM_WINDOW_WIDTH);
             art_ptr_unlock(cache_entry);
 
             cache_entry = INVALID_CACHE_ENTRY;
         }
     }
 
-    blitBufferToBufferTrans(wmGenData.tabsBorderFrmData, 119, 178, 119, wmBkWinBuf + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
+    trans_buf_to_buf(wmGenData.tabsBorderFrmData, 119, 178, 119, wmBkWinBuf + WM_WINDOW_WIDTH * 135 + 501, WM_WINDOW_WIDTH);
 
     return 0;
 }
@@ -6615,7 +6615,7 @@ static int wmFreeTabsLabelList(int** quickDestinationsListPtr, int* quickDestina
 static void wmRefreshInterfaceDial(bool shouldRefreshWindow)
 {
     unsigned char* data = art_frame_data(wmGenData.dialFrm, wmGenData.dialFrmCurrentFrameIndex, 0);
-    blitBufferToBufferTrans(data,
+    trans_buf_to_buf(data,
         wmGenData.dialFrmWidth,
         wmGenData.dialFrmHeight,
         wmGenData.dialFrmWidth,

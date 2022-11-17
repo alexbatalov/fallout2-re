@@ -319,7 +319,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
         int width = art_frame_width(background, 0, 0);
         int height = art_frame_length(background, 0, 0);
         unsigned char* backgroundData = art_frame_data(background, 0, 0);
-        bufferFill(endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
+        buf_fill(endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
         endgame_load_palette(6, 327);
 
         unsigned char palette[768];
@@ -361,7 +361,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
 
             // TODO: Complex math, setup scene in debugger.
             if (getTicksSince(since) >= v9) {
-                blitBufferToBuffer(backgroundData + start, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, width, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
+                buf_to_buf(backgroundData + start, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, width, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
 
                 if (subtitlesLoaded) {
                     endgame_show_subtitles();
@@ -420,7 +420,7 @@ static void endgame_pan_desert(int direction, const char* narratorFileName)
         art_ptr_unlock(backgroundHandle);
 
         palette_fade_to(black_palette);
-        bufferFill(endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
+        buf_fill(endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, colorTable[0]);
         win_draw(endgame_window);
     }
 
@@ -440,7 +440,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
 
     unsigned char* backgroundData = art_frame_data(background, 0, 0);
     if (backgroundData != NULL) {
-        blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
+        buf_to_buf(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
         win_draw(endgame_window);
 
         endgame_load_palette(FID_TYPE(fid), fid & 0xFFF);
@@ -483,7 +483,7 @@ static void endgame_display_image(int fid, const char* narratorFileName)
                 break;
             }
 
-            blitBufferToBuffer(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
+            buf_to_buf(backgroundData, ENDGAME_ENDING_WINDOW_WIDTH, ENDGAME_ENDING_WINDOW_HEIGHT, ENDGAME_ENDING_WINDOW_WIDTH, endgame_window_buffer, ENDGAME_ENDING_WINDOW_WIDTH);
             endgame_show_subtitles();
             win_draw(endgame_window);
             soundContinueAll();
@@ -814,7 +814,7 @@ static void endgame_show_subtitles()
 
         int width = text_width(beginning);
         int x = (640 - width) / 2;
-        bufferFill(endgame_window_buffer + 640 * y + x, width, height, 640, colorTable[0]);
+        buf_fill(endgame_window_buffer + 640 * y + x, width, height, 640, colorTable[0]);
         text_to_buf(endgame_window_buffer + 640 * y + x, beginning, width, 640, colorTable[32767]);
 
         *ending = c;

@@ -289,7 +289,7 @@ int text_object_create(Object* object, char* string, int font, int color, int a5
     }
 
     if (a5 != -1) {
-        bufferOutline(textObject->data, textObject->width, textObject->height, textObject->width, a5);
+        buf_outline(textObject->data, textObject->width, textObject->height, textObject->width, a5);
     }
 
     if (object != NULL) {
@@ -340,7 +340,7 @@ void text_object_render(Rect* rect)
         textObjectRect.lrx = textObject->width + textObject->x - 1;
         textObjectRect.lry = textObject->height + textObject->y - 1;
         if (rect_inside_bound(&textObjectRect, rect, &textObjectRect) == 0) {
-            blitBufferToBufferTrans(textObject->data + textObject->width * (textObjectRect.uly - textObject->y) + (textObjectRect.ulx - textObject->x),
+            trans_buf_to_buf(textObject->data + textObject->width * (textObjectRect.uly - textObject->y) + (textObjectRect.ulx - textObject->x),
                 textObjectRect.lrx - textObjectRect.ulx + 1,
                 textObjectRect.lry - textObjectRect.uly + 1,
                 textObject->width,

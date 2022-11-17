@@ -364,29 +364,29 @@ int tile_init(TileData** a1, int squareGridWidth, int squareGridHeight, int hexG
         v11 += 16;
     } while (v11 != 64);
 
-    bufferFill(tile_grid, 32, 16, 32, 0);
-    bufferDrawLine(tile_grid, 32, 16, 0, 31, 4, colorTable[4228]);
-    bufferDrawLine(tile_grid, 32, 31, 4, 31, 12, colorTable[4228]);
-    bufferDrawLine(tile_grid, 32, 31, 12, 16, 15, colorTable[4228]);
-    bufferDrawLine(tile_grid, 32, 0, 12, 16, 15, colorTable[4228]);
-    bufferDrawLine(tile_grid, 32, 0, 4, 0, 12, colorTable[4228]);
-    bufferDrawLine(tile_grid, 32, 16, 0, 0, 4, colorTable[4228]);
+    buf_fill(tile_grid, 32, 16, 32, 0);
+    draw_line(tile_grid, 32, 16, 0, 31, 4, colorTable[4228]);
+    draw_line(tile_grid, 32, 31, 4, 31, 12, colorTable[4228]);
+    draw_line(tile_grid, 32, 31, 12, 16, 15, colorTable[4228]);
+    draw_line(tile_grid, 32, 0, 12, 16, 15, colorTable[4228]);
+    draw_line(tile_grid, 32, 0, 4, 0, 12, colorTable[4228]);
+    draw_line(tile_grid, 32, 16, 0, 0, 4, colorTable[4228]);
 
-    bufferFill(tile_grid_occupied, 32, 16, 32, 0);
-    bufferDrawLine(tile_grid_occupied, 32, 16, 0, 31, 4, colorTable[31]);
-    bufferDrawLine(tile_grid_occupied, 32, 31, 4, 31, 12, colorTable[31]);
-    bufferDrawLine(tile_grid_occupied, 32, 31, 12, 16, 15, colorTable[31]);
-    bufferDrawLine(tile_grid_occupied, 32, 0, 12, 16, 15, colorTable[31]);
-    bufferDrawLine(tile_grid_occupied, 32, 0, 4, 0, 12, colorTable[31]);
-    bufferDrawLine(tile_grid_occupied, 32, 16, 0, 0, 4, colorTable[31]);
+    buf_fill(tile_grid_occupied, 32, 16, 32, 0);
+    draw_line(tile_grid_occupied, 32, 16, 0, 31, 4, colorTable[31]);
+    draw_line(tile_grid_occupied, 32, 31, 4, 31, 12, colorTable[31]);
+    draw_line(tile_grid_occupied, 32, 31, 12, 16, 15, colorTable[31]);
+    draw_line(tile_grid_occupied, 32, 0, 12, 16, 15, colorTable[31]);
+    draw_line(tile_grid_occupied, 32, 0, 4, 0, 12, colorTable[31]);
+    draw_line(tile_grid_occupied, 32, 16, 0, 0, 4, colorTable[31]);
 
-    bufferFill(tile_grid_blocked, 32, 16, 32, 0);
-    bufferDrawLine(tile_grid_blocked, 32, 16, 0, 31, 4, colorTable[31744]);
-    bufferDrawLine(tile_grid_blocked, 32, 31, 4, 31, 12, colorTable[31744]);
-    bufferDrawLine(tile_grid_blocked, 32, 31, 12, 16, 15, colorTable[31744]);
-    bufferDrawLine(tile_grid_blocked, 32, 0, 12, 16, 15, colorTable[31744]);
-    bufferDrawLine(tile_grid_blocked, 32, 0, 4, 0, 12, colorTable[31744]);
-    bufferDrawLine(tile_grid_blocked, 32, 16, 0, 0, 4, colorTable[31744]);
+    buf_fill(tile_grid_blocked, 32, 16, 32, 0);
+    draw_line(tile_grid_blocked, 32, 16, 0, 31, 4, colorTable[31744]);
+    draw_line(tile_grid_blocked, 32, 31, 4, 31, 12, colorTable[31744]);
+    draw_line(tile_grid_blocked, 32, 31, 12, 16, 15, colorTable[31744]);
+    draw_line(tile_grid_blocked, 32, 0, 12, 16, 15, colorTable[31744]);
+    draw_line(tile_grid_blocked, 32, 0, 4, 0, 12, colorTable[31744]);
+    draw_line(tile_grid_blocked, 32, 16, 0, 0, 4, colorTable[31744]);
 
     for (v20 = 0; v20 < 16; v20++) {
         v21 = v20 * 32;
@@ -409,7 +409,7 @@ int tile_init(TileData** a1, int squareGridWidth, int squareGridHeight, int hexG
             } while (v25 < 32 && tile_grid_blocked[v24] == 0);
         }
 
-        bufferDrawLine(tile_grid_blocked, 32, v25, v20, v22, v20, colorTable[31744]);
+        draw_line(tile_grid_blocked, 32, v25, v20, v22, v20, colorTable[31744]);
     }
 
     tile_set_center(hexGridWidth * (hexGridHeight / 2) + hexGridWidth / 2, TILE_SET_CENTER_FLAG_IGNORE_SCROLL_RESTRICTIONS);
@@ -569,7 +569,7 @@ static void refresh_mapper(Rect* rect, int elevation)
         return;
     }
 
-    bufferFill(buf + buf_full * rectToUpdate.uly + rectToUpdate.ulx,
+    buf_fill(buf + buf_full * rectToUpdate.uly + rectToUpdate.ulx,
         rectToUpdate.lrx - rectToUpdate.ulx + 1,
         rectToUpdate.lry - rectToUpdate.uly + 1,
         buf_full,
@@ -1581,7 +1581,7 @@ void draw_grid(int tile, int elevation, Rect* rect)
     }
 
     if (obj_blocking_at(NULL, tile, elevation) != NULL) {
-        blitBufferToBufferTrans(tile_grid_blocked + 32 * (r.uly - y) + (r.ulx - x),
+        trans_buf_to_buf(tile_grid_blocked + 32 * (r.uly - y) + (r.ulx - x),
             r.lrx - r.ulx + 1,
             r.lry - r.uly + 1,
             32,
@@ -1591,7 +1591,7 @@ void draw_grid(int tile, int elevation, Rect* rect)
     }
 
     if (obj_occupied(tile, elevation)) {
-        blitBufferToBufferTrans(tile_grid_occupied + 32 * (r.uly - y) + (r.ulx - x),
+        trans_buf_to_buf(tile_grid_occupied + 32 * (r.uly - y) + (r.ulx - x),
             r.lrx - r.ulx + 1,
             r.lry - r.uly + 1,
             32,

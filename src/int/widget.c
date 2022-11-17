@@ -712,14 +712,14 @@ static void drawStatusBar()
     if (statusBarActive) {
         dest = win_get_buf(statusBar.win) + statusBar.y * win_width(statusBar.win) + statusBar.x;
 
-        blitBufferToBuffer(statusBar.field_0,
+        buf_to_buf(statusBar.field_0,
             statusBar.width,
             statusBar.height,
             statusBar.width,
             dest,
             win_width(statusBar.win));
 
-        blitBufferToBuffer(statusBar.field_4,
+        buf_to_buf(statusBar.field_4,
             statusBar.field_1C,
             statusBar.height,
             statusBar.width,

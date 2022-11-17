@@ -581,7 +581,7 @@ bool setup_inventory(int inventoryWindowType)
         CacheEntry* backgroundFrmHandle;
         unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
         if (backgroundFrmData != NULL) {
-            blitBufferToBuffer(backgroundFrmData, windowDescription->width, windowDescription->height, windowDescription->width, dest, windowDescription->width);
+            buf_to_buf(backgroundFrmData, windowDescription->width, windowDescription->height, windowDescription->width, dest, windowDescription->width);
             art_ptr_unlock(backgroundFrmHandle);
         }
 
@@ -601,7 +601,7 @@ bool setup_inventory(int inventoryWindowType)
 
         unsigned char* dest = win_get_buf(i_wid);
         unsigned char* src = win_get_buf(barter_back_win);
-        blitBufferToBuffer(src + INVENTORY_TRADE_WINDOW_X, INVENTORY_TRADE_WINDOW_WIDTH, INVENTORY_TRADE_WINDOW_HEIGHT, _scr_size.lrx - _scr_size.ulx + 1, dest, INVENTORY_TRADE_WINDOW_WIDTH);
+        buf_to_buf(src + INVENTORY_TRADE_WINDOW_X, INVENTORY_TRADE_WINDOW_WIDTH, INVENTORY_TRADE_WINDOW_HEIGHT, _scr_size.lrx - _scr_size.ulx + 1, dest, INVENTORY_TRADE_WINDOW_WIDTH);
 
         display_msg = gdialogDisplayMsg;
     }
@@ -1084,10 +1084,10 @@ void display_inventory(int a1, int a2, int inventoryWindowType)
         unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
         if (backgroundFrmData != NULL) {
             // Clear scroll view background.
-            blitBufferToBuffer(backgroundFrmData + pitch * 35 + 44, INVENTORY_SLOT_WIDTH, inven_cur_disp * INVENTORY_SLOT_HEIGHT, pitch, windowBuffer + pitch * 35 + 44, pitch);
+            buf_to_buf(backgroundFrmData + pitch * 35 + 44, INVENTORY_SLOT_WIDTH, inven_cur_disp * INVENTORY_SLOT_HEIGHT, pitch, windowBuffer + pitch * 35 + 44, pitch);
 
             // Clear armor button background.
-            blitBufferToBuffer(backgroundFrmData + pitch * INVENTORY_ARMOR_SLOT_Y + INVENTORY_ARMOR_SLOT_X, INVENTORY_LARGE_SLOT_WIDTH, INVENTORY_LARGE_SLOT_HEIGHT, pitch, windowBuffer + pitch * INVENTORY_ARMOR_SLOT_Y + INVENTORY_ARMOR_SLOT_X, pitch);
+            buf_to_buf(backgroundFrmData + pitch * INVENTORY_ARMOR_SLOT_Y + INVENTORY_ARMOR_SLOT_X, INVENTORY_LARGE_SLOT_WIDTH, INVENTORY_LARGE_SLOT_HEIGHT, pitch, windowBuffer + pitch * INVENTORY_ARMOR_SLOT_Y + INVENTORY_ARMOR_SLOT_X, pitch);
 
             if (i_lhand != NULL && i_lhand == i_rhand) {
                 // Clear item1.
@@ -1099,12 +1099,12 @@ void display_inventory(int a1, int a2, int inventoryWindowType)
                     unsigned char* data = art_frame_data(itemBackgroundFrm, 0, 0);
                     int width = art_frame_width(itemBackgroundFrm, 0, 0);
                     int height = art_frame_length(itemBackgroundFrm, 0, 0);
-                    blitBufferToBuffer(data, width, height, width, windowBuffer + pitch * 284 + 152, pitch);
+                    buf_to_buf(data, width, height, width, windowBuffer + pitch * 284 + 152, pitch);
                     art_ptr_unlock(itemBackgroundFrmHandle);
                 }
             } else {
                 // Clear both items in one go.
-                blitBufferToBuffer(backgroundFrmData + pitch * INVENTORY_LEFT_HAND_SLOT_Y + INVENTORY_LEFT_HAND_SLOT_X, INVENTORY_LARGE_SLOT_WIDTH * 2, INVENTORY_LARGE_SLOT_HEIGHT, pitch, windowBuffer + pitch * INVENTORY_LEFT_HAND_SLOT_Y + INVENTORY_LEFT_HAND_SLOT_X, pitch);
+                buf_to_buf(backgroundFrmData + pitch * INVENTORY_LEFT_HAND_SLOT_Y + INVENTORY_LEFT_HAND_SLOT_X, INVENTORY_LARGE_SLOT_WIDTH * 2, INVENTORY_LARGE_SLOT_HEIGHT, pitch, windowBuffer + pitch * INVENTORY_LEFT_HAND_SLOT_Y + INVENTORY_LEFT_HAND_SLOT_X, pitch);
             }
 
             art_ptr_unlock(backgroundFrmHandle);
@@ -1118,7 +1118,7 @@ void display_inventory(int a1, int a2, int inventoryWindowType)
         unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
         if (backgroundFrmData != NULL) {
             // Clear scroll view background.
-            blitBufferToBuffer(backgroundFrmData + pitch * 35 + 44, 64, inven_cur_disp * 48, pitch, windowBuffer + pitch * 35 + 44, pitch);
+            buf_to_buf(backgroundFrmData + pitch * 35 + 44, 64, inven_cur_disp * 48, pitch, windowBuffer + pitch * 35 + 44, pitch);
             art_ptr_unlock(backgroundFrmHandle);
         }
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_LOOT) {
@@ -1130,7 +1130,7 @@ void display_inventory(int a1, int a2, int inventoryWindowType)
         unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
         if (backgroundFrmData != NULL) {
             // Clear scroll view background.
-            blitBufferToBuffer(backgroundFrmData + pitch * 37 + 176, 64, inven_cur_disp * 48, pitch, windowBuffer + pitch * 37 + 176, pitch);
+            buf_to_buf(backgroundFrmData + pitch * 37 + 176, 64, inven_cur_disp * 48, pitch, windowBuffer + pitch * 37 + 176, pitch);
             art_ptr_unlock(backgroundFrmHandle);
         }
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_TRADE) {
@@ -1138,7 +1138,7 @@ void display_inventory(int a1, int a2, int inventoryWindowType)
 
         windowBuffer = win_get_buf(i_wid);
 
-        blitBufferToBuffer(win_get_buf(barter_back_win) + 35 * (_scr_size.lrx - _scr_size.ulx + 1) + 100, 64, 48 * inven_cur_disp, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + pitch * 35 + 20, pitch);
+        buf_to_buf(win_get_buf(barter_back_win) + 35 * (_scr_size.lrx - _scr_size.ulx + 1) + 100, 64, 48 * inven_cur_disp, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + pitch * 35 + 20, pitch);
         v49 = -20;
     } else {
         assert(false && "Should be unreachable");
@@ -1238,14 +1238,14 @@ void display_target_inventory(int a1, int a2, Inventory* inventory, int inventor
         CacheEntry* handle;
         unsigned char* data = art_ptr_lock_data(fid, 0, 0, &handle);
         if (data != NULL) {
-            blitBufferToBuffer(data + 537 * 37 + 297, 64, 48 * inven_cur_disp, 537, windowBuffer + 537 * 37 + 297, 537);
+            buf_to_buf(data + 537 * 37 + 297, 64, 48 * inven_cur_disp, 537, windowBuffer + 537 * 37 + 297, 537);
             art_ptr_unlock(handle);
         }
     } else if (inventoryWindowType == INVENTORY_WINDOW_TYPE_TRADE) {
         pitch = 480;
 
         unsigned char* src = win_get_buf(barter_back_win);
-        blitBufferToBuffer(src + (_scr_size.lrx - _scr_size.ulx + 1) * 35 + 475, 64, 48 * inven_cur_disp, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 35 + 395, 480);
+        buf_to_buf(src + (_scr_size.lrx - _scr_size.ulx + 1) * 35 + 475, 64, 48 * inven_cur_disp, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 35 + 395, 480);
     } else {
         assert(false && "Should be unreachable");
     }
@@ -1431,7 +1431,7 @@ void display_body(int fid, int inventoryWindowType)
 
             unsigned char* src = art_ptr_lock_data(backgroundFid, 0, 0, &backrgroundFrmHandle);
             if (src != NULL) {
-                blitBufferToBuffer(src + rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + rect.ulx,
+                buf_to_buf(src + rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + rect.ulx,
                     INVENTORY_BODY_VIEW_WIDTH,
                     INVENTORY_BODY_VIEW_HEIGHT,
                     _scr_size.lrx - _scr_size.ulx + 1,
@@ -1439,7 +1439,7 @@ void display_body(int fid, int inventoryWindowType)
                     windowPitch);
             }
 
-            blitBufferToBufferTrans(frameData, frameWidth, frameHeight, framePitch,
+            trans_buf_to_buf(frameData, frameWidth, frameHeight, framePitch,
                 windowBuffer + windowPitch * (rect.uly + (INVENTORY_BODY_VIEW_HEIGHT - frameHeight) / 2) + (INVENTORY_BODY_VIEW_WIDTH - frameWidth) / 2 + rect.ulx,
                 windowPitch);
 
@@ -1472,7 +1472,7 @@ void display_body(int fid, int inventoryWindowType)
             int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 114, 0, 0, 0);
             unsigned char* src = art_ptr_lock_data(backgroundFid, 0, 0, &backrgroundFrmHandle);
             if (src != NULL) {
-                blitBufferToBuffer(src + 537 * rect.uly + rect.ulx,
+                buf_to_buf(src + 537 * rect.uly + rect.ulx,
                     INVENTORY_BODY_VIEW_WIDTH,
                     INVENTORY_BODY_VIEW_HEIGHT,
                     537,
@@ -1480,7 +1480,7 @@ void display_body(int fid, int inventoryWindowType)
                     windowPitch);
             }
 
-            blitBufferToBufferTrans(frameData, frameWidth, frameHeight, framePitch,
+            trans_buf_to_buf(frameData, frameWidth, frameHeight, framePitch,
                 windowBuffer + windowPitch * (rect.uly + (INVENTORY_BODY_VIEW_HEIGHT - frameHeight) / 2) + (INVENTORY_BODY_VIEW_WIDTH - frameWidth) / 2 + rect.ulx,
                 windowPitch);
 
@@ -1713,7 +1713,7 @@ void inven_pickup(int keyCode, int a2)
             int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 48, 0, 0, 0);
             unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
             if (backgroundFrmData != NULL) {
-                blitBufferToBuffer(backgroundFrmData + 499 * rect.uly + rect.ulx, width, height, 499, windowBuffer + 499 * rect.uly + rect.ulx, 499);
+                buf_to_buf(backgroundFrmData + 499 * rect.uly + rect.ulx, width, height, 499, windowBuffer + 499 * rect.uly + rect.ulx, 499);
                 art_ptr_unlock(backgroundFrmHandle);
             }
 
@@ -1724,7 +1724,7 @@ void inven_pickup(int keyCode, int a2)
             int backgroundFid = art_id(OBJ_TYPE_INTERFACE, 48, 0, 0, 0);
             unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
             if (backgroundFrmData != NULL) {
-                blitBufferToBuffer(backgroundFrmData + 499 * 286 + 154, 180, 61, 499, windowBuffer + 499 * 286 + 154, 499);
+                buf_to_buf(backgroundFrmData + 499 * 286 + 154, 180, 61, 499, windowBuffer + 499 * 286 + 154, 499);
                 art_ptr_unlock(backgroundFrmHandle);
             }
 
@@ -2264,7 +2264,7 @@ void display_stats()
     CacheEntry* backgroundHandle;
     unsigned char* backgroundData = art_ptr_lock_data(fid, 0, 0, &backgroundHandle);
     if (backgroundData != NULL) {
-        blitBufferToBuffer(backgroundData + 499 * 44 + 297, 152, 188, 499, windowBuffer + 499 * 44 + 297, 499);
+        buf_to_buf(backgroundData + 499 * 44 + 297, 152, 188, 499, windowBuffer + 499 * 44 + 297, 499);
     }
     art_ptr_unlock(backgroundHandle);
 
@@ -2272,7 +2272,7 @@ void display_stats()
     const char* critterName = critter_name(stack[0]);
     text_to_buf(windowBuffer + 499 * 44 + 297, critterName, 80, 499, colorTable[992]);
 
-    bufferDrawLine(windowBuffer,
+    draw_line(windowBuffer,
         499,
         297,
         3 * text_height() / 2 + 44,
@@ -2319,8 +2319,8 @@ void display_stats()
         offset += 499 * text_height();
     }
 
-    bufferDrawLine(windowBuffer, 499, 297, 18 * text_height() / 2 + 48, 440, 18 * text_height() / 2 + 48, colorTable[992]);
-    bufferDrawLine(windowBuffer, 499, 297, 26 * text_height() / 2 + 48, 440, 26 * text_height() / 2 + 48, colorTable[992]);
+    draw_line(windowBuffer, 499, 297, 18 * text_height() / 2 + 48, 440, 18 * text_height() / 2 + 48, colorTable[992]);
+    draw_line(windowBuffer, 499, 297, 26 * text_height() / 2 + 48, 440, 26 * text_height() / 2 + 48, colorTable[992]);
 
     Object* itemsInHands[2] = {
         i_lhand,
@@ -2942,7 +2942,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
     CacheEntry* handle;
     unsigned char* backgroundData = art_ptr_lock_data(backgroundFid, 0, 0, &handle);
     if (backgroundData != NULL) {
-        blitBufferToBuffer(backgroundData + 499 * 44 + 297, 152, 188, 499, windowBuffer + 499 * 44 + 297, 499);
+        buf_to_buf(backgroundData + 499 * 44 + 297, 152, 188, 499, windowBuffer + 499 * 44 + 297, 499);
     }
     art_ptr_unlock(handle);
 
@@ -2959,7 +2959,7 @@ void inven_obj_examine_func(Object* critter, Object* item)
     int lineHeight = text_height();
 
     // Draw separator.
-    bufferDrawLine(windowBuffer,
+    draw_line(windowBuffer,
         499,
         297,
         3 * lineHeight / 2 + 49,
@@ -3190,7 +3190,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
     if (inventoryWindowType == INVENTORY_WINDOW_TYPE_TRADE) {
         unsigned char* src = win_get_buf(barter_back_win);
         int pitch = _scr_size.lrx - _scr_size.ulx + 1;
-        blitBufferToBuffer(src + pitch * rect.uly + rect.ulx + 80,
+        buf_to_buf(src + pitch * rect.uly + rect.ulx + 80,
             cursorData->width,
             menuButtonHeight,
             pitch,
@@ -3200,7 +3200,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
         int backgroundFid = art_id(OBJ_TYPE_INTERFACE, windowDescription->field_0, 0, 0, 0);
         CacheEntry* backgroundFrmHandle;
         unsigned char* backgroundFrmData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundFrmHandle);
-        blitBufferToBuffer(backgroundFrmData + windowDescription->width * rect.uly + rect.ulx,
+        buf_to_buf(backgroundFrmData + windowDescription->width * rect.uly + rect.ulx,
             cursorData->width,
             menuButtonHeight,
             windowDescription->width,
@@ -3827,7 +3827,7 @@ int move_inventory(Object* a1, int a2, Object* a3, bool a4)
         int fid = art_id(OBJ_TYPE_INTERFACE, 114, 0, 0, 0);
         unsigned char* data = art_ptr_lock_data(fid, 0, 0, &handle);
         if (data != NULL) {
-            blitBufferToBuffer(data + 537 * rect.uly + rect.ulx, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, 537, windowBuffer + 537 * rect.uly + rect.ulx, 537);
+            buf_to_buf(data + 537 * rect.uly + rect.ulx, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, 537, windowBuffer + 537 * rect.uly + rect.ulx, 537);
             art_ptr_unlock(handle);
         }
 
@@ -4045,7 +4045,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
         unsigned char* src = win_get_buf(barter_back_win);
 
         int pitch = _scr_size.lrx - _scr_size.ulx + 1;
-        blitBufferToBuffer(src + pitch * rect.uly + rect.ulx + 80, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, pitch, dest + 480 * rect.uly + rect.ulx, 480);
+        buf_to_buf(src + pitch * rect.uly + rect.ulx + 80, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, pitch, dest + 480 * rect.uly + rect.ulx, 480);
 
         rect.lrx = rect.ulx + INVENTORY_SLOT_WIDTH - 1;
         rect.lry = rect.uly + INVENTORY_SLOT_HEIGHT - 1;
@@ -4128,7 +4128,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
         unsigned char* src = win_get_buf(barter_back_win);
 
         int pitch = _scr_size.lrx - _scr_size.ulx + 1;
-        blitBufferToBuffer(src + pitch * rect.uly + rect.ulx + 80, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, pitch, dest + 480 * rect.uly + rect.ulx, 480);
+        buf_to_buf(src + pitch * rect.uly + rect.ulx + 80, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, pitch, dest + 480 * rect.uly + rect.ulx, 480);
 
         rect.lrx = rect.ulx + INVENTORY_SLOT_WIDTH - 1;
         rect.lry = rect.uly + INVENTORY_SLOT_HEIGHT - 1;
@@ -4201,7 +4201,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
 
     if (a2 != NULL) {
         unsigned char* src = win_get_buf(win);
-        blitBufferToBuffer(src + (_scr_size.lrx - _scr_size.ulx + 1) * 20 + 249, 64, v45 + 1, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 20 + 169, 480);
+        buf_to_buf(src + (_scr_size.lrx - _scr_size.ulx + 1) * 20 + 249, 64, v45 + 1, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 20 + 169, 480);
 
         unsigned char* dest = windowBuffer + 480 * 24 + 169;
         Inventory* inventory = &(a2->data.inventory);
@@ -4239,7 +4239,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
 
     if (a3 != NULL) {
         unsigned char* src = win_get_buf(win);
-        blitBufferToBuffer(src + (_scr_size.lrx - _scr_size.ulx + 1) * 20 + 334, 64, v45 + 1, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 20 + 254, 480);
+        buf_to_buf(src + (_scr_size.lrx - _scr_size.ulx + 1) * 20 + 334, 64, v45 + 1, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 20 + 254, 480);
 
         unsigned char* dest = windowBuffer + 480 * 24 + 254;
         Inventory* inventory = &(a3->data.inventory);
@@ -4739,7 +4739,7 @@ void draw_amount(int value, int inventoryWindowType)
 
         for (int index = 0; index < 5; index++) {
             unsigned char* src = data + 14 * ranks[index];
-            blitBufferToBuffer(src, 14, 24, 336, windowBuffer, windowWidth);
+            buf_to_buf(src, 14, 24, 336, windowBuffer, windowWidth);
             windowBuffer += 14;
         }
     } else {
@@ -4749,9 +4749,9 @@ void draw_amount(int value, int inventoryWindowType)
         rect.lry = 88;
 
         windowBuffer += windowWidth * rect.uly + rect.ulx;
-        blitBufferToBuffer(data + 14 * (value / 60), 14, 24, 336, windowBuffer, windowWidth);
-        blitBufferToBuffer(data + 14 * (value % 60 / 10), 14, 24, 336, windowBuffer + 14 * 2, windowWidth);
-        blitBufferToBuffer(data + 14 * (value % 10), 14, 24, 336, windowBuffer + 14 * 3, windowWidth);
+        buf_to_buf(data + 14 * (value / 60), 14, 24, 336, windowBuffer, windowWidth);
+        buf_to_buf(data + 14 * (value % 60 / 10), 14, 24, 336, windowBuffer + 14 * 2, windowWidth);
+        buf_to_buf(data + 14 * (value % 10), 14, 24, 336, windowBuffer + 14 * 3, windowWidth);
     }
 
     art_ptr_unlock(handle);
@@ -4921,7 +4921,7 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
     int backgroundFid = art_id(OBJ_TYPE_INTERFACE, windowDescription->field_0, 0, 0, 0);
     unsigned char* backgroundData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundHandle);
     if (backgroundData != NULL) {
-        blitBufferToBuffer(backgroundData, windowDescription->width, windowDescription->height, windowDescription->width, windowBuffer, windowDescription->width);
+        buf_to_buf(backgroundData, windowDescription->width, windowDescription->height, windowDescription->width, windowBuffer, windowDescription->width);
         art_ptr_unlock(backgroundHandle);
     }
 
@@ -4946,7 +4946,7 @@ static int setup_move_timer_win(int inventoryWindowType, Object* item)
         int overlayFid = art_id(OBJ_TYPE_INTERFACE, 306, 0, 0, 0);
         unsigned char* overlayFrmData = art_ptr_lock_data(overlayFid, 0, 0, &overlayFrmHandle);
         if (overlayFrmData != NULL) {
-            blitBufferToBuffer(overlayFrmData, 105, 81, 105, windowBuffer + 34 * windowDescription->width + 113, windowDescription->width);
+            buf_to_buf(overlayFrmData, 105, 81, 105, windowBuffer + 34 * windowDescription->width + 113, windowDescription->width);
             art_ptr_unlock(overlayFrmHandle);
         }
     }

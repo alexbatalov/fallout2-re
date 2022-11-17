@@ -529,7 +529,7 @@ static void main_death_scene()
             kb_clear();
             inputEventQueueReset();
 
-            blitBufferToBuffer(background, 640, 480, 640, windowBuffer, 640);
+            buf_to_buf(background, 640, 480, 640, windowBuffer, 640);
             art_ptr_unlock(backgroundHandle);
 
             const char* deathFileName = endgameGetDeathEndingFileName();
@@ -545,7 +545,7 @@ static void main_death_scene()
                     short count;
                     if (mainDeathWordWrap(text, 560, beginnings, &count) == 0) {
                         unsigned char* p = windowBuffer + 640 * (480 - text_height() * count - 8);
-                        bufferFill(p - 602, 564, text_height() * count + 2, 640, 0);
+                        buf_fill(p - 602, 564, text_height() * count + 2, 640, 0);
                         p += 40;
                         for (int index = 0; index < count; index++) {
                             text_to_buf(p, text + beginnings[index], 560, 640, colorTable[32767]);

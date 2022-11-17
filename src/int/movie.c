@@ -537,7 +537,7 @@ static void cleanupMovie(int a1)
         ddsd.dwSize = sizeof(DDSURFACEDESC);
         if (IDirectDrawSurface_Lock(MVE_lastBuffer, 0, &ddsd, 1, NULL) == DD_OK) {
             lastMovieBuffer = (unsigned char*)mymalloc(lastMovieBH * lastMovieBW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 802
-            blitBufferToBuffer((unsigned char*)ddsd.lpSurface + ddsd.lPitch * lastMovieSX + lastMovieSY, lastMovieBW, lastMovieBH, ddsd.lPitch, lastMovieBuffer, lastMovieBW);
+            buf_to_buf((unsigned char*)ddsd.lpSurface + ddsd.lPitch * lastMovieSX + lastMovieSY, lastMovieBW, lastMovieBH, ddsd.lPitch, lastMovieBuffer, lastMovieBW);
             IDirectDrawSurface_Unlock(MVE_lastBuffer, ddsd.lpSurface);
         } else {
             debug_printf("Couldn't lock movie surface\n");
@@ -555,7 +555,7 @@ static void cleanupMovie(int a1)
     fileClose(handle);
 
     if (alphaWindowBuf != NULL) {
-        blitBufferToBuffer(alphaWindowBuf, movieW, movieH, movieW, win_get_buf(GNWWin) + movieY * win_width(GNWWin) + movieX, win_width(GNWWin));
+        buf_to_buf(alphaWindowBuf, movieW, movieH, movieW, win_get_buf(GNWWin) + movieY * win_width(GNWWin) + movieX, win_width(GNWWin));
         win_draw_rect(GNWWin, &movieRect);
     }
 
@@ -903,7 +903,7 @@ static int movieStart(int win, char* filePath, int (*a3)())
         alphaWindowBuf = (unsigned char*)mymalloc(movieH * movieW, __FILE__, __LINE__); // "..\\int\\MOVIE.C", 1179
 
         unsigned char* windowBuffer = win_get_buf(GNWWin);
-        blitBufferToBuffer(windowBuffer + win_width(GNWWin) * movieY + movieX,
+        buf_to_buf(windowBuffer + win_width(GNWWin) * movieY + movieX,
             movieW,
             movieH,
             win_width(GNWWin),

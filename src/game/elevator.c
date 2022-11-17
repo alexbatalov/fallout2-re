@@ -390,7 +390,7 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
 
     int v18 = (GInfo[ELEVATOR_FRM_GAUGE].width * GInfo[ELEVATOR_FRM_GAUGE].height) / 13;
     float v42 = 12.0f / (float)(btncnt[elevator] - 1);
-    blitBufferToBuffer(
+    buf_to_buf(
         grphbmp[ELEVATOR_FRM_GAUGE] + v18 * (int)((float)(*elevationPtr) * v42),
         GInfo[ELEVATOR_FRM_GAUGE].width,
         GInfo[ELEVATOR_FRM_GAUGE].height / 13,
@@ -444,7 +444,7 @@ int elevator_select(int elevator, int* mapPtr, int* elevationPtr, int* tilePtr)
             do {
                 unsigned int tick = _get_time();
                 v44 += v43;
-                blitBufferToBuffer(
+                buf_to_buf(
                     grphbmp[ELEVATOR_FRM_GAUGE] + v18 * (int)v44,
                     GInfo[ELEVATOR_FRM_GAUGE].width,
                     GInfo[ELEVATOR_FRM_GAUGE].height / 13,
@@ -588,7 +588,7 @@ static int elevator_start(int elevator)
     memcpy(win_buf, (unsigned char*)grphbmp[ELEVATOR_FRM_BACKGROUND], GInfo[ELEVATOR_FRM_BACKGROUND].width * GInfo[ELEVATOR_FRM_BACKGROUND].height);
 
     if (grphbmp[ELEVATOR_FRM_PANEL] != ELEVATOR_BACKGROUND_NULL) {
-        blitBufferToBuffer((unsigned char*)grphbmp[ELEVATOR_FRM_PANEL],
+        buf_to_buf((unsigned char*)grphbmp[ELEVATOR_FRM_PANEL],
             GInfo[ELEVATOR_FRM_PANEL].width,
             GInfo[ELEVATOR_FRM_PANEL].height,
             GInfo[ELEVATOR_FRM_PANEL].width,

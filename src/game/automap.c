@@ -486,7 +486,7 @@ static void draw_top_down_map(int window, int elevation, unsigned char* backgrou
     win_border(window);
 
     unsigned char* windowBuffer = win_get_buf(window);
-    blitBufferToBuffer(backgroundData, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, AUTOMAP_WINDOW_WIDTH, windowBuffer, AUTOMAP_WINDOW_WIDTH);
+    buf_to_buf(backgroundData, AUTOMAP_WINDOW_WIDTH, AUTOMAP_WINDOW_HEIGHT, AUTOMAP_WINDOW_WIDTH, windowBuffer, AUTOMAP_WINDOW_WIDTH);
 
     for (Object* object = obj_find_first_at(elevation); object != NULL; object = obj_find_next_at()) {
         if (object->tile == -1) {

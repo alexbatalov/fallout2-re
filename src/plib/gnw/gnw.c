@@ -156,7 +156,7 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
             return WINDOW_MANAGER_ERR_NO_MEMORY;
         }
 
-        bufferFill(palette, 768, 1, 768, 0);
+        buf_fill(palette, 768, 1, 768, 0);
 
         // TODO: Incomplete.
         // _colorBuildColorTable(getSystemPalette(), palette);
@@ -327,7 +327,7 @@ int win_add(int x, int y, int width, int height, int a4, int flags)
     w->field_34 = 0;
     w->field_38 = 0;
     w->menuBar = NULL;
-    w->blitProc = blitBufferToBufferTrans;
+    w->blitProc = trans_buf_to_buf;
     w->field_20 = a4;
     window_index[index] = num_windows;
     num_windows++;
@@ -443,15 +443,15 @@ void win_border(int win)
         return;
     }
 
-    _lighten_buf(w->buffer + 5, w->width - 10, 5, w->width);
-    _lighten_buf(w->buffer, 5, w->height, w->width);
-    _lighten_buf(w->buffer + w->width - 5, 5, w->height, w->width);
-    _lighten_buf(w->buffer + w->width * (w->height - 5) + 5, w->width - 10, 5, w->width);
+    lighten_buf(w->buffer + 5, w->width - 10, 5, w->width);
+    lighten_buf(w->buffer, 5, w->height, w->width);
+    lighten_buf(w->buffer + w->width - 5, 5, w->height, w->width);
+    lighten_buf(w->buffer + w->width * (w->height - 5) + 5, w->width - 10, 5, w->width);
 
-    bufferDrawRect(w->buffer, w->width, 0, 0, w->width - 1, w->height - 1, colorTable[0]);
+    draw_box(w->buffer, w->width, 0, 0, w->width - 1, w->height - 1, colorTable[0]);
 
-    bufferDrawRectShadowed(w->buffer, w->width, 1, 1, w->width - 2, w->height - 2, colorTable[GNW_wcolor[1]], colorTable[GNW_wcolor[2]]);
-    bufferDrawRectShadowed(w->buffer, w->width, 5, 5, w->width - 6, w->height - 6, colorTable[GNW_wcolor[2]], colorTable[GNW_wcolor[1]]);
+    draw_shaded_box(w->buffer, w->width, 1, 1, w->width - 2, w->height - 2, colorTable[GNW_wcolor[1]], colorTable[GNW_wcolor[2]]);
+    draw_shaded_box(w->buffer, w->width, 5, 5, w->width - 6, w->height - 6, colorTable[GNW_wcolor[2]], colorTable[GNW_wcolor[1]]);
 }
 
 // 0x4D684C
@@ -498,9 +498,9 @@ void win_print(int win, char* str, int a3, int x, int y, int a6)
 
     if (!(a6 & 0x02000000)) {
         if (w->field_20 == 256 && GNW_texture != NULL) {
-            _buf_texture(buf, v7, text_height(), w->width, GNW_texture, w->field_24 + x, w->field_28 + y);
+            buf_texture(buf, v7, text_height(), w->width, GNW_texture, w->field_24 + x, w->field_28 + y);
         } else {
-            bufferFill(buf, v7, text_height(), w->width, w->field_20);
+            buf_fill(buf, v7, text_height(), w->width, w->field_20);
         }
     }
 
@@ -552,8 +552,8 @@ void win_text(int win, char** fileNameList, int fileNameListLength, int maxWidth
             win_print(win, fileName, maxWidth, x, y, flags);
         } else {
             if (maxWidth != 0) {
-                bufferDrawLine(ptr, width, 0, v1, v3, v1, colorTable[GNW_wcolor[2]]);
-                bufferDrawLine(ptr, width, 0, v2, v3, v2, colorTable[GNW_wcolor[1]]);
+                draw_line(ptr, width, 0, v1, v3, v1, colorTable[GNW_wcolor[2]]);
+                draw_line(ptr, width, 0, v2, v3, v2, colorTable[GNW_wcolor[1]]);
             }
         }
 
@@ -580,7 +580,7 @@ void win_line(int win, int left, int top, int right, int bottom, int color)
         color = (color & ~0xFFFF) | colorTable[GNW_wcolor[colorIndex]];
     }
 
-    bufferDrawLine(w->buffer, w->width, left, top, right, bottom, color);
+    draw_line(w->buffer, w->width, left, top, right, bottom, color);
 }
 
 // 0x4D6B88
@@ -613,7 +613,7 @@ void win_box(int win, int left, int top, int right, int bottom, int color)
         bottom = tmp;
     }
 
-    bufferDrawRect(w->buffer, w->width, left, top, right, bottom, color);
+    draw_box(w->buffer, w->width, left, top, right, bottom, color);
 }
 
 // 0x4D6CC8
@@ -631,7 +631,7 @@ void win_fill(int win, int x, int y, int width, int height, int a6)
 
     if (a6 == 256) {
         if (GNW_texture != NULL) {
-            _buf_texture(w->buffer + w->width * y + x, width, height, w->width, GNW_texture, x + w->field_24, y + w->field_28);
+            buf_texture(w->buffer + w->width * y + x, width, height, w->width, GNW_texture, x + w->field_24, y + w->field_28);
         } else {
             a6 = colorTable[GNW_wcolor[0]] & 0xFF;
         }
@@ -641,7 +641,7 @@ void win_fill(int win, int x, int y, int width, int height, int a6)
     }
 
     if (a6 < 256) {
-        bufferFill(w->buffer + w->width * y + x, width, height, w->width, a6);
+        buf_fill(w->buffer + w->width * y + x, width, height, w->width, a6);
     }
 }
 
@@ -842,7 +842,7 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                                 a3 + dest_pitch * (v20->rect.uly - rect->uly) + v20->rect.ulx - rect->ulx,
                                 dest_pitch);
                         } else {
-                            blitBufferToBuffer(
+                            buf_to_buf(
                                 w->buffer + v20->rect.ulx - w->rect.ulx + (v20->rect.uly - w->rect.uly) * w->width,
                                 v20->rect.lrx - v20->rect.ulx + 1,
                                 v20->rect.lry - v20->rect.uly + 1,
@@ -861,7 +861,7 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                                     screen_buffer + v20->rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + v20->rect.ulx,
                                     _scr_size.lrx - _scr_size.ulx + 1);
                             } else {
-                                blitBufferToBuffer(
+                                buf_to_buf(
                                     w->buffer + v20->rect.ulx - w->rect.ulx + (v20->rect.uly - w->rect.uly) * w->width,
                                     v20->rect.lrx - v20->rect.ulx + 1,
                                     v20->rect.lry - v20->rect.uly + 1,
@@ -892,9 +892,9 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                     int height = v16->rect.lry - v16->rect.uly + 1;
                     unsigned char* buf = (unsigned char*)mem_malloc(width * height);
                     if (buf != NULL) {
-                        bufferFill(buf, width, height, width, bk_color);
+                        buf_fill(buf, width, height, width, bk_color);
                         if (dest_pitch != 0) {
-                            blitBufferToBuffer(
+                            buf_to_buf(
                                 buf,
                                 width,
                                 height,
@@ -903,7 +903,7 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                                 dest_pitch);
                         } else {
                             if (buffering) {
-                                blitBufferToBuffer(buf,
+                                buf_to_buf(buf,
                                     width,
                                     height,
                                     width,

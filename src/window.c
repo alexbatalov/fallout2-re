@@ -573,40 +573,40 @@ void _doRightButtonRelease(int btn, int keyCode)
 void _setButtonGFX(int width, int height, unsigned char* normal, unsigned char* pressed, unsigned char* a5)
 {
     if (normal != NULL) {
-        bufferFill(normal, width, height, width, colorTable[0]);
-        bufferFill(normal + width + 1, width - 2, height - 2, width, intensityColorTable[colorTable[32767]][89]);
-        bufferDrawLine(normal, width, 1, 1, width - 2, 1, colorTable[32767]);
-        bufferDrawLine(normal, width, 2, 2, width - 3, 2, colorTable[32767]);
-        bufferDrawLine(normal, width, 1, height - 2, width - 2, height - 2, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(normal, width, 2, height - 3, width - 3, height - 3, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(normal, width, width - 2, 1, width - 3, 2, intensityColorTable[colorTable[32767]][89]);
-        bufferDrawLine(normal, width, 1, 2, 1, height - 3, colorTable[32767]);
-        bufferDrawLine(normal, width, 2, 3, 2, height - 4, colorTable[32767]);
-        bufferDrawLine(normal, width, width - 2, 2, width - 2, height - 3, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(normal, width, width - 3, 3, width - 3, height - 4, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(normal, width, 1, height - 2, 2, height - 3, intensityColorTable[colorTable[32767]][89]);
+        buf_fill(normal, width, height, width, colorTable[0]);
+        buf_fill(normal + width + 1, width - 2, height - 2, width, intensityColorTable[colorTable[32767]][89]);
+        draw_line(normal, width, 1, 1, width - 2, 1, colorTable[32767]);
+        draw_line(normal, width, 2, 2, width - 3, 2, colorTable[32767]);
+        draw_line(normal, width, 1, height - 2, width - 2, height - 2, intensityColorTable[colorTable[32767]][44]);
+        draw_line(normal, width, 2, height - 3, width - 3, height - 3, intensityColorTable[colorTable[32767]][44]);
+        draw_line(normal, width, width - 2, 1, width - 3, 2, intensityColorTable[colorTable[32767]][89]);
+        draw_line(normal, width, 1, 2, 1, height - 3, colorTable[32767]);
+        draw_line(normal, width, 2, 3, 2, height - 4, colorTable[32767]);
+        draw_line(normal, width, width - 2, 2, width - 2, height - 3, intensityColorTable[colorTable[32767]][44]);
+        draw_line(normal, width, width - 3, 3, width - 3, height - 4, intensityColorTable[colorTable[32767]][44]);
+        draw_line(normal, width, 1, height - 2, 2, height - 3, intensityColorTable[colorTable[32767]][89]);
     }
 
     if (pressed != NULL) {
-        bufferFill(pressed, width, height, width, colorTable[0]);
-        bufferFill(pressed + width + 1, width - 2, height - 2, width, intensityColorTable[colorTable[32767]][89]);
-        bufferDrawLine(pressed, width, 1, 1, width - 2, 1, colorTable[32767] + 44);
-        bufferDrawLine(pressed, width, 1, 1, 1, height - 2, colorTable[32767] + 44);
+        buf_fill(pressed, width, height, width, colorTable[0]);
+        buf_fill(pressed + width + 1, width - 2, height - 2, width, intensityColorTable[colorTable[32767]][89]);
+        draw_line(pressed, width, 1, 1, width - 2, 1, colorTable[32767] + 44);
+        draw_line(pressed, width, 1, 1, 1, height - 2, colorTable[32767] + 44);
     }
 
     if (a5 != NULL) {
-        bufferFill(a5, width, height, width, colorTable[0]);
-        bufferFill(a5 + width + 1, width - 2, height - 2, width, intensityColorTable[colorTable[32767]][89]);
-        bufferDrawLine(a5, width, 1, 1, width - 2, 1, colorTable[32767]);
-        bufferDrawLine(a5, width, 2, 2, width - 3, 2, colorTable[32767]);
-        bufferDrawLine(a5, width, 1, height - 2, width - 2, height - 2, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(a5, width, 2, height - 3, width - 3, height - 3, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(a5, width, width - 2, 1, width - 3, 2, intensityColorTable[colorTable[32767]][89]);
-        bufferDrawLine(a5, width, 1, 2, 1, height - 3, colorTable[32767]);
-        bufferDrawLine(a5, width, 2, 3, 2, height - 4, colorTable[32767]);
-        bufferDrawLine(a5, width, width - 2, 2, width - 2, height - 3, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(a5, width, width - 3, 3, width - 3, height - 4, intensityColorTable[colorTable[32767]][44]);
-        bufferDrawLine(a5, width, 1, height - 2, 2, height - 3, intensityColorTable[colorTable[32767]][89]);
+        buf_fill(a5, width, height, width, colorTable[0]);
+        buf_fill(a5 + width + 1, width - 2, height - 2, width, intensityColorTable[colorTable[32767]][89]);
+        draw_line(a5, width, 1, 1, width - 2, 1, colorTable[32767]);
+        draw_line(a5, width, 2, 2, width - 3, 2, colorTable[32767]);
+        draw_line(a5, width, 1, height - 2, width - 2, height - 2, intensityColorTable[colorTable[32767]][44]);
+        draw_line(a5, width, 2, height - 3, width - 3, height - 3, intensityColorTable[colorTable[32767]][44]);
+        draw_line(a5, width, width - 2, 1, width - 3, 2, intensityColorTable[colorTable[32767]][89]);
+        draw_line(a5, width, 1, 2, 1, height - 3, colorTable[32767]);
+        draw_line(a5, width, 2, 3, 2, height - 4, colorTable[32767]);
+        draw_line(a5, width, width - 2, 2, width - 2, height - 3, intensityColorTable[colorTable[32767]][44]);
+        draw_line(a5, width, width - 3, 3, width - 3, height - 4, intensityColorTable[colorTable[32767]][44]);
+        draw_line(a5, width, 1, height - 2, 2, height - 3, intensityColorTable[colorTable[32767]][89]);
     }
 }
 
@@ -1123,9 +1123,9 @@ void _windowPrintBuf(int win, char* string, int stringLength, int width, int max
     }
 
     if ((flags & 0x2000000) != 0) {
-        blitBufferToBufferTrans(backgroundBufferPtr, width, stringHeight, stringWidth, win_get_buf(win) + win_width(win) * y + x, win_width(win));
+        trans_buf_to_buf(backgroundBufferPtr, width, stringHeight, stringWidth, win_get_buf(win) + win_width(win) * y + x, win_width(win));
     } else {
-        blitBufferToBuffer(backgroundBufferPtr, width, stringHeight, stringWidth, win_get_buf(win) + win_width(win) * y + x, win_width(win));
+        buf_to_buf(backgroundBufferPtr, width, stringHeight, stringWidth, win_get_buf(win) + win_width(win) * y + x, win_width(win));
     }
 
     myfree(backgroundBuffer, __FILE__, __LINE__); // "..\\int\\WINDOW.C", 1130
@@ -1447,7 +1447,7 @@ bool _windowDisplayBuf(unsigned char* src, int srcWidth, int srcHeight, int dest
     ManagedWindow* managedWindow = &(gManagedWindows[gCurrentManagedWindowIndex]);
     unsigned char* windowBuffer = win_get_buf(managedWindow->window);
 
-    blitBufferToBuffer(src,
+    buf_to_buf(src,
         destWidth,
         destHeight,
         srcWidth,
@@ -1466,7 +1466,7 @@ int windowDisplayTransBuf(unsigned char* src, int srcWidth, int srcHeight, int d
 
     windowBuffer = win_get_buf(gManagedWindows[gCurrentManagedWindowIndex].window);
 
-    blitBufferToBufferTrans(src,
+    trans_buf_to_buf(src,
         destWidth,
         destHeight,
         srcWidth,
@@ -2257,7 +2257,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
             }
 
             if (managedButton->normal != NULL) {
-                blitBufferToBuffer(managedButton->normal + managedButton->width * normalImageY + normalImageX,
+                buf_to_buf(managedButton->normal + managedButton->width * normalImageY + normalImageX,
                     normalImageWidth,
                     normalImageHeight,
                     managedButton->width,
@@ -2273,7 +2273,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 normalImageWidth,
                 windowGetTextColor() + windowGetTextFlags());
 
-            blitBufferToBufferTrans(buffer,
+            trans_buf_to_buf(buffer,
                 normalImageWidth,
                 normalImageHeight,
                 normalImageWidth,
@@ -2305,7 +2305,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
             }
 
             if (managedButton->pressed != NULL) {
-                blitBufferToBuffer(managedButton->pressed + managedButton->width * pressedImageY + pressedImageX,
+                buf_to_buf(managedButton->pressed + managedButton->width * pressedImageY + pressedImageX,
                     pressedImageWidth,
                     pressedImageHeight,
                     managedButton->width,
@@ -2321,7 +2321,7 @@ bool _windowAddButtonTextWithOffsets(const char* buttonName, const char* text, i
                 pressedImageWidth,
                 windowGetTextColor() + windowGetTextFlags());
 
-            blitBufferToBufferTrans(buffer,
+            trans_buf_to_buf(buffer,
                 pressedImageWidth,
                 normalImageHeight,
                 normalImageWidth,
@@ -2809,7 +2809,7 @@ void _windowStopMovie()
 void _drawScaled(unsigned char* dest, int destWidth, int destHeight, int destPitch, unsigned char* src, int srcWidth, int srcHeight, int srcPitch)
 {
     if (destWidth == srcWidth && destHeight == srcHeight) {
-        blitBufferToBuffer(src, srcWidth, srcHeight, srcPitch, dest, destPitch);
+        buf_to_buf(src, srcWidth, srcHeight, srcPitch, dest, destPitch);
         return;
     }
 
@@ -3033,7 +3033,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
             if (middleY >= destHeight) {
                 middleY = destHeight;
             }
-            blitBufferToBuffer(ptr,
+            buf_to_buf(ptr,
                 middleWidth,
                 middleY - y,
                 srcWidth,
@@ -3053,7 +3053,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
         if (topMiddleHeight >= destHeight) {
             topMiddleHeight = destHeight;
         }
-        blitBufferToBuffer(src + chunkWidth,
+        buf_to_buf(src + chunkWidth,
             topMiddleX - x,
             topMiddleHeight,
             srcWidth,
@@ -3065,7 +3065,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
         if (bottomMiddleX >= destWidth) {
             bottomMiddleX = destWidth;
         }
-        blitBufferToBuffer(src + srcWidth * 2 * chunkHeight + chunkWidth,
+        buf_to_buf(src + srcWidth * 2 * chunkHeight + chunkWidth,
             bottomMiddleX - x,
             destHeight - (destHeight - chunkHeight),
             srcWidth,
@@ -3084,7 +3084,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
         if (middleLeftY >= destHeight) {
             middleLeftY = destHeight;
         }
-        blitBufferToBuffer(src + srcWidth * chunkHeight,
+        buf_to_buf(src + srcWidth * chunkHeight,
             middleLeftWidth,
             middleLeftY - y,
             srcWidth,
@@ -3096,7 +3096,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
         if (middleRightY >= destHeight) {
             middleRightY = destHeight;
         }
-        blitBufferToBuffer(src + 2 * chunkWidth + srcWidth * chunkHeight,
+        buf_to_buf(src + 2 * chunkWidth + srcWidth * chunkHeight,
             destWidth - (destWidth - chunkWidth),
             middleRightY - y,
             srcWidth,
@@ -3113,7 +3113,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
     if (topLeftHeight >= destHeight) {
         topLeftHeight = destHeight;
     }
-    blitBufferToBuffer(src,
+    buf_to_buf(src,
         topLeftWidth,
         topLeftHeight,
         srcWidth,
@@ -3125,7 +3125,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
     if (chunkHeight >= destHeight) {
         bottomLeftHeight = destHeight;
     }
-    blitBufferToBuffer(src + chunkWidth * 2,
+    buf_to_buf(src + chunkWidth * 2,
         destWidth - (destWidth - chunkWidth),
         bottomLeftHeight,
         srcWidth,
@@ -3137,7 +3137,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
     if (chunkWidth >= destWidth) {
         topRightWidth = destWidth;
     }
-    blitBufferToBuffer(src + srcWidth * 2 * chunkHeight,
+    buf_to_buf(src + srcWidth * 2 * chunkHeight,
         topRightWidth,
         destHeight - (destHeight - chunkHeight),
         srcWidth,
@@ -3145,7 +3145,7 @@ void _fillBuf3x3(unsigned char* src, int srcWidth, int srcHeight, unsigned char*
         destWidth);
 
     // Bottom Right
-    blitBufferToBuffer(src + 2 * chunkWidth + srcWidth * 2 * chunkHeight,
+    buf_to_buf(src + 2 * chunkWidth + srcWidth * 2 * chunkHeight,
         destWidth - (destWidth - chunkWidth),
         destHeight - (destHeight - chunkHeight),
         srcWidth,

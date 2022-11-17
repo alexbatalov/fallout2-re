@@ -700,7 +700,7 @@ int PauseWindow(bool a1)
         frmData[PAUSE_WINDOW_FRM_BACKGROUND],
         frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].width * frmSizes[PAUSE_WINDOW_FRM_BACKGROUND].height);
 
-    blitBufferToBufferTrans(frmData[PAUSE_WINDOW_FRM_DONE_BOX],
+    trans_buf_to_buf(frmData[PAUSE_WINDOW_FRM_DONE_BOX],
         frmSizes[PAUSE_WINDOW_FRM_DONE_BOX].width,
         frmSizes[PAUSE_WINDOW_FRM_DONE_BOX].height,
         frmSizes[PAUSE_WINDOW_FRM_DONE_BOX].width,
@@ -1234,8 +1234,8 @@ static void DoThing(int eventCode)
 
         int knobX = (int)(219.0 / (meta->maxValue - meta->minValue));
         int v31 = (int)((value - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, 240, 12, PREFERENCES_WINDOW_WIDTH, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, PREFERENCES_WINDOW_WIDTH);
-        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
+        buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, 240, 12, PREFERENCES_WINDOW_WIDTH, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + 384, PREFERENCES_WINDOW_WIDTH);
+        trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
 
         win_draw(prfwin);
 
@@ -1324,7 +1324,7 @@ static void DoThing(int eventCode)
 
             if (v52) {
                 int off = PREFERENCES_WINDOW_WIDTH * (meta->knobY - 12) + 384;
-                blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 24, PREFERENCES_WINDOW_WIDTH, prefbuf + off, PREFERENCES_WINDOW_WIDTH);
+                buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 24, PREFERENCES_WINDOW_WIDTH, prefbuf + off, PREFERENCES_WINDOW_WIDTH);
 
                 for (int optionIndex = 0; optionIndex < meta->valuesCount; optionIndex++) {
                     const char* str = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[optionIndex]);
@@ -1373,10 +1373,10 @@ static void DoThing(int eventCode)
                 }
             } else {
                 int off = PREFERENCES_WINDOW_WIDTH * meta->knobY + 384;
-                blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 12, PREFERENCES_WINDOW_WIDTH, prefbuf + off, PREFERENCES_WINDOW_WIDTH);
+                buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + off, 240, 12, PREFERENCES_WINDOW_WIDTH, prefbuf + off, PREFERENCES_WINDOW_WIDTH);
             }
 
-            blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
+            trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_ON], 21, 12, 21, prefbuf + PREFERENCES_WINDOW_WIDTH * meta->knobY + v31, PREFERENCES_WINDOW_WIDTH);
             win_draw(prfwin);
 
             while (getTicksSince(tick) < 35)
@@ -1408,7 +1408,7 @@ static void UpdateThing(int index)
 
         int primaryOptionIndex = index - FIRST_PRIMARY_PREF;
 
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[primaryOptionIndex] + 23, 160, 54, 640, prefbuf + 640 * offsets[primaryOptionIndex] + 23, 640);
+        buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[primaryOptionIndex] + 23, 160, 54, 640, prefbuf + 640 * offsets[primaryOptionIndex] + 23, 640);
 
         for (int valueIndex = 0; valueIndex < meta->valuesCount; valueIndex++) {
             const char* text = getmsg(&optn_msgfl, &optnmesg, meta->labelIds[valueIndex]);
@@ -1453,7 +1453,7 @@ static void UpdateThing(int index)
         }
 
         int value = *(meta->valuePtr);
-        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH] + (46 * 47) * value, 46, 47, 46, prefbuf + 640 * meta->knobY + meta->knobX, 640);
+        trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_PRIMARY_SWITCH] + (46 * 47) * value, 46, 47, 46, prefbuf + 640 * meta->knobY + meta->knobX, 640);
     } else if (index >= FIRST_SECONDARY_PREF && index <= LAST_SECONDARY_PREF) {
         // 0x48FC30
         static const int offsets[SECONDARY_PREF_COUNT] = {
@@ -1467,7 +1467,7 @@ static void UpdateThing(int index)
 
         int secondaryOptionIndex = index - FIRST_SECONDARY_PREF;
 
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[secondaryOptionIndex] + 251, 113, 34, 640, prefbuf + 640 * offsets[secondaryOptionIndex] + 251, 640);
+        buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * offsets[secondaryOptionIndex] + 251, 113, 34, 640, prefbuf + 640 * offsets[secondaryOptionIndex] + 251, 640);
 
         // Secondary options are booleans, so it's index is also it's value.
         for (int value = 0; value < 2; value++) {
@@ -1488,9 +1488,9 @@ static void UpdateThing(int index)
         if (index == PREF_COMBAT_MESSAGES) {
             value ^= 1;
         }
-        blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH] + (22 * 25) * value, 22, 25, 22, prefbuf + 640 * meta->knobY + meta->knobX, 640);
+        trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_SECONDARY_SWITCH] + (22 * 25) * value, 22, 25, 22, prefbuf + 640 * meta->knobY + meta->knobX, 640);
     } else if (index >= FIRST_RANGE_PREF && index <= LAST_RANGE_PREF) {
-        blitBufferToBuffer(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * (meta->knobY - 12) + 384, 240, 24, 640, prefbuf + 640 * (meta->knobY - 12) + 384, 640);
+        buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_BACKGROUND] + 640 * (meta->knobY - 12) + 384, 240, 24, 640, prefbuf + 640 * (meta->knobY - 12) + 384, 640);
         switch (index) {
         case PREF_COMBAT_SPEED:
             if (1) {
@@ -1498,7 +1498,7 @@ static void UpdateThing(int index)
                 value = min(max(value, 0.0), 50.0);
 
                 int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+                trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
             }
             break;
         case PREF_TEXT_BASE_DELAY:
@@ -1506,7 +1506,7 @@ static void UpdateThing(int index)
                 text_delay = min(max(text_delay, 1.0), 6.0);
 
                 int x = (int)((6.0 - text_delay) * 43.8 + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+                trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
                 double value = (text_delay - 1.0) * 0.2 * 2.0;
                 value = min(max(value, 0.0), 2.0);
@@ -1524,7 +1524,7 @@ static void UpdateThing(int index)
                 value = min(max(value, meta->minValue), meta->maxValue);
 
                 int x = (int)((value - meta->minValue) * 219.0 / (meta->maxValue - meta->minValue) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+                trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
                 switch (index) {
                 case PREF_MASTER_VOLUME:
@@ -1547,7 +1547,7 @@ static void UpdateThing(int index)
                 gamma_value = min(max(gamma_value, 1.0), 1.17999267578125);
 
                 int x = (int)((gamma_value - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+                trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
                 colorGamma(gamma_value);
             }
@@ -1557,7 +1557,7 @@ static void UpdateThing(int index)
                 mouse_sens = min(max(mouse_sens, 1.0), 2.5);
 
                 int x = (int)((mouse_sens - meta->minValue) * (219.0 / (meta->maxValue - meta->minValue)) + 384.0);
-                blitBufferToBufferTrans(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
+                trans_buf_to_buf(prfbmp[PREFERENCES_WINDOW_FRM_KNOB_OFF], 21, 12, 21, prefbuf + 640 * meta->knobY + x, 640);
 
                 mouse_set_sensitivity(mouse_sens);
             }

@@ -1323,7 +1323,7 @@ static int gdReviewInit(int* win)
     }
 
     unsigned char* windowBuffer = win_get_buf(*win);
-    blitBufferToBuffer(backgroundFrmData,
+    buf_to_buf(backgroundFrmData,
         GAME_DIALOG_REVIEW_WINDOW_WIDTH,
         GAME_DIALOG_REVIEW_WINDOW_HEIGHT,
         GAME_DIALOG_REVIEW_WINDOW_WIDTH,
@@ -1527,7 +1527,7 @@ static void gdReviewDisplay(int win, int origin)
     }
 
     int width = GAME_DIALOG_WINDOW_WIDTH;
-    blitBufferToBuffer(
+    buf_to_buf(
         reviewDispBuf + width * entriesRect.uly + entriesRect.ulx,
         width,
         entriesRect.lry - entriesRect.uly + 15,
@@ -2383,7 +2383,7 @@ static int gdCreateHeadWindow()
         unsigned char* src = buf;
         src += windowWidth * rect->uly + rect->ulx;
 
-        blitBufferToBuffer(src, width, height, windowWidth, backgrndBufs[index], width);
+        buf_to_buf(src, width, height, windowWidth, backgrndBufs[index], width);
     }
 
     gdialog_window_create();
@@ -2667,7 +2667,7 @@ static void demo_copy_title(int win)
 
     unsigned char* dest = win_get_buf(win);
 
-    blitBufferToBuffer(src + 640 * 225 + 135, width, height, 640, dest, width);
+    buf_to_buf(src + 640 * 225 + 135, width, height, 640, dest, width);
 }
 
 // demo_copy_options
@@ -2708,7 +2708,7 @@ static void demo_copy_options(int win)
     }
 
     unsigned char* dest = win_get_buf(win);
-    blitBufferToBuffer(src + 640 * (335 - windowRect.uly) + 127, width, height, 640, dest, width);
+    buf_to_buf(src + 640 * (335 - windowRect.uly) + 127, width, height, 640, dest, width);
 }
 
 // gDialogRefreshOptionsRect
@@ -2752,7 +2752,7 @@ static void gDialogRefreshOptionsRect(int win, Rect* drawRect)
     int destWidth = win_width(win);
     unsigned char* dest = win_get_buf(win);
 
-    blitBufferToBuffer(
+    buf_to_buf(
         src + (640 * (335 - windowRect.uly) + 127) + (640 * drawRect->uly + drawRect->ulx),
         drawRect->lrx - drawRect->ulx,
         drawRect->lry - drawRect->uly,
@@ -2928,7 +2928,7 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
 
         for (; v18 >= 0; v18--) {
             soundContinueAll();
-            blitBufferToBuffer(a3,
+            buf_to_buf(a3,
                 GAME_DIALOG_WINDOW_WIDTH,
                 v7,
                 GAME_DIALOG_WINDOW_WIDTH,
@@ -2952,7 +2952,7 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
         for (int index = a6 / 10; index > 0; index--) {
             soundContinueAll();
 
-            blitBufferToBuffer(a5,
+            buf_to_buf(a5,
                 GAME_DIALOG_WINDOW_WIDTH,
                 10,
                 GAME_DIALOG_WINDOW_WIDTH,
@@ -2963,7 +2963,7 @@ static void gdialog_scroll_subwin(int win, int a2, unsigned char* a3, unsigned c
             v7 -= 10;
             a5 += 10 * (GAME_DIALOG_WINDOW_WIDTH);
 
-            blitBufferToBuffer(a3,
+            buf_to_buf(a3,
                 GAME_DIALOG_WINDOW_WIDTH,
                 v7,
                 GAME_DIALOG_WINDOW_WIDTH,
@@ -3193,7 +3193,7 @@ static int gdialog_barter_create_win()
 
     unsigned char* windowBuffer = win_get_buf(dialogueWindow);
     unsigned char* backgroundWindowBuffer = win_get_buf(dialogueBackWindow);
-    blitBufferToBuffer(backgroundWindowBuffer + width * (480 - dialogue_subwin_len), width, dialogue_subwin_len, width, windowBuffer, width);
+    buf_to_buf(backgroundWindowBuffer + width * (480 - dialogue_subwin_len), width, dialogue_subwin_len, width, windowBuffer, width);
 
     gdialog_scroll_subwin(dialogueWindow, 1, backgroundData, windowBuffer, NULL, dialogue_subwin_len, 0);
 
@@ -3349,7 +3349,7 @@ static int gdControlCreateWin()
 
     unsigned char* windowBuffer = win_get_buf(dialogueWindow);
     unsigned char* src = win_get_buf(dialogueBackWindow);
-    blitBufferToBuffer(src + (GAME_DIALOG_WINDOW_WIDTH) * (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len), GAME_DIALOG_WINDOW_WIDTH, dialogue_subwin_len, GAME_DIALOG_WINDOW_WIDTH, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
+    buf_to_buf(src + (GAME_DIALOG_WINDOW_WIDTH) * (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len), GAME_DIALOG_WINDOW_WIDTH, dialogue_subwin_len, GAME_DIALOG_WINDOW_WIDTH, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
     gdialog_scroll_subwin(dialogueWindow, 1, backgroundData, windowBuffer, 0, dialogue_subwin_len, 0);
     art_ptr_unlock(backgroundFrmHandle);
 
@@ -3525,16 +3525,16 @@ static void gdControlUpdateInfo()
         unsigned char* buffer = art_frame_data(background, 0, 0);
 
         // Clear "Weapon Used:".
-        blitBufferToBuffer(buffer + width * 20 + 112, 110, text_height(), width, windowBuffer + windowWidth * 20 + 112, windowWidth);
+        buf_to_buf(buffer + width * 20 + 112, 110, text_height(), width, windowBuffer + windowWidth * 20 + 112, windowWidth);
 
         // Clear "Armor Used:".
-        blitBufferToBuffer(buffer + width * 49 + 112, 110, text_height(), width, windowBuffer + windowWidth * 49 + 112, windowWidth);
+        buf_to_buf(buffer + width * 49 + 112, 110, text_height(), width, windowBuffer + windowWidth * 49 + 112, windowWidth);
 
         // Clear character preview.
-        blitBufferToBuffer(buffer + width * 84 + 8, 70, 98, width, windowBuffer + windowWidth * 84 + 8, windowWidth);
+        buf_to_buf(buffer + width * 84 + 8, 70, 98, width, windowBuffer + windowWidth * 84 + 8, windowWidth);
 
         // Clear ?
-        blitBufferToBuffer(buffer + width * 80 + 232, 132, 106, width, windowBuffer + windowWidth * 80 + 232, windowWidth);
+        buf_to_buf(buffer + width * 80 + 232, 132, 106, width, windowBuffer + windowWidth * 80 + 232, windowWidth);
 
         art_ptr_unlock(backgroundHandle);
     }
@@ -3563,7 +3563,7 @@ static void gdControlUpdateInfo()
         int width = art_frame_width(preview, 0, ROTATION_SW);
         int height = art_frame_length(preview, 0, ROTATION_SW);
         unsigned char* buffer = art_frame_data(preview, 0, ROTATION_SW);
-        blitBufferToBufferTrans(buffer, width, height, width, windowBuffer + windowWidth * (132 - height / 2) + 39 - width / 2, windowWidth);
+        trans_buf_to_buf(buffer, width, height, width, windowBuffer + windowWidth * (132 - height / 2) + 39 - width / 2, windowWidth);
         art_ptr_unlock(previewHandle);
     }
 
@@ -3788,7 +3788,7 @@ static int gdCustomCreateWin()
 
     unsigned char* windowBuffer = win_get_buf(dialogueWindow);
     unsigned char* parentWindowBuffer = win_get_buf(dialogueBackWindow);
-    blitBufferToBuffer(parentWindowBuffer + (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len) * GAME_DIALOG_WINDOW_WIDTH,
+    buf_to_buf(parentWindowBuffer + (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len) * GAME_DIALOG_WINDOW_WIDTH,
         GAME_DIALOG_WINDOW_WIDTH,
         dialogue_subwin_len,
         GAME_DIALOG_WINDOW_WIDTH,
@@ -3960,7 +3960,7 @@ static void gdCustomUpdateInfo()
     int backgroundWidth = art_frame_width(background, 0, 0);
     int backgroundHeight = art_frame_length(background, 0, 0);
     unsigned char* backgroundData = art_frame_data(background, 0, 0);
-    blitBufferToBuffer(backgroundData, backgroundWidth, backgroundHeight, backgroundWidth, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
+    buf_to_buf(backgroundData, backgroundWidth, backgroundHeight, backgroundWidth, windowBuffer, GAME_DIALOG_WINDOW_WIDTH);
 
     art_ptr_unlock(backgroundHandle);
 
@@ -4078,7 +4078,7 @@ static int gdCustomSelect(int a1)
 
     unsigned char* windowBuffer = win_get_buf(win);
     unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
-    blitBufferToBuffer(backgroundFrmData,
+    buf_to_buf(backgroundFrmData,
         backgroundFrmWidth,
         backgroundFrmHeight,
         backgroundFrmWidth,
@@ -4314,7 +4314,7 @@ static int gdialog_window_create()
             unsigned char* v10 = win_get_buf(dialogueWindow);
             unsigned char* v14 = win_get_buf(dialogueBackWindow);
             // TODO: Not sure about offsets.
-            blitBufferToBuffer(v14 + screenWidth * (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len), screenWidth, dialogue_subwin_len, screenWidth, v10, screenWidth);
+            buf_to_buf(v14 + screenWidth * (GAME_DIALOG_WINDOW_HEIGHT - dialogue_subwin_len), screenWidth, dialogue_subwin_len, screenWidth, v10, screenWidth);
 
             if (dialogue_just_started) {
                 win_draw(dialogueBackWindow);
@@ -4457,7 +4457,7 @@ static int talk_to_refresh_background_window()
 
     int windowWidth = GAME_DIALOG_WINDOW_WIDTH;
     unsigned char* windowBuffer = win_get_buf(dialogueBackWindow);
-    blitBufferToBuffer(backgroundFrmData, windowWidth, 480, windowWidth, windowBuffer, windowWidth);
+    buf_to_buf(backgroundFrmData, windowWidth, 480, windowWidth, windowBuffer, windowWidth);
     art_ptr_unlock(backgroundFrmHandle);
 
     if (!dialogue_just_started) {
@@ -4489,7 +4489,7 @@ static int talkToRefreshDialogWindowRect(Rect* rect)
     int offset = 640 * rect->uly + rect->ulx;
 
     unsigned char* windowBuffer = win_get_buf(dialogueWindow);
-    blitBufferToBuffer(backgroundFrmData + offset,
+    buf_to_buf(backgroundFrmData + offset,
         rect->lrx - rect->ulx,
         rect->lry - rect->uly,
         GAME_DIALOG_WINDOW_WIDTH,
@@ -4551,7 +4551,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
 
         unsigned char* backgroundFrmData = art_frame_data(backgroundFrm, 0, 0);
         if (backgroundFrmData != NULL) {
-            blitBufferToBuffer(backgroundFrmData, 388, 200, 388, headWindowBuffer, GAME_DIALOG_WINDOW_WIDTH);
+            buf_to_buf(backgroundFrmData, 388, 200, 388, headWindowBuffer, GAME_DIALOG_WINDOW_WIDTH);
         } else {
             debug_printf("\tError getting background data in display...\n");
         }
@@ -4580,7 +4580,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
                 destOffset += width * v8;
             }
 
-            blitBufferToBufferTrans(
+            trans_buf_to_buf(
                 data,
                 width,
                 height,
@@ -4597,7 +4597,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
         }
 
         unsigned char* src = win_get_buf(display_win);
-        blitBufferToBuffer(
+        buf_to_buf(
             src + ((_scr_size.lry - _scr_size.uly + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
             388,
             200,
@@ -4624,7 +4624,7 @@ static void gdDisplayFrame(Art* headFrm, int frame)
         Rect* rect = &(backgrndRects[index]);
         int width = rect->lrx - rect->ulx;
 
-        blitBufferToBufferTrans(backgrndBufs[index],
+        trans_buf_to_buf(backgrndBufs[index],
             width,
             rect->lry - rect->uly,
             width,

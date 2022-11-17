@@ -1109,7 +1109,7 @@ static void game_help()
             unsigned char* backgroundData = art_ptr_lock_data(backgroundFid, 0, 0, &backgroundHandle);
             if (backgroundData != NULL) {
                 palette_set_to(black_palette);
-                blitBufferToBuffer(backgroundData, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, HELP_SCREEN_WIDTH, windowBuffer, HELP_SCREEN_WIDTH);
+                buf_to_buf(backgroundData, HELP_SCREEN_WIDTH, HELP_SCREEN_HEIGHT, HELP_SCREEN_WIDTH, windowBuffer, HELP_SCREEN_WIDTH);
                 art_ptr_unlock(backgroundHandle);
                 win_show(win);
                 loadColorTable("art\\intrface\\helpscrn.pal");

@@ -5311,11 +5311,11 @@ static void print_tohit(unsigned char* dest, int destPitch, int accuracy)
     }
 
     if (accuracy >= 0) {
-        blitBufferToBuffer(numbersFrmData + 9 * (accuracy % 10), 9, 17, 360, dest + 9, destPitch);
-        blitBufferToBuffer(numbersFrmData + 9 * (accuracy / 10), 9, 17, 360, dest, destPitch);
+        buf_to_buf(numbersFrmData + 9 * (accuracy % 10), 9, 17, 360, dest + 9, destPitch);
+        buf_to_buf(numbersFrmData + 9 * (accuracy / 10), 9, 17, 360, dest, destPitch);
     } else {
-        blitBufferToBuffer(numbersFrmData + 108, 6, 17, 360, dest + 9, destPitch);
-        blitBufferToBuffer(numbersFrmData + 108, 6, 17, 360, dest, destPitch);
+        buf_to_buf(numbersFrmData + 108, 6, 17, 360, dest + 9, destPitch);
+        buf_to_buf(numbersFrmData + 108, 6, 17, 360, dest, destPitch);
     }
 
     art_ptr_unlock(numbersFrmHandle);
@@ -5398,13 +5398,13 @@ static int get_called_shot_location(Object* critter, int* hitLocation, int hitMo
         return -1;
     }
 
-    blitBufferToBuffer(data, CALLED_SHOT_WINDOW_WIDTH, CALLED_SHOT_WINDOW_HEIGHT, CALLED_SHOT_WINDOW_WIDTH, windowBuffer, CALLED_SHOT_WINDOW_WIDTH);
+    buf_to_buf(data, CALLED_SHOT_WINDOW_WIDTH, CALLED_SHOT_WINDOW_HEIGHT, CALLED_SHOT_WINDOW_WIDTH, windowBuffer, CALLED_SHOT_WINDOW_WIDTH);
     art_ptr_unlock(handle);
 
     fid = art_id(OBJ_TYPE_CRITTER, critter->fid & 0xFFF, ANIM_CALLED_SHOT_PIC, 0, 0);
     data = art_ptr_lock_data(fid, 0, 0, &handle);
     if (data != NULL) {
-        blitBufferToBuffer(data, 170, 225, 170, windowBuffer + CALLED_SHOT_WINDOW_WIDTH * 31 + 168, CALLED_SHOT_WINDOW_WIDTH);
+        buf_to_buf(data, 170, 225, 170, windowBuffer + CALLED_SHOT_WINDOW_WIDTH * 31 + 168, CALLED_SHOT_WINDOW_WIDTH);
         art_ptr_unlock(handle);
     }
 

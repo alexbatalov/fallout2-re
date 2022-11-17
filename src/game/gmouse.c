@@ -1731,8 +1731,8 @@ int gmouse_3d_build_pick_frame(int x, int y, int menuItem, int width, int height
 
     memset(gmouse_3d_pick_frame_data, 0, gmouse_3d_pick_frame_size);
 
-    blitBufferToBuffer(arrowFrmData, arrowFrmWidth, arrowFrmHeight, arrowFrmWidth, arrowFrmDest, gmouse_3d_pick_frame_width);
-    blitBufferToBuffer(menuItemFrmData, menuItemFrmWidth, menuItemFrmHeight, menuItemFrmWidth, menuItemFrmDest, gmouse_3d_pick_frame_width);
+    buf_to_buf(arrowFrmData, arrowFrmWidth, arrowFrmHeight, arrowFrmWidth, arrowFrmDest, gmouse_3d_pick_frame_width);
+    buf_to_buf(menuItemFrmData, menuItemFrmWidth, menuItemFrmHeight, menuItemFrmWidth, menuItemFrmDest, gmouse_3d_pick_frame_width);
 
     art_ptr_unlock(arrowFrmHandle);
     art_ptr_unlock(menuItemFrmHandle);
@@ -1832,12 +1832,12 @@ int gmouse_3d_build_menu_frame(int x, int y, const int* menuItems, int menuItems
     }
 
     memset(gmouse_3d_menu_frame_data, 0, gmouse_3d_menu_frame_size);
-    blitBufferToBuffer(arrowData, arrowWidth, arrowHeight, arrowWidth, v22, gmouse_3d_pick_frame_width);
+    buf_to_buf(arrowData, arrowWidth, arrowHeight, arrowWidth, v22, gmouse_3d_pick_frame_width);
 
     unsigned char* v38 = v58;
     for (int index = 0; index < menuItemsLength; index++) {
         unsigned char* data = art_frame_data(menuItemFrms[index], 0, 0);
-        blitBufferToBuffer(data, menuItemWidth, menuItemHeight, menuItemWidth, v38, gmouse_3d_pick_frame_width);
+        buf_to_buf(data, menuItemWidth, menuItemHeight, menuItemWidth, v38, gmouse_3d_pick_frame_width);
         v38 += gmouse_3d_menu_frame_width * menuItemHeight;
     }
 
@@ -1886,7 +1886,7 @@ int gmouse_3d_highlight_menu_frame(int menuItemIndex)
     int width = art_frame_width(art, 0, 0);
     int height = art_frame_length(art, 0, 0);
     unsigned char* data = art_frame_data(art, 0, 0);
-    blitBufferToBuffer(data, width, height, width, gmouse_3d_menu_actions_start + gmouse_3d_menu_frame_width * height * gmouse_3d_menu_current_action_index, gmouse_3d_menu_frame_width);
+    buf_to_buf(data, width, height, width, gmouse_3d_menu_actions_start + gmouse_3d_menu_frame_width * height * gmouse_3d_menu_current_action_index, gmouse_3d_menu_frame_width);
     art_ptr_unlock(handle);
 
     fid = art_id(OBJ_TYPE_INTERFACE, gmouse_3d_action_nums[gmouse_3d_menu_frame_actions[menuItemIndex]] - 1, 0, 0, 0);
@@ -1896,7 +1896,7 @@ int gmouse_3d_highlight_menu_frame(int menuItemIndex)
     }
 
     data = art_frame_data(art, 0, 0);
-    blitBufferToBuffer(data, width, height, width, gmouse_3d_menu_actions_start + gmouse_3d_menu_frame_width * height * menuItemIndex, gmouse_3d_menu_frame_width);
+    buf_to_buf(data, width, height, width, gmouse_3d_menu_actions_start + gmouse_3d_menu_frame_width * height * menuItemIndex, gmouse_3d_menu_frame_width);
     art_ptr_unlock(handle);
 
     gmouse_3d_menu_current_action_index = menuItemIndex;
@@ -1919,7 +1919,7 @@ int gmouse_3d_build_to_hit_frame(const char* string, int color)
     int crosshairFrmWidth = art_frame_width(crosshairFrm, 0, 0);
     int crosshairFrmHeight = art_frame_length(crosshairFrm, 0, 0);
     unsigned char* crosshairFrmData = art_frame_data(crosshairFrm, 0, 0);
-    blitBufferToBuffer(crosshairFrmData,
+    buf_to_buf(crosshairFrmData,
         crosshairFrmWidth,
         crosshairFrmHeight,
         crosshairFrmWidth,
@@ -1935,7 +1935,7 @@ int gmouse_3d_build_to_hit_frame(const char* string, int color)
         gmouse_3d_to_hit_frame_width,
         color);
 
-    bufferOutline(gmouse_3d_to_hit_frame_data + crosshairFrmWidth,
+    buf_outline(gmouse_3d_to_hit_frame_data + crosshairFrmWidth,
         gmouse_3d_to_hit_frame_width - crosshairFrmWidth,
         gmouse_3d_to_hit_frame_height,
         gmouse_3d_to_hit_frame_width,
@@ -1963,7 +1963,7 @@ int gmouse_3d_build_hex_frame(const char* string, int color)
     int length = text_width(string);
     text_to_buf(gmouse_3d_hex_frame_data + gmouse_3d_hex_frame_width * (gmouse_3d_hex_frame_height - text_height()) / 2 + (gmouse_3d_hex_frame_width - length) / 2, string, gmouse_3d_hex_frame_width, gmouse_3d_hex_frame_width, color);
 
-    bufferOutline(gmouse_3d_hex_frame_data, gmouse_3d_hex_frame_width, gmouse_3d_hex_frame_height, gmouse_3d_hex_frame_width, colorTable[0]);
+    buf_outline(gmouse_3d_hex_frame_data, gmouse_3d_hex_frame_width, gmouse_3d_hex_frame_height, gmouse_3d_hex_frame_width, colorTable[0]);
 
     text_font(oldFont);
 
