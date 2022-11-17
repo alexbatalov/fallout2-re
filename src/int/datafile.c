@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "plib/color/color.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "int/memdbg.h"
 #include "int/pcx.h"
 

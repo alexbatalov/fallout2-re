@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 
 int do_options();
 int do_optionsFunc(int initialKeyCode);

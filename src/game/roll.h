@@ -1,7 +1,7 @@
 #ifndef FALLOUT_GAME_ROLL_H_
 #define FALLOUT_GAME_ROLL_H_
 
-#include "db.h"
+#include "plib/db/db.h"
 
 typedef enum Roll {
     ROLL_CRITICAL_FAILURE,

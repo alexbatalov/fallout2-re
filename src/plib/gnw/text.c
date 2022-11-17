@@ -8,7 +8,7 @@
 #include <windows.h>
 
 #include "plib/color/color.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/memory.h"
 
 // The maximum number of text fonts.

@@ -1,7 +1,7 @@
 #ifndef FALLOUT_GAME_ABILITY_H_
 #define FALLOUT_GAME_ABILITY_H_
 
-#include "db.h"
+#include "plib/db/db.h"
 
 typedef struct AbilityData {
     int field_0;

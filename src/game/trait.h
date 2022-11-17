@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/trait_defs.h"
 
 int trait_init();

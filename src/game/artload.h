@@ -2,7 +2,7 @@
 #define FALLOUT_GAME_ARTLOAD_H_
 
 #include "game/art.h"
-#include "db.h"
+#include "plib/db/db.h"
 
 int load_frame(const char* path, Art** artPtr);
 int load_frame_into(const char* path, unsigned char* data);

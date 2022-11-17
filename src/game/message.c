@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/debug.h"
 #include "game/gconfig.h"
 #include "plib/gnw/memory.h"

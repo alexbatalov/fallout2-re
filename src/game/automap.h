@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/map_defs.h"
 
 #define AUTOMAP_DB "AUTOMAP.DB"

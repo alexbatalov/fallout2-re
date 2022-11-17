@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "game/combat_defs.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "int/intrpret.h"
 #include "game/message.h"
 #include "game/object_types.h"

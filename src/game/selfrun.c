@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "plib/gnw/input.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/game.h"
 #include "game/gconfig.h"
 #include "plib/gnw/vcr.h"

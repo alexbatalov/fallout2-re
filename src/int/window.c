@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "int/datafile.h"

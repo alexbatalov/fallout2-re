@@ -8,7 +8,7 @@
 #include <string.h>
 
 #include "plib/gnw/input.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/debug.h"
 #include "int/export.h"
 #include "int/intlib.h"

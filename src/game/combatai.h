@@ -5,7 +5,7 @@
 
 #include "game/combatai_defs.h"
 #include "game/combat_defs.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/message.h"
 #include "game/object_types.h"
 #include "game/party.h"

@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 
 typedef enum GameMovieFlags {
     GAME_MOVIE_FADE_IN = 0x01,

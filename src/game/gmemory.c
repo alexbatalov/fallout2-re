@@ -1,6 +1,6 @@
 #include "game/gmemory.h"
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/assoc/assoc.h"
 #include "plib/gnw/memory.h"
 #include "int/memdbg.h"

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/debug.h"
 #include "int/memdbg.h"
 #include "int/sound.h"

@@ -1,7 +1,7 @@
 #ifndef FALLOUT_GAME_PROTO_H_
 #define FALLOUT_GAME_PROTO_H_
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/message.h"
 #include "game/object_types.h"
 #include "game/perk_defs.h"

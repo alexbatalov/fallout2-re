@@ -1,7 +1,7 @@
 #ifndef FALLOUT_GAME_EDITOR_H_
 #define FALLOUT_GAME_EDITOR_H_
 
-#include "db.h"
+#include "plib/db/db.h"
 
 #define TOWN_REPUTATION_COUNT 19
 #define ADDICTION_REPUTATION_COUNT 8

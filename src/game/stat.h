@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/object_types.h"
 #include "game/proto_types.h"
 #include "game/stat_defs.h"

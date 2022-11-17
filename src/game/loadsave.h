@@ -7,7 +7,7 @@
 #include <windows.h>
 
 #include "game/art.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/rect.h"
 #include "game/message.h"
 

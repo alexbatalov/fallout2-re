@@ -11,7 +11,7 @@
 #include "int/audiof.h"
 #include "game/combat.h"
 #include "plib/gnw/input.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/debug.h"
 #include "game/gconfig.h"
 #include "game/item.h"

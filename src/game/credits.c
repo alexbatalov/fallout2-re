@@ -6,7 +6,7 @@
 #include "plib/color/color.h"
 #include "plib/gnw/input.h"
 #include "game/cycle.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/debug.h"
 #include "plib/gnw/grbuf.h"
 #include "game/gmouse.h"

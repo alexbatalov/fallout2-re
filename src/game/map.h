@@ -7,7 +7,7 @@
 #include <windows.h>
 
 #include "game/combat_defs.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/rect.h"
 #include "game/map_defs.h"
 #include "game/message.h"

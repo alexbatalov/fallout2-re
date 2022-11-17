@@ -16,7 +16,7 @@
 #include "plib/gnw/input.h"
 #include "game/critter.h"
 #include "game/cycle.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/bmpdlog.h"
 #include "plib/gnw/debug.h"
 #include "game/display.h"

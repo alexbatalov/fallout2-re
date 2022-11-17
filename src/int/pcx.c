@@ -1,6 +1,6 @@
 #include "int/pcx.h"
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "int/memdbg.h"
 
 typedef struct PcxHeader {

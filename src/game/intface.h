@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-#include "db.h"
+#include "plib/db/db.h"
 #include "game/object_types.h"
 
 #define INTERFACE_BAR_WIDTH 640

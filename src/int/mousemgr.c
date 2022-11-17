@@ -5,7 +5,7 @@
 
 #include "plib/gnw/input.h"
 #include "int/datafile.h"
-#include "db.h"
+#include "plib/db/db.h"
 #include "plib/gnw/debug.h"
 #include "int/memdbg.h"
 
