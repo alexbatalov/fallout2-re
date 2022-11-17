@@ -13,10 +13,16 @@ static_assert(sizeof(DBaseEntry) == 20, "wrong size");
 static_assert(sizeof(DFile) == 44, "wrong size");
 static_assert(sizeof(DFileFindData) == 524, "wrong size");
 
+static int dinfo_bsearch_compare(const void* a1, const void* a2);
+static DFile* dfile_fopen_helper(DBase* dbase, const char* filename, const char* mode, DFile* a4);
+static int dfile_fgetc_helper(DFile* stream);
+static bool dfile_read_comp_bytes(DFile* stream, void* ptr, size_t size);
+static void dfile_zungetc(DFile* stream, int ch);
+
 // Reads .DAT file contents.
 //
 // 0x4E4F58
-DBase* dbaseOpen(const char* filePath)
+DBase* dbase_open(const char* filePath)
 {
     assert(filePath); // "filename", "dfile.c", 74
 
@@ -124,7 +130,7 @@ DBase* dbaseOpen(const char* filePath)
 
 err:
 
-    dbaseClose(dbase);
+    dbase_close(dbase);
 
     fclose(stream);
 
@@ -135,14 +141,14 @@ err:
 // including the [dbase] itself.
 //
 // 0x4E5270
-bool dbaseClose(DBase* dbase)
+bool dbase_close(DBase* dbase)
 {
     assert(dbase); // "dbase", "dfile.c", 173
 
     DFile* curr = dbase->dfileHead;
     while (curr != NULL) {
         DFile* next = curr->next;
-        dfileClose(curr);
+        dfile_fclose(curr);
         curr = next;
     }
 
@@ -169,7 +175,7 @@ bool dbaseClose(DBase* dbase)
 }
 
 // 0x4E5308
-bool dbaseFindFirstEntry(DBase* dbase, DFileFindData* findFileData, const char* pattern)
+bool dbase_findfirst(DBase* dbase, DFileFindData* findFileData, const char* pattern)
 {
     for (int index = 0; index < dbase->entriesLength; index++) {
         DBaseEntry* entry = &(dbase->entries[index]);
@@ -185,7 +191,7 @@ bool dbaseFindFirstEntry(DBase* dbase, DFileFindData* findFileData, const char* 
 }
 
 // 0x4E53A0
-bool dbaseFindNextEntry(DBase* dbase, DFileFindData* findFileData)
+bool dbase_findnext(DBase* dbase, DFileFindData* findFileData)
 {
     for (int index = findFileData->index + 1; index < dbase->entriesLength; index++) {
         DBaseEntry* entry = &(dbase->entries[index]);
@@ -200,7 +206,7 @@ bool dbaseFindNextEntry(DBase* dbase, DFileFindData* findFileData)
 }
 
 // 0x4E541C
-bool dbaseFindClose(DBase* dbase, DFileFindData* findFileData)
+bool dbase_findclose(DBase* dbase, DFileFindData* findFileData)
 {
     return true;
 }
@@ -208,7 +214,7 @@ bool dbaseFindClose(DBase* dbase, DFileFindData* findFileData)
 // [filelength].
 //
 // 0x4E5424
-long dfileGetSize(DFile* stream)
+long dfile_filelength(DFile* stream)
 {
     return stream->entry->uncompressedSize;
 }
@@ -216,7 +222,7 @@ long dfileGetSize(DFile* stream)
 // [fclose].
 //
 // 0x4E542C
-int dfileClose(DFile* stream)
+int dfile_fclose(DFile* stream)
 {
     assert(stream); // "stream", "dfile.c", 253
 
@@ -273,19 +279,19 @@ int dfileClose(DFile* stream)
 // [fopen].
 //
 // 0x4E5504
-DFile* dfileOpen(DBase* dbase, const char* filePath, const char* mode)
+DFile* dfile_fopen(DBase* dbase, const char* filePath, const char* mode)
 {
     assert(dbase); // dfile.c, 295
     assert(filePath); // dfile.c, 296
     assert(mode); // dfile.c, 297
 
-    return dfileOpenInternal(dbase, filePath, mode, 0);
+    return dfile_fopen_helper(dbase, filePath, mode, 0);
 }
 
 // [vfprintf].
 //
 // 0x4E56C0
-int dfilePrintFormattedArgs(DFile* stream, const char* format, va_list args)
+int dfile_vfprintf(DFile* stream, const char* format, va_list args)
 {
     assert(stream); // "stream", "dfile.c", 368
     assert(format); // "format", "dfile.c", 369
@@ -299,7 +305,7 @@ int dfilePrintFormattedArgs(DFile* stream, const char* format, va_list args)
 // consumes two characters from the underlying stream.
 //
 // 0x4E5700
-int dfileReadChar(DFile* stream)
+int dfile_fgetc(DFile* stream)
 {
     assert(stream); // "stream", "dfile.c", 384
 
@@ -312,7 +318,7 @@ int dfileReadChar(DFile* stream)
         return stream->ungotten;
     }
 
-    int ch = dfileReadCharInternal(stream);
+    int ch = dfile_fgetc_helper(stream);
     if (ch == -1) {
         stream->flags |= DFILE_EOF;
     }
@@ -326,7 +332,7 @@ int dfileReadChar(DFile* stream)
 // line ending is reported as \n.
 //
 // 0x4E5764
-char* dfileReadString(char* string, int size, DFile* stream)
+char* dfile_fgets(char* string, int size, DFile* stream)
 {
     assert(string); // "s", "dfile.c", 407
     assert(size); // "n", "dfile.c", 408
@@ -347,7 +353,7 @@ char* dfileReadString(char* string, int size, DFile* stream)
     // Read up to size - 1 characters one by one saving space for the null
     // terminator.
     for (int index = 0; index < size - 1; index++) {
-        int ch = dfileReadCharInternal(stream);
+        int ch = dfile_fgetc_helper(stream);
         if (ch == -1) {
             break;
         }
@@ -372,7 +378,7 @@ char* dfileReadString(char* string, int size, DFile* stream)
 // [fputc].
 //
 // 0x4E5830
-int dfileWriteChar(int ch, DFile* stream)
+int dfile_fputc(int ch, DFile* stream)
 {
     assert(stream); // "stream", "dfile.c", 437
 
@@ -382,7 +388,7 @@ int dfileWriteChar(int ch, DFile* stream)
 // [fputs].
 //
 // 0x4E5854
-int dfileWriteString(const char* string, DFile* stream)
+int dfile_fputs(const char* string, DFile* stream)
 {
     assert(string); // "s", "dfile.c", 448
     assert(stream); // "stream", "dfile.c", 449
@@ -393,7 +399,7 @@ int dfileWriteString(const char* string, DFile* stream)
 // [fread].
 //
 // 0x4E58FC
-size_t dfileRead(void* ptr, size_t size, size_t count, DFile* stream)
+size_t dfile_fread(void* ptr, size_t size, size_t count, DFile* stream)
 {
     assert(ptr); // "ptr", "dfile.c", 499
     assert(stream); // "stream", dfile.c, 500
@@ -427,7 +433,7 @@ size_t dfileRead(void* ptr, size_t size, size_t count, DFile* stream)
 
     size_t bytesRead;
     if (stream->entry->compressed == 1) {
-        if (!dfileReadCompressed(stream, ptr, bytesToRead)) {
+        if (!dfile_read_comp_bytes(stream, ptr, bytesToRead)) {
             stream->flags |= DFILE_ERROR;
             return false;
         }
@@ -444,7 +450,7 @@ size_t dfileRead(void* ptr, size_t size, size_t count, DFile* stream)
 // [fwrite].
 //
 // 0x4E59F8
-size_t dfileWrite(const void* ptr, size_t size, size_t count, DFile* stream)
+size_t dfile_fwrite(const void* ptr, size_t size, size_t count, DFile* stream)
 {
     assert(ptr); // "ptr", "dfile.c", 538
     assert(stream); // "stream", "dfile.c", 539
@@ -455,7 +461,7 @@ size_t dfileWrite(const void* ptr, size_t size, size_t count, DFile* stream)
 // [fseek].
 //
 // 0x4E5A74
-int dfileSeek(DFile* stream, long offset, int origin)
+int dfile_fseek(DFile* stream, long offset, int origin)
 {
     assert(stream); // "stream", "dfile.c", 569
 
@@ -503,12 +509,12 @@ int dfileSeek(DFile* stream, long offset, int origin)
             if (offsetFromBeginning < pos) {
                 // We cannot go backwards in compressed stream, so the only way
                 // is to start from the beginning.
-                dfileRewind(stream);
+                dfile_rewind(stream);
             }
 
             // Consume characters one by one until we reach specified offset.
             while (offsetFromBeginning > stream->position) {
-                if (dfileReadCharInternal(stream) == -1) {
+                if (dfile_fgetc_helper(stream) == -1) {
                     return 1;
                 }
             }
@@ -558,7 +564,7 @@ int dfileSeek(DFile* stream, long offset, int origin)
 // [ftell].
 //
 // 0x4E5C88
-long dfileTell(DFile* stream)
+long dfile_ftell(DFile* stream)
 {
     assert(stream); // "stream", "dfile.c", 654
 
@@ -568,11 +574,11 @@ long dfileTell(DFile* stream)
 // [rewind].
 //
 // 0x4E5CB0
-void dfileRewind(DFile* stream)
+void dfile_rewind(DFile* stream)
 {
     assert(stream); // "stream", "dfile.c", 664
 
-    dfileSeek(stream, 0, SEEK_SET);
+    dfile_fseek(stream, 0, SEEK_SET);
 
     stream->flags &= ~DFILE_ERROR;
 }
@@ -580,7 +586,7 @@ void dfileRewind(DFile* stream)
 // [feof].
 //
 // 0x4E5D10
-int dfileEof(DFile* stream)
+int dfile_feof(DFile* stream)
 {
     assert(stream); // "stream", "dfile.c", 685
 
@@ -591,7 +597,7 @@ int dfileEof(DFile* stream)
 // specified [filePath].
 //
 // 0x4E5D70
-int dbaseFindEntryByFilePath(const void* a1, const void* a2)
+static int dinfo_bsearch_compare(const void* a1, const void* a2)
 {
     const char* filePath = (const char*)a1;
     DBaseEntry* entry = (DBaseEntry*)a2;
@@ -600,9 +606,9 @@ int dbaseFindEntryByFilePath(const void* a1, const void* a2)
 }
 
 // 0x4E5D9C
-DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* mode, DFile* dfile)
+static DFile* dfile_fopen_helper(DBase* dbase, const char* filePath, const char* mode, DFile* dfile)
 {
-    DBaseEntry* entry = (DBaseEntry*)bsearch(filePath, dbase->entries, dbase->entriesLength, sizeof(*dbase->entries), dbaseFindEntryByFilePath);
+    DBaseEntry* entry = (DBaseEntry*)bsearch(filePath, dbase->entries, dbase->entriesLength, sizeof(*dbase->entries), dinfo_bsearch_compare);
     if (entry == NULL) {
         goto err;
     }
@@ -699,18 +705,18 @@ DFile* dfileOpenInternal(DBase* dbase, const char* filePath, const char* mode, D
 err:
 
     if (dfile != NULL) {
-        dfileClose(dfile);
+        dfile_fclose(dfile);
     }
 
     return NULL;
 }
 
 // 0x4E5F9C
-int dfileReadCharInternal(DFile* stream)
+static int dfile_fgetc_helper(DFile* stream)
 {
     if (stream->entry->compressed == 1) {
         char ch;
-        if (!dfileReadCompressed(stream, &ch, sizeof(ch))) {
+        if (!dfile_read_comp_bytes(stream, &ch, sizeof(ch))) {
             return -1;
         }
 
@@ -720,12 +726,12 @@ int dfileReadCharInternal(DFile* stream)
             // well.
             if (ch == '\r') {
                 char nextCh;
-                if (dfileReadCompressed(stream, &nextCh, sizeof(nextCh))) {
+                if (dfile_read_comp_bytes(stream, &nextCh, sizeof(nextCh))) {
                     if (nextCh == '\n') {
                         ch = nextCh;
                     } else {
                         // NOTE: Uninline.
-                        dfileUngetCompressed(stream, nextCh & 0xFF);
+                        dfile_zungetc(stream, nextCh & 0xFF);
                     }
                 }
             }
@@ -762,7 +768,7 @@ int dfileReadCharInternal(DFile* stream)
 }
 
 // 0x4E6078
-bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
+static bool dfile_read_comp_bytes(DFile* stream, void* ptr, size_t size)
 {
     if ((stream->flags & DFILE_HAS_COMPRESSED_UNGETC) != 0) {
         unsigned char* byteBuffer = (unsigned char*)ptr;
@@ -820,7 +826,7 @@ bool dfileReadCompressed(DFile* stream, void* ptr, size_t size)
 // NOTE: Inlined.
 //
 // 0x4E613C
-void dfileUngetCompressed(DFile* stream, int ch)
+static void dfile_zungetc(DFile* stream, int ch)
 {
     stream->compressedUngotten = ch;
     stream->flags |= DFILE_HAS_COMPRESSED_UNGETC;

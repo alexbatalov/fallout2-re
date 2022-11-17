@@ -1,5 +1,5 @@
-#ifndef DFILE_H
-#define DFILE_H
+#ifndef FALLOUT_PLIB_XFILE_DFILE_H_
+#define FALLOUT_PLIB_XFILE_DFILE_H_
 
 #include <stdbool.h>
 #include <stdio.h>
@@ -24,7 +24,7 @@
 
 // Specifies that [DFile] is in error state.
 //
-// [dfileRewind] can be used to clear this flag.
+// [dfile_rewind] can be used to clear this flag.
 #define DFILE_ERROR (0x04)
 
 // Specifies that [DFile] was opened in text mode.
@@ -73,7 +73,7 @@ typedef struct DFile {
     //
     // This stream is not shared across open handles. Instead every [DFile]
     // opens it's own stream via [fopen], which is then closed via [fclose] in
-    // [dfileClose].
+    // [dfile_fclose].
     FILE* stream;
 
     // The inflate stream used to decompress data.
@@ -122,41 +122,36 @@ typedef struct DFileFindData {
 
     // The pattern to search.
     //
-    // This value is set automatically when [dbaseFindFirstEntry] succeeds so
-    // that subsequent calls to [dbaseFindNextEntry] know what to look for.
+    // This value is set automatically when [dbase_findfirst] succeeds so
+    // that subsequent calls to [dbase_findnext] know what to look for.
     char pattern[MAX_PATH];
 
     // The index of entry that was found during previous search.
     //
-    // This value is set automatically when [dbaseFindFirstEntry] and
-    // [dbaseFindNextEntry] succeed so that subsequent calls to [dbaseFindNextEntry]
+    // This value is set automatically when [dbase_findfirst] and
+    // [dbase_findnext] succeed so that subsequent calls to [dbase_findnext]
     // knows where to start search from.
     int index;
 } DFileFindData;
 
-DBase* dbaseOpen(const char* filename);
-bool dbaseClose(DBase* dbase);
-bool dbaseFindFirstEntry(DBase* dbase, DFileFindData* findFileData, const char* pattern);
-bool dbaseFindNextEntry(DBase* dbase, DFileFindData* findFileData);
-bool dbaseFindClose(DBase* dbase, DFileFindData* findFileData);
-long dfileGetSize(DFile* stream);
-int dfileClose(DFile* stream);
-DFile* dfileOpen(DBase* dbase, const char* filename, const char* mode);
-int dfilePrintFormattedArgs(DFile* stream, const char* format, va_list args);
-int dfileReadChar(DFile* stream);
-char* dfileReadString(char* str, int size, DFile* stream);
-int dfileWriteChar(int ch, DFile* stream);
-int dfileWriteString(const char* s, DFile* stream);
-size_t dfileRead(void* ptr, size_t size, size_t count, DFile* stream);
-size_t dfileWrite(const void* ptr, size_t size, size_t count, DFile* stream);
-int dfileSeek(DFile* stream, long offset, int origin);
-long dfileTell(DFile* stream);
-void dfileRewind(DFile* stream);
-int dfileEof(DFile* stream);
-int dbaseFindEntryByFilePath(const void* a1, const void* a2);
-DFile* dfileOpenInternal(DBase* dbase, const char* filename, const char* mode, DFile* a4);
-int dfileReadCharInternal(DFile* stream);
-bool dfileReadCompressed(DFile* stream, void* ptr, size_t size);
-void dfileUngetCompressed(DFile* stream, int ch);
+DBase* dbase_open(const char* filename);
+bool dbase_close(DBase* dbase);
+bool dbase_findfirst(DBase* dbase, DFileFindData* findFileData, const char* pattern);
+bool dbase_findnext(DBase* dbase, DFileFindData* findFileData);
+bool dbase_findclose(DBase* dbase, DFileFindData* findFileData);
+long dfile_filelength(DFile* stream);
+int dfile_fclose(DFile* stream);
+DFile* dfile_fopen(DBase* dbase, const char* filename, const char* mode);
+int dfile_vfprintf(DFile* stream, const char* format, va_list args);
+int dfile_fgetc(DFile* stream);
+char* dfile_fgets(char* str, int size, DFile* stream);
+int dfile_fputc(int ch, DFile* stream);
+int dfile_fputs(const char* s, DFile* stream);
+size_t dfile_fread(void* ptr, size_t size, size_t count, DFile* stream);
+size_t dfile_fwrite(const void* ptr, size_t size, size_t count, DFile* stream);
+int dfile_fseek(DFile* stream, long offset, int origin);
+long dfile_ftell(DFile* stream);
+void dfile_rewind(DFile* stream);
+int dfile_feof(DFile* stream);
 
-#endif /* DFILE_H */
+#endif /* FALLOUT_PLIB_XFILE_DFILE_H_ */

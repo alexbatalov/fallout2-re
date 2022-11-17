@@ -25,7 +25,7 @@ int xfclose(XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        rc = dfileClose(stream->dfile);
+        rc = dfile_fclose(stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         rc = gzclose(stream->gzfile);
@@ -78,7 +78,7 @@ XFile* xfopen(const char* filePath, const char* mode)
         while (curr != NULL) {
             if (curr->isDbase) {
                 // Attempt to open dfile stream from dbase.
-                stream->dfile = dfileOpen(curr->dbase, filePath, mode);
+                stream->dfile = dfile_fopen(curr->dbase, filePath, mode);
                 if (stream->dfile != NULL) {
                     stream->type = XFILE_TYPE_DFILE;
                     sprintf(path, filePath);
@@ -160,7 +160,7 @@ int xvfprintf(XFile* stream, const char* format, va_list args)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        rc = dfilePrintFormattedArgs(stream->dfile, format, args);
+        rc = dfile_vfprintf(stream->dfile, format, args);
         break;
     case XFILE_TYPE_GZFILE:
         rc = gzvprintf(stream->gzfile, format, args);
@@ -182,7 +182,7 @@ int xfgetc(XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        ch = dfileReadChar(stream->dfile);
+        ch = dfile_fgetc(stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         ch = gzgetc(stream->gzfile);
@@ -206,7 +206,7 @@ char* xfgets(char* string, int size, XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        result = dfileReadString(string, size, stream->dfile);
+        result = dfile_fgets(string, size, stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         result = gzgets(stream->gzfile, string, size);
@@ -228,7 +228,7 @@ int xfputc(int ch, XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        rc = dfileWriteChar(ch, stream->dfile);
+        rc = dfile_fputc(ch, stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         rc = gzputc(stream->gzfile, ch);
@@ -251,7 +251,7 @@ int xfputs(const char* string, XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        rc = dfileWriteString(string, stream->dfile);
+        rc = dfile_fputs(string, stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         rc = gzputs(stream->gzfile, string);
@@ -274,10 +274,10 @@ size_t xfread(void* ptr, size_t size, size_t count, XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        elementsRead = dfileRead(ptr, size, count, stream->dfile);
+        elementsRead = dfile_fread(ptr, size, count, stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
-        // FIXME: There is a bug in the return value. Both [dfileRead] and
+        // FIXME: There is a bug in the return value. Both [dfile_fread] and
         // [fread] returns number of elements read, but [gzwrite] have no such
         // concept, it works with bytes, and returns number of bytes read.
         // Depending on the [size] and [count] parameters this function can
@@ -302,11 +302,11 @@ size_t xfwrite(const void* ptr, size_t size, size_t count, XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        elementsWritten = dfileWrite(ptr, size, count, stream->dfile);
+        elementsWritten = dfile_fwrite(ptr, size, count, stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         // FIXME: There is a bug in the return value. [fwrite] returns number
-        // of elements written (while [dfileWrite] does not support writing at
+        // of elements written (while [dfile_fwrite] does not support writing at
         // all), but [gzwrite] have no such concept, it works with bytes, and
         // returns number of bytes written. Depending on the [size] and [count]
         // parameters this function can return wrong result.
@@ -329,7 +329,7 @@ int xfseek(XFile* stream, long offset, int origin)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        result = dfileSeek(stream->dfile, offset, origin);
+        result = dfile_fseek(stream->dfile, offset, origin);
         break;
     case XFILE_TYPE_GZFILE:
         result = gzseek(stream->gzfile, offset, origin);
@@ -351,7 +351,7 @@ long xftell(XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        pos = dfileTell(stream->dfile);
+        pos = dfile_ftell(stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         pos = gztell(stream->gzfile);
@@ -371,7 +371,7 @@ void xrewind(XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        dfileRewind(stream->dfile);
+        dfile_rewind(stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         gzrewind(stream->gzfile);
@@ -391,7 +391,7 @@ int xfeof(XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        rc = dfileEof(stream->dfile);
+        rc = dfile_feof(stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         rc = gzeof(stream->gzfile);
@@ -413,7 +413,7 @@ long xfilelength(XFile* stream)
 
     switch (stream->type) {
     case XFILE_TYPE_DFILE:
-        fileSize = dfileGetSize(stream->dfile);
+        fileSize = dfile_filelength(stream->dfile);
         break;
     case XFILE_TYPE_GZFILE:
         fileSize = 0;
@@ -499,7 +499,7 @@ bool xaddpath(const char* path)
         return false;
     }
 
-    DBase* dbase = dbaseOpen(path);
+    DBase* dbase = dbase_open(path);
     if (dbase != NULL) {
         xbase->isDbase = true;
         xbase->dbase = dbase;
@@ -580,17 +580,17 @@ bool xenumpath(const char* pattern, XListEnumerationHandler* handler, XList* xli
     while (xbase != NULL) {
         if (xbase->isDbase) {
             DFileFindData dbaseFindData;
-            if (dbaseFindFirstEntry(xbase->dbase, &dbaseFindData, pattern)) {
+            if (dbase_findfirst(xbase->dbase, &dbaseFindData, pattern)) {
                 context.type = XFILE_ENUMERATION_ENTRY_TYPE_DFILE;
 
                 do {
                     strcpy(context.name, dbaseFindData.fileName);
                     if (!handler(&context)) {
-                        return dbaseFindClose(xbase->dbase, &dbaseFindData);
+                        return dbase_findclose(xbase->dbase, &dbaseFindData);
                     }
-                } while (dbaseFindNextEntry(xbase->dbase, &dbaseFindData));
+                } while (dbase_findnext(xbase->dbase, &dbaseFindData));
 
-                dbaseFindClose(xbase->dbase, &dbaseFindData);
+                dbase_findclose(xbase->dbase, &dbaseFindData);
             }
         } else {
             char path[FILENAME_MAX];
@@ -755,7 +755,7 @@ static void xclearpath()
         XBase* next = curr->next;
 
         if (curr->isDbase) {
-            dbaseClose(curr->dbase);
+            dbase_close(curr->dbase);
         }
 
         free(curr->path);
