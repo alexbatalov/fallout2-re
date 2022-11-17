@@ -6,7 +6,7 @@
 
 #include <zlib.h>
 
-#include "dfile.h"
+#include "plib/xfile/dfile.h"
 
 typedef enum XFileType {
     XFILE_TYPE_FILE,
