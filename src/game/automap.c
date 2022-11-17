@@ -746,7 +746,7 @@ int automap_pip_save()
         }
 
         int nextEntryDataSize;
-        if (fileReadInt32(stream1, &nextEntryDataSize) == -1) {
+        if (db_freadLong(stream1, &nextEntryDataSize) == -1) {
             debug_printf("\nAUTOMAP: Error reading database #1!\n");
             db_fclose(stream1);
             db_fclose(stream2);
@@ -940,7 +940,7 @@ static int AM_ReadEntry(int map, int elevation)
         goto out;
     }
 
-    if (_db_freadInt(stream, &(amdbsubhead.dataSize)) == -1) {
+    if (db_freadLong(stream, &(amdbsubhead.dataSize)) == -1) {
         success = false;
         goto out;
     }
@@ -1032,7 +1032,7 @@ static int AM_ReadMainHeader(File* stream)
         return -1;
     }
 
-    if (_db_freadInt(stream, &(amdbhead.dataSize)) == -1) {
+    if (db_freadLong(stream, &(amdbhead.dataSize)) == -1) {
         return -1;
     }
 

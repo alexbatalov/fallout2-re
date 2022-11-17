@@ -1372,14 +1372,14 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
     switch (PID_TYPE(proto->pid)) {
     case OBJ_TYPE_ITEM:
         if (fileReadInt32(stream, &(proto->item.lightDistance)) == -1) return -1;
-        if (_db_freadInt(stream, &(proto->item.lightIntensity)) == -1) return -1;
+        if (db_freadLong(stream, &(proto->item.lightIntensity)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.flags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.extendedFlags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.sid)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.type)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.material)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.size)) == -1) return -1;
-        if (_db_freadInt(stream, &(proto->item.weight)) == -1) return -1;
+        if (db_freadLong(stream, &(proto->item.weight)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.cost)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.inventoryFid)) == -1) return -1;
         if (db_freadByte(stream, &(proto->item.field_80)) == -1) return -1;
@@ -1388,7 +1388,7 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
         return 0;
     case OBJ_TYPE_CRITTER:
         if (fileReadInt32(stream, &(proto->critter.lightDistance)) == -1) return -1;
-        if (_db_freadInt(stream, &(proto->critter.lightIntensity)) == -1) return -1;
+        if (db_freadLong(stream, &(proto->critter.lightIntensity)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->critter.flags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->critter.extendedFlags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->critter.sid)) == -1) return -1;
@@ -1401,7 +1401,7 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
         return 0;
     case OBJ_TYPE_SCENERY:
         if (fileReadInt32(stream, &(proto->scenery.lightDistance)) == -1) return -1;
-        if (_db_freadInt(stream, &(proto->scenery.lightIntensity)) == -1) return -1;
+        if (db_freadLong(stream, &(proto->scenery.lightIntensity)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->scenery.flags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->scenery.extendedFlags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->scenery.sid)) == -1) return -1;
@@ -1412,7 +1412,7 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
         return 0;
     case OBJ_TYPE_WALL:
         if (fileReadInt32(stream, &(proto->wall.lightDistance)) == -1) return -1;
-        if (_db_freadInt(stream, &(proto->wall.lightIntensity)) == -1) return -1;
+        if (db_freadLong(stream, &(proto->wall.lightIntensity)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->wall.flags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->wall.extendedFlags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->wall.sid)) == -1) return -1;
@@ -1428,7 +1428,7 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
         return 0;
     case OBJ_TYPE_MISC:
         if (fileReadInt32(stream, &(proto->misc.lightDistance)) == -1) return -1;
-        if (_db_freadInt(stream, &(proto->misc.lightIntensity)) == -1) return -1;
+        if (db_freadLong(stream, &(proto->misc.lightIntensity)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->misc.flags)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->misc.extendedFlags)) == -1) return -1;
 

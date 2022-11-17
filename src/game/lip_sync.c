@@ -209,7 +209,7 @@ static int lips_read_marker_type(SpeechMarker* marker_type, File* stream)
     if (fileReadInt32(stream, &marker) == -1) return -1;
 
     // Position is read directly into struct.
-    if (fileReadInt32(stream, &(marker_type->position)) == -1) return -1;
+    if (db_freadLong(stream, &(marker_type->position)) == -1) return -1;
 
     marker_type->marker = marker;
 
@@ -224,26 +224,26 @@ static int lips_read_lipsynch_info(LipsData* lipsData, File* stream)
     int phonemes;
     int markers;
 
-    if (fileReadInt32(stream, &(lipsData->version)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_4)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->flags)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->version)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_4)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->flags)) == -1) return -1;
     if (fileReadInt32(stream, &(sound)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_10)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_10)) == -1) return -1;
     if (fileReadInt32(stream, &(field_14)) == -1) return -1;
     if (fileReadInt32(stream, &(phonemes)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_1C)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_20)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->phoneme_count)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_28)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->marker_count)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_1C)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_20)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->phoneme_count)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_28)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->marker_count)) == -1) return -1;
     if (fileReadInt32(stream, &(markers)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_34)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_38)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_3C)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_40)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_44)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_48)) == -1) return -1;
-    if (fileReadInt32(stream, &(lipsData->field_4C)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_34)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_38)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_3C)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_40)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_44)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_48)) == -1) return -1;
+    if (db_freadLong(stream, &(lipsData->field_4C)) == -1) return -1;
     if (db_freadByteCount(stream, lipsData->field_50, 8) == -1) return -1;
     if (db_freadByteCount(stream, lipsData->field_58, 4) == -1) return -1;
     if (db_freadByteCount(stream, lipsData->field_5C, 4) == -1) return -1;
@@ -302,7 +302,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
     // FIXME: stream is not closed if any error is encountered during reading.
     File* stream = db_fopen(path, "rb");
     if (stream != NULL) {
-        if (fileReadInt32(stream, &(lip_info.version)) == -1) {
+        if (db_freadLong(stream, &(lip_info.version)) == -1) {
             return -1;
         }
 
@@ -319,13 +319,13 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         } else if (lip_info.version == 2) {
             debug_printf("\nLoading current save-file version (2)");
 
-            if (fileReadInt32(stream, &(lip_info.field_4)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.flags)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.field_10)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.field_1C)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.phoneme_count)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.field_28)) == -1) return -1;
-            if (fileReadInt32(stream, &(lip_info.marker_count)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.field_4)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.flags)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.field_10)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.field_1C)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.phoneme_count)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.field_28)) == -1) return -1;
+            if (db_freadLong(stream, &(lip_info.marker_count)) == -1) return -1;
             if (db_freadByteCount(stream, lip_info.field_50, 8) == -1) return -1;
             if (db_freadByteCount(stream, lip_info.field_58, 4) == -1) return -1;
         } else {

@@ -1786,7 +1786,7 @@ static int LoadHeader(int slot)
     ptr->fileDay = v8[1];
     ptr->fileYear = v8[2];
 
-    if (_db_freadInt(flptr, &(ptr->fileTime)) == -1) {
+    if (db_freadLong(flptr, &(ptr->fileTime)) == -1) {
         return -1;
     }
 
@@ -1798,7 +1798,7 @@ static int LoadHeader(int slot)
     ptr->gameDay = v8[1];
     ptr->gameYear = v8[2];
 
-    if (_db_freadInt(flptr, &(ptr->gameTime)) == -1) {
+    if (db_freadLong(flptr, &(ptr->gameTime)) == -1) {
         return -1;
     }
 

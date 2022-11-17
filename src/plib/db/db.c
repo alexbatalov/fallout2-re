@@ -326,10 +326,8 @@ int fileReadInt32(File* stream, int* valuePtr)
     return 0;
 }
 
-// NOTE: Uncollapsed 0x4C614C. The opposite of [db_fwriteLong]. It can be either
-// signed vs. unsigned variant, as well as int vs. long. It's provided here to
-// identify places where data was written with [db_fwriteLong].
-int _db_freadInt(File* stream, int* valuePtr)
+// NOTE: Uncollapsed 0x4C614C.
+int db_freadLong(File* stream, unsigned long* valuePtr)
 {
     return fileReadInt32(stream, valuePtr);
 }
@@ -337,13 +335,13 @@ int _db_freadInt(File* stream, int* valuePtr)
 // NOTE: Probably uncollapsed 0x4C614C.
 int fileReadUInt32(File* stream, unsigned int* valuePtr)
 {
-    return _db_freadInt(stream, (int*)valuePtr);
+    return db_freadLong(stream, (unsigned long*)valuePtr);
 }
 
-// NOTE: Uncollapsed 0x4C614C. The opposite of [db_fwriteFloat].
+// NOTE: Uncollapsed 0x4C614C.
 int db_freadFloat(File* stream, float* valuePtr)
 {
-    return fileReadInt32(stream, (int*)valuePtr);
+    return fileReadInt32(stream, (unsigned long*)valuePtr);
 }
 
 int fileReadBool(File* stream, bool* valuePtr)

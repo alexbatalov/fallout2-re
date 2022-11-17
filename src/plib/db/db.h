@@ -39,7 +39,7 @@ int db_freadByte(File* stream, unsigned char* valuePtr);
 int db_freadShort(File* stream, unsigned short* valuePtr);
 int fileReadInt32(File* stream, int* valuePtr);
 int fileReadUInt32(File* stream, unsigned int* valuePtr);
-int _db_freadInt(File* stream, int* valuePtr);
+int db_freadLong(File* stream, unsigned long* valuePtr);
 int db_freadFloat(File* stream, float* valuePtr);
 int fileReadBool(File* stream, bool* valuePtr);
 int db_fwriteByte(File* stream, unsigned char value);

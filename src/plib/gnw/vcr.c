@@ -408,23 +408,23 @@ bool vcr_save_record(VcrEntry* vcrEntry, File* stream)
 // 0x4D2EE4
 bool vcr_load_record(VcrEntry* vcrEntry, File* stream)
 {
-    if (fileReadUInt32(stream, &(vcrEntry->type)) == -1) return false;
-    if (fileReadUInt32(stream, &(vcrEntry->time)) == -1) return false;
-    if (fileReadUInt32(stream, &(vcrEntry->counter)) == -1) return false;
+    if (db_freadLong(stream, &(vcrEntry->type)) == -1) return false;
+    if (db_freadLong(stream, &(vcrEntry->time)) == -1) return false;
+    if (db_freadLong(stream, &(vcrEntry->counter)) == -1) return false;
 
     switch (vcrEntry->type) {
     case VCR_ENTRY_TYPE_INITIAL_STATE:
-        if (fileReadInt32(stream, &(vcrEntry->initial.mouseX)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->initial.mouseY)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->initial.keyboardLayout)) == -1) return false;
+        if (db_freadLong(stream, &(vcrEntry->initial.mouseX)) == -1) return false;
+        if (db_freadLong(stream, &(vcrEntry->initial.mouseY)) == -1) return false;
+        if (db_freadLong(stream, &(vcrEntry->initial.keyboardLayout)) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_KEYBOARD_EVENT:
         if (db_freadShort(stream, &(vcrEntry->keyboardEvent.key)) == -1) return false;
         return true;
     case VCR_ENTRY_TYPE_MOUSE_EVENT:
-        if (fileReadInt32(stream, &(vcrEntry->mouseEvent.dx)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->mouseEvent.dy)) == -1) return false;
-        if (fileReadInt32(stream, &(vcrEntry->mouseEvent.buttons)) == -1) return false;
+        if (db_freadLong(stream, &(vcrEntry->mouseEvent.dx)) == -1) return false;
+        if (db_freadLong(stream, &(vcrEntry->mouseEvent.dy)) == -1) return false;
+        if (db_freadLong(stream, &(vcrEntry->mouseEvent.buttons)) == -1) return false;
         return true;
     }
 

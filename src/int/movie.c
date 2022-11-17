@@ -895,8 +895,8 @@ static int movieStart(int win, char* filePath, int (*a3)())
     }
 
     if (alphaHandle != NULL) {
-        int size;
-        fileReadInt32(alphaHandle, &size);
+        unsigned long size;
+        db_freadLong(alphaHandle, &size);
 
         short tmp;
         db_freadShort(alphaHandle, &tmp);
@@ -971,8 +971,8 @@ int movieRunRect(int win, char* filePath, int a3, int a4, int a5, int a6)
 static int stepMovie()
 {
     if (alphaHandle != NULL) {
-        int size;
-        fileReadInt32(alphaHandle, &size);
+        unsigned long size;
+        db_freadLong(alphaHandle, &size);
         db_fread(alphaBuf, 1, size, alphaHandle);
     }
 
