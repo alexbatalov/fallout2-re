@@ -684,7 +684,7 @@ int critter_kill_count_load(File* stream)
 // 0x42D8F0
 int critter_kill_count_save(File* stream)
 {
-    if (fileWriteInt32List(stream, pc_kill_counts, KILL_TYPE_COUNT) == -1) {
+    if (db_fwriteIntCount(stream, pc_kill_counts, KILL_TYPE_COUNT) == -1) {
         db_fclose(stream);
         return -1;
     }
@@ -1124,9 +1124,9 @@ int pc_save_data(const char* path)
 int critter_write_data(File* stream, CritterProtoData* critterData)
 {
     if (db_fwriteInt(stream, critterData->flags) == -1) return -1;
-    if (fileWriteInt32List(stream, critterData->baseStats, SAVEABLE_STAT_COUNT) == -1) return -1;
-    if (fileWriteInt32List(stream, critterData->bonusStats, SAVEABLE_STAT_COUNT) == -1) return -1;
-    if (fileWriteInt32List(stream, critterData->skills, SKILL_COUNT) == -1) return -1;
+    if (db_fwriteIntCount(stream, critterData->baseStats, SAVEABLE_STAT_COUNT) == -1) return -1;
+    if (db_fwriteIntCount(stream, critterData->bonusStats, SAVEABLE_STAT_COUNT) == -1) return -1;
+    if (db_fwriteIntCount(stream, critterData->skills, SKILL_COUNT) == -1) return -1;
     if (db_fwriteInt(stream, critterData->bodyType) == -1) return -1;
     if (db_fwriteInt(stream, critterData->experience) == -1) return -1;
     if (db_fwriteInt(stream, critterData->killType) == -1) return -1;

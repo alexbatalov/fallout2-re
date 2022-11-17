@@ -148,7 +148,7 @@ int art_writeFrameData(Art* art, File* stream)
     if (db_fwriteShort(stream, art->frameCount) == -1) return -1;
     if (db_fwriteShortCount(stream, art->xOffsets, ROTATION_COUNT) == -1) return -1;
     if (db_fwriteShortCount(stream, art->yOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileWriteInt32List(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
+    if (db_fwriteIntCount(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
     if (db_fwriteInt(stream, art->field_3A) == -1) return -1;
 
     return 0;

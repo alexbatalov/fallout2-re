@@ -1388,11 +1388,11 @@ int map_save_file(File* stream)
     map_write_MapData(&map_data, stream);
 
     if (map_data.globalVariablesCount != 0) {
-        fileWriteInt32List(stream, map_global_vars, map_data.globalVariablesCount);
+        db_fwriteIntCount(stream, map_global_vars, map_data.globalVariablesCount);
     }
 
     if (map_data.localVariablesCount != 0) {
-        fileWriteInt32List(stream, map_local_vars, map_data.localVariablesCount);
+        db_fwriteIntCount(stream, map_local_vars, map_data.localVariablesCount);
     }
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
@@ -1737,7 +1737,7 @@ static int map_write_MapData(MapHeader* ptr, File* stream)
     if (db_fwriteInt(stream, ptr->globalVariablesCount) == -1) return -1;
     if (db_fwriteInt(stream, ptr->field_34) == -1) return -1;
     if (db_fwriteInt(stream, ptr->lastVisitTime) == -1) return -1;
-    if (fileWriteInt32List(stream, ptr->field_3C, 44) == -1) return -1;
+    if (db_fwriteIntCount(stream, ptr->field_3C, 44) == -1) return -1;
 
     return 0;
 }

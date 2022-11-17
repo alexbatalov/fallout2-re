@@ -490,10 +490,8 @@ int db_fwriteShortCount(File* stream, unsigned short* arr, int count)
     return 0;
 }
 
-// NOTE: Can be either signed/unsigned + int/long variant.
-//
 // 0x4C64F8
-int fileWriteInt32List(File* stream, int* arr, int count)
+int db_fwriteIntCount(File* stream, int* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
@@ -523,12 +521,6 @@ int db_fwriteLongCount(File* stream, unsigned long* arr, int count)
     }
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C64F8 or 0x4C6550.
-int fileWriteUInt32List(File* stream, unsigned int* arr, int count)
-{
-    return fileWriteInt32List(stream, (int*)arr, count);
 }
 
 // 0x4C6628

@@ -112,7 +112,7 @@ int trait_load(File* stream)
 // 0x4B3B28
 int trait_save(File* stream)
 {
-    return fileWriteInt32List(stream, pc_trait, TRAITS_MAX_SELECTED_COUNT);
+    return db_fwriteIntCount(stream, pc_trait, TRAITS_MAX_SELECTED_COUNT);
 }
 
 // Sets selected traits.

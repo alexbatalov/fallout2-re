@@ -162,7 +162,7 @@ int skill_load(File* stream)
 // 0x4AA4A8
 int skill_save(File* stream)
 {
-    return fileWriteInt32List(stream, tag_skill, NUM_TAGGED_SKILLS);
+    return db_fwriteIntCount(stream, tag_skill, NUM_TAGGED_SKILLS);
 }
 
 // 0x4AA4C8
@@ -1207,7 +1207,7 @@ static int skill_use_slot_clear()
 // 0x4ABF3C
 int skill_use_slot_save(File* stream)
 {
-    return fileWriteInt32List(stream, (int*)timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
+    return db_fwriteIntCount(stream, (int*)timesSkillUsed, SKILL_COUNT * SKILLS_MAX_USES_PER_DAY);
 }
 
 // 0x4ABF5C

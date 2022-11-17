@@ -1633,7 +1633,7 @@ void scr_disable_critters()
 // 0x4A5400
 int scr_game_save(File* stream)
 {
-    return fileWriteInt32List(stream, game_global_vars, num_game_global_vars);
+    return db_fwriteIntCount(stream, game_global_vars, num_game_global_vars);
 }
 
 // 0x4A5424

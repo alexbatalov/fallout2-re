@@ -1444,8 +1444,8 @@ static int proto_write_item_data(ItemProtoData* item_data, int type, File* strea
     switch (type) {
     case ITEM_TYPE_ARMOR:
         if (db_fwriteInt(stream, item_data->armor.armorClass) == -1) return -1;
-        if (fileWriteInt32List(stream, item_data->armor.damageResistance, 7) == -1) return -1;
-        if (fileWriteInt32List(stream, item_data->armor.damageThreshold, 7) == -1) return -1;
+        if (db_fwriteIntCount(stream, item_data->armor.damageResistance, 7) == -1) return -1;
+        if (db_fwriteIntCount(stream, item_data->armor.damageThreshold, 7) == -1) return -1;
         if (db_fwriteInt(stream, item_data->armor.perk) == -1) return -1;
         if (db_fwriteInt(stream, item_data->armor.maleFid) == -1) return -1;
         if (db_fwriteInt(stream, item_data->armor.femaleFid) == -1) return -1;
@@ -1460,11 +1460,11 @@ static int proto_write_item_data(ItemProtoData* item_data, int type, File* strea
         if (db_fwriteInt(stream, item_data->drug.stat[0]) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.stat[1]) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.stat[2]) == -1) return -1;
-        if (fileWriteInt32List(stream, item_data->drug.amount, 3) == -1) return -1;
+        if (db_fwriteIntCount(stream, item_data->drug.amount, 3) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.duration1) == -1) return -1;
-        if (fileWriteInt32List(stream, item_data->drug.amount1, 3) == -1) return -1;
+        if (db_fwriteIntCount(stream, item_data->drug.amount1, 3) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.duration2) == -1) return -1;
-        if (fileWriteInt32List(stream, item_data->drug.amount2, 3) == -1) return -1;
+        if (db_fwriteIntCount(stream, item_data->drug.amount2, 3) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.addictionChance) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.withdrawalEffect) == -1) return -1;
         if (db_fwriteInt(stream, item_data->drug.withdrawalOnset) == -1) return -1;

@@ -2844,8 +2844,8 @@ int item_d_save(File* stream, void* data)
 {
     DrugEffectEvent* drugEffectEvent = (DrugEffectEvent*)data;
 
-    if (fileWriteInt32List(stream, drugEffectEvent->stats, 3) == -1) return -1;
-    if (fileWriteInt32List(stream, drugEffectEvent->modifiers, 3) == -1) return -1;
+    if (db_fwriteIntCount(stream, drugEffectEvent->stats, 3) == -1) return -1;
+    if (db_fwriteIntCount(stream, drugEffectEvent->modifiers, 3) == -1) return -1;
 
     return 0;
 }
