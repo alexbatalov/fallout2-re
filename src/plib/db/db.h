@@ -56,7 +56,7 @@ int fileReadUInt32List(File* stream, unsigned int* arr, int count);
 int db_fwriteByteCount(File* stream, unsigned char* arr, int count);
 int db_fwriteShortCount(File* stream, unsigned short* arr, int count);
 int fileWriteInt32List(File* stream, int* arr, int count);
-int _db_fwriteLongCount(File* stream, int* arr, int count);
+int db_fwriteLongCount(File* stream, unsigned long* arr, int count);
 int fileWriteUInt32List(File* stream, unsigned int* arr, int count);
 int db_get_file_list(const char* pattern, char*** fileNames, int a3, int a4);
 void db_free_file_list(char*** fileNames, int a2);

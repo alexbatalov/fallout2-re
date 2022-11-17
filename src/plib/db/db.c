@@ -521,10 +521,8 @@ int fileWriteInt32List(File* stream, int* arr, int count)
     return 0;
 }
 
-// NOTE: Not sure about signed/unsigned int/long.
-//
 // 0x4C6550
-int _db_fwriteLongCount(File* stream, int* arr, int count)
+int db_fwriteLongCount(File* stream, unsigned long* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         int value = arr[index];

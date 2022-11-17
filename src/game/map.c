@@ -1397,7 +1397,7 @@ int map_save_file(File* stream)
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         if ((map_data.flags & map_data_elev_flags[elevation]) == 0) {
-            _db_fwriteLongCount(stream, square[elevation]->field_0, SQUARE_GRID_SIZE);
+            db_fwriteLongCount(stream, square[elevation]->field_0, SQUARE_GRID_SIZE);
         }
     }
 

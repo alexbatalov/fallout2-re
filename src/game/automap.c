@@ -1007,7 +1007,7 @@ static int WriteAM_Header(File* stream)
         goto err;
     }
 
-    if (_db_fwriteLongCount(stream, (int*)amdbhead.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
+    if (db_fwriteLongCount(stream, (int*)amdbhead.offsets, AUTOMAP_OFFSET_COUNT) == -1) {
         goto err;
     }
 
