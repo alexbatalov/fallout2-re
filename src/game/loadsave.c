@@ -1644,7 +1644,7 @@ static int SaveHeader(int slot)
     ptr->versionMinor = temp[0];
     ptr->versionMajor = temp[1];
 
-    if (fileWriteInt16List(flptr, temp, 2) == -1) {
+    if (db_fwriteShortCount(flptr, temp, 2) == -1) {
         return -1;
     }
 
@@ -1676,7 +1676,7 @@ static int SaveHeader(int slot)
     ptr->fileYear = temp[2];
     ptr->fileTime = local->tm_hour + local->tm_min;
 
-    if (fileWriteInt16List(flptr, temp, 3) == -1) {
+    if (db_fwriteShortCount(flptr, temp, 3) == -1) {
         return -1;
     }
 
@@ -1694,7 +1694,7 @@ static int SaveHeader(int slot)
     temp[2] = year;
     ptr->gameTime = game_time();
 
-    if (fileWriteInt16List(flptr, temp, 3) == -1) {
+    if (db_fwriteShortCount(flptr, temp, 3) == -1) {
         return -1;
     }
 

@@ -520,7 +520,7 @@ int fileWriteFixedLengthString(File* stream, char* string, int length)
 }
 
 // 0x4C6490
-int fileWriteInt16List(File* stream, short* arr, int count)
+int db_fwriteShortCount(File* stream, unsigned short* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
@@ -530,12 +530,6 @@ int fileWriteInt16List(File* stream, short* arr, int count)
     }
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C6490.
-int fileWriteUInt16List(File* stream, unsigned short* arr, int count)
-{
-    return fileWriteInt16List(stream, (short*)arr, count);
 }
 
 // NOTE: Can be either signed/unsigned + int/long variant.
