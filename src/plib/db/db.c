@@ -427,7 +427,7 @@ int fileWriteBool(File* stream, bool value)
 }
 
 // 0x4C62FC
-int fileReadUInt8List(File* stream, unsigned char* arr, int count)
+int db_freadByteCount(File* stream, unsigned char* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         unsigned char ch;
@@ -440,15 +440,6 @@ int fileReadUInt8List(File* stream, unsigned char* arr, int count)
     }
 
     return 0;
-}
-
-// NOTE: Probably uncollapsed 0x4C62FC. There are couple of places where
-// [fileReadUInt8List] is used to read strings of fixed length. I'm not
-// pretty sure this function existed in the original code, but at least
-// it increases visibility of these places.
-int fileReadFixedLengthString(File* stream, char* string, int length)
-{
-    return fileReadUInt8List(stream, (unsigned char*)string, length);
 }
 
 // 0x4C6330
@@ -513,7 +504,7 @@ int fileWriteUInt8List(File* stream, unsigned char* arr, int count)
     return 0;
 }
 
-// NOTE: Probably uncollapsed 0x4C6464. See [fileReadFixedLengthString].
+// NOTE: Probably uncollapsed 0x4C6464. See [db_freadByteCount].
 int fileWriteFixedLengthString(File* stream, char* string, int length)
 {
     return fileWriteUInt8List(stream, (unsigned char*)string, length);

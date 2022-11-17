@@ -958,7 +958,7 @@ static int AM_ReadEntry(int map, int elevation)
             return -1;
         }
 
-        if (fileReadUInt8List(stream, cmpbuf, amdbsubhead.dataSize) == -1) {
+        if (db_freadByteCount(stream, cmpbuf, amdbsubhead.dataSize) == -1) {
             success = 0;
             goto out;
         }
@@ -969,7 +969,7 @@ static int AM_ReadEntry(int map, int elevation)
             return -1;
         }
     } else {
-        if (fileReadUInt8List(stream, ambuf, amdbsubhead.dataSize) == -1) {
+        if (db_freadByteCount(stream, ambuf, amdbsubhead.dataSize) == -1) {
             success = false;
             goto out;
         }

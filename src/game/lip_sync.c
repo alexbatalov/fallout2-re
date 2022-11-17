@@ -244,11 +244,11 @@ static int lips_read_lipsynch_info(LipsData* lipsData, File* stream)
     if (fileReadInt32(stream, &(lipsData->field_44)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_48)) == -1) return -1;
     if (fileReadInt32(stream, &(lipsData->field_4C)) == -1) return -1;
-    if (fileReadFixedLengthString(stream, lipsData->field_50, 8) == -1) return -1;
-    if (fileReadFixedLengthString(stream, lipsData->field_58, 4) == -1) return -1;
-    if (fileReadFixedLengthString(stream, lipsData->field_5C, 4) == -1) return -1;
-    if (fileReadFixedLengthString(stream, lipsData->field_60, 4) == -1) return -1;
-    if (fileReadFixedLengthString(stream, lipsData->field_64, 260) == -1) return -1;
+    if (db_freadByteCount(stream, lipsData->field_50, 8) == -1) return -1;
+    if (db_freadByteCount(stream, lipsData->field_58, 4) == -1) return -1;
+    if (db_freadByteCount(stream, lipsData->field_5C, 4) == -1) return -1;
+    if (db_freadByteCount(stream, lipsData->field_60, 4) == -1) return -1;
+    if (db_freadByteCount(stream, lipsData->field_64, 260) == -1) return -1;
 
     // TODO: What for?
     lipsData->sound = (Sound*)sound;
@@ -326,8 +326,8 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
             if (fileReadInt32(stream, &(lip_info.phoneme_count)) == -1) return -1;
             if (fileReadInt32(stream, &(lip_info.field_28)) == -1) return -1;
             if (fileReadInt32(stream, &(lip_info.marker_count)) == -1) return -1;
-            if (fileReadFixedLengthString(stream, lip_info.field_50, 8) == -1) return -1;
-            if (fileReadFixedLengthString(stream, lip_info.field_58, 4) == -1) return -1;
+            if (db_freadByteCount(stream, lip_info.field_50, 8) == -1) return -1;
+            if (db_freadByteCount(stream, lip_info.field_58, 4) == -1) return -1;
         } else {
             debug_printf("\nError: Lips file WRONG version: %s!", path);
         }

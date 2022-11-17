@@ -4251,7 +4251,7 @@ static int wmGrabTileWalkMask(int tileIdx)
 
     int rc = 0;
 
-    if (fileReadUInt8List(stream, tileInfo->walkMaskData, 13200) == -1) {
+    if (db_freadByteCount(stream, tileInfo->walkMaskData, 13200) == -1) {
         rc = -1;
     }
 

@@ -199,8 +199,8 @@ static int selfrun_load_data(const char* path, SelfrunData* selfrunData)
     }
 
     int rc = -1;
-    if (fileReadFixedLengthString(stream, selfrunData->recordingFileName, SELFRUN_RECORDING_FILE_NAME_LENGTH) == 0
-        && fileReadFixedLengthString(stream, selfrunData->mapFileName, SELFRUN_MAP_FILE_NAME_LENGTH) == 0
+    if (db_freadByteCount(stream, selfrunData->recordingFileName, SELFRUN_RECORDING_FILE_NAME_LENGTH) == 0
+        && db_freadByteCount(stream, selfrunData->mapFileName, SELFRUN_MAP_FILE_NAME_LENGTH) == 0
         && fileReadInt32(stream, &(selfrunData->stopKeyCode)) == 0) {
         rc = 0;
     }
