@@ -10,6 +10,7 @@
 #include "plib/gnw/memory.h"
 #include "plib/gnw/text.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 
 static int create_pull_down(char** stringList, int stringListLength, int x, int y, int a5, int a6, Rect* rect);
 static void win_debug_delete(int btn, int keyCode);
@@ -1178,9 +1179,9 @@ void GNW_intr_init()
     tm_persistence = 3000;
     tm_add = 0;
     tm_kill = -1;
-    scr_center_x = _scr_size.lrx / 2;
+    scr_center_x = scr_size.lrx / 2;
 
-    if (_scr_size.lry >= 479) {
+    if (scr_size.lry >= 479) {
         tm_text_y = 16;
         tm_text_x = 16;
     } else {
@@ -1190,8 +1191,8 @@ void GNW_intr_init()
 
     tm_h = 2 * tm_text_y + text_height();
 
-    v1 = _scr_size.lry >> 3;
-    v2 = _scr_size.lry >> 2;
+    v1 = scr_size.lry >> 3;
+    v2 = scr_size.lry >> 2;
 
     for (i = 0; i < 5; i++) {
         tm_location[i].y = v1 * i + v2;

@@ -30,6 +30,7 @@
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "game/trait.h"
+#include "plib/gnw/svga.h"
 #include "plib/gnw/vcr.h"
 
 #define ANIMATION_SEQUENCE_LIST_CAPACITY 32
@@ -3158,7 +3159,7 @@ void dude_fidget()
             obj_bound(object, &rect);
 
             Rect intersection;
-            if (rect_inside_bound(&rect, &_scr_size, &intersection) == 0 && (map_data.field_34 != 97 || object->pid != 0x10000FA)) {
+            if (rect_inside_bound(&rect, &scr_size, &intersection) == 0 && (map_data.field_34 != 97 || object->pid != 0x10000FA)) {
                 fidget_ptr[v5++] = object;
             }
         }

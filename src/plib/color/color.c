@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "core.h"
+#include "plib/gnw/svga.h"
 
 static int colorOpen(const char* filePath, int flags);
 static int colorRead(int fd, void* buffer, size_t size);
@@ -251,7 +252,7 @@ void setSystemPalette(unsigned char* palette)
         systemCmap[index] = palette[index];
     }
 
-    directDrawSetPalette(newPalette);
+    GNW95_SetPalette(newPalette);
 }
 
 // 0x4C7420
@@ -276,7 +277,7 @@ void setSystemPaletteEntries(unsigned char* palette, int start, int end)
         systemCmap[start * 3 + index * 3 + 2] = palette[index * 3 + 2];
     }
 
-    directDrawSetPaletteInRange(newPalette, start, end - start + 1);
+    GNW95_SetPaletteEntries(newPalette, start, end - start + 1);
 }
 
 // 0x4C74D0

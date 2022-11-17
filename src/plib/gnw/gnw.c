@@ -11,6 +11,7 @@
 #include "plib/gnw/text.h"
 #include "plib/gnw/vcr.h"
 #include "plib/gnw/intrface.h"
+#include "plib/gnw/svga.h"
 
 static void win_free(int win);
 static void win_clip(Window* window, RectPtr* rectListNodePtr, unsigned char* a3);
@@ -103,10 +104,10 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
         return WINDOW_MANAGER_ERR_INITIALIZING_TEXT_FONTS;
     }
 
-    _get_start_mode_();
+    reset_mode();
 
     video_set = videoSystemInitProc;
-    video_reset = dxinput_exit;
+    video_reset = GNW95_reset_mode;
 
     int rc = videoSystemInitProc();
     if (rc == -1) {
@@ -122,12 +123,12 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
     }
 
     if (a3 & 1) {
-        screen_buffer = (unsigned char*)mem_malloc((_scr_size.lry - _scr_size.uly + 1) * (_scr_size.lrx - _scr_size.ulx + 1));
+        screen_buffer = (unsigned char*)mem_malloc((scr_size.lry - scr_size.uly + 1) * (scr_size.lrx - scr_size.ulx + 1));
         if (screen_buffer == NULL) {
             if (video_reset != NULL) {
                 video_reset();
             } else {
-                directDrawFree();
+                GNW95_reset_mode();
             }
 
             return WINDOW_MANAGER_ERR_NO_MEMORY;
@@ -146,7 +147,7 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
             if (video_reset != NULL) {
                 video_reset();
             } else {
-                directDrawFree();
+                GNW95_reset_mode();
             }
 
             if (screen_buffer != NULL) {
@@ -177,7 +178,7 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
         if (video_reset != NULL) {
             video_reset();
         } else {
-            directDrawFree();
+            GNW95_reset_mode();
         }
 
         if (screen_buffer != NULL) {
@@ -189,12 +190,12 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
 
     w->id = 0;
     w->flags = 0;
-    w->rect.ulx = _scr_size.ulx;
-    w->rect.uly = _scr_size.uly;
-    w->rect.lrx = _scr_size.lrx;
-    w->rect.lry = _scr_size.lry;
-    w->width = _scr_size.lrx - _scr_size.ulx + 1;
-    w->height = _scr_size.lry - _scr_size.uly + 1;
+    w->rect.ulx = scr_size.ulx;
+    w->rect.uly = scr_size.uly;
+    w->rect.lrx = scr_size.lrx;
+    w->rect.lry = scr_size.lry;
+    w->width = scr_size.lrx - scr_size.ulx + 1;
+    w->height = scr_size.lry - scr_size.uly + 1;
     w->field_24 = 0;
     w->field_28 = 0;
     w->buffer = NULL;
@@ -278,11 +279,11 @@ int win_add(int x, int y, int width, int height, int a4, int flags)
         return -1;
     }
 
-    if (width > rectGetWidth(&_scr_size)) {
+    if (width > rectGetWidth(&scr_size)) {
         return -1;
     }
 
-    if (height > rectGetHeight(&_scr_size)) {
+    if (height > rectGetHeight(&scr_size)) {
         return -1;
     }
 
@@ -730,12 +731,12 @@ void win_move(int win, int x, int y)
         x += 2;
     }
 
-    if (x + w->width - 1 > _scr_size.lrx) {
-        x = _scr_size.lrx - w->width + 1;
+    if (x + w->width - 1 > scr_size.lrx) {
+        x = scr_size.lrx - w->width + 1;
     }
 
-    if (y + w->height - 1 > _scr_size.lry) {
-        y = _scr_size.lry - w->height + 1;
+    if (y + w->height - 1 > scr_size.lry) {
+        y = scr_size.lry - w->height + 1;
     }
 
     if ((w->flags & WINDOW_FLAG_0x0100) != 0) {
@@ -858,19 +859,19 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                                     v20->rect.lrx - v20->rect.ulx + 1,
                                     v20->rect.lry - v20->rect.uly + 1,
                                     w->width,
-                                    screen_buffer + v20->rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + v20->rect.ulx,
-                                    _scr_size.lrx - _scr_size.ulx + 1);
+                                    screen_buffer + v20->rect.uly * (scr_size.lrx - scr_size.ulx + 1) + v20->rect.ulx,
+                                    scr_size.lrx - scr_size.ulx + 1);
                             } else {
                                 buf_to_buf(
                                     w->buffer + v20->rect.ulx - w->rect.ulx + (v20->rect.uly - w->rect.uly) * w->width,
                                     v20->rect.lrx - v20->rect.ulx + 1,
                                     v20->rect.lry - v20->rect.uly + 1,
                                     w->width,
-                                    screen_buffer + v20->rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + v20->rect.ulx,
-                                    _scr_size.lrx - _scr_size.ulx + 1);
+                                    screen_buffer + v20->rect.uly * (scr_size.lrx - scr_size.ulx + 1) + v20->rect.ulx,
+                                    scr_size.lrx - scr_size.ulx + 1);
                             }
                         } else {
-                            _scr_blit(
+                            scr_blit(
                                 w->buffer + v20->rect.ulx - w->rect.ulx + (v20->rect.uly - w->rect.uly) * w->width,
                                 w->width,
                                 v20->rect.lry - v20->rect.lry + 1,
@@ -907,10 +908,10 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                                     width,
                                     height,
                                     width,
-                                    screen_buffer + v16->rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + v16->rect.ulx,
-                                    _scr_size.lrx - _scr_size.ulx + 1);
+                                    screen_buffer + v16->rect.uly * (scr_size.lrx - scr_size.ulx + 1) + v16->rect.ulx,
+                                    scr_size.lrx - scr_size.ulx + 1);
                             } else {
-                                _scr_blit(buf, width, height, 0, 0, width, height, v16->rect.ulx, v16->rect.uly);
+                                scr_blit(buf, width, height, 0, 0, width, height, v16->rect.ulx, v16->rect.uly);
                             }
                         }
 
@@ -925,9 +926,9 @@ void GNW_win_refresh(Window* w, Rect* rect, unsigned char* a3)
                 v24 = v23->next;
 
                 if (buffering && !a3) {
-                    _scr_blit(
-                        screen_buffer + v23->rect.ulx + (_scr_size.lrx - _scr_size.ulx + 1) * v23->rect.uly,
-                        _scr_size.lrx - _scr_size.ulx + 1,
+                    scr_blit(
+                        screen_buffer + v23->rect.ulx + (scr_size.lrx - scr_size.ulx + 1) * v23->rect.uly,
+                        scr_size.lrx - scr_size.ulx + 1,
                         v23->rect.lry - v23->rect.uly + 1,
                         0,
                         0,

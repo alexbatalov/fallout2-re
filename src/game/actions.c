@@ -32,6 +32,7 @@
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "game/trait.h"
+#include "plib/gnw/svga.h"
 
 static int pick_death(Object* attacker, Object* defender, Object* weapon, int damage, int anim, bool isFallingBack);
 static int check_death(Object* obj, int anim, int minViolenceLevel, bool isFallingBack);
@@ -1602,7 +1603,7 @@ int pick_hex()
         return -1;
     }
 
-    if (!mouse_click_in(0, 0, _scr_size.lrx - _scr_size.ulx, _scr_size.lry - _scr_size.uly - 100)) {
+    if (!mouse_click_in(0, 0, scr_size.lrx - scr_size.ulx, scr_size.lry - scr_size.uly - 100)) {
         return -1;
     }
 

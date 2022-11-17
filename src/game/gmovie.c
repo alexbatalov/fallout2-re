@@ -19,6 +19,7 @@
 #include "game/palette.h"
 #include "plib/gnw/text.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 
 #define GAME_MOVIE_WINDOW_WIDTH 640
 #define GAME_MOVIE_WINDOW_HEIGHT 480
@@ -238,7 +239,7 @@ int gmovie_play(int movie, int flags)
 
     moviefx_start(movieFilePath);
 
-    _zero_vid_mem();
+    zero_vid_mem();
     movieRun(win, movieFilePath);
 
     int v11 = 0;

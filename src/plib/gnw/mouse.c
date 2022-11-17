@@ -4,6 +4,7 @@
 #include "core.h"
 #include "plib/gnw/dxinput.h"
 #include "plib/gnw/memory.h"
+#include "plib/gnw/svga.h"
 #include "plib/gnw/vcr.h"
 
 static void mouse_colorize();
@@ -134,10 +135,10 @@ int GNW_mouse_init()
     }
 
     have_mouse = true;
-    mouse_x = _scr_size.lrx / 2;
-    mouse_y = _scr_size.lry / 2;
-    raw_x = _scr_size.lrx / 2;
-    raw_y = _scr_size.lry / 2;
+    mouse_x = scr_size.lrx / 2;
+    mouse_y = scr_size.lry / 2;
+    raw_x = scr_size.lrx / 2;
+    raw_y = scr_size.lry / 2;
     mouse_idle_start_time = _get_time();
 
     return 0;
@@ -354,30 +355,30 @@ void mouse_show()
             }
         }
 
-        if (mouse_x >= _scr_size.ulx) {
-            if (mouse_width + mouse_x - 1 <= _scr_size.lrx) {
+        if (mouse_x >= scr_size.ulx) {
+            if (mouse_width + mouse_x - 1 <= scr_size.lrx) {
                 v8 = mouse_width;
                 v7 = 0;
             } else {
                 v7 = 0;
-                v8 = _scr_size.lrx - mouse_x + 1;
+                v8 = scr_size.lrx - mouse_x + 1;
             }
         } else {
-            v7 = _scr_size.ulx - mouse_x;
-            v8 = mouse_width - (_scr_size.ulx - mouse_x);
+            v7 = scr_size.ulx - mouse_x;
+            v8 = mouse_width - (scr_size.ulx - mouse_x);
         }
 
-        if (mouse_y >= _scr_size.uly) {
-            if (mouse_length + mouse_y - 1 <= _scr_size.lry) {
+        if (mouse_y >= scr_size.uly) {
+            if (mouse_length + mouse_y - 1 <= scr_size.lry) {
                 v9 = 0;
                 v10 = mouse_length;
             } else {
                 v9 = 0;
-                v10 = _scr_size.lry - mouse_y + 1;
+                v10 = scr_size.lry - mouse_y + 1;
             }
         } else {
-            v9 = _scr_size.uly - mouse_y;
-            v10 = mouse_length - (_scr_size.uly - mouse_y);
+            v9 = scr_size.uly - mouse_y;
+            v10 = mouse_length - (scr_size.uly - mouse_y);
         }
 
         mouse_buf = v2;
@@ -630,16 +631,16 @@ void mouse_set_position(int a1, int a2)
 // 0x4CAA38
 static void mouse_clip()
 {
-    if (mouse_hotx + mouse_x < _scr_size.ulx) {
-        mouse_x = _scr_size.ulx - mouse_hotx;
-    } else if (mouse_hotx + mouse_x > _scr_size.lrx) {
-        mouse_x = _scr_size.lrx - mouse_hotx;
+    if (mouse_hotx + mouse_x < scr_size.ulx) {
+        mouse_x = scr_size.ulx - mouse_hotx;
+    } else if (mouse_hotx + mouse_x > scr_size.lrx) {
+        mouse_x = scr_size.lrx - mouse_hotx;
     }
 
-    if (mouse_hoty + mouse_y < _scr_size.uly) {
-        mouse_y = _scr_size.uly - mouse_hoty;
-    } else if (mouse_hoty + mouse_y > _scr_size.lry) {
-        mouse_y = _scr_size.lry - mouse_hoty;
+    if (mouse_hoty + mouse_y < scr_size.uly) {
+        mouse_y = scr_size.uly - mouse_hoty;
+    } else if (mouse_hoty + mouse_y > scr_size.lry) {
+        mouse_y = scr_size.lry - mouse_hoty;
     }
 }
 

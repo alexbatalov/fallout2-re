@@ -36,12 +36,13 @@
 #include "game/tile.h"
 #include "plib/gnw/button.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 
 // NOTE: Rare case - as a compatibility measure with Community Edition, this
 // define is actually an expression as original game used. However leaving it
 // in the code produces to too many diffs in this file, which is not good for
 // RE<->CE reconciliation.
-#define GAME_DIALOG_WINDOW_WIDTH (_scr_size.lrx - _scr_size.ulx + 1)
+#define GAME_DIALOG_WINDOW_WIDTH (scr_size.lrx - scr_size.ulx + 1)
 #define GAME_DIALOG_WINDOW_HEIGHT 480
 
 #define GAME_DIALOG_REPLY_WINDOW_X 135
@@ -55,7 +56,7 @@
 #define GAME_DIALOG_OPTIONS_WINDOW_HEIGHT 117
 
 // NOTE: See `GAME_DIALOG_WINDOW_WIDTH`.
-#define GAME_DIALOG_REVIEW_WINDOW_WIDTH (_scr_size.lrx - _scr_size.ulx + 1)
+#define GAME_DIALOG_REVIEW_WINDOW_WIDTH (scr_size.lrx - scr_size.ulx + 1)
 #define GAME_DIALOG_REVIEW_WINDOW_HEIGHT 480
 
 #define DIALOG_REVIEW_ENTRIES_CAPACITY 80
@@ -4432,7 +4433,7 @@ static int talk_to_create_background_window()
 {
     dialogueBackWindow = win_add(0,
         0,
-        _scr_size.lrx - _scr_size.ulx + 1,
+        scr_size.lrx - scr_size.ulx + 1,
         GAME_DIALOG_WINDOW_HEIGHT,
         256,
         WINDOW_FLAG_0x02);
@@ -4598,10 +4599,10 @@ static void gdDisplayFrame(Art* headFrm, int frame)
 
         unsigned char* src = win_get_buf(display_win);
         buf_to_buf(
-            src + ((_scr_size.lry - _scr_size.uly + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
+            src + ((scr_size.lry - scr_size.uly + 1 - 332) / 2) * (GAME_DIALOG_WINDOW_WIDTH) + (GAME_DIALOG_WINDOW_WIDTH - 388) / 2,
             388,
             200,
-            _scr_size.lrx - _scr_size.ulx + 1,
+            scr_size.lrx - scr_size.ulx + 1,
             headWindowBuffer,
             GAME_DIALOG_WINDOW_WIDTH);
     }

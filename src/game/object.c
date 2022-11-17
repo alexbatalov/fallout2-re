@@ -25,6 +25,7 @@
 #include "game/textobj.h"
 #include "game/tile.h"
 #include "game/worldmap.h"
+#include "plib/gnw/svga.h"
 
 static int obj_read_obj(Object* obj, File* stream);
 static int obj_load_func(File* stream);
@@ -1470,7 +1471,7 @@ int obj_move_to_tile(Object* obj, int tile, int elevation, Rect* rect)
                 }
 
                 if (rect != NULL) {
-                    rect_min_bound(rect, &_scr_size, rect);
+                    rect_min_bound(rect, &scr_size, rect);
                 }
             }
 

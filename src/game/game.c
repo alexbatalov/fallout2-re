@@ -56,6 +56,7 @@
 #include "game/trap.h"
 #include "game/version.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 #include "game/worldmap.h"
 
 #define HELP_SCREEN_WIDTH 640
@@ -449,8 +450,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
         if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
             if ((mouseState & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-                if (mouseX == _scr_size.ulx || mouseX == _scr_size.lrx
-                    || mouseY == _scr_size.uly || mouseY == _scr_size.lry) {
+                if (mouseX == scr_size.ulx || mouseX == scr_size.lrx
+                    || mouseY == scr_size.uly || mouseY == scr_size.lry) {
                     gmouse_clicked_on_edge = true;
                 } else {
                     gmouse_clicked_on_edge = false;
@@ -485,8 +486,8 @@ int game_handle_input(int eventCode, bool isInCombatMode)
 
             if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_DOWN) != 0) {
                 if ((mouseEvent & MOUSE_EVENT_LEFT_BUTTON_REPEAT) == 0) {
-                    if (mouseX == _scr_size.ulx || mouseX == _scr_size.lrx
-                        || mouseY == _scr_size.uly || mouseY == _scr_size.lry) {
+                    if (mouseX == scr_size.ulx || mouseX == scr_size.lrx
+                        || mouseY == scr_size.uly || mouseY == scr_size.lry) {
                         gmouse_clicked_on_edge = true;
                     } else {
                         gmouse_clicked_on_edge = false;
@@ -1315,7 +1316,7 @@ static void game_splash_screen()
 
     int splashWindowX = 0;
     int splashWindowY = 0;
-    _scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, splashWindowX, splashWindowY);
+    scr_blit(data, SPLASH_WIDTH, SPLASH_HEIGHT, 0, 0, SPLASH_WIDTH, SPLASH_HEIGHT, splashWindowX, splashWindowY);
     palette_fade_to(palette);
 
     mem_free(data);

@@ -14,6 +14,7 @@
 #include "int/sound.h"
 #include "plib/gnw/text.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 #include "plib/gnw/winmain.h"
 
 typedef void(MovieCallback)();
@@ -320,7 +321,7 @@ static void movie_MVE_ShowFrame(LPDIRECTDRAWSURFACE surface, int srcWidth, int s
             }
         }
 
-        hr = IDirectDrawSurface_Blt(gDirectDrawSurface1, &destRect, surface, &srcRect, 0, NULL);
+        hr = IDirectDrawSurface_Blt(GNW95_DDPrimarySurface, &destRect, surface, &srcRect, 0, NULL);
     } while (hr != DD_OK && hr != DDERR_SURFACELOST && hr == DDERR_WASSTILLDRAWING);
 }
 
@@ -505,7 +506,7 @@ void initMovie()
     movieLibSetMemoryProcs(movieMalloc, movieFree);
     movieLibSetDirectSound(soundDSObject);
     soundEnabled = (soundDSObject != NULL);
-    movieLibSetDirectDraw(gDirectDraw);
+    movieLibSetDirectDraw(GNW95_DDObject);
     movieLibSetPaletteEntriesProc(movieSetPalette);
     _MVE_sfSVGA(640, 480, 480, 0, 0, 0, 0, 0, 0);
     movieLibSetReadProc(movieRead);

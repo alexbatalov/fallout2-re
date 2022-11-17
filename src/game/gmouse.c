@@ -25,6 +25,7 @@
 #include "plib/gnw/text.h"
 #include "game/tile.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 
 typedef enum ScrollableDirections {
     SCROLLABLE_W = 0x01,
@@ -450,7 +451,7 @@ int gmouse_is_scrolling()
         int x;
         int y;
         mouse_get_position(&x, &y);
-        if (x == _scr_size.ulx || x == _scr_size.lrx || y == _scr_size.uly || y == _scr_size.lry) {
+        if (x == scr_size.ulx || x == scr_size.lrx || y == scr_size.uly || y == scr_size.lry) {
             switch (gmouse_current_cursor) {
             case MOUSE_CURSOR_SCROLL_NW:
             case MOUSE_CURSOR_SCROLL_N:
@@ -714,7 +715,7 @@ void gmouse_bk_process()
                     }
 
                     if (primaryAction != -1) {
-                        if (gmouse_3d_build_pick_frame(mouseX, mouseY, primaryAction, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99) == 0) {
+                        if (gmouse_3d_build_pick_frame(mouseX, mouseY, primaryAction, scr_size.lrx - scr_size.ulx + 1, scr_size.lry - scr_size.uly - 99) == 0) {
                             Rect tmp;
                             int fid = art_id(OBJ_TYPE_INTERFACE, 282, 0, 0, 0);
                             // NOTE: Uninline.
@@ -903,7 +904,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
         }
     }
 
-    if (!mouse_click_in(0, 0, _scr_size.lrx - _scr_size.ulx, _scr_size.lry - _scr_size.uly - 100)) {
+    if (!mouse_click_in(0, 0, scr_size.lrx - scr_size.ulx, scr_size.lry - scr_size.uly - 100)) {
         return;
     }
 
@@ -1115,7 +1116,7 @@ void gmouse_handle_event(int mouseX, int mouseY, int mouseState)
                 break;
             }
 
-            if (gmouse_3d_build_menu_frame(mouseX, mouseY, actionMenuItems, actionMenuItemsCount, _scr_size.lrx - _scr_size.ulx + 1, _scr_size.lry - _scr_size.uly - 99) == 0) {
+            if (gmouse_3d_build_menu_frame(mouseX, mouseY, actionMenuItems, actionMenuItemsCount, scr_size.lrx - scr_size.ulx + 1, scr_size.lry - scr_size.uly - 99) == 0) {
                 Rect v43;
                 int fid = art_id(OBJ_TYPE_INTERFACE, 283, 0, 0, 0);
                 // NOTE: Uninline.
@@ -2372,19 +2373,19 @@ static int gmouse_check_scrolling(int x, int y, int cursor)
 
     int flags = 0;
 
-    if (x <= _scr_size.ulx) {
+    if (x <= scr_size.ulx) {
         flags |= SCROLLABLE_W;
     }
 
-    if (x >= _scr_size.lrx) {
+    if (x >= scr_size.lrx) {
         flags |= SCROLLABLE_E;
     }
 
-    if (y <= _scr_size.uly) {
+    if (y <= scr_size.uly) {
         flags |= SCROLLABLE_N;
     }
 
-    if (y >= _scr_size.lry) {
+    if (y >= scr_size.lry) {
         flags |= SCROLLABLE_S;
     }
 

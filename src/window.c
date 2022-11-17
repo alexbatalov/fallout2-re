@@ -15,6 +15,7 @@
 #include "int/movie.h"
 #include "plib/gnw/button.h"
 #include "plib/gnw/text.h"
+#include "plib/gnw/svga.h"
 
 // 0x51DCAC
 int _holdTime = 250;
@@ -30,18 +31,18 @@ int gCurrentManagedWindowIndex = -1;
 
 // 0x51DCBC
 INITVIDEOFN _gfx_init[12] = {
-    _init_mode_320_200,
-    _init_mode_640_480,
-    _init_mode_640_480_16,
-    _init_mode_320_400,
-    _init_mode_640_480_16,
-    _init_mode_640_400,
-    _init_mode_640_480_16,
-    _init_mode_800_600,
-    _init_mode_640_480_16,
-    _init_mode_1024_768,
-    _init_mode_640_480_16,
-    _init_mode_1280_1024,
+    init_mode_320_200,
+    init_mode_640_480,
+    init_mode_640_480_16,
+    init_mode_320_400,
+    init_mode_640_480_16,
+    init_mode_640_400,
+    init_mode_640_480_16,
+    init_mode_800_600,
+    init_mode_640_480_16,
+    init_mode_1024_768,
+    init_mode_640_480_16,
+    init_mode_1280_1024,
 };
 
 // 0x51DD1C
@@ -1565,7 +1566,7 @@ void _initWindow(int resolution, int a2)
         gManagedWindows[i].window = -1;
     }
 
-    rc = win_init(_gfx_init[resolution], directDrawFree, a2);
+    rc = win_init(_gfx_init[resolution], GNW95_reset_mode, a2);
     if (rc != WINDOW_MANAGER_OK) {
         switch (rc) {
         case WINDOW_MANAGER_ERR_INITIALIZING_VIDEO_MODE:

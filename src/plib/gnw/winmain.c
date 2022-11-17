@@ -6,6 +6,7 @@
 #include "core.h"
 #include "game/main.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 
 static BOOL LoadDirectX();
 static void UnloadDirectX(void);
@@ -227,7 +228,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         GNW95_isActive = wParam;
         if (wParam) {
             _GNW95_hook_input(1);
-            win_refresh_all(&_scr_size);
+            win_refresh_all(&scr_size);
         } else {
             _GNW95_hook_input(0);
         }

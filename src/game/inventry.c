@@ -39,6 +39,7 @@
 #include "plib/gnw/text.h"
 #include "game/tile.h"
 #include "plib/gnw/gnw.h"
+#include "plib/gnw/svga.h"
 
 #define INVENTORY_WINDOW_X 80
 #define INVENTORY_WINDOW_Y 0
@@ -601,7 +602,7 @@ bool setup_inventory(int inventoryWindowType)
 
         unsigned char* dest = win_get_buf(i_wid);
         unsigned char* src = win_get_buf(barter_back_win);
-        buf_to_buf(src + INVENTORY_TRADE_WINDOW_X, INVENTORY_TRADE_WINDOW_WIDTH, INVENTORY_TRADE_WINDOW_HEIGHT, _scr_size.lrx - _scr_size.ulx + 1, dest, INVENTORY_TRADE_WINDOW_WIDTH);
+        buf_to_buf(src + INVENTORY_TRADE_WINDOW_X, INVENTORY_TRADE_WINDOW_WIDTH, INVENTORY_TRADE_WINDOW_HEIGHT, scr_size.lrx - scr_size.ulx + 1, dest, INVENTORY_TRADE_WINDOW_WIDTH);
 
         display_msg = gdialogDisplayMsg;
     }
@@ -1138,7 +1139,7 @@ void display_inventory(int a1, int a2, int inventoryWindowType)
 
         windowBuffer = win_get_buf(i_wid);
 
-        buf_to_buf(win_get_buf(barter_back_win) + 35 * (_scr_size.lrx - _scr_size.ulx + 1) + 100, 64, 48 * inven_cur_disp, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + pitch * 35 + 20, pitch);
+        buf_to_buf(win_get_buf(barter_back_win) + 35 * (scr_size.lrx - scr_size.ulx + 1) + 100, 64, 48 * inven_cur_disp, scr_size.lrx - scr_size.ulx + 1, windowBuffer + pitch * 35 + 20, pitch);
         v49 = -20;
     } else {
         assert(false && "Should be unreachable");
@@ -1245,7 +1246,7 @@ void display_target_inventory(int a1, int a2, Inventory* inventory, int inventor
         pitch = 480;
 
         unsigned char* src = win_get_buf(barter_back_win);
-        buf_to_buf(src + (_scr_size.lrx - _scr_size.ulx + 1) * 35 + 475, 64, 48 * inven_cur_disp, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 35 + 395, 480);
+        buf_to_buf(src + (scr_size.lrx - scr_size.ulx + 1) * 35 + 475, 64, 48 * inven_cur_disp, scr_size.lrx - scr_size.ulx + 1, windowBuffer + 480 * 35 + 395, 480);
     } else {
         assert(false && "Should be unreachable");
     }
@@ -1431,10 +1432,10 @@ void display_body(int fid, int inventoryWindowType)
 
             unsigned char* src = art_ptr_lock_data(backgroundFid, 0, 0, &backrgroundFrmHandle);
             if (src != NULL) {
-                buf_to_buf(src + rect.uly * (_scr_size.lrx - _scr_size.ulx + 1) + rect.ulx,
+                buf_to_buf(src + rect.uly * (scr_size.lrx - scr_size.ulx + 1) + rect.ulx,
                     INVENTORY_BODY_VIEW_WIDTH,
                     INVENTORY_BODY_VIEW_HEIGHT,
-                    _scr_size.lrx - _scr_size.ulx + 1,
+                    scr_size.lrx - scr_size.ulx + 1,
                     windowBuffer + windowPitch * rect.uly + rect.ulx,
                     windowPitch);
             }
@@ -3189,7 +3190,7 @@ void inven_action_cursor(int keyCode, int inventoryWindowType)
 
     if (inventoryWindowType == INVENTORY_WINDOW_TYPE_TRADE) {
         unsigned char* src = win_get_buf(barter_back_win);
-        int pitch = _scr_size.lrx - _scr_size.ulx + 1;
+        int pitch = scr_size.lrx - scr_size.ulx + 1;
         buf_to_buf(src + pitch * rect.uly + rect.ulx + 80,
             cursorData->width,
             menuButtonHeight,
@@ -4044,7 +4045,7 @@ static void barter_move_inventory(Object* a1, int quantity, int a3, int a4, Obje
         unsigned char* dest = win_get_buf(i_wid);
         unsigned char* src = win_get_buf(barter_back_win);
 
-        int pitch = _scr_size.lrx - _scr_size.ulx + 1;
+        int pitch = scr_size.lrx - scr_size.ulx + 1;
         buf_to_buf(src + pitch * rect.uly + rect.ulx + 80, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, pitch, dest + 480 * rect.uly + rect.ulx, 480);
 
         rect.lrx = rect.ulx + INVENTORY_SLOT_WIDTH - 1;
@@ -4127,7 +4128,7 @@ static void barter_move_from_table_inventory(Object* a1, int quantity, int a3, O
         unsigned char* dest = win_get_buf(i_wid);
         unsigned char* src = win_get_buf(barter_back_win);
 
-        int pitch = _scr_size.lrx - _scr_size.ulx + 1;
+        int pitch = scr_size.lrx - scr_size.ulx + 1;
         buf_to_buf(src + pitch * rect.uly + rect.ulx + 80, INVENTORY_SLOT_WIDTH, INVENTORY_SLOT_HEIGHT, pitch, dest + 480 * rect.uly + rect.ulx, 480);
 
         rect.lrx = rect.ulx + INVENTORY_SLOT_WIDTH - 1;
@@ -4201,7 +4202,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
 
     if (a2 != NULL) {
         unsigned char* src = win_get_buf(win);
-        buf_to_buf(src + (_scr_size.lrx - _scr_size.ulx + 1) * 20 + 249, 64, v45 + 1, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 20 + 169, 480);
+        buf_to_buf(src + (scr_size.lrx - scr_size.ulx + 1) * 20 + 249, 64, v45 + 1, scr_size.lrx - scr_size.ulx + 1, windowBuffer + 480 * 20 + 169, 480);
 
         unsigned char* dest = windowBuffer + 480 * 24 + 169;
         Inventory* inventory = &(a2->data.inventory);
@@ -4239,7 +4240,7 @@ static void display_table_inventories(int win, Object* a2, Object* a3, int a4)
 
     if (a3 != NULL) {
         unsigned char* src = win_get_buf(win);
-        buf_to_buf(src + (_scr_size.lrx - _scr_size.ulx + 1) * 20 + 334, 64, v45 + 1, _scr_size.lrx - _scr_size.ulx + 1, windowBuffer + 480 * 20 + 254, 480);
+        buf_to_buf(src + (scr_size.lrx - scr_size.ulx + 1) * 20 + 334, 64, v45 + 1, scr_size.lrx - scr_size.ulx + 1, windowBuffer + 480 * 20 + 254, 480);
 
         unsigned char* dest = windowBuffer + 480 * 24 + 254;
         Inventory* inventory = &(a3->data.inventory);

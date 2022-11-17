@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "plib/gnw/rect.h"
-#include "window.h"
+#include "plib/gnw/svga_types.h"
 
 #define MOUSE_DEFAULT_CURSOR_WIDTH 8
 #define MOUSE_DEFAULT_CURSOR_HEIGHT 8

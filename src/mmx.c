@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "core.h"
+#include "plib/gnw/svga.h"
 
 // Return `true` if CPU supports MMX.
 //
@@ -27,11 +27,11 @@ bool mmxIsSupported()
 // 0x4E0DB0
 void mmxBlit(unsigned char* dest, int destPitch, unsigned char* src, int srcPitch, int width, int height)
 {
-    if (gMmxEnabled) {
+    if (mmxEnabled) {
         // TODO: Blit with MMX.
-        gMmxEnabled = false;
+        mmxEnabled = false;
         mmxBlit(dest, destPitch, src, srcPitch, width, height);
-        gMmxEnabled = true;
+        mmxEnabled = true;
     } else {
         for (int y = 0; y < height; y++) {
             memcpy(dest, src, width);
@@ -44,11 +44,11 @@ void mmxBlit(unsigned char* dest, int destPitch, unsigned char* src, int srcPitc
 // 0x4E0ED5
 void mmxBlitTrans(unsigned char* dest, int destPitch, unsigned char* src, int srcPitch, int width, int height)
 {
-    if (gMmxEnabled) {
+    if (mmxEnabled) {
         // TODO: Blit with MMX.
-        gMmxEnabled = false;
+        mmxEnabled = false;
         mmxBlitTrans(dest, destPitch, src, srcPitch, width, height);
-        gMmxEnabled = true;
+        mmxEnabled = true;
     } else {
         int destSkip = destPitch - width;
         int srcSkip = srcPitch - width;
