@@ -1668,7 +1668,7 @@ static int gsound_open(const char* fname, int flags, ...)
         return -1;
     }
 
-    File* stream = fileOpen(fname, "rb");
+    File* stream = db_fopen(fname, "rb");
     if (stream == NULL) {
         return -1;
     }
@@ -1695,7 +1695,7 @@ static int gsound_close(int fileHandle)
         return -1;
     }
 
-    return fileClose((File*)fileHandle);
+    return db_fclose((File*)fileHandle);
 }
 
 // 0x451A30
@@ -1705,7 +1705,7 @@ static int gsound_read(int fileHandle, void* buffer, unsigned int size)
         return -1;
     }
 
-    return fileRead(buffer, 1, size, (File*)fileHandle);
+    return db_fread(buffer, 1, size, (File*)fileHandle);
 }
 
 // 0x451A4C
@@ -1715,11 +1715,11 @@ static long gsound_seek(int fileHandle, long offset, int origin)
         return -1;
     }
 
-    if (fileSeek((File*)fileHandle, offset, origin) != 0) {
+    if (db_fseek((File*)fileHandle, offset, origin) != 0) {
         return -1;
     }
 
-    return fileTell((File*)fileHandle);
+    return db_ftell((File*)fileHandle);
 }
 
 // 0x451A70
@@ -1729,7 +1729,7 @@ static long gsound_tell(int handle)
         return -1;
     }
 
-    return fileTell((File*)handle);
+    return db_ftell((File*)handle);
 }
 
 // 0x451A7C
@@ -1739,7 +1739,7 @@ static long gsound_filesize(int handle)
         return -1;
     }
 
-    return fileGetSize((File*)handle);
+    return db_filelength((File*)handle);
 }
 
 // 0x451A88
@@ -2178,7 +2178,7 @@ static int gsound_file_exists_db(const char* path)
 {
     int size;
 
-    return dbGetFileSize(path, &size) == 0;
+    return db_dir_entry(path, &size) == 0;
 }
 
 // 0x452518

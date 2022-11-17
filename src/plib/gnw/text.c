@@ -141,13 +141,13 @@ static int load_font(int n)
     textFontDescriptor->data = NULL;
     textFontDescriptor->info = NULL;
 
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     int dataSize;
     if (stream == NULL) {
         goto out;
     }
 
-    if (fileRead(textFontDescriptor, sizeof(Font), 1, stream) != 1) {
+    if (db_fread(textFontDescriptor, sizeof(Font), 1, stream) != 1) {
         goto out;
     }
 
@@ -156,7 +156,7 @@ static int load_font(int n)
         goto out;
     }
 
-    if (fileRead(textFontDescriptor->info, sizeof(FontInfo), textFontDescriptor->num, stream) != textFontDescriptor->num) {
+    if (db_fread(textFontDescriptor->info, sizeof(FontInfo), textFontDescriptor->num, stream) != textFontDescriptor->num) {
         goto out;
     }
 
@@ -166,7 +166,7 @@ static int load_font(int n)
         goto out;
     }
 
-    if (fileRead(textFontDescriptor->data, 1, dataSize, stream) != dataSize) {
+    if (db_fread(textFontDescriptor->data, 1, dataSize, stream) != dataSize) {
         goto out;
     }
 
@@ -187,7 +187,7 @@ out:
     }
 
     if (stream != NULL) {
-        fileClose(stream);
+        db_fclose(stream);
     }
 
     return rc;

@@ -82,32 +82,32 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
         sprintf(path, "%s\\SNDLIST.LST", soundEffectsPath);
     }
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream != NULL) {
-        fileReadString(path, 255, stream);
+        db_fgets(path, 255, stream);
         sfxl_files_total = atoi(path);
 
         sfxl_list = (SoundEffectsListEntry*)mem_malloc(sizeof(*sfxl_list) * sfxl_files_total);
         for (int index = 0; index < sfxl_files_total; index++) {
             SoundEffectsListEntry* entry = &(sfxl_list[index]);
 
-            fileReadString(path, 255, stream);
+            db_fgets(path, 255, stream);
 
             // Remove trailing newline.
             *(path + strlen(path) - 1) = '\0';
             entry->name = mem_strdup(path);
 
-            fileReadString(path, 255, stream);
+            db_fgets(path, 255, stream);
             entry->dataSize = atoi(path);
 
-            fileReadString(path, 255, stream);
+            db_fgets(path, 255, stream);
             entry->fileSize = atoi(path);
 
-            fileReadString(path, 255, stream);
+            db_fgets(path, 255, stream);
             entry->tag = atoi(path);
         }
 
-        fileClose(stream);
+        db_fclose(stream);
 
         debug_printf("Reading SNDLIST.LST Sound FX Count: %d", sfxl_files_total);
     } else {
@@ -137,20 +137,20 @@ int sfxl_init(const char* soundEffectsPath, int a2, int debugLevel)
         // NOTE: Uninline.
         sfxl_sort_by_name();
 
-        File* stream = fileOpen(path, "wt");
+        File* stream = db_fopen(path, "wt");
         if (stream != NULL) {
-            filePrintFormatted(stream, "%d\n", sfxl_files_total);
+            db_fprintf(stream, "%d\n", sfxl_files_total);
 
             for (int index = 0; index < sfxl_files_total; index++) {
                 SoundEffectsListEntry* entry = &(sfxl_list[index]);
 
-                filePrintFormatted(stream, "%s\n", entry->name);
-                filePrintFormatted(stream, "%d\n", entry->dataSize);
-                filePrintFormatted(stream, "%d\n", entry->fileSize);
-                filePrintFormatted(stream, "%d\n", entry->tag);
+                db_fprintf(stream, "%s\n", entry->name);
+                db_fprintf(stream, "%d\n", entry->dataSize);
+                db_fprintf(stream, "%d\n", entry->fileSize);
+                db_fprintf(stream, "%d\n", entry->tag);
             }
 
-            fileClose(stream);
+            db_fclose(stream);
         } else {
             debug_printf("SFXLIST: Can't open file for write %s\n", path);
         }
@@ -321,11 +321,11 @@ static int sfxl_get_names()
     strcat(pattern, extension);
 
     char** fileNameList;
-    sfxl_files_total = fileNameListInit(pattern, &fileNameList, 0, 0);
+    sfxl_files_total = db_get_file_list(pattern, &fileNameList, 0, 0);
     mem_free(pattern);
 
     if (sfxl_files_total > 10000) {
-        fileNameListFree(&fileNameList, 0);
+        db_free_file_list(&fileNameList, 0);
         return SFXL_ERR;
     }
 
@@ -335,7 +335,7 @@ static int sfxl_get_names()
 
     sfxl_list = (SoundEffectsListEntry*)mem_malloc(sizeof(*sfxl_list) * sfxl_files_total);
     if (sfxl_list == NULL) {
-        fileNameListFree(&fileNameList, 0);
+        db_free_file_list(&fileNameList, 0);
         return SFXL_ERR;
     }
 
@@ -343,7 +343,7 @@ static int sfxl_get_names()
 
     int err = sfxl_copy_names(fileNameList);
 
-    fileNameListFree(&fileNameList, 0);
+    db_free_file_list(&fileNameList, 0);
 
     if (err != SFXL_OK) {
         sfxl_destroy();
@@ -386,7 +386,7 @@ static int sfxl_get_sizes()
         strcpy(fileName, entry->name);
 
         int fileSize;
-        if (dbGetFileSize(path, &fileSize) != 0) {
+        if (db_dir_entry(path, &fileSize) != 0) {
             mem_free(path);
             return SFXL_ERR;
         }
@@ -404,7 +404,7 @@ static int sfxl_get_sizes()
             break;
         case 1:
             if (1) {
-                File* stream = fileOpen(path, "rb");
+                File* stream = db_fopen(path, "rb");
                 if (stream == NULL) {
                     mem_free(path);
                     return 1;
@@ -416,7 +416,7 @@ static int sfxl_get_sizes()
                 SoundDecoder* soundDecoder = soundDecoderInit(sfxl_ad_reader, (int)stream, &v1, &v2, &v3);
                 entry->dataSize = 2 * v3;
                 soundDecoderFree(soundDecoder);
-                fileClose(stream);
+                db_fclose(stream);
             }
             break;
         default:
@@ -453,5 +453,5 @@ static int sfxl_compare_by_name(const void* a1, const void* a2)
 // 0x4AA234
 static int sfxl_ad_reader(int fileHandle, void* buf, unsigned int size)
 {
-    return fileRead(buf, 1, size, (File*)fileHandle);
+    return db_fread(buf, 1, size, (File*)fileHandle);
 }

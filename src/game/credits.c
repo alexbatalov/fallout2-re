@@ -61,7 +61,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 
     char localizedPath[MAX_PATH];
     if (message_make_path(localizedPath, filePath)) {
-        credits_file = fileOpen(localizedPath, "rt");
+        credits_file = db_fopen(localizedPath, "rt");
         if (credits_file != NULL) {
             soundContinueAll();
 
@@ -237,7 +237,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 
             gmouse_set_cursor(MOUSE_CURSOR_ARROW);
             cycle_enable();
-            fileClose(credits_file);
+            db_fclose(credits_file);
         }
     }
 
@@ -248,7 +248,7 @@ void credits(const char* filePath, int backgroundFid, bool useReversedStyle)
 static bool credits_get_next_line(char* dest, int* font, int* color)
 {
     char string[256];
-    while (fileReadString(string, 256, credits_file)) {
+    while (db_fgets(string, 256, credits_file)) {
         char* pch;
         if (string[0] == ';') {
             continue;

@@ -406,16 +406,16 @@ int mouseSetFrame(char* fileName, int a2)
         }
     }
 
-    File* stream = fileOpen(mangledFileName, "r");
+    File* stream = db_fopen(mangledFileName, "r");
     if (stream == NULL) {
         debug_printf("mouseSetFrame: couldn't find %s\n", mangledFileName);
         return false;
     }
 
     char string[80];
-    fileReadString(string, sizeof(string), stream);
+    db_fgets(string, sizeof(string), stream);
     if (strnicmp(string, "anim", 4) != 0) {
-        fileClose(stream);
+        db_fclose(stream);
         mouseSetMousePointer(fileName);
         return true;
     }
@@ -451,7 +451,7 @@ int mouseSetFrame(char* fileName, int a2)
     int height;
     for (int index = 0; index < v3; index++) {
         string[0] = '\0';
-        fileReadString(string, sizeof(string), stream);
+        db_fgets(string, sizeof(string), stream);
         if (string[0] == '\0') {
             debug_printf("Not enough frames in %s, got %d, needed %d", mangledFileName, index, v3);
             break;
@@ -479,7 +479,7 @@ int mouseSetFrame(char* fileName, int a2)
         animatedData->field_C[index] = v6;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     animatedData->width = width;
     animatedData->height = height;
@@ -607,7 +607,7 @@ bool mouseSetMousePointer(char* fileName)
     }
 
     char* mangledFileName = mouseNameMangler(fileName);
-    File* stream = fileOpen(mangledFileName, "r");
+    File* stream = db_fopen(mangledFileName, "r");
     if (stream == NULL) {
         debug_printf("Can't find %s\n", mangledFileName);
         return false;
@@ -615,14 +615,14 @@ bool mouseSetMousePointer(char* fileName)
 
     char string[80];
     string[0] = '\0';
-    fileReadString(string, sizeof(string) - 1, stream);
+    db_fgets(string, sizeof(string) - 1, stream);
     if (string[0] == '\0') {
         return false;
     }
 
     bool rc;
     if (strnicmp(string, "anim", 4) == 0) {
-        fileClose(stream);
+        db_fclose(stream);
         rc = mouseSetFrame(fileName, 0);
     } else {
         // NOTE: Uninline.
@@ -637,7 +637,7 @@ bool mouseSetMousePointer(char* fileName)
         int v4;
         sscanf(sep + 1, "%d %d", &v3, &v4);
 
-        fileClose(stream);
+        db_fclose(stream);
 
         rc = mouseSetMouseShape(string, v3, v4);
     }

@@ -120,15 +120,15 @@ int art_init()
 
         int oldDb;
         if (objectType == OBJ_TYPE_CRITTER) {
-            oldDb = _db_current();
+            oldDb = db_current();
             critterDbSelected = true;
-            _db_select(critter_db_handle);
+            db_select(critter_db_handle);
         }
 
         if (art_read_lst(path, &(art[objectType].fileNames), &(art[objectType].fileNamesLength)) != 0) {
             debug_printf("art_read_lst failed in art_init\n");
             if (critterDbSelected) {
-                _db_select(oldDb);
+                db_select(oldDb);
             }
             cache_exit(&art_cache);
             return -1;
@@ -136,7 +136,7 @@ int art_init()
 
         if (objectType == OBJ_TYPE_CRITTER) {
             critterDbSelected = false;
-            _db_select(oldDb);
+            db_select(oldDb);
         }
     }
 
@@ -162,7 +162,7 @@ int art_init()
 
     sprintf(path, "%s%s%s\\%s.lst", cd_path_base, "art\\", art[OBJ_TYPE_CRITTER].name, art[OBJ_TYPE_CRITTER].name);
 
-    stream = fileOpen(path, "rt");
+    stream = db_fopen(path, "rt");
     if (stream == NULL) {
         debug_printf("Unable to open %s in art_init\n", path);
         cache_exit(&art_cache);
@@ -188,7 +188,7 @@ int art_init()
     }
 
     for (int critterIndex = 0; critterIndex < art[OBJ_TYPE_CRITTER].fileNamesLength; critterIndex++) {
-        if (!fileReadString(string, sizeof(string), stream)) {
+        if (!db_fgets(string, sizeof(string), stream)) {
             break;
         }
 
@@ -208,7 +208,7 @@ int art_init()
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     char* tileFileNames = art[OBJ_TYPE_TILE].fileNames;
     for (int tileIndex = 0; tileIndex < art[OBJ_TYPE_TILE].fileNamesLength; tileIndex++) {
@@ -228,7 +228,7 @@ int art_init()
 
     sprintf(path, "%s%s%s\\%s.lst", cd_path_base, "art\\", art[OBJ_TYPE_HEAD].name, art[OBJ_TYPE_HEAD].name);
 
-    stream = fileOpen(path, "rt");
+    stream = db_fopen(path, "rt");
     if (stream == NULL) {
         debug_printf("Unable to open %s in art_init\n", path);
         cache_exit(&art_cache);
@@ -236,7 +236,7 @@ int art_init()
     }
 
     for (int headIndex = 0; headIndex < art[OBJ_TYPE_HEAD].fileNamesLength; headIndex++) {
-        if (!fileReadString(string, sizeof(string), stream)) {
+        if (!db_fgets(string, sizeof(string), stream)) {
             break;
         }
 
@@ -273,7 +273,7 @@ int art_init()
         head_info[headIndex].badFidgetCount = atoi(sep3 + 1);
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -649,29 +649,29 @@ char* art_get_name(int fid)
 // 0x419664
 int art_read_lst(const char* path, char** artListPtr, int* artListSizePtr)
 {
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream == NULL) {
         return -1;
     }
 
     int count = 0;
     char string[200];
-    while (fileReadString(string, sizeof(string), stream)) {
+    while (db_fgets(string, sizeof(string), stream)) {
         count++;
     }
 
-    fileSeek(stream, 0, SEEK_SET);
+    db_fseek(stream, 0, SEEK_SET);
 
     *artListSizePtr = count;
 
     char* artList = (char*)mem_malloc(13 * count);
     *artListPtr = artList;
     if (artList == NULL) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    while (fileReadString(string, sizeof(string), stream)) {
+    while (db_fgets(string, sizeof(string), stream)) {
         char* brk = strpbrk(string, " ,;\r\t\n");
         if (brk != NULL) {
             *brk = '\0';
@@ -683,7 +683,7 @@ int art_read_lst(const char* path, char** artListPtr, int* artListSizePtr)
         artList += 13;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -836,20 +836,20 @@ bool art_exists(int fid)
     int oldDb = -1;
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
-        oldDb = _db_current();
-        _db_select(critter_db_handle);
+        oldDb = db_current();
+        db_select(critter_db_handle);
     }
 
     char* filePath = art_get_name(fid);
     if (filePath != NULL) {
         int fileSize;
-        if (dbGetFileSize(filePath, &fileSize) != -1) {
+        if (db_dir_entry(filePath, &fileSize) != -1) {
             result = true;
         }
     }
 
     if (oldDb != -1) {
-        _db_select(oldDb);
+        db_select(oldDb);
     }
 
     return result;
@@ -864,20 +864,20 @@ bool art_fid_valid(int fid)
     int oldDb = -1;
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
-        oldDb = _db_current();
-        _db_select(critter_db_handle);
+        oldDb = db_current();
+        db_select(critter_db_handle);
     }
 
     char* filePath = art_get_name(fid);
     if (filePath != NULL) {
         int fileSize;
-        if (dbGetFileSize(filePath, &fileSize) != -1) {
+        if (db_dir_entry(filePath, &fileSize) != -1) {
             result = true;
         }
     }
 
     if (oldDb != -1) {
-        _db_select(oldDb);
+        db_select(oldDb);
     }
 
     return result;
@@ -930,8 +930,8 @@ int art_data_size(int fid, int* sizePtr)
     int result = -1;
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
-        oldDb = _db_current();
-        _db_select(critter_db_handle);
+        oldDb = db_current();
+        db_select(critter_db_handle);
     }
 
     char* artFilePath = art_get_name(fid);
@@ -948,13 +948,13 @@ int art_data_size(int fid, int* sizePtr)
             char localizedPath[MAX_PATH];
             sprintf(localizedPath, "art\\%s\\%s", darn_foreign_sub_path, pch);
 
-            if (dbGetFileSize(localizedPath, &fileSize) == 0) {
+            if (db_dir_entry(localizedPath, &fileSize) == 0) {
                 loaded = true;
             }
         }
 
         if (!loaded) {
-            if (dbGetFileSize(artFilePath, &fileSize) == 0) {
+            if (db_dir_entry(artFilePath, &fileSize) == 0) {
                 loaded = true;
             }
         }
@@ -966,7 +966,7 @@ int art_data_size(int fid, int* sizePtr)
     }
 
     if (oldDb != -1) {
-        _db_select(oldDb);
+        db_select(oldDb);
     }
 
     return result;
@@ -979,8 +979,8 @@ int art_data_load(int fid, int* sizePtr, unsigned char* data)
     int result = -1;
 
     if (FID_TYPE(fid) == OBJ_TYPE_CRITTER) {
-        oldDb = _db_current();
-        _db_select(critter_db_handle);
+        oldDb = db_current();
+        db_select(critter_db_handle);
     }
 
     char* artFileName = art_get_name(fid);
@@ -1014,7 +1014,7 @@ int art_data_load(int fid, int* sizePtr, unsigned char* data)
     }
 
     if (oldDb != -1) {
-        _db_select(oldDb);
+        db_select(oldDb);
     }
 
     return result;

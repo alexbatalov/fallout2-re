@@ -191,11 +191,11 @@ int proto_list_str(int pid, char* proto_path)
     strcat(path, art_dir(PID_TYPE(pid)));
     strcat(path, ".lst");
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
 
     int i = 1;
     char string[256];
-    while (fileReadString(string, sizeof(string), stream)) {
+    while (db_fgets(string, sizeof(string), stream)) {
         if (i == (pid & 0xFFFFFF)) {
             break;
         }
@@ -203,7 +203,7 @@ int proto_list_str(int pid, char* proto_path)
         i++;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     if (i != (pid & 0xFFFFFF)) {
         return -1;
@@ -1225,14 +1225,14 @@ int proto_header_load()
         strcat(path, art_dir(index));
         strcat(path, ".lst");
 
-        File* stream = fileOpen(path, "rt");
+        File* stream = db_fopen(path, "rt");
         if (stream == NULL) {
             return -1;
         }
 
         int ch = '\0';
         while (1) {
-            ch = fileReadChar(stream);
+            ch = db_fgetc(stream);
             if (ch == -1) {
                 break;
             }
@@ -1246,7 +1246,7 @@ int proto_header_load()
             ptr->max_entries_num++;
         }
 
-        fileClose(stream);
+        db_fclose(stream);
     }
 
     return 0;
@@ -1301,7 +1301,7 @@ static int proto_read_item_data(ItemProtoData* item_data, int type, File* stream
         if (fileReadInt32(stream, &(item_data->weapon.caliber)) == -1) return -1;
         if (fileReadInt32(stream, &(item_data->weapon.ammoTypePid)) == -1) return -1;
         if (fileReadInt32(stream, &(item_data->weapon.ammoCapacity)) == -1) return -1;
-        if (fileReadUInt8(stream, &(item_data->weapon.soundCode)) == -1) return -1;
+        if (db_freadByte(stream, &(item_data->weapon.soundCode)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_AMMO:
@@ -1382,7 +1382,7 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
         if (_db_freadInt(stream, &(proto->item.weight)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.cost)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->item.inventoryFid)) == -1) return -1;
-        if (fileReadUInt8(stream, &(proto->item.field_80)) == -1) return -1;
+        if (db_freadByte(stream, &(proto->item.field_80)) == -1) return -1;
         if (proto_read_item_data(&(proto->item.data), proto->item.type, stream) == -1) return -1;
 
         return 0;
@@ -1407,7 +1407,7 @@ static int proto_read_protoSubNode(Proto* proto, File* stream)
         if (fileReadInt32(stream, &(proto->scenery.sid)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->scenery.type)) == -1) return -1;
         if (fileReadInt32(stream, &(proto->scenery.field_2C)) == -1) return -1;
-        if (fileReadUInt8(stream, &(proto->scenery.field_34)) == -1) return -1;
+        if (db_freadByte(stream, &(proto->scenery.field_34)) == -1) return -1;
         if (proto_read_scenery_data(&(proto->scenery.data), proto->scenery.type, stream) == -1) return -1;
         return 0;
     case OBJ_TYPE_WALL:
@@ -1487,7 +1487,7 @@ static int proto_write_item_data(ItemProtoData* item_data, int type, File* strea
         if (fileWriteInt32(stream, item_data->weapon.caliber) == -1) return -1;
         if (fileWriteInt32(stream, item_data->weapon.ammoTypePid) == -1) return -1;
         if (fileWriteInt32(stream, item_data->weapon.ammoCapacity) == -1) return -1;
-        if (fileWriteUInt8(stream, item_data->weapon.soundCode) == -1) return -1;
+        if (db_fwriteByte(stream, item_data->weapon.soundCode) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_AMMO:
@@ -1567,7 +1567,7 @@ static int proto_write_protoSubNode(Proto* proto, File* stream)
         if (_db_fwriteLong(stream, proto->item.weight) == -1) return -1;
         if (fileWriteInt32(stream, proto->item.cost) == -1) return -1;
         if (fileWriteInt32(stream, proto->item.inventoryFid) == -1) return -1;
-        if (fileWriteUInt8(stream, proto->item.field_80) == -1) return -1;
+        if (db_fwriteByte(stream, proto->item.field_80) == -1) return -1;
         if (proto_write_item_data(&(proto->item.data), proto->item.type, stream) == -1) return -1;
 
         return 0;
@@ -1591,7 +1591,7 @@ static int proto_write_protoSubNode(Proto* proto, File* stream)
         if (fileWriteInt32(stream, proto->scenery.sid) == -1) return -1;
         if (fileWriteInt32(stream, proto->scenery.type) == -1) return -1;
         if (fileWriteInt32(stream, proto->scenery.field_2C) == -1) return -1;
-        if (fileWriteUInt8(stream, proto->scenery.field_34) == -1) return -1;
+        if (db_fwriteByte(stream, proto->scenery.field_34) == -1) return -1;
         if (proto_write_scenery_data(&(proto->scenery.data), proto->scenery.type, stream) == -1) return -1;
     case OBJ_TYPE_WALL:
         if (fileWriteInt32(stream, proto->wall.lightDistance) == -1) return -1;
@@ -1635,14 +1635,14 @@ int proto_save_pid(int pid)
 
     proto_list_str(pid, path + strlen(path));
 
-    File* stream = fileOpen(path, "wb");
+    File* stream = db_fopen(path, "wb");
     if (stream == NULL) {
         return -1;
     }
 
     int rc = proto_write_protoSubNode(proto, stream);
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return rc;
 }
@@ -1658,7 +1658,7 @@ int proto_load_pid(int pid, Proto** protoPtr)
         return -1;
     }
 
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         debug_printf("\nError: Can't fopen proto!\n");
         *protoPtr = NULL;
@@ -1666,16 +1666,16 @@ int proto_load_pid(int pid, Proto** protoPtr)
     }
 
     if (proto_find_free_subnode(PID_TYPE(pid), protoPtr) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     if (proto_read_protoSubNode(*protoPtr, stream) != 0) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }
 

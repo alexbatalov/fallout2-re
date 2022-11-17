@@ -976,18 +976,18 @@ static bool select_display_bio()
     char path[FILENAME_MAX];
     sprintf(path, "%s.bio", premade_characters[premade_index].fileName);
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream != NULL) {
         int y = 40;
         int lineHeight = text_height();
 
         char string[256];
-        while (fileReadString(string, 256, stream) && y < 260) {
+        while (db_fgets(string, 256, stream) && y < 260) {
             text_to_buf(select_window_buffer + CS_WINDOW_WIDTH * y + CS_WINDOW_BIO_X, string, CS_WINDOW_WIDTH - CS_WINDOW_BIO_X, CS_WINDOW_WIDTH, colorTable[992]);
             y += lineHeight;
         }
 
-        fileClose(stream);
+        db_fclose(stream);
     }
 
     text_font(oldFont);

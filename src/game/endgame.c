@@ -736,7 +736,7 @@ static int endgame_load_subtitles(const char* filePath)
 {
     endgame_clear_subtitles();
 
-    File* stream = fileOpen(filePath, "rt");
+    File* stream = db_fopen(filePath, "rt");
     if (stream == NULL) {
         return -1;
     }
@@ -744,7 +744,7 @@ static int endgame_load_subtitles(const char* filePath)
     // FIXME: There is at least one subtitle for Arroyo ending (nar_ar1) that
     // does not fit into this buffer.
     char string[256];
-    while (fileReadString(string, sizeof(string), stream)) {
+    while (db_fgets(string, sizeof(string), stream)) {
         char* pch;
 
         // Find and clamp string at EOL.
@@ -765,7 +765,7 @@ static int endgame_load_subtitles(const char* filePath)
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -872,12 +872,12 @@ static int endgame_load_slide_info()
 
     num_slides = 0;
 
-    stream = fileOpen("data\\endgame.txt", "rt");
+    stream = db_fopen("data\\endgame.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
 
-    while (fileReadString(str, sizeof(str), stream)) {
+    while (db_fgets(str, sizeof(str), stream)) {
         ch = str;
         while (isspace(*ch)) {
             ch++;
@@ -938,13 +938,13 @@ static int endgame_load_slide_info()
         num_slides++;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 
 err:
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return -1;
 }
@@ -977,12 +977,12 @@ int endgameDeathEndingInit()
 
     strcpy(endDeathSndChoice, "narrator\\nar_5");
 
-    stream = fileOpen("data\\enddeath.txt", "rt");
+    stream = db_fopen("data\\enddeath.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
 
-    while (fileReadString(str, 256, stream)) {
+    while (db_fgets(str, 256, stream)) {
         ch = str;
         while (isspace(*ch)) {
             ch++;
@@ -1060,13 +1060,13 @@ int endgameDeathEndingInit()
         maxEndDeathInfo++;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 
 err:
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return -1;
 }

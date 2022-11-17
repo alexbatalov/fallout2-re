@@ -41,17 +41,17 @@ static unsigned char runvalue = 0;
 static short getWord(File* stream)
 {
     short value;
-    fileRead(&value, sizeof(value), 1, stream);
+    db_fread(&value, sizeof(value), 1, stream);
     return value;
 }
 
 // 0x4961D4
 static void readPcxHeader(PcxHeader* pcxHeader, File* stream)
 {
-    pcxHeader->identifier = fileReadChar(stream);
-    pcxHeader->version = fileReadChar(stream);
-    pcxHeader->encoding = fileReadChar(stream);
-    pcxHeader->bitsPerPixel = fileReadChar(stream);
+    pcxHeader->identifier = db_fgetc(stream);
+    pcxHeader->version = db_fgetc(stream);
+    pcxHeader->encoding = db_fgetc(stream);
+    pcxHeader->bitsPerPixel = db_fgetc(stream);
     pcxHeader->minX = getWord(stream);
     pcxHeader->minY = getWord(stream);
     pcxHeader->maxX = getWord(stream);
@@ -60,18 +60,18 @@ static void readPcxHeader(PcxHeader* pcxHeader, File* stream)
     pcxHeader->verticalResolution = getWord(stream);
 
     for (int index = 0; index < 48; index++) {
-        pcxHeader->palette[index] = fileReadChar(stream);
+        pcxHeader->palette[index] = db_fgetc(stream);
     }
 
-    pcxHeader->reserved1 = fileReadChar(stream);
-    pcxHeader->planeCount = fileReadChar(stream);
+    pcxHeader->reserved1 = db_fgetc(stream);
+    pcxHeader->planeCount = db_fgetc(stream);
     pcxHeader->bytesPerLine = getWord(stream);
     pcxHeader->paletteType = getWord(stream);
     pcxHeader->horizontalScreenSize = getWord(stream);
     pcxHeader->verticalScreenSize = getWord(stream);
 
     for (int index = 0; index < 54; index++) {
-        pcxHeader->reserved2[index] = fileReadChar(stream);
+        pcxHeader->reserved2[index] = db_fgetc(stream);
     }
 }
 
@@ -99,10 +99,10 @@ static int pcxDecodeScanline(unsigned char* data, int size, File* stream)
             break;
         }
 
-        value = fileReadChar(stream);
+        value = db_fgetc(stream);
         if ((value & 0xC0) == 0xC0) {
             runcount = value & 0x3F;
-            value = fileReadChar(stream);
+            value = db_fgetc(stream);
             runLength = runcount;
         } else {
             runLength = 1;
@@ -122,19 +122,19 @@ static int readPcxVgaPalette(PcxHeader* pcxHeader, unsigned char* palette, File*
         return 0;
     }
 
-    long pos = fileTell(stream);
-    long size = fileGetSize(stream);
-    fileSeek(stream, size - 769, SEEK_SET);
-    if (fileReadChar(stream) != 12) {
-        fileSeek(stream, pos, SEEK_SET);
+    long pos = db_ftell(stream);
+    long size = db_filelength(stream);
+    db_fseek(stream, size - 769, SEEK_SET);
+    if (db_fgetc(stream) != 12) {
+        db_fseek(stream, pos, SEEK_SET);
         return 0;
     }
 
     for (int index = 0; index < 768; index++) {
-        palette[index] = fileReadChar(stream);
+        palette[index] = db_fgetc(stream);
     }
 
-    fileSeek(stream, pos, SEEK_SET);
+    db_fseek(stream, pos, SEEK_SET);
 
     return 1;
 }
@@ -142,7 +142,7 @@ static int readPcxVgaPalette(PcxHeader* pcxHeader, unsigned char* palette, File*
 // 0x496494
 unsigned char* loadPCX(const char* path, int* widthPtr, int* heightPtr, unsigned char* palette)
 {
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return NULL;
     }
@@ -160,7 +160,7 @@ unsigned char* loadPCX(const char* path, int* widthPtr, int* heightPtr, unsigned
     unsigned char* data = mymalloc(bytesPerLine * height, __FILE__, __LINE__); // "..\\int\\PCX.C", 195
     if (data == NULL) {
         // NOTE: This code is unreachable, internal_malloc_safe never fails.
-        fileClose(stream);
+        db_fclose(stream);
         return NULL;
     }
 
@@ -175,7 +175,7 @@ unsigned char* loadPCX(const char* path, int* widthPtr, int* heightPtr, unsigned
 
     readPcxVgaPalette(&pcxHeader, palette, stream);
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return data;
 }

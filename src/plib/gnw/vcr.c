@@ -72,7 +72,7 @@ bool vcr_record(const char* fileName)
         return false;
     }
 
-    vcr_file = fileOpen(fileName, "wb");
+    vcr_file = db_fopen(fileName, "wb");
     if (vcr_file == NULL) {
         // NOTE: Uninline.
         vcr_destroy_buffer();
@@ -120,7 +120,7 @@ bool vcr_play(const char* fileName, unsigned int terminationFlags, VcrPlaybackCo
         return false;
     }
 
-    vcr_file = fileOpen(fileName, "rb");
+    vcr_file = db_fopen(fileName, "rb");
     if (vcr_file == NULL) {
         // NOTE: Uninline.
         vcr_destroy_buffer();
@@ -128,7 +128,7 @@ bool vcr_play(const char* fileName, unsigned int terminationFlags, VcrPlaybackCo
     }
 
     if (!vcr_load_buffer()) {
-        fileClose(vcr_file);
+        db_fclose(vcr_file);
         // NOTE: Uninline.
         vcr_destroy_buffer();
         return false;
@@ -182,7 +182,7 @@ int vcr_update()
         case VCR_STATE_RECORDING:
             vcr_dump_buffer();
 
-            fileClose(vcr_file);
+            db_fclose(vcr_file);
             vcr_file = NULL;
 
             // NOTE: Uninline.
@@ -190,7 +190,7 @@ int vcr_update()
 
             break;
         case VCR_STATE_PLAYING:
-            fileClose(vcr_file);
+            db_fclose(vcr_file);
             vcr_file = NULL;
 
             // NOTE: Uninline.

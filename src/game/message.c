@@ -35,7 +35,7 @@ static char bad_copy[MESSAGE_LIST_ITEM_FIELD_MAX_SIZE];
 // 0x484770
 int init_message()
 {
-    File* stream = fileOpen("data\\badwords.txt", "rt");
+    File* stream = db_fopen("data\\badwords.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
@@ -43,28 +43,28 @@ int init_message()
     char word[BADWORD_LENGTH_MAX];
 
     bad_total = 0;
-    while (fileReadString(word, BADWORD_LENGTH_MAX - 1, stream)) {
+    while (db_fgets(word, BADWORD_LENGTH_MAX - 1, stream)) {
         bad_total++;
     }
 
     bad_word = (char**)mem_malloc(sizeof(*bad_word) * bad_total);
     if (bad_word == NULL) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     bad_len = (int*)mem_malloc(sizeof(*bad_len) * bad_total);
     if (bad_len == NULL) {
         mem_free(bad_word);
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileSeek(stream, 0, SEEK_SET);
+    db_fseek(stream, 0, SEEK_SET);
 
     int index = 0;
     for (; index < bad_total; index++) {
-        if (!fileReadString(word, BADWORD_LENGTH_MAX - 1, stream)) {
+        if (!db_fgets(word, BADWORD_LENGTH_MAX - 1, stream)) {
             break;
         }
 
@@ -84,7 +84,7 @@ int init_message()
         bad_len[index] = len;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     if (index != bad_total) {
         for (; index > 0; index--) {
@@ -188,7 +188,7 @@ bool message_load(MessageList* messageList, const char* path)
 
     sprintf(localized_path, "%s\\%s\\%s", "text", language, path);
 
-    file_ptr = fileOpen(localized_path, "rt");
+    file_ptr = db_fopen(localized_path, "rt");
     if (file_ptr == NULL) {
         return false;
     }
@@ -231,10 +231,10 @@ bool message_load(MessageList* messageList, const char* path)
 err:
 
     if (!success) {
-        debug_printf("Error loading message file %s at offset %x.", localized_path, fileTell(file_ptr));
+        debug_printf("Error loading message file %s at offset %x.", localized_path, db_ftell(file_ptr));
     }
 
-    fileClose(file_ptr);
+    db_fclose(file_ptr);
 
     return success;
 }
@@ -438,7 +438,7 @@ int message_load_field(File* file, char* str)
     len = 0;
 
     while (1) {
-        ch = fileReadChar(file);
+        ch = db_fgetc(file);
         if (ch == -1) {
             return 1;
         }
@@ -454,7 +454,7 @@ int message_load_field(File* file, char* str)
     }
 
     while (1) {
-        ch = fileReadChar(file);
+        ch = db_fgetc(file);
 
         if (ch == -1) {
             debug_printf("\nError reading message file - EOF reached.\n");

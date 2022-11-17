@@ -1756,7 +1756,7 @@ void windowClose()
     }
 
     mousemgrClose();
-    dbExit();
+    db_exit();
     win_exit();
 }
 

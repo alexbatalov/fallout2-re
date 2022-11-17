@@ -35,7 +35,7 @@ bool defaultCompressionFunc(char* filePath)
 // 0x41A2D0
 int decodeRead(int fileHandle, void* buffer, unsigned int size)
 {
-    return fileRead(buffer, 1, size, (File*)fileHandle);
+    return db_fread(buffer, 1, size, (File*)fileHandle);
 }
 
 // 0x41A2EC
@@ -72,7 +72,7 @@ int audioOpen(const char* fname, int flags, ...)
         *pm++ = 'b';
     }
 
-    File* stream = fileOpen(path, mode);
+    File* stream = db_fopen(path, mode);
     if (stream == NULL) {
         debug_printf("AudioOpen: Couldn't open %s for read\n", path);
         return -1;
@@ -103,7 +103,7 @@ int audioOpen(const char* fname, int flags, ...)
         audioFile->soundDecoder = soundDecoderInit(decodeRead, audioFile->fileHandle, &(audioFile->field_14), &(audioFile->field_10), &(audioFile->fileSize));
         audioFile->fileSize *= 2;
     } else {
-        audioFile->fileSize = fileGetSize(stream);
+        audioFile->fileSize = db_filelength(stream);
     }
 
     audioFile->position = 0;
@@ -115,7 +115,7 @@ int audioOpen(const char* fname, int flags, ...)
 int audioCloseFile(int fileHandle)
 {
     AudioFile* audioFile = &(audio[fileHandle - 1]);
-    fileClose((File*)audioFile->fileHandle);
+    db_fclose((File*)audioFile->fileHandle);
 
     if ((audioFile->flags & AUDIO_FILE_COMPRESSED) != 0) {
         soundDecoderFree(audioFile->soundDecoder);
@@ -135,7 +135,7 @@ int audioRead(int fileHandle, void* buffer, unsigned int size)
     if ((audioFile->flags & AUDIO_FILE_COMPRESSED) != 0) {
         bytesRead = soundDecoderDecode(audioFile->soundDecoder, buffer, size);
     } else {
-        bytesRead = fileRead(buffer, 1, size, (File*)audioFile->fileHandle);
+        bytesRead = db_fread(buffer, 1, size, (File*)audioFile->fileHandle);
     }
 
     audioFile->position += bytesRead;
@@ -169,7 +169,7 @@ long audioSeek(int fileHandle, long offset, int origin)
     if ((audioFile->flags & AUDIO_FILE_COMPRESSED) != 0) {
         if (pos < audioFile->position) {
             soundDecoderFree(audioFile->soundDecoder);
-            fileSeek((File*)audioFile->fileHandle, 0, SEEK_SET);
+            db_fseek((File*)audioFile->fileHandle, 0, SEEK_SET);
             audioFile->soundDecoder = soundDecoderInit(decodeRead, audioFile->fileHandle, &(audioFile->field_14), &(audioFile->field_10), &(audioFile->fileSize));
             audioFile->position = 0;
             audioFile->fileSize *= 2;
@@ -204,7 +204,7 @@ long audioSeek(int fileHandle, long offset, int origin)
 
         return audioFile->position;
     } else {
-        return fileSeek((File*)audioFile->fileHandle, offset, origin);
+        return db_fseek((File*)audioFile->fileHandle, offset, origin);
     }
 }
 

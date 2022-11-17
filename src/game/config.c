@@ -254,12 +254,12 @@ bool config_load(Config* config, const char* filePath, bool isDb)
     char string[CONFIG_FILE_MAX_LINE_LENGTH];
 
     if (isDb) {
-        File* stream = fileOpen(filePath, "rb");
+        File* stream = db_fopen(filePath, "rb");
         if (stream != NULL) {
-            while (fileReadString(string, sizeof(string), stream) != NULL) {
+            while (db_fgets(string, sizeof(string), stream) != NULL) {
                 config_parse_line(config, string);
             }
-            fileClose(stream);
+            db_fclose(stream);
         }
     } else {
         FILE* stream = fopen(filePath, "rt");
@@ -288,25 +288,25 @@ bool config_save(Config* config, const char* filePath, bool isDb)
     }
 
     if (isDb) {
-        File* stream = fileOpen(filePath, "wt");
+        File* stream = db_fopen(filePath, "wt");
         if (stream == NULL) {
             return false;
         }
 
         for (int sectionIndex = 0; sectionIndex < config->size; sectionIndex++) {
             assoc_pair* sectionEntry = &(config->list[sectionIndex]);
-            filePrintFormatted(stream, "[%s]\n", sectionEntry->name);
+            db_fprintf(stream, "[%s]\n", sectionEntry->name);
 
             ConfigSection* section = (ConfigSection*)sectionEntry->data;
             for (int index = 0; index < section->size; index++) {
                 assoc_pair* keyValueEntry = &(section->list[index]);
-                filePrintFormatted(stream, "%s=%s\n", keyValueEntry->name, *(char**)keyValueEntry->data);
+                db_fprintf(stream, "%s=%s\n", keyValueEntry->name, *(char**)keyValueEntry->data);
             }
 
-            filePrintFormatted(stream, "\n");
+            db_fprintf(stream, "\n");
         }
 
-        fileClose(stream);
+        db_fclose(stream);
     } else {
         FILE* stream = fopen(filePath, "wt");
         if (stream == NULL) {

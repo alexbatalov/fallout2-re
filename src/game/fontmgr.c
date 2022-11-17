@@ -95,45 +95,45 @@ static int FMLoadFont(int font_index)
     char path[56];
     sprintf(path, "font%d.aaf", font_index);
 
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -1;
     }
 
-    int fileSize = fileGetSize(stream);
+    int fileSize = db_filelength(stream);
 
     int sig;
-    if (fileRead(&sig, 4, 1, stream) != 1) {
-        fileClose(stream);
+    if (db_fread(&sig, 4, 1, stream) != 1) {
+        db_fclose(stream);
         return -1;
     }
 
     Swap4(&sig);
     if (sig != 0x41414646) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    if (fileRead(&(fontDescriptor->maxHeight), 2, 1, stream) != 1) {
-        fileClose(stream);
+    if (db_fread(&(fontDescriptor->maxHeight), 2, 1, stream) != 1) {
+        db_fclose(stream);
         return -1;
     }
     Swap2(&(fontDescriptor->maxHeight));
 
-    if (fileRead(&(fontDescriptor->letterSpacing), 2, 1, stream) != 1) {
-        fileClose(stream);
+    if (db_fread(&(fontDescriptor->letterSpacing), 2, 1, stream) != 1) {
+        db_fclose(stream);
         return -1;
     }
     Swap2(&(fontDescriptor->letterSpacing));
 
-    if (fileRead(&(fontDescriptor->wordSpacing), 2, 1, stream) != 1) {
-        fileClose(stream);
+    if (db_fread(&(fontDescriptor->wordSpacing), 2, 1, stream) != 1) {
+        db_fclose(stream);
         return -1;
     }
     Swap2(&(fontDescriptor->wordSpacing));
 
-    if (fileRead(&(fontDescriptor->lineSpacing), 2, 1, stream) != 1) {
-        fileClose(stream);
+    if (db_fread(&(fontDescriptor->lineSpacing), 2, 1, stream) != 1) {
+        db_fclose(stream);
         return -1;
     }
     Swap2(&(fontDescriptor->lineSpacing));
@@ -141,20 +141,20 @@ static int FMLoadFont(int font_index)
     for (int index = 0; index < 256; index++) {
         InterfaceFontGlyph* glyph = &(fontDescriptor->glyphs[index]);
 
-        if (fileRead(&(glyph->width), 2, 1, stream) != 1) {
-            fileClose(stream);
+        if (db_fread(&(glyph->width), 2, 1, stream) != 1) {
+            db_fclose(stream);
             return -1;
         }
         Swap2(&(glyph->width));
 
-        if (fileRead(&(glyph->height), 2, 1, stream) != 1) {
-            fileClose(stream);
+        if (db_fread(&(glyph->height), 2, 1, stream) != 1) {
+            db_fclose(stream);
             return -1;
         }
         Swap2(&(glyph->height));
 
-        if (fileRead(&(glyph->offset), 4, 1, stream) != 1) {
-            fileClose(stream);
+        if (db_fread(&(glyph->offset), 4, 1, stream) != 1) {
+            db_fclose(stream);
             return -1;
         }
         Swap4(&(glyph->offset));
@@ -164,17 +164,17 @@ static int FMLoadFont(int font_index)
 
     fontDescriptor->data = (unsigned char*)mymalloc(glyphDataSize, __FILE__, __LINE__); // FONTMGR.C, 259
     if (fontDescriptor->data == NULL) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    if (fileRead(fontDescriptor->data, glyphDataSize, 1, stream) != 1) {
+    if (db_fread(fontDescriptor->data, glyphDataSize, 1, stream) != 1) {
         myfree(fontDescriptor->data, __FILE__, __LINE__); // FONTMGR.C, 268
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }

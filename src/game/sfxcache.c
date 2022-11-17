@@ -345,7 +345,7 @@ static int sfxc_effect_load(int tag, int* sizePtr, unsigned char* data)
     char* name;
     sfxl_name(tag, &name);
 
-    if (dbGetFileContents(name, data)) {
+    if (db_read_to_buf(name, data)) {
         mem_free(name);
         return -1;
     }

@@ -765,12 +765,12 @@ int map_load(char* fileName)
 
         const char* filePath = map_file_path(fileName);
 
-        File* stream = fileOpen(filePath, "rb");
+        File* stream = db_fopen(filePath, "rb");
 
         strcpy(extension, ".MAP");
 
         if (stream != NULL) {
-            fileClose(stream);
+            db_fclose(stream);
             rc = map_load_in_game(fileName);
             wmMapMusicStart();
         }
@@ -778,10 +778,10 @@ int map_load(char* fileName)
 
     if (rc == -1) {
         const char* filePath = map_file_path(fileName);
-        File* stream = fileOpen(filePath, "rb");
+        File* stream = db_fopen(filePath, "rb");
         if (stream != NULL) {
             rc = map_load_file(stream);
-            fileClose(stream);
+            db_fclose(stream);
         }
 
         if (rc == 0) {
@@ -823,7 +823,7 @@ int map_load_file(File* stream)
 
     int savedMouseCursorId = gmouse_get_cursor();
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
-    fileSetReadProgressHandler(gmouse_bk_process, 32768);
+    db_register_callback(gmouse_bk_process, 32768);
     tile_disable_refresh();
 
     int rc = 0;
@@ -993,7 +993,7 @@ err:
     intface_show();
     proto_dude_update_gender();
     map_place_dude_and_mouse();
-    fileSetReadProgressHandler(NULL, 0);
+    db_register_callback(NULL, 0);
     map_enable_bk_processes();
     gmouse_disable_scrolling();
     gmouse_set_cursor(MOUSE_CURSOR_WAIT_PLANET);
@@ -1027,7 +1027,7 @@ err:
         rc = -1;
     }
 
-    fileSetReadProgressHandler(NULL, 0);
+    db_register_callback(NULL, 0);
 
     if (game_ui_is_disabled() == 0) {
         gmouse_enable_scrolling();
@@ -1315,10 +1315,10 @@ int map_save()
     int rc = -1;
     if (map_data.name[0] != '\0') {
         char* mapFileName = map_file_path(map_data.name);
-        File* stream = fileOpen(mapFileName, "wb");
+        File* stream = db_fopen(mapFileName, "wb");
         if (stream != NULL) {
             rc = map_save_file(stream);
-            fileClose(stream);
+            db_fclose(stream);
         } else {
             sprintf(temp, "Unable to open %s to write!", map_data.name);
             debug_printf(temp);

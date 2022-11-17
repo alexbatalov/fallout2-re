@@ -2356,13 +2356,13 @@ static int quest_init()
         return -1;
     }
 
-    File* stream = fileOpen("data\\quests.txt", "rt");
+    File* stream = db_fopen("data\\quests.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
 
     char string[256];
-    while (fileReadString(string, 256, stream)) {
+    while (db_fgets(string, 256, stream)) {
         const char* delim = " \t,";
         char* tok;
         QuestDescription entry;
@@ -2424,13 +2424,13 @@ static int quest_init()
 
     qsort(quests, quest_count, sizeof(*quests), quest_qsort_compare);
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 
 err:
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return -1;
 }
@@ -2462,13 +2462,13 @@ static int holodisks_init()
     // NOTE: Uninline.
     holodisks_exit();
 
-    File* stream = fileOpen("data\\holodisk.txt", "rt");
+    File* stream = db_fopen("data\\holodisk.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
 
     char str[256];
-    while (fileReadString(str, sizeof(str), stream)) {
+    while (db_fgets(str, sizeof(str), stream)) {
         const char* delim = " \t,";
         char* tok;
         HolodiskDescription entry;
@@ -2514,13 +2514,13 @@ static int holodisks_init()
         holodisks_count++;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 
 err:
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return -1;
 }

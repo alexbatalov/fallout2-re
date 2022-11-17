@@ -679,7 +679,7 @@ int obj_save(File* stream)
 
     int objectCount = 0;
 
-    long objectCountPos = fileTell(stream);
+    long objectCountPos = db_ftell(stream);
     if (fileWriteInt32(stream, objectCount) == -1) {
         return -1;
     }
@@ -687,7 +687,7 @@ int obj_save(File* stream)
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         int objectCountAtElevation = 0;
 
-        long objectCountAtElevationPos = fileTell(stream);
+        long objectCountAtElevationPos = db_ftell(stream);
         if (fileWriteInt32(stream, objectCountAtElevation) == -1) {
             return -1;
         }
@@ -742,18 +742,18 @@ int obj_save(File* stream)
             }
         }
 
-        long pos = fileTell(stream);
-        fileSeek(stream, objectCountAtElevationPos, SEEK_SET);
+        long pos = db_ftell(stream);
+        db_fseek(stream, objectCountAtElevationPos, SEEK_SET);
         fileWriteInt32(stream, objectCountAtElevation);
-        fileSeek(stream, pos, SEEK_SET);
+        db_fseek(stream, pos, SEEK_SET);
 
         objectCount += objectCountAtElevation;
     }
 
-    long pos = fileTell(stream);
-    fileSeek(stream, objectCountPos, SEEK_SET);
+    long pos = db_ftell(stream);
+    db_fseek(stream, objectCountPos, SEEK_SET);
     fileWriteInt32(stream, objectCount);
-    fileSeek(stream, pos, SEEK_SET);
+    db_fseek(stream, pos, SEEK_SET);
 
     return 0;
 }
@@ -3619,7 +3619,7 @@ int obj_save_dude(File* stream)
     obj_dude->flags |= OBJECT_TEMPORARY;
 
     if (fileWriteInt32(stream, tile_center_tile) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
@@ -3693,7 +3693,7 @@ int obj_load_dude(File* stream)
 
     int tile;
     if (fileReadInt32(stream, &tile) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 

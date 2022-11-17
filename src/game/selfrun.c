@@ -33,7 +33,7 @@ int selfrun_get_list(char*** fileListPtr, int* fileListLengthPtr)
         return -1;
     }
 
-    *fileListLengthPtr = fileNameListInit("selfrun\\*.sdf", fileListPtr, 0, 0);
+    *fileListLengthPtr = db_get_file_list("selfrun\\*.sdf", fileListPtr, 0, 0);
 
     return 0;
 }
@@ -45,7 +45,7 @@ int selfrun_free_list(char*** fileListPtr)
         return -1;
     }
 
-    fileNameListFree(fileListPtr, 0);
+    db_free_file_list(fileListPtr, 0);
 
     return 0;
 }
@@ -193,7 +193,7 @@ static int selfrun_load_data(const char* path, SelfrunData* selfrunData)
         return -1;
     }
 
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -1;
     }
@@ -205,7 +205,7 @@ static int selfrun_load_data(const char* path, SelfrunData* selfrunData)
         rc = 0;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return rc;
 }
@@ -229,7 +229,7 @@ static int selfrun_save_data(const char* path, SelfrunData* selfrunData)
 
     mkdir(selfrunDirectoryPath);
 
-    File* stream = fileOpen(path, "wb");
+    File* stream = db_fopen(path, "wb");
     if (stream == NULL) {
         return -1;
     }
@@ -241,7 +241,7 @@ static int selfrun_save_data(const char* path, SelfrunData* selfrunData)
         rc = 0;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return rc;
 }

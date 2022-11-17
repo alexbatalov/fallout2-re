@@ -19,7 +19,7 @@ static int compare(const void* a1, const void* a2)
 char** getFileList(const char* pattern, int* fileNameListLengthPtr)
 {
     char** fileNameList;
-    int fileNameListLength = fileNameListInit(pattern, &fileNameList, 0, 0);
+    int fileNameListLength = db_get_file_list(pattern, &fileNameList, 0, 0);
     *fileNameListLengthPtr = fileNameListLength;
     if (fileNameListLength == 0) {
         return NULL;
@@ -33,5 +33,5 @@ char** getFileList(const char* pattern, int* fileNameListLengthPtr)
 // 0x4AA2DC
 void freeFileList(char** fileList)
 {
-    fileNameListFree(&fileList, 0);
+    db_free_file_list(&fileList, 0);
 }

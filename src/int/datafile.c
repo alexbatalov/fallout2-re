@@ -175,12 +175,12 @@ unsigned char* datafileGetPalette()
 unsigned char* datafileLoadBlock(char* path, int* sizePtr)
 {
     const char* mangledPath = mangleName(path);
-    File* stream = fileOpen(mangledPath, "rb");
+    File* stream = db_fopen(mangledPath, "rb");
     if (stream == NULL) {
         return NULL;
     }
 
-    int size = fileGetSize(stream);
+    int size = db_filelength(stream);
     void* data = mymalloc(size, __FILE__, __LINE__); // "..\\int\\DATAFILE.C", 185
     if (data == NULL) {
         // NOTE: This code is unreachable, mymalloc never fails.
@@ -189,8 +189,8 @@ unsigned char* datafileLoadBlock(char* path, int* sizePtr)
         return NULL;
     }
 
-    fileRead(data, 1, size, stream);
-    fileClose(stream);
+    db_fread(data, 1, size, stream);
+    db_fclose(stream);
     *sizePtr = size;
     return data;
 }

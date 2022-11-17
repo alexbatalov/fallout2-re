@@ -1294,7 +1294,7 @@ int wmWorldMap_load(File* stream)
 // 0x4BD678
 static int wmWorldMapSaveTempData()
 {
-    File* stream = fileOpen("worldmap.dat", "wb");
+    File* stream = db_fopen("worldmap.dat", "wb");
     if (stream == NULL) {
         return -1;
     }
@@ -1304,7 +1304,7 @@ static int wmWorldMapSaveTempData()
         rc = -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return rc;
 }
@@ -1312,7 +1312,7 @@ static int wmWorldMapSaveTempData()
 // 0x4BD6B4
 static int wmWorldMapLoadTempData()
 {
-    File* stream = fileOpen("worldmap.dat", "rb");
+    File* stream = db_fopen("worldmap.dat", "rb");
     if (stream == NULL) {
         return -1;
     }
@@ -1322,7 +1322,7 @@ static int wmWorldMapLoadTempData()
         rc = -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return rc;
 }
@@ -4244,7 +4244,7 @@ static int wmGrabTileWalkMask(int tileIdx)
     char path[MAX_PATH];
     sprintf(path, "data\\%s.msk", tileInfo->walkMaskName);
 
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -1;
     }
@@ -4255,7 +4255,7 @@ static int wmGrabTileWalkMask(int tileIdx)
         rc = -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return rc;
 }

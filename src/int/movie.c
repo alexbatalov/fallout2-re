@@ -249,7 +249,7 @@ static void movieFree(void* ptr)
 // 0x48662C
 static bool movieRead(int fileHandle, void* buf, int count)
 {
-    return fileRead(buf, 1, count, (File*)fileHandle) == count;
+    return db_fread(buf, 1, count, (File*)fileHandle) == count;
 }
 
 // 0x486654
@@ -555,7 +555,7 @@ static void cleanupMovie(int a1)
 
     _MVE_ReleaseMem();
 
-    fileClose(handle);
+    db_fclose(handle);
 
     if (alphaWindowBuf != NULL) {
         buf_to_buf(alphaWindowBuf, movieW, movieH, movieW, win_get_buf(GNWWin) + movieY * win_width(GNWWin) + movieX, win_width(GNWWin));
@@ -563,7 +563,7 @@ static void cleanupMovie(int a1)
     }
 
     if (alphaHandle != NULL) {
-        fileClose(alphaHandle);
+        db_fclose(alphaHandle);
         alphaHandle = NULL;
     }
 
@@ -694,7 +694,7 @@ static void cleanupLast()
 // 0x48731C
 static File* openFile(char* filePath)
 {
-    handle = fileOpen(filePath, "rb");
+    handle = db_fopen(filePath, "rb");
     if (handle == NULL) {
         if (failedOpenFunc == NULL) {
             debug_printf("Couldn't find movie file %s\n", filePath);
@@ -702,7 +702,7 @@ static File* openFile(char* filePath)
         }
 
         while (handle == NULL && failedOpenFunc(filePath) != 0) {
-            handle = fileOpen(filePath, "rb");
+            handle = db_fopen(filePath, "rb");
         }
     }
     return handle;
@@ -722,7 +722,7 @@ static void openSubtitle(char* filePath)
     strcpy(path, filePath);
 
     debug_printf("Opening subtitle file %s\n", path);
-    File* stream = fileOpen(path, "r");
+    File* stream = db_fopen(path, "r");
     if (stream == NULL) {
         debug_printf("Couldn't open subtitle file %s\n", path);
         movieFlags &= ~MOVIE_EXTENDED_FLAG_0x10;
@@ -731,10 +731,10 @@ static void openSubtitle(char* filePath)
 
     MovieSubtitleListNode* prev = NULL;
     int subtitleCount = 0;
-    while (!fileEof(stream)) {
+    while (!db_feof(stream)) {
         char string[260];
         string[0] = '\0';
-        fileReadString(string, 259, stream);
+        db_fgets(string, 259, stream);
         if (*string == '\0') {
             break;
         }
@@ -774,7 +774,7 @@ static void openSubtitle(char* filePath)
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     debug_printf("Read %d subtitles\n", subtitleCount);
 }
@@ -973,7 +973,7 @@ static int stepMovie()
     if (alphaHandle != NULL) {
         int size;
         fileReadInt32(alphaHandle, &size);
-        fileRead(alphaBuf, 1, size, alphaHandle);
+        db_fread(alphaBuf, 1, size, alphaHandle);
     }
 
     int v1 = _MVE_rmStepMovie();

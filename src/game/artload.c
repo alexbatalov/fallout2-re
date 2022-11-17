@@ -17,7 +17,7 @@ static int art_readSubFrameData(unsigned char* data, File* stream, int count)
         if (fileReadInt32(stream, &(frame->size)) == -1) return -1;
         if (fileReadInt16(stream, &(frame->x)) == -1) return -1;
         if (fileReadInt16(stream, &(frame->y)) == -1) return -1;
-        if (fileRead(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
+        if (db_fread(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
 
         ptr += sizeof(ArtFrame) + frame->size;
     }
@@ -49,7 +49,7 @@ int load_frame(const char* path, Art** artPtr)
     File* stream;
     int index;
 
-    if (dbGetFileSize(path, &size) == -1) {
+    if (db_dir_entry(path, &size) == -1) {
         return -2;
     }
 
@@ -58,13 +58,13 @@ int load_frame(const char* path, Art** artPtr)
         return -1;
     }
 
-    stream = fileOpen(path, "rb");
+    stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -2;
     }
 
     if (art_readFrameData(*artPtr, stream) != 0) {
-        fileClose(stream);
+        db_fclose(stream);
         mem_free(*artPtr);
         return -3;
     }
@@ -78,12 +78,12 @@ int load_frame(const char* path, Art** artPtr)
     }
 
     if (index < ROTATION_COUNT) {
-        fileClose(stream);
+        db_fclose(stream);
         mem_free(*artPtr);
         return -5;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -91,27 +91,27 @@ int load_frame(const char* path, Art** artPtr)
 // 0x419FC0
 int load_frame_into(const char* path, unsigned char* data)
 {
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -2;
     }
 
     Art* art = (Art*)data;
     if (art_readFrameData(art, stream) != 0) {
-        fileClose(stream);
+        db_fclose(stream);
         return -3;
     }
 
     for (int index = 0; index < ROTATION_COUNT; index++) {
         if (index == 0 || art->dataOffsets[index - 1] != art->dataOffsets[index]) {
             if (art_readSubFrameData(data + sizeof(Art) + art->dataOffsets[index], stream, art->frameCount) != 0) {
-                fileClose(stream);
+                db_fclose(stream);
                 return -5;
             }
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }
 
@@ -129,7 +129,7 @@ int art_writeSubFrameData(unsigned char* data, File* stream, int count)
         if (fileWriteInt32(stream, frame->size) == -1) return -1;
         if (fileWriteInt16(stream, frame->x) == -1) return -1;
         if (fileWriteInt16(stream, frame->y) == -1) return -1;
-        if (fileWrite(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
+        if (db_fwrite(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
 
         ptr += sizeof(ArtFrame) + frame->size;
     }
@@ -163,26 +163,26 @@ int save_frame(const char* path, unsigned char* data)
         return -1;
     }
 
-    File* stream = fileOpen(path, "wb");
+    File* stream = db_fopen(path, "wb");
     if (stream == NULL) {
         return -1;
     }
 
     Art* art = (Art*)data;
     if (art_writeFrameData(art, stream) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     for (int index = 0; index < ROTATION_COUNT; index++) {
         if (index == 0 || art->dataOffsets[index - 1] != art->dataOffsets[index]) {
             if (art_writeSubFrameData(data + sizeof(Art) + art->dataOffsets[index], stream, art->frameCount) != 0) {
-                fileClose(stream);
+                db_fclose(stream);
                 return -1;
             }
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }

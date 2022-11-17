@@ -111,7 +111,7 @@ void gmovie_reset()
 // 0x44E638
 int gmovie_load(File* stream)
 {
-    if (fileRead(gmovie_played_list, sizeof(*gmovie_played_list), MOVIE_COUNT, stream) != MOVIE_COUNT) {
+    if (db_fread(gmovie_played_list, sizeof(*gmovie_played_list), MOVIE_COUNT, stream) != MOVIE_COUNT) {
         return -1;
     }
 
@@ -121,7 +121,7 @@ int gmovie_load(File* stream)
 // 0x44E664
 int gmovie_save(File* stream)
 {
-    if (fileWrite(gmovie_played_list, sizeof(*gmovie_played_list), MOVIE_COUNT, stream) != MOVIE_COUNT) {
+    if (db_fwrite(gmovie_played_list, sizeof(*gmovie_played_list), MOVIE_COUNT, stream) != MOVIE_COUNT) {
         return -1;
     }
 
@@ -150,12 +150,12 @@ int gmovie_play(int movie, int flags)
 
     if (stricmp(language, ENGLISH) != 0) {
         sprintf(movieFilePath, "art\\%s\\cuts\\%s", language, movie_list[movie]);
-        movieFound = dbGetFileSize(movieFilePath, &movieFileSize) == 0;
+        movieFound = db_dir_entry(movieFilePath, &movieFileSize) == 0;
     }
 
     if (!movieFound) {
         sprintf(movieFilePath, "art\\cuts\\%s", movie_list[movie]);
-        movieFound = dbGetFileSize(movieFilePath, &movieFileSize) == 0;
+        movieFound = db_dir_entry(movieFilePath, &movieFileSize) == 0;
     }
 
     if (!movieFound) {
@@ -197,7 +197,7 @@ int gmovie_play(int movie, int flags)
         char* subtitlesFilePath = gmovie_subtitle_func(movieFilePath);
 
         int subtitlesFileSize;
-        if (dbGetFileSize(subtitlesFilePath, &subtitlesFileSize) == 0) {
+        if (db_dir_entry(subtitlesFilePath, &subtitlesFileSize) == 0) {
             v1 = 12;
         } else {
             subtitlesEnabled = false;

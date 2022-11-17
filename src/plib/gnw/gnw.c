@@ -95,8 +95,8 @@ int win_init(VideoSystemInitProc* videoSystemInitProc, VideoSystemExitProc* vide
         window_index[index] = -1;
     }
 
-    if (_db_total() == 0) {
-        if (dbOpen(NULL, 0, "", 1) == -1) {
+    if (db_total() == 0) {
+        if (db_init(NULL, 0, "", 1) == -1) {
             return WINDOW_MANAGER_ERR_INITIALIZING_DEFAULT_DATABASE;
         }
     }
@@ -1265,7 +1265,7 @@ static int colorOpen(const char* path, int flags)
         mode[1] = 'b';
     }
 
-    File* stream = fileOpen(path, mode);
+    File* stream = db_fopen(path, mode);
     if (stream != NULL) {
         return (int)stream;
     }
@@ -1278,7 +1278,7 @@ static int colorOpen(const char* path, int flags)
 // 0x4D81E8
 static int colorRead(int fd, void* buf, size_t count)
 {
-    return fileRead(buf, 1, count, (File*)fd);
+    return db_fread(buf, 1, count, (File*)fd);
 }
 
 // [close] implementation for palette file operations backed by [XFile].
@@ -1286,7 +1286,7 @@ static int colorRead(int fd, void* buf, size_t count)
 // 0x4D81E0
 static int colorClose(int fd)
 {
-    return fileClose((File*)fd);
+    return db_fclose((File*)fd);
 }
 
 // 0x4D8200

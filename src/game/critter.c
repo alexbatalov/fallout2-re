@@ -674,7 +674,7 @@ int critter_kill_count(int killType)
 int critter_kill_count_load(File* stream)
 {
     if (fileReadInt32List(stream, pc_kill_counts, KILL_TYPE_COUNT) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
@@ -685,7 +685,7 @@ int critter_kill_count_load(File* stream)
 int critter_kill_count_save(File* stream)
 {
     if (fileWriteInt32List(stream, pc_kill_counts, KILL_TYPE_COUNT) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
@@ -976,24 +976,24 @@ int critter_load_data(CritterProtoData* critterData, const char* path)
 {
     File* stream;
 
-    stream = fileOpen(path, "rb");
+    stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -1;
     }
 
     if (critter_read_data(stream, critterData) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }
 
 // 0x42DE58
 int pc_load_data(const char* path)
 {
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         return -1;
     }
@@ -1002,24 +1002,24 @@ int pc_load_data(const char* path)
     proto_ptr(obj_dude->pid, &proto);
 
     if (critter_read_data(stream, &(proto->critter.data)) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileRead(pc_name, DUDE_NAME_MAX_LENGTH, 1, stream);
+    db_fread(pc_name, DUDE_NAME_MAX_LENGTH, 1, stream);
 
     if (skill_load(stream) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     if (trait_load(stream) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     if (fileReadInt32(stream, &character_points) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
@@ -1028,7 +1028,7 @@ int pc_load_data(const char* path)
     proto->critter.data.experience = 0;
     proto->critter.data.killType = 0;
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }
 
@@ -1069,24 +1069,24 @@ int critter_save_data(CritterProtoData* critterData, const char* path)
 {
     File* stream;
 
-    stream = fileOpen(path, "wb");
+    stream = db_fopen(path, "wb");
     if (stream == NULL) {
         return -1;
     }
 
     if (critter_write_data(stream, critterData) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }
 
 // 0x42E08C
 int pc_save_data(const char* path)
 {
-    File* stream = fileOpen(path, "wb");
+    File* stream = db_fopen(path, "wb");
     if (stream == NULL) {
         return -1;
     }
@@ -1095,28 +1095,28 @@ int pc_save_data(const char* path)
     proto_ptr(obj_dude->pid, &proto);
 
     if (critter_write_data(stream, &(proto->critter.data)) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileWrite(pc_name, DUDE_NAME_MAX_LENGTH, 1, stream);
+    db_fwrite(pc_name, DUDE_NAME_MAX_LENGTH, 1, stream);
 
     if (skill_save(stream) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     if (trait_save(stream) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
     if (fileWriteInt32(stream, character_points) == -1) {
-        fileClose(stream);
+        db_fclose(stream);
         return -1;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return 0;
 }
 

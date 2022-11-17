@@ -549,7 +549,7 @@ void interpretFreeProgram(Program* program)
 // 0x467734
 Program* allocateProgram(const char* path)
 {
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream == NULL) {
         char err[260];
         sprintf(err, "Couldn't open %s for read\n", path);
@@ -557,11 +557,11 @@ Program* allocateProgram(const char* path)
         return NULL;
     }
 
-    int fileSize = fileGetSize(stream);
+    int fileSize = db_filelength(stream);
     unsigned char* data = (unsigned char*)mymalloc(fileSize, __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 458
 
-    fileRead(data, 1, fileSize, stream);
-    fileClose(stream);
+    db_fread(data, 1, fileSize, stream);
+    db_fclose(stream);
 
     Program* program = (Program*)mymalloc(sizeof(Program), __FILE__, __LINE__); // ..\\int\\INTRPRET.C, 463
     memset(program, 0, sizeof(Program));

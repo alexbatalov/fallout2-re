@@ -3809,7 +3809,7 @@ static int OptionWindow()
                 strcat(string4, "TXT");
 
                 char** fileList;
-                int fileListLength = fileNameListInit(string4, &fileList, 0, 0);
+                int fileListLength = db_get_file_list(string4, &fileList, 0, 0);
                 if (fileListLength != -1) {
                     // PRINT
                     strcpy(string1, getmsg(&editor_message_file, &mesg, 616));
@@ -3865,7 +3865,7 @@ static int OptionWindow()
                         }
                     }
 
-                    fileNameListFree(&fileList, 0);
+                    db_free_file_list(&fileList, 0);
                 } else {
                     gsound_play_sfx_file("iisxxxx1");
 
@@ -3881,13 +3881,13 @@ static int OptionWindow()
                 strcat(string4, "GCD");
 
                 char** fileNameList;
-                int fileNameListLength = fileNameListInit(string4, &fileNameList, 0, 0);
+                int fileNameListLength = db_get_file_list(string4, &fileNameList, 0, 0);
                 if (fileNameListLength != -1) {
                     // NOTE: This value is not copied as in save dialog.
                     char* title = getmsg(&editor_message_file, &mesg, 601);
                     int loadFileDialogRc = file_dialog(title, fileNameList, string3, fileNameListLength, 168, 80, 0);
                     if (loadFileDialogRc == -1) {
-                        fileNameListFree(&fileNameList, 0);
+                        db_free_file_list(&fileNameList, 0);
                         // FIXME: This branch ignores cleanup at the end of the loop.
                         return -1;
                     }
@@ -3935,7 +3935,7 @@ static int OptionWindow()
                         ResetScreen();
                     }
 
-                    fileNameListFree(&fileNameList, 0);
+                    db_free_file_list(&fileNameList, 0);
                 } else {
                     gsound_play_sfx_file("iisxxxx1");
 
@@ -3952,7 +3952,7 @@ static int OptionWindow()
                 strcat(string4, "GCD");
 
                 char** fileNameList;
-                int fileNameListLength = fileNameListInit(string4, &fileNameList, 0, 0);
+                int fileNameListLength = db_get_file_list(string4, &fileNameList, 0, 0);
                 if (fileNameListLength != -1) {
                     strcpy(string1, getmsg(&editor_message_file, &mesg, 617));
                     strcpy(string4, getmsg(&editor_message_file, &mesg, 600));
@@ -4004,7 +4004,7 @@ static int OptionWindow()
                         }
                     }
 
-                    fileNameListFree(&fileNameList, 0);
+                    db_free_file_list(&fileNameList, 0);
                 } else {
                     gsound_play_sfx_file("iisxxxx1");
 
@@ -4036,7 +4036,7 @@ static int OptionWindow()
     strcpy(pattern, "*.TXT");
 
     char** fileNames;
-    int filesCount = fileNameListInit(pattern, &fileNames, 0, 0);
+    int filesCount = db_get_file_list(pattern, &fileNames, 0, 0);
     if (filesCount == -1) {
         gsound_play_sfx_file("iisxxxx1");
 
@@ -4095,7 +4095,7 @@ static int OptionWindow()
         }
     }
 
-    fileNameListFree(&fileNames, 0);
+    db_free_file_list(&fileNames, 0);
 
     return 0;
 }
@@ -4103,25 +4103,25 @@ static int OptionWindow()
 // 0x4390B4
 bool db_access(const char* fname)
 {
-    File* stream = fileOpen(fname, "rb");
+    File* stream = db_fopen(fname, "rb");
     if (stream == NULL) {
         return false;
     }
 
-    fileClose(stream);
+    db_fclose(stream);
     return true;
 }
 
 // 0x4390D0
 static int Save_as_ASCII(const char* fileName)
 {
-    File* stream = fileOpen(fileName, "wt");
+    File* stream = db_fopen(fileName, "wt");
     if (stream == NULL) {
         return -1;
     }
 
-    fileWriteString("\n", stream);
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
+    db_fputs("\n", stream);
 
     char title1[256];
     char title2[256];
@@ -4137,7 +4137,7 @@ static int Save_as_ASCII(const char* fileName)
 
     strcat(padding, title1);
     strcat(padding, "\n");
-    fileWriteString(padding, stream);
+    db_fputs(padding, stream);
 
     // VAULT-13 PERSONNEL RECORD
     strcpy(title1, getmsg(&editor_message_file, &mesg, 621));
@@ -4148,7 +4148,7 @@ static int Save_as_ASCII(const char* fileName)
 
     strcat(padding, title1);
     strcat(padding, "\n");
-    fileWriteString(padding, stream);
+    db_fputs(padding, stream);
 
     int month;
     int day;
@@ -4168,10 +4168,10 @@ static int Save_as_ASCII(const char* fileName)
 
     strcat(padding, title1);
     strcat(padding, "\n");
-    fileWriteString(padding, stream);
+    db_fputs(padding, stream);
 
     // Blank line
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
 
     // Name
     sprintf(title1,
@@ -4202,8 +4202,8 @@ static int Save_as_ASCII(const char* fileName)
         getmsg(&editor_message_file, &mesg, 644),
         getmsg(&editor_message_file, &mesg, 645 + critterGetStat(obj_dude, STAT_GENDER)));
 
-    fileWriteString(title3, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title3, stream);
+    db_fputs("\n", stream);
 
     sprintf(title1,
         "%s %.2d %s %s ",
@@ -4226,9 +4226,9 @@ static int Save_as_ASCII(const char* fileName)
         title1,
         getmsg(&editor_message_file, &mesg, 649),
         itostndn(stat_pc_min_exp(), title3));
-    fileWriteString(title2, stream);
-    fileWriteString("\n", stream);
-    fileWriteString("\n", stream);
+    db_fputs(title2, stream);
+    db_fputs("\n", stream);
+    db_fputs("\n", stream);
 
     // Statistics
     sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 623));
@@ -4245,8 +4245,8 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_MAXIMUM_HIT_POINTS),
         getmsg(&editor_message_file, &mesg, 626),
         critterGetStat(obj_dude, STAT_STRENGTH));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
     // Perception / Armor Class / Healing Rate
     sprintf(title1,
@@ -4257,8 +4257,8 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_ARMOR_CLASS),
         getmsg(&editor_message_file, &mesg, 629),
         critterGetStat(obj_dude, STAT_HEALING_RATE));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
     // Endurance / Action Points / Critical Chance
     sprintf(title1,
@@ -4269,8 +4269,8 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_MAXIMUM_ACTION_POINTS),
         getmsg(&editor_message_file, &mesg, 632),
         critterGetStat(obj_dude, STAT_CRITICAL_CHANCE));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
     // Charisma / Melee Damage / Carry Weight
     sprintf(title1,
@@ -4281,8 +4281,8 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_MELEE_DAMAGE),
         getmsg(&editor_message_file, &mesg, 635),
         critterGetStat(obj_dude, STAT_CARRY_WEIGHT));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
     // Intelligence / Damage Resistance
     sprintf(title1,
@@ -4291,8 +4291,8 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_INTELLIGENCE),
         getmsg(&editor_message_file, &mesg, 637),
         critterGetStat(obj_dude, STAT_DAMAGE_RESISTANCE));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
     // Agility / Radiation Resistance
     sprintf(title1,
@@ -4301,8 +4301,8 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_AGILITY),
         getmsg(&editor_message_file, &mesg, 639),
         critterGetStat(obj_dude, STAT_RADIATION_RESISTANCE));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
     // Luck / Poison Resistance
     sprintf(title1,
@@ -4311,23 +4311,23 @@ static int Save_as_ASCII(const char* fileName)
         critterGetStat(obj_dude, STAT_LUCK),
         getmsg(&editor_message_file, &mesg, 641),
         critterGetStat(obj_dude, STAT_POISON_RESISTANCE));
-    fileWriteString(title1, stream);
-    fileWriteString("\n", stream);
+    db_fputs(title1, stream);
+    db_fputs("\n", stream);
 
-    fileWriteString("\n", stream);
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
+    db_fputs("\n", stream);
 
     if (temp_trait[0] != -1) {
         // ::: Traits :::
         sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 650));
-        fileWriteString(title1, stream);
+        db_fputs(title1, stream);
 
         // NOTE: The original code does not use loop, or it was optimized away.
         for (int index = 0; index < TRAITS_MAX_SELECTED_COUNT; index++) {
             if (temp_trait[index] != -1) {
                 sprintf(title1, "  %s", trait_name(temp_trait[index]));
-                fileWriteString(title1, stream);
-                fileWriteString("\n", stream);
+                db_fputs(title1, stream);
+                db_fputs("\n", stream);
             }
         }
     }
@@ -4342,7 +4342,7 @@ static int Save_as_ASCII(const char* fileName)
     if (perk < PERK_COUNT) {
         // ::: Perks :::
         sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 651));
-        fileWriteString(title1, stream);
+        db_fputs(title1, stream);
 
         for (perk = 0; perk < PERK_COUNT; perk++) {
             int rank = perk_level(obj_dude, perk);
@@ -4353,17 +4353,17 @@ static int Save_as_ASCII(const char* fileName)
                     sprintf(title1, "  %s (%d)", perk_name(perk), rank);
                 }
 
-                fileWriteString(title1, stream);
-                fileWriteString("\n", stream);
+                db_fputs(title1, stream);
+                db_fputs("\n", stream);
             }
         }
     }
 
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
 
     // ::: Karma :::
     sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 652));
-    fileWriteString(title1, stream);
+    db_fputs(title1, stream);
 
     for (int index = 0; index < karma_vars_count; index++) {
         KarmaEntry* karmaEntry = &(karma_vars[index]);
@@ -4383,14 +4383,14 @@ static int Save_as_ASCII(const char* fileName)
                     getmsg(&editor_message_file, &mesg, 125),
                     itoa(game_global_vars[GVAR_PLAYER_REPUTATION], title2, 10),
                     getmsg(&editor_message_file, &mesg, reputationDescription->name));
-                fileWriteString(title1, stream);
-                fileWriteString("\n", stream);
+                db_fputs(title1, stream);
+                db_fputs("\n", stream);
             }
         } else {
             if (game_global_vars[karmaEntry->gvar] != 0) {
                 sprintf(title1, "  %s", getmsg(&editor_message_file, &mesg, karmaEntry->name));
-                fileWriteString(title1, stream);
-                fileWriteString("\n", stream);
+                db_fputs(title1, stream);
+                db_fputs("\n", stream);
             }
         }
     }
@@ -4400,11 +4400,11 @@ static int Save_as_ASCII(const char* fileName)
         const TownReputationEntry* pair = &(town_rep_info[index]);
         if (wmAreaIsKnown(pair->city)) {
             if (!hasTownReputationHeading) {
-                fileWriteString("\n", stream);
+                db_fputs("\n", stream);
 
                 // ::: Reputation :::
                 sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 657));
-                fileWriteString(title1, stream);
+                db_fputs(title1, stream);
                 hasTownReputationHeading = true;
             }
 
@@ -4434,8 +4434,8 @@ static int Save_as_ASCII(const char* fileName)
                 "  %s: %s",
                 title2,
                 getmsg(&editor_message_file, &mesg, townReputationMessageId));
-            fileWriteString(title1, stream);
-            fileWriteString("\n", stream);
+            db_fputs(title1, stream);
+            db_fputs("\n", stream);
         }
     }
 
@@ -4443,27 +4443,27 @@ static int Save_as_ASCII(const char* fileName)
     for (int index = 0; index < ADDICTION_REPUTATION_COUNT; index++) {
         if (game_global_vars[addiction_vars[index]] != 0) {
             if (!hasAddictionsHeading) {
-                fileWriteString("\n", stream);
+                db_fputs("\n", stream);
 
                 // ::: Addictions :::
                 sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 656));
-                fileWriteString(title1, stream);
+                db_fputs(title1, stream);
                 hasAddictionsHeading = true;
             }
 
             sprintf(title1,
                 "  %s",
                 getmsg(&editor_message_file, &mesg, 1004 + index));
-            fileWriteString(title1, stream);
-            fileWriteString("\n", stream);
+            db_fputs(title1, stream);
+            db_fputs("\n", stream);
         }
     }
 
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
 
     // ::: Skills ::: / ::: Kills :::
     sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 653));
-    fileWriteString(title1, stream);
+    db_fputs(title1, stream);
 
     int killType = 0;
     for (int skill = 0; skill < SKILL_COUNT; skill++) {
@@ -4501,12 +4501,12 @@ static int Save_as_ASCII(const char* fileName)
         }
     }
 
-    fileWriteString("\n", stream);
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
+    db_fputs("\n", stream);
 
     // ::: Inventory :::
     sprintf(title1, "%s\n", getmsg(&editor_message_file, &mesg, 654));
-    fileWriteString(title1, stream);
+    db_fputs(title1, stream);
 
     Inventory* inventory = &(obj_dude->data.inventory);
     for (int index = 0; index < inventory->length; index += 3) {
@@ -4536,22 +4536,22 @@ static int Save_as_ASCII(const char* fileName)
         }
 
         strcat(title1, "\n");
-        fileWriteString(title1, stream);
+        db_fputs(title1, stream);
     }
 
-    fileWriteString("\n", stream);
+    db_fputs("\n", stream);
 
     // Total Weight:
     sprintf(title1,
         "%s %d lbs.",
         getmsg(&editor_message_file, &mesg, 655),
         item_total_weight(obj_dude));
-    fileWriteString(title1, stream);
+    db_fputs(title1, stream);
 
-    fileWriteString("\n", stream);
-    fileWriteString("\n", stream);
-    fileWriteString("\n", stream);
-    fileClose(stream);
+    db_fputs("\n", stream);
+    db_fputs("\n", stream);
+    db_fputs("\n", stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -5508,7 +5508,7 @@ int editor_save(File* stream)
 {
     if (fileWriteInt32(stream, last_level) == -1)
         return -1;
-    if (fileWriteUInt8(stream, free_perk) == -1)
+    if (db_fwriteByte(stream, free_perk) == -1)
         return -1;
 
     return 0;
@@ -5519,7 +5519,7 @@ int editor_load(File* stream)
 {
     if (fileReadInt32(stream, &last_level) == -1)
         return -1;
-    if (fileReadUInt8(stream, &free_perk) == -1)
+    if (db_freadByte(stream, &free_perk) == -1)
         return -1;
 
     return 0;
@@ -6824,13 +6824,13 @@ static int karma_vars_init()
 
     karma_vars_count = 0;
 
-    File* stream = fileOpen("data\\karmavar.txt", "rt");
+    File* stream = db_fopen("data\\karmavar.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
 
     char string[256];
-    while (fileReadString(string, 256, stream)) {
+    while (db_fgets(string, 256, stream)) {
         KarmaEntry entry;
 
         char* pch = string;
@@ -6872,7 +6872,7 @@ static int karma_vars_init()
 
         KarmaEntry* entries = (KarmaEntry*)mem_realloc(karma_vars, sizeof(*entries) * (karma_vars_count + 1));
         if (entries == NULL) {
-            fileClose(stream);
+            db_fclose(stream);
 
             return -1;
         }
@@ -6885,7 +6885,7 @@ static int karma_vars_init()
 
     qsort(karma_vars, karma_vars_count, sizeof(*karma_vars), karma_vars_qsort_compare);
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -6923,13 +6923,13 @@ static int general_reps_init()
 
     general_reps_count = 0;
 
-    File* stream = fileOpen("data\\genrep.txt", "rt");
+    File* stream = db_fopen("data\\genrep.txt", "rt");
     if (stream == NULL) {
         return -1;
     }
 
     char string[256];
-    while (fileReadString(string, 256, stream)) {
+    while (db_fgets(string, 256, stream)) {
         GenericReputationEntry entry;
 
         char* pch = string;
@@ -6957,7 +6957,7 @@ static int general_reps_init()
 
         GenericReputationEntry* entries = (GenericReputationEntry*)mem_realloc(general_reps, sizeof(*entries) * (general_reps_count + 1));
         if (entries == NULL) {
-            fileClose(stream);
+            db_fclose(stream);
 
             return -1;
         }
@@ -6970,7 +6970,7 @@ static int general_reps_init()
 
     qsort(general_reps, general_reps_count, sizeof(*general_reps), general_reps_qsort_compare);
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }

@@ -427,7 +427,7 @@ void game_exit()
     FMExit();
     trap_exit();
     windowClose();
-    dbExit();
+    db_exit();
     gconfig_exit(true);
 }
 
@@ -943,7 +943,7 @@ int game_load_info_vars(const char* path, const char* section, int* variablesLis
 {
     inven_reset_dude();
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream == NULL) {
         return -1;
     }
@@ -956,14 +956,14 @@ int game_load_info_vars(const char* path, const char* section, int* variablesLis
 
     char string[260];
     if (section != NULL) {
-        while (fileReadString(string, 258, stream)) {
+        while (db_fgets(string, 258, stream)) {
             if (strncmp(string, section, 16) == 0) {
                 break;
             }
         }
     }
 
-    while (fileReadString(string, 258, stream)) {
+    while (db_fgets(string, 258, stream)) {
         if (string[0] == '\n') {
             continue;
         }
@@ -992,7 +992,7 @@ int game_load_info_vars(const char* path, const char* section, int* variablesLis
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -1213,7 +1213,7 @@ static int game_init_databases()
     patch_file_name = NULL;
 
     if (config_get_value(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_HASHING_KEY, &hashing)) {
-        _db_enable_hash_table_();
+        db_enable_hash_table();
     }
 
     config_get_string(&game_config, GAME_CONFIG_SYSTEM_KEY, GAME_CONFIG_MASTER_DAT_KEY, &main_file_name);
@@ -1226,7 +1226,7 @@ static int game_init_databases()
         patch_file_name = NULL;
     }
 
-    master_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
+    master_db_handle = db_init(main_file_name, 0, patch_file_name, 1);
     if (master_db_handle == -1) {
         GNWSystemError("Could not find the master datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
@@ -1242,9 +1242,9 @@ static int game_init_databases()
         patch_file_name = NULL;
     }
 
-    critter_db_handle = dbOpen(main_file_name, 0, patch_file_name, 1);
+    critter_db_handle = db_init(main_file_name, 0, patch_file_name, 1);
     if (critter_db_handle == -1) {
-        _db_select(master_db_handle);
+        db_select(master_db_handle);
         GNWSystemError("Could not find the critter datafile. Please make sure the FALLOUT CD is in the drive and that you are running FALLOUT from the directory you installed it to.");
         return -1;
     }
@@ -1253,11 +1253,11 @@ static int game_init_databases()
         sprintf(filename, "patch%03d.dat", patch_index);
 
         if (access(filename, 0) == 0) {
-            dbOpen(filename, 0, NULL, 1);
+            db_init(filename, 0, NULL, 1);
         }
     }
 
-    _db_select(master_db_handle);
+    db_select(master_db_handle);
 
     return 0;
 }
@@ -1280,7 +1280,7 @@ static void game_splash_screen()
     for (int index = 0; index < SPLASH_COUNT; index++) {
         char filePath[64];
         sprintf(filePath, "%ssplash%d.rix", path, splash);
-        stream = fileOpen(filePath, "rb");
+        stream = db_fopen(filePath, "rb");
         if (stream != NULL) {
             break;
         }
@@ -1298,22 +1298,22 @@ static void game_splash_screen()
 
     unsigned char* palette = (unsigned char*)mem_malloc(768);
     if (palette == NULL) {
-        fileClose(stream);
+        db_fclose(stream);
         return;
     }
 
     unsigned char* data = (unsigned char*)mem_malloc(SPLASH_WIDTH * SPLASH_HEIGHT);
     if (data == NULL) {
         mem_free(palette);
-        fileClose(stream);
+        db_fclose(stream);
         return;
     }
 
     palette_set_to(black_palette);
-    fileSeek(stream, 10, SEEK_SET);
-    fileRead(palette, 1, 768, stream);
-    fileRead(data, 1, SPLASH_WIDTH * SPLASH_HEIGHT, stream);
-    fileClose(stream);
+    db_fseek(stream, 10, SEEK_SET);
+    db_fread(palette, 1, 768, stream);
+    db_fread(data, 1, SPLASH_WIDTH * SPLASH_HEIGHT, stream);
+    db_fclose(stream);
 
     int splashWindowX = 0;
     int splashWindowY = 0;

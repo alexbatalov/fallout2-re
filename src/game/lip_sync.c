@@ -195,7 +195,7 @@ static int lips_stop_speech()
 // 0x47AD4C
 static int lips_read_phoneme_type(unsigned char* phoneme_type, File* stream)
 {
-    return fileReadUInt8(stream, phoneme_type);
+    return db_freadByte(stream, phoneme_type);
 }
 
 // NOTE: Inlined.
@@ -300,7 +300,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
     lips_free_speech();
 
     // FIXME: stream is not closed if any error is encountered during reading.
-    File* stream = fileOpen(path, "rb");
+    File* stream = db_fopen(path, "rb");
     if (stream != NULL) {
         if (fileReadInt32(stream, &(lip_info.version)) == -1) {
             return -1;
@@ -309,7 +309,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
         if (lip_info.version == 1) {
             debug_printf("\nLoading old save-file version (1)");
 
-            if (fileSeek(stream, 0, SEEK_SET) != 0) {
+            if (db_fseek(stream, 0, SEEK_SET) != 0) {
                 return -1;
             }
 
@@ -395,7 +395,7 @@ int lips_load_file(const char* audioFileName, const char* headFileName)
     }
 
     if (stream != NULL) {
-        fileClose(stream);
+        db_fclose(stream);
     }
 
     lip_info.field_38 = 0;

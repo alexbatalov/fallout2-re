@@ -392,7 +392,7 @@ static void main_selfrun_record()
     bool ready = false;
 
     char** fileList;
-    int fileListLength = fileNameListInit("maps\\*.map", &fileList, 0, 0);
+    int fileListLength = db_get_file_list("maps\\*.map", &fileList, 0, 0);
     if (fileListLength != 0) {
         int selectedFileIndex = win_list_select("Select Map", fileList, fileListLength, 0, 80, 80, 0x10000 | 0x100 | 4);
         if (selectedFileIndex != -1) {
@@ -407,7 +407,7 @@ static void main_selfrun_record()
                 }
             }
         }
-        fileNameListFree(&fileList, 0);
+        db_free_file_list(&fileList, 0);
     }
 
     if (ready) {
@@ -630,13 +630,13 @@ static int mainDeathGrabTextFile(const char* fileName, char* dest)
     char path[MAX_PATH];
     sprintf(path, "text\\%s\\cuts\\%s%s", language, p + 1, ".TXT");
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream == NULL) {
         return -1;
     }
 
     while (true) {
-        int c = fileReadChar(stream);
+        int c = db_fgetc(stream);
         if (c == -1) {
             break;
         }
@@ -648,7 +648,7 @@ static int mainDeathGrabTextFile(const char* fileName, char* dest)
         *dest++ = (c & 0xFF);
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     *dest = '\0';
 

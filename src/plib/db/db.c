@@ -6,26 +6,28 @@
 
 #include "plib/xfile/xfile.h"
 
+static int db_list_compare(const void* p1, const void* p2);
+
 // Generic file progress report handler.
 //
 // 0x51DEEC
-FileReadProgressHandler* gFileReadProgressHandler = NULL;
+static FileReadProgressHandler* read_callback = NULL;
 
 // Bytes read so far while tracking progress.
 //
-// Once this value reaches [gFileReadProgressChunkSize] the handler is called
+// Once this value reaches [read_threshold] the handler is called
 // and this value resets to zero.
 //
 // 0x51DEF0
-int gFileReadProgressBytesRead = 0;
+static int read_counter = 0;
 
 // The number of bytes to read between calls to progress handler.
 //
 // 0x673040
-int gFileReadProgressChunkSize;
+static int read_threshold;
 
 // 0x673044
-FileList* gFileListHead;
+static FileList* db_file_lists;
 
 // Opens file database.
 //
@@ -38,7 +40,7 @@ FileList* gFileListHead;
 // used, so it's impossible to figure out their meaning.
 //
 // 0x4C5D30
-int dbOpen(const char* filePath1, int a2, const char* filePath2, int a4)
+int db_init(const char* filePath1, int a2, const char* filePath2, int a4)
 {
     if (filePath1 != NULL) {
         if (!xaddpath(filePath1)) {
@@ -54,25 +56,25 @@ int dbOpen(const char* filePath1, int a2, const char* filePath2, int a4)
 }
 
 // 0x4C5D54
-int _db_select(int dbHandle)
+int db_select(int dbHandle)
 {
     return 0;
 }
 
 // NOTE: Uncollapsed 0x4C5D54.
-int _db_current()
+int db_current()
 {
     return 0;
 }
 
 // 0x4C5D58
-int _db_total()
+int db_total()
 {
     return 0;
 }
 
 // 0x4C5D60
-void dbExit()
+void db_exit()
 {
     xsetpath(NULL);
 }
@@ -80,7 +82,7 @@ void dbExit()
 // TODO: sizePtr should be long*.
 //
 // 0x4C5D68
-int dbGetFileSize(const char* filePath, int* sizePtr)
+int db_dir_entry(const char* filePath, int* sizePtr)
 {
     assert(filePath); // "filename", "db.c", 108
     assert(sizePtr); // "de", "db.c", 109
@@ -98,7 +100,7 @@ int dbGetFileSize(const char* filePath, int* sizePtr)
 }
 
 // 0x4C5DD4
-int dbGetFileContents(const char* filePath, void* ptr)
+int db_read_to_buf(const char* filePath, void* ptr)
 {
     assert(filePath); // "filename", "db.c", 141
     assert(ptr); // "buf", "db.c", 142
@@ -109,25 +111,25 @@ int dbGetFileContents(const char* filePath, void* ptr)
     }
 
     long size = xfilelength(stream);
-    if (gFileReadProgressHandler != NULL) {
+    if (read_callback != NULL) {
         unsigned char* byteBuffer = (unsigned char*)ptr;
 
         long remainingSize = size;
-        long chunkSize = gFileReadProgressChunkSize - gFileReadProgressBytesRead;
+        long chunkSize = read_threshold - read_counter;
 
         while (remainingSize >= chunkSize) {
             size_t bytesRead = xfread(byteBuffer, sizeof(*byteBuffer), chunkSize, stream);
             byteBuffer += bytesRead;
             remainingSize -= bytesRead;
 
-            gFileReadProgressBytesRead = 0;
-            gFileReadProgressHandler();
+            read_counter = 0;
+            read_callback();
 
-            chunkSize = gFileReadProgressChunkSize;
+            chunkSize = read_threshold;
         }
 
         if (remainingSize != 0) {
-            gFileReadProgressBytesRead += xfread(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
+            read_counter += xfread(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
         }
     } else {
         xfread(ptr, 1, size, stream);
@@ -139,19 +141,19 @@ int dbGetFileContents(const char* filePath, void* ptr)
 }
 
 // 0x4C5EB4
-int fileClose(File* stream)
+int db_fclose(File* stream)
 {
     return xfclose(stream);
 }
 
 // 0x4C5EC8
-File* fileOpen(const char* filename, const char* mode)
+File* db_fopen(const char* filename, const char* mode)
 {
     return xfopen(filename, mode);
 }
 
 // 0x4C5ED0
-int filePrintFormatted(File* stream, const char* format, ...)
+int db_fprintf(File* stream, const char* format, ...)
 {
     assert(format); // "format", "db.c", 224
 
@@ -166,15 +168,15 @@ int filePrintFormatted(File* stream, const char* format, ...)
 }
 
 // 0x4C5F24
-int fileReadChar(File* stream)
+int db_fgetc(File* stream)
 {
-    if (gFileReadProgressHandler != NULL) {
+    if (read_callback != NULL) {
         int ch = xfgetc(stream);
 
-        gFileReadProgressBytesRead++;
-        if (gFileReadProgressBytesRead >= gFileReadProgressChunkSize) {
-            gFileReadProgressHandler();
-            gFileReadProgressBytesRead = 0;
+        read_counter++;
+        if (read_counter >= read_threshold) {
+            read_callback();
+            read_counter = 0;
         }
 
         return ch;
@@ -184,17 +186,17 @@ int fileReadChar(File* stream)
 }
 
 // 0x4C5F70
-char* fileReadString(char* string, size_t size, File* stream)
+char* db_fgets(char* string, size_t size, File* stream)
 {
-    if (gFileReadProgressHandler != NULL) {
+    if (read_callback != NULL) {
         if (xfgets(string, size, stream) == NULL) {
             return NULL;
         }
 
-        gFileReadProgressBytesRead += strlen(string);
-        while (gFileReadProgressBytesRead >= gFileReadProgressChunkSize) {
-            gFileReadProgressHandler();
-            gFileReadProgressBytesRead -= gFileReadProgressChunkSize;
+        read_counter += strlen(string);
+        while (read_counter >= read_threshold) {
+            read_callback();
+            read_counter -= read_threshold;
         }
 
         return string;
@@ -204,20 +206,20 @@ char* fileReadString(char* string, size_t size, File* stream)
 }
 
 // 0x4C5FEC
-int fileWriteString(const char* string, File* stream)
+int db_fputs(const char* string, File* stream)
 {
     return xfputs(string, stream);
 }
 
 // 0x4C5FFC
-size_t fileRead(void* ptr, size_t size, size_t count, File* stream)
+size_t db_fread(void* ptr, size_t size, size_t count, File* stream)
 {
-    if (gFileReadProgressHandler != NULL) {
+    if (read_callback != NULL) {
         unsigned char* byteBuffer = (unsigned char*)ptr;
 
         size_t totalBytesRead = 0;
         long remainingSize = size * count;
-        long chunkSize = gFileReadProgressChunkSize - gFileReadProgressBytesRead;
+        long chunkSize = read_threshold - read_counter;
 
         while (remainingSize >= chunkSize) {
             size_t bytesRead = xfread(byteBuffer, sizeof(*byteBuffer), chunkSize, stream);
@@ -225,15 +227,15 @@ size_t fileRead(void* ptr, size_t size, size_t count, File* stream)
             totalBytesRead += bytesRead;
             remainingSize -= bytesRead;
 
-            gFileReadProgressBytesRead = 0;
-            gFileReadProgressHandler();
+            read_counter = 0;
+            read_callback();
 
-            chunkSize = gFileReadProgressChunkSize;
+            chunkSize = read_threshold;
         }
 
         if (remainingSize != 0) {
             size_t bytesRead = xfread(byteBuffer, sizeof(*byteBuffer), remainingSize, stream);
-            gFileReadProgressBytesRead += bytesRead;
+            read_counter += bytesRead;
             totalBytesRead += bytesRead;
         }
 
@@ -244,31 +246,31 @@ size_t fileRead(void* ptr, size_t size, size_t count, File* stream)
 }
 
 // 0x4C60B8
-size_t fileWrite(const void* buf, size_t size, size_t count, File* stream)
+size_t db_fwrite(const void* buf, size_t size, size_t count, File* stream)
 {
     return xfwrite(buf, size, count, stream);
 }
 
 // 0x4C60C0
-int fileSeek(File* stream, long offset, int origin)
+int db_fseek(File* stream, long offset, int origin)
 {
     return xfseek(stream, offset, origin);
 }
 
 // 0x4C60C8
-long fileTell(File* stream)
+long db_ftell(File* stream)
 {
     return xftell(stream);
 }
 
 // 0x4C60D0
-void fileRewind(File* stream)
+void db_rewind(File* stream)
 {
     xrewind(stream);
 }
 
 // 0x4C60D8
-int fileEof(File* stream)
+int db_feof(File* stream)
 {
     return xfeof(stream);
 }
@@ -276,9 +278,9 @@ int fileEof(File* stream)
 // NOTE: Not sure about signness.
 //
 // 0x4C60E0
-int fileReadUInt8(File* stream, unsigned char* valuePtr)
+int db_freadByte(File* stream, unsigned char* valuePtr)
 {
-    int value = fileReadChar(stream);
+    int value = db_fgetc(stream);
     if (value == -1) {
         return -1;
     }
@@ -295,13 +297,13 @@ int fileReadInt16(File* stream, short* valuePtr)
 {
     unsigned char high;
     // NOTE: Uninline.
-    if (fileReadUInt8(stream, &high) == -1) {
+    if (db_freadByte(stream, &high) == -1) {
         return -1;
     }
 
     unsigned char low;
     // NOTE: Uninline.
-    if (fileReadUInt8(stream, &low) == -1) {
+    if (db_freadByte(stream, &low) == -1) {
         return -1;
     }
 
@@ -368,7 +370,7 @@ int fileReadBool(File* stream, bool* valuePtr)
 // NOTE: Not sure about signness.
 //
 // 0x4C61AC
-int fileWriteUInt8(File* stream, unsigned char value)
+int db_fwriteByte(File* stream, unsigned char value)
 {
     return xfputc(value, stream);
 };
@@ -377,12 +379,12 @@ int fileWriteUInt8(File* stream, unsigned char value)
 int fileWriteInt16(File* stream, short value)
 {
     // NOTE: Uninline.
-    if (fileWriteUInt8(stream, (value >> 8) & 0xFF) == -1) {
+    if (db_fwriteByte(stream, (value >> 8) & 0xFF) == -1) {
         return -1;
     }
 
     // NOTE: Uninline.
-    if (fileWriteUInt8(stream, value & 0xFF) == -1) {
+    if (db_fwriteByte(stream, value & 0xFF) == -1) {
         return -1;
     }
 
@@ -445,7 +447,7 @@ int fileReadUInt8List(File* stream, unsigned char* arr, int count)
     for (int index = 0; index < count; index++) {
         unsigned char ch;
         // NOTE: Uninline.
-        if (fileReadUInt8(stream, &ch) == -1) {
+        if (db_freadByte(stream, &ch) == -1) {
             return -1;
         }
 
@@ -495,7 +497,7 @@ int fileReadInt32List(File* stream, int* arr, int count)
         return 0;
     }
 
-    if (fileRead(arr, sizeof(*arr) * count, 1, stream) < 1) {
+    if (db_fread(arr, sizeof(*arr) * count, 1, stream) < 1) {
         return -1;
     }
 
@@ -524,7 +526,7 @@ int fileWriteUInt8List(File* stream, unsigned char* arr, int count)
 {
     for (int index = 0; index < count; index++) {
         // NOTE: Uninline.
-        if (fileWriteUInt8(stream, arr[index]) == -1) {
+        if (db_fwriteByte(stream, arr[index]) == -1) {
             return -1;
         }
     }
@@ -601,7 +603,7 @@ int fileWriteUInt32List(File* stream, unsigned int* arr, int count)
 }
 
 // 0x4C6628
-int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a4)
+int db_get_file_list(const char* pattern, char*** fileNameListPtr, int a3, int a4)
 {
     FileList* fileList = (FileList*)malloc(sizeof(*fileList));
     if (fileList == NULL) {
@@ -618,7 +620,7 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
 
     int length = 0;
     if (xlist->fileNamesLength != 0) {
-        qsort(xlist->fileNames, xlist->fileNamesLength, sizeof(*xlist->fileNames), _db_list_compare);
+        qsort(xlist->fileNames, xlist->fileNamesLength, sizeof(*xlist->fileNames), db_list_compare);
 
         int fileNamesLength = xlist->fileNamesLength;
         for (int index = 0; index < fileNamesLength - 1; index++) {
@@ -660,8 +662,8 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
         }
     }
 
-    fileList->next = gFileListHead;
-    gFileListHead = fileList;
+    fileList->next = db_file_lists;
+    db_file_lists = fileList;
 
     *fileNameListPtr = xlist->fileNames;
 
@@ -669,14 +671,14 @@ int fileNameListInit(const char* pattern, char*** fileNameListPtr, int a3, int a
 }
 
 // 0x4C6868
-void fileNameListFree(char*** fileNameListPtr, int a2)
+void db_free_file_list(char*** fileNameListPtr, int a2)
 {
-    if (gFileListHead == NULL) {
+    if (db_file_lists == NULL) {
         return;
     }
 
-    FileList* currentFileList = gFileListHead;
-    FileList* previousFileList = gFileListHead;
+    FileList* currentFileList = db_file_lists;
+    FileList* previousFileList = db_file_lists;
     while (*fileNameListPtr != currentFileList->xlist.fileNames) {
         previousFileList = currentFileList;
         currentFileList = currentFileList->next;
@@ -685,8 +687,8 @@ void fileNameListFree(char*** fileNameListPtr, int a2)
         }
     }
 
-    if (previousFileList == gFileListHead) {
-        gFileListHead = currentFileList->next;
+    if (previousFileList == db_file_lists) {
+        db_file_lists = currentFileList->next;
     } else {
         previousFileList->next = currentFileList->next;
     }
@@ -700,27 +702,27 @@ void fileNameListFree(char*** fileNameListPtr, int a2)
 // for building file name list.
 //
 // 0x4C68B8
-void _db_register_mem(MallocProc* mallocProc, StrdupProc* strdupProc, FreeProc* freeProc)
+void db_register_mem(MallocProc* mallocProc, StrdupProc* strdupProc, FreeProc* freeProc)
 {
 }
 
 // TODO: Return type should be long.
 //
 // 0x4C68BC
-int fileGetSize(File* stream)
+int db_filelength(File* stream)
 {
     return xfilelength(stream);
 }
 
 // 0x4C68C4
-void fileSetReadProgressHandler(FileReadProgressHandler* handler, int size)
+void db_register_callback(FileReadProgressHandler* handler, int size)
 {
     if (handler != NULL && size != 0) {
-        gFileReadProgressHandler = handler;
-        gFileReadProgressChunkSize = size;
+        read_callback = handler;
+        read_threshold = size;
     } else {
-        gFileReadProgressHandler = NULL;
-        gFileReadProgressChunkSize = 0;
+        read_callback = NULL;
+        read_threshold = 0;
     }
 }
 
@@ -728,12 +730,12 @@ void fileSetReadProgressHandler(FileReadProgressHandler* handler, int size)
 // it does nothing. It's impossible to guess it's name.
 //
 // 0x4C68E4
-void _db_enable_hash_table_()
+void db_enable_hash_table()
 {
 }
 
 // 0x4C68E8
-int _db_list_compare(const void* p1, const void* p2)
+static int db_list_compare(const void* p1, const void* p2)
 {
     return stricmp(*(const char**)p1, *(const char**)p2);
 }

@@ -351,10 +351,10 @@ int SaveGame(int mode)
         sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
         strcat(gmpath, "SAVE.DAT");
 
-        flptr = fileOpen(gmpath, "rb");
+        flptr = db_fopen(gmpath, "rb");
         if (flptr != NULL) {
             LoadHeader(slot_cursor);
-            fileClose(flptr);
+            db_fclose(flptr);
         }
 
         thumbnail_image[1] = NULL;
@@ -1488,7 +1488,7 @@ static int SaveSlot()
 
     debug_printf("\nLOADSAVE: Save name: %s\n", gmpath);
 
-    flptr = fileOpen(gmpath, "wb");
+    flptr = db_fopen(gmpath, "wb");
     if (flptr == NULL) {
         debug_printf("\nLOADSAVE: ** Error opening save game for writing! **\n");
         RestoreSave();
@@ -1499,11 +1499,11 @@ static int SaveSlot()
         return -1;
     }
 
-    long pos = fileTell(flptr);
+    long pos = db_ftell(flptr);
     if (SaveHeader(slot_cursor) == -1) {
         debug_printf("\nLOADSAVE: ** Error writing save game header! **\n");
-        debug_printf("LOADSAVE: Save file header size written: %d bytes.\n", fileTell(flptr) - pos);
-        fileClose(flptr);
+        debug_printf("LOADSAVE: Save file header size written: %d bytes.\n", db_ftell(flptr) - pos);
+        db_fclose(flptr);
         RestoreSave();
         sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
         MapDirErase(gmpath, "BAK");
@@ -1513,11 +1513,11 @@ static int SaveSlot()
     }
 
     for (int index = 0; index < LOAD_SAVE_HANDLER_COUNT; index++) {
-        long pos = fileTell(flptr);
+        long pos = db_ftell(flptr);
         SaveGameHandler* handler = master_save_list[index];
         if (handler(flptr) == -1) {
             debug_printf("\nLOADSAVE: ** Error writing save function #%d data! **\n", index);
-            fileClose(flptr);
+            db_fclose(flptr);
             RestoreSave();
             sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
             MapDirErase(gmpath, "BAK");
@@ -1526,12 +1526,12 @@ static int SaveSlot()
             return -1;
         }
 
-        debug_printf("LOADSAVE: Save function #%d data size written: %d bytes.\n", index, fileTell(flptr) - pos);
+        debug_printf("LOADSAVE: Save function #%d data size written: %d bytes.\n", index, db_ftell(flptr) - pos);
     }
 
-    debug_printf("LOADSAVE: Total save data written: %ld bytes.\n", fileTell(flptr));
+    debug_printf("LOADSAVE: Total save data written: %ld bytes.\n", db_ftell(flptr));
 
-    fileClose(flptr);
+    db_fclose(flptr);
 
     sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
     MapDirErase(gmpath, "BAK");
@@ -1571,42 +1571,42 @@ static int LoadSlot(int slot)
     LoadSaveSlotData* ptr = &(LSData[slot]);
     debug_printf("\nLOADSAVE: Load name: %s\n", ptr->description);
 
-    flptr = fileOpen(gmpath, "rb");
+    flptr = db_fopen(gmpath, "rb");
     if (flptr == NULL) {
         debug_printf("\nLOADSAVE: ** Error opening load game file for reading! **\n");
         loadingGame = 0;
         return -1;
     }
 
-    long pos = fileTell(flptr);
+    long pos = db_ftell(flptr);
     if (LoadHeader(slot) == -1) {
         debug_printf("\nLOADSAVE: ** Error reading save  game header! **\n");
-        fileClose(flptr);
+        db_fclose(flptr);
         game_reset();
         loadingGame = 0;
         return -1;
     }
 
-    debug_printf("LOADSAVE: Load file header size read: %d bytes.\n", fileTell(flptr) - pos);
+    debug_printf("LOADSAVE: Load file header size read: %d bytes.\n", db_ftell(flptr) - pos);
 
     for (int index = 0; index < LOAD_SAVE_HANDLER_COUNT; index += 1) {
-        long pos = fileTell(flptr);
+        long pos = db_ftell(flptr);
         LoadGameHandler* handler = master_load_list[index];
         if (handler(flptr) == -1) {
             debug_printf("\nLOADSAVE: ** Error reading load function #%d data! **\n", index);
-            int v12 = fileTell(flptr);
-            debug_printf("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(flptr) - pos);
-            fileClose(flptr);
+            int v12 = db_ftell(flptr);
+            debug_printf("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, db_ftell(flptr) - pos);
+            db_fclose(flptr);
             game_reset();
             loadingGame = 0;
             return -1;
         }
 
-        debug_printf("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, fileTell(flptr) - pos);
+        debug_printf("LOADSAVE: Load function #%d data size read: %d bytes.\n", index, db_ftell(flptr) - pos);
     }
 
-    debug_printf("LOADSAVE: Total load data read: %ld bytes.\n", fileTell(flptr));
-    fileClose(flptr);
+    debug_printf("LOADSAVE: Total load data read: %ld bytes.\n", db_ftell(flptr));
+    db_fclose(flptr);
 
     sprintf(str, "%s\\", "MAPS");
     MapDirErase(str, "BAK");
@@ -1633,7 +1633,7 @@ static int SaveHeader(int slot)
     LoadSaveSlotData* ptr = &(LSData[slot]);
     strncpy(ptr->signature, LOAD_SAVE_SIGNATURE, 24);
 
-    if (fileWrite(ptr->signature, 1, 24, flptr) == -1) {
+    if (db_fwrite(ptr->signature, 1, 24, flptr) == -1) {
         return -1;
     }
 
@@ -1649,18 +1649,18 @@ static int SaveHeader(int slot)
     }
 
     ptr->versionRelease = VERSION_RELEASE;
-    if (fileWriteUInt8(flptr, VERSION_RELEASE) == -1) {
+    if (db_fwriteByte(flptr, VERSION_RELEASE) == -1) {
         return -1;
     }
 
     char* characterName = critter_name(obj_dude);
     strncpy(ptr->characterName, characterName, 32);
 
-    if (fileWrite(ptr->characterName, 32, 1, flptr) != 1) {
+    if (db_fwrite(ptr->characterName, 32, 1, flptr) != 1) {
         return -1;
     }
 
-    if (fileWrite(ptr->description, 30, 1, flptr) != 1) {
+    if (db_fwrite(ptr->description, 30, 1, flptr) != 1) {
         return -1;
     }
 
@@ -1717,16 +1717,16 @@ static int SaveHeader(int slot)
 
     char* v1 = strmfe(str, mapName, "sav");
     strncpy(ptr->fileName, v1, 16);
-    if (fileWrite(ptr->fileName, 16, 1, flptr) != 1) {
+    if (db_fwrite(ptr->fileName, 16, 1, flptr) != 1) {
         return -1;
     }
 
-    if (fileWrite(thumbnail_image[1], LS_PREVIEW_SIZE, 1, flptr) != 1) {
+    if (db_fwrite(thumbnail_image[1], LS_PREVIEW_SIZE, 1, flptr) != 1) {
         return -1;
     }
 
     memset(mapName, 0, 128);
-    if (fileWrite(mapName, 1, 128, flptr) != 128) {
+    if (db_fwrite(mapName, 1, 128, flptr) != 128) {
         return -1;
     }
 
@@ -1742,7 +1742,7 @@ static int LoadHeader(int slot)
 
     LoadSaveSlotData* ptr = &(LSData[slot]);
 
-    if (fileRead(ptr->signature, 1, 24, flptr) != 24) {
+    if (db_fread(ptr->signature, 1, 24, flptr) != 24) {
         return -1;
     }
 
@@ -1760,7 +1760,7 @@ static int LoadHeader(int slot)
     ptr->versionMinor = v8[0];
     ptr->versionMajor = v8[1];
 
-    if (fileReadUInt8(flptr, &(ptr->versionRelease)) == -1) {
+    if (db_freadByte(flptr, &(ptr->versionRelease)) == -1) {
         return -1;
     }
 
@@ -1770,11 +1770,11 @@ static int LoadHeader(int slot)
         return -1;
     }
 
-    if (fileRead(ptr->characterName, 32, 1, flptr) != 1) {
+    if (db_fread(ptr->characterName, 32, 1, flptr) != 1) {
         return -1;
     }
 
-    if (fileRead(ptr->description, 30, 1, flptr) != 1) {
+    if (db_fread(ptr->description, 30, 1, flptr) != 1) {
         return -1;
     }
 
@@ -1810,15 +1810,15 @@ static int LoadHeader(int slot)
         return -1;
     }
 
-    if (fileRead(ptr->fileName, 1, 16, flptr) != 16) {
+    if (db_fread(ptr->fileName, 1, 16, flptr) != 16) {
         return -1;
     }
 
-    if (fileSeek(flptr, LS_PREVIEW_SIZE, SEEK_CUR) != 0) {
+    if (db_fseek(flptr, LS_PREVIEW_SIZE, SEEK_CUR) != 0) {
         return -1;
     }
 
-    if (fileSeek(flptr, 128, 1) != 0) {
+    if (db_fseek(flptr, 128, 1) != 0) {
         return -1;
     }
 
@@ -1835,10 +1835,10 @@ static int GetSlotList()
         sprintf(str, "%s\\%s%.2d\\%s", "SAVEGAME", "SLOT", index + 1, "SAVE.DAT");
 
         int fileSize;
-        if (dbGetFileSize(str, &fileSize) != 0) {
+        if (db_dir_entry(str, &fileSize) != 0) {
             LSstatus[index] = SLOT_STATE_EMPTY;
         } else {
-            flptr = fileOpen(str, "rb");
+            flptr = db_fopen(str, "rb");
 
             if (flptr == NULL) {
                 debug_printf("\nLOADSAVE: ** Error opening save  game for reading! **\n");
@@ -1857,7 +1857,7 @@ static int GetSlotList()
                 LSstatus[index] = SLOT_STATE_OCCUPIED;
             }
 
-            fileClose(flptr);
+            db_fclose(flptr);
         }
     }
     return index;
@@ -1985,25 +1985,25 @@ static int LoadTumbSlot(int a1)
         sprintf(str, "%s\\%s%.2d\\%s", "SAVEGAME", "SLOT", slot_cursor + 1, "SAVE.DAT");
         debug_printf(" Filename %s\n", str);
 
-        stream = fileOpen(str, "rb");
+        stream = db_fopen(str, "rb");
         if (stream == NULL) {
             debug_printf("\nLOADSAVE: ** (A) Error reading thumbnail #%d! **\n", a1);
             return -1;
         }
 
-        if (fileSeek(stream, 131, SEEK_SET) != 0) {
+        if (db_fseek(stream, 131, SEEK_SET) != 0) {
             debug_printf("\nLOADSAVE: ** (B) Error reading thumbnail #%d! **\n", a1);
-            fileClose(stream);
+            db_fclose(stream);
             return -1;
         }
 
-        if (fileRead(thumbnail_image[0], LS_PREVIEW_SIZE, 1, stream) != 1) {
+        if (db_fread(thumbnail_image[0], LS_PREVIEW_SIZE, 1, stream) != 1) {
             debug_printf("\nLOADSAVE: ** (C) Error reading thumbnail #%d! **\n", a1);
-            fileClose(stream);
+            db_fclose(stream);
             return -1;
         }
 
-        fileClose(stream);
+        db_fclose(stream);
     }
 
     return 0;
@@ -2286,25 +2286,25 @@ static int GameMap2Slot(File* stream)
     sprintf(str0, "%s\\*.%s", "MAPS", "SAV");
 
     char** fileNameList;
-    int fileNameListLength = fileNameListInit(str0, &fileNameList, 0, 0);
+    int fileNameListLength = db_get_file_list(str0, &fileNameList, 0, 0);
     if (fileNameListLength == -1) {
         return -1;
     }
 
     if (fileWriteInt32(stream, fileNameListLength) == -1) {
-        fileNameListFree(&fileNameList, 0);
+        db_free_file_list(&fileNameList, 0);
         return -1;
     }
 
     if (fileNameListLength == 0) {
-        fileNameListFree(&fileNameList, 0);
+        db_free_file_list(&fileNameList, 0);
         return -1;
     }
 
     sprintf(gmpath, "%s\\%s%.2d\\", "SAVEGAME", "SLOT", slot_cursor + 1);
 
     if (MapDirErase(gmpath, "SAV") == -1) {
-        fileNameListFree(&fileNameList, 0);
+        db_free_file_list(&fileNameList, 0);
         return -1;
     }
 
@@ -2315,20 +2315,20 @@ static int GameMap2Slot(File* stream)
 
     for (int index = 0; index < fileNameListLength; index += 1) {
         char* string = fileNameList[index];
-        if (fileWrite(string, strlen(string) + 1, 1, stream) == -1) {
-            fileNameListFree(&fileNameList, 0);
+        if (db_fwrite(string, strlen(string) + 1, 1, stream) == -1) {
+            db_free_file_list(&fileNameList, 0);
             return -1;
         }
 
         sprintf(str0, "%s\\%s\\%s", patches, "MAPS", string);
         sprintf(str1, "%s\\%s\\%s%.2d\\%s", patches, "SAVEGAME", "SLOT", slot_cursor + 1, string);
         if (gzcompress_file(str0, str1) == -1) {
-            fileNameListFree(&fileNameList, 0);
+            db_free_file_list(&fileNameList, 0);
             return -1;
         }
     }
 
-    fileNameListFree(&fileNameList, 0);
+    db_free_file_list(&fileNameList, 0);
 
     strmfe(str0, "AUTOMAP.DB", "SAV");
     sprintf(str1, "%s\\%s\\%s%.2d\\%s", patches, "SAVEGAME", "SLOT", slot_cursor + 1, str0);
@@ -2339,18 +2339,18 @@ static int GameMap2Slot(File* stream)
     }
 
     sprintf(str0, "%s\\%s", "MAPS", "AUTOMAP.DB");
-    File* inStream = fileOpen(str0, "rb");
+    File* inStream = db_fopen(str0, "rb");
     if (inStream == NULL) {
         return -1;
     }
 
-    int fileSize = fileGetSize(inStream);
+    int fileSize = db_filelength(inStream);
     if (fileSize == -1) {
-        fileClose(inStream);
+        db_fclose(inStream);
         return -1;
     }
 
-    fileClose(inStream);
+    db_fclose(inStream);
 
     if (fileWriteInt32(stream, fileSize) == -1) {
         return -1;
@@ -2465,7 +2465,7 @@ static int mygets(char* dest, File* stream)
 {
     int index = 14;
     while (true) {
-        int c = fileReadChar(stream);
+        int c = db_fgetc(stream);
         if (c == -1) {
             return -1;
         }
@@ -2502,17 +2502,17 @@ static int copy_file(const char* a1, const char* a2)
     buf = NULL;
     result = -1;
 
-    stream1 = fileOpen(a1, "rb");
+    stream1 = db_fopen(a1, "rb");
     if (stream1 == NULL) {
         goto out;
     }
 
-    length = fileGetSize(stream1);
+    length = db_filelength(stream1);
     if (length == -1) {
         goto out;
     }
 
-    stream2 = fileOpen(a2, "wb");
+    stream2 = db_fopen(a2, "wb");
     if (stream2 == NULL) {
         goto out;
     }
@@ -2525,11 +2525,11 @@ static int copy_file(const char* a1, const char* a2)
     while (length != 0) {
         chunk_length = min(length, 0xFFFF);
 
-        if (fileRead(buf, chunk_length, 1, stream1) != 1) {
+        if (db_fread(buf, chunk_length, 1, stream1) != 1) {
             break;
         }
 
-        if (fileWrite(buf, chunk_length, 1, stream2) != 1) {
+        if (db_fwrite(buf, chunk_length, 1, stream2) != 1) {
             break;
         }
 
@@ -2545,11 +2545,11 @@ static int copy_file(const char* a1, const char* a2)
 out:
 
     if (stream1 != NULL) {
-        fileClose(stream1);
+        db_fclose(stream1);
     }
 
     if (stream2 != NULL) {
-        fileClose(stream1);
+        db_fclose(stream1);
     }
 
     if (buf != NULL) {
@@ -2575,12 +2575,12 @@ int MapDirErase(const char* relativePath, const char* extension)
     sprintf(path, "%s*.%s", relativePath, extension);
 
     char** fileList;
-    int fileListLength = fileNameListInit(path, &fileList, 0, 0);
+    int fileListLength = db_get_file_list(path, &fileList, 0, 0);
     while (--fileListLength >= 0) {
         sprintf(path, "%s\\%s%s", patches, relativePath, fileList[fileListLength]);
         remove(path);
     }
-    fileNameListFree(&fileList, 0);
+    db_free_file_list(&fileList, 0);
 
     return 0;
 }
@@ -2610,9 +2610,9 @@ static int SaveBackup()
 
     strmfe(str1, str0, "BAK");
 
-    File* stream1 = fileOpen(str0, "rb");
+    File* stream1 = db_fopen(str0, "rb");
     if (stream1 != NULL) {
-        fileClose(stream1);
+        db_fclose(stream1);
         if (rename(str0, str1) != 0) {
             return -1;
         }
@@ -2622,7 +2622,7 @@ static int SaveBackup()
     sprintf(str0, "%s*.%s", gmpath, "SAV");
 
     char** fileList;
-    int fileListLength = fileNameListInit(str0, &fileList, 0, 0);
+    int fileListLength = db_get_file_list(str0, &fileList, 0, 0);
     if (fileListLength == -1) {
         return -1;
     }
@@ -2636,12 +2636,12 @@ static int SaveBackup()
 
         strmfe(str1, str0, "BAK");
         if (rename(str0, str1) != 0) {
-            fileNameListFree(&fileList, 0);
+            db_free_file_list(&fileList, 0);
             return -1;
         }
     }
 
-    fileNameListFree(&fileList, 0);
+    db_free_file_list(&fileList, 0);
 
     debug_printf("\nLOADSAVE: %d map files backed up.\n", fileListLength);
 
@@ -2655,9 +2655,9 @@ static int SaveBackup()
 
     automap_db_flag = 0;
 
-    File* stream2 = fileOpen(str0, "rb");
+    File* stream2 = db_fopen(str0, "rb");
     if (stream2 != NULL) {
-        fileClose(stream2);
+        db_fclose(stream2);
 
         if (copy_file(str0, str1) == -1) {
             return -1;
@@ -2691,7 +2691,7 @@ static int RestoreSave()
     sprintf(str0, "%s*.%s", gmpath, "BAK");
 
     char** fileList;
-    int fileListLength = fileNameListInit(str0, &fileList, 0, 0);
+    int fileListLength = db_get_file_list(str0, &fileList, 0, 0);
     if (fileListLength == -1) {
         return -1;
     }
@@ -2716,7 +2716,7 @@ static int RestoreSave()
         }
     }
 
-    fileNameListFree(&fileList, 0);
+    db_free_file_list(&fileList, 0);
 
     if (!automap_db_flag) {
         return 0;
@@ -2773,7 +2773,7 @@ static int EraseSave()
     sprintf(str0, "%s*.%s", gmpath, "SAV");
 
     char** fileList;
-    int fileListLength = fileNameListInit(str0, &fileList, 0, 0);
+    int fileListLength = db_get_file_list(str0, &fileList, 0, 0);
     if (fileListLength == -1) {
         return -1;
     }
@@ -2785,7 +2785,7 @@ static int EraseSave()
         remove(str0);
     }
 
-    fileNameListFree(&fileList, 0);
+    db_free_file_list(&fileList, 0);
 
     sprintf(gmpath, "%s\\%s\\%s%.2d\\", patches, "SAVEGAME", "SLOT", slot_cursor + 1);
 

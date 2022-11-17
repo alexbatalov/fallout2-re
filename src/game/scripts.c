@@ -1298,13 +1298,13 @@ static int scrInitListInfo()
     script_make_path(path);
     strcat(path, "scripts.lst");
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream == NULL) {
         return -1;
     }
 
     char string[260];
-    while (fileReadString(string, 260, stream)) {
+    while (db_fgets(string, 260, stream)) {
         maxScriptNum++;
 
         ScriptsListEntry* entries = (ScriptsListEntry*)mem_realloc(scriptListInfo, sizeof(*entries) * maxScriptNum);
@@ -1336,7 +1336,7 @@ static int scrInitListInfo()
         }
     }
 
-    fileClose(stream);
+    db_fclose(stream);
 
     return 0;
 }
@@ -1674,13 +1674,13 @@ static int scr_header_load()
     script_make_path(path);
     strcat(path, "scripts.lst");
 
-    File* stream = fileOpen(path, "rt");
+    File* stream = db_fopen(path, "rt");
     if (stream == NULL) {
         return -1;
     }
 
     while (1) {
-        int ch = fileReadChar(stream);
+        int ch = db_fgetc(stream);
         if (ch == -1) {
             break;
         }
@@ -1692,7 +1692,7 @@ static int scr_header_load()
 
     num_script_indexes++;
 
-    fileClose(stream);
+    db_fclose(stream);
 
     for (int scriptType = 0; scriptType < SCRIPT_TYPE_COUNT; scriptType++) {
         ScriptList* scriptList = &(scriptlists[scriptType]);
