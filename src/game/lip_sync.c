@@ -206,7 +206,7 @@ static int lips_read_marker_type(SpeechMarker* marker_type, File* stream)
     int marker;
 
     // Marker is read into temporary variable.
-    if (fileReadInt32(stream, &marker) == -1) return -1;
+    if (db_freadInt(stream, &marker) == -1) return -1;
 
     // Position is read directly into struct.
     if (db_freadLong(stream, &(marker_type->position)) == -1) return -1;
@@ -227,16 +227,16 @@ static int lips_read_lipsynch_info(LipsData* lipsData, File* stream)
     if (db_freadLong(stream, &(lipsData->version)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_4)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->flags)) == -1) return -1;
-    if (fileReadInt32(stream, &(sound)) == -1) return -1;
+    if (db_freadInt(stream, &(sound)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_10)) == -1) return -1;
-    if (fileReadInt32(stream, &(field_14)) == -1) return -1;
-    if (fileReadInt32(stream, &(phonemes)) == -1) return -1;
+    if (db_freadInt(stream, &(field_14)) == -1) return -1;
+    if (db_freadInt(stream, &(phonemes)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_1C)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_20)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->phoneme_count)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_28)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->marker_count)) == -1) return -1;
-    if (fileReadInt32(stream, &(markers)) == -1) return -1;
+    if (db_freadInt(stream, &(markers)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_34)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_38)) == -1) return -1;
     if (db_freadLong(stream, &(lipsData->field_3C)) == -1) return -1;

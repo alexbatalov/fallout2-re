@@ -392,24 +392,24 @@ static int obj_read_obj(Object* obj, File* stream)
 {
     int field_74;
 
-    if (fileReadInt32(stream, &(obj->id)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->tile)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->x)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->y)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->sx)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->sy)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->frame)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->rotation)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->fid)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->flags)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->elevation)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->pid)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->cid)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->lightDistance)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->lightIntensity)) == -1) return -1;
-    if (fileReadInt32(stream, &field_74) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->sid)) == -1) return -1;
-    if (fileReadInt32(stream, &(obj->field_80)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->id)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->tile)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->x)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->y)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->sx)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->sy)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->frame)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->rotation)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->fid)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->flags)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->elevation)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->pid)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->cid)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->lightDistance)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->lightIntensity)) == -1) return -1;
+    if (db_freadInt(stream, &field_74) == -1) return -1;
+    if (db_freadInt(stream, &(obj->sid)) == -1) return -1;
+    if (db_freadInt(stream, &(obj->field_80)) == -1) return -1;
 
     obj->outline = 0;
     obj->owner = NULL;
@@ -460,7 +460,7 @@ static int obj_load_func(File* stream)
     }
 
     int objectCount;
-    if (fileReadInt32(stream, &objectCount) == -1) {
+    if (db_freadInt(stream, &objectCount) == -1) {
         return -1;
     }
 
@@ -479,7 +479,7 @@ static int obj_load_func(File* stream)
 
     for (int elevation = 0; elevation < ELEVATION_COUNT; elevation++) {
         int objectCountAtElevation;
-        if (fileReadInt32(stream, &objectCountAtElevation) == -1) {
+        if (db_freadInt(stream, &objectCountAtElevation) == -1) {
             return -1;
         }
 
@@ -539,7 +539,7 @@ static int obj_load_func(File* stream)
 
                 for (int inventoryItemIndex = 0; inventoryItemIndex < inventory->length; inventoryItemIndex++) {
                     InventoryItem* inventoryItem = &(inventory->items[inventoryItemIndex]);
-                    if (fileReadInt32(stream, &(inventoryItem->quantity)) != 0) {
+                    if (db_freadInt(stream, &(inventoryItem->quantity)) != 0) {
                         debug_printf("Error loading inventory\n");
                         return -1;
                     }
@@ -3590,7 +3590,7 @@ int obj_load_obj(File* stream, Object** objectPtr, int elevation, Object* owner)
 
     for (int inventoryItemIndex = 0; inventoryItemIndex < inventory->length; inventoryItemIndex++) {
         InventoryItem* inventoryItem = &(inventoryItems[inventoryItemIndex]);
-        if (fileReadInt32(stream, &(inventoryItem->quantity)) != 0) {
+        if (db_freadInt(stream, &(inventoryItem->quantity)) != 0) {
             return -1;
         }
 
@@ -3692,7 +3692,7 @@ int obj_load_dude(File* stream)
     inven_reset_dude();
 
     int tile;
-    if (fileReadInt32(stream, &tile) == -1) {
+    if (db_freadInt(stream, &tile) == -1) {
         db_fclose(stream);
         return -1;
     }

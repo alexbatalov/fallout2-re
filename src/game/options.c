@@ -1946,24 +1946,24 @@ int load_options(File* stream)
 
     SetDefaults(false);
 
-    if (fileReadInt32(stream, &game_difficulty) == -1) goto err;
-    if (fileReadInt32(stream, &combat_difficulty) == -1) goto err;
-    if (fileReadInt32(stream, &violence_level) == -1) goto err;
-    if (fileReadInt32(stream, &target_highlight) == -1) goto err;
-    if (fileReadInt32(stream, &combatLookValue) == -1) goto err;
-    if (fileReadInt32(stream, &combat_messages) == -1) goto err;
-    if (fileReadInt32(stream, &combat_taunts) == -1) goto err;
-    if (fileReadInt32(stream, &language_filter) == -1) goto err;
-    if (fileReadInt32(stream, &prf_running) == -1) goto err;
-    if (fileReadInt32(stream, &subtitles) == -1) goto err;
-    if (fileReadInt32(stream, &item_highlight) == -1) goto err;
-    if (fileReadInt32(stream, &combat_speed) == -1) goto err;
-    if (fileReadInt32(stream, &player_speedup) == -1) goto err;
+    if (db_freadInt(stream, &game_difficulty) == -1) goto err;
+    if (db_freadInt(stream, &combat_difficulty) == -1) goto err;
+    if (db_freadInt(stream, &violence_level) == -1) goto err;
+    if (db_freadInt(stream, &target_highlight) == -1) goto err;
+    if (db_freadInt(stream, &combatLookValue) == -1) goto err;
+    if (db_freadInt(stream, &combat_messages) == -1) goto err;
+    if (db_freadInt(stream, &combat_taunts) == -1) goto err;
+    if (db_freadInt(stream, &language_filter) == -1) goto err;
+    if (db_freadInt(stream, &prf_running) == -1) goto err;
+    if (db_freadInt(stream, &subtitles) == -1) goto err;
+    if (db_freadInt(stream, &item_highlight) == -1) goto err;
+    if (db_freadInt(stream, &combat_speed) == -1) goto err;
+    if (db_freadInt(stream, &player_speedup) == -1) goto err;
     if (db_freadFloat(stream, &textBaseDelay) == -1) goto err;
-    if (fileReadInt32(stream, &master_volume) == -1) goto err;
-    if (fileReadInt32(stream, &music_volume) == -1) goto err;
-    if (fileReadInt32(stream, &sndfx_volume) == -1) goto err;
-    if (fileReadInt32(stream, &speech_volume) == -1) goto err;
+    if (db_freadInt(stream, &master_volume) == -1) goto err;
+    if (db_freadInt(stream, &music_volume) == -1) goto err;
+    if (db_freadInt(stream, &sndfx_volume) == -1) goto err;
+    if (db_freadInt(stream, &speech_volume) == -1) goto err;
     if (db_freadFloat(stream, &brightness) == -1) goto err;
     if (db_freadFloat(stream, &mouseSensitivity) == -1) goto err;
 

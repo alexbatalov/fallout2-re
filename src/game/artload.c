@@ -14,7 +14,7 @@ static int art_readSubFrameData(unsigned char* data, File* stream, int count)
 
         if (db_freadShort(stream, &(frame->width)) == -1) return -1;
         if (db_freadShort(stream, &(frame->height)) == -1) return -1;
-        if (fileReadInt32(stream, &(frame->size)) == -1) return -1;
+        if (db_freadInt(stream, &(frame->size)) == -1) return -1;
         if (db_freadShort(stream, &(frame->x)) == -1) return -1;
         if (db_freadShort(stream, &(frame->y)) == -1) return -1;
         if (db_fread(ptr + sizeof(ArtFrame), frame->size, 1, stream) != 1) return -1;
@@ -28,14 +28,14 @@ static int art_readSubFrameData(unsigned char* data, File* stream, int count)
 // 0x419E1C
 static int art_readFrameData(Art* art, File* stream)
 {
-    if (fileReadInt32(stream, &(art->field_0)) == -1) return -1;
+    if (db_freadInt(stream, &(art->field_0)) == -1) return -1;
     if (db_freadShort(stream, &(art->framesPerSecond)) == -1) return -1;
     if (db_freadShort(stream, &(art->actionFrame)) == -1) return -1;
     if (db_freadShort(stream, &(art->frameCount)) == -1) return -1;
     if (db_freadShortCount(stream, art->xOffsets, ROTATION_COUNT) == -1) return -1;
     if (db_freadShortCount(stream, art->yOffsets, ROTATION_COUNT) == -1) return -1;
     if (fileReadInt32List(stream, art->dataOffsets, ROTATION_COUNT) == -1) return -1;
-    if (fileReadInt32(stream, &(art->field_3A)) == -1) return -1;
+    if (db_freadInt(stream, &(art->field_3A)) == -1) return -1;
 
     return 0;
 }

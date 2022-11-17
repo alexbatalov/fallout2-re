@@ -775,8 +775,8 @@ int script_q_load(File* stream, void** dataPtr)
         return -1;
     }
 
-    if (fileReadInt32(stream, &(scriptEvent->sid)) == -1) goto err;
-    if (fileReadInt32(stream, &(scriptEvent->fixedParam)) == -1) goto err;
+    if (db_freadInt(stream, &(scriptEvent->sid)) == -1) goto err;
+    if (db_freadInt(stream, &(scriptEvent->fixedParam)) == -1) goto err;
 
     *dataPtr = scriptEvent;
 
@@ -1861,33 +1861,33 @@ static int scr_read_ScriptSubNode(Script* scr, File* stream)
 {
     int prg;
 
-    if (fileReadInt32(stream, &(scr->sid)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->field_4)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->sid)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->field_4)) == -1) return -1;
 
     switch (SID_TYPE(scr->sid)) {
     case SCRIPT_TYPE_SPATIAL:
-        if (fileReadInt32(stream, &(scr->sp.built_tile)) == -1) return -1;
-        if (fileReadInt32(stream, &(scr->sp.radius)) == -1) return -1;
+        if (db_freadInt(stream, &(scr->sp.built_tile)) == -1) return -1;
+        if (db_freadInt(stream, &(scr->sp.radius)) == -1) return -1;
         break;
     case SCRIPT_TYPE_TIMED:
-        if (fileReadInt32(stream, &(scr->tm.time)) == -1) return -1;
+        if (db_freadInt(stream, &(scr->tm.time)) == -1) return -1;
         break;
     }
 
-    if (fileReadInt32(stream, &(scr->flags)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->field_14)) == -1) return -1;
-    if (fileReadInt32(stream, &(prg)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->field_1C)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->localVarsOffset)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->localVarsCount)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->field_28)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->action)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->fixedParam)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->actionBeingUsed)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->scriptOverrides)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->field_48)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->howMuch)) == -1) return -1;
-    if (fileReadInt32(stream, &(scr->field_50)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->flags)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->field_14)) == -1) return -1;
+    if (db_freadInt(stream, &(prg)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->field_1C)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->localVarsOffset)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->localVarsCount)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->field_28)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->action)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->fixedParam)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->actionBeingUsed)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->scriptOverrides)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->field_48)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->howMuch)) == -1) return -1;
+    if (db_freadInt(stream, &(scr->field_50)) == -1) return -1;
 
     scr->program = NULL;
     scr->owner = NULL;
@@ -1915,12 +1915,12 @@ static int scr_read_ScriptNode(ScriptListExtent* scriptExtent, File* stream)
         }
     }
 
-    if (fileReadInt32(stream, &(scriptExtent->length)) != 0) {
+    if (db_freadInt(stream, &(scriptExtent->length)) != 0) {
         return -1;
     }
 
     int next;
-    if (fileReadInt32(stream, &(next)) != 0) {
+    if (db_freadInt(stream, &(next)) != 0) {
         return -1;
     }
 
@@ -1934,7 +1934,7 @@ int scr_load(File* stream)
         ScriptList* scriptList = &(scriptlists[index]);
 
         int scriptsCount = 0;
-        if (fileReadInt32(stream, &scriptsCount) == -1) {
+        if (db_freadInt(stream, &scriptsCount) == -1) {
             return -1;
         }
 

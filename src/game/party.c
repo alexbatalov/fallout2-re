@@ -713,14 +713,14 @@ int partyMemberLoad(File* stream)
 
     // FIXME: partyMemberObjectIds is never free'd in this function, obviously memory leak.
 
-    if (fileReadInt32(stream, &partyMemberCount) == -1) return -1;
-    if (fileReadInt32(stream, &partyMemberItemCount) == -1) return -1;
+    if (db_freadInt(stream, &partyMemberCount) == -1) return -1;
+    if (db_freadInt(stream, &partyMemberItemCount) == -1) return -1;
 
     partyMemberList->object = obj_dude;
 
     if (partyMemberCount != 0) {
         for (int index = 1; index < partyMemberCount; index++) {
-            if (fileReadInt32(stream, &(partyMemberObjectIds[index])) == -1) return -1;
+            if (db_freadInt(stream, &(partyMemberObjectIds[index])) == -1) return -1;
         }
 
         for (int index = 1; index < partyMemberCount; index++) {
@@ -759,9 +759,9 @@ int partyMemberLoad(File* stream)
     for (int index = 1; index < partyMemberMaxCount; index++) {
         PartyMemberLevelUpInfo* levelUpInfo = &(partyMemberLevelUpInfoList[index]);
 
-        if (fileReadInt32(stream, &(levelUpInfo->field_0)) == -1) return -1;
-        if (fileReadInt32(stream, &(levelUpInfo->field_4)) == -1) return -1;
-        if (fileReadInt32(stream, &(levelUpInfo->field_8)) == -1) return -1;
+        if (db_freadInt(stream, &(levelUpInfo->field_0)) == -1) return -1;
+        if (db_freadInt(stream, &(levelUpInfo->field_4)) == -1) return -1;
+        if (db_freadInt(stream, &(levelUpInfo->field_8)) == -1) return -1;
     }
 
     return 0;

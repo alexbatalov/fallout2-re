@@ -231,7 +231,7 @@ int perk_load(File* stream)
     for (int index = 0; index < partyMemberMaxCount; index++) {
         PerkRankData* ranksData = &(perkLevelDataList[index]);
         for (int perk = 0; perk < PERK_COUNT; perk++) {
-            if (fileReadInt32(stream, &(ranksData->ranks[perk])) == -1) {
+            if (db_freadInt(stream, &(ranksData->ranks[perk])) == -1) {
                 return -1;
             }
         }

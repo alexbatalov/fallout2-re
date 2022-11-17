@@ -2945,9 +2945,9 @@ int item_wd_load(File* stream, void** dataPtr)
         return -1;
     }
 
-    if (fileReadInt32(stream, &(withdrawalEvent->field_0)) == -1) goto err;
-    if (fileReadInt32(stream, &(withdrawalEvent->pid)) == -1) goto err;
-    if (fileReadInt32(stream, &(withdrawalEvent->perk)) == -1) goto err;
+    if (db_freadInt(stream, &(withdrawalEvent->field_0)) == -1) goto err;
+    if (db_freadInt(stream, &(withdrawalEvent->pid)) == -1) goto err;
+    if (db_freadInt(stream, &(withdrawalEvent->perk)) == -1) goto err;
 
     *dataPtr = withdrawalEvent;
     return 0;

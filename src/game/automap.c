@@ -283,7 +283,7 @@ void automap_exit()
 // 0x41B87C
 int automap_load(File* stream)
 {
-    return fileReadInt32(stream, &autoflags);
+    return db_freadInt(stream, &autoflags);
 }
 
 // 0x41B898

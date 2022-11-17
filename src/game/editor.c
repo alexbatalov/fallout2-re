@@ -5517,7 +5517,7 @@ int editor_save(File* stream)
 // 0x43C1E0
 int editor_load(File* stream)
 {
-    if (fileReadInt32(stream, &last_level) == -1)
+    if (db_freadInt(stream, &last_level) == -1)
         return -1;
     if (db_freadByte(stream, &free_perk) == -1)
         return -1;

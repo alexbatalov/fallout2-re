@@ -148,7 +148,7 @@ int stat_exit()
 int stat_load(File* stream)
 {
     for (int index = 0; index < PC_STAT_COUNT; index++) {
-        if (fileReadInt32(stream, &(curr_pc_stat[index])) == -1) {
+        if (db_freadInt(stream, &(curr_pc_stat[index])) == -1) {
             return -1;
         }
     }

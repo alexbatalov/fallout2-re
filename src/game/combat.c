@@ -1991,7 +1991,7 @@ int combat_load(File* stream)
     int i;
     int j;
 
-    if (fileReadUInt32(stream, &combat_state) == -1) return -1;
+    if (db_freadInt(stream, &combat_state) == -1) return -1;
 
     if (!isInCombat()) {
         obj = obj_find_first();
@@ -2006,19 +2006,19 @@ int combat_load(File* stream)
         return 0;
     }
 
-    if (fileReadInt32(stream, &combat_turn_running) == -1) return -1;
-    if (fileReadInt32(stream, &combat_free_move) == -1) return -1;
-    if (fileReadInt32(stream, &combat_exps) == -1) return -1;
-    if (fileReadInt32(stream, &list_com) == -1) return -1;
-    if (fileReadInt32(stream, &list_noncom) == -1) return -1;
-    if (fileReadInt32(stream, &list_total) == -1) return -1;
+    if (db_freadInt(stream, &combat_turn_running) == -1) return -1;
+    if (db_freadInt(stream, &combat_free_move) == -1) return -1;
+    if (db_freadInt(stream, &combat_exps) == -1) return -1;
+    if (db_freadInt(stream, &list_com) == -1) return -1;
+    if (db_freadInt(stream, &list_noncom) == -1) return -1;
+    if (db_freadInt(stream, &list_total) == -1) return -1;
 
     if (obj_create_list(-1, map_elevation, 1, &combat_list) != list_total) {
         obj_delete_list(combat_list);
         return -1;
     }
 
-    if (fileReadInt32(stream, &v24) == -1) return -1;
+    if (db_freadInt(stream, &v24) == -1) return -1;
 
     obj_dude->cid = v24;
 
@@ -2041,7 +2041,7 @@ int combat_load(File* stream)
     }
 
     for (i = 0; i < list_total; i++) {
-        if (fileReadInt32(stream, &v24) == -1) return -1;
+        if (db_freadInt(stream, &v24) == -1) return -1;
 
         for (j = i; j < list_total; j++) {
             if (v24 == combat_list[j]->cid) {
@@ -2074,7 +2074,7 @@ int combat_load(File* stream)
     for (v14 = 0; v14 < list_total; v14++) {
         CombatAiInfo* aiInfo = &(aiInfoList[v14]);
 
-        if (fileReadInt32(stream, &a2) == -1) return -1;
+        if (db_freadInt(stream, &a2) == -1) return -1;
 
         if (a2 == -1) {
             aiInfo->friendlyDead = NULL;
@@ -2083,7 +2083,7 @@ int combat_load(File* stream)
             if (aiInfo->friendlyDead == NULL) return -1;
         }
 
-        if (fileReadInt32(stream, &a2) == -1) return -1;
+        if (db_freadInt(stream, &a2) == -1) return -1;
 
         if (a2 == -1) {
             aiInfo->lastTarget = NULL;
@@ -2092,7 +2092,7 @@ int combat_load(File* stream)
             if (aiInfo->lastTarget == NULL) return -1;
         }
 
-        if (fileReadInt32(stream, &a2) == -1) return -1;
+        if (db_freadInt(stream, &a2) == -1) return -1;
 
         if (a2 == -1) {
             aiInfo->lastItem = NULL;
@@ -2101,7 +2101,7 @@ int combat_load(File* stream)
             if (aiInfo->lastItem == NULL) return -1;
         }
 
-        if (fileReadInt32(stream, &(aiInfo->lastMove)) == -1) return -1;
+        if (db_freadInt(stream, &(aiInfo->lastMove)) == -1) return -1;
     }
 
     combat_begin_extra(obj_dude);

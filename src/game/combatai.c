@@ -542,42 +542,42 @@ int combat_ai_save(File* stream)
 // 0x427BC8
 static int cai_cap_load(File* stream, AiPacket* ai)
 {
-    if (fileReadInt32(stream, &(ai->packet_num)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->max_dist)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->min_to_hit)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->min_hp)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->aggression)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->hurt_too_much)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->secondary_freq)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->called_freq)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->font)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->color)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->outline_color)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->chance)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->run.start)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->run.end)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->move.start)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->move.end)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->attack.start)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->attack.end)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->miss.start)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->miss.end)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->packet_num)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->max_dist)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->min_to_hit)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->min_hp)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->aggression)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->hurt_too_much)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->secondary_freq)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->called_freq)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->font)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->color)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->outline_color)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->chance)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->run.start)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->run.end)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->move.start)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->move.end)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->attack.start)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->attack.end)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->miss.start)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->miss.end)) == -1) return -1;
 
     for (int index = 0; index < HIT_LOCATION_SPECIFIC_COUNT; index++) {
         AiMessageRange* range = &(ai->hit[index]);
-        if (fileReadInt32(stream, &(range->start)) == -1) return -1;
-        if (fileReadInt32(stream, &(range->end)) == -1) return -1;
+        if (db_freadInt(stream, &(range->start)) == -1) return -1;
+        if (db_freadInt(stream, &(range->end)) == -1) return -1;
     }
 
-    if (fileReadInt32(stream, &(ai->area_attack_mode)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->best_weapon)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->distance)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->attack_who)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->chem_use)) == -1) return -1;
-    if (fileReadInt32(stream, &(ai->run_away_mode)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->area_attack_mode)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->best_weapon)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->distance)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->attack_who)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->chem_use)) == -1) return -1;
+    if (db_freadInt(stream, &(ai->run_away_mode)) == -1) return -1;
 
     for (int index = 0; index < AI_PACKET_CHEM_PRIMARY_DESIRE_COUNT; index++) {
-        if (fileReadInt32(stream, &(ai->chem_primary_desire[index])) == -1) return -1;
+        if (db_freadInt(stream, &(ai->chem_primary_desire[index])) == -1) return -1;
     }
 
     return 0;

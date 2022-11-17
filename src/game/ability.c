@@ -178,8 +178,8 @@ int abil_copy(Ability* dest, Ability* src)
 // 0x4102B0
 int abil_load(File* stream, Ability* ability)
 {
-    if (fileReadInt32(stream, &(ability->length)) == -1
-        || fileReadInt32(stream, &(ability->capacity)) == -1
+    if (db_freadInt(stream, &(ability->length)) == -1
+        || db_freadInt(stream, &(ability->capacity)) == -1
         || abil_read_ability_data(ability, stream) == -1) return -1;
     return 0;
 }
@@ -195,9 +195,9 @@ int abil_read_ability_data(Ability* ability, File* stream)
     }
 
     for (index = 0; index < ability->length; index++) {
-        if (fileReadInt32(stream, &(ability->entries[index].field_0)) == -1
-            || fileReadInt32(stream, &(ability->entries[index].field_4)) == -1
-            || fileReadInt32(stream, &(ability->entries[index].field_8)) == -1) {
+        if (db_freadInt(stream, &(ability->entries[index].field_0)) == -1
+            || db_freadInt(stream, &(ability->entries[index].field_4)) == -1
+            || db_freadInt(stream, &(ability->entries[index].field_8)) == -1) {
             return -1;
         }
     }

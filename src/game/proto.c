@@ -385,13 +385,13 @@ void clear_pupdate_data(Object* obj)
 // 0x49EEB8
 static int proto_read_CombatData(CritterCombatData* data, File* stream)
 {
-    if (fileReadInt32(stream, &(data->damageLastTurn)) == -1) return -1;
-    if (fileReadInt32(stream, &(data->maneuver)) == -1) return -1;
-    if (fileReadInt32(stream, &(data->ap)) == -1) return -1;
-    if (fileReadInt32(stream, &(data->results)) == -1) return -1;
-    if (fileReadInt32(stream, &(data->aiPacket)) == -1) return -1;
-    if (fileReadInt32(stream, &(data->team)) == -1) return -1;
-    if (fileReadInt32(stream, &(data->whoHitMeCid)) == -1) return -1;
+    if (db_freadInt(stream, &(data->damageLastTurn)) == -1) return -1;
+    if (db_freadInt(stream, &(data->maneuver)) == -1) return -1;
+    if (db_freadInt(stream, &(data->ap)) == -1) return -1;
+    if (db_freadInt(stream, &(data->results)) == -1) return -1;
+    if (db_freadInt(stream, &(data->aiPacket)) == -1) return -1;
+    if (db_freadInt(stream, &(data->team)) == -1) return -1;
+    if (db_freadInt(stream, &(data->whoHitMeCid)) == -1) return -1;
 
     return 0;
 }
@@ -416,19 +416,19 @@ int proto_read_protoUpdateData(Object* obj, File* stream)
     Proto* proto;
 
     Inventory* inventory = &(obj->data.inventory);
-    if (fileReadInt32(stream, &(inventory->length)) == -1) return -1;
-    if (fileReadInt32(stream, &(inventory->capacity)) == -1) return -1;
+    if (db_freadInt(stream, &(inventory->length)) == -1) return -1;
+    if (db_freadInt(stream, &(inventory->capacity)) == -1) return -1;
     // TODO: See below.
-    if (fileReadInt32(stream, (int*)&(inventory->items)) == -1) return -1;
+    if (db_freadInt(stream, (int*)&(inventory->items)) == -1) return -1;
 
     if (PID_TYPE(obj->pid) == OBJ_TYPE_CRITTER) {
-        if (fileReadInt32(stream, &(obj->data.critter.field_0)) == -1) return -1;
+        if (db_freadInt(stream, &(obj->data.critter.field_0)) == -1) return -1;
         if (proto_read_CombatData(&(obj->data.critter.combat), stream) == -1) return -1;
-        if (fileReadInt32(stream, &(obj->data.critter.hp)) == -1) return -1;
-        if (fileReadInt32(stream, &(obj->data.critter.radiation)) == -1) return -1;
-        if (fileReadInt32(stream, &(obj->data.critter.poison)) == -1) return -1;
+        if (db_freadInt(stream, &(obj->data.critter.hp)) == -1) return -1;
+        if (db_freadInt(stream, &(obj->data.critter.radiation)) == -1) return -1;
+        if (db_freadInt(stream, &(obj->data.critter.poison)) == -1) return -1;
     } else {
-        if (fileReadInt32(stream, &(obj->data.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(obj->data.flags)) == -1) return -1;
 
         if (obj->data.flags == 0xCCCCCCCC) {
             debug_printf("\nNote: Reading pud: updated_flags was un-Set!");
@@ -441,17 +441,17 @@ int proto_read_protoUpdateData(Object* obj, File* stream)
 
             switch (proto->item.type) {
             case ITEM_TYPE_WEAPON:
-                if (fileReadInt32(stream, &(obj->data.item.weapon.ammoQuantity)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.item.weapon.ammoTypePid)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.item.weapon.ammoQuantity)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.item.weapon.ammoTypePid)) == -1) return -1;
                 break;
             case ITEM_TYPE_AMMO:
-                if (fileReadInt32(stream, &(obj->data.item.ammo.quantity)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.item.ammo.quantity)) == -1) return -1;
                 break;
             case ITEM_TYPE_MISC:
-                if (fileReadInt32(stream, &(obj->data.item.misc.charges)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.item.misc.charges)) == -1) return -1;
                 break;
             case ITEM_TYPE_KEY:
-                if (fileReadInt32(stream, &(obj->data.item.key.keyCode)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.item.key.keyCode)) == -1) return -1;
                 break;
             default:
                 break;
@@ -463,30 +463,30 @@ int proto_read_protoUpdateData(Object* obj, File* stream)
 
             switch (proto->scenery.type) {
             case SCENERY_TYPE_DOOR:
-                if (fileReadInt32(stream, &(obj->data.scenery.door.openFlags)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.scenery.door.openFlags)) == -1) return -1;
                 break;
             case SCENERY_TYPE_STAIRS:
-                if (fileReadInt32(stream, &(obj->data.scenery.stairs.destinationBuiltTile)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.scenery.stairs.destinationMap)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.scenery.stairs.destinationBuiltTile)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.scenery.stairs.destinationMap)) == -1) return -1;
                 break;
             case SCENERY_TYPE_ELEVATOR:
-                if (fileReadInt32(stream, &(obj->data.scenery.elevator.type)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.scenery.elevator.level)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.scenery.elevator.type)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.scenery.elevator.level)) == -1) return -1;
                 break;
             case SCENERY_TYPE_LADDER_UP:
                 if (map_data.version == 19) {
-                    if (fileReadInt32(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
+                    if (db_freadInt(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
                 } else {
-                    if (fileReadInt32(stream, &(obj->data.scenery.ladder.destinationMap)) == -1) return -1;
-                    if (fileReadInt32(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
+                    if (db_freadInt(stream, &(obj->data.scenery.ladder.destinationMap)) == -1) return -1;
+                    if (db_freadInt(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
                 }
                 break;
             case SCENERY_TYPE_LADDER_DOWN:
                 if (map_data.version == 19) {
-                    if (fileReadInt32(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
+                    if (db_freadInt(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
                 } else {
-                    if (fileReadInt32(stream, &(obj->data.scenery.ladder.destinationMap)) == -1) return -1;
-                    if (fileReadInt32(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
+                    if (db_freadInt(stream, &(obj->data.scenery.ladder.destinationMap)) == -1) return -1;
+                    if (db_freadInt(stream, &(obj->data.scenery.ladder.destinationBuiltTile)) == -1) return -1;
                 }
                 break;
             }
@@ -494,10 +494,10 @@ int proto_read_protoUpdateData(Object* obj, File* stream)
             break;
         case OBJ_TYPE_MISC:
             if (obj->pid >= 0x5000010 && obj->pid <= 0x5000017) {
-                if (fileReadInt32(stream, &(obj->data.misc.map)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.misc.tile)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.misc.elevation)) == -1) return -1;
-                if (fileReadInt32(stream, &(obj->data.misc.rotation)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.misc.map)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.misc.tile)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.misc.elevation)) == -1) return -1;
+                if (db_freadInt(stream, &(obj->data.misc.rotation)) == -1) return -1;
             }
             break;
         }
@@ -1257,70 +1257,70 @@ static int proto_read_item_data(ItemProtoData* item_data, int type, File* stream
 {
     switch (type) {
     case ITEM_TYPE_ARMOR:
-        if (fileReadInt32(stream, &(item_data->armor.armorClass)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->armor.armorClass)) == -1) return -1;
         if (fileReadInt32List(stream, item_data->armor.damageResistance, 7) == -1) return -1;
         if (fileReadInt32List(stream, item_data->armor.damageThreshold, 7) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->armor.perk)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->armor.maleFid)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->armor.femaleFid)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->armor.perk)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->armor.maleFid)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->armor.femaleFid)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_CONTAINER:
-        if (fileReadInt32(stream, &(item_data->container.maxSize)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->container.openFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->container.maxSize)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->container.openFlags)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_DRUG:
-        if (fileReadInt32(stream, &(item_data->drug.stat[0])) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.stat[1])) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.stat[2])) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.stat[0])) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.stat[1])) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.stat[2])) == -1) return -1;
         if (fileReadInt32List(stream, item_data->drug.amount, 3) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.duration1)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.duration1)) == -1) return -1;
         if (fileReadInt32List(stream, item_data->drug.amount1, 3) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.duration2)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.duration2)) == -1) return -1;
         if (fileReadInt32List(stream, item_data->drug.amount2, 3) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.addictionChance)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.withdrawalEffect)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->drug.withdrawalOnset)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.addictionChance)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.withdrawalEffect)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->drug.withdrawalOnset)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_WEAPON:
-        if (fileReadInt32(stream, &(item_data->weapon.animationCode)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.minDamage)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.maxDamage)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.damageType)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.maxRange1)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.maxRange2)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.projectilePid)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.minStrength)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.actionPointCost1)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.actionPointCost2)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.criticalFailureType)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.perk)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.rounds)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.caliber)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.ammoTypePid)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->weapon.ammoCapacity)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.animationCode)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.minDamage)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.maxDamage)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.damageType)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.maxRange1)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.maxRange2)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.projectilePid)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.minStrength)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.actionPointCost1)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.actionPointCost2)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.criticalFailureType)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.perk)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.rounds)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.caliber)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.ammoTypePid)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->weapon.ammoCapacity)) == -1) return -1;
         if (db_freadByte(stream, &(item_data->weapon.soundCode)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_AMMO:
-        if (fileReadInt32(stream, &(item_data->ammo.caliber)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->ammo.quantity)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->ammo.armorClassModifier)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->ammo.damageResistanceModifier)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->ammo.damageMultiplier)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->ammo.damageDivisor)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->ammo.caliber)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->ammo.quantity)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->ammo.armorClassModifier)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->ammo.damageResistanceModifier)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->ammo.damageMultiplier)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->ammo.damageDivisor)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_MISC:
-        if (fileReadInt32(stream, &(item_data->misc.powerTypePid)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->misc.powerType)) == -1) return -1;
-        if (fileReadInt32(stream, &(item_data->misc.charges)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->misc.powerTypePid)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->misc.powerType)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->misc.charges)) == -1) return -1;
 
         return 0;
     case ITEM_TYPE_KEY:
-        if (fileReadInt32(stream, &(item_data->key.keyCode)) == -1) return -1;
+        if (db_freadInt(stream, &(item_data->key.keyCode)) == -1) return -1;
 
         return 0;
     }
@@ -1333,27 +1333,27 @@ static int proto_read_scenery_data(SceneryProtoData* scenery_data, int type, Fil
 {
     switch (type) {
     case SCENERY_TYPE_DOOR:
-        if (fileReadInt32(stream, &(scenery_data->door.openFlags)) == -1) return -1;
-        if (fileReadInt32(stream, &(scenery_data->door.keyCode)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->door.openFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->door.keyCode)) == -1) return -1;
 
         return 0;
     case SCENERY_TYPE_STAIRS:
-        if (fileReadInt32(stream, &(scenery_data->stairs.field_0)) == -1) return -1;
-        if (fileReadInt32(stream, &(scenery_data->stairs.field_4)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->stairs.field_0)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->stairs.field_4)) == -1) return -1;
 
         return 0;
     case SCENERY_TYPE_ELEVATOR:
-        if (fileReadInt32(stream, &(scenery_data->elevator.type)) == -1) return -1;
-        if (fileReadInt32(stream, &(scenery_data->elevator.level)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->elevator.type)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->elevator.level)) == -1) return -1;
 
         return 0;
     case SCENERY_TYPE_LADDER_UP:
     case SCENERY_TYPE_LADDER_DOWN:
-        if (fileReadInt32(stream, &(scenery_data->ladder.field_0)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->ladder.field_0)) == -1) return -1;
 
         return 0;
     case SCENERY_TYPE_GENERIC:
-        if (fileReadInt32(stream, &(scenery_data->generic.field_0)) == -1) return -1;
+        if (db_freadInt(stream, &(scenery_data->generic.field_0)) == -1) return -1;
 
         return 0;
     }
@@ -1365,72 +1365,72 @@ static int proto_read_scenery_data(SceneryProtoData* scenery_data, int type, Fil
 // 0x4A0FA0
 static int proto_read_protoSubNode(Proto* proto, File* stream)
 {
-    if (fileReadInt32(stream, &(proto->pid)) == -1) return -1;
-    if (fileReadInt32(stream, &(proto->messageId)) == -1) return -1;
-    if (fileReadInt32(stream, &(proto->fid)) == -1) return -1;
+    if (db_freadInt(stream, &(proto->pid)) == -1) return -1;
+    if (db_freadInt(stream, &(proto->messageId)) == -1) return -1;
+    if (db_freadInt(stream, &(proto->fid)) == -1) return -1;
 
     switch (PID_TYPE(proto->pid)) {
     case OBJ_TYPE_ITEM:
-        if (fileReadInt32(stream, &(proto->item.lightDistance)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.lightDistance)) == -1) return -1;
         if (db_freadLong(stream, &(proto->item.lightIntensity)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.flags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.extendedFlags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.sid)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.type)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.material)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.size)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.extendedFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.sid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.type)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.material)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.size)) == -1) return -1;
         if (db_freadLong(stream, &(proto->item.weight)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.cost)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->item.inventoryFid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.cost)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->item.inventoryFid)) == -1) return -1;
         if (db_freadByte(stream, &(proto->item.field_80)) == -1) return -1;
         if (proto_read_item_data(&(proto->item.data), proto->item.type, stream) == -1) return -1;
 
         return 0;
     case OBJ_TYPE_CRITTER:
-        if (fileReadInt32(stream, &(proto->critter.lightDistance)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.lightDistance)) == -1) return -1;
         if (db_freadLong(stream, &(proto->critter.lightIntensity)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->critter.flags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->critter.extendedFlags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->critter.sid)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->critter.headFid)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->critter.aiPacket)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->critter.team)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.extendedFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.sid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.headFid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.aiPacket)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->critter.team)) == -1) return -1;
 
         if (critter_read_data(stream, &(proto->critter.data)) == -1) return -1;
 
         return 0;
     case OBJ_TYPE_SCENERY:
-        if (fileReadInt32(stream, &(proto->scenery.lightDistance)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->scenery.lightDistance)) == -1) return -1;
         if (db_freadLong(stream, &(proto->scenery.lightIntensity)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->scenery.flags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->scenery.extendedFlags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->scenery.sid)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->scenery.type)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->scenery.field_2C)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->scenery.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->scenery.extendedFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->scenery.sid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->scenery.type)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->scenery.field_2C)) == -1) return -1;
         if (db_freadByte(stream, &(proto->scenery.field_34)) == -1) return -1;
         if (proto_read_scenery_data(&(proto->scenery.data), proto->scenery.type, stream) == -1) return -1;
         return 0;
     case OBJ_TYPE_WALL:
-        if (fileReadInt32(stream, &(proto->wall.lightDistance)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->wall.lightDistance)) == -1) return -1;
         if (db_freadLong(stream, &(proto->wall.lightIntensity)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->wall.flags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->wall.extendedFlags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->wall.sid)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->wall.material)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->wall.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->wall.extendedFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->wall.sid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->wall.material)) == -1) return -1;
 
         return 0;
     case OBJ_TYPE_TILE:
-        if (fileReadInt32(stream, &(proto->tile.flags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->tile.extendedFlags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->tile.sid)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->tile.material)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->tile.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->tile.extendedFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->tile.sid)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->tile.material)) == -1) return -1;
 
         return 0;
     case OBJ_TYPE_MISC:
-        if (fileReadInt32(stream, &(proto->misc.lightDistance)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->misc.lightDistance)) == -1) return -1;
         if (db_freadLong(stream, &(proto->misc.lightIntensity)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->misc.flags)) == -1) return -1;
-        if (fileReadInt32(stream, &(proto->misc.extendedFlags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->misc.flags)) == -1) return -1;
+        if (db_freadInt(stream, &(proto->misc.extendedFlags)) == -1) return -1;
 
         return 0;
     }

@@ -2370,7 +2370,7 @@ static int SlotMap2Game(File* stream)
     debug_printf("LOADSAVE: in SlotMap2Game\n");
 
     int fileNameListLength;
-    if (fileReadInt32(stream, &fileNameListLength) == -1) {
+    if (db_freadInt(stream, &fileNameListLength) == -1) {
         debug_printf("LOADSAVE: returning 1\n");
         return -1;
     }
@@ -2447,7 +2447,7 @@ static int SlotMap2Game(File* stream)
     sprintf(str1, "%s\\%s", "MAPS", "AUTOMAP.DB");
 
     int v12;
-    if (fileReadInt32(stream, &v12) == -1) {
+    if (db_freadInt(stream, &v12) == -1) {
         debug_printf("LOADSAVE: returning 9\n");
         return -1;
     }
@@ -2744,7 +2744,7 @@ static int LoadObjDudeCid(File* stream)
 {
     int value;
 
-    if (fileReadInt32(stream, &value) == -1) {
+    if (db_freadInt(stream, &value) == -1) {
         return -1;
     }
 

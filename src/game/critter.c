@@ -148,7 +148,7 @@ void critter_exit()
 // 0x42D01C
 int critter_load(File* stream)
 {
-    if (fileReadInt32(stream, &sneak_working) == -1) {
+    if (db_freadInt(stream, &sneak_working) == -1) {
         return -1;
     }
 
@@ -602,8 +602,8 @@ int critter_load_rads(File* stream, void** dataPtr)
         return -1;
     }
 
-    if (fileReadInt32(stream, &(radiationEvent->radiationLevel)) == -1) goto err;
-    if (fileReadInt32(stream, &(radiationEvent->isHealing)) == -1) goto err;
+    if (db_freadInt(stream, &(radiationEvent->radiationLevel)) == -1) goto err;
+    if (db_freadInt(stream, &(radiationEvent->isHealing)) == -1) goto err;
 
     *dataPtr = radiationEvent;
     return 0;
@@ -1018,7 +1018,7 @@ int pc_load_data(const char* path)
         return -1;
     }
 
-    if (fileReadInt32(stream, &character_points) == -1) {
+    if (db_freadInt(stream, &character_points) == -1) {
         db_fclose(stream);
         return -1;
     }
@@ -1035,13 +1035,13 @@ int pc_load_data(const char* path)
 // 0x42DF70
 int critter_read_data(File* stream, CritterProtoData* critterData)
 {
-    if (fileReadInt32(stream, &(critterData->flags)) == -1) return -1;
+    if (db_freadInt(stream, &(critterData->flags)) == -1) return -1;
     if (fileReadInt32List(stream, critterData->baseStats, SAVEABLE_STAT_COUNT) == -1) return -1;
     if (fileReadInt32List(stream, critterData->bonusStats, SAVEABLE_STAT_COUNT) == -1) return -1;
     if (fileReadInt32List(stream, critterData->skills, SKILL_COUNT) == -1) return -1;
-    if (fileReadInt32(stream, &(critterData->bodyType)) == -1) return -1;
-    if (fileReadInt32(stream, &(critterData->experience)) == -1) return -1;
-    if (fileReadInt32(stream, &(critterData->killType)) == -1) return -1;
+    if (db_freadInt(stream, &(critterData->bodyType)) == -1) return -1;
+    if (db_freadInt(stream, &(critterData->experience)) == -1) return -1;
+    if (db_freadInt(stream, &(critterData->killType)) == -1) return -1;
 
     // NOTE: For unknown reason damage type is not present in two protos: Sentry
     // Bot and Weak Brahmin. These two protos are 412 bytes, not 416.
@@ -1055,7 +1055,7 @@ int critter_read_data(File* stream, CritterProtoData* critterData)
     //
     // Regardless of the reason, damage type is considered optional by original
     // code as seen at 0x42E01B.
-    if (fileReadInt32(stream, &(critterData->damageType)) == -1) {
+    if (db_freadInt(stream, &(critterData->damageType)) == -1) {
         critterData->damageType = DAMAGE_TYPE_NORMAL;
     }
 

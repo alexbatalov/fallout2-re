@@ -1225,42 +1225,42 @@ int wmWorldMap_load(File* stream)
     EncounterEntry* encounter_entry;
 
     if (fileReadBool(stream, &(wmGenData.didMeetFrankHorrigan)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.currentAreaId)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.worldPosX)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.worldPosY)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.encounterIconIsVisible)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.encounterMapId)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.encounterTableId)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.encounterEntryId)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.currentAreaId)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.worldPosX)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.worldPosY)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.encounterIconIsVisible)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.encounterMapId)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.encounterTableId)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.encounterEntryId)) == -1) return -1;
     if (fileReadBool(stream, &(wmGenData.isInCar)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.currentCarAreaId)) == -1) return -1;
-    if (fileReadInt32(stream, &(wmGenData.carFuel)) == -1) return -1;
-    if (fileReadInt32(stream, &(cities_count)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.currentCarAreaId)) == -1) return -1;
+    if (db_freadInt(stream, &(wmGenData.carFuel)) == -1) return -1;
+    if (db_freadInt(stream, &(cities_count)) == -1) return -1;
 
     for (int cityIdx = 0; cityIdx < cities_count; cityIdx++) {
         CityInfo* city = &(wmAreaInfoList[cityIdx]);
 
-        if (fileReadInt32(stream, &(city->x)) == -1) return -1;
-        if (fileReadInt32(stream, &(city->y)) == -1) return -1;
-        if (fileReadInt32(stream, &(city->state)) == -1) return -1;
-        if (fileReadInt32(stream, &(city->visitedState)) == -1) return -1;
+        if (db_freadInt(stream, &(city->x)) == -1) return -1;
+        if (db_freadInt(stream, &(city->y)) == -1) return -1;
+        if (db_freadInt(stream, &(city->state)) == -1) return -1;
+        if (db_freadInt(stream, &(city->visitedState)) == -1) return -1;
 
         int entranceCount;
-        if (fileReadInt32(stream, &(entranceCount)) == -1) {
+        if (db_freadInt(stream, &(entranceCount)) == -1) {
             return -1;
         }
 
         for (int entranceIdx = 0; entranceIdx < entranceCount; entranceIdx++) {
             EntranceInfo* entrance = &(city->entrances[entranceIdx]);
 
-            if (fileReadInt32(stream, &(entrance->state)) == -1) {
+            if (db_freadInt(stream, &(entrance->state)) == -1) {
                 return -1;
             }
         }
     }
 
-    if (fileReadInt32(stream, &(v39)) == -1) return -1;
-    if (fileReadInt32(stream, &(v38)) == -1) return -1;
+    if (db_freadInt(stream, &(v39)) == -1) return -1;
+    if (db_freadInt(stream, &(v38)) == -1) return -1;
 
     for (int tileIndex = 0; tileIndex < v39; tileIndex++) {
         TileInfo* tile = &(wmTileInfoList[tileIndex]);
@@ -1269,21 +1269,21 @@ int wmWorldMap_load(File* stream)
             for (int row = 0; row < SUBTILE_GRID_WIDTH; row++) {
                 SubtileInfo* subtile = &(tile->subtiles[column][row]);
 
-                if (fileReadInt32(stream, &(subtile->state)) == -1) return -1;
+                if (db_freadInt(stream, &(subtile->state)) == -1) return -1;
             }
         }
     }
 
-    if (fileReadInt32(stream, &(v35)) == -1) return -1;
+    if (db_freadInt(stream, &(v35)) == -1) return -1;
 
     for (i = 0; i < v35; i++) {
-        if (fileReadInt32(stream, &(j)) == -1) return -1;
+        if (db_freadInt(stream, &(j)) == -1) return -1;
         encounter_table = &(wmEncounterTableList[j]);
 
-        if (fileReadInt32(stream, &(k)) == -1) return -1;
+        if (db_freadInt(stream, &(k)) == -1) return -1;
         encounter_entry = &(encounter_table->entries[k]);
 
-        if (fileReadInt32(stream, &(encounter_entry->counter)) == -1) return -1;
+        if (db_freadInt(stream, &(encounter_entry->counter)) == -1) return -1;
     }
 
     wmInterfaceCenterOnParty();

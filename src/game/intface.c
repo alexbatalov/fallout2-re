@@ -919,13 +919,13 @@ int intface_load(File* stream)
     }
 
     int interfaceBarEnabled;
-    if (fileReadInt32(stream, &interfaceBarEnabled) == -1) return -1;
+    if (db_freadInt(stream, &interfaceBarEnabled) == -1) return -1;
 
     int v2;
-    if (fileReadInt32(stream, &v2) == -1) return -1;
+    if (db_freadInt(stream, &v2) == -1) return -1;
 
     int interfaceCurrentHand;
-    if (fileReadInt32(stream, &interfaceCurrentHand) == -1) return -1;
+    if (db_freadInt(stream, &interfaceCurrentHand) == -1) return -1;
 
     bool interfaceBarEndButtonsIsVisible;
     if (fileReadBool(stream, &interfaceBarEndButtonsIsVisible) == -1) return -1;

@@ -313,7 +313,7 @@ int db_freadShort(File* stream, unsigned short* valuePtr)
 }
 
 // 0x4C614C
-int fileReadInt32(File* stream, int* valuePtr)
+int db_freadInt(File* stream, int* valuePtr)
 {
     int value;
 
@@ -329,25 +329,19 @@ int fileReadInt32(File* stream, int* valuePtr)
 // NOTE: Uncollapsed 0x4C614C.
 int db_freadLong(File* stream, unsigned long* valuePtr)
 {
-    return fileReadInt32(stream, valuePtr);
-}
-
-// NOTE: Probably uncollapsed 0x4C614C.
-int fileReadUInt32(File* stream, unsigned int* valuePtr)
-{
-    return db_freadLong(stream, (unsigned long*)valuePtr);
+    return db_freadInt(stream, valuePtr);
 }
 
 // NOTE: Uncollapsed 0x4C614C.
 int db_freadFloat(File* stream, float* valuePtr)
 {
-    return fileReadInt32(stream, (unsigned long*)valuePtr);
+    return db_freadInt(stream, (unsigned long*)valuePtr);
 }
 
 int fileReadBool(File* stream, bool* valuePtr)
 {
     int value;
-    if (fileReadInt32(stream, &value) == -1) {
+    if (db_freadInt(stream, &value) == -1) {
         return -1;
     }
 

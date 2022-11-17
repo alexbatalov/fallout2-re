@@ -1745,18 +1745,18 @@ static int map_write_MapData(MapHeader* ptr, File* stream)
 // 0x4844B4
 static int map_read_MapData(MapHeader* ptr, File* stream)
 {
-    if (fileReadInt32(stream, &(ptr->version)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->version)) == -1) return -1;
     if (db_freadByteCount(stream, ptr->name, 16) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->enteringTile)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->enteringElevation)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->enteringRotation)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->localVariablesCount)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->scriptIndex)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->flags)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->darkness)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->globalVariablesCount)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->field_34)) == -1) return -1;
-    if (fileReadInt32(stream, &(ptr->lastVisitTime)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->enteringTile)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->enteringElevation)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->enteringRotation)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->localVariablesCount)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->scriptIndex)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->flags)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->darkness)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->globalVariablesCount)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->field_34)) == -1) return -1;
+    if (db_freadInt(stream, &(ptr->lastVisitTime)) == -1) return -1;
     if (fileReadInt32List(stream, ptr->field_3C, 44) == -1) return -1;
 
     return 0;

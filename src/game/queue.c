@@ -85,7 +85,7 @@ int queue_exit()
 int queue_load(File* stream)
 {
     int count;
-    if (fileReadInt32(stream, &count) == -1) {
+    if (db_freadInt(stream, &count) == -1) {
         return -1;
     }
 
@@ -102,20 +102,20 @@ int queue_load(File* stream)
             break;
         }
 
-        if (fileReadInt32(stream, &(queueListNode->time)) == -1) {
+        if (db_freadInt(stream, &(queueListNode->time)) == -1) {
             mem_free(queueListNode);
             rc = -1;
             break;
         }
 
-        if (fileReadInt32(stream, &(queueListNode->type)) == -1) {
+        if (db_freadInt(stream, &(queueListNode->type)) == -1) {
             mem_free(queueListNode);
             rc = -1;
             break;
         }
 
         int objectId;
-        if (fileReadInt32(stream, &objectId) == -1) {
+        if (db_freadInt(stream, &objectId) == -1) {
             mem_free(queueListNode);
             rc = -1;
             break;
