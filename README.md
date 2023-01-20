@@ -2,50 +2,21 @@
 
 In this repository you'll find reverse engineered source code for Fallout 2.
 
+As a player/gamer you're most likely interested in [Fallout 2 Community Edition](https://github.com/alexbatalov/fallout2-ce) which is based on this project.
+
+If you're a developer you might also want to check [Fallout Reference Edition](https://github.com/alexbatalov/fallout1-re) to see evolution of the engine.
+
 ## Goal
 
-The goal of this project is to restore original source code as close possible with all it's imperfections. This means Windows/x86/640x480 among many other things. There is a separate project - [Fallout 2 Community Edition](https://github.com/alexbatalov/fallout2-ce) - which is not bounded by this goal.
+The goal of this project is to restore original source code as close possible with all it's imperfections. In very many respects this goal can be considered achieved.
 
 ## Status
 
-The game is playable and you can complete the [speedrun](https://fallout.fandom.com/wiki/Forum:Speedrun#Fallout_2). One of the testers completed the game and checked 97% of the content, so normal [walkthrough](https://lemmings19.github.io/fallout-2-walkthrough/) works as well. Function-wise about 4% (150 of 3800 functions) of the code is not yet decompiled. Notably dialog, widget system, and interpreter lib. Most of them are not essential to gameplay (probably leftovers from Fallout 1), while others (especially marked as `incomplete`) will lead to crashes when used.
+There is a small number of functions which are not yet decompiled. These functions are not essential to gameplay, most of them are leftovers from Fallout 1, others are a part of larger APIs that were not fully utilized. Aside from these missing functions there is ongoing effort to update the codebase to C89 to make sure the game can be compiled with Watcom C compiler (which might be handy to achieve binary identical results). This tasks are low priority and probably will never be completed.
 
 ## Installation
 
-You must own the game to play. Purchase your copy on [GoG](https://www.gog.com/game/fallout_2) or [Steam](https://store.steampowered.com/app/38410). Download latest build or build from source. The `fallout2-re.exe` serves as a drop-in replacement for `fallout2.exe`. Copy it to your Fallout 2 directory and run.
-
-## Contributing
-
-If you'd like to contribute make sure you understand the goal of this project. Here is how you can help.
-
-### Playing
-
-This is the most important, time consuming, but also the most fun part, which does not require programming skills. Install latest version, play, report anything unsual. It would be great if you can verify and describe expected behaviour from the original game. Attach zipped save game if needed.
-
-### Improving code readability
-
-> There are only two hard things in Computer Science: cache invalidation and naming things.
-
-There are hundreds of unnamed variables and functions, which makes it really hard to understand some parts of the code. It would be great if you can find good names for some of them. Renaming things is fine.
-
-### Improving code accuracy
-
-You need to have reverse engineering experience and appropriate tools. Notable stuff that requires attention are graph lib (LZSS implementation), movie lib, sound, 16bpp support, MMX blitting, world map.
-
-Some things to consider (keep in mind the goal):
-- Do not create new functions (which are not present in the original binary, some one-liners are OK).
-- Do not change algorithms (even if they are bad).
-- Do not fix bugs in the original code (use `FIXME` annotation).
-- Document anything interesting.
-- Extract constants into defines or enums (especially UI).
-
-### Improving build system
-
-I don't have much experience with `cmake` so I'm open to any improvements.
-
-### No new features
-
-Please do not submit new features to this repository, only things related to reversing original binary. Once the game is fully decompiled, this repository will be left intact for historical reasons. See [Community Edition](https://github.com/alexbatalov/fallout2-ce) for everything else.
+You must own the game to play. Purchase your copy on [GOG](https://www.gog.com/game/fallout_2) or [Steam](https://store.steampowered.com/app/38410). Download latest build or build from source. The `fallout2-re.exe` serves as a drop-in replacement for `fallout2.exe`. Copy it to your Fallout 2 directory and run.
 
 ## Legal
 
