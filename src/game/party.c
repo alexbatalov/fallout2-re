@@ -1516,7 +1516,7 @@ int partyMemberIncLevels()
 
         levelUpInfo->field_4++;
 
-        v24 = levelUpInfo->field_4 % aiOptions->level_pids_num;
+        v24 = levelUpInfo->field_4 % aiOptions->level_up_every;
         debug_printf("pm: levelMod: %d, Lvl: %d, Early: %d, Every: %d", v24, levelUpInfo->field_4, levelUpInfo->field_8, aiOptions->level_up_every);
 
         if (v24 != 0 || levelUpInfo->field_8 == 0) {
