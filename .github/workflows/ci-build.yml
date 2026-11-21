@@ -1,4 +1,4 @@
-name: CI
+﻿name: CI
 
 on:
   push:
@@ -8,6 +8,10 @@ on:
     types:
       - opened
       - synchronize
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 defaults:
   run:
@@ -15,22 +19,23 @@ defaults:
 
 jobs:
   build:
-    runs-on: windows-2019
+    runs-on: windows-2022
+    timeout-minutes: 30
     steps:
       - name: Clone
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Cache cmake build
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: build
-          key: windows-x86-cmake-v1
+          key: windows-x86-cmake-v3
 
       - name: Configure
         run: |
           cmake \
             -B build \
-            -G "Visual Studio 16 2019" \
+            -G "Visual Studio 17 2022" \
             -A Win32 \
             # EOL
 
@@ -42,8 +47,8 @@ jobs:
             # EOL
 
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: fallout2-re
-          path:  build/RelWithDebInfo/fallout2-re.exe
+          path: build/RelWithDebInfo/fallout2-re.exe
           retention-days: 7
