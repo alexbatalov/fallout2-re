@@ -18,6 +18,26 @@ There is a small number of functions which are not yet decompiled. These functio
 
 You must own the game to play. Purchase your copy on [GOG](https://www.gog.com/game/fallout_2) or [Steam](https://store.steampowered.com/app/38410). Download latest build or build from source. The `fallout2-re.exe` serves as a drop-in replacement for `fallout2.exe`. Copy it to your Fallout 2 directory and run.
 
+## Building
+
+Requirements:
+
+- CMake 3.13 or newer.
+- Visual Studio 2019 or 2022 with the "Desktop development with C++" workload (MSVC v142 or newer). Older versions are not supported.
+
+From the repository root:
+
+```
+cmake -B build -G "Visual Studio 17 2022" -A Win32
+cmake --build build --config RelWithDebInfo
+```
+
+With Visual Studio 2019, use `-G "Visual Studio 16 2019"` instead.
+
+The result is `build/RelWithDebInfo/fallout2-re.exe`. This is a 32-bit build: the source relies on 32-bit data layouts, so the `-A Win32` platform is required and an x64 configuration is not supported. The same commands are used by CI (`.github/workflows/ci-build.yml`).
+
+The first configure fetches the `fpattern` and `zlib` dependencies, so it needs network access.
+
 ## Legal
 
 The source code in this repository is produced by reverse engineering the original binary. There are couple of exceptions for reverse engineering under DMCA - documentation, interoperability, fair use. Documentation is needed to achieve interoperability. Running your legally purchased copy on modern Mac M1 for example (interoperability in action) constitutes fair use. Publishing this stuff to wide audience is questionable. Eventually it's up to Bethesda/Microsoft to takedown the project or leave it be. See [#29](https://github.com/alexbatalov/fallout2-re/issues/29) for discussion.
